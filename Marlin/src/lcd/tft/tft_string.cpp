@@ -115,16 +115,14 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
       }
-      else {
+      else
         add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
     }
-      continue;
-    }
-    else if (ch == '$' && itemString) {
+    else if (ch == '$' && itemString)
       add(itemString);
-      continue;
-    }
-
+    else if (ch == '@')
+      add_character(axis_codes[index]);
+    else
       add_character(ch);
   }
   eol();

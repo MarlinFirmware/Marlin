@@ -391,21 +391,21 @@ void menu_motion() {
   #else
     GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
-      GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
+      GCODES_ITEM_N(X_AXIS, MSG_AUTO_HOME_A, PSTR("G28X"));
       #if HAS_Y_AXIS
-        GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
+        GCODES_ITEM_N(Y_AXIS, MSG_AUTO_HOME_A, PSTR("G28Y"));
       #endif
       #if HAS_Z_AXIS
-        GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+        GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, PSTR("G28Z"));
       #endif
-      #if LINEAR_AXES >= 4
-        GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" AXIS4_STR));
+      #if HAS_I_AXIS
+        GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_I));
       #endif
-      #if LINEAR_AXES >= 5
-        GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" AXIS5_STR));
+      #if HAS_J_AXIS
+        GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_J));
       #endif
-      #if LINEAR_AXES >= 6
-        GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" AXIS6_STR));
+      #if HAS_K_AXIS
+        GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_K));
       #endif
     #endif
   #endif

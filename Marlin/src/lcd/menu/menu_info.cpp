@@ -204,9 +204,13 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_BED
     #include "../thermistornames.h"
-    strcpy(tname, "BED: ");
-    strcat(tname, thermistor_types[thermistors_data.bed_type].name);
-    STATIC_ITEM_P(PSTR(tname), SS_INVERT);
+    #if ENABLED(RS_ADDSETTINGS)
+      strcpy(tname, "BED: ");
+      strcat(tname, thermistor_types[thermistors_data.bed_type].name);
+      STATIC_ITEM_P(PSTR(tname), SS_INVERT);
+    #else
+      STATIC_ITEM_P(PSTR("BED: " THERMISTOR_NAME), SS_INVERT);
+    #endif
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(BED_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(BED_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_BED, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);

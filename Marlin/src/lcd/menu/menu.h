@@ -276,3 +276,11 @@ extern uint8_t screen_history_depth;
 inline void clear_menu_history() { screen_history_depth = 0; }
 
 #define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }
+
+#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+  extern bool leveling_was_active;
+#endif
+
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
+  extern uint8_t manual_probe_index;
+#endif

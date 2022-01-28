@@ -329,8 +329,6 @@ void menu_main() {
 
   }
 
-  SUBMENU(MSG_CONFIGURATION, menu_configuration);
-
   #if HAS_CUTTER
     SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
   #endif
@@ -351,6 +349,8 @@ void menu_main() {
     if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
   #endif
 
+  SUBMENU(MSG_CONFIGURATION, menu_configuration);
+
   #if ENABLED(CUSTOM_MENU_MAIN)
     if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
       #ifdef CUSTOM_MENU_MAIN_TITLE
@@ -364,7 +364,7 @@ void menu_main() {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
-        menu_change_filament, ui.goto_previous_screen,
+        menu_change_filament, nullptr,
         GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
       );
     #else
@@ -388,7 +388,7 @@ void menu_main() {
       #if ENABLED(PS_OFF_CONFIRM)
         CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
           MSG_YES, MSG_NO,
-          ui.poweroff, ui.goto_previous_screen,
+          ui.poweroff, nullptr,
           GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
         );
       #else
@@ -399,7 +399,7 @@ void menu_main() {
   #endif
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
-    // sdcard_menu_items();
+    sdcard_menu_items();
   #endif
 
   #if HAS_SERVICE_INTERVALS
@@ -412,21 +412,21 @@ void menu_main() {
     #if SERVICE_INTERVAL_1 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(1); }, ui.goto_previous_screen,
+        []{ _service_reset(1); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_2 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(2); }, ui.goto_previous_screen,
+        []{ _service_reset(2); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_3 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(3); }, ui.goto_previous_screen,
+        []{ _service_reset(3); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
       );
     #endif
@@ -458,6 +458,16 @@ void menu_main() {
 
   #if HAS_MULTI_LANGUAGE
     SUBMENU(LANGUAGE, menu_language);
+  #endif
+
+  #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+    SUBMENU(MSG_HOST_SHUTDOWN, []{
+      MenuItem_confirm::select_screen(
+        GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BUTTON_CANCEL),
+        []{ ui.return_to_status(); hostui.shutdown(); }, nullptr,
+        GET_TEXT(MSG_HOST_SHUTDOWN), (const char *)nullptr, PSTR("?")
+      );
+    });
   #endif
 
   END_MENU();

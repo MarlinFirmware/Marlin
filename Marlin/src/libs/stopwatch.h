@@ -126,11 +126,11 @@ class Stopwatch {
        * @brief Print a debug message
        * @details Print a simple debug message "Stopwatch::function"
        */
-      static void debug(const char func[]);
+      static void debug(FSTR_P const);
 
     #else
 
-      static inline void debug(const char[]) {}
+      static void debug(FSTR_P const) {}
 
     #endif
 };
