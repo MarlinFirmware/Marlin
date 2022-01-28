@@ -69,10 +69,6 @@ GcodeSuite gcode;
   #include "../feature/fancheck.h"
 #endif
 
-#if ENABLED(MKS_WIFI)
-#include "../module/mks_wifi/mks_wifi_gcodes.h"
-#endif
-
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
@@ -152,7 +148,6 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   const int8_t e = parser.intval('T', dval);
   if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
-  if (dval == -2) return dval;
 
   SERIAL_ECHO_START();
   SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
@@ -164,7 +159,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 }
 
 /**
- * Set XYZ...E destination and feedrate from the current GCode command
+ * Set XYZIJKE destination and feedrate from the current GCode command
  *
  *  - Set destination from included axis codes
  *  - Set to current for missing axis codes
@@ -308,9 +303,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
 
   KEEPALIVE_STATE(IN_HANDLER);
-   #if ENABLED(MKS_WIFI)
-    serial_index_t port = queue.ring_buffer.command_port();
-  #endif
 
  /**
   * Block all Gcodes except M511 Unlock Printer, if printer is locked
@@ -504,46 +496,17 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
       #if ENABLED(SDSUPPORT)
-        case 20:                                                  // M20: List SD card
-          DEBUG("Command M20 with param: %s", parser.string_arg);
-          #if ENABLED(MKS_WIFI)
-            if(port.index == MKS_WIFI_SERIAL_NUM){
-              mks_m20(parser.string_arg);
-            }else{
-              M20();           
-            }
-          #else
-            M20(); 
-          #endif
-          break;
-
+        case 20: M20(); break;                                    // M20: List SD card
         case 21: M21(); break;                                    // M21: Init SD card
         case 22: M22(); break;                                    // M22: Release SD card
-        case 23:                                                  // M23: Select file
-          #if ENABLED(MKS_WIFI)
-            mks_m23(parser.string_arg);
-          #else
-            M23(); 
-          #endif
-          break;
-
+        case 23: M23(); break;                                    // M23: Select file
         case 24: M24(); break;                                    // M24: Start SD print
         case 25: M25(); break;                                    // M25: Pause SD print
         case 26: M26(); break;                                    // M26: Set SD index
         case 27: M27(); break;                                    // M27: Get SD status
         case 28: M28(); break;                                    // M28: Start SD write
         case 29: M29(); break;                                    // M29: Stop SD write
-        case 30: M30();                                           // M30 <filename> Delete File
-          #if ENABLED(MKS_WIFI)
-            if(port.index == MKS_WIFI_SERIAL_NUM){
-              mks_m30(parser.string_arg);
-            }else{
-              M30();           
-            }
-          #else
-          M30(); 
-          #endif
-          break;
+        case 30: M30(); break;                                    // M30 <filename> Delete File
 
         #if HAS_MEDIA_SUBCALLS
           case 32: M32(); break;                                  // M32: Select file and start SD print
@@ -595,17 +558,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
 
-      case 105: 
-        #if ENABLED(MKS_WIFI)
-          if(port.index == MKS_WIFI_SERIAL_NUM){
-            mks_m105();
-          }else{
-            M105(); 
-          }
-        #else
-          M105(); 
-        #endif
-        return;                                   // M105: Report Temperatures (and say "ok")
+      case 105: M105(); return;                                   // M105: Report Temperatures (and say "ok")
 
       #if HAS_FAN
         case 106: M106(); break;                                  // M106: Fan On
@@ -692,17 +645,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 85: M85(); break;                                      // M85: Set inactivity stepper shutdown timeout
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
       case 114: M114(); break;                                    // M114: Report current position
-      case 115: 
-        #if ENABLED(MKS_WIFI)  
-          if(port.index == MKS_WIFI_SERIAL_NUM){
-            mks_m115();
-          }else{
-            M115(); 
-          }
-        #else
-          M115(); 
-        #endif
-        break;                                    // M115: Report capabilities
+      case 115: M115(); break;                                    // M115: Report capabilities
 
       case 117: TERN_(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
 
@@ -1027,7 +970,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if USE_SENSORLESS
           case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
         #endif
-        case 919: M919(); break;                                  // M919: Set stepper Chopper Times
       #endif
 
       #if HAS_L64XX
@@ -1085,24 +1027,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 995: M995(); break;                                  // M995: Touch screen calibration for TFT display
       #endif
 
-      #if ENABLED(MKS_WIFI)
-				case 991: if(port.index == MKS_WIFI_SERIAL_NUM){mks_m991();}; return;
-      #endif
-      
-      #if ENABLED(MKS_WIFI)
-      case 997: 
-        if(port.index == MKS_WIFI_SERIAL_NUM){
-            mks_m997();
-          }else{
-          #if ENABLED(PLATFORM_M997_SUPPORT)
-            M997();
-            #endif
-          }; 
-          return;
-      #else
       #if ENABLED(PLATFORM_M997_SUPPORT)
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
-        #endif
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
