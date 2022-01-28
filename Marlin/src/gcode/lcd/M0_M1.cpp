@@ -31,7 +31,7 @@
 #include "../../module/planner.h" // for synchronize()
 #include "../../MarlinCore.h"     // for wait_for_user_response()
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   #include "../../lcd/marlinui.h"
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
@@ -55,7 +55,7 @@ void GcodeSuite::M0_M1() {
 
   planner.synchronize();
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
 
     if (parser.string_arg)
       ui.set_status(parser.string_arg, true);
@@ -89,7 +89,7 @@ void GcodeSuite::M0_M1() {
 
   TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(ms));
 
-  TERN_(HAS_LCD_MENU, ui.reset_status());
+  TERN_(HAS_MARLINUI_MENU, ui.reset_status());
 }
 
 #endif // HAS_RESUME_CONTINUE
