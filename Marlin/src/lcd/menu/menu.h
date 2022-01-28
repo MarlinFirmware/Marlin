@@ -87,23 +87,6 @@ class MenuItem_back : public MenuItemBase {
     FORCE_INLINE static void action(PGM_P const=nullptr) { ui.go_back(); }
 };
 
-#if ENABLED(RS_STYLE_COLOR_UI)
-  // CONFIRM_ITEM(LABEL,Y,N,FY,FN,...),
-  // YESNO_ITEM(LABEL,FY,FN,...)
-  class MenuItem_fileconfirm : public MenuItemBase {
-    public:
-      FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-        _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
-      }
-      // Implemented for HD44780 and DOGM
-      // Draw the prompt, buttons, and state
-      static void draw_select_screen(
-        const char * const string  // Prompt runtime string
-      );
-      static void select_screen(selectFunc_t yesFunc, selectFunc_t noFunc, const char * const string=nullptr);
-  };
-#endif
-
 // CONFIRM_ITEM(LABEL,Y,N,FY,FN,...),
 // YESNO_ITEM(LABEL,FY,FN,...)
 class MenuItem_confirm : public MenuItemBase {
@@ -126,7 +109,7 @@ class MenuItem_confirm : public MenuItemBase {
       selectFunc_t yesFunc, selectFunc_t noFunc,
       PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr
     );
-    static void select_screen(
+    static inline void select_screen(
       PGM_P const yes, PGM_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
       PGM_P const pref, FSTR_P const string, PGM_P const suff=nullptr
@@ -195,7 +178,7 @@ class MenuEditItemBase : public MenuItemBase {
     static void draw_edit_screen(PGM_P const pstr, const char * const value);
 
     // This method is for the current menu item
-    static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
+    static inline void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
 #if ENABLED(SDSUPPORT)
@@ -213,7 +196,6 @@ class MenuEditItemBase : public MenuItemBase {
 
 void menu_main();
 void menu_move();
-void menu_tune();
 
 #if ENABLED(SDSUPPORT)
   void menu_media();
@@ -266,10 +248,6 @@ void _lcd_draw_homing();
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   void touch_screen_calibration();
-#endif
-
-#if ENABLED(RS_STYLE_COLOR_UI)
-  void poweroff_wait();
 #endif
 
 extern uint8_t screen_history_depth;
