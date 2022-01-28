@@ -28,6 +28,9 @@
 #include "../lcdprint.h"
 #include "../../libs/numtostr.h"
 #include "../menu/menu.h"
+#include "../../module/temperature.h"
+#include "../../gcode/gcode.h"
+#include "../../module/settings.h"
 
 void menu_pause_option();
 
@@ -273,5 +276,52 @@ void MarlinUI::clear_lcd() {
   }
 
 #endif // TOUCH_SCREEN_CALIBRATION
+
+
+#if ENABLED(RS_STYLE_COLOR_UI)
+  void MarlinUI::poweroff_wait_screen()
+  {
+    poweroff_screen();
+  }
+
+  void MarlinUI::poweroff_screen()
+  {
+    celsius_t currentTemperature = thermalManager.wholeDegHotend(H_E0);
+
+    if (currentTemperature < EXTRUDER_AUTO_FAN_TEMPERATURE)
+      gcode.process_subcommands_now(F("M81"));   // Power Off command
+    if (extra_settings.sscreen_need_draw)
+    {
+      defer_status_screen(true);  // предотвращаем переход в экран статуса по таймауту
+      clear_lcd();
+
+      tft_string.set(GET_TEXT(MSG_WAIT_NOZZLE_COOL));
+      tft.canvas(0, 20, TFT_WIDTH, tft_string.font_height());
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+
+      tft_string.set(GET_TEXT(MSG_THEN_PRINTER_WILL_OFF));
+      tft.canvas(0, 60, TFT_WIDTH, tft_string.font_height());
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+
+      tft_string.set(GET_TEXT(MSG_PRESS_SCREEN_TO_CANCEL));
+      tft.canvas(0, 160, TFT_WIDTH, tft_string.font_height());
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+      extra_settings.sscreen_need_draw = false;
+    }
+
+    tft_string.set(GET_TEXT(MSG_UBL_SET_TEMP_HOTEND));
+    tft_string.add(": ");
+    tft_string.add((uint8_t *)i16tostr3rj(currentTemperature));
+    tft.canvas(0, 100, TFT_WIDTH, tft_string.font_height());
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+
+    touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+  }
+
+#endif  // ENABLED(RS_STYLE_COLOR_UI)
 
 #endif // HAS_GRAPHICAL_TFT

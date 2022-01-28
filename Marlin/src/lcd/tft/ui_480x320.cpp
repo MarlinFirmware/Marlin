@@ -732,10 +732,6 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const val
 
   // predefined values
   cy += MENU_ITEM_HEIGHT;
-  if (predefValues.count > 0)
-  {
-
-  }
 
   cy += MENU_ITEM_HEIGHT;
   extern screenFunc_t _manual_move_func_ptr;
