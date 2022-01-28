@@ -158,6 +158,87 @@ DEFINE_MENU_EDIT_ITEM_TYPE(float52sign ,float    ,ftostr52sign    , 100     );  
 DEFINE_MENU_EDIT_ITEM_TYPE(long5       ,uint32_t ,ftostr5rj       ,   0.01f );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 
+
+
+
+#if ENABLED(RS_STYLE_COLOR_UI)
+  // Template for specific Menu Edit Item Extend Types (Menu Edit with additional buttons)
+  template<typename NAME>
+  class TMenuEditItemExt : MenuEditItemBase {
+    private:
+      typedef typename NAME::type_t type_t;
+      static inline float scale(const_float_t value)    { return NAME::scale(value);            }
+      static inline float unscale(const_float_t value)  { return NAME::unscale(value);          }
+      static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
+      static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
+    public:
+      FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t * const data, ...) {
+        MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(*(data)));
+      }
+      FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t (*pget)(), ...) {
+        MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(pget()));
+      }
+      // Edit screen for this type of item
+      static void edit_screen() { MenuEditItemBase::edit_screen(to_string, load); }
+      static void action(
+        PGM_P const pstr,                     // Edit label
+        type_t * const ptr,                   // Value pointer
+        const type_t minValue,                // Value range
+        const type_t maxValue,
+        const screenFunc_t callback=nullptr,  // Value update callback
+        const screenFunc_t addButtons=nullptr,  // Function for drawing additional buttons
+        const bool live=false                 // Callback during editing
+      ) {
+        // Make sure minv and maxv fit within int32_t
+        const int32_t minv = _MAX(scale(minValue), INT32_MIN),
+                      maxv = _MIN(scale(maxValue), INT32_MAX);
+        goto_edit_screen(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv,
+          edit_screen, callback, live);
+      }
+  };
+
+  // Provide a set of Edit Item Extend Types which encompass a primitive
+  // type, a string function, and a scale factor for edit and display.
+  // These items call the Edit Item draw method passing the prepared string.
+  #define DEFINE_MENU_EDIT_ITEM_EXT_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
+    struct MenuEditItemExtInfo_##NAME { \
+      typedef TYPE type_t; \
+      static inline float scale(const_float_t value)   { return value * (SCALE) ETC; } \
+      static inline float unscale(const_float_t value) { return value / (SCALE) ETC; } \
+      static inline const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
+    }; \
+    typedef TMenuEditItemExt<MenuEditItemExtInfo_##NAME> MenuItemExt_##NAME
+
+  //                              NAME         TYPE      STRFUNC          SCALE         ROUND
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, +0.5f);  // 100%   right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1     );   // 100%   right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1     );   // 123, -12   right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1     );   // 1234, -123 right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(int8        ,int8_t   ,i8tostr3rj      ,   1     );   // 123, -12   right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(uint8       ,uint8_t  ,ui8tostr3rj     ,   1     );   // 123        right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(uint16_3    ,uint16_t ,ui16tostr3rj    ,   1     );   // 123        right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(uint16_4    ,uint16_t ,ui16tostr4rj    ,   0.1f  );   // 1234       right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f );   // 12345      right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float3      ,float    ,ftostr3         ,   1     );   // 123        right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float42_52  ,float    ,ftostr42_52     , 100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float43     ,float    ,ftostr43sign    ,1000     );   // -1.234, _1.234, +1.234
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float4      ,float    ,ftostr4sign     ,   1     );   // 1234       right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float51     ,float    ,ftostr51rj      ,  10     );   // 1234.5     right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float31sign ,float    ,ftostr31sign    ,  10     );   // +12.3
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(float52sign ,float    ,ftostr52sign    , 100     );   // +123.45
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(long5       ,uint32_t ,ftostr5rj       ,   0.01f );   // 12345      right-justified
+  DEFINE_MENU_EDIT_ITEM_EXT_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
+#endif  // RS_STYLE_COLOR_UI
+
+
+
+
+
+
 #if HAS_BED_PROBE
   #if Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
     #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
@@ -351,7 +432,8 @@ class MenuItem_bool : public MenuEditItemBase {
   constexpr int m = 20;                        \
   char msg[m+1];                               \
   msg[0] = ':'; msg[1] = ' ';                  \
-  strncpy_P(msg+2, PSTR(PVAL), m-2);           \
+  /* strncpy_P(msg+2, PSTR(PVAL), m-2); */           \
+  utf8_strncpy(msg+2, PSTR(PVAL), m-2);           \
   if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
   STATIC_ITEM_P(PLABEL, STYL, msg);            \
 }while(0)

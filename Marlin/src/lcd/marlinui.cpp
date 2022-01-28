@@ -1048,7 +1048,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
       // This runs every ~100ms when idling often enough.
       // Instead of tracking changes just redraw the Status Screen once per second.
+      #if ENABLED(RS_STYLE_COLOR_UI)
+        if ((on_status_screen() || on_poweroff_screen()) && !lcd_status_update_delay--) {
+      #else
       if (on_status_screen() && !lcd_status_update_delay--) {
+      #endif
         lcd_status_update_delay = TERN(HAS_MARLINUI_U8GLIB, 12, 9);
         if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
         refresh(LCDVIEW_REDRAW_NOW);
@@ -1542,6 +1546,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
+      print_job_timer.heating_stop();
       card.abortFilePrintSoon();
     #endif
     #ifdef ACTION_ON_CANCEL
@@ -1590,6 +1595,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::resume_print() {
     reset_status();
     TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
+    if (wait_for_heatup)
+      print_job_timer.heating_start();
+    else
+      print_job_timer.heating_stop();
     TERN_(SDSUPPORT, if (IS_SD_PAUSED()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
       hostui.resume();

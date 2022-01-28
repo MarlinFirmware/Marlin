@@ -25,6 +25,7 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "canvas.h"
+#include "../fontutils.h"
 
 uint16_t CANVAS::width, CANVAS::height;
 uint16_t CANVAS::startLine, CANVAS::endLine;
@@ -63,18 +64,38 @@ void CANVAS::SetBackground(uint16_t color) {
   while (count--) *pointer++ = two_pixels;
 }
 
-void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, uint16_t maxWidth) {
+uint8_t canvas_read_byte(uint8_t *byte) { return *byte; }
+
+void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, uint16_t maxWidth, font_t *font) {
   if (endLine < y || startLine > y + GetFontHeight()) return;
 
   if (maxWidth == 0) maxWidth = width - x;
 
   uint16_t stringWidth = 0;
-  for (uint16_t i = 0 ; *(string + i) ; i++) {
+
+  
+/*   for (uint16_t i = 0 ; *(string + i) ; i++) {
     glyph_t *glyph = Glyph(string + i);
     if (stringWidth + glyph->BBXWidth > maxWidth) break;
     AddImage(x + stringWidth + glyph->BBXOffsetX, y + Font()->FontAscent - glyph->BBXHeight - glyph->BBXOffsetY, glyph->BBXWidth, glyph->BBXHeight, GREYSCALE1, ((uint8_t *)glyph) + sizeof(glyph_t), &color);
     stringWidth += glyph->DWidth;
   }
+ */
+
+    wchar_t wchar;
+    while (*string)
+    {
+      string = get_utf8_value_cb(string, canvas_read_byte, &wchar);
+      if (wchar > 255) wchar |= 0x0080;
+      uint8_t ch = uint8_t(wchar & 0x00FF);
+      // uint8_t ch = 33;
+      glyph_t *glyph = Glyph(&ch);
+      if (stringWidth + glyph->BBXWidth > maxWidth) break;
+      AddImage(x + stringWidth + glyph->BBXOffsetX, y + Font()->FontAscent - glyph->BBXHeight - glyph->BBXOffsetY, glyph->BBXWidth, glyph->BBXHeight, GREYSCALE1, ((uint8_t *)glyph) + sizeof(glyph_t), &color);
+      stringWidth += glyph->DWidth;
+    }
+
+
 }
 
 void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) {

@@ -93,7 +93,7 @@ void menu_advanced_settings();
   void menu_debug() {
     START_MENU();
 
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
 
     #if ENABLED(LCD_PROGRESS_BAR_TEST)
       SUBMENU(MSG_PROGRESS_BAR_TEST, _progress_bar_test);
@@ -110,7 +110,7 @@ void menu_advanced_settings();
 
   void menu_tool_change() {
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
       #if ENABLED(TOOLCHANGE_PARK)
@@ -138,7 +138,7 @@ void menu_advanced_settings();
       PGM_P const msg_migrate = GET_TEXT(MSG_TOOL_MIGRATION_SWAP);
 
       START_MENU();
-      BACK_ITEM(MSG_CONFIGURATION);
+      // BACK_ITEM(MSG_CONFIGURATION);
 
       // Auto mode ON/OFF
       EDIT_ITEM(bool, MSG_TOOL_MIGRATION_AUTO, &migration.automode);
@@ -174,7 +174,7 @@ void menu_advanced_settings();
     };
 
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(DUAL_X_CARRIAGE)
       EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
@@ -195,7 +195,7 @@ void menu_advanced_settings();
     const bool need_g28 = axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
 
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
 
     GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605S1\nG28X\nG1X0"));
     GCODES_ITEM(MSG_IDEX_MODE_DUPLICATE, need_g28
@@ -234,7 +234,7 @@ void menu_advanced_settings();
 
   void menu_bltouch() {
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
     ACTION_ITEM(MSG_BLTOUCH_RESET, bltouch._reset);
     ACTION_ITEM(MSG_BLTOUCH_SELFTEST, bltouch._selftest);
     ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
@@ -261,7 +261,7 @@ void menu_advanced_settings();
   void menu_touchmi() {
     ui.defer_status_screen();
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
     GCODES_ITEM(MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     GCODES_ITEM(MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
@@ -277,8 +277,8 @@ void menu_advanced_settings();
 
   void menu_controller_fan() {
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, CONTROLLERFAN_SPEED_MIN, 255);
+    // BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255);
     EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode);
     if (controllerFan.settings.auto_mode) {
       EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, CONTROLLERFAN_SPEED_MIN, 255);
@@ -295,7 +295,7 @@ void menu_advanced_settings();
 
   void menu_config_retract() {
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(FWRETRACT_AUTORETRACT)
       EDIT_ITEM(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
     #endif
@@ -328,7 +328,7 @@ void menu_advanced_settings();
     const uint8_t m = MenuItemBase::itemIndex;
     START_MENU();
     STATIC_ITEM_P(ui.get_preheat_label(m), SS_DEFAULT|SS_INVERT);
-    BACK_ITEM(MSG_CONFIGURATION);
+    // BACK_ITEM(MSG_CONFIGURATION);
     #if HAS_FAN
       editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
       EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
@@ -357,7 +357,7 @@ void menu_advanced_settings();
 
   void custom_menus_configuration() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    // BACK_ITEM(MSG_MAIN);
 
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
@@ -469,7 +469,7 @@ void menu_configuration() {
   const bool busy = printer_busy();
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   //
   // Debug Menu when certain options are enabled

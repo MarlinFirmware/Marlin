@@ -57,7 +57,7 @@ void menu_item(const uint8_t row, bool sel = false);
 
 #define ABSOLUTE_ZERO     -273.15
 
-#if HAS_TEMP_CHAMBER && HAS_MULTI_HOTEND
+#if HAS_TEMP_CHAMBER && HOTENDS > 1
   #define ITEM_E0         0
   #define ITEM_E1         1
   #define ITEM_BED        2
@@ -74,15 +74,41 @@ void menu_item(const uint8_t row, bool sel = false);
   #define ITEM_COOLER     0
   #define ITEM_FAN        1
   #define ITEMS_COUNT     2
-#elif HAS_MULTI_HOTEND
+#elif HOTENDS > 1
   #define ITEM_E0         0
   #define ITEM_E1         1
   #define ITEM_BED        2
   #define ITEM_FAN        3
   #define ITEMS_COUNT     4
 #else
-  #define ITEM_E0         0
-  #define ITEM_BED        1
-  #define ITEM_FAN        2
-  #define ITEMS_COUNT     3
+  #if ENABLED(RS_STYLE_COLOR_UI)
+    #define ITEM_E0         0
+    #if HOTENDS > 1
+      #define ITEM_E1         1
+      #define ITEM_BED        2
+      #define ITEM_FAN        3
+      #define ITEM_SPEED      4
+      #define ITEM_FLOW       5
+      #define ITEMS_COUNT1    3   // wide items count
+      #define ITEMS_COUNT2    3   // narrow items count
+      #define ITEM_WIDTH1     90
+    #else
+      #define ITEM_BED        1
+      #define ITEM_FAN        2
+      #define ITEM_SPEED      3
+      #define ITEM_FLOW       4
+      #define ITEMS_COUNT1    2   // wide items count
+      #define ITEMS_COUNT2    3   // narrow items count
+      #define ITEM_WIDTH1     110
+    #endif
+    #define ICON_INDENT1     (ITEM_WIDTH1 - ICON_WIDTH)/2
+    #define ITEM_WIDTH2      66
+    #define ICON_INDENT2     (ITEM_WIDTH2 - ICON_WIDTH)/2
+    #define ICON_WIDTH      64
+  #else
+    #define ITEM_E0         0
+    #define ITEM_BED        1
+    #define ITEM_FAN        2
+    #define ITEMS_COUNT     3
+  #endif  // RS_STYLE_COLOR_UI
 #endif

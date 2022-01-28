@@ -36,7 +36,7 @@
 
 void menu_tmc_current() {
   START_MENU();
-  BACK_ITEM(MSG_TMC_DRIVERS);
+  // BACK_ITEM(MSG_TMC_DRIVERS);
   #if AXIS_IS_TMC(X)
     TMC_EDIT_STORED_I_RMS(X, STR_A);
   #endif
@@ -94,7 +94,7 @@ void menu_tmc_current() {
 
   void menu_tmc_hybrid_thrs() {
     START_MENU();
-    BACK_ITEM(MSG_TMC_DRIVERS);
+    // BACK_ITEM(MSG_TMC_DRIVERS);
     TERN_(X_HAS_STEALTHCHOP,  TMC_EDIT_STORED_HYBRID_THRS(X,  STR_X));
     TERN_(Y_HAS_STEALTHCHOP,  TMC_EDIT_STORED_HYBRID_THRS(Y,  STR_Y));
     TERN_(Z_HAS_STEALTHCHOP,  TMC_EDIT_STORED_HYBRID_THRS(Z,  STR_Z));
@@ -122,7 +122,7 @@ void menu_tmc_current() {
 
   void menu_tmc_homing_thrs() {
     START_MENU();
-    BACK_ITEM(MSG_TMC_DRIVERS);
+    // BACK_ITEM(MSG_TMC_DRIVERS);
     TERN_( X_SENSORLESS, TMC_EDIT_STORED_SGT(X));
     TERN_(X2_SENSORLESS, TMC_EDIT_STORED_SGT(X2));
     TERN_( Y_SENSORLESS, TMC_EDIT_STORED_SGT(Y));
@@ -146,7 +146,7 @@ void menu_tmc_current() {
   void menu_tmc_step_mode() {
     START_MENU();
     STATIC_ITEM(MSG_TMC_STEALTH_ENABLED);
-    BACK_ITEM(MSG_TMC_DRIVERS);
+    // BACK_ITEM(MSG_TMC_DRIVERS);
     TERN_( X_HAS_STEALTHCHOP, TMC_EDIT_STEP_MODE(X,  STR_X));
     TERN_(X2_HAS_STEALTHCHOP, TMC_EDIT_STEP_MODE(X2, STR_X2));
     TERN_( Y_HAS_STEALTHCHOP, TMC_EDIT_STEP_MODE(Y,  STR_Y));
@@ -170,7 +170,7 @@ void menu_tmc_current() {
 
 void menu_tmc() {
   START_MENU();
-  BACK_ITEM(MSG_ADVANCED_SETTINGS);
+  // BACK_ITEM(MSG_ADVANCED_SETTINGS);
   SUBMENU(MSG_TMC_CURRENT, menu_tmc_current);
   TERN_(HYBRID_THRESHOLD,   SUBMENU(MSG_TMC_HYBRID_THRS, menu_tmc_hybrid_thrs));
   TERN_(SENSORLESS_HOMING,  SUBMENU(MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs));

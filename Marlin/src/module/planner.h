@@ -287,6 +287,14 @@ typedef struct {
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
+#if ENABLED(RS_ADDSETTINGS)
+  typedef struct {
+    bool  invert_axis[DISTINCT_AXES];
+    bool  z2_vs_z_dir;
+  } planner_axinvert_t;
+#endif  // RS_ADDSETTINGS
+
+
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
   struct motion_state_t {
     TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
@@ -372,6 +380,10 @@ class Planner {
     #endif
 
     static planner_settings_t settings;
+
+    #if ENABLED(RS_ADDSETTINGS)
+      static planner_axinvert_t invert_axis;
+    #endif  // RS_ADDSETTINGS
 
     #if ENABLED(LASER_POWER_INLINE)
       static laser_state_t laser_inline;
@@ -838,7 +850,7 @@ class Planner {
      */
     static float get_axis_position_mm(const AxisEnum axis);
 
-    static abce_pos_t get_axis_positions_mm() {
+    static inline abce_pos_t get_axis_positions_mm() {
       const abce_pos_t out = LOGICAL_AXIS_ARRAY(
         get_axis_position_mm(E_AXIS),
         get_axis_position_mm(A_AXIS), get_axis_position_mm(B_AXIS), get_axis_position_mm(C_AXIS),
@@ -868,13 +880,6 @@ class Planner {
 
     // Triggered position of an axis in mm (not core-savvy)
     static float triggered_position_mm(const AxisEnum axis);
-
-    // Blocks are queued, or we're running out moves, or the closed loop controller is waiting
-    static bool busy() {
-      return (has_blocks_queued() || cleaning_buffer_counter
-          || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      );
-    }
 
     // Block until all buffered steps are executed / cleaned
     static void synchronize();
@@ -938,7 +943,7 @@ class Planner {
       #if ENABLED(AUTOTEMP_PROPORTIONAL)
         static void _autotemp_update_from_hotend();
       #else
-        static void _autotemp_update_from_hotend() {}
+        static inline void _autotemp_update_from_hotend() {}
       #endif
     #endif
 

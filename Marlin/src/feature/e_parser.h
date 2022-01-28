@@ -26,6 +26,7 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
+#include "../../libs/stopwatch.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "host_actions.h"
@@ -33,6 +34,7 @@
 
 // External references
 extern bool wait_for_user, wait_for_heatup;
+extern Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
   // From motion.h, which cannot be included here
@@ -195,7 +197,7 @@ public:
       default:
         if (ISEOL(c)) {
           if (enabled) switch (state) {
-            case EP_M108: wait_for_user = wait_for_heatup = false; break;
+            case EP_M108: wait_for_user = wait_for_heatup = false; print_job_timer.heating_stop(); break;
             case EP_M112: killed_by_M112 = true; break;
             case EP_M410: quickstop_by_M410 = true; break;
             #if ENABLED(HOST_PROMPT_SUPPORT)

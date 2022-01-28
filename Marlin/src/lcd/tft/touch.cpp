@@ -242,6 +242,20 @@ void Touch::touch(touch_control_t *control) {
       ui.goto_screen((screenFunc_t)ui.move_axis_screen);
       break;
 
+    case PRINT_PAUSE:
+      ui.pause_print();
+      break;
+
+    case PRINT_RESUME:
+      ui.resume_print();
+      break;
+
+    case PRINT_STOP:
+      ui.goto_screen([]{MenuItem_confirm::select_screen( GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK), ui.abort_print, ui.goto_previous_screen,
+                                                        GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?") );
+                        });
+      break;
+
     // TODO: TOUCH could receive data to pass to the callback
     case BUTTON: ((screenFunc_t)control->data)(); break;
 
@@ -297,7 +311,7 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   void Touch::wakeUp() {
     if (isSleeping()) {
       #if HAS_LCD_BRIGHTNESS
-        ui.set_brightness(ui.brightness);
+        ui._set_brightness();
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif

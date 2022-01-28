@@ -786,8 +786,34 @@ namespace Language_en {
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host Shutdown");
 
+  LSTR MSG_WIFI_CONNECTED                 = _UxGT("Connected");
+  LSTR MSG_WIFI_MODE                      = _UxGT("Mode");
+  LSTR MSG_WIFI_NETWORK                   = _UxGT("Network");
+  LSTR MSG_WIFI_ADDRESS                   = _UxGT("IP Address");
+  
+  #if ENABLED(RS_STYLE_COLOR_UI)
+    #if ENABLED(RS_ADDSETTINGS)
+      LSTR MSG_AXIS_DIRECTION               = _UxGT("Steppers inversion");
+      LSTR MSG_X_INVERT                     = STR_X _UxGT(" Invert");
+      LSTR MSG_Y_INVERT                     = STR_Y _UxGT(" Invert");
+      LSTR MSG_Z1_INVERT                    = STR_Z _UxGT(" Invert");
+      LSTR MSG_Z2_INVERT                    = STR_Z2 _UxGT(" Invert");
+      LSTR MSG_E_INVERT                     = STR_E _UxGT(" Invert");
+
+      LSTR MSG_POWEROFF_AT_END              = _UxGT("Power off at print done");
+
+      LSTR MSG_MENU_THERMISTORS             = _UxGT("Thermistors types");
+    #endif
+
+    LSTR MSG_WAIT_NOZZLE_COOL               = _UxGT("Waiting for the nozzle to cool down.");
+    LSTR MSG_THEN_PRINTER_WILL_OFF          = _UxGT("The printer will then turn off.");
+    LSTR MSG_PRESS_SCREEN_TO_CANCEL         = _UxGT("Tap the screen to cancel");
+    LSTR MSG_INFO_WIFI_MENU                 = _UxGT("WiFi");
+}  #endif  // RS_STYLE_COLOR_UI
+
+
   // These strings can be the same in all languages
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
+  LSTR MSG_MARLIN                         = _UxGT("MarlinRB");
   LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only

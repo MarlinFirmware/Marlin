@@ -95,13 +95,18 @@ uint8_t read_byte(uint8_t *byte) { return *byte; }
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
-void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString/*=nullptr*/) {
-  wchar_t wchar;
+void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
 
   while (*string) {
-    string = get_utf8_value_cb(string, read_byte, &wchar);
+
+/*      string = get_utf8_value_cb(string, read_byte, &wchar);
     if (wchar > 255) wchar |= 0x0080;
     uint8_t ch = uint8_t(wchar & 0x00FF);
+ */
+    uint8_t ch = *string;
+    string++;
+
+
 
     if (ch == '=' || ch == '~' || ch == '*') {
       if (index >= 0) {
@@ -110,25 +115,32 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString/*=nullpt
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
       }
-      else
+      else {
         add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
     }
-    else if (ch == '$' && itemString)
+      continue;
+    }
+    else if (ch == '$' && itemString) {
       add(itemString);
-    else if (ch == '@')
-      add_character(axis_codes[index]);
-    else
+      continue;
+    }
+
       add_character(ch);
   }
   eol();
 }
 
 void TFT_String::add(uint8_t *string, uint8_t max_len) {
-  wchar_t wchar;
   while (*string && max_len) {
+/* 
     string = get_utf8_value_cb(string, read_byte, &wchar);
     if (wchar > 255) wchar |= 0x0080;
     uint8_t ch = uint8_t(wchar & 0x00FF);
+ */
+
+    uint8_t ch = *string;
+    string++;
+
     add_character(ch);
     max_len--;
   }
@@ -150,8 +162,9 @@ void TFT_String::rtrim(uint8_t character) {
       span -= glyph(data[length])->DWidth;
       eol();
     }
-    else
+    else {
       break;
+    }
   }
 }
 

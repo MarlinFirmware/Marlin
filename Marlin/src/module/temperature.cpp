@@ -189,7 +189,11 @@
 #if HAS_HOTEND_THERMISTOR
   #define NEXT_TEMPTABLE(N) ,TEMPTABLE_##N
   #define NEXT_TEMPTABLE_LEN(N) ,TEMPTABLE_##N##_LEN
+  #if ENABLED(RS_ADDSETTINGS)
+    // static temp_entry_t* heater_ttbl_map[HOTENDS];
+  #else
   static const temp_entry_t* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0 REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
+  #endif
   static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
 #endif
 
@@ -197,6 +201,16 @@ Temperature thermalManager;
 
 PGMSTR(str_t_thermal_runaway, STR_T_THERMAL_RUNAWAY);
 PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
+
+#if ENABLED(RS_ADDSETTINGS)
+  thermistors_data_t thermistors_data;
+
+  constexpr thermistor_types_t    thermistor_types[THERMISTORS_TYPES_COUNT] PROGMEM = { {1, "Epcos 100k (1)", temptable_1, sizeof(temptable_1)/sizeof(*temptable_1)},
+                                                          {5, "ATC 104GT/104NT 100k (5)", temptable_5, sizeof(temptable_5)/sizeof(*temptable_5)},
+                                                          {13, "Hisens 3950 100k (13)", temptable_66, sizeof(temptable_13)/sizeof(*temptable_13)},
+                                                          {66, "Dyze D500 4.7M (66)", temptable_66, sizeof(temptable_66)/sizeof(*temptable_66)},
+                                                        };
+#endif  // RS_ADDSETTINGS
 
 /**
  * Macros to include the heater id in temp errors. The compiler's dead-code
@@ -648,6 +662,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // PID Tuning loop
     wait_for_heatup = true; // Can be interrupted with M108
+    print_job_timer.heating_start();
     TERN_(HAS_STATUS_MESSAGE, ui.set_status(F("Wait for heat up...")));
     while (wait_for_heatup) {
 
@@ -819,6 +834,7 @@ volatile bool Temperature::raw_temps_ready = false;
       TERN(HAS_DWIN_E3V2_BASIC, DWIN_Update(), ui.update());
     }
     wait_for_heatup = false;
+    print_job_timer.heating_stop();
 
     disable_all_heaters();
 
@@ -1938,8 +1954,12 @@ void Temperature::manage_heater() {
 
     #if HAS_HOTEND_THERMISTOR
       // Thermistor with conversion table?
+      #if ENABLED(RS_ADDSETTINGS)
+        SCAN_THERMISTOR_TABLE(thermistor_types[thermistors_data.heater_type[e]].table, thermistor_types[thermistors_data.heater_type[e]].table_size);
+      #else
       const temp_entry_t(*tt)[] = (temp_entry_t(*)[])(heater_ttbl_map[e]);
       SCAN_THERMISTOR_TABLE((*tt), heater_ttbllen_map[e]);
+      #endif  // RS_ADDSETTINGS
     #endif
 
     return 0;
@@ -1952,7 +1972,11 @@ void Temperature::manage_heater() {
     #if TEMP_SENSOR_BED_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BED, raw);
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
+      #if ENABLED(RS_ADDSETTINGS)
+        SCAN_THERMISTOR_TABLE(thermistor_types[thermistors_data.bed_type].table, thermistor_types[thermistors_data.bed_type].table_size);
+      #else
       SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
+      #endif  // RS_ADDSETTINGS
     #elif TEMP_SENSOR_BED_IS_AD595
       return TEMP_AD595(raw);
     #elif TEMP_SENSOR_BED_IS_AD8495
@@ -3691,6 +3715,7 @@ void Temperature::isr() {
       celsius_float_t target_temp = -1.0, old_temp = 9999.0;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
+      print_job_timer.heating_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetHotend(target_extruder)) {
@@ -3757,6 +3782,7 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
+            print_job_timer.heating_stop();
             TERN_(HAS_LCD_MENU, ui.quick_feedback());
           }
         #endif
@@ -3765,6 +3791,7 @@ void Temperature::isr() {
 
       if (wait_for_heatup) {
         wait_for_heatup = false;
+        print_job_timer.heating_stop();
         #if HAS_DWIN_E3V2_BASIC
           HMI_flag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // print timer
@@ -3827,6 +3854,7 @@ void Temperature::isr() {
       celsius_float_t target_temp = -1, old_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
+      print_job_timer.heating_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetBed()) {
@@ -3891,6 +3919,7 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
+            print_job_timer.heating_stop();
             TERN_(HAS_LCD_MENU, ui.quick_feedback());
           }
         #endif
@@ -3903,6 +3932,7 @@ void Temperature::isr() {
 
       if (wait_for_heatup) {
         wait_for_heatup = false;
+        print_job_timer.heating_stop();
         ui.reset_status();
         return true;
       }
@@ -3935,7 +3965,7 @@ void Temperature::isr() {
       const bool wants_to_cool = isProbeAboveTemp(target_temp),
                  will_wait = !(wants_to_cool && no_wait_for_cooling);
       if (will_wait)
-        SERIAL_ECHOLNPGM("Waiting for probe to ", wants_to_cool ? F("cool down") : F("heat up"), " to ", target_temp, " degrees.");
+        SERIAL_ECHOLNPGM("Waiting for probe to ", (wants_to_cool ? PSTR("cool down") : PSTR("heat up")), " to ", target_temp, " degrees.");
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         KEEPALIVE_STATE(NOT_BUSY);
@@ -3944,6 +3974,7 @@ void Temperature::isr() {
       float old_temp = 9999;
       millis_t next_temp_ms = 0, next_delta_check_ms = 0;
       wait_for_heatup = true;
+      print_job_timer.heating_start();
       while (will_wait && wait_for_heatup) {
 
         // Print Temp Reading every 10 seconds while heating up.
@@ -3981,6 +4012,7 @@ void Temperature::isr() {
 
       if (wait_for_heatup) {
         wait_for_heatup = false;
+        print_job_timer.heating_stop();
         ui.reset_status();
         return true;
       }
@@ -4020,6 +4052,7 @@ void Temperature::isr() {
       float target_temp = -1, old_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
+      print_job_timer.heating_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetChamber()) {
@@ -4080,6 +4113,7 @@ void Temperature::isr() {
 
       if (wait_for_heatup) {
         wait_for_heatup = false;
+        print_job_timer.heating_stop();
         ui.reset_status();
         return true;
       }
@@ -4118,6 +4152,7 @@ void Temperature::isr() {
       float target_temp = -1, previous_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
       wait_for_heatup = true;
+      print_job_timer.heating_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetCooler()) {
@@ -4179,6 +4214,7 @@ void Temperature::isr() {
       // Prevent a wait-forever situation if R is misused i.e. M191 R0
       if (wait_for_heatup) {
         wait_for_heatup = false;
+        print_job_timer.heating_stop();
         ui.reset_status();
         return true;
       }

@@ -127,6 +127,9 @@ uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing 
 uint8_t Planner::delay_before_delivering;       // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
+#if ENABLED(RS_ADDSETTINGS)
+  planner_axinvert_t Planner::invert_axis;
+#endif  // RS_ADDSETTINGS
 
 #if ENABLED(LASER_POWER_INLINE)
   laser_state_t Planner::laser_inline;          // Current state for blocks
@@ -3044,7 +3047,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
 
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
-      kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
+      kill(GET_TEXT(MSG_BAD_PAGE_SPEED));
       return;
     }
 

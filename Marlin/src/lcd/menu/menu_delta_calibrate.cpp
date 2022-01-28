@@ -58,14 +58,14 @@ void _man_probe_pt(const xy_pos_t &xy) {
     #include "../../MarlinCore.h" // for wait_for_user_response()
   #endif
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    #include "../../feature/host_actions.h" // for hostui.prompt_do
+    #include "../../feature/host_actions.h" // for host_prompt_do
   #endif
 
   float lcd_probe_pt(const xy_pos_t &xy) {
     _man_probe_pt(xy);
     ui.defer_status_screen();
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Delta Calibration in progress"), FPSTR(CONTINUE_STR)));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Delta Calibration in progress")));
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), CONTINUE_STR));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress")));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
     ui.goto_previous_screen_no_defer();
     return current_position.z;
@@ -105,7 +105,7 @@ void lcd_delta_settings() {
     recalc_delta_settings();
   };
   START_MENU();
-  BACK_ITEM(MSG_DELTA_CALIBRATE);
+  // BACK_ITEM(MSG_DELTA_CALIBRATE);
   EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
   #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_endstop_adj.N, -5, 0, _recalc_delta_settings)
   EDIT_ENDSTOP_ADJ("Ex", a);
@@ -126,7 +126,7 @@ void menu_delta_calibrate() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));

@@ -33,6 +33,7 @@
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
 #include "../../MarlinCore.h"
+#include "../../module/settings.h"
 
 #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   #include "../../module/tool_change.h"
@@ -73,12 +74,12 @@
           TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU));
           #if ENABLED(TFT_COLOR_UI)
             lcd_moveto(4, 3);
-            lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
+            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
             lcd_put_wchar(':');
             lcd_moveto(10, 3);
           #else
             lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
-            lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
+            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
             lcd_put_wchar(':');
           #endif
           lcd_put_u8str(BABYSTEP_TO_STR(mps * babystep.axis_total[BS_TOTAL_IND(axis)]));
@@ -107,12 +108,53 @@
 
 void menu_tune() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   //
   // Speed:
   //
-  EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
+  EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 500);
+
+  //
+  // Flow:
+  //
+  #if HAS_EXTRUDERS
+    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 50, 200, []{ planner.refresh_e_factor(active_extruder); });
+    // Flow En:
+    #if HAS_MULTI_EXTRUDER
+      LOOP_L_N(n, EXTRUDERS)
+        EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+    #endif
+  #endif
+
+  //
+  // Babystep X:
+  // Babystep Y:
+  // Babystep Z:
+  //
+  #if ENABLED(BABYSTEPPING)
+    #if ENABLED(BABYSTEP_XY)
+      SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
+      SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
+    #endif
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    #else
+      SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
+    #endif
+  #endif
+
+  //
+  // Advance K:
+  //
+  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
+    #if EXTRUDERS == 1
+      EDIT_ITEM(float43, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 0.5);
+    #elif HAS_MULTI_EXTRUDER
+      LOOP_L_N(n, EXTRUDERS)
+        EDIT_ITEM_N(float43, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 2);
+    #endif
+  #endif
 
   //
   // Manual bed leveling, Bed Z:
@@ -121,6 +163,7 @@ void menu_tune() {
     EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
   #endif
 
+ /*
   //
   // Nozzle:
   // Nozzle [1-4]:
@@ -191,47 +234,11 @@ void menu_tune() {
     #endif
 
   #endif // HAS_FAN
+*/
 
-  //
-  // Flow:
-  //
-  #if HAS_EXTRUDERS
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
-    // Flow En:
-    #if HAS_MULTI_EXTRUDER
-      LOOP_L_N(n, EXTRUDERS)
-        EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-    #endif
-  #endif
-
-  //
-  // Advance K:
-  //
-  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
-    #if EXTRUDERS == 1
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
-    #elif HAS_MULTI_EXTRUDER
-      LOOP_L_N(n, EXTRUDERS)
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 10);
-    #endif
-  #endif
-
-  //
-  // Babystep X:
-  // Babystep Y:
-  // Babystep Z:
-  //
-  #if ENABLED(BABYSTEPPING)
-    #if ENABLED(BABYSTEP_XY)
-      SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
-      SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
-    #endif
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    #else
-      SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
-    #endif
-  #endif
+  #if ENABLED(RS_ADDSETTINGS)
+    EDIT_ITEM(bool, MSG_POWEROFF_AT_END, &extra_settings.poweroff_at_printed);
+  #endif  // RS_ADDSETTINGS
 
   END_MENU();
 }

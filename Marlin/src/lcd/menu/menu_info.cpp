@@ -30,6 +30,11 @@
 
 #include "menu_item.h"
 
+#include "../tft/tft_string.h"
+
+#include "../../module/mks_wifi/mks_wifi.h"
+
+
 #if HAS_GAMES
   #include "game/game.h"
 #endif
@@ -103,17 +108,33 @@ void menu_info_thermistors() {
   #if HAS_EXTRUDERS
     #define THERMISTOR_ID TEMP_SENSOR_0
     #include "../thermistornames.h"
+    #if ENABLED(RS_ADDSETTINGS)
+      char tname[64];
+      strcpy(tname, STR_E0);
+      strcat(tname, ": ");
+      strcat(tname, thermistor_types[thermistors_data.heater_type[0]].name);
+      STATIC_ITEM_P(PSTR(tname), SS_INVERT);
+    #else
     STATIC_ITEM_P(PSTR(STR_E0 ": " THERMISTOR_NAME), SS_INVERT);
+    #endif  // RS_ADDSETTINGS
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_0_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_0_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
   #endif
 
-  #if TEMP_SENSOR_1 != 0
+  #if HOTENDS > 1
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_1
     #include "../thermistornames.h"
+    #if ENABLED(RS_ADDSETTINGS)
+      char tname[64];
+      strcpy(tname, LCD_STR_E1);
+      strcat(tname, ": ");
+      strcat(tname, thermistor_types[thermistors_data.heater_type[1]].name);
+      STATIC_ITEM_P(PSTR(tname), SS_INVERT);
+    #else
     STATIC_ITEM_P(PSTR(STR_E1 ": " THERMISTOR_NAME), SS_INVERT);
+    #endif  // RS_ADDSETTINGS
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_1_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_1_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -183,7 +204,9 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_BED
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR("BED: " THERMISTOR_NAME), SS_INVERT);
+    strcpy(tname, "BED: ");
+    strcat(tname, thermistor_types[thermistors_data.bed_type].name);
+    STATIC_ITEM_P(PSTR(tname), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(BED_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(BED_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_BED, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -257,6 +280,8 @@ void menu_info_board() {
     STATIC_ITEM_P(PSTR(MACHINE_NAME), SS_DEFAULT|SS_INVERT);    // My3DPrinter
     STATIC_ITEM_P(PSTR(WEBSITE_URL));                           // www.my3dprinter.com
     PSTRING_ITEM(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
+    #ifdef MKS_WIFI                                             // WiFi info
+    #endif
     #if HAS_LEVELING
       STATIC_ITEM(
         TERN_(AUTO_BED_LEVELING_3POINT, MSG_3POINT_LEVELING)      // 3-Point Leveling
@@ -269,6 +294,33 @@ void menu_info_board() {
     END_SCREEN();
   }
 
+#ifdef MKS_WIFI                                             // WiFi info
+  void menu_info_wifi() {
+      if (ui.use_click()) return ui.go_back();
+      START_SCREEN();
+      if (mks_wifi_info.connected)
+      {
+        PSTRING_ITEM(MSG_WIFI_CONNECTED, GET_TEXT(MSG_YES), SS_CENTER);
+      
+        if (mks_wifi_info.mode == 0x01)
+          PSTRING_ITEM(MSG_WIFI_MODE, "AP", SS_CENTER);
+        else
+          PSTRING_ITEM(MSG_WIFI_MODE, "Client", SS_CENTER);
+        
+        char ip_addr[16];
+         sprintf(ip_addr,"%d.%d.%d.%d", mks_wifi_info.ip[0], mks_wifi_info.ip[1], mks_wifi_info.ip[2], mks_wifi_info.ip[3]);
+        PSTRING_ITEM(MSG_WIFI_ADDRESS, ip_addr, SS_CENTER);
+        PSTRING_ITEM(MSG_WIFI_NETWORK, mks_wifi_info.net_name, SS_CENTER);
+      }
+      else
+      {
+        PSTRING_ITEM(MSG_WIFI_CONNECTED, GET_TEXT(MSG_NO), SS_CENTER);
+      }
+
+      END_SCREEN();
+    }
+#endif
+
 #endif
 
 //
@@ -276,7 +328,7 @@ void menu_info_board() {
 //
 void menu_info() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
   #if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
     SUBMENU(MSG_INFO_PRINTER_MENU, TERN(SHOW_CUSTOM_BOOTSCREEN, menu_show_custom_bootscreen, menu_show_marlin_bootscreen));
   #else
@@ -287,6 +339,9 @@ void menu_info() {
     #endif
   #endif
 
+  #ifdef MKS_WIFI                                             // WiFi info
+    SUBMENU(MSG_INFO_WIFI_MENU, menu_info_wifi);           // Printer Info >
+  #endif
   #if ENABLED(PRINTCOUNTER)
     SUBMENU(MSG_INFO_STATS_MENU, menu_info_stats);               // Printer Stats >
   #endif

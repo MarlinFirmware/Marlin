@@ -876,7 +876,15 @@
   #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
     #define MINIMUM_STEPPER_PULSE 1
   #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
-    #define MINIMUM_STEPPER_PULSE 0
+    #if STEPPERS_MICROSTEP == 32
+      #ifdef MARLIN_CONFIG_MY
+        #define MINIMUM_STEPPER_PULSE 8
+      #else
+        #define MINIMUM_STEPPER_PULSE 8
+      #endif
+    #else
+      #define MINIMUM_STEPPER_PULSE 16
+    #endif
   #elif HAS_DRIVER(LV8729)
     #define MINIMUM_STEPPER_PULSE 0
   #else
@@ -896,7 +904,15 @@
   #elif HAS_DRIVER(LV8729)
     #define MAXIMUM_STEPPER_RATE 1000000
   #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
-    #define MAXIMUM_STEPPER_RATE 5000000
+    #if STEPPERS_MICROSTEP == 32
+      #ifdef MARLIN_CONFIG_MY
+        #define MAXIMUM_STEPPER_RATE     5000000
+      #else
+        #define MAXIMUM_STEPPER_RATE     70000
+      #endif
+    #else
+      #define MAXIMUM_STEPPER_RATE     35000
+    #endif
   #else
     #define MAXIMUM_STEPPER_RATE 250000
   #endif

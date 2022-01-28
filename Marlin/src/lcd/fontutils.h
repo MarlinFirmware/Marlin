@@ -64,6 +64,9 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
 uint8_t utf8_strlen(const char *pstart);
 uint8_t utf8_strlen_P(PGM_P pstart);
 
+/* Copy UTF8 string with length limit */
+char *utf8_strncpy(char *dst, const char* src, size_t maxlen);
+
 /* Returns start byte position of desired char number */
 uint8_t utf8_byte_pos_by_char_num(const char *pstart, const uint8_t charnum);
 uint8_t utf8_byte_pos_by_char_num_P(PGM_P pstart, const uint8_t charnum);

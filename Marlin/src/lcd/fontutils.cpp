@@ -116,8 +116,23 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
     p++;
   }
   else if (0xC0 == (0xE0 & valcur)) {
-    val = valcur & 0x1F;
-    NEXT_6_BITS();
+    //--- Convert cyrillic UTF8 char to ANSI char
+     if (valcur == 0xD0 || valcur == 0xD1)
+    {
+      val = valcur;
+      p++;
+      val = (val << 8) + cb_read_byte(p);
+      if (val > 0xD08F && val < 0xD0C0)
+        val = val - 0xCFD0;
+      else if (val > 0xD17F && val < 0xD190)
+        val = val - 0xD090;
+    }
+    //--- End of Convert cyrillic UTF8 char to ANSI char
+    else
+    {
+      val = valcur & 0x1F;
+      NEXT_6_BITS();
+    }
     p++;
   }
   #if MAX_UTF8_CHAR_SIZE >= 3
@@ -186,6 +201,41 @@ uint8_t utf8_strlen(const char *pstart) {
 
 uint8_t utf8_strlen_P(PGM_P pstart) {
   return utf8_strlen_cb(pstart, read_byte_rom);
+}
+
+char *utf8_strncpy(char *dst, const char* src, size_t maxlen) {
+	char *cdst = dst;
+  size_t csize = 0;
+	
+	while (*src != 0)
+	{
+		if (*src < 0x80)
+		{
+			*cdst = *src;
+			cdst++;
+			src++;
+      csize++;
+      if (csize >= maxlen)
+      {
+        cdst--;
+        break;
+      }
+		}
+		else
+		{
+			*(uint16_t*)(cdst) = *(uint16_t*)(src);
+			cdst += 2;
+			src += 2;
+      csize += 2;
+      if (csize >= maxlen)
+      {
+        cdst -= 2;
+        break;
+      }
+		}
+	}
+	*cdst = 0;
+	return dst;
 }
 
 static inline uint8_t utf8_byte_pos_by_char_num_cb(const char *pstart, read_byte_cb_t cb_read_byte, const uint8_t charnum) {

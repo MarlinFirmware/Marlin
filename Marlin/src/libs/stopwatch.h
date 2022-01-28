@@ -26,6 +26,11 @@
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
 
+#include "../core/macros.h" // for FORCE_INLINE
+
+#include <stdint.h>
+typedef uint32_t millis_t;
+
 /**
  * @brief Stopwatch class
  * @details This class acts as a timer proving stopwatch functionality including
@@ -39,6 +44,11 @@ class Stopwatch {
     static millis_t accumulator;
     static millis_t startTimestamp;
     static millis_t stopTimestamp;
+
+    static millis_t accumulatorHeat;
+    static millis_t startHeatTimestamp;
+    static millis_t stopHeatTimestamp;
+    static bool     heatRunning;
 
   public:
     /**
@@ -83,6 +93,10 @@ class Stopwatch {
      */
     static void reset();
 
+    static void heating_start();
+
+    static void heating_stop();
+
     /**
      * @brief Check if the timer is running
      * @details Return true if the timer is currently running, false otherwise.
@@ -104,17 +118,19 @@ class Stopwatch {
      */
     static millis_t duration();
 
+    static millis_t durationHeat();
+
     #ifdef DEBUG_STOPWATCH
 
       /**
        * @brief Print a debug message
        * @details Print a simple debug message "Stopwatch::function"
        */
-      static void debug(FSTR_P const);
+      static void debug(const char func[]);
 
     #else
 
-      static void debug(FSTR_P const) {}
+      static inline void debug(const char[]) {}
 
     #endif
 };

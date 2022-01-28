@@ -107,7 +107,7 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
       const uint8_t m = editable.int8; // Don't re-use 'editable' in this menu
 
       START_MENU();
-      BACK_ITEM(MSG_TEMPERATURE);
+      // BACK_ITEM(MSG_TEMPERATURE);
 
       #if HOTENDS == 1
 
@@ -162,7 +162,7 @@ void menu_temperature() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   //
   // Nozzle:
@@ -291,11 +291,11 @@ void menu_temperature() {
 
   void menu_preheat_only() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    // BACK_ITEM(MSG_MAIN);
 
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
-      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
+      #if HOTENDS > 1 || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #else
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);

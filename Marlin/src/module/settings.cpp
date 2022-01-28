@@ -55,6 +55,9 @@
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"
 
+#include "../lcd/tft/tft_string.h"
+#include "../libs/numtostr.h"
+
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/eeprom_api.h"
 #endif
@@ -537,7 +540,15 @@ typedef struct SettingsDataStruct {
     uint8_t ui_language;                                // M414 S
   #endif
 
+  #if ENABLED(RS_ADDSETTINGS)
+    planner_axinvert_t invert_axes;
+   thermistors_data_t thermistors_data;
+  #endif  // RS_ADDSETTINGS
 } SettingsData;
+
+#if ENABLED(RS_ADDSETTINGS)
+  extra_settings_t extra_settings;
+#endif  // RS_ADDSETTINGS
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
 
@@ -1519,6 +1530,14 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ui.language);
     #endif
 
+    #if ENABLED(RS_ADDSETTINGS)
+      // Motors DIR inverting
+      EEPROM_WRITE(planner.invert_axis);
+
+      // Thermistors type
+     EEPROM_WRITE(thermistors_data);
+    #endif  // RS_ADDSETTINGS
+
     //
     // Report final CRC and Data Size
     //
@@ -1553,6 +1572,11 @@ void MarlinSettings::postprocess() {
     if (!eeprom_error) LCD_MESSAGE(MSG_SETTINGS_STORED);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
+
+    #if ENABLED(RS_ADDSETTINGS)
+      extra_settings.poweroff_at_printed = false;
+      extra_settings.sscreen_need_draw = true;
+    #endif  // RS_ADDSETTINGS
 
     return !eeprom_error;
   }
@@ -2463,6 +2487,18 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
+      #if ENABLED(RS_ADDSETTINGS)
+        // Motors DIR inverting
+        EEPROM_READ((uint8_t *)&planner.invert_axis, sizeof(planner.invert_axis));
+
+        // Thermistors type
+       EEPROM_READ((uint8_t *)&thermistors_data, sizeof(thermistors_data));
+      #endif  // RS_ADDSETTINGS
+
+
+      DEBUG_ECHO_MSG("EEPROM Readed");
+
+
       //
       // Validate Final Size and CRC
       //
@@ -2482,6 +2518,10 @@ void MarlinSettings::postprocess() {
         DEBUG_ECHO(version);
         DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
       }
+      else
+        DEBUG_ECHO_MSG("EEPROM read success. Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
+
+      delay(1000);
 
       if (!validating && !eeprom_error) postprocess();
 
@@ -2523,6 +2563,11 @@ void MarlinSettings::postprocess() {
     #endif
 
     EEPROM_FINISH();
+
+    #if ENABLED(RS_ADDSETTINGS)
+      extra_settings.poweroff_at_printed = false;
+      extra_settings.sscreen_need_draw = true;
+    #endif  // RS_ADDSETTINGS
 
     return !eeprom_error;
   }
@@ -2693,6 +2738,31 @@ void MarlinSettings::reset() {
     planner.settings.max_acceleration_mm_per_s2[i] = pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
     planner.settings.axis_steps_per_mm[i] = pgm_read_float(&_DASU[ALIM(i, _DASU)]);
     planner.settings.max_feedrate_mm_s[i] = pgm_read_float(&_DMF[ALIM(i, _DMF)]);
+    #if ENABLED(RS_ADDSETTINGS)
+      // Motors DIR inverting
+      planner.invert_axis.invert_axis[X_AXIS] = INVERT_X_DIR;
+      planner.invert_axis.invert_axis[Y_AXIS] = INVERT_Y_DIR;
+      planner.invert_axis.invert_axis[Z_AXIS] = INVERT_Z_DIR;
+      planner.invert_axis.invert_axis[E_AXIS] = INVERT_E0_DIR;
+
+      // Thermistors type
+      thermistors_data.heater_type[0] = 0;
+      #if (HOTENDS > 1)
+        thermistors_data.heater_type[1] = 0;
+      #endif
+      thermistors_data.bed_type = 0;
+      for (uint8_t i = 0;  i < THERMISTORS_TYPES_COUNT; i++)
+      {
+        if (thermistor_types[i].type == TEMP_SENSOR_0)
+          thermistors_data.heater_type[0] = i;
+        #if (HOTENDS > 1)
+          if (thermistor_types[i].type == TEMP_SENSOR_1)
+            thermistors_data.heater_type[1] = i;
+        #endif
+        if (thermistor_types[i].type == TEMP_SENSOR_BED)
+          thermistors_data.bed_type = i;
+      }
+    #endif  // RS_ADDSETTINGS
   }
 
   planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
@@ -2701,6 +2771,10 @@ void MarlinSettings::reset() {
   planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
+
+  #if ENABLED(RS_ADDSETTINGS)
+    planner.invert_axis.z2_vs_z_dir = ENABLED(INVERT_Z2_VS_Z_DIR);
+  #endif // RS_ADDSETTINGS
 
   #if HAS_CLASSIC_JERK
     #ifndef DEFAULT_XJERK
@@ -3150,6 +3224,12 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
+
+  #if ENABLED(RS_ADDSETTINGS)
+    extra_settings.poweroff_at_printed = false;
+      extra_settings.sscreen_need_draw = true;
+  #endif  // RS_ADDSETTINGS
+
 }
 
 #if DISABLED(DISABLE_M503)
@@ -3427,6 +3507,20 @@ void MarlinSettings::reset() {
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
+
+    CONFIG_ECHO_HEADING("Touch calibration values");
+    tft_string.set("#define TOUCH_CALIBRATION_X ");
+    tft_string.add(i32tostr6rj(touch_calibration.calibration.x));
+    SERIAL_ECHOLN((char*)(tft_string.string()));
+    tft_string.set("#define TOUCH_CALIBRATION_Y ");
+    tft_string.add(i32tostr6rj(touch_calibration.calibration.y));
+    SERIAL_ECHOLN((char*)(tft_string.string()));
+    tft_string.set("#define TOUCH_OFFSET_X      ");
+    tft_string.add(i32tostr6rj(touch_calibration.calibration.offset_x));
+    SERIAL_ECHOLN((char*)(tft_string.string()));
+    tft_string.set("#define TOUCH_OFFSET_Y      ");
+    tft_string.add(i32tostr6rj(touch_calibration.calibration.offset_y));
+    SERIAL_ECHOLN((char*)(tft_string.string()));
   }
 
 #endif // !DISABLE_M503

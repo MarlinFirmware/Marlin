@@ -39,6 +39,8 @@ const tImage NoLogo                 = { nullptr, 0, 0, NOCOLORS };
 #endif
 const tImage Background320x30x16    = { (void *)background_320x30x16, 320, 30, HIGHCOLOR };
 
+const tImage FeedRate_64x64x4         = { (void *)feedrate_64x64x4, 64, 64, GREYSCALE4 };
+const tImage FlowRate_64x64x4         = { (void *)flowrate_64x64x4, 64, 64, GREYSCALE4 };
 const tImage HotEnd_64x64x4         = { (void *)hotend_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Bed_64x64x4            = { (void *)bed_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Bed_Heated_64x64x4     = { (void *)bed_heated_64x64x4, 64, 64, GREYSCALE4 };
@@ -61,6 +63,8 @@ const tImage Cancel_64x64x4         = { (void *)cancel_64x64x4, 64, 64, GREYSCAL
 const tImage Increase_64x64x4       = { (void *)increase_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Decrease_64x64x4       = { (void *)decrease_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Pause_64x64x4          = { (void *)pause_64x64x4, 64, 64, GREYSCALE4 };
+const tImage Move_64x64x4           = { (void *)move_64x64x4, 64, 64, GREYSCALE4 };
+const tImage Resume_64x64x4         = { (void *)resume_64x64x4, 64, 64, GREYSCALE4 };
 
 const tImage Feedrate_32x32x4       = { (void *)feedrate_32x32x4, 32, 32, GREYSCALE4 };
 const tImage Flowrate_32x32x4       = { (void *)flowrate_32x32x4, 32, 32, GREYSCALE4 };
@@ -77,6 +81,10 @@ const tImage Slider8x16x4           = { (void *)slider_8x16x4, 8, 16, GREYSCALE4
 
 const tImage Images[imgCount] = {
   TERN(SHOW_BOOTSCREEN, TERN(BOOT_MARLIN_LOGO_SMALL, MarlinLogo195x59x16, MARLIN_LOGO_FULL_SIZE), NoLogo),
+  #if ENABLED(RS_STYLE_COLOR_UI)
+    FeedRate_64x64x4,
+    FlowRate_64x64x4,
+  #endif
   HotEnd_64x64x4,
   Bed_64x64x4,
   Bed_Heated_64x64x4,
@@ -87,8 +95,10 @@ const tImage Images[imgCount] = {
   Fan_Slow1_64x64x4,
   Fan_Fast0_64x64x4,
   Fan_Fast1_64x64x4,
-  Feedrate_32x32x4,
-  Flowrate_32x32x4,
+  #if DISABLED(RS_STYLE_COLOR_UI)
+    Feedrate_32x32x4,
+    Flowrate_32x32x4,
+  #endif
   SD_64x64x4,
   Menu_64x64x4,
   Settings_64x64x4,
@@ -108,6 +118,9 @@ const tImage Images[imgCount] = {
   Home_64x64x4,
   BtnRounded_64x52x4,
   BtnRounded_42x39x4,
+  Move_64x64x4,
+  Pause_64x64x4,
+  Resume_64x64x4,
 };
 
 #endif // HAS_GRAPHICAL_TFT

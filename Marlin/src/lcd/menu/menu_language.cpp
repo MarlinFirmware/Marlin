@@ -39,7 +39,7 @@ static void set_lcd_language(const uint8_t inlang) {
 
 void menu_language() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   MENU_ITEM_P(function, GET_LANG(LCD_LANGUAGE  )::LANGUAGE, []{ set_lcd_language(0); });
   MENU_ITEM_P(function, GET_LANG(LCD_LANGUAGE_2)::LANGUAGE, []{ set_lcd_language(1); });

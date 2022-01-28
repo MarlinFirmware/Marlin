@@ -31,6 +31,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
+#include "../planner.h"
 
 #if HAS_L64XX
   #include "L64xx.h"
@@ -652,8 +653,13 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #elif E_STEPPERS
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
+  #if ENABLED(RS_ADDSETTINGS)
+    #define   NORM_E_DIR(E)   E0_DIR_WRITE(!planner.invert_axis.invert_axis[E_AXIS])
+    #define    REV_E_DIR(E)   E0_DIR_WRITE( planner.invert_axis.invert_axis[E_AXIS])
+  #else
   #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
   #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
+  #endif  // RS_ADDSETTINGS
 
 #else
   #define E_STEP_WRITE(E,V) NOOP

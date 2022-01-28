@@ -111,6 +111,29 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
 ////////////////////////////////////////////
 
 // All Edit Screens run the same way, but `draw_edit_screen` is implementation-specific
+/**
+ * Functions for editing single values
+ *
+ * The "DEFINE_MENU_EDIT_ITEM" macro generates the classes needed to edit a numerical value.
+ *
+ * The prerequisite is that in the header the type was already declared:
+ *
+ *   DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into:
+ *
+ *   template class TMenuEditItem<MenuEditItemInfo_int3>
+ *
+ * You can then use one of the menu macros to present the edit interface:
+ *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
+ *
+ * This expands into a more primitive menu item:
+ *  _MENU_ITEM_P(int3, false, GET_TEXT(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *
+ * ...which calls:
+ *       MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
+ *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
+ */
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
   // Reset repeat_delay for Touch Buttons
   TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
@@ -346,6 +369,7 @@ void _lcd_draw_homing() {
 }
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
+  #include "../../feature/bedlevel/bedlevel.h"
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
@@ -378,4 +402,17 @@ void MenuItem_confirm::select_screen(
   }
 }
 
+#if ENABLED(RS_STYLE_COLOR_UI)
+  void MenuItem_fileconfirm::select_screen(selectFunc_t yesFunc, selectFunc_t noFunc, const char * const string/*=nullptr*/) {
+    ui.defer_status_screen();
+    const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
+    if (got_click || ui.should_draw()) {
+      draw_select_screen(string);
+      if (got_click) {
+        selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
+        if (callFunc) callFunc(); else ui.goto_previous_screen();
+      }
+    }
+  }
+#endif // ENABLED(RS_STYLE_COLOR_UI)
 #endif // HAS_LCD_MENU

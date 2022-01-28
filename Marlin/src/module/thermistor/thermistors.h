@@ -42,6 +42,18 @@
 #define OV_SCALE(N) (N)
 #define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
+#define TEMP_SENSOR_IS(n,H) (n == TEMP_SENSOR_##H)
+#define ANY_THERMISTOR_IS(n) ( TEMP_SENSOR_IS(n, 0) || TEMP_SENSOR_IS(n, 1) \
+                            || TEMP_SENSOR_IS(n, 2) || TEMP_SENSOR_IS(n, 3) \
+                            || TEMP_SENSOR_IS(n, 4) || TEMP_SENSOR_IS(n, 5) \
+                            || TEMP_SENSOR_IS(n, 6) || TEMP_SENSOR_IS(n, 7) \
+                            || TEMP_SENSOR_IS(n, BED) \
+                            || TEMP_SENSOR_IS(n, CHAMBER) \
+                            || TEMP_SENSOR_IS(n, COOLER) \
+                            || TEMP_SENSOR_IS(n, PROBE) \
+                            || TEMP_SENSOR_IS(n, BOARD) \
+                            || TEMP_SENSOR_IS(n, REDUNDANT) )
+
 typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
@@ -54,7 +66,7 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #define PtAdVal(T,R0,Rup) (short)(1024 / (Rup / PtRt(T, R0) + 1))
 #define PtLine(T,R0,Rup) { OV(PtAdVal(T, R0, Rup)), T }
 
-#if ANY_THERMISTOR_IS(1) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "EPCOS"
+#if ANY_THERMISTOR_IS(1) || ENABLED(RS_ADDSETTINGS) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "EPCOS"
   #include "thermistor_1.h"
 #endif
 #if ANY_THERMISTOR_IS(2) // 4338 K, R25 = 200 kOhm, Pull-up = 4.7 kOhm, "ATC Semitec 204GT-2"
@@ -66,7 +78,7 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(4) // beta25 = 3950 K, R25 = 10 kOhm, Pull-up = 4.7 kOhm, "Generic"
   #include "thermistor_4.h"
 #endif
-#if ANY_THERMISTOR_IS(5) // beta25 = 4267 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "ParCan, ATC 104GT-2"
+#if ANY_THERMISTOR_IS(5) || ENABLED(RS_ADDSETTINGS) // beta25 = 4267 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "ParCan, ATC 104GT-2"
   #include "thermistor_5.h"
 #endif
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
@@ -102,7 +114,7 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(11) // beta25 = 3950 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "QU-BD silicone bed, QWG-104F-3950"
   #include "thermistor_11.h"
 #endif
-#if ANY_THERMISTOR_IS(13) // beta25 = 4100 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Hisens"
+#if ANY_THERMISTOR_IS(13) || ENABLED(RS_ADDSETTINGS) // beta25 = 4100 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Hisens"
   #include "thermistor_13.h"
 #endif
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
@@ -144,7 +156,7 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(61) // beta25 = 3950 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Formbot 350°C Thermistor"
   #include "thermistor_61.h"
 #endif
-#if ANY_THERMISTOR_IS(66) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 °C Thermistor"
+#if ANY_THERMISTOR_IS(66) || ENABLED(RS_ADDSETTINGS) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 °C Thermistor"
   #include "thermistor_66.h"
 #endif
 #if ANY_THERMISTOR_IS(67) // R25 = 500 KOhm, beta25 = 3800 K, 4.7 kOhm pull-up, SliceEngineering 450 °C Thermistor

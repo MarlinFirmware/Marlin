@@ -422,7 +422,12 @@ xyze_int8_t Stepper::count_direction{0};
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
   #endif
 #elif NUM_Z_STEPPER_DRIVERS == 2
+
+  #if ENABLED(RS_ADDSETTINGS)
+    #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE((v) ^ planner.invert_axis.z2_vs_z_dir); }while(0)
+  #else
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE((v) ^ ENABLED(INVERT_Z2_VS_Z_DIR)); }while(0)
+  #endif  // RS_ADDSETTINGS
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -577,6 +582,17 @@ void Stepper::set_directions() {
 
   DIR_WAIT_BEFORE();
 
+  #if ENABLED(RS_ADDSETTINGS)
+    #define SET_STEP_DIR(A)                       \
+      if (motor_direction(_AXIS(A))) {            \
+        A##_APPLY_DIR(planner.invert_axis.invert_axis[_AXIS(A)], false);   \
+        count_direction[_AXIS(A)] = -1;           \
+      }                                           \
+      else {                                      \
+        A##_APPLY_DIR(!planner.invert_axis.invert_axis[_AXIS(A)], false);  \
+        count_direction[_AXIS(A)] = 1;            \
+      }
+  #else
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
       A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
@@ -586,7 +602,7 @@ void Stepper::set_directions() {
       A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
       count_direction[_AXIS(A)] = 1;            \
     }
-
+  #endif  // RS_ADDSETTINGS
   TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
   TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
   TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
@@ -2775,6 +2791,13 @@ void Stepper::init() {
   #endif
 
   // Init direction bits for first moves
+#if ENABLED(RS_ADDSETTINGS)
+  set_directions((planner.invert_axis.invert_axis[X_AXIS]  ? 1 << X_AXIS : 0)
+                | (planner.invert_axis.invert_axis[Y_AXIS] ? 1 << Y_AXIS : 0)
+                | (planner.invert_axis.invert_axis[Z_AXIS] ? 1 << Z_AXIS : 0)
+  );
+
+#else
   set_directions(0
     LINEAR_AXIS_GANG(
       | TERN0(INVERT_X_DIR, _BV(X_AXIS)),
@@ -2785,6 +2808,7 @@ void Stepper::init() {
       | TERN0(INVERT_K_DIR, _BV(K_AXIS))
     )
   );
+#endif  // RS_ADDSETTINGS
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
     initialized = true;

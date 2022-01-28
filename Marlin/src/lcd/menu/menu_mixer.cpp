@@ -78,7 +78,7 @@
 
   void lcd_mixer_edit_gradient_menu() {
     START_MENU();
-    BACK_ITEM(MSG_MIXER);
+    // BACK_ITEM(MSG_MIXER);
 
     EDIT_ITEM(int8, MSG_START_VTOOL, &mixer.gradient.start_vtool, 0, MIXING_VIRTUAL_TOOLS - 1, mixer.refresh_gradient);
     EDIT_ITEM(int8, MSG_END_VTOOL, &mixer.gradient.end_vtool, 0, MIXING_VIRTUAL_TOOLS - 1, mixer.refresh_gradient);
@@ -167,7 +167,7 @@ void lcd_mixer_mix_edit() {
   #else
 
     START_MENU();
-    BACK_ITEM(MSG_MIXER);
+    // BACK_ITEM(MSG_MIXER);
 
     #if CHANNEL_MIX_EDITING
 
@@ -226,7 +226,7 @@ void lcd_mixer_mix_edit() {
 
 void menu_mixer() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   v_index = mixer.get_current_vtool();
   EDIT_ITEM(uint8, MSG_ACTIVE_VTOOL, &v_index, 0, MIXING_VIRTUAL_TOOLS - 1, _lcd_mixer_select_vtool, ENABLED(HAS_DUAL_MIXING));
@@ -253,7 +253,7 @@ void menu_mixer() {
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
     []{
       mixer.reset_vtools();
-      LCD_MESSAGE(MSG_VTOOLS_RESET);
+      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
       ui.return_to_status();
     },
     nullptr,

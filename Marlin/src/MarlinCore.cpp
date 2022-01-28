@@ -365,6 +365,7 @@ void startOrResumeJob() {
     TERN(HAS_CUTTER, cutter.kill(), thermalManager.zero_fan_speeds()); // Full cutter shutdown including ISR control
 
     wait_for_heatup = false;
+    print_job_timer.heating_stop();
 
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
@@ -1618,6 +1619,10 @@ void setup() {
   #if ENABLED(EASYTHREED_UI)
     SETUP_RUN(easythreed_ui.init());
   #endif
+  
+  #if ENABLED(MKS_WIFI)
+    mks_wifi_init();
+  #endif
 
   marlin_state = MF_RUNNING;
 
@@ -1651,6 +1656,7 @@ void loop() {
     endstops.event_handler();
 
     TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
+    TERN_(MKS_WIFI_MODULE, wifi_looping());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

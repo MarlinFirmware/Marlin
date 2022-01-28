@@ -1,0 +1,1 @@
+After assembly, the firmware binary file is placed here. 

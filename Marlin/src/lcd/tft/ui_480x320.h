@@ -25,7 +25,12 @@
 
 #include "ui_common.h"
 
-#define TFT_STATUS_TOP_Y       4
+#if ENABLED(RS_STYLE_COLOR_UI)
+  #define TFT_STATUS_TOP_Y       0
+#else
+  #define TFT_STATUS_TOP_Y       4
+#endif
+
 #define TFT_TOP_LINE_Y         4
 
 #define MENU_TEXT_X_OFFSET    16
@@ -36,12 +41,14 @@
 #define MENU_ITEM_ICON_SPACE  42
 
 #if HAS_UI_480x320
-  #define MENU_FONT_NAME      Helvetica18
+  #define PROGRESS_FONT_NAME  Tahoma36bold_num
+  #define MENU_FONT_NAME      Tahoma18
   #define SYMBOLS_FONT_NAME   Helvetica18_symbols
   #define MENU_ITEM_HEIGHT    43
   #define FONT_LINE_HEIGHT    34
 #elif HAS_UI_480x272
-  #define MENU_FONT_NAME      Helvetica14
+  #define PROGRESS_FONT_NAME  Tahoma18
+  #define MENU_FONT_NAME      Tahoma14
   #define SYMBOLS_FONT_NAME   Helvetica14_symbols
   #define MENU_ITEM_HEIGHT    36
   #define FONT_LINE_HEIGHT    24

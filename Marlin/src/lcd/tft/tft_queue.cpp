@@ -117,7 +117,7 @@ void TFT_Queue::canvas(queueTask_t *task) {
         Canvas.SetBackground(((parametersCanvasBackground_t *)item)->color);
         break;
       case CANVAS_ADD_TEXT:
-        Canvas.AddText(((parametersCanvasText_t *)item)->x, ((parametersCanvasText_t *)item)->y, ((parametersCanvasText_t *)item)->color, item + sizeof(parametersCanvasText_t), ((parametersCanvasText_t *)item)->maxWidth);
+        Canvas.AddText(((parametersCanvasText_t *)item)->x, ((parametersCanvasText_t *)item)->y, ((parametersCanvasText_t *)item)->color, item + sizeof(parametersCanvasText_t), ((parametersCanvasText_t *)item)->maxWidth, ((parametersCanvasText_t *)item)->font);
         break;
 
       case CANVAS_ADD_IMAGE:
@@ -229,6 +229,7 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, uint8_t *string
   parameters->color = ENDIAN_COLOR(color);
   parameters->stringLength = 0;
   parameters->maxWidth = maxWidth;
+  parameters->font = tft.get_font();
 
   end_of_queue += sizeof(parametersCanvasText_t);
 

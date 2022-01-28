@@ -151,7 +151,7 @@ void Password::start_over() {
 
 void Password::menu_password_report() {
   START_SCREEN();
-  BACK_ITEM(MSG_PASSWORD_SETTINGS);
+  // BACK_ITEM(MSG_PASSWORD_SETTINGS);
   STATIC_ITEM(MSG_PASSWORD_SET, SS_LEFT, string);
   STATIC_ITEM(MSG_REMINDER_SAVE_SETTINGS, SS_LEFT);
   END_SCREEN();
@@ -175,7 +175,7 @@ void Password::remove_password() {
 //
 void Password::menu_password() {
   START_MENU();
-  BACK_ITEM(MSG_ADVANCED_SETTINGS);
+  // BACK_ITEM(MSG_ADVANCED_SETTINGS);
   SUBMENU(MSG_CHANGE_PASSWORD, screen_set_password);
   ACTION_ITEM(MSG_REMOVE_PASSWORD, []{ ui.push_current_screen(); remove_password(); } );
   #if ENABLED(EEPROM_SETTINGS)

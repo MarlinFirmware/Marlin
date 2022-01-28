@@ -352,6 +352,7 @@
 #endif
 #define STR_X2 "X2"
 #define STR_Y2 "Y2"
+#define STR_Z1 "Z1"
 #define STR_Z2 "Z2"
 #define STR_Z3 "Z3"
 #define STR_Z4 "Z4"

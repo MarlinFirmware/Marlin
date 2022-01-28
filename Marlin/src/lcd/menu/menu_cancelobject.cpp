@@ -47,7 +47,7 @@ static void lcd_cancel_object_confirm() {
       ui.completion_feedback();
       ui.goto_previous_screen();
     },
-    nullptr,
+    ui.goto_previous_screen,
     GET_TEXT(MSG_CANCEL_OBJECT), item_num, PSTR("?")
   );
 }
@@ -56,7 +56,7 @@ void menu_cancelobject() {
   const int8_t ao = cancelable.active_object;
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  // BACK_ITEM(MSG_MAIN);
 
   // Draw cancelable items in a loop
   for (int8_t i = -1; i < cancelable.object_count; i++) {

@@ -457,6 +457,10 @@ public:
       #endif
 
       static void status_screen();
+      #if ENABLED(RS_STYLE_COLOR_UI)
+        static void poweroff_wait_screen();
+        static void poweroff_screen();
+      #endif
 
     #endif
 
@@ -551,6 +555,9 @@ public:
 
     static void return_to_status();
     static bool on_status_screen() { return currentScreen == status_screen; }
+    #if ENABLED(RS_STYLE_COLOR_UI)
+      static inline bool on_poweroff_screen() { return currentScreen == poweroff_wait_screen; }
+    #endif
     FORCE_INLINE static void run_current_screen() { (*currentScreen)(); }
 
     #if ENABLED(LIGHTWEIGHT_UI)

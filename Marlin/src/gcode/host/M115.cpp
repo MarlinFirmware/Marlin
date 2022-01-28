@@ -23,6 +23,8 @@
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
 #include "../queue.h"           // for getting the command port
+#include "../../module/settings.h"
+
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
@@ -72,6 +74,10 @@ void GcodeSuite::M115() {
       "UUID:" MACHINE_UUID
     #endif
   );
+  sprintf(string, "%u", settings.datasize());
+  strcat(string, "\n");
+  SERIAL_ECHOLNPGM("EPROM datasize: ", settings.datasize(), "\n");
+
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 

@@ -1051,3 +1051,25 @@ class Temperature {
 };
 
 extern Temperature thermalManager;
+
+
+#if ENABLED(RS_ADDSETTINGS)
+  typedef struct
+  {
+    const uint32_t  type;
+    const char      *name;
+    const temp_entry_t *table;
+    const uint32_t  table_size;
+  } thermistor_types_t;
+  extern const thermistor_types_t thermistor_types[];
+
+  typedef struct 
+  {
+    uint8_t heater_type[HOTENDS];
+    uint8_t bed_type;
+  } thermistors_data_t;
+  extern thermistors_data_t thermistors_data;
+  
+  #define THERMISTORS_TYPES_COUNT 4
+  
+#endif  // RS_ADDSETTINGS

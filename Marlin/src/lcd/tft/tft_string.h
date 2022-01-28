@@ -28,8 +28,9 @@ extern const uint8_t font10x20[];
 
 extern const uint8_t Helvetica12Bold[];
 
-extern const uint8_t Helvetica14[], Helvetica14_symbols[];
-extern const uint8_t Helvetica18[], Helvetica18_symbols[];
+extern const uint8_t Helvetica14[], Helvetica14ru[], Tahoma14[], Helvetica14_symbols[];
+extern const uint8_t Helvetica18[], Helvetica18ru[], Tahoma18[], Helvetica18_symbols[];
+extern const uint8_t Tahoma36bold_num[];
 
 #define NO_GLYPH          0xFF
 
@@ -60,7 +61,7 @@ typedef struct __attribute__((__packed__)) {
    int8_t BBXOffsetY;
 } glyph_t;
 
-#define MAX_STRING_LENGTH   64
+#define MAX_STRING_LENGTH   128
 
 class TFT_String {
   private:
@@ -81,7 +82,7 @@ class TFT_String {
     static font_t *font() { return font_header; };
     static uint16_t font_height() { return font_header->FontAscent - font_header->FontDescent; }
     static glyph_t *glyph(uint8_t character) { return glyphs[character] ?: glyphs[0x3F]; }  /* Use '?' for unknown glyphs */
-    static glyph_t *glyph(uint8_t *character) { return glyph(*character); }
+    static inline glyph_t *glyph(uint8_t *character) { return glyph(*character); }
 
     static void set();
     static void add(uint8_t character) { add_character(character); eol(); }
@@ -89,9 +90,9 @@ class TFT_String {
     static void add(uint8_t *string, int8_t index, uint8_t *itemString=nullptr);
     static void set(uint8_t *string) { set(); add(string); };
     static void set(uint8_t *string, int8_t index, const char *itemString=nullptr) { set(); add(string, index, (uint8_t *)itemString); };
-    static void set(const char *string) { set((uint8_t *)string); }
-    static void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
-    static void add(const char *string) { add((uint8_t *)string); }
+    static inline void set(const char *string) { set((uint8_t *)string); }
+    static inline void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
+    static inline void add(const char *string) { add((uint8_t *)string); }
 
     static void trim(uint8_t character=0x20);
     static void rtrim(uint8_t character=0x20);

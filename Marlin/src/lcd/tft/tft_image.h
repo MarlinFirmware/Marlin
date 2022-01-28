@@ -33,6 +33,8 @@ extern const uint16_t marlin_logo_320x240x16[];
 extern const uint16_t marlin_logo_480x320x16[];
 extern const uint16_t background_320x30x16[];
 
+extern const uint8_t flowrate_64x64x4[];
+extern const uint8_t feedrate_64x64x4[];
 extern const uint8_t hotend_64x64x4[];
 extern const uint8_t bed_64x64x4[], bed_heated_64x64x4[];
 extern const uint8_t chamber_64x64x4[], chamber_heated_64x64x4[];
@@ -50,6 +52,8 @@ extern const uint8_t cancel_64x64x4[];
 extern const uint8_t increase_64x64x4[];
 extern const uint8_t decrease_64x64x4[];
 extern const uint8_t pause_64x64x4[];
+extern const uint8_t move_64x64x4[];
+extern const uint8_t resume_64x64x4[];
 
 extern const uint8_t feedrate_32x32x4[];
 extern const uint8_t flowrate_32x32x4[];
@@ -66,6 +70,10 @@ extern const uint8_t slider_8x16x4[];
 
 enum MarlinImage : uint8_t {
   imgBootScreen = 0x00,
+  #if ENABLED(RS_STYLE_COLOR_UI)
+    imgFeedRate,
+    imgFlowRate,
+  #endif
   imgHotEnd,
   imgBed,
   imgBedHeated,
@@ -76,8 +84,10 @@ enum MarlinImage : uint8_t {
   imgFanSlow1,
   imgFanFast0,
   imgFanFast1,
-  imgFeedRate,
-  imgFlowRate,
+  #if DISABLED(RS_STYLE_COLOR_UI)
+    imgFeedRate,
+    imgFlowRate,
+  #endif
   imgSD,
   imgMenu,
   imgSettings,
@@ -97,6 +107,9 @@ enum MarlinImage : uint8_t {
   imgHome,
   imgBtn52Rounded,
   imgBtn39Rounded,
+  imgMove,
+  imgPause,
+  imgResume,
   imgCount,
   noImage = imgCount,
   imgPageUp = imgLeft,
@@ -133,6 +146,8 @@ extern const tImage NoLogo;
 #endif
 extern const tImage Background320x30x16;
 
+extern const tImage FlowRate_64x64x4;
+extern const tImage FeedRate_64x64x4;
 extern const tImage HotEnd_64x64x4;
 extern const tImage Bed_64x64x4;
 extern const tImage Bed_Heated_64x64x4;
@@ -155,6 +170,8 @@ extern const tImage Cancel_64x64x4;
 extern const tImage Increase_64x64x4;
 extern const tImage Decrease_64x64x4;
 extern const tImage Pause_64x64x4;
+extern const tImage Move_64x64x4;
+extern const tImage Resume_64x64x4;
 
 extern const tImage Feedrate_32x32x4;
 extern const tImage Flowrate_32x32x4;

@@ -42,7 +42,12 @@
 size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start()  { eeprom_init(); return true; }
-bool PersistentStore::access_finish() { return true; }
+bool PersistentStore::access_finish() { 
+  #if ENABLED(EEPROM_W25Q)
+    eeprom_hw_deinit();
+  #endif
+  return true; 
+  }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   uint16_t written = 0;

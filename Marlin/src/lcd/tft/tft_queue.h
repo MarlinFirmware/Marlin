@@ -88,6 +88,7 @@ typedef struct __attribute__((__packed__)) {
   uint32_t count;
   uint16_t maxWidth;
   uint16_t stringLength;
+  font_t   *font;
 } parametersCanvasText_t;
 
 typedef struct __attribute__((__packed__)) {

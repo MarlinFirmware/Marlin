@@ -52,6 +52,8 @@
   // Motion > Level Bed handlers
   //
 
+  static uint8_t manual_probe_index;
+
   // LCD probed points are from defaults
   constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
@@ -101,9 +103,9 @@
         ui.wait_for_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
-          queue.inject(F("G29S2"));
+          queue.inject_P(PSTR("G29S2"));
         #elif ENABLED(PROBE_MANUALLY)
-          queue.inject(F("G29V1"));
+          queue.inject_P(PSTR("G29V1"));
         #endif
       }
       else
@@ -153,9 +155,9 @@
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_move = true;
     #if ENABLED(MESH_BED_LEVELING)
-      queue.inject(manual_probe_index ? F("G29S2") : F("G29S1"));
+      queue.inject_P(manual_probe_index ? PSTR("G29S2") : PSTR("G29S1"));
     #elif ENABLED(PROBE_MANUALLY)
-      queue.inject(F("G29V1"));
+      queue.inject_P(PSTR("G29V1"));
     #endif
   }
 
@@ -211,7 +213,7 @@
   void menu_edit_mesh() {
     static uint8_t xind, yind; // =0
     START_MENU();
-    BACK_ITEM(MSG_BED_LEVELING);
+    // BACK_ITEM(MSG_BED_LEVELING);
     EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_MAX_POINTS_X) - 1);
     EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, (GRID_MAX_POINTS_Y) - 1);
     EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
@@ -239,7 +241,7 @@ void menu_bed_leveling() {
              is_valid = leveling_is_valid();
 
   START_MENU();
-  BACK_ITEM(MSG_MOTION);
+  // BACK_ITEM(MSG_MOTION);
 
   // Auto Home if not using manual probing
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
