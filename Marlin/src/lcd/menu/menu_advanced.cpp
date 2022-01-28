@@ -330,13 +330,13 @@ void menu_backlash();
       START_MENU();
 
       char itemlbl[64];
-      strcpy(itemlbl, LCD_STR_E0);
+      strcpy(itemlbl, STR_E0);
       strcat(itemlbl, ": ");
       strcat(itemlbl, thermistor_types[thermistors_data.heater_type[0]].name);
       SUBMENU_P(itemlbl, menu_thermistors_hot0_list);
 
       #if (HOTENDS > 1)
-        strcpy(itemlbl, LCD_STR_E1);
+        strcpy(itemlbl, STR_E1);
         strcat(itemlbl, ": ");
         strcat(itemlbl, thermistor_types[thermistors_data.heater_type[1]].name);
         SUBMENU_P(itemlbl, menu_thermistors_hot1_list);

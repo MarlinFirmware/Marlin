@@ -61,6 +61,7 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
+  char string[32];
   SERIAL_ECHOLNPGM(
     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
     "SOURCE_CODE_URL:" SOURCE_CODE_URL " "

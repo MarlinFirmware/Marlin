@@ -32,7 +32,7 @@
 #define BOARD_NO_NATIVE_USB
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER  5
+#define TEMP_TIMER                             5
 
 //
 // EEPROM
@@ -77,13 +77,28 @@
 #define Z_STEP_PIN                          PB5
 #define Z_DIR_PIN                           PB4
 
-#define E0_ENABLE_PIN                       PB3
-#define E0_STEP_PIN                         PD6
-#define E0_DIR_PIN                          PD3
 
-#define E1_ENABLE_PIN                       PA3
-#define E1_STEP_PIN                         PA6
-#define E1_DIR_PIN                          PA1
+#if ENABLED(SWAP_Z_E_PINS)
+  #define E0_ENABLE_PIN                       PA3
+  #define E0_STEP_PIN                         PA6
+  #define E0_DIR_PIN                          PA1
+
+  #define Z2_ENABLE_PIN                       PB3
+  #define Z2_STEP_PIN                         PD6
+  #define Z2_DIR_PIN                          PD3
+#else
+  #define E0_ENABLE_PIN                       PB3
+  #define E0_STEP_PIN                         PD6
+  #define E0_DIR_PIN                          PD3
+
+  #define Z2_ENABLE_PIN                       PA3
+  #define Z2_STEP_PIN                         PA6
+  #define Z2_DIR_PIN                          PA1
+#endif
+
+// #define E1_ENABLE_PIN                       PA3
+// #define E1_STEP_PIN                         PA6
+// #define E1_DIR_PIN                          PA1
 
 //
 // Temperature Sensors
@@ -98,19 +113,20 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PC3
 #endif
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                        PB0
+  #endif
+#else
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN                    PB0
+  #endif
+#endif
 #ifndef FAN_PIN
   #define FAN_PIN                           PB1   // FAN
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA0
-#endif
-
-#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
-  #ifndef FAN1_PIN
-    #define FAN1_PIN                        PB0
-  #endif
-#elif !defined(HEATER_1_PIN)
-  #define HEATER_1_PIN                      PB0
 #endif
 
 //
@@ -125,8 +141,10 @@
   #else
     #define PS_ON_PIN                       PB2   // PW_OFF
   #endif
-  #define KILL_PIN                          PA2
-  #define KILL_PIN_STATE                    HIGH
+  #ifdef MARLIN_CONFIG_MY
+    #define KILL_PIN                          PA2
+    #define KILL_PIN_STATE                    HIGH
+  #endif
 #endif
 
 //
@@ -143,6 +161,11 @@
 #else
   //#define POWER_LOSS_PIN                  PA2   // PW_DET
   //#define PS_ON_PIN                       PB2   // PW_OFF
+  #if ENABLED(MKS_WIFI_MODULE)
+    #define WIFI_IO0_PIN                      PC13
+    #define WIFI_IO1_PIN                      PC7
+    #define WIFI_RESET_PIN                    PA5
+  #endif
   #define FIL_RUNOUT_PIN                    PA4
   #define FIL_RUNOUT2_PIN                   PE6
 #endif
@@ -196,7 +219,7 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_SIZE                  480*12
 #endif
 
 #define HAS_SPI_FLASH                          1
@@ -207,3 +230,21 @@
   #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
 #endif
+
+/*
+Модуль MKS WIFI
+*/
+#define MKS_WIFI
+
+#ifdef MKS_WIFI
+
+ #define MKS_WIFI_SERIAL_NUM                SERIAL_PORT_2
+ #define MKS_WIFI_UART                      USART1
+  #undef PLATFORM_M997_SUPPORT
+
+ #define MKS_WIFI_IO0                       PA8
+ #define MKS_WIFI_IO4                       PC7
+ #define MKS_WIFI_IO_RST                    PA5
+#endif
+
+

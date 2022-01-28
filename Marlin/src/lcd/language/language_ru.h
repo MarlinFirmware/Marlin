@@ -85,17 +85,17 @@ namespace Language_ru {
     LSTR  MSG_HOME_OFFSET_X                 = _UxGT("Смещение дома X");
     LSTR  MSG_HOME_OFFSET_Y                 = _UxGT("Смещение дома Y");
     LSTR  MSG_HOME_OFFSET_Z                 = _UxGT("Смещение дома Z");
-    LSTR  MSG_HOME_OFFSET_I                 = _UxGT("Смещение дома ") LCD_STR_I;
-    LSTR  MSG_HOME_OFFSET_J                 = _UxGT("Смещение дома ") LCD_STR_J;
-    LSTR  MSG_HOME_OFFSET_K                 = _UxGT("Смещение дома ") LCD_STR_K;
+    LSTR  MSG_HOME_OFFSET_I                 = _UxGT("Смещение дома ") STR_I;
+    LSTR  MSG_HOME_OFFSET_J                 = _UxGT("Смещение дома ") STR_J;
+    LSTR  MSG_HOME_OFFSET_K                 = _UxGT("Смещение дома ") STR_K;
   #else
     LSTR  MSG_SET_HOME_OFFSETS              = _UxGT("Установ.смещ.дома");
     LSTR  MSG_HOME_OFFSET_X                 = _UxGT("Смещ. дома X");
     LSTR  MSG_HOME_OFFSET_Y                 = _UxGT("Смещ. дома Y");
     LSTR  MSG_HOME_OFFSET_Z                 = _UxGT("Смещ. дома Z");
-    LSTR  MSG_HOME_OFFSET_I                 = _UxGT("Смещ. дома ") LCD_STR_I;
-    LSTR  MSG_HOME_OFFSET_J                 = _UxGT("Смещ. дома ") LCD_STR_J;
-    LSTR  MSG_HOME_OFFSET_K                 = _UxGT("Смещ. дома ") LCD_STR_K;
+    LSTR  MSG_HOME_OFFSET_I                 = _UxGT("Смещ. дома ") STR_I;
+    LSTR  MSG_HOME_OFFSET_J                 = _UxGT("Смещ. дома ") STR_J;
+    LSTR  MSG_HOME_OFFSET_K                 = _UxGT("Смещ. дома ") STR_K;
   #endif
   LSTR  MSG_HOME_OFFSETS_APPLIED            = _UxGT("Смещения применены");
   LSTR  MSG_SET_ORIGIN                      = _UxGT("Установить ноль");
@@ -930,9 +930,6 @@ namespace Language_ru {
     LSTR MSG_THEN_PRINTER_WILL_OFF          = _UxGT("После этого принтер будет выключен.");
     LSTR MSG_PRESS_SCREEN_TO_CANCEL         = _UxGT("Нажмите на экран для отмены");
   #endif  // RS_STYLE_COLOR_UI
-
-  LSTR MSG_SD_CARD                          = _UxGT("SD Карта");
-  LSTR MSG_USB_DISK                         = _UxGT("USB Диск");
 
 }
 

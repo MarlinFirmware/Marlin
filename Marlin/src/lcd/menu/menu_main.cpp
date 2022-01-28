@@ -34,6 +34,7 @@
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
+#include "../../module/settings.h"
 
 #if ENABLED(PSU_CONTROL)
   #include "../../feature/power.h"
@@ -114,7 +115,7 @@ void menu_configuration();
 
   void custom_menus_main() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    // BACK_ITEM(MSG_MAIN);
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
@@ -231,7 +232,7 @@ void menu_main() {
   ;
 
   START_MENU();
-  BACK_ITEM(MSG_INFO_SCREEN);
+  // BACK_ITEM(MSG_INFO_SCREEN);
 
   #if ENABLED(SDSUPPORT)
 
@@ -239,6 +240,12 @@ void menu_main() {
       #define MEDIA_MENU_AT_TOP
     #endif
 
+    #if !ENABLED(RS_STYLE_COLOR_UI)
+      #if ENABLED(SDSUPPORT)
+        const bool card_detected = card.isMounted();
+        const bool card_open = card_detected && card.isFileOpen();
+      #endif
+      #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
     auto sdcard_menu_items = [&]{
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
@@ -269,7 +276,8 @@ void menu_main() {
         #endif
       }
     };
-
+      #endif  // BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
+    #endif    // !ENABLED(RS_STYLE_COLOR_UI)
   #endif
 
   if (busy) {
@@ -315,7 +323,14 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
+
+    #if ENABLED(RS_ADDSETTINGS)
+      EDIT_ITEM(bool, MSG_POWEROFF_AT_END, &extra_settings.poweroff_at_printed);
+    #endif  // RS_ADDSETTINGS
+
   }
+
+  SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if HAS_CUTTER
     SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
@@ -336,8 +351,6 @@ void menu_main() {
   #if ENABLED(MMU2_MENUS)
     if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
   #endif
-
-  SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_MENU_MAIN)
     if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
@@ -387,7 +400,7 @@ void menu_main() {
   #endif
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
-    sdcard_menu_items();
+    // sdcard_menu_items();
   #endif
 
   #if HAS_SERVICE_INTERVALS

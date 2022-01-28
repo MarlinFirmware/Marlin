@@ -82,6 +82,7 @@ class TFT {
 
     static void init();
     static inline void set_font(const uint8_t *Font) { string.set_font(Font); }
+    static inline font_t* get_font() { return string.font(); }
     static inline void add_glyphs(const uint8_t *Font) { string.add_glyphs(Font); }
 
     static inline bool is_busy() { return io.isBusy(); }
