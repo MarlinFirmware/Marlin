@@ -70,7 +70,7 @@ const Timer get_pwm_timer(const pin_t pin) {
 
     #ifdef TCCR0A
       case TIMER0B:   // Protected timer, but allow setting the duty cycle on OCR0B for pin D4 only
-        return Timer({ { &TCCR0A, nullptr, nullptr }, { (uint16_t*)&OCR0B, nullptr, nullptr }, nullptr, 0, 0, true, true });
+        return Timer({ { &TCCR0A, nullptr, nullptr }, { (uint16_t*)&OCR0A, (uint16_t*)&OCR0B, nullptr }, nullptr, 0, 1, true, true });
     #endif
 
     #if HAS_TCCR2
@@ -197,7 +197,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       }
     }
     else
-      digitalWrite(pin, v < 128 ? LOW : HIGH);
+      digitalWrite(pin, v < v_size/2 ? LOW : HIGH);
   }
 }
 
