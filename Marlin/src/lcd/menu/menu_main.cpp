@@ -34,7 +34,6 @@
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
-#include "../../module/settings.h"
 
 #if ENABLED(PSU_CONTROL)
   #include "../../feature/power.h"
@@ -115,7 +114,7 @@ void menu_configuration();
 
   void custom_menus_main() {
     START_MENU();
-    // BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN);
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
@@ -232,7 +231,7 @@ void menu_main() {
   ;
 
   START_MENU();
-  // BACK_ITEM(MSG_INFO_SCREEN);
+  BACK_ITEM(MSG_INFO_SCREEN);
 
   #if ENABLED(SDSUPPORT)
 
@@ -240,12 +239,6 @@ void menu_main() {
       #define MEDIA_MENU_AT_TOP
     #endif
 
-    #if !ENABLED(RS_STYLE_COLOR_UI)
-      #if ENABLED(SDSUPPORT)
-        const bool card_detected = card.isMounted();
-        const bool card_open = card_detected && card.isFileOpen();
-      #endif
-      #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
     auto sdcard_menu_items = [&]{
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
@@ -322,11 +315,6 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
-
-    #if ENABLED(RS_ADDSETTINGS)
-      EDIT_ITEM(bool, MSG_POWEROFF_AT_END, &extra_settings.poweroff_at_printed);
-    #endif  // RS_ADDSETTINGS
-
   }
 
   #if HAS_CUTTER
