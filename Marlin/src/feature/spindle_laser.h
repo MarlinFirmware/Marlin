@@ -108,18 +108,14 @@ public:
   static bool enable_state;
   static uint8_t power;
 
-  #if ENABLED(MARLIN_DEV_MODE)
-    static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
-  #endif
+  static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
 
   static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage or RPM
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   static void init();
 
-  #if ENABLED(MARLIN_DEV_MODE)
-    static void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
-  #endif
+  static void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
 
   // Modifying this function should update everywhere
   static bool enabled(const cutter_power_t opwr) { return opwr > 0; }
