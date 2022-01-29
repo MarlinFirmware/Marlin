@@ -23,7 +23,7 @@
 
 
 ## Главное
-Обновлено 17.01.2022
+Обновлено 29.01.2022
 - WiFi интерфейс для управления принтером и передачи файлов
 - активирован Linear Advance
 - активирована возможность использовать встроенные в прошивку ретракты (командами G10, G11)
@@ -39,6 +39,7 @@
 - по умолчанию стоит ограничение на ускорения осей - 3000 мм/сек\*сек, скорость - 250 мм/сек
 - интерфейс - стандартный графический с измененным главным экраном
 - выбор языка интерфейса - английский или русский
+- хранение настроек (EEPROM) во внешней SPI-флэш W25Q64
 
 ## Соответствие вариантов прошивки разным платам
 Прошивка собрана в нескольких вариантах, каждый из которых подходит к определенной плате, которая встречается в принтере Reborn.
@@ -199,7 +200,7 @@ Based on [Marlin 3D Printer Firmware] (https://github.com/MarlinFirmware/Marlin)
 * [Version history](#version-history)
 
 ## The main thing
-(updated 01/17/2022)
+(updated 01/29/2022)
 - activated Linear Advance
 - WiFi interface for printer control and file transfer
 - the filament end sensor is active
@@ -215,6 +216,7 @@ Based on [Marlin 3D Printer Firmware] (https://github.com/MarlinFirmware/Marlin)
 - by default, there is a limit on the acceleration of the axes - 3000 mm/s\*s, speed - 250 mm/s
 - interface - standard graphical with a modified main screen
 - choice of interface language - English or Russian
+- storage of settings (EEPROM) in an external SPI flash W25Q64
 
 ## Correspondence of firmware variants to different boards
 The firmware is assembled in several variants, each of which is suitable for a specific board that is found in the Reborn printer.
