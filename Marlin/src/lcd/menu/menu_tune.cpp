@@ -113,17 +113,25 @@ void menu_tune() {
   //
   // Speed:
   //
-  EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 500);
+  //EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 500);
 
-  //
-  // Flow:
-  //
   #if HAS_EXTRUDERS
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 50, 200, []{ planner.refresh_e_factor(active_extruder); });
+    //
+    // Flow:
+    //
+    //EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 50, 200, []{ planner.refresh_e_factor(active_extruder); });
+
     // Flow En:
     #if HAS_MULTI_EXTRUDER
       LOOP_L_N(n, EXTRUDERS)
         EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+    #endif
+
+    //
+    // Retract length
+    //
+    #if ENABLED(FWRETRACT)
+      EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT, &fwretract.settings.retract_length, 0, 20);
     #endif
   #endif
 

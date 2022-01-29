@@ -105,15 +105,17 @@
 К сожалению, настройка WiFi (имя точки доступа и пароль) пока никак не реализована. Чтобы настроить работу WiFi, нужно сделать это в родной прошивке (от MKS), после чего можно обновляться на эту прошивку. Параметры настройки сохранятся.
 
 ## История
-
-### --.--.2022
-**v1.7** (в разработке)
-- ядро Марлина обновлено до версии 2.0.9.3
+### 29.01.2022
+**v1.7**
+- на главный экран добавлены кнопки быстрого доступа к настройкам потока (flowrate) и скорости (feedrate) с показом текущего значения
 - в меню настроек температуры добавлена настройка типов термисторов для сопла и стола; пока доступен выбор из 4 распространенных типов, при запросах на другие типы они будут добавляться
-- на главный экран добавлены кнопки быстрого доступа к настройкам потока (flowrate) и скорости (feedrate)
+- ядро Марлина обновлено до версии 2.0.9.3
 - сохранение настроек (EEPROM) переведено на внешнюю SPI-флэш W25Q64
 - настройка отключения питания по окончанию печати продублирована в меню "Тюнинг", доступное с экрана статуса во время печати
 - исправлено автовыключение по завершению печати - теперь принтер ждет остывания сопла перед тем как выключиться (при наличии модуля управления питанием PWC)
+- при хоминге теперь первой двигается ось Y
+- поправлены максимальные значения в настройках скорости (feedrate), потока (flowrate) и параметров ректракта
+- в меню тюнинга добавлена настройка длины ретракта и убраны настройки скорости (feedrate) и потока (flowrate), т.к. они теперь доступны прямо с главного экрана
 
 ### 17.01.2022
 **v1.6**
@@ -279,6 +281,18 @@ Attention! Make sure your printer has a compatible control board!
 Unfortunately, the WiFi setting (hotspot name and password) has not been implemented yet. To set up WiFi, you need to do it in the native firmware (from MKS), after which you can update to this firmware. The settings will be saved.
 
 ## Version history
+### 01/29/2022
+**v1.7**
+- buttons for quick access to the settings of the flow (flowrate) and speed (feedrate) have been added to the main screen, with showing the current value
+- in the temperature settings menu, the setting of thermistor types for the nozzle and bed has been added; while there is a choice of 4 common types, requests for other types will be added
+- Marlin core updated to version 2.0.9.3
+- save settings (EEPROM) transferred to external SPI-flash W25Q64
+- the setting for turning off the power at the end of printing is duplicated in the "Tuning" menu, accessible from the status screen during printing
+- fixed auto-shutdown on completion of printing - now the printer waits for the nozzle to cool down before turning off (if there is a PWC power control module)
+- when homing, the y-axis now moves first
+- fixed max values in feedrate, flowrate and retract settings
+- in the tuning menu, the retract length setting has been added, the speed (feedrate) and flow (flowrate) settings have been removed, because they are now available directly from the status screen
+
 ### 01/17/2022
 **v1.6**
 - the work of the firmware with the power control unit (PSU) MKS PWC is activated; if this module is present, the printer can automatically turn off the power when an error is detected - for example, uncontrolled heating of the hotend or table; turn off the printer on the command of the module is disabled so that the printer does not turn off by itself if there is no power management module
