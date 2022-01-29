@@ -57,7 +57,7 @@
 Главный экран был полностью переработан для обоих режимов - в простое и при печати.
 
 ### Новый главный экран в режиме простоя
-![MainScreenStandby](IMG/main_screen_standby_1.1.jpg)
+![MainScreenStandby](IMG/main_screen_standby_1.7.jpg)
 Убран блок с координатами осей, его место в центре экрана теперь занимает полоса прогресса печати. Координаты осей X и Y в подавляющем большинстве случаев не нужны пользователю на главном экране, поэтому они полностью удалены. Координата оси Z перенесена в верхнюю строку состояния.
 Вверху экрана добавлена строка состояния, в которой отображаются координата оси Z, текущая скорость движения сопла и время печати. В режиме простоя время печати будет показывать время последней завершенной печати или нули если после включения принтера печать не производилась.
 Показания значений температуры сопла и стола, а так же вращения кулера указываются одной строчкой под соответствующей иконкой. Изменение цвета иконки происходит следующим образом:
@@ -70,7 +70,7 @@
 В самом низу экрана находится место для сообщений системы или слайсера (через код M117).
 
 ### Новый главный экран в режиме печати
-![MainScreenPrint](IMG/main_screen_print_1.1.jpg)
+![MainScreenPrint](IMG/main_screen_print_1.7.jpg)
 Здесь все аналогично эерану простоя, но с некоторыми изменениями.
 В строке статуса время печати дополняется через "/" предполагаемым оставшимся временем печати. Этот показатель появляется не сразу, а через одну минуту после начала печати (не считая времени ожидания нагрева стола и сопла). До этого момента там отображаются прочерки. Цвет времени печати красный пока идет ожидание нагрева сопла или стола.
 Под иконками сопла и стола показатель текущей температуры дополняется показателем заданной температуры.
@@ -234,7 +234,7 @@ Variant **v_Robin_Nano_SM_1.3_x16** is suitable for the same boards if the user 
 The home screen has been completely redesigned for both idle and print modes.
 
 ### New home screen in idle mode
-![MainScreenStandby](IMG/main_screen_standby_1.1.jpg)
+![MainScreenStandby](IMG/main_screen_standby_1.7.jpg)
 The block with the coordinates of the axes has been removed, its place in the center of the screen is now occupied by the print progress bar. The X and Y axis coordinates in the vast majority of cases are not needed by the user on the home screen, so they are completely removed. The Z axis coordinate has been moved to the top status bar.
 A status bar has been added to the top of the screen that displays the Z-axis coordinate, current nozzle speed, and print time. In idle mode, the print time will show the time of the last completed print, or zeros if no print was performed after turning on the printer.
 The readings of the temperatures of the nozzle and the table, as well as the rotation of the cooler are indicated in one line under the corresponding icon. Changing the color of the icon is as follows:
@@ -247,7 +247,7 @@ Action icons are located under the print progress. For idle mode, there are thre
 At the very bottom of the screen there is a place for system or slicer messages (via the M117 code).
 
 ### New main screen in print mode
-![MainScreenPrint](IMG/main_screen_print_1.1.jpg)
+![MainScreenPrint](IMG/main_screen_print_1.7.jpg)
 Everything here is similar to that of idle time, but with some changes.
 In the status line, the print time is supplemented by "/" with the estimated remaining print time. This indicator does not appear immediately, but one minute after the start of printing (not counting the waiting time for the heating of the table and nozzle). Up to this point, dashes are displayed there. The print time color is red while waiting for the nozzle or platen to heat up.
 Under the nozzle and table icons, the current temperature is supplemented by the set temperature.
