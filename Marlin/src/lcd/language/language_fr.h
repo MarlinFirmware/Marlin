@@ -111,7 +111,7 @@ namespace Language_fr {
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveau du lit");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveau des coins");
   LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Relever le coin jusqu'à la sonde");
-  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Coins dans la tolérance. Niveau lit ");
+  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Coins dans la tolérance. Niveau lit.");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Coin suivant");
   LSTR MSG_MESH_EDITOR                    = _UxGT("Modif. maille"); // 13 car. max
   LSTR MSG_EDIT_MESH                      = _UxGT("Modifier grille");

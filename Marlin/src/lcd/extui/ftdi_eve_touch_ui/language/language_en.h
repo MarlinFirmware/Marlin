@@ -116,7 +116,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extrude";
   PROGMEM Language_Str MSG_MOMENTARY                = u8"Momentary";
   PROGMEM Language_Str MSG_CONTINUOUS               = u8"Continuous";
-  PROGMEM Language_Str MSG_PLEASE_WAIT              = u8"Please wait...";
   PROGMEM Language_Str MSG_PRINT_MENU               = u8"Print Menu";
   PROGMEM Language_Str MSG_FINE_MOTION              = u8"Fine motion";
   PROGMEM Language_Str MSG_ENABLE_MEDIA             = u8"Enable Media";
