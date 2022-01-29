@@ -56,11 +56,9 @@ CutterMode SpindleLaser::cutter_mode = CUTTER_MODE_STANDARD;          // Default
 cutter_power_t SpindleLaser::menuPower = 0,                           // Power value via LCD menu in PWM, PERCENT, or RPM based on configured format set by CUTTER_POWER_UNIT.
                SpindleLaser::unitPower = 0;                           // Unit power is in PWM, PERCENT, or RPM based on CUTTER_POWER_UNIT.
 
-#if ENABLED(MARLIN_DEV_MODE)
-  cutter_frequency_t SpindleLaser::frequency;                         // PWM frequency setting; range: 2K - 50K
-#endif
-#define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)  // TODO SPINDLE_LASER_PWM_INVERT is no implemented and probably should be.
-                                                                      // There is a condition that check for its definition in SanityCheck.h
+cutter_frequency_t SpindleLaser::frequency;                           // PWM frequency setting; range: 2K - 50K
+
+#define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)  // Invert 
 
 /**
  * Init the cutter to a safe OFF state
