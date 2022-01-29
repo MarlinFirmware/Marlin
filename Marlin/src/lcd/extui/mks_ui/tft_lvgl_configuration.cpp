@@ -270,7 +270,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   uint16_t width = area->x2 - area->x1 + 1,
           height = area->y2 - area->y1 + 1;
 
-  TERN_(USE_SPI_DMA_TC, disp_drv_p = disp);
+  disp_drv_p = disp;
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
