@@ -578,9 +578,6 @@ void MarlinSettings::postprocess() {
     update_software_endstops((AxisEnum)i);
   }
 
-  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
-  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
-
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
   TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
@@ -602,6 +599,10 @@ void MarlinSettings::postprocess() {
   // Various factors can change the current position
   if (oldpos != current_position)
     report_current_position();
+
+  // Moved as last update due to interference with Neopixel init
+  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
+  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
 }
 
 #if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
