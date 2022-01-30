@@ -197,7 +197,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       }
     }
     else
-      digitalWrite(pin, v < v_size/2 ? LOW : HIGH);
+      digitalWrite(pin, v < v_size / 2 ? LOW : HIGH);
   }
 }
 
