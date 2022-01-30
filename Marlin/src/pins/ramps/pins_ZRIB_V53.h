@@ -335,9 +335,9 @@
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_SDSS                            16
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN	LCD_PIN_RS 		(PIN4 of LCD module)
-  #define LCD_PINS_ENABLE                     23  // ST7920_DAT_PIN	LCD_PIN_R/W		(PIN5 of LCD module)
-  #define LCD_PINS_D4                         17  // ST7920_CLK_PIN	LCD_PIN_ENABLE	(PIN6 of LCD module)
+  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS     (PIN4 of LCD module)
+  #define LCD_PINS_ENABLE                     23  // ST7920_DAT_PIN LCD_PIN_R/W    (PIN5 of LCD module)
+  #define LCD_PINS_D4                         17  // ST7920_CLK_PIN LCD_PIN_ENABLE (PIN6 of LCD module)
   #define BTN_EN2                             25
   #define BTN_EN1                             27
   #define BTN_ENC                             29
@@ -346,9 +346,9 @@
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "Reprap LCD12864"
   // Use EXP1 & EXP2 connector
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN	LCD_PIN_RS
-  #define LCD_PINS_ENABLE                     17  // ST7920_DAT_PIN	LCD_PIN_ENABLE
-  #define LCD_PINS_D4                         23  // ST7920_CLK_PIN	LCD_PIN_R/W
+  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS
+  #define LCD_PINS_ENABLE                     17  // ST7920_DAT_PIN LCD_PIN_ENABLE
+  #define LCD_PINS_D4                         23  // ST7920_CLK_PIN LCD_PIN_R/W
   #define BTN_EN1                             31
   #define BTN_EN2                             33
   #define BTN_ENC                             35
@@ -361,7 +361,7 @@
 //================================================================================
 
 #if EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
-  #define LCDSCREEN_NAME "ZONESTAR 12864OLED "
+  #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
   #define LCD_SDSS                            16
   #define LCD_PINS_RS                         23  // RESET Pull low for 1s to init
   #define LCD_PINS_DC                         17
