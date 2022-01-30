@@ -333,7 +333,7 @@
 //////////////////////////
 
 #if ENABLED(ZONESTAR_12864LCD)
-  #define	LCDSCREEN_NAME	"ZONESTAR LCD12864"
+  #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_SDSS                            16
   #define LCD_PINS_RS                         16  // ST7920_CS_PIN	LCD_PIN_RS 		(PIN4 of LCD module)
   #define LCD_PINS_ENABLE                     23  // ST7920_DAT_PIN	LCD_PIN_R/W		(PIN5 of LCD module)
@@ -344,7 +344,7 @@
   #define BEEPER_PIN                          37
   #define KILL_PIN                            35
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define	LCDSCREEN_NAME	"Reprap LCD12864"
+  #define LCDSCREEN_NAME "Reprap LCD12864"
   // Use EXP1 & EXP2 connector
   #define LCD_PINS_RS                         16  // ST7920_CS_PIN	LCD_PIN_RS
   #define LCD_PINS_ENABLE                     17  // ST7920_DAT_PIN	LCD_PIN_ENABLE
@@ -361,7 +361,7 @@
 //================================================================================
 
 #if EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
-  #define	LCDSCREEN_NAME	"ZONESTAR 12864OLED "
+  #define LCDSCREEN_NAME "ZONESTAR 12864OLED "
   #define LCD_SDSS                            16
   #define LCD_PINS_RS                         23  // RESET Pull low for 1s to init
   #define LCD_PINS_DC                         17
@@ -385,7 +385,7 @@
 //================================================================================
 
 #if ENABLED(ZONESTAR_LCD)
-  #define LCDSCREEN_NAME "LCD2004 ADCKEY"
+  #define LCDSCREEN_NAM "LCD2004 ADCKEY"
   #define LCD_PINS_RS                EXP1_07_PIN
   #define LCD_PINS_ENABLE            EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
