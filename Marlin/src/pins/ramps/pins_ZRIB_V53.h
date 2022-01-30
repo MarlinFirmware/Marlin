@@ -385,7 +385,7 @@
 //================================================================================
 
 #if ENABLED(ZONESTAR_LCD)
-  #define LCDSCREEN_NAM "LCD2004 ADCKEY"
+  #define LCDSCREEN_NAME "LCD2004 ADCKEY"
   #define LCD_PINS_RS                EXP1_07_PIN
   #define LCD_PINS_ENABLE            EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
