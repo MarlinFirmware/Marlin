@@ -104,7 +104,7 @@ extern "C" {
 // Timer Definitions
 // Use TIM6/TIM7 when possible as servo and tone don't need GPIO output pin
 #define TIMER_TONE              TIM5
-#define TIMER_SERVO             TIM7
+#define TIMER_SERVO             TIM4
 
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
