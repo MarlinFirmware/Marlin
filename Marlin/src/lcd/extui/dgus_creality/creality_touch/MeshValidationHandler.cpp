@@ -69,7 +69,7 @@ void MeshValidationHandler::Start() {
     // Home X and Y so we droop at the side of the bed.
     // G26 with temperature and set for full bed, full pattern, retract 4mm, prime 5mm
     char gcodeBuffer[128] = {0};
-    sprintf_P(gcodeBuffer, PSTR("G90\nG0 X0\nG26 B%d H%d R Q4 P2 X117 Y117"), bed_temperature, nozzle_temperature);
+    sprintf_P(gcodeBuffer, PSTR("G90\nG0 X0\nG26 B%d H%d R Q4 P2 X%d Y%d"), bed_temperature, nozzle_temperature, X_BED_SIZE / 2, Y_BED_SIZE / 2);
     queue.inject(gcodeBuffer);
     queue.advance();
 
