@@ -106,8 +106,9 @@ void GcodeSuite::G35() {
     // In BLTOUCH HS mode, the probe travels in a deployed state.
     // Users of G35 might have a badly misaligned bed, so raise Z by the
     // length of the deployed pin (BLTOUCH stroke < 7mm)
-    //Am not sure if this is even required. The probe seems to lift correctly after done probe.
-    TERN_(BLTOUCH, do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES + bltouch.z_extra_clearance()));
+
+    // Unsure if this is even required. The probe seems to lift correctly after probe done.
+    do_blocking_move_to_z(SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance()));
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
