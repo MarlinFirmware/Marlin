@@ -34,27 +34,27 @@ struct Timer {
 };
 
 // Macros for the Timer structure
-#define _SET_WGMnQ(TCCRnQ, V) do{ \
-    *(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
-    *(TCCRnQ)[1] = (*(TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
+#define _SET_WGMnQ(T, V) do{ \
+    *(T.TCCRnQ)[0] = (*(T.TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
+    *(T.TCCRnQ)[1] = (*(T.TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
   }while(0)
 
 // Set TCCR CS bits
-#define _SET_CSn(TCCRnQ, V) (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0))
+#define _SET_CSn(T, V) (*(T.TCCRnQ)[1] = (*(T.TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0))
 
 // Set TCCR COM bits
-#define _SET_COMnQ(TCCRnQ, Q, V) (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q))))
+#define _SET_COMnQ(T, Q, V) (*(T.TCCRnQ)[0] = (*(T.TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q))))
 
 // Set OCRnQ register
-#define _SET_OCRnQ(OCRnQ, Q, V) (*(OCRnQ)[Q] = int(V) & 0xFFFF)
+#define _SET_OCRnQ(T, Q, V) (*(T.OCRnQ)[Q] = int(V) & 0xFFFF)
 
 // Set ICRn register (one per timer)
-#define _SET_ICRn(ICRn, V) (*(ICRn) = int(V) & 0xFFFF)
+#define _SET_ICRn(T, V) (*(T.ICRn) = int(V) & 0xFFFF)
 
 /**
  * Return a Timer struct describing a pin's timer.
  */
-Timer get_pwm_timer(const pin_t pin) {
+const Timer get_pwm_timer(const pin_t pin) {
 
   uint8_t q = 0;
 
@@ -70,7 +70,7 @@ Timer get_pwm_timer(const pin_t pin) {
 
     #ifdef TCCR0A
       case TIMER0B:   // Protected timer, but allow setting the duty cycle on OCR0B for pin D4 only
-        return Timer({ { &TCCR0A, nullptr, nullptr }, { (uint16_t*)&OCR0B, nullptr, nullptr }, nullptr, 0, 0, true, true });
+        return Timer({ { &TCCR0A, nullptr, nullptr }, { (uint16_t*)&OCR0A, (uint16_t*)&OCR0B, nullptr }, nullptr, 0, 1, true, true });
     #endif
 
     #if HAS_TCCR2
@@ -108,7 +108,7 @@ Timer get_pwm_timer(const pin_t pin) {
 }
 
 void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
-  Timer timer = get_pwm_timer(pin);
+  const Timer timer = get_pwm_timer(pin);
   if (timer.isProtected || !timer.isPWM) return; // Don't proceed if protected timer or not recognized
 
   const bool is_timer2 = timer.n == 2;
@@ -166,14 +166,14 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
     }
   }
 
-  _SET_WGMnQ(timer.TCCRnQ, wgm);
-  _SET_CSn(timer.TCCRnQ, j);
+  _SET_WGMnQ(timer, wgm);
+  _SET_CSn(timer, j);
 
   if (is_timer2) {
-    TERN_(USE_OCR2A_AS_TOP, _SET_OCRnQ(timer.OCRnQ, 0, res)); // Set OCR2A value (TOP) = res
+    TERN_(USE_OCR2A_AS_TOP, _SET_OCRnQ(timer, 0, res)); // Set OCR2A value (TOP) = res
   }
   else
-    _SET_ICRn(timer.ICRn, res);                               // Set ICRn value (TOP) = res
+    _SET_ICRn(timer, res);                              // Set ICRn value (TOP) = res
 }
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
@@ -184,20 +184,20 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   else if (v == v_size)
     digitalWrite(pin, !invert);
   else {
-    Timer timer = get_pwm_timer(pin);
+    const Timer timer = get_pwm_timer(pin);
     if (timer.isPWM) {
       if (timer.n == 0) {
-        TCCR0A |= _BV(COM0B1); // Only allow a TIMER0B select and OCR0B duty update for pin D4 outputs no frequency changes are permited.
-        OCR0B = v;
+        _SET_COMnQ(timer, timer.q, COM_CLEAR_SET);  // Only allow a TIMER0B select...
+        _SET_OCRnQ(timer, timer.q, v);              // ...and OCR0B duty update. For output pin D4 no frequency changes are permitted.
       }
       else if (!timer.isProtected) {
         const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
-        _SET_COMnQ(timer.TCCRnQ, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
-        _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
+        _SET_COMnQ(timer, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
+        _SET_OCRnQ(timer, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
       }
     }
     else
-      digitalWrite(pin, v < 128 ? LOW : HIGH);
+      digitalWrite(pin, v < v_size / 2 ? LOW : HIGH);
   }
 }
 
