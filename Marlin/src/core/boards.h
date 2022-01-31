@@ -441,6 +441,8 @@
 //
 
 #define BOARD_AGCM4_RAMPS_144         6100  // RAMPS 1.4.4
+#define BOARD_BRICOLEMON_V1_0         6101  //Bricolemon board
+#define BOARD_BRICOLEMON_LITE_V1_0    6102  //Bricolemon Lite board
 
 //
 // Custom board
