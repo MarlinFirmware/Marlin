@@ -48,6 +48,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     timer_set_compare(timer, channel, duty);
     timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
   } else {
+    pinMode(pin,OUTPUT);
     if (duty < v_size / 2) {
       digitalWrite(pin, LOW);
     } else {
