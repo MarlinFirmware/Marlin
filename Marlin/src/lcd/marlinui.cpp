@@ -24,7 +24,7 @@
 
 #include "../MarlinCore.h" // for printingIsPaused
 
-#ifdef LED_BACKLIGHT_TIMEOUT
+#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS)
   #include "../feature/leds/leds.h"
 #endif
 
@@ -277,7 +277,7 @@ void MarlinUI::init() {
     #include "../feature/power_monitor.h"
   #endif
 
-  #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+  #if LED_POWEROFF_TIMEOUT > 0
     #include "../feature/power.h"
   #endif
 
@@ -676,7 +676,7 @@ void MarlinUI::init() {
     TERN_(HAS_MARLINUI_MENU, return_to_status());
 
     // RED ALERT. RED ALERT.
-    #ifdef LED_BACKLIGHT_TIMEOUT
+    #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_color(LEDColorRed());
       #ifdef NEOPIXEL_BKGD_INDEX_FIRST
         neo.set_background_color(255, 0, 0, 0);
@@ -883,7 +883,7 @@ void MarlinUI::init() {
     static uint16_t max_display_update_time = 0;
     millis_t ms = millis();
 
-    #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+    #if LED_POWEROFF_TIMEOUT > 0
       leds.update_timeout(powerManager.psu_on);
     #endif
 
@@ -1034,7 +1034,7 @@ void MarlinUI::init() {
 
           refresh(LCDVIEW_REDRAW_NOW);
 
-          #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+          #if LED_POWEROFF_TIMEOUT > 0
             if (!powerManager.psu_on) leds.reset_timeout(ms);
           #endif
         }
@@ -1699,13 +1699,13 @@ void MarlinUI::init() {
 
     refresh();
 
-    #if HAS_WIRED_LCD || defined(LED_BACKLIGHT_TIMEOUT)
+    #if HAS_WIRED_LCD || LED_POWEROFF_TIMEOUT > 0
       const millis_t ms = millis();
     #endif
 
     TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
 
-    #ifdef LED_BACKLIGHT_TIMEOUT
+    #if LED_POWEROFF_TIMEOUT > 0
       leds.reset_timeout(ms);
     #endif
   }
