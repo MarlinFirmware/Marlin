@@ -69,6 +69,9 @@ public:
   // Until now I did not need to actively read from the display. That's why there is no ReadVariable
   // (I extensively use the auto upload of the display)
 
+  // Read GUI and OS version from screen
+  static void ReadVersions();
+
   // Force display into another screen.
   static void SwitchScreen(DGUS_Screen screen);
   // Play sounds using the display speaker.

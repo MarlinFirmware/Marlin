@@ -25,7 +25,7 @@
  * power.h - power control
  */
 
-#if ENABLED(AUTO_POWER_CONTROL)
+#if EITHER(AUTO_POWER_CONTROL, POWER_OFF_TIMER)
   #include "../core/millis_t.h"
 #endif
 
@@ -36,7 +36,7 @@ class Power {
     static void init();
     static void power_on();
     static void power_off();
-    
+
     #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
       #if ENABLED(POWER_OFF_TIMER)
         static millis_t power_off_time;

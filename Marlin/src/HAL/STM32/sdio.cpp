@@ -59,7 +59,7 @@ DMA_HandleTypeDef hdma_sdio;
 /*
   SDIO_INIT_CLK_DIV is 118
   SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
-  SDIO init clock frequency should not exceed 400KHz = 48MHz / (118 + 2)
+  SDIO init clock frequency should not exceed 400kHz = 48MHz / (118 + 2)
 
   Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
   Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz

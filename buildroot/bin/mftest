@@ -150,7 +150,7 @@ if ((AUTO_BUILD)); then
          *) SYS='uni' ;;
   esac
   echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
-  MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
+  MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//;s/\r//' )
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
   BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )

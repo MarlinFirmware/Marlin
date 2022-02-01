@@ -118,9 +118,9 @@
 
 // Temperature sensor IDs
 #define HID_REDUNDANT -6
-#define HID_COOLER    -5
-#define HID_PROBE     -4
-#define HID_BOARD     -3
+#define HID_BOARD     -5
+#define HID_COOLER    -4
+#define HID_PROBE     -3
 #define HID_CHAMBER   -2
 #define HID_BED       -1
 #define HID_E0         0
@@ -677,11 +677,6 @@
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
 #endif
 
-// Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
-  #define NEEDS_HARDWARE_PWM 1
-#endif
-
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
@@ -821,6 +816,12 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#if X2_HOME_DIR > 0
+  #define X2_HOME_TO_MAX 1
+#elif X2_HOME_DIR < 0
+  #define X2_HOME_TO_MIN 1
 #endif
 
 #ifndef HOMING_BUMP_MM

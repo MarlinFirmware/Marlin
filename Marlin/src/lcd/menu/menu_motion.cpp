@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #define LARGE_AREA_TEST ((X_BED_SIZE) >= 1000 || (Y_BED_SIZE) >= 1000 || (Z_MAX_POS) >= 1000)
 
@@ -346,13 +346,13 @@ void menu_move() {
       GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, PSTR("G28Z"));
     #endif
     #if HAS_I_AXIS
-      GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, PSTR("G28" AXIS4_STR));
+      GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_I));
     #endif
     #if HAS_J_AXIS
-      GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, PSTR("G28" AXIS5_STR));
+      GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_J));
     #endif
     #if HAS_K_AXIS
-      GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" AXIS6_STR));
+      GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_K));
     #endif
 
     END_MENU();
@@ -399,13 +399,13 @@ void menu_motion() {
         GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, PSTR("G28Z"));
       #endif
       #if HAS_I_AXIS
-        GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, PSTR("G28" AXIS4_STR));
+        GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_I));
       #endif
       #if HAS_J_AXIS
-        GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, PSTR("G28" AXIS5_STR));
+        GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_J));
       #endif
       #if HAS_K_AXIS
-        GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" AXIS6_STR));
+        GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_K));
       #endif
     #endif
   #endif
@@ -477,4 +477,4 @@ void menu_motion() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU

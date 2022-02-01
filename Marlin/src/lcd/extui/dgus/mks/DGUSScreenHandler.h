@@ -94,10 +94,10 @@ public:
   static void DGUS_LanguageDisplay(uint8_t var);
   static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
   static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
-  static void LanguagePInit(void);
-  static void DGUS_Runout_Idle(void);
-  static void DGUS_RunoutInit(void);
-  static void DGUS_ExtrudeLoadInit(void);
+  static void LanguagePInit();
+  static void DGUS_Runout_Idle();
+  static void DGUS_RunoutInit();
+  static void DGUS_ExtrudeLoadInit();
   static void LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr);
   static void SD_FileBack(DGUS_VP_Variable &var, void *val_ptr);
 
@@ -273,7 +273,7 @@ public:
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
-      DEBUG_ECHOLNPGM(" >> ", f, 6);
+      DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
       f *= cpow(10, decimals);
       dgusdisplay.WriteVariable(var.VP, (int16_t)f);
     }

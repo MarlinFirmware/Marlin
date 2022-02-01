@@ -219,8 +219,8 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #else
   #define _COOLER_FSTR(h)
 #endif
-#define _E_FSTR(h,N) ((HOTENDS) > N && (h) == N) ? F(LCD_STR_E##N) :
-#define HEATER_FSTR(h) _BED_FSTR(h) _CHAMBER_FSTR(h) _COOLER_FSTR(h) _E_FSTR(h,1) _E_FSTR(h,2) _E_FSTR(h,3) _E_FSTR(h,4) _E_FSTR(h,5) F(LCD_STR_E0)
+#define _E_FSTR(h,N) ((HOTENDS) > N && (h) == N) ? F(STR_E##N) :
+#define HEATER_FSTR(h) _BED_FSTR(h) _CHAMBER_FSTR(h) _COOLER_FSTR(h) _E_FSTR(h,1) _E_FSTR(h,2) _E_FSTR(h,3) _E_FSTR(h,4) _E_FSTR(h,5) _E_FSTR(h,6) _E_FSTR(h,7) F(STR_E0)
 
 //
 // Initialize MAX TC objects/SPI
@@ -888,16 +888,6 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     HOTEND_LOOP() {
       if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
-        #if MOTHERBOARD == BOARD_ULTIMAIN_2
-          // For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
-          // https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
-          SBI(DDRJ, 6); SBI(PORTJ, 6);
-        #endif
-      }
-      else {
-        #if MOTHERBOARD == BOARD_ULTIMAIN_2
-          SBI(DDRJ, 6); CBI(PORTJ, 6);
-        #endif
       }
     }
 
@@ -2371,11 +2361,11 @@ void Temperature::init() {
   #if HAS_TEMP_ADC_CHAMBER
     HAL_ANALOG_SELECT(TEMP_CHAMBER_PIN);
   #endif
-  #if HAS_TEMP_ADC_COOLER
-    HAL_ANALOG_SELECT(TEMP_COOLER_PIN);
-  #endif
   #if HAS_TEMP_ADC_PROBE
     HAL_ANALOG_SELECT(TEMP_PROBE_PIN);
+  #endif
+  #if HAS_TEMP_ADC_COOLER
+    HAL_ANALOG_SELECT(TEMP_COOLER_PIN);
   #endif
   #if HAS_TEMP_ADC_BOARD
     HAL_ANALOG_SELECT(TEMP_BOARD_PIN);
@@ -2958,8 +2948,8 @@ void Temperature::update_raw_temperatures() {
   TERN_(HAS_TEMP_ADC_BED,     temp_bed.update());
   TERN_(HAS_TEMP_ADC_CHAMBER, temp_chamber.update());
   TERN_(HAS_TEMP_ADC_PROBE,   temp_probe.update());
-  TERN_(HAS_TEMP_ADC_BOARD,   temp_board.update());
   TERN_(HAS_TEMP_ADC_COOLER,  temp_cooler.update());
+  TERN_(HAS_TEMP_ADC_BOARD,   temp_board.update());
 
   TERN_(HAS_JOY_ADC_X, joystick.x.update());
   TERN_(HAS_JOY_ADC_Y, joystick.y.update());
@@ -3046,8 +3036,8 @@ public:
 };
 
 /**
- * Handle various ~1KHz tasks associated with temperature
- *  - Heater PWM (~1KHz with scaler)
+ * Handle various ~1kHz tasks associated with temperature
+ *  - Heater PWM (~1kHz with scaler)
  *  - LCD Button polling (~500Hz)
  *  - Start / Read one ADC sensor
  *  - Advance Babysteps
@@ -3549,7 +3539,7 @@ void Temperature::isr() {
   adc_sensor_state = next_sensor_state;
 
   //
-  // Additional ~1KHz Tasks
+  // Additional ~1kHz Tasks
   //
 
   #if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
@@ -3630,7 +3620,7 @@ void Temperature::isr() {
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
   ) {
     #if HAS_TEMP_HOTEND
-      print_heater_state(H_E0, degHotend(target_extruder), degTargetHotend(target_extruder) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(target_extruder)));
+      print_heater_state(H_NONE, degHotend(target_extruder), degTargetHotend(target_extruder) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(target_extruder)));
     #endif
     #if HAS_HEATED_BED
       print_heater_state(H_BED, degBed(), degTargetBed() OPTARG(SHOW_TEMP_ADC_VALUES, rawBedTemp()));
@@ -3796,7 +3786,7 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
-            TERN_(HAS_LCD_MENU, ui.quick_feedback());
+            TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
           }
         #endif
 
@@ -3930,7 +3920,7 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
-            TERN_(HAS_LCD_MENU, ui.quick_feedback());
+            TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
           }
         #endif
 

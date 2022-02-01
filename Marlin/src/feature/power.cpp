@@ -24,7 +24,9 @@
  * power.cpp - power control
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+
+#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 #include "power.h"
 #include "../module/planner.h"
@@ -39,8 +41,6 @@
 #if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
   #include "../gcode/gcode.h"
 #endif
-
-#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 Power powerManager;
 bool Power::psu_on;
@@ -97,6 +97,10 @@ void Power::power_on() {
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
  */
 void Power::power_off() {
+  SERIAL_ECHOLNPGM(STR_POWEROFF);
+
+  TERN_(HAS_SUICIDE, suicide());
+
   if (!psu_on) return;
 
   #ifdef PSU_POWEROFF_GCODE
@@ -153,6 +157,7 @@ void Power::power_off() {
   }
 
   void Power::checkAutoPowerOff() {
+    if (TERN1(POWER_OFF_TIMER, !power_off_time) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
     if (TERN0(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown && is_cooling_needed())) return;
     if (TERN0(POWER_OFF_TIMER, power_off_time && PENDING(millis(), power_off_time))) return;
     power_off();

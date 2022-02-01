@@ -207,8 +207,11 @@
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define ENCODER_PULSES_PER_STEP 2
-  #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #define ENCODER_PULSES_PER_STEP 4
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #ifndef PCA9632
+    #define PCA9632
+  #endif
 
 #elif ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
 
@@ -234,7 +237,7 @@
   #define LCD_HEIGHT                  10    // Character lines
   #define LCD_CONTRAST_MIN            127
   #define LCD_CONTRAST_MAX            255
-  #define DEFAULT_LCD_CONTRAST        250
+  #define LCD_CONTRAST_DEFAULT        250
   #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
                                       // At this time present conversion only for cyrillic - bg, ru and uk languages.
                                       // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
@@ -506,8 +509,10 @@
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
       #define LCD_SERIAL_PORT 1
+    #elif MB(CREALITY_V24S1_301)
+      #define LCD_SERIAL_PORT 2 // Creality Ender3S1 board
     #else
       #define LCD_SERIAL_PORT 3 // Creality 4.x board
     #endif
@@ -539,7 +544,11 @@
 #endif
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
-  #define HAS_LCD_MENU 1
+  #define HAS_MARLINUI_MENU 1
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
+  #define HAS_MANUAL_MOVE_MENU 1
 #endif
 
 #if ANY(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, IS_DWIN_MARLINUI, DWIN_CREALITY_LCD_JYERSUI)
@@ -934,11 +943,6 @@
   #define X_HOME_TO_MAX 1
 #elif X_HOME_DIR < 0
   #define X_HOME_TO_MIN 1
-#endif
-#if X2_HOME_DIR > 0
-  #define X2_HOME_TO_MAX 1
-#elif X2_HOME_DIR < 0
-  #define X2_HOME_TO_MIN 1
 #endif
 #if Y_HOME_DIR > 0
   #define Y_HOME_TO_MAX 1

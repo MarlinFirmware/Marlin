@@ -53,7 +53,7 @@
   #define HAS_SMART_EFF_MOD
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   #if ENABLED(BACKLASH_GCODE)
     #define HAS_MENU_BACKLASH
   #endif
