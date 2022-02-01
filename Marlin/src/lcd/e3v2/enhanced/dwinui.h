@@ -76,6 +76,8 @@
 #define ICON_Scolor               ICON_MaxSpeed
 #define ICON_SetCustomPreheat     ICON_SetEndTemp
 #define ICON_Sound                ICON_Cool
+#define ICON_CaseLight            ICON_Motion
+#define ICON_LedControl           ICON_Motion
 
 // Extended and default UI Colors
 #define Color_Black           0

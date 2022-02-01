@@ -95,6 +95,14 @@
   #include "printstats.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_MENU)
+  #include "../../../feature/caselight.h"
+#endif
+
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../../feature/leds/leds.h"
+#endif
+
 #include <WString.h>
 #include <stdio.h>
 #include <string.h>
@@ -249,6 +257,12 @@ MenuClass *MaxJerkMenu = nullptr;
 MenuClass *StepsMenu = nullptr;
 MenuClass *HotendPIDMenu = nullptr;
 MenuClass *BedPIDMenu = nullptr;
+#if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+  MenuClass *CaseLightMenu = nullptr;
+#endif
+#if ENABLED(LED_CONTROL_MENU)
+  MenuClass *LedControlMenu = nullptr;
+#endif
 #if HAS_BED_PROBE
   MenuClass *ZOffsetWizMenu = nullptr;
 #endif
@@ -991,7 +1005,7 @@ void Redraw_SD_List() {
   }
   else {
     DWIN_Draw_Rectangle(1, HMI_data.AlertBg_Color, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-    DWINUI::Draw_CenteredString(font16x32, HMI_data.AlertTxt_Color, MBASE(3), GET_TEXT_F(MSG_MEDIA_NOT_INSERTED));
+    DWINUI::Draw_CenteredString(font12x24, HMI_data.AlertTxt_Color, MBASE(3), GET_TEXT_F(MSG_MEDIA_NOT_INSERTED));
   }
 }
 
@@ -1891,12 +1905,22 @@ void DWIN_StoreSettings(char *buff) {
 }
 
 void DWIN_LoadSettings(const char *buff) {
-  memcpy(&HMI_data, buff, _MIN(sizeof(HMI_data), eeprom_data_size));
+  // (void *)-> Avoid Warning when save data different from uintX_t in HMI_data_t struct
+  memcpy((void *)&HMI_data, buff, _MIN(sizeof(HMI_data), eeprom_data_size));
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (HMI_data.Text_Color == HMI_data.Background_Color) DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color);
   TERN_(PREVENT_COLD_EXTRUSION, ApplyExtMinT());
   feedrate_percentage = 100;
+  #if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+    // Apply Case light brightness
+    caselight.brightness = HMI_data.CaseLight_Brightness;
+    caselight.update_brightness();
+  #endif
+  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    // Apply Led Color
+    leds.set_color(HMI_data.Led_Color);
+  #endif
 }
 
 void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component) {
@@ -2286,6 +2310,41 @@ void SetPID(celsius_t t, heater_id_t h) {
 #if HAS_LCD_BRIGHTNESS
   void LiveBrightness() { ui.set_brightness(HMI_value.Value); }
   void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, nullptr, LiveBrightness); }
+#endif
+
+#if ENABLED(CASE_LIGHT_MENU)
+  void SetCaseLight() {
+    caselight.on = !caselight.on;
+    caselight.update_enabled();
+    Draw_Chkb_Line(CurrentMenu->line(), caselight.on);
+    DWIN_UpdateLCD();
+  }
+  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+    void LiveCaseLightBrightness() { HMI_data.CaseLight_Brightness = caselight.brightness = HMI_value.Value; caselight.update_brightness(); }
+    void SetCaseLightBrightness() { SetIntOnClick(0, 255, caselight.brightness, nullptr, LiveCaseLightBrightness); }
+  #endif
+#endif
+
+#if ENABLED(LED_CONTROL_MENU)
+  #if !BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+    void SetLedStatus() {
+      leds.toggle();
+      Draw_Chkb_Line(CurrentMenu->line(), leds.lights_on);
+      DWIN_UpdateLCD();
+    }
+  #endif
+  #if ENABLED(HAS_COLOR_LEDS)
+    void LiveLedColorR() { leds.color.r = HMI_value.Value; HMI_data.Led_Color = leds.color; leds.update(); }
+    void SetLedColorR() { SetIntOnClick(0, 255, leds.color.r, nullptr, LiveLedColorR); }
+    void LiveLedColorG() { leds.color.g = HMI_value.Value; HMI_data.Led_Color = leds.color; leds.update(); }
+    void SetLedColorG() { SetIntOnClick(0, 255, leds.color.g, nullptr, LiveLedColorG); }
+    void LiveLedColorB() { leds.color.b = HMI_value.Value; HMI_data.Led_Color = leds.color; leds.update(); }
+    void SetLedColorB() { SetIntOnClick(0, 255, leds.color.b, nullptr, LiveLedColorB); }
+    #if HAS_WHITE_LED
+      void LiveLedColorW() { leds.color.w = HMI_value.Value; HMI_data.Led_Color = leds.color; leds.update(); }
+      void SetLedColorW() { SetIntOnClick(0, 255, leds.color.w, nullptr, LiveLedColorW); }
+    #endif
+  #endif
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
@@ -2772,6 +2831,16 @@ void onDrawLanguage(MenuItemClass* menuitem, int8_t line) {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   void onDrawPwrLossR(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, recovery.enabled); }
+#endif
+
+#if ENABLED(CASE_LIGHT_MENU)
+  void onDrawCaseLight(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, caselight.on); }
+#endif
+
+#if ENABLED(LED_CONTROL_MENU)
+  #if !BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+    void onDrawLedStatus(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, leds.lights_on); }
+  #endif
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
@@ -3265,8 +3334,18 @@ void Draw_Control_Menu() {
   if (CurrentMenu != ControlMenu) {
     CurrentMenu = ControlMenu;
     SetMenuTitle({103, 1, 28, 14}, GET_TEXT_F(MSG_CONTROL));
-    DWINUI::MenuItemsPrepare(9);
+    DWINUI::MenuItemsPrepare(11);
     MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Goto_Main_Menu);
+    #if ENABLED(CASE_LIGHT_MENU)
+      #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+        MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawSubMenu, Draw_CaseLight_Menu);
+      #else 
+        MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawCaseLight, SetCaseLight);
+      #endif
+    #endif
+    #if ENABLED(LED_CONTROL_MENU)
+      MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LED_CONTROL), onDrawSubMenu, Draw_LedControl_Menu);
+    #endif
     MENU_ITEM(ICON_Temperature, GET_TEXT_F(MSG_TEMPERATURE), onDrawTempSubMenu, Draw_Temperature_Menu);
     MENU_ITEM(ICON_Motion, GET_TEXT_F(MSG_MOTION), onDrawMotionSubMenu, Draw_Motion_Menu);
     #if ENABLED(EEPROM_SETTINGS)
@@ -3469,6 +3548,47 @@ void Draw_GetColor_Menu() {
   DWIN_Draw_Rectangle(1, *HMI_value.P_Int, 20, 315, DWIN_WIDTH - 20, 335);
 }
 
+#if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+    void Draw_CaseLight_Menu() {
+      checkkey = Menu;
+      if (!CaseLightMenu) CaseLightMenu = new MenuClass();
+      if (CurrentMenu != CaseLightMenu) {
+        CurrentMenu = CaseLightMenu;
+        SetMenuTitle({0}, GET_TEXT_F(MSG_CASE_LIGHT)); // TODO: Chinese, English "Case Light" JPG
+        DWINUI::MenuItemsPrepare(3);
+        MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Draw_Control_Menu);
+        MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawCaseLight, SetCaseLight);
+        EDIT_ITEM(ICON_Brightness, GET_TEXT_F(MSG_CASE_LIGHT_BRIGHTNESS), onDrawPInt8Menu, SetCaseLightBrightness, &caselight.brightness);
+      }
+      CurrentMenu->draw();
+    }
+#endif
+
+#if ENABLED(LED_CONTROL_MENU)
+    void Draw_LedControl_Menu() {
+      checkkey = Menu;
+      if (!LedControlMenu) LedControlMenu = new MenuClass();
+      if (CurrentMenu != LedControlMenu) {
+        CurrentMenu = LedControlMenu;
+        SetMenuTitle({0}, GET_TEXT_F(MSG_LED_CONTROL)); // TODO: Chinese, English "LED Control" JPG
+        DWINUI::MenuItemsPrepare(6);
+        MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Draw_Control_Menu);
+        #if !BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+          MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LEDS), onDrawLedStatus, SetLedStatus);
+        #endif
+        #if (HAS_COLOR_LEDS)
+          EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_RED), onDrawPInt8Menu, SetLedColorR, &leds.color.r);
+          EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_GREEN), onDrawPInt8Menu, SetLedColorG, &leds.color.g);
+          EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_BLUE), onDrawPInt8Menu, SetLedColorB, &leds.color.b);
+          #if ENABLED(HAS_WHITE_LED)
+            EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_WHITE), onDrawPInt8Menu, SetLedColorW, &leds.color.w);
+          #endif
+        #endif
+      }
+      CurrentMenu->draw();
+    }
+#endif
+
 void Draw_Tune_Menu() {
   checkkey = Menu;
   if (!TuneMenu) TuneMenu = new MenuClass();
@@ -3477,6 +3597,11 @@ void Draw_Tune_Menu() {
     SetMenuTitle({73, 2, 28, 12}, GET_TEXT_F(MSG_TUNE)); // TODO: Chinese, English "Tune" JPG
     DWINUI::MenuItemsPrepare(14);
     MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Goto_PrintProcess);
+    #if ENABLED(CASE_LIGHT_MENU)
+      MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawCaseLight, SetCaseLight);
+    #elif ENABLED(LED_CONTROL_MENU) && DISABLED(CASE_LIGHT_USE_NEOPIXEL)
+      MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LEDS), onDrawLedStatus, SetLedStatus);
+    #endif    
     EDIT_ITEM(ICON_Speed, GET_TEXT_F(MSG_SPEED), onDrawSpeedItem, SetSpeed, &feedrate_percentage);
     #if HAS_HOTEND
       HotendTargetItem = EDIT_ITEM(ICON_HotendTemp, GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND), onDrawHotendTemp, SetHotendTemp, &thermalManager.temp_hotend[0].target);
