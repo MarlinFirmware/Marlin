@@ -553,3 +553,8 @@
 #if CANNOT_EMBED_CONFIGURATION
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
+
+#if ENABLED(__STM32F1__)
+  #warning "Maple build environments are obsolete and are being phased out. Please use the non maple build environment and report any issues."
+#endif
+
