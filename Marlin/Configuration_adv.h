@@ -1297,7 +1297,6 @@
 
 #if HAS_MARLINUI_MENU
 
-  // Add Probe Z Offset calibration to the Z Probe Offsets menu
   #if BOTH(HAS_BED_PROBE, AUTO_BED_LEVELING_BILINEAR)
     // Add calibration in the Probe Offsets menu to compensate for X-axis twist.
     //#define X_AXIS_TWIST_COMPENSATION
