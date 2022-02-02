@@ -42,7 +42,7 @@
   #include "pca9533.h"
 #endif
 
-#if ENABLED(CASE_LIGHT_USE_RGB_LED)
+#if EITHER(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
   #include "../../feature/caselight.h"
 #endif
 
@@ -95,6 +95,10 @@ void LEDLights::set_color(const LEDColor &incol
       #endif
     #endif
 
+    #if BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+      // Update brightness only if caselight is ON or switching leds off
+      if (caselight.on || incol.is_off())
+    #endif
     neo.set_brightness(incol.i);
 
     #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
@@ -106,6 +110,10 @@ void LEDLights::set_color(const LEDColor &incol
       }
     #endif
 
+    #if BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+      // Update color only if caselight is ON or switching leds off
+      if (caselight.on || incol.is_off())
+    #endif
     neo.set_color(neocolor);
 
   #endif
@@ -150,7 +158,7 @@ void LEDLights::set_color(const LEDColor &incol
   void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
 #endif
 
-#ifdef LED_BACKLIGHT_TIMEOUT
+#if LED_POWEROFF_TIMEOUT > 0
 
   millis_t LEDLights::led_off_time; // = 0
 
