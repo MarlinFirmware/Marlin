@@ -30,9 +30,9 @@
 static uint16_t timer_freq[TIMER_NUM];
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  const PinName pin_name = digitalPinToPinName(pin);
   const uint16_t duty = invert ? v_size - v : v;
   if (PWM_PIN(pin)) {
+    const PinName pin_name = digitalPinToPinName(pin);
     TIM_TypeDef * const Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
 
     const timer_index_t index = get_timer_index(Instance);
@@ -56,8 +56,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     if (previousMode != TIMER_OUTPUT_COMPARE_PWM1) HT->resume();
   }
   else {
-    pinMode(pin_name, OUTPUT);
-    digitalWrite(pin_name, duty < v_size / 2 ? LOW : HIGH);
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, duty < v_size / 2 ? LOW : HIGH);
   }
 }
 
