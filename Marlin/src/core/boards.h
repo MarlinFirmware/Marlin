@@ -338,19 +338,19 @@
 #define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board
 #define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board
 #define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V422           4041  // Creality v4.2.2 (STM32F103RE)
+#define BOARD_CREALITY_V422           4041  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V423           4042  // Creality v4.2.3 (STM32F103RE)
-#define BOARD_CREALITY_V427           4043  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V4210          4044  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
-#define BOARD_CREALITY_V431           4045  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V431_A         4046  // Creality v4.3.1a (STM32F103RE)
-#define BOARD_CREALITY_V431_B         4047  // Creality v4.3.1b (STM32F103RE)
-#define BOARD_CREALITY_V431_C         4048  // Creality v4.3.1c (STM32F103RE)
-#define BOARD_CREALITY_V431_D         4049  // Creality v4.3.1d (STM32F103RE)
-#define BOARD_CREALITY_V452           4050  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4051  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_CREALITY_V24S1          4052  // Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7
-#define BOARD_CREALITY_V24S1_301      4053  // Creality v2.4.S1_301 (STM32F103RCT) as found in the Ender 3 S1
+#define BOARD_CREALITY_V427           4043  // Creality v4.2.7 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V4210          4044  // Creality v4.2.10 (STM32F103RC / STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4045  // Creality v4.3.1 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_A         4046  // Creality v4.3.1a (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_B         4047  // Creality v4.3.1b (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_C         4048  // Creality v4.3.1c (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_D         4049  // Creality v4.3.1d (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V452           4050  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V453           4051  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V24S1          4052  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender 7
+#define BOARD_CREALITY_V24S1_301      4053  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) as found in the Ender 3 S1
 #define BOARD_TRIGORILLA_PRO          4054  // Trigorilla Pro (STM32F103ZE)
 #define BOARD_FLY_MINI                4055  // FLYmaker FLY MINI (STM32F103RC)
 #define BOARD_FLSUN_HISPEED           4056  // FLSUN HiSpeedV1 (STM32F103VE)
