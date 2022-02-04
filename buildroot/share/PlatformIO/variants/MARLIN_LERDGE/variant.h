@@ -183,7 +183,7 @@ extern "C" {
 // Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 // FANs may require PWM timers 3 10 11 13
 // The LED/RGB connectors timer 4
-// Beware: STEP_TIMER default is 6 and TEMP_TIMER 14 for the F407
+// Beware: MCU_TIMER_STEP default is 6 and MCU_TIMER_TEMP 14 for the F407
 #ifndef TIMER_TONE
   #define TIMER_TONE            TIM8  // TIM3 or TIM8 for SPEAKER compat on the lerdge K (PC6)
 #endif                                // TIM4 for that on the Lerdge S (PD11)
