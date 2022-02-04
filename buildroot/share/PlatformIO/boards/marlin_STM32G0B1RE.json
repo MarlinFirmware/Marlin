@@ -9,7 +9,7 @@
     },
     "mcu": "stm32g0b1ret6",
     "product_line": "STM32G0B1xx",
-    "variant": "STM32G0xx/MARLIN_G0B1RE"
+    "variant": "MARLIN_G0B1RE"
   },
   "debug": {
     "default_tools": [
