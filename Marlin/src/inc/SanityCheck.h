@@ -2017,12 +2017,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_FAN0
   #if CONTROLLER_FAN_PIN == FAN_PIN
     #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
-  #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
-    #error "FAN_SOFT_PWM is required. Enable it to continue."
-  #endif
-  #if ENABLED(SPEAKER) && DISABLED(FAN_SOFT_PWM) && FAN_PIN == 9
-    #error "Part cooling FAN_PIN PWM timer2 conflicts with #define SPEAKER tone timer2 use in AVR library."
-    #error "Use FAN_SOFT_PWM or disable SPEAKER."
+  #elif DISABLED(FAN_SOFT_PWM)
+    #if ENABLED(FAN_SOFT_PWM_REQUIRED)
+      #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
+    #endif
+    #if defined(__AVR__) && ENABLED(SPEAKER) && FAN_PIN == 9
+      #error "FAN_PIN 9 Hardware PWM uses Timer 2 which conflicts with Arduino AVR Tone Timer (for SPEAKER)."
+      #error "Disable SPEAKER or use FAN_SOFT_PWM."
+    #endif
   #endif
 #endif
 
