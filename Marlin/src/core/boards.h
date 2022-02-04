@@ -115,6 +115,7 @@
 #define BOARD_RAMPS_S_12_EFFB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
 #define BOARD_LONGER3D_LK1_PRO        1160  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
 #define BOARD_LONGER3D_LKx_PRO        1161  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
+#define BOARD_ZRIB_V53                1162  // Zonestar zrib V5.3 (Chinese RAMPS replica)
 
 //
 // RAMBo and derivatives
