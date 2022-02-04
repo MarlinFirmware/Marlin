@@ -339,7 +339,7 @@
 #define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board
 #define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V422           4041  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V423           4042  // Creality v4.2.3 (STM32F103RE)
+#define BOARD_CREALITY_V423           4042  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V427           4043  // Creality v4.2.7 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V4210          4044  // Creality v4.2.10 (STM32F103RC / STM32F103RE) as found in the CR-30
 #define BOARD_CREALITY_V431           4045  // Creality v4.3.1 (STM32F103RC / STM32F103RE)
