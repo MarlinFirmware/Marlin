@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RET6_creality
+# Build tests for STM32F103RE_creality
 #
 
 # exit on first failure

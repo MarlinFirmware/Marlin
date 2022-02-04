@@ -101,6 +101,8 @@ typedef struct machine_common_disp {
   const char *OutLength;
   const char *OutSpeed;
 
+  const char *LevelingZoffsetTitle;
+
   const char *LevelingParaConfTitle;
   const char *LevelingParaConf;
   const char *TrammingPosConf;
@@ -294,6 +296,7 @@ extern machine_common_def machine_menu;
 
 typedef struct common_menu_disp {
   const char *text_back;
+  const char *text_save;
   const char *dialog_confirm_title;
   const char *close_machine_tips;
   const char *unbind_printer_tips;
@@ -355,6 +358,7 @@ typedef struct move_menu_disp {
   const char *z_add;
   const char *z_dec;
   const char *step_001mm;
+  const char *step_0025mm;
   const char *step_005mm;
   const char *step_01mm;
   const char *step_1mm;
@@ -777,6 +781,7 @@ extern eeprom_def eeprom_menu;
 #define AXIS_Z_ADD_TEXT     "Z+"
 #define AXIS_Z_DEC_TEXT     "Z-"
 #define TEXT_001MM          "0.01 mm"
+#define TEXT_0025MM         "0.025 mm"
 #define TEXT_005MM          "0.05 mm"
 #define TEXT_01MM           "0.1 mm"
 #define TEXT_1MM            "1 mm"
