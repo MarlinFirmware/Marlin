@@ -31,7 +31,7 @@ static uint16_t timer_freq[TIMER_NUM];
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   const PinName pin_name = digitalPinToPinName(pin);
-  const uint16_t value = invert ? v_size - v : v;
+  const uint16_t duty = invert ? v_size - v : v;
   if (PWM_PIN(pin)) {
     TIM_TypeDef * const Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
 
@@ -51,16 +51,13 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 
     // Note the resolution is sticky here, the input can be upto 16 bits and that would require RESOLUTION_16B_COMPARE_FORMAT (16)
     // If such a need were to manifest then we would need to calc the resolution based on the v_size parameter and add code for it.
-    HT->setCaptureCompare(channel, value, RESOLUTION_8B_COMPARE_FORMAT); // Sets the duty, the calc is done in the library :)
+    HT->setCaptureCompare(channel, duty, RESOLUTION_8B_COMPARE_FORMAT); // Set the duty, the calc is done in the library :)
     pinmap_pinout(pin_name, PinMap_PWM); // Make sure the pin output state is set.
     if (previousMode != TIMER_OUTPUT_COMPARE_PWM1) HT->resume();
-  } else {
+  }
+  else {
     pinMode(pin_name, OUTPUT);
-    if (value < v_size / 2) {
-      digitalWrite(pin_name, LOW);
-    } else {
-      digitalWrite(pin_name, HIGH);
-    }
+    digitalWrite(pin_name, duty < v_size / 2 ? LOW : HIGH);
   }
 }
 
