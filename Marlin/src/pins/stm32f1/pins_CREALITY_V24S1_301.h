@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Creality V24S1_301 (STM32F103RCT) board pin assignments as found on Ender 3 S1
+ * Creality V24S1_301 (STM32F103RE / STM32F103RC) board pin assignments as found on Ender 3 S1
  */
 
 #include "env_validate.h"
