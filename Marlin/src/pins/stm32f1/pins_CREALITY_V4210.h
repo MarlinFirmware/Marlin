@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * CREALITY 4.2.10 (STM32F103) board pin assignments
+ * CREALITY 4.2.10 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
 #include "env_validate.h"
