@@ -2020,6 +2020,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
     #error "FAN_SOFT_PWM is required. Enable it to continue."
   #endif
+  #if ENABLED(SPEAKER) && DISABLED(FAN_SOFT_PWM) && FAN_PIN == 9
+    #error "Part cooling FAN_PIN PWM timer2 conflicts with #define SPEAKER tone timer2 use in AVR library."
+    #error "Use FAN_SOFT_PWM or disable SPEAKER."
+  #endif
 #endif
 
 #if ENABLED(USE_CONTROLLER_FAN)
