@@ -564,6 +564,26 @@
   #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
 #endif
 
+/**
+ * FYSETC backlighting
+ */
+#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
+  #warning "Your FYSETC Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
+#endif
+
+#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
+  #warning "Your FYSETC Mini Panel works best with RGB_LED."
+#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+  #warning "Your FYSETC Mini Panel works best with LED_USER_PRESET_STARTUP."
+#endif
+
+#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && BOTH(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
+  #warning "Your FYSETC display with PSU_CONTROL works best with LED_POWEROFF_TIMEOUT."
+#endif
+
+/**
+ * Maple environent
+ */
 #if ENABLED(__STM32F1__)
   #warning "Maple build environments are obsolete and are being phased out. Please use the non maple build environment and report any issues."
 #endif

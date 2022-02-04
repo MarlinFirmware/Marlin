@@ -223,6 +223,12 @@ void Draw_Tramming_Menu();
 #endif
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
+#if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+  void Draw_CaseLight_Menu();
+#endif
+#if ENABLED(LED_CONTROL_MENU)
+  void Draw_LedControl_Menu();
+#endif
 void Draw_Tune_Menu();
 void Draw_Motion_Menu();
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
