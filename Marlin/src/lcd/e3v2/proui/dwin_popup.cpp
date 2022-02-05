@@ -22,9 +22,11 @@
 
 /**
  * DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 3.10.1
+ * Date: 2022/01/21
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -52,8 +54,8 @@ void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fm
 
 void DWIN_Popup_ConfirmCancel(const uint8_t icon, FSTR_P const fmsg2) {
   DWIN_Draw_Popup(ICON_BLTouch, F("Please confirm"), fmsg2);
-  DWINUI::Draw_Icon(ICON_Confirm_E, 26, 280);
-  DWINUI::Draw_Icon(ICON_Cancel_E, 146, 280);
+  DWINUI::Draw_IconWB(ICON_Confirm_E, 26, 280);
+  DWINUI::Draw_IconWB(ICON_Cancel_E, 146, 280);
   Draw_Select_Highlight(true);
   DWIN_UpdateLCD();
 }

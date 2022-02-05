@@ -21,10 +21,12 @@
  */
 
 /**
- * DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 3.9.1
- * Date: 2021/11/21
+ * Enhanced DWIN implementation
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 3.11.2
+ * date: 2022/01/19
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -83,6 +85,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if HAS_GCODE_PREVIEW
+  #include "gcode_preview.h"
+#endif
+
 #if HAS_ESDIAG
   #include "endstop_diag.h"
 #endif
@@ -112,10 +118,6 @@
 #endif
 
 #include "lockscreen.h"
-
-#ifndef CORP_WEBSITE
-  #define CORP_WEBSITE WEBSITE_URL
-#endif
 
 #define PAUSE_HEAT
 
@@ -169,7 +171,7 @@ enum SelectItem : uint8_t {
   PAGE_PRINT = 0,
   PAGE_PREPARE,
   PAGE_CONTROL,
-  PAGE_INFO_LEVELING,
+  PAGE_INFO_LEV_ADV,
   PAGE_COUNT,
 
   PRINT_SETUP = 0,
@@ -310,11 +312,11 @@ void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico,
   DWIN_ICON_Show(true, false, false, ICON, iconid + selected, ico.x, ico.y);
   if (selected) DWINUI::Draw_Box(0, HMI_data.Highlight_Color, ico);
   if (HMI_IsChinese()) {
-    DWIN_Frame_AreaCopy(1, txt.x, txt.y[selected], txt.x + txt.w - 1, txt.y[selected] + txt.h - 1, ico.x + (ico.w - txt.w) / 2, (ico.y + ico.h - 28) - txt.h/2);
+    DWIN_Frame_AreaCopy(1, txt.x, txt.y[selected], txt.x + txt.w - 1, txt.y[selected] + txt.h - 1, ico.x + (ico.w - txt.w) / 2, (ico.y + ico.h - 25) - txt.h/2);
   }
   else {
     const uint16_t x = ico.x + (ico.w - strlen_P(FTOP(caption)) * DWINUI::fontWidth()) / 2,
-                   y = (ico.y + ico.h - 28) - DWINUI::fontHeight() / 2;
+                   y = (ico.y + ico.h - 20) - DWINUI::fontHeight() / 2;
     DWINUI::Draw_String(x, y, caption);
   }
 }
@@ -324,7 +326,7 @@ void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico,
 //
 void ICON_Print() {
   constexpr frame_rect_t ico = { 17, 110, 110, 100 };
-  constexpr text_info_t txt = { 1, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 1, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_PRINT, ICON_Print_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PRINT));
 }
 
@@ -333,7 +335,7 @@ void ICON_Print() {
 //
 void ICON_Prepare() {
   constexpr frame_rect_t ico = { 145, 110, 110, 100 };
-  constexpr text_info_t txt = { 31, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 31, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_PREPARE, ICON_Prepare_0, ico, txt, GET_TEXT_F(MSG_PREPARE));
 }
 
@@ -342,7 +344,7 @@ void ICON_Prepare() {
 //
 void ICON_Control() {
   constexpr frame_rect_t ico = { 17, 226, 110, 100 };
-  constexpr text_info_t txt = { 61, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 61, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, txt, GET_TEXT_F(MSG_CONTROL));
 }
 
@@ -351,8 +353,8 @@ void ICON_Control() {
 //
 void ICON_StartInfo() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
-  constexpr text_info_t txt = { 91, { 405, 447 }, 27, 15 };
-  ICON_Button(select_page.now == PAGE_INFO_LEVELING, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_INFO));
+  constexpr text_info_t txt = { 91, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
+  ICON_Button(select_page.now == PAGE_INFO_LEV_ADV, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_INFO));
 }
 
 //
@@ -360,8 +362,17 @@ void ICON_StartInfo() {
 //
 void ICON_Leveling() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
-  constexpr text_info_t txt = { 211, { 405, 447 }, 27, 15 };
-  ICON_Button(select_page.now == PAGE_INFO_LEVELING, ICON_Leveling_0, ico, txt, GET_TEXT_F(MSG_BUTTON_LEVEL));
+  constexpr text_info_t txt = { 211, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
+  ICON_Button(select_page.now == PAGE_INFO_LEV_ADV, ICON_Leveling_0, ico, txt, GET_TEXT_F(MSG_BUTTON_LEVEL));
+}
+
+//
+// Main Menu: "Advanced Settings"
+//
+void ICON_AdvSettings() {
+  constexpr frame_rect_t ico = { 145, 226, 110, 100 };
+  constexpr text_info_t txt = { 91, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
+  ICON_Button(select_page.now == PAGE_INFO_LEV_ADV, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_ADVANCED));
 }
 
 //
@@ -369,7 +380,7 @@ void ICON_Leveling() {
 //
 void ICON_Tune() {
   constexpr frame_rect_t ico = { 8, 232, 80, 100 };
-  constexpr text_info_t txt = { 121, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 121, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_print.now == PRINT_SETUP, ICON_Setup_0, ico, txt, GET_TEXT_F(MSG_TUNE));
 }
 
@@ -378,7 +389,7 @@ void ICON_Tune() {
 //
 void ICON_Pause() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
-  constexpr text_info_t txt = { 181, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 181, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Pause_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PAUSE));
 }
 
@@ -387,7 +398,7 @@ void ICON_Pause() {
 //
 void ICON_Resume() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
-  constexpr text_info_t txt = {  1, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 1, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Continue_0, ico, txt, GET_TEXT_F(MSG_BUTTON_RESUME));
 }
 
@@ -396,7 +407,7 @@ void ICON_Resume() {
 //
 void ICON_Stop() {
   constexpr frame_rect_t ico = { 184, 232, 80, 100 };
-  constexpr text_info_t txt = { 151, { 405, 447 }, 27, 12 };
+  constexpr text_info_t txt = { 151, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 12 };
   ICON_Button(select_print.now == PRINT_STOP, ICON_Stop_0, ico, txt, GET_TEXT_F(MSG_BUTTON_STOP));
 }
 
@@ -453,18 +464,13 @@ void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const
   DWINUI::Draw_Int(HMI_data.Text_Color, bcolor, iNum , VALX, MBASE(line) - 1, value);
 }
 
-// The "Back" label is always on the first line
-void Draw_Back_Label() {
-  if (HMI_IsChinese())
-    DWIN_Frame_AreaCopy(1, 129, 72, 156, 84, LBLX, MBASE(0));
-  else
-    DWIN_Frame_AreaCopy(1, 223, 179, 254, 189, LBLX, MBASE(0));
-}
-
 // Draw "Back" line at the top
 void Draw_Back_First(const bool is_sel=true) {
   Draw_Menu_Line(0, ICON_Back);
-  Draw_Back_Label();
+  if (HMI_IsChinese())
+    DWIN_Frame_AreaCopy(1, 129, 72, 156, 84, LBLX, MBASE(0));
+  else
+    DWINUI::Draw_String(LBLX, MBASE(0), GET_TEXT_F(MSG_BACK));
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
@@ -489,15 +495,15 @@ inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
 //PopUps
 void Popup_window_PauseOrStop() {
   if (HMI_IsChinese()) {
-  DWINUI::ClearMenuArea();
+    DWINUI::ClearMenuArea();
     Draw_Popup_Bkgd();
          if (select_print.now == PRINT_PAUSE_RESUME) DWIN_Frame_AreaCopy(1, 237, 338, 269, 356, 98, 150);
     else if (select_print.now == PRINT_STOP) DWIN_Frame_AreaCopy(1, 221, 320, 253, 336, 98, 150);
     DWIN_Frame_AreaCopy(1, 220, 304, 264, 319, 130, 150);
-    DWINUI::Draw_Icon(ICON_Confirm_C, 26, 280);
-    DWINUI::Draw_Icon(ICON_Cancel_C, 146, 280);
+    DWINUI::Draw_IconWB(ICON_Confirm_C, 26, 280);
+    DWINUI::Draw_IconWB(ICON_Cancel_C, 146, 280);
     Draw_Select_Highlight(true);
-  DWIN_UpdateLCD();
+    DWIN_UpdateLCD();
   }
   else
     DWIN_Popup_ConfirmCancel(ICON_BLTouch, select_print.now == PRINT_PAUSE_RESUME ? GET_TEXT_F(MSG_PAUSE_PRINT) : GET_TEXT_F(MSG_STOP_PRINT));
@@ -513,7 +519,7 @@ void Popup_window_PauseOrStop() {
       DWINUI::Draw_Icon(ICON_TempTooLow, 102, 105);
       DWIN_Frame_AreaCopy(1, 103, 371, 136, 386,  69, 240);
       DWIN_Frame_AreaCopy(1, 170, 371, 270, 386, 102, 240);
-      DWINUI::Draw_Icon(ICON_Confirm_C, 86, 280);
+      DWINUI::Draw_IconWB(ICON_Confirm_C, 86, 280);
       DWIN_UpdateLCD();
     }
     else
@@ -527,8 +533,8 @@ void Popup_window_PauseOrStop() {
     DWINUI::ClearMenuArea();
     Draw_Popup_Bkgd();
     if (HMI_IsChinese()) {
-    if (toohigh) {
-      DWINUI::Draw_Icon(ICON_TempTooHigh, 102, 165);
+      if (toohigh) {
+        DWINUI::Draw_Icon(ICON_TempTooHigh, 102, 165);
         DWIN_Frame_AreaCopy(1, 103, 371, 237, 386, 52, 285);
         DWIN_Frame_AreaCopy(1, 151, 389, 185, 402, 187, 285);
         DWIN_Frame_AreaCopy(1, 189, 389, 271, 402, 95, 310);
@@ -637,7 +643,7 @@ void Draw_Print_Labels() {
 }
 
 void Draw_Print_ProgressBar() {
-  DWINUI::Draw_Icon(ICON_Bar, 15, 93);
+  DWINUI::Draw_IconWB(ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, HMI_data.Barfill_Color, 16 + _percent_done * 240 / 100, 93, 256, 113);
   DWINUI::Draw_Int(HMI_data.PercentTxt_Color, HMI_data.Background_Color, 3, 117, 133, _percent_done);
   DWINUI::Draw_String(HMI_data.PercentTxt_Color, 142, 133, F("%"));
@@ -707,7 +713,7 @@ void Draw_PrintDone() {
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
   // show print done confirm
-  DWINUI::Draw_Icon(HMI_IsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 273);
+  DWINUI::Draw_IconWB(HMI_IsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 273);
   DWIN_UpdateLCD();
 }
 
@@ -721,7 +727,7 @@ void Draw_Main_Menu() {
   ICON_Print();
   ICON_Prepare();
   ICON_Control();
-  TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)();
+  ICON_AdvSettings();
   DWIN_UpdateLCD();
 }
 
@@ -745,11 +751,11 @@ void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y,
 
   if (force || changed || draw_qmark || draw_empty) {
     if (blink && draw_qmark)
-      DWINUI::Draw_String(HMI_data.Coordinate_Color, HMI_data.Background_Color, x, y, F("--?--"));
+      DWINUI::Draw_String(HMI_data.Coordinate_Color, HMI_data.Background_Color, x, y, F(" - ? -"));
     else if (blink && draw_empty)
       DWINUI::Draw_String(HMI_data.Coordinate_Color, HMI_data.Background_Color, x, y, F("     "));
     else
-      DWINUI::Draw_Signed_Float(HMI_data.Coordinate_Color, HMI_data.Background_Color, 3, 1, x, y, p);
+      DWINUI::Draw_Signed_Float(HMI_data.Coordinate_Color, HMI_data.Background_Color, 3, 2, x, y, p);
   }
 }
 
@@ -910,8 +916,6 @@ void MarlinUI::refresh() { /* Nothing to see here */ }
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
 #endif
-
-#define ICON_Folder ICON_More
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
@@ -1115,25 +1119,25 @@ void HMI_StartFrame(const bool with_update) {
 void Draw_Info_Menu() {
   DWINUI::ClearMenuArea();
   Draw_Back_First();
-
-  DWINUI::Draw_CenteredString(122, F(MACHINE_SIZE));
-  DWINUI::Draw_CenteredString(195, F(SHORT_BUILD_VERSION));
+  if (HMI_IsChinese())
+    Title.FrameCopy(30, 17, 28, 13);                        // "Info"
+  else
+    Title.ShowCaption(GET_TEXT_F(MSG_INFO_SCREEN));
 
   if (HMI_IsChinese()) {
-    Title.FrameCopy(30, 17, 28, 13);                        // "Info"
-
     DWIN_Frame_AreaCopy(1, 197, 149, 252, 161, 108, 102);   // "Size"
     DWIN_Frame_AreaCopy(1,   1, 164,  56, 176, 108, 175);   // "Firmware Version"
     DWIN_Frame_AreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
+    DWINUI::Draw_CenteredString(268, F(CORP_WEBSITE));
   }
   else {
-    Title.ShowCaption(GET_TEXT_F(MSG_INFO_SCREEN));
-
-    DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);   // "Size"
-    DWIN_Frame_AreaCopy(1, 146, 151, 254, 161,  82, 175);   // "Firmware Version"
-    DWIN_Frame_AreaCopy(1,   1, 164,  96, 175,  89, 248);   // "Contact details"
+    DWINUI::Draw_CenteredString(102, F("Size"));
+    DWINUI::Draw_CenteredString(175, F("Firmware version"));
+    DWINUI::Draw_CenteredString(248, F("Build Datetime"));
+    DWINUI::Draw_CenteredString(268, F(STRING_DISTRIBUTION_DATE));
   }
-  DWINUI::Draw_CenteredString(268, F(CORP_WEBSITE));
+  DWINUI::Draw_CenteredString(122, F(MACHINE_SIZE));
+  DWINUI::Draw_CenteredString(195, F(SHORT_BUILD_VERSION));
 
   LOOP_L_N(i, 3) {
     DWINUI::Draw_Icon(ICON_PrintSize + i, ICOX, 99 + i * 73);
@@ -1162,7 +1166,7 @@ void HMI_MainMenu() {
         case PAGE_PRINT: ICON_Print(); break;
         case PAGE_PREPARE: ICON_Print(); ICON_Prepare(); break;
         case PAGE_CONTROL: ICON_Prepare(); ICON_Control(); break;
-        case PAGE_INFO_LEVELING: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case PAGE_INFO_LEV_ADV: ICON_Control(); ICON_AdvSettings(); break;
       }
     }
   }
@@ -1171,8 +1175,8 @@ void HMI_MainMenu() {
       switch (select_page.now) {
         case PAGE_PRINT: ICON_Print(); ICON_Prepare(); break;
         case PAGE_PREPARE: ICON_Prepare(); ICON_Control(); break;
-        case PAGE_CONTROL: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
-        case PAGE_INFO_LEVELING: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case PAGE_CONTROL: ICON_Control(); ICON_AdvSettings(); break;
+        case PAGE_INFO_LEV_ADV: ICON_AdvSettings(); break;
       }
     }
   }
@@ -1180,6 +1184,7 @@ void HMI_MainMenu() {
     switch (select_page.now) {
       case PAGE_PRINT:
         checkkey = SelectFile;
+        card.mount();
         Draw_Print_File_Menu();
         break;
 
@@ -1187,14 +1192,7 @@ void HMI_MainMenu() {
 
       case PAGE_CONTROL: Draw_Control_Menu(); break;
 
-      case PAGE_INFO_LEVELING:
-        #if HAS_ONESTEP_LEVELING
-          queue.inject(F("G28Z\nG29"));  // Force to get the current Z home position
-        #else
-          last_checkkey = MainMenu;
-          Goto_Info_Menu();
-        #endif
-        break;
+      case PAGE_INFO_LEV_ADV: Draw_AdvancedSettings_Menu(); break;
     }
   }
   DWIN_UpdateLCD();
@@ -1469,6 +1467,9 @@ void Draw_Main_Area() {
       case FilamentPurge:        Draw_Popup_FilamentPurge(); break;
     #endif
     case Locked:                 lockScreen.draw(); break;
+    #if HAS_GCODE_PREVIEW
+      case ConfirmToPrint:       Draw_PreviewFromSD(); break;
+    #endif
     case Menu:
     case SetInt:
     case SetPInt:
@@ -1496,14 +1497,12 @@ void HMI_Popup() {
 
 void HMI_Init() {
   HMI_SDCardInit();
-
   for (uint16_t t = 0; t <= 100; t += 2) {
     DWINUI::Draw_Icon(ICON_Bar, 15, 260);
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 15 + t * 242 / 100, 260, 257, 280);
     DWIN_UpdateLCD();
     delay(20);
   }
-
   HMI_SetLanguage();
 }
 
@@ -1623,15 +1622,15 @@ void EachMomentUpdate() {
     if (HMI_IsChinese()) {
       DWIN_Frame_AreaCopy(1, 160, 338, 235, 354, 98, 115);
       DWIN_Frame_AreaCopy(1, 103, 321, 271, 335, 52, 167);
-      DWINUI::Draw_Icon(ICON_Cancel_C,    26, 280);
-      DWINUI::Draw_Icon(ICON_Continue_C, 146, 280);
+      DWINUI::Draw_IconWB(ICON_Cancel_C,    26, 280);
+      DWINUI::Draw_IconWB(ICON_Continue_C, 146, 280);
     }
     else {
       DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 70, GET_TEXT_F(MSG_OUTAGE_RECOVERY));
       DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 147, F("It looks like the last"));
       DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 167, F("file was interrupted."));
-      DWINUI::Draw_Icon(ICON_Cancel_E,    26, 280);
-      DWINUI::Draw_Icon(ICON_Continue_E, 146, 280);
+      DWINUI::Draw_IconWB(ICON_Cancel_E,    26, 280);
+      DWINUI::Draw_IconWB(ICON_Continue_E, 146, 280);
     }
     SdFile *dir = nullptr;
     const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
@@ -1698,6 +1697,9 @@ void DWIN_HandleScreen() {
     #if ENABLED(POWER_LOSS_RECOVERY)
       case PwrlossRec:    HMI_PowerlossRecovery(); break;
     #endif
+    #if HAS_GCODE_PREVIEW
+      case ConfirmToPrint: HMI_ConfirmToPrint(); break;
+    #endif
     #if HAS_ESDIAG
       case ESDiagProcess: HMI_Popup(); break;
     #endif
@@ -1747,7 +1749,7 @@ void DWIN_MeshLevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
     Title.ShowCaption(GET_TEXT_F(MSG_BED_LEVELING));
-    DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));
+    DWIN_Show_Popup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT), ICON_Cancel_E);
   #elif ENABLED(MESH_BED_LEVELING)
     Draw_ManualMesh_Menu();
   #endif
@@ -1924,7 +1926,8 @@ void DWIN_LoadSettings(const char *buff) {
 }
 
 void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component) {
-  DWIN_Draw_Popup(ICON_BLTouch, lcd_error, lcd_component);
+  DWIN_Draw_Popup(ICON_BLTouch, F("Printer killed:"), lcd_error);
+  DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 270, F("Turn off the printer"));
   DWIN_UpdateLCD();
 }
 
@@ -1969,8 +1972,8 @@ void DWIN_Redraw_screen() {
 
   void Draw_Popup_FilamentPurge() {
     DWIN_Draw_Popup(ICON_BLTouch, GET_TEXT_F(MSG_ADVANCED_PAUSE), F("Purge or Continue?"));
-    DWINUI::Draw_Icon(ICON_Confirm_E, 26, 280);
-    DWINUI::Draw_Icon(ICON_Continue_E, 146, 280);
+    DWINUI::Draw_IconWB(ICON_Confirm_E, 26, 280);
+    DWINUI::Draw_IconWB(ICON_Continue_E, 146, 280);
     Draw_Select_Highlight(true);
     DWIN_UpdateLCD();
   }
@@ -2035,6 +2038,41 @@ void HMI_LockScreen() {
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   lockScreen.onEncoder(encoder_diffState);
   if (lockScreen.isUnlocked()) DWIN_UnLockScreen();
+}
+
+#if HAS_GCODE_PREVIEW
+
+  void HMI_ConfirmToPrint() {
+    EncoderState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (encoder_diffState == ENCODER_DIFF_CW)
+      Draw_Select_Highlight(false);
+    else if (encoder_diffState == ENCODER_DIFF_CCW)
+      Draw_Select_Highlight(true);
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      if (HMI_flag.select_flag) {     // Confirm
+        card.openAndPrintFile(card.filename);
+        DWIN_Print_Started(true);
+      }
+      else {                          // Cancel
+        DWIN_ResetStatusLine();
+        checkkey = SelectFile;
+        Draw_Print_File_Menu();
+      }
+    }
+    DWIN_UpdateLCD();
+  }
+
+#endif
+
+void Goto_ConfirmToPrint() {
+  #if HAS_GCODE_PREVIEW
+    HMI_SaveProcessID(ConfirmToPrint);
+    Draw_PreviewFromSD();
+  #else
+    card.openAndPrintFile(card.filename);
+    DWIN_Print_Started(true);
+  #endif
 }
 
 #if HAS_ESDIAG
@@ -2308,8 +2346,9 @@ void SetPID(celsius_t t, heater_id_t h) {
 #endif
 
 #if HAS_LCD_BRIGHTNESS
-  void LiveBrightness() { ui.set_brightness(HMI_value.Value); }
-  void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, nullptr, LiveBrightness); }
+  void ApplyBrightness() { ui.set_brightness(HMI_value.Value); }
+  void LiveBrightness() { DWIN_LCD_Brightness(HMI_value.Value); }
+  void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, ApplyBrightness, LiveBrightness); }
 #endif
 
 #if ENABLED(CASE_LIGHT_MENU)
@@ -2380,6 +2419,12 @@ void SetPID(celsius_t t, heater_id_t h) {
       DWIN_UpdateLCD();
     }
   #endif
+#endif
+
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  void SetParkPosX()   { SetPIntOnClick(0, X_MAX_POS); }
+  void SetParkPosY()   { SetPIntOnClick(0, Y_MAX_POS); }
+  void SetParkZRaise() { SetPIntOnClick(0, 50); }
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -2490,9 +2535,11 @@ void Tram(uint8_t point) {
     static bool inLev = false;
     if (inLev) return;
     char str_1[6] = "", str_2[6] = "", str_3[6] = "";
+    #define fmt "X:%s, Y:%s, Z:%s"
     float xpos = 0, ypos = 0, zval = 0;
     float margin = PROBING_MARGIN;
   #else
+    #define fmt "M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"
     int16_t xpos = 0, ypos = 0;
     int16_t margin = 30;
   #endif
@@ -2527,7 +2574,7 @@ void Tram(uint8_t point) {
     planner.synchronize();
     inLev = true;
     zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
-    sprintf_P(cmd, PSTR("X:%s, Y:%s, Z:%s"),
+    sprintf_P(cmd, PSTR(fmt),
       dtostrf(xpos, 1, 1, str_1),
       dtostrf(ypos, 1, 1, str_2),
       dtostrf(zval, 1, 2, str_3)
@@ -2536,7 +2583,7 @@ void Tram(uint8_t point) {
     inLev = false;
   #else
     planner.synchronize();
-    sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"), xpos, ypos);
+    sprintf_P(cmd, PSTR(fmt), xpos, ypos);
     queue.inject(cmd);
   #endif
 }
@@ -2957,7 +3004,7 @@ void onDrawSpeed(MenuItemClass* menuitem, int8_t line) {
 void onDrawMaxSpeedX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 228, 147);
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));      // X
+    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));     // X
   }
   onDrawPFloatMenu(menuitem, line);
 }
@@ -2965,7 +3012,7 @@ void onDrawMaxSpeedX(MenuItemClass* menuitem, int8_t line) {
 void onDrawMaxSpeedY(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 228, 147);
-    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));          // Y
+    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));         // Y
   }
   onDrawPFloatMenu(menuitem, line);
 }
@@ -2973,7 +3020,7 @@ void onDrawMaxSpeedY(MenuItemClass* menuitem, int8_t line) {
 void onDrawMaxSpeedZ(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 228, 147);
-    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);     // Z
+    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);    // Z
   }
   onDrawPFloatMenu(menuitem, line);
 }
@@ -2982,7 +3029,7 @@ void onDrawMaxSpeedZ(MenuItemClass* menuitem, int8_t line) {
   void onDrawMaxSpeedE(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
       menuitem->SetFrame(1, 173, 133, 228, 147);
-      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(line));      // E
+      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(line));     // E
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -2991,7 +3038,7 @@ void onDrawMaxSpeedZ(MenuItemClass* menuitem, int8_t line) {
 void onDrawAcc(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 200, 147);
-    DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line) + 1); // ...Acceleration
+    DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line) + 1);   // ...Acceleration
   }
   onDrawSubMenu(menuitem, line);
 }
@@ -3000,7 +3047,7 @@ void onDrawMaxAccelX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1, 28,  149,  69, 161, LBLX + 27, MBASE(line));
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(line));      // X
+    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(line));     // X
   }
   onDrawPInt32Menu(menuitem, line);
 }
@@ -3008,8 +3055,8 @@ void onDrawMaxAccelX(MenuItemClass* menuitem, int8_t line) {
 void onDrawMaxAccelY(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 200, 147);
-    DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
-    DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 71, MBASE(line));          // Y
+    DWIN_Frame_AreaCopy(1, 28, 149,  69, 161, LBLX + 27, MBASE(line));
+    DWIN_Frame_AreaCopy(1,  1, 150,   7, 160, LBLX + 71, MBASE(line));      // Y
   }
   onDrawPInt32Menu(menuitem, line);
 }
@@ -3017,8 +3064,8 @@ void onDrawMaxAccelY(MenuItemClass* menuitem, int8_t line) {
 void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 200, 147);
-    DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
-    DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 71, MBASE(line));         // Z
+    DWIN_Frame_AreaCopy(1, 28, 149,  69, 161, LBLX + 27, MBASE(line));
+    DWIN_Frame_AreaCopy(1,  9, 150,  16, 160, LBLX + 71, MBASE(line));      // Z
   }
   onDrawPInt32Menu(menuitem, line);
 }
@@ -3027,8 +3074,8 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   void onDrawMaxAccelE(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
       menuitem->SetFrame(1, 173, 133, 200, 147);
-      DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
-      DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 71, MBASE(line));        // E
+      DWIN_Frame_AreaCopy(1, 28, 149,  69, 161, LBLX + 27, MBASE(line));
+      DWIN_Frame_AreaCopy(1, 18, 150,  25, 160, LBLX + 71, MBASE(line));    // E
     }
     onDrawPInt32Menu(menuitem, line);
   }
@@ -3039,7 +3086,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   void onDrawJerk(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
       menuitem->SetFrame(1, 173, 133, 200, 147);
-      DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line) + 1);  // ...
+      DWIN_Frame_AreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
     }
     onDrawSubMenu(menuitem, line);
@@ -3286,6 +3333,9 @@ void Draw_Prepare_Menu() {
     #if ENABLED(MESH_BED_LEVELING)
       MENU_ITEM(ICON_ManualMesh, GET_TEXT_F(MSG_MANUAL_MESH), onDrawSubMenu, Draw_ManualMesh_Menu);
     #endif
+    #if HAS_ONESTEP_LEVELING
+      MENU_ITEM(ICON_Level, GET_TEXT_F(MSG_AUTO_MESH), onDrawMenuItem, AutoLev);
+    #endif
     #if HAS_ZOFFSET_ITEM
       #if HAS_BED_PROBE
         MENU_ITEM(ICON_SetZOffset, GET_TEXT_F(MSG_PROBE_WIZARD), onDrawSubMenu, Draw_ZOffsetWiz_Menu);
@@ -3334,12 +3384,12 @@ void Draw_Control_Menu() {
   if (CurrentMenu != ControlMenu) {
     CurrentMenu = ControlMenu;
     SetMenuTitle({103, 1, 28, 14}, GET_TEXT_F(MSG_CONTROL));
-    DWINUI::MenuItemsPrepare(11);
+    DWINUI::MenuItemsPrepare(8);
     MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Goto_Main_Menu);
     #if ENABLED(CASE_LIGHT_MENU)
       #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
         MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawSubMenu, Draw_CaseLight_Menu);
-      #else 
+      #else
         MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawCaseLight, SetCaseLight);
       #endif
     #endif
@@ -3354,7 +3404,6 @@ void Draw_Control_Menu() {
       MENU_ITEM(ICON_ResumeEEPROM, GET_TEXT_F(MSG_RESTORE_DEFAULTS), onDrawResetEeprom, ResetEeprom);
     #endif
     MENU_ITEM(ICON_Reboot, GET_TEXT_F(MSG_RESET_PRINTER), onDrawMenuItem, RebootPrinter);
-    MENU_ITEM(ICON_AdvSet, GET_TEXT_F(MSG_ADVANCED_SETTINGS), onDrawSubMenu, Draw_AdvancedSettings_Menu);
     MENU_ITEM(ICON_Info, GET_TEXT_F(MSG_INFO_SCREEN), onDrawInfoSubMenu, Goto_Info_Menu);
   }
   CurrentMenu->draw();
@@ -3367,7 +3416,7 @@ void Draw_AdvancedSettings_Menu() {
     CurrentMenu = AdvancedSettings;
     SetMenuTitle({0}, GET_TEXT_F(MSG_ADVANCED_SETTINGS)); // TODO: Chinese, English "Advanced Settings" JPG
     DWINUI::MenuItemsPrepare(15);
-    MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Draw_Control_Menu);
+    MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Goto_Main_Menu);
     #if HAS_HOME_OFFSET
       MENU_ITEM(ICON_HomeOffset, GET_TEXT_F(MSG_SET_HOME_OFFSETS), onDrawSubMenu, Draw_HomeOffset_Menu);
     #endif
@@ -3601,7 +3650,7 @@ void Draw_Tune_Menu() {
       MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawCaseLight, SetCaseLight);
     #elif ENABLED(LED_CONTROL_MENU) && DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LEDS), onDrawLedStatus, SetLedStatus);
-    #endif    
+    #endif
     EDIT_ITEM(ICON_Speed, GET_TEXT_F(MSG_SPEED), onDrawSpeedItem, SetSpeed, &feedrate_percentage);
     #if HAS_HOTEND
       HotendTargetItem = EDIT_ITEM(ICON_HotendTemp, GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND), onDrawHotendTemp, SetHotendTemp, &thermalManager.temp_hotend[0].target);
