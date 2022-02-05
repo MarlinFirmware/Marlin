@@ -580,3 +580,10 @@
 #if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && BOTH(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
   #warning "Your FYSETC display with PSU_CONTROL works best with LED_POWEROFF_TIMEOUT."
 #endif
+
+/**
+ * Maple environent
+ */
+#ifdef __STM32F1__
+  #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
+#endif
