@@ -207,7 +207,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
   constexpr thermistor_types_t    thermistor_types[THERMISTORS_TYPES_COUNT] PROGMEM = { {1, "Epcos 100k (1)", temptable_1, sizeof(temptable_1)/sizeof(*temptable_1)},
                                                           {5, "ATC 104GT/104NT 100k (5)", temptable_5, sizeof(temptable_5)/sizeof(*temptable_5)},
-                                                          {13, "Hisens 3950 100k (13)", temptable_66, sizeof(temptable_13)/sizeof(*temptable_13)},
+                                                          {13, "Hisens 3950 100k (13)", temptable_13, sizeof(temptable_13)/sizeof(*temptable_13)},
                                                           {66, "Dyze D500 4.7M (66)", temptable_66, sizeof(temptable_66)/sizeof(*temptable_66)},
                                                         };
 #endif  // RS_ADDSETTINGS
