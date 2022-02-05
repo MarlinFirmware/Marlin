@@ -1645,11 +1645,11 @@
 
 /**
  * By default the framework is responsible for the shared media I/O.
- * Enable this if you need Marlin to take care of the shared media IO.
+ * Enable this if you need Marlin to take care of the shared media I/O.
  * Useful if shared media isn't working properly on some boards.
  */
 #if ENABLED(SDSUPPORT) && DISABLED(NO_SD_HOST_DRIVE)
-  #define USE_MARLIN_DISKIO_FOR_HOST_DRIVE
+  //#define USE_MARLIN_DISKIO_FOR_HOST_DRIVE
 #endif
 
 /**
