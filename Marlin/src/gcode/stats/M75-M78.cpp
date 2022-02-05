@@ -30,7 +30,7 @@
 #include "../../MarlinCore.h" // for startOrResumeJob
 
 #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 /**
