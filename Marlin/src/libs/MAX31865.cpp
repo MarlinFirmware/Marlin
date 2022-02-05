@@ -223,7 +223,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
       TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
     }
 
-  #endif // ENABLED(MAX31865_USE_AUTO_MODE)
+  #endif // MAX31865_USE_AUTO_MODE
 
   DEBUG_ECHOLNPGM(
     TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")
