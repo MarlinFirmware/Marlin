@@ -39,6 +39,10 @@
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
 #endif
@@ -441,17 +445,14 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder)) {
     DEBUG_ECHOLNPGM("... retract:", retract);
 
-    #if HAS_LEVELING && ENABLED(AUTO_BED_LEVELING_UBL)
-      bool leveling_local = planner.leveling_active; // save leveling state
-      void set_bed_leveling_enabled(const bool enable=true);
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool leveling_was_enabled = planner.leveling_active; // save leveling state
       set_bed_leveling_enabled(false);  // turn off leveling
     #endif
 
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-    #if HAS_LEVELING && ENABLED(AUTO_BED_LEVELING_UBL)
-      set_bed_leveling_enabled(leveling_local); // restore leveling
-    #endif
+    TERN_(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(leveling_was_enabled)); // restore leveling
   }
 
   // If axes don't need to home then the nozzle can park
@@ -651,18 +652,15 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
   }
 
-  #if HAS_LEVELING && ENABLED(AUTO_BED_LEVELING_UBL)
-    bool leveling_local = planner.leveling_active; // save leveling state
-    void set_bed_leveling_enabled(const bool enable=true);
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    const bool leveling_was_enabled = planner.leveling_active; // save leveling state
     set_bed_leveling_enabled(false);  // turn off leveling
   #endif
 
   // Unretract
   unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
-  #if HAS_LEVELING && ENABLED(AUTO_BED_LEVELING_UBL)
-    set_bed_leveling_enabled(leveling_local); // restore leveling
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(leveling_was_enabled)); // restore leveling
 
   // Intelligent resuming
   #if ENABLED(FWRETRACT)
