@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -86,8 +86,7 @@ DSTATUS disk_initialize(BYTE drv) {    // Physical drive number (0)
     }
 
     sd2card.writeStart(sector, count);
-    while (count--)
-    {
+    while (count--) {
       sd2card.writeData(buff);
       buff += 512;
     }
@@ -126,6 +125,6 @@ DSTATUS disk_initialize(BYTE drv) {    // Physical drive number (0)
 
 #endif // _DISKIO_IOCTL
 
-#endif // BOTH(SDSUPPORT, USE_MARLIN_DISKIO_FOR_HOST_DRIVE)
+#endif // SDSUPPORT && USE_MARLIN_DISKIO_FOR_HOST_DRIVE
 
 #endif // TARGET_LPC1768
