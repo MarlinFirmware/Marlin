@@ -200,7 +200,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
     uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
     #if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
-        rtd = fixFault(rtd);
+      rtd = fixFault(rtd);
     #endif
 
     if (rtd & 1) {
@@ -288,8 +288,7 @@ void MAX31865::runAutoFaultDetectionCycle() {
  * @param config  8-bit value for the config item
  * @param enable  whether to enable or disable the value
  */
-void MAX31865::setConfig(uint8_t config, bool enable)
-{
+void MAX31865::setConfig(uint8_t config, bool enable) {
   uint8_t t = stdFlags;
   if (enable)
     t |= config;
