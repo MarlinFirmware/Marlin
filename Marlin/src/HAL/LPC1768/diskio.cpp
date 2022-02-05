@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(SDSUPPORT, USE_MARLIN_DISKIO_FOR_HOST_DRIVE)
+#if BOTH(SDSUPPORT, DISKIO_HOST_DRIVE)
 
 // Overwrite DiskIO functions from LPC framework to use Marlin Sd2Card API.
 #include <chanfs/diskio.h>
@@ -125,6 +125,6 @@ DSTATUS disk_initialize(BYTE drv) {    // Physical drive number (0)
 
 #endif // _DISKIO_IOCTL
 
-#endif // SDSUPPORT && USE_MARLIN_DISKIO_FOR_HOST_DRIVE
+#endif // SDSUPPORT && DISKIO_HOST_DRIVE
 
 #endif // TARGET_LPC1768

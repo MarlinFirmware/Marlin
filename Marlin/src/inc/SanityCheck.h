@@ -780,13 +780,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if !defined(TARGET_LPC1768) && ANY( \
-    ENDSTOPPULLDOWNS, \
-    ENDSTOPPULLDOWN_XMAX, ENDSTOPPULLDOWN_YMAX, \
-    ENDSTOPPULLDOWN_ZMAX, ENDSTOPPULLDOWN_XMIN, \
-    ENDSTOPPULLDOWN_YMIN, ENDSTOPPULLDOWN_ZMIN \
-  )
-  #error "PULLDOWN pin mode is not available on the selected board."
+#ifndef TARGET_LPC1768
+  #if ANY( \
+      ENDSTOPPULLDOWNS, \
+      ENDSTOPPULLDOWN_XMAX, ENDSTOPPULLDOWN_YMAX, \
+      ENDSTOPPULLDOWN_ZMAX, ENDSTOPPULLDOWN_XMIN, \
+      ENDSTOPPULLDOWN_YMIN, ENDSTOPPULLDOWN_ZMIN \
+    )
+    #error "PULLDOWN pin mode is not available on the selected board."
+  #elif BOTH(SDSUPPORT, DISKIO_HOST_DRIVE)
+    #error "DISKIO_HOST_DRIVE is not available on the selected board."
+  #endif
 #endif
 
 #if BOTH(ENDSTOPPULLUPS, ENDSTOPPULLDOWNS)

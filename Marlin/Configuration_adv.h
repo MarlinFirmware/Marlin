@@ -1649,7 +1649,7 @@
  * Useful if shared media isn't working properly on some boards.
  */
 #if ENABLED(SDSUPPORT) && DISABLED(NO_SD_HOST_DRIVE)
-  //#define USE_MARLIN_DISKIO_FOR_HOST_DRIVE
+  //#define DISKIO_HOST_DRIVE
 #endif
 
 /**
