@@ -91,53 +91,6 @@
 // For example, a switch to detect any kind of behavior, Power supply pin .... etc.
 #define FIL_RUNOUT_PIN                        32
 
-#if HAS_TMC_UART
-  /**
-   * Address for the UART Configuration of the TMC2209. Override in Configuration files.
-   * To test TMC2209 Steppers enable TMC_DEBUG in Configuration_adv.h and test the M122 command with voltage on the steppers.
-   */
-  #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS                 0b00
-  #endif
-  #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS                 0b01
-  #endif
-  #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS                 0b10
-  #endif
-  #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS                0b11
-  #endif
-
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   *  It seems to work perfectly fine on Software Serial, if an advanced user wants to test, you could use the SAMD51 Serial1 and Serial 2. Be careful with the Sercom configurations.
-   */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-
-  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
-  #define TMC_BAUD_RATE 250000
-
-  //
-  // Software serial
-  //
-  #define X_SERIAL_TX_PIN                      0
-  #define X_SERIAL_RX_PIN                      1
-
-  #define Y_SERIAL_TX_PIN        X_SERIAL_TX_PIN
-  #define Y_SERIAL_RX_PIN        X_SERIAL_RX_PIN
-
-  #define Z_SERIAL_TX_PIN        X_SERIAL_TX_PIN
-  #define Z_SERIAL_RX_PIN        X_SERIAL_RX_PIN
-
-  #define E0_SERIAL_TX_PIN       X_SERIAL_TX_PIN
-  #define E0_SERIAL_RX_PIN       X_SERIAL_RX_PIN
-
-#endif
-
 //
 // Temperature Sensors
 //
@@ -613,4 +566,51 @@
   #define SD_DETECT_PIN                       95
 #else
   #define SDSS                       EXP2_07_PIN
+#endif
+
+#if HAS_TMC_UART
+  /**
+   * Address for the UART Configuration of the TMC2209. Override in Configuration files.
+   * To test TMC2209 Steppers enable TMC_DEBUG in Configuration_adv.h and test the M122 command with voltage on the steppers.
+   */
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS                 0b00
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS                 0b01
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS                 0b10
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS                0b11
+  #endif
+
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *  It seems to work perfectly fine on Software Serial, if an advanced user wants to test, you could use the SAMD51 Serial1 and Serial 2. Be careful with the Sercom configurations.
+   */
+  //#define X_HARDWARE_SERIAL  Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+
+  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
+  #define TMC_BAUD_RATE 250000
+
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN                      0
+  #define X_SERIAL_RX_PIN                      1
+
+  #define Y_SERIAL_TX_PIN        X_SERIAL_TX_PIN
+  #define Y_SERIAL_RX_PIN        X_SERIAL_RX_PIN
+
+  #define Z_SERIAL_TX_PIN        X_SERIAL_TX_PIN
+  #define Z_SERIAL_RX_PIN        X_SERIAL_RX_PIN
+
+  #define E0_SERIAL_TX_PIN       X_SERIAL_TX_PIN
+  #define E0_SERIAL_RX_PIN       X_SERIAL_RX_PIN
+
 #endif
