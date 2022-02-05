@@ -1003,11 +1003,15 @@ void MarlinUI::draw_status_screen() {
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
     if (!PanelDetected) return;
     ui.draw_select_screen_prompt(pref, string, suff);
-    lcd.setCursor(0, MIDDLE_Y);
     lcd.write(COLOR_EDIT);
-    lcd.write(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd.write(yesno ? ' ' : ']');
-    lcd.setCursor(LCD_WIDTH - utf8_strlen_P(yes) - 3, MIDDLE_Y);
-    lcd.write(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd.write(yesno ? ']' : ' ');
+    if (no) {
+      lcd.setCursor(0, MIDDLE_Y);
+      lcd.write(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd.write(yesno ? ' ' : ']');
+    }
+    if (yes) {
+      lcd.setCursor(LCD_WIDTH - utf8_strlen_P(yes) - 3, MIDDLE_Y);
+      lcd.write(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd.write(yesno ? ']' : ' ');
+    }
     lcd.print_line();
   }
 

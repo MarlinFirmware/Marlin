@@ -538,7 +538,7 @@
 
 // Ender 3 Pro (but, apparently all Creality 4.2.2 boards)
 #if ENABLED(EMIT_CREALITY_422_WARNING) || MB(CREALITY_V4)
-  #warning "Creality 4.2.2 boards may have A4988 or TMC2208_STANDALONE drivers. Check your board and make sure to select the correct DRIVER_TYPE!"
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225)."
 #endif
 
 #if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
@@ -562,4 +562,28 @@
 
 #if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX
   #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
+#endif
+
+/**
+ * FYSETC backlighting
+ */
+#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
+  #warning "Your FYSETC Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
+#endif
+
+#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
+  #warning "Your FYSETC Mini Panel works best with RGB_LED."
+#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+  #warning "Your FYSETC Mini Panel works best with LED_USER_PRESET_STARTUP."
+#endif
+
+#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && BOTH(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
+  #warning "Your FYSETC display with PSU_CONTROL works best with LED_POWEROFF_TIMEOUT."
+#endif
+
+/**
+ * Maple environent
+ */
+#ifdef __STM32F1__
+  #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
 #endif

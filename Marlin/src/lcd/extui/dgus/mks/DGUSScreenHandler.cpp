@@ -195,7 +195,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       case 0: { // Resume
 
         auto cs = getCurrentScreen();
-        if (runout_mks.runout_status != RUNOUT_WAITTING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
+        if (runout_mks.runout_status != RUNOUT_WAITING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
           if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
             GotoScreen(MKSLCD_SCREEN_PAUSE);
           return;
@@ -1501,10 +1501,10 @@ void DGUSScreenHandler::DGUS_Runout_Idle() {
 
       case RUNOUT_BEGIN_STATUS:
         if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
-          runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
+          runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
-      case RUNOUT_WAITTING_STATUS:
+      case RUNOUT_WAITING_STATUS:
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
