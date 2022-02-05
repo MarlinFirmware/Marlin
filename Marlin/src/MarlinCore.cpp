@@ -1339,6 +1339,10 @@ void setup() {
 
   SETUP_RUN(endstops.init());         // Init endstops and pullups
 
+  #if ENABLED(DELTA) && !HAS_SOFTWARE_ENDSTOPS
+    SETUP_RUN(refresh_delta_clip_start_height()); // Init safe delta height without soft endstops
+  #endif
+
   SETUP_RUN(stepper.init());          // Init stepper. This enables interrupts!
 
   #if HAS_SERVOS
