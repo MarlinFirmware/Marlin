@@ -563,3 +563,10 @@
 #if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX
   #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
 #endif
+
+/**
+ * Maple environment
+ */
+#ifdef __STM32F1__
+  #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
+#endif
