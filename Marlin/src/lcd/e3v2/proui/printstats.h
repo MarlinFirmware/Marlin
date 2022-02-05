@@ -22,25 +22,18 @@
 #pragma once
 
 /**
- * Lock screen implementation for DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 2.1
- * Date: 2021/11/09
+ * DWIN Print Stats page
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 1.1
+ * Date: 2022/01/09
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
-#include "../common/encoder.h"
-#include <stdint.h>
-
-class LockScreenClass {
-private:
-  static bool unlocked;
-  static uint8_t lock_pos;
+class PrintStatsClass {
 public:
-  static uint8_t rprocess;
-  static void init();
-  static void onEncoder(EncoderState encoder_diffState);
-  static void draw();
-  static bool isUnlocked() { return unlocked; }
+  void Draw();
+  static void Reset();
 };
 
-extern LockScreenClass lockScreen;
+extern PrintStatsClass PrintStats;
