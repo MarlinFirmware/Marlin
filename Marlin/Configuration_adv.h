@@ -2312,7 +2312,6 @@
  * - During Hold all Emergency Parser commands are available, as usual.
  */
 #define REALTIME_COMMANDS
-#define REALTIME_REPORTING_COMMANDS // For automated GitHub testing compatibility, use REALTIME_COMMANDS instead.
 
   /**
    * Send machine status updates to host (Useful for CNC/Laser)
@@ -4366,3 +4365,12 @@
 
 // Report uncleaned reset reason from register r2 instead of MCUSR. Supported by Optiboot on AVR.
 //#define OPTIBOOT_RESET_REASON
+
+/**
+ * Automated testing compatibility options
+ *
+ * These options are for GitHub testing compatibility ONLY, and are no longer used by Marlin
+ * Updated option names are noted in the proceding comments
+*/
+#define REALTIME_REPORTING_COMMANDS // Use REALTIME_COMMANDS instead.
+#define FULL_REPORT_TO_HOST_FEATURE // Use REPORT_STATUS_TO_HOST instead.
