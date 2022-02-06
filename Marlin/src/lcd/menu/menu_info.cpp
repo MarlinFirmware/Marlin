@@ -92,22 +92,21 @@
 
 #endif
 
-//
-// About Printer > Thermistors
-//
-void menu_info_thermistors() {
-  if (ui.use_click()) return ui.go_back();
+#if HAS_EXTRUDERS
+  //
+  // About Printer > Thermistors
+  //
+  void menu_info_thermistors() {
+    if (ui.use_click()) return ui.go_back();
 
-  START_SCREEN();
+    START_SCREEN();
 
-  #if HAS_EXTRUDERS
-    #define THERMISTOR_ID TEMP_SENSOR_0
-    #include "../thermistornames.h"
+      #define THERMISTOR_ID TEMP_SENSOR_0
+      #include "../thermistornames.h"
     STATIC_ITEM_P(PSTR(STR_E0 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_0_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_0_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
-  #endif
 
   #if TEMP_SENSOR_1 != 0
     #undef THERMISTOR_ID
@@ -211,6 +210,7 @@ void menu_info_thermistors() {
 
   END_SCREEN();
 }
+#endif
 
 //
 // About Printer > Board Info

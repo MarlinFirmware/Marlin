@@ -27,7 +27,7 @@
 
 #include "../../module/stepper.h"
 
-//#define DEBUG_M53
+// #define DEBUG_G53
 
 /**
  * Select a coordinate system and update the workspace offset.
@@ -60,7 +60,7 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
 void GcodeSuite::G53() {
   const int8_t old_system = active_coordinate_system;
   select_coordinate_system(-1);   // Always remove workspace offsets
-  #ifdef DEBUG_M53
+  #ifdef DEBUG_G53
     SERIAL_ECHOLNPGM("Go to native space");
     report_current_position();
   #endif
@@ -68,7 +68,7 @@ void GcodeSuite::G53() {
   if (parser.chain()) {       // Command to chain?
     process_parsed_command(); // ...process the chained command
     select_coordinate_system(old_system);
-    #ifdef DEBUG_M53
+    #ifdef DEBUG_G53
       SERIAL_ECHOLNPGM("Go back to workspace ", old_system);
       report_current_position();
     #endif
