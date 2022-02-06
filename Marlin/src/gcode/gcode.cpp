@@ -350,6 +350,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if EITHER(FWRETRACT, CNC_COORDINATE_SYSTEMS)
         case 10: G10(); break;                                    // G10: Retract / Swap Retract, CNC work offsets
       #endif
+
       #if ENABLED(FWRETRACT)
         case 11: G11(); break;                                    // G11: Recover / Swap Recover
       #endif
