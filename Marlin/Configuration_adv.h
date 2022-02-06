@@ -2300,24 +2300,18 @@
  * NOTE: Not yet implemented for all platforms.
  */
 // #define EMERGENCY_PARSER
-#if ENABLED(EMERGENCY_PARSER)
-  /**
-   * Realtime Commands
-   *
-   * Adds support for special real-time commands:
-   *  S000 : Report State and Position (works even while moving).
-   *  P000 : Instant Pause / Hold while moving.
-   *  R000 : Resume from Pause / Hold.
-   *
-   * - During Hold all Emergency Parser commands are available, as usual.
-   */
-  #define REALTIME_COMMANDS
-#endif
 
-// Normally, feed rate (M220) changes will be queued, causing a lengthy delay
-// (even executing after the job is completed) with large planner buffers.
-// Enable this to ensure M220 feed rate adjustments are processed immediately instead of queued.
-#define REALTIME_FEEDRATE_CHANGES
+/**
+ * Realtime Commands
+ *
+ * Adds support for special real-time commands:
+ *  S000 : Report State and Position (works even while moving).
+ *  P000 : Instant Pause / Hold while moving.
+ *  R000 : Resume from Pause / Hold.
+ *
+ * - During Hold all Emergency Parser commands are available, as usual.
+ */
+#define REALTIME_COMMANDS
 
 /**
  * Send machine status updates to host (Useful for CNC/Laser)
