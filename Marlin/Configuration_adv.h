@@ -2299,7 +2299,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-#define EMERGENCY_PARSER
+// #define EMERGENCY_PARSER
 #if ENABLED(EMERGENCY_PARSER)
   /**
    * Realtime Commands
