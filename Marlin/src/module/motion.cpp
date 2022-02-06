@@ -743,7 +743,7 @@ void restore_feedrate_and_scaling() {
           delta_max_radius_2 = sq(delta_max_radius);
           break;
         case Z_AXIS:
-          delta_clip_start_height = soft_endstop.max[axis] - delta_safe_distance_from_top();
+          refresh_delta_clip_start_height();
         default: break;
       }
 
