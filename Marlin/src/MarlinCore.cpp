@@ -75,7 +75,7 @@
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/e3v2/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-    #include "lcd/e3v2/enhanced/dwin.h"
+    #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #endif
@@ -506,7 +506,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
           queue.inject(F(BUTTON##N##_GCODE));                     \
-          TERN_(HAS_LCD_MENU, ui.quick_feedback());                    \
+          TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());                    \
         }                                                              \
       }                                                                \
     }while(0)
@@ -1611,7 +1611,7 @@ void setup() {
     SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
-  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
+  #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
     SETUP_RUN(ui.check_touch_calibration());
   #endif
 

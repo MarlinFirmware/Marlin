@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, POWER_LOSS_RECOVERY)
+#if BOTH(HAS_MARLINUI_MENU, POWER_LOSS_RECOVERY)
 
 #include "menu_item.h"
 #include "../../gcode/queue.h"
@@ -54,4 +54,4 @@ void menu_job_recovery() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && POWER_LOSS_RECOVERY
+#endif // HAS_MARLINUI_MENU && POWER_LOSS_RECOVERY

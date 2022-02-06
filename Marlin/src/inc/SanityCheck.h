@@ -607,6 +607,8 @@
   #error "LCD_SCREEN_ROT_180 is now LCD_SCREEN_ROTATE with a value of 180."
 #elif defined(LCD_SCREEN_ROT_270)
   #error "LCD_SCREEN_ROT_270 is now LCD_SCREEN_ROTATE with a value of 270."
+#elif defined(DEFAULT_LCD_BRIGHTNESS)
+  #error "DEFAULT_LCD_BRIGHTNESS is now LCD_BRIGHTNESS_DEFAULT."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -851,7 +853,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "USE_M73_REMAINING_TIME requires LCD_SET_PROGRESS_MANUALLY"
 #endif
 
-#if !HAS_LCD_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+#if !HAS_MARLINUI_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   #error "SD_REPRINT_LAST_SELECTED_FILE currently requires a Marlin-native LCD menu."
 #endif
 
@@ -874,7 +876,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * SD Card Settings
  */
-#if ALL(SDSUPPORT, ELB_FULL_GRAPHIC_CONTROLLER, HAS_LCD_MENU) && PIN_EXISTS(SD_DETECT) && SD_DETECT_STATE != HIGH && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+#if ALL(SDSUPPORT, ELB_FULL_GRAPHIC_CONTROLLER, HAS_MARLINUI_MENU) && PIN_EXISTS(SD_DETECT) && SD_DETECT_STATE != HIGH && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
   #error "SD_DETECT_STATE must be set HIGH for SD on the ELB_FULL_GRAPHIC_CONTROLLER."
 #endif
 
@@ -1081,9 +1083,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PRUSA_MMU2S requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
     #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
-  #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_LCD_MENU
+  #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_MARLINUI_MENU
     #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
-  #elif ENABLED(MMU2_MENUS) && !HAS_LCD_MENU
+  #elif ENABLED(MMU2_MENUS) && !HAS_MARLINUI_MENU
     #error "MMU2_MENUS requires an LCD supporting MarlinUI."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / HAS_EXTENDABLE_MMU(S).");
@@ -1479,9 +1481,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "You probably want to use Max Endstops for DELTA!"
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
-  #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || HAS_LCD_MENU)
+  #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || HAS_MARLINUI_MENU)
     #error "DELTA_AUTO_CALIBRATION requires a probe or LCD Controller."
-  #elif ENABLED(DELTA_CALIBRATION_MENU) && !HAS_LCD_MENU
+  #elif ENABLED(DELTA_CALIBRATION_MENU) && !HAS_MARLINUI_MENU
     #error "DELTA_CALIBRATION_MENU requires an LCD Controller."
   #elif ABL_USES_GRID
     #if ((GRID_MAX_POINTS_X) & 1) == 0 || ((GRID_MAX_POINTS_Y) & 1) == 0
@@ -1820,7 +1822,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * LCD_BED_LEVELING requirements
  */
 #if ENABLED(LCD_BED_LEVELING)
-  #if NONE(HAS_LCD_MENU, DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED)
+  #if NONE(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED)
     #error "LCD_BED_LEVELING is not supported by the selected LCD controller."
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
@@ -2018,7 +2020,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if CONTROLLER_FAN_PIN == FAN_PIN
     #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
   #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
-    #error "FAN_SOFT_PWM is required. Enable it to continue."
+    #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
   #endif
 #endif
 
@@ -2294,6 +2296,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "CONTROLLER_FAN_MIN_BOARD_TEMP requires TEMP_SENSOR_BOARD."
 #endif
 
+#if TEMP_SENSOR_BOARD && !PIN_EXISTS(TEMP_BOARD)
+  #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
+#endif
+
 #if ENABLED(LASER_COOLANT_FLOW_METER) && !(PIN_EXISTS(FLOWMETER) && ENABLED(LASER_FEATURE))
   #error "LASER_COOLANT_FLOW_METER requires FLOWMETER_PIN and LASER_FEATURE."
 #endif
@@ -2330,17 +2336,31 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * LED Control Menu
+ * FYSETC LCD Requirements
  */
-#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
-  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9533, PCA9632, or NEOPIXEL_LED."
+#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
+  #ifndef NEO_RGB
+    #define NEO_RGB 123
+    #define FAUX_RGB 1
+  #endif
+  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
+    #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
+  #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
+    #error "Your FYSETC Mini Panel requires NEOPIXEL_PIXELS >= 3."
+  #endif
+  #if FAUX_RGB
+    #undef NEO_RGB
+    #undef FAUX_RGB
+  #endif
+#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && !DISABLED(RGB_LED)
+  #error "Your FYSETC Mini Panel requires RGB_LED."
 #endif
 
 /**
- * LED Backlight Timeout
+ * LED Control Menu requirements
  */
-#if defined(LED_BACKLIGHT_TIMEOUT) && !(ENABLED(PSU_CONTROL) && ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864))
-  #error "LED_BACKLIGHT_TIMEOUT requires a FYSETC Mini Panel and a Power Switch."
+#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
+  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9533, PCA9632, or NEOPIXEL_LED."
 #endif
 
 /**
@@ -2884,15 +2904,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * FYSETC Mini 12864 RGB backlighting required
- */
-#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
-  #error "RGB_LED is required for FYSETC_MINI_12864 1.2 and 2.0."
-#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
-  #error "LED_USER_PRESET_STARTUP is required for FYSETC_MINI_12864 2.x displays."
-#endif
-
-/**
  * Check existing CS pins against enabled TMC SPI drivers.
  */
 #define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI(ST) && !PIN_EXISTS(ST##_CS))
@@ -3411,8 +3422,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "A very large BLOCK_BUFFER_SIZE is not needed and takes longer to drain the buffer on pause / cancel."
 #endif
 
-#if ENABLED(LED_CONTROL_MENU) && !IS_ULTIPANEL
-  #error "LED_CONTROL_MENU requires an LCD controller."
+#if ENABLED(LED_CONTROL_MENU) && NONE(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD_ENHANCED)
+  #error "LED_CONTROL_MENU requires an LCD controller that implements the menu."
 #endif
 
 #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) && DISABLED(NEOPIXEL_LED)
@@ -3743,7 +3754,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
  * Sanity Check for Password Feature
  */
 #if ENABLED(PASSWORD_FEATURE)
-  #if NONE(HAS_LCD_MENU, PASSWORD_UNLOCK_GCODE, PASSWORD_CHANGE_GCODE)
+  #if NONE(HAS_MARLINUI_MENU, PASSWORD_UNLOCK_GCODE, PASSWORD_CHANGE_GCODE)
     #error "Without PASSWORD_UNLOCK_GCODE, PASSWORD_CHANGE_GCODE, or a supported LCD there's no way to unlock the printer or set a password."
   #elif DISABLED(EEPROM_SETTINGS)
     #warning "PASSWORD_FEATURE settings will be lost on power-off without EEPROM_SETTINGS."
