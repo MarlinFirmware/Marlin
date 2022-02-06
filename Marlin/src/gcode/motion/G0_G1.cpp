@@ -59,7 +59,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       )
     #endif
   ) {
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
+    TERN_(REPORT_STATUS_TO_HOST, set_and_report_grblstate(M_RUNNING));
 
     #ifdef G0_FEEDRATE
       feedRate_t old_feedrate;
@@ -124,9 +124,12 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         planner.synchronize();
         SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
       }
-      TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+      TERN_(REPORT_STATUS_TO_HOST, set_and_report_grblstate(M_IDLE));
     #else
-      TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+      TERN_(REPORT_STATUS_DURING_MOVES, report_current_grblstate_moving());
     #endif
   }
+  #ifdef G0_FEEDRATE
+    if (fast_move) TERN_(M114_RAPID_REPORTING, report_current_position());
+  #endif
 }

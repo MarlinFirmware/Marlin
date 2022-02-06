@@ -210,6 +210,72 @@ inline void report_logical_position(const xyze_pos_t &rpos) {
   );
 }
 
+// Report the a given machine position
+inline void report_machine_position(const xyze_pos_t &rpos) {
+  const xyze_pos_t mpos = rpos.asFloat();
+  SERIAL_ECHO(" Machine ");
+  SERIAL_ECHOPGM_P(
+    LIST_N(DOUBLE(LINEAR_AXES),
+         X_LBL, mpos.x,
+      SP_Y_LBL, mpos.y,
+      SP_Z_LBL, mpos.z,
+      SP_I_LBL, mpos.i,
+      SP_J_LBL, mpos.j,
+      SP_K_LBL, mpos.k
+    )
+  );
+}
+
+#ifdef COMPACT_STATUS_REPORTS
+// Example: |#|X10.000:Y100.000:Z0.5|X20.000:Y120.000:Z10.5|1|0|1|2|110|2
+// Legend:  Status header [|#] | Work coords (G92) | Machine coords (G53) | Metric [1] (G21)
+//          | Absolute positioning [0] (G90) | Tool #[1] | Coord system [-1] (G53)
+//          | Feed rate override [110]% (M220 S110) | Status: MF_WAITING [2]
+//
+// As you can see, quite a bit of info is transmitted to hosts which support it, saving multiple verbose queries.
+void report_compact_status(const xyze_pos_t &rpos) {
+  const xyze_pos_t lpos = rpos.asLogical();
+  const xyze_pos_t mpos = rpos.asFloat();
+  SERIAL_ECHO("|#"); // Header
+  // Work coords
+  SERIAL_ECHOPGM_P(
+    LIST_N(DOUBLE(LINEAR_AXES),
+      "|X", lpos.x,
+      ":Y", lpos.y,
+      ":Z", lpos.z,
+      ":I", lpos.i,
+      ":J", lpos.j,
+      ":K", lpos.k
+    )
+  );
+  // Machine coords
+  SERIAL_ECHOPGM_P(
+    LIST_N(DOUBLE(LINEAR_AXES),
+      "|X", mpos.x,
+      ":Y", mpos.y,
+      ":Z", mpos.z,
+      ":I", mpos.i,
+      ":J", mpos.j,
+      ":K", mpos.k
+    )
+  );
+  #if ENABLED(INCH_MODE_SUPPORT)
+    SERIAL_ECHOPGM("|", (parser.linear_unit_factor > 1.0f) ? 0 : 1); // Inch = 0 (G20), Metric = 1 (G21)
+  #else
+    SERIAL_ECHO("|1"); // Always metric without INCH_MODE_SUPPORT
+  #endif
+  SERIAL_ECHOPGM("|", (relative_mode) ? 1 : 0);                 // Absolute = 0 (G90), Relative = 1 (G91)
+  SERIAL_ECHOPGM("|", active_extruder);                         // Current tool (AKA: active_extruder)
+  SERIAL_ECHOPGM("|", GcodeSuite::active_coordinate_system);    // CNC Coordinate system (-1 = G53 native, 0-8 = G54-G59.3)
+  SERIAL_ECHOPGM("|", feedrate_percentage);                     // Feed rate % (M220)
+  #ifdef GRBL_COMPATIBLE_STATES
+    SERIAL_ECHOLNPGM("|", grbl_state_for_marlin_state());       // GRBL compatible status (state) eg: M_IDLE
+  #else
+    SERIAL_ECHOLNPGM("|", marlin_state);                        // Marlin status (state) eg: MF_WAITING
+  #endif
+}
+#endif
+
 // Report the real current position according to the steppers.
 // Forward kinematics and un-leveling are applied.
 void report_real_position() {
@@ -222,14 +288,28 @@ void report_real_position() {
 
   TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
 
-  report_logical_position(npos);
-  report_more_positions();
+  #if BOTH(COMPACT_STATUS_REPORTS, M114_USES_COMPACT_REPORTS)
+    report_compact_status(npos);
+  #else
+    report_logical_position(npos);
+    #ifdef REPORT_MACHINE_POSITION
+      report_machine_position(npos);
+    #endif
+    report_more_positions();
+  #endif
 }
 
 // Report the logical current position according to the most recent G-code command
 void report_current_position() {
-  report_logical_position(current_position);
-  report_more_positions();
+  #ifdef COMPACT_STATUS_REPORTS
+    report_compact_status();
+  #else
+    report_logical_position(current_position);
+    #ifdef REPORT_MACHINE_POSITION
+      report_machine_position(current_position);
+    #endif
+    report_more_positions();
+  #endif
 }
 
 /**
@@ -239,8 +319,15 @@ void report_current_position() {
  * definitively interrupts the printing flow.
  */
 void report_current_position_projected() {
-  report_logical_position(current_position);
-  stepper.report_a_position(planner.position);
+  #if BOTH(COMPACT_STATUS_REPORTS, M114_USES_COMPACT_REPORTS)
+    report_compact_status();
+  #else
+    report_logical_position(current_position);
+    #ifdef REPORT_MACHINE_POSITION
+      report_machine_position(current_position);
+    #endif
+    stepper.report_a_position(planner.position);
+  #endif
 }
 
 #if ENABLED(AUTO_REPORT_POSITION)
@@ -248,7 +335,7 @@ void report_current_position_projected() {
   AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if EITHER(REPORT_STATUS_TO_HOST, REALTIME_COMMANDS)
 
   M_StateEnum M_State_grbl = M_INIT;
 
@@ -262,25 +349,17 @@ void report_current_position_projected() {
    */
   void report_current_position_moving() {
     get_cartesian_from_steppers();
-    const xyz_pos_t lpos = cartes.asLogical();
-
-    SERIAL_ECHOPGM_P(
-      LIST_N(DOUBLE(LINEAR_AXES),
-           X_LBL, lpos.x,
-        SP_Y_LBL, lpos.y,
-        SP_Z_LBL, lpos.z,
-        SP_I_LBL, lpos.i,
-        SP_J_LBL, lpos.j,
-        SP_K_LBL, lpos.k
-      )
-      #if HAS_EXTRUDERS
-        , SP_E_LBL, current_position.e
+    #ifdef COMPACT_STATUS_REPORTS
+      report_compact_status(cartes);
+    #else
+      report_logical_position(cartes);
+      #ifdef REPORT_MACHINE_POSITION
+        report_machine_position(cartes);
       #endif
-    );
-
-    stepper.report_positions();
-    TERN_(IS_SCARA, scara_report_positions());
-    report_current_grblstate_moving();
+      stepper.report_positions();
+      TERN_(IS_SCARA, scara_report_positions());
+      report_current_grblstate_moving();
+    #endif
   }
 
   /**
@@ -316,7 +395,7 @@ void quickstop_stepper() {
   sync_plan_position();
 }
 
-#if ENABLED(REALTIME_REPORTING_COMMANDS)
+#if ENABLED(REALTIME_COMMANDS)
 
   void quickpause_stepper() {
     planner.quick_pause();

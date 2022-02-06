@@ -153,7 +153,7 @@ void GCodeParser::parse(char *p) {
    * Screen for good command letters.
    * With Realtime Reporting, commands S000, P000, and R000 are allowed.
    */
-  #if ENABLED(REALTIME_REPORTING_COMMANDS)
+  #if ENABLED(REALTIME_COMMANDS)
     switch (letter) {
       case 'P': case 'R' ... 'S': {
         uint8_t digits = 0;

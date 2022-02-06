@@ -221,7 +221,7 @@ G29_TYPE GcodeSuite::G29() {
 
   TERN_(PROBE_MANUALLY, static) G29_State abl;
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  TERN_(REPORT_STATUS_TO_HOST, set_and_report_grblstate(M_PROBE));
 
   reset_stepper_timeout();
 
@@ -893,7 +893,7 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(REPORT_STATUS_TO_HOST, set_and_report_grblstate(M_IDLE));
 
   G29_RETURN(isnan(abl.measured_z));
 

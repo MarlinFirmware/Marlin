@@ -75,7 +75,7 @@ void GcodeSuite::G29() {
     }
   #endif
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  TERN_(REPORT_STATUS_TO_HOST, set_and_report_grblstate(M_PROBE));
 
   static int mbl_probe_index = -1;
 
@@ -219,7 +219,7 @@ void GcodeSuite::G29() {
 
   report_current_position();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(REPORT_STATUS_TO_HOST, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // MESH_BED_LEVELING

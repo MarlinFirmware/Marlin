@@ -34,7 +34,7 @@
 // External references
 extern bool wait_for_user, wait_for_heatup;
 
-#if ENABLED(REALTIME_REPORTING_COMMANDS)
+#if ENABLED(REALTIME_COMMANDS)
   // From motion.h, which cannot be included here
   void report_current_position_moving();
   void quickpause_stepper();
@@ -59,7 +59,7 @@ public:
     #if ENABLED(HOST_PROMPT_SUPPORT)
       EP_M8, EP_M87, EP_M876, EP_M876S, EP_M876SN,
     #endif
-    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+    #if ENABLED(REALTIME_COMMANDS)
       EP_S, EP_S0, EP_S00, EP_GRBL_STATUS,
       EP_R, EP_R0, EP_R00, EP_GRBL_RESUME,
       EP_P, EP_P0, EP_P00, EP_GRBL_PAUSE,
@@ -90,7 +90,7 @@ public:
           case ' ': case '\n': case '\r': break;
           case 'N': state = EP_N; break;
           case 'M': state = EP_M; break;
-          #if ENABLED(REALTIME_REPORTING_COMMANDS)
+          #if ENABLED(REALTIME_COMMANDS)
             case 'S': state = EP_S; break;
             case 'P': state = EP_P; break;
             case 'R': state = EP_R; break;
@@ -108,7 +108,7 @@ public:
           case '0' ... '9':
           case '-': case ' ':     break;
           case 'M': state = EP_M; break;
-          #if ENABLED(REALTIME_REPORTING_COMMANDS)
+          #if ENABLED(REALTIME_COMMANDS)
             case 'S': state = EP_S; break;
             case 'P': state = EP_P; break;
             case 'R': state = EP_R; break;
@@ -117,7 +117,7 @@ public:
         }
         break;
 
-      #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      #if ENABLED(REALTIME_COMMANDS)
         case EP_S:   state = (c == '0') ? EP_S0          : EP_IGNORE; break;
         case EP_S0:  state = (c == '0') ? EP_S00         : EP_IGNORE; break;
         case EP_S00: state = (c == '0') ? EP_GRBL_STATUS : EP_IGNORE; break;
@@ -201,7 +201,7 @@ public:
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: hostui.handle_response(M876_reason); break;
             #endif
-            #if ENABLED(REALTIME_REPORTING_COMMANDS)
+            #if ENABLED(REALTIME_COMMANDS)
               case EP_GRBL_STATUS: report_current_position_moving(); break;
               case EP_GRBL_PAUSE: quickpause_stepper(); break;
               case EP_GRBL_RESUME: quickresume_stepper(); break;

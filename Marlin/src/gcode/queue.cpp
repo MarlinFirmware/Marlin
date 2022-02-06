@@ -63,7 +63,7 @@ PGMSTR(G28_STR, "G28");
 GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
-#if NO_TIMEOUTS > 0
+#if TIMEOUT_PREVENTION_DELAY > 0
   static millis_t last_command_time = 0;
 #endif
 
@@ -241,7 +241,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  *   B<int>  Block queue space remaining
  */
 void GCodeQueue::RingBuffer::ok_to_send() {
-  #if NO_TIMEOUTS > 0
+  #if TIMEOUT_PREVENTION_DELAY > 0
     // Start counting from the last command's execution
     last_command_time = millis();
   #endif
@@ -290,7 +290,7 @@ static bool serial_data_available(serial_index_t index) {
   return a > 0;
 }
 
-#if NO_TIMEOUTS > 0
+#if TIMEOUT_PREVENTION_DELAY > 0
   // Multiserial already handles dispatch to/from multiple ports
   static bool any_serial_data_available() {
     LOOP_L_N(p, NUM_SERIAL)
@@ -409,9 +409,9 @@ void GCodeQueue::get_serial_commands() {
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
-  #if NO_TIMEOUTS > 0
+  #if TIMEOUT_PREVENTION_DELAY > 0
     const millis_t ms = millis();
-    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time + TIMEOUT_PREVENTION_DELAY)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
@@ -528,7 +528,7 @@ void GCodeQueue::get_serial_commands() {
           }
         #endif
 
-        #if NO_TIMEOUTS > 0
+        #if TIMEOUT_PREVENTION_DELAY > 0
           last_command_time = ms;
         #endif
 
