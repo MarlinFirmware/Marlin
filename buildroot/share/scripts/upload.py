@@ -142,7 +142,7 @@ def Upload(source, target, env):
     upload_port = _GetUploadPort(env)               # Serial port to use
 
     # Set local upload params
-    upload_firmware_target_name = os.path.basename(upload_firmware_source_name)     # WARNING! Need rework on "binary_stream" to allow filename > 8.3
+    upload_firmware_target_name = os.path.basename(upload_firmware_source_name)
                                                     # Target firmware filename
     upload_timeout = 1000                           # Communication timout, lossy/slow connections need higher values
     upload_blocksize = 512                          # Transfer block size. 512 = Autodetect
@@ -154,11 +154,11 @@ def Upload(source, target, env):
     # Set local upload params based on board type to change script behavior
     # "upload_delete_old_bins": delete all *.bin files in the root of SD Card
     upload_delete_old_bins = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V422', 'BOARD_CREALITY_V423',
-                                                    'BOARD_CREALITY_V427', 'BOARD_CREALITY_V431', 'BOARD_CREALITY_V452',  'BOARD_CREALITY_V453',
+                                                    'BOARD_CREALITY_V427', 'BOARD_CREALITY_V431',  'BOARD_CREALITY_V452', 'BOARD_CREALITY_V453',
                                                     'BOARD_CREALITY_V24S1']
     # "upload_random_name": generate a random 8.3 firmware filename to upload
     upload_random_filename = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V422', 'BOARD_CREALITY_V423',
-                                                    'BOARD_CREALITY_V427', 'BOARD_CREALITY_V431', 'BOARD_CREALITY_V452',  'BOARD_CREALITY_V453',
+                                                    'BOARD_CREALITY_V427', 'BOARD_CREALITY_V431',  'BOARD_CREALITY_V452', 'BOARD_CREALITY_V453',
                                                     'BOARD_CREALITY_V24S1'] and not marlin_long_filename_host_support
 
     try:
@@ -258,7 +258,7 @@ def Upload(source, target, env):
             print('Trigger firmware update...')
             protocol.send_ascii('M997', True)
 
-        protocol: protocol.shutdown()
+        protocol.shutdown()
         print('Firmware update completed')
 
     except KeyboardInterrupt:

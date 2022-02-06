@@ -23,10 +23,15 @@
 
 /**
  * DWIN general defines and data structs
- * Author: Miguel A. Risco-Castillo
- * Version: 3.9.1
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 3.9.2
  * Date: 2021/11/21
+ *
+ * Based on the original code provided by Creality under GPL
  */
+
+//#define NEED_HEX_PRINT 1
+//#define DEBUG_DWIN 1
 
 #include "../../../core/types.h"
 #include "../common/dwin_color.h"
@@ -53,8 +58,8 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color  Color_White
 
+//#define HAS_GCODE_PREVIEW 1
 #define HAS_ESDIAG 1
-#define DEFAULT_LCD_BRIGHTNESS 127
 
 #if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
