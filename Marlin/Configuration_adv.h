@@ -2312,24 +2312,25 @@
  * - During Hold all Emergency Parser commands are available, as usual.
  */
 #define REALTIME_COMMANDS
+#define REALTIME_REPORTING_COMMANDS // For automated GitHub testing compatibility, use REALTIME_COMMANDS instead.
 
-/**
- * Send machine status updates to host (Useful for CNC/Laser)
- *
- * - Auto-report state of the machine (like GRBL does) in numerical format.
- * - Auto-report position during long moves.
- *
- * Possible Marlin statuses (GRBL-compatible equivalent)
- * 0: MF_INITIALIZING    (M_INIT)
- * 1: MF_SD_COMPLETE     (M_ALARM)
- * 2: MF_WAITING         (M_IDLE)
- * 3: MF_STOPPED         (M_END)
- * 4: MF_RUNNING         (M_RUNNING)
- * 5: MF_PAUSED          (M_HOLD)
- * 6: MF_KILLED          (M_ERROR)
- */
-// #define REPORT_STATUS_TO_HOST // Send regular machine status updates to host in GRBL format ("S_XYZ: #")
-#if ENABLED(REPORT_STATUS_TO_HOST)
+  /**
+   * Send machine status updates to host (Useful for CNC/Laser)
+   *
+   * - Auto-report state of the machine (like GRBL does) in numerical format.
+   * - Auto-report position during long moves.
+   *
+   * Possible Marlin statuses (GRBL-compatible equivalent)
+   * 0: MF_INITIALIZING    (M_INIT)
+   * 1: MF_SD_COMPLETE     (M_ALARM)
+   * 2: MF_WAITING         (M_IDLE)
+   * 3: MF_STOPPED         (M_END)
+   * 4: MF_RUNNING         (M_RUNNING)
+   * 5: MF_PAUSED          (M_HOLD)
+   * 6: MF_KILLED          (M_ERROR)
+   */
+  // #define REPORT_STATUS_TO_HOST // Send regular machine status updates to host in GRBL format ("S_XYZ: #")
+  #if ENABLED(REPORT_STATUS_TO_HOST)
   // Report status during long moves
   // Only enable if needed, it is very verbose and will cause the console to scroll quickly
   // #define REPORT_STATUS_DURING_MOVES
