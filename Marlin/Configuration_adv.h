@@ -2335,18 +2335,25 @@
   // #define REPORT_STATUS_DURING_MOVES
 #endif
 
-// Use an abbreviated, advanced status report designed to relay maximum information to the host
-// in the smallest number of bytes (not very human-readable, designed for error-free host UI updates)
-// Example: |#|X10.000:Y100.000:Z0.5|X20.000:Y120.000:Z10.5|1|0|1|2|110|2
-// Legend:
-//  Status header [|#], Work coords (G92..), Machine coords (G53), Metric [1] (G21), Absolute pos. mode [0] (G90),
-//  Tool #[1] (active_extruder), Coord set [2] (G55), Feed rate override [110]% (M220 S110), Status: MF_WAITING [2]
-//
-// As you can see, quite a bit of info is transmitted to hosts which support it, saving multiple verbose queries.
+/**
+ * Compact Status Reports
+ *
+ * Use an abbreviated, advanced status report designed to relay maximum information to the host
+ * in the smallest number of bytes (not very human-readable, designed for error-free host UI updates)
+ *
+ * Example: |#|X10.000:Y100.000:Z0.5|X20.000:Y120.000:Z10.5|1|0|1|2|110|2
+ * Legend:
+ *  Status header [|#], Work coords (G92..), Machine coords (G53), Metric [1] (G21), Absolute pos. mode [0] (G90),
+ *  Tool #[1] (active_extruder), Coord set [2] (G55), Feed rate override [110]% (M220 S110), Status: MF_WAITING [2]
+ *
+ * As you can see, quite a bit of info is transmitted to hosts which support it, saving multiple verbose queries.
+ */
 #define COMPACT_STATUS_REPORTS
 #if ENABLED(COMPACT_STATUS_REPORTS)
+
   // M114 will return compact reports instead of the usual verbose report
   // #define M114_USES_COMPACT_REPORTS // CAUTION - May break host UI's which look for M114's verbose output
+
   // #define GRBL_COMPATIBLE_STATES    // Report GRBL-equivalent states instead of Marlin states
 #endif
 
