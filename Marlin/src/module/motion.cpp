@@ -266,9 +266,13 @@ void report_compact_status(const xyze_pos_t &rpos) {
   #endif
   SERIAL_ECHOPGM("|", (relative_mode) ? 1 : 0);                 // Absolute = 0 (G90), Relative = 1 (G91)
   SERIAL_ECHOPGM("|", active_extruder);                         // Current tool (AKA: active_extruder)
-  SERIAL_ECHOPGM("|", GcodeSuite::active_coordinate_system);    // CNC Coordinate system (-1 = G53 native, 0-8 = G54-G59.3)
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+  SERIAL_ECHOPGM("|", gcode.active_coordinate_system); // CNC Coordinate system (-1 = G53 native, 0-8 = G54-G59.3)
+  #else
+    SERIAL_ECHO("|1"); // Always -1 without CNC_COORDINATE_SYSTEMS
+  #endif
   SERIAL_ECHOPGM("|", feedrate_percentage);                     // Feed rate % (M220)
-  #ifdef GRBL_COMPATIBLE_STATES
+  #if ENABLED(GRBL_COMPATIBLE_STATES)
     SERIAL_ECHOLNPGM("|", grbl_state_for_marlin_state());       // GRBL compatible status (state) eg: M_IDLE
   #else
     SERIAL_ECHOLNPGM("|", marlin_state);                        // Marlin status (state) eg: MF_WAITING
