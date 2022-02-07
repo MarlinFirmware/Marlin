@@ -1124,8 +1124,8 @@ void GcodeSuite::process_next_command() {
  * Run a series of commands, bypassing the command queue to allow
  * G-code "macros" to be called from within other G-code handlers.
  */
-void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
-  PGM_P pgcode = FTOP(fgcode);
+void GcodeSuite::process_subcommands_now(FSTR_P fgcode, bool no_ok) {
+  PGM_P pgcode           = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
@@ -1134,7 +1134,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
     strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
     cmd[len] = '\0';                                  // End with a nul
     parser.parse(cmd);                                // Parse the command
-    process_parsed_command(true);                     // Process it (no "ok")
+    process_parsed_command(no_ok);                    // Process it (no "ok")?
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
@@ -1143,13 +1143,13 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
 
 #pragma GCC diagnostic pop
 
-void GcodeSuite::process_subcommands_now(char * gcode) {
-  char * const saved_cmd = parser.command_ptr;        // Save the parser state
+void GcodeSuite::process_subcommands_now(char *gcode, bool no_ok) {
+  char *const saved_cmd = parser.command_ptr; // Save the parser state
   for (;;) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
-    process_parsed_command(true);                     // Process it (no "ok")
+    process_parsed_command(no_ok);                    // Process it (no "ok")?
     if (!delim) break;                                // Last command?
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command

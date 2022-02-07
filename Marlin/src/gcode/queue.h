@@ -79,6 +79,12 @@ public:
 
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
+    uint8_t previous_ring_pos(uint8_t &p, const int dec = 1) { return (p <= 0) ? (BUFSIZE - 1) : (p - dec); }
+
+    const char* last_queued_command() {
+      return commands[previous_ring_pos(index_w)].buffer;
+    }
+
     void commit_command(bool skip_ok
       OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );

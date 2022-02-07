@@ -2321,6 +2321,25 @@
   //#define FULL_REPORT_TO_HOST_FEATURE   // Auto-report the machine status like Grbl CNC
 #endif
 
+/**
+ * Priority command execution
+ *
+ * When interacting using an attached Marlin LCD display, changes such as babystepping and feed rates
+ * will take effect nearly instantly. However, those same changes via serial host will be queued and may
+ * be delayed significantly, even after the job has completely finished, because of queuing and buffering.
+ *
+ * The following allows you to bypass the queue for certain time-sensitive commands, executing them immediately.
+ *
+ * These settings respect the M400 (finish move) command, so if they proceed immediately after an M400, they'll
+ * be added to the end of the queue as usual.
+ */
+// #define PRIORITY_FEEDRATE_CHANGES  // M220 feed rate adjustments are processed immediately instead of queued.
+// #define PRIORITY_BABYSTEPPING      // M290 babystepping is processed immediately instead of queued.
+
+// Space-separated list of g-code commands which will bypass the queue and execute immediately
+// Example: "M220 M290" (feed rate % and babystepping)
+#define PRIORITY_COMMANDS "M220 M290"
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
