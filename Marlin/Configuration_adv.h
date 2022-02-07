@@ -3733,11 +3733,14 @@
 //#define DISABLE_DRIVER_SAFE_POWER_PROTECT
 
 /**
- * Include capabilities in M115 output
+ * Include enabled features in M115 output
+ * The purpose of this is to enable hosts to adjust to specific machine capabilities.
  */
 #define EXTENDED_CAPABILITIES_REPORT
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  //#define M115_GEOMETRY_REPORT
+  //#define M115_GEOMETRY_REPORT    // Display bed size and axis limits in the report
+  //#define MINIMAL_CAP_LINES       // Don't mention the disabled features
+
 #endif
 
 /**

@@ -32,8 +32,6 @@
   #include "../../feature/caselight.h"
 #endif
 
-//#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   #if ENABLED(MINIMAL_CAP_LINES)
     #define cap_line(S,C) if (C) _cap_line(S)
@@ -186,6 +184,9 @@ void GcodeSuite::M115() {
 
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
+
+    // COMPACT_STATUS_REPORTS
+    cap_line(F("COMPACT_STATUS"), ENABLED(COMPACT_STATUS_REPORTS));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
