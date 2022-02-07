@@ -315,6 +315,11 @@ namespace ExtUI {
     #endif
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    bool getPowerLossRecoveryEnabled();
+    void setPowerLossRecoveryEnabled(const bool);
+  #endif
+
   #if ENABLED(PIDTEMP)
     float getPIDValues_Kp(const extruder_t);
     float getPIDValues_Ki(const extruder_t);
