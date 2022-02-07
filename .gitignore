@@ -41,10 +41,6 @@ applet/
 *.rej
 *.bak
 *.idea
-<<<<<<< HEAD
-=======
-*.s
->>>>>>> 🔨 Add .vscode/extensions.json
 *.i
 *.ii
 *.swp
