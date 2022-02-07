@@ -263,6 +263,10 @@ G29_TYPE GcodeSuite::G29() {
    */
   if (!g29_in_progress) {
 
+    #if HAS_MULTI_HOTEND
+      uint8_t save_active_extruder = active_extruder;
+    #endif
+
     TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
 
     #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
@@ -451,6 +455,10 @@ G29_TYPE GcodeSuite::G29() {
         abl.reenable = false;
       }
     #endif // AUTO_BED_LEVELING_BILINEAR
+
+    #if HAS_MULTI_HOTEND
+      if (save_active_extruder) tool_change(save_active_extruder);
+    #endif
 
   } // !g29_in_progress
 
