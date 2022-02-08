@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7 board pin assignments
+ * Creality v2.4.S1 (STM32F103RE / STM32F103RC) v101 as found in the Ender 7 board pin assignments
  */
 
 #define BOARD_INFO_NAME      "Creality v2.4.S1 V101"

@@ -245,7 +245,7 @@ uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb
   float count = 0;
   if (hz > 0 && (dca || dcb || dcc)) {
     count = float(F_CPU) / hz;            // 1x prescaler, TOP for 16MHz base freq.
-    uint16_t prescaler;                   // Range of 30.5Hz (65535) 64.5KHz (>31)
+    uint16_t prescaler;                   // Range of 30.5Hz (65535) 64.5kHz (>31)
 
          if (count >= 255. * 256.) { prescaler = 1024; SET_CS(5, PRESCALER_1024); }
     else if (count >= 255. * 64.)  { prescaler = 256;  SET_CS(5,  PRESCALER_256); }
@@ -257,7 +257,7 @@ uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb
     const float pwm_top = round(count);   // Get the rounded count
 
     ICR5 = (uint16_t)pwm_top - 1;         // Subtract 1 for TOP
-    OCR5A = pwm_top * ABS(dca);          // Update and scale DCs
+    OCR5A = pwm_top * ABS(dca);           // Update and scale DCs
     OCR5B = pwm_top * ABS(dcb);
     OCR5C = pwm_top * ABS(dcc);
     _SET_COM(5, A, dca ? (dca < 0 ? COM_SET_CLEAR : COM_CLEAR_SET) : COM_NORMAL); // Set compare modes
@@ -277,7 +277,7 @@ uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb
     // Restore the default for Timer 5
     SET_WGM(5, PWM_PC_8);                 // PWM 8-bit (Phase Correct)
     SET_COMS(5, NORMAL, NORMAL, NORMAL);  // Do nothing
-    SET_CS(5, PRESCALER_64);              // 16MHz / 64 = 250KHz
+    SET_CS(5, PRESCALER_64);              // 16MHz / 64 = 250kHz
     OCR5A = OCR5B = OCR5C = 0;
   }
   return round(count);

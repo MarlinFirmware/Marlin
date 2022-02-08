@@ -105,6 +105,7 @@
 
 #define STR_ENQUEUEING                      "enqueueing \""
 #define STR_POWERUP                         "PowerUp"
+#define STR_POWEROFF                        "PowerOff"
 #define STR_EXTERNAL_RESET                  " External Reset"
 #define STR_BROWNOUT_RESET                  " Brown out Reset"
 #define STR_WATCHDOG_RESET                  " Watchdog Reset"
@@ -254,7 +255,7 @@
 #define STR_DEBUG_ERRORS                    "ERRORS"
 #define STR_DEBUG_DRYRUN                    "DRYRUN"
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
-#define STR_DEBUG_LEVELING                  "LEVELING"
+#define STR_DEBUG_DETAIL                    "DETAIL"
 
 #define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
 #define STR_WRONG_PASSWORD                  "Incorrect Password"
@@ -306,6 +307,7 @@
 #define STR_Z_PROBE_OFFSET                  "Z-Probe Offset"
 #define STR_TEMPERATURE_UNITS               "Temperature Units"
 #define STR_USER_THERMISTORS                "User thermistors"
+#define STR_DELAYED_POWEROFF                "Delayed poweroff"
 
 //
 // Endstop Names used by Endstops::report_states
@@ -384,20 +386,14 @@
     #define STR_I_MIN "w_min"
     #define STR_I_MAX "w_max"
   #else
-    #define STR_I "A"
-    #define STR_I_MIN "a_min"
-    #define STR_I_MAX "a_max"
+    #error "AXIS4_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
   #endif
 #else
   #define STR_I   ""
 #endif
 
 #if HAS_J_AXIS
-  #if AXIS5_NAME == 'A'
-    #define STR_J "A"
-    #define STR_J_MIN "a_min"
-    #define STR_J_MAX "a_max"
-  #elif AXIS5_NAME == 'B'
+  #if AXIS5_NAME == 'B'
     #define STR_J "B"
     #define STR_J_MIN "b_min"
     #define STR_J_MAX "b_max"
@@ -418,24 +414,14 @@
     #define STR_J_MIN "w_min"
     #define STR_J_MAX "w_max"
   #else
-    #define STR_J "B"
-    #define STR_J_MIN "b_min"
-    #define STR_J_MAX "b_max"
+    #error "AXIS5_NAME can only be one of 'B', 'C', 'U', 'V', or 'W'."
   #endif
 #else
   #define STR_J   ""
 #endif
 
 #if HAS_K_AXIS
-  #if AXIS6_NAME == 'A'
-    #define STR_K "A"
-    #define STR_K_MIN "a_min"
-    #define STR_K_MAX "a_max"
-  #elif AXIS6_NAME == 'B'
-    #define STR_K "B"
-    #define STR_K_MIN "b_min"
-    #define STR_K_MAX "b_max"
-  #elif AXIS6_NAME == 'C'
+  #if AXIS6_NAME == 'C'
     #define STR_K "C"
     #define STR_K_MIN "c_min"
     #define STR_K_MAX "c_max"
@@ -452,9 +438,7 @@
     #define STR_K_MIN "w_min"
     #define STR_K_MAX "w_max"
   #else
-    #define STR_K "C"
-    #define STR_K_MIN "c_min"
-    #define STR_K_MAX "c_max"
+    #error "AXIS6_NAME can only be one of 'C', 'U', 'V', or 'W'."
   #endif
 #else
   #define STR_K   ""

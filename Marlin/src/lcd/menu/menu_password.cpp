@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, PASSWORD_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, PASSWORD_FEATURE)
 
 #include "../../feature/password/password.h"
 
@@ -184,4 +184,4 @@ void Password::menu_password() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && PASSWORD_FEATURE
+#endif // HAS_MARLINUI_MENU && PASSWORD_FEATURE

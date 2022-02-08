@@ -456,6 +456,7 @@ namespace Language_en {
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Print Paused");
   LSTR MSG_PRINTING                       = _UxGT("Printing...");
   LSTR MSG_STOPPING                       = _UxGT("Stopping...");
+  LSTR MSG_REMAINING_TIME                 = _UxGT("Remaining");
   LSTR MSG_PRINT_ABORTED                  = _UxGT("Print Aborted");
   LSTR MSG_PRINT_DONE                     = _UxGT("Print Done");
   LSTR MSG_NO_MOVE                        = _UxGT("No Move.");
@@ -595,12 +596,11 @@ namespace Language_en {
 
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");
-    LSTR MSG_REMAINING_TIME               = _UxGT("Remaining time");
     LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Please wait until reboot. ");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat the hot end.");
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Print Time");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
     LSTR MSG_COLORS_GET                   = _UxGT("Get Color");
@@ -609,6 +609,7 @@ namespace Language_en {
     LSTR MSG_COLORS_RED                   = _UxGT("Red");
     LSTR MSG_COLORS_GREEN                 = _UxGT("Green");
     LSTR MSG_COLORS_BLUE                  = _UxGT("Blue");
+    LSTR MSG_COLORS_WHITE                 = _UxGT("White");
     LSTR MSG_UI_LANGUAGE                  = _UxGT("UI Language");
     LSTR MSG_SOUND_ENABLE                 = _UxGT("Enable sound");
     LSTR MSG_LOCKSCREEN                   = _UxGT("Lock Screen");
@@ -616,7 +617,6 @@ namespace Language_en {
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No Media");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please Preheat");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Prints");
-    LSTR MSG_REMAINING_TIME               = _UxGT("Remaining");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded");

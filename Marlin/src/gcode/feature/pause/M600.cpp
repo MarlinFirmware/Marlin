@@ -101,10 +101,8 @@ void GcodeSuite::M600() {
   if (standardM600)
     ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
 
-  #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
-    // If needed, home before parking for filament change
-    home_if_needed(true);
-  #endif
+  // If needed, home before parking for filament change
+  TERN_(HOME_BEFORE_FILAMENT_CHANGE, home_if_needed(true));
 
   #if HAS_MULTI_EXTRUDER
     // Change toolhead if specified
@@ -118,12 +116,15 @@ void GcodeSuite::M600() {
 
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
-  // Lift Z axis
-  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
-
   // Move XY axes to filament change position or given position
-  if (parser.seenval('X')) park_point.x = parser.linearval('X');
-  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+  LINEAR_AXIS_CODE(
+    if (parser.seenval('X')) park_point.x = parser.linearval('X'),
+    if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
+    if (parser.seenval(AXIS4_NAME)) park_point.i = parser.linearval(AXIS4_NAME),
+    if (parser.seenval(AXIS5_NAME)) park_point.j = parser.linearval(AXIS5_NAME),
+    if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME)
+  );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point += hotend_offset[active_extruder];

@@ -79,12 +79,7 @@ void MarlinUI::set_font(const uint8_t font_nr) {
 bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
-void MarlinUI::init_lcd() {
-  DWIN_Startup();
-
-  // Load the assets JPG (currently just the status screen 'icon')
-  DWIN_JPG_CacheTo1(DWIN_MarlinUI_Assets);
-}
+void MarlinUI::init_lcd() { DWIN_Startup(); }
 
 // This LCD should clear where it will draw anew
 void MarlinUI::clear_lcd() {
@@ -258,7 +253,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../../menu/menu.h"
 
@@ -442,8 +437,8 @@ void MarlinUI::draw_status_message(const bool blink) {
     dwin_font.solid = false;
     dwin_font.fg = Color_White;
     ui.draw_select_screen_prompt(pref, string, suff);
-    draw_boxed_string(false, no, !yesno);
-    draw_boxed_string(true, yes,  yesno);
+    if (no)  draw_boxed_string(false, no, !yesno);
+    if (yes) draw_boxed_string(true, yes,  yesno);
   }
 
   #if ENABLED(SDSUPPORT)
@@ -586,6 +581,6 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // IS_DWIN_MARLINUI

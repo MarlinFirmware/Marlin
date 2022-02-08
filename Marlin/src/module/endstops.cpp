@@ -352,7 +352,7 @@ void Endstops::init() {
 
 } // Endstops::init
 
-// Called at ~1KHz from Temperature ISR: Poll endstop state if required
+// Called at ~1kHz from Temperature ISR: Poll endstop state if required
 void Endstops::poll() {
 
   TERN_(PINS_DEBUGGING, run_monitor()); // Report changes in endstop status
@@ -403,7 +403,7 @@ void Endstops::not_homing() {
 void Endstops::resync() {
   if (!abort_enabled()) return;     // If endstops/probes are disabled the loop below can hang
 
-  // Wait for Temperature ISR to run at least once (runs at 1KHz)
+  // Wait for Temperature ISR to run at least once (runs at 1kHz)
   TERN(ENDSTOP_INTERRUPTS_FEATURE, update(), safe_delay(2));
   while (TERN0(ENDSTOP_NOISE_THRESHOLD, endstop_poll_count)) safe_delay(1);
 }
@@ -558,7 +558,7 @@ void _O2 Endstops::report_states() {
   #if HAS_J_MAX
     ES_REPORT(J_MAX);
   #endif
-    #if HAS_K_MIN
+  #if HAS_K_MIN
     ES_REPORT(K_MIN);
   #endif
   #if HAS_K_MAX
