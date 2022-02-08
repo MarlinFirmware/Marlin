@@ -531,7 +531,7 @@ void GCodeQueue::get_serial_commands() {
         #if ANY(PRIORITY_FEEDRATE_CHANGES, PRIORITY_BABYSTEPPING,defined(PRIORITY_COMMANDS))
           // Don't prioritize commands which are preceded by M400 (finish moves) command
           if (!strstr_P(ring_buffer.last_queued_command(), PSTR("M400"))) {
-            #define DEBUG_PRIORITY_COMMANDS
+            // #define DEBUG_PRIORITY_COMMANDS
             #if ENABLED(PRIORITY_FEEDRATE_CHANGES)
               // Feed rate adjustment
               if (!!strstr_P(command, PSTR("M220")) TERN_(GCODE_CASE_INSENSITIVE, || !!strstr_P(command, PSTR("m220")))) {
