@@ -231,7 +231,7 @@ extern volatile uint32_t systick_uptime_millis;
  *  Set the frequency of the timer corresponding to the provided pin
  *  All Timer PWM pins run at the same frequency
  */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 /**
  * set_pwm_duty

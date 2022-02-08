@@ -75,7 +75,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../lcd/e3v2/enhanced/dwin.h"
+  #include "../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
@@ -599,6 +599,10 @@ void MarlinSettings::postprocess() {
   // Various factors can change the current position
   if (oldpos != current_position)
     report_current_position();
+
+  // Moved as last update due to interference with Neopixel init
+  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
+  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
 }
 
 #if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
@@ -1584,7 +1588,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EEPROM_INIT_NOW)
         uint32_t stored_hash;
         EEPROM_READ_ALWAYS(stored_hash);
-        if (stored_hash != build_hash) { EEPROM_FINISH(); return true; }
+        if (stored_hash != build_hash) { EEPROM_FINISH(); return false; }
       #endif
 
       uint16_t stored_crc;
@@ -1965,8 +1969,10 @@ void MarlinSettings::postprocess() {
       //
       #if HAS_USER_THERMISTORS
       {
+        user_thermistor_t user_thermistor[USER_THERMISTORS];
         _FIELD_TEST(user_thermistor);
-        EEPROM_READ(thermalManager.user_thermistor);
+        EEPROM_READ(user_thermistor);
+        if (!validating) COPY(thermalManager.user_thermistor, user_thermistor);
       }
       #endif
 
@@ -1974,80 +1980,67 @@ void MarlinSettings::postprocess() {
       // Power monitor
       //
       {
-        #if HAS_POWER_MONITOR
-          uint8_t &power_monitor_flags = power_monitor.flags;
-        #else
-          uint8_t power_monitor_flags;
-        #endif
+        uint8_t power_monitor_flags;
         _FIELD_TEST(power_monitor_flags);
         EEPROM_READ(power_monitor_flags);
+        TERN_(HAS_POWER_MONITOR, if (!validating) power_monitor.flags = power_monitor_flags);
       }
 
       //
       // LCD Contrast
       //
       {
-        _FIELD_TEST(lcd_contrast);
         uint8_t lcd_contrast;
+        _FIELD_TEST(lcd_contrast);
         EEPROM_READ(lcd_contrast);
-        if (!validating) {
-          TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
-        }
+        TERN_(HAS_LCD_CONTRAST, if (!validating) ui.contrast = lcd_contrast);
       }
 
       //
       // LCD Brightness
       //
       {
-        _FIELD_TEST(lcd_brightness);
         uint8_t lcd_brightness;
+        _FIELD_TEST(lcd_brightness);
         EEPROM_READ(lcd_brightness);
-        TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.set_brightness(lcd_brightness));
+        TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
       }
 
       //
       // Controller Fan
       //
       {
+        controllerFan_settings_t cfs = { 0 };
         _FIELD_TEST(controllerFan_settings);
-        #if ENABLED(CONTROLLER_FAN_EDITABLE)
-          const controllerFan_settings_t &cfs = controllerFan.settings;
-        #else
-          controllerFan_settings_t cfs = { 0 };
-        #endif
         EEPROM_READ(cfs);
+        TERN_(CONTROLLER_FAN_EDITABLE, if (!validating) controllerFan.settings = cfs);
       }
 
       //
       // Power-Loss Recovery
       //
       {
+        bool recovery_enabled;
         _FIELD_TEST(recovery_enabled);
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          const bool &recovery_enabled = recovery.enabled;
-        #else
-          bool recovery_enabled;
-        #endif
         EEPROM_READ(recovery_enabled);
+        TERN_(POWER_LOSS_RECOVERY, if (!validating) recovery.enabled = recovery_enabled);
       }
 
       //
       // Firmware Retraction
       //
       {
+        fwretract_settings_t fwretract_settings;
+        bool autoretract_enabled;
         _FIELD_TEST(fwretract_settings);
+        EEPROM_READ(fwretract_settings);
+        EEPROM_READ(autoretract_enabled);
 
         #if ENABLED(FWRETRACT)
-          EEPROM_READ(fwretract.settings);
-        #else
-          fwretract_settings_t fwretract_settings;
-          EEPROM_READ(fwretract_settings);
-        #endif
-        #if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
-          EEPROM_READ(fwretract.autoretract_enabled);
-        #else
-          bool autoretract_enabled;
-          EEPROM_READ(autoretract_enabled);
+          if (!validating) {
+            fwretract.settings = fwretract_settings;
+            TERN_(FWRETRACT_AUTORETRACT, fwretract.autoretract_enabled = autoretract_enabled);
+          }
         #endif
       }
 
@@ -2712,13 +2705,13 @@ void MarlinSettings::reset() {
     #if HAS_Z_AXIS && !defined(DEFAULT_ZJERK)
       #define DEFAULT_ZJERK 0
     #endif
-    #if LINEAR_AXES >= 4 && !defined(DEFAULT_IJERK)
+    #if HAS_I_AXIS && !defined(DEFAULT_IJERK)
       #define DEFAULT_IJERK 0
     #endif
-    #if LINEAR_AXES >= 5 && !defined(DEFAULT_JJERK)
+    #if HAS_J_AXIS && !defined(DEFAULT_JJERK)
       #define DEFAULT_JJERK 0
     #endif
-    #if LINEAR_AXES >= 6 && !defined(DEFAULT_KJERK)
+    #if HAS_K_AXIS && !defined(DEFAULT_KJERK)
       #define DEFAULT_KJERK 0
     #endif
     planner.max_jerk.set(
@@ -3030,12 +3023,12 @@ void MarlinSettings::reset() {
   //
   // LCD Contrast
   //
-  TERN_(HAS_LCD_CONTRAST, ui.set_contrast(DEFAULT_LCD_CONTRAST));
+  TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
 
   //
   // LCD Brightness
   //
-  TERN_(HAS_LCD_BRIGHTNESS, ui.set_brightness(DEFAULT_LCD_BRIGHTNESS));
+  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
 
   //
   // Controller Fan

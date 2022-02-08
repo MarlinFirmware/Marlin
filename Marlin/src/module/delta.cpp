@@ -63,6 +63,13 @@ abc_float_t delta_diagonal_rod_trim;
 
 float delta_safe_distance_from_top();
 
+void refresh_delta_clip_start_height() {
+  delta_clip_start_height = TERN(HAS_SOFTWARE_ENDSTOPS,
+    soft_endstop.max.z,
+    DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z)
+  ) - delta_safe_distance_from_top();
+}
+
 /**
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).

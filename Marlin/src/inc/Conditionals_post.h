@@ -78,13 +78,13 @@
 /**
  * Axis lengths and center
  */
-#ifndef AXIS4_NAME
+#if HAS_I_AXIS && !defined(AXIS4_NAME)
   #define AXIS4_NAME 'A'
 #endif
-#ifndef AXIS5_NAME
+#if HAS_J_AXIS && !defined(AXIS5_NAME)
   #define AXIS5_NAME 'B'
 #endif
-#ifndef AXIS6_NAME
+#if HAS_K_AXIS && !defined(AXIS6_NAME)
   #define AXIS6_NAME 'C'
 #endif
 
@@ -97,13 +97,13 @@
 #else
   #undef CONTROLLER_FAN_USE_Z_ONLY
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define I_MAX_LENGTH (I_MAX_POS - (I_MIN_POS))
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define J_MAX_LENGTH (J_MAX_POS - (J_MIN_POS))
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define K_MAX_LENGTH (K_MAX_POS - (K_MIN_POS))
 #endif
 
@@ -114,13 +114,13 @@
 #if HAS_Y_AXIS && !defined(Y_BED_SIZE)
   #define Y_BED_SIZE Y_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 4 && !defined(I_BED_SIZE)
+#if HAS_I_AXIS && !defined(I_BED_SIZE)
   #define I_BED_SIZE I_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 5 && !defined(J_BED_SIZE)
+#if HAS_J_AXIS && !defined(J_BED_SIZE)
   #define J_BED_SIZE J_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 6 && !defined(K_BED_SIZE)
+#if HAS_K_AXIS && !defined(K_BED_SIZE)
   #define K_BED_SIZE K_MAX_LENGTH
 #endif
 
@@ -134,13 +134,13 @@
 #if HAS_Y_AXIS
   #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define _I_HALF_IMAX ((I_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define _J_HALF_JMAX ((J_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define _K_HALF_KMAX ((K_BED_SIZE) / 2)
 #endif
 
@@ -149,13 +149,13 @@
   #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
   #define XY_CENTER { X_CENTER, Y_CENTER }
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define I_CENTER TERN(BED_CENTER_AT_0_0, 0, _I_HALF_BED)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define J_CENTER TERN(BED_CENTER_AT_0_0, 0, _J_HALF_BED)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
 #endif
 
@@ -166,15 +166,15 @@
   #define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
   #define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define I_MINIM (I_CENTER - _I_HALF_BED_SIZE)
   #define I_MAXIM (I_MINIM + I_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define J_MINIM (J_CENTER - _J_HALF_BED_SIZE)
   #define J_MAXIM (J_MINIM + J_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define K_MINIM (K_CENTER - _K_HALF_BED_SIZE)
   #define K_MAXIM (K_MINIM + K_BED_SIZE)
 #endif
@@ -253,21 +253,21 @@
   #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #ifdef MANUAL_I_HOME_POS
     #define I_HOME_POS MANUAL_I_HOME_POS
   #else
     #define I_HOME_POS TERN(I_HOME_TO_MIN, I_MIN_POS, I_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #ifdef MANUAL_J_HOME_POS
     #define J_HOME_POS MANUAL_J_HOME_POS
   #else
     #define J_HOME_POS TERN(J_HOME_TO_MIN, J_MIN_POS, J_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #ifdef MANUAL_K_HOME_POS
     #define K_HOME_POS MANUAL_K_HOME_POS
   #else
@@ -376,8 +376,8 @@
 #elif EITHER(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
   #define _LCD_CONTRAST_MIN  255
   #define _LCD_CONTRAST_INIT 255
-  #define _LCD_CONTRAST_MAX  255
 #elif ENABLED(FYSETC_MINI_12864)
+  #define _LCD_CONTRAST_MIN  180
   #define _LCD_CONTRAST_INIT 220
 #elif ENABLED(ULTI_CONTROLLER)
   #define _LCD_CONTRAST_INIT 127
@@ -389,18 +389,12 @@
 #elif ENABLED(ZONESTAR_12864OLED)
   #define _LCD_CONTRAST_MIN   64
   #define _LCD_CONTRAST_INIT 128
-  #define _LCD_CONTRAST_MAX  255
 #elif IS_TFTGLCD_PANEL
-  #define _LCD_CONTRAST_MIN    0
   #define _LCD_CONTRAST_INIT 250
-  #define _LCD_CONTRAST_MAX  255
 #endif
 
 #ifdef _LCD_CONTRAST_INIT
   #define HAS_LCD_CONTRAST 1
-#endif
-
-#if HAS_LCD_CONTRAST
   #ifndef LCD_CONTRAST_MIN
     #ifdef _LCD_CONTRAST_MIN
       #define LCD_CONTRAST_MIN _LCD_CONTRAST_MIN
@@ -420,8 +414,8 @@
       #define LCD_CONTRAST_MAX 63   // ST7567 6-bits contrast
     #endif
   #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST LCD_CONTRAST_INIT
+  #ifndef LCD_CONTRAST_DEFAULT
+    #define LCD_CONTRAST_DEFAULT LCD_CONTRAST_INIT
   #endif
 #endif
 
@@ -443,7 +437,7 @@
 
   // Set SD_DETECT_STATE based on hardware if not overridden
   #if PIN_EXISTS(SD_DETECT) && !defined(SD_DETECT_STATE)
-    #if BOTH(HAS_LCD_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+    #if BOTH(HAS_MARLINUI_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
       #define SD_DETECT_STATE HIGH
     #else
       #define SD_DETECT_STATE LOW
@@ -507,7 +501,13 @@
     #ifndef TEMP_SENSOR_REDUNDANT_MAX_DIFF
       #define TEMP_SENSOR_REDUNDANT_MAX_DIFF 10
     #endif
-    #if REDUNDANT_TEMP_MATCH(SOURCE, COOLER)
+    #if REDUNDANT_TEMP_MATCH(SOURCE, BOARD)
+      #if !PIN_EXISTS(TEMP_BOARD)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to BOARD requires TEMP_BOARD_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_BOARD_PIN
+      #endif
+    #elif REDUNDANT_TEMP_MATCH(SOURCE, COOLER)
       #if !PIN_EXISTS(TEMP_COOLER)
         #error "TEMP_SENSOR_REDUNDANT_SOURCE set to COOLER requires TEMP_COOLER_PIN."
       #else
@@ -745,7 +745,7 @@
     #define LIB_INTERNAL_MAX31865 1
   #endif
 
-#endif //HAS_MAX_TC
+#endif // HAS_MAX_TC
 
 /**
  * X_DUAL_ENDSTOPS endstop reassignment
@@ -1620,7 +1620,7 @@
   #endif
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #if PIN_EXISTS(I_ENABLE) || AXIS_IS_L64XX(I) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(I))
     #define HAS_I_ENABLE 1
   #endif
@@ -1640,7 +1640,7 @@
   #undef DISABLE_INACTIVE_I
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #if PIN_EXISTS(J_ENABLE) || AXIS_IS_L64XX(J) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(J))
     #define HAS_J_ENABLE 1
   #endif
@@ -1660,7 +1660,7 @@
   #undef DISABLE_INACTIVE_J
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #if PIN_EXISTS(K_ENABLE) || AXIS_IS_L64XX(K) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(K))
     #define HAS_K_ENABLE 1
   #endif
@@ -2214,6 +2214,7 @@
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
 #define ANY_SERIAL_IS(N) (  CONF_SERIAL_IS(N) \
                          || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
+                         || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
                          || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
                          || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
 
@@ -2395,28 +2396,28 @@
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
 #define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(TEMP_SENSOR_##P##_IS_MAX_TC, TEMP_SENSOR_##P##_IS_DUMMY))
-#if HAS_ADC_TEST(0)
+#if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
-#if HAS_ADC_TEST(1)
+#if HOTENDS > 1 && HAS_ADC_TEST(1)
   #define HAS_TEMP_ADC_1 1
 #endif
-#if HAS_ADC_TEST(2)
+#if HOTENDS > 2 && HAS_ADC_TEST(2)
   #define HAS_TEMP_ADC_2 1
 #endif
-#if HAS_ADC_TEST(3)
+#if HOTENDS > 3 && HAS_ADC_TEST(3)
   #define HAS_TEMP_ADC_3 1
 #endif
-#if HAS_ADC_TEST(4)
+#if HOTENDS > 4 && HAS_ADC_TEST(4)
   #define HAS_TEMP_ADC_4 1
 #endif
-#if HAS_ADC_TEST(5)
+#if HOTENDS > 5 && HAS_ADC_TEST(5)
   #define HAS_TEMP_ADC_5 1
 #endif
-#if HAS_ADC_TEST(6)
+#if HOTENDS > 6 && HAS_ADC_TEST(6)
   #define HAS_TEMP_ADC_6 1
 #endif
-#if HAS_ADC_TEST(7)
+#if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
 #if HAS_ADC_TEST(BED)
@@ -2445,11 +2446,11 @@
 #if HAS_TEMP(BED)
   #define HAS_TEMP_BED 1
 #endif
-#if HAS_TEMP(PROBE)
-  #define HAS_TEMP_PROBE 1
-#endif
 #if HAS_TEMP(CHAMBER)
   #define HAS_TEMP_CHAMBER 1
+#endif
+#if HAS_TEMP(PROBE)
+  #define HAS_TEMP_PROBE 1
 #endif
 #if HAS_TEMP(COOLER)
   #define HAS_TEMP_COOLER 1
@@ -2563,6 +2564,9 @@
 #endif
 #if BOTH(HAS_COOLER, THERMAL_PROTECTION_COOLER) && WATCH_COOLER_TEMP_PERIOD > 0
   #define WATCH_COOLER 1
+#endif
+#if NONE(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
+  #undef THERMAL_PROTECTION_VARIANCE_MONITOR
 #endif
 #if  (ENABLED(THERMAL_PROTECTION_HOTENDS) || !EXTRUDERS) \
   && (ENABLED(THERMAL_PROTECTION_BED)     || !HAS_HEATED_BED) \
@@ -3048,7 +3052,7 @@
   #define HAS_TEMPERATURE 1
 #endif
 
-#if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, HAS_DWIN_E3V2)
+#if HAS_TEMPERATURE && EITHER(HAS_MARLINUI_MENU, HAS_DWIN_E3V2)
   #ifdef PREHEAT_6_LABEL
     #define PREHEAT_COUNT 6
   #elif defined(PREHEAT_5_LABEL)
@@ -3173,7 +3177,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -3403,7 +3407,7 @@
   #endif
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000

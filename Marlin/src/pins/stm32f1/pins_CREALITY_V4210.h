@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * CREALITY 4.2.10 (STM32F103) board pin assignments
+ * CREALITY 4.2.10 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
 #include "env_validate.h"
@@ -216,7 +216,7 @@
   #define BTN_EN1                    EXP1_08_PIN
   #define BTN_EN2                    EXP1_06_PIN
 
-#elif EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14

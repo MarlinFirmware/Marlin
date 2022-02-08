@@ -971,6 +971,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if USE_SENSORLESS
           case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
         #endif
+        case 919: M919(); break;                                  // M919: Set stepper Chopper Times
       #endif
 
       #if HAS_L64XX
