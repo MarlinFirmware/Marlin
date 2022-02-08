@@ -528,45 +528,57 @@ void GCodeQueue::get_serial_commands() {
           }
         #endif
 
-        #if ENABLED(PRIORITY_FEEDRATE_CHANGES)
-          // Feed rate adjustment - process immediately, unless preceded by an M400 (finish moves) command
-          if (!!strstr_P(command, PSTR("M220")) && !strstr_P(ring_buffer.last_queued_command(), PSTR("M400"))) {
-            gcode.process_subcommands_now(command, false);
-            break;
-          }
-        #endif
-
-        #if ENABLED(PRIORITY_BABYSTEPPING)
-          // Feed rate adjustment - process immediately, unless preceded by an M400 (finish moves) command
-          if (!!strstr_P(command, PSTR("M290")) && !strstr_P(ring_buffer.last_queued_command(), PSTR("M400"))) {
-            gcode.process_subcommands_now(command, false);
-            break;
-          }
-        #endif
-
-        #define DEBUG_PRIORITY_COMMANDS
-        #ifdef PRIORITY_COMMANDS
-          // Process matching commands immediately, unless preceded by an M400 (finish moves) command
+        #if ANY(PRIORITY_FEEDRATE_CHANGES, PRIORITY_BABYSTEPPING,defined(PRIORITY_COMMANDS))
+          // Don't prioritize commands which are preceded by M400 (finish moves) command
           if (!strstr_P(ring_buffer.last_queued_command(), PSTR("M400"))) {
-            if (strlen(PRIORITY_COMMANDS) > 0) {
-              char *token;
-              char *priority_command_list;
-              strcpy(priority_command_list, PRIORITY_COMMANDS);
-              bool token_found = false;
-              while ((token = strsep(&priority_command_list, " "))) {
-                if (!!strstr(command, token)) {
-                  #ifdef DEBUG_PRIORITY_COMMANDS
-                    SERIAL_ECHOLNPGM("Prioritizing ", token);
-                  #endif
-                  gcode.process_subcommands_now(command, false);
-                  token_found = true;
-                  break;
-                }
+            #define DEBUG_PRIORITY_COMMANDS
+            #if ENABLED(PRIORITY_FEEDRATE_CHANGES)
+              // Feed rate adjustment
+              if (!!strstr_P(command, PSTR("M220")) TERN_(GCODE_CASE_INSENSITIVE, || !!strstr_P(command, PSTR("m220")))) {
+                #if ENABLED(DEBUG_PRIORITY_COMMANDS)
+                  SERIAL_ECHOLNPGM("Priority command found: ", PSTR("M220"), ", executing ", command);
+                #endif
+                gcode.process_subcommands_now(command, false);
+                break;
               }
-              if (token_found) break;
-            }
-          }
-        #endif
+            #endif
+
+            #if ENABLED(PRIORITY_BABYSTEPPING)
+              // Babystepping adjustments
+              if (!!strstr_P(command, PSTR("M290")) TERN_(GCODE_CASE_INSENSITIVE, || !!strstr_P(command, PSTR("m290")))) {
+                #if ENABLED(DEBUG_PRIORITY_COMMANDS)
+                  SERIAL_ECHOLNPGM("Priority command found: ", PSTR("M290"), ", executing ", command);
+                #endif
+                gcode.process_subcommands_now(command, false);
+                break;
+              }
+            #endif
+
+            #ifdef PRIORITY_COMMANDS
+              // Process matching commands immediately, unless preceded by an M400 (finish moves) command
+              if (strlen(PRIORITY_COMMANDS) > 0) {
+                if (!strstr_P(ring_buffer.last_queued_command(), PSTR("M400"))) {
+                  char *pc_token;
+                  char pc_list[strlen(PRIORITY_COMMANDS) + 1] = PRIORITY_COMMANDS;
+                  bool pc_token_found = false,
+                      pc_is_first_token = true;
+                  while ((pc_token = strtok((pc_is_first_token) ? pc_list : NULL, " "))) {
+                    pc_is_first_token = false;
+                    if (!!strstr(command, pc_token)) {
+                      #if ENABLED(DEBUG_PRIORITY_COMMANDS)
+                        SERIAL_ECHOLNPGM("Priority command found: ", pc_token, ", executing ", command);
+                      #endif
+                      gcode.process_subcommands_now(command, false);
+                      pc_token_found = true;
+                      break;
+                    }
+                  }
+                  if (pc_token_found) break;
+                }
+              }     // strlen(PRIORITY_COMMANDS) > 0
+            #endif  // PRIORITY_COMMANDS
+          }         // Is Last Command M400?
+        #endif      // ANY(PRIORITY_FEEDRATE_CHANGES, PRIORITY_BABYSTEPPING, PRIORITY_COMMANDS)
 
         #if NO_TIMEOUTS > 0
           last_command_time = ms;
@@ -574,10 +586,9 @@ void GCodeQueue::get_serial_commands() {
 
         // Add the command to the queue
         ring_buffer.enqueue(serial.line_buffer, false OPTARG(HAS_MULTI_SERIAL, p));
-      }
-      else
+      } else {
         process_stream_char(serial_char, serial.input_state, serial.line_buffer, serial.count);
-
+      } // ISEOL(serial_char)
     } // NUM_SERIAL loop
   } // queue has space, serial has data
 }
