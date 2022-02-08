@@ -31,7 +31,7 @@ typedef union {
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
-  enum PromptReason : uint8_t {
+  enum PromptType : uint8_t {
     PROMPT_NOT_DEFINED,
     PROMPT_FILAMENT_RUNOUT,
     PROMPT_USER_CONTINUE,
@@ -48,16 +48,16 @@ class HostUI {
   static flag_t flag;
   HostUI() { flag.bits = 0xFF; }
 
-  static void action(FSTR_P const fstr, const bool eol=true);
+  static void action(FSTR_P const p_message, const bool send_LF=true);
 
   #ifdef ACTION_ON_KILL
     static void kill();
   #endif
   #ifdef ACTION_ON_PAUSE
-    static void pause(const bool eol=true);
+    static void pause(const bool send_LF=true);
   #endif
   #ifdef ACTION_ON_PAUSED
-    static void paused(const bool eol=true);
+    static void paused(const bool send_LF=true);
   #endif
   #ifdef ACTION_ON_RESUME
     static void resume();
@@ -86,27 +86,27 @@ class HostUI {
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     private:
-    static void prompt(FSTR_P const ptype, const bool eol=true);
-    static void prompt_plus(FSTR_P const ptype, FSTR_P const fstr, const char extra_char='\0');
+    static void prompt(FSTR_P const p_type, const bool send_LF=true);
+    static void prompt_plus(FSTR_P const p_type, FSTR_P const p_message, const char final_char='\0');
     static void prompt_show();
-    static void _prompt_show(FSTR_P const btn1, FSTR_P const btn2);
+    static void _prompt_show(FSTR_P const button1_label, FSTR_P const button2_label);
 
     public:
-    static PromptReason host_prompt_reason;
+    static PromptType host_prompt_type;
 
-    static void handle_response(const uint8_t response);
+    static void handle_response(const uint8_t button_pressed);
 
-    static void notify_P(PGM_P const message);
-    static void notify(FSTR_P const fmsg) { notify_P(FTOP(fmsg)); }
+    static void notify_P(PGM_P const p_message);
+    static void notify(FSTR_P const p_message) { notify_P(FTOP(p_message)); }
     static void notify(const char * const message);
 
-    static void prompt_begin(const PromptReason reason, FSTR_P const fstr, const char extra_char='\0');
-    static void prompt_button(FSTR_P const fstr);
+    static void prompt_begin(const PromptType p_type, FSTR_P const p_message, const char final_char='\0');
+    static void prompt_button(FSTR_P const p_message);
     static void prompt_end();
-    static void prompt_do(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
-    static void prompt_do(const PromptReason reason, FSTR_P const pstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
-    static void prompt_open(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
-      if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
+    static void prompt_do(const PromptType p_type, FSTR_P const p_message, FSTR_P const button1_label=nullptr, FSTR_P const button2_label=nullptr);
+    static void prompt_do(const PromptType p_type, FSTR_P const p_message, const char final_char, FSTR_P const button1_label=nullptr, FSTR_P const button2_label=nullptr);
+    static void prompt_open(const PromptType p_type, FSTR_P const p_message, FSTR_P const button1_label=nullptr, FSTR_P const button2_label=nullptr) {
+      if (host_prompt_type == PROMPT_NOT_DEFINED) prompt_do(p_type, p_message, button1_label, button2_label);
     }
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)

@@ -79,7 +79,7 @@ void GcodeSuite::M24() {
     #ifdef ACTION_ON_RESUME
       hostui.resume();
     #endif
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Resuming SD"), FPSTR(DISMISS_STR)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(F("Job resumed")));
   #endif
 
   ui.reset_status();
@@ -116,7 +116,7 @@ void GcodeSuite::M25() {
     IF_DISABLED(DWIN_CREALITY_LCD, ui.reset_status());
 
     #if ENABLED(HOST_ACTION_COMMANDS)
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("Pause SD"), F("Resume")));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("Job paused"), F("Resume")));
       #ifdef ACTION_ON_PAUSE
         hostui.pause();
       #endif

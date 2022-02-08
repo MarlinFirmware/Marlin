@@ -271,6 +271,12 @@ bool wait_for_heatup = true;
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     wait_for_user = false;
+    #if ENABLED(HOST_PROMPT_SUPPORT)
+      if (hostui.host_prompt_type == PROMPT_USER_CONTINUE) {
+        hostui.notify(F("Timeout reached, proceeding.."));
+        hostui.host_prompt_type = PROMPT_NOT_DEFINED;
+      }
+    #endif
   }
 
 #endif
