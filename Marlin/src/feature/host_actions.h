@@ -48,7 +48,7 @@ class HostUI {
   static flag_t flag;
   HostUI() { flag.bits = 0xFF; }
 
-  static void action(FSTR_P const p_message, const bool send_LF=true);
+  static void action(FSTR_P const faction, const bool send_LF=true);
 
   #ifdef ACTION_ON_KILL
     static void kill();
@@ -86,27 +86,27 @@ class HostUI {
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     private:
-    static void prompt(FSTR_P const p_type, const bool send_LF=true);
-    static void prompt_plus(FSTR_P const p_type, FSTR_P const p_message, const char final_char='\0');
+    static void prompt(FSTR_P const ftype, const bool send_LF=true);
+    static void prompt_plus(FSTR_P const ftype, FSTR_P const p_message, const char final_char='\0');
     static void prompt_show();
-    static void _prompt_show(FSTR_P const button1_label, FSTR_P const button2_label);
+    static void _prompt_show(FSTR_P const fbtn1, FSTR_P const fbtn2);
 
     public:
     static PromptType host_prompt_type;
 
-    static void handle_response(const uint8_t button_pressed);
+    static void handle_response(const uint8_t response);
 
-    static void notify_P(PGM_P const p_message);
-    static void notify(FSTR_P const p_message) { notify_P(FTOP(p_message)); }
-    static void notify(const char * const message);
+    static void notify_P(PGM_P const pstr);
+    static void notify(FSTR_P const fmsg) { notify_P(FTOP(fmsg)); }
+    static void notify(const char * const cmsg);
 
-    static void prompt_begin(const PromptType p_type, FSTR_P const p_message, const char final_char='\0');
-    static void prompt_button(FSTR_P const p_message);
+    static void prompt_begin(const PromptType type, FSTR_P const fmsg, const char final_char='\0');
+    static void prompt_button(FSTR_P const ftitle);
     static void prompt_end();
-    static void prompt_do(const PromptType p_type, FSTR_P const p_message, FSTR_P const button1_label=nullptr, FSTR_P const button2_label=nullptr);
-    static void prompt_do(const PromptType p_type, FSTR_P const p_message, const char final_char, FSTR_P const button1_label=nullptr, FSTR_P const button2_label=nullptr);
-    static void prompt_open(const PromptType p_type, FSTR_P const p_message, FSTR_P const button1_label=nullptr, FSTR_P const button2_label=nullptr) {
-      if (host_prompt_type == PROMPT_NOT_DEFINED) prompt_do(p_type, p_message, button1_label, button2_label);
+    static void prompt_do(const PromptType type, FSTR_P const fstr, FSTR_P const fbtn1=nullptr, FSTR_P const fbtn2=nullptr);
+    static void prompt_do(const PromptType type, FSTR_P const fstr, const char final_char, FSTR_P const fbtn1=nullptr, FSTR_P const fbtn2=nullptr);
+    static void prompt_open(const PromptType type, FSTR_P const fstr, FSTR_P const fbtn1=nullptr, FSTR_P const fbtn2=nullptr) {
+      if (host_prompt_type == PROMPT_NOT_DEFINED) prompt_do(type, fstr, button1_label, button2_label);
     }
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)

@@ -41,11 +41,11 @@ HostUI hostui;
 
 flag_t HostUI::flag;
 
-void HostUI::action(FSTR_P const p_message, const bool send_LF) {
+void HostUI::action(FSTR_P const faction, const bool send_LF) {
   if (!flag.bits) return;
   PORT_REDIRECT(SerialMask::All);
   SERIAL_ECHOPGM("//action:");
-  SERIAL_ECHOF(p_message);
+  SERIAL_ECHOF(faction);
   if (send_LF) SERIAL_EOL();
 }
 
@@ -95,59 +95,59 @@ void HostUI::action(FSTR_P const p_message, const bool send_LF) {
     extern bool wait_for_user;
   #endif
 
-  void HostUI::notify(const char * const message) {
+  void HostUI::notify(const char * const cmsg) {
     if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
-    SERIAL_ECHOLN(message);
+    SERIAL_ECHOLN(cmsg);
   }
 
-  void HostUI::notify_P(PGM_P const p_message) {
+  void HostUI::notify_P(PGM_P const pstr) {
     if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
-    SERIAL_ECHOLNPGM_P(p_message);
+    SERIAL_ECHOLNPGM_P(pstr);
   }
 
-  void HostUI::prompt(FSTR_P const p_type, const bool send_LF/*=true*/) {
+  void HostUI::prompt(FSTR_P const ftype, const bool send_LF/*=true*/) {
     if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("prompt_"), false);
-    SERIAL_ECHOF(p_type);
+    SERIAL_ECHOF(ftype);
     if (send_LF) SERIAL_EOL();
   }
 
-  void HostUI::prompt_plus(FSTR_P const p_type, FSTR_P const p_message, const char final_char/*='\0'*/) {
+  void HostUI::prompt_plus(FSTR_P const ftype, FSTR_P const fstr, const char final_char/*='\0'*/) {
     if (!flag.bits) return;
-    prompt(p_type, false);
+    prompt(ftype, false);
     PORT_REDIRECT(SerialMask::All);
     SERIAL_CHAR(' ');
-    SERIAL_ECHOF(p_message);
+    SERIAL_ECHOF(fstr);
     if (final_char != '\0') SERIAL_CHAR(final_char);
     SERIAL_EOL();
   }
-  void HostUI::prompt_begin(const PromptType p_type, FSTR_P const p_message, const char final_char/*='\0'*/) {
+  void HostUI::prompt_begin(const PromptType type, FSTR_P const fstr, const char final_char/*='\0'*/) {
     if (!flag.bits) return;
     prompt_end();
-    host_prompt_type = p_type;
-    prompt_plus(F("begin"), p_message, final_char);
+    host_prompt_type = type;
+    prompt_plus(F("begin"), fstr, final_char);
   }
-  void HostUI::prompt_button(FSTR_P const p_message) { prompt_plus(F("button"), p_message); }
+  void HostUI::prompt_button(FSTR_P const ftitle) { prompt_plus(F("button"), ftitle); }
   void HostUI::prompt_end() { prompt(F("end")); }
   void HostUI::prompt_show() { prompt(F("show")); }
 
-  void HostUI::_prompt_show(FSTR_P const button1_label, FSTR_P const button2_label) {
-    if (button1_label) prompt_button(button1_label);
-    if (button2_label) prompt_button(button2_label);
+  void HostUI::_prompt_show(FSTR_P const fbtn1, FSTR_P const fbtn2) {
+    if (fbtn1) prompt_button(fbtn1);
+    if (fbtn2) prompt_button(fbtn2);
     prompt_show();
   }
-  void HostUI::prompt_do(const PromptType p_type, FSTR_P const p_message, FSTR_P const button1_label/*=nullptr*/, FSTR_P const button2_label/*=nullptr*/) {
-    prompt_begin(p_type, p_message);
-    _prompt_show(button1_label, button2_label);
+  void HostUI::prompt_do(const PromptType type, FSTR_P const fstr, FSTR_P const fbtn1/*=nullptr*/, FSTR_P const fbtn2/*=nullptr*/) {
+    prompt_begin(type, fstr);
+    _prompt_show(fbtn1, fbtn2);
   }
-  void HostUI::prompt_do(const PromptType p_type, FSTR_P const p_message, const char final_char, FSTR_P const button1_label/*=nullptr*/, FSTR_P const button2_label/*=nullptr*/) {
-    prompt_begin(p_type, p_message, final_char);
-    _prompt_show(button1_label, button2_label);
+  void HostUI::prompt_do(const PromptType type, FSTR_P const fstr, const char final_char, FSTR_P const fbtn1/*=nullptr*/, FSTR_P const fbtn2/*=nullptr*/) {
+    prompt_begin(type, fstr, final_char);
+    _prompt_show(fbtn1, fbtn2);
   }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -166,12 +166,12 @@ void HostUI::action(FSTR_P const p_message, const bool send_LF) {
   //  - Resume Print response
   //  - Dismissal of info
   //
-  void HostUI::handle_response(const uint8_t button_pressed) {
-    const PromptType p_type = host_prompt_type;
+  void HostUI::handle_response(const uint8_t response) {
+    const PromptType type = host_prompt_type;
     host_prompt_type = PROMPT_NOT_DEFINED;  // Reset now ahead of logic
-    switch (p_type) {
+    switch (type) {
       case PROMPT_FILAMENT_RUNOUT: // Runout button press response (1)
-        switch (button_pressed) {
+        switch (response) {
 
           case 0: // "Purge More" button
             #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
