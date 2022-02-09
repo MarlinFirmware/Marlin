@@ -29,8 +29,8 @@
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM
   #define MARLIN_EEPROM_SIZE                0x1000// 4KB
-  #define I2C_SCL_PIN                       PB6
-  #define I2C_SDA_PIN                       PB7
+  #define I2C_SCL_PIN                       SCL
+  #define I2C_SDA_PIN                       SDA
   #undef NO_EEPROM_SELECTED
 #endif
 
