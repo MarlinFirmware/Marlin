@@ -22,9 +22,11 @@
 
 /**
  * DWIN Print Stats page
- * Author: Miguel A. Risco-Castillo
- * Version: 1.0
- * Date: 2021/11/21
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 1.1
+ * Date: 2022/01/09
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../../../inc/MarlinConfigPre.h"

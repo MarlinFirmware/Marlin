@@ -165,9 +165,9 @@ extern "C" {
 
 // Timer Definitions
 // Do not use timer used by PWM pin. See PinMap_PWM.
-#define TIMER_TONE              TIM6
-#define TIMER_SERVO             TIM5
-#define TIMER_SERIAL            TIM7
+#define TIMER_TONE              TIM6  // TIMER_TONE must be defined in this file
+#define TIMER_SERVO             TIM5  // TIMER_SERVO must be defined in this file
+#define TIMER_SERIAL            TIM7  // TIMER_SERIAL must be defined in this file
 
 // UART Definitions
 //#define SERIAL_UART_INSTANCE    1 // Connected to EXP3 header
