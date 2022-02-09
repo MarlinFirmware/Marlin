@@ -2324,21 +2324,21 @@
 /**
  * Priority command execution
  *
- * When interacting using an attached Marlin LCD display, changes such as babystepping and feed rates
- * will take effect nearly instantly. However, those same changes via serial host will be queued and may
- * be delayed significantly, even after the job has completely finished, because of queuing and buffering.
+ * When interacting using an attached Marlin LCD display, changes such as babystepping and feedrates
+ * will take effect nearly instantly. However, those same changes via serial host are enqueued by design
+ * and may be delayed by up to BUFSIZE commands.
  *
- * The following allows you to bypass the queue for certain time-sensitive commands, executing them immediately.
+ * The following options will bypass the queue for certain time-sensitive commands, executing them immediately.
  *
- * These settings respect the M400 (finish move) command, so if they proceed immediately after an M400, they'll
- * be added to the end of the queue as usual.
+ * These settings sort of respect M400 (finish move). If they immediately follow M400, they're added to the
+ * end of the queue in the normal way.
  */
-#define PRIORITY_FEEDRATE_CHANGES // M220 feed rate adjustments are processed immediately instead of queued.
-#define PRIORITY_BABYSTEPPING     // M290 babystepping is processed immediately instead of queued.
+#define PRIORITY_FEEDRATE_CHANGES // M220 feed rate adjustments will be processed immediately.
+#define PRIORITY_BABYSTEPPING     // M290 babystepping commands will be processed immediately.
 
-// Space-separated list of g-code commands which will bypass the queue and execute immediately
+// Space-separated list of G-code commands that will bypass the queue and execute immediately.
 // Example: "M500 M25 M125"
-// #define PRIORITY_COMMANDS "" // Case sensitive, even if GCODE_CASE_INSENSITIVE is set
+//#define PRIORITY_COMMANDS "M500 M25 M125" // Always use uppercase, even with GCODE_CASE_INSENSITIVE
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.

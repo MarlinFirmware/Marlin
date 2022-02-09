@@ -1124,8 +1124,8 @@ void GcodeSuite::process_next_command() {
  * Run a series of commands, bypassing the command queue to allow
  * G-code "macros" to be called from within other G-code handlers.
  */
-void GcodeSuite::process_subcommands_now(FSTR_P fgcode, bool no_ok) {
-  PGM_P pgcode           = FTOP(fgcode);
+void GcodeSuite::process_subcommands_now(FSTR_P fgcode, const bool no_ok/*=true*/) {
+  PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
@@ -1143,7 +1143,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode, bool no_ok) {
 
 #pragma GCC diagnostic pop
 
-void GcodeSuite::process_subcommands_now(char *gcode, bool no_ok) {
+void GcodeSuite::process_subcommands_now(char *gcode, const bool no_ok/*=true*/) {
   char *const saved_cmd = parser.command_ptr; // Save the parser state
   for (;;) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
