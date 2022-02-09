@@ -155,7 +155,7 @@ void GcodeSuite::G35() {
 
   // Restore the active tool after homing
   #if HAS_MULTI_HOTEND
-    tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
+    if (old_tool_index != 0) tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
   #endif
 
   #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
