@@ -54,6 +54,10 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 #include "../module/temperature.h"
 #include "../core/serial.h"
 
+#if HOMING_Z_WITH_PROBE
+  #include "../module/probe.h"
+#endif
+
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
 #endif
@@ -178,7 +182,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.valid_foot = info.valid_head;
 
     // Machine state
-    info.current_position = current_position;
+    // info.sdpos and info.current_position are pre-filled from the Stepper ISR
+
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
@@ -265,6 +270,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   #endif
 
+#endif // POWER_LOSS_PIN
+
+#if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+
   /**
    * An outage was detected by a sensor pin.
    *  - If not SD printing, let the machine turn off on its own with no "KILL" screen
@@ -273,7 +282,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
    *  - If backup power is available Retract E and Raise Z
    *  - Go to the KILL screen
    */
-  void PrintJobRecovery::_outage() {
+  void PrintJobRecovery::_outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated/*=false*/)) {
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
       if (lock) return; // No re-entrance from idle() during retract_and_lift()
@@ -301,10 +310,16 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       retract_and_lift(zraise);
     #endif
 
-    kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
+    if (TERN0(DEBUG_POWER_LOSS_RECOVERY, simulated)) {
+      card.fileHasFinished();
+      current_position.reset();
+      sync_plan_position();
+    }
+    else
+      kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
   }
 
-#endif
+#endif // POWER_LOSS_PIN || DEBUG_POWER_LOSS_RECOVERY
 
 /**
  * Save the recovery info the recovery file
@@ -390,14 +405,12 @@ void PrintJobRecovery::resume() {
 
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
       #define HOMING_Z_DOWN 1
-    #else
-      #define HOME_XY_ONLY 1
     #endif
 
     float z_now = info.flag.raised ? z_raised : z_print;
 
-    // Reset E to 0 and set Z to the real position
-    #if HOME_XY_ONLY
+    #if !HOMING_Z_DOWN
+      // Set Z to the real position
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     #endif
@@ -409,15 +422,15 @@ void PrintJobRecovery::resume() {
       gcode.process_subcommands_now(cmd);
     }
 
-    // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
-    gcode.process_subcommands_now(F("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
+    // Home XY with no Z raise
+    gcode.process_subcommands_now(F("G28R0XY")); // No raise during G28
 
   #endif
 
   #if HOMING_Z_DOWN
     // Move to a safe XY position and home Z while avoiding the print.
-    constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
-    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
+    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) TERN_(HOMING_Z_WITH_PROBE, - probe.offset_xy);
+    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28HZ"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -431,7 +444,7 @@ void PrintJobRecovery::resume() {
     sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
     gcode.process_subcommands_now(cmd);
 
-    #if HOME_XY_ONLY
+    #if !HOMING_Z_DOWN
       // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
@@ -513,12 +526,12 @@ void PrintJobRecovery::resume() {
 
   // Un-retract if there was a retract at outage
   #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    gcode.process_subcommands_now(F("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
+    gcode.process_subcommands_now(F("G1F3000E" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
   #endif
 
   // Additional purge on resume if configured
   #if POWER_LOSS_PURGE_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
+    sprintf_P(cmd, PSTR("G1F3000E%d"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
   #endif
 
