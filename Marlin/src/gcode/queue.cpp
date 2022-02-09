@@ -558,21 +558,18 @@ void GCodeQueue::get_serial_commands() {
             #ifdef PRIORITY_COMMANDS
               // Process matching commands immediately, unless preceded by an M400 (finish moves) command
               if (strlen(PRIORITY_COMMANDS) > 0) {
-                if (!strstr_P(ring_buffer.last_queued_command(), PSTR("M400"))) {
-                  char *pc_token;
-                  char pc_list[strlen(PRIORITY_COMMANDS) + 1] = PRIORITY_COMMANDS;
-                  bool pc_token_found = false, pc_is_first_token = true;
-                  while ((pc_token = strtok((pc_is_first_token) ? pc_list : NULL, " "))) {
-                    pc_is_first_token = false;
-                    if (!!strstr(command, pc_token)) {
-                      DEBUG_ECHOLNPGM("Priority command found: ", pc_token, ", executing ", command);
-                      gcode.process_subcommands_now(command, false);
-                      pc_token_found = true;
-                      break;
-                    }
+                char pc_list[strlen(PRIORITY_COMMANDS) + 1] = PRIORITY_COMMANDS;
+                bool pc_token_found = false, pc_is_first_token = true;
+                while (char * const pc_token = strtok(pc_is_first_token ? pc_list : nullptr, " ")) {
+                  pc_is_first_token = false;
+                  if (!!strstr(command, pc_token)) {
+                    DEBUG_ECHOLNPGM("Priority command found: ", pc_token, ", executing ", command);
+                    gcode.process_subcommands_now(command, false);
+                    pc_token_found = true;
+                    break;
                   }
-                  if (pc_token_found) break;
                 }
+                if (pc_token_found) break;
               }
             #endif
 
