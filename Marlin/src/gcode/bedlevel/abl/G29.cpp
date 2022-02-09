@@ -93,6 +93,10 @@ public:
   bool      dryrun,
             reenable;
 
+  #if HAS_MULTI_HOTEND
+    uint8_t tool_index;
+  #endif
+
   #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
     int abl_probe_index;
   #endif
@@ -264,8 +268,8 @@ G29_TYPE GcodeSuite::G29() {
   if (!g29_in_progress) {
 
     #if HAS_MULTI_HOTEND
-      const uint8_t old_active_extruder = active_extruder;
-      if (active_extruder) tool_change(0);
+      abl.tool_index = active_extruder;
+      if (active_extruder != 0) tool_change(0, true);
     #endif
 
     #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
@@ -454,8 +458,6 @@ G29_TYPE GcodeSuite::G29() {
         abl.reenable = false;
       }
     #endif // AUTO_BED_LEVELING_BILINEAR
-
-    TERN_(HAS_MULTI_HOTEND, if (old_active_extruder != 0) tool_change(old_active_extruder));
 
   } // !g29_in_progress
 
@@ -895,6 +897,8 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedLeveling());
+
+  TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
 
   report_current_position();
 
