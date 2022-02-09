@@ -137,7 +137,7 @@
       constexpr xy_float_t okay_homing_xy = safe_homing_xy;
     #endif
 
-    destination.set(okay_homing_xy, current_position.z);
+    destination.set(okay_homing_xy.x, okay_homing_xy.y, current_position.z);
 
     TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
