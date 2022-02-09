@@ -409,8 +409,8 @@ void PrintJobRecovery::resume() {
 
     float z_now = info.flag.raised ? z_raised : z_print;
 
-    // Reset E to 0 and set Z to the real position
     #if !HOMING_Z_DOWN
+      // Set Z to the real position
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     #endif
