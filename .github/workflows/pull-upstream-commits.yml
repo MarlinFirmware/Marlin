@@ -27,7 +27,7 @@ jobs:
     # REQUIRED step
     # Step 2: run the sync action
     - name: Sync 2.0.x changes with A8
-      id: sync
+      id: sync-A8
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
       with:
         target_sync_branch: Anet-A8
@@ -39,7 +39,7 @@ jobs:
     # REQUIRED step
     # Step 3: run the sync action
     - name: Sync 2.0.x changes with STM32_Testing
-      id: sync
+      id: sync-STM32_Testing
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
       with:
         target_sync_branch: STM32_Testing
