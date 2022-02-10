@@ -201,6 +201,8 @@
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 #elif MB(LONGER3D_LK1_PRO, LONGER3D_LKx_PRO)
   #include "ramps/pins_LONGER3D_LKx_PRO.h"      // ATmega2560                             env:mega2560
+#elif MB(PXMALION_CORE_I3)
+  #include "ramps/pins_PXMALION_CORE_I3.h"      // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
