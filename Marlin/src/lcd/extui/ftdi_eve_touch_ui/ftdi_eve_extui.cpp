@@ -147,7 +147,6 @@ namespace ExtUI {
         case PID_DONE:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
           break;
-        case PID_STARTED: break;
       }
       GOTO_SCREEN(StatusScreen);
     }

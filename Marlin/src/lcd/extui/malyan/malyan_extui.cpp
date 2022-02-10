@@ -123,7 +123,6 @@ namespace ExtUI {
         case PID_DONE:
           set_lcd_error(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
           break;
-        case PID_STARTED: break;
       }
     }
 

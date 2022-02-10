@@ -150,7 +150,6 @@ namespace ExtUI {
         case PID_DONE:
           ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
-        case PID_STARTED: break;
       }
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
