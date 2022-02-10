@@ -22,9 +22,11 @@
 
 /**
  * DWIN End Stops diagnostic page
- * Author: Miguel A. Risco-Castillo
- * Version: 1.0
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 1.0.2
  * Date: 2021/11/06
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -106,4 +108,4 @@ void ESDiagClass::Update() {
   DWIN_UpdateLCD();
 }
 
-#endif // DWIN_CREALITY_LCD_ENHANCED && HAS_MESH
+#endif // DWIN_CREALITY_LCD_ENHANCED && HAS_ESDIAG

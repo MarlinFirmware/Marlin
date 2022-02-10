@@ -107,8 +107,8 @@ extern "C" {
 // TIM9  - STEP_TIMER
 // TIM10 - TEMP_TIMER
 // TIM11 -
-#define TIMER_SERVO             TIM2
-#define TIMER_TONE              TIM5
+#define TIMER_SERVO             TIM2  // TIMER_SERVO must be defined in this file
+#define TIMER_TONE              TIM5  // TIMER_TONE must be defined in this file
 
 // UART Definitions
 #define SERIAL_UART_INSTANCE    1

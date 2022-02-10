@@ -75,9 +75,13 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../lcd/e3v2/enhanced/dwin.h"
+  #include "../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../lcd/e3v2/jyersui/dwin.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
 #endif
 
 #if HAS_SERVOS
@@ -578,9 +582,6 @@ void MarlinSettings::postprocess() {
     update_software_endstops((AxisEnum)i);
   }
 
-  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
-  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
-
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
   TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
@@ -602,6 +603,10 @@ void MarlinSettings::postprocess() {
   // Various factors can change the current position
   if (oldpos != current_position)
     report_current_position();
+
+  // Moved as last update due to interference with Neopixel init
+  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
+  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
 }
 
 #if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
@@ -650,6 +655,10 @@ void MarlinSettings::postprocess() {
 //
 #define DEBUG_OUT EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
+
+#if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+  #define HOST_EEPROM_CHITCHAT 1
+#endif
 
 #if ENABLED(EEPROM_SETTINGS)
 
@@ -1553,7 +1562,10 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
-    if (!eeprom_error) LCD_MESSAGE(MSG_SETTINGS_STORED);
+    if (!eeprom_error) {
+      LCD_MESSAGE(MSG_SETTINGS_STORED);
+      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
+    }
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
 
@@ -1577,6 +1589,7 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_VERSION)));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
@@ -2467,12 +2480,14 @@ void MarlinSettings::postprocess() {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
+        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
         DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -2782,7 +2797,6 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
   TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_SetDataDefaults());
   TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
@@ -3027,7 +3041,7 @@ void MarlinSettings::reset() {
   //
   // LCD Brightness
   //
-  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = DEFAULT_LCD_BRIGHTNESS);
+  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
 
   //
   // Controller Fan
@@ -3141,7 +3155,11 @@ void MarlinSettings::reset() {
 
   postprocess();
 
-  DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
+  FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
+  TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
+  DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)

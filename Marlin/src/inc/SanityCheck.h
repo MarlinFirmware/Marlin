@@ -607,12 +607,8 @@
   #error "LCD_SCREEN_ROT_180 is now LCD_SCREEN_ROTATE with a value of 180."
 #elif defined(LCD_SCREEN_ROT_270)
   #error "LCD_SCREEN_ROT_270 is now LCD_SCREEN_ROTATE with a value of 270."
-#endif
-
-#if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
-  #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
-#elif MB(BTT_SKR_E3_TURBO) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
-  #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#elif defined(DEFAULT_LCD_BRIGHTNESS)
+  #error "DEFAULT_LCD_BRIGHTNESS is now LCD_BRIGHTNESS_DEFAULT."
 #endif
 
 constexpr float arm[] = AXIS_RELATIVE_MODES;
@@ -1224,14 +1220,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "For MIXING_EXTRUDER set MIXING_STEPPERS > 1 instead of EXTRUDERS > 1."
   #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
-  #elif ENABLED(FILAMENT_SENSOR)
-    #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #elif ENABLED(FILAMENT_WIDTH_SENSOR)
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_WIDTH_SENSOR. Comment out this line to use it anyway."
   #elif ENABLED(SWITCHING_EXTRUDER)
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
   #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
     #error "MIXING_EXTRUDER is incompatible with DISABLE_INACTIVE_EXTRUDER."
+  #elif HAS_FILAMENT_RUNOUT_DISTANCE
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_RUNOUT_DISTANCE_MM."
   #endif
 #endif
 
@@ -2018,7 +2016,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if CONTROLLER_FAN_PIN == FAN_PIN
     #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
   #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
-    #error "FAN_SOFT_PWM is required. Enable it to continue."
+    #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
   #endif
 #endif
 
@@ -2294,6 +2292,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "CONTROLLER_FAN_MIN_BOARD_TEMP requires TEMP_SENSOR_BOARD."
 #endif
 
+#if TEMP_SENSOR_BOARD && !PIN_EXISTS(TEMP_BOARD)
+  #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
+#endif
+
 #if ENABLED(LASER_COOLANT_FLOW_METER) && !(PIN_EXISTS(FLOWMETER) && ENABLED(LASER_FEATURE))
   #error "LASER_COOLANT_FLOW_METER requires FLOWMETER_PIN and LASER_FEATURE."
 #endif
@@ -2330,17 +2332,31 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * LED Control Menu
+ * FYSETC LCD Requirements
  */
-#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
-  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9533, PCA9632, or NEOPIXEL_LED."
+#if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
+  #ifndef NEO_RGB
+    #define NEO_RGB 123
+    #define FAUX_RGB 1
+  #endif
+  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
+    #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
+  #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
+    #error "Your FYSETC Mini Panel requires NEOPIXEL_PIXELS >= 3."
+  #endif
+  #if FAUX_RGB
+    #undef NEO_RGB
+    #undef FAUX_RGB
+  #endif
+#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && !DISABLED(RGB_LED)
+  #error "Your FYSETC Mini Panel requires RGB_LED."
 #endif
 
 /**
- * LED Backlight Timeout
+ * LED Control Menu requirements
  */
-#if defined(LED_BACKLIGHT_TIMEOUT) && !(ENABLED(PSU_CONTROL) && ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864))
-  #error "LED_BACKLIGHT_TIMEOUT requires a FYSETC Mini Panel and a Power Switch."
+#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
+  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9533, PCA9632, or NEOPIXEL_LED."
 #endif
 
 /**
@@ -2884,15 +2900,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * FYSETC Mini 12864 RGB backlighting required
- */
-#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
-  #error "RGB_LED is required for FYSETC_MINI_12864 1.2 and 2.0."
-#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
-  #error "LED_USER_PRESET_STARTUP is required for FYSETC_MINI_12864 2.x displays."
-#endif
-
-/**
  * Check existing CS pins against enabled TMC SPI drivers.
  */
 #define INVALID_TMC_SPI(ST) (AXIS_HAS_SPI(ST) && !PIN_EXISTS(ST##_CS))
@@ -3411,8 +3418,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "A very large BLOCK_BUFFER_SIZE is not needed and takes longer to drain the buffer on pause / cancel."
 #endif
 
-#if ENABLED(LED_CONTROL_MENU) && !IS_ULTIPANEL
-  #error "LED_CONTROL_MENU requires an LCD controller."
+#if ENABLED(LED_CONTROL_MENU) && NONE(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD_ENHANCED)
+  #error "LED_CONTROL_MENU requires an LCD controller that implements the menu."
 #endif
 
 #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) && DISABLED(NEOPIXEL_LED)
@@ -3440,8 +3447,6 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #if ENABLED(POWER_LOSS_RECOVERY)
   #if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
     #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
-  #elif BOTH(POWER_LOSS_RECOVER_ZHOME, Z_SAFE_HOMING)
-    #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
   #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
     #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
   #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MAX

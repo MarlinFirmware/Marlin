@@ -412,14 +412,16 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#ifndef E_MUX0_PIN
-  #define E_MUX0_PIN                          40  // Z_CS_PIN
-#endif
-#ifndef E_MUX1_PIN
-  #define E_MUX1_PIN                          42  // E0_CS_PIN
-#endif
-#ifndef E_MUX2_PIN
-  #define E_MUX2_PIN                          44  // E1_CS_PIN
+#if HAS_PRUSA_MMU1
+  #ifndef E_MUX0_PIN
+    #define E_MUX0_PIN                        40  // Z_CS_PIN
+  #endif
+  #ifndef E_MUX1_PIN
+    #define E_MUX1_PIN                        42  // E0_CS_PIN
+  #endif
+  #ifndef E_MUX2_PIN
+    #define E_MUX2_PIN                        44  // E1_CS_PIN
+  #endif
 #endif
 
 //

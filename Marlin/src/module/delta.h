@@ -82,6 +82,8 @@ void inverse_kinematics(const xyz_pos_t &raw);
  */
 float delta_safe_distance_from_top();
 
+void refresh_delta_clip_start_height();
+
 /**
  * Delta Forward Kinematics
  *

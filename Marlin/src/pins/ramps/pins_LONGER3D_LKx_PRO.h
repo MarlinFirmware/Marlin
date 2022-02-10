@@ -105,7 +105,9 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX2_PIN                            -1
+#if HAS_PRUSA_MMU1
+  #define E_MUX2_PIN                          -1
+#endif
 
 //
 // Misc. Functions
