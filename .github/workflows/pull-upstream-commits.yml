@@ -30,7 +30,7 @@ jobs:
       id: sync-A8
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
       with:
-        target_sync_branch: Anet-A8
+        target_sync_branch: "Anet-A8"
         # REQUIRED 'target_repo_token' exactly like this!
         target_repo_token: ${{ secrets.GITHUB_TOKEN }}
         upstream_sync_branch: 2.0.x
@@ -42,7 +42,7 @@ jobs:
       id: sync-STM32_Testing
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
       with:
-        target_sync_branch: STM32_Testing
+        target_sync_branch: "STM32_Testing"
         # REQUIRED 'target_repo_token' exactly like this!
         target_repo_token: ${{ secrets.GITHUB_TOKEN }}
         upstream_sync_branch: 2.0.x
