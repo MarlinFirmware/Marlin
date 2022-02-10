@@ -76,14 +76,12 @@
 
     const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
-    const float speed_ratio = homing_feedrate(X_AXIS) / homing_feedrate(Y_AXIS);
-    const float speed_ratio_inv = homing_feedrate(Y_AXIS) / homing_feedrate(X_AXIS);
-    const float length_ratio = max_length(X_AXIS) / max_length(Y_AXIS);
-    const bool length_r_less_than_speed_r = length_ratio < speed_ratio;
-
-    const float mlx = length_r_less_than_speed_r ? (max_length(Y_AXIS) * speed_ratio) : (max_length(X_AXIS));
-    const float mly = length_r_less_than_speed_r ? (max_length(Y_AXIS)) : (max_length(X_AXIS) * speed_ratio_inv);
-    const float fr_mm_s = SQRT(sq(homing_feedrate(X_AXIS)) + sq(homing_feedrate(Y_AXIS)));
+    const float hfx = homing_feedrate(X_AXIS), hfy = homing_feedrate(Y_AXIS),
+                r_xy = hfx / hfy, r_yx = hfy / hfx,
+                r_length = max_length(X_AXIS) / max_length(Y_AXIS),
+                mlx = r_length < r_xy ? max_length(Y_AXIS) * r_xy : max_length(X_AXIS),
+                mly = r_length > r_xy ? max_length(X_AXIS) * r_yx : max_length(Y_AXIS),
+                fr_mm_s = HYPOT(hfx, hfy);
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
