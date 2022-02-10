@@ -543,9 +543,10 @@ struct XYZEval {
   FI void set(const XYZval<T> pxyz)   { set(LINEAR_AXIS_ELEM(pxyz)); }
   #if HAS_Z_AXIS
     FI void set(LINEAR_AXIS_ARGS(const T))         { LINEAR_AXIS_CODE(a = x, b = y, c = z, u = i, v = j, w = k); }
+    FI void set(const XYval<T> pxy, const T pz)    { set(pxy); z = pz; }
   #endif
   #if LOGICAL_AXES > LINEAR_AXES
-    FI void set(const XYval<T> pxy, const T pe)    { set(pxy); e = pe; }
+    FI void set(const XYval<T> pxy, const T pz, const T pe) { set(pxy, pz); e = pe; }
     FI void set(const XYZval<T> pxyz, const T pe)  { set(pxyz); e = pe; }
     FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, u = i, v = j, w = k); }
   #endif
