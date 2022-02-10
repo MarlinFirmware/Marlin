@@ -21,7 +21,7 @@
  */
 
 /**
- * Pxmalion Core i3
+ * Pxmalion Core i3 - https://github.com/Pxmalion
  */
 
 #include "env_validate.h"
