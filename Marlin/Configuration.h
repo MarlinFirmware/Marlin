@@ -1750,7 +1750,7 @@
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)  // X point for Z homing
-  #define Z_SAFE_HOMING_X_POINT ((y_BED_SIZE) / 2)  // Y point for Z homing
+  #define Z_SAFE_HOMING_X_POINT ((Y_BED_SIZE) / 2)  // Y point for Z homing
 #endif
 
 // Homing speeds (mm/min)
