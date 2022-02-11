@@ -3,45 +3,29 @@ name: 'Upstream Sync'
 on:
   schedule:
     - cron:  '0 0 * * *'
-    # scheduled at 07:00 every Monday and Thursday
+    # scheduled at 00:00 everyday
 
   workflow_dispatch:  # click the button on Github repo!
 
 jobs:
-  sync_latest_from_upstream:
+  sync_A8_with_upstream:
     runs-on: ubuntu-latest
-    name: Sync latest commits from Marlin repo
+    name: Sync Anet A8 Branch
 
     steps:
-    # REQUIRED step
     # Step 1: run a standard checkout action, provided by github
-    - name: Checkout target repo
+    - name: Checkout HEAD
       uses: actions/checkout@v2
       with:
-        # optional: set the branch to checkout,
-        # sync action checks out your 'target_sync_branch' anyway
         ref: Anet-A8
 
-    # REQUIRED step
-    # Step 2: run the sync action
-    - name: Sync 2.0.x changes with A8
-      id: sync-A8
-      uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
+    # Step 2: run this sync action - specify the upstream repo, upstream branch to sync with, and target sync branch
+    - name: Pull upstream changes
+      id: sync
+      uses: bdougie/Fork-Sync-With-Upstream-action@fork
       with:
-        upstream_sync_branch: 2.0.x
-        upstream_sync_repo: MarlinFirmware/Marlin
-
-    # Step 3: Display a sample message based on the sync output var 'has_new_commits'
-    - name: New commits found
-      if: steps.sync.outputs.has_new_commits == 'true'
-      run: echo "New commits were found to sync."
-
-    - name: No new commits
-      if: steps.sync.outputs.has_new_commits == 'false'
-      run: echo "There were no new commits."
-
-    - name: Show value of 'has_new_commits'
-      run: echo ${{ steps.sync.outputs.has_new_commits }}
+        upstream_repository: MarlinFirmware/Marlin
+        upstream_branch: 2.0.x
 
     - name: Timestamp
       run: date
