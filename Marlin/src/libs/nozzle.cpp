@@ -254,6 +254,9 @@ Nozzle nozzle;
         break;
     }
 
+    #ifndef NOZZLE_PARK_MOVE
+      #define NOZZLE_PARK_MOVE 0
+    #endif
     switch (NOZZLE_PARK_MOVE) {
       case 0: do_blocking_move_to_xy(park, fr_xy); break;
       case 1: do_blocking_move_to_x(park.x, fr_xy); break;
