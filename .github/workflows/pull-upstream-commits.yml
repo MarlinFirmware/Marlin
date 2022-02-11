@@ -28,8 +28,5 @@ jobs:
         upstream_sync_branch: 2.0.x
         upstream_sync_repo: MarlinFirmware/Marlin
 
-        # Set test_mode true to run tests instead of the true action!!
-        test_mode: true
-
     - name: Timestamp
       run: date
