@@ -254,19 +254,15 @@ Nozzle nozzle;
         break;
     }
 
-	#if NOZZLE_PARK_MOVE == 0
-	  do_blocking_move_to_xy(park.x, park.y, fr_xy);
-	#elif NOZZLE_PARK_MOVE == 1
-	  do_blocking_move_to_x(park.x, fr_xy);
-	#elif NOZZLE_PARK_MOVE == 2
-	  do_blocking_move_to_y(park.y, fr_xy);
-	#elif NOZZLE_PARK_MOVE == 3
-	  do_blocking_move_to_x(park.x, fr_xy);
-	  do_blocking_move_to_y(park.y, fr_xy);
-	#elif NOZZLE_PARK_MOVE == 4
-	  do_blocking_move_to_y(park.y, fr_xy);
-	  do_blocking_move_to_x(park.x, fr_xy);
-	#endif
+    switch (NOZZLE_PARK_MOVE) {
+      case 0: do_blocking_move_to_xy(park, fr_xy); break;
+      case 1: do_blocking_move_to_x(park.x, fr_xy); break;
+      case 2: do_blocking_move_to_y(park.y, fr_xy); break;
+      case 3: do_blocking_move_to_x(park.x, fr_xy);
+              do_blocking_move_to_y(park.y, fr_xy); break;
+      case 4: do_blocking_move_to_y(park.y, fr_xy); 
+              do_blocking_move_to_x(park.x, fr_xy); break;
+    }
 
     report_current_position();
   }
