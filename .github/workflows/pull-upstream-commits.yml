@@ -8,25 +8,28 @@ on:
   workflow_dispatch:  # click the button on Github repo!
 
 jobs:
-  sync_A8_with_upstream:
+  sync_with_upstream:
     runs-on: ubuntu-latest
-    name: Sync Anet A8 Branch
+    name: Sync Anet A8 with upstream
 
     steps:
-    # Step 1: run a standard checkout action, provided by github
-    - name: Checkout HEAD
+    - name: Checkout master
       uses: actions/checkout@v2
       with:
         ref: Anet-A8
 
-    # Step 2: run this sync action - specify the upstream repo, upstream branch to sync with, and target sync branch
     - name: Pull upstream changes
       id: sync
-      uses: bdougie/Fork-Sync-With-Upstream-action@fork
+      uses: aormsby/Fork-Sync-With-Upstream-action@v3.1
       with:
-        upstream_repository: MarlinFirmware/Marlin
-        upstream_branch: 2.0.x
-        target_branch: Anet-A8
+        target_sync_branch: Anet-A8
+        # REQUIRED 'target_repo_token' exactly like this!
+        target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+        upstream_sync_branch: 2.0.x
+        upstream_sync_repo: MarlinFirmware/Marlin
+
+        # Set test_mode true to run tests instead of the true action!!
+        test_mode: true
 
     - name: Timestamp
       run: date
