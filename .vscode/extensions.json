@@ -4,5 +4,8 @@
     "recommendations": [
         "marlinfirmware.auto-build",
         "platformio.platformio-ide"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.cpptools-extension-pack"
     ]
 }
