@@ -211,7 +211,9 @@ void HAL_adc_init() {
   TERN_(HAS_TEMP_ADC_7, adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
   TERN_(HAS_HEATED_BED, adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_CHAMBER, adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_PROBE, adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_COOLER, adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_BOARD, adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
   TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
@@ -276,7 +278,7 @@ void analogWrite(pin_t pin, int value) {
     idx = numPWMUsed;
     pwmPins[idx] = pin;
     // Start timer on first use
-    if (idx == 0) HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
+    if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
 
     ++numPWMUsed;
   }
@@ -287,7 +289,7 @@ void analogWrite(pin_t pin, int value) {
 
 // Handle PWM timer interrupt
 HAL_PWM_TIMER_ISR() {
-  HAL_timer_isr_prologue(PWM_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_PWM);
 
   static uint8_t count = 0;
 
@@ -301,7 +303,7 @@ HAL_PWM_TIMER_ISR() {
   // 128 for 7 Bit resolution
   count = (count + 1) & 0x7F;
 
-  HAL_timer_isr_epilogue(PWM_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_PWM);
 }
 
 #endif // ARDUINO_ARCH_ESP32

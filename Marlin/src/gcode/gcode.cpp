@@ -65,6 +65,10 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
+#endif
+
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
@@ -144,6 +148,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   const int8_t e = parser.intval('T', dval);
   if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
+  if (dval == -2) return dval;
 
   SERIAL_ECHO_START();
   SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
@@ -155,7 +160,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 }
 
 /**
- * Set XYZIJKE destination and feedrate from the current GCode command
+ * Set XYZ...E destination and feedrate from the current GCode command
  *
  *  - Set destination from included axis codes
  *  - Set to current for missing axis codes
@@ -296,6 +301,8 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
+  TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
+
   KEEPALIVE_STATE(IN_HANDLER);
 
  /**
@@ -575,6 +582,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
         case 113: M113(); break;                                  // M113: Set Host Keepalive interval
+      #endif
+
+      #if HAS_FANCHECK
+        case 123: M123(); break;                                  // M123: Report fan states or set fans auto-report interval
       #endif
 
       #if HAS_HEATED_BED
@@ -960,6 +971,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if USE_SENSORLESS
           case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
         #endif
+        case 919: M919(); break;                                  // M919: Set stepper Chopper Times
       #endif
 
       #if HAS_L64XX
@@ -1042,6 +1054,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
+      #endif
+
+      #if ENABLED(HAS_MCP3426_ADC)
+        case 3426: M3426(); break;                                // M3426: Read MCP3426 ADC (over i2c)
       #endif
 
       default: parser.unknown_command_warning(); break;

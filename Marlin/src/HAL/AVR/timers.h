@@ -34,14 +34,14 @@ typedef uint16_t hal_timer_t;
 
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
 
-#ifndef STEP_TIMER_NUM
-  #define STEP_TIMER_NUM        1
+#ifndef MF_TIMER_STEP
+  #define MF_TIMER_STEP         1
 #endif
-#ifndef PULSE_TIMER_NUM
-  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#ifndef MF_TIMER_PULSE
+  #define MF_TIMER_PULSE        MF_TIMER_STEP
 #endif
-#ifndef TEMP_TIMER_NUM
-  #define TEMP_TIMER_NUM        0
+#ifndef MF_TIMER_TEMP
+  #define MF_TIMER_TEMP         0
 #endif
 
 #define TEMP_TIMER_FREQUENCY    ((F_CPU) / 64.0 / 256.0)
@@ -58,13 +58,13 @@ typedef uint16_t hal_timer_t;
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
 #define STEPPER_ISR_ENABLED()             TEST(TIMSK1, OCIE1A)
 
-#define ENABLE_TEMPERATURE_INTERRUPT()     SBI(TIMSK0, OCIE0B)
-#define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0B)
-#define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0B)
+#define ENABLE_TEMPERATURE_INTERRUPT()     SBI(TIMSK0, OCIE0A)
+#define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0A)
+#define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0A)
 
 FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
   switch (timer_num) {
-    case STEP_TIMER_NUM:
+    case MF_TIMER_STEP:
       // waveform generation = 0100 = CTC
       SET_WGM(1, CTC_OCRnA);
 
@@ -84,10 +84,10 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
       TCNT1 = 0;
       break;
 
-    case TEMP_TIMER_NUM:
+    case MF_TIMER_TEMP:
       // Use timer0 for temperature measurement
       // Interleave temperature interrupt with millies interrupt
-      OCR0B = 128;
+      OCR0A = 128;
       break;
   }
 }
@@ -109,8 +109,8 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
  * (otherwise, characters will be lost due to UART overflow).
  * Then: Stepper, Endstops, Temperature, and -finally- all others.
  */
-#define HAL_timer_isr_prologue(TIMER_NUM)
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_prologue(T)
+#define HAL_timer_isr_epilogue(T)
 
 /* 18 cycles maximum latency */
 #ifndef HAL_STEP_TIMER_ISR
@@ -180,7 +180,7 @@ void TIMER1_COMPA_vect() { \
     :                                   \
     : [timsk0] "i" ((uint16_t)&TIMSK0), \
       [timsk1] "i" ((uint16_t)&TIMSK1), \
-      [msk0] "M" ((uint8_t)(1<<OCIE0B)),\
+      [msk0] "M" ((uint8_t)(1<<OCIE0A)),\
       [msk1] "M" ((uint8_t)(1<<OCIE1A)) \
     : \
   ); \
@@ -193,9 +193,9 @@ void TIMER1_COMPA_vect_bottom()
 
 /* 14 cycles maximum latency */
 #define HAL_TEMP_TIMER_ISR() \
-extern "C" void TIMER0_COMPB_vect() __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER0_COMPB_vect_bottom()  asm ("TIMER0_COMPB_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER0_COMPB_vect() { \
+extern "C" void TIMER0_COMPA_vect() __attribute__ ((signal, naked, used, externally_visible)); \
+extern "C" void TIMER0_COMPA_vect_bottom()  asm ("TIMER0_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
+void TIMER0_COMPA_vect() { \
   __asm__ __volatile__ ( \
     A("push r16")                       /* 2 Save R16 */ \
     A("in r16, __SREG__")               /* 1 Get SREG */ \
@@ -223,7 +223,7 @@ void TIMER0_COMPB_vect() { \
     A("push r30")                       \
     A("push r31")                       \
     A("clr r1")                         /* C runtime expects this register to be 0 */ \
-    A("call TIMER0_COMPB_vect_bottom")  /* Call the bottom handler - No inlining allowed, otherwise registers used are not saved */   \
+    A("call TIMER0_COMPA_vect_bottom")  /* Call the bottom handler - No inlining allowed, otherwise registers used are not saved */   \
     A("pop r31")                        \
     A("pop r30")                        \
     A("pop r27")                        \
@@ -251,10 +251,10 @@ void TIMER0_COMPB_vect() { \
     A("reti")                           /* 4 Return from interrupt */ \
     :                                   \
     : [timsk0] "i"((uint16_t)&TIMSK0),  \
-      [msk0] "M" ((uint8_t)(1<<OCIE0B)) \
+      [msk0] "M" ((uint8_t)(1<<OCIE0A)) \
     : \
   ); \
 } \
-void TIMER0_COMPB_vect_bottom()
+void TIMER0_COMPA_vect_bottom()
 
 #endif // HAL_TEMP_TIMER_ISR

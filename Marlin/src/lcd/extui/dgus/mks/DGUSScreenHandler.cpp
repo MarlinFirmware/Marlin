@@ -48,7 +48,7 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  static ExtUI::FileList filelist;
+  extern ExtUI::FileList filelist;
 #endif
 
 bool DGUSAutoTurnOff = false;
@@ -65,7 +65,7 @@ void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t *line1, const uint1
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) {
+void DGUSScreenHandler::sendinfoscreen_en_mks(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
@@ -195,7 +195,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       case 0: { // Resume
 
         auto cs = getCurrentScreen();
-        if (runout_mks.runout_status != RUNOUT_WAITTING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
+        if (runout_mks.runout_status != RUNOUT_WAITING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
           if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
             GotoScreen(MKSLCD_SCREEN_PAUSE);
           return;
@@ -399,7 +399,7 @@ void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
   #if HAS_BED_PROBE
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
-    DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
+    DEBUG_ECHOLNPGM("\nget int6 offset >> ", value, 6);
   #endif
 
   switch (var.VP) {
@@ -756,7 +756,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (manualMoveStep == 0x02) manualMoveStep =  100;
   else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
-  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.length);
+  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.ring_buffer.length);
 
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
@@ -909,7 +909,7 @@ void DGUSScreenHandler::HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *
   DEBUG_ECHOLNPGM("HandleChangeLevelPoint_MKS");
 
   const int16_t value_raw = swap16(*(int16_t*)val_ptr);
-  DEBUG_ECHOLNPAIR_F("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
 
   *(int16_t*)var.memadr = value_raw;
 
@@ -924,7 +924,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -934,7 +934,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
     case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
   }
   ExtUI::setAxisSteps_per_mm(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -946,7 +946,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -959,7 +959,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
     #endif
   }
   ExtUI::setAxisSteps_per_mm(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -971,7 +971,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -981,7 +981,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
     default: return;
   }
   ExtUI::setAxisMaxFeedrate_mm_s(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -993,7 +993,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -1006,7 +1006,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
     case VP_E1_MAX_SPEED: extruder = ExtUI::extruder_t::E1; break;
   }
   ExtUI::setAxisMaxFeedrate_mm_s(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1018,7 +1018,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -1028,7 +1028,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
     case VP_Z_ACC_MAX_SPEED: axis = ExtUI::axis_t::Z;  break;
   }
   ExtUI::setAxisMaxAcceleration_mm_s2(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1049,9 +1049,9 @@ void DGUSScreenHandler::HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void 
       case VP_E1_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E1; settings.load(); break;
     #endif
   }
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisMaxAcceleration_mm_s2(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1115,7 +1115,7 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
         #endif
     }
 
-    DEBUG_ECHOLNPAIR_F("V3:", newvalue);
+    DEBUG_ECHOLNPGM("V3:", newvalue);
     *(float *)var.memadr = newvalue;
 
     settings.save();
@@ -1175,7 +1175,7 @@ void DGUSScreenHandler::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) 
 
   float value = (float)value_len;
 
-  DEBUG_ECHOLNPAIR_F("Get Filament len value:", value);
+  DEBUG_ECHOLNPGM("Get Filament len value:", value);
   distanceFilament = value;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1186,7 +1186,7 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
-  DEBUG_ECHOLNPAIR_F("filamentSpeed_mm_s value:", value_len);
+  DEBUG_ECHOLNPGM("filamentSpeed_mm_s value:", value_len);
 
   filamentSpeed_mm_s = value_len;
 
@@ -1459,7 +1459,7 @@ void DGUSScreenHandler::LanguagePInit() {
   }
 }
 
-void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
+void DGUSScreenHandler::DGUS_ExtrudeLoadInit() {
   ex_filament.ex_length           = distanceFilament;
   ex_filament.ex_load_unload_flag = 0;
   ex_filament.ex_need_time        = filamentSpeed_mm_s;
@@ -1469,7 +1469,7 @@ void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
   ex_filament.ex_tick_start       = 0;
 }
 
-void DGUSScreenHandler::DGUS_RunoutInit(void) {
+void DGUSScreenHandler::DGUS_RunoutInit() {
   #if PIN_EXISTS(MT_DET_1)
     SET_INPUT_PULLUP(MT_DET_1_PIN);
   #endif
@@ -1479,7 +1479,7 @@ void DGUSScreenHandler::DGUS_RunoutInit(void) {
   runout_mks.runout_status = UNRUNOUT_STATUS;
 }
 
-void DGUSScreenHandler::DGUS_Runout_Idle(void) {
+void DGUSScreenHandler::DGUS_Runout_Idle() {
   #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
     // scanf runout pin
     switch (runout_mks.runout_status) {
@@ -1501,10 +1501,10 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
 
       case RUNOUT_BEGIN_STATUS:
         if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
-          runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
+          runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
-      case RUNOUT_WAITTING_STATUS:
+      case RUNOUT_WAITING_STATUS:
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;

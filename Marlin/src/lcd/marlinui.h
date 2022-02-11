@@ -21,6 +21,7 @@
  */
 #pragma once
 
+#include "../sd/cardreader.h"
 #include "../module/motion.h"
 #include "buttons.h"
 
@@ -30,15 +31,11 @@
   #include "../libs/buzzer.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
-  #include "../sd/cardreader.h"
-#endif
-
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
+#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
 
@@ -54,14 +51,14 @@
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "e3v2/enhanced/dwin.h"
+  #include "e3v2/proui/dwin.h"
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
@@ -80,7 +77,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
 
     #include "lcdprint.h"
 
@@ -93,7 +90,7 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-  #endif // HAS_LCD_MENU
+  #endif // HAS_MARLINUI_MENU
 
 #endif // HAS_WIRED_LCD
 
@@ -129,7 +126,7 @@
   } preheat_t;
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   // Manual Movement class
   class ManualMove {
@@ -201,8 +198,22 @@ class MarlinUI {
 public:
 
   MarlinUI() {
-    TERN_(HAS_LCD_MENU, currentScreen = status_screen);
+    TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
+
+  static void init();
+
+  #if HAS_DISPLAY || HAS_DWIN_E3V2
+    static void init_lcd();
+  #else
+    static void init_lcd() {}
+  #endif
+
+  #if HAS_WIRED_LCD
+    static bool detected();
+  #else
+    static bool detected() { return true; }
+  #endif
 
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
@@ -234,7 +245,7 @@ public:
   // LCD implementations
   static void clear_lcd();
 
-  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
+  #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
       if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
     }
@@ -252,8 +263,8 @@ public:
     #ifndef LCD_BRIGHTNESS_MAX
       #define LCD_BRIGHTNESS_MAX 255
     #endif
-    #ifndef DEFAULT_LCD_BRIGHTNESS
-      #define DEFAULT_LCD_BRIGHTNESS LCD_BRIGHTNESS_MAX
+    #ifndef LCD_BRIGHTNESS_DEFAULT
+      #define LCD_BRIGHTNESS_DEFAULT LCD_BRIGHTNESS_MAX
     #endif
     static uint8_t brightness;
     static bool backlight;
@@ -268,14 +279,6 @@ public:
     FORCE_INLINE static void refresh() {
       TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
     }
-  #endif
-
-  #if HAS_WIRED_LCD
-    static bool detected();
-    static void init_lcd();
-  #else
-    static inline bool detected() { return true; }
-    static inline void init_lcd() {}
   #endif
 
   #if HAS_PRINT_PROGRESS
@@ -293,20 +296,20 @@ public:
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
-      #if ENABLED(SHOW_REMAINING_TIME)
-        static inline uint32_t _calculated_remaining_time() {
-          const duration_t elapsed = print_job_timer.duration();
-          const progress_t progress = _get_progress();
-          return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
-        }
-        #if ENABLED(USE_M73_REMAINING_TIME)
-          static uint32_t remaining_time;
-          FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
-          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ?: _calculated_remaining_time(); }
-          FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
-        #else
-          FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
-        #endif
+    #endif
+    #if ENABLED(SHOW_REMAINING_TIME)
+      static uint32_t _calculated_remaining_time() {
+        const duration_t elapsed = print_job_timer.duration();
+        const progress_t progress = _get_progress();
+        return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
+      }
+      #if ENABLED(USE_M73_REMAINING_TIME)
+        static uint32_t remaining_time;
+        FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
+        FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ?: _calculated_remaining_time(); }
+        FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+      #else
+        FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
       #endif
     #endif
     static progress_t _get_progress();
@@ -342,12 +345,12 @@ public:
     static bool has_status();
     static void reset_status(const bool no_welcome=false);
     static void set_alert_status(FSTR_P const fstr);
-    static inline void reset_alert_level() { alert_level = 0; }
+    static void reset_alert_level() { alert_level = 0; }
   #else
     static constexpr bool has_status() { return false; }
-    static inline void reset_status(const bool=false) {}
-    static inline void set_alert_status(FSTR_P const) {}
-    static inline void reset_alert_level() {}
+    static void reset_status(const bool=false) {}
+    static void set_alert_status(FSTR_P const) {}
+    static void reset_alert_level() {}
   #endif
 
   static void set_status(const char * const cstr, const bool persist=false);
@@ -356,13 +359,15 @@ public:
 
   #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
   #else
-    static inline void kill_screen(FSTR_P const, FSTR_P const) {}
+    static void kill_screen(FSTR_P const, FSTR_P const) {}
   #endif
 
   #if HAS_DISPLAY
 
-    static void init();
     static void update();
 
     static void abort_print();
@@ -370,7 +375,7 @@ public:
     static void resume_print();
     static void flow_fault();
 
-    #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+    #if BOTH(HAS_MARLINUI_MENU, PSU_CONTROL)
       static void poweroff();
     #endif
 
@@ -441,11 +446,7 @@ public:
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
-        static inline void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
-      #endif
-
-      #if DISABLED(LIGHTWEIGHT_UI)
-        static void draw_status_message(const bool blink);
+        static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -469,6 +470,7 @@ public:
 
     #if IS_DWIN_MARLINUI
       static bool did_first_redraw;
+      static bool old_is_printing;
     #endif
 
     #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
@@ -480,14 +482,13 @@ public:
 
   #else // No LCD
 
-    static inline void init() {}
-    static inline void update() {}
-    static inline void return_to_status() {}
+    static void update() {}
+    static void return_to_status() {}
 
   #endif
 
   #if ENABLED(SDSUPPORT)
-    #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
+    #if BOTH(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif
     #if MARLINUI_SCROLL_NAME
@@ -497,24 +498,22 @@ public:
   #endif
 
   #if HAS_PREHEAT
-    enum PreheatMask : uint8_t { PM_HOTEND = _BV(0), PM_BED = _BV(1), PM_FAN = _BV(2), PM_CHAMBER = _BV(3) };
+    enum PreheatTarget : uint8_t { PT_HOTEND, PT_BED, PT_FAN, PT_CHAMBER, PT_ALL = 0xFF };
     static preheat_t material_preset[PREHEAT_COUNT];
     static PGM_P get_preheat_label(const uint8_t m);
     static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
-    static inline void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, PM_FAN)); }
-    static inline void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, PM_HOTEND)); }
-    static inline void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
-    static inline void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, PM_BED)); }
-    static inline void preheat_all(const uint8_t m) { apply_preheat(m, 0xFF); }
+    static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
+    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND))); }
+    static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
+    static void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, _BV(PT_BED))); }
+    static void preheat_all(const uint8_t m) { apply_preheat(m, PT_ALL); }
   #endif
 
-  #if SCREENS_CAN_TIME_OUT
-    static inline void reset_status_timeout(const millis_t ms) { return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS; }
-  #else
-    static inline void reset_status_timeout(const millis_t) {}
-  #endif
+  static void reset_status_timeout(const millis_t ms) {
+    TERN(SCREENS_CAN_TIME_OUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
+  }
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
@@ -549,11 +548,11 @@ public:
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
     static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
-    static inline void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
-    static inline void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
+    static void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
+    static void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
 
     static void return_to_status();
-    static inline bool on_status_screen() { return currentScreen == status_screen; }
+    static bool on_status_screen() { return currentScreen == status_screen; }
     FORCE_INLINE static void run_current_screen() { (*currentScreen)(); }
 
     #if ENABLED(LIGHTWEIGHT_UI)
@@ -568,7 +567,7 @@ public:
       TERN(SCREENS_CAN_TIME_OUT, defer_return_to_status = defer, UNUSED(defer));
     }
 
-    static inline void goto_previous_screen_no_defer() {
+    static void goto_previous_screen_no_defer() {
       defer_status_screen(false);
       goto_previous_screen();
     }
@@ -598,50 +597,50 @@ public:
 
   #endif
 
-  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
     static bool lcd_clicked;
-    static inline bool use_click() {
+    static bool use_click() {
       const bool click = lcd_clicked;
       lcd_clicked = false;
       return click;
     }
   #else
     static constexpr bool lcd_clicked = false;
-    static inline bool use_click() { return false; }
+    static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
-    static inline void _pause_show_message() {}
+    static void _pause_show_message() {}
     #define pause_show_message(...) _pause_show_message()
   #endif
 
   //
   // EEPROM: Reset / Init / Load / Store
   //
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     static void reset_settings();
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    #if HAS_LCD_MENU
+    #if HAS_MARLINUI_MENU
       static void init_eeprom();
       static void load_settings();
       static void store_settings();
     #endif
     #if DISABLED(EEPROM_AUTO_INIT)
       static void eeprom_alert(const uint8_t msgid);
-      static inline void eeprom_alert_crc()     { eeprom_alert(0); }
-      static inline void eeprom_alert_index()   { eeprom_alert(1); }
-      static inline void eeprom_alert_version() { eeprom_alert(2); }
+      static void eeprom_alert_crc()     { eeprom_alert(0); }
+      static void eeprom_alert_index()   { eeprom_alert(1); }
+      static void eeprom_alert_version() { eeprom_alert(2); }
     #endif
   #endif
 
   //
   // Special handling if a move is underway
   //
-  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
     #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
@@ -651,7 +650,7 @@ public:
   //
   // Block interaction while under external control
   //
-  #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+  #if HAS_MARLINUI_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
@@ -675,7 +674,7 @@ public:
     #endif
 
     static void update_buttons();
-    static inline bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
+    static bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
@@ -706,7 +705,7 @@ public:
 
   #else
 
-    static inline void update_buttons() {}
+    static void update_buttons() {}
 
   #endif
 

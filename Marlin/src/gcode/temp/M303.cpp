@@ -31,7 +31,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 /**
@@ -77,9 +77,16 @@ void GcodeSuite::M303() {
       return;
   }
 
-  const celsius_t temp = parser.celsiusval('S', default_temp);
-  const int c = parser.intval('C', 5);
+  const bool seenC = parser.seenval('C');
+  const int c = seenC ? parser.value_int() : 5;
+  const bool seenS = parser.seenval('S');
+  const celsius_t temp = seenS ? parser.value_celsius() : default_temp;
   const bool u = parser.boolval('U');
+
+  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+    if (seenC) HMI_data.PidCycles = c;
+    if (seenS) { if (hid == H_BED) HMI_data.BedPidT = temp; else HMI_data.HotendPidT = temp; }
+  #endif
 
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);

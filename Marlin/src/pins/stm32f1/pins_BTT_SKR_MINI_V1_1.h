@@ -98,7 +98,7 @@
  *  (LCD_EN) PB6  | 8  7 | PC12  (LCD_RS)     (BTN_EN1) PD2 | 8  7 | PA15  (SD_SS)
  *  (LCD_D4) PC13   6  5 | PB7   (LCD_D5)     (BTN_EN2) PB8   6  5 | PB5   (MOSI)
  *  (LCD_D6) PC15 | 4  3 | PC14  (LCD_D7)   (SD_DETECT) PB9 | 4  3 | RESET
- *           GND  | 2  1 | 5V                           GND | 2  1 | NC
+ *            GND | 2  1 | 5V                           GND | 2  1 | --
  *                 ------                                    ------
  *                  EXP1                                      EXP2
  */

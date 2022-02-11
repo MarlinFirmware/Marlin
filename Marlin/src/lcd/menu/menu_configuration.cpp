@@ -26,12 +26,16 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu_item.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
+#endif
+
+#if HAS_FANCHECK
+  #include "../../feature/fancheck.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -48,6 +52,8 @@
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
+
+#include "../../core/debug_out.h"
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
@@ -213,11 +219,14 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      SERIAL_ECHOLNPGM("EEPROM Last BLTouch Mode - ", bltouch.last_written_mode);
-      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
+      PGMSTR(mode0, "OD");
+      PGMSTR(mode1, "5V");
+      DEBUG_ECHOPGM("BLTouch Mode: ");
+      DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
+      DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
       char mess[21];
-      strcpy_P(mess, PSTR("BLTouch Mode - "));
-      strcpy_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
+      strcpy_P(mess, PSTR("BLTouch Mode: "));
+      strcpy_P(&mess[15], bltouch.od_5v_mode ? mode1 : mode0);
       ui.set_status(mess);
       ui.return_to_status();
     }
@@ -231,6 +240,9 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
+    #ifdef BLTOUCH_HS_MODE
+      EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.high_speed_mode);
+    #endif
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
       CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
@@ -266,10 +278,10 @@ void menu_advanced_settings();
   void menu_controller_fan() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255);
+    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, CONTROLLERFAN_SPEED_MIN, 255);
     EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode);
     if (controllerFan.settings.auto_mode) {
-      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255);
+      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, CONTROLLERFAN_SPEED_MIN, 255);
       EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800);
     }
     END_MENU();
@@ -526,7 +538,7 @@ void menu_configuration() {
   #if HAS_LCD_BRIGHTNESS
     EDIT_ITEM_FAST(uint8, MSG_BRIGHTNESS, &ui.brightness, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.refresh_brightness, true);
   #endif
-  #if HAS_LCD_CONTRAST
+  #if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN < LCD_CONTRAST_MAX
     EDIT_ITEM_FAST(uint8, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
   #if ENABLED(FWRETRACT)
@@ -535,6 +547,10 @@ void menu_configuration() {
 
   #if HAS_FILAMENT_SENSOR
     EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+  #endif
+
+  #if HAS_FANCHECK
+    EDIT_ITEM(bool, MSG_FANCHECK, &fan_check.enabled);
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -561,4 +577,4 @@ void menu_configuration() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU

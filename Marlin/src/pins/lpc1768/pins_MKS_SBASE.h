@@ -278,11 +278,7 @@
     #endif
 
   #elif ENABLED(MINIPANEL)
-    // GLCD features
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif
 
 #endif // HAS_WIRED_LCD

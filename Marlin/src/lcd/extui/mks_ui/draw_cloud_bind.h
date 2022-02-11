@@ -22,7 +22,7 @@
 #pragma once
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+  extern "C" {
 #endif
 
 void lv_draw_cloud_bind();
@@ -33,5 +33,5 @@ void display_qrcode(uint8_t *qrcode_data);
 void cloud_unbind();
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  }
 #endif

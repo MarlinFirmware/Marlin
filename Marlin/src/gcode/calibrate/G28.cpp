@@ -52,7 +52,7 @@
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
@@ -76,16 +76,13 @@
 
     const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
-    const float mlx = max_length(X_AXIS),
-                mly = max_length(Y_AXIS),
-                mlratio = mlx > mly ? mly / mlx : mlx / mly,
-                fr_mm_s = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
+    // Use a higher diagonal feedrate so axes move at homing speed
+    const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
+                fr_mm_s = HYPOT(minfr, minfr);
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
-          tmc_enable_stallguard(stepperX)
-        , tmc_enable_stallguard(stepperY)
-        , false
+          LINEAR_AXIS_LIST(tmc_enable_stallguard(stepperX), tmc_enable_stallguard(stepperY), false, false, false, false)
         , false
           #if AXIS_HAS_STALLGUARD(X2)
             || tmc_enable_stallguard(stepperX2)
@@ -97,7 +94,7 @@
       };
     #endif
 
-    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
+    do_blocking_move_to_xy(1.5 * max_length(X_AXIS) * x_axis_home_dir, 1.5 * max_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
 
     endstops.validate_homing_move();
 
@@ -264,7 +261,7 @@ void GcodeSuite::G28() {
   reset_stepper_timeout();
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2) || (ENABLED(DELTA) && HAS_CURRENT_HOME(Z))
+  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2) || (ENABLED(DELTA) && HAS_CURRENT_HOME(Z)) || HAS_CURRENT_HOME(I) || HAS_CURRENT_HOME(J) || HAS_CURRENT_HOME(K)
     #define HAS_HOMING_CURRENT 1
   #endif
 
@@ -275,27 +272,57 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
       stepperX.rms_current(X_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F("X"), tmc_save_current_X, X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_X), tmc_save_current_X, X_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(X2)
       const int16_t tmc_save_current_X2 = stepperX2.getMilliamps();
       stepperX2.rms_current(X2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_X2), tmc_save_current_X2, X2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y)
       const int16_t tmc_save_current_Y = stepperY.getMilliamps();
       stepperY.rms_current(Y_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_Y), tmc_save_current_Y, Y_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y2)
       const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
       stepperY2.rms_current(Y2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_Y2), tmc_save_current_Y2, Y2_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(I)
+      const int16_t tmc_save_current_I = stepperI.getMilliamps();
+      stepperI.rms_current(I_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_I), tmc_save_current_I, I_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(J)
+      const int16_t tmc_save_current_J = stepperJ.getMilliamps();
+      stepperJ.rms_current(J_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_J), tmc_save_current_J, J_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(K)
+      const int16_t tmc_save_current_K = stepperK.getMilliamps();
+      stepperK.rms_current(K_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_K), tmc_save_current_K, K_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
       const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
       stepperZ.rms_current(Z_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_Z), tmc_save_current_Z, Z_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(I)
+      const int16_t tmc_save_current_I = stepperI.getMilliamps();
+      stepperI.rms_current(I_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_I), tmc_save_current_I, I_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(J)
+      const int16_t tmc_save_current_J = stepperJ.getMilliamps();
+      stepperJ.rms_current(J_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_J), tmc_save_current_J, J_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(K)
+      const int16_t tmc_save_current_K = stepperK.getMilliamps();
+      stepperK.rms_current(K_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_K), tmc_save_current_K, K_CURRENT_HOME);
     #endif
   #endif
 
@@ -348,7 +375,7 @@ void GcodeSuite::G28() {
                  homeX = needX || parser.seen_test('X'),
                  homeY = needY || parser.seen_test('Y'),
                  homeZZ = homeZ,
-                 homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME), homeK = needK || parser.seen_test(AXIS6_NAME),
+                 homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME), homeK = needK || parser.seen_test(AXIS6_NAME)
                ),
                home_all = LINEAR_AXIS_GANG(   // Home-all if all or none are flagged
                     homeX == homeX, && homeY == homeX, && homeZ == homeX,
@@ -367,9 +394,10 @@ void GcodeSuite::G28() {
 
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
 
-    const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
+    const bool seenR = parser.seenval('R');
+    const float z_homing_height = seenR ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
+    if (z_homing_height && (seenR || LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
@@ -423,20 +451,18 @@ void GcodeSuite::G28() {
           stepper.set_separate_multi_axis(false);
         #endif
 
-        TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
+        #if ENABLED(Z_SAFE_HOMING)
+          if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+        #else
+          homeaxis(Z_AXIS);
+        #endif
         probe.move_z_after_homing();
       }
     #endif
 
-    #if LINEAR_AXES >= 4
-      if (doI) homeaxis(I_AXIS);
-    #endif
-    #if LINEAR_AXES >= 5
-      if (doJ) homeaxis(J_AXIS);
-    #endif
-    #if LINEAR_AXES >= 6
-      if (doK) homeaxis(K_AXIS);
-    #endif
+    TERN_(HAS_I_AXIS, if (doI) homeaxis(I_AXIS));
+    TERN_(HAS_J_AXIS, if (doJ) homeaxis(J_AXIS));
+    TERN_(HAS_K_AXIS, if (doK) homeaxis(K_AXIS));
 
     sync_plan_position();
 

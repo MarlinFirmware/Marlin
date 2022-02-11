@@ -75,7 +75,7 @@
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/e3v2/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-    #include "lcd/e3v2/enhanced/dwin.h"
+    #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #endif
@@ -212,6 +212,10 @@
 
 #include "module/tool_change.h"
 
+#if HAS_FANCHECK
+  #include "feature/fancheck.h"
+#endif
+
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
 #endif
@@ -242,6 +246,10 @@
 
 #if ENABLED(PSU_CONTROL)
   #include "feature/power.h"
+#endif
+
+#if ENABLED(EASYTHREED_UI)
+  #include "feature/easythreed_ui.h"
 #endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
@@ -498,7 +506,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
           queue.inject(F(BUTTON##N##_GCODE));                     \
-          TERN_(HAS_LCD_MENU, ui.quick_feedback());                    \
+          TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());                    \
         }                                                              \
       }                                                                \
     }while(0)
@@ -632,6 +640,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       CHECK_CUSTOM_USER_BUTTON(25);
     #endif
   #endif
+
+  TERN_(EASYTHREED_UI, easythreed_ui.run());
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
@@ -774,7 +784,10 @@ void idle(bool no_stepper_sleep/*=false*/) {
   (void)check_tool_sensor_stats(active_extruder, true);
 
   // Handle filament runout sensors
-  TERN_(HAS_FILAMENT_SENSOR, runout.run());
+  #if HAS_FILAMENT_SENSOR
+    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()))
+      runout.run();
+  #endif
 
   // Run HAL idle tasks
   TERN_(HAL_IDLETASK, HAL_idletask());
@@ -829,6 +842,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
+      TERN_(AUTO_REPORT_FANS, fan_check.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
       TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
       TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
@@ -1275,19 +1289,12 @@ void setup() {
     SETUP_RUN(controllerFan.setup());
   #endif
 
+  TERN_(HAS_FANCHECK, fan_check.init());
+
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  #if HAS_DWIN_E3V2_BASIC
-    SETUP_RUN(DWIN_Startup());
-  #else
-    SETUP_RUN(ui.init());
-    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
-      SETUP_RUN(ui.show_bootscreen());
-      const millis_t bootscreen_ms = millis();
-    #endif
-    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
-  #endif
+  SETUP_RUN(ui.init());
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1298,16 +1305,21 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(PROBE_TARE)
-    SETUP_RUN(probe.tare_init());
-  #endif
-
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+    SETUP_RUN(ui.show_bootscreen());
+    const millis_t bootscreen_ms = millis();
+  #endif
+
+  #if ENABLED(PROBE_TARE)
+    SETUP_RUN(probe.tare_init());
+  #endif
 
   #if HAS_ETHERNET
     SETUP_RUN(ethernet.init());
@@ -1326,6 +1338,10 @@ void setup() {
   SETUP_RUN(print_job_timer.init());  // Initial setup of print job timer
 
   SETUP_RUN(endstops.init());         // Init endstops and pullups
+
+  #if ENABLED(DELTA) && !HAS_SOFTWARE_ENDSTOPS
+    SETUP_RUN(refresh_delta_clip_start_height()); // Init safe delta height without soft endstops
+  #endif
 
   SETUP_RUN(stepper.init());          // Init stepper. This enables interrupts!
 
@@ -1353,6 +1369,9 @@ void setup() {
   #endif
 
   #if HAS_BED_PROBE
+    #if PIN_EXISTS(PROBE_ENABLE)
+      OUT_WRITE(PROBE_ENABLE_PIN, LOW); // Disable
+    #endif
     SETUP_RUN(endstops.enable_z_probe(false));
   #endif
 
@@ -1483,6 +1502,10 @@ void setup() {
     SETUP_RUN(bltouch.init(/*set_voltage=*/true));
   #endif
 
+  #if ENABLED(MAGLEV4)
+    OUT_WRITE(MAGLEV_TRIGGER_PIN, LOW);
+  #endif
+
   #if ENABLED(I2C_POSITION_ENCODERS)
     SETUP_RUN(I2CPEM.init());
   #endif
@@ -1554,15 +1577,15 @@ void setup() {
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
+    SETUP_LOG("E3V2 Init");
     Encoder_Configuration();
     HMI_Init();
     HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT_F(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
-    ui.reset_status(true);  // Show service messages or keep current status
+    SETUP_RUN(ui.reset_status(true));  // Show service messages or keep current status
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
@@ -1592,8 +1615,12 @@ void setup() {
     SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
-  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
-    ui.check_touch_calibration();
+  #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
+    SETUP_RUN(ui.check_touch_calibration());
+  #endif
+
+  #if ENABLED(EASYTHREED_UI)
+    SETUP_RUN(easythreed_ui.init());
   #endif
 
   marlin_state = MF_RUNNING;
@@ -1624,6 +1651,10 @@ void loop() {
     #endif
 
     queue.advance();
+
+    #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+      powerManager.checkAutoPowerOff();
+    #endif
 
     endstops.event_handler();
 
