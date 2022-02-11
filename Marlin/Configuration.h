@@ -494,14 +494,8 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#ifdef MARLIN_CONFIG_MY
-  #define TEMP_SENSOR_0 5
-#else
-  #ifdef HIGH_TEMPERATURE_MODE
-    #define TEMP_SENSOR_0 66
-  #else
-#define TEMP_SENSOR_0 1
-  #endif
+#ifndef TEMP_SENSOR_0
+  #define TEMP_SENSOR_0 1
 #endif
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
@@ -960,16 +954,8 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
- */
-#if STEPPERS_MICROSTEP == 32
-  #ifdef MARLIN_CONFIG_MY
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 800, 410 }
-  #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 821 }
-  #endif
-#else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 408 }
-#endif
+**/
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 160*X_MICROSTEP/32, 160*Y_MICROSTEP/32, 800*Z_MICROSTEP/32, 821*E0_MICROSTEP/32 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1389,7 +1375,7 @@
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #if ENABLED(MOTHERBOARD_SV1_3)
-  
+
 //  #define SWAP_Z_E_PINS
 
   #ifdef SWAP_Z_E_PINS
