@@ -36,7 +36,7 @@
   #error "OnBoard SPI BUS can't be shared with other devices."
 #endif
 
-#if SERVO_TC == RTC_TIMER_NUM
+#if SERVO_TC == MF_TIMER_RTC
   #error "Servos can't use RTC timer"
 #endif
 

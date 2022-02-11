@@ -37,19 +37,19 @@ public:
 
   // Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
   // The bools specifying whether the strings are in RAM or FLASH.
-  static void sendinfoscreen(const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
-  static inline void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
+  static void sendinfoscreen(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
+  static void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, PGM_P const line3, PGM_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
     sendinfoscreen(FTOP(line1), FTOP(line2), line3, line4, l1inflash, l2inflash, l3inflash, liinflash);
   }
-  static inline void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, FSTR_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
+  static void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, FSTR_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
     sendinfoscreen(FTOP(line1), FTOP(line2), FTOP(line3), FTOP(line4), l1inflash, l2inflash, l3inflash, liinflash);
   }
 
-  static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
+  static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   #if 0
   static void sendinfoscreen_ch_mks(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
-  static void sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) ;
+  static void sendinfoscreen_en_mks(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4);
   static void sendinfoscreen_mks(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language);
   #endif
 
@@ -94,10 +94,10 @@ public:
   static void DGUS_LanguageDisplay(uint8_t var);
   static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
   static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
-  static void LanguagePInit(void);
-  static void DGUS_Runout_Idle(void);
-  static void DGUS_RunoutInit(void);
-  static void DGUS_ExtrudeLoadInit(void);
+  static void LanguagePInit();
+  static void DGUS_Runout_Idle();
+  static void DGUS_RunoutInit();
+  static void DGUS_ExtrudeLoadInit();
   static void LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr);
   static void SD_FileBack(DGUS_VP_Variable &var, void *val_ptr);
 
@@ -280,13 +280,13 @@ public:
   }
 
   // Force an update of all VP on the current screen.
-  static inline void ForceCompleteUpdate() { update_ptr = 0; ScreenComplete = false; }
+  static void ForceCompleteUpdate() { update_ptr = 0; ScreenComplete = false; }
   // Has all VPs sent to the screen
-  static inline bool IsScreenComplete() { return ScreenComplete; }
+  static bool IsScreenComplete() { return ScreenComplete; }
 
-  static inline DGUSLCD_Screens getCurrentScreen() { return current_screen; }
+  static DGUSLCD_Screens getCurrentScreen() { return current_screen; }
 
-  static inline void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
+  static void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
 
 private:
   static DGUSLCD_Screens current_screen;  //< currently on screen

@@ -212,7 +212,6 @@
     #define BEEPER_PIN                         8  // E0       JP11-10
     #define DOGLCD_A0                         40  // F2       JP2-2
     #define DOGLCD_CS                         41  // F3       JP2-4
-    #define LCD_SCREEN_ROT_180
 
     #define BTN_EN1                            2  // D2 TX1   JP2-5
     #define BTN_EN2                            3  // D3 RX1   JP2-7
@@ -222,6 +221,8 @@
 
     #define STAT_LED_RED_PIN                  12  // C2       JP11-14
     #define STAT_LED_BLUE_PIN                 10  // C0       JP11-12
+
+    #define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #elif ENABLED(MINIPANEL)
 

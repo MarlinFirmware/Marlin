@@ -413,7 +413,6 @@
       // TO TEST
       //#define DOGLCD_CS                     45
       //#define DOGLCD_A0                     44
-      //#define LCD_SCREEN_ROT_180
 
       //#define BEEPER_PIN                    33
       //#define STAT_LED_RED_PIN              32
@@ -425,6 +424,8 @@
 
       //#define SD_DETECT_PIN                 -1  // Pin 49 for display SD interface, 72 for easy adapter board
       //#define KILL_PIN                      31
+
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
@@ -460,17 +461,13 @@
         //#define DOGLCD_A0                   27
         //#define DOGLCD_CS                   25
 
-        // GLCD features
-        // Uncomment screen orientation
-        //#define LCD_SCREEN_ROT_90
-        //#define LCD_SCREEN_ROT_180
-        //#define LCD_SCREEN_ROT_270
-
         // not connected to a pin
         //#define LCD_BACKLIGHT_PIN           57  // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
 
         //#define BTN_EN1                     31
         //#define BTN_EN2                     33
+
+        //#define LCD_SCREEN_ROTATE          180  // 0, 90, 180, 270
 
       #elif ENABLED(FYSETC_MINI_12864)
 
@@ -518,18 +515,14 @@
       //#define DOGLCD_A0                     44
       //#define DOGLCD_CS                     58  // Mega/Due:66 - AGCM4:58
 
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       //#define BTN_EN1                       40
       //#define BTN_EN2                       55  // Mega/Due:63 - AGCM4:55
       //#define BTN_ENC                       72  // Mega/Due:59 - AGCM4:72
 
       //#define SD_DETECT_PIN                 49
       //#define KILL_PIN                      56  // Mega/Due:64 - AGCM4:56
+
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(ZONESTAR_LCD)
 

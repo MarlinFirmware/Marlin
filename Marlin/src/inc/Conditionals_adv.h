@@ -118,9 +118,9 @@
 
 // Temperature sensor IDs
 #define HID_REDUNDANT -6
-#define HID_COOLER    -5
-#define HID_PROBE     -4
-#define HID_BOARD     -3
+#define HID_BOARD     -5
+#define HID_COOLER    -4
+#define HID_PROBE     -3
 #define HID_CHAMBER   -2
 #define HID_BED       -1
 #define HID_E0         0
@@ -159,6 +159,9 @@
     #ifndef MAX31865_SENSOR_WIRES_0
       #define MAX31865_SENSOR_WIRES_0 2
     #endif
+    #ifndef MAX31865_WIRE_OHMS_0
+      #define MAX31865_WIRE_OHMS_0 0.0f
+    #endif
   #elif TEMP_SENSOR_0 == -3
     #define TEMP_SENSOR_0_IS_MAX31855 1
     #define TEMP_SENSOR_0_MAX_TC_TMIN -270
@@ -192,6 +195,9 @@
     #define TEMP_SENSOR_1_MAX_TC_TMAX 1024
     #ifndef MAX31865_SENSOR_WIRES_1
       #define MAX31865_SENSOR_WIRES_1 2
+    #endif
+    #ifndef MAX31865_WIRE_OHMS_1
+      #define MAX31865_WIRE_OHMS_1 0.0f
     #endif
   #elif TEMP_SENSOR_1 == -3
     #define TEMP_SENSOR_1_IS_MAX31855 1
@@ -612,6 +618,8 @@
 
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define HAS_COLOR_LEDS 1
+#else
+  #undef LED_POWEROFF_TIMEOUT
 #endif
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
   #define HAS_LEDS_OFF_FLAG 1
@@ -669,11 +677,6 @@
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
-#endif
-
-// Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
-  #define NEEDS_HARDWARE_PWM 1
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)
@@ -737,9 +740,6 @@
 #endif
 
 #if EITHER(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
-  #define LED_CONTROL_MENU
-  #define LED_USER_PRESET_STARTUP
-  #define LED_COLOR_PRESETS
   #ifndef LED_USER_PRESET_GREEN
     #define LED_USER_PRESET_GREEN      128
   #endif
@@ -980,6 +980,11 @@
   #endif
 #endif
 
+// Flags for Case Light having a brightness property
+#if ENABLED(CASE_LIGHT_ENABLE) && (NONE(CASE_LIGHT_NO_BRIGHTNESS, CASE_LIGHT_IS_COLOR_LED) || ENABLED(CASE_LIGHT_USE_NEOPIXEL))
+  #define CASELIGHT_USES_BRIGHTNESS 1
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
@@ -997,4 +1002,10 @@
 #endif
 #if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
   #define HAS_MEATPACK 1
+#endif
+
+// AVR are (usually) too limited in resources to store the configuration into the binary
+#if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || EITHER(SDCARD_READONLY, DISABLE_M503))
+  #undef CONFIGURATION_EMBEDDING
+  #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif

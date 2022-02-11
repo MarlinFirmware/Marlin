@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, SDSUPPORT)
+#if BOTH(HAS_MARLINUI_MENU, SDSUPPORT)
 
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
@@ -161,4 +161,4 @@ void menu_media() {
   TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
 }
 
-#endif // HAS_LCD_MENU && SDSUPPORT
+#endif // HAS_MARLINUI_MENU && SDSUPPORT

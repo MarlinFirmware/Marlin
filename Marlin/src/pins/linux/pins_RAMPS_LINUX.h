@@ -234,14 +234,16 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#ifndef E_MUX0_PIN
-  #define E_MUX0_PIN                          40  // Z_CS_PIN
-#endif
-#ifndef E_MUX1_PIN
-  #define E_MUX1_PIN                          42  // E0_CS_PIN
-#endif
-#ifndef E_MUX2_PIN
-  #define E_MUX2_PIN                          44  // E1_CS_PIN
+#if HAS_PRUSA_MMU1
+  #ifndef E_MUX0_PIN
+    #define E_MUX0_PIN                        40  // Z_CS_PIN
+  #endif
+  #ifndef E_MUX1_PIN
+    #define E_MUX1_PIN                        42  // E0_CS_PIN
+  #endif
+  #ifndef E_MUX2_PIN
+    #define E_MUX2_PIN                        44  // E1_CS_PIN
+  #endif
 #endif
 
 /**
@@ -584,7 +586,6 @@
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44
-      #define LCD_SCREEN_ROT_180
 
       #define BEEPER_PIN                      33
       #define STAT_LED_RED_PIN                32
@@ -596,6 +597,8 @@
 
       #define SD_DETECT_PIN                   -1  // Pin 49 for display sd interface, 72 for easy adapter board
       #define KILL_PIN                        31
+
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
@@ -618,12 +621,6 @@
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25
 
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       #define BEEPER_PIN                      37
       // not connected to a pin
       #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
@@ -635,6 +632,8 @@
       #define SD_DETECT_PIN                   49
       #define KILL_PIN                        64
 
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+
     #elif ENABLED(MINIPANEL)
 
       #define BEEPER_PIN                      42
@@ -644,18 +643,14 @@
       #define DOGLCD_A0                       44
       #define DOGLCD_CS                       66
 
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       #define BTN_EN1                         40
       #define BTN_EN2                         63
       #define BTN_ENC                         59
 
       #define SD_DETECT_PIN                   49
       #define KILL_PIN                        64
+
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(ZONESTAR_LCD)
 
