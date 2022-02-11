@@ -26,6 +26,7 @@ jobs:
       with:
         upstream_repository: MarlinFirmware/Marlin
         upstream_branch: 2.0.x
+        target_branch: Anet-A8
 
     - name: Timestamp
       run: date
