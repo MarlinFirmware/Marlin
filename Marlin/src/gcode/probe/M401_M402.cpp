@@ -41,7 +41,12 @@
 void GcodeSuite::M401() {
   if (parser.seen('S')) {
     #ifdef BLTOUCH_HS_MODE
-      bltouch.high_speed_mode = parser.value_bool();
+      if (parser.has_value()) {  // if no value after "S" than just query
+        bltouch.high_speed_mode = parser.value_bool();
+      }
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("BLTouch HS mode ");
+      serialprintln_onoff(bltouch.high_speed_mode);
     #endif
   }
   else {
