@@ -10,19 +10,19 @@ on:
 jobs:
   sync_with_upstream:
     runs-on: ubuntu-latest
-    name: Sync Anet A8 with upstream
+    name: Sync 2.0.x with upstream
 
     steps:
     - name: Checkout master
       uses: actions/checkout@v2
       with:
-        ref: Anet-A8
+        ref: 2.0.x
 
     - name: Pull upstream changes
       id: sync
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.1
       with:
-        target_sync_branch: Anet-A8
+        target_sync_branch: 2.0.x
         # REQUIRED 'target_repo_token' exactly like this!
         target_repo_token: ${{ secrets.GITHUB_TOKEN }}
         upstream_sync_branch: 2.0.x
