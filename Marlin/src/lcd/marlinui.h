@@ -209,6 +209,8 @@ public:
     static void init_lcd() {}
   #endif
 
+  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
+
   #if HAS_WIRED_LCD
     static bool detected();
   #else

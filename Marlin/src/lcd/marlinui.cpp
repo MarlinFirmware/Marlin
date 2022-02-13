@@ -625,7 +625,7 @@ void MarlinUI::init() {
           next_filament_display = millis() + 5000UL;  // Show status message for 5s
         #endif
         goto_screen(menu_main);
-        IF_DISABLED(NO_LCD_REINIT, init_lcd()); // May revive the LCD if static electricity killed it
+        reinit_lcd(); // Revive a noisy shared SPI LCD
         return;
       }
 
@@ -1697,9 +1697,7 @@ void MarlinUI::init() {
       }
     }
 
-    #if PIN_EXISTS(SD_DETECT) && DISABLED(NO_LCD_REINIT)
-      init_lcd(); // Revive a noisy shared SPI LCD
-    #endif
+    reinit_lcd(); // Revive a noisy shared SPI LCD
 
     refresh();
 
