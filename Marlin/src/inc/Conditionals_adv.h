@@ -23,7 +23,7 @@
 
 /**
  * Conditionals_adv.h
- * Defines that depend on advanced configuration.
+ * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
 
 #ifndef AXIS_RELATIVE_MODES

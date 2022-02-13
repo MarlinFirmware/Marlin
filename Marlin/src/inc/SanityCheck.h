@@ -609,12 +609,10 @@
   #error "LCD_SCREEN_ROT_270 is now LCD_SCREEN_ROTATE with a value of 270."
 #elif defined(DEFAULT_LCD_BRIGHTNESS)
   #error "DEFAULT_LCD_BRIGHTNESS is now LCD_BRIGHTNESS_DEFAULT."
-#endif
-
-#if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
-  #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
-#elif MB(BTT_SKR_E3_TURBO) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
-  #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#elif defined(NOZZLE_PARK_X_ONLY)
+  #error "NOZZLE_PARK_X_ONLY is now NOZZLE_PARK_MOVE 1."
+#elif defined(NOZZLE_PARK_Y_ONLY)
+  #error "NOZZLE_PARK_X_ONLY is now NOZZLE_PARK_MOVE 2."
 #endif
 
 constexpr float arm[] = AXIS_RELATIVE_MODES;
@@ -1230,14 +1228,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "For MIXING_EXTRUDER set MIXING_STEPPERS > 1 instead of EXTRUDERS > 1."
   #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
-  #elif ENABLED(FILAMENT_SENSOR)
-    #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #elif ENABLED(FILAMENT_WIDTH_SENSOR)
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_WIDTH_SENSOR. Comment out this line to use it anyway."
   #elif ENABLED(SWITCHING_EXTRUDER)
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
   #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
     #error "MIXING_EXTRUDER is incompatible with DISABLE_INACTIVE_EXTRUDER."
+  #elif HAS_FILAMENT_RUNOUT_DISTANCE
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_RUNOUT_DISTANCE_MM."
   #endif
 #endif
 
@@ -3455,8 +3455,6 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #if ENABLED(POWER_LOSS_RECOVERY)
   #if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
     #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
-  #elif BOTH(POWER_LOSS_RECOVER_ZHOME, Z_SAFE_HOMING)
-    #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
   #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
     #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
   #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MAX
