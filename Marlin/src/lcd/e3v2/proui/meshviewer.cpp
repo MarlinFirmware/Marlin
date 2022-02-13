@@ -22,9 +22,11 @@
 
 /**
  * DWIN Mesh Viewer
- * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 3.9.1
+ * Date: 2021/11/09
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -56,7 +58,7 @@ void MeshViewerClass::Draw() {
   #define DrawMeshHLine(yp) DWIN_Draw_HLine(HMI_data.SplitLine_Color, px(0), py(yp), DWIN_WIDTH - 2 * mx)
   #define DrawMeshVLine(xp) DWIN_Draw_VLine(HMI_data.SplitLine_Color, px(xp), py(GRID_MAX_POINTS_Y - 1), DWIN_WIDTH - 2 * my)
   GRID_LOOP(x, y) {
-    const float v = Z_VALUES(x,y) * 100;
+    const float v = isnan(Z_VALUES(x,y)) ? 0 : round(Z_VALUES(x,y) * 100);
     zmesh[x][y] = v;
     NOLESS(maxz, v);
     NOMORE(minz, v);

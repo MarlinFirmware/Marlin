@@ -50,7 +50,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)

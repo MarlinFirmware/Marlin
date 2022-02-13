@@ -49,7 +49,7 @@ MarlinUI ui;
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "fontutils.h"
-  #include "e3v2/enhanced/dwin.h"
+  #include "e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
 #endif
@@ -104,7 +104,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_LCD_BRIGHTNESS
-  uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+  uint8_t MarlinUI::brightness = LCD_BRIGHTNESS_DEFAULT;
   bool MarlinUI::backlight = true;
 
   void MarlinUI::set_brightness(const uint8_t value) {
@@ -704,7 +704,8 @@ void MarlinUI::init() {
     TERN_(HAS_MARLINUI_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
-      if (clear_buttons) buttons = 0;
+      if (clear_buttons)
+        TERN_(HAS_ADC_BUTTONS, keypad_buttons =) buttons = 0;
       next_button_update_ms = millis() + 500;
     #else
       UNUSED(clear_buttons);
@@ -1362,7 +1363,7 @@ void MarlinUI::init() {
   void MarlinUI::set_status(const char * const cstr, const bool persist) {
     if (alert_level) return;
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(cstr));
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(cstr));
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
@@ -1434,7 +1435,7 @@ void MarlinUI::init() {
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(fstr));
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1472,6 +1473,9 @@ void MarlinUI::init() {
     va_start(args, FTOP(fmt));
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, FTOP(fmt), args);
     va_end(args);
+
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
+
     finish_status(level > 0);
   }
 

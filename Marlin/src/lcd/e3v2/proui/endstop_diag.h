@@ -23,9 +23,11 @@
 
 /**
  * DWIN End Stops diagnostic page
- * Author: Miguel A. Risco-Castillo
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 1.0
  * Date: 2021/11/06
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 class ESDiagClass {

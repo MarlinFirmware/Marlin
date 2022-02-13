@@ -59,6 +59,12 @@
   #warning "Your Configuration provides no method to acquire user feedback!"
 #endif
 
+#if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+  #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#elif MB(BTT_SKR_E3_TURBO) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+  #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#endif
+
 #ifndef NO_AUTO_ASSIGN_WARNING
 
   #if AUTO_ASSIGNED_X2_STEPPER
@@ -541,6 +547,10 @@
   #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225)."
 #endif
 
+#if PRINTCOUNTER_SYNC
+  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
+#endif
+
 #if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
   #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
 #endif
@@ -579,4 +589,11 @@
 
 #if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && BOTH(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
   #warning "Your FYSETC display with PSU_CONTROL works best with LED_POWEROFF_TIMEOUT."
+#endif
+
+/**
+ * Maple environent
+ */
+#ifdef __STM32F1__
+  #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
 #endif
