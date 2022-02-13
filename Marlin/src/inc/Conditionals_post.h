@@ -23,7 +23,7 @@
 
 /**
  * Conditionals_post.h
- * Defines that depend on configuration but are not editable.
+ * Internal defines that depend on Configurations and Pins but are not user-editable.
  */
 
 #ifdef GITHUB_ACTIONS
