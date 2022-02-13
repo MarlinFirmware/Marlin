@@ -891,6 +891,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
       leds.update_timeout(powerManager.psu_on);
     #endif
+    
+    #if ENABLED(USE_LCD_SCREENSAVER)
+      static millis_t backlight_ms = LCD_BACKLIGHT_TIMEOUT_MS; //Backlight
+      #define LCD_RESET_BACKLIGHT_TIMEOUT() (backlight_ms = ms + LCD_BACKLIGHT_TIMEOUT_MS) //Backlight
+    #endif
 
     #if HAS_LCD_MENU
 
@@ -991,7 +996,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         #endif
 
         const bool encoderPastThreshold = (abs_diff >= epps);
-        if (encoderPastThreshold || lcd_clicked) {
+        if (encoderPastThreshold || lcd_clicked) 
+        {
           if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
             #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
@@ -1037,6 +1043,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
           reset_status_timeout(ms);
 
+          #if ENABLED(USE_LCD_SCREENSAVER) //Backlight turn on
+            LCD_RESET_BACKLIGHT_TIMEOUT();
+            digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
+          #endif
+
           refresh(LCDVIEW_REDRAW_NOW);
 
           #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
@@ -1051,6 +1062,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       if (on_status_screen() && !lcd_status_update_delay--) {
         lcd_status_update_delay = TERN(HAS_MARLINUI_U8GLIB, 12, 9);
         if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
+
+        #if ENABLED(USE_LCD_SCREENSAVER) //Backlight turn on
+            LCD_RESET_BACKLIGHT_TIMEOUT();
+            digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
+        #endif
+
         refresh(LCDVIEW_REDRAW_NOW);
       }
 
@@ -1140,6 +1157,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         else if (ELAPSED(ms, return_to_status_ms))
           return_to_status();
       #endif
+
+     /* #if ENABLED(USE_LCD_SCREENSAVER) //Backlight
+        if( ELAPSED(ms, backlight_ms) ) 
+          digitalWrite(LCD_BACKLIGHT_PIN, LOW); //// turn backlight off
+      #endif
+*/
 
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {

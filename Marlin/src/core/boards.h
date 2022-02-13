@@ -61,6 +61,7 @@
 #define BOARD_BAM_DICE                1105  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE            1106  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_MKS_BASE                1107  // MKS BASE v1.0
+#define BOARD_FRANCK_CUSTOM         1199  // MKS BASE v1.4 with Allegro A4982 stepper drivers, hot bed, Z end stop contact and screen with sleep mode.
 #define BOARD_MKS_BASE_14             1108  // MKS BASE v1.4 with Allegro A4982 stepper drivers
 #define BOARD_MKS_BASE_15             1109  // MKS BASE v1.5 with Allegro A4982 stepper drivers
 #define BOARD_MKS_BASE_16             1110  // MKS BASE v1.6 with Allegro A4982 stepper drivers

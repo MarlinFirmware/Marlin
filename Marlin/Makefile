@@ -207,6 +207,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1105)
 else ifeq ($(HARDWARE_MOTHERBOARD),1106)
 # MKS BASE v1.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1107)
+# FRANCK_CUSTOM MKS BASE v1.4 with Allegro A4982 stepper drivers
+else ifeq ($(HARDWARE_MOTHERBOARD),1199)
 # MKS BASE v1.4 with Allegro A4982 stepper drivers
 else ifeq ($(HARDWARE_MOTHERBOARD),1108)
 # MKS BASE v1.5 with Allegro A4982 stepper drivers

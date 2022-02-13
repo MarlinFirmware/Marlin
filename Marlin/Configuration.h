@@ -139,7 +139,8 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_MKS_BASE
+  //#define MOTHERBOARD BOARD_MKS_BASE
+  #define MOTHERBOARD BOARD_FRANCK_CUSTOM
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -862,7 +863,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-// For Motherboard MKS_BASE diver stepper motor is A4982
+// For Motherboard MKS_BASE diver stepper motor is A4982 but A4988 works well
 #define MY_DRIVER_MOTORS A4988
 #define X_DRIVER_TYPE  MY_DRIVER_MOTORS
 #define Y_DRIVER_TYPE  MY_DRIVER_MOTORS
@@ -886,7 +887,9 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-//FRANCK test interrupts
+
+//FRANCK test interrupts j'ai vérifier sur le schéma,
+//       toutes les pins des contacteurs sont sur des pins d'interruptions.
 #define ENDSTOP_INTERRUPTS_FEATURE
 
 /**
@@ -2371,6 +2374,7 @@
 // https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#define LCD_BACKLIGHT_TIMEOUT_MS 10000
 
 //
 // K.3D Full Graphic Smart Controller

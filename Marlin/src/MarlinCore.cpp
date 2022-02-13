@@ -1598,6 +1598,10 @@ void setup() {
 
   marlin_state = MF_RUNNING;
 
+#if ENABLED(USE_LCD_SCREENSAVER) // Backlight turn on
+  digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
+#endif
+
   SETUP_LOG("setup() completed.");
 }
 

@@ -101,6 +101,8 @@
   #include "ramps/pins_BAM_DICE_DUE.h"          // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
 #elif MB(MKS_BASE)
   #include "ramps/pins_MKS_BASE_10.h"           // ATmega2560                             env:mega2560
+#elif MB(FRANCK_CUSTOM)
+  #include "ramps/pins_MKS_FRANCK_BASE.h"    // ATmega2560                             env:mega2560
 #elif MB(MKS_BASE_14)
   #include "ramps/pins_MKS_BASE_14.h"           // ATmega2560                             env:mega2560
 #elif MB(MKS_BASE_15)
