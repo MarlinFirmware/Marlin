@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
+#if HAS_LCDPRINT
 
 #include "marlinui.h"
 #include "lcdprint.h"
@@ -103,4 +103,4 @@ int calculateWidth(PGM_P const pstr) {
   return n * MENU_FONT_WIDTH;
 }
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_LCDPRINT
