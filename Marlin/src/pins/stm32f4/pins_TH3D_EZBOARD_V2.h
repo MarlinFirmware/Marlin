@@ -184,12 +184,12 @@
 //
 
 /**
- *        ______
- *    5V | 1  2 | GND
- *  PB15 | 3  4 | PB12
- *  PB13 | 5  6   PC5
- *  ---- | 7  8 | PC4
- *  PB0  | 9 10 | PA14
+ *        ------
+ *  PA14 |10  9 | PB0
+ *  PC4  | 8  7 | --
+ *  PC5  | 6  5   PB13
+ *  PB12 | 4  3 | PB15
+ *   GND | 2  1 | 5V
  *        ------
  *         EXP1
  *
@@ -209,12 +209,12 @@
 #define EXP1_10_PIN                         PA14
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  /**          ______
-   *       5V | 1  2 | GND
-   *   LCD_EN | 3  4 | LCD_RS
-   *   LCD_D4 | 5  6   EN2
-   *    RESET | 7  8 | EN1
-   *      ENC | 9 10 | BEEPER
+  /**          ------
+   *   BEEPER |10  9 | ENC
+   *   EN1    | 8  7 | RESET
+   *   EN2    | 6  5   LCD_D4
+   *   LCD_RS | 4  3 | LCD_EN
+   *      GND | 2  1 | 5V
    *           ------
    */
   #ifdef DISABLE_JTAGSWD
@@ -230,12 +230,12 @@
   #define BOARD_ST7920_DELAY_3           750
 
 #elif ENABLED(MKS_MINI_12864)
-  /**          ______
-   *       5V | 1  2 | GND
-   * SPI-MOSI | 3  4 | SPI-CS
-   *       A0 | 5  6   EN2
-   *       -- | 7  8 | EN1
-   *      ENC | 9 10 | SPI-SCK
+  /**          ------
+   *      SCK |10  9 | ENC
+   *      EN1 | 8  7 | --
+   *      EN2 | 6  5   A0
+   *      CS  | 4  3 | MOSI
+   *      GND | 2  1 | 5V
    *           ------
    */
   #define DOGLCD_CS                  EXP1_04_PIN

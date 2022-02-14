@@ -74,11 +74,11 @@ class ProbeTempComp {
       static int16_t z_offsets_hotend[PTC_HOTEND_COUNT];   // (µm)
     #endif
 
-    static inline void reset_index() { calib_idx = 0; };
-    static inline uint8_t get_index() { return calib_idx; }
+    static void reset_index() { calib_idx = 0; };
+    static uint8_t get_index() { return calib_idx; }
     static void reset();
     static void clear_offsets(const TempSensorID tsi);
-    static inline void clear_all_offsets() {
+    static void clear_all_offsets() {
       TERN_(PTC_PROBE, clear_offsets(TSI_PROBE));
       TERN_(PTC_BED, clear_offsets(TSI_BED));
       TERN_(PTC_HOTEND, clear_offsets(TSI_EXT));

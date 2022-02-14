@@ -24,7 +24,7 @@
 #include "../../module/planner.h"
 
 /**
- * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, and E.
+ * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, [I, [J, [K]]] and E.
  *      (Follows the same syntax as G92)
  *
  *      With multiple extruders use T to specify which one.

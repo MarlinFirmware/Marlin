@@ -113,7 +113,7 @@
 #define HEATER_BED_PIN                      PC9   // HOT BED
 
 #define FAN_PIN                             PC6   // FAN
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 #define CONTROLLER_FAN_PIN                  PC7
 

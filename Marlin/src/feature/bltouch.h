@@ -76,7 +76,7 @@ public:
     static constexpr bool high_speed_mode = false;
   #endif
 
-  static inline float z_extra_clearance() { return high_speed_mode ? 7 : 0; }
+  static float z_extra_clearance() { return high_speed_mode ? 7 : 0; }
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   static bool deploy()              { return deploy_proc(); }

@@ -155,7 +155,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
 
   #if PIN_EXISTS(I_MIN)
     #define _I_MIN I_MIN_PIN,
@@ -201,7 +201,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
 
   #if PIN_EXISTS(J_MIN)
     #define _J_MIN J_MIN_PIN,
@@ -247,7 +247,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
 
   #if PIN_EXISTS(K_MIN)
     #define _K_MIN K_MIN_PIN,

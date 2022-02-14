@@ -126,7 +126,7 @@ class Mixer {
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
-    static inline void copy_mix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
+    static void copy_mix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
       // Scale each component to the largest one in terms of COLOR_A_MASK
       // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
       const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
@@ -145,7 +145,7 @@ class Mixer {
       #endif
     }
 
-    static inline void update_mix_from_vtool(const uint8_t j=selected_vtool) {
+    static void update_mix_from_vtool(const uint8_t j=selected_vtool) {
       float ctot = 0;
       MIXER_STEPPER_LOOP(i) ctot += color[j][i];
       //MIXER_STEPPER_LOOP(i) mix[i] = 100.0f * color[j][i] / ctot;
@@ -165,7 +165,7 @@ class Mixer {
   #if HAS_DUAL_MIXING
 
     // Update the virtual tool from an edited mix
-    static inline void update_vtool_from_mix() {
+    static void update_vtool_from_mix() {
       copy_mix_to_color(color[selected_vtool]);
       TERN_(GRADIENT_MIX, refresh_gradient());
       // MIXER_STEPPER_LOOP(i) collector[i] = mix[i];
@@ -182,7 +182,7 @@ class Mixer {
     // Update the current mix from the gradient for a given Z
     static void update_gradient_for_z(const_float_t z);
     static void update_gradient_for_planner_z();
-    static inline void gradient_control(const_float_t z) {
+    static void gradient_control(const_float_t z) {
       if (gradient.enabled) {
         if (z >= gradient.end_z)
           T(gradient.end_vtool);
@@ -191,7 +191,7 @@ class Mixer {
       }
     }
 
-    static inline void update_mix_from_gradient() {
+    static void update_mix_from_gradient() {
       float ctot = 0;
       MIXER_STEPPER_LOOP(i) ctot += gradient.color[i];
       MIXER_STEPPER_LOOP(i) mix[i] = (mixer_perc_t)CEIL(100.0f * gradient.color[i] / ctot);

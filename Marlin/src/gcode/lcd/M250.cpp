@@ -31,7 +31,7 @@
  * M250: Read and optionally set the LCD contrast
  */
 void GcodeSuite::M250() {
-  if (parser.seenval('C'))
+  if (LCD_CONTRAST_MIN < LCD_CONTRAST_MAX && parser.seenval('C'))
     ui.set_contrast(parser.value_byte());
   else
     M250_report();

@@ -56,7 +56,7 @@ class FanCheck {
     static uint8_t rps[TACHO_COUNT];
     static TachoError error;
 
-    static inline void report_speed_error(uint8_t fan);
+    static void report_speed_error(uint8_t fan);
 
   public:
 
@@ -67,11 +67,11 @@ class FanCheck {
     static void compute_speed(uint16_t elapsedTime);
     static void print_fan_states();
     #if HAS_PWMFANCHECK
-      static inline void toggle_measuring() { measuring = !measuring; }
-      static inline bool is_measuring() { return measuring; }
+      static void toggle_measuring() { measuring = !measuring; }
+      static bool is_measuring() { return measuring; }
     #endif
 
-    static inline void check_deferred_error() {
+    static void check_deferred_error() {
       if (error == TachoError::DETECTED) {
         error = TachoError::REPORTED;
         TERN(PARK_HEAD_ON_PAUSE, queue.inject(F("M125")), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));

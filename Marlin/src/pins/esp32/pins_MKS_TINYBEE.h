@@ -120,14 +120,14 @@
 #define SD_MISO_PIN                           19
 #define SD_SCK_PIN                            18
 #define SDSS                                   5
-#define SD_DETECT_PIN                         34  // IO34 default is SD_DET signal(Jump to SDDET)
+#define SD_DETECT_PIN                         34  // IO34 default is SD_DET signal (Jump to SDDET)
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 
 /**
  *                ------                                 ------
  *  (BEEPER) 149 |10  9 | 13 (BTN_ENC)    (SPI MISO) 19 |10  9 | 18 (SPI SCK)
  *  (LCD_EN)  21 | 8  7 |  4 (LCD_RS)      (BTN_EN1) 14 | 8  7 |  5 (SPI CS)
- *  (LCD_D4)   0 | 6  5   16 (LCD_D5)      (BTN_EN2) 12 | 6  5   23 (SPI MOSI)
+ *  (LCD_D4)   0   6  5 | 16 (LCD_D5)      (BTN_EN2) 12   6  5 | 23 (SPI MOSI)
  *  (LCD_D6)  15 | 4  3 | 17 (LCD_D7)      (SPI_DET) 34 | 4  3 | RESET
  *           GND | 2  1 | 5V                        GND | 2  1 | 3.3V
  *                ------                                 ------
@@ -177,9 +177,9 @@
 
   #elif ENABLED(MKS_MINI_12864_V3)
 
+    #define LCD_PINS_DC              EXP1_07_PIN
     #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define LCD_PINS_DC                DOGLCD_A0
+    #define DOGLCD_A0                LCD_PINS_DC
     #define LCD_BACKLIGHT_PIN                 -1
     #define LCD_RESET_PIN            EXP1_06_PIN
     #define NEOPIXEL_PIN             EXP1_05_PIN

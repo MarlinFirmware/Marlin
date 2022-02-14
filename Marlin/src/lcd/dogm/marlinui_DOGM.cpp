@@ -294,9 +294,13 @@ void MarlinUI::init_lcd() {
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
-  TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
-  TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
-  TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
+  #if LCD_SCREEN_ROTATE == 90
+    u8g.setRot90();
+  #elif LCD_SCREEN_ROTATE == 180
+    u8g.setRot180();
+  #elif LCD_SCREEN_ROTATE == 270
+    u8g.setRot270();
+  #endif
 
   update_language_font();
 }
@@ -349,7 +353,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../menu/menu.h"
 
@@ -515,8 +519,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
-    draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
-    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
+    if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
+    if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
   #if ENABLED(SDSUPPORT)
@@ -740,6 +744,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // HAS_MARLINUI_U8GLIB
