@@ -141,7 +141,7 @@
   #endif
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
+#if EITHER(MPCTEMP, PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
@@ -505,6 +505,10 @@ volatile bool Temperature::raw_temps_ready = false;
 #if ENABLED(PID_EXTRUSION_SCALING)
   int32_t Temperature::last_e_position, Temperature::lpq[LPQ_MAX_LEN];
   lpq_ptr_t Temperature::lpq_ptr = 0;
+#endif
+
+#if ENABLED(MPCTEMP)
+  int32_t Temperature::last_e_position;
 #endif
 
 #define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
@@ -1170,7 +1174,76 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         }
       #endif
 
-    #else // No PID enabled
+    #elif ENABLED(MPCTEMP)
+
+      // at startup, initialise modeled temperatures
+      if (isnan(temp_hotend[ee].modeled_block_temp)) {
+        temp_hotend[ee].modeled_ambient_temp = AMBIENT_FOR_PWM_TEST;
+        temp_hotend[ee].modeled_block_temp = temp_hotend[ee].modeled_sensor_temp = temp_hotend[ee].celsius;
+      }
+
+      constexpr float ambient_xfer_coeff_fan0 = (float)PWM_AT_200C / 127 * HEATER_POWER / (200 - AMBIENT_FOR_PWM_TEST);
+      #if ENABLED(MPC_INCLUDE_FAN)
+        constexpr float ambient_xfer_coeff_fan255 = (float)PWM_AT_200C_FAN255 / 127 * HEATER_POWER / (200 - AMBIENT_FOR_PWM_TEST);
+        const float fan_fraction = (float)thermalManager.fan_speed[ee] / 255;
+        const float ambient_xfer_coeff = ambient_xfer_coeff_fan0 + fan_fraction * (ambient_xfer_coeff_fan255 - ambient_xfer_coeff_fan0);
+      #else
+        constexpr float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
+      #endif
+
+      // calculate a good (enough) estimate of heat transfer from block to sensor using MEASUREMENT_LAG
+      constexpr float sensor_xfer_coeff = SENSOR_HEAT_CAPACITY / MEASUREMENT_LAG;
+
+      #if HOTENDS == 1
+        constexpr bool this_hotend = true;
+      #else
+        const bool this_hotend = (ee == active_extruder);
+      #endif
+
+      float e_speed = 0.0;
+      if (this_hotend) {
+        const int32_t e_position = stepper.position(E_AXIS);
+        e_speed = (e_position - last_e_position) * planner.mm_per_step[E_AXIS] / MPC_dT;
+        NOLESS(e_speed, 0.0);                                         // retracting filament has no effect on heating
+        NOMORE(e_speed, planner.settings.max_feedrate_mm_s[E_AXIS]);  // the position can appear to make big jumps when, e.g. homing
+        last_e_position = e_position;
+      }
+
+      // update the modeled temperatures
+      float power = HEATER_POWER * temp_hotend[ee].soft_pwm_amount / 127;
+      power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * ambient_xfer_coeff;
+      if (this_hotend)
+        power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
+      power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * sensor_xfer_coeff;
+      float temprate = power / HEATBLOCK_HEAT_CAPACITY;
+      temp_hotend[ee].modeled_block_temp += temprate * MPC_dT;
+
+      temprate = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * sensor_xfer_coeff / SENSOR_HEAT_CAPACITY;
+      temp_hotend[ee].modeled_sensor_temp += temprate * MPC_dT;
+
+      // Any delta between temp_hotend[ee].modeled_sensor_temp and temp_hotend[ee].celsius is either model
+      // error diverging slowly or (fast) noise. Slowly correct towards this temperature and noise will average out.
+      const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) / 10.0;
+      temp_hotend[ee].modeled_block_temp += delta_to_apply;
+      temp_hotend[ee].modeled_sensor_temp += delta_to_apply;
+      temp_hotend[ee].modeled_ambient_temp += delta_to_apply;
+
+      power = 0.0;
+      if (temp_hotend[ee].target != 0
+          #if HEATER_IDLE_HANDLER
+            && !hotend_idle[ee].timed_out
+          #endif
+      ) {
+        // plan power level to get to a third of the way to target temperature by the next update
+        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * HEATBLOCK_HEAT_CAPACITY / (3 * MPC_dT);
+        power += (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * ambient_xfer_coeff;
+        if (this_hotend)
+          power += (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
+      }
+
+      const float pid_output = constrain(255 * power / HEATER_POWER + 1, 0, MPC_MAX);   // "+ 1" because later truncation and rightshift doesn't round
+
+    #else // No PID or MPC enabled
 
       const bool is_idling = TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out);
       const float pid_output = (!is_idling && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
@@ -2244,6 +2317,12 @@ void Temperature::init() {
         LOW
       #endif
     ));
+  #endif
+
+  #if ENABLED(MPCTEMP)
+    last_e_position = 0;
+    HOTEND_LOOP()
+      temp_hotend[e].modeled_block_temp = NAN;
   #endif
 
   #if HAS_HEATER_0
