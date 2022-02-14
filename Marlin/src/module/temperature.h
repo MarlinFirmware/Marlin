@@ -186,6 +186,10 @@ enum ADCSensorState : char {
   #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
+#if ENABLED(MPCTEMP)
+  #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
+#endif
+
 #if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
@@ -213,6 +217,14 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
 } heater_info_t;
 
+#if ENABLED(MPCTEMP)
+  struct MPCHeaterInfo : public HeaterInfo {
+    float modeled_ambient_temp;
+    float modeled_block_temp;
+    float modeled_sensor_temp;
+  };
+#endif
+
 // A heater with PID stabilization
 template<typename T>
 struct PIDHeaterInfo : public HeaterInfo {
@@ -221,6 +233,8 @@ struct PIDHeaterInfo : public HeaterInfo {
 
 #if ENABLED(PIDTEMP)
   typedef struct PIDHeaterInfo<hotend_pid_t> hotend_info_t;
+#elif ENABLED(MPCTEMP)
+  typedef struct MPCHeaterInfo hotend_info_t;
 #else
   typedef heater_info_t hotend_info_t;
 #endif
@@ -481,6 +495,10 @@ class Temperature {
     #if ENABLED(PID_EXTRUSION_SCALING)
       static int32_t last_e_position, lpq[LPQ_MAX_LEN];
       static lpq_ptr_t lpq_ptr;
+    #endif
+
+    #if ENABLED(MPCTEMP)
+      static int32_t last_e_position;
     #endif
 
     #if HAS_HOTEND
