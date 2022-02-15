@@ -49,6 +49,7 @@ void XATC::print_points() {
 float lerp(const_float_t t, const_float_t a, const_float_t b) { return a + t * (b - a); }
 
 float XATC::compensation(const xy_pos_t &raw) {
+  if (NEAR_ZERO(spacing)) return 0;
   float t = (raw.x - start) / spacing;
   int i = FLOOR(t);
   LIMIT(i, 0, XATC_MAX_POINTS - 2);
