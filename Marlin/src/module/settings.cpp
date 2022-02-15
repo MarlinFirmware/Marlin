@@ -863,10 +863,7 @@ void MarlinSettings::postprocess() {
           "Bilinear Z array is the wrong size."
         );
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          static_assert(
-            sizeof(xatc.z_values) == (XATC_MAX_POINTS) * sizeof(xatc.z_values[0]),
-            "Z-offset mesh is the wrong size."
-          );
+          static_assert(COUNT(xatc.z_offset) == XATC_MAX_POINTS, "XATC Z-offset mesh is the wrong size.");
         #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
