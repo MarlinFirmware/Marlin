@@ -1195,6 +1195,11 @@ private:
     static void M1000();
   #endif
 
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
+  #endif
+
   #if ENABLED(SDSUPPORT)
     static void M1001();
   #endif

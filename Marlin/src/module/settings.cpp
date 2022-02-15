@@ -63,9 +63,6 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
-  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    #include "../feature/bedlevel/abl/x_twist.h"
-  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -271,7 +268,7 @@ typedef struct SettingsDataStruct {
     bed_mesh_t z_values;                                // G29
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
       float xatc_spacing, xatc_start;
-      xatc_points_t xatc_z_values;                                        // TBD
+      xatc_array_t xatc_z_offset;                       // M423 X Z
     #endif
   #else
     float z_values[3][3];
@@ -864,10 +861,7 @@ void MarlinSettings::postprocess() {
           "Bilinear Z array is the wrong size."
         );
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          static_assert(
-            sizeof(xatc.z_values) == (XATC_MAX_POINTS) * sizeof(xatc.z_values[0]),
-            "Z-offset mesh is the wrong size."
-          );
+          static_assert(COUNT(xatc.z_offset) == XATC_MAX_POINTS, "XATC Z-offset mesh is the wrong size.");
         #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
@@ -883,9 +877,9 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          EEPROM_WRITE(XATC::spacing);
-          EEPROM_WRITE(XATC::start);
-          EEPROM_WRITE(XATC::z_values);
+          EEPROM_WRITE(xatc.spacing);
+          EEPROM_WRITE(xatc.start);
+          EEPROM_WRITE(xatc.z_offset);
         #endif
       #else
         dummyf = 0;
@@ -1773,9 +1767,9 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
             #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-              EEPROM_READ(XATC::spacing);
-              EEPROM_READ(XATC::start);
-              EEPROM_READ(XATC::z_values);
+              EEPROM_READ(xatc.spacing);
+              EEPROM_READ(xatc.start);
+              EEPROM_READ(xatc.z_offset);
             #endif
           }
           else // EEPROM data is stale
@@ -3288,11 +3282,7 @@ void MarlinSettings::reset() {
           }
         }
 
-        // TODO: Create G-code for settings
-        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        //  CONFIG_ECHO_START();
-        //  xatc.print_points();
-        //#endif
+        TERN_(X_AXIS_TWIST_COMPENSATION, gcode.M423_report(forReplay));
 
       #endif
 
