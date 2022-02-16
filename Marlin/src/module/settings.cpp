@@ -505,6 +505,13 @@ typedef struct SettingsDataStruct {
     uint8_t ui_language;                                // M414 S
   #endif
 
+  //
+  // USE_LCD_BACKLIGHT_TIMEOUT
+  //
+  #if ENABLED(USE_LCD_SCREENSAVER)
+    millis_t lcd_backlight_timeout;
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1451,6 +1458,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Timeout LCD backlight
+    //
+    #if ENABLED(USE_LCD_SCREENSAVER)
+      EEPROM_WRITE(ui.lcd_backlight_timeout);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2363,6 +2377,15 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Timeout LCD backlight
+      //
+      #if ENABLED(USE_LCD_SCREENSAVER)
+        millis_t timeout_LCD_BL;
+        EEPROM_READ(timeout_LCD_BL);
+        ui.set_lcd_backlight_timeout(timeout_LCD_BL);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2935,6 +2958,11 @@ void MarlinSettings::reset() {
   // LCD Brightness
   //
   TERN_(HAS_LCD_BRIGHTNESS, ui.set_brightness(DEFAULT_LCD_BRIGHTNESS));
+
+  //
+  // LCD Backlight Timeout
+  //
+  TERN_(USE_LCD_SCREENSAVER, ui.set_lcd_backlight_timeout(LCD_BACKLIGHT_TIMEOUT_MS));
 
   //
   // Controller Fan

@@ -262,6 +262,11 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
+  #if ENABLED(USE_LCD_SCREENSAVER)
+  static millis_t lcd_backlight_timeout;
+  static void set_lcd_backlight_timeout(const millis_t value);
+  #endif
+
   #if HAS_DWIN_E3V2_BASIC
     static void refresh();
   #else

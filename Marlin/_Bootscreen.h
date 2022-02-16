@@ -747,27 +747,27 @@ const unsigned char custom_start_bmp9[] PROGMEM = {
 #ifdef CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME
 
 const boot_frame_t  custom_bootscreen_animation[] PROGMEM = {
-  { custom_start_bmp1, 500},
-  { custom_start_bmp2, 200},
-  { custom_start_bmp3, 200},
-  { custom_start_bmp4, 200},
+  { custom_start_bmp1, 400},
+ // { custom_start_bmp2, 200},
+ // { custom_start_bmp3, 200},
+ // { custom_start_bmp4, 200},
   { custom_start_bmp5, 200},
-  { custom_start_bmp6, 200},
-  { custom_start_bmp7, 200},
-  { custom_start_bmp8, 200},
+ // { custom_start_bmp6, 200},
+ // { custom_start_bmp7, 200},
+ // { custom_start_bmp8, 200},
   { custom_start_bmp9, 500}
 };
 
 #else
 const unsigned char * const custom_bootscreen_animation[] PROGMEM = {
     custom_start_bmp1,
-    custom_start_bmp2,
-    custom_start_bmp3,
-    custom_start_bmp4,
+  //  custom_start_bmp2,
+  //  custom_start_bmp3,
+  //  custom_start_bmp4,
     custom_start_bmp5,
-    custom_start_bmp6,
-    custom_start_bmp7,
-    custom_start_bmp8,
+  //  custom_start_bmp6,
+  //  custom_start_bmp7,
+  //  custom_start_bmp8,
     custom_start_bmp9
   };
   #endif

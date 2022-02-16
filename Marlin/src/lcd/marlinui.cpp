@@ -116,6 +116,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
+#if ENABLED(USE_LCD_SCREENSAVER)
+  millis_t MarlinUI::lcd_backlight_timeout = LCD_BACKLIGHT_TIMEOUT_MS;
+  
+  void MarlinUI::set_lcd_backlight_timeout(const millis_t value){
+    if(value > 0) lcd_backlight_timeout = value;
+  }
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   bool MarlinUI::buzzer_enabled = true;
 #endif
@@ -893,8 +901,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #endif
     
     #if ENABLED(USE_LCD_SCREENSAVER)
-      static millis_t backlight_ms = LCD_BACKLIGHT_TIMEOUT_MS; //Backlight
-      #define LCD_RESET_BACKLIGHT_TIMEOUT() (backlight_ms = ms + LCD_BACKLIGHT_TIMEOUT_MS) //Backlight
+      static millis_t backlight_ms = ui.lcd_backlight_timeout; //Backlight
+      #define LCD_RESET_BACKLIGHT_TIMEOUT() (backlight_ms = ms + ui.lcd_backlight_timeout) //Backlight
     #endif
 
     #if HAS_LCD_MENU
@@ -1063,11 +1071,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         lcd_status_update_delay = TERN(HAS_MARLINUI_U8GLIB, 12, 9);
         if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
 
-        #if ENABLED(USE_LCD_SCREENSAVER) //Backlight turn on
-            LCD_RESET_BACKLIGHT_TIMEOUT();
-            digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
-        #endif
-
         refresh(LCDVIEW_REDRAW_NOW);
       }
 
@@ -1158,11 +1161,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
           return_to_status();
       #endif
 
-     /* #if ENABLED(USE_LCD_SCREENSAVER) //Backlight
+      #if ENABLED(USE_LCD_SCREENSAVER) //Backlight
         if( ELAPSED(ms, backlight_ms) ) 
           digitalWrite(LCD_BACKLIGHT_PIN, LOW); //// turn backlight off
       #endif
-*/
+
 
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
