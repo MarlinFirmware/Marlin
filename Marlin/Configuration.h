@@ -637,7 +637,7 @@
   // they have the same numbering. i.e. fan N cools extruder N.
   #define MPC_INCLUDE_FAN
   #if ENABLED(MPC_INCLUDE_FAN)
-    #define PWM_AT_200C_FAN255  57                  // PWM value when steady at 200°C with fan on full
+    #define PWM_AT_200C_FAN255  57                  // PWM value when steady at 200°C with fan on full.
   #endif
 
   #define FILAMENT_HEAT_CAPACITY_PERMM 5.6e-3f      // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA). Most filaments are similar.
