@@ -1211,10 +1211,10 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       // update the modeled temperatures
       float power = HEATER_POWER * temp_hotend[ee].soft_pwm_amount / 127;
-      power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * ambient_xfer_coeff;
+      power += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
       if (this_hotend)
-        power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
-      power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * sensor_xfer_coeff;
+        power += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
+      power += (temp_hotend[ee].modeled_sensor_temp - temp_hotend[ee].modeled_block_temp) * sensor_xfer_coeff;
       float temprate = power / heatblock_heat_capacity;
       temp_hotend[ee].modeled_block_temp += temprate * MPC_dT;
       const bool steadystate = fabs(temprate) < 0.2;
@@ -1234,11 +1234,11 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       power = 0.0;
       if (temp_hotend[ee].target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
-        // plan power level to get to a third of the way to target temperature by the next update
-        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * heatblock_heat_capacity / (3 * MPC_dT);
-        power += (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * ambient_xfer_coeff;
+        // plan power level to get half way to target temperature by the next update
+        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * heatblock_heat_capacity / (2 * MPC_dT);
+        power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
         if (this_hotend)
-          power += (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
+          power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
       }
 
       const float pid_output = constrain(255 * power / HEATER_POWER + 1, 0, MPC_MAX);   // "+ 1" because later truncation and rightshift doesn't round
