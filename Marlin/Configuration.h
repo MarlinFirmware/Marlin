@@ -592,7 +592,7 @@
 // PID Tuning Guide here: https://reprap.org/wiki/PID_Tuning
 
 // Uncomment one of the following two lines to enable PID or model predictive
-// temperature control. Or disable both for to enable bang-bang control.
+// temperature control. Or disable both to enable bang-bang control.
 //#define PIDTEMP
 #define MPCTEMP
 #define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
@@ -622,25 +622,23 @@
  * Model Predictive Control for hotend
  *
  * Use a physical model of the hotend to control temperature. When configured correctly
- * this gives significantly better temperature stability than PID.
+ * this gives better responsiveness and stability than PID and it also removes the need
+ * for PID_EXTRUSION_SCALING and PID_FAN_SCALING.
  */
 
 #if ENABLED(MPCTEMP)
   #define MPC_MAX BANG_MAX                          // Limits current to nozzle while MPC is active; 255=full current.
-  #define HEATER_POWER 36.0                         // 36W for a 12V, 4ohm heater cartridge.
-  #define HEATBLOCK_MASS 13e-3f                     // Mass of the hotend in kg.
-  #define HEATBLOCK_SPECIFIC_HEAT 900.0             // Specific heat in J/kg/K. Aluminium is 900, copper is 385.
-  #define HEATBLOCK_HEAT_CAPACITY (HEATBLOCK_MASS * HEATBLOCK_SPECIFIC_HEAT)
-  #define MEASUREMENT_LAG 20.0f                     // Time in seconds before temperature sensor settles after a change.
-  #define SENSOR_HEAT_CAPACITY (HEATBLOCK_HEAT_CAPACITY / 1000.0) // Exact value doesn't matter as long as it is a lot smaller than HEATBLOCK_HEAT_CAPACITY.
+  #define HEATER_POWER 36.0f                        // 36W for a 12V, 4ohm heater cartridge.
+  #define AMBIENT_FOR_CALIBRATION 19.0f             // Room temperature in °C when calibrating MPC.
+  #define TEMPERATURE_AT_T10 29.2f                  // Hotend temp in °C after heating from cold (ambient) at full power for 10s.
+  #define TEMPERATURE_AT_T20 50.3f                  // Hotend temp in °C after heating from cold (ambient) at full power for 20s.
   #define PWM_AT_200C 45                            // PWM value when steady at 200°C (with fan off).
-  #define AMBIENT_FOR_PWM_TEST 20.0                 // Room temperature in °C when PWM 200°C tests were conducted.
 
   // Take fan speed into account in calculations. Assumes every extruder has a fan and that
   // they have the same numbering. i.e. fan N cools extruder N.
   #define MPC_INCLUDE_FAN
   #if ENABLED(MPC_INCLUDE_FAN)
-    #define PWM_AT_200C_FAN255  70                  // PWM value when steady at 200°C with fan on full
+    #define PWM_AT_200C_FAN255  57                  // PWM value when steady at 200°C with fan on full
   #endif
 
   #define FILAMENT_HEAT_CAPACITY_PERMM 5.6e-3f      // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA). Most filaments are similar.

@@ -508,7 +508,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if ENABLED(MPCTEMP)
-  int32_t Temperature::last_e_position;
+  int32_t Temperature::last_e_position = 0;
 #endif
 
 #define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
@@ -1175,24 +1175,24 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       #endif
 
     #elif ENABLED(MPCTEMP)
-
       // at startup, initialise modeled temperatures
       if (isnan(temp_hotend[ee].modeled_block_temp)) {
-        temp_hotend[ee].modeled_ambient_temp = AMBIENT_FOR_PWM_TEST;
+        temp_hotend[ee].modeled_ambient_temp = AMBIENT_FOR_CALIBRATION;   // a typical room temperature
         temp_hotend[ee].modeled_block_temp = temp_hotend[ee].modeled_sensor_temp = temp_hotend[ee].celsius;
       }
 
-      constexpr float ambient_xfer_coeff_fan0 = (float)PWM_AT_200C / 127 * HEATER_POWER / (200 - AMBIENT_FOR_PWM_TEST);
-      #if ENABLED(MPC_INCLUDE_FAN)
-        constexpr float ambient_xfer_coeff_fan255 = (float)PWM_AT_200C_FAN255 / 127 * HEATER_POWER / (200 - AMBIENT_FOR_PWM_TEST);
-        const float fan_fraction = (float)thermalManager.fan_speed[ee] / 255;
-        const float ambient_xfer_coeff = ambient_xfer_coeff_fan0 + fan_fraction * (ambient_xfer_coeff_fan255 - ambient_xfer_coeff_fan0);
-      #else
-        constexpr float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
-      #endif
+      constexpr float heating_rate = (TEMPERATURE_AT_T20 - TEMPERATURE_AT_T10) / 10.0f;
+      constexpr float heatblock_heat_capacity = HEATER_POWER / heating_rate;
+      constexpr float sensor_heat_capacity = (heatblock_heat_capacity / 1000.0f); // exact value doesn't matter
+      constexpr float measurement_lag = 10.0f - (TEMPERATURE_AT_T10 - AMBIENT_FOR_CALIBRATION) / heating_rate;
+      constexpr float sensor_xfer_coeff = sensor_heat_capacity / measurement_lag;
 
-      // calculate a good (enough) estimate of heat transfer from block to sensor using MEASUREMENT_LAG
-      constexpr float sensor_xfer_coeff = SENSOR_HEAT_CAPACITY / MEASUREMENT_LAG;
+      float ambient_xfer_coeff = (float)PWM_AT_200C / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
+      #if ENABLED(MPC_INCLUDE_FAN)
+        constexpr float ambient_xfer_coeff_fan255 = (float)PWM_AT_200C_FAN255 / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
+        const float fan_fraction = (float)thermalManager.fan_speed[ee] / 255;
+        ambient_xfer_coeff += fan_fraction * (ambient_xfer_coeff_fan255 - ambient_xfer_coeff);
+      #endif
 
       #if HOTENDS == 1
         constexpr bool this_hotend = true;
@@ -1215,10 +1215,11 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       if (this_hotend)
         power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
       power -= (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * sensor_xfer_coeff;
-      float temprate = power / HEATBLOCK_HEAT_CAPACITY;
+      float temprate = power / heatblock_heat_capacity;
       temp_hotend[ee].modeled_block_temp += temprate * MPC_dT;
+      const bool steadystate = fabs(temprate) < 0.2;
 
-      temprate = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * sensor_xfer_coeff / SENSOR_HEAT_CAPACITY;
+      temprate = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * sensor_xfer_coeff / sensor_heat_capacity;
       temp_hotend[ee].modeled_sensor_temp += temprate * MPC_dT;
 
       // Any delta between temp_hotend[ee].modeled_sensor_temp and temp_hotend[ee].celsius is either model
@@ -1226,16 +1227,15 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) / 10.0;
       temp_hotend[ee].modeled_block_temp += delta_to_apply;
       temp_hotend[ee].modeled_sensor_temp += delta_to_apply;
-      temp_hotend[ee].modeled_ambient_temp += delta_to_apply;
+
+      // only correct ambient when close to steady state otherwise it can diverge wildly due to modelling errors
+      if (steadystate)
+        temp_hotend[ee].modeled_ambient_temp += delta_to_apply;
 
       power = 0.0;
-      if (temp_hotend[ee].target != 0
-          #if HEATER_IDLE_HANDLER
-            && !hotend_idle[ee].timed_out
-          #endif
-      ) {
+      if (temp_hotend[ee].target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
         // plan power level to get to a third of the way to target temperature by the next update
-        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * HEATBLOCK_HEAT_CAPACITY / (3 * MPC_dT);
+        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * heatblock_heat_capacity / (3 * MPC_dT);
         power += (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * ambient_xfer_coeff;
         if (this_hotend)
           power += (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_ambient_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
@@ -2320,7 +2320,6 @@ void Temperature::init() {
   #endif
 
   #if ENABLED(MPCTEMP)
-    last_e_position = 0;
     HOTEND_LOOP()
       temp_hotend[e].modeled_block_temp = NAN;
   #endif

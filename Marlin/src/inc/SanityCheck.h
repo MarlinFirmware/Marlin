@@ -1400,11 +1400,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "To use MPCTEMP you must disable PIDTEMP."
 #endif
 
-#if ENABLED(MPCTEMP) && HOTENDS > 1
-  #error "MPCTEMP is only implemented for a single hotend. Check EXTRUDERS value."
-#endif
-
-#if ENABLED(MPC_INCLUDE_FAN) && FAN_COUNT < HOTENDS
+#if ENABLED(MPC_INCLUDE_FAN) && FAN_COUNT != HOTENDS
   #error "MPC_INCLUDE_FAN requires one fan per extruder and they must have the same numbering."
 #endif
 
