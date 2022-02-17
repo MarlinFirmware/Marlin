@@ -1202,10 +1202,15 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       float e_speed = 0.0;
       if (this_hotend) {
         const int32_t e_position = stepper.position(E_AXIS);
-        e_speed = (e_position - last_e_position) * planner.mm_per_step[E_AXIS] / MPC_dT;
-        NOLESS(e_speed, 0.0);                                         // retracting filament has no effect on heating
-        NOMORE(e_speed, planner.settings.max_feedrate_mm_s[E_AXIS]);  // the position can appear to make big jumps when, e.g. homing
-        last_e_position = e_position;
+        const float e_delta = (e_position - last_e_position) * planner.mm_per_step[E_AXIS];
+
+        // the position can appear to make big jumps when, e.g. homing
+        if (fabs(e_delta) > planner.settings.max_feedrate_mm_s[E_AXIS] * MPC_dT)
+          last_e_position = e_position;
+        else if (e_delta > 0.0f) {  // ignore retractions and deretractions
+          e_speed = e_delta / MPC_dT;
+          last_e_position = e_position;
+        }
       }
 
       // update the modeled temperatures
