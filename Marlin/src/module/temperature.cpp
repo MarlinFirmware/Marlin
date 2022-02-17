@@ -1213,7 +1213,6 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       power += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
       if (this_hotend)
         power += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
-      power += (temp_hotend[ee].modeled_sensor_temp - temp_hotend[ee].modeled_block_temp) * sensor_xfer_coeff;
       float temprate = power / heatblock_heat_capacity;
       temp_hotend[ee].modeled_block_temp += temprate * MPC_dT;
       const bool steadystate = fabs(temprate) < 0.2;
