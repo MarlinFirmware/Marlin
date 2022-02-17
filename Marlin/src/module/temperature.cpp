@@ -1233,8 +1233,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       power = 0.0;
       if (temp_hotend[ee].target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
-        // plan power level to get half way to target temperature by the next update
-        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * heatblock_heat_capacity / (2 * MPC_dT);
+        // plan power level to get to target temperature in 2 seconds
+        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * heatblock_heat_capacity / 2.0f;
         power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
         if (this_hotend)
           power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
