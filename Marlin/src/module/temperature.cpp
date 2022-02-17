@@ -1184,8 +1184,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       constexpr float heating_rate = (TEMPERATURE_AT_T20 - TEMPERATURE_AT_T10) / 10.0f;
       constexpr float heatblock_heat_capacity = HEATER_POWER / heating_rate;
       constexpr float sensor_heat_capacity = (heatblock_heat_capacity / 1000.0f); // exact value doesn't matter
-      constexpr float measurement_lag = 10.0f - (TEMPERATURE_AT_T10 - AMBIENT_FOR_CALIBRATION) / heating_rate;
-      constexpr float sensor_xfer_coeff = sensor_heat_capacity / measurement_lag;
+      constexpr float sensor_xfer_coeff = sensor_heat_capacity * heating_rate / (10.0f * heating_rate - (TEMPERATURE_AT_T10 - AMBIENT_FOR_CALIBRATION));
 
       float ambient_xfer_coeff = (float)PWM_AT_200C / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
       #if ENABLED(MPC_INCLUDE_FAN)
