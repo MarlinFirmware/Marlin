@@ -1474,7 +1474,7 @@ void Stepper::isr() {
   #ifndef __AVR__
     // Disable interrupts, to avoid ISR preemption while we reprogram the period
     // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
-    DISABLE_ISRS();
+    hal.isr_off();
   #endif
 
   // Program timer compare for the maximum period, so it does NOT
@@ -1492,7 +1492,7 @@ void Stepper::isr() {
   hal_timer_t min_ticks;
   do {
     // Enable ISRs to reduce USART processing latency
-    ENABLE_ISRS();
+    hal.isr_on();
 
     if (!nextMainISR) pulse_phase_isr();                            // 0 = Do coordinated axes Stepper pulses
 
@@ -1576,7 +1576,7 @@ void Stepper::isr() {
      * is less than the current count due to something preempting between the
      * read and the write of the new period value).
      */
-    DISABLE_ISRS();
+    hal.isr_off();
 
     /**
      * Get the current tick value + margin
@@ -1611,7 +1611,7 @@ void Stepper::isr() {
   HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(next_isr_ticks));
 
   // Don't forget to finally reenable interrupts
-  ENABLE_ISRS();
+  hal.isr_on();
 }
 
 #if MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE
@@ -3260,33 +3260,33 @@ void Stepper::report_positions() {
 
       #elif HAS_MOTOR_CURRENT_PWM
 
-        #define _WRITE_CURRENT_PWM_DUTY(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM(P) hal.set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-              _WRITE_CURRENT_PWM_DUTY(X);
+              _WRITE_CURRENT_PWM(X);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-              _WRITE_CURRENT_PWM_DUTY(Y);
+              _WRITE_CURRENT_PWM(Y);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-              _WRITE_CURRENT_PWM_DUTY(XY);
+              _WRITE_CURRENT_PWM(XY);
             #endif
             break;
           case 1:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-              _WRITE_CURRENT_PWM_DUTY(Z);
+              _WRITE_CURRENT_PWM(Z);
             #endif
             break;
           case 2:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-              _WRITE_CURRENT_PWM_DUTY(E);
+              _WRITE_CURRENT_PWM(E);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-              _WRITE_CURRENT_PWM_DUTY(E0);
+              _WRITE_CURRENT_PWM(E0);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-              _WRITE_CURRENT_PWM_DUTY(E1);
+              _WRITE_CURRENT_PWM(E1);
             #endif
             break;
         }
@@ -3308,7 +3308,7 @@ void Stepper::report_positions() {
         #ifdef __SAM3X8E__
           #define _RESET_CURRENT_PWM_FREQ(P) NOOP
         #else
-          #define _RESET_CURRENT_PWM_FREQ(P) set_pwm_frequency(pin_t(P), MOTOR_CURRENT_PWM_FREQUENCY)
+          #define _RESET_CURRENT_PWM_FREQ(P) hal.set_pwm_frequency(pin_t(P), MOTOR_CURRENT_PWM_FREQUENCY)
         #endif
         #define INIT_CURRENT_PWM(P) do{ SET_PWM(MOTOR_CURRENT_PWM_## P ##_PIN); _RESET_CURRENT_PWM_FREQ(MOTOR_CURRENT_PWM_## P ##_PIN); }while(0)
 

@@ -3891,3 +3891,10 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #undef _TEST_PWM
 #undef _LINEAR_AXES_STR
 #undef _LOGICAL_AXES_STR
+
+// JTAG support in the HAL
+#if ENABLED(DISABLE_DEBUG) && !defined(JTAGSWD_DISABLE)
+  #error "DISABLE_DEBUG is not supported for the selected MCU/Board."
+#elif ENABLED(DISABLE_JTAG) && !defined(JTAG_DISABLE)
+  #error "DISABLE_JTAG is not supported for the selected MCU/Board."
+#endif
