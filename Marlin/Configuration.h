@@ -408,6 +408,18 @@
  *
  * Temperature sensors available:
  *
+*  Board (SoC) Internal Temperature Sensor - IMPORTANT: Only available for TEMP_SENSOR_BOARD
+ *  -------
+ * -1000 : Use chip internal temperature sensor
+ * 
+ *  NOTE: The use of the chip internal temperature sensor is to measure the silicon temperature.
+ *        It is in NO WAY meant to be an accurate reading of the ambient temperature.
+ *        Can only be used with TEMP_SENSOR_BOARD.
+ * 
+ *  NOTE: Requires TEMP_INTERNAL_SENSOR(RAW) macro to convert the ADC value of the TEMP_BOARD_PIN to the temperature.
+ *        HAL\STM32\internal_temp.h provides this macro for STM32 HAL using ATEMP pin and the specs of various STM32 chips.
+ *        Therefore, defining TEMP_SENSOR_BOARD -1000 on stm32_variant boards is the only step required to use the internal sensor of the STM32. 
+ *
  *  SPI RTD/Thermocouple Boards - IMPORTANT: Read the NOTE below!
  *  -------
  *    -5 : MAX31865 with Pt100/Pt1000, 2, 3, or 4-wire  (only for sensors 0-1)

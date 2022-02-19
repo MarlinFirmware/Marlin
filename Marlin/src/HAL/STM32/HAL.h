@@ -28,6 +28,7 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
+#include "internal_temp.h"
 #include "fastio.h"
 #include "Servo.h"
 #include "watchdog.h"
