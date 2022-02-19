@@ -327,7 +327,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #define _INIT_FAN_PIN(P) do{ if (PWM_PIN(P)) SET_PWM(P); else _INIT_SOFT_FAN(P); }while(0)
 #endif
 #if ENABLED(FAST_PWM_FAN)
-  #define SET_FAST_PWM_FREQ(P) set_pwm_frequency(P, FAST_PWM_FAN_FREQUENCY)
+  #define SET_FAST_PWM_FREQ(P) hal.set_pwm_frequency(pin_t(P), FAST_PWM_FAN_FREQUENCY)
 #else
   #define SET_FAST_PWM_FREQ(P) NOOP
 #endif
@@ -818,7 +818,7 @@ volatile bool Temperature::raw_temps_ready = false;
       }
 
       // Run HAL idle tasks
-      TERN_(HAL_IDLETASK, HAL_idletask());
+      hal.idletask();
 
       // Run UI update
       TERN(HAS_DWIN_E3V2_BASIC, DWIN_Update(), ui.update());
@@ -907,7 +907,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
     #define _UPDATE_AUTO_FAN(P,D,A) do{                   \
       if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)           \
-        set_pwm_duty(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
+        hal.set_pwm_duty(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
       else                                                \
         WRITE(P##_AUTO_FAN_PIN, D);                       \
     }while(0)
@@ -2321,73 +2321,32 @@ void Temperature::init() {
 
   TERN_(HAS_MAXTC_SW_SPI, max_tc_spi.init());
 
-  HAL_adc_init();
+  hal.adc_init();
 
-  #if HAS_TEMP_ADC_0
-    HAL_ANALOG_SELECT(TEMP_0_PIN);
-  #endif
-  #if HAS_TEMP_ADC_1
-    HAL_ANALOG_SELECT(TEMP_1_PIN);
-  #endif
-  #if HAS_TEMP_ADC_2
-    HAL_ANALOG_SELECT(TEMP_2_PIN);
-  #endif
-  #if HAS_TEMP_ADC_3
-    HAL_ANALOG_SELECT(TEMP_3_PIN);
-  #endif
-  #if HAS_TEMP_ADC_4
-    HAL_ANALOG_SELECT(TEMP_4_PIN);
-  #endif
-  #if HAS_TEMP_ADC_5
-    HAL_ANALOG_SELECT(TEMP_5_PIN);
-  #endif
-  #if HAS_TEMP_ADC_6
-    HAL_ANALOG_SELECT(TEMP_6_PIN);
-  #endif
-  #if HAS_TEMP_ADC_7
-    HAL_ANALOG_SELECT(TEMP_7_PIN);
-  #endif
-  #if HAS_JOY_ADC_X
-    HAL_ANALOG_SELECT(JOY_X_PIN);
-  #endif
-  #if HAS_JOY_ADC_Y
-    HAL_ANALOG_SELECT(JOY_Y_PIN);
-  #endif
-  #if HAS_JOY_ADC_Z
-    HAL_ANALOG_SELECT(JOY_Z_PIN);
-  #endif
+  TERN_(HAS_TEMP_ADC_0,         hal.adc_enable(TEMP_0_PIN));
+  TERN_(HAS_TEMP_ADC_1,         hal.adc_enable(TEMP_1_PIN));
+  TERN_(HAS_TEMP_ADC_2,         hal.adc_enable(TEMP_2_PIN));
+  TERN_(HAS_TEMP_ADC_3,         hal.adc_enable(TEMP_3_PIN));
+  TERN_(HAS_TEMP_ADC_4,         hal.adc_enable(TEMP_4_PIN));
+  TERN_(HAS_TEMP_ADC_5,         hal.adc_enable(TEMP_5_PIN));
+  TERN_(HAS_TEMP_ADC_6,         hal.adc_enable(TEMP_6_PIN));
+  TERN_(HAS_TEMP_ADC_7,         hal.adc_enable(TEMP_7_PIN));
+  TERN_(HAS_JOY_ADC_X,          hal.adc_enable(JOY_X_PIN));
+  TERN_(HAS_JOY_ADC_Y,          hal.adc_enable(JOY_Y_PIN));
+  TERN_(HAS_JOY_ADC_Z,          hal.adc_enable(JOY_Z_PIN));
+  TERN_(HAS_TEMP_ADC_BED,       hal.adc_enable(TEMP_BED_PIN));
+  TERN_(HAS_TEMP_ADC_CHAMBER,   hal.adc_enable(TEMP_CHAMBER_PIN));
+  TERN_(HAS_TEMP_ADC_PROBE,     hal.adc_enable(TEMP_PROBE_PIN));
+  TERN_(HAS_TEMP_ADC_COOLER,    hal.adc_enable(TEMP_COOLER_PIN));
+  TERN_(HAS_TEMP_ADC_BOARD,     hal.adc_enable(TEMP_BOARD_PIN));
+  TERN_(HAS_TEMP_ADC_REDUNDANT, hal.adc_enable(TEMP_REDUNDANT_PIN));
+  TERN_(FILAMENT_WIDTH_SENSOR,  hal.adc_enable(FILWIDTH_PIN));
+  TERN_(HAS_ADC_BUTTONS,        hal.adc_enable(ADC_KEYPAD_PIN));
+  TERN_(POWER_MONITOR_CURRENT,  hal.adc_enable(POWER_MONITOR_CURRENT_PIN));
+  TERN_(POWER_MONITOR_VOLTAGE,  hal.adc_enable(POWER_MONITOR_VOLTAGE_PIN));
+
   #if HAS_JOY_ADC_EN
     SET_INPUT_PULLUP(JOY_EN_PIN);
-  #endif
-  #if HAS_TEMP_ADC_BED
-    HAL_ANALOG_SELECT(TEMP_BED_PIN);
-  #endif
-  #if HAS_TEMP_ADC_CHAMBER
-    HAL_ANALOG_SELECT(TEMP_CHAMBER_PIN);
-  #endif
-  #if HAS_TEMP_ADC_PROBE
-    HAL_ANALOG_SELECT(TEMP_PROBE_PIN);
-  #endif
-  #if HAS_TEMP_ADC_COOLER
-    HAL_ANALOG_SELECT(TEMP_COOLER_PIN);
-  #endif
-  #if HAS_TEMP_ADC_BOARD
-    HAL_ANALOG_SELECT(TEMP_BOARD_PIN);
-  #endif
-  #if HAS_TEMP_ADC_REDUNDANT
-    HAL_ANALOG_SELECT(TEMP_REDUNDANT_PIN);
-  #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    HAL_ANALOG_SELECT(FILWIDTH_PIN);
-  #endif
-  #if HAS_ADC_BUTTONS
-    HAL_ANALOG_SELECT(ADC_KEYPAD_PIN);
-  #endif
-  #if ENABLED(POWER_MONITOR_CURRENT)
-    HAL_ANALOG_SELECT(POWER_MONITOR_CURRENT_PIN);
-  #endif
-  #if ENABLED(POWER_MONITOR_VOLTAGE)
-    HAL_ANALOG_SELECT(POWER_MONITOR_VOLTAGE_PIN);
   #endif
 
   HAL_timer_start(MF_TIMER_TEMP, TEMP_TIMER_FREQUENCY);
@@ -3364,8 +3323,8 @@ void Temperature::isr() {
    * This gives each ADC 0.9765ms to charge up.
    */
   #define ACCUMULATE_ADC(obj) do{ \
-    if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; \
-    else obj.sample(HAL_READ_ADC()); \
+    if (!hal.adc_ready()) next_sensor_state = adc_sensor_state; \
+    else obj.sample(hal.adc_value()); \
   }while(0)
 
   ADCSensorState next_sensor_state = adc_sensor_state < SensorsReady ? (ADCSensorState)(int(adc_sensor_state) + 1) : StartSampling;
@@ -3397,115 +3356,115 @@ void Temperature::isr() {
       break;
 
     #if HAS_TEMP_ADC_0
-      case PrepareTemp_0: HAL_START_ADC(TEMP_0_PIN); break;
+      case PrepareTemp_0: hal.adc_start(TEMP_0_PIN); break;
       case MeasureTemp_0: ACCUMULATE_ADC(temp_hotend[0]); break;
     #endif
 
     #if HAS_TEMP_ADC_BED
-      case PrepareTemp_BED: HAL_START_ADC(TEMP_BED_PIN); break;
+      case PrepareTemp_BED: hal.adc_start(TEMP_BED_PIN); break;
       case MeasureTemp_BED: ACCUMULATE_ADC(temp_bed); break;
     #endif
 
     #if HAS_TEMP_ADC_CHAMBER
-      case PrepareTemp_CHAMBER: HAL_START_ADC(TEMP_CHAMBER_PIN); break;
+      case PrepareTemp_CHAMBER: hal.adc_start(TEMP_CHAMBER_PIN); break;
       case MeasureTemp_CHAMBER: ACCUMULATE_ADC(temp_chamber); break;
     #endif
 
     #if HAS_TEMP_ADC_COOLER
-      case PrepareTemp_COOLER: HAL_START_ADC(TEMP_COOLER_PIN); break;
+      case PrepareTemp_COOLER: hal.adc_start(TEMP_COOLER_PIN); break;
       case MeasureTemp_COOLER: ACCUMULATE_ADC(temp_cooler); break;
     #endif
 
     #if HAS_TEMP_ADC_PROBE
-      case PrepareTemp_PROBE: HAL_START_ADC(TEMP_PROBE_PIN); break;
+      case PrepareTemp_PROBE: hal.adc_start(TEMP_PROBE_PIN); break;
       case MeasureTemp_PROBE: ACCUMULATE_ADC(temp_probe); break;
     #endif
 
     #if HAS_TEMP_ADC_BOARD
-      case PrepareTemp_BOARD: HAL_START_ADC(TEMP_BOARD_PIN); break;
+      case PrepareTemp_BOARD: hal.adc_start(TEMP_BOARD_PIN); break;
       case MeasureTemp_BOARD: ACCUMULATE_ADC(temp_board); break;
     #endif
 
     #if HAS_TEMP_ADC_REDUNDANT
-      case PrepareTemp_REDUNDANT: HAL_START_ADC(TEMP_REDUNDANT_PIN); break;
+      case PrepareTemp_REDUNDANT: hal.adc_start(TEMP_REDUNDANT_PIN); break;
       case MeasureTemp_REDUNDANT: ACCUMULATE_ADC(temp_redundant); break;
     #endif
 
     #if HAS_TEMP_ADC_1
-      case PrepareTemp_1: HAL_START_ADC(TEMP_1_PIN); break;
+      case PrepareTemp_1: hal.adc_start(TEMP_1_PIN); break;
       case MeasureTemp_1: ACCUMULATE_ADC(temp_hotend[1]); break;
     #endif
 
     #if HAS_TEMP_ADC_2
-      case PrepareTemp_2: HAL_START_ADC(TEMP_2_PIN); break;
+      case PrepareTemp_2: hal.adc_start(TEMP_2_PIN); break;
       case MeasureTemp_2: ACCUMULATE_ADC(temp_hotend[2]); break;
     #endif
 
     #if HAS_TEMP_ADC_3
-      case PrepareTemp_3: HAL_START_ADC(TEMP_3_PIN); break;
+      case PrepareTemp_3: hal.adc_start(TEMP_3_PIN); break;
       case MeasureTemp_3: ACCUMULATE_ADC(temp_hotend[3]); break;
     #endif
 
     #if HAS_TEMP_ADC_4
-      case PrepareTemp_4: HAL_START_ADC(TEMP_4_PIN); break;
+      case PrepareTemp_4: hal.adc_start(TEMP_4_PIN); break;
       case MeasureTemp_4: ACCUMULATE_ADC(temp_hotend[4]); break;
     #endif
 
     #if HAS_TEMP_ADC_5
-      case PrepareTemp_5: HAL_START_ADC(TEMP_5_PIN); break;
+      case PrepareTemp_5: hal.adc_start(TEMP_5_PIN); break;
       case MeasureTemp_5: ACCUMULATE_ADC(temp_hotend[5]); break;
     #endif
 
     #if HAS_TEMP_ADC_6
-      case PrepareTemp_6: HAL_START_ADC(TEMP_6_PIN); break;
+      case PrepareTemp_6: hal.adc_start(TEMP_6_PIN); break;
       case MeasureTemp_6: ACCUMULATE_ADC(temp_hotend[6]); break;
     #endif
 
     #if HAS_TEMP_ADC_7
-      case PrepareTemp_7: HAL_START_ADC(TEMP_7_PIN); break;
+      case PrepareTemp_7: hal.adc_start(TEMP_7_PIN); break;
       case MeasureTemp_7: ACCUMULATE_ADC(temp_hotend[7]); break;
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      case Prepare_FILWIDTH: HAL_START_ADC(FILWIDTH_PIN); break;
+      case Prepare_FILWIDTH: hal.adc_start(FILWIDTH_PIN); break;
       case Measure_FILWIDTH:
-        if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; // Redo this state
-        else filwidth.accumulate(HAL_READ_ADC());
+        if (!hal.adc_ready()) next_sensor_state = adc_sensor_state; // Redo this state
+        else filwidth.accumulate(hal.adc_value());
       break;
     #endif
 
     #if ENABLED(POWER_MONITOR_CURRENT)
       case Prepare_POWER_MONITOR_CURRENT:
-        HAL_START_ADC(POWER_MONITOR_CURRENT_PIN);
+        hal.adc_start(POWER_MONITOR_CURRENT_PIN);
         break;
       case Measure_POWER_MONITOR_CURRENT:
-        if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; // Redo this state
-        else power_monitor.add_current_sample(HAL_READ_ADC());
+        if (!hal.adc_ready()) next_sensor_state = adc_sensor_state; // Redo this state
+        else power_monitor.add_current_sample(hal.adc_value());
         break;
     #endif
 
     #if ENABLED(POWER_MONITOR_VOLTAGE)
       case Prepare_POWER_MONITOR_VOLTAGE:
-        HAL_START_ADC(POWER_MONITOR_VOLTAGE_PIN);
+        hal.adc_start(POWER_MONITOR_VOLTAGE_PIN);
         break;
       case Measure_POWER_MONITOR_VOLTAGE:
-        if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; // Redo this state
-        else power_monitor.add_voltage_sample(HAL_READ_ADC());
+        if (!hal.adc_ready()) next_sensor_state = adc_sensor_state; // Redo this state
+        else power_monitor.add_voltage_sample(hal.adc_value());
         break;
     #endif
 
     #if HAS_JOY_ADC_X
-      case PrepareJoy_X: HAL_START_ADC(JOY_X_PIN); break;
+      case PrepareJoy_X: hal.adc_start(JOY_X_PIN); break;
       case MeasureJoy_X: ACCUMULATE_ADC(joystick.x); break;
     #endif
 
     #if HAS_JOY_ADC_Y
-      case PrepareJoy_Y: HAL_START_ADC(JOY_Y_PIN); break;
+      case PrepareJoy_Y: hal.adc_start(JOY_Y_PIN); break;
       case MeasureJoy_Y: ACCUMULATE_ADC(joystick.y); break;
     #endif
 
     #if HAS_JOY_ADC_Z
-      case PrepareJoy_Z: HAL_START_ADC(JOY_Z_PIN); break;
+      case PrepareJoy_Z: hal.adc_start(JOY_Z_PIN); break;
       case MeasureJoy_Z: ACCUMULATE_ADC(joystick.z); break;
     #endif
 
@@ -3513,12 +3472,12 @@ void Temperature::isr() {
       #ifndef ADC_BUTTON_DEBOUNCE_DELAY
         #define ADC_BUTTON_DEBOUNCE_DELAY 16
       #endif
-      case Prepare_ADC_KEY: HAL_START_ADC(ADC_KEYPAD_PIN); break;
+      case Prepare_ADC_KEY: hal.adc_start(ADC_KEYPAD_PIN); break;
       case Measure_ADC_KEY:
-        if (!HAL_ADC_READY())
+        if (!hal.adc_ready())
           next_sensor_state = adc_sensor_state; // redo this state
         else if (ADCKey_count < ADC_BUTTON_DEBOUNCE_DELAY) {
-          raw_ADCKey_value = HAL_READ_ADC();
+          raw_ADCKey_value = hal.adc_value();
           if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
             NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
