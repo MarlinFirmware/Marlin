@@ -41,6 +41,7 @@
  *   X   Probe X position (default current X)
  *   Y   Probe Y position (default current Y)
  *   E   Engage the probe for each probe (default 1)
+ *   C   Enable probe temperature compensation (0 or 1, default 1)
  */
 void GcodeSuite::G30() {
 

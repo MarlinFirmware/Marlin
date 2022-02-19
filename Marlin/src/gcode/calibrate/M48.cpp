@@ -43,7 +43,7 @@
  * M48: Z probe repeatability measurement function.
  *
  * Usage:
- *   M48 <P#> <X#> <Y#> <V#> <E> <L#> <S>
+ *   M48 <P#> <X#> <Y#> <V#> <E> <L#> <S> <C#>
  *     P = Number of sampled points (4-50, default 10)
  *     X = Sample X position
  *     Y = Sample Y position
@@ -51,6 +51,7 @@
  *     E = Engage Z probe for each reading
  *     L = Number of legs of movement before probe
  *     S = Schizoid (Or Star if you prefer)
+ *     C = Enable probe temperature compensation (0 or 1, default 1)
  *
  * This function requires the machine to be homed before invocation.
  */
