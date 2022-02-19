@@ -139,7 +139,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   
   void MarlinUI::updateTimeoutFromLCD()
   {
-    lcd_backlight_timeout.ms = lcd_backlight_timeout.s*1000;
+    lcd_backlight_timeout.ms = (uint32_t)lcd_backlight_timeout.s*1000;
   }
 
 #endif
