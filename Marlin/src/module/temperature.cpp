@@ -2024,6 +2024,8 @@ void Temperature::manage_heater() {
       return TEMP_AD595(raw);
     #elif TEMP_SENSOR_BOARD_IS_AD8495
       return TEMP_AD8495(raw);
+    #elif TEMP_SENSOR_BOARD_IS_INTERNAL
+      return TEMP_INTERNAL_SENSOR(raw);
     #else
       UNUSED(raw);
       return 0;

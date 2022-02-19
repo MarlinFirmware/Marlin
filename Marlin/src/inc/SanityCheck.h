@@ -2299,6 +2299,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_BOARD_PIN must be an ADC pin."
   #elif ENABLED(THERMAL_PROTECTION_BOARD) && (!defined(BOARD_MINTEMP) || !defined(BOARD_MAXTEMP))
     #error "THERMAL_PROTECTION_BOARD requires BOARD_MINTEMP and BOARD_MAXTEMP."
+  #elif TEMP_SENSOR_BOARD_IS_INTERNAL
+    #if !defined(TEMP_INTERNAL_SENSOR)
+      #error "TEMP_SENSOR_BOARD=-1000 requires TEMP_INTERNAL_SENSOR(RAW) to be defined. It may not be implemented for your specific board."
+    #endif
   #endif
 #elif CONTROLLER_FAN_MIN_BOARD_TEMP
   #error "CONTROLLER_FAN_MIN_BOARD_TEMP requires TEMP_SENSOR_BOARD."

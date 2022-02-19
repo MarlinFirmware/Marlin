@@ -175,6 +175,8 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
+#elif TEMP_SENSOR_0 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_0."
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
@@ -222,6 +224,8 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
+#elif TEMP_SENSOR_1 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_1."
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
@@ -291,6 +295,8 @@
   #define TEMP_SENSOR_REDUNDANT_IS_AD8495 1
 #elif TEMP_SENSOR_REDUNDANT == -1
   #define TEMP_SENSOR_REDUNDANT_IS_AD595 1
+#elif TEMP_SENSOR_REDUNDANT == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_REDUNDANT."
 #elif TEMP_SENSOR_REDUNDANT > 0
   #define TEMP_SENSOR_REDUNDANT_IS_THERMISTOR 1
   #if TEMP_SENSOR_REDUNDANT == 1000
@@ -321,6 +327,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_2."
 #elif TEMP_SENSOR_2 == -1
   #define TEMP_SENSOR_2_IS_AD595 1
+#elif TEMP_SENSOR_2 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_2."
 #elif TEMP_SENSOR_2 > 0
   #define TEMP_SENSOR_2_IS_THERMISTOR 1
   #if TEMP_SENSOR_2 == 1000
@@ -341,6 +349,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_3."
 #elif TEMP_SENSOR_3 == -1
   #define TEMP_SENSOR_3_IS_AD595 1
+#elif TEMP_SENSOR_3 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_3."
 #elif TEMP_SENSOR_3 > 0
   #define TEMP_SENSOR_3_IS_THERMISTOR 1
   #if TEMP_SENSOR_3 == 1000
@@ -361,6 +371,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_4."
 #elif TEMP_SENSOR_4 == -1
   #define TEMP_SENSOR_4_IS_AD595 1
+#elif TEMP_SENSOR_4 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_4."
 #elif TEMP_SENSOR_4 > 0
   #define TEMP_SENSOR_4_IS_THERMISTOR 1
   #if TEMP_SENSOR_4 == 1000
@@ -381,6 +393,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_5."
 #elif TEMP_SENSOR_5 == -1
   #define TEMP_SENSOR_5_IS_AD595 1
+#elif TEMP_SENSOR_5 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_5."
 #elif TEMP_SENSOR_5 > 0
   #define TEMP_SENSOR_5_IS_THERMISTOR 1
   #if TEMP_SENSOR_5 == 1000
@@ -401,6 +415,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_6."
 #elif TEMP_SENSOR_6 == -1
   #define TEMP_SENSOR_6_IS_AD595 1
+#elif TEMP_SENSOR_6 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_6."
 #elif TEMP_SENSOR_6 > 0
   #define TEMP_SENSOR_6_IS_THERMISTOR 1
   #if TEMP_SENSOR_6 == 1000
@@ -421,6 +437,8 @@
   #error "MAX7775 Thermocouples (-2) not supported for TEMP_SENSOR_7."
 #elif TEMP_SENSOR_7 == -1
   #define TEMP_SENSOR_7_IS_AD595 1
+#elif TEMP_SENSOR_7 == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_7."
 #elif TEMP_SENSOR_7 > 0
   #define TEMP_SENSOR_7_IS_THERMISTOR 1
   #if TEMP_SENSOR_7 == 1000
@@ -441,6 +459,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED == -1
   #define TEMP_SENSOR_BED_IS_AD595 1
+#elif TEMP_SENSOR_BED == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED > 0
   #define TEMP_SENSOR_BED_IS_THERMISTOR 1
   #if TEMP_SENSOR_BED == 1000
@@ -463,6 +483,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER == -1
   #define TEMP_SENSOR_CHAMBER_IS_AD595 1
+#elif TEMP_SENSOR_CHAMBER == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER > 0
   #define TEMP_SENSOR_CHAMBER_IS_THERMISTOR 1
   #if TEMP_SENSOR_CHAMBER == 1000
@@ -484,6 +506,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_COOLER."
 #elif TEMP_SENSOR_COOLER == -1
   #define TEMP_SENSOR_COOLER_IS_AD595 1
+#elif TEMP_SENSOR_COOLER == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_COOLER."
 #elif TEMP_SENSOR_COOLER > 0
   #define TEMP_SENSOR_COOLER_IS_THERMISTOR 1
   #if TEMP_SENSOR_COOLER == 1000
@@ -505,6 +529,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_PROBE."
 #elif TEMP_SENSOR_PROBE == -1
   #define TEMP_SENSOR_PROBE_IS_AD595 1
+#elif TEMP_SENSOR_PROBE == -1000
+  #error "Board Internal Temperature Sensor (-1000) not supported for TEMP_SENSOR_PROBE."
 #elif TEMP_SENSOR_PROBE > 0
   #define TEMP_SENSOR_PROBE_IS_THERMISTOR 1
   #if TEMP_SENSOR_PROBE == 1000
@@ -522,6 +548,8 @@
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BOARD."
 #elif TEMP_SENSOR_BOARD == -1
   #define TEMP_SENSOR_BOARD_IS_AD595 1
+#elif TEMP_SENSOR_BOARD == -1000
+  #define TEMP_SENSOR_BOARD_IS_INTERNAL 1
 #elif TEMP_SENSOR_BOARD > 0
   #define TEMP_SENSOR_BOARD_IS_THERMISTOR 1
   #if TEMP_SENSOR_BOARD == 1000
