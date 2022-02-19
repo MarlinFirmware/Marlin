@@ -484,6 +484,11 @@ void menu_configuration() {
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
+  // Add LCD backlight
+  #if ENABLED(USE_LCD_SCREENSAVER)
+    EDIT_ITEM(uint8, MSG_LCD_BKL_TIMEOUT, &ui.lcd_backlight_timeout.s, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.updateTimeoutFromLCD);
+  #endif
+
   //
   // Set Fan Controller speed
   //

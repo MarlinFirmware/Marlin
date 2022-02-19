@@ -1,0 +1,194 @@
+{
+	"files": [
+		{
+			"path": "Marlin/Configuration.h",
+			"bookmarks": [
+				{
+					"line": 867,
+					"column": 2,
+					"label": "Motor driver"
+				},
+				{
+					"line": 1571,
+					"column": 2,
+					"label": "Pre-heat before leveling"
+				},
+				{
+					"line": 1765,
+					"column": 2,
+					"label": "Homeing speed"
+				},
+				{
+					"line": 2162,
+					"column": 15,
+					"label": "Encoder reverse dir"
+				},
+				{
+					"line": 2376,
+					"column": 16,
+					"label": "LCD activate backlight timeout"
+				}
+			]
+		},
+		{
+			"path": "Marlin/Configuration_adv.h",
+			"bookmarks": [
+				{
+					"line": 1338,
+					"column": 9,
+					"label": "Screen show layer info"
+				},
+				{
+					"line": 1342,
+					"column": 3,
+					"label": "Display (P)rogress, (E)lapsed, and (R)emaining time"
+				},
+				{
+					"line": 1665,
+					"column": 15,
+					"label": "LCD alternative logo"
+				},
+				{
+					"line": 1920,
+					"column": 12,
+					"label": "Z offset baby step"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/dogm/dogm_Bootscreen.h",
+			"bookmarks": [
+				{
+					"line": 64,
+					"column": 9,
+					"label": "Logo Marlin"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/core/language.h",
+			"bookmarks": [
+				{
+					"line": 95,
+					"column": 4,
+					"label": "Bootscreen Marlin address"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/dogm/status_screen_DOGM.cpp",
+			"bookmarks": [
+				{
+					"line": 611,
+					"column": 14,
+					"label": "LCD dessin hotbed"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/pins/ramps/pins_RAMPS.h",
+			"bookmarks": [
+				{
+					"line": 456,
+					"column": 7,
+					"label": "pinout EXP1 EXP2 screen"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/marlinui.cpp",
+			"bookmarks": [
+				{
+					"line": 118,
+					"column": 8,
+					"label": "definition LCD timeout structure"
+				},
+				{
+					"line": 740,
+					"column": 0,
+					"label": "LCD encoder rafraichissement speed"
+				},
+				{
+					"line": 913,
+					"column": 17,
+					"label": "LCD Update loop"
+				},
+				{
+					"line": 1074,
+					"column": 17,
+					"label": "LCD Trigg WD backlight"
+				},
+				{
+					"line": 1185,
+					"column": 14,
+					"label": "LCD elapsed time lcb black"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/MarlinCore.cpp",
+			"bookmarks": [
+				{
+					"line": 1605,
+					"column": 1,
+					"label": "Setup() End "
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/module/settings.cpp",
+			"bookmarks": [
+				{
+					"line": 1462,
+					"column": 6,
+					"label": "Eeprom write lcd timeout"
+				},
+				{
+					"line": 2381,
+					"column": 13,
+					"label": "Eeprom read lcd timeout"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/language/language_fr.h",
+			"bookmarks": [
+				{
+					"line": 444,
+					"column": 10,
+					"label": "Add lcd timeout name"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/menu/menu_advanced.cpp",
+			"bookmarks": [
+				{
+					"line": 515,
+					"column": 11,
+					"label": "Menu advance lcd backlight"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/menu/menu_configuration.cpp",
+			"bookmarks": [
+				{
+					"line": 487,
+					"column": 11,
+					"label": "Menu config add LCD timeout"
+				}
+			]
+		},
+		{
+			"path": "Marlin/src/lcd/dogm/marlinui_DOGM.h",
+			"bookmarks": [
+				{
+					"line": 57,
+					"column": 16,
+					"label": "FIX try an methode to split pb"
+				}
+			]
+		}
+	]
+}

@@ -1461,7 +1461,7 @@ void MarlinSettings::postprocess() {
     // Timeout LCD backlight
     //
     #if ENABLED(USE_LCD_SCREENSAVER)
-      EEPROM_WRITE(ui.lcd_backlight_timeout);
+      EEPROM_WRITE(ui.lcd_backlight_timeout.ms);
     #endif
 
     //
@@ -2382,7 +2382,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(USE_LCD_SCREENSAVER)
         millis_t timeout_LCD_BL;
         EEPROM_READ(timeout_LCD_BL);
-        ui.set_lcd_backlight_timeout(timeout_LCD_BL);
+        ui.set_lcd_backlight_timeout_ms(timeout_LCD_BL);
       #endif
 
       //
@@ -2962,7 +2962,7 @@ void MarlinSettings::reset() {
   //
   // LCD Backlight Timeout
   //
-  TERN_(USE_LCD_SCREENSAVER, ui.set_lcd_backlight_timeout(LCD_BACKLIGHT_TIMEOUT_MS));
+  TERN_(USE_LCD_SCREENSAVER, ui.set_lcd_backlight_timeout_ms(LCD_BACKLIGHT_TIMEOUT_MS));
 
   //
   // Controller Fan

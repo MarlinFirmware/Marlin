@@ -188,9 +188,19 @@
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
+    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex = active_extruder));
   };
 
+#endif
+
+#if ENABLED(USE_LCD_SCREENSAVER)
+ #define LCD_BKL_TIMEOUT_MIN 1
+ #define LCD_BKL_TIMEOUT_MAX 1000
+  typedef struct {
+    millis_t ms;
+    uint8_t  s;
+  } LCDTimeout_t;
+  extern LCDTimeout_t lcd_backlight_timeout;
 #endif
 
 ////////////////////////////////////////////
@@ -263,8 +273,10 @@ public:
   #endif
 
   #if ENABLED(USE_LCD_SCREENSAVER)
-  static millis_t lcd_backlight_timeout;
-  static void set_lcd_backlight_timeout(const millis_t value);
+    static LCDTimeout_t lcd_backlight_timeout;
+    static void set_lcd_backlight_timeout_s(const uint8_t s);
+    static void set_lcd_backlight_timeout_ms(const millis_t ms);
+    static void updateTimeoutFromLCD();
   #endif
 
   #if HAS_DWIN_E3V2_BASIC

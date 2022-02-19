@@ -2374,7 +2374,7 @@
 // https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-#define LCD_BACKLIGHT_TIMEOUT_MS 5000
+#define LCD_BACKLIGHT_TIMEOUT_MS 30000    //default 30 seconds timeout
 
 //
 // K.3D Full Graphic Smart Controller

@@ -512,6 +512,17 @@ void menu_backlash();
     }
   #endif
 
+  // LCD BACKLIGHT MENU
+  #if HAS_LCD_SCREENSAVER
+    void menu_lcd_timeout(){
+      START_MENU();
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
+      EDIT_ITEM(uint8, MSG_LCD_BKL_TIMEOUT, &ui.lcd_backlight_timeout.s, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.updateTimeoutFromLCD);
+      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
+      END_MENU();
+    }
+  #endif
+
 #endif // !SLIM_LCD_MENUS
 
 // M92 Steps-per-mm
@@ -553,11 +564,16 @@ void menu_advanced_settings() {
 
   #if DISABLED(SLIM_LCD_MENUS)
 
+    //Add Timeout LCD
+    #if HAS_LCD_SCREENSAVER
+      if (!is_busy) SUBMENU(MSG_LCD_BKL_TIMEOUT, menu_lcd_timeout);
+    #endif
+
     #if HAS_M206_COMMAND
       //
       // Set Home Offsets
       //
-      ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
+      ACTION_ITEM(MSG_SET_HOME_OFFSETS, [] { queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
     // M203 / M205 - Feedrate items
@@ -579,7 +595,6 @@ void menu_advanced_settings() {
     #if HAS_BED_PROBE
       if (!is_busy) SUBMENU(MSG_ZPROBE_OFFSETS, menu_probe_offsets);
     #endif
-
   #endif // !SLIM_LCD_MENUS
 
   // M92 - Steps Per mm
