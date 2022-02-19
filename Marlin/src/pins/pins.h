@@ -599,7 +599,8 @@
   #include "stm32f1/pins_ZM3E4_V2_0.h"          // STM32F1                                env:STM32F103VE_ZM3E4V2_USB env:STM32F103VE_ZM3E4V2_USB_maple
 #elif MB(ERYONE_ERY32_MINI)
   #include "stm32f1/pins_ERYONE_ERY32_MINI.h"   // STM32F103VET6                          env:ERYONE_ERY32_MINI_maple
-
+#elif MB(MD_D301)
+  #include "stm32f1/pins_MD_D301.h"             // STM32F1                                env:STM32F103ZE_D301  
 //
 // ARM Cortex-M4F
 //
