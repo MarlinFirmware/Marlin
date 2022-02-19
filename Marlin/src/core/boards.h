@@ -364,6 +364,7 @@
 #define BOARD_ZONESTAR_ZM3E4V2        4062  // Zonestar ZM3E4 V2 (STM32F103VC)
 #define BOARD_ERYONE_ERY32_MINI       4063  // Eryone Ery32 mini (STM32F103VE)
 #define BOARD_MD_D301                 4064  // D301 V1.0 (STM32F103ZE)
+#define BOARD_AC_TRI_F1_V1            4065  // Anycubic trigorilla F103 board
 
 //
 // ARM Cortex-M4F
