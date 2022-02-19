@@ -102,9 +102,9 @@ static SPISettings spiConfig;
 
   // Soft SPI receive byte
   uint8_t spiRec() {
-    DISABLE_ISRS();                                               // No interrupts during byte receive
+    hal.isr_off();                                                // No interrupts during byte receive
     const uint8_t data = HAL_SPI_STM32_SpiTransfer_Mode_3(0xFF);
-    ENABLE_ISRS();                                                // Enable interrupts
+    hal.isr_on();                                                 // Enable interrupts
     return data;
   }
 
@@ -116,9 +116,9 @@ static SPISettings spiConfig;
 
   // Soft SPI send byte
   void spiSend(uint8_t data) {
-    DISABLE_ISRS();                         // No interrupts during byte send
+    hal.isr_off();                          // No interrupts during byte send
     HAL_SPI_STM32_SpiTransfer_Mode_3(data); // Don't care what is received
-    ENABLE_ISRS();                          // Enable interrupts
+    hal.isr_on();                           // Enable interrupts
   }
 
   // Soft SPI send block

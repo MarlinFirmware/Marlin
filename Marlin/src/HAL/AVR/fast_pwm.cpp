@@ -107,7 +107,7 @@ const Timer get_pwm_timer(const pin_t pin) {
   return Timer();
 }
 
-void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   const Timer timer = get_pwm_timer(pin);
   if (timer.isProtected || !timer.isPWM) return; // Don't proceed if protected timer or not recognized
 
@@ -176,7 +176,7 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
     _SET_ICRn(timer, res);                              // Set ICRn value (TOP) = res
 }
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
   // Note that digitalWrite also disables PWM output for us (sets COM bit to 0)
   if (v == 0)
@@ -201,7 +201,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-void init_pwm_timers() {
+void MarlinHAL::init_pwm_timers() {
   // Init some timer frequencies to a default 1KHz
   const pin_t pwm_pin[] = {
     #ifdef __AVR_ATmega2560__
