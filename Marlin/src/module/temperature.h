@@ -217,6 +217,12 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
 } heater_info_t;
 
+// A heater with PID stabilization
+template<typename T>
+struct PIDHeaterInfo : public HeaterInfo {
+  T pid;  // Initialized by settings.load()
+};
+
 #if ENABLED(MPCTEMP)
   struct MPCHeaterInfo : public HeaterInfo {
     float modeled_ambient_temp;
@@ -224,12 +230,6 @@ typedef struct HeaterInfo : public TempInfo {
     float modeled_sensor_temp;
   };
 #endif
-
-// A heater with PID stabilization
-template<typename T>
-struct PIDHeaterInfo : public HeaterInfo {
-  T pid;  // Initialized by settings.load()
-};
 
 #if ENABLED(PIDTEMP)
   typedef struct PIDHeaterInfo<hotend_pid_t> hotend_info_t;
