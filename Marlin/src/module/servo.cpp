@@ -30,7 +30,7 @@
 
 #include "servo.h"
 
-HAL_SERVO_LIB servo[NUM_SERVOS];
+hal_servo_t servo[NUM_SERVOS];
 
 #if ENABLED(EDITABLE_SERVO_ANGLES)
   uint16_t servo_angles[NUM_SERVOS][2];

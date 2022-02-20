@@ -28,8 +28,6 @@
 
 #define CPU_32_BIT
 
-void HAL_init();
-
 #include <stdint.h>
 #include <stdarg.h>
 #include <algorithm>
@@ -47,12 +45,9 @@ extern "C" volatile uint32_t _millis;
 #include <pinmapping.h>
 #include <CDCSerial.h>
 
-//
-// Default graphical display delays
-//
-#define CPU_ST7920_DELAY_1 600
-#define CPU_ST7920_DELAY_2 750
-#define CPU_ST7920_DELAY_3 750
+// ------------------------
+// Serial ports
+// ------------------------
 
 typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
 extern DefaultSerial1 USBSerial;
@@ -114,26 +109,12 @@ extern DefaultSerial1 USBSerial;
 //
 // Interrupts
 //
-#define CRITICAL_SECTION_START()  uint32_t primask = __get_PRIMASK(); __disable_irq()
-#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
-#define ISRS_ENABLED() (!__get_PRIMASK())
-#define ENABLE_ISRS()  __enable_irq()
-#define DISABLE_ISRS() __disable_irq()
+
+#define CRITICAL_SECTION_START()  const bool irqon = !__get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (irqon) __enable_irq()
 
 //
-// Utility functions
-//
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-
-int freeMemory();
-
-#pragma GCC diagnostic pop
-
-//
-// ADC API
+// ADC
 //
 
 #define ADC_MEDIAN_FILTER_SIZE (23) // Higher values increase step delay (phase shift),
@@ -152,20 +133,9 @@ int freeMemory();
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
 
-using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
-extern uint32_t HAL_adc_reading;
-[[gnu::always_inline]] inline void HAL_adc_start_conversion(const pin_t pin) {
-  HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
-}
-[[gnu::always_inline]] inline uint16_t HAL_adc_get_result() {
-  return HAL_adc_reading;
-}
-
-#define HAL_adc_init()
-#define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC()         HAL_adc_get_result()
-#define HAL_ADC_READY()        (true)
+//
+// Pin Mapping for M42, M43, M226
+//
 
 // Test whether the pin is valid
 constexpr bool VALID_PIN(const pin_t pin) {
@@ -192,32 +162,101 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
 #define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09,
 
-#define HAL_IDLETASK 1
-void HAL_idletask();
+// ------------------------
+// Defines
+// ------------------------
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 
-/**
- * set_pwm_frequency
- *  Set the frequency of the timer corresponding to the provided pin
- *  All Hardware PWM pins run at the same frequency and all
- *  Software PWM pins run at the same frequency
- */
-void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+// Default graphical display delays
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
-/**
- * set_pwm_duty
- *  Set the PWM duty cycle of the provided pin to the provided value
- *  Optionally allows inverting the duty cycle [default = false]
- *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
- */
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+// ------------------------
+// Class Utilities
+// ------------------------
 
-// Reset source
-void HAL_clear_reset_source(void);
-uint8_t HAL_get_reset_source(void);
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
-void HAL_reboot();
+int freeMemory();
+
+#pragma GCC diagnostic pop
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  static void init();                 // Called early in setup()
+  static void init_board() {}  // Called less early in setup()
+  static void reboot();               // Restart the firmware from 0x0
+
+  // Interrupts
+  static bool isr_state() { return !__get_PRIMASK(); }
+  static void isr_on()  { __enable_irq(); }
+  static void isr_off() { __disable_irq(); }
+
+  static void delay_ms(const int ms) { _delay_ms(ms); }
+
+  // Tasks, called from idle()
+  static void idletask();
+
+  // Reset
+  static uint8_t get_reset_source();
+  static void clear_reset_source();
+
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
+
+  // Called by Temperature::init once at startup
+  static void adc_init() {}
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const pin_t pin) {
+    FilteredADC::enable_channel(pin);
+  }
+
+  // Begin ADC sampling on the given pin
+  static uint32_t adc_result;
+  static void adc_start(const pin_t pin) {
+    adc_result = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
+  }
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return true; }
+
+  // The current value of the ADC register
+  static uint16_t adc_value() { return uint16_t(adc_result); }
+
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * Optionally invert the duty cycle [default = false]
+   * Optionally change the scale of the provided value to enable finer PWM duty control [default = 255]
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+  /**
+   * Set the frequency of the timer corresponding to the provided pin
+   * All Hardware PWM pins will run at the same frequency and
+   * All Software PWM pins will run at the same frequency
+   */
+  static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+};
