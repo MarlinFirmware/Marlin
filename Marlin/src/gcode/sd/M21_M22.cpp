@@ -30,7 +30,18 @@
 /**
  * M21: Init SD Card
  */
-void GcodeSuite::M21() { card.mount(); }
+void GcodeSuite::M21()
+{
+  #if ENABLED(MULTI_VOLUME)
+    if (parser.seen('S')) {  // "S" for SD Card
+      card.changeMedia(&card.media_driver_sdcard);
+    }
+    else if (parser.seen('U')) {  // "U" for USB
+      card.changeMedia(&card.media_driver_usbFlash);
+    }
+  #endif
+  card.mount();
+}
 
 /**
  * M22: Release SD Card
