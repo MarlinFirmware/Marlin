@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,15 +22,10 @@
 #pragma once
 
 /**
- * DWIN Mesh Viewer
- * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * CREALITY v4.2.2 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
-class MeshViewerClass {
-public:
-  void Draw();
-};
+#define BOARD_INFO_NAME      "Creality v4.2.2"
+#define DEFAULT_MACHINE_NAME "Creality3D"
 
-extern MeshViewerClass MeshViewer;
+#include "pins_CREALITY_V4.h"

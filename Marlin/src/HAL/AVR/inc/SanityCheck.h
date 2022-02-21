@@ -29,7 +29,15 @@
  * Checks for FAST PWM
  */
 #if ALL(FAST_PWM_FAN, USE_OCR2A_AS_TOP, HAS_TCCR2)
-  #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2"
+  #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2."
+#endif
+
+/**
+ * Checks for SOFT PWM
+ */
+#if HAS_FAN0 && FAN_PIN == 9 && DISABLED(FAN_SOFT_PWM) && ENABLED(SPEAKER)
+  #error "FAN_PIN 9 Hardware PWM uses Timer 2 which conflicts with Arduino AVR Tone Timer (for SPEAKER)."
+  #error "Disable SPEAKER or enable FAN_SOFT_PWM."
 #endif
 
 /**

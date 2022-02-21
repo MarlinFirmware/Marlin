@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,19 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
- * DWIN Print Stats page
- * Author: Miguel A. Risco-Castillo
- * Version: 1.0
- * Date: 2021/11/21
+ * HAL/shared/HAL.cpp
  */
 
-class PrintStatsClass {
-public:
-  void Draw();
-  static void Reset();
-};
+#include "../../inc/MarlinConfig.h"
 
-extern PrintStatsClass PrintStats;
+MarlinHAL hal;
+
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
+
+  // Global for use by e_parser.h
+  void HAL_reboot() { hal.reboot(); }
+
+#endif
