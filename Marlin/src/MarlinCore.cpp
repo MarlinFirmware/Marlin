@@ -145,7 +145,7 @@
   #include "feature/encoder_i2c.h"
 #endif
 
-#if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
+#if (HAS_TRINAMIC_CONFIG || HAS_TMC_SPI) && DISABLED(PSU_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
