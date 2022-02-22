@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, LEVEL_BED_CORNERS)
+#if BOTH(HAS_MARLINUI_MENU, LEVEL_BED_CORNERS)
 
 #include "menu_item.h"
 #include "../../module/motion.h"
@@ -207,11 +207,13 @@ static void _lcd_level_bed_corners_get_next_position() {
 
   void _lcd_draw_level_prompt() {
     if (!ui.should_draw()) return;
-    MenuItem_confirm::confirm_screen(
-        []{ queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR))); ui.return_to_status(); }
-      , ui.goto_previous_screen_no_defer
+    MenuItem_confirm::select_screen(
+        GET_TEXT(TERN(HAS_LEVELING, MSG_BUTTON_LEVEL, MSG_BUTTON_DONE)),
+        TERN(HAS_LEVELING, GET_TEXT(MSG_BUTTON_BACK), nullptr)
+      , []{ queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR))); ui.return_to_status(); }
+      , TERN(HAS_LEVELING, ui.goto_previous_screen_no_defer, []{})
       , GET_TEXT(MSG_BED_TRAMMING_IN_RANGE)
-      , (const char*)nullptr, PSTR("?")
+      , (const char*)nullptr, NUL_STR
     );
   }
 
@@ -362,4 +364,4 @@ void _lcd_level_bed_corners() {
   ui.goto_screen(_lcd_level_bed_corners_homing);
 }
 
-#endif // HAS_LCD_MENU && LEVEL_BED_CORNERS
+#endif // HAS_MARLINUI_MENU && LEVEL_BED_CORNERS

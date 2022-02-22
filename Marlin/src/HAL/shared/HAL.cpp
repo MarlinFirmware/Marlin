@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,18 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
- * DWIN Mesh Viewer
- * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * HAL/shared/HAL.cpp
  */
 
-class MeshViewerClass {
-public:
-  void Draw();
-};
+#include "../../inc/MarlinConfig.h"
 
-extern MeshViewerClass MeshViewer;
+MarlinHAL hal;
+
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
+
+  // Global for use by e_parser.h
+  void HAL_reboot() { hal.reboot(); }
+
+#endif

@@ -2028,7 +2028,7 @@ void get_wifi_commands() {
           // Process critical commands early
           if (strcmp_P(command, PSTR("M108")) == 0) {
             wait_for_heatup = false;
-            TERN_(HAS_LCD_MENU, wait_for_user = false);
+            TERN_(HAS_MARLINUI_MENU, wait_for_user = false);
           }
           if (strcmp_P(command, PSTR("M112")) == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
           if (strcmp_P(command, PSTR("M410")) == 0) quickstop_stepper();

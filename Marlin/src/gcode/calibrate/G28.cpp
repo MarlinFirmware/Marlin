@@ -52,7 +52,7 @@
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
@@ -76,10 +76,9 @@
 
     const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
-    const float mlx = max_length(X_AXIS),
-                mly = max_length(Y_AXIS),
-                mlratio = mlx > mly ? mly / mlx : mlx / mly,
-                fr_mm_s = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
+    // Use a higher diagonal feedrate so axes move at homing speed
+    const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
+                fr_mm_s = HYPOT(minfr, minfr);
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
@@ -95,7 +94,7 @@
       };
     #endif
 
-    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
+    do_blocking_move_to_xy(1.5 * max_length(X_AXIS) * x_axis_home_dir, 1.5 * max_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
 
     endstops.validate_homing_move();
 
@@ -395,9 +394,10 @@ void GcodeSuite::G28() {
 
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
 
-    const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
+    const bool seenR = parser.seenval('R');
+    const float z_homing_height = seenR ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
+    if (z_homing_height && (seenR || LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
@@ -451,7 +451,11 @@ void GcodeSuite::G28() {
           stepper.set_separate_multi_axis(false);
         #endif
 
-        TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
+        #if ENABLED(Z_SAFE_HOMING)
+          if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+        #else
+          homeaxis(Z_AXIS);
+        #endif
         probe.move_z_after_homing();
       }
     #endif

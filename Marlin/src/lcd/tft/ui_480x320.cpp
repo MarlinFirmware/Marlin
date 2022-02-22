@@ -445,8 +445,8 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
   }
   #if ENABLED(TOUCH_SCREEN)
-    add_control(88, TFT_HEIGHT - 64, CANCEL, imgCancel, true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
-    add_control(328, TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
+    if (no)  add_control( 88, TFT_HEIGHT - 64, CANCEL,  imgCancel,  true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
+    if (yes) add_control(328, TFT_HEIGHT - 64, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
   #endif
 }
 
@@ -583,9 +583,9 @@ MotionAxisState motionAxisState;
 static void quick_feedback() {
   #if HAS_CHIRP
     ui.chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
-    #if BOTH(HAS_LCD_MENU, USE_BEEPER)
+    #if BOTH(HAS_MARLINUI_MENU, USE_BEEPER)
       for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
-    #elif HAS_LCD_MENU
+    #elif HAS_MARLINUI_MENU
       delay(10);
     #endif
   #endif

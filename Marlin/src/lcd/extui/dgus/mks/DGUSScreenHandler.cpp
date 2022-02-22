@@ -48,7 +48,7 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  static ExtUI::FileList filelist;
+  extern ExtUI::FileList filelist;
 #endif
 
 bool DGUSAutoTurnOff = false;
@@ -65,7 +65,7 @@ void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t *line1, const uint1
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) {
+void DGUSScreenHandler::sendinfoscreen_en_mks(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
@@ -93,7 +93,7 @@ void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
 
 void DGUSScreenHandler::DGUSLCD_SendBabyStepToDisplay_MKS(DGUS_VP_Variable &var) {
   float value = current_position.z;
-  DEBUG_ECHOLNPGM(" >> ", value, 6);
+  DEBUG_ECHOLNPAIR_F(" >> ", value, 6);
   value *= cpow(10, 2);
   dgusdisplay.WriteVariable(VP_SD_Print_Baby, (uint16_t)value);
 }
@@ -195,7 +195,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       case 0: { // Resume
 
         auto cs = getCurrentScreen();
-        if (runout_mks.runout_status != RUNOUT_WAITTING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
+        if (runout_mks.runout_status != RUNOUT_WAITING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
           if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
             GotoScreen(MKSLCD_SCREEN_PAUSE);
           return;
@@ -756,7 +756,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (manualMoveStep == 0x02) manualMoveStep =  100;
   else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
-  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.length);
+  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.ring_buffer.length);
 
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
@@ -1501,10 +1501,10 @@ void DGUSScreenHandler::DGUS_Runout_Idle() {
 
       case RUNOUT_BEGIN_STATUS:
         if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
-          runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
+          runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
-      case RUNOUT_WAITTING_STATUS:
+      case RUNOUT_WAITING_STATUS:
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;

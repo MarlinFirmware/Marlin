@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,25 +22,10 @@
 #pragma once
 
 /**
- * Lock screen implementation for DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 2.1
- * Date: 2021/11/09
+ * CREALITY v4.2.2 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
-#include "../common/encoder.h"
-#include <stdint.h>
+#define BOARD_INFO_NAME      "Creality v4.2.2"
+#define DEFAULT_MACHINE_NAME "Creality3D"
 
-class LockScreenClass {
-private:
-  static bool unlocked;
-  static uint8_t lock_pos;
-public:
-  static uint8_t rprocess;
-  static void init();
-  static void onEncoder(EncoderState encoder_diffState);
-  static void draw();
-  static bool isUnlocked() { return unlocked; }
-};
-
-extern LockScreenClass lockScreen;
+#include "pins_CREALITY_V4.h"

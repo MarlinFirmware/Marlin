@@ -55,7 +55,7 @@
   #endif
 #endif
 
-#if ANY(HAS_LCD_MENU, TOOL_SENSOR)
+#if EITHER(HAS_MARLINUI_MENU, TOOL_SENSOR)
   #include "../lcd/marlinui.h"
 #endif
 
@@ -1092,7 +1092,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       DEBUG_ECHOLNPGM("No move (not homed)");
     }
 
-    TERN_(HAS_LCD_MENU, if (!no_move) ui.update());
+    TERN_(HAS_MARLINUI_MENU, if (!no_move) ui.update());
 
     #if ENABLED(DUAL_X_CARRIAGE)
       const bool idex_full_control = dual_x_carriage_mode == DXC_FULL_CONTROL_MODE;

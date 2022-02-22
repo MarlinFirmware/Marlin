@@ -23,9 +23,11 @@
 
 /**
  * DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 3.9.1
- * Date: 2021/11/21
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 3.11.1
+ * Date: 2022/01/19
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "dwin_lcd.h"
@@ -34,6 +36,10 @@
 #include "../common/dwin_color.h"
 
 // Extra Icons
+#define ICON_AdvSet               ICON_Language
+#define ICON_BedSizeX             ICON_PrintSize
+#define ICON_BedSizeY             ICON_PrintSize
+#define ICON_Binary               ICON_Contact
 #define ICON_Brightness           ICON_Motion
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_SetEndTemp
@@ -45,6 +51,7 @@
 #define ICON_FilSet               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
+#define ICON_Folder               ICON_More
 #define ICON_FWRetLength          ICON_StepE
 #define ICON_FWRetSpeed           ICON_Setspeed
 #define ICON_FWRetZRaise          ICON_MoveZ
@@ -52,30 +59,53 @@
 #define ICON_HomeX                ICON_MoveX
 #define ICON_HomeY                ICON_MoveY
 #define ICON_HomeZ                ICON_MoveZ
+#define ICON_HomeOffset           ICON_AdvSet
+#define ICON_HomeOffsetX          ICON_StepX
+#define ICON_HomeOffsetY          ICON_StepY
+#define ICON_HomeOffsetZ          ICON_StepZ
 #define ICON_HSMode               ICON_StockConfiguration
+#define ICON_InvertE0             ICON_StepE
 #define ICON_Tram                 ICON_SetEndTemp
+#define ICON_Level                ICON_HotendTemp
 #define ICON_Lock                 ICON_Cool
 #define ICON_ManualMesh           ICON_HotendTemp
+#define ICON_MaxPosX              ICON_MoveX
+#define ICON_MaxPosY              ICON_MoveY
+#define ICON_MaxPosZ              ICON_MoveZ
 #define ICON_MeshNext             ICON_Axis
+#define ICON_MeshPoints           ICON_SetEndTemp
 #define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp
 #define ICON_Park                 ICON_Motion
+#define ICON_ParkPos              ICON_AdvSet
+#define ICON_ParkPosX             ICON_StepX
+#define ICON_ParkPosY             ICON_StepY
+#define ICON_ParkPosZ             ICON_StepZ
+#define ICON_PhySet               ICON_PrintSize
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_PIDcycles            ICON_ResumeEEPROM
 #define ICON_PIDValue             ICON_Contact
 #define ICON_PrintStats           ICON_PrintTime
 #define ICON_PrintStatsReset      ICON_RemainTime
 #define ICON_ProbeDeploy          ICON_SetEndTemp
+#define ICON_ProbeMargin          ICON_PrintSize
+#define ICON_ProbeOffsetX         ICON_StepX
+#define ICON_ProbeOffsetY         ICON_StepY
+#define ICON_ProbeOffsetZ         ICON_StepZ
 #define ICON_ProbeSet             ICON_SetEndTemp
 #define ICON_ProbeStow            ICON_SetEndTemp
 #define ICON_ProbeTest            ICON_SetEndTemp
+#define ICON_ProbeZSpeed          ICON_MaxSpeedZ
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Reboot               ICON_ResumeEEPROM
 #define ICON_Runout               ICON_MaxAccE
 #define ICON_Scolor               ICON_MaxSpeed
+#define ICON_SetBaudRate          ICON_Setspeed
 #define ICON_SetCustomPreheat     ICON_SetEndTemp
 #define ICON_Sound                ICON_Cool
+#define ICON_CaseLight            ICON_Motion
+#define ICON_LedControl           ICON_Motion
 
 // Extended and default UI Colors
 #define Color_Black           0
@@ -243,6 +273,13 @@ namespace DWINUI {
   //  x/y: Upper-left point
   inline void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
     DWIN_ICON_Show(ICON, icon, x, y);
+  }
+
+  // Draw an Icon from the library ICON with its background
+  //  icon: Icon ID
+  //  x/y: Upper-left point
+  inline void Draw_IconWB(uint8_t icon, uint16_t x, uint16_t y) {
+    DWIN_ICON_Show(true, false, false, ICON, icon, x, y);
   }
 
   // Draw a positive integer

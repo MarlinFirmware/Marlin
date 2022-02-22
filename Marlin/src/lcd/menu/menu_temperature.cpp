@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && HAS_TEMPERATURE
+#if HAS_MARLINUI_MENU && HAS_TEMPERATURE
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -307,4 +307,4 @@ void menu_temperature() {
 
 #endif
 
-#endif // HAS_LCD_MENU && HAS_TEMPERATURE
+#endif // HAS_MARLINUI_MENU && HAS_TEMPERATURE

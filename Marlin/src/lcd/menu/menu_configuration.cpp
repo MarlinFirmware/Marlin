@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu_item.h"
 
@@ -583,4 +583,4 @@ void menu_configuration() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU

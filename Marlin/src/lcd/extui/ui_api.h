@@ -196,7 +196,7 @@ namespace ExtUI {
   #endif
 
   inline void simulateUserClick() {
-    #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+    #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
       ui.lcd_clicked = true;
     #endif
   }
@@ -313,6 +313,11 @@ namespace ExtUI {
       float getCaseLightBrightness_percent();
       void setCaseLightBrightness_percent(const_float_t);
     #endif
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    bool getPowerLossRecoveryEnabled();
+    void setPowerLossRecoveryEnabled(const bool);
   #endif
 
   #if ENABLED(PIDTEMP)

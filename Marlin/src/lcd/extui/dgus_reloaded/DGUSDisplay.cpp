@@ -57,7 +57,7 @@ void DGUSDisplay::Loop() {
 void DGUSDisplay::Init() {
   LCD_SERIAL.begin(LCD_BAUDRATE);
 
-  Read(DGUS_VERSION, 1);
+  ReadVersions();
 }
 
 void DGUSDisplay::Read(uint16_t addr, uint8_t size) {
@@ -156,6 +156,11 @@ void DGUSDisplay::WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t si
   while (right_spaces--) {
     LCD_SERIAL.write(use_space ? ' ' : '\0');
   }
+}
+
+void DGUSDisplay::ReadVersions() {
+  if (gui_version != 0 && os_version != 0) return;
+  Read(DGUS_VERSION, 1);
 }
 
 void DGUSDisplay::SwitchScreen(DGUS_Screen screen) {

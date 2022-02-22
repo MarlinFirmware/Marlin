@@ -78,6 +78,12 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(503) // Zonestar (Z8XM2) Heated Bed thermistor
   #include "thermistor_503.h"
 #endif
+#if ANY_THERMISTOR_IS(504) // Zonestar (P802QR2 Hot End) thermistors
+  #include "thermistor_504.h"
+#endif
+#if ANY_THERMISTOR_IS(505) // Zonestar (P802QR2 Bed) thermistor
+  #include "thermistor_505.h"
+#endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
   #include "thermistor_512.h"
 #endif
@@ -149,6 +155,9 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #endif
 #if ANY_THERMISTOR_IS(67) // R25 = 500 KOhm, beta25 = 3800 K, 4.7 kOhm pull-up, SliceEngineering 450 °C Thermistor
   #include "thermistor_67.h"
+#endif
+#if ANY_THERMISTOR_IS(68) // PT-100 with Dyze amplifier board
+  #include "thermistor_68.h"
 #endif
 #if ANY_THERMISTOR_IS(12) // beta25 = 4700 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Personal calibration for Makibox hot bed"
   #include "thermistor_12.h"

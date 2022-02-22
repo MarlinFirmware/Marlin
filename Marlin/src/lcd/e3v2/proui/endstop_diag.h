@@ -22,16 +22,18 @@
 #pragma once
 
 /**
- * DWIN Print Stats page
- * Author: Miguel A. Risco-Castillo
+ * DWIN End Stops diagnostic page
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 1.0
- * Date: 2021/11/21
+ * Date: 2021/11/06
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
-class PrintStatsClass {
+class ESDiagClass {
 public:
   void Draw();
-  static void Reset();
+  void Update();
 };
 
-extern PrintStatsClass PrintStats;
+extern ESDiagClass ESDiag;

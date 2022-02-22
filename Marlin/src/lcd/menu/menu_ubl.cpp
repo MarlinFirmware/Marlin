@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
+#if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu_item.h"
 #include "../../gcode/gcode.h"
@@ -684,4 +684,4 @@ void _lcd_ubl_level_bed() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && AUTO_BED_LEVELING_UBL
+#endif // HAS_MARLINUI_MENU && AUTO_BED_LEVELING_UBL
