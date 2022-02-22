@@ -105,8 +105,6 @@ void GcodeSuite::M48() {
   if (verbose_level > 2)
     SERIAL_ECHOLNPGM("Positioning the probe...");
 
-  TERN_(HAS_PTC, const bool ptc_enabled = parser.seenval('C') ? !!parser.value_int() : true);
-
   // Always disable Bed Level correction before probing...
 
   #if HAS_LEVELING
@@ -114,7 +112,7 @@ void GcodeSuite::M48() {
     set_bed_leveling_enabled(false);
   #endif
 
-  TERN_(HAS_PTC, ptc.set_enabled(ptc_enabled));
+  TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
 
   // Work with reasonable feedrates
   remember_feedrate_scaling_off();

@@ -171,15 +171,14 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   return true;
 }
 
-void ProbeTempComp::compensate_measurement(float &meas_z) {
+void ProbeTempComp::apply_compensation(float &meas_z) {
+  if (!enabled) return;
   TERN_(PTC_BED,    compensate_measurement(TSI_BED,   thermalManager.degBed(),     meas_z));
   TERN_(PTC_PROBE,  compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   meas_z));
   TERN_(PTC_HOTEND, compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), meas_z));
 }
 
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
-  if (!enabled) return;
-
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
                   res_temp = cali_info[tsi].temp_resolution,

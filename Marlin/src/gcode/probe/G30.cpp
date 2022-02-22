@@ -48,8 +48,6 @@ void GcodeSuite::G30() {
   const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
                          parser.linearval('Y', current_position.y + probe.offset_xy.y) };
 
-  TERN_(HAS_PTC, const bool ptc_enabled = parser.seenval('C') ? !!parser.value_int() : true);
-
   if (!probe.can_reach(pos)) return;
 
   // Disable leveling so the planner won't mess with us
@@ -58,7 +56,8 @@ void GcodeSuite::G30() {
   remember_feedrate_scaling_off();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
-  TERN_(HAS_PTC, ptc.set_enabled(ptc_enabled));
+
+  TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
   const float measured_z = probe.probe_at_point(pos, raise_after, 1);
   TERN_(HAS_PTC, ptc.set_enabled(true));
   if (!isnan(measured_z))

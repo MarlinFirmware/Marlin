@@ -807,7 +807,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   float measured_z = NAN;
   if (!deploy()) {
     measured_z = run_z_probe(sanity_check) + offset.z;
-    TERN_(HAS_PTC, ptc.compensate_measurement(measured_z));
+    TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
   }
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
