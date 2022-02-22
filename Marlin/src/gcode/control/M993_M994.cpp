@@ -85,4 +85,20 @@ void GcodeSuite::M994() {
   card.closefile();
 }
 
+
+void GcodeSuite::M992() {
+  if (!card.isMounted()) card.mount();
+
+  W25QXX.init(SPI_QUARTER_SPEED);
+
+  uint16_t id = W25QXX.W25QXX_ReadID();
+  SERIAL_ECHOLNPGM("W25QXX ID: ", id);
+
+  SERIAL_ECHOPGM("Erasing chip...");
+  W25QXX.SPI_FLASH_BulkErase();
+  SERIAL_ECHOLNPGM(" done");
+
+  card.closefile();
+}
+
 #endif // HAS_SPI_FLASH && SDSUPPORT && MARLIN_DEV_MODE

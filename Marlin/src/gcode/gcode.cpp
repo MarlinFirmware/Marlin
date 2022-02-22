@@ -1021,6 +1021,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+        case 992: M992(); break;                                  // M992: Erase SPI Flash
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif
