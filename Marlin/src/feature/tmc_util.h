@@ -382,8 +382,8 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 
 #endif // USE_SENSORLESS
 
+#endif // HAS_TRINAMIC_CONFIG
+
 #if HAS_TMC_SPI
   void tmc_init_cs_pins();
 #endif
-
-#endif // HAS_TRINAMIC_CONFIG
