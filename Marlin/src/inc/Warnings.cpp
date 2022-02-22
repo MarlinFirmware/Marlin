@@ -597,3 +597,10 @@
 #ifdef __STM32F1__
   #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
 #endif
+
+/**
+ * Průša MK3/S/+ fan pin reassignment
+ */
+#if MB(BTT_BTT002_V1_0, EINSY_RAMBO) && DISABLED(NO_MK3_FAN_PINS_WARNING)
+  #warning "Define MK3_FAN_PINS to swap hotend and part cooling fan pins. (Define NO_MK3_FAN_PINS_WARNING to suppress this warning.)"
+#endif
