@@ -39,12 +39,8 @@
   #define FIL_RUNOUT2_PIN                     15  // Creality CR-X can use dual runout sensors
 #endif
 
-#ifndef SD_DETECT_PIN
-  #if SD_CONNECTION_IS(ONBOARD)
-    #define SD_DETECT_PIN                     -1  // no SD_DETECT_PIN when using onboard SDCARD
-  #else
-    #define SD_DETECT_PIN                     49
-  #endif
+#ifndef SD_DETECT_PIN && !SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN                       49  // Only non-onboard (SPI) SD card
 #endif
 
 #ifndef PS_ON_PIN
