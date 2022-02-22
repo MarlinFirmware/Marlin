@@ -35,7 +35,7 @@
 static pin_t tone_pin;
 volatile static int32_t toggles;
 
-void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration) {
+void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration/*=0*/) {
   tone_pin = _pin;
   toggles = 2 * frequency * duration / 1000;
   HAL_timer_start(MF_TIMER_TONE, 2 * frequency);

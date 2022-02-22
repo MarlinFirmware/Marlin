@@ -23,7 +23,7 @@
 
 /**
  * Conditionals_post.h
- * Defines that depend on configuration but are not editable.
+ * Internal defines that depend on Configurations and Pins but are not user-editable.
  */
 
 #ifdef GITHUB_ACTIONS
@@ -459,8 +459,8 @@
 
 #endif
 
-#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI) || !PIN_EXISTS(SD_DETECT)
-  #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
+#if PIN_EXISTS(SD_DETECT) && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI)
+  #define REINIT_NOISY_LCD 1  // Have the LCD re-init on SD insertion
 #endif
 
 /**
