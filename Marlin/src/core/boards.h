@@ -434,6 +434,7 @@
 #define BOARD_PANDA_ZHU               6006  // Panda_ZHU
 #define BOARD_PANDA_M4                6007  // Panda_M4
 #define BOARD_MKS_TINYBEE             6008  // MKS TinyBee based on ESP32 (with I2S stepper stream)
+#define BOARD_YBOARD                  6009  // YFSTUDIO YBOARD
 
 //
 // SAMD51 ARM Cortex M4

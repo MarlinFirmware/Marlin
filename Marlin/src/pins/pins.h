@@ -717,6 +717,8 @@
   #include "esp32/pins_PANDA_M4.h"              // ESP32                                  env:PANDA
 #elif MB(MKS_TINYBEE)
   #include "esp32/pins_MKS_TINYBEE.h"           // ESP32                                  env:mks_tinybee
+#elif MB(YBOARD)
+  #include "esp32/pins_YBOARD.h"                // ESP32                                  env:Yboard
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
