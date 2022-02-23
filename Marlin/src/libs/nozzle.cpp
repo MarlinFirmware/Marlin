@@ -263,7 +263,7 @@ Nozzle nozzle;
       case 2: do_blocking_move_to_y(park.y, fr_xy); break;
       case 3: do_blocking_move_to_x(park.x, fr_xy);
               do_blocking_move_to_y(park.y, fr_xy); break;
-      case 4: do_blocking_move_to_y(park.y, fr_xy); 
+      case 4: do_blocking_move_to_y(park.y, fr_xy);
               do_blocking_move_to_x(park.x, fr_xy); break;
     }
 
