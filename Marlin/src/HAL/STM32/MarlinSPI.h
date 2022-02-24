@@ -24,10 +24,6 @@
 #include "HAL.h"
 #include <SPI.h>
 
-extern "C" {
-  #include <utility/spi_com.h>
-}
-
 /**
  * Marlin currently requires 3 SPI classes:
  *
@@ -49,59 +45,71 @@ extern "C" {
 
 #define DATA_SIZE_8BIT SPI_DATASIZE_8BIT
 #define DATA_SIZE_16BIT SPI_DATASIZE_16BIT
+  
+#if defined(STM32F1xx)
+  #define SPI1_DMA_CLK_ENABLE()   __HAL_RCC_DMA1_CLK_ENABLE()
+  #define SPI1_DMA_CLK_DISABLE()  __HAL_RCC_DMA1_CLK_DISABLE()
+  #define SPI1_DMA_RX             DMA1_Channel2
+  #define SPI1_DMA_TX             DMA1_Channel3
 
-class MarlinSPI {
+  #define SPI2_DMA_CLK_ENABLE()   __HAL_RCC_DMA1_CLK_ENABLE()
+  #define SPI2_DMA_CLK_DISABLE()  __HAL_RCC_DMA1_CLK_DISABLE()
+  #define SPI2_DMA_RX             DMA1_Channel4
+  #define SPI2_DMA_TX             DMA1_Channel5
+
+  #define SPI3_DMA_CLK_ENABLE()   __HAL_RCC_DMA2_CLK_ENABLE()
+  #define SPI3_DMA_CLK_DISABLE()  __HAL_RCC_DMA2_CLK_DISABLE()
+  #define SPI3_DMA_RX             DMA2_Channel1
+  #define SPI3_DMA_TX             DMA2_Channel2
+#elif defined(STM32F4xx)
+  #define SPI1_DMA_CLK_ENABLE()   __HAL_RCC_DMA2_CLK_ENABLE()
+  #define SPI1_DMA_CLK_DISABLE()  __HAL_RCC_DMA2_CLK_DISABLE()
+  #define SPI1_DMA_RX             DMA2_Stream0
+  #define SPI1_DMA_TX             DMA2_Stream3
+
+  #define SPI2_DMA_CLK_ENABLE()   __HAL_RCC_DMA1_CLK_ENABLE()
+  #define SPI2_DMA_CLK_DISABLE()  __HAL_RCC_DMA1_CLK_DISABLE()
+  #define SPI2_DMA_RX             DMA1_Stream3
+  #define SPI2_DMA_TX             DMA1_Stream4
+  
+  #define SPI3_DMA_CLK_ENABLE()   __HAL_RCC_DMA1_CLK_ENABLE()
+  #define SPI3_DMA_CLK_DISABLE()  __HAL_RCC_DMA1_CLK_DISABLE()
+  #define SPI3_DMA_RX             DMA1_Stream2
+  #define SPI3_DMA_TX             DMA1_Stream5
+#endif
+
+#if ENABLED(MARLIN_DEV_MODE)
+  #include "../../MarlinCore.h"
+  #define HALOK(HAL_CMD) {if((HAL_CMD) != HAL_OK) {SERIAL_ERROR_MSG("Message: ", PSTR(STRINGIFY(HAL_CMD)), " failed in ", __FILE__, " at line ", __LINE__);serial_delay(20);kill();}}
+#else
+  #define HALOK(HAL_CMD) (HAL_CMD)
+#endif
+
+class MarlinSPI : public SPIClass {
 public:
-  MarlinSPI() : MarlinSPI(NC, NC, NC, NC) {}
+  MarlinSPI() : SPIClass(){}
 
-  MarlinSPI(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel = (pin_t)NC) : _mosiPin(mosi), _misoPin(miso), _sckPin(sclk), _ssPin(ssel) {
-    _spi.pin_miso = digitalPinToPinName(_misoPin);
-    _spi.pin_mosi = digitalPinToPinName(_mosiPin);
-    _spi.pin_sclk = digitalPinToPinName(_sckPin);
-    _spi.pin_ssel = digitalPinToPinName(_ssPin);
-    _dataSize = DATA_SIZE_8BIT;
-    _bitOrder = MSBFIRST;
-    _dataMode = SPI_MODE_0;
-    _spi.handle.State = HAL_SPI_STATE_RESET;
-    setClockDivider(SPI_SPEED_CLOCK_DIV2_MHZ);
-  }
+  MarlinSPI(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel = (pin_t)NC) : SPIClass(mosi, miso, sclk, ssel){}
+  
+  virtual void begin(uint8_t _pin = CS_PIN_CONTROLLED_BY_USER) { SPIClass::begin(_pin); dmaInit(); } 
+  virtual void end() { dmaDeinit(); SPIClass::end(); } 
+  virtual void beginTransaction(uint8_t pin, SPISettings settings) { SPIClass::beginTransaction(pin, settings); dmaInit();  } 
+  virtual void endTransaction(uint8_t pin) { dmaInit(); SPIClass::endTransaction(pin); } 
 
-  void begin(void);
-  void end(void) {}
+  // using SPIClass::transfer;
+  // virtual byte transfer(uint8_t _pin, uint8_t data, SPITransferMode _mode = SPI_LAST){
+  //   DEBUG_LOG("transfer BEGIN");
+  //   byte ret = SPIClass::transfer(_pin, data, _mode);     
+  //   DEBUG_LOG("transfer END");
+  //   return ret;
+  // }
 
-  byte transfer(uint8_t _data);
   uint8_t dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16_t length);
   uint8_t dmaSend(const void * transmitBuf, uint16_t length, bool minc = true);
 
-  /* These methods are deprecated and kept for compatibility.
-   * Use SPISettings with SPI.beginTransaction() to configure SPI parameters.
-   */
-  void setBitOrder(BitOrder _order) { _bitOrder = _order; }
-
-  void setDataMode(uint8_t _mode) {
-    switch (_mode) {
-      case SPI_MODE0: _dataMode = SPI_MODE_0; break;
-      case SPI_MODE1: _dataMode = SPI_MODE_1; break;
-      case SPI_MODE2: _dataMode = SPI_MODE_2; break;
-      case SPI_MODE3: _dataMode = SPI_MODE_3; break;
-    }
-  }
-
-  void setClockDivider(uint8_t _div);
-
 private:
-  void setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc = false);
-
-  spi_t _spi;
+  void dmaInit();
+  void dmaDeinit();
   DMA_HandleTypeDef _dmaTx;
   DMA_HandleTypeDef _dmaRx;
-  BitOrder _bitOrder;
-  spi_mode_e _dataMode;
-  uint8_t _clockDivider;
-  uint32_t _speed;
-  uint32_t _dataSize;
-  pin_t _mosiPin;
-  pin_t _misoPin;
-  pin_t _sckPin;
-  pin_t _ssPin;
 };

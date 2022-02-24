@@ -1,0 +1,85 @@
+diff --git a/libraries/SPI/src/SPI.h b/libraries/SPI/src/SPI.h
+index 4cbfe19736..a79ccb311f 100644
+--- a/libraries/SPI/src/SPI.h
++++ b/libraries/SPI/src/SPI.h
+@@ -151,21 +151,21 @@ class SPIClass {
+       _spi.pin_ssel = (ssel);
+     };
+ 
+-    void begin(uint8_t _pin = CS_PIN_CONTROLLED_BY_USER);
+-    void end(void);
++    virtual void begin(uint8_t _pin = CS_PIN_CONTROLLED_BY_USER);
++    virtual void end(void);
+ 
+     /* This function should be used to configure the SPI instance in case you
+      * don't use default parameters.
+      * You can attach another CS pin to the SPI instance and each CS pin can be
+      * attach with specific SPI settings.
+      */
+-    void beginTransaction(uint8_t pin, SPISettings settings);
++    virtual void beginTransaction(uint8_t pin, SPISettings settings);
+     void beginTransaction(SPISettings settings)
+     {
+       beginTransaction(CS_PIN_CONTROLLED_BY_USER, settings);
+     }
+ 
+-    void endTransaction(uint8_t pin);
++    virtual void endTransaction(uint8_t pin);
+     void endTransaction(void)
+     {
+       endTransaction(CS_PIN_CONTROLLED_BY_USER);
+@@ -175,10 +175,10 @@ class SPIClass {
+      * instance with begin() or beginTransaction().
+      * You can specify the CS pin to use.
+      */
+-    byte transfer(uint8_t pin, uint8_t _data, SPITransferMode _mode = SPI_LAST);
+-    uint16_t transfer16(uint8_t pin, uint16_t _data, SPITransferMode _mode = SPI_LAST);
+-    void transfer(uint8_t pin, void *_buf, size_t _count, SPITransferMode _mode = SPI_LAST);
+-    void transfer(byte _pin, void *_bufout, void *_bufin, size_t _count, SPITransferMode _mode = SPI_LAST);
++    virtual byte transfer(uint8_t pin, uint8_t _data, SPITransferMode _mode = SPI_LAST);
++    virtual uint16_t transfer16(uint8_t pin, uint16_t _data, SPITransferMode _mode = SPI_LAST);
++    virtual void transfer(uint8_t pin, void *_buf, size_t _count, SPITransferMode _mode = SPI_LAST);
++    virtual void transfer(byte _pin, void *_bufout, void *_bufin, size_t _count, SPITransferMode _mode = SPI_LAST);
+ 
+     // Transfer functions when user controls himself the CS pin.
+     byte transfer(uint8_t _data, SPITransferMode _mode = SPI_LAST)
+@@ -223,11 +223,11 @@ class SPIClass {
+     }
+ 
+     // Not implemented functions. Kept for backward compatibility.
+-    void usingInterrupt(uint8_t interruptNumber);
+-    void attachInterrupt(void);
+-    void detachInterrupt(void);
++    virtual void usingInterrupt(uint8_t interruptNumber);
++    virtual void attachInterrupt(void);
++    virtual void detachInterrupt(void);
+ 
+-  private:
++  protected:
+     /* Contains various spiSettings for the same spi instance. Each spi spiSettings
+     is associated to a CS pin. */
+     SPISettings   spiSettings[NB_SPI_SETTINGS];
+@@ -238,6 +238,7 @@ class SPIClass {
+     // spi instance
+     spi_t         _spi;
+ 
++  private:
+ 
+     typedef enum {
+       GET_IDX = 0,
+diff --git a/libraries/SPI/src/SPI.cpp b/libraries/SPI/src/SPI.cpp
+index cab53b9..bb1b7e5 100644
+--- a/libraries/SPI/src/SPI.cpp
++++ b/libraries/SPI/src/SPI.cpp
+@@ -11,8 +11,10 @@
+ 
+ #include "SPI.h"
+ 
+-SPIClass SPI;
++#ifndef DERIVED_EXTERN_SPI
++SPIClass SPI;
++#endif-SPIClass SPI;
+
+ /**
+   * @brief  Default constructor. Uses pin configuration of variant.h.
+   */

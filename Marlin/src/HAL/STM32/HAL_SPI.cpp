@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <SPI.h>
+#include "MarlinSPI.h"
 
 // ------------------------
 // Public Variables
