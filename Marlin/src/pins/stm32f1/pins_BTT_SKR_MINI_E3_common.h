@@ -236,7 +236,7 @@
 
     #endif
   
-  #elif EITHER(FYSETC_MINI_12864_2_1, BTT_MINI_12864_V1)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
 
     #error "CAUTION! FYSETC_MINI_12864_2_1 / BTT_MINI_12864_V1 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
 
