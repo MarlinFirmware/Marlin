@@ -238,10 +238,10 @@
   
   #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-    #error "CAUTION! FYSETC_MINI_12864_2_1 / BTT_MINI_12864_V1 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
+    #error "CAUTION! FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864_V1 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
 
     /**
-     * FYSETC_MINI_12864_2_1 / BTT_MINI_12864_V1 display pinout
+     * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864_V1 display pinout
      *
      *       Board                      Display
      *       ------                     ------
