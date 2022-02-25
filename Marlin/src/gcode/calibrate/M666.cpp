@@ -57,6 +57,12 @@
       }
     }
     if (is_err) SERIAL_ECHOLNPGM("?M666 offsets must be <= 0");
+    #if ENABLED(SENSORLESS_PROBING)          
+      if (parser.seen_test('R')) {            //Lujsensorless      M666 R --> Reset offset_sensorless_adj
+        xyz_pos_t reset{0};                     //Lujsensorless
+        offset_sensorless_adj = reset;          //Lujsensorless 
+      };                                      //Lujsensorless
+    #endif
     if (!is_set) M666_report();
   }
 
@@ -66,6 +72,11 @@
         PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
       , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
       , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
+      #if ENABLED(SENSORLESS_PROBING)
+        , PSTR("  sensorless X"), LINEAR_UNIT(offset_sensorless_adj.a)    //Lujsensorless
+        , SP_Y_STR, LINEAR_UNIT(offset_sensorless_adj.b)                  //Lujsensorless
+        , SP_Z_STR, LINEAR_UNIT(offset_sensorless_adj.c)                  //Lujsensorless  
+      #endif
     );
   }
 

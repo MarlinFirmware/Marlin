@@ -324,11 +324,7 @@ void GcodeSuite::G28() {
       stepperK.rms_current(K_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(F(STR_K), tmc_save_current_K, K_CURRENT_HOME);
     #endif
-    #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
-      const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
-      stepperZ.rms_current(Z_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
-    #endif
+    safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -550,6 +546,7 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(K)
       stepperK.rms_current(tmc_save_current_K);
     #endif
+    safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
   #endif // HAS_HOMING_CURRENT
 
   ui.refresh();

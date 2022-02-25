@@ -117,6 +117,7 @@ void lcd_delta_settings() {
   EDIT_ANGLE_TRIM("Ty", b);
   EDIT_ANGLE_TRIM("Tz", c);
   EDIT_ITEM(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
+  EDIT_ITEM(float52sign, MSG_FACTOR_RADIUS, &sensorless_radius_factor, sensorless_radius_factor - 1, sensorless_radius_factor + 1); //Lujsensorless
   END_MENU();
 }
 
