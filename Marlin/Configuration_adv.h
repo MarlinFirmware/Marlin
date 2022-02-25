@@ -2337,6 +2337,15 @@
 // For serial echo, the number of digits after the decimal point
 //#define SERIAL_FLOAT_PRECISION 4
 
+/**
+ * Set the number of proportional font spaces required to fill up a typical character space.
+ * This can help to better align the output of commands like `G29 O` Mesh Output.
+ *
+ * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
+ * Otherwise, adjust according to your client and font.
+ */
+#define PROPORTIONAL_FONT_RATIO 1.0
+
 // @section extras
 
 /**
@@ -3779,15 +3788,6 @@
 //#define M114_LEGACY         // M114 used to synchronize on every call. Enable if needed.
 
 //#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others)
-
-/**
- * Set the number of proportional font spaces required to fill up a typical character space.
- * This can help to better align the output of commands like `G29 O` Mesh Output.
- *
- * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
- * Otherwise, adjust according to your client and font.
- */
-#define PROPORTIONAL_FONT_RATIO 1.0
 
 /**
  * Spend 28 bytes of SRAM to optimize the G-code parser
