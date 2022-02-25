@@ -70,10 +70,10 @@ void GcodeSuite::M305() {
   }                       // If not setting then report parameters
   else if (t_index < 0) { // ...all user thermistors
     LOOP_L_N(i, USER_THERMISTORS)
-      thermalManager.log_user_thermistor(i);
+      thermalManager.M305_report(i);
   }
   else                    // ...one user thermistor
-    thermalManager.log_user_thermistor(t_index);
+    thermalManager.M305_report(t_index);
 }
 
 #endif // HAS_USER_THERMISTORS

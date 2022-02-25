@@ -42,6 +42,8 @@
  * a Max7219_Set_Row().    The opposite is true for rotations of 0 or 180 degrees.
  */
 
+#include "../inc/MarlinConfig.h"
+
 #ifndef MAX7219_ROTATE
   #define MAX7219_ROTATE 0
 #endif
@@ -86,13 +88,13 @@ public:
   static void send(const uint8_t reg, const uint8_t data);
 
   // Refresh all units
-  static inline void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
+  static void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
 
   // Suspend / resume updates to the LED unit
   // Use these methods to speed up multiple changes
   // or to apply updates from interrupt context.
-  static inline void suspend() { suspended++; }
-  static inline void resume() { suspended--; suspended |= 0x80; }
+  static void suspend() { suspended++; }
+  static void resume() { suspended--; suspended |= 0x80; }
 
   // Update a single native line on all units
   static void refresh_line(const uint8_t line);
@@ -140,7 +142,7 @@ public:
 
 private:
   static uint8_t suspended;
-  static void error(const char * const func, const int32_t v1, const int32_t v2=-1);
+  static void error(FSTR_P const func, const int32_t v1, const int32_t v2=-1);
   static void noop();
   static void set(const uint8_t line, const uint8_t bits);
   static void send_row(const uint8_t row);

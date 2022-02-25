@@ -120,7 +120,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
 
   cmd.font(font_medium)
      .colors(action_btn)
-     .tag(1).button(BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BACK));
+     .tag(1).button(BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BUTTON_DONE));
   #undef GRID_COLS
   #undef GRID_ROWS
 }

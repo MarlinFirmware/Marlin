@@ -50,7 +50,7 @@ void GcodeSuite::G12() {
 
   #ifdef WIPE_SEQUENCE_COMMANDS
     if (!parser.seen_any()) {
-      gcode.process_subcommands_now_P(PSTR(WIPE_SEQUENCE_COMMANDS));
+      process_subcommands_now(F(WIPE_SEQUENCE_COMMANDS));
       return;
     }
   #endif

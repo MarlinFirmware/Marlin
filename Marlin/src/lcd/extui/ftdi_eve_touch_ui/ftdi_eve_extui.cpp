@@ -38,9 +38,9 @@ namespace ExtUI {
 
   void onIdle() { EventLoop::loop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    char str[strlen_P(error) + strlen_P(component) + 3];
-    sprintf_P(str, PSTR(S_FMT ": " S_FMT), error, component);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
+    char str[strlen_P(FTOP(error)) + strlen_P(FTOP(component)) + 3];
+    sprintf_P(str, PSTR(S_FMT ": " S_FMT), FTOP(error), FTOP(component));
     KillScreen::show(str);
   }
 
@@ -71,7 +71,6 @@ namespace ExtUI {
   }
 
   void onStatusChanged(const char *lcd_msg) { StatusScreen::setStatusMessage(lcd_msg); }
-  void onStatusChanged(progmem_str lcd_msg) { StatusScreen::setStatusMessage(lcd_msg); }
 
   void onPrintTimerStarted() {
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_STARTED);
@@ -131,8 +130,11 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      //SERIAL_ECHOLNPGM("OnPidTuning:", rst);
       switch (rst) {
+        case PID_STARTED:
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+          break;
         case PID_BAD_EXTRUDER_NUM:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
           break;

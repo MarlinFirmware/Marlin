@@ -68,7 +68,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .tag(10).button(LEVELING_POS,          GET_TEXT_F(MSG_LEVELING))
        .tag(11).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
-       .tag(1).button(BACK_POS,               GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS,               GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -86,7 +86,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case  6: GOTO_SCREEN(FeedratePercentScreen);            break;
     case  7: GOTO_SCREEN(FlowPercentScreen);                break;
     case  8: GOTO_SCREEN(AdvancedSettingsMenu);             break;
-    case  9: injectCommands_P(PSTR("M84"));                 break;
+    case  9: injectCommands(F("M84"));                 break;
     #if HAS_LEVELING
     case 10:  GOTO_SCREEN(LevelingMenu);                    break;
     #endif

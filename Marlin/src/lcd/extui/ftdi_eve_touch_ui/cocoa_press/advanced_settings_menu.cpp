@@ -67,7 +67,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(10).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
       .tag(11).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
       .colors(action_btn)
-      .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BACK));
+      .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

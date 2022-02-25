@@ -116,7 +116,7 @@
 //
 #define TEMP_0_PIN                             0  // Analog Input, Header J2
 #define TEMP_1_PIN                             1  // Analog Input, Header J3
-#define TEMP_BOARD_PIN                TEMP_1_PIN  // Analog Input, Header J3
+#define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
 #define TEMP_BED_PIN                           2  // Analog Input, Header J6
 #define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
 
@@ -163,9 +163,11 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX0_PIN                            17
-#define E_MUX1_PIN                            16
-#define E_MUX2_PIN                            78  // 84 in MK2 Firmware, with BEEPER as 78
+#if HAS_PRUSA_MMU1
+  #define E_MUX0_PIN                          17
+  #define E_MUX1_PIN                          16
+  #define E_MUX2_PIN                          78  // 84 in MK2 Firmware, with BEEPER as 78
+#endif
 
 //
 // LCD / Controller
@@ -204,5 +206,11 @@
 
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_WIRED_LCD
+
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2               250
+  #define BOARD_ST7920_DELAY_3                 0
+#endif
 
 #undef MK3_FAN_PINS

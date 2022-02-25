@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef STM32F1
+
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 /**
  * PersistentStore for Arduino-style EEPROM interface
@@ -79,4 +82,4 @@ bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t 
 }
 
 #endif // IIC_BL24CXX_EEPROM
-#endif // STM32F1
+#endif // HAL_STM32

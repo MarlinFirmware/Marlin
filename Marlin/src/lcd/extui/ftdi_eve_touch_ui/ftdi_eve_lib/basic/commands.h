@@ -70,7 +70,7 @@
   *
   * CommandFifo::fgcolor               Set Graphic Item Foreground Color      *
   * CommandFifo::bgcolor               Set Graphic Item Background Color      *
-  * CommandFifo::begin()               Begin Drawing a Primative              *
+  * CommandFifo::begin()               Begin Drawing a Primitive              *
   * CommandFifo::mem_copy()            Copy a Block of Memory                 *
   * CommandFifo::append()              Append Commands to Current DL          *
   * CommandFifo::gradient_color()      Set 3D Button Highlight Color          *
@@ -93,7 +93,7 @@
 
 #pragma once
 
-typedef const __FlashStringHelper *progmem_str;
+typedef const __FlashStringHelper *FSTR_P;
 
 class UIStorage;
 
@@ -118,8 +118,8 @@ class CLCD {
     static void     mem_write_fill (uint32_t reg_address, uint8_t w_data, uint16_t len);
     static void     mem_write_bulk (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_pgm  (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
-    static void     mem_write_bulk (uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding = 0);
-    static void     mem_write_xbm  (uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding = 0);
+    static void     mem_write_bulk (uint32_t reg_address, FSTR_P str, uint16_t len, uint8_t padding = 0);
+    static void     mem_write_xbm  (uint32_t reg_address, FSTR_P str, uint16_t len, uint8_t padding = 0);
 
   public:
     class CommandFifo;
@@ -168,7 +168,7 @@ class CLCD::FontMetrics {
 
     // Returns width of string, up to a maximum of n characters.
     uint16_t get_text_width(const char *str, size_t n = SIZE_MAX) const;
-    uint16_t get_text_width(progmem_str str, size_t n = SIZE_MAX) const;
+    uint16_t get_text_width(FSTR_P str, size_t n = SIZE_MAX) const;
 };
 
 /******************* FT800/810 Graphic Commands *********************************/
@@ -248,8 +248,9 @@ class CLCD::CommandFifo {
     void keys      (int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options);
 
     // Sends the string portion of text, button, toggle and keys.
+    void str (const char * data, size_t maxlen);
     void str (const char * data);
-    void str (progmem_str data);
+    void str (FSTR_P data);
 
     void memzero  (uint32_t ptr, uint32_t size);
     void memset   (uint32_t ptr, uint32_t value, uint32_t size);

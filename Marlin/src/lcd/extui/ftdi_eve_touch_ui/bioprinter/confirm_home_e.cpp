@@ -36,7 +36,7 @@ bool BioConfirmHomeE::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       #if defined(AXIS_LEVELING_COMMANDS) && defined(PARK_AND_RELEASE_COMMANDS)
-        SpinnerDialogBox::enqueueAndWait_P(F(
+        SpinnerDialogBox::enqueueAndWait(F(
           "G28 E\n"
           AXIS_LEVELING_COMMANDS "\n"
           PARK_AND_RELEASE_COMMANDS

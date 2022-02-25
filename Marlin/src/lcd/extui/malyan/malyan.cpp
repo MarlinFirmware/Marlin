@@ -74,35 +74,36 @@ uint16_t inbound_count;
 bool last_printing_status = false;
 
 // Everything written needs the high bit set.
-void write_to_lcd_P(PGM_P const message) {
+void write_to_lcd(FSTR_P const fmsg) {
+  PGM_P pmsg = FTOP(fmsg);
   char encoded_message[MAX_CURLY_COMMAND];
-  uint8_t message_length = _MIN(strlen_P(message), sizeof(encoded_message));
+  uint8_t message_length = _MIN(strlen_P(pmsg), sizeof(encoded_message));
 
   LOOP_L_N(i, message_length)
-    encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
+    encoded_message[i] = pgm_read_byte(&pmsg[i]) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
 
-void write_to_lcd(const char * const message) {
+void write_to_lcd(const char * const cmsg) {
   char encoded_message[MAX_CURLY_COMMAND];
-  const uint8_t message_length = _MIN(strlen(message), sizeof(encoded_message));
+  const uint8_t message_length = _MIN(strlen(cmsg), sizeof(encoded_message));
 
   LOOP_L_N(i, message_length)
-    encoded_message[i] = message[i] | 0x80;
+    encoded_message[i] = cmsg[i] | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
 
 // {E:<msg>} is for error states.
-void set_lcd_error_P(PGM_P const error, PGM_P const component/*=nullptr*/) {
-  write_to_lcd_P(PSTR("{E:"));
-  write_to_lcd_P(error);
+void set_lcd_error(FSTR_P const error, FSTR_P const component/*=nullptr*/) {
+  write_to_lcd(F("{E:"));
+  write_to_lcd(error);
   if (component) {
-    write_to_lcd_P(PSTR(" "));
-    write_to_lcd_P(component);
+    write_to_lcd(F(" "));
+    write_to_lcd(component);
   }
-  write_to_lcd_P(PSTR("}"));
+  write_to_lcd(F("}"));
 }
 
 
@@ -122,7 +123,7 @@ void set_lcd_error_P(PGM_P const error, PGM_P const component/*=nullptr*/) {
 void process_lcd_c_command(const char *command) {
   const int target_val = command[1] ? atoi(command + 1) : -1;
   if (target_val < 0) {
-    DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
+    DEBUG_ECHOLNPGM("UNKNOWN C COMMAND ", command);
     return;
   }
   switch (command[0]) {
@@ -143,7 +144,7 @@ void process_lcd_c_command(const char *command) {
       case 'P': ExtUI::setTargetTemp_celsius(target_val, ExtUI::heater_t::BED); break;
     #endif
 
-    default: DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN C COMMAND ", command);
   }
 }
 
@@ -185,7 +186,7 @@ void process_lcd_eb_command(const char *command) {
       write_to_lcd(message_buffer);
     } break;
 
-    default: DEBUG_ECHOLNPAIR("UNKNOWN E/B COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN E/B COMMAND ", command);
   }
 }
 
@@ -212,7 +213,7 @@ void process_lcd_j_command(const char *command) {
     case 'Y': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Y); break;
     case 'Z': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Z); break;
     case 'X': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::X); break;
-    default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN J COMMAND ", command);
   }
 }
 
@@ -243,16 +244,16 @@ void process_lcd_p_command(const char *command) {
   switch (command[0]) {
     case 'P':
         ExtUI::pausePrint();
-        write_to_lcd_P(PSTR("{SYS:PAUSED}"));
+        write_to_lcd(F("{SYS:PAUSED}"));
         break;
     case 'R':
         ExtUI::resumePrint();
-        write_to_lcd_P(PSTR("{SYS:RESUMED}"));
+        write_to_lcd(F("{SYS:RESUMED}"));
         break;
     case 'X':
-        write_to_lcd_P(PSTR("{SYS:CANCELING}"));
+        write_to_lcd(F("{SYS:CANCELING}"));
         ExtUI::stopPrint();
-        write_to_lcd_P(PSTR("{SYS:STARTED}"));
+        write_to_lcd(F("{SYS:STARTED}"));
         break;
     case 'H': queue.enqueue_now_P(G28_STR); break; // Home all axes
     default: {
@@ -271,13 +272,13 @@ void process_lcd_p_command(const char *command) {
         // but the V2 LCD switches to "print" mode on {SYS:DIR} response.
         if (card.flag.filenameIsDir) {
           card.cd(card.filename);
-          write_to_lcd_P(PSTR("{SYS:DIR}"));
+          write_to_lcd(F("{SYS:DIR}"));
         }
         else {
           char message_buffer[MAX_CURLY_COMMAND];
           sprintf_P(message_buffer, PSTR("{PRINTFILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);
-          write_to_lcd_P(PSTR("{SYS:BUILD}"));
+          write_to_lcd(F("{SYS:BUILD}"));
           card.openAndPrintFile(card.filename);
         }
       #endif
@@ -332,11 +333,11 @@ void process_lcd_s_command(const char *command) {
           write_to_lcd(message_buffer);
         }
 
-        write_to_lcd_P(PSTR("{SYS:OK}"));
+        write_to_lcd(F("{SYS:OK}"));
       #endif
     } break;
 
-    default: DEBUG_ECHOLNPAIR("UNKNOWN S COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN S COMMAND ", command);
   }
 }
 
@@ -360,11 +361,11 @@ void process_lcd_command(const char *command) {
       case 'C': process_lcd_c_command(current); break;
       case 'B':
       case 'E': process_lcd_eb_command(current); break;
-      default: DEBUG_ECHOLNPAIR("UNKNOWN COMMAND ", command);
+      default: DEBUG_ECHOLNPGM("UNKNOWN COMMAND ", command);
     }
   }
   else
-    DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
+    DEBUG_ECHOLNPGM("UNKNOWN COMMAND FORMAT ", command);
 }
 
 //
@@ -413,7 +414,7 @@ void update_usb_status(const bool forceUpdate) {
   // This is more logical.
   if (last_usb_connected_status != MYSERIAL1.connected() || forceUpdate) {
     last_usb_connected_status = MYSERIAL1.connected();
-    write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
+    write_to_lcd(last_usb_connected_status ? F("{R:UC}\r\n") : F("{R:UD}\r\n"));
   }
 }
 

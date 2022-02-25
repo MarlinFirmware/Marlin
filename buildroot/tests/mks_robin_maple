@@ -16,6 +16,7 @@ exec_test $1 $2 "MKS Robin config (FSMC Color UI)" "$3"
 use_example_configs Mks/Robin
 opt_disable TFT_CLASSIC_UI TFT_COLOR_UI TOUCH_SCREEN TFT_RES_320x240
 opt_enable TFT_LVGL_UI TFT_RES_480x320
+opt_set TFT_ROTATION TFT_ROTATE_180
 exec_test $1 $2 "MKS Robin nano v1.2 LVGL FSMC" "$3"
 
 # cleanup

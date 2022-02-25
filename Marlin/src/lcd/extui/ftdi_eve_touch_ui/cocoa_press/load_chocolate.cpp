@@ -90,7 +90,7 @@ void LoadChocolateScreen::draw_buttons(draw_mode_t what) {
   cmd.tag(3).button(x, y, h, v, GET_TEXT_F(MSG_FULL_LOAD));
 
   ui.bounds(POLY(load_screen_back_btn), x, y, h, v);
-  cmd.tag(1).colors(action_btn).button(x, y, h, v, GET_TEXT_F(MSG_BACK));
+  cmd.tag(1).colors(action_btn).button(x, y, h, v, GET_TEXT_F(MSG_BUTTON_DONE));
 }
 
 void LoadChocolateScreen::draw_text(draw_mode_t what) {

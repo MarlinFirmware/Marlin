@@ -25,7 +25,7 @@ namespace FTDI {
   void draw_adjuster_value(
     CommandProcessor& cmd,
     int16_t x, int16_t y, int16_t w, int16_t h,
-    float value, progmem_str units = nullptr,
+    float value, FSTR_P units = nullptr,
     int8_t width = 5, uint8_t precision = 1
   );
 
@@ -33,7 +33,7 @@ namespace FTDI {
     CommandProcessor& cmd,
     int16_t x, int16_t y, int16_t w, int16_t h,
     uint8_t tag,
-    float value, progmem_str units = nullptr,
+    float value, FSTR_P units = nullptr,
     int8_t width = 5, uint8_t precision = 1,
     draw_mode_t what = BOTH
   );

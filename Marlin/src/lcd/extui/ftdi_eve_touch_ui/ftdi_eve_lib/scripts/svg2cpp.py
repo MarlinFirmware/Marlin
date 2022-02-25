@@ -164,7 +164,7 @@ class Parser:
 
   def process_svg_path_data_cmd(self, id, cmd, a, b):
     """Converts the various types of moves into L or M commands
-    and dispatches to process_svg_path_L_or_M for futher processing."""
+    and dispatches to process_svg_path_L_or_M for further processing."""
     if cmd == "Z" or cmd == "z":
       self.process_svg_path_L_or_M("L", self.initial_x, self.initial_y)
     elif cmd == "H":

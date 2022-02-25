@@ -36,7 +36,7 @@ bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       #ifdef PARK_AND_RELEASE_COMMANDS
-        SpinnerDialogBox::enqueueAndWait_P(F(
+        SpinnerDialogBox::enqueueAndWait(F(
          "G28\n"
          PARK_AND_RELEASE_COMMANDS
         ));

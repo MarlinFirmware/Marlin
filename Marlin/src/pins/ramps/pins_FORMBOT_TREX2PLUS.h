@@ -119,23 +119,6 @@
 #endif
 
 //
-// Augmentation for auto-assigning RAMPS plugs
-//
-#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HAS_MULTI_HOTEND
-    #if TEMP_SENSOR_BED
-      #define IS_RAMPS_EEB
-    #else
-      #define IS_RAMPS_EEF
-    #endif
-  #elif TEMP_SENSOR_BED
-    #define IS_RAMPS_EFB
-  #else
-    #define IS_RAMPS_EFF
-  #endif
-#endif
-
-//
 // Heaters / Fans
 //
 #define HEATER_0_PIN                          10
@@ -198,14 +181,9 @@
   #define LCD_PINS_D7                         29
 #endif
 
-#if HAS_MARLINUI_U8GLIB
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(200)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(200)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(200)
-  #endif
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               200
+  #define BOARD_ST7920_DELAY_2               200
+  #define BOARD_ST7920_DELAY_3               200
 #endif

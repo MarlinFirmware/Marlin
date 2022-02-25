@@ -41,9 +41,9 @@ public:
   FilamentWidthSensor() { init(); }
   static void init();
 
-  static inline void enable(const bool ena) { enabled = ena; }
+  static void enable(const bool ena) { enabled = ena; }
 
-  static inline void set_delay_cm(const uint8_t cm) {
+  static void set_delay_cm(const uint8_t cm) {
     meas_delay_cm = _MIN(cm, MAX_MEASUREMENT_DELAY);
   }
 
@@ -67,18 +67,18 @@ public:
   }
 
   // Convert raw measurement to mm
-  static inline float raw_to_mm(const uint16_t v) { return v * 5.0f * RECIPROCAL(float(MAX_RAW_THERMISTOR_VALUE)); }
-  static inline float raw_to_mm() { return raw_to_mm(raw); }
+  static float raw_to_mm(const uint16_t v) { return v * 5.0f * RECIPROCAL(float(MAX_RAW_THERMISTOR_VALUE)); }
+  static float raw_to_mm() { return raw_to_mm(raw); }
 
   // A scaled reading is ready
   // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
-  static inline void reading_ready() { raw = accum >> 10; }
+  static void reading_ready() { raw = accum >> 10; }
 
   // Update mm from the raw measurement
-  static inline void update_measured_mm() { measured_mm = raw_to_mm(); }
+  static void update_measured_mm() { measured_mm = raw_to_mm(); }
 
   // Update ring buffer used to delay filament measurements
-  static inline void advance_e(const_float_t e_move) {
+  static void advance_e(const_float_t e_move) {
 
     // Increment counters with the E distance
     e_count += e_move;
@@ -106,7 +106,7 @@ public:
   }
 
   // Dynamically set the volumetric multiplier based on the delayed width measurement.
-  static inline void update_volumetric() {
+  static void update_volumetric() {
     if (enabled) {
       int8_t read_index = index_r - meas_delay_cm;
       if (read_index < 0) read_index += MMD_CM; // Loop around buffer if needed

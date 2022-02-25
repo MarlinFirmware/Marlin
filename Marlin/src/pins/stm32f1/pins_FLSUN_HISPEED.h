@@ -31,7 +31,7 @@
 
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#elif HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "FLSUN HiSpeedV1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -41,7 +41,7 @@
 #define BOARD_NO_NATIVE_USB
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER 5
+#define TEMP_TIMER  5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -65,18 +65,17 @@
 #define SD_SCK_PIN                          PB13  // SPI2
 #define SD_MISO_PIN                         PB14  // SPI2
 #define SD_MOSI_PIN                         PB15  // SPI2
-#define SPI_DEVICE 2
+#define SPI_DEVICE                             2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1
-#define SPI_FLASH_SIZE                 0x1000000  // 16MB
-
 #if HAS_SPI_FLASH
   // SPI 2
-  #define W25QXX_CS_PIN                     PB12  // SPI2_NSS / Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
 #endif
 
 //
@@ -124,11 +123,11 @@
   // SoftwareSerial with one pin per driver
   // Compatible with TMC2208 and TMC2209 drivers
   #define X_SERIAL_TX_PIN                   PA10  // RXD1
-  #define X_SERIAL_RX_PIN                   PA10  // RXD1
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
   #define Y_SERIAL_TX_PIN                   PA9   // TXD1
-  #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
-  #define Z_SERIAL_RX_PIN                   PC7   // IO1
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
   #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
@@ -195,9 +194,10 @@
 //
 // Misc. Functions
 //
-//#define POWER_LOSS_PIN                    PA1   // PW_SO
 #if ENABLED(BACKUP_POWER_SUPPLY)
   #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
+#else
+  //#define POWER_LOSS_PIN                  PA1   // PW_SO
 #endif
 
 /**
@@ -217,13 +217,15 @@
 //
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN                          PA2   // PW_DET
-  #define KILL_PIN_INVERTING                true
+  #define KILL_PIN_STATE                   HIGH
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
-#define MT_DET_1_PIN                        PA4   // MT_DET
-#define MT_DET_2_PIN                        PE6   // FALA_CRTL
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 //
 // LED / NEOPixel
@@ -271,11 +273,9 @@
   #error "FLSun HiSpeed default BEEPER_PIN is not a SPEAKER."
 #endif
 
-#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
-  #define TFT_CS_PIN                        PD7   // NE4
-  #define TFT_RS_PIN                        PD11  // A0
-#endif
-
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
@@ -291,12 +291,17 @@
    */
   //#define TFT_RESET_PIN                   PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
-  #define FSMC_CS_PIN                 TFT_CS_PIN  // NE4
-  #define FSMC_RS_PIN                 TFT_RS_PIN  // A0
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
+
   #ifdef TFT_CLASSIC_UI
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
     #define TFT_MARLINUI_COLOR            0xC7B6  // Green
@@ -304,9 +309,14 @@
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
   #define TFT_BUFFER_SIZE                  14400
+
 #elif HAS_GRAPHICAL_TFT
+
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN                 PD13
+  #define TFT_CS_PIN                        PD7   // NE4
+  #define TFT_RS_PIN                        PD11  // A0
+
 #endif
 
 #if NEED_TOUCH_PINS

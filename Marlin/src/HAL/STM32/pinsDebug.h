@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -109,15 +112,20 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
+#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(ANUM) port_print(ANUM)
 #define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine
-#define GET_PIN_MAP_PIN_M43(Index) pin_xref[Index].Ard_num
 
 // x is a variable used to search pin_array
 #define GET_ARRAY_IS_DIGITAL(x) ((bool) pin_array[x].is_digital)
 #define GET_ARRAY_PIN(x) ((pin_t) pin_array[x].pin)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
+
+//
+// Pin Mapping for M43
+//
+#define GET_PIN_MAP_PIN_M43(Index) pin_xref[Index].Ard_num
 
 #ifndef M43_NEVER_TOUCH
   #define _M43_NEVER_TOUCH(Index) (Index >= 9 && Index <= 12) // SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP)
@@ -236,7 +244,7 @@ void pwm_details(const pin_t Ard_num) {
       if (over_7) pin_number -= 8;
 
       uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
-      SERIAL_ECHOPAIR("Alt Function: ", alt_func);
+      SERIAL_ECHOPGM("Alt Function: ", alt_func);
       if (alt_func < 10) SERIAL_CHAR(' ');
       SERIAL_ECHOPGM(" - ");
       switch (alt_func) {

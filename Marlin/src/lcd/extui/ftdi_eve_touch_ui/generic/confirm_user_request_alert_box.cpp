@@ -53,17 +53,12 @@ bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-void ConfirmUserRequestAlertBox::onIdle() {
-  if (!ExtUI::awaitingUserConfirm()) {
-    hide();
-  }
-}
-
 void ConfirmUserRequestAlertBox::show(const char *msg) {
   drawMessage(msg);
   storeBackground();
   screen_data.AlertDialogBox.isError = false;
-  GOTO_SCREEN(ConfirmUserRequestAlertBox);
+  if (!AT_SCREEN(ConfirmUserRequestAlertBox))
+    GOTO_SCREEN(ConfirmUserRequestAlertBox);
 }
 
 void ConfirmUserRequestAlertBox::hide() {

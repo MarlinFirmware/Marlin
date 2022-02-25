@@ -88,7 +88,7 @@ void GcodeSuite::M104_M109(const bool isM109) {
   celsius_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();

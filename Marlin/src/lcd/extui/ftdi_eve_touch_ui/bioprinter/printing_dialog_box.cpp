@@ -105,7 +105,7 @@ bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-void BioPrintingDialogBox::setStatusMessage(progmem_str message) {
+void BioPrintingDialogBox::setStatusMessage(FSTR_P message) {
   char buff[strlen_P((const char*)message)+1];
   strcpy_P(buff, (const char*) message);
   setStatusMessage(buff);

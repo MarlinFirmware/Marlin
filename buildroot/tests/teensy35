@@ -67,6 +67,7 @@ exec_test $1 $2 "PARKING_EXTRUDER with LCD" "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36 MIXING_STEPPERS 2
 opt_enable MIXING_EXTRUDER DIRECT_MIXING_IN_G1 GRADIENT_MIX GRADIENT_VTOOL REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+opt_disable DISABLE_INACTIVE_EXTRUDER
 exec_test $1 $2 "Mixing Extruder" "$3"
 
 #
@@ -100,7 +101,7 @@ exec_test $1 $2 "Teensy 3.5/3.6 COREXZ | BACKLASH" "$3"
 # Enable Dual Z with Dual Z endstops
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_TEENSY35_36 NUM_Z_STEPPER_DRIVERS 2 Z2_MAX_PIN 2
+opt_set MOTHERBOARD BOARD_TEENSY35_36 NUM_Z_STEPPER_DRIVERS 2 Z2_MIN_PIN 2
 opt_enable Z_MULTI_ENDSTOPS USE_XMAX_PLUG
 pins_set ramps/RAMPS X_MAX_PIN -1
 exec_test $1 $2 "Dual Z with Dual Z endstops" "$3"

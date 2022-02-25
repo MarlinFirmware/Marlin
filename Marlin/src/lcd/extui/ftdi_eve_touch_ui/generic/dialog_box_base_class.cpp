@@ -32,19 +32,19 @@ using namespace Theme;
 #define GRID_ROWS 8
 
 template<typename T>
-void DialogBoxBaseClass::drawMessage(const T message, int16_t font) {
+void DialogBoxBaseClass::drawMessage(T message, int16_t font) {
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART)
      .cmd(CLEAR_COLOR_RGB(bg_color))
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .tag(0);
-  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,3), message, OPT_CENTER, font ? font : font_large);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,6), message, OPT_CENTER, font ? font : font_large);
   cmd.colors(normal_btn);
 }
 
 template void DialogBoxBaseClass::drawMessage(const char *, int16_t font);
-template void DialogBoxBaseClass::drawMessage(progmem_str, int16_t font);
+template void DialogBoxBaseClass::drawMessage(FSTR_P, int16_t font);
 
 void DialogBoxBaseClass::drawYesNoButtons(uint8_t default_btn) {
   CommandProcessor cmd;
@@ -59,17 +59,15 @@ void DialogBoxBaseClass::drawOkayButton() {
      .tag(1).button(BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_OKAY));
 }
 
-void DialogBoxBaseClass::drawButton(const progmem_str label) {
+template<typename T>
+void DialogBoxBaseClass::drawButton(T label) {
   CommandProcessor cmd;
   cmd.font(font_medium)
      .tag(1).button(BTN_POS(1,8), BTN_SIZE(2,1), label);
 }
 
-void DialogBoxBaseClass::drawSpinner() {
-  CommandProcessor cmd;
-  cmd.cmd(COLOR_RGB(bg_text_enabled))
-     .spinner(BTN_POS(1,4), BTN_SIZE(2,3)).execute();
-}
+template void DialogBoxBaseClass::drawButton(const char *);
+template void DialogBoxBaseClass::drawButton(FSTR_P);
 
 bool DialogBoxBaseClass::onTouchEnd(uint8_t tag) {
   switch (tag) {

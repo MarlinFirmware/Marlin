@@ -46,19 +46,6 @@ extern abc_float_t delta_diagonal_rod_trim;
 void recalc_delta_settings();
 
 /**
- * Get a safe radius for calibration
- */
-#if ENABLED(DELTA_AUTO_CALIBRATION)
-  extern float calibration_radius_factor;
-#else
-  constexpr float calibration_radius_factor = 1;
-#endif
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-  float delta_calibration_radius();
-#endif
-
-/**
  * Delta Inverse Kinematics
  *
  * Calculate the tower positions for a given machine
@@ -94,6 +81,8 @@ void inverse_kinematics(const xyz_pos_t &raw);
  * effector has the full range of XY motion.
  */
 float delta_safe_distance_from_top();
+
+void refresh_delta_clip_start_height();
 
 /**
  * Delta Forward Kinematics

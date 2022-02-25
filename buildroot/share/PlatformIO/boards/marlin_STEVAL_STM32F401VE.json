@@ -2,7 +2,7 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F401xx",
+    "extra_flags": "-DSTM32F401xx -DARDUINO_STEVAL",
     "f_cpu": "84000000L",
     "hwids": [
       [

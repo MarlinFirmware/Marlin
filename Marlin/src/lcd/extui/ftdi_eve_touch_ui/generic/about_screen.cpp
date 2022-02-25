@@ -44,15 +44,12 @@ void AboutScreen::onRedraw(draw_mode_t) {
      .cmd(COLOR_RGB(bg_text_enabled))
      .tag(0);
 
-  #define HEADING_POS BTN_POS(1,2), BTN_SIZE(4,1)
+  #define HEADING_POS BTN_POS(1,1), BTN_SIZE(4,2)
   #define FW_VERS_POS BTN_POS(1,3), BTN_SIZE(4,1)
   #define FW_INFO_POS BTN_POS(1,4), BTN_SIZE(4,1)
   #define LICENSE_POS BTN_POS(1,5), BTN_SIZE(4,3)
   #define STATS_POS   BTN_POS(1,8), BTN_SIZE(2,1)
   #define BACK_POS    BTN_POS(3,8), BTN_SIZE(2,1)
-
-  #define _INSET_POS(x,y,w,h) x + w/10, y, w - w/5, h
-  #define INSET_POS(pos) _INSET_POS(pos)
 
   char about_str[1
     + strlen_P(GET_TEXT(MSG_ABOUT_TOUCH_PANEL_2))
@@ -72,41 +69,43 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #endif
 
   draw_text_box(cmd, HEADING_POS,
-    #ifdef CUSTOM_MACHINE_NAME
-      F(CUSTOM_MACHINE_NAME)
+    #ifdef MACHINE_NAME
+      F(MACHINE_NAME)
     #else
       GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_1)
     #endif
     , OPT_CENTER, font_xlarge
   );
-  cmd.tag(3);
+  #if BOTH(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
+    cmd.tag(3);
+  #endif
   draw_text_box(cmd, FW_VERS_POS,
   #ifdef TOUCH_UI_VERSION
     F(TOUCH_UI_VERSION)
   #else
-    progmem_str(getFirmwareName_str())
+    FPSTR(getFirmwareName_str())
   #endif
   , OPT_CENTER, font_medium);
   cmd.tag(0);
   draw_text_box(cmd, FW_INFO_POS, about_str, OPT_CENTER, font_medium);
-  draw_text_box(cmd, INSET_POS(LICENSE_POS), GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
+  draw_text_box(cmd, LICENSE_POS, GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
 
   cmd.font(font_medium);
-  #if ENABLED(PRINTCOUNTER) && defined(FTDI_STATISTICS_SCREEN)
+  #if BOTH(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
     cmd.colors(normal_btn)
        .tag(2).button(STATS_POS, GET_TEXT_F(MSG_INFO_STATS_MENU));
   #endif
   cmd.colors(action_btn)
-     .tag(1).button(BACK_POS,  GET_TEXT_F(MSG_BACK));
+     .tag(1).button(BACK_POS,  GET_TEXT_F(MSG_BUTTON_DONE));
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
-    #if ENABLED(PRINTCOUNTER) && defined(FTDI_STATISTICS_SCREEN)
+    #if BOTH(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
       case 2: GOTO_SCREEN(StatisticsScreen); break;
     #endif
-    #if ENABLED(TOUCH_UI_DEVELOPER_MENU) && defined(FTDI_DEVELOPER_MENU)
+    #if BOTH(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
       case 3: GOTO_SCREEN(DeveloperMenu); break;
     #endif
     default: return false;

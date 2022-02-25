@@ -157,16 +157,11 @@
     //#define LCD_UART_RX                   PD9
   #endif
 
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
-    #endif
+  // Alter timing for graphical display
+  #if IS_U8GLIB_ST7920
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             715
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -191,7 +186,7 @@
 #ifdef GTM32_PRO_VB_USE_LCD_BEEPER
   // This is pin 32 on J2 FFC40 and pin, goes to the beeper
   // on Geeetech's version of RepRapDiscount Smart Controller
-  // (e.g. on Rostock 301)
+  // (e.g., on Rostock 301)
   #define BEEPER_PIN                        PE12
 #else
   // This is the beeper on the board itself

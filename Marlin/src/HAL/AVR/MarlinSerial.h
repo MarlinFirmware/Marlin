@@ -191,13 +191,13 @@
                    rx_framing_errors;
     static ring_buffer_pos_t rx_max_enqueued;
 
-    static FORCE_INLINE ring_buffer_pos_t atomic_read_rx_head();
+    FORCE_INLINE static ring_buffer_pos_t atomic_read_rx_head();
 
     static volatile bool rx_tail_value_not_stable;
     static volatile uint16_t rx_tail_value_backup;
 
-    static FORCE_INLINE void atomic_set_rx_tail(ring_buffer_pos_t value);
-    static FORCE_INLINE ring_buffer_pos_t atomic_read_rx_tail();
+    FORCE_INLINE static void atomic_set_rx_tail(ring_buffer_pos_t value);
+    FORCE_INLINE static ring_buffer_pos_t atomic_read_rx_tail();
 
   public:
     FORCE_INLINE static void store_rxd_char();
@@ -217,7 +217,7 @@
     #endif
 
     enum { HasEmergencyParser = Cfg::EMERGENCYPARSER };
-    static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
+    static bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
     FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
     FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }

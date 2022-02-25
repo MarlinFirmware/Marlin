@@ -47,10 +47,10 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     }
   #endif
   SERIAL_ECHOPGM("\n...OUTPUT: ");
-  SERIAL_ECHOPGM_P(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
+  SERIAL_ECHOF(sh.STATUS_AXIS & STATUS_HIZ ? F("OFF") : F("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no((sh.STATUS_AXIS & STATUS_BUSY) == 0);
   SERIAL_ECHOPGM("   DIR: ");
-  SERIAL_ECHOPGM_P((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  SERIAL_ECHOF((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? F("FORWARD") : F("REVERSE"));
   if (sh.STATUS_AXIS_LAYOUT == L6480_STATUS_LAYOUT) {
     SERIAL_ECHOPGM("   Last Command: ");
     if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("VALID");
@@ -67,8 +67,8 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     SERIAL_ECHOPGM("   Last Command: ");
     if (!(sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD)) SERIAL_ECHOPGM("IN");
     SERIAL_ECHOPGM("VALID    ");
-    SERIAL_ECHOPGM_P(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  PSTR("COMPLETED    ") : PSTR("Not PERFORMED"));
-    SERIAL_ECHOPAIR("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
+    SERIAL_ECHOF(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  F("COMPLETED    ") : F("Not PERFORMED"));
+    SERIAL_ECHOPGM("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
   }
   SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_OCD) == 0);
   if (sh.STATUS_AXIS_LAYOUT != L6474_STATUS_LAYOUT) {

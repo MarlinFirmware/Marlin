@@ -29,30 +29,29 @@ namespace FTDI {
    * Helper function for drawing text with ellipses. The str buffer may be modified and should have space for up to two extra characters.
    */
   static void _draw_text_with_ellipsis(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, char *str, uint16_t options, uint8_t font) {
-    FontMetrics fm(font);
-    const int16_t ellipsisWidth = fm.get_char_width('.') * 3;
+    #if ENABLED(TOUCH_UI_USE_UTF8)
+      const bool use_utf8 = has_utf8_chars(str);
+      #define CHAR_WIDTH(c) use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c]
+    #else
+      #define CHAR_WIDTH(c) utf8_fm.get_char_width(c)
+    #endif
+    FontMetrics utf8_fm(font);
+    CLCD::FontMetrics clcd_fm;
+    clcd_fm.load(font);
+    const int16_t ellipsisWidth = utf8_fm.get_char_width('.') * 3;
 
     // Compute the total line length, as well as
     // the location in the string where it can
     // split and still allow the ellipsis to fit.
     int16_t lineWidth = 0;
-    char *breakPoint   = str;
-    #ifdef TOUCH_UI_USE_UTF8
-      char *tstr = str;
-      while (*tstr) {
-        breakPoint = tstr;
-        const utf8_char_t c = get_utf8_char_and_inc(tstr);
-        lineWidth += fm.get_char_width(c);
-        if (lineWidth + ellipsisWidth < w)
-          break;
-      }
-    #else
-      for (char *c = str; *c; c++) {
-        lineWidth += fm.get_char_width(*c);
-        if (lineWidth + ellipsisWidth < w)
-          breakPoint = c;
-      }
-    #endif
+    char *breakPoint = str;
+    const char *next = str;
+    while (*next) {
+      const utf8_char_t c = get_utf8_char_and_inc(next);
+      lineWidth += CHAR_WIDTH(c);
+      if (lineWidth + ellipsisWidth < w)
+        breakPoint = (char*)next;
+    }
 
     if (lineWidth > w) {
       *breakPoint = '\0';
@@ -61,7 +60,7 @@ namespace FTDI {
 
     cmd.apply_text_alignment(x, y, w, h, options);
     #if ENABLED(TOUCH_UI_USE_UTF8)
-      if (has_utf8_chars(str)) {
+      if (use_utf8) {
         draw_utf8_text(cmd, x, y, str, font_size_t::from_romfont(font), options);
       } else
     #endif
@@ -81,7 +80,7 @@ namespace FTDI {
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);
   }
 
-  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, progmem_str pstr, uint16_t options, uint8_t font) {
+  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P pstr, uint16_t options, uint8_t font) {
     char tmp[strlen_P((const char*)pstr) + 3];
     strcpy_P(tmp, (const char*)pstr);
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);

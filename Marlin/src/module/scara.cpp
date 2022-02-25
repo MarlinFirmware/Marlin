@@ -58,7 +58,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     cartes.y = a_sin + b_sin + scara_offset.y;  // phi
 
     /*
-      DEBUG_ECHOLNPAIR(
+      DEBUG_ECHOLNPGM(
         "SCARA FK Angle a=", a,
         " b=", b,
         " a_sin=", a_sin,
@@ -66,7 +66,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
         " b_sin=", b_sin,
         " b_cos=", b_cos
       );
-      DEBUG_ECHOLNPAIR(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
+      DEBUG_ECHOLNPGM(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
     //*/
   }
 
@@ -80,13 +80,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     else {
       // MORGAN_SCARA uses a Cartesian XY home position
       xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
-      //DEBUG_ECHOLNPAIR_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y);
+      //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y);
 
       delta = homeposition;
       forward_kinematics(delta.a, delta.b);
       current_position[axis] = cartes[axis];
 
-      //DEBUG_ECHOLNPAIR_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
       update_software_endstops(axis);
     }
   }
@@ -132,7 +132,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     /*
       DEBUG_POS("SCARA IK", raw);
       DEBUG_POS("SCARA IK", delta);
-      DEBUG_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Psi=", PSI);
+      DEBUG_ECHOLNPGM("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Psi=", PSI);
     //*/
   }
 
@@ -150,13 +150,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
         #define SCARA_OFFSET_THETA2 131 // degrees
       #endif
       ab_float_t homeposition = { SCARA_OFFSET_THETA1, SCARA_OFFSET_THETA2 };
-      //DEBUG_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
+      //DEBUG_ECHOLNPGM("homeposition A:", homeposition.a, " B:", homeposition.b);
 
       inverse_kinematics(homeposition);
       forward_kinematics(delta.a, delta.b);
       current_position[axis] = cartes[axis];
 
-      //DEBUG_ECHOLNPAIR_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
       update_software_endstops(axis);
     }
   }
@@ -172,7 +172,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     /*
       DEBUG_POS("SCARA IK", raw);
       DEBUG_POS("SCARA IK", delta);
-      SERIAL_ECHOLNPAIR("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
+      SERIAL_ECHOLNPGM("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
     //*/
   }
 
@@ -185,13 +185,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
       current_position.z = Z_HOME_POS;
     else {
       xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
-      //DEBUG_ECHOLNPAIR_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
+      //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
 
       inverse_kinematics(homeposition);
       forward_kinematics(delta.a, delta.b, delta.c);
       current_position[axis] = cartes[axis];
 
-      //DEBUG_ECHOLNPAIR_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
       update_software_endstops(axis);
     }
   }
@@ -289,13 +289,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-    //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+    //SERIAL_ECHOLNPGM(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
   }
 
 #endif
 
 void scara_report_positions() {
-  SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
+  SERIAL_ECHOLNPGM("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
     #if ENABLED(AXEL_TPARA)
       , "  Phi:", planner.get_axis_position_degrees(B_AXIS)
       , "  Psi:", planner.get_axis_position_degrees(C_AXIS)

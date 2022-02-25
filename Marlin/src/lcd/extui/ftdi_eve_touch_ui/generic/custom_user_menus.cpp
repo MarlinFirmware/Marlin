@@ -33,7 +33,7 @@ using namespace Theme;
 #define _USER_DESC(N) MAIN_MENU_ITEM_##N##_DESC
 #define _USER_GCODE(N) MAIN_MENU_ITEM_##N##_GCODE
 #define _USER_ITEM(N) .tag(_ITEM_TAG(N)).button(USER_ITEM_POS(N), _USER_DESC(N))
-#define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands_P(PSTR(_USER_GCODE(N))); TERN_(USER_SCRIPT_RETURN, GOTO_SCREEN(StatusScreen)); break;
+#define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands(F(_USER_GCODE(N))); TERN_(USER_SCRIPT_RETURN, GOTO_SCREEN(StatusScreen)); break;
 
 void CustomUserMenus::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
@@ -135,7 +135,7 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
         _USER_ITEM(20)
        #endif
       .colors(action_btn)
-      .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+      .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

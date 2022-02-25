@@ -194,7 +194,6 @@
 #define TITLE_HOME_RU                       "Home"
 #define TITLE_EXTRUDE_RU                    "экструзия"
 #define TITLE_LEVELING_RU                   "уровень"
-#define TITLE_MLEVELING_RU                  "углы"
 #define TITLE_SET_RU                        "настройки"
 #define TITLE_MORE_RU                       "больше"
 #define TITLE_CHOOSEFILE_RU                 "файла"
@@ -216,7 +215,7 @@
 #define AUTO_SHUTDOWN_RU                    "авто-откл"
 #define MANUAL_SHUTDOWN_RU                  "ручн-откл"
 
-#define DIALOG_CONFIRM_RU                   "да"//"подтвердить"
+#define DIALOG_CONFIRM_RU                   "да" // "подтвердить"
 #define DIALOG_CANCLE_RU                    "отмена"
 #define DIALOG_OK_RU                        "да"
 #define DIALOG_RESET_RU                     "сброс"

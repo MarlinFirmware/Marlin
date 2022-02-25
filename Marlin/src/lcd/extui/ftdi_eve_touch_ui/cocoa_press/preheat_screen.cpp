@@ -77,11 +77,11 @@ void PreheatTimerScreen::draw_interaction_buttons(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
-void PreheatTimerScreen::draw_adjuster(draw_mode_t what, uint8_t tag, progmem_str label, float value, int16_t x, int16_t y, int16_t w, int16_t h) {
+void PreheatTimerScreen::draw_adjuster(draw_mode_t what, uint8_t tag, FSTR_P label, float value, int16_t x, int16_t y, int16_t w, int16_t h) {
     #define SUB_COLS          9
     #define SUB_ROWS          2
 

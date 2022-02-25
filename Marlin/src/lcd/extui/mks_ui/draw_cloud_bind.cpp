@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -33,8 +34,8 @@
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
-static lv_obj_t *button_bind_or_not = NULL, *label_bind_or_not = NULL;
-static lv_obj_t *buttonReleaseBind = NULL, *label_ReleaseBind = NULL;
+static lv_obj_t *button_bind_or_not = nullptr, *label_bind_or_not = nullptr;
+static lv_obj_t *buttonReleaseBind = nullptr, *label_ReleaseBind = nullptr;
 static lv_obj_t * text_id;
 
 static uint8_t unbinding_flag = 0;
@@ -48,8 +49,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_CLOUD_BIND_RETURN:
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
     case ID_CLOUD_RELEASE_BIND:
       if (cloud_para.state == 0x12) {
@@ -61,29 +61,29 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_cloud_bind() {
-  lv_obj_t *buttonBack = NULL, *label_Back = NULL;
+  lv_obj_t *buttonBack = nullptr, *label_Back = nullptr;
   scr = lv_screen_create(BIND_UI);
 
-  button_bind_or_not = lv_btn_create(scr, NULL);
+  button_bind_or_not = lv_btn_create(scr, nullptr);
   lv_obj_set_pos(button_bind_or_not, TFT_WIDTH - 130, TFT_HEIGHT - 80 * 3);
   lv_obj_set_size(button_bind_or_not, PARA_UI_VALUE_BTN_X_SIZE + 15, PARA_UI_VALUE_BTN_Y_SIZE + 15);
-  lv_obj_set_event_cb_mks(button_bind_or_not, event_handler, ID_CLOUD_BIND_OR_NOT, NULL, 0);
+  lv_obj_set_event_cb_mks(button_bind_or_not, event_handler, ID_CLOUD_BIND_OR_NOT, nullptr, 0);
   lv_btn_set_style(button_bind_or_not, LV_BTN_STYLE_REL, &style_para_value);
   lv_btn_set_style(button_bind_or_not, LV_BTN_STYLE_PR, &style_para_value);
   label_bind_or_not = lv_label_create_empty(button_bind_or_not);
 
-  buttonReleaseBind = lv_btn_create(scr, NULL);
+  buttonReleaseBind = lv_btn_create(scr, nullptr);
   lv_obj_set_pos(buttonReleaseBind, TFT_WIDTH - 130, TFT_HEIGHT - 80 * 2);
   lv_obj_set_size(buttonReleaseBind, PARA_UI_VALUE_BTN_X_SIZE + 15, PARA_UI_VALUE_BTN_Y_SIZE + 15);
-  lv_obj_set_event_cb_mks(buttonReleaseBind, event_handler, ID_CLOUD_RELEASE_BIND, NULL, 0);
+  lv_obj_set_event_cb_mks(buttonReleaseBind, event_handler, ID_CLOUD_RELEASE_BIND, nullptr, 0);
   label_ReleaseBind = lv_label_create_empty(buttonReleaseBind);
   lv_label_set_text(label_ReleaseBind, cloud_menu.unbind);
   lv_obj_align(label_ReleaseBind, buttonReleaseBind, LV_ALIGN_CENTER, 0, 0);
 
-  buttonBack = lv_btn_create(scr, NULL);
+  buttonBack = lv_btn_create(scr, nullptr);
   lv_obj_set_pos(buttonBack, TFT_WIDTH - 130, TFT_HEIGHT - 80);
   lv_obj_set_size(buttonBack, PARA_UI_VALUE_BTN_X_SIZE + 15, PARA_UI_VALUE_BTN_Y_SIZE + 15);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_CLOUD_BIND_RETURN, NULL, 0);
+  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_CLOUD_BIND_RETURN, nullptr, 0);
   lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
   lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
   label_Back = lv_label_create_empty(buttonBack);

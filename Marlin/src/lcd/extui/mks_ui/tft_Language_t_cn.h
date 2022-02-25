@@ -90,7 +90,7 @@
 
 #define LEVELING_PARA_CONF_TITLE_T_CN   "調平參數"
 #define AUTO_LEVELING_ENABLE_T_CN       "自動調平"
-#define BLTOUCH_LEVELING_ENABLE_T_CN    "啟動BLtouch"
+#define BLTOUCH_LEVELING_ENABLE_T_CN    "啟動BLTouch"
 #define PROBE_PORT_T_CN                 "調平探針接口"
 #define PROBE_X_OFFSET_T_CN             "探針X方向偏移"
 #define PROBE_Y_OFFSET_T_CN             "探针Y方向偏移"

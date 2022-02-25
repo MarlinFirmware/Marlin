@@ -26,6 +26,6 @@
  * showing ellipsis if it does not fit.
  */
 namespace FTDI {
-  void draw_text_with_ellipsis(class CommandProcessor& cmd, int x, int y, int w, int h, progmem_str str, uint16_t options = 0, uint8_t font = 31);
+  void draw_text_with_ellipsis(class CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P str, uint16_t options = 0, uint8_t font = 31);
   void draw_text_with_ellipsis(class CommandProcessor& cmd, int x, int y, int w, int h, const char *str, uint16_t options = 0, uint8_t font = 31);
 }

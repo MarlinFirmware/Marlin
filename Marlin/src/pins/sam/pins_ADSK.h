@@ -47,10 +47,10 @@ A stepper for E0 extruder
                                       Vcc (now "5V" on the board but actual 3.3V because of jumper))
 (Hold)&(GND) - Bed thermistor (also require pullup resistor 4.7K between "Hold" and
                                  Vcc (now "5V" on the board but actual 3.3V because of jumper))
-(CoolEn) - 3.3v signal to controll extruder heater MOSFET
+(CoolEn) - 3.3v signal to control extruder heater MOSFET
 (Resume) - 3.3v signal to control heatbed MOSFET
-(SDA) - 3.3v signal to controll extruder fan
-(SCL) - 3.3v signal to controll extruder cooling fan
+(SDA) - 3.3v signal to control extruder fan
+(SCL) - 3.3v signal to control extruder cooling fan
 */
 
 /* CNC Shield pinout
@@ -137,7 +137,7 @@ A stepper for E0 extruder
    * The 2004 LCD should be powered with 5V.
    * The next LCD pins RS,D4,D5,D6,D7 have internal pull-ups to 5V and as result the 5V will be on these pins.
    * Luckily these internal pull-ups have really high resistance and adding 33K pull-down resistors will create
-   * simple voltage divider that will bring the voltage down just slightly bellow 3.3V.
+   * simple voltage divider that will bring the voltage down just slightly below 3.3V.
    *
    * This LCD also has buttons that connected to the same ADC pin with different voltage divider combinations.
    * On the LCD panel there is internal pull-up resistor of the 4.7K connected to 5V.
@@ -175,7 +175,7 @@ A stepper for E0 extruder
 
   #define ADC_BUTTONS_VALUE_SCALE         (5.0/AREF_VOLTS) // The LCD module pullup voltage is 5.0V but ADC reference voltage is 3.3V
 
-  #define ADC_BUTTONS_R_PULLDOWN          4.7     // Moves voltage down to be bellow 3.3V instead of 5V
+  #define ADC_BUTTONS_R_PULLDOWN          4.7     // Moves voltage down to be below 3.3V instead of 5V
   // the resistors values will be scaled because of 4.7K pulldown parallel resistor
   #define _ADC_BUTTONS_R_SCALED(R)        ((R) * (ADC_BUTTONS_R_PULLDOWN) / ((R) + ADC_BUTTONS_R_PULLDOWN))
 

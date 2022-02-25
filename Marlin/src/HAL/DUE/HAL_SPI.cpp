@@ -240,7 +240,7 @@
   }
 
   // all the others
-  static uint32_t spiDelayCyclesX4 = 4 * (F_CPU) / 1000000; // 4µs => 125khz
+  static uint16_t spiDelayNS = 4000; // 4000ns => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;
@@ -249,12 +249,12 @@
       b <<= 1; // little setup time
 
       WRITE(SD_SCK_PIN, HIGH);
-      DELAY_CYCLES(spiDelayCyclesX4);
+      DELAY_NS(spiDelayNS);
 
       b |= (READ(SD_MISO_PIN) != 0);
 
       WRITE(SD_SCK_PIN, LOW);
-      DELAY_CYCLES(spiDelayCyclesX4);
+      DELAY_NS(spiDelayNS);
     } while (--bits);
     return b;
   }
@@ -437,7 +437,7 @@
     } while (--todo);
   }
 
-  // Pointers to generic functions for block tranfers
+  // Pointers to generic functions for block transfers
   static pfnSpiTxBlock spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
   static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
 
@@ -510,7 +510,7 @@
         spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
       default:
-        spiDelayCyclesX4 = ((F_CPU) / 1000000) >> (6 - spiRate) << 2; // spiRate of 2 gives the maximum error with current CPU
+        spiDelayNS = 4000 >> (6 - spiRate); // spiRate of 2 gives the maximum error with current CPU
         spiTransferTx = (pfnSpiTransfer)spiTransferX;
         spiTransferRx = (pfnSpiTransfer)spiTransferX;
         spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
@@ -594,18 +594,14 @@
       SPI_Configure(SPI0, ID_SPI0, SPI_MR_MSTR | SPI_MR_MODFDIS | SPI_MR_PS);
       SPI_Enable(SPI0);
 
-      SET_OUTPUT(DAC0_SYNC);
+      SET_OUTPUT(DAC0_SYNC_PIN);
       #if HAS_MULTI_EXTRUDER
-        SET_OUTPUT(DAC1_SYNC);
-        WRITE(DAC1_SYNC, HIGH);
+        OUT_WRITE(DAC1_SYNC_PIN, HIGH);
       #endif
-      SET_OUTPUT(SPI_EEPROM1_CS);
-      SET_OUTPUT(SPI_EEPROM2_CS);
-      SET_OUTPUT(SPI_FLASH_CS);
-      WRITE(DAC0_SYNC, HIGH);
-      WRITE(SPI_EEPROM1_CS, HIGH);
-      WRITE(SPI_EEPROM2_CS, HIGH);
-      WRITE(SPI_FLASH_CS, HIGH);
+      WRITE(DAC0_SYNC_PIN, HIGH);
+      OUT_WRITE(SPI_EEPROM1_CS_PIN, HIGH);
+      OUT_WRITE(SPI_EEPROM2_CS_PIN, HIGH);
+      OUT_WRITE(SPI_FLASH_CS_PIN, HIGH);
       WRITE(SD_SS_PIN, HIGH);
 
       OUT_WRITE(SDSS, LOW);

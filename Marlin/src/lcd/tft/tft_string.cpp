@@ -45,21 +45,21 @@ void TFT_String::set_font(const uint8_t *font) {
 
   for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
 
-  DEBUG_ECHOLNPAIR("Format: ",            font_header->Format);
-  DEBUG_ECHOLNPAIR("BBXWidth: ",          font_header->BBXWidth);
-  DEBUG_ECHOLNPAIR("BBXHeight: ",         font_header->BBXHeight);
-  DEBUG_ECHOLNPAIR("BBXOffsetX: ",        font_header->BBXOffsetX);
-  DEBUG_ECHOLNPAIR("BBXOffsetY: ",        font_header->BBXOffsetY);
-  DEBUG_ECHOLNPAIR("CapitalAHeight: ",    font_header->CapitalAHeight);
-  DEBUG_ECHOLNPAIR("Encoding65Pos: ",     font_header->Encoding65Pos);
-  DEBUG_ECHOLNPAIR("Encoding97Pos: ",     font_header->Encoding97Pos);
-  DEBUG_ECHOLNPAIR("FontStartEncoding: ", font_header->FontStartEncoding);
-  DEBUG_ECHOLNPAIR("FontEndEncoding: ",   font_header->FontEndEncoding);
-  DEBUG_ECHOLNPAIR("LowerGDescent: ",     font_header->LowerGDescent);
-  DEBUG_ECHOLNPAIR("FontAscent: ",        font_header->FontAscent);
-  DEBUG_ECHOLNPAIR("FontDescent: ",       font_header->FontDescent);
-  DEBUG_ECHOLNPAIR("FontXAscent: ",       font_header->FontXAscent);
-  DEBUG_ECHOLNPAIR("FontXDescent: ",      font_header->FontXDescent);
+  DEBUG_ECHOLNPGM("Format: ",            font_header->Format);
+  DEBUG_ECHOLNPGM("BBXWidth: ",          font_header->BBXWidth);
+  DEBUG_ECHOLNPGM("BBXHeight: ",         font_header->BBXHeight);
+  DEBUG_ECHOLNPGM("BBXOffsetX: ",        font_header->BBXOffsetX);
+  DEBUG_ECHOLNPGM("BBXOffsetY: ",        font_header->BBXOffsetY);
+  DEBUG_ECHOLNPGM("CapitalAHeight: ",    font_header->CapitalAHeight);
+  DEBUG_ECHOLNPGM("Encoding65Pos: ",     font_header->Encoding65Pos);
+  DEBUG_ECHOLNPGM("Encoding97Pos: ",     font_header->Encoding97Pos);
+  DEBUG_ECHOLNPGM("FontStartEncoding: ", font_header->FontStartEncoding);
+  DEBUG_ECHOLNPGM("FontEndEncoding: ",   font_header->FontEndEncoding);
+  DEBUG_ECHOLNPGM("LowerGDescent: ",     font_header->LowerGDescent);
+  DEBUG_ECHOLNPGM("FontAscent: ",        font_header->FontAscent);
+  DEBUG_ECHOLNPGM("FontDescent: ",       font_header->FontDescent);
+  DEBUG_ECHOLNPGM("FontXAscent: ",       font_header->FontXAscent);
+  DEBUG_ECHOLNPGM("FontXDescent: ",      font_header->FontXDescent);
 
   add_glyphs(font);
 }
@@ -89,11 +89,13 @@ uint8_t read_byte(uint8_t *byte) { return *byte; }
 /**
  * Add a string, applying substitutions for the following characters:
  *
+ *   $ displays an inserted C-string given by the itemString parameter
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
-void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
+void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString/*=nullptr*/) {
   wchar_t wchar;
 
   while (*string) {
@@ -108,17 +110,15 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
       }
-      else {
+      else
         add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
-      }
-      continue;
     }
-    else if (ch == '$' && itemString) {
+    else if (ch == '$' && itemString)
       add(itemString);
-      continue;
-    }
-
-    add_character(ch);
+    else if (ch == '@')
+      add_character(axis_codes[index]);
+    else
+      add_character(ch);
   }
   eol();
 }
@@ -150,9 +150,8 @@ void TFT_String::rtrim(uint8_t character) {
       span -= glyph(data[length])->DWidth;
       eol();
     }
-    else {
+    else
       break;
-    }
   }
 }
 

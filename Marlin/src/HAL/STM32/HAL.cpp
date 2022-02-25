@@ -20,7 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "HAL.h"
 #include "usb_serial.h"
@@ -51,18 +53,18 @@
 // Public Variables
 // ------------------------
 
-uint16_t HAL_adc_result;
+uint16_t MarlinHAL::adc_result;
 
 // ------------------------
 // Public functions
 // ------------------------
 
-TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  extern void install_min_serial();
+#endif
 
 // HAL initialization task
-void HAL_init() {
-  FastIO_init();
-
+void MarlinHAL::init() {
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.
@@ -91,21 +93,19 @@ void HAL_init() {
     USB_Hook_init();
   #endif
 
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
-  #if HAS_SD_HOST_DRIVE
-    MSC_SD_init();                         // Enable USB SD card access
-  #endif
+  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
 
   #if PIN_EXISTS(USB_CONNECT)
-    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
-    delay(1000);                                         // Give OS time to notice
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
+    delay(1000);                                        // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
 
 // HAL idle task
-void HAL_idletask() {
+void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
     // Stm32duino currently doesn't have a "loop/idle" method
     CDC_resume_receive();
@@ -113,9 +113,9 @@ void HAL_idletask() {
   #endif
 }
 
-void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
+void MarlinHAL::reboot() { NVIC_SystemReset(); }
 
-uint8_t HAL_get_reset_source() {
+uint8_t MarlinHAL::get_reset_source() {
   return
     #ifdef RCC_FLAG_IWDGRST // Some sources may not exist...
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)  ? RST_WATCHDOG :
@@ -139,24 +139,14 @@ uint8_t HAL_get_reset_source() {
   ;
 }
 
-void HAL_reboot() { NVIC_SystemReset(); }
-
-void _delay_ms(const int delay_ms) { delay(delay_ms); }
+void MarlinHAL::clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
 
-// ------------------------
-// ADC
-// ------------------------
-
-// TODO: Make sure this doesn't cause any delay
-void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
-uint16_t HAL_adc_get_result() { return HAL_adc_result; }
-
 // Reset the system to initiate a firmware flash
-void flashFirmware(const int16_t) { HAL_reboot(); }
+WEAK void flashFirmware(const int16_t) { hal.reboot(); }
 
 // Maple Compatibility
 volatile uint32_t systick_uptime_millis = 0;
@@ -167,4 +157,4 @@ void HAL_SYSTICK_Callback() {
   if (systick_user_callback) systick_user_callback();
 }
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // HAL_STM32

@@ -126,11 +126,8 @@
   #endif
 #endif
 
-
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
-  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
 #endif
 
 #if SD_CONNECTION_IS(LCD)
@@ -146,20 +143,22 @@
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
   #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       ______                       ______
-   *    NC | 1  2 | GND              NC | 1  2 | GND
-   *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
-   * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
-   * M2DIR | 7  8 | M2STP          M2RX | 7  8 | M2DIAG
-   * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
-   *        ------                       ------
-   *         EXP2                         EXP1
+  /**
+   *          ------                       ------
+   * (M3STP) |10  9 | (M3DIR)    (M3DIAG) |10  9 | (M3RX)
+   * (M2STP) | 8  7 | (M2DIR)    (M2DIAG) | 8  7 | (M2RX)
+   * (M1DIR)   6  5 | (M1STP)    (M1DIAG)   6  5 | (M1RX)
+   *  (M1EN) | 4  3 | --           (M3EN) | 4  3 | (M2EN)
+   *     GND | 2  1 | --              GND | 2  1 | --
+   *          ------                       ------
+   *           EXP2                         EXP1
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
@@ -173,7 +172,7 @@
     #define E2_CS_PIN                EXP1_05_PIN
     #if HAS_TMC_UART
       #define E2_SERIAL_TX_PIN       EXP1_05_PIN
-      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
+      #define E2_SERIAL_RX_PIN  E2_SERIAL_TX_PIN
     #endif
   #endif
 
@@ -186,7 +185,7 @@
     #define E3_CS_PIN                EXP1_07_PIN
     #if HAS_TMC_UART
       #define E3_SERIAL_TX_PIN       EXP1_07_PIN
-      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
+      #define E3_SERIAL_RX_PIN  E3_SERIAL_TX_PIN
     #endif
   #else
     #define E3_ENABLE_PIN            EXP2_04_PIN
@@ -201,7 +200,7 @@
     #define E4_CS_PIN                EXP1_09_PIN
     #if HAS_TMC_UART
       #define E4_SERIAL_TX_PIN       EXP1_09_PIN
-      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
+      #define E4_SERIAL_RX_PIN  E4_SERIAL_TX_PIN
     #endif
   #else
     #define E4_ENABLE_PIN            EXP2_04_PIN

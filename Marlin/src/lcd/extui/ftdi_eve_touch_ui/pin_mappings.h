@@ -53,7 +53,7 @@
 #elif ENABLED(AO_EXP1_DEPRECATED_PINMAP)
 
   /**
-   * This AlephObjects pinout re-purposes the UltraLCD
+   * This LulzBot pinout re-purposes the UltraLCD
    * connector EXP1 for Software SPI (rev B, obsolete)
    */
 
@@ -74,7 +74,7 @@
   /**
    * AO_EXP1_PINMAP with TOUCH_UI_ULTIPANEL
    *
-   * This AlephObjects mapping re-purposes the UltraLCD
+   * This LulzBot mapping re-purposes the UltraLCD
    * connector EXP1 for Software SPI for display (rev C):
    *
    *     EXP2:      FTDI:   SD -or- USB [1]:     ULTRA_LCD:
@@ -106,7 +106,7 @@
   /**
    * AO_EXP2_PINMAP with TOUCH_UI_ULTIPANEL
    *
-   * The AlephObjects mapping for re-purposing the UltraLCD
+   * The LulzBot mapping for re-purposing the UltraLCD
    * connector EXP2 for hardware SPI for display and SD card
    * or USB (rev C):
    *
@@ -123,12 +123,12 @@
    *     10         5V      5V      5V      -->  KILL [3]
    *
    * [1] This configuration allows daisy-chaining of the
-   *     display and SD/USB on EXP2, except for [2]
+   *     display and SD/FD on EXP2, except for [2]
    *
    * [2] The Ultimachine Einsy boards have a level shifter
    *     on MISO enabled by SD_CSEL chip select, hence it
    *     is not possible to run both the display and the
-   *     SD/USB on EXP2.
+   *     SD/FD on EXP2.
    *
    * [3] Archim Rambo provides 5V on this pin. On any other
    *     board, divert this wire from the ribbon cable and

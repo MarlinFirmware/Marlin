@@ -301,5 +301,6 @@ void setup_endstop_interrupts() {
       pciSetup(Z_MIN_PROBE_PIN);
     #endif
   #endif
+
   // If we arrive here without raising an assertion, each pin has either an EXT-interrupt or a PCI.
 }

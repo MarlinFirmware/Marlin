@@ -39,7 +39,7 @@ L64XX_Marlin L64xxManager;
 
 static const char LINEAR_AXIS_LIST(
                    str_X[] PROGMEM = "X ",          str_Y[] PROGMEM = "Y ",          str_Z[] PROGMEM = "Z ",
-                   str_I[] PROGMEM = AXIS4_STR " ", str_J[] PROGMEM = AXIS5_STR " ", str_K[] PROGMEM = AXIS6_STR " "
+                   str_I[] PROGMEM = STR_I " ", str_J[] PROGMEM = STR_J " ", str_K[] PROGMEM = STR_K " "
                  ),
                  str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",
                  str_Z2[] PROGMEM = "Z2", str_Z3[] PROGMEM = "Z3", str_Z4[] PROGMEM = "Z4",
@@ -388,10 +388,10 @@ void L64XX_Marlin::set_param(const L64XX_axis_t axis, const uint8_t param, const
 
 inline void echo_min_max(const char a, const_float_t min, const_float_t max) {
   DEBUG_CHAR(' '); DEBUG_CHAR(a);
-  DEBUG_ECHOLNPAIR(" min = ", min, "  max = ", max);
+  DEBUG_ECHOLNPGM(" min = ", min, "  max = ", max);
 }
 inline void echo_oct_used(const_float_t oct, const uint8_t stall) {
-  DEBUG_ECHOPAIR("over_current_threshold used     : ", oct);
+  DEBUG_ECHOPGM("over_current_threshold used     : ", oct);
   DEBUG_ECHOPGM_P(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
   DEBUG_ECHOLNPGM(" threshold)");
 }
@@ -497,7 +497,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       } break;
     #endif
 
-    #if LINEAR_AXES >= 4
+    #if HAS_I_AXIS
       case AXIS4_NAME: {
         position_min = I_center - displacement;
         position_max = I_center + displacement;
@@ -509,7 +509,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       } break;
     #endif
 
-    #if LINEAR_AXES >= 5
+    #if HAS_J_AXIS
       case AXIS5_NAME: {
         position_min = J_center - displacement;
         position_max = J_center + displacement;
@@ -521,7 +521,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       } break;
     #endif
 
-    #if LINEAR_AXES >= 6
+    #if HAS_K_AXIS
       case AXIS6_NAME: {
         position_min = K_center - displacement;
         position_max = K_center + displacement;
@@ -568,7 +568,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   }
 
   DEBUG_ECHOPGM("Monitoring:");
-  for (j = 0; j < driver_count; j++) DEBUG_ECHOPAIR("  ", axis_mon[j]);
+  for (j = 0; j < driver_count; j++) DEBUG_ECHOPGM("  ", axis_mon[j]);
   DEBUG_EOL();
 
   // now have a list of driver(s) to monitor
@@ -589,19 +589,19 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
     }
     // only print the tval from one of the drivers
     kval_hold = get_param(axis_index[0], L6474_TVAL);
-    DEBUG_ECHOLNPAIR("TVAL current (mA) = ", (kval_hold + 1) * sh.AXIS_STALL_CURRENT_CONSTANT_INV);
+    DEBUG_ECHOLNPGM("TVAL current (mA) = ", (kval_hold + 1) * sh.AXIS_STALL_CURRENT_CONSTANT_INV);
   }
   else {
     kval_hold = parser.byteval('K');
     if (kval_hold) {
-      DEBUG_ECHOLNPAIR("kval_hold = ", kval_hold);
+      DEBUG_ECHOLNPGM("kval_hold = ", kval_hold);
       for (j = 0; j < driver_count; j++)
         set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
     }
     else {
       // only print the KVAL_HOLD from one of the drivers
       kval_hold = get_param(axis_index[0], L6470_KVAL_HOLD);
-      DEBUG_ECHOLNPAIR("KVAL_HOLD = ", kval_hold);
+      DEBUG_ECHOLNPGM("KVAL_HOLD = ", kval_hold);
     }
   }
 
@@ -629,7 +629,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
         OCD_TH_actual = (OCD_TH_val_local + 1) * 375;
       }
 
-      DEBUG_ECHOLNPAIR("over_current_threshold specified: ", over_current_threshold);
+      DEBUG_ECHOLNPGM("over_current_threshold specified: ", over_current_threshold);
       if (!(sh.STATUS_AXIS_LAYOUT == L6474_STATUS_LAYOUT)) echo_oct_used((STALL_TH_val_local + 1) * 31.25, true);
       echo_oct_used((OCD_TH_val_local + 1) * 375, false);
 

@@ -111,7 +111,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .enabled(ENABLED(BACKLASH_GCODE))
       .tag(8).button(BACKLASH_POS,            GET_TEXT_F(MSG_BACKLASH))
       .colors(action_btn)
-      .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BACK));
+      .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

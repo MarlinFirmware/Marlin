@@ -34,21 +34,21 @@
 #include "../../inc/MarlinConfig.h"
 
 void spiBegin() {
-  OUT_WRITE(SD_SS_PIN, HIGH);
+  #if PIN_EXISTS(SD_SS)
+    // Do not init HIGH for boards with pin 4 used as Fans or Heaters or otherwise, not likely to have multiple SPI devices anyway.
+    #if defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
+      // SS must be in output mode even it is not chip select
+      SET_OUTPUT(SD_SS_PIN);
+    #else
+      // set SS high - may be chip select for another SPI device
+      OUT_WRITE(SD_SS_PIN, HIGH);
+    #endif
+  #endif
   SET_OUTPUT(SD_SCK_PIN);
   SET_INPUT(SD_MISO_PIN);
   SET_OUTPUT(SD_MOSI_PIN);
 
-  #if DISABLED(SOFTWARE_SPI)
-    // SS must be in output mode even it is not chip select
-    //SET_OUTPUT(SD_SS_PIN);
-    // set SS high - may be chip select for another SPI device
-    //#if SET_SPI_SS_HIGH
-      //WRITE(SD_SS_PIN, HIGH);
-    //#endif
-    // set a default rate
-    spiInit(1);
-  #endif
+  IF_DISABLED(SOFTWARE_SPI, spiInit(SPI_HALF_SPEED));
 }
 
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
@@ -74,7 +74,8 @@ void spiBegin() {
       #elif defined(PRR0)
         PRR0
       #endif
-        , PRSPI);
+      , PRSPI
+    );
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);

@@ -63,7 +63,7 @@ void StatisticsScreen::onRedraw(draw_mode_t what) {
   if (what & FOREGROUND) {
     cmd.font(Theme::font_medium)
        .colors(action_btn)
-       .tag(1).button(BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, TOUCH_SCREEN_CALIBRATION)
@@ -33,6 +34,10 @@
 
 static lv_obj_t *scr;
 static lv_obj_t *status_label;
+
+#if ENABLED(MKS_TEST)
+  extern uint8_t current_disp_ui;
+#endif
 
 static void event_handler(lv_obj_t *obj, lv_event_t event);
 
@@ -66,9 +71,9 @@ void lv_update_touch_calibration_screen() {
   if (calibration_stage < CALIBRATION_SUCCESS) {
     // handle current state
     switch (calibration_stage) {
-      case CALIBRATION_TOP_LEFT: str = GET_TEXT(MSG_TOP_LEFT); break;
-      case CALIBRATION_BOTTOM_LEFT: str = GET_TEXT(MSG_BOTTOM_LEFT); break;
-      case CALIBRATION_TOP_RIGHT:  str = GET_TEXT(MSG_TOP_RIGHT); break;
+      case CALIBRATION_TOP_LEFT:     str = GET_TEXT(MSG_TOP_LEFT); break;
+      case CALIBRATION_BOTTOM_LEFT:  str = GET_TEXT(MSG_BOTTOM_LEFT); break;
+      case CALIBRATION_TOP_RIGHT:    str = GET_TEXT(MSG_TOP_RIGHT); break;
       case CALIBRATION_BOTTOM_RIGHT: str = GET_TEXT(MSG_BOTTOM_RIGHT); break;
       default: break;
     }
@@ -93,9 +98,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_TC_RETURN:
-      TERN_(MKS_TEST, curent_disp_ui = 1);
-      lv_clear_touch_calibration_screen();
-      draw_return_ui();
+      TERN_(MKS_TEST, current_disp_ui = 1);
+      goto_previous_ui();
       break;
   }
 }

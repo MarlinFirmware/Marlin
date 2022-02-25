@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && HAS_CUTTER
+#if HAS_MARLINUI_MENU && HAS_CUTTER
 
   #include "menu_item.h"
 
@@ -41,7 +41,7 @@
     START_MENU();
     BACK_ITEM(MSG_MAIN);
 
-    #if ENABLED(SPINDLE_LASER_PWM)
+    #if ENABLED(SPINDLE_LASER_USE_PWM)
       // Change the cutter's "current power" value without turning the cutter on or off
       // Power is displayed and set in units and range according to CUTTER_POWER_UNIT
       EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.menuPower,
@@ -74,11 +74,11 @@
       ACTION_ITEM(MSG_LASER_FIRE_PULSE, cutter.test_fire_pulse);
     #endif
 
-    #if BOTH(MARLIN_DEV_MODE, HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+    #if BOTH(MARLIN_DEV_MODE, HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 80000, cutter.refresh_frequency);
     #endif
 
     END_MENU();
   }
 
-#endif // HAS_LCD_MENU && HAS_CUTTER
+#endif // HAS_MARLINUI_MENU && HAS_CUTTER

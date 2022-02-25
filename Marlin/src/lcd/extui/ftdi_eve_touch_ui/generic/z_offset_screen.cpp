@@ -84,7 +84,7 @@ void ZOffsetScreen::runWizard() {
   strcat(cmd, str);
   injectCommands(cmd);
   // Show instructions for user.
-  AlertDialogBox::show(PSTR("After the printer finishes homing, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
+  AlertDialogBox::show(F("After the printer finishes homing, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
 }
 
 bool ZOffsetScreen::wizardRunning() {

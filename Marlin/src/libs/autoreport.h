@@ -44,7 +44,7 @@ struct AutoReporter {
       next_report_ms = ms + SEC_TO_MS(report_interval);
       PORT_REDIRECT(report_port_mask);
       Helper::report();
-      //PORT_RESTORE();
+      PORT_RESTORE();
     }
   }
 };

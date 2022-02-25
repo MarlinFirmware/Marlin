@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, ADVANCED_PAUSE_FEATURE)
@@ -31,7 +32,7 @@
 
 void lv_draw_pause_message(const PauseMessage msg) {
   switch (msg) {
-    case PAUSE_MESSAGE_PAUSING:  clear_cur_ui(); lv_draw_dialog(DIALOG_PAUSE_MESSAGE_PAUSING); break;
+    case PAUSE_MESSAGE_PARKING:  clear_cur_ui(); lv_draw_dialog(DIALOG_PAUSE_MESSAGE_PARKING); break;
     case PAUSE_MESSAGE_CHANGING: clear_cur_ui(); lv_draw_dialog(DIALOG_PAUSE_MESSAGE_CHANGING); break;
     case PAUSE_MESSAGE_UNLOAD:   clear_cur_ui(); lv_draw_dialog(DIALOG_PAUSE_MESSAGE_UNLOAD); break;
     case PAUSE_MESSAGE_WAITING:  clear_cur_ui(); lv_draw_dialog(DIALOG_PAUSE_MESSAGE_WAITING); break;
