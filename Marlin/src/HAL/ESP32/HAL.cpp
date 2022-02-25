@@ -76,6 +76,9 @@ uint32_t thresholds[ADC_ATTEN_MAX];
 volatile int numPWMUsed = 0,
              pwmPins[MAX_PWM_PINS],
              pwmValues[MAX_PWM_PINS];
+pin_t chan_pin[CHANNEL_MAX_NUM + 1] = { 0 }; // PWM capable IOpins - not 0 or >33 on ESP32
+uint32_t chan_freq[(CHANNEL_MAX_NUM + 1) / 2]; // ledcReadFreq doesn't work if a duty hasn't been set yet!
+uint16_t chan_res[(CHANNEL_MAX_NUM + 1) / 2];
 
 // ------------------------
 // Public functions
@@ -248,42 +251,99 @@ void MarlinHAL::adc_start(const pin_t pin) {
   adc1_set_attenuation(chan, atten);
 }
 
-void analogWrite(pin_t pin, int value) {
+// ------------------------
+// PWM
+// ------------------------
+
+int8_t pin_to_chan(uint8_t pin) {
+	for (int i = 0; i <= CHANNEL_MAX_NUM; i++) {
+		if (chan_pin[i] == pin) return i;
+	}
+	return -1;
+}
+
+// get PWM channel for pin - if none then attach a new one
+// return -1 if fail or invalid pin#, channel # (0-15) if success
+int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res) {
+	if (pin == 0 || (pin > MAX_PWM_IOPIN)) return -1;     // not a hardware PWM pin!
+	int8_t chan = pin_to_chan(pin);
+	if (chan >= 0) return chan;
+
+	// find an empty adjacent chanel (same timer & freq/res)
+	for (int i = 0; i <= CHANNEL_MAX_NUM; i++) {
+		if (chan_pin[i] == 0) {
+			if (chan_pin[i ^ 0x1] != 0) {
+				if ((chan_freq[i / 2] == freq) && (chan_res[i / 2] == res)) {
+					chan_pin[i] = pin; // allocate pwm to this channel
+					ledcAttachPin(pin, i);
+					return i;
+				}
+			}
+			else if (chan == -1) { // pair of empty channels?
+				chan = i & 0xfe; // save lower channel number
+			}
+		}
+	}
+	// not attached, is an empty timer slot avail?
+	if (chan >= 0) {
+		chan_freq[chan / 2] = freq;
+		chan_pin[chan] = pin;
+		chan_res[chan / 2] = res;
+		ledcSetup(chan, freq, res);
+		ledcAttachPin(pin, chan);
+	}
+	return chan; // -1 if no channel avail
+}
+
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=_BV(PWM_RESOLUTION)-1*/, const bool invert/*=false*/) {
+	int8_t channel = get_pwm_channel(pin, PWM_FREQUENCY, PWM_RESOLUTION);
+	if (channel >= 0) {
+		uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, _BV(PWM_RESOLUTION)-1);
+		ledcWrite(channel, duty);
+	}
+}
+
+uint8_t MarlinHAL::set_pwm_frequency(const pin_t pin, const uint32_t f_desired) {
+	int8_t channel = pin_to_chan(pin);
+	if (channel >= 0) {
+		if (f_desired == ledcReadFreq(channel)) return channel; // no freq change 
+		ledcDetachPin(chan_pin[channel]);
+		chan_pin[channel] = 0;							// remove old freq channel
+	}
+	return get_pwm_channel(pin, f_desired, PWM_RESOLUTION); // try for new one
+}
+
+// use hardware PWM if avail, if not then ISR
+void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PWM_FREQUENCY*/, const uint16_t res/*=8*/) { // always 8 bit resolution!
   // Use ledc hardware for internal pins
-  if (pin < 34) {
-    static int cnt_channel = 1, pin_to_channel[40] = { 0 };
-    if (pin_to_channel[pin] == 0) {
-      ledcAttachPin(pin, cnt_channel);
-      ledcSetup(cnt_channel, 490, 8);
-      ledcWrite(cnt_channel, value);
-      pin_to_channel[pin] = cnt_channel++;
+  int8_t channel = get_pwm_channel(pin, freq, res);
+  if (channel >= 0) {
+    ledcWrite(channel, value); // set duty value
+  }
+  else { // not a hardware PWM pin OR no PWM channels available
+    int idx = -1;
+
+    // Search Pin
+    for (int i = 0; i < numPWMUsed; ++i)
+      if (pwmPins[i] == pin) { idx = i; break; }
+
+    // not found ?
+    if (idx < 0) {
+      // No slots remaining
+      if (numPWMUsed >= MAX_PWM_PINS) return;
+
+      // Take new slot for pin
+      idx = numPWMUsed;
+      pwmPins[idx] = pin;
+      // Start timer on first use
+      if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
+
+      ++numPWMUsed;
     }
-    ledcWrite(pin_to_channel[pin], value);
-    return;
+
+    // Use 7bit internal value - add 1 to have 100% high at 255
+    pwmValues[idx] = (value + 1) / 2;
   }
-
-  int idx = -1;
-
-  // Search Pin
-  for (int i = 0; i < numPWMUsed; ++i)
-    if (pwmPins[i] == pin) { idx = i; break; }
-
-  // not found ?
-  if (idx < 0) {
-    // No slots remaining
-    if (numPWMUsed >= MAX_PWM_PINS) return;
-
-    // Take new slot for pin
-    idx = numPWMUsed;
-    pwmPins[idx] = pin;
-    // Start timer on first use
-    if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
-
-    ++numPWMUsed;
-  }
-
-  // Use 7bit internal value - add 1 to have 100% high at 255
-  pwmValues[idx] = (value + 1) / 2;
 }
 
 // Handle PWM timer interrupt

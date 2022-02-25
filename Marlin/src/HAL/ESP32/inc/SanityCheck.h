@@ -25,8 +25,12 @@
   #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on ESP32."
+#if ENABLED(BOARD_MKS_TINYBEE) && ENABLED(FAST_PWM_FAN) 
+  #error "FAST_PWM_FAN not available on TinyBee."
+#endif
+  
+#if (ENABLED(SPINDLE_LASER_USE_PWM) && (SPINDLE_LASER_FREQUENCY > 78125)) || (ENABLED(FAST_PWM_FAN_FREQUENCY) && (FAST_PWM_FAN_FREQUENCY > 78125))
+  #error "SPINDLE_LASER_FREQUENCY and FAST_PWM_FREQUENCY maximum value is 78125Hz for ESP32."
 #endif
 
 #if HAS_TMC_SW_SERIAL
