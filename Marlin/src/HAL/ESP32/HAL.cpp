@@ -340,6 +340,9 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PW
 
       ++numPWMUsed;
     }
+
+    // Use 7bit internal value - add 1 to have 100% high at 255
+    pwmValues[idx] = (value + 1) / 2;
   }
 }
 
