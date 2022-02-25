@@ -338,6 +338,8 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PW
       // Start timer on first use
       if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
 
+      // Use 7bit internal value - add 1 to have 100% high at 255
+      pwmValues[idx] = (value + 1) / 2;
       ++numPWMUsed;
     }
   }
