@@ -29,6 +29,11 @@
 #include "../module/motion.h"
 #include "../module/planner.h"
 
+axis_bits_t Backlash::last_direction_bits;
+#ifdef BACKLASH_SMOOTHING_MM
+  xyz_long_t Backlash::residual_error{0};
+#endif
+
 #ifdef BACKLASH_DISTANCE_MM
   #if ENABLED(BACKLASH_GCODE)
     xyz_float_t Backlash::distance_mm = BACKLASH_DISTANCE_MM;
@@ -61,7 +66,6 @@ Backlash backlash;
  */
 
 void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const axis_bits_t dm, block_t * const block) {
-  static axis_bits_t last_direction_bits;
   axis_bits_t changed_dir = last_direction_bits ^ dm;
   // Ignore direction change unless steps are taken in that direction
   #if DISABLED(CORE_BACKLASH) || EITHER(MARKFORGED_XY, MARKFORGED_YX)
@@ -91,10 +95,6 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
     // smoothing distance. Since the computation of this proportion involves a floating point
     // division, defer computation until needed.
     float segment_proportion = 0;
-
-    // Residual error carried forward across multiple segments, so correction can be applied
-    // to segments where there is no direction change.
-    static xyz_long_t residual_error{0};
   #else
     // No direction change, no correction.
     if (!changed_dir) return;
@@ -151,6 +151,27 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
       }
     }
   }
+}
+
+int32_t Backlash::applied_steps(const AxisEnum axis) {
+  if (axis >= LINEAR_AXES) return 0;
+
+  const bool reversing = TEST(last_direction_bits, axis);
+
+  #ifdef BACKLASH_SMOOTHING_MM
+    const int32_t residual_error_axis = residual_error[axis];
+  #else
+    constexpr int32_t residual_error_axis = 0;
+  #endif
+
+  // At startup it is assumed the last move was forwards. So the applied
+  // steps will always be a non-positive number.
+
+  if (!reversing) return -residual_error_axis;
+
+  const float f_corr = float(correction) / 255.0f;
+  const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+  return full_error_axis - residual_error_axis;
 }
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
