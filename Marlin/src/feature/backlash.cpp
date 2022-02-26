@@ -170,7 +170,7 @@ int32_t Backlash::applied_steps(const AxisEnum axis) {
   if (!reversing) return -residual_error_axis;
 
   const float f_corr = float(correction) / 255.0f;
-  int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+  const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }
 
