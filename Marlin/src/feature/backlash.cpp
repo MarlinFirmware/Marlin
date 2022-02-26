@@ -159,9 +159,9 @@ int32_t Backlash::applied_steps(const AxisEnum axis) {
   const bool reversing = TEST(last_direction_bits, axis);
 
   #ifdef BACKLASH_SMOOTHING_MM
-    const uint32_t residual_error_axis = residual_error[axis];
+    const int32_t residual_error_axis = residual_error[axis];
   #else
-    constexpr uint32_t residual_error_axis = 0;
+    constexpr int32_t residual_error_axis = 0;
   #endif
 
   // At startup it is assumed the last move was forwards. So the applied
@@ -170,7 +170,7 @@ int32_t Backlash::applied_steps(const AxisEnum axis) {
   if (!reversing) return -residual_error_axis;
 
   const float f_corr = float(correction) / 255.0f;
-  uint32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+  int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }
 
