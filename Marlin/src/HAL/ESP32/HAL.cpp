@@ -320,31 +320,32 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PW
   const int8_t cid = get_pwm_channel(pin, freq, res);
   if (cid >= 0) {
     ledcWrite(cid, value); // set duty value
+    return;
   }
-  else { // not a hardware PWM pin OR no PWM channels available
-    int idx = -1;
 
-    // Search Pin
-    for (int i = 0; i < numPWMUsed; ++i)
-      if (pwmInfo[i].pin == pin) { idx = i; break; }
+  // not a hardware PWM pin OR no PWM channels available
+  int idx = -1;
 
-    // not found ?
-    if (idx < 0) {
-      // No slots remaining
-      if (numPWMUsed >= MAX_PWM_PINS) return;
+  // Search Pin
+  for (int i = 0; i < numPWMUsed; ++i)
+    if (pwmInfo[i].pin == pin) { idx = i; break; }
 
-      // Take new slot for pin
-      idx = numPWMUsed;
-      pwmInfo[idx].pin = pin;
-      // Start timer on first use
-      if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
+  // not found ?
+  if (idx < 0) {
+    // No slots remaining
+    if (numPWMUsed >= MAX_PWM_PINS) return;
 
-      ++numPWMUsed;
-    }
+    // Take new slot for pin
+    idx = numPWMUsed;
+    pwmInfo[idx].pin = pin;
+    // Start timer on first use
+    if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
 
-    // Use 7bit internal value - add 1 to have 100% high at 255
-    pwmInfo[idx].value = (value + 1) / 2;
+    ++numPWMUsed;
   }
+
+  // Use 7bit internal value - add 1 to have 100% high at 255
+  pwmInfo[idx].value = (value + 1) / 2;
 }
 
 // Handle PWM timer interrupt
