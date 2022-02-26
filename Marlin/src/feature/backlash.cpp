@@ -153,7 +153,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
   }
 }
 
-int32_t Backlash::applied_steps(AxisEnum axis) {
+int32_t Backlash::applied_steps(const AxisEnum axis) {
   if (axis > LINEAR_AXES) return 0;
 
   const bool reversing = TEST(last_direction_bits, axis);

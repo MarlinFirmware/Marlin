@@ -78,7 +78,7 @@ public:
   }
 
   static void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const axis_bits_t dm, block_t * const block);
-  static int32_t applied_steps(AxisEnum axis);
+  static int32_t applied_steps(const AxisEnum axis);
 };
 
 extern Backlash backlash;
