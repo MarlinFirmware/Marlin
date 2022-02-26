@@ -29,16 +29,17 @@
 
 /**
  * M21: Init SD Card
+ *
+ * With MULTI_VOLUME:
+ *  S - Change to the SD Card and mount it
+ *  U - Change to the USB Drive and mount it
  */
-void GcodeSuite::M21()
-{
+void GcodeSuite::M21() {
   #if ENABLED(MULTI_VOLUME)
-    if (parser.seen('S')) {  // "S" for SD Card
+    if (parser.seen_test('S'))       // "S" for SD Card
       card.changeMedia(&card.media_driver_sdcard);
-    }
-    else if (parser.seen('U')) {  // "U" for USB
+    else if (parser.seen_test('U'))  // "U" for USB
       card.changeMedia(&card.media_driver_usbFlash);
-    }
   #endif
   card.mount();
 }
