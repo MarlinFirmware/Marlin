@@ -41,7 +41,7 @@ int8_t Servo::attach(const int inPin) {
 
 // leave channel connected to servo - set duty to zero
 void Servo::detach() {
-  if (channel != -1) ledcWrite(channel, 0);
+  if (channel >= 0) ledcWrite(channel, 0);
 }
 
 int Servo::read() { return degrees; }

@@ -226,6 +226,6 @@ public:
    * Allocate and set the frequency of a hardware PWM pin
    * Returns -1 if no pin available.
    */
-  static uint8_t set_pwm_frequency(const pin_t pin, const uint32_t f_desired);
+  static int8_t set_pwm_frequency(const pin_t pin, const uint32_t f_desired);
 
 };
