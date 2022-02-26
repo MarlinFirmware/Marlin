@@ -3120,12 +3120,13 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
     buffer_sync_block();
   }
   else {
-    abce_long_t stepper_pos = position;
     #if ENABLED(BACKLASH_COMPENSATION)
+      abce_long_t stepper_pos = position;
       LOOP_LINEAR_AXES(axis) stepper_pos[axis] += backlash.applied_steps((AxisEnum)axis);
+      stepper.set_position(stepper_pos);
+    #else
+      stepper.set_position(position);
     #endif
-
-    stepper.set_position(stepper_pos);
   }
 }
 
