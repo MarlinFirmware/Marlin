@@ -65,10 +65,10 @@
 #define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&spinlock)
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
-#define PWM_FREQUENCY 1000u     // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
-#define PWM_RESOLUTION 10u 	   // Default PWM bit resolution
-#define CHANNEL_MAX_NUM 15u    // max PWM channel to allocate (7 to only use low speed, 15 to use high speed - see above)
-#define MAX_PWM_IOPIN 33u      // hardware pwm pins < 34
+#define PWM_FREQUENCY  1000u   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
+#define PWM_RESOLUTION   10u   // Default PWM bit resolution
+#define CHANNEL_MAX_NUM  15u   // max PWM channel to allocate (7 to only use low speed, 15 to use high speed - see above)
+#define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
 
 // ------------------------
 // Types
@@ -214,7 +214,7 @@ public:
   // The current value of the ADC register
   static uint16_t adc_value() { return adc_result; }
 
-   /**
+  /**
    * If not already allocated, allocate a hardware PWM channel
    * to the pin and set the duty cycle..
    * Optionally invert the duty cycle [default = false]
@@ -227,6 +227,5 @@ public:
    * Returns -1 if no pin available.
    */
   static uint8_t set_pwm_frequency(const pin_t pin, const uint32_t f_desired);
-
 
 };

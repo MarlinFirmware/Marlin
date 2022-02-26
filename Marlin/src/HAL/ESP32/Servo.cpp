@@ -31,18 +31,17 @@
 // so we only allocate servo channels up high to avoid side effects with regards to analogWrite (fans, leds, laser pwm etc.)
 int Servo::channel_next_free = 12;
 
-Servo::Servo() {
-}
+Servo::Servo() {}
 
 int8_t Servo::attach(const int inPin) {
   if (inPin > 0) pin = inPin;
-	channel = get_pwm_channel(pin, 50u, 16u);
+  channel = get_pwm_channel(pin, 50u, 16u);
   return channel; // -1 if no PWM avail.
 }
 
 // leave channel connected to servo - set duty to zero
-void Servo::detach() { 
-	if (channel != -1) ledcWrite(channel, 0);
+void Servo::detach() {
+  if (channel != -1) ledcWrite(channel, 0);
 }
 
 int Servo::read() { return degrees; }
