@@ -164,10 +164,11 @@ int32_t Backlash::applied_steps(AxisEnum axis) {
     constexpr uint32_t residual_error_axis = 0;
   #endif
 
+  // At startup it is assumed the last move was forwards. So the applied
+  // steps will always be a non-positive number.
+
   if (!reversing) return -residual_error_axis;
 
-  // when initialised, it is assumed the last move was forwards so a
-  // forwards movement results in net zero compensation steps
   const float f_corr = float(correction) / 255.0f;
   uint32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
