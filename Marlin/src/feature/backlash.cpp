@@ -43,7 +43,7 @@ axis_bits_t Backlash::last_direction_bits;
 #endif
 
 #if ENABLED(BACKLASH_GCODE)
-  uint8_t Backlash::correction = (BACKLASH_CORRECTION) * 0xFF;
+  uint8_t Backlash::correction = (BACKLASH_CORRECTION) * all_on;
   #ifdef BACKLASH_SMOOTHING_MM
     float Backlash::smoothing_mm = BACKLASH_SMOOTHING_MM;
   #endif
@@ -102,7 +102,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
     xyz_long_t residual_error{0};
   #endif
 
-  const float f_corr = float(correction) / 255.0f;
+  const float f_corr = float(correction) / all_on;
 
   LOOP_LINEAR_AXES(axis) {
     if (distance_mm[axis]) {
@@ -169,7 +169,7 @@ int32_t Backlash::applied_steps(const AxisEnum axis) {
 
   if (!reversing) return -residual_error_axis;
 
-  const float f_corr = float(correction) / 255.0f;
+  const float f_corr = float(correction) / all_on;
   const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }

@@ -24,8 +24,6 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../module/planner.h"
 
-constexpr uint8_t all_on = 0xFF, all_off = 0x00;
-
 class Backlash {
 private:
   static axis_bits_t last_direction_bits;
@@ -34,6 +32,8 @@ private:
   #endif
 
 public:
+  static constexpr uint8_t all_on = 0xFF, all_off = 0x00;
+
   #if ENABLED(BACKLASH_GCODE)
     static xyz_float_t distance_mm;
     static uint8_t correction;
@@ -41,10 +41,10 @@ public:
       static float smoothing_mm;
     #endif
 
-    static void set_correction(const_float_t v) { correction = _MAX(0, _MIN(1.0, v)) * all_on; }
-    static float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
+    static void set_correction(const_float_t v) { correction = _MAX(0, _MIN(1.0, v)) * all_on + 0.5f; }
+    static float get_correction() { return float(correction) / all_on; }
   #else
-    static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
+    static constexpr uint8_t correction = (BACKLASH_CORRECTION) * all_on;
     static const xyz_float_t distance_mm;
     #ifdef BACKLASH_SMOOTHING_MM
       static constexpr float smoothing_mm = BACKLASH_SMOOTHING_MM;
