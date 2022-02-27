@@ -162,6 +162,7 @@
 #define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
 #define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1329  // Mega controller & Protoneer CNC Shield V3.00
+#define BOARD_WEEDO_62A_TINA2         1330  // WEEDO 62A board for TINA2 printer
 
 //
 // ATmega1281, ATmega2561
