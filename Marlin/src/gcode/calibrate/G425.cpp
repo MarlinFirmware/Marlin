@@ -524,7 +524,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
 
   {
     // New scope for TEMPORARY_BACKLASH_CORRECTION
-    TEMPORARY_BACKLASH_CORRECTION(all_off);
+    TEMPORARY_BACKLASH_CORRECTION(backlash.all_off);
     TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
     probe_sides(m, uncertainty);
@@ -581,7 +581,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
     // allowed directions to take up any backlash
     {
       // New scope for TEMPORARY_BACKLASH_CORRECTION
-      TEMPORARY_BACKLASH_CORRECTION(all_on);
+      TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
       TEMPORARY_BACKLASH_SMOOTHING(0.0f);
       const xyz_float_t move = LINEAR_AXIS_ARRAY(
         AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3,
@@ -611,7 +611,7 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  *    - Call calibrate_backlash() beforehand for best accuracy
  */
 inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const uint8_t extruder) {
-  TEMPORARY_BACKLASH_CORRECTION(all_on);
+  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   TERN(HAS_MULTI_HOTEND, set_nozzle(m, extruder), UNUSED(extruder));
@@ -648,7 +648,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  *   uncertainty    in     - How far away from the object to begin probing
  */
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
-  TEMPORARY_BACKLASH_CORRECTION(all_on);
+  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
@@ -674,7 +674,7 @@ inline void calibrate_all() {
 
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
-  TEMPORARY_BACKLASH_CORRECTION(all_on);
+  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   // Do a fast and rough calibration of the toolheads
