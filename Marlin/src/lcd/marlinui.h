@@ -275,6 +275,14 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
+  #if LCD_BACKLIGHT_TIMEOUT
+    #define LCD_BKL_TIMEOUT_MIN 1
+    #define LCD_BKL_TIMEOUT_MAX (60*60*18) // 18 hours max within uint16_t
+    static uint16_t lcd_backlight_timeout;
+    static millis_t backlight_off_ms;
+    static void refresh_backlight_timeout();
+  #endif
+
   #if HAS_DWIN_E3V2_BASIC
     static void refresh();
   #else
