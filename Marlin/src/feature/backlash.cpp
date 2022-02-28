@@ -30,9 +30,7 @@
 #include "../module/planner.h"
 
 axis_bits_t Backlash::last_direction_bits;
-#ifdef BACKLASH_SMOOTHING_MM
-  xyz_long_t Backlash::residual_error{0};
-#endif
+xyz_long_t Backlash::residual_error{0};
 
 #ifdef BACKLASH_DISTANCE_MM
   #if ENABLED(BACKLASH_GCODE)
@@ -87,7 +85,10 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
   #endif
   last_direction_bits ^= changed_dir;
 
-  if (correction == 0) return;
+  bool nothing_to_do = !correction;
+  for (uint8_t axis = 0; nothing_to_do && axis < LINEAR_AXES; axis++)
+    nothing_to_do = !residual_error[axis];
+  if (nothing_to_do) return;
 
   #ifdef BACKLASH_SMOOTHING_MM
     // The segment proportion is a value greater than 0.0 indicating how much residual_error
@@ -95,11 +96,6 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
     // smoothing distance. Since the computation of this proportion involves a floating point
     // division, defer computation until needed.
     float segment_proportion = 0;
-  #else
-    // No direction change, no correction.
-    if (!changed_dir) return;
-    // No leftover residual error from segment to segment
-    xyz_long_t residual_error{0};
   #endif
 
   const float f_corr = float(correction) / all_on;
@@ -114,16 +110,14 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
       // Decide how much of the residual error to correct in this segment
       int32_t error_correction = residual_error[axis];
+      if (reversing != (error_correction < 0))
+        error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
+
       #ifdef BACKLASH_SMOOTHING_MM
         if (error_correction && smoothing_mm != 0) {
-          // Take up a portion of the residual_error in this segment, but only when
-          // the current segment travels in the same direction as the correction
-          if (reversing == (error_correction < 0)) {
-            if (segment_proportion == 0) segment_proportion = _MIN(1.0f, block->millimeters / smoothing_mm);
-            error_correction = CEIL(segment_proportion * error_correction);
-          }
-          else
-            error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
+          // Take up a portion of the residual_error in this segment
+          if (segment_proportion == 0) segment_proportion = _MIN(1.0f, block->millimeters / smoothing_mm);
+          error_correction = CEIL(segment_proportion * error_correction);
         }
       #endif
 
@@ -158,11 +152,7 @@ int32_t Backlash::get_applied_steps(const AxisEnum axis) {
 
   const bool reversing = TEST(last_direction_bits, axis);
 
-  #ifdef BACKLASH_SMOOTHING_MM
-    const int32_t residual_error_axis = residual_error[axis];
-  #else
-    constexpr int32_t residual_error_axis = 0;
-  #endif
+  const int32_t residual_error_axis = residual_error[axis];
 
   // At startup it is assumed the last move was forwards. So the applied
   // steps will always be a non-positive number.
@@ -173,6 +163,34 @@ int32_t Backlash::get_applied_steps(const AxisEnum axis) {
   const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }
+
+class Backlash::StepAdjuster {
+  xyz_long_t applied_steps;
+public:
+  StepAdjuster() {
+    LOOP_LINEAR_AXES(axis) applied_steps[axis] = backlash.get_applied_steps((AxisEnum)axis);
+  }
+  ~StepAdjuster() {
+    LOOP_LINEAR_AXES(axis) residual_error[axis] += backlash.get_applied_steps((AxisEnum)axis) - applied_steps[axis];
+  }
+};
+
+void Backlash::set_correction_uint8(const uint8_t v) {
+  StepAdjuster adjuster;
+  correction = v;
+}
+
+void Backlash::set_distance_mm(const AxisEnum axis, const float v) {
+  StepAdjuster adjuster;
+  distance_mm[axis] = v;
+}
+
+#ifdef BACKLASH_SMOOTHING_MM
+  void Backlash::set_smoothing_mm(const float v) {
+    StepAdjuster adjuster;
+    smoothing_mm = v;
+  }
+#endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
 

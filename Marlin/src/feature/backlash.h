@@ -30,9 +30,7 @@ public:
 
 private:
   static axis_bits_t last_direction_bits;
-  #ifdef BACKLASH_SMOOTHING_MM
-    static xyz_long_t residual_error;
-  #endif
+  static xyz_long_t residual_error;
 
   #if ENABLED(BACKLASH_GCODE)
     static uint8_t correction;
@@ -52,6 +50,8 @@ private:
     static xyz_float_t measured_mm;
     static xyz_uint8_t measured_count;
   #endif
+
+  class StepAdjuster;
 
 public:
   static float get_measurement(const AxisEnum a) {
@@ -76,14 +76,14 @@ public:
   static int32_t get_applied_steps(const AxisEnum axis);
 
   #if ENABLED(BACKLASH_GCODE)
-    static void set_correction_uint8(const uint8_t v) { correction = v; }
+    static void set_correction_uint8(const uint8_t v);
     static uint8_t get_correction_uint8() { return correction; }
     static void set_correction(const float v) { set_correction_uint8(_MAX(0, _MIN(1.0, v)) * all_on + 0.5f); }
     static float get_correction() { return float(get_correction_uint8()) / all_on; }
-    static void set_distance_mm(const AxisEnum axis, const float v) {distance_mm[axis] = v;}
+    static void set_distance_mm(const AxisEnum axis, const float v);
     static float get_distance_mm(const AxisEnum axis) {return distance_mm[axis];}
     #ifdef BACKLASH_SMOOTHING_MM
-      static void set_smoothing_mm(const float v) {smoothing_mm = v;}
+      static void set_smoothing_mm(const float v);
       static float get_smoothing_mm() {return smoothing_mm;}
     #endif
   #endif
