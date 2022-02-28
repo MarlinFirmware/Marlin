@@ -73,7 +73,7 @@ public:
   }
 
   static void add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const axis_bits_t dm, block_t * const block);
-  static int32_t applied_steps(const AxisEnum axis);
+  static int32_t get_applied_steps(const AxisEnum axis);
 
   #if ENABLED(BACKLASH_GCODE)
     static void set_correction_uint8(const uint8_t v) { correction = v; }
