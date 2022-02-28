@@ -85,11 +85,11 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
   #endif
   last_direction_bits ^= changed_dir;
 
-  if (correction == 0) return;
-
-  bool has_residual_err = false;
-  LOOP_LINEAR_AXES(axis) if (residual_error[axis]) { has_residual_err = true; break; }
-  if (!has_residual_err) return;
+  if (correction == 0) {
+    bool has_residual_err = false;
+    LOOP_LINEAR_AXES(axis) if (residual_error[axis]) { has_residual_err = true; break; }
+    if (!has_residual_err) return;
+  }
 
   #ifdef BACKLASH_SMOOTHING_MM
     // The segment proportion is a value greater than 0.0 indicating how much residual_error
