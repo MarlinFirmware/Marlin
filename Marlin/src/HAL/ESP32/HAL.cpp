@@ -77,11 +77,11 @@ uint32_t thresholds[ADC_ATTEN_MAX];
 volatile int numPWMUsed = 0;
 volatile struct { pin_t pin; int value; } pwmInfo[MAX_PWM_PINS];
 
+pin_t chanPin[CHANNEL_MAX_NUM + 1] = { 0 };  // PWM capable IOpins - not 0 or >33 on ESP32
 struct {
-  pin_t    pin;  // PWM capable IOpins - not 0 or >33 on ESP32
   uint32_t freq; // ledcReadFreq doesn't work if a duty hasn't been set yet!
   uint16_t res;
-} channel[CHANNEL_MAX_NUM + 1];
+} pwmTimer[(CHANNEL_MAX_NUM + 1) / 2];
 
 // ------------------------
 // Public functions
@@ -258,9 +258,9 @@ void MarlinHAL::adc_start(const pin_t pin) {
 // PWM
 // ------------------------
 
-int8_t pin_to_chan(uint8_t pin) {
+int8_t pin_to_chan(pin_t pin) {
   for (int i = 0; i <= CHANNEL_MAX_NUM; i++)
-    if (channel[i].pin == pin) return i;
+    if (chanPin[i] == pin) return i;
   return -1;
 }
 
@@ -273,10 +273,10 @@ int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res)
 
   // Find an empty adjacent channel (same timer & freq/res)
   for (int i = 0; i <= CHANNEL_MAX_NUM; i++) {
-    if (channel[i].pin == 0) {
-      if (channel[i ^ 0x1].pin != 0) {
-        if (channel[i / 2].freq == freq && channel[i / 2].res == res) {
-          channel[i].pin = pin; // Allocate PWM to this channel
+    if (chanPin[i] == 0) {
+      if (chanPin[i ^ 0x1] != 0) {
+        if (pwmTimer[i / 2].freq == freq && pwmTimer[i / 2].res == res) {
+          chanPin[i] = pin; // Allocate PWM to this channel
           ledcAttachPin(pin, i);
           return i;
         }
@@ -287,9 +287,9 @@ int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res)
   }
   // not attached, is an empty timer slot avail?
   if (cid >= 0) {
-    channel[cid / 2].freq = freq;
-    channel[cid].pin = pin;
-    channel[cid / 2].res = res;
+    pwmTimer[cid / 2].freq = freq;
+    pwmTimer[cid / 2].res = res;
+    chanPin[cid] = pin;
     ledcSetup(cid, freq, res);
     ledcAttachPin(pin, cid);
   }
@@ -307,9 +307,9 @@ void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v
 int8_t MarlinHAL::set_pwm_frequency(const pin_t pin, const uint32_t f_desired) {
   const int8_t cid = pin_to_chan(pin);
   if (cid >= 0) {
-    if (f_desired == ledcReadFreq(cid)) return cid; // no freq change
-    ledcDetachPin(channel[cid].pin);
-    channel[cid].pin = 0;              // remove old freq channel
+    if (f_desired == pwmTimer[cid / 2].freq) return cid; // no freq change
+    ledcDetachPin(chanPin[cid]);
+    chanPin[cid] = 0;              // remove old freq channel
   }
   return get_pwm_channel(pin, f_desired, PWM_RESOLUTION); // try for new one
 }

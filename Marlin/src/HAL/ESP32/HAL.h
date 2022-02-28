@@ -67,7 +67,7 @@
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 #define PWM_FREQUENCY  1000u   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 #define PWM_RESOLUTION   10u   // Default PWM bit resolution
-#define CHANNEL_MAX_NUM  15u   // max PWM channel to allocate (7 to only use low speed, 15 to use high speed - see above)
+#define CHANNEL_MAX_NUM  15u   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
 #define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
 
 // ------------------------
