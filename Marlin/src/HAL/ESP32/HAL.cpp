@@ -263,7 +263,7 @@ void MarlinHAL::adc_start(const pin_t pin) {
 
 int8_t channel_for_pin(const uint8_t pin) {
   for (int i = 0; i <= CHANNEL_MAX_NUM; i++)
-    if (chanPin[i] == pin) return i;
+    if (chan_pin[i] == pin) return i;
   return -1;
 }
 
