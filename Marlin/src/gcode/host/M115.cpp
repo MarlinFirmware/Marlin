@@ -142,6 +142,11 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(F("SDCARD"), ENABLED(SDSUPPORT));
 
+    // MULTI_VOLUME (M21 S/M21 U)
+    #if ENABLED(SDSUPPORT)
+      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
+    #endif
+
     // REPEAT (M808)
     cap_line(F("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 

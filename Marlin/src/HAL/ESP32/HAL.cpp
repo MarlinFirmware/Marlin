@@ -75,13 +75,14 @@ adc_atten_t attenuations[ADC1_CHANNEL_MAX] = {};
 uint32_t thresholds[ADC_ATTEN_MAX];
 
 volatile int numPWMUsed = 0;
-volatile struct { pin_t pin; int value; } pwmInfo[MAX_PWM_PINS];
+volatile struct { pin_t pin; int value; } pwmState[MAX_PWM_PINS];
 
-pin_t chanPin[CHANNEL_MAX_NUM + 1] = { 0 };  // PWM capable IOpins - not 0 or >33 on ESP32
+pin_t chan_pin[CHANNEL_MAX_NUM + 1] = { 0 }; // PWM capable IOpins - not 0 or >33 on ESP32
+
 struct {
   uint32_t freq; // ledcReadFreq doesn't work if a duty hasn't been set yet!
   uint16_t res;
-} pwmTimer[(CHANNEL_MAX_NUM + 1) / 2];
+} pwmInfo[(CHANNEL_MAX_NUM + 1) / 2];
 
 // ------------------------
 // Public functions
@@ -173,6 +174,8 @@ uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
+void _delay_ms(int delay_ms) { delay(delay_ms); }
+
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
@@ -258,7 +261,7 @@ void MarlinHAL::adc_start(const pin_t pin) {
 // PWM
 // ------------------------
 
-int8_t pin_to_chan(pin_t pin) {
+int8_t channel_for_pin(const uint8_t pin) {
   for (int i = 0; i <= CHANNEL_MAX_NUM; i++)
     if (chanPin[i] == pin) return i;
   return -1;
@@ -268,28 +271,28 @@ int8_t pin_to_chan(pin_t pin) {
 // return -1 if fail or invalid pin#, channel # (0-15) if success
 int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res) {
   if (!WITHIN(pin, 1, MAX_PWM_IOPIN)) return -1; // Not a hardware PWM pin!
-  int8_t cid = pin_to_chan(pin);
+  int8_t cid = channel_for_pin(pin);
   if (cid >= 0) return cid;
 
   // Find an empty adjacent channel (same timer & freq/res)
   for (int i = 0; i <= CHANNEL_MAX_NUM; i++) {
-    if (chanPin[i] == 0) {
-      if (chanPin[i ^ 0x1] != 0) {
-        if (pwmTimer[i / 2].freq == freq && pwmTimer[i / 2].res == res) {
-          chanPin[i] = pin; // Allocate PWM to this channel
+    if (chan_pin[i] == 0) {
+      if (chan_pin[i ^ 0x1] != 0) {
+        if (pwmInfo[i / 2].freq == freq && pwmInfo[i / 2].res == res) {
+          chan_pin[i] = pin; // Allocate PWM to this channel
           ledcAttachPin(pin, i);
           return i;
         }
       }
       else if (cid == -1)    // Pair of empty channels?
-        cid = i & 0xfe;      // Save lower channel number
+        cid = i & 0xFE;      // Save lower channel number
     }
   }
   // not attached, is an empty timer slot avail?
   if (cid >= 0) {
-    pwmTimer[cid / 2].freq = freq;
-    pwmTimer[cid / 2].res = res;
-    chanPin[cid] = pin;
+    chan_pin[cid] = pin;
+    pwmInfo[cid / 2].freq = freq;
+    pwmInfo[cid / 2].res = res;
     ledcSetup(cid, freq, res);
     ledcAttachPin(pin, cid);
   }
@@ -305,11 +308,11 @@ void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v
 }
 
 int8_t MarlinHAL::set_pwm_frequency(const pin_t pin, const uint32_t f_desired) {
-  const int8_t cid = pin_to_chan(pin);
+  const int8_t cid = channel_for_pin(pin);
   if (cid >= 0) {
-    if (f_desired == pwmTimer[cid / 2].freq) return cid; // no freq change
-    ledcDetachPin(chanPin[cid]);
-    chanPin[cid] = 0;              // remove old freq channel
+    if (f_desired == ledcReadFreq(cid)) return cid; // no freq change
+    ledcDetachPin(chan_pin[cid]);
+    chan_pin[cid] = 0;              // remove old freq channel
   }
   return get_pwm_channel(pin, f_desired, PWM_RESOLUTION); // try for new one
 }
@@ -328,7 +331,7 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PW
 
   // Search Pin
   for (int i = 0; i < numPWMUsed; ++i)
-    if (pwmInfo[i].pin == pin) { idx = i; break; }
+    if (pwmState[i].pin == pin) { idx = i; break; }
 
   // not found ?
   if (idx < 0) {
@@ -337,7 +340,7 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PW
 
     // Take new slot for pin
     idx = numPWMUsed;
-    pwmInfo[idx].pin = pin;
+    pwmState[idx].pin = pin;
     // Start timer on first use
     if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
 
@@ -345,7 +348,7 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq/*=PW
   }
 
   // Use 7bit internal value - add 1 to have 100% high at 255
-  pwmInfo[idx].value = (value + 1) / 2;
+  pwmState[idx].value = (value + 1) / 2;
 }
 
 // Handle PWM timer interrupt
@@ -356,9 +359,9 @@ HAL_PWM_TIMER_ISR() {
 
   for (int i = 0; i < numPWMUsed; ++i) {
     if (count == 0)                   // Start of interval
-      digitalWrite(pwmInfo[i].pin, pwmInfo[i].value ? HIGH : LOW);
-    else if (pwmInfo[i].value == count)   // End of duration
-      digitalWrite(pwmInfo[i].pin, LOW);
+      digitalWrite(pwmState[i].pin, pwmState[i].value ? HIGH : LOW);
+    else if (pwmState[i].value == count)   // End of duration
+      digitalWrite(pwmState[i].pin, LOW);
   }
 
   // 128 for 7 Bit resolution
