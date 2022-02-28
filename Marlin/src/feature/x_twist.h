@@ -21,15 +21,17 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfigPre.h"
 
 typedef float xatc_array_t[XATC_MAX_POINTS];
 
 class XATC {
+  static bool enabled;
 public:
   static float spacing, start;
   static xatc_array_t z_offset;
 
+  static void set_enabled(const bool ena) { enabled = ena; }
   static float compensation(const xy_pos_t &raw);
   static void print_points();
 };
