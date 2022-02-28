@@ -1938,7 +1938,7 @@ void DWIN_RebootScreen() {
   DWINUI::Draw_CenteredString(Color_White, 220, GET_TEXT_F(MSG_PLEASE_WAIT_REBOOT));
   DWIN_UpdateLCD();
   delay(500);
-  DWIN_JPG_ShowAndCache(3)
+  DWIN_JPG_ShowAndCache(3);
 }
 
 void DWIN_Redraw_screen() {
