@@ -171,6 +171,7 @@ public:
     LOOP_LINEAR_AXES(axis) applied_steps[axis] = backlash.get_applied_steps((AxisEnum)axis);
   }
   ~StepAdjuster() {
+    // after backlash compensation parameter changes, ensure applied step count does not change
     LOOP_LINEAR_AXES(axis) residual_error[axis] += backlash.get_applied_steps((AxisEnum)axis) - applied_steps[axis];
   }
 };
