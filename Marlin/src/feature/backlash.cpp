@@ -85,10 +85,9 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
   #endif
   last_direction_bits ^= changed_dir;
 
-  bool nothing_to_do = !correction;
-  for (uint8_t axis = 0; nothing_to_do && axis < LINEAR_AXES; axis++)
-    nothing_to_do = !residual_error[axis];
-  if (nothing_to_do) return;
+  if (correction == 0) return;
+
+  LOOP_LINEAR_AXES(axis) if (!residual_error[axis]) return;
 
   #ifdef BACKLASH_SMOOTHING_MM
     // The segment proportion is a value greater than 0.0 indicating how much residual_error
