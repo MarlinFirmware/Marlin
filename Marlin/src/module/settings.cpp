@@ -1426,14 +1426,15 @@ void MarlinSettings::postprocess() {
     //
     {
       #if ENABLED(BACKLASH_GCODE)
-        const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
-        const uint8_t &backlash_correction = backlash.correction;
+        xyz_float_t backlash_distance_mm;
+        LOOP_LINEAR_AXES(axis) backlash_distance_mm[axis] = backlash.get_distance_mm((AxisEnum)axis);
+        const uint8_t backlash_correction = backlash.get_correction_uint8();
       #else
         const xyz_float_t backlash_distance_mm{0};
         const uint8_t backlash_correction = 0;
       #endif
       #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-        const float &backlash_smoothing_mm = backlash.smoothing_mm;
+        const float backlash_smoothing_mm = backlash.get_smoothing_mm();
       #else
         const float backlash_smoothing_mm = 3;
       #endif
@@ -2364,22 +2365,22 @@ void MarlinSettings::postprocess() {
       // Backlash Compensation
       //
       {
-        #if ENABLED(BACKLASH_GCODE)
-          const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
-          const uint8_t &backlash_correction = backlash.correction;
-        #else
-          xyz_float_t backlash_distance_mm;
-          uint8_t backlash_correction;
-        #endif
-        #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-          const float &backlash_smoothing_mm = backlash.smoothing_mm;
-        #else
-          float backlash_smoothing_mm;
-        #endif
+        xyz_float_t backlash_distance_mm;
+        uint8_t backlash_correction;
+        float backlash_smoothing_mm;
+
         _FIELD_TEST(backlash_distance_mm);
         EEPROM_READ(backlash_distance_mm);
         EEPROM_READ(backlash_correction);
         EEPROM_READ(backlash_smoothing_mm);
+
+        #if ENABLED(BACKLASH_GCODE)
+          LOOP_LINEAR_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, backlash_distance_mm[axis]);
+          backlash.set_correction_uint8(backlash_correction);
+          #ifdef BACKLASH_SMOOTHING_MM
+            backlash.set_smoothing_mm(backlash_smoothing_mm);
+          #endif
+        #endif
       }
 
       //
@@ -2811,11 +2812,11 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    backlash.correction = (BACKLASH_CORRECTION) * 255;
+    backlash.set_correction(BACKLASH_CORRECTION);
     constexpr xyz_float_t tmp = BACKLASH_DISTANCE_MM;
-    backlash.distance_mm = tmp;
+    LOOP_LINEAR_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, tmp[axis]);
     #ifdef BACKLASH_SMOOTHING_MM
-      backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
+      backlash.set_smoothing_mm(BACKLASH_SMOOTHING_MM);
     #endif
   #endif
 
