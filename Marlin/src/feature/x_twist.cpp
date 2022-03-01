@@ -29,7 +29,7 @@ XATC xatc;
 
 bool XATC::enabled = true;
 float XATC::spacing, XATC::start;
-xatc_array_t XATC::z_offset;
+xatc_array_t XATC::z_offset = XATX_Z_OFFSETS;
 
 void XATC::print_points() {
   SERIAL_ECHOLNPGM(" X-Twist Correction:");
