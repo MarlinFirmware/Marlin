@@ -269,11 +269,15 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
-    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      XATC xatc;                                        // TBD
-    #endif
   #else
     float z_values[3][3];
+  #endif
+
+  //
+  // X_AXIS_TWIST_COMPENSATION
+  //
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    XATC xatc;                                        // TBD
   #endif
 
   //
@@ -873,9 +877,6 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
-        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          static_assert(COUNT(xatc.z_offset) == XATC_MAX_POINTS, "XATC Z-offset mesh is the wrong size.");
-        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -889,12 +890,19 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
-        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          EEPROM_WRITE(xatc);
-        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
+      #endif
+    }
+
+    //
+    // X Axis Twist Compensation
+    //
+    {
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        static_assert(COUNT(xatc.z_offset) == XATC_MAX_POINTS, "XATC Z-offset mesh is the wrong size.");
+        EEPROM_WRITE(xatc);
       #endif
     }
 
@@ -1784,9 +1792,6 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
-            #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-              EEPROM_READ(xatc);
-            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -1797,6 +1802,15 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bs);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
+      }
+
+      //
+      // X Axis Twist Compensation
+      //
+      {
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          EEPROM_READ(xatc);
+        #endif
       }
 
       //
@@ -3312,13 +3326,13 @@ void MarlinSettings::reset() {
           }
         }
 
-        // TODO: Create G-code for settings
-        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        //  CONFIG_ECHO_START();
-        //  xatc.print_points();
-        //#endif
-
       #endif
+
+      // TODO: Create G-code for settings
+      //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      //  CONFIG_ECHO_START();
+      //  xatc.print_points();
+      //#endif
 
     #endif // HAS_LEVELING
 
