@@ -29,7 +29,14 @@ XATC xatc;
 
 bool XATC::enabled = true;
 float XATC::spacing, XATC::start;
-xatc_array_t XATC::z_offset = XATX_Z_OFFSETS;
+xatc_array_t XATC::z_offset; // Initialized by settings.load()
+
+void XATC::reset() {
+  constexpr float xzo[] = XATX_Z_OFFSETS;
+  static_assert(COUNT(xzo) == XATC_MAX_POINTS, "XATX_Z_OFFSETS is the wrong size.");
+  enabled = false;
+  COPY(z_offset, xzo);
+}
 
 void XATC::print_points() {
   SERIAL_ECHOLNPGM(" X-Twist Correction:");

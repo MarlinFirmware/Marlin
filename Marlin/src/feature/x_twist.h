@@ -31,6 +31,7 @@ public:
   static float spacing, start;
   static xatc_array_t z_offset;
 
+  static void reset();
   static void set_enabled(const bool ena) { enabled = ena; }
   static float compensation(const xy_pos_t &raw);
   static void print_points();

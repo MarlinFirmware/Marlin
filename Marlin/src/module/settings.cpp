@@ -277,7 +277,7 @@ typedef struct SettingsDataStruct {
   // X_AXIS_TWIST_COMPENSATION
   //
   #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    XATC xatc;                                        // TBD
+    XATC xatc;                                          // TBD
   #endif
 
   //
@@ -302,7 +302,7 @@ typedef struct SettingsDataStruct {
       int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
     #endif
     #if ENABLED(PTC_HOTEND)
-      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)]; // M871 E I V
     #endif
   #endif
 
@@ -899,12 +899,10 @@ void MarlinSettings::postprocess() {
     //
     // X Axis Twist Compensation
     //
-    {
-      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        static_assert(COUNT(xatc.z_offset) == XATC_MAX_POINTS, "XATC Z-offset mesh is the wrong size.");
-        EEPROM_WRITE(xatc);
-      #endif
-    }
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      _FIELD_TEST(xatc);
+      EEPROM_WRITE(xatc);
+    #endif
 
     //
     // Unified Bed Leveling
@@ -1807,11 +1805,9 @@ void MarlinSettings::postprocess() {
       //
       // X Axis Twist Compensation
       //
-      {
-        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          EEPROM_READ(xatc);
-        #endif
-      }
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        EEPROM_READ(xatc);
+      #endif
 
       //
       // Unified Bed Leveling active state
@@ -2862,6 +2858,14 @@ void MarlinSettings::reset() {
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
   TERN_(HAS_LEVELING, reset_bed_level());
 
+  //
+  // X Axis Twist Compensation
+  //
+  TERN_(X_AXIS_TWIST_COMPENSATION, xatc.reset());
+
+  //
+  // Nozzle-to-probe Offset
+  //
   #if HAS_BED_PROBE
     constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == LINEAR_AXES, "NOZZLE_TO_PROBE_OFFSET must contain offsets for each linear axis X, Y, Z....");
