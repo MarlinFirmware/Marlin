@@ -607,7 +607,7 @@ namespace Language_de {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrud.");
-    LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte vorheizen");
   #endif
 
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
