@@ -493,6 +493,7 @@ namespace Language_de {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Einfahren");
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Ausfahren");
   LSTR MSG_BLTOUCH_SW_MODE                = _UxGT("SW-Modus");
+  LSTR MSG_BLTOUCH_SPEED_MODE             = _UxGT("High Speed");
   LSTR MSG_BLTOUCH_5V_MODE                = _UxGT("5V-Modus");
   LSTR MSG_BLTOUCH_OD_MODE                = _UxGT("OD-Modus");
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");
@@ -584,6 +585,7 @@ namespace Language_de {
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");
     LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten. ");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hot-End vorheizen.");
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette Drucke");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte Druckzeit");
@@ -605,9 +607,9 @@ namespace Language_de {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrud.");
+    LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");
   #endif
 
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("Netzteil");
