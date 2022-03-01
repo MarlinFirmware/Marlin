@@ -28,6 +28,7 @@
 
 #include "probe_temp_comp.h"
 #include <math.h>
+#include "../module/temperature.h"
 
 ProbeTempComp ptc;
 
@@ -62,6 +63,7 @@ constexpr temp_calib_t ProbeTempComp::cali_info[TSI_COUNT];
 
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
+bool ProbeTempComp::enabled = true;
 
 void ProbeTempComp::reset() {
   TERN_(PTC_PROBE, LOOP_L_N(i, PTC_PROBE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
@@ -167,6 +169,13 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   }
 
   return true;
+}
+
+void ProbeTempComp::apply_compensation(float &meas_z) {
+  if (!enabled) return;
+  TERN_(PTC_BED,    compensate_measurement(TSI_BED,   thermalManager.degBed(),     meas_z));
+  TERN_(PTC_PROBE,  compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   meas_z));
+  TERN_(PTC_HOTEND, compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), meas_z));
 }
 
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {

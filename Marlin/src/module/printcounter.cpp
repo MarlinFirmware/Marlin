@@ -43,7 +43,6 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #if PRINTCOUNTER_SYNC
   #include "../module/planner.h"
-  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
 // Service intervals

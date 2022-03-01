@@ -316,7 +316,7 @@ void unified_bed_leveling::G29() {
     planner.synchronize();
     // Send 'N' to force homing before G29 (internal only)
     if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
-    TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
+    TERN_(HAS_MULTI_HOTEND, if (active_extruder != 0) tool_change(0, true));
   }
 
   // Invalidate one or more nearby mesh points, possibly all.
@@ -663,7 +663,7 @@ void unified_bed_leveling::G29() {
     UNUSED(probe_deployed);
   #endif
 
-  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
+  TERN_(HAS_MULTI_HOTEND, if (old_tool_index != 0) tool_change(old_tool_index));
   return;
 }
 

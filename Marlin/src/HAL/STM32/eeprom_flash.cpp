@@ -174,9 +174,9 @@ bool PersistentStore::access_finish() {
         UNLOCK_FLASH();
 
         TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
-        DISABLE_ISRS();
+        hal.isr_off();
         status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
-        ENABLE_ISRS();
+        hal.isr_on();
         TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
         if (status != HAL_OK) {
           DEBUG_ECHOLNPGM("HAL_FLASHEx_Erase=", status);
@@ -229,9 +229,9 @@ bool PersistentStore::access_finish() {
       // output. Servo output still glitches with interrupts disabled, but recovers after the
       // erase.
       TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
-      DISABLE_ISRS();
+      hal.isr_off();
       eeprom_buffer_flush();
-      ENABLE_ISRS();
+      hal.isr_on();
       TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
 
       eeprom_data_written = false;
