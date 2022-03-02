@@ -32,8 +32,8 @@ float XATC::spacing, XATC::start;
 xatc_array_t XATC::z_offset; // Initialized by settings.load()
 
 void XATC::reset() {
-  constexpr float xzo[] = XATX_Z_OFFSETS;
-  static_assert(COUNT(xzo) == XATC_MAX_POINTS, "XATX_Z_OFFSETS is the wrong size.");
+  constexpr float xzo[] = XATC_Z_OFFSETS;
+  static_assert(COUNT(xzo) == XATC_MAX_POINTS, "XATC_Z_OFFSETS is the wrong size.");
   enabled = false;
   COPY(z_offset, xzo);
 }
