@@ -486,9 +486,9 @@ void GcodeSuite::M422() {
     return;
   }
 
-  const bool is_probe_point = parser.seen('S');
+  const bool is_probe_point = parser.seen_test('S');
 
-  if (TERN0(HAS_Z_STEPPER_ALIGN_STEPPER_XY, is_probe_point && parser.seen('W'))) {
+  if (TERN0(HAS_Z_STEPPER_ALIGN_STEPPER_XY, is_probe_point && parser.seen_test('W'))) {
     SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
     return;
   }
@@ -498,7 +498,7 @@ void GcodeSuite::M422() {
     z_stepper_align.xy
   );
 
-  if (!is_probe_point && TERN1(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !parser.seen('W'))) {
+  if (!is_probe_point && TERN1(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !parser.seen_test('W'))) {
     SERIAL_ECHOLNPGM("?(S)" TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required.");
     return;
   }
