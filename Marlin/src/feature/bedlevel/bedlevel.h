@@ -63,9 +63,6 @@ class TemporaryBedLevelingState {
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/abl.h"
-    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      #include "abl/x_twist.h"
-    #endif
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
     #include "ubl/ubl.h"
   #elif ENABLED(MESH_BED_LEVELING)
