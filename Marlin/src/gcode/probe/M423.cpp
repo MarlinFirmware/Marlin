@@ -24,12 +24,12 @@
  * M423.cpp - X-Axis Twist Compensation
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(X_AXIS_TWIST_COMPENSATION)
 
-#include "../../gcode.h"
-#include "../../../feature/bedlevel/bedlevel.h"
+#include "../gcode.h"
+#include "../../feature/x_twist.h"
 
 /**
  * M423: Set a Z offset for X-Twist (added to the mesh on future G29).
