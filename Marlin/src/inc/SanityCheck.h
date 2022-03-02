@@ -1574,10 +1574,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #else
         #define _IS_5V_TOLERANT(P) 1 // Assume 5V tolerance
       #endif
-      #if USES_Z_MIN_PROBE_PIN && !_IS_5V_TOLERANT(Z_MIN_PROBE_PIN)
-        #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PROBE_PIN."
+      #if USES_Z_MIN_PROBE_PIN
+        #if !_IS_5V_TOLERANT(Z_MIN_PROBE_PIN)
+          #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PROBE_PIN."
+        #endif
       #elif !_IS_5V_TOLERANT(Z_MIN_PIN)
-        #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PIN."
+        #if !MB(CHITU3D_V6)
+          #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PIN."
+        #endif
       #endif
       #undef _IS_5V_TOLERANT
       #undef _5V
