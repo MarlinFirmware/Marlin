@@ -23,23 +23,44 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-extern xy_pos_t bilinear_grid_spacing, bilinear_start;
-extern xy_float_t bilinear_grid_factor;
-extern bed_mesh_t z_values;
-float bilinear_z_offset(const xy_pos_t &raw);
+class bilinear_bed_leveling {
+  static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
-void extrapolate_unprobed_bed_level();
-void print_bilinear_leveling_grid();
-void refresh_bed_level();
-#if ENABLED(ABL_BILINEAR_SUBDIVISION)
-  void print_bilinear_leveling_grid_virt();
-  void bed_level_virt_interpolate();
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
+    #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
+
+    static float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
+    static xy_pos_t grid_spacing_virt;
+    static xy_float_t grid_factor_virt;
+
+    static float bed_level_virt_coord(const uint8_t x, const uint8_t y);
+    static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t);
+    static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const_float_t tx, const_float_t ty);
 #endif
 
-#if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-  void bilinear_line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
-#endif
+public:
+  static xy_pos_t grid_spacing, grid_start;
+  static xy_float_t grid_factor;
+  static bed_mesh_t z_values;
 
-#define _GET_MESH_X(I) float(bilinear_start.x + (I) * bilinear_grid_spacing.x)
-#define _GET_MESH_Y(J) float(bilinear_start.y + (J) * bilinear_grid_spacing.y)
-#define Z_VALUES_ARR  z_values
+  static float z_offset(const xy_pos_t &raw);
+
+  static void extrapolate_unprobed_bed_level();
+  static void print_leveling_grid();
+  static void refresh_bed_level();
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    static void print_leveling_grid_virt();
+    static void bed_level_virt_interpolate();
+  #endif
+
+  #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
+    static void line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
+  #endif
+};
+
+extern bilinear_bed_leveling bbl;
+
+#define _GET_MESH_X(I) float(bbl.grid_start.x + (I) * bbl.grid_spacing.x)
+#define _GET_MESH_Y(J) float(bbl.grid_start.y + (J) * bbl.grid_spacing.y)
+#define Z_VALUES_ARR bbl.z_values

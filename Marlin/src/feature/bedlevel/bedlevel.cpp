@@ -48,7 +48,7 @@
 
 bool leveling_is_valid() {
   return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
-      && TERN1(AUTO_BED_LEVELING_BILINEAR, !!bilinear_grid_spacing.x)
+      && TERN1(AUTO_BED_LEVELING_BILINEAR, !!bbl.grid_spacing.x)
       && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
 }
 
@@ -68,9 +68,9 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     planner.synchronize();
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Force bilinear_z_offset to re-calculate next time
+      // Force bbl.z_offset to re-calculate next time
       const xyz_pos_t reset { -9999.999, -9999.999, 0 };
-      (void)bilinear_z_offset(reset);
+      (void)bbl.z_offset(reset);
     #endif
 
     if (planner.leveling_active) {      // leveling from on to off
@@ -129,10 +129,10 @@ void reset_bed_level() {
     #if ENABLED(MESH_BED_LEVELING)
       mbl.reset();
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      bilinear_start.reset();
-      bilinear_grid_spacing.reset();
+      bbl.grid_start.reset();
+      bbl.grid_spacing.reset();
       GRID_LOOP(x, y) {
-        z_values[x][y] = NAN;
+        bbl.z_values[x][y] = NAN;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
       }
     #elif ABL_PLANAR

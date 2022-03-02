@@ -67,8 +67,8 @@ void GcodeSuite::M420() {
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        bilinear_start.set(x_min, y_min);
-        bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
+        bbl.grid_start.set(x_min, y_min);
+        bbl.grid_spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
                                   (y_max - y_min) / (GRID_MAX_CELLS_Y));
       #endif
       GRID_LOOP(x, y) {
@@ -178,7 +178,7 @@ void GcodeSuite::M420() {
               Z_VALUES(x, y) -= zmean;
               TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
             }
-            TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
+            TERN_(ABL_BILINEAR_SUBDIVISION, bbl.bed_level_virt_interpolate());
           }
 
         #endif
@@ -199,8 +199,8 @@ void GcodeSuite::M420() {
     #else
       if (leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          print_bilinear_leveling_grid();
-          TERN_(ABL_BILINEAR_SUBDIVISION, print_bilinear_leveling_grid_virt());
+          bbl.print_leveling_grid();
+          TERN_(ABL_BILINEAR_SUBDIVISION, bbl.print_leveling_grid_virt());
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
           mbl.report_mesh();
