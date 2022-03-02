@@ -877,7 +877,7 @@ G29_TYPE GcodeSuite::G29() {
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
         const float fade_scaling_factor = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.fade_scaling_factor_for_z(current_position.z), 1);
-        current_position.z -= fade_scaling_factor * bbl.z_offset(current_position);
+        current_position.z -= fade_scaling_factor * bbl.get_z_correction(current_position);
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" corrected Z:", current_position.z);
       }

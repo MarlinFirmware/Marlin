@@ -95,6 +95,15 @@ void bilinear_bed_leveling::extrapolate_one_point(const uint8_t x, const uint8_t
   #endif
 #endif
 
+void bilinear_bed_leveling::reset() {
+  grid_start.reset();
+  grid_spacing.reset();
+  GRID_LOOP(x, y) {
+    z_values[x][y] = NAN;
+    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
+  }
+}
+
 /**
  * Fill in the unprobed points (corners of circular print surface)
  * using linear extrapolation, away from the center.
@@ -265,7 +274,7 @@ void bilinear_bed_leveling::refresh_bed_level() {
 #endif
 
 // Get the Z adjustment for non-linear bed leveling
-float bilinear_bed_leveling::z_offset(const xy_pos_t &raw) {
+float bilinear_bed_leveling::get_z_correction(const xy_pos_t &raw) {
 
   static float z1, d2, z3, d4, L, D;
 

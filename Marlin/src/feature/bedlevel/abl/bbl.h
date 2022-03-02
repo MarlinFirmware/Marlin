@@ -44,15 +44,16 @@ public:
   static xy_float_t grid_factor;
   static bed_mesh_t z_values;
 
-  static float z_offset(const xy_pos_t &raw);
-
+  static void reset();
   static void extrapolate_unprobed_bed_level();
   static void print_leveling_grid();
   static void refresh_bed_level();
+  static bool has_mesh() {return !!grid_spacing.x;}
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     static void print_leveling_grid_virt();
     static void bed_level_virt_interpolate();
   #endif
+  static float get_z_correction(const xy_pos_t &raw);
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
     static void line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
