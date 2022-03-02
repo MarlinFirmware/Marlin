@@ -144,56 +144,41 @@
 //#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
 
 //
-// Augmentation for auto-assigning plugs
-//
-// Two thermocouple connectors allows for either
-// 2 extruders or 1 extruder and a heated bed.
-// With no heated bed, an additional 24V fan is possible.
+// FET Pin Mapping - FET 1 is closest to the input power connector
 //
 
-#define MOSFET_A_PIN                           6  // H3 EX1_HEAT_PIN
-#define MOSFET_B_PIN                          11  // B5 EX2_HEAT_PIN
-#define MOSFET_C_PIN                          45  // L4 HBP_PIN
-#define MOSFET_D_PIN                          44  // L5 EXTRA_FET_PIN
+#define MOSFET_1_PIN                           6  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
+#define MOSFET_2_PIN                           7  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
+#define MOSFET_3_PIN                          12  // Plug EX2 1-2 -> PB5 #25 -> Logical 12
+#define MOSFET_4_PIN                          11  // Plug EX2 3-4 -> PB6 #24 -> Logical 11
+#define MOSFET_5_PIN                          45  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
+#define MOSFET_6_PIN                          13  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
 
 //
 // Heaters / Fans (24V)
 //
-#define HEATER_0_PIN                MOSFET_A_PIN
 
-#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
-  #define HEATER_BED_PIN            MOSFET_C_PIN
-#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              MOSFET_B_PIN
-#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              MOSFET_B_PIN
-  #define HEATER_BED_PIN            MOSFET_C_PIN
-#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
-  #define FAN1_PIN                  MOSFET_C_PIN
+#define HEATER_0_PIN                MOSFET_1_PIN // EX1
+#define HEATER_1_PIN                MOSFET_3_PIN // EX2
+#define HEATER_BED_PIN              MOSFET_5_PIN // HBP
+
+// EX1 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           MOSFET_2_PIN
+#else
+  #define FAN_PIN                   MOSFET_2_PIN
 #endif
-
-#ifndef FAN_PIN
-  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                 MOSFET_B_PIN
-  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                 MOSFET_C_PIN
-  #else
-    #define FAN_PIN                 MOSFET_D_PIN
-  #endif
-#endif
-
-#ifndef FAN1_PIN
-  #define FAN1_PIN                             7  // H4 EX1_FAN_PIN
-#endif
-
-#ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN                  12  // B6 EX2_FAN_PIN
+// EX2 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           MOSFET_4_PIN
+#else
+  #define FAN1_PIN                  MOSFET_4_PIN
 #endif
 
 //
 // Misc. Functions
 //
-#define LED_PIN                               13  // B7
+#define LED_PIN                     MOSFET_6_PIN  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
 #define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)

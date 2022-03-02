@@ -4989,6 +4989,8 @@ void MarlinUI::init_lcd() {
     DWIN_UpdateLCD();
     delay(20);
   }
+
+  DWIN_JPG_ShowAndCache(3);
   DWIN_JPG_CacheTo1(Language_English);
   CrealityDWIN.Redraw_Screen();
 }

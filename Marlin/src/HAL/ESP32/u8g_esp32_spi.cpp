@@ -30,6 +30,7 @@
 #include <U8glib-HAL.h>
 #include "Arduino.h"
 #include "../shared/HAL_SPI.h"
+#include "HAL.h"
 #include "SPI.h"
 
 static SPISettings spiConfig;

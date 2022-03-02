@@ -35,7 +35,7 @@
 // C B A is longIn1
 // D C B A is longIn2
 //
-static FORCE_INLINE uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2) {
+FORCE_INLINE static uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2) {
   uint8_t tmp1;
   uint8_t tmp2;
   uint16_t intRes;
@@ -89,7 +89,7 @@ static FORCE_INLINE uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2
 // uses:
 // r26 to store 0
 // r27 to store the byte 1 of the 24 bit result
-static FORCE_INLINE uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
+FORCE_INLINE static uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
   uint8_t tmp;
   uint16_t intRes;
   __asm__ __volatile__ (

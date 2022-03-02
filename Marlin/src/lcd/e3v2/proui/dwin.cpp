@@ -1836,6 +1836,7 @@ void DWIN_Startup() {
   DWINUI::onCursorErase = Erase_Menu_Cursor;
   DWINUI::onTitleDraw = Draw_Title;
   DWINUI::onMenuDraw = Draw_Menu;
+  DWIN_JPG_ShowAndCache(3);
   HMI_SetLanguage();
 }
 
@@ -1937,6 +1938,7 @@ void DWIN_RebootScreen() {
   DWINUI::Draw_CenteredString(Color_White, 220, GET_TEXT_F(MSG_PLEASE_WAIT_REBOOT));
   DWIN_UpdateLCD();
   delay(500);
+  DWIN_JPG_ShowAndCache(3);
 }
 
 void DWIN_Redraw_screen() {
@@ -2206,7 +2208,7 @@ void RebootPrinter() {
   thermalManager.disable_all_heaters();
   planner.finish_and_disable();
   DWIN_RebootScreen();
-  HAL_reboot();
+  hal.reboot();
 }
 
 void Goto_Info_Menu(){

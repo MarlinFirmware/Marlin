@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,11 +21,20 @@
  */
 #pragma once
 
-#include "../../core/macros.h"
+#include "../inc/MarlinConfigPre.h"
 
-/**
- * Math helper functions for 32 bit CPUs
- */
-FORCE_INLINE static uint32_t MultiU32X24toH32(uint32_t longIn1, uint32_t longIn2) {
-  return ((uint64_t)longIn1 * longIn2 + 0x00800000) >> 24;
-}
+typedef float xatc_array_t[XATC_MAX_POINTS];
+
+class XATC {
+  static bool enabled;
+public:
+  static float spacing, start;
+  static xatc_array_t z_offset;
+
+  static void reset();
+  static void set_enabled(const bool ena) { enabled = ena; }
+  static float compensation(const xy_pos_t &raw);
+  static void print_points();
+};
+
+extern XATC xatc;

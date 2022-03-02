@@ -77,6 +77,14 @@
   #include "servo.h"
 #endif
 
+#if HAS_PTC
+  #include "../feature/probe_temp_comp.h"
+#endif
+
+#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  #include "../feature/x_twist.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
@@ -801,7 +809,11 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   float measured_z = NAN;
-  if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
+  if (!deploy()) {
+    measured_z = run_z_probe(sanity_check) + offset.z;
+    TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
+    TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
+  }
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)

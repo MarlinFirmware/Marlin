@@ -36,11 +36,6 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if HAS_PTC
-  #include "../../../feature/probe_temp_comp.h"
-  #include "../../../module/temperature.h"
-#endif
-
 #if HAS_STATUS_MESSAGE
   #include "../../../lcd/marlinui.h"
 #endif
@@ -82,7 +77,12 @@
   #endif
 #endif
 
-#define G29_RETURN(b) return TERN_(G29_RETRY_AND_RECOVER, b)
+#define G29_RETURN(retry) do{ \
+  if (TERN(G29_RETRY_AND_RECOVER, !retry, true)) { \
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false)); \
+  } \
+  return TERN_(G29_RETRY_AND_RECOVER, retry); \
+}while(0)
 
 // For manual probing values persist over multiple G29
 class G29_State {
@@ -223,12 +223,13 @@ public:
 G29_TYPE GcodeSuite::G29() {
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 
+  // Leveling state is persistent when done manually with multiple G29 commands
   TERN_(PROBE_MANUALLY, static) G29_State abl;
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
-
+  // Keep powered steppers from timing out
   reset_stepper_timeout();
 
+  // Q = Query leveling and G29 state
   const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
   // G29 Q is also available if debugging
@@ -237,11 +238,14 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
+  // A = Abort manual probing
+  // C<bool> = Generate fake probe points (DEBUG_LEVELING_FEATURE)
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen_test('A')),
          no_action = seenA || seenQ,
               faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
 
-  if (!no_action && planner.leveling_active && parser.boolval('O')) { // Auto-level only if needed
+  // O = Don't level if leveling is already active
+  if (!no_action && planner.leveling_active && parser.boolval('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Auto-level not needed, skip");
     G29_RETURN(false);
   }
@@ -253,14 +257,19 @@ G29_TYPE GcodeSuite::G29() {
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false);
 
+  // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
     vector_3 points[3];
     probe.get_three_points(points);
   #endif
 
+  // Storage for ABL Linear results
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     struct linear_fit_data lsf_results;
   #endif
+
+  // Set and report "probing" state to host
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE, false));
 
   /**
    * On the initial G29 fetch command parameters.
@@ -434,10 +443,10 @@ G29_TYPE GcodeSuite::G29() {
     if (!no_action) set_bed_leveling_enabled(false);
 
     // Deploy certain probes before starting probing
-    #if HAS_BED_PROBE
-      if (ENABLED(BLTOUCH))
-        do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
-      else if (probe.deploy()) {
+    #if ENABLED(BLTOUCH)
+      do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
+    #elif HAS_BED_PROBE
+      if (probe.deploy()) { // (returns true on deploy failure)
         set_bed_leveling_enabled(abl.reenable);
         G29_RETURN(false);
       }
@@ -488,6 +497,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("idle");
     }
 
+    // For 'A' or 'Q' exit with success state
     if (no_action) G29_RETURN(false);
 
     if (abl.abl_probe_index == 0) {
@@ -658,10 +668,6 @@ G29_TYPE GcodeSuite::G29() {
             break; // Breaks out of both loops
           }
 
-          TERN_(PTC_BED,    ptc.compensate_measurement(TSI_BED,   thermalManager.degBed(),     abl.measured_z));
-          TERN_(PTC_PROBE,  ptc.compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   abl.measured_z));
-          TERN_(PTC_HOTEND, ptc.compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), abl.measured_z));
-
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
             abl.mean += abl.measured_z;
@@ -675,7 +681,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            z_values[abl.meshCount.x][abl.meshCount.y] = z PLUS_TERN0(X_AXIS_TWIST_COMPENSATION, xatc.compensation(abl.probePos));
+            z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
           #endif
@@ -901,8 +907,6 @@ G29_TYPE GcodeSuite::G29() {
   TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
 
   report_current_position();
-
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 
   G29_RETURN(isnan(abl.measured_z));
 
