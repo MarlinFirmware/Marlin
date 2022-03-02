@@ -1,6 +1,7 @@
 # Voxelab Aquila 
 
 This fork was created made so [Alex's Firmware](https://github.com/alexqzd/Marlin) works with Creality 4.2.7 boards that are most commonly replaced on Voxelab Aquila X2 and original machines. I have compiled firmware that speeds up the printer and enables some extra settings. These firmwares also work with the original mainboards using G32 and N32 chips. (H32 chip machines still not compatible). 
+My Configuration files are under Config files folder 
 
 ## Forked from Alex's Marlin firmware for Voxelab Aquila, forked from Ender 3 V2 JyersUI
 
