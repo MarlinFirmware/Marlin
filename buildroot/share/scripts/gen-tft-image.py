@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Marlin 3D Printer Firmware
-# Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+# Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 #
 # Based on Sprinter and grbl.
 # Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
