@@ -104,6 +104,12 @@ void bilinear_bed_leveling::reset() {
   }
 }
 
+void bilinear_bed_leveling::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start) {
+  grid_spacing = _grid_spacing;
+  grid_start = _grid_start;
+  grid_factor = grid_spacing.reciprocal();
+}
+
 /**
  * Fill in the unprobed points (corners of circular print surface)
  * using linear extrapolation, away from the center.
@@ -253,9 +259,9 @@ void bilinear_bed_leveling::print_leveling_grid() {
   }
 #endif // ABL_BILINEAR_SUBDIVISION
 
+
 // Refresh after other values have been updated
 void bilinear_bed_leveling::refresh_bed_level() {
-  grid_factor = grid_spacing.reciprocal();
   TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
 }
 

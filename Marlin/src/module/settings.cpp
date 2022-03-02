@@ -884,8 +884,8 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(grid_max_x);
       EEPROM_WRITE(grid_max_y);
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        EEPROM_WRITE(bbl.grid_spacing);
-        EEPROM_WRITE(bbl.grid_start);
+        EEPROM_WRITE(bbl.get_grid_spacing());
+        EEPROM_WRITE(bbl.get_grid_start());
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
         EEPROM_WRITE(bilinear_grid_spacing);
@@ -1789,20 +1789,19 @@ void MarlinSettings::postprocess() {
         uint8_t grid_max_x, grid_max_y;
         EEPROM_READ_ALWAYS(grid_max_x);                // 1 byte
         EEPROM_READ_ALWAYS(grid_max_y);                // 1 byte
+        xy_pos_t spacing, start;
+        EEPROM_READ(spacing);                          // 2 ints
+        EEPROM_READ(start);                            // 2 ints
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
             if (!validating) set_bed_leveling_enabled(false);
-            EEPROM_READ(bbl._grid_spacing);            // 2 ints
-            EEPROM_READ(bbl.grid_start);               // 2 ints
+            bbl.set_grid(spacing, start);
             EEPROM_READ(Z_VALUES_ARR);                 // 9 to 256 floats
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
             // Skip past disabled (or stale) Bilinear Grid data
-            xy_pos_t bgs, bs;
-            EEPROM_READ(bgs);
-            EEPROM_READ(bs);
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
       }

@@ -67,9 +67,11 @@ void GcodeSuite::M420() {
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        bbl.grid_start.set(x_min, y_min);
-        bbl.grid_spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
-                                  (y_max - y_min) / (GRID_MAX_CELLS_Y));
+        xy_pos_t start, spacing;
+        start.set(x_min, y_min);
+        spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
+                    (y_max - y_min) / (GRID_MAX_CELLS_Y));
+        bbl.set_grid(spacing, start);
       #endif
       GRID_LOOP(x, y) {
         Z_VALUES(x, y) = 0.001 * random(-200, 200);

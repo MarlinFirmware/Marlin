@@ -24,6 +24,10 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 class bilinear_bed_leveling {
+  static xy_pos_t grid_spacing, grid_start;
+  static xy_float_t grid_factor;
+  static bed_mesh_t z_values;
+
   static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -40,11 +44,8 @@ class bilinear_bed_leveling {
 #endif
 
 public:
-  static xy_pos_t grid_spacing, grid_start;
-  static xy_float_t grid_factor;
-  static bed_mesh_t z_values;
-
   static void reset();
+  static void set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start);
   static void extrapolate_unprobed_bed_level();
   static void print_leveling_grid();
   static void refresh_bed_level();
@@ -53,6 +54,11 @@ public:
     static void print_leveling_grid_virt();
     static void bed_level_virt_interpolate();
   #endif
+  static bed_mesh_t& get_z_values() {return z_values;}
+  static const xy_pos_t& get_grid_spacing() {return grid_spacing;}
+  static const xy_pos_t& get_grid_start() {return grid_start;}
+  static float get_mesh_x(int16_t i) {return grid_start.x + i * grid_spacing.x;}
+  static float get_mesh_y(int16_t j) {return grid_start.y + j * grid_spacing.y;}
   static float get_z_correction(const xy_pos_t &raw);
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
@@ -62,6 +68,6 @@ public:
 
 extern bilinear_bed_leveling bbl;
 
-#define _GET_MESH_X(I) float(bbl.grid_start.x + (I) * bbl.grid_spacing.x)
-#define _GET_MESH_Y(J) float(bbl.grid_start.y + (J) * bbl.grid_spacing.y)
-#define Z_VALUES_ARR bbl.z_values
+#define _GET_MESH_X(I) bbl.get_mesh_x(I)
+#define _GET_MESH_Y(J) bbl.get_mesh_y(J)
+#define Z_VALUES_ARR bbl.get_z_values()

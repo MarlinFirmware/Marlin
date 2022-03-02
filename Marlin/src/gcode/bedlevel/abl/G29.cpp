@@ -311,8 +311,8 @@ G29_TYPE GcodeSuite::G29() {
 
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
-          i = (rx - bbl.grid_start.x + 0.5 * abl.gridSpacing.x) / abl.gridSpacing.x;
-          j = (ry - bbl.grid_start.y + 0.5 * abl.gridSpacing.y) / abl.gridSpacing.y;
+          i = (rx - bbl.get_grid_start().x + 0.5 * abl.gridSpacing.x) / abl.gridSpacing.x;
+          j = (ry - bbl.get_grid_start().y + 0.5 * abl.gridSpacing.y) / abl.gridSpacing.y;
           LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
           LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
         }
@@ -454,14 +454,13 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       if (TERN1(PROBE_MANUALLY, !no_action)
-        && (abl.gridSpacing != bbl.grid_spacing || abl.probe_position_lf != bbl.grid_start)
+        && (abl.gridSpacing != bbl.get_grid_spacing() || abl.probe_position_lf != bbl.get_grid_start())
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
 
         // Initialize a grid with the given dimensions
-        bbl.grid_spacing = abl.gridSpacing;
-        bbl.grid_start = abl.probe_position_lf;
+        bbl.set_grid(abl.gridSpacing, abl.probe_position_lf);
 
         // Can't re-enable (on error) until the new grid is written
         abl.reenable = false;
