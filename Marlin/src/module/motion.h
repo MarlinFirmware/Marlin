@@ -265,9 +265,11 @@ void report_current_position_projected();
   void report_current_position_moving();
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-    inline void set_and_report_grblstate(const M_StateEnum state) {
-      M_State_grbl = state;
-      report_current_grblstate_moving();
+    inline void set_and_report_grblstate(const M_StateEnum state, const bool force=true) {
+      if (force || M_State_grbl != state) {
+        M_State_grbl = state;
+        report_current_grblstate_moving();
+      }
     }
   #endif
 
