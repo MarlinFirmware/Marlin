@@ -277,8 +277,7 @@ typedef struct SettingsDataStruct {
   // X_AXIS_TWIST_COMPENSATION
   //
   #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    float xatc_spacing, xatc_start;
-    xatc_array_t xatc_z_offset;                         // M423 X Z
+    XATC xatc;                                          // M423 X Z
   #endif
 
   //
@@ -901,7 +900,7 @@ void MarlinSettings::postprocess() {
     // X Axis Twist Compensation
     //
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      _FIELD_TEST(xatc_spacing);
+      _FIELD_TEST(xatc);
       EEPROM_WRITE(xatc.spacing);
       EEPROM_WRITE(xatc.start);
       EEPROM_WRITE(xatc.z_offset);
@@ -1810,7 +1809,7 @@ void MarlinSettings::postprocess() {
       // X Axis Twist Compensation
       //
       #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        _FIELD_TEST(xatc_spacing);
+        _FIELD_TEST(xatc);
         EEPROM_READ(xatc.spacing);
         EEPROM_READ(xatc.start);
         EEPROM_READ(xatc.z_offset);
