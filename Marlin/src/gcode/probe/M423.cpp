@@ -33,20 +33,45 @@
 
 /**
  * M423: Set a Z offset for X-Twist (added to the mesh on future G29).
- *  M423 X<xindex> Z<linear>
+ *  M423 [R] [A<startx>] [I<interval>] [X<index> Z<offset>]
+ *
+ *    R         - Reset the twist compensation data
+ *    A<linear> - Override the X twist starting X position
+ *    I<linear> - Override the X twist X-spacing
+ *    X<index>  - Index of a Z value in the list
+ *    Z<linear> - A Z value to set
  */
 void GcodeSuite::M423() {
 
-  const int8_t x = parser.intval('X', -1);
-  const float z = parser.linearval('Z', -1);
-  if (x < 0 || z < 0) return M423_report();
+  const bool do_report = true;
 
-  if (!WITHIN(x, 0, XATC_MAX_POINTS - 1)) {
-    SERIAL_ECHOLNPGM("?(X) out of range (0..", XATC_MAX_POINTS - 1, ").");
-    return;
+  if (parser.seen_test('R')) {
+    do_report = false;
+    xatc.reset();
+  }
+  if (parser.seenval('A')) {
+    do_report = false;
+    xatc.start = parser.value_float();
+  }
+  if (parser.seenval('I')) {
+    do_report = false;
+    xatc.spacing = parser.value_float();
   }
 
-  xatc.z_offset[x] = z;
+  if (parser.seenval('X')) {
+    do_report = false;
+    const int8_t x = parser.value_int();
+    if (!WITHIN(x, 0, XATC_MAX_POINTS - 1))
+      SERIAL_ECHOLNPGM("?(X) out of range (0..", XATC_MAX_POINTS - 1, ").");
+    else {
+      if (parser.seenval('Z'))
+        xatc.z_offset[x] = parser.value_linear_units();
+      else
+        SERIAL_ECHOLNPGM("?(Z) required.");
+    }
+  }
+
+  if (do_report) M423_report();
 
 }
 
