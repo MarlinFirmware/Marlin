@@ -189,8 +189,7 @@ void xatc_wizard_homing_done() {
   }
 
   if (ui.use_click()) {
-    xatc.spacing = (probe.max_x() - probe.min_x()) / (XATC_MAX_POINTS - 1);
-    xatc.start = probe.min_x();
+    xatc.reset();
 
     SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 
