@@ -36,15 +36,18 @@
  *  M423 X<xindex> Z<linear>
  */
 void GcodeSuite::M423() {
-  const int8_t tx = parser.intval('X', -1);
-  if (WITHIN(tx, 0, XATC_MAX_POINTS - 1)) {
-    if (parser.seenval('Z'))
-      xatc.z_offset[tx] = parser.value_linear_units();
-    else
-      SERIAL_ECHOLNPGM("?(Z) required.");
-  }
-  else
+
+  const int8_t x = parser.intval('X', -1);
+  const float z = parser.linearval('Z', -1);
+  if (x < 0 || z < 0) return M423_report();
+
+  if (!WITHIN(x, 0, XATC_MAX_POINTS - 1)) {
     SERIAL_ECHOLNPGM("?(X) out of range (0..", XATC_MAX_POINTS - 1, ").");
+    return;
+  }
+
+  xatc.z_offset[x] = z;
+
 }
 
 void GcodeSuite::M423_report(const bool forReplay/*=true*/) {
