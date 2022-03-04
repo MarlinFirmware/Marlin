@@ -347,7 +347,11 @@
 #endif
 
 #if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER)
-  #define THERMAL_PROTECTION_VARIANCE_MONITOR     // Detect a sensor malfunction preventing temperature updates
+  /**
+   * Thermal Protection Variance Monitor - EXPERIMENTAL.
+   * Kill the machine on a stuck temperature sensor. Disable if you get false positives.
+   */
+  //#define THERMAL_PROTECTION_VARIANCE_MONITOR   // Detect a sensor malfunction preventing temperature updates
 #endif
 
 #if ENABLED(PIDTEMP)
