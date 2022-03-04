@@ -1706,7 +1706,8 @@ void Planner::endstop_triggered(const AxisEnum axis) {
 }
 
 float Planner::triggered_position_mm(const AxisEnum axis) {
-  return stepper.triggered_position(axis) * mm_per_step[axis];
+  const float result = DIFF_TERN(BACKLASH_COMPENSATION, stepper.triggered_position(axis), backlash.get_applied_steps(axis));
+  return result * mm_per_step[axis];
 }
 
 void Planner::finish_and_disable() {
@@ -1728,8 +1729,8 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
       // Protect the access to the position.
       const bool was_enabled = stepper.suspend();
 
-      const int32_t p1 = stepper.position(CORE_AXIS_1),
-                    p2 = stepper.position(CORE_AXIS_2);
+      const int32_t p1 = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(CORE_AXIS_1), backlash.get_applied_steps(CORE_AXIS_1)),
+                    p2 = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(CORE_AXIS_2), backlash.get_applied_steps(CORE_AXIS_2));
 
       if (was_enabled) stepper.wake_up();
 
@@ -1738,7 +1739,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
       axis_steps = (axis == CORE_AXIS_2 ? CORESIGN(p1 - p2) : p1 + p2) * 0.5f;
     }
     else
-      axis_steps = stepper.position(axis);
+      axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
   #elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
 
@@ -1755,11 +1756,12 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
       axis_steps = ((axis == CORE_AXIS_1) ? p1 - p2 : p2);
     }
     else
-      axis_steps = stepper.position(axis);
+      axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
   #else
 
     axis_steps = stepper.position(axis);
+    TERN_(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));
 
   #endif
 
@@ -2841,6 +2843,9 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
   block->flag = sync_flag;
 
   block->position = position;
+  #if ENABLED(BACKLASH_COMPENSATION)
+    LOOP_LINEAR_AXES(axis) block->position[axis] += backlash.get_applied_steps((AxisEnum)axis);
+  #endif
 
   #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
@@ -3108,13 +3113,21 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
       LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS])
     )
   );
+
   if (has_blocks_queued()) {
     //previous_nominal_speed_sqr = 0.0; // Reset planner junction speeds. Assume start from rest.
     //previous_speed.reset();
     buffer_sync_block();
   }
-  else
-    stepper.set_position(position);
+  else {
+    #if ENABLED(BACKLASH_COMPENSATION)
+      abce_long_t stepper_pos = position;
+      LOOP_LINEAR_AXES(axis) stepper_pos[axis] += backlash.get_applied_steps((AxisEnum)axis);
+      stepper.set_position(stepper_pos);
+    #else
+      stepper.set_position(position);
+    #endif
+  }
 }
 
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
