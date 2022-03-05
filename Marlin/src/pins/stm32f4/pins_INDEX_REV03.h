@@ -73,38 +73,50 @@
 #define X_STEP_PIN                          PB15
 #define X_DIR_PIN                           PB14
 #define X_ENABLE_PIN                        PD9
-#define X_SERIAL_TX_PIN                     PD8
-#define X_SERIAL_RX_PIN                     PD8
 
 #define Y_STEP_PIN                          PE15
 #define Y_DIR_PIN                           PE14
 #define Y_ENABLE_PIN                        PB13
-#define Y_SERIAL_TX_PIN                     PB12
-#define Y_SERIAL_RX_PIN                     PB12
 
 #define Z_STEP_PIN                          PE7
 #define Z_DIR_PIN                           PB1
 #define Z_ENABLE_PIN                        PE9
-#define Z_SERIAL_TX_PIN                     PE8
-#define Z_SERIAL_RX_PIN                     PE8
 
 #define I_STEP_PIN                          PC4
 #define I_DIR_PIN                           PA4
 #define I_ENABLE_PIN                        PB0
-#define I_SERIAL_TX_PIN                     PC5
-#define I_SERIAL_RX_PIN                     PC5
 
 #define J_STEP_PIN                          PE11
 #define J_DIR_PIN                           PE10
 #define J_ENABLE_PIN                        PE13
-#define J_SERIAL_TX_PIN                     PE12
-#define J_SERIAL_RX_PIN                     PE12
-#define K_SERIAL_TX_PIN                     PA2
-#define K_SERIAL_RX_PIN                     PA2
 
 #define K_STEP_PIN                          PD6
 #define K_DIR_PIN                           PD7
 #define K_ENABLE_PIN                        PA3
+
+// Note: different jumper configuration needed for SPI stepper drivers!
+// #define SPI_CONNECTION
+#if ENABLED(SPI_CONNECTION)
+  #define X_CS_PIN                          PD8
+  #define Y_CS_PIN                          PB12
+  #define Z_CS_PIN                          PE8
+  #define I_CS_PIN                          PC5
+  #define J_CS_PIN                          PE12
+  #define K_CS_PIN                          PA2
+#else
+  #define X_SERIAL_TX_PIN                   PD8
+  #define X_SERIAL_RX_PIN                   PD8
+  #define Y_SERIAL_TX_PIN                   PB12
+  #define Y_SERIAL_RX_PIN                   PB12
+  #define Z_SERIAL_TX_PIN                   PE8
+  #define Z_SERIAL_RX_PIN                   PE8
+  #define I_SERIAL_TX_PIN                   PC5
+  #define I_SERIAL_RX_PIN                   PC5
+  #define J_SERIAL_TX_PIN                   PE12
+  #define J_SERIAL_RX_PIN                   PE12
+  #define K_SERIAL_TX_PIN                   PA2
+  #define K_SERIAL_RX_PIN                   PA2
+#endif
 
 // Reduce baud rate to improve software serial reliability
 #define TMC_BAUD_RATE                      19200
