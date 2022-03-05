@@ -52,7 +52,7 @@ struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ELEM(O)    LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k)
 #define LOGICAL_AXIS_DECL(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V)
 
-#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR)
+#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K)
 
 #if HAS_EXTRUDERS
   #define LIST_ITEM_E(N) , N
@@ -63,6 +63,8 @@ struct IF<true, L, R> { typedef L type; };
   #define CODE_ITEM_E(N)
   #define GANG_ITEM_E(N)
 #endif
+
+#define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L)
 
 //
 // Enumerated axis indices
@@ -82,7 +84,7 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if EITHER(IS_CORE, MARKFORGED_XY)
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
     , X_HEAD, Y_HEAD, Z_HEAD
   #endif
 
@@ -96,10 +98,10 @@ enum AxisEnum : uint8_t {
 
   // A, B, and C are for DELTA, SCARA, etc.
   , A_AXIS = X_AXIS
-  #if LINEAR_AXES >= 2
+  #if HAS_Y_AXIS
     , B_AXIS = Y_AXIS
   #endif
-  #if LINEAR_AXES >= 3
+  #if HAS_Z_AXIS
     , C_AXIS = Z_AXIS
   #endif
 
@@ -406,13 +408,13 @@ struct XYZval {
       FI void set(const T (&arr)[DISTINCT_AXES])       { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5]); }
     #endif
   #endif
-  #if LINEAR_AXES >= 4
+  #if HAS_I_AXIS
     FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
   #endif
-  #if LINEAR_AXES >= 5
+  #if HAS_J_AXIS
     FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
   #endif
-  #if LINEAR_AXES >= 6
+  #if HAS_K_AXIS
     FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
   #endif
 
@@ -534,27 +536,29 @@ struct XYZEval {
   // Reset all to 0
   FI void reset()                     { LOGICAL_AXIS_GANG(e =, x =, y =, z =, i =, j =, k =) 0; }
 
+  // Setters for some number of linear axes, not all
+  FI void set(const T px)                                                   { x = px; }
+  FI void set(const T px, const T py)                                       { x = px; y = py; }
+  #if HAS_I_AXIS
+    FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
+  #endif
+  #if HAS_J_AXIS
+    FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
+  #endif
+  #if HAS_K_AXIS
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
+  #endif
   // Setters taking struct types and arrays
-  FI void set(const T px)             { x = px;               }
-  FI void set(const T px, const T py) { x = px;    y = py;    }
-  FI void set(const XYval<T> pxy)     { x = pxy.x; y = pxy.y; }
-  FI void set(const XYZval<T> pxyz)   { set(LINEAR_AXIS_ELEM(pxyz)); }
+  FI void set(const XYval<T> pxy)                  { x = pxy.x; y = pxy.y; }
+  FI void set(const XYZval<T> pxyz)                { set(LINEAR_AXIS_ELEM(pxyz)); }
   #if HAS_Z_AXIS
     FI void set(LINEAR_AXIS_ARGS(const T))         { LINEAR_AXIS_CODE(a = x, b = y, c = z, u = i, v = j, w = k); }
   #endif
+  FI void set(const XYval<T> pxy, const T pz)      { set(pxy); TERN_(HAS_Z_AXIS, z = pz); }
   #if LOGICAL_AXES > LINEAR_AXES
-    FI void set(const XYval<T> pxy, const T pe)    { set(pxy); e = pe; }
+    FI void set(const XYval<T> pxy, const T pz, const T pe) { set(pxy, pz); e = pe; }
     FI void set(const XYZval<T> pxyz, const T pe)  { set(pxyz); e = pe; }
     FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, u = i, v = j, w = k); }
-  #endif
-  #if LINEAR_AXES >= 4
-    FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
-  #endif
-  #if LINEAR_AXES >= 5
-    FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
-  #endif
-  #if LINEAR_AXES >= 6
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
   #endif
 
   // Length reduced to one dimension

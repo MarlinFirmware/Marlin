@@ -75,6 +75,10 @@
   #define IS_PAGE(B) false
 #endif
 
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  #include "../feature/closedloop.h"
+#endif
+
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
@@ -240,6 +244,7 @@ typedef struct block_t {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     uint32_t sdpos;
+    xyze_pos_t start_position;
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)
@@ -248,7 +253,7 @@ typedef struct block_t {
 
 } block_t;
 
-#if ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL)
+#if ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
   #define HAS_POSITION_FLOAT 1
 #endif
 
@@ -427,15 +432,15 @@ class Planner {
       static int8_t xy_freq_limit_hz;         // Minimum XY frequency setting
       static float xy_freq_min_speed_factor;  // Minimum speed factor setting
       static int32_t xy_freq_min_interval_us; // Minimum segment time based on xy_freq_limit_hz
-      static inline void refresh_frequency_limit() {
+      static void refresh_frequency_limit() {
         //xy_freq_min_interval_us = xy_freq_limit_hz ?: LROUND(1000000.0f / xy_freq_limit_hz);
         if (xy_freq_limit_hz)
           xy_freq_min_interval_us = LROUND(1000000.0f / xy_freq_limit_hz);
       }
-      static inline void set_min_speed_factor_u8(const uint8_t v255) {
+      static void set_min_speed_factor_u8(const uint8_t v255) {
         xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
       }
-      static inline void set_frequency_limit(const uint8_t hz) {
+      static void set_frequency_limit(const uint8_t hz) {
         xy_freq_limit_hz = constrain(hz, 0, 100);
         refresh_frequency_limit();
       }
@@ -504,7 +509,7 @@ class Planner {
     #if HAS_CLASSIC_JERK
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
-      static inline void set_max_jerk(const AxisEnum, const_float_t) {}
+      static void set_max_jerk(const AxisEnum, const_float_t) {}
     #endif
 
     #if HAS_EXTRUDERS
@@ -512,7 +517,7 @@ class Planner {
         e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
       }
 
-      static inline void set_flow(const uint8_t e, const int16_t flow) {
+      static void set_flow(const uint8_t e, const int16_t flow) {
         flow_percentage[e] = flow;
         refresh_e_factor(e);
       }
@@ -535,7 +540,7 @@ class Planner {
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       void apply_filament_width_sensor(const int8_t encoded_ratio);
 
-      static inline float volumetric_percent(const bool vol) {
+      static float volumetric_percent(const bool vol) {
         return 100.0f * (vol
             ? volumetric_area_nominal / volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
             : volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
@@ -584,7 +589,7 @@ class Planner {
        *  Returns 1.0 if planner.z_fade_height is 0.0.
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
-      static inline float fade_scaling_factor_for_z(const_float_t rz) {
+      static float fade_scaling_factor_for_z(const_float_t rz) {
         static float z_fade_factor = 1;
         if (!z_fade_height) return 1;
         if (rz >= z_fade_height) return 0;
@@ -834,7 +839,7 @@ class Planner {
      */
     static float get_axis_position_mm(const AxisEnum axis);
 
-    static inline abce_pos_t get_axis_positions_mm() {
+    static abce_pos_t get_axis_positions_mm() {
       const abce_pos_t out = LOGICAL_AXIS_ARRAY(
         get_axis_position_mm(E_AXIS),
         get_axis_position_mm(A_AXIS), get_axis_position_mm(B_AXIS), get_axis_position_mm(C_AXIS),
@@ -864,6 +869,13 @@ class Planner {
 
     // Triggered position of an axis in mm (not core-savvy)
     static float triggered_position_mm(const AxisEnum axis);
+
+    // Blocks are queued, or we're running out moves, or the closed loop controller is waiting
+    static bool busy() {
+      return (has_blocks_queued() || cleaning_buffer_counter
+          || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
+      );
+    }
 
     // Block until all buffered steps are executed / cleaned
     static void synchronize();
@@ -927,7 +939,7 @@ class Planner {
       #if ENABLED(AUTOTEMP_PROPORTIONAL)
         static void _autotemp_update_from_hotend();
       #else
-        static inline void _autotemp_update_from_hotend() {}
+        static void _autotemp_update_from_hotend() {}
       #endif
     #endif
 

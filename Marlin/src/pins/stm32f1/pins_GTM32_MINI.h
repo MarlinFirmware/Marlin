@@ -186,7 +186,7 @@
 #ifdef GTM32_PRO_VB_USE_LCD_BEEPER
   // This is pin 32 on J2 FFC40 and pin, goes to the beeper
   // on Geeetech's version of RepRapDiscount Smart Controller
-  // (e.g. on Rostock 301)
+  // (e.g., on Rostock 301)
   #define BEEPER_PIN                        PE12
 #else
   // This is the beeper on the board itself

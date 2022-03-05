@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, ADVANCED_PAUSE_FEATURE)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -342,4 +342,4 @@ void MarlinUI::pause_show_message(
     ui.return_to_status();
 }
 
-#endif // HAS_LCD_MENU && ADVANCED_PAUSE_FEATURE
+#endif // HAS_MARLINUI_MENU && ADVANCED_PAUSE_FEATURE

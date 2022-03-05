@@ -115,7 +115,7 @@ public:
 
   static void mount();
   static void release();
-  static inline bool isMounted() { return flag.mounted; }
+  static bool isMounted() { return flag.mounted; }
 
   // Handle media insert/remove
   static void manage_media();
@@ -128,7 +128,7 @@ public:
     static uint8_t autofile_index;  // Next auto#.g index to run, plus one. Ignored by autofile_check when zero.
     static void autofile_begin();   // Begin check. Called automatically after boot-up.
     static bool autofile_check();   // Check for the next auto-start file and run it.
-    static inline void autofile_cancel() { autofile_index = 0; }
+    static void autofile_cancel() { autofile_index = 0; }
   #endif
 
   // Basic file ops
@@ -138,7 +138,7 @@ public:
   static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
-  static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
+  static char* longest_filename() { return longFilename[0] ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     static void printLongPath(char * const path);   // Used by M33
   #endif
@@ -163,18 +163,18 @@ public:
   static void endFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
   static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
   static void fileHasFinished();
-  static inline void abortFilePrintSoon() { flag.abort_sd_printing = true; }
-  static inline void pauseSDPrint()       { flag.sdprinting = false; }
-  static inline bool isPrinting()         { return flag.sdprinting; }
-  static inline bool isPaused()           { return isFileOpen() && !isPrinting(); }
+  static void abortFilePrintSoon() { flag.abort_sd_printing = isFileOpen(); }
+  static void pauseSDPrint()       { flag.sdprinting = false; }
+  static bool isPrinting()         { return flag.sdprinting; }
+  static bool isPaused()           { return isFileOpen() && !isPrinting(); }
   #if HAS_PRINT_PROGRESS_PERMYRIAD
-    static inline uint16_t permyriadDone() {
+    static uint16_t permyriadDone() {
       if (flag.sdprintdone) return 10000;
       if (isFileOpen() && filesize) return sdpos / ((filesize + 9999) / 10000);
       return 0;
     }
   #endif
-  static inline uint8_t percentDone() {
+  static uint8_t percentDone() {
     if (flag.sdprintdone) return 100;
     if (isFileOpen() && filesize) return sdpos / ((filesize + 99) / 100);
     return 0;
@@ -204,7 +204,13 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
-  static void ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames=false));
+  static void ls(
+    TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
+    #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
+      ,
+    #endif
+    TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
+  );
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -213,20 +219,20 @@ public:
   #endif
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
-  static inline char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
-  static inline SdFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
+  static char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
+  static SdFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
 
   // Print File stats
-  static inline uint32_t getFileSize()  { return filesize; }
-  static inline uint32_t getIndex()     { return sdpos; }
-  static inline bool isFileOpen()       { return isMounted() && file.isOpen(); }
-  static inline bool eof()              { return getIndex() >= getFileSize(); }
+  static uint32_t getFileSize()  { return filesize; }
+  static uint32_t getIndex()     { return sdpos; }
+  static bool isFileOpen()       { return isMounted() && file.isOpen(); }
+  static bool eof()              { return getIndex() >= getFileSize(); }
 
   // File data operations
-  static inline int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
-  static inline int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
-  static inline void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
+  static int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
+  static int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  static int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  static void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
 
   // TODO: rename to diskIODriver()
   static DiskIODriver* diskIODriver() { return driver; }
@@ -331,14 +337,14 @@ private:
   //
   // Directory items
   //
-  static bool is_dir_or_gcode(const dir_t &p);
+  static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
   static void printListing(
-    SdFile parent
+    SdFile parent, const char * const prepend
+    OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
-    , const char * const prepend=nullptr
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
 

@@ -30,10 +30,12 @@
 //
 // Flash EEPROM Emulation
 //
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     0x800 // 2KB
-#define EEPROM_START_ADDRESS (0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE) // 256K firmware space
-#define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     0x800 // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE) // 256K firmware space
+  #define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE
+#endif
 
 //
 // Servos
@@ -123,9 +125,9 @@
 /**               ------                                        ------
  * (BEEPER) PC14 |10  9 | PC13 (BTN_ENC)      (MISO)      PB14 |10  9 | PB13 (SD_SCK)
  * (LCD_EN) PB9  | 8  7 | PB8  (LCD_RS)       (BTN_EN1)   PB3  | 8  7 | PB12 (SD_CS2)
- * (LCD_D4) PB7  | 6  5   PB6  (LCD_D5)       (BTN_EN2)   PD2  | 6  5   PB15 (SD_MOSI)
+ * (LCD_D4) PB7    6  5 | PB6  (LCD_D5)       (BTN_EN2)   PD2    6  5 | PB15 (SD_MOSI)
  * (LCD_D6) PB5  | 4  3 | PB4  (LCD_D7)       (SD_DETECT) PB11 | 4  3 | RESET
- *          GND  | 2  1 | 5V                              GND  | 2  1 | NC
+ *           GND | 2  1 | 5V                               GND | 2  1 | --
  *                ------                                        ------
  *                 EXP1                                          EXP2
  */

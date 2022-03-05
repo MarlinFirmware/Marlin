@@ -41,28 +41,30 @@
  */
 #pragma once
 
+//#define DEBUG_MAX31865
+
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/Delay.h"
 #include HAL_PATH(../HAL, MarlinSPI.h)
 
-#define MAX31856_CONFIG_REG 0x00
-#define MAX31856_CONFIG_BIAS 0x80
-#define MAX31856_CONFIG_MODEAUTO 0x40
-#define MAX31856_CONFIG_MODEOFF 0x00
-#define MAX31856_CONFIG_1SHOT 0x20
-#define MAX31856_CONFIG_3WIRE 0x10
-#define MAX31856_CONFIG_24WIRE 0x00
-#define MAX31856_CONFIG_FAULTSTAT 0x02
-#define MAX31856_CONFIG_FILT50HZ 0x01
-#define MAX31856_CONFIG_FILT60HZ 0x00
+#define MAX31865_CONFIG_REG 0x00
+#define MAX31865_CONFIG_BIAS 0x80
+#define MAX31865_CONFIG_MODEAUTO 0x40
+#define MAX31865_CONFIG_MODEOFF 0x00
+#define MAX31865_CONFIG_1SHOT 0x20
+#define MAX31865_CONFIG_3WIRE 0x10
+#define MAX31865_CONFIG_24WIRE 0x00
+#define MAX31865_CONFIG_FAULTSTAT 0x02
+#define MAX31865_CONFIG_FILT50HZ 0x01
+#define MAX31865_CONFIG_FILT60HZ 0x00
 
-#define MAX31856_RTDMSB_REG 0x01
-#define MAX31856_RTDLSB_REG 0x02
-#define MAX31856_HFAULTMSB_REG 0x03
-#define MAX31856_HFAULTLSB_REG 0x04
-#define MAX31856_LFAULTMSB_REG 0x05
-#define MAX31856_LFAULTLSB_REG 0x06
-#define MAX31856_FAULTSTAT_REG 0x07
+#define MAX31865_RTDMSB_REG 0x01
+#define MAX31865_RTDLSB_REG 0x02
+#define MAX31865_HFAULTMSB_REG 0x03
+#define MAX31865_HFAULTLSB_REG 0x04
+#define MAX31865_LFAULTMSB_REG 0x05
+#define MAX31865_LFAULTLSB_REG 0x06
+#define MAX31865_FAULTSTAT_REG 0x07
 
 #define MAX31865_FAULT_HIGHTHRESH 0x80  // D7
 #define MAX31865_FAULT_LOWTHRESH 0x40   // D6
@@ -84,20 +86,43 @@ typedef enum max31865_numwires {
   MAX31865_4WIRE = 0
 } max31865_numwires_t;
 
+#if DISABLED(MAX31865_USE_AUTO_MODE)
+  typedef enum one_shot_event : uint8_t {
+    SETUP_BIAS_VOLTAGE,
+    SETUP_1_SHOT_MODE,
+    READ_RTD_REG
+  } one_shot_event_t;
+#endif
+
 /* Interface class for the MAX31865 RTD Sensor reader */
 class MAX31865 {
 private:
   static SPISettings spiConfig;
 
-  TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
+  TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
-  #ifdef TARGET_LPC1768
-    uint8_t _spi_speed;
-  #else
-    uint16_t _spi_delay;
+  uint16_t spiDelay;
+
+  float zeroRes, refRes, wireRes;
+
+  #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
+    millis_t lastReadStamp = 0;
   #endif
 
-  float Rzero, Rref;
+  uint16_t lastRead = 0;
+  uint8_t lastFault = 0;
+
+  #if DISABLED(MAX31865_USE_AUTO_MODE)
+    millis_t nextEventStamp;
+    one_shot_event_t nextEvent;
+  #endif
+
+  #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+    uint8_t ignore_faults = MAX31865_IGNORE_INITIAL_FAULTY_READS;
+    uint16_t fixFault(uint16_t rtd);
+  #endif
+
+  uint8_t stdFlags = 0;
 
   void setConfig(uint8_t config, bool enable);
 
@@ -106,12 +131,26 @@ private:
   uint16_t readRegister16(uint8_t addr);
 
   void writeRegister8(uint8_t addr, uint8_t reg);
-  uint8_t spiTransfer(uint8_t addr);
+  void writeRegister16(uint8_t addr, uint16_t reg);
 
-  void softSpiBegin(const uint8_t spi_speed);
+  void softSpiInit();
+  void spiBeginTransaction();
+  uint8_t spiTransfer(uint8_t addr);
+  void spiEndTransaction();
+
+  void initFixedFlags(max31865_numwires_t wires);
+
+  void enable50HzFilter(bool b);
+  void enableBias();
+  void oneShot();
+  void resetFlags();
+
+  uint16_t readRawImmediate();
+
+  void runAutoFaultDetectionCycle();
 
 public:
-  #ifdef LARGE_PINMAP
+  #if ENABLED(LARGE_PINMAP)
     MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
     MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso,
              uint32_t spi_clk, uint8_t pin_mapping);
@@ -121,20 +160,14 @@ public:
              int8_t spi_clk);
   #endif
 
-  void begin(max31865_numwires_t wires, float zero, float ref);
+  void begin(max31865_numwires_t wires, float zero_res, float ref_res, float wire_res);
 
   uint8_t readFault();
   void clearFault();
 
-  void setWires(max31865_numwires_t wires);
-  void autoConvert(bool b);
-  void enable50HzFilter(bool b);
-  void enableBias(bool b);
-  void oneShot();
-
   uint16_t readRaw();
   float readResistance();
   float temperature();
-  float temperature(uint16_t adcVal);
-  float temperature(float Rrtd);
+  float temperature(uint16_t adc_val);
+  float temperature(float rtd_res);
 };

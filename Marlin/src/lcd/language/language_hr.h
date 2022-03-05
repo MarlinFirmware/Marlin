@@ -137,7 +137,7 @@ namespace Language_hr {
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Neispravan pisač");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Broj printova");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Završeni");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Ukupno printanja");

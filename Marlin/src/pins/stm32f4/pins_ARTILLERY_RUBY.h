@@ -29,8 +29,10 @@
 
 #define BOARD_INFO_NAME      "Artillery Ruby"
 
-#define FLASH_EEPROM_EMULATION
-//#define I2C_EEPROM
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  //#define I2C_EEPROM
+#endif
 //#define E2END                            0xFFF  // 4KB
 
 #define HAL_TIMER_RATE                     F_CPU
@@ -155,7 +157,7 @@
       #define NEOPIXEL_PIN                  PB9
     #endif
 
-    #define DEFAULT_LCD_CONTRAST             255
+    #define LCD_CONTRAST_DEFAULT             255
   #else
     #define LCD_PINS_RS                     PC15
     #define LCD_PINS_ENABLE                 PB6

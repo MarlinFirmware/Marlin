@@ -756,7 +756,7 @@ int8_t I2CPositionEncodersMgr::parse() {
     if (!parser.has_value()) {
       SERIAL_ECHOLNPGM("?A seen, but no address specified! [30-200]");
       return I2CPE_PARSE_ERR;
-    };
+    }
 
     I2CPE_addr = parser.value_byte();
     if (!WITHIN(I2CPE_addr, 30, 200)) { // reserve the first 30 and last 55
@@ -775,7 +775,7 @@ int8_t I2CPositionEncodersMgr::parse() {
     if (!parser.has_value()) {
       SERIAL_ECHOLNPGM("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1, "]");
       return I2CPE_PARSE_ERR;
-    };
+    }
 
     I2CPE_idx = parser.value_byte();
     if (I2CPE_idx >= I2CPE_ENCODER_CNT) {
@@ -791,7 +791,7 @@ int8_t I2CPositionEncodersMgr::parse() {
   I2CPE_anyaxis = parser.seen_axis();
 
   return I2CPE_PARSE_OK;
-};
+}
 
 /**
  * M860:  Report the position(s) of position encoder module(s).
@@ -934,7 +934,7 @@ void I2CPositionEncodersMgr::M864() {
     if (!parser.has_value()) {
       SERIAL_ECHOLNPGM("?S seen, but no address specified! [30-200]");
       return;
-    };
+    }
 
     newAddress = parser.value_byte();
     if (!WITHIN(newAddress, 30, 200)) {

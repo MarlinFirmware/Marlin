@@ -35,7 +35,7 @@
 
 // Use soft PWM for fans - PWM is not working properly when paired with STM32 Arduino Core v1.7.0
 // This can be removed when Core version is updated and PWM behaviour is fixed.
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Configure Timers
@@ -45,8 +45,8 @@
 //              This will be difficult to solve from the Arduino IDE, without modifying the RUMBA32 variant
 //              included with the STM32 framework.
 
-#define STEP_TIMER                            10
-#define TEMP_TIMER                            14
+#define STEP_TIMER 10
+#define TEMP_TIMER 14
 
 //
 // Limit Switches

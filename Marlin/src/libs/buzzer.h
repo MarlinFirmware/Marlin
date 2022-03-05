@@ -77,7 +77,7 @@
        * @brief Resets the state of the class
        * @details Brings the class state to a known one.
        */
-      static inline void reset() {
+      static void reset() {
         off();
         state.endtime = 0;
       }
@@ -86,7 +86,7 @@
       /**
        * @brief Init Buzzer
        */
-      static inline void init() {
+      static void init() {
         SET_OUTPUT(BEEPER_PIN);
         reset();
       }

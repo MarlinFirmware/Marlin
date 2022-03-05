@@ -50,6 +50,9 @@
  *  W[linear]   0/1 Enable park & Z Raise
  *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
+ *  I[linear]   Park I (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 4)
+ *  J[linear]   Park J (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 5)
+ *  K[linear]   Park K (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 6)
  *  Z[linear]   Z Raise
  *  F[linear]   Fan Speed 0-255
  *  G[linear/s] Fan time
@@ -88,10 +91,23 @@ void GcodeSuite::M217() {
   #if ENABLED(TOOLCHANGE_PARK)
     if (parser.seenval('W')) { toolchange_settings.enable_park = parser.value_linear_units(); }
     if (parser.seenval('X')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.x = constrain(v, X_MIN_POS, X_MAX_POS); }
-    if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
+    #if HAS_Y_AXIS
+      if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
+    #endif
+    #if HAS_I_AXIS
+      if (parser.seenval('I')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.i = constrain(v, I_MIN_POS, I_MAX_POS); }
+    #endif
+    #if HAS_J_AXIS
+      if (parser.seenval('J')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.j = constrain(v, J_MIN_POS, J_MAX_POS); }
+    #endif
+    #if HAS_K_AXIS
+      if (parser.seenval('K')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.k = constrain(v, K_MIN_POS, K_MAX_POS); }
+    #endif
   #endif
 
-  if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
+  #if HAS_Z_AXIS
+    if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
+  #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     migration.target = 0;       // 0 = disabled
@@ -151,9 +167,24 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
+    {
       SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
-      SERIAL_ECHOPGM_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
-      SERIAL_ECHOPGM_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
+      SERIAL_ECHOPGM_P(
+            SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x)
+        #if HAS_Y_AXIS
+          , SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y)
+        #endif
+        #if HAS_I_AXIS
+          , SP_I_STR, LINEAR_UNIT(toolchange_settings.change_point.i)
+        #endif
+        #if HAS_J_AXIS
+          , SP_J_STR, LINEAR_UNIT(toolchange_settings.change_point.j)
+        #endif
+        #if HAS_K_AXIS
+          , SP_K_STR, LINEAR_UNIT(toolchange_settings.change_point.k)
+        #endif
+      );
+    }
     #endif
 
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)

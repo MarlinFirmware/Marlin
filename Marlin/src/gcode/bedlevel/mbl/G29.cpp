@@ -41,7 +41,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -75,8 +75,6 @@ void GcodeSuite::G29() {
     }
   #endif
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
-
   static int mbl_probe_index = -1;
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -84,6 +82,8 @@ void GcodeSuite::G29() {
     SERIAL_ECHOLNPGM("S out of range (0-5).");
     return;
   }
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   int8_t ix, iy;
   ix = iy = 0;

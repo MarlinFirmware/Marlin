@@ -109,7 +109,7 @@ class MenuItem_confirm : public MenuItemBase {
       selectFunc_t yesFunc, selectFunc_t noFunc,
       PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr
     );
-    static inline void select_screen(
+    static void select_screen(
       PGM_P const yes, PGM_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
       PGM_P const pref, FSTR_P const string, PGM_P const suff=nullptr
@@ -178,7 +178,7 @@ class MenuEditItemBase : public MenuItemBase {
     static void draw_edit_screen(PGM_P const pstr, const char * const value);
 
     // This method is for the current menu item
-    static inline void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
+    static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
 #if ENABLED(SDSUPPORT)
@@ -218,6 +218,11 @@ void _lcd_draw_homing();
   void goto_probe_offset_wizard();
 #endif
 
+#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  void xatc_wizard_continue();
+  void menu_advanced_settings();
+#endif
+
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
   void _lcd_toggle_bed_leveling();
 #endif
@@ -249,3 +254,11 @@ extern uint8_t screen_history_depth;
 inline void clear_menu_history() { screen_history_depth = 0; }
 
 #define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }
+
+#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+  extern bool leveling_was_active;
+#endif
+
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
+  extern uint8_t manual_probe_index;
+#endif

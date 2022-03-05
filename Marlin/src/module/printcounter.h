@@ -112,7 +112,7 @@ class PrintCounter: public Stopwatch {
     /**
      * @brief Initialize the print counter
      */
-    static inline void init() {
+    static void init() {
       super::init();
       loadStats();
     }
@@ -176,8 +176,8 @@ class PrintCounter: public Stopwatch {
      */
     static bool start();
     static bool _stop(const bool completed);
-    static inline bool stop()  { return _stop(true);  }
-    static inline bool abort() { return _stop(false); }
+    static bool stop()  { return _stop(true);  }
+    static bool abort() { return _stop(false); }
 
     static void reset();
 

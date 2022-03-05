@@ -38,10 +38,9 @@
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
 //#define ENABLE_SPI3
-#define FLASH_EEPROM_EMULATION
-#define FAN_SOFT_PWM
 
-#if ENABLED(FLASH_EEPROM_EMULATION)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
@@ -117,6 +116,8 @@
     #define FAN_PIN                         PB5
   #endif
 #endif
+
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Misc. Functions

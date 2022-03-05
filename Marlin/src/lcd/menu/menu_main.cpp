@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -249,7 +249,14 @@ void menu_main() {
           #if PIN_EXISTS(SD_DETECT)
             GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
           #else                                               // - or -
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
+            ACTION_ITEM(MSG_RELEASE_MEDIA, []{                // M22 Release Media
+              queue.inject(PSTR("M22"));
+              #if ENABLED(TFT_COLOR_UI)
+                // Menu display issue on item removal with multi language selection menu
+                if (encoderTopLine > 0) encoderTopLine--;
+                ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+              #endif
+            });
           #endif
           SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
         }
@@ -373,7 +380,7 @@ void menu_main() {
           GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
         );
       #else
-        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+        ACTION_ITEM(MSG_SWITCH_PS_OFF, ui.poweroff);
       #endif
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
@@ -454,4 +461,4 @@ void menu_main() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU

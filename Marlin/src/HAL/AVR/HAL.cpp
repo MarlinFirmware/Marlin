@@ -36,7 +36,7 @@
 // ------------------------
 
 // Don't initialize/override variable (which would happen in .init4)
-uint8_t reset_reason __attribute__((section(".noinit")));
+uint8_t MarlinHAL::reset_reason __attribute__((section(".noinit")));
 
 // ------------------------
 // Public functions
@@ -45,22 +45,22 @@ uint8_t reset_reason __attribute__((section(".noinit")));
 __attribute__((naked))             // Don't output function pro- and epilogue
 __attribute__((used))              // Output the function, even if "not used"
 __attribute__((section(".init3"))) // Put in an early user definable section
-void HAL_save_reset_reason() {
+void save_reset_reason() {
   #if ENABLED(OPTIBOOT_RESET_REASON)
     __asm__ __volatile__(
       A("STS %0, r2")
-      : "=m"(reset_reason)
+      : "=m"(hal.reset_reason)
     );
   #else
-    reset_reason = MCUSR;
+    hal.reset_reason = MCUSR;
   #endif
 
   // Clear within 16ms since WDRF bit enables a 16ms watchdog timer -> Boot loop
-  MCUSR = 0;
+  hal.clear_reset_source();
   wdt_disable();
 }
 
-void HAL_init() {
+void MarlinHAL::init() {
   // Init Servo Pins
   #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
   #if HAS_SERVO_0
@@ -75,9 +75,11 @@ void HAL_init() {
   #if HAS_SERVO_3
     INIT_SERVO(3);
   #endif
+
+  init_pwm_timers();   // Init user timers to default frequency - 1000HZ
 }
 
-void HAL_reboot() {
+void MarlinHAL::reboot() {
   #if ENABLED(USE_WATCHDOG)
     while (1) { /* run out the watchdog */ }
   #else
@@ -93,20 +95,20 @@ void HAL_reboot() {
 
 #else // !SDSUPPORT
 
-extern "C" {
-  extern char __bss_end;
-  extern char __heap_start;
-  extern void* __brkval;
+  extern "C" {
+    extern char __bss_end;
+    extern char __heap_start;
+    extern void* __brkval;
 
-  int freeMemory() {
-    int free_memory;
-    if ((int)__brkval == 0)
-      free_memory = ((int)&free_memory) - ((int)&__bss_end);
-    else
-      free_memory = ((int)&free_memory) - ((int)__brkval);
-    return free_memory;
+    int freeMemory() {
+      int free_memory;
+      if ((int)__brkval == 0)
+        free_memory = ((int)&free_memory) - ((int)&__bss_end);
+      else
+        free_memory = ((int)&free_memory) - ((int)__brkval);
+      return free_memory;
+    }
   }
-}
 
 #endif // !SDSUPPORT
 

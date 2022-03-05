@@ -25,7 +25,7 @@
  * is NOT used to directly toggle pins. The ISR writes to the pin assigned to
  * that interrupt.
  *
- * All PWMs use the same repetition rate.  The G2 needs about 10KHz min in order to
+ * All PWMs use the same repetition rate.  The G2 needs about 10kHz min in order to
  * not have obvious ripple on the Vref signals.
  *
  * The data structures are setup to minimize the computation done by the ISR which
