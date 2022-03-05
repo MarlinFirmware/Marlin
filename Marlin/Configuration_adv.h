@@ -1202,7 +1202,7 @@
   #if IS_ULTIPANEL
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
     #if ENABLED(STATUS_FLOW_INSTEAD_OF_FEEDRATE)
-      #define ULTIPANEL_FLOWMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+      #define ULTIPANEL_FLOWMULTIPLY  // Encoder sets the flowrate multiplier on the Status Screen
     #else
       #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
     #endif
