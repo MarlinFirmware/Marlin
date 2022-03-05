@@ -97,6 +97,11 @@
 // Note: different jumper configuration needed for SPI stepper drivers!
 // #define SPI_CONNECTION
 #if ENABLED(SPI_CONNECTION)
+  /**
+   * Make sure to configure the jumpers on the back side of the Mobo according to
+   * this diagram: https://github.com/MarlinFirmware/Marlin/pull/23851
+   */
+  #error "SPI drivers require a custom jumper configuration, see comment above! Comment out this line to continue."
   #define X_CS_PIN                          PD8
   #define Y_CS_PIN                          PB12
   #define Z_CS_PIN                          PE8
