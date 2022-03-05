@@ -156,6 +156,8 @@ void bilinear_bed_leveling::print_leveling_grid() {
   print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3,
     [](const uint8_t ix, const uint8_t iy) { return z_values[ix][iy]; }
   );
+
+  TERN_(ABL_BILINEAR_SUBDIVISION, print_leveling_grid_virt());
 }
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)

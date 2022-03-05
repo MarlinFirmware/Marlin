@@ -180,7 +180,7 @@ void GcodeSuite::M420() {
               Z_VALUES(x, y) -= zmean;
               TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
             }
-            TERN_(ABL_BILINEAR_SUBDIVISION, bbl.bed_level_virt_interpolate());
+            TERN_(ABL_BILINEAR_SUBDIVISION, bbl.refresh_bed_level());
           }
 
         #endif
@@ -202,7 +202,6 @@ void GcodeSuite::M420() {
       if (leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           bbl.print_leveling_grid();
-          TERN_(ABL_BILINEAR_SUBDIVISION, bbl.print_leveling_grid_virt());
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
           mbl.report_mesh();

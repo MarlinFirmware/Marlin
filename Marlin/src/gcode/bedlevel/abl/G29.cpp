@@ -322,7 +322,7 @@ G29_TYPE GcodeSuite::G29() {
         if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
           set_bed_leveling_enabled(false);
           Z_VALUES_ARR[i][j] = rz;
-          TERN_(ABL_BILINEAR_SUBDIVISION, bbl.bed_level_virt_interpolate());
+          bbl.refresh_bed_level();
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           set_bed_leveling_enabled(abl.reenable);
           if (abl.reenable) report_current_position();
@@ -752,11 +752,10 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!abl.dryrun) bbl.extrapolate_unprobed_bed_level();
-      bbl.print_leveling_grid();
 
       bbl.refresh_bed_level();
 
-      TERN_(ABL_BILINEAR_SUBDIVISION, bbl.print_leveling_grid_virt());
+      bbl.print_leveling_grid();
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 

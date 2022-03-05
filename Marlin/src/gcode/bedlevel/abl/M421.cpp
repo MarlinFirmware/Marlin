@@ -62,7 +62,7 @@ void GcodeSuite::M421() {
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES_ARR[x][y]));
         }
       }
-      TERN_(ABL_BILINEAR_SUBDIVISION, bbl.bed_level_virt_interpolate());
+      bbl.refresh_bed_level();
     }
     else
       SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
