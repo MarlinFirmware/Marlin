@@ -1214,22 +1214,21 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       }
 
       // update the modeled temperatures
-      float tempdelta = temp_hotend[ee].soft_pwm_amount * (HEATER_POWER / 127 * MPC_dT / heatblock_heat_capacity);
-      tempdelta += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff * (MPC_dT / heatblock_heat_capacity);
-      temp_hotend[ee].modeled_block_temp += tempdelta;
-      const bool steadystate = fabs(tempdelta) < (0.2 * MPC_dT);
+      float blocktempdelta = temp_hotend[ee].soft_pwm_amount * (HEATER_POWER / 127 * MPC_dT / heatblock_heat_capacity);
+      blocktempdelta += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff * (MPC_dT / heatblock_heat_capacity);
+      temp_hotend[ee].modeled_block_temp += blocktempdelta;
 
-      tempdelta = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * (sensor_xfer_coeff * MPC_dT / sensor_heat_capacity);
-      temp_hotend[ee].modeled_sensor_temp += tempdelta;
+      const float sensortempdelta = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * (sensor_xfer_coeff * MPC_dT / sensor_heat_capacity);
+      temp_hotend[ee].modeled_sensor_temp += sensortempdelta;
 
       // Any delta between temp_hotend[ee].modeled_sensor_temp and temp_hotend[ee].celsius is either model
       // error diverging slowly or (fast) noise. Slowly correct towards this temperature and noise will average out.
-      const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) / 10.0;
+      const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) * (MPC_SMOOTHING * MPC_dT);
       temp_hotend[ee].modeled_block_temp += delta_to_apply;
       temp_hotend[ee].modeled_sensor_temp += delta_to_apply;
 
       // only correct ambient when close to steady state otherwise it can diverge wildly due to modelling errors
-      if (steadystate)
+      if (fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
         temp_hotend[ee].modeled_ambient_temp += delta_to_apply;
 
       float power = 0.0;
