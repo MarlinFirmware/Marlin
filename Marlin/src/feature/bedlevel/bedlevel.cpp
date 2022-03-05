@@ -67,12 +67,6 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
     planner.synchronize();
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Force bbl.get_z_correction to re-calculate next time
-      const xyz_pos_t reset { -9999.999, -9999.999, 0 };
-      (void)bbl.get_z_correction(reset);
-    #endif
-
     if (planner.leveling_active) {      // leveling from on to off
       if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
       // change unleveled current_position to physical current_position without moving steppers.

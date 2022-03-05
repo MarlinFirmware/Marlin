@@ -27,6 +27,8 @@ class bilinear_bed_leveling {
   static xy_pos_t grid_spacing, grid_start;
   static xy_float_t grid_factor;
   static bed_mesh_t z_values;
+  static xy_pos_t cached_rel;
+  static xy_int8_t cached_g;
 
   static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
