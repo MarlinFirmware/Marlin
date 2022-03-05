@@ -19,16 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../inc/MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(X_AXIS_TWIST_COMPENSATION)
 
-#include "../bedlevel.h"
+#include "x_twist.h"
+#include "../module/probe.h"
 
 XATC xatc;
 
+bool XATC::enabled;
 float XATC::spacing, XATC::start;
-xatc_array_t XATC::z_offset;
+xatc_array_t XATC::z_offset; // Initialized by settings.load()
+
+void XATC::reset() {
+  constexpr float xzo[] = XATC_Z_OFFSETS;
+  static_assert(COUNT(xzo) == XATC_MAX_POINTS, "XATC_Z_OFFSETS is the wrong size.");
+  COPY(z_offset, xzo);
+  xatc.spacing = (probe.max_x() - probe.min_x()) / (XATC_MAX_POINTS - 1);
+  xatc.start = probe.min_x();
+  enabled = true;
+}
 
 void XATC::print_points() {
   SERIAL_ECHOLNPGM(" X-Twist Correction:");
@@ -49,6 +60,7 @@ void XATC::print_points() {
 float lerp(const_float_t t, const_float_t a, const_float_t b) { return a + t * (b - a); }
 
 float XATC::compensation(const xy_pos_t &raw) {
+  if (!enabled) return 0;
   if (NEAR_ZERO(spacing)) return 0;
   float t = (raw.x - start) / spacing;
   int i = FLOOR(t);

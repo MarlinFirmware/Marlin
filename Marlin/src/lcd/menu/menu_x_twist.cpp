@@ -27,6 +27,7 @@
 #include "menu_addon.h"
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#include "../../feature/x_twist.h"
 #include "../../module/motion.h"
 #include "../../gcode/queue.h"
 #include "../../module/probe.h"
@@ -148,7 +149,9 @@ void xatc_wizard_goto_next_point() {
       // Deploy certain probes before starting probing
       TERN_(BLTOUCH, do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE));
 
+      xatc.set_enabled(false);
       measured_z = probe.probe_at_point(x, XATC_Y_POSITION, PROBE_PT_STOW);
+      xatc.set_enabled(true);
       current_position += probe.offset_xy;
       current_position.z = XATC_START_Z - probe.offset.z + measured_z;
       line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
@@ -186,8 +189,7 @@ void xatc_wizard_homing_done() {
   }
 
   if (ui.use_click()) {
-    xatc.spacing = (probe.max_x() - probe.min_x()) / (XATC_MAX_POINTS - 1);
-    xatc.start = probe.min_x();
+    xatc.reset();
 
     SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 
