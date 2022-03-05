@@ -86,14 +86,21 @@ void ChironTFT::Startup() {
   TFTSer.begin(115200);
 
   // wait for the TFT panel to initialise and finish the animation
-  delay_ms(250);
+  safe_delay(1000);
 
   // There are different panels for the Chiron with slightly different commands
   // So we need to know what we are working with.
-
   // Panel type can be defined otherwise detect it automatically
-  if (panel_type == AC_panel_unknown) DetectPanelType();
-
+  switch(panel_type)
+  {
+    case AC_panel_new: SERIAL_ECHOLNF(AC_msg_new_panel_set); break;
+    case AC_panel_standard: SERIAL_ECHOLNF(AC_msg_old_panel_set); break;
+    default:
+      SERIAL_ECHOLNF(AC_msg_auto_panel_detection);
+      DetectPanelType();
+    break;
+  }
+  
   // Signal Board has reset
   SendtoTFTLN(AC_msg_main_board_has_reset);
 
@@ -243,7 +250,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
     case AC_printer_probing: {
       // If probing completes ok save the mesh and park
       // Ignore the custom machine name
-      if (strcmp_P(msg + strlen(MACHINE_NAME), MARLIN_msg_ready) == 0) {
+      if (strcmp_P(msg + strlen(CUSTOM_MACHINE_NAME), MARLIN_msg_ready) == 0) {
         injectCommands(F("M500\nG27"));
         SendtoTFTLN(AC_msg_probing_complete);
         printer_state = AC_printer_idle;
@@ -366,7 +373,7 @@ int8_t ChironTFT::FindToken(char c) {
       #endif
       return pos;
     }
-  } while (++pos < command_len);
+  } while(++pos < command_len);
   #if ACDEBUG(AC_INFO)
     SERIAL_ECHOLNPGM("Not found: ", c);
   #endif
@@ -433,7 +440,7 @@ void ChironTFT::SendFileList(int8_t startindex) {
 }
 
 void ChironTFT::SelectFile() {
-  if (panel_type == AC_panel_new) {
+  if (panel_type <= AC_panel_new) {
     strncpy(selectedfile, panel_command + 4, command_len - 3);
     selectedfile[command_len - 4] = '\0';
   }
@@ -456,7 +463,7 @@ void ChironTFT::SelectFile() {
       break;
     default:   // enter sub folder
       // for new panel remove the '.GCO' tag that was added to the end of the path
-      if (panel_type == AC_panel_new)
+      if (panel_type <= AC_panel_new)
         selectedfile[strlen(selectedfile) - 4] = '\0';
       filenavigator.changeDIR(selectedfile);
       SendtoTFTLN(AC_msg_sd_file_open_failed);
@@ -493,7 +500,9 @@ void ChironTFT::ProcessPanelRequest() {
           }
         }
         else {
-          tpos = FindToken('['); // new panel will respond to 'J200' with '[0]=0'
+          // new panel will respond to 'J200' with '[0]=0'
+          // it seems only after a power cycle so detection assumes a new panel
+          tpos = FindToken('['); 
           if (tpos != -1) {
             if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
               panel_type = AC_panel_new;
