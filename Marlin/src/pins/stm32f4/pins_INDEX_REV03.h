@@ -94,33 +94,54 @@
 #define K_DIR_PIN                           PD7
 #define K_ENABLE_PIN                        PA3
 
-// Note: different jumper configuration needed for SPI stepper drivers!
-// #define SPI_CONNECTION
-#if ENABLED(SPI_CONNECTION)
+#if ANY_AXIS_HAS(SPI)
   /**
    * Make sure to configure the jumpers on the back side of the Mobo according to
    * this diagram: https://github.com/MarlinFirmware/Marlin/pull/23851
    */
   #error "SPI drivers require a custom jumper configuration, see comment above! Comment out this line to continue."
-  #define X_CS_PIN                          PD8
-  #define Y_CS_PIN                          PB12
-  #define Z_CS_PIN                          PE8
-  #define I_CS_PIN                          PC5
-  #define J_CS_PIN                          PE12
-  #define K_CS_PIN                          PA2
-#else
+#endif
+
+#if AXIS_HAS_UART(X)
   #define X_SERIAL_TX_PIN                   PD8
   #define X_SERIAL_RX_PIN                   PD8
+#elif AXIS_HAS_SPI(X)
+  #define X_CS_PIN                          PD8
+#endif
+
+#if AXIS_HAS_UART(Y)
   #define Y_SERIAL_TX_PIN                   PB12
   #define Y_SERIAL_RX_PIN                   PB12
+#elif AXIS_HAS_SPI(Y)
+  #define Y_CS_PIN                          PB12
+#endif
+
+#if AXIS_HAS_UART(Z)
   #define Z_SERIAL_TX_PIN                   PE8
   #define Z_SERIAL_RX_PIN                   PE8
+#elif AXIS_HAS_SPI(Z)
+  #define Z_CS_PIN                          PE8
+#endif
+
+#if AXIS_HAS_UART(I)
   #define I_SERIAL_TX_PIN                   PC5
   #define I_SERIAL_RX_PIN                   PC5
+#elif AXIS_HAS_SPI(I)
+  #define I_CS_PIN                          PC5
+#endif
+
+#if AXIS_HAS_UART(J)
   #define J_SERIAL_TX_PIN                   PE12
   #define J_SERIAL_RX_PIN                   PE12
+#elif AXIS_HAS_SPI(J)
+  #define J_CS_PIN                          PE12
+#endif
+
+#if AXIS_HAS_UART(K)
   #define K_SERIAL_TX_PIN                   PA2
   #define K_SERIAL_RX_PIN                   PA2
+#elif AXIS_HAS_SPI(K)
+  #define K_CS_PIN                          PA2
 #endif
 
 // Reduce baud rate to improve software serial reliability
@@ -146,6 +167,10 @@
 #define MISO_PIN                            PB4
 #define MOSI_PIN                            PB5
 #define SCK_PIN                             PB3
+
+#define TMC_SW_MISO                         MISO_PIN
+#define TMC_SW_MOSI                         MOSI_PIN
+#define TMC_SW_SCK                          SCK_PIN
 
 // I2C
 #define I2C_SDA_PIN                         PB7
