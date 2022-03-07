@@ -3417,7 +3417,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Back, F("Back"));
             else {
               set_bed_leveling_enabled(level_state);
-              TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
+              TERN_(AUTO_BED_LEVELING_BILINEAR, bbl.refresh_bed_level());
               Draw_Menu(Leveling, LEVELING_MANUAL);
             }
             break;
