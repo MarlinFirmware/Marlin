@@ -40,8 +40,6 @@ class bilinear_bed_leveling {
     static xy_pos_t grid_spacing_virt;
     static xy_float_t grid_factor_virt;
 
-    static void print_leveling_grid_virt();
-
     static float bed_level_virt_coord(const uint8_t x, const uint8_t y);
     static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t);
     static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const_float_t tx, const_float_t ty);
@@ -52,7 +50,7 @@ public:
   static void reset();
   static void set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start);
   static void extrapolate_unprobed_bed_level();
-  static void print_leveling_grid();
+  static void print_leveling_grid(const bed_mesh_t* _z_values = NULL);
   static void refresh_bed_level();
   static bool has_mesh() {return !!grid_spacing.x;}
   static bed_mesh_t& get_z_values() {return z_values;}

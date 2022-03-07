@@ -153,13 +153,17 @@ void bilinear_bed_leveling::extrapolate_unprobed_bed_level() {
     }
 }
 
-void bilinear_bed_leveling::print_leveling_grid() {
+void bilinear_bed_leveling::print_leveling_grid(const bed_mesh_t* _z_values /*= NULL*/) {
+  // print internal grid(s) or just the one passed as a parameter
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-  print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3,
-    [](const uint8_t ix, const uint8_t iy) { return z_values[ix][iy]; }
-  );
+  print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0]);
 
-  TERN_(ABL_BILINEAR_SUBDIVISION, print_leveling_grid_virt());
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    if (!_z_values) {
+      SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
+      print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5, z_values_virt[0]);
+    }
+  #endif
 }
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -169,13 +173,6 @@ void bilinear_bed_leveling::print_leveling_grid() {
   float bilinear_bed_leveling::z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
   xy_pos_t bilinear_bed_leveling::grid_spacing_virt;
   xy_float_t bilinear_bed_leveling::grid_factor_virt;
-
-  void bilinear_bed_leveling::print_leveling_grid_virt() {
-    SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-    print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5,
-      [](const uint8_t ix, const uint8_t iy) { return z_values_virt[ix][iy]; }
-    );
-  }
 
   #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
   float bilinear_bed_leveling::bed_level_virt_coord(const uint8_t x, const uint8_t y) {

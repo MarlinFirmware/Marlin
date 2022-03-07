@@ -145,7 +145,7 @@ void reset_bed_level() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn) {
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
     #ifndef SCAD_MESH_OUTPUT
       LOOP_L_N(x, sx) {
         serial_spaces(precision + (x < 10 ? 3 : 2));
@@ -165,7 +165,7 @@ void reset_bed_level() {
       #endif
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
-        const float offset = fn(x, y);
+        const float offset = values[x * sx + y];
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO_F(offset, int(precision));

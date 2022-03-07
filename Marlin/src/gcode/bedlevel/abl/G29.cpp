@@ -127,6 +127,7 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       float Z_offset;
+      bed_mesh_t z_values;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -453,14 +454,11 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      if (TERN1(PROBE_MANUALLY, !no_action)
+      if (!abl.dryrun
         && (abl.gridSpacing != bbl.get_grid_spacing() || abl.probe_position_lf != bbl.get_grid_start())
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
-
-        // Initialize a grid with the given dimensions
-        bbl.set_grid(abl.gridSpacing, abl.probe_position_lf);
 
         // Can't re-enable (on error) until the new grid is written
         abl.reenable = false;
@@ -532,7 +530,7 @@ G29_TYPE GcodeSuite::G29() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         const float newz = abl.measured_z + abl.Z_offset;
-        Z_VALUES_ARR[abl.meshCount.x][abl.meshCount.y] = newz;
+        abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
@@ -680,7 +678,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            Z_VALUES_ARR[abl.meshCount.x][abl.meshCount.y] = z;
+            abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
           #endif
@@ -751,11 +749,16 @@ G29_TYPE GcodeSuite::G29() {
   if (!isnan(abl.measured_z)) {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      if (!abl.dryrun) bbl.extrapolate_unprobed_bed_level();
+      if (abl.dryrun)
+        bbl.print_leveling_grid(&abl.z_values);
+      else {
+        bbl.set_grid(abl.gridSpacing, abl.probe_position_lf);
+        COPY(Z_VALUES_ARR, abl.z_values);
+        bbl.extrapolate_unprobed_bed_level();
+        bbl.refresh_bed_level();
 
-      bbl.refresh_bed_level();
-
-      bbl.print_leveling_grid();
+        bbl.print_leveling_grid();
+      }
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
