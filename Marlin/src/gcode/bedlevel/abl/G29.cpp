@@ -754,7 +754,7 @@ G29_TYPE GcodeSuite::G29() {
       else {
         bbl.set_grid(abl.gridSpacing, abl.probe_position_lf);
         COPY(Z_VALUES_ARR, abl.z_values);
-        bbl.extrapolate_unprobed_bed_level();
+        TERN_(IS_KINEMATIC, bbl.extrapolate_unprobed_bed_level());
         bbl.refresh_bed_level();
 
         bbl.print_leveling_grid();
