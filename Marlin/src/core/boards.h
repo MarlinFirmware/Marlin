@@ -164,6 +164,7 @@
 #define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
 #define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1329  // Mega controller & Protoneer CNC Shield V3.00
+#define BOARD_WEEDO_62A               1330  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
 
 //
 // ATmega1281, ATmega2561
@@ -404,16 +405,17 @@
 #define BOARD_MKS_ROBIN2              4226  // MKS_ROBIN2 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        4227  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4228  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_MKS_MONSTER8            4229  // MKS Monster8 (STM32F407VG)
-#define BOARD_ANET_ET4                4230  // ANET ET4 V1.x (STM32F407VG)
-#define BOARD_ANET_ET4P               4231  // ANET ET4P V1.x (STM32F407VG)
-#define BOARD_FYSETC_CHEETAH_V20      4232  // FYSETC Cheetah V2.0
-#define BOARD_TH3D_EZBOARD_V2         4233  // TH3D EZBoard v2.0
-#define BOARD_INDEX_REV03             4234  // Index PnP Controller REV03 (STM32F407VE/VG)
-#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4235  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
-#define BOARD_MKS_EAGLE               4236  // MKS Eagle (STM32F407VE)
-#define BOARD_ARTILLERY_RUBY          4237  // Artillery Ruby (STM32F401RC)
-#define BOARD_FYSETC_SPIDER_V2_2      4238  // FYSETC Spider V2.2 (STM32F446VE)
+#define BOARD_MKS_ROBIN_NANO_V3_1     4229  // MKS Robin Nano V3.1 (STM32F407VE)
+#define BOARD_MKS_MONSTER8            4230  // MKS Monster8 (STM32F407VG)
+#define BOARD_ANET_ET4                4231  // ANET ET4 V1.x (STM32F407VG)
+#define BOARD_ANET_ET4P               4232  // ANET ET4P V1.x (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V20      4233  // FYSETC Cheetah V2.0
+#define BOARD_TH3D_EZBOARD_V2         4234  // TH3D EZBoard v2.0
+#define BOARD_INDEX_REV03             4235  // Index PnP Controller REV03 (STM32F407VE/VG)
+#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4236  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
+#define BOARD_MKS_EAGLE               4237  // MKS Eagle (STM32F407VE)
+#define BOARD_ARTILLERY_RUBY          4238  // Artillery Ruby (STM32F401RC)
+#define BOARD_FYSETC_SPIDER_V2_2      4239  // FYSETC Spider V2.2 (STM32F446VE)
 
 //
 // ARM Cortex M7

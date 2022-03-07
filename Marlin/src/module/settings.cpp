@@ -64,7 +64,7 @@
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
   #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    #include "../feature/bedlevel/abl/x_twist.h"
+    #include "../feature/x_twist.h"
   #endif
 #endif
 
@@ -269,11 +269,15 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
-    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      XATC xatc;                                        // TBD
-    #endif
   #else
     float z_values[3][3];
+  #endif
+
+  //
+  // X_AXIS_TWIST_COMPENSATION
+  //
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    XATC xatc;                                          // TBD
   #endif
 
   //
@@ -298,7 +302,7 @@ typedef struct SettingsDataStruct {
       int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
     #endif
     #if ENABLED(PTC_HOTEND)
-      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)]; // M871 E I V
     #endif
   #endif
 
@@ -337,11 +341,11 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Z_STEPPER_AUTO_ALIGN, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS
+  // Z_STEPPER_AUTO_ALIGN, HAS_Z_STEPPER_ALIGN_STEPPER_XY
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];             // M422 S X Y
-    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
       xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];   // M422 W X Y
     #endif
   #endif
@@ -390,6 +394,13 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_BRIGHTNESS
   //
   uint8_t lcd_brightness;                               // M256 B
+
+  //
+  // LCD_BACKLIGHT_TIMEOUT
+  //
+  #if LCD_BACKLIGHT_TIMEOUT
+    uint16_t lcd_backlight_timeout;                     // (G-code needed)
+  #endif
 
   //
   // Controller fan settings
@@ -607,6 +618,10 @@ void MarlinSettings::postprocess() {
   // Moved as last update due to interference with Neopixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
   TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
+
+  #if LCD_BACKLIGHT_TIMEOUT
+    ui.refresh_backlight_timeout();
+  #endif
 }
 
 #if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
@@ -862,9 +877,6 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
-        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          static_assert(COUNT(xatc.z_offset) == XATC_MAX_POINTS, "XATC Z-offset mesh is the wrong size.");
-        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -878,14 +890,19 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
-        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          EEPROM_WRITE(xatc);
-        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
+
+    //
+    // X Axis Twist Compensation
+    //
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      _FIELD_TEST(xatc);
+      EEPROM_WRITE(xatc);
+    #endif
 
     //
     // Unified Bed Leveling
@@ -988,7 +1005,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(Z_STEPPER_AUTO_ALIGN)
       EEPROM_WRITE(z_stepper_align.xy);
-      #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+      #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
         EEPROM_WRITE(z_stepper_align.stepper_xy);
       #endif
     #endif
@@ -1107,6 +1124,13 @@ void MarlinSettings::postprocess() {
       const uint8_t lcd_brightness = TERN(HAS_LCD_BRIGHTNESS, ui.brightness, 255);
       EEPROM_WRITE(lcd_brightness);
     }
+
+    //
+    // LCD Backlight Timeout
+    //
+    #if LCD_BACKLIGHT_TIMEOUT
+      EEPROM_WRITE(ui.lcd_backlight_timeout);
+    #endif
 
     //
     // Controller Fan
@@ -1408,14 +1432,15 @@ void MarlinSettings::postprocess() {
     //
     {
       #if ENABLED(BACKLASH_GCODE)
-        const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
-        const uint8_t &backlash_correction = backlash.correction;
+        xyz_float_t backlash_distance_mm;
+        LOOP_LINEAR_AXES(axis) backlash_distance_mm[axis] = backlash.get_distance_mm((AxisEnum)axis);
+        const uint8_t backlash_correction = backlash.get_correction_uint8();
       #else
         const xyz_float_t backlash_distance_mm{0};
         const uint8_t backlash_correction = 0;
       #endif
       #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-        const float &backlash_smoothing_mm = backlash.smoothing_mm;
+        const float backlash_smoothing_mm = backlash.get_smoothing_mm();
       #else
         const float backlash_smoothing_mm = 3;
       #endif
@@ -1766,9 +1791,6 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
-            #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-              EEPROM_READ(xatc);
-            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -1780,6 +1802,13 @@ void MarlinSettings::postprocess() {
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
       }
+
+      //
+      // X Axis Twist Compensation
+      //
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        EEPROM_READ(xatc);
+      #endif
 
       //
       // Unified Bed Leveling active state
@@ -1895,7 +1924,7 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         EEPROM_READ(z_stepper_align.xy);
-        #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+        #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
           EEPROM_READ(z_stepper_align.stepper_xy);
         #endif
       #endif
@@ -2014,6 +2043,13 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(lcd_brightness);
         TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
       }
+
+      //
+      // LCD Backlight Timeout
+      //
+      #if LCD_BACKLIGHT_TIMEOUT
+        EEPROM_READ(ui.lcd_backlight_timeout);
+      #endif
 
       //
       // Controller Fan
@@ -2339,22 +2375,22 @@ void MarlinSettings::postprocess() {
       // Backlash Compensation
       //
       {
-        #if ENABLED(BACKLASH_GCODE)
-          const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
-          const uint8_t &backlash_correction = backlash.correction;
-        #else
-          xyz_float_t backlash_distance_mm;
-          uint8_t backlash_correction;
-        #endif
-        #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-          const float &backlash_smoothing_mm = backlash.smoothing_mm;
-        #else
-          float backlash_smoothing_mm;
-        #endif
+        xyz_float_t backlash_distance_mm;
+        uint8_t backlash_correction;
+        float backlash_smoothing_mm;
+
         _FIELD_TEST(backlash_distance_mm);
         EEPROM_READ(backlash_distance_mm);
         EEPROM_READ(backlash_correction);
         EEPROM_READ(backlash_smoothing_mm);
+
+        #if ENABLED(BACKLASH_GCODE)
+          LOOP_LINEAR_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, backlash_distance_mm[axis]);
+          backlash.set_correction_uint8(backlash_correction);
+          #ifdef BACKLASH_SMOOTHING_MM
+            backlash.set_smoothing_mm(backlash_smoothing_mm);
+          #endif
+        #endif
       }
 
       //
@@ -2786,11 +2822,11 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    backlash.correction = (BACKLASH_CORRECTION) * 255;
+    backlash.set_correction(BACKLASH_CORRECTION);
     constexpr xyz_float_t tmp = BACKLASH_DISTANCE_MM;
-    backlash.distance_mm = tmp;
+    LOOP_LINEAR_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, tmp[axis]);
     #ifdef BACKLASH_SMOOTHING_MM
-      backlash.smoothing_mm = BACKLASH_SMOOTHING_MM;
+      backlash.set_smoothing_mm(BACKLASH_SMOOTHING_MM);
     #endif
   #endif
 
@@ -2823,6 +2859,14 @@ void MarlinSettings::reset() {
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
   TERN_(HAS_LEVELING, reset_bed_level());
 
+  //
+  // X Axis Twist Compensation
+  //
+  TERN_(X_AXIS_TWIST_COMPENSATION, xatc.reset());
+
+  //
+  // Nozzle-to-probe Offset
+  //
   #if HAS_BED_PROBE
     constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
     static_assert(COUNT(dpo) == LINEAR_AXES, "NOZZLE_TO_PROBE_OFFSET must contain offsets for each linear axis X, Y, Z....");
@@ -3039,6 +3083,13 @@ void MarlinSettings::reset() {
   // LCD Brightness
   //
   TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+
+  //
+  // LCD Backlight Timeout
+  //
+  #if LCD_BACKLIGHT_TIMEOUT
+    ui.lcd_backlight_timeout = LCD_BACKLIGHT_TIMEOUT;
+  #endif
 
   //
   // Controller Fan
@@ -3280,13 +3331,13 @@ void MarlinSettings::reset() {
           }
         }
 
-        // TODO: Create G-code for settings
-        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        //  CONFIG_ECHO_START();
-        //  xatc.print_points();
-        //#endif
-
       #endif
+
+      // TODO: Create G-code for settings
+      //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      //  CONFIG_ECHO_START();
+      //  xatc.print_points();
+      //#endif
 
     #endif // HAS_LEVELING
 

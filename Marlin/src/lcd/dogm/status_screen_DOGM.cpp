@@ -674,7 +674,7 @@ void MarlinUI::draw_status_screen() {
         #if CUTTER_UNIT_IS(PERCENT)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.unitPower));
         #elif CUTTER_UNIT_IS(RPM)
-          lcd_put_u8str(STATUS_CUTTER_TEXT_X - 2, STATUS_CUTTER_TEXT_Y, ftostr51rj(float(cutter.unitPower) / 1000));
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X - 2, STATUS_CUTTER_TEXT_Y, ftostr61rj(float(cutter.unitPower) / 1000));
           lcd_put_wchar('K');
         #else
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.unitPower));
