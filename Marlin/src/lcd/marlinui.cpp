@@ -1204,7 +1204,7 @@ void MarlinUI::init() {
     #endif
 
     // Calculate the ADC value for the voltage divider with specified pull-down resistor value
-    #define ADC_BUTTON_VALUE(r)  int(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
+    #define ADC_BUTTON_VALUE(r)  uint16_t(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
 
     static constexpr uint16_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
                                   adc_other_button = HAL_ADC_RANGE * 1000 / 1024;
