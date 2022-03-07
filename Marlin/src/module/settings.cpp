@@ -874,7 +874,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         static_assert(
-          sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
+          sizeof(Z_VALUES_ARR) == (GRID_MAX_POINTS) * sizeof(Z_VALUES_ARR[0][0]),
           "Bilinear Z array is the wrong size."
         );
       #endif
