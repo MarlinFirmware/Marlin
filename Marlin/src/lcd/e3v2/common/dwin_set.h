@@ -26,10 +26,11 @@
 #define Language_Chinese    2
 
 //#define USE_STOCK_DWIN_SET  // Use the Creality stock DWIN_SET instead of Marlin's unified DWIN_SET by The-EG & thinkyhead
+// Yeah no thanks, the stock should be the default
 #ifdef USE_STOCK_DWIN_SET
   #define ICON 9 // 9.ICO
 #else
-  #define ICON 7 // 7.ICO
+  #define ICON 9
 #endif
 
 #ifndef CORP_WEBSITE
