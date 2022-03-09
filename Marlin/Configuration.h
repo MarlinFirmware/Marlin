@@ -645,7 +645,7 @@
 
   // Advanced options
   #define MPC_STEADYSTATE 0.5                       // temperature change rate in K/s below which steady state model correction logic kicks in
-  #define MPC_SMOOTHING 0.5                         // larger values smooth the temperature readings more but introduce latency
+  #define MPC_SMOOTHING 0.5                         // smaller values smooth the temperature readings more but introduce latency
 #endif // MPCTEMP
 
 //===========================================================================
