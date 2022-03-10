@@ -22,16 +22,14 @@
 #pragma once
 
 /**
- * DWIN general defines and data structs
+ * DWIN general defines and data structs for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.9.2
- * Date: 2021/11/21
- *
- * Based on the original code provided by Creality under GPL
+ * Version: 3.11.2
+ * Date: 2022/02/28
  */
 
-//#define NEED_HEX_PRINT 1
 //#define DEBUG_DWIN 1
+//#define NEED_HEX_PRINT 1
 
 #include "../../../core/types.h"
 #include "../common/dwin_color.h"
@@ -57,9 +55,33 @@
 #define Def_Barfill_Color     BarFill_Color
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color  Color_White
+#define Def_Button_Color      RGB( 0, 23, 16)
 
-//#define HAS_GCODE_PREVIEW 1
 #define HAS_ESDIAG 1
+#ifndef INDIVIDUAL_AXIS_HOMING_SUBMENU
+  #define INDIVIDUAL_AXIS_HOMING_SUBMENU
+#endif
+#ifndef LCD_SET_PROGRESS_MANUALLY
+  #define LCD_SET_PROGRESS_MANUALLY
+#endif
+#ifndef STATUS_MESSAGE_SCROLLING
+  #define STATUS_MESSAGE_SCROLLING
+#endif
+#ifndef BAUD_RATE_GCODE
+  #define BAUD_RATE_GCODE
+#endif
+#ifndef HAS_LCD_BRIGHTNESS
+  #define HAS_LCD_BRIGHTNESS 1
+#endif
+#ifndef LCD_BRIGHTNESS_DEFAULT
+  #define LCD_BRIGHTNESS_DEFAULT 127
+#endif
+#ifndef SOUND_MENU_ITEM
+  #define SOUND_MENU_ITEM
+#endif
+#ifndef PRINTCOUNTER
+  #define PRINTCOUNTER
+#endif
 
 #if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
@@ -69,7 +91,7 @@
 #endif
 
 typedef struct {
-  // Color settings
+// Color settings
   uint16_t Background_Color = Def_Background_Color;
   uint16_t Cursor_color     = Def_Cursor_color;
   uint16_t TitleBg_color    = Def_TitleBg_color;
@@ -92,7 +114,7 @@ typedef struct {
   #if HAS_HOTEND && defined(PREHEAT_1_TEMP_HOTEND)
     int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
   #endif
-  #if HAS_HEATED_BED && defined(PREHEAT_1_TEMP_BED)
+  #if defined(PREHEAT_1_TEMP_BED)
     int16_t BedPidT = PREHEAT_1_TEMP_BED;
   #endif
   #if HAS_HOTEND || HAS_HEATED_BED
@@ -101,6 +123,9 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
   #endif
+  int16_t BedLevT = TERN0(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_BED);
+  TERN_(BAUD_RATE_GCODE, bool Baud115K = false);
+  bool FullManualTramming = false;
   // Led
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
@@ -113,3 +138,8 @@ typedef struct {
 
 static constexpr size_t eeprom_data_size = 64;
 extern HMI_data_t HMI_data;
+
+#if PREHEAT_1_TEMP_BED
+  #undef LEVELING_BED_TEMP
+  #define LEVELING_BED_TEMP HMI_data.BedLevT
+#endif

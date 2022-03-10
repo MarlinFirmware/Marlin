@@ -1335,11 +1335,11 @@
 
 #endif // HAS_MARLINUI_MENU
 
-#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+#if ANY(HAS_DISPLAY, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   //#define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
 #endif
 
-#if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
+#if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
   // The timeout (in ms) to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000
 

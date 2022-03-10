@@ -21,17 +21,15 @@
  */
 
 /**
- * DWIN UI Enhanced implementation
+ * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.8.2
- * Date: 2021/11/09
- *
- * Based on the original code provided by Creality under GPL
+ * Version: 3.15.1
+ * Date: 2022/02/25
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#if ENABLED(DWIN_LCD_PROUI)
 
 #include "../../../inc/MarlinConfig.h"
 #include "dwin_lcd.h"
@@ -51,7 +49,9 @@ xy_int_t DWINUI::cursor = { 0 };
 uint16_t DWINUI::pencolor = Color_White;
 uint16_t DWINUI::textcolor = Def_Text_Color;
 uint16_t DWINUI::backcolor = Def_Background_Color;
+uint16_t DWINUI::buttoncolor = Def_Button_Color;
 uint8_t  DWINUI::font = font8x16;
+FSTR_P const DWINUI::Author = F(STRING_CONFIG_H_AUTHOR);
 
 void (*DWINUI::onCursorErase)(const int8_t line)=nullptr;
 void (*DWINUI::onCursorDraw)(const int8_t line)=nullptr;
@@ -59,18 +59,16 @@ void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
 void (*DWINUI::onMenuDraw)(MenuClass* menu)=nullptr;
 
 void DWINUI::init() {
-  DEBUG_ECHOPGM("\r\nDWIN handshake ");
-  delay(750);   // Delay here or init later in the boot process
-  const bool success = DWIN_Handshake();
-  if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
+  TERN_(DEBUG_DWIN, DEBUG_ECHOPGM("\r\nDWIN handshake ");)
+  delay(750);   // Delay for wait to wakeup screen
+  TERN(DEBUG_DWIN, if (DWIN_Handshake()) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error."), DWIN_Handshake());
   DWIN_Frame_SetDir(1);
-  TERN(SHOW_BOOTSCREEN,,DWIN_Frame_Clear(Color_Bg_Black));
-  DWIN_UpdateLCD();
   cursor.x = 0;
   cursor.y = 0;
   pencolor = Color_White;
   textcolor = Def_Text_Color;
   backcolor = Def_Background_Color;
+  buttoncolor = Def_Button_Color;
   font = font8x16;
 }
 
@@ -124,9 +122,10 @@ uint16_t DWINUI::RowToY(uint8_t row) {
 }
 
 // Set text/number color
-void DWINUI::SetColors(uint16_t fgcolor, uint16_t bgcolor) {
+void DWINUI::SetColors(uint16_t fgcolor, uint16_t bgcolor, uint16_t alcolor) {
   textcolor = fgcolor;
   backcolor = bgcolor;
+  buttoncolor = alcolor;
 }
 void DWINUI::SetTextColor(uint16_t fgcolor) {
   textcolor = fgcolor;
@@ -159,16 +158,22 @@ void DWINUI::MoveBy(xy_int_t point) {
   cursor += point;
 }
 
-// Draw a Centered string using DWIN_WIDTH
-void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
-  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * fontWidth(size)) / 2 - 1;
+// Draw a Centered string using arbitrary x1 and x2 margins
+void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string) {
+  const uint16_t x = _MAX(0U, x2 + x1 - strlen_P(string) * fontWidth(size)) / 2 - 1;
   DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
 }
 
+// // Draw a Centered string using DWIN_WIDTH
+// void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+//   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * fontWidth(size)) / 2 - 1;
+//   DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
+// }
+
 // Draw a char at cursor position
-void DWINUI::Draw_Char(const char c) {
+void DWINUI::Draw_Char(uint16_t color, const char c) {
   const char string[2] = { c, 0};
-  DWIN_Draw_String(false, font, textcolor, backcolor, cursor.x, cursor.y, string, 1);
+  DWIN_Draw_String(false, font, color, backcolor, cursor.x, cursor.y, string, 1);
   MoveBy(fontWidth(font), 0);
 }
 
@@ -185,20 +190,24 @@ void DWINUI::Draw_String(uint16_t color, const char * const string, uint16_t rli
   MoveBy(strlen(string) * fontWidth(font), 0);
 }
 
-// Draw a signed floating point number
-//  bShow: true=display background color; false=don't display background color
-//  zeroFill: true=zero fill; false=no zero fill
-//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
-//  size: Font size
-//  bColor: Background color
-//  iNum: Number of whole digits
-//  fNum: Number of decimal digits
-//  x/y: Upper-left point
-//  value: Float value
-void DWINUI::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-  DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value < 0 ? -value : value);
-  DWIN_Draw_String(bShow, size, color, bColor, x - 6, y, value < 0 ? F("-") : F(" "));
+// ------------------------- Buttons ------------------------------//
+
+void DWINUI::Draw_Button(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption) {
+  DWIN_Draw_Rectangle(1, bcolor, x1, y1, x2, y2);
+  Draw_CenteredString(0, font, color, bcolor, x1, x2, (y2 + y1 - fontHeight())/2, caption);
 }
+
+void DWINUI::Draw_Button(uint8_t id, uint16_t x, uint16_t y) {
+  switch (id) {
+    case BTN_Cancel  : Draw_Button(GET_TEXT_F(MSG_BUTTON_CANCEL), x, y); break;
+    case BTN_Confirm : Draw_Button(GET_TEXT_F(MSG_BUTTON_CONFIRM), x, y); break;
+    case BTN_Continue: Draw_Button(GET_TEXT_F(MSG_BUTTON_CONTINUE), x, y); break;
+    case BTN_Print   : Draw_Button(GET_TEXT_F(MSG_BUTTON_PRINT), x, y); break;
+    case BTN_Save    : Draw_Button(GET_TEXT_F(MSG_BUTTON_SAVE), x, y); break;
+    default: break;
+  }
+}
+// -------------------------- Extra -------------------------------//
 
 // Draw a circle
 //  color: circle color
@@ -453,4 +462,4 @@ MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, void 
   value = val;
 };
 
-#endif // DWIN_CREALITY_LCD_ENHANCED
+#endif // DWIN_LCD_PROUI
