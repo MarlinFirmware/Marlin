@@ -1570,17 +1570,8 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    SETUP_LOG("E3V2 Init");
-    Encoder_Configuration();
-    HMI_Init();
-    HMI_SetLanguageCache();
-    HMI_StartFrame(true);
-  #endif
-
-  #if ENABLED(DWIN_LCD_PROUI)
-    SETUP_LOG("DWIN Init Interface");
-    DWIN_InitScreen();
+  #if HAS_DWIN_E3V2_BASIC
+    SETUP_RUN(DWIN_InitScreen());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC

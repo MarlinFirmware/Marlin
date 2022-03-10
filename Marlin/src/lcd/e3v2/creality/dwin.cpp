@@ -4068,6 +4068,13 @@ void HMI_Init() {
   HMI_SetLanguage();
 }
 
+void DWIN_InitScreen() {
+  Encoder_Configuration();
+  HMI_Init();
+  HMI_SetLanguageCache();
+  HMI_StartFrame(true);
+}
+
 void DWIN_Update() {
   EachMomentUpdate();   // Status update
   HMI_SDCardUpdate();   // SD card update
