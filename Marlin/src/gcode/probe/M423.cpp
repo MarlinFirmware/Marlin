@@ -43,7 +43,7 @@
  */
 void GcodeSuite::M423() {
 
-  const bool do_report = true;
+  bool do_report = true;
 
   if (parser.seen_test('R')) {
     do_report = false;
