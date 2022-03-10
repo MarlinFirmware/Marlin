@@ -3203,9 +3203,11 @@ void MarlinSettings::reset() {
 
   postprocess();
 
-  FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
-  TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
-  DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
+  #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+    FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
+    TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
+    DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
+  #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
