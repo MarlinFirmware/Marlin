@@ -1306,7 +1306,7 @@ void Draw_Main_Area() {
     #if HAS_ESDIAG
       case ESDiagProcess:        Draw_EndStopDiag(); break;
     #endif
-    case Popup:                  Draw_Popup(); break;
+    case Popup:                  popupDraw(); break;
     case Locked:                 lockScreen.draw(); break;
     case Menu:
     case SetInt:
@@ -1522,23 +1522,23 @@ void DWIN_HandleScreen() {
 }
 
 bool IDisPopUp() {    // If ID is popup...
-  return  (checkkey == NothingToDo) ||
-          (checkkey == WaitResponse) ||
-          (checkkey == Homing) ||
-          (checkkey == Leveling) ||
-          (checkkey == PidProcess) ||
-          TERN_(HAS_ESDIAG, (checkkey == ESDiagProcess) ||)
-          (checkkey == Popup);
+  return  (checkkey == NothingToDo)
+       || (checkkey == WaitResponse)
+       || (checkkey == Homing)
+       || (checkkey == Leveling)
+       || (checkkey == PidProcess)
+       || TERN0(HAS_ESDIAG, (checkkey == ESDiagProcess))
+       || (checkkey == Popup);
 }
 
 void HMI_SaveProcessID(const uint8_t id) {
   if (checkkey != id) {
     if (!IDisPopUp()) last_checkkey = checkkey; // if previous is not a popup
-    if ((id == Popup) ||
-        TERN_(HAS_ESDIAG, (id == ESDiagProcess) ||)
-        (id == PrintDone) ||
-        (id == Leveling) ||
-        (id == WaitResponse)) wait_for_user = true;
+    if ((id == Popup)
+         || TERN0(HAS_ESDIAG, (id == ESDiagProcess))
+         || (id == PrintDone)
+         || (id == Leveling)
+         || (id == WaitResponse)) wait_for_user = true;
     checkkey = id;
   }
 }

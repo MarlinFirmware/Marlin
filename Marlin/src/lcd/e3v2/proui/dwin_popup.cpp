@@ -37,9 +37,10 @@
 
 #include "../../../MarlinCore.h" // for wait_for_user
 
-void (*ClickPopup)()=nullptr;
-void (*PopupChange)(bool state)=nullptr;
-void (*Draw_Popup)()=nullptr;
+popupDrawFunc_t popupDraw = nullptr;
+popupClickFunc_t popupClick = nullptr;
+popupChangeFunc_t popupChange = nullptr;
+
 uint16_t HighlightYPos = 280;
 
 void Draw_Select_Highlight(const bool sel, const uint16_t ypos) {
@@ -67,25 +68,25 @@ void DWIN_Popup_ConfirmCancel(const uint8_t icon, FSTR_P const fmsg2) {
   DWIN_UpdateLCD();
 }
 
-void Goto_Popup(void (*onPopupDraw)(), void (*onClickPopup)() /*= nullptr*/, void (*onPopupChange)(bool state) /*= nullptr*/) {
-  Draw_Popup = onPopupDraw;
-  ClickPopup = onClickPopup;
-  PopupChange = onPopupChange;
+void Goto_Popup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick/*=nullptr*/, const popupChangeFunc_t fnChange/*=nullptr*/) {
+  popupDraw = fnDraw;
+  popupClick = fnClick;
+  popupChange = fnChange;
   HMI_SaveProcessID(Popup);
   HMI_flag.select_flag = false;
-  Draw_Popup();
+  popupDraw();
 }
 
 void HMI_Popup() {
   if (!wait_for_user) {
-    if (ClickPopup) ClickPopup();
+    if (popupClick) popupClick();
     return;
   }
   else {
     EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_CW || encoder_diffState == ENCODER_DIFF_CCW) {
       const bool change = encoder_diffState != ENCODER_DIFF_CW;
-      if (PopupChange) PopupChange(change); else Draw_Select_Highlight(change, HighlightYPos);
+      if (popupChange) popupChange(change); else Draw_Select_Highlight(change, HighlightYPos);
       DWIN_UpdateLCD();
     }
   }
