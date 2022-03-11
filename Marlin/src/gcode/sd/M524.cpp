@@ -37,12 +37,16 @@
 void GcodeSuite::M524() {
 
   #if ENABLED(DWIN_LCD_PROUI)
-    HMI_flag.abort_flag = true;    // Abort print
+
+    HMI_flag.abort_flag = true;    // The LCD will handle it
+
   #else
-  if (IS_SD_PRINTING())
-    card.abortFilePrintSoon();
-  else if (card.isMounted())
-    card.closefile();
+
+    if (IS_SD_PRINTING())
+      card.abortFilePrintSoon();
+    else if (card.isMounted())
+      card.closefile();
+
   #endif
 
 }

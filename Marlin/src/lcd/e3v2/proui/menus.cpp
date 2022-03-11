@@ -1,11 +1,33 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * Menu functions for ProUI
  * Author: Miguel A. Risco-Castillo
  * Version: 1.2.1
  * Date: 2022/02/25
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -35,7 +57,7 @@ MenuData_t MenuData;
 
 void Draw_Title(TitleClass* title) {
   DWIN_Draw_Rectangle(1, HMI_data.TitleBg_color, 0, 0, DWIN_WIDTH - 1, TITLE_HEIGHT - 1);
-  if (title->frameid) 
+  if (title->frameid)
     DWIN_Frame_AreaCopy(title->frameid, title->frame.left, title->frame.top, title->frame.right, title->frame.bottom, 14, (TITLE_HEIGHT - (title->frame.bottom - title->frame.top)) / 2 - 1);
   else
     DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
@@ -71,9 +93,9 @@ void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const
 
 void onDrawMenuItem(MenuItemClass* menuitem, int8_t line) {
   if (menuitem->icon) DWINUI::Draw_Icon(menuitem->icon, ICOX, MBASE(line) - 3);
-  if (menuitem->frameid) 
+  if (menuitem->frameid)
     DWIN_Frame_AreaCopy(menuitem->frameid, menuitem->frame.left, menuitem->frame.top, menuitem->frame.right, menuitem->frame.bottom, LBLX, MBASE(line));
-  else if (menuitem->caption) 
+  else if (menuitem->caption)
     DWINUI::Draw_String(LBLX, MBASE(line) - 1, menuitem->caption);
   DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
 }
@@ -177,7 +199,7 @@ void SetValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp
 //  hi: scaled high limit
 //  val: value
 //  LiveUpdate: live update function when the encoder changes
-//  Apply: update function when the encoder is pressed 
+//  Apply: update function when the encoder is pressed
 void SetIntOnClick(const int32_t lo, const int32_t hi, const int32_t val, void (*Apply)() /*= nullptr*/, void (*LiveUpdate)() /*= nullptr*/) {
   SetValueOnClick(SetInt, lo, hi, val, Apply, LiveUpdate);
 }

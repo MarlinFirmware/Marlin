@@ -138,6 +138,7 @@ void ApplyExtMinT();
 void HMI_SetLanguageCache(); // Set the languaje image cache
 void RebootPrinter();
 #if ENABLED(BAUD_RATE_GCODE)
+  void HMI_SetBaudRate();
   void SetBaud115K();
   void SetBaud250K();
 #endif

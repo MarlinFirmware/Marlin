@@ -1467,16 +1467,18 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(DWIN_LCD_PROUI)
     {
+      _FIELD_TEST(dwin_data);
       char dwin_data[eeprom_data_size] = { 0 };
       DWIN_StoreSettings(dwin_data);
-      _FIELD_TEST(dwin_data);
       EEPROM_WRITE(dwin_data);
     }
-    #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    #endif
+
+    #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     {
+      _FIELD_TEST(dwin_settings);
       char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
       CrealityDWIN.Save_Settings(dwin_settings);
-      _FIELD_TEST(dwin_settings);
       EEPROM_WRITE(dwin_settings);
     }
     #endif

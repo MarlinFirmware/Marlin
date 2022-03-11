@@ -580,7 +580,7 @@ void Draw_Print_ProgressRemain() {
 }
 
 void ICON_ResumeOrPause() {
-  if (checkkey==PrintProcess) printingIsPaused() ? ICON_Resume() : ICON_Pause();
+  if (checkkey == PrintProcess) printingIsPaused() ? ICON_Resume() : ICON_Pause();
 }
 
 // Update filename on print
@@ -590,7 +590,7 @@ void DWIN_Print_Header(const char *text = nullptr) {
     const int8_t size = _MIN(30U, strlen_P(text));
     LOOP_L_N(i, size) headertxt[i] = text[i];
     headertxt[size] = '\0';
-  }    
+  }
   if (checkkey == PrintProcess || checkkey == PrintDone) {
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 60, DWIN_WIDTH, 60+16);
     DWINUI::Draw_CenteredString(60, headertxt);
@@ -616,9 +616,9 @@ void Draw_PrintProcess() {
 }
 
 void Goto_PrintProcess() {
-  if (checkkey == PrintProcess) {
+  if (checkkey == PrintProcess)
     ICON_ResumeOrPause();
-  } else {
+  else {
     checkkey = PrintProcess;
     Draw_PrintProcess();
   }
@@ -891,14 +891,8 @@ void Draw_SDItem(const uint16_t item, int16_t row=-1) {
 
   // Draw the file/folder with name aligned left
   char str[strlen(name) + 1];
-  uint8_t icon;
   make_name_without_ext(str, name);
-  if (card.flag.filenameIsDir) {
-    icon = ICON_Folder;
-  } else if (card.flag.filenameIsBin) {
-    icon = ICON_Binary;  
-  } else icon = ICON_File;
-
+  const uint8_t icon = card.flag.filenameIsDir ? ICON_Folder : card.flag.filenameIsBin ? ICON_Binary : ICON_File;
   Draw_Menu_Line(row, icon, str);
 }
 
@@ -1217,11 +1211,10 @@ void HMI_SelectFile() {
       HMI_flag.heat_flag = true;
       HMI_flag.print_finish = false;
 
-      if (card.flag.filenameIsBin) {
-        return DWIN_Popup_Confirm(ICON_Error,F("Please, check filenames"),F("Only gcode can be printed"));
-      } else {
+      if (card.flag.filenameIsBin)
+        return DWIN_Popup_Confirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
+      else
         return Goto_ConfirmToPrint();
-      }
     }
   }
 
@@ -1231,11 +1224,10 @@ void HMI_SelectFile() {
 
 // Pause or Stop popup
 void onClick_PauseOrStop() {
-  if (select_print.now == PRINT_PAUSE_RESUME) {
-    if (HMI_flag.select_flag) HMI_flag.pause_flag = true;  // confirm pause
-  }
-  else if (select_print.now == PRINT_STOP) { // stop pressed
-    if (HMI_flag.select_flag) HMI_flag.abort_flag = true;  // stop confirmed then abort print
+  switch (select_print.now) {
+    case PRINT_PAUSE_RESUME: if (HMI_flag.select_flag) HMI_flag.pause_flag = true; break; // confirm pause
+    case PRINT_STOP: if (HMI_flag.select_flag) HMI_flag.abort_flag = true; break; // stop confirmed then abort print
+    default: break;
   }
   return Goto_PrintProcess();
 }
@@ -1269,7 +1261,7 @@ void HMI_Printing() {
       case PRINT_PAUSE_RESUME:
         if (printingIsPaused()) {  // if printer is already in pause
           ui.resume_print();
-        break;
+          break;
         }
         else
           return Goto_Popup(Popup_window_PauseOrStop, onClick_PauseOrStop);
@@ -1337,7 +1329,7 @@ void HMI_WaitForUser() {
         break;
       #endif
       default:
-        HMI_ReturnScreen();  
+        HMI_ReturnScreen();
         break;
     }
   }
@@ -1405,8 +1397,8 @@ void EachMomentUpdate() {
         HMI_flag.abort_action = true;
         ui.abort_print();
         return Goto_PrintDone();
-  }
-  }
+      }
+    }
 
     duration_t elapsed = print_job_timer.duration(); // print timer
 
@@ -1551,10 +1543,7 @@ void DWIN_StartHoming() {
 void DWIN_CompletedHoming() {
   HMI_flag.home_flag = false;
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
-  if (HMI_flag.abort_action) 
-    DWIN_Print_Aborted();
-  else
-  HMI_ReturnScreen();
+  if (HMI_flag.abort_action) DWIN_Print_Aborted(); else HMI_ReturnScreen();
 }
 
 void DWIN_MeshLevelingStart() {
@@ -1568,9 +1557,7 @@ void DWIN_MeshLevelingStart() {
 }
 
 void DWIN_CompletedLeveling() {
-  #if HAS_ONESTEP_LEVELING
-    if (planner.leveling_active) Goto_MeshViewer();
-  #endif
+  TERN_(HAS_ONESTEP_LEVELING, if (planner.leveling_active) Goto_MeshViewer());
 }
 
 #if HAS_MESH
@@ -1709,20 +1696,17 @@ void DWIN_SetColorDefaults() {
 void DWIN_SetDataDefaults() {
   DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
-  TERN_(HAS_HOTEND,             HMI_data.HotendPidT = PREHEAT_1_TEMP_HOTEND);
-  TERN_(HAS_HEATED_BED,         HMI_data.BedPidT    = PREHEAT_1_TEMP_BED);
-  TERN_(HAS_HOTEND,             HMI_data.PidCycles  = 5);
-  #ifdef PREVENT_COLD_EXTRUSION
+  TERN_(HAS_HOTEND,     HMI_data.HotendPidT = PREHEAT_1_TEMP_HOTEND);
+  TERN_(HAS_HEATED_BED, HMI_data.BedPidT    = PREHEAT_1_TEMP_BED);
+  TERN_(HAS_HOTEND,     HMI_data.PidCycles  = 5);
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
     HMI_data.ExtMinT = EXTRUDE_MINTEMP;
     ApplyExtMinT();
   #endif
-  #if HAS_HEATED_BED && ENABLED(PREHEAT_BEFORE_LEVELING)
+  #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_LEVELING)
     HMI_data.BedLevT = PREHEAT_1_TEMP_BED;
   #endif
-  #if ENABLED(BAUD_RATE_GCODE)
-    HMI_data.Baud115K = false;
-    SetBaud250K();
-  #endif
+  TERN_(BAUD_RATE_GCODE, SetBaud250K());
 }
 
 void DWIN_StoreSettings(char *buff) {
@@ -1735,13 +1719,9 @@ void DWIN_LoadSettings(const char *buff) {
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (HMI_data.Text_Color == HMI_data.Background_Color) DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
-  #ifdef PREVENT_COLD_EXTRUSION
-    ApplyExtMinT();
-  #endif
+  TERN_(PREVENT_COLD_EXTRUSION, ApplyExtMinT());
   feedrate_percentage = 100;
-  #if ENABLED(BAUD_RATE_GCODE)
-    if (HMI_data.Baud115K) SetBaud115K(); else SetBaud250K();
-  #endif
+  TERN_(BAUD_RATE_GCODE, HMI_SetBaudRate());
   #if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
     // Apply Case light brightness
     caselight.brightness = HMI_data.CaseLight_Brightness;
@@ -1910,7 +1890,7 @@ void Goto_ConfirmToPrint() {
 // NEW MENU SUBSYSTEM
 //=============================================================================
 
-// Tool functions 
+// Tool functions
 
 #if ENABLED(EEPROM_SETTINGS)
   void WriteEeprom() {
@@ -1984,10 +1964,10 @@ void SetHome() {
     }
   #endif
 
-  void SetMoveZto0() { 
+  void SetMoveZto0() {
     char cmd[48] = "";
     char str_1[5] = "", str_2[5] = "";
-    sprintf_P(cmd, PSTR("G28XYO\nG28Z\nG0X%sY%sF5000\nM420S0\nG0Z0F300"), 
+    sprintf_P(cmd, PSTR("G28XYO\nG28Z\nG0X%sY%sF5000\nM420S0\nG0Z0F300"),
       #if ENABLED(MESH_BED_LEVELING)
         dtostrf(0, 1, 1, str_1),
         dtostrf(0, 1, 1, str_2)
@@ -2072,12 +2052,16 @@ void SetPID(celsius_t t, heater_id_t h) {
 #endif
 
 #if ENABLED(BAUD_RATE_GCODE)
-  void SetBaudRate() {
-    HMI_data.Baud115K = !HMI_data.Baud115K;
+  void HMI_SetBaudRate() {
     if (HMI_data.Baud115K) SetBaud115K(); else SetBaud250K();
+  }
+  void SetBaudRate() {
+    HMI_SetBaudRate()
     Draw_Chkb_Line(CurrentMenu->line(), HMI_data.Baud115K);
     DWIN_UpdateLCD();
   }
+  void SetBaud115K() { queue.inject(F("M575 P0 B115200")); HMI_data.Baud115K = true; }
+  void SetBaud250K() { queue.inject(F("M575 P0 B250000")); HMI_data.Baud115K = false; }
 #endif
 
 #if HAS_LCD_BRIGHTNESS
@@ -2200,7 +2184,7 @@ void SelColor() {
 }
 
 void LiveRGBColor() {
-    HMI_value.Color[CurrentMenu->line() - 2] = MenuData.Value; 
+    HMI_value.Color[CurrentMenu->line() - 2] = MenuData.Value;
     uint16_t color = RGB(HMI_value.Color[0], HMI_value.Color[1], HMI_value.Color[2]);
     DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
 }
@@ -2321,7 +2305,7 @@ TERN(HAS_ONESTEP_LEVELING, float, void) Tram(uint8_t point) {
     zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
       if (isnan(zval))
         ui.set_status(F("Position Not Reachable, check offsets"));
-      else { 
+      else {
         sprintf_P(cmd, PSTR("X:%s, Y:%s, Z:%s"),
       dtostrf(xpos, 1, 1, str_1),
       dtostrf(ypos, 1, 1, str_2),
@@ -2369,7 +2353,8 @@ void TramC () { Tram(4); }
     if (ABS(MeshViewer.max - MeshViewer.min) < 0.05) {
       DWINUI::Draw_CenteredString(140,F("Corners leveled"));
       DWINUI::Draw_CenteredString(160,F("Tolerance achieved!"));
-    } else {
+    }
+    else {
       uint8_t p = 0;
       float d, max = 0;
       FSTR_P plabel;
@@ -2490,11 +2475,11 @@ void SetStepsZ() { HMI_value.axis = Z_AXIS, SetPFloatOnClick( MIN_STEP, MAX_STEP
   void SetPidCycles() { SetPIntOnClick(3, 50); }
   void SetKp() { SetPFloatOnClick(0, 1000, 2); }
   void ApplyPIDi() {
-    *MenuData.P_Float = scalePID_i(MenuData.Value / POW(10, 2)); 
+    *MenuData.P_Float = scalePID_i(MenuData.Value / POW(10, 2));
     thermalManager.updatePID();
   }
   void ApplyPIDd() {
-    *MenuData.P_Float = scalePID_d(MenuData.Value / POW(10, 2)); 
+    *MenuData.P_Float = scalePID_d(MenuData.Value / POW(10, 2));
     thermalManager.updatePID();
   }
   void SetKi() {
@@ -2507,11 +2492,6 @@ void SetStepsZ() { HMI_value.axis = Z_AXIS, SetPFloatOnClick( MIN_STEP, MAX_STEP
     const float value = unscalePID_d(*MenuData.P_Float);
     SetFloatOnClick(0, 1000, 2, value, ApplyPIDd);
   }
-#endif
-
-#if ENABLED(BAUD_RATE_GCODE)
-  void SetBaud115K() { queue.inject(F("M575 P0 B115200")); }
-  void SetBaud250K() { queue.inject(F("M575 P0 B250000")); }
 #endif
 
 #if ENABLED(FWRETRACT)
@@ -3080,7 +3060,7 @@ void Draw_AdvancedSettings_Menu() {
       MENU_ITEM(ICON_Pwrlossr, GET_TEXT_F(MSG_OUTAGE_RECOVERY), onDrawPwrLossR, SetPwrLossr);
     #endif
     #if ENABLED(BAUD_RATE_GCODE)
-      MENU_ITEM(ICON_SetBaudRate, F("115K bauds"), onDrawBaudrate, SetBaudRate);
+      MENU_ITEM(ICON_SetBaudRate, F("115K baud"), onDrawBaudrate, SetBaudRate);
     #endif
     #if HAS_LCD_BRIGHTNESS
       EDIT_ITEM(ICON_Brightness, GET_TEXT_F(MSG_BRIGHTNESS), onDrawPInt8Menu, SetBrightness, &ui.brightness);
