@@ -45,14 +45,10 @@ void XATC::print_points() {
   SERIAL_ECHOLNPGM(" X-Twist Correction:");
   LOOP_L_N(x, XATC_MAX_POINTS) {
     SERIAL_CHAR(' ');
-    if (!isnan(z_offset[x])) {
-      if (z_offset[x] >= 0) SERIAL_CHAR('+');
-      SERIAL_ECHO_F(z_offset[x], 3);
-    }
-    else {
-      LOOP_L_N(i, 6)
-        SERIAL_CHAR(i ? '=' : ' ');
-    }
+    if (!isnan(z_offset[x]))
+      serial_offset(z_offset[x]);
+    else
+      LOOP_L_N(i, 6) SERIAL_CHAR(i ? '=' : ' ');
   }
   SERIAL_EOL();
 }
@@ -63,8 +59,7 @@ float XATC::compensation(const xy_pos_t &raw) {
   if (!enabled) return 0;
   if (NEAR_ZERO(spacing)) return 0;
   float t = (raw.x - start) / spacing;
-  int i = FLOOR(t);
-  LIMIT(i, 0, XATC_MAX_POINTS - 2);
+  const int i = constrain(FLOOR(t), 0, XATC_MAX_POINTS - 2);
   t -= i;
   return lerp(t, z_offset[i], z_offset[i + 1]);
 }
