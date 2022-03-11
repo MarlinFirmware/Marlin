@@ -31,7 +31,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#if ENABLED(DWIN_LCD_PROUI)
 
 #include "../../../inc/MarlinConfig.h"
 #include "dwin_lcd.h"
@@ -453,4 +453,4 @@ MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, void 
   value = val;
 };
 
-#endif // DWIN_CREALITY_LCD_ENHANCED
+#endif // DWIN_LCD_PROUI
