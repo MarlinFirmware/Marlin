@@ -471,15 +471,6 @@ void Draw_Back_First(const bool is_sel=true) {
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
-template <typename T>
-inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
-  if (encoder_diffState == ENCODER_DIFF_CW)
-    valref += EncoderRate.encoderMoveValue;
-  else if (encoder_diffState == ENCODER_DIFF_CCW)
-    valref -= EncoderRate.encoderMoveValue;
-  return encoder_diffState == ENCODER_DIFF_ENTER;
-}
-
 //
 // Draw Menus
 //
@@ -1294,15 +1285,6 @@ void Goto_MainMenu() {
   ICON_Prepare();
   ICON_Control();
   TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)();
-}
-
-inline EncoderState get_encoder_state() {
-  static millis_t Encoder_ms = 0;
-  const millis_t ms = millis();
-  if (PENDING(ms, Encoder_ms)) return ENCODER_DIFF_NO;
-  const EncoderState state = Encoder_ReceiveAnalyze();
-  if (state != ENCODER_DIFF_NO) Encoder_ms = ms + ENCODER_WAIT_MS;
-  return state;
 }
 
 void HMI_Plan_Move(const feedRate_t fr_mm_s) {
@@ -4084,6 +4066,13 @@ void HMI_Init() {
   }
 
   HMI_SetLanguage();
+}
+
+void DWIN_InitScreen() {
+  Encoder_Configuration();
+  HMI_Init();
+  HMI_SetLanguageCache();
+  HMI_StartFrame(true);
 }
 
 void DWIN_Update() {
