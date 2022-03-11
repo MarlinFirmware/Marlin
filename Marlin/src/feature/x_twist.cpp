@@ -36,8 +36,8 @@ void XATC::reset() {
   constexpr float xzo[] = XATC_Z_OFFSETS;
   static_assert(COUNT(xzo) == XATC_MAX_POINTS, "XATC_Z_OFFSETS is the wrong size.");
   COPY(z_offset, xzo);
-  xatc.spacing = (probe.max_x() - probe.min_x()) / (XATC_MAX_POINTS - 1);
-  xatc.start = probe.min_x();
+  start = probe.min_x();
+  spacing = (probe.max_x() - start) / (XATC_MAX_POINTS - 1);
   enabled = true;
 }
 
