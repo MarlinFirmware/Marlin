@@ -1546,8 +1546,8 @@ void HMI_SaveProcessID(const uint8_t id) {
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
-  Title.ShowCaption(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
-  DWIN_Show_Popup(ICON_BLTouch, GET_TEXT_F(MSG_LEVEL_BED_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
+  Title.ShowCaption(GET_TEXT_F(MSG_HOMING));
+  DWIN_Show_Popup(ICON_BLTouch, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
 }
 
 void DWIN_CompletedHoming() {
