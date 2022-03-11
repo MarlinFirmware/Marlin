@@ -29,7 +29,7 @@
  * Based on the original code provided by Creality under GPL
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
 
@@ -66,6 +66,10 @@
   #include "../../../feature/host_actions.h"
 #endif
 
+#if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
+  #define HAS_ONESTEP_LEVELING 1
+#endif
+
 #if HAS_MESH || HAS_ONESTEP_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
 #endif
@@ -78,8 +82,14 @@
   #include "../../../feature/bltouch.h"
 #endif
 
-#if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
-  #include "../../../feature/babystep.h"
+#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
+  #define HAS_ZOFFSET_ITEM 1
+  #if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
+    #define JUST_BABYSTEP 1
+  #endif
+  #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
+    #include "../../../feature/babystep.h"
+  #endif
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)

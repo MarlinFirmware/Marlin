@@ -29,7 +29,6 @@
  * Based on the original code provided by Creality under GPL
  */
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "dwin_defines.h"
 
 #if BOTH(DWIN_LCD_PROUI, HAS_ESDIAG)

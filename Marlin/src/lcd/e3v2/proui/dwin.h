@@ -30,24 +30,12 @@
  * Based on the original code provided by Creality under GPL
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "dwin_defines.h"
 #include "dwinui.h"
 #include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
-#if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
-  #define HAS_ONESTEP_LEVELING 1
-#endif
-
-#if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
-  #define JUST_BABYSTEP 1
-#endif
-
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
-#endif
-
-#include "dwin_defines.h"
+#include "../../../inc/MarlinConfig.h"
 
 enum processID : uint8_t {
   // Process ID

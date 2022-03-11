@@ -33,7 +33,28 @@
 //#define DEBUG_DWIN 1
 //#define NEED_HEX_PRINT 1
 
-#include "../../../core/types.h"
+#include "../../../inc/MarlinConfigPre.h"
+#include <stddef.h>
+
+#if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
+  #error "INDIVIDUAL_AXIS_HOMING_SUBMENU is required with ProUI."
+#endif
+#if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+  #error "LCD_SET_PROGRESS_MANUALLY is required with ProUI."
+#endif
+#if DISABLED(STATUS_MESSAGE_SCROLLING)
+  #error "STATUS_MESSAGE_SCROLLING is required with ProUI."
+#endif
+#if DISABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is required with ProUI."
+#endif
+#if DISABLED(SOUND_MENU_ITEM)
+  #error "SOUND_MENU_ITEM is required with ProUI."
+#endif
+#if DISABLED(PRINTCOUNTER)
+  #error "PRINTCOUNTER is required with ProUI."
+#endif
+
 #include "../common/dwin_color.h"
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../../feature/leds/leds.h"
@@ -60,30 +81,6 @@
 #define Def_Button_Color      RGB( 0, 23, 16)
 
 #define HAS_ESDIAG 1
-#ifndef INDIVIDUAL_AXIS_HOMING_SUBMENU
-  #define INDIVIDUAL_AXIS_HOMING_SUBMENU
-#endif
-#ifndef LCD_SET_PROGRESS_MANUALLY
-  #define LCD_SET_PROGRESS_MANUALLY
-#endif
-#ifndef STATUS_MESSAGE_SCROLLING
-  #define STATUS_MESSAGE_SCROLLING
-#endif
-#ifndef BAUD_RATE_GCODE
-  #define BAUD_RATE_GCODE
-#endif
-#ifndef HAS_LCD_BRIGHTNESS
-  #define HAS_LCD_BRIGHTNESS 1
-#endif
-#ifndef LCD_BRIGHTNESS_DEFAULT
-  #define LCD_BRIGHTNESS_DEFAULT 127
-#endif
-#ifndef SOUND_MENU_ITEM
-  #define SOUND_MENU_ITEM
-#endif
-#ifndef PRINTCOUNTER
-  #define PRINTCOUNTER
-#endif
 
 #if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
