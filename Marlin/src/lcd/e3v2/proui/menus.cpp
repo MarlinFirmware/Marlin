@@ -367,4 +367,4 @@ void HMI_SetPFloat() {
   }
 }
 
-#endif
+#endif // DWIN_LCD_PROUI

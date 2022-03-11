@@ -1440,10 +1440,12 @@ void MarlinUI::init() {
       else if (print_job_timer.needsService(3)) msg = FPSTR(service3);
     #endif
 
-    else if (!no_welcome)
-      msg = GET_TEXT_F(WELCOME_MSG);
+    else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
+
+    else if (ENABLED(DWIN_LCD_PROUI))
+        msg = F("");
     else
-      TERN(DWIN_LCD_PROUI, msg = F(""), return);
+      return;
 
     set_status(msg, -1);
   }

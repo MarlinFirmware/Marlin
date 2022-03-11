@@ -209,6 +209,7 @@ void DWINUI::Draw_Button(uint8_t id, uint16_t x, uint16_t y) {
     default: break;
   }
 }
+
 // -------------------------- Extra -------------------------------//
 
 // Draw a circle
@@ -258,13 +259,12 @@ void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
 //  color1 : Start color
 //  color2 : End color
 uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
-  uint8_t B,G,R;
-  float n;
-  n = (float)(val-minv)/(maxv-minv);
-  R = (1-n)*GetRColor(color1) + n*GetRColor(color2);
-  G = (1-n)*GetGColor(color1) + n*GetGColor(color2);
-  B = (1-n)*GetBColor(color1) + n*GetBColor(color2);
-  return RGB(R,G,B);
+  uint8_t B, G, R;
+  const float n = (float)(val - minv) / (maxv - minv);
+  R = (1-n) * GetRColor(color1) + n * GetRColor(color2);
+  G = (1-n) * GetGColor(color1) + n * GetGColor(color2);
+  B = (1-n) * GetBColor(color1) + n * GetBColor(color2);
+  return RGB(R, G, B);
 }
 
 // Color Interpolator through Red->Yellow->Green->Blue
@@ -272,33 +272,27 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
 //  minv : Minimum value
 //  maxv : Maximum value
 uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
-  uint8_t B,G,R;
-  const uint8_t maxB = 28;
-  const uint8_t maxR = 28;
-  const uint8_t maxG = 38;
+  uint8_t B, G, R;
+  const uint8_t maxB = 28, maxR = 28, maxG = 38;
   const int16_t limv = _MAX(abs(minv), abs(maxv));
-  float n;
-  if (minv>=0) {
-    n = (float)(val-minv)/(maxv-minv);
-  } else {
-    n = (float)val/limv;
-  }
-  n = _MIN(1, n);
-  n = _MAX(-1, n);
+  float n = minv >= 0 ? (float)(val - minv) / (maxv - minv) : (float)val / limv;
+  LIMIT(n, -1, 1);
   if (n < 0) {
     R = 0;
-    G = (1+n)*maxG;
-    B = (-n)*maxB;
-  } else if (n < 0.5) {
-    R = maxR*n*2;
+    G = (1 + n) * maxG;
+    B = (-n) * maxB;
+  }
+  else if (n < 0.5) {
+    R = maxR * n * 2;
     G = maxG;
     B = 0;
-  } else {
+  }
+  else {
     R = maxR;
-    G = maxG*(1-n);
+    G = maxG * (1 - n);
     B = 0;
   }
-  return RGB(R,G,B);
+  return RGB(R, G, B);
 }
 
 // Draw a checkbox

@@ -1573,11 +1573,10 @@ void DWIN_CompletedLeveling() {
 }
 
 #if HAS_MESH
-  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
     char msg[33] = "";
     char str_1[6] = "";
-    sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%s"), GET_TEXT(MSG_PROBING_POINT), xpos, ypos,
-      dtostrf(zval, 1, 2, str_1));
+    sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%s"), GET_TEXT(MSG_PROBING_POINT), xpos, ypos, dtostrf(zval, 1, 2, str_1));
     ui.set_status(msg);
   }
 #endif
@@ -2068,7 +2067,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     if (HMI_data.Baud115K) SetBaud115K(); else SetBaud250K();
   }
   void SetBaudRate() {
-    HMI_SetBaudRate()
+    HMI_SetBaudRate();
     Draw_Chkb_Line(CurrentMenu->line(), HMI_data.Baud115K);
     DWIN_UpdateLCD();
   }
@@ -2297,8 +2296,10 @@ TERN(HAS_ONESTEP_LEVELING, float, void) Tram(uint8_t point) {
       break;
   }
 
+  planner.synchronize();
+
   #if HAS_ONESTEP_LEVELING
-    planner.synchronize();
+
     if (HMI_data.FullManualTramming) {
       planner.synchronize();
       sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%sY%sF5000\nG0Z0F300"),
@@ -2310,28 +2311,30 @@ TERN(HAS_ONESTEP_LEVELING, float, void) Tram(uint8_t point) {
     else {
       LIMIT(xpos, X_MIN_POS, (X_MAX_POS + probe.offset.x));
       LIMIT(ypos, Y_MIN_POS, (Y_MAX_POS + probe.offset.y));
-    probe.stow();
-    gcode.process_subcommands_now(F("M420S0\nG28O"));
-    planner.synchronize();
-    inLev = true;
-    zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
+      probe.stow();
+      gcode.process_subcommands_now(F("M420S0\nG28O"));
+      planner.synchronize();
+      inLev = true;
+      zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
       if (isnan(zval))
         ui.set_status(F("Position Not Reachable, check offsets"));
       else {
         sprintf_P(cmd, PSTR("X:%s, Y:%s, Z:%s"),
-      dtostrf(xpos, 1, 1, str_1),
-      dtostrf(ypos, 1, 1, str_2),
-      dtostrf(zval, 1, 2, str_3)
-    );
-    ui.set_status(cmd);
+          dtostrf(xpos, 1, 1, str_1),
+          dtostrf(ypos, 1, 1, str_2),
+          dtostrf(zval, 1, 2, str_3)
+        );
+        ui.set_status(cmd);
       }
-    inLev = false;
+      inLev = false;
     }
     return zval;
+
   #else
-    planner.synchronize();
+
     sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"), xpos, ypos);
     queue.inject(cmd);
+
   #endif
 }
 
@@ -2342,6 +2345,7 @@ void TramBL() { Tram(3); }
 void TramC () { Tram(4); }
 
 #if HAS_ONESTEP_LEVELING
+
   void Trammingwizard() {
     bed_mesh_t zval = {0};
     if (HMI_data.FullManualTramming) {
@@ -2398,7 +2402,8 @@ void TramC () { Tram(4); }
     Draw_Chkb_Line(CurrentMenu->line(), HMI_data.FullManualTramming);
     DWIN_UpdateLCD();
   }
-#endif
+
+#endif // HAS_ONESTEP_LEVELING
 
 #if ENABLED(MESH_BED_LEVELING)
 

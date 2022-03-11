@@ -381,7 +381,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #if HAS_HOTEND && (PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
-    #if HAS_HEATED_BED && (PROBING_BED_TEMP || defined(LEVELING_BED_TEMP))
+    #if HAS_HEATED_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
 

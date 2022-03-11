@@ -147,12 +147,12 @@ void DWIN_CheckStatusMessage();
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if HAS_MESH
-  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval);
 #endif
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
-void DWIN_Print_Started(const bool sd = false);
+void DWIN_Print_Started(const bool sd=false);
 void DWIN_Print_Pause();
 void DWIN_Print_Resume();
 void DWIN_Print_Finished();
@@ -170,7 +170,7 @@ void DWIN_SetDataDefaults();
 void DWIN_RebootScreen();
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void DWIN_Popup_Pause(FSTR_P const fmsg, uint8_t button = 0);
+  void DWIN_Popup_Pause(FSTR_P const fmsg, uint8_t button=0);
   void Draw_Popup_FilamentPurge();
   void Goto_FilamentPurge();
   void HMI_FilamentPurge();

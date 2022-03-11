@@ -90,7 +90,7 @@
 #endif
 
 typedef struct {
-// Color settings
+  // Color settings
   uint16_t Background_Color = Def_Background_Color;
   uint16_t Cursor_color     = Def_Cursor_color;
   uint16_t TitleBg_color    = Def_TitleBg_color;
@@ -113,7 +113,7 @@ typedef struct {
   #if HAS_HOTEND && defined(PREHEAT_1_TEMP_HOTEND)
     int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
   #endif
-  #if defined(PREHEAT_1_TEMP_BED)
+  #if HAS_HEATED_BED && defined(PREHEAT_1_TEMP_BED)
     int16_t BedPidT = PREHEAT_1_TEMP_BED;
   #endif
   #if HAS_HOTEND || HAS_HEATED_BED
