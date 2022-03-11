@@ -81,9 +81,13 @@
   #include "../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  #include "../feature/x_twist.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
@@ -312,7 +316,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Stow Probe"), FPSTR(CONTINUE_STR)));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Stow Probe")));
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, F("Stow Probe"), FPSTR(CONTINUE_STR)));
+      TERN_(DWIN_LCD_PROUI, DWIN_Popup_Confirm(ICON_BLTouch, F("Stow Probe"), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
 
@@ -808,6 +812,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   if (!deploy()) {
     measured_z = run_z_probe(sanity_check) + offset.z;
     TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
+    TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
   }
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;

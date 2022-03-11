@@ -32,7 +32,7 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include "dwin_defines.h"
 
-#if BOTH(DWIN_CREALITY_LCD_ENHANCED, HAS_ESDIAG)
+#if BOTH(DWIN_LCD_PROUI, HAS_ESDIAG)
 
 #include "endstop_diag.h"
 
@@ -108,4 +108,4 @@ void ESDiagClass::Update() {
   DWIN_UpdateLCD();
 }
 
-#endif // DWIN_CREALITY_LCD_ENHANCED && HAS_ESDIAG
+#endif // DWIN_LCD_PROUI && HAS_ESDIAG

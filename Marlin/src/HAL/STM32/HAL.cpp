@@ -89,7 +89,7 @@ void MarlinHAL::init() {
 
   SetTimerInterruptPriorities();
 
-  #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+  #if ENABLED(EMERGENCY_PARSER) && (USBD_USE_CDC || USBD_USE_CDC_MSC)
     USB_Hook_init();
   #endif
 
