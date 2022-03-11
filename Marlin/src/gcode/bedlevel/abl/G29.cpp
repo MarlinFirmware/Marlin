@@ -36,10 +36,6 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if HAS_STATUS_MESSAGE
-  #include "../../../lcd/marlinui.h"
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
 #endif
@@ -51,6 +47,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
+#include "../../../lcd/marlinui.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
