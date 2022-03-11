@@ -25,8 +25,6 @@
  * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 3.15.2
  * Date: 2022/03/01
- *
- * Based on the original code provided by Creality under GPL
  */
 
 #include "../../../inc/MarlinConfig.h"
