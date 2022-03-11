@@ -120,7 +120,7 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
   #endif
-  int16_t BedLevT = TERN0(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_BED);
+  int16_t BedLevT = PREHEAT_1_TEMP_BED;
   TERN_(BAUD_RATE_GCODE, bool Baud115K = false);
   bool FullManualTramming = false;
   // Led

@@ -1334,8 +1334,8 @@ void HMI_WaitForUser() {
         break;
       #if HAS_ONESTEP_LEVELING
       case Leveling:
-        TERN_(ProUI, ProEx.StopLeveling());
-    HMI_ReturnScreen();
+        //TERN_(ProUI, ProEx.StopLeveling());
+        HMI_ReturnScreen();
         break;
       #endif
       default:
@@ -1507,7 +1507,8 @@ void DWIN_HandleScreen() {
     case SelectFile:      HMI_SelectFile(); break;
     case PrintProcess:    HMI_Printing(); break;
     case Popup:           HMI_Popup(); break;
-    case Leveling:        TERN_(ProUI, HMI_WaitForUser();) break;
+    case Leveling:        //TERN_(ProUI, HMI_WaitForUser());
+                          break;
     case Locked:          HMI_LockScreen(); break;
     case PrintDone:
     #if HAS_ESDIAG
