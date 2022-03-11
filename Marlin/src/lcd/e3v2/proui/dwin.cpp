@@ -31,7 +31,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#if ENABLED(DWIN_LCD_PROUI)
 
 #include "dwin.h"
 #include "dwin_popup.h"
@@ -3974,4 +3974,4 @@ void Draw_Steps_Menu() {
   }
 #endif
 
-#endif // DWIN_CREALITY_LCD_ENHANCED
+#endif // DWIN_LCD_PROUI

@@ -36,10 +36,6 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if HAS_STATUS_MESSAGE
-  #include "../../../lcd/marlinui.h"
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
 #endif
@@ -48,20 +44,21 @@
   #include "../../../libs/vector_3.h"
 #endif
 
-#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
-#include "../../../core/debug_out.h"
-
+#include "../../../lcd/marlinui.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
 
 #if ABL_USES_GRID
   #if ENABLED(PROBE_Y_FIRST)
@@ -427,7 +424,7 @@ G29_TYPE GcodeSuite::G29() {
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
+      TERN_(DWIN_LCD_PROUI, DWIN_MeshLevelingStart());
     #endif
 
     if (!faux) {
@@ -721,7 +718,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
+    ui.reset_status();
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {

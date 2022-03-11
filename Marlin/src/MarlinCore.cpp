@@ -74,7 +74,7 @@
   #include "lcd/e3v2/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/e3v2/creality/dwin.h"
-  #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #elif ENABLED(DWIN_LCD_PROUI)
     #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
@@ -878,7 +878,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNF(lcd_error); }
 
-  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
+  #if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
     ui.kill_screen(lcd_error ?: GET_TEXT_F(MSG_KILLED), lcd_component ?: FPSTR(NUL_STR));
   #else
     UNUSED(lcd_error); UNUSED(lcd_component);
