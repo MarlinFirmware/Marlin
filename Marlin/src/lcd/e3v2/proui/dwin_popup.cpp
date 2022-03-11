@@ -37,6 +37,8 @@
 #include "dwinui.h"
 #include "dwin_popup.h"
 
+#include "../../../MarlinCore.h" // for wait_for_user
+
 void (*ClickPopup)()=nullptr;
 void (*PopupChange)(bool state)=nullptr;
 void (*Draw_Popup)()=nullptr;

@@ -110,7 +110,7 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
 
 void MeshViewerClass::Draw(bool withsave /*= false*/) {
   Title.ShowCaption(F("Mesh Viewer"));
-  DrawMesh(TERN(MESH_BED_LEVELING,mbl.z_values,z_values), GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+  DrawMesh(Z_VALUES_ARR, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   if (withsave) {
     DWINUI::Draw_Button(BTN_Save, 26, 305);
     DWINUI::Draw_Button(BTN_Continue, 146, 305);
