@@ -892,7 +892,7 @@ void Draw_SDItem(const uint16_t item, int16_t row=-1) {
   // Draw the file/folder with name aligned left
   char str[strlen(name) + 1];
   make_name_without_ext(str, name);
-  const uint8_t icon = card.flag.filenameIsDir ? ICON_Folder : card.flag.filenameIsBin ? ICON_Binary : ICON_File;
+  const uint8_t icon = card.flag.filenameIsDir ? ICON_Folder : card.fileIsBinary() ? ICON_Binary : ICON_File;
   Draw_Menu_Line(row, icon, str);
 }
 
@@ -1211,7 +1211,7 @@ void HMI_SelectFile() {
       HMI_flag.heat_flag = true;
       HMI_flag.print_finish = false;
 
-      if (card.flag.filenameIsBin)
+      if (card.fileIsBinary())
         return DWIN_Popup_Confirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
       else
         return Goto_ConfirmToPrint();
