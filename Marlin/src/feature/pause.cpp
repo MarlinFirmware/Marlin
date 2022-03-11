@@ -407,6 +407,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   #endif
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
+  TERN_(DWIN_LCD_PROUI, DWIN_Print_Pause());
 
   // Indicate that the printer is paused
   ++did_pause_print;
@@ -709,7 +710,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());
 
-  TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
+  TERN(DWIN_LCD_PROUI, DWIN_Print_Resume(), ui.reset_status());
   TERN_(HAS_MARLINUI_MENU, ui.return_to_status());
   TERN_(DWIN_LCD_PROUI, HMI_ReturnScreen());
 }
