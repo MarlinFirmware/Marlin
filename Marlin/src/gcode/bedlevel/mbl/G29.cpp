@@ -105,6 +105,7 @@ void GcodeSuite::G29() {
       if (!ui.wait_for_move) {
         queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshLevelingStart());
         return;
       }
       state = MeshNext;
@@ -127,6 +128,7 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
