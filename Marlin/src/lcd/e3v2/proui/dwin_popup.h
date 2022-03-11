@@ -26,6 +26,8 @@
  * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 3.11.1
  * Date: 2022/02/28
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "dwinui.h"

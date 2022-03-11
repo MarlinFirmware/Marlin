@@ -26,6 +26,8 @@
  * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 3.9.1
  * Date: 2022/02/08
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../common/dwin_api.h"

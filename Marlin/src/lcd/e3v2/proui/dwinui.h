@@ -26,6 +26,8 @@
  * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 3.15.1
  * Date: 2022/02/25
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "dwin_lcd.h"

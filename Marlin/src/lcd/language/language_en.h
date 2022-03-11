@@ -91,7 +91,7 @@ namespace Language_en {
   LSTR MSG_ITERATION                      = _UxGT("G34 Iteration: %i");
   LSTR MSG_DECREASING_ACCURACY            = _UxGT("Accuracy Decreasing!");
   LSTR MSG_ACCURACY_ACHIEVED              = _UxGT("Accuracy Achieved");
-  LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Homing Axes");
+  LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Homing XYZ");
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Click to Begin");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Next Point");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Leveling Done!");

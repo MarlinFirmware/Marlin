@@ -24,8 +24,10 @@
 /**
  * Lock screen implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * version: 2.1
+ * Version: 2.1
  * Date: 2021/11/09
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
 #include "../common/encoder.h"
