@@ -2183,9 +2183,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Test Sensor & Heater pin combos.
  * Pins and Sensor IDs must be set for each heater
  */
-#if !ANY_PIN(TEMP_0, TEMP_0_CS)
+#if HAS_EXTRUDERS && !ANY_PIN(TEMP_0, TEMP_0_CS)
   #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
-#elif !HAS_HEATER_0 && EXTRUDERS
+#elif HAS_EXTRUDERS && !HAS_HEATER_0
   #error "HEATER_0_PIN not defined for this board."
 #elif TEMP_SENSOR_0_IS_MAX_TC && !PIN_EXISTS(TEMP_0_CS)
   #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
