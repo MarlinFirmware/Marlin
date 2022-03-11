@@ -1511,9 +1511,7 @@ void DWIN_HandleScreen() {
                           break;
     case Locked:          HMI_LockScreen(); break;
     case PrintDone:
-    #if HAS_ESDIAG
-      case ESDiagProcess:
-    #endif
+    TERN_(HAS_ESDIAG, case ESDiagProcess:)
     case WaitResponse:    HMI_WaitForUser(); break;
     case Homing:
     case PidProcess:
@@ -2150,7 +2148,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     }
   #endif
 
-  #if HAS_HEATED_BED && ENABLED(PREHEAT_BEFORE_LEVELING)
+  #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_LEVELING)
     void SetBedLevT() { SetPIntOnClick(BED_MINTEMP, BED_MAX_TARGET); }
   #endif
 
@@ -3149,7 +3147,7 @@ void Draw_Move_Menu() {
       EDIT_ITEM(ICON_ProbeOffsetX, GET_TEXT_F(MSG_ZPROBE_XOFFSET), onDrawPFloatMenu, SetProbeOffsetX, &probe.offset.x);
       EDIT_ITEM(ICON_ProbeOffsetY, GET_TEXT_F(MSG_ZPROBE_YOFFSET), onDrawPFloatMenu, SetProbeOffsetY, &probe.offset.y);
       EDIT_ITEM(ICON_ProbeOffsetZ, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), onDrawPFloat2Menu, SetProbeOffsetZ, &probe.offset.z);
-      #if HAS_HEATED_BED && ENABLED(PREHEAT_BEFORE_LEVELING)
+      #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_LEVELING)
         EDIT_ITEM(ICON_Temperature, GET_TEXT_F(MSG_UBL_SET_TEMP_BED), onDrawPIntMenu, SetBedLevT, &HMI_data.BedLevT);
       #endif
       #ifdef BLTOUCH_HS_MODE

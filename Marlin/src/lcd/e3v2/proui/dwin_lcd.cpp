@@ -67,7 +67,7 @@ void DWIN_Draw_Value(uint8_t bShow, bool signedMode, bool zeroFill, uint8_t zero
   DWIN_Word(i, y);
   // Write a big-endian 64 bit integer
   const size_t p = i + 1;
-  for (char count = 8; count--;) { // 7..0
+  for (size_t count = 8; count--;) { // 7..0
     ++i;
     DWIN_SendBuf[p + count] = value;
     value >>= 8;

@@ -285,10 +285,10 @@ namespace DWINUI {
     frame_rect_t t;
     t.x = frame.x - v;
     t.y = frame.y - v;
-    t.w = frame.w + 2*v;
-    t.h = frame.h + 2*v;
+    t.w = frame.w + 2 * v;
+    t.h = frame.h + 2 * v;
     return t;
-  };
+  }
 
   // Draw an Icon with transparent background from the library ICON
   //  icon: Icon ID

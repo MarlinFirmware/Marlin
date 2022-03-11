@@ -59,12 +59,12 @@ void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
 void (*DWINUI::onMenuDraw)(MenuClass* menu)=nullptr;
 
 void DWINUI::init() {
-  TERN_(DEBUG_DWIN, DEBUG_ECHOPGM("\r\nDWIN handshake ");)
+  TERN_(DEBUG_DWIN, SERIAL_ECHOPGM("\r\nDWIN handshake "));
   delay(750);   // Delay for wait to wakeup screen
-  TERN(DEBUG_DWIN, if (DWIN_Handshake()) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error."), DWIN_Handshake());
+  const bool hs = DWIN_Handshake();
+  TERN(DEBUG_DWIN, SERIAL_ECHOLNF(hs ? F("ok.") : F("error.")), UNUSED(hs));
   DWIN_Frame_SetDir(1);
-  cursor.x = 0;
-  cursor.y = 0;
+  cursor.reset();
   pencolor = Color_White;
   textcolor = Def_Text_Color;
   backcolor = Def_Background_Color;
@@ -259,9 +259,9 @@ void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
 uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
   uint8_t B, G, R;
   const float n = (float)(val - minv) / (maxv - minv);
-  R = (1-n) * GetRColor(color1) + n * GetRColor(color2);
-  G = (1-n) * GetGColor(color1) + n * GetGColor(color2);
-  B = (1-n) * GetBColor(color1) + n * GetBColor(color2);
+  R = (1 - n) * GetRColor(color1) + n * GetRColor(color2);
+  G = (1 - n) * GetGColor(color1) + n * GetGColor(color2);
+  B = (1 - n) * GetBColor(color1) + n * GetBColor(color2);
   return RGB(R, G, B);
 }
 
