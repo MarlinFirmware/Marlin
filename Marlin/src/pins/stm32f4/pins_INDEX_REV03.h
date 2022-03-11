@@ -60,12 +60,12 @@
 
 // None of these require limit switches by default, so we leave these commented
 // here for your reference.
-// #define I_MIN_PIN                           PA8
-// #define I_MAX_PIN                           PA8
-// #define J_MIN_PIN                           PD13
-// #define J_MAX_PIN                           PD13
-// #define K_MIN_PIN                           PC9
-// #define K_MAX_PIN                           PC9
+//#define I_MIN_PIN                         PA8
+//#define I_MAX_PIN                         PA8
+//#define J_MIN_PIN                         PD13
+//#define J_MAX_PIN                         PD13
+//#define K_MIN_PIN                         PC9
+//#define K_MAX_PIN                         PC9
 
 //
 // Steppers
@@ -94,64 +94,64 @@
 #define K_DIR_PIN                           PD7
 #define K_ENABLE_PIN                        PA3
 
-#if ANY_AXIS_HAS(SPI)
+#if HAS_TMC_SPI
   /**
    * Make sure to configure the jumpers on the back side of the Mobo according to
    * this diagram: https://github.com/MarlinFirmware/Marlin/pull/23851
    */
   #error "SPI drivers require a custom jumper configuration, see comment above! Comment out this line to continue."
-#endif
 
-#if AXIS_HAS_UART(X)
+  #if AXIS_HAS_SPI(X)
+    #define X_CS_PIN                        PD8
+  #endif
+  #if AXIS_HAS_SPI(Y)
+    #define Y_CS_PIN                        PB12
+  #endif
+  #if AXIS_HAS_SPI(Z)
+    #define Z_CS_PIN                        PE8
+  #endif
+  #if AXIS_HAS_SPI(I)
+    #define I_CS_PIN                        PC5
+  #endif
+  #if AXIS_HAS_SPI(J)
+    #define J_CS_PIN                        PE12
+  #endif
+  #if AXIS_HAS_SPI(K)
+    #define K_CS_PIN                        PA2
+  #endif
+
+#elif HAS_TMC_UART
+
   #define X_SERIAL_TX_PIN                   PD8
-  #define X_SERIAL_RX_PIN                   PD8
-#elif AXIS_HAS_SPI(X)
-  #define X_CS_PIN                          PD8
-#endif
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
-#if AXIS_HAS_UART(Y)
   #define Y_SERIAL_TX_PIN                   PB12
-  #define Y_SERIAL_RX_PIN                   PB12
-#elif AXIS_HAS_SPI(Y)
-  #define Y_CS_PIN                          PB12
-#endif
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-#if AXIS_HAS_UART(Z)
   #define Z_SERIAL_TX_PIN                   PE8
-  #define Z_SERIAL_RX_PIN                   PE8
-#elif AXIS_HAS_SPI(Z)
-  #define Z_CS_PIN                          PE8
-#endif
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-#if AXIS_HAS_UART(I)
   #define I_SERIAL_TX_PIN                   PC5
-  #define I_SERIAL_RX_PIN                   PC5
-#elif AXIS_HAS_SPI(I)
-  #define I_CS_PIN                          PC5
-#endif
+  #define I_SERIAL_RX_PIN        I_SERIAL_TX_PIN
 
-#if AXIS_HAS_UART(J)
   #define J_SERIAL_TX_PIN                   PE12
-  #define J_SERIAL_RX_PIN                   PE12
-#elif AXIS_HAS_SPI(J)
-  #define J_CS_PIN                          PE12
-#endif
+  #define J_SERIAL_RX_PIN        J_SERIAL_TX_PIN
 
-#if AXIS_HAS_UART(K)
   #define K_SERIAL_TX_PIN                   PA2
-  #define K_SERIAL_RX_PIN                   PA2
-#elif AXIS_HAS_SPI(K)
-  #define K_CS_PIN                          PA2
-#endif
+  #define K_SERIAL_RX_PIN        K_SERIAL_TX_PIN
 
-// Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                      19200
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+
+#endif
 
 // Not required for this board. Fails to compile otherwise.
 // PD0 is not connected on this board.
 #define TEMP_0_PIN                          PD0
 
-// General use mosfets, useful for things like pumps and solenoids
+//
+// Heaters / Fans
+//
 #define FAN_PIN                             PE2
 #define FAN1_PIN                            PE3
 #define FAN2_PIN                            PE4
@@ -159,20 +159,26 @@
 
 #define FAN_SOFT_PWM_REQUIRED
 
-// Neopixel Rings
+//
+// Neopixel
+//
 #define NEOPIXEL_PIN                        PC7
 #define NEOPIXEL2_PIN                       PC8
 
+//
 // SPI
+//
 #define MISO_PIN                            PB4
 #define MOSI_PIN                            PB5
 #define SCK_PIN                             PB3
 
-#define TMC_SW_MISO                         MISO_PIN
-#define TMC_SW_MOSI                         MOSI_PIN
-#define TMC_SW_SCK                          SCK_PIN
+#define TMC_SW_MISO                     MISO_PIN
+#define TMC_SW_MOSI                     MOSI_PIN
+#define TMC_SW_SCK                       SCK_PIN
 
+//
 // I2C
+//
 #define I2C_SDA_PIN                         PB7
 #define I2C_SCL_PIN                         PB6
 
