@@ -31,7 +31,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_CREALITY_LCD_ENHANCED, PRINTCOUNTER)
+#if BOTH(DWIN_LCD_PROUI, PRINTCOUNTER)
 
 #include "printstats.h"
 
@@ -75,4 +75,4 @@ void PrintStatsClass::Reset() {
   HMI_AudioFeedback();
 }
 
-#endif // DWIN_CREALITY_LCD_ENHANCED && PRINTCOUNTER
+#endif // DWIN_LCD_PROUI && PRINTCOUNTER

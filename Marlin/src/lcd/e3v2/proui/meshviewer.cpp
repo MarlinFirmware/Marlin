@@ -31,7 +31,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_CREALITY_LCD_ENHANCED, HAS_MESH)
+#if BOTH(DWIN_LCD_PROUI, HAS_MESH)
 
 #include "meshviewer.h"
 
@@ -109,4 +109,4 @@ void MeshViewerClass::Draw() {
   );
 }
 
-#endif // DWIN_CREALITY_LCD_ENHANCED && HAS_MESH
+#endif // DWIN_LCD_PROUI && HAS_MESH
