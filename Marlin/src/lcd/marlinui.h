@@ -368,15 +368,6 @@ public:
   static void status_printf(const uint8_t level, FSTR_P const fmt, ...);
 
   #if HAS_DISPLAY
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    #if DISABLED(LIGHTWEIGHT_UI)
-      static void draw_status_message(const bool blink);
-    #endif
-  #else
-    static void kill_screen(FSTR_P const, FSTR_P const) {}
-  #endif
-
-  #if HAS_DISPLAY
 
     static void update();
 
@@ -489,11 +480,16 @@ public:
     #endif
 
     static void draw_kill_screen();
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
 
   #else // No LCD
 
     static void update() {}
     static void return_to_status() {}
+    static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
 

@@ -125,5 +125,4 @@ void Draw_MeshViewer() { MeshViewer.Draw(true); }
 void onClick_MeshViewer() { if (HMI_flag.select_flag) WriteEeprom(); HMI_ReturnScreen(); }
 void Goto_MeshViewer() { if (leveling_is_valid()) Goto_Popup(Draw_MeshViewer, onClick_MeshViewer);  else HMI_ReturnScreen(); }
 
-
 #endif // DWIN_LCD_PROUI && HAS_MESH
