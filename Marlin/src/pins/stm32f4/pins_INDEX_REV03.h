@@ -145,10 +145,6 @@
 
 #endif
 
-// Not required for this board. Fails to compile otherwise.
-// PD0 is not connected on this board.
-#define TEMP_0_PIN                          PD0
-
 //
 // Heaters / Fans
 //
