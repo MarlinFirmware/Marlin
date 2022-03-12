@@ -46,12 +46,11 @@
 //
 // Z Probe
 //
-#if ENABLED(BLTOUCH)
-  #error "You need to set jumper to 5v for Bltouch, then comment out this line to proceed."
-  #define SERVO0_PIN                        PA0
-#elif !defined(Z_MIN_PROBE_PIN)
+#if !defined(Z_MIN_PROBE_PIN)
   #define Z_MIN_PROBE_PIN                   PA0
 #endif
+
+#define SERVO0_PIN                          PB5
 
 //
 // Limit Switches
@@ -63,7 +62,11 @@
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN                      PB5
+#if ENABLED(BLTOUCH) || NUM_SERVOS>0
+  #define FIL_RUNOUT_PIN                    PA0
+#else
+  #define FIL_RUNOUT_PIN                    PB5
+#endif
 
 //
 // Steppers
