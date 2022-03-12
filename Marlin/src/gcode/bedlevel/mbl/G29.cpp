@@ -170,6 +170,7 @@ void GcodeSuite::G29() {
         #endif
 
         TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
       }
       break;
 
