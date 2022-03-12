@@ -403,7 +403,8 @@ namespace Language_en {
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Brightness");
-  LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Turn Off LCD");
+  LSTR MSG_LCD_BKL_TIMEOUT                = _UxGT("LCD Timeout (s)");
+  LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Backlight Off");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Store Settings");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restore Defaults");
