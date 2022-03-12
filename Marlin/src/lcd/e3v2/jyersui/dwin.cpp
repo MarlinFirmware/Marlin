@@ -958,8 +958,8 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
   static bool new_msg;
   static uint8_t msgscrl = 0;
   static char lastmsg[64];
-  if (strcmp_P(lastmsg, statusmsg) != 0 || refresh) {
-    strcpy_P(lastmsg, statusmsg);
+  if (strcmp(lastmsg, statusmsg) != 0 || refresh) {
+    strcpy(lastmsg, statusmsg);
     msgscrl = 0;
     new_msg = true;
   }
@@ -4695,10 +4695,7 @@ void CrealityDWINClass::Modify_Option(uint8_t value, const char * const * option
 /* Main Functions */
 
 void CrealityDWINClass::Update_Status(const char * const text) {
-  char header[4];
-  LOOP_L_N(i, 3) header[i] = text[i];
-  header[3] = '\0';
-  if (strcmp_P(header, PSTR("<F>")) == 0) {
+  if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
     LOOP_L_N(i, _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text))) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
     Draw_Print_Filename(true);
@@ -4722,10 +4719,10 @@ void CrealityDWINClass::Start_Print(bool sd) {
           card.selectFileByName(fname);
         }
       #endif
-      strcpy_P(filename, card.longest_filename());
+      strcpy(filename, card.longest_filename());
     }
     else
-      strcpy_P(filename, "Host Print");
+      strcpy_P(filename, PSTR("Host Print"));
     TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
     TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
     Draw_Print_Screen();
