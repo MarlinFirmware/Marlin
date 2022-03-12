@@ -44,12 +44,8 @@
 #endif
 
 //
-// Z Probe
+// Servos
 //
-#if !defined(Z_MIN_PROBE_PIN)
-  #define Z_MIN_PROBE_PIN                   PA0
-#endif
-
 #define SERVO0_PIN                          PB5
 
 //
@@ -60,12 +56,19 @@
 #define Z_STOP_PIN                          PB1
 
 //
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PA0
+#endif
+
+//
 // Filament runout
 //
-#if ENABLED(BLTOUCH) || NUM_SERVOS>0
+#if NUM_SERVOS
   #define FIL_RUNOUT_PIN                    PA0
 #else
-  #define FIL_RUNOUT_PIN                    PB5
+  #define FIL_RUNOUT_PIN              SERVO0_PIN
 #endif
 
 //
