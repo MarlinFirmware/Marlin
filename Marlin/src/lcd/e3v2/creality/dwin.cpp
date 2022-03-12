@@ -4281,7 +4281,7 @@ void DWIN_HandleScreen() {
   }
 }
 
-void DWIN_CompletedHoming() {
+void DWIN_HomingDone() {
   HMI_flag.home_flag = false;
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (checkkey == Last_Prepare) {
@@ -4297,7 +4297,7 @@ void DWIN_CompletedHoming() {
   }
 }
 
-void DWIN_CompletedLeveling() {
+void DWIN_LevelingDone() {
   if (checkkey == Leveling) Goto_MainMenu();
 }
 
