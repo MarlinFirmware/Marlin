@@ -104,8 +104,8 @@ void GcodeSuite::G29() {
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
         queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
-        TERN_(DWIN_LCD_PROUI, DWIN_MeshLevelingStart());
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
         return;
       }
       state = MeshNext;
@@ -168,6 +168,7 @@ void GcodeSuite::G29() {
         #endif
 
         TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
       }
       break;
 

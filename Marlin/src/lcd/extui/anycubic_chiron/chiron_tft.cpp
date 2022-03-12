@@ -86,13 +86,23 @@ void ChironTFT::Startup() {
   TFTSer.begin(115200);
 
   // wait for the TFT panel to initialise and finish the animation
-  delay_ms(250);
+  safe_delay(1000);
 
   // There are different panels for the Chiron with slightly different commands
   // So we need to know what we are working with.
-
   // Panel type can be defined otherwise detect it automatically
-  if (panel_type == AC_panel_unknown) DetectPanelType();
+  switch (panel_type) {
+    case AC_panel_new:
+      SERIAL_ECHOLNF(AC_msg_new_panel_set);
+      break;
+    case AC_panel_standard:
+      SERIAL_ECHOLNF(AC_msg_old_panel_set);
+      break;
+    default:
+      SERIAL_ECHOLNF(AC_msg_auto_panel_detection);
+      DetectPanelType();
+      break;
+  }
 
   // Signal Board has reset
   SendtoTFTLN(AC_msg_main_board_has_reset);
@@ -358,15 +368,14 @@ bool ChironTFT::ReadTFTCommand() {
 }
 
 int8_t ChironTFT::FindToken(char c) {
-  int8_t pos = 0;
-  do {
+  for (int8_t pos = 0; pos < command_len; pos++) {
     if (panel_command[pos] == c) {
       #if ACDEBUG(AC_INFO)
         SERIAL_ECHOLNPGM("Tpos:", pos, " ", c);
       #endif
       return pos;
     }
-  } while (++pos < command_len);
+  }
   #if ACDEBUG(AC_INFO)
     SERIAL_ECHOLNPGM("Not found: ", c);
   #endif
@@ -623,18 +632,18 @@ void ChironTFT::PanelAction(uint8_t req) {
       SelectFile();
       break;
 
-    case 14: { // A14 Start Printing
+    case 14:   // A14 Start Printing
       // Allows printer to restart the job if we don't want to recover
       if (printer_state == AC_printer_resuming_from_power_outage) {
         injectCommands(F("M1000 C")); // Cancel recovery
         printer_state = AC_printer_idle;
       }
       #if ACDebugLevel >= 1
-        SERIAL_ECHOLNPAIR_F("Print: ", selectedfile);
+        SERIAL_ECHOLNPGM("Print: ", selectedfile);
       #endif
       printFile(selectedfile);
       SendtoTFTLN(AC_msg_print_from_sd_card);
-    } break;
+      break;
 
     case 15:   // A15 Resuming from outage
       if (printer_state == AC_printer_resuming_from_power_outage) {
@@ -801,25 +810,22 @@ void ChironTFT::PanelProcess(uint8_t req) {
       }
     } break;
 
-    case 30: {   // A30 Auto leveling
+    case 30:     // A30 Auto leveling
       if (FindToken('S') != -1) { // Start probing New panel adds spaces..
         // Ignore request if printing
         if (isPrinting())
           SendtoTFTLN(AC_msg_probing_not_allowed); // forbid auto leveling
         else {
-
-
           SendtoTFTLN(AC_msg_start_probing);
           injectCommands(F("G28\nG29"));
           printer_state = AC_printer_probing;
         }
       }
-      else {
+      else
         SendtoTFTLN(AC_msg_start_probing); // Just enter levelling menu
-      }
-    } break;
+      break;
 
-    case 31: { // A31 Adjust all Probe Points
+    case 31:   // A31 Adjust all Probe Points
       // The tokens can occur in different places on the new panel so we need to find it.
 
       if (FindToken('C') != -1) { // Restore and apply original offsets
@@ -907,18 +913,18 @@ void ChironTFT::PanelProcess(uint8_t req) {
           }
         }
       }
-    } break;
+      break;
 
-    case 32: { // A32 clean leveling beep flag
+    case 32:   // A32 clean leveling beep flag
       // Ignore request if printing
       //if (isPrinting()) break;
       //injectCommands(F("M500\nM420 S1\nG1 Z10 F240\nG1 X0 Y0 F6000"));
       //TFTSer.println();
-    } break;
+      break;
 
     // A33 firmware info request see PanelInfo()
 
-    case 34: {  // A34 Adjust single mesh point A34 C/S X1 Y1 V123
+    case 34:    // A34 Adjust single mesh point A34 C/S X1 Y1 V123
       if (panel_command[3] == 'C') { // Restore original offsets
         injectCommands(F("M501\nM420 S1"));
         selectedmeshpoint.x = selectedmeshpoint.y = 99;
@@ -950,7 +956,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
           }
         }
       }
-    }  break;
+      break;
 
     case 36:    // A36 Auto leveling for new TFT bet that was a typo in the panel code!
       SendtoTFTLN(AC_msg_start_probing);
