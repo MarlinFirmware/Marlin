@@ -155,8 +155,7 @@ void GcodeSuite::G29() {
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
         TERN_(HAS_STATUS_MESSAGE, LCD_MESSAGE(MSG_MESH_DONE));
-        BUZZ(100, 659);
-        BUZZ(100, 698);
+        OKAY_BUZZ();
 
         home_all_axes();
         set_bed_leveling_enabled(true);
