@@ -425,7 +425,7 @@ G29_TYPE GcodeSuite::G29() {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_LevelingStart());
     #endif
 
     if (!faux) {
@@ -903,7 +903,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
   #endif
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedLeveling());
+  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_LevelingDone());
 
   TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
 
