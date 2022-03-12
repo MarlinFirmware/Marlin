@@ -50,6 +50,10 @@
   #include "../feature/joystick.h"
 #endif
 
+#if HAS_FILAMENT_SENSOR
+  #include "../feature/runout.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -668,8 +672,8 @@ void __O2 Endstops::report_states() {
   #if USES_Z_MIN_PROBE_PIN
     print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
   #endif
-  #if MULTI_FILAMENT_SENSOR
-    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
+  #if HAS_FILAMENT_SENSOR
+    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
     LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
       pin_t pin;
       uint8_t state;
@@ -677,13 +681,23 @@ void __O2 Endstops::report_states() {
         default: continue;
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
+      if(runout.mode[i]==1)
+        state = HIGH;
+      else
+        state = LOW;
+
       SERIAL_ECHOPGM(STR_FILAMENT);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       print_es_state(extDigitalRead(pin) != state);
+      SERIAL_ECHOPGM(": ");
+      if(runout.mode[i]==0)
+        SERIAL_ECHOLNF(F("Sensor Disabled"));
+      else if(extDigitalRead(pin) != state)
+        SERIAL_ECHOLNF(F("Fil Present"));
+      else
+        SERIAL_ECHOLNF(F("Fil Missing"));
     }
     #undef _CASE_RUNOUT
-  #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, F(STR_FILAMENT));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

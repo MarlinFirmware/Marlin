@@ -44,7 +44,7 @@
   #include "../../module/temperature.h"
 #endif
 
-#if HAS_FILAMENT_RUNOUT_DISTANCE
+#if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
 
@@ -153,7 +153,7 @@ void menu_backlash();
       #endif
     #endif
 
-    #if HAS_FILAMENT_RUNOUT_DISTANCE
+    #if HAS_FILAMENT_SENSOR
       editable.decimal = runout.runout_distance();
       EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999,
         []{ runout.set_runout_distance(editable.decimal); }, true

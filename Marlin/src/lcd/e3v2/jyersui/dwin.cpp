@@ -2726,7 +2726,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
       #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
-      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE))
+      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + 1)
       #define ADVANCED_POWER_LOSS (ADVANCED_FILSENSORDISTANCE + ENABLED(POWER_LOSS_RECOVERY))
       #define ADVANCED_TOTAL ADVANCED_POWER_LOSS
 
@@ -2816,24 +2816,22 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case ADVANCED_FILSENSORENABLED:
             if (draw) {
               Draw_Menu_Item(row, ICON_Extruder, F("Filament Sensor"));
-              Draw_Checkbox(row, runout.enabled);
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             else {
-              runout.enabled = !runout.enabled;
-              Draw_Checkbox(row, runout.enabled);
+              runout.enabled = !runout.enabled[0];
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             break;
 
-          #if ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE)
-            case ADVANCED_FILSENSORDISTANCE:
-              if (draw) {
-                Draw_Menu_Item(row, ICON_MaxAccE, F("Runout Distance"));
-                Draw_Float(runout.runout_distance(), row, false, 10);
-              }
-              else
-                Modify_Value(runout.runout_distance(), 0, 999, 10);
-              break;
-          #endif
+          case ADVANCED_FILSENSORDISTANCE:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_MaxAccE, F("Runout Distance"));
+              Draw_Float(runout.runout_distance(), row, false, 10);
+            }
+            else
+              Modify_Value(runout.runout_distance(), 0, 999, 10);
+            break;
         #endif // FILAMENT_RUNOUT_SENSOR
 
         #if ENABLED(POWER_LOSS_RECOVERY)
@@ -3713,11 +3711,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case TUNE_FILSENSORENABLED:
             if (draw) {
               Draw_Menu_Item(row, ICON_Extruder, F("Filament Sensor"));
-              Draw_Checkbox(row, runout.enabled);
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             else {
-              runout.enabled = !runout.enabled;
-              Draw_Checkbox(row, runout.enabled);
+              runout.enabled = !runout.enabled[0];
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             break;
         #endif

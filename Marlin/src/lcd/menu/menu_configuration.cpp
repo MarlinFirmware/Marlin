@@ -559,7 +559,7 @@ void menu_configuration() {
   #endif
 
   #if HAS_FILAMENT_SENSOR
-    EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled[active_extruder], runout.reset);
   #endif
 
   #if HAS_FANCHECK

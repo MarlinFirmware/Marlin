@@ -259,7 +259,7 @@ void menu_pause_option() {
   #if HAS_FILAMENT_SENSOR
     const bool still_out = runout.filament_ran_out;
     if (still_out)
-      EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+      EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled[active_extruder], runout.reset);
   #else
     constexpr bool still_out = false;
   #endif

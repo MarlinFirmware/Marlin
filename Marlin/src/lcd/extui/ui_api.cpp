@@ -683,15 +683,12 @@ namespace ExtUI {
   }
 
   #if HAS_FILAMENT_SENSOR
-    bool getFilamentRunoutEnabled()                 { return runout.enabled; }
-    void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
+    bool getFilamentRunoutEnabled(const extruder_t extruder/*=E0*/)                 { return runout.enabled[extruder]; }
+    void setFilamentRunoutEnabled(const bool value, const extruder_t extruder/*=E0*/) { runout.enabled[extruder] = value; }
     bool getFilamentRunoutState()                   { return runout.filament_ran_out; }
     void setFilamentRunoutState(const bool value)   { runout.filament_ran_out = value; }
-
-    #if HAS_FILAMENT_RUNOUT_DISTANCE
-      float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
-      void setFilamentRunoutDistance_mm(const_float_t value) { runout.set_runout_distance(constrain(value, 0, 999)); }
-    #endif
+    float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
+    void setFilamentRunoutDistance_mm(const_float_t value) { runout.set_runout_distance(constrain(value, 0, 999)); }
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)

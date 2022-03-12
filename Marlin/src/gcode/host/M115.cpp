@@ -132,7 +132,7 @@ void GcodeSuite::M115() {
     // AUTOLEVEL (G29)
     cap_line(F("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
 
-    // RUNOUT (M412, M600)
+    // RUNOUT (M591, M600)
     cap_line(F("RUNOUT"), ENABLED(FILAMENT_RUNOUT_SENSOR));
 
     // Z_PROBE (G30)
