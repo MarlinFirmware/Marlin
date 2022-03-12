@@ -419,11 +419,12 @@ G29_TYPE GcodeSuite::G29() {
 
     planner.synchronize();
 
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
     #endif
 
