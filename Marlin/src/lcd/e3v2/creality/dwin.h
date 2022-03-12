@@ -236,6 +236,7 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
+void DWIN_InitScreen();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
