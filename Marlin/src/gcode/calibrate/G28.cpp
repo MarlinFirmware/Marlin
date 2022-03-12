@@ -553,7 +553,7 @@ void GcodeSuite::G28() {
   ui.refresh();
 
   TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedHoming());
-  TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();
 

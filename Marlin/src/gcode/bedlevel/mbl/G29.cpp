@@ -104,7 +104,7 @@ void GcodeSuite::G29() {
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
         queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
         return;
       }
       state = MeshNext;
@@ -155,6 +155,8 @@ void GcodeSuite::G29() {
         TERN_(HAS_STATUS_MESSAGE, LCD_MESSAGE(MSG_MESH_DONE));
         BUZZ(100, 659);
         BUZZ(100, 698);
+
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
 
         home_all_axes();
         set_bed_leveling_enabled(true);

@@ -426,7 +426,7 @@ G29_TYPE GcodeSuite::G29() {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+      TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
     #endif
 
@@ -580,6 +580,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("Grid probing done.");
         // Re-enable software endstops, if needed
         SET_SOFT_ENDSTOP_LOOSE(false);
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -608,6 +609,8 @@ G29_TYPE GcodeSuite::G29() {
           // Can't re-enable (on error) until the new grid is written
           abl.reenable = false;
         }
+
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
 
       }
 
