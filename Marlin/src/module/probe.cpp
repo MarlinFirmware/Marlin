@@ -306,8 +306,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
         if (deploy != PROBE_TRIGGERED()) break;
       #endif
 
-      BUZZ(100, 659);
-      BUZZ(100, 698);
+      OKAY_BUZZ();
 
       FSTR_P const ds_str = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
