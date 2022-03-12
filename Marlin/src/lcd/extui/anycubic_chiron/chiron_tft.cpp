@@ -442,7 +442,7 @@ void ChironTFT::SendFileList(int8_t startindex) {
 }
 
 void ChironTFT::SelectFile() {
-  if (panel_type == AC_panel_new) {
+  if (panel_type <= AC_panel_new) {
     strncpy(selectedfile, panel_command + 4, command_len - 3);
     selectedfile[command_len - 4] = '\0';
   }
@@ -465,7 +465,7 @@ void ChironTFT::SelectFile() {
       break;
     default:   // enter sub folder
       // for new panel remove the '.GCO' tag that was added to the end of the path
-      if (panel_type == AC_panel_new)
+      if (panel_type <= AC_panel_new)
         selectedfile[strlen(selectedfile) - 4] = '\0';
       filenavigator.changeDIR(selectedfile);
       SendtoTFTLN(AC_msg_sd_file_open_failed);
@@ -478,8 +478,8 @@ void ChironTFT::ProcessPanelRequest() {
   // Break these up into logical blocks // as its easier to navigate than one huge switch case!
   int8_t tpos = FindToken('A');
   // Panel request are 'A0' - 'A36'
-  if (tpos != -1) {
-    const int8_t req = atoi(&panel_command[tpos+1]);
+  if (tpos >= 0) {
+    const int8_t req = atoi(&panel_command[tpos + 1]);
 
     // Information requests A0 - A8 and A33
     if (req <= 8 || req == 33) PanelInfo(req);
@@ -495,16 +495,18 @@ void ChironTFT::ProcessPanelRequest() {
       // This may be a response to a panel type detection query
       if (panel_type == AC_panel_unknown) {
         tpos = FindToken('S'); // old panel will respond to 'SIZE' with 'SXY 480 320'
-        if (tpos != -1) {
-          if (panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
+        if (tpos >= 0) {
+          if (panel_command[tpos + 1] == 'X' && panel_command[tpos + 2] =='Y') {
             panel_type = AC_panel_standard;
             SERIAL_ECHOLNF(AC_msg_old_panel_detected);
           }
         }
         else {
-          tpos = FindToken('['); // new panel will respond to 'J200' with '[0]=0'
-          if (tpos != -1) {
-            if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
+          // new panel will respond to 'J200' with '[0]=0'
+          // it seems only after a power cycle so detection assumes a new panel
+          tpos = FindToken('[');
+          if (tpos >= 0) {
+            if (panel_command[tpos + 1] == '0' && panel_command[tpos + 2] ==']') {
               panel_type = AC_panel_new;
               SERIAL_ECHOLNF(AC_msg_new_panel_detected);
             }
@@ -811,7 +813,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
     } break;
 
     case 30:     // A30 Auto leveling
-      if (FindToken('S') != -1) { // Start probing New panel adds spaces..
+      if (FindToken('S') >= 0) { // Start probing New panel adds spaces..
         // Ignore request if printing
         if (isPrinting())
           SendtoTFTLN(AC_msg_probing_not_allowed); // forbid auto leveling
@@ -828,7 +830,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
     case 31:   // A31 Adjust all Probe Points
       // The tokens can occur in different places on the new panel so we need to find it.
 
-      if (FindToken('C') != -1) { // Restore and apply original offsets
+      if (FindToken('C') >= 0) { // Restore and apply original offsets
         if (!isPrinting()) {
           injectCommands(F("M501\nM420 S1"));
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
@@ -836,7 +838,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
         }
       }
 
-      else if (FindToken('D') != -1) { // Save Z Offset tables and restore leveling state
+      else if (FindToken('D') >= 0) { // Save Z Offset tables and restore leveling state
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
           injectCommands(F("M500"));
@@ -845,7 +847,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
         }
       }
 
-      else if (FindToken('G') != -1) { // Get current offset
+      else if (FindToken('G') >= 0) { // Get current offset
         SendtoTFT(F("A31V "));
         // When printing use the live z Offset position
         // we will use babystepping to move the print head
@@ -859,7 +861,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
 
       else {
         int8_t tokenpos = FindToken('S');
-        if (tokenpos != -1) { // Set offset (adjusts all points by value)
+        if (tokenpos >= 0) { // Set offset (adjusts all points by value)
           float Zshift = atof(&panel_command[tokenpos+1]);
           setSoftEndstopState(false);  // disable endstops
           // Allow temporary Z position nudging during print
