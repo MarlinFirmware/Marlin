@@ -1219,6 +1219,7 @@ void unified_bed_leveling::restore_ubl_active_state_and_leave() {
     }
   #endif
   set_bed_leveling_enabled(ubl_state_at_invocation);
+  TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
 }
 
 mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {

@@ -1542,20 +1542,20 @@ void HMI_SaveProcessID(const uint8_t id) {
   }
 }
 
-void DWIN_StartHoming() {
+void DWIN_HomingStart() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
   Title.ShowCaption(GET_TEXT_F(MSG_HOMING));
   DWIN_Show_Popup(ICON_BLTouch, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
 }
 
-void DWIN_CompletedHoming() {
+void DWIN_HomingDone() {
   HMI_flag.home_flag = false;
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (HMI_flag.abort_action) DWIN_Print_Aborted(); else HMI_ReturnScreen();
 }
 
-void DWIN_MeshLevelingStart() {
+void DWIN_LevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
     Title.ShowCaption(GET_TEXT_F(MSG_BED_LEVELING));
@@ -1565,7 +1565,7 @@ void DWIN_MeshLevelingStart() {
   #endif
 }
 
-void DWIN_CompletedLeveling() {
+void DWIN_LevelingDone() {
   TERN_(HAS_ONESTEP_LEVELING, if (planner.leveling_active) Goto_MeshViewer());
 }
 
