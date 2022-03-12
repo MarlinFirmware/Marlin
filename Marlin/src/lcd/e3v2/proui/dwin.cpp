@@ -1285,17 +1285,7 @@ void HMI_Printing() {
 
 #include "../../../libs/buzzer.h"
 
-void HMI_AudioFeedback(const bool success/*=true*/) {
-  #if HAS_BUZZER
-    if (success) {
-      BUZZ(100, 659);
-      BUZZ(10, 0);
-      BUZZ(100, 698);
-    }
-    else
-      BUZZ(40, 440);
-  #endif
-}
+void HMI_AudioFeedback(const bool success/*=true*/) { DONE_BUZZ(success); }
 
 void Draw_Main_Area() {
   switch (checkkey) {

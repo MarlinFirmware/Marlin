@@ -4920,18 +4920,10 @@ void CrealityDWINClass::Screen_Update() {
 }
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
-  if (success) {
-    if (ui.buzzer_enabled) {
-      BUZZ(100, 659);
-      BUZZ( 10,   0);
-      BUZZ(100, 698);
-    }
-    else Update_Status("Success");
-  }
-  else if (ui.buzzer_enabled)
-    BUZZ(40, 440);
+  if (ui.buzzer_enabled)
+    DONE_BUZZ(success);
   else
-    Update_Status("Failed");
+    Update_Status(success ? "Success" : "Failed");
 }
 
 void CrealityDWINClass::Save_Settings(char *buff) {
