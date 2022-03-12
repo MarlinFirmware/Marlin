@@ -158,8 +158,6 @@ void GcodeSuite::G29() {
         BUZZ(100, 659);
         BUZZ(100, 698);
 
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-
         home_all_axes();
         set_bed_leveling_enabled(true);
 
