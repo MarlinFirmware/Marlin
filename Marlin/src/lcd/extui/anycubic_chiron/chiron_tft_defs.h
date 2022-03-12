@@ -165,7 +165,7 @@ namespace Anycubic {
     AC_menu_change_to_file,
     AC_menu_change_to_command
   };
-  enum panel_type_t : uint8_t { // order is important here as we assume new panel if type is unknown 
+  enum panel_type_t : uint8_t { // order is important here as we assume new panel if type is unknown
     AC_panel_unknown,
     AC_panel_new,
     AC_panel_standard
