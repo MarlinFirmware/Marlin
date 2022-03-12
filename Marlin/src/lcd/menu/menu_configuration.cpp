@@ -542,7 +542,7 @@ void menu_configuration() {
     EDIT_ITEM_FAST(uint8, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
   #if LCD_BACKLIGHT_TIMEOUT && LCD_BKL_TIMEOUT_MIN < LCD_BKL_TIMEOUT_MAX
-    EDIT_ITEM(uint16_4, MSG_LCD_BKL_TIMEOUT, &ui.lcd_backlight_timeout, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.refresh_backlight_timeout);
+    EDIT_ITEM(uint16_4, MSG_BRIGHTNESS_OFF, &ui.lcd_backlight_timeout, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.refresh_backlight_timeout);
   #endif
 
   #if ENABLED(FWRETRACT)
