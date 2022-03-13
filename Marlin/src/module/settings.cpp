@@ -821,18 +821,18 @@ void MarlinSettings::postprocess() {
     //
     {
       #if HAS_FILAMENT_SENSOR
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_WRITE(runout.enabled[e]);
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_WRITE(runout.runout_distance(e));
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_WRITE(runout.mode[e]);
       #else
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_WRITE((int8_t)-1));
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_WRITE((float)-0.0f));
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_WRITE((uint8_t)0));
       #endif
     }
@@ -1768,21 +1768,21 @@ void MarlinSettings::postprocess() {
       {
         int8_t runout_sensor_enabled[HOTENDS];
         _FIELD_TEST(runout_sensor_enabled);
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_READ(runout_sensor_enabled);
         float runout_distance_mm[HOTENDS];
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_READ(runout_distance_mm[e]);
         uint8_t runout_mode[HOTENDS];
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 0, HOTENDS)
           EEPROM_READ(runout_mode[e]);
 
         #if HAS_FILAMENT_SENSOR
-          LOOP_S_L_N(e, 1, HOTENDS)
+          LOOP_S_L_N(e, 0, HOTENDS)
             runout.enabled[e] = runout_sensor_enabled[e] < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled[e];
-          LOOP_S_L_N(e, 1, HOTENDS)
+          LOOP_S_L_N(e, 0, HOTENDS)
             if (!validating) runout.set_runout_distance(runout_distance_mm[e], e);
-          LOOP_S_L_N(e, 1, HOTENDS)
+          LOOP_S_L_N(e, 0, HOTENDS)
             if (!validating) runout.mode[e] = runout_mode[e];
           runout.reset();
         #endif
@@ -2890,11 +2890,11 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_FILAMENT_SENSOR
-    LOOP_S_L_N(e, 1, HOTENDS)
+    LOOP_S_L_N(e, 0, HOTENDS)
     runout.enabled[e] = FIL_RUNOUT_ENABLED_DEFAULT;
-    LOOP_S_L_N(e, 1, HOTENDS)
+    LOOP_S_L_N(e, 0, HOTENDS)
       runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);
-    LOOP_S_L_N(e, 1, HOTENDS)
+    LOOP_S_L_N(e, 0, HOTENDS)
       runout.mode[e] = FILAMENT_RUNOUT_DEFAULT_MODE;
 
     runout.reset();

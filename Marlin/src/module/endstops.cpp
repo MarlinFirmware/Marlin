@@ -681,21 +681,24 @@ void __O2 Endstops::report_states() {
         default: continue;
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
-      if(runout.mode[i]==1)
+      if(runout.mode[i-1]==1)
         state = HIGH;
       else
         state = LOW;
 
       SERIAL_ECHOPGM(STR_FILAMENT);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
-      print_es_state(extDigitalRead(pin) != state);
       SERIAL_ECHOPGM(": ");
-      if(runout.mode[i]==0)
-        SERIAL_ECHOLNF(F("Sensor Disabled"));
+      if(runout.mode[i-1]==0)
+        SERIAL_ECHOLNF(F("DISABLED"));
+      else if(runout.mode[i-1]==7) {
+        SERIAL_ECHOF(F("MOTION : "));
+        print_es_state(extDigitalRead(pin) != state);
+      }
       else if(extDigitalRead(pin) != state)
-        SERIAL_ECHOLNF(F("Fil Present"));
+        SERIAL_ECHOLNF(F("PRESENT"));
       else
-        SERIAL_ECHOLNF(F("Fil Missing"));
+        SERIAL_ECHOLNF(F("MISSING"));
     }
     #undef _CASE_RUNOUT
   #endif

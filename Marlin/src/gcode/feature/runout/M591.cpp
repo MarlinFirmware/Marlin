@@ -70,7 +70,7 @@ void GcodeSuite::M591() {
     if (parser.seen('L')) runout.set_runout_distance(parser.value_linear_units(), tool);
     if (parser.seen('P')) {
       uint8_t tmp_mode = parser.value_int();
-      if(tmp_mode > 3 || tmp_mode==7) {
+      if(tmp_mode < 3 || tmp_mode==7) {
         runout.mode[tool] = tmp_mode;
         runout.reset();
       }
