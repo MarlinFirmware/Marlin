@@ -404,7 +404,7 @@ void set_axis_is_at_home(const AxisEnum axis);
   constexpr linear_axis_bits_t axis_homed = linear_bits, axis_trusted = linear_bits; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
-  inline linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return false; }
+  inline linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return 0; }
   inline bool homing_needed_error(linear_axis_bits_t=linear_bits) { return false; }
   inline void set_axis_unhomed(const AxisEnum axis)   {}
   inline void set_axis_untrusted(const AxisEnum axis) {}
