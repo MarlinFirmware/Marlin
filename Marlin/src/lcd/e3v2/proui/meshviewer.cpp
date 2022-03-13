@@ -21,12 +21,10 @@
  */
 
 /**
- * DWIN Mesh Viewer
+ * Mesh Viewer for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.9.1
- * Date: 2021/11/09
- *
- * Based on the original code provided by Creality under GPL
+ * version: 3.12.1
+ * Date: 2022/02/24
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -40,49 +38,53 @@
 #include "dwin_lcd.h"
 #include "dwinui.h"
 #include "dwin.h"
+#include "dwin_popup.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
 MeshViewerClass MeshViewer;
 
-void MeshViewerClass::Draw() {
+void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8_t sizey) {
   const int8_t mx = 25, my = 25;  // Margins
-  const int16_t stx = (DWIN_WIDTH - 2 * mx) / (GRID_MAX_POINTS_X - 1),  // Steps
-                sty = (DWIN_WIDTH - 2 * my) / (GRID_MAX_POINTS_Y - 1);
+  const int16_t stx = (DWIN_WIDTH - 2 * mx) / (sizex - 1),  // Steps
+                sty = (DWIN_WIDTH - 2 * my) / (sizey - 1);
   const int8_t rmax = _MIN(mx - 2, stx / 2);
   const int8_t rmin = 7;
-  int16_t zmesh[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y], maxz =-32000, minz = 32000;
+  int16_t zmesh[sizex][sizey];
   #define px(xp) (mx + (xp) * stx)
   #define py(yp) (30 + DWIN_WIDTH - my - (yp) * sty)
   #define rm(z) ((z - minz) * (rmax - rmin) / _MAX(1, (maxz - minz)) + rmin)
-  #define DrawMeshValue(xp, yp, zv) DWINUI::Draw_Signed_Float(font6x12, 1, 2, px(xp) - 12, py(yp) - 6, zv)
+  #define DrawMeshValue(xp, yp, zv) DWINUI::Draw_Signed_Float(font6x12, 1, 2, px(xp) - 18, py(yp) - 6, zv)
   #define DrawMeshHLine(yp) DWIN_Draw_HLine(HMI_data.SplitLine_Color, px(0), py(yp), DWIN_WIDTH - 2 * mx)
-  #define DrawMeshVLine(xp) DWIN_Draw_VLine(HMI_data.SplitLine_Color, px(xp), py(GRID_MAX_POINTS_Y - 1), DWIN_WIDTH - 2 * my)
-  GRID_LOOP(x, y) {
-    const float v = isnan(Z_VALUES(x,y)) ? 0 : round(Z_VALUES(x,y) * 100);
+  #define DrawMeshVLine(xp) DWIN_Draw_VLine(HMI_data.SplitLine_Color, px(xp), py(sizey - 1), DWIN_WIDTH - 2 * my)
+  int16_t maxz =-32000; int16_t minz = 32000; avg = 0;
+  LOOP_L_N(y, sizey) LOOP_L_N(x, sizex) {
+    const float v = isnan(zval[x][y]) ? 0 : round(zval[x][y] * 100);
     zmesh[x][y] = v;
+    avg += v;
     NOLESS(maxz, v);
     NOMORE(minz, v);
   }
-  Title.ShowCaption(F("Mesh Viewer"));
+  max = (float)maxz / 100;
+  min = (float)minz / 100;
+  avg = avg / (100 * sizex * sizey);
   DWINUI::ClearMenuArea();
-  DWINUI::Draw_Icon(ICON_Continue_E, 86, 305);
-  DWIN_Draw_Rectangle(0, HMI_data.SplitLine_Color, px(0), py(0), px(GRID_MAX_POINTS_X - 1), py(GRID_MAX_POINTS_Y - 1));
-  LOOP_S_L_N(x, 1, GRID_MAX_POINTS_X - 1) DrawMeshVLine(x);
-  LOOP_S_L_N(y, 1, GRID_MAX_POINTS_Y - 1) DrawMeshHLine(y);
-  LOOP_L_N(y, GRID_MAX_POINTS_Y) {
+  DWIN_Draw_Rectangle(0, HMI_data.SplitLine_Color, px(0), py(0), px(sizex - 1), py(sizey - 1));
+  LOOP_S_L_N(x, 1, sizex - 1) DrawMeshVLine(x);
+  LOOP_S_L_N(y, 1, sizey - 1) DrawMeshHLine(y);
+  LOOP_L_N(y, sizey) {
     watchdog_refresh();
-    LOOP_L_N(x, GRID_MAX_POINTS_X) {
+    LOOP_L_N(x, sizex) {
       uint16_t color = DWINUI::RainbowInt(zmesh[x][y], _MIN(-5, minz), _MAX(5, maxz));
       uint8_t radius = rm(zmesh[x][y]);
       DWINUI::Draw_FillCircle(color, px(x), py(y), radius);
-      if (GRID_MAX_POINTS_X < 9)
-        DWINUI::Draw_Signed_Float(font6x12, 1, 2, px(x) - 12, py(y) - 6, Z_VALUES(x,y));
+      if (sizex < 9)
+        DWINUI::Draw_Signed_Float(font6x12, 1, 2, px(x) - 18, py(y) - 6, zval[x][y]);
       else {
         char str_1[9];
         str_1[0] = 0;
         switch (zmesh[x][y]) {
           case -999 ... -100:
-            DWINUI::Draw_Signed_Float(font6x12, 1, 1, px(x) - 12, py(y) - 6, Z_VALUES(x,y));
+            DWINUI::Draw_Signed_Float(font6x12, 1, 1, px(x) - 18, py(y) - 6, zval[x][y]);
             break;
           case -99 ... -1:
             sprintf_P(str_1, PSTR("-.%02i"), -zmesh[x][y]);
@@ -94,7 +96,7 @@ void MeshViewerClass::Draw() {
             sprintf_P(str_1, PSTR(".%02i"), zmesh[x][y]);
             break;
           case 100 ... 999:
-            DWINUI::Draw_Signed_Float(font6x12, 1, 1, px(x) - 12, py(y) - 6, Z_VALUES(x,y));
+            DWINUI::Draw_Signed_Float(font6x12, 1, 1, px(x) - 18, py(y) - 6, zval[x][y]);
             break;
         }
         if (str_1[0])
@@ -102,11 +104,25 @@ void MeshViewerClass::Draw() {
       }
     }
   }
+}
+
+void MeshViewerClass::Draw(bool withsave /*= false*/) {
+  Title.ShowCaption(F("Mesh Viewer"));
+  DrawMesh(Z_VALUES_ARR, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+  if (withsave) {
+    DWINUI::Draw_Button(BTN_Save, 26, 305);
+    DWINUI::Draw_Button(BTN_Continue, 146, 305);
+    Draw_Select_Highlight(HMI_flag.select_flag, 305);
+  } else DWINUI::Draw_Button(BTN_Continue, 86, 305);
   char str_1[6], str_2[6] = "";
   ui.status_printf(0, F("Mesh minZ: %s, maxZ: %s"),
-    dtostrf((float)minz / 100, 1, 2, str_1),
-    dtostrf((float)maxz / 100, 1, 2, str_2)
+    dtostrf(min, 1, 2, str_1),
+    dtostrf(max, 1, 2, str_2)
   );
 }
+
+void Draw_MeshViewer() { MeshViewer.Draw(true); }
+void onClick_MeshViewer() { if (HMI_flag.select_flag) WriteEeprom(); HMI_ReturnScreen(); }
+void Goto_MeshViewer() { if (leveling_is_valid()) Goto_Popup(Draw_MeshViewer, onClick_MeshViewer);  else HMI_ReturnScreen(); }
 
 #endif // DWIN_LCD_PROUI && HAS_MESH
