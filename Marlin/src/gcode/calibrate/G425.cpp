@@ -105,13 +105,27 @@ struct measurements_t {
 };
 
 #if ENABLED(BACKLASH_GCODE)
-  #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash.correction, value)
+  class restorer_correction {
+    const uint8_t val_;
+  public:
+    restorer_correction(const uint8_t temp_val) : val_(backlash.get_correction_uint8()) { backlash.set_correction_uint8(temp_val); }
+    ~restorer_correction() { backlash.set_correction_uint8(val_); }
+  };
+
+  #define TEMPORARY_BACKLASH_CORRECTION(value) restorer_correction restorer_tbst(value)
 #else
   #define TEMPORARY_BACKLASH_CORRECTION(value)
 #endif
 
 #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)
-  #define TEMPORARY_BACKLASH_SMOOTHING(value) REMEMBER(tbsm, backlash.smoothing_mm, value)
+  class restorer_smoothing {
+    const float val_;
+  public:
+    restorer_smoothing(const float temp_val) : val_(backlash.get_smoothing_mm()) { backlash.set_smoothing_mm(temp_val); }
+    ~restorer_smoothing() { backlash.set_smoothing_mm(val_); }
+  };
+
+  #define TEMPORARY_BACKLASH_SMOOTHING(value) restorer_smoothing restorer_tbsm(value)
 #else
   #define TEMPORARY_BACKLASH_SMOOTHING(value)
 #endif
@@ -524,7 +538,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
 
   {
     // New scope for TEMPORARY_BACKLASH_CORRECTION
-    TEMPORARY_BACKLASH_CORRECTION(all_off);
+    TEMPORARY_BACKLASH_CORRECTION(backlash.all_off);
     TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
     probe_sides(m, uncertainty);
@@ -532,45 +546,45 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
     #if ENABLED(BACKLASH_GCODE)
 
       #if HAS_X_CENTER
-        backlash.distance_mm.x = (m.backlash[LEFT] + m.backlash[RIGHT]) / 2;
+        backlash.set_distance_mm(X_AXIS, (m.backlash[LEFT] + m.backlash[RIGHT]) / 2);
       #elif ENABLED(CALIBRATION_MEASURE_LEFT)
-        backlash.distance_mm.x = m.backlash[LEFT];
+        backlash.set_distance_mm(X_AXIS, m.backlash[LEFT]);
       #elif ENABLED(CALIBRATION_MEASURE_RIGHT)
-        backlash.distance_mm.x = m.backlash[RIGHT];
+        backlash.set_distance_mm(X_AXIS, m.backlash[RIGHT]);
       #endif
 
       #if HAS_Y_CENTER
-        backlash.distance_mm.y = (m.backlash[FRONT] + m.backlash[BACK]) / 2;
+        backlash.set_distance_mm(Y_AXIS, (m.backlash[FRONT] + m.backlash[BACK]) / 2);
       #elif ENABLED(CALIBRATION_MEASURE_FRONT)
-        backlash.distance_mm.y = m.backlash[FRONT];
+        backlash.set_distance_mm(Y_AXIS, m.backlash[FRONT]);
       #elif ENABLED(CALIBRATION_MEASURE_BACK)
-        backlash.distance_mm.y = m.backlash[BACK];
+        backlash.set_distance_mm(Y_AXIS, m.backlash[BACK]);
       #endif
 
-      TERN_(HAS_Z_AXIS, if (AXIS_CAN_CALIBRATE(Z)) backlash.distance_mm.z = m.backlash[TOP]);
+      TERN_(HAS_Z_AXIS, if (AXIS_CAN_CALIBRATE(Z)) backlash.set_distance_mm(Z_AXIS, m.backlash[TOP]));
 
       #if HAS_I_CENTER
-        backlash.distance_mm.i = (m.backlash[IMINIMUM] + m.backlash[IMAXIMUM]) / 2;
+        backlash.set_distance_mm(I_AXIS, (m.backlash[IMINIMUM] + m.backlash[IMAXIMUM]) / 2);
       #elif ENABLED(CALIBRATION_MEASURE_IMIN)
-        backlash.distance_mm.i = m.backlash[IMINIMUM];
+        backlash.set_distance_mm(I_AXIS, m.backlash[IMINIMUM]);
       #elif ENABLED(CALIBRATION_MEASURE_IMAX)
-        backlash.distance_mm.i = m.backlash[IMAXIMUM];
+        backlash.set_distance_mm(I_AXIS, m.backlash[IMAXIMUM]);
       #endif
 
       #if HAS_J_CENTER
-        backlash.distance_mm.j = (m.backlash[JMINIMUM] + m.backlash[JMAXIMUM]) / 2;
+        backlash.set_distance_mm(J_AXIS, (m.backlash[JMINIMUM] + m.backlash[JMAXIMUM]) / 2);
       #elif ENABLED(CALIBRATION_MEASURE_JMIN)
-        backlash.distance_mm.j = m.backlash[JMINIMUM];
+        backlash.set_distance_mm(J_AXIS, m.backlash[JMINIMUM]);
       #elif ENABLED(CALIBRATION_MEASURE_JMAX)
-        backlash.distance_mm.j = m.backlash[JMAXIMUM];
+        backlash.set_distance_mm(J_AXIS, m.backlash[JMAXIMUM]);
       #endif
 
       #if HAS_K_CENTER
-        backlash.distance_mm.k = (m.backlash[KMINIMUM] + m.backlash[KMAXIMUM]) / 2;
+        backlash.set_distance_mm(K_AXIS, (m.backlash[KMINIMUM] + m.backlash[KMAXIMUM]) / 2);
       #elif ENABLED(CALIBRATION_MEASURE_KMIN)
-        backlash.distance_mm.k = m.backlash[KMINIMUM];
+        backlash.set_distance_mm(K_AXIS, m.backlash[KMINIMUM]);
       #elif ENABLED(CALIBRATION_MEASURE_KMAX)
-        backlash.distance_mm.k = m.backlash[KMAXIMUM];
+        backlash.set_distance_mm(K_AXIS, m.backlash[KMAXIMUM]);
       #endif
 
     #endif // BACKLASH_GCODE
@@ -581,7 +595,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
     // allowed directions to take up any backlash
     {
       // New scope for TEMPORARY_BACKLASH_CORRECTION
-      TEMPORARY_BACKLASH_CORRECTION(all_on);
+      TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
       TEMPORARY_BACKLASH_SMOOTHING(0.0f);
       const xyz_float_t move = LINEAR_AXIS_ARRAY(
         AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3,
@@ -611,7 +625,7 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  *    - Call calibrate_backlash() beforehand for best accuracy
  */
 inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const uint8_t extruder) {
-  TEMPORARY_BACKLASH_CORRECTION(all_on);
+  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   TERN(HAS_MULTI_HOTEND, set_nozzle(m, extruder), UNUSED(extruder));
@@ -648,7 +662,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  *   uncertainty    in     - How far away from the object to begin probing
  */
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
-  TEMPORARY_BACKLASH_CORRECTION(all_on);
+  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
@@ -674,7 +688,7 @@ inline void calibrate_all() {
 
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
-  TEMPORARY_BACKLASH_CORRECTION(all_on);
+  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   // Do a fast and rough calibration of the toolheads

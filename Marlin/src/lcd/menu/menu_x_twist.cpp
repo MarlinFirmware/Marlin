@@ -27,6 +27,7 @@
 #include "menu_addon.h"
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#include "../../feature/x_twist.h"
 #include "../../module/motion.h"
 #include "../../gcode/queue.h"
 #include "../../module/probe.h"
@@ -77,7 +78,7 @@ void xatc_wizard_update_z_offset() {
 //
 void xatc_wizard_set_offset_and_go_to_next_point() {
   // Set Z-offset at probed point
-  xatc.z_values[manual_probe_index++] = probe.offset.z + current_position.z - measured_z;
+  xatc.z_offset[manual_probe_index++] = probe.offset.z + current_position.z - measured_z;
   // Go to next point
   ui.goto_screen(xatc_wizard_goto_next_point);
 }
@@ -148,9 +149,11 @@ void xatc_wizard_goto_next_point() {
       // Deploy certain probes before starting probing
       TERN_(BLTOUCH, do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE));
 
+      xatc.set_enabled(false);
       measured_z = probe.probe_at_point(x, XATC_Y_POSITION, PROBE_PT_STOW);
+      xatc.set_enabled(true);
       current_position += probe.offset_xy;
-      current_position.z = XATC_START_Z - probe.offset.z + measured_z;
+      current_position.z = (XATC_START_Z) - probe.offset.z + measured_z;
       line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
       ui.wait_for_move = false;
     }
@@ -160,12 +163,12 @@ void xatc_wizard_goto_next_point() {
   else {
     // Compute the z-offset by averaging the values found with this wizard
     z_offset = 0;
-    LOOP_L_N(i, XATC_MAX_POINTS) z_offset += xatc.z_values[i];
+    LOOP_L_N(i, XATC_MAX_POINTS) z_offset += xatc.z_offset[i];
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
     // This way they are indipendent from the z-offset
-    LOOP_L_N(i, XATC_MAX_POINTS) xatc.z_values[i] -= z_offset;
+    LOOP_L_N(i, XATC_MAX_POINTS) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);
   }
@@ -186,8 +189,7 @@ void xatc_wizard_homing_done() {
   }
 
   if (ui.use_click()) {
-    xatc.spacing = (probe.max_x() - probe.min_x()) / (XATC_MAX_POINTS - 1);
-    xatc.start = probe.min_x();
+    xatc.reset();
 
     SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 

@@ -22,18 +22,37 @@
 #pragma once
 
 /**
- * DWIN general defines and data structs
+ * DWIN general defines and data structs for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.9.2
- * Date: 2021/11/21
- *
- * Based on the original code provided by Creality under GPL
+ * Version: 3.11.2
+ * Date: 2022/02/28
  */
 
-//#define NEED_HEX_PRINT 1
 //#define DEBUG_DWIN 1
+//#define NEED_HEX_PRINT 1
 
-#include "../../../core/types.h"
+#include "../../../inc/MarlinConfigPre.h"
+#include <stddef.h>
+
+#if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
+  #error "INDIVIDUAL_AXIS_HOMING_SUBMENU is required with ProUI."
+#endif
+#if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+  #error "LCD_SET_PROGRESS_MANUALLY is required with ProUI."
+#endif
+#if DISABLED(STATUS_MESSAGE_SCROLLING)
+  #error "STATUS_MESSAGE_SCROLLING is required with ProUI."
+#endif
+#if DISABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is required with ProUI."
+#endif
+#if DISABLED(SOUND_MENU_ITEM)
+  #error "SOUND_MENU_ITEM is required with ProUI."
+#endif
+#if DISABLED(PRINTCOUNTER)
+  #error "PRINTCOUNTER is required with ProUI."
+#endif
+
 #include "../common/dwin_color.h"
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../../feature/leds/leds.h"
@@ -57,8 +76,8 @@
 #define Def_Barfill_Color     BarFill_Color
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color  Color_White
+#define Def_Button_Color      RGB( 0, 23, 16)
 
-//#define HAS_GCODE_PREVIEW 1
 #define HAS_ESDIAG 1
 
 #if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
@@ -101,6 +120,9 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
   #endif
+  int16_t BedLevT = PREHEAT_1_TEMP_BED;
+  TERN_(BAUD_RATE_GCODE, bool Baud115K = false);
+  bool FullManualTramming = false;
   // Led
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
@@ -113,3 +135,8 @@ typedef struct {
 
 static constexpr size_t eeprom_data_size = 64;
 extern HMI_data_t HMI_data;
+
+#if PREHEAT_1_TEMP_BED
+  #undef LEVELING_BED_TEMP
+  #define LEVELING_BED_TEMP HMI_data.BedLevT
+#endif

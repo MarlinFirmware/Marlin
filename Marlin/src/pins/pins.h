@@ -201,6 +201,8 @@
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 #elif MB(LONGER3D_LK1_PRO, LONGER3D_LKx_PRO)
   #include "ramps/pins_LONGER3D_LKx_PRO.h"      // ATmega2560                             env:mega2560
+#elif MB(PXMALION_CORE_I3)
+  #include "ramps/pins_PXMALION_CORE_I3.h"      // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -285,6 +287,8 @@
   #include "mega/pins_MALYAN_M180.h"            // ATmega2560                             env:mega2560
 #elif MB(PROTONEER_CNC_SHIELD_V3)
   #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"// ATmega2560                             env:mega2560
+#elif MB(WEEDO_62A)
+  #include "mega/pins_WEEDO_62A.h"              // ATmega2560                             env:mega2560
 
 //
 // ATmega1281, ATmega2561
@@ -667,6 +671,8 @@
   #include "stm32f4/pins_MKS_ROBIN_PRO_V2.h"    // STM32F4                                env:mks_robin_pro2
 #elif MB(MKS_ROBIN_NANO_V3)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3 env:mks_robin_nano_v3_usb_flash_drive env:mks_robin_nano_v3_usb_flash_drive_msc
+#elif MB(MKS_ROBIN_NANO_V3_1)
+  #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3_1 env:mks_robin_nano_v3_1_usb_flash_drive env:mks_robin_nano_v3_1_usb_flash_drive_msc
 #elif MB(ANET_ET4)
   #include "stm32f4/pins_ANET_ET4.h"            // STM32F4                                env:Anet_ET4_OpenBLT
 #elif MB(ANET_ET4P)

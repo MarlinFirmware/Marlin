@@ -1178,69 +1178,6 @@
 
 #endif // USE_SENSORLESS
 
-#if HAS_TMC_SPI
-  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
-  void tmc_init_cs_pins() {
-    #if AXIS_HAS_SPI(X)
-      SET_CS_PIN(X);
-    #endif
-    #if AXIS_HAS_SPI(Y)
-      SET_CS_PIN(Y);
-    #endif
-    #if AXIS_HAS_SPI(Z)
-      SET_CS_PIN(Z);
-    #endif
-    #if AXIS_HAS_SPI(X2)
-      SET_CS_PIN(X2);
-    #endif
-    #if AXIS_HAS_SPI(Y2)
-      SET_CS_PIN(Y2);
-    #endif
-    #if AXIS_HAS_SPI(Z2)
-      SET_CS_PIN(Z2);
-    #endif
-    #if AXIS_HAS_SPI(Z3)
-      SET_CS_PIN(Z3);
-    #endif
-    #if AXIS_HAS_SPI(Z4)
-      SET_CS_PIN(Z4);
-    #endif
-    #if AXIS_HAS_SPI(I)
-      SET_CS_PIN(I);
-    #endif
-    #if AXIS_HAS_SPI(J)
-      SET_CS_PIN(J);
-    #endif
-    #if AXIS_HAS_SPI(K)
-      SET_CS_PIN(K);
-    #endif
-    #if AXIS_HAS_SPI(E0)
-      SET_CS_PIN(E0);
-    #endif
-    #if AXIS_HAS_SPI(E1)
-      SET_CS_PIN(E1);
-    #endif
-    #if AXIS_HAS_SPI(E2)
-      SET_CS_PIN(E2);
-    #endif
-    #if AXIS_HAS_SPI(E3)
-      SET_CS_PIN(E3);
-    #endif
-    #if AXIS_HAS_SPI(E4)
-      SET_CS_PIN(E4);
-    #endif
-    #if AXIS_HAS_SPI(E5)
-      SET_CS_PIN(E5);
-    #endif
-    #if AXIS_HAS_SPI(E6)
-      SET_CS_PIN(E6);
-    #endif
-    #if AXIS_HAS_SPI(E7)
-      SET_CS_PIN(E7);
-    #endif
-  }
-#endif // HAS_TMC_SPI
-
 template<typename TMC>
 static bool test_connection(TMC &st) {
   SERIAL_ECHOPGM("Testing ");
@@ -1339,3 +1276,66 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
 }
 
 #endif // HAS_TRINAMIC_CONFIG
+
+#if HAS_TMC_SPI
+  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+  void tmc_init_cs_pins() {
+    #if AXIS_HAS_SPI(X)
+      SET_CS_PIN(X);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      SET_CS_PIN(Y);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      SET_CS_PIN(Z);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      SET_CS_PIN(X2);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      SET_CS_PIN(Y2);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      SET_CS_PIN(Z2);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      SET_CS_PIN(Z3);
+    #endif
+    #if AXIS_HAS_SPI(Z4)
+      SET_CS_PIN(Z4);
+    #endif
+    #if AXIS_HAS_SPI(I)
+      SET_CS_PIN(I);
+    #endif
+    #if AXIS_HAS_SPI(J)
+      SET_CS_PIN(J);
+    #endif
+    #if AXIS_HAS_SPI(K)
+      SET_CS_PIN(K);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      SET_CS_PIN(E0);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      SET_CS_PIN(E1);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      SET_CS_PIN(E2);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      SET_CS_PIN(E3);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      SET_CS_PIN(E4);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      SET_CS_PIN(E5);
+    #endif
+    #if AXIS_HAS_SPI(E6)
+      SET_CS_PIN(E6);
+    #endif
+    #if AXIS_HAS_SPI(E7)
+      SET_CS_PIN(E7);
+    #endif
+  }
+#endif // HAS_TMC_SPI

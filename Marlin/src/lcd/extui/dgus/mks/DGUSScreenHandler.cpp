@@ -48,7 +48,7 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  static ExtUI::FileList filelist;
+  extern ExtUI::FileList filelist;
 #endif
 
 bool DGUSAutoTurnOff = false;
@@ -65,7 +65,7 @@ void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t *line1, const uint1
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) {
+void DGUSScreenHandler::sendinfoscreen_en_mks(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);

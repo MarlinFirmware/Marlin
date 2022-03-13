@@ -33,6 +33,7 @@ namespace FTDI {
       const bool use_utf8 = has_utf8_chars(str);
       #define CHAR_WIDTH(c) use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c]
     #else
+      constexpr bool use_utf8 = false;
       #define CHAR_WIDTH(c) utf8_fm.get_char_width(c)
     #endif
     FontMetrics utf8_fm(font);
@@ -53,21 +54,17 @@ namespace FTDI {
         breakPoint = (char*)next;
     }
 
-    if (lineWidth > w) {
-      *breakPoint = '\0';
-      strcpy_P(breakPoint,PSTR("..."));
-    }
+    if (lineWidth > w)
+      strcpy_P(breakPoint, PSTR("..."));
 
     cmd.apply_text_alignment(x, y, w, h, options);
-    #if ENABLED(TOUCH_UI_USE_UTF8)
-      if (use_utf8) {
-        draw_utf8_text(cmd, x, y, str, font_size_t::from_romfont(font), options);
-      } else
-    #endif
-      {
-        cmd.CLCD::CommandFifo::text(x, y, font, options);
-        cmd.CLCD::CommandFifo::str(str);
-      }
+    if (use_utf8) {
+      TERN_(TOUCH_UI_USE_UTF8, draw_utf8_text(cmd, x, y, str, font_size_t::from_romfont(font), options));
+    }
+    else {
+      cmd.CLCD::CommandFifo::text(x, y, font, options);
+      cmd.CLCD::CommandFifo::str(str);
+    }
   }
 
   /**
@@ -80,9 +77,9 @@ namespace FTDI {
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);
   }
 
-  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P pstr, uint16_t options, uint8_t font) {
-    char tmp[strlen_P((const char*)pstr) + 3];
-    strcpy_P(tmp, (const char*)pstr);
+  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P fstr, uint16_t options, uint8_t font) {
+    char tmp[strlen_P(FTOP(fstr)) + 3];
+    strcpy_P(tmp, FTOP(fstr));
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);
   }
 } // namespace FTDI

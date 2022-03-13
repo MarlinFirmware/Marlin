@@ -59,9 +59,9 @@
   #warning "Your Configuration provides no method to acquire user feedback!"
 #endif
 
-#if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+#if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
   #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
-#elif MB(BTT_SKR_E3_TURBO) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+#elif MB(BTT_SKR_E3_TURBO) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
   #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
 #endif
 
@@ -596,4 +596,11 @@
  */
 #ifdef __STM32F1__
   #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
+#endif
+
+/**
+ * Průša MK3/S/+ fan pin reassignment
+ */
+#if MB(BTT_BTT002_V1_0, EINSY_RAMBO) && DISABLED(NO_MK3_FAN_PINS_WARNING)
+  #warning "Define MK3_FAN_PINS to swap hotend and part cooling fan pins. (Define NO_MK3_FAN_PINS_WARNING to suppress this warning.)"
 #endif
