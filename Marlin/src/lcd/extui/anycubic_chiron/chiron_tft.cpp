@@ -80,9 +80,6 @@ void ChironTFT::Startup() {
     OUT_WRITE(OUTAGECON_PIN, HIGH);
   #endif
 
-  // Filament runout is handled by Marlin settings in Configuration.h
-  // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
-  // opt_enable FIL_RUNOUT_PULLUP
   TFTSer.begin(115200);
 
   // Wait for the TFT panel to initialize and finish the animation

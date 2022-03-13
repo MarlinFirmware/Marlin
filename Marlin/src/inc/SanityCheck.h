@@ -570,9 +570,9 @@
   #error "SHORT_MANUAL_Z_MOVE is now FINE_MANUAL_MOVE, applying to Z on most printers."
 #elif defined(FIL_RUNOUT_INVERTING)
   #if FIL_RUNOUT_INVERTING
-    #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH."
+    #error "FIL_RUNOUT_INVERTING true is now FILAMENT_RUNOUT_DEFAULT_MODE {HIGH}."
   #else
-    #error "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW."
+    #error "FIL_RUNOUT_INVERTING false is now FILAMENT_RUNOUT_DEFAULT_MODE {LOW}."
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
@@ -1075,7 +1075,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "You can't enable FIL_RUNOUT8_PULLUP and FIL_RUNOUT8_PULLDOWN at the same time."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
+  #elif ANY(FIL_RUNOUT_STATE, FIL_RUNOUT1_STATE, FIL_RUNOUT2_STATE, FIL_RUNOUT3_STATE, FIL_RUNOUT4_STATE, FIL_RUNOUT5_STATE, FIL_RUNOUT6_STATE, FIL_RUNOUT7_STATE, FIL_RUNOUT8_STATE)
+     #error "FIL_RUNOUT#_STATE is Now set with FILAMENT_RUNOUT_DEFAULT_MODE"
   #endif
+
+  constexpr uint8_t frdm[] = FILAMENT_RUNOUT_DEFAULT_MODE;
+  static_assert(COUNT(frdm) == NUM_RUNOUT_SENSORS, "FILAMENT_RUNOUT_DEFAULT_MODE must have NUM_RUNOUT_SENSORS values.");
+  constexpr bool fred[] = FIL_RUNOUT_ENABLED_DEFAULT;
+  static_assert(COUNT(fred) == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_ENABLED_DEFAULT must have NUM_RUNOUT_SENSORS values.");
+  constexpr float frd[] = FILAMENT_RUNOUT_DISTANCE_MM;
+  static_assert(COUNT(frd) == NUM_RUNOUT_SENSORS, "FILAMENT_RUNOUT_DISTANCE_MM must have NUM_RUNOUT_SENSORS values.");
 #endif
 
 /**

@@ -63,8 +63,8 @@ extern FilamentMonitor runout;
 
 class FilamentMonitorBase {
   public:
-    static bool enabled[HOTENDS], filament_ran_out;
-    static uint8_t mode[HOTENDS];
+    static bool enabled[NUM_RUNOUT_SENSORS], filament_ran_out;
+    static uint8_t mode[NUM_RUNOUT_SENSORS];
 
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
@@ -319,7 +319,7 @@ class FilamentSensorBase {
       static volatile float runout_mm_countdown[NUM_RUNOUT_SENSORS];
 
     public:
-      static float runout_distance_mm[HOTENDS];
+      static float runout_distance_mm[NUM_RUNOUT_SENSORS];
 
       static void reset() {
         LOOP_L_N(i, NUM_RUNOUT_SENSORS) filament_present(i);
