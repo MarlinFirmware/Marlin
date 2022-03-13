@@ -23,7 +23,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-class bilinear_bed_leveling {
+class LevelingBilinear {
   static xy_pos_t grid_spacing, grid_start;
   static xy_float_t grid_factor;
   static bed_mesh_t z_values;
@@ -65,7 +65,7 @@ public:
   #endif
 };
 
-extern bilinear_bed_leveling bbl;
+extern LevelingBilinear bbl;
 
 #define _GET_MESH_X(I) bbl.get_mesh_x(I)
 #define _GET_MESH_Y(J) bbl.get_mesh_y(J)
