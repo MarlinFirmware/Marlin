@@ -82,8 +82,11 @@ namespace ExtUI {
   inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
-
-  GcodeSuite::MarlinBusyState getHostKeepaliveState();
+  
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    GcodeSuite::MarlinBusyState getHostKeepaliveState();
+  #endif
+  
   bool getHostKeepaliveIsPaused();
 
   bool isHeaterIdle(const heater_t);
