@@ -56,7 +56,7 @@
 #define Z_STOP_PIN                          PB1
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z Probe (when not Z_STOP_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PA0
