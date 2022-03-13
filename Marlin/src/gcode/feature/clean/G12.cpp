@@ -46,15 +46,8 @@
  */
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
-  // e.g., if we have the brush mounted on X axis, then only require homing on X
-  // that will avoid dribbles and messes from moving the head vertically.
-  #ifdef NOZZLE_CLEAN_HOME_ONLY
-    linear_axis_bits_t axis_bits = axes_should_home(_BV(NOZZLE_CLEAN_HOME_ONLY));
-    if (TEST(axis_bits, NOZZLE_CLEAN_HOME_ONLY))
-      gcode.process_subcommands_now(F("G28X"));
-  #else
-    if (homing_needed_error()) return;
-  #endif
+  if (homing_needed_error(linear_bits & ~TERN0(NOZZLE_CLEAN_NO_Z, Z_AXIS) & ~TERN0(NOZZLE_CLEAN_NO_Y, Y_AXIS)))
+    return;
 
   #ifdef WIPE_SEQUENCE_COMMANDS
     if (!parser.seen_any()) {
