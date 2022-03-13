@@ -52,12 +52,12 @@ public:
   static void extrapolate_unprobed_bed_level();
   static void print_leveling_grid(const bed_mesh_t* _z_values = NULL);
   static void refresh_bed_level();
-  static bool has_mesh() {return !!grid_spacing.x;}
-  static bed_mesh_t& get_z_values() {return z_values;}
-  static const xy_pos_t& get_grid_spacing() {return grid_spacing;}
-  static const xy_pos_t& get_grid_start() {return grid_start;}
-  static float get_mesh_x(int16_t i) {return grid_start.x + i * grid_spacing.x;}
-  static float get_mesh_y(int16_t j) {return grid_start.y + j * grid_spacing.y;}
+  static bool has_mesh() { return !!grid_spacing.x; }
+  static bed_mesh_t& get_z_values() { return z_values; }
+  static const xy_pos_t& get_grid_spacing() { return grid_spacing; }
+  static const xy_pos_t& get_grid_start() { return grid_start; }
+  static float get_mesh_x(int16_t i) { return grid_start.x + i * grid_spacing.x; }
+  static float get_mesh_y(int16_t j) { return grid_start.y + j * grid_spacing.y; }
   static float get_z_correction(const xy_pos_t &raw);
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
