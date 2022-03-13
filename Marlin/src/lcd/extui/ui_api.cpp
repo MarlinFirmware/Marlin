@@ -389,8 +389,10 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
-  GcodeSuite::MarlinBusyState getHostKeepaliveState() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.busy_state); }
-  bool getHostKeepaliveIsPaused() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive_is_paused()); }
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    GcodeSuite::MarlinBusyState getHostKeepaliveState() { return gcode.busy_state; }
+    bool getHostKeepaliveIsPaused() { return gcode.host_keepalive_is_paused(); }
+  #endif
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
