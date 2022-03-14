@@ -177,7 +177,7 @@ typedef int8_t pin_t;
 // ------------------------
 
 #define CRITICAL_SECTION_START()  const bool irqon = !__get_primask(); (void)__iCliRetVal()
-#define CRITICAL_SECTION_END()    if (!primask) (void)__iSeiRetVal()
+#define CRITICAL_SECTION_END()    if (!irqon) (void)__iSeiRetVal()
 #define cli() noInterrupts()
 #define sei() interrupts()
 
