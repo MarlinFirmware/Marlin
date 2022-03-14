@@ -95,9 +95,9 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" (Aligned With");
 
         if (probe.offset_xy.y > 0)
-          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Distal", "-Back")));
+          SERIAL_ECHOPGM(TERN(IS_SCARA, "-Distal", "-Back"));
         else if (probe.offset_xy.y < 0)
-          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Proximal", "-Front")));
+          SERIAL_ECHOPGM(TERN(IS_SCARA, "-Proximal", "-Front"));
         else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 

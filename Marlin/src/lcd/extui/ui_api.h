@@ -306,7 +306,6 @@ namespace ExtUI {
     void setFilamentRunoutState(const bool);
     float getFilamentRunoutDistance_mm();
     void setFilamentRunoutDistance_mm(const_float_t);
-
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)

@@ -673,34 +673,29 @@ void __O2 Endstops::report_states() {
     print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
   #endif
   #if HAS_FILAMENT_SENSOR
-    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
     LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
       pin_t pin;
-      uint8_t state;
       switch (i) {
         default: continue;
+        #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
+        #undef _CASE_RUNOUT
       }
-      if(runout.mode[i-1]==1)
-        state = HIGH;
-      else
-        state = LOW;
+      const uint8_t rm = runout.mode[i - 1],
+                    state = runout.out_state(i - 1);
 
       SERIAL_ECHOPGM(STR_FILAMENT);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       SERIAL_ECHOPGM(": ");
-      if(runout.mode[i-1]==0)
-        SERIAL_ECHOLNF(F("DISABLED"));
-      else if(runout.mode[i-1]==7) {
-        SERIAL_ECHOF(F("MOTION : "));
-        print_es_state(extDigitalRead(pin) != state);
+      if (rm == 0)
+        SERIAL_ECHOLNPGM("DISABLED");
+      else if (rm == 7) {
+        SERIAL_ECHOPGM("MOTION : ");
+        print_es_state(extDigitalRead(pin) == state);
       }
-      else if(extDigitalRead(pin) != state)
-        SERIAL_ECHOLNF(F("PRESENT"));
       else
-        SERIAL_ECHOLNF(F("MISSING"));
+        SERIAL_ECHOLNPGM_P(extDigitalRead(pin) == state ? PSTR("MISSING") : PSTR("PRESENT"));
     }
-    #undef _CASE_RUNOUT
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

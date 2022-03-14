@@ -1002,7 +1002,7 @@ private:
   #endif
 
   #if HAS_FILAMENT_SENSOR
-    static void M412();
+    static void M412() { M591(); }
     static void M591();
     static void M591_report(const bool forReplay=true);
   #endif

@@ -141,7 +141,7 @@ uint8_t MMU2::get_current_tool() {
 }
 
 #if EITHER(HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
-  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != (runout.mode[0]==2 ? HIGH, LOW))
+  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != runout.out_state())
 #endif
 
 void mmu2_attn_buzz(const bool two=false) {

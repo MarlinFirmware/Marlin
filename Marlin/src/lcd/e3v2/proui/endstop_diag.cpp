@@ -104,7 +104,7 @@ void ESDiagClass::Update() {
     ES_REPORT(Z_MIN);
   #endif
   #if HAS_FILAMENT_SENSOR
-    draw_es_state(READ(FIL_RUNOUT1_PIN) != (runout.mode[0]==2 ? HIGH, LOW);
+    draw_es_state(READ(FIL_RUNOUT1_PIN) != runout.out_state());
   #endif
   DWIN_UpdateLCD();
 }

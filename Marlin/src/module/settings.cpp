@@ -113,9 +113,9 @@
 
 #if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
-  #ifndef FIL_RUNOUT_ENABLED_DEFAULT
-    #define FIL_RUNOUT_ENABLED_DEFAULT true
-  #endif
+  #define NRS NUM_RUNOUT_SENSORS
+#else
+  #define NRS 1
 #endif
 
 #if ENABLED(ADVANCE_K_EXTRA)
@@ -237,9 +237,9 @@ typedef struct SettingsDataStruct {
   //
   // FILAMENT_RUNOUT_SENSOR
   //
-  bool runout_sensor_enabled[NUM_RUNOUT_SENSORS];                           // M591 S
-  float runout_distance_mm[NUM_RUNOUT_SENSORS];                             // M591 D
-  uint8_t runout_mode[NUM_RUNOUT_SENSORS];                                  // M591 P
+  bool runout_enabled[NRS];                             // M591 S
+  float runout_distance_mm[NRS];                        // M591 D
+  uint8_t runout_mode[NRS];                             // M591 P
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -820,20 +820,15 @@ void MarlinSettings::postprocess() {
     // Filament Runout Sensor
     //
     {
+      _FIELD_TEST(runout_enabled);
       #if HAS_FILAMENT_SENSOR
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_WRITE(runout.enabled[e]);
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_WRITE(runout.runout_distance(e));
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_WRITE(runout.mode[e]);
+        LOOP_L_N(e, NRS) EEPROM_WRITE(runout.enabled[e]);
+        LOOP_L_N(e, NRS) EEPROM_WRITE(runout.runout_distance(e));
+        LOOP_L_N(e, NRS) EEPROM_WRITE(runout.mode[e]);
       #else
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_WRITE((int8_t)-1));
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_WRITE((float)-0.0f));
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_WRITE((uint8_t)0));
+        EEPROM_WRITE((int8_t)-1);
+        EEPROM_WRITE((float)-0.0f);
+        EEPROM_WRITE((uint8_t)0);
       #endif
     }
 
@@ -1766,27 +1761,28 @@ void MarlinSettings::postprocess() {
       // Filament Runout Sensor
       //
       {
-        int8_t runout_sensor_enabled[NUM_RUNOUT_SENSORS];
-        _FIELD_TEST(runout_sensor_enabled);
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_READ(runout_sensor_enabled);
-        float runout_distance_mm[NUM_RUNOUT_SENSORS];
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_READ(runout_distance_mm[e]);
-        uint8_t runout_mode[NUM_RUNOUT_SENSORS];
-        LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-          EEPROM_READ(runout_mode[e]);
+        _FIELD_TEST(runout_enabled);
+
+        int8_t runout_enabled[NRS];
+        float runout_distance_mm[NRS];
+        uint8_t runout_mode[NRS];
+
+        LOOP_S_L_N(e, 0, NRS) EEPROM_READ(runout_enabled[e]);
+        LOOP_S_L_N(e, 0, NRS) EEPROM_READ(runout_distance_mm[e]);
+        LOOP_S_L_N(e, 0, NRS) EEPROM_READ(runout_mode[e]);
 
         #if HAS_FILAMENT_SENSOR
-          LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-            runout.enabled[e] = runout_sensor_enabled[e] < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled[e];
-          LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-            if (!validating) runout.set_runout_distance(runout_distance_mm[e], e);
-          LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-            if (!validating) runout.mode[e] = runout_mode[e];
-          runout.reset();
+          if (!validating) {
+            LOOP_S_L_N(e, 0, NRS) {
+              if (runout_enabled[e] >= 0) {
+                runout.enabled[e] = (runout_enabled[e] > 0);
+                runout.set_runout_distance(runout_distance_mm[e], e);
+                runout.mode[e] = runout_mode[e];
+              }
+            }
+            runout.reset();
+          }
         #endif
-
       }
 
       //
@@ -2890,13 +2886,15 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_FILAMENT_SENSOR
-    LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-    runout.enabled[e] = FIL_RUNOUT_ENABLED_DEFAULT;
-    LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-      runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);
-    LOOP_S_L_N(e, 0, NUM_RUNOUT_SENSORS)
-      runout.mode[e] = FILAMENT_RUNOUT_DEFAULT_MODE;
-
+    constexpr bool fred[] = FIL_RUNOUT_ENABLED;
+    constexpr uint8_t frm[] = FIL_RUNOUT_MODE;
+    constexpr float frd[] = FIL_RUNOUT_DISTANCE_MM;
+    static_assert(COUNT(fred) == NRS, "FIL_RUNOUT_ENABLED must have NUM_RUNOUT_SENSORS values.");
+    static_assert(COUNT(frm) == NRS, "FIL_RUNOUT_MODE must have NUM_RUNOUT_SENSORS values.");
+    static_assert(COUNT(frd) == NRS, "FIL_RUNOUT_DISTANCE_MM must have NUM_RUNOUT_SENSORS values.");
+    COPY(runout.enabled, fred);
+    COPY(runout.mode, frm);
+    LOOP_L_N(e, NRS) runout.set_runout_distance(frd[e], e);
     runout.reset();
   #endif
 
