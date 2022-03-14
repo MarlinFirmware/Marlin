@@ -1136,6 +1136,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
         #error "FIL_RUNOUT8_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 1 ... }."
       #endif
     #endif
+  #elif ENABLED(FILAMENT_MOTION_SENSOR)
+    #error "FILAMENT_MOTION_SENSOR is now set with FIL_RUNOUT_MODE { 7 ... }."
   #endif
 #endif
 
