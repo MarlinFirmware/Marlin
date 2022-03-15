@@ -100,6 +100,54 @@ void menu_backlash();
 
 #endif
 
+#if HAS_FILAMENT_SENSOR
+
+  #define RUNOUT_EDIT_ITEMS(F) do{ \
+    EDIT_ITEM_N(bool, F, MSG_RUNOUT_MODE_NONE, &runout.enabled[F]); \
+    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_NONE, []{ set_runout_mode_none(F);}); \
+    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_HIGH, []{ set_runout_mode_high(F);}); \
+    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_LOW, []{ set_runout_mode_low(F);}); \
+    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_MOTION, []{ set_runout_mode_motion(F);}); \
+    editable.decimal = runout.runout_distance(F); \
+    EDIT_ITEM_FAST_N(float3, F, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, \
+      []{ runout.set_runout_distance(editable.decimal, F); }, true \
+    ); \
+  }while(0)
+
+  void set_runout_mode_none(uint8_t e) { runout.mode[e] = 0; }
+  void set_runout_mode_high(uint8_t e) { runout.mode[e] = 1; }
+  void set_runout_mode_low(uint8_t e) { runout.mode[e] = 2; }
+  void set_runout_mode_motion(uint8_t e) { runout.mode[e] = 7; }
+
+  void menu_runout_config() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+    RUNOUT_EDIT_ITEMS(0);
+    #if NUM_RUNOUT_SENSORS > 1
+      RUNOUT_EDIT_ITEMS(1);
+    #endif
+    #if NUM_RUNOUT_SENSORS > 2
+      RUNOUT_EDIT_ITEMS(2);
+    #endif
+    #if NUM_RUNOUT_SENSORS > 3
+      RUNOUT_EDIT_ITEMS(3);
+    #endif
+    #if NUM_RUNOUT_SENSORS > 4
+      RUNOUT_EDIT_ITEMS(4);
+    #endif
+    #if NUM_RUNOUT_SENSORS > 5
+      RUNOUT_EDIT_ITEMS(5);
+    #endif
+    #if NUM_RUNOUT_SENSORS > 6
+      RUNOUT_EDIT_ITEMS(6);
+    #endif
+    #if NUM_RUNOUT_SENSORS > 7
+      RUNOUT_EDIT_ITEMS(7);
+    #endif
+    END_MENU();
+  }
+#endif
+
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
   //
   // Advanced Settings > Filament
@@ -154,10 +202,7 @@ void menu_backlash();
     #endif
 
     #if HAS_FILAMENT_SENSOR
-      editable.decimal = runout.runout_distance();
-      EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999,
-        []{ runout.set_runout_distance(editable.decimal); }, true
-      );
+      SUBMENU(MSG_RUNOUT_MODE, menu_runout_config);
     #endif
 
     END_MENU();

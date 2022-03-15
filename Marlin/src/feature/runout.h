@@ -103,7 +103,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
     // Handle a block completion. RunoutResponseDelayed uses this to
     // add up the length of filament moved while the filament is out.
     static void block_completed(const block_t * const b) {
-      if (enabled) {
+      if (enabled[active_extruder]) {
         response.block_completed(b);
         sensor.block_completed(b);
       }
@@ -111,7 +111,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static void run() {
-      if (enabled && !filament_ran_out && (printingIsActive() || did_pause_print)) {
+      if (enabled[active_extruder] && mode[active_extruder]!=0 && !filament_ran_out && (printingIsActive() || did_pause_print)) {
         cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
