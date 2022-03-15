@@ -234,9 +234,9 @@ void MarlinHAL::adc_start(const pin_t pin) {
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
   #if MB(MKS_TINYBEE)
-    adc_result = mv * 1023.0 / 2500.0; // mod for MKS Tinybee with 2.5v reference VDDA
+    adc_result = mv * 1023.0 / 2500.0; // for MKS Tinybee with 2.5v reference VDDA
   #else
-    adc_result = mv * 1023.0 / 3300.0; // mod for MKS Tinybee with 2.5v reference VDDA
+    adc_result = mv * 1023.0 / 3300.0;
   #endif
 
   // Change the attenuation level based on the new reading
