@@ -103,7 +103,7 @@ void menu_backlash();
 #if HAS_FILAMENT_SENSOR
 
   #define RUNOUT_EDIT_ITEMS(F) do{ \
-    EDIT_ITEM_N(bool, F, MSG_RUNOUT_MODE_NONE, &runout.enabled[F]); \
+    EDIT_ITEM_N(bool, F, MSG_RUNOUT_SENSOR, &runout.enabled[F]); \
     ACTION_ITEM_N(F, MSG_RUNOUT_MODE_NONE, []{ set_runout_mode_none(F);}); \
     ACTION_ITEM_N(F, MSG_RUNOUT_MODE_HIGH, []{ set_runout_mode_high(F);}); \
     ACTION_ITEM_N(F, MSG_RUNOUT_MODE_LOW, []{ set_runout_mode_low(F);}); \
