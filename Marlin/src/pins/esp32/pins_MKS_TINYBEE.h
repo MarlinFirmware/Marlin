@@ -114,6 +114,11 @@
 //#define E1_AUTO_FAN_PIN                    149  // need to update Configuration_adv.h @section extruder
 
 //
+// ADC Reference Voltage
+//
+#define ADC_REFERENCE_VOLTAGE                2.5  // 2.5V reference VDDA
+
+//
 // MicroSD card
 //
 #define SD_MOSI_PIN                           23
