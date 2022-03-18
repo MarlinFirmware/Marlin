@@ -216,9 +216,9 @@ class PrintJobRecovery {
       static void retract_and_lift(const_float_t zraise);
     #endif
 
-    #if PIN_EXISTS(POWER_LOSS)
+    #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)
       friend class GcodeSuite;
-      static void _outage();
+      static void _outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated=false));
     #endif
 };
 

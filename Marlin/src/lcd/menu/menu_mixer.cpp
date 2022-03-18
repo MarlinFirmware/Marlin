@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, MIXING_EXTRUDER)
+#if BOTH(HAS_MARLINUI_MENU, MIXING_EXTRUDER)
 
 #include "menu_item.h"
 #include "menu_addon.h"
@@ -275,4 +275,4 @@ void menu_mixer() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && MIXING_EXTRUDER
+#endif // HAS_MARLINUI_MENU && MIXING_EXTRUDER

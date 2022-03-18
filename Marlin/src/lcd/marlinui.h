@@ -35,7 +35,7 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
+#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
 
@@ -51,14 +51,14 @@
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "e3v2/enhanced/dwin.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "e3v2/proui/dwin.h"
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
@@ -77,7 +77,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
 
     #include "lcdprint.h"
 
@@ -90,7 +90,7 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-  #endif // HAS_LCD_MENU
+  #endif // HAS_MARLINUI_MENU
 
 #endif // HAS_WIRED_LCD
 
@@ -126,7 +126,7 @@
   } preheat_t;
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   // Manual Movement class
   class ManualMove {
@@ -198,7 +198,7 @@ class MarlinUI {
 public:
 
   MarlinUI() {
-    TERN_(HAS_LCD_MENU, currentScreen = status_screen);
+    TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
   static void init();
@@ -208,6 +208,8 @@ public:
   #else
     static void init_lcd() {}
   #endif
+
+  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
   #if HAS_WIRED_LCD
     static bool detected();
@@ -245,7 +247,7 @@ public:
   // LCD implementations
   static void clear_lcd();
 
-  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
+  #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
       if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
     }
@@ -263,14 +265,22 @@ public:
     #ifndef LCD_BRIGHTNESS_MAX
       #define LCD_BRIGHTNESS_MAX 255
     #endif
-    #ifndef DEFAULT_LCD_BRIGHTNESS
-      #define DEFAULT_LCD_BRIGHTNESS LCD_BRIGHTNESS_MAX
+    #ifndef LCD_BRIGHTNESS_DEFAULT
+      #define LCD_BRIGHTNESS_DEFAULT LCD_BRIGHTNESS_MAX
     #endif
     static uint8_t brightness;
     static bool backlight;
     static void _set_brightness(); // Implementation-specific
     static void set_brightness(const uint8_t value);
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
+  #endif
+
+  #if LCD_BACKLIGHT_TIMEOUT
+    #define LCD_BKL_TIMEOUT_MIN 1
+    #define LCD_BKL_TIMEOUT_MAX (60*60*18) // 18 hours max within uint16_t
+    static uint16_t lcd_backlight_timeout;
+    static millis_t backlight_off_ms;
+    static void refresh_backlight_timeout();
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
@@ -323,7 +333,7 @@ public:
 
   #if HAS_STATUS_MESSAGE
 
-    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
+    #if EITHER(HAS_WIRED_LCD, DWIN_LCD_PROUI)
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
       #else
@@ -357,15 +367,6 @@ public:
   static void set_status(FSTR_P const fstr, const int8_t level=0);
   static void status_printf(const uint8_t level, FSTR_P const fmt, ...);
 
-  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    #if DISABLED(LIGHTWEIGHT_UI)
-      static void draw_status_message(const bool blink);
-    #endif
-  #else
-    static void kill_screen(FSTR_P const, FSTR_P const) {}
-  #endif
-
   #if HAS_DISPLAY
 
     static void update();
@@ -375,7 +376,7 @@ public:
     static void resume_print();
     static void flow_fault();
 
-    #if BOTH(HAS_LCD_MENU, PSU_CONTROL)
+    #if BOTH(HAS_MARLINUI_MENU, PSU_CONTROL)
       static void poweroff();
     #endif
 
@@ -479,16 +480,21 @@ public:
     #endif
 
     static void draw_kill_screen();
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
 
   #else // No LCD
 
     static void update() {}
     static void return_to_status() {}
+    static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
 
   #if ENABLED(SDSUPPORT)
-    #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
+    #if BOTH(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif
     #if MARLINUI_SCROLL_NAME
@@ -513,7 +519,7 @@ public:
     TERN(SCREENS_CAN_TIME_OUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
@@ -597,7 +603,7 @@ public:
 
   #endif
 
-  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
     static bool lcd_clicked;
     static bool use_click() {
       const bool click = lcd_clicked;
@@ -609,7 +615,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}
@@ -619,12 +625,12 @@ public:
   //
   // EEPROM: Reset / Init / Load / Store
   //
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     static void reset_settings();
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    #if HAS_LCD_MENU
+    #if HAS_MARLINUI_MENU
       static void init_eeprom();
       static void load_settings();
       static void store_settings();
@@ -650,7 +656,7 @@ public:
   //
   // Block interaction while under external control
   //
-  #if HAS_LCD_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+  #if HAS_MARLINUI_MENU && EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }

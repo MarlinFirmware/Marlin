@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu.h"
 #include "../../module/planner.h"
@@ -220,7 +220,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     screen_changed = true;
     TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
 
-    TERN_(HAS_LCD_MENU, encoder_direction_normal());
+    TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
 
     set_selection(false);
   }
@@ -276,11 +276,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #if HAS_BUZZER
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
-    if (good) {
-      BUZZ(100, 659);
-      BUZZ(100, 698);
-    }
-    else BUZZ(20, 440);
+    if (good) OKAY_BUZZ(); else ERR_BUZZ();
   }
 #endif
 
@@ -368,7 +364,8 @@ void MenuItem_confirm::select_screen(
   PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/
 ) {
   ui.defer_status_screen();
-  const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
+  const bool ui_selection = !yes ? false : !no || ui.update_selection(),
+             got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
     if (got_click) {
@@ -378,4 +375,4 @@ void MenuItem_confirm::select_screen(
   }
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU

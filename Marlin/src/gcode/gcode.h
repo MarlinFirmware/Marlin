@@ -91,7 +91,7 @@
  *
  *** Print from Media (SDSUPPORT) ***
  * M20  - List SD card. (Requires SDSUPPORT)
- * M21  - Init SD card. (Requires SDSUPPORT)
+ * M21  - Init SD card. (Requires SDSUPPORT) With MULTI_VOLUME select a drive with `M21 Pn` / 'M21 S' / 'M21 U'.
  * M22  - Release SD card. (Requires SDSUPPORT)
  * M23  - Select SD file: "M23 /path/file.gco". (Requires SDSUPPORT)
  * M24  - Start/resume SD print. (Requires SDSUPPORT)
@@ -1193,6 +1193,11 @@ private:
     static void M413();
     static void M413_report(const bool forReplay=true);
     static void M1000();
+  #endif
+
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(SDSUPPORT)
