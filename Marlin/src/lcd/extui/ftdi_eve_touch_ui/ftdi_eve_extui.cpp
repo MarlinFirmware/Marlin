@@ -80,7 +80,7 @@ namespace ExtUI {
   }
 
   void onPrintTimerPaused() {}
-  void onPrintFinished() {}
+  void onPrintDone() {}
 
   void onFilamentRunout(const extruder_t extruder) {
     char lcd_msg[30];
@@ -90,7 +90,7 @@ namespace ExtUI {
   }
 
   void onHomingStart() {}
-  void onHomingComplete() {}
+  void onHomingDone() {}
 
   void onFactoryReset() { InterfaceSettingsScreen::defaultSettings(); }
   void onStoreSettings(char *buff) { InterfaceSettingsScreen::saveSettings(buff); }
@@ -118,7 +118,8 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
     void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) { BedMeshViewScreen::onMeshUpdate(x, y, val); }
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) { BedMeshViewScreen::onMeshUpdate(x, y, state); }
   #endif

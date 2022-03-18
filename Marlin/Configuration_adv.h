@@ -811,18 +811,17 @@
  */
 //#define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
-  #define X1_MIN_POS X_MIN_POS   // Set to X_MIN_POS
-  #define X1_MAX_POS X_BED_SIZE  // Set a maximum so the first X-carriage can't hit the parked second X-carriage
-  #define X2_MIN_POS    80       // Set a minimum to ensure the  second X-carriage can't hit the parked first X-carriage
-  #define X2_MAX_POS   353       // Set this to the distance between toolheads when both heads are homed
-  #define X2_HOME_DIR    1       // Set to 1. The second X-carriage always homes to the maximum endstop position
-  #define X2_HOME_POS X2_MAX_POS // Default X2 home position. Set to X2_MAX_POS.
-                      // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
-                      // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
-                      // without modifying the firmware (through the "M218 T1 X???" command).
-                      // Remember: you should set the second extruder x-offset to 0 in your slicer.
+  #define X1_MIN_POS X_MIN_POS    // Set to X_MIN_POS
+  #define X1_MAX_POS X_BED_SIZE   // A max coordinate so the X1 carriage can't hit the parked X2 carriage
+  #define X2_MIN_POS    80        // A min coordinate so the X2 carriage can't hit the parked X1 carriage
+  #define X2_MAX_POS   353        // The max position of the X2 carriage, typically also the home position
+  #define X2_HOME_DIR    1        // Set to 1. The X2 carriage always homes to the max endstop position
+  #define X2_HOME_POS X2_MAX_POS  // Default X2 home position. Set to X2_MAX_POS.
+                                  // NOTE: For Dual X Carriage use M218 T1 Xn to override the X2_HOME_POS.
+                                  // This allows recalibration of endstops distance without a rebuild.
+                                  // Remember to set the second extruder's X-offset to 0 in your slicer.
 
-  // This is the default power-up mode which can be later using M605.
+  // This is the default power-up mode which can be changed later using M605 S<mode>.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
 
   // Default x offset in duplication mode (typically set to half print bed width)
