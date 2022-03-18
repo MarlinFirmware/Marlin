@@ -192,12 +192,16 @@ enum ADCSensorState : char {
 
 // A temperature sensor
 typedef struct TempInfo {
-  uint16_t acc;
-  int16_t raw;
+private:
+  raw_adc_t acc;
+  raw_adc_t raw;
+public:
   celsius_float_t celsius;
   inline void reset() { acc = 0; }
-  inline void sample(const uint16_t s) { acc += s; }
+  inline void sample(const raw_adc_t s) { acc += s; }
   inline void update() { raw = acc; }
+  void setraw(const raw_adc_t r) { raw = r; }
+  raw_adc_t getraw() { return raw; }
 } temp_info_t;
 
 #if HAS_TEMP_REDUNDANT
@@ -287,9 +291,7 @@ struct HeaterWatch {
 #endif
 
 // Temperature sensor read value ranges
-typedef struct { int16_t raw_min, raw_max; } raw_range_t;
-typedef struct { celsius_t mintemp, maxtemp; } celsius_range_t;
-typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_range_t;
+typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_range_t;
 
 #define THERMISTOR_ABS_ZERO_C           -273.15f  // bbbbrrrrr cold !
 #define THERMISTOR_RESISTANCE_NOMINAL_C 25.0f     // mmmmm comfortable
@@ -492,7 +494,7 @@ class Temperature {
         static bed_watch_t watch_bed;
       #endif
       IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
-      static int16_t mintemp_raw_BED, maxtemp_raw_BED;
+      static raw_adc_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
     #if HAS_HEATED_CHAMBER
@@ -500,7 +502,7 @@ class Temperature {
         static chamber_watch_t watch_chamber;
       #endif
       TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
-      static int16_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
+      static raw_adc_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
     #if HAS_COOLER
@@ -508,11 +510,11 @@ class Temperature {
         static cooler_watch_t watch_cooler;
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
-      static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
+      static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
     #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
-      static int16_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
+      static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
     #endif
 
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
@@ -566,7 +568,7 @@ class Temperature {
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
       static void M305_report(const uint8_t t_index, const bool forReplay=true);
       static void reset_user_thermistors();
-      static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw);
+      static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const raw_adc_t raw);
       static bool set_pull_up_res(int8_t t_index, float value) {
         //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
         if (!WITHIN(value, 1, 1000000)) return false;
@@ -594,25 +596,25 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-      static celsius_float_t analog_to_celsius_hotend(const int16_t raw, const uint8_t e);
+      static celsius_float_t analog_to_celsius_hotend(const raw_adc_t raw, const uint8_t e);
     #endif
     #if HAS_HEATED_BED
-      static celsius_float_t analog_to_celsius_bed(const int16_t raw);
+      static celsius_float_t analog_to_celsius_bed(const raw_adc_t raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static celsius_float_t analog_to_celsius_chamber(const int16_t raw);
+      static celsius_float_t analog_to_celsius_chamber(const raw_adc_t raw);
     #endif
     #if HAS_TEMP_PROBE
-      static celsius_float_t analog_to_celsius_probe(const int16_t raw);
+      static celsius_float_t analog_to_celsius_probe(const raw_adc_t raw);
     #endif
     #if HAS_TEMP_COOLER
-      static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
+      static celsius_float_t analog_to_celsius_cooler(const raw_adc_t raw);
     #endif
     #if HAS_TEMP_BOARD
-      static celsius_float_t analog_to_celsius_board(const int16_t raw);
+      static celsius_float_t analog_to_celsius_board(const raw_adc_t raw);
     #endif
     #if HAS_TEMP_REDUNDANT
-      static celsius_float_t analog_to_celsius_redundant(const int16_t raw);
+      static celsius_float_t analog_to_celsius_redundant(const raw_adc_t raw);
     #endif
 
     #if HAS_FAN
@@ -707,8 +709,8 @@ class Temperature {
     }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      static int16_t rawHotendTemp(const uint8_t E_NAME) {
-        return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
+      static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
+        return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
       }
     #endif
 
@@ -770,7 +772,7 @@ class Temperature {
     #if HAS_HEATED_BED
 
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static int16_t rawBedTemp()    { return temp_bed.raw; }
+        static raw_adc_t rawBedTemp()  { return temp_bed.getraw(); }
       #endif
       static celsius_float_t degBed()  { return temp_bed.celsius; }
       static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
@@ -801,7 +803,7 @@ class Temperature {
 
     #if HAS_TEMP_PROBE
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static int16_t rawProbeTemp()    { return temp_probe.raw; }
+        static raw_adc_t rawProbeTemp()  { return temp_probe.getraw(); }
       #endif
       static celsius_float_t degProbe()  { return temp_probe.celsius; }
       static celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
@@ -812,7 +814,7 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static int16_t rawChamberTemp()      { return temp_chamber.raw; }
+        static raw_adc_t rawChamberTemp()    { return temp_chamber.getraw(); }
       #endif
       static celsius_float_t degChamber()    { return temp_chamber.celsius; }
       static celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
@@ -835,7 +837,7 @@ class Temperature {
 
     #if HAS_TEMP_COOLER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static int16_t rawCoolerTemp()     { return temp_cooler.raw; }
+        static raw_adc_t rawCoolerTemp()   { return temp_cooler.getraw(); }
       #endif
       static celsius_float_t degCooler()   { return temp_cooler.celsius; }
       static celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
@@ -849,7 +851,7 @@ class Temperature {
 
     #if HAS_TEMP_BOARD
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static int16_t rawBoardTemp()    { return temp_board.raw; }
+        static raw_adc_t rawBoardTemp()  { return temp_board.getraw(); }
       #endif
       static celsius_float_t degBoard()  { return temp_board.celsius; }
       static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
@@ -857,8 +859,7 @@ class Temperature {
 
     #if HAS_TEMP_REDUNDANT
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static int16_t rawRedundantTemp()         { return temp_redundant.raw; }
-        static int16_t rawRedundanTargetTemp()    { return (*temp_redundant.target).raw; }
+        static raw_adc_t rawRedundantTemp()       { return temp_redundant.getraw(); }
       #endif
       static celsius_float_t degRedundant()       { return temp_redundant.celsius; }
       static celsius_float_t degRedundantTarget() { return (*temp_redundant.target).celsius; }
@@ -991,7 +992,7 @@ class Temperature {
       #else
         #define READ_MAX_TC(N) read_max_tc()
       #endif
-      static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+      static raw_adc_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
     #if HAS_AUTO_FAN

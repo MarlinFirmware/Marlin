@@ -1176,7 +1176,7 @@ void MarlinUI::init() {
   #if HAS_ADC_BUTTONS
 
     typedef struct {
-      uint16_t ADCKeyValueMin, ADCKeyValueMax;
+      raw_adc_t ADCKeyValueMin, ADCKeyValueMax;
       uint8_t  ADCKeyNo;
     } _stADCKeypadTable_;
 
@@ -1203,10 +1203,10 @@ void MarlinUI::init() {
     #endif
 
     // Calculate the ADC value for the voltage divider with specified pull-down resistor value
-    #define ADC_BUTTON_VALUE(r)  int(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
+    #define ADC_BUTTON_VALUE(r)  raw_adc_t(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
 
-    static constexpr uint16_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
-                                  adc_other_button = HAL_ADC_RANGE * 1000 / 1024;
+    static constexpr raw_adc_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
+                                   adc_other_button = HAL_ADC_RANGE * 1000 / 1024;
     static const _stADCKeypadTable_ stADCKeyTable[] PROGMEM = {
       // VALUE_MIN, VALUE_MAX, KEY
       { adc_other_button, HAL_ADC_RANGE, 1 + BLEN_KEYPAD_F1     }, // F1
@@ -1226,13 +1226,13 @@ void MarlinUI::init() {
 
     uint8_t get_ADC_keyValue() {
       if (thermalManager.ADCKey_count >= 16) {
-        const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw;
+        const raw_adc_t currentkpADCValue = thermalManager.current_ADCKey_raw;
         thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
         thermalManager.ADCKey_count = 0;
         if (currentkpADCValue < adc_other_button)
           LOOP_L_N(i, ADC_KEY_NUM) {
-            const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
-                           hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
+            const raw_adc_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
+                            hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
             if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
           }
       }
