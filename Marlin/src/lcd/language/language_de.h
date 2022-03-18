@@ -388,7 +388,7 @@ namespace Language_de {
   LSTR MSG_ADVANCE_K                      = _UxGT("Vorschubfaktor");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Vorschubfaktor *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD-Kontrast");
-  LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Helligkeit");
+  LSTR MSG_BRIGHTNESS                     = _UxGT("LCD-Helligkeit");
   LSTR MSG_LCD_BKL_TIMEOUT                = _UxGT("LCD-Ruhezustand (s)");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("LCD ausschalten");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Konfig. speichern");
@@ -401,7 +401,7 @@ namespace Language_de {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Einstell. gespei.");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("FW Update vom Medium");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Drucker neustarten");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Aktualisieren");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Aktualisieren");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info");
   LSTR MSG_PREPARE                        = _UxGT("Vorbereitung");
   LSTR MSG_TUNE                           = _UxGT("Justierung");
