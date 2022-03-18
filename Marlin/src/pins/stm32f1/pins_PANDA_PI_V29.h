@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -41,25 +41,25 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PA11   // SERVOS
+#define SERVO0_PIN                          PA11  // SERVOS
 
 //
 // Limit Switches
 //
 #define X_STOP_PIN                          PA3   // X-STOP
 #define Y_STOP_PIN                          PC9   // Y-STOP
-#define Z_STOP_PIN                          PA1  // Z-STOP
+#define Z_STOP_PIN                          PA1   // Z-STOP
 
 //
 // Z Probe must be this pin
 //
-//#define Z_MIN_PROBE_PIN                     PA1  // PROBE
+//#define Z_MIN_PROBE_PIN                   PA1   // PROBE
 
 //
 // Filament Runout Sensor
 //
 //#ifndef FIL_RUNOUT_PIN
- // #define FIL_RUNOUT_PIN                    PC2   // E0-STOP
+//  #define FIL_RUNOUT_PIN                  PC2   // E0-STOP
 //#endif
 
 //
@@ -69,21 +69,17 @@
 #define X_STEP_PIN                          PC11
 #define X_DIR_PIN                           PB6
 
-
 #define Y_ENABLE_PIN                        PC12
 #define Y_STEP_PIN                          PB5
 #define Y_DIR_PIN                           PB4
-
 
 #define Z_ENABLE_PIN                        PC12
 #define Z_STEP_PIN                          PB3
 #define Z_DIR_PIN                           PA15
 
-
 #define E0_ENABLE_PIN                       PC12
 #define E0_STEP_PIN                         PB15
 #define E0_DIR_PIN                          PB14
-
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -132,29 +128,48 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PB0   // Analog Input "TH0"
-#define TEMP_BED_PIN                        PB1  // Analog Input "TB0"
+#define TEMP_BED_PIN                        PB1   // Analog Input "TB0"
 #define TEMP_1_PIN                          PA2
+
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PB12   // "HE"
-#define HEATER_BED_PIN                      PB13   // "HB"
+#define HEATER_0_PIN                        PB12  // "HE"
+#define HEATER_BED_PIN                      PB13  // "HB"
 #define FAN_PIN                             PA8   // "FAN0"
 #define HEATER_1_PIN                        PA12
+
 //
+// SD Support
+//
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
+#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
+#define SDSS                   ONBOARD_SD_CS_PIN
 
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+#if SD_CONNECTION_IS(ONBOARD)
+  //#define SD_DETECT_PIN                   PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "SD CUSTOM_CABLE is not compatible with SKR E3 DIP."
+#endif
 
-    #define BEEPER_PIN                      PC3
+//
+// LCD / Controller
+//
+#if HAS_WIRED_LCD
+  #define BTN_ENC                           PA0
+  #define BTN_EN1                           PC4
+  #define BTN_EN2                           PC5
 
-    #define BTN_ENC                         PA0
-    #define BTN_EN1                         PC4
-    #define BTN_EN2                         PC5
-
-    #define LCD_PINS_RS                     PC0
-    #define LCD_PINS_ENABLE                 PC2
-    #define LCD_PINS_D4                     PC1
-
-
+  #define LCD_PINS_RS                       PC0
+  #define LCD_PINS_ENABLE                   PC2
+  #define LCD_PINS_D4                       PC1
+#endif
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
@@ -195,28 +210,13 @@
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8
 
-#endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
+  #if SD_CONNECTION_IS(LCD) && BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+    #define SD_DETECT_PIN                   PA15
+    #define SD_SS_PIN                       PA10
+  #endif
 
-//
-// SD Support
-//
+#elif HAS_WIRED_LCD
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define BEEPER_PIN                        PC3
+
 #endif
-
-#if SD_CONNECTION_IS(ONBOARD)
- // #define SD_DETECT_PIN                     PA4
-  #define SD_SCK_PIN                        PA5
-  #define SD_MISO_PIN                       PA6
-  #define SD_MOSI_PIN                       PA7
-#elif SD_CONNECTION_IS(LCD) && BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
-  #define SD_DETECT_PIN                     PA15
-  #define SD_SS_PIN                         PA10
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "SD CUSTOM_CABLE is not compatible with SKR E3 DIP."
-#endif
-
-#define ONBOARD_SPI_DEVICE                     1  // SPI1
-#define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-#define SDSS                   ONBOARD_SD_CS_PIN
