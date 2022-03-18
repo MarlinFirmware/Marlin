@@ -22,7 +22,7 @@ jobs:
         github-token: ${{ github.token }}
         process-only: 'issues'
         issue-lock-inactive-days: '60'
-        issue-exclude-created-before: '2017-07-01T00:00:00Z'
+        issue-exclude-created-before: ''
         issue-exclude-labels: 'no-locking'
         issue-lock-labels: ''
         issue-lock-comment: >
