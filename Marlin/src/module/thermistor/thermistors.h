@@ -38,9 +38,9 @@
 #define MAX_RAW_THERMISTOR_VALUE (uint16_t(HAL_ADC_RANGE) * (OVERSAMPLENR) - 1)
 
 #define OV_SCALE(N) float(N)
-#define OV(N) uint16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
+#define OV(N) raw_adc_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-typedef struct { uint16_t value; celsius_t celsius; } temp_entry_t;
+typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
 //

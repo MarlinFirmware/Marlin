@@ -437,8 +437,8 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #if HAS_HEATED_BED
   bed_info_t Temperature::temp_bed; // = { 0 }
   // Init min and max temp with extreme values to prevent false errors during startup
-  uint16_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP,
-           Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
+  raw_adc_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP,
+            Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
 #endif
@@ -448,8 +448,8 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #if HAS_HEATED_CHAMBER
     millis_t next_cool_check_ms_2 = 0;
     celsius_float_t old_temp = 9999;
-    uint16_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP,
-             Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
+    raw_adc_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP,
+              Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
     TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
     IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
   #endif
@@ -461,8 +461,8 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
     celsius_float_t previous_temp = 9999;
-    uint16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP,
-             Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
+    raw_adc_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP,
+              Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
     #if WATCH_COOLER
       cooler_watch_t Temperature::watch_cooler{0};
     #endif
@@ -477,8 +477,8 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #if HAS_TEMP_BOARD
   board_info_t Temperature::temp_board; // = { 0 }
   #if ENABLED(THERMAL_PROTECTION_BOARD)
-    uint16_t Temperature::mintemp_raw_BOARD = TEMP_SENSOR_BOARD_RAW_LO_TEMP,
-             Temperature::maxtemp_raw_BOARD = TEMP_SENSOR_BOARD_RAW_HI_TEMP;
+    raw_adc_t Temperature::mintemp_raw_BOARD = TEMP_SENSOR_BOARD_RAW_LO_TEMP,
+              Temperature::maxtemp_raw_BOARD = TEMP_SENSOR_BOARD_RAW_HI_TEMP;
   #endif
 #endif
 
@@ -1690,8 +1690,8 @@ void Temperature::manage_heater() {
     m = (l + r) >> 1;                                                     \
     if (!m) return celsius_t(pgm_read_word(&TBL[0].celsius));             \
     if (m == l || m == r) return celsius_t(pgm_read_word(&TBL[LEN-1].celsius)); \
-    uint16_t v00 = pgm_read_word(&TBL[m-1].value),                        \
-             v10 = pgm_read_word(&TBL[m-0].value);                        \
+    raw_adc_t v00 = pgm_read_word(&TBL[m-1].value),                       \
+              v10 = pgm_read_word(&TBL[m-0].value);                       \
          if (raw < v00) r = m;                                            \
     else if (raw > v10) l = m;                                            \
     else {                                                                \
@@ -1785,7 +1785,7 @@ void Temperature::manage_heater() {
     SERIAL_EOL();
   }
 
-  celsius_float_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const uint16_t raw) {
+  celsius_float_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const raw_adc_t raw) {
 
     if (!WITHIN(t_index, 0, COUNT(user_thermistor) - 1)) return 25;
 
@@ -1800,8 +1800,8 @@ void Temperature::manage_heater() {
     }
 
     // maximum adc value .. take into account the over sampling
-    constexpr uint16_t adc_max = MAX_RAW_THERMISTOR_VALUE;
-    const uint16_t adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
+    constexpr raw_adc_t adc_max = MAX_RAW_THERMISTOR_VALUE;
+    const raw_adc_t adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
                 resistance = t.series_res * (adc_raw + 0.5f) / adc_inverse,
@@ -1821,7 +1821,7 @@ void Temperature::manage_heater() {
 #if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_hotend(const uint16_t raw, const uint8_t e) {
+  celsius_float_t Temperature::analog_to_celsius_hotend(const raw_adc_t raw, const uint8_t e) {
     if (e >= HOTENDS) {
       SERIAL_ERROR_START();
       SERIAL_ECHO(e);
@@ -1944,7 +1944,7 @@ void Temperature::manage_heater() {
 
 #if HAS_HEATED_BED
   // For bed temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_bed(const uint16_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_bed(const raw_adc_t raw) {
     #if TEMP_SENSOR_BED_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BED, raw);
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
@@ -1962,7 +1962,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_CHAMBER
   // For chamber temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_chamber(const uint16_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_chamber(const raw_adc_t raw) {
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
     #elif TEMP_SENSOR_CHAMBER_IS_THERMISTOR
@@ -1980,7 +1980,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_COOLER
   // For cooler temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_cooler(const uint16_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_cooler(const raw_adc_t raw) {
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_COOLER, raw);
     #elif TEMP_SENSOR_COOLER_IS_THERMISTOR
@@ -1998,7 +1998,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_PROBE
   // For probe temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_probe(const uint16_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_probe(const raw_adc_t raw) {
     #if TEMP_SENSOR_PROBE_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_PROBE, raw);
     #elif TEMP_SENSOR_PROBE_IS_THERMISTOR
@@ -2016,7 +2016,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_BOARD
   // For motherboard temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_board(const uint16_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_board(const raw_adc_t raw) {
     #if TEMP_SENSOR_BOARD_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BOARD, raw);
     #elif TEMP_SENSOR_BOARD_IS_THERMISTOR
@@ -2034,7 +2034,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_REDUNDANT
   // For redundant temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_redundant(const uint16_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_redundant(const raw_adc_t raw) {
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_REDUNDANT, raw);
     #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E0)
@@ -2109,12 +2109,13 @@ void Temperature::updateTemperaturesFromRawValues() {
     };
 
     LOOP_L_N(e, COUNT(temp_dir)) {
-      if ((temp_dir[e] < 0 && temp_hotend[e].getraw() < temp_range[e].raw_max) ||
-          (temp_dir[e] > 0 && temp_hotend[e].getraw() > temp_range[e].raw_max)) max_temp_error((heater_id_t)e);
+      const raw_adc_t r = temp_hotend[e].getraw();
+      const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
+      if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
+        max_temp_error((heater_id_t)e);
 
       const bool heater_on = temp_hotend[e].target > 0;
-      if (heater_on && ((temp_dir[e] < 0 && temp_hotend[e].getraw() > temp_range[e].raw_min) ||
-                        (temp_dir[e] > 0 && temp_hotend[e].getraw() < temp_range[e].raw_min))) {
+      if (heater_on && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min))) {
         #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
           if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
@@ -2730,7 +2731,7 @@ void Temperature::disable_all_heaters() {
    * @param  hindex  the hotend we're referencing (if MULTI_MAX_TC)
    * @return         integer representing the board's buffer, to be converted later if needed
    */
-  uint16_t Temperature::read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex/*=0*/)) {
+  raw_adc_t Temperature::read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex/*=0*/)) {
     #define MAXTC_HEAT_INTERVAL 250UL
 
     #if HAS_MAX31855
@@ -2749,7 +2750,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MULTI_MAX_TC
       // Needed to return the correct temp when this is called between readings
-      static uint16_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
+      static raw_adc_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
       #define THERMO_SEL(A,B) (hindex ? (B) : (A))
       #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
@@ -3016,7 +3017,7 @@ void Temperature::isr() {
   uint8_t pwm_count_tmp = pwm_count;
 
   #if HAS_ADC_BUTTONS
-    static uint16_t raw_ADCKey_value = 0;
+    static raw_adc_t raw_ADCKey_value = 0;
     static bool ADCKey_pressed = false;
   #endif
 

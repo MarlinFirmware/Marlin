@@ -91,7 +91,7 @@ Joystick joystick;
       if (READ(JOY_EN_PIN)) return;
     #endif
 
-    auto _normalize_joy = [](float &axis_jog, const uint16_t raw, const uint16_t (&joy_limits)[4]) {
+    auto _normalize_joy = [](float &axis_jog, const raw_adc_t raw, const raw_adc_t (&joy_limits)[4]) {
       if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
         // within limits, check deadzone
         if (raw > joy_limits[2])
@@ -104,15 +104,15 @@ Joystick joystick;
     };
 
     #if HAS_JOY_ADC_X
-      static constexpr uint16_t joy_x_limits[4] = JOY_X_LIMITS;
+      static constexpr raw_adc_t joy_x_limits[4] = JOY_X_LIMITS;
       _normalize_joy(norm_jog.x, JOY_X(x.getraw()), joy_x_limits);
     #endif
     #if HAS_JOY_ADC_Y
-      static constexpr uint16_t joy_y_limits[4] = JOY_Y_LIMITS;
+      static constexpr raw_adc_t joy_y_limits[4] = JOY_Y_LIMITS;
       _normalize_joy(norm_jog.y, JOY_Y(y.getraw()), joy_y_limits);
     #endif
     #if HAS_JOY_ADC_Z
-      static constexpr uint16_t joy_z_limits[4] = JOY_Z_LIMITS;
+      static constexpr raw_adc_t joy_z_limits[4] = JOY_Z_LIMITS;
       _normalize_joy(norm_jog.z, JOY_Z(z.getraw()), joy_z_limits);
     #endif
   }
