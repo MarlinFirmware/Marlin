@@ -1189,7 +1189,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       float ambient_xfer_coeff = (float)PWM_AT_200C / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
       #if ENABLED(MPC_INCLUDE_FAN)
         constexpr float fan255_adjustment = (float)(PWM_AT_200C_FAN255 - PWM_AT_200C) / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
-        const float fan_fraction = (float)thermalManager.fan_speed[ee] / 255;
+        const float fan_fraction = (float)fan_speed[ee] / 255;
         ambient_xfer_coeff += fan_fraction * fan255_adjustment;
       #endif
 
