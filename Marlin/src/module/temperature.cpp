@@ -1223,7 +1223,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       // Any delta between temp_hotend[ee].modeled_sensor_temp and temp_hotend[ee].celsius is either model
       // error diverging slowly or (fast) noise. Slowly correct towards this temperature and noise will average out.
-      const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) * (MPC_SMOOTHING * MPC_dT);
+      const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) * MPC_SMOOTHING_FACTOR;
       temp_hotend[ee].modeled_block_temp += delta_to_apply;
       temp_hotend[ee].modeled_sensor_temp += delta_to_apply;
 

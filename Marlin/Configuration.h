@@ -644,8 +644,8 @@
   #define FILAMENT_HEAT_CAPACITY_PERMM 5.6e-3f      // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA). Most filaments are similar.
 
   // Advanced options
-  #define MPC_STEADYSTATE 0.5                       // temperature change rate in K/s below which steady state model correction logic kicks in
-  #define MPC_SMOOTHING 0.5                         // smaller values smooth the temperature readings more but introduce latency
+  #define MPC_STEADYSTATE 0.5f                      // temperature change rate in K/s below which steady state model correction logic kicks in
+  #define MPC_SMOOTHING_FACTOR 1.0f                 // max value 1.0, noisy temperature sensors may need a lower value for stability
 #endif // MPCTEMP
 
 //===========================================================================
