@@ -83,8 +83,10 @@ namespace ExtUI {
   void injectCommands(char * const);
   bool commandsInQueue();
 
-  GcodeSuite::MarlinBusyState getHostKeepaliveState();
-  bool getHostKeepaliveIsPaused();
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    GcodeSuite::MarlinBusyState getHostKeepaliveState();
+    bool getHostKeepaliveIsPaused();
+  #endif
 
   bool isHeaterIdle(const heater_t);
   bool isHeaterIdle(const extruder_t);
@@ -172,7 +174,8 @@ namespace ExtUI {
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zval);
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z);
-      void onMeshLevelingStart();
+      void onLevelingStart();
+      void onLevelingDone();
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const_float_t zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
@@ -403,14 +406,14 @@ namespace ExtUI {
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
-  void onPrintFinished();
+  void onPrintDone();
   void onFilamentRunout(const extruder_t extruder);
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired(FSTR_P const fstr);
   void onStatusChanged(const char * const msg);
   void onStatusChanged(FSTR_P const fstr);
   void onHomingStart();
-  void onHomingComplete();
+  void onHomingDone();
   void onSteppersDisabled();
   void onSteppersEnabled();
   void onFactoryReset();

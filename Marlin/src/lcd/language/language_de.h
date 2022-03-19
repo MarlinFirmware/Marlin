@@ -135,6 +135,7 @@ namespace Language_de {
   LSTR MSG_BED_LEVELING                   = _UxGT("Bett-Nivellierung");
   LSTR MSG_LEVEL_BED                      = _UxGT("Bett nivellieren");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Bett ausrichten");
+  LSTR MSG_BED_TRAMMING_MANUAL            = _UxGT("Manuelles ausrichten");
   LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Das Bett anpassen, bis zum auslösen.");
   LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Ecken in der Toleranz. Bett ausger.");
   LSTR MSG_BED_TRAMMING_GOOD_POINTS       = _UxGT("Gute Punkte: ");
@@ -387,8 +388,9 @@ namespace Language_de {
   LSTR MSG_ADVANCE_K                      = _UxGT("Vorschubfaktor");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Vorschubfaktor *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD-Kontrast");
-  LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Helligkeit");
+  LSTR MSG_BRIGHTNESS                     = _UxGT("LCD-Helligkeit");
   LSTR MSG_LCD_BKL_TIMEOUT                = _UxGT("LCD-Ruhezustand (s)");
+  LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("LCD ausschalten");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Konfig. speichern");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Konfig. laden");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Standardwerte laden");
@@ -399,7 +401,7 @@ namespace Language_de {
   LSTR MSG_SETTINGS_STORED                = _UxGT("Einstell. gespei.");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("FW Update vom Medium");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Drucker neustarten");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Aktualisieren");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Aktualisieren");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info");
   LSTR MSG_PREPARE                        = _UxGT("Vorbereitung");
   LSTR MSG_TUNE                           = _UxGT("Justierung");
@@ -415,6 +417,8 @@ namespace Language_de {
   LSTR MSG_BUTTON_RESET                   = _UxGT("Reseten");
   LSTR MSG_BUTTON_IGNORE                  = _UxGT("Ignorieren");
   LSTR MSG_BUTTON_CANCEL                  = _UxGT("Abbrechen");
+  LSTR MSG_BUTTON_CONFIRM                 = _UxGT("Bestätigen");
+  LSTR MSG_BUTTON_CONTINUE                = _UxGT("Fortsetzen");
   LSTR MSG_BUTTON_DONE                    = _UxGT("Fertig");
   LSTR MSG_BUTTON_BACK                    = _UxGT("Zurück");
   LSTR MSG_BUTTON_PROCEED                 = _UxGT("Weiter");
@@ -424,6 +428,7 @@ namespace Language_de {
   LSTR MSG_BUTTON_PAUSE                   = _UxGT("Pause");
   LSTR MSG_BUTTON_RESUME                  = _UxGT("Fortsetzen");
   LSTR MSG_BUTTON_ADVANCED                = _UxGT("Erweitert");
+  LSTR MSG_BUTTON_SAVE                    = _UxGT("Speichern");
   LSTR MSG_PAUSING                        = _UxGT("Pause...");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("SD-Druck pausieren");
   LSTR MSG_ADVANCED_PAUSE                 = _UxGT("Erweiterte Pause");

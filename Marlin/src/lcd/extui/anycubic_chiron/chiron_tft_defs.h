@@ -89,6 +89,10 @@
 #define AC_msg_mesh_changes_saved      F("Mesh changes saved.")
 #define AC_msg_old_panel_detected      F("Standard TFT panel detected!")
 #define AC_msg_new_panel_detected      F("New TFT panel detected!")
+#define AC_msg_auto_panel_detection    F("Auto detect panel type (assuming new panel)")
+#define AC_msg_old_panel_set           F("Set for standard TFT panel.")
+#define AC_msg_new_panel_set           F("Set for new TFT panel.")
+
 #define AC_msg_powerloss_recovery      F("Resuming from power outage! select the same SD file then press resume")
 // Error messages must not contain spaces
 #define AC_msg_error_bed_temp          F("Abnormal_bed_temp")
@@ -161,10 +165,10 @@ namespace Anycubic {
     AC_menu_change_to_file,
     AC_menu_change_to_command
   };
-  enum panel_type_t : uint8_t {
+  enum panel_type_t : uint8_t { // order is important here as we assume new panel if type is unknown
     AC_panel_unknown,
-    AC_panel_standard,
-    AC_panel_new
+    AC_panel_new,
+    AC_panel_standard
   };
   enum last_error_t : uint8_t {
     AC_error_none,

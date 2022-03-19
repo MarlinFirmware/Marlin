@@ -125,9 +125,7 @@ xyze_pos_t destination; // {0}
     );
     // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
     HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
-    #if ENABLED(DUAL_X_CARRIAGE)
-      hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS);
-    #endif
+    TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
 #endif
 
@@ -1116,16 +1114,15 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   bool idex_mirrored_mode                = false;                         // Used in mode 3
 
   float x_home_pos(const uint8_t extruder) {
-    if (extruder == 0)
-      return X_HOME_POS;
-    else
-      /**
-       * In dual carriage mode the extruder offset provides an override of the
-       * second X-carriage position when homed - otherwise X2_HOME_POS is used.
-       * This allows soft recalibration of the second extruder home position
-       * without firmware reflash (through the M218 command).
-       */
-      return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
+    if (extruder == 0) return X_HOME_POS;
+
+    /**
+     * In dual carriage mode the extruder offset provides an override of the
+     * second X-carriage position when homed - otherwise X2_HOME_POS is used.
+     * This allows soft recalibration of the second extruder home position
+     * (with M218 T1 Xn) without firmware reflash.
+     */
+    return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
   }
 
   void idex_set_mirrored_mode(const bool mirr) {

@@ -40,7 +40,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
@@ -104,7 +104,8 @@ void GcodeSuite::G29() {
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
         queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
         return;
       }
       state = MeshNext;
@@ -117,9 +118,11 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // Move close to the bed before the first point
-        do_blocking_move_to_z(0.4f
+        do_blocking_move_to_z(
           #ifdef MANUAL_PROBE_START_Z
-            + (MANUAL_PROBE_START_Z) - 0.4f
+            MANUAL_PROBE_START_Z
+          #else
+            0.4f
           #endif
         );
       }
@@ -127,6 +130,7 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
@@ -153,8 +157,7 @@ void GcodeSuite::G29() {
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
         TERN_(HAS_STATUS_MESSAGE, LCD_MESSAGE(MSG_MESH_DONE));
-        BUZZ(100, 659);
-        BUZZ(100, 698);
+        OKAY_BUZZ();
 
         home_all_axes();
         set_bed_leveling_enabled(true);
@@ -166,6 +169,7 @@ void GcodeSuite::G29() {
         #endif
 
         TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
       }
       break;
 
@@ -193,7 +197,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
-        TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshUpdate(ix, iy, mbl.z_values[ix][iy]));
+        TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');

@@ -74,7 +74,7 @@
   #include "lcd/e3v2/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/e3v2/creality/dwin.h"
-  #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #elif ENABLED(DWIN_LCD_PROUI)
     #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
@@ -822,7 +822,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   TERN_(USE_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  TERN(HAS_DWIN_E3V2_BASIC, DWIN_Update(), ui.update());
+  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -878,7 +878,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNF(lcd_error); }
 
-  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
+  #if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
     ui.kill_screen(lcd_error ?: GET_TEXT_F(MSG_KILLED), lcd_component ?: FPSTR(NUL_STR));
   #else
     UNUSED(lcd_error); UNUSED(lcd_component);
@@ -1571,11 +1571,7 @@ void setup() {
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
-    SETUP_LOG("E3V2 Init");
-    Encoder_Configuration();
-    HMI_Init();
-    HMI_SetLanguageCache();
-    HMI_StartFrame(true);
+    SETUP_RUN(DWIN_InitScreen());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC

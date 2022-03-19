@@ -141,8 +141,7 @@ void matrix_3x3::debug(FSTR_P const title) {
   if (title) SERIAL_ECHOLNF(title);
   LOOP_L_N(i, 3) {
     LOOP_L_N(j, 3) {
-      if (vectors[i][j] >= 0.0) SERIAL_CHAR('+');
-      SERIAL_ECHO_F(vectors[i][j], 6);
+      serial_offset(vectors[i][j], 2);
       SERIAL_CHAR(' ');
     }
     SERIAL_EOL();
