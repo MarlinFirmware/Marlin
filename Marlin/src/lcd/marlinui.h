@@ -696,7 +696,7 @@ public:
           if(!BUTTON_CLICK()) { return false;}
           safe_delay(1);
         }
-        return true || TERN(TOUCH_SCREEN, touch_pressed(), false);
+        return TERN(TOUCH_SCREEN, touch_pressed(), false) || true;
       }
     #else
       static bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
