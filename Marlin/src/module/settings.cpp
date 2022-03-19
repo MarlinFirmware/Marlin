@@ -403,7 +403,14 @@ typedef struct SettingsDataStruct {
   #if LCD_BACKLIGHT_TIMEOUT
     uint16_t lcd_backlight_timeout;                     // (G-code needed)
   #endif
-
+  
+  //
+  // SCREEN_TIMEOUT
+  //
+  #if HAS_SCREEN_TIMEOUT
+    uint16_t screen_timeout;
+  #endif
+  
   //
   // Controller fan settings
   //
@@ -623,6 +630,10 @@ void MarlinSettings::postprocess() {
 
   #if LCD_BACKLIGHT_TIMEOUT
     ui.refresh_backlight_timeout();
+  #endif
+  
+  #if HAS_SCREEN_TIMEOUT
+    ui.refresh_screen_timeout();
   #endif
 }
 
@@ -1135,7 +1146,15 @@ void MarlinSettings::postprocess() {
     #if LCD_BACKLIGHT_TIMEOUT
       EEPROM_WRITE(ui.lcd_backlight_timeout);
     #endif
-
+    
+    //
+    // Screen Timeout
+    //
+    #if HAS_SCREEN_TIMEOUT
+      EEPROM_WRITE(ui.screen_timeout);
+    #endif
+    
+    
     //
     // Controller Fan
     //
@@ -2059,7 +2078,14 @@ void MarlinSettings::postprocess() {
       #if LCD_BACKLIGHT_TIMEOUT
         EEPROM_READ(ui.lcd_backlight_timeout);
       #endif
-
+      
+      //
+      // Screen Timeout
+      //
+      #if HAS_SCREEN_TIMEOUT
+        EEPROM_READ(ui.screen_timeout);
+      #endif
+      
       //
       // Controller Fan
       //
@@ -3100,6 +3126,13 @@ void MarlinSettings::reset() {
     ui.lcd_backlight_timeout = LCD_BACKLIGHT_TIMEOUT;
   #endif
 
+  //
+  // Screen Timeout
+  //
+  #if HAS_SCREEN_TIMEOUT
+    ui.screen_timeout = SCREEN_TIMEOUT;
+  #endif
+  
   //
   // Controller Fan
   //
