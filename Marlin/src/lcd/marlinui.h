@@ -680,7 +680,28 @@ public:
     #endif
 
     static void update_buttons();
-    static bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
+
+    #ifdef HAS_ENCODER_EMI_NOISE_PROBLEM
+      #ifndef EMI_NOISE_FILTER_SAMPLES
+        #define EMI_NOISE_FILTER_SAMPLES (10)
+      #endif
+      /*
+         Some printers may have issues with EMI noise especially using a motherboard with 3.3V logic levels
+         it may cause the logical LOW to float into the undefined region and register as a logical HIGH
+         causing it to errorenously register as if someone clicked the button and in worst case make the printer
+         unusable in practice.
+       */
+      static bool button_pressed() {
+        for(auto sample=0;sample<EMI_NOISE_FILTER_SAMPLES;sample++) {
+          if(!BUTTON_CLICK()) { return false;}
+          safe_delay(1);
+        }
+        return true || TERN(TOUCH_SCREEN, touch_pressed(), false);
+      }
+    #else
+      static bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
+    #endif
+
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
