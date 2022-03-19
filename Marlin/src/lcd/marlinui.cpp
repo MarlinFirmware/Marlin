@@ -188,6 +188,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
+#if HAS_SCREEN_TIMEOUT
+  uint16_t MarlinUI::screen_timeout; // Initialized by settings.load( )
+  millis_t MarlinUI::screen_timeout_millis = 0;
+  void MarlinUI::refresh_screen_timeout() {
+    screen_timeout_millis = screen_timeout ? millis() + screen_timeout * 60000UL : 0;
+    sleep_off(); 
+  }
+#endif
+
 void MarlinUI::init() {
 
   init_lcd();
@@ -1045,6 +1054,10 @@ void MarlinUI::init() {
             refresh_backlight_timeout();
           #endif
 
+          #if HAS_SCREEN_TIMEOUT
+            refresh_screen_timeout();
+          #endif
+          
           refresh(LCDVIEW_REDRAW_NOW);
 
           #if LED_POWEROFF_TIMEOUT > 0
@@ -1155,6 +1168,12 @@ void MarlinUI::init() {
           backlight_off_ms = 0;
         }
       #endif
+      
+      #if HAS_SCREEN_TIMEOUT
+        if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis)) {
+          sleep_on();
+        }
+      #endif      
 
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
