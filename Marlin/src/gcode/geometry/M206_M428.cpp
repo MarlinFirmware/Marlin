@@ -92,7 +92,7 @@ void GcodeSuite::M428() {
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
       LCD_ALERTMESSAGE_F("Err: Too far!");
-      BUZZ(200, 40);
+      ERR_BUZZ();
       return;
     }
   }
@@ -100,8 +100,7 @@ void GcodeSuite::M428() {
   LOOP_LINEAR_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
   report_current_position();
   LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
-  BUZZ(100, 659);
-  BUZZ(100, 698);
+  OKAY_BUZZ();
 }
 
 #endif // HAS_M206_COMMAND

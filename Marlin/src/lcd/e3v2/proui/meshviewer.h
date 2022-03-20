@@ -21,18 +21,23 @@
  */
 #pragma once
 
+#include "../../../core/types.h"
+#include "../../../feature/bedlevel/bedlevel.h"
+
 /**
- * DWIN Mesh Viewer
+ * Mesh Viewer for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.9.1
- * Date: 2021/11/09
- *
- * Based on the original code provided by Creality under GPL
+ * version: 3.12.1
+ * Date: 2022/02/24
  */
 
 class MeshViewerClass {
 public:
-  void Draw();
+  float avg, max, min;
+  void Draw(bool withsave = false);
+  void DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8_t sizey);
 };
 
 extern MeshViewerClass MeshViewer;
+
+void Goto_MeshViewer();

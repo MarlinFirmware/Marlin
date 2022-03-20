@@ -36,10 +36,6 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if HAS_STATUS_MESSAGE
-  #include "../../../lcd/marlinui.h"
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
 #endif
@@ -48,20 +44,21 @@
   #include "../../../libs/vector_3.h"
 #endif
 
-#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
-#include "../../../core/debug_out.h"
-
+#include "../../../lcd/marlinui.h"
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
 
 #if ABL_USES_GRID
   #if ENABLED(PROBE_Y_FIRST)
@@ -422,12 +419,13 @@ G29_TYPE GcodeSuite::G29() {
 
     planner.synchronize();
 
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_LevelingStart());
     #endif
 
     if (!faux) {
@@ -580,6 +578,7 @@ G29_TYPE GcodeSuite::G29() {
         SERIAL_ECHOLNPGM("Grid probing done.");
         // Re-enable software endstops, if needed
         SET_SOFT_ENDSTOP_LOOSE(false);
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -608,6 +607,8 @@ G29_TYPE GcodeSuite::G29() {
           // Can't re-enable (on error) until the new grid is written
           abl.reenable = false;
         }
+
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
 
       }
 
@@ -902,7 +903,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
   #endif
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedLeveling());
+  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_LevelingDone());
 
   TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
 

@@ -57,7 +57,7 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#elif ENABLED(DWIN_LCD_PROUI)
   #include "e3v2/proui/dwin.h"
 #endif
 
@@ -333,7 +333,7 @@ public:
 
   #if HAS_STATUS_MESSAGE
 
-    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
+    #if EITHER(HAS_WIRED_LCD, DWIN_LCD_PROUI)
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
       #else
@@ -366,15 +366,6 @@ public:
   static void set_status(const char * const cstr, const bool persist=false);
   static void set_status(FSTR_P const fstr, const int8_t level=0);
   static void status_printf(const uint8_t level, FSTR_P const fmt, ...);
-
-  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    #if DISABLED(LIGHTWEIGHT_UI)
-      static void draw_status_message(const bool blink);
-    #endif
-  #else
-    static void kill_screen(FSTR_P const, FSTR_P const) {}
-  #endif
 
   #if HAS_DISPLAY
 
@@ -489,11 +480,16 @@ public:
     #endif
 
     static void draw_kill_screen();
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
 
   #else // No LCD
 
     static void update() {}
     static void return_to_status() {}
+    static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
 
@@ -619,7 +615,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}
