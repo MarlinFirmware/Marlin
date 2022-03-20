@@ -694,7 +694,7 @@ public:
        */
 
       static bool hw_button_pressed() {
-        for(auto sample=0;sample<EMI_NOISE_FILTER_SAMPLES;sample++) {
+        for(uint8_t sample=0;sample<EMI_NOISE_FILTER_SAMPLES;sample++) {
           if(!BUTTON_CLICK()) { return false;}
           safe_delay(1);
         }
