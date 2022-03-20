@@ -2874,6 +2874,29 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Screen Timeout feature not supported by these common displays
+*/
+#if HAS_SCREEN_TIMEOUT
+  #if HAS_MARLINUI_HD44780
+    #error "SCREEN_TIMEOUT feature not supported by HD44780 Reprap Discount Smart Controller 2004 LCD"
+  #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    #error "SCREEN_TIMEOUT feature not supported by REPRAPWORLD_GRAPHICAL_LCD"
+  #elif IS_U8GLIB_ST7920
+    #error "SCREEN_TIMEOUT feature not supported by Reprap Discount Full Graphics Smart Controller using ST7920"
+  #elif ENABLED(CARTESIO_UI)
+    #error "SCREEN_TIMEOUT feature not supported by CARTESIO_UI LCD"
+  #elif IS_U8GLIB_LM6059_AF
+    #error "SCREEN_TIMEOUT feature not supported by U8GLIB_LM6059_AF ST7565"
+  #elif IS_U8GLIB_ST7565_64128
+    #error "SCREEN_TIMEOUT feature not supported by U8GLIB_ST7565_64128"
+  #elif ANY(FYSETC_MINI, MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+    #error "SCREEN_TIMEOUT feature not supported by FYSETC_MINI, MKS_MINI_12864, or ENDER2_STOCKDISPLAY"
+  #elif ENABLED(MINIPANEL)
+    #error "SCREEN_TIMEOUT feature not supported by MINIPANEL display"
+  #endif
+#endif
+
+/**
  * Some boards forbid the use of -1 Native USB
  */
 #if ENABLED(BOARD_NO_NATIVE_USB)
