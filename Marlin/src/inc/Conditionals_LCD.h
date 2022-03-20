@@ -1430,6 +1430,7 @@
 
 /**
  * Screen Timeout Feature
+ */
 #if defined(SCREEN_TIMEOUT)
   #define HAS_SCREEN_TIMEOUT 1
 #endif
