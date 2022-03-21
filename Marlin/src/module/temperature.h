@@ -947,6 +947,10 @@ class Temperature {
 
     #endif
 
+    #if ENABLED(MPCTEMP)
+      void MPC_autotune();
+    #endif
+
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
     #endif

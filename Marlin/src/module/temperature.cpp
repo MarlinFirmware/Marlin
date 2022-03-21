@@ -142,6 +142,7 @@
 #endif
 
 #if EITHER(MPCTEMP, PID_EXTRUSION_SCALING)
+  #include <math.h>
   #include "stepper.h"
 #endif
 
@@ -843,6 +844,162 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #endif // HAS_PID_HEATING
 
+#if ENABLED(MPCTEMP)
+  void Temperature::MPC_autotune() {
+    auto housekeeping = [] (millis_t& ms, celsius_float_t& current_temp, millis_t& next_report_ms) {
+      ms = millis();
+
+      if (updateTemperaturesIfReady()) // temp sample ready
+        current_temp = degHotend(active_extruder);
+
+      if (ELAPSED(ms, next_report_ms)) {
+        next_report_ms += 1000UL;
+        SERIAL_ECHOLNPGM("Temperature ", current_temp);
+      }
+
+      hal.idletask();
+    };
+
+    // move to center of bed, just above bed height and cool with max fan
+    SERIAL_ECHOLNPGM("Moving to tuning position");
+    TERN_(HAS_FAN, zero_fan_speeds());
+    disable_all_heaters();
+    TERN_(HAS_FAN, soft_pwm_amount_fan[active_extruder] = FAN_MAX_PWM);
+    gcode.home_all_axes(true);
+    const xyz_pos_t tuningpos = MPC_TUNING_POS;
+    do_blocking_move_to(tuningpos);
+
+    SERIAL_ECHOLNPGM("Cooling to ambient");
+    millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
+    celsius_float_t current_temp = degHotend(active_extruder),
+                    ambient_temp = current_temp;
+
+    wait_for_heatup = true; // Can be interrupted with M108
+    while(wait_for_heatup) {
+      housekeeping(ms, current_temp, next_report_ms);
+
+      if (ELAPSED(ms, next_test_ms)) {
+        if (current_temp >= ambient_temp) {
+          ambient_temp = (ambient_temp + current_temp) / 2.0f;
+          break;
+        }
+        ambient_temp = current_temp;
+        next_test_ms += 10000UL;
+      }
+    }
+    TERN_(HAS_FAN, soft_pwm_amount_fan[active_extruder] = FAN_OFF_PWM);
+
+    SERIAL_ECHOLNPGM("Heating by 130C");
+    temp_hotend[active_extruder].soft_pwm_amount = MPC_MAX >> 1;
+    const millis_t heat_start_time = ms;
+    next_test_ms = ms;
+    celsius_float_t temp_samples[16];
+    uint8_t sample_count = 0;
+    uint16_t sample_distance = 1;
+    float t1_time;
+
+    while(wait_for_heatup) {
+      housekeeping(ms, current_temp, next_report_ms);
+
+      if (ELAPSED(ms, next_test_ms)) {
+        // record samples between ambient + 30C and and ambient + 130C
+        if (current_temp >= ambient_temp + 30.0f) {
+          // if there are too many samples, space them more widely
+          if (sample_count == COUNT(temp_samples)) {
+            for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
+              temp_samples[i] = temp_samples[i*2];
+            sample_count /= 2;
+            sample_distance *= 2;
+          }
+
+          if (sample_count == 0) t1_time = float(millis() - heat_start_time) / 1000.0f;
+          temp_samples[sample_count++] = current_temp;
+        }
+
+        if (current_temp >= ambient_temp + 130.0f) break;
+
+        next_test_ms += 1000UL * sample_distance;
+      }
+    }
+    temp_hotend[active_extruder].soft_pwm_amount = 0;
+
+    // calculate physical constants from three equally spaced samples
+    sample_count = (sample_count + 1) / 2 * 2 - 1;
+    const float t1 = temp_samples[0];
+    const float t2 = temp_samples[(sample_count - 1) >> 1];
+    const float t3 = temp_samples[sample_count - 1];
+    const float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3);
+    const float block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * sample_count >> 1);
+    const float ambient_xfer_coeff = float(MPC_HEATER_POWER) * MPC_MAX / 255 / (asymp_temp - ambient_temp);
+    const float block_heat_capacity = ambient_xfer_coeff / block_responsiveness;
+    const float sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
+
+    #if HAS_FAN
+      SERIAL_ECHOLNPGM("Testing the fan");
+      temp_hotend[active_extruder].target = t3;
+      soft_pwm_amount_fan[active_extruder] = FAN_MAX_PWM;
+      next_test_ms = ms + MPC_dT * 1000;
+      millis_t test_start_time = 0;
+      float total_energy = 0.0f;
+
+      while(wait_for_heatup) {
+        housekeeping(ms, current_temp, next_report_ms);
+
+        if (ELAPSED(ms, next_test_ms)) {
+          // use MPC to control the temperature and once it is at target, track power output for 10s
+          if (test_start_time == 0 && current_temp <= t3)
+            test_start_time = ms;
+          else if (test_start_time != 0) {
+            total_energy += float(MPC_HEATER_POWER) * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT; 
+            if (ELAPSED(ms, test_start_time + 10000UL)) break;
+          }
+          temp_hotend[active_extruder].soft_pwm_amount = (int)get_pid_output_hotend(active_extruder) >> 1;
+
+          next_test_ms += MPC_dT * 1000;
+        }
+
+        if (!WITHIN(current_temp, t3 - 10.0f, t3 + 10.0f)) {
+          SERIAL_ECHOLNPGM("Temperature error while measuring fan loss");
+          break;
+        }
+      }
+      const float power_fan255 = total_energy * 1000 / (ms - test_start_time);
+      const float ambient_xfer_coeff_fan255 = power_fan255 / (t3 - ambient_temp);
+
+      temp_hotend[active_extruder].target = 0.0f;
+      temp_hotend[active_extruder].soft_pwm_amount = 0;
+      soft_pwm_amount_fan[active_extruder] = FAN_OFF_PWM;
+    #endif
+
+    wait_for_heatup = false;
+
+    SERIAL_ECHOLNPGM("Done");
+
+    /* <-- add a slash to enable
+      SERIAL_ECHOLNPGM("t1_time ", t1_time);
+      SERIAL_ECHOLNPGM("sample_count ", sample_count);
+      SERIAL_ECHOLNPGM("sample_distance ", sample_distance);
+      for (uint8_t i = 0; i < sample_count; i++)
+        SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
+      SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
+      SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
+      SERIAL_ECHOLNPGM("block_responsiveness ", block_responsiveness * 100);
+    */
+    SERIAL_ECHOLNPGM("MPC_AMBIENT ", ambient_temp);
+    SERIAL_ECHOLNPGM("MPC_BLOCK_HEAT_CAPACITY ", block_heat_capacity);
+    SERIAL_ECHOPGM("MPC_SENSOR_RESPONSIVENESS ");
+    SERIAL_PRINT(sensor_responsiveness, 4);
+    SERIAL_EOL();
+    SERIAL_ECHOPGM("MPC_AMBIENT_XFER_COEFF ");
+    SERIAL_PRINT(ambient_xfer_coeff, 4);
+    SERIAL_EOL();
+    TERN_(HAS_FAN, SERIAL_ECHOPGM("MPC_AMBIENT_XFER_COEFF_FAN255 "));
+    TERN_(HAS_FAN, SERIAL_PRINT(ambient_xfer_coeff_fan255, 4));
+    TERN_(HAS_FAN, SERIAL_EOL());
+  }
+
+#endif // MPCTEMP
+
 int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   switch (heater_id) {
     #if HAS_HEATED_BED
@@ -1175,20 +1332,31 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       #endif
 
     #elif ENABLED(MPCTEMP)
+      #if HAS_MPC_EASYTUNING
+        constexpr float heating_rate = (MPC_TEMPERATURE_20S - MPC_TEMPERATURE_10S) / 10.0f;
+        constexpr float heatblock_heat_capacity = MPC_HEATER_POWER / heating_rate;
+        constexpr float sensor_responsiveness = heating_rate / (10.0f * heating_rate - (MPC_TEMPERATURE_10S - MPC_AMBIENT));
+        constexpr float ambient_xfer_coeff_fan0 = (float)MPC_PWM_200C / 127 * MPC_HEATER_POWER / (200 - MPC_AMBIENT);
+        #if ENABLED(MPC_INCLUDE_FAN)
+          constexpr float fan255_adjustment = (float)(MPC_PWM_200C_FAN255 - MPC_PWM_200C) / 127 * MPC_HEATER_POWER / (200 - MPC_AMBIENT);
+        #endif
+      #else
+        constexpr float heatblock_heat_capacity = MPC_BLOCK_HEAT_CAPACITY;
+        constexpr float sensor_responsiveness = MPC_SENSOR_RESPONSIVENESS;
+        constexpr float ambient_xfer_coeff_fan0 = MPC_AMBIENT_XFER_COEFF;
+        #if ENABLED(MPC_INCLUDE_FAN)
+          constexpr float fan255_adjustment = MPC_AMBIENT_XFER_COEFF_FAN255 - MPC_AMBIENT_XFER_COEFF;
+        #endif
+      #endif
+
       // at startup, initialise modeled temperatures
       if (isnan(temp_hotend[ee].modeled_block_temp)) {
-        temp_hotend[ee].modeled_ambient_temp = AMBIENT_FOR_CALIBRATION;   // a typical room temperature
+        temp_hotend[ee].modeled_ambient_temp = MPC_AMBIENT;   // a typical room temperature
         temp_hotend[ee].modeled_block_temp = temp_hotend[ee].modeled_sensor_temp = temp_hotend[ee].celsius;
       }
 
-      constexpr float heating_rate = (TEMPERATURE_AT_T20 - TEMPERATURE_AT_T10) / 10.0f;
-      constexpr float heatblock_heat_capacity = HEATER_POWER / heating_rate;
-      constexpr float sensor_heat_capacity = (heatblock_heat_capacity / 1000.0f); // exact value doesn't matter
-      constexpr float sensor_xfer_coeff = sensor_heat_capacity * heating_rate / (10.0f * heating_rate - (TEMPERATURE_AT_T10 - AMBIENT_FOR_CALIBRATION));
-
-      float ambient_xfer_coeff = (float)PWM_AT_200C / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
+      float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
-        constexpr float fan255_adjustment = (float)(PWM_AT_200C_FAN255 - PWM_AT_200C) / 127 * HEATER_POWER / (200 - AMBIENT_FOR_CALIBRATION);
         const float fan_fraction = (float)fan_speed[ee] / 255;
         ambient_xfer_coeff += fan_fraction * fan255_adjustment;
       #endif
@@ -1214,11 +1382,11 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       }
 
       // update the modeled temperatures
-      float blocktempdelta = temp_hotend[ee].soft_pwm_amount * (HEATER_POWER / 127 * MPC_dT / heatblock_heat_capacity);
+      float blocktempdelta = temp_hotend[ee].soft_pwm_amount * (MPC_HEATER_POWER / 127 * MPC_dT / heatblock_heat_capacity);
       blocktempdelta += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff * (MPC_dT / heatblock_heat_capacity);
       temp_hotend[ee].modeled_block_temp += blocktempdelta;
 
-      const float sensortempdelta = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * (sensor_xfer_coeff * MPC_dT / sensor_heat_capacity);
+      const float sensortempdelta = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * (sensor_responsiveness * MPC_dT);
       temp_hotend[ee].modeled_sensor_temp += sensortempdelta;
 
       // Any delta between temp_hotend[ee].modeled_sensor_temp and temp_hotend[ee].celsius is either model
@@ -1238,7 +1406,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
       }
 
-      const float pid_output = constrain(power * (255 / HEATER_POWER) + 1, 0, MPC_MAX);   // "+ 1" because later truncation and rightshift doesn't round
+      const float pid_output = constrain(power * (255 / MPC_HEATER_POWER) + 1, 0, MPC_MAX);   // "+ 1" because later truncation and rightshift doesn't round
 
     #else // No PID or MPC enabled
 

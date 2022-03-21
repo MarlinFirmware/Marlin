@@ -628,24 +628,37 @@
 
 #if ENABLED(MPCTEMP)
   #define MPC_MAX BANG_MAX                          // Limits current to nozzle while MPC is active; 255=full current.
-  #define HEATER_POWER 36.0f                        // 36W for a 12V, 4ohm heater cartridge.
-  #define AMBIENT_FOR_CALIBRATION 19.0f             // Room temperature in °C when calibrating MPC.
-  #define TEMPERATURE_AT_T10 29.2f                  // Hotend temp in °C after heating from cold (ambient) at full power for 10s.
-  #define TEMPERATURE_AT_T20 50.3f                  // Hotend temp in °C after heating from cold (ambient) at full power for 20s.
-  #define PWM_AT_200C 45                            // PWM value when steady at 200°C (with fan off).
+  #define MPC_HEATER_POWER 36.0f                    // 36W for a 12V, 4ohm heater cartridge.
 
-  // Take fan speed into account in calculations. Assumes every extruder has a fan and that
-  // they have the same numbering. i.e. fan N cools extruder N.
+  // Model fan speed. Assumes every extruder has a fan with the same numbering.
   #define MPC_INCLUDE_FAN
+
+  #define MPC_AMBIENT 19.0f                         // Room temperature in °C when calibrating MPC.
+
+  // Easy manual tuning parameters (from M105 output)
+  #define MPC_TEMPERATURE_10S 28.6f                 // Hotend temp in °C after heating from cold (ambient) at full power for 10s.
+  #define MPC_TEMPERATURE_20S 49.4f                 // Hotend temp in °C after heating from cold (ambient) at full power for 20s.
+  #define MPC_PWM_200C 37                           // PWM value when steady at 200°C (with fan off).
   #if ENABLED(MPC_INCLUDE_FAN)
-    #define PWM_AT_200C_FAN255  57                  // PWM value when steady at 200°C with fan on full.
+    #define MPC_PWM_200C_FAN255  49                 // PWM value when steady at 200°C with fan on full.
   #endif
 
-  #define FILAMENT_HEAT_CAPACITY_PERMM 5.6e-3f      // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA). Most filaments are similar.
+  // Or set the measured physical constants directly (from M306 output)
+  //#define MPC_BLOCK_HEAT_CAPACITY 17.36f          // Heat block heat capacity in J/K.
+  //#define MPC_SENSOR_RESPONSIVENESS 0.21f         // Rate of change of sensor temperature in K/s per K difference from heat block.
+  //#define MPC_AMBIENT_XFER_COEFF 0.0728f          // Heat transfer coefficient from heat block to room air with fan off in W/K.
+  #if ENABLED(MPC_INCLUDE_FAN)
+    //#define MPC_AMBIENT_XFER_COEFF_FAN255 0.118f  // Heat transfer coefficient from heat block to room air with fan on full in W/K.
+  #endif
+
+  #define FILAMENT_HEAT_CAPACITY_PERMM 5.6e-3f      // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA).
+//  #define FILAMENT_HEAT_CAPACITY_PERMM 3.6e-3f      // 0.0036 J/K/mm for 1.75mm PETG (0.0094 J/K/mm for 2.85mm PETG).
 
   // Advanced options
   #define MPC_STEADYSTATE 0.5f                      // temperature change rate in K/s below which steady state model correction logic kicks in
   #define MPC_SMOOTHING_FACTOR 1.0f                 // max value 1.0, noisy temperature sensors may need a lower value for stability
+
+  #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // positon for M306 autotuning, ideally middle of bed just above the surface
 #endif // MPCTEMP
 
 //===========================================================================
