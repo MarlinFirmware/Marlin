@@ -86,7 +86,7 @@ void lv_draw_motor_settings() {
       index++;
     #endif
   #endif
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_MOTOR_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_MOTOR_RETURN, true);
 }
 
 void lv_clear_motor_settings() {

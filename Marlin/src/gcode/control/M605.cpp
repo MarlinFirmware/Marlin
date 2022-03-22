@@ -110,7 +110,7 @@
       set_duplication_enabled(false);
 
       #ifdef EVENT_GCODE_IDEX_AFTER_MODECHANGE
-        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_IDEX_AFTER_MODECHANGE));
+        process_subcommands_now(F(EVENT_GCODE_IDEX_AFTER_MODECHANGE));
       #endif
     }
     else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default

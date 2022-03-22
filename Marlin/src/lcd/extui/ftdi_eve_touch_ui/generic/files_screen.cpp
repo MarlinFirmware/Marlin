@@ -77,7 +77,7 @@ const char *FilesScreen::getSelectedFilename(bool shortName) {
 }
 
 void FilesScreen::drawSelectedFile() {
-  if(mydata.selected_tag == 0xFF) return;
+  if (mydata.selected_tag == 0xFF) return;
   FileList files;
   files.seek(getSelectedFileIndex(), true);
   mydata.flags.is_dir = files.isDir();

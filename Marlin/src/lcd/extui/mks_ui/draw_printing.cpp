@@ -307,8 +307,8 @@ void setProBarRate() {
 
         #if HAS_SUICIDE
           if (gCfgItems.finish_power_off) {
-            gcode.process_subcommands_now_P(PSTR("M1001"));
-            queue.inject_P(PSTR("M81"));
+            gcode.process_subcommands_now(F("M1001"));
+            queue.inject(F("M81"));
             marlin_state = MF_RUNNING;
           }
         #endif

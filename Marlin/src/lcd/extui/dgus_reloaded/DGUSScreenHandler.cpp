@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -100,61 +100,57 @@ void DGUSScreenHandler::Loop() {
   if (new_screen != DGUS_Screen::BOOT) {
     const DGUS_Screen screen = new_screen;
     new_screen = DGUS_Screen::BOOT;
-
-    if (current_screen == screen) {
+    if (current_screen == screen)
       TriggerFullUpdate();
-    }
-    else {
+    else
       MoveToScreen(screen);
-    }
     return;
   }
 
   if (!booted && ELAPSED(ms, 3000)) {
     booted = true;
 
-    if (current_screen == DGUS_Screen::BOOT) {
+    dgus_display.ReadVersions();
+
+    if (current_screen == DGUS_Screen::BOOT)
       MoveToScreen(DGUS_Screen::HOME);
-    }
+
     return;
   }
 
   if (ELAPSED(ms, next_event_ms) || full_update) {
     next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
 
-    if (!SendScreenVPData(current_screen, full_update)) {
+    if (!SendScreenVPData(current_screen, full_update))
       DEBUG_ECHOLNPGM("SendScreenVPData failed");
-    }
+
     return;
   }
 
   if (current_screen == DGUS_Screen::WAIT
       && ((wait_continue && !wait_for_user)
-          || (!wait_continue && IsPrinterIdle()))) {
+          || (!wait_continue && IsPrinterIdle()))
+  ) {
     MoveToScreen(wait_return_screen, true);
     return;
   }
 
-  if (current_screen == DGUS_Screen::LEVELING_PROBING
-      && IsPrinterIdle()) {
+  if (current_screen == DGUS_Screen::LEVELING_PROBING && IsPrinterIdle()) {
     dgus_display.PlaySound(3);
 
-    SetStatusMessagePGM(ExtUI::getMeshValid() ?
-                          PSTR("Probing successful")
-                        : PSTR("Probing failed"));
+    SetStatusMessage(ExtUI::getMeshValid() ? F("Probing successful") : F("Probing failed"));
 
     MoveToScreen(DGUS_Screen::LEVELING_AUTOMATIC);
     return;
   }
 
   if (status_expire > 0 && ELAPSED(ms, status_expire)) {
-    SetStatusMessagePGM(NUL_STR, 0);
+    SetStatusMessage(FPSTR(NUL_STR), 0);
     return;
   }
 
   if (eeprom_save > 0 && ELAPSED(ms, eeprom_save) && IsPrinterIdle()) {
     eeprom_save = 0;
-
     queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
     return;
   }
@@ -162,9 +158,9 @@ void DGUSScreenHandler::Loop() {
   dgus_display.Loop();
 }
 
-void DGUSScreenHandler::PrinterKilled(PGM_P error, PGM_P component) {
-  SetMessageLinePGM(error, 1);
-  SetMessageLinePGM(component, 2);
+void DGUSScreenHandler::PrinterKilled(FSTR_P const error, FSTR_P const component) {
+  SetMessageLinePGM(FTOP(error), 1);
+  SetMessageLinePGM(FTOP(component), 2);
   SetMessageLinePGM(NUL_STR, 3);
   SetMessageLinePGM(GET_TEXT(MSG_PLEASE_RESET), 4);
 
@@ -190,11 +186,10 @@ void DGUSScreenHandler::SettingsReset() {
 
   if (!settings_ready) {
     settings_ready = true;
-
     Ready();
   }
 
-  SetStatusMessagePGM(PSTR("EEPROM reset"));
+  SetStatusMessage(F("EEPROM reset"));
 }
 
 void DGUSScreenHandler::StoreSettings(char *buff) {
@@ -228,18 +223,16 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
 }
 
 void DGUSScreenHandler::ConfigurationStoreWritten(bool success) {
-  if (!success) {
-    SetStatusMessagePGM(PSTR("EEPROM write failed"));
-  }
+  if (!success)
+    SetStatusMessage(F("EEPROM write failed"));
 }
 
 void DGUSScreenHandler::ConfigurationStoreRead(bool success) {
   if (!success) {
-    SetStatusMessagePGM(PSTR("EEPROM read failed"));
+    SetStatusMessage(F("EEPROM read failed"));
   }
   else if (!settings_ready) {
     settings_ready = true;
-
     Ready();
   }
 }
@@ -248,33 +241,25 @@ void DGUSScreenHandler::PlayTone(const uint16_t frequency, const uint16_t durati
   UNUSED(duration);
 
   if (frequency >= 1 && frequency <= 255) {
-    if (duration >= 1 && duration <= 255) {
+    if (duration >= 1 && duration <= 255)
       dgus_display.PlaySound((uint8_t)frequency, (uint8_t)duration);
-    }
-    else {
+    else
       dgus_display.PlaySound((uint8_t)frequency);
-    }
   }
 }
 
 void DGUSScreenHandler::MeshUpdate(const int8_t xpos, const int8_t ypos) {
   if (current_screen != DGUS_Screen::LEVELING_PROBING) {
-    if (current_screen == DGUS_Screen::LEVELING_AUTOMATIC) {
+    if (current_screen == DGUS_Screen::LEVELING_AUTOMATIC)
       TriggerFullUpdate();
-    }
-
     return;
   }
 
   uint8_t point = ypos * GRID_MAX_POINTS_X + xpos;
   probing_icons[point < 16 ? 0 : 1] |= (1U << (point % 16));
 
-  if (xpos >= GRID_MAX_POINTS_X - 1
-      && ypos >= GRID_MAX_POINTS_Y - 1
-      && !ExtUI::getMeshValid()) {
-    probing_icons[0] = 0;
-    probing_icons[1] = 0;
-  }
+  if (xpos >= GRID_MAX_POINTS_X - 1 && ypos >= GRID_MAX_POINTS_Y - 1 && !ExtUI::getMeshValid())
+    probing_icons[0] = probing_icons[1] = 0;
 
   TriggerFullUpdate();
 }
@@ -285,15 +270,12 @@ void DGUSScreenHandler::PrintTimerStarted() {
 
 void DGUSScreenHandler::PrintTimerPaused() {
   dgus_display.PlaySound(3);
-
   TriggerFullUpdate();
 }
 
 void DGUSScreenHandler::PrintTimerStopped() {
-  if (current_screen != DGUS_Screen::PRINT_STATUS
-      && current_screen != DGUS_Screen::PRINT_ADJUST) {
+  if (current_screen != DGUS_Screen::PRINT_STATUS && current_screen != DGUS_Screen::PRINT_ADJUST)
     return;
-  }
 
   dgus_display.PlaySound(3);
 
@@ -312,23 +294,19 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
 #if ENABLED(SDSUPPORT)
 
   void DGUSScreenHandler::SDCardInserted() {
-    if (current_screen == DGUS_Screen::HOME) {
+    if (current_screen == DGUS_Screen::HOME)
       TriggerScreenChange(DGUS_Screen::PRINT);
-    }
   }
 
   void DGUSScreenHandler::SDCardRemoved() {
-    if (current_screen == DGUS_Screen::PRINT) {
+    if (current_screen == DGUS_Screen::PRINT)
       TriggerScreenChange(DGUS_Screen::HOME);
-    }
   }
 
   void DGUSScreenHandler::SDCardError() {
-    SetStatusMessagePGM(GET_TEXT(MSG_MEDIA_READ_ERROR));
-
-    if (current_screen == DGUS_Screen::PRINT) {
+    SetStatusMessage(GET_TEXT_F(MSG_MEDIA_READ_ERROR));
+    if (current_screen == DGUS_Screen::PRINT)
       TriggerScreenChange(DGUS_Screen::HOME);
-    }
   }
 
 #endif // SDSUPPORT
@@ -346,19 +324,19 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
   void DGUSScreenHandler::PidTuning(const ExtUI::result_t rst) {
     switch (rst) {
       case ExtUI::PID_STARTED:
-        SetStatusMessagePGM(GET_TEXT(MSG_PID_AUTOTUNE));
+        SetStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
         break;
       case ExtUI::PID_BAD_EXTRUDER_NUM:
-        SetStatusMessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
         break;
       case ExtUI::PID_TEMP_TOO_HIGH:
-        SetStatusMessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+        SetStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
         break;
       case ExtUI::PID_TUNING_TIMEOUT:
-        SetStatusMessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+        SetStatusMessage(GET_TEXT_F(MSG_PID_TIMEOUT));
         break;
       case ExtUI::PID_DONE:
-        SetStatusMessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+        SetStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
         break;
       default:
         return;
@@ -411,8 +389,8 @@ void DGUSScreenHandler::SetStatusMessage(const char* msg, const millis_t duratio
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
 
-void DGUSScreenHandler::SetStatusMessagePGM(PGM_P msg, const millis_t duration) {
-  dgus_display.WriteStringPGM((uint16_t)DGUS_Addr::MESSAGE_Status, msg, DGUS_STATUS_LEN, false, true);
+void DGUSScreenHandler::SetStatusMessage(FSTR_P const fmsg, const millis_t duration) {
+  dgus_display.WriteStringPGM((uint16_t)DGUS_Addr::MESSAGE_Status, FTOP(fmsg), DGUS_STATUS_LEN, false, true);
 
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }

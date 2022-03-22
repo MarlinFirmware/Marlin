@@ -28,12 +28,34 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#define MSG_CUTTER(M) _MSG_CUTTER(M)
+
+#ifndef SPEED_POWER_INTERCEPT
+  #define SPEED_POWER_INTERCEPT 0
+#endif
 #if ENABLED(SPINDLE_FEATURE)
   #define _MSG_CUTTER(M) MSG_SPINDLE_##M
+  #ifndef SPEED_POWER_MIN
+    #define SPEED_POWER_MIN      5000
+  #endif
+  #ifndef SPEED_POWER_MAX
+    #define SPEED_POWER_MAX     30000
+  #endif
+  #ifndef SPEED_POWER_STARTUP
+    #define SPEED_POWER_STARTUP 25000
+  #endif
 #else
   #define _MSG_CUTTER(M) MSG_LASER_##M
+  #ifndef SPEED_POWER_MIN
+    #define SPEED_POWER_MIN         0
+  #endif
+  #ifndef SPEED_POWER_MAX
+    #define SPEED_POWER_MAX       255
+  #endif
+  #ifndef SPEED_POWER_STARTUP
+    #define SPEED_POWER_STARTUP   255
+  #endif
 #endif
-#define MSG_CUTTER(M) _MSG_CUTTER(M)
 
 typedef IF<(SPEED_POWER_MAX > 255), uint16_t, uint8_t>::type cutter_cpower_t;
 

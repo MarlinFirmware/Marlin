@@ -138,7 +138,7 @@ void TuneMenu::pausePrint() {
   if (ExtUI::isPrintingFromMedia())
     ExtUI::pausePrint();
   #ifdef ACTION_ON_PAUSE
-    else host_action_pause();
+    else hostui.pause();
   #endif
   GOTO_SCREEN(StatusScreen);
 }
@@ -150,7 +150,7 @@ void TuneMenu::resumePrint() {
   else if (ExtUI::isPrintingFromMedia())
     ExtUI::resumePrint();
   #ifdef ACTION_ON_RESUME
-    else host_action_resume();
+    else hostui.resume();
   #endif
   GOTO_SCREEN(StatusScreen);
 }

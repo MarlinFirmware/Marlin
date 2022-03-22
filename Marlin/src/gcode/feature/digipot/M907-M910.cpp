@@ -39,7 +39,9 @@
 #endif
 
 /**
- * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
+ * M907: Set digital trimpot motor current using axis codes X [Y] [Z] [E]
+ *   B<current> - Special case for 4th (E) axis
+ *   S<current> - Special case to set first 3 axes
  */
 void GcodeSuite::M907() {
   #if HAS_MOTOR_CURRENT_SPI
@@ -75,7 +77,7 @@ void GcodeSuite::M907() {
       if (parser.seenval('E')) stepper.set_digipot_current(2, parser.value_int());
     #endif
 
-  #endif
+  #endif // HAS_MOTOR_CURRENT_PWM
 
   #if HAS_MOTOR_CURRENT_I2C
     // this one uses actual amps in floating point
@@ -100,7 +102,7 @@ void GcodeSuite::M907() {
 #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
   void GcodeSuite::M907_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, PSTR(STR_STEPPER_MOTOR_CURRENTS));
+    report_heading_etc(forReplay, F(STR_STEPPER_MOTOR_CURRENTS));
     #if HAS_MOTOR_CURRENT_PWM
       SERIAL_ECHOLNPGM_P(                                    // PWM-based has 3 values:
           PSTR("  M907 X"), stepper.motor_current_setting[0]  // X and Y

@@ -155,9 +155,9 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
 
     if (currentindex == 0 && currentfolderdepth > 0) { // Add a link to go up a folder
       // The new panel ignores entries that don't end in .GCO or .gcode so add and pad them.
-      if (paneltype == AC_panel_new) {
+      if (paneltype <= AC_panel_new) {
         TFTSer.println("<<.GCO");
-        Chiron.SendtoTFTLN(PSTR("..                  .gcode"));
+        Chiron.SendtoTFTLN(F("..                  .gcode"));
       }
       else {
         TFTSer.println("<<");
@@ -177,7 +177,7 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
   void FileNavigator::sendFile(panel_type_t paneltype) {
     if (filelist.isDir()) {
       // Add mandatory tags for new panel otherwise lines are ignored.
-      if (paneltype == AC_panel_new) {
+      if (paneltype <= AC_panel_new) {
         TFTSer.print(filelist.shortFilename());
         TFTSer.println(".GCO");
         TFTSer.print(filelist.shortFilename());

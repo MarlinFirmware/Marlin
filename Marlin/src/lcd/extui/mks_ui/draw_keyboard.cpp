@@ -88,25 +88,24 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   if (!txt) return;
 
   // Do the corresponding action according to the text of the button
-  if (strcmp(txt, "abc") == 0) {
+  if (strcmp_P(txt, PSTR("abc")) == 0) {
     lv_btnm_set_map(kb, kb_map_lc);
     lv_btnm_set_ctrl_map(kb, kb_ctrl_lc_map);
     return;
   }
-  else if (strcmp(txt, "ABC") == 0) {
+  else if (strcmp_P(txt, PSTR("ABC")) == 0) {
     lv_btnm_set_map(kb, kb_map_uc);
     lv_btnm_set_ctrl_map(kb, kb_ctrl_uc_map);
     return;
   }
-  else if (strcmp(txt, "1#") == 0) {
+  else if (strcmp_P(txt, PSTR("1#")) == 0) {
     lv_btnm_set_map(kb, kb_map_spec);
     lv_btnm_set_ctrl_map(kb, kb_ctrl_spec_map);
     return;
   }
-  else if (strcmp(txt, LV_SYMBOL_CLOSE) == 0) {
+  else if (strcmp_P(txt, PSTR(LV_SYMBOL_CLOSE)) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
-      lv_clear_keyboard();
-      draw_return_ui();
+      goto_previous_ui();
     }
     else {
       lv_kb_set_ta(kb, nullptr); // De-assign the text area to hide its cursor if needed
@@ -115,20 +114,18 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
     }
     return;
   }
-  else if (strcmp(txt, LV_SYMBOL_OK) == 0) {
+  else if (strcmp_P(txt, PSTR(LV_SYMBOL_OK)) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
       const char * ret_ta_txt = lv_ta_get_text(ext->ta);
       switch (keyboard_value) {
         #if ENABLED(MKS_WIFI_MODULE)
           case wifiName:
             memcpy(uiCfg.wifi_name, ret_ta_txt, sizeof(uiCfg.wifi_name));
-            lv_clear_keyboard();
-            draw_return_ui();
+            goto_previous_ui();
             break;
           case wifiPassWord:
             memcpy(uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_name));
-            lv_clear_keyboard();
-            draw_return_ui();
+            goto_previous_ui();
             break;
           case wifiConfig:
             ZERO(uiCfg.wifi_name);
@@ -160,17 +157,16 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
           uint8_t buf[100];
           strncpy((char *)buf, ret_ta_txt, sizeof(buf));
           update_gcode_command(AUTO_LEVELING_COMMAND_ADDR, buf);
-          lv_clear_keyboard();
-          draw_return_ui();
+          goto_previous_ui();
           break;
         case GCodeCommand:
-          if (!queue.ring_buffer.full(3)) {
-            // Hook anything that goes to the serial port
+          if (ret_ta_txt[0] && !queue.ring_buffer.full(3)) {
+            // Hook for the next bytes to arrive from the serial port
             MYSERIAL1.setHook(lv_serial_capt_hook, lv_eom_hook, 0);
-            queue.enqueue_one_now(ret_ta_txt);
+            // Run the command as soon as possible
+            queue.inject(ret_ta_txt);
           }
-          lv_clear_keyboard();
-          // draw_return_ui is called in the end of message hook
+          goto_previous_ui();
           break;
         default: break;
       }
@@ -183,15 +179,15 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   // Add the characters to the text area if set
   if (!ext->ta) return;
 
-  if (strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
+  if (strcmp_P(txt, PSTR("Enter")) == 0 || strcmp_P(txt, PSTR(LV_SYMBOL_NEW_LINE)) == 0)
     lv_ta_add_char(ext->ta, '\n');
-  else if (strcmp(txt, LV_SYMBOL_LEFT) == 0)
+  else if (strcmp_P(txt, PSTR(LV_SYMBOL_LEFT)) == 0)
     lv_ta_cursor_left(ext->ta);
-  else if (strcmp(txt, LV_SYMBOL_RIGHT) == 0)
+  else if (strcmp_P(txt, PSTR(LV_SYMBOL_RIGHT)) == 0)
     lv_ta_cursor_right(ext->ta);
-  else if (strcmp(txt, LV_SYMBOL_BACKSPACE) == 0)
+  else if (strcmp_P(txt, PSTR(LV_SYMBOL_BACKSPACE)) == 0)
     lv_ta_del_char(ext->ta);
-  else if (strcmp(txt, "+/-") == 0) {
+  else if (strcmp_P(txt, PSTR("+/-")) == 0) {
     uint16_t cur = lv_ta_get_cursor_pos(ext->ta);
     const char * ta_txt = lv_ta_get_text(ext->ta);
     if (ta_txt[0] == '-') {

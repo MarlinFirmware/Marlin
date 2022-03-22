@@ -32,7 +32,7 @@
  */
 void GcodeSuite::M282() {
 
-  if (!parser.seen('P')) return;
+  if (!parser.seenval('P')) return;
 
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1))

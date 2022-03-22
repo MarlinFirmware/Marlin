@@ -53,7 +53,7 @@ void GcodeSuite::M206() {
 }
 
 void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_HOME_OFFSET));
+  report_heading_etc(forReplay, F(STR_HOME_OFFSET));
   SERIAL_ECHOLNPGM_P(
     #if IS_CARTESIAN
       LIST_N(DOUBLE(LINEAR_AXES),
@@ -91,17 +91,16 @@ void GcodeSuite::M428() {
       diff[i] = -current_position[i];
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
-      LCD_ALERTMESSAGEPGM_P(PSTR("Err: Too far!"));
-      BUZZ(200, 40);
+      LCD_ALERTMESSAGE_F("Err: Too far!");
+      ERR_BUZZ();
       return;
     }
   }
 
   LOOP_LINEAR_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
   report_current_position();
-  LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
-  BUZZ(100, 659);
-  BUZZ(100, 698);
+  LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
+  OKAY_BUZZ();
 }
 
 #endif // HAS_M206_COMMAND

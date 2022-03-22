@@ -150,8 +150,10 @@
 //
 // Průša i3 MK2 Multi Material Multiplexer Support
 //
-//#define E_MUX0_PIN                        PG3
-//#define E_MUX1_PIN                        PG4
+#if HAS_PRUSA_MMU1
+  //#define E_MUX0_PIN                      PG3
+  //#define E_MUX1_PIN                      PG4
+#endif
 
 #define LED_PIN                             PB14  // Alive
 #define PS_ON_PIN                           PE0
@@ -183,7 +185,7 @@
 #endif
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                96
   #define BOARD_ST7920_DELAY_2                48
   #define BOARD_ST7920_DELAY_3               715

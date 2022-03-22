@@ -44,7 +44,7 @@ void DialogBoxBaseClass::drawMessage(T message, int16_t font) {
 }
 
 template void DialogBoxBaseClass::drawMessage(const char *, int16_t font);
-template void DialogBoxBaseClass::drawMessage(progmem_str, int16_t font);
+template void DialogBoxBaseClass::drawMessage(FSTR_P, int16_t font);
 
 void DialogBoxBaseClass::drawYesNoButtons(uint8_t default_btn) {
   CommandProcessor cmd;
@@ -67,7 +67,7 @@ void DialogBoxBaseClass::drawButton(T label) {
 }
 
 template void DialogBoxBaseClass::drawButton(const char *);
-template void DialogBoxBaseClass::drawButton(progmem_str);
+template void DialogBoxBaseClass::drawButton(FSTR_P);
 
 bool DialogBoxBaseClass::onTouchEnd(uint8_t tag) {
   switch (tag) {

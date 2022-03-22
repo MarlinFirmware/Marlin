@@ -344,9 +344,9 @@ void StatusScreen::draw_status_message(draw_mode_t what, const char *message) {
   #undef  GRID_COLS
 }
 
-void StatusScreen::setStatusMessage(progmem_str message) {
-  char buff[strlen_P((const char * const)message)+1];
-  strcpy_P(buff, (const char * const) message);
+void StatusScreen::setStatusMessage(FSTR_P message) {
+  char buff[strlen_P(FTOP(message)) + 1];
+  strcpy_P(buff, FTOP(message));
   setStatusMessage((const char *) buff);
 }
 

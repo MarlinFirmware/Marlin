@@ -40,7 +40,7 @@
   #endif
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   #include "../module/stepper.h"
 #endif
 
@@ -212,7 +212,7 @@
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
-      kill(PSTR("Driver error"));
+      kill(F("Driver error"));
     }
   #endif
 
@@ -421,12 +421,10 @@
         if (monitor_tmc_driver(stepperI, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperI);
       #endif
-
       #if AXIS_IS_TMC(J)
         if (monitor_tmc_driver(stepperJ, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperJ);
       #endif
-
       #if AXIS_IS_TMC(K)
         if (monitor_tmc_driver(stepperK, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperK);
@@ -472,12 +470,8 @@
     void tmc_set_report_interval(const uint16_t update_interval) {
       if ((report_tmc_status_interval = update_interval))
         SERIAL_ECHOLNPGM("axis:pwm_scale"
-          #if HAS_STEALTHCHOP
-            "/curr_scale"
-          #endif
-          #if HAS_STALLGUARD
-            "/mech_load"
-          #endif
+          TERN_(HAS_STEALTHCHOP, "/curr_scale")
+          TERN_(HAS_STALLGUARD, "/mech_load")
           "|flags|warncount"
         );
     }
@@ -561,7 +555,7 @@
   };
 
   template<class TMC>
-  static void print_vsense(TMC &st) { SERIAL_ECHOPGM_P(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); }
+  static void print_vsense(TMC &st) { SERIAL_ECHOF(st.vsense() ? F("1=.18") : F("0=.325")); }
 
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
     static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
@@ -732,7 +726,7 @@
           SERIAL_ECHO(st.cs());
           SERIAL_ECHOPGM("/31");
           break;
-        case TMC_VSENSE: SERIAL_ECHOPGM_P(st.vsense() ? PSTR("1=.165") : PSTR("0=.310")); break;
+        case TMC_VSENSE: SERIAL_ECHOF(st.vsense() ? F("1=.165") : F("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
         //case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
         //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
@@ -1184,69 +1178,6 @@
 
 #endif // USE_SENSORLESS
 
-#if HAS_TMC_SPI
-  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
-  void tmc_init_cs_pins() {
-    #if AXIS_HAS_SPI(X)
-      SET_CS_PIN(X);
-    #endif
-    #if AXIS_HAS_SPI(Y)
-      SET_CS_PIN(Y);
-    #endif
-    #if AXIS_HAS_SPI(Z)
-      SET_CS_PIN(Z);
-    #endif
-    #if AXIS_HAS_SPI(X2)
-      SET_CS_PIN(X2);
-    #endif
-    #if AXIS_HAS_SPI(Y2)
-      SET_CS_PIN(Y2);
-    #endif
-    #if AXIS_HAS_SPI(Z2)
-      SET_CS_PIN(Z2);
-    #endif
-    #if AXIS_HAS_SPI(Z3)
-      SET_CS_PIN(Z3);
-    #endif
-    #if AXIS_HAS_SPI(Z4)
-      SET_CS_PIN(Z4);
-    #endif
-    #if AXIS_HAS_SPI(I)
-      SET_CS_PIN(I);
-    #endif
-    #if AXIS_HAS_SPI(J)
-      SET_CS_PIN(J);
-    #endif
-    #if AXIS_HAS_SPI(K)
-      SET_CS_PIN(K);
-    #endif
-    #if AXIS_HAS_SPI(E0)
-      SET_CS_PIN(E0);
-    #endif
-    #if AXIS_HAS_SPI(E1)
-      SET_CS_PIN(E1);
-    #endif
-    #if AXIS_HAS_SPI(E2)
-      SET_CS_PIN(E2);
-    #endif
-    #if AXIS_HAS_SPI(E3)
-      SET_CS_PIN(E3);
-    #endif
-    #if AXIS_HAS_SPI(E4)
-      SET_CS_PIN(E4);
-    #endif
-    #if AXIS_HAS_SPI(E5)
-      SET_CS_PIN(E5);
-    #endif
-    #if AXIS_HAS_SPI(E6)
-      SET_CS_PIN(E6);
-    #endif
-    #if AXIS_HAS_SPI(E7)
-      SET_CS_PIN(E7);
-    #endif
-  }
-#endif // HAS_TMC_SPI
-
 template<typename TMC>
 static bool test_connection(TMC &st) {
   SERIAL_ECHOPGM("Testing ");
@@ -1256,15 +1187,14 @@ static bool test_connection(TMC &st) {
 
   if (test_result > 0) SERIAL_ECHOPGM("Error: All ");
 
-  const char *stat;
+  FSTR_P stat;
   switch (test_result) {
     default:
-    case 0: stat = PSTR("OK"); break;
-    case 1: stat = PSTR("HIGH"); break;
-    case 2: stat = PSTR("LOW"); break;
+    case 0: stat = F("OK"); break;
+    case 1: stat = F("HIGH"); break;
+    case 2: stat = F("LOW"); break;
   }
-  SERIAL_ECHOPGM_P(stat);
-  SERIAL_EOL();
+  SERIAL_ECHOLNF(stat);
 
   return test_result;
 }
@@ -1342,7 +1272,70 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
     #endif
   }
 
-  if (axis_connection) LCD_MESSAGEPGM(MSG_ERROR_TMC);
+  if (axis_connection) LCD_MESSAGE(MSG_ERROR_TMC);
 }
 
 #endif // HAS_TRINAMIC_CONFIG
+
+#if HAS_TMC_SPI
+  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+  void tmc_init_cs_pins() {
+    #if AXIS_HAS_SPI(X)
+      SET_CS_PIN(X);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      SET_CS_PIN(Y);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      SET_CS_PIN(Z);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      SET_CS_PIN(X2);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      SET_CS_PIN(Y2);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      SET_CS_PIN(Z2);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      SET_CS_PIN(Z3);
+    #endif
+    #if AXIS_HAS_SPI(Z4)
+      SET_CS_PIN(Z4);
+    #endif
+    #if AXIS_HAS_SPI(I)
+      SET_CS_PIN(I);
+    #endif
+    #if AXIS_HAS_SPI(J)
+      SET_CS_PIN(J);
+    #endif
+    #if AXIS_HAS_SPI(K)
+      SET_CS_PIN(K);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      SET_CS_PIN(E0);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      SET_CS_PIN(E1);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      SET_CS_PIN(E2);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      SET_CS_PIN(E3);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      SET_CS_PIN(E4);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      SET_CS_PIN(E5);
+    #endif
+    #if AXIS_HAS_SPI(E6)
+      SET_CS_PIN(E6);
+    #endif
+    #if AXIS_HAS_SPI(E7)
+      SET_CS_PIN(E7);
+    #endif
+  }
+#endif // HAS_TMC_SPI

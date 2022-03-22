@@ -37,7 +37,7 @@ namespace ExtUI {
 
   void onStartup()        { AnycubicTFT.OnSetup(); }
   void onIdle()           { AnycubicTFT.OnCommandScan(); }
-  void onPrinterKilled(PGM_P const error, PGM_P const component) { AnycubicTFT.OnKillTFT(); }
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { AnycubicTFT.OnKillTFT(); }
   void onMediaInserted()  { AnycubicTFT.OnSDCardStateChange(true); }
   void onMediaError()     { AnycubicTFT.OnSDCardError(); }
   void onMediaRemoved()   { AnycubicTFT.OnSDCardStateChange(false); }
@@ -54,8 +54,8 @@ namespace ExtUI {
   void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
-  void onHomingComplete() {}
-  void onPrintFinished() {}
+  void onHomingDone() {}
+  void onPrintDone() {}
 
   void onFactoryReset() {}
 
@@ -95,7 +95,8 @@ namespace ExtUI {
 
   #if HAS_MESH
 
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated

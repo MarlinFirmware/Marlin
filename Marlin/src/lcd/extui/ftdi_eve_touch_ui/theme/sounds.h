@@ -40,4 +40,4 @@ namespace Theme {
   extern const PROGMEM SoundPlayer::sound_t warble[];
   extern const PROGMEM SoundPlayer::sound_t carousel[];
   extern const PROGMEM SoundPlayer::sound_t all_instruments[];
-}; // namespace Theme
+} // namespace Theme

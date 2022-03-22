@@ -37,7 +37,7 @@ class BioPrintingDialogBox : public BaseScreen, public CachedScreen<PRINTING_SCR
     static void show();
 
     static void setStatusMessage(const char *);
-    static void setStatusMessage(progmem_str);
+    static void setStatusMessage(FSTR_P);
 
     static void onIdle();
     static bool onTouchEnd(uint8_t tag);

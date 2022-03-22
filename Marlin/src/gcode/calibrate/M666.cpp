@@ -61,7 +61,7 @@
   }
 
   void GcodeSuite::M666_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, PSTR(STR_ENDSTOP_ADJUSTMENT));
+    report_heading_etc(forReplay, F(STR_ENDSTOP_ADJUSTMENT));
     SERIAL_ECHOLNPGM_P(
         PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
       , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
@@ -105,7 +105,7 @@
   }
 
   void GcodeSuite::M666_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, PSTR(STR_ENDSTOP_ADJUSTMENT));
+    report_heading_etc(forReplay, F(STR_ENDSTOP_ADJUSTMENT));
     SERIAL_ECHOPGM("  M666");
     #if ENABLED(X_DUAL_ENDSTOPS)
       SERIAL_ECHOLNPGM_P(SP_X_STR, LINEAR_UNIT(endstops.x2_endstop_adj));

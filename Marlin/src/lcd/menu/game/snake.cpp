@@ -63,7 +63,7 @@
   #define SNAKE_SIZ SNAKE_BOX
 #endif
 
-constexpr fixed_t snakev = FTOP(0.20);
+constexpr fixed_t snakev = FTOF(0.20);
 
 snake_data_t &sdat = marlin_game_data.snake;
 
@@ -125,7 +125,7 @@ void snake_reset() {
   // Init the head and velocity
   sdat.snakex = BTOF(1);
   sdat.snakey = BTOF(GAME_H / 2);
-  //snakev = FTOP(0.25);
+  //snakev = FTOF(0.25);
 
   // Init the tail with a cw turn
   sdat.snake_dir = 0;

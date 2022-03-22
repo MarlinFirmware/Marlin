@@ -92,7 +92,7 @@ void lv_draw_homing_sensitivity_settings() {
     lv_screen_menu_item_1_edit(scr, machine_menu.Z2_Sensitivity, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_SENSITIVITY_Z2, 3, public_buf_l);
   #endif
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_SENSITIVITY_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_SENSITIVITY_RETURN, true);
 }
 
 void lv_clear_homing_sensitivity_settings() {

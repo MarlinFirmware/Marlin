@@ -61,7 +61,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .font(font_medium).colors(normal_btn)
        .tag(2).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
        .enabled(ENABLED(HAS_MESH))
-       .tag(3).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH))
+       .tag(3).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
        .enabled(ENABLED(HAS_MESH))
        .tag(4).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        #undef  GRID_COLS
@@ -81,7 +81,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     case 2: BedMeshViewScreen::doProbe(); break;
     case 3: BedMeshViewScreen::show(); break;
     case 4: BedMeshEditScreen::show(); break;
-    case 5: injectCommands_P(PSTR("M280 P0 S60")); break;
+    case 5: injectCommands(F("M280 P0 S60")); break;
     case 6: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     default: return false;
   }

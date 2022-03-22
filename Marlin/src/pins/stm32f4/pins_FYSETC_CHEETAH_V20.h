@@ -38,9 +38,9 @@
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
 
-  #define FLASH_SECTOR          2
+  #define FLASH_SECTOR          1
   #define FLASH_UNIT_SIZE       0x4000      // 16k
-  #define FLASH_ADDRESS_START   0x8008000
+  #define FLASH_ADDRESS_START   0x8004000
 #endif
 
 //
@@ -57,7 +57,7 @@
 // Limit Switches
 //
 #define X_STOP_PIN                          PB4
-#define Y_STOP_PIN                          PB3
+#define Y_STOP_PIN                          PC8
 #define Z_STOP_PIN                          PB1
 
 //
@@ -111,9 +111,10 @@
 #define HEATER_0_PIN                        PC6
 #define HEATER_BED_PIN                      PC7
 #ifndef FAN_PIN
-  #define FAN_PIN                           PA1
+  #define FAN_PIN                           PA14
 #endif
-#define FAN1_PIN                            PC8
+#define FAN1_PIN                            PA13
+#define FAN2_PIN                            PA1
 
 //
 // Temperature Sensors
@@ -138,26 +139,26 @@
 #endif
 
 /**
- *                -----                                              -----
- *            5V | 1 2 | GND                                     5V | 1 2 | GND
- *         RESET | 3 4 | PC3  (SD_DETECT)             (LCD_D7)  PB7 | 3 4 | PB6  (LCD_D6)
- * (SD_MOSI) PA7   5 6 | PC11 (BTN_EN2)               (LCD_D5) PB14   5 6 | PB13 (LCD_D4)
- *   (SD_SS) PA4 | 7 8 | PC10 (BTN_EN1)               (LCD_RS) PB12 | 7 8 | PB15 (LCD_EN)
- *  (SD_SCK) PA5 | 9 10| PA6  (SD_MISO)              (BTN_ENC) PC12 | 9 10| PC9  (BEEPER)
- *                -----                                              -----
- *                EXP2                                               EXP1
+ *                   ------                                  ------
+ * (SD_MISO)   PA6  |10  9 | PA5  (SD_SCK)    (BEEPER) PC9  |10  9 | PC12 (BTN_ENC)
+ * (BTN_EN1)   PC10 | 8  7 | PA4   (SD_SS)    (LCD_EN) PB15 | 8  7 | PB12  (LCD_RS)
+ * (BTN_EN2)   PC11   6  5 | PA7 (SD_MOSI)    (LCD_D4) PB13   6  5 | PB14  (LCD_D5)
+ * (SD_DETECT) PC3  | 4  3 | RESET            (LCD_D6) PB6  | 4  3 |  PB7  (LCD_D7)
+ *              GND | 2  1 | 5V                         GND | 2  1 |   5V
+ *                   ------                                  ------
+ *                    EXP2                                    EXP1
  */
 
 /**
-*                 -----
-*  (BEEPER) PC9  | 1 2 | PC12 (BTN_ENC)
-* (BTN_EN1) PC10 | 3 4 | PB14 (LCD_D5/MISO)
-* (BTN_EN2) PC11   5 6 | PB13 (LCD_D4/SCK)
-*  (LCD_RS) PB12 | 7 8 | PB15 (LCD_EN/MOSI)
-*            GND | 9 10| 5V
-*                 -----
-*                 EXP3
-*/
+ *                     ------
+ *                 5V |10  9 | GND
+ * (LCD_EN/MOSI) PB15 | 8  7 | PB12  (LCD_RS)
+ * (LCD_D4/SCK)  PB13   6  5 | PC11 (BTN_EN2)
+ * (LCD_D5/MISO) PB14 | 4  3 | PC10 (BTN_EN1)
+ * (BTN_ENC)     PC12 | 2  1 | PC9   (BEEPER)
+ *                     ------
+ *                      EXP3
+ */
 
 #define EXP1_03_PIN                         PB7
 #define EXP1_04_PIN                         PB6
@@ -245,7 +246,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                96
   #define BOARD_ST7920_DELAY_2                48
   #define BOARD_ST7920_DELAY_3               600

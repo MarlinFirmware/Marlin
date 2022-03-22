@@ -153,7 +153,7 @@ void I2CPositionEncoder::update() {
 
     #ifdef I2CPE_ERR_THRESH_ABORT
       if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
-        //kill(PSTR("Significant Error"));
+        //kill(F("Significant Error"));
         SERIAL_ECHOLNPGM("Axis error over threshold, aborting!", error);
         safe_delay(5000);
       }
@@ -173,7 +173,7 @@ void I2CPositionEncoder::update() {
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
             const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_CHAR(axis_codes[encoderAxis]);
-            SERIAL_ECHOLNPGM(" : CORRECT ERR ", errorP * planner.steps_to_mm[encoderAxis], "mm");
+            SERIAL_ECHOLNPGM(" : CORRECT ERR ", errorP * planner.mm_per_step[encoderAxis], "mm");
             babystep.add_steps(encoderAxis, -LROUND(errorP));
             errPrstIdx = 0;
           }
@@ -232,7 +232,7 @@ bool I2CPositionEncoder::passes_test(const bool report) {
   if (report) {
     if (H != I2CPE_MAG_SIG_GOOD) SERIAL_ECHOPGM("Warning. ");
     SERIAL_CHAR(axis_codes[encoderAxis]);
-    serial_ternary(H == I2CPE_MAG_SIG_BAD, PSTR(" axis "), PSTR("magnetic strip "), PSTR("encoder "));
+    serial_ternary(H == I2CPE_MAG_SIG_BAD, F(" axis "), F("magnetic strip "), F("encoder "));
     switch (H) {
       case I2CPE_MAG_SIG_GOOD:
       case I2CPE_MAG_SIG_MID:
@@ -756,7 +756,7 @@ int8_t I2CPositionEncodersMgr::parse() {
     if (!parser.has_value()) {
       SERIAL_ECHOLNPGM("?A seen, but no address specified! [30-200]");
       return I2CPE_PARSE_ERR;
-    };
+    }
 
     I2CPE_addr = parser.value_byte();
     if (!WITHIN(I2CPE_addr, 30, 200)) { // reserve the first 30 and last 55
@@ -775,7 +775,7 @@ int8_t I2CPositionEncodersMgr::parse() {
     if (!parser.has_value()) {
       SERIAL_ECHOLNPGM("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1, "]");
       return I2CPE_PARSE_ERR;
-    };
+    }
 
     I2CPE_idx = parser.value_byte();
     if (I2CPE_idx >= I2CPE_ENCODER_CNT) {
@@ -791,7 +791,7 @@ int8_t I2CPositionEncodersMgr::parse() {
   I2CPE_anyaxis = parser.seen_axis();
 
   return I2CPE_PARSE_OK;
-};
+}
 
 /**
  * M860:  Report the position(s) of position encoder module(s).
@@ -934,7 +934,7 @@ void I2CPositionEncodersMgr::M864() {
     if (!parser.has_value()) {
       SERIAL_ECHOLNPGM("?S seen, but no address specified! [30-200]");
       return;
-    };
+    }
 
     newAddress = parser.value_byte();
     if (!WITHIN(newAddress, 30, 200)) {

@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "MKS Robin Lite only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -79,31 +79,51 @@
 
 #define FIL_RUNOUT_PIN                      PB8   // MT_DET
 
+/**                ------
+ *   (BEEPER) PD2 |10  9 | PB3  (BTN_ENC)
+ *  (BTN_EN1) PB5 | 8  7 | PA11 (RESET?)
+ *  (BTN_EN2) PB4   6  5 | PC1  (LCD_D4)
+ *   (LCD_RS) PC3 | 4  3 | PC2  (LCD_EN)
+ *            GND | 2  1 | 5V
+ *                 ------
+ *               "E3" EXP1
+ */
+#define E3_EXP1_01_PIN                      -1    // 5V
+#define E3_EXP1_02_PIN                      -1    // GND
+#define E3_EXP1_03_PIN                      PC2
+#define E3_EXP1_04_PIN                      PC3
+#define E3_EXP1_05_PIN                      PC1
+#define E3_EXP1_06_PIN                      PB4
+#define E3_EXP1_07_PIN                      PA11  // RESET?
+#define E3_EXP1_08_PIN                      PB5
+#define E3_EXP1_09_PIN                      PB3
+#define E3_EXP1_10_PIN                      PD2
+
 //
 // LCD Pins
 //
 #if HAS_WIRED_LCD
-  #define BEEPER_PIN                        PD2
-  #define BTN_ENC                           PB3
-  #define LCD_PINS_RS                       PC3
+  #define BEEPER_PIN              E3_EXP1_10_PIN
+  #define BTN_ENC                 E3_EXP1_09_PIN
+  #define LCD_PINS_RS             E3_EXP1_04_PIN
 
-  #define BTN_EN1                           PB5
-  #define BTN_EN2                           PB4
+  #define BTN_EN1                 E3_EXP1_08_PIN
+  #define BTN_EN2                 E3_EXP1_06_PIN
 
-  #define LCD_PINS_ENABLE                   PC2
+  #define LCD_PINS_ENABLE         E3_EXP1_03_PIN
 
   #if ENABLED(MKS_MINI_12864)
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
-    #define DOGLCD_A0                       PC1
-    #define DOGLCD_CS                       PC2
+    #define DOGLCD_A0             E3_EXP1_05_PIN
+    #define DOGLCD_CS             E3_EXP1_03_PIN
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
   #else                                           // !MKS_MINI_12864
 
-    #define LCD_PINS_D4                     PC1
+    #define LCD_PINS_D4           E3_EXP1_05_PIN
     #if IS_ULTIPANEL
       #define LCD_PINS_D5                   -1
       #define LCD_PINS_D6                   -1
@@ -113,7 +133,7 @@
   #endif // !MKS_MINI_12864
 
   // Alter timing for graphical display
-  #if ENABLED(U8GLIB_ST7920)
+  #if IS_U8GLIB_ST7920
     #define BOARD_ST7920_DELAY_1             125
     #define BOARD_ST7920_DELAY_2             125
     #define BOARD_ST7920_DELAY_3             125
@@ -141,3 +161,15 @@
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15
 #define SD_SS_PIN                           PA15
+
+// EXP1 replace LCD with keys for EasyThreeD ET4000+ Mainboard
+#if ENABLED(EASYTHREED_UI)
+  #define BTN_HOME                E3_EXP1_04_PIN  // INPUT_PULLUP (unused)
+  #define BTN_FEED                E3_EXP1_09_PIN  // Run E Forward
+  #define BTN_RETRACT             E3_EXP1_08_PIN  // Run E Backward
+  #define BTN_PRINT               E3_EXP1_07_PIN  // Start File Print
+  #define BTN_HOME_GND            E3_EXP1_03_PIN  // OUTPUT (LOW)
+  #define BTN_FEED_GND            E3_EXP1_06_PIN  // OUTPUT (LOW)
+  #define BTN_RETRACT_GND         E3_EXP1_05_PIN  // OUTPUT (LOW)
+  #define EASYTHREED_LED_PIN      E3_EXP1_10_PIN  // Indicator LED
+#endif

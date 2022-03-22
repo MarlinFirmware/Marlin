@@ -75,7 +75,7 @@ void FWRetract::reset() {
 
   LOOP_L_N(i, EXTRUDERS) {
     retracted[i] = false;
-    TERN_(HAS_MULTI_EXTRUDER, retracted_swap[i] = false);
+    E_TERN_(retracted_swap[i] = false);
     current_retract[i] = 0.0;
   }
 }
@@ -91,7 +91,7 @@ void FWRetract::reset() {
  * Note: Auto-retract will apply the set Z hop in addition to any Z hop
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
-void FWRetract::retract(const bool retracting OPTARG(HAS_MULTI_EXTRUDER, bool swapping/*=false*/)) {
+void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/)) {
   // Prevent two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
 

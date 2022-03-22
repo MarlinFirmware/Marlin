@@ -40,186 +40,186 @@ extern uint16_t DeviceCode;
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
-static const char assets[][LONG_FILENAME_LENGTH] = {
+static FSTR_P const assets[] = {
   // Homing screen
-  "bmp_zeroAll.bin",
-  "bmp_zero.bin",
-  "bmp_zeroX.bin",
-  "bmp_zeroY.bin",
-  "bmp_zeroZ.bin",
-  "bmp_manual_off.bin",
+  F("bmp_zeroAll.bin"),
+  F("bmp_zero.bin"),
+  F("bmp_zeroX.bin"),
+  F("bmp_zeroY.bin"),
+  F("bmp_zeroZ.bin"),
+  F("bmp_manual_off.bin"),
 
   // Tool screen
-  "bmp_preHeat.bin",
-  "bmp_extruct.bin",
-  "bmp_mov.bin",
-  "bmp_leveling.bin",
-  "bmp_filamentchange.bin",
-  "bmp_more.bin",
+  F("bmp_preHeat.bin"),
+  F("bmp_extruct.bin"),
+  F("bmp_mov.bin"),
+  F("bmp_leveling.bin"),
+  F("bmp_filamentchange.bin"),
+  F("bmp_more.bin"),
 
   // Fan screen
-  "bmp_Add.bin",
-  "bmp_Dec.bin",
-  "bmp_speed255.bin",
-  "bmp_speed127.bin",
-  "bmp_speed0.bin",
+  F("bmp_Add.bin"),
+  F("bmp_Dec.bin"),
+  F("bmp_speed255.bin"),
+  F("bmp_speed127.bin"),
+  F("bmp_speed0.bin"),
 
-  "bmp_bed.bin",
-  "bmp_step1_degree.bin",
-  "bmp_step5_degree.bin",
-  "bmp_step10_degree.bin",
+  F("bmp_bed.bin"),
+  F("bmp_step1_degree.bin"),
+  F("bmp_step5_degree.bin"),
+  F("bmp_step10_degree.bin"),
 
   // Extrusion screen
-  "bmp_in.bin",
-  "bmp_out.bin",
-  "bmp_extru1.bin",
+  F("bmp_in.bin"),
+  F("bmp_out.bin"),
+  F("bmp_extru1.bin"),
   #if HAS_MULTI_EXTRUDER
-    "bmp_extru2.bin",
+    F("bmp_extru2.bin"),
   #endif
-  "bmp_speed_high.bin",
-  "bmp_speed_slow.bin",
-  "bmp_speed_normal.bin",
-  "bmp_step1_mm.bin",
-  "bmp_step5_mm.bin",
-  "bmp_step10_mm.bin",
+  F("bmp_speed_high.bin"),
+  F("bmp_speed_slow.bin"),
+  F("bmp_speed_normal.bin"),
+  F("bmp_step1_mm.bin"),
+  F("bmp_step5_mm.bin"),
+  F("bmp_step10_mm.bin"),
 
   // Select file screen
-  "bmp_pageUp.bin",
-  "bmp_pageDown.bin",
-  "bmp_back.bin", //TODO: why two back buttons? Why not just one? (return / back)
-  "bmp_dir.bin",
-  "bmp_file.bin",
+  F("bmp_pageUp.bin"),
+  F("bmp_pageDown.bin"),
+  F("bmp_back.bin"), // TODO: why two back buttons? Why not just one? (return / back)
+  F("bmp_dir.bin"),
+  F("bmp_file.bin"),
 
   // Move motor screen
   // TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
-  "bmp_xAdd.bin",
-  "bmp_xDec.bin",
-  "bmp_yAdd.bin",
-  "bmp_yDec.bin",
-  "bmp_zAdd.bin",
-  "bmp_zDec.bin",
-  "bmp_step_move0_1.bin",
-  "bmp_step_move1.bin",
-  "bmp_step_move10.bin",
+  F("bmp_xAdd.bin"),
+  F("bmp_xDec.bin"),
+  F("bmp_yAdd.bin"),
+  F("bmp_yDec.bin"),
+  F("bmp_zAdd.bin"),
+  F("bmp_zDec.bin"),
+  F("bmp_step_move0_1.bin"),
+  F("bmp_step_move1.bin"),
+  F("bmp_step_move10.bin"),
 
   // Operation screen
-  "bmp_auto_off.bin",
-  "bmp_speed.bin",
-  "bmp_fan.bin",
-  "bmp_temp.bin",
-  "bmp_extrude_opr.bin",
-  "bmp_move_opr.bin",
+  F("bmp_auto_off.bin"),
+  F("bmp_speed.bin"),
+  F("bmp_fan.bin"),
+  F("bmp_temp.bin"),
+  F("bmp_extrude_opr.bin"),
+  F("bmp_move_opr.bin"),
 
   // Change speed screen
-  "bmp_step1_percent.bin",
-  "bmp_step5_percent.bin",
-  "bmp_step10_percent.bin",
-  "bmp_extruct_sel.bin",
-  "bmp_mov_changespeed.bin",
-  "bmp_mov_sel.bin",
-  "bmp_speed_extruct.bin",
+  F("bmp_step1_percent.bin"),
+  F("bmp_step5_percent.bin"),
+  F("bmp_step10_percent.bin"),
+  F("bmp_extruct_sel.bin"),
+  F("bmp_mov_changespeed.bin"),
+  F("bmp_mov_sel.bin"),
+  F("bmp_speed_extruct.bin"),
 
   // Printing screen
-  "bmp_pause.bin",
-  "bmp_resume.bin",
-  "bmp_stop.bin",
-  "bmp_ext1_state.bin",
+  F("bmp_pause.bin"),
+  F("bmp_resume.bin"),
+  F("bmp_stop.bin"),
+  F("bmp_ext1_state.bin"),
   #if HAS_MULTI_EXTRUDER
-    "bmp_ext2_state.bin",
+    F("bmp_ext2_state.bin"),
   #endif
-  "bmp_bed_state.bin",
-  "bmp_fan_state.bin",
-  "bmp_time_state.bin",
-  "bmp_zpos_state.bin",
-  "bmp_operate.bin",
+  F("bmp_bed_state.bin"),
+  F("bmp_fan_state.bin"),
+  F("bmp_time_state.bin"),
+  F("bmp_zpos_state.bin"),
+  F("bmp_operate.bin"),
 
   // Manual Level screen (only if auto level is disabled)
   #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    "bmp_leveling1.bin",
-    "bmp_leveling2.bin",
-    "bmp_leveling3.bin",
-    "bmp_leveling4.bin",
-    "bmp_leveling5.bin",
+    F("bmp_leveling1.bin"),
+    F("bmp_leveling2.bin"),
+    F("bmp_leveling3.bin"),
+    F("bmp_leveling4.bin"),
+    F("bmp_leveling5.bin"),
   #endif
 
   // Language Select screen
   #if HAS_LANG_SELECT_SCREEN
-    "bmp_language.bin",
-    "bmp_simplified_cn.bin",
-    "bmp_simplified_cn_sel.bin",
-    "bmp_traditional_cn.bin",
-    "bmp_traditional_cn_sel.bin",
-    "bmp_english.bin",
-    "bmp_english_sel.bin",
-    "bmp_russian.bin",
-    "bmp_russian_sel.bin",
-    "bmp_spanish.bin",
-    "bmp_spanish_sel.bin",
-    "bmp_french.bin",
-    "bmp_french_sel.bin",
-    "bmp_italy.bin",
-    "bmp_italy_sel.bin",
+    F("bmp_language.bin"),
+    F("bmp_simplified_cn.bin"),
+    F("bmp_simplified_cn_sel.bin"),
+    F("bmp_traditional_cn.bin"),
+    F("bmp_traditional_cn_sel.bin"),
+    F("bmp_english.bin"),
+    F("bmp_english_sel.bin"),
+    F("bmp_russian.bin"),
+    F("bmp_russian_sel.bin"),
+    F("bmp_spanish.bin"),
+    F("bmp_spanish_sel.bin"),
+    F("bmp_french.bin"),
+    F("bmp_french_sel.bin"),
+    F("bmp_italy.bin"),
+    F("bmp_italy_sel.bin"),
   #endif // HAS_LANG_SELECT_SCREEN
 
   // G-code preview
   #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-    "bmp_preview.bin",
+    F("bmp_preview.bin"),
   #endif
 
   #if HAS_LOGO_IN_FLASH
-    "bmp_logo.bin",
+    F("bmp_logo.bin"),
   #endif
 
   // Settings screen
-  "bmp_about.bin",
-  "bmp_eeprom_settings.bin",
-  "bmp_machine_para.bin",
-  "bmp_function1.bin",
+  F("bmp_about.bin"),
+  F("bmp_eeprom_settings.bin"),
+  F("bmp_machine_para.bin"),
+  F("bmp_function1.bin"),
 
   // Start screen
-  "bmp_printing.bin",
-  "bmp_set.bin",
-  "bmp_tool.bin",
+  F("bmp_printing.bin"),
+  F("bmp_set.bin"),
+  F("bmp_tool.bin"),
 
   // Base icons
-  "bmp_arrow.bin",
-  "bmp_back70x40.bin",
-  "bmp_value_blank.bin",
-  "bmp_blank_sel.bin",
-  "bmp_disable.bin",
-  "bmp_enable.bin",
-  "bmp_return.bin",
+  F("bmp_arrow.bin"),
+  F("bmp_back70x40.bin"),
+  F("bmp_value_blank.bin"),
+  F("bmp_blank_sel.bin"),
+  F("bmp_disable.bin"),
+  F("bmp_enable.bin"),
+  F("bmp_return.bin"),
 
   #if ENABLED(MKS_WIFI_MODULE)
     // Wifi screen
-    "bmp_wifi.bin",
-    "bmp_cloud.bin",
+    F("bmp_wifi.bin"),
+    F("bmp_cloud.bin"),
   #endif
 
   #if ENABLED(MULTI_VOLUME)
-    "bmp_usb_disk.bin",
-    // "bmp_usb_disk_sel.bin",
-    "bmp_sd.bin",
-    // "bmp_sd_sel.bin",
+    F("bmp_usb_disk.bin"),
+    //F("bmp_usb_disk_sel.bin"),
+    F("bmp_sd.bin"),
+    //F("bmp_sd_sel.bin"),
   #endif
 
   // Babystep screen
-  "bmp_baby_move0_01.bin",
-  "bmp_baby_move0_05.bin",
-  "bmp_baby_move0_1.bin",
+  F("bmp_baby_move0_01.bin"),
+  F("bmp_baby_move0_05.bin"),
+  F("bmp_baby_move0_1.bin"),
 
   // More screen
-  "bmp_custom1.bin",
-  "bmp_custom2.bin",
-  "bmp_custom3.bin",
-  "bmp_custom4.bin",
-  "bmp_custom5.bin",
-  "bmp_custom6.bin",
-  "bmp_custom7.bin"
+  F("bmp_custom1.bin"),
+  F("bmp_custom2.bin"),
+  F("bmp_custom3.bin"),
+  F("bmp_custom4.bin"),
+  F("bmp_custom5.bin"),
+  F("bmp_custom6.bin"),
+  F("bmp_custom7.bin")
 };
 
 #if HAS_SPI_FLASH_FONT
-  static char fonts[][LONG_FILENAME_LENGTH] = { "FontUNIGBK.bin" };
+  static FSTR_P const fonts[] = { F("FontUNIGBK.bin") };
 #endif
 
 uint8_t currentFlashPage = 0;
@@ -386,9 +386,9 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     longName[j] = '\0';
   }
 
-  static int8_t arrayFindStr(const char arr[][LONG_FILENAME_LENGTH], uint8_t arraySize, const char *str) {
+  static int8_t arrayFindStr(FSTR_P const arr[], uint8_t arraySize, const char *str) {
     for (uint8_t a = 0; a < arraySize; a++) {
-      if (strcasecmp(arr[a], str) == 0)
+      if (strcasecmp(FTOP(arr[a]), str) == 0)
         return a;
     }
     return -1;
@@ -403,7 +403,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
   #define ASSET_TYPE_TITLE_LOGO 2
   #define ASSET_TYPE_G_PREVIEW  3
   #define ASSET_TYPE_FONT       4
-  static void loadAsset(SdFile &dir, dir_t& entry, const char *fn, int8_t assetType) {
+  static void loadAsset(SdFile &dir, dir_t& entry, FSTR_P const fn, int8_t assetType) {
     SdFile file;
     char dosFilename[FILENAME_LENGTH];
     createFilename(dosFilename, entry);
@@ -429,14 +429,14 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
       do {
         watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr);
+        Pic_Logo_Write((uint8_t*)fn, public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_TITLE_LOGO) {
       do {
         watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr);
+        Pic_TitleLogo_Write((uint8_t*)fn, public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_G_PREVIEW) {
@@ -447,7 +447,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_ICON) {
-      Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
+      Pic_Write_Addr = Pic_Info_Write((uint8_t*)fn, pfileSize);
       SPIFlash.beginWrite(Pic_Write_Addr);
       #if HAS_SPI_FLASH_COMPRESSION
         do {
@@ -492,16 +492,16 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 
       disp_assets_update();
-      disp_assets_update_progress("Erasing pics...");
+      disp_assets_update_progress(F("Erasing pics..."));
       watchdog_refresh();
       spiFlashErase_PIC();
       #if HAS_SPI_FLASH_FONT
-        disp_assets_update_progress("Erasing fonts...");
+        disp_assets_update_progress(F("Erasing fonts..."));
         watchdog_refresh();
         spiFlashErase_FONT();
       #endif
 
-      disp_assets_update_progress("Reading files...");
+      disp_assets_update_progress(F("Reading files..."));
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
         // If we don't get a long name, but gets a short one, try it
@@ -513,11 +513,11 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
         int8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
         if (a >= 0 && a < (int8_t)COUNT(assets)) {
           uint8_t assetType = ASSET_TYPE_ICON;
-          if (strstr(assets[a], "_logo"))
+          if (strstr_P(FTOP(assets[a]), PSTR("_logo")))
             assetType = ASSET_TYPE_LOGO;
-          else if (strstr(assets[a], "_titlelogo"))
+          else if (strstr_P(FTOP(assets[a]), PSTR("_titlelogo")))
             assetType = ASSET_TYPE_TITLE_LOGO;
-          else if (strstr(assets[a], "_preview"))
+          else if (strstr_P(FTOP(assets[a]), PSTR("_preview")))
             assetType = ASSET_TYPE_G_PREVIEW;
 
           loadAsset(dir, d, assets[a], assetType);

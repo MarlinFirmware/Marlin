@@ -25,6 +25,11 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(CONFIGURATION_EMBEDDING)
+  #include "../../sd/SdBaseFile.h"
+  #include "../../mczip.h"
+#endif
+
 /**
  * M500: Store settings in EEPROM
  */
@@ -50,9 +55,24 @@ void GcodeSuite::M502() {
 
   /**
    * M503: print settings currently in memory
+   *
+   *   S<bool> : Include / exclude header comments in the output. (Default: S1)
+   *
+   * With CONFIGURATION_EMBEDDING:
+   *   C<flag> : Save the full Marlin configuration to SD Card as "mc.zip"
    */
   void GcodeSuite::M503() {
     (void)settings.report(!parser.boolval('S', true));
+
+    #if ENABLED(CONFIGURATION_EMBEDDING)
+      if (parser.seen_test('C')) {
+        SdBaseFile file;
+        const uint16_t size = sizeof(mc_zip);
+        // Need to create the config size on the SD card
+        if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(mc_zip), size) != -1 && file.close())
+          SERIAL_ECHO_MSG("Configuration saved as 'mc.zip'");
+      }
+    #endif
   }
 
 #endif // !DISABLE_M503

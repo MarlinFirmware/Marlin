@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, ADVANCED_PAUSE_FEATURE)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -90,7 +90,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LOOP_L_N(m, PREHEAT_COUNT)
       ACTION_ITEM_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
@@ -209,7 +209,7 @@ void menu_change_filament() {
   #else
 
     if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-      queue.inject_P(PSTR("M600B0"));
+      queue.inject(F("M600B0"));
     else
       ui.goto_screen([]{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
 
@@ -342,4 +342,4 @@ void MarlinUI::pause_show_message(
     ui.return_to_status();
 }
 
-#endif // HAS_LCD_MENU && ADVANCED_PAUSE_FEATURE
+#endif // HAS_MARLINUI_MENU && ADVANCED_PAUSE_FEATURE

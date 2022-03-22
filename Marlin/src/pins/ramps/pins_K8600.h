@@ -25,7 +25,7 @@
  * VERTEX NANO Arduino Mega with RAMPS EFB v1.4 pin assignments.
  */
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #error "Only 1 hotend is supported for Vertex Nano."
 #endif
 
@@ -41,6 +41,11 @@
 #define Z_MIN_PIN                             -1
 
 //
+// Steppers
+//
+#define Z_ENABLE_PIN                          63
+
+//
 // Heaters / Fans
 //
 #define FAN_PIN                                8
@@ -54,14 +59,7 @@
 //
 // Other RAMPS pins
 //
-#define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
 #include "pins_RAMPS.h"
-
-//
-// Steppers
-//
-#undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN                          63
 
 //
 // Heaters / Fans

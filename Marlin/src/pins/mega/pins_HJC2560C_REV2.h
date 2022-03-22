@@ -112,7 +112,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+#if HAS_CUTTER
   #define SPINDLE_DIR_PIN                     16
   #define SPINDLE_LASER_ENA_PIN               17  // Pin should have a pullup!
   #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
@@ -134,7 +134,7 @@
     #if ENABLED(HJC_LCD_SMART_CONTROLLER)
       #define LCD_BACKLIGHT_PIN                5  // LCD_Backlight
       //#ifndef LCD_CONTRAST_PIN
-      //  #define LCD_CONTRAST_PIN  5   // LCD_Contrast
+      //  #define LCD_CONTRAST_PIN             5  // LCD_Contrast
       //#endif
       #ifndef FIL_RUNOUT_PIN
         #define FIL_RUNOUT_PIN                24  // Filament runout

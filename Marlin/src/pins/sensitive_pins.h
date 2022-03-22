@@ -155,7 +155,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
 
   #if PIN_EXISTS(I_MIN)
     #define _I_MIN I_MIN_PIN,
@@ -201,7 +201,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
 
   #if PIN_EXISTS(J_MIN)
     #define _J_MIN J_MIN_PIN,
@@ -247,7 +247,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
 
   #if PIN_EXISTS(K_MIN)
     #define _K_MIN K_MIN_PIN,
@@ -632,7 +632,7 @@
 // Chip Select and Digital Micro-stepping
 //
 
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+#if HAS_X2_STEPPER
   #if PIN_EXISTS(X2_CS) && AXIS_HAS_SPI(X2)
     #define _X2_CS X2_CS_PIN,
   #else

@@ -42,7 +42,7 @@ void GcodeSuite::M309() {
 }
 
 void GcodeSuite::M309_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_CHAMBER_PID));
+  report_heading_etc(forReplay, F(STR_CHAMBER_PID));
   SERIAL_ECHOLNPGM(
       "  M309 P", thermalManager.temp_chamber.pid.Kp
     , " I", unscalePID_i(thermalManager.temp_chamber.pid.Ki)

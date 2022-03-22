@@ -24,19 +24,22 @@
 #include "../inc/MarlinConfig.h"
 
 enum TempSensorID : uint8_t {
-  TSI_PROBE,
-  TSI_BED,
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+  #if ENABLED(PTC_PROBE)
+    TSI_PROBE,
+  #endif
+  #if ENABLED(PTC_BED)
+    TSI_BED,
+  #endif
+  #if ENABLED(PTC_HOTEND)
     TSI_EXT,
   #endif
   TSI_COUNT
 };
 
 typedef struct {
-  uint8_t measurements; // Max. number of measurements to be stored (35 - 80°C)
-  celsius_t temp_res,   // Resolution in °C between measurements
-            start_temp, // Base measurement; z-offset == 0
-            end_temp;
+  uint8_t measurements;       // Max. number of measurements to be stored (35 - 80°C)
+  celsius_t temp_resolution,  // Resolution in °C between measurements
+            start_temp;       // Base measurement; z-offset == 0
 } temp_calib_t;
 
 /**
@@ -45,89 +48,55 @@ typedef struct {
  * measurement errors/shifts due to changed temperature.
  */
 
-// Probe temperature calibration constants
-#ifndef PTC_SAMPLE_COUNT
-  #define PTC_SAMPLE_COUNT 10
-#endif
-#ifndef PTC_SAMPLE_RES
-  #define PTC_SAMPLE_RES 5
-#endif
-#ifndef PTC_SAMPLE_START
-  #define PTC_SAMPLE_START 30
-#endif
-#define PTC_SAMPLE_END (PTC_SAMPLE_START + (PTC_SAMPLE_COUNT) * PTC_SAMPLE_RES)
-
-// Bed temperature calibration constants
-#ifndef BTC_PROBE_TEMP
-  #define BTC_PROBE_TEMP 30
-#endif
-#ifndef BTC_SAMPLE_COUNT
-  #define BTC_SAMPLE_COUNT 10
-#endif
-#ifndef BTC_SAMPLE_RES
-  #define BTC_SAMPLE_RES 5
-#endif
-#ifndef BTC_SAMPLE_START
-  #define BTC_SAMPLE_START 60
-#endif
-#define BTC_SAMPLE_END (BTC_SAMPLE_START + (BTC_SAMPLE_COUNT) * BTC_SAMPLE_RES)
-
-#ifndef PTC_PROBE_HEATING_OFFSET
-  #define PTC_PROBE_HEATING_OFFSET 0.5f
-#endif
-
-#ifndef PTC_PROBE_RAISE
-  #define PTC_PROBE_RAISE 10
-#endif
-
-static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-  { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END }, // Probe
-  { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END }, // Bed
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    { 20,  5, 180, 180 +  5 * 20 }                                        // Extruder
-  #endif
-};
-
 class ProbeTempComp {
   public:
 
-    static const temp_calib_t cali_info[TSI_COUNT];
+    static constexpr temp_calib_t cali_info[TSI_COUNT] = {
+      #if ENABLED(PTC_PROBE)
+        { PTC_PROBE_COUNT, PTC_PROBE_RES, PTC_PROBE_START },   // Probe
+      #endif
+      #if ENABLED(PTC_BED)
+        { PTC_BED_COUNT, PTC_BED_RES, PTC_BED_START },   // Bed
+      #endif
+      #if ENABLED(PTC_HOTEND)
+        { PTC_HOTEND_COUNT, PTC_HOTEND_RES, PTC_HOTEND_START }, // Extruder
+      #endif
+    };
 
-    // Where to park nozzle to wait for probe cooldown
-    static constexpr xyz_pos_t park_point = PTC_PARK_POS;
-
-    // XY coordinates of nozzle for probing the bed
-    static constexpr xy_pos_t measure_point    = PTC_PROBE_POS;     // Coordinates to probe
-                            //measure_point    = { 12.0f, 7.3f };   // Coordinates for the MK52 magnetic heatbed
-
-    static constexpr celsius_t probe_calib_bed_temp = BED_MAX_TARGET,  // Bed temperature while calibrating probe
-                               bed_calib_probe_temp = BTC_PROBE_TEMP;  // Probe temperature while calibrating bed
-
-    static int16_t *sensor_z_offsets[TSI_COUNT],
-                   z_offsets_probe[cali_info_init[TSI_PROBE].measurements], // (µm)
-                   z_offsets_bed[cali_info_init[TSI_BED].measurements];     // (µm)
-
-    #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-      static int16_t z_offsets_ext[cali_info_init[TSI_EXT].measurements];   // (µm)
+    static int16_t *sensor_z_offsets[TSI_COUNT];
+    #if ENABLED(PTC_PROBE)
+      static int16_t z_offsets_probe[PTC_PROBE_COUNT]; // (µm)
+    #endif
+    #if ENABLED(PTC_BED)
+      static int16_t z_offsets_bed[PTC_BED_COUNT];   // (µm)
+    #endif
+    #if ENABLED(PTC_HOTEND)
+      static int16_t z_offsets_hotend[PTC_HOTEND_COUNT];   // (µm)
     #endif
 
-    static inline void reset_index() { calib_idx = 0; };
-    static inline uint8_t get_index() { return calib_idx; }
-    static void clear_offsets(const TempSensorID tsi);
-    static inline void clear_all_offsets() {
-      clear_offsets(TSI_BED);
-      clear_offsets(TSI_PROBE);
-      TERN_(USE_TEMP_EXT_COMPENSATION, clear_offsets(TSI_EXT));
+    static void reset_index() { calib_idx = 0; };
+    static uint8_t get_index() { return calib_idx; }
+    static void reset();
+    static void clear_all_offsets() {
+      TERN_(PTC_PROBE, clear_offsets(TSI_PROBE));
+      TERN_(PTC_BED, clear_offsets(TSI_BED));
+      TERN_(PTC_HOTEND, clear_offsets(TSI_EXT));
     }
     static bool set_offset(const TempSensorID tsi, const uint8_t idx, const int16_t offset);
     static void print_offsets();
     static void prepare_new_calibration(const_float_t init_meas_z);
     static void push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z);
     static bool finish_calibration(const TempSensorID tsi);
-    static void compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z);
+    static void set_enabled(const bool ena) { enabled = ena; }
+
+    // Apply all temperature compensation adjustments
+    static void apply_compensation(float &meas_z);
 
   private:
     static uint8_t calib_idx;
+    static bool enabled;
+
+    static void clear_offsets(const TempSensorID tsi);
 
     /**
      * Base value. Temperature compensation values will be deltas
@@ -135,13 +104,13 @@ class ProbeTempComp {
      */
     static float init_measurement;
 
-    static float get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp);
-
     /**
      * Fit a linear function in measured temperature offsets
      * to allow generating values of higher temperatures.
      */
     static bool linear_regression(const TempSensorID tsi, float &k, float &d);
+
+    static void compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z);
 };
 
-extern ProbeTempComp temp_comp;
+extern ProbeTempComp ptc;
