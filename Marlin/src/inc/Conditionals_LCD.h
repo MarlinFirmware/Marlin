@@ -642,19 +642,19 @@
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
 
-#elif HAS_PRUSA_MMU2                // Pr??a Multi-Material Unit v2
+#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
 
   #define E_STEPPERS      1
   #define E_MANUAL        1
 
 #endif
 
-// No inactive extruders with SWITCHING_NOZZLE or Pr??a MMU1
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
 #if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Pr??a MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
+// Průša MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
 #if HAS_MMU
   #define SINGLENOZZLE
 #endif
