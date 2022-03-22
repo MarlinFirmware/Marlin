@@ -1406,7 +1406,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
       }
 
-      const float pid_output = constrain(power * (255 / MPC_HEATER_POWER) + 1, 0, MPC_MAX);   // "+ 1" because later truncation and rightshift doesn't round
+      power = constrain(power, 0.0f, (float(MPC_HEATER_POWER) * MPC_MAX / 255));  // MPC_MAX is out of a range of 0 to 255
+      const float pid_output = power * (254.0f / MPC_HEATER_POWER) + 1.0f;        // ensure correct quatization into a range of 0 to 127
 
     #else // No PID or MPC enabled
 
