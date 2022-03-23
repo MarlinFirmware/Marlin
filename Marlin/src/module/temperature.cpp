@@ -850,8 +850,10 @@ volatile bool Temperature::raw_temps_ready = false;
     auto housekeeping = [] (millis_t& ms, celsius_float_t& current_temp, millis_t& next_report_ms) {
       ms = millis();
 
-      if (updateTemperaturesIfReady()) // temp sample ready
+      if (updateTemperaturesIfReady()) { // temp sample ready
         current_temp = degHotend(active_extruder);
+        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
+      }
 
       if (ELAPSED(ms, next_report_ms)) {
         next_report_ms += 1000UL;
@@ -865,7 +867,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM("Moving to tuning position");
     TERN_(HAS_FAN, zero_fan_speeds());
     disable_all_heaters();
-    TERN_(HAS_FAN, set_fan_speed(TERN(SINGLENOZZLE, 0, active_extruder), 255));
+    TERN_(HAS_FAN, set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 255));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
     gcode.home_all_axes(true);
     const xyz_pos_t tuningpos = MPC_TUNING_POS;
@@ -889,7 +891,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
-    TERN_(HAS_FAN, set_fan_speed(TERN(SINGLENOZZLE, 0, active_extruder), 0));
+    TERN_(HAS_FAN, set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 0));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
     SERIAL_ECHOLNPGM("Heating to 200C");
@@ -940,7 +942,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #if HAS_FAN
       SERIAL_ECHOLNPGM("Testing the fan");
       temp_hotend[active_extruder].target = t3;
-      set_fan_speed(TERN(SINGLENOZZLE, 0, active_extruder), 255);
+      set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 255);
       planner.sync_fan_speeds(fan_speed);
       next_test_ms = ms + MPC_dT * 1000;
       millis_t settle_end_ms = ms + 30000UL;
@@ -971,7 +973,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
       temp_hotend[active_extruder].target = 0.0f;
       temp_hotend[active_extruder].soft_pwm_amount = 0;
-      set_fan_speed(TERN(SINGLENOZZLE, 0, active_extruder), 0);
+      set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 0);
       planner.sync_fan_speeds(fan_speed);
     #endif
 
@@ -1366,7 +1368,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
-        const float fan_fraction = (float)fan_speed[TERN(SINGLENOZZLE, 0, ee)] / 255;
+        const float fan_fraction = (float)fan_speed[FAN_COUNT == 1 ? 0 : ee] / 255;
         ambient_xfer_coeff += fan_fraction * fan255_adjustment;
       #endif
 
