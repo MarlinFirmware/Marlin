@@ -987,8 +987,10 @@ volatile bool Temperature::raw_temps_ready = false;
         SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
       SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
       SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
-      SERIAL_ECHOLNPGM("block_responsiveness ", block_responsiveness * 100);
-    */
+      SERIAL_ECHOPGM("block_responsiveness ");
+      SERIAL_PRINT(block_responsiveness, 4);
+      SERIAL_EOL();
+    //*/
     SERIAL_ECHOLNPGM("MPC_AMBIENT ", ambient_temp);
     SERIAL_ECHOLNPGM("MPC_BLOCK_HEAT_CAPACITY ", block_heat_capacity);
     SERIAL_ECHOPGM("MPC_SENSOR_RESPONSIVENESS ");
