@@ -749,6 +749,7 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
+#define EXTRUDER_LOOP() for (int8_t e = 0; e < EXTRUDERS; e++)
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
