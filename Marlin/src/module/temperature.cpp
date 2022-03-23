@@ -891,7 +891,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(HAS_FAN, set_fan_speed(active_extruder, 0));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
-    SERIAL_ECHOLNPGM("Heating by 130C");
+    SERIAL_ECHOLNPGM("Heating to 200C");
     temp_hotend[active_extruder].soft_pwm_amount = MPC_MAX >> 1;
     const millis_t heat_start_time = ms;
     next_test_ms = ms;
@@ -904,8 +904,8 @@ volatile bool Temperature::raw_temps_ready = false;
       housekeeping(ms, current_temp, next_report_ms);
 
       if (ELAPSED(ms, next_test_ms)) {
-        // record samples between ambient + 30C and and ambient + 130C
-        if (current_temp >= ambient_temp + 30.0f) {
+        // record samples between 100C and 200C
+        if (current_temp >= 100.0f) {
           // if there are too many samples, space them more widely
           if (sample_count == COUNT(temp_samples)) {
             for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
@@ -918,7 +918,7 @@ volatile bool Temperature::raw_temps_ready = false;
           temp_samples[sample_count++] = current_temp;
         }
 
-        if (current_temp >= ambient_temp + 130.0f) break;
+        if (current_temp >= 200.0f) break;
 
         next_test_ms += 1000UL * sample_distance;
       }
