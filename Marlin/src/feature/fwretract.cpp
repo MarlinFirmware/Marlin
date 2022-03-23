@@ -73,10 +73,10 @@ void FWRetract::reset() {
   settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
-  LOOP_L_N(i, EXTRUDERS) {
-    retracted[i] = false;
-    E_TERN_(retracted_swap[i] = false);
-    current_retract[i] = 0.0;
+  EXTRUDER_LOOP() {
+    retracted[e] = false;
+    E_TERN_(retracted_swap[e] = false);
+    current_retract[e] = 0.0;
   }
 }
 
@@ -111,10 +111,10 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
       " swapping ", swapping,
       " active extruder ", active_extruder
     );
-    LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPGM("retracted[", i, "] ", AS_DIGIT(retracted[i]));
+    EXTRUDER_LOOP() {
+      SERIAL_ECHOLNPGM("retracted[", e, "] ", AS_DIGIT(retracted[e]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPGM("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
+        SERIAL_ECHOLNPGM("retracted_swap[", e, "] ", AS_DIGIT(retracted_swap[e]));
       #endif
     }
     SERIAL_ECHOLNPGM("current_position.z ", current_position.z);
@@ -184,10 +184,10 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     SERIAL_ECHOLNPGM("retracting ", AS_DIGIT(retracting));
     SERIAL_ECHOLNPGM("swapping ", AS_DIGIT(swapping));
     SERIAL_ECHOLNPGM("active_extruder ", active_extruder);
-    LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPGM("retracted[", i, "] ", AS_DIGIT(retracted[i]));
+    EXTRUDER_LOOP() {
+      SERIAL_ECHOLNPGM("retracted[", e, "] ", AS_DIGIT(retracted[e]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPGM("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
+        SERIAL_ECHOLNPGM("retracted_swap[", e, "] ", AS_DIGIT(retracted_swap[e]));
       #endif
     }
     SERIAL_ECHOLNPGM("current_position.z ", current_position.z);

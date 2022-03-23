@@ -93,12 +93,12 @@
     }
     #else
       SERIAL_ECHOLNPGM("  M200 S", parser.volumetric_enabled);
-      LOOP_L_N(i, EXTRUDERS) {
+      EXTRUDER_LOOP() {
         report_echo_start(forReplay);
         SERIAL_ECHOLNPGM(
-          "  M200 T", i, " D", LINEAR_UNIT(planner.filament_size[i])
+          "  M200 T", e, " D", LINEAR_UNIT(planner.filament_size[e])
           #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-            , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+            , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[e])
           #endif
         );
       }

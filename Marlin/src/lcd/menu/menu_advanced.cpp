@@ -109,8 +109,8 @@ void menu_backlash();
       #if EXTRUDERS == 1
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
       #elif HAS_MULTI_EXTRUDER
-        LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 10);
+        EXTRUDER_LOOP()
+          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
       #endif
     #endif
 
@@ -120,16 +120,16 @@ void menu_backlash();
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
         EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
         #if HAS_MULTI_EXTRUDER
-          LOOP_L_N(n, EXTRUDERS)
-            EDIT_ITEM_FAST_N(float42_52, n, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[n], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
+          EXTRUDER_LOOP()
+            EDIT_ITEM_FAST_N(float42_52, e, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[e], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
         #endif
       #endif
 
       if (parser.volumetric_enabled) {
         EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #if HAS_MULTI_EXTRUDER
-          LOOP_L_N(n, EXTRUDERS)
-            EDIT_ITEM_FAST_N(float43, n, MSG_FILAMENT_DIAM_E, &planner.filament_size[n], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+          EXTRUDER_LOOP()
+            EDIT_ITEM_FAST_N(float43, e, MSG_FILAMENT_DIAM_E, &planner.filament_size[e], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
     #endif
@@ -139,14 +139,14 @@ void menu_backlash();
 
       EDIT_ITEM_FAST(float4, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
       #if HAS_MULTI_EXTRUDER
-        LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_FAST_N(float4, n, MSG_FILAMENTUNLOAD_E, &fc_settings[n].unload_length, 0, extrude_maxlength);
+        EXTRUDER_LOOP()
+          EDIT_ITEM_FAST_N(float4, e, MSG_FILAMENTUNLOAD_E, &fc_settings[e].unload_length, 0, extrude_maxlength);
       #endif
 
       EDIT_ITEM_FAST(float4, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
       #if HAS_MULTI_EXTRUDER
-        LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_FAST_N(float4, n, MSG_FILAMENTLOAD_E, &fc_settings[n].load_length, 0, extrude_maxlength);
+        EXTRUDER_LOOP()
+          EDIT_ITEM_FAST_N(float4, e, MSG_FILAMENTLOAD_E, &fc_settings[e].load_length, 0, extrude_maxlength);
       #endif
     #endif
 

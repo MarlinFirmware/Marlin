@@ -1505,7 +1505,7 @@ void Planner::check_axes_activity() {
     volumetric_extruder_feedrate_limit[e] = (lim && siz) ? lim / CIRCLE_AREA(siz * 0.5f) : 0;
   }
   void Planner::calculate_volumetric_extruder_limits() {
-    LOOP_L_N(e, EXTRUDERS) calculate_volumetric_extruder_limit(e);
+    EXTRUDER_LOOP() calculate_volumetric_extruder_limit(e);
   }
 
 #endif
