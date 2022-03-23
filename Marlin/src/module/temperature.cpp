@@ -898,7 +898,7 @@ volatile bool Temperature::raw_temps_ready = false;
     celsius_float_t temp_samples[16];
     uint8_t sample_count = 0;
     uint16_t sample_distance = 1;
-    float t1_time;
+    float t1_time = 0;
 
     while(wait_for_heatup) {
       housekeeping(ms, current_temp, next_report_ms);
@@ -942,31 +942,30 @@ volatile bool Temperature::raw_temps_ready = false;
       set_fan_speed(active_extruder, 255);
       planner.sync_fan_speeds(fan_speed);
       next_test_ms = ms + MPC_dT * 1000;
-      millis_t test_start_time = 0;
+      millis_t settle_end_ms = ms + 30000UL;
+      millis_t test_end_ms = settle_end_ms + 10000UL;
       float total_energy = 0.0f;
 
       while(wait_for_heatup) {
         housekeeping(ms, current_temp, next_report_ms);
 
         if (ELAPSED(ms, next_test_ms)) {
-          // use MPC to control the temperature and once it is at target, track power output for 10s
-          if (test_start_time == 0 && current_temp <= t3)
-            test_start_time = ms;
-          else if (test_start_time != 0) {
-            total_energy += float(MPC_HEATER_POWER) * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT; 
-            if (ELAPSED(ms, test_start_time + 10000UL)) break;
-          }
+          // use MPC to control the temperature, let it settle for 30s and then track power output for 10s
           temp_hotend[active_extruder].soft_pwm_amount = (int)get_pid_output_hotend(active_extruder) >> 1;
+
+          if (ELAPSED(ms, test_end_ms)) break;
+          if (ELAPSED(ms, settle_end_ms))
+            total_energy += float(MPC_HEATER_POWER) * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT; 
 
           next_test_ms += MPC_dT * 1000;
         }
 
-        if (!WITHIN(current_temp, t3 - 10.0f, t3 + 10.0f)) {
+        if (!WITHIN(current_temp, t3 - 15.0f, t3 + 15.0f)) {
           SERIAL_ECHOLNPGM("Temperature error while measuring fan loss");
           break;
         }
       }
-      const float power_fan255 = total_energy * 1000 / (ms - test_start_time);
+      const float power_fan255 = total_energy * 1000 / (test_end_ms - settle_end_ms);
       const float ambient_xfer_coeff_fan255 = power_fan255 / (t3 - ambient_temp);
 
       temp_hotend[active_extruder].target = 0.0f;
@@ -974,6 +973,9 @@ volatile bool Temperature::raw_temps_ready = false;
       set_fan_speed(active_extruder, 0);
       planner.sync_fan_speeds(fan_speed);
     #endif
+
+    if (!wait_for_heatup)
+      SERIAL_ECHOLNPGM("Test was interrupted");
 
     wait_for_heatup = false;
 
