@@ -421,7 +421,7 @@ bool UIFlashStorage::is_present = false;
       uint32_t addr;
       uint8_t buff[write_page_size];
 
-      strcpy_P( (char*) buff, (const char*) filename);
+      strcpy_P((char*)buff, FTOP(filename));
 
       MediaFileReader reader;
       if (!reader.open((char*) buff)) {
