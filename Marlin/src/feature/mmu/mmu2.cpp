@@ -821,6 +821,9 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
       LCD_MESSAGE(MSG_MMU2_RESUMING);
       ATTN_BUZZ(true);
 
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
       if (move_axes && all_axes_homed()) {
         // Move XY to starting position, then Z
         do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
@@ -828,6 +831,8 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         // Move Z_AXIS to saved position
         do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
+
+      #pragma GCC diagnostic pop
     }
   }
 }
