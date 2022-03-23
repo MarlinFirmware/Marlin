@@ -864,7 +864,8 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM("Moving to tuning position");
     TERN_(HAS_FAN, zero_fan_speeds());
     disable_all_heaters();
-    TERN_(HAS_FAN, soft_pwm_amount_fan[active_extruder] = FAN_MAX_PWM);
+    TERN_(HAS_FAN, set_fan_speed(active_extruder, 255));
+    TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
     gcode.home_all_axes(true);
     const xyz_pos_t tuningpos = MPC_TUNING_POS;
     do_blocking_move_to(tuningpos);
@@ -887,7 +888,8 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
-    TERN_(HAS_FAN, soft_pwm_amount_fan[active_extruder] = FAN_OFF_PWM);
+    TERN_(HAS_FAN, set_fan_speed(active_extruder, 0));
+    TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
     SERIAL_ECHOLNPGM("Heating by 130C");
     temp_hotend[active_extruder].soft_pwm_amount = MPC_MAX >> 1;
@@ -937,7 +939,8 @@ volatile bool Temperature::raw_temps_ready = false;
     #if HAS_FAN
       SERIAL_ECHOLNPGM("Testing the fan");
       temp_hotend[active_extruder].target = t3;
-      soft_pwm_amount_fan[active_extruder] = FAN_MAX_PWM;
+      set_fan_speed(active_extruder, 255);
+      planner.sync_fan_speeds(fan_speed);
       next_test_ms = ms + MPC_dT * 1000;
       millis_t test_start_time = 0;
       float total_energy = 0.0f;
@@ -968,7 +971,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
       temp_hotend[active_extruder].target = 0.0f;
       temp_hotend[active_extruder].soft_pwm_amount = 0;
-      soft_pwm_amount_fan[active_extruder] = FAN_OFF_PWM;
+      set_fan_speed(active_extruder, 0);
+      planner.sync_fan_speeds(fan_speed);
     #endif
 
     wait_for_heatup = false;
