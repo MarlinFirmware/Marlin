@@ -630,8 +630,7 @@
   #define MPC_MAX BANG_MAX                          // Limits current to nozzle while MPC is active; 255=full current.
   #define MPC_HEATER_POWER 36.0f                    // 36W for a 12V, 4ohm heater cartridge.
 
-  // Model fan speed. Assumes every extruder has a fan with the same numbering.
-  #define MPC_INCLUDE_FAN
+  #define MPC_INCLUDE_FAN                           // Model fan speed.
 
   #define MPC_AMBIENT 19.0f                         // Room temperature in °C when calibrating MPC.
 
