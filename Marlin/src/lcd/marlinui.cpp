@@ -1206,7 +1206,7 @@ void MarlinUI::init() {
     #define ADC_BUTTON_VALUE(r)  raw_adc_t(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
 
     static constexpr raw_adc_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
-                                   adc_other_button = HAL_ADC_RANGE * 1000 / 1024;
+                                   adc_other_button = raw_adc_t(uint32_t(HAL_ADC_RANGE * 1000UL) / 1024UL);
     static const _stADCKeypadTable_ stADCKeyTable[] PROGMEM = {
       // VALUE_MIN, VALUE_MAX, KEY
       { adc_other_button, HAL_ADC_RANGE, 1 + BLEN_KEYPAD_F1     }, // F1
