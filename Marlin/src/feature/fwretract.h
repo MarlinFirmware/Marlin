@@ -64,7 +64,7 @@ public:
   static void reset();
 
   static void refresh_autoretract() {
-    LOOP_L_N(i, EXTRUDERS) retracted[i] = false;
+    EXTRUDER_LOOP() retracted[e] = false;
   }
 
   static void enable_autoretract(const bool enable) {

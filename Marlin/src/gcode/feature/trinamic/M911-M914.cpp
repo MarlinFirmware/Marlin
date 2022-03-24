@@ -457,92 +457,48 @@
       switch (i) {
         #if X_SENSORLESS
           case X_AXIS:
-            #if AXIS_HAS_STALLGUARD(X)
-              if (index < 2) stepperX.homing_threshold(value);
-            #endif
-            #if AXIS_HAS_STALLGUARD(X2)
-              if (!(index & 1)) stepperX2.homing_threshold(value);
-            #endif
+            if (index < 2) stepperX.homing_threshold(value);
+            TERN_(X2_SENSORLESS, if (!(index & 1)) stepperX2.homing_threshold(value));
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
-            #if AXIS_HAS_STALLGUARD(Y)
-              if (index < 2) stepperY.homing_threshold(value);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Y2)
-              if (!(index & 1)) stepperY2.homing_threshold(value);
-            #endif
+            if (index < 2) stepperY.homing_threshold(value);
+            TERN_(Y2_SENSORLESS, if (!(index & 1)) stepperY2.homing_threshold(value));
             break;
         #endif
         #if Z_SENSORLESS
           case Z_AXIS:
-            #if AXIS_HAS_STALLGUARD(Z)
-              if (index < 2) stepperZ.homing_threshold(value);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z2)
-              if (index == 0 || index == 2) stepperZ2.homing_threshold(value);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z3)
-              if (index == 0 || index == 3) stepperZ3.homing_threshold(value);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z4)
-              if (index == 0 || index == 4) stepperZ4.homing_threshold(value);
-            #endif
+            if (index < 2) stepperZ.homing_threshold(value);
+            TERN_(Z2_SENSORLESS, if (index == 0 || index == 2) stepperZ2.homing_threshold(value));
+            TERN_(Z3_SENSORLESS, if (index == 0 || index == 3) stepperZ3.homing_threshold(value));
+            TERN_(Z4_SENSORLESS, if (index == 0 || index == 4) stepperZ4.homing_threshold(value));
             break;
         #endif
-        #if I_SENSORLESS && AXIS_HAS_STALLGUARD(I)
+        #if I_SENSORLESS
           case I_AXIS: stepperI.homing_threshold(value); break;
         #endif
-        #if J_SENSORLESS && AXIS_HAS_STALLGUARD(J)
+        #if J_SENSORLESS
           case J_AXIS: stepperJ.homing_threshold(value); break;
         #endif
-        #if K_SENSORLESS && AXIS_HAS_STALLGUARD(K)
+        #if K_SENSORLESS
           case K_AXIS: stepperK.homing_threshold(value); break;
         #endif
       }
     }
 
     if (report) {
-      #if X_SENSORLESS
-        #if AXIS_HAS_STALLGUARD(X)
-          tmc_print_sgt(stepperX);
-        #endif
-        #if AXIS_HAS_STALLGUARD(X2)
-          tmc_print_sgt(stepperX2);
-        #endif
-      #endif
-      #if Y_SENSORLESS
-        #if AXIS_HAS_STALLGUARD(Y)
-          tmc_print_sgt(stepperY);
-        #endif
-        #if AXIS_HAS_STALLGUARD(Y2)
-          tmc_print_sgt(stepperY2);
-        #endif
-      #endif
-      #if Z_SENSORLESS
-        #if AXIS_HAS_STALLGUARD(Z)
-          tmc_print_sgt(stepperZ);
-        #endif
-        #if AXIS_HAS_STALLGUARD(Z2)
-          tmc_print_sgt(stepperZ2);
-        #endif
-        #if AXIS_HAS_STALLGUARD(Z3)
-          tmc_print_sgt(stepperZ3);
-        #endif
-        #if AXIS_HAS_STALLGUARD(Z4)
-          tmc_print_sgt(stepperZ4);
-        #endif
-      #endif
-      #if I_SENSORLESS && AXIS_HAS_STALLGUARD(I)
-        tmc_print_sgt(stepperI);
-      #endif
-      #if J_SENSORLESS && AXIS_HAS_STALLGUARD(J)
-        tmc_print_sgt(stepperJ);
-      #endif
-      #if K_SENSORLESS && AXIS_HAS_STALLGUARD(K)
-        tmc_print_sgt(stepperK);
-      #endif
+      TERN_(X_SENSORLESS, tmc_print_sgt(stepperX));
+      TERN_(X2_SENSORLESS, tmc_print_sgt(stepperX2));
+      TERN_(Y_SENSORLESS, tmc_print_sgt(stepperY));
+      TERN_(Y2_SENSORLESS, tmc_print_sgt(stepperY2));
+      TERN_(Z_SENSORLESS, tmc_print_sgt(stepperZ));
+      TERN_(Z2_SENSORLESS, tmc_print_sgt(stepperZ2));
+      TERN_(Z3_SENSORLESS, tmc_print_sgt(stepperZ3));
+      TERN_(Z4_SENSORLESS, tmc_print_sgt(stepperZ4));
+      TERN_(I_SENSORLESS, tmc_print_sgt(stepperI));
+      TERN_(J_SENSORLESS, tmc_print_sgt(stepperJ));
+      TERN_(K_SENSORLESS, tmc_print_sgt(stepperK));
     }
   }
 
