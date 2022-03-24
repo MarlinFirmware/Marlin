@@ -256,8 +256,51 @@
 
     #endif
 
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+
+      #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_BTT_SKR_MINI_E3_V3_0.h' for details. Comment out this line to continue."
+
+      /**
+       *
+       *                 Board                               Display
+       *                 ------                               ------
+       *    (EN2)  PB5  |10  9 | PA15(BTN_ENC)            5V |10  9 | GND
+       *  (LCD_CS) PA9  | 8  7 | RST (RESET)              -- | 8  7 | --
+       *  (LCD_A0) PA10 |#6  5 | PB9 (EN1)            (DIN)  | 6  5#| (RESET)
+       *  (LCD_SCK)PB8  | 4  3 | PD6 (MOSI)         (LCD_A0) | 4  3 | (LCD_CS)
+       *            GND | 2  1 | 5V                (BTN_ENC) | 2  1 | --
+       *                 ------                               ------
+       *                  EXP1                                 EXP1
+       *
+       *                                                      ------
+       *                                                  -- |10  9 | --
+       *                   ---                       (RESET) | 8  7 | --
+       *                  | 3 |                      (MOSI)  | 6  5#| (EN2)
+       *                  | 2 | (DIN)                     -- | 4  3 | (EN1)
+       *                  | 1 |                     (LCD_SCK)| 2  1 | --
+       *                   ---                                ------
+       *                Neopixel                               EXP2
+       *
+       * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
+       *
+       * Check twice index position!!! (marked as # here)
+       * On BTT boards pins from IDC10 connector are numbered in unusual order.
+       */
+    #define BTN_ENC                  EXP1_09_PIN
+    #define BTN_EN1                         PB9
+    #define BTN_EN2                         PB5
+    #define BEEPER_PIN                      -1
+
+    #define DOGLCD_CS                       PA9
+    #define DOGLCD_A0                       PA10
+    #define DOGLCD_SCK                      PB8
+    #define DOGLCD_MOSI                     PD6
+
+    #define FORCE_SOFT_SPI
+    #define LCD_BACKLIGHT_PIN               -1
+
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_WIRED_LCD
