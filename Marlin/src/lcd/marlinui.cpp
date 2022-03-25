@@ -593,7 +593,7 @@ void MarlinUI::init() {
       // share the same line on the display.
       //
 
-      #if DISABLED(PROGRESS_MSG_ONCE) || (PROGRESS_MSG_EXPIRE > 0)
+      #if DISABLED(PROGRESS_MSG_ONCE) || PROGRESS_MSG_EXPIRE > 0
         #define GOT_MS
         const millis_t ms = millis();
       #endif
@@ -1420,6 +1420,7 @@ void MarlinUI::init() {
     #if SERVICE_INTERVAL_3 > 0
       static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
+
     FSTR_P msg;
     if (printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
@@ -1450,13 +1451,18 @@ void MarlinUI::init() {
     set_status(msg, -1);
   }
 
+  /**
+   * Set Status with a fixed string and alert level.
+   * @param fstr  A constant F-string to set as the status.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   */
   void MarlinUI::set_status(FSTR_P const fstr, int8_t level) {
-    PGM_P const pstr = FTOP(fstr);
+    // Alerts block lower priority messages
     if (level < 0) level = alert_level = 0;
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
+    PGM_P const pstr = FTOP(fstr);
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1475,6 +1481,8 @@ void MarlinUI::init() {
     uint8_t maxLen = pend - pstr;
     strncpy_P(status_message, pstr, maxLen);
     status_message[maxLen] = '\0';
+
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
 
     finish_status(level > 0);
   }
