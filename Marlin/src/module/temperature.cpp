@@ -3631,7 +3631,7 @@ void Temperature::isr() {
   #endif
 
   #if HAS_HOTEND && HAS_STATUS_MESSAGE
-    void Temperature::set_heating_message(const uint8_t e) {
+    void Temperature::set_heating_message(const uint8_t e, const bool isM104/*=false*/) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf(0,
         #if HAS_MULTI_HOTEND
@@ -3641,6 +3641,14 @@ void Temperature::isr() {
         #endif
         , heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING)
       );
+
+      if (isM104) {
+        static uint8_t wait_e; wait_e = e;
+        ui.set_status_reset_fn([]{
+          const celsius_t c = degTargetHotend(wait_e);
+          return c < 30 || degHotendNear(wait_e, c);
+        });
+      }
     }
   #endif
 
