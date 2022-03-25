@@ -76,7 +76,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #if HAS_STATUS_MESSAGE_TIMEOUT
     millis_t MarlinUI::status_message_expire_ms; // = 0
   #endif
-  statusResetFunc_t MarlinUI::reset_status_callback; // = nullptr
+  statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -631,7 +631,7 @@ void MarlinUI::init() {
 
     #endif // BASIC_PROGRESS_BAR
 
-    bool did_expire = reset_status_callback && (*reset_status_callback)();
+    bool did_expire = status_reset_callback && (*status_reset_callback)();
 
     #if HAS_STATUS_MESSAGE_TIMEOUT
       #ifndef GOT_MS

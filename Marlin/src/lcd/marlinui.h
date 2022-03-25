@@ -359,8 +359,8 @@ public:
     static void set_alert_status(FSTR_P const fstr);
     static void reset_alert_level() { alert_level = 0; }
 
-    static statusResetFunc_t reset_status_callback;
-    static void set_status_reset_fn(const statusResetFunc_t fn=nullptr) { reset_status_callback = fn; }
+    static statusResetFunc_t status_reset_callback;
+    static void set_status_reset_fn(const statusResetFunc_t fn=nullptr) { status_reset_callback = fn; }
   #else
     static constexpr bool has_status() { return false; }
     static void reset_status(const bool=false) {}
