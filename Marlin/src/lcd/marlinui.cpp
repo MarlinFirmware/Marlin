@@ -73,6 +73,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
+  statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -626,6 +627,9 @@ void MarlinUI::init() {
       #endif // PROGRESS_MSG_EXPIRE
 
     #endif // BASIC_PROGRESS_BAR
+
+    if (status_reset_callback && (*status_reset_callback)())
+      reset_status();
 
     #if HAS_MARLINUI_MENU
       if (use_click()) {
@@ -1514,6 +1518,8 @@ void MarlinUI::init() {
   void MarlinUI::finish_status(const bool persist) {
 
     UNUSED(persist);
+
+    set_status_reset_fn();
 
     #if HAS_WIRED_LCD
 
