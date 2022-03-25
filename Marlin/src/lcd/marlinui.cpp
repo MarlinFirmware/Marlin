@@ -73,8 +73,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
-  millis_t MarlinUI::status_message_reset_ms; // = 0
-
+  #if HAS_STATUS_MESSAGE_TIMEOUT
+    millis_t MarlinUI::status_message_expire_ms; // = 0
+  #endif
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -629,12 +630,12 @@ void MarlinUI::init() {
 
     #endif // BASIC_PROGRESS_BAR
 
-    #if HAS_STATUS_MESSAGE
+    #if HAS_STATUS_MESSAGE_TIMEOUT
       #ifndef GOT_MS
         #define GOT_MS
         const millis_t ms = millis();
       #endif
-      if (status_message_reset_ms && ELAPSED(ms, status_message_reset_ms))
+      if (status_message_expire_ms && ELAPSED(ms, status_message_expire_ms))
         reset_status();
     #endif
 
@@ -1388,10 +1389,6 @@ void MarlinUI::init() {
     #include "extui/ui_api.h"
   #endif
 
-  #ifndef STATUS_MESSAGE_TIMEOUT
-    #define STATUS_MESSAGE_TIMEOUT 15000
-  #endif
-
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
 
   void MarlinUI::set_status(const char * const cstr, const bool persist) {
@@ -1417,8 +1414,6 @@ void MarlinUI::init() {
     uint8_t maxLen = pend - cstr;
     strncpy(status_message, cstr, maxLen);
     status_message[maxLen] = '\0';
-
-    status_message_reset_ms = (persist ? 0 : millis() + STATUS_MESSAGE_TIMEOUT);
 
     finish_status(persist);
   }
@@ -1469,20 +1464,10 @@ void MarlinUI::init() {
   }
 
   void MarlinUI::set_status(FSTR_P const fstr, int8_t level) {
+
+    if (ABS(level) < alert_level) return;
+
     PGM_P const pstr = FTOP(fstr);
-
-    if (level < 0) {
-      status_message_reset_ms = 0;
-      level = alert_level = 0;
-    }
-    else if (level < alert_level)
-      return;
-    else
-      status_message_reset_ms = millis() + STATUS_MESSAGE_TIMEOUT;
-
-    alert_level = level;
-
-    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1502,7 +1487,12 @@ void MarlinUI::init() {
     strncpy_P(status_message, pstr, maxLen);
     status_message[maxLen] = '\0';
 
-    finish_status(level > 0);
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
+
+    const bool persist = level < 0;
+    if (persist) level = 0;
+    alert_level = level;
+    finish_status(persist);
   }
 
   void MarlinUI::set_alert_status(FSTR_P const fstr) {
@@ -1515,17 +1505,8 @@ void MarlinUI::init() {
 
   void MarlinUI::status_printf(int8_t level, FSTR_P const fmt, ...) {
 
-    if (ABS(level) < alert_level)
-      return;
+    if (ABS(level) < alert_level) return;
 
-    if (level < 0) {
-      status_message_reset_ms = 0;
-      level = alert_level = 0;
-    }
-    else
-      status_message_reset_ms = millis() + STATUS_MESSAGE_TIMEOUT ;
-
-    alert_level = level;
     va_list args;
     va_start(args, FTOP(fmt));
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, FTOP(fmt), args);
@@ -1533,12 +1514,15 @@ void MarlinUI::init() {
 
     TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
 
-    finish_status(level > 0);
+    const bool persist = level < 0;
+    if (persist) level = 0;
+    alert_level = level;
+    finish_status(persist);
   }
 
   void MarlinUI::finish_status(const bool persist) {
 
-    UNUSED(persist);
+    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL);
 
     #if HAS_WIRED_LCD
 

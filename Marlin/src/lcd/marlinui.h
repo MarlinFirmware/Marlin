@@ -345,7 +345,10 @@ public:
 
     static char status_message[];
     static uint8_t alert_level; // Higher levels block lower levels
-    static millis_t status_message_reset_ms; // will reset message if the expired time reached.
+
+    #if HAS_STATUS_MESSAGE_TIMEOUT
+      static millis_t status_message_expire_ms; // Reset some status messages after a timeout
+    #endif
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       static uint8_t status_scroll_offset;
