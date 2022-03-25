@@ -867,7 +867,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM("Moving to tuning position");
     TERN_(HAS_FAN, zero_fan_speeds());
     disable_all_heaters();
-    TERN_(HAS_FAN, set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 255));
+    TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
     gcode.home_all_axes(true);
     const xyz_pos_t tuningpos = MPC_TUNING_POS;
@@ -891,7 +891,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
-    TERN_(HAS_FAN, set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 0));
+    TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
     SERIAL_ECHOLNPGM("Heating to 200C");
@@ -942,7 +942,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #if HAS_FAN
       SERIAL_ECHOLNPGM("Testing the fan");
       temp_hotend[active_extruder].target = t3;
-      set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 255);
+      set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
       planner.sync_fan_speeds(fan_speed);
       next_test_ms = ms + MPC_dT * 1000;
       millis_t settle_end_ms = ms + 30000UL;
@@ -973,7 +973,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
       temp_hotend[active_extruder].target = 0.0f;
       temp_hotend[active_extruder].soft_pwm_amount = 0;
-      set_fan_speed(FAN_COUNT == 1 ? 0 : active_extruder, 0);
+      set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
       planner.sync_fan_speeds(fan_speed);
     #endif
 
@@ -1366,16 +1366,17 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         temp_hotend[ee].modeled_block_temp = temp_hotend[ee].modeled_sensor_temp = temp_hotend[ee].celsius;
       }
 
-      float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
-      #if ENABLED(MPC_INCLUDE_FAN)
-        const float fan_fraction = (float)fan_speed[FAN_COUNT == 1 ? 0 : ee] / 255;
-        ambient_xfer_coeff += fan_fraction * fan255_adjustment;
-      #endif
-
       #if HOTENDS == 1
         constexpr bool this_hotend = true;
       #else
         const bool this_hotend = (ee == active_extruder);
+      #endif
+
+      float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
+      #if ENABLED(MPC_INCLUDE_FAN)
+        const uint8_t fan_index = ANY(MPC_FAN_0_ACTIVE_HOTEND, MPC_FAN_0_ALL_HOTENDS) ? 0 : ee;
+        const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) (float)fan_speed[fan_index] * RECIPROCAL(255);
+        ambient_xfer_coeff += fan_fraction * fan255_adjustment;
       #endif
 
       if (this_hotend) {
