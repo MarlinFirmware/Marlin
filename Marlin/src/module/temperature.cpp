@@ -3644,7 +3644,10 @@ void Temperature::isr() {
 
       if (isM104) {
         static uint8_t wait_e; wait_e = e;
-        ui.set_status_reset_fn([]{ return degHotendNear(wait_e, degTargetHotend(wait_e)); });
+        ui.set_status_reset_fn([]{
+          const celsius_t c = degTargetHotend(wait_e);
+          return c < 30 || degHotendNear(wait_e, c);
+        });
       }
     }
   #endif
