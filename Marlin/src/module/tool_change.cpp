@@ -89,7 +89,7 @@
   #include "../feature/mmu/mmu2.h"
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   #include "../lcd/marlinui.h"
 #endif
 
@@ -385,65 +385,59 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // PARKING_EXTRUDER
 
-#if ENABLED(SWITCHING_TOOLHEAD)
+#if ENABLED(TOOL_SENSOR)
+
+  bool tool_sensor_disabled; // = false
 
   // Return a bitmask of tool sensor states
   inline uint8_t poll_tool_sensor_pins() {
     return (0
-      #if ENABLED(TOOL_SENSOR)
-        #if PIN_EXISTS(TOOL_SENSOR1)
-          | (READ(TOOL_SENSOR1_PIN) << 0)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR2)
-          | (READ(TOOL_SENSOR2_PIN) << 1)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR3)
-          | (READ(TOOL_SENSOR3_PIN) << 2)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR4)
-          | (READ(TOOL_SENSOR4_PIN) << 3)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR5)
-          | (READ(TOOL_SENSOR5_PIN) << 4)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR6)
-          | (READ(TOOL_SENSOR6_PIN) << 5)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR7)
-          | (READ(TOOL_SENSOR7_PIN) << 6)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR8)
-          | (READ(TOOL_SENSOR8_PIN) << 7)
-        #endif
+      #if PIN_EXISTS(TOOL_SENSOR1)
+        | (READ(TOOL_SENSOR1_PIN) << 0)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR2)
+        | (READ(TOOL_SENSOR2_PIN) << 1)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR3)
+        | (READ(TOOL_SENSOR3_PIN) << 2)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR4)
+        | (READ(TOOL_SENSOR4_PIN) << 3)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR5)
+        | (READ(TOOL_SENSOR5_PIN) << 4)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR6)
+        | (READ(TOOL_SENSOR6_PIN) << 5)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR7)
+        | (READ(TOOL_SENSOR7_PIN) << 6)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR8)
+        | (READ(TOOL_SENSOR8_PIN) << 7)
       #endif
     );
   }
 
-  #if ENABLED(TOOL_SENSOR)
-
-    bool tool_sensor_disabled; // = false
-
-    uint8_t check_tool_sensor_stats(const uint8_t tool_index, const bool kill_on_error/*=false*/, const bool disable/*=false*/) {
-      static uint8_t sensor_tries; // = 0
-      for (;;) {
-        if (poll_tool_sensor_pins() == _BV(tool_index)) {
-          sensor_tries = 0;
-          return tool_index;
-        }
-        else if (kill_on_error && (!tool_sensor_disabled || disable)) {
-          sensor_tries++;
-          if (sensor_tries > 10) kill(F("Tool Sensor error"));
-          safe_delay(5);
-        }
-        else {
-          sensor_tries++;
-          if (sensor_tries > 10) return -1;
-          safe_delay(5);
-        }
+  uint8_t check_tool_sensor_stats(const uint8_t tool_index, const bool kill_on_error/*=false*/, const bool disable/*=false*/) {
+    static uint8_t sensor_tries; // = 0
+    for (;;) {
+      if (poll_tool_sensor_pins() == _BV(tool_index)) {
+        sensor_tries = 0;
+        return tool_index;
+      }
+      else if (kill_on_error && (!tool_sensor_disabled || disable)) {
+        sensor_tries++;
+        if (sensor_tries > 10) kill(F("Tool Sensor error"));
+        safe_delay(5);
+      }
+      else {
+        sensor_tries++;
+        if (sensor_tries > 10) return -1;
+        safe_delay(5);
       }
     }
-
-  #endif
+  }
 
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
@@ -496,8 +490,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         switching_toolhead_lock(true);
       }
       LCD_MESSAGE_F("TC Success");
-    #endif
+    #endif // TOOL_SENSOR
   }
+
+#endif // TOOL_SENSOR
+
+#if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
@@ -1027,7 +1025,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       DEBUG_ECHOLNPGM("No move (not homed)");
     }
 
-    TERN_(HAS_LCD_MENU, if (!no_move) ui.update());
+    TERN_(HAS_MARLINUI_MENU, if (!no_move) ui.update());
 
     #if ENABLED(DUAL_X_CARRIAGE)
       const bool idex_full_control = dual_x_carriage_mode == DXC_FULL_CONTROL_MODE;
@@ -1292,7 +1290,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
       disable_all_solenoids();
-      enable_solenoid_on_active_extruder();
+      enable_solenoid(active_extruder);
     #endif
 
     #if HAS_PRUSA_MMU1

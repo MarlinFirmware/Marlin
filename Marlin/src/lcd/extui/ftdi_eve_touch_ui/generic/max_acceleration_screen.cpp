@@ -41,13 +41,13 @@ void MaxAccelerationScreen::onRedraw(draw_mode_t what) {
     w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E), getAxisMaxAcceleration_mm_s2(E0) );
   #elif DISTINCT_E > 1
     w.heading(GET_TEXT_F(MSG_AMAX_E));
-    w.color(e_axis).adjuster( 8, F(LCD_STR_E0), getAxisMaxAcceleration_mm_s2(E0) );
-    w.color(e_axis).adjuster(10, F(LCD_STR_E1), getAxisMaxAcceleration_mm_s2(E1) );
+    w.color(e_axis).adjuster( 8, F(STR_E0), getAxisMaxAcceleration_mm_s2(E0) );
+    w.color(e_axis).adjuster(10, F(STR_E1), getAxisMaxAcceleration_mm_s2(E1) );
     #if DISTINCT_E > 2
-    w.color(e_axis).adjuster(12, F(LCD_STR_E2), getAxisMaxAcceleration_mm_s2(E2) );
-    #endif
-    #if DISTINCT_E > 3
-    w.color(e_axis).adjuster(14, F(LCD_STR_E3), getAxisMaxAcceleration_mm_s2(E3) );
+      w.color(e_axis).adjuster(12, F(STR_E2), getAxisMaxAcceleration_mm_s2(E2) );
+      #if DISTINCT_E > 3
+        w.color(e_axis).adjuster(14, F(STR_E3), getAxisMaxAcceleration_mm_s2(E3) );
+      #endif
     #endif
   #endif
   w.increments();
@@ -65,19 +65,18 @@ bool MaxAccelerationScreen::onTouchHeld(uint8_t tag) {
     case  8: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E0); break;
     case  9: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E0); break;
     #if DISTINCT_E > 1
-    case 10: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E1); break;
-    case 11: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E1); break;
+      case 10: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E1); break;
+      case 11: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E1); break;
+      #if DISTINCT_E > 2
+        case 12: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E2); break;
+        case 13: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E2); break;
+        #if DISTINCT_E > 3
+          case 14: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E3); break;
+          case 15: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E3); break;
+        #endif
+      #endif
     #endif
-    #if DISTINCT_E > 2
-    case 12: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E2); break;
-    case 13: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E2); break;
-    #endif
-    #if DISTINCT_E > 3
-    case 14: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E3); break;
-    case 15: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E3); break;
-    #endif
-    default:
-      return false;
+    default: return false;
   }
   return true;
 }

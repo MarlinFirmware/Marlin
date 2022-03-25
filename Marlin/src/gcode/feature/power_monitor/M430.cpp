@@ -53,9 +53,7 @@ void GcodeSuite::M430() {
     SERIAL_ECHOLNPGM(
       #if ENABLED(POWER_MONITOR_CURRENT)
         "Current: ", power_monitor.getAmps(), "A"
-        #if ENABLED(POWER_MONITOR_VOLTAGE)
-          "  "
-        #endif
+        TERN_(POWER_MONITOR_VOLTAGE, "  ")
       #endif
       #if ENABLED(POWER_MONITOR_VOLTAGE)
         "Voltage: ", power_monitor.getVolts(), "V"

@@ -81,9 +81,18 @@ if pioutil.is_pio_build():
 		#
 		# Give warnings on every build
 		#
-		warnfile = os.path.join(env['PROJECT_BUILD_DIR'], build_env, "src", "src", "inc", "Warnings.cpp.o")
+		srcpath = os.path.join(env['PROJECT_BUILD_DIR'], build_env, "src", "src")
+		warnfile = os.path.join(srcpath, "inc", "Warnings.cpp.o")
 		if os.path.exists(warnfile):
 			os.remove(warnfile)
+
+		#
+		# Rebuild 'settings.cpp' for EEPROM_INIT_NOW
+		#
+		if 'EEPROM_INIT_NOW' in env['MARLIN_FEATURES']:
+			setfile = os.path.join(srcpath, "module", "settings.cpp.o")
+			if os.path.exists(setfile):
+				os.remove(setfile)
 
 		#
 		# Check for old files indicating an entangled Marlin (mixing old and new code)

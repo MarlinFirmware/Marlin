@@ -89,16 +89,19 @@
 #define HEATER_BED_PIN                      PA8   // pin 67 (Hot Bed Mosfet)
 
 #define FAN_PIN                             PA15  // pin 77 (4cm Fan)
-#ifdef MAPLE_STM32F1
-  #define FAN_SOFT_PWM                            // Required to avoid issues with heating or STLink
-  #define FAN_MIN_PWM                         35  // Fan will not start in 1-30 range
-  #define FAN_MAX_PWM                        255
+
+#if TERN(MAPLE_STM32F1, ENABLED(FAN_SOFT_PWM), ENABLED(FAST_PWM_FAN)) && FAN_MIN_PWM < 5 // Required to avoid issues with heating or STLink
+  #error "FAN_MIN_PWM must be 5 or higher."       // Fan will not start in 1-30 range
+#endif
+
+#if defined(MAPLE_STM32F1) || DISABLED(FAST_PWM_FAN) // STM32 HAL required to allow TIMER2 Hardware PWM
+  #define FAN_SOFT_PWM_REQUIRED
 #else
-  #define FAST_PWM_FAN                            // STM32 Variant allow TIMER2 Hardware PWM
-  #define FAST_PWM_FAN_FREQUENCY           31400  // This frequency allow a good range, fan starts at 3%, half noise at 50%
-  #define NEEDS_HARDWARE_PWM                   1
-  #define FAN_MIN_PWM                          5
-  #define FAN_MAX_PWM                        255
+  #if FAST_PWM_FAN_FREQUENCY <= 1000              // Default 1000 is noisy, max 65K (uint16)
+    #error "FAST_PWM_FAN_FREQUENCY must be greater than 1000."
+  #elif FAST_PWM_FAN_FREQUENCY > 65535
+    #error "FAST_PWM_FAN_FREQUENCY must be less than 65536."
+  #endif
 #endif
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
@@ -154,7 +157,7 @@
 
 #if defined(TFT_BACKLIGHT_PWM) && !defined(MAPLE_STM32F1)
   #define HAS_LCD_BRIGHTNESS 1
-  #define DEFAULT_LCD_BRIGHTNESS TFT_BACKLIGHT_PWM
+  #define LCD_BRIGHTNESS_DEFAULT TFT_BACKLIGHT_PWM
 #endif
 
 #if ENABLED(SDIO_SUPPORT)

@@ -49,6 +49,9 @@
  *    L<linear> = Override retract Length
  *    X<pos>    = Override park position X
  *    Y<pos>    = Override park position Y
+ *    A<pos>    = Override park position A (requires AXIS*_NAME 'A')
+ *    B<pos>    = Override park position B (requires AXIS*_NAME 'B')
+ *    C<pos>    = Override park position C (requires AXIS*_NAME 'C')
  *    Z<linear> = Override Z raise
  *
  *  With an LCD menu:
@@ -60,9 +63,15 @@ void GcodeSuite::M125() {
 
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
-  // Move XY axes to filament change position or given position
-  if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));
-  if (parser.seenval('Y')) park_point.y = RAW_X_POSITION(parser.linearval('Y'));
+  // Move to filament change position or given position
+  LINEAR_AXIS_CODE(
+    if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X')),
+    if (parser.seenval('Y')) park_point.y = RAW_Y_POSITION(parser.linearval('Y')),
+    NOOP,
+    if (parser.seenval(AXIS4_NAME)) park_point.i = RAW_I_POSITION(parser.linearval(AXIS4_NAME)),
+    if (parser.seenval(AXIS5_NAME)) park_point.j = RAW_J_POSITION(parser.linearval(AXIS5_NAME)),
+    if (parser.seenval(AXIS6_NAME)) park_point.k = RAW_K_POSITION(parser.linearval(AXIS6_NAME))
+  );
 
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
@@ -76,7 +85,7 @@ void GcodeSuite::M125() {
   ui.pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);
 
   // If possible, show an LCD prompt with the 'P' flag
-  const bool show_lcd = TERN0(HAS_LCD_MENU, parser.boolval('P'));
+  const bool show_lcd = TERN0(HAS_MARLINUI_MENU, parser.boolval('P'));
 
   if (pause_print(retract, park_point, show_lcd, 0)) {
     if (ENABLED(EXTENSIBLE_UI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT) || !sd_printing || show_lcd) {

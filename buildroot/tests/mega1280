@@ -28,6 +28,12 @@ opt_enable SPINDLE_FEATURE ULTIMAKERCONTROLLER LCD_BED_LEVELING \
 exec_test $1 $2 "Spindle, MESH_BED_LEVELING, closed loop, Power Monitor, and LCD" "$3"
 
 #
+# ...and without PWM
+#
+opt_disable SPINDLE_LASER_USE_PWM
+exec_test $1 $2 "(No PWM)" "$3"
+
+#
 # Test DUAL_X_CARRIAGE
 #
 restore_configs

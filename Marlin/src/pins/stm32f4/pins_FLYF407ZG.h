@@ -33,8 +33,8 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 // Avoid conflict with fans and TIMER_TONE
-#define TEMP_TIMER                             3
-#define STEP_TIMER                             5
+#define TEMP_TIMER  3
+#define STEP_TIMER  5
 
 //
 // EEPROM Emulation
@@ -181,7 +181,7 @@
  *  PE14 | 8  7 | PE12    PC5  | 8  7 | PF11
  *  PE10   6  5 | PE9     PC4    6  5 | PB15
  *  PE8  | 4  3 | PE7     PB2  | 4  3 | RESET
- *  GND  | 2  1 | 5V      GND  | 2  1 | NC
+ *   GND | 2  1 | 5V       GND | 2  1 | --
  *        ------                ------
  *         EXP1                  EXP2
  */

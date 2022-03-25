@@ -43,7 +43,7 @@
  *
  *  If no PWM pin is defined then M3/M4 just turns it on.
  *
- *  At least 12.8KHz (50Hz * 256) is needed for Spindle PWM.
+ *  At least 12.8kHz (50Hz * 256) is needed for Spindle PWM.
  *  Hardware PWM is required on AVR. ISRs are too slow.
  *
  * NOTE: WGM for timers 3, 4, and 5 must be either Mode 1 or Mode 5.
@@ -66,21 +66,23 @@
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
-  auto get_s_power = [] {
-    if (parser.seenval('S')) {
-      const float spwr = parser.value_float();
-      #if ENABLED(SPINDLE_SERVO)
-        cutter.unitPower = spwr;
-      #else
-        cutter.unitPower = TERN(SPINDLE_LASER_USE_PWM,
-                              cutter.power_to_range(cutter_power_t(round(spwr))),
-                              spwr > 0 ? 255 : 0);
-      #endif
-    }
-    else
-      cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
-    return cutter.unitPower;
-  };
+  #if EITHER(SPINDLE_LASER_USE_PWM, SPINDLE_SERVO)
+    auto get_s_power = [] {
+      if (parser.seenval('S')) {
+        const float spwr = parser.value_float();
+        #if ENABLED(SPINDLE_SERVO)
+          cutter.unitPower = spwr;
+        #else
+          cutter.unitPower = TERN(SPINDLE_LASER_USE_PWM,
+                                cutter.power_to_range(cutter_power_t(round(spwr))),
+                                spwr > 0 ? 255 : 0);
+        #endif
+      }
+      else
+        cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
+      return cutter.unitPower;
+    };
+  #endif
 
   #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {

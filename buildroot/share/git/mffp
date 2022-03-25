@@ -6,7 +6,7 @@
 # By default: `git push upstream HEAD:bugfix-2.0.x`
 #
 
-usage() { echo "usage: `basename $0` [1|2] [ref]" 1>&2 }
+usage() { echo "usage: `basename $0` [1|2] [ref]" 1>&2 ; }
 
 [[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { usage ; exit 1; }
 
@@ -17,7 +17,7 @@ elif [[ $# == 1 ]]; then
   MFINFO=$(mfinfo) || exit 1
   REF=${1:-HEAD}
 else
-  usage
+  usage ; exit 1
 fi
 
 IFS=' ' read -a INFO <<< "$MFINFO"

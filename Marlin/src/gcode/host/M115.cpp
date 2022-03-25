@@ -24,7 +24,6 @@
 #include "../../inc/MarlinConfig.h"
 #include "../queue.h"           // for getting the command port
 
-
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
 #endif
@@ -33,13 +32,25 @@
   #include "../../feature/caselight.h"
 #endif
 
+//#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  static void cap_line(FSTR_P const name, bool ena=false) {
-    SERIAL_ECHOPGM("Cap:");
-    SERIAL_ECHOF(name);
-    SERIAL_CHAR(':', '0' + ena);
-    SERIAL_EOL();
-  }
+  #if ENABLED(MINIMAL_CAP_LINES)
+    #define cap_line(S,C) if (C) _cap_line(S)
+    static void _cap_line(FSTR_P const name) {
+      SERIAL_ECHOPGM("Cap:");
+      SERIAL_ECHOF(name);
+      SERIAL_ECHOLNPGM(":1");
+    }
+  #else
+    #define cap_line(V...) _cap_line(V)
+    static void _cap_line(FSTR_P const name, bool ena=false) {
+      SERIAL_ECHOPGM("Cap:");
+      SERIAL_ECHOF(name);
+      SERIAL_CHAR(':', '0' + ena);
+      SERIAL_EOL();
+    }
+  #endif
 #endif
 
 /**
@@ -131,6 +142,11 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(F("SDCARD"), ENABLED(SDSUPPORT));
 
+    // MULTI_VOLUME (M21 S/M21 U)
+    #if ENABLED(SDSUPPORT)
+      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
+    #endif
+
     // REPEAT (M808)
     cap_line(F("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 
@@ -142,6 +158,15 @@ void GcodeSuite::M115() {
 
     // LONG_FILENAME_HOST_SUPPORT (M33)
     cap_line(F("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
+    // LONG_FILENAME_WRITE_SUPPORT (M23, M28, M30...)
+    cap_line(F("LFN_WRITE"), ENABLED(LONG_FILENAME_WRITE_SUPPORT));
+
+    // CUSTOM_FIRMWARE_UPLOAD (M20 F)
+    cap_line(F("CUSTOM_FIRMWARE_UPLOAD"), ENABLED(CUSTOM_FIRMWARE_UPLOAD));
+
+    // EXTENDED_M20 (M20 L)
+    cap_line(F("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
     // THERMAL_PROTECTION
     cap_line(F("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
@@ -163,6 +188,9 @@ void GcodeSuite::M115() {
 
     // MEATPACK Compression
     cap_line(F("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
+
+    // CONFIG_EXPORT
+    cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

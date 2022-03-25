@@ -38,7 +38,7 @@
 //#define DISABLE_DEBUG
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
@@ -239,7 +239,7 @@
  *   (LCD_EN) PE11 | 8  7 | PD10 (LCD_RS)       (BTN_EN1) PE9  | 8  7 | PA4 (SPI1 CS)
  *   (LCD_D4) PD9    6  5 | PD8  (LCD_D5)       (BTN_EN2) PE8    6  5 | PA7 (SPI1 MOSI)
  *   (LCD_D6) PE15 | 4  3 | PE7  (LCD_D7)       (SPI1_RS) PB11 | 4  3 | RESET
- *            GND  | 2  1 | 5V                             GND | 2  1 | 3.3V
+ *             GND | 2  1 | 5V                             GND | 2  1 | 3.3V
  *                  ------                                      ------
  *                   EXP1                                        EXP2
  */
@@ -261,25 +261,26 @@
 #define EXP2_09_PIN                         PA5
 #define EXP2_10_PIN                         PA6
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#if SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI3
-  #define SD_SS_PIN                         -1
-  #define SDSS                              PC9
-  #define SD_SCK_PIN                        PC10
-  #define SD_MISO_PIN                       PC11
-  #define SD_MOSI_PIN                       PC12
-  #define SD_DETECT_PIN                     PC4   // SD_DETECT_PIN doesn't work with NO_SD_HOST_DRIVE disabled
-#elif SD_CONNECTION_IS(LCD)
-  #define ENABLE_SPI1
-  #define SDSS                       EXP2_07_PIN
-  #define SD_SCK_PIN                 EXP2_09_PIN
-  #define SD_MISO_PIN                EXP2_10_PIN
-  #define SD_MOSI_PIN                EXP2_05_PIN
-  #define SD_DETECT_PIN              EXP2_04_PIN
+#if ENABLED(SDSUPPORT)
+  #ifndef SDCARD_CONNECTION
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+  #if SD_CONNECTION_IS(ONBOARD)
+    #define ENABLE_SPI3
+    #define SD_SS_PIN                       -1
+    #define SDSS                            PC9
+    #define SD_SCK_PIN                      PC10
+    #define SD_MISO_PIN                     PC11
+    #define SD_MOSI_PIN                     PC12
+    #define SD_DETECT_PIN                   PC4   // SD_DETECT_PIN doesn't work with NO_SD_HOST_DRIVE disabled
+  #elif SD_CONNECTION_IS(LCD)
+    #define ENABLE_SPI1
+    #define SDSS                     EXP2_07_PIN
+    #define SD_SCK_PIN               EXP2_09_PIN
+    #define SD_MISO_PIN              EXP2_10_PIN
+    #define SD_MOSI_PIN              EXP2_05_PIN
+    #define SD_DETECT_PIN            EXP2_04_PIN
+  #endif
 #endif
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
@@ -339,17 +340,21 @@
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
-    //#define LCD_BACKLIGHT_PIN             -1
-    //#define LCD_RESET_PIN                 -1
-    #define DOGLCD_A0                       PD11
-    #define DOGLCD_CS                EXP1_04_PIN
-    //#define DOGLCD_SCK             EXP2_09_PIN
-    //#define DOGLCD_MOSI            EXP2_05_PIN
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+    #define ENABLE_SPI1
+    #define FORCE_SOFT_SPI
+    #define DOGLCD_A0                EXP1_04_PIN
+    #define DOGLCD_CS                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP2_09_PIN
+    #define DOGLCD_MOSI              EXP2_05_PIN
+    //#define LCD_BACKLIGHT_PIN               -1
+    //#define LCD_RESET_PIN                   -1
+
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+
+    #define LCD_PINS_DC              EXP1_07_PIN
     #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define LCD_PINS_DC                DOGLCD_A0
+    #define DOGLCD_A0                LCD_PINS_DC
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN            EXP1_06_PIN
     #define NEOPIXEL_PIN             EXP1_05_PIN
@@ -358,7 +363,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-    //#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
 

@@ -43,8 +43,8 @@
   #define min(a,b) ((a)<(b)?(a):(b))
 #else
   namespace UI {
-    static inline uint32_t safe_millis() { return millis(); }
-    static inline void     yield()       {}
+    static uint32_t safe_millis() { return millis(); }
+    static void     yield()       {}
   };
 #endif
 

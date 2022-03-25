@@ -54,7 +54,7 @@
  */
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
-    const int8_t index = parser.intval('I', -1);
+    const pixel_index_t index = parser.intval('I', -1);
     #if ENABLED(NEOPIXEL2_SEPARATE)
       int8_t brightness = neo.brightness(), unit = parser.intval('S', -1);
       switch (unit) {

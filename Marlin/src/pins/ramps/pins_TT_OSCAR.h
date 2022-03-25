@@ -226,7 +226,7 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if EITHER(SPINDLE_FEATURE, LASER_FEATURE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
+#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !NUM_SERVOS                                 // Prefer the servo connector
     #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
@@ -252,15 +252,17 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-//#ifndef E_MUX0_PIN
-//  #define E_MUX0_PIN       58   // Y_CS_PIN
-//#endif
-//#ifndef E_MUX1_PIN
-//  #define E_MUX1_PIN       53   // Z_CS_PIN
-//#endif
-//#ifndef E_MUX2_PIN
-//  #define E_MUX2_PIN       49   // En_CS_PIN
-//#endif
+#if 0 && HAS_PRUSA_MMU1
+  #ifndef E_MUX0_PIN
+    #define E_MUX0_PIN                        58  // Y_CS_PIN
+  #endif
+  #ifndef E_MUX1_PIN
+    #define E_MUX1_PIN                        53  // Z_CS_PIN
+  #endif
+  #ifndef E_MUX2_PIN
+    #define E_MUX2_PIN                        49  // En_CS_PIN
+  #endif
+#endif
 
 //////////////////////////
 // LCDs and Controllers //
@@ -402,7 +404,6 @@
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44
-      #define LCD_SCREEN_ROT_180
 
       #define BEEPER_PIN                      33
       #define STAT_LED_RED_PIN                32
@@ -415,6 +416,8 @@
       #define SDSS                            53
       #define SD_DETECT_PIN                   -1  // Pin 49 for display SD interface, 72 for easy adapter board
       //#define KILL_PIN                      31
+
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
@@ -437,13 +440,6 @@
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25
 
-      // GLCD features
-      //#define LCD_CONTRAST_INIT            190
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       #define BEEPER_PIN                      37
 
       #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
@@ -455,6 +451,9 @@
       #define SD_DETECT_PIN                   49
       //#define KILL_PIN                      64
 
+      //#define LCD_CONTRAST_INIT            190
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+
     #elif ENABLED(MINIPANEL)
 
       #define BEEPER_PIN                      42
@@ -464,13 +463,6 @@
       #define DOGLCD_A0                       44
       #define DOGLCD_CS                       66
 
-      // GLCD features
-      //#define LCD_CONTRAST_INIT            190
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       #define BTN_EN1                         40
       #define BTN_EN2                         63
       #define BTN_ENC                         59
@@ -478,6 +470,9 @@
       #define SDSS                            53
       #define SD_DETECT_PIN                   49
       //#define KILL_PIN                      64
+
+      //#define LCD_CONTRAST_INIT            190
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #else
 

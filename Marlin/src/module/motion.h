@@ -180,19 +180,19 @@ inline float home_bump_mm(const AxisEnum axis) {
               TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
               break;
           #endif
-          #if LINEAR_AXES >= 4
+          #if HAS_I_AXIS
             case I_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_I, amin = min.i);
               TERN_(MIN_SOFTWARE_ENDSTOP_I, amax = max.i);
               break;
           #endif
-          #if LINEAR_AXES >= 5
+          #if HAS_J_AXIS
             case J_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_J, amin = min.j);
               TERN_(MIN_SOFTWARE_ENDSTOP_J, amax = max.j);
               break;
           #endif
-          #if LINEAR_AXES >= 6
+          #if HAS_K_AXIS
             case K_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_K, amin = min.k);
               TERN_(MIN_SOFTWARE_ENDSTOP_K, amax = max.k);
@@ -265,9 +265,11 @@ void report_current_position_projected();
   void report_current_position_moving();
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-    inline void set_and_report_grblstate(const M_StateEnum state) {
-      M_State_grbl = state;
-      report_current_grblstate_moving();
+    inline void set_and_report_grblstate(const M_StateEnum state, const bool force=true) {
+      if (force || M_State_grbl != state) {
+        M_State_grbl = state;
+        report_current_grblstate_moving();
+      }
     }
   #endif
 
@@ -333,15 +335,15 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
 #if HAS_Z_AXIS
   void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s=0.0f);
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s=0.0f);
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s=0.0f);
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -402,7 +404,7 @@ void set_axis_is_at_home(const AxisEnum axis);
   constexpr linear_axis_bits_t axis_homed = linear_bits, axis_trusted = linear_bits; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
-  inline linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return false; }
+  inline linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return 0; }
   inline bool homing_needed_error(linear_axis_bits_t=linear_bits) { return false; }
   inline void set_axis_unhomed(const AxisEnum axis)   {}
   inline void set_axis_untrusted(const AxisEnum axis) {}
@@ -476,15 +478,15 @@ void home_if_needed(const bool keeplev=false);
   #define LOGICAL_Z_POSITION(POS) NATIVE_TO_LOGICAL(POS, Z_AXIS)
   #define RAW_Z_POSITION(POS)     LOGICAL_TO_NATIVE(POS, Z_AXIS)
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define LOGICAL_I_POSITION(POS) NATIVE_TO_LOGICAL(POS, I_AXIS)
   #define RAW_I_POSITION(POS)     LOGICAL_TO_NATIVE(POS, I_AXIS)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define LOGICAL_J_POSITION(POS) NATIVE_TO_LOGICAL(POS, J_AXIS)
   #define RAW_J_POSITION(POS)     LOGICAL_TO_NATIVE(POS, J_AXIS)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define LOGICAL_K_POSITION(POS) NATIVE_TO_LOGICAL(POS, K_AXIS)
   #define RAW_K_POSITION(POS)     LOGICAL_TO_NATIVE(POS, K_AXIS)
 #endif

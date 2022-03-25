@@ -54,13 +54,6 @@
 #define Z_MAX_PIN                             43
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     49
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN                            37  // Support Extension Board
@@ -105,14 +98,12 @@
   #define E2_CS_PIN                           61
 #endif
 
-#if USES_Z_MIN_PROBE_PIN
+#ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     49
 #endif
 
-#if HAS_FILAMENT_SENSOR
-  #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN             Y_MIN_PIN
-  #endif
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN               Y_MIN_PIN
 #endif
 
 //

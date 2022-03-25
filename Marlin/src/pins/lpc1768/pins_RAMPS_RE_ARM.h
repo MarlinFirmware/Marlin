@@ -228,7 +228,7 @@
 
 #define PS_ON_PIN                          P2_12  // (12)
 
-#if !defined(TEMP_0_CS_PIN) && DISABLED(USE_ZMAX_PLUG)
+#if !defined(TEMP_0_CS_PIN) && !(HAS_Z_AXIS && Z_HOME_DIR)
   #define TEMP_0_CS_PIN                    P1_28
 #endif
 
@@ -258,11 +258,13 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
-  #define E_MUX0_PIN                       P0_03  // ( 0) Z_CS_PIN
-  #define E_MUX1_PIN                       P0_02  // ( 1) E0_CS_PIN
+#if HAS_PRUSA_MMU1
+  #if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
+    #define E_MUX0_PIN                     P0_03  // ( 0) Z_CS_PIN
+    #define E_MUX1_PIN                     P0_02  // ( 1) E0_CS_PIN
+  #endif
+  #define E_MUX2_PIN                       P0_26  // (63) E1_CS_PIN
 #endif
-#define E_MUX2_PIN                         P0_26  // (63) E1_CS_PIN
 
 /**
  * LCD / Controller
@@ -348,8 +350,6 @@
   #endif
 
   #if ANY(VIKI2, miniVIKI)
-    //#define LCD_SCREEN_ROT_180
-
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
     #define DOGLCD_SCK                SD_SCK_PIN
@@ -357,6 +357,8 @@
 
     #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
+
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
 
@@ -406,11 +408,7 @@
   #endif
 
   #if ENABLED(MINIPANEL)
-    // GLCD features
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
  #endif
 
 #endif // HAS_WIRED_LCD

@@ -60,7 +60,8 @@ void safe_delay(millis_t ms) {
       TERN_(DELTA,         "Delta")
       TERN_(IS_SCARA,      "SCARA")
       TERN_(IS_CORE,       "Core")
-      TERN_(MARKFORGED_XY, "MarkForged")
+      TERN_(MARKFORGED_XY, "MarkForgedXY")
+      TERN_(MARKFORGED_YX, "MarkForgedYX")
       TERN_(IS_CARTESIAN,  "Cartesian")
     );
 
@@ -73,7 +74,8 @@ void safe_delay(millis_t ms) {
       TERN_(Z_PROBE_SLED, "Z_PROBE_SLED")
       TERN_(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY")
       TERN_(SOLENOID_PROBE, "SOLENOID_PROBE")
-      TERN(PROBE_SELECTED, "", "NONE")
+      TERN_(MAGLEV4, "MAGLEV4")
+      IF_DISABLED(PROBE_SELECTED, "NONE")
     );
 
     #if HAS_BED_PROBE
@@ -124,10 +126,8 @@ void safe_delay(millis_t ms) {
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment");
           LOOP_LINEAR_AXES(a) {
-            const float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
             SERIAL_CHAR(' ', AXIS_CHAR(a));
-            if (v > 0) SERIAL_CHAR('+');
-            SERIAL_DECIMAL(v);
+            serial_offset(planner.get_axis_position_mm(AxisEnum(a)) - current_position[a]);
           }
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)
