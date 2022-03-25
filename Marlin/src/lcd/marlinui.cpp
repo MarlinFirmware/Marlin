@@ -73,7 +73,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
-  millis_t MarlinUI::status_message_reset_ms; // will reset message if the expired time reached.
+  millis_t MarlinUI::status_message_reset_ms; // = 0
 
 #endif
 
@@ -595,7 +595,7 @@ void MarlinUI::init() {
       // share the same line on the display.
       //
 
-      #if DISABLED(PROGRESS_MSG_ONCE) || (PROGRESS_MSG_EXPIRE > 0)
+      #if DISABLED(PROGRESS_MSG_ONCE) || PROGRESS_MSG_EXPIRE > 0
         #define GOT_MS
         const millis_t ms = millis();
       #endif
@@ -631,6 +631,7 @@ void MarlinUI::init() {
 
     #if HAS_STATUS_MESSAGE
       #ifndef GOT_MS
+        #define GOT_MS
         const millis_t ms = millis();
       #endif
       if (status_message_reset_ms && ELAPSED(ms, status_message_reset_ms))
@@ -1385,6 +1386,10 @@ void MarlinUI::init() {
 
   #if ENABLED(EXTENSIBLE_UI)
     #include "extui/ui_api.h"
+  #endif
+
+  #ifndef STATUS_MESSAGE_TIMEOUT
+    #define STATUS_MESSAGE_TIMEOUT 15000
   #endif
 
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
