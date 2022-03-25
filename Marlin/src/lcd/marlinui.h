@@ -689,8 +689,8 @@ public:
       /**
        * Some printers may have issues with EMI noise especially using a motherboard with 3.3V logic levels
        * it may cause the logical LOW to float into the undefined region and register as a logical HIGH
-       * causing it to errorenously register as if someone clicked the button and in worst case make the printer
-       * unusable in practice.
+       * causing it to erroneously register as if someone clicked the button and in worst case make the
+       * printer unusable in practice.
        */
       static bool hw_button_pressed() {
         LOOP_L_N(s, ENCODER_SAMPLES) {
