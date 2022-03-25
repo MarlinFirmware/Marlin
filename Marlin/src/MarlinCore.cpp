@@ -1166,7 +1166,7 @@ void setup() {
     #endif
   #endif
 
-  #if HAS_FREEZE_PIN
+  #if ENABLED(FREEZE_FEATURE)
     SETUP_LOG("FREEZE_PIN");
     SET_INPUT_PULLUP(FREEZE_PIN);
   #endif
