@@ -22,7 +22,7 @@
 #pragma once
 
 #include "env_validate.h"
- 
+
 #define BOARD_INFO_NAME "PANDA PI V2.9"
 
 // Release PB3/PB4 (TMC_SW Pins) from JTAG pins

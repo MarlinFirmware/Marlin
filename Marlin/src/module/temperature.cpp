@@ -958,7 +958,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
           if (ELAPSED(ms, test_end_ms)) break;
           if (ELAPSED(ms, settle_end_ms))
-            total_energy += float(MPC_HEATER_POWER) * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT; 
+            total_energy += float(MPC_HEATER_POWER) * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT;
 
           next_test_ms += MPC_dT * 1000;
         }
@@ -1360,7 +1360,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         #endif
       #endif
 
-      // at startup, initialise modeled temperatures
+      // At startup, initialize modeled temperatures
       if (isnan(temp_hotend[ee].modeled_block_temp)) {
         temp_hotend[ee].modeled_ambient_temp = MPC_AMBIENT;   // a typical room temperature
         temp_hotend[ee].modeled_block_temp = temp_hotend[ee].modeled_sensor_temp = temp_hotend[ee].celsius;
