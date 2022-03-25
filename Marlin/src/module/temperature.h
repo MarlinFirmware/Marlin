@@ -961,7 +961,7 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND && HAS_STATUS_MESSAGE
-      static void set_heating_message(const uint8_t e, const bool persist=false);
+      static void set_heating_message(const uint8_t e, const bool isM104=false);
     #else
       static void set_heating_message(const uint8_t, const bool=false) {}
     #endif

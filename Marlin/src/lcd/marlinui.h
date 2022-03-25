@@ -39,10 +39,6 @@
   #define HAS_ENCODER_ACTION 1
 #endif
 
-#if HAS_STATUS_MESSAGE
-  #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-#endif
-
 #if E_MANUAL > 1
   #define MULTI_E_MANUAL 1
 #endif
@@ -62,6 +58,8 @@
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
+
+typedef bool (*statusResetFunc_t)();
 
 #if HAS_WIRED_LCD
 
@@ -360,11 +358,15 @@ public:
     static void reset_status(const bool no_welcome=false);
     static void set_alert_status(FSTR_P const fstr);
     static void reset_alert_level() { alert_level = 0; }
+
+    static statusResetFunc_t reset_status_callback;
+    static void set_status_reset_fn(const statusResetFunc_t fn=nullptr) { reset_status_callback = fn; }
   #else
     static constexpr bool has_status() { return false; }
     static void reset_status(const bool=false) {}
     static void set_alert_status(FSTR_P const) {}
     static void reset_alert_level() {}
+    static void set_status_reset_fn(const statusResetFunc_t=nullptr) {}
   #endif
 
   static void set_status(const char * const cstr, const bool persist=false);
