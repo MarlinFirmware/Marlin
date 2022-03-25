@@ -73,6 +73,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
+  #if HAS_STATUS_MESSAGE_TIMEOUT
+    millis_t MarlinUI::status_message_expire_ms; // = 0
+  #endif
   statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
@@ -628,8 +631,17 @@ void MarlinUI::init() {
 
     #endif // BASIC_PROGRESS_BAR
 
-    if (status_reset_callback && (*status_reset_callback)())
-      reset_status();
+    bool did_expire = status_reset_callback && (*status_reset_callback)();
+
+    #if HAS_STATUS_MESSAGE_TIMEOUT
+      #ifndef GOT_MS
+        #define GOT_MS
+        const millis_t ms = millis();
+      #endif
+      did_expire |= status_message_expire_ms && ELAPSED(ms, status_message_expire_ms);
+    #endif
+
+    if (did_expire) reset_status();
 
     #if HAS_MARLINUI_MENU
       if (use_click()) {
@@ -1520,6 +1532,8 @@ void MarlinUI::init() {
     UNUSED(persist);
 
     set_status_reset_fn();
+
+    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL);
 
     #if HAS_WIRED_LCD
 
