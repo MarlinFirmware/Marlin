@@ -4113,6 +4113,7 @@
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
   //#define FREEZE_PIN 41   // Override the default (KILL) pin here
+  //#define INVERT_FREEZE_PIN
 #endif
 
 /**
