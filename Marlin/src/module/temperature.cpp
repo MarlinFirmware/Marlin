@@ -1270,7 +1270,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
           pid_reset[ee] = true;
         }
         else if (pid_error > PID_FUNCTIONAL_RANGE) {
-          pid_output = BANG_MAX;
+          pid_output = PID_MAX;
           pid_reset[ee] = true;
         }
         else {
