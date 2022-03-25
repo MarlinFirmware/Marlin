@@ -651,7 +651,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // PID Tuning loop
     wait_for_heatup = true; // Can be interrupted with M108
-    TERN_(HAS_STATUS_MESSAGE, ui.set_status(F("Wait for heat up...")));
+    LCD_MESSAGE(MSG_HEATING);
     while (wait_for_heatup) {
 
       const millis_t ms = millis();

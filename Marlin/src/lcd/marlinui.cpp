@@ -1463,9 +1463,16 @@ void MarlinUI::init() {
     set_status(msg, -1);
   }
 
+  /**
+   * Set Status with a fixed string and alert level.
+   * @param fstr  A constant F-string to set as the status.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   */
   void MarlinUI::set_status(FSTR_P const fstr, int8_t level) {
-
-    if (ABS(level) < alert_level) return;
+    // Alerts block lower priority messages
+    if (level < 0) level = alert_level = 0;
+    if (level < alert_level) return;
+    alert_level = level;
 
     PGM_P const pstr = FTOP(fstr);
 
@@ -1489,10 +1496,7 @@ void MarlinUI::init() {
 
     TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
 
-    const bool persist = level < 0;
-    if (persist) level = 0;
-    alert_level = level;
-    finish_status(persist);
+    finish_status(level > 0);
   }
 
   void MarlinUI::set_alert_status(FSTR_P const fstr) {
@@ -1504,8 +1508,10 @@ void MarlinUI::init() {
   #include <stdarg.h>
 
   void MarlinUI::status_printf(int8_t level, FSTR_P const fmt, ...) {
-
-    if (ABS(level) < alert_level) return;
+    // Alerts block lower priority messages
+    if (level < 0) level = alert_level = 0;
+    if (level < alert_level) return;
+    alert_level = level;
 
     va_list args;
     va_start(args, FTOP(fmt));
@@ -1514,13 +1520,12 @@ void MarlinUI::init() {
 
     TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
 
-    const bool persist = level < 0;
-    if (persist) level = 0;
-    alert_level = level;
-    finish_status(persist);
+    finish_status(level > 0);
   }
 
   void MarlinUI::finish_status(const bool persist) {
+
+    UNUSED(persist);
 
     TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL);
 
