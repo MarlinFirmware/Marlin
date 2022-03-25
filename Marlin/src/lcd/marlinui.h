@@ -39,10 +39,6 @@
   #define HAS_ENCODER_ACTION 1
 #endif
 
-#if HAS_STATUS_MESSAGE
-  #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-#endif
-
 #if E_MANUAL > 1
   #define MULTI_E_MANUAL 1
 #endif
