@@ -1515,12 +1515,13 @@ void MarlinUI::init() {
 
   void MarlinUI::status_printf(int8_t level, FSTR_P const fmt, ...) {
 
+    if (ABS(level) < alert_level)
+      return;
+
     if (level < 0) {
       status_message_reset_ms = 0;
       level = alert_level = 0;
     }
-    else if (level < alert_level)
-      return;
     else
       status_message_reset_ms = millis() + STATUS_MESSAGE_TIMEOUT ;
 
@@ -1709,7 +1710,7 @@ void MarlinUI::init() {
   void MarlinUI::set_status(FSTR_P const fstr, const int8_t) {
     TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
   }
-  void MarlinUI::status_printf(const int8_t, FSTR_P const fstr, ...) {
+  void MarlinUI::status_printf(int8_t, FSTR_P const fstr, ...) {
     TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
   }
 
