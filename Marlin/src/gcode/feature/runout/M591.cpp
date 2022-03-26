@@ -39,7 +39,7 @@
  *  P<index>  : Mode 0 = NONE
  *                   1 = Switch NO (HIGH = filament present)
  *                   2 = Switch NC (LOW = filament present)
- *                   7 = Encoder / Motion Sensor
+ *                   3 = Encoder / Motion Sensor
  */
 void GcodeSuite::M591() {
   if (parser.seen("RSDP" TERN_(HOST_ACTION_COMMANDS, "H"))) {
@@ -48,19 +48,17 @@ void GcodeSuite::M591() {
     #endif
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
-    #if NUM_RUNOUT_SENSORS > 1
-      const uint8_t tool = parser.ushortval('E', active_extruder);
-    #else
-      constexpr uint8_t tool = 0;
-    #endif
+    const uint8_t tool = TERN0(MULTI_FILAMENT_SENSOR, parser.ushortval('E', active_extruder));
     if (seenS) runout.enabled[tool] = parser.value_bool();
-    if (parser.seen('D')) runout.set_runout_distance(parser.value_linear_units(), tool);
-    if (parser.seen('L')) runout.set_runout_distance(parser.value_linear_units(), tool);
+    if (parser.seen('D') || parser.seen('L')) runout.set_runout_distance(parser.value_linear_units(), tool);
     if (parser.seen('P')) {
-      const uint8_t tmp_mode = parser.value_int();
-      if (tmp_mode < 3 || tmp_mode == 7) {
-        runout.mode[tool] = tmp_mode;
-        runout.reset();
+      const RunoutMode tmp_mode = (RunoutMode)parser.value_int();
+      switch (tmp_mode) {
+        case RM_NONE ... RM_OUT_ON_HIGH:
+        case RM_MOTION_SENSOR:
+          runout.mode[tool] = tmp_mode;
+          runout.reset();
+        default: break;
       }
     }
   }
@@ -83,7 +81,7 @@ void GcodeSuite::M591_report(const bool forReplay/*=true*/) {
   LOOP_S_L_N(e, 1, NUM_RUNOUT_SENSORS)
     SERIAL_ECHOLNPGM(
       "  M591"
-      #if NUM_RUNOUT_SENSORS > 1
+      #if MULTI_FILAMENT_SENSOR
         " E", e,
       #endif
         " S", runout.enabled[e]

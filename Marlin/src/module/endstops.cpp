@@ -688,13 +688,13 @@ void __O2 Endstops::report_states() {
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       SERIAL_ECHOPGM(": ");
       if (rm == RM_NONE)
-        SERIAL_ECHOLNPGM("DISABLED");
+        SERIAL_ECHOLNPGM(STR_OFF);
       else if (rm == RM_MOTION_SENSOR) {
         SERIAL_ECHOPGM("MOTION : ");
-        print_es_state(extDigitalRead(pin) == state);
+        print_es_state(extDigitalRead(pin) == outval);
       }
       else
-        SERIAL_ECHOLNPGM_P(extDigitalRead(pin) == state ? PSTR("MISSING") : PSTR("PRESENT"));
+        SERIAL_ECHOLNPGM_P(extDigitalRead(pin) == outval ? PSTR("OUT") : PSTR("PRESENT"));
     }
   #endif
 
