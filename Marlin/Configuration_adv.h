@@ -3723,6 +3723,13 @@
 // @section reporting
 
 /**
+ * CNC Coordinate Rotation
+ *
+ * Enables 'G68 X Y R' to set rotation around a point, and G69 to reset it.
+ */
+//#define CNC_COORDINATE_ROTATION
+
+/**
  * Auto-report fan speed with M123 S<seconds>
  * Requires fans with tachometer pins
  */
