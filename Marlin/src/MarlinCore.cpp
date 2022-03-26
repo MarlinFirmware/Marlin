@@ -476,7 +476,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif
 
   #if HAS_FREEZE_PIN
-    Stepper::frozen = READ(FREEZE_PIN) ^ DISABLED(INVERT_FREEZE_PIN);
+    stepper.frozen = READ(FREEZE_PIN) == FREEZE_STATE;
   #endif
 
   #if HAS_HOME
