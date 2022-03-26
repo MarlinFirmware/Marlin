@@ -1421,6 +1421,21 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       power = constrain(power, 0.0f, (float(MPC_HEATER_POWER) * MPC_MAX / 255));  // MPC_MAX is out of a range of 0 to 255
       const float pid_output = power * (254.0f / MPC_HEATER_POWER) + 1.0f;        // ensure correct quatization into a range of 0 to 127
 
+      /* <-- add a slash to enable
+        static uint32_t nexttime = millis() + 1000;
+        if (ELAPSED(millis(), nexttime)) {
+          nexttime += 1000;
+          SERIAL_ECHOLNPGM("block temp ", hotend.modeled_block_temp,
+                           ", celsius ", hotend.celsius,
+                           ", blocktempdelta ", blocktempdelta,
+                           ", delta_to_apply ", delta_to_apply,
+                           ", ambient ", hotend.modeled_ambient_temp,
+                           ", power ", power,
+                           ", pid_output ", pid_output,
+                           ", pwm ", (int)pid_output >> 1);
+        }
+      //*/
+
     #else // No PID or MPC enabled
 
       const bool is_idling = TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out);
