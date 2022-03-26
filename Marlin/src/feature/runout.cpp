@@ -34,7 +34,7 @@ FilamentMonitor runout;
 
 bool FilamentMonitorBase::enabled[NUM_RUNOUT_SENSORS], // Initialized by settings.load
      FilamentMonitorBase::filament_ran_out; // = false
-uint8_t FilamentMonitorBase::mode[NUM_RUNOUT_SENSORS]; // Initialized by settings.load
+RunoutMode FilamentMonitorBase::mode[NUM_RUNOUT_SENSORS]; // Initialized by settings.load
 #if ENABLED(HOST_ACTION_COMMANDS)
   bool FilamentMonitorBase::host_handling; // = false
 #endif

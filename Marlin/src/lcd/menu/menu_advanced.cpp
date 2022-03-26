@@ -102,22 +102,22 @@ void menu_backlash();
 
 #if HAS_FILAMENT_SENSOR
 
+  void set_runout_mode_none(const uint8_t e)   { runout.mode[e] = RM_NONE; }
+  void set_runout_mode_high(const uint8_t e)   { runout.mode[e] = RM_ACTIVE_HIGH; }
+  void set_runout_mode_low(const uint8_t e)    { runout.mode[e] = RM_ACTIVE_LOW; }
+  void set_runout_mode_motion(const uint8_t e) { runout.mode[e] = RM_MOTION_SENSOR; }
+
   #define RUNOUT_EDIT_ITEMS(F) do{ \
-    EDIT_ITEM_N(bool, F, MSG_RUNOUT_SENSOR, &runout.enabled[F]); \
-    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_NONE, []{ set_runout_mode_none(F);}); \
-    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_HIGH, []{ set_runout_mode_high(F);}); \
-    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_LOW, []{ set_runout_mode_low(F);}); \
-    ACTION_ITEM_N(F, MSG_RUNOUT_MODE_MOTION, []{ set_runout_mode_motion(F);}); \
+    EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled[F]); \
+    ACTION_ITEM(MSG_RUNOUT_MODE_NONE,   []{ set_runout_mode_none(F);   }); \
+    ACTION_ITEM(MSG_RUNOUT_MODE_HIGH,   []{ set_runout_mode_high(F);   }); \
+    ACTION_ITEM(MSG_RUNOUT_MODE_LOW,    []{ set_runout_mode_low(F);    }); \
+    ACTION_ITEM(MSG_RUNOUT_MODE_MOTION, []{ set_runout_mode_motion(F); }); \
     editable.decimal = runout.runout_distance(F); \
-    EDIT_ITEM_FAST_N(float3, F, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, \
+    EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, \
       []{ runout.set_runout_distance(editable.decimal, F); }, true \
     ); \
   }while(0)
-
-  void set_runout_mode_none(uint8_t e) { runout.mode[e] = 0; }
-  void set_runout_mode_high(uint8_t e) { runout.mode[e] = 1; }
-  void set_runout_mode_low(uint8_t e) { runout.mode[e] = 2; }
-  void set_runout_mode_motion(uint8_t e) { runout.mode[e] = 7; }
 
   void menu_runout_config() {
     START_MENU();

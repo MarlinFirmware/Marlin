@@ -220,8 +220,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
               REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
               #undef _CASE_RUNOUT
             }
-            const uint8_t rm = runout.mode[i - 1];
-            if (rm != 0 && rm != 7 && extDigitalRead(pin) != runout.out_state(i - 1))
+            const RunoutMode rm = runout.mode[i - 1];
+            if (rm != RM_NONE && rm != RM_MOTION_SENSOR && extDigitalRead(pin) != runout.out_state(i - 1))
               wait_for_user = false;
           }
         #else

@@ -681,15 +681,15 @@ void __O2 Endstops::report_states() {
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
         #undef _CASE_RUNOUT
       }
-      const uint8_t rm = runout.mode[i - 1],
-                    state = runout.out_state(i - 1);
+      const RunoutMode rm = runout.mode[i - 1];
+      const uint8_t state = runout.out_state(i - 1);
 
       SERIAL_ECHOPGM(STR_FILAMENT);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       SERIAL_ECHOPGM(": ");
-      if (rm == 0)
+      if (rm == RM_NONE)
         SERIAL_ECHOLNPGM("DISABLED");
-      else if (rm == 7) {
+      else if (rm == RM_MOTION_SENSOR) {
         SERIAL_ECHOPGM("MOTION : ");
         print_es_state(extDigitalRead(pin) == state);
       }

@@ -61,12 +61,19 @@ extern FilamentMonitor runout;
 
 /*******************************************************************************************/
 
+enum RunoutMode : uint8_t {
+  RM_NONE,
+  RM_ACTIVE_LOW,
+  RM_ACTIVE_HIGH,
+  RM_MOTION_SENSOR = 7
+};
+
 class FilamentMonitorBase {
   public:
     static bool enabled[NUM_RUNOUT_SENSORS], filament_ran_out;
-    static uint8_t mode[NUM_RUNOUT_SENSORS];  // 0:NONE  1:Switch NC  2:Switch NO  7:Motion Sensor
+    static RunoutMode mode[NUM_RUNOUT_SENSORS];
 
-    static uint8_t out_state(const uint8_t e=0) { return mode[e] == 2 ? HIGH : LOW; }
+    static uint8_t out_state(const uint8_t e=0) { return mode[e] == RM_ACTIVE_HIGH ? HIGH : LOW; }
 
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
@@ -111,7 +118,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static void run() {
-      if (enabled[active_extruder] && mode[active_extruder]!=0 && !filament_ran_out && (printingIsActive() || did_pause_print)) {
+      if (enabled[active_extruder] && mode[active_extruder] != RM_NONE && !filament_ran_out && (printingIsActive() || did_pause_print)) {
         cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
@@ -251,7 +258,7 @@ class FilamentSensorCore : public FilamentSensorBase {
 
   public:
     static void block_completed(const block_t * const b) {
-      if (runout.mode[active_extruder] != 7) return;
+      if (runout.mode[active_extruder] != RM_MOTION_SENSOR) return;
 
       // If the sensor wheel has moved since the last call to
       // this method reset the runout counter for the extruder.
@@ -263,10 +270,10 @@ class FilamentSensorCore : public FilamentSensorBase {
     }
 
     static void run() {
-      if (runout.mode[active_extruder] == 7) {
+      if (runout.mode[active_extruder] == RM_MOTION_SENSOR) {
         poll_motion_sensor();
       }
-      else if (runout.mode[active_extruder] != 0) {
+      else if (runout.mode[active_extruder] != RM_NONE) {
         LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
           const bool out = poll_runout_state(s);
           if (!out) filament_present(s);
