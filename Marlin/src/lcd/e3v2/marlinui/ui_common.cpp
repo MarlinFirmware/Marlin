@@ -101,6 +101,7 @@ void MarlinUI::clear_lcd() {
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
         #define CUSTOM_BOOTSCREEN_TIMEOUT 3000
       #endif
+    #endif
 
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
       #define LOGO_CENTER ((LCD_PIXEL_WIDTH) / 2)
