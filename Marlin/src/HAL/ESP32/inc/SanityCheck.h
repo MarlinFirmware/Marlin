@@ -44,3 +44,7 @@
 #if MB(MKS_TINYBEE) && ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not available on TinyBee."
 #endif
+
+#if USING_PULLDOWNS
+  #error "PULLDOWN pin mode is not available on ESP32 boards."
+#endif
