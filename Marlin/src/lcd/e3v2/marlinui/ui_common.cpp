@@ -94,7 +94,6 @@ void MarlinUI::clear_lcd() {
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
-    clear_lcd();
     dwin_string.set(F(SHORT_BUILD_VERSION));
 
      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
@@ -111,7 +110,7 @@ void MarlinUI::clear_lcd() {
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
       #endif
-
+      clear_lcd();
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
       DWIN_ICON_Show(BOOT_ICON, ICON_OpenSource, LOGO_CENTER - 174 / 2, 280);
       DWIN_ICON_Show(BOOT_ICON, ICON_GitHubURL,  LOGO_CENTER - 180 / 2, 420);
@@ -125,13 +124,14 @@ void MarlinUI::clear_lcd() {
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
       #endif
+      clear_lcd();
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
       DWIN_ICON_Show(BOOT_ICON, ICON_OpenSource, INFO_CENTER - 174 / 2,  60);
       DWIN_ICON_Show(BOOT_ICON, ICON_GitHubURL,  INFO_CENTER - 180 / 2, 130);
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  INFO_CENTER - 100 / 2, 152);
       DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  INFO_CENTER - 126 / 2, 200);
     #endif
-
+    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
     DWIN_UpdateLCD();
   }
 
