@@ -911,6 +911,20 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
     ) {
       destination = current_position; // Remember the old position
+  
+  /*
+   * Cutting recovery -- Recover from cutting retraction that occurs at the end of nozzle priming
+   *
+   * Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
+   * current_position.e = newEPosition;
+   * sync_plan_position_e();
+   */
+  inline void extruder_cutting_recover(float newEPosition) {
+    unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+    planner.synchronize();
+    current_position.e = newEPosition;
+    sync_plan_position_e(); // Resume new E Position
+  }
 
       const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
@@ -961,14 +975,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
       #endif
 
-      // Cutting recover
-      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
-
-      // Resume at the old E position
-      current_position.e = destination.e;
-      sync_plan_position_e();
+      extruder_cutting_recover(destination.e); // Cutting recover
     }
-  }
+  } // tool_change_prime
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
 
@@ -1264,10 +1273,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
-            // Cutting recover
-            unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
-            current_position.e = 0;
-            sync_plan_position_e(); // New extruder primed and set to 0
+            extruder_cutting_recover(0); // New extruder primed and set to 0
 
             // Restart Fan
             #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
@@ -1328,7 +1334,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, active_extruder);
 
   #endif // HAS_MULTI_EXTRUDER
-}
+} //ToolChange routine
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
