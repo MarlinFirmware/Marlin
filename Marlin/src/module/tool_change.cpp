@@ -911,20 +911,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
     ) {
       destination = current_position; // Remember the old position
-  
-  /*
-   * Cutting recovery -- Recover from cutting retraction that occurs at the end of nozzle priming
-   *
-   * Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
-   * current_position.e = newEPosition;
-   * sync_plan_position_e();
-   */
-  inline void extruder_cutting_recover(float newEPosition) {
-    unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
-    planner.synchronize();
-    current_position.e = newEPosition;
-    sync_plan_position_e(); // Resume new E Position
-  }
 
       const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
@@ -980,6 +966,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   } // tool_change_prime
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
+
+// Move to Tool-Change Park Position
+inline void tool_park() {
 
 /**
  * Perform a tool-change, which may result in moving the
@@ -1088,7 +1077,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // Unload / Retract
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-        static uint8_t extruder_was_primed = 0; // Flags for primed extruders
         const bool should_swap = can_move_away && toolchange_settings.swap_length,
                    too_cold = TERN0(PREVENT_COLD_EXTRUSION,
                      !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool))
