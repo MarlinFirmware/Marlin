@@ -628,26 +628,18 @@
 
 #if ENABLED(MPCTEMP)
   #define MPC_MAX BANG_MAX                          // Limits current to nozzle while MPC is active; 255=full current.
-  #define MPC_HEATER_POWER 36.0f                    // 36W for a 12V, 4ohm heater cartridge.
+  #define MPC_HEATER_POWER { 40.0f }                // Heat cartridge powers in W.
 
   #define MPC_INCLUDE_FAN                           // Model fan speed.
 
   #define MPC_AMBIENT 19.0f                         // Room temperature in °C when calibrating MPC.
 
-  // Easy manual tuning parameters (from M105 output)
-  #define MPC_TEMPERATURE_10S 28.6f                 // Hotend temp in °C after heating from cold (ambient) at full power for 10s.
-  #define MPC_TEMPERATURE_20S 49.4f                 // Hotend temp in °C after heating from cold (ambient) at full power for 20s.
-  #define MPC_PWM_200C 37                           // PWM value when steady at 200°C (with fan off).
+  // Measured physical constants from M306
+  #define MPC_BLOCK_HEAT_CAPACITY { 16.7f }          // Heat block heat capacities in J/K.
+  #define MPC_SENSOR_RESPONSIVENESS { 0.22f }        // Rate of change of sensor temperature in K/s per K difference from heat block.
+  #define MPC_AMBIENT_XFER_COEFF { 0.068f }          // Heat transfer coefficients from heat block to room air with fan off in W/K.
   #if ENABLED(MPC_INCLUDE_FAN)
-    #define MPC_PWM_200C_FAN255  49                 // PWM value when steady at 200°C with fan on full.
-  #endif
-
-  // Or set the measured physical constants directly (from M306 output)
-  //#define MPC_BLOCK_HEAT_CAPACITY 17.36f          // Heat block heat capacity in J/K.
-  //#define MPC_SENSOR_RESPONSIVENESS 0.21f         // Rate of change of sensor temperature in K/s per K difference from heat block.
-  //#define MPC_AMBIENT_XFER_COEFF 0.0728f          // Heat transfer coefficient from heat block to room air with fan off in W/K.
-  #if ENABLED(MPC_INCLUDE_FAN)
-    //#define MPC_AMBIENT_XFER_COEFF_FAN255 0.118f  // Heat transfer coefficient from heat block to room air with fan on full in W/K.
+    #define MPC_AMBIENT_XFER_COEFF_FAN255 { 0.097f } // Heat transfer coefficients from heat block to room air with fan on full in W/K.
   #endif
 
   // For one fan and multiple hotends MPC needs to know how to apply the fan cooling effect.

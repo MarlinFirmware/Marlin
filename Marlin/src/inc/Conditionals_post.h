@@ -2549,23 +2549,6 @@
   #define HAS_PID_HEATING 1
 #endif
 
-// MPC heating
-#if ENABLED(MPCTEMP)
-  #if defined(MPC_TEMPERATURE_10S) && defined(MPC_TEMPERATURE_20S) && defined(MPC_PWM_200C)
-    #if !ENABLED(MPC_INCLUDE_FAN) || defined(MPC_PWM_200C_FAN255)
-      #define HAS_MPC_EASYTUNING 1
-    #endif
-  #endif
-  #if defined(MPC_BLOCK_HEAT_CAPACITY) && defined(MPC_SENSOR_RESPONSIVENESS) && defined(MPC_AMBIENT_XFER_COEFF)
-    #if !ENABLED(MPC_INCLUDE_FAN) || defined(MPC_AMBIENT_XFER_COEFF_FAN255)
-      #define HAS_MPC_PHYSICAL_CONSTANTS 1
-    #endif
-  #endif
-  #if !HAS_MPC_EASYTUNING && !HAS_MPC_PHYSICAL_CONSTANTS || HAS_MPC_EASYTUNING && HAS_MPC_PHYSICAL_CONSTANTS
-    #error "MPC config must have either easy tuning constants or physical constants."
-  #endif
-#endif
-
 // Thermal protection
 #if !HAS_HEATED_BED
   #undef THERMAL_PROTECTION_BED

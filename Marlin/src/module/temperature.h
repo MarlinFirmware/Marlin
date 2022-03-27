@@ -94,6 +94,18 @@ hotend_pid_t;
   #define _PID_Kf(H) 0
 #endif
 
+#if ENABLED(MPCTEMP)
+  typedef struct {
+    float heater_power;
+    float heatblock_heat_capacity;
+    float sensor_responsiveness;
+    float ambient_xfer_coeff_fan0;
+    #if ENABLED(MPC_INCLUDE_FAN)
+      float fan255_adjustment;
+    #endif
+  } MPC_t;
+#endif
+
 /**
  * States for ADC reading in the ISR
  */
@@ -229,6 +241,8 @@ struct PIDHeaterInfo : public HeaterInfo {
 
 #if ENABLED(MPCTEMP)
   struct MPCHeaterInfo : public HeaterInfo {
+    MPC_t constants;
+
     float modeled_ambient_temp;
     float modeled_block_temp;
     float modeled_sensor_temp;

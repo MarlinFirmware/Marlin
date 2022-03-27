@@ -935,7 +935,7 @@ volatile bool Temperature::raw_temps_ready = false;
     const float t3 = temp_samples[sample_count - 1];
     const float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3);
     const float block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
-    const float ambient_xfer_coeff = float(MPC_HEATER_POWER) * MPC_MAX / 255 / (asymp_temp - ambient_temp);
+    const float ambient_xfer_coeff = temp_hotend[active_extruder].constants.heater_power * MPC_MAX / 255 / (asymp_temp - ambient_temp);
     const float block_heat_capacity = ambient_xfer_coeff / block_responsiveness;
     const float sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
 
@@ -958,7 +958,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
           if (ELAPSED(ms, test_end_ms)) break;
           if (ELAPSED(ms, settle_end_ms))
-            total_energy += float(MPC_HEATER_POWER) * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT;
+            total_energy += temp_hotend[active_extruder].constants.heater_power * temp_hotend[active_extruder].soft_pwm_amount / 127 * MPC_dT;
 
           next_test_ms += MPC_dT * 1000;
         }
@@ -1343,27 +1343,13 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       #endif
 
     #elif ENABLED(MPCTEMP)
-      #if HAS_MPC_EASYTUNING
-        constexpr float heating_rate = (MPC_TEMPERATURE_20S - MPC_TEMPERATURE_10S) / 10.0f;
-        constexpr float heatblock_heat_capacity = MPC_HEATER_POWER / heating_rate;
-        constexpr float sensor_responsiveness = heating_rate / (10.0f * heating_rate - (MPC_TEMPERATURE_10S - MPC_AMBIENT));
-        constexpr float ambient_xfer_coeff_fan0 = (float)MPC_PWM_200C / 127 * MPC_HEATER_POWER / (200 - MPC_AMBIENT);
-        #if ENABLED(MPC_INCLUDE_FAN)
-          constexpr float fan255_adjustment = (float)(MPC_PWM_200C_FAN255 - MPC_PWM_200C) / 127 * MPC_HEATER_POWER / (200 - MPC_AMBIENT);
-        #endif
-      #else
-        constexpr float heatblock_heat_capacity = MPC_BLOCK_HEAT_CAPACITY;
-        constexpr float sensor_responsiveness = MPC_SENSOR_RESPONSIVENESS;
-        constexpr float ambient_xfer_coeff_fan0 = MPC_AMBIENT_XFER_COEFF;
-        #if ENABLED(MPC_INCLUDE_FAN)
-          constexpr float fan255_adjustment = MPC_AMBIENT_XFER_COEFF_FAN255 - MPC_AMBIENT_XFER_COEFF;
-        #endif
-      #endif
+      MPCHeaterInfo& hotend = temp_hotend[ee];
+      MPC_t& constants = hotend.constants;
 
       // At startup, initialize modeled temperatures
-      if (isnan(temp_hotend[ee].modeled_block_temp)) {
-        temp_hotend[ee].modeled_ambient_temp = MPC_AMBIENT;   // a typical room temperature
-        temp_hotend[ee].modeled_block_temp = temp_hotend[ee].modeled_sensor_temp = temp_hotend[ee].celsius;
+      if (isnan(hotend.modeled_block_temp)) {
+        hotend.modeled_ambient_temp = MPC_AMBIENT;   // a typical room temperature
+        hotend.modeled_block_temp = hotend.modeled_sensor_temp = hotend.celsius;
       }
 
       #if HOTENDS == 1
@@ -1372,11 +1358,11 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         const bool this_hotend = (ee == active_extruder);
       #endif
 
-      float ambient_xfer_coeff = ambient_xfer_coeff_fan0;
+      float ambient_xfer_coeff = constants.ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
         const uint8_t fan_index = ANY(MPC_FAN_0_ACTIVE_HOTEND, MPC_FAN_0_ALL_HOTENDS) ? 0 : ee;
-        const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) (float)fan_speed[fan_index] * RECIPROCAL(255);
-        ambient_xfer_coeff += fan_fraction * fan255_adjustment;
+        const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) fan_speed[fan_index] * RECIPROCAL(255);
+        ambient_xfer_coeff += fan_fraction * constants.fan255_adjustment;
       #endif
 
       if (this_hotend) {
@@ -1394,32 +1380,32 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       }
 
       // update the modeled temperatures
-      float blocktempdelta = temp_hotend[ee].soft_pwm_amount * (MPC_HEATER_POWER / 127 * MPC_dT / heatblock_heat_capacity);
-      blocktempdelta += (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff * (MPC_dT / heatblock_heat_capacity);
-      temp_hotend[ee].modeled_block_temp += blocktempdelta;
+      float blocktempdelta = hotend.soft_pwm_amount * constants.heater_power * (MPC_dT / 127) / constants.heatblock_heat_capacity;
+      blocktempdelta += (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff * MPC_dT / constants.heatblock_heat_capacity;
+      hotend.modeled_block_temp += blocktempdelta;
 
-      const float sensortempdelta = (temp_hotend[ee].modeled_block_temp - temp_hotend[ee].modeled_sensor_temp) * (sensor_responsiveness * MPC_dT);
-      temp_hotend[ee].modeled_sensor_temp += sensortempdelta;
+      const float sensortempdelta = (hotend.modeled_block_temp - hotend.modeled_sensor_temp) * (constants.sensor_responsiveness * MPC_dT);
+      hotend.modeled_sensor_temp += sensortempdelta;
 
-      // Any delta between temp_hotend[ee].modeled_sensor_temp and temp_hotend[ee].celsius is either model
+      // Any delta between hotend.modeled_sensor_temp and hotend.celsius is either model
       // error diverging slowly or (fast) noise. Slowly correct towards this temperature and noise will average out.
-      const float delta_to_apply = (temp_hotend[ee].celsius - temp_hotend[ee].modeled_sensor_temp) * MPC_SMOOTHING_FACTOR;
-      temp_hotend[ee].modeled_block_temp += delta_to_apply;
-      temp_hotend[ee].modeled_sensor_temp += delta_to_apply;
+      const float delta_to_apply = (hotend.celsius - hotend.modeled_sensor_temp) * MPC_SMOOTHING_FACTOR;
+      hotend.modeled_block_temp += delta_to_apply;
+      hotend.modeled_sensor_temp += delta_to_apply;
 
       // only correct ambient when close to steady state otherwise it can diverge wildly due to modelling errors
       if (fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
-        temp_hotend[ee].modeled_ambient_temp += delta_to_apply;
+        hotend.modeled_ambient_temp += delta_to_apply;
 
       float power = 0.0;
-      if (temp_hotend[ee].target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
+      if (hotend.target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
         // plan power level to get to target temperature in 2 seconds
-        power = (temp_hotend[ee].target - temp_hotend[ee].modeled_block_temp) * (heatblock_heat_capacity / 2.0f);
-        power -= (temp_hotend[ee].modeled_ambient_temp - temp_hotend[ee].modeled_block_temp) * ambient_xfer_coeff;
+        power = (hotend.target - hotend.modeled_block_temp) * constants.heatblock_heat_capacity / 2.0f;
+        power -= (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff;
       }
 
-      power = constrain(power, 0.0f, (float(MPC_HEATER_POWER) * MPC_MAX / 255));  // MPC_MAX is out of a range of 0 to 255
-      const float pid_output = power * (254.0f / MPC_HEATER_POWER) + 1.0f;        // ensure correct quatization into a range of 0 to 127
+      float pid_output = power * 254.0f / constants.heater_power + 1.0f;        // ensure correct quantization into a range of 0 to 127
+      pid_output = constrain(pid_output, 0, MPC_MAX);
 
       /* <-- add a slash to enable
         static uint32_t nexttime = millis() + 1000;
