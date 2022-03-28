@@ -489,7 +489,7 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_stepper_ticks(I2CPE_ENC_1_TICKS_REV);
     #endif
     #ifdef I2CPE_ENC_1_INVERT
-      encoders[i].set_inverted(I2CPE_ENC_1_INVERT);
+      encoders[i].set_inverted(ENABLED(I2CPE_ENC_1_INVERT));
     #endif
     #ifdef I2CPE_ENC_1_EC_METHOD
       encoders[i].set_ec_method(I2CPE_ENC_1_EC_METHOD);
@@ -518,7 +518,7 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_stepper_ticks(I2CPE_ENC_2_TICKS_REV);
     #endif
     #ifdef I2CPE_ENC_2_INVERT
-      encoders[i].set_inverted(I2CPE_ENC_2_INVERT);
+      encoders[i].set_inverted(ENABLED(I2CPE_ENC_2_INVERT));
     #endif
     #ifdef I2CPE_ENC_2_EC_METHOD
       encoders[i].set_ec_method(I2CPE_ENC_2_EC_METHOD);
@@ -547,7 +547,7 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_stepper_ticks(I2CPE_ENC_3_TICKS_REV);
     #endif
     #ifdef I2CPE_ENC_3_INVERT
-      encoders[i].set_inverted(I2CPE_ENC_3_INVERT);
+      encoders[i].set_inverted(ENABLED(I2CPE_ENC_3_INVERT));
     #endif
     #ifdef I2CPE_ENC_3_EC_METHOD
       encoders[i].set_ec_method(I2CPE_ENC_3_EC_METHOD);
@@ -576,7 +576,7 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_stepper_ticks(I2CPE_ENC_4_TICKS_REV);
     #endif
     #ifdef I2CPE_ENC_4_INVERT
-      encoders[i].set_inverted(I2CPE_ENC_4_INVERT);
+      encoders[i].set_inverted(ENABLED(I2CPE_ENC_4_INVERT));
     #endif
     #ifdef I2CPE_ENC_4_EC_METHOD
       encoders[i].set_ec_method(I2CPE_ENC_4_EC_METHOD);
@@ -605,7 +605,7 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_stepper_ticks(I2CPE_ENC_5_TICKS_REV);
     #endif
     #ifdef I2CPE_ENC_5_INVERT
-      encoders[i].set_inverted(I2CPE_ENC_5_INVERT);
+      encoders[i].set_inverted(ENABLED(I2CPE_ENC_5_INVERT));
     #endif
     #ifdef I2CPE_ENC_5_EC_METHOD
       encoders[i].set_ec_method(I2CPE_ENC_5_EC_METHOD);
@@ -634,7 +634,7 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_stepper_ticks(I2CPE_ENC_6_TICKS_REV);
     #endif
     #ifdef I2CPE_ENC_6_INVERT
-      encoders[i].set_inverted(I2CPE_ENC_6_INVERT);
+      encoders[i].set_inverted(ENABLED(I2CPE_ENC_6_INVERT));
     #endif
     #ifdef I2CPE_ENC_6_EC_METHOD
       encoders[i].set_ec_method(I2CPE_ENC_6_EC_METHOD);
