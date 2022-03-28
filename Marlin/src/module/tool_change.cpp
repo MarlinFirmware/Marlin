@@ -146,6 +146,7 @@
 
 #endif // SWITCHING_NOZZLE
 
+// Move to position routines
 void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
   line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
 }
@@ -1157,12 +1158,16 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
         const bool should_swap = can_move_away && toolchange_settings.swap_length;
         if (should_swap) {
-            if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
-          if (too_cold(old_tool)) {
+          if (too_cold(old_tool)) 
+          { 
             // If SingleNozzle setup is too cold, unable to perform tool_change.
+            if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
-          else if (TEST(extruder_was_primed, old_tool)) // Retract the old extruder if it was previously primed
+          else if (TEST(extruder_was_primed, old_tool)) 
+          {
+            // Retract the old extruder if it was previously primed
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+          }
         }
       #endif
 
