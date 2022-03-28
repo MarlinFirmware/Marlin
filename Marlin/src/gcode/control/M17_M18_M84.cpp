@@ -77,7 +77,7 @@ void do_enable(const axis_flags_t to_enable) {
     }
   }
   #if HAS_EXTRUDERS
-    LOOP_L_N(e, EXTRUDERS) {
+    EXTRUDER_LOOP() {
       const uint8_t a = INDEX_OF_AXIS(E_AXIS, e);
       if (TEST(shall_enable, a)) {
         stepper.ENABLE_EXTRUDER(e);
@@ -161,7 +161,7 @@ void try_to_disable(const axis_flags_t to_disable) {
       DEBUG_ECHOLNPGM(" ... still_enabled=", hex_word(still_enabled));
     }
   #if HAS_EXTRUDERS
-    LOOP_L_N(e, EXTRUDERS) {
+    EXTRUDER_LOOP() {
       const uint8_t a = INDEX_OF_AXIS(E_AXIS, e);
       if (TEST(to_disable.bits, a)) {
         DEBUG_ECHOPGM("Try to disable E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
@@ -194,7 +194,7 @@ void try_to_disable(const axis_flags_t to_disable) {
     }
   }
   #if HAS_EXTRUDERS
-    LOOP_L_N(e, EXTRUDERS) {
+    EXTRUDER_LOOP() {
       const uint8_t a = INDEX_OF_AXIS(E_AXIS, e);
       if (TEST(still_enabled, a)) {
         SERIAL_CHAR('E', '0' + e);

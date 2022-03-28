@@ -29,9 +29,8 @@
 #include "stepper.h"
 #include "planner.h"
 #include "temperature.h"
-
 #include "../gcode/gcode.h"
-
+#include "../lcd/marlinui.h"
 #include "../inc/MarlinConfig.h"
 
 #if IS_SCARA
@@ -49,10 +48,6 @@
 
 #if ENABLED(BLTOUCH)
   #include "../feature/bltouch.h"
-#endif
-
-#if HAS_STATUS_MESSAGE
-  #include "../lcd/marlinui.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -1325,7 +1320,7 @@ void prepare_line_to_destination() {
       );
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
-      TERN_(HAS_STATUS_MESSAGE, ui.set_status(msg));
+      ui.set_status(msg);
       return true;
     }
     return false;
@@ -1359,9 +1354,7 @@ void prepare_line_to_destination() {
         #if X_SENSORLESS
           case X_AXIS:
             stealth_states.x = tmc_enable_stallguard(stepperX);
-            #if AXIS_HAS_STALLGUARD(X2)
-              stealth_states.x2 = tmc_enable_stallguard(stepperX2);
-            #endif
+            TERN_(X2_SENSORLESS, stealth_states.x2 = tmc_enable_stallguard(stepperX2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SENSORLESS
               stealth_states.y = tmc_enable_stallguard(stepperY);
             #elif CORE_IS_XZ && Z_SENSORLESS
@@ -1372,9 +1365,7 @@ void prepare_line_to_destination() {
         #if Y_SENSORLESS
           case Y_AXIS:
             stealth_states.y = tmc_enable_stallguard(stepperY);
-            #if AXIS_HAS_STALLGUARD(Y2)
-              stealth_states.y2 = tmc_enable_stallguard(stepperY2);
-            #endif
+            TERN_(Y2_SENSORLESS, stealth_states.y2 = tmc_enable_stallguard(stepperY2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS
               stealth_states.x = tmc_enable_stallguard(stepperX);
             #elif CORE_IS_YZ && Z_SENSORLESS
@@ -1385,15 +1376,9 @@ void prepare_line_to_destination() {
         #if Z_SENSORLESS
           case Z_AXIS:
             stealth_states.z = tmc_enable_stallguard(stepperZ);
-            #if AXIS_HAS_STALLGUARD(Z2)
-              stealth_states.z2 = tmc_enable_stallguard(stepperZ2);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z3)
-              stealth_states.z3 = tmc_enable_stallguard(stepperZ3);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z4)
-              stealth_states.z4 = tmc_enable_stallguard(stepperZ4);
-            #endif
+            TERN_(Z2_SENSORLESS, stealth_states.z2 = tmc_enable_stallguard(stepperZ2));
+            TERN_(Z3_SENSORLESS, stealth_states.z3 = tmc_enable_stallguard(stepperZ3));
+            TERN_(Z4_SENSORLESS, stealth_states.z4 = tmc_enable_stallguard(stepperZ4));
             #if CORE_IS_XZ && X_SENSORLESS
               stealth_states.x = tmc_enable_stallguard(stepperX);
             #elif CORE_IS_YZ && Y_SENSORLESS
@@ -1445,9 +1430,7 @@ void prepare_line_to_destination() {
         #if X_SENSORLESS
           case X_AXIS:
             tmc_disable_stallguard(stepperX, enable_stealth.x);
-            #if AXIS_HAS_STALLGUARD(X2)
-              tmc_disable_stallguard(stepperX2, enable_stealth.x2);
-            #endif
+            TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, enable_stealth.x2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SENSORLESS
               tmc_disable_stallguard(stepperY, enable_stealth.y);
             #elif CORE_IS_XZ && Z_SENSORLESS
@@ -1458,9 +1441,7 @@ void prepare_line_to_destination() {
         #if Y_SENSORLESS
           case Y_AXIS:
             tmc_disable_stallguard(stepperY, enable_stealth.y);
-            #if AXIS_HAS_STALLGUARD(Y2)
-              tmc_disable_stallguard(stepperY2, enable_stealth.y2);
-            #endif
+            TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, enable_stealth.y2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS
               tmc_disable_stallguard(stepperX, enable_stealth.x);
             #elif CORE_IS_YZ && Z_SENSORLESS
@@ -1471,15 +1452,9 @@ void prepare_line_to_destination() {
         #if Z_SENSORLESS
           case Z_AXIS:
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
-            #if AXIS_HAS_STALLGUARD(Z2)
-              tmc_disable_stallguard(stepperZ2, enable_stealth.z2);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z3)
-              tmc_disable_stallguard(stepperZ3, enable_stealth.z3);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z4)
-              tmc_disable_stallguard(stepperZ4, enable_stealth.z4);
-            #endif
+            TERN_(Z2_SENSORLESS, tmc_disable_stallguard(stepperZ2, enable_stealth.z2));
+            TERN_(Z3_SENSORLESS, tmc_disable_stallguard(stepperZ3, enable_stealth.z3));
+            TERN_(Z4_SENSORLESS, tmc_disable_stallguard(stepperZ4, enable_stealth.z4));
             #if CORE_IS_XZ && X_SENSORLESS
               tmc_disable_stallguard(stepperX, enable_stealth.x);
             #elif CORE_IS_YZ && Y_SENSORLESS
