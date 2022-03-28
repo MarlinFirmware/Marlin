@@ -2431,8 +2431,7 @@
     #define TOOLCHANGE_FS_FAN_SPEED          255  // 0-255
     #define TOOLCHANGE_FS_FAN_TIME            10  // (seconds)
 
-    // Swap uninitialized extruder (using TOOLCHANGE_FS_PRIME_SPEED feedrate)
-    // (May break filament if not retracted beforehand.)
+    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate for first time each nozzle is primed
     //#define TOOLCHANGE_FS_INIT_BEFORE_SWAP
 
     // Prime on the first T0 (For other tools use TOOLCHANGE_FS_INIT_BEFORE_SWAP)

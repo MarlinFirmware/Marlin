@@ -962,17 +962,27 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
 
     /*
+     * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
+     *
      * Converted this functionality to enabled by default to avoid accidental breakage on very first initiailizion of each extruder
-     * This comment block can be removed if changes are accepted. This is mostly explaining the changes.
-     * This 'if' statement makes these two #defines in configuration_adv.h unneccessary:
+     * 
+     * This 'if' statement makes these two #defines in configuration_adv.h unneccessaryby effectively enabling them as default. 
+     * (these two settings basically just ensured the first prime was performed slowly when switching nozzles).
      * TOOLCHANGE_FS_PRIME_FIRST_USED
      * TOOLCHANGE_FS_INIT_BEFORE_SWAP
      * M217 V1 can be converted to set/reset this functionality if desired
      */
-    // Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
     if ( enable_first_prime && !TEST(extruder_did_first_prime, toolID)) {
       SBI(extruder_did_first_prime, toolID);   // Log 1st prime complete
-      fr = toolchange_settings.prime_speed;    // Set slower speed for first prime
+      //Set speed for first prime
+      if (ENABLED(SINGLENOZZLE) && toolID != 0 )
+      {
+        // Single Nozzle and switching from T0 to T? -> filament should be fully retracted already -> no need to reduce speeds
+      } else
+      {
+        // new nozzle - prime at user-specified speed.
+        fr = toolchange_settings.prime_speed;
+      }
       unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
     }
 
