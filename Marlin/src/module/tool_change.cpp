@@ -42,7 +42,6 @@
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   migration_settings_t migration = migration_defaults;
-  bool enable_first_prime; // As set by M217 V
 #endif
 
 #if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
@@ -898,6 +897,16 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
  */
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
+  // Define any variables required
+  static uint8_t extruder_did_first_prime = 0,  // Extruders first priming status
+                 extruder_was_primed = 0;       // Extruders primed status
+
+  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+    bool enable_first_prime; // As set by M217 V
+  #else
+    static const bool enable_first_prime = false;
+  #endif
+
   // Cool down with fan
   inline void filament_swap_cooling() {
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
@@ -1119,10 +1128,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #if HAS_LEVELING
       // Set current position to the physical position
       TEMPORARY_BED_LEVELING_STATE(false);
-    #endif
-
-    #if EITHER(TOOLCHANGE_FS_PRIME_FIRST_USED, TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-      static uint8_t extruder_did_first_prime = 0;
     #endif
 
     // First tool priming. To prime again, reboot the machine.
