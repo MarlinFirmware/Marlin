@@ -63,9 +63,13 @@ extern FilamentMonitor runout;
 
 enum RunoutMode : uint8_t {
   RM_NONE,
-  RM_ACTIVE_LOW,
-  RM_ACTIVE_HIGH,
-  RM_MOTION_SENSOR = 7
+  RM_OUT_ON_LOW,
+  RM_OUT_ON_HIGH,
+  RM_RESERVED3,
+  RM_RESERVED4,
+  RM_RESERVED5,
+  RM_RESERVED6,
+  RM_MOTION_SENSOR
 };
 
 class FilamentMonitorBase {
@@ -73,7 +77,7 @@ class FilamentMonitorBase {
     static bool enabled[NUM_RUNOUT_SENSORS], filament_ran_out;
     static RunoutMode mode[NUM_RUNOUT_SENSORS];
 
-    static uint8_t out_state(const uint8_t e=0) { return mode[e] == RM_ACTIVE_HIGH ? HIGH : LOW; }
+    static uint8_t out_state(const uint8_t e=0) { return mode[e] == RM_OUT_ON_HIGH ? HIGH : LOW; }
 
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;

@@ -103,8 +103,8 @@ void menu_backlash();
 #if HAS_FILAMENT_SENSOR
 
   void set_runout_mode_none(const uint8_t e)   { runout.mode[e] = RM_NONE; }
-  void set_runout_mode_high(const uint8_t e)   { runout.mode[e] = RM_ACTIVE_HIGH; }
-  void set_runout_mode_low(const uint8_t e)    { runout.mode[e] = RM_ACTIVE_LOW; }
+  void set_runout_mode_high(const uint8_t e)   { runout.mode[e] = RM_OUT_ON_HIGH; }
+  void set_runout_mode_low(const uint8_t e)    { runout.mode[e] = RM_OUT_ON_LOW; }
   void set_runout_mode_motion(const uint8_t e) { runout.mode[e] = RM_MOTION_SENSOR; }
 
   #define RUNOUT_EDIT_ITEMS(F) do{ \
