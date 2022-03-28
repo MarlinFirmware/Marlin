@@ -926,6 +926,16 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         if (ok) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
+          #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
+            SECONDARY_AXIS_CODE(
+              current_position.i = toolchange_settings.change_point.i,
+              current_position.j = toolchange_settings.change_point.j,
+              current_position.k = toolchange_settings.change_point.k,
+              current_position.u = toolchange_settings.change_point.u,
+              current_position.v = toolchange_settings.change_point.v,
+              current_position.w = toolchange_settings.change_point.w,
+            );
+          #endif
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
           planner.synchronize();
         }
@@ -1121,6 +1131,16 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (can_move_away && toolchange_settings.enable_park) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
+          #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
+            SECONDARY_AXIS_CODE(
+              current_position.i = toolchange_settings.change_point.i,
+              current_position.j = toolchange_settings.change_point.j,
+              current_position.k = toolchange_settings.change_point.k,
+              current_position.u = toolchange_settings.change_point.u,
+              current_position.v = toolchange_settings.change_point.v,
+              current_position.w = toolchange_settings.change_point.w,
+            );
+          #endif
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           planner.synchronize();
         }
@@ -1175,7 +1195,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       sync_plan_position();
 
       #if ENABLED(DELTA)
-        //LOOP_LINEAR_AXES(i) update_software_endstops(i); // or modify the constrain function
+        //LOOP_NUM_AXES(i) update_software_endstops(i); // or modify the constrain function
         const bool safe_to_move = current_position.z < delta_clip_start_height - 1;
       #else
         constexpr bool safe_to_move = true;

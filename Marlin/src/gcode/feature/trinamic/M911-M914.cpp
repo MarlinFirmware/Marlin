@@ -53,12 +53,21 @@
   #if HAS_K_AXIS && M91x_USE(K)
     #define M91x_USE_K 1
   #endif
+  #if HAS_U_AXIS && M91x_USE(U)
+    #define M91x_USE_U 1
+  #endif
+  #if HAS_V_AXIS && M91x_USE(V)
+    #define M91x_USE_V 1
+  #endif
+  #if HAS_W_AXIS && M91x_USE(W)
+    #define M91x_USE_W 1
+  #endif
 
   #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5) || M91x_USE_E(6) || M91x_USE_E(7)
     #define M91x_SOME_E 1
   #endif
 
-  #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_USE_I && !M91x_USE_J && !M91x_USE_K && !M91x_SOME_E
+  #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_USE_I && !M91x_USE_J && !M91x_USE_K && !M91x_USE_U && !M91x_USE_V && !M91x_USE_W && !M91x_SOME_E
     #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
   #endif
 
@@ -109,6 +118,9 @@
     TERN_(M91x_USE_I, tmc_report_otpw(stepperI));
     TERN_(M91x_USE_J, tmc_report_otpw(stepperJ));
     TERN_(M91x_USE_K, tmc_report_otpw(stepperK));
+    TERN_(M91x_USE_U, tmc_report_otpw(stepperU));
+    TERN_(M91x_USE_V, tmc_report_otpw(stepperV));
+    TERN_(M91x_USE_W, tmc_report_otpw(stepperW));
     #if M91x_USE_E(0)
       tmc_report_otpw(stepperE0);
     #endif
@@ -137,7 +149,7 @@
 
   /**
    * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
-   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4 and E[index].
+   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4, A, B, C, U, V, W, and E[index].
    *       If no axes are given, clear all.
    *
    * Examples:
@@ -154,9 +166,12 @@
                hasI = TERN0(M91x_USE_I,  parser.seen(axis_codes.i)),
                hasJ = TERN0(M91x_USE_J,  parser.seen(axis_codes.j)),
                hasK = TERN0(M91x_USE_K,  parser.seen(axis_codes.k)),
+               hasU = TERN0(M91x_USE_U,  parser.seen(axis_codes.u)),
+               hasV = TERN0(M91x_USE_V,  parser.seen(axis_codes.v)),
+               hasW = TERN0(M91x_USE_W,  parser.seen(axis_codes.w)),
                hasE = TERN0(M91x_SOME_E, parser.seen(axis_codes.e));
 
-    const bool hasNone = !hasE && !hasX && !hasY && !hasZ && !hasI && !hasJ && !hasK;
+    const bool hasNone = !hasE && !hasX && !hasY && !hasZ && !hasI && !hasJ && !hasK && !hasU && !hasV && !hasW;
 
     #if M91x_SOME_X
       const int8_t xval = int8_t(parser.byteval(axis_codes.x, 0xFF));
@@ -205,6 +220,18 @@
     #if M91x_USE_K
       const int8_t kval = int8_t(parser.byteval(axis_codes.k, 0xFF));
       if (hasNone || kval == 1 || (hasK && kval < 0)) tmc_clear_otpw(stepperK);
+    #endif
+    #if M91x_USE_U
+      const int8_t uval = int8_t(parser.byteval(axis_codes.u, 0xFF));
+      if (hasNone || uval == 1 || (hasU && uval < 0)) tmc_clear_otpw(stepperU);
+    #endif
+    #if M91x_USE_V
+      const int8_t vval = int8_t(parser.byteval(axis_codes.v, 0xFF));
+      if (hasNone || vval == 1 || (hasV && vval < 0)) tmc_clear_otpw(stepperV);
+    #endif
+    #if M91x_USE_W
+      const int8_t wval = int8_t(parser.byteval(axis_codes.w, 0xFF));
+      if (hasNone || wval == 1 || (hasW && wval < 0)) tmc_clear_otpw(stepperW);
     #endif
 
     #if M91x_SOME_E
@@ -296,6 +323,15 @@
         #if K_HAS_STEALTHCHOP
           case K_AXIS: TMC_SET_PWMTHRS(K,K); break;
         #endif
+        #if U_HAS_STEALTHCHOP
+          case U_AXIS: TMC_SET_PWMTHRS(U,U); break;
+        #endif
+        #if V_HAS_STEALTHCHOP
+          case V_AXIS: TMC_SET_PWMTHRS(V,V); break;
+        #endif
+        #if W_HAS_STEALTHCHOP
+          case W_AXIS: TMC_SET_PWMTHRS(W,W); break;
+        #endif
 
         #if E0_HAS_STEALTHCHOP || E1_HAS_STEALTHCHOP || E2_HAS_STEALTHCHOP || E3_HAS_STEALTHCHOP || E4_HAS_STEALTHCHOP || E5_HAS_STEALTHCHOP || E6_HAS_STEALTHCHOP || E7_HAS_STEALTHCHOP
           case E_AXIS: {
@@ -326,6 +362,9 @@
       TERN_( I_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS(I,I));
       TERN_( J_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS(J,J));
       TERN_( K_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS(K,K));
+      TERN_( U_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS(U,U));
+      TERN_( V_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS(V,V));
+      TERN_( W_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS(W,W));
 
       TERN_(E0_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS_E(0));
       TERN_(E1_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS_E(1));
@@ -397,6 +436,18 @@
       say_M913(forReplay);
       SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.get_pwm_thrs());
     #endif
+    #if U_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_U_STR, stepperU.get_pwm_thrs());
+    #endif
+    #if V_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_V_STR, stepperV.get_pwm_thrs());
+    #endif
+    #if W_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_W_STR, stepperW.get_pwm_thrs());
+    #endif
 
     #if E0_HAS_STEALTHCHOP
       say_M913(forReplay);
@@ -451,7 +502,7 @@
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
-    LOOP_LINEAR_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
+    LOOP_NUM_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
       const int16_t value = parser.value_int();
       report = false;
       switch (i) {
@@ -484,6 +535,15 @@
         #if K_SENSORLESS
           case K_AXIS: stepperK.homing_threshold(value); break;
         #endif
+        #if U_SENSORLESS && AXIS_HAS_STALLGUARD(U)
+          case U_AXIS: stepperU.homing_threshold(value); break;
+        #endif
+        #if V_SENSORLESS && AXIS_HAS_STALLGUARD(V)
+          case V_AXIS: stepperV.homing_threshold(value); break;
+        #endif
+        #if W_SENSORLESS && AXIS_HAS_STALLGUARD(W)
+          case W_AXIS: stepperW.homing_threshold(value); break;
+        #endif
       }
     }
 
@@ -499,6 +559,9 @@
       TERN_(I_SENSORLESS, tmc_print_sgt(stepperI));
       TERN_(J_SENSORLESS, tmc_print_sgt(stepperJ));
       TERN_(K_SENSORLESS, tmc_print_sgt(stepperK));
+      TERN_(U_SENSORLESS, tmc_print_sgt(stepperU));
+      TERN_(V_SENSORLESS, tmc_print_sgt(stepperV));
+      TERN_(W_SENSORLESS, tmc_print_sgt(stepperW));
     }
   }
 
@@ -560,6 +623,18 @@
     #if K_SENSORLESS
       say_M914(forReplay);
       SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.homing_threshold());
+    #endif
+    #if U_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_U_STR, stepperU.homing_threshold());
+    #endif
+    #if V_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_V_STR, stepperV.homing_threshold());
+    #endif
+    #if W_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_W_STR, stepperW.homing_threshold());
     #endif
   }
 

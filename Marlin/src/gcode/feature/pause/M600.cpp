@@ -117,13 +117,16 @@ void GcodeSuite::M600() {
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  LINEAR_AXIS_CODE(
+  NUM_AXIS_CODE(
     if (parser.seenval('X')) park_point.x = parser.linearval('X'),
     if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
     if (parser.seenval(AXIS4_NAME)) park_point.i = parser.linearval(AXIS4_NAME),
     if (parser.seenval(AXIS5_NAME)) park_point.j = parser.linearval(AXIS5_NAME),
-    if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME)
+    if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME),
+    if (parser.seenval(AXIS7_NAME)) park_point.u = parser.linearval(AXIS7_NAME),
+    if (parser.seenval(AXIS8_NAME)) park_point.v = parser.linearval(AXIS8_NAME),
+    if (parser.seenval(AXIS9_NAME)) park_point.w = parser.linearval(AXIS9_NAME)
   );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
@@ -136,6 +139,10 @@ void GcodeSuite::M600() {
   #else
     // Unload filament
     const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
+  #endif
+
+  #if AXIS_COLLISION('B')
+    #error "'M600 B' collides with an axis named 'B'."
   #endif
 
   const int beep_count = parser.intval('B', -1
