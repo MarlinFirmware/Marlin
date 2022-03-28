@@ -937,7 +937,58 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       sync_plan_position_e(); // Resume new E Position
     }
   }
-  
+
+  /* 
+  * Prime the selected extruder
+  *
+  * If too_cold(toolID) returns TRUE -> returns without moving extruder.
+  * Extruders filament = swap_length + extra prime, then performs cutting retraction if enabled.
+  * If cooling fan is enabled, calls filament_swap_cooling();
+  */  
+  void extruder_prime(const uint8_t toolID) {
+
+    if (too_cold(toolID)) return; //Extruder too cold to prime
+
+    float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
+
+    /*
+     * Converted this functionality to enabled by default to avoid accidental breakage on very first initiailizion of each extruder
+     * This comment block can be removed if changes are accepted. This is mostly explaining the changes.
+     * This 'if' statement makes these two #defines in configuration_adv.h unneccessary:
+     * TOOLCHANGE_FS_PRIME_FIRST_USED
+     * TOOLCHANGE_FS_INIT_BEFORE_SWAP
+     * M217 V1 can be converted to set/reset this functionality if desired
+     */
+    // Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
+    if ( enable_first_prime && !TEST(extruder_did_first_prime, toolID)) {
+      SBI(extruder_did_first_prime, toolID);   // Log 1st prime complete
+      fr = toolchange_settings.prime_speed;    // Set slower speed for first prime
+      unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
+    }
+
+    if ( toolchange_settings.extra_prime > 0 ) {
+      //Positive extra_prime value 
+	    //- Return filament at speed (fr) then extra_prime at prime speed
+	    unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr)); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
+      unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed)); // Extra Prime Distance
+    } else {
+      //Negative extra_prime value 
+	    // Unretract distance (swap length) is reduced by the value of extra_prime
+	    unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(fr));
+    }
+
+    SBI(extruder_was_primed, toolID);    // Log that this extruder has been primed
+
+    // Cutting retraction
+    #if TOOLCHANGE_FS_WIPE_RETRACT
+      unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+    #endif
+
+	// Cool down with fan
+    filament_swap_cooling(); 
+	
+  } //extruder_prime routine
+
   /*
   * Check if the active extruder is too cold, and that extra_prime > 0
   * If true: prime the active extruder
@@ -975,16 +1026,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
       #endif
 
-      // Prime (All distances are added and slowed down to ensure secure priming in all circumstances)
-      unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
-
-      // Cutting retraction
-      #if TOOLCHANGE_FS_WIPE_RETRACT
-        unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
-      #endif
-
-      // Cool down with fan
-      filament_swap_cooling();
+      extruder_prime(active_extruder);
 
       // Move back
       #if ENABLED(TOOLCHANGE_PARK)
@@ -1004,8 +1046,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
 
-// Move to Tool-Change Park Position
-inline void tool_park() {
+// --------------------------
 
 /**
  * Perform a tool-change, which may result in moving the
@@ -1225,35 +1266,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-
-            float fr = toolchange_settings.unretract_speed;
-
-            #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-              if (!TEST(extruder_did_first_prime, new_tool)) {
-                SBI(extruder_did_first_prime, new_tool);
-                fr = toolchange_settings.prime_speed;       // Next move is a prime, not just un-retract
-                unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
-              }
-            #endif
-
-            // Unretract (or Prime)
-            unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr));
-
-            // Extra Prime
-            unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
-
-            // Log that this extruder has been primed
-            SBI(extruder_was_primed, new_tool);
-
-            // Cutting retraction
-            #if TOOLCHANGE_FS_WIPE_RETRACT
-              unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
-            #endif
-
-            // Cool down with fan
-            filament_swap_cooling();
-          }
           if (should_swap && !too_cold(active_extruder))
+            extruder_prime(active_extruder); // Prime selected Extruder
         #endif
 
         // Prevent a move outside physical bounds
