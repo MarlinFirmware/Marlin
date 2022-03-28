@@ -196,7 +196,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
-        for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
+        EXTRUDER_LOOP() info.filament_size[e] = planner.filament_size[e];
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
       #endif
@@ -461,7 +461,7 @@ void PrintJobRecovery::resume() {
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
     #if HAS_MULTI_EXTRUDER
-      for (int8_t e = 0; e < EXTRUDERS; e++) {
+      EXTRUDER_LOOP() {
         sprintf_P(cmd, PSTR("M200T%iD%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
@@ -511,7 +511,7 @@ void PrintJobRecovery::resume() {
 
   // Restore retract and hop state from an active `G10` command
   #if ENABLED(FWRETRACT)
-    LOOP_L_N(e, EXTRUDERS) {
+    EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {
         fwretract.current_retract[e] = info.retract[e];
         fwretract.retracted[e] = true;
@@ -634,7 +634,7 @@ void PrintJobRecovery::resume() {
 
         #if DISABLED(NO_VOLUMETRICS)
           DEBUG_ECHOPGM("filament_size:");
-          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPGM(" ", info.filament_size[i]);
+          EXTRUDER_LOOP() DEBUG_ECHOLNPGM(" ", info.filament_size[e]);
           DEBUG_EOL();
         #endif
 
@@ -666,7 +666,7 @@ void PrintJobRecovery::resume() {
 
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
-          for (int8_t e = 0; e < EXTRUDERS; e++) {
+          EXTRUDER_LOOP() {
             DEBUG_ECHO(info.retract[e]);
             if (e < EXTRUDERS - 1) DEBUG_CHAR(',');
           }

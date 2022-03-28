@@ -782,15 +782,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if !defined(TARGET_LPC1768) && ANY( \
-    ENDSTOPPULLDOWNS, \
-    ENDSTOPPULLDOWN_XMAX, ENDSTOPPULLDOWN_YMAX, \
-    ENDSTOPPULLDOWN_ZMAX, ENDSTOPPULLDOWN_XMIN, \
-    ENDSTOPPULLDOWN_YMIN, ENDSTOPPULLDOWN_ZMIN \
-  )
-  #error "PULLDOWN pin mode is not available on the selected board."
-#endif
-
 #if BOTH(ENDSTOPPULLUPS, ENDSTOPPULLDOWNS)
   #error "Enable only one of ENDSTOPPULLUPS or ENDSTOPPULLDOWNS."
 #elif BOTH(FIL_RUNOUT_PULLUP, FIL_RUNOUT_PULLDOWN)
@@ -1044,8 +1035,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Instant Freeze
  */
-#if ENABLED(FREEZE_FEATURE) && !PIN_EXISTS(FREEZE)
-  #error "FREEZE_FEATURE requires a FREEZE_PIN to be defined."
+#if ENABLED(FREEZE_FEATURE) && !(PIN_EXISTS(FREEZE) && defined(FREEZE_STATE))
+  #error "FREEZE_FEATURE requires both FREEZE_PIN and FREEZE_STATE."
 #endif
 
 /**
@@ -1146,6 +1137,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #elif ENABLED(SINGLENOZZLE)
 
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
+    #error "PID_PARAMS_PER_HOTEND must be disabled when using any SINGLENOZZLE extruder."
+  #endif
 
 #endif
 
@@ -1157,6 +1151,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
+  #elif HAS_PRUSA_MMU2
+    #error "SWITCHING_NOZZLE and PRUSA_MMU2(S) are incompatible."
   #elif EXTRUDERS != 2
     #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
@@ -1647,9 +1643,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Require pin options and pins to be defined
    */
   #if ENABLED(SENSORLESS_PROBING)
-    #if ENABLED(DELTA) && !(AXIS_HAS_STALLGUARD(X) && AXIS_HAS_STALLGUARD(Y) && AXIS_HAS_STALLGUARD(Z))
+    #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
       #error "SENSORLESS_PROBING requires TMC2130/2160/2209/5130/5160 drivers on X, Y, and Z."
-    #elif !AXIS_HAS_STALLGUARD(Z)
+    #elif !Z_SENSORLESS
       #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z."
     #endif
   #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
