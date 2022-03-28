@@ -906,6 +906,43 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
+  /* 
+  * Check if too cold to move the specified tool
+  * 
+  * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
+  * Returns FALSE if able to  move.
+  */ 
+  bool too_cold(uint8_t toolID){
+    if (TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID))) {
+      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
+      return true;
+    }
+    return false;
+  }
+  
+  /*
+   * Cutting recovery -- Recover from cutting retraction that occurs at the end of nozzle priming
+   *
+   *    If the active_extruder is up to temp  (!too_cold):
+   *    Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
+   *    current_position.e = newEPosition;
+   *    sync_plan_position_e();
+   */
+  inline void extruder_cutting_recover(float newEPosition) {
+    if (!too_cold(active_extruder))
+    {
+      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+      planner.synchronize();
+      current_position.e = newEPosition;
+      sync_plan_position_e(); // Resume new E Position
+    }
+  }
+  
+  /*
+  * Check if the active extruder is too cold, and that extra_prime > 0
+  * If true: prime the active extruder
+  * 
+  */
   void tool_change_prime() {
     if (toolchange_settings.extra_prime > 0
       && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
@@ -1077,14 +1114,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // Unload / Retract
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-        const bool should_swap = can_move_away && toolchange_settings.swap_length,
-                   too_cold = TERN0(PREVENT_COLD_EXTRUSION,
-                     !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool))
-                   );
+        const bool should_swap = can_move_away && toolchange_settings.swap_length;
         if (should_swap) {
-          if (too_cold) {
-            SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
+          if (too_cold(old_tool)) {
+            // If SingleNozzle setup is too cold, unable to perform tool_change.
           }
           else if (TEST(extruder_was_primed, old_tool)) // Retract the old extruder if it was previously primed
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
@@ -1191,7 +1225,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-          if (should_swap && !too_cold) {
 
             float fr = toolchange_settings.unretract_speed;
 
@@ -1220,6 +1253,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             // Cool down with fan
             filament_swap_cooling();
           }
+          if (should_swap && !too_cold(active_extruder))
         #endif
 
         // Prevent a move outside physical bounds
