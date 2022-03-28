@@ -3267,7 +3267,7 @@ void MarlinSettings::reset() {
 
     HOTEND_LOOP() {
       thermalManager.temp_hotend[e].constants.heater_power = _mpc_heater_power[e];
-      thermalManager.temp_hotend[e].constants.heatblock_heat_capacity = _mpc_block_heat_capacity[e];
+      thermalManager.temp_hotend[e].constants.block_heat_capacity = _mpc_block_heat_capacity[e];
       thermalManager.temp_hotend[e].constants.sensor_responsiveness = _mpc_sensor_responsiveness[e];
       thermalManager.temp_hotend[e].constants.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
       #if ENABLED(MPC_INCLUDE_FAN)

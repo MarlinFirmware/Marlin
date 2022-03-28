@@ -1380,8 +1380,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       }
 
       // update the modeled temperatures
-      float blocktempdelta = hotend.soft_pwm_amount * constants.heater_power * (MPC_dT / 127) / constants.heatblock_heat_capacity;
-      blocktempdelta += (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff * MPC_dT / constants.heatblock_heat_capacity;
+      float blocktempdelta = hotend.soft_pwm_amount * constants.heater_power * (MPC_dT / 127) / constants.block_heat_capacity;
+      blocktempdelta += (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff * MPC_dT / constants.block_heat_capacity;
       hotend.modeled_block_temp += blocktempdelta;
 
       const float sensortempdelta = (hotend.modeled_block_temp - hotend.modeled_sensor_temp) * (constants.sensor_responsiveness * MPC_dT);
@@ -1400,7 +1400,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       float power = 0.0;
       if (hotend.target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
         // plan power level to get to target temperature in 2 seconds
-        power = (hotend.target - hotend.modeled_block_temp) * constants.heatblock_heat_capacity / 2.0f;
+        power = (hotend.target - hotend.modeled_block_temp) * constants.block_heat_capacity / 2.0f;
         power -= (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff;
       }
 
