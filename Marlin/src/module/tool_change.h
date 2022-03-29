@@ -24,6 +24,7 @@
 #include "../inc/MarlinConfig.h"
 
 //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
+#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
 
 #if HAS_MULTI_EXTRUDER
 
