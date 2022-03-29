@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,15 +24,15 @@
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  */
-#ifndef SCK_PIN
-  #define SCK_PIN   PIN_SPI_SCK
+#ifndef SD_SCK_PIN
+  #define SD_SCK_PIN  PIN_SPI_SCK
 #endif
-#ifndef MISO_PIN
-  #define MISO_PIN  PIN_SPI_MISO
+#ifndef SD_MISO_PIN
+  #define SD_MISO_PIN PIN_SPI_MISO
 #endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN  PIN_SPI_MOSI
+#ifndef SD_MOSI_PIN
+  #define SD_MOSI_PIN PIN_SPI_MOSI
 #endif
-#ifndef SS_PIN
-  #define SS_PIN    PIN_SPI_SS
+#ifndef SD_SS_PIN
+  #define SD_SS_PIN   PIN_SPI_SS
 #endif

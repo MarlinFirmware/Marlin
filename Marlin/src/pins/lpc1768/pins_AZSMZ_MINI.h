@@ -25,11 +25,9 @@
  * AZSMZ MINI pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME "AZSMZ MINI"
+#define BOARD_INFO_NAME "AZSMZ Mini"
 
 //
 // Servos
@@ -39,8 +37,8 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                          P1_24
-#define Y_MIN_PIN                          P1_26
+#define X_STOP_PIN                         P1_24
+#define Y_STOP_PIN                         P1_26
 #define Z_MIN_PIN                          P1_28
 #define Z_MAX_PIN                          P1_29
 
@@ -78,6 +76,7 @@
 //
 // Heaters / Fans
 //
+
 // EFB
 #define HEATER_0_PIN                       P2_04
 #define HEATER_BED_PIN                     P2_05
@@ -87,7 +86,6 @@
 #define FAN1_PIN                           P0_26
 
 #define LCD_SDSS                           P0_16  // LCD SD chip select
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN                       P1_30
@@ -102,16 +100,17 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15
-  #define MISO_PIN                         P0_17
-  #define MOSI_PIN                         P0_18
-  #define SS_PIN                        LCD_SDSS
+  #define SD_SCK_PIN                       P0_15
+  #define SD_MISO_PIN                      P0_17
+  #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                     LCD_SDSS
   #define SD_DETECT_PIN                    P3_25
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -119,14 +118,14 @@
 //
 // Ethernet pins
 //
-#define ENET_MDIO                          P1_17
-#define ENET_RX_ER                         P1_14
-#define ENET_RXD1                          P1_10
-#define ENET_MOC                           P1_16
 #define REF_CLK                            P1_15
-#define ENET_RXD0                          P1_09
+#define ENET_MDIO                          P1_17
+#define ENET_MOC                           P1_16
 #define ENET_CRS                           P1_08
+#define ENET_RX_ER                         P1_14
 #define ENET_TX_EN                         P1_04
+#define ENET_RXD0                          P1_09
+#define ENET_RXD1                          P1_10
 #define ENET_TXD0                          P1_00
 #define ENET_TXD1                          P1_01
 
@@ -146,9 +145,9 @@
  *  PWM1.4   DIO53   SDSS(SSEL0)      J3-5  AUX-3
  *  PWM1.4   DIO46   Z_STEP_PIN
  *  PWM1.5   DIO3    X_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.5   DIO9    RAMPS_D9_PIN
+ *  PWM1.5   DIO9    MOSFET_B_PIN
  *  PWM1.6   DIO14   Y_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.6   DIO10   RAMPS_D10_PIN
+ *  PWM1.6   DIO10   MOSFET_A_PIN
  */
 
  /**

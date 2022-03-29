@@ -26,11 +26,19 @@
 
 #ifdef __IMXRT1062__
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
 #include "../shared/Delay.h"
 #include "timers.h"
-
 #include <Wire.h>
+
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
+#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
+#if WITHIN(SERIAL_PORT, 0, 3)
+  IMPLEMENT_SERIAL(SERIAL_PORT);
+#endif
+USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result, HAL_adc_select;
 
@@ -98,20 +106,22 @@ void HAL_adc_init() {
 void HAL_clear_reset_source() {
   uint32_t reset_source = SRC_SRSR;
   SRC_SRSR = reset_source;
- }
+}
 
 uint8_t HAL_get_reset_source() {
   switch (SRC_SRSR & 0xFF) {
     case 1: return RST_POWER_ON; break;
     case 2: return RST_SOFTWARE; break;
     case 4: return RST_EXTERNAL; break;
-    // case 8: return RST_BROWN_OUT; break;
+    //case 8: return RST_BROWN_OUT; break;
     case 16: return RST_WATCHDOG; break;
-     case 64: return RST_JTAG; break;
-    // case 128: return RST_OVERTEMP; break;
+    case 64: return RST_JTAG; break;
+    //case 128: return RST_OVERTEMP; break;
   }
   return 0;
 }
+
+void HAL_reboot() { _reboot_Teensyduino_(); }
 
 #define __bss_end _ebss
 
@@ -158,7 +168,7 @@ uint16_t HAL_adc_get_result() {
   return 0;
 }
 
-bool is_output(uint8_t pin) {
+bool is_output(pin_t pin) {
   const struct digital_pin_bitband_and_config_table_struct *p;
   p = digital_pin_to_info_PGM + pin;
   return (*(p->reg + 1) & p->mask);

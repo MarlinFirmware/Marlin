@@ -47,7 +47,7 @@
   #endif
 
   #ifdef PHOTO_RETRACT_MM
-    inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
+    inline void e_move_m240(const float length, const_feedRate_t fr_mm_s) {
       if (length && thermalManager.hotEnoughToExtrude(active_extruder))
         unscaled_e_move(length, fr_mm_s);
     }
@@ -135,17 +135,8 @@ void GcodeSuite::M240() {
     };
 
     #ifdef PHOTO_RETRACT_MM
-      const float rval = parser.seenval('R') ? parser.value_linear_units() : _PHOTO_RETRACT_MM;
-      feedRate_t sval = (
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          PAUSE_PARK_RETRACT_FEEDRATE
-        #elif ENABLED(FWRETRACT)
-          RETRACT_FEEDRATE
-        #else
-          45
-        #endif
-      );
-      if (parser.seenval('S')) sval = parser.value_feedrate();
+      const float rval = parser.linearval('R', _PHOTO_RETRACT_MM);
+      const feedRate_t sval = parser.feedrateval('S', TERN(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_RETRACT_FEEDRATE, TERN(FWRETRACT, RETRACT_FEEDRATE, 45)));
       e_move_m240(-rval, sval);
     #endif
 

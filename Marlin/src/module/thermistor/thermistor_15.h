@@ -22,7 +22,7 @@
 #pragma once
 
  // 100k bed thermistor in JGAurora A5. Calibrated by Sam Pinches 21st Jan 2018 using cheap k-type thermocouple inserted into heater block, using TM-902C meter.
-const temp_entry_t temptable_15[] PROGMEM = {
+constexpr temp_entry_t temptable_15[] PROGMEM = {
   { OV(  31), 275 },
   { OV(  33), 270 },
   { OV(  35), 260 },

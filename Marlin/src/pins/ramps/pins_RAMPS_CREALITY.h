@@ -30,12 +30,11 @@
 //
 // Heaters / Fans
 //
-
-// Power outputs EFBF or EFBE
-#define MOSFET_D_PIN                           7
+#define MOSFET_B_PIN                           7  // For HEATER_1_PIN ("EEF" or "EEB")
+#define FAN_PIN                                9
 
 #define FIL_RUNOUT_PIN                         2
-#if NUM_RUNOUT_SENSORS > 1
+#if NUM_RUNOUT_SENSORS >= 2
   #define FIL_RUNOUT2_PIN                     15  // Creality CR-X can use dual runout sensors
 #endif
 
@@ -63,6 +62,6 @@
 #define EXP4_PIN                              12  // PS_ON_PIN
 
 #define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING             true
+#ifndef SUICIDE_PIN_STATE
+  #define SUICIDE_PIN_STATE                 HIGH
 #endif

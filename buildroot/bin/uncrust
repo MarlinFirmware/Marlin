@@ -6,11 +6,12 @@
 TMPDIR=`mktemp -d`
 
 # Reformat a single file to tmp/
-uncrustify -l CPP -c ./buildroot/share/extras/uncrustify.cfg -f "$1" >$TMPDIR/uncrustify.out
-
-# Replace the original file
-cp "$TMPDIR/uncrustify.out" "$1"
+if uncrustify -l CPP -c ./buildroot/share/extras/uncrustify.cfg -f "$1" >$TMPDIR/uncrustify.out ; then
+  cp "$TMPDIR/uncrustify.out" "$1"  ; # Replace the original file
+else
+  echo "Something went wrong with uncrustify."
+fi
 
 # Clean up, deliberately
-rm "$TMPDIR/uncrustify.out"
+[[ -f "$TMPDIR/uncrustify.out" ]] && rm "$TMPDIR/uncrustify.out"
 rmdir "$TMPDIR"

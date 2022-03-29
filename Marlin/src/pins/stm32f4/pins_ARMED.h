@@ -24,9 +24,9 @@
 
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "Arm'ed supports up to 2 hotends / E-steppers."
 #endif
 
@@ -38,8 +38,10 @@
 #define BOARD_INFO_NAME      "Arm'ed"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+#endif
 
 //
 // Limit Switches
@@ -204,9 +206,6 @@
 
 #if HAS_TMC_UART
   // TMC2208/TMC2209 stepper drivers
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN               EXT0_PIN
   #define X_SERIAL_RX_PIN               EXT0_PIN
 

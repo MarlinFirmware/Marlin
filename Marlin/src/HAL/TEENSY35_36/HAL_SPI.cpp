@@ -26,27 +26,27 @@
 
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
 #include <SPI.h>
 #include <pins_arduino.h>
 #include "spi_pins.h"
-#include "../../core/macros.h"
 
 static SPISettings spiConfig;
 
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
+  SET_OUTPUT(SD_SCK_PIN);
+  SET_INPUT(SD_MISO_PIN);
+  SET_OUTPUT(SD_MOSI_PIN);
 
   #if 0 && DISABLED(SOFTWARE_SPI)
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
+      WRITE(SD_SS_PIN, HIGH);
     #endif
     // set a default rate
     spiInit(SPI_HALF_SPEED); // 1
@@ -64,7 +64,7 @@ void spiInit(uint8_t spiRate) {
   case SPI_SPEED_5:       clock =   625000; break;
   case SPI_SPEED_6:       clock =   312500; break;
   default:
-    clock = 4000000; // Default from the SPI libarary
+    clock = 4000000; // Default from the SPI library
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
   SPI.begin();
@@ -80,7 +80,7 @@ uint8_t spiRec() {
   //return SPDR;
 }
 
-void spiRead(uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t *buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
@@ -103,7 +103,7 @@ void spiSend(uint8_t b) {
   //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
 
-void spiSendBlock(uint8_t token, const uint8_t* buf) {
+void spiSendBlock(uint8_t token, const uint8_t *buf) {
   SPI.beginTransaction(spiConfig);
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {

@@ -31,6 +31,10 @@ Nozzle nozzle;
 #include "../MarlinCore.h"
 #include "../module/motion.h"
 
+#if NOZZLE_CLEAN_MIN_TEMP > 20
+  #include "../module/temperature.h"
+#endif
+
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
   /**
@@ -42,7 +46,9 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    */
   void Nozzle::stroke(const xyz_pos_t &start, const xyz_pos_t &end, const uint8_t &strokes) {
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t oldpos = current_position);
+    #if ENABLED(NOZZLE_CLEAN_GOBACK)
+      const xyz_pos_t oldpos = current_position;
+    #endif
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
@@ -82,7 +88,9 @@ Nozzle nozzle;
     const xy_pos_t diff = end - start;
     if (!diff.x || !diff.y) return;
 
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
+    #if ENABLED(NOZZLE_CLEAN_GOBACK)
+      const xyz_pos_t back = current_position;
+    #endif
 
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start);
@@ -122,10 +130,12 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    * @param radius radius of circle
    */
-  void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const float &radius) {
+  void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const_float_t radius) {
     if (strokes == 0) return;
 
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
+    #if ENABLED(NOZZLE_CLEAN_GOBACK)
+      const xyz_pos_t back = current_position;
+    #endif
     TERN(NOZZLE_CLEAN_NO_Z, do_blocking_move_to_xy, do_blocking_move_to)(start);
 
     LOOP_L_N(s, strokes)
@@ -148,10 +158,23 @@ Nozzle nozzle;
    * @param pattern one of the available patterns
    * @param argument depends on the cleaning pattern
    */
-  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
+  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const_float_t radius, const uint8_t &objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
     const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
+
+    #if NOZZLE_CLEAN_MIN_TEMP > 20
+      if (thermalManager.degTargetHotend(arrPos) < NOZZLE_CLEAN_MIN_TEMP) {
+        #if ENABLED(NOZZLE_CLEAN_HEATUP)
+          SERIAL_ECHOLNPGM("Nozzle too Cold - Heating");
+          thermalManager.setTargetHotend(NOZZLE_CLEAN_MIN_TEMP, arrPos);
+          thermalManager.wait_for_hotend(arrPos);
+        #else
+          SERIAL_ECHOLNPGM("Nozzle too cold - Skipping wipe");
+          return;
+        #endif
+      }
+    #endif
 
     #if HAS_SOFTWARE_ENDSTOPS
 
@@ -202,6 +225,18 @@ Nozzle nozzle;
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
+  float Nozzle::park_mode_0_height(const_float_t park_z) {
+    // Apply a minimum raise, if specified. Use park.z as a minimum height instead.
+    return _MAX(park_z,                       // Minimum height over 0 based on input
+      _MIN(Z_MAX_POS,                         // Maximum height is fixed
+        #ifdef NOZZLE_PARK_Z_RAISE_MIN
+          NOZZLE_PARK_Z_RAISE_MIN +           // Minimum raise...
+        #endif
+        current_position.z                    // ...over current position
+      )
+    );
+  }
+
   void Nozzle::park(const uint8_t z_action, const xyz_pos_t &park/*=NOZZLE_PARK_POINT*/) {
     constexpr feedRate_t fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
@@ -214,15 +249,9 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
         break;
 
-      default: {
-        // Apply a minimum raise, overriding G27 Z
-        const float min_raised_z =_MIN(Z_MAX_POS, current_position.z
-          #ifdef NOZZLE_PARK_Z_RAISE_MIN
-            + NOZZLE_PARK_Z_RAISE_MIN
-          #endif
-        );
-        do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
-      } break;
+      default: // Raise by NOZZLE_PARK_Z_RAISE_MIN, use park.z as a minimum height
+        do_blocking_move_to_z(park_mode_0_height(park.z), fr_z);
+        break;
     }
 
     do_blocking_move_to_xy(

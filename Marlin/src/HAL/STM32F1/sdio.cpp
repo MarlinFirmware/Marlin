@@ -184,6 +184,10 @@ bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
 
 inline uint32_t SDIO_GetCardState() { return SDIO_CmdSendStatus(SdCard.RelCardAdd << 16U) ? (SDIO_GetResponse(SDIO_RESP1) >> 9U) & 0x0FU : SDIO_CARD_ERROR; }
 
+// No F1 board with SDIO + MSC using Maple, that I aware of...
+bool SDIO_IsReady() { return true; }
+uint32_t SDIO_GetCardSize() { return 0; }
+
 // ------------------------
 // SD Commands and Responses
 // ------------------------

@@ -29,9 +29,9 @@
 
 #include <libmaple/gpio.h>
 
-#define READ(IO)                (PIN_MAP[IO].gpio_device->regs->IDR & (1U << PIN_MAP[IO].gpio_bit) ? HIGH : LOW)
-#define WRITE(IO,V)             (PIN_MAP[IO].gpio_device->regs->BSRR = (1U << PIN_MAP[IO].gpio_bit) << ((V) ? 0 : 16))
-#define TOGGLE(IO)              (PIN_MAP[IO].gpio_device->regs->ODR = PIN_MAP[IO].gpio_device->regs->ODR ^ (1U << PIN_MAP[IO].gpio_bit))
+#define READ(IO)                (PIN_MAP[IO].gpio_device->regs->IDR & _BV32(PIN_MAP[IO].gpio_bit) ? HIGH : LOW)
+#define WRITE(IO,V)             (PIN_MAP[IO].gpio_device->regs->BSRR = _BV32(PIN_MAP[IO].gpio_bit) << ((V) ? 0 : 16))
+#define TOGGLE(IO)              TBI32(PIN_MAP[IO].gpio_device->regs->ODR, PIN_MAP[IO].gpio_bit)
 
 #define _GET_MODE(IO)           gpio_get_mode(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit)
 #define _SET_MODE(IO,M)         gpio_set_mode(PIN_MAP[IO].gpio_device, PIN_MAP[IO].gpio_bit, M)
@@ -51,7 +51,7 @@
 #define IS_INPUT(IO)            (_GET_MODE(IO) == GPIO_INPUT_FLOATING || _GET_MODE(IO) == GPIO_INPUT_ANALOG || _GET_MODE(IO) == GPIO_INPUT_PU || _GET_MODE(IO) == GPIO_INPUT_PD)
 #define IS_OUTPUT(IO)           (_GET_MODE(IO) == GPIO_OUTPUT_PP || _GET_MODE(IO) == GPIO_OUTPUT_OD)
 
-#define PWM_PIN(IO)             (PIN_MAP[IO].timer_device != nullptr)
+#define PWM_PIN(IO)             !!PIN_MAP[IO].timer_device
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)      digitalRead(IO)

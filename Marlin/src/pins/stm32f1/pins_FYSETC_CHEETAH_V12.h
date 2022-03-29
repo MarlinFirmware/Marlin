@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #include "pins_FYSETC_CHEETAH.h"
 
@@ -36,7 +34,7 @@
 #undef RGB_LED_G_PIN
 #undef RGB_LED_B_PIN
 
-#define FAN1_PIN                           PB0    // Fan1
+#define FAN1_PIN                            PB0   // Fan1
 
 #if HAS_TMC_UART
 
@@ -44,20 +42,17 @@
    * TMC2208/TMC2209 stepper drivers
    */
 
-  //
-  // Software serial
-  //
-  #define X_SERIAL_TX_PIN                  PA11
-  #define X_SERIAL_RX_PIN                  PA12
+  #define X_SERIAL_TX_PIN                   PA11
+  #define X_SERIAL_RX_PIN                   PA12
 
-  #define Y_SERIAL_TX_PIN                  PB6
-  #define Y_SERIAL_RX_PIN                  PB7
+  #define Y_SERIAL_TX_PIN                   PB6
+  #define Y_SERIAL_RX_PIN                   PB7
 
-  #define Z_SERIAL_TX_PIN                  PB10
-  #define Z_SERIAL_RX_PIN                  PB11
+  #define Z_SERIAL_TX_PIN                   PB10
+  #define Z_SERIAL_RX_PIN                   PB11
 
-  #define E0_SERIAL_TX_PIN                 PA2
-  #define E0_SERIAL_RX_PIN                 PA3
+  #define E0_SERIAL_TX_PIN                  PA2
+  #define E0_SERIAL_RX_PIN                  PA3
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200

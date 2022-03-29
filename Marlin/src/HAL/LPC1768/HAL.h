@@ -47,51 +47,67 @@ extern "C" volatile uint32_t _millis;
 #include <pinmapping.h>
 #include <CDCSerial.h>
 
-// i2c uses 8-bit shifted address
-#define I2C_ADDRESS(A) uint8_t((A) << 1)
-
 //
 // Default graphical display delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(600)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(750)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(750)
-#endif
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
+
+typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
+extern DefaultSerial1 USBSerial;
 
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 UsbSerial
+  #define MYSERIAL1 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #error "SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 UsbSerial
+    #define MYSERIAL2 USBSerial
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 USBSerial
+  #elif WITHIN(SERIAL_PORT_3, 0, 3)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #error "SERIAL_PORT_3 must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL USBSerial
+  #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL UsbSerial
+    #define LCD_SERIAL USBSerial
   #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 
@@ -108,8 +124,12 @@ extern "C" volatile uint32_t _millis;
 // Utility functions
 //
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
+
 #pragma GCC diagnostic pop
 
 //
@@ -134,17 +154,17 @@ int freeMemory();
 
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 extern uint32_t HAL_adc_reading;
-[[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
+[[gnu::always_inline]] inline void HAL_adc_start_conversion(const pin_t pin) {
   HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
 }
-[[gnu::always_inline]] inline uint16_t HAL_read_adc() {
+[[gnu::always_inline]] inline uint16_t HAL_adc_get_result() {
   return HAL_adc_reading;
 }
 
 #define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     HAL_start_adc(pin)
-#define HAL_READ_ADC()         HAL_read_adc()
+#define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
+#define HAL_READ_ADC()         HAL_adc_get_result()
 #define HAL_ADC_READY()        (true)
 
 // Test whether the pin is valid
@@ -170,7 +190,7 @@ constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
-#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09,
 
 #define HAL_IDLETASK 1
 void HAL_idletask();
@@ -200,9 +220,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, 
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
-
-// Add strcmp_P if missing
-#ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
-#endif
+void HAL_reboot();
