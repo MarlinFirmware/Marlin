@@ -957,7 +957,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   }
 
   /* 
-  * Prime the selected extruder
+  * Prime the currently selected extruder (Filament loading only)
   *
   * If too_cold(toolID) returns TRUE -> returns without moving extruder.
   * Extruders filament = swap_length + extra prime, then performs cutting retraction if enabled.
@@ -1033,9 +1033,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   } //extruder_prime routine
 
   /*
-  * Prime the currently selected extruder
-  * Check if the active extruder is up to temp, and that extra_prime > 0
-  * If true: prime the active extruder
+  * Sequence to Prime the currently selected extruder
+  * Raise Z, move the ToolChange_Park if enabled, prime the extruder, move back.
   */
   void tool_change_prime() {
     
