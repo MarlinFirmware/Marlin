@@ -1595,7 +1595,7 @@ void MarlinSettings::postprocess() {
       TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
     }
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
+    TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(!eeprom_error));
 
     return !eeprom_error;
   }
@@ -2598,7 +2598,7 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::load() {
     if (validate()) {
       const bool success = _load();
-      TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreRead(success));
+      TERN_(EXTENSIBLE_UI, ExtUI::onSettingsLoaded(success));
       return success;
     }
     reset();

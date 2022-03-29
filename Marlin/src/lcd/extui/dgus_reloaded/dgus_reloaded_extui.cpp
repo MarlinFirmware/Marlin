@@ -100,11 +100,11 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
