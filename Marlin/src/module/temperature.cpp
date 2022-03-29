@@ -1379,7 +1379,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       // At startup, initialize modeled temperatures
       if (isnan(hotend.modeled_block_temp)) {
-        hotend.modeled_ambient_temp = MPC_AMBIENT;   // a typical room temperature
+        hotend.modeled_ambient_temp = min(30.0f, hotend.celsius);   // cap initial value at reasonable max room temperature of 30C
         hotend.modeled_block_temp = hotend.modeled_sensor_temp = hotend.celsius;
       }
 
@@ -1424,9 +1424,9 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       hotend.modeled_block_temp += delta_to_apply;
       hotend.modeled_sensor_temp += delta_to_apply;
 
-      // only correct ambient when close to steady state otherwise it can diverge wildly due to modelling errors
-      if (fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
-        hotend.modeled_ambient_temp += delta_to_apply;
+      // only correct ambient when close to steady state (output power is not clipped or asymptotic temperature is reached)
+      if (WITHIN(hotend.soft_pwm_amount, 1, 126) || fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
+        hotend.modeled_ambient_temp += delta_to_apply > 0.f ? max(delta_to_apply, MPC_MIN_AMBIENT_CHANGE * MPC_dT) : min(delta_to_apply, -MPC_MIN_AMBIENT_CHANGE * MPC_dT);
 
       float power = 0.0;
       if (hotend.target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
