@@ -1041,7 +1041,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     
     DEBUG_ECHO_FILAMENTSWAP("DEBUG: Entering tool_change_prime() routine");
 
-    if (toolchange_settings.extra_prime > 0 && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1) ) 
+    if (toolchange_settings.extra_prime > 0 && !too_cold(active_extruder)) 
     {
       destination = current_position; // Remember the old position
 
