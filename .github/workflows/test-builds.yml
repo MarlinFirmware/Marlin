@@ -137,7 +137,7 @@ jobs:
 
     - name: Install PlatformIO
       run: |
-        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+        pip install -U https://github.com/platformio/platformio-core/archive/v5.2.5.zip
         platformio update
 
     - name: Run ${{ matrix.test-platform }} Tests
