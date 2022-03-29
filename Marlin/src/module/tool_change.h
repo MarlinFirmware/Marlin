@@ -53,7 +53,7 @@
   #endif
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    void tool_change_prime();
+    void tool_change_prime(); // Prime the currently selected extruder
   #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

@@ -1032,17 +1032,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 	
   } //extruder_prime routine
 
-  // First tool priming. To prime again, reboot the machine.
-  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-
   /*
-  * This is called when the first T0 occurs. 
+  * Prime the currently selected extruder
   * Check if the active extruder is up to temp, and that extra_prime > 0
   * If true: prime the active extruder
   */
-  void PrimeOnFirstT0() {
+  void tool_change_prime() {
     
-    DEBUG_ECHO_FILAMENTSWAP("DEBUG: Entering PrimeOnFirstT0() routine");
+    DEBUG_ECHO_FILAMENTSWAP("DEBUG: Entering tool_change_prime() routine");
 
     if (toolchange_settings.extra_prime > 0 && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1) ) 
     {
@@ -1090,9 +1087,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       extruder_cutting_recover(destination.e); // Cutting recover
     }
-    DEBUG_ECHO_FILAMENTSWAP("DEBUG: Exiting PrimeOnFirstT0() routine");
-  } 
-  #endif// PrimeOnFirstT0
+    DEBUG_ECHO_FILAMENTSWAP("DEBUG: Exiting tool_change_prime() routine");
+  } // tool_change_prime
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
 
