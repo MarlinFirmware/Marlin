@@ -189,7 +189,7 @@ bool Stepper::abort_current_block;
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 uint8_t Stepper::steps_per_isr;
 
-#if HAS_FREEZE_PIN
+#if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
 #endif
 
@@ -497,6 +497,9 @@ void Stepper::enable_axis(const AxisEnum axis) {
 
 bool Stepper::disable_axis(const AxisEnum axis) {
   mark_axis_disabled(axis);
+
+  TERN_(DWIN_LCD_PROUI, set_axis_untrusted(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+
   // If all the axes that share the enabled bit are disabled
   const bool can_disable = can_axis_disable(axis);
   if (can_disable) {
@@ -1640,7 +1643,7 @@ void Stepper::pulse_phase_isr() {
   if (!current_block) return;
 
   // Skipping step processing causes motion to freeze
-  if (TERN0(HAS_FREEZE_PIN, frozen)) return;
+  if (TERN0(FREEZE_FEATURE, frozen)) return;
 
   // Count of pending loops and events for this iteration
   const uint32_t pending_events = step_event_count - step_events_completed;

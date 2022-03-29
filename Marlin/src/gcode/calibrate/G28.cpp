@@ -51,7 +51,7 @@
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#elif ENABLED(DWIN_LCD_PROUI)
   #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
@@ -82,15 +82,13 @@
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
-          LINEAR_AXIS_LIST(tmc_enable_stallguard(stepperX), tmc_enable_stallguard(stepperY), false, false, false, false)
-        , false
-          #if AXIS_HAS_STALLGUARD(X2)
-            || tmc_enable_stallguard(stepperX2)
-          #endif
-        , false
-          #if AXIS_HAS_STALLGUARD(Y2)
-            || tmc_enable_stallguard(stepperY2)
-          #endif
+        LINEAR_AXIS_LIST(
+          TERN0(X_SENSORLESS, tmc_enable_stallguard(stepperX)),
+          TERN0(Y_SENSORLESS, tmc_enable_stallguard(stepperY)),
+          false, false, false, false
+        )
+        , TERN0(X2_SENSORLESS, tmc_enable_stallguard(stepperX2))
+        , TERN0(Y2_SENSORLESS, tmc_enable_stallguard(stepperY2))
       };
     #endif
 
@@ -101,14 +99,10 @@
     current_position.set(0.0, 0.0);
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-      tmc_disable_stallguard(stepperX, stealth_states.x);
-      tmc_disable_stallguard(stepperY, stealth_states.y);
-      #if AXIS_HAS_STALLGUARD(X2)
-        tmc_disable_stallguard(stepperX2, stealth_states.x2);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Y2)
-        tmc_disable_stallguard(stepperY2, stealth_states.y2);
-      #endif
+      TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
+      TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
+      TERN_(Y_SENSORLESS, tmc_disable_stallguard(stepperY, stealth_states.y));
+      TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
     #endif
   }
 
@@ -213,8 +207,6 @@ void GcodeSuite::G28() {
 
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOMING));
-
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
@@ -236,7 +228,12 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_StartHoming());
+  #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+    const M_StateEnum old_grblstate = M_State_grbl;
+    set_and_report_grblstate(M_HOMING);
+  #endif
+
+  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -549,15 +546,15 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedHoming());
-  TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
+  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingDone());
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();
 
   if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
   #if HAS_L64XX
     // Set L6470 absolute position registers to counts

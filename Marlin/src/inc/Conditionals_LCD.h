@@ -473,11 +473,14 @@
 #endif
 
 // Aliases for LCD features
-#if EITHER(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED)
+#if EITHER(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
   #define HAS_DWIN_E3V2_BASIC 1
 #endif
 #if EITHER(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
   #define HAS_DWIN_E3V2 1
+#endif
+#if ENABLED(DWIN_LCD_PROUI)
+  #define DO_LIST_BIN_FILES 1
 #endif
 
 // E3V2 extras
@@ -494,7 +497,7 @@
   #endif
   #define HAS_LCD_BRIGHTNESS 1
   #define LCD_BRIGHTNESS_MAX 250
-  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #if ENABLED(DWIN_LCD_PROUI)
     #define LCD_BRIGHTNESS_DEFAULT 127
   #endif
 #endif
@@ -513,7 +516,7 @@
   #endif
 #endif
 
-#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #define HAS_DISPLAY 1
 #endif
 
@@ -746,6 +749,7 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
+#define EXTRUDER_LOOP() for (int8_t e = 0; e < EXTRUDERS; e++)
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)

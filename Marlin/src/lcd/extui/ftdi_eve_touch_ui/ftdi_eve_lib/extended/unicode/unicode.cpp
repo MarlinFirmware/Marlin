@@ -191,9 +191,9 @@
     return render_utf8_text(nullptr, 0, 0, str, fs, maxlen);
   }
 
-  uint16_t FTDI::get_utf8_text_width(FSTR_P pstr, font_size_t fs) {
-    char str[strlen_P((const char*)pstr) + 1];
-    strcpy_P(str, (const char*)pstr);
+  uint16_t FTDI::get_utf8_text_width(FSTR_P fstr, font_size_t fs) {
+    char str[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(str, FTOP(fstr));
     return get_utf8_text_width(str, fs);
   }
 
@@ -234,9 +234,9 @@
     cmd.cmd(RESTORE_CONTEXT());
   }
 
-  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, FSTR_P pstr, font_size_t fs, uint16_t options) {
-    char str[strlen_P((const char*)pstr) + 1];
-    strcpy_P(str, (const char*)pstr);
+  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, FSTR_P fstr, font_size_t fs, uint16_t options) {
+    char str[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(str, FTOP(fstr));
     draw_utf8_text(cmd, x, y, (const char*) str, fs, options);
   }
 

@@ -17,6 +17,7 @@ usage() {
 Usage: mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
        mftest [-a|--autobuild]
        mftest [-r|--rebuild]
+       mftest [-s|--silent]
        mftest [-u|--autoupload] [-n|--num=<num>]
 
 OPTIONS
@@ -30,7 +31,7 @@ OPTIONS
   -v --verbose     Extra output for debugging.
   -s --silent      Silence build output from PlatformIO.
 
-env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
+env shortcuts: tree due esp lin lp8|lpc8 lp9|lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
 "
 }
 
@@ -52,7 +53,7 @@ TESTENV='-'
 CHOICE=0
 DEBUG=0
 
-while getopts 'abhmruvyn:t:-:' OFLAG; do
+while getopts 'abhmrsuvyn:t:-:' OFLAG; do
   case "${OFLAG}" in
     a) AUTO_BUILD=1 ; bugout "Auto-Build target..." ;;
     h) EXIT_USAGE=1 ;;
@@ -84,6 +85,7 @@ while getopts 'abhmruvyn:t:-:' OFLAG; do
                esac
                ;;
       rebuild) REBUILD=1  ; bugout "Rebuilding previous..." ;;
+       silent) SILENT_FLAG="-s" ;;
          make) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
 debug|verbose) DEBUG=1    ; bugout "Debug ON" ;;
         build) case "$OVAL" in
