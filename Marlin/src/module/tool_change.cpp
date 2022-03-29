@@ -32,6 +32,7 @@
 #include "../MarlinCore.h"
 
 //#define DEBUG_TOOL_CHANGE
+//#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
 
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
@@ -895,11 +896,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
  */
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
-#ifdef DEBUG_TOOLCHANGE_FILAMENT_SWAP
- #define DEBUG_ECHO_FILAMENTSWAP SERIAL_ECHOLNPGM // Echo new line message
-#else
- #define DEBUG_ECHO_FILAMENTSWAP(...)  NOOP // ToolChange Filament Swap Debug Echo is disabled!
-#endif
+  #ifdef DEBUG_TOOLCHANGE_FILAMENT_SWAP
+    #define FS_DEBUG(V...) SERIAL_ECHOLNPGM("DEBUG: " V)
+  #else
+    #define FS_DEBUG(...) NOOP
+  #endif
 
   // Define any variables required
   static uint8_t extruder_did_first_prime = 0,  // Extruders first priming status
@@ -920,12 +921,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
-  /* 
-  * Check if too cold to move the specified tool
-  * 
-  * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
-  * Returns FALSE if able to  move.
-  */ 
+  /**
+   * Check if too cold to move the specified tool
+   *
+   * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
+   * Returns FALSE if able to  move.
+   */
   bool too_cold(uint8_t toolID){
     if (TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID))) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
@@ -933,41 +934,40 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
     return false;
   }
-  
-  /*
+
+  /**
    * Cutting recovery -- Recover from cutting retraction that occurs at the end of nozzle priming
    *
-   *    If the active_extruder is up to temp  (!too_cold):
-   *    Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
-   *    current_position.e = newEPosition;
-   *    sync_plan_position_e();
+   * If the active_extruder is up to temp (!too_cold):
+   *  Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
+   *  current_position.e = e;
+   *  sync_plan_position_e();
    */
-  void extruder_cutting_recover(float newEPosition) {
-    if (!too_cold(active_extruder))
-    {
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Performing Cutting Recover | Distance: ", (toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT), " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
-      unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
+  void extruder_cutting_recover(const_float_t e) {
+    if (!too_cold(active_extruder)) {
+      const float dist = toolchange_settings.extra_resume + (TOOLCHANGE_FS_WIPE_RETRACT);
+      FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
+      unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
       planner.synchronize();
-      current_position.e = newEPosition;
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Set position to: ", newEPosition );
+      FS_DEBUG("Set position to: ", e);
+      current_position.e = e;
       sync_plan_position_e(); // Resume new E Position
     }
   }
 
-  /* 
-  * Prime the currently selected extruder (Filament loading only)
-  *
-  * If too_cold(toolID) returns TRUE -> returns without moving extruder.
-  * Extruders filament = swap_length + extra prime, then performs cutting retraction if enabled.
-  * If cooling fan is enabled, calls filament_swap_cooling();
-  */  
+  /**
+   * Prime the currently selected extruder (Filament loading only)
+   *
+   * If too_cold(toolID) returns TRUE -> returns without moving extruder.
+   * Extruders filament = swap_length + extra prime, then performs cutting retraction if enabled.
+   * If cooling fan is enabled, calls filament_swap_cooling();
+   */
   void extruder_prime() {
 
-    if (too_cold(active_extruder))
-    {
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Priming Aborted -  Nozzle Too Cold!");
-      return; //Extruder too cold to prime
-    } 
+    if (too_cold(active_extruder)) {
+      FS_DEBUG("Priming Aborted -  Nozzle Too Cold!");
+      return; // Extruder too cold to prime
+    }
 
     float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
 
@@ -975,8 +975,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
      * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
      *
      * Converted this functionality to enabled by default to avoid accidental breakage on very first initiailizion of each extruder
-     * 
-     * This 'if' statement makes these two #defines in configuration_adv.h unneccessaryby effectively enabling them as default. 
+     *
+     * This 'if' statement makes these two #defines in configuration_adv.h unneccessaryby effectively enabling them as default.
      * (these two settings basically just ensured the first prime was performed slowly when switching nozzles).
      * TOOLCHANGE_FS_PRIME_FIRST_USED
      * TOOLCHANGE_FS_INIT_BEFORE_SWAP
@@ -985,61 +985,59 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     if ( enable_first_prime && !TEST(extruder_did_first_prime, active_extruder)) {
       SBI(extruder_did_first_prime, active_extruder);   // Log 1st prime complete
       //Set speed for first prime
-      if (ENABLED(SINGLENOZZLE) && active_extruder != 0 )
-      {
+      if (TERN0(SINGLENOZZLE, active_extruder != 0)) {
         // Single Nozzle and switching from T0 to T? -> filament should be fully retracted already -> no need to reduce speeds
-      } else
-      {
+      }
+      else {
         // new nozzle - prime at user-specified speed.
-        DEBUG_ECHO_FILAMENTSWAP("DEBUG: First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
+        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
         fr = toolchange_settings.prime_speed;
       }
       unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
     }
 
-    if ( toolchange_settings.extra_prime >= 0 ) {
-      //Positive extra_prime value 
-	    //- Return filament at speed (fr) then extra_prime at prime speed
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
+    if (toolchange_settings.extra_prime >= 0) {
+      // Positive extra_prime value
+	    // - Return filament at speed (fr) then extra_prime at prime speed
+      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
 	    unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr)); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
-      
-      if ( toolchange_settings.extra_prime > 0 ) {
-        DEBUG_ECHO_FILAMENTSWAP("DEBUG: Performing Extra Priming for T", active_extruder, " | Distance: ", toolchange_settings.extra_prime, " | Speed: ", MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
+
+      if (toolchange_settings.extra_prime > 0) {
+        FS_DEBUG("Performing Extra Priming for T", active_extruder, " | Distance: ", toolchange_settings.extra_prime, " | Speed: ", MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
         unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed)); // Extra Prime Distance
       }
-    
-    } else {
-      
-      //Negative extra_prime value 
-      // Unretract distance (swap length) is reduced by the value of extra_prime
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Negative ExtraPrime value - Swap Return Length has been reduced from ", toolchange_settings.swap_length, " to ", toolchange_settings.swap_length + toolchange_settings.extra_prime);
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length + toolchange_settings.extra_prime, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
-      unscaled_e_move(toolchange_settings.swap_length + toolchange_settings.extra_prime, MMM_TO_MMS(fr));
+    }
+    else {
+      // Negative extra_prime value
+      // - Unretract distance (swap length) is reduced by the value of extra_prime
+      const float eswap = toolchange_settings.swap_length + toolchange_settings.extra_prime;
+      FS_DEBUG("Negative ExtraPrime value - Swap Return Length has been reduced from ", toolchange_settings.swap_length, " to ", eswap);
+      FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", eswap, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
+      unscaled_e_move(eswap, MMM_TO_MMS(fr));
     }
 
     SBI(extruder_was_primed, active_extruder);    // Log that this extruder has been primed
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
-      DEBUG_ECHO_FILAMENTSWAP("DEBUG: Performing Cutting Retraction | Distance: ", -(TOOLCHANGE_FS_WIPE_RETRACT), " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
+      FS_DEBUG("Performing Cutting Retraction | Distance: ", -(TOOLCHANGE_FS_WIPE_RETRACT), " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
       unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
 
-	// Cool down with fan
-    filament_swap_cooling(); 
-	
-  } //extruder_prime routine
+	  // Cool down with fan
+    filament_swap_cooling();
 
-  /*
-  * Sequence to Prime the currently selected extruder
-  * Raise Z, move the ToolChange_Park if enabled, prime the extruder, move back.
-  */
+  } // extruder_prime()
+
+  /**
+   * Sequence to Prime the currently selected extruder
+   * Raise Z, move the ToolChange_Park if enabled, prime the extruder, move back.
+   */
   void tool_change_prime() {
-    
-    DEBUG_ECHO_FILAMENTSWAP("DEBUG: Entering tool_change_prime() routine");
 
-    if (toolchange_settings.extra_prime > 0 && !too_cold(active_extruder)) 
-    {
+    FS_DEBUG(">>> tool_change_prime()");
+
+    if (toolchange_settings.extra_prime > 0 && !too_cold(active_extruder)) {
       destination = current_position; // Remember the old position
 
       const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
@@ -1084,7 +1082,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       extruder_cutting_recover(destination.e); // Cutting recover
     }
-    DEBUG_ECHO_FILAMENTSWAP("DEBUG: Exiting tool_change_prime() routine");
+
+    FS_DEBUG("<<< tool_change_prime");
+
   } // tool_change_prime
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
@@ -1163,7 +1163,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
-    // TODO: This should maybe be expanded to take single nozzle into account, as well as other scenarios. 
+    // TODO: This should maybe be expanded to take single nozzle into account, as well as other scenarios.
     // Currently, it will only prime the default extruder when that T# is called and that T# is already selected.
     // Ex: Printer boots up, T0 is default. Terminal sends T1 -> This does nothing (T0 does not retract since it has not been primed), swaps to T1 -> That may be problematic in single nozzle if we don't know which was primed last.
     // Ex: Printer boots up, T0 is default. Terminal sends T0 -> This primes T0.
@@ -1199,16 +1199,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
         const bool should_swap = can_move_away && toolchange_settings.swap_length;
         if (should_swap) {
-          if (too_cold(old_tool)) 
-          { 
+          if (too_cold(old_tool)) {
             // If SingleNozzle setup is too cold, unable to perform tool_change.
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
-          else if (TEST(extruder_was_primed, old_tool)) 
-          {
+          else if (TEST(extruder_was_primed, old_tool)) {
             // Retract the old extruder if it was previously primed
             // To-Do: Should SingleNozzle always retract?
-            DEBUG_ECHO_FILAMENTSWAP("DEBUG: Retracting Filament for T", old_tool, ". | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
+            FS_DEBUG("Retracting Filament for T", old_tool, ". | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
             unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
           }
         }
@@ -1418,7 +1416,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, active_extruder);
 
   #endif // HAS_MULTI_EXTRUDER
-} //ToolChange routine
+}
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
