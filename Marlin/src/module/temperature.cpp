@@ -1024,20 +1024,12 @@ volatile bool Temperature::raw_temps_ready = false;
         SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
       SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
       SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
-      SERIAL_ECHOPGM("block_responsiveness ");
-      SERIAL_PRINT(block_responsiveness, 4);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPAIR_F("block_responsiveness ", block_responsiveness, 4);
     //*/
     SERIAL_ECHOLNPGM("MPC_BLOCK_HEAT_CAPACITY ", constants.block_heat_capacity);
-    SERIAL_ECHOPGM("MPC_SENSOR_RESPONSIVENESS ");
-    SERIAL_PRINT(constants.sensor_responsiveness, 4);
-    SERIAL_EOL();
-    SERIAL_ECHOPGM("MPC_AMBIENT_XFER_COEFF ");
-    SERIAL_PRINT(constants.ambient_xfer_coeff_fan0, 4);
-    SERIAL_EOL();
-    TERN_(HAS_FAN, SERIAL_ECHOPGM("MPC_AMBIENT_XFER_COEFF_FAN255 "));
-    TERN_(HAS_FAN, SERIAL_PRINT(ambient_xfer_coeff_fan255, 4));
-    TERN_(HAS_FAN, SERIAL_EOL());
+    SERIAL_ECHOLNPAIR_F("MPC_SENSOR_RESPONSIVENESS ", constants.sensor_responsiveness, 4);
+    SERIAL_ECHOLNPAIR_F("MPC_AMBIENT_XFER_COEFF ", constants.ambient_xfer_coeff_fan0, 4);
+    TERN_(HAS_FAN, SERIAL_ECHOLNPAIR_F("MPC_AMBIENT_XFER_COEFF_FAN255 ", ambient_xfer_coeff_fan255, 4));
   }
 
 #endif // MPCTEMP

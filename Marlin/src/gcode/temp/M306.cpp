@@ -62,16 +62,10 @@ void GcodeSuite::M306() {
     MPC_t& constants = thermalManager.temp_hotend[e].constants;
     SERIAL_ECHOLNPGM("Heater power: ", constants.heater_power);
     SERIAL_ECHOLNPGM("Heatblock heat capacity: ", constants.block_heat_capacity);
-    SERIAL_ECHOPGM("Sensor responsivness: ");
-    SERIAL_PRINT(constants.sensor_responsiveness, 4);
-    SERIAL_EOL();
-    SERIAL_ECHOPGM("Ambient heat transfer coefficient (no fan): ");
-    SERIAL_PRINT(constants.ambient_xfer_coeff_fan0, 4);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR_F("Sensor responsivness: ", constants.sensor_responsiveness, 4);
+    SERIAL_ECHOLNPAIR_F("Ambient heat transfer coefficient (no fan): ", constants.ambient_xfer_coeff_fan0, 4);
     #if ENABLED(MPC_INCLUDE_FAN)
-      SERIAL_ECHOPGM("Ambient heat transfer coefficient (full fan): ");
-      SERIAL_PRINT(constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPAIR_F("Ambient heat transfer coefficient (full fan): ", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
     #endif
   }
 }
