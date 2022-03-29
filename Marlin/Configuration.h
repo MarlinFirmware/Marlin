@@ -654,7 +654,7 @@
   #define MPC_MIN_AMBIENT_CHANGE 1.0f                 // Modeled ambient temperature rate of change in K/S when correcting model inaccuracies.
   #define MPC_STEADYSTATE 0.5f                        // Temperature change rate in K/s for steady state logic to be enforced.
 
-  #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // Positon for M306 autotuning, ideally middle of bed just above the surface.
+  #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // Position for M306 autotuning, ideally middle of bed just above the surface.
 #endif // MPCTEMP
 
 //===========================================================================
