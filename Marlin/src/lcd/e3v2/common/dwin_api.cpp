@@ -90,7 +90,6 @@ bool DWIN_Handshake() {
   }
 #endif
 
-
 // Get font character width
 uint8_t fontWidth(uint8_t cfont) {
   switch (cfont) {
