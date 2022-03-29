@@ -147,8 +147,8 @@ namespace ExtUI {
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
   void onPostprocessSettings() {}
-  void onConfigurationStoreWritten(bool) {}
-  void onConfigurationStoreRead(bool) {}
+  void onSettingsStored(bool) {}
+  void onSettingsLoaded(bool) {}
 
   #if HAS_MESH
     void onLevelingStart() {}
