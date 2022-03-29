@@ -129,6 +129,5 @@
 #endif
 
 #define ERR_BUZZ() BUZZ(400, 40);
-#define ATTN_BUZZ() do{ BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404); }while(0)
 #define OKAY_BUZZ() do{ BUZZ(100, 659); BUZZ(10, 0); BUZZ(100, 698); }while(0)
 #define DONE_BUZZ(OK) do{ if (OK) OKAY_BUZZ(); else ERR_BUZZ(); }while(0)
