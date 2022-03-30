@@ -3054,18 +3054,18 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       SERIAL_CHAR(')');
     #endif
     #if HAS_U_AXIS
-      SERIAL_ECHOPAIR_P(SP_U_LBL, abce.u);
-      SERIAL_ECHOPAIR(" (", position.u, "->", target.u);
+      SERIAL_ECHOPGM_P(SP_U_LBL, abce.u);
+      SERIAL_ECHOPGM(" (", position.u, "->", target.u);
       SERIAL_CHAR(')');
     #endif
     #if HAS_V_AXIS
-      SERIAL_ECHOPAIR_P(SP_V_LBL, abce.v);
-      SERIAL_ECHOPAIR(" (", position.v, "->", target.v);
+      SERIAL_ECHOPGM_P(SP_V_LBL, abce.v);
+      SERIAL_ECHOPGM(" (", position.v, "->", target.v);
       SERIAL_CHAR(')');
     #endif
     #if HAS_W_AXIS
-      SERIAL_ECHOPAIR_P(SP_W_LBL, abce.w);
-      SERIAL_ECHOPAIR(" (", position.w, "->", target.w);
+      SERIAL_ECHOPGM_P(SP_W_LBL, abce.w);
+      SERIAL_ECHOPGM(" (", position.w, "->", target.w);
       SERIAL_CHAR(')');
     #endif
     #if HAS_EXTRUDERS

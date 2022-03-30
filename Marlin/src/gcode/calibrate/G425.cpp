@@ -482,13 +482,13 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
       SERIAL_ECHOLNPGM_P(SP_K_STR, m.obj_center.k);
     #endif
     #if HAS_U_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_U_STR, m.obj_center.u);
+      SERIAL_ECHOLNPGM_P(SP_U_STR, m.obj_center.u);
     #endif
     #if HAS_V_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_V_STR, m.obj_center.v);
+      SERIAL_ECHOLNPGM_P(SP_V_STR, m.obj_center.v);
     #endif
     #if HAS_W_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_W_STR, m.obj_center.w);
+      SERIAL_ECHOLNPGM_P(SP_W_STR, m.obj_center.w);
     #endif
     SERIAL_EOL();
   }
@@ -540,26 +540,26 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #endif
     #if HAS_U_AXIS && AXIS_CAN_CALIBRATE(U)
       #if ENABLED(CALIBRATION_MEASURE_UMIN)
-        SERIAL_ECHOLNPAIR("  " STR_U_MIN ": ", m.backlash[UMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_U_MIN ": ", m.backlash[UMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_UMAX)
-        SERIAL_ECHOLNPAIR("  " STR_U_MAX ": ", m.backlash[UMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_U_MAX ": ", m.backlash[UMAXIMUM]);
       #endif
     #endif
     #if HAS_V_AXIS && AXIS_CAN_CALIBRATE(V)
       #if ENABLED(CALIBRATION_MEASURE_VMIN)
-        SERIAL_ECHOLNPAIR("  " STR_V_MIN ": ", m.backlash[VMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_V_MIN ": ", m.backlash[VMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_VMAX)
-        SERIAL_ECHOLNPAIR("  " STR_V_MAX ": ", m.backlash[VMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_V_MAX ": ", m.backlash[VMAXIMUM]);
       #endif
     #endif
     #if HAS_W_AXIS && AXIS_CAN_CALIBRATE(W)
       #if ENABLED(CALIBRATION_MEASURE_WMIN)
-        SERIAL_ECHOLNPAIR("  " STR_W_MIN ": ", m.backlash[WMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_W_MIN ": ", m.backlash[WMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_WMAX)
-        SERIAL_ECHOLNPAIR("  " STR_W_MAX ": ", m.backlash[WMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_W_MAX ": ", m.backlash[WMAXIMUM]);
       #endif
     #endif
     SERIAL_EOL();
