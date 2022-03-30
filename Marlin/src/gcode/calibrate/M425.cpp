@@ -66,7 +66,7 @@ void GcodeSuite::M425() {
   LOOP_NUM_AXES(a) {
     if (axis_can_calibrate(a) && parser.seen(AXIS_CHAR(a))) {
       planner.synchronize();
-      backlash.set_distance_mm(AxisEnum(a), parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a)));
+      backlash.set_distance_mm(AxisEnum(a), parser.has_value() ? parser.axis_value_to_mm(AxisEnum(a)) : backlash.get_measurement(AxisEnum(a)));
       noArgs = false;
     }
   }
@@ -127,12 +127,12 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
         SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
         SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
         SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
-        SP_I_STR, LINEAR_UNIT(backlash.get_distance_mm(I_AXIS)),
-        SP_J_STR, LINEAR_UNIT(backlash.get_distance_mm(J_AXIS)),
-        SP_K_STR, LINEAR_UNIT(backlash.get_distance_mm(K_AXIS)),
-        SP_U_STR, LINEAR_UNIT(backlash.get_distance_mm(U_AXIS)),
-        SP_V_STR, LINEAR_UNIT(backlash.get_distance_mm(V_AXIS)),
-        SP_W_STR, LINEAR_UNIT(backlash.get_distance_mm(W_AXIS))
+        SP_I_STR, I_AXIS_UNIT(backlash.get_distance_mm(I_AXIS)),
+        SP_J_STR, J_AXIS_UNIT(backlash.get_distance_mm(J_AXIS)),
+        SP_K_STR, K_AXIS_UNIT(backlash.get_distance_mm(K_AXIS)),
+        SP_U_STR, U_AXIS_UNIT(backlash.get_distance_mm(U_AXIS)),
+        SP_V_STR, V_AXIS_UNIT(backlash.get_distance_mm(V_AXIS)),
+        SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
       )
   );
 }

@@ -284,7 +284,7 @@ void GcodeSuite::M205() {
       if (parser.seenval(AXIS6_NAME)) planner.set_max_jerk(K_AXIS, parser.TERN(AXIS6_ROTATES, value_float, value_linear_units)()),
       if (parser.seenval(AXIS7_NAME)) planner.set_max_jerk(U_AXIS, parser.TERN(AXIS7_ROTATES, value_float, value_linear_units)()),
       if (parser.seenval(AXIS8_NAME)) planner.set_max_jerk(V_AXIS, parser.TERN(AXIS8_ROTATES, value_float, value_linear_units)()),
-      if (parser.seenval(AXIS9_NAME)) planner.set_max_jerk(W_AXIS, parser.TERN(AXIS9_ROTATES, value_float, value_linear_units)()),
+      if (parser.seenval(AXIS9_NAME)) planner.set_max_jerk(W_AXIS, parser.TERN(AXIS9_ROTATES, value_float, value_linear_units)())
     );
     #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
       if (seenZ && planner.max_jerk.z <= 0.1f)
@@ -324,7 +324,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
         SP_K_STR, K_AXIS_UNIT(planner.max_jerk.k),
         SP_U_STR, U_AXIS_UNIT(planner.max_jerk.u),
         SP_V_STR, V_AXIS_UNIT(planner.max_jerk.v),
-        SP_W_STR, W_AXIS_UNIT(planner.max_jerk.w),
+        SP_W_STR, W_AXIS_UNIT(planner.max_jerk.w)
       )
       #if HAS_CLASSIC_E_JERK
         , SP_E_STR, LINEAR_UNIT(planner.max_jerk.e)
