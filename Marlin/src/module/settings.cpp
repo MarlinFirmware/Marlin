@@ -3551,6 +3551,11 @@ void MarlinSettings::reset() {
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
+
+    //
+    // Model predictive control
+    //
+    TERN_(MPCTEMP, gcode.M306_report(forReplay));
   }
 
 #endif // !DISABLE_M503

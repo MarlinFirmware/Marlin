@@ -70,4 +70,18 @@ void GcodeSuite::M306() {
   }
 }
 
+void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
+  report_heading(forReplay, F("Model predictive control"));
+  HOTEND_LOOP() {
+    report_echo_start(forReplay);
+    MPC_t& constants = thermalManager.temp_hotend[e].constants;
+    SERIAL_ECHOPGM("  M306 E", e);
+    SERIAL_ECHOPAIR_F(" P", constants.heater_power, 2);
+    SERIAL_ECHOPAIR_F(" C", constants.block_heat_capacity, 2);
+    SERIAL_ECHOPAIR_F(" R", constants.sensor_responsiveness, 4);
+    SERIAL_ECHOPAIR_F(" A", constants.ambient_xfer_coeff_fan0, 4);
+    SERIAL_ECHOLNPAIR_F(" F", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
+  }
+}
+
 #endif // MPCTEMP

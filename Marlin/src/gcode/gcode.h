@@ -931,6 +931,7 @@ private:
 
   #if ENABLED(MPCTEMP)
     static void M306();
+    static void M306_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(PIDTEMPCHAMBER)
