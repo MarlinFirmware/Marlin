@@ -903,8 +903,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   #endif
 
   // Define any variables required
-  static uint8_t extruder_did_first_prime = 0,  // Extruders first priming status
-                 extruder_was_primed = 0;       // Extruders primed status
+  static uint8_t extruder_was_primed = 0;       // Extruders primed status
 
   #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
     bool enable_first_prime; // As set by M217 V
@@ -971,30 +970,19 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
 
+    #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
     /*
      * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
-     *
-     * Converted this functionality to enabled by default to avoid accidental breakage on very first initiailizion of each extruder
-     *
-     * This 'if' statement makes these two #defines in configuration_adv.h unneccessaryby effectively enabling them as default.
-     * (these two settings basically just ensured the first prime was performed slowly when switching nozzles).
-     * TOOLCHANGE_FS_PRIME_FIRST_USED
-     * TOOLCHANGE_FS_INIT_BEFORE_SWAP
-     * M217 V1 can be converted to set/reset this functionality if desired
      */
-    if ( enable_first_prime && !TEST(extruder_did_first_prime, active_extruder)) {
+    static uint8_t extruder_did_first_prime = 0;  // Extruders first priming status
+    if (!TEST(extruder_did_first_prime, active_extruder)) {
       SBI(extruder_did_first_prime, active_extruder);   // Log 1st prime complete
-      //Set speed for first prime
-      if (TERN0(SINGLENOZZLE, active_extruder != 0)) {
-        // Single Nozzle and switching from T0 to T? -> filament should be fully retracted already -> no need to reduce speeds
-      }
-      else {
-        // new nozzle - prime at user-specified speed.
-        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
-        fr = toolchange_settings.prime_speed;
-      }
+      // new nozzle - prime at user-specified speed.
+      FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
+      fr = toolchange_settings.prime_speed;
       unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
     }
+    #endif
 
     //Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
@@ -1164,17 +1152,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
-    // TODO: This should maybe be expanded to take single nozzle into account, as well as other scenarios.
-    // Currently, it will only prime the default extruder when that T# is called and that T# is already selected.
-    // Ex: Printer boots up, T0 is default. Terminal sends T1 -> This does nothing (T0 does not retract since it has not been primed), swaps to T1 -> That may be problematic in single nozzle if we don't know which was primed last.
-    // Ex: Printer boots up, T0 is default. Terminal sends T0 -> This primes T0.
-    // First tool priming. To prime again, reboot the machine.
+    // First tool priming. To prime again, reboot the machine. -- Should only occur for first T0 after powerup!
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
       static bool first_tool_is_primed = false;
-      if (enable_first_prime && !first_tool_is_primed && new_tool == old_tool) {
-        tool_change_prime();
+      
+      if (enable_first_prime && !first_tool_is_primed && new_tool == old_tool && new_tool == 0) {
+        if (!TEST(extruder_was_primed, old_tool)) {
+          tool_change_prime(); //Only perform this prime if it hasn't been primed yet!
+        }
         first_tool_is_primed = true;
       }
+      
     #endif
 
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing

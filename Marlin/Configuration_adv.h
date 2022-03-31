@@ -2464,10 +2464,11 @@
     #define TOOLCHANGE_FS_FAN_SPEED          255  // 0-255
     #define TOOLCHANGE_FS_FAN_TIME            10  // (seconds)
 
-    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate for first time each nozzle is primed
-    //#define TOOLCHANGE_FS_INIT_BEFORE_SWAP
+    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate for first time each extruder is primed
+    //#define TOOLCHANGE_FS_SLOW_FIRST_PRIME
 
-    // Prime on the first T0 (For other tools use TOOLCHANGE_FS_INIT_BEFORE_SWAP)
+    // Primes T0 the first time T0 is sent to the printer. [ Power-On -> T0 { Activate & Primes T0 } -> T1 { Retracts T0, Activate & Primes T1 } ] 
+    // If disabled, does not perform priming routine on T0 until switching back to T0 from another extruder  [ Power-On -> T0 { T0 Activated } -> T1 { Activate & Primes T1 } -> T0 { Retracts T1, Activate &  Primes T0 } ]
     // Enable with M217 V1 before printing to avoid unwanted priming on host connect
     #define TOOLCHANGE_FS_PRIME_FIRST_USED
 
