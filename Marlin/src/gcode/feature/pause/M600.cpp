@@ -56,6 +56,12 @@
  *  Z[distance] - Move the Z axis by this distance
  *  X[position] - Move to this X position, with Y
  *  Y[position] - Move to this Y position, with X
+ *  I[position] - Move to this I position, with X, Y [, J[, K[, C[, H[, O]]]]]
+ *  J[position] - Move to this J position, with X, Y, I[, K[, C[, H[, O]]]]
+ *  K[position] - Move to this K position, with X, Y, I, J[, C[, H[, O]]]
+ *  C[position] - Move to this U position, with X, Y, I, J, K[, H[, O]]
+ *  H[position] - Move to this V position, with X, Y, I, J, K, C[, O]
+ *  O[position] - Move to this W position, with X, Y, I, J, K, C, H
  *  U[distance] - Retract distance for removal (manual reload)
  *  L[distance] - Extrude distance for insertion (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
@@ -121,12 +127,12 @@ void GcodeSuite::M600() {
     if (parser.seenval('X')) park_point.x = parser.linearval('X'),
     if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
-    if (parser.seenval(AXIS4_NAME)) park_point.i = parser.linearval(AXIS4_NAME),
-    if (parser.seenval(AXIS5_NAME)) park_point.j = parser.linearval(AXIS5_NAME),
-    if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME),
-    if (parser.seenval(AXIS7_NAME)) park_point.u = parser.linearval(AXIS7_NAME),
-    if (parser.seenval(AXIS8_NAME)) park_point.v = parser.linearval(AXIS8_NAME),
-    if (parser.seenval(AXIS9_NAME)) park_point.w = parser.linearval(AXIS9_NAME)
+    if (parser.seenval('I')) park_point.i = parser.linearval('I'),
+    if (parser.seenval('J')) park_point.j = parser.linearval('J'),
+    if (parser.seenval('K')) park_point.k = parser.linearval('K'),
+    if (parser.seenval('C')) park_point.u = parser.linearval('C'),    // U axis
+    if (parser.seenval('H')) park_point.v = parser.linearval('H'),    // V axis
+    if (parser.seenval('O')) park_point.w = parser.linearval('O')     // W axis
   );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
@@ -139,10 +145,6 @@ void GcodeSuite::M600() {
   #else
     // Unload filament
     const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
-  #endif
-
-  #if AXIS_COLLISION('B')
-    #error "'M600 B' collides with an axis named 'B'."
   #endif
 
   const int beep_count = parser.intval('B', -1
