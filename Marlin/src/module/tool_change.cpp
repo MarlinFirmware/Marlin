@@ -996,6 +996,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
     }
 
+    //Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
       // Positive extra_prime value
 	    // - Return filament at speed (fr) then extra_prime at prime speed
@@ -1037,7 +1038,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     FS_DEBUG(">>> tool_change_prime()");
 
-    if (toolchange_settings.extra_prime > 0 && !too_cold(active_extruder)) {
+    if (!too_cold(active_extruder)) {
       destination = current_position; // Remember the old position
 
       const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
