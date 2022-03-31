@@ -31,15 +31,11 @@ uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
 // Commonly-used strings in serial output
 PGMSTR(NUL_STR,   "");   PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
-PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
-PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
 PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
-PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
-PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
-PGMSTR(I_STR, STR_I);     PGMSTR(J_STR, STR_J);     PGMSTR(K_STR, STR_K);
-PGMSTR(I_LBL, STR_I ":"); PGMSTR(J_LBL, STR_J ":"); PGMSTR(K_LBL, STR_K ":");
-PGMSTR(SP_I_STR, " " STR_I);     PGMSTR(SP_J_STR, " " STR_J);     PGMSTR(SP_K_STR, " " STR_K);
-PGMSTR(SP_I_LBL, " " STR_I ":"); PGMSTR(SP_J_LBL, " " STR_J ":"); PGMSTR(SP_K_LBL, " " STR_K ":");
+LOGICAL_AXIS_CODE(PGMSTR(SP_E_STR, " E"),  PGMSTR(SP_X_STR, " X"),  PGMSTR(SP_Y_STR, " Y"),  PGMSTR(SP_Z_STR, " Z"),  PGMSTR(SP_I_STR, " " STR_I),     PGMSTR(SP_J_STR, " " STR_J),     PGMSTR(SP_K_STR, " " STR_K));
+LOGICAL_AXIS_CODE(PGMSTR(SP_E_LBL, " E:"), PGMSTR(SP_X_LBL, " X:"), PGMSTR(SP_Y_LBL, " Y:"), PGMSTR(SP_Z_LBL, " Z:"), PGMSTR(SP_I_LBL, " " STR_I ":"), PGMSTR(SP_J_LBL, " " STR_J ":"), PGMSTR(SP_K_LBL, " " STR_K ":"));
+LOGICAL_AXIS_CODE(PGMSTR(E_STR, "E"),  PGMSTR(X_STR, "X"),  PGMSTR(Y_STR, "Y"),  PGMSTR(Z_STR, "Z"),  PGMSTR(I_STR, STR_I),     PGMSTR(J_STR, STR_J),     PGMSTR(K_STR, STR_K));
+LOGICAL_AXIS_CODE(PGMSTR(E_LBL, "E:"), PGMSTR(X_LBL, "X:"), PGMSTR(Y_LBL, "Y:"), PGMSTR(Z_LBL, "Z:"), PGMSTR(I_LBL, STR_I ":"), PGMSTR(J_LBL, STR_J ":"), PGMSTR(K_LBL, STR_K ":"));
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
