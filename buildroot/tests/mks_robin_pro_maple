@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Build tests for MKS Robin Pro
+#
+
+# exit on first failure
+set -e
+
+use_example_configs Mks/Robin_Pro
+opt_enable EMERGENCY_PARSER
+opt_set SERIAL_PORT 3 \
+        SDCARD_CONNECTION LCD \
+        X_DRIVER_TYPE TMC2209 Y_DRIVER_TYPE TMC2130 \
+        TEMP_SENSOR_BED 1
+opt_disable SERIAL_PORT_2 THERMAL_PROTECTION_HOTENDS
+exec_test $1 $2 "MKS Robin Pro, TMC Drivers, no thermal protection" "$3"
+
+# cleanup
+restore_configs

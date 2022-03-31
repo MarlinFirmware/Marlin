@@ -26,7 +26,7 @@
 // Verified by linagee. Source: https://www.mouser.com/datasheet/2/362/semitec%20usa%20corporation_gtthermistor-1202937.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 //
-const temp_entry_t temptable_2[] PROGMEM = {
+constexpr temp_entry_t temptable_2[] PROGMEM = {
   { OV(   1), 848 },
   { OV(  30), 300 }, // top rating 300C
   { OV(  34), 290 },

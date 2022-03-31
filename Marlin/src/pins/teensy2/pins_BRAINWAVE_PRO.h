@@ -75,9 +75,7 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#ifndef __AVR_AT90USB1286__
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Brainwave Pro"
 

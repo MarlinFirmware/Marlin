@@ -1,6 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,29 +56,21 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#if !defined(XPT2046_Z1_THRESHOLD)
+#ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
-
-#ifdef STM32F1xx
-  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
-#elif defined(STM32F4xx)
-  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
-#endif
-
 
 class XPT2046 {
 private:
   static SPI_HandleTypeDef SPIx;
-  static DMA_HandleTypeDef DMAtx;
 
-  static bool isBusy() { return SPIx.Instance ? __IS_DMA_ENABLED(&DMAtx) : false; }
+  static bool isBusy() { return false; }
 
   static uint16_t getRawData(const XPTCoordinate coordinate);
   static bool isTouched();
 
-  static inline void DataTransferBegin() { if (SPIx.Instance) { HAL_SPI_Init(&SPIx); } WRITE(TOUCH_CS_PIN, LOW); };
-  static inline void DataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
+  static void DataTransferBegin() { if (SPIx.Instance) { HAL_SPI_Init(&SPIx); } WRITE(TOUCH_CS_PIN, LOW); };
+  static void DataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
   static uint16_t HardwareIO(uint16_t data);
   static uint16_t SoftwareIO(uint16_t data);
   static uint16_t IO(uint16_t data = 0) { return SPIx.Instance ? HardwareIO(data) : SoftwareIO(data); }

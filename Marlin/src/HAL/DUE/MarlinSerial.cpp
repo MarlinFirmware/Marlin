@@ -382,7 +382,7 @@ void MarlinSerial<Cfg>::flush() {
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::write(const uint8_t c) {
+size_t MarlinSerial<Cfg>::write(const uint8_t c) {
   _written = true;
 
   if (Cfg::TX_SIZE == 0) {
@@ -400,7 +400,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     // XOFF char at the RX isr, but it is properly handled there
     if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
       HWUART->UART_THR = c;
-      return;
+      return 1;
     }
 
     const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
@@ -428,6 +428,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     // Enable TX isr - Non atomic, but it will eventually enable TX isr
     HWUART->UART_IER = UART_IER_TXRDY;
   }
+  return 1;
 }
 
 template<typename Cfg>
@@ -473,169 +474,21 @@ void MarlinSerial<Cfg>::flushTX() {
   }
 }
 
-/**
- * Imports from print.h
- */
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(char c, int base) {
-  print((long)c, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(unsigned char b, int base) {
-  print((unsigned long)b, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(int n, int base) {
-  print((long)n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(unsigned int n, int base) {
-  print((unsigned long)n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(long n, int base) {
-  if (base == 0) write(n);
-  else if (base == 10) {
-    if (n < 0) { print('-'); n = -n; }
-    printNumber(n, 10);
-  }
-  else
-    printNumber(n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(unsigned long n, int base) {
-  if (base == 0) write(n);
-  else printNumber(n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(double n, int digits) {
-  printFloat(n, digits);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println() {
-  print('\r');
-  print('\n');
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(const String& s) {
-  print(s);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(const char c[]) {
-  print(c);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(char c, int base) {
-  print(c, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(unsigned char b, int base) {
-  print(b, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(int n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(unsigned int n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(long n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(unsigned long n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(double n, int digits) {
-  print(n, digits);
-  println();
-}
-
-// Private Methods
-template<typename Cfg>
-void MarlinSerial<Cfg>::printNumber(unsigned long n, uint8_t base) {
-  if (n) {
-    unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
-    int8_t i = 0;
-    while (n) {
-      buf[i++] = n % base;
-      n /= base;
-    }
-    while (i--)
-      print((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
-  }
-  else
-    print('0');
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::printFloat(double number, uint8_t digits) {
-  // Handle negative numbers
-  if (number < 0.0) {
-    print('-');
-    number = -number;
-  }
-
-  // Round correctly so that print(1.999, 2) prints as "2.00"
-  double rounding = 0.5;
-  LOOP_L_N(i, digits) rounding *= 0.1;
-  number += rounding;
-
-  // Extract the integer part of the number and print it
-  unsigned long int_part = (unsigned long)number;
-  double remainder = number - (double)int_part;
-  print(int_part);
-
-  // Print the decimal point, but only if there are digits beyond
-  if (digits) {
-    print('.');
-    // Extract digits from the remainder one at a time
-    while (digits--) {
-      remainder *= 10.0;
-      int toPrint = int(remainder);
-      print(toPrint);
-      remainder -= toPrint;
-    }
-  }
-}
 
 // If not using the USB port as serial port
-#if SERIAL_PORT >= 0
-  template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>;      // Define
-  MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;   // Instantiate
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT> >;
+  MSerialT1 customizedSerial1(MarlinSerialCfg<SERIAL_PORT>::EMERGENCYPARSER);
 #endif
 
 #if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
-  template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>>;    // Define
-  MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2; // Instantiate
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> >;
+  MSerialT2 customizedSerial2(MarlinSerialCfg<SERIAL_PORT_2>::EMERGENCYPARSER);
+#endif
+
+#if defined(SERIAL_PORT_3) && SERIAL_PORT_3 >= 0
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> >;
+  MSerialT3 customizedSerial3(MarlinSerialCfg<SERIAL_PORT_3>::EMERGENCYPARSER);
 #endif
 
 #endif // ARDUINO_ARCH_SAM

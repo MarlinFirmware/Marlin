@@ -33,13 +33,13 @@ void E_Notifyc(char c, int lvl);
 
 template <class T>
 void PrintHex(T val, int lvl) {
-        int num_nibbles = sizeof (T) * 2;
+        int num_nybbles = sizeof (T) * 2;
 
         do {
-                char v = 48 + (((val >> (num_nibbles - 1) * 4)) & 0x0f);
+                char v = 48 + (((val >> (num_nybbles - 1) * 4)) & 0x0F);
                 if(v > 57) v += 7;
                 E_Notifyc(v, lvl);
-        } while(--num_nibbles);
+        } while(--num_nybbles);
 }
 
 template <class T>
@@ -53,13 +53,13 @@ void PrintBin(T val, int lvl) {
 
 template <class T>
 void SerialPrintHex(T val) {
-        int num_nibbles = sizeof (T) * 2;
+        int num_nybbles = sizeof (T) * 2;
 
         do {
-                char v = 48 + (((val >> (num_nibbles - 1) * 4)) & 0x0f);
+                char v = 48 + (((val >> (num_nybbles - 1) * 4)) & 0x0F);
                 if(v > 57) v += 7;
                 USB_HOST_SERIAL.print(v);
-        } while(--num_nibbles);
+        } while(--num_nybbles);
 }
 
 template <class T>

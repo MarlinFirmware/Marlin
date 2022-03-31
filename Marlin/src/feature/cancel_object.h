@@ -32,10 +32,10 @@ public:
   static void cancel_object(const int8_t obj);
   static void uncancel_object(const int8_t obj);
   static void report();
-  static inline bool is_canceled(const int8_t obj) { return TEST(canceled, obj); }
-  static inline void clear_active_object() { set_active_object(-1); }
-  static inline void cancel_active_object() { cancel_object(active_object); }
-  static inline void reset() { canceled = 0x0000; object_count = 0; clear_active_object(); }
+  static bool is_canceled(const int8_t obj) { return TEST(canceled, obj); }
+  static void clear_active_object() { set_active_object(-1); }
+  static void cancel_active_object() { cancel_object(active_object); }
+  static void reset() { canceled = 0x0000; object_count = 0; clear_active_object(); }
 };
 
 extern CancelObject cancelable;

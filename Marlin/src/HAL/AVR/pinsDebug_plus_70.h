@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,15 +25,12 @@
  * Structures for 2560 family boards that use more than 70 pins
  */
 
-#undef NUM_DIGITAL_PINS
-#if MB(BQ_ZUM_MEGA_3D)
+#if MB(BQ_ZUM_MEGA_3D, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14)
+  #undef NUM_DIGITAL_PINS
   #define NUM_DIGITAL_PINS            85
 #elif MB(MIGHTYBOARD_REVE)
+  #undef NUM_DIGITAL_PINS
   #define NUM_DIGITAL_PINS            80
-#elif MB(MINIRAMBO)
-  #define NUM_DIGITAL_PINS            85
-#elif MB(SCOOVO_X9H)
-  #define NUM_DIGITAL_PINS            85
 #endif
 
 #define PA 1

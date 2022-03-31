@@ -17,3 +17,5 @@
 *.png binary
 *.jpg binary
 *.fon binary
+*.bin binary
+*.woff binary

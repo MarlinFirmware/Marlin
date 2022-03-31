@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
 
 #include "sdio.h"
 
@@ -108,7 +108,7 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
     SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
     dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
     return false;
-	}
+  }
 
   //Wait for DMA transaction to complete
   while ((DMA2_BASE->ISR & (DMA_ISR_TEIF4|DMA_ISR_TCIF4)) == 0 ) { /* wait */ }
@@ -183,6 +183,10 @@ bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
 }
 
 inline uint32_t SDIO_GetCardState() { return SDIO_CmdSendStatus(SdCard.RelCardAdd << 16U) ? (SDIO_GetResponse(SDIO_RESP1) >> 9U) & 0x0FU : SDIO_CARD_ERROR; }
+
+// No F1 board with SDIO + MSC using Maple, that I aware of...
+bool SDIO_IsReady() { return true; }
+uint32_t SDIO_GetCardSize() { return 0; }
 
 // ------------------------
 // SD Commands and Responses

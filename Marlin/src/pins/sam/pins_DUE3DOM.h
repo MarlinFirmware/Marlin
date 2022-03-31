@@ -25,9 +25,7 @@
  * DUE3DOM pin assignments
  */
 
-#ifndef __SAM3X8E__
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "DUE3DOM"
 
@@ -84,11 +82,11 @@
 #define TEMP_2_PIN                             5  // Analog Input (unused)
 #define TEMP_BED_PIN                           1  // Analog Input (BED thermistor)
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      -1
+  #define TEMP_0_CS_PIN                       -1
 #else
-  #define MAX6675_SS_PIN                      -1
+  #define TEMP_0_CS_PIN                       -1
 #endif
 
 //
@@ -113,7 +111,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
   #define LCD_PINS_ENABLE                     43
@@ -122,7 +120,7 @@
   #define LCD_PINS_D6                         46
   #define LCD_PINS_D7                         47
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if IS_RRD_SC
 
     #define BEEPER_PIN                        41
 
@@ -130,7 +128,6 @@
     #define BTN_EN2                           52
     #define BTN_ENC                           48
 
-    #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
   #elif ENABLED(RADDS_DISPLAY)
@@ -143,11 +140,9 @@
 
     #define BTN_BACK                          71
 
-    #undef SDSS
-    #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52
@@ -168,4 +163,9 @@
 
     #define BEEPER_PIN                        -1
   #endif // SPARK_FULL_GRAPHICS
-#endif // HAS_SPI_LCD
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD

@@ -37,7 +37,7 @@
  *   https://github.com/ultimachine/Archim/wiki
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #elif DISABLED(TMC_USE_SW_SPI)
   #error "Archim2 requires Software SPI. Enable TMC_USE_SW_SPI in Configuration_adv.h."
@@ -71,7 +71,7 @@
   #define E0_DIAG_PIN                         78  // PB23
   #define E1_DIAG_PIN                         25  // PD0
 
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MIN_PIN                 X_DIAG_PIN
     #define X_MAX_PIN                         32
   #else
@@ -79,7 +79,7 @@
     #define X_MAX_PIN                 X_DIAG_PIN
   #endif
 
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MIN_PIN                 Y_DIAG_PIN
     #define Y_MAX_PIN                         15
   #else
@@ -192,9 +192,9 @@
 #define INT_SDSS                              55  // D55 PA24/MCDA3
 
 // External SD card reader on SC2
-#define SCK_PIN                               76  // D76 PA27
-#define MISO_PIN                              74  // D74 PA25
-#define MOSI_PIN                              75  // D75 PA26
+#define SD_SCK_PIN                            76  // D76 PA27
+#define SD_MISO_PIN                           74  // D74 PA25
+#define SD_MOSI_PIN                           75  // D75 PA26
 #define SDSS                                  87  // D87 PA29
 
 // Unused Digital GPIO J20 Pins
@@ -237,7 +237,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL || ENABLED(TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
   #define LCD_PINS_ENABLE                     24  // D23 PA14_RTS1
@@ -247,11 +247,11 @@
   #define LCD_PINS_D7                         34  // D34 PC2_PWML0
 
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
+#endif
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL || ENABLED(TOUCH_UI_FTDI_EVE)
-    // Buttons on AUX-2
-    #define BTN_EN1                           60  // D60 PA3_TIOB1
-    #define BTN_EN2                           13  // D13 PB27_TIOB0
-    #define BTN_ENC                           16  // D16 PA13_TXD1 // the click
-  #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
-#endif // HAS_SPI_LCD
+#if ANY(IS_ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
+  // Buttons on AUX-2
+  #define BTN_EN1                             60  // D60 PA3_TIOB1
+  #define BTN_EN2                             13  // D13 PB27_TIOB0
+  #define BTN_ENC                             16  // D16 PA13_TXD1 // the click
+#endif

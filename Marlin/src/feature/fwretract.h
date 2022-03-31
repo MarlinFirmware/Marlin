@@ -42,7 +42,7 @@ typedef struct {
 
 class FWRetract {
 private:
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
   #endif
 
@@ -74,11 +74,16 @@ public:
     #endif
   }
 
-  static void retract(const bool retracting
-    #if EXTRUDERS > 1
-      , bool swapping = false
-    #endif
-  );
+  static void retract(const bool retracting E_OPTARG(bool swapping=false));
+
+  static void M207_report();
+  static void M207();
+  static void M208_report();
+  static void M208();
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    static void M209_report();
+    static void M209();
+  #endif
 };
 
 extern FWRetract fwretract;

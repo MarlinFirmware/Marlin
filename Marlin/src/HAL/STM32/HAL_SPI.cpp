@@ -20,7 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -45,24 +47,36 @@ static SPISettings spiConfig;
   #include "../shared/Delay.h"
 
   void spiBegin(void) {
-    OUT_WRITE(SS_PIN, HIGH);
-    OUT_WRITE(SCK_PIN, HIGH);
-    SET_INPUT(MISO_PIN);
-    OUT_WRITE(MOSI_PIN, HIGH);
+    #if PIN_EXISTS(SD_SS)
+      OUT_WRITE(SD_SS_PIN, HIGH);
+    #endif
+    OUT_WRITE(SD_SCK_PIN, HIGH);
+    SET_INPUT(SD_MISO_PIN);
+    OUT_WRITE(SD_MOSI_PIN, HIGH);
   }
 
-  static uint16_t delay_STM32_soft_spi;
+  // Use function with compile-time value so we can actually reach the desired frequency
+  // Need to adjust this a little bit: on a 72MHz clock, we have 14ns/clock
+  // and we'll use ~3 cycles to jump to the method and going back, so it'll take ~40ns from the given clock here
+  #define CALLING_COST_NS  (3U * 1000000000U) / (F_CPU)
+  void (*delaySPIFunc)();
+  void delaySPI_125()  { DELAY_NS(125 - CALLING_COST_NS); }
+  void delaySPI_250()  { DELAY_NS(250 - CALLING_COST_NS); }
+  void delaySPI_500()  { DELAY_NS(500 - CALLING_COST_NS); }
+  void delaySPI_1000() { DELAY_NS(1000 - CALLING_COST_NS); }
+  void delaySPI_2000() { DELAY_NS(2000 - CALLING_COST_NS); }
+  void delaySPI_4000() { DELAY_NS(4000 - CALLING_COST_NS); }
 
   void spiInit(uint8_t spiRate) {
     // Use datarates Marlin uses
     switch (spiRate) {
-      case SPI_FULL_SPEED:   delay_STM32_soft_spi =  125; break;  // desired: 8,000,000  actual: ~1.1M
-      case SPI_HALF_SPEED:   delay_STM32_soft_spi =  125; break;  // desired: 4,000,000  actual: ~1.1M
-      case SPI_QUARTER_SPEED:delay_STM32_soft_spi =  250; break;  // desired: 2,000,000  actual: ~890K
-      case SPI_EIGHTH_SPEED: delay_STM32_soft_spi =  500; break;  // desired: 1,000,000  actual: ~590K
-      case SPI_SPEED_5:      delay_STM32_soft_spi = 1000; break;  // desired:   500,000  actual: ~360K
-      case SPI_SPEED_6:      delay_STM32_soft_spi = 2000; break;  // desired:   250,000  actual: ~210K
-      default:               delay_STM32_soft_spi = 4000; break;  // desired:   125,000  actual: ~123K
+      case SPI_FULL_SPEED:   delaySPIFunc =  &delaySPI_125; break;  // desired: 8,000,000  actual: ~1.1M
+      case SPI_HALF_SPEED:   delaySPIFunc =  &delaySPI_125; break;  // desired: 4,000,000  actual: ~1.1M
+      case SPI_QUARTER_SPEED:delaySPIFunc =  &delaySPI_250; break;  // desired: 2,000,000  actual: ~890K
+      case SPI_EIGHTH_SPEED: delaySPIFunc =  &delaySPI_500; break;  // desired: 1,000,000  actual: ~590K
+      case SPI_SPEED_5:      delaySPIFunc = &delaySPI_1000; break;  // desired:   500,000  actual: ~360K
+      case SPI_SPEED_6:      delaySPIFunc = &delaySPI_2000; break;  // desired:   250,000  actual: ~210K
+      default:               delaySPIFunc = &delaySPI_4000; break;  // desired:   125,000  actual: ~123K
     }
     SPI.begin();
   }
@@ -72,15 +86,15 @@ static SPISettings spiConfig;
 
   uint8_t HAL_SPI_STM32_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
     for (uint8_t bits = 8; bits--;) {
-      WRITE(SCK_PIN, LOW);
-      WRITE(MOSI_PIN, b & 0x80);
+      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SD_MOSI_PIN, b & 0x80);
 
-      DELAY_NS(delay_STM32_soft_spi);
-      WRITE(SCK_PIN, HIGH);
-      DELAY_NS(delay_STM32_soft_spi);
+      delaySPIFunc();
+      WRITE(SD_SCK_PIN, HIGH);
+      delaySPIFunc();
 
       b <<= 1;        // little setup time
-      b |= (READ(MISO_PIN) != 0);
+      b |= (READ(SD_MISO_PIN) != 0);
     }
     DELAY_NS(125);
     return b;
@@ -132,11 +146,9 @@ static SPISettings spiConfig;
    * @details Only configures SS pin since stm32duino creates and initialize the SPI object
    */
   void spiBegin() {
-    #if !PIN_EXISTS(SS)
-      #error "SS_PIN not defined!"
+    #if PIN_EXISTS(SD_SS)
+      OUT_WRITE(SD_SS_PIN, HIGH);
     #endif
-
-    OUT_WRITE(SS_PIN, HIGH);
   }
 
   // Configure SPI for specified SPI speed
@@ -155,12 +167,9 @@ static SPISettings spiConfig;
     }
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
-    #if ENABLED(CUSTOM_SPI_PINS)
-      SPI.setMISO(MISO_PIN);
-      SPI.setMOSI(MOSI_PIN);
-      SPI.setSCLK(SCK_PIN);
-      SPI.setSSEL(SS_PIN);
-    #endif
+    SPI.setMISO(SD_MISO_PIN);
+    SPI.setMOSI(SD_MOSI_PIN);
+    SPI.setSCLK(SD_SCK_PIN);
 
     SPI.begin();
   }
@@ -173,9 +182,7 @@ static SPISettings spiConfig;
    * @details
    */
   uint8_t spiRec() {
-    SPI.beginTransaction(spiConfig);
     uint8_t returnByte = SPI.transfer(0xFF);
-    SPI.endTransaction();
     return returnByte;
   }
 
@@ -188,12 +195,10 @@ static SPISettings spiConfig;
    *
    * @details Uses DMA
    */
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
-    SPI.beginTransaction(spiConfig);
     SPI.transfer(buf, nbyte);
-    SPI.endTransaction();
   }
 
   /**
@@ -204,9 +209,7 @@ static SPISettings spiConfig;
    * @details
    */
   void spiSend(uint8_t b) {
-    SPI.beginTransaction(spiConfig);
     SPI.transfer(b);
-    SPI.endTransaction();
   }
 
   /**
@@ -217,14 +220,12 @@ static SPISettings spiConfig;
    *
    * @details Use DMA
    */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     uint8_t rxBuf[512];
-    SPI.beginTransaction(spiConfig);
     SPI.transfer(token);
     SPI.transfer((uint8_t*)buf, &rxBuf, 512);
-    SPI.endTransaction();
   }
 
 #endif // SOFTWARE_SPI
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // HAL_STM32

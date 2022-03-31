@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * HAL Servo for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
+
 #include <Servo.h>
 
 // Inherit and expand on core Servo library

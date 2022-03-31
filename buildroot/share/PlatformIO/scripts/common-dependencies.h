@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * The purpose of this file is just include Marlin Configuration files,
@@ -27,44 +26,7 @@
  * Used by common-dependencies.py
  */
 
-#include <stdint.h>
-
-// Include platform headers
-//#include "../../../../Marlin/src/HAL/platforms.h"
-
-#include "../../../../Marlin/src/core/boards.h"
-#include "../../../../Marlin/src/core/macros.h"
-#include "../../../../Marlin/Configuration.h"
-
-#include "../../../../Marlin/Version.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_LCD.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_LCD.h)
-#endif
-
-#include "../../../../Marlin/src/core/drivers.h"
-#include "../../../../Marlin/Configuration_adv.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_adv.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
-#endif
-
-//#include "../../../../Marlin/src/pins/pins.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
-  #include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
-#endif
-
-#include "../../../../Marlin/src/inc/Conditionals_post.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
-#endif
+#include "../../../../Marlin/src/inc/MarlinConfig.h"
 
 //
 // Conditionals only used for [features]
@@ -73,12 +35,10 @@
   // Feature checks for SR_LCD_3W_NL
 #elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
   #define USES_LIQUIDTWI2
-#elif ANY(HAS_CHARACTER_LCD, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+#elif ENABLED(LCD_I2C_TYPE_PCA8574)
+  #define USES_LIQUIDCRYSTAL_I2C
+#elif ANY(HAS_MARLINUI_HD44780, LCD_I2C_TYPE_PCF8575, SR_LCD_2W_NL, LCM1602)
   #define USES_LIQUIDCRYSTAL
-#endif
-
-#if BOTH(ANYCUBIC_LCD_I3MEGA, EXTENSIBLE_UI)
-  #define HAS_ANYCUBIC_TFT_EXTUI
 #endif
 
 #if SAVED_POSITIONS
@@ -89,15 +49,8 @@
   #define HAS_GCODE_M876
 #endif
 
-#if PREHEAT_COUNT
-  #define HAS_PREHEAT_COUNT
-#endif
-
-#if EXTRUDERS
-  #define HAS_EXTRUDERS
-  #if EXTRUDERS > 1
-    #define HAS_MULTI_EXTRUDER
-  #endif
+#if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+  #define HAS_SMART_EFF_MOD
 #endif
 
 #if HAS_LCD_MENU
@@ -109,9 +62,6 @@
   #endif
   #if ENABLED(CANCEL_OBJECTS)
     #define HAS_MENU_CANCELOBJECT
-  #endif
-  #if ENABLED(CUSTOM_USER_MENUS)
-    #define HAS_MENU_CUSTOM
   #endif
   #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
     #define HAS_MENU_DELTA_CALIBRATE
@@ -151,6 +101,9 @@
   #endif
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     #define HAS_MENU_TOUCH_SCREEN
+  #endif
+  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
+    #define HAS_MENU_TRAMMING
   #endif
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     #define HAS_MENU_UBL

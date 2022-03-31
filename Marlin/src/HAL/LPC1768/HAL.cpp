@@ -29,21 +29,18 @@
   #include "watchdog.h"
 #endif
 
+DefaultSerial1 USBSerial(false, UsbSerial);
+
 uint32_t HAL_adc_reading = 0;
 
 // U8glib required functions
-extern "C" void u8g_xMicroDelay(uint16_t val) {
-  DELAY_US(val);
+extern "C" {
+  void u8g_xMicroDelay(uint16_t val) { DELAY_US(val); }
+  void u8g_MicroDelay()              { u8g_xMicroDelay(1); }
+  void u8g_10MicroDelay()            { u8g_xMicroDelay(10); }
+  void u8g_Delay(uint16_t val)       { delay(val); }
 }
-extern "C" void u8g_MicroDelay() {
-  u8g_xMicroDelay(1);
-}
-extern "C" void u8g_10MicroDelay() {
-  u8g_xMicroDelay(10);
-}
-extern "C" void u8g_Delay(uint16_t val) {
-  delay(val);
-}
+
 //************************//
 
 // return free heap space
@@ -66,7 +63,12 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
   return ind > -1 ? ind : dval;
 }
 
-void flashFirmware(const int16_t) { NVIC_SystemReset(); }
+void flashFirmware(const int16_t) {
+  delay(500);          // Give OS time to disconnect
+  USB_Connect(false);  // USB clear connection
+  delay(1000);         // Give OS time to notice
+  HAL_reboot();
+}
 
 void HAL_clear_reset_source(void) {
   TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
@@ -78,5 +80,7 @@ uint8_t HAL_get_reset_source(void) {
   #endif
   return RST_POWER_ON;
 }
+
+void HAL_reboot() { NVIC_SystemReset(); }
 
 #endif // TARGET_LPC1768

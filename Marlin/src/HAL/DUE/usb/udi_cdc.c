@@ -162,7 +162,7 @@ static void udi_cdc_ctrl_state_notify(uint8_t port, udd_ep_id_t ep);
  *
  * \param status     UDD_EP_TRANSFER_OK, if transfer finished
  * \param status     UDD_EP_TRANSFER_ABORT, if transfer aborted
- * \param n          number of data transfered
+ * \param n          number of data transferred
  */
 static void udi_cdc_serial_state_msg_sent(udd_ep_status_t status, iram_size_t n, udd_ep_id_t ep);
 
@@ -200,7 +200,7 @@ static void udi_cdc_data_received(udd_ep_status_t status, iram_size_t n, udd_ep_
  *
  * \param status     UDD_EP_TRANSFER_OK, if transfer finished
  * \param status     UDD_EP_TRANSFER_ABORT, if transfer aborted
- * \param n          number of data transfered
+ * \param n          number of data transferred
  */
 static void udi_cdc_data_sent(udd_ep_status_t status, iram_size_t n, udd_ep_id_t ep);
 

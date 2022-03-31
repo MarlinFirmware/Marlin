@@ -59,19 +59,19 @@ e-mail   :  support@circuitsathome.com
 
 // (CPUCTL)
 #define         rCPUCTL 0x80            //16<<3
-#define     bmPUSLEWID1 0x80            //b7
+#define     bmPULSEWID1 0x80            //b7
 #define     bmPULSEWID0 0x40            //b6
 #define            bmIE 0x01            //b0
 
-// bmPUSLEWID1 bmPULSEWID0 Pulse width
+// bmPULSEWID1 bmPULSEWID0 Pulse width
 // 0           0           10.6uS
 // 0           1            5.3uS
 // 1           0            2.6uS
 // 1           1            1.3uS
-#define  PUSLEWIDTH10_6 (0)
-#define   PUSLEWIDTH5_3 (bmPULSEWID0)
-#define   PUSLEWIDTH2_6 (bmPUSLEWID1)
-#define   PUSLEWIDTH1_3 (bmPULSEWID0 | bmPUSLEWID1)
+#define  PULSEWIDTH10_6 (0)
+#define   PULSEWIDTH5_3 (bmPULSEWID0)
+#define   PULSEWIDTH2_6 (bmPULSEWID1)
+#define   PULSEWIDTH1_3 (bmPULSEWID0 | bmPULSEWID1)
 
 // (PINCTL)
 #define         rPINCTL 0x88            //17<<3
@@ -90,7 +90,7 @@ e-mail   :  support@circuitsathome.com
 #define       rREVISION 0x90            //18<<3
 
 // (IOPINS1)
-#define        rIOPINS1 0xa0            //20<<3
+#define        rIOPINS1 0xA0            //20<<3
 #define        bmGPOUT0 0x01            //
 #define        bmGPOUT1 0x02            //
 #define        bmGPOUT2 0x04            //
@@ -101,7 +101,7 @@ e-mail   :  support@circuitsathome.com
 #define         bmGPIN3 0x80            //
 
 // (IOPINS2)
-#define        rIOPINS2 0xa8            //21<<3
+#define        rIOPINS2 0xA8            //21<<3
 #define        bmGPOUT4 0x01            //
 #define        bmGPOUT5 0x02            //
 #define        bmGPOUT6 0x04            //
@@ -112,7 +112,7 @@ e-mail   :  support@circuitsathome.com
 #define         bmGPIN7 0x80            //
 
 // (GPINIRQ)
-#define        rGPINIRQ 0xb0            //22<<3
+#define        rGPINIRQ 0xB0            //22<<3
 #define      bmGPINIRQ0 0x01            //
 #define      bmGPINIRQ1 0x02            //
 #define      bmGPINIRQ2 0x04            //
@@ -123,7 +123,7 @@ e-mail   :  support@circuitsathome.com
 #define      bmGPINIRQ7 0x80            //
 
 // (GPINIEN)
-#define        rGPINIEN 0xb8            //23<<3
+#define        rGPINIEN 0xB8            //23<<3
 #define      bmGPINIEN0 0x01            //
 #define      bmGPINIEN1 0x02            //
 #define      bmGPINIEN2 0x04            //
@@ -134,7 +134,7 @@ e-mail   :  support@circuitsathome.com
 #define      bmGPINIEN7 0x80            //
 
 // (GPINPOL)
-#define        rGPINPOL 0xc0            //24<<3
+#define        rGPINPOL 0xC0            //24<<3
 #define      bmGPINPOL0 0x01            //
 #define      bmGPINPOL1 0x02            //
 #define      bmGPINPOL2 0x04            //
@@ -151,7 +151,7 @@ e-mail   :  support@circuitsathome.com
 // The CPU should never directly clear the SNDBAVIRQ bit.
 
 // Host Interrupt Request Status (HIRQ)
-#define           rHIRQ 0xc8            // Host Interrupt Request Register
+#define           rHIRQ 0xC8            // Host Interrupt Request Register
 #define   bmBUSEVENTIRQ 0x01            // BUS Reset Done or BUS Resume Interrupt Request
 #define        bmRWUIRQ 0x02            // Remote Wakeup Interrupt Request
 #define     bmRCVDAVIRQ 0x04            // Receive FIFO Data Available Interrupt Request
@@ -165,7 +165,7 @@ e-mail   :  support@circuitsathome.com
 #define     ICLRALLBITS (bmBUSEVENTIRQ | bmRWUIRQ | bmRCVDAVIRQ | bmSUSDNIRQ | bmCONDETIRQ | bmFRAMEIRQ | bmHXFRDNIRQ)
 
 // Host Interrupt Request Control (HIEN)
-#define           rHIEN 0xd0            //
+#define           rHIEN 0xD0            //
 #define    bmBUSEVENTIE bmBUSEVENTIRQ   // BUS Reset Done or BUS Resume Interrupt Request Enable
 #define         bmRWUIE bmRWUIRQ        // Remote Wakeup Interrupt Request Enable
 #define      bmRCVDAVIE bmRCVDAVIRQ     // Receive FIFO Data Available Interrupt Request Enable
@@ -176,7 +176,7 @@ e-mail   :  support@circuitsathome.com
 #define      bmHXFRDNIE bmHXFRDNIRQ     // Host Transfer Done Interrupt Request Enable
 
 // (MODE))
-#define           rMODE 0xd8            //27<<3
+#define           rMODE 0xD8            //27<<3
 #define          bmHOST 0x01            //
 #define      bmLOWSPEED 0x02            //
 #define        bmHUBPRE 0x04            //
@@ -186,10 +186,10 @@ e-mail   :  support@circuitsathome.com
 #define      bmDMPULLDN 0x40            //
 #define      bmDPPULLDN 0x80            //
 
-#define        rPERADDR 0xe0            //28<<3
+#define        rPERADDR 0xE0            //28<<3
 
 // (HCTL)
-#define           rHCTL 0xe8            //29<<3
+#define           rHCTL 0xE8            //29<<3
 #define        bmBUSRST 0x01            //
 #define        bmFRMRST 0x02            //
 #define     bmSAMPLEBUS 0x04            //
@@ -200,7 +200,7 @@ e-mail   :  support@circuitsathome.com
 #define       bmSNDTOG1 0x80            //
 
 // Host transfer (HXFR)
-#define           rHXFR 0xf0            //30<<3
+#define           rHXFR 0xF0            //30<<3
 /* Host transfer token values for writing the HXFR register (R30)   */
 /* OR this bit field with the endpoint number in bits 3:0               */
 #define       MAX3421E_tokSETUP 0x10    // HS=0, ISO=0, OUTNIN=0, SETUP=1
@@ -212,13 +212,13 @@ e-mail   :  support@circuitsathome.com
 #define      MAX3421E_tokISOOUT 0x60    // HS=0, ISO=1, OUTNIN=1, SETUP=0
 
 // (HRSL)
-#define           rHRSL 0xf8            //31<<3
+#define           rHRSL 0xF8            //31<<3
 #define      bmRCVTOGRD 0x10            //
 #define      bmSNDTOGRD 0x20            //
 #define       bmKSTATUS 0x40            //
 #define       bmJSTATUS 0x80            //
 #define           bmSE0 0x00            //SE0 - disconnect state
-#define           bmSE1 0xc0            //SE1 - illegal state
+#define           bmSE1 0xC0            //SE1 - illegal state
 
 #define    MODE_FS_HOST (bmDPPULLDN|bmDMPULLDN|bmHOST|bmSOFKAENAB)
 #define    MODE_LS_HOST (bmDPPULLDN|bmDMPULLDN|bmHOST|bmLOWSPEED|bmSOFKAENAB)
