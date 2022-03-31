@@ -700,6 +700,12 @@
 #endif
 
 /**
+ * Number of Secondary Axes (e.g., IJK)
+ * All linear/rotational axes between XYZ and E.
+ */
+#define SECONDARY_AXES SUB3(LINEAR_AXES)
+
+/**
  * Number of Logical Axes (e.g., XYZE)
  * All the logical axes that can be commanded directly by G-code.
  * Delta maps stepper-specific values to ABC steppers.

@@ -54,6 +54,9 @@ struct IF<true, L, R> { typedef L type; };
 
 #define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K)
 
+#define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
+#define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
+
 #if HAS_EXTRUDERS
   #define LIST_ITEM_E(N) , N
   #define CODE_ITEM_E(N) ; N
