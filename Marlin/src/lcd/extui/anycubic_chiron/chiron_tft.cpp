@@ -85,7 +85,7 @@ void ChironTFT::Startup() {
   // opt_enable FIL_RUNOUT_PULLUP
   TFTSer.begin(115200);
 
-  // wait for the TFT panel to initialise and finish the animation
+  // Wait for the TFT panel to initialize and finish the animation
   safe_delay(1000);
 
   // There are different panels for the Chiron with slightly different commands
