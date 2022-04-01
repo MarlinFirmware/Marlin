@@ -139,13 +139,9 @@ void GcodeSuite::M600() {
     park_point += hotend_offset[active_extruder];
   #endif
 
-  #if ENABLED(MMU2_MENUS)
-    // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
-    const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
-  #else
-    // Unload filament
-    const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
-  #endif
+  // Unload filament
+  // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
+  const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
 
   const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
