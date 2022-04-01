@@ -35,7 +35,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02000903
+#define CONFIGURATION_H_VERSION 02010000
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -1024,7 +1024,7 @@
 
 /**
  * Default Jerk limits (mm/s)
- * Override with M205 X Y Z E
+ * Override with M205 X Y Z . . . E
  *
  * "Jerk" specifies the minimum speed change that requires acceleration.
  * When changing speed and direction, if the difference is less than the

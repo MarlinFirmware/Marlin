@@ -681,11 +681,7 @@
  * All the logical axes except for the tool (E) axis
  */
 #ifndef NUM_AXES
-  #ifdef LINEAR_AXES
-    #define NUM_AXES LINEAR_AXES // TEMPORARY FOR COMPATIBILITY
-  #else
-    #define NUM_AXES XYZ
-  #endif
+  #define NUM_AXES XYZ
 #endif
 #if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
