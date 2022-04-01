@@ -255,18 +255,18 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     old_bed_temp = tc; old_bed_target = tt; old_bed_on = ta;
   #endif
 
-  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED,t_draw)) {
+  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED, t_draw)) {
     dwin_string.set(i16tostr3rj(tt + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y, S(dwin_string.string()));
   }
 
-  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED,i_draw)){
+  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED, i_draw)){
     const uint8_t ico = isBed ? (TERN0(HAS_LEVELING, planner.leveling_active) ? ICON_BedLevelOff : ICON_BedOff) : ICON_HotendOff;
     DWIN_ICON_Show(ICON, ico + ta, x, y + STATUS_CHR_HEIGHT + 2);
   }
 
-  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED,c_draw)) {
+  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED, c_draw)) {
     dwin_string.set(i16tostr3rj(tc + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + 70, S(dwin_string.string()));
