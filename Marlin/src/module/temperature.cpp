@@ -858,7 +858,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
       if (ELAPSED(ms, next_report_ms)) {
         next_report_ms += 1000UL;
-        SERIAL_ECHOLNPGM("Temperature ", current_temp);
+
+        print_heater_states(active_extruder);
+        SERIAL_EOL();
       }
 
       hal.idletask();
@@ -902,6 +904,7 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.modeled_ambient_temp = ambient_temp;
 
     SERIAL_ECHOLNPGM("Heating to 200C");
+    hotend.target = 200.0f;   // so M105 looks nice
     hotend.soft_pwm_amount = MPC_MAX >> 1;
     const millis_t heat_start_time = ms;
     next_test_ms = ms;
