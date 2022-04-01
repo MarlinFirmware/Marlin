@@ -85,7 +85,10 @@ axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.z << REL_Z),
   | (ar_init.i << REL_I),
   | (ar_init.j << REL_J),
-  | (ar_init.k << REL_K)
+  | (ar_init.k << REL_K),
+  | (ar_init.u << REL_U),
+  | (ar_init.v << REL_V),
+  | (ar_init.w << REL_W)
 );
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -176,7 +179,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   // Get new XYZ position, whether absolute or relative
-  LOOP_LINEAR_AXES(i) {
+  LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
@@ -785,6 +788,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_USER_THERMISTORS
         case 305: M305(); break;                                  // M305: Set user thermistor parameters
+      #endif
+
+      #if ENABLED(MPCTEMP)
+        case 306: M306(); break;                                  // M306: MPC autotune
       #endif
 
       #if ENABLED(REPETIER_GCODE_M360)
