@@ -1392,10 +1392,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Extruder temperature control algorithm - you can only have one
+ * Extruder temperature control algorithm - There can be only one!
  */
 #if BOTH(PIDTEMP, MPCTEMP)
-  #error "To use MPCTEMP you must disable PIDTEMP."
+  #error "Only enable PIDTEMP or MPCTEMP, but not both."
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)
@@ -1403,11 +1403,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "MPC_INCLUDE_FAN requires at least one fan."
   #endif
   #if FAN_COUNT < HOTENDS
-    #if NONE(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND)
-      #error "MPC_INCLUDE_FAN requires MPC_FAN_0_ALL_HOTENDS or MPC_FAN_0_ACTIVE_HOTEND for one fan and multiple hotends."
-    #endif
     #if COUNT_ENABLED(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) > 1
       #error "Enable either MPC_FAN_0_ALL_HOTENDS or MPC_FAN_0_ACTIVE_HOTEND, not both."
+    #elif NONE(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND)
+      #error "MPC_INCLUDE_FAN requires MPC_FAN_0_ALL_HOTENDS or MPC_FAN_0_ACTIVE_HOTEND for one fan with multiple hotends."
     #endif
   #endif
 #endif
