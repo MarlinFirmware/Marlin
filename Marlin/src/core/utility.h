@@ -81,9 +81,9 @@ const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, 
 
 #if NUM_AXES <= XYZ
   #define AXIS_CHAR(A) ((char)('X' + A))
-  #define JOINTS_CHAR(A) AXIS_CHAR(A)
+  #define IAXIS_CHAR(A) AXIS_CHAR(A)
 #else
   #define AXIS_CHAR(A) axis_codes[A]
-  const xyze_char_t joints_identifiers LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', 'I', 'J', 'K', 'U', 'V', 'W');
-  #define JOINTS_CHAR(A) joints_identifiers[A]
+  const xyze_char_t iaxis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', 'I', 'J', 'K', 'U', 'V', 'W');
+  #define IAXIS_CHAR(A) iaxis_codes[A]
 #endif
