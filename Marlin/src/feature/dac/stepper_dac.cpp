@@ -86,7 +86,7 @@ void StepperDAC::print_values() {
   SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
   SERIAL_ECHO_START();
   LOOP_LOGICAL_AXES(a) {
-    SERIAL_CHAR(' ', JOINTS_CHAR(a), ':'); 
+    SERIAL_CHAR(' ', IAXIS_CHAR(a), ':'); 
     SERIAL_ECHO(dac_perc(a));
     SERIAL_ECHOPGM_P(PSTR(" ("), dac_amps(AxisEnum(a)), PSTR(")"));
   }

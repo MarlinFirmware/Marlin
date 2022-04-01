@@ -52,7 +52,7 @@ void GcodeSuite::M907() {
       return M907_report();
 
     if (parser.seenval('S')) LOOP_L_N(i, MOTOR_CURRENT_COUNT) stepper.set_digipot_current(i, parser.value_int());
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(JOINTS_CHAR(i))) stepper.set_digipot_current(i, parser.value_int());    // X Y Z (I J K) E (map to drivers according to DIGIPOT_CHANNELS. Default with LINEAR_AXES 3: map X Y Z E to X Y Z E0)
+    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper.set_digipot_current(i, parser.value_int());    // X Y Z (I J K) E (map to drivers according to DIGIPOT_CHANNELS. Default with LINEAR_AXES 3: map X Y Z E to X Y Z E0)
     // Additional extruders use B,C.
     // TODO: Change these parameters because 'E' is used and D should be reserved for debugging. B<index>?
     #if E_STEPPERS >= 2
@@ -100,7 +100,7 @@ void GcodeSuite::M907() {
   #if HAS_MOTOR_CURRENT_I2C
     // this one uses actual amps in floating point
     if (parser.seenval('S')) LOOP_L_N(q, DIGIPOT_I2C_NUM_CHANNELS) digipot_i2c.set_current(q, parser.value_float());
-      LOOP_LOGICAL_AXES(i) if (parser.seenval(JOINTS_CHAR(i))) digipot_i2c.set_current(i, parser.value_float());      // X Y Z (I J K) E (map to drivers according to pots adresses. Default with LINEAR_AXES 3 X Y Z E: map to X Y Z E0)
+      LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) digipot_i2c.set_current(i, parser.value_float());      // X Y Z (I J K) E (map to drivers according to pots adresses. Default with LINEAR_AXES 3 X Y Z E: map to X Y Z E0)
     // Additional extruders use B,C,D.
     // TODO: Change these parameters because 'E' is used and because 'D' should be reserved for debugging. B<index>?
     #if E_STEPPERS >= 2
@@ -114,7 +114,7 @@ void GcodeSuite::M907() {
       const float dac_percent = parser.value_float();
       LOOP_LOGICAL_AXES(i) stepper_dac.set_current_percent(i, dac_percent);
     }
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(JOINTS_CHAR(i))) stepper_dac.set_current_percent(i, parser.value_float());   // X Y Z (I J K) E (map to drivers according to DAC_STEPPER_ORDER. Default with LINEAR_AXES 3: X Y Z E map to X Y Z E0) 
+    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper_dac.set_current_percent(i, parser.value_float());   // X Y Z (I J K) E (map to drivers according to DAC_STEPPER_ORDER. Default with LINEAR_AXES 3: X Y Z E map to X Y Z E0) 
   #endif
 }
 
