@@ -54,8 +54,14 @@
  *
  *  E[distance] - Retract the filament this far
  *  Z[distance] - Move the Z axis by this distance
- *  X[position] - Move to this X position, with Y
- *  Y[position] - Move to this Y position, with X
+ *  X[position] - Move to this X position (instead of NOZZLE_PARK_POINT.x)
+ *  Y[position] - Move to this Y position (instead of NOZZLE_PARK_POINT.y)
+ *  I[position] - Move to this I position (instead of NOZZLE_PARK_POINT.i)
+ *  J[position] - Move to this J position (instead of NOZZLE_PARK_POINT.j)
+ *  K[position] - Move to this K position (instead of NOZZLE_PARK_POINT.k)
+ *  C[position] - Move to this U position (instead of NOZZLE_PARK_POINT.u)
+ *  H[position] - Move to this V position (instead of NOZZLE_PARK_POINT.v)
+ *  O[position] - Move to this W position (instead of NOZZLE_PARK_POINT.w)
  *  U[distance] - Retract distance for removal (manual reload)
  *  L[distance] - Extrude distance for insertion (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
@@ -117,26 +123,25 @@ void GcodeSuite::M600() {
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  LINEAR_AXIS_CODE(
+  NUM_AXIS_CODE(
     if (parser.seenval('X')) park_point.x = parser.linearval('X'),
     if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
-    if (parser.seenval(AXIS4_NAME)) park_point.i = parser.linearval(AXIS4_NAME),
-    if (parser.seenval(AXIS5_NAME)) park_point.j = parser.linearval(AXIS5_NAME),
-    if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME)
+    if (parser.seenval('I')) park_point.i = parser.linearval('I'),
+    if (parser.seenval('J')) park_point.j = parser.linearval('J'),
+    if (parser.seenval('K')) park_point.k = parser.linearval('K'),
+    if (parser.seenval('C')) park_point.u = parser.linearval('C'),    // U axis
+    if (parser.seenval('H')) park_point.v = parser.linearval('H'),    // V axis
+    if (parser.seenval('O')) park_point.w = parser.linearval('O')     // W axis
   );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point += hotend_offset[active_extruder];
   #endif
 
-  #if ENABLED(MMU2_MENUS)
-    // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
-    const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
-  #else
-    // Unload filament
-    const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
-  #endif
+  // Unload filament
+  // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
+  const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
 
   const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS

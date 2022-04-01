@@ -97,7 +97,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
   const float f_corr = float(correction) / all_on;
 
-  LOOP_LINEAR_AXES(axis) {
+  LOOP_NUM_AXES(axis) {
     if (distance_mm[axis]) {
       const bool reverse = TEST(dm, axis);
 
@@ -145,7 +145,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 }
 
 int32_t Backlash::get_applied_steps(const AxisEnum axis) {
-  if (axis >= LINEAR_AXES) return 0;
+  if (axis >= NUM_AXES) return 0;
 
   const bool reverse = TEST(last_direction_bits, axis);
 
@@ -165,11 +165,11 @@ class Backlash::StepAdjuster {
   xyz_long_t applied_steps;
 public:
   StepAdjuster() {
-    LOOP_LINEAR_AXES(axis) applied_steps[axis] = backlash.get_applied_steps((AxisEnum)axis);
+    LOOP_NUM_AXES(axis) applied_steps[axis] = backlash.get_applied_steps((AxisEnum)axis);
   }
   ~StepAdjuster() {
     // after backlash compensation parameter changes, ensure applied step count does not change
-    LOOP_LINEAR_AXES(axis) residual_error[axis] += backlash.get_applied_steps((AxisEnum)axis) - applied_steps[axis];
+    LOOP_NUM_AXES(axis) residual_error[axis] += backlash.get_applied_steps((AxisEnum)axis) - applied_steps[axis];
   }
 };
 
