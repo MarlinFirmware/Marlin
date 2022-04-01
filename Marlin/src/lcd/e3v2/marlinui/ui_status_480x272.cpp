@@ -196,9 +196,11 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     #elif HAS_HOTEND
       #define HOTEND_STATS 1
     #endif
-    static celsius_t old_temp[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500),
+    #if HAS_HEATED_BED
+      static celsius_t old_temp[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500),
                      old_target[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500);
-    static bool old_on[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, false);
+      static bool old_on[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, false);
+    #endif
   #endif
 
   #if HAS_HEATED_BED
@@ -237,10 +239,12 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     constexpr bool isBed = false;
     const float tc = thermalManager.degHotend(heater), tt = thermalManager.degTargetHotend(heater);
     const uint8_t ta = thermalManager.isHeatingHotend(heater);
-    const bool c_draw = tc != old_bed_temp, t_draw = tt != old_bed_target, i_draw = ta != old_bed_on;
-    old_temp[heater] = tc; old_target[heater] = tt; old_on[heater] = ta;
+    #if HAS_HEATED_BED
+      old_temp[heater] = tc; old_target[heater] = tt; old_on[heater] = ta;
+    #endif
   #elif HAS_HEATED_BED
     constexpr bool isBed = true;
+    const bool c_draw = tc != old_bed_temp, t_draw = tt != old_bed_target, i_draw = ta != old_bed_on;
     const float tc = thermalManager.degBed(), tt = thermalManager.degTargetBed();
     const uint8_t ta = thermalManager.isHeatingBed();
     bool c_draw = tc != old_temp[heater], t_draw = tt != old_target[heater], i_draw = ta != old_on[heater];
@@ -251,18 +255,18 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     old_bed_temp = tc; old_bed_target = tt; old_bed_on = ta;
   #endif
 
-  if (!ui.did_first_redraw || t_draw) {
+  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED,t_draw)) {
     dwin_string.set(i16tostr3rj(tt + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y, S(dwin_string.string()));
   }
 
-  if (!ui.did_first_redraw || i_draw){
+  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED,i_draw)){
     const uint8_t ico = isBed ? (TERN0(HAS_LEVELING, planner.leveling_active) ? ICON_BedLevelOff : ICON_BedOff) : ICON_HotendOff;
     DWIN_ICON_Show(ICON, ico + ta, x, y + STATUS_CHR_HEIGHT + 2);
   }
 
-  if (!ui.did_first_redraw || c_draw) {
+  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED,c_draw)) {
     dwin_string.set(i16tostr3rj(tc + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + 70, S(dwin_string.string()));
@@ -412,43 +416,45 @@ void MarlinUI::draw_status_screen() {
   //
   // Progress Bar
   //
-  constexpr int16_t pb_margin = 5,
-                    pb_left = pb_margin + TERN(DWIN_MARLINUI_PORTRAIT, 0, 90),
-                    pb_height = TERN(DWIN_MARLINUI_PORTRAIT, 60, 20),
-                    pb_right = LCD_PIXEL_WIDTH - pb_margin,
-                    pb_bottom = TERN(DWIN_MARLINUI_PORTRAIT, 410, 220),
-                    pb_top = pb_bottom - pb_height,
-                    pb_width = pb_right - pb_left;
+  #if HAS_PRINT_PROGRESS
+    constexpr int16_t pb_margin = 5,
+                      pb_left = pb_margin + TERN(DWIN_MARLINUI_PORTRAIT, 0, 90),
+                      pb_height = TERN(DWIN_MARLINUI_PORTRAIT, 60, 20),
+                      pb_right = LCD_PIXEL_WIDTH - pb_margin,
+                      pb_bottom = TERN(DWIN_MARLINUI_PORTRAIT, 410, 220),
+                      pb_top = pb_bottom - pb_height,
+                      pb_width = pb_right - pb_left;
 
-  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
+    const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
 
-  if (!ui.did_first_redraw)
-    DWIN_Draw_Rectangle(0, Select_Color, pb_left, pb_top, pb_right, pb_bottom);   // Outline
+    if (!ui.did_first_redraw)
+      DWIN_Draw_Rectangle(0, Select_Color, pb_left, pb_top, pb_right, pb_bottom);   // Outline
 
-  static uint16_t old_solid = 50;
-  const uint16_t pb_solid = (pb_width - 2) * (progress / (PROGRESS_SCALE)) * 0.01f;
-  const bool p_draw = !ui.did_first_redraw || old_solid != pb_solid;
+    static uint16_t old_solid = 50;
+    const uint16_t pb_solid = (pb_width - 2) * (progress / (PROGRESS_SCALE)) * 0.01f;
+    const bool p_draw = !ui.did_first_redraw || old_solid != pb_solid;
 
-  if (p_draw) {
-    //if (pb_solid)
-      DWIN_Draw_Rectangle(1, Select_Color, pb_left + 1, pb_top + 1, pb_left + pb_solid, pb_bottom - 1); // Fill the solid part
+    if (p_draw) {
+      //if (pb_solid)
+        DWIN_Draw_Rectangle(1, Select_Color, pb_left + 1, pb_top + 1, pb_left + pb_solid, pb_bottom - 1); // Fill the solid part
 
-    //if (pb_solid < old_solid)
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, pb_left + 1 + pb_solid, pb_top + 1, pb_right - 1, pb_bottom - 1); // Erase the rest
+      //if (pb_solid < old_solid)
+        DWIN_Draw_Rectangle(1, Color_Bg_Black, pb_left + 1 + pb_solid, pb_top + 1, pb_right - 1, pb_bottom - 1); // Erase the rest
 
-    #if ENABLED(SHOW_SD_PERCENT)
-      dwin_string.set(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
-      dwin_string.add(PSTR("%"));
-      DWIN_Draw_String(
-        false, font16x32, Percent_Color, Color_Bg_Black,
-        pb_left + (pb_width - dwin_string.length() * 16) / 2,
-        pb_top + (pb_height - 32) / 2,
-        S(dwin_string.string())
-      );
-    #endif
+      #if ENABLED(SHOW_SD_PERCENT)
+        dwin_string.set(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
+        dwin_string.add(PSTR("%"));
+        DWIN_Draw_String(
+          false, font16x32, Percent_Color, Color_Bg_Black,
+          pb_left + (pb_width - dwin_string.length() * 16) / 2,
+          pb_top + (pb_height - 32) / 2,
+          S(dwin_string.string())
+        );
+      #endif
 
-    old_solid = pb_solid;
-  }
+      old_solid = pb_solid;
+    }
+  #endif // HAS_PRINT_PROGRESS
 
   //
   // Status Message
