@@ -193,14 +193,12 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
       #define HOTEND_STATS 3
     #elif HOTENDS > 1
       #define HOTEND_STATS 2
-    #elif HAS_HOTEND
+    #else
       #define HOTEND_STATS 1
     #endif
-    #if HAS_HEATED_BED
-      static celsius_t old_temp[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500),
-                     old_target[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500);
-      static bool old_on[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, false);
-    #endif
+    static celsius_t old_temp[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500),
+                   old_target[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500);
+    static bool old_on[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, false);
   #endif
 
   #if HAS_HEATED_BED
@@ -213,24 +211,23 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
 
   #if HAS_HOTEND && HAS_HEATED_BED
     const bool isBed = heater < 0;
-    const float tc = isBed ? thermalManager.degBed() : thermalManager.degHotend(heater),
-                tt = isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater);
-    const bool ta = isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater);
-
-    bool c_draw = tc != (isBed ? old_bed_temp : old_temp[heater]),
-         t_draw = tt != (isBed ? old_bed_target : old_target[heater]),
-         i_draw = ta != (isBed ? old_bed_on : old_on[heater]);
-
+    bool c_draw, t_draw, i_draw;
     if (isBed) {
-      #if HAS_LEVELING
-        if (!i_draw && planner.leveling_active != old_leveling_on) i_draw = true;
-        old_leveling_on = planner.leveling_active;
-      #endif
+      const float tc = thermalManager.degBed(), tt = thermalManager.degTargetBed();
+      const bool ta = thermalManager.isHeatingBed();
+      c_draw = tc != old_bed_temp;
+      t_draw = tt != old_bed_target;
+      i_draw = ta != old_bed_on;
       old_bed_temp = tc;
       old_bed_target = tt;
       old_bed_on = ta;
     }
     else {
+      const float tc = thermalManager.degHotend(heater), tt = thermalManager.degTargetHotend(heater);
+      const bool ta = thermalManager.isHeatingHotend(heater);
+      c_draw = tc != old_temp[heater];
+      t_draw = tt != old_target[heater];
+      i_draw = ta != old_on[heater];
       old_temp[heater] = tc;
       old_target[heater] = tt;
       old_on[heater] = ta;
@@ -239,34 +236,42 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     constexpr bool isBed = false;
     const float tc = thermalManager.degHotend(heater), tt = thermalManager.degTargetHotend(heater);
     const uint8_t ta = thermalManager.isHeatingHotend(heater);
-    #if HAS_HEATED_BED
-      old_temp[heater] = tc; old_target[heater] = tt; old_on[heater] = ta;
-    #endif
+    bool c_draw = tc != old_temp[heater], t_draw = tt != old_target[heater], i_draw = ta != old_on[heater];
+    old_temp[heater] = tc; old_target[heater] = tt; old_on[heater] = ta;
   #elif HAS_HEATED_BED
     constexpr bool isBed = true;
-    const bool c_draw = tc != old_bed_temp, t_draw = tt != old_bed_target, i_draw = ta != old_bed_on;
     const float tc = thermalManager.degBed(), tt = thermalManager.degTargetBed();
     const uint8_t ta = thermalManager.isHeatingBed();
-    bool c_draw = tc != old_temp[heater], t_draw = tt != old_target[heater], i_draw = ta != old_on[heater];
-    #if HAS_LEVELING
-      if (!idraw && planner.leveling_active != old_leveling_on) i_draw = true;
-      old_leveling_on = tl;
-    #endif
+    bool c_draw = tc != old_bed_temp, t_draw = tt != old_bed_target, i_draw = ta != old_bed_on;
     old_bed_temp = tc; old_bed_target = tt; old_bed_on = ta;
+  #else
+    bool c_draw = false, t_draw = false, i_draw = false;
+    constexpr float tc = 0, tt = 0;
+    constexpr uint8_t ta = 0;
   #endif
 
-  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED, t_draw)) {
+  #if HAS_HEATED_BED && HAS_LEVELING
+    if (isBed) {
+      i_draw |= (planner.leveling_active != old_leveling_on);
+      old_leveling_on = planner.leveling_active;
+    }
+  #endif
+
+  // Draw target temperature, if needed
+  if (!ui.did_first_redraw || t_draw) {
     dwin_string.set(i16tostr3rj(tt + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y, S(dwin_string.string()));
   }
 
-  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED, i_draw)){
+  // Draw heater icon with on / off / leveled states
+  if (!ui.did_first_redraw || i_draw) {
     const uint8_t ico = isBed ? (TERN0(HAS_LEVELING, planner.leveling_active) ? ICON_BedLevelOff : ICON_BedOff) : ICON_HotendOff;
     DWIN_ICON_Show(ICON, ico + ta, x, y + STATUS_CHR_HEIGHT + 2);
   }
 
-  if (!ui.did_first_redraw || TERN0(HAS_HEATED_BED, c_draw)) {
+  // Draw current temperature, if needed
+  if (!ui.did_first_redraw || c_draw) {
     dwin_string.set(i16tostr3rj(tc + 0.5));
     dwin_string.add(LCD_STR_DEGREE);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + 70, S(dwin_string.string()));
