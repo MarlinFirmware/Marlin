@@ -189,7 +189,7 @@ enum ADCSensorState : char {
 
 #if HAS_PID_HEATING
   #define PID_K2 (1-float(PID_K1))
-  #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
+  #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
 
   // Apply the scale factors to the PID values
   #define scalePID_i(i)   ( float(i) * PID_dT )
@@ -199,7 +199,7 @@ enum ADCSensorState : char {
 #endif
 
 #if ENABLED(MPCTEMP)
-  #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
+  #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
 #endif
 
 #if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
@@ -242,10 +242,9 @@ struct PIDHeaterInfo : public HeaterInfo {
 #if ENABLED(MPCTEMP)
   struct MPCHeaterInfo : public HeaterInfo {
     MPC_t constants;
-
-    float modeled_ambient_temp;
-    float modeled_block_temp;
-    float modeled_sensor_temp;
+    float modeled_ambient_temp,
+          modeled_block_temp,
+          modeled_sensor_temp;
   };
 #endif
 
@@ -509,12 +508,12 @@ class Temperature {
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)
-      static int32_t last_e_position, lpq[LPQ_MAX_LEN];
+      static int32_t pes_e_position, lpq[LPQ_MAX_LEN];
       static lpq_ptr_t lpq_ptr;
     #endif
 
     #if ENABLED(MPCTEMP)
-      static int32_t last_e_position;
+      static int32_t mpc_e_position;
     #endif
 
     #if HAS_HOTEND
@@ -956,7 +955,7 @@ class Temperature {
        */
       #if ENABLED(PIDTEMP)
         static void updatePID() {
-          TERN_(PID_EXTRUSION_SCALING, last_e_position = 0);
+          TERN_(PID_EXTRUSION_SCALING, pes_e_position = 0);
         }
       #endif
 

@@ -504,12 +504,12 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
-  int32_t Temperature::last_e_position, Temperature::lpq[LPQ_MAX_LEN];
+  int32_t Temperature::pes_e_position, Temperature::lpq[LPQ_MAX_LEN];
   lpq_ptr_t Temperature::lpq_ptr = 0;
 #endif
 
 #if ENABLED(MPCTEMP)
-  int32_t Temperature::last_e_position = 0;
+  int32_t Temperature::mpc_e_position; // = 0
 #endif
 
 #define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
@@ -1323,9 +1323,9 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
             work_pid[ee].Kc = 0;
             if (this_hotend) {
               const long e_position = stepper.position(E_AXIS);
-              if (e_position > last_e_position) {
-                lpq[lpq_ptr] = e_position - last_e_position;
-                last_e_position = e_position;
+              if (e_position > pes_e_position) {
+                lpq[lpq_ptr] = e_position - pes_e_position;
+                pes_e_position = e_position;
               }
               else
                 lpq[lpq_ptr] = 0;
@@ -1393,15 +1393,14 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       if (this_hotend) {
         const int32_t e_position = stepper.position(E_AXIS);
-        const float e_speed = (e_position - last_e_position) * planner.mm_per_step[E_AXIS] / MPC_dT;
+        const float e_speed = (e_position - mpc_e_position) * planner.mm_per_step[E_AXIS] / MPC_dT;
 
         // the position can appear to make big jumps when, e.g. homing
         if (fabs(e_speed) > planner.settings.max_feedrate_mm_s[E_AXIS])
-          last_e_position = e_position;
-        // ignore retractions and deretractions
-        else if (e_speed > 0.0f) {
+          mpc_e_position = e_position;
+        else if (e_speed > 0.0f) {  // ignore retract/recover moves
           ambient_xfer_coeff += e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
-          last_e_position = e_position;
+          mpc_e_position = e_position;
         }
       }
 
@@ -2453,7 +2452,7 @@ void Temperature::init() {
   TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
 
   #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
-    last_e_position = 0;
+    pes_e_position = 0;
   #endif
 
   // Init (and disable) SPI thermocouples
@@ -2524,8 +2523,7 @@ void Temperature::init() {
   #endif
 
   #if ENABLED(MPCTEMP)
-    HOTEND_LOOP()
-      temp_hotend[e].modeled_block_temp = NAN;
+    HOTEND_LOOP() temp_hotend[e].modeled_block_temp = NAN;
   #endif
 
   #if HAS_HEATER_0
