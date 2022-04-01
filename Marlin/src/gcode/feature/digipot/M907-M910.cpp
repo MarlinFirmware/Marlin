@@ -49,7 +49,7 @@ void GcodeSuite::M907() {
     if (!parser.seen("BS" LOGICAL_AXES_STRING))
       return M907_report();
 
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(axis_codes[i])) stepper.set_digipot_current(i, parser.value_int());
+    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper.set_digipot_current(i, parser.value_int());
     if (parser.seenval('B')) stepper.set_digipot_current(4, parser.value_int());
     if (parser.seenval('S')) LOOP_LE_N(i, 4) stepper.set_digipot_current(i, parser.value_int());
 
@@ -57,7 +57,7 @@ void GcodeSuite::M907() {
 
     if (!parser.seen(
       #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
-        "XY" SECONDARY_AXIS_GANG(STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
+        "XY" SECONDARY_AXIS_GANG('I', 'J', 'K', 'U', 'V', 'W')
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
         "Z"
@@ -85,7 +85,7 @@ void GcodeSuite::M907() {
 
   #if HAS_MOTOR_CURRENT_I2C
     // this one uses actual amps in floating point
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(axis_codes[i])) digipot_i2c.set_current(i, parser.value_float());
+    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) digipot_i2c.set_current(i, parser.value_float());
     // Additional extruders use B,C,D for channels 4,5,6.
     // TODO: Change these parameters because 'E' is used. B<index>?
     #if HAS_EXTRUDERS
@@ -99,7 +99,7 @@ void GcodeSuite::M907() {
       const float dac_percent = parser.value_float();
       LOOP_LE_N(i, 4) stepper_dac.set_current_percent(i, dac_percent);
     }
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(axis_codes[i])) stepper_dac.set_current_percent(i, parser.value_float());
+    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper_dac.set_current_percent(i, parser.value_float());
   #endif
 }
 
@@ -116,7 +116,7 @@ void GcodeSuite::M907() {
     #elif HAS_MOTOR_CURRENT_SPI
       SERIAL_ECHOPGM("  M907");                               // SPI-based has 5 values:
       LOOP_LOGICAL_AXES(q) {                                  // X Y Z (I J K U V W) E (map to X Y Z (I J K U V W) E0 by default)
-        SERIAL_CHAR(' ', axis_codes[q]);
+        SERIAL_CHAR(' ', IAXIS_CHAR(q));
         SERIAL_ECHO(stepper.motor_current_setting[q]);
       }
       SERIAL_CHAR(' ', 'B');                                  // B (maps to E1 by default)
