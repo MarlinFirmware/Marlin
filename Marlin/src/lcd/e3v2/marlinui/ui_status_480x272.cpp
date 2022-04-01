@@ -210,11 +210,13 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
   #endif
 
   #if HAS_HOTEND && HAS_HEATED_BED
+    float tc, tt;
+    bool c_draw, t_draw, i_draw, ta;
     const bool isBed = heater < 0;
-    bool c_draw, t_draw, i_draw;
     if (isBed) {
-      const float tc = thermalManager.degBed(), tt = thermalManager.degTargetBed();
-      const bool ta = thermalManager.isHeatingBed();
+      tc = thermalManager.degBed();
+      tt = thermalManager.degTargetBed();
+      ta = thermalManager.isHeatingBed();
       c_draw = tc != old_bed_temp;
       t_draw = tt != old_bed_target;
       i_draw = ta != old_bed_on;
@@ -223,8 +225,9 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
       old_bed_on = ta;
     }
     else {
-      const float tc = thermalManager.degHotend(heater), tt = thermalManager.degTargetHotend(heater);
-      const bool ta = thermalManager.isHeatingHotend(heater);
+      tc = thermalManager.degHotend(heater);
+      tt = thermalManager.degTargetHotend(heater);
+      ta = thermalManager.isHeatingHotend(heater);
       c_draw = tc != old_temp[heater];
       t_draw = tt != old_target[heater];
       i_draw = ta != old_on[heater];
