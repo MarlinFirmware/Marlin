@@ -48,10 +48,14 @@ void GcodeSuite::G60() {
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
   {
-    DEBUG_ECHOPGM(STR_SAVED_POS " S", slot);
     const xyze_pos_t &pos = stored_position[slot];
+    DEBUG_ECHOPGM(STR_SAVED_POS " S", slot, " :");
     DEBUG_ECHOLNPAIR_F_P(
-      LIST_N(DOUBLE(LINEAR_AXES), PSTR(" : X"), pos.x, SP_Y_STR, pos.y, SP_Z_STR, pos.z, SP_I_STR, pos.i, SP_J_STR, pos.j, SP_K_STR, pos.k)
+      LIST_N(DOUBLE(NUM_AXES),
+        SP_Y_STR, pos.x, SP_Y_STR, pos.y, SP_Z_STR, pos.z,
+        SP_I_STR, pos.i, SP_J_STR, pos.j, SP_K_STR, pos.k,
+        SP_U_STR, pos.u, SP_V_STR, pos.v, SP_W_STR, pos.w
+      )
       #if HAS_EXTRUDERS
         , SP_E_STR, pos.e
       #endif
