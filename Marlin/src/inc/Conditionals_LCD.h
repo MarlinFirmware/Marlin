@@ -666,7 +666,7 @@
 #endif
 
 /**
- * Number of Linear Axes (e.g., XYZ)
+ * Number of Linear Axes (e.g., XYZIJK)
  * All the logical axes except for the tool (E) axis
  */
 #ifdef LINEAR_AXES
@@ -821,7 +821,23 @@
 #endif
 
 /**
- * Number of Logical Axes (e.g., XYZE)
+ * Number of Primary Linear Axes (e.g., XYZ)
+ * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
+ */
+#if HAS_I_AXIS
+  #define PRIMARY_LINEAR_AXES 3
+#else
+  #define PRIMARY_LINEAR_AXES LINEAR_AXES
+#endif
+
+/**
+ * Number of Secondary Axes (e.g., IJK)
+ * All linear/rotational axes between XYZ and E.
+ */
+#define SECONDARY_AXES SUB3(LINEAR_AXES)
+
+/**
+ * Number of Logical Axes (e.g., XYZIJKE)
  * All the logical axes that can be commanded directly by G-code.
  * Delta maps stepper-specific values to ABC steppers.
  */
@@ -1266,6 +1282,29 @@
 #endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
+#endif
+
+// Fallback axis inverting
+#ifndef INVERT_X_DIR
+  #define INVERT_X_DIR false
+#endif
+#if HAS_Y_AXIS && !defined(INVERT_Y_DIR)
+  #define INVERT_Y_DIR false
+#endif
+#if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
+  #define INVERT_Z_DIR false
+#endif
+#if HAS_I_AXIS && !defined(INVERT_I_DIR)
+  #define INVERT_I_DIR false
+#endif
+#if HAS_J_AXIS && !defined(INVERT_J_DIR)
+  #define INVERT_J_DIR false
+#endif
+#if HAS_K_AXIS && !defined(INVERT_K_DIR)
+  #define INVERT_K_DIR false
+#endif
+#if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
+  #define INVERT_E_DIR false
 #endif
 
 /**

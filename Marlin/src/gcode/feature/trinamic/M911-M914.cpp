@@ -137,7 +137,7 @@
 
   /**
    * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
-   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4 and E[index].
+   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4, A, B, C, and E[index].
    *       If no axes are given, clear all.
    *
    * Examples:

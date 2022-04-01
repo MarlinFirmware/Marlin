@@ -51,7 +51,7 @@ void GcodeSuite::G60() {
     DEBUG_ECHOPGM(STR_SAVED_POS " S", slot, " :");
     const xyze_pos_t &pos = stored_position[slot];
     DEBUG_ECHOLNPGM_P(
-      LIST_N(DOUBLE(LINEAR_AXES), PSTR(" : X"), pos.x, SP_Y_STR, pos.y, SP_Z_STR, pos.z, SP_I_STR, pos.i, SP_J_STR, pos.j, SP_K_STR, pos.k)
+      LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, pos.x, SP_Y_STR, pos.y, SP_Z_STR, pos.z, SP_I_STR, pos.i, SP_J_STR, pos.j, SP_K_STR, pos.k)
       #if HAS_EXTRUDERS
         , SP_E_LBL, pos.e
       #endif

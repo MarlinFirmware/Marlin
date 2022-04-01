@@ -57,7 +57,7 @@ void GcodeSuite::M425() {
   LOOP_LINEAR_AXES(a) {
     if (axis_can_calibrate(a) && parser.seen(AXIS_CHAR(a))) {
       planner.synchronize();
-      backlash.set_distance_mm(AxisEnum(a), parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a)));
+      backlash.set_distance_mm((AxisEnum)a, parser.has_value() ? parser.value_axis_units((AxisEnum)a) : backlash.get_measurement((AxisEnum)a));
       noArgs = false;
     }
   }

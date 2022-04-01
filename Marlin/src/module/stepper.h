@@ -250,8 +250,6 @@ typedef struct {
       #endif
     };
   };
-  constexpr ena_mask_t linear_bits() { return _BV(LINEAR_AXES) - 1; }
-  constexpr ena_mask_t e_bits() { return (_BV(EXTRUDERS) - 1) << LINEAR_AXES; }
 } stepper_flags_t;
 
 // All the stepper enable pins
