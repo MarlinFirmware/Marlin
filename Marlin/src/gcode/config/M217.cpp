@@ -50,9 +50,12 @@
  *  W[linear]   0/1 Enable park & Z Raise
  *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
- *  I[linear]   Park I (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 4)
- *  J[linear]   Park J (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 5)
- *  K[linear]   Park K (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 6)
+ *  I[linear]   Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
+ *  J[linear]   Park J (Requires TOOLCHANGE_PARK and NUM_AXES >= 5)
+ *  K[linear]   Park K (Requires TOOLCHANGE_PARK and NUM_AXES >= 6)
+ *  C[linear]   Park U (Requires TOOLCHANGE_PARK and NUM_AXES >= 7)
+ *  H[linear]   Park V (Requires TOOLCHANGE_PARK and NUM_AXES >= 8)
+ *  O[linear]   Park W (Requires TOOLCHANGE_PARK and NUM_AXES >= 9)
  *  Z[linear]   Z Raise
  *  F[linear]   Fan Speed 0-255
  *  G[linear/s] Fan time
@@ -95,13 +98,22 @@ void GcodeSuite::M217() {
       if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
     #endif
     #if HAS_I_AXIS
-      if (parser.seenval('I')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.i = constrain(v, I_MIN_POS, I_MAX_POS); }
+      if (parser.seenval('I')) { const int16_t v = parser.TERN(AXIS4_ROTATES, value_int, value_linear_units)(); toolchange_settings.change_point.i = constrain(v, I_MIN_POS, I_MAX_POS); }
     #endif
     #if HAS_J_AXIS
-      if (parser.seenval('J')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.j = constrain(v, J_MIN_POS, J_MAX_POS); }
+      if (parser.seenval('J')) { const int16_t v = parser.TERN(AXIS5_ROTATES, value_int, value_linear_units)(); toolchange_settings.change_point.j = constrain(v, J_MIN_POS, J_MAX_POS); }
     #endif
     #if HAS_K_AXIS
-      if (parser.seenval('K')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.k = constrain(v, K_MIN_POS, K_MAX_POS); }
+      if (parser.seenval('K')) { const int16_t v = parser.TERN(AXIS6_ROTATES, value_int, value_linear_units)(); toolchange_settings.change_point.k = constrain(v, K_MIN_POS, K_MAX_POS); }
+    #endif
+    #if HAS_U_AXIS
+      if (parser.seenval('C')) { const int16_t v = parser.TERN(AXIS7_ROTATES, value_int, value_linear_units)(); toolchange_settings.change_point.u = constrain(v, U_MIN_POS, U_MAX_POS); }
+    #endif
+    #if HAS_V_AXIS
+      if (parser.seenval('H')) { const int16_t v = parser.TERN(AXIS8_ROTATES, value_int, value_linear_units)(); toolchange_settings.change_point.v = constrain(v, V_MIN_POS, V_MAX_POS); }
+    #endif
+    #if HAS_W_AXIS
+      if (parser.seenval('O')) { const int16_t v = parser.TERN(AXIS9_ROTATES, value_int, value_linear_units)(); toolchange_settings.change_point.w = constrain(v, W_MIN_POS, W_MAX_POS); }
     #endif
   #endif
 
@@ -167,24 +179,23 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
-    {
       SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
       SERIAL_ECHOPGM_P(
             SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x)
         #if HAS_Y_AXIS
           , SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y)
         #endif
-        #if HAS_I_AXIS
-          , SP_I_STR, LINEAR_UNIT(toolchange_settings.change_point.i)
-        #endif
-        #if HAS_J_AXIS
-          , SP_J_STR, LINEAR_UNIT(toolchange_settings.change_point.j)
-        #endif
-        #if HAS_K_AXIS
-          , SP_K_STR, LINEAR_UNIT(toolchange_settings.change_point.k)
+        #if SECONDARY_AXES >= 1
+          , LIST_N(DOUBLE(SECONDARY_AXES),
+              PSTR(" I"), I_AXIS_UNIT(toolchange_settings.change_point.i),
+              PSTR(" J"), J_AXIS_UNIT(toolchange_settings.change_point.j),
+              PSTR(" K"), K_AXIS_UNIT(toolchange_settings.change_point.k),
+              SP_C_STR,   U_AXIS_UNIT(toolchange_settings.change_point.u),
+              PSTR(" H"), V_AXIS_UNIT(toolchange_settings.change_point.v),
+              PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w),
+            )
         #endif
       );
-    }
     #endif
 
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
