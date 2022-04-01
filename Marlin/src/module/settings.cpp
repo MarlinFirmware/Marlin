@@ -555,6 +555,13 @@ typedef struct SettingsDataStruct {
     uint8_t ui_language;                                // M414 S
   #endif
 
+  //
+  // Model predictive control
+  //
+  #if ENABLED(MPCTEMP)
+    MPC_t mpc_constants[HOTENDS];                       // M306
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1565,6 +1572,14 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Model predictive control
+    //
+    #if ENABLED(MPCTEMP)
+      HOTEND_LOOP()
+        EEPROM_WRITE(thermalManager.temp_hotend[e].constants);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2515,6 +2530,16 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Model predictive control
+      //
+      #if ENABLED(MPCTEMP)
+      {
+        HOTEND_LOOP()
+          EEPROM_READ(thermalManager.temp_hotend[e].constants);
+      }
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -3220,6 +3245,37 @@ void MarlinSettings::reset() {
   //
   TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
 
+  //
+  // Model predictive control
+  //
+  #if ENABLED(MPCTEMP)
+    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
+    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
+    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
+    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
+    #if ENABLED(MPC_INCLUDE_FAN)
+      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
+    #endif
+
+    static_assert(COUNT(_mpc_heater_power) == HOTENDS, "MPC_HEATER_POWER must have HOTENDS items.");
+    static_assert(COUNT(_mpc_block_heat_capacity) == HOTENDS, "MPC_BLOCK_HEAT_CAPACITY must have HOTENDS items.");
+    static_assert(COUNT(_mpc_sensor_responsiveness) == HOTENDS, "MPC_SENSOR_RESPONSIVENESS must have HOTENDS items.");
+    static_assert(COUNT(_mpc_ambient_xfer_coeff) == HOTENDS, "MPC_AMBIENT_XFER_COEFF must have HOTENDS items.");
+    #if ENABLED(MPC_INCLUDE_FAN)
+      static_assert(COUNT(_mpc_ambient_xfer_coeff_fan255) == HOTENDS, "MPC_AMBIENT_XFER_COEFF_FAN255 must have HOTENDS items.");
+    #endif
+
+    HOTEND_LOOP() {
+      thermalManager.temp_hotend[e].constants.heater_power = _mpc_heater_power[e];
+      thermalManager.temp_hotend[e].constants.block_heat_capacity = _mpc_block_heat_capacity[e];
+      thermalManager.temp_hotend[e].constants.sensor_responsiveness = _mpc_sensor_responsiveness[e];
+      thermalManager.temp_hotend[e].constants.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
+      #if ENABLED(MPC_INCLUDE_FAN)
+        thermalManager.temp_hotend[e].constants.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
+      #endif
+    }
+  #endif
+
   postprocess();
 
   #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
@@ -3506,6 +3562,11 @@ void MarlinSettings::reset() {
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
+
+    //
+    // Model predictive control
+    //
+    TERN_(MPCTEMP, gcode.M306_report(forReplay));
   }
 
 #endif // !DISABLE_M503
