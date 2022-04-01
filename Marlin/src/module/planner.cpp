@@ -1925,15 +1925,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (db + dc < 0) SBI(dm, B_AXIS);           // Motor B direction
       if (CORESIGN(db - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
     #endif
-    #if HAS_I_AXIS
-      if (di < 0) SBI(dm, I_AXIS);
-    #endif
-    #if HAS_J_AXIS
-      if (dj < 0) SBI(dm, J_AXIS);
-    #endif
-    #if HAS_K_AXIS
-      if (dk < 0) SBI(dm, K_AXIS);
-    #endif
   #elif ENABLED(MARKFORGED_XY)
     if (da + db < 0) SBI(dm, A_AXIS);              // Motor A direction
     if (db < 0) SBI(dm, B_AXIS);                   // Motor B direction
@@ -1941,15 +1932,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (da < 0) SBI(dm, A_AXIS);                   // Motor A direction
     if (db + da < 0) SBI(dm, B_AXIS);              // Motor B direction
   #else
-    LINEAR_AXIS_CODE(
+    XYZ_CODE(
       if (da < 0) SBI(dm, X_AXIS),
       if (db < 0) SBI(dm, Y_AXIS),
-      if (dc < 0) SBI(dm, Z_AXIS),
-      if (di < 0) SBI(dm, I_AXIS),
-      if (dj < 0) SBI(dm, J_AXIS),
-      if (dk < 0) SBI(dm, K_AXIS)
+      if (dc < 0) SBI(dm, Z_AXIS)
     );
   #endif
+
+  SECONDARY_AXIS_CODE(
+    if (di < 0) SBI(dm, I_AXIS),
+    if (dj < 0) SBI(dm, J_AXIS),
+    if (dk < 0) SBI(dm, K_AXIS)
+  );
 
   #if HAS_EXTRUDERS
     if (de < 0) SBI(dm, E_AXIS);
@@ -2037,15 +2031,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     steps_dist_mm.a      =       da  * mm_per_step[A_AXIS];
     steps_dist_mm.b      = (db - da) * mm_per_step[B_AXIS];
   #else
-    LINEAR_AXIS_CODE(
+    XYZ_CODE(
       steps_dist_mm.a = da * mm_per_step[A_AXIS],
       steps_dist_mm.b = db * mm_per_step[B_AXIS],
-      steps_dist_mm.c = dc * mm_per_step[C_AXIS],
-      steps_dist_mm.i = di * mm_per_step[I_AXIS],
-      steps_dist_mm.j = dj * mm_per_step[J_AXIS],
-      steps_dist_mm.k = dk * mm_per_step[K_AXIS]
+      steps_dist_mm.c = dc * mm_per_step[C_AXIS]
     );
   #endif
+
+  SECONDARY_AXIS_CODE(
+    steps_dist_mm.i = di * mm_per_step[I_AXIS],
+    steps_dist_mm.j = dj * mm_per_step[J_AXIS],
+    steps_dist_mm.k = dk * mm_per_step[K_AXIS]
+  );
 
   TERN_(HAS_EXTRUDERS, steps_dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
 
@@ -2173,9 +2170,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     );
   #endif
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    TERN_(HAS_I_AXIS, if (block->steps.i) stepper.enable_axis(I_AXIS));
-    TERN_(HAS_J_AXIS, if (block->steps.j) stepper.enable_axis(J_AXIS));
-    TERN_(HAS_K_AXIS, if (block->steps.k) stepper.enable_axis(K_AXIS));
+    SECONDARY_AXIS_CODE(
+      if (block->steps.i) stepper.enable_axis(I_AXIS),
+      if (block->steps.j) stepper.enable_axis(J_AXIS),
+      if (block->steps.k) stepper.enable_axis(K_AXIS)
+    );
   #endif
 
   // Enable extruder(s)

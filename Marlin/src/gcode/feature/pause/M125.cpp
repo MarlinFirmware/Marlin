@@ -74,7 +74,9 @@ void GcodeSuite::M125() {
   );
 
   // Lift Z axis
-  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
+  #if HAS_Z_AXIS
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
+  #endif
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point += hotend_offset[active_extruder];

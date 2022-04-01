@@ -168,12 +168,7 @@ void plan_arc(
 
   // Return if the move is near zero
   if (flat_mm < 0.0001f
-    GANG_N(SUB2(LINEAR_AXES),
-      && travel_L < 0.0001f,
-      && travel_I < 0.0001f,
-      && travel_J < 0.0001f,
-      && travel_K < 0.0001f
-    )
+    GANG_N(SUB2(LINEAR_AXES), && travel_L < 0.0001f, && travel_I < 0.0001f, && travel_J < 0.0001f, && travel_K < 0.0001f)
   ) return;
 
   // Feedrate for the move, scaled by the feedrate multiplier
