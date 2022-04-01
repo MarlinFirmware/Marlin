@@ -54,14 +54,14 @@
  *
  *  E[distance] - Retract the filament this far
  *  Z[distance] - Move the Z axis by this distance
- *  X[position] - Move to this X position, with Y
- *  Y[position] - Move to this Y position, with X
- *  I[position] - Move to this I position, with X, Y [, J[, K[, C[, H[, O]]]]]
- *  J[position] - Move to this J position, with X, Y, I[, K[, C[, H[, O]]]]
- *  K[position] - Move to this K position, with X, Y, I, J[, C[, H[, O]]]
- *  C[position] - Move to this U position, with X, Y, I, J, K[, H[, O]]
- *  H[position] - Move to this V position, with X, Y, I, J, K, C[, O]
- *  O[position] - Move to this W position, with X, Y, I, J, K, C, H
+ *  X[position] - Move to this X position (instead of NOZZLE_PARK_POINT.x)
+ *  Y[position] - Move to this Y position (instead of NOZZLE_PARK_POINT.y)
+ *  I[position] - Move to this I position (instead of NOZZLE_PARK_POINT.i)
+ *  J[position] - Move to this J position (instead of NOZZLE_PARK_POINT.j)
+ *  K[position] - Move to this K position (instead of NOZZLE_PARK_POINT.k)
+ *  C[position] - Move to this U position (instead of NOZZLE_PARK_POINT.u)
+ *  H[position] - Move to this V position (instead of NOZZLE_PARK_POINT.v)
+ *  O[position] - Move to this W position (instead of NOZZLE_PARK_POINT.w)
  *  U[distance] - Retract distance for removal (manual reload)
  *  L[distance] - Extrude distance for insertion (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
