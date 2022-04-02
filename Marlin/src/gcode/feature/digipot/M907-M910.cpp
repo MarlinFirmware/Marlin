@@ -57,43 +57,47 @@ void GcodeSuite::M907() {
     // TODO: Change these parameters because 'E' is used and D should be reserved for debugging. B<index>?
     #if E_STEPPERS >= 2
       if (parser.seenval('B')) stepper.set_digipot_current(E_AXIS + 1, parser.value_int());
-    #endif
-    #if E_STEPPERS >= 3
-      if (parser.seenval('C')) stepper.set_digipot_current(E_AXIS + 2, parser.value_int());
+      #if E_STEPPERS >= 3
+        if (parser.seenval('C')) stepper.set_digipot_current(E_AXIS + 2, parser.value_int());
+      #endif
     #endif
 
   #elif HAS_MOTOR_CURRENT_PWM
 
-    if (!parser.seen(
-      #if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
-        "SXY" SECONDARY_AXIS_GANG("I", "J", "K", "U", "V", "W")
-      #endif
-      #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
-        "XY" SECONDARY_AXIS_GANG("I", "J", "K", "U", "V", "W")
+    #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
+      #define HAS_X_Y_XY_I_J_K_U_V_W 1
+    #endif
+
+    #if HAS_X_Y_XY_I_J_K_U_V_W || ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_Z)
+
+      if (!parser.seen("S"
+        #if HAS_X_Y_XY_I_J_K_U_V_W
+          "XY" SECONDARY_AXIS_GANG("I", "J", "K", "U", "V", "W")
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          "Z"
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+          "E"
+        #endif
+      )) return M907_report();
+
+      if (parser.seenval('S')) LOOP_L_N(a, MOTOR_CURRENT_COUNT) stepper.set_digipot_current(a, parser.value_int());
+
+      #if HAS_X_Y_XY_I_J_K_U_V_W
+        if (NUM_AXIS_GANG(
+               parser.seenval('X'), || parser.seenval('Y'), || false,
+            || parser.seenval('I'), || parser.seenval('J'), || parser.seenval('K'),
+            || parser.seenval('U'), || parser.seenval('V'), || parser.seenval('W')
+        )) stepper.set_digipot_current(0, parser.value_int());
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-        "Z"
+        if (parser.seenval('Z')) stepper.set_digipot_current(1, parser.value_int());
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-        "E"
+        if (parser.seenval('E')) stepper.set_digipot_current(2, parser.value_int());
       #endif
-    )) return M907_report();
 
-    #if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
-      if (parser.seenval('S')) LOOP_L_N(a, MOTOR_CURRENT_COUNT) stepper.set_digipot_current(a, parser.value_int());
-    #endif
-    #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
-      if (LINEAR_AXIS_GANG(
-             parser.seenval('X'), || parser.seenval('Y'), || false,
-          || parser.seenval('I'), || parser.seenval('J'), || parser.seenval('K'),
-          || parser.seenval('U'), || parser.seenval('V'), || parser.seenval('W')
-      )) stepper.set_digipot_current(0, parser.value_int());
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      if (parser.seenval('Z')) stepper.set_digipot_current(1, parser.value_int());
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-      if (parser.seenval('E')) stepper.set_digipot_current(2, parser.value_int());
     #endif
 
   #endif // HAS_MOTOR_CURRENT_PWM
