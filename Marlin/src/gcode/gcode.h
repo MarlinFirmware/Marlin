@@ -215,6 +215,7 @@
  * M303 - PID relay autotune S<temperature> sets the target temperature. Default 150C. (Requires PIDTEMP)
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
  * M305 - Set user thermistor parameters R T and P. (Requires TEMP_SENSOR_x 1000)
+ * M306 - MPC autotune. (Requires MPCTEMP)
  * M309 - Set chamber PID parameters P I and D. (Requires PIDTEMPCHAMBER)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
@@ -337,7 +338,7 @@
 #endif
 
 enum AxisRelative : uint8_t {
-  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
+  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K, REL_U, REL_V, REL_W)
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif
@@ -363,7 +364,8 @@ public:
     axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
       | _BV(REL_E),
       | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
-      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K)
+      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
+      | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
     )) : 0;
   }
   #if HAS_EXTRUDERS
@@ -926,6 +928,11 @@ private:
 
   #if HAS_USER_THERMISTORS
     static void M305();
+  #endif
+
+  #if ENABLED(MPCTEMP)
+    static void M306();
+    static void M306_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(PIDTEMPCHAMBER)

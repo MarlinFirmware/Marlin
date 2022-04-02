@@ -103,6 +103,9 @@ namespace Language_en {
   LSTR MSG_HOME_OFFSET_I                  = _UxGT("Home Offset ") STR_I;
   LSTR MSG_HOME_OFFSET_J                  = _UxGT("Home Offset ") STR_J;
   LSTR MSG_HOME_OFFSET_K                  = _UxGT("Home Offset ") STR_K;
+  LSTR MSG_HOME_OFFSET_U                  = _UxGT("Home Offset ") STR_U;
+  LSTR MSG_HOME_OFFSET_V                  = _UxGT("Home Offset ") STR_V;
+  LSTR MSG_HOME_OFFSET_W                  = _UxGT("Home Offset ") STR_W;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets Applied");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Set Origin");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
@@ -288,6 +291,9 @@ namespace Language_en {
   LSTR MSG_MOVE_I                         = _UxGT("Move ") STR_I;
   LSTR MSG_MOVE_J                         = _UxGT("Move ") STR_J;
   LSTR MSG_MOVE_K                         = _UxGT("Move ") STR_K;
+  LSTR MSG_MOVE_U                         = _UxGT("Move ") STR_U;
+  LSTR MSG_MOVE_V                         = _UxGT("Move ") STR_V;
+  LSTR MSG_MOVE_W                         = _UxGT("Move ") STR_W;
   LSTR MSG_MOVE_E                         = _UxGT("Move Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Move E*");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend too cold");
@@ -354,6 +360,9 @@ namespace Language_en {
   LSTR MSG_VI_JERK                        = _UxGT("Max ") STR_I _UxGT(" Jerk");
   LSTR MSG_VJ_JERK                        = _UxGT("Max ") STR_J _UxGT(" Jerk");
   LSTR MSG_VK_JERK                        = _UxGT("Max ") STR_K _UxGT(" Jerk");
+  LSTR MSG_VU_JERK                        = _UxGT("Max ") STR_U _UxGT(" Jerk");
+  LSTR MSG_VV_JERK                        = _UxGT("Max ") STR_V _UxGT(" Jerk");
+  LSTR MSG_VW_JERK                        = _UxGT("Max ") STR_W _UxGT(" Jerk");
   LSTR MSG_VE_JERK                        = _UxGT("Max E Jerk");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Junction Dev");
   LSTR MSG_VELOCITY                       = _UxGT("Velocity");
@@ -363,6 +372,9 @@ namespace Language_en {
   LSTR MSG_VMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Vel");
   LSTR MSG_VMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Vel");
   LSTR MSG_VMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Vel");
+  LSTR MSG_VMAX_U                         = _UxGT("Max ") STR_U _UxGT(" Vel");
+  LSTR MSG_VMAX_V                         = _UxGT("Max ") STR_V _UxGT(" Vel");
+  LSTR MSG_VMAX_W                         = _UxGT("Max ") STR_W _UxGT(" Vel");
   LSTR MSG_VMAX_E                         = _UxGT("Max ") STR_E _UxGT(" Vel");
   LSTR MSG_VMAX_EN                        = _UxGT("Max * Vel");
   LSTR MSG_VMIN                           = _UxGT("Min Velocity");
@@ -374,6 +386,9 @@ namespace Language_en {
   LSTR MSG_AMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Accel");
   LSTR MSG_AMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Accel");
   LSTR MSG_AMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Accel");
+  LSTR MSG_AMAX_U                         = _UxGT("Max ") STR_U _UxGT(" Accel");
+  LSTR MSG_AMAX_V                         = _UxGT("Max ") STR_V _UxGT(" Accel");
+  LSTR MSG_AMAX_W                         = _UxGT("Max ") STR_W _UxGT(" Accel");
   LSTR MSG_AMAX_E                         = _UxGT("Max ") STR_E _UxGT(" Accel");
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
@@ -387,6 +402,9 @@ namespace Language_en {
   LSTR MSG_I_STEPS                        = STR_I _UxGT(" Steps/mm");
   LSTR MSG_J_STEPS                        = STR_J _UxGT(" Steps/mm");
   LSTR MSG_K_STEPS                        = STR_K _UxGT(" Steps/mm");
+  LSTR MSG_U_STEPS                        = STR_U _UxGT(" Steps/mm");
+  LSTR MSG_V_STEPS                        = STR_V _UxGT(" Steps/mm");
+  LSTR MSG_W_STEPS                        = STR_W _UxGT(" Steps/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E steps/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* Steps/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
@@ -540,6 +558,9 @@ namespace Language_en {
   LSTR MSG_BABYSTEP_I                     = _UxGT("Babystep ") STR_I;
   LSTR MSG_BABYSTEP_J                     = _UxGT("Babystep ") STR_J;
   LSTR MSG_BABYSTEP_K                     = _UxGT("Babystep ") STR_K;
+  LSTR MSG_BABYSTEP_U                     = _UxGT("Babystep ") STR_U;
+  LSTR MSG_BABYSTEP_V                     = _UxGT("Babystep ") STR_V;
+  LSTR MSG_BABYSTEP_W                     = _UxGT("Babystep ") STR_W;
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Heating Failed");
@@ -639,6 +660,9 @@ namespace Language_en {
   LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Driver %");
   LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Driver %");
   LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Driver %");
+  LSTR MSG_DAC_PERCENT_U                  = STR_U _UxGT(" Driver %");
+  LSTR MSG_DAC_PERCENT_V                  = STR_V _UxGT(" Driver %");
+  LSTR MSG_DAC_PERCENT_W                  = STR_W _UxGT(" Driver %");
   LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Driver %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC CONNECTION ERROR");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("DAC EEPROM Write");
@@ -814,6 +838,9 @@ namespace Language_en {
   LSTR MSG_BACKLASH_I                     = STR_I;
   LSTR MSG_BACKLASH_J                     = STR_J;
   LSTR MSG_BACKLASH_K                     = STR_K;
+  LSTR MSG_BACKLASH_U                     = STR_U;
+  LSTR MSG_BACKLASH_V                     = STR_V;
+  LSTR MSG_BACKLASH_W                     = STR_W;
 }
 
 #if FAN_COUNT == 1
