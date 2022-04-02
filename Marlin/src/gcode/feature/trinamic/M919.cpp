@@ -24,10 +24,6 @@
 
 #if HAS_TRINAMIC_CONFIG
 
-#if AXIS_COLLISION('I')
-  #error "M919 parameter collision with axis name."
-#endif
-
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper/indirection.h"
