@@ -50,8 +50,8 @@ namespace ExtUI {
   void onStatusChanged(const char * const msg)       { nextion.StatusChange(msg);        }
 
   void onHomingStart()    {}
-  void onHomingComplete() {}
-  void onPrintFinished()                             { nextion.PrintFinished(); }
+  void onHomingDone() {}
+  void onPrintDone()                             { nextion.PrintFinished(); }
 
   void onFactoryReset()   {}
 
@@ -79,18 +79,19 @@ namespace ExtUI {
     // Called after loading or resetting stored settings
   }
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   #if HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
@@ -116,6 +117,7 @@ namespace ExtUI {
 
   void onSteppersDisabled() {}
   void onSteppersEnabled()  {}
+
 }
 
 #endif // NEXTION_TFT

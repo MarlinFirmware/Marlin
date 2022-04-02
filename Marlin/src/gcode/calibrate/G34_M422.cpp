@@ -493,7 +493,7 @@ void GcodeSuite::M422() {
     return;
   }
 
-  xy_pos_t *pos_dest = (
+  xy_pos_t * const pos_dest = (
     TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !is_probe_point ? z_stepper_align.stepper_xy :)
     z_stepper_align.xy
   );
@@ -504,23 +504,24 @@ void GcodeSuite::M422() {
   }
 
   // Get the Probe Position Index or Z Stepper Index
-  int8_t position_index;
-  if (is_probe_point) {
-    position_index = parser.intval('S') - 1;
-    if (!WITHIN(position_index, 0, int8_t(NUM_Z_STEPPER_DRIVERS) - 1)) {
-      SERIAL_ECHOLNPGM("?(S) Probe-position index invalid.");
-      return;
-    }
-  }
+  int8_t position_index = 1;
+  FSTR_P err_string = F("?(S) Probe-position");
+  if (is_probe_point)
+    position_index = parser.intval('S');
   else {
     #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
-      position_index = parser.intval('W') - 1;
-      if (!WITHIN(position_index, 0, NUM_Z_STEPPER_DRIVERS - 1)) {
-        SERIAL_ECHOLNPGM("?(W) Z-stepper index invalid.");
-        return;
-      }
+      err_string = F("?(W) Z-stepper");
+      position_index = parser.intval('W');
     #endif
   }
+
+  if (!WITHIN(position_index, 1, NUM_Z_STEPPER_DRIVERS)) {
+    SERIAL_ECHOF(err_string);
+    SERIAL_ECHOLNPGM(" index invalid (1.." STRINGIFY(NUM_Z_STEPPER_DRIVERS) ").");
+    return;
+  }
+
+  --position_index;
 
   const xy_pos_t pos = {
     parser.floatval('X', pos_dest[position_index].x),

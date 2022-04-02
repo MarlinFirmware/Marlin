@@ -385,65 +385,59 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // PARKING_EXTRUDER
 
-#if ENABLED(SWITCHING_TOOLHEAD)
+#if ENABLED(TOOL_SENSOR)
+
+  bool tool_sensor_disabled; // = false
 
   // Return a bitmask of tool sensor states
   inline uint8_t poll_tool_sensor_pins() {
     return (0
-      #if ENABLED(TOOL_SENSOR)
-        #if PIN_EXISTS(TOOL_SENSOR1)
-          | (READ(TOOL_SENSOR1_PIN) << 0)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR2)
-          | (READ(TOOL_SENSOR2_PIN) << 1)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR3)
-          | (READ(TOOL_SENSOR3_PIN) << 2)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR4)
-          | (READ(TOOL_SENSOR4_PIN) << 3)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR5)
-          | (READ(TOOL_SENSOR5_PIN) << 4)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR6)
-          | (READ(TOOL_SENSOR6_PIN) << 5)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR7)
-          | (READ(TOOL_SENSOR7_PIN) << 6)
-        #endif
-        #if PIN_EXISTS(TOOL_SENSOR8)
-          | (READ(TOOL_SENSOR8_PIN) << 7)
-        #endif
+      #if PIN_EXISTS(TOOL_SENSOR1)
+        | (READ(TOOL_SENSOR1_PIN) << 0)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR2)
+        | (READ(TOOL_SENSOR2_PIN) << 1)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR3)
+        | (READ(TOOL_SENSOR3_PIN) << 2)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR4)
+        | (READ(TOOL_SENSOR4_PIN) << 3)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR5)
+        | (READ(TOOL_SENSOR5_PIN) << 4)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR6)
+        | (READ(TOOL_SENSOR6_PIN) << 5)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR7)
+        | (READ(TOOL_SENSOR7_PIN) << 6)
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR8)
+        | (READ(TOOL_SENSOR8_PIN) << 7)
       #endif
     );
   }
 
-  #if ENABLED(TOOL_SENSOR)
-
-    bool tool_sensor_disabled; // = false
-
-    uint8_t check_tool_sensor_stats(const uint8_t tool_index, const bool kill_on_error/*=false*/, const bool disable/*=false*/) {
-      static uint8_t sensor_tries; // = 0
-      for (;;) {
-        if (poll_tool_sensor_pins() == _BV(tool_index)) {
-          sensor_tries = 0;
-          return tool_index;
-        }
-        else if (kill_on_error && (!tool_sensor_disabled || disable)) {
-          sensor_tries++;
-          if (sensor_tries > 10) kill(F("Tool Sensor error"));
-          safe_delay(5);
-        }
-        else {
-          sensor_tries++;
-          if (sensor_tries > 10) return -1;
-          safe_delay(5);
-        }
+  uint8_t check_tool_sensor_stats(const uint8_t tool_index, const bool kill_on_error/*=false*/, const bool disable/*=false*/) {
+    static uint8_t sensor_tries; // = 0
+    for (;;) {
+      if (poll_tool_sensor_pins() == _BV(tool_index)) {
+        sensor_tries = 0;
+        return tool_index;
+      }
+      else if (kill_on_error && (!tool_sensor_disabled || disable)) {
+        sensor_tries++;
+        if (sensor_tries > 10) kill(F("Tool Sensor error"));
+        safe_delay(5);
+      }
+      else {
+        sensor_tries++;
+        if (sensor_tries > 10) return -1;
+        safe_delay(5);
       }
     }
-
-  #endif
+  }
 
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
@@ -496,8 +490,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         switching_toolhead_lock(true);
       }
       LCD_MESSAGE_F("TC Success");
-    #endif
+    #endif // TOOL_SENSOR
   }
+
+#endif // TOOL_SENSOR
+
+#if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
@@ -928,6 +926,16 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         if (ok) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
+          #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
+            SECONDARY_AXIS_CODE(
+              current_position.i = toolchange_settings.change_point.i,
+              current_position.j = toolchange_settings.change_point.j,
+              current_position.k = toolchange_settings.change_point.k,
+              current_position.u = toolchange_settings.change_point.u,
+              current_position.v = toolchange_settings.change_point.v,
+              current_position.w = toolchange_settings.change_point.w,
+            );
+          #endif
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
           planner.synchronize();
         }
@@ -1123,6 +1131,16 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (can_move_away && toolchange_settings.enable_park) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
+          #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
+            SECONDARY_AXIS_CODE(
+              current_position.i = toolchange_settings.change_point.i,
+              current_position.j = toolchange_settings.change_point.j,
+              current_position.k = toolchange_settings.change_point.k,
+              current_position.u = toolchange_settings.change_point.u,
+              current_position.v = toolchange_settings.change_point.v,
+              current_position.w = toolchange_settings.change_point.w,
+            );
+          #endif
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           planner.synchronize();
         }
@@ -1177,7 +1195,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       sync_plan_position();
 
       #if ENABLED(DELTA)
-        //LOOP_LINEAR_AXES(i) update_software_endstops(i); // or modify the constrain function
+        //LOOP_NUM_AXES(i) update_software_endstops(i); // or modify the constrain function
         const bool safe_to_move = current_position.z < delta_clip_start_height - 1;
       #else
         constexpr bool safe_to_move = true;
@@ -1292,7 +1310,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
       disable_all_solenoids();
-      enable_solenoid_on_active_extruder();
+      enable_solenoid(active_extruder);
     #endif
 
     #if HAS_PRUSA_MMU1

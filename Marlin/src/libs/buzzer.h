@@ -127,3 +127,7 @@
   #define BUZZ(d,f) NOOP
 
 #endif
+
+#define ERR_BUZZ() BUZZ(400, 40);
+#define OKAY_BUZZ() do{ BUZZ(100, 659); BUZZ(10, 0); BUZZ(100, 698); }while(0)
+#define DONE_BUZZ(OK) do{ if (OK) OKAY_BUZZ(); else ERR_BUZZ(); }while(0)
