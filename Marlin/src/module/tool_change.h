@@ -35,8 +35,8 @@
       int16_t prime_speed;          // M217 P
       int16_t retract_speed;        // M217 R
       int16_t unretract_speed;      // M217 U
-      int16_t fan_speed;            // M217 F
-      int16_t fan_time;             // M217 D
+      uint8_t fan_speed;            // M217 F
+      uint8_t fan_time;             // M217 D
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
       bool enable_park;             // M217 W
