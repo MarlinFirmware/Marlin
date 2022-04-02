@@ -29,14 +29,14 @@
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      float swap_length,            // M217 S
-            extra_prime,            // M217 E
-            extra_resume;           // M217 B
-      int16_t prime_speed,          // M217 P
-              retract_speed,        // M217 R
-              unretract_speed,      // M217 U
-              fan_speed,            // M217 F
-              fan_time;             // M217 D
+      float swap_length;            // M217 S
+      float extra_prime;            // M217 E
+      float extra_resume;           // M217 B
+      int16_t prime_speed;          // M217 P
+      int16_t retract_speed;        // M217 R
+      int16_t unretract_speed;      // M217 U
+      int16_t fan_speed;            // M217 F
+      int16_t fan_time;             // M217 D
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
       bool enable_park;             // M217 W
