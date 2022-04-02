@@ -32,10 +32,10 @@ uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 // Commonly-used strings in serial output
 PGMSTR(NUL_STR,   "");   PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
 PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
-LOGICAL_AXIS_CODE(PGMSTR(SP_E_STR, " E"),  PGMSTR(SP_X_STR, " X"),  PGMSTR(SP_Y_STR, " Y"),  PGMSTR(SP_Z_STR, " Z"),  PGMSTR(SP_I_STR, " " STR_I),     PGMSTR(SP_J_STR, " " STR_J),     PGMSTR(SP_K_STR, " " STR_K));
-LOGICAL_AXIS_CODE(PGMSTR(SP_E_LBL, " E:"), PGMSTR(SP_X_LBL, " X:"), PGMSTR(SP_Y_LBL, " Y:"), PGMSTR(SP_Z_LBL, " Z:"), PGMSTR(SP_I_LBL, " " STR_I ":"), PGMSTR(SP_J_LBL, " " STR_J ":"), PGMSTR(SP_K_LBL, " " STR_K ":"));
-LOGICAL_AXIS_CODE(PGMSTR(E_STR, "E"),  PGMSTR(X_STR, "X"),  PGMSTR(Y_STR, "Y"),  PGMSTR(Z_STR, "Z"),  PGMSTR(I_STR, STR_I),     PGMSTR(J_STR, STR_J),     PGMSTR(K_STR, STR_K));
-LOGICAL_AXIS_CODE(PGMSTR(E_LBL, "E:"), PGMSTR(X_LBL, "X:"), PGMSTR(Y_LBL, "Y:"), PGMSTR(Z_LBL, "Z:"), PGMSTR(I_LBL, STR_I ":"), PGMSTR(J_LBL, STR_J ":"), PGMSTR(K_LBL, STR_K ":"));
+LOGICAL_AXIS_CODE(PGMSTR(SP_E_STR, " E"),  PGMSTR(SP_X_STR, " X"),  PGMSTR(SP_Y_STR, " Y"),  PGMSTR(SP_Z_STR, " Z"),  PGMSTR(SP_I_STR, " " STR_I),     PGMSTR(SP_J_STR, " " STR_J),     PGMSTR(SP_K_STR, " " STR_K),     PGMSTR(SP_U_STR, " " STR_U),     PGMSTR(SP_V_STR, " " STR_V),     PGMSTR(SP_W_STR, " " STR_W));
+LOGICAL_AXIS_CODE(PGMSTR(SP_E_LBL, " E:"), PGMSTR(SP_X_LBL, " X:"), PGMSTR(SP_Y_LBL, " Y:"), PGMSTR(SP_Z_LBL, " Z:"), PGMSTR(SP_I_LBL, " " STR_I ":"), PGMSTR(SP_J_LBL, " " STR_J ":"), PGMSTR(SP_K_LBL, " " STR_K ":"), PGMSTR(SP_U_LBL, " " STR_U ":"), PGMSTR(SP_V_LBL, " " STR_V ":"), PGMSTR(SP_W_LBL, " " STR_W ":"));
+LOGICAL_AXIS_CODE(PGMSTR(E_STR, "E"),  PGMSTR(X_STR, "X"),  PGMSTR(Y_STR, "Y"),  PGMSTR(Z_STR, "Z"),  PGMSTR(I_STR, STR_I),     PGMSTR(J_STR, STR_J),     PGMSTR(K_STR, STR_K),     PGMSTR(U_STR, STR_U),     PGMSTR(V_STR, STR_V),     PGMSTR(W_STR, STR_W));
+LOGICAL_AXIS_CODE(PGMSTR(E_LBL, "E:"), PGMSTR(X_LBL, "X:"), PGMSTR(Y_LBL, "Y:"), PGMSTR(Z_LBL, "Z:"), PGMSTR(I_LBL, STR_I ":"), PGMSTR(J_LBL, STR_J ":"), PGMSTR(K_LBL, STR_K ":"), PGMSTR(U_LBL, STR_U ":"), PGMSTR(V_LBL, STR_V ":"), PGMSTR(W_LBL, STR_W ":"));
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
@@ -98,10 +98,10 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_pos(LINEAR_AXIS_ARGS(const_float_t), FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+void print_pos(NUM_AXIS_ARGS(const_float_t), FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
   if (prefix) serial_print(prefix);
   SERIAL_ECHOPGM_P(
-    LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k)
+    LIST_N(DOUBLE(NUM_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k, SP_U_STR, u, SP_V_STR, v, SP_W_STR, w)
   );
   if (suffix) serial_print(suffix); else SERIAL_EOL();
 }

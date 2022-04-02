@@ -343,7 +343,7 @@ static float auto_tune_a(const float dcr) {
   abc_float_t delta_e = { 0.0f }, delta_t = { 0.0f };
 
   delta_t.reset();
-  LOOP_LINEAR_AXES(axis) {
+  LOOP_NUM_AXES(axis) {
     delta_t[axis] = diff;
     calc_kinematics_diff_probe_points(z_pt, dcr, delta_e, delta_r, delta_t);
     delta_t[axis] = 0;
@@ -536,7 +536,7 @@ void GcodeSuite::G33() {
 
         case 1:
           test_precision = 0.0f; // forced end
-          LOOP_LINEAR_AXES(axis) e_delta[axis] = +Z4(CEN);
+          LOOP_NUM_AXES(axis) e_delta[axis] = +Z4(CEN);
           break;
 
         case 2:
@@ -584,14 +584,14 @@ void GcodeSuite::G33() {
       // Normalize angles to least-squares
       if (_angle_results) {
         float a_sum = 0.0f;
-        LOOP_LINEAR_AXES(axis) a_sum += delta_tower_angle_trim[axis];
-        LOOP_LINEAR_AXES(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0f;
+        LOOP_NUM_AXES(axis) a_sum += delta_tower_angle_trim[axis];
+        LOOP_NUM_AXES(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0f;
       }
 
       // adjust delta_height and endstops by the max amount
       const float z_temp = _MAX(delta_endstop_adj.a, delta_endstop_adj.b, delta_endstop_adj.c);
       delta_height -= z_temp;
-      LOOP_LINEAR_AXES(axis) delta_endstop_adj[axis] -= z_temp;
+      LOOP_NUM_AXES(axis) delta_endstop_adj[axis] -= z_temp;
     }
     recalc_delta_settings();
     NOMORE(zero_std_dev_min, zero_std_dev);

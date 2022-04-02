@@ -125,7 +125,7 @@ void safe_delay(millis_t ms) {
         #endif
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment");
-          LOOP_LINEAR_AXES(a) {
+          LOOP_NUM_AXES(a) {
             SERIAL_CHAR(' ', AXIS_CHAR(a));
             serial_offset(planner.get_axis_position_mm(AxisEnum(a)) - current_position[a]);
           }
@@ -135,7 +135,7 @@ void safe_delay(millis_t ms) {
             const float rz = ubl.get_z_correction(current_position);
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             SERIAL_ECHOPGM("ABL Adjustment Z");
-            const float rz = bilinear_z_offset(current_position);
+            const float rz = bbl.get_z_correction(current_position);
           #endif
           SERIAL_ECHO(ftostr43sign(rz, '+'));
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
