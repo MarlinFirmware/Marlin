@@ -179,7 +179,7 @@ void menu_backlash();
   #endif
 
   #include "../../gcode/queue.h"
-  
+
   void _lcd_autotune(const heater_id_t hid) {
     char cmd[30];
     int16_t tune_temp;
