@@ -50,9 +50,9 @@
  *  W[linear]     0/1 Enable park & Z Raise
  *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK)
- *  I[linear]     Park I (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 4)
- *  J[linear]     Park J (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 5)
- *  K[linear]     Park K (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 6)
+ *  I[linear]     Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
+ *  J[linear]     Park J (Requires TOOLCHANGE_PARK and NUM_AXES >= 5)
+ *  K[linear]     Park K (Requires TOOLCHANGE_PARK and NUM_AXES >= 6)
  *  C[linear]     Park U (Requires TOOLCHANGE_PARK and NUM_AXES >= 7)
  *  H[linear]     Park V (Requires TOOLCHANGE_PARK and NUM_AXES >= 8)
  *  O[linear]     Park W (Requires TOOLCHANGE_PARK and NUM_AXES >= 9)
@@ -186,13 +186,13 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
           , SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y)
         #endif
         #if SECONDARY_AXES >= 1
-          , LIST_N(DOUBLE(SECONDARY_AXES),
-              PSTR(" I"), I_AXIS_UNIT(toolchange_settings.change_point.i),
-              PSTR(" J"), J_AXIS_UNIT(toolchange_settings.change_point.j),
-              PSTR(" K"), K_AXIS_UNIT(toolchange_settings.change_point.k),
-              SP_C_STR,   U_AXIS_UNIT(toolchange_settings.change_point.u),
-              PSTR(" H"), V_AXIS_UNIT(toolchange_settings.change_point.v),
-              PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w),
+          , LIST_N(DOUBLE(SECONDARY_AXES)
+              , SP_I_STR,   I_AXIS_UNIT(toolchange_settings.change_point.i)
+              , SP_J_STR,   J_AXIS_UNIT(toolchange_settings.change_point.j)
+              , SP_K_STR,   K_AXIS_UNIT(toolchange_settings.change_point.k)
+              , SP_C_STR,   U_AXIS_UNIT(toolchange_settings.change_point.u)
+              , PSTR(" H"), V_AXIS_UNIT(toolchange_settings.change_point.v)
+              , PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w)
             )
         #endif
       );
