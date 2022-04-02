@@ -39,7 +39,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(PIDTEMP)
+#if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #include "../../module/temperature.h"
 #endif
 
@@ -179,7 +179,7 @@ void menu_backlash();
   #endif
 
   #include "../../gcode/queue.h"
-
+  
   void _lcd_autotune(const heater_id_t hid) {
     char cmd[30];
     int16_t tune_temp;
@@ -190,7 +190,11 @@ void menu_backlash();
       #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: tune_temp = autotune_temp_chamber; break;
       #endif
-      default: tune_temp = autotune_temp[hid]; break;
+      #if ENABLED(PIDTEMP)
+        default: tune_temp = autotune_temp[hid]; break;
+      #else
+        default: return;
+      #endif
     }
     sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), hid, tune_temp);
     queue.inject(cmd);
@@ -206,14 +210,36 @@ void menu_backlash();
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int16_t e) {
-    UNUSED(e);
-    PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
-    thermalManager.updatePID();
+    switch (e) {
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: thermalManager.temp_bed.pid.Ki = scalePID_i(raw_Ki); break;
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case H_CHAMBER: thermalManager.temp_chamber.pid.Ki = scalePID_i(raw_Ki); break;
+      #endif
+      default:
+        #if ENABLED(PIDTEMP)
+          PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
+          thermalManager.updatePID();
+        #endif
+        break;
+    }
   }
   void copy_and_scalePID_d(int16_t e) {
-    UNUSED(e);
-    PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
-    thermalManager.updatePID();
+    switch (e) {
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: thermalManager.temp_bed.pid.Kd = scalePID_d(raw_Kd); break;
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case H_CHAMBER: thermalManager.temp_chamber.pid.Kd = scalePID_d(raw_Kd); break;
+      #endif
+      default:
+        #if ENABLED(PIDTEMP)
+          PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
+          thermalManager.updatePID();
+        #endif
+        break;
+    }
   }
 
   #define _DEFINE_PIDTEMP_BASE_FUNCS(N) \
