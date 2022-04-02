@@ -973,7 +973,6 @@ volatile bool Temperature::raw_temps_ready = false;
       housekeeping(ms, current_temp, next_report_ms);
 
       if (ELAPSED(ms, next_test_ms)) {
-        // use MPC to control the temperature, let it settle for 30s and then track power output for 10s
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(active_extruder) >> 1;
 
         if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
@@ -996,7 +995,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += MPC_dT * 1000;
       }
 
-      if (!WITHIN(current_temp, hotend.target - 15.0f, hotend.target + 15.0f)) {
+      if (!WITHIN(current_temp, t3 - 15.0f, hotend.target + 15.0f)) {
         SERIAL_ECHOLNPGM("Temperature error while measuring ambient loss");
         break;
       }
