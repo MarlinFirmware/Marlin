@@ -61,7 +61,7 @@ abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
 abc_float_t delta_diagonal_rod_trim;
 #if ENABLED(SENSORLESS_PROBING)
-  abc_float_t offset_sensorless_adj{0};  //Lujsensorless
+  abc_float_t offset_sensorless_adj{0};
   float offset_sensorless = 0; 
 #endif
 
@@ -97,10 +97,7 @@ void recalc_delta_settings() {
  */
 
 #if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-
-  #if ENABLED(DELTA_AUTO_CALIBRATION)
-    float sensorless_radius_factor = 1;    //Lujsensorless  sensorless_radius_factor provisional solo pruebas.
-  #endif
+  float sensorless_radius_factor = 1;
 #endif
 
 /**

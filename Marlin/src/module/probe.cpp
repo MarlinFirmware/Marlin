@@ -542,7 +542,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
   ;
 
-  //Offset sensorless probing                    //Lujsensorless
+  //Offset sensorless probing
   #if HAS_DELTA_SENSORLESS_PROBING  
     if (probe_triggered) probe.save_offset_sensorless(false, 0);
   #endif
@@ -660,7 +660,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
-    #if HAS_DELTA_SENSORLESS_PROBING                           //Lujsensorless
+    #if HAS_DELTA_SENSORLESS_PROBING
        const float first_probe_z = current_position.z - offset_sensorless;
     #else
        const float first_probe_z = current_position.z;  
@@ -707,7 +707,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
-      #if HAS_DELTA_SENSORLESS_PROBING                           //Lujsensorless
+      #if HAS_DELTA_SENSORLESS_PROBING
         const float z = current_position.z - offset_sensorless;
       #else
         const float z = current_position.z;  
@@ -762,7 +762,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #elif TOTAL_PROBING == 2
 
-    #if HAS_DELTA_SENSORLESS_PROBING      //Lujsensorless
+    #if HAS_DELTA_SENSORLESS_PROBING
        const float z2 = current_position.z - offset_sensorless;   
     #else
        const float z2 = current_position.z;  
@@ -849,7 +849,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
     #endif
   }
-  SERIAL_ECHOLNPGM("measured_z :", measured_z);   //Lujsensorless
+  SERIAL_ECHOLNPGM("measured_z :", measured_z);
   return measured_z;
 }
 

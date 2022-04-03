@@ -250,7 +250,7 @@ class Endstops {
   public:
     // Basic functions for Sensorless Homing
     #if USE_SENSORLESS
-    static void set_homing_current(const bool onoff);
+      static void set_homing_current(const bool onoff);
     #endif
 
 };

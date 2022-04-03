@@ -443,7 +443,6 @@ namespace Language_es {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra Diagonal");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radio");
-  LSTR MSG_FACTOR_RADIUS                  = _UxGT("Factor Radius");    //Lujsensorless
   LSTR MSG_INFO_MENU                      = _UxGT("Info. Impresora");
   LSTR MSG_INFO_PRINTER_MENU              = _UxGT("Info. Impresora");
   LSTR MSG_3POINT_LEVELING                = _UxGT("Nivelando 3puntos");

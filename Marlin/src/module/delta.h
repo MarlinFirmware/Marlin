@@ -39,8 +39,8 @@ extern abc_float_t delta_diagonal_rod_2_tower;
 extern float delta_clip_start_height;
 extern abc_float_t delta_diagonal_rod_trim;
 #if ENABLED(SENSORLESS_PROBING)
- extern abc_float_t offset_sensorless_adj;   //Lujsensorless
- extern float offset_sensorless;
+  extern abc_float_t offset_sensorless_adj;
+  extern float offset_sensorless;
 #endif
 
 /**

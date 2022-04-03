@@ -407,13 +407,14 @@ void GcodeSuite::G33() {
                   towers_set = !parser.seen_test('T');
 
   // The calibration radius is set to a calculated value
-  float dcr = (probe_at_offset ? DELTA_PRINTABLE_RADIUS : DELTA_PRINTABLE_RADIUS - PROBING_MARGIN) * sensorless_radius_factor;   //Lujsensorless 
+  float dcr = probe_at_offset ? DELTA_PRINTABLE_RADIUS : DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;   
   #if HAS_PROBE_XY_OFFSET
     const float total_offset = HYPOT(probe.offset_xy.x, probe.offset_xy.y);
     dcr -= probe_at_offset ? _MAX(total_offset, PROBING_MARGIN) : total_offset;
   #endif
   NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
   if (parser.seenval('R')) dcr -= _MAX(parser.value_float(),0);
+  dcr *= sensorless_radius_factor; 
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
@@ -439,7 +440,7 @@ void GcodeSuite::G33() {
     probe.test_sensitivity.x = !parser.seen_test('X');
     TERN_(HAS_Y_AXIS, probe.test_sensitivity.y = !parser.seen_test('Y'));
     TERN_(HAS_Z_AXIS, probe.test_sensitivity.z = !parser.seen_test('Z'));
-    bool save_offset_sensorless_adj = parser.seen_test('S');             //Lujsensorless
+    bool save_offset_sensorless_adj = parser.seen_test('S');
   #endif
 
   const bool _0p_calibration      = probe_points == 0,
@@ -479,26 +480,26 @@ void GcodeSuite::G33() {
   if (!_0p_calibration) ac_home();
 
   #if ENABLED(SENSORLESS_PROBING)           
-    if (verbose_level > 0 && save_offset_sensorless_adj) {                  //Lujsensorless Guardar save_offset_sensorless
+    if (verbose_level > 0 && save_offset_sensorless_adj) {
       xyz_pos_t reset{0};                     
       offset_sensorless_adj = reset;          
 
       float z_at_pt[NPP + 1] = { 0.0f };
-      probe.test_sensitivity = {true, false, false};                       //Lujsensorless activar stallguard solo en eje x ¿probe_at_offset? 3º false
-      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, false)) {            //Lujsensorless Guardar save_offset_sensorless.x
+      probe.test_sensitivity = {true, false, false};
+      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset)) {
         probe.save_offset_sensorless(true, z_at_pt[CEN]);
       }      
       z_at_pt[NPP + 1] = { 0.0f };
-      probe.test_sensitivity = {false, true, false};                       //Lujsensorless activar stallguard solo en eje y
-      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, false)) {            //Lujsensorless Guardar save_offset_sensorless.y
+      probe.test_sensitivity = {false, true, false};
+      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset)) {
         probe.save_offset_sensorless(true, z_at_pt[CEN]);
       }      
       z_at_pt[NPP + 1] = { 0.0f };
-      probe.test_sensitivity = {false, false, true};                       //Lujsensorless activar stallguard solo en eje z
-      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, false)) {            //Lujsensorless Guardar save_offset_sensorless.z
+      probe.test_sensitivity = {false, false, true};
+      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset)) {
         probe.save_offset_sensorless(true, z_at_pt[CEN]);
       }   
-      probe.test_sensitivity = {true, true, true};                         //Lujsensorless activar stallguard en los tres ejes
+      probe.test_sensitivity = {true, true, true};
     }       
   #endif
 
@@ -628,7 +629,7 @@ void GcodeSuite::G33() {
     if (verbose_level == 3 || verbose_level == 0) {
       print_calibration_results(z_at_pt, _tower_results, _opposite_results);
       #if ENABLED(SENSORLESS_PROBING)
-        if (verbose_level == 0) probe.save_offset_sensorless(save_offset_sensorless_adj, z_at_pt[CEN]);  //Lujsensorless
+        if (verbose_level == 0) probe.save_offset_sensorless(save_offset_sensorless_adj, z_at_pt[CEN]);
       #endif
     }
   
@@ -691,7 +692,7 @@ void GcodeSuite::G33() {
   ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
-  probe.test_sensitivity = {true, true, true};         //Lujsensorless activar stallguard en los tres ejes
+  probe.test_sensitivity = {true, true, true};
 }
 
 #endif // DELTA_AUTO_CALIBRATION
