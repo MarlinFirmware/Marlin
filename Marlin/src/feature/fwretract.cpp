@@ -45,7 +45,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 // private:
 
 #if HAS_MULTI_EXTRUDER
-  bool FWRetract::retracted_swap[EXTRUDERS];          // Which extruders are swap-retracted
+  Flags<EXTRUDERS> FWRetract::retracted_swap;         // Which extruders are swap-retracted
 #endif
 
 // public:
@@ -56,7 +56,7 @@ fwretract_settings_t FWRetract::settings;             // M207 S F Z W, M208 S F 
   bool FWRetract::autoretract_enabled;                // M209 S - Autoretract switch
 #endif
 
-bool FWRetract::retracted[EXTRUDERS];                 // Which extruders are currently retracted
+Flags<EXTRUDERS> FWRetract::retracted;                // Which extruders are currently retracted
 
 float FWRetract::current_retract[EXTRUDERS],          // Retract value used by planner
       FWRetract::current_hop;
@@ -73,9 +73,9 @@ void FWRetract::reset() {
   settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
+  retracted.reset();
   EXTRUDER_LOOP() {
-    retracted[e] = false;
-    E_TERN_(retracted_swap[e] = false);
+    E_TERN_(retracted_swap.clear(e));
     current_retract[e] = 0.0;
   }
 }
@@ -173,11 +173,11 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
 
   TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
 
-  retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
+  retracted.set(active_extruder, retracting);             // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
   #if HAS_MULTI_EXTRUDER
-    if (swapping) retracted_swap[active_extruder] = retracting;
+    if (swapping) retracted_swap.set(active_extruder, retracting);
   #endif
 
   /* // debugging
