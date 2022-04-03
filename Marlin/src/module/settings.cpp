@@ -399,7 +399,7 @@ typedef struct SettingsDataStruct {
   uint8_t lcd_brightness;                               // M256 B
 
   //
-  // LCD_BACKLIGHT_TIMEOUT
+  // Display Sleep
   //
   #if LCD_BACKLIGHT_TIMEOUT
     uint16_t lcd_backlight_timeout;                     // (G-code needed)
@@ -1142,7 +1142,7 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // LCD Backlight Timeout
+    // LCD Backlight / Sleep Timeout
     //
     #if LCD_BACKLIGHT_TIMEOUT
       EEPROM_WRITE(ui.lcd_backlight_timeout);
@@ -1156,7 +1156,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(USE_CONTROLLER_FAN)
         const controllerFan_settings_t &cfs = controllerFan.settings;
       #else
-        controllerFan_settings_t cfs = controllerFan_defaults;
+        constexpr controllerFan_settings_t cfs = controllerFan_defaults;
       #endif
       EEPROM_WRITE(cfs);
     }
@@ -2091,7 +2091,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // LCD Backlight Timeout
+      // LCD Backlight / Sleep Timeout
       //
       #if LCD_BACKLIGHT_TIMEOUT
         EEPROM_READ(ui.lcd_backlight_timeout);
@@ -3168,7 +3168,7 @@ void MarlinSettings::reset() {
   TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
 
   //
-  // LCD Backlight Timeout
+  // LCD Backlight / Sleep Timeout
   //
   #if LCD_BACKLIGHT_TIMEOUT
     ui.lcd_backlight_timeout = LCD_BACKLIGHT_TIMEOUT;
