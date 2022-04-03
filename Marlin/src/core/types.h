@@ -66,6 +66,59 @@ struct IF<true, L, R> { typedef L type; };
 
 #define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L)
 
+// General Flags for some number of states
+template<size_t N>
+struct Flags {
+  typedef typename IF<(N>8), uint16_t, uint8_t>::type bits_t;
+  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
+  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
+  union {
+    bits_t b;
+    typename IF<(N>8), N16, N8>::type flag;
+  };
+  void reset()                             { b = 0; }
+  void set(const int n, const bool onoff)  { onoff ? set(n) : clear(n); }
+  void set(const int n)                    { b |=  (bits_t)_BV(n); }
+  void clear(const int n)                  { b &= ~(bits_t)_BV(n); }
+  bool test(const int n) const             { return TEST(b, n); }
+        bool operator[](const int n)       { return test(n); }
+  const bool operator[](const int n) const { return test(n); }
+  const int size() const                   { return sizeof(b); }
+};
+
+// Specialization for a single bool flag
+template<>
+struct Flags<1> {
+  bool b;
+  void reset()                            { b = false; }
+  void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
+  void set(const int)                     { b = true; }
+  void clear(const int)                   { b = false; }
+  bool test(const int) const              { return b; }
+        bool operator[](const int)        { return b; }
+  const bool operator[](const int) const  { return b; }
+  const int size() const                  { return sizeof(b); }
+};
+
+typedef Flags<8> flags_8_t;
+typedef Flags<16> flags_16_t;
+
+// Flags for some axis states, with per-axis aliases xyzijkuvwe
+typedef struct AxisFlags {
+  union {
+    struct Flags<LOGICAL_AXES> flags;
+    struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
+  };
+  void reset()                             { flags.reset(); }
+  void set(const int n)                    { flags.set(n); }
+  void set(const int n, const bool onoff)  { flags.set(n, onoff); }
+  void clear(const int n)                  { flags.clear(n); }
+  bool test(const int n) const             { return flags.test(n); }
+        bool operator[](const int n)       { return flags[n]; }
+  const bool operator[](const int n) const { return flags[n]; }
+  const int size() const                   { return sizeof(flags); }
+} axis_flags_t;
+
 //
 // Enumerated axis indices
 //
