@@ -57,7 +57,7 @@ void GcodeSuite::M591() {
         case RM_NONE ... RM_OUT_ON_HIGH:
         case RM_MOTION_SENSOR:
           runout.mode[tool] = tmp_mode;
-          runout.reset();
+          runout.setup();
         default: break;
       }
     }
