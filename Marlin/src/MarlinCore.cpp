@@ -417,7 +417,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   if (do_reset_timeout) gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
-    SERIAL_ERROR_MSG(STR_KILL_INACTIVE_TIME, parser.command_ptr);
+    SERIAL_ERROR_START();
+    SERIAL_ECHOPGM(STR_KILL_PRE);
+    SERIAL_ECHOLNPGM(STR_KILL_INACTIVE_TIME, parser.command_ptr);
     kill();
   }
 
@@ -475,7 +477,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) {
-      SERIAL_ERROR_MSG(STR_KILL_BUTTON);
+      SERIAL_ERROR_START();
+      SERIAL_ECHOPGM(STR_KILL_PRE);
+      SERIAL_ECHOLNPGM(STR_KILL_BUTTON);
       kill();
     }
   #endif
