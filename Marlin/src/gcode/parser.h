@@ -309,13 +309,18 @@ public:
     }
 
     static float axis_unit_factor(const AxisEnum axis) {
-      return (
-        #if HAS_EXTRUDERS
-          axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor
-        #else
-          linear_unit_factor
-        #endif
-      );
+      if (false
+        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
+        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
+        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
+        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
+        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
+        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
+      ) return 1.0f;
+      #if HAS_EXTRUDERS
+        if (axis >= E_AXIS && volumetric_enabled) return volumetric_unit_factor;
+      #endif
+      return linear_unit_factor;
     }
 
     static float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
@@ -339,6 +344,13 @@ public:
   #define MM_TO_IN(M)        ((M) / 25.4f)
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
+
+  #define I_AXIS_UNIT(V) TERN(AXIS4_ROTATES, (V), LINEAR_UNIT(V))
+  #define J_AXIS_UNIT(V) TERN(AXIS5_ROTATES, (V), LINEAR_UNIT(V))
+  #define K_AXIS_UNIT(V) TERN(AXIS6_ROTATES, (V), LINEAR_UNIT(V))
+  #define U_AXIS_UNIT(V) TERN(AXIS7_ROTATES, (V), LINEAR_UNIT(V))
+  #define V_AXIS_UNIT(V) TERN(AXIS8_ROTATES, (V), LINEAR_UNIT(V))
+  #define W_AXIS_UNIT(V) TERN(AXIS9_ROTATES, (V), LINEAR_UNIT(V))
 
   static float value_linear_units()                      { return linear_value_to_mm(value_float()); }
   static float value_axis_units(const AxisEnum axis)     { return axis_value_to_mm(axis, value_float()); }

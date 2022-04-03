@@ -49,6 +49,9 @@
 #define TMC_I_LABEL 'I', '0'
 #define TMC_J_LABEL 'J', '0'
 #define TMC_K_LABEL 'K', '0'
+#define TMC_U_LABEL 'U', '0'
+#define TMC_V_LABEL 'V', '0'
+#define TMC_W_LABEL 'W', '0'
 
 #define TMC_X2_LABEL 'X', '2'
 #define TMC_Y2_LABEL 'Y', '2'
@@ -91,6 +94,15 @@
 #endif
 #if HAS_K_AXIS && !defined(CHOPPER_TIMING_K)
   #define CHOPPER_TIMING_K CHOPPER_TIMING
+#endif
+#if HAS_U_AXIS && !defined(CHOPPER_TIMING_U)
+  #define CHOPPER_TIMING_U CHOPPER_TIMING
+#endif
+#if HAS_V_AXIS && !defined(CHOPPER_TIMING_V)
+  #define CHOPPER_TIMING_V CHOPPER_TIMING
+#endif
+#if HAS_W_AXIS && !defined(CHOPPER_TIMING_W)
+  #define CHOPPER_TIMING_W CHOPPER_TIMING
 #endif
 #if HAS_EXTRUDERS && !defined(CHOPPER_TIMING_E)
   #define CHOPPER_TIMING_E CHOPPER_TIMING
@@ -271,6 +283,48 @@ void reset_trinamic_drivers();
   #endif
   #if AXIS_HAS_SQUARE_WAVE(K)
     #define K_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(K_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// U Stepper
+#if AXIS_IS_TMC(U)
+  extern TMC_CLASS(U, U) stepperU;
+  static constexpr chopper_timing_t chopper_timing_U = CHOPPER_TIMING_U;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define U_ENABLE_INIT() NOOP
+    #define U_ENABLE_WRITE(STATE) stepperU.toff((STATE)==U_ENABLE_ON ? chopper_timing_U.toff : 0)
+    #define U_ENABLE_READ() stepperU.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(U)
+    #define U_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(U_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// V Stepper
+#if AXIS_IS_TMC(V)
+  extern TMC_CLASS(V, V) stepperV;
+  static constexpr chopper_timing_t chopper_timing_V = CHOPPER_TIMING_V;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define V_ENABLE_INIT() NOOP
+    #define V_ENABLE_WRITE(STATE) stepperV.toff((STATE)==V_ENABLE_ON ? chopper_timing_V.toff : 0)
+    #define V_ENABLE_READ() stepperV.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(V)
+    #define V_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(V_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// W Stepper
+#if AXIS_IS_TMC(W)
+  extern TMC_CLASS(W, W) stepperW;
+  static constexpr chopper_timing_t chopper_timing_W = CHOPPER_TIMING_W;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define W_ENABLE_INIT() NOOP
+    #define W_ENABLE_WRITE(STATE) stepperW.toff((STATE)==W_ENABLE_ON ? chopper_timing_W.toff : 0)
+    #define W_ENABLE_READ() stepperW.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(W)
+    #define W_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(W_STEP_PIN); }while(0)
   #endif
 #endif
 
