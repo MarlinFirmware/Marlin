@@ -302,15 +302,6 @@ void menu_backlash();
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
 
-    #if ENABLED(PID_EDIT_MENU)
-      #define _PID_EDIT_ITEMS_TMPL(N,T) \
-        raw_Ki = unscalePID_i(T.pid.Ki); \
-        raw_Kd = unscalePID_d(T.pid.Kd); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
-        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
-    #endif
-
     #if BOTH(PIDTEMP, PID_EDIT_MENU)
       #define __PID_HOTEND_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
@@ -339,6 +330,15 @@ void menu_backlash();
 
       #define _HOTEND_PID_EDIT_MENU_ITEMS(N) NOOP
 
+    #endif
+
+    #if ENABLED(PID_EDIT_MENU) && EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
+      #define _PID_EDIT_ITEMS_TMPL(N,T) \
+        raw_Ki = unscalePID_i(T.pid.Ki); \
+        raw_Kd = unscalePID_d(T.pid.Kd); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
     #endif
 
     #if ENABLED(PIDTEMP)
