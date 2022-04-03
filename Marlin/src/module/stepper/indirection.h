@@ -262,6 +262,63 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define K_STEP_READ() bool(READ(K_STEP_PIN))
 #endif
 
+// U Stepper
+#if HAS_U_AXIS
+  #ifndef U_ENABLE_INIT
+    #define U_ENABLE_INIT() SET_OUTPUT(U_ENABLE_PIN)
+    #define U_ENABLE_WRITE(STATE) WRITE(U_ENABLE_PIN,STATE)
+    #define U_ENABLE_READ() bool(READ(U_ENABLE_PIN))
+  #endif
+  #ifndef U_DIR_INIT
+    #define U_DIR_INIT() SET_OUTPUT(U_DIR_PIN)
+    #define U_DIR_WRITE(STATE) WRITE(U_DIR_PIN,STATE)
+    #define U_DIR_READ() bool(READ(U_DIR_PIN))
+  #endif
+  #define U_STEP_INIT() SET_OUTPUT(U_STEP_PIN)
+  #ifndef U_STEP_WRITE
+    #define U_STEP_WRITE(STATE) WRITE(U_STEP_PIN,STATE)
+  #endif
+  #define U_STEP_READ() bool(READ(U_STEP_PIN))
+#endif
+
+// V Stepper
+#if HAS_V_AXIS
+  #ifndef V_ENABLE_INIT
+    #define V_ENABLE_INIT() SET_OUTPUT(V_ENABLE_PIN)
+    #define V_ENABLE_WRITE(STATE) WRITE(V_ENABLE_PIN,STATE)
+    #define V_ENABLE_READ() bool(READ(V_ENABLE_PIN))
+  #endif
+  #ifndef V_DIR_INIT
+    #define V_DIR_INIT() SET_OUTPUT(V_DIR_PIN)
+    #define V_DIR_WRITE(STATE) WRITE(V_DIR_PIN,STATE)
+    #define V_DIR_READ() bool(READ(V_DIR_PIN))
+  #endif
+  #define V_STEP_INIT() SET_OUTPUT(V_STEP_PIN)
+  #ifndef V_STEP_WRITE
+    #define V_STEP_WRITE(STATE) WRITE(V_STEP_PIN,STATE)
+  #endif
+  #define V_STEP_READ() bool(READ(V_STEP_PIN))
+#endif
+
+// W Stepper
+#if HAS_W_AXIS
+  #ifndef W_ENABLE_INIT
+    #define W_ENABLE_INIT() SET_OUTPUT(W_ENABLE_PIN)
+    #define W_ENABLE_WRITE(STATE) WRITE(W_ENABLE_PIN,STATE)
+    #define W_ENABLE_READ() bool(READ(W_ENABLE_PIN))
+  #endif
+  #ifndef W_DIR_INIT
+    #define W_DIR_INIT() SET_OUTPUT(W_DIR_PIN)
+    #define W_DIR_WRITE(STATE) WRITE(W_DIR_PIN,STATE)
+    #define W_DIR_READ() bool(READ(W_DIR_PIN))
+  #endif
+  #define W_STEP_INIT() SET_OUTPUT(W_STEP_PIN)
+  #ifndef W_STEP_WRITE
+    #define W_STEP_WRITE(STATE) WRITE(W_STEP_PIN,STATE)
+  #endif
+  #define W_STEP_READ() bool(READ(W_STEP_PIN))
+#endif
+
 // E0 Stepper
 #ifndef E0_ENABLE_INIT
   #define E0_ENABLE_INIT() SET_OUTPUT(E0_ENABLE_PIN)
@@ -743,6 +800,51 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define DISABLE_STEPPER_K() TERN(HAS_K_ENABLE, K_ENABLE_WRITE(!K_ENABLE_ON), NOOP)
 #endif
 
+#ifndef ENABLE_STEPPER_U
+  #if HAS_U_ENABLE
+    #define  ENABLE_STEPPER_U() U_ENABLE_WRITE( U_ENABLE_ON)
+  #else
+    #define  ENABLE_STEPPER_U() NOOP
+  #endif
+#endif
+#ifndef DISABLE_STEPPER_U
+  #if HAS_U_ENABLE
+    #define DISABLE_STEPPER_U() U_ENABLE_WRITE(!U_ENABLE_ON)
+  #else
+    #define DISABLE_STEPPER_U() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_STEPPER_V
+  #if HAS_V_ENABLE
+    #define  ENABLE_STEPPER_V() V_ENABLE_WRITE( V_ENABLE_ON)
+  #else
+    #define  ENABLE_STEPPER_V() NOOP
+  #endif
+#endif
+#ifndef DISABLE_STEPPER_V
+  #if HAS_V_ENABLE
+    #define DISABLE_STEPPER_V() V_ENABLE_WRITE(!V_ENABLE_ON)
+  #else
+    #define DISABLE_STEPPER_V() NOOP
+  #endif
+#endif
+
+#ifndef ENABLE_STEPPER_W
+  #if HAS_W_ENABLE
+    #define  ENABLE_STEPPER_W() W_ENABLE_WRITE( W_ENABLE_ON)
+  #else
+    #define  ENABLE_STEPPER_W() NOOP
+  #endif
+#endif
+#ifndef DISABLE_STEPPER_W
+  #if HAS_W_ENABLE
+    #define DISABLE_STEPPER_W() W_ENABLE_WRITE(!W_ENABLE_ON)
+  #else
+    #define DISABLE_STEPPER_W() NOOP
+  #endif
+#endif
+
 #ifndef ENABLE_STEPPER_E0
   #define  ENABLE_STEPPER_E0() TERN(HAS_E0_ENABLE, E0_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
@@ -915,6 +1017,28 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #else
   #define  ENABLE_AXIS_K() NOOP
   #define DISABLE_AXIS_K() NOOP
+#endif
+
+#if HAS_U_AXIS
+  #define  ENABLE_AXIS_U() if (SHOULD_ENABLE(u))  {  ENABLE_STEPPER_U(); AFTER_CHANGE(u, true); }
+  #define DISABLE_AXIS_U() if (SHOULD_DISABLE(u)) { DISABLE_STEPPER_U(); AFTER_CHANGE(u, false); set_axis_untrusted(U_AXIS); }
+#else
+  #define  ENABLE_AXIS_U() NOOP
+  #define DISABLE_AXIS_U() NOOP
+#endif
+#if HAS_V_AXIS
+  #define  ENABLE_AXIS_V() if (SHOULD_ENABLE(v))  {  ENABLE_STEPPER_V(); AFTER_CHANGE(v, true); }
+  #define DISABLE_AXIS_V() if (SHOULD_DISABLE(v)) { DISABLE_STEPPER_V(); AFTER_CHANGE(v, false); set_axis_untrusted(V_AXIS); }
+#else
+  #define  ENABLE_AXIS_V() NOOP
+  #define DISABLE_AXIS_V() NOOP
+#endif
+#if HAS_W_AXIS
+  #define  ENABLE_AXIS_W() if (SHOULD_ENABLE(w))  {  ENABLE_STEPPER_W(); AFTER_CHANGE(w, true); }
+  #define DISABLE_AXIS_W() if (SHOULD_DISABLE(w)) { DISABLE_STEPPER_W(); AFTER_CHANGE(w, false); set_axis_untrusted(W_AXIS); }
+#else
+  #define  ENABLE_AXIS_W() NOOP
+  #define DISABLE_AXIS_W() NOOP
 #endif
 
 //

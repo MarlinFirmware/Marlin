@@ -337,7 +337,7 @@ bool I2CPositionEncoder::test_axis() {
   ec = false;
 
   xyze_pos_t startCoord, endCoord;
-  LOOP_LINEAR_AXES(a) {
+  LOOP_NUM_AXES(a) {
     startCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
     endCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
   }
@@ -395,7 +395,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   travelDistance = endDistance - startDistance;
 
   xyze_pos_t startCoord, endCoord;
-  LOOP_LINEAR_AXES(a) {
+  LOOP_NUM_AXES(a) {
     startCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
     endCoord[a] = planner.get_axis_position_mm((AxisEnum)a);
   }
