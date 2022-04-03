@@ -2984,21 +2984,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Screen Timeout feature not supported by these common displays
-*/
-#if HAS_SCREEN_TIMEOUT
-  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    #error "SCREEN_TIMEOUT feature not supported by REPRAPWORLD_GRAPHICAL_LCD"
-  #elif IS_U8GLIB_ST7920
-    #error "SCREEN_TIMEOUT feature not supported by Reprap Discount Full Graphics Smart Controller using ST7920"
-  #elif IS_U8GLIB_LM6059_AF
-    #error "SCREEN_TIMEOUT feature not supported by U8GLIB_LM6059_AF ST7565"
-  #elif IS_U8GLIB_ST7565_64128
-    #error "SCREEN_TIMEOUT feature not supported by U8GLIB_ST7565_64128"
-  #elif ANY(FYSETC_MINI, MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-    #error "SCREEN_TIMEOUT feature not supported by FYSETC_MINI, MKS_MINI_12864, or ENDER2_STOCKDISPLAY"
-  #elif ENABLED(MINIPANEL)
-    #error "SCREEN_TIMEOUT feature not supported by MINIPANEL display"
+ * Display Sleep is not supported by these common displays
+ */
+#if HAS_DISPLAY_SLEEP
+  #if ANY(IS_U8GLIB_ST7920, IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, \
+          REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI, MKS_MINI_12864, ENDER2_STOCKDISPLAY, MINIPANEL)
+    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
+  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
+    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
   #endif
 #endif
 

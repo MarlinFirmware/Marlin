@@ -1505,10 +1505,3 @@
 #if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
   #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
 #endif
-
-/**
- * Screen Timeout Feature
- */
-#if defined(SCREEN_TIMEOUT)
-  #define HAS_SCREEN_TIMEOUT 1
-#endif

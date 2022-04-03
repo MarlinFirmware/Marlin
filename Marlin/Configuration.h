@@ -2696,19 +2696,6 @@
 //
 //#define K3D_242_OLED_CONTROLLER   // Software SPI
 
-// =========================================================================
-// ===============Screen Sleep Feature ===================================
-// =========================================================================
-//  For DOGM Diaplays for which U8g graphics library supports Sleep/Wake
-//  functions. Can be used to to reduce energy consumption and reduce
-//  OLED pixel burn-in.  U8g supports sleep/wake functions of
-//  SH1106/SSD1306/SSD1309  and other DOGM displays. Feature adds Screen
-//  Timeout setting menu to the LCD menu under Configuration. Use menu
-//  to set timeout period between  0 and 99 minutes.  Setting to '0'
-//  disables screen sleep feature.
-
-//#define SCREEN_TIMEOUT 1 // ( 0 - 99  minutes ) Turn off screen with timeout
-
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================
