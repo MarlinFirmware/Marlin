@@ -389,7 +389,7 @@ namespace Language_de {
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Vorschubfaktor *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD-Kontrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD-Helligkeit");
-  LSTR MSG_LCD_BKL_TIMEOUT                = _UxGT("LCD-Ruhezustand (s)");
+  LSTR MSG_LCD_TIMEOUT_SEC                = _UxGT("LCD-Ruhezustand (s)");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("LCD ausschalten");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Konfig. speichern");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Konfig. laden");

@@ -84,7 +84,8 @@
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
            manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(_mf.e / 60.0f,
                                                      _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f,
-                                                     _mf.i / 60.0f, _mf.j / 60.0f, _mf.k / 60.0f);
+                                                     _mf.i / 60.0f, _mf.j / 60.0f, _mf.k / 60.0f,
+                                                     _mf.u / 60.0f, _mf.v / 60.0f, _mf.w / 60.0f);
 #endif
 
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
@@ -843,7 +844,8 @@ class Planner {
       const abce_pos_t out = LOGICAL_AXIS_ARRAY(
         get_axis_position_mm(E_AXIS),
         get_axis_position_mm(A_AXIS), get_axis_position_mm(B_AXIS), get_axis_position_mm(C_AXIS),
-        get_axis_position_mm(I_AXIS), get_axis_position_mm(J_AXIS), get_axis_position_mm(K_AXIS)
+        get_axis_position_mm(I_AXIS), get_axis_position_mm(J_AXIS), get_axis_position_mm(K_AXIS),
+        get_axis_position_mm(U_AXIS), get_axis_position_mm(V_AXIS), get_axis_position_mm(W_AXIS)
       );
       return out;
     }
@@ -928,8 +930,8 @@ class Planner {
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
-        LOOP_L_N(i, EXTRUDERS)
-          max_e_jerk[E_INDEX_N(i)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_INDEX_N(i)]);
+        EXTRUDER_LOOP()
+          max_e_jerk[E_INDEX_N(e)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_INDEX_N(e)]);
       }
     #endif
 

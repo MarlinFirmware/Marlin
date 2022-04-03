@@ -436,6 +436,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         TERN_(DISABLE_INACTIVE_I, stepper.disable_axis(I_AXIS));
         TERN_(DISABLE_INACTIVE_J, stepper.disable_axis(J_AXIS));
         TERN_(DISABLE_INACTIVE_K, stepper.disable_axis(K_AXIS));
+        TERN_(DISABLE_INACTIVE_U, stepper.disable_axis(U_AXIS));
+        TERN_(DISABLE_INACTIVE_V, stepper.disable_axis(V_AXIS));
+        TERN_(DISABLE_INACTIVE_W, stepper.disable_axis(W_AXIS));
         TERN_(DISABLE_INACTIVE_E, stepper.disable_e_steppers());
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -476,7 +479,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #endif
 
   #if HAS_FREEZE_PIN
-    Stepper::frozen = !READ(FREEZE_PIN);
+    stepper.frozen = READ(FREEZE_PIN) == FREEZE_STATE;
   #endif
 
   #if HAS_HOME
@@ -993,6 +996,15 @@ inline void tmc_standby_setup() {
   #if PIN_EXISTS(K_STDBY)
     SET_INPUT_PULLDOWN(K_STDBY_PIN);
   #endif
+  #if PIN_EXISTS(U_STDBY)
+    SET_INPUT_PULLDOWN(U_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(V_STDBY)
+    SET_INPUT_PULLDOWN(V_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(W_STDBY)
+    SET_INPUT_PULLDOWN(W_STDBY_PIN);
+  #endif
   #if PIN_EXISTS(E0_STDBY)
     SET_INPUT_PULLDOWN(E0_STDBY_PIN);
   #endif
@@ -1166,9 +1178,13 @@ void setup() {
     #endif
   #endif
 
-  #if HAS_FREEZE_PIN
+  #if ENABLED(FREEZE_FEATURE)
     SETUP_LOG("FREEZE_PIN");
-    SET_INPUT_PULLUP(FREEZE_PIN);
+    #if FREEZE_STATE
+      SET_INPUT_PULLDOWN(FREEZE_PIN);
+    #else
+      SET_INPUT_PULLUP(FREEZE_PIN);
+    #endif
   #endif
 
   #if HAS_SUICIDE

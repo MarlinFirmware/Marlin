@@ -34,7 +34,7 @@
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
       bool enable_park;
-      xy_pos_t change_point;
+      xyz_pos_t change_point;
     #endif
     float z_raise;
   } toolchange_settings_t;
@@ -50,7 +50,7 @@
   #endif
 
   #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-    extern bool toolchange_extruder_ready[EXTRUDERS];
+    extern Flags<EXTRUDERS> toolchange_extruder_ready;
   #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
