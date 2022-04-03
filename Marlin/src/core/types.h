@@ -88,6 +88,7 @@ struct Flags {
   };
   void reset()            { b = 0; }
   void set(const int n)   { b |=  (bits_t)_BV(n); }
+  void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
   void clear(const int n) { b &= ~(bits_t)_BV(n); }
   bool test(const int n) const { return TEST(b, n); }
         bool operator[](const int n)       { return test(n); }
@@ -106,6 +107,7 @@ typedef struct AxisFlags {
   };
   void reset()            { flags.reset(); }
   void set(const int n)   { flags.set(n); }
+  void set(const int n, const bool onoff) { flags.set(n, onoff); }
   void clear(const int n) { flags.clear(n); }
   bool test(const int n) const { return flags.test(n); }
         bool operator[](const int n)       { return flags[n]; }

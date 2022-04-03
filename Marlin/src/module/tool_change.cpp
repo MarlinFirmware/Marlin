@@ -1401,7 +1401,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Migrate the retracted state
     #if ENABLED(FWRETRACT)
-      fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
+      fwretract.retracted.set(migration_extruder, fwretract.retracted[active_extruder]);
     #endif
 
     // Migrate the temperature to the new hotend
