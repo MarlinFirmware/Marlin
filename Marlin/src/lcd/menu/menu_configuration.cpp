@@ -548,7 +548,7 @@ void menu_configuration() {
   #if LCD_BACKLIGHT_TIMEOUT && LCD_BKL_TIMEOUT_MIN < LCD_BKL_TIMEOUT_MAX
     EDIT_ITEM(uint16_4, MSG_LCD_TIMEOUT_SEC, &ui.lcd_backlight_timeout, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.refresh_backlight_timeout);
   #endif
-  
+
   #if HAS_SCREEN_TIMEOUT
     EDIT_ITEM(uint16_3, MSG_SCREEN_TIMEOUT, &ui.screen_timeout, SCREEN_TIMEOUT_MIN, SCREEN_TIMEOUT_MAX, ui.refresh_screen_timeout);
   #endif

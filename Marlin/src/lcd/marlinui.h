@@ -244,10 +244,10 @@ public:
 
   // LCD implementations
   static void clear_lcd();
-  
+
   static void sleep_on();
   static void sleep_off();
-  
+
   #if BOTH(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
       if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
@@ -283,7 +283,7 @@ public:
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
   #endif
- 
+
   #if HAS_SCREEN_TIMEOUT
     #define SCREEN_TIMEOUT_MIN 0    // units in minutes
     #define SCREEN_TIMEOUT_MAX 99   // units in minutes
@@ -291,7 +291,7 @@ public:
     static millis_t screen_timeout_millis;
     static void refresh_screen_timeout();
   #endif
-  
+
   #if HAS_DWIN_E3V2_BASIC
     static void refresh();
   #else
