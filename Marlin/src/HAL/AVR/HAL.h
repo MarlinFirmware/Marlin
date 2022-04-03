@@ -229,7 +229,7 @@ public:
     SBI(DIDR0, ch);
   }
 
-  // Begin ADC sampling on the given channel
+  // Begin ADC sampling on the given channel. Called from Temperature::isr!
   static void adc_start(const uint8_t ch) {
     #ifdef MUX5
       ADCSRB = ch > 7 ? _BV(MUX5) : 0;
