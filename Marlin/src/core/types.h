@@ -86,28 +86,28 @@ struct Flags {
     bits_t b;
     typename IF<(N>8), N16, N8>::type flag;
   };
-  void reset()            { b = 0; }
-  void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  void set(const int n)   { b |=  (bits_t)_BV(n); }
-  void clear(const int n) { b &= ~(bits_t)_BV(n); }
-  bool test(const int n) const { return TEST(b, n); }
+  void reset()                             { b = 0; }
+  void set(const int n, const bool onoff)  { onoff ? set(n) : clear(n); }
+  void set(const int n)                    { b |=  (bits_t)_BV(n); }
+  void clear(const int n)                  { b &= ~(bits_t)_BV(n); }
+  bool test(const int n) const             { return TEST(b, n); }
         bool operator[](const int n)       { return test(n); }
   const bool operator[](const int n) const { return test(n); }
-  const int size() const { return sizeof(b); }
+  const int size() const                   { return sizeof(b); }
 };
 
 // Specialization for a single bool flag
 template<>
 struct Flags<1> {
   bool b;
-  void reset()          { b = false; }
+  void reset()                            { b = false; }
   void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  void set(const int)   { b = true; }
-  void clear(const int) { b = false; }
-  bool test(const int) const { return b; }
-        bool operator[](const int)       { return b; }
-  const bool operator[](const int) const { return b; }
-  const int size() const { return sizeof(b); }
+  void set(const int)                     { b = true; }
+  void clear(const int)                   { b = false; }
+  bool test(const int) const              { return b; }
+        bool operator[](const int)        { return b; }
+  const bool operator[](const int) const  { return b; }
+  const int size() const                  { return sizeof(b); }
 };
 
 typedef Flags<8> flags_8_t;
@@ -119,14 +119,14 @@ typedef struct AxisFlags {
     struct Flags<LOGICAL_AXES> flags;
     struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
   };
-  void reset()            { flags.reset(); }
-  void set(const int n)   { flags.set(n); }
-  void set(const int n, const bool onoff) { flags.set(n, onoff); }
-  void clear(const int n) { flags.clear(n); }
-  bool test(const int n) const { return flags.test(n); }
+  void reset()                             { flags.reset(); }
+  void set(const int n)                    { flags.set(n); }
+  void set(const int n, const bool onoff)  { flags.set(n, onoff); }
+  void clear(const int n)                  { flags.clear(n); }
+  bool test(const int n) const             { return flags.test(n); }
         bool operator[](const int n)       { return flags[n]; }
   const bool operator[](const int n) const { return flags[n]; }
-  const int size() const { return sizeof(flags); }
+  const int size() const                   { return sizeof(flags); }
 } axis_flags_t;
 
 //
