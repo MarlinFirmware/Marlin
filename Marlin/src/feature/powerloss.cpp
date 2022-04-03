@@ -514,7 +514,7 @@ void PrintJobRecovery::resume() {
     EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {
         fwretract.current_retract[e] = info.retract[e];
-        fwretract.retracted[e] = true;
+        fwretract.retracted.set(e);
       }
     }
     fwretract.current_hop = info.retract_hop;
