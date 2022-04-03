@@ -63,16 +63,20 @@ void GcodeSuite::M591() {
     }
   }
   else {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Filament runout ");
-    serialprint_onoff(runout.enabled[active_extruder]);
-    SERIAL_ECHOPGM(" ; Distance ", runout.runout_distance(active_extruder), "mm");
-    SERIAL_ECHOPGM(" ; Mode ", runout.mode[active_extruder]);
-    #if ENABLED(HOST_ACTION_COMMANDS)
-      SERIAL_ECHOPGM(" ; Host handling ");
-      serialprint_onoff(runout.host_handling);
+    #if DISABLED(SLIM_LCD_MENUS)
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("Filament runout ");
+      serialprint_onoff(runout.enabled[active_extruder]);
+      SERIAL_ECHOPGM(" ; Distance ", runout.runout_distance(active_extruder), "mm");
+      SERIAL_ECHOPGM(" ; Mode ", runout.mode[active_extruder]);
+      #if ENABLED(HOST_ACTION_COMMANDS)
+        SERIAL_ECHOPGM(" ; Host handling ");
+        serialprint_onoff(runout.host_handling);
+      #endif
+      SERIAL_EOL();
+    #else
+      M591_report(false);
     #endif
-    SERIAL_EOL();
   }
 }
 

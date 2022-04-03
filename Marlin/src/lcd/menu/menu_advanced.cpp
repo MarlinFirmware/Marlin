@@ -100,7 +100,7 @@ void menu_backlash();
 
 #endif
 
-#if HAS_FILAMENT_SENSOR
+#if HAS_FILAMENT_SENSOR && DISABLED(SLIM_LCD_MENUS)
 
   void set_runout_mode_none(const uint8_t e)   { runout.mode[e] = RM_NONE; runout.setup(); }
   void set_runout_mode_high(const uint8_t e)   { runout.mode[e] = RM_OUT_ON_HIGH; runout.setup(); }
@@ -201,7 +201,7 @@ void menu_backlash();
       #endif
     #endif
 
-    #if HAS_FILAMENT_SENSOR
+    #if HAS_FILAMENT_SENSOR && DISABLED(SLIM_LCD_MENUS)
       SUBMENU(MSG_RUNOUT_MODE, menu_runout_config);
     #endif
 

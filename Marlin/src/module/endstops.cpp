@@ -684,18 +684,23 @@ void __O2 Endstops::report_states() {
       const RunoutMode rm = runout.mode[i - 1];
       const uint8_t state = runout.out_state(i - 1);
 
-      SERIAL_ECHOPGM(STR_FILAMENT);
-      if (i > 1) SERIAL_CHAR(' ', '0' + i);
-      SERIAL_ECHOPGM(": ");
-      if (rm == RM_NONE)
-        SERIAL_ECHOLNPGM(STR_OFF);
-      else if (rm == RM_MOTION_SENSOR) {
-        SERIAL_ECHOPGM("MOTION : ");
-        print_es_state(extDigitalRead(pin) == outval);
-      }
-      else
-        SERIAL_ECHOLNPGM_P(extDigitalRead(pin) == outval ? PSTR("OUT") : PSTR("PRESENT"));
+      #if DISABLED(SLIM_LCD_MENUS)
+        SERIAL_ECHOPGM(STR_FILAMENT);
+        if (i > 1) SERIAL_CHAR(' ', '0' + i);
+        SERIAL_ECHOPGM(": ");
+        if (rm == RM_NONE)
+          SERIAL_ECHOLNPGM(STR_OFF);
+        else if (rm == RM_MOTION_SENSOR) {
+          SERIAL_ECHOPGM("MOTION : ");
+          print_es_state(extDigitalRead(pin) == outval);
+        }
+        else
+          SERIAL_ECHOLNPGM_P(extDigitalRead(pin) == outval ? PSTR("OUT") : PSTR("PRESENT"));
+      #else
+        print_es_state(extDigitalRead(pin) == outval, F(STR_FILAMENT));
+      #endif
     }
+
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());
