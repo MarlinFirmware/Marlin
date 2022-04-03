@@ -1316,6 +1316,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Generic Switching Toolhead requirements
+ */
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  constexpr float thpx[] = SWITCHING_TOOLHEAD_X_POS;
+  static_assert(COUNT(thpx) == EXTRUDERS, "SWITCHING_TOOLHEAD_X_POS must be an array EXTRUDERS long.");
+#endif
+
+/**
  * Switching Toolhead requirements
  */
 #if ENABLED(SWITCHING_TOOLHEAD)
