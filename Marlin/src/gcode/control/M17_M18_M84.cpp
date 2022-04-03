@@ -33,8 +33,8 @@
 #include "../../core/debug_out.h"
 #include "../../libs/hex_print.h"
 
-inline axis_flags_t selected_axis_bits() {
-  axis_flags_t selected{0};
+inline stepper_flags_t selected_axis_bits() {
+  stepper_flags_t selected{0};
   #if HAS_EXTRUDERS
     if (parser.seen('E')) {
       if (E_TERN0(parser.has_value())) {
@@ -58,7 +58,7 @@ inline axis_flags_t selected_axis_bits() {
 }
 
 // Enable specified axes and warn about other affected axes
-void do_enable(const axis_flags_t to_enable) {
+void do_enable(const stepper_flags_t to_enable) {
   const ena_mask_t was_enabled = stepper.axis_enabled.bits,
                   shall_enable = to_enable.bits & ~was_enabled;
 
@@ -141,7 +141,7 @@ void GcodeSuite::M17() {
   }
 }
 
-void try_to_disable(const axis_flags_t to_disable) {
+void try_to_disable(const stepper_flags_t to_disable) {
   ena_mask_t still_enabled = to_disable.bits & stepper.axis_enabled.bits;
 
   DEBUG_ECHOLNPGM("Enabled: ", hex_word(stepper.axis_enabled.bits), " To Disable: ", hex_word(to_disable.bits), " | ", hex_word(still_enabled));

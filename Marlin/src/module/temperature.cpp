@@ -1092,7 +1092,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         static hotend_pid_t work_pid[HOTENDS];
         static float temp_iState[HOTENDS] = { 0 },
                      temp_dState[HOTENDS] = { 0 };
-        static bool pid_reset[HOTENDS] = { false };
+        static Flags<HOTENDS> pid_reset;
         const float pid_error = temp_hotend[ee].target - temp_hotend[ee].celsius;
 
         float pid_output;
@@ -1102,17 +1102,17 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
           || TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out)
         ) {
           pid_output = 0;
-          pid_reset[ee] = true;
+          pid_reset.set(ee);
         }
         else if (pid_error > PID_FUNCTIONAL_RANGE) {
           pid_output = BANG_MAX;
-          pid_reset[ee] = true;
+          pid_reset.set(ee);
         }
         else {
           if (pid_reset[ee]) {
             temp_iState[ee] = 0.0;
             work_pid[ee].Kd = 0.0;
-            pid_reset[ee] = false;
+            pid_reset.clear(ee);
           }
 
           work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (temp_dState[ee] - temp_hotend[ee].celsius) - work_pid[ee].Kd);
