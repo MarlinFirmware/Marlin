@@ -210,7 +210,7 @@ void menu_backlash();
 
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
-  void copy_and_scalePID_i(int16_t e) {
+  void copy_and_scalePID_i(const uint8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
         case H_BED: thermalManager.temp_bed.pid.Ki = scalePID_i(raw_Ki); break;
@@ -226,7 +226,7 @@ void menu_backlash();
         break;
     }
   }
-  void copy_and_scalePID_d(int16_t e) {
+  void copy_and_scalePID_d(const uint8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
         case H_BED: thermalManager.temp_bed.pid.Kd = scalePID_d(raw_Kd); break;
@@ -242,33 +242,6 @@ void menu_backlash();
         break;
     }
   }
-#endif
-
-#if BOTH(PIDTEMP, PID_EDIT_MENU)
-
-  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) \
-    void copy_and_scalePID_i_E##N() { copy_and_scalePID_i(N); thermalManager.updatePID(); } \
-    void copy_and_scalePID_d_E##N() { copy_and_scalePID_d(N); thermalManager.updatePID(); }
-
-#else
-
-  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) //
-
-#endif
-
-#if ENABLED(PID_AUTOTUNE_MENU)
-  #define DEFINE_PIDTEMP_FUNCS(N) \
-    _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-    void lcd_autotune_callback_E##N() { _lcd_autotune(heater_id_t(N)); }
-#else
-  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N);
-#endif
-
-#if BOTH(PIDTEMP, HAS_HOTEND)
-  DEFINE_PIDTEMP_FUNCS(0);
-  #if ENABLED(PID_PARAMS_PER_HOTEND)
-    REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
-  #endif
 #endif
 
 #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
