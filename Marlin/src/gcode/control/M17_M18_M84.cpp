@@ -173,7 +173,7 @@ void try_to_disable(const stepper_flags_t to_disable) {
 
   auto overlap_warning = [](const ena_mask_t axis_bits) {
     SERIAL_ECHOPGM(" not disabled. Shared with");
-    LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_CHAR(' ', axis_codes[a]);
+    LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]));
     #if HAS_EXTRUDERS
       #define _EN_STILLON(N) if (TEST(axis_bits, INDEX_OF_AXIS(E_AXIS, N))) SERIAL_CHAR(' ', 'E', '0' + N);
       REPEAT(EXTRUDERS, _EN_STILLON)

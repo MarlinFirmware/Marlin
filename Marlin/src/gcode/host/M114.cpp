@@ -37,7 +37,7 @@
   void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
     char str[12];
     LOOP_L_N(a, n) {
-      SERIAL_CHAR(' ', axis_codes[a], ':');
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]));
       if (pos[a] >= 0) SERIAL_CHAR(' ');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
@@ -47,10 +47,7 @@
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    LOOP_LINEAR_AXES(a) {
-      SERIAL_CHAR(' ', AXIS_CHAR(a), ':');
-      SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
-    }
+    LOOP_LINEAR_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), dtostrf(pos[a], 1, precision, str));
     SERIAL_EOL();
   }
 
@@ -163,8 +160,7 @@
 
     SERIAL_ECHOPGM("Stepper:");
     LOOP_LOGICAL_AXES(i) {
-      SERIAL_CHAR(' ', axis_codes[i], ':');
-      SERIAL_ECHO(stepper.position((AxisEnum)i));
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[i]), stepper.position((AxisEnum)i));
     }
     SERIAL_EOL();
 

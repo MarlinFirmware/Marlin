@@ -83,9 +83,7 @@ void GcodeSuite::M425() {
     SERIAL_ECHOLNPGM("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a)) {
-      SERIAL_CHAR(' ', AXIS_CHAR(a));
-      SERIAL_ECHO(backlash.get_distance_mm(AxisEnum(a)));
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_distance_mm((AxisEnum)a));
     }
 
     #ifdef BACKLASH_SMOOTHING_MM
@@ -96,8 +94,7 @@ void GcodeSuite::M425() {
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
         LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
-          SERIAL_CHAR(' ', AXIS_CHAR(a));
-          SERIAL_ECHO(backlash.get_measurement(AxisEnum(a)));
+          SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_measurement((AxisEnum)a));
         }
       }
       else
