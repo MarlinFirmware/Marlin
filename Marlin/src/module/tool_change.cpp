@@ -907,12 +907,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   #endif
 
   // Define any variables required
-  static uint8_t extruder_was_primed = 0;       // Extruders primed status
+  static Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
 
   #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
     bool enable_first_prime; // As set by M217 V
-  #else
-    static const bool enable_first_prime = false;
   #endif
 
   // Cool down with fan
@@ -978,9 +976,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     /*
      * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
      */
-    static uint8_t extruder_did_first_prime = 0;  // Extruders first priming status
-    if (!TEST(extruder_did_first_prime, active_extruder)) {
-      SBI(extruder_did_first_prime, active_extruder);   // Log 1st prime complete
+    static Flags<EXTRUDERS> extruder_did_first_prime;  // Extruders first priming status
+    if (!extruder_did_first_prime[active_extruder]) {
+      extruder_did_first_prime.set(active_extruder);   // Log first prime complete
       // new nozzle - prime at user-specified speed.
       FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
       fr = toolchange_settings.prime_speed;
@@ -991,9 +989,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     //Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
       // Positive extra_prime value
-	    // - Return filament at speed (fr) then extra_prime at prime speed
+      // - Return filament at speed (fr) then extra_prime at prime speed
       FS_DEBUG("Loading Filament for T", active_extruder, " | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(fr), "mm/s");
-	    unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr)); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
+      unscaled_e_move(toolchange_settings.swap_length, MMM_TO_MMS(fr)); // Prime (Unretract) filament by extruding equal to Swap Length (Unretract)
 
       if (toolchange_settings.extra_prime > 0) {
         FS_DEBUG("Performing Extra Priming for T", active_extruder, " | Distance: ", toolchange_settings.extra_prime, " | Speed: ", MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
@@ -1009,7 +1007,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       unscaled_e_move(eswap, MMM_TO_MMS(fr));
     }
 
-    SBI(extruder_was_primed, active_extruder);    // Log that this extruder has been primed
+    extruder_was_primed.set(active_extruder); // Log that this extruder has been primed
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
@@ -1017,10 +1015,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
 
-	  // Cool down with fan
+    // Cool down with fan
     filament_swap_cooling();
 
-  } // extruder_prime()
+  }
 
   /**
    * Sequence to Prime the currently selected extruder
@@ -1168,7 +1166,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // First tool priming. To prime again, reboot the machine. -- Should only occur for first T0 after powerup!
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-      if (enable_first_prime && old_tool == 0 && new_tool == 0 && !TEST(extruder_was_primed, 0))
+      if (enable_first_prime && old_tool == 0 && new_tool == 0 && !extruder_was_primed[0])
         tool_change_prime();
         TERN_(TOOLCHANGE_FS_INIT_BEFORE_SWAP, toolchange_extruder_ready.set(old_tool)); // Primed and initialized
       }
@@ -1201,7 +1199,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             // If SingleNozzle setup is too cold, unable to perform tool_change.
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
-          else if (TEST(extruder_was_primed, old_tool)) {
+          else if (extruder_was_primed[old_tool]) {
             // Retract the old extruder if it was previously primed
             // To-Do: Should SingleNozzle always retract?
             FS_DEBUG("Retracting Filament for T", old_tool, ". | Distance: ", toolchange_settings.swap_length, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
