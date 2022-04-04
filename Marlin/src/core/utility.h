@@ -84,8 +84,7 @@ constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) 
 
 // Axis names for G-code parsing, reports, etc.
 const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME);
-
-#if LINEAR_AXES <= XYZ
+#if LINEAR_AXES <= XYZ && !HAS_EXTRUDERS
   #define AXIS_CHAR(A) ((char)('X' + A))
   #define IAXIS_CHAR AXIS_CHAR
 #else
