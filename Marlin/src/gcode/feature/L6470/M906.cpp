@@ -25,7 +25,7 @@
 #if HAS_L64XX
 
 #if AXIS_COLLISION('I')
-  #error "M906 parameter collision with axis name."
+  #error "M906 parameter 'I' collision with axis name."
 #endif
 
 #include "../../gcode.h"
