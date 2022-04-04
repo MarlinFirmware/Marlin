@@ -1086,11 +1086,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     FS_DEBUG("<<< tool_change_prime");
 
-  } // tool_change_prime
+  }
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
-
-// --------------------------
 
 /**
  * Perform a tool-change, which may result in moving the
@@ -1419,7 +1417,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
     }
 
-    SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, active_extruder);
+    SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);
 
   #endif // HAS_MULTI_EXTRUDER
 }
