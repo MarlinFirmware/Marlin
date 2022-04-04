@@ -865,7 +865,27 @@ volatile bool Temperature::raw_temps_ready = false;
 
       hal.idletask();
       TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+
+      if (!wait_for_heatup) {
+        SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
+        return false;
+      }
+
+      return true;
     };
+
+    struct Cleanup {
+      ~Cleanup() {
+        wait_for_heatup = false;
+
+        ui.reset_status();
+
+        temp_hotend[active_extruder].target = 0.0f;
+        temp_hotend[active_extruder].soft_pwm_amount = 0;
+        TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
+        TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
+      }
+    } cleanup;
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
     MPCHeaterInfo& hotend = temp_hotend[active_extruder];
@@ -887,8 +907,8 @@ volatile bool Temperature::raw_temps_ready = false;
                     ambient_temp = current_temp;
 
     wait_for_heatup = true; // Can be interrupted with M108
-    while (wait_for_heatup) {
-      housekeeping(ms, current_temp, next_report_ms);
+    while (true) {
+      if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -915,8 +935,8 @@ volatile bool Temperature::raw_temps_ready = false;
     uint16_t sample_distance = 1;
     float t1_time = 0;
 
-    while (wait_for_heatup) {
-      housekeeping(ms, current_temp, next_report_ms);
+    while (true) {
+      if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         // record samples between 100C and 200C
@@ -972,8 +992,8 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
     float last_temp = current_temp;
 
-    while (wait_for_heatup) {
-      housekeeping(ms, current_temp, next_report_ms);
+    while (true) {
+      if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(active_extruder) >> 1;
@@ -1012,17 +1032,7 @@ volatile bool Temperature::raw_temps_ready = false;
       constants.fan255_adjustment = ambient_xfer_coeff_fan255 - constants.ambient_xfer_coeff_fan0;
     #endif
 
-    hotend.target = 0.0f;
-    hotend.soft_pwm_amount = 0;
-    TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
-    TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
-
-    if (!wait_for_heatup) SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
-
-    wait_for_heatup = false;
-
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
-    ui.reset_status();
 
     /* <-- add a slash to enable
       SERIAL_ECHOLNPGM("t1_time ", t1_time);
