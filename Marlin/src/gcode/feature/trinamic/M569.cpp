@@ -53,7 +53,7 @@ static void set_stealth_status(const bool enable, const int8_t eindex) {
     constexpr int8_t index = -1;
   #endif
 
-  LOOP_LOGICAL_AXES(i) if (parser.seen(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
     switch (i) {
       case X_AXIS:
         TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(X));
