@@ -92,7 +92,7 @@ void do_enable(const stepper_flags_t to_enable) {
 
   if ((also_enabled &= ~(shall_enable | was_enabled))) {
     SERIAL_CHAR('(');
-    LOOP_NUM_AXES(a) if (TEST(also_enabled, a)) SERIAL_CHAR(axis_codes[a], ' ');
+    LOOP_NUM_AXES(a) if (TEST(also_enabled, a)) SERIAL_CHAR(AXIS_CHAR(a), ' ');
     #if HAS_EXTRUDERS
       #define _EN_ALSO(N) if (TEST(also_enabled, INDEX_OF_AXIS(E_AXIS, N))) SERIAL_CHAR('E', '0' + N, ' ');
       REPEAT(EXTRUDERS, _EN_ALSO)

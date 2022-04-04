@@ -34,7 +34,7 @@
     #include "../../core/debug_out.h"
   #endif
 
-  void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
+  void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=LOGICAL_AXES, const uint8_t precision=3) {
     char str[12];
     LOOP_L_N(a, n) {
       SERIAL_CHAR(' ', axis_codes[a], ':');

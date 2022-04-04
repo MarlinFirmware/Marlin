@@ -144,7 +144,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
       SP_K_STR, K_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[K_AXIS]),
       SP_U_STR, U_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[U_AXIS]),
       SP_V_STR, V_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[V_AXIS]),
-      SP_W_STR, W_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[W_AXIS]),
+      SP_W_STR, W_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[W_AXIS])
     )
     #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
       , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
