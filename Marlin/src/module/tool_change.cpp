@@ -1164,15 +1164,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // First tool priming. To prime again, reboot the machine. -- Should only occur for first T0 after powerup!
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-      static bool first_tool_is_primed = false;
-      
-      if (enable_first_prime && !first_tool_is_primed && new_tool == old_tool && new_tool == 0) {
-        if (!TEST(extruder_was_primed, old_tool)) {
-          tool_change_prime(); //Only perform this prime if it hasn't been primed yet!
-        }
-        first_tool_is_primed = true;
-      }
-      
+      if (enable_first_prime && old_tool == 0 && new_tool == 0 && !TEST(extruder_was_primed, 0))
+        tool_change_prime();
     #endif
 
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
