@@ -47,7 +47,7 @@ void GcodeSuite::M92() {
     return M92_report(true, target_extruder);
 
   LOOP_LOGICAL_AXES(i) {
-    if (parser.seenval(axis_codes[i])) {
+    if (parser.seenval(AXIS_CHAR(i))) {
       if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
         planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);
       else {
