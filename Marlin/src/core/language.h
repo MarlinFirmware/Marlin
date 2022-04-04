@@ -228,6 +228,13 @@
 #define STR_PID_DEBUG_DTERM                 " dTerm "
 #define STR_PID_DEBUG_CTERM                 " cTerm "
 #define STR_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
+#define STR_MPC_AUTOTUNE_START              "MPC Autotune start for " STR_E
+#define STR_MPC_COOLING_TO_AMBIENT          "Cooling to ambient"
+#define STR_MPC_HEATING_PAST_200            "Heating to over 200C"
+#define STR_MPC_MEASURING_AMBIENT           "Measuring ambient heatloss at "
+#define STR_MPC_TEMPERATURE_ERROR           "Temperature error"
+#define STR_MPC_AUTOTUNE_INTERRUPTED        "MPC Autotune interrupted!"
+#define STR_MPC_AUTOTUNE_FINISHED           "MPC Autotune finished! Put the constants below into Configuration.h"
 
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"

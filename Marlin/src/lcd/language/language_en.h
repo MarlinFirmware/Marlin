@@ -350,6 +350,7 @@ namespace Language_en {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune failed. Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed. Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
+  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Measuring ambient heatloss");
   LSTR MSG_SELECT                         = _UxGT("Select");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
