@@ -288,7 +288,7 @@
     #elif AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
       constexpr int8_t index = -1;
     #endif
-    LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(axis_codes[i])) {
+    LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(AXIS_CHAR(i))) {
       report = false;
       switch (i) {
         #if X_HAS_STEALTHCHOP || X2_HAS_STEALTHCHOP
