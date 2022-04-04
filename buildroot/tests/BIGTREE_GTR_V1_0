@@ -31,7 +31,8 @@ exec_test $1 $2 "BigTreeTech GTR | 6 Extruders | Quad Z + Endstops" "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_BTT_GTR_V1_0 SERIAL_PORT -1 \
         EXTRUDERS 3 TEMP_SENSOR_1 1 TEMP_SENSOR_2 1 \
-        SERVO_DELAY '{ 300, 300, 300 }'
+        SERVO_DELAY '{ 300, 300, 300 }' \
+        SWITCHING_TOOLHEAD_X_POS '{ 215, 0 ,0 }'
 opt_enable SWITCHING_TOOLHEAD TOOL_SENSOR
 exec_test $1 $2 "BigTreeTech GTR | Switching Toolhead | Tool Sensors" "$3"
 

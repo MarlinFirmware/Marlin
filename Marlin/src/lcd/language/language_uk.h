@@ -472,7 +472,7 @@ namespace Language_uk {
     LSTR MSG_CONTRAST                       = _UxGT("Контраст");
     LSTR MSG_BRIGHTNESS                     = _UxGT("Яскравість");
   #endif
-  LSTR MSG_LCD_BKL_TIMEOUT                  = _UxGT("LCD Таймаут, с");
+  LSTR MSG_LCD_TIMEOUT_SEC                  = _UxGT("LCD Таймаут, с");
   LSTR MSG_BRIGHTNESS_OFF                   = _UxGT("Підсвітка вимк.");
   LSTR MSG_STORE_EEPROM                     = _UxGT("Зберегти в EEPROM");
   LSTR MSG_LOAD_EEPROM                      = _UxGT("Зчитати з EEPROM");
