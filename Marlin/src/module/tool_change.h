@@ -55,6 +55,10 @@
     void tool_change_prime(); // Prime the currently selected extruder
   #endif
 
+  #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
+    extern Flags<EXTRUDERS> toolchange_extruder_ready;
+  #endif
+
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     typedef struct {
       uint8_t target, last;

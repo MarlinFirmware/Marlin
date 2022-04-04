@@ -45,6 +45,10 @@
   migration_settings_t migration = migration_defaults;
 #endif
 
+#if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
+  Flags<EXTRUDERS> toolchange_extruder_ready;
+#endif
+
 #if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
   || defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
   || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
@@ -1166,6 +1170,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
       if (enable_first_prime && old_tool == 0 && new_tool == 0 && !TEST(extruder_was_primed, 0))
         tool_change_prime();
+        TERN_(TOOLCHANGE_FS_INIT_BEFORE_SWAP, toolchange_extruder_ready.set(old_tool)); // Primed and initialized
+      }
     #endif
 
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
@@ -1474,7 +1480,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Migrate the retracted state
     #if ENABLED(FWRETRACT)
-      fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
+      fwretract.retracted.set(migration_extruder, fwretract.retracted[active_extruder]);
     #endif
 
     // Migrate the temperature to the new hotend

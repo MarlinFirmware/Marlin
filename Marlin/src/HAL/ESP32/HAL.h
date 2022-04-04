@@ -74,6 +74,7 @@
 // Types
 // ------------------------
 
+typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 typedef int16_t pin_t;
 
 class Servo;
@@ -205,7 +206,7 @@ public:
   // Called by Temperature::init for each sensor at startup
   static void adc_enable(const pin_t pin) {}
 
-  // Begin ADC sampling on the given channel
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static void adc_start(const pin_t pin);
 
   // Is the ADC ready for reading?

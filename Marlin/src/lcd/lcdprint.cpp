@@ -75,7 +75,7 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
       n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
     }
     else if (ch == '@') {
-      lcd_put_wchar(axis_codes[ind]);
+      lcd_put_wchar(AXIS_CHAR(ind));
       n--;
     }
     else {
