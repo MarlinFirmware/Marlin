@@ -970,9 +970,9 @@ volatile bool Temperature::raw_temps_ready = false;
     sample_count = (sample_count + 1) / 2 * 2 - 1;
     const float t1 = temp_samples[0],
                 t2 = temp_samples[(sample_count - 1) >> 1],
-                t3 = temp_samples[sample_count - 1],
-                asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
-                block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
+                t3 = temp_samples[sample_count - 1];
+    float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
+          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
 
     constants.ambient_xfer_coeff_fan0 = constants.heater_power * MPC_MAX / 255 / (asymp_temp - ambient_temp);
     constants.fan255_adjustment = 0.0f;
@@ -1037,6 +1037,12 @@ volatile bool Temperature::raw_temps_ready = false;
                   ambient_xfer_coeff_fan255 = power_fan255 / (hotend.target - ambient_temp);
       constants.fan255_adjustment = ambient_xfer_coeff_fan255 - constants.ambient_xfer_coeff_fan0;
     #endif
+
+    // calculate a new and better asymptotic temperature and re-evaluate the other constants
+    asymp_temp = ambient_temp + constants.heater_power / constants.ambient_xfer_coeff_fan0;
+    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
+    constants.block_heat_capacity = constants.ambient_xfer_coeff_fan0 / block_responsiveness;
+    constants.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
 
