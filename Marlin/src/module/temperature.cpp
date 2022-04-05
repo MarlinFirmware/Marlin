@@ -141,8 +141,12 @@
   #endif
 #endif
 
-#if EITHER(MPCTEMP, PID_EXTRUSION_SCALING)
+#if ENABLED(MPCTEMP)
   #include <math.h>
+  #include "probe.h"
+#endif
+
+#if EITHER(MPCTEMP, PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
@@ -884,6 +888,8 @@ volatile bool Temperature::raw_temps_ready = false;
         temp_hotend[active_extruder].soft_pwm_amount = 0;
         TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
         TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
+
+        do_z_clearance(Z_POST_CLEARANCE);
       }
     } cleanup;
 
