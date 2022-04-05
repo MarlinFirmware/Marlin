@@ -27,15 +27,15 @@
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality V24S1 only supports one hotend / E-stepper. Comment out this line to continue."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "Creality v24S1 only supports 1 hotend / E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #if BOTH(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #error "Disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN when using BLTOUCH with Creality V24S1-301."
 #endif
 
-#define BOARD_INFO_NAME      "Creality V24S1-301"
+#define BOARD_INFO_NAME      "Creality v24S1-301"
 #define DEFAULT_MACHINE_NAME "Ender 3 S1"
 
 //

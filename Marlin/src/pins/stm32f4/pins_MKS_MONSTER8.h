@@ -24,8 +24,8 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#if HOTENDS > 3 || E_STEPPERS > 5
-  #error "MKS Monster supports up to 3 hotends and 5 E-steppers."
+#if HOTENDS > 3 || E_STEPPERS > 5 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "MKS Monster supports up to 3 hotends and 5 E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #elif HAS_FSMC_TFT
   #error "MKS Monster doesn't support FSMC-based TFT displays."
 #endif

@@ -23,8 +23,8 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS_ROBIN2 supports up to 2 hotends / E-steppers."
+#if HOTENDS > 2 || E_STEPPERS > 2 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "MKS_ROBIN2 supports up to 2 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #ifndef BOARD_INFO_NAME

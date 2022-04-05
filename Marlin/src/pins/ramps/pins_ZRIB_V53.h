@@ -27,10 +27,10 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 2
-  #error "ZRIB V5.3 only supports up to 2 hotends. Comment out this line to continue."
-#elif E_STEPPERS > 3
-  #error "ZRIB V5.3 only supports up to 3 E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "ZRIB V5.3 supports up to 2 hotends. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
+#elif E_STEPPERS > 3 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "ZRIB V5.3 supports up to 3 E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "ZRIB V5.3"

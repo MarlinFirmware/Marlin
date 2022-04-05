@@ -21,8 +21,8 @@
  */
 #pragma once
 
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
+#if HOTENDS > 3 || E_STEPPERS > 3 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "BTT SKR Pro V1.1"

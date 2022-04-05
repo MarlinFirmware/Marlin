@@ -28,8 +28,8 @@
 #define REQUIRE_MEGA2560
 #include "env_validate.h"
 
-#if HOTENDS > 5 || E_STEPPERS > 5
-  #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 5 || E_STEPPERS > 5 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "Azteeg X3 Pro supports up to 5 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "Azteeg X3 Pro"

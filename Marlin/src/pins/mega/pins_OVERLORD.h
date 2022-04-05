@@ -25,8 +25,8 @@
  * Dreammaker Overlord v1.1 pin assignments
  */
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Overlord Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 || E_STEPPERS > 2 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "Overlord supports up to 2 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #include "env_validate.h"

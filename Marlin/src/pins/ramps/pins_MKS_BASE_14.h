@@ -25,8 +25,8 @@
  * MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
  */
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS BASE 1.4 only supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 || E_STEPPERS > 2 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "MKS BASE 1.4 supports up to 2 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.4"

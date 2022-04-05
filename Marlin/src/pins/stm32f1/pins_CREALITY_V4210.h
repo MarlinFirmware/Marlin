@@ -27,12 +27,12 @@
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "Creality v4.2.10 only supports 1 hotend / E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "Creality V4.2.10"
+  #define BOARD_INFO_NAME      "Creality v4.2.10"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "3DPrintMill"

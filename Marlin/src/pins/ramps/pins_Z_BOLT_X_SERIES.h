@@ -28,8 +28,8 @@
 #define REQUIRE_MEGA2560
 #include "env_validate.h"
 
-#if HOTENDS > 4 || E_STEPPERS > 4
-  #error "Z-Bolt X Series board supports up to 4 hotends / E-steppers."
+#if HOTENDS > 4 || E_STEPPERS > 4 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "Z-Bolt X Series supports up to 4 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "Z-Bolt X Series"

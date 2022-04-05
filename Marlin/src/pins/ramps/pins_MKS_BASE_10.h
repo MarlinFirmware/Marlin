@@ -27,8 +27,8 @@
  * Rev B - Override pin definitions for CASE_LIGHT and M3/M4/M5 spindle control
  */
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS BASE 1.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 || E_STEPPERS > 2 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "MKS BASE 1.0 supports up to 2 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.0"

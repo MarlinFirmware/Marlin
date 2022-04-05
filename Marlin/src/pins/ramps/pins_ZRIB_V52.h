@@ -25,8 +25,8 @@
  * ZRIB V5.2 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
  */
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "ZRIB V5.2 only supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 || E_STEPPERS > 2 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "ZRIB V5.2 supports up to 2 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "ZRIB V5.2"

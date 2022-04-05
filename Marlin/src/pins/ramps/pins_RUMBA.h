@@ -28,8 +28,8 @@
 #define REQUIRE_MEGA2560
 #include "env_validate.h"
 
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 3 || E_STEPPERS > 3 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "RUMBA supports up to 3 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #ifndef BOARD_INFO_NAME

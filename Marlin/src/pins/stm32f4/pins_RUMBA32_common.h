@@ -27,8 +27,8 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA32 boards support up to 3 hotends / E-steppers."
+#if HOTENDS > 3 || E_STEPPERS > 3 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "RUMBA32 supports up to 3 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME

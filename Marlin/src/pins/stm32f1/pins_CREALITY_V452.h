@@ -25,8 +25,8 @@
  * Creality v4.5.2 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality v4.5.2 only supports one hotend / E-stepper. Comment out this line to continue."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "Creality v4.5.2 only supports 1 hotend / E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME "Creality v4.5.2"

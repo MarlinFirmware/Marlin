@@ -31,8 +31,8 @@
 
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "FLSUN HiSpeedV1 only supports one hotend / E-stepper. Comment out this line to continue."
+#elif HAS_MULTI_HOTEND || E_STEPPERS > 1 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "FLSUN HiSpeedV1 only supports 1 hotend / E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME      "FLSun HiSpeedV1"

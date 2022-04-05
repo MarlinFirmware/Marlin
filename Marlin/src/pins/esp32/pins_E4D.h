@@ -30,10 +30,10 @@
 
 #include "env_validate.h"
 
-#if EXTRUDERS > 1 || E_STEPPERS > 1
-  #error "E4d@box only supports one E Stepper. Comment out this line to continue."
-#elif HAS_MULTI_HOTEND
-  #error "E4d@box only supports one hotend / E-stepper. Comment out this line to continue."
+#if EXTRUDERS > 1 || E_STEPPERS > 1 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "E4d@box only supports 1 E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
+#elif HAS_MULTI_HOTEND && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "E4d@box only supports 1 hotend / E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME       "E4d@box"

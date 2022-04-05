@@ -24,8 +24,8 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#if HOTENDS > 6 || E_STEPPERS > 6
-  #error "FLYF407ZG supports up to 6 hotends / E-steppers."
+#if HOTENDS > 6 || E_STEPPERS > 6 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "FLYF407ZG supports up to 6 hotends / E steppers. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"

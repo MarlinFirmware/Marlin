@@ -25,8 +25,8 @@
  * MKS Robin E3 (STM32F103RCT6) board pin assignments
  */
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "MKS Robin E3 only supports one hotend / E-stepper. Comment out this line to continue."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1 && !defined(NO_EXTRUDER_ESTEPPER_WARNING)
+  #error "MKS Robin E3 only supports 1 hotend / E stepper. (Define NO_EXTRUDER_ESTEPPER_WARNING to suppress this warning.)"
 #endif
 
 #ifndef BOARD_INFO_NAME
