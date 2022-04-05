@@ -673,6 +673,7 @@
   #define MPC_STEADYSTATE 0.5f                        // (K/s) Temperature change rate for steady state logic to be enforced.
 
   #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // (mm) M306 Autotuning position, ideally bed center just above the surface.
+  #define MPC_TUNING_END_Z 10.0f                      // (mm) M306 Autotuning final Z position (how far to move away from the bed).
 #endif
 
 //===========================================================================

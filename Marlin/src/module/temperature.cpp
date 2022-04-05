@@ -889,7 +889,7 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
         TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
-        do_z_clearance(Z_POST_CLEARANCE);
+        do_z_clearance(MPC_TUNING_END_Z);
       }
     } cleanup;
 
