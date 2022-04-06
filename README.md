@@ -10,8 +10,8 @@ please let us know if it misbehaves in any way.*
 
 ***Volunteers are standing by!***
 
----
-
+<br>
+<br>
 <br>
 
 <div align = 'center'>
@@ -37,26 +37,30 @@ please let us know if it misbehaves in any way.*
 </div>
    
 <br>
-
----
-
+<br>
 <br>
 
+<div align = 'center'>
+   
+# Marlin 2.0
 
-## Marlin 2.0
-
-Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
+<br>
+   
+Marlin 2.0 takes this popular RepRap firmware to the next <br> 
+level by adding support for much faster 32 - bit and ARM <br>
+based boards while improving support for 8 - bit AVR boards.
 
 You are still able to download older **[Releases]** of Marlin.
+   
+</div>
+
+<br>
 
 
----
 
 <br>
 
-## Team
-
-<br>
+# Team
 
 #### Project Maintainer
 
@@ -98,8 +102,6 @@ You are still able to download older **[Releases]** of Marlin.
 - Merge Changes
 - Set Milestones
 - Kick Trolls
-
-<br>
 
 <!----------------------------------------------------------------------------->
 
