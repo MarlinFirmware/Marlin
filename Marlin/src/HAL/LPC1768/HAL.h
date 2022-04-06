@@ -234,7 +234,7 @@ public:
     FilteredADC::enable_channel(pin);
   }
 
-  // Begin ADC sampling on the given pin
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static uint32_t adc_result;
   static void adc_start(const pin_t pin) {
     adc_result = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits

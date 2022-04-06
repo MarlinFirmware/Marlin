@@ -25,7 +25,7 @@
 #if HAS_L64XX
 
 #if AXIS_COLLISION('I')
-  #error "M906 parameter collision with axis name."
+  #error "M906 parameter 'I' collision with axis name."
 #endif
 
 #include "../../gcode.h"
@@ -211,7 +211,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
  *     1 - monitor only X2, Y2, Z2
  *     2 - monitor only Z3
  *     3 - monitor only Z4
- * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
+ * Xxxx, Yxxx, Zxxx, Axxx, Bxxx, Cxxx, Uxxx, Vxxx, Wxxx, Exxx - axis to change (optional)
  *     L6474 - current in mA (4A max)
  *     All others - 0-255
  *
@@ -236,7 +236,7 @@ void GcodeSuite::M906() {
     constexpr int8_t index = -1;
   #endif
 
-  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(AXIS_CHAR(i))) {
 
     report_current = false;
 
@@ -283,6 +283,25 @@ void GcodeSuite::M906() {
             if (index < 0 || index == 3) L6470_SET_KVAL_HOLD(Z4);
           #endif
           break;
+      #endif
+
+      #if AXIS_IS_L64XX(I)
+        case I_AXIS: L6470_SET_KVAL_HOLD(I); break;
+      #endif
+      #if AXIS_IS_L64XX(J)
+        case J_AXIS: L6470_SET_KVAL_HOLD(J); break;
+      #endif
+      #if AXIS_IS_L64XX(K)
+        case K_AXIS: L6470_SET_KVAL_HOLD(K); break;
+      #endif
+      #if AXIS_IS_L64XX(U)
+        case U_AXIS: L6470_SET_KVAL_HOLD(U); break;
+      #endif
+      #if AXIS_IS_L64XX(V)
+        case V_AXIS: L6470_SET_KVAL_HOLD(V); break;
+      #endif
+      #if AXIS_IS_L64XX(W)
+        case W_AXIS: L6470_SET_KVAL_HOLD(W); break;
       #endif
 
       #if AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5) || AXIS_IS_L64XX(E6) || AXIS_IS_L64XX(E7)
@@ -345,6 +364,24 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_L64XX(Z4)
       L64XX_REPORT_CURRENT(Z4);
+    #endif
+    #if AXIS_IS_L64XX(I)
+      L64XX_REPORT_CURRENT(I);
+    #endif
+    #if AXIS_IS_L64XX(J)
+      L64XX_REPORT_CURRENT(J);
+    #endif
+    #if AXIS_IS_L64XX(K)
+      L64XX_REPORT_CURRENT(K);
+    #endif
+    #if AXIS_IS_L64XX(U)
+      L64XX_REPORT_CURRENT(U);
+    #endif
+    #if AXIS_IS_L64XX(V)
+      L64XX_REPORT_CURRENT(V);
+    #endif
+    #if AXIS_IS_L64XX(W)
+      L64XX_REPORT_CURRENT(W);
     #endif
     #if AXIS_IS_L64XX(E0)
       L64XX_REPORT_CURRENT(E0);

@@ -34,7 +34,7 @@
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255 && DISABLED(FOURWIRES_FANS)
   bool FanCheck::measuring = false;
 #endif
-bool FanCheck::tacho_state[TACHO_COUNT];
+Flags<TACHO_COUNT> FanCheck::tacho_state;
 uint16_t FanCheck::edge_counter[TACHO_COUNT];
 uint8_t FanCheck::rps[TACHO_COUNT];
 FanCheck::TachoError FanCheck::error = FanCheck::TachoError::NONE;
@@ -103,7 +103,7 @@ void FanCheck::update_tachometers() {
 
     if (status != tacho_state[f]) {
       if (measuring) ++edge_counter[f];
-      tacho_state[f] = status;
+      tacho_state.set(f, status);
     }
   }
 }

@@ -622,7 +622,6 @@
 #define E7_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
 #define COOLER_AUTO_FAN_PIN -1
-#define COOLER_FAN_PIN -1
 
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
@@ -1700,6 +1699,17 @@
   // A smaller font may be used on the Info Screen. Costs 2434 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
   //#define USE_SMALL_INFOFONT
+
+  /**
+   * Graphical Display Sleep
+   *
+   * The U8G library provides sleep / wake functions for SH1106, SSD1306,
+   * SSD1309, and some other DOGM displays.
+   * Enable this option to save energy and prevent OLED pixel burn-in.
+   * Adds the menu item Configuration > LCD Timeout (m) to set a wait period
+   * from 0 (disabled) to 99 minutes.
+   */
+  //#define DISPLAY_SLEEP_MINUTES 2  // (minutes) Timeout before turning off the screen
 
   /**
    * ST7920-based LCDs can emulate a 16 x 4 character display using
@@ -2870,6 +2880,7 @@
     #define U_RSENSE         0.11
     #define U_CHAIN_POS     -1
     //#define U_INTERPOLATE  true
+    //#define U_HOLD_MULTIPLIER 0.5
   #endif
 
   #if AXIS_IS_TMC(V)
@@ -2879,6 +2890,7 @@
     #define V_RSENSE         0.11
     #define V_CHAIN_POS     -1
     //#define V_INTERPOLATE  true
+    //#define V_HOLD_MULTIPLIER 0.5
   #endif
 
   #if AXIS_IS_TMC(W)
@@ -2888,6 +2900,7 @@
     #define W_RSENSE         0.11
     #define W_CHAIN_POS     -1
     //#define W_INTERPOLATE  true
+    //#define W_HOLD_MULTIPLIER 0.5
   #endif
 
   #if AXIS_IS_TMC(E0)
