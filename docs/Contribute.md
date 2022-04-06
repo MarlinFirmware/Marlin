@@ -1,22 +1,6 @@
 
 # Contributions
 
-**Marlin** is constantly improving thanks to a huge <br>
-number of contributors from all over the world <br>
-bringing their specialties and talents.
-
-***Huge Thanks*** are due to all the **[Contributors]** who <br>
-regularly patch up bugs, help direct traffic, and <br>
-basically keep **Marlin** from falling apart.
-
-***Marlin's continued existence would not be possible without them.***
-
-<br>
-
----
-
-<br>
-
 ## Submitting Changes
 
 - Submit **Bug Fixes** as Pull Requests to the [`bugfix-2.0.x`][Bugfix] branch.
