@@ -17,11 +17,11 @@ please let us know if it misbehaves in any way.*
 
 <div align = 'center'>
 
- **⸢ [Install] ⸥**
- **⸢ [Documentation] ⸥**
- **⸢ [Platforms] ⸥**
- **⸢ [Contribute] ⸥**
- **⸢ [Licensing] ⸥**
+ **⸢ [Install] ⸥**
+ **⸢ [Documentation] ⸥**
+ **⸢ [Platforms] ⸥**
+ **⸢ [Contribute] ⸥**
+ **⸢ [Licensing] ⸥**
 
 </div>
    
