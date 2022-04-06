@@ -33,22 +33,47 @@ You are still able to download older **[Releases]** of Marlin.
 
 Before building Marlin you'll need to configure it for your specific hardware. Your vendor should have already provided source code with configurations for the installed firmware, but if you ever decide to upgrade you'll need updated configuration files. Marlin users have contributed dozens of tested example configurations to get you started. Visit the [MarlinFirmware/Configurations][Configurations] repository to find the right configuration for your hardware.
 
+---
 
-## Administration
+## Team
 
-Regular users can open and close their own issues, but only the administrators can do project-related things like add labels, merge changes, set milestones, and kick trolls. The current Marlin admin team consists of:
+ 🇺🇸 **[@thinkyhead]** - **Project Maintainer**<br>
+   `Scott Lahteine`  **[🎁 Donate][Donate Scott]**
 
- - Scott Lahteine [[@thinkyhead]] - USA - Project Maintainer <br>
-   [Donate][Donate Scott]
- - Roxanne Neufeld [[@Roxy-3D]] - USA
- - Keith Bennett [[@thisiskeithb]] - USA
- - Victor Oliveira [[@rhapsodyv]] - Brazil
- - Chris Pepper [[@p3p]] - UK
- - Jason Smith [[@sjasonsmith]] - USA
- - Luu Lac [[@shitcreek]] - USA
- - Bob Kuhn [[@Bob-the-Kuhn]] - USA
- - Erik van der Zalm [[@ErikZalm]] - Netherlands<br>
-   [Donate][Donate Erik]
+ 🇺🇸 **[@Roxy-3D]** <br>
+   `Roxanne Neufeld`
+
+ 🇺🇸 **[@thisiskeithb]** <br>
+   `Keith Bennett`
+ 
+ 🇧🇷 **[@rhapsodyv]** <br>
+   `Victor Oliveira`
+
+ 🇬🇧 **[@p3p]** <br>
+   `Chris Pepper`
+ 
+ 🇺🇸 **[@sjasonsmith]** <br>
+   `Jason Smith`
+ 
+ 🇺🇸 **[@shitcreek]** <br>
+   `Luu Lac`
+ 
+ 🇺🇸 **[@Bob-the-Kuhn]** <br>
+   `Bob Kuhn`
+ 
+ 🇳🇱 **[@ErikZalm]** <br>
+   `Erik van der Zalm`  **[🎁 Donate][Donate Erik]**
+
+
+*Regular users can open & close their own* <br>
+*issues, but only the admins are able to:*
+
+- Add Labels
+- Merge Changes
+- Set Milestones
+- Kick Trolls
+
+---
 
 ## License
 
