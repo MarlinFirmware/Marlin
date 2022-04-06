@@ -1,13 +1,19 @@
 
 # Contributions
 
+<br>
+
 **Marlin** is constantly improving thanks to a huge <br>
 number of contributors from all over the world <br>
 bringing their specialties and talents.
 
-***Huge Thanks*** are due to all the **[Contributors]** who <br>
-regularly patch up bugs, help direct traffic, and <br>
-basically keep **Marlin** from falling apart.
+<br>
+
+***Huge Thanks*** are due to all the **[Contributors]** <br>
+who regularly patch up bugs, help direct traffic, <br>
+and basically keep **Marlin** from falling apart.
+
+<br>
 
 ***Marlin's continued existence would not be possible without them.***
 
