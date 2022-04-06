@@ -8,6 +8,7 @@
  **⸢ [Website] ⸥**
  **⸢ [Install] ⸥**
  **⸢ [Supported Platforms] ⸥**
+ **⸢ [Contribute] ⸥**
 
 ---
 
@@ -18,7 +19,7 @@ Please test this firmware and let us know if it misbehaves in any way. Volunteer
 
 Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
 
-Download earlier versions of Marlin on the [Releases page][Releases].
+You are still able to download older **[Releases]** of Marlin.
 
 ## Example Configurations
 
@@ -77,6 +78,7 @@ While we can't prevent the use of this code in products (3D printers, CNC, etc.)
 [License]: LICENSE
 [Install]: docs/Install.md
 [Supported Platforms]: docs/Platforms.md
+[Contribute]: docs/Contribute.md
 
 
 [CI]: https://github.com/MarlinFirmware/Marlin/actions
