@@ -124,14 +124,9 @@ You are still able to download older **[Releases]** of Marlin.
 [CI]: https://github.com/MarlinFirmware/Marlin/actions
 [Contributors]: https://github.com/MarlinFirmware/Marlin/graphs/contributors
 [Releases]: https://github.com/MarlinFirmware/Marlin/releases
-[bugfix-2.0.x]: https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.0.x
-[Issues]: https://github.com/MarlinFirmware/Marlin/issues
 
 
 [Documentation]: https://marlinfw.org/
-[Coding Standards]: http://marlinfw.org/docs/development/coding_standards.html
-
-
 [Discord]: https://discord.gg/n5NJ59y
 [Facebook]: https://www.facebook.com/groups/1049718498464482/
 [Forum]: https://forums.reprap.org/list.php?415
