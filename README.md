@@ -13,6 +13,7 @@ please let us know if it misbehaves in any way.*
 <br>
 <br>
 <br>
+<br>
 
 <div align = 'center'>
 
@@ -55,9 +56,7 @@ You are still able to download older **[Releases]** of Marlin.
 </div>
 
 <br>
-
-
-
+<br>
 <br>
 
 # Team
@@ -98,10 +97,10 @@ You are still able to download older **[Releases]** of Marlin.
 *Regular users can open & close their own* <br>
 *issues, but only the admins are able to:*
 
-- Add Labels
-- Merge Changes
-- Set Milestones
-- Kick Trolls
+**➞ Merge Changes** <br>
+**➞ Set Milestones** <br>
+**➞ Add Labels** <br>
+**➞ Kick Trolls** 
 
 <!----------------------------------------------------------------------------->
 
