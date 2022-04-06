@@ -1,16 +1,48 @@
 
 # Installation
 
-## Example Configurations
+In the following you can find instructions <br>
+for building and installing **Marlin 2.0** .
 
-Before building Marlin you'll need to configure it for your specific hardware. Your vendor should have already provided source code with configurations for the installed firmware, but if you ever decide to upgrade you'll need updated configuration files. Marlin users have contributed dozens of tested example configurations to get you started. Visit the [MarlinFirmware/Configurations][Configurations] repository to find the right configuration for your hardware.
+---
 
-## Building Marlin 2.0
+## Configuration
 
-To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer][Arduino] or [PlatformIO]. Detailed build and install instructions are posted at:
+Before building Marlin you'll need to <br>
+configure it for your specific hardware.
 
-  - [Installing Marlin (Arduino)][Installation Arduino]
-  - [Installing Marlin (VSCode)][Installation VSCode].
+Your vendor should have already provided source <br>
+code with configurations for the installed firmware.
+
+In case you ever decide to upgrade <br>
+ you'll need updated configuration files.
+
+Marlin users have contributed dozens of tested <br>
+example configurations to get you started.
+
+Visit the **[Configurations Repository][Configurations]** to find <br>
+the right configuration for your hardware.
+
+---
+
+## Building
+
+<br>
+
+### Arduino
+
+To build you'll need [`Arduino IDE 1.8.8+`][Arduino] .
+
+Afterwards check out the **[Guide][Installation Arduino]** .
+
+<br>
+
+### PlatformIO
+
+To build you'll need [`PlatformIO`][PlatformIO] .
+
+Afterwards check out the **[Guide][Installation VSCode]** .
+
 
 <!----------------------------------------------------------------------------->
 
