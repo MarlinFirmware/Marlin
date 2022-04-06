@@ -14,7 +14,7 @@ please let us know if it misbehaves in any way.*
 
  **⸢ [Install] ⸥**
  **⸢ [Documentation] ⸥**
- **⸢ [Supported Platforms] ⸥**
+ **⸢ [Platforms] ⸥**
  **⸢ [Contribute] ⸥**
  **⸢ [Licensing] ⸥**
 
@@ -31,17 +31,12 @@ please let us know if it misbehaves in any way.*
 <br>
 
 
-
-
 ## Marlin 2.0
 
 Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
 
 You are still able to download older **[Releases]** of Marlin.
 
-## Example Configurations
-
-Before building Marlin you'll need to configure it for your specific hardware. Your vendor should have already provided source code with configurations for the installed firmware, but if you ever decide to upgrade you'll need updated configuration files. Marlin users have contributed dozens of tested example configurations to get you started. Visit the [MarlinFirmware/Configurations][Configurations] repository to find the right configuration for your hardware.
 
 ---
 
@@ -106,7 +101,7 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
 [Badge Forum]: https://img.shields.io/badge/Forum-76B900?style=for-the-badge&logo=&logoColor=white
 [Badge CI]: https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x
 
-[Supported Platforms]: docs/Platforms.md
+[Platforms]: docs/Platforms.md
 [Contribute]: docs/Contribute.md
 [Licensing]: docs/Licensing.md
 [Install]: docs/Install.md
@@ -121,7 +116,6 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
 
 
 [Documentation]: https://marlinfw.org/
-[Configurations]: https://github.com/MarlinFirmware/Configurations
 [Coding Standards]: http://marlinfw.org/docs/development/coding_standards.html
 
 
