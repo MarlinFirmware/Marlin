@@ -202,6 +202,7 @@
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
+ * M255 - Set LCD sleep time: "M255 S<minutes>" (0-99). (Requires an LCD with brightness or sleep/wake)
  * M256 - Set LCD brightness: "M256 B<brightness>" (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
@@ -877,6 +878,11 @@ private:
   #if HAS_LCD_CONTRAST
     static void M250();
     static void M250_report(const bool forReplay=true);
+  #endif
+
+  #if HAS_DISPLAY_SLEEP
+    static void M255();
+    static void M255_report(const bool forReplay=true);
   #endif
 
   #if HAS_LCD_BRIGHTNESS

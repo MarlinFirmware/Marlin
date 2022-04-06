@@ -74,7 +74,7 @@ void GcodeSuite::G92() {
     #if ENABLED(POWER_LOSS_RECOVERY)
       case 9:                                                         // G92.9 - Set Current Position directly (like Marlin 1.0)
         LOOP_LOGICAL_AXES(i) {
-          if (parser.seenval(axis_codes[i])) {
+          if (parser.seenval(AXIS_CHAR(i))) {
             if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
               sync_XYZE = true;
             else {
@@ -88,7 +88,7 @@ void GcodeSuite::G92() {
 
     case 0:
       LOOP_LOGICAL_AXES(i) {
-        if (parser.seenval(axis_codes[i])) {
+        if (parser.seenval(AXIS_CHAR(i))) {
           const float l = parser.value_axis_units((AxisEnum)i),       // Given axis coordinate value, converted to millimeters
                       v = TERN0(HAS_EXTRUDERS, i == E_AXIS) ? l : LOGICAL_TO_NATIVE(l, i),  // Axis position in NATIVE space (applying the existing offset)
                       d = v - current_position[i];                    // How much is the current axis position altered by?

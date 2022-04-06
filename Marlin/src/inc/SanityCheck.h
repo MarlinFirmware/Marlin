@@ -612,7 +612,7 @@
 #elif defined(NOZZLE_PARK_X_ONLY)
   #error "NOZZLE_PARK_X_ONLY is now NOZZLE_PARK_MOVE 1."
 #elif defined(NOZZLE_PARK_Y_ONLY)
-  #error "NOZZLE_PARK_X_ONLY is now NOZZLE_PARK_MOVE 2."
+  #error "NOZZLE_PARK_Y_ONLY is now NOZZLE_PARK_MOVE 2."
 #elif defined(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS is now just Z_STEPPER_ALIGN_STEPPER_XY."
 #elif defined(DWIN_CREALITY_LCD_ENHANCED)
@@ -1313,6 +1313,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
     #endif
   #endif
+#endif
+
+/**
+ * Generic Switching Toolhead requirements
+ */
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  constexpr float thpx[] = SWITCHING_TOOLHEAD_X_POS;
+  static_assert(COUNT(thpx) == EXTRUDERS, "SWITCHING_TOOLHEAD_X_POS must be an array EXTRUDERS long.");
 #endif
 
 /**
@@ -2980,6 +2988,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "LCD_BACKLIGHT_TIMEOUT requires an LCD with encoder or keypad."
   #elif !PIN_EXISTS(LCD_BACKLIGHT)
     #error "LCD_BACKLIGHT_TIMEOUT requires LCD_BACKLIGHT_PIN."
+  #endif
+#endif
+
+/**
+ * Display Sleep is not supported by these common displays
+ */
+#if HAS_DISPLAY_SLEEP
+  #if ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI, ENDER2_STOCKDISPLAY, MINIPANEL)
+    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
+  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
+    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
   #endif
 #endif
 

@@ -210,7 +210,7 @@ void menu_backlash();
 
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
-  void copy_and_scalePID_i(int16_t e) {
+  void copy_and_scalePID_i(const uint8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
         case H_BED: thermalManager.temp_bed.pid.Ki = scalePID_i(raw_Ki); break;
@@ -226,7 +226,7 @@ void menu_backlash();
         break;
     }
   }
-  void copy_and_scalePID_d(int16_t e) {
+  void copy_and_scalePID_d(const uint8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
         case H_BED: thermalManager.temp_bed.pid.Kd = scalePID_d(raw_Kd); break;
@@ -242,30 +242,6 @@ void menu_backlash();
         break;
     }
   }
-
-  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) \
-    void copy_and_scalePID_i_E##N() { copy_and_scalePID_i(N); } \
-    void copy_and_scalePID_d_E##N() { copy_and_scalePID_d(N); }
-
-#else
-
-  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) //
-
-#endif
-
-#if ENABLED(PID_AUTOTUNE_MENU)
-  #define DEFINE_PIDTEMP_FUNCS(N) \
-    _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-    void lcd_autotune_callback_E##N() { _lcd_autotune(heater_id_t(N)); }
-#else
-  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N);
-#endif
-
-#if HAS_HOTEND
-  DEFINE_PIDTEMP_FUNCS(0);
-  #if ENABLED(PID_PARAMS_PER_HOTEND)
-    REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
-  #endif
 #endif
 
 #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
@@ -299,14 +275,7 @@ void menu_backlash();
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
 
-    #if ENABLED(PID_EDIT_MENU)
-      #define _PID_EDIT_ITEMS_TMPL(N,T) \
-        raw_Ki = unscalePID_i(T.pid.Ki); \
-        raw_Kd = unscalePID_d(T.pid.Kd); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
-        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
-
+    #if BOTH(PIDTEMP, PID_EDIT_MENU)
       #define __PID_HOTEND_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
@@ -336,17 +305,28 @@ void menu_backlash();
 
     #endif
 
-    #if ENABLED(PID_AUTOTUNE_MENU)
-      #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
-        _HOTEND_PID_EDIT_MENU_ITEMS(N); \
-        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.hotend_max_target(N), []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
-    #else
-      #define HOTEND_PID_EDIT_MENU_ITEMS(N) _HOTEND_PID_EDIT_MENU_ITEMS(N);
+    #if ENABLED(PID_EDIT_MENU) && EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
+      #define _PID_EDIT_ITEMS_TMPL(N,T) \
+        raw_Ki = unscalePID_i(T.pid.Ki); \
+        raw_Kd = unscalePID_d(T.pid.Kd); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
     #endif
 
-    HOTEND_PID_EDIT_MENU_ITEMS(0);
-    #if ENABLED(PID_PARAMS_PER_HOTEND)
-      REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS)
+    #if ENABLED(PIDTEMP)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
+          _HOTEND_PID_EDIT_MENU_ITEMS(N); \
+          EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.hotend_max_target(N), []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
+      #else
+        #define HOTEND_PID_EDIT_MENU_ITEMS(N) _HOTEND_PID_EDIT_MENU_ITEMS(N);
+      #endif
+
+      HOTEND_PID_EDIT_MENU_ITEMS(0);
+      #if ENABLED(PID_PARAMS_PER_HOTEND)
+        REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS)
+      #endif
     #endif
 
     #if ENABLED(PIDTEMPBED)
