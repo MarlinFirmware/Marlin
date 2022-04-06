@@ -1,9 +1,9 @@
-# Marlin 3D Printer Firmware
 
-[![Badge License]][License]
-[![Badge Contributors]][Contributors]
-![Badge Release Date]
-[![Badge CI]][CI]
+# Marlin [![Badge License]][License] [![Badge Contributors]][Contributors] ![Badge Release Date] [![Badge CI]][CI]
+
+**A 3D Printer Firmware**
+
+
 
 <img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
