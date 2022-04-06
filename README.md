@@ -12,13 +12,15 @@
 
 ---
 
+<br>
+
  [![Badge Discord]][Discord]
  [![Badge Forum]][Forum]
  [![Badge YouTube]][YouTube]
  [![Badge Facebook]][Facebook]
  [![Badge Facebook 3D]][Facebook 3D]
 
----
+<br>
 
 
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
@@ -35,10 +37,18 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
 
 ---
 
+<br>
+
 ## Team
 
- 🇺🇸 **[@thinkyhead]** - **Project Maintainer**<br>
+<br>
+
+#### Project Maintainer
+
+ 🇺🇸 **[@thinkyhead]** <br>
    `Scott Lahteine`  **[🎁 Donate][Donate Scott]**
+   
+<br>
 
  🇺🇸 **[@Roxy-3D]** <br>
    `Roxanne Neufeld`
@@ -64,6 +74,7 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
  🇳🇱 **[@ErikZalm]** <br>
    `Erik van der Zalm`  **[🎁 Donate][Donate Erik]**
 
+<br>
 
 *Regular users can open & close their own* <br>
 *issues, but only the admins are able to:*
@@ -72,6 +83,8 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
 - Merge Changes
 - Set Milestones
 - Kick Trolls
+
+<br>
 
 ---
 
