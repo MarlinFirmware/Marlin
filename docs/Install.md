@@ -4,7 +4,11 @@
 In the following you can find instructions <br>
 for building and installing **Marlin 2.0** .
 
+<br>
+
 ---
+
+<br>
 
 ## Configuration
 
@@ -23,7 +27,11 @@ example configurations to get you started.
 Visit the **[Configurations Repository][Configurations]** to find <br>
 the right configuration for your hardware.
 
+<br>
+
 ---
+
+<br>
 
 ## Building
 
