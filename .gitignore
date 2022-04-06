@@ -169,3 +169,7 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
+Marlin/Configuration.h
+Marlin/Configuration_adv.h
+Marlin/src/pins/ramps/pins_RAMPS.h
+.gitignore

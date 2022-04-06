@@ -849,7 +849,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
     #endif
   }
-  SERIAL_ECHOLNPGM("measured_z :", measured_z);
+  DEBUG_ECHOLNPGM("measured_z :", measured_z);
   return measured_z;
 }
 

@@ -52,7 +52,7 @@ void recalc_delta_settings();
 /**
  * Get a safe radius for calibration
  */
-#if ENABLED(DELTA_AUTO_CALIBRATION)
+#if ENABLED(SENSORLESS_PROBING)
   extern float sensorless_radius_factor;
 #endif
 /**
