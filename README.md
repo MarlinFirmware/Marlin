@@ -1,13 +1,17 @@
 
-# Marlin [![Badge License]][License] [![Badge Contributors]][Contributors] ![Badge Release Date] [![Badge CI]][CI]
+# Marlin [![Badge License]][License] [![Badge Contributors]][Contributors] ![Badge Release Date] [![Badge CI]][CI] <img align = 'right' width = 175 src = 'buildroot/share/pixmaps/logo/marlin-250.png'/>
 
 **A 3D Printer Firmware**
 
+---
+
+ **⸢ [Website] ⸥**
+ **⸢ [Install] ⸥**
+ **⸢ [Supported Platforms] ⸥**
+
+---
 
 
-<img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
-
-Additional documentation can be found at the [Marlin Home Page][Website].
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
 ## Marlin 2.0
@@ -30,7 +34,7 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
 
 The Issue Queue is reserved for Bug Reports and Feature Requests. To get help with configuration and troubleshooting, please use the following resources:
 
-- [Marlin Documentation](http://marlinfw.org) - Official Marlin documentation
+- [Marlin Documentation][Website] - Official Marlin documentation
 - [Marlin Discord][Discord] - Discuss issues with Marlin users and developers
 - Facebook Group ["Marlin Firmware"][Facebook]
 - RepRap.org [Marlin Forum][Forum]
@@ -71,6 +75,8 @@ While we can't prevent the use of this code in products (3D printers, CNC, etc.)
 [Badge CI]: https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x
 
 [License]: LICENSE
+[Install]: docs/Install.md
+[Supported Platforms]: docs/Platforms.md
 
 
 [CI]: https://github.com/MarlinFirmware/Marlin/actions
