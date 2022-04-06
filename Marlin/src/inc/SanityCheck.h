@@ -2956,6 +2956,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU."
   #elif ENABLED(PID_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support PID_AUTOTUNE_MENU."
+  #elif ENABLED(MPC_EDIT_MENU)
+    #error "DWIN_CREALITY_LCD does not support MPC_EDIT_MENU."
+  #elif ENABLED(MPC_AUTOTUNE_MENU)
+    #error "DWIN_CREALITY_LCD does not support MPC_AUTOTUNE_MENU."
   #elif ENABLED(LEVEL_BED_CORNERS)
     #error "DWIN_CREALITY_LCD does not support LEVEL_BED_CORNERS."
   #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
@@ -2968,6 +2972,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "DWIN_LCD_PROUI does not support PID_EDIT_MENU."
   #elif ENABLED(PID_AUTOTUNE_MENU)
     #error "DWIN_LCD_PROUI does not support PID_AUTOTUNE_MENU."
+  #elif ENABLED(MPC_EDIT_MENU)
+    #error "DWIN_LCD_PROUI does not support MPC_EDIT_MENU."
+  #elif ENABLED(MPC_AUTOTUNE_MENU)
+    #error "DWIN_LCD_PROUI does not support MPC_AUTOTUNE_MENU."
   #elif ENABLED(LEVEL_BED_CORNERS)
     #error "DWIN_LCD_PROUI does not support LEVEL_BED_CORNERS."
   #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
