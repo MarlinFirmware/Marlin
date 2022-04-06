@@ -9,6 +9,7 @@
  **⸢ [Documentation] ⸥**
  **⸢ [Supported Platforms] ⸥**
  **⸢ [Contribute] ⸥**
+ **⸢ [Licensing] ⸥**
 
 ---
 
@@ -106,10 +107,11 @@ While we can't prevent the use of this code in products (3D printers, CNC, etc.)
 [Badge Forum]: https://img.shields.io/badge/Forum-76B900?style=for-the-badge&logo=&logoColor=white
 [Badge CI]: https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x
 
-[License]: LICENSE
-[Install]: docs/Install.md
 [Supported Platforms]: docs/Platforms.md
 [Contribute]: docs/Contribute.md
+[Licensing]: docs/Licensing.md
+[Install]: docs/Install.md
+[License]: LICENSE
 
 
 [CI]: https://github.com/MarlinFirmware/Marlin/actions
