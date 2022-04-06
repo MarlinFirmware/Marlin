@@ -5,10 +5,18 @@
 
 ---
 
- **⸢ [Website] ⸥**
  **⸢ [Install] ⸥**
+ **⸢ [Documentation] ⸥**
  **⸢ [Supported Platforms] ⸥**
  **⸢ [Contribute] ⸥**
+
+---
+
+ [![Badge Discord]][Discord]
+ [![Badge Forum]][Forum]
+ [![Badge YouTube]][YouTube]
+ [![Badge Facebook]][Facebook]
+ [![Badge Facebook 3D]][Facebook 3D]
 
 ---
 
@@ -25,26 +33,6 @@ You are still able to download older **[Releases]** of Marlin.
 
 Before building Marlin you'll need to configure it for your specific hardware. Your vendor should have already provided source code with configurations for the installed firmware, but if you ever decide to upgrade you'll need updated configuration files. Marlin users have contributed dozens of tested example configurations to get you started. Visit the [MarlinFirmware/Configurations][Configurations] repository to find the right configuration for your hardware.
 
-## Submitting Changes
-
-- Submit **Bug Fixes** as Pull Requests to the ([bugfix-2.0.x]) branch.
-- Follow the [Coding Standards] to gain points with the maintainers.
-- Please submit your questions and concerns to the [Issue Queue][Issues].
-
-## Marlin Support
-
-The Issue Queue is reserved for Bug Reports and Feature Requests. To get help with configuration and troubleshooting, please use the following resources:
-
-- [Marlin Documentation][Website] - Official Marlin documentation
-- [Marlin Discord][Discord] - Discuss issues with Marlin users and developers
-- Facebook Group ["Marlin Firmware"][Facebook]
-- RepRap.org [Marlin Forum][Forum]
-- Facebook Group ["Marlin Firmware for 3D Printers"][Facebook 3D]
-- [Marlin Configuration][YouTube] on YouTube
-
-## Contributors
-
-Marlin is constantly improving thanks to a huge number of contributors from all over the world bringing their specialties and talents. Huge thanks are due to [all the contributors][Contributors] who regularly patch up bugs, help direct traffic, and basically keep Marlin from falling apart. Marlin's continued existence would not be possible without them.
 
 ## Administration
 
@@ -70,9 +58,14 @@ While we can't prevent the use of this code in products (3D printers, CNC, etc.)
 
 <!----------------------------------------------------------------------------->
 
-[Badge Contributors]: https://img.shields.io/github/contributors/marlinfirmware/marlin.svg
-[Badge Release Date]: https://img.shields.io/github/release-date/marlinfirmware/marlin.svg
-[Badge License]: https://img.shields.io/badge/License-GPLv3-blue.svg
+[Badge Contributors]: https://img.shields.io/github/contributors/marlinfirmware/marlin.svg?style=flat
+[Badge Release Date]: https://img.shields.io/github/release-date/marlinfirmware/marlin.svg?style=flat
+[Badge Facebook]: https://img.shields.io/badge/Firmware-1877F2?style=for-the-badge&logo=facebook&logoColor=white
+[Badge Facebook 3D]: https://img.shields.io/badge/3D_Printer-1877F2?style=for-the-badge&logo=facebook&logoColor=white
+[Badge Discord]: https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white
+[Badge YouTube]: https://img.shields.io/badge/Guides-FF0000?style=for-the-badge&logo=youtube&logoColor=white
+[Badge License]: https://img.shields.io/badge/GPLv3-blue.svg?style=flat
+[Badge Forum]: https://img.shields.io/badge/Forum-76B900?style=for-the-badge&logo=&logoColor=white
 [Badge CI]: https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x
 
 [License]: LICENSE
@@ -88,7 +81,7 @@ While we can't prevent the use of this code in products (3D printers, CNC, etc.)
 [Issues]: https://github.com/MarlinFirmware/Marlin/issues
 
 
-[Website]: https://marlinfw.org/
+[Documentation]: https://marlinfw.org/
 [Configurations]: https://github.com/MarlinFirmware/Configurations
 [Coding Standards]: http://marlinfw.org/docs/development/coding_standards.html
 
