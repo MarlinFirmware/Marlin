@@ -12,21 +12,33 @@ please let us know if it misbehaves in any way.*
 
 ---
 
+<br>
+
+<div align = 'center'>
+
  **⸢ [Install] ⸥**
  **⸢ [Documentation] ⸥**
  **⸢ [Supported Platforms] ⸥**
  **⸢ [Contribute] ⸥**
  **⸢ [Licensing] ⸥**
 
----
-
+</div>
+   
 <br>
 
+<div align = 'center'>
+   
  [![Badge Discord]][Discord]
  [![Badge Forum]][Forum]
  [![Badge YouTube]][YouTube]
  [![Badge Facebook]][Facebook]
  [![Badge Facebook 3D]][Facebook 3D]
+   
+</div>
+   
+<br>
+
+---
 
 <br>
 
