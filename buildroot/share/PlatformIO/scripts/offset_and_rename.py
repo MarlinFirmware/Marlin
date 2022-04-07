@@ -57,6 +57,8 @@ if pioutil.is_pio_build():
 
 		def rename_target(source, target, env):
 			firmware = os.path.join(target[0].dir.path, board.get("build.rename"))
+			if os.path.exists(firmware):
+				os.remove(firmware)
 			os.rename(target[0].path, firmware)
 
 		marlin.add_post_action(rename_target)
