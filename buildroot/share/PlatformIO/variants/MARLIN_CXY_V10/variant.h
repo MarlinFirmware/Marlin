@@ -23,6 +23,8 @@
 extern "C" {
 #endif // __cplusplus
 
+#define STM32F4xx_FMC 1
+
 /*----------------------------------------------------------------------------
  *        Pins
  *----------------------------------------------------------------------------*/
@@ -169,7 +171,7 @@ extern "C" {
 // Do not use timer used by PWM pin. See PinMap_PWM.
 #define TIMER_TONE              TIM6
 #define TIMER_SERVO             TIM5
-#define TIMER_SERIAL            TIM7
+//#define TIMER_SERIAL            TIM7
 
 // UART Definitions
 //#define SERIAL_UART_INSTANCE    1 // Connected to EXP3 header

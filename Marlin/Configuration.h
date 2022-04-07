@@ -2708,6 +2708,12 @@
 // 480x320, 3.5", FSMC Stock Display from TronxXY
 //
 //#define TFT_TRONXY_X5SA
+#define TFT_CS_PIN PG12
+#define FSMC_CS_PIN PG12
+#define FSMC_RS_PIN PG2
+#define TFT_RS_PIN PG2
+#define LCD_BACKLIGHT_PIN PG8
+#define TFT_RESET_PIN PB12
 
 //
 // 480x320, 3.5", FSMC Stock Display from AnyCubic
@@ -2742,19 +2748,19 @@
 //
 // Generic TFT with detailed options
 //
-//#define TFT_GENERIC
+#define TFT_GENERIC
 #if ENABLED(TFT_GENERIC)
   // :[ 'AUTO', 'ST7735', 'ST7789', 'ST7796', 'R61505', 'ILI9328', 'ILI9341', 'ILI9488' ]
   #define TFT_DRIVER AUTO
 
   // Interface. Enable one of the following options:
-  //#define TFT_INTERFACE_FSMC
+  #define TFT_INTERFACE_FSMC
   //#define TFT_INTERFACE_SPI
 
   // TFT Resolution. Enable one of the following options:
   //#define TFT_RES_320x240
   //#define TFT_RES_480x272
-  //#define TFT_RES_480x320
+  #define TFT_RES_480x320
   //#define TFT_RES_1024x600
 #endif
 
@@ -2769,8 +2775,9 @@
  *   root of your SD card, together with the compiled firmware.
  */
 //#define TFT_CLASSIC_UI
-//#define TFT_COLOR_UI
+#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
+//#define TFT_RES_320x240
 
 #if ENABLED(TFT_LVGL_UI)
   //#define MKS_WIFI_MODULE  // MKS WiFi module

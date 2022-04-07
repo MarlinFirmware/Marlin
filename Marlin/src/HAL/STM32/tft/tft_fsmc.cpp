@@ -37,50 +37,116 @@ LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
 
 void TFT_FSMC::Init() {
   uint32_t controllerAddress;
-  FSMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
 
-  uint32_t NSBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
+  #ifdef STM32F4xx_FMC
 
-  // Perform the SRAM1 memory initialization sequence
-  SRAMx.Instance = FSMC_NORSRAM_DEVICE;
-  SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
-  // SRAMx.Init
-  SRAMx.Init.NSBank = NSBank;
-  SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
-  SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
-  SRAMx.Init.MemoryDataWidth = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
-  SRAMx.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
-  SRAMx.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
-  SRAMx.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
-  SRAMx.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
-  SRAMx.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
-  SRAMx.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
-  SRAMx.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
-  SRAMx.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
-  SRAMx.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
-  #ifdef STM32F4xx
-    SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
+    #ifdef LCD_BACKLIGHT_PIN
+    //force the backlight on
+      pinMode(LCD_BACKLIGHT_PIN, OUTPUT);
+      digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
+      //Reset pin
+      //pinMode(PB12, OUTPUT);
+      //digitalWrite(PB12, LOW);
+      //delay(1000);
+      //digitalWrite(PB12, HIGH);
+      //delay(1000);
+    #endif
+
+    FMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
+    //Todo, reinstate the map function
+    uint32_t NSBank = FMC_NORSRAM_BANK4;//(uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
+
+
+    // Perform the SRAM1 memory initialization sequence
+    SRAMx.Instance = FMC_NORSRAM_DEVICE;
+    
+    SRAMx.Extended = FMC_NORSRAM_EXTENDED_DEVICE;
+    // SRAMx.Init
+    SRAMx.Init.NSBank = NSBank;
+    SRAMx.Init.DataAddressMux = FMC_DATA_ADDRESS_MUX_DISABLE;
+    SRAMx.Init.MemoryType = FMC_MEMORY_TYPE_SRAM;
+    SRAMx.Init.MemoryDataWidth = FMC_NORSRAM_MEM_BUS_WIDTH_16; //TERN(TFT_INTERFACE_FSMC_8BIT, FMC_NORSRAM_MEM_BUS_WIDTH_8, FMC_NORSRAM_MEM_BUS_WIDTH_16);
+    SRAMx.Init.BurstAccessMode = FMC_BURST_ACCESS_MODE_DISABLE;
+    SRAMx.Init.WaitSignalPolarity = FMC_WAIT_SIGNAL_POLARITY_LOW;
+    SRAMx.Init.WrapMode = FMC_WRAP_MODE_DISABLE;
+    SRAMx.Init.WaitSignalActive = FMC_WAIT_TIMING_BEFORE_WS;
+    SRAMx.Init.WriteOperation = FMC_WRITE_OPERATION_ENABLE;
+    SRAMx.Init.WaitSignal = FMC_WAIT_SIGNAL_DISABLE;
+    SRAMx.Init.ExtendedMode = FMC_EXTENDED_MODE_ENABLE;
+    SRAMx.Init.AsynchronousWait = FMC_ASYNCHRONOUS_WAIT_DISABLE;
+    SRAMx.Init.WriteFifo = FMC_WRITE_FIFO_ENABLE;
+    SRAMx.Init.WriteBurst = FMC_WRITE_BURST_DISABLE;
+    SRAMx.Init.PageSize = FMC_PAGE_SIZE_NONE;
+
+    // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
+    // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
+    Timing.AddressSetupTime = 15;
+    Timing.AddressHoldTime = 15;
+    Timing.DataSetupTime = 24;
+    Timing.BusTurnAroundDuration = 0;
+    Timing.CLKDivision = 16;
+    Timing.DataLatency = 17;
+    Timing.AccessMode = FMC_ACCESS_MODE_A;
+    // Write Timing
+    // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
+    ExtTiming.AddressSetupTime = 8;
+    ExtTiming.AddressHoldTime = 15;
+    ExtTiming.DataSetupTime = 8;
+    ExtTiming.BusTurnAroundDuration = 0;
+    ExtTiming.CLKDivision = 16;
+    ExtTiming.DataLatency = 17;
+    ExtTiming.AccessMode = FMC_ACCESS_MODE_A;
+
+    __HAL_RCC_FMC_CLK_ENABLE();
+
+  #elif
+    FSMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
+    uint32_t NSBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
+
+    // Perform the SRAM1 memory initialization sequence
+    SRAMx.Instance = FSMC_NORSRAM_DEVICE;
+    SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
+    // SRAMx.Init
+    SRAMx.Init.NSBank = NSBank;
+    SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
+    SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
+    SRAMx.Init.MemoryDataWidth = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
+    SRAMx.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
+    SRAMx.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
+    SRAMx.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
+    SRAMx.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
+    SRAMx.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
+    SRAMx.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
+    SRAMx.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
+    SRAMx.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
+    SRAMx.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
+    #ifdef STM32F4xx
+      SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
+    #endif
+    // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
+    // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
+    Timing.AddressSetupTime = 15;
+    Timing.AddressHoldTime = 15;
+    Timing.DataSetupTime = 24;
+    Timing.BusTurnAroundDuration = 0;
+    Timing.CLKDivision = 16;
+    Timing.DataLatency = 17;
+    Timing.AccessMode = FSMC_ACCESS_MODE_A;
+    // Write Timing
+    // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
+    ExtTiming.AddressSetupTime = 8;
+    ExtTiming.AddressHoldTime = 15;
+    ExtTiming.DataSetupTime = 8;
+    ExtTiming.BusTurnAroundDuration = 0;
+    ExtTiming.CLKDivision = 16;
+    ExtTiming.DataLatency = 17;
+    ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
+
+    __HAL_RCC_FSMC_CLK_ENABLE();
   #endif
-  // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
-  // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
-  Timing.AddressSetupTime = 15;
-  Timing.AddressHoldTime = 15;
-  Timing.DataSetupTime = 24;
-  Timing.BusTurnAroundDuration = 0;
-  Timing.CLKDivision = 16;
-  Timing.DataLatency = 17;
-  Timing.AccessMode = FSMC_ACCESS_MODE_A;
-  // Write Timing
-  // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
-  ExtTiming.AddressSetupTime = 8;
-  ExtTiming.AddressHoldTime = 15;
-  ExtTiming.DataSetupTime = 8;
-  ExtTiming.BusTurnAroundDuration = 0;
-  ExtTiming.CLKDivision = 16;
-  ExtTiming.DataLatency = 17;
-  ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
+  
 
-  __HAL_RCC_FSMC_CLK_ENABLE();
+  
 
   for (uint16_t i = 0; PinMap_FSMC[i].pin != NC; i++)
     pinmap_pinout(PinMap_FSMC[i].pin, PinMap_FSMC);

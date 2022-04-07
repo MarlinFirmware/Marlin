@@ -223,4 +223,25 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 #endif
 
+#define TOUCH_MISO_PIN PB14
+#define TOUCH_CS_PIN PD11
+#define TOUCH_MOSI_PIN PB15
+#define TOUCH_SCK_PIN PB13
 
+// SPI Flash
+#define HAS_SPI_FLASH                          1
+#if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE                0x200000  // 2MB
+#endif
+
+// SPI 2
+#define SPI_FLASH_CS_PIN                    PG15
+#define SPI_FLASH_MOSI_PIN                  PB5
+#define SPI_FLASH_MISO_PIN                  PB4
+#define SPI_FLASH_SCK_PIN                   PB3
+
+
+//#define TFT_BUFFER_SIZE                  14400
+
+//#define FSMC_DMA_DEV                      DMA2
+//#define FSMC_DMA_CHANNEL               DMA_CH5
