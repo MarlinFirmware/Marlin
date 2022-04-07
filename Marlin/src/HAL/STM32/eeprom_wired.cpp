@@ -41,7 +41,15 @@
 #endif
 size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
-bool PersistentStore::access_start()  { eeprom_init(); return true; }
+bool PersistentStore::access_start()  { 
+  eeprom_init(); 
+        //TODO: pinmode should be elsewhere
+  #ifdef EEPROM_WP
+    pinMode(EEPROM_WP, OUTPUT);
+    digitalWrite(EEPROM_WP, HIGH);
+  #endif
+  return true; 
+}
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -50,7 +58,14 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     uint8_t v = *value;
     uint8_t * const p = (uint8_t * const)pos;
     if (v != eeprom_read_byte(p)) { // EEPROM has only ~100,000 write cycles, so only write bytes that have changed!
+      //TODO: pinmode should be elsewhere
+      #ifdef EEPROM_WP
+        digitalWrite(EEPROM_WP, LOW);
+      #endif
       eeprom_write_byte(p, v);
+      #ifdef EEPROM_WP
+        digitalWrite(EEPROM_WP, HIGH);
+      #endif
       if (++written & 0x7F) delay(2); else safe_delay(2); // Avoid triggering watchdog during long EEPROM writes
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);

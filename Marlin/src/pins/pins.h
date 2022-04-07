@@ -610,7 +610,9 @@
 #elif MB(RUMBA32_V1_0, RUMBA32_V1_1)
   #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_MKS)
-  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32
+  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4    
+#elif MB(CXY_V10)
+  #include "stm32f4/pins_CXY_V10.h"             // STM32F4                            env:cxy_v10
 #elif MB(RUMBA32_BTT)
   #include "stm32f4/pins_RUMBA32_BTT.h"         // STM32F4                                env:rumba32
 #elif MB(BLACK_STM32F407VE)

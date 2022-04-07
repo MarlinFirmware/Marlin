@@ -31,7 +31,7 @@
   #error "RUMBA32 boards support up to 3 hotends / E-steppers."
 #endif
 
-#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#define DEFAULT_MACHINE_NAME "FUCK"//BOARD_INFO_NAME
 
 // Use soft PWM for fans - PWM is not working properly when paired with STM32 Arduino Core v1.7.0
 // This can be removed when Core version is updated and PWM behaviour is fixed.
