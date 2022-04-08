@@ -8,9 +8,11 @@ Working
 * Steppers
 * Sensors
 * Touch interface
+* LCD, color and classic ui are fine
+* Buzzer
+* LED
 
 Not working
-* LCD, well the splash screen shows but then it corrupts
 * Flash memory
 * Mystery 8mhz crystal
 
