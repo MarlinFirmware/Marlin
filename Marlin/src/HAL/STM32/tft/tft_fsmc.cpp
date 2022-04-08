@@ -39,19 +39,6 @@ void TFT_FSMC::Init() {
   uint32_t controllerAddress;
 
   #ifdef STM32F4xx_FMC
-
-    #ifdef LCD_BACKLIGHT_PIN
-    //force the backlight on
-      pinMode(LCD_BACKLIGHT_PIN, OUTPUT);
-      digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
-      //Reset pin
-      //pinMode(PB12, OUTPUT);
-      //digitalWrite(PB12, LOW);
-      //delay(1000);
-      //digitalWrite(PB12, HIGH);
-      //delay(1000);
-    #endif
-
     FMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
     //Todo, reinstate the map function
     uint32_t NSBank = FMC_NORSRAM_BANK4;//(uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);

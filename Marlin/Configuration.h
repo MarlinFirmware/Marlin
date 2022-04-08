@@ -2101,7 +2101,7 @@
  *
  * :[0:'Classic', 1:'Průša']
  */
-#define LCD_INFO_SCREEN_STYLE 1
+#define LCD_INFO_SCREEN_STYLE 0
 
 /**
  * SD CARD
@@ -2712,8 +2712,10 @@
 #define FSMC_CS_PIN PG12
 #define FSMC_RS_PIN PG2
 #define TFT_RS_PIN PG2
-#define LCD_BACKLIGHT_PIN PG8
+#define TFT_BACKLIGHT_PIN PG8
 #define TFT_RESET_PIN PB12
+//#define TOUCH_BUTTONS_HW_SPI
+//#define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
 //
 // 480x320, 3.5", FSMC Stock Display from AnyCubic
@@ -2809,7 +2811,7 @@
 //
 // Touch Screen Settings
 //
-//#define TOUCH_SCREEN
+#define TOUCH_SCREEN
 #if ENABLED(TOUCH_SCREEN)
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus

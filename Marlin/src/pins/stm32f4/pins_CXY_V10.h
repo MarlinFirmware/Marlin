@@ -161,42 +161,6 @@
 
 #define BEEPER_PIN                          PA8
 
-//
-// LCD / Controller
-//
-#if HAS_WIRED_LCD
-
-  #define BTN_EN1                           PB2
-  #define BTN_EN2                           PB1
-  #define BTN_ENC                           PE7
-
-  #define LCD_PINS_RS                       PE10
-  #define LCD_PINS_ENABLE                   PE9
-  #define LCD_PINS_D4                       PE12
-
-  #if ENABLED(MKS_MINI_12864)
-    #define DOGLCD_CS                       PE13
-    #define DOGLCD_A0                       PE14
-  #endif
-
-  #if IS_ULTIPANEL
-    #define LCD_PINS_D5                     PE13
-    #define LCD_PINS_D6                     PE14
-    #define LCD_PINS_D7                     PE15
-
-    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
-    #endif
-  #endif
-
-#endif // HAS_WIRED_LCD
-
-// Alter timing for graphical display
-#if IS_U8GLIB_ST7920
-  #define BOARD_ST7920_DELAY_1                96
-  #define BOARD_ST7920_DELAY_2                48
-  #define BOARD_ST7920_DELAY_3               640
-#endif
 
 //#define SERVO0_PIN                          PA15  // Pin is not broken out, is a test point only.
 
@@ -241,7 +205,7 @@
 #define SPI_FLASH_SCK_PIN                   PB3
 
 
-//#define TFT_BUFFER_SIZE                  14400
+#define TFT_BUFFER_SIZE                  42000
 
 //#define FSMC_DMA_DEV                      DMA2
 //#define FSMC_DMA_CHANNEL               DMA_CH5
