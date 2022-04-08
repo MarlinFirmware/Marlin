@@ -2101,7 +2101,7 @@
  *
  * :[0:'Classic', 1:'Průša']
  */
-#define LCD_INFO_SCREEN_STYLE 0
+#define LCD_INFO_SCREEN_STYLE 1
 
 /**
  * SD CARD
@@ -2200,8 +2200,8 @@
 // Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
-//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
-//#define LCD_FEEDBACK_FREQUENCY_HZ 5000
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 
 //=============================================================================
 //======================== LCD / Controller Selection =========================
@@ -2707,7 +2707,7 @@
 //
 // 480x320, 3.5", FSMC Stock Display from TronxXY
 //
-//#define TFT_TRONXY_X5SA
+#define TFT_TRONXY_X5SA
 #define TFT_CS_PIN PG12
 #define FSMC_CS_PIN PG12
 #define FSMC_RS_PIN PG2
@@ -2748,7 +2748,7 @@
 //
 // Generic TFT with detailed options
 //
-#define TFT_GENERIC
+//#define TFT_GENERIC
 #if ENABLED(TFT_GENERIC)
   // :[ 'AUTO', 'ST7735', 'ST7789', 'ST7796', 'R61505', 'ILI9328', 'ILI9341', 'ILI9488' ]
   #define TFT_DRIVER AUTO

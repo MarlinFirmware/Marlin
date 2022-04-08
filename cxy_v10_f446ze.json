@@ -1,17 +1,23 @@
 {
   "build": {
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F446xx",
+    "extra_flags": "-DSTM32F4 -DSTM32F446xx",
     "f_cpu": "180000000L",
-    "mcu": "stm32f446ret6",
+    "mcu": "stm32f446zet6",
     "product_line": "STM32F446xx",
-    "variant": "RUMBA32_F446VE"
+    "variant": "NUCLEO_F446ZE"
   },
   "connectivity": [
     "can"
   ],
   "debug": {
-    "jlink_device": "STM32F446RE",
+      "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32F446ZE",
+	    "onboard_tools": [
+      "stlink"
+    ],
     "openocd_target": "stm32f4x",
     "svd_path": "STM32F446x.svd"
   },
@@ -34,6 +40,6 @@
       "serial"
     ]
   },
-  "url": "https://github.com/Aus3D/RUMBA32",
-  "vendor": "RUMBA"
+  "url": "https://www.tronxy.com/",
+  "vendor": "TRONXY"
 }
