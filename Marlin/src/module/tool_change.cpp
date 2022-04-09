@@ -1164,7 +1164,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // First tool priming. To prime again, reboot the machine. -- Should only occur for first T0 after powerup!
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-      if (enable_first_prime && old_tool == 0 && new_tool == 0 && !extruder_was_primed[0])
+      if (enable_first_prime && old_tool == 0 && new_tool == 0 && !extruder_was_primed[0]) {
         tool_change_prime();
         TERN_(TOOLCHANGE_FS_INIT_BEFORE_SWAP, toolchange_extruder_ready.set(old_tool)); // Primed and initialized
       }
