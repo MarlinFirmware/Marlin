@@ -2819,7 +2819,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Checkbox(row, runout.enabled[0]);
             }
             else {
-              runout.enabled = !runout.enabled[0];
+              runout.enabled[0] = !runout.enabled[0];
               Draw_Checkbox(row, runout.enabled[0]);
             }
             break;
