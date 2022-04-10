@@ -352,6 +352,7 @@ namespace Language_en {
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Testing heat loss");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Autotune");
+  LSTR MSG_MPC_EDIT                       = _UxGT("Edit * MPC");
   LSTR MSG_MPC_POWER_E                    = _UxGT("Power *");
   LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("Block C *");
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensor res *");

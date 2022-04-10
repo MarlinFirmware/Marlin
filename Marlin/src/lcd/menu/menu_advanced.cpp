@@ -256,6 +256,7 @@ void menu_backlash();
   void menu_advanced_temperature() {
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
     //
     // Autotemp, Min, Max, Fact
     //
@@ -325,31 +326,33 @@ void menu_backlash();
 
       HOTEND_PID_EDIT_MENU_ITEMS(0);
       #if ENABLED(PID_PARAMS_PER_HOTEND)
-        REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS)
+        REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS);
       #endif
     #endif
 
     #if ENABLED(MPC_EDIT_MENU)
-      #define _MPC_CONST(N) thermalManager.temp_hotend[N].constants
+      auto mpc_edit_hotend = [&](const uint8_t e) {
+        MPC_t &c = thermalManager.temp_hotend[e].constants;
+        TERN_(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment);
 
-      #define _HOTEND_MPC_EDIT_MENU_ITEMS(N) \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &_MPC_CONST(N).heater_power, 1, 200); \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &_MPC_CONST(N).block_heat_capacity, 0, 40); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &_MPC_CONST(N).sensor_responsiveness, 0, 1); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &_MPC_CONST(N).ambient_xfer_coeff_fan0, 0, 1);
+        START_MENU();
+        BACK_ITEM(MSG_TEMPERATURE);
 
-      #if ENABLED(MPC_INCLUDE_FAN)
-        #define HOTEND_MPC_EDIT_MENU_ITEMS(N) \
-          _HOTEND_MPC_EDIT_MENU_ITEMS(N); \
-          editable.decimal = _MPC_CONST(N).ambient_xfer_coeff_fan0 + _MPC_CONST(N).fan255_adjustment; \
-          EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN255_E, &editable.decimal, 0, 1, []{ \
-            _MPC_CONST(N).fan255_adjustment = editable.decimal - _MPC_CONST(N).ambient_xfer_coeff_fan0; \
-          });
-      #else
-        #define HOTEND_MPC_EDIT_MENU_ITEMS(N) _HOTEND_MPC_EDIT_MENU_ITEMS(N);
-      #endif
+        EDIT_ITEM_FAST_N(float31sign, e, MSG_MPC_POWER_E, &c.heater_power, 1, 200);
+        EDIT_ITEM_FAST_N(float31sign, e, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &c.block_heat_capacity, 0, 40);
+        EDIT_ITEM_FAST_N(float43, e, MSG_SENSOR_RESPONSIVENESS_E, &c.sensor_responsiveness, 0, 1);
+        EDIT_ITEM_FAST_N(float43, e, MSG_MPC_AMBIENT_XFER_COEFF_E, &c.ambient_xfer_coeff_fan0, 0, 1);
+        #if ENABLED(MPC_INCLUDE_FAN)
+          EDIT_ITEM_FAST_N(float43, e, MSG_MPC_AMBIENT_XFER_COEFF_FAN255_E, &editable.decimal, 0, 1,
+            []{ c.fan255_adjustment = editable.decimal - c.ambient_xfer_coeff_fan0; }
+          );
+        #endif
 
-      REPEAT_S(0, HOTENDS, HOTEND_MPC_EDIT_MENU_ITEMS)
+        END_MENU();
+      }
+
+      #define MPC_SUBMENU(N) SUBMENU_N(N, MSG_MPC_EDIT, []{ mpc_edit_hotend(MenuItemBase::itemIndex); });
+      REPEAT(HOTENDS, MPC_SUBMENU);
     #endif
 
     #if ENABLED(MPC_AUTOTUNE_MENU)

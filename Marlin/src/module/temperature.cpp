@@ -902,8 +902,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
-    MPCHeaterInfo& hotend = temp_hotend[active_extruder];
-    MPC_t& constants = hotend.constants;
+    MPCHeaterInfo &hotend = temp_hotend[active_extruder];
+    MPC_t &constants = hotend.constants;
 
     // move to center of bed, just above bed height and cool with max fan
     TERN_(HAS_FAN, zero_fan_speeds());
@@ -1404,8 +1404,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       #endif
 
     #elif ENABLED(MPCTEMP)
-      MPCHeaterInfo& hotend = temp_hotend[ee];
-      MPC_t& constants = hotend.constants;
+      MPCHeaterInfo &hotend = temp_hotend[ee];
+      MPC_t &constants = hotend.constants;
 
       // At startup, initialize modeled temperatures
       if (isnan(hotend.modeled_block_temp)) {
