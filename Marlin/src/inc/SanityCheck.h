@@ -2446,17 +2446,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * FYSETC LCD Requirements
  */
 #if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
-  #ifndef NEO_RGB
-    #define NEO_RGB 123
+  #ifndef NEO_GRB
+    #define NEO_GRB 123
     #define FAUX_RGB 1
   #endif
-  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
-    #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
+  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_GRB
+    #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_GRB."
   #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
     #error "Your FYSETC Mini Panel requires NEOPIXEL_PIXELS >= 3."
   #endif
   #if FAUX_RGB
-    #undef NEO_RGB
+    #undef NEO_GRB
     #undef FAUX_RGB
   #endif
 #elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && !DISABLED(RGB_LED)
@@ -2990,6 +2990,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "LCD_BACKLIGHT_TIMEOUT requires an LCD with encoder or keypad."
   #elif !PIN_EXISTS(LCD_BACKLIGHT)
     #error "LCD_BACKLIGHT_TIMEOUT requires LCD_BACKLIGHT_PIN."
+  #endif
+#endif
+
+/**
+ * Display Sleep is not supported by these common displays
+ */
+#if HAS_DISPLAY_SLEEP
+  #if ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI, ENDER2_STOCKDISPLAY, MINIPANEL)
+    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
+  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
+    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
   #endif
 #endif
 

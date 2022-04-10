@@ -25,7 +25,7 @@
 #if HAS_STEALTHCHOP
 
 #if AXIS_COLLISION('I')
-  #error "M569 parameter collision with axis name."
+  #error "M569 parameter 'I' collision with axis name."
 #endif
 
 #include "../../gcode.h"
