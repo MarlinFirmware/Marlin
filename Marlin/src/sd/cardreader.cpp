@@ -483,7 +483,6 @@ void CardReader::manage_media() {
   if (ui.detected()) {
 
     uint8_t old_stat = prev_stat;
-    prev_stat = stat;                 // Change now to prevent re-entry
 
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
@@ -499,6 +498,9 @@ void CardReader::manage_media() {
         release();                    // Card is released
       #endif
     }
+
+    if (stat == 0 && prev_stat == 2) return;
+    prev_stat = stat;                 // Change now to prevent re-entry
 
     ui.media_changed(old_stat, stat); // Update the UI
 
