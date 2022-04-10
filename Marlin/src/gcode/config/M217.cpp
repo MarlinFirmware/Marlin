@@ -192,7 +192,7 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
               PSTR(" K"), K_AXIS_UNIT(toolchange_settings.change_point.k),
               SP_C_STR,   U_AXIS_UNIT(toolchange_settings.change_point.u),
               PSTR(" H"), V_AXIS_UNIT(toolchange_settings.change_point.v),
-              PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w),
+              PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w)
             )
         #endif
       );
