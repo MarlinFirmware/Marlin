@@ -664,7 +664,7 @@ namespace Language_it {
   LSTR MSG_DAC_PERCENT_C                  = _UxGT("Driver ") STR_C _UxGT(" %");
   LSTR MSG_DAC_PERCENT_I                  = _UxGT("Driver ") STR_I _UxGT(" %");
   LSTR MSG_DAC_PERCENT_J                  = _UxGT("Driver ") STR_J _UxGT(" %");
-  LSTR MSG_DAC_PERCENT_K                  = _UxGT("Driver ") STR_U _UxGT(" %");
+  LSTR MSG_DAC_PERCENT_K                  = _UxGT("Driver ") STR_K _UxGT(" %");
   LSTR MSG_DAC_PERCENT_U                  = _UxGT("Driver ") STR_U _UxGT(" %");
   LSTR MSG_DAC_PERCENT_V                  = _UxGT("Driver ") STR_V _UxGT(" %");
   LSTR MSG_DAC_PERCENT_W                  = _UxGT("Driver ") STR_W _UxGT(" %");
