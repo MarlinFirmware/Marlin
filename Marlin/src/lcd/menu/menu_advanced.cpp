@@ -210,7 +210,7 @@ void menu_backlash();
 
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
-  void copy_and_scalePID_i(const uint8_t e) {
+  void copy_and_scalePID_i(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
         case H_BED: thermalManager.temp_bed.pid.Ki = scalePID_i(raw_Ki); break;
@@ -226,7 +226,7 @@ void menu_backlash();
         break;
     }
   }
-  void copy_and_scalePID_d(const uint8_t e) {
+  void copy_and_scalePID_d(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
         case H_BED: thermalManager.temp_bed.pid.Kd = scalePID_d(raw_Kd); break;
