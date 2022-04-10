@@ -234,7 +234,7 @@ public:
     FilteredADC::enable_channel(pin);
   }
 
-  // Begin ADC sampling on the given pin
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static uint32_t adc_result;
   static pin_t adc_pin;
 

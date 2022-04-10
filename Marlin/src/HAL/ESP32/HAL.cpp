@@ -209,19 +209,19 @@ void MarlinHAL::adc_init() {
   adc1_config_width(ADC_WIDTH_12Bit);
 
   // Configure channels only if used as (re-)configuring a pin for ADC that is used elsewhere might have adverse effects
-  TERN_(HAS_TEMP_ADC_0, adc1_set_attenuation(get_channel(TEMP_0_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_1, adc1_set_attenuation(get_channel(TEMP_1_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_2, adc1_set_attenuation(get_channel(TEMP_2_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_3, adc1_set_attenuation(get_channel(TEMP_3_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_4, adc1_set_attenuation(get_channel(TEMP_4_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_5, adc1_set_attenuation(get_channel(TEMP_5_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_6, adc2_set_attenuation(get_channel(TEMP_6_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_7, adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_HEATED_BED, adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_CHAMBER, adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_PROBE, adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_COOLER, adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_BOARD, adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_0,        adc1_set_attenuation(get_channel(TEMP_0_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_1,        adc1_set_attenuation(get_channel(TEMP_1_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_2,        adc1_set_attenuation(get_channel(TEMP_2_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_3,        adc1_set_attenuation(get_channel(TEMP_3_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_4,        adc1_set_attenuation(get_channel(TEMP_4_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_5,        adc1_set_attenuation(get_channel(TEMP_5_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_6,        adc2_set_attenuation(get_channel(TEMP_6_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_7,        adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_HEATED_BED,        adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_CHAMBER,      adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_PROBE,        adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_COOLER,       adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_BOARD,        adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
   TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
@@ -244,7 +244,8 @@ void MarlinHAL::adc_start(const pin_t pin) {
   const adc1_channel_t chan = get_channel(pin);
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
-  adc_result = mv * 1023.0f / float(ADC_REFERENCE_VOLTAGE) / 1000.0f;
+
+  adc_result = mv * isr_float_t(1023) / isr_float_t(ADC_REFERENCE_VOLTAGE) / isr_float_t(1000);
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;
