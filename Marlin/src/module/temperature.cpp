@@ -3911,7 +3911,10 @@ void Temperature::isr() {
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
     AutoReporter<Temperature::AutoReportTemp> Temperature::auto_reporter;
-    void Temperature::AutoReportTemp::report() { print_heater_states(active_extruder); SERIAL_EOL(); }
+    void Temperature::AutoReportTemp::report() {
+      print_heater_states(active_extruder OPTARG(HAS_TEMP_REDUNDANT, ENABLED(AUTO_REPORT_REDUNDANT)));
+      SERIAL_EOL();
+    }
   #endif
 
   #if HAS_HOTEND && HAS_STATUS_MESSAGE
