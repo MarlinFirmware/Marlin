@@ -78,6 +78,8 @@ public:
       static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
     #endif
 
+    static void probe_error_stop();
+
     static bool set_deployed(const bool deploy);
 
     #if IS_KINEMATIC

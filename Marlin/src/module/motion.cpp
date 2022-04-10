@@ -1166,7 +1166,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             #if ENABLED(MESH_BED_LEVELING)
               mbl.line_to_destination(scaled_fr_mm_s);
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-              bilinear_line_to_destination(scaled_fr_mm_s);
+              bbl.line_to_destination(scaled_fr_mm_s);
             #endif
             return true;
           }
