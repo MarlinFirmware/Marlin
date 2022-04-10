@@ -330,24 +330,23 @@ void menu_backlash();
     #endif
 
     #if ENABLED(MPC_EDIT_MENU)
-      #define _MPC_CONSTANTS(N) thermalManager.temp_hotend[N].constants
+      #define _MPC_CONST(N) thermalManager.temp_hotend[N].constants
 
       #define _HOTEND_MPC_EDIT_MENU_ITEMS(N) \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &_MPC_CONSTANTS(N).heater_power, 1, 200); \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &_MPC_CONSTANTS(N).block_heat_capacity, 0, 40); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &_MPC_CONSTANTS(N).sensor_responsiveness, 0, 1); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &_MPC_CONSTANTS(N).ambient_xfer_coeff_fan0, 0, 1);
+        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &_MPC_CONST(N).heater_power, 1, 200); \
+        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &_MPC_CONST(N).block_heat_capacity, 0, 40); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &_MPC_CONST(N).sensor_responsiveness, 0, 1); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &_MPC_CONST(N).ambient_xfer_coeff_fan0, 0, 1);
 
       #if ENABLED(MPC_INCLUDE_FAN)
         #define HOTEND_MPC_EDIT_MENU_ITEMS(N) \
           _HOTEND_MPC_EDIT_MENU_ITEMS(N); \
-          editable.decimal = _MPC_CONSTANTS(N).ambient_xfer_coeff_fan0 + _MPC_CONSTANTS(N).fan255_adjustment; \
+          editable.decimal = _MPC_CONST(N).ambient_xfer_coeff_fan0 + _MPC_CONST(N).fan255_adjustment; \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN255_E, &editable.decimal, 0, 1, []{ \
-            _MPC_CONSTANTS(N).fan255_adjustment = editable.decimal - _MPC_CONSTANTS(N).ambient_xfer_coeff_fan0; \
+            _MPC_CONST(N).fan255_adjustment = editable.decimal - _MPC_CONST(N).ambient_xfer_coeff_fan0; \
           });
       #else
-        #define HOTEND_MPC_EDIT_MENU_ITEMS(N) \
-          _HOTEND_MPC_EDIT_MENU_ITEMS(N);
+        #define HOTEND_MPC_EDIT_MENU_ITEMS(N) _HOTEND_MPC_EDIT_MENU_ITEMS(N);
       #endif
 
       REPEAT_S(0, HOTENDS, HOTEND_MPC_EDIT_MENU_ITEMS)

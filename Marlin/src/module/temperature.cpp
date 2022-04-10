@@ -660,10 +660,11 @@ volatile bool Temperature::raw_temps_ready = false;
 
     TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
 
-    // PID Tuning loop
-    wait_for_heatup = true; // Can be interrupted with M108
     LCD_MESSAGE(MSG_HEATING);
-    while (wait_for_heatup) {
+
+    // PID Tuning loop
+    wait_for_heatup = true;
+    while (wait_for_heatup) { // Can be interrupted with M108
 
       const millis_t ms = millis();
 
@@ -884,8 +885,8 @@ volatile bool Temperature::raw_temps_ready = false;
       return true;
     };
 
-    struct Cleanup {
-      ~Cleanup() {
+    struct OnExit {
+      ~OnExit() {
         wait_for_heatup = false;
 
         ui.reset_status();
@@ -897,7 +898,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
         do_z_clearance(MPC_TUNING_END_Z);
       }
-    } cleanup;
+    } on_exit;
 
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
@@ -919,8 +920,8 @@ volatile bool Temperature::raw_temps_ready = false;
     celsius_float_t current_temp = degHotend(active_extruder),
                     ambient_temp = current_temp;
 
-    wait_for_heatup = true; // Can be interrupted with M108
-    while (true) {
+    wait_for_heatup = true;
+    for (;;) { // Can be interrupted with M108
       if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
@@ -932,6 +933,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
+
     TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
@@ -941,14 +943,13 @@ volatile bool Temperature::raw_temps_ready = false;
     LCD_MESSAGE(MSG_HEATING);
     hotend.target = 200.0f;   // so M105 looks nice
     hotend.soft_pwm_amount = MPC_MAX >> 1;
-    const millis_t heat_start_time = ms;
-    next_test_ms = ms;
+    const millis_t heat_start_time = next_test_ms = ms;
     celsius_float_t temp_samples[16];
     uint8_t sample_count = 0;
     uint16_t sample_distance = 1;
     float t1_time = 0;
 
-    while (true) {
+    for (;;) { // Can be interrupted with M108
       if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
@@ -973,7 +974,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
     hotend.soft_pwm_amount = 0;
 
-    // calculate physical constants from three equally spaced samples
+    // Calculate physical constants from three equally-spaced samples
     sample_count = (sample_count + 1) / 2 * 2 - 1;
     const float t1 = temp_samples[0],
                 t2 = temp_samples[(sample_count - 1) >> 1],
@@ -989,7 +990,7 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.modeled_block_temp = asymp_temp + (ambient_temp - asymp_temp) * exp(-block_responsiveness * (ms - heat_start_time) / 1000.0f);
     hotend.modeled_sensor_temp = current_temp;
 
-    // let the system stabilise under MPC control then get a better measure of ambient loss without and with fan
+    // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
     LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT);
     hotend.target = hotend.modeled_block_temp;
@@ -1004,7 +1005,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
     float last_temp = current_temp;
 
-    while (true) {
+    for (;;) { // Can be interrupted with M108
       if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
@@ -1044,7 +1045,7 @@ volatile bool Temperature::raw_temps_ready = false;
       constants.fan255_adjustment = ambient_xfer_coeff_fan255 - constants.ambient_xfer_coeff_fan0;
     #endif
 
-    // calculate a new and better asymptotic temperature and re-evaluate the other constants
+    // Calculate a new and better asymptotic temperature and re-evaluate the other constants
     asymp_temp = ambient_temp + constants.heater_power / constants.ambient_xfer_coeff_fan0;
     block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
     constants.block_heat_capacity = constants.ambient_xfer_coeff_fan0 / block_responsiveness;
