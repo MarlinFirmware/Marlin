@@ -46,7 +46,7 @@
 #endif
 
 #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-  bool toolchange_extruder_ready[EXTRUDERS];
+  Flags<EXTRUDERS> toolchange_extruder_ready;
 #endif
 
 #if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
@@ -933,7 +933,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
               current_position.k = toolchange_settings.change_point.k,
               current_position.u = toolchange_settings.change_point.u,
               current_position.v = toolchange_settings.change_point.v,
-              current_position.w = toolchange_settings.change_point.w,
+              current_position.w = toolchange_settings.change_point.w
             );
           #endif
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
@@ -1057,7 +1057,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       if (new_tool == old_tool && !first_tool_is_primed && enable_first_prime) {
         tool_change_prime();
         first_tool_is_primed = true;
-        TERN_(TOOLCHANGE_FS_INIT_BEFORE_SWAP, toolchange_extruder_ready[old_tool] = true); // Primed and initialized
+        TERN_(TOOLCHANGE_FS_INIT_BEFORE_SWAP, toolchange_extruder_ready.set(old_tool)); // Primed and initialized
       }
     #endif
 
@@ -1138,7 +1138,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               current_position.k = toolchange_settings.change_point.k,
               current_position.u = toolchange_settings.change_point.u,
               current_position.v = toolchange_settings.change_point.v,
-              current_position.w = toolchange_settings.change_point.w,
+              current_position.w = toolchange_settings.change_point.w
             );
           #endif
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
@@ -1216,7 +1216,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
             #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
               if (!toolchange_extruder_ready[new_tool]) {
-                toolchange_extruder_ready[new_tool] = true;
+                toolchange_extruder_ready.set(new_tool);
                 fr = toolchange_settings.prime_speed;       // Next move is a prime
                 unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
               }
@@ -1401,7 +1401,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Migrate the retracted state
     #if ENABLED(FWRETRACT)
-      fwretract.retracted[migration_extruder] = fwretract.retracted[active_extruder];
+      fwretract.retracted.set(migration_extruder, fwretract.retracted[active_extruder]);
     #endif
 
     // Migrate the temperature to the new hotend

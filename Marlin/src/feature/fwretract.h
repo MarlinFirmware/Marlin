@@ -43,7 +43,7 @@ typedef struct {
 class FWRetract {
 private:
   #if HAS_MULTI_EXTRUDER
-    static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
+    static Flags<EXTRUDERS> retracted_swap;        // Which extruders are swap-retracted
   #endif
 
 public:
@@ -55,7 +55,7 @@ public:
     static constexpr bool autoretract_enabled = false;
   #endif
 
-  static bool retracted[EXTRUDERS];                // Which extruders are currently retracted
+  static Flags<EXTRUDERS> retracted;               // Which extruders are currently retracted
   static float current_retract[EXTRUDERS],         // Retract value used by planner
                current_hop;                        // Hop value used by planner
 
@@ -63,9 +63,7 @@ public:
 
   static void reset();
 
-  static void refresh_autoretract() {
-    EXTRUDER_LOOP() retracted[e] = false;
-  }
+  static void refresh_autoretract() { retracted.reset(); }
 
   static void enable_autoretract(const bool enable) {
     #if ENABLED(FWRETRACT_AUTORETRACT)
