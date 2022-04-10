@@ -632,6 +632,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(isbed ? PID_BED_START : PID_EXTR_START));
 
     if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - (HOTEND_OVERSHOOT))) {
+      SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
       TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(PID_TEMP_TOO_HIGH));
@@ -639,6 +640,7 @@ volatile bool Temperature::raw_temps_ready = false;
       return;
     }
 
+    SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_START);
 
     disable_all_heaters();
@@ -654,10 +656,11 @@ volatile bool Temperature::raw_temps_ready = false;
 
     TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
 
-    // PID Tuning loop
-    wait_for_heatup = true; // Can be interrupted with M108
     LCD_MESSAGE(MSG_HEATING);
-    while (wait_for_heatup) {
+
+    // PID Tuning loop
+    wait_for_heatup = true;
+    while (wait_for_heatup) { // Can be interrupted with M108
 
       const millis_t ms = millis();
 
@@ -723,6 +726,7 @@ volatile bool Temperature::raw_temps_ready = false;
         #define MAX_OVERSHOOT_PID_AUTOTUNE 30
       #endif
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
+        SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
         TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(PID_TEMP_TOO_HIGH));
@@ -765,11 +769,13 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(PID_TUNING_TIMEOUT));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
+        SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
       }
 
       if (cycles > ncycles && cycles > 2) {
+        SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_FINISHED);
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE)));
 
@@ -869,7 +875,6 @@ volatile bool Temperature::raw_temps_ready = false;
     MPC_t& constants = hotend.constants;
 
     // move to center of bed, just above bed height and cool with max fan
-    SERIAL_ECHOLNPGM("Moving to tuning position");
     TERN_(HAS_FAN, zero_fan_speeds());
     disable_all_heaters();
     TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255));
@@ -896,6 +901,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
+
     TERN_(HAS_FAN, set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0));
     TERN_(HAS_FAN, planner.sync_fan_speeds(fan_speed));
 
@@ -903,8 +909,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     SERIAL_ECHOLNPGM("Heating to 200C");
     hotend.soft_pwm_amount = MPC_MAX >> 1;
-    const millis_t heat_start_time = ms;
-    next_test_ms = ms;
+    const millis_t heat_start_time = next_test_ms = ms;
     celsius_float_t temp_samples[16];
     uint8_t sample_count = 0;
     uint16_t sample_distance = 1;
@@ -935,7 +940,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
     hotend.soft_pwm_amount = 0;
 
-    // calculate physical constants from three equally spaced samples
+    // Calculate physical constants from three equally-spaced samples
     sample_count = (sample_count + 1) / 2 * 2 - 1;
     const float t1 = temp_samples[0],
                 t2 = temp_samples[(sample_count - 1) >> 1],
@@ -951,14 +956,13 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.modeled_block_temp = asymp_temp + (ambient_temp - asymp_temp) * exp(-block_responsiveness * (ms - heat_start_time) / 1000.0f);
     hotend.modeled_sensor_temp = current_temp;
 
-    // let the system stabilise under MPC control then get a better measure of ambient loss without and with fan
+    // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM("Measuring ambient heatloss at target ", hotend.modeled_block_temp);
     hotend.target = hotend.modeled_block_temp;
     next_test_ms = ms + MPC_dT * 1000;
-    constexpr millis_t settle_time = 20000UL,
-                       test_length = 20000UL;
+    constexpr millis_t settle_time = 20000UL, test_duration = 20000UL;
     millis_t settle_end_ms = ms + settle_time,
-             test_end_ms = settle_end_ms + test_length;
+             test_end_ms = settle_end_ms + test_duration;
     float total_energy_fan0 = 0.0f;
     #if HAS_FAN
       bool fan0_done = false;
@@ -981,7 +985,7 @@ volatile bool Temperature::raw_temps_ready = false;
             set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
             planner.sync_fan_speeds(fan_speed);
             settle_end_ms = ms + settle_time;
-            test_end_ms = settle_end_ms + test_length;
+            test_end_ms = settle_end_ms + test_duration;
             fan0_done = true;
           }
           else if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms))
@@ -999,11 +1003,11 @@ volatile bool Temperature::raw_temps_ready = false;
       }
     }
 
-    const float power_fan0 = total_energy_fan0 * 1000 / test_length;
+    const float power_fan0 = total_energy_fan0 * 1000 / test_duration;
     constants.ambient_xfer_coeff_fan0 = power_fan0 / (hotend.target - ambient_temp);
 
     #if HAS_FAN
-      const float power_fan255 = total_energy_fan255 * 1000 / test_length,
+      const float power_fan255 = total_energy_fan255 * 1000 / test_duration,
                   ambient_xfer_coeff_fan255 = power_fan255 / (hotend.target - ambient_temp);
       constants.fan255_adjustment = ambient_xfer_coeff_fan255 - constants.ambient_xfer_coeff_fan0;
     #endif
@@ -1369,8 +1373,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       #endif
 
     #elif ENABLED(MPCTEMP)
-      MPCHeaterInfo& hotend = temp_hotend[ee];
-      MPC_t& constants = hotend.constants;
+      MPCHeaterInfo &hotend = temp_hotend[ee];
+      MPC_t &constants = hotend.constants;
 
       // At startup, initialize modeled temperatures
       if (isnan(hotend.modeled_block_temp)) {

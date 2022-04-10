@@ -256,6 +256,7 @@ void menu_backlash();
   void menu_advanced_temperature() {
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
     //
     // Autotemp, Min, Max, Fact
     //
@@ -325,7 +326,7 @@ void menu_backlash();
 
       HOTEND_PID_EDIT_MENU_ITEMS(0);
       #if ENABLED(PID_PARAMS_PER_HOTEND)
-        REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS)
+        REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS);
       #endif
     #endif
 
