@@ -27,9 +27,6 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-// endianness swap (this mechanism fails for STM32 builds. See ../mks/DGUSScreenHandler.h for fix.)
-inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
-
 enum DGUSLCD_Screens : uint8_t;
 
 class DGUSScreenHandler {
