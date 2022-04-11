@@ -64,9 +64,6 @@ struct IF<true, L, R> { typedef L type; };
   #define ROTATIONAL_AXIS_GANG(V...) GANG_N(ROTATIONAL_AXES, V)
 #endif
 
-#define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
-#define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
-
 #if HAS_EXTRUDERS
   #define LIST_ITEM_E(N) , N
   #define CODE_ITEM_E(N) ; N
