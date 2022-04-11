@@ -96,18 +96,18 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V3_0
+  #define MOTHERBOARD BOARD_RAMPS_14_EFB
 #endif
 
 /**
- * @brief SERIAL_PORT
- * @details This allows the connection of wireless adapters (for instance) to non-default port pins.
+ * Select the serial port on the board to use for communication with the host.
+ * This allows the connection of wireless adapters (for instance) to non-default port pins.
  * Serial port -1 is the USB emulated serial port, if available.
  * Note: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 2
+#define SERIAL_PORT 0
 
 /**
  * Serial Port Baud Rate
@@ -120,7 +120,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 //#define BAUD_RATE_GCODE     // Enable G-code M575 to set the baud rate
 
 /**
@@ -128,8 +128,8 @@
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 -1
-#define BAUDRATE_2 250000   // Enable to override BAUDRATE
+//#define SERIAL_PORT_2 -1
+//#define BAUDRATE_2 250000   // Enable to override BAUDRATE
 
 /**
  * Select a third serial port on the board to use for communication with the host.
@@ -2740,11 +2740,10 @@
 //#define DGUS_LCD_UI_ORIGIN
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
-#define DGUS_LCD_UI_MKS
+//#define DGUS_LCD_UI_MKS
 //#define DGUS_LCD_UI_RELOADED
 #if ENABLED(DGUS_LCD_UI_MKS)
   #define USE_MKS_GREEN_UI
-  //#define DEBUG_DGUS_LCD_UI_MKS
 #endif
 
 //
