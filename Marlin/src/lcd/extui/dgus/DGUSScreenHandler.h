@@ -45,6 +45,8 @@
 // endianness swap
 #define BE16_P(V) ( ((uint8_t*)(V))[0] << 8U | ((uint8_t*)(V))[1] )
 #define BE32_P(V) ( ((uint8_t*)(V))[0] << 24U | ((uint8_t*)(V))[1] << 16U | ((uint8_t*)(V))[2] << 8U | ((uint8_t*)(V))[3] ) 
+// deprecated endianness swap (currently used by non-MKS code). Will need updating as above for working STM32 builds.
+inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "origin/DGUSScreenHandler.h"
