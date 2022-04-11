@@ -43,7 +43,8 @@
 #endif
 
 // endianness swap
-inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
+#define BE16_P(V) ( ((uint8_t*)(V))[0] << 8U | ((uint8_t*)(V))[1] )
+#define BE32_P(V) ( ((uint8_t*)(V))[0] << 24U | ((uint8_t*)(V))[1] << 16U | ((uint8_t*)(V))[2] << 8U | ((uint8_t*)(V))[3] ) 
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "origin/DGUSScreenHandler.h"
