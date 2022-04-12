@@ -592,7 +592,7 @@ class Planner {
        */
       static float fade_scaling_factor_for_z(const_float_t rz) {
         static float z_fade_factor = 1;
-        if (!z_fade_height) return 1;
+        if (!z_fade_height || rz <= 0) return 1;
         if (rz >= z_fade_height) return 0;
         if (last_fade_z != rz) {
           last_fade_z = rz;

@@ -524,7 +524,7 @@
   #define HAS_LCDPRINT 1
 #endif
 
-#if ANY(HAS_DISPLAY, HAS_DWIN_E3V2, GLOBAL_STATUS_MESSAGE)
+#if ANY(HAS_DISPLAY, HAS_DWIN_E3V2)
   #define HAS_STATUS_MESSAGE 1
 #endif
 
@@ -712,7 +712,7 @@
  * Number of Primary Linear Axes (e.g., XYZ)
  * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
  */
-#if HAS_I_AXIS
+#if NUM_AXES >= 3
   #define PRIMARY_LINEAR_AXES 3
 #else
   #define PRIMARY_LINEAR_AXES NUM_AXES
