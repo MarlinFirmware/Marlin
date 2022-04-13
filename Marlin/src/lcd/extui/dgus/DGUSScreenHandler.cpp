@@ -152,10 +152,10 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
 // Send an uint8_t between 0 and 100 to a variable scale to 0..255
 void DGUSScreenHandler::DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
-    uint16_t value = BE16_P(val_ptr);
-    DEBUG_ECHOLNPGM("FAN value get:", value);
+    const uint16_t value = BE16_P(val_ptr);
+    DEBUG_ECHOLNPGM("Got percent:", value);
     *(uint8_t*)var.memadr = map(constrain(value, 0, 100), 0, 100, 0, 255);
-    DEBUG_ECHOLNPGM("FAN value change:", *(uint8_t*)var.memadr);
+    DEBUG_ECHOLNPGM("Set uint8:", *(uint8_t*)var.memadr);
   }
 }
 
@@ -426,7 +426,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 
 void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr) {
   #if HAS_EXTRUDERS
-    uint16_t newvalue = BE16_P(val_ptr);
+    const uint16_t newvalue = BE16_P(val_ptr);
     uint8_t target_extruder;
     switch (var.VP) {
       default: return;
@@ -446,7 +446,7 @@ void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_p
 void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleManualExtrude");
 
-  int16_t movevalue = BE16_P(val_ptr);
+  const int16_t movevalue = BE16_P(val_ptr);
   float target = movevalue * 0.01f;
   ExtUI::extruder_t target_extruder;
 
@@ -485,7 +485,7 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
 
 void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleSettings");
-  uint16_t value = BE16_P(val_ptr);
+  const uint16_t value = BE16_P(val_ptr);
   switch (value) {
     default: break;
     case 1:
@@ -499,11 +499,9 @@ void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleStepPerMMChanged");
-
-  uint16_t value_raw = BE16_P(val_ptr);
-  DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  float value = (float)value_raw / 10;
+  const uint16_t value_raw = BE16_P(val_ptr);
+  DEBUG_ECHOLNPGM("HandleStepPerMMChanged:", value_raw);
+  const float value = (float)value_raw / 10;
   ExtUI::axis_t axis;
   switch (var.VP) {
     case VP_X_STEP_PER_MM: axis = ExtUI::axis_t::X; break;
@@ -515,15 +513,12 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
   ExtUI::setAxisSteps_per_mm(value, axis);
   DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(axis));
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-  return;
 }
 
 void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleStepPerMMExtruderChanged");
-
-  uint16_t value_raw = BE16_P(val_ptr);
-  DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  float value = (float)value_raw / 10;
+  const uint16_t value_raw = BE16_P(val_ptr);
+  DEBUG_ECHOLNPGM("HandleStepPerMMExtruderChanged:", value_raw);
+  const float value = (float)value_raw / 10;
   ExtUI::extruder_t extruder;
   switch (var.VP) {
     default: return;

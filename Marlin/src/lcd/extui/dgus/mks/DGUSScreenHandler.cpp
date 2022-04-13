@@ -106,9 +106,9 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay_MKS(DGUS_VP_Variable &var
 void DGUSScreenHandler::DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
     const uint16_t value = BE16_P(val_ptr);
-    DEBUG_ECHOLNPGM("FAN value get:", value);
+    DEBUG_ECHOLNPGM("Got uint8:", value);
     *(uint8_t*)var.memadr = map(constrain(value, 0, 255), 0, 255, 0, 255);
-    DEBUG_ECHOLNPGM("FAN value change:", *(uint8_t*)var.memadr);
+    DEBUG_ECHOLNPGM("Set uint8:", *(uint8_t*)var.memadr);
   }
 }
 
@@ -266,7 +266,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
 
 #else
   void DGUSScreenHandler::PrintReturn(DGUS_VP_Variable& var, void *val_ptr) {
-    uint16_t value = BE16_P(val_ptr);
+    const uint16_t value = BE16_P(val_ptr);
     if (value == 0x0F) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
 #endif // SDSUPPORT
@@ -392,20 +392,19 @@ void DGUSScreenHandler::Z_offset_select(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
-
   #if HAS_BED_PROBE
-    int32_t value = BE32_P(val_ptr));
-    float Offset = value / 100.0f;
+    const int32_t value = BE32_P(val_ptr);
+    const float Offset = value / 100.0f;
     DEBUG_ECHOLNPGM("\nget int6 offset >> ", value, 6);
-  #endif
 
-  switch (var.VP) {
-    case VP_OFFSET_X: TERN_(HAS_BED_PROBE, probe.offset.x = Offset); break;
-    case VP_OFFSET_Y: TERN_(HAS_BED_PROBE, probe.offset.y = Offset); break;
-    case VP_OFFSET_Z: TERN_(HAS_BED_PROBE, probe.offset.z = Offset); break;
-    default: break;
-  }
-  settings.save();
+    switch (var.VP) {
+      default: break;
+        case VP_OFFSET_X: probe.offset.x = Offset; break;
+        case VP_OFFSET_Y: probe.offset.y = Offset; break;
+        case VP_OFFSET_Z: probe.offset.z = Offset; break;
+    }
+    settings.save();
+  #endif
 }
 
 void DGUSScreenHandler::LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1124,9 +1123,9 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
   void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
     char babystep_buf[30];
-    float step = ZOffset_distance;
+    const float step = ZOffset_distance;
 
-    uint16_t flag = BE16_P(val_ptr);
+    const uint16_t flag = BE16_P(val_ptr);
     switch (flag) {
       case 0:
         if (step == 0.01)
@@ -1158,34 +1157,26 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
         z_offset_add = z_offset_add + ZOffset_distance;
         break;
 
-      default:
-        break;
+      default: break;
     }
     ForceCompleteUpdate();
   }
 #endif // BABYSTEPPING
 
 void DGUSScreenHandler::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("GetManualFilament");
+  const uint16_t value_len = BE16_P(val_ptr);
+  const float value = (float)value_len;
 
-  uint16_t value_len = BE16_P(val_ptr);
-
-  float value = (float)value_len;
-
-  DEBUG_ECHOLNPGM("Get Filament len value:", value);
+  DEBUG_ECHOLNPGM("GetManualFilament:", value);
   distanceFilament = value;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("GetManualFilamentSpeed");
-
-  uint16_t value_len = BE16_P(val_ptr);
-
-  DEBUG_ECHOLNPGM("filamentSpeed_mm_s value:", value_len);
-
+  const uint16_t value_len = BE16_P(val_ptr);
   filamentSpeed_mm_s = value_len;
+  DEBUG_ECHOLNPGM("GetManualFilamentSpeed:", value_len);
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }

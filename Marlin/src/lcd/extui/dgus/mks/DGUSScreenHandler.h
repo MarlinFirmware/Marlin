@@ -77,7 +77,9 @@ public:
 
   static void EEPROM_CTRL(DGUS_VP_Variable &var, void *val_ptr);
   static void LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr);
+  #if HAS_BED_PROBE
+    static void GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
   static void Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr);
   static void MeshLevel(DGUS_VP_Variable &var, void *val_ptr);
   static void MeshLevelDistanceConfig(DGUS_VP_Variable &var, void *val_ptr);
