@@ -282,9 +282,9 @@ void MarlinUI::init_lcd() {
   #if PIN_EXISTS(LCD_RESET)
     // Perform a clean hardware reset with needed delays
     OUT_WRITE(LCD_RESET_PIN, LOW);
-    _delay_ms(5);
+    hal.delay_ms(5);
     WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5);
+    hal.delay_ms(5);
     u8g.begin();
   #endif
 
@@ -341,6 +341,11 @@ void MarlinUI::draw_kill_screen() {
 }
 
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+
+#if HAS_DISPLAY_SLEEP
+  void MarlinUI::sleep_on()  { u8g.sleepOn(); }
+  void MarlinUI::sleep_off() { u8g.sleepOff(); }
+#endif
 
 #if HAS_LCD_BRIGHTNESS
 

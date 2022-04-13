@@ -77,7 +77,6 @@ class ProbeTempComp {
     static void reset_index() { calib_idx = 0; };
     static uint8_t get_index() { return calib_idx; }
     static void reset();
-    static void clear_offsets(const TempSensorID tsi);
     static void clear_all_offsets() {
       TERN_(PTC_PROBE, clear_offsets(TSI_PROBE));
       TERN_(PTC_BED, clear_offsets(TSI_BED));
@@ -88,10 +87,16 @@ class ProbeTempComp {
     static void prepare_new_calibration(const_float_t init_meas_z);
     static void push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z);
     static bool finish_calibration(const TempSensorID tsi);
-    static void compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z);
+    static void set_enabled(const bool ena) { enabled = ena; }
+
+    // Apply all temperature compensation adjustments
+    static void apply_compensation(float &meas_z);
 
   private:
     static uint8_t calib_idx;
+    static bool enabled;
+
+    static void clear_offsets(const TempSensorID tsi);
 
     /**
      * Base value. Temperature compensation values will be deltas
@@ -104,6 +109,8 @@ class ProbeTempComp {
      * to allow generating values of higher temperatures.
      */
     static bool linear_regression(const TempSensorID tsi, float &k, float &d);
+
+    static void compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z);
 };
 
 extern ProbeTempComp ptc;

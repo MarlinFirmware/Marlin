@@ -115,6 +115,8 @@
 #define BOARD_RAMPS_S_12_EFFB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
 #define BOARD_LONGER3D_LK1_PRO        1160  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
 #define BOARD_LONGER3D_LKx_PRO        1161  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
+#define BOARD_ZRIB_V53                1162  // Zonestar zrib V5.3 (Chinese RAMPS replica)
+#define BOARD_PXMALION_CORE_I3        1163  // Pxmalion Core I3
 
 //
 // RAMBo and derivatives
@@ -162,6 +164,7 @@
 #define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
 #define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1329  // Mega controller & Protoneer CNC Shield V3.00
+#define BOARD_WEEDO_62A               1330  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
 
 //
 // ATmega1281, ATmega2561
@@ -337,29 +340,31 @@
 #define BOARD_CHITU3D_V5              4037  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board
 #define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board
-#define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V423           4041  // Creality v4.2.3 (STM32F103RE)
-#define BOARD_CREALITY_V427           4042  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V4210          4043  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
-#define BOARD_CREALITY_V431           4044  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V431_A         4045  // Creality v4.3.1a (STM32F103RE)
-#define BOARD_CREALITY_V431_B         4046  // Creality v4.3.1b (STM32F103RE)
-#define BOARD_CREALITY_V431_C         4047  // Creality v4.3.1c (STM32F103RE)
-#define BOARD_CREALITY_V431_D         4048  // Creality v4.3.1d (STM32F103RE)
-#define BOARD_CREALITY_V452           4049  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4050  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_CREALITY_V24S1          4051  // Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7
-#define BOARD_CREALITY_V24S1_301      4052  // Creality v2.4.S1_301 (STM32F103RCT) as found in the Ender 3 S1
-#define BOARD_TRIGORILLA_PRO          4053  // Trigorilla Pro (STM32F103ZE)
-#define BOARD_FLY_MINI                4054  // FLYmaker FLY MINI (STM32F103RC)
-#define BOARD_FLSUN_HISPEED           4055  // FLSUN HiSpeedV1 (STM32F103VE)
-#define BOARD_BEAST                   4056  // STM32F103RE Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4057  // STM32F103ZE Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4058  // STM32F103VE controller
-#define BOARD_ZONESTAR_ZM3E2          4059  // Zonestar ZM3E2    (STM32F103RC)
-#define BOARD_ZONESTAR_ZM3E4          4060  // Zonestar ZM3E4 V1 (STM32F103VC)
-#define BOARD_ZONESTAR_ZM3E4V2        4061  // Zonestar ZM3E4 V2 (STM32F103VC)
-#define BOARD_ERYONE_ERY32_MINI       4062  // Eryone Ery32 mini (STM32F103VE)
+#define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V422           4041  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V423           4042  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V427           4043  // Creality v4.2.7 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V4210          4044  // Creality v4.2.10 (STM32F103RC / STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4045  // Creality v4.3.1 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_A         4046  // Creality v4.3.1a (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_B         4047  // Creality v4.3.1b (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_C         4048  // Creality v4.3.1c (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V431_D         4049  // Creality v4.3.1d (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V452           4050  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V453           4051  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V24S1          4052  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender 7
+#define BOARD_CREALITY_V24S1_301      4053  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) as found in the Ender 3 S1
+#define BOARD_TRIGORILLA_PRO          4054  // Trigorilla Pro (STM32F103ZE)
+#define BOARD_FLY_MINI                4055  // FLYmaker FLY MINI (STM32F103RC)
+#define BOARD_FLSUN_HISPEED           4056  // FLSUN HiSpeedV1 (STM32F103VE)
+#define BOARD_BEAST                   4057  // STM32F103RE Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4058  // STM32F103ZE Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4059  // STM32F103VE controller
+#define BOARD_ZONESTAR_ZM3E2          4060  // Zonestar ZM3E2    (STM32F103RC)
+#define BOARD_ZONESTAR_ZM3E4          4061  // Zonestar ZM3E4 V1 (STM32F103VC)
+#define BOARD_ZONESTAR_ZM3E4V2        4062  // Zonestar ZM3E4 V2 (STM32F103VC)
+#define BOARD_ERYONE_ERY32_MINI       4063  // Eryone Ery32 mini (STM32F103VE)
+#define BOARD_PANDA_PI_V29            4064  // Panda Pi V2.9 - Standalone (STM32F103RC)
 
 //
 // ARM Cortex-M4F
@@ -401,16 +406,17 @@
 #define BOARD_MKS_ROBIN2              4226  // MKS_ROBIN2 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        4227  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4228  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_MKS_MONSTER8            4229  // MKS Monster8 (STM32F407VG)
-#define BOARD_ANET_ET4                4230  // ANET ET4 V1.x (STM32F407VG)
-#define BOARD_ANET_ET4P               4231  // ANET ET4P V1.x (STM32F407VG)
-#define BOARD_FYSETC_CHEETAH_V20      4232  // FYSETC Cheetah V2.0
-#define BOARD_TH3D_EZBOARD_V2         4233  // TH3D EZBoard v2.0
-#define BOARD_INDEX_REV03             4234  // Index PnP Controller REV03 (STM32F407VE/VG)
-#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4235  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
-#define BOARD_MKS_EAGLE               4236  // MKS Eagle (STM32F407VE)
-#define BOARD_ARTILLERY_RUBY          4237  // Artillery Ruby (STM32F401RC)
-#define BOARD_FYSETC_SPIDER_V2_2      4238  // FYSETC Spider V2.2 (STM32F446VE)
+#define BOARD_MKS_ROBIN_NANO_V3_1     4229  // MKS Robin Nano V3.1 (STM32F407VE)
+#define BOARD_MKS_MONSTER8            4230  // MKS Monster8 (STM32F407VG)
+#define BOARD_ANET_ET4                4231  // ANET ET4 V1.x (STM32F407VG)
+#define BOARD_ANET_ET4P               4232  // ANET ET4P V1.x (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V20      4233  // FYSETC Cheetah V2.0
+#define BOARD_TH3D_EZBOARD_V2         4234  // TH3D EZBoard v2.0
+#define BOARD_INDEX_REV03             4235  // Index PnP Controller REV03 (STM32F407VE/VG)
+#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4236  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
+#define BOARD_MKS_EAGLE               4237  // MKS Eagle (STM32F407VE)
+#define BOARD_ARTILLERY_RUBY          4238  // Artillery Ruby (STM32F401RC)
+#define BOARD_FYSETC_SPIDER_V2_2      4239  // FYSETC Spider V2.2 (STM32F446VE)
 
 //
 // ARM Cortex M7
@@ -441,6 +447,8 @@
 //
 
 #define BOARD_AGCM4_RAMPS_144         6100  // RAMPS 1.4.4
+#define BOARD_BRICOLEMON_V1_0         6101  // Bricolemon
+#define BOARD_BRICOLEMON_LITE_V1_0    6102  // Bricolemon Lite
 
 //
 // Custom board

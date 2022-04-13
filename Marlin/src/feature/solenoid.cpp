@@ -27,31 +27,25 @@
 #include "solenoid.h"
 
 #include "../module/motion.h" // for active_extruder
-
-// PARKING_EXTRUDER options alter the default behavior of solenoids, this ensures compliance of M380-381
-
-#if ENABLED(PARKING_EXTRUDER)
-  #include "../module/tool_change.h"
-#endif
+#include "../module/tool_change.h"
 
 // Used primarily with MANUAL_SOLENOID_CONTROL
-static void set_solenoid(const uint8_t num, const bool active) {
-  const uint8_t value = active ? PE_MAGNET_ON_STATE : !PE_MAGNET_ON_STATE;
-  #define _SOL_CASE(N) case N: TERN_(HAS_SOLENOID_##N, OUT_WRITE(SOL##N##_PIN, value)); break;
+static void set_solenoid(const uint8_t num, const uint8_t state) {
+  #define _SOL_CASE(N) case N: TERN_(HAS_SOLENOID_##N, OUT_WRITE(SOL##N##_PIN, state)); break;
   switch (num) {
     REPEAT(8, _SOL_CASE)
     default: SERIAL_ECHO_MSG(STR_INVALID_SOLENOID); break;
   }
 
   #if ENABLED(PARKING_EXTRUDER)
-    if (!active && active_extruder == num) // If active extruder's solenoid is disabled, carriage is considered parked
+    if (state == LOW && active_extruder == num) // If active extruder's solenoid is disabled, carriage is considered parked
       parking_extruder_set_parked(true);
   #endif
 }
 
-void enable_solenoid(const uint8_t num) { set_solenoid(num, true); }
-void disable_solenoid(const uint8_t num) { set_solenoid(num, false); }
-void enable_solenoid_on_active_extruder() {  }
+// PARKING_EXTRUDER options alter the default behavior of solenoids to ensure compliance of M380-381
+void  enable_solenoid(const uint8_t num) { set_solenoid(num, TERN1(PARKING_EXTRUDER,  PE_MAGNET_ON_STATE)); }
+void disable_solenoid(const uint8_t num) { set_solenoid(num, TERN0(PARKING_EXTRUDER, !PE_MAGNET_ON_STATE)); }
 
 void disable_all_solenoids() {
   #define _SOL_DISABLE(N) TERN_(HAS_SOLENOID_##N, disable_solenoid(N));

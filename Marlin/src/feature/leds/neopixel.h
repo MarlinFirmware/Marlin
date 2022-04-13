@@ -25,8 +25,6 @@
  * NeoPixel support
  */
 
-#define MAX_NEOPIXELS 127
-
 #ifndef _NEOPIXEL_INCLUDE_
   #error "Always include 'leds.h' and not 'neopixel.h' directly."
 #endif
@@ -68,7 +66,7 @@
 // Types
 // ------------------------
 
-typedef IF<(MAX_NEOPIXELS > 127), int16_t, int8_t>::type pixel_index_t;
+typedef IF<(TERN0(NEOPIXEL_LED, NEOPIXEL_PIXELS > 127)), int16_t, int8_t>::type pixel_index_t;
 
 // ------------------------
 // Classes
@@ -90,7 +88,8 @@ public:
   static void set_color(const uint32_t c);
 
   #ifdef NEOPIXEL_BKGD_INDEX_FIRST
-    static void set_background_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    static void set_background_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w);
+    static void set_background_color(const uint8_t (&rgbw)[4]) { set_background_color(rgbw[0], rgbw[1], rgbw[2], rgbw[3]); }
     static void reset_background_color();
   #endif
 

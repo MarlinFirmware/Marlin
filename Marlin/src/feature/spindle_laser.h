@@ -115,7 +115,9 @@ public:
 
   static void init();
 
-  static void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
+  #if ENABLED(MARLIN_DEV_MODE)
+    static void refresh_frequency() { hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
+  #endif
 
   // Modifying this function should update everywhere
   static bool enabled(const cutter_power_t opwr) { return opwr > 0; }

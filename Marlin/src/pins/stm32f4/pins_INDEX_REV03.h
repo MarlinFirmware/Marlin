@@ -60,12 +60,12 @@
 
 // None of these require limit switches by default, so we leave these commented
 // here for your reference.
-// #define I_MIN_PIN                           PA8
-// #define I_MAX_PIN                           PA8
-// #define J_MIN_PIN                           PD13
-// #define J_MAX_PIN                           PD13
-// #define K_MIN_PIN                           PC9
-// #define K_MAX_PIN                           PC9
+//#define I_MIN_PIN                         PA8
+//#define I_MAX_PIN                         PA8
+//#define J_MIN_PIN                         PD13
+//#define J_MAX_PIN                         PD13
+//#define K_MIN_PIN                         PC9
+//#define K_MAX_PIN                         PC9
 
 //
 // Steppers
@@ -73,47 +73,81 @@
 #define X_STEP_PIN                          PB15
 #define X_DIR_PIN                           PB14
 #define X_ENABLE_PIN                        PD9
-#define X_SERIAL_TX_PIN                     PD8
-#define X_SERIAL_RX_PIN                     PD8
 
 #define Y_STEP_PIN                          PE15
 #define Y_DIR_PIN                           PE14
 #define Y_ENABLE_PIN                        PB13
-#define Y_SERIAL_TX_PIN                     PB12
-#define Y_SERIAL_RX_PIN                     PB12
 
 #define Z_STEP_PIN                          PE7
 #define Z_DIR_PIN                           PB1
 #define Z_ENABLE_PIN                        PE9
-#define Z_SERIAL_TX_PIN                     PE8
-#define Z_SERIAL_RX_PIN                     PE8
 
 #define I_STEP_PIN                          PC4
 #define I_DIR_PIN                           PA4
 #define I_ENABLE_PIN                        PB0
-#define I_SERIAL_TX_PIN                     PC5
-#define I_SERIAL_RX_PIN                     PC5
 
 #define J_STEP_PIN                          PE11
 #define J_DIR_PIN                           PE10
 #define J_ENABLE_PIN                        PE13
-#define J_SERIAL_TX_PIN                     PE12
-#define J_SERIAL_RX_PIN                     PE12
-#define K_SERIAL_TX_PIN                     PA2
-#define K_SERIAL_RX_PIN                     PA2
 
 #define K_STEP_PIN                          PD6
 #define K_DIR_PIN                           PD7
 #define K_ENABLE_PIN                        PA3
 
-// Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                      19200
+#if HAS_TMC_SPI
+  /**
+   * Make sure to configure the jumpers on the back side of the Mobo according to
+   * this diagram: https://github.com/MarlinFirmware/Marlin/pull/23851
+   */
+  #error "SPI drivers require a custom jumper configuration, see comment above! Comment out this line to continue."
 
-// Not required for this board. Fails to compile otherwise.
-// PD0 is not connected on this board.
-#define TEMP_0_PIN                          PD0
+  #if AXIS_HAS_SPI(X)
+    #define X_CS_PIN                        PD8
+  #endif
+  #if AXIS_HAS_SPI(Y)
+    #define Y_CS_PIN                        PB12
+  #endif
+  #if AXIS_HAS_SPI(Z)
+    #define Z_CS_PIN                        PE8
+  #endif
+  #if AXIS_HAS_SPI(I)
+    #define I_CS_PIN                        PC5
+  #endif
+  #if AXIS_HAS_SPI(J)
+    #define J_CS_PIN                        PE12
+  #endif
+  #if AXIS_HAS_SPI(K)
+    #define K_CS_PIN                        PA2
+  #endif
 
-// General use mosfets, useful for things like pumps and solenoids
+#elif HAS_TMC_UART
+
+  #define X_SERIAL_TX_PIN                   PD8
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
+
+  #define Y_SERIAL_TX_PIN                   PB12
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
+
+  #define Z_SERIAL_TX_PIN                   PE8
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
+
+  #define I_SERIAL_TX_PIN                   PC5
+  #define I_SERIAL_RX_PIN        I_SERIAL_TX_PIN
+
+  #define J_SERIAL_TX_PIN                   PE12
+  #define J_SERIAL_RX_PIN        J_SERIAL_TX_PIN
+
+  #define K_SERIAL_TX_PIN                   PA2
+  #define K_SERIAL_RX_PIN        K_SERIAL_TX_PIN
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+
+#endif
+
+//
+// Heaters / Fans
+//
 #define FAN_PIN                             PE2
 #define FAN1_PIN                            PE3
 #define FAN2_PIN                            PE4
@@ -121,16 +155,26 @@
 
 #define FAN_SOFT_PWM_REQUIRED
 
-// Neopixel Rings
+//
+// Neopixel
+//
 #define NEOPIXEL_PIN                        PC7
 #define NEOPIXEL2_PIN                       PC8
 
+//
 // SPI
+//
 #define MISO_PIN                            PB4
 #define MOSI_PIN                            PB5
 #define SCK_PIN                             PB3
 
+#define TMC_SW_MISO                     MISO_PIN
+#define TMC_SW_MOSI                     MOSI_PIN
+#define TMC_SW_SCK                       SCK_PIN
+
+//
 // I2C
+//
 #define I2C_SDA_PIN                         PB7
 #define I2C_SCL_PIN                         PB6
 

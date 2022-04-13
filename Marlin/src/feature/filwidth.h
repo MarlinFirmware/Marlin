@@ -67,7 +67,7 @@ public:
   }
 
   // Convert raw measurement to mm
-  static float raw_to_mm(const uint16_t v) { return v * 5.0f * RECIPROCAL(float(MAX_RAW_THERMISTOR_VALUE)); }
+  static float raw_to_mm(const uint16_t v) { return v * float(ADC_VREF) * RECIPROCAL(float(MAX_RAW_THERMISTOR_VALUE)); }
   static float raw_to_mm() { return raw_to_mm(raw); }
 
   // A scaled reading is ready
