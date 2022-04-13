@@ -42,7 +42,7 @@ void GcodeSuite::M206() {
   NUM_AXIS_CODE(
     if (parser.seen('X')) set_home_offset(X_AXIS, parser.value_linear_units()),
     if (parser.seen('Y')) set_home_offset(Y_AXIS, parser.value_linear_units()),
-    if (parser.seen('Z')) set_home_offset(Y_AXIS, parser.value_linear_units()),
+    if (parser.seen('Z')) set_home_offset(Z_AXIS, parser.value_linear_units()),
     if (parser.seen(AXIS4_NAME)) set_home_offset(I_AXIS, parser.TERN(AXIS4_ROTATES, value_float, value_linear_units)()),
     if (parser.seen(AXIS5_NAME)) set_home_offset(J_AXIS, parser.TERN(AXIS5_ROTATES, value_float, value_linear_units)()),
     if (parser.seen(AXIS6_NAME)) set_home_offset(K_AXIS, parser.TERN(AXIS6_ROTATES, value_float, value_linear_units)()),
