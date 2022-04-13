@@ -115,7 +115,7 @@ public:
 
   static void init();
 
-  #if ENABLED(MARLIN_DEV_MODE)
+  #if ENABLED(HAL_CAN_SET_PWM_FREQ)
     static void refresh_frequency() { hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
   #endif
 
