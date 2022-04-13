@@ -181,7 +181,6 @@ void MarlinUI::draw_status_message(const bool blink) {
   dwin_font.solid = true;
   dwin_font.fg = Color_White;
   dwin_font.bg = Color_Bg_Black;
-  DWIN_Draw_Box(1, Color_Bg_Black, 0, (LCD_PIXEL_HEIGHT - (STAT_FONT_HEIGHT) - 1), 272, STAT_FONT_HEIGHT + 1);
   lcd_moveto_xy(0, LCD_PIXEL_HEIGHT - (STAT_FONT_HEIGHT) - 1);
 
   constexpr uint8_t max_status_chars = (LCD_PIXEL_WIDTH) / (STAT_FONT_WIDTH);

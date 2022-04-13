@@ -34,31 +34,31 @@
 #include "../../MarlinCore.h" // for SP_X_STR, etc.
 
 /**
- * M217 - Set SINGLENOZZLE toolchange parameters
+ * M217 - Set toolchange parameters
  *
  *  // Tool change command
  *  Q           Prime active tool and exit
  *
  *  // Tool change settings
- *  S[linear]   Swap length
- *  B[linear]   Extra Swap length
- *  E[linear]   Prime length
- *  P[linear/m] Prime speed
- *  R[linear/m] Retract speed
- *  U[linear/m] UnRetract speed
- *  V[linear]   0/1 Enable auto prime first extruder used
- *  W[linear]   0/1 Enable park & Z Raise
- *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
- *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
- *  I[linear]   Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
- *  J[linear]   Park J (Requires TOOLCHANGE_PARK and NUM_AXES >= 5)
- *  K[linear]   Park K (Requires TOOLCHANGE_PARK and NUM_AXES >= 6)
- *  C[linear]   Park U (Requires TOOLCHANGE_PARK and NUM_AXES >= 7)
- *  H[linear]   Park V (Requires TOOLCHANGE_PARK and NUM_AXES >= 8)
- *  O[linear]   Park W (Requires TOOLCHANGE_PARK and NUM_AXES >= 9)
- *  Z[linear]   Z Raise
- *  F[linear]   Fan Speed 0-255
- *  G[linear/s] Fan time
+ *  S[linear]     Swap length
+ *  B[linear]     Extra Swap resume length
+ *  E[linear]     Extra Prime length (as used by M217 Q)
+ *  P[linear/min] Prime speed
+ *  R[linear/min] Retract speed
+ *  U[linear/min] UnRetract speed
+ *  V[linear]     0/1 Enable auto prime first extruder used
+ *  W[linear]     0/1 Enable park & Z Raise
+ *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
+ *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK)
+ *  I[linear]     Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
+ *  J[linear]     Park J (Requires TOOLCHANGE_PARK and NUM_AXES >= 5)
+ *  K[linear]     Park K (Requires TOOLCHANGE_PARK and NUM_AXES >= 6)
+ *  C[linear]     Park U (Requires TOOLCHANGE_PARK and NUM_AXES >= 7)
+ *  H[linear]     Park V (Requires TOOLCHANGE_PARK and NUM_AXES >= 8)
+ *  O[linear]     Park W (Requires TOOLCHANGE_PARK and NUM_AXES >= 9)
+ *  Z[linear]     Z Raise
+ *  F[speed]      Fan Speed 0-255
+ *  D[seconds]    Fan time
  *
  * Tool migration settings
  *  A[0|1]      Enable auto-migration on runout
@@ -82,8 +82,8 @@ void GcodeSuite::M217() {
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
     if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
     #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
-      if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
-      if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
+      if (parser.seenval('F')) { const uint16_t v = parser.value_ushort(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
+      if (parser.seenval('D')) { const uint16_t v = parser.value_ushort(); toolchange_settings.fan_time = constrain(v, 1, 30); }
     #endif
   #endif
 
@@ -171,7 +171,7 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
     SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
                    " F", toolchange_settings.fan_speed,
-                   " G", toolchange_settings.fan_time);
+                   " D", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SERIAL_ECHOPGM(" A", migration.automode);
@@ -186,13 +186,13 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
           , SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y)
         #endif
         #if SECONDARY_AXES >= 1
-          , LIST_N(DOUBLE(SECONDARY_AXES),
-              PSTR(" I"), I_AXIS_UNIT(toolchange_settings.change_point.i),
-              PSTR(" J"), J_AXIS_UNIT(toolchange_settings.change_point.j),
-              PSTR(" K"), K_AXIS_UNIT(toolchange_settings.change_point.k),
-              SP_C_STR,   U_AXIS_UNIT(toolchange_settings.change_point.u),
-              PSTR(" H"), V_AXIS_UNIT(toolchange_settings.change_point.v),
-              PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w),
+          , LIST_N(DOUBLE(SECONDARY_AXES)
+              , SP_I_STR,   I_AXIS_UNIT(toolchange_settings.change_point.i)
+              , SP_J_STR,   J_AXIS_UNIT(toolchange_settings.change_point.j)
+              , SP_K_STR,   K_AXIS_UNIT(toolchange_settings.change_point.k)
+              , SP_C_STR,   U_AXIS_UNIT(toolchange_settings.change_point.u)
+              , PSTR(" H"), V_AXIS_UNIT(toolchange_settings.change_point.v)
+              , PSTR(" O"), W_AXIS_UNIT(toolchange_settings.change_point.w)
             )
         #endif
       );
