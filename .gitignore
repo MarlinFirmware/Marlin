@@ -169,5 +169,3 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
-buildroot/share/PlatformIO/variants/CHITU_F103/wirish/start.S
-buildroot/share/PlatformIO/variants/MEEB_3DP/wirish/start.S
