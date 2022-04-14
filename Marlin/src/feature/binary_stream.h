@@ -24,44 +24,29 @@
 #include "../inc/MarlinConfig.h"
 
 #define BINARY_STREAM_COMPRESSION
-
 #if ENABLED(BINARY_STREAM_COMPRESSION)
   #include "../libs/heatshrink/heatshrink_decoder.h"
-#endif
-
-inline bool bs_serial_data_available(const uint8_t index) {
-  switch (index) {
-    case 0: return MYSERIAL0.available();
-    #if HAS_MULTI_SERIAL
-      case 1: return MYSERIAL1.available();
-    #endif
-  }
-  return false;
-}
-
-inline int bs_read_serial(const uint8_t index) {
-  switch (index) {
-    case 0: return MYSERIAL0.read();
-    #if HAS_MULTI_SERIAL
-      case 1: return MYSERIAL1.read();
-    #endif
-  }
-  return -1;
-}
-
-#if ENABLED(BINARY_STREAM_COMPRESSION)
+  // STM32 (and others?) require a word-aligned buffer for SD card transfers via DMA
+  static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
   static heatshrink_decoder hsd;
-  static uint8_t decode_buffer[512] = {};
 #endif
+
+inline bool bs_serial_data_available(const serial_index_t index) {
+  return SERIAL_IMPL.available(index);
+}
+
+inline int bs_read_serial(const serial_index_t index) {
+  return SERIAL_IMPL.read(index);
+}
 
 class SDFileTransferProtocol  {
 private:
   struct Packet {
     struct [[gnu::packed]] Open {
-      static bool validate(char* buffer, size_t length) {
+      static bool validate(char *buffer, size_t length) {
         return (length > sizeof(Open) && buffer[length - 1] == '\0');
       }
-      static Open& decode(char* buffer) {
+      static Open& decode(char *buffer) {
         data = &buffer[2];
         return *reinterpret_cast<Open*>(buffer);
       }
@@ -74,7 +59,7 @@ private:
     };
   };
 
-  static bool file_open(char* filename) {
+  static bool file_open(char *filename) {
     if (!dummy_transfer) {
       card.mount();
       card.openFileWrite(filename);
@@ -86,7 +71,7 @@ private:
     return true;
   }
 
-  static bool file_write(char* buffer, const size_t length) {
+  static bool file_write(char *buffer, const size_t length) {
     #if ENABLED(BINARY_STREAM_COMPRESSION)
       if (compression) {
         size_t total_processed = 0, processed_count = 0;
@@ -157,15 +142,15 @@ public:
     }
   }
 
-  static void process(uint8_t packet_type, char* buffer, const uint16_t length) {
+  static void process(uint8_t packet_type, char *buffer, const uint16_t length) {
     transfer_timeout = millis() + TIMEOUT;
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
-        SERIAL_ECHOPAIR("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
+        SERIAL_ECHOPGM("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
         #if ENABLED(BINARY_STREAM_COMPRESSION)
-          SERIAL_ECHOLNPAIR(":compresion:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
+          SERIAL_ECHOLNPGM(":compression:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
         #else
-          SERIAL_ECHOLNPGM(":compresion:none");
+          SERIAL_ECHOLNPGM(":compression:none");
         #endif
         break;
       case FileTransfer::OPEN:
@@ -297,7 +282,7 @@ public:
     millis_t transfer_window = millis() + RX_TIMESLICE;
 
     #if ENABLED(SDSUPPORT)
-      PORT_REDIRECT(card.transfer_port_index);
+      PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
     #endif
 
     #pragma GCC diagnostic push
@@ -337,7 +322,7 @@ public:
             if (packet.header.checksum == packet.header_checksum) {
               // The SYNC control packet is a special case in that it doesn't require the stream sync to be correct
               if (static_cast<Protocol>(packet.header.protocol()) == Protocol::CONTROL && static_cast<ProtocolControl>(packet.header.type()) == ProtocolControl::SYNC) {
-                  SERIAL_ECHOLNPAIR("ss", sync, ",", buffer_size, ",", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
+                  SERIAL_ECHOLNPGM("ss", sync, ",", buffer_size, ",", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
                   stream_state = StreamState::PACKET_RESET;
                   break;
               }
@@ -352,7 +337,7 @@ public:
                   stream_state = StreamState::PACKET_PROCESS;
               }
               else if (packet.header.sync == sync - 1) {           // ok response must have been lost
-                SERIAL_ECHOLNPAIR("ok", packet.header.sync);  // transmit valid packet received and drop the payload
+                SERIAL_ECHOLNPGM("ok", packet.header.sync);  // transmit valid packet received and drop the payload
                 stream_state = StreamState::PACKET_RESET;
               }
               else if (packet_retries) {
@@ -364,8 +349,7 @@ public:
               }
             }
             else {
-              SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Packet header(", packet.header.sync, "?) corrupt");
+              SERIAL_ECHO_MSG("Packet header(", packet.header.sync, "?) corrupt");
               stream_state = StreamState::PACKET_RESEND;
             }
           }
@@ -399,8 +383,7 @@ public:
               stream_state = StreamState::PACKET_PROCESS;
             }
             else {
-              SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Packet(", packet.header.sync, ") payload corrupt");
+              SERIAL_ECHO_MSG("Packet(", packet.header.sync, ") payload corrupt");
               stream_state = StreamState::PACKET_RESEND;
             }
           }
@@ -410,7 +393,7 @@ public:
           packet_retries = 0;
           bytes_received += packet.header.size;
 
-          SERIAL_ECHOLNPAIR("ok", packet.header.sync); // transmit valid packet received
+          SERIAL_ECHOLNPGM("ok", packet.header.sync); // transmit valid packet received
           dispatch();
           stream_state = StreamState::PACKET_RESET;
           break;
@@ -418,9 +401,8 @@ public:
           if (packet_retries < MAX_RETRIES || MAX_RETRIES == 0) {
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
-            SERIAL_ECHO_START();
-            SERIAL_ECHOLNPAIR("Resend request ", int(packet_retries));
-            SERIAL_ECHOLNPAIR("rs", sync);
+            SERIAL_ECHO_MSG("Resend request ", packet_retries);
+            SERIAL_ECHOLNPGM("rs", sync);
           }
           else
             stream_state = StreamState::PACKET_ERROR;
@@ -430,7 +412,7 @@ public:
           stream_state = StreamState::PACKET_RESEND;
           break;
         case StreamState::PACKET_ERROR:
-          SERIAL_ECHOLNPAIR("fe", packet.header.sync);
+          SERIAL_ECHOLNPGM("fe", packet.header.sync);
           reset(); // reset everything, resync required
           stream_state = StreamState::PACKET_RESET;
           break;

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
@@ -32,7 +33,7 @@
  */
 void GcodeSuite::M876() {
 
-  if (parser.seenval('S')) host_response_handler((uint8_t)parser.value_int());
+  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
 
 }
 

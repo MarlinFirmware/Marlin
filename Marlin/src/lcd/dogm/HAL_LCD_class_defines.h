@@ -30,12 +30,15 @@ extern u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_hw_spi;
 
 class U8GLIB_64128N_2X_HAL : public U8GLIB {
 public:
-  U8GLIB_64128N_2X_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_st7565_64128n_HAL_2x_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset)
-    { }
-  U8GLIB_64128N_2X_HAL(pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_st7565_64128n_HAL_2x_hw_spi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset)
-    { }
+  U8GLIB_64128N_2X_HAL() : U8GLIB() { }
+  U8GLIB_64128N_2X_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) { init(sck, mosi, cs, a0, reset); }
+  U8GLIB_64128N_2X_HAL(pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) { init(cs, a0, reset); }
+  void init(pin_t sck, pin_t mosi, pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_st7565_64128n_HAL_2x_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset);
+  }
+  void init(pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_st7565_64128n_HAL_2x_hw_spi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset);
+  }
 };
 
 extern u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_sw_spi;
@@ -43,12 +46,15 @@ extern u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi;
 
 class U8GLIB_ST7920_128X64_4X_HAL : public U8GLIB {
 public:
-  U8GLIB_ST7920_128X64_4X_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_st7920_128x64_HAL_4x_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset)    // a0 = U8G_PIN_NONE
-    { }
-  U8GLIB_ST7920_128X64_4X_HAL(pin_t cs, pin_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_st7920_128x64_HAL_4x_hw_spi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset)   // a0 = U8G_PIN_NONE
-    { }
+  U8GLIB_ST7920_128X64_4X_HAL() : U8GLIB() { }
+  U8GLIB_ST7920_128X64_4X_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE) { init(sck, mosi, cs, reset); }
+  U8GLIB_ST7920_128X64_4X_HAL(pin_t cs, pin_t reset = U8G_PIN_NONE) { init(cs, reset); }
+  void init(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_st7920_128x64_HAL_4x_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset); // a0 = U8G_PIN_NONE
+  }
+  void init(pin_t cs, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_st7920_128x64_HAL_4x_hw_spi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset); // a0 = U8G_PIN_NONE
+  }
 };
 
 //
@@ -59,27 +65,29 @@ extern u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi;
 
 class U8GLIB_ST7920_128X64_RRD : public U8GLIB {
 public:
-  U8GLIB_ST7920_128X64_RRD(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_st7920_128x64_rrd_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset)   // a0 = U8G_PIN_NONE
-    { }
+  U8GLIB_ST7920_128X64_RRD() : U8GLIB() { }
+  U8GLIB_ST7920_128X64_RRD(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE) { init(sck, mosi, cs, reset); }
+  void init(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_st7920_128x64_rrd_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset);   // a0 = U8G_PIN_NONE
+  }
 };
 
 extern u8g_dev_t u8g_dev_sh1106_128x64_2x_i2c_2_wire;
 
 class U8GLIB_SH1106_128X64_2X_I2C_2_WIRE : public U8GLIB {
 public:
-  U8GLIB_SH1106_128X64_2X_I2C_2_WIRE(uint8_t options = U8G_I2C_OPT_NONE)
-  : U8GLIB(&u8g_dev_sh1106_128x64_2x_i2c_2_wire, options)
-  {  }
+  U8GLIB_SH1106_128X64_2X_I2C_2_WIRE() : U8GLIB() { }
+  U8GLIB_SH1106_128X64_2X_I2C_2_WIRE(uint8_t options) { init(options); }
+  void init(uint8_t options = U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_sh1106_128x64_2x_i2c_2_wire, options); }
 };
 
 extern u8g_dev_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire;
 
 class U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE : public U8GLIB {
 public:
-  U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE(uint8_t options = U8G_I2C_OPT_NONE)
-  : U8GLIB(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options)
-  {  }
+  U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE() : U8GLIB() { }
+  U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE(uint8_t options) { init(options); }
+  void init(uint8_t options = U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options); }
 };
 
 //
@@ -90,9 +98,9 @@ extern u8g_dev_t u8g_dev_tft_320x240_upscale_from_128x64;
 
 class U8GLIB_TFT_320X240_UPSCALE_FROM_128X64 : public U8GLIB {
 public:
-  U8GLIB_TFT_320X240_UPSCALE_FROM_128X64(uint8_t cs, uint8_t rs, uint8_t reset = U8G_PIN_NONE)
-  : U8GLIB(&u8g_dev_tft_320x240_upscale_from_128x64, cs, rs, reset)
-  { }
+  U8GLIB_TFT_320X240_UPSCALE_FROM_128X64() : U8GLIB() { }
+  U8GLIB_TFT_320X240_UPSCALE_FROM_128X64(uint8_t cs, uint8_t rs, uint8_t reset = U8G_PIN_NONE) { init(cs, rs, reset); }
+  void init(uint8_t cs, uint8_t rs, uint8_t reset = U8G_PIN_NONE) { U8GLIB::init(&u8g_dev_tft_320x240_upscale_from_128x64, cs, rs, reset); }
 };
 
 
@@ -100,10 +108,29 @@ extern u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, u8g_dev_uc1701_mini1286
 
 class U8GLIB_MINI12864_2X_HAL : public U8GLIB {
 public:
-  U8GLIB_MINI12864_2X_HAL(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, sck, mosi, cs, a0, reset)
-    { }
-  U8GLIB_MINI12864_2X_HAL(uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE)
-    : U8GLIB(&u8g_dev_uc1701_mini12864_HAL_2x_hw_spi, cs, a0, reset)
-    { }
+  U8GLIB_MINI12864_2X_HAL() : U8GLIB() { }
+  U8GLIB_MINI12864_2X_HAL(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE) { init(sck, mosi, cs, a0, reset); }
+  U8GLIB_MINI12864_2X_HAL(uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE) { init(cs, a0, reset); }
+  void init(uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_uc1701_mini12864_HAL_2x_sw_spi, sck, mosi, cs, a0, reset);
+  }
+  void init(uint8_t cs, uint8_t a0, uint8_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_uc1701_mini12864_HAL_2x_hw_spi, cs, a0, reset);
+  }
+};
+
+extern u8g_dev_t u8g_dev_ssd1309_sw_spi;
+extern u8g_dev_t u8g_dev_ssd1309_hw_spi;
+
+class U8GLIB_SSD1309_128X64_HAL : public U8GLIB {
+public:
+  U8GLIB_SSD1309_128X64_HAL() : U8GLIB() { }
+  U8GLIB_SSD1309_128X64_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) { init(sck, mosi, cs, a0, reset); }
+  U8GLIB_SSD1309_128X64_HAL(pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) { init(cs, a0, reset); }
+  void init(pin_t sck, pin_t mosi, pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_ssd1309_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset);
+  }
+  void init(pin_t cs, pin_t a0, pin_t reset = U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_ssd1309_hw_spi, (uint8_t)cs, (uint8_t)a0, (uint8_t)reset);
+  }
 };

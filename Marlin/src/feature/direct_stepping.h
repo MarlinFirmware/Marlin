@@ -93,8 +93,8 @@ namespace DirectStepping {
     static constexpr int DIRECTIONAL    = dir ? 1 : 0;
     static constexpr int SEGMENTS       = segments;
 
-    static constexpr int NUM_SEGMENTS   = 1 << BITS_SEGMENT;
-    static constexpr int SEGMENT_STEPS  = (1 << (BITS_SEGMENT - DIRECTIONAL)) - 1;
+    static constexpr int NUM_SEGMENTS   = _BV(BITS_SEGMENT);
+    static constexpr int SEGMENT_STEPS  = _BV(BITS_SEGMENT - DIRECTIONAL) - 1;
     static constexpr int TOTAL_STEPS    = SEGMENT_STEPS * SEGMENTS;
     static constexpr int PAGE_SIZE      = (NUM_AXES * BITS_SEGMENT * SEGMENTS) / 8;
 

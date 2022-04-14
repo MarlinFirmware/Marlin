@@ -59,7 +59,7 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_HEATING
 };
 
-#if HAS_LCD_MENU
+#if M600_PURGE_MORE_RESUMABLE
   enum PauseMenuResponse : char {
     PAUSE_RESPONSE_WAIT_FOR,
     PAUSE_RESPONSE_EXTRUDE_MORE,
@@ -73,31 +73,57 @@ extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
 
-#if ENABLED(DUAL_X_CARRIAGE)
-  #define DXC_PARAMS , const int8_t DXC_ext=-1
-  #define DXC_ARGS   , const int8_t DXC_ext
-  #define DXC_PASS   , DXC_ext
-  #define DXC_SAY    , " dxc:", int(DXC_ext)
-#else
-  #define DXC_PARAMS
-  #define DXC_ARGS
-  #define DXC_PASS
-  #define DXC_SAY
-#endif
+#define DXC_PARAMS OPTARG(DUAL_X_CARRIAGE, const int8_t DXC_ext=-1)
+#define DXC_ARGS   OPTARG(DUAL_X_CARRIAGE, const int8_t DXC_ext)
+#define DXC_PASS   OPTARG(DUAL_X_CARRIAGE, DXC_ext)
+#define DXC_SAY    OPTARG(DUAL_X_CARRIAGE, " dxc:", int(DXC_ext))
 
-bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
+// Pause the print. If unload_length is set, do a Filament Unload
+bool pause_print(
+  const_float_t   retract,                                    // (mm) Retraction length
+  const xyz_pos_t &park_point,                                // Parking XY Position and Z Raise
+  const bool      show_lcd=false,                             // Set LCD status messages?
+  const_float_t   unload_length=0                             // (mm) Filament Change Unload Length - 0 to skip
+  DXC_PARAMS                                                  // Dual-X-Carriage extruder index
+);
 
-void wait_for_confirmation(const bool is_reload=false, const int8_t max_beep_count=0 DXC_PARAMS);
+void wait_for_confirmation(
+  const bool      is_reload=false,                            // Reload Filament? (otherwise Resume Print)
+  const int8_t    max_beep_count=0                            // Beep alert for attention
+  DXC_PARAMS                                                  // Dual-X-Carriage extruder index
+);
 
-void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0, int16_t targetTemp=0 DXC_PARAMS);
+void resume_print(
+  const_float_t   slow_load_length=0,                         // (mm) Slow Load Length for finishing move
+  const_float_t   fast_load_length=0,                         // (mm) Fast Load Length for initial move
+  const_float_t   extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, // (mm) Purge length
+  const int8_t    max_beep_count=0,                           // Beep alert for attention
+  const celsius_t targetTemp=0                                // (°C) A target temperature for the hotend
+  DXC_PARAMS                                                  // Dual-X-Carriage extruder index
+);
 
-bool load_filament(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=0, const int8_t max_beep_count=0, const bool show_lcd=false,
-                          const bool pause_for_user=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT DXC_PARAMS);
+bool load_filament(
+  const_float_t   slow_load_length=0,                         // (mm) Slow Load Length for finishing move
+  const_float_t   fast_load_length=0,                         // (mm) Fast Load Length for initial move
+  const_float_t   extrude_length=0,                           // (mm) Purge length
+  const int8_t    max_beep_count=0,                           // Beep alert for attention
+  const bool      show_lcd=false,                             // Set LCD status messages?
+  const bool      pause_for_user=false,                       // Pause for user before returning?
+  const PauseMode mode=PAUSE_MODE_PAUSE_PRINT                 // Pause Mode to apply
+  DXC_PARAMS                                                  // Dual-X-Carriage extruder index
+);
 
-bool unload_filament(const float &unload_length, const bool show_lcd=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT
+bool unload_filament(
+  const_float_t   unload_length,                              // (mm) Filament Unload Length - 0 to skip
+  const bool      show_lcd=false,                             // Set LCD status messages?
+  const PauseMode mode=PAUSE_MODE_PAUSE_PRINT                 // Pause Mode to apply
   #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-    , const float &mix_multiplier=1.0
+    , const_float_t mix_multiplier=1.0f                       // Extrusion multiplier (for a Mixing Extruder)
   #endif
 );
 
-#endif // ADVANCED_PAUSE_FEATURE
+#else // !ADVANCED_PAUSE_FEATURE
+
+  constexpr uint8_t did_pause_print = 0;
+
+#endif // !ADVANCED_PAUSE_FEATURE

@@ -25,9 +25,8 @@
  * Wanhao Duplicator i3 Plus pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Duplicator i3 Plus"
 
@@ -80,9 +79,9 @@
 #define SDSS                                  53  // PB0 / SS
 #define LED_PIN                               13  // PB7 / PWM13
 
-#define MISO_PIN                              50  // PB3
-#define MOSI_PIN                              51  // PB2
-#define SCK_PIN                               52  // PB1
+#define SD_MISO_PIN                           50  // PB3
+#define SD_MOSI_PIN                           51  // PB2
+#define SD_SCK_PIN                            52  // PB1
 
 //
 // LCDs and Controllers

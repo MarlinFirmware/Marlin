@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #include "../../feature/bedlevel/bedlevel.h"
 
@@ -50,8 +50,6 @@
  *
  * This function requires the machine to be homed before invocation.
  */
-
-extern const char SP_Y_STR[];
 
 void GcodeSuite::M48() {
 
@@ -81,7 +79,7 @@ void GcodeSuite::M48() {
   };
 
   if (!probe.can_reach(test_position)) {
-    ui.set_status_P(GET_TEXT(MSG_M48_OUT_OF_BOUNDS), 99);
+    ui.set_status(GET_TEXT_F(MSG_M48_OUT_OF_BOUNDS), 99);
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -119,7 +117,7 @@ void GcodeSuite::M48() {
         max = -99999.9, // Largest value sampled so far
         sample_set[n_samples];  // Storage for sampled values
 
-  auto dev_report = [](const bool verbose, const float &mean, const float &sigma, const float &min, const float &max, const bool final=false) {
+  auto dev_report = [](const bool verbose, const_float_t mean, const_float_t sigma, const_float_t min, const_float_t max, const bool final=false) {
     if (verbose) {
       SERIAL_ECHOPAIR_F("Mean: ", mean, 6);
       if (!final) SERIAL_ECHOPAIR_F(" Sigma: ", sigma, 6);
@@ -144,9 +142,9 @@ void GcodeSuite::M48() {
     float sample_sum = 0.0;
 
     LOOP_L_N(n, n_samples) {
-      #if HAS_WIRED_LCD
+      #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
-        ui.status_printf_P(0, PSTR(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
+        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
 
       // When there are "legs" of movement move around the point before probing
@@ -164,7 +162,7 @@ void GcodeSuite::M48() {
           #endif
         );
         if (verbose_level > 3) {
-          SERIAL_ECHOPAIR("Start radius:", radius, " angle:", angle, " dir:");
+          SERIAL_ECHOPGM("Start radius:", radius, " angle:", angle, " dir:");
           if (dir > 0) SERIAL_CHAR('C');
           SERIAL_ECHOLNPGM("CW");
         }
@@ -202,16 +200,16 @@ void GcodeSuite::M48() {
             while (!probe.can_reach(next_pos)) {
               next_pos *= 0.8f;
               if (verbose_level > 3)
-                SERIAL_ECHOLNPAIR_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
+                SERIAL_ECHOLNPGM_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
             }
-          #else
+          #elif HAS_ENDSTOPS
             // For a rectangular bed just keep the probe in bounds
             LIMIT(next_pos.x, X_MIN_POS, X_MAX_POS);
             LIMIT(next_pos.y, Y_MIN_POS, Y_MAX_POS);
           #endif
 
           if (verbose_level > 3)
-            SERIAL_ECHOLNPAIR_P(PSTR("Going to: X"), next_pos.x, SP_Y_STR, next_pos.y);
+            SERIAL_ECHOLNPGM_P(PSTR("Going to: X"), next_pos.x, SP_Y_STR, next_pos.y);
 
           do_blocking_move_to_xy(next_pos);
         } // n_legs loop
@@ -243,8 +241,9 @@ void GcodeSuite::M48() {
 
       if (verbose_level > 1) {
         SERIAL_ECHO(n + 1);
-        SERIAL_ECHOPAIR(" of ", int(n_samples));
+        SERIAL_ECHOPGM(" of ", n_samples);
         SERIAL_ECHOPAIR_F(": z: ", pz, 3);
+        SERIAL_CHAR(' ');
         dev_report(verbose_level > 2, mean, sigma, min, max);
         SERIAL_EOL();
       }
@@ -258,10 +257,10 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPGM("Finished!");
     dev_report(verbose_level > 0, mean, sigma, min, max, true);
 
-    #if HAS_WIRED_LCD
+    #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
       char sigma_str[8];
-      ui.status_printf_P(0, PSTR(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));
+      ui.status_printf(0, F(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));
     #endif
   }
 

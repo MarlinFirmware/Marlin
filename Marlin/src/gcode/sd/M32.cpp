@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA_SUBCALLS
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
@@ -49,11 +49,11 @@ void GcodeSuite::M32() {
 
     if (parser.seenval('S')) card.setIndex(parser.value_long());
 
-    card.startFileprint();
+    card.startOrResumeFilePrinting();
 
     // Procedure calls count as normal print time.
     if (!call_procedure) startOrResumeJob();
   }
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA_SUBCALLS

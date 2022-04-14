@@ -37,9 +37,8 @@
  *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "Mightyboard"
 #define DEFAULT_MACHINE_NAME "MB Replicator"
@@ -118,6 +117,7 @@
 #ifndef DIGIPOT_I2C_ADDRESS_A
   #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
+#define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
 //
 // Temperature Sensors
@@ -125,7 +125,7 @@
 // K7 - 69 / ADC15 - 15
 #define TEMP_BED_PIN                          15
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 // Uses a separate SPI bus
 //
 //  3 E5 DO (SO)
@@ -133,15 +133,15 @@
 //  2 E4 CS2
 // 78 E2 SCK
 //
-#define THERMO_SCK_PIN                        78  // E2
-#define THERMO_DO_PIN                          3  // E5
-#define THERMO_CS1_PIN                         5  // E3
-#define THERMO_CS2_PIN                         2  // E4
+#define TEMP_0_CS_PIN                          5  // E3
+#define TEMP_0_SCK_PIN                        78  // E2
+#define TEMP_0_MISO_PIN                        3  // E5
+//#define TEMP_0_MOSI_PIN                    ...  // For MAX31865
 
-#define MAX6675_SS_PIN            THERMO_CS1_PIN
-#define MAX6675_SS2_PIN           THERMO_CS2_PIN
-#define MAX6675_SCK_PIN           THERMO_SCK_PIN
-#define MAX6675_DO_PIN             THERMO_DO_PIN
+#define TEMP_1_CS_PIN                          2  // E4
+#define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN          TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
 
 //
 // Augmentation for auto-assigning plugs
@@ -151,54 +151,43 @@
 // With no heated bed, an additional 24V fan is possible.
 //
 
-// Labels from the schematic:
-#define EX1_HEAT_PIN                           6  // H3
-#define EX1_FAN_PIN                            7  // H4
-#define EX2_HEAT_PIN                          11  // B5
-#define EX2_FAN_PIN                           12  // B6
-#define HBP_PIN                               45  // L4
-#define EXTRA_FET_PIN                         44  // L5
-
-#if HAS_MULTI_HOTEND
-  #if TEMP_SENSOR_BED
-    #define IS_EEB
-  #else
-    #define IS_EEF
-  #endif
-#elif TEMP_SENSOR_BED
-  #define IS_EFB
-#else
-  #define IS_EFF
-#endif
+#define MOSFET_A_PIN                           6  // H3 EX1_HEAT_PIN
+#define MOSFET_B_PIN                          11  // B5 EX2_HEAT_PIN
+#define MOSFET_C_PIN                          45  // L4 HBP_PIN
+#define MOSFET_D_PIN                          44  // L5 EXTRA_FET_PIN
 
 //
 // Heaters / Fans (24V)
 //
-#define HEATER_0_PIN                EX1_HEAT_PIN
+#define HEATER_0_PIN                MOSFET_A_PIN
 
-#if ENABLED(IS_EFB)                               // Hotend, Fan, Bed
-  #define HEATER_BED_PIN                 HBP_PIN
-#elif ENABLED(IS_EEF)                             // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              EX2_HEAT_PIN
-#elif ENABLED(IS_EEB)                             // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              EX2_HEAT_PIN
-  #define HEATER_BED_PIN                 HBP_PIN
-#elif ENABLED(IS_EFF)                             // Hotend, Fan, Fan
-  #define FAN1_PIN                       HBP_PIN
+#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
+  #define HEATER_1_PIN              MOSFET_B_PIN
+#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
+  #define HEATER_1_PIN              MOSFET_B_PIN
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
+  #define FAN1_PIN                  MOSFET_C_PIN
 #endif
 
 #ifndef FAN_PIN
-  #if EITHER(IS_EFB, IS_EFF)                      // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                 EX2_HEAT_PIN
-  #elif EITHER(IS_EEF, IS_SF)                     // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                      HBP_PIN
+  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+    #define FAN_PIN                 MOSFET_B_PIN
+  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+    #define FAN_PIN                 MOSFET_C_PIN
   #else
-    #define FAN_PIN                EXTRA_FET_PIN
+    #define FAN_PIN                 MOSFET_D_PIN
   #endif
 #endif
 
+#ifndef FAN1_PIN
+  #define FAN1_PIN                             7  // H4 EX1_FAN_PIN
+#endif
+
 #ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN         EX2_FAN_PIN
+  #define CONTROLLER_FAN_PIN                  12  // B6 EX2_FAN_PIN
 #endif
 
 //
@@ -214,7 +203,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
     #define LCD_PINS_ENABLE                   72  // J2: LEFT
@@ -268,9 +257,6 @@
 #define SDSS                                  53  // B0
 #define SD_DETECT_PIN                          9  // H6
 
-//
-// TMC 220x
-//
 #if HAS_TMC_UART
   /**
    * TMC220x stepper drivers

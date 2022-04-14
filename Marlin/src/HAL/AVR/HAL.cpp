@@ -24,15 +24,41 @@
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
+#ifdef USBCON
+  DefaultSerial1 MSerial0(false, Serial);
+  #ifdef BLUETOOTH
+    BTSerial btSerial(false, bluetoothSerial);
+  #endif
+#endif
+
 // ------------------------
 // Public Variables
 // ------------------------
 
-//uint8_t MCUSR;
+// Don't initialize/override variable (which would happen in .init4)
+uint8_t reset_reason __attribute__((section(".noinit")));
 
 // ------------------------
 // Public functions
 // ------------------------
+
+__attribute__((naked))             // Don't output function pro- and epilogue
+__attribute__((used))              // Output the function, even if "not used"
+__attribute__((section(".init3"))) // Put in an early user definable section
+void HAL_save_reset_reason() {
+  #if ENABLED(OPTIBOOT_RESET_REASON)
+    __asm__ __volatile__(
+      A("STS %0, r2")
+      : "=m"(reset_reason)
+    );
+  #else
+    reset_reason = MCUSR;
+  #endif
+
+  // Clear within 16ms since WDRF bit enables a 16ms watchdog timer -> Boot loop
+  MCUSR = 0;
+  wdt_disable();
+}
 
 void HAL_init() {
   // Init Servo Pins
@@ -48,6 +74,15 @@ void HAL_init() {
   #endif
   #if HAS_SERVO_3
     INIT_SERVO(3);
+  #endif
+}
+
+void HAL_reboot() {
+  #if ENABLED(USE_WATCHDOG)
+    while (1) { /* run out the watchdog */ }
+  #else
+    void (*resetFunc)() = 0;  // Declare resetFunc() at address 0
+    resetFunc();              // Jump to address 0
   #endif
 }
 

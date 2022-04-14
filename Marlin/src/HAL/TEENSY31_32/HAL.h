@@ -34,12 +34,11 @@
 #include "fastio.h"
 #include "watchdog.h"
 
-
 #include <stdint.h>
 
-#define ST7920_DELAY_1 DELAY_NS(600)
-#define ST7920_DELAY_2 DELAY_NS(750)
-#define ST7920_DELAY_3 DELAY_NS(750)
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
 //#undef MOTHERBOARD
 //#define MOTHERBOARD BOARD_TEENSY31_32
@@ -50,14 +49,27 @@
   #define IS_TEENSY32 1
 #endif
 
-#define _MSERIAL(X) Serial##X
-#define MSERIAL(X) _MSERIAL(X)
+#include "../../core/serial_hook.h"
+
 #define Serial0 Serial
+#define _DECLARE_SERIAL(X) \
+  typedef ForwardSerial1Class<decltype(Serial##X)> DefaultSerial##X; \
+  extern DefaultSerial##X MSerial##X
+#define DECLARE_SERIAL(X) _DECLARE_SERIAL(X)
+
+typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL1 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  DECLARE_SERIAL(SERIAL_PORT);
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+#else
+  #error "The required SERIAL_PORT must be from 0 to 3, or -1 for Native USB."
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -74,17 +86,6 @@ typedef int8_t pin_t;
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
-
 inline void HAL_init() {}
 
 // Clear the reset reason
@@ -93,15 +94,17 @@ void HAL_clear_reset_source();
 // Get the reason for the reset
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-extern "C" {
-  int freeMemory();
-}
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+extern "C" int freeMemory();
+
 #pragma GCC diagnostic pop
 
 // ADC
@@ -118,6 +121,12 @@ void HAL_adc_init();
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result();
+
+// PWM
+
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
+
+// Pin Map
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

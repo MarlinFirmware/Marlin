@@ -24,6 +24,10 @@
 
 #if HAS_L64XX
 
+#if AXIS_COLLISION('I')
+  #error "M906 parameter collision with axis name."
+#endif
+
 #include "../../gcode.h"
 #include "../../../libs/L64XX/L64XX_Marlin.h"
 #include "../../../module/stepper/indirection.h"
@@ -31,31 +35,6 @@
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../../core/debug_out.h"
-
-/**
- * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
- *       PWMs to the steppers
- *
- * On L6474 this sets the TVAL register (same address).
- *
- * I - select which driver(s) to change on multi-driver axis
- *     0 - (default) all drivers on the axis or E0
- *     1 - monitor only X, Y, Z or E1
- *     2 - monitor only X2, Y2, Z2 or E2
- *     3 - monitor only Z3 or E3
- *     4 - monitor only Z4 or E4
- *     5 - monitor only E5
- * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
- *     L6474 - current in mA (4A max)
- *     All others - 0-255
- */
-
-/**
- * Sets KVAL_HOLD wich affects the current being driven through the stepper.
- *
- * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
- * that affects the effective voltage seen by the stepper.
- */
 
 /**
  * MACRO to fetch information on the items associated with current limiting
@@ -88,7 +67,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
     #if ENABLED(L6470_CHITCHAT)
       char tmp[10];
       sprintf_P(tmp, PSTR("%4x   "), status);
-      DEBUG_ECHOPAIR("   status: ", tmp);
+      DEBUG_ECHOPGM("   status: ", tmp);
       print_bin(status);
     #else
       UNUSED(status);
@@ -129,13 +108,13 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       }
       SERIAL_EOL();
 
-      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+      SERIAL_ECHOPGM("...MicroSteps: ", MicroSteps,
                       "   ADC_OUT: ", L6470_ADC_out);
       SERIAL_ECHOPGM("   Vs_compensation: ");
-      serialprintPGM((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
-      SERIAL_ECHOLNPAIR("   Compensation coefficient: ~", comp_coef * 0.01f);
+      SERIAL_ECHOF((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? F("ENABLED ") : F("DISABLED"));
+      SERIAL_ECHOLNPGM("   Compensation coefficient: ~", comp_coef * 0.01f);
 
-      SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),
+      SERIAL_ECHOPGM("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),
                       "   KVAL_RUN : ", motor.GetParam(L6470_KVAL_RUN),
                       "   KVAL_ACC: ", motor.GetParam(L6470_KVAL_ACC),
                       "   KVAL_DEC: ", motor.GetParam(L6470_KVAL_DEC),
@@ -193,7 +172,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       SERIAL_ECHOLNPGM(" mA)   Motor Status: NA");
 
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
-      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+      SERIAL_ECHOPGM("...MicroSteps: ", MicroSteps,
                       "   ADC_OUT: ", L6470_ADC_out);
 
       SERIAL_ECHOLNPGM("   Vs_compensation: NA\n");
@@ -210,7 +189,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
           case 1:  DEBUG_ECHOLNPGM("75V/uS")  ; break;
           case 2:  DEBUG_ECHOLNPGM("110V/uS") ; break;
           case 3:  DEBUG_ECHOLNPGM("260V/uS") ; break;
-          default: DEBUG_ECHOLNPAIR("slew rate: ", (motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT); break;
+          default: DEBUG_ECHOLNPGM("slew rate: ", (motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT); break;
         }
       #endif
       SERIAL_EOL();
@@ -220,6 +199,27 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
   }
 }
 
+/**
+ * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
+ *       PWMs to the steppers
+ *
+ * On L6474 this sets the TVAL register (same address).
+ *
+ * I - select which driver(s) to change on multi-driver axis
+ *         (default) all drivers on the axis
+ *     0 - monitor only the first XYZ... driver
+ *     1 - monitor only X2, Y2, Z2
+ *     2 - monitor only Z3
+ *     3 - monitor only Z4
+ * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
+ *     L6474 - current in mA (4A max)
+ *     All others - 0-255
+ *
+ * Sets KVAL_HOLD which affects the current being driven through the stepper.
+ *
+ * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
+ * that affects the effective voltage seen by the stepper.
+ */
 void GcodeSuite::M906() {
 
   L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
@@ -230,11 +230,13 @@ void GcodeSuite::M906() {
 
   uint8_t report_current = true;
 
-  #if HAS_L64XX
-    const uint8_t index = parser.byteval('I');
+  #if AXIS_IS_L64XX(X2) || AXIS_IS_L64XX(Y2) || AXIS_IS_L64XX(Z2) || AXIS_IS_L64XX(Z3) || AXIS_IS_L64XX(Z4)
+    const int8_t index = parser.byteval('I', -1);
+  #else
+    constexpr int8_t index = -1;
   #endif
 
-  LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
 
     report_current = false;
 
@@ -244,66 +246,74 @@ void GcodeSuite::M906() {
     }
 
     switch (i) {
-      case X_AXIS:
-        #if AXIS_IS_L64XX(X)
-          if (index == 0) L6470_SET_KVAL_HOLD(X);
-        #endif
-        #if AXIS_IS_L64XX(X2)
-          if (index == 1) L6470_SET_KVAL_HOLD(X2);
-        #endif
-        break;
-      case Y_AXIS:
-        #if AXIS_IS_L64XX(Y)
-          if (index == 0) L6470_SET_KVAL_HOLD(Y);
-        #endif
-        #if AXIS_IS_L64XX(Y2)
-          if (index == 1) L6470_SET_KVAL_HOLD(Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if AXIS_IS_L64XX(Z)
-          if (index == 0) L6470_SET_KVAL_HOLD(Z);
-        #endif
-        #if AXIS_IS_L64XX(Z2)
-          if (index == 1) L6470_SET_KVAL_HOLD(Z2);
-        #endif
-        #if AXIS_IS_L64XX(Z3)
-          if (index == 2) L6470_SET_KVAL_HOLD(Z3);
-        #endif
-        #if AXIS_DRIVER_TYPE_Z4(L6470)
-          if (index == 3) L6470_SET_KVAL_HOLD(Z4);
-        #endif
-        break;
-      case E_AXIS: {
-        const int8_t target_extruder = get_target_extruder_from_command();
-        if (target_extruder < 0) return;
-        switch (target_extruder) {
+      #if AXIS_IS_L64XX(X) || AXIS_IS_L64XX(X2)
+        case X_AXIS:
+          #if AXIS_IS_L64XX(X)
+            if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(X);
+          #endif
+          #if AXIS_IS_L64XX(X2)
+            if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(X2);
+          #endif
+          break;
+      #endif
+
+      #if AXIS_IS_L64XX(Y) || AXIS_IS_L64XX(Y2)
+        case Y_AXIS:
+          #if AXIS_IS_L64XX(Y)
+            if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(Y);
+          #endif
+          #if AXIS_IS_L64XX(Y2)
+            if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(Y2);
+          #endif
+          break;
+      #endif
+
+      #if AXIS_IS_L64XX(Z) || AXIS_IS_L64XX(Z2) || AXIS_IS_L64XX(Z3) || AXIS_IS_L64XX(Z4)
+        case Z_AXIS:
+          #if AXIS_IS_L64XX(Z)
+            if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(Z);
+          #endif
+          #if AXIS_IS_L64XX(Z2)
+            if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(Z2);
+          #endif
+          #if AXIS_IS_L64XX(Z3)
+            if (index < 0 || index == 2) L6470_SET_KVAL_HOLD(Z3);
+          #endif
+          #if AXIS_IS_L64XX(Z4)
+            if (index < 0 || index == 3) L6470_SET_KVAL_HOLD(Z4);
+          #endif
+          break;
+      #endif
+
+      #if AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5) || AXIS_IS_L64XX(E6) || AXIS_IS_L64XX(E7)
+        case E_AXIS: {
+          const int8_t eindex = get_target_e_stepper_from_command(-2);
           #if AXIS_IS_L64XX(E0)
-            case 0: L6470_SET_KVAL_HOLD(E0); break;
+            if (eindex < 0 || eindex == 0) L6470_SET_KVAL_HOLD(E0);
           #endif
           #if AXIS_IS_L64XX(E1)
-            case 1: L6470_SET_KVAL_HOLD(E1); break;
+            if (eindex < 0 || eindex == 1) L6470_SET_KVAL_HOLD(E1);
           #endif
           #if AXIS_IS_L64XX(E2)
-            case 2: L6470_SET_KVAL_HOLD(E2); break;
+            if (eindex < 0 || eindex == 2) L6470_SET_KVAL_HOLD(E2);
           #endif
           #if AXIS_IS_L64XX(E3)
-            case 3: L6470_SET_KVAL_HOLD(E3); break;
+            if (eindex < 0 || eindex == 3) L6470_SET_KVAL_HOLD(E3);
           #endif
           #if AXIS_IS_L64XX(E4)
-            case 4: L6470_SET_KVAL_HOLD(E4); break;
+            if (eindex < 0 || eindex == 4) L6470_SET_KVAL_HOLD(E4);
           #endif
           #if AXIS_IS_L64XX(E5)
-            case 5: L6470_SET_KVAL_HOLD(E5); break;
+            if (eindex < 0 || eindex == 5) L6470_SET_KVAL_HOLD(E5);
           #endif
           #if AXIS_IS_L64XX(E6)
-            case 6: L6470_SET_KVAL_HOLD(E6); break;
+            if (eindex < 0 || eindex == 6) L6470_SET_KVAL_HOLD(E6);
           #endif
           #if AXIS_IS_L64XX(E7)
-            case 7: L6470_SET_KVAL_HOLD(E7); break;
+            if (eindex < 0 || eindex == 7) L6470_SET_KVAL_HOLD(E7);
           #endif
-        }
-      } break;
+        } break;
+      #endif
     }
   }
 

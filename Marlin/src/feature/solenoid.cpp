@@ -28,71 +28,34 @@
 
 #include "../module/motion.h" // for active_extruder
 
-#if ENABLED(MANUAL_SOLENOID_CONTROL)
-  #define HAS_SOLENOID(N) HAS_SOLENOID_##N
-#else
-  #define HAS_SOLENOID(N) (HAS_SOLENOID_##N && EXTRUDERS > N)
+// PARKING_EXTRUDER options alter the default behavior of solenoids, this ensures compliance of M380-381
+
+#if ENABLED(PARKING_EXTRUDER)
+  #include "../module/tool_change.h"
 #endif
 
 // Used primarily with MANUAL_SOLENOID_CONTROL
 static void set_solenoid(const uint8_t num, const bool active) {
-  const uint8_t value = active ? HIGH : LOW;
+  const uint8_t value = active ? PE_MAGNET_ON_STATE : !PE_MAGNET_ON_STATE;
+  #define _SOL_CASE(N) case N: TERN_(HAS_SOLENOID_##N, OUT_WRITE(SOL##N##_PIN, value)); break;
   switch (num) {
-    case 0:
-      OUT_WRITE(SOL0_PIN, value);
-      break;
-    #if HAS_SOLENOID(1)
-      case 1:
-        OUT_WRITE(SOL1_PIN, value);
-        break;
-    #endif
-    #if HAS_SOLENOID(2)
-      case 2:
-        OUT_WRITE(SOL2_PIN, value);
-        break;
-    #endif
-    #if HAS_SOLENOID(3)
-      case 3:
-        OUT_WRITE(SOL3_PIN, value);
-        break;
-    #endif
-    #if HAS_SOLENOID(4)
-      case 4:
-        OUT_WRITE(SOL4_PIN, value);
-        break;
-    #endif
-    #if HAS_SOLENOID(5)
-      case 5:
-        OUT_WRITE(SOL5_PIN, value);
-        break;
-    #endif
-    default:
-      SERIAL_ECHO_MSG(STR_INVALID_SOLENOID);
-      break;
+    REPEAT(8, _SOL_CASE)
+    default: SERIAL_ECHO_MSG(STR_INVALID_SOLENOID); break;
   }
+
+  #if ENABLED(PARKING_EXTRUDER)
+    if (!active && active_extruder == num) // If active extruder's solenoid is disabled, carriage is considered parked
+      parking_extruder_set_parked(true);
+  #endif
 }
 
 void enable_solenoid(const uint8_t num) { set_solenoid(num, true); }
 void disable_solenoid(const uint8_t num) { set_solenoid(num, false); }
-void enable_solenoid_on_active_extruder() { enable_solenoid(active_extruder); }
+void enable_solenoid_on_active_extruder() {  }
 
 void disable_all_solenoids() {
-  disable_solenoid(0);
-  #if HAS_SOLENOID(1)
-    disable_solenoid(1);
-  #endif
-  #if HAS_SOLENOID(2)
-    disable_solenoid(2);
-  #endif
-  #if HAS_SOLENOID(3)
-    disable_solenoid(3);
-  #endif
-  #if HAS_SOLENOID(4)
-    disable_solenoid(4);
-  #endif
-  #if HAS_SOLENOID(5)
-    disable_solenoid(5);
-  #endif
+  #define _SOL_DISABLE(N) TERN_(HAS_SOLENOID_##N, disable_solenoid(N));
+  REPEAT(8, _SOL_DISABLE)
 }
 
 #endif // EXT_SOLENOID || MANUAL_SOLENOID_CONTROL
