@@ -484,6 +484,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
+  bool Temperature::allow_cold_extrude_menu_overide = false;
   celsius_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 

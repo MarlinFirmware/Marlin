@@ -219,7 +219,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         ui.goto_screen([]{
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BACK),
-            [] { Temperature::allow_cold_extrude = true; _goto_menu_move_distance_e(); Temperature::allow_cold_extrude = false;}, nullptr ,
+            [] { Temperature::allow_cold_extrude_menu_overide = true; _goto_menu_move_distance_e();}, nullptr ,
             GET_TEXT(MSG_HOTEND_TOO_COLD), (const char *)nullptr, PSTR("!")
           );
         });
@@ -304,6 +304,8 @@ void menu_move() {
   #endif
 
   #if E_MANUAL
+
+    Temperature::allow_cold_extrude_menu_overide = false;
 
     // The current extruder
     SUBMENU(MSG_MOVE_E, []{ _menu_move_distance_e_maybe(); });
