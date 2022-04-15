@@ -305,7 +305,9 @@ void menu_move() {
 
   #if E_MANUAL
 
-    Temperature::allow_cold_extrude_menu_overide = false;
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      Temperature::allow_cold_extrude_menu_overide = false;
+    #endif
 
     // The current extruder
     SUBMENU(MSG_MOVE_E, []{ _menu_move_distance_e_maybe(); });
