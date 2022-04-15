@@ -597,7 +597,7 @@ namespace Language_de {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Helligkeit");
   LSTR MSG_KILL_EXPECTED_PRINTER           = _UxGT("Falscher Drucker");
 
-  #if LCD_WIDTH > = 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_MEDIA_NOT_INSERTED            = _UxGT("Kein Medium eingelegt.");
     LSTR MSG_PLEASE_WAIT_REBOOT            = _UxGT("Bitte auf Neustart warten. ");
     LSTR MSG_PLEASE_PREHEAT                = _UxGT("Bitte das Hot-End vorheizen.");
@@ -716,7 +716,7 @@ namespace Language_de {
   //
   // Die Filament-Change-Bildschirme können bis zu 3 Zeilen auf einem 4-Zeilen-Display anzeigen
   //                                       ...oder 2 Zeilen auf einem 3-Zeilen-Display.
-  #if LCD_HEIGHT > = 4
+  #if LCD_HEIGHT >= 4
     LSTR MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Knopf drücken um", "Druck fortzusetzen"));
     LSTR MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_2_LINE("Druck ist", "pausiert..."));
     LSTR MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Warte auf den", "Start des", "Filamentwechsels..."));
