@@ -128,7 +128,7 @@ bool InterfaceSettingsScreen::onTouchEnd(uint8_t tag) {
           LockScreen::disable();
         break;
     #endif
-    case 5: UIData::enable_animations(!UIData::animations_enabled());; break;
+    case 5: UIData::enable_animations(!UIData::animations_enabled()); break;
     case 6: GOTO_SCREEN(InterfaceSoundsScreen); return true;
     default:
       return false;
