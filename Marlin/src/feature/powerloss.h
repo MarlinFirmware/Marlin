@@ -176,11 +176,11 @@ class PrintJobRecovery {
     static void open(const bool read) { card.openJobRecoveryFile(read); }
     static void close() { file.close(); }
 
-    static void check();
+    static bool check();
     static void resume();
     static void purge();
 
-    static void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
+    static void cancel() { purge(); }
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
