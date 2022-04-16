@@ -482,7 +482,10 @@ void CardReader::manage_media() {
 
   flag.workDirIsRoot = true;          // Return to root on mount/release/init
 
-  if (!ui.detected()) return;
+  if (!ui.detected()) {
+    DEBUG_ECHOLNPGM("SD: No UI Detected.");
+    return;
+  }
 
   const uint8_t was = was_media;
 
@@ -507,10 +510,7 @@ void CardReader::manage_media() {
 
   ui.media_changed(was, is_media);  // Update the UI or flag an error
 
-  if (!is_media) {
-    DEBUG_ECHOLNPGM("SD: No UI Detected.");
-    return;
-  }
+  if (!is_media) return;
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
