@@ -40,13 +40,13 @@ void GcodeSuite::M430() {
   bool do_report = true;
   #if HAS_WIRED_LCD
     #if ENABLED(POWER_MONITOR_CURRENT)
-      if (parser.seen('I')) { power_monitor.set_current_display(parser.value_bool()); do_report = false; }
+      if (parser.seenval('I')) { power_monitor.set_current_display(parser.value_bool()); do_report = false; }
     #endif
     #if ENABLED(POWER_MONITOR_VOLTAGE)
-      if (parser.seen('V')) { power_monitor.set_voltage_display(parser.value_bool()); do_report = false; }
+      if (parser.seenval('V')) { power_monitor.set_voltage_display(parser.value_bool()); do_report = false; }
     #endif
     #if HAS_POWER_MONITOR_WATTS
-      if (parser.seen('W')) { power_monitor.set_power_display(parser.value_bool()); do_report = false; }
+      if (parser.seenval('W')) { power_monitor.set_power_display(parser.value_bool()); do_report = false; }
     #endif
   #endif
   if (do_report) {

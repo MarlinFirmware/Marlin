@@ -31,7 +31,7 @@
  * M34: Set SD Card Sorting Options
  */
 void GcodeSuite::M34() {
-  if (parser.seen('S')) card.setSortOn(parser.value_bool());
+  if (parser.seenval('S')) card.setSortOn(parser.value_bool());
   if (parser.seenval('F')) {
     const int v = parser.value_long();
     card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);

@@ -42,13 +42,13 @@ void GcodeSuite::M412() {
     TERN_(HOST_ACTION_COMMANDS, "H")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
-      if (parser.seen('H')) runout.host_handling = parser.value_bool();
+      if (parser.seenval('H')) runout.host_handling = parser.value_bool();
     #endif
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      if (parser.seen('D')) runout.set_runout_distance(parser.value_linear_units());
+      if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
   }
   else {

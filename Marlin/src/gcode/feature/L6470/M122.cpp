@@ -90,7 +90,7 @@ void GcodeSuite::M122() {
   L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
   L64xxManager.spi_active = true;   // Tell set_directions() a series of SPI transfers is underway
 
-  //if (parser.seen('S'))
+  //if (parser.seenval('S'))
   //  tmc_set_report_interval(parser.value_bool());
   //else
 
