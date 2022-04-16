@@ -472,7 +472,7 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
+  //DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
 
   // First bit :media inserted , second bit : media initialized
   static uint8_t prev_media_stat = 0;
@@ -480,7 +480,7 @@ void CardReader::manage_media() {
   uint8_t media_is_inserted = uint8_t(IS_SD_INSERTED());
   if (media_is_inserted == (prev_media_stat & 1)) return; // if no insert or eject then return.
 
-  DEBUG_ECHOLNPGM("Media present: ", prev_media_stat, " ->  ", media_is_inserted);
+  DEBUG_ECHOLNPGM("Media present: ", prev_media_stat, " -> ", media_is_inserted);
 
   flag.workDirIsRoot = true;          // Return to root on mount/release/init
 
@@ -494,7 +494,7 @@ void CardReader::manage_media() {
 
   if (media_is_inserted) {                   // Media Inserted
     safe_delay(500);                         // Some boards need a delay to get settled
-    if (TERN1(SD_IGNORE_AT_STARTUP, media_was_inserted != 2))
+    if (TERN1(SD_IGNORE_AT_STARTUP, (prev_media_stat & 2)))
       mount();                               // Try to mount the media
     #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
       reset_stepper_drivers();               // Workaround for Cheetah bug
