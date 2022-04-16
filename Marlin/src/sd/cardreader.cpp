@@ -474,11 +474,11 @@ void CardReader::mount() {
 void CardReader::manage_media() {
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
 
-  static uint8_t was_media = 2;       // First call, no prior state
-  uint8_t is_media = uint8_t(IS_SD_INSERTED());
-  if (is_media == was_media) return;
+  static uint8_t prev_media_stat = 2;       // First call, no prior state
+  uint8_t media_is_inserted = uint8_t(IS_SD_INSERTED());
+  if (media_is_inserted == prev_media_stat) return;
 
-  DEBUG_ECHOLNPGM("Media present: ", was_media, " -> ", is_media);
+  DEBUG_ECHOLNPGM("Media present: ", prev_media_stat, " -> ", media_is_inserted);
 
   flag.workDirIsRoot = true;          // Return to root on mount/release/init
 
@@ -487,16 +487,16 @@ void CardReader::manage_media() {
     return;
   }
 
-  const uint8_t was = was_media;
+  const uint8_t media_was_inserted = prev_media_stat;
 
-  if (is_media) {                   // Media Inserted
+  if (media_is_inserted) {                   // Media Inserted
     safe_delay(500);                // Some boards need a delay to get settled
-    if (TERN1(SD_IGNORE_AT_STARTUP, was != 2))
+    if (TERN1(SD_IGNORE_AT_STARTUP, media_was_inserted != 2))
       mount();                      // Try to mount the media
     #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
       reset_stepper_drivers();      // Workaround for Cheetah bug
     #endif
-    if (!isMounted()) is_media = 0; // Not mounted?
+    if (!isMounted()) media_is_inserted = 0; // Not mounted?
   }
   else {
     #if PIN_EXISTS(SD_DETECT)
@@ -504,18 +504,18 @@ void CardReader::manage_media() {
     #endif
   }
 
-  if (was == 2 && !is_media) return;  // No media, media ignored, or mount failed on initial attempt?
+  if (media_was_inserted == 2 && !media_is_inserted) return;  // No media, media ignored, or mount failed on initial attempt?
 
-  was_media = is_media;             // Change now to prevent re-entry
+  prev_media_stat = media_is_inserted;             // Change now to prevent re-entry
 
-  ui.media_changed(was, is_media);  // Update the UI or flag an error
+  ui.media_changed(media_was_inserted, media_is_inserted);  // Update the UI or flag an error
 
-  if (!is_media) return;
+  if (!media_is_inserted) return;
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
 
-  if (was != 2) return;             // Exit if the initial media check was done
+  if (media_was_inserted != 2) return;             // Exit if the initial media check was done
 
   DEBUG_ECHOLNPGM("First mount.");
 
