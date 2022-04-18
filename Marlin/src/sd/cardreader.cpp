@@ -521,7 +521,7 @@ void CardReader::manage_media() {
   // Check for PLR file.
   TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
 
-  // Look for auto0.g on the next loop
+  // Look for auto0.g on the next idle()
   IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
 }
 
