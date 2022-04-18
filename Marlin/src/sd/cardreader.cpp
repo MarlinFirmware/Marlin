@@ -472,53 +472,51 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static struct { bool present:1, inited:1; } prev_media_stat = { false, false };
+  static struct { bool present:1, inited:1; } media_stat = { false, false };
 
-  bool media_is_inserted = IS_SD_INSERTED();
-  if (media_is_inserted == prev_media_stat.present) return; // No change in media presence?
+  bool is_present = IS_SD_INSERTED();
+  if (is_present == media_stat.present) return; // No change in media presence?
 
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
-  DEBUG_ECHOLNPGM("Media present: ", prev_media_stat.present, " -> ", media_is_inserted);
+  DEBUG_ECHOLNPGM("Media present: ", media_stat.present, " -> ", is_present);
 
-  flag.workDirIsRoot = true;          // Return to root on mount/release/init
+  flag.workDirIsRoot = true;                  // Return to root on mount/release/init
 
   if (!ui.detected()) {
     DEBUG_ECHOLNPGM("SD: No UI Detected.");
     return;
   }
 
-  const bool media_was_inserted = prev_media_stat.present;
-  prev_media_stat.present = media_is_inserted;
+  const bool was_present = media_stat.present;
+  media_stat.present = is_present;
 
-  if (media_is_inserted) {                   // Media Inserted
-    safe_delay(500);                         // Some boards need a delay to get settled
-    if (TERN1(SD_IGNORE_AT_STARTUP, prev_media_stat.inited))
-      mount();                               // Try to mount the media
+  if (is_present) {                           // Media Inserted
+    safe_delay(500);                          // Some boards need a delay to get settled
+    if (TERN1(SD_IGNORE_AT_STARTUP, media_stat.inited))
+      mount();                                // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
     #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
-      reset_stepper_drivers();               // Workaround for Cheetah bug
+      reset_stepper_drivers();                // Workaround for Cheetah bug
     #endif
-    if (!isMounted()) media_is_inserted = false; // Not mounted?
+    if (!isMounted()) is_present = false;     // Not mounted?
   }
   else {
     #if PIN_EXISTS(SD_DETECT)
-      release();                             // Card is released
+      release();                              // Card is released
     #endif
   }
 
-  ui.media_changed(media_was_inserted, media_is_inserted);  // Update the UI or flag an error
+  ui.media_changed(was_present, is_present);  // Update the UI or flag an error
 
-  if (!media_is_inserted) return;            // return if no media inserted
+  if (!is_present) return;                    // Return if no media inserted
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
 
-  if (prev_media_stat.inited) return;        // Exit if the initial media check was done
-
+  if (media_stat.inited) return;              // Exit if the initial media check was done
+  media_stat.inited = true;                   // Now initialized!
   DEBUG_ECHOLNPGM("First mount.");
 
   bool do_auto = true; UNUSED(do_auto);
-
-  prev_media_stat.inited = true;              // set Prev Media status to Initialized
 
   // Check for PLR file.
   TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
