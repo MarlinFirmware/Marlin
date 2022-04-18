@@ -52,19 +52,19 @@ void GcodeSuite::M305() {
   if (t_index >= (USER_THERMISTORS) || (do_set && t_index < 0))
     SERIAL_ECHO_MSG("!Invalid index. (0 <= P <= ", USER_THERMISTORS - 1, ")");
   else if (do_set) {
-    if (parser.seen('R')) // Pullup resistor value
+    if (parser.seenval('R')) // Pullup resistor value
       if (!thermalManager.set_pull_up_res(t_index, parser.value_float()))
         SERIAL_ECHO_MSG("!Invalid series resistance. (0 < R < 1000000)");
 
-    if (parser.seen('T')) // Resistance at 25C
+    if (parser.seenval('T')) // Resistance at 25C
       if (!thermalManager.set_res25(t_index, parser.value_float()))
         SERIAL_ECHO_MSG("!Invalid 25C resistance. (0 < T < 10000000)");
 
-    if (parser.seen('B')) // Beta value
+    if (parser.seenval('B')) // Beta value
       if (!thermalManager.set_beta(t_index, parser.value_float()))
         SERIAL_ECHO_MSG("!Invalid beta. (0 < B < 1000000)");
 
-    if (parser.seen('C')) // Steinhart-Hart C coefficient
+    if (parser.seenval('C')) // Steinhart-Hart C coefficient
       if (!thermalManager.set_sh_coeff(t_index, parser.value_float()))
         SERIAL_ECHO_MSG("!Invalid Steinhart-Hart C coeff. (-0.01 < C < +0.01)");
   }                       // If not setting then report parameters
