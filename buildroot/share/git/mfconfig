@@ -87,7 +87,8 @@ if [[ $ACTION == "init" ]]; then
   # Strip all #error lines
   IFS=$'\n'; set -f
   for fn in $( find $TEMP/config -type f -name "Configuration.h" ); do
-    $SED -i "20,30{/#error/d}" $fn
+    $SED -i~ -e "20,30{/#error/d}" "$fn"
+    rm "$fn~"
   done
   unset IFS; set +f
 
