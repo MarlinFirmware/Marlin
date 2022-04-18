@@ -475,7 +475,7 @@ void CardReader::manage_media() {
   static struct { bool present:1, inited:1; } media_stat = { false, false };
 
   bool is_present = IS_SD_INSERTED();
-  if (is_present == media_stat.present) return; // No change in media presence?
+  if (media_stat.inited && is_present == media_stat.present) return; // No change in media presence?
 
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
   DEBUG_ECHOLNPGM("Media present: ", media_stat.present, " -> ", is_present);
