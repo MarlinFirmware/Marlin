@@ -491,12 +491,12 @@ void CardReader::manage_media() {
 
   if (stat) {                       // Media Inserted
     safe_delay(500);                // Some boards need a delay to get settled
-    if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2))
-      mount();                      // Try to mount the media
-    #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
-      reset_stepper_drivers();      // Workaround for Cheetah bug
-    #endif
+
+    // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
+    if (TERN1(SD_IGNORE_AT_STARTUP, media_stat.inited)) mount();
     if (!isMounted()) stat = 0;     // Not mounted?
+
+    TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
   }
   else {
     #if PIN_EXISTS(SD_DETECT)
