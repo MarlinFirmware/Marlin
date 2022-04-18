@@ -27,6 +27,9 @@
 
 using namespace FTDI;
 
+#define GRID_COLS 4
+#define GRID_ROWS 8
+
 // The kill screen is an oddball that happens after Marlin has killed the events
 // loop. So we only have a show() method rather than onRedraw(). The KillScreen
 // should not be used as a model for other UI screens as it is an exception.
@@ -39,17 +42,11 @@ void KillScreen::show(const char *message) {
      .cmd(CLEAR(true,true,true))
      .tag(0);
 
-  #define GRID_COLS 4
-  #define GRID_ROWS 8
-
   cmd.font(Theme::font_large)
      .cmd(COLOR_RGB(Theme::bg_text_enabled))
      .text(BTN_POS(1,2), BTN_SIZE(4,1), message)
      .text(BTN_POS(1,3), BTN_SIZE(4,1), GET_TEXT_F(MSG_HALTED))
      .text(BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_PLEASE_RESET));
-
-  #undef GRID_COLS
-  #undef GRID_ROWS
 
   cmd.cmd(DL::DL_DISPLAY)
      .cmd(CMD_SWAP)

@@ -54,8 +54,8 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
   #endif
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define GRID_ROWS 11
     #define GRID_COLS (1 + _MORE_THAN_TEN)
+    #define GRID_ROWS 11
     #define USER_ITEM_POS(N) BTN_POS((1+((N-1)/10)), ((N-1) % 10 + 1)), BTN_SIZE(1,1)
     #define BACK_POS         BTN_POS(1,11), BTN_SIZE(1,1)
   #else
@@ -64,8 +64,8 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
     #else
       #define _MORE_THAN_FIVE 0
     #endif
-    #define GRID_ROWS 6
     #define GRID_COLS (1 + _MORE_THAN_FIVE + _MORE_THAN_TEN + _MORE_THAN_FIFTEEN)
+    #define GRID_ROWS 6
     #define USER_ITEM_POS(N) BTN_POS((1+((N-1)/5)), ((N-1) % 5 + 1)), BTN_SIZE(1,1)
     #define BACK_POS         BTN_POS(1,6), BTN_SIZE(GRID_COLS,1)
   #endif
