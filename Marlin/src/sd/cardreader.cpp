@@ -505,7 +505,7 @@ void CardReader::manage_media() {
     #endif
   }
 
-  ui.media_changed(was_present, is_present);  // Update the UI or flag an error
+  ui.media_changed(was_present, is_present, !media_stat.inited);  // Update the UI or flag an error
 
   if (!is_present) return;                    // Return if no media inserted
 
