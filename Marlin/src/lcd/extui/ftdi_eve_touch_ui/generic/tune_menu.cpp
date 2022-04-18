@@ -30,6 +30,9 @@
 using namespace FTDI;
 using namespace Theme;
 
+#define GRID_COLS 2
+#define GRID_ROWS TERN(TOUCH_UI_PORTRAIT, 9, 5)
+
 void TuneMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
@@ -38,8 +41,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
   }
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define GRID_ROWS 9
-    #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)
     #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(2,1)
     #define FILAMENT_POS    BTN_POS(1,3), BTN_SIZE(2,1)
@@ -51,8 +52,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define ADVANCED_SETTINGS_POS BTN_POS(1,9), BTN_SIZE(1,1)
     #define BACK_POS        BTN_POS(2,9), BTN_SIZE(1,1)
   #else
-    #define GRID_ROWS 5
-    #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(1,1)
     #define NUDGE_NOZ_POS   BTN_POS(2,1), BTN_SIZE(1,1)
     #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(1,1)
@@ -94,8 +93,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .tag(1).colors(action_btn)
              .button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
-  #undef GRID_COLS
-  #undef GRID_ROWS
 }
 
 bool TuneMenu::onTouchEnd(uint8_t tag) {
