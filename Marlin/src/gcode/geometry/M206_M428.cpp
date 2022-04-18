@@ -40,13 +40,12 @@
 void GcodeSuite::M206() {
   if (!parser.seen_any()) return M206_report();
 
-  LOOP_LINEAR_AXES(i)
-    if (parser.seen(AXIS_CHAR(i)))
-      set_home_offset((AxisEnum)i, parser.value_linear_units());
+  LOOP_LINEAR_AXES(a)
+    if (parser.seenval(AXIS_CHAR(a))) set_home_offset((AxisEnum)a, parser.value_axis_units((AxisEnum)a));
 
   #if ENABLED(MORGAN_SCARA)
-    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
-    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
+    if (parser.seenval('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
+    if (parser.seenval('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
   report_current_position();

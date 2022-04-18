@@ -33,9 +33,9 @@
  * Warning: Steps-per-unit remains unchanged.
  */
 void GcodeSuite::M350() {
-  if (parser.seen('S')) LOOP_LE_N(i, 4) stepper.microstep_mode(i, parser.value_byte());
-  LOOP_LOGICAL_AXES(i) if (parser.seen(axis_codes[i])) stepper.microstep_mode(i, parser.value_byte());
-  if (parser.seen('B')) stepper.microstep_mode(4, parser.value_byte());
+  if (parser.seen('S')) LOOP_DISTINCT_AXES(i) stepper.microstep_mode(i, parser.value_byte());
+  LOOP_LOGICAL_AXES(i) if (parser.seenval(AXIS_CHAR(i))) stepper.microstep_mode(i, parser.value_byte());
+  if (parser.seenval('B')) stepper.microstep_mode(E_AXIS + 1, parser.value_byte());
   stepper.microstep_readings();
 }
 

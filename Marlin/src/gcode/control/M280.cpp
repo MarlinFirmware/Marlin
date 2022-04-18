@@ -48,7 +48,7 @@ void GcodeSuite::M280() {
       const int anew = parser.value_int();
       if (anew >= 0) {
         #if ENABLED(POLARGRAPH)
-          if (parser.seen('T')) { // (ms) Total duration of servo move
+          if (parser.seenval('T')) { // (ms) Total duration of servo move
             const int16_t t = constrain(parser.value_int(), 0, 10000);
             const int aold = servo[servo_index].read();
             millis_t now = millis();

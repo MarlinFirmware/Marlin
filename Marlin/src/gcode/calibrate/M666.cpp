@@ -45,7 +45,7 @@
     DEBUG_SECTION(log_M666, "M666", DEBUGGING(LEVELING));
     bool is_err = false, is_set = false;
     LOOP_LINEAR_AXES(i) {
-      if (parser.seen(AXIS_CHAR(i))) {
+      if (parser.seenval(AXIS_CHAR(i))) {
         is_set = true;
         const float v = parser.value_linear_units();
         if (v > 0)
