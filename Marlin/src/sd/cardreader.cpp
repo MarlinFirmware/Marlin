@@ -514,11 +514,13 @@ void CardReader::manage_media() {
 
   DEBUG_ECHOLNPGM("First mount.");
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.check();               // Check for PLR file. (If not there then call autofile_begin)
-  #elif DISABLED(NO_SD_AUTOSTART)
-    autofile_begin();               // Look for auto0.g on the next loop
-  #endif
+  bool do_auto = true; UNUSED(do_auto);
+
+  // Check for PLR file.
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
+
+  // Look for auto0.g on the next idle()
+  IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
 }
 
 /**
