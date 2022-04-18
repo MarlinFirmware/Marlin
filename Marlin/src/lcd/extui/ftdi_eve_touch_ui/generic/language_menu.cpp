@@ -37,8 +37,8 @@ void LanguageMenu::onRedraw(draw_mode_t) {
      .colors(normal_btn)
      .font(Theme::font_medium);
 
-  #define GRID_ROWS 8
   #define GRID_COLS 1
+  #define GRID_ROWS 8
 
   cmd.tag(1).button(BTN_POS(1,1), BTN_SIZE(1,1), GET_LANGUAGE_NAME(1));
   cmd.tag(2).button(BTN_POS(1,2), BTN_SIZE(1,1), GET_LANGUAGE_NAME(2));

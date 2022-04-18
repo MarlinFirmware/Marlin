@@ -128,17 +128,8 @@ void GcodeSuite::M17() {
             stepper.enable_e_steppers();
         }
       #endif
-      NUM_AXIS_CODE(
-        if (parser.seen_test('X'))        stepper.enable_axis(X_AXIS),
-        if (parser.seen_test('Y'))        stepper.enable_axis(Y_AXIS),
-        if (parser.seen_test('Z'))        stepper.enable_axis(Z_AXIS),
-        if (parser.seen_test(AXIS4_NAME)) stepper.enable_axis(I_AXIS),
-        if (parser.seen_test(AXIS5_NAME)) stepper.enable_axis(J_AXIS),
-        if (parser.seen_test(AXIS6_NAME)) stepper.enable_axis(K_AXIS),
-        if (parser.seen_test(AXIS7_NAME)) stepper.enable_axis(U_AXIS),
-        if (parser.seen_test(AXIS8_NAME)) stepper.enable_axis(V_AXIS),
-        if (parser.seen_test(AXIS9_NAME)) stepper.enable_axis(W_AXIS)
-      );
+      LOOP_NUM_AXES(a)
+        if (parser.seen_test(AXIS_CHAR(a))) stepper.enable_axis((AxisEnum)a);
     }
   }
   else {
@@ -235,17 +226,8 @@ void GcodeSuite::M18_M84() {
               stepper.disable_e_steppers();
           }
         #endif
-        NUM_AXIS_CODE(
-          if (parser.seen_test('X'))        stepper.disable_axis(X_AXIS),
-          if (parser.seen_test('Y'))        stepper.disable_axis(Y_AXIS),
-          if (parser.seen_test('Z'))        stepper.disable_axis(Z_AXIS),
-          if (parser.seen_test(AXIS4_NAME)) stepper.disable_axis(I_AXIS),
-          if (parser.seen_test(AXIS5_NAME)) stepper.disable_axis(J_AXIS),
-          if (parser.seen_test(AXIS6_NAME)) stepper.disable_axis(K_AXIS),
-          if (parser.seen_test(AXIS7_NAME)) stepper.disable_axis(U_AXIS),
-          if (parser.seen_test(AXIS8_NAME)) stepper.disable_axis(V_AXIS),
-          if (parser.seen_test(AXIS9_NAME)) stepper.disable_axis(W_AXIS)
-        );
+        LOOP_NUM_AXES(a)
+          if (parser.seen_test(AXIS_CHAR(a))) stepper.disable_axis((AxisEnum)a);
       }
     }
     else
