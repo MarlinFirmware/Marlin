@@ -366,7 +366,7 @@ void menu_backlash();
           MPC_EDIT_ITEMS(e);
           END_MENU();
         };
-        #define MPC_ENTRY(N) SUBMENU_N(N, MSG_MPC_EDIT, []{ mpc_edit_hotend(MenuItemBase::itemIndex); });
+        #define MPC_ENTRY(N) SUBMENU_N(N, MSG_MPC_EDIT, [&]{ mpc_edit_hotend(MenuItemBase::itemIndex); });
       #else
         #define MPC_ENTRY MPC_EDIT_ITEMS
       #endif
