@@ -256,7 +256,7 @@ void menu_backlash();
   #if ENABLED(MPC_EDIT_MENU)
     #define MPC_EDIT_DEFS(N) \
       MPC_t &c = thermalManager.temp_hotend[N].constants; \
-      TERN(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment)
+      TERN_(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment)
   #endif
 
   void menu_advanced_temperature() {
