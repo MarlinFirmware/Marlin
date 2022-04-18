@@ -33,8 +33,8 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-#define GRID_ROWS 5
 #define GRID_COLS 3
+#define GRID_ROWS 5
 #define BED_MESH_TITLE_POS BTN_POS(1,1), BTN_SIZE(3,1)
 #define PROBE_BED_POS      BTN_POS(1,2), BTN_SIZE(1,1)
 #define SHOW_MESH_POS      BTN_POS(2,2), BTN_SIZE(1,1)

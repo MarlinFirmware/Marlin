@@ -29,8 +29,8 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-#define GRID_ROWS 4
 #define GRID_COLS 3
+#define GRID_ROWS 4
 #define STEPS_PER_MM_POS        BTN_POS(1,1), BTN_SIZE(1,1)
 #define TMC_CURRENT_POS         BTN_POS(2,1), BTN_SIZE(1,1)
 #define LIN_ADVANCE_POS         BTN_POS(3,1), BTN_SIZE(1,1)

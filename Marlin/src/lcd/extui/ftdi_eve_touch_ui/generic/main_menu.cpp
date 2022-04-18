@@ -37,8 +37,8 @@ void MainMenu::onRedraw(draw_mode_t what) {
   }
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define GRID_ROWS 8
     #define GRID_COLS 2
+    #define GRID_ROWS 8
     #define ABOUT_PRINTER_POS     BTN_POS(1,1), BTN_SIZE(2,1)
     #define ADVANCED_SETTINGS_POS BTN_POS(1,2), BTN_SIZE(2,1)
     #if ENABLED(CUSTOM_MENU_MAIN)
@@ -55,8 +55,8 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #define CLEAN_NOZZLE_POS      BTN_POS(2,7), BTN_SIZE(1,1)
     #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
   #else
-    #define GRID_ROWS 5
     #define GRID_COLS 6
+    #define GRID_ROWS 5
     #define ADVANCED_SETTINGS_POS BTN_POS(1,1), BTN_SIZE(3,1)
     #define ABOUT_PRINTER_POS     BTN_POS(4,1), BTN_SIZE(3,1)
     #define AUTO_HOME_POS         BTN_POS(1,2), BTN_SIZE(3,1)

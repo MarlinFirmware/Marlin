@@ -28,8 +28,8 @@
 using namespace FTDI;
 using namespace Theme;
 
-#define GRID_ROWS 9
 #define GRID_COLS 2
+#define GRID_ROWS 9
 
 void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {

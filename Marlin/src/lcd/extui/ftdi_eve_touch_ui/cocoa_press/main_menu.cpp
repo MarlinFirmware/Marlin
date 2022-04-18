@@ -29,8 +29,8 @@
 using namespace FTDI;
 using namespace Theme;
 
-#define GRID_ROWS 6
 #define GRID_COLS 2
+#define GRID_ROWS 6
 
 #define ZPROBE_ZOFFSET_POS    BTN_POS(1,1), BTN_SIZE(1,1)
 #define MOVE_XYZ_POS          BTN_POS(1,2), BTN_SIZE(1,1)
