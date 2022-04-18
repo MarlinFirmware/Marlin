@@ -71,7 +71,7 @@ void GcodeSuite::G61() {
     if (parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K))) {
       DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
       LOOP_LINEAR_AXES(i) {
-        destination[i] = parser.seen(AXIS_CHAR(i))
+        destination[i] = parser.seenval(AXIS_CHAR(i))
           ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
           : current_position[i];
         DEBUG_CHAR(' ', AXIS_CHAR(i));
