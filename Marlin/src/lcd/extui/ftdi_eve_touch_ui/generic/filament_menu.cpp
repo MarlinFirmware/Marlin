@@ -30,15 +30,15 @@ using namespace ExtUI;
 using namespace Theme;
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
-  #define GRID_ROWS 9
   #define GRID_COLS 2
+  #define GRID_ROWS 9
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
   #define RUNOUT_SENSOR_POS  BTN_POS(1,2), BTN_SIZE(2,1)
   #define LIN_ADVANCE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
   #define BACK_POS           BTN_POS(1,9), BTN_SIZE(2,1)
 #else
-  #define GRID_ROWS 6
   #define GRID_COLS 2
+  #define GRID_ROWS 6
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
   #define RUNOUT_SENSOR_POS  BTN_POS(1,2), BTN_SIZE(2,1)
   #define LIN_ADVANCE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
