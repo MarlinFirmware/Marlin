@@ -42,7 +42,7 @@ void GcodeSuite::M412() {
     TERN_(HOST_ACTION_COMMANDS, "H")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
-      if (parser.seenval('H')) runout.host_handling = parser.value_bool();
+      if (parser.seen('H')) runout.host_handling = parser.value_bool();
     #endif
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();

@@ -64,7 +64,7 @@ void GcodeSuite::M166() {
     if (parser.seen('T')) mixer.gradient.vtool_index = parser.byteval('T', -1);
   #endif
 
-  if (parser.seenval('S')) mixer.gradient.enabled = parser.value_bool();
+  if (parser.seen('S')) mixer.gradient.enabled = parser.value_bool();
 
   mixer.refresh_gradient();
 
