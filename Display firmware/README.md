@@ -8,6 +8,9 @@ To update the graphics and icons on the display:
 - Remove the SD card from the back of the display.
 - Power on to confirm a successful flash.
 
+# Revert to the original font
+You can revert back to the original font simply by uploading the folder "DWIN Font (original)" (renamed to DWIN_SET) to your display.
+
 ## Troubleshooting
 If flashing is not working (e.g. the blue screen only flashes for a second before the orange screen):
 - Reformat the SD card in FAT32 with 4k allocations
