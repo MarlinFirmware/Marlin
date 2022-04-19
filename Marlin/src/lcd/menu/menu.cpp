@@ -28,6 +28,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 #include "../../module/printcounter.h"
+#include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 
 #if HAS_BUZZER
@@ -171,6 +172,7 @@ bool printer_busy() {
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
+    thermalManager.set_menu_cold_override(false);
 
     TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
 
