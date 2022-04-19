@@ -254,8 +254,9 @@ void menu_backlash();
 #if SHOW_MENU_ADVANCED_TEMPERATURE
 
   #if ENABLED(MPC_EDIT_MENU)
+    #define MPC_CONSTANTS(N) thermalManager.temp_hotend[N].constants
     #define MPC_EDIT_DEFS(N) \
-      MPC_t &c = thermalManager.temp_hotend[N].constants; \
+      MPC_t &c = MPC_CONSTANTS(N); \
       TERN_(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment)
   #endif
 
@@ -352,21 +353,23 @@ void menu_backlash();
         #define MPC_EDIT_ITEMS(N) \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
-            c.fan255_adjustment = editable.decimal - c.ambient_xfer_coeff_fan0; \
+            MPC_CONSTANTS(N).fan255_adjustment = editable.decimal - MPC_CONSTANTS(N).ambient_xfer_coeff_fan0; \
           })
       #else
         #define MPC_EDIT_ITEMS _MPC_EDIT_ITEMS
       #endif
 
       #if HAS_MULTI_HOTEND
-        auto mpc_edit_hotend = [&](const uint8_t e) {
-          MPC_EDIT_DEFS(e);
-          START_MENU();
-          BACK_ITEM(MSG_TEMPERATURE);
-          MPC_EDIT_ITEMS(e);
+        #define MPC_EDIT_HOTEND(N) \
+          MPC_EDIT_DEFS(N); \
+          START_MENU(); \
+          BACK_ITEM(MSG_TEMPERATURE); \
+          MPC_EDIT_ITEMS(N); \
           END_MENU();
-        };
-        #define MPC_ENTRY(N) SUBMENU_N(N, MSG_MPC_EDIT, [&]{ mpc_edit_hotend(MenuItemBase::itemIndex); });
+
+        #define MPC_ENTRY(N) \
+          void (*fn)() = []{ MPC_EDIT_HOTEND(MenuItemBase::itemIndex); }; \
+          SUBMENU_N(N, MSG_MPC_EDIT, fn)
       #else
         #define MPC_ENTRY MPC_EDIT_ITEMS
       #endif
