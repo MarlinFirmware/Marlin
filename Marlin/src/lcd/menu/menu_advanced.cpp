@@ -117,33 +117,12 @@ void menu_backlash();
     EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, \
       []{ runout.set_runout_distance(editable.decimal, F); }, true \
     ); \
-  }while(0)
+  }while(0);
 
   void menu_runout_config() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    RUNOUT_EDIT_ITEMS(0);
-    #if NUM_RUNOUT_SENSORS > 1
-      RUNOUT_EDIT_ITEMS(1);
-    #endif
-    #if NUM_RUNOUT_SENSORS > 2
-      RUNOUT_EDIT_ITEMS(2);
-    #endif
-    #if NUM_RUNOUT_SENSORS > 3
-      RUNOUT_EDIT_ITEMS(3);
-    #endif
-    #if NUM_RUNOUT_SENSORS > 4
-      RUNOUT_EDIT_ITEMS(4);
-    #endif
-    #if NUM_RUNOUT_SENSORS > 5
-      RUNOUT_EDIT_ITEMS(5);
-    #endif
-    #if NUM_RUNOUT_SENSORS > 6
-      RUNOUT_EDIT_ITEMS(6);
-    #endif
-    #if NUM_RUNOUT_SENSORS > 7
-      RUNOUT_EDIT_ITEMS(7);
-    #endif
+    REPEAT(NUM_RUNOUT_SENSORS, RUNOUT_EDIT_ITEMS);
     END_MENU();
   }
 #endif
