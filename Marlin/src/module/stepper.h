@@ -329,7 +329,7 @@ class Stepper {
         #ifndef MOTOR_CURRENT_PWM_FREQUENCY
           #define MOTOR_CURRENT_PWM_FREQUENCY 31400
         #endif
-        #define MOTOR_CURRENT_COUNT NUM_AXES
+        #define MOTOR_CURRENT_COUNT 3
       #elif HAS_MOTOR_CURRENT_SPI
         static constexpr uint32_t digipot_count[] = DIGIPOT_MOTOR_CURRENT;
         #define MOTOR_CURRENT_COUNT COUNT(Stepper::digipot_count)
