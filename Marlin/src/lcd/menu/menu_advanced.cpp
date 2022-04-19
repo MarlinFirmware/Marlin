@@ -39,7 +39,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(PIDTEMP)
+#if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #include "../../module/temperature.h"
 #endif
 
@@ -190,7 +190,12 @@ void menu_backlash();
       #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: tune_temp = autotune_temp_chamber; break;
       #endif
-      default: tune_temp = autotune_temp[hid]; break;
+      default:
+        #if ENABLED(PIDTEMP)
+          tune_temp = autotune_temp[hid]; break;
+        #else
+          return;
+        #endif
     }
     sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), hid, tune_temp);
     queue.inject(cmd);
@@ -205,43 +210,41 @@ void menu_backlash();
 
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
-  void copy_and_scalePID_i(int16_t e) {
-    UNUSED(e);
-    PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
-    thermalManager.updatePID();
+  void copy_and_scalePID_i(const int8_t e) {
+    switch (e) {
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: thermalManager.temp_bed.pid.Ki = scalePID_i(raw_Ki); break;
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case H_CHAMBER: thermalManager.temp_chamber.pid.Ki = scalePID_i(raw_Ki); break;
+      #endif
+      default:
+        #if ENABLED(PIDTEMP)
+          PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
+          thermalManager.updatePID();
+        #endif
+        break;
+    }
   }
-  void copy_and_scalePID_d(int16_t e) {
-    UNUSED(e);
-    PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
-    thermalManager.updatePID();
+  void copy_and_scalePID_d(const int8_t e) {
+    switch (e) {
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: thermalManager.temp_bed.pid.Kd = scalePID_d(raw_Kd); break;
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case H_CHAMBER: thermalManager.temp_chamber.pid.Kd = scalePID_d(raw_Kd); break;
+      #endif
+      default:
+        #if ENABLED(PIDTEMP)
+          PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
+          thermalManager.updatePID();
+        #endif
+        break;
+    }
   }
-
-  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) \
-    void copy_and_scalePID_i_E##N() { copy_and_scalePID_i(N); } \
-    void copy_and_scalePID_d_E##N() { copy_and_scalePID_d(N); }
-
-#else
-
-  #define _DEFINE_PIDTEMP_BASE_FUNCS(N) //
-
 #endif
 
-#if ENABLED(PID_AUTOTUNE_MENU)
-  #define DEFINE_PIDTEMP_FUNCS(N) \
-    _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-    void lcd_autotune_callback_E##N() { _lcd_autotune(heater_id_t(N)); }
-#else
-  #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N);
-#endif
-
-#if HAS_HOTEND
-  DEFINE_PIDTEMP_FUNCS(0);
-  #if ENABLED(PID_PARAMS_PER_HOTEND)
-    REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
-  #endif
-#endif
-
-#if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || EITHER(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+#if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU, MPC_AUTOTUNE_MENU, MPC_EDIT_MENU)
   #define SHOW_MENU_ADVANCED_TEMPERATURE 1
 #endif
 
@@ -250,9 +253,20 @@ void menu_backlash();
 //
 #if SHOW_MENU_ADVANCED_TEMPERATURE
 
+  #if ENABLED(MPC_EDIT_MENU)
+    #define MPC_EDIT_DEFS(N) \
+      MPC_t &c = thermalManager.temp_hotend[N].constants; \
+      TERN_(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment)
+  #endif
+
   void menu_advanced_temperature() {
+    #if ENABLED(MPC_EDIT_MENU) && !HAS_MULTI_HOTEND
+      MPC_EDIT_DEFS(0);
+    #endif
+
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
     //
     // Autotemp, Min, Max, Fact
     //
@@ -272,14 +286,7 @@ void menu_backlash();
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
 
-    #if ENABLED(PID_EDIT_MENU)
-      #define _PID_EDIT_ITEMS_TMPL(N,T) \
-        raw_Ki = unscalePID_i(T.pid.Ki); \
-        raw_Kd = unscalePID_d(T.pid.Kd); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
-        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
-
+    #if BOTH(PIDTEMP, PID_EDIT_MENU)
       #define __PID_HOTEND_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
@@ -309,17 +316,67 @@ void menu_backlash();
 
     #endif
 
-    #if ENABLED(PID_AUTOTUNE_MENU)
-      #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
-        _HOTEND_PID_EDIT_MENU_ITEMS(N); \
-        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.hotend_max_target(N), []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
-    #else
-      #define HOTEND_PID_EDIT_MENU_ITEMS(N) _HOTEND_PID_EDIT_MENU_ITEMS(N);
+    #if ENABLED(PID_EDIT_MENU) && EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
+      #define _PID_EDIT_ITEMS_TMPL(N,T) \
+        raw_Ki = unscalePID_i(T.pid.Ki); \
+        raw_Kd = unscalePID_d(T.pid.Kd); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
     #endif
 
-    HOTEND_PID_EDIT_MENU_ITEMS(0);
-    #if ENABLED(PID_PARAMS_PER_HOTEND)
-      REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS)
+    #if ENABLED(PIDTEMP)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
+          _HOTEND_PID_EDIT_MENU_ITEMS(N); \
+          EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.hotend_max_target(N), []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
+      #else
+        #define HOTEND_PID_EDIT_MENU_ITEMS(N) _HOTEND_PID_EDIT_MENU_ITEMS(N);
+      #endif
+
+      HOTEND_PID_EDIT_MENU_ITEMS(0);
+      #if ENABLED(PID_PARAMS_PER_HOTEND)
+        REPEAT_S(1, HOTENDS, HOTEND_PID_EDIT_MENU_ITEMS);
+      #endif
+    #endif
+
+    #if ENABLED(MPC_EDIT_MENU)
+
+      #define _MPC_EDIT_ITEMS(N) \
+        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &c.heater_power, 1, 200); \
+        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &c.block_heat_capacity, 0, 40); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &c.sensor_responsiveness, 0, 1); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &c.ambient_xfer_coeff_fan0, 0, 1)
+
+      #if ENABLED(MPC_INCLUDE_FAN)
+        #define MPC_EDIT_ITEMS(N) \
+          _MPC_EDIT_ITEMS(N); \
+          EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
+            c.fan255_adjustment = editable.decimal - c.ambient_xfer_coeff_fan0; \
+          })
+      #else
+        #define MPC_EDIT_ITEMS _MPC_EDIT_ITEMS
+      #endif
+
+      #if HAS_MULTI_HOTEND
+        auto mpc_edit_hotend = [&](const uint8_t e) {
+          MPC_EDIT_DEFS(e);
+          START_MENU();
+          BACK_ITEM(MSG_TEMPERATURE);
+          MPC_EDIT_ITEMS(e);
+          END_MENU();
+        };
+        #define MPC_ENTRY(N) SUBMENU_N(N, MSG_MPC_EDIT, [&]{ mpc_edit_hotend(MenuItemBase::itemIndex); });
+      #else
+        #define MPC_ENTRY MPC_EDIT_ITEMS
+      #endif
+
+      REPEAT(HOTENDS, MPC_ENTRY);
+
+    #endif // MPC_EDIT_MENU
+
+    #if ENABLED(MPC_AUTOTUNE_MENU)
+      ACTION_ITEM(MSG_MPC_AUTOTUNE, []{ queue.inject(F("M306 T")); ui.return_to_status(); });
     #endif
 
     #if ENABLED(PIDTEMPBED)

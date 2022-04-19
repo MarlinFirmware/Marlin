@@ -196,13 +196,13 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     #else
       #define HOTEND_STATS 1
     #endif
-    static celsius_t old_temp[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500),
-                   old_target[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500);
-    static bool old_on[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, false);
+    static celsius_t old_temp[HOTEND_STATS] = { 0 },
+                   old_target[HOTEND_STATS] = { 0 };
+    static bool old_on[HOTEND_STATS] = { false };
   #endif
 
   #if HAS_HEATED_BED
-    static celsius_t old_bed_temp = 500, old_bed_target = 500;
+    static celsius_t old_bed_temp = 0, old_bed_target = 0;
     static bool old_bed_on = false;
     #if HAS_LEVELING
       static bool old_leveling_on = false;

@@ -108,13 +108,18 @@ void PrintJobRecovery::changed() {
  *
  * If a saved state exists send 'M1000 S' to initiate job recovery.
  */
-void PrintJobRecovery::check() {
+bool PrintJobRecovery::check() {
   //if (!card.isMounted()) card.mount();
+  bool success = false;
   if (card.isMounted()) {
     load();
-    if (!valid()) return cancel();
-    queue.inject(F("M1000S"));
+    success = valid();
+    if (!success)
+      cancel();
+    else
+      queue.inject(F("M1000S"));
   }
+  return success;
 }
 
 /**
@@ -514,7 +519,7 @@ void PrintJobRecovery::resume() {
     EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {
         fwretract.current_retract[e] = info.retract[e];
-        fwretract.retracted[e] = true;
+        fwretract.retracted.set(e);
       }
     }
     fwretract.current_hop = info.retract_hop;

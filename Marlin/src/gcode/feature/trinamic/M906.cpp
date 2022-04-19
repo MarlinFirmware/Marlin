@@ -66,7 +66,7 @@ void GcodeSuite::M906() {
     constexpr int8_t index = -1;
   #endif
 
-  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(AXIS_CHAR(i))) {
     report = false;
     switch (i) {
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)

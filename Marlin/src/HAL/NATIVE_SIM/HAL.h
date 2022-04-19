@@ -242,7 +242,7 @@ public:
   // Called by Temperature::init for each sensor at startup
   static void adc_enable(const uint8_t ch);
 
-  // Begin ADC sampling on the given channel
+  // Begin ADC sampling on the given channel. Called from Temperature::isr!
   static void adc_start(const uint8_t ch);
 
   // Is the ADC ready for reading?
