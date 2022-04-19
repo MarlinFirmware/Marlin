@@ -2079,7 +2079,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     #endif // HAS_HEATED_BED
 
     #if HAS_PREHEAT
-      #define _PREHEAT_SUBMENU_CASE(N) case Preheat##N: preheat_submenu(N, item, TEMP_PREHEAT##N); break;
+      #define _PREHEAT_SUBMENU_CASE(N) case Preheat##N: preheat_submenu((N-1), item, TEMP_PREHEAT##N); break;
       REPEAT_1(PREHEAT_COUNT, _PREHEAT_SUBMENU_CASE)
     #endif
 
