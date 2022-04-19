@@ -50,8 +50,8 @@ void GcodeSuite::M591() {
     if (seenR || seenS) runout.reset();
     const uint8_t tool = TERN0(MULTI_FILAMENT_SENSOR, parser.ushortval('E', active_extruder));
     if (seenS) runout.enabled[tool] = parser.value_bool();
-    if (parser.seen('D') || parser.seen('L')) runout.set_runout_distance(parser.value_linear_units(), tool);
-    if (parser.seen('P')) {
+    if (parser.seenval('D') || parser.seenval('L')) runout.set_runout_distance(parser.value_linear_units(), tool);
+    if (parser.seenval('P')) {
       const RunoutMode tmp_mode = (RunoutMode)parser.value_int();
       switch (tmp_mode) {
         case RM_NONE ... RM_OUT_ON_HIGH:
