@@ -532,7 +532,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       return true; // Deploy in LOW SPEED MODE on every probe action
   #endif
 
-  #if EITHER(Z_SERVO_MEASURE_ANGLE, Z_SERVO_INTERMEDIATE_STOW)
+  #if ENABLED(Z_SERVO_INTERMEDIATE_STOW) || defined(Z_SERVO_MEASURE_ANGLE)
     probe_specific_action(true);  //  Always re-deploy in this case
   #endif
 
