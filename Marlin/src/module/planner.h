@@ -108,19 +108,13 @@ enum BlockFlagBit : char {
   BLOCK_BIT_SYNC_POSITION
 
   // Direct stepping page
-  #if ENABLED(DIRECT_STEPPING)
-    , BLOCK_BIT_IS_PAGE
-  #endif
+  OPTARG(DIRECT_STEPPING, BLOCK_BIT_IS_PAGE)
 
   // Sync the fan speeds from the block
-  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    , BLOCK_BIT_SYNC_FANS
-  #endif
+  OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_BIT_SYNC_FANS)
 
-    // Sync laser power from a queued block
-  #if ENABLED(LASER_POWER_SYNC)
-    , BLOCK_BIT_LASER_PWR
-  #endif
+  // Sync laser power from a queued block
+  OPTARG(LASER_POWER_SYNC, BLOCK_BIT_LASER_PWR)
 };
 
 enum BlockFlag : char {
@@ -128,18 +122,12 @@ enum BlockFlag : char {
   , BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH)
   , BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
   , BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
-  #if ENABLED(DIRECT_STEPPING)
-    , BLOCK_FLAG_IS_PAGE            = _BV(BLOCK_BIT_IS_PAGE)
-  #endif
-  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    , BLOCK_FLAG_SYNC_FANS          = _BV(BLOCK_BIT_SYNC_FANS)
-  #endif
-  #if ENABLED(LASER_POWER_SYNC)
-    , BLOCK_FLAG_LASER_PWR          = _BV(BLOCK_BIT_LASER_PWR)
-  #endif
+  OPTARG(DIRECT_STEPPING,             BLOCK_FLAG_IS_PAGE   = _BV(BLOCK_BIT_IS_PAGE))
+  OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS = _BV(BLOCK_BIT_SYNC_FANS))
+  OPTARG(LASER_POWER_SYNC,            BLOCK_FLAG_LASER_PWR = _BV(BLOCK_BIT_LASER_PWR))
 };
 
-#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) | TERN0(LASER_POWER_SYNC, BLOCK_FLAG_LASER_PWR ))
+#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) | TERN0(LASER_POWER_SYNC, BLOCK_FLAG_LASER_PWR) )
 
 #if ENABLED(LASER_FEATURE)
 
@@ -766,8 +754,7 @@ class Planner {
      * @param sync_flag sets a condition bit to process additional items
      * such as sync fan pwm or sync M3/M4 laser power into a queued block
      */
-    static void buffer_sync_block();
-    static void buffer_sync_block(uint8_t sync_flag);
+    static void buffer_sync_block(const uint8_t sync_flag=BLOCK_FLAG_SYNC_POSITION);
 
   #if IS_KINEMATIC
     private:

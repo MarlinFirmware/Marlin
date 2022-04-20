@@ -210,7 +210,7 @@ void GcodeSuite::get_destination_from_command() {
   if (parser.floatval('F') > 0) {
     feedrate_mm_s = parser.value_feedrate();
     // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = parser.value_float());
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = MMS_TO_MMM(feedrate_mm_s));
   }
 
   #if ENABLED(PRINTCOUNTER)
@@ -231,23 +231,20 @@ void GcodeSuite::get_destination_from_command() {
         planner.laser_inline.status.isPowered = true;
         if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
         if (parser.seen('S')) {
-          #if ENABLED(LASER_POWER_TRAP)
-            cutter.unitPower = parser.value_float();
-          #else
-            cutter.unitPower = cutter.power_to_range(parser.value_float());
-          #endif
-          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0));
-          cutter.menuPower = cutter.unitPower;
+          const float v = parser.value_float(),
+                      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
+          cutter.menuPower = cutter.unitPower = u;
+          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
         }
       }
       else if (parser.codenum == 0) {
         // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
-        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)  planner.laser_inline.status.isPowered = false;
+        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
         cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
       }
-    } else {
-      if (parser.codenum == 0) cutter.apply_power(0);
     }
+    else if (parser.codenum == 0)
+      cutter.apply_power(0);
   #endif // LASER_FEATURE
 }
 

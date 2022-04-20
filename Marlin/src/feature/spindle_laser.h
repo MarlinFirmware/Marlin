@@ -50,47 +50,45 @@ enum CutterMode : int8_t {
 
 class SpindleLaser {
 public:
-  static const inline uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
-
   static CutterMode cutter_mode;
+
+  static constexpr uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
   // Convert configured power range to a percentage
-  static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) {
-    constexpr cutter_cpower_t power_floor = TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0),
-                              power_range = SPEED_POWER_MAX - power_floor;
-    return cpwr ? round(100.0f * (cpwr - power_floor) / power_range) : 0;
+  static constexpr cutter_cpower_t power_floor = TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0);
+  static constexpr uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) {
+    return cpwr ? round(100.0f * (cpwr - power_floor) / (SPEED_POWER_MAX - power_floor)) : 0;
   }
 
   // Convert config defines from RPM to %, angle or PWM when in Spindle mode
   // and convert from PERCENT to PWM when in Laser mode
-  static const inline cutter_power_t cpwr_to_upwr(const cutter_cpower_t cpwr) { // STARTUP power to Unit power
-    const cutter_power_t upwr = (
+  static constexpr cutter_power_t cpwr_to_upwr(const cutter_cpower_t cpwr) { // STARTUP power to Unit power
+    return (
       #if ENABLED(SPINDLE_FEATURE)
         // Spindle configured define values are in RPM
         #if CUTTER_UNIT_IS(RPM)
           cpwr                            // to same
-        #elif CUTTER_UNIT_IS(PERCENT)     // to PCT
-          cpwr_to_pct(cpwr)
-        #elif CUTTER_UNIT_IS(SERVO)       // to SERVO angle
-          PCT_TO_SERVO(cpwr_to_pct(cpwr))
-        #else                             // to PWM
-          PCT_TO_PWM(cpwr_to_pct(cpwr))
+        #elif CUTTER_UNIT_IS(PERCENT)
+          cpwr_to_pct(cpwr)               // to PCT
+        #elif CUTTER_UNIT_IS(SERVO)
+          PCT_TO_SERVO(cpwr_to_pct(cpwr)) // to SERVO angle
+        #else
+          PCT_TO_PWM(cpwr_to_pct(cpwr))   // to PWM
         #endif
       #else
         // Laser configured define values are in PCT
         #if CUTTER_UNIT_IS(PWM255)
-          PCT_TO_PWM(cpwr)
+          PCT_TO_PWM(cpwr)                // to PWM
         #else
           cpwr                            // to same
         #endif
       #endif
     );
-    return upwr;
   }
 
-  static const cutter_power_t mpower_min() { return cpwr_to_upwr(SPEED_POWER_MIN); }
-  static const cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
+  static constexpr cutter_power_t mpower_min() { return cpwr_to_upwr(SPEED_POWER_MIN); }
+  static constexpr cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
   static uint8_t last_power_applied;                      // Basic power state tracking
 
   #if ENABLED(LASER_FEATURE)
@@ -99,8 +97,9 @@ public:
 
     static feedRate_t feedrate_mm_m, last_feedrate_mm_m;  // (mm/min) Track feedrate changes for dynamic power
     static bool laser_feedrate_changed() {
-      if (last_feedrate_mm_m != feedrate_mm_m) { last_feedrate_mm_m = feedrate_mm_m; return true; }
-      return false;
+      const bool changed = last_feedrate_mm_m != feedrate_mm_m;
+      if (changed) last_feedrate_mm_m = feedrate_mm_m;
+      return changed;
     }
   #endif
 
@@ -115,7 +114,7 @@ public:
 
   static void init();
 
-  #if ENABLED(HAL_CAN_SET_PWM_FREQ)
+  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
     static void refresh_frequency() { hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
   #endif
 
@@ -195,24 +194,23 @@ public:
     return upwr;
   }
 
-  /*
-   *  Enable Laser or Spindle output.
-   *  It is important to prevent changing the power output value when the cutter is set for inline operation.
-   *  Inline power is adjusted in the planner to support LASER_TRAP_POWER and CUTTER_MODE_DYNAMIC mode.
+  /**
+   * Enable Laser or Spindle output.
+   * It's important to prevent changing the power output value during inline cutter operation.
+   * Inline power is adjusted in the planner to support LASER_TRAP_POWER and CUTTER_MODE_DYNAMIC mode.
    *
-   *  Set enabled has 4 possible control states.
+   * This method accepts one of the following control states:
    *
-   *  1: When in CUTTER_MODE_STANDARD the cutter power is either full on/off or ocr based and it will apply
-   *  SPEED_POWER_STARTUP if no value is assigned.
+   *  - For CUTTER_MODE_STANDARD the cutter power is either full on/off or ocr-based and it will apply
+   *    SPEED_POWER_STARTUP if no value is assigned.
    *
-   *  2: If CUTTER_MODE_CONTINUOUS is true then inline and power remains where last set and we set the cutter output enable flag.
+   *  - For CUTTER_MODE_CONTINUOUS inline and power remains where last set and the cutter output enable flag is set.
    *
-   *  3: CUTTER_MODE_DYNAMIC is also inline based and we just set the enable output flag.
+   *  - CUTTER_MODE_DYNAMIC is also inline-based and it just sets the enable output flag.
    *
-   *  4: If CUTTER_MODE_ERROR mode is detected we need to set the output enable_state flag directly and set power to 0 for any mode.
-   *  This mode allows a global power shutdown action to occur.
+   *  - For CUTTER_MODE_ERROR set the output enable_state flag directly and set power to 0 for any mode.
+   *    This mode allows a global power shutdown action to occur.
    */
-
   static void set_enabled(const bool enable) {
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
@@ -250,24 +248,25 @@ public:
   #endif
 
   #if ENABLED(AIR_EVACUATION)
-    static void air_evac_enable();         // Turn On Cutter Vacuum or Laser Blower motor
-    static void air_evac_disable();        // Turn Off Cutter Vacuum or Laser Blower motor
-    static void air_evac_toggle();         // Toggle Cutter Vacuum or Laser Blower motor
-    static bool air_evac_state() {  // Get current state
+    static void air_evac_enable();     // Turn On Cutter Vacuum or Laser Blower motor
+    static void air_evac_disable();    // Turn Off Cutter Vacuum or Laser Blower motor
+    static void air_evac_toggle();     // Toggle Cutter Vacuum or Laser Blower motor
+    static bool air_evac_state() {     // Get current state
       return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE);
     }
   #endif
 
   #if ENABLED(AIR_ASSIST)
-    static void air_assist_enable();         // Turn on air assist
-    static void air_assist_disable();        // Turn off air assist
-    static void air_assist_toggle();         // Toggle air assist
-    static bool air_assist_state() {  // Get current state
+    static void air_assist_enable();   // Turn on air assist
+    static void air_assist_disable();  // Turn off air assist
+    static void air_assist_toggle();   // Toggle air assist
+    static bool air_assist_state() {   // Get current state
       return (READ(AIR_ASSIST_PIN) == AIR_ASSIST_ACTIVE);
     }
   #endif
 
   #if HAS_MARLINUI_MENU
+
     #if ENABLED(SPINDLE_FEATURE)
       static void enable_with_dir(const bool reverse) {
         isReadyForUI = true;

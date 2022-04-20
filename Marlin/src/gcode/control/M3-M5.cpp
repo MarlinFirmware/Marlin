@@ -32,17 +32,21 @@
  * Laser:
  *  M3 - Laser ON/Power (Ramped power)
  *  M4 - Laser ON/Power (Ramped power)
- *  M3I enables continuous inline power and it is processed by the planner. Move blocks are
- *  calculated and each block power buffer value is set there. The Stepper ISR then processes the blocks inline.
- *  Within inline mode M3 S-Values will set the power for the next moves e.g. G1 X10 Y10 powers on with the last S-Value
- *  M3I must be already set when using planner synced M3 inline S-Values (LASER_POWER_SYNC)
- *  M4I sets dynamic mode which takes the currently set feedrate and calculates a laser power OCR value
- *  M5I clears inline mode and set power to 0
- *  M5 sets the power output to 0 but leaves inline mode on.
+ *  M5 - Set power output to 0 (leaving inline mode unchanged).
+ *
+ *  M3I - Enable continuous inline power to be processed by the planner, with power
+ *        calculated and set in the planner blocks, processed inline during stepping.
+ *        Within inline mode M3 S-Values will set the power for the next moves e.g. G1 X10 Y10 powers on with the last S-Value.
+ *        M3I must be set before using planner-synced M3 inline S-Values (LASER_POWER_SYNC).
+ *
+ *  M4I - Set dynamic mode which calculates laser power OCR based on the current feedrate.
+ *
+ *  M5I - Clear inline mode and set power to 0.
  *
  * Spindle:
  *  M3 - Spindle ON (Clockwise)
  *  M4 - Spindle ON (Counter-clockwise)
+ *  M5 - Spindle OFF
  *
  * Parameters:
  *  S<power> - Set power. S0 will turn the spindle/laser off.
@@ -84,20 +88,19 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   auto get_s_power = [] {
+    float u;
     if (parser.seenval('S')) {
-      #if ENABLED(LASER_POWER_TRAP)
-        cutter.unitPower = parser.value_float();
-      #else
-        cutter.unitPower = cutter.power_to_range(parser.value_float());
-      #endif
-      cutter.menuPower = cutter.unitPower;
+      const float v = parser.value_float();
+      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
     }
     else if (cutter.cutter_mode == CUTTER_MODE_STANDARD)
-      cutter.menuPower = cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
+      u = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
+
+    cutter.menuPower = cutter.unitPower = u;
 
     // PWM not implied, power converted to OCR from unit definition and on/off if not PWM.
-    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0);
-    return cutter.unitPower;
+    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0);
+    return u;
   };
 
   if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {  // Laser power in inline mode
@@ -116,11 +119,15 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   else {
     cutter.set_enabled(true);
     get_s_power();
-    #if ENABLED(SPINDLE_SERVO)
-      cutter.apply_power(cutter.unitPower);
-    #else
-      cutter.apply_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0));
-    #endif
+    cutter.apply_power(
+      #if ENABLED(SPINDLE_SERVO)
+        cutter.unitPower
+      #elif ENABLED(SPINDLE_LASER_USE_PWM)
+        cutter.upower_to_ocr(cutter.unitPower)
+      #else
+        cutter.unitPower > 0 ? 255 : 0
+      #endif
+    );
     TERN_(SPINDLE_CHANGE_DIR, cutter.set_reverse(is_M4));
   }
 }
@@ -131,7 +138,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
 void GcodeSuite::M5() {
   planner.synchronize();
   cutter.power = 0;
-  cutter.apply_power(cutter.power);             // M5 kills power in either mode but if it's in inline it will be still be the active mode.
+  cutter.apply_power(0);                          // M5 just kills power, leaving inline mode unchanged
   if (cutter.cutter_mode != CUTTER_MODE_STANDARD) {
     if (parser.seen_test('I')) {
       TERN_(LASER_FEATURE, cutter.inline_power(cutter.power));

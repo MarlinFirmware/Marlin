@@ -3689,7 +3689,7 @@
      *
      * 'M4 I' sets dynamic mode which uses the current feedrate to calculate a laser power OCR value.
      *
-     * Any move in dynamic mode will use the current feed rate to calculate the laser power.
+     * Any move in dynamic mode will use the current feedrate to calculate the laser power.
      * Feed rates are set by the F parameter of a move command e.g. G1 X0 Y10 F6000
      * Laser power would be calculated by bit shifting off 8 LSB's. In binary this is div 256.
      * The calculation gives us ocr values from 0 to 255, values over F65535 will be set as 255 .
@@ -3697,7 +3697,6 @@
      *
      * M5 I clears inline mode and set power to 0, M5 sets the power output to 0 but leaves inline mode on.
      */
-
 
     /**
      * Enable M3 commands for laser mode inline power planner syncing.
@@ -3715,8 +3714,6 @@
      * - Due to the limited power resolution this is only approximate.
      */
     //#define LASER_POWER_TRAP
-
-
 
     //
     // Laser I2C Ammeter (High precision INA226 low/high side module)
