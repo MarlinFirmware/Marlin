@@ -76,7 +76,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     planner.synchronize();   // Wait for previous movement commands (G0/G1/G2/G3) to complete before changing power
 
   #if ENABLED(LASER_FEATURE)
-    if (parser.seen('I')) {
+    if (parser.seen_test('I')) {
       cutter.cutter_mode = is_M4 ? CUTTER_MODE_DYNAMIC : CUTTER_MODE_CONTINUOUS;
       cutter.inline_power(0);
       cutter.set_enabled(true);
@@ -84,7 +84,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   auto get_s_power = [] {
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       #if ENABLED(LASER_POWER_TRAP)
         cutter.unitPower = parser.value_float();
       #else
@@ -133,7 +133,7 @@ void GcodeSuite::M5() {
   cutter.power = 0;
   cutter.apply_power(cutter.power);             // M5 kills power in either mode but if it's in inline it will be still be the active mode.
   if (cutter.cutter_mode != CUTTER_MODE_STANDARD) {
-    if (parser.seen('I')) {
+    if (parser.seen_test('I')) {
       TERN_(LASER_FEATURE, cutter.inline_power(cutter.power));
       cutter.set_enabled(false);                  // Needs to happen while we are in inline mode to clear inline power.
       cutter.cutter_mode = CUTTER_MODE_STANDARD;  // Switch from inline to standard mode.
