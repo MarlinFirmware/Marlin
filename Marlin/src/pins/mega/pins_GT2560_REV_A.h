@@ -127,7 +127,7 @@
 
       #define LCD_RESET_PIN                   16
 
-      #define LCD_CONTRAST_DEFAULT           220
+      #define LCD_CONTRAST_INIT              220
 
       #define LCD_BACKLIGHT_PIN               -1
     #else

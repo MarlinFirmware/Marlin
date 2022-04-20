@@ -31,7 +31,7 @@ class ZStepperAlign {
   public:
     static xy_pos_t xy[NUM_Z_STEPPER_DRIVERS];
 
-    #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
       static xy_pos_t stepper_xy[NUM_Z_STEPPER_DRIVERS];
     #endif
 

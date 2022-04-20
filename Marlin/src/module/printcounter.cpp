@@ -43,7 +43,6 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #if PRINTCOUNTER_SYNC
   #include "../module/planner.h"
-  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
 // Service intervals
@@ -152,7 +151,7 @@ void PrintCounter::loadStats() {
       if (data.nextService3 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_3));
     #endif
     #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
-      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) BUZZ(200, 404);
+      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) { BUZZ(200, 404); BUZZ(10, 0); }
     #else
       UNUSED(doBuzz);
     #endif
@@ -172,7 +171,7 @@ void PrintCounter::saveStats() {
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(true));
+  TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(true));
 }
 
 #if HAS_SERVICE_INTERVALS

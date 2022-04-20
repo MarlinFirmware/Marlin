@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
+#if HAS_LCDPRINT
 
 #include "marlinui.h"
 #include "lcdprint.h"
@@ -75,7 +75,7 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
       n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
     }
     else if (ch == '@') {
-      lcd_put_wchar(axis_codes[ind]);
+      lcd_put_wchar(AXIS_CHAR(ind));
       n--;
     }
     else {
@@ -103,4 +103,4 @@ int calculateWidth(PGM_P const pstr) {
   return n * MENU_FONT_WIDTH;
 }
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_LCDPRINT

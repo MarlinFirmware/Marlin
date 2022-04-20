@@ -46,7 +46,8 @@
  */
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
-  if (homing_needed_error()) return;
+  if (homing_needed_error(linear_bits & ~TERN0(NOZZLE_CLEAN_NO_Z, Z_AXIS) & ~TERN0(NOZZLE_CLEAN_NO_Y, Y_AXIS)))
+    return;
 
   #ifdef WIPE_SEQUENCE_COMMANDS
     if (!parser.seen_any()) {

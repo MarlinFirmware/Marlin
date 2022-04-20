@@ -35,7 +35,7 @@ ZStepperAlign z_stepper_align;
 
 xy_pos_t ZStepperAlign::xy[NUM_Z_STEPPER_DRIVERS];
 
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+#if HAS_Z_STEPPER_ALIGN_STEPPER_XY
   xy_pos_t ZStepperAlign::stepper_xy[NUM_Z_STEPPER_DRIVERS];
 #endif
 
@@ -103,7 +103,7 @@ void ZStepperAlign::reset_to_default() {
 
   COPY(xy, xy_init);
 
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
     constexpr xy_pos_t stepper_xy_init[] = Z_STEPPER_ALIGN_STEPPER_XY;
     static_assert(
       COUNT(stepper_xy_init) == NUM_Z_STEPPER_DRIVERS,

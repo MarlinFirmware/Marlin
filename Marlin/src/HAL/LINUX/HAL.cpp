@@ -24,6 +24,10 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+// ------------------------
+// Serial ports
+// ------------------------
+
 MSerialT usb_serial(TERN0(EMERGENCY_PARSER, true));
 
 // U8glib required functions
@@ -37,42 +41,21 @@ extern "C" {
 //************************//
 
 // return free heap space
-int freeMemory() {
-  return 0;
-}
+int freeMemory() { return 0; }
 
 // ------------------------
 // ADC
 // ------------------------
 
-void HAL_adc_init() {
+uint8_t MarlinHAL::active_ch = 0;
 
-}
-
-void HAL_adc_enable_channel(const uint8_t ch) {
-
-}
-
-uint8_t active_ch = 0;
-void HAL_adc_start_conversion(const uint8_t ch) {
-  active_ch = ch;
-}
-
-bool HAL_adc_finished() {
-  return true;
-}
-
-uint16_t HAL_adc_get_result() {
-  pin_t pin = analogInputToDigitalPin(active_ch);
+uint16_t MarlinHAL::adc_value() {
+  const pin_t pin = analogInputToDigitalPin(active_ch);
   if (!VALID_PIN(pin)) return 0;
-  uint16_t data = ((Gpio::get(pin) >> 2) & 0x3FF);
+  const uint16_t data = ((Gpio::get(pin) >> 2) & 0x3FF);
   return data;    // return 10bit value as Marlin expects
 }
 
-void HAL_pwm_init() {
-
-}
-
-void HAL_reboot() { /* Reset the application state and GPIO */ }
+void MarlinHAL::reboot() { /* Reset the application state and GPIO */ }
 
 #endif // __PLAT_LINUX__

@@ -37,8 +37,8 @@ void MainMenu::onRedraw(draw_mode_t what) {
   }
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define GRID_ROWS 8
     #define GRID_COLS 2
+    #define GRID_ROWS 8
     #define ABOUT_PRINTER_POS     BTN_POS(1,1), BTN_SIZE(2,1)
     #define ADVANCED_SETTINGS_POS BTN_POS(1,2), BTN_SIZE(2,1)
     #if ENABLED(CUSTOM_MENU_MAIN)
@@ -55,8 +55,8 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #define CLEAN_NOZZLE_POS      BTN_POS(2,7), BTN_SIZE(1,1)
     #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
   #else
-    #define GRID_ROWS 5
     #define GRID_COLS 6
+    #define GRID_ROWS 5
     #define ADVANCED_SETTINGS_POS BTN_POS(1,1), BTN_SIZE(3,1)
     #define ABOUT_PRINTER_POS     BTN_POS(4,1), BTN_SIZE(3,1)
     #define AUTO_HOME_POS         BTN_POS(1,2), BTN_SIZE(3,1)
@@ -80,15 +80,15 @@ void MainMenu::onRedraw(draw_mode_t what) {
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
        .tag( 2).button(AUTO_HOME_POS,       GET_TEXT_F(MSG_AUTO_HOME))
-       .enabled(ENABLED(NOZZLE_CLEAN_FEATURE))
+               .enabled(ENABLED(NOZZLE_CLEAN_FEATURE))
        .tag( 3).button(CLEAN_NOZZLE_POS,    GET_TEXT_F(MSG_CLEAN_NOZZLE))
        .tag( 4).button(MOVE_AXIS_POS,       GET_TEXT_F(MSG_MOVE_AXIS))
        .tag( 5).button(DISABLE_STEPPERS_POS,GET_TEXT_F(MSG_DISABLE_STEPPERS))
        .tag( 6).button(TEMPERATURE_POS,     GET_TEXT_F(MSG_TEMPERATURE))
-       .enabled(IF_DISABLED(TOUCH_UI_LULZBOT_BIO, 1))
+               .enabled(DISABLED(TOUCH_UI_LULZBOT_BIO))
        .tag( 7).button(FILAMENTCHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
        .tag( 8).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-       .enabled(TERN_(HAS_LEVELING, 1))
+               .enabled(ENABLED(HAS_LEVELING))
        .tag( 9).button(LEVELING_POS,        GET_TEXT_F(MSG_LEVELING))
        .tag(10).button(ABOUT_PRINTER_POS,   GET_TEXT_F(MSG_INFO_MENU))
        #if ENABLED(CUSTOM_MENU_MAIN)

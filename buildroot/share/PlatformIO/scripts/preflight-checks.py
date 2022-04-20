@@ -102,6 +102,10 @@ if pioutil.is_pio_build():
 		for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
 			if os.path.isfile(os.path.join(p, f)):
 				mixedin += [ f ]
+		p = os.path.join(env['PROJECT_DIR'], "Marlin", "src", "feature", "bedlevel", "abl")
+		for f in [ "abl.cpp", "abl.h" ]:
+			if os.path.isfile(os.path.join(p, f)):
+				mixedin += [ f ]
 		if mixedin:
 			err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
 			raise SystemExit(err)
