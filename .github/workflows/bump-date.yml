@@ -36,3 +36,4 @@ jobs:
           git commit -m "[cron] Bump distribution date ($DIST)" && \
           git push
         fi
+        exit 0
