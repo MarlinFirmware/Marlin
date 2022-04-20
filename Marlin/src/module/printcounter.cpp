@@ -80,20 +80,26 @@ millis_t PrintCounter::deltaDuration() {
   return lastDuration - tmp;
 }
 
-void PrintCounter::incFilamentUsed(float const &amount) {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
+#if HAS_EXTRUDERS
+  void PrintCounter::incFilamentUsed(float const &amount) {
+    TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
 
-  // Refuses to update data if object is not loaded
-  if (!isLoaded()) return;
+    // Refuses to update data if object is not loaded
+    if (!isLoaded()) return;
 
-  data.filamentUsed += amount; // mm
-}
+    data.filamentUsed += amount; // mm
+  }
+#endif
 
 void PrintCounter::initStats() {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
 
   loaded = true;
-  data = { 0, 0, 0, 0, 0.0
+  data = { 0, 0, 0, 0
+    #if HAS_EXTRUDERS
+        , 0.0
+    #endif
+
     #if HAS_SERVICE_INTERVALS
       #if SERVICE_INTERVAL_1 > 0
         , SERVICE_INTERVAL_SEC_1
@@ -210,8 +216,11 @@ void PrintCounter::showStats() {
     SERIAL_CHAR(')');
   #endif
 
-  SERIAL_ECHOPGM("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
-  SERIAL_CHAR('m');
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOPGM("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
+    SERIAL_CHAR('m');
+  #endif
+
   SERIAL_EOL();
 
   #if SERVICE_INTERVAL_1 > 0
