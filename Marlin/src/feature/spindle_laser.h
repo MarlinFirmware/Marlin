@@ -157,11 +157,7 @@ public:
   /**
    * Correct power to configured range
    */
-  static cutter_power_t power_to_range(const cutter_power_t pwr) {
-    return power_to_range(pwr, _CUTTER_POWER(CUTTER_POWER_UNIT));
-  }
-
-  static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
+  static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit=_CUTTER_POWER(CUTTER_POWER_UNIT)) {
     static constexpr float
       min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
       max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
