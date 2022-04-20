@@ -285,10 +285,7 @@ public:
       static void laser_menu_toggle(const bool state) {
         set_enabled(state);
         if (state) {
-          if (menuPower)
-            power = cpwr_to_upwr(menuPower);
-          else
-            menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
+          if (!menuPower) menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
           power = upower_to_ocr(menuPower);
           apply_power(power);
         }
