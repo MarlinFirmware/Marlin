@@ -2328,6 +2328,11 @@
 //#define SPEAKER
 
 //
+// Disable the speaker by default.
+//
+//#define DISABLE_BUZZER_DEFAULT
+
+//
 // The duration and frequency for the UI feedback sound.
 // Set these to 0 to disable audio feedback in the LCD menus.
 //

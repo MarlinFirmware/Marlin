@@ -2945,7 +2945,11 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  #if ENABLED(DISABLE_BUZZER_DEFAULT)
+    TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = false);
+  #else
+    TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  #endif
 
   //
   // Magnetic Parking Extruder

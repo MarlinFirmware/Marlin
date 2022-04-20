@@ -117,7 +117,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
-#if ENABLED(SOUND_MENU_ITEM)
+#if ENABLED(DISABLE_BUZZER_DEFAULT)
+  bool MarlinUI::buzzer_enabled = false;
+#elif ENABLED(SOUND_MENU_ITEM)
   bool MarlinUI::buzzer_enabled = true;
 #endif
 

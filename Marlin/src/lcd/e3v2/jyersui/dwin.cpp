@@ -4656,6 +4656,7 @@ void CrealityDWINClass::Reset_Settings() {
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
   TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  TERN_(DISABLE_BUZZER_DEFAULT, ui.buzzer_enabled = false);
   Redraw_Screen();
 }
 
