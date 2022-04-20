@@ -360,16 +360,15 @@ void menu_backlash();
       #endif
 
       #if HAS_MULTI_HOTEND
-        #define MPC_EDIT_HOTEND(N) \
-          MPC_EDIT_DEFS(N); \
-          START_MENU(); \
-          BACK_ITEM(MSG_TEMPERATURE); \
-          MPC_EDIT_ITEMS(N); \
+        auto mpc_edit_hotend = [] {
+          MPC_EDIT_DEFS(MenuItemBase::itemIndex);
+          START_MENU();
+          BACK_ITEM(MSG_TEMPERATURE);
+          MPC_EDIT_ITEMS(MenuItemBase::itemIndex);
           END_MENU();
+        };
 
-        #define MPC_ENTRY(N) \
-          void (*fn)() = []{ MPC_EDIT_HOTEND(MenuItemBase::itemIndex); }; \
-          SUBMENU_N(N, MSG_MPC_EDIT, fn)
+        #define MPC_ENTRY(N) SUBMENU_N(N, MSG_MPC_EDIT, mpc_edit_hotend);
       #else
         #define MPC_ENTRY MPC_EDIT_ITEMS
       #endif
