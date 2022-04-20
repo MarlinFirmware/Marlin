@@ -70,14 +70,14 @@ public:
         #if CUTTER_UNIT_IS(RPM)
           cpwr                            // to same
         #elif CUTTER_UNIT_IS(PERCENT)
-          cpwr_to_pct(cpwr)               // to PCT
+          cpwr_to_pct(cpwr)               // to Percent
         #elif CUTTER_UNIT_IS(SERVO)
           PCT_TO_SERVO(cpwr_to_pct(cpwr)) // to SERVO angle
         #else
           PCT_TO_PWM(cpwr_to_pct(cpwr))   // to PWM
         #endif
       #else
-        // Laser configured define values are in PCT
+        // Laser configured define values are in Percent
         #if CUTTER_UNIT_IS(PWM255)
           PCT_TO_PWM(cpwr)                // to PWM
         #else
@@ -168,26 +168,15 @@ public:
     if (pwr <= 0) return 0;
     cutter_power_t upwr;
     switch (pwrUnit) {
-      case _CUTTER_POWER_PWM255:
-        upwr = cutter_power_t(
-            (pwr < pct_to_ocr(min_pct)) ? pct_to_ocr(min_pct) // Use minimum if set below
-          : (pwr > pct_to_ocr(max_pct)) ? pct_to_ocr(max_pct) // Use maximum if set above
-          :  pwr
-        );
+      case _CUTTER_POWER_PWM255: {  // PWM
+        const uint8_t pmin = pct_to_ocr(min_pct), pmax = pct_to_ocr(max_pct);
+        upwr = cutter_power_t(constrain(pwr, pmin, pmax));
+      } break;
+      case _CUTTER_POWER_PERCENT:   // Percent
+        upwr = cutter_power_t(constrain(pwr, min_pct, max_pct));
         break;
-      case _CUTTER_POWER_PERCENT:
-        upwr = cutter_power_t(
-            (pwr < min_pct) ? min_pct                         // Use minimum if set below
-          : (pwr > max_pct) ? max_pct                         // Use maximum if set above
-          :  pwr                                              // PCT
-        );
-        break;
-      case _CUTTER_POWER_RPM:
-        upwr = cutter_power_t(
-            (pwr < SPEED_POWER_MIN) ? SPEED_POWER_MIN         // Use minimum if set below
-          : (pwr > SPEED_POWER_MAX) ? SPEED_POWER_MAX         // Use maximum if set above
-          : pwr                                               // Calculate OCR value
-        );
+      case _CUTTER_POWER_RPM:       // Calculate OCR value
+        upwr = cutter_power_t(constrain(pwr, SPEED_POWER_MIN, SPEED_POWER_MAX));
         break;
       default: break;
     }
