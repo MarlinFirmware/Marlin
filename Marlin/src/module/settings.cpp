@@ -430,10 +430,10 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC_CONFIG
   //
-  tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
-  tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
-  tmc_sgt_t tmc_sgt;                                    // M914 X Y Z X2 Y2 Z2 Z3 Z4
-  tmc_stealth_enabled_t tmc_stealth_enabled;            // M569 X Y Z X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
+  tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z...
+  tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z...
+  tmc_sgt_t tmc_sgt;                                    // M914 X Y Z...
+  tmc_stealth_enabled_t tmc_stealth_enabled;            // M569 X Y Z...
 
   //
   // LIN_ADVANCE
