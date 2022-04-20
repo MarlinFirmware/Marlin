@@ -253,7 +253,7 @@ public:
 
   #if ENABLED(SDSUPPORT)
     #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
-    static void media_changed(const bool old_stat, const bool stat, const bool first=false);
+    static void media_changed(const uint8_t old_stat, const bool stat);
   #endif
 
   #if HAS_LCD_BRIGHTNESS

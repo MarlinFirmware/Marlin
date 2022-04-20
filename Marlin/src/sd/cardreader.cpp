@@ -472,13 +472,16 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static struct { bool present:1, inited:1; } media_stat = { false, false };
+  static uint8_t media_stat_present = 2;      // At first, we don't know if the media is insterted or not
+  static bool media_stat_inited = false;
 
   bool is_present = IS_SD_INSERTED();
-  if (media_stat.inited && is_present == media_stat.present) return; // No change in media presence?
+
+  // First call will always false, next will only pass if user insert or remove media
+  if (is_present == media_stat_present) return;
 
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
-  DEBUG_ECHOLNPGM("Media present: ", media_stat.present, " -> ", is_present);
+  DEBUG_ECHOLNPGM("Media present: ", media_stat_present, " -> ", is_present);
 
   flag.workDirIsRoot = true;                  // Return to root on mount/release/init
 
@@ -487,14 +490,14 @@ void CardReader::manage_media() {
     return;
   }
 
-  const bool was_present = media_stat.present;
-  media_stat.present = is_present;
+  const uint8_t was_present = media_stat_present;
+  media_stat_present = is_present;            // Now media_stat_preset will either 0 or 1
 
   if (is_present) {                           // Media Inserted
     safe_delay(500);                          // Some boards need a delay to get settled
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
-    if (TERN1(SD_IGNORE_AT_STARTUP, media_stat.inited)) mount();
+    if (TERN1(SD_IGNORE_AT_STARTUP, media_stat_inited)) mount();
     if (!isMounted()) is_present = false;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
@@ -505,15 +508,15 @@ void CardReader::manage_media() {
     #endif
   }
 
-  ui.media_changed(was_present, is_present, !media_stat.inited);  // Update the UI or flag an error
+  ui.media_changed(was_present, is_present);  // Update the UI or flag an error
 
   if (!is_present) return;                    // Return if no media inserted
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
 
-  if (media_stat.inited) return;              // Exit if the initial media check was done
-  media_stat.inited = true;                   // Now initialized!
+  if (media_stat_inited) return;              // Exit if the initial media check was done
+  media_stat_inited = true;                   // Now initialized!
   DEBUG_ECHOLNPGM("First mount.");
 
   bool do_auto = true; UNUSED(do_auto);

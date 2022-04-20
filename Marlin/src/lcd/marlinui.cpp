@@ -1733,13 +1733,14 @@ void MarlinUI::init() {
     #include "extui/ui_api.h"
   #endif
 
-  void MarlinUI::media_changed(const bool old_status, const bool status, const bool first/*=false*/) {
-    if (!first) {
-      if (old_status == status) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
-        return;
-      }
-      if (status) {
+  void MarlinUI::media_changed(const uint8_t old_status, const bool status) {
+    if (old_status == status) {
+      TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
+      return;
+    }
+
+    if (status) {
+      if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaInserted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
@@ -1750,7 +1751,9 @@ void MarlinUI::init() {
           LCD_MESSAGE(MSG_MEDIA_INSERTED);
         #endif
       }
-      else {
+    }
+    else {
+      if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
         #elif PIN_EXISTS(SD_DETECT)
