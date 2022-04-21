@@ -472,7 +472,7 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static uint8_t media_stat_present = 2;      // At first, we don't know if the media is insterted or not
+  static uint8_t media_stat_present = 2;      // At boot we don't know if media is present or not
   static bool media_stat_inited = false;
 
   bool is_present = IS_SD_INSERTED();
