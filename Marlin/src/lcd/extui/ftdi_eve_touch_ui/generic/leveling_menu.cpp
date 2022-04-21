@@ -34,8 +34,8 @@ using namespace ExtUI;
 using namespace Theme;
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
-  #define GRID_ROWS 8
   #define GRID_COLS 2
+  #define GRID_ROWS 8
   #define LEVELING_TITLE_POS BTN_POS(1,1), BTN_SIZE(2,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(2,1)
   #define BED_MESH_TITLE_POS BTN_POS(1,3), BTN_SIZE(2,1)
@@ -48,8 +48,8 @@ using namespace Theme;
   #define BLTOUCH_TEST_POS   BTN_POS(2,7), BTN_SIZE(1,1)
   #define BACK_POS           BTN_POS(1,8), BTN_SIZE(2,1)
 #else
-  #define GRID_ROWS 6
   #define GRID_COLS 3
+  #define GRID_ROWS 6
   #define LEVELING_TITLE_POS BTN_POS(1,1), BTN_SIZE(3,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(3,1)
   #define BED_MESH_TITLE_POS BTN_POS(1,3), BTN_SIZE(2,1)

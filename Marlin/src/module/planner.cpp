@@ -2005,22 +2005,24 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Number of steps for each axis
   // See https://www.corexy.com/theory.html
-  #if CORE_IS_XY
-    block->steps.set(NUM_AXIS_LIST(ABS(da + db), ABS(da - db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #elif CORE_IS_XZ
-    block->steps.set(NUM_AXIS_LIST(ABS(da + dc), ABS(db), ABS(da - dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #elif CORE_IS_YZ
-    block->steps.set(NUM_AXIS_LIST(ABS(da), ABS(db + dc), ABS(db - dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #elif ENABLED(MARKFORGED_XY)
-    block->steps.set(NUM_AXIS_LIST(ABS(da + db), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #elif ENABLED(MARKFORGED_YX)
-    block->steps.set(NUM_AXIS_LIST(ABS(da), ABS(db + da), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #elif IS_SCARA
-    block->steps.set(NUM_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #else
-    // default non-h-bot planning
-    block->steps.set(NUM_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)));
-  #endif
+  block->steps.set(NUM_AXIS_LIST(
+    #if CORE_IS_XY
+      ABS(da + db), ABS(da - db), ABS(dc)
+    #elif CORE_IS_XZ
+      ABS(da + dc), ABS(db), ABS(da - dc)
+    #elif CORE_IS_YZ
+      ABS(da), ABS(db + dc), ABS(db - dc)
+    #elif ENABLED(MARKFORGED_XY)
+      ABS(da + db), ABS(db), ABS(dc)
+    #elif ENABLED(MARKFORGED_YX)
+      ABS(da), ABS(db + da), ABS(dc)
+    #elif IS_SCARA
+      ABS(da), ABS(db), ABS(dc)
+    #else // default non-h-bot planning
+      ABS(da), ABS(db), ABS(dc)
+    #endif
+    , ABS(di), ABS(dj), ABS(dk), ABS(du), ABS(dv), ABS(dw)
+  ));
 
   /**
    * This part of the code calculates the total length of the movement.

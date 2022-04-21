@@ -31,10 +31,10 @@
 // Commonly-used strings in serial output
 extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
                   SP_A_STR[], SP_B_STR[], SP_C_STR[],
-                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_I_STR[], SP_J_STR[], SP_K_STR[], SP_U_STR[], SP_V_STR[], SP_W_STR[], SP_E_STR[],
-                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_I_LBL[], SP_J_LBL[], SP_K_LBL[], SP_U_LBL[], SP_V_LBL[], SP_W_LBL[], SP_E_LBL[],
-                  X_STR[], Y_STR[], Z_STR[], I_STR[], J_STR[], K_STR[], U_STR[], V_STR[], W_STR[], E_STR[],
-                  X_LBL[], Y_LBL[], Z_LBL[], I_LBL[], J_LBL[], K_LBL[], U_LBL[], V_LBL[], W_LBL[], E_LBL[];
+                  LOGICAL_AXIS_LIST(SP_E_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_I_STR[], SP_J_STR[], SP_K_STR[], SP_U_STR[], SP_V_STR[], SP_W_STR[]),
+                  LOGICAL_AXIS_LIST(SP_E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_I_LBL[], SP_J_LBL[], SP_K_LBL[], SP_U_LBL[], SP_V_LBL[], SP_W_LBL[]),
+                  LOGICAL_AXIS_LIST(E_STR[], X_STR[], Y_STR[], Z_STR[], I_STR[], J_STR[], K_STR[], U_STR[], V_STR[], W_STR[]),
+                  LOGICAL_AXIS_LIST(E_LBL[], X_LBL[], Y_LBL[], Z_LBL[], I_LBL[], J_LBL[], K_LBL[], U_LBL[], V_LBL[], W_LBL[]);
 
 PGM_P const SP_AXIS_LBL[] PROGMEM = LOGICAL_AXIS_ARRAY(SP_E_LBL, SP_X_LBL, SP_Y_LBL, SP_Z_LBL, SP_I_LBL, SP_J_LBL, SP_K_LBL, SP_U_LBL, SP_V_LBL, SP_W_LBL);
 PGM_P const SP_AXIS_STR[] PROGMEM = LOGICAL_AXIS_ARRAY(SP_E_STR, SP_X_STR, SP_Y_STR, SP_Z_STR, SP_I_STR, SP_J_STR, SP_K_STR, SP_U_STR, SP_V_STR, SP_W_STR);
