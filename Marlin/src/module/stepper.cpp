@@ -3367,7 +3367,7 @@ void Stepper::report_positions() {
     if (!initialized) return;
     LOOP_L_N(i, COUNT(motor_current_setting)) {
       switch (i) {
-        #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
+        #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
           case 0:
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
@@ -3414,6 +3414,24 @@ void Stepper::report_positions() {
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
               _WRITE_CURRENT_PWM(XY);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_I)
+              _WRITE_CURRENT_PWM(I);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_J)
+              _WRITE_CURRENT_PWM(J);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_K)
+              _WRITE_CURRENT_PWM(K);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_U)
+              _WRITE_CURRENT_PWM(U);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_V)
+              _WRITE_CURRENT_PWM(V);
+            #endif
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_W)
+              _WRITE_CURRENT_PWM(W);
             #endif
             break;
           case 1:
@@ -3463,6 +3481,24 @@ void Stepper::report_positions() {
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
           INIT_CURRENT_PWM(XY);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_I)
+          INIT_CURRENT_PWM(I);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_J)
+          INIT_CURRENT_PWM(J);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_K)
+          INIT_CURRENT_PWM(K);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_U)
+          INIT_CURRENT_PWM(U);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_V)
+          INIT_CURRENT_PWM(V);
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_W)
+          INIT_CURRENT_PWM(W);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           INIT_CURRENT_PWM(Z);

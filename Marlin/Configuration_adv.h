@@ -2494,12 +2494,16 @@
     #define TOOLCHANGE_FS_FAN_SPEED          255  // 0-255
     #define TOOLCHANGE_FS_FAN_TIME            10  // (seconds)
 
-    // Swap uninitialized extruder (using TOOLCHANGE_FS_PRIME_SPEED feedrate)
-    // (May break filament if not retracted beforehand.)
-    //#define TOOLCHANGE_FS_INIT_BEFORE_SWAP
+    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate the first time each extruder is primed
+    //#define TOOLCHANGE_FS_SLOW_FIRST_PRIME
 
-    // Prime on the first T0 (For other tools use TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-    // Enable with M217 V1 before printing to avoid unwanted priming on host connect
+    /**
+     * Prime T0 the first time T0 is sent to the printer:
+     *  [ Power-On -> T0 { Activate & Prime T0 } -> T1 { Retract T0, Activate & Prime T1 } ]
+     * If disabled, no priming on T0 until switching back to T0 from another extruder:
+     *  [ Power-On -> T0 { T0 Activated } -> T1 { Activate & Prime T1 } -> T0 { Retract T1, Activate & Prime T0 } ]
+     * Enable with M217 V1 before printing to avoid unwanted priming on host connect.
+     */
     //#define TOOLCHANGE_FS_PRIME_FIRST_USED
 
     /**
@@ -3871,6 +3875,9 @@
  * Auto-report temperatures with M155 S<seconds>
  */
 #define AUTO_REPORT_TEMPERATURES
+#if ENABLED(AUTO_REPORT_TEMPERATURES) && TEMP_SENSOR_REDUNDANT
+  //#define AUTO_REPORT_REDUNDANT // Include the "R" sensor in the auto-report
+#endif
 
 /**
  * Auto-report position with M154 S<seconds>

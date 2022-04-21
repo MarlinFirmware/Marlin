@@ -1166,7 +1166,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             #if ENABLED(MESH_BED_LEVELING)
               mbl.line_to_destination(scaled_fr_mm_s);
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-              bilinear_line_to_destination(scaled_fr_mm_s);
+              bbl.line_to_destination(scaled_fr_mm_s);
             #endif
             return true;
           }
@@ -1399,7 +1399,7 @@ void prepare_line_to_destination() {
   bool homing_needed_error(linear_axis_bits_t axis_bits/*=linear_bits*/) {
     if ((axis_bits = axes_should_home(axis_bits))) {
       PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
-      char msg[strlen_P(home_first)+1];
+      char msg[30];
       sprintf_P(msg, home_first,
         NUM_AXIS_LIST(
           TEST(axis_bits, X_AXIS) ? STR_A : "",

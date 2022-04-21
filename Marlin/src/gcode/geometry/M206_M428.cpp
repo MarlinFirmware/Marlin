@@ -39,20 +39,11 @@
  */
 void GcodeSuite::M206() {
   if (!parser.seen_any()) return M206_report();
-  NUM_AXIS_CODE(
-    if (parser.seen('X')) set_home_offset(X_AXIS, parser.value_linear_units()),
-    if (parser.seen('Y')) set_home_offset(Y_AXIS, parser.value_linear_units()),
-    if (parser.seen('Z')) set_home_offset(Y_AXIS, parser.value_linear_units()),
-    if (parser.seen(AXIS4_NAME)) set_home_offset(I_AXIS, parser.TERN(AXIS4_ROTATES, value_float, value_linear_units)()),
-    if (parser.seen(AXIS5_NAME)) set_home_offset(J_AXIS, parser.TERN(AXIS5_ROTATES, value_float, value_linear_units)()),
-    if (parser.seen(AXIS6_NAME)) set_home_offset(K_AXIS, parser.TERN(AXIS6_ROTATES, value_float, value_linear_units)()),
-    if (parser.seen(AXIS7_NAME)) set_home_offset(U_AXIS, parser.TERN(AXIS7_ROTATES, value_float, value_linear_units)()),
-    if (parser.seen(AXIS8_NAME)) set_home_offset(V_AXIS, parser.TERN(AXIS8_ROTATES, value_float, value_linear_units)()),
-    if (parser.seen(AXIS9_NAME)) set_home_offset(W_AXIS, parser.TERN(AXIS9_ROTATES, value_float, value_linear_units)())
-  );
+  LOOP_NUM_AXES(a)
+    if (parser.seenval(AXIS_CHAR(a))) set_home_offset((AxisEnum)a, parser.value_axis_units((AxisEnum)a));
   #if ENABLED(MORGAN_SCARA)
-    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
-    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
+    if (parser.seenval('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
+    if (parser.seenval('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
   report_current_position();

@@ -284,33 +284,33 @@
 
     bool report = true;
     #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
-      const int8_t index = parser.byteval('I', -1);
+      const uint8_t index = parser.byteval('I');
     #elif AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
-      constexpr int8_t index = -1;
+      constexpr uint8_t index = 0;
     #endif
     LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(AXIS_CHAR(i))) {
       report = false;
       switch (i) {
         #if X_HAS_STEALTHCHOP || X2_HAS_STEALTHCHOP
           case X_AXIS:
-            TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(X,X));
-            TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(X,X2));
+            TERN_(X_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(X,X));
+            TERN_(X2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(X,X2));
             break;
         #endif
 
         #if Y_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP
           case Y_AXIS:
-            TERN_(Y_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Y,Y));
-            TERN_(Y2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Y,Y2));
+            TERN_(Y_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(Y,Y));
+            TERN_(Y2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2));
             break;
         #endif
 
         #if Z_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP || Z3_HAS_STEALTHCHOP || Z4_HAS_STEALTHCHOP
           case Z_AXIS:
-            TERN_(Z_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Z,Z));
-            TERN_(Z2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Z,Z2));
-            TERN_(Z3_HAS_STEALTHCHOP, if (index < 0 || index == 2) TMC_SET_PWMTHRS(Z,Z3));
-            TERN_(Z4_HAS_STEALTHCHOP, if (index < 0 || index == 3) TMC_SET_PWMTHRS(Z,Z4));
+            TERN_(Z_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(Z,Z));
+            TERN_(Z2_HAS_STEALTHCHOP, if (!index || index == 2) TMC_SET_PWMTHRS(Z,Z2));
+            TERN_(Z3_HAS_STEALTHCHOP, if (!index || index == 3) TMC_SET_PWMTHRS(Z,Z3));
+            TERN_(Z4_HAS_STEALTHCHOP, if (!index || index == 4) TMC_SET_PWMTHRS(Z,Z4));
             break;
         #endif
 
@@ -401,7 +401,7 @@
 
     #if X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP
       say_M913(forReplay);
-      SERIAL_ECHOPGM(" I1");
+      SERIAL_ECHOPGM(" I2");
       #if X2_HAS_STEALTHCHOP
         SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.get_pwm_thrs());
       #endif
@@ -416,12 +416,12 @@
 
     #if Z3_HAS_STEALTHCHOP
       say_M913(forReplay);
-      SERIAL_ECHOLNPGM(" I2 Z", stepperZ3.get_pwm_thrs());
+      SERIAL_ECHOLNPGM(" I3 Z", stepperZ3.get_pwm_thrs());
     #endif
 
     #if Z4_HAS_STEALTHCHOP
       say_M913(forReplay);
-      SERIAL_ECHOLNPGM(" I3 Z", stepperZ4.get_pwm_thrs());
+      SERIAL_ECHOLNPGM(" I4 Z", stepperZ4.get_pwm_thrs());
     #endif
 
     #if I_HAS_STEALTHCHOP
@@ -521,9 +521,9 @@
         #if Z_SENSORLESS
           case Z_AXIS:
             if (index < 2) stepperZ.homing_threshold(value);
-            TERN_(Z2_SENSORLESS, if (index == 0 || index == 2) stepperZ2.homing_threshold(value));
-            TERN_(Z3_SENSORLESS, if (index == 0 || index == 3) stepperZ3.homing_threshold(value));
-            TERN_(Z4_SENSORLESS, if (index == 0 || index == 4) stepperZ4.homing_threshold(value));
+            TERN_(Z2_SENSORLESS, if (!index || index == 2) stepperZ2.homing_threshold(value));
+            TERN_(Z3_SENSORLESS, if (!index || index == 3) stepperZ3.homing_threshold(value));
+            TERN_(Z4_SENSORLESS, if (!index || index == 4) stepperZ4.homing_threshold(value));
             break;
         #endif
         #if I_SENSORLESS
@@ -589,7 +589,7 @@
 
     #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
       say_M914(forReplay);
-      SERIAL_ECHOPGM(" I1");
+      SERIAL_ECHOPGM(" I2");
       #if X2_SENSORLESS
         SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.homing_threshold());
       #endif
@@ -604,12 +604,12 @@
 
     #if Z3_SENSORLESS
       say_M914(forReplay);
-      SERIAL_ECHOLNPGM(" I2 Z", stepperZ3.homing_threshold());
+      SERIAL_ECHOLNPGM(" I3 Z", stepperZ3.homing_threshold());
     #endif
 
     #if Z4_SENSORLESS
       say_M914(forReplay);
-      SERIAL_ECHOLNPGM(" I3 Z", stepperZ4.homing_threshold());
+      SERIAL_ECHOLNPGM(" I4 Z", stepperZ4.homing_threshold());
     #endif
 
     #if I_SENSORLESS
