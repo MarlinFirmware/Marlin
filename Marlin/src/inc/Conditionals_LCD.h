@@ -1058,7 +1058,7 @@
   #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
-#if Z_HOME_TO_MAX
+#if Z_HOME_TO_MAX && DISABLED(Z_SAFE_HOMING)
   #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
 
