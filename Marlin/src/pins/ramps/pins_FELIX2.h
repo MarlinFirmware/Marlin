@@ -49,7 +49,7 @@
 //
 // LCD / Controller
 //
-#if IS_ULTRA_LCD && IS_NEWPANEL
+#if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define SD_DETECT_PIN                       6
 
