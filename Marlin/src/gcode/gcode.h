@@ -91,7 +91,7 @@
  *
  *** Print from Media (SDSUPPORT) ***
  * M20  - List SD card. (Requires SDSUPPORT)
- * M21  - Init SD card. (Requires SDSUPPORT)
+ * M21  - Init SD card. (Requires SDSUPPORT) With MULTI_VOLUME select a drive with `M21 Pn` / 'M21 S' / 'M21 U'.
  * M22  - Release SD card. (Requires SDSUPPORT)
  * M23  - Select SD file: "M23 /path/file.gco". (Requires SDSUPPORT)
  * M24  - Start/resume SD print. (Requires SDSUPPORT)
@@ -202,6 +202,7 @@
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
+ * M255 - Set LCD sleep time: "M255 S<minutes>" (0-99). (Requires an LCD with brightness or sleep/wake)
  * M256 - Set LCD brightness: "M256 B<brightness>" (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
@@ -215,12 +216,13 @@
  * M303 - PID relay autotune S<temperature> sets the target temperature. Default 150C. (Requires PIDTEMP)
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
  * M305 - Set user thermistor parameters R T and P. (Requires TEMP_SENSOR_x 1000)
+ * M306 - MPC autotune. (Requires MPCTEMP)
  * M309 - Set chamber PID parameters P I and D. (Requires PIDTEMPCHAMBER)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
  * M355 - Set Case Light on/off and set brightness. (Requires CASE_LIGHT_PIN)
- * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
- * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
+ * M380 - Activate solenoid on active tool (Requires EXT_SOLENOID) or the tool specified by 'S' (Requires MANUAL_SOLENOID_CONTROL).
+ * M381 - Disable solenoids on all tools (Requires EXT_SOLENOID) or the tool specified by 'S' (Requires MANUAL_SOLENOID_CONTROL).
  * M400 - Finish all moves.
  * M401 - Deploy and activate Z probe. (Requires a probe)
  * M402 - Deactivate and stow Z probe. (Requires a probe)
@@ -337,7 +339,7 @@
 #endif
 
 enum AxisRelative : uint8_t {
-  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
+  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K, REL_U, REL_V, REL_W)
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif
@@ -363,7 +365,8 @@ public:
     axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
       | _BV(REL_E),
       | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
-      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K)
+      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
+      | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
     )) : 0;
   }
   #if HAS_EXTRUDERS
@@ -877,6 +880,11 @@ private:
     static void M250_report(const bool forReplay=true);
   #endif
 
+  #if HAS_DISPLAY_SLEEP
+    static void M255();
+    static void M255_report(const bool forReplay=true);
+  #endif
+
   #if HAS_LCD_BRIGHTNESS
     static void M256();
     static void M256_report(const bool forReplay=true);
@@ -926,6 +934,11 @@ private:
 
   #if HAS_USER_THERMISTORS
     static void M305();
+  #endif
+
+  #if ENABLED(MPCTEMP)
+    static void M306();
+    static void M306_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(PIDTEMPCHAMBER)
@@ -1193,6 +1206,11 @@ private:
     static void M413();
     static void M413_report(const bool forReplay=true);
     static void M1000();
+  #endif
+
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(SDSUPPORT)

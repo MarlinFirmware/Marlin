@@ -63,6 +63,9 @@
 #define AXIS_DRIVER_TYPE_I(T) _AXIS_DRIVER_TYPE(I,T)
 #define AXIS_DRIVER_TYPE_J(T) _AXIS_DRIVER_TYPE(J,T)
 #define AXIS_DRIVER_TYPE_K(T) _AXIS_DRIVER_TYPE(K,T)
+#define AXIS_DRIVER_TYPE_U(T) _AXIS_DRIVER_TYPE(U,T)
+#define AXIS_DRIVER_TYPE_V(T) _AXIS_DRIVER_TYPE(V,T)
+#define AXIS_DRIVER_TYPE_W(T) _AXIS_DRIVER_TYPE(W,T)
 
 #define AXIS_DRIVER_TYPE_X2(T) (EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE) && _AXIS_DRIVER_TYPE(X2,T))
 #define AXIS_DRIVER_TYPE_Y2(T) (ENABLED(Y_DUAL_STEPPER_DRIVERS) && _AXIS_DRIVER_TYPE(Y2,T))
@@ -87,6 +90,7 @@
 
 #define HAS_DRIVER(T) (  AXIS_DRIVER_TYPE_X(T)  || AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Z(T)  \
                       || AXIS_DRIVER_TYPE_I(T)  || AXIS_DRIVER_TYPE_J(T)  || AXIS_DRIVER_TYPE_K(T)  \
+                      || AXIS_DRIVER_TYPE_U(T)  || AXIS_DRIVER_TYPE_V(T)  || AXIS_DRIVER_TYPE_W(T)  \
                       || AXIS_DRIVER_TYPE_X2(T) || AXIS_DRIVER_TYPE_Y2(T) || AXIS_DRIVER_TYPE_Z2(T) \
                       || AXIS_DRIVER_TYPE_Z3(T) || AXIS_DRIVER_TYPE_Z4(T) || HAS_E_DRIVER(T) )
 
@@ -128,7 +132,7 @@
 // Test for a driver that uses SPI - this allows checking whether a _CS_ pin
 // is considered sensitive
 #define AXIS_HAS_SPI(A)  (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
-                           || AXIS_DRIVER_TYPE(A,TMC2660) \
+                           || AXIS_DRIVER_TYPE(A,TMC26X)  || AXIS_DRIVER_TYPE(A,TMC2660) \
                            || AXIS_DRIVER_TYPE(A,TMC5130) || AXIS_DRIVER_TYPE(A,TMC5160) )
 
 #define AXIS_HAS_UART(A) ( AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2209) )
@@ -161,6 +165,7 @@
                           || AXIS_HAS_##T(Y) || AXIS_HAS_##T(Y2) \
                           || AXIS_HAS_##T(Z) || AXIS_HAS_##T(Z2) || AXIS_HAS_##T(Z3) || AXIS_HAS_##T(Z4) \
                           || AXIS_HAS_##T(I) || AXIS_HAS_##T(J)  || AXIS_HAS_##T(K) \
+                          || AXIS_HAS_##T(U) || AXIS_HAS_##T(V)  || AXIS_HAS_##T(W) \
                           || E_AXIS_HAS(T) )
 
 #if ANY_AXIS_HAS(STEALTHCHOP)
@@ -200,4 +205,4 @@
   #define HAS_L64XX_NOT_L6474 1
 #endif
 
-#define AXIS_IS_L64XX(A) (AXIS_DRIVER_TYPE_##A(L6470) || AXIS_DRIVER_TYPE_##A(L6474) ||  AXIS_DRIVER_TYPE_##A(L6480) || AXIS_DRIVER_TYPE_##A(POWERSTEP01))
+#define AXIS_IS_L64XX(A) (AXIS_DRIVER_TYPE_##A(L6470) || AXIS_DRIVER_TYPE_##A(L6474) || AXIS_DRIVER_TYPE_##A(L6480) || AXIS_DRIVER_TYPE_##A(POWERSTEP01))

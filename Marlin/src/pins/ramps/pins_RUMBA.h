@@ -220,7 +220,7 @@
       #define RGB_LED_B_PIN                   40
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                      25
+    #define NEOPIXEL_PIN                      38
   #endif
 
 #else

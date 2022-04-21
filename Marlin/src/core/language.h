@@ -199,16 +199,20 @@
 #define STR_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
 #define STR_FILAMENT_CHANGE_WAIT_M108       "Send M108 to resume"
 
-#define STR_STOP_BLTOUCH                    "!! STOP called because of BLTouch error - restart with M999"
-#define STR_STOP_UNHOMED                    "!! STOP called because of unhomed error - restart with M999"
-#define STR_KILL_INACTIVE_TIME              "!! KILL caused by too much inactive time - current command: "
-#define STR_KILL_BUTTON                     "!! KILL caused by KILL button/pin"
+#define STR_STOP_PRE                        "!! STOP called because of "
+#define STR_STOP_POST                       " error - restart with M999"
+#define STR_STOP_BLTOUCH                    "BLTouch"
+#define STR_STOP_UNHOMED                    "unhomed"
+#define STR_KILL_PRE                        "!! KILL caused by "
+#define STR_KILL_INACTIVE_TIME              "too much inactive time - current command: "
+#define STR_KILL_BUTTON                     "KILL button/pin"
 
 // temperature.cpp strings
-#define STR_PID_AUTOTUNE_START              "PID Autotune start"
-#define STR_PID_BAD_HEATER_ID               "PID Autotune failed! Bad heater id"
-#define STR_PID_TEMP_TOO_HIGH               "PID Autotune failed! Temperature too high"
-#define STR_PID_TIMEOUT                     "PID Autotune failed! timeout"
+#define STR_PID_AUTOTUNE                    "PID Autotune"
+#define STR_PID_AUTOTUNE_START              " start"
+#define STR_PID_BAD_HEATER_ID               " failed! Bad heater id"
+#define STR_PID_TEMP_TOO_HIGH               " failed! Temperature too high"
+#define STR_PID_TIMEOUT                     " failed! timeout"
 #define STR_BIAS                            " bias: "
 #define STR_D_COLON                         " d: "
 #define STR_T_MIN                           " min: "
@@ -219,7 +223,7 @@
 #define STR_KP                              " Kp: "
 #define STR_KI                              " Ki: "
 #define STR_KD                              " Kd: "
-#define STR_PID_AUTOTUNE_FINISHED           "PID Autotune finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
+#define STR_PID_AUTOTUNE_FINISHED           " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define STR_PID_DEBUG                       " PID_DEBUG "
 #define STR_PID_DEBUG_INPUT                 ": Input "
 #define STR_PID_DEBUG_OUTPUT                " Output "
@@ -228,6 +232,14 @@
 #define STR_PID_DEBUG_DTERM                 " dTerm "
 #define STR_PID_DEBUG_CTERM                 " cTerm "
 #define STR_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
+#define STR_MPC_AUTOTUNE                    "MPC Autotune"
+#define STR_MPC_AUTOTUNE_START              " start for " STR_E
+#define STR_MPC_AUTOTUNE_INTERRUPTED        " interrupted!"
+#define STR_MPC_AUTOTUNE_FINISHED           " finished! Put the constants below into Configuration.h"
+#define STR_MPC_COOLING_TO_AMBIENT          "Cooling to ambient"
+#define STR_MPC_HEATING_PAST_200            "Heating to over 200C"
+#define STR_MPC_MEASURING_AMBIENT           "Measuring ambient heatloss at "
+#define STR_MPC_TEMPERATURE_ERROR           "Temperature error"
 
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"
@@ -303,6 +315,7 @@
 #define STR_MATERIAL_HEATUP                 "Material heatup parameters"
 #define STR_LCD_CONTRAST                    "LCD Contrast"
 #define STR_LCD_BRIGHTNESS                  "LCD Brightness"
+#define STR_DISPLAY_SLEEP                   "Display Sleep"
 #define STR_UI_LANGUAGE                     "UI Language"
 #define STR_Z_PROBE_OFFSET                  "Z-Probe Offset"
 #define STR_TEMPERATURE_UNITS               "Temperature Units"
@@ -442,6 +455,54 @@
   #endif
 #else
   #define STR_K   ""
+#endif
+
+#if HAS_U_AXIS
+  #if AXIS7_NAME == 'U'
+    #define STR_U "U"
+    #define STR_U_MIN "u_min"
+    #define STR_U_MAX "u_max"
+  #elif AXIS7_NAME == 'V'
+    #define STR_U "V"
+    #define STR_U_MIN "v_min"
+    #define STR_U_MAX "v_max"
+  #elif AXIS7_NAME == 'W'
+    #define STR_U "W"
+    #define STR_U_MIN "w_min"
+    #define STR_U_MAX "w_max"
+  #else
+    #error "AXIS7_NAME can only be one of 'U', 'V', or 'W'."
+  #endif
+#else
+  #define STR_U   ""
+#endif
+
+#if HAS_V_AXIS
+  #if AXIS8_NAME == 'V'
+    #define STR_V "V"
+    #define STR_V_MIN "v_min"
+    #define STR_V_MAX "v_max"
+  #elif AXIS8_NAME == 'W'
+    #define STR_V "W"
+    #define STR_V_MIN "w_min"
+    #define STR_V_MAX "w_max"
+  #else
+    #error "AXIS8_NAME can only be one of 'V', or 'W'."
+  #endif
+#else
+  #define STR_V   ""
+#endif
+
+#if HAS_W_AXIS
+  #if AXIS9_NAME == 'W'
+    #define STR_W "W"
+    #define STR_W_MIN "w_min"
+    #define STR_W_MAX "w_max"
+  #else
+    #error "AXIS9_NAME can only be 'W'."
+  #endif
+#else
+  #define STR_W   ""
 #endif
 
 #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
