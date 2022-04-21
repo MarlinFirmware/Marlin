@@ -37,11 +37,9 @@ struct printStatistics {    // 16 bytes
   uint16_t finishedPrints;  // Number of complete prints
   uint32_t printTime;       // Accumulated printing time
   uint32_t longestPrint;    // Longest successful print job
-
   #if HAS_EXTRUDERS
-    float    filamentUsed;    // Accumulated filament consumed in mm
+    float  filamentUsed;    // Accumulated filament consumed in mm
   #endif
-
   #if SERVICE_INTERVAL_1 > 0
     uint32_t nextService1;  // Service intervals (or placeholders)
   #endif
@@ -56,12 +54,7 @@ struct printStatistics {    // 16 bytes
 class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
-
-    #if EITHER(USE_WIRED_EEPROM, CPU_32_BIT)
-      typedef uint32_t eeprom_address_t;
-    #else
-      typedef uint16_t eeprom_address_t;
-    #endif
+    typedef IF<EITHER(USE_WIRED_EEPROM, CPU_32_BIT), uint32_t, uint16_t>::type eeprom_address_t;
 
     static printStatistics data;
 

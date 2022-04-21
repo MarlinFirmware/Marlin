@@ -95,21 +95,21 @@ void PrintCounter::initStats() {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
 
   loaded = true;
-  data = { 0, 0, 0, 0
-    #if HAS_EXTRUDERS
-        , 0.0
-    #endif
 
-    #if HAS_SERVICE_INTERVALS
-      #if SERVICE_INTERVAL_1 > 0
-        , SERVICE_INTERVAL_SEC_1
-      #endif
-      #if SERVICE_INTERVAL_2 > 0
-        , SERVICE_INTERVAL_SEC_2
-      #endif
-      #if SERVICE_INTERVAL_3 > 0
-        , SERVICE_INTERVAL_SEC_3
-      #endif
+  data = {
+      .totalPrints = 0
+    , .finishedPrints = 0
+    , .printTime = 0
+    , .longestPrint = 0
+    OPTARG(HAS_EXTRUDERS, .filamentUsed = 0.0)
+    #if SERVICE_INTERVAL_1 > 0
+      , .nextService1 = SERVICE_INTERVAL_SEC_1
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      , .nextService2 = SERVICE_INTERVAL_SEC_2
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      , .nextService3 = SERVICE_INTERVAL_SEC_3
     #endif
   };
 
