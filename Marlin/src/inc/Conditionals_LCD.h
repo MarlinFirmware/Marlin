@@ -990,6 +990,10 @@
   #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
+#if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
+  #define HOME_Y_BEFORE_X
+#endif
+
 #if Z_HOME_TO_MAX
   #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
