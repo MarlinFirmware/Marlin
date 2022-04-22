@@ -630,7 +630,9 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       switch (var.VP) {
         default: return;
         case VP_E0_BED_PREHEAT: TERN_(HAS_HOTEND,       ui.preheat_all(0)); break;
-        case VP_E1_BED_PREHEAT: TERN_(HAS_MULTI_HOTEND, ui.preheat_all(1)); break;
+        #if DISABLED(DGUS_LCD_UI_HIPRECY)
+          case VP_E1_BED_PREHEAT: TERN_(HAS_MULTI_HOTEND, ui.preheat_all(1)); break;
+        #endif
       }
       case 7: break; // Custom preheat
       case 9: thermalManager.cooldown(); break; // Cool down
