@@ -433,10 +433,10 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC_CONFIG
   //
-  per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
-  per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
-  mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4
-  per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
+  per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
+  per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+  mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
+  per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
   //
   // LIN_ADVANCE
@@ -447,7 +447,15 @@ typedef struct SettingsDataStruct {
   // HAS_MOTOR_CURRENT_PWM
   //
   #ifndef MOTOR_CURRENT_COUNT
-    #define MOTOR_CURRENT_COUNT NUM_AXES
+    #if HAS_MOTOR_CURRENT_PWM
+      #define MOTOR_CURRENT_COUNT 3
+    #elif HAS_MOTOR_CURRENT_DAC
+      #define MOTOR_CURRENT_COUNT LOGICAL_AXES
+    #elif HAS_MOTOR_CURRENT_I2C
+      #define MOTOR_CURRENT_COUNT DIGIPOT_I2C_NUM_CHANNELS
+    #else // HAS_MOTOR_CURRENT_SPI
+      #define MOTOR_CURRENT_COUNT DISTINCT_AXES
+    #endif
   #endif
   uint32_t motor_current_setting[MOTOR_CURRENT_COUNT];  // M907 X Z E ...
 
