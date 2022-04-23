@@ -1293,6 +1293,12 @@ void Planner::recalculate() {
 
   #endif
 
+  #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
+    #define HAS_TAIL_FAN_SPEED 1
+    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 0);
+    bool fans_need_update = true;
+  #endif
+
 #endif // HAS_FAN
 
 /**
@@ -1305,9 +1311,7 @@ void Planner::check_axes_activity() {
   #endif
 
   #if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
-    #define HAS_TAIL_FAN_SPEED 1
-    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 128);
-    bool fans_need_update = false;
+    fans_need_update = false;
   #endif
 
   #if ENABLED(BARICUDA)
