@@ -52,7 +52,7 @@ void protected_pin_err() {
  *  S<byte> Pin status from 0 - 255
  *  I       Flag to ignore Marlin's pin protection
  *
- *  M<mode> Pin mode: 0=INPUT  1=OUTPUT  2=INPUT_PULLUP  3=INPUT_PULLDOWN
+ *  T<mode> Pin mode: 0=INPUT  1=OUTPUT  2=INPUT_PULLUP  3=INPUT_PULLDOWN
  */
 void GcodeSuite::M42() {
   const int pin_index = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
@@ -63,7 +63,7 @@ void GcodeSuite::M42() {
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   bool avoidWrite = false;
-  if (parser.seenval('M')) {
+  if (parser.seenval('T')) {
     switch (parser.value_byte()) {
       case 0: pinMode(pin, INPUT); avoidWrite = true; break;
       case 1: pinMode(pin, OUTPUT); break;
@@ -126,10 +126,10 @@ void GcodeSuite::M42() {
   extDigitalWrite(pin, pin_status);
 
   #ifdef ARDUINO_ARCH_STM32
-    // A simple I/O will be set to 0 by analogWrite()
+    // A simple I/O will be set to 0 by hal.set_pwm_duty()
     if (pin_status <= 1 && !PWM_PIN(pin)) return;
   #endif
-  analogWrite(pin, pin_status);
+  hal.set_pwm_duty(pin, pin_status);
 }
 
 #endif // DIRECT_PIN_CONTROL

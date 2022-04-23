@@ -41,7 +41,9 @@ extern bool wait_for_user, wait_for_heatup;
   void quickresume_stepper();
 #endif
 
-void HAL_reboot();
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
+  void HAL_reboot();
+#endif
 
 class EmergencyParser {
 
@@ -199,7 +201,7 @@ public:
             case EP_M112: killed_by_M112 = true; break;
             case EP_M410: quickstop_by_M410 = true; break;
             #if ENABLED(HOST_PROMPT_SUPPORT)
-              case EP_M876SN: host_response_handler(M876_reason); break;
+              case EP_M876SN: hostui.handle_response(M876_reason); break;
             #endif
             #if ENABLED(REALTIME_REPORTING_COMMANDS)
               case EP_GRBL_STATUS: report_current_position_moving(); break;

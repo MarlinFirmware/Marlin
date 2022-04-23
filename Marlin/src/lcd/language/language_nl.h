@@ -54,7 +54,7 @@ namespace Language_nl {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Zet home offsets");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("H offset toegep.");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Nulpunt instellen");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
     LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
     LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
@@ -180,7 +180,7 @@ namespace Language_nl {
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Onjuiste printer");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Printed Aantal");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Totaal Voltooid");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Totale Printtijd");

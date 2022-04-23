@@ -245,8 +245,8 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, FSTR_P label,
   }
 
   if (_what & FOREGROUND) {
-    char b[strlen_P(value)+1];
-    strcpy_P(b,value);
+    char b[strlen(value) + 1];
+    strcpy(b, value);
     adjuster_sram_val(tag, label, b, is_enabled);
   }
 }

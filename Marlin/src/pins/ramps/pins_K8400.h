@@ -50,7 +50,7 @@
 #define X_STOP_PIN                             3
 #define Y_STOP_PIN                            14
 
-#include "pins_3DRAG.h"
+#include "pins_3DRAG.h" // ... RAMPS
 
 //
 // Heaters / Fans

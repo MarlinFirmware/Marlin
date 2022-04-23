@@ -51,8 +51,8 @@
 //
 // MOSFET changes
 //
-#define RAMPS_D9_PIN                           8  // FAN (by default)
-#define RAMPS_D10_PIN                          9  // EXTRUDER 1
+#define MOSFET_A_PIN                           9  // EXTRUDER 1
+#define MOSFET_B_PIN                           8  // FAN (by default)
 #define MOSFET_D_PIN                          12  // EXTRUDER 2 or FAN
 
 #include "pins_RAMPS.h"

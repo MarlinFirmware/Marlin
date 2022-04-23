@@ -23,10 +23,11 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#ifndef DWIN_WIDTH
+#if ENABLED(DWIN_MARLINUI_LANDSCAPE)
+  #define DWIN_WIDTH  480
+  #define DWIN_HEIGHT 272
+#else
   #define DWIN_WIDTH  272
-#endif
-#ifndef DWIN_HEIGHT
   #define DWIN_HEIGHT 480
 #endif
 

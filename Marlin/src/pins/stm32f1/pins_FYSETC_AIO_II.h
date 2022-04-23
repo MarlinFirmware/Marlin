@@ -27,7 +27,7 @@
 #define BOARD_WEBSITE_URL "fysetc.com"
 
 #define BOARD_NO_NATIVE_USB
-
+#define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
 #define pins_v2_20190128                          // new pins define
@@ -166,9 +166,7 @@
     #endif
 
     //#define LCD_CONTRAST_INIT              190
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #endif
 

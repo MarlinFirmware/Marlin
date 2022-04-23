@@ -55,7 +55,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_F_HIGH: fanPercent = 100; break;
     case ID_F_MID:  fanPercent =  50; break;
     case ID_F_OFF:  fanPercent =   0; break;
-    case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
+    case ID_F_RETURN: goto_previous_ui(); return;
   }
   thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
   if (obj->mks_obj_id != ID_F_RETURN) disp_fan_value();

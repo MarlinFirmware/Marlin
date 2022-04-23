@@ -453,8 +453,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_NUM_CONFIRM:
       last_disp_state = NUMBER_KEY_UI;
       if (strlen(key_value) != 0) set_value_confirm();
-      lv_clear_number_key();
-      draw_return_ui();
+      goto_previous_ui();
       break;
   }
 }

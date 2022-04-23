@@ -278,11 +278,7 @@
     #endif
 
   #elif ENABLED(MINIPANEL)
-    // GLCD features
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -363,9 +359,9 @@
  *  PWM1.4   P1_23   SDSS(SSEL0)      J3-5  AUX-3
  *  PWM1.4   P2_03   Z_STEP_PIN
  *  PWM1.5   P1_24   X_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.5   P2_04   RAMPS_D9_PIN
+ *  PWM1.5   P2_04   MOSFET_B_PIN
  *  PWM1.6   P1_26   Y_MIN_PIN        10K PULLUP TO 3.3v, 1K SERIES
- *  PWM1.6   P2_05   RAMPS_D10_PIN
+ *  PWM1.6   P2_05   MOSFET_A_PIN
  */
 
 /**

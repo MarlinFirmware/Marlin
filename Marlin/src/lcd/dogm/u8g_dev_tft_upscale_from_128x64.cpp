@@ -78,12 +78,12 @@ TFT_IO tftio;
   #include "../marlinui.h"
 #endif
 
-#if HAS_TOUCH_BUTTONS
-  #include "../touch/touch_buttons.h"
-  #if HAS_TOUCH_SLEEP
-    #define HAS_TOUCH_BUTTONS_SLEEP 1
-  #endif
+#if HAS_TOUCH_BUTTONS && HAS_TOUCH_SLEEP
+  #define HAS_TOUCH_BUTTONS_SLEEP 1
 #endif
+
+#include "../touch/touch_buttons.h"
+#include "../scaled_tft.h"
 
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
@@ -325,6 +325,7 @@ static bool preinit = true;
 static uint8_t page;
 
 #if HAS_TOUCH_BUTTONS
+
   static bool redrawTouchButtons = true;
   static void drawTouchButtons(u8g_t *u8g, u8g_dev_t *dev) {
     if (!redrawTouchButtons) return;
@@ -343,6 +344,7 @@ static uint8_t page;
     setWindow(u8g, dev, BUTTONC_X_LO, BUTTON_Y_LO, BUTTONC_X_HI, BUTTON_Y_HI);
     drawImage(buttonC, u8g, dev, BUTTON_DRAW_WIDTH, BUTTON_DRAW_HEIGHT, TFT_BTOKMENU_COLOR);
   }
+
 #endif // HAS_TOUCH_BUTTONS
 
 static void u8g_upscale_clear_lcd(u8g_t *u8g, u8g_dev_t *dev, uint16_t *buffer) {
@@ -395,7 +397,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           if (!sleepCleared) {
             sleepCleared = true;
             u8g_upscale_clear_lcd(u8g, dev, buffer);
-            IF_ENABLED(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
+            TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
           }
           break;
         }

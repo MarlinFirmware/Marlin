@@ -44,7 +44,7 @@ namespace Language_fi {
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Aseta origo");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");

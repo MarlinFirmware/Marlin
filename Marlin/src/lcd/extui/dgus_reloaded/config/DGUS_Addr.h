@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -64,7 +64,7 @@ enum class DGUS_Addr : uint16_t {
   TEMP_Preset               = 0x2010, // Popup / Data: DGUS_Data::TempPreset
   TEMP_SetTarget_Bed        = 0x2011, // Type: Integer (16 bits signed)
   TEMP_SetTarget_H0         = 0x2012, // Type: Integer (16 bits signed)
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     TEMP_SetTarget_H1       = 0x2013, // Type: Integer (16 bits signed)
   #endif
   TEMP_Cool                 = 0x2014, // Data: DGUS_Data::Heater
@@ -123,7 +123,7 @@ enum class DGUS_Addr : uint16_t {
   TEMP_Current_H0           = 0x30FF, // Type: Integer (16 bits signed)
   TEMP_Target_H0            = 0x3100, // Type: Integer (16 bits signed)
   TEMP_Max_H0               = 0x3101, // Type: Integer (16 bits unsigned)
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     TEMP_Current_H1         = 0x3102, // Type: Integer (16 bits signed)
     TEMP_Target_H1          = 0x3103, // Type: Integer (16 bits signed)
     TEMP_Max_H1             = 0x3104, // Type: Integer (16 bits unsigned)

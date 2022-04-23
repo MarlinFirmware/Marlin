@@ -486,7 +486,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
 
     // If global interrupts are disabled (as the result of being called from an ISR)...
-    if (!ISRS_ENABLED()) {
+    if (!hal.isr_state()) {
 
       // Make room by polling if it is possible to transmit, and do so!
       while (i == tx_buffer.tail) {
@@ -534,7 +534,7 @@ void MarlinSerial<Cfg>::flushTX() {
     if (!_written) return;
 
     // If global interrupts are disabled (as the result of being called from an ISR)...
-    if (!ISRS_ENABLED()) {
+    if (!hal.isr_state()) {
 
       // Wait until everything was transmitted - We must do polling, as interrupts are disabled
       while (tx_buffer.head != tx_buffer.tail || !B_TXC) {

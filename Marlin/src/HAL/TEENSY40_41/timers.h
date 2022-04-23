@@ -43,14 +43,14 @@ typedef uint32_t hal_timer_t;
 #define GPT1_TIMER_RATE (GPT_TIMER_RATE / GPT1_TIMER_PRESCALE) // 75MHz
 #define GPT2_TIMER_RATE (GPT_TIMER_RATE / GPT2_TIMER_PRESCALE) // 15MHz
 
-#ifndef STEP_TIMER_NUM
-  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#ifndef MF_TIMER_STEP
+  #define MF_TIMER_STEP         0  // Timer Index for Stepper
 #endif
-#ifndef PULSE_TIMER_NUM
-  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#ifndef MF_TIMER_PULSE
+  #define MF_TIMER_PULSE        MF_TIMER_STEP
 #endif
-#ifndef TEMP_TIMER_NUM
-  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
+#ifndef MF_TIMER_TEMP
+  #define MF_TIMER_TEMP         1  // Timer Index for Temperature
 #endif
 
 #define TEMP_TIMER_RATE        1000000
@@ -64,12 +64,12 @@ typedef uint32_t hal_timer_t;
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 #ifndef HAL_STEP_TIMER_ISR
   #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler() // GPT1_Handler()
@@ -87,27 +87,23 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0:
-      GPT1_OCR1 = compare - 1;
-      break;
-    case 1:
-      GPT2_OCR1 = compare - 1;
-      break;
+    case MF_TIMER_STEP: GPT1_OCR1 = compare - 1; break;
+    case MF_TIMER_TEMP: GPT2_OCR1 = compare - 1; break;
   }
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return GPT1_OCR1;
-    case 1: return GPT2_OCR1;
+    case MF_TIMER_STEP: return GPT1_OCR1;
+    case MF_TIMER_TEMP: return GPT2_OCR1;
   }
   return 0;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return GPT1_CNT;
-    case 1: return GPT2_CNT;
+    case MF_TIMER_STEP: return GPT1_CNT;
+    case MF_TIMER_TEMP: return GPT2_CNT;
   }
   return 0;
 }
@@ -118,4 +114,4 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 //void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_epilogue(T) NOOP

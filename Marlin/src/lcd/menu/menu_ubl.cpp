@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
+#if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu_item.h"
 #include "../../gcode/gcode.h"
@@ -208,29 +208,16 @@ void _lcd_ubl_edit_mesh() {
   void _lcd_ubl_validate_mesh() {
     START_MENU();
     BACK_ITEM(MSG_UBL_TOOLS);
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       #if HAS_HEATED_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
-          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPI" STRINGIFY(M)))
+          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPI" STRINGIFY(M)));
       #else
         #define VALIDATE_MESH_GCODE_ITEM(M) \
-          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPB0I" STRINGIFY(M)))
+          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPB0I" STRINGIFY(M)));
       #endif
-
-      VALIDATE_MESH_GCODE_ITEM(0);
-      #if PREHEAT_COUNT > 1
-        VALIDATE_MESH_GCODE_ITEM(1);
-        #if PREHEAT_COUNT > 2
-          VALIDATE_MESH_GCODE_ITEM(2);
-          #if PREHEAT_COUNT > 3
-            VALIDATE_MESH_GCODE_ITEM(3);
-            #if PREHEAT_COUNT > 4
-              VALIDATE_MESH_GCODE_ITEM(4);
-            #endif
-          #endif
-        #endif
-      #endif
-    #endif // PREHEAT_COUNT
+      REPEAT(PREHEAT_COUNT, VALIDATE_MESH_GCODE_ITEM)
+    #endif
     ACTION_ITEM(MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
     ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
     END_MENU();
@@ -324,7 +311,7 @@ void _lcd_ubl_invalidate() {
 void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #if HAS_HEATED_BED
       #define PREHEAT_BED_GCODE(M) "M190I" STRINGIFY(M) "\n"
     #else
@@ -352,7 +339,7 @@ void _lcd_ubl_build_mesh() {
         #endif
       #endif
     #endif
-  #endif // PREHEAT_COUNT
+  #endif // HAS_PREHEAT
 
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G29NP1"));
@@ -684,4 +671,4 @@ void _lcd_ubl_level_bed() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && AUTO_BED_LEVELING_UBL
+#endif // HAS_MARLINUI_MENU && AUTO_BED_LEVELING_UBL

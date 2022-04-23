@@ -80,6 +80,23 @@
   #endif
 #endif
 
+#if HAS_TMC_UART                                  // Shared with EXP1
+  #define X_SERIAL_TX_PIN                  PC10
+  #define X_SERIAL_RX_PIN       X_SERIAL_TX_PIN
+
+  #define Y_SERIAL_TX_PIN                  PC11
+  #define Y_SERIAL_RX_PIN       Y_SERIAL_TX_PIN
+
+  #define Z_SERIAL_TX_PIN                  PC12
+  #define Z_SERIAL_RX_PIN       Z_SERIAL_TX_PIN
+
+  #define E0_SERIAL_TX_PIN                 PC14
+  #define E0_SERIAL_RX_PIN     E0_SERIAL_TX_PIN
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                   19200
+#endif
+
 //
 // Heaters / Fans
 //
@@ -98,7 +115,7 @@
  *  (LCD_EN) PB6  | 8  7 | PC12  (LCD_RS)     (BTN_EN1) PD2 | 8  7 | PA15  (SD_SS)
  *  (LCD_D4) PC13   6  5 | PB7   (LCD_D5)     (BTN_EN2) PB8   6  5 | PB5   (MOSI)
  *  (LCD_D6) PC15 | 4  3 | PC14  (LCD_D7)   (SD_DETECT) PB9 | 4  3 | RESET
- *           GND  | 2  1 | 5V                           GND | 2  1 | NC
+ *            GND | 2  1 | 5V                           GND | 2  1 | --
  *                 ------                                    ------
  *                  EXP1                                      EXP2
  */

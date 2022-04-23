@@ -31,4 +31,4 @@
 // Include SKR 1.4 pins
 //
 #define REQUIRE_LPC1769
-#include "../lpc1768/pins_BTT_SKR_V1_4.h"
+#include "../lpc1768/pins_BTT_SKR_V1_4.h" // ... BTT_SKR_common

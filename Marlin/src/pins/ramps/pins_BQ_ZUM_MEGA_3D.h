@@ -68,9 +68,9 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN                          10
-#define RAMPS_D9_PIN                          12
-#define RAMPS_D10_PIN                          9
+#define MOSFET_A_PIN                           9
+#define MOSFET_B_PIN                          12
+#define MOSFET_C_PIN                          10
 #define MOSFET_D_PIN                           7
 
 //
@@ -115,7 +115,7 @@
 //
 // Import RAMPS 1.3 pins
 //
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
 
 //
 // Used by the Hephestos 2 heated bed upgrade kit

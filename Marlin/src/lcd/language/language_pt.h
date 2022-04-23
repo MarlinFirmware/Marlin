@@ -53,7 +53,7 @@ namespace Language_pt {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Definir desvio");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets aplicados");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Definir origem");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
@@ -102,12 +102,12 @@ namespace Language_pt {
   LSTR MSG_A_RETRACT                      = _UxGT("A-retracção");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-movimento");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Passo/mm");
-  LSTR MSG_A_STEPS                        = LCD_STR_A _UxGT(" passo/mm");
-  LSTR MSG_B_STEPS                        = LCD_STR_B _UxGT(" passo/mm");
-  LSTR MSG_C_STEPS                        = LCD_STR_C _UxGT(" passo/mm");
-  LSTR MSG_I_STEPS                        = LCD_STR_I _UxGT(" passo/mm");
-  LSTR MSG_J_STEPS                        = LCD_STR_J _UxGT(" passo/mm");
-  LSTR MSG_K_STEPS                        = LCD_STR_K _UxGT(" passo/mm");
+  LSTR MSG_A_STEPS                        = STR_A _UxGT(" passo/mm");
+  LSTR MSG_B_STEPS                        = STR_B _UxGT(" passo/mm");
+  LSTR MSG_C_STEPS                        = STR_C _UxGT(" passo/mm");
+  LSTR MSG_I_STEPS                        = STR_I _UxGT(" passo/mm");
+  LSTR MSG_J_STEPS                        = STR_J _UxGT(" passo/mm");
+  LSTR MSG_K_STEPS                        = STR_K _UxGT(" passo/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E passo/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* passo/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");

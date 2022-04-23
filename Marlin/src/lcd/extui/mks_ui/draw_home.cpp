@@ -67,8 +67,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       queue.inject(F("M84XY"));
       break;
     case ID_H_RETURN:
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
   }
 }

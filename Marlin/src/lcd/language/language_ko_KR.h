@@ -54,7 +54,7 @@ namespace Language_ko_KR {
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("누르면 시작합니다");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("다음 Point");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("레벨링 완료!");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");

@@ -23,17 +23,17 @@
 
 #include "env_validate.h"
 
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define USES_DIAG_JUMPERS
+
 // Onboard I2C EEPROM
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x8000  // 32KB (24C32A)
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
-
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 //
 // Servos
@@ -165,13 +165,6 @@
 #endif
 
 //
-// NeoPixel LED
-//
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB0
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN                          PF13  // MOTOR 0
@@ -235,11 +228,6 @@
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PF3   // TB
-#if TEMP_SENSOR_0 == 20
-  #define TEMP_0_PIN                        PF8   // PT100 Connector
-#else
-  #define TEMP_0_PIN                        PF4   // TH0
-#endif
 #define TEMP_1_PIN                          PF5   // TH1
 #define TEMP_2_PIN                          PF6   // TH2
 #define TEMP_3_PIN                          PF7   // TH3
@@ -338,7 +326,7 @@
  * (LCD_EN) PE9  | 8  7 | PE10 (LCD_RS)       (BTN_EN1) PB2  | 8  7 | PA4  (SD_SS)
  * (LCD_D4) PE12   6  5 | PE13 (LCD_D5)       (BTN_EN2) PB1    6  5 | PA7  (MOSI)
  * (LCD_D6) PE14 | 4  3 | PE15 (LCD_D7)     (SD_DETECT) PC15 | 4  3 | RESET
- *          GND  | 2  1 | 5V                            GND  | 2  1 | NC
+ *           GND | 2  1 | 5V                             GND | 2  1 | --
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
@@ -387,14 +375,14 @@
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**
-   *         ------                        ------
-   *     NC | 1  2 | GND               NC | 1  2 | GND
-   *     NC | 3  4 | M1EN            M2EN | 3  4 | M3EN
-   *  M1STP | 5  6   M1DIR           M1RX | 5  6   M1DIAG
-   *  M2DIR | 7  8 | M2STP           M2RX | 7  8 | M2DIAG
-   *  M3DIR | 9 10 | M3STP           M3RX | 9 10 | M3DIAG
-   *         ------                        ------
-   *         EXP2                         EXP1
+   *         ------                  ------
+   * M3DIAG |10  9 | M3RX     M3STP |10  9 | M3DIR
+   * M2DIAG | 8  7 | M2RX     M2STP | 8  7 | M2DIR
+   * M1DIAG   6  5 | M1RX     M1DIR   6  5 | M1STP
+   *   M3EN | 4  3 | M2EN      M1EN | 4  3 | --
+   *    GND | 2  1 | --         GND | 2  1 | --
+   *        ------                   ------
+   *         EXP1                     EXP2
    */
 
   // M1 on Driver Expansion Module
@@ -526,6 +514,13 @@
 #endif
 
 //
+// NeoPixel LED
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PB0
+#endif
+
+//
 // WIFI
 //
 
@@ -535,9 +530,9 @@
  *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
  *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
  * (ESP-IO0)  PD7 | 12 |       | 5 | PB13 (ESP-CLK)
- * (ESP-IO4) PD10 | 13 |       | 4 | NC
- *             NC | 14 |       | 3 | PE15 (ESP-EN)
- *  (ESP-RX)  PD8 | 15 |       | 2 | NC
+ * (ESP-IO4) PD10 | 13 |       | 4 | --
+ *             -- | 14 |       | 3 | PE15 (ESP-EN)
+ *  (ESP-RX)  PD8 | 15 |       | 2 | --
  *  (ESP-TX)  PD9 | 16 |       | 1 | PE14 (ESP-RST)
  *                      -------
  *                       WIFI

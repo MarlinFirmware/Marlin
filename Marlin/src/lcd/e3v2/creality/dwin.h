@@ -31,13 +31,6 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
-  #define HAS_PREHEAT 1
-  #if PREHEAT_COUNT < 2
-    #error "Creality DWIN requires two material preheat presets."
-  #endif
-#endif
-
 enum processID : uint8_t {
   // Process ID
   MainMenu,
@@ -53,7 +46,9 @@ enum processID : uint8_t {
   Tune,
   #if HAS_PREHEAT
     PLAPreheat,
-    ABSPreheat,
+    #if PREHEAT_COUNT > 1
+      ABSPreheat,
+    #endif
   #endif
   MaxSpeed,
   MaxSpeed_value,
@@ -241,13 +236,14 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
+void DWIN_InitScreen();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_StatusChanged(const char * const cstr=nullptr);
 void DWIN_StatusChanged(FSTR_P const fstr);
 
-inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
+inline void DWIN_HomingStart() { HMI_flag.home_flag = true; }
 
-void DWIN_CompletedHoming();
-void DWIN_CompletedLeveling();
+void DWIN_HomingDone();
+void DWIN_LevelingDone();

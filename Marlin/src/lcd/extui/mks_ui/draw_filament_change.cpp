@@ -101,8 +101,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         planner.set_e_position_mm((destination.e = current_position.e = uiCfg.current_e_position_bak));
       thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
 
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
   }
 }

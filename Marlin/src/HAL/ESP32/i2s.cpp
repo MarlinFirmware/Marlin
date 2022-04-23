@@ -64,12 +64,9 @@ uint32_t i2s_port_data = 0;
 #define I2S_EXIT_CRITICAL()   portEXIT_CRITICAL(&i2s_spinlock[i2s_num])
 
 static inline void gpio_matrix_out_check(uint32_t gpio, uint32_t signal_idx, bool out_inv, bool oen_inv) {
-  //if pin = -1, do not need to configure
-  if (gpio != -1) {
-    PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[gpio], PIN_FUNC_GPIO);
-    gpio_set_direction((gpio_num_t)gpio, (gpio_mode_t)GPIO_MODE_DEF_OUTPUT);
-    gpio_matrix_out(gpio, signal_idx, out_inv, oen_inv);
-  }
+  PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[gpio], PIN_FUNC_GPIO);
+  gpio_set_direction((gpio_num_t)gpio, (gpio_mode_t)GPIO_MODE_DEF_OUTPUT);
+  gpio_matrix_out(gpio, signal_idx, out_inv, oen_inv);
 }
 
 static esp_err_t i2s_reset_fifo(i2s_port_t i2s_num) {
@@ -256,13 +253,7 @@ int i2s_init() {
 
   I2S0.fifo_conf.dscr_en = 0;
 
-  I2S0.conf_chan.tx_chan_mod = (
-    #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
-      4
-    #else
-      0
-    #endif
-  );
+  I2S0.conf_chan.tx_chan_mod = TERN(I2S_STEPPER_SPLIT_STREAM, 4, 0);
   I2S0.fifo_conf.tx_fifo_mod = 0;
   I2S0.conf.tx_mono = 0;
 
@@ -313,9 +304,16 @@ int i2s_init() {
   xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
 
   // Route the i2s pins to the appropriate GPIO
-  gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
-  gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
-  gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
+  // If a pin is not defined, no need to configure
+  #if defined(I2S_DATA) && I2S_DATA >= 0
+    gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
+  #endif
+  #if defined(I2S_BCK) && I2S_BCK >= 0
+    gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
+  #endif
+  #if defined(I2S_WS) && I2S_WS >= 0
+    gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
+  #endif
 
   // Start the I2S peripheral
   return i2s_start(I2S_NUM_0);

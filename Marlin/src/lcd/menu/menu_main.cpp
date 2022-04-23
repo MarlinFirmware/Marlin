@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -58,7 +58,7 @@
   #include "../../feature/password/password.h"
 #endif
 
-#if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+#if (ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)) || (ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION))
   #include "../../feature/host_actions.h"
 #endif
 
@@ -128,8 +128,7 @@ void menu_configuration();
     #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
       SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \
           MenuItem_confirm::confirm_screen(          \
-            GCODE_LAMBDA_MAIN(N),                    \
-            ui.goto_previous_screen,                 \
+            GCODE_LAMBDA_MAIN(N), nullptr,           \
             PSTR(MAIN_MENU_ITEM_##N##_DESC "?")      \
           );                                         \
         })
@@ -250,7 +249,14 @@ void menu_main() {
           #if PIN_EXISTS(SD_DETECT)
             GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
           #else                                               // - or -
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
+            ACTION_ITEM(MSG_RELEASE_MEDIA, []{                // M22 Release Media
+              queue.inject(PSTR("M22"));
+              #if ENABLED(TFT_COLOR_UI)
+                // Menu display issue on item removal with multi language selection menu
+                if (encoderTopLine > 0) encoderTopLine--;
+                ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+              #endif
+            });
           #endif
           SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
         }
@@ -274,7 +280,7 @@ void menu_main() {
       SUBMENU(MSG_STOP_PRINT, []{
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
-          ui.abort_print, ui.goto_previous_screen,
+          ui.abort_print, nullptr,
           GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
         );
       });
@@ -301,7 +307,7 @@ void menu_main() {
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
-      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+      ACTION_ITEM(MSG_HOST_START_PRINT, hostui.start);
     #endif
 
     #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
@@ -346,7 +352,7 @@ void menu_main() {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
-        menu_change_filament, ui.goto_previous_screen,
+        menu_change_filament, nullptr,
         GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
       );
     #else
@@ -370,11 +376,11 @@ void menu_main() {
       #if ENABLED(PS_OFF_CONFIRM)
         CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
           MSG_YES, MSG_NO,
-          ui.poweroff, ui.goto_previous_screen,
+          ui.poweroff, nullptr,
           GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
         );
       #else
-        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+        ACTION_ITEM(MSG_SWITCH_PS_OFF, ui.poweroff);
       #endif
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
@@ -394,21 +400,21 @@ void menu_main() {
     #if SERVICE_INTERVAL_1 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(1); }, ui.goto_previous_screen,
+        []{ _service_reset(1); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_2 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(2); }, ui.goto_previous_screen,
+        []{ _service_reset(2); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_3 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(3); }, ui.goto_previous_screen,
+        []{ _service_reset(3); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
       );
     #endif
@@ -442,7 +448,17 @@ void menu_main() {
     SUBMENU(LANGUAGE, menu_language);
   #endif
 
+  #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+    SUBMENU(MSG_HOST_SHUTDOWN, []{
+      MenuItem_confirm::select_screen(
+        GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BUTTON_CANCEL),
+        []{ ui.return_to_status(); hostui.shutdown(); }, nullptr,
+        GET_TEXT(MSG_HOST_SHUTDOWN), (const char *)nullptr, PSTR("?")
+      );
+    });
+  #endif
+
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
