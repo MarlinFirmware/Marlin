@@ -9,9 +9,6 @@ from tkinter import Tk, filedialog
 import pioutil
 if pioutil.is_pio_build():
 
-	import os,getpass,platform
-
-#	current_OS = platform.system()
 	Import("env")
 
 	def print_error(e):
