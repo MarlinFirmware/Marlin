@@ -25,7 +25,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(FYSETC_MINI_12864_2_1)
+#if ANY(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
 
 #include <U8glib-HAL.h>
 #include "Arduino.h"
