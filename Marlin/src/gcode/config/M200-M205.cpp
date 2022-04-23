@@ -93,12 +93,12 @@
     }
     #else
       SERIAL_ECHOLNPGM("  M200 S", parser.volumetric_enabled);
-      LOOP_L_N(i, EXTRUDERS) {
+      EXTRUDER_LOOP() {
         report_echo_start(forReplay);
         SERIAL_ECHOLNPGM(
-          "  M200 T", i, " D", LINEAR_UNIT(planner.filament_size[i])
+          "  M200 T", e, " D", LINEAR_UNIT(planner.filament_size[e])
           #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-            , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+            , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[e])
           #endif
         );
       }
@@ -125,9 +125,9 @@ void GcodeSuite::M201() {
   #endif
 
   LOOP_LOGICAL_AXES(i) {
-    if (parser.seenval(axis_codes[i])) {
-      const uint8_t a = TERN(HAS_EXTRUDERS, (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i), i);
-      planner.set_max_acceleration(a, parser.value_axis_units((AxisEnum)a));
+    if (parser.seenval(AXIS_CHAR(i))) {
+      const AxisEnum a = TERN(HAS_EXTRUDERS, (i == E_AXIS ? E_AXIS_N(target_extruder) : (AxisEnum)i), (AxisEnum)i);
+      planner.set_max_acceleration(a, parser.value_axis_units(a));
     }
   }
 }
@@ -135,13 +135,16 @@ void GcodeSuite::M201() {
 void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MAX_ACCELERATION));
   SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(LINEAR_AXES),
+    LIST_N(DOUBLE(NUM_AXES),
       PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]),
       SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS]),
-      SP_I_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[I_AXIS]),
-      SP_J_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[J_AXIS]),
-      SP_K_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[K_AXIS])
+      SP_I_STR, I_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[I_AXIS]),
+      SP_J_STR, J_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[J_AXIS]),
+      SP_K_STR, K_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[K_AXIS]),
+      SP_U_STR, U_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[U_AXIS]),
+      SP_V_STR, V_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[V_AXIS]),
+      SP_W_STR, W_AXIS_UNIT(planner.settings.max_acceleration_mm_per_s2[W_AXIS])
     )
     #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
       , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
@@ -171,22 +174,25 @@ void GcodeSuite::M203() {
   if (target_extruder < 0) return;
 
   LOOP_LOGICAL_AXES(i)
-    if (parser.seenval(axis_codes[i])) {
-      const uint8_t a = TERN(HAS_EXTRUDERS, (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i), i);
-      planner.set_max_feedrate(a, parser.value_axis_units((AxisEnum)a));
+    if (parser.seenval(AXIS_CHAR(i))) {
+      const AxisEnum a = TERN(HAS_EXTRUDERS, (i == E_AXIS ? E_AXIS_N(target_extruder) : (AxisEnum)i), (AxisEnum)i);
+      planner.set_max_feedrate(a, parser.value_axis_units(a));
     }
 }
 
 void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MAX_FEEDRATES));
   SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(LINEAR_AXES),
+    LIST_N(DOUBLE(NUM_AXES),
       PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]),
       SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]),
       SP_I_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[I_AXIS]),
       SP_J_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[J_AXIS]),
-      SP_K_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[K_AXIS])
+      SP_K_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[K_AXIS]),
+      SP_U_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[U_AXIS]),
+      SP_V_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[V_AXIS]),
+      SP_W_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[W_AXIS])
     )
     #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
       , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
@@ -253,7 +259,7 @@ void GcodeSuite::M205() {
   if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if HAS_JUNCTION_DEVIATION
-    #if HAS_CLASSIC_JERK && (AXIS4_NAME == 'J' || AXIS5_NAME == 'J' || AXIS6_NAME == 'J')
+    #if HAS_CLASSIC_JERK && AXIS_COLLISION('J')
       #error "Can't set_max_jerk for 'J' axis because 'J' is used for Junction Deviation."
     #endif
     if (parser.seenval('J')) {
@@ -273,9 +279,12 @@ void GcodeSuite::M205() {
       if (parser.seenval('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units()),
       if (parser.seenval('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units()),
       if ((seenZ = parser.seenval('Z'))) planner.set_max_jerk(Z_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS4_NAME)) planner.set_max_jerk(I_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS5_NAME)) planner.set_max_jerk(J_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS6_NAME)) planner.set_max_jerk(K_AXIS, parser.value_linear_units())
+      if (parser.seenval(AXIS4_NAME)) planner.set_max_jerk(I_AXIS, parser.TERN(AXIS4_ROTATES, value_float, value_linear_units)()),
+      if (parser.seenval(AXIS5_NAME)) planner.set_max_jerk(J_AXIS, parser.TERN(AXIS5_ROTATES, value_float, value_linear_units)()),
+      if (parser.seenval(AXIS6_NAME)) planner.set_max_jerk(K_AXIS, parser.TERN(AXIS6_ROTATES, value_float, value_linear_units)()),
+      if (parser.seenval(AXIS7_NAME)) planner.set_max_jerk(U_AXIS, parser.TERN(AXIS7_ROTATES, value_float, value_linear_units)()),
+      if (parser.seenval(AXIS8_NAME)) planner.set_max_jerk(V_AXIS, parser.TERN(AXIS8_ROTATES, value_float, value_linear_units)()),
+      if (parser.seenval(AXIS9_NAME)) planner.set_max_jerk(W_AXIS, parser.TERN(AXIS9_ROTATES, value_float, value_linear_units)())
     );
     #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
       if (seenZ && planner.max_jerk.z <= 0.1f)
@@ -288,8 +297,14 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
     "Advanced (B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
-    TERN_(HAS_CLASSIC_JERK, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>")
-    TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")
+    #if HAS_CLASSIC_JERK
+      NUM_AXIS_GANG(
+        " X<max_jerk>", " Y<max_jerk>", " Z<max_jerk>",
+        " " STR_I "<max_jerk>", " " STR_J "<max_jerk>", " " STR_K "<max_jerk>",
+        " " STR_U "<max_jerk>", " " STR_V "<max_jerk>", " " STR_W "<max_jerk>"
+      )
+    #endif
+    TERN_(HAS_CLASSIC_E_JERK, " E<max_jerk>")
     ")"
   ));
   SERIAL_ECHOLNPGM_P(
@@ -300,13 +315,16 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
       , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
     #endif
     #if HAS_CLASSIC_JERK
-      , LIST_N(DOUBLE(LINEAR_AXES),
+      , LIST_N(DOUBLE(NUM_AXES),
         SP_X_STR, LINEAR_UNIT(planner.max_jerk.x),
         SP_Y_STR, LINEAR_UNIT(planner.max_jerk.y),
         SP_Z_STR, LINEAR_UNIT(planner.max_jerk.z),
-        SP_I_STR, LINEAR_UNIT(planner.max_jerk.i),
-        SP_J_STR, LINEAR_UNIT(planner.max_jerk.j),
-        SP_K_STR, LINEAR_UNIT(planner.max_jerk.k)
+        SP_I_STR, I_AXIS_UNIT(planner.max_jerk.i),
+        SP_J_STR, J_AXIS_UNIT(planner.max_jerk.j),
+        SP_K_STR, K_AXIS_UNIT(planner.max_jerk.k),
+        SP_U_STR, U_AXIS_UNIT(planner.max_jerk.u),
+        SP_V_STR, V_AXIS_UNIT(planner.max_jerk.v),
+        SP_W_STR, W_AXIS_UNIT(planner.max_jerk.w)
       )
       #if HAS_CLASSIC_E_JERK
         , SP_E_STR, LINEAR_UNIT(planner.max_jerk.e)

@@ -48,7 +48,7 @@ void GcodeSuite::M412() {
     if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      if (parser.seen('D')) runout.set_runout_distance(parser.value_linear_units());
+      if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
   }
   else {

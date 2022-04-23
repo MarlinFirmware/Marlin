@@ -121,9 +121,9 @@ extern "C" {
 #define TEMP_TIMER              3
 // Leave TIMER 4 for TFT backlight PWM or Servo freq...
 #define STEP_TIMER              5
-#define TIMER_TONE              TIM6
-#define TIMER_SERVO             TIM7
-#define TIMER_SERIAL            TIM8
+#define TIMER_TONE              TIM6  // TIMER_TONE must be defined in this file
+#define TIMER_SERVO             TIM7  // TIMER_SERVO must be defined in this file
+#define TIMER_SERIAL            TIM8  // TIMER_SERIAL must be defined in this file
 
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name

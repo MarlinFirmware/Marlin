@@ -29,8 +29,8 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-#define GRID_ROWS 4
 #define GRID_COLS 3
+#define GRID_ROWS 4
 #define STEPS_PER_MM_POS        BTN_POS(1,1), BTN_SIZE(1,1)
 #define TMC_CURRENT_POS         BTN_POS(2,1), BTN_SIZE(1,1)
 #define LIN_ADVANCE_POS         BTN_POS(3,1), BTN_SIZE(1,1)
@@ -53,11 +53,11 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
-       .font(Theme::font_medium)
+      .font(Theme::font_medium)
       .tag(2) .button(STEPS_PER_MM_POS,       GET_TEXT_F(MSG_STEPS_PER_MM))
-      .enabled(ENABLED(HAS_TRINAMIC_CONFIG))
+              .enabled(ENABLED(HAS_TRINAMIC_CONFIG))
       .tag(3) .button(TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
-      .enabled(ENABLED(LIN_ADVANCE))
+              .enabled(ENABLED(LIN_ADVANCE))
       .tag(4) .button(LIN_ADVANCE_POS,         GET_TEXT_F(MSG_LINEAR_ADVANCE))
       .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_VELOCITY))
       .tag(6) .button(ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
@@ -66,7 +66,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(9) .button(INTERFACE_POS,          GET_TEXT_F(MSG_INTERFACE))
       .tag(10).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
       .tag(11).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
-      .colors(action_btn)
+              .colors(action_btn)
       .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }

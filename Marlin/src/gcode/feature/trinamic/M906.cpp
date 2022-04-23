@@ -28,6 +28,12 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper/indirection.h"
 
+template<typename TMC>
+static void tmc_print_current(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
+}
+
 /**
  * M906: Set motor current in milliamps.
  *
@@ -35,6 +41,12 @@
  *   X[current]  - Set mA current for X driver(s)
  *   Y[current]  - Set mA current for Y driver(s)
  *   Z[current]  - Set mA current for Z driver(s)
+ *   A[current]  - Set mA current for A driver(s) (Requires AXIS*_NAME 'A')
+ *   B[current]  - Set mA current for B driver(s) (Requires AXIS*_NAME 'B')
+ *   C[current]  - Set mA current for C driver(s) (Requires AXIS*_NAME 'C')
+ *   U[current]  - Set mA current for U driver(s) (Requires AXIS*_NAME 'U')
+ *   V[current]  - Set mA current for V driver(s) (Requires AXIS*_NAME 'V')
+ *   W[current]  - Set mA current for W driver(s) (Requires AXIS*_NAME 'W')
  *   E[current]  - Set mA current for E driver(s)
  *
  *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z; 1 for X2, Y2, Z2; 2 for Z3; 3 for Z4.)
@@ -48,46 +60,50 @@ void GcodeSuite::M906() {
 
   bool report = true;
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
-    const uint8_t index = parser.byteval('I');
+  #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+    const int8_t index = parser.byteval('I', -1);
+  #elif AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
+    constexpr int8_t index = -1;
   #endif
 
-  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(AXIS_CHAR(i))) {
     report = false;
     switch (i) {
-      case X_AXIS:
-        #if AXIS_IS_TMC(X)
-          if (index == 0) TMC_SET_CURRENT(X);
-        #endif
-        #if AXIS_IS_TMC(X2)
-          if (index == 1) TMC_SET_CURRENT(X2);
-        #endif
-        break;
-
-      #if HAS_Y_AXIS
-        case Y_AXIS:
-          #if AXIS_IS_TMC(Y)
-            if (index == 0) TMC_SET_CURRENT(Y);
+      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
+        case X_AXIS:
+          #if AXIS_IS_TMC(X)
+            if (index < 0 || index == 0) TMC_SET_CURRENT(X);
           #endif
-          #if AXIS_IS_TMC(Y2)
-            if (index == 1) TMC_SET_CURRENT(Y2);
+          #if AXIS_IS_TMC(X2)
+            if (index < 0 || index == 1) TMC_SET_CURRENT(X2);
           #endif
           break;
       #endif
 
-      #if HAS_Z_AXIS
+      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
+        case Y_AXIS:
+          #if AXIS_IS_TMC(Y)
+            if (index < 0 || index == 0) TMC_SET_CURRENT(Y);
+          #endif
+          #if AXIS_IS_TMC(Y2)
+            if (index < 0 || index == 1) TMC_SET_CURRENT(Y2);
+          #endif
+          break;
+      #endif
+
+      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
         case Z_AXIS:
           #if AXIS_IS_TMC(Z)
-            if (index == 0) TMC_SET_CURRENT(Z);
+            if (index < 0 || index == 0) TMC_SET_CURRENT(Z);
           #endif
           #if AXIS_IS_TMC(Z2)
-            if (index == 1) TMC_SET_CURRENT(Z2);
+            if (index < 0 || index == 1) TMC_SET_CURRENT(Z2);
           #endif
           #if AXIS_IS_TMC(Z3)
-            if (index == 2) TMC_SET_CURRENT(Z3);
+            if (index < 0 || index == 2) TMC_SET_CURRENT(Z3);
           #endif
           #if AXIS_IS_TMC(Z4)
-            if (index == 3) TMC_SET_CURRENT(Z4);
+            if (index < 0 || index == 3) TMC_SET_CURRENT(Z4);
           #endif
           break;
       #endif
@@ -101,37 +117,43 @@ void GcodeSuite::M906() {
       #if AXIS_IS_TMC(K)
         case K_AXIS: TMC_SET_CURRENT(K); break;
       #endif
+      #if AXIS_IS_TMC(U)
+        case U_AXIS: TMC_SET_CURRENT(U); break;
+      #endif
+      #if AXIS_IS_TMC(V)
+        case V_AXIS: TMC_SET_CURRENT(V); break;
+      #endif
+      #if AXIS_IS_TMC(W)
+        case W_AXIS: TMC_SET_CURRENT(W); break;
+      #endif
 
-      #if E_STEPPERS
+      #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
         case E_AXIS: {
-          const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
-          if (target_e_stepper < 0) return;
-          switch (target_e_stepper) {
-            #if AXIS_IS_TMC(E0)
-              case 0: TMC_SET_CURRENT(E0); break;
-            #endif
-            #if AXIS_IS_TMC(E1)
-              case 1: TMC_SET_CURRENT(E1); break;
-            #endif
-            #if AXIS_IS_TMC(E2)
-              case 2: TMC_SET_CURRENT(E2); break;
-            #endif
-            #if AXIS_IS_TMC(E3)
-              case 3: TMC_SET_CURRENT(E3); break;
-            #endif
-            #if AXIS_IS_TMC(E4)
-              case 4: TMC_SET_CURRENT(E4); break;
-            #endif
-            #if AXIS_IS_TMC(E5)
-              case 5: TMC_SET_CURRENT(E5); break;
-            #endif
-            #if AXIS_IS_TMC(E6)
-              case 6: TMC_SET_CURRENT(E6); break;
-            #endif
-            #if AXIS_IS_TMC(E7)
-              case 7: TMC_SET_CURRENT(E7); break;
-            #endif
-          }
+          const int8_t eindex = get_target_e_stepper_from_command(-2);
+          #if AXIS_IS_TMC(E0)
+            if (eindex < 0 || eindex == 0) TMC_SET_CURRENT(E0);
+          #endif
+          #if AXIS_IS_TMC(E1)
+            if (eindex < 0 || eindex == 1) TMC_SET_CURRENT(E1);
+          #endif
+          #if AXIS_IS_TMC(E2)
+            if (eindex < 0 || eindex == 2) TMC_SET_CURRENT(E2);
+          #endif
+          #if AXIS_IS_TMC(E3)
+            if (eindex < 0 || eindex == 3) TMC_SET_CURRENT(E3);
+          #endif
+          #if AXIS_IS_TMC(E4)
+            if (eindex < 0 || eindex == 4) TMC_SET_CURRENT(E4);
+          #endif
+          #if AXIS_IS_TMC(E5)
+            if (eindex < 0 || eindex == 5) TMC_SET_CURRENT(E5);
+          #endif
+          #if AXIS_IS_TMC(E6)
+            if (eindex < 0 || eindex == 6) TMC_SET_CURRENT(E6);
+          #endif
+          #if AXIS_IS_TMC(E7)
+            if (eindex < 0 || eindex == 7) TMC_SET_CURRENT(E7);
+          #endif
         } break;
       #endif
     }
@@ -171,6 +193,16 @@ void GcodeSuite::M906() {
     #if AXIS_IS_TMC(K)
       TMC_SAY_CURRENT(K);
     #endif
+    #if AXIS_IS_TMC(U)
+      TMC_SAY_CURRENT(U);
+    #endif
+    #if AXIS_IS_TMC(V)
+      TMC_SAY_CURRENT(V);
+    #endif
+    #if AXIS_IS_TMC(W)
+      TMC_SAY_CURRENT(W);
+    #endif
+
     #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);
     #endif
@@ -207,7 +239,8 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
   };
 
   #if  AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z) \
-    || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
+    || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K) \
+    || AXIS_IS_TMC(U) || AXIS_IS_TMC(V) || AXIS_IS_TMC(W)
     say_M906(forReplay);
     #if AXIS_IS_TMC(X)
       SERIAL_ECHOPGM_P(SP_X_STR, stepperX.getMilliamps());
@@ -226,6 +259,15 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
     #endif
     #if AXIS_IS_TMC(K)
       SERIAL_ECHOPGM_P(SP_K_STR, stepperK.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(U)
+      SERIAL_ECHOPGM_P(SP_U_STR, stepperU.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(V)
+      SERIAL_ECHOPGM_P(SP_V_STR, stepperV.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(W)
+      SERIAL_ECHOPGM_P(SP_W_STR, stepperW.getMilliamps());
     #endif
     SERIAL_EOL();
   #endif

@@ -224,7 +224,7 @@
   #define LCD_PINS_RS                EXP1_05_PIN  // = LCD_RESET_PIN
   #define LCD_PINS_DC                EXP1_07_PIN  // DC
   #define DOGLCD_CS                  EXP1_08_PIN  // CS
-  #define DOGLCD_A0                  LCD_PINS_DC  // A0 = DC
+  #define DOGLCD_A0                  LCD_PINS_DC
   #define DOGLCD_MOSI                EXP1_10_PIN  // SDA
   #define DOGLCD_SCK                 EXP1_09_PIN  // SCK
   // Encoder

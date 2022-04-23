@@ -33,7 +33,7 @@ public:
   static void lock_machine();
   static void authentication_check();
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     static void access_menu_password();
     static void authentication_done();
     static void media_gatekeeper();

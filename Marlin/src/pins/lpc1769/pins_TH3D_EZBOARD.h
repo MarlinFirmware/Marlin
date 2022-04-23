@@ -157,11 +157,11 @@
 
 /**
  *         ------
- *     5V | 1  2 | GND
- *  P0_18 | 3  4 | P0_16
- *  P0_15 | 5  6   P3_25
- *  P2_11 | 7  8 | P3_26
- *  P1_30 | 9 10 | P1_31
+ *  P1_31 |10  9 | P1_30
+ *  P3_26 | 8  7 | P2_11
+ *  P3_25   6  5 | P0_15
+ *  P0_16 | 4  3 | P0_18
+ *    GND | 2  1 | 5V
  *         ------
  *          EXP1
  *
@@ -182,11 +182,11 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)
   /**          ------
-   *       5V | 1  2 | GND
-   *   LCD_EN | 3  4 | LCD_RS
-   *   LCD_D4 | 5  6   EN2
-   *     KILL | 7  8 | EN1
-   *      ENC | 9 10 | BEEPER
+   *   BEEPER |10  9 | ENC
+   *      EN1 | 8  7 | KILL
+   *      EN2   6  5 | LCD_D4
+   *   LCD_RS | 4  3 | LCD_EN
+   *      GND | 2  1 | 5V
    *           ------
    */
   #define BEEPER_PIN                 EXP1_10_PIN
@@ -197,11 +197,11 @@
 
 #elif ENABLED(MKS_MINI_12864)
   /**          ------
-   *       5V | 1  2 | GND
-   * SPI-MOSI | 3  4 | SPI-CS
-   *       A0 | 5  6   EN2
-   *       -- | 7  8 | EN1
-   *      ENC | 9 10 | SPI-SCK
+   *      SCK |10  9 | ENC
+   *      EN1 | 8  7 | --
+   *      EN2   6  5 | A0
+   *       CS | 4  3 | MOSI
+   *      GND | 2  1 | 5V
    *           ------
    */
   #define DOGLCD_CS                  EXP1_04_PIN

@@ -91,7 +91,7 @@
 #endif
 #define FAN1_PIN                            PD13
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Temperature Sensors

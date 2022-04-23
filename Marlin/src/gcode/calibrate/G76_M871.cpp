@@ -109,7 +109,9 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
 
     auto g76_probe = [](const TempSensorID sid, celsius_t &targ, const xy_pos_t &nozpos) {
       do_z_clearance(5.0); // Raise nozzle before probing
+      ptc.set_enabled(false);
       const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_STOW, 0, false);  // verbose=0, probe_relative=false
+      ptc.set_enabled(true);
       if (isnan(measured_z))
         SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
       else {

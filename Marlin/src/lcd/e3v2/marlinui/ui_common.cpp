@@ -79,16 +79,12 @@ void MarlinUI::set_font(const uint8_t font_nr) {
 bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
-void MarlinUI::init_lcd() {
-  DWIN_Startup();
-
-  // Load the assets JPG (currently just the status screen 'icon')
-  DWIN_JPG_CacheTo1(DWIN_MarlinUI_Assets);
-}
+void MarlinUI::init_lcd() { DWIN_Startup(); }
 
 // This LCD should clear where it will draw anew
 void MarlinUI::clear_lcd() {
   DWIN_ICON_AnimationControl(0x0000); // disable all icon animations
+  DWIN_JPG_ShowAndCache(3);
   DWIN_Frame_Clear(Color_Bg_Black);
   DWIN_UpdateLCD();
 
@@ -98,29 +94,39 @@ void MarlinUI::clear_lcd() {
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
-    clear_lcd();
     dwin_string.set(F(SHORT_BUILD_VERSION));
+
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && !defined(CUSTOM_BOOTSCREEN_TIMEOUT)
+      #define CUSTOM_BOOTSCREEN_TIMEOUT 3000
+    #endif
 
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
       #define LOGO_CENTER ((LCD_PIXEL_WIDTH) / 2)
       #define INFO_CENTER LOGO_CENTER
       #define VERSION_Y   330
-      DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
+    #else
+      #define LOGO_CENTER (280 / 2)
+      #define INFO_CENTER ((LCD_PIXEL_WIDTH) - 200 / 2)
+      #define VERSION_Y   84
+    #endif
+
+    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    TERN_(SHOW_CUSTOM_BOOTSCREEN, safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT));
+    clear_lcd();
+
+    DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
+    #if ENABLED(DWIN_MARLINUI_PORTRAIT)
       DWIN_ICON_Show(BOOT_ICON, ICON_OpenSource, LOGO_CENTER - 174 / 2, 280);
       DWIN_ICON_Show(BOOT_ICON, ICON_GitHubURL,  LOGO_CENTER - 180 / 2, 420);
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  LOGO_CENTER - 100 / 2, 440);
       DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  LOGO_CENTER - 126 / 2, 460);
     #else
-      #define LOGO_CENTER (280 / 2)
-      #define INFO_CENTER ((LCD_PIXEL_WIDTH) - 200 / 2)
-      #define VERSION_Y   84
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
       DWIN_ICON_Show(BOOT_ICON, ICON_OpenSource, INFO_CENTER - 174 / 2,  60);
       DWIN_ICON_Show(BOOT_ICON, ICON_GitHubURL,  INFO_CENTER - 180 / 2, 130);
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  INFO_CENTER - 100 / 2, 152);
       DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  INFO_CENTER - 126 / 2, 200);
     #endif
-
     DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
     DWIN_UpdateLCD();
   }
@@ -258,7 +264,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../../menu/menu.h"
 
@@ -442,8 +448,8 @@ void MarlinUI::draw_status_message(const bool blink) {
     dwin_font.solid = false;
     dwin_font.fg = Color_White;
     ui.draw_select_screen_prompt(pref, string, suff);
-    draw_boxed_string(false, no, !yesno);
-    draw_boxed_string(true, yes,  yesno);
+    if (no)  draw_boxed_string(false, no, !yesno);
+    if (yes) draw_boxed_string(true, yes,  yesno);
   }
 
   #if ENABLED(SDSUPPORT)
@@ -586,6 +592,6 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // IS_DWIN_MARLINUI

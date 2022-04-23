@@ -186,9 +186,11 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX0_PIN                            17
-#define E_MUX1_PIN                            16
-#define E_MUX2_PIN                            84  // 84 in MK2 Firmware
+#if HAS_PRUSA_MMU1
+  #define E_MUX0_PIN                          17
+  #define E_MUX1_PIN                          16
+  #define E_MUX2_PIN                          84  // 84 in MK2 Firmware
+#endif
 
 //
 // LCD / Controller
@@ -214,7 +216,6 @@
 
       #define DOGLCD_A0                       70
       #define DOGLCD_CS                       71
-      #define LCD_SCREEN_ROT_180
 
       #define BTN_EN1                         85
       #define BTN_EN2                         84
@@ -224,6 +225,8 @@
 
       #define STAT_LED_RED_PIN                22
       #define STAT_LED_BLUE_PIN               32
+
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
     #else                                         // !VIKI2 && !miniVIKI
 

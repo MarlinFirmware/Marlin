@@ -33,8 +33,8 @@
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../../lcd/e3v2/enhanced/dwin.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "../../../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../../../lcd/e3v2/jyersui/dwin.h" // Temporary fix until it can be better implemented
 #endif
@@ -54,7 +54,7 @@ inline void plr_error(FSTR_P const prefix) {
   #endif
 }
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   void lcd_power_loss_recovery_cancel();
 #endif
 
@@ -67,7 +67,7 @@ void GcodeSuite::M1000() {
 
   if (recovery.valid()) {
     if (parser.seen_test('S')) {
-      #if HAS_LCD_MENU
+      #if HAS_MARLINUI_MENU
         ui.goto_screen(menu_job_recovery);
       #elif HAS_DWIN_E3V2_BASIC
         recovery.dwin_flag = true;
@@ -80,7 +80,7 @@ void GcodeSuite::M1000() {
       #endif
     }
     else if (parser.seen_test('C')) {
-      #if HAS_LCD_MENU
+      #if HAS_MARLINUI_MENU
         lcd_power_loss_recovery_cancel();
       #else
         recovery.cancel();

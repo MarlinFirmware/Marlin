@@ -141,10 +141,10 @@ extern "C" {
 #define PG15  111 //D79
 
 // This must be a literal with the same value as PEND
-#define NUM_DIGITAL_PINS        125
+#define NUM_DIGITAL_PINS        112
 // This must be a literal with a value less than or equal to to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       13
-#define NUM_ANALOG_FIRST        112
+#define NUM_ANALOG_FIRST        NUM_DIGITAL_PINS
 
 //#define ADC_RESOLUTION          12
 
@@ -165,9 +165,9 @@ extern "C" {
 
 // Timer Definitions
 // Do not use timer used by PWM pin. See PinMap_PWM.
-#define TIMER_TONE              TIM6
-#define TIMER_SERVO             TIM5
-#define TIMER_SERIAL            TIM7
+#define TIMER_TONE              TIM6  // TIMER_TONE must be defined in this file
+#define TIMER_SERVO             TIM5  // TIMER_SERVO must be defined in this file
+#define TIMER_SERIAL            TIM7  // TIMER_SERIAL must be defined in this file
 
 // UART Definitions
 //#define SERIAL_UART_INSTANCE    1 // Connected to EXP3 header

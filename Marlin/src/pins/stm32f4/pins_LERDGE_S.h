@@ -31,8 +31,8 @@
 #define BOARD_INFO_NAME      "Lerdge S"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define STEP_TIMER                             4
-#define TEMP_TIMER                             2
+#define STEP_TIMER  4
+#define TEMP_TIMER  2
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
@@ -133,8 +133,10 @@
 //
 // Průša i3 MK2 Multi Material Multiplexer Support
 //
-//#define E_MUX0_PIN                        -1
-//#define E_MUX1_PIN                        -1
+#if HAS_PRUSA_MMU1
+  //#define E_MUX0_PIN                      -1
+  //#define E_MUX1_PIN                      -1
+#endif
 
 //
 // LED / Lighting

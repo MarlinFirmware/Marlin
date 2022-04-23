@@ -28,13 +28,33 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
+#ifdef BLTOUCH_HS_MODE
+  #include "../../feature/bltouch.h"
+#endif
+
 /**
  * M401: Deploy and activate the Z probe
+ *
+ * With BLTOUCH_HS_MODE:
+ *  H       Report the current BLTouch HS mode state and exit
+ *  S<bool> Set High Speed (HS) Mode and exit without deploy
  */
 void GcodeSuite::M401() {
-  probe.deploy();
-  TERN_(PROBE_TARE, probe.tare());
-  report_current_position();
+  const bool seenH = parser.seen_test('H'),
+             seenS = parser.seen('S');
+  if (seenH || seenS) {
+    #ifdef BLTOUCH_HS_MODE
+      if (seenS) bltouch.high_speed_mode = parser.value_bool();
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("BLTouch HS mode ");
+      serialprintln_onoff(bltouch.high_speed_mode);
+    #endif
+  }
+  else {
+    probe.deploy();
+    TERN_(PROBE_TARE, probe.tare());
+    report_current_position();
+  }
 }
 
 /**

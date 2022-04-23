@@ -77,7 +77,7 @@ public:
 
   //uint32_t spiRate() const { return spi_speed; }
 
-  static inline uint32_t spiRate2Clock(uint32_t spiRate) {
+  static uint32_t spiRate2Clock(uint32_t spiRate) {
     uint32_t Marlin_speed[7]; // CPSR is always 2
     Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
     Marlin_speed[1] = 4166667; //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
