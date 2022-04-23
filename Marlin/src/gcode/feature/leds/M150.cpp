@@ -85,7 +85,7 @@ void GcodeSuite::M150() {
 
   // If 'S' is not specified use both
   leds.set_color(color);
-  #if ENABLED(NEOPIXEL2_SEPARATE) && DISABLED(NEOPIXEL2_M150_CONTROL_FIRST)
+  #if ENABLED(NEOPIXEL2_SEPARATE) && DISABLED(NEOPIXEL_M150_DEFAULT_S0)
     leds2.set_color(color);
   #endif
 }
