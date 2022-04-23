@@ -173,21 +173,23 @@ public:
   }
 };
 
-void Backlash::set_correction_uint8(const uint8_t v) {
-  StepAdjuster adjuster;
-  correction = v;
-}
-
-void Backlash::set_distance_mm(const AxisEnum axis, const float v) {
-  StepAdjuster adjuster;
-  distance_mm[axis] = v;
-}
-
-#ifdef BACKLASH_SMOOTHING_MM
-  void Backlash::set_smoothing_mm(const float v) {
+#if ENABLED(BACKLASH_GCODE)
+  void Backlash::set_correction_uint8(const uint8_t v) {
     StepAdjuster adjuster;
-    smoothing_mm = v;
+    correction = v;
   }
+
+  void Backlash::set_distance_mm(const AxisEnum axis, const float v) {
+    StepAdjuster adjuster;
+    distance_mm[axis] = v;
+  }
+
+  #ifdef BACKLASH_SMOOTHING_MM
+    void Backlash::set_smoothing_mm(const float v) {
+      StepAdjuster adjuster;
+      smoothing_mm = v;
+    }
+  #endif
 #endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
