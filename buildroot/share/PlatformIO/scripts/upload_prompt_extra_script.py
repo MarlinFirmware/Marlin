@@ -33,14 +33,9 @@ if pioutil.is_pio_build():
 			print_error('Canceled')
 			return
 		else:
-
 			env.Replace(
 				UPLOAD_FLAGS="-P$UPLOAD_PORT"
 			)
-			env.Replace(
-  			UPLOAD_PROTOCOL="mbed"
-			)
-
 			env.Replace(UPLOAD_PORT=upload_disk)
 			print('\nUpload disk: ', upload_disk, '\n')
 
