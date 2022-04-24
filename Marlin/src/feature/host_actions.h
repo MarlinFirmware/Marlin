@@ -24,11 +24,6 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../HAL/shared/Marduino.h"
 
-typedef union {
-  uint8_t bits;
-  struct { bool info:1, errors:1, debug:1; };
-} flag_t;
-
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
   enum PromptReason : uint8_t {
@@ -44,9 +39,6 @@ typedef union {
 
 class HostUI {
   public:
-
-  static flag_t flag;
-  HostUI() { flag.bits = 0xFF; }
 
   static void action(FSTR_P const fstr, const bool eol=true);
 

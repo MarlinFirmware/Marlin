@@ -44,7 +44,7 @@
 #include "../../core/debug_out.h"
 
 static float z_measured[G35_PROBE_COUNT];
-static bool z_isvalid[G35_PROBE_COUNT];
+static Flags<G35_PROBE_COUNT> z_isvalid;
 static uint8_t tram_index = 0;
 static int8_t reference_index; // = 0
 
@@ -61,7 +61,10 @@ static bool probe_single_point() {
   move_to_tramming_wait_pos();
 
   DEBUG_ECHOLNPGM("probe_single_point(", tram_index, ") = ", z_probed_height, "mm");
-  return (z_isvalid[tram_index] = !isnan(z_probed_height));
+
+  const bool v = !isnan(z_probed_height);
+  z_isvalid.set(tram_index, v);
+  return v;
 }
 
 static void _menu_single_probe() {
@@ -80,7 +83,7 @@ static void tramming_wizard_menu() {
 
   // Draw a menu item for each tramming point
   for (tram_index = 0; tram_index < G35_PROBE_COUNT; tram_index++)
-    SUBMENU_P((char*)pgm_read_ptr(&tramming_point_name[tram_index]), _menu_single_probe);
+    SUBMENU_P((PGM_P)pgm_read_ptr(&tramming_point_name[tram_index]), _menu_single_probe);
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     probe.stow(); // Stow before exiting Tramming Wizard
@@ -95,7 +98,7 @@ void goto_tramming_wizard() {
   ui.defer_status_screen();
 
   // Initialize measured point flags
-  ZERO(z_isvalid);
+  z_isvalid.reset();
   reference_index = -1;
 
   // Inject G28, wait for homing to complete,

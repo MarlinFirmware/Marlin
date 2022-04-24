@@ -313,7 +313,7 @@ void GcodeSuite::M43() {
 
   // 'P' Get the range of pins to test or watch
   uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
-          last_pin = parser.seenval('P') ? first_pin : NUMBER_PINS_TOTAL - 1;
+          last_pin = parser.seenval('P') ? first_pin : TERN(HAS_HIGH_ANALOG_PINS, NUM_DIGITAL_PINS, NUMBER_PINS_TOTAL) - 1;
 
   if (first_pin > last_pin) return;
 
@@ -333,12 +333,12 @@ void GcodeSuite::M43() {
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
-        /*
-        if (IS_ANALOG(pin))
-          pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
-        else
-        //*/
-          pin_state[i - first_pin] = extDigitalRead(pin);
+      /*
+      if (IS_ANALOG(pin))
+        pin_state[pin - first_pin] = analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)); // int16_t pin_state[...]
+      else
+      //*/
+        pin_state[i - first_pin] = extDigitalRead(pin);
     }
 
     #if HAS_RESUME_CONTINUE

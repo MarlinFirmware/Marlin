@@ -111,7 +111,7 @@
     #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
     #define SPINDLE_DIR_PIN                   48
-  #elif !BOTH(IS_ULTRA_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
+  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
     #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   17
     #if !NUM_SERVOS                               // Use servo connector if possible
@@ -135,7 +135,7 @@
 //
 // LCD / Controller
 //
-#if IS_ULTRA_LCD && IS_NEWPANEL
+#if HAS_WIRED_LCD && IS_NEWPANEL
   #undef BEEPER_PIN
 
   // TODO: Remap EXP1/2 based on adapter
@@ -164,7 +164,7 @@
 
   #define BEEPER_PIN                          33
 
-#endif // IS_ULTRA_LCD && IS_NEWPANEL
+#endif // HAS_WIRED_LCD && IS_NEWPANEL
 
 #if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
