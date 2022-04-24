@@ -176,11 +176,11 @@ class PrintJobRecovery {
     static void open(const bool read) { card.openJobRecoveryFile(read); }
     static void close() { file.close(); }
 
-    static void check();
+    static bool check();
     static void resume();
     static void purge();
 
-    static void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
+    static void cancel() { purge(); }
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
@@ -216,9 +216,9 @@ class PrintJobRecovery {
       static void retract_and_lift(const_float_t zraise);
     #endif
 
-    #if PIN_EXISTS(POWER_LOSS)
+    #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)
       friend class GcodeSuite;
-      static void _outage();
+      static void _outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated=false));
     #endif
 };
 

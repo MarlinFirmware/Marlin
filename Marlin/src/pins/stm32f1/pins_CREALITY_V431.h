@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * CREALITY v4.3.1 (STM32F103) board pin assignments
+ * CREALITY v4.3.1 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
 #define BOARD_INFO_NAME      "Creality v4.3.1"

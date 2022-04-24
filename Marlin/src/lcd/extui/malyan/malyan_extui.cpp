@@ -141,17 +141,18 @@ namespace ExtUI {
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
   void onHomingStart() {}
-  void onHomingComplete() {}
-  void onPrintFinished() {}
+  void onHomingDone() {}
+  void onPrintDone() {}
   void onFactoryReset() {}
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
   void onPostprocessSettings() {}
-  void onConfigurationStoreWritten(bool) {}
-  void onConfigurationStoreRead(bool) {}
+  void onSettingsStored(bool) {}
+  void onSettingsLoaded(bool) {}
 
   #if HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
   #endif

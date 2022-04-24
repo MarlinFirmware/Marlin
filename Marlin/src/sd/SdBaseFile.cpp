@@ -1140,8 +1140,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
         // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
         // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
         uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
-        longFilename[idx] = utf16_ch & 0xFF;
-        longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
+        lname[idx] = utf16_ch & 0xFF;
+        lname[idx + 1] = (utf16_ch >> 8) & 0xFF;
       #else
         // Replace all multibyte characters to '_'
         lname[startOffset + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
