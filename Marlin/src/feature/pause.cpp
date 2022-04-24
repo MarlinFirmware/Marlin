@@ -556,7 +556,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
 
       // Wait for the heaters to reach the target temperatures
-      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, thermalManager.heating_enabled))
+      if (thermalManager.heating_enabled)
         ensure_safe_temperature(false);
 
       // Show the prompt to continue

@@ -1425,7 +1425,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
             #endif
 
-
           #endif
         }
 
@@ -1493,9 +1492,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
       last_tool_change = millis();
-      if (did_pause_print) {
-        resume_print();
-      }
+      if (did_pause_print) resume_print();
     #endif
 
     SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);

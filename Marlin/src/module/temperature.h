@@ -421,7 +421,9 @@ class Temperature {
     #endif
 
     #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-      static volatile bool heating_enabled;
+      static bool heating_enabled;
+    #else
+      static constexpr bool heating_enabled = true;
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)

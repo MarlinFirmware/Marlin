@@ -117,11 +117,10 @@
 
 #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
-  extern millis_t last_tool_change;
   void stm_init();
 
-  inline millis_t ms_since_tool_change(const millis_t ms) { return ms - last_tool_change; }
-  inline millis_t ms_since_tool_change() { return ms_since_tool_change(millis()); }
+  extern millis_t last_tool_change;
+  inline millis_t ms_since_tool_change(const millis_t ms=millis()) { return ms - last_tool_change; }
 
   inline PGM_P tool_name(const uint8_t tool) {
     switch (tool) {

@@ -331,7 +331,9 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #endif
 
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  volatile bool Temperature::heating_enabled = true;
+  bool Temperature::heating_enabled = true;
+#else
+  constexpr bool Temperature::heating_enabled; // = true
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -1669,9 +1671,7 @@ void Temperature::manage_heater() {
 
   if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
 
-  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-    if (!heating_enabled) return disable_all_heaters();
-  #endif
+  if (!heating_enabled) return disable_all_heaters();
 
   millis_t ms = millis();
 
@@ -2464,8 +2464,8 @@ void Temperature::updateTemperaturesFromRawValues() {
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
       if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tc > 100) && ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))) {
-        max_temp_error((heater_id_t)e);
         DEBUG_ECHOLNPGM("rawtemp out of range, max: ", temp_range[e].raw_max * (neg ? -1 : 1));
+        max_temp_error((heater_id_t)e);
       }
 
       const bool heater_on = temp_hotend[e].target > 0;
@@ -4051,7 +4051,7 @@ void Temperature::isr() {
         REMEMBER(1, planner.autotemp_enabled, false);
       #endif
 
-      if (TERN0(MANUAL_SWITCHING_TOOLHEAD, !heating_enabled)) return false;
+      if (!heating_enabled) return false;
 
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
@@ -4189,7 +4189,7 @@ void Temperature::isr() {
     bool Temperature::wait_for_bed(const bool no_wait_for_cooling/*=true*/
       OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
-      if (TERN0(MANUAL_SWITCHING_TOOLHEAD, !heating_enabled)) return false;
+      if (!heating_enabled) return false;
 
       #if TEMP_BED_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
