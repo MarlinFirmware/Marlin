@@ -63,7 +63,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
   celsius_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();
@@ -82,14 +82,18 @@ void GcodeSuite::M140_M190(const bool isM190) {
   if (!got_temp) return;
 
   thermalManager.setTargetBed(temp);
+  thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
 
-  ui.set_status_P(thermalManager.isHeatingBed() ? GET_TEXT(MSG_BED_HEATING) : GET_TEXT(MSG_BED_COOLING));
-
-  // with PRINTJOB_TIMER_AUTOSTART, M190 can start the timer, and M140 can stop it
+  // With PRINTJOB_TIMER_AUTOSTART, M190 can start the timer, and M140 can stop it
   TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(isM190, !isM190));
 
   if (isM190)
     thermalManager.wait_for_bed(no_wait_for_cooling);
+  else
+    ui.set_status_reset_fn([]{
+      const celsius_t c = thermalManager.degTargetBed();
+      return c < 30 || thermalManager.degBedNear(c);
+    });
 }
 
 #endif // HAS_HEATED_BED

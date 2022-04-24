@@ -66,7 +66,7 @@ uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
   return width;
 }
 
-uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
+uint16_t CLCD::FontMetrics::get_text_width(FSTR_P str, size_t n) const {
   uint16_t width = 0;
   const uint8_t *p = (const uint8_t *) str;
   for (;;) {
@@ -162,7 +162,7 @@ void CLCD::mem_write_bulk(uint32_t reg_address, const void *data, uint16_t len, 
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM
-void CLCD::mem_write_bulk(uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_bulk(uint32_t reg_address, FSTR_P str, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<pgm_write>(str, len, padding);
@@ -178,7 +178,7 @@ void CLCD::mem_write_pgm(uint32_t reg_address, const void *data, uint16_t len, u
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM, reversing bytes (suitable for loading XBM images)
-void CLCD::mem_write_xbm(uint32_t reg_address, progmem_str data, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_xbm(uint32_t reg_address, FSTR_P data, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<xbm_write>(data, len, padding);
@@ -1048,7 +1048,7 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
 #endif // ... FTDI_API_LEVEL != 800
 
 template bool CLCD::CommandFifo::write(const void*, uint16_t);
-template bool CLCD::CommandFifo::write(progmem_str, uint16_t);
+template bool CLCD::CommandFifo::write(FSTR_P, uint16_t);
 
 // CO_PROCESSOR COMMANDS
 
@@ -1071,7 +1071,7 @@ void CLCD::CommandFifo::str(const char * data) {
   write(data, strlen(data)+1);
 }
 
-void CLCD::CommandFifo::str(progmem_str data) {
+void CLCD::CommandFifo::str(FSTR_P data) {
   write(data, strlen_P((const char*)data)+1);
 }
 

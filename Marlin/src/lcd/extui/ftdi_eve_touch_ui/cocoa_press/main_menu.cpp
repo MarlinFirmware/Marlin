@@ -29,8 +29,8 @@
 using namespace FTDI;
 using namespace Theme;
 
-#define GRID_ROWS 6
 #define GRID_COLS 2
+#define GRID_ROWS 6
 
 #define ZPROBE_ZOFFSET_POS    BTN_POS(1,1), BTN_SIZE(1,1)
 #define MOVE_XYZ_POS          BTN_POS(1,2), BTN_SIZE(1,1)
@@ -57,14 +57,14 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .font(Theme::font_medium)
        .tag( 2).button(MOVE_XYZ_POS,          GET_TEXT_F(MSG_XYZ_MOVE))
        .tag( 3).button(TEMPERATURE_POS,       GET_TEXT_F(MSG_TEMPERATURE))
-       .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE))
+               .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE))
        .tag( 4).button(ZPROBE_ZOFFSET_POS,    GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
        .tag( 5).button(MOVE_E_POS,            GET_TEXT_F(MSG_E_MOVE))
        .tag( 6).button(SPEED_POS,             GET_TEXT_F(MSG_PRINT_SPEED))
        .tag( 7).button(FLOW_POS,              GET_TEXT_F(MSG_FLOW))
        .tag( 8).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
        .tag( 9).button(DISABLE_STEPPERS_POS,  GET_TEXT_F(MSG_DISABLE_STEPPERS))
-       .enabled(HAS_LEVELING)
+               .enabled(ENABLED(HAS_LEVELING))
        .tag(10).button(LEVELING_POS,          GET_TEXT_F(MSG_LEVELING))
        .tag(11).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
@@ -86,7 +86,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case  6: GOTO_SCREEN(FeedratePercentScreen);            break;
     case  7: GOTO_SCREEN(FlowPercentScreen);                break;
     case  8: GOTO_SCREEN(AdvancedSettingsMenu);             break;
-    case  9: injectCommands_P(PSTR("M84"));                 break;
+    case  9: injectCommands(F("M84"));                 break;
     #if HAS_LEVELING
     case 10:  GOTO_SCREEN(LevelingMenu);                    break;
     #endif

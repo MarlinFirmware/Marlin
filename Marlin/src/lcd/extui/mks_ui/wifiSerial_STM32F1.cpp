@@ -68,7 +68,8 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
   #define disable_timer_if_necessary(dev, ch) NOOP
 
   static void usart_enable_no_irq(usart_dev *usart_device, bool with_irq) {
-    if (with_irq) usart_enable(usart_device);
+    if (with_irq)
+      usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
       regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);   // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1

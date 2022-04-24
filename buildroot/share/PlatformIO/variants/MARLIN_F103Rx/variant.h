@@ -105,14 +105,14 @@ extern "C" {
 // SPI Definitions
 #if DEFAULT_SPI == 3
   #define PIN_SPI_SS            PA15
-  #define PIN_SPI_MOSI          PB3
+  #define PIN_SPI_MOSI          PB5
   #define PIN_SPI_MISO          PB4
-  #define PIN_SPI_SCK           PB5
+  #define PIN_SPI_SCK           PB3
 #elif DEFAULT_SPI == 2
   #define PIN_SPI_SS            PB12
-  #define PIN_SPI_MOSI          PB13
+  #define PIN_SPI_MOSI          PB15
   #define PIN_SPI_MISO          PB14
-  #define PIN_SPI_SCK           PB15
+  #define PIN_SPI_SCK           PB13
 #else
   #define PIN_SPI_SS            PA4
   #define PIN_SPI_MOSI          PA7
@@ -126,10 +126,10 @@ extern "C" {
 
 // Timer Definitions
 #ifndef TIMER_TONE
-  #define TIMER_TONE            TIM3
+  #define TIMER_TONE            TIM3  // TIMER_TONE must be defined in this file
 #endif
 #ifndef TIMER_SERVO
-  #define TIMER_SERVO           TIM2
+  #define TIMER_SERVO           TIM2  // TIMER_SERVO must be defined in this file
 #endif
 
 // UART Definitions

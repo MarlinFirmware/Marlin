@@ -94,6 +94,10 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/powerloss.h"
+#endif
+
 #if ENABLED(BABYSTEPPING)
   #include "../../feature/babystep.h"
 #endif
@@ -385,8 +389,10 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
-  GcodeSuite::MarlinBusyState getHostKeepaliveState() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.busy_state); }
-  bool getHostKeepaliveIsPaused() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive_is_paused()); }
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    GcodeSuite::MarlinBusyState getHostKeepaliveState() { return gcode.busy_state; }
+    bool getHostKeepaliveIsPaused() { return gcode.host_keepalive_is_paused(); }
+  #endif
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
@@ -414,6 +420,15 @@ namespace ExtUI {
         #if AXIS_IS_TMC(K)
           case K: return stepperK.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(U)
+          case U: return stepperU.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(V)
+          case V: return stepperV.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(W)
+          case W: return stepperW.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(X2)
           case X2: return stepperX2.getMilliamps();
         #endif
@@ -422,6 +437,12 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(Z2)
           case Z2: return stepperZ2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z3)
+          case Z3: return stepperZ3.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          case Z4: return stepperZ4.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -477,6 +498,15 @@ namespace ExtUI {
         #if AXIS_IS_TMC(K)
           case K: stepperK.rms_current(constrain(mA, 400, 1500)); break;
         #endif
+        #if AXIS_IS_TMC(U)
+          case U: stepperU.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(V)
+          case V: stepperV.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(W)
+          case W: stepperW.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
         #if AXIS_IS_TMC(X2)
           case X2: stepperX2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
@@ -485,6 +515,12 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(Z2)
           case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z3)
+          case Z3: stepperZ3.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          case Z4: stepperZ4.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };
@@ -528,6 +564,9 @@ namespace ExtUI {
         OPTCODE(I_SENSORLESS,  case I:  return stepperI.homing_threshold())
         OPTCODE(J_SENSORLESS,  case J:  return stepperJ.homing_threshold())
         OPTCODE(K_SENSORLESS,  case K:  return stepperK.homing_threshold())
+        OPTCODE(U_SENSORLESS,  case U:  return stepperU.homing_threshold())
+        OPTCODE(V_SENSORLESS,  case V:  return stepperV.homing_threshold())
+        OPTCODE(W_SENSORLESS,  case W:  return stepperW.homing_threshold())
         OPTCODE(X2_SENSORLESS, case X2: return stepperX2.homing_threshold())
         OPTCODE(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold())
         OPTCODE(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold())
@@ -556,6 +595,15 @@ namespace ExtUI {
         #endif
         #if K_SENSORLESS
           case K: stepperK.homing_threshold(value); break;
+        #endif
+        #if U_SENSORLESS
+          case U: stepperU.homing_threshold(value); break;
+        #endif
+        #if V_SENSORLESS
+          case V: stepperV.homing_threshold(value); break;
+        #endif
+        #if W_SENSORLESS
+          case W: stepperW.homing_threshold(value); break;
         #endif
         #if X2_SENSORLESS
           case X2: stepperX2.homing_threshold(value); break;
@@ -608,7 +656,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
-    planner.set_max_feedrate(axis, value);
+    planner.set_max_feedrate((AxisEnum)axis, value);
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
@@ -626,7 +674,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const axis_t axis) {
-    planner.set_max_acceleration(axis, value);
+    planner.set_max_acceleration((AxisEnum)axis, value);
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {
@@ -662,6 +710,11 @@ namespace ExtUI {
     #endif
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    bool getPowerLossRecoveryEnabled()                 { return recovery.enabled; }
+    void setPowerLossRecoveryEnabled(const bool value) {  recovery.enable(value); }
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
       return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
@@ -693,7 +746,7 @@ namespace ExtUI {
     uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
   #endif
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
@@ -743,7 +796,7 @@ namespace ExtUI {
      * what nozzle is printing.
      */
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
-      const float mm = steps * planner.steps_to_mm[axis];
+      const float mm = steps * planner.mm_per_step[axis];
       UNUSED(mm);
 
       if (!babystepAxis_steps(steps, axis)) return;
@@ -779,12 +832,12 @@ namespace ExtUI {
      * steps that is at least mm long.
      */
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis) {
-      const float steps = mm / planner.steps_to_mm[axis];
+      const float steps = mm / planner.mm_per_step[axis];
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
 
     float mmFromWholeSteps(int16_t steps, const axis_t axis) {
-      return steps * planner.steps_to_mm[axis];
+      return steps * planner.mm_per_step[axis];
     }
 
   #endif // BABYSTEPPING
@@ -794,7 +847,7 @@ namespace ExtUI {
       #if HAS_BED_PROBE
         + probe.offset.z
       #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        + planner.steps_to_mm[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        + planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
       #endif
     );
   }
@@ -840,16 +893,16 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       { return backlash.distance_mm[axis]; }
+    float getAxisBacklash_mm(const axis_t axis)       { return backlash.get_distance_mm((AxisEnum)axis); }
     void setAxisBacklash_mm(const_float_t value, const axis_t axis)
-                                                      { backlash.distance_mm[axis] = constrain(value,0,5); }
+                                                      { backlash.set_distance_mm((AxisEnum)axis, constrain(value,0,5)); }
 
-    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.correction); }
-    void setBacklashCorrection_percent(const_float_t value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
+    float getBacklashCorrection_percent()             { return backlash.get_correction() * 100.0f; }
+    void setBacklashCorrection_percent(const_float_t value) { backlash.set_correction(constrain(value, 0, 100) / 100.0f); }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 { return backlash.smoothing_mm; }
-      void setBacklashSmoothing_mm(const_float_t value) { backlash.smoothing_mm = constrain(value, 0, 999); }
+      float getBacklashSmoothing_mm()                 { return backlash.get_smoothing_mm(); }
+      void setBacklashSmoothing_mm(const_float_t value) { backlash.set_smoothing_mm(constrain(value, 0, 999)); }
     #endif
   #endif
 
@@ -906,7 +959,7 @@ namespace ExtUI {
   #endif // HAS_LEVELING
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    void setHostResponse(const uint8_t response) { host_response_handler(response); }
+    void setHostResponse(const uint8_t response) { hostui.handle_response(response); }
   #endif
 
   #if ENABLED(PRINTCOUNTER)
@@ -1022,13 +1075,7 @@ namespace ExtUI {
 
   void setFeedrate_percent(const_float_t value) { feedrate_percentage = constrain(value, 10, 500); }
 
-  void coolDown() {
-    #if HAS_HOTEND
-      HOTEND_LOOP() thermalManager.setTargetHotend(0, e);
-    #endif
-    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
-    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-  }
+  void coolDown() { thermalManager.cooldown(); }
 
   bool awaitingUserConfirm() {
     return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getHostKeepaliveIsPaused();
@@ -1037,6 +1084,8 @@ namespace ExtUI {
 
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
+    PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
+    PauseMode getPauseMode() { return pause_mode;}
   #endif
 
   void printFile(const char *filename) {
@@ -1063,15 +1112,16 @@ namespace ExtUI {
   void resumePrint() { ui.resume_print(); }
   void stopPrint()   { ui.abort_print(); }
 
-  void onUserConfirmRequired_P(PGM_P const pstr) {
-    char msg[strlen_P(pstr) + 1];
-    strcpy_P(msg, pstr);
+  // Simplest approach is to make an SRAM copy
+  void onUserConfirmRequired(FSTR_P const fstr) {
+    char msg[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(msg, FTOP(fstr));
     onUserConfirmRequired(msg);
   }
 
-  void onStatusChanged_P(PGM_P const pstr) {
-    char msg[strlen_P(pstr) + 1];
-    strcpy_P(msg, pstr);
+  void onStatusChanged(FSTR_P const fstr) {
+    char msg[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(msg, FTOP(fstr));
     onStatusChanged(msg);
   }
 
@@ -1135,11 +1185,11 @@ namespace ExtUI {
 
 // At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
 
-void MarlinUI::init() { ExtUI::onStartup(); }
+void MarlinUI::init_lcd() { ExtUI::onStartup(); }
 
 void MarlinUI::update() { ExtUI::onIdle(); }
 
-void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
+void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {
   using namespace ExtUI;
   if (!flags.printer_killed) {
     flags.printer_killed = true;

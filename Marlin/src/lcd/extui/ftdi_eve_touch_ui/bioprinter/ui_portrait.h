@@ -1,3 +1,6 @@
+/*****************
+ * ui_portrait.h *
+ *****************/
 
 /****************************************************************************
  *   This program is free software: you can redistribute it and/or modify   *
@@ -21,7 +24,6 @@
  * 0x0000 and 0xFFFE. A single 0xFFFF in the data stream indicates the
  * start of a new closed path.
  */
-
 #pragma once
 
 constexpr float x_min = 0.000000;

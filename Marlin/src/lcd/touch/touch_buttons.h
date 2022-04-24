@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -50,10 +53,19 @@
 #define BUTTON_Y_HI (TFT_HEIGHT) - BUTTON_SPACING
 #define BUTTON_Y_LO BUTTON_Y_HI - BUTTON_HEIGHT
 
+#define TSLP_PREINIT  0
+#define TSLP_SLEEPING 1
+
 class TouchButtons {
 public:
   static void init();
   static uint8_t read_buttons();
+  #if HAS_TOUCH_SLEEP
+    static millis_t next_sleep_ms;
+    static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
+    static void sleepTimeout();
+    static void wakeUp();
+  #endif
 };
 
-extern TouchButtons touch;
+extern TouchButtons touchBt;

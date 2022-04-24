@@ -58,7 +58,7 @@ void GcodeSuite::M193() {
     cooler.enable();
     thermalManager.setTargetCooler(parser.value_celsius());
     if (thermalManager.isLaserCooling()) {
-      ui.set_status_P(GET_TEXT(MSG_LASER_COOLING));
+      LCD_MESSAGE(MSG_LASER_COOLING);
       thermalManager.wait_for_cooler(true);
     }
   }

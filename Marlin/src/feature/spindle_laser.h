@@ -41,10 +41,6 @@
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
 #define PCT_TO_SERVO(X) ((X) * 180 / 100)
 
-#ifndef SPEED_POWER_INTERCEPT
-  #define SPEED_POWER_INTERCEPT 0
-#endif
-
 enum SpindleDir : uint8_t { SpindleDirSame, SpindleDirCW, SpindleDirCCW };
 
 // Current ON/OFF state and transitions for get_event
@@ -65,10 +61,6 @@ private:
   static CutterState state;         // Current state
 
 public:
-  static constexpr float
-    min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
-    max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
-
   static constexpr uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
@@ -124,7 +116,7 @@ public:
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   #if ENABLED(MARLIN_DEV_MODE)
-    static void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
+    static void refresh_frequency() { hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
   #endif
 
 private:
@@ -178,6 +170,9 @@ public:
     }
 
     static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
+      static constexpr float
+        min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
+        max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
       if (pwr <= 0) return 0;
       cutter_power_t upwr;
       switch (pwrUnit) {
@@ -206,6 +201,7 @@ public:
       }
       return upwr;
     }
+
   #endif // SPINDLE_LASER_USE_PWM
 
   /**
@@ -267,7 +263,7 @@ public:
     }
   #endif
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     static void enable_with_dir(const bool reverse) {
       isReady = true;
       const uint8_t ocr = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
@@ -304,7 +300,7 @@ public:
       }
     #endif
 
-  #endif // HAS_LCD_MENU
+  #endif // HAS_MARLINUI_MENU
 
   #if ENABLED(LASER_POWER_INLINE)
     /**

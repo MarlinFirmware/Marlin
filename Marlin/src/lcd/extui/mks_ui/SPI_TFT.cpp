@@ -69,14 +69,14 @@ void TFT::LCD_init() {
 }
 
 void TFT::LCD_clear(uint16_t color) {
-  setWindow(0, 0, (TFT_WIDTH), (TFT_HEIGHT));
-  tftio.WriteMultiple(color, (uint32_t)(TFT_WIDTH) * (TFT_HEIGHT));
+  setWindow(0, 0, TFT_WIDTH, TFT_HEIGHT);
+  tftio.WriteMultiple(color, uint32_t(TFT_WIDTH) * uint32_t(TFT_HEIGHT));
 }
 
 void TFT::LCD_Draw_Logo() {
   #if HAS_LOGO_IN_FLASH
     setWindow(0, 0, TFT_WIDTH, TFT_HEIGHT);
-    for (uint16_t i = 0; i < (TFT_HEIGHT); i ++) {
+    for (uint16_t i = 0; i < (TFT_HEIGHT); i++) {
       Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (TFT_WIDTH) * 2);
       tftio.WriteSequence((uint16_t *)bmp_public_buf, TFT_WIDTH);
     }

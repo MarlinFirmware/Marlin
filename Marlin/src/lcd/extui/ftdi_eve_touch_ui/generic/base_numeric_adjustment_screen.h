@@ -44,7 +44,7 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
         uint8_t     _line;
         uint32_t    _color;
         uint8_t     _decimals;
-        progmem_str _units;
+        FSTR_P      _units;
         enum style_t {
           BTN_NORMAL,
           BTN_ACTION,
@@ -56,25 +56,25 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
 
       protected:
         void _draw_increment_btn(CommandProcessor &, uint8_t line, const uint8_t tag);
-        void _button(CommandProcessor &, uint8_t tag, int16_t x, int16_t y, int16_t w, int16_t h, progmem_str, bool enabled = true, bool highlight = false);
+        void _button(CommandProcessor &, uint8_t tag, int16_t x, int16_t y, int16_t w, int16_t h, FSTR_P, bool enabled = true, bool highlight = false);
         void _button_style(CommandProcessor &cmd, style_t style);
       public:
         widgets_t(draw_mode_t);
 
         widgets_t &color(uint32_t color)       {_color = color; return *this;}
-        widgets_t &units(progmem_str units)    {_units = units; return *this;}
+        widgets_t &units(FSTR_P units)         {_units = units; return *this;}
         widgets_t &draw_mode(draw_mode_t what) {_what  = what;  return *this;}
         widgets_t &precision(uint8_t decimals, precision_default_t = DEFAULT_HIGHEST);
 
-        void heading           (progmem_str label);
-        void adjuster_sram_val (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
-        void adjuster          (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
-        void adjuster          (uint8_t tag,  progmem_str label, float value=0,      bool is_enabled = true);
-        void button            (uint8_t tag,  progmem_str label,                     bool is_enabled = true);
-        void text_field        (uint8_t tag,  progmem_str label, const char *value,  bool is_enabled = true);
-        void two_buttons       (uint8_t tag1, progmem_str label1,
-                                uint8_t tag2, progmem_str label2,                    bool is_enabled = true);
-        void toggle            (uint8_t tag,  progmem_str label,                     bool value, bool is_enabled = true);
+        void heading           (FSTR_P label);
+        void adjuster_sram_val (uint8_t tag,  FSTR_P label, const char *value,  bool is_enabled = true);
+        void adjuster          (uint8_t tag,  FSTR_P label, const char *value,  bool is_enabled = true);
+        void adjuster          (uint8_t tag,  FSTR_P label, float value=0,      bool is_enabled = true);
+        void button            (uint8_t tag,  FSTR_P label,                     bool is_enabled = true);
+        void text_field        (uint8_t tag,  FSTR_P label, const char *value,  bool is_enabled = true);
+        void two_buttons       (uint8_t tag1, FSTR_P label1,
+                                uint8_t tag2, FSTR_P label2,                    bool is_enabled = true);
+        void toggle            (uint8_t tag,  FSTR_P label,                     bool value, bool is_enabled = true);
         void home_buttons      (uint8_t tag);
         void increments        ();
     };

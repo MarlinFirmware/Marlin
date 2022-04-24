@@ -43,6 +43,12 @@ opt_disable EEPROM_BOOT_SILENT EEPROM_AUTO_INIT FASTER_GCODE_PARSER
 exec_test $1 $2 "Spindle, Zero Extruders, Rigidbot Panel" "$3"
 
 #
+# ...and without PWM
+#
+opt_disable SPINDLE_LASER_USE_PWM
+exec_test $1 $2 "(No PWM)" "$3"
+
+#
 # Test DUAL_X_CARRIAGE
 #
 restore_configs
@@ -61,6 +67,7 @@ exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBR
 
 #
 # Delta Config (generic) + ABL bilinear + BLTOUCH
+#
 use_example_configs delta/generic
 opt_set LCD_LANGUAGE cz \
         Z_MIN_PROBE_ENDSTOP_INVERTING false \

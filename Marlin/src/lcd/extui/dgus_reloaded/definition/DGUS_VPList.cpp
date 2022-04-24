@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -92,7 +92,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
 
   VP_HELPER_RX(DGUS_Addr::ADJUST_SetFeedrate,     &DGUSRxHandler::Feedrate),
   VP_HELPER_RX(DGUS_Addr::ADJUST_SetFlowrate_CUR, &DGUSRxHandler::Flowrate),
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     VP_HELPER_RX(DGUS_Addr::ADJUST_SetFlowrate_E0,  &DGUSRxHandler::Flowrate),
     VP_HELPER_RX(DGUS_Addr::ADJUST_SetFlowrate_E1,  &DGUSRxHandler::Flowrate),
   #endif
@@ -102,7 +102,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_RX(DGUS_Addr::TEMP_Preset,        &DGUSRxHandler::TempPreset),
   VP_HELPER_RX(DGUS_Addr::TEMP_SetTarget_Bed, &DGUSRxHandler::TempTarget),
   VP_HELPER_RX(DGUS_Addr::TEMP_SetTarget_H0,  &DGUSRxHandler::TempTarget),
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     VP_HELPER_RX(DGUS_Addr::TEMP_SetTarget_H1,  &DGUSRxHandler::TempTarget),
   #endif
   VP_HELPER_RX(DGUS_Addr::TEMP_Cool,          &DGUSRxHandler::TempCool),
@@ -194,7 +194,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_TX_AUTO(DGUS_Addr::ADJUST_Flowrate_CUR,
                     nullptr,
                     &DGUSTxHandler::Flowrate),
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     VP_HELPER_TX_AUTO(DGUS_Addr::ADJUST_Flowrate_E0,
                       nullptr,
                       &DGUSTxHandler::Flowrate),
@@ -217,7 +217,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                     &thermalManager.temp_hotend[ExtUI::heater_t::H0].target,
                     &DGUSTxHandler::ExtraToInteger<int16_t>),
   VP_HELPER_TX(DGUS_Addr::TEMP_Max_H0, &DGUSTxHandler::TempMax),
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     VP_HELPER_TX_AUTO(DGUS_Addr::TEMP_Current_H1,
                       &thermalManager.temp_hotend[ExtUI::heater_t::H1].celsius,
                       &DGUSTxHandler::ExtraToInteger<float>),

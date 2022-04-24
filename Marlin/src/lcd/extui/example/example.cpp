@@ -46,7 +46,7 @@ namespace ExtUI {
      */
   }
   void onIdle() {}
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {}
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
@@ -59,8 +59,8 @@ namespace ExtUI {
   void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
-  void onHomingComplete() {}
-  void onPrintFinished() {}
+  void onHomingDone() {}
+  void onPrintDone() {}
 
   void onFactoryReset() {}
 
@@ -88,18 +88,19 @@ namespace ExtUI {
     // Called after loading or resetting stored settings
   }
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   #if HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated

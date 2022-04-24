@@ -43,11 +43,11 @@
   #define min(a,b) ((a)<(b)?(a):(b))
 #else
   namespace UI {
-    static inline uint32_t safe_millis() { return millis(); }
-    static inline void     yield()       {}
+    static uint32_t safe_millis() { return millis(); }
+    static void     yield()       {}
   };
 #endif
 
 class __FlashStringHelper;
-typedef const __FlashStringHelper *progmem_str;
+typedef const __FlashStringHelper *FSTR_P;
 extern const char G28_STR[];

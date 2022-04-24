@@ -47,17 +47,16 @@ void GcodeSuite::M413() {
     if (parser.seen("RL")) recovery.load();
     if (parser.seen_test('W')) recovery.save(true);
     if (parser.seen_test('P')) recovery.purge();
-    if (parser.seen_test('D')) recovery.debug(PSTR("M413"));
-    #if PIN_EXISTS(POWER_LOSS)
-      if (parser.seen_test('O')) recovery._outage();
-    #endif
-    if (parser.seen_test('E')) SERIAL_ECHOPGM_P(recovery.exists() ? PSTR("PLR Exists\n") : PSTR("No PLR\n"));
-    if (parser.seen_test('V')) SERIAL_ECHOPGM_P(recovery.valid() ? PSTR("Valid\n") : PSTR("Invalid\n"));
+    if (parser.seen_test('D')) recovery.debug(F("M413"));
+    if (parser.seen_test('O')) recovery._outage(true);
+    if (parser.seen_test('C')) (void)recovery.check();
+    if (parser.seen_test('E')) SERIAL_ECHOF(recovery.exists() ? F("PLR Exists\n") : F("No PLR\n"));
+    if (parser.seen_test('V')) SERIAL_ECHOF(recovery.valid() ? F("Valid\n") : F("Invalid\n"));
   #endif
 }
 
 void GcodeSuite::M413_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_POWER_LOSS_RECOVERY));
+  report_heading_etc(forReplay, F(STR_POWER_LOSS_RECOVERY));
   SERIAL_ECHOPGM("  M413 S", AS_DIGIT(recovery.enabled), " ; ");
   serialprintln_onoff(recovery.enabled);
 }

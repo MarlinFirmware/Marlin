@@ -27,6 +27,10 @@
 #include "../../../inc/MarlinConfig.h"
 #include "SPIFlashStorage.h"
 
+#if !HAS_SPI_FLASH
+  #error "HAS_SPI_FLASH is required with TFT_LVGL_UI."
+#endif
+
 extern W25QXXFlash W25QXX;
 
 uint8_t SPIFlashStorage::m_pageData[SPI_FLASH_PageSize];
@@ -43,9 +47,9 @@ uint32_t SPIFlashStorage::m_startAddress;
   static uint32_t rle_compress(T *output, uint32_t outputLength, T *input, uint32_t inputLength, uint32_t& inputProcessed) {
     uint32_t count = 0, out = 0, index, i;
     T pixel;
-    //32767 for uint16_t
-    //127 for uint16_t
-    //calculated at compile time
+    // 32767 for uint16_t
+    // 127 for uint16_t
+    // calculated at compile time
     constexpr T max = (0xFFFFFFFF >> (8 * (4 - sizeof(T)))) / 2;
 
     inputProcessed = 0;

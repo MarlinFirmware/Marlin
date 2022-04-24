@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -37,8 +40,7 @@
   #define MARLIN_EEPROM_SIZE             0x10000
 #endif
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos

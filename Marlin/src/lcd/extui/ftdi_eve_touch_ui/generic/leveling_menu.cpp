@@ -34,8 +34,8 @@ using namespace ExtUI;
 using namespace Theme;
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
-  #define GRID_ROWS 8
   #define GRID_COLS 2
+  #define GRID_ROWS 8
   #define LEVELING_TITLE_POS BTN_POS(1,1), BTN_SIZE(2,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(2,1)
   #define BED_MESH_TITLE_POS BTN_POS(1,3), BTN_SIZE(2,1)
@@ -48,8 +48,8 @@ using namespace Theme;
   #define BLTOUCH_TEST_POS   BTN_POS(2,7), BTN_SIZE(1,1)
   #define BACK_POS           BTN_POS(1,8), BTN_SIZE(2,1)
 #else
-  #define GRID_ROWS 6
   #define GRID_COLS 3
+  #define GRID_ROWS 6
   #define LEVELING_TITLE_POS BTN_POS(1,1), BTN_SIZE(3,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(3,1)
   #define BED_MESH_TITLE_POS BTN_POS(1,3), BTN_SIZE(2,1)
@@ -86,7 +86,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .enabled(ENABLED(HAS_BED_PROBE))
        .tag(3).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
        .enabled(ENABLED(HAS_MESH))
-       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH))
+       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
        .enabled(ENABLED(HAS_MESH))
        .tag(5).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        .enabled(ENABLED(G26_MESH_VALIDATION))
@@ -125,11 +125,11 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     #if ENABLED(G26_MESH_VALIDATION)
       case 6:
         GOTO_SCREEN(StatusScreen);
-        injectCommands_P(PSTR("G28\nM117 Heating...\nG26 R X0 Y0\nG27"));
+        injectCommands(F("G28\nM117 Heating...\nG26 R X0 Y0\nG27"));
         break;
     #endif
     #if ENABLED(BLTOUCH)
-      case 7: injectCommands_P(PSTR("M280 P0 S60")); break;
+      case 7: injectCommands(F("M280 P0 S60")); break;
       case 8: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     #endif
     default: return false;

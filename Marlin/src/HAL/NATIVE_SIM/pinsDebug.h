@@ -20,7 +20,6 @@
 /**
  * Support routines for X86_64
  */
-
 #pragma once
 
 /**

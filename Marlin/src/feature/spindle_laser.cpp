@@ -65,14 +65,14 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
     SET_OUTPUT(SPINDLE_DIR_PIN);
-    dir_pin_set();
+    dir_pin_set();                                                    // Init rotation to clockwise (M3)
   #endif
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);
-    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
+    hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
   #endif
-  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
-    set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
+  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
+    hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
     TERN_(MARLIN_DEV_MODE, frequency = SPINDLE_LASER_FREQUENCY);
   #endif
   #if ENABLED(AIR_EVACUATION)
@@ -81,9 +81,7 @@ void SpindleLaser::init() {
   #if ENABLED(AIR_ASSIST)
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
-  #if ENABLED(I2C_AMMETER)
-    ammeter.init();                                                   // Init I2C Ammeter
-  #endif
+  TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
 }
 
 #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -93,12 +91,10 @@ void SpindleLaser::init() {
    * @param ocr Power value
    */
   void SpindleLaser::ocr_set(const uint8_t ocr) {
-    #if NEEDS_HARDWARE_PWM && SPINDLE_LASER_FREQUENCY
-      set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), TERN(MARLIN_DEV_MODE, frequency, SPINDLE_LASER_FREQUENCY));
-      set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
-    #else
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
+      hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), TERN(MARLIN_DEV_MODE, frequency, SPINDLE_LASER_FREQUENCY));
     #endif
+    hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
 
 #endif // SPINDLE_LASER_USE_PWM

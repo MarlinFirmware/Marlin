@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,7 +46,7 @@ namespace ExtUI {
     }
   }
 
-  void onPrinterKilled(PGM_P error, PGM_P component) {
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
     dgus_screen_handler.PrinterKilled(error, component);
   }
 
@@ -83,8 +83,8 @@ namespace ExtUI {
   }
 
   void onHomingStart() {}
-  void onHomingComplete() {}
-  void onPrintFinished() {}
+  void onHomingDone() {}
+  void onPrintDone() {}
 
   void onFactoryReset() {
     dgus_screen_handler.SettingsReset();
@@ -100,16 +100,17 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
   #if HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       dgus_screen_handler.MeshUpdate(xpos, ypos);

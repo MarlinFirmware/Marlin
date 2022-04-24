@@ -69,8 +69,8 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #endif
 
   draw_text_box(cmd, HEADING_POS,
-    #ifdef CUSTOM_MACHINE_NAME
-      F(CUSTOM_MACHINE_NAME)
+    #ifdef MACHINE_NAME
+      F(MACHINE_NAME)
     #else
       GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_1)
     #endif
@@ -83,7 +83,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #ifdef TOUCH_UI_VERSION
     F(TOUCH_UI_VERSION)
   #else
-    progmem_str(getFirmwareName_str())
+    FPSTR(getFirmwareName_str())
   #endif
   , OPT_CENTER, font_medium);
   cmd.tag(0);

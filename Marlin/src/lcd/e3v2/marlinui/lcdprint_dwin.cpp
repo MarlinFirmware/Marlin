@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -101,8 +101,8 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
-  return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length) {
+  return lcd_put_u8str_max_cb(utf8_pstr, read_byte_rom, max_length);
 }
 
 lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {

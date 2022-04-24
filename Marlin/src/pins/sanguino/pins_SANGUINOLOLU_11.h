@@ -135,7 +135,7 @@
   #define LCD_BACKLIGHT_PIN                   17  // LCD backlight LED
 #endif
 
-#if NONE(SPINDLE_FEATURE, LASER_FEATURE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(IS_ULTRA_LCD, IS_NEWPANEL) // try to use IO Header
+#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
   #define CASE_LIGHT_PIN                       4  // Hardware PWM  - see if IO Header is available
 #endif
 
@@ -165,7 +165,7 @@
       #define KILL_PIN                        10
       #define BEEPER_PIN                      27
 
-    #elif ENABLED(U8GLIB_ST7920)                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+    #elif IS_U8GLIB_ST7920                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
       #if IS_MELZI
         #define LCD_PINS_RS                   30  // CS chip select /SS chip slave select
@@ -207,11 +207,7 @@
 
     #endif
 
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_0
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #elif ENABLED(ZONESTAR_LCD)                     // For the Tronxy Melzi boards
 
@@ -272,7 +268,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(IS_ULTRA_LCD, IS_NEWPANEL) // try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
 
     #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM

@@ -19,19 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * No offical schematics have been found.
+ * No official schematics have been found.
  * But these differences where noted in https://github.com/bigtreetech/Rumba32/issues/1
  */
-
-#pragma once
 
 #define BOARD_INFO_NAME "RUMBA32 (BTT)"
 
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE            0x2000  // 8KB (24LC64T-I/OT)
+  #define MARLIN_EEPROM_SIZE            0x1000  // 4KB (24LC32AT-I/OT)
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)

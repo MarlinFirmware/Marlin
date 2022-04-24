@@ -44,7 +44,7 @@ void GcodeSuite::M414() {
 }
 
 void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_UI_LANGUAGE));
+  report_heading_etc(forReplay, F(STR_UI_LANGUAGE));
   SERIAL_ECHOLNPGM("  M414 S", ui.language);
 }
 

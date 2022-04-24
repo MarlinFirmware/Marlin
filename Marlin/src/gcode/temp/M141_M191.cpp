@@ -69,7 +69,7 @@ void GcodeSuite::M191() {
 
   const bool is_heating = thermalManager.isHeatingChamber();
   if (is_heating || !no_wait_for_cooling) {
-    ui.set_status_P(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
+    ui.set_status(is_heating ? GET_TEXT_F(MSG_CHAMBER_HEATING) : GET_TEXT_F(MSG_CHAMBER_COOLING));
     thermalManager.wait_for_chamber(false);
   }
 }

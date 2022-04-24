@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(CANCEL_OBJECTS)
@@ -45,7 +46,7 @@ void CancelObject::set_active_object(const int8_t obj) {
 
   #if BOTH(HAS_STATUS_MESSAGE, CANCEL_OBJECTS_REPORTING)
     if (active_object >= 0)
-      ui.status_printf_P(0, PSTR(S_FMT " %i"), GET_TEXT(MSG_PRINTING_OBJECT), int(active_object));
+      ui.status_printf(0, F(S_FMT " %i"), GET_TEXT(MSG_PRINTING_OBJECT), int(active_object));
     else
       ui.reset_status();
   #endif

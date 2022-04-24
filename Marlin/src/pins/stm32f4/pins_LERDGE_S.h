@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,11 +31,10 @@
 #define BOARD_INFO_NAME      "Lerdge S"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define STEP_TIMER                             4
-#define TEMP_TIMER                             2
+#define STEP_TIMER  4
+#define TEMP_TIMER  2
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
@@ -131,8 +133,10 @@
 //
 // Průša i3 MK2 Multi Material Multiplexer Support
 //
-//#define E_MUX0_PIN                        -1
-//#define E_MUX1_PIN                        -1
+#if HAS_PRUSA_MMU1
+  //#define E_MUX0_PIN                      -1
+  //#define E_MUX1_PIN                      -1
+#endif
 
 //
 // LED / Lighting

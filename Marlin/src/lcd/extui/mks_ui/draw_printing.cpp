@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -159,8 +160,8 @@ void lv_draw_printing() {
 
   buttonZpos = lv_imgbtn_create(scr, "F:/bmp_zpos_state.bin", 350, 86, event_handler, ID_BABYSTEP);
 
-  buttonPause = lv_imgbtn_create(scr, uiCfg.print_state == WORKING ? "F:/bmp_pause.bin" : "F:/bmp_resume.bin", 5, 240, event_handler, ID_PAUSE);
-  buttonStop = lv_imgbtn_create(scr, "F:/bmp_stop.bin", 165, 240, event_handler, ID_STOP);
+  buttonPause  = lv_imgbtn_create(scr, uiCfg.print_state == WORKING ? "F:/bmp_pause.bin" : "F:/bmp_resume.bin", 5, 240, event_handler, ID_PAUSE);
+  buttonStop   = lv_imgbtn_create(scr, "F:/bmp_stop.bin", 165, 240, event_handler, ID_STOP);
   buttonOperat = lv_imgbtn_create(scr, "F:/bmp_operate.bin", 325, 240, event_handler, ID_OPTION);
 
   #if HAS_ROTARY_ENCODER
@@ -184,7 +185,7 @@ void lv_draw_printing() {
     labelBed = lv_label_create(scr, 250, 196, nullptr);
   #endif
 
-  labelFan = lv_label_create(scr, 395, 196, nullptr);
+  labelFan  = lv_label_create(scr, 395, 196, nullptr);
   labelTime = lv_label_create(scr, 250, 96, nullptr);
   labelZpos = lv_label_create(scr, 395, 96, nullptr);
 
@@ -209,8 +210,8 @@ void lv_draw_printing() {
   lv_bar_set_style(bar1, LV_BAR_STYLE_INDIC, &lv_bar_style_indic);
   lv_bar_set_anim_time(bar1, 1000);
   lv_bar_set_value(bar1, 0, LV_ANIM_ON);
-  bar1ValueText  = lv_label_create_empty(bar1);
-  lv_label_set_text(bar1ValueText,"0%");
+  bar1ValueText = lv_label_create_empty(bar1);
+  lv_label_set_text(bar1ValueText, "0%");
   lv_obj_align(bar1ValueText, bar1, LV_ALIGN_CENTER, 0, 0);
 
   disp_ext_temp();
@@ -290,7 +291,7 @@ void setProBarRate() {
   if (disp_state == PRINTING_UI) {
     lv_bar_set_value(bar1, rate, LV_ANIM_ON);
     sprintf_P(public_buf_l, "%d%%", rate);
-    lv_label_set_text(bar1ValueText,public_buf_l);
+    lv_label_set_text(bar1ValueText, public_buf_l);
     lv_obj_align(bar1ValueText, bar1, LV_ALIGN_CENTER, 0, 0);
 
     if (marlin_state == MF_SD_COMPLETE) {
@@ -306,8 +307,8 @@ void setProBarRate() {
 
         #if HAS_SUICIDE
           if (gCfgItems.finish_power_off) {
-            gcode.process_subcommands_now_P(PSTR("M1001"));
-            queue.inject_P(PSTR("M81"));
+            gcode.process_subcommands_now(F("M1001"));
+            queue.inject(F("M81"));
             marlin_state = MF_RUNNING;
           }
         #endif

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EDITABLE_SERVO_ANGLES)
@@ -46,15 +47,15 @@ void GcodeSuite::M281() {
         return;
       }
     #endif
-    if (parser.seen('L')) servo_angles[servo_index][0] = parser.value_int();
-    if (parser.seen('U')) servo_angles[servo_index][1] = parser.value_int();
+    if (parser.seenval('L')) servo_angles[servo_index][0] = parser.value_int();
+    if (parser.seenval('U')) servo_angles[servo_index][1] = parser.value_int();
   }
   else
     SERIAL_ERROR_MSG("Servo ", servo_index, " out of range");
 }
 
 void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_SERVO_ANGLES));
+  report_heading_etc(forReplay, F(STR_SERVO_ANGLES));
   LOOP_L_N(i, NUM_SERVOS) {
     switch (i) {
       default: break;

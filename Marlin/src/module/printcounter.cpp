@@ -43,7 +43,6 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #if PRINTCOUNTER_SYNC
   #include "../module/planner.h"
-  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
 // Service intervals
@@ -81,30 +80,36 @@ millis_t PrintCounter::deltaDuration() {
   return lastDuration - tmp;
 }
 
-void PrintCounter::incFilamentUsed(float const &amount) {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
+#if HAS_EXTRUDERS
+  void PrintCounter::incFilamentUsed(float const &amount) {
+    TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
 
-  // Refuses to update data if object is not loaded
-  if (!isLoaded()) return;
+    // Refuses to update data if object is not loaded
+    if (!isLoaded()) return;
 
-  data.filamentUsed += amount; // mm
-}
+    data.filamentUsed += amount; // mm
+  }
+#endif
 
 void PrintCounter::initStats() {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
 
   loaded = true;
-  data = { 0, 0, 0, 0, 0.0
-    #if HAS_SERVICE_INTERVALS
-      #if SERVICE_INTERVAL_1 > 0
-        , SERVICE_INTERVAL_SEC_1
-      #endif
-      #if SERVICE_INTERVAL_2 > 0
-        , SERVICE_INTERVAL_SEC_2
-      #endif
-      #if SERVICE_INTERVAL_3 > 0
-        , SERVICE_INTERVAL_SEC_3
-      #endif
+
+  data = {
+      .totalPrints = 0
+    , .finishedPrints = 0
+    , .printTime = 0
+    , .longestPrint = 0
+    OPTARG(HAS_EXTRUDERS, .filamentUsed = 0.0)
+    #if SERVICE_INTERVAL_1 > 0
+      , .nextService1 = SERVICE_INTERVAL_SEC_1
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      , .nextService2 = SERVICE_INTERVAL_SEC_2
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      , .nextService3 = SERVICE_INTERVAL_SEC_3
     #endif
   };
 
@@ -152,7 +157,7 @@ void PrintCounter::loadStats() {
       if (data.nextService3 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_3));
     #endif
     #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
-      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) BUZZ(200, 404);
+      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) { BUZZ(200, 404); BUZZ(10, 0); }
     #else
       UNUSED(doBuzz);
     #endif
@@ -172,7 +177,7 @@ void PrintCounter::saveStats() {
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(true));
+  TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(true));
 }
 
 #if HAS_SERVICE_INTERVALS
@@ -211,8 +216,11 @@ void PrintCounter::showStats() {
     SERIAL_CHAR(')');
   #endif
 
-  SERIAL_ECHOPGM("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
-  SERIAL_CHAR('m');
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOPGM("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
+    SERIAL_CHAR('m');
+  #endif
+
   SERIAL_EOL();
 
   #if SERVICE_INTERVAL_1 > 0
