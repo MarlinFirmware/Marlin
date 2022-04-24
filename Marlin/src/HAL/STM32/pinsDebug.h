@@ -79,7 +79,6 @@
 // make a list of the Arduino pin numbers in the Port/Pin order
 //
 
-#define _PIN_ADD_2(NAME_ALPHA, ARDUINO_NUM) { {NAME_ALPHA}, ARDUINO_NUM },
 #define _PIN_ADD(NAME_ALPHA, ARDUINO_NUM) { NAME_ALPHA, ARDUINO_NUM },
 #define PIN_ADD(NAME) _PIN_ADD(#NAME, NAME)
 
@@ -108,7 +107,11 @@ const XrefInfo pin_xref[] PROGMEM = {
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
+
+#if PA0 >= NUM_DIGITAL_PINS
+  #define HAS_HIGH_ANALOG_PINS 1
+#endif
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS)
 #define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
@@ -164,17 +167,20 @@ bool GET_PINMODE(const pin_t Ard_num) {
   return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
 }
 
-int8_t digital_pin_to_analog_pin(pin_t Ard_num) {
-  Ard_num -= NUM_ANALOG_FIRST;
-  return (Ard_num >= 0 && Ard_num < NUM_ANALOG_INPUTS) ? Ard_num : -1;
+int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
+  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_FIRST + NUM_ANALOG_INPUTS - 1))
+    return Ard_num - NUM_ANALOG_FIRST;
+
+  const uint32_t ind = digitalPinToAnalogInput(Ard_num);
+  return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
 }
 
 bool IS_ANALOG(const pin_t Ard_num) {
   return get_pin_mode(Ard_num) == MODE_PIN_ANALOG;
 }
 
-bool is_digital(const pin_t x) {
-  const uint8_t pin_mode = get_pin_mode(pin_array[x].pin);
+bool is_digital(const pin_t Ard_num) {
+  const uint8_t pin_mode = get_pin_mode(pin_array[Ard_num].pin);
   return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 }
 
@@ -200,10 +206,15 @@ void port_print(const pin_t Ard_num) {
     SERIAL_ECHO_SP(7);
 
   // Print number to be used with M42
-  sprintf_P(buffer, PSTR(" M42 P%d "), Ard_num);
-  SERIAL_ECHO(buffer);
-  if (Ard_num < 10) SERIAL_CHAR(' ');
-  if (Ard_num < 100) SERIAL_CHAR(' ');
+  int calc_p = Ard_num % (NUM_DIGITAL_PINS + 1);
+  if (Ard_num > NUM_DIGITAL_PINS && calc_p > 7) calc_p += 8;
+  SERIAL_ECHOPGM(" M42 P", calc_p);
+  SERIAL_CHAR(' ');
+  if (calc_p < 100) {
+    SERIAL_CHAR(' ');
+    if (calc_p <  10)
+      SERIAL_CHAR(' ');
+  }
 }
 
 bool pwm_status(const pin_t Ard_num) {
@@ -225,19 +236,19 @@ void pwm_details(const pin_t Ard_num) {
         case 'D' : alt_all = GPIOD->AFR[ind]; break;
         #ifdef PE_0
           case 'E' : alt_all = GPIOE->AFR[ind]; break;
-        #elif defined (PF_0)
+        #elif defined(PF_0)
           case 'F' : alt_all = GPIOF->AFR[ind]; break;
-        #elif defined (PG_0)
+        #elif defined(PG_0)
           case 'G' : alt_all = GPIOG->AFR[ind]; break;
-        #elif defined (PH_0)
+        #elif defined(PH_0)
           case 'H' : alt_all = GPIOH->AFR[ind]; break;
-        #elif defined (PI_0)
+        #elif defined(PI_0)
           case 'I' : alt_all = GPIOI->AFR[ind]; break;
-        #elif defined (PJ_0)
+        #elif defined(PJ_0)
           case 'J' : alt_all = GPIOJ->AFR[ind]; break;
-        #elif defined (PK_0)
+        #elif defined(PK_0)
           case 'K' : alt_all = GPIOK->AFR[ind]; break;
-        #elif defined (PL_0)
+        #elif defined(PL_0)
           case 'L' : alt_all = GPIOL->AFR[ind]; break;
         #endif
       }

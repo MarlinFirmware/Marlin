@@ -241,7 +241,6 @@ void report_current_position_projected() {
 }
 
 #if ENABLED(AUTO_REPORT_POSITION)
-  //struct PositionReport { void report() { report_current_position_projected(); } };
   AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
@@ -1399,7 +1398,7 @@ void prepare_line_to_destination() {
   bool homing_needed_error(linear_axis_bits_t axis_bits/*=linear_bits*/) {
     if ((axis_bits = axes_should_home(axis_bits))) {
       PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
-      char msg[strlen_P(home_first)+1];
+      char msg[30];
       sprintf_P(msg, home_first,
         NUM_AXIS_LIST(
           TEST(axis_bits, X_AXIS) ? STR_A : "",
