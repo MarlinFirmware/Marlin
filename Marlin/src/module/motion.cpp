@@ -241,7 +241,6 @@ void report_current_position_projected() {
 }
 
 #if ENABLED(AUTO_REPORT_POSITION)
-  //struct PositionReport { void report() { report_current_position_projected(); } };
   AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
