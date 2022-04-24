@@ -45,3 +45,7 @@
 //#define LED_PIN                           PB2
 
 #include "pins_MKS_ROBIN_NANO_common.h"
+
+#if HAS_TFT_LVGL_UI && FAN1_PIN != PB0 && HEATER_1_PIN != PB0
+  #define BOARD_INIT() OUT_WRITE(PB0, LOW)
+#endif

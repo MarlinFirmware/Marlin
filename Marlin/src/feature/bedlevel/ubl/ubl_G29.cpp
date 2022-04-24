@@ -57,7 +57,7 @@
 
 #define UBL_G29_P31
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   bool unified_bed_leveling::lcd_map_control = false;
 
@@ -316,7 +316,43 @@ void unified_bed_leveling::G29() {
     planner.synchronize();
     // Send 'N' to force homing before G29 (internal only)
     if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
-    TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
+    TERN_(HAS_MULTI_HOTEND, if (active_extruder != 0) tool_change(0, true));
+
+    // Position bed horizontally and Z probe vertically.
+    #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
+        || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
+        || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
+      xyze_pos_t safe_position = current_position;
+      #ifdef SAFE_BED_LEVELING_START_X
+        safe_position.x = SAFE_BED_LEVELING_START_X;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_Y
+        safe_position.y = SAFE_BED_LEVELING_START_Y;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_Z
+        safe_position.z = SAFE_BED_LEVELING_START_Z;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_I
+        safe_position.i = SAFE_BED_LEVELING_START_I;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_J
+        safe_position.j = SAFE_BED_LEVELING_START_J;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_K
+        safe_position.k = SAFE_BED_LEVELING_START_K;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_U
+        safe_position.u = SAFE_BED_LEVELING_START_U;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_V
+        safe_position.v = SAFE_BED_LEVELING_START_V;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_W
+        safe_position.w = SAFE_BED_LEVELING_START_W;
+      #endif
+
+      do_blocking_move_to(safe_position);
+    #endif
   }
 
   // Invalidate one or more nearby mesh points, possibly all.
@@ -367,13 +403,13 @@ void unified_bed_leveling::G29() {
 
       case 1:
         LOOP_L_N(x, GRID_MAX_POINTS_X) {                     // Create a diagonal line several Mesh cells thick that is raised
+          const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
           z_values[x][x] += 9.999f;
-          z_values[x][x + (x < (GRID_MAX_POINTS_Y) - 1) ? 1 : -1] += 9.999f; // We want the altered line several mesh points thick
+          z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
           #if ENABLED(EXTENSIBLE_UI)
             ExtUI::onMeshUpdate(x, x, z_values[x][x]);
-            ExtUI::onMeshUpdate(x, (x + (x < (GRID_MAX_POINTS_Y) - 1) ? 1 : -1), z_values[x][x + (x < (GRID_MAX_POINTS_Y) - 1) ? 1 : -1]);
+            ExtUI::onMeshUpdate(x, (x2), z_values[x][x2]);
           #endif
-
         }
         break;
 
@@ -443,7 +479,7 @@ void unified_bed_leveling::G29() {
       #endif // HAS_BED_PROBE
 
       case 2: {
-        #if HAS_LCD_MENU
+        #if HAS_MARLINUI_MENU
           //
           // Manually Probe Mesh in areas that can't be reached by the probe
           //
@@ -555,7 +591,7 @@ void unified_bed_leveling::G29() {
       }
 
       case 4: // Fine Tune (i.e., Edit) the Mesh
-        #if HAS_LCD_MENU
+        #if HAS_MARLINUI_MENU
           fine_tune_mesh(param.XY_pos, parser.seen_test('T'));
         #else
           SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
@@ -646,7 +682,7 @@ void unified_bed_leveling::G29() {
 
   LEAVE:
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     ui.reset_alert_level();
     ui.quick_feedback();
     ui.reset_status();
@@ -663,7 +699,7 @@ void unified_bed_leveling::G29() {
     UNUSED(probe_deployed);
   #endif
 
-  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
+  TERN_(HAS_MULTI_HOTEND, if (old_tool_index != 0) tool_change(old_tool_index));
   return;
 }
 
@@ -725,7 +761,8 @@ void unified_bed_leveling::shift_mesh_height() {
   void unified_bed_leveling::probe_entire_mesh(const xy_pos_t &nearby, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
     probe.deploy(); // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
 
-    TERN_(HAS_LCD_MENU, ui.capture());
+    TERN_(HAS_MARLINUI_MENU, ui.capture());
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
     uint8_t count = GRID_MAX_POINTS;
@@ -739,7 +776,7 @@ void unified_bed_leveling::shift_mesh_height() {
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
 
-      #if HAS_LCD_MENU
+      #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
           ui.quick_feedback(false); // Preserve button state for click-and-hold
           SERIAL_ECHOLNPGM("\nMesh only partially populated.\n");
@@ -747,6 +784,7 @@ void unified_bed_leveling::shift_mesh_height() {
           ui.quick_feedback();
           ui.release();
           probe.stow(); // Release UI before stow to allow for PAUSE_BEFORE_DEPLOY_STOW
+          TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
           return restore_ubl_active_state_and_leave();
         }
       #endif
@@ -774,9 +812,9 @@ void unified_bed_leveling::shift_mesh_height() {
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_FINISH));
 
     // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
-    TERN_(HAS_LCD_MENU, ui.release());
+    TERN_(HAS_MARLINUI_MENU, ui.release());
     probe.stow();
-    TERN_(HAS_LCD_MENU, ui.capture());
+    TERN_(HAS_MARLINUI_MENU, ui.capture());
 
     probe.move_z_after_probing();
 
@@ -786,12 +824,14 @@ void unified_bed_leveling::shift_mesh_height() {
       constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
       constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
     );
+
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 
 #endif // HAS_BED_PROBE
 
 void set_message_with_feedback(FSTR_P const fstr) {
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     ui.set_status(fstr);
     ui.quick_feedback();
   #else
@@ -799,7 +839,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
   #endif
 }
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   typedef void (*clickFunc_t)();
 
@@ -885,6 +925,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
    */
   void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const_float_t z_clearance, const_float_t thick, const bool do_ubl_mesh_map) {
     ui.capture();
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
     do_blocking_move_to_xy_z(current_position, z_clearance);
@@ -948,6 +989,8 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
     restore_ubl_active_state_and_leave();
     do_blocking_move_to_xy_z(pos, Z_CLEARANCE_DEPLOY_PROBE);
+
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 
   /**
@@ -1070,7 +1113,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       ui.return_to_status();
   }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 /**
  * Parse and validate most G29 parameters, store for use by G29 functions.
@@ -1210,7 +1253,7 @@ void unified_bed_leveling::save_ubl_active_state_and_disable() {
 }
 
 void unified_bed_leveling::restore_ubl_active_state_and_leave() {
-  TERN_(HAS_LCD_MENU, ui.release());
+  TERN_(HAS_MARLINUI_MENU, ui.release());
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     if (--ubl_state_recursion_chk) {
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
@@ -1219,6 +1262,7 @@ void unified_bed_leveling::restore_ubl_active_state_and_leave() {
     }
   #endif
   set_bed_leveling_enabled(ubl_state_at_invocation);
+  TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
 }
 
 mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {

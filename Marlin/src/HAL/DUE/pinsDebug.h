@@ -53,7 +53,7 @@
  *     The net result is that both the g_pinStatus[pin] array and the PIO_OSR register
  *     needs to be looked at when determining if a pin is an input or an output.
  *
- * b) Due has only pins 6, 7, 8 & 9 enabled for PWMs.  FYI - they run at 1KHz
+ * b) Due has only pins 6, 7, 8 & 9 enabled for PWMs.  FYI - they run at 1kHz
  *
  * c) NUM_DIGITAL_PINS does not include the analog pins
  *
@@ -85,7 +85,6 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
           || pin_status == PIN_STATUS_DIGITAL_OUTPUT
           || pwm_status(pin));
 }
-
 
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {

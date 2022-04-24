@@ -29,6 +29,9 @@
 
 #include <stdlib.h>    // size_t
 
+//#define DEBUG_DGUSLCD
+//#define DEBUG_DGUSLCD_COMM
+
 #if HAS_BED_PROBE
   #include "../../../module/probe.h"
 #endif
@@ -47,6 +50,8 @@ typedef enum : uint8_t {
   DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
 } rx_datagram_state_t;
 
+constexpr uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
+
 // Low-Level access to the display.
 class DGUSDisplay {
 public:
@@ -63,8 +68,6 @@ public:
   static void WriteVariable(uint16_t adr, uint8_t value);
   static void WriteVariable(uint16_t adr, int8_t value);
   static void WriteVariable(uint16_t adr, long value);
-  static void MKS_WriteVariable(uint16_t adr, uint8_t value);
-
 
   // Utility functions for bridging ui_api and dbus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>
@@ -95,14 +98,13 @@ public:
 
   // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
-  static inline bool isInitialized() { return Initialized; }
+  static bool isInitialized() { return Initialized; }
 
 private:
   static void WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen);
   static void WritePGM(const char str[], uint8_t len);
   static void ProcessRx();
 
-  static inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
   static rx_datagram_state_t rx_datagram_state;
   static uint8_t rx_datagram_len;
   static bool Initialized, no_reentrance;

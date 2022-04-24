@@ -58,7 +58,7 @@ public:
 
   static void set_z(const int8_t px, const int8_t py, const_float_t z) { z_values[px][py] = z; }
 
-  static inline void zigzag(const int8_t index, int8_t &px, int8_t &py) {
+  static void zigzag(const int8_t index, int8_t &px, int8_t &py) {
     px = index % (GRID_MAX_POINTS_X);
     py = index / (GRID_MAX_POINTS_X);
     if (py & 1) px = (GRID_MAX_POINTS_X) - 1 - px; // Zig zag
@@ -78,10 +78,10 @@ public:
     int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
     return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
   }
-  static inline xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+  static xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
     return { cell_index_x(x), cell_index_y(y) };
   }
-  static inline xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+  static xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t probe_index_x(const_float_t x) {
     int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
@@ -91,10 +91,10 @@ public:
     int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
-  static inline xy_int8_t probe_indexes(const_float_t x, const_float_t y) {
+  static xy_int8_t probe_indexes(const_float_t x, const_float_t y) {
     return { probe_index_x(x), probe_index_y(y) };
   }
-  static inline xy_int8_t probe_indexes(const xy_pos_t &xy) { return probe_indexes(xy.x, xy.y); }
+  static xy_int8_t probe_indexes(const xy_pos_t &xy) { return probe_indexes(xy.x, xy.y); }
 
   static float calc_z0(const_float_t a0, const_float_t a1, const_float_t z1, const_float_t a2, const_float_t z2) {
     const float delta_z = (z2 - z1) / (a2 - a1),

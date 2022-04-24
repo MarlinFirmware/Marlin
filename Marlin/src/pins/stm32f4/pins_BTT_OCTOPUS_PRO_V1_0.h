@@ -32,8 +32,13 @@
   #define TEMP_0_MISO_PIN                   PA6
   #define TEMP_0_MOSI_PIN                   PA7
   #define SOFTWARE_SPI                            // Max31865 and LCD SD share a set of SPIs, Set SD to softwareSPI for Max31865
+  #define FORCE_SOFT_SPI
 #else
   #define TEMP_0_PIN                        PF4   // TH0
+#endif
+
+#if !defined(Z_MIN_PROBE_PIN) && DISABLED(BLTOUCH)
+  #define Z_MIN_PROBE_PIN                   PC5   // Probe (Proximity switch) port
 #endif
 
 #include "pins_BTT_OCTOPUS_V1_common.h"

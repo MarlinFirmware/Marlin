@@ -41,7 +41,7 @@
  *
  *   If XYZE are not given, default restore uses the smart blocking move.
  */
-void GcodeSuite::G61(void) {
+void GcodeSuite::G61() {
 
   const uint8_t slot = parser.byteval('S');
 
@@ -68,10 +68,10 @@ void GcodeSuite::G61(void) {
     SYNC_E(stored_position[slot].e);
   }
   else {
-    if (parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR))) {
+    if (parser.seen(NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W))) {
       DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
-      LOOP_LINEAR_AXES(i) {
-        destination[i] = parser.seen(AXIS_CHAR(i))
+      LOOP_NUM_AXES(i) {
+        destination[i] = parser.seenval(AXIS_CHAR(i))
           ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
           : current_position[i];
         DEBUG_CHAR(' ', AXIS_CHAR(i));
