@@ -4,17 +4,23 @@
 #
 from __future__ import print_function
 
-import pioutil
-if pioutil.is_pio_build():
-
+has_tkinter = False
+try:
 	import sys
-	if sys.version_info[0] == 2:
+	if sys.version_info[0] < 3:
 		import Tkinter as tk
 		import tkFileDialog as fileDialog
 		from Tkinter import Tk
 	else:
 		import tkinter as tk
 		from tkinter import Tk
+		from tkinter import filedialog as fileDialog
+	has_tkinter = True
+except:
+	pass
+
+import pioutil
+if has_tkinter and pioutil.is_pio_build():
 
 	Import("env")
 
