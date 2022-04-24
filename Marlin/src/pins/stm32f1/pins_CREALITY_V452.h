@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Creality v4.5.2 (STM32F103RET6) board pin assignments
+ * Creality v4.5.2 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1

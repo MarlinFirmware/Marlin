@@ -106,6 +106,15 @@ void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
 #if HAS_K_AXIS
   void lcd_move_k() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_K), K_AXIS); }
 #endif
+#if HAS_U_AXIS
+  void lcd_move_u() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_U), U_AXIS); }
+#endif
+#if HAS_V_AXIS
+  void lcd_move_v() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_V), V_AXIS); }
+#endif
+#if HAS_W_AXIS
+  void lcd_move_w() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_W), W_AXIS); }
+#endif
 
 #if E_MANUAL
 
@@ -219,7 +228,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         ui.goto_screen([]{
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BACK),
-            _goto_menu_move_distance_e, nullptr,
+            [] { _goto_menu_move_distance_e(); thermalManager.set_menu_cold_override(true); }, nullptr,
             GET_TEXT(MSG_HOTEND_TOO_COLD), (const char *)nullptr, PSTR("!")
           );
         });
@@ -262,6 +271,15 @@ void menu_move() {
     #endif
     #if HAS_K_AXIS
       SUBMENU(MSG_MOVE_K, []{ _menu_move_distance(K_AXIS, lcd_move_k); });
+    #endif
+    #if HAS_U_AXIS
+      SUBMENU(MSG_MOVE_U, []{ _menu_move_distance(U_AXIS, lcd_move_u); });
+    #endif
+    #if HAS_V_AXIS
+      SUBMENU(MSG_MOVE_V, []{ _menu_move_distance(V_AXIS, lcd_move_v); });
+    #endif
+    #if HAS_W_AXIS
+      SUBMENU(MSG_MOVE_W, []{ _menu_move_distance(W_AXIS, lcd_move_w); });
     #endif
   }
   else
@@ -354,6 +372,15 @@ void menu_move() {
     #if HAS_K_AXIS
       GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_K));
     #endif
+    #if HAS_U_AXIS
+      GCODES_ITEM_N(U_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_U));
+    #endif
+    #if HAS_V_AXIS
+      GCODES_ITEM_N(V_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_V));
+    #endif
+    #if HAS_W_AXIS
+      GCODES_ITEM_N(W_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_W));
+    #endif
 
     END_MENU();
   }
@@ -406,6 +433,15 @@ void menu_motion() {
       #endif
       #if HAS_K_AXIS
         GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_K));
+      #endif
+      #if HAS_U_AXIS
+        GCODES_ITEM_N(U_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_U));
+      #endif
+      #if HAS_V_AXIS
+        GCODES_ITEM_N(V_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_V));
+      #endif
+      #if HAS_W_AXIS
+        GCODES_ITEM_N(W_AXIS, MSG_AUTO_HOME_A, PSTR("G28" STR_W));
       #endif
     #endif
   #endif

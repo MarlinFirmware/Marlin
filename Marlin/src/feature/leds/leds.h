@@ -54,6 +54,8 @@ typedef struct LEDColor {
     OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS))
   {}
 
+  LEDColor(const LEDColor&) = default;
+
   LEDColor(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w=0) OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS))
     : r(r), g(g), b(b) OPTARG(HAS_WHITE_LED, w(w)) OPTARG(NEOPIXEL_LED, i(i)) {}
 
@@ -65,11 +67,6 @@ typedef struct LEDColor {
   LEDColor& operator=(const uint8_t (&rgbw)[4]) {
     r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
     TERN_(HAS_WHITE_LED, w = rgbw[3]);
-    return *this;
-  }
-
-  LEDColor& operator=(const LEDColor &right) {
-    if (this != &right) memcpy(this, &right, sizeof(LEDColor));
     return *this;
   }
 
@@ -157,12 +154,12 @@ public:
     static void update() { set_color(color); }
   #endif
 
-  #ifdef LED_BACKLIGHT_TIMEOUT
+  #if LED_POWEROFF_TIMEOUT > 0
     private:
       static millis_t led_off_time;
     public:
       static void reset_timeout(const millis_t &ms) {
-        led_off_time = ms + LED_BACKLIGHT_TIMEOUT;
+        led_off_time = ms + LED_POWEROFF_TIMEOUT;
         if (!lights_on) update();
       }
       static void update_timeout(const bool power_on);

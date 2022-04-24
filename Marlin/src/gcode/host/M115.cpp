@@ -65,8 +65,8 @@ void GcodeSuite::M115() {
     "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
     "MACHINE_TYPE:" MACHINE_NAME " "
     "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
-    #if LINEAR_AXES != XYZ
-      "AXIS_COUNT:" STRINGIFY(LINEAR_AXES) " "
+    #if NUM_AXES != XYZ
+      "AXIS_COUNT:" STRINGIFY(NUM_AXES) " "
     #endif
     #ifdef MACHINE_UUID
       "UUID:" MACHINE_UUID
@@ -141,6 +141,11 @@ void GcodeSuite::M115() {
 
     // SDCARD (M20, M23, M24, etc.)
     cap_line(F("SDCARD"), ENABLED(SDSUPPORT));
+
+    // MULTI_VOLUME (M21 S/M21 U)
+    #if ENABLED(SDSUPPORT)
+      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
+    #endif
 
     // REPEAT (M808)
     cap_line(F("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));

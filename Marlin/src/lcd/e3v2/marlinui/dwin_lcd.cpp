@@ -46,6 +46,7 @@ void DWIN_Startup() {
   if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
   DWIN_Frame_SetDir(TERN(DWIN_MARLINUI_LANDSCAPE, 0, 1));
   DWIN_Frame_Clear(Color_Bg_Black); // MarlinUI handles the bootscreen so just clear here
+  DWIN_JPG_ShowAndCache(3);
   DWIN_UpdateLCD();
 }
 

@@ -28,6 +28,7 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 #include "../../module/printcounter.h"
+#include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 
 #if HAS_BUZZER
@@ -171,6 +172,7 @@ bool printer_busy() {
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
+    thermalManager.set_menu_cold_override(false);
 
     TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
 
@@ -276,11 +278,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #if HAS_BUZZER
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
-    if (good) {
-      BUZZ(100, 659);
-      BUZZ(100, 698);
-    }
-    else BUZZ(20, 440);
+    if (good) OKAY_BUZZ(); else ERR_BUZZ();
   }
 #endif
 
@@ -368,7 +366,8 @@ void MenuItem_confirm::select_screen(
   PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/
 ) {
   ui.defer_status_screen();
-  const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
+  const bool ui_selection = !yes ? false : !no || ui.update_selection(),
+             got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
     if (got_click) {

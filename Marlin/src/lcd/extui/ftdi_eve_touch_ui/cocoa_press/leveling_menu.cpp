@@ -33,8 +33,8 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-#define GRID_ROWS 5
 #define GRID_COLS 3
+#define GRID_ROWS 5
 #define BED_MESH_TITLE_POS BTN_POS(1,1), BTN_SIZE(3,1)
 #define PROBE_BED_POS      BTN_POS(1,2), BTN_SIZE(1,1)
 #define SHOW_MESH_POS      BTN_POS(2,2), BTN_SIZE(1,1)
@@ -60,9 +60,9 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .text(BLTOUCH_TITLE_POS, GET_TEXT_F(MSG_BLTOUCH))
        .font(font_medium).colors(normal_btn)
        .tag(2).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
-       .enabled(ENABLED(HAS_MESH))
+              .enabled(ENABLED(HAS_MESH))
        .tag(3).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
-       .enabled(ENABLED(HAS_MESH))
+              .enabled(ENABLED(HAS_MESH))
        .tag(4).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        #undef  GRID_COLS
        #define GRID_COLS 2
