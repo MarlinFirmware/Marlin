@@ -69,7 +69,9 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
     SERIAL_ECHOPAIR_F(" C", constants.block_heat_capacity, 2);
     SERIAL_ECHOPAIR_F(" R", constants.sensor_responsiveness, 4);
     SERIAL_ECHOPAIR_F(" A", constants.ambient_xfer_coeff_fan0, 4);
-    SERIAL_ECHOLNPAIR_F(" F", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
+    #if ENABLED(MPC_INCLUDE_FAN)
+      SERIAL_ECHOLNPAIR_F(" F", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
+    #endif
   }
 }
 

@@ -87,6 +87,9 @@ namespace Language_de {
   LSTR MSG_HOME_OFFSET_I                  = _UxGT("Homeversatz ") STR_I;
   LSTR MSG_HOME_OFFSET_J                  = _UxGT("Homeversatz ") STR_J;
   LSTR MSG_HOME_OFFSET_K                  = _UxGT("Homeversatz ") STR_K;
+  LSTR MSG_HOME_OFFSET_U                  = _UxGT("Homeversatz ") STR_U;
+  LSTR MSG_HOME_OFFSET_V                  = _UxGT("Homeversatz ") STR_V;
+  LSTR MSG_HOME_OFFSET_W                  = _UxGT("Homeversatz ") STR_W;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Homeversatz aktiv");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in marlinui.cpp
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Assistent");
@@ -330,6 +333,14 @@ namespace Language_de {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge. Falscher Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge. Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
+  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("teste Wärmeverlust");
+  LSTR MSG_MPC_AUTOTUNE                   = _UxGT("Autotune MPC");
+  LSTR MSG_MPC_EDIT                       = _UxGT("MPC * bearbeiten");
+  LSTR MSG_MPC_POWER_E                    = _UxGT("* Leistung");
+  LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("Block C *");
+  LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensor res *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ambient h *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Amb. h fan *");
   LSTR MSG_SELECT                         = _UxGT("Auswählen");
   LSTR MSG_SELECT_E                       = _UxGT("Auswählen *");
   LSTR MSG_ACC                            = _UxGT("Beschleunigung");

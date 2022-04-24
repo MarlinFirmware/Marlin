@@ -487,6 +487,12 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #endif
 #endif
 
+#if BOTH(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
+  bool Temperature::allow_cold_extrude_override = false;
+#else
+  constexpr bool Temperature::allow_cold_extrude_override;
+#endif
+
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
   celsius_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
@@ -741,7 +747,7 @@ volatile bool Temperature::raw_temps_ready = false;
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_SENSOR
-          print_heater_states(ischamber ? active_extruder : (isbed ? active_extruder : heater_id));
+          print_heater_states(heater_id < 0 ? active_extruder : (int8_t)heater_id);
           SERIAL_EOL();
         #endif
         next_temp_ms = ms + 2000UL;
@@ -2809,13 +2815,10 @@ void Temperature::init() {
 
 #if HAS_THERMAL_PROTECTION
 
-  Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
-  #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
-    #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
-  #else
-    #define VARIANCE_WINDOW period_seconds
-  #endif
+  Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
 
   /**
    * @brief Thermal Runaway state machine for a single heater
@@ -2828,6 +2831,12 @@ void Temperature::init() {
    * TODO: Embed the last 3 parameters during init, if not less optimal
    */
   void Temperature::tr_state_machine_t::run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
+
+    #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+      #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+    #else
+      #define VARIANCE_WINDOW period_seconds
+    #endif
 
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
@@ -2850,6 +2859,12 @@ void Temperature::init() {
         #endif
       );
     */
+
+    #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+      #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+    #else
+      #define VARIANCE_WINDOW period_seconds
+    #endif
 
     #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
       if (state == TRMalfunction) { // temperature invariance may continue, regardless of heater state
@@ -2944,7 +2959,7 @@ void Temperature::init() {
     }
   }
 
-  #undef VARIANCE_WINDOW
+  #pragma GCC diagnostic pop
 
 #endif // HAS_THERMAL_PROTECTION
 
@@ -3660,6 +3675,9 @@ void Temperature::isr() {
 
   switch (adc_sensor_state) {
 
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
     case SensorsReady: {
       // All sensors have been read. Stay in this state for a few
       // ISRs to save on calls to temp update/checking code below.
@@ -3676,6 +3694,8 @@ void Temperature::isr() {
         next_sensor_state = (ADCSensorState)(int(StartSampling) + 1);
       }
     }
+
+    #pragma GCC diagnostic pop
 
     case StartSampling:                                   // Start of sampling loops. Do updates/checks.
       if (++temp_count >= OVERSAMPLENR) {                 // 10 * 16 * 1/(16000000/64/256)  = 164ms.
@@ -3908,7 +3928,7 @@ void Temperature::isr() {
     delay(2);
   }
 
-  void Temperature::print_heater_states(const uint8_t target_extruder
+  void Temperature::print_heater_states(const int8_t target_extruder
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
   ) {
     #if HAS_TEMP_HOTEND
