@@ -61,10 +61,8 @@
   #define USB_NO_TEST_UNIT_READY // Required for removable media adapter
   #define USB_HOST_MANUAL_POLL // Optimization to shut off IRQ automatically
 
-  // Workarounds for keeping Marlin's watchdog timer from barking...
-  void marlin_yield() {
-    thermalManager.manage_heater();
-  }
+  // Workarounds to keep Marlin's watchdog timer from barking...
+  void marlin_yield() { thermalManager.manage_heater(); }
   #define SYSTEM_OR_SPECIAL_YIELD(...) marlin_yield();
   #define delay(x) safe_delay(x)
 
@@ -82,6 +80,7 @@
 
   #define UHS_START  (usb.Init() == 0)
   #define UHS_STATE(state) UHS_USB_HOST_STATE_##state
+
 #elif ENABLED(USE_OTG_USB_HOST)
 
   #if HAS_SD_HOST_DRIVE
@@ -93,7 +92,9 @@
   #define UHS_START usb.start()
   #define rREVISION 0
   #define UHS_STATE(state) USB_STATE_##state
+
 #else
+
   #include "lib-uhs2/Usb.h"
   #include "lib-uhs2/masstorage.h"
 
@@ -102,6 +103,7 @@
 
   #define UHS_START usb.start()
   #define UHS_STATE(state) USB_STATE_##state
+
 #endif
 
 #include "Sd2Card_FlashDrive.h"
@@ -271,11 +273,11 @@ bool DiskIODriver_USBFlash::init(const uint8_t, const pin_t) {
   if (!isInserted()) return false;
 
   #if USB_DEBUG >= 1
-  const uint32_t sectorSize = bulk.GetSectorSize(0);
-  if (sectorSize != 512) {
-    SERIAL_ECHOLNPGM("Expecting sector size of 512. Got: ", sectorSize);
-    return false;
-  }
+    const uint32_t sectorSize = bulk.GetSectorSize(0);
+    if (sectorSize != 512) {
+      SERIAL_ECHOLNPGM("Expecting sector size of 512. Got: ", sectorSize);
+      return false;
+    }
   #endif
 
   #if USB_DEBUG >= 3

@@ -67,17 +67,17 @@
   #endif
 #endif
 
-#ifdef STM32F0xx
+#if defined(STM32F0xx) || defined(STM32G0xx)
   #define MCU_STEP_TIMER 16
   #define MCU_TEMP_TIMER 17
 #elif defined(STM32F1xx)
   #define MCU_STEP_TIMER  4
   #define MCU_TEMP_TIMER  2
 #elif defined(STM32F401xC) || defined(STM32F401xE)
-  #define MCU_STEP_TIMER  9
+  #define MCU_STEP_TIMER  9           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 10
 #elif defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx)
-  #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
+  #define MCU_STEP_TIMER  6
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
 #endif
 
@@ -97,9 +97,15 @@
 #define STEP_TIMER_DEV _TIMER_DEV(STEP_TIMER)
 #define TEMP_TIMER_DEV _TIMER_DEV(TEMP_TIMER)
 
-// ------------------------
+// --------------------------------------------------------------------------
+// Local defines
+// --------------------------------------------------------------------------
+
+#define NUM_HARDWARE_TIMERS 2
+
+// --------------------------------------------------------------------------
 // Private Variables
-// ------------------------
+// --------------------------------------------------------------------------
 
 HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { nullptr };
 
@@ -110,7 +116,7 @@ HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { nullptr };
 uint32_t GetStepperTimerClkFreq() {
   // Timer input clocks vary between devices, and in some cases between timers on the same device.
   // Retrieve at runtime to ensure device compatibility. Cache result to avoid repeated overhead.
-  static uint32_t clkfreq = timer_instance[STEP_TIMER_NUM]->getTimerClkFreq();
+  static uint32_t clkfreq = timer_instance[MF_TIMER_STEP]->getTimerClkFreq();
   return clkfreq;
 }
 
@@ -118,7 +124,7 @@ uint32_t GetStepperTimerClkFreq() {
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   if (!HAL_timer_initialized(timer_num)) {
     switch (timer_num) {
-      case STEP_TIMER_NUM: // STEPPER TIMER - use a 32bit timer if possible
+      case MF_TIMER_STEP: // STEPPER TIMER - use a 32bit timer if possible
         timer_instance[timer_num] = new HardwareTimer(STEP_TIMER_DEV);
         /* Set the prescaler to the final desired value.
          * This will change the effective ISR callback frequency but when
@@ -137,7 +143,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
         timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
         break;
-      case TEMP_TIMER_NUM: // TEMP TIMER - any available 16bit timer
+      case MF_TIMER_TEMP: // TEMP TIMER - any available 16bit timer
         timer_instance[timer_num] = new HardwareTimer(TEMP_TIMER_DEV);
         // The prescale factor is computed automatically for HERTZ_FORMAT
         timer_instance[timer_num]->setOverflow(frequency, HERTZ_FORMAT);
@@ -157,10 +163,10 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     // These calls can be removed and replaced with
     // timer_instance[timer_num]->setInterruptPriority
     switch (timer_num) {
-      case STEP_TIMER_NUM:
+      case MF_TIMER_STEP:
         timer_instance[timer_num]->setInterruptPriority(STEP_TIMER_IRQ_PRIO, 0);
         break;
-      case TEMP_TIMER_NUM:
+      case MF_TIMER_TEMP:
         timer_instance[timer_num]->setInterruptPriority(TEMP_TIMER_IRQ_PRIO, 0);
         break;
     }
@@ -170,10 +176,10 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   if (HAL_timer_initialized(timer_num) && !timer_instance[timer_num]->hasInterrupt()) {
     switch (timer_num) {
-      case STEP_TIMER_NUM:
+      case MF_TIMER_STEP:
         timer_instance[timer_num]->attachInterrupt(Step_Handler);
         break;
-      case TEMP_TIMER_NUM:
+      case MF_TIMER_TEMP:
         timer_instance[timer_num]->attachInterrupt(Temp_Handler);
         break;
     }
@@ -297,16 +303,16 @@ enum TimerPurpose { TP_SERIAL, TP_TONE, TP_SERVO, TP_STEP, TP_TEMP };
 // This cannot yet account for timers used for PWM output, such as for fans.
 static constexpr struct { TimerPurpose p; int t; } timers_in_use[] = {
   #if HAS_TMC_SW_SERIAL
-    {TP_SERIAL, get_timer_num_from_base_address(timer_serial[0])},  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_SERIAL, get_timer_num_from_base_address(timer_serial[0]) }, // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
   #if ENABLED(SPEAKER)
-    {TP_TONE, get_timer_num_from_base_address(timer_tone[0])},    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_TONE, get_timer_num_from_base_address(timer_tone[0]) },     // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
   #if HAS_SERVOS
-    {TP_SERVO, get_timer_num_from_base_address(timer_servo[0])},   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_SERVO, get_timer_num_from_base_address(timer_servo[0]) },   // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
-  {TP_STEP, STEP_TIMER},
-  {TP_TEMP, TEMP_TIMER},
+  { TP_STEP, STEP_TIMER },
+  { TP_TEMP, TEMP_TIMER },
 };
 
 static constexpr bool verify_no_timer_conflicts() {

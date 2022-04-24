@@ -30,8 +30,6 @@
 #define BOARD_INFO_NAME      "K8800"
 #define DEFAULT_MACHINE_NAME "Vertex Delta"
 
-//#define LCD_SCREEN_ROT_180
-
 //
 // Limit Switches
 //
@@ -109,7 +107,8 @@
 
   #define LCD_CONTRAST_MIN                     0
   #define LCD_CONTRAST_MAX                   100
-  #define DEFAULT_LCD_CONTRAST                30
+  #define LCD_CONTRAST_INIT                   30
+  //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #if IS_NEWPANEL
     #define BTN_EN1                           17

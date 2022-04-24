@@ -64,11 +64,6 @@
   #define Z_MIN_PROBE_PIN                   PB1
 #endif
 
-// LED driving pin
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA2
-#endif
-
 //
 // Steppers
 //
@@ -150,7 +145,7 @@
  *  (LCD_EN) PA4 | 8  7 | PA5 (LCD_RS)      (BTN_EN1) PB11 | 8  7 | PA15 (SD_SS)    (BTN_EN1) PB11 | 8  7 | RESET
  *  (LCD_D4) PA6   6  5 | PA7 (LCD_D5)      (BTN_EN2)  PB0   6  5 | PB15 (SD_MOSI)  (BTN_EN2) PB0    6  5 | PA6  (LCD_D4)
  *  (LCD_D6) PC4 | 4  3 | PC5 (LCD_D7)    (SD_DETECT) PC10 | 4  3 | RESET            (LCD_RS) PA5  | 4  3 | PA4  (LCD_EN)
- *           GND | 2  1 | 5V                           GND | 2  1 | NC                        GND  | 2  1 | 5V
+ *           GND | 2  1 | 5V                           GND | 2  1 | --                         GND | 2  1 | 5V
  *                ------                                    ------                                  ------
  *                 EXP1                                      EXP2                                "Ender-3 EXP1"
  */
@@ -201,10 +196,11 @@
     #define DOGLCD_SCK               EXP2_09_PIN
     #define DOGLCD_MOSI              EXP2_05_PIN
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+
+    #define LCD_PINS_DC              EXP1_07_PIN
     #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define LCD_PINS_DC                DOGLCD_A0
+    #define DOGLCD_A0                LCD_PINS_DC
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN            EXP1_06_PIN
     #define NEOPIXEL_PIN             EXP1_05_PIN
@@ -212,7 +208,7 @@
     #define DOGLCD_SCK               EXP2_09_PIN
     #define FORCE_SOFT_SPI
     #define SOFTWARE_SPI
-    //#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
 
@@ -243,6 +239,11 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             125
   #endif
+#endif
+
+// LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
 #endif
 
 //

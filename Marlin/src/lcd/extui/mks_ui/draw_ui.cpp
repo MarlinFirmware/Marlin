@@ -456,6 +456,10 @@ char *getDispText(int index) {
       }
       break;
     case MOVE_MOTOR_UI:       strcpy(public_buf_l, move_menu.title); break;
+
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      case Z_OFFSET_WIZARD_UI: break;
+    #endif
     case OPERATE_UI:
       switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
         IF_DISABLED(TFT35, case OPERATE_UI: case PAUSE_UI:)
@@ -785,6 +789,10 @@ void GUI_RefreshPage() {
 
     case MOVE_MOTOR_UI: break;
 
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      case Z_OFFSET_WIZARD_UI: break;
+    #endif
+
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:
         if (temps_update_flag) {
@@ -885,6 +893,9 @@ void clear_cur_ui() {
     case PRINT_FILE_UI:               lv_clear_print_file(); break;
     case PRINTING_UI:                 lv_clear_printing(); break;
     case MOVE_MOTOR_UI:               lv_clear_move_motor(); break;
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      case Z_OFFSET_WIZARD_UI:        lv_clear_z_offset_wizard(); break;
+    #endif
     case OPERATE_UI:                  lv_clear_operation(); break;
     case PAUSE_UI:                    break;
     case EXTRUSION_UI:                lv_clear_extrusion(); break;
@@ -993,6 +1004,9 @@ void draw_return_ui() {
                                         break;
 
       case MOVE_MOTOR_UI:               lv_draw_move_motor(); break;
+      #if ENABLED(PROBE_OFFSET_WIZARD)
+        case Z_OFFSET_WIZARD_UI:        lv_draw_z_offset_wizard(); break;
+      #endif
       case OPERATE_UI:                  lv_draw_operation(); break;
       case PAUSE_UI:                    break;
       case EXTRUSION_UI:                lv_draw_extrusion(); break;
@@ -1331,7 +1345,6 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
 
-
 #if ENABLED(SDSUPPORT)
 
   void sd_detection() {
@@ -1360,7 +1373,9 @@ void print_time_count() {
 }
 
 void LV_TASK_HANDLER() {
-  lv_task_handler();
+
+  if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
+    lv_task_handler();
 
   #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_hardware_test();

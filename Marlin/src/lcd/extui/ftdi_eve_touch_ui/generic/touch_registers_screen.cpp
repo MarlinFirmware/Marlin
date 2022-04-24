@@ -28,6 +28,9 @@
 using namespace FTDI;
 using namespace Theme;
 
+#define GRID_COLS 2
+#define GRID_ROWS 7
+
 void TouchRegistersScreen::onRedraw(draw_mode_t) {
    const uint32_t T_Transform_A = CLCD::mem_read_32(CLCD::REG::TOUCH_TRANSFORM_A);
    const uint32_t T_Transform_B = CLCD::mem_read_32(CLCD::REG::TOUCH_TRANSFORM_B);
@@ -42,8 +45,6 @@ void TouchRegistersScreen::onRedraw(draw_mode_t) {
       .cmd(CLEAR(true,true,true))
       .tag(0);
 
-   #define GRID_ROWS 7
-   #define GRID_COLS 2
    cmd.tag(0)
       .font(font_xsmall)
       .fgcolor(transformA)  .button(BTN_POS(1,1), BTN_SIZE(1,1), F("TOUCH_XFORM_A"))
@@ -69,8 +70,6 @@ void TouchRegistersScreen::onRedraw(draw_mode_t) {
 
    cmd.colors(action_btn).font(font_medium)
       .tag(1).button(BTN_POS(2,7), BTN_SIZE(1,1), F("Back"));
-   #undef GRID_COLS
-   #undef GRID_ROWS
  }
 
  bool TouchRegistersScreen::onTouchEnd(uint8_t tag) {

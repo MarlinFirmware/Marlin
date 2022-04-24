@@ -32,13 +32,13 @@
   #error "Longer3D LGT KIT V1.0 board only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1
+#if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || SERIAL_PORT_3 == 1
   #warning "Serial 1 is originally reserved to DGUS LCD."
 #endif
-#if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2
+#if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || SERIAL_PORT_3 == 2 || LCD_SERIAL_PORT == 2
   #warning "Serial 2 has no connector. Hardware changes may be required to use it."
 #endif
-#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3
+#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || SERIAL_PORT_3 == 3 || LCD_SERIAL_PORT == 3
   #define CHANGE_Y_LIMIT_PINS
   #warning "Serial 3 is originally reserved to Y limit switches. Hardware changes are required to use it."
 #endif
@@ -105,7 +105,9 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX2_PIN                            -1
+#if HAS_PRUSA_MMU1
+  #define E_MUX2_PIN                          -1
+#endif
 
 //
 // Misc. Functions

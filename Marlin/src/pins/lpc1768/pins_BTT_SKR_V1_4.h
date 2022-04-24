@@ -250,7 +250,7 @@
  *  1.18 | 8  7 | 1.19    3.26 | 8  7 | 0.16
  *  1.20   6  5 | 1.21    3.25   6  5 | 0.18
  *  1.22 | 4  3 | 1.23    1.31 | 4  3 | RESET
- *   GND | 2  1 | 5V       GND | 2  1 | NC
+ *   GND | 2  1 | 5V       GND | 2  1 | --
  *        ------                ------
  *         EXP1                  EXP2
  */
@@ -272,7 +272,7 @@
 #define EXP2_09_PIN                        P0_15
 #define EXP2_10_PIN                        P0_17
 
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                    EXP1_06_PIN
@@ -298,11 +298,11 @@
      *
      *                BEFORE                     AFTER
      *                ------                     ------
-     *           GND | 1  2 | 5V             5V | 1  2 | GND
-     *            CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
-     *           SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
-     *          open | 7  8 | BTN_ENC      open | 7  8 | BTN_ENC
-     *           CLK | 9  10| BEEPER        CLK | 9  10| BEEPER
+     *      (BEEPER) | 10 9 | (CLK)    (BEEPER) | 10 9 | (CLK)
+     *     (BTN_ENC) | 8  7 | --      (BTN_ENC) | 8  7 | --
+     *     (BTN_EN1)   6  5 | (SID)   (BTN_EN1)   6  5 | (SID)
+     *     (BTN_EN2) | 4  3 | (CS)    (BTN_EN2) | 4  3 | (CS)
+     *            5V | 2  1 | GND           GND | 2  1 | 5V
      *                ------                     ------
      *                 LCD                        LCD
      */
@@ -330,15 +330,15 @@
     *
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
-    *         BEFORE                     AFTER
-    *         ------                     ------
-    *    GND | 1  2 | 5V             5V | 1  2 | GND
-    *     CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
-    *    SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
-    *   open | 7  8 | BTN_ENC       CLK | 7  8 | BTN_ENC
-    *    CLK | 9 10 | BEEPER       open | 9 10 | BEEPER
-    *         ------                     ------
-    *          LCD                        LCD
+    *            BEFORE                     AFTER
+    *            ------                     ------
+    *  (BEEPER) |10  9 | (CLK)    (BEEPER) |10  9 | --
+    * (BTN_ENC) | 8  7 | --      (BTN_ENC) | 8  7 | (CLK)
+    * (BTN_EN1)   6  5 | (SID)   (BTN_EN1)   6  5 | (SID)
+    * (BTN_EN2) | 4  3 | (CS)    (BTN_EN2) | 4  3 | (CS)
+    *        5V | 2  1 | GND           GND | 2  1 | 5V
+    *            ------                     ------
+    *             LCD                        LCD
     */
 
     #define LCD_PINS_RS              EXP1_03_PIN
@@ -366,11 +366,11 @@
 
     /** Creality Ender-2 display pinout
      *                   ------
-     *               5V | 1  2 | GND
-     *      (MOSI) 1.23 | 3  4 | 1.22 (LCD_RS)
-     *    (LCD_A0) 1.21 | 5  6   1.20 (BTN_EN2)
-     *       RESET 1.19 | 7  8 | 1.18 (BTN_EN1)
-     *   (BTN_ENC) 0.28 | 9 10 | 1.30  (SCK)
+     *   (SCK)     1.30 |10  9 | 0.28 (BTN_ENC)
+     *   (BTN_EN1) 1.18 | 8  7 | 1.19 (RESET)
+     *   (BTN_EN2) 1.20   6  5 | 1.21 (LCD_A0)
+     *   (LCD_RS)  1.22 | 4  3 | 1.23 (MOSI)
+     *              GND | 2  1 | 5V
      *                   ------
      *                    EXP1
      */

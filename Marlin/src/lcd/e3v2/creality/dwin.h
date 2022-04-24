@@ -236,13 +236,14 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
+void DWIN_InitScreen();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_StatusChanged(const char * const cstr=nullptr);
 void DWIN_StatusChanged(FSTR_P const fstr);
 
-inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
+inline void DWIN_HomingStart() { HMI_flag.home_flag = true; }
 
-void DWIN_CompletedHoming();
-void DWIN_CompletedLeveling();
+void DWIN_HomingDone();
+void DWIN_LevelingDone();

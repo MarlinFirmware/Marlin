@@ -96,12 +96,12 @@ private:
   static uint8_t m_pageData[SPI_FLASH_PageSize];
   static uint32_t m_currentPage;
   static uint16_t m_pageDataUsed;
-  static inline uint16_t pageDataFree() { return SPI_FLASH_PageSize - m_pageDataUsed; }
+  static uint16_t pageDataFree() { return SPI_FLASH_PageSize - m_pageDataUsed; }
   static uint32_t m_startAddress;
   #if HAS_SPI_FLASH_COMPRESSION
     static uint8_t m_compressedData[SPI_FLASH_PageSize];
     static uint16_t m_compressedDataUsed;
-    static inline uint16_t compressedDataFree() { return SPI_FLASH_PageSize - m_compressedDataUsed; }
+    static uint16_t compressedDataFree() { return SPI_FLASH_PageSize - m_compressedDataUsed; }
   #endif
 };
 

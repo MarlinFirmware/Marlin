@@ -39,24 +39,36 @@
 #define _ISTOP_  0x04
 #define _JSTOP_  0x05
 #define _KSTOP_  0x06
+#define _USTOP_  0x07
+#define _VSTOP_  0x08
+#define _WSTOP_  0x09
 #define _XMIN_   0x11
 #define _YMIN_   0x12
 #define _ZMIN_   0x13
 #define _IMIN_   0x14
 #define _JMIN_   0x15
 #define _KMIN_   0x16
+#define _UMIN_   0x17
+#define _VMIN_   0x18
+#define _WMIN_   0x19
 #define _XMAX_   0x21
 #define _YMAX_   0x22
 #define _ZMAX_   0x23
 #define _IMAX_   0x24
 #define _JMAX_   0x25
 #define _KMAX_   0x26
+#define _UMAX_   0x27
+#define _VMAX_   0x28
+#define _WMAX_   0x29
 #define _XDIAG_  0x31
 #define _YDIAG_  0x32
 #define _ZDIAG_  0x33
 #define _IDIAG_  0x34
 #define _JDIAG_  0x35
 #define _KDIAG_  0x36
+#define _UDIAG_  0x37
+#define _VDIAG_  0x38
+#define _WDIAG_  0x39
 #define _E0DIAG_ 0xE0
 #define _E1DIAG_ 0xE1
 #define _E2DIAG_ 0xE2
@@ -131,13 +143,13 @@
 #ifdef __cplusplus
 
   // C++11 solution that is standards compliant.
-  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+  template <class V, class N> static constexpr void NOLESS(V& v, const N n) {
     if (n > v) v = n;
   }
-  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+  template <class V, class N> static constexpr void NOMORE(V& v, const N n) {
     if (n < v) v = n;
   }
-  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
+  template <class V, class N1, class N2> static constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
     if (n1 > v) v = n1;
     else if (n2 < v) v = n2;
   }
@@ -235,6 +247,8 @@
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
+#define _OPTITEM(A...)      A,
+#define OPTITEM(O,A...)     TERN_(O,DEFER4(_OPTITEM)(A))
 #define _OPTARG(A...)       , A
 #define OPTARG(O,A...)      TERN_(O,DEFER4(_OPTARG)(A))
 #define _OPTCODE(A)         A;
@@ -348,7 +362,7 @@
 
 #define _LIST_N(N,V...) LIST_##N(V)
 #define LIST_N(N,V...) _LIST_N(N,V)
-#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
+#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
 #define ARRAY_N_1(N,K)  { LIST_N_1(N,K) }
 
@@ -366,7 +380,7 @@
 
 #undef ABS
 #ifdef __cplusplus
-  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
+  template <class T> static constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
 #else
   #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 #endif
@@ -409,14 +423,14 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
-      template <class L, class R> static inline constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
-      template <class L, class R> static inline constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      template <class L, class R> static constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs > rhs ? lhs : rhs;
       }
-      template<class T, class ... Ts> static inline constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
-      template<class T, class ... Ts> static inline constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
+      template<class T, class ... Ts> static constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
+      template<class T, class ... Ts> static constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
 
     }
 

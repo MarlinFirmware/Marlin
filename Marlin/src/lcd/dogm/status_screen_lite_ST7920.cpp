@@ -672,20 +672,20 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_trusted ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  if (TERN1(LCD_SHOW_E_TOTAL, !printingIsActive())) {
-    write_byte(alt_label ? alt_label : 'X');
-    write_str(dtostrf(pos.x, -4, 0, str), 4);
-
-    write_byte(alt_label ? alt_label : 'Y');
-    write_str(dtostrf(pos.y, -4, 0, str), 4);
-  }
-  else {
+  if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
       char tmp[15];
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
       sprintf_P(tmp, PSTR("E%-7ld%cm "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       write_str(tmp);
     #endif
+  }
+  else {
+    write_byte(alt_label ? alt_label : 'X');
+    write_str(dtostrf(pos.x, -4, 0, str), 4);
+
+    write_byte(alt_label ? alt_label : 'Y');
+    write_str(dtostrf(pos.y, -4, 0, str), 4);
   }
 
   write_byte(alt_label ? alt_label : 'Z');

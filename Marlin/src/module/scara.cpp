@@ -254,7 +254,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     // Do this here all at once for Delta, because
     // XYZ isn't ABC. Applying this per-tower would
     // give the impression that they are the same.
-    LOOP_LINEAR_AXES(i) set_axis_is_at_home((AxisEnum)i);
+    LOOP_NUM_AXES(i) set_axis_is_at_home((AxisEnum)i);
 
     sync_plan_position();
   }

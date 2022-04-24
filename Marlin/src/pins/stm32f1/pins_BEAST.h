@@ -93,7 +93,7 @@
   #define FAN_PIN                           PB10
 #endif
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Temperature Sensors
