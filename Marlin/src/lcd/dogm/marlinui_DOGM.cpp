@@ -282,9 +282,9 @@ void MarlinUI::init_lcd() {
   #if PIN_EXISTS(LCD_RESET)
     // Perform a clean hardware reset with needed delays
     OUT_WRITE(LCD_RESET_PIN, LOW);
-    _delay_ms(5);
+    hal.delay_ms(5);
     WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5);
+    hal.delay_ms(5);
     u8g.begin();
   #endif
 
@@ -341,6 +341,11 @@ void MarlinUI::draw_kill_screen() {
 }
 
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+
+#if HAS_DISPLAY_SLEEP
+  void MarlinUI::sleep_on()  { u8g.sleepOn(); }
+  void MarlinUI::sleep_off() { u8g.sleepOff(); }
+#endif
 
 #if HAS_LCD_BRIGHTNESS
 
@@ -519,8 +524,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
-    draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
-    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
+    if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
+    if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
   #if ENABLED(SDSUPPORT)

@@ -27,19 +27,18 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && DISABLED(USE_UHS3_USB)
 
+#if !PINS_EXIST(USB_CS, USB_INTR)
+  #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN to be defined."
+#endif
+
 #include "Usb.h"
 #include "usbhost.h"
 
 uint8_t MAX3421e::vbusState = 0;
 
 // constructor
-void MAX3421e::cs() {
-  WRITE(USB_CS_PIN,0);
-}
-
-void MAX3421e::ncs() {
-  WRITE(USB_CS_PIN,1);
-}
+void MAX3421e::cs()  { WRITE(USB_CS_PIN, LOW); }
+void MAX3421e::ncs() { WRITE(USB_CS_PIN, HIGH); }
 
 // write single byte into MAX3421 register
 void MAX3421e::regWr(uint8_t reg, uint8_t data) {
@@ -76,8 +75,8 @@ uint8_t MAX3421e::regRd(uint8_t reg) {
   ncs();
   return rv;
 }
-// multiple-byte register read
 
+// multiple-byte register read
 // return a pointer to a memory position after last read
 uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
   cs();
@@ -86,8 +85,8 @@ uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
   ncs();
   return data_p;
 }
-// GPIO read. See gpioWr for explanation
 
+// GPIO read. See gpioWr for explanation
 // GPIN pins are in high nybbles of IOPINS1, IOPINS2
 uint8_t MAX3421e::gpioRd() {
   return (regRd(rIOPINS2) & 0xF0) | // pins 4-7, clean lower nybble

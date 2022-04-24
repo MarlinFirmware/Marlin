@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+#if HAS_GCODE_M876
 
 #include "../../feature/host_actions.h"
 #include "../gcode.h"
@@ -37,4 +37,4 @@ void GcodeSuite::M876() {
 
 }
 
-#endif // HOST_PROMPT_SUPPORT && !EMERGENCY_PARSER
+#endif // HAS_GCODE_M876

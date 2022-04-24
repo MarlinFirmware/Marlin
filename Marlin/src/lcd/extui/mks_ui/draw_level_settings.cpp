@@ -74,7 +74,7 @@ void lv_draw_level_settings() {
   #if HAS_BED_PROBE
     lv_screen_menu_item(scr, machine_menu.LevelingAutoZoffsetConf, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_LEVEL_ZOFFSET, 2);
     #if ENABLED(PROBE_OFFSET_WIZARD)
-      lv_screen_menu_item(scr, machine_menu.LevelingZoffsetWizard, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_Z_OFFSET_WIZARD, 3);
+      lv_screen_menu_item(scr, machine_menu.LevelingZoffsetTitle, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_Z_OFFSET_WIZARD, 3);
     #endif
   #endif
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_LEVEL_RETURN, true);

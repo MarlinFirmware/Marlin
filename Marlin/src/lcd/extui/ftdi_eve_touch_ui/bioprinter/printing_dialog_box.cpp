@@ -1,6 +1,6 @@
-/*******************************
- * bio_printing_dialog_box.cpp *
- *******************************/
+/***************************
+ * printing_dialog_box.cpp *
+ ***************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -106,8 +106,8 @@ bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
 }
 
 void BioPrintingDialogBox::setStatusMessage(FSTR_P message) {
-  char buff[strlen_P((const char*)message)+1];
-  strcpy_P(buff, (const char*) message);
+  char buff[strlen_P(FTOP(message)) + 1];
+  strcpy_P(buff, FTOP(message));
   setStatusMessage(buff);
 }
 

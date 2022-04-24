@@ -38,7 +38,7 @@
  *  I<index>  Set the NeoPixel index to affect. Default: All
  *
  * With NEOPIXEL2_SEPARATE:
- *  S<index>  The NeoPixel strip to set. Default is index 0.
+ *  S<index>  The NeoPixel strip to set. Default: All.
  *
  * Examples:
  *

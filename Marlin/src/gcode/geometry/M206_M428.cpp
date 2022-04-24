@@ -39,14 +39,11 @@
  */
 void GcodeSuite::M206() {
   if (!parser.seen_any()) return M206_report();
-
-  LOOP_LINEAR_AXES(i)
-    if (parser.seen(AXIS_CHAR(i)))
-      set_home_offset((AxisEnum)i, parser.value_linear_units());
-
+  LOOP_NUM_AXES(a)
+    if (parser.seenval(AXIS_CHAR(a))) set_home_offset((AxisEnum)a, parser.value_axis_units((AxisEnum)a));
   #if ENABLED(MORGAN_SCARA)
-    if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
-    if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
+    if (parser.seenval('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
+    if (parser.seenval('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
   report_current_position();
@@ -56,13 +53,16 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_HOME_OFFSET));
   SERIAL_ECHOLNPGM_P(
     #if IS_CARTESIAN
-      LIST_N(DOUBLE(LINEAR_AXES),
+      LIST_N(DOUBLE(NUM_AXES),
         PSTR("  M206 X"), LINEAR_UNIT(home_offset.x),
         SP_Y_STR, LINEAR_UNIT(home_offset.y),
         SP_Z_STR, LINEAR_UNIT(home_offset.z),
-        SP_I_STR, LINEAR_UNIT(home_offset.i),
-        SP_J_STR, LINEAR_UNIT(home_offset.j),
-        SP_K_STR, LINEAR_UNIT(home_offset.k)
+        SP_I_STR, I_AXIS_UNIT(home_offset.i),
+        SP_J_STR, J_AXIS_UNIT(home_offset.j),
+        SP_K_STR, K_AXIS_UNIT(home_offset.k),
+        SP_U_STR, U_AXIS_UNIT(home_offset.u),
+        SP_V_STR, V_AXIS_UNIT(home_offset.v),
+        SP_W_STR, W_AXIS_UNIT(home_offset.w)
       )
     #else
       PSTR("  M206 Z"), LINEAR_UNIT(home_offset.z)
@@ -85,23 +85,22 @@ void GcodeSuite::M428() {
   if (homing_needed_error()) return;
 
   xyz_float_t diff;
-  LOOP_LINEAR_AXES(i) {
+  LOOP_NUM_AXES(i) {
     diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
     if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
       diff[i] = -current_position[i];
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
       LCD_ALERTMESSAGE_F("Err: Too far!");
-      BUZZ(200, 40);
+      ERR_BUZZ();
       return;
     }
   }
 
-  LOOP_LINEAR_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
+  LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
   report_current_position();
   LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
-  BUZZ(100, 659);
-  BUZZ(100, 698);
+  OKAY_BUZZ();
 }
 
 #endif // HAS_M206_COMMAND
