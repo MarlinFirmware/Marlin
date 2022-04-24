@@ -4,10 +4,17 @@
 #
 from __future__ import print_function
 
-from tkinter import Tk, filedialog
-
 import pioutil
 if pioutil.is_pio_build():
+
+	import sys
+	if sys.version_info[0] == 2:
+		import Tkinter as tk
+		import tkFileDialog as fileDialog
+		from Tkinter import Tk
+	else:
+		import tkinter as tk
+		from tkinter import Tk
 
 	Import("env")
 
@@ -25,7 +32,7 @@ if pioutil.is_pio_build():
 
 		root.attributes('-topmost', True) # Opened windows will be active. above all windows despite of selection.
 
-		upload_disk = filedialog.askdirectory(title="Select the root of your SDCARD") # Returns opened path as str
+		upload_disk = fileDialog.askdirectory(title="Select the root of your SDCARD") # Returns opened path as str
 		if not upload_disk:
 			print_error('Canceled')
 			return
