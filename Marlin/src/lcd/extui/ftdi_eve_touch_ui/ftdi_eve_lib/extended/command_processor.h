@@ -242,10 +242,10 @@ class CommandProcessor : public CLCD::CommandFifo {
     }
 
     CommandProcessor& toggle2(int16_t x, int16_t y, int16_t w, int16_t h, FSTR_P no, FSTR_P yes, bool state, uint16_t options = FTDI::OPT_3D) {
-      char text[strlen_P((const char *)no) + strlen_P((const char *)yes) + 2];
-      strcpy_P(text, (const char *)no);
+      char text[strlen_P(FTOP(no)) + strlen_P(FTOP(yes)) + 2];
+      strcpy_P(text, FTOP(no));
       strcat(text, "\xFF");
-      strcat_P(text, (const char *)yes);
+      strcat_P(text, FTOP(yes));
       return toggle(x, y, w, h, text, state, options);
     }
 

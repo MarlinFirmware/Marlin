@@ -43,7 +43,9 @@ public:
   }
 
   constexpr SerialMask(const uint8_t mask) : mask(mask) {}
-  constexpr SerialMask(const SerialMask & other) : mask(other.mask) {} // Can't use = default here since not all framework support this
+  constexpr SerialMask(const SerialMask &rs) : mask(rs.mask) {} // Can't use = default here since not all frameworks support this
+
+  SerialMask& operator=(const SerialMask &rs) { mask = rs.mask; return *this; }
 
   static constexpr uint8_t All = 0xFF;
 };

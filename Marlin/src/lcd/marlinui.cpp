@@ -24,7 +24,7 @@
 
 #include "../MarlinCore.h" // for printingIsPaused
 
-#ifdef LED_BACKLIGHT_TIMEOUT
+#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS)
   #include "../feature/leds/leds.h"
 #endif
 
@@ -47,9 +47,8 @@ MarlinUI ui;
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "fontutils.h"
-  #include "e3v2/enhanced/dwin.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
 #endif
@@ -69,11 +68,15 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_LCD_PROUI)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
+  #if HAS_STATUS_MESSAGE_TIMEOUT
+    millis_t MarlinUI::status_message_expire_ms; // = 0
+  #endif
+  statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -104,7 +107,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_LCD_BRIGHTNESS
-  uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+  uint8_t MarlinUI::brightness = LCD_BRIGHTNESS_DEFAULT;
   bool MarlinUI::backlight = true;
 
   void MarlinUI::set_brightness(const uint8_t value) {
@@ -178,6 +181,26 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if HAS_ENCODER_ACTION
   uint32_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
+#endif
+
+#if LCD_BACKLIGHT_TIMEOUT
+
+  uint16_t MarlinUI::lcd_backlight_timeout; // Initialized by settings.load()
+  millis_t MarlinUI::backlight_off_ms = 0;
+  void MarlinUI::refresh_backlight_timeout() {
+    backlight_off_ms = lcd_backlight_timeout ? millis() + lcd_backlight_timeout * 1000UL : 0;
+    WRITE(LCD_BACKLIGHT_PIN, HIGH);
+  }
+
+#elif HAS_DISPLAY_SLEEP
+
+  uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
+  millis_t MarlinUI::screen_timeout_millis = 0;
+  void MarlinUI::refresh_screen_timeout() {
+    screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
+    sleep_off();
+  }
+
 #endif
 
 void MarlinUI::init() {
@@ -277,7 +300,7 @@ void MarlinUI::init() {
     #include "../feature/power_monitor.h"
   #endif
 
-  #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+  #if LED_POWEROFF_TIMEOUT > 0
     #include "../feature/power.h"
   #endif
 
@@ -585,7 +608,7 @@ void MarlinUI::init() {
       // share the same line on the display.
       //
 
-      #if DISABLED(PROGRESS_MSG_ONCE) || (PROGRESS_MSG_EXPIRE > 0)
+      #if DISABLED(PROGRESS_MSG_ONCE) || PROGRESS_MSG_EXPIRE > 0
         #define GOT_MS
         const millis_t ms = millis();
       #endif
@@ -619,13 +642,25 @@ void MarlinUI::init() {
 
     #endif // BASIC_PROGRESS_BAR
 
+    bool did_expire = status_reset_callback && (*status_reset_callback)();
+
+    #if HAS_STATUS_MESSAGE_TIMEOUT
+      #ifndef GOT_MS
+        #define GOT_MS
+        const millis_t ms = millis();
+      #endif
+      did_expire |= status_message_expire_ms && ELAPSED(ms, status_message_expire_ms);
+    #endif
+
+    if (did_expire) reset_status();
+
     #if HAS_MARLINUI_MENU
       if (use_click()) {
         #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
           next_filament_display = millis() + 5000UL;  // Show status message for 5s
         #endif
         goto_screen(menu_main);
-        IF_DISABLED(NO_LCD_REINIT, init_lcd()); // May revive the LCD if static electricity killed it
+        reinit_lcd(); // Revive a noisy shared SPI LCD
         return;
       }
 
@@ -676,7 +711,7 @@ void MarlinUI::init() {
     TERN_(HAS_MARLINUI_MENU, return_to_status());
 
     // RED ALERT. RED ALERT.
-    #ifdef LED_BACKLIGHT_TIMEOUT
+    #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_color(LEDColorRed());
       #ifdef NEOPIXEL_BKGD_INDEX_FIRST
         neo.set_background_color(255, 0, 0, 0);
@@ -704,7 +739,8 @@ void MarlinUI::init() {
     TERN_(HAS_MARLINUI_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
-      if (clear_buttons) buttons = 0;
+      if (clear_buttons)
+        TERN_(HAS_ADC_BUTTONS, keypad_buttons =) buttons = 0;
       next_button_update_ms = millis() + 500;
     #else
       UNUSED(clear_buttons);
@@ -804,7 +840,7 @@ void MarlinUI::init() {
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
+          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
 
           axis = NO_AXIS_ENUM;
 
@@ -821,7 +857,7 @@ void MarlinUI::init() {
       TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
       start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
       axis = move_axis;
-      //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
+      //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " soon.");
     }
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -883,7 +919,7 @@ void MarlinUI::init() {
     static uint16_t max_display_update_time = 0;
     millis_t ms = millis();
 
-    #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+    #if LED_POWEROFF_TIMEOUT > 0
       leds.update_timeout(powerManager.psu_on);
     #endif
 
@@ -1032,14 +1068,20 @@ void MarlinUI::init() {
 
           reset_status_timeout(ms);
 
+          #if LCD_BACKLIGHT_TIMEOUT
+            refresh_backlight_timeout();
+          #elif HAS_DISPLAY_SLEEP
+            refresh_screen_timeout();
+          #endif
+
           refresh(LCDVIEW_REDRAW_NOW);
 
-          #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+          #if LED_POWEROFF_TIMEOUT > 0
             if (!powerManager.psu_on) leds.reset_timeout(ms);
           #endif
-        }
+        } // encoder activity
 
-      #endif
+      #endif // HAS_ENCODER_ACTION
 
       // This runs every ~100ms when idling often enough.
       // Instead of tracking changes just redraw the Status Screen once per second.
@@ -1136,6 +1178,16 @@ void MarlinUI::init() {
           return_to_status();
       #endif
 
+      #if LCD_BACKLIGHT_TIMEOUT
+        if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
+          WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
+          backlight_off_ms = 0;
+        }
+      #elif HAS_DISPLAY_SLEEP
+        if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
+          sleep_on();
+      #endif
+
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
         case LCDVIEW_CLEAR_CALL_REDRAW:
@@ -1156,7 +1208,7 @@ void MarlinUI::init() {
   #if HAS_ADC_BUTTONS
 
     typedef struct {
-      uint16_t ADCKeyValueMin, ADCKeyValueMax;
+      raw_adc_t ADCKeyValueMin, ADCKeyValueMax;
       uint8_t  ADCKeyNo;
     } _stADCKeypadTable_;
 
@@ -1183,10 +1235,10 @@ void MarlinUI::init() {
     #endif
 
     // Calculate the ADC value for the voltage divider with specified pull-down resistor value
-    #define ADC_BUTTON_VALUE(r)  int(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
+    #define ADC_BUTTON_VALUE(r)  raw_adc_t(HAL_ADC_RANGE * (ADC_BUTTONS_VALUE_SCALE) * r / (r + ADC_BUTTONS_R_PULLUP))
 
-    static constexpr uint16_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
-                                  adc_other_button = HAL_ADC_RANGE * 1000 / 1024;
+    static constexpr raw_adc_t adc_button_tolerance = HAL_ADC_RANGE *   25 / 1024,
+                                   adc_other_button = raw_adc_t(uint32_t(HAL_ADC_RANGE * 1000UL) / 1024UL);
     static const _stADCKeypadTable_ stADCKeyTable[] PROGMEM = {
       // VALUE_MIN, VALUE_MAX, KEY
       { adc_other_button, HAL_ADC_RANGE, 1 + BLEN_KEYPAD_F1     }, // F1
@@ -1206,13 +1258,13 @@ void MarlinUI::init() {
 
     uint8_t get_ADC_keyValue() {
       if (thermalManager.ADCKey_count >= 16) {
-        const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw;
+        const raw_adc_t currentkpADCValue = thermalManager.current_ADCKey_raw;
         thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
         thermalManager.ADCKey_count = 0;
         if (currentkpADCValue < adc_other_button)
           LOOP_L_N(i, ADC_KEY_NUM) {
-            const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
-                           hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
+            const raw_adc_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
+                            hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
             if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
           }
       }
@@ -1362,7 +1414,7 @@ void MarlinUI::init() {
   void MarlinUI::set_status(const char * const cstr, const bool persist) {
     if (alert_level) return;
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(cstr));
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(cstr));
 
     #if ENABLED(LCD_ANNOUNCE_STATUS)
     {
@@ -1409,6 +1461,7 @@ void MarlinUI::init() {
     #if SERVICE_INTERVAL_3 > 0
       static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
+
     FSTR_P msg;
     if (printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
@@ -1429,21 +1482,28 @@ void MarlinUI::init() {
       else if (print_job_timer.needsService(3)) msg = FPSTR(service3);
     #endif
 
-    else if (!no_welcome)
-      msg = GET_TEXT_F(WELCOME_MSG);
+    else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
+
+    else if (ENABLED(DWIN_LCD_PROUI))
+        msg = F("");
     else
       return;
 
     set_status(msg, -1);
   }
 
+  /**
+   * Set Status with a fixed string and alert level.
+   * @param fstr  A constant F-string to set as the status.
+   * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+   */
   void MarlinUI::set_status(FSTR_P const fstr, int8_t level) {
-    PGM_P const pstr = FTOP(fstr);
+    // Alerts block lower priority messages
     if (level < 0) level = alert_level = 0;
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(fstr));
+    PGM_P const pstr = FTOP(fstr);
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1463,6 +1523,8 @@ void MarlinUI::init() {
     strncpy_P(status_message, pstr, maxLen);
     status_message[maxLen] = '\0';
 
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(fstr));
+
     finish_status(level > 0);
   }
 
@@ -1474,19 +1536,29 @@ void MarlinUI::init() {
 
   #include <stdarg.h>
 
-  void MarlinUI::status_printf(const uint8_t level, FSTR_P const fmt, ...) {
+  void MarlinUI::status_printf(int8_t level, FSTR_P const fmt, ...) {
+    // Alerts block lower priority messages
+    if (level < 0) level = alert_level = 0;
     if (level < alert_level) return;
     alert_level = level;
+
     va_list args;
     va_start(args, FTOP(fmt));
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, FTOP(fmt), args);
     va_end(args);
+
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
+
     finish_status(level > 0);
   }
 
   void MarlinUI::finish_status(const bool persist) {
 
     UNUSED(persist);
+
+    set_status_reset_fn();
+
+    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL);
 
     #if HAS_WIRED_LCD
 
@@ -1507,13 +1579,13 @@ void MarlinUI::init() {
 
     #endif
 
-    #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
+    #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_LCD_PROUI)
       status_scroll_offset = 0;
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
-    TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_CheckStatusMessage());
+    TERN_(DWIN_LCD_PROUI, DWIN_CheckStatusMessage());
     TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
   }
 
@@ -1535,7 +1607,22 @@ void MarlinUI::init() {
 
   #endif
 
-#endif
+#else // !HAS_STATUS_MESSAGE
+
+  //
+  // Send the status line as a host notification
+  //
+  void MarlinUI::set_status(const char * const cstr, const bool) {
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(cstr), UNUSED(cstr));
+  }
+  void MarlinUI::set_status(FSTR_P const fstr, const int8_t) {
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
+  }
+  void MarlinUI::status_printf(int8_t, FSTR_P const fstr, ...) {
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
+  }
+
+#endif // !HAS_STATUS_MESSAGE
 
 #if HAS_DISPLAY
 
@@ -1647,22 +1734,7 @@ void MarlinUI::init() {
 
   #endif
 
-#elif !HAS_STATUS_MESSAGE // && !HAS_DISPLAY
-
-  //
-  // Send the status line as a host notification
-  //
-  void MarlinUI::set_status(const char * const cstr, const bool) {
-    TERN(HOST_PROMPT_SUPPORT, hostui.notify(cstr), UNUSED(cstr));
-  }
-  void MarlinUI::set_status(FSTR_P const fstr, const int8_t) {
-    TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
-  }
-  void MarlinUI::status_printf(const uint8_t, FSTR_P const fstr, ...) {
-    TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
-  }
-
-#endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
+#endif // HAS_DISPLAY
 
 #if ENABLED(SDSUPPORT)
 
@@ -1702,19 +1774,17 @@ void MarlinUI::init() {
       }
     }
 
-    #if PIN_EXISTS(SD_DETECT) && DISABLED(NO_LCD_REINIT)
-      init_lcd(); // Revive a noisy shared SPI LCD
-    #endif
+    reinit_lcd(); // Revive a noisy shared SPI LCD
 
     refresh();
 
-    #if HAS_WIRED_LCD || defined(LED_BACKLIGHT_TIMEOUT)
+    #if HAS_WIRED_LCD || LED_POWEROFF_TIMEOUT > 0
       const millis_t ms = millis();
     #endif
 
     TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
 
-    #ifdef LED_BACKLIGHT_TIMEOUT
+    #if LED_POWEROFF_TIMEOUT > 0
       leds.reset_timeout(ms);
     #endif
   }

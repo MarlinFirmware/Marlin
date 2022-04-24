@@ -92,5 +92,5 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
-#define HAL_timer_isr_prologue(T)
-#define HAL_timer_isr_epilogue(T)
+#define HAL_timer_isr_prologue(T) NOOP
+#define HAL_timer_isr_epilogue(T) NOOP
