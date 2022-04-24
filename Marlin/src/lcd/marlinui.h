@@ -717,8 +717,6 @@ public:
       static bool hw_button_pressed() { return BUTTON_CLICK(); }
     #endif
 
-    static bool button_pressed() { return hw_button_pressed() || TERN0(TOUCH_SCREEN, touch_pressed()); }
-
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
@@ -750,8 +748,11 @@ public:
   #else
 
     static void update_buttons() {}
+    static bool hw_button_pressed() { return false; }
 
   #endif
+
+  static bool button_pressed() { return hw_button_pressed() || TERN0(TOUCH_SCREEN, touch_pressed()); }
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     static void touch_calibration_screen();

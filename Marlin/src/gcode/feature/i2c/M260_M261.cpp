@@ -45,10 +45,10 @@
  */
 void GcodeSuite::M260() {
   // Set the target address
-  if (parser.seen('A')) i2c.address(parser.value_byte());
+  if (parser.seenval('A')) i2c.address(parser.value_byte());
 
   // Add a new byte to the buffer
-  if (parser.seen('B')) i2c.addbyte(parser.value_byte());
+  if (parser.seenval('B')) i2c.addbyte(parser.value_byte());
 
   // Flush the buffer to the bus
   if (parser.seen('S')) i2c.send();
@@ -63,7 +63,7 @@ void GcodeSuite::M260() {
  * Usage: M261 A<slave device address base 10> B<number of bytes> S<style>
  */
 void GcodeSuite::M261() {
-  if (parser.seen('A')) i2c.address(parser.value_byte());
+  if (parser.seenval('A')) i2c.address(parser.value_byte());
 
   const uint8_t bytes = parser.byteval('B', 1),   // Bytes to request
                 style = parser.byteval('S');      // Serial output style (ASCII, HEX etc)

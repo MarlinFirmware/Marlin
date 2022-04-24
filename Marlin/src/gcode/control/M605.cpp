@@ -64,7 +64,7 @@
   void GcodeSuite::M605() {
     planner.synchronize();
 
-    if (parser.seen('S')) {
+    if (parser.seenval('S')) {
       const DualXMode previous_mode = dual_x_carriage_mode;
 
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
@@ -78,8 +78,8 @@
 
         case DXC_DUPLICATION_MODE:
           // Set the X offset, but no less than the safety gap
-          if (parser.seen('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
-          if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
+          if (parser.seenval('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
+          if (parser.seenval('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
           // Always switch back to tool 0
           if (active_extruder != 0) tool_change(0);
           break;

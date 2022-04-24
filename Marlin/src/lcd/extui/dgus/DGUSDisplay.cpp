@@ -109,12 +109,6 @@ void DGUSDisplay::WriteVariable(uint16_t adr, int8_t value) {
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(int8_t));
 }
 
-#if ENABLED(DGUS_LCD_UI_MKS)
-  void DGUSDisplay::MKS_WriteVariable(uint16_t adr, uint8_t value) {
-    WriteVariable(adr, static_cast<const void *>(&value), sizeof(uint8_t));
-  }
-#endif
-
 void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
   union { long l; char lb[4]; } endian;
   char tmp[4];
