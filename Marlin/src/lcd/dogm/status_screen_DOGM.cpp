@@ -432,7 +432,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   const bool is_inch = parser.using_inch_units();
   const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
   const uint8_t offs = a * (is_inch ? XYZ_SPACING_IN : XYZ_SPACING);
-  lcd_put_wchar((is_inch ? X_LABEL_POS_IN : X_LABEL_POS) + offs, XYZ_BASELINE, axis_codes[axis]);
+  lcd_put_wchar((is_inch ? X_LABEL_POS_IN : X_LABEL_POS) + offs, XYZ_BASELINE, AXIS_CHAR(axis));
   lcd_moveto((is_inch ? X_VALUE_POS_IN : X_VALUE_POS) + offs, XYZ_BASELINE);
 
   if (blink)

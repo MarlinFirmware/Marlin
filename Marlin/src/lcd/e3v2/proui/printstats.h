@@ -22,18 +22,18 @@
 #pragma once
 
 /**
- * DWIN Print Stats page
+ * Print Stats page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.1
- * Date: 2022/01/09
- *
- * Based on the original code provided by Creality under GPL
+ * Version: 1.3.0
+ * Date: 2022/02/24
  */
 
 class PrintStatsClass {
 public:
-  void Draw();
+  static void Draw();
   static void Reset();
 };
 
 extern PrintStatsClass PrintStats;
+
+void Goto_PrintStats();

@@ -51,6 +51,11 @@
 
 void configure_i2c(const uint8_t clock_option);
 
+uint32_t _I2C_Start(LPC_I2C_TypeDef *I2Cx);
+void _I2C_Stop(LPC_I2C_TypeDef *I2Cx);
+
+#define I2C_status (LPC_I2C1->I2STAT & I2C_STAT_CODE_BITMASK)
+
 #ifdef __cplusplus
   }
 #endif

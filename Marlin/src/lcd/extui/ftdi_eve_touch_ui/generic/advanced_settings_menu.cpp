@@ -64,8 +64,8 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
         #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
       #endif
     #else
-      #define GRID_ROWS 6
       #define GRID_COLS 3
+      #define GRID_ROWS 6
       #define ZPROBE_ZOFFSET_POS      BTN_POS(1,1), BTN_SIZE(1,1)
       #define CASE_LIGHT_POS          BTN_POS(1,4), BTN_SIZE(1,1)
       #define STEPS_PER_MM_POS        BTN_POS(2,1), BTN_SIZE(1,1)

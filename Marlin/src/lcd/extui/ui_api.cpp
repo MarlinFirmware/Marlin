@@ -389,8 +389,10 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
-  GcodeSuite::MarlinBusyState getHostKeepaliveState() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.busy_state); }
-  bool getHostKeepaliveIsPaused() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive_is_paused()); }
+  #if ENABLED(HOST_KEEPALIVE_FEATURE)
+    GcodeSuite::MarlinBusyState getHostKeepaliveState() { return gcode.busy_state; }
+    bool getHostKeepaliveIsPaused() { return gcode.host_keepalive_is_paused(); }
+  #endif
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
@@ -417,6 +419,15 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(K)
           case K: return stepperK.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(U)
+          case U: return stepperU.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(V)
+          case V: return stepperV.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(W)
+          case W: return stepperW.getMilliamps();
         #endif
         #if AXIS_IS_TMC(X2)
           case X2: return stepperX2.getMilliamps();
@@ -487,6 +498,15 @@ namespace ExtUI {
         #if AXIS_IS_TMC(K)
           case K: stepperK.rms_current(constrain(mA, 400, 1500)); break;
         #endif
+        #if AXIS_IS_TMC(U)
+          case U: stepperU.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(V)
+          case V: stepperV.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(W)
+          case W: stepperW.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
         #if AXIS_IS_TMC(X2)
           case X2: stepperX2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
@@ -544,6 +564,9 @@ namespace ExtUI {
         OPTCODE(I_SENSORLESS,  case I:  return stepperI.homing_threshold())
         OPTCODE(J_SENSORLESS,  case J:  return stepperJ.homing_threshold())
         OPTCODE(K_SENSORLESS,  case K:  return stepperK.homing_threshold())
+        OPTCODE(U_SENSORLESS,  case U:  return stepperU.homing_threshold())
+        OPTCODE(V_SENSORLESS,  case V:  return stepperV.homing_threshold())
+        OPTCODE(W_SENSORLESS,  case W:  return stepperW.homing_threshold())
         OPTCODE(X2_SENSORLESS, case X2: return stepperX2.homing_threshold())
         OPTCODE(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold())
         OPTCODE(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold())
@@ -572,6 +595,15 @@ namespace ExtUI {
         #endif
         #if K_SENSORLESS
           case K: stepperK.homing_threshold(value); break;
+        #endif
+        #if U_SENSORLESS
+          case U: stepperU.homing_threshold(value); break;
+        #endif
+        #if V_SENSORLESS
+          case V: stepperV.homing_threshold(value); break;
+        #endif
+        #if W_SENSORLESS
+          case W: stepperW.homing_threshold(value); break;
         #endif
         #if X2_SENSORLESS
           case X2: stepperX2.homing_threshold(value); break;
@@ -624,7 +656,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
-    planner.set_max_feedrate(axis, value);
+    planner.set_max_feedrate((AxisEnum)axis, value);
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
@@ -642,7 +674,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const axis_t axis) {
-    planner.set_max_acceleration(axis, value);
+    planner.set_max_acceleration((AxisEnum)axis, value);
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {

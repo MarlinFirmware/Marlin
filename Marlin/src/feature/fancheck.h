@@ -51,7 +51,7 @@ class FanCheck {
     #else
       static constexpr bool measuring = true;
     #endif
-    static bool tacho_state[TACHO_COUNT];
+    static Flags<TACHO_COUNT> tacho_state;
     static uint16_t edge_counter[TACHO_COUNT];
     static uint8_t rps[TACHO_COUNT];
     static TachoError error;

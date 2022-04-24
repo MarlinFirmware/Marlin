@@ -153,7 +153,7 @@ void xatc_wizard_goto_next_point() {
       measured_z = probe.probe_at_point(x, XATC_Y_POSITION, PROBE_PT_STOW);
       xatc.set_enabled(true);
       current_position += probe.offset_xy;
-      current_position.z = XATC_START_Z - probe.offset.z + measured_z;
+      current_position.z = (XATC_START_Z) - probe.offset.z + measured_z;
       line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
       ui.wait_for_move = false;
     }

@@ -25,7 +25,7 @@
 #if HAS_TRINAMIC_CONFIG
 
 #if AXIS_COLLISION('I')
-  #error "M919 parameter collision with axis name."
+  #error "M919 parameter 'I' collision with axis name."
 #endif
 
 #include "../../gcode.h"
@@ -93,7 +93,7 @@ void GcodeSuite::M919() {
 
   #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
     const int8_t index = parser.byteval('I');
-  #else
+  #elif AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
     constexpr int8_t index = -1;
   #endif
 
@@ -112,13 +112,13 @@ void GcodeSuite::M919() {
     int8_t eindex = -1;
   #endif
   bool report = true;
-  LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (parser.seen_test(AXIS_CHAR(i))) {
     report = false;
 
     // Get the chopper timing for the specified axis and index
     switch (i) {
       default: // A specified axis isn't Trinamic
-        SERIAL_ECHOLNPGM("?Axis ", AS_CHAR(axis_codes[i]), " has no TMC drivers.");
+        SERIAL_ECHOLNPGM("?Axis ", AS_CHAR(AXIS_CHAR(i)), " has no TMC drivers.");
         break;
 
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)

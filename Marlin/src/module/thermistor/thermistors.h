@@ -27,22 +27,20 @@
 #define THERMISTOR_TABLE_SCALE (HAL_ADC_RANGE / _BV(THERMISTOR_TABLE_ADC_RESOLUTION))
 #if ENABLED(HAL_ADC_FILTERED)
   #define OVERSAMPLENR 1
-#elif HAL_ADC_RESOLUTION > 10
-  #define OVERSAMPLENR (20 - HAL_ADC_RESOLUTION)
 #else
   #define OVERSAMPLENR 16
 #endif
-#define MAX_RAW_THERMISTOR_VALUE (HAL_ADC_RANGE * (OVERSAMPLENR) - 1)
 
-// Currently Marlin stores all oversampled ADC values as int16_t, make sure the HAL settings do not overflow 15bit
-#if MAX_RAW_THERMISTOR_VALUE > ((1 << 15) - 1)
-  #error "MAX_RAW_THERMISTOR_VALUE is too large for int16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
+// Currently Marlin stores all oversampled ADC values as uint16_t, make sure the HAL settings do not overflow 16 bit
+#if (HAL_ADC_RANGE) * (OVERSAMPLENR) > 1 << 16
+  #error "MAX_RAW_THERMISTOR_VALUE is too large for uint16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
 #endif
+#define MAX_RAW_THERMISTOR_VALUE (uint16_t(HAL_ADC_RANGE) * (OVERSAMPLENR) - 1)
 
-#define OV_SCALE(N) (N)
-#define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
+#define OV_SCALE(N) float(N)
+#define OV(N) raw_adc_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
+typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
 //
