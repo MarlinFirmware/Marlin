@@ -21,11 +21,9 @@
  */
 #ifdef __STM32F1__
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #include <pwm.h>
-#include "HAL.h"
-#include "timers.h"
 
 #define NR_TIMERS TERN(STM32_XL_DENSITY, 14, 8) // Maple timers, 14 for STM32_XL_DENSITY (F/G chips), 8 for HIGH density (C D E)
 
@@ -38,20 +36,23 @@ inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
   return 0;
 }
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  if (!PWM_PIN(pin)) return;
-
-  timer_dev *timer; UNUSED(timer);
-  if (timer_freq[timer_and_index_for_pin(pin, &timer)] == 0)
-    set_pwm_frequency(pin, PWM_FREQUENCY);
-
-  const uint8_t channel = PIN_MAP[pin].timer_channel;
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   const uint16_t duty = invert ? v_size - v : v;
-  timer_set_compare(timer, channel, duty);
-  timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
+  if (PWM_PIN(pin)) {
+    timer_dev *timer; UNUSED(timer);
+    if (timer_freq[timer_and_index_for_pin(pin, &timer)] == 0)
+      set_pwm_frequency(pin, PWM_FREQUENCY);
+    const uint8_t channel = PIN_MAP[pin].timer_channel;
+    timer_set_compare(timer, channel, duty);
+    timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
+  }
+  else {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, duty < v_size / 2 ? LOW : HIGH);
+  }
 }
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return;                    // Don't proceed if no hardware timer
 
   timer_dev *timer; UNUSED(timer);

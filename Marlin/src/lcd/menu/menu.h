@@ -109,13 +109,13 @@ class MenuItem_confirm : public MenuItemBase {
       selectFunc_t yesFunc, selectFunc_t noFunc,
       PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr
     );
-    static inline void select_screen(
+    static void select_screen(
       PGM_P const yes, PGM_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
       PGM_P const pref, FSTR_P const string, PGM_P const suff=nullptr
     ) {
-      char str[strlen_P((PGM_P)string) + 1];
-      strcpy_P(str, (PGM_P)string);
+      char str[strlen_P(FTOP(string)) + 1];
+      strcpy_P(str, FTOP(string));
       select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
     }
     // Shortcut for prompt with "NO"/ "YES" labels
@@ -178,7 +178,7 @@ class MenuEditItemBase : public MenuItemBase {
     static void draw_edit_screen(PGM_P const pstr, const char * const value);
 
     // This method is for the current menu item
-    static inline void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
+    static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
 #if ENABLED(SDSUPPORT)

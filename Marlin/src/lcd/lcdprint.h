@@ -190,6 +190,9 @@ inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row
   lcd_moveto(col, row);
   return lcd_put_u8str_ind_P(pstr, ind, inStr, maxlen);
 }
+inline lcd_uint_t lcd_put_u8str_ind(FSTR_P const fstr, const int8_t ind, FSTR_P const inFstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
+  return lcd_put_u8str_ind_P(FTOP(fstr), ind, FTOP(inFstr), maxlen);
+}
 inline lcd_uint_t lcd_put_u8str_ind(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const fstr, const int8_t ind, FSTR_P const inFstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
   return lcd_put_u8str_ind_P(col, row, FTOP(fstr), ind, FTOP(inFstr), maxlen);
 }

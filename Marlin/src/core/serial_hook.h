@@ -37,13 +37,15 @@ public:
   inline constexpr bool enabled(const SerialMask PortMask) const    { return mask & PortMask.mask; }
   inline constexpr SerialMask combine(const SerialMask other) const { return SerialMask(mask | other.mask); }
   inline constexpr SerialMask operator<< (const int offset) const   { return SerialMask(mask << offset); }
-  static inline SerialMask from(const serial_index_t index) {
+  static SerialMask from(const serial_index_t index) {
     if (index.valid()) return SerialMask(_BV(index.index));
     return SerialMask(0); // A invalid index mean no output
   }
 
   constexpr SerialMask(const uint8_t mask) : mask(mask) {}
-  constexpr SerialMask(const SerialMask & other) : mask(other.mask) {} // Can't use = default here since not all framework support this
+  constexpr SerialMask(const SerialMask &rs) : mask(rs.mask) {} // Can't use = default here since not all frameworks support this
+
+  SerialMask& operator=(const SerialMask &rs) { mask = rs.mask; return *this; }
 
   static constexpr uint8_t All = 0xFF;
 };

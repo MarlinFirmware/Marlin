@@ -29,10 +29,10 @@ class SoundList {
     } list[];
   public:
     static const uint8_t n;
-    static inline const char* name(uint8_t val) {
+    static const char* name(uint8_t val) {
       return (const char* ) pgm_read_ptr_far(&list[val].name);
     }
-    static inline FTDI::SoundPlayer::sound_t* data(uint8_t val) {
+    static FTDI::SoundPlayer::sound_t* data(uint8_t val) {
       return (FTDI::SoundPlayer::sound_t*) pgm_read_ptr_far(&list[val].data);
     }
 };

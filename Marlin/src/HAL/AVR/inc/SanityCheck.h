@@ -29,7 +29,15 @@
  * Checks for FAST PWM
  */
 #if ALL(FAST_PWM_FAN, USE_OCR2A_AS_TOP, HAS_TCCR2)
-  #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2"
+  #error "USE_OCR2A_AS_TOP does not apply to devices with a single output TIMER2."
+#endif
+
+/**
+ * Checks for SOFT PWM
+ */
+#if HAS_FAN0 && FAN_PIN == 9 && DISABLED(FAN_SOFT_PWM) && ENABLED(SPEAKER)
+  #error "FAN_PIN 9 Hardware PWM uses Timer 2 which conflicts with Arduino AVR Tone Timer (for SPEAKER)."
+  #error "Disable SPEAKER or enable FAN_SOFT_PWM."
 #endif
 
 /**
@@ -42,7 +50,7 @@
   #elif NUM_SERVOS > 0 && defined(_useTimer3) && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
     #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
   #endif
-#elif defined(SPINDLE_LASER_FREQUENCY)
+#elif SPINDLE_LASER_FREQUENCY
   #error "SPINDLE_LASER_FREQUENCY requires SPINDLE_LASER_USE_PWM."
 #endif
 
@@ -62,4 +70,8 @@
  */
 #if ENABLED(POSTMORTEM_DEBUGGING)
   #error "POSTMORTEM_DEBUGGING is not supported on AVR boards."
+#endif
+
+#if USING_PULLDOWNS
+  #error "PULLDOWN pin mode is not available on AVR boards."
 #endif

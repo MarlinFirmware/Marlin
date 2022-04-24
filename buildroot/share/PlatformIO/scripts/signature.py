@@ -12,7 +12,7 @@ import os,subprocess,re,json,hashlib
 # headers.
 #
 def extract_defines(filepath):
-	f = open(filepath).read().split("\n")
+	f = open(filepath, encoding="utf8").read().split("\n")
 	a = []
 	for line in f:
 		sline = line.strip(" \t\n\r")
@@ -163,7 +163,9 @@ def compute_build_signature(env):
 
 	# Generate a C source file for storing this array
 	with open('Marlin/src/mczip.h','wb') as result_file:
-		result_file.write(b'#warning "Generated file \'mc.zip\' is embedded"\n')
+		result_file.write(b'#ifndef NO_CONFIGURATION_EMBEDDING_WARNING\n')
+		result_file.write(b'  #warning "Generated file \'mc.zip\' is embedded (Define NO_CONFIGURATION_EMBEDDING_WARNING to suppress this warning.)"\n')
+		result_file.write(b'#endif\n')
 		result_file.write(b'const unsigned char mc_zip[] PROGMEM = {\n ')
 		count = 0
 		for b in open(os.path.join(build_dir, 'mc.zip'), 'rb').read():

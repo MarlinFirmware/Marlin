@@ -49,21 +49,24 @@ void GcodeSuite::M425() {
   auto axis_can_calibrate = [](const uint8_t a) {
     switch (a) {
       default: return false;
-      LINEAR_AXIS_CODE(
+      NUM_AXIS_CODE(
         case X_AXIS: return AXIS_CAN_CALIBRATE(X),
         case Y_AXIS: return AXIS_CAN_CALIBRATE(Y),
         case Z_AXIS: return AXIS_CAN_CALIBRATE(Z),
         case I_AXIS: return AXIS_CAN_CALIBRATE(I),
         case J_AXIS: return AXIS_CAN_CALIBRATE(J),
         case K_AXIS: return AXIS_CAN_CALIBRATE(K),
+        case U_AXIS: return AXIS_CAN_CALIBRATE(U),
+        case V_AXIS: return AXIS_CAN_CALIBRATE(V),
+        case W_AXIS: return AXIS_CAN_CALIBRATE(W)
       );
     }
   };
 
-  LOOP_LINEAR_AXES(a) {
+  LOOP_NUM_AXES(a) {
     if (axis_can_calibrate(a) && parser.seen(AXIS_CHAR(a))) {
       planner.synchronize();
-      backlash.distance_mm[a] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a));
+      backlash.set_distance_mm((AxisEnum)a, parser.has_value() ? parser.value_axis_units((AxisEnum)a) : backlash.get_measurement((AxisEnum)a));
       noArgs = false;
     }
   }
@@ -77,33 +80,30 @@ void GcodeSuite::M425() {
   #ifdef BACKLASH_SMOOTHING_MM
     if (parser.seen('S')) {
       planner.synchronize();
-      backlash.smoothing_mm = parser.value_linear_units();
+      backlash.set_smoothing_mm(parser.value_linear_units());
       noArgs = false;
     }
   #endif
 
   if (noArgs) {
     SERIAL_ECHOPGM("Backlash Correction ");
-    if (!backlash.correction) SERIAL_ECHOPGM("in");
+    if (!backlash.get_correction_uint8()) SERIAL_ECHOPGM("in");
     SERIAL_ECHOLNPGM("active:");
     SERIAL_ECHOLNPGM("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
-    LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a)) {
-      SERIAL_CHAR(' ', AXIS_CHAR(a));
-      SERIAL_ECHO(backlash.distance_mm[a]);
-      SERIAL_EOL();
+    LOOP_NUM_AXES(a) if (axis_can_calibrate(a)) {
+      SERIAL_ECHOLNPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_distance_mm((AxisEnum)a));
     }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      SERIAL_ECHOLNPGM("  Smoothing (mm):                 S", backlash.smoothing_mm);
+      SERIAL_ECHOLNPGM("  Smoothing (mm):                 S", backlash.get_smoothing_mm());
     #endif
 
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
-        LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
-          SERIAL_CHAR(' ', AXIS_CHAR(a));
-          SERIAL_ECHO(backlash.get_measurement(AxisEnum(a)));
+        LOOP_NUM_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
+          SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_measurement((AxisEnum)a));
         }
       }
       else
@@ -118,15 +118,18 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   SERIAL_ECHOLNPGM_P(
     PSTR("  M425 F"), backlash.get_correction()
     #ifdef BACKLASH_SMOOTHING_MM
-      , PSTR(" S"), LINEAR_UNIT(backlash.smoothing_mm)
+      , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
-    , LIST_N(DOUBLE(LINEAR_AXES),
-        SP_X_STR, LINEAR_UNIT(backlash.distance_mm.x),
-        SP_Y_STR, LINEAR_UNIT(backlash.distance_mm.y),
-        SP_Z_STR, LINEAR_UNIT(backlash.distance_mm.z),
-        SP_I_STR, LINEAR_UNIT(backlash.distance_mm.i),
-        SP_J_STR, LINEAR_UNIT(backlash.distance_mm.j),
-        SP_K_STR, LINEAR_UNIT(backlash.distance_mm.k)
+    , LIST_N(DOUBLE(NUM_AXES),
+        SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
+        SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
+        SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
+        SP_I_STR, I_AXIS_UNIT(backlash.get_distance_mm(I_AXIS)),
+        SP_J_STR, J_AXIS_UNIT(backlash.get_distance_mm(J_AXIS)),
+        SP_K_STR, K_AXIS_UNIT(backlash.get_distance_mm(K_AXIS)),
+        SP_U_STR, U_AXIS_UNIT(backlash.get_distance_mm(U_AXIS)),
+        SP_V_STR, V_AXIS_UNIT(backlash.get_distance_mm(V_AXIS)),
+        SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
       )
   );
 }

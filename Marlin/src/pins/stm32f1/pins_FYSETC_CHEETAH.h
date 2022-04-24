@@ -32,7 +32,7 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 #define BOARD_NO_NATIVE_USB
-
+#define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
@@ -163,13 +163,11 @@
     #define DOGLCD_CS                EXP1_04_PIN
     #define DOGLCD_SCK               EXP1_05_PIN
     #define DOGLCD_MOSI              EXP1_03_PIN
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
 
     #if EITHER(FYSETC_MINI_12864, U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif
 
   #define LCD_PINS_RS                EXP1_04_PIN  // CS -- SOFT SPI for ENDER3 LCD

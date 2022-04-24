@@ -60,5 +60,6 @@ cat "$LOGB" | while read line; do
   fi
 done
 mv "$TMPF" "$SCRF"
+chmod ug+x "$SCRF"
 
 open "$TMPDIR"

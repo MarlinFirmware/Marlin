@@ -65,8 +65,8 @@ void GcodeSuite::M115() {
     "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
     "MACHINE_TYPE:" MACHINE_NAME " "
     "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
-    #if LINEAR_AXES != XYZ
-      "AXIS_COUNT:" STRINGIFY(LINEAR_AXES) " "
+    #if NUM_AXES != XYZ
+      "AXIS_COUNT:" STRINGIFY(NUM_AXES) " "
     #endif
     #ifdef MACHINE_UUID
       "UUID:" MACHINE_UUID
@@ -142,6 +142,11 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(F("SDCARD"), ENABLED(SDSUPPORT));
 
+    // MULTI_VOLUME (M21 S/M21 U)
+    #if ENABLED(SDSUPPORT)
+      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
+    #endif
+
     // REPEAT (M808)
     cap_line(F("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 
@@ -153,6 +158,12 @@ void GcodeSuite::M115() {
 
     // LONG_FILENAME_HOST_SUPPORT (M33)
     cap_line(F("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
+    // LONG_FILENAME_WRITE_SUPPORT (M23, M28, M30...)
+    cap_line(F("LFN_WRITE"), ENABLED(LONG_FILENAME_WRITE_SUPPORT));
+
+    // CUSTOM_FIRMWARE_UPLOAD (M20 F)
+    cap_line(F("CUSTOM_FIRMWARE_UPLOAD"), ENABLED(CUSTOM_FIRMWARE_UPLOAD));
 
     // EXTENDED_M20 (M20 L)
     cap_line(F("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
@@ -179,7 +190,7 @@ void GcodeSuite::M115() {
     cap_line(F("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
     // CONFIG_EXPORT
-    cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD));
+    cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

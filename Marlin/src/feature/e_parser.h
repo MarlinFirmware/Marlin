@@ -41,7 +41,9 @@ extern bool wait_for_user, wait_for_heatup;
   void quickresume_stepper();
 #endif
 
-void HAL_reboot();
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
+  void HAL_reboot();
+#endif
 
 class EmergencyParser {
 

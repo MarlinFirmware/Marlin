@@ -45,15 +45,7 @@ void _goto_manual_move_z(const_float_t);
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
 inline void z_clearance_move() {
-  do_z_clearance(
-    #ifdef Z_AFTER_HOMING
-      Z_AFTER_HOMING
-    #elif defined(Z_HOMING_HEIGHT)
-      Z_HOMING_HEIGHT
-    #else
-      10
-    #endif
-  );
+  do_z_clearance(Z_POST_CLEARANCE);
 }
 
 void set_offset_and_go_back(const_float_t z) {
@@ -70,7 +62,7 @@ void probe_offset_wizard_menu() {
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(current_position.z));
+  STATIC_ITEM_P(PSTR("Z"), SS_CENTER, ftostr42_52(current_position.z));
   STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
 
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });

@@ -35,7 +35,7 @@ void GcodeSuite::M122() {
   xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
 
   bool print_all = true;
-  LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) { print_axis[i] = true; print_all = false; }
+  LOOP_LOGICAL_AXES(i) if (parser.seen_test(AXIS_CHAR(i))) { print_axis[i] = true; print_all = false; }
 
   if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
 

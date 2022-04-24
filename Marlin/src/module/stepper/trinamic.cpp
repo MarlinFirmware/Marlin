@@ -36,9 +36,9 @@
 #include <SPI.h>
 
 enum StealthIndex : uint8_t {
-  LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K)
+  LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K, STEALTH_AXIS_U, STEALTH_AXIS_V, STEALTH_AXIS_W)
 };
-#define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE)
+#define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE, ST##_HOLD_MULTIPLIER)
 
 //   IC = TMC model number
 //   ST = Stepper object letter
@@ -105,6 +105,15 @@ enum StealthIndex : uint8_t {
 #endif
 #if AXIS_HAS_SPI(K)
   TMC_SPI_DEFINE(K, K);
+#endif
+#if AXIS_HAS_SPI(U)
+  TMC_SPI_DEFINE(U, U);
+#endif
+#if AXIS_HAS_SPI(V)
+  TMC_SPI_DEFINE(V, V);
+#endif
+#if AXIS_HAS_SPI(W)
+  TMC_SPI_DEFINE(W, W);
 #endif
 #if AXIS_HAS_SPI(E0)
   TMC_SPI_DEFINE_E(0);
@@ -173,6 +182,15 @@ enum StealthIndex : uint8_t {
 #ifndef TMC_K_BAUD_RATE
   #define TMC_K_BAUD_RATE TMC_BAUD_RATE
 #endif
+#ifndef TMC_U_BAUD_RATE
+  #define TMC_U_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_V_BAUD_RATE
+  #define TMC_V_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_W_BAUD_RATE
+  #define TMC_W_BAUD_RATE TMC_BAUD_RATE
+#endif
 #ifndef TMC_E0_BAUD_RATE
   #define TMC_E0_BAUD_RATE TMC_BAUD_RATE
 #endif
@@ -200,7 +218,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC2130)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -212,7 +230,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
-    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
@@ -235,7 +253,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC2160)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -247,7 +265,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
-    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
@@ -374,6 +392,32 @@ enum StealthIndex : uint8_t {
       #define K_HAS_SW_SERIAL 1
     #endif
   #endif
+  #if AXIS_HAS_UART(U)
+    #ifdef U_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, U, U);
+      #define U_HAS_HW_SERIAL 1
+    #else
+      TMC_UART_DEFINE(SW, U, U);
+      #define U_HAS_SW_SERIAL 1
+    #endif
+  #endif
+  #if AXIS_HAS_UART(V)
+    #ifdef V_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, V, V);
+    #else
+      TMC_UART_DEFINE(SW, V, V);
+      #define V_HAS_SW_SERIAL 1
+    #endif
+  #endif
+  #if AXIS_HAS_UART(W)
+    #ifdef W_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, W, W);
+      #define W_HAS_HW_SERIAL 1
+    #else
+      TMC_UART_DEFINE(SW, W, W);
+      #define W_HAS_SW_SERIAL 1
+    #endif
+  #endif
 
   #if AXIS_HAS_UART(E0)
     #ifdef E0_HARDWARE_SERIAL
@@ -449,7 +493,7 @@ enum StealthIndex : uint8_t {
   #endif
 
   #define _EN_ITEM(N) , E##N
-  enum TMCAxis : uint8_t { LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
+  enum TMCAxis : uint8_t { NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
   #undef _EN_ITEM
 
   void tmc_serial_begin() {
@@ -543,6 +587,27 @@ enum StealthIndex : uint8_t {
         stepperK.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
+    #if AXIS_HAS_UART(U)
+      #ifdef U_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(U);
+      #else
+        stepperU.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(V)
+      #ifdef V_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(V);
+      #else
+        stepperV.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(W)
+      #ifdef W_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(W);
+      #else
+        stepperW.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
     #if AXIS_HAS_UART(E0)
       #ifdef E0_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(E0);
@@ -604,7 +669,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC2208)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
@@ -622,7 +687,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
-    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
@@ -646,7 +711,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC2209)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
@@ -664,7 +729,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
-    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
@@ -688,7 +753,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC2660)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const bool, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const bool, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     st.begin();
 
     TMC2660_n::CHOPCONF_t chopconf{0};
@@ -710,7 +775,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC5130)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC5130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC5130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -722,7 +787,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
-    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
@@ -745,7 +810,7 @@ enum StealthIndex : uint8_t {
 
 #if HAS_DRIVER(TMC5160)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-  void tmc_init(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
+  void tmc_init(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -757,7 +822,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
-    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
@@ -814,6 +879,15 @@ void restore_trinamic_drivers() {
   #if AXIS_IS_TMC(K)
     stepperK.push();
   #endif
+  #if AXIS_IS_TMC(U)
+    stepperU.push();
+  #endif
+  #if AXIS_IS_TMC(V)
+    stepperV.push();
+  #endif
+  #if AXIS_IS_TMC(W)
+    stepperW.push();
+  #endif
   #if AXIS_IS_TMC(E0)
     stepperE0.push();
   #endif
@@ -844,7 +918,8 @@ void reset_trinamic_drivers() {
   static constexpr bool stealthchop_by_axis[] = LOGICAL_AXIS_ARRAY(
     ENABLED(STEALTHCHOP_E),
     ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_Z),
-    ENABLED(STEALTHCHOP_I), ENABLED(STEALTHCHOP_J), ENABLED(STEALTHCHOP_K)
+    ENABLED(STEALTHCHOP_I), ENABLED(STEALTHCHOP_J), ENABLED(STEALTHCHOP_K),
+    ENABLED(STEALTHCHOP_U), ENABLED(STEALTHCHOP_V), ENABLED(STEALTHCHOP_W)
   );
 
   #if AXIS_IS_TMC(X)
@@ -880,6 +955,15 @@ void reset_trinamic_drivers() {
   #if AXIS_IS_TMC(K)
     TMC_INIT(K, STEALTH_AXIS_K);
   #endif
+  #if AXIS_IS_TMC(U)
+    TMC_INIT(U, STEALTH_AXIS_U);
+  #endif
+  #if AXIS_IS_TMC(V)
+    TMC_INIT(V, STEALTH_AXIS_V);
+  #endif
+  #if AXIS_IS_TMC(W)
+    TMC_INIT(W, STEALTH_AXIS_W);
+  #endif
   #if AXIS_IS_TMC(E0)
     TMC_INIT(E0, STEALTH_AXIS_E);
   #endif
@@ -906,49 +990,21 @@ void reset_trinamic_drivers() {
   #endif
 
   #if USE_SENSORLESS
-    #if X_SENSORLESS
-      stepperX.homing_threshold(X_STALL_SENSITIVITY);
-      #if AXIS_HAS_STALLGUARD(X2)
-        stepperX2.homing_threshold(CAT(TERN(X2_SENSORLESS, X2, X), _STALL_SENSITIVITY));
-      #endif
-    #endif
-    #if Y_SENSORLESS
-      stepperY.homing_threshold(Y_STALL_SENSITIVITY);
-      #if AXIS_HAS_STALLGUARD(Y2)
-        stepperY2.homing_threshold(CAT(TERN(Y2_SENSORLESS, Y2, Y), _STALL_SENSITIVITY));
-      #endif
-    #endif
-    #if Z_SENSORLESS
-      stepperZ.homing_threshold(Z_STALL_SENSITIVITY);
-      #if AXIS_HAS_STALLGUARD(Z2)
-        stepperZ2.homing_threshold(CAT(TERN(Z2_SENSORLESS, Z2, Z), _STALL_SENSITIVITY));
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z3)
-        stepperZ3.homing_threshold(CAT(TERN(Z3_SENSORLESS, Z3, Z), _STALL_SENSITIVITY));
-      #endif
-      #if AXIS_HAS_STALLGUARD(Z4)
-        stepperZ4.homing_threshold(CAT(TERN(Z4_SENSORLESS, Z4, Z), _STALL_SENSITIVITY));
-      #endif
-    #endif
-    #if I_SENSORLESS
-      stepperI.homing_threshold(I_STALL_SENSITIVITY);
-      #if AXIS_HAS_STALLGUARD(I)
-        stepperI.homing_threshold(CAT(TERN(I_SENSORLESS, I, I), _STALL_SENSITIVITY));
-      #endif
-    #endif
-    #if J_SENSORLESS
-      stepperJ.homing_threshold(J_STALL_SENSITIVITY);
-      #if AXIS_HAS_STALLGUARD(J)
-        stepperJ.homing_threshold(CAT(TERN(J_SENSORLESS, J, J), _STALL_SENSITIVITY));
-      #endif
-    #endif
-    #if K_SENSORLESS
-      stepperK.homing_threshold(K_STALL_SENSITIVITY);
-      #if AXIS_HAS_STALLGUARD(K)
-        stepperK.homing_threshold(CAT(TERN(K_SENSORLESS, K, K), _STALL_SENSITIVITY));
-      #endif
-    #endif
-  #endif // USE SENSORLESS
+    TERN_(X_SENSORLESS, stepperX.homing_threshold(X_STALL_SENSITIVITY));
+    TERN_(X2_SENSORLESS, stepperX2.homing_threshold(CAT(TERN(X2_SENSORLESS, X2, X), _STALL_SENSITIVITY)));
+    TERN_(Y_SENSORLESS, stepperY.homing_threshold(Y_STALL_SENSITIVITY));
+    TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(CAT(TERN(Y2_SENSORLESS, Y2, Y), _STALL_SENSITIVITY)));
+    TERN_(Z_SENSORLESS, stepperZ.homing_threshold(Z_STALL_SENSITIVITY));
+    TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(CAT(TERN(Z2_SENSORLESS, Z2, Z), _STALL_SENSITIVITY)));
+    TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(CAT(TERN(Z3_SENSORLESS, Z3, Z), _STALL_SENSITIVITY)));
+    TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(CAT(TERN(Z4_SENSORLESS, Z4, Z), _STALL_SENSITIVITY)));
+    TERN_(I_SENSORLESS, stepperI.homing_threshold(I_STALL_SENSITIVITY));
+    TERN_(J_SENSORLESS, stepperJ.homing_threshold(J_STALL_SENSITIVITY));
+    TERN_(K_SENSORLESS, stepperK.homing_threshold(K_STALL_SENSITIVITY));
+    TERN_(U_SENSORLESS, stepperU.homing_threshold(U_STALL_SENSITIVITY));
+    TERN_(V_SENSORLESS, stepperV.homing_threshold(V_STALL_SENSITIVITY));
+    TERN_(W_SENSORLESS, stepperW.homing_threshold(W_STALL_SENSITIVITY));
+  #endif
 
   #ifdef TMC_ADV
     TMC_ADV()
@@ -977,7 +1033,7 @@ void reset_trinamic_drivers() {
     TMC_HW_DETAIL(X), TMC_HW_DETAIL(X2),
     TMC_HW_DETAIL(Y), TMC_HW_DETAIL(Y2),
     TMC_HW_DETAIL(Z), TMC_HW_DETAIL(Z2), TMC_HW_DETAIL(Z3), TMC_HW_DETAIL(Z4),
-    TMC_HW_DETAIL(I), TMC_HW_DETAIL(J), TMC_HW_DETAIL(K),
+    TMC_HW_DETAIL(I), TMC_HW_DETAIL(J), TMC_HW_DETAIL(K), TMC_HW_DETAIL(U), TMC_HW_DETAIL(V), TMC_HW_DETAIL(W),
     TMC_HW_DETAIL(E0), TMC_HW_DETAIL(E1), TMC_HW_DETAIL(E2), TMC_HW_DETAIL(E3), TMC_HW_DETAIL(E4), TMC_HW_DETAIL(E5), TMC_HW_DETAIL(E6), TMC_HW_DETAIL(E7)
   };
 
@@ -1000,7 +1056,7 @@ void reset_trinamic_drivers() {
   SA_NO_TMC_HW_C(X); SA_NO_TMC_HW_C(X2);
   SA_NO_TMC_HW_C(Y); SA_NO_TMC_HW_C(Y2);
   SA_NO_TMC_HW_C(Z); SA_NO_TMC_HW_C(Z2); SA_NO_TMC_HW_C(Z3); SA_NO_TMC_HW_C(Z4);
-  SA_NO_TMC_HW_C(I); SA_NO_TMC_HW_C(J); SA_NO_TMC_HW_C(K);
+  SA_NO_TMC_HW_C(I); SA_NO_TMC_HW_C(J); SA_NO_TMC_HW_C(K); SA_NO_TMC_HW_C(U); SA_NO_TMC_HW_C(V); SA_NO_TMC_HW_C(W);
   SA_NO_TMC_HW_C(E0); SA_NO_TMC_HW_C(E1); SA_NO_TMC_HW_C(E2); SA_NO_TMC_HW_C(E3); SA_NO_TMC_HW_C(E4); SA_NO_TMC_HW_C(E5); SA_NO_TMC_HW_C(E6); SA_NO_TMC_HW_C(E7);
 #endif
 
@@ -1012,7 +1068,7 @@ void reset_trinamic_drivers() {
     TMC_SW_DETAIL(X), TMC_SW_DETAIL(X2),
     TMC_SW_DETAIL(Y), TMC_SW_DETAIL(Y2),
     TMC_SW_DETAIL(Z), TMC_SW_DETAIL(Z2), TMC_SW_DETAIL(Z3), TMC_SW_DETAIL(Z4),
-    TMC_SW_DETAIL(I), TMC_SW_DETAIL(J), TMC_SW_DETAIL(K),
+    TMC_SW_DETAIL(I), TMC_SW_DETAIL(J), TMC_SW_DETAIL(K), TMC_SW_DETAIL(U), TMC_SW_DETAIL(V), TMC_SW_DETAIL(W),
     TMC_SW_DETAIL(E0), TMC_SW_DETAIL(E1), TMC_SW_DETAIL(E2), TMC_SW_DETAIL(E3), TMC_SW_DETAIL(E4), TMC_SW_DETAIL(E5), TMC_SW_DETAIL(E6), TMC_SW_DETAIL(E7)
   };
 
@@ -1030,7 +1086,7 @@ void reset_trinamic_drivers() {
   SA_NO_TMC_SW_C(X); SA_NO_TMC_SW_C(X2);
   SA_NO_TMC_SW_C(Y); SA_NO_TMC_SW_C(Y2);
   SA_NO_TMC_SW_C(Z); SA_NO_TMC_SW_C(Z2); SA_NO_TMC_SW_C(Z3); SA_NO_TMC_SW_C(Z4);
-  SA_NO_TMC_SW_C(I); SA_NO_TMC_SW_C(J); SA_NO_TMC_SW_C(K);
+  SA_NO_TMC_SW_C(I); SA_NO_TMC_SW_C(J); SA_NO_TMC_SW_C(K); SA_NO_TMC_SW_C(U); SA_NO_TMC_SW_C(V); SA_NO_TMC_SW_C(W);
   SA_NO_TMC_SW_C(E0); SA_NO_TMC_SW_C(E1); SA_NO_TMC_SW_C(E2); SA_NO_TMC_SW_C(E3); SA_NO_TMC_SW_C(E4); SA_NO_TMC_SW_C(E5); SA_NO_TMC_SW_C(E6); SA_NO_TMC_SW_C(E7);
 #endif
 

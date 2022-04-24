@@ -74,7 +74,8 @@ void safe_delay(millis_t ms) {
       TERN_(Z_PROBE_SLED, "Z_PROBE_SLED")
       TERN_(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY")
       TERN_(SOLENOID_PROBE, "SOLENOID_PROBE")
-      TERN(PROBE_SELECTED, "", "NONE")
+      TERN_(MAGLEV4, "MAGLEV4")
+      IF_DISABLED(PROBE_SELECTED, "NONE")
     );
 
     #if HAS_BED_PROBE
@@ -124,11 +125,9 @@ void safe_delay(millis_t ms) {
         #endif
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment");
-          LOOP_LINEAR_AXES(a) {
-            const float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
-            SERIAL_CHAR(' ', AXIS_CHAR(a));
-            if (v > 0) SERIAL_CHAR('+');
-            SERIAL_DECIMAL(v);
+          LOOP_NUM_AXES(a) {
+            SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]));
+            serial_offset(planner.get_axis_position_mm(AxisEnum(a)) - current_position[a]);
           }
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -136,7 +135,7 @@ void safe_delay(millis_t ms) {
             const float rz = ubl.get_z_correction(current_position);
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             SERIAL_ECHOPGM("ABL Adjustment Z");
-            const float rz = bilinear_z_offset(current_position);
+            const float rz = bbl.get_z_correction(current_position);
           #endif
           SERIAL_ECHO(ftostr43sign(rz, '+'));
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

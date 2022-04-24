@@ -12,7 +12,7 @@ Send the command `M503 C` to write the file `mc.zip` to the SD card. Copy the fi
 Run the following commands to extract and apply the configuration:
 ```
 $ git checkout -f
-$ unzip mc.zip 
+$ unzip mc.zip
 $ python buildroot/share/PlatformIO/scripts/mc-apply.py
 ```
 

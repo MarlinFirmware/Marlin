@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F103RE_creality
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with configs included in the PR
+#
+use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
+opt_enable MARLIN_DEV_MODE BUFFER_MONITORING BLTOUCH AUTO_BED_LEVELING_BILINEAR Z_SAFE_HOMING
+exec_test $1 $2 "Ender 3 v2 with CrealityUI" "$3"
+
+use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
+opt_disable DWIN_CREALITY_LCD
+opt_enable BLTOUCH AUTO_BED_LEVELING_UBL Z_SAFE_HOMING INDIVIDUAL_AXIS_HOMING_SUBMENU LCD_SET_PROGRESS_MANUALLY STATUS_MESSAGE_SCROLLING BAUD_RATE_GCODE \
+           DWIN_LCD_PROUI SOUND_MENU_ITEM PRINTCOUNTER
+exec_test $1 $2 "Ender 3 v2 with ProUI" "$3"
+
+use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
+opt_disable DWIN_CREALITY_LCD
+opt_enable DWIN_CREALITY_LCD_JYERSUI AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
+exec_test $1 $2 "Ender 3 v2 with JyersUI" "$3"
+
+use_example_configs "Creality/Ender-3 V2/CrealityV422/MarlinUI"
+opt_add SDCARD_EEPROM_EMULATION AUTO_BED_LEVELING_BILINEAR Z_SAFE_HOMING
+exec_test $1 $2 "Ender 3 v2 with MarlinUI" "$3"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_CREALITY_V452 SERIAL_PORT 1
+opt_disable NOZZLE_TO_PROBE_OFFSET
+opt_enable NOZZLE_AS_PROBE Z_SAFE_HOMING Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN FAN_SOFT_PWM \
+           PROBE_ACTIVATION_SWITCH PROBE_TARE PROBE_TARE_ONLY_WHILE_INACTIVE
+exec_test $1 $2 "Creality V4.5.2 PROBE_ACTIVATION_SWITCH, Probe Tare" "$3"
+
+# clean up
+restore_configs

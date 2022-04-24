@@ -91,7 +91,7 @@
  *
  *** Print from Media (SDSUPPORT) ***
  * M20  - List SD card. (Requires SDSUPPORT)
- * M21  - Init SD card. (Requires SDSUPPORT)
+ * M21  - Init SD card. (Requires SDSUPPORT) With MULTI_VOLUME select a drive with `M21 Pn` / 'M21 S' / 'M21 U'.
  * M22  - Release SD card. (Requires SDSUPPORT)
  * M23  - Select SD file: "M23 /path/file.gco". (Requires SDSUPPORT)
  * M24  - Start/resume SD print. (Requires SDSUPPORT)
@@ -202,6 +202,7 @@
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
+ * M255 - Set LCD sleep time: "M255 S<minutes>" (0-99). (Requires an LCD with brightness or sleep/wake)
  * M256 - Set LCD brightness: "M256 B<brightness>" (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
@@ -215,12 +216,13 @@
  * M303 - PID relay autotune S<temperature> sets the target temperature. Default 150C. (Requires PIDTEMP)
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
  * M305 - Set user thermistor parameters R T and P. (Requires TEMP_SENSOR_x 1000)
+ * M306 - MPC autotune. (Requires MPCTEMP)
  * M309 - Set chamber PID parameters P I and D. (Requires PIDTEMPCHAMBER)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
  * M355 - Set Case Light on/off and set brightness. (Requires CASE_LIGHT_PIN)
- * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
- * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
+ * M380 - Activate solenoid on active tool (Requires EXT_SOLENOID) or the tool specified by 'S' (Requires MANUAL_SOLENOID_CONTROL).
+ * M381 - Disable solenoids on all tools (Requires EXT_SOLENOID) or the tool specified by 'S' (Requires MANUAL_SOLENOID_CONTROL).
  * M400 - Finish all moves.
  * M401 - Deploy and activate Z probe. (Requires a probe)
  * M402 - Deactivate and stow Z probe. (Requires a probe)
@@ -284,7 +286,7 @@
  * M871 - Print/reset/clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
- * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
+ * M906 - Set or get motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires HAS_MOTOR_CURRENT_DAC)
@@ -296,6 +298,7 @@
  * M916 - L6470 tuning: Increase KVAL_HOLD until thermal warning. (Requires at least one _DRIVER_TYPE L6470)
  * M917 - L6470 tuning: Find minimum current thresholds. (Requires at least one _DRIVER_TYPE L6470)
  * M918 - L6470 tuning: Increase speed until max or error. (Requires at least one _DRIVER_TYPE L6470)
+ * M919 - Get or Set motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc. If no parameters are given, report. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
@@ -336,7 +339,7 @@
 #endif
 
 enum AxisRelative : uint8_t {
-  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
+  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K, REL_U, REL_V, REL_W)
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif
@@ -349,7 +352,7 @@ public:
 
   static axis_bits_t axis_relative;
 
-  static inline bool axis_is_relative(const AxisEnum a) {
+  static bool axis_is_relative(const AxisEnum a) {
     #if HAS_EXTRUDERS
       if (a == E_AXIS) {
         if (TEST(axis_relative, E_MODE_REL)) return true;
@@ -358,19 +361,20 @@ public:
     #endif
     return TEST(axis_relative, a);
   }
-  static inline void set_relative_mode(const bool rel) {
+  static void set_relative_mode(const bool rel) {
     axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
       | _BV(REL_E),
       | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
-      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K)
+      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
+      | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
     )) : 0;
   }
   #if HAS_EXTRUDERS
-    static inline void set_e_relative() {
+    static void set_e_relative() {
       CBI(axis_relative, E_MODE_ABS);
       SBI(axis_relative, E_MODE_REL);
     }
-    static inline void set_e_absolute() {
+    static void set_e_absolute() {
       CBI(axis_relative, E_MODE_REL);
       SBI(axis_relative, E_MODE_ABS);
     }
@@ -403,7 +407,7 @@ public:
 
   static void report_echo_start(const bool forReplay);
   static void report_heading(const bool forReplay, FSTR_P const fstr, const bool eol=true);
-  static inline void report_heading_etc(const bool forReplay, FSTR_P const fstr, const bool eol=true) {
+  static void report_heading_etc(const bool forReplay, FSTR_P const fstr, const bool eol=true) {
     report_heading(forReplay, fstr, eol);
     report_echo_start(forReplay);
   }
@@ -420,20 +424,20 @@ public:
   static void process_subcommands_now(FSTR_P fgcode);
   static void process_subcommands_now(char * gcode);
 
-  static inline void home_all_axes(const bool keep_leveling=false) {
+  static void home_all_axes(const bool keep_leveling=false) {
     process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
     static bool autoreport_paused;
-    static inline bool set_autoreport_paused(const bool p) {
+    static bool set_autoreport_paused(const bool p) {
       const bool was = autoreport_paused;
       autoreport_paused = p;
       return was;
     }
   #else
     static constexpr bool autoreport_paused = false;
-    static inline bool set_autoreport_paused(const bool) { return false; }
+    static bool set_autoreport_paused(const bool) { return false; }
   #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -453,7 +457,7 @@ public:
     static uint8_t host_keepalive_interval;
 
     static void host_keepalive();
-    static inline bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
+    static bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
 
     #define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
   #else
@@ -876,6 +880,11 @@ private:
     static void M250_report(const bool forReplay=true);
   #endif
 
+  #if HAS_DISPLAY_SLEEP
+    static void M255();
+    static void M255_report(const bool forReplay=true);
+  #endif
+
   #if HAS_LCD_BRIGHTNESS
     static void M256();
     static void M256_report(const bool forReplay=true);
@@ -925,6 +934,11 @@ private:
 
   #if HAS_USER_THERMISTORS
     static void M305();
+  #endif
+
+  #if ENABLED(MPCTEMP)
+    static void M306();
+    static void M306_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(PIDTEMPCHAMBER)
@@ -1140,6 +1154,7 @@ private:
       static void M914();
       static void M914_report(const bool forReplay=true);
     #endif
+    static void M919();
   #endif
 
   #if HAS_L64XX
@@ -1191,6 +1206,11 @@ private:
     static void M413();
     static void M413_report(const bool forReplay=true);
     static void M1000();
+  #endif
+
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(SDSUPPORT)

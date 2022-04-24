@@ -24,10 +24,14 @@
  * power.cpp - power control
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+
+#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 #include "power.h"
+#include "../module/planner.h"
 #include "../module/stepper.h"
+#include "../module/temperature.h"
 #include "../MarlinCore.h"
 
 #if ENABLED(PS_OFF_SOUND)
@@ -37,8 +41,6 @@
 #if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
   #include "../gcode/gcode.h"
 #endif
-
-#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 Power powerManager;
 bool Power::psu_on;
@@ -75,6 +77,10 @@ void Power::power_on() {
 
   if (psu_on) return;
 
+  #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+    cancelAutoPowerOff();
+  #endif
+
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
@@ -89,9 +95,12 @@ void Power::power_on() {
 /**
  * Power off if the power is currently on.
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
- *
  */
 void Power::power_off() {
+  SERIAL_ECHOLNPGM(STR_POWEROFF);
+
+  TERN_(HAS_SUICIDE, suicide());
+
   if (!psu_on) return;
 
   #ifdef PSU_POWEROFF_GCODE
@@ -104,8 +113,57 @@ void Power::power_off() {
 
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
   psu_on = false;
+
+  #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+    cancelAutoPowerOff();
+  #endif
 }
 
+#if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+
+  bool Power::is_cooling_needed() {
+    #if HAS_HOTEND && AUTO_POWER_E_TEMP
+      HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
+    #endif
+
+    #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
+      if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
+    #endif
+
+    #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
+      if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
+    #endif
+
+    return false;
+  }
+
+#endif
+
+#if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+
+  #if ENABLED(POWER_OFF_TIMER)
+    millis_t Power::power_off_time = 0;
+    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = millis() + delay_ms; }
+  #endif
+
+  #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+    bool Power::power_off_on_cooldown = false;
+    void Power::setPowerOffOnCooldown(const bool ena) { power_off_on_cooldown = ena; }
+  #endif
+
+  void Power::cancelAutoPowerOff() {
+    TERN_(POWER_OFF_TIMER, power_off_time = 0);
+    TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown = false);
+  }
+
+  void Power::checkAutoPowerOff() {
+    if (TERN1(POWER_OFF_TIMER, !power_off_time) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
+    if (TERN0(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown && is_cooling_needed())) return;
+    if (TERN0(POWER_OFF_TIMER, power_off_time && PENDING(millis(), power_off_time))) return;
+    power_off();
+  }
+
+#endif // POWER_OFF_TIMER || POWER_OFF_WAIT_FOR_COOLDOWN
 
 #if ENABLED(AUTO_POWER_CONTROL)
 
@@ -149,19 +207,7 @@ void Power::power_off() {
 
     if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
-    #if HAS_HOTEND && AUTO_POWER_E_TEMP
-      HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
-    #endif
-
-    #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
-      if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
-    #endif
-
-    #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
-      if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
-    #endif
-
-    return false;
+    return is_cooling_needed();
   }
 
   /**
@@ -193,7 +239,6 @@ void Power::power_off() {
 
     /**
      * Power off with a delay. Power off is triggered by check() after the delay.
-     *
      */
     void Power::power_off_soon() {
       lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
