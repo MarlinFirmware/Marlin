@@ -177,7 +177,7 @@ typedef int8_t pin_t;
 // ------------------------
 
 #define CRITICAL_SECTION_START()  const bool irqon = !__get_primask(); (void)__iCliRetVal()
-#define CRITICAL_SECTION_END()    if (!primask) (void)__iSeiRetVal()
+#define CRITICAL_SECTION_END()    if (!irqon) (void)__iSeiRetVal()
 #define cli() noInterrupts()
 #define sei() interrupts()
 
@@ -280,7 +280,7 @@ public:
   // Called by Temperature::init for each sensor at startup
   static void adc_enable(const pin_t pin) { pinMode(pin, INPUT_ANALOG); }
 
-  // Begin ADC sampling on the given channel
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static void adc_start(const pin_t pin);
 
   // Is the ADC ready for reading?

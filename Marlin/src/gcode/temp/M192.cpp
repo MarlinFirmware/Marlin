@@ -49,7 +49,7 @@ void GcodeSuite::M192() {
   }
 
   const celsius_t target_temp = parser.value_celsius();
-  ui.set_status(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT_F(MSG_PROBE_HEATING) : GET_TEXT_F(MSG_PROBE_COOLING));
+  thermalManager.isProbeBelowTemp(target_temp) ? LCD_MESSAGE(MSG_PROBE_HEATING) : LCD_MESSAGE(MSG_PROBE_COOLING);
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
 

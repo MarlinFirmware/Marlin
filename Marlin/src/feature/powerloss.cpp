@@ -108,13 +108,18 @@ void PrintJobRecovery::changed() {
  *
  * If a saved state exists send 'M1000 S' to initiate job recovery.
  */
-void PrintJobRecovery::check() {
+bool PrintJobRecovery::check() {
   //if (!card.isMounted()) card.mount();
+  bool success = false;
   if (card.isMounted()) {
     load();
-    if (!valid()) return cancel();
-    queue.inject(F("M1000S"));
+    success = valid();
+    if (!success)
+      cancel();
+    else
+      queue.inject(F("M1000S"));
   }
+  return success;
 }
 
 /**
@@ -196,7 +201,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
-        for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
+        EXTRUDER_LOOP() info.filament_size[e] = planner.filament_size[e];
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
       #endif
@@ -461,7 +466,7 @@ void PrintJobRecovery::resume() {
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
     #if HAS_MULTI_EXTRUDER
-      for (int8_t e = 0; e < EXTRUDERS; e++) {
+      EXTRUDER_LOOP() {
         sprintf_P(cmd, PSTR("M200T%iD%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
@@ -511,10 +516,10 @@ void PrintJobRecovery::resume() {
 
   // Restore retract and hop state from an active `G10` command
   #if ENABLED(FWRETRACT)
-    LOOP_L_N(e, EXTRUDERS) {
+    EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {
         fwretract.current_retract[e] = info.retract[e];
-        fwretract.retracted[e] = true;
+        fwretract.retracted.set(e);
       }
     }
     fwretract.current_hop = info.retract_hop;
@@ -562,7 +567,7 @@ void PrintJobRecovery::resume() {
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-    LOOP_LINEAR_AXES(i) update_workspace_offset((AxisEnum)i);
+    LOOP_NUM_AXES(i) update_workspace_offset((AxisEnum)i);
   #endif
 
   // Relative axis modes
@@ -612,7 +617,7 @@ void PrintJobRecovery::resume() {
 
         #if HAS_HOME_OFFSET
           DEBUG_ECHOPGM("home_offset: ");
-          LOOP_LINEAR_AXES(i) {
+          LOOP_NUM_AXES(i) {
             if (i) DEBUG_CHAR(',');
             DEBUG_DECIMAL(info.home_offset[i]);
           }
@@ -621,7 +626,7 @@ void PrintJobRecovery::resume() {
 
         #if HAS_POSITION_SHIFT
           DEBUG_ECHOPGM("position_shift: ");
-          LOOP_LINEAR_AXES(i) {
+          LOOP_NUM_AXES(i) {
             if (i) DEBUG_CHAR(',');
             DEBUG_DECIMAL(info.position_shift[i]);
           }
@@ -634,7 +639,7 @@ void PrintJobRecovery::resume() {
 
         #if DISABLED(NO_VOLUMETRICS)
           DEBUG_ECHOPGM("filament_size:");
-          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPGM(" ", info.filament_size[i]);
+          EXTRUDER_LOOP() DEBUG_ECHOLNPGM(" ", info.filament_size[e]);
           DEBUG_EOL();
         #endif
 
@@ -666,7 +671,7 @@ void PrintJobRecovery::resume() {
 
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
-          for (int8_t e = 0; e < EXTRUDERS; e++) {
+          EXTRUDER_LOOP() {
             DEBUG_ECHO(info.retract[e]);
             if (e < EXTRUDERS - 1) DEBUG_CHAR(',');
           }
