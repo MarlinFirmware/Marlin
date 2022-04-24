@@ -41,13 +41,13 @@
  *
  *  DOGLCD                  : Run a Graphical LCD through U8GLib (with MarlinUI)
  *  IS_ULTIPANEL            : Define LCD_PINS_D5/6/7 for direct-connected "Ultipanel" LCDs
- *  IS_ULTRA_LCD            : Ultra LCD, not necessarily Ultipanel.
+ *  HAS_WIRED_LCD           : Ultra LCD, not necessarily Ultipanel.
  *  IS_RRD_SC               : Common RRD Smart Controller digital interface pins
  *  IS_RRD_FG_SC            : Common RRD Full Graphical Smart Controller digital interface pins
  *  IS_U8GLIB_ST7920        : Most common DOGM display SPI interface, supporting a "lightweight" display mode.
  *  U8GLIB_SH1106           : SH1106 OLED with I2C interface via U8GLib
  *  IS_U8GLIB_SSD1306       : SSD1306 OLED with I2C interface via U8GLib (U8GLIB_SSD1306)
- *  U8GLIB_SSD1309          : SSD1309 OLED with I2C interface via U8GLib (HAS_U8GLIB_I2C_OLED, IS_ULTRA_LCD, DOGLCD)
+ *  U8GLIB_SSD1309          : SSD1309 OLED with I2C interface via U8GLib (HAS_U8GLIB_I2C_OLED, HAS_WIRED_LCD, DOGLCD)
  *  IS_U8GLIB_ST7565_64128N : ST7565 128x64 LCD with SPI interface via U8GLib
  *  IS_U8GLIB_LM6059_AF     : LM6059 with Hardware SPI via U8GLib
  */
@@ -287,7 +287,7 @@
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
 #if ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
   #define HAS_U8GLIB_I2C_OLED 1
-  #define IS_ULTRA_LCD 1
+  #define HAS_WIRED_LCD 1
   #define DOGLCD
 #endif
 
@@ -443,7 +443,7 @@
 #endif
 
 #if EITHER(IS_ULTIPANEL, ULTRA_LCD)
-  #define IS_ULTRA_LCD 1
+  #define HAS_WIRED_LCD 1
 #endif
 
 #if EITHER(IS_ULTIPANEL, REPRAPWORLD_KEYPAD)
@@ -502,8 +502,7 @@
   #endif
 #endif
 
-#if IS_ULTRA_LCD
-  #define HAS_WIRED_LCD 1
+#if HAS_WIRED_LCD
   #if ENABLED(DOGLCD)
     #define HAS_MARLINUI_U8GLIB 1
   #elif IS_TFTGLCD_PANEL
@@ -524,7 +523,7 @@
   #define HAS_LCDPRINT 1
 #endif
 
-#if ANY(HAS_DISPLAY, HAS_DWIN_E3V2, GLOBAL_STATUS_MESSAGE)
+#if ANY(HAS_DISPLAY, HAS_DWIN_E3V2)
   #define HAS_STATUS_MESSAGE 1
 #endif
 
@@ -677,22 +676,31 @@
 #endif
 
 /**
- * Number of Linear Axes (e.g., XYZ)
+ * Number of Linear Axes (e.g., XYZIJKUVW)
  * All the logical axes except for the tool (E) axis
  */
-#ifndef LINEAR_AXES
-  #define LINEAR_AXES XYZ
+#ifndef NUM_AXES
+  #define NUM_AXES XYZ
 #endif
-#if LINEAR_AXES >= XY
+#if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
-  #if LINEAR_AXES >= XYZ
+  #if NUM_AXES >= XYZ
     #define HAS_Z_AXIS 1
-    #if LINEAR_AXES >= 4
+    #if NUM_AXES >= 4
       #define HAS_I_AXIS 1
-      #if LINEAR_AXES >= 5
+      #if NUM_AXES >= 5
         #define HAS_J_AXIS 1
-        #if LINEAR_AXES >= 6
+        #if NUM_AXES >= 6
           #define HAS_K_AXIS 1
+          #if NUM_AXES >= 7
+            #define HAS_U_AXIS 1
+            #if NUM_AXES >= 8
+              #define HAS_V_AXIS 1
+              #if NUM_AXES >= 9
+                #define HAS_W_AXIS 1
+              #endif
+            #endif
+          #endif
         #endif
       #endif
     #endif
@@ -700,14 +708,58 @@
 #endif
 
 /**
- * Number of Logical Axes (e.g., XYZE)
- * All the logical axes that can be commanded directly by G-code.
+ * Number of Primary Linear Axes (e.g., XYZ)
+ * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
+ */
+#if NUM_AXES >= 3
+  #define PRIMARY_LINEAR_AXES 3
+#else
+  #define PRIMARY_LINEAR_AXES NUM_AXES
+#endif
+
+/**
+ * Number of Secondary Axes (e.g., IJKUVW)
+ * All linear/rotational axes between XYZ and E.
+ */
+#define SECONDARY_AXES SUB3(NUM_AXES)
+
+/**
+ * Number of Rotational Axes (e.g., IJK)
+ * All axes for which AXIS*_ROTATES is defined.
+ * For these axes, positions are specified in angular degrees.
+ */
+#if ENABLED(AXIS9_ROTATES)
+  #define ROTATIONAL_AXES 6
+#elif ENABLED(AXIS8_ROTATES)
+  #define ROTATIONAL_AXES 5
+#elif ENABLED(AXIS7_ROTATES)
+  #define ROTATIONAL_AXES 4
+#elif ENABLED(AXIS6_ROTATES)
+  #define ROTATIONAL_AXES 3
+#elif ENABLED(AXIS5_ROTATES)
+  #define ROTATIONAL_AXES 2
+#elif ENABLED(AXIS4_ROTATES)
+  #define ROTATIONAL_AXES 1
+#else
+  #define ROTATIONAL_AXES 0
+#endif
+
+/**
+ * Number of Secondary Linear Axes (e.g., UVW)
+ * All secondary axes for which AXIS*_ROTATES is not defined.
+ * Excluding primary axes and excluding duplicate axes (X2, Y2, Z2, Z3, Z4)
+ */
+#define SECONDARY_LINEAR_AXES (NUM_AXES - PRIMARY_LINEAR_AXES - ROTATIONAL_AXES)
+
+/**
+ * Number of Logical Axes (e.g., XYZIJKUVWE)
+ * All logical axes that can be commanded directly by G-code.
  * Delta maps stepper-specific values to ABC steppers.
  */
 #if HAS_EXTRUDERS
-  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+  #define LOGICAL_AXES INCREMENT(NUM_AXES)
 #else
-  #define LOGICAL_AXES LINEAR_AXES
+  #define LOGICAL_AXES NUM_AXES
 #endif
 
 /**
@@ -725,7 +777,7 @@
  *  distinguished.
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
+  #define DISTINCT_AXES (NUM_AXES + E_STEPPERS)
   #define DISTINCT_E E_STEPPERS
   #define E_INDEX_N(E) (E)
 #else
@@ -749,6 +801,7 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
+#define EXTRUDER_LOOP() for (int8_t e = 0; e < EXTRUDERS; e++)
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
@@ -954,6 +1007,21 @@
 #elif K_HOME_DIR < 0
   #define K_HOME_TO_MIN 1
 #endif
+#if U_HOME_DIR > 0
+  #define U_HOME_TO_MAX 1
+#elif U_HOME_DIR < 0
+  #define U_HOME_TO_MIN 1
+#endif
+#if V_HOME_DIR > 0
+  #define V_HOME_TO_MAX 1
+#elif V_HOME_DIR < 0
+  #define V_HOME_TO_MIN 1
+#endif
+#if W_HOME_DIR > 0
+  #define W_HOME_TO_MAX 1
+#elif W_HOME_DIR < 0
+  #define W_HOME_TO_MIN 1
+#endif
 
 /**
  * Conditionals based on the type of Bed Probe
@@ -990,7 +1058,11 @@
   #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
-#if Z_HOME_TO_MAX
+#if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
+  #define HOME_Y_BEFORE_X
+#endif
+
+#if Z_HOME_TO_MAX && DISABLED(Z_SAFE_HOMING)
   #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
 
@@ -1226,6 +1298,15 @@
 #endif
 #if HAS_K_AXIS && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
+#endif
+#if HAS_U_AXIS && !defined(INVERT_U_DIR)
+  #define INVERT_U_DIR false
+#endif
+#if HAS_V_AXIS && !defined(INVERT_V_DIR)
+  #define INVERT_V_DIR false
+#endif
+#if HAS_W_AXIS && !defined(INVERT_W_DIR)
+  #define INVERT_W_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
   #define INVERT_E_DIR false

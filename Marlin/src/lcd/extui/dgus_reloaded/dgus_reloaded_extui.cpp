@@ -83,8 +83,8 @@ namespace ExtUI {
   }
 
   void onHomingStart() {}
-  void onHomingComplete() {}
-  void onPrintFinished() {}
+  void onHomingDone() {}
+  void onPrintDone() {}
 
   void onFactoryReset() {
     dgus_screen_handler.SettingsReset();
@@ -100,16 +100,17 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
   #if HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       dgus_screen_handler.MeshUpdate(xpos, ypos);

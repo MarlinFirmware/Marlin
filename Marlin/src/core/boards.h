@@ -364,6 +364,7 @@
 #define BOARD_ZONESTAR_ZM3E4          4061  // Zonestar ZM3E4 V1 (STM32F103VC)
 #define BOARD_ZONESTAR_ZM3E4V2        4062  // Zonestar ZM3E4 V2 (STM32F103VC)
 #define BOARD_ERYONE_ERY32_MINI       4063  // Eryone Ery32 mini (STM32F103VE)
+#define BOARD_PANDA_PI_V29            4064  // Panda Pi V2.9 - Standalone (STM32F103RC)
 
 //
 // ARM Cortex-M4F
@@ -440,6 +441,7 @@
 #define BOARD_PANDA_ZHU               6006  // Panda_ZHU
 #define BOARD_PANDA_M4                6007  // Panda_M4
 #define BOARD_MKS_TINYBEE             6008  // MKS TinyBee based on ESP32 (with I2S stepper stream)
+#define BOARD_ENWI_ESPNP              6009  // enwi ESPNP based on ESP32 (with I2S stepper stream)
 
 //
 // SAMD51 ARM Cortex M4

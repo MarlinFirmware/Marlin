@@ -465,7 +465,15 @@ namespace Language_uk {
   LSTR MSG_FILAMENT_LOAD                    = _UxGT("Завантаж., мм");
   LSTR MSG_ADVANCE_K                        = _UxGT("Kоеф. просув.");
   LSTR MSG_ADVANCE_K_E                      = _UxGT("Kоеф. просув. *");
-  LSTR MSG_CONTRAST                         = _UxGT("Контраст екрану");
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_CONTRAST                       = _UxGT("Контраст екрану");
+    LSTR MSG_BRIGHTNESS                     = _UxGT("Яскравість LCD");
+  #else
+    LSTR MSG_CONTRAST                       = _UxGT("Контраст");
+    LSTR MSG_BRIGHTNESS                     = _UxGT("Яскравість");
+  #endif
+  LSTR MSG_LCD_TIMEOUT_SEC                  = _UxGT("LCD Таймаут, с");
+  LSTR MSG_BRIGHTNESS_OFF                   = _UxGT("Підсвітка вимк.");
   LSTR MSG_STORE_EEPROM                     = _UxGT("Зберегти в EEPROM");
   LSTR MSG_LOAD_EEPROM                      = _UxGT("Зчитати з EEPROM");
   LSTR MSG_RESTORE_DEFAULTS                 = _UxGT("На базові параметри");
@@ -497,10 +505,17 @@ namespace Language_uk {
   LSTR MSG_BUTTON_RESET                     = _UxGT("Зкинути");
   LSTR MSG_BUTTON_IGNORE                    = _UxGT("Ігнорув.");
   LSTR MSG_BUTTON_CANCEL                    = _UxGT("Відміна");
+  LSTR MSG_BUTTON_CONFIRM                   = _UxGT("Підтвер.");
+  LSTR MSG_BUTTON_CONTINUE                  = _UxGT("Продовж.");
   LSTR MSG_BUTTON_DONE                      = _UxGT("Готово");
   LSTR MSG_BUTTON_BACK                      = _UxGT("Назад");
-  LSTR MSG_BUTTON_PROCEED                   = _UxGT("Продовжити");
-  LSTR MSG_BUTTON_SKIP                      = _UxGT("Пропустити");
+  LSTR MSG_BUTTON_PROCEED                   = _UxGT("Продовж.");
+  LSTR MSG_BUTTON_SKIP                      = _UxGT("Пропуск");
+  LSTR MSG_BUTTON_INFO                      = _UxGT("Інфо");
+  LSTR MSG_BUTTON_LEVEL                     = _UxGT("Рівень");
+  LSTR MSG_BUTTON_PAUSE                     = _UxGT("Пауза");
+  LSTR MSG_BUTTON_RESUME                    = _UxGT("Звіт");
+  LSTR MSG_BUTTON_SAVE                      = _UxGT("Зберегти");
 
   LSTR MSG_PAUSING                          = _UxGT("Призупинення...");
   LSTR MSG_PAUSE_PRINT                      = _UxGT("Призупинити друк");
@@ -518,6 +533,8 @@ namespace Language_uk {
   LSTR MSG_USERWAIT                         = _UxGT("Продовжити...");
   LSTR MSG_PRINT_PAUSED                     = _UxGT("Друк призупинено");
   LSTR MSG_PRINTING                         = _UxGT("Друк...");
+  LSTR MSG_STOPPING                         = _UxGT("Зупинка...");
+  LSTR MSG_REMAINING_TIME                   = _UxGT("Залишилось");
   LSTR MSG_PRINT_ABORTED                    = _UxGT("Друк скасовано");
   LSTR MSG_PRINT_DONE                       = _UxGT("Друк завершено");
   LSTR MSG_NO_MOVE                          = _UxGT("Немає руху.");
@@ -702,15 +719,32 @@ namespace Language_uk {
 
   LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
   LSTR MSG_INFO_PRINT_FILAMENT              = _UxGT("Екструдовано");
+  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрійте хотенд");
+  LSTR MSG_COLORS_GET                       = _UxGT("Отримати колір");
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Носій не вставлений");
+    LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Перезавантаження...");
     LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Кількість друків");
-    LSTR MSG_INFO_PRINT_TIME                = _UxGT("Весь час друку");
+    LSTR MSG_INFO_PRINT_TIME                = _UxGT("Час друку");
     LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Найдовший час");
+    LSTR MSG_COLORS_SELECT                  = _UxGT("Обрати кольори");
+    LSTR MSG_COLORS_APPLIED                 = _UxGT("Кольори застосовані");
   #else
+    LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Немає носія");
+    LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Перезавантаж...");
     LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Друків");
     LSTR MSG_INFO_PRINT_TIME                = _UxGT("Загалом");
     LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Найдовше");
+    LSTR MSG_COLORS_SELECT                  = _UxGT("Кольори");
+    LSTR MSG_COLORS_APPLIED                 = _UxGT("Кольори застос.");
   #endif
+  LSTR MSG_COLORS_RED                       = _UxGT("Червоний");
+  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелений");
+  LSTR MSG_COLORS_BLUE                      = _UxGT("Синій");
+  LSTR MSG_COLORS_WHITE                     = _UxGT("Білий");
+  LSTR MSG_UI_LANGUAGE                      = _UxGT("Мова");
+  LSTR MSG_SOUND_ENABLE                     = _UxGT("Дозволити звук");
+  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокувати екран");
 
   LSTR MSG_INFO_MIN_TEMP                    = _UxGT("Мін.  ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;

@@ -1285,17 +1285,7 @@ void HMI_Printing() {
 
 #include "../../../libs/buzzer.h"
 
-void HMI_AudioFeedback(const bool success/*=true*/) {
-  #if HAS_BUZZER
-    if (success) {
-      BUZZ(100, 659);
-      BUZZ(10, 0);
-      BUZZ(100, 698);
-    }
-    else
-      BUZZ(40, 440);
-  #endif
-}
+void HMI_AudioFeedback(const bool success/*=true*/) { DONE_BUZZ(success); }
 
 void Draw_Main_Area() {
   switch (checkkey) {
@@ -1542,20 +1532,20 @@ void HMI_SaveProcessID(const uint8_t id) {
   }
 }
 
-void DWIN_StartHoming() {
+void DWIN_HomingStart() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
   Title.ShowCaption(GET_TEXT_F(MSG_HOMING));
   DWIN_Show_Popup(ICON_BLTouch, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
 }
 
-void DWIN_CompletedHoming() {
+void DWIN_HomingDone() {
   HMI_flag.home_flag = false;
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (HMI_flag.abort_action) DWIN_Print_Aborted(); else HMI_ReturnScreen();
 }
 
-void DWIN_MeshLevelingStart() {
+void DWIN_LevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
     Title.ShowCaption(GET_TEXT_F(MSG_BED_LEVELING));
@@ -1565,7 +1555,7 @@ void DWIN_MeshLevelingStart() {
   #endif
 }
 
-void DWIN_CompletedLeveling() {
+void DWIN_LevelingDone() {
   TERN_(HAS_ONESTEP_LEVELING, if (planner.leveling_active) Goto_MeshViewer());
 }
 
@@ -1712,7 +1702,7 @@ void DWIN_SetDataDefaults() {
     ApplyExtMinT();
   #endif
   #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_LEVELING)
-    HMI_data.BedLevT = PREHEAT_1_TEMP_BED;
+    HMI_data.BedLevT = LEVELING_BED_TEMP;
   #endif
   TERN_(BAUD_RATE_GCODE, SetBaud250K());
 }
@@ -2314,7 +2304,7 @@ TERN(HAS_ONESTEP_LEVELING, float, void) Tram(uint8_t point) {
       inLev = true;
       zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
       if (isnan(zval))
-        ui.set_status(F("Position Not Reachable, check offsets"));
+        LCD_MESSAGE_F("Position Not Reachable, check offsets");
       else {
         sprintf_P(cmd, PSTR("X:%s, Y:%s, Z:%s"),
           dtostrf(xpos, 1, 1, str_1),
@@ -2346,7 +2336,7 @@ void TramC () { Tram(4); }
   void Trammingwizard() {
     bed_mesh_t zval = {0};
     if (HMI_data.FullManualTramming) {
-      ui.set_status(F("Disable manual tramming"));
+      LCD_MESSAGE_F("Disable manual tramming");
       return;
     }
     zval[0][0] = Tram(0);
