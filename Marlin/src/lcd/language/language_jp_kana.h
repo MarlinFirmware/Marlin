@@ -137,7 +137,6 @@ namespace Language_jp_kana {
   LSTR MSG_VMIN                           = _UxGT("サイショウオクリソクド");           // "Vmin"
   LSTR MSG_VTRAV_MIN                      = _UxGT("サイショウイドウソクド");           // "VTrav min"
   LSTR MSG_ACCELERATION                   = _UxGT("カソクド mm/s") SUPERSCRIPT_TWO;               // "Accel"
-  LSTR MSG_AMAX                           = _UxGT("サイダイカソクド ");              // "Amax "
   LSTR MSG_A_RETRACT                      = _UxGT("ヒキコミカソクド");               // "A-retract"
   LSTR MSG_A_TRAVEL                       = _UxGT("イドウカソクド");                // "A-travel"
   LSTR MSG_TEMPERATURE                    = _UxGT("オンド");                      // "Temperature"

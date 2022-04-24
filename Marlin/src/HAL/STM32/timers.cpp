@@ -74,10 +74,10 @@
   #define MCU_STEP_TIMER  4
   #define MCU_TEMP_TIMER  2
 #elif defined(STM32F401xC) || defined(STM32F401xE)
-  #define MCU_STEP_TIMER  9
+  #define MCU_STEP_TIMER  9           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 10
 #elif defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx)
-  #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
+  #define MCU_STEP_TIMER  6
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
 #endif
 
@@ -303,16 +303,16 @@ enum TimerPurpose { TP_SERIAL, TP_TONE, TP_SERVO, TP_STEP, TP_TEMP };
 // This cannot yet account for timers used for PWM output, such as for fans.
 static constexpr struct { TimerPurpose p; int t; } timers_in_use[] = {
   #if HAS_TMC_SW_SERIAL
-    {TP_SERIAL, get_timer_num_from_base_address(timer_serial[0])},  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_SERIAL, get_timer_num_from_base_address(timer_serial[0]) }, // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
   #if ENABLED(SPEAKER)
-    {TP_TONE, get_timer_num_from_base_address(timer_tone[0])},    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_TONE, get_timer_num_from_base_address(timer_tone[0]) },     // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
   #if HAS_SERVOS
-    {TP_SERVO, get_timer_num_from_base_address(timer_servo[0])},   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_SERVO, get_timer_num_from_base_address(timer_servo[0]) },   // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
-  {TP_STEP, STEP_TIMER},
-  {TP_TEMP, TEMP_TIMER},
+  { TP_STEP, STEP_TIMER },
+  { TP_TEMP, TEMP_TIMER },
 };
 
 static constexpr bool verify_no_timer_conflicts() {

@@ -37,7 +37,7 @@ L64XX_Marlin L64xxManager;
 #include "../../module/planner.h"
 #include "../../HAL/shared/Delay.h"
 
-static const char LINEAR_AXIS_LIST(
+static const char NUM_AXIS_LIST(
                    str_X[] PROGMEM = "X ",          str_Y[] PROGMEM = "Y ",          str_Z[] PROGMEM = "Z ",
                    str_I[] PROGMEM = STR_I " ", str_J[] PROGMEM = STR_J " ", str_K[] PROGMEM = STR_K " "
                  ),
@@ -53,7 +53,7 @@ static const char LINEAR_AXIS_LIST(
 
 #define _EN_ITEM(N) , str_E##N
 PGM_P const L64XX_Marlin::index_to_axis[] PROGMEM = {
-  LINEAR_AXIS_LIST(str_X, str_Y, str_Z, str_I, str_J, str_K),
+  NUM_AXIS_LIST(str_X, str_Y, str_Z, str_I, str_J, str_K),
   str_X2, str_Y2, str_Z2, str_Z3, str_Z4
   REPEAT(E_STEPPERS, _EN_ITEM)
 };
@@ -68,7 +68,7 @@ uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction comma
 
 #define _EN_ITEM(N) , INVERT_E##N##_DIR
 const uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = {
-    LINEAR_AXIS_LIST(INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR, INVERT_I_DIR, INVERT_J_DIR, INVERT_K_DIR)
+    NUM_AXIS_LIST(INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR, INVERT_I_DIR, INVERT_J_DIR, INVERT_K_DIR)
   , (INVERT_X_DIR) ^ BOTH(X_DUAL_STEPPER_DRIVERS, INVERT_X2_VS_X_DIR) // X2
   , (INVERT_Y_DIR) ^ BOTH(Y_DUAL_STEPPER_DRIVERS, INVERT_Y2_VS_Y_DIR) // Y2
   , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z2_VS_Z_DIR) // Z2
@@ -412,11 +412,11 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   }
 
   uint8_t found_displacement = false;
-  LOOP_LOGICAL_AXES(i) if (uint16_t _displacement = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t _displacement = parser.intval(AXIS_CHAR(i))) {
     found_displacement = true;
     displacement = _displacement;
-    uint8_t axis_offset = parser.byteval('J');
-    axis_mon[0][0] = axis_codes[i];         // Axis first character, one of XYZE
+    const uint8_t axis_offset = parser.byteval('J');
+    axis_mon[0][0] = AXIS_CHAR(i);          // Axis first character, one of XYZ...E
     const bool single_or_e = axis_offset >= 2 || axis_mon[0][0] == 'E',
                one_or_more = !single_or_e && axis_offset == 0;
     uint8_t driver_count_local = 0;         // Can't use "driver_count" directly as a subscript because it's passed by reference
@@ -667,7 +667,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
     static constexpr float default_max_feedrate[] = DEFAULT_MAX_FEEDRATE;
     const uint8_t num_feedrates = COUNT(default_max_feedrate);
     for (j = 0; j < num_feedrates; j++) {
-      if (axis_codes[j] == axis_mon[0][0]) {
+      if (AXIS_CHAR(j) == axis_mon[0][0]) {
         final_feedrate = default_max_feedrate[j];
         break;
       }

@@ -369,7 +369,8 @@
 #endif // HAS_WIRED_LCD
 
 #if HAS_TFT_LVGL_UI
-  #define USE_SPI_DMA_TC
+  // Enable SPI DMA, this requires button pins, thus no buttons. Default is DISABLED.
+  //#define USE_SPI_DMA_TC
 #endif
 
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
