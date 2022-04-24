@@ -29,7 +29,7 @@
 // Array to support sticky frequency sets per timer
 static uint16_t timer_freq[TIMER_NUM];
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   const uint16_t duty = invert ? v_size - v : v;
   if (PWM_PIN(pin)) {
     const PinName pin_name = digitalPinToPinName(pin);
@@ -61,7 +61,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return; // Don't proceed if no hardware timer
   const PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef * const Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance

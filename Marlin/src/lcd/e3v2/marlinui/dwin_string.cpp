@@ -70,7 +70,7 @@ void DWIN_String::add(uint8_t *string, const int8_t index, uint8_t *itemString/*
     else if (ch == '$' && itemString)
       add(itemString);
     else if (ch == '@')
-      add_character(axis_codes[index]);
+      add_character(AXIS_CHAR(index));
     else
       add_character(ch);
   }

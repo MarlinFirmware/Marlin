@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,17 +21,34 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+#define REVERSE_TEMP_SENSOR_RANGE_68 1
 
-typedef float xatc_array_t[XATC_MAX_POINTS];
-
-class XATC {
-public:
-  static float spacing, start;
-  static xatc_array_t z_offset;
-
-  static float compensation(const xy_pos_t &raw);
-  static void print_points();
+// PT100 amplifier board from Dyze Design
+const temp_entry_t temptable_68[] PROGMEM = {
+  { OV(273), 0   },
+  { OV(294), 20  },
+  { OV(315), 40  },
+  { OV(336), 60  },
+  { OV(356), 80  },
+  { OV(376), 100 },
+  { OV(396), 120 },
+  { OV(416), 140 },
+  { OV(436), 160 },
+  { OV(455), 180 },
+  { OV(474), 200 },
+  { OV(494), 220 },
+  { OV(513), 240 },
+  { OV(531), 260 },
+  { OV(550), 280 },
+  { OV(568), 300 },
+  { OV(587), 320 },
+  { OV(605), 340 },
+  { OV(623), 360 },
+  { OV(641), 380 },
+  { OV(658), 400 },
+  { OV(676), 420 },
+  { OV(693), 440 },
+  { OV(710), 460 },
+  { OV(727), 480 },
+  { OV(744), 500 }
 };
-
-extern XATC xatc;
