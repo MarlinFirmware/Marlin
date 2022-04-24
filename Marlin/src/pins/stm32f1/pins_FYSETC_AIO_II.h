@@ -27,7 +27,7 @@
 #define BOARD_WEBSITE_URL "fysetc.com"
 
 #define BOARD_NO_NATIVE_USB
-
+#define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
 #define pins_v2_20190128                          // new pins define

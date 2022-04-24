@@ -28,7 +28,7 @@
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS  6
-  #define GRID_ROWS  15
+  #define GRID_ROWS 15
   #define FILES_PER_PAGE 11
   #define PREV_DIR LEFT
   #define NEXT_DIR RIGHT
@@ -40,7 +40,7 @@
   #define BTN1_POS BTN_POS(1,14), BTN_SIZE(3,2)
   #define BTN2_POS BTN_POS(4,14), BTN_SIZE(3,2)
 #else
-  #define GRID_COLS  12
+  #define GRID_COLS 12
   #define GRID_ROWS  8
   #define FILES_PER_PAGE 6
   #define PREV_DIR UP
