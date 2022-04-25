@@ -86,7 +86,6 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
           || pwm_status(pin));
 }
 
-
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {
     uint32_t chan = g_APinDescription[pin].ulPWMChannel;

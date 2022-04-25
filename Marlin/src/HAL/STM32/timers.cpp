@@ -303,16 +303,16 @@ enum TimerPurpose { TP_SERIAL, TP_TONE, TP_SERVO, TP_STEP, TP_TEMP };
 // This cannot yet account for timers used for PWM output, such as for fans.
 static constexpr struct { TimerPurpose p; int t; } timers_in_use[] = {
   #if HAS_TMC_SW_SERIAL
-    {TP_SERIAL, get_timer_num_from_base_address(timer_serial[0])},  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_SERIAL, get_timer_num_from_base_address(timer_serial[0]) }, // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
   #if ENABLED(SPEAKER)
-    {TP_TONE, get_timer_num_from_base_address(timer_tone[0])},    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_TONE, get_timer_num_from_base_address(timer_tone[0]) },     // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
   #if HAS_SERVOS
-    {TP_SERVO, get_timer_num_from_base_address(timer_servo[0])},   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { TP_SERVO, get_timer_num_from_base_address(timer_servo[0]) },   // Set in variant.h, or as a define in platformio.h if not present in variant.h
   #endif
-  {TP_STEP, STEP_TIMER},
-  {TP_TEMP, TEMP_TIMER},
+  { TP_STEP, STEP_TIMER },
+  { TP_TEMP, TEMP_TIMER },
 };
 
 static constexpr bool verify_no_timer_conflicts() {
