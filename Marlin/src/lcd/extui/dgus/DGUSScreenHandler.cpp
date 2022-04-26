@@ -40,7 +40,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-DGUSScreenHandler ScreenHandler;
+DGUSScreenHandlerClass ScreenHandler;
 
 uint16_t DGUSScreenHandler::ConfirmVP;
 

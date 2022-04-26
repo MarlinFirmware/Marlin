@@ -555,7 +555,7 @@ typedef struct SettingsDataStruct {
   // MKS UI controller
   //
   #if ENABLED(DGUS_LCD_UI_MKS)
-    uint8_t mks_language_index;                         // Display Language
+    MKS_Language mks_language_index;                    // Display Language
     xy_int_t mks_corner_offsets[5];                     // Bed Tramming
     xyz_int_t mks_park_pos;                             // Custom Parking (without NOZZLE_PARK)
     celsius_t mks_min_extrusion_temp;                   // Min E Temp (shadow M302 value)
@@ -3302,16 +3302,6 @@ void MarlinSettings::reset() {
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
 
-  postprocess();
-
-  #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
-    FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
-    TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
-    DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
-  #endif
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-
   //
   // Model predictive control
   //
@@ -3342,6 +3332,16 @@ void MarlinSettings::reset() {
       #endif
     }
   #endif
+
+  postprocess();
+
+  #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+    FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
+    TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
+    DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
+  #endif
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)
