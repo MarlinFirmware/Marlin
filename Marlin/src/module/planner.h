@@ -1022,7 +1022,7 @@ class Planner {
         return limit_value;
       }
 
-    #endif // !CLASSIC_JERK
+    #endif // HAS_JUNCTION_DEVIATION
 };
 
 #define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
