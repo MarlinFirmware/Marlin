@@ -101,7 +101,7 @@ exec_test $1 $2 "Teensy 3.5/3.6 COREXZ | BACKLASH" "$3"
 # Enable Dual Z with Dual Z endstops
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_TEENSY35_36 NUM_Z_STEPPER_DRIVERS 2 Z2_MIN_PIN 2
+opt_set MOTHERBOARD BOARD_TEENSY35_36 Z_DRIVER_TYPE A4988 Z2_DRIVER_TYPE A4988 Z2_MIN_PIN 2
 opt_enable Z_MULTI_ENDSTOPS USE_XMAX_PLUG
 pins_set ramps/RAMPS X_MAX_PIN -1
 exec_test $1 $2 "Dual Z with Dual Z endstops" "$3"
