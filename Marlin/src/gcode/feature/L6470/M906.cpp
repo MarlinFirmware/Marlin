@@ -285,6 +285,25 @@ void GcodeSuite::M906() {
           break;
       #endif
 
+      #if AXIS_IS_L64XX(I)
+        case I_AXIS: L6470_SET_KVAL_HOLD(I); break;
+      #endif
+      #if AXIS_IS_L64XX(J)
+        case J_AXIS: L6470_SET_KVAL_HOLD(J); break;
+      #endif
+      #if AXIS_IS_L64XX(K)
+        case K_AXIS: L6470_SET_KVAL_HOLD(K); break;
+      #endif
+      #if AXIS_IS_L64XX(U)
+        case U_AXIS: L6470_SET_KVAL_HOLD(U); break;
+      #endif
+      #if AXIS_IS_L64XX(V)
+        case V_AXIS: L6470_SET_KVAL_HOLD(V); break;
+      #endif
+      #if AXIS_IS_L64XX(W)
+        case W_AXIS: L6470_SET_KVAL_HOLD(W); break;
+      #endif
+
       #if AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5) || AXIS_IS_L64XX(E6) || AXIS_IS_L64XX(E7)
         case E_AXIS: {
           const int8_t eindex = get_target_e_stepper_from_command(-2);
@@ -345,6 +364,24 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_L64XX(Z4)
       L64XX_REPORT_CURRENT(Z4);
+    #endif
+    #if AXIS_IS_L64XX(I)
+      L64XX_REPORT_CURRENT(I);
+    #endif
+    #if AXIS_IS_L64XX(J)
+      L64XX_REPORT_CURRENT(J);
+    #endif
+    #if AXIS_IS_L64XX(K)
+      L64XX_REPORT_CURRENT(K);
+    #endif
+    #if AXIS_IS_L64XX(U)
+      L64XX_REPORT_CURRENT(U);
+    #endif
+    #if AXIS_IS_L64XX(V)
+      L64XX_REPORT_CURRENT(V);
+    #endif
+    #if AXIS_IS_L64XX(W)
+      L64XX_REPORT_CURRENT(W);
     #endif
     #if AXIS_IS_L64XX(E0)
       L64XX_REPORT_CURRENT(E0);

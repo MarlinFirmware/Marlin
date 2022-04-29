@@ -666,7 +666,7 @@
 #endif
 
 /**
- * Number of Linear Axes (e.g., XYZ)
+ * Number of Linear Axes (e.g., XYZIJKUVW)
  * All the logical axes except for the tool (E) axis
  */
 #ifdef LINEAR_AXES
@@ -674,22 +674,28 @@
   #define LINEAR_AXES_WARNING 1
 #endif
 
-#ifdef K_DRIVER_TYPE
-  #define LINEAR_AXES 6
+#ifdef W_DRIVER_TYPE
+  #define NUM_AXES 9
+#elif defined(V_DRIVER_TYPE)
+  #define NUM_AXES 8
+#elif defined(U_DRIVER_TYPE)
+  #define NUM_AXES 7
+#elif defined(K_DRIVER_TYPE)
+  #define NUM_AXES 6
 #elif defined(J_DRIVER_TYPE)
-  #define LINEAR_AXES 5
+  #define NUM_AXES 5
 #elif defined(I_DRIVER_TYPE)
-  #define LINEAR_AXES 4
+  #define NUM_AXES 4
 #elif defined(Z_DRIVER_TYPE)
-  #define LINEAR_AXES 3
+  #define NUM_AXES 3
 #elif defined(Y_DRIVER_TYPE)
-  #define LINEAR_AXES 2
+  #define NUM_AXES 2
 #else
-  #define LINEAR_AXES 1
+  #define NUM_AXES 1
 #endif
-#if LINEAR_AXES >= XY
+#if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
-  #if LINEAR_AXES >= XYZ
+  #if NUM_AXES >= XYZ
     #define HAS_Z_AXIS 1
     #ifdef Z4_DRIVER_TYPE
       #define NUM_Z_STEPPERS 4
@@ -700,12 +706,21 @@
     #else
       #define NUM_Z_STEPPERS 1
     #endif
-    #if LINEAR_AXES >= 4
+    #if NUM_AXES >= 4
       #define HAS_I_AXIS 1
-      #if LINEAR_AXES >= 5
+      #if NUM_AXES >= 5
         #define HAS_J_AXIS 1
-        #if LINEAR_AXES >= 6
+        #if NUM_AXES >= 6
           #define HAS_K_AXIS 1
+          #if NUM_AXES >= 7
+            #define HAS_U_AXIS 1
+            #if NUM_AXES >= 8
+              #define HAS_V_AXIS 1
+              #if NUM_AXES >= 9
+                #define HAS_W_AXIS 1
+              #endif
+            #endif
+          #endif
         #endif
       #endif
     #endif
@@ -863,14 +878,58 @@
 #endif
 
 /**
- * Number of Logical Axes (e.g., XYZE)
- * All the logical axes that can be commanded directly by G-code.
+ * Number of Primary Linear Axes (e.g., XYZ)
+ * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
+ */
+#if NUM_AXES >= 3
+  #define PRIMARY_LINEAR_AXES 3
+#else
+  #define PRIMARY_LINEAR_AXES NUM_AXES
+#endif
+
+/**
+ * Number of Secondary Axes (e.g., IJKUVW)
+ * All linear/rotational axes between XYZ and E.
+ */
+#define SECONDARY_AXES SUB3(NUM_AXES)
+
+/**
+ * Number of Rotational Axes (e.g., IJK)
+ * All axes for which AXIS*_ROTATES is defined.
+ * For these axes, positions are specified in angular degrees.
+ */
+#if ENABLED(AXIS9_ROTATES)
+  #define ROTATIONAL_AXES 6
+#elif ENABLED(AXIS8_ROTATES)
+  #define ROTATIONAL_AXES 5
+#elif ENABLED(AXIS7_ROTATES)
+  #define ROTATIONAL_AXES 4
+#elif ENABLED(AXIS6_ROTATES)
+  #define ROTATIONAL_AXES 3
+#elif ENABLED(AXIS5_ROTATES)
+  #define ROTATIONAL_AXES 2
+#elif ENABLED(AXIS4_ROTATES)
+  #define ROTATIONAL_AXES 1
+#else
+  #define ROTATIONAL_AXES 0
+#endif
+
+/**
+ * Number of Secondary Linear Axes (e.g., UVW)
+ * All secondary axes for which AXIS*_ROTATES is not defined.
+ * Excluding primary axes and excluding duplicate axes (X2, Y2, Z2, Z3, Z4)
+ */
+#define SECONDARY_LINEAR_AXES (NUM_AXES - PRIMARY_LINEAR_AXES - ROTATIONAL_AXES)
+
+/**
+ * Number of Logical Axes (e.g., XYZIJKUVWE)
+ * All logical axes that can be commanded directly by G-code.
  * Delta maps stepper-specific values to ABC steppers.
  */
 #if HAS_EXTRUDERS
-  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+  #define LOGICAL_AXES INCREMENT(NUM_AXES)
 #else
-  #define LOGICAL_AXES LINEAR_AXES
+  #define LOGICAL_AXES NUM_AXES
 #endif
 
 /**
@@ -888,7 +947,7 @@
  *  distinguished.
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
+  #define DISTINCT_AXES (NUM_AXES + E_STEPPERS)
   #define DISTINCT_E E_STEPPERS
   #define E_INDEX_N(E) (E)
 #else
@@ -1117,6 +1176,21 @@
   #define K_HOME_TO_MAX 1
 #elif K_HOME_DIR < 0
   #define K_HOME_TO_MIN 1
+#endif
+#if U_HOME_DIR > 0
+  #define U_HOME_TO_MAX 1
+#elif U_HOME_DIR < 0
+  #define U_HOME_TO_MIN 1
+#endif
+#if V_HOME_DIR > 0
+  #define V_HOME_TO_MAX 1
+#elif V_HOME_DIR < 0
+  #define V_HOME_TO_MIN 1
+#endif
+#if W_HOME_DIR > 0
+  #define W_HOME_TO_MAX 1
+#elif W_HOME_DIR < 0
+  #define W_HOME_TO_MIN 1
 #endif
 
 /**

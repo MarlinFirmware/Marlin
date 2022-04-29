@@ -45,6 +45,12 @@ enum EndstopEnum : char {
   _ES_ITEM(HAS_J_MAX, J_MAX)
   _ES_ITEM(HAS_K_MIN, K_MIN)
   _ES_ITEM(HAS_K_MAX, K_MAX)
+  _ES_ITEM(HAS_U_MIN, U_MIN)
+  _ES_ITEM(HAS_U_MAX, U_MAX)
+  _ES_ITEM(HAS_V_MIN, V_MIN)
+  _ES_ITEM(HAS_V_MAX, V_MAX)
+  _ES_ITEM(HAS_W_MIN, W_MIN)
+  _ES_ITEM(HAS_W_MAX, W_MAX)
 
   // Extra Endstops for XYZ
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -234,7 +240,7 @@ class Endstops {
       typedef struct {
         union {
           bool any;
-          struct { bool LINEAR_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1); };
+          struct { bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1); };
         };
       } tmc_spi_homing_t;
       static tmc_spi_homing_t tmc_spi_homing;
