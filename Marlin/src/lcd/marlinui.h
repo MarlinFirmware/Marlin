@@ -226,10 +226,8 @@ public:
 
   #if ENABLED(SOUND_MENU_ITEM)
     static bool buzzer_enabled; // Initialized by settings.load()
-  #elif ENABLED(DISABLE_BUZZER_DEFAULT)
-    static constexpr bool buzzer_enabled = false;
   #else
-    static constexpr bool buzzer_enabled = true;
+    static constexpr bool buzzer_enabled = ENABLED(BUZZER_ENABLED_DEFAULT);
   #endif
 
   #if HAS_BUZZER

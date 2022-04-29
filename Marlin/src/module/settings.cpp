@@ -2945,10 +2945,8 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  #if ENABLED(DISABLE_BUZZER_DEFAULT)
-    TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = false);
-  #else
-    TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  #if ENABLED(SOUND_MENU_ITEM)
+    ui.buzzer_enabled = ENABLED(BUZZER_ENABLED_DEFAULT);
   #endif
 
   //
