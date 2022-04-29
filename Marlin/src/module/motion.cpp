@@ -1765,7 +1765,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(X);
             phaseCurrent = stepperX.get_microstep_counter();
             effectorBackoutDir = -X_HOME_DIR;
-            stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_X_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef Y_MICROSTEPS
@@ -1773,7 +1773,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(Y);
             phaseCurrent = stepperY.get_microstep_counter();
             effectorBackoutDir = -Y_HOME_DIR;
-            stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_Y_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef Z_MICROSTEPS
@@ -1781,7 +1781,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(Z);
             phaseCurrent = stepperZ.get_microstep_counter();
             effectorBackoutDir = -Z_HOME_DIR;
-            stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_Z_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef I_MICROSTEPS
@@ -1789,7 +1789,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(I);
             phaseCurrent = stepperI.get_microstep_counter();
             effectorBackoutDir = -I_HOME_DIR;
-            stepperBackoutDir = INVERT_I_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_I_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef J_MICROSTEPS
@@ -1797,7 +1797,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(J);
             phaseCurrent = stepperJ.get_microstep_counter();
             effectorBackoutDir = -J_HOME_DIR;
-            stepperBackoutDir = INVERT_J_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_J_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef K_MICROSTEPS
@@ -1805,7 +1805,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(K);
             phaseCurrent = stepperK.get_microstep_counter();
             effectorBackoutDir = -K_HOME_DIR;
-            stepperBackoutDir = INVERT_K_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_K_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef U_MICROSTEPS
@@ -1813,7 +1813,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(U);
             phaseCurrent = stepperU.get_microstep_counter();
             effectorBackoutDir = -U_HOME_DIR;
-            stepperBackoutDir = INVERT_U_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_U_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef V_MICROSTEPS
@@ -1821,7 +1821,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(V);
             phaseCurrent = stepperV.get_microstep_counter();
             effectorBackoutDir = -V_HOME_DIR;
-            stepperBackoutDir = INVERT_V_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_V_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef W_MICROSTEPS
@@ -1829,7 +1829,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(W);
             phaseCurrent = stepperW.get_microstep_counter();
             effectorBackoutDir = -W_HOME_DIR;
-            stepperBackoutDir = INVERT_W_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_W_DIR, -)effectorBackoutDir;
             break;
         #endif
         default: return;
@@ -2049,7 +2049,7 @@ void prepare_line_to_destination() {
       #if ENABLED(Z_MULTI_ENDSTOPS)
         if (axis == Z_AXIS) {
 
-          #if NUM_Z_STEPPER_DRIVERS == 2
+          #if NUM_Z_STEPPERS == 2
 
             const float adj = ABS(endstops.z2_endstop_adj);
             if (adj) {
@@ -2067,13 +2067,13 @@ void prepare_line_to_destination() {
 
             adjustFunc_t lock[] = {
               stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 , stepper.set_z4_lock
               #endif
             };
             float adj[] = {
               0, endstops.z2_endstop_adj, endstops.z3_endstop_adj
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 , endstops.z4_endstop_adj
               #endif
             };
@@ -2092,7 +2092,7 @@ void prepare_line_to_destination() {
               lock[1] = lock[2], adj[1] = adj[2];
               lock[2] = tempLock, adj[2] = tempAdj;
             }
-            #if NUM_Z_STEPPER_DRIVERS >= 4
+            #if NUM_Z_STEPPERS >= 4
               if (adj[3] < adj[2]) {
                 tempLock = lock[2], tempAdj = adj[2];
                 lock[2] = lock[3], adj[2] = adj[3];
@@ -2117,14 +2117,14 @@ void prepare_line_to_destination() {
               // lock the second stepper for the final correction
               (*lock[1])(true);
               do_homing_move(axis, adj[2] - adj[1]);
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 // lock the third stepper for the final correction
                 (*lock[2])(true);
                 do_homing_move(axis, adj[3] - adj[2]);
               #endif
             }
             else {
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 (*lock[3])(true);
                 do_homing_move(axis, adj[2] - adj[3]);
               #endif
@@ -2137,7 +2137,7 @@ void prepare_line_to_destination() {
             stepper.set_z1_lock(false);
             stepper.set_z2_lock(false);
             stepper.set_z3_lock(false);
-            #if NUM_Z_STEPPER_DRIVERS >= 4
+            #if NUM_Z_STEPPERS >= 4
               stepper.set_z4_lock(false);
             #endif
 
