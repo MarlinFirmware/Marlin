@@ -507,6 +507,8 @@ G29_TYPE GcodeSuite::G29() {
         // Can't re-enable (on error) until the new grid is written
         abl.reenable = false;
       }
+
+      TERN_(IS_KINEMATIC, COPY(abl.z_values, Z_VALUES_ARR));
     #endif // AUTO_BED_LEVELING_BILINEAR
 
   } // !g29_in_progress
