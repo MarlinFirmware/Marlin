@@ -21,15 +21,12 @@
  */
 #pragma once
 
+#include "../inc/MarlinConfig.h"
 #include "../sd/cardreader.h"
 #include "../module/motion.h"
+#include "../libs/buzzer.h"
+
 #include "buttons.h"
-
-#include "../inc/MarlinConfig.h"
-
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
-#endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "tft_io/touch_calibration.h"
@@ -225,9 +222,9 @@ public:
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
-    static bool buzzer_enabled; // Initialized by settings.load()
+    static bool sound_on; // Initialized by settings.load()
   #else
-    static constexpr bool buzzer_enabled = ENABLED(BUZZER_ENABLED_DEFAULT);
+    static constexpr bool sound_on = ENABLED(SOUND_ON_DEFAULT);
   #endif
 
   #if HAS_BUZZER
@@ -235,7 +232,7 @@ public:
   #endif
 
   FORCE_INLINE static void chirp() {
-    TERN_(HAS_CHIRP, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+    TERN_(HAS_CHIRP, BUZZ(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
