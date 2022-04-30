@@ -121,7 +121,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   bool MarlinUI::sound_on = ENABLED(SOUND_ON_DEFAULT);
 #endif
 
-#if EITHER(PCA9632_BUZZER, USE_BEEPER)
+#if EITHER(PCA9632_BUZZER, HAS_BEEPER)
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
@@ -129,7 +129,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     if (!sound_on) return;
     #if ENABLED(PCA9632_BUZZER)
       PCA9632_buzz(duration, freq);
-    #elif USE_BEEPER
+    #elif HAS_BEEPER
       buzzer.tone(duration, freq);
     #endif
   }
@@ -747,7 +747,7 @@ void MarlinUI::init() {
 
     #if HAS_CHIRP
       chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
-      #if BOTH(HAS_MARLINUI_MENU, USE_BEEPER)
+      #if BOTH(HAS_MARLINUI_MENU, HAS_BEEPER)
         for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
       #elif HAS_MARLINUI_MENU
         delay(10);

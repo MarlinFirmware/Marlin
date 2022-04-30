@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if USE_BEEPER
+#if HAS_BEEPER
 
   #include "circularqueue.h"
 
@@ -121,8 +121,8 @@
 #elif HAS_BUZZER
 
   // Buzz indirectly via the MarlinUI instance
-  #include "../lcd/marlinui.h"
   #define BUZZ(d,f) ui.buzz(d,f)
+  #include "../lcd/marlinui.h"
 
 #else
 

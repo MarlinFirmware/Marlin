@@ -178,7 +178,7 @@
   #include "tool_change.h"
 #endif
 
-#if USE_BEEPER
+#if HAS_BEEPER
   #include "../libs/buzzer.h"
 #endif
 
@@ -1224,7 +1224,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MF_KILLED;
   thermalManager.disable_all_heaters();
-  #if USE_BEEPER
+  #if HAS_BEEPER
     for (uint8_t i = 20; i--;) {
       watchdog_refresh();
       buzzer.click(25);

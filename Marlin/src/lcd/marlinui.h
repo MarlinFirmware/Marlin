@@ -189,6 +189,9 @@ typedef bool (*statusResetFunc_t)();
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
 
+class MarlinUI;
+extern MarlinUI ui;
+
 class MarlinUI {
 public:
 
@@ -232,7 +235,7 @@ public:
   #endif
 
   FORCE_INLINE static void chirp() {
-    TERN_(HAS_CHIRP, BUZZ(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+    TERN_(HAS_CHIRP, TERN(HAS_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -781,8 +784,6 @@ private:
     #endif
   #endif
 };
-
-extern MarlinUI ui;
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
