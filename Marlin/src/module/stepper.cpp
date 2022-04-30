@@ -3058,7 +3058,7 @@ void Stepper::report_positions() {
 
   #define _ENABLE_AXIS(A) enable_axis(_AXIS(A))
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
-  #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
+  #define _INVERT_DIR(AXIS) ENABLED(INVERT_## AXIS ##_DIR)
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if MINIMUM_STEPPER_PULSE
@@ -3203,30 +3203,30 @@ void Stepper::report_positions() {
             U_DIR_READ(), V_DIR_READ(), W_DIR_READ()
           );
 
-          X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
+          X_DIR_WRITE(ENABLED(INVERT_X_DIR) ^ z_direction);
           #ifdef Y_DIR_WRITE
-            Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
+            Y_DIR_WRITE(ENABLED(INVERT_Y_DIR) ^ z_direction);
           #endif
           #ifdef Z_DIR_WRITE
-            Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
+            Z_DIR_WRITE(ENABLED(INVERT_Z_DIR) ^ z_direction);
           #endif
           #ifdef I_DIR_WRITE
-            I_DIR_WRITE(INVERT_I_DIR ^ z_direction);
+            I_DIR_WRITE(ENABLED(INVERT_I_DIR) ^ z_direction);
           #endif
           #ifdef J_DIR_WRITE
-            J_DIR_WRITE(INVERT_J_DIR ^ z_direction);
+            J_DIR_WRITE(ENABLED(INVERT_J_DIR) ^ z_direction);
           #endif
           #ifdef K_DIR_WRITE
-            K_DIR_WRITE(INVERT_K_DIR ^ z_direction);
+            K_DIR_WRITE(ENABLED(INVERT_K_DIR) ^ z_direction);
           #endif
           #ifdef U_DIR_WRITE
-            U_DIR_WRITE(INVERT_U_DIR ^ z_direction);
+            U_DIR_WRITE(ENABLED(INVERT_U_DIR) ^ z_direction);
           #endif
           #ifdef V_DIR_WRITE
-            V_DIR_WRITE(INVERT_V_DIR ^ z_direction);
+            V_DIR_WRITE(ENABLED(INVERT_V_DIR) ^ z_direction);
           #endif
           #ifdef W_DIR_WRITE
-            W_DIR_WRITE(INVERT_W_DIR ^ z_direction);
+            W_DIR_WRITE(ENABLED(INVERT_W_DIR) ^ z_direction);
           #endif
 
           DIR_WAIT_AFTER();
