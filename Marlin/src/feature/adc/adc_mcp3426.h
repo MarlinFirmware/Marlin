@@ -31,7 +31,7 @@
 
 class MCP3426 {
   public:
-    int16_t ReadValue(uint8_t channel, uint8_t gain, uint8_t, address);
+    int16_t ReadValue(uint8_t channel, uint8_t gain, uint8_t address);
     bool Error;
 };
 
