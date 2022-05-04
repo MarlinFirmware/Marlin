@@ -28,6 +28,8 @@
 
 #include "../../../feature/adc/adc_mcp3426.h"
 
+#define MCP3426_BASE_ADDR (0b1101 << 3)
+
 /**
  * M3426: Read 16 bit (signed) value from I2C MCP3426 ADC device
  *
@@ -41,7 +43,7 @@ void GcodeSuite::M3426() {
              address = parser.byteval('A', 3);
   const bool inverted = parser.byteval('I') == 1;
 
-  if (channel <= 2 && (gain == 1 || gain == 2 || gain == 4 || gain == 8) && (address >= 104 && address <= 111)) {
+  if (channel <= 2 && (gain == 1 || gain == 2 || gain == 4 || gain == 8) && WITHIN(address, MCP3426_BASE_ADDR, MCP3426_BASE_ADDR + 7)) {
     int16_t result = mcp3426.ReadValue(channel, gain, address);
 
     if (mcp3426.Error == false) {
