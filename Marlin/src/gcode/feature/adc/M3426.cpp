@@ -38,12 +38,14 @@
  *  M3426 I<byte-2 value in base 10> 0 or 1, invert reply
  */
 void GcodeSuite::M3426() {
-  uint8_t channel = parser.byteval('C', 1),       // Select the channel 1 or 2
-             gain = parser.byteval('G', 1),
-             address = parser.byteval('A', 3);
-  const bool inverted = parser.byteval('I') == 1;
+  uint8_t channel = parser.byteval('C', 1), // Channel 1 or 2
+             gain = parser.byteval('G', 1), // Gain 1, 2, 4, or 8
+          address = parser.byteval('A', 3); // Address 0-7 (or 104-111)
+  const bool inverted = parser.boolval('I');
 
-  if (channel <= 2 && (gain == 1 || gain == 2 || gain == 4 || gain == 8) && WITHIN(address, MCP3426_BASE_ADDR, MCP3426_BASE_ADDR + 7)) {
+  if (address <= 7) address += MCP3426_BASE_ADDR;
+
+  if (WITHIN(channel, 1, 2) && (gain == 1 || gain == 2 || gain == 4 || gain == 8) && WITHIN(address, MCP3426_BASE_ADDR, MCP3426_BASE_ADDR + 7)) {
     int16_t result = mcp3426.ReadValue(channel, gain, address);
 
     if (mcp3426.Error == false) {
