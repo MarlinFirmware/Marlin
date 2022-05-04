@@ -28,7 +28,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x8000  // 32KB (24C32A)
+#define MARLIN_EEPROM_SIZE                0x8000  // 32K (24C32A)
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
 
