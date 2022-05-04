@@ -188,7 +188,7 @@
   #define EEPROM_MOSI_PIN                   PB15  // datasheet: DI pin, found with multimeter, not tested
   #define EEPROM_PAGE_SIZE               0x1000U  // 4K (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)  // Limit to 64K for now...
-#elif ENABLED(I2C_EEPROM)                         // FM24CL64BG (CYP1813) 64Kb F-RAM
+#elif ENABLED(I2C_EEPROM)                         // FM24CL64BG (CYP1813) 64Kbit F-RAM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SDA_PIN                       PG13
   #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
