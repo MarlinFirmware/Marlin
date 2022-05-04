@@ -102,7 +102,6 @@ namespace Language_sk {
   LSTR MSG_HOME_OFFSET_J                  = STR_J _UxGT(" Ofset");
   LSTR MSG_HOME_OFFSET_K                  = STR_K _UxGT(" Ofset");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastavené");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Nastaviť začiatok");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Spriev. vyrovn.");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Vyberte začiatok");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Posl. hodnota ");
