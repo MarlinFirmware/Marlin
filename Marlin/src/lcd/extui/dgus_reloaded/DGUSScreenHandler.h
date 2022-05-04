@@ -134,7 +134,7 @@ private:
     bool initialized;
     uint8_t volume;
     uint8_t brightness;
-    bool abl;
+    bool abl_okay;
   } eeprom_data_t;
 };
 

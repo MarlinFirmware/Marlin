@@ -24,6 +24,7 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 class LevelingBilinear {
+private:
   static xy_pos_t grid_spacing, grid_start;
   static xy_float_t grid_factor;
   static bed_mesh_t z_values;
