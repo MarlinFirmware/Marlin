@@ -1416,15 +1416,6 @@ void MarlinUI::init() {
 
     TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(cstr));
 
-    #if ENABLED(LCD_ANNOUNCE_STATUS)
-    {
-      // Send status message as 'echo:' (to the controller)
-      PORT_REDIRECT(SERIAL_BOTH);
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLN(message);
-    }
-    #endif
-
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
     // that there is no cutting in the middle of a multibyte character!
@@ -1587,6 +1578,15 @@ void MarlinUI::init() {
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
     TERN_(DWIN_LCD_PROUI, DWIN_CheckStatusMessage());
     TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
+
+    #if ENABLED(BTT_SERIAL_CONTROLLER)
+    {
+      // Send status message as 'echo:' (to the controller)
+      PORT_REDIRECT(SERIAL_PORTMASK(LCD_SERIAL_PORT));
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLN(status_message);
+    }
+    #endif
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)

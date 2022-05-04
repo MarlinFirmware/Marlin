@@ -2918,6 +2918,14 @@
 //#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
 
 //
+// Certain BTT serial touch screens
+//
+//#define BTT_SERIAL_CONTROLLER
+#if ENABLED(BTT_SERIAL_CONTROLLER)
+  #define LCD_SERIAL_PORT 1
+#endif
+
+//
 // Touch Screen Settings
 //
 //#define TOUCH_SCREEN

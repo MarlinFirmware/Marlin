@@ -397,13 +397,13 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
     if (fan >= FAN_COUNT) return;
 
-    #if ENABLED(LCD_ANNOUNCE_FAN)
+    #if ENABLED(BTT_SERIAL_CONTROLLER)
     {
       // Send fan state as 'echo:' (to the controller)
       char msg[20];
-      PORT_REDIRECT(SERIAL_BOTH);
+      PORT_REDIRECT(SERIAL_PORTMASK(LCD_SERIAL_PORT));
       SERIAL_ECHO_START();
-      sprintf_P(msg, PSTR("M106 P%i S%i"), target, speed);
+      sprintf_P(msg, PSTR("M106 P%i S%i"), fan, speed);
       SERIAL_ECHOLN(msg);
     }
     #endif

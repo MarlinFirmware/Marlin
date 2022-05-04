@@ -1403,10 +1403,6 @@
 
 #endif
 
-// Announce status and/or fan speed for certain serial touch screens (BTT)
-//#define LCD_ANNOUNCE_STATUS
-//#define LCD_ANNOUNCE_FAN
-
 // LCD Print Progress options
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #if CAN_SHOW_REMAINING_TIME
