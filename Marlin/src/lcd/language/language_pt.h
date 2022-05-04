@@ -52,7 +52,6 @@ namespace Language_pt {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Pronto !");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Definir desvio");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets aplicados");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Definir origem");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";

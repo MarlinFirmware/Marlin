@@ -72,7 +72,6 @@ namespace Language_tr {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Kaçınma Yüksekliği");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ofset Ayarla");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofset Tamam");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Sıfır Belirle");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
