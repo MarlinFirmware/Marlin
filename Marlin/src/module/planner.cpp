@@ -1605,37 +1605,35 @@ void Planner::check_axes_activity() {
   }
 
   void Planner::unapply_leveling(xyz_pos_t &raw) {
+    if (!leveling_active) return;
 
-    if (leveling_active) {
+    #if ABL_PLANAR
 
-      #if ABL_PLANAR
+      matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
-        matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
+      xy_pos_t d = raw - level_fulcrum;
+      inverse.apply_rotation_xyz(d.x, d.y, raw.z);
+      raw = d + level_fulcrum;
 
-        xy_pos_t d = raw - level_fulcrum;
-        inverse.apply_rotation_xyz(d.x, d.y, raw.z);
-        raw = d + level_fulcrum;
+    #elif HAS_MESH
 
-      #elif HAS_MESH
-
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-        #elif DISABLED(MESH_BED_LEVELING)
-          constexpr float fade_scaling_factor = 1.0;
-        #endif
-
-        raw.z -= (
-          #if ENABLED(MESH_BED_LEVELING)
-            mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
-          #elif ENABLED(AUTO_BED_LEVELING_UBL)
-            fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
-          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-            fade_scaling_factor ? fade_scaling_factor * bbl.get_z_correction(raw) : 0.0
-          #endif
-        );
-
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
+      #elif DISABLED(MESH_BED_LEVELING)
+        constexpr float fade_scaling_factor = 1.0;
       #endif
-    }
+
+      raw.z -= (
+        #if ENABLED(MESH_BED_LEVELING)
+          mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          fade_scaling_factor ? fade_scaling_factor * bbl.get_z_correction(raw) : 0.0
+        #endif
+      );
+
+    #endif
   }
 
 #endif // HAS_LEVELING
