@@ -65,7 +65,6 @@ namespace Language_zh_TW {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("淡出高度");     // "Fade Height"
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("設置原點偏移");     // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已啟用");     // "Offsets applied"
-  LSTR MSG_SET_ORIGIN                     = _UxGT("設置原點");     // "Set origin"
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("預熱 ") PREHEAT_1_LABEL;     // "Preheat PREHEAT_1_LABEL"
     LSTR MSG_PREHEAT_1_H                  = _UxGT("預熱 ") PREHEAT_1_LABEL " ~";     // "Preheat PREHEAT_1_LABEL"

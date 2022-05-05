@@ -69,7 +69,6 @@ namespace Language_gl {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Compensación Altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Axustar Desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfases aplicados");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Fixar orixe");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Prequentar ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";

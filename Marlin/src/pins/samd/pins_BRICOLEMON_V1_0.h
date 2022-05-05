@@ -110,7 +110,7 @@
 // This board have the option to use an extra TMC2209 stepper, one of the use could be as a second extruder.
 #if EXTRUDERS < 2
   // TODO: Corregir aquí que cuando tenemos dos extrusores o lo que sea, utiliza los endstop que le sobran, osea los max, no hay Z2_endstop
-  #if NUM_Z_STEPPER_DRIVERS > 1
+  #if NUM_Z_STEPPERS > 1
     #define Z2_STOP_PIN                       14
   #endif
 #else
