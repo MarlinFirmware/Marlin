@@ -1,9 +1,10 @@
-# Where have all the configurations gone?
+## Two Trees Sapphire Pro Configurations
 
-Marlin configurations for specific machines are now maintained in their own repository at:
+This folder contains default configurations for the Sapphire Pro.
 
-## https://github.com/MarlinFirmware/Configurations/tree/bugfix-2.0.x
 
-Configuration files for use with the nightly `bugfix-2.0.x` branch can be downloaded from:
+Extra options are provided for Sapphire Pro Steppers:
 
-## https://github.com/MarlinFirmware/Configurations/archive/bugfix-2.0.x.zip
+- Enable `SPRO_INVERTED_E`  if the E motor goes in reverse.
+- Enable `SPRO_TMC2209` if your board has TMC2209 drivers.
+- Enable `SPRO_BLTOUCH` if you want to enable BLTOUCH. (BLTOUCH Will Replace Z_Min_Plug)
