@@ -72,7 +72,6 @@ namespace Language_es {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Compen. Altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ajustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicada");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Establecer origen");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Precal. ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";

@@ -77,7 +77,6 @@ namespace Language_cz {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Výška srovnávání");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Nastavit ofsety");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastaveny");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Nastavit počátek");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Zahřát ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
