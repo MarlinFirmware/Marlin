@@ -560,7 +560,7 @@ static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
 
 #pragma GCC diagnostic pop
 
-void _O2 Endstops::report_states() {
+void __O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, F(STR_##S))

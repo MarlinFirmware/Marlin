@@ -82,11 +82,11 @@
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
-#define _O0          __attribute__((optimize("O0")))
-#define _Os          __attribute__((optimize("Os")))
-#define _O1          __attribute__((optimize("O1")))
-#define _O2          __attribute__((optimize("O2")))
-#define _O3          __attribute__((optimize("O3")))
+#define __O0         __attribute__((optimize("O0")))
+#define __Os         __attribute__((optimize("Os")))
+#define __O1         __attribute__((optimize("O1")))
+#define __O2         __attribute__((optimize("O2")))
+#define __O3         __attribute__((optimize("O3")))
 
 #define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
 
