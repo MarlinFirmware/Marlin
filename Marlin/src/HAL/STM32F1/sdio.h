@@ -101,11 +101,11 @@
 #define SDIO_WRITE_TIMEOUT                   200U           /* Write data transfer timeout */
 
 #ifndef SDIO_CLOCK
-  #define SDIO_CLOCK                         18000000       /* 18 MHz */
+  #define SDIO_CLOCK                         4500000       /* 4,5 MHz */
 #endif
 
 #ifndef SDIO_READ_RETRIES
-  #define SDIO_READ_RETRIES                  3
+  #define SDIO_READ_RETRIES                  6
 #endif
 
 // ------------------------
