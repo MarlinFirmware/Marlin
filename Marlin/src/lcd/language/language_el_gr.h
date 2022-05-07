@@ -53,7 +53,6 @@ namespace Language_el_gr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Ολοκλήρωση επιπεδοποίησης!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ορισμός βασικών μετατοπίσεων");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Εφαρμόστηκαν οι μετατοπίσεις");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Ορισμός προέλευσης");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";

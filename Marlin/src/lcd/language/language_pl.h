@@ -80,7 +80,6 @@ namespace Language_pl {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Wys. zanikania");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ust. poz. zer.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Poz. zerowa ust.");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Ustaw punkt zero");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wybierz punkt zero");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Poprzednia wartość ");
   #if HAS_PREHEAT

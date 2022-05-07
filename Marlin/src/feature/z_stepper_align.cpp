@@ -33,35 +33,35 @@
 
 ZStepperAlign z_stepper_align;
 
-xy_pos_t ZStepperAlign::xy[NUM_Z_STEPPER_DRIVERS];
+xy_pos_t ZStepperAlign::xy[NUM_Z_STEPPERS];
 
 #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
-  xy_pos_t ZStepperAlign::stepper_xy[NUM_Z_STEPPER_DRIVERS];
+  xy_pos_t ZStepperAlign::stepper_xy[NUM_Z_STEPPERS];
 #endif
 
 void ZStepperAlign::reset_to_default() {
   #ifdef Z_STEPPER_ALIGN_XY
 
     constexpr xy_pos_t xy_init[] = Z_STEPPER_ALIGN_XY;
-    static_assert(COUNT(xy_init) == NUM_Z_STEPPER_DRIVERS,
+    static_assert(COUNT(xy_init) == NUM_Z_STEPPERS,
       "Z_STEPPER_ALIGN_XY requires "
-      #if NUM_Z_STEPPER_DRIVERS == 4
+      #if NUM_Z_STEPPERS == 4
         "four {X,Y} entries (Z, Z2, Z3, and Z4)."
-      #elif NUM_Z_STEPPER_DRIVERS == 3
+      #elif NUM_Z_STEPPERS == 3
         "three {X,Y} entries (Z, Z2, and Z3)."
       #else
         "two {X,Y} entries (Z and Z2)."
       #endif
     );
 
-    #define VALIDATE_ALIGN_POINT(N) static_assert(N >= NUM_Z_STEPPER_DRIVERS || Probe::build_time::can_reach(xy_init[N]), \
+    #define VALIDATE_ALIGN_POINT(N) static_assert(N >= NUM_Z_STEPPERS || Probe::build_time::can_reach(xy_init[N]), \
       "Z_STEPPER_ALIGN_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
     VALIDATE_ALIGN_POINT(0); VALIDATE_ALIGN_POINT(1); VALIDATE_ALIGN_POINT(2); VALIDATE_ALIGN_POINT(3);
 
   #else // !Z_STEPPER_ALIGN_XY
 
     const xy_pos_t xy_init[] = {
-      #if NUM_Z_STEPPER_DRIVERS >= 3  // First probe point...
+      #if NUM_Z_STEPPERS >= 3  // First probe point...
         #if !Z_STEPPERS_ORIENTATION
           { probe.min_x(), probe.min_y() }, // SW
         #elif Z_STEPPERS_ORIENTATION == 1
@@ -73,7 +73,7 @@ void ZStepperAlign::reset_to_default() {
         #else
           #error "Z_STEPPERS_ORIENTATION must be from 0 to 3 (first point SW, NW, NE, SE)."
         #endif
-        #if NUM_Z_STEPPER_DRIVERS == 4    // 3 more points...
+        #if NUM_Z_STEPPERS == 4    // 3 more points...
           #if !Z_STEPPERS_ORIENTATION
             { probe.min_x(), probe.max_y() }, { probe.max_x(), probe.max_y() }, { probe.max_x(), probe.min_y() }  // SW
           #elif Z_STEPPERS_ORIENTATION == 1
@@ -106,11 +106,11 @@ void ZStepperAlign::reset_to_default() {
   #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
     constexpr xy_pos_t stepper_xy_init[] = Z_STEPPER_ALIGN_STEPPER_XY;
     static_assert(
-      COUNT(stepper_xy_init) == NUM_Z_STEPPER_DRIVERS,
+      COUNT(stepper_xy_init) == NUM_Z_STEPPERS,
       "Z_STEPPER_ALIGN_STEPPER_XY requires "
-      #if NUM_Z_STEPPER_DRIVERS == 4
+      #if NUM_Z_STEPPERS == 4
         "four {X,Y} entries (Z, Z2, Z3, and Z4)."
-      #elif NUM_Z_STEPPER_DRIVERS == 3
+      #elif NUM_Z_STEPPERS == 3
         "three {X,Y} entries (Z, Z2, and Z3)."
       #endif
     );

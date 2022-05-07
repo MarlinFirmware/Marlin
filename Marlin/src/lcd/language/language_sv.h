@@ -73,7 +73,6 @@ namespace Language_sv {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Falna Höjd");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Sätt Hem Offset");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offset Tillämpad");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Sätt Origo");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Justerings Wizard");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Välj Origo");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Senaste värde ");

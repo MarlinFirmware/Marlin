@@ -2090,7 +2090,7 @@ void SetPID(celsius_t t, heater_id_t h) {
       DWIN_UpdateLCD();
     }
   #endif
-  #if ENABLED(HAS_COLOR_LEDS)
+  #if HAS_COLOR_LEDS
     void LiveLedColorR() { leds.color.r = MenuData.Value; HMI_data.Led_Color = leds.color; leds.update(); }
     void SetLedColorR() { SetIntOnClick(0, 255, leds.color.r, nullptr, LiveLedColorR); }
     void LiveLedColorG() { leds.color.g = MenuData.Value; HMI_data.Led_Color = leds.color; leds.update(); }
@@ -3260,7 +3260,7 @@ void Draw_GetColor_Menu() {
         #if !BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
           MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LEDS), onDrawLedStatus, SetLedStatus);
         #endif
-        #if (HAS_COLOR_LEDS)
+        #if HAS_COLOR_LEDS
           EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_RED), onDrawPInt8Menu, SetLedColorR, &leds.color.r);
           EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_GREEN), onDrawPInt8Menu, SetLedColorG, &leds.color.g);
           EDIT_ITEM(ICON_LedControl, GET_TEXT_F(MSG_COLORS_BLUE), onDrawPInt8Menu, SetLedColorB, &leds.color.b);
