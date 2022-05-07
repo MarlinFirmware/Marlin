@@ -49,3 +49,21 @@
 #if HAS_TFT_LVGL_UI && FAN1_PIN != PB0 && HEATER_1_PIN != PB0
   #define BOARD_INIT() OUT_WRITE(PB0, LOW)
 #endif
+
+#if HAS_TMC220x
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   */
+  //
+  // Software serial
+  //
+
+  #define TMC_BAUD_RATE 19200
+
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN PA6 //E1_STEP_PIN
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN PA1 //E1_DIR_PIN
+  #endif
+#endif
