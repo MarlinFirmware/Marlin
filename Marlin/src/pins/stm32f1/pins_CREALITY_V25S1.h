@@ -123,7 +123,9 @@
 #define HEATER_BED_PIN                      PB13  // HOT BED
 
 #define FAN_PIN                             PB15  // FAN
-#define FAN1_PIN                            PC13  // FAN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     PC13  // FAN
+#endif
 #define FAN_SOFT_PWM
 
 //
