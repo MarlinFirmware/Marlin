@@ -36,9 +36,7 @@
 // EEPROM, MKS SGEN_L V2.0 hardware has 4K EEPROM on the board
 //
 #if NO_EEPROM_SELECTED
-  //#define SDCARD_EEPROM_EMULATION
-  //#define I2C_EEPROM                            // AT24C32
-  #define FLASH_EEPROM_EMULATION
+  #define I2C_EEPROM                              // AT24C32
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
