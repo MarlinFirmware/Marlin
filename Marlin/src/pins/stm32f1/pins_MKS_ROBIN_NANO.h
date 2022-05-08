@@ -50,6 +50,10 @@
   #define BOARD_INIT() OUT_WRITE(PB0, LOW)
 #endif
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
+#endif
+
 #if HAS_TMC220x
   /**
    * TMC2208/TMC2209 stepper drivers
