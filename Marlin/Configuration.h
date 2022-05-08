@@ -670,9 +670,9 @@
     #define DEFAULT_Ki_LIST {   0.37,   0.37 }
     #define DEFAULT_Kd_LIST {  44.46,  44.46 }
   #else
-    #define DEFAULT_Kp   8.16
-    #define DEFAULT_Ki   0.37
-    #define DEFAULT_Kd  44.46
+    #define DEFAULT_Kp 26.05
+    #define DEFAULT_Ki 2.25
+    #define DEFAULT_Kd 75.54
   #endif
 #endif
 
@@ -752,9 +752,9 @@
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   // Sapphire Pro
-  #define DEFAULT_bedKp  83.36
-  #define DEFAULT_bedKi  16.25
-  #define DEFAULT_bedKd 285.12
+  #define DEFAULT_bedKp 41.45
+  #define DEFAULT_bedKi 7.97
+  #define DEFAULT_bedKd 143.71
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -2028,7 +2028,7 @@
 // Preheat Constants - Up to 6 are supported without changes
 //
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_HOTEND 210
 #define PREHEAT_1_TEMP_BED     65
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
