@@ -734,6 +734,39 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * check for common serial pin conflicts (AVR only)
+ */
+#if defined(__AVR__)
+  #if CONF_SERIAL_IS(0)
+    //D0 and D1. No known conflicts
+  #endif 
+  #if CONF_SERIAL_IS(1)
+    //D18 and D19, can conflict with X_STOP_PIN, Y_STOP_PIN, Z_STOP_PIN, Z_MIN_PIN, Z_MAX_PIN
+    #undef CHECK_SERIAL_PIN
+    #define CHECK_SERIAL_PIN(N) X_STOP_PIN == N || Y_STOP_PIN == N || Z_STOP_PIN == N || Z_MIN_PIN == N || Z_MAX_PIN == N
+    #if CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19)
+      #error "Serial port 1 pins D18 or D19 is in conflict with other pins on your motherboard"
+    #endif
+  #endif 
+  #if CONF_SERIAL_IS(2)
+    //D16 and D17, can conflict with X_DIR_PIN, X_STEP_PIN, Y_DIR_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN 
+    #undef CHECK_SERIAL_PIN
+    #define CHECK_SERIAL_PIN(N) X_DIR_PIN == N || X_STEP_PIN == N || Y_DIR_PIN == N || Y_MIN_PIN == N || Y_MAX_PIN == N || Y_MAX_PIN == N
+    #if CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17)
+      #error "Serial port 2 pins D16 or D17 is in conflict with other pins on your motherboard"
+    #endif
+  #endif
+  #if CONF_SERIAL_IS(3)
+    //D14 and D15, , can conflict with X_STEP_PIN, X_DIR_PIN, X_MIN_PIN, Y_STOP_PIN, Y_MIN_PIN. Y_MAX_PIN, Z_STOP_PIN
+    #undef CHECK_SERIAL_PIN
+    #define CHECK_SERIAL_PIN(N) X_STEP_PIN == N || X_DIR_PIN == N || X_MIN_PIN == N || Y_STOP_PIN == N || Y_MIN_PIN == N || Y_MAX_PIN == N || Z_STOP_PIN == N
+    #if CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15)
+      #error "Serial port 3 pin D14 or D15 is in conflict with other pins on your motherboard"
+    #endif
+  #endif 
+#endif
+
+/**
  * Multiple Stepper Drivers Per Axis
  */
 #define GOOD_AXIS_PINS(A) (HAS_##A##_ENABLE && HAS_##A##_STEP && HAS_##A##_DIR)
