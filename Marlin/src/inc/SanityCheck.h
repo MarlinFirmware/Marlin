@@ -745,7 +745,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #undef CHECK_SERIAL_PIN
     #define CHECK_SERIAL_PIN(N) X_STOP_PIN == N || Y_STOP_PIN == N || Z_STOP_PIN == N || Z_MIN_PIN == N || Z_MAX_PIN == N
     #if CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19)
-      #error "Serial port 1 pins D18 or D19 is in conflict with other pins on your motherboard"
+      #error "Serial port 1 pin D18 or D19 is in conflict with other pins on your motherboard"
     #endif
   #endif 
   #if CONF_SERIAL_IS(2)
@@ -753,7 +753,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #undef CHECK_SERIAL_PIN
     #define CHECK_SERIAL_PIN(N) X_DIR_PIN == N || X_STEP_PIN == N || Y_DIR_PIN == N || Y_MIN_PIN == N || Y_MAX_PIN == N || Y_MAX_PIN == N
     #if CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17)
-      #error "Serial port 2 pins D16 or D17 is in conflict with other pins on your motherboard"
+      #error "Serial port 2 pin D16 or D17 is in conflict with other pins on your motherboard"
     #endif
   #endif
   #if CONF_SERIAL_IS(3)
