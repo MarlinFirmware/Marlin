@@ -207,6 +207,14 @@
 #define TEMP_1_PIN                      P0_25_A2  // Analog Input A2 (TH2)
 #define TEMP_2_PIN                      P0_26_A3  // Analog Input A3 (P0.26, No pull up)
 
+#if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
+  #if TEMP_SENSOR_PROBE
+    #define TEMP_PROBE_PIN            TEMP_1_PIN
+  #elif TEMP_SENSOR_CHAMBER
+    #define TEMP_CHAMBER_PIN          TEMP_1_PIN
+  #endif
+#endif
+
 //
 // Heaters / Fans
 //
