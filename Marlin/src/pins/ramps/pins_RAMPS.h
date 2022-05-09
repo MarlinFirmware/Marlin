@@ -600,6 +600,10 @@
       #define LCD_PINS_D6            AUX2_08_PIN
       #define LCD_PINS_D7            AUX2_10_PIN
 
+    #elif ENABLED(AZSMZ_12864)
+
+      // Pins only defined for RAMPS_SMART currently
+
     #else
 
       #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)

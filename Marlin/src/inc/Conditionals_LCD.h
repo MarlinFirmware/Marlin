@@ -101,9 +101,8 @@
 
 #elif ANY(miniVIKI, VIKI2, WYH_L12864, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
-  #define IS_DOGM_12864 1
-
   #define DOGLCD
+  #define IS_DOGM_12864 1
   #define IS_ULTIPANEL 1
 
   #if ENABLED(miniVIKI)
