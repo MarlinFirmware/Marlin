@@ -101,9 +101,8 @@
 
 #elif ANY(miniVIKI, VIKI2, WYH_L12864, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
-  #define IS_DOGM_12864 1
-
   #define DOGLCD
+  #define IS_DOGM_12864 1
   #define IS_ULTIPANEL 1
 
   #if ENABLED(miniVIKI)
@@ -707,6 +706,15 @@
   #define HAS_Y_AXIS 1
   #if NUM_AXES >= XYZ
     #define HAS_Z_AXIS 1
+    #ifdef Z4_DRIVER_TYPE
+      #define NUM_Z_STEPPERS 4
+    #elif defined(Z3_DRIVER_TYPE)
+      #define NUM_Z_STEPPERS 3
+    #elif defined(Z2_DRIVER_TYPE)
+      #define NUM_Z_STEPPERS 2
+    #else
+      #define NUM_Z_STEPPERS 1
+    #endif
     #if NUM_AXES >= 4
       #define HAS_I_AXIS 1
       #if NUM_AXES >= 5
@@ -867,6 +875,15 @@
   #undef W_MIN_POS
   #undef W_MAX_POS
   #undef MANUAL_W_HOME_POS
+#endif
+
+#ifdef X2_DRIVER_TYPE
+  #define HAS_X2_STEPPER 1
+  // Dual X Carriage isn't known yet. TODO: Consider moving it to Configuration.h.
+#endif
+#ifdef Y2_DRIVER_TYPE
+  #define HAS_Y2_STEPPER 1
+  #define HAS_DUAL_Y_STEPPERS 1
 #endif
 
 /**

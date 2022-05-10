@@ -53,7 +53,6 @@ namespace Language_hr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Niveliranje gotovo!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Postavi home offsete");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets postavljeni");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Postavi ishodište");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Predgrij ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";

@@ -53,7 +53,6 @@ namespace Language_nl {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Bed level kompl.");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Zet home offsets");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("H offset toegep.");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Nulpunt instellen");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
     LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
