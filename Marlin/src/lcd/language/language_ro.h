@@ -68,7 +68,6 @@ namespace Language_ro {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Inaltime");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Seteaza Offseturile Acasa");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offseturi Aplicate");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Seteaza Originea");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";

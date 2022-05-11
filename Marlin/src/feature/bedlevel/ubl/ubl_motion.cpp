@@ -340,7 +340,7 @@
    * Returns true if did NOT move, false if moved (requires current_position update).
    */
 
-  bool _O2 unified_bed_leveling::line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s) {
+  bool __O2 unified_bed_leveling::line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s) {
 
     if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
       return true;                            // did not move, so current_position still accurate

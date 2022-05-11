@@ -650,31 +650,18 @@
 #endif
 
 // Multiple Z steppers
-#ifndef NUM_Z_STEPPER_DRIVERS
-  #define NUM_Z_STEPPER_DRIVERS 1
-#endif
-
-// Fallback Stepper Driver types that depend on Configuration_adv.h
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
-  #define HAS_X2_STEPPER 1
-#else
-  #undef X2_DRIVER_TYPE
-#endif
-#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
-  #undef Y2_DRIVER_TYPE
-#endif
-
-#if NUM_Z_STEPPER_DRIVERS < 4
-  #undef Z4_DRIVER_TYPE
+#if NUM_Z_STEPPERS < 4
   #undef INVERT_Z4_VS_Z_DIR
-  #if NUM_Z_STEPPER_DRIVERS < 3
-    #undef Z3_DRIVER_TYPE
+  #if NUM_Z_STEPPERS < 3
     #undef INVERT_Z3_VS_Z_DIR
-    #if NUM_Z_STEPPER_DRIVERS < 2
-      #undef Z2_DRIVER_TYPE
+    #if NUM_Z_STEPPERS < 2
       #undef INVERT_Z2_VS_Z_DIR
     #endif
   #endif
+#endif
+
+#if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
+  #define HAS_DUAL_X_STEPPERS 1
 #endif
 
 //
@@ -956,7 +943,7 @@
               #undef HOME_Z_FIRST
               #undef HOMING_Z_WITH_PROBE
               #undef ENABLE_LEVELING_FADE_HEIGHT
-              #undef NUM_Z_STEPPER_DRIVERS
+              #undef NUM_Z_STEPPERS
               #undef CNC_WORKSPACE_PLANES
               #if NUM_AXES < 2
                 #undef STEALTHCHOP_Y

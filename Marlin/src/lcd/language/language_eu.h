@@ -56,7 +56,6 @@ namespace Language_eu {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Berdintzea eginda");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Etxe. offset eza.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsetak ezarrita");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Hasiera ipini");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Berotu ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
