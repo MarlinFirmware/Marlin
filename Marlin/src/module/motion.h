@@ -500,19 +500,15 @@ void home_if_needed(const bool keeplev=false);
     extern abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
 
+  #if ENABLED(POLARGRAPH)
+    bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0);
+  #else
+
   // Return true if the given point is within the printable area
   inline bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0) {
     #if ENABLED(DELTA)
 
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
-
-    #elif ENABLED(POLARGRAPH)
-
-      const float x1 = rx - (X_MIN_POS), x2 = (X_MAX_POS) - rx, y = ry - (Y_MAX_POS),
-                  a = HYPOT(x1, y), b = HYPOT(x2, y);
-      return a < (POLARGRAPH_MAX_BELT_LEN) + 1
-          && b < (POLARGRAPH_MAX_BELT_LEN) + 1
-          && (a + b) > _MIN(X_BED_SIZE, Y_BED_SIZE);
 
     #elif ENABLED(AXEL_TPARA)
 
@@ -536,6 +532,7 @@ void home_if_needed(const bool keeplev=false);
 
     #endif
   }
+  #endif // POLARGRAPH
 
   inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
     return position_is_reachable(pos.x, pos.y, inset);
