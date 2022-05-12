@@ -2473,7 +2473,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (float(1 << 24) / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
