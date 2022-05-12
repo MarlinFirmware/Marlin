@@ -41,6 +41,11 @@
 #define BOARD_NO_NATIVE_USB
 
 //
+// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+//
+#define DISABLE_DEBUG
+
+//
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
@@ -121,11 +126,6 @@
   #define E0_DIR_PIN                        PB3
 #endif
 #define E0_ENABLE_PIN               X_ENABLE_PIN
-
-//
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
-//
-#define DISABLE_DEBUG
 
 //
 // Temperature Sensors
