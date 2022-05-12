@@ -2155,8 +2155,8 @@ void SetPID(celsius_t t, heater_id_t h) {
 
 #if ENABLED(SOUND_MENU_ITEM)
   void SetEnableSound() {
-    ui.buzzer_enabled = !ui.buzzer_enabled;
-    Draw_Chkb_Line(CurrentMenu->line(), ui.buzzer_enabled);
+    ui.sound_on = !ui.sound_on;
+    Draw_Chkb_Line(CurrentMenu->line(), ui.sound_on);
     DWIN_UpdateLCD();
   }
 #endif

@@ -35,6 +35,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
+// TODO: Use Marlin's built-in tone player instead.
+
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
 
 #include "Tunes.h"
@@ -44,15 +46,12 @@ namespace Anycubic {
 
   void PlayTune(uint8_t beeperPin, const uint16_t *tune, uint8_t speed=1) {
     uint8_t pos = 1;
-    uint16_t wholenotelen = tune[0] / speed;
+    const uint16_t wholenotelen = tune[0] / speed;
     do {
-      uint16_t freq = tune[pos];
-      uint16_t notelen = wholenotelen / tune[pos + 1];
-
+      const uint16_t freq = tune[pos], notelen = wholenotelen / tune[pos + 1];
       ::tone(beeperPin, freq, notelen);
       ExtUI::delay_ms(notelen);
       pos += 2;
-
       if (pos >= MAX_TUNE_LENGTH) break;
     } while (tune[pos] != n_END);
   }
