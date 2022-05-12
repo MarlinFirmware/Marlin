@@ -93,7 +93,6 @@
 
       static void click(const uint16_t duration) { on(); delay(duration); off(); }
 
-
       /**
        * @brief Add a tone to the queue
        * @details Adds a tone_t structure to the ring buffer, will block IO if the
