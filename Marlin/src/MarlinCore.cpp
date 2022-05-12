@@ -97,7 +97,7 @@
   #include "feature/host_actions.h"
 #endif
 
-#if USE_BEEPER
+#if HAS_BEEPER
   #include "libs/buzzer.h"
 #endif
 
@@ -271,6 +271,7 @@ bool wait_for_heatup = true;
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     wait_for_user = false;
+    while (ui.button_pressed()) safe_delay(50);
   }
 
 #endif
@@ -826,7 +827,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   TERN_(PRINTCOUNTER, print_job_timer.tick());
 
   // Update the Beeper queue
-  TERN_(USE_BEEPER, buzzer.tick());
+  TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
   TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
@@ -1286,7 +1287,7 @@ void setup() {
   calibrate_delay_loop();
 
   // Init buzzer pin(s)
-  #if USE_BEEPER
+  #if HAS_BEEPER
     SETUP_RUN(buzzer.init());
   #endif
 

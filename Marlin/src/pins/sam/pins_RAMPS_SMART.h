@@ -61,53 +61,43 @@
  */
 
 #define BOARD_INFO_NAME "RAMPS-SMART"
-#define ALLOW_SAM3X8E
-#include "../ramps/pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000
-
-#define SDA_PIN                               20
-#define SCL_PIN                               21
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K
 
 // See EEPROM device datasheet for the following values. These are for 24xx256
-#define EEPROM_SERIAL_ADDR                  0x50  // 7 bit i2c address (without R/W bit)
-#define EEPROM_PAGE_SIZE                      64  // page write buffer size
-#define EEPROM_PAGE_WRITE_TIME                 7  // page write time in milliseconds (docs say 5ms but that is too short)
-
-#define TWI_CLOCK_FREQ                    400000
-#define EEPROM_ADDRSZ_BYTES TWI_MMR_IADRSZ_2_BYTE // TWI_MMR_IADRSZ_1_BYTE for 1 byte, or TWI_MMR_IADRSZ_2_BYTE for 2 byte
-#define EEPROM_AVAILABLE              EEPROM_I2C
-
-#define RESET_PIN                             42  // Resets the board if the jumper is attached
+#define EEPROM_DEVICE_ADDRESS               0x50  // 7 bit i2c address (without R/W bit)
+#define EEPROM_WRITE_DELAY                     7  // page write time in milliseconds (docs say 5ms but that is too short)
+//#define EEPROM_PAGE_SIZE                      64  // page write buffer size
+//#define TWI_CLOCK_FREQ                    400000
+//#define EEPROM_ADDRSZ_BYTES TWI_MMR_IADRSZ_2_BYTE // TWI_MMR_IADRSZ_1_BYTE for 1 byte, or TWI_MMR_IADRSZ_2_BYTE for 2 byte
+//#define EEPROM_AVAILABLE              EEPROM_I2C
 
 //
 // Temperature Sensors
 //
-#undef TEMP_0_PIN
 #define TEMP_0_PIN                             9  // Analog Input
-
-#undef TEMP_1_PIN
 #define TEMP_1_PIN                            10  // Analog Input
-
-#undef TEMP_BED_PIN
 #define TEMP_BED_PIN                          11  // Analog Input
 
 // SPI for MAX Thermocouple
-#undef TEMP_0_CS_PIN
 #if DISABLED(SDSUPPORT)
   #define TEMP_0_CS_PIN                       67  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       67  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
+#define SDA_PIN                               20
+#define SCL_PIN                               21
+#define RESET_PIN                             42  // Resets the board if the jumper is attached
+
 //
 // LCD / Controller
 //
-
-// Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel
 #if ENABLED(AZSMZ_12864)
+
+  // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel
   #define BEEPER_PIN                          66  // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 65
   #define DOGLCD_A0                           59
   #define DOGLCD_CS                           44
@@ -116,4 +106,37 @@
   #define BTN_ENC                             67  // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 66
   #define SD_DETECT_PIN                       49  // Pin 49 for display sd interface, 72 for easy adapter board
   #define KILL_PIN                            42
+
+#else
+
+  /**        ------                     ------
+   *     37 |10  9 | 35      (MISO) 50 |10  9 | 52 (SCK)
+   *     31 | 8  7 | 41             29 | 8  7 | 53
+   *     33   6  5 | 23             25   6  5 | 51 (MOSI)
+   *     42 | 4  3 | 44             49 | 4  3 | 27
+   *    GND | 2  1 | 5V            GND | 2  1 | --
+   *         ------                     ------
+   *          EXP1                       EXP2
+   */
+  #define EXP1_03_PIN                         44
+  #define EXP1_04_PIN                         42
+  #define EXP1_05_PIN                         23
+  #define EXP1_06_PIN                         33
+  #define EXP1_07_PIN                         41
+  #define EXP1_08_PIN                         31
+  #define EXP1_09_PIN                         35
+  #define EXP1_10_PIN                         37
+
+  #define EXP2_03_PIN                         27
+  #define EXP2_04_PIN                         49
+  #define EXP2_05_PIN                         51
+  #define EXP2_06_PIN                         25
+  #define EXP2_07_PIN                         53
+  #define EXP2_08_PIN                         29
+  #define EXP2_09_PIN                         52
+  #define EXP2_10_PIN                         50
+
 #endif
+
+#define ALLOW_SAM3X8E
+#include "../ramps/pins_RAMPS.h"

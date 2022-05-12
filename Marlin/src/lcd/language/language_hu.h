@@ -83,7 +83,6 @@ namespace Language_hu {
   LSTR MSG_HOME_OFFSET_J                  = _UxGT("Kezdö eltol. ") STR_J;
   LSTR MSG_HOME_OFFSET_K                  = _UxGT("Kezdö eltol. ") STR_K;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Eltolás beállítva.");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Eredeti Be");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Elektromos varázsló");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Eredeti választása");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Utolsó érték ");

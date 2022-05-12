@@ -3,6 +3,7 @@
 #
 import subprocess,os,re
 
+nocache = 1
 verbose = 0
 
 def blab(str):
@@ -50,7 +51,7 @@ def run_preprocessor(env, fn=None):
 #
 def search_compiler(env):
 
-	ENV_BUILD_PATH = os.path.join(env.Dictionary('PROJECT_BUILD_DIR'), env['PIOENV'])
+	ENV_BUILD_PATH = os.path.join(env['PROJECT_BUILD_DIR'], env['PIOENV'])
 	GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 
 	try:
@@ -60,7 +61,8 @@ def search_compiler(env):
 	except:
 		pass
 
-	if os.path.exists(GCC_PATH_CACHE):
+	# Warning: The cached .gcc_path will obscure a newly-installed toolkit
+	if not nocache and os.path.exists(GCC_PATH_CACHE):
 		blab("Getting g++ path from cache")
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
@@ -87,7 +89,7 @@ def search_compiler(env):
 			# Use entire path to not rely on env PATH
 			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
-			if os.path.exists(ENV_BUILD_PATH):
+			if not nocache and os.path.exists(ENV_BUILD_PATH):
 				blab("Caching g++ for current env")
 				with open(GCC_PATH_CACHE, 'w+') as f:
 					f.write(filepath)

@@ -347,9 +347,9 @@ typedef struct SettingsDataStruct {
   // Z_STEPPER_AUTO_ALIGN, HAS_Z_STEPPER_ALIGN_STEPPER_XY
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];             // M422 S X Y
+    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPERS];             // M422 S X Y
     #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
-      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];   // M422 W X Y
+      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPERS];   // M422 W X Y
     #endif
   #endif
 
@@ -433,10 +433,10 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC_CONFIG
   //
-  per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
-  per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
-  mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4
-  per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z I J K U V W X2 Y2 Z2 Z3 Z4 E0 E1 E2 E3 E4 E5
+  per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
+  per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+  mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
+  per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
   //
   // LIN_ADVANCE
@@ -541,7 +541,7 @@ typedef struct SettingsDataStruct {
   // Buzzer enable/disable
   //
   #if ENABLED(SOUND_MENU_ITEM)
-    bool buzzer_enabled;
+    bool sound_on;
   #endif
 
   //
@@ -555,7 +555,7 @@ typedef struct SettingsDataStruct {
   // MKS UI controller
   //
   #if ENABLED(DGUS_LCD_UI_MKS)
-    uint8_t mks_language_index;                         // Display Language
+    MKS_Language mks_language_index;                    // Display Language
     xy_int_t mks_corner_offsets[5];                     // Bed Tramming
     xyz_int_t mks_park_pos;                             // Custom Parking (without NOZZLE_PARK)
     celsius_t mks_min_extrusion_temp;                   // Min E Temp (shadow M302 value)
@@ -1017,13 +1017,13 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));   // 1 float
       EEPROM_WRITE(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf));  // 1 float
 
-      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3
         EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
       #else
         EEPROM_WRITE(dummyf);
       #endif
 
-      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4
         EEPROM_WRITE(endstops.z4_endstop_adj);   // 1 float
       #else
         EEPROM_WRITE(dummyf);
@@ -1576,7 +1576,7 @@ void MarlinSettings::postprocess() {
     // Buzzer enable/disable
     //
     #if ENABLED(SOUND_MENU_ITEM)
-      EEPROM_WRITE(ui.buzzer_enabled);
+      EEPROM_WRITE(ui.sound_on);
     #endif
 
     //
@@ -1969,12 +1969,12 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));  // 1 float
         EEPROM_READ(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf)); // 1 float
 
-        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3
           EEPROM_READ(endstops.z3_endstop_adj); // 1 float
         #else
           EEPROM_READ(dummyf);
         #endif
-        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4
           EEPROM_READ(endstops.z4_endstop_adj); // 1 float
         #else
           EEPROM_READ(dummyf);
@@ -2546,8 +2546,8 @@ void MarlinSettings::postprocess() {
       // Buzzer enable/disable
       //
       #if ENABLED(SOUND_MENU_ITEM)
-        _FIELD_TEST(buzzer_enabled);
-        EEPROM_READ(ui.buzzer_enabled);
+        _FIELD_TEST(sound_on);
+        EEPROM_READ(ui.sound_on);
       #endif
 
       //
@@ -2945,7 +2945,9 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  #if ENABLED(SOUND_MENU_ITEM)
+    ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
+  #endif
 
   //
   // Magnetic Parking Extruder
@@ -3042,13 +3044,13 @@ void MarlinSettings::reset() {
       #define Z2_ENDSTOP_ADJUSTMENT 0
     #endif
     endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
-    #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if NUM_Z_STEPPERS >= 3
       #ifndef Z3_ENDSTOP_ADJUSTMENT
         #define Z3_ENDSTOP_ADJUSTMENT 0
       #endif
       endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
     #endif
-    #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if NUM_Z_STEPPERS >= 4
       #ifndef Z4_ENDSTOP_ADJUSTMENT
         #define Z4_ENDSTOP_ADJUSTMENT 0
       #endif
@@ -3302,16 +3304,6 @@ void MarlinSettings::reset() {
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
 
-  postprocess();
-
-  #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
-    FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
-    TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
-    DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
-  #endif
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-
   //
   // Model predictive control
   //
@@ -3342,6 +3334,16 @@ void MarlinSettings::reset() {
       #endif
     }
   #endif
+
+  postprocess();
+
+  #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+    FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
+    TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
+    DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
+  #endif
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)

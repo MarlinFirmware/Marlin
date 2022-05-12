@@ -2587,11 +2587,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case ADVANCED_BEEPER:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, F("LCD Beeper"));
-              Draw_Checkbox(row, ui.buzzer_enabled);
+              Draw_Checkbox(row, ui.sound_on);
             }
             else {
-              ui.buzzer_enabled = !ui.buzzer_enabled;
-              Draw_Checkbox(row, ui.buzzer_enabled);
+              ui.sound_on = !ui.sound_on;
+              Draw_Checkbox(row, ui.sound_on);
             }
             break;
         #endif
@@ -2869,16 +2869,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
                   Popup_Handler(Heating);
-                  #if HAS_HOTEND
-                    if (thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP)
-                      thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-                  #endif
-                  #if HAS_HEATED_BED
-                    if (thermalManager.degTargetBed() < LEVELING_BED_TEMP)
-                      thermalManager.setTargetBed(LEVELING_BED_TEMP);
-                  #endif
-                  thermalManager.wait_for_hotend(0);
-                  TERN_(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
+                  probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
                 #endif
                 #if HAS_BED_PROBE
                   Popup_Handler(Level);
@@ -4611,7 +4602,7 @@ void CrealityDWINClass::Screen_Update() {
 }
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
-  if (ui.buzzer_enabled)
+  if (ui.sound_on)
     DONE_BUZZ(success);
   else
     Update_Status(success ? "Success" : "Failed");
@@ -4655,7 +4646,7 @@ void CrealityDWINClass::Reset_Settings() {
   eeprom_settings.coordinates_split_line = 0;
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
-  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
   Redraw_Screen();
 }
 

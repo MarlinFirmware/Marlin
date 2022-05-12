@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
