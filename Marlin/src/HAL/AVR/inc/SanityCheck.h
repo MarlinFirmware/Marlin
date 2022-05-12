@@ -26,6 +26,37 @@
  */
 
 /**
+ * Check for common serial pin conflicts
+ */
+#if CONF_SERIAL_IS(0)
+  // D0-D1. No known conflicts.
+#endif 
+#if CONF_SERIAL_IS(1)
+  // D18-D19 can conflict with ...
+  #define CHECK_SERIAL_PIN(N) (X_STOP_PIN == N || Y_STOP_PIN == N || Z_STOP_PIN == N || Z_MIN_PIN == N || Z_MAX_PIN == N)
+  #if CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19)
+    #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
+  #endif
+  #undef CHECK_SERIAL_PIN
+#endif 
+#if CONF_SERIAL_IS(2)
+  // D16-D17 can conflict with ...
+  #define CHECK_SERIAL_PIN(N) (X_DIR_PIN == N || X_STEP_PIN == N || Y_DIR_PIN == N || Y_MIN_PIN == N || Y_MAX_PIN == N || Z_STEP_PIN == N)
+  #if CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17)
+    #error "Serial Port 2 pin D16 and/or D17 conflicts with another pin on the board."
+  #endif
+  #undef CHECK_SERIAL_PIN
+#endif
+#if CONF_SERIAL_IS(3)
+  // D14-D15 can conflict with ...
+  #define CHECK_SERIAL_PIN(N) (X_STEP_PIN == N || X_DIR_PIN == N || X_MIN_PIN == N || Y_STOP_PIN == N || Y_MIN_PIN == N || Y_MAX_PIN == N || Z_STOP_PIN == N)
+  #if CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15)
+    #error "Serial Port 3 pin D14 and/or D15 conflicts with another pin on the board."
+  #endif
+  #undef CHECK_SERIAL_PIN
+#endif 
+
+/**
  * Checks for FAST PWM
  */
 #if ALL(FAST_PWM_FAN, USE_OCR2A_AS_TOP, HAS_TCCR2)
