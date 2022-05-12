@@ -118,19 +118,18 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
-  bool MarlinUI::buzzer_enabled = true;
+  bool MarlinUI::sound_on = ENABLED(SOUND_ON_DEFAULT);
 #endif
 
-#if EITHER(PCA9632_BUZZER, USE_BEEPER)
-  #include "../libs/buzzer.h" // for BUZZ() macro
+#if EITHER(PCA9632_BUZZER, HAS_BEEPER)
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    if (!buzzer_enabled) return;
+    if (!sound_on) return;
     #if ENABLED(PCA9632_BUZZER)
       PCA9632_buzz(duration, freq);
-    #elif USE_BEEPER
+    #elif HAS_BEEPER
       buzzer.tone(duration, freq);
     #endif
   }
@@ -694,7 +693,7 @@ void MarlinUI::init() {
             const millis_t ms = millis();
           #endif
           if (ELAPSED(ms, next_beep)) {
-            buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+            BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
             next_beep = ms + 500UL;
           }
         #endif
@@ -748,7 +747,7 @@ void MarlinUI::init() {
 
     #if HAS_CHIRP
       chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
-      #if BOTH(HAS_MARLINUI_MENU, USE_BEEPER)
+      #if BOTH(HAS_MARLINUI_MENU, HAS_BEEPER)
         for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
       #elif HAS_MARLINUI_MENU
         delay(10);
@@ -1646,7 +1645,7 @@ void MarlinUI::init() {
 
   void MarlinUI::flow_fault() {
     LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
-    TERN_(HAS_BUZZER, buzz(1000, 440));
+    BUZZ(1000, 440);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
   }
 

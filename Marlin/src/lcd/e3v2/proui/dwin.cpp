@@ -2106,8 +2106,8 @@ void SetPID(celsius_t t, heater_id_t h) {
 
 #if ENABLED(SOUND_MENU_ITEM)
   void SetEnableSound() {
-    ui.buzzer_enabled = !ui.buzzer_enabled;
-    Draw_Chkb_Line(CurrentMenu->line(), ui.buzzer_enabled);
+    ui.sound_on = !ui.sound_on;
+    Draw_Chkb_Line(CurrentMenu->line(), ui.sound_on);
     DWIN_UpdateLCD();
   }
 #endif
@@ -2638,7 +2638,7 @@ void onDrawLanguage(MenuItemClass* menuitem, int8_t line) {
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
-  void onDrawEnableSound(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, ui.buzzer_enabled); }
+  void onDrawEnableSound(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, ui.sound_on); }
 #endif
 
 #ifdef BLTOUCH_HS_MODE
