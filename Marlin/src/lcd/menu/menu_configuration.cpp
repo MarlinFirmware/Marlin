@@ -574,7 +574,7 @@ void menu_configuration() {
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
-    EDIT_ITEM(bool, MSG_SOUND, &ui.buzzer_enabled, []{ ui.chirp(); });
+    EDIT_ITEM(bool, MSG_SOUND, &ui.sound_on, []{ ui.chirp(); });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
