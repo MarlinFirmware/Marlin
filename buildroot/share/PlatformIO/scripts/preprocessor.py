@@ -67,11 +67,9 @@ def search_compiler(env):
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
 
-	# Find a platform compiler by searching $PATH items
-	# A native target will search all PATH bin folders.
-	# Others look only within $HOME/.platformio.
-	path_regex = "" if env.GetProjectOption('platform') == 'native' else re.escape(env['PROJECT_PACKAGES_DIR'])
-
+	# Find the current platform compiler by searching the $PATH
+	# which will be in a platformio toolchain bin folder
+	path_regex = re.escape(env['PROJECT_PACKAGES_DIR'])
 	gcc = "g++"
 	if env['PLATFORM'] == 'win32':
 		path_separator = ';'
