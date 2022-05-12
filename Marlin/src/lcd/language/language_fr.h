@@ -76,7 +76,6 @@ namespace Language_fr {
   LSTR MSG_HOME_OFFSET_J                  = _UxGT("Décal. origine ") STR_J;
   LSTR MSG_HOME_OFFSET_K                  = _UxGT("Décal. origine ") STR_K;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Décalages appliqués");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Régler origine");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ecart origine ");

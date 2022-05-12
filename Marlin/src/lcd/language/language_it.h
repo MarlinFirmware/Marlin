@@ -102,7 +102,6 @@ namespace Language_it {
   LSTR MSG_HOME_OFFSET_V                  = _UxGT("Offset home ") STR_V;
   LSTR MSG_HOME_OFFSET_W                  = _UxGT("Offset home ") STR_W;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offset applicato");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Imposta Origine");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Wizard Tramming");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Selez. origine");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ultimo valore ");

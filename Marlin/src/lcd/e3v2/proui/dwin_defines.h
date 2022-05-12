@@ -120,8 +120,12 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
   #endif
-  int16_t BedLevT = PREHEAT_1_TEMP_BED;
-  TERN_(BAUD_RATE_GCODE, bool Baud115K = false);
+  #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_LEVELING)
+    int16_t BedLevT = LEVELING_BED_TEMP;
+  #endif
+  #if ENABLED(BAUD_RATE_GCODE)
+    bool Baud115K = false;
+  #endif
   bool FullManualTramming = false;
   // Led
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
@@ -135,8 +139,3 @@ typedef struct {
 
 static constexpr size_t eeprom_data_size = 64;
 extern HMI_data_t HMI_data;
-
-#if PREHEAT_1_TEMP_BED
-  #undef LEVELING_BED_TEMP
-  #define LEVELING_BED_TEMP HMI_data.BedLevT
-#endif
