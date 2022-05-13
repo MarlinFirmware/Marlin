@@ -33,7 +33,7 @@
 //#define USE_STRING_HEADINGS
 //#define USE_STRING_TITLES
 
-#if ENABLED(LCD_BED_LEVELING) && DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
+#if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
@@ -1365,8 +1365,6 @@ void HMI_Move_Z() {
 #endif
 
 #if HAS_ZOFFSET_ITEM
-
-  bool printer_busy() { return planner.movesplanned() || printingIsActive(); }
 
   void HMI_Zoffset() {
     EncoderState encoder_diffState = Encoder_ReceiveAnalyze();

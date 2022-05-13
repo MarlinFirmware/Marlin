@@ -1664,6 +1664,9 @@
   #undef X_MAX_PIN
   #define X_MAX_PIN          -1
 #endif
+#if NONE(USE_XMIN_PLUG, USE_XMAX_PLUG)
+  #undef X_STOP_PIN
+#endif
 #if DISABLED(USE_YMIN_PLUG)
   #undef Y_MIN_PIN
   #define Y_MIN_PIN          -1
@@ -1671,6 +1674,9 @@
 #if DISABLED(USE_YMAX_PLUG)
   #undef Y_MAX_PIN
   #define Y_MAX_PIN          -1
+#endif
+#if NONE(USE_YMIN_PLUG, USE_YMAX_PLUG)
+  #undef Y_STOP_PIN
 #endif
 #if DISABLED(USE_ZMIN_PLUG)
   #undef Z_MIN_PIN
@@ -1680,6 +1686,9 @@
   #undef Z_MAX_PIN
   #define Z_MAX_PIN          -1
 #endif
+#if NONE(USE_ZMIN_PLUG, USE_ZMAX_PLUG)
+  #undef Z_STOP_PIN
+#endif
 #if DISABLED(USE_IMIN_PLUG)
   #undef I_MIN_PIN
   #define I_MIN_PIN          -1
@@ -1687,6 +1696,9 @@
 #if DISABLED(USE_IMAX_PLUG)
   #undef I_MAX_PIN
   #define I_MAX_PIN          -1
+#endif
+#if NONE(USE_IMIN_PLUG, USE_IMAX_PLUG)
+  #undef I_STOP_PIN
 #endif
 #if DISABLED(USE_JMIN_PLUG)
   #undef J_MIN_PIN
@@ -1696,6 +1708,9 @@
   #undef J_MAX_PIN
   #define J_MAX_PIN          -1
 #endif
+#if NONE(USE_JMIN_PLUG, USE_JMAX_PLUG)
+  #undef J_STOP_PIN
+#endif
 #if DISABLED(USE_KMIN_PLUG)
   #undef K_MIN_PIN
   #define K_MIN_PIN          -1
@@ -1703,6 +1718,9 @@
 #if DISABLED(USE_KMAX_PLUG)
   #undef K_MAX_PIN
   #define K_MAX_PIN          -1
+#endif
+#if NONE(USE_KMIN_PLUG, USE_KMAX_PLUG)
+  #undef K_STOP_PIN
 #endif
 #if DISABLED(USE_UMIN_PLUG)
   #undef U_MIN_PIN
@@ -1712,6 +1730,9 @@
   #undef U_MAX_PIN
   #define U_MAX_PIN          -1
 #endif
+#if NONE(USE_UMIN_PLUG, USE_UMAX_PLUG)
+  #undef U_STOP_PIN
+#endif
 #if DISABLED(USE_VMIN_PLUG)
   #undef V_MIN_PIN
   #define V_MIN_PIN          -1
@@ -1720,6 +1741,9 @@
   #undef V_MAX_PIN
   #define V_MAX_PIN          -1
 #endif
+#if NONE(USE_VMIN_PLUG, USE_VMAX_PLUG)
+  #undef V_STOP_PIN
+#endif
 #if DISABLED(USE_WMIN_PLUG)
   #undef W_MIN_PIN
   #define W_MIN_PIN          -1
@@ -1727,6 +1751,9 @@
 #if DISABLED(USE_WMAX_PLUG)
   #undef W_MAX_PIN
   #define W_MAX_PIN          -1
+#endif
+#if NONE(USE_WMIN_PLUG, USE_WMAX_PLUG)
+  #undef W_STOP_PIN
 #endif
 
 #if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_TO_MAX
