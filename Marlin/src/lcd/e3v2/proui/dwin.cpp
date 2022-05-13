@@ -1652,8 +1652,8 @@ void DWIN_Print_Aborted() {
 }
 
 // Progress Bar update
-  if (parser.seenval('P')) _percent_done = parser.byteval('P');
 void DWIN_M73() {
+  if (parser.seenval('P')) _percent_done = parser.byteval('P');
   if (parser.seenval('R')) {
     _remain_time = parser.ulongval('R') * 60;
     HMI_flag.remain_flag = true;
