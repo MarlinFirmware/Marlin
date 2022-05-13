@@ -82,12 +82,12 @@
  *  - `P` - Run probe temperature calibration.
  */
 
-static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
-static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }
-static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
-static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
-
 #if BOTH(PTC_PROBE, PTC_BED)
+
+  static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
+  static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }
+  static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
+  static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
 
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
