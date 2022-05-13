@@ -1319,6 +1319,9 @@
   #undef X_MAX_PIN
   #define X_MAX_PIN          -1
 #endif
+#if NONE(USE_XMIN_PLUG, USE_XMAX_PLUG)
+  #undef X_STOP_PIN
+#endif
 #if DISABLED(USE_YMIN_PLUG)
   #undef Y_MIN_PIN
   #define Y_MIN_PIN          -1
@@ -1326,6 +1329,9 @@
 #if DISABLED(USE_YMAX_PLUG)
   #undef Y_MAX_PIN
   #define Y_MAX_PIN          -1
+#endif
+#if NONE(USE_YMIN_PLUG, USE_YMAX_PLUG)
+  #undef Y_STOP_PIN
 #endif
 #if DISABLED(USE_ZMIN_PLUG)
   #undef Z_MIN_PIN
@@ -1335,6 +1341,9 @@
   #undef Z_MAX_PIN
   #define Z_MAX_PIN          -1
 #endif
+#if NONE(USE_ZMIN_PLUG, USE_ZMAX_PLUG)
+  #undef Z_STOP_PIN
+#endif
 #if DISABLED(USE_IMIN_PLUG)
   #undef I_MIN_PIN
   #define I_MIN_PIN          -1
@@ -1342,6 +1351,9 @@
 #if DISABLED(USE_IMAX_PLUG)
   #undef I_MAX_PIN
   #define I_MAX_PIN          -1
+#endif
+#if NONE(USE_IMIN_PLUG, USE_IMAX_PLUG)
+  #undef I_STOP_PIN
 #endif
 #if DISABLED(USE_JMIN_PLUG)
   #undef J_MIN_PIN
@@ -1351,6 +1363,9 @@
   #undef J_MAX_PIN
   #define J_MAX_PIN          -1
 #endif
+#if NONE(USE_JMIN_PLUG, USE_JMAX_PLUG)
+  #undef J_STOP_PIN
+#endif
 #if DISABLED(USE_KMIN_PLUG)
   #undef K_MIN_PIN
   #define K_MIN_PIN          -1
@@ -1358,6 +1373,9 @@
 #if DISABLED(USE_KMAX_PLUG)
   #undef K_MAX_PIN
   #define K_MAX_PIN          -1
+#endif
+#if NONE(USE_KMIN_PLUG, USE_KMAX_PLUG)
+  #undef K_STOP_PIN
 #endif
 
 #if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_TO_MAX
