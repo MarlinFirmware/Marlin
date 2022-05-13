@@ -62,9 +62,11 @@ extern void (*onCursorDraw)(const int8_t line);
 // Auxiliary Macros ===========================================================
 
 // Create and add a MenuItem object to the menu array
-#define BACK_ITEM(back_function) MenuItemsAdd(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawMenuItem, back_function)
+#define BACK_ITEM(H) MenuItemsAdd(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawMenuItem, H)
 #define MENU_ITEM(V...) MenuItemsAdd(V)
 #define EDIT_ITEM(V...) MenuItemsAdd(V)
+#define MENU_ITEM_F(I,L,V...) MenuItemsAdd(I, GET_TEXT_F(L), V)
+#define EDIT_ITEM_F(I,L,V...) MenuItemsAdd(I, GET_TEXT_F(L), V)
 
 // Menu Classes ===============================================================
 
