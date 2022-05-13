@@ -654,7 +654,6 @@ namespace Language_en {
     LSTR MSG_COLORS_WHITE                 = _UxGT("White");
     LSTR MSG_UI_LANGUAGE                  = _UxGT("UI Language");
     LSTR MSG_SOUND_ENABLE                 = _UxGT("Enable sound");
-    LSTR MSG_LOCKSCREEN                   = _UxGT("Lock Screen");
   #else
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No Media");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please Preheat");
