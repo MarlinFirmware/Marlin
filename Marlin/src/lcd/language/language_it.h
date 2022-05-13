@@ -343,8 +343,8 @@ namespace Language_it {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Calib.PID *");
   LSTR MSG_PID_CYCLE                      = _UxGT("Ciclo PID");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Calibr.PID eseguita");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Calibrazione fallita. Estrusore errato.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Calibrazione fallita. Temperatura troppo alta.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Calibrazione fallita! Estrusore errato.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Calibrazione fallita! Temperatura troppo alta.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Calibrazione fallita! Tempo scaduto.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Testing heat loss");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Autotune");
