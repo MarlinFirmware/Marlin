@@ -178,7 +178,7 @@
 //
 // Misc. Functions
 //
-#define LED_PIN                     MOSFET_6_PIN  // B7
+#define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
 #define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
