@@ -54,11 +54,11 @@
 #endif
 
 // IO ops
-#define IIC_SCL_0()   WRITE(IIC_EEPROM_SCL, LOW)
-#define IIC_SCL_1()   WRITE(IIC_EEPROM_SCL, HIGH)
-#define IIC_SDA_0()   WRITE(IIC_EEPROM_SDA, LOW)
-#define IIC_SDA_1()   WRITE(IIC_EEPROM_SDA, HIGH)
-#define READ_SDA()    READ(IIC_EEPROM_SDA)
+#define IIC_SCL_0() WRITE(IIC_EEPROM_SCL, LOW)
+#define IIC_SCL_1() WRITE(IIC_EEPROM_SCL, HIGH)
+#define IIC_SDA_0() WRITE(IIC_EEPROM_SDA, LOW)
+#define IIC_SDA_1() WRITE(IIC_EEPROM_SDA, HIGH)
+#define READ_SDA()  READ(IIC_EEPROM_SDA)
 
 //
 // Simple IIC interface via libmaple

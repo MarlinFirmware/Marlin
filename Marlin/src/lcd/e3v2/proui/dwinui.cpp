@@ -304,7 +304,7 @@ void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t
 }
 
 // Clear Menu by filling the menu area with background color
-void DWINUI::ClearMenuArea() {
+void DWINUI::ClearMainArea() {
   DWIN_Draw_Rectangle(1, backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
 }
 

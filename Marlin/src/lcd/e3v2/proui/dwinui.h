@@ -593,7 +593,7 @@ namespace DWINUI {
 
   // Clear Menu by filling the area with background color
   // Area (0, TITLE_HEIGHT, DWIN_WIDTH, STATUS_Y - 1)
-  void ClearMenuArea();
+  void ClearMainArea();
 
   // Clear MenuItems array and free MenuItems elements
   void MenuItemsClear();

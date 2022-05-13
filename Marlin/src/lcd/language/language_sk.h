@@ -337,8 +337,8 @@ namespace Language_sk {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Kalibrácia PID *");
   LSTR MSG_PID_CYCLE                      = _UxGT("Cykly PID");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Kal. PID dokončená");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-kal. zlyhala. Zlý extrúder.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-kal. zlyhala. Príliš vysoká tepl.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-kal. zlyhala! Zlý extrúder.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-kal. zlyhala! Príliš vysoká tepl.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-kal. zlyhala! Čas vypršal.");
   LSTR MSG_SELECT                         = _UxGT("Vybrať");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrať *");
