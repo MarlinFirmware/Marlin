@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,12 +21,18 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__, STM32F1)
-  #if DISABLED(ALLOW_STM32F4)
-    #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-  #elif NOT_TARGET(STM32F4)
-    #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-  #endif
+/**
+ * Creality V24S1_301F4 (STM32F401RC) board pin assignments as found on Ender 3 S1.
+ */
+
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Creality V24S1-301F4"
+#endif
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Ender-3 S1 F4"
 #endif
 
-#undef ALLOW_STM32F4
+#define DISABLE_DEBUG false // DISABLE_(DEBUG|JTAG) is not supported for STM32F4.
+#define ALLOW_STM32F4
+
+#include "../stm32f1/pins_CREALITY_V24S1_301.h"

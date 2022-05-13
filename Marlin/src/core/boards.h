@@ -418,6 +418,7 @@
 #define BOARD_MKS_EAGLE               4237  // MKS Eagle (STM32F407VE)
 #define BOARD_ARTILLERY_RUBY          4238  // Artillery Ruby (STM32F401RC)
 #define BOARD_FYSETC_SPIDER_V2_2      4239  // FYSETC Spider V2.2 (STM32F446VE)
+#define BOARD_CREALITY_V24S1_301F4    4240  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
 
 //
 // ARM Cortex M7
