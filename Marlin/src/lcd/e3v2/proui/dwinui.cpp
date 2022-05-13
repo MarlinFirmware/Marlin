@@ -23,8 +23,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.15.1
- * Date: 2022/02/25
+ * Version: 3.17.1
+ * Date: 2022/04/12
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -39,12 +39,6 @@
 //#define DEBUG_OUT 1
 #include "../../../core/debug_out.h"
 
-int8_t MenuItemTotal = 0;
-int8_t MenuItemCount = 0;
-MenuItemClass** MenuItems = nullptr;
-MenuClass *CurrentMenu = nullptr;
-MenuClass *PreviousMenu = nullptr;
-
 xy_int_t DWINUI::cursor = { 0 };
 uint16_t DWINUI::pencolor = Color_White;
 uint16_t DWINUI::textcolor = Def_Text_Color;
@@ -53,16 +47,15 @@ uint16_t DWINUI::buttoncolor = Def_Button_Color;
 uint8_t  DWINUI::font = font8x16;
 FSTR_P const DWINUI::Author = F(STRING_CONFIG_H_AUTHOR);
 
-void (*DWINUI::onCursorErase)(const int8_t line)=nullptr;
-void (*DWINUI::onCursorDraw)(const int8_t line)=nullptr;
-void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
-void (*DWINUI::onMenuDraw)(MenuClass* menu)=nullptr;
+void (*DWINUI::onTitleDraw)(TitleClass* title) = nullptr;
 
 void DWINUI::init() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOPGM("\r\nDWIN handshake "));
   delay(750);   // Delay for wait to wakeup screen
-  const bool hs = DWIN_Handshake();
-  TERN(DEBUG_DWIN, SERIAL_ECHOLNF(hs ? F("ok.") : F("error.")), UNUSED(hs));
+  const bool hs = DWIN_Handshake(); UNUSED(hs);
+  #if ENABLED(DEBUG_DWIN)
+    SERIAL_ECHOPGM("DWIN_Handshake ");
+    SERIAL_ECHOLNF(hs ? F("ok.") : F("error."));
+  #endif
   DWIN_Frame_SetDir(1);
   cursor.reset();
   pencolor = Color_White;
@@ -164,16 +157,19 @@ void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint1
   DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
 }
 
-// // Draw a Centered string using DWIN_WIDTH
-// void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
-//   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * fontWidth(size)) / 2 - 1;
-//   DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
-// }
-
-// Draw a char at cursor position
-void DWINUI::Draw_Char(uint16_t color, const char c) {
+// Draw a char
+//  color: Character color
+//  x: abscissa of the display
+//  y: ordinate of the display
+//  c: ASCII code of char
+void DWINUI::Draw_Char(uint16_t color, uint16_t x, uint16_t y, const char c) {
   const char string[2] = { c, 0};
-  DWIN_Draw_String(false, font, color, backcolor, cursor.x, cursor.y, string, 1);
+  DWIN_Draw_String(false, font, color, backcolor, x, y, string, 1);
+}
+
+// Draw a char at cursor position and increment cursor
+void DWINUI::Draw_Char(uint16_t color, const char c) {
+  Draw_Char(color, cursor.x, cursor.y, c);
   MoveBy(fontWidth(font), 0);
 }
 
@@ -190,6 +186,36 @@ void DWINUI::Draw_String(uint16_t color, const char * const string, uint16_t rli
   MoveBy(strlen(string) * fontWidth(font), 0);
 }
 
+// Draw a numeric integer value
+//  bShow: true=display background color; false=don't display background color
+//  signedMode: 1=signed; 0=unsigned
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  iNum: Number of digits
+//  x/y: Upper-left coordinate
+//  value: Integer value
+void DWINUI::Draw_Int(uint8_t bShow, bool signedMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value) {
+  char nstr[10];
+  sprintf_P(nstr, PSTR("%*li"), (signedMode ? iNum + 1 : iNum), value);
+  DWIN_Draw_String(bShow, size, color, bColor, x, y, nstr);
+}
+
+// Draw a numeric float value
+//  bShow: true=display background color; false=don't display background color
+//  signedMode: 1=signed; 0=unsigned
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  iNum: Number of digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left coordinate
+//  value: float value
+void DWINUI::Draw_Float(uint8_t bShow, bool signedMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+  char nstr[10];
+  DWIN_Draw_String(bShow, size, color, bColor, x, y, dtostrf(value, iNum + (signedMode ? 2:1) + fNum, fNum, nstr));
+}
+
 // ------------------------- Buttons ------------------------------//
 
 void DWINUI::Draw_Button(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption) {
@@ -204,6 +230,7 @@ void DWINUI::Draw_Button(uint8_t id, uint16_t x, uint16_t y) {
     case BTN_Continue: Draw_Button(GET_TEXT_F(MSG_BUTTON_CONTINUE), x, y); break;
     case BTN_Print   : Draw_Button(GET_TEXT_F(MSG_BUTTON_PRINT), x, y); break;
     case BTN_Save    : Draw_Button(GET_TEXT_F(MSG_BUTTON_SAVE), x, y); break;
+    case BTN_Purge   : Draw_Button(GET_TEXT_F(MSG_BUTTON_PURGE), x, y); break;
     default: break;
   }
 }
@@ -265,7 +292,7 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
   return RGB(R, G, B);
 }
 
-// Color Interpolator through Red->Yellow->Green->Blue
+// Color Interpolator through Red->Yellow->Green->Blue (Pro UI)
 //  val : Interpolator minv..maxv
 //  minv : Minimum value
 //  maxv : Maximum value
@@ -308,33 +335,6 @@ void DWINUI::ClearMainArea() {
   DWIN_Draw_Rectangle(1, backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
 }
 
-void DWINUI::MenuItemsClear() {
-  if (MenuItems == nullptr) return;
-  for (int8_t i = 0; i < MenuItemCount; i++) delete MenuItems[i];
-  delete[] MenuItems;
-  MenuItems = nullptr;
-  MenuItemCount = 0;
-  MenuItemTotal = 0;
-}
-
-void DWINUI::MenuItemsPrepare(int8_t totalitems) {
-  MenuItemsClear();
-  MenuItemTotal = totalitems;
-  MenuItems = new MenuItemClass*[totalitems];
-}
-
-MenuItemClass* DWINUI::MenuItemsAdd(MenuItemClass* menuitem) {
-  if (MenuItemCount < MenuItemTotal) {
-    MenuItems[MenuItemCount] = menuitem;
-    menuitem->pos = MenuItemCount++;
-    return menuitem;
-  }
-  else {
-    delete menuitem;
-    return nullptr;
-  }
-}
-
 /* Title Class ==============================================================*/
 
 TitleClass Title;
@@ -374,86 +374,5 @@ void TitleClass::FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, ui
 void TitleClass::FrameCopy(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
   FrameCopy(1, x, y, x + w - 1, y + h - 1);
 }
-
-/* Menu Class ===============================================================*/
-
-MenuClass::MenuClass() {
-  selected = 0;
-  topline = 0;
-}
-
-void MenuClass::draw() {
-  MenuTitle.draw();
-  if (DWINUI::onMenuDraw != nullptr) (*DWINUI::onMenuDraw)(this);
-  for (int8_t i = 0; i < MenuItemCount; i++)
-    MenuItems[i]->draw(i - topline);
-  if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());
-  DWIN_UpdateLCD();
-}
-
-void MenuClass::onScroll(bool dir) {
-  int8_t sel = selected;
-  if (dir) sel++; else sel--;
-  LIMIT(sel, 0, MenuItemCount - 1);
-  if (sel != selected) {
-    if (DWINUI::onCursorErase != nullptr) DWINUI::onCursorErase(line());
-    if ((sel - topline) == TROWS) {
-      DWIN_Frame_AreaMove(1, DWIN_SCROLL_UP, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
-      topline++;
-      MenuItems[sel]->draw(TROWS - 1);
-    }
-    if ((sel < topline)) {
-      DWIN_Frame_AreaMove(1, DWIN_SCROLL_DOWN, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
-      topline--;
-      MenuItems[sel]->draw(0);
-    }
-    selected = sel;
-    if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());
-    DWIN_UpdateLCD();
-  }
-}
-
-void MenuClass::onClick() {
-  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)();
-}
-
-MenuItemClass *MenuClass::SelectedItem() {
-  return MenuItems[selected];
-}
-
-/* MenuItem Class ===========================================================*/
-
-MenuItemClass::MenuItemClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)()) {
-  icon = cicon;
-  onClick = onclick;
-  onDraw = ondraw;
-  const uint8_t len = _MIN(sizeof(caption) - 1, strlen(text));
-  memcpy(&caption[0], text, len);
-  caption[len] = '\0';
-}
-
-MenuItemClass::MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)()) {
-  icon = cicon;
-  onClick = onclick;
-  onDraw = ondraw;
-  caption[0] = '\0';
-  frameid = id;
-  frame = { x1, y1, x2, y2 };
-}
-
-void MenuItemClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-  caption[0] = '\0';
-  frameid = id;
-  frame = { x1, y1, x2, y2 };
-}
-
-void MenuItemClass::draw(int8_t line) {
-  if (line < 0 || line >= TROWS) return;
-  if (onDraw != nullptr) (*onDraw)(this, line);
-};
-
-MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemClass(cicon, text, ondraw, onclick) {
-  value = val;
-};
 
 #endif // DWIN_LCD_PROUI
