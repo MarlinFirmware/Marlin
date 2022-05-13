@@ -321,6 +321,10 @@ bool pin_is_protected(const pin_t pin) {
 
 #pragma GCC diagnostic pop
 
+bool printer_busy() {
+  return planner.movesplanned() || printingIsActive();
+}
+
 /**
  * A Print Job exists when the timer is running or SD is printing
  */

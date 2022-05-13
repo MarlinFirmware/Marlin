@@ -309,8 +309,8 @@ namespace Language_hu {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID hangolás *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID ciklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID hangolás kész");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba. Rossz adagoló.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba. Magas hömérséklet.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba! Rossz adagoló.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba! Magas hömérséklet.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Hangolási hiba! Idötúllépés.");
   LSTR MSG_SELECT                         = _UxGT("Kiválaszt");
   LSTR MSG_SELECT_E                       = _UxGT("Kiválaszt *");
