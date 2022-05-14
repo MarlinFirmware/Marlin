@@ -474,9 +474,6 @@ void CardReader::mount() {
 void CardReader::manage_media() {
   static uint8_t media_stat_present = 2;      // At boot we don't know if media is present or not
   static bool media_stat_inited = false;
-  #if HAS_USB_FLASH_DRIVE
-    static const millis_t mediaboot_ms = millis();
-  #endif
 
   bool is_present = IS_SD_INSERTED();
 
@@ -485,8 +482,10 @@ void CardReader::manage_media() {
 
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
   DEBUG_ECHOLNPGM("Media present: ", media_stat_present, " -> ", is_present);
+
   #if HAS_USB_FLASH_DRIVE
-    DEBUG_ECHOLNPGM("USB waiting time: ", millis()-mediaboot_ms);
+    const millis_t ms = millis();
+    DEBUG_ECHOLNPGM("USB waiting time: ", ms);
   #endif
 
   flag.workDirIsRoot = true;                  // Return to root on mount/release/init
@@ -525,9 +524,8 @@ void CardReader::manage_media() {
   media_stat_inited = true;                   // Now initialized!
 
   #if HAS_USB_FLASH_DRIVE
-    DEBUG_ECHOLNPGM("USB mount waiting time = ", millis() - mediaboot_ms);
-    // Exit when boot waiting time expires. media_stat_inited is already set to true.
-    if ((millis() - mediaboot_ms) > 5000) return;
+    DEBUG_ECHOLNPGM("USB mount waiting time = ", ms);
+    if (ms > 5000) return;                    // Exit when boot wait time expires. media_stat_inited is already set to true.
   #endif
 
   DEBUG_ECHOLNPGM("First mount.");
