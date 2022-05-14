@@ -472,63 +472,60 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static uint8_t media_stat_present = 2;      // At boot we don't know if media is present or not
-  static bool media_stat_inited = false;
-
-  bool is_present = IS_SD_INSERTED();
-
-  // First call will always false, next will only pass if user insert or remove media
-  if (is_present == media_stat_present) return;
-
-  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
-  DEBUG_ECHOLNPGM("Media present: ", media_stat_present, " -> ", is_present);
-
-  #if HAS_USB_FLASH_DRIVE
-    const millis_t ms = millis();
-    DEBUG_ECHOLNPGM("USB waiting time: ", ms);
-  #endif
-
-  flag.workDirIsRoot = true;                  // Return to root on mount/release/init
-
   if (!ui.detected()) {
     DEBUG_ECHOLNPGM("SD: No UI Detected.");
     return;
   }
 
-  const uint8_t was_present = media_stat_present;
-  media_stat_present = is_present;            // Now media_stat_preset will either 0 or 1
+  static bool did_first_insert = false;
+  static uint8_t prev_stat = 2;     // At boot we don't know if media is present or not
 
-  if (is_present) {                           // Media Inserted
-    safe_delay(500);                          // Some boards need a delay to get settled
+  uint8_t stat = IS_SD_INSERTED();
+  if (stat == prev_stat) return;    // Already checked and still no change?
+
+  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
+  DEBUG_ECHOLNPGM("Media present: ", prev_stat, " -> ", stat);
+
+  flag.workDirIsRoot = true;        // Return to root on mount/release/init
+
+  const uint8_t old_stat = prev_stat;
+  prev_stat = stat;                 // Change now to prevent re-entry in safe_delay
+
+  if (stat) {                       // Media Inserted
+    safe_delay(500);                // Some boards need a delay to get settled
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
-    if (TERN1(SD_IGNORE_AT_STARTUP, media_stat_inited)) mount();
-    if (!isMounted()) is_present = false;     // Not mounted?
+    if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
+    if (!isMounted()) {             // Not mounted?
+      stat = 0;
+      IF_DISABLED(SD_IGNORE_AT_STARTUP, prev_stat = 0);
+    }
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
   }
   else {
     #if PIN_EXISTS(SD_DETECT)
-      release();                              // Card is released
+      release();                    // Card is released
     #endif
   }
 
-  ui.media_changed(was_present, is_present);  // Update the UI or flag an error
+  ui.media_changed(old_stat, stat); // Update the UI or flag an error
 
-  if (!is_present) return;                    // Return if no media inserted
+  if (!stat) return;                // Exit if no media is present
+
+  if (did_first_insert) return;     // Did a media insert already happen?
+  did_first_insert = true;          // Definitely handling this media insert...
+
+  DEBUG_ECHOLNPGM("First mount.");
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
 
-  if (media_stat_inited) return;              // Exit if the initial media check was done
-  media_stat_inited = true;                   // Now initialized!
-
   #if HAS_USB_FLASH_DRIVE
+    const millis_t ms = millis();
     DEBUG_ECHOLNPGM("USB mount waiting time = ", ms);
-    if (ms > 5000) return;                    // Exit when boot wait time expires. media_stat_inited is already set to true.
+    if (ms > 5000) return;          // Too late to be considered "already inserted"?
   #endif
-
-  DEBUG_ECHOLNPGM("First mount.");
 
   bool do_auto = true; UNUSED(do_auto);
 
