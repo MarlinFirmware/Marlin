@@ -2729,6 +2729,11 @@
 #endif
 
 //
+// Certain BTT serial touch screens
+//
+//#define BTT_SERIAL_CONTROLLER
+
+//
 // Touch-screen LCD for Malyan M200/M300 printers
 //
 //#define MALYAN_LCD
@@ -2914,14 +2919,6 @@
 //#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
 //#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
 //#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
-
-//
-// Certain BTT serial touch screens
-//
-//#define BTT_SERIAL_CONTROLLER
-#if ENABLED(BTT_SERIAL_CONTROLLER)
-  #define LCD_SERIAL_PORT 1
-#endif
 
 //
 // Touch Screen Settings
