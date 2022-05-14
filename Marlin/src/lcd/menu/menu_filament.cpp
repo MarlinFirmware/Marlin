@@ -35,6 +35,9 @@
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
+#if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+  #include "../../MarlinCore.h"
+#endif
 
 //
 // Change Filament > Change/Unload/Load Filament

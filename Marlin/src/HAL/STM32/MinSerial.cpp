@@ -28,7 +28,7 @@
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
 
-#include "../shared/HAL_MinSerial.h"
+#include "../shared/MinSerial.h"
 #include "watchdog.h"
 
 /* Instruction Synchronization Barrier */

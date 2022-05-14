@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,15 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "HAL_MinSerial.h"
+#pragma once
 
-#if ENABLED(POSTMORTEM_DEBUGGING)
+/**
+ * Creality V24S1_301F4 (STM32F401RC) board pin assignments as found on Ender 3 S1.
+ */
 
-void HAL_min_serial_init_default() {}
-void HAL_min_serial_out_default(char ch) { SERIAL_CHAR(ch); }
-void (*HAL_min_serial_init)() = &HAL_min_serial_init_default;
-void (*HAL_min_serial_out)(char) = &HAL_min_serial_out_default;
-
-bool MinSerial::force_using_default_output = false;
-
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Creality V24S1-301F4"
 #endif
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Ender-3 S1 F4"
+#endif
+
+#define DISABLE_DEBUG false // DISABLE_(DEBUG|JTAG) is not supported for STM32F4.
+#define ALLOW_STM32F4
+
+#include "../stm32f1/pins_CREALITY_V24S1_301.h"
