@@ -29,7 +29,6 @@
 
 #ifndef __MARLIN_DEPS__
   #include "../HAL/HAL.h"
-  extern MarlinHAL hal;
 #endif
 
 #include "../pins/pins.h"

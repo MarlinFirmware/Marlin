@@ -40,14 +40,15 @@ uint16_t MarlinHAL::adc_result;
 // Public functions
 // ------------------------
 
-TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  extern void install_min_serial();
+#endif
 
 void MarlinHAL::init() {
-  // Initialize the USB stack
   #if ENABLED(SDSUPPORT)
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
   #endif
-  usb_task_init();
+  usb_task_init();          // Initialize the USB stack
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
@@ -72,6 +73,10 @@ uint8_t MarlinHAL::get_reset_source() {
 
 void MarlinHAL::reboot() { rstc_start_software_reset(RSTC); }
 
+// ------------------------
+// Free Memory Accessor
+// ------------------------
+
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
@@ -81,6 +86,10 @@ int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
   return (int)&free_memory - (heap_end ?: (int)&_ebss);
 }
+
+// ------------------------
+// Serial Ports
+// ------------------------
 
 // Forward the default serial ports
 #if USING_HW_SERIAL0

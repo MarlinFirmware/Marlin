@@ -140,7 +140,7 @@ typedef int8_t pin_t;
 bool is_output(pin_t pin);
 
 // ------------------------
-// Class Utilities
+// Free Memory Accessor
 // ------------------------
 
 #pragma GCC diagnostic push

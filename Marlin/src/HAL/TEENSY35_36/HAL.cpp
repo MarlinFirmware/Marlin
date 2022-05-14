@@ -44,31 +44,10 @@
 USBSerialType USBSerial(false, SerialUSB);
 
 // ------------------------
-// Class Utilities
-// ------------------------
-
-extern "C" {
-  extern char __bss_end;
-  extern char __heap_start;
-  extern void* __brkval;
-
-  int freeMemory() {
-    int free_memory;
-    if ((int)__brkval == 0)
-      free_memory = ((int)&free_memory) - ((int)&__bss_end);
-    else
-      free_memory = ((int)&free_memory) - ((int)__brkval);
-    return free_memory;
-  }
-}
-
-// ------------------------
 // MarlinHAL Class
 // ------------------------
 
 void MarlinHAL::reboot() { _reboot_Teensyduino_(); }
-
-// Reset
 
 uint8_t MarlinHAL::get_reset_source() {
   switch (RCM_SRS0) {
@@ -82,7 +61,9 @@ uint8_t MarlinHAL::get_reset_source() {
   return 0;
 }
 
+// ------------------------
 // ADC
+// ------------------------
 
 int8_t MarlinHAL::adc_select;
 
@@ -129,6 +110,25 @@ uint16_t MarlinHAL::adc_value() {
     case 1: return ADC1_RA;
   }
   return 0;
+}
+
+// ------------------------
+// Free Memory Accessor
+// ------------------------
+
+extern "C" {
+  extern char __bss_end;
+  extern char __heap_start;
+  extern void* __brkval;
+
+  int freeMemory() {
+    int free_memory;
+    if ((int)__brkval == 0)
+      free_memory = ((int)&free_memory) - ((int)&__bss_end);
+    else
+      free_memory = ((int)&free_memory) - ((int)__brkval);
+    return free_memory;
+  }
 }
 
 #endif // __MK64FX512__ || __MK66FX1M0__
