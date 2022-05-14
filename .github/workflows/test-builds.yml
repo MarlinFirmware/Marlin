@@ -59,7 +59,7 @@ jobs:
         #- STM32F103RC_btt_maple
         - STM32F103RC_btt_USB_maple
         - STM32F103RC_fysetc_maple
-        - STM32F103RC_meeb
+        - STM32F103RC_meeb_maple
         - jgaurora_a5s_a1_maple
         - STM32F103VE_longer_maple
         #- mks_robin_maple
