@@ -118,7 +118,7 @@ typedef int8_t pin_t;
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 // ------------------------
-// Class Utilities
+// Free Memory Accessor
 // ------------------------
 
 #pragma GCC diagnostic push
