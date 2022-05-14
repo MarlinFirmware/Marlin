@@ -88,6 +88,10 @@ void MarlinHAL::reboot() {
   #endif
 }
 
+// ------------------------
+// Free Memory Accessor
+// ------------------------
+
 #if ENABLED(SDSUPPORT)
 
   #include "../../sd/SdFatUtil.h"

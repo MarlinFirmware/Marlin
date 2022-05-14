@@ -186,7 +186,7 @@ constexpr inline char* strstr_constexpr(char* str, const char* target) {
 }
 
 // ------------------------
-// Class Utilities
+// Free Memory Accessor
 // ------------------------
 
 #pragma GCC diagnostic push

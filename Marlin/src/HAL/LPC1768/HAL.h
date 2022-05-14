@@ -177,7 +177,7 @@ void flashFirmware(const int16_t);
 #define CPU_ST7920_DELAY_3 750
 
 // ------------------------
-// Class Utilities
+// Free Memory Accessor
 // ------------------------
 
 #pragma GCC diagnostic push
