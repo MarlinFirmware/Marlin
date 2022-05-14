@@ -83,7 +83,6 @@ namespace Language_hu {
   LSTR MSG_HOME_OFFSET_J                  = _UxGT("Kezdö eltol. ") STR_J;
   LSTR MSG_HOME_OFFSET_K                  = _UxGT("Kezdö eltol. ") STR_K;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Eltolás beállítva.");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Eredeti Be");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Elektromos varázsló");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Eredeti választása");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Utolsó érték ");
@@ -310,8 +309,8 @@ namespace Language_hu {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID hangolás *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID ciklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID hangolás kész");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba. Rossz adagoló.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba. Magas hömérséklet.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba! Rossz adagoló.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba! Magas hömérséklet.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Hangolási hiba! Idötúllépés.");
   LSTR MSG_SELECT                         = _UxGT("Kiválaszt");
   LSTR MSG_SELECT_E                       = _UxGT("Kiválaszt *");

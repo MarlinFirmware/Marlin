@@ -67,7 +67,7 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
   max = (float)maxz / 100;
   min = (float)minz / 100;
   avg = avg / (100 * sizex * sizey);
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   DWIN_Draw_Rectangle(0, HMI_data.SplitLine_Color, px(0), py(0), px(sizex - 1), py(sizey - 1));
   LOOP_S_L_N(x, 1, sizex - 1) DrawMeshVLine(x);
   LOOP_S_L_N(y, 1, sizey - 1) DrawMeshHLine(y);
@@ -90,7 +90,7 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
             sprintf_P(str_1, PSTR("-.%02i"), -zmesh[x][y]);
             break;
           case 0:
-            DWIN_Draw_String(false, font6x12, DWINUI::textcolor, DWINUI::backcolor, px(x) - 4, py(y) - 6, "0");;
+            DWIN_Draw_String(false, font6x12, DWINUI::textcolor, DWINUI::backcolor, px(x) - 4, py(y) - 6, "0");
             break;
           case 1 ... 99:
             sprintf_P(str_1, PSTR(".%02i"), zmesh[x][y]);
@@ -107,13 +107,16 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
 }
 
 void MeshViewerClass::Draw(bool withsave /*= false*/) {
-  Title.ShowCaption(F("Mesh Viewer"));
+  Title.ShowCaption(GET_TEXT_F(MSG_MESH_VIEWER));
   DrawMesh(Z_VALUES_ARR, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   if (withsave) {
     DWINUI::Draw_Button(BTN_Save, 26, 305);
     DWINUI::Draw_Button(BTN_Continue, 146, 305);
     Draw_Select_Highlight(HMI_flag.select_flag, 305);
-  } else DWINUI::Draw_Button(BTN_Continue, 86, 305);
+  }
+  else
+    DWINUI::Draw_Button(BTN_Continue, 86, 305);
+
   char str_1[6], str_2[6] = "";
   ui.status_printf(0, F("Mesh minZ: %s, maxZ: %s"),
     dtostrf(min, 1, 2, str_1),

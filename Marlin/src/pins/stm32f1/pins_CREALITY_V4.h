@@ -41,6 +41,13 @@
 #define BOARD_NO_NATIVE_USB
 
 //
+// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+//
+#ifndef DISABLE_DEBUG
+  #define DISABLE_DEBUG
+#endif
+
+//
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
@@ -51,9 +58,9 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb (24C16)
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K
 #endif
 
 //
@@ -121,11 +128,6 @@
   #define E0_DIR_PIN                        PB3
 #endif
 #define E0_ENABLE_PIN               X_ENABLE_PIN
-
-//
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
-//
-#define DISABLE_DEBUG
 
 //
 // Temperature Sensors

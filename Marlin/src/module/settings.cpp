@@ -347,9 +347,9 @@ typedef struct SettingsDataStruct {
   // Z_STEPPER_AUTO_ALIGN, HAS_Z_STEPPER_ALIGN_STEPPER_XY
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPER_DRIVERS];             // M422 S X Y
+    xy_pos_t z_stepper_align_xy[NUM_Z_STEPPERS];             // M422 S X Y
     #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
-      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPER_DRIVERS];   // M422 W X Y
+      xy_pos_t z_stepper_align_stepper_xy[NUM_Z_STEPPERS];   // M422 W X Y
     #endif
   #endif
 
@@ -541,7 +541,7 @@ typedef struct SettingsDataStruct {
   // Buzzer enable/disable
   //
   #if ENABLED(SOUND_MENU_ITEM)
-    bool buzzer_enabled;
+    bool sound_on;
   #endif
 
   //
@@ -1017,13 +1017,13 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));   // 1 float
       EEPROM_WRITE(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf));  // 1 float
 
-      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3
         EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
       #else
         EEPROM_WRITE(dummyf);
       #endif
 
-      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4
         EEPROM_WRITE(endstops.z4_endstop_adj);   // 1 float
       #else
         EEPROM_WRITE(dummyf);
@@ -1517,7 +1517,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(dwin_data);
       char dwin_data[eeprom_data_size] = { 0 };
-      DWIN_StoreSettings(dwin_data);
+      DWIN_CopySettingsTo(dwin_data);
       EEPROM_WRITE(dwin_data);
     }
     #endif
@@ -1576,7 +1576,7 @@ void MarlinSettings::postprocess() {
     // Buzzer enable/disable
     //
     #if ENABLED(SOUND_MENU_ITEM)
-      EEPROM_WRITE(ui.buzzer_enabled);
+      EEPROM_WRITE(ui.sound_on);
     #endif
 
     //
@@ -1969,12 +1969,12 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));  // 1 float
         EEPROM_READ(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf)); // 1 float
 
-        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3
           EEPROM_READ(endstops.z3_endstop_adj); // 1 float
         #else
           EEPROM_READ(dummyf);
         #endif
-        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4
           EEPROM_READ(endstops.z4_endstop_adj); // 1 float
         #else
           EEPROM_READ(dummyf);
@@ -2493,7 +2493,7 @@ void MarlinSettings::postprocess() {
         const char dwin_data[eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_data);
         EEPROM_READ(dwin_data);
-        if (!validating) DWIN_LoadSettings(dwin_data);
+        if (!validating) DWIN_CopySettingsFrom(dwin_data);
       }
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
@@ -2546,8 +2546,8 @@ void MarlinSettings::postprocess() {
       // Buzzer enable/disable
       //
       #if ENABLED(SOUND_MENU_ITEM)
-        _FIELD_TEST(buzzer_enabled);
-        EEPROM_READ(ui.buzzer_enabled);
+        _FIELD_TEST(sound_on);
+        EEPROM_READ(ui.sound_on);
       #endif
 
       //
@@ -2929,7 +2929,6 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
   TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
   //
@@ -2945,7 +2944,9 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  #if ENABLED(SOUND_MENU_ITEM)
+    ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
+  #endif
 
   //
   // Magnetic Parking Extruder
@@ -3042,13 +3043,13 @@ void MarlinSettings::reset() {
       #define Z2_ENDSTOP_ADJUSTMENT 0
     #endif
     endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
-    #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if NUM_Z_STEPPERS >= 3
       #ifndef Z3_ENDSTOP_ADJUSTMENT
         #define Z3_ENDSTOP_ADJUSTMENT 0
       #endif
       endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
     #endif
-    #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if NUM_Z_STEPPERS >= 4
       #ifndef Z4_ENDSTOP_ADJUSTMENT
         #define Z4_ENDSTOP_ADJUSTMENT 0
       #endif
@@ -3301,6 +3302,11 @@ void MarlinSettings::reset() {
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
+
+  //
+  // Ender-3 V2 with ProUI
+  //
+  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
 
   //
   // Model predictive control

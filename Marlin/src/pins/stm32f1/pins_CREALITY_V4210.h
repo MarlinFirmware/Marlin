@@ -41,33 +41,23 @@
 #define BOARD_NO_NATIVE_USB
 
 //
+// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+//
+#define DISABLE_DEBUG
+
+//
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  // FLASH
-  //#define FLASH_EEPROM_EMULATION
-
-  // I2C
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
-  #if ENABLED(IIC_BL24CXX_EEPROM)
-    #define IIC_EEPROM_SDA                  PA11
-    #define IIC_EEPROM_SCL                  PA12
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
-  #else
-    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
-  #endif
-
-  // SPI
-  //#define SPI_EEPROM                            // EEPROM on SPI-0
-  //#define SPI_CHAN_EEPROM1  ?
-  //#define SPI_EEPROM1_CS_PIN    ?
-
-  // 2K EEPROM
-  //#define SPI_EEPROM2_CS_PIN    ?
-
-  // 32Mb FLASH
-  //#define SPI_FLASH_CS_PIN  ?
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
+#endif
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #define IIC_EEPROM_SDA                    PA11
+  #define IIC_EEPROM_SCL                    PA12
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
+#else
+  #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K
 #endif
 
 //
@@ -82,7 +72,9 @@
 #define Y_STOP_PIN                          PA7
 #define Z_STOP_PIN                          PA5
 
-#define Z_MIN_PROBE_PIN                     PA5   // BLTouch IN
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PA5   // BLTouch IN
+#endif
 
 //
 // Filament Runout Sensor
@@ -94,42 +86,37 @@
 //
 // Steppers
 //
-#define X_ENABLE_PIN                        PC3
 #ifndef X_STEP_PIN
   #define X_STEP_PIN                        PC2
 #endif
 #ifndef X_DIR_PIN
   #define X_DIR_PIN                         PB9
 #endif
+#define X_ENABLE_PIN                        PC3
 
-#define Y_ENABLE_PIN                        PC3
 #ifndef Y_STEP_PIN
   #define Y_STEP_PIN                        PB8
 #endif
 #ifndef Y_DIR_PIN
   #define Y_DIR_PIN                         PB7
 #endif
+#define Y_ENABLE_PIN                X_ENABLE_PIN
 
-#define Z_ENABLE_PIN                        PC3
 #ifndef Z_STEP_PIN
   #define Z_STEP_PIN                        PB6
 #endif
 #ifndef Z_DIR_PIN
   #define Z_DIR_PIN                         PB5
 #endif
+#define Z_ENABLE_PIN                X_ENABLE_PIN
 
-#define E0_ENABLE_PIN                       PC3
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN                       PB4
 #endif
 #ifndef E0_DIR_PIN
   #define E0_DIR_PIN                        PB3
 #endif
-
-//
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
-//
-#define DISABLE_DEBUG
+#define E0_ENABLE_PIN               X_ENABLE_PIN
 
 //
 // Temperature Sensors

@@ -97,7 +97,6 @@ namespace Language_ru {
     LSTR MSG_HOME_OFFSET_K                  = _UxGT("Смещ. дома ") STR_K;
   #endif
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
-  LSTR MSG_SET_ORIGIN                       = _UxGT("Установить ноль");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Выберите ноль");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Последнее знач. ");
@@ -391,8 +390,8 @@ namespace Language_ru {
   LSTR MSG_PID_AUTOTUNE                     = _UxGT("Автоподбор PID");
   LSTR MSG_PID_AUTOTUNE_E                   = _UxGT("Автоподбор PID *");
   LSTR MSG_PID_AUTOTUNE_DONE                = _UxGT("Подбор PID выполнен");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Сбой автоподбора. Плохой экструдер.");
-  LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора. Температура повышена.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Сбой автоподбора! Плохой экструдер.");
+  LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора! Температура повышена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой автоподбора! Завершение времени.");
 
   LSTR MSG_SELECT                           = _UxGT("Выбор");
