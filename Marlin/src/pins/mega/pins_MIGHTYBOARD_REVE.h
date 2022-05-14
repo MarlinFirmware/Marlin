@@ -166,19 +166,23 @@
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           MOSFET_2_PIN
 #else
-  #define FAN_PIN                   MOSFET_2_PIN
+  #ifndef FAN_PIN
+    #define FAN_PIN                 MOSFET_2_PIN
+  #endif
 #endif
 // EX2 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
 #ifndef E1_AUTO_FAN_PIN
   #define E1_AUTO_FAN_PIN           MOSFET_4_PIN
 #else
-  #define FAN1_PIN                  MOSFET_4_PIN
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                MOSFET_4_PIN
+  #endif
 #endif
 
 //
 // Misc. Functions
 //
-#define LED_PIN                     MOSFET_6_PIN  // B7
+#define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
 #define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
