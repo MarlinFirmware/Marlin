@@ -24,11 +24,10 @@
 
 #ifdef HAL_STM32
 
-#include "HAL.h"
-#include "usb_serial.h"
-
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
+
+#include "usb_serial.h"
 
 #ifdef USBCON
   DefaultSerial1 MSerialUSB(false, SerialUSB);

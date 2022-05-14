@@ -28,6 +28,7 @@
 #endif
 
 #include HAL_PATH(.,HAL.h)
+extern MarlinHAL hal;
 
 #define HAL_ADC_RANGE _BV(HAL_ADC_RESOLUTION)
 

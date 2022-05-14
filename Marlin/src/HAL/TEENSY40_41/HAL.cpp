@@ -45,25 +45,6 @@
 USBSerialType USBSerial(false, SerialUSB);
 
 // ------------------------
-// Class Utilities
-// ------------------------
-
-#define __bss_end _ebss
-
-extern "C" {
-  extern char __bss_end;
-  extern char __heap_start;
-  extern void* __brkval;
-
-  // Doesn't work on Teensy 4.x
-  uint32_t freeMemory() {
-    uint32_t free_memory;
-    free_memory = ((uint32_t)&free_memory) - (((uint32_t)__brkval) ?: ((uint32_t)&__bss_end));
-    return free_memory;
-  }
-}
-
-// ------------------------
 // FastIO
 // ------------------------
 
@@ -97,7 +78,9 @@ void MarlinHAL::clear_reset_source() {
   SRC_SRSR = reset_source;
 }
 
+// ------------------------
 // ADC
+// ------------------------
 
 int8_t MarlinHAL::adc_select;
 
@@ -178,6 +161,25 @@ uint16_t MarlinHAL::adc_value() {
       return ADC2_R0;
   }
   return 0;
+}
+
+// ------------------------
+// Free Memory Accessor
+// ------------------------
+
+#define __bss_end _ebss
+
+extern "C" {
+  extern char __bss_end;
+  extern char __heap_start;
+  extern void* __brkval;
+
+  // Doesn't work on Teensy 4.x
+  uint32_t freeMemory() {
+    uint32_t free_memory;
+    free_memory = ((uint32_t)&free_memory) - (((uint32_t)__brkval) ?: ((uint32_t)&__bss_end));
+    return free_memory;
+  }
 }
 
 #endif // __IMXRT1062__

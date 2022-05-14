@@ -167,7 +167,7 @@ typedef Servo hal_servo_t;
 #define strtof strtod
 
 // ------------------------
-// Class Utilities
+// Free Memory Accessor
 // ------------------------
 
 #pragma GCC diagnostic push

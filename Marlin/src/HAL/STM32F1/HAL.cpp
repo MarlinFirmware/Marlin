@@ -83,6 +83,7 @@
 // ------------------------
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
+
   USBSerial SerialUSB;
   DefaultSerial1 MSerial0(true, SerialUSB);
 
@@ -211,6 +212,10 @@ void MarlinHAL::idletask() {
 
 void MarlinHAL::reboot() { nvic_sys_reset(); }
 
+// ------------------------
+// Free Memory Accessor
+// ------------------------
+
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
@@ -243,9 +248,9 @@ extern "C" {
 }
 */
 
-//
+// ------------------------
 // ADC
-//
+// ------------------------
 
 enum ADCIndex : uint8_t {
   OPTITEM(HAS_TEMP_ADC_0, TEMP_0)
