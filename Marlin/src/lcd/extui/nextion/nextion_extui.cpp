@@ -35,25 +35,25 @@
 
 namespace ExtUI {
 
-  void onStartup()                                   { nextion.Startup();  }
-  void onIdle()                                      { nextion.IdleLoop(); }
+  void onStartup() { nextion.Startup();  }
+  void onIdle() { nextion.IdleLoop(); }
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) { nextion.PrinterKilled(error, component); }
   void onMediaInserted() {}
-  void onMediaError()    {}
-  void onMediaRemoved()  {}
+  void onMediaError() {}
+  void onMediaRemoved() {}
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}
-  void onPrintTimerPaused()  {}
+  void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
-  void onFilamentRunout(const extruder_t)            {}
+  void onFilamentRunout(const extruder_t) {}
   void onUserConfirmRequired(const char * const msg) { nextion.ConfirmationRequest(msg); }
-  void onStatusChanged(const char * const msg)       { nextion.StatusChange(msg);        }
+  void onStatusChanged(const char * const msg) { nextion.StatusChange(msg); }
 
-  void onHomingStart()    {}
+  void onHomingStart() {}
   void onHomingDone() {}
-  void onPrintDone()                             { nextion.PrintFinished(); }
+  void onPrintDone() { nextion.PrintFinished(); }
 
-  void onFactoryReset()   {}
+  void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
     // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
@@ -61,7 +61,7 @@ namespace ExtUI {
     // into buff.
 
     // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
     //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
   }
 
@@ -71,7 +71,7 @@ namespace ExtUI {
     // from buff
 
     // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
   }
 
@@ -97,7 +97,7 @@ namespace ExtUI {
       // Called when any mesh points are updated
     }
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
     }
   #endif

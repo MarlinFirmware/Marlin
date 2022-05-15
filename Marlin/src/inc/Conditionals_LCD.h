@@ -101,9 +101,8 @@
 
 #elif ANY(miniVIKI, VIKI2, WYH_L12864, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
-  #define IS_DOGM_12864 1
-
   #define DOGLCD
+  #define IS_DOGM_12864 1
   #define IS_ULTIPANEL 1
 
   #if ENABLED(miniVIKI)
@@ -489,7 +488,7 @@
   #ifndef LCD_SERIAL_PORT
     #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
       #define LCD_SERIAL_PORT 1
-    #elif MB(CREALITY_V24S1_301)
+    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423)
       #define LCD_SERIAL_PORT 2 // Creality Ender3S1 board
     #else
       #define LCD_SERIAL_PORT 3 // Creality 4.x board

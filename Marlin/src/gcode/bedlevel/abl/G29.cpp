@@ -428,7 +428,7 @@ G29_TYPE GcodeSuite::G29() {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_LevelingStart());
+      TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());

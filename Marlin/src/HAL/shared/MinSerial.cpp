@@ -19,33 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef TARGET_LPC1768
-
-#include "../../inc/MarlinConfig.h"
-#include "HAL.h"
+#include "MinSerial.h"
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
 
-#include "../shared/HAL_MinSerial.h"
-#include <debug_frmwrk.h>
+void HAL_min_serial_init_default() {}
+void HAL_min_serial_out_default(char ch) { SERIAL_CHAR(ch); }
+void (*HAL_min_serial_init)() = &HAL_min_serial_init_default;
+void (*HAL_min_serial_out)(char) = &HAL_min_serial_out_default;
 
-static void TX(char c) { _DBC(c); }
-void install_min_serial() { HAL_min_serial_out = &TX; }
+bool MinSerial::force_using_default_output = false;
 
-#if DISABLED(DYNAMIC_VECTORTABLE)
-extern "C" {
-  __attribute__((naked)) void JumpHandler_ASM() {
-    __asm__ __volatile__ (
-      "b CommonHandler_ASM\n"
-    );
-  }
-  void __attribute__((naked, alias("JumpHandler_ASM"))) HardFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) BusFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) UsageFault_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) MemManage_Handler();
-  void __attribute__((naked, alias("JumpHandler_ASM"))) NMI_Handler();
-}
 #endif
-
-#endif // POSTMORTEM_DEBUGGING
-#endif // TARGET_LPC1768

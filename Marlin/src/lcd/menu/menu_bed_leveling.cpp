@@ -230,7 +230,7 @@
  *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
  *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
  *    Level Bed >
- *    Level Corners >     (if homed)
+ *    Bed Tramming >      (if homed)
  *    Load Settings       (Req: EEPROM_SETTINGS)
  *    Save Settings       (Req: EEPROM_SETTINGS)
  */

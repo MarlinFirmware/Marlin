@@ -1306,7 +1306,7 @@ void Planner::check_axes_activity() {
 
   #if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
     #define HAS_TAIL_FAN_SPEED 1
-    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 128);
+    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 13);
     bool fans_need_update = false;
   #endif
 
@@ -1342,18 +1342,18 @@ void Planner::check_axes_activity() {
 
     #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_E)
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-        block_t *block = &block_buffer[b];
+        block_t * const bnext = &block_buffer[b];
         LOGICAL_AXIS_CODE(
-          if (TERN0(DISABLE_E, block->steps.e)) axis_active.e = true,
-          if (TERN0(DISABLE_X, block->steps.x)) axis_active.x = true,
-          if (TERN0(DISABLE_Y, block->steps.y)) axis_active.y = true,
-          if (TERN0(DISABLE_Z, block->steps.z)) axis_active.z = true,
-          if (TERN0(DISABLE_I, block->steps.i)) axis_active.i = true,
-          if (TERN0(DISABLE_J, block->steps.j)) axis_active.j = true,
-          if (TERN0(DISABLE_K, block->steps.k)) axis_active.k = true,
-          if (TERN0(DISABLE_U, block->steps.u)) axis_active.u = true,
-          if (TERN0(DISABLE_V, block->steps.v)) axis_active.v = true,
-          if (TERN0(DISABLE_W, block->steps.w)) axis_active.w = true
+          if (TERN0(DISABLE_E, bnext->steps.e)) axis_active.e = true,
+          if (TERN0(DISABLE_X, bnext->steps.x)) axis_active.x = true,
+          if (TERN0(DISABLE_Y, bnext->steps.y)) axis_active.y = true,
+          if (TERN0(DISABLE_Z, bnext->steps.z)) axis_active.z = true,
+          if (TERN0(DISABLE_I, bnext->steps.i)) axis_active.i = true,
+          if (TERN0(DISABLE_J, bnext->steps.j)) axis_active.j = true,
+          if (TERN0(DISABLE_K, bnext->steps.k)) axis_active.k = true,
+          if (TERN0(DISABLE_U, bnext->steps.u)) axis_active.u = true,
+          if (TERN0(DISABLE_V, bnext->steps.v)) axis_active.v = true,
+          if (TERN0(DISABLE_W, bnext->steps.w)) axis_active.w = true
         );
       }
     #endif
@@ -1451,14 +1451,14 @@ void Planner::check_axes_activity() {
    * currently in the planner.
    */
   void Planner::autotemp_task() {
-    static float oldt = 0;
+    static float oldt = 0.0f;
 
     if (!autotemp_enabled) return;
     if (thermalManager.degTargetHotend(active_extruder) < autotemp_min - 2) return; // Below the min?
 
-    float high = 0.0;
+    float high = 0.0f;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-      block_t *block = &block_buffer[b];
+      const block_t * const block = &block_buffer[b];
       if (NUM_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, || block->steps.u, || block->steps.v, || block->steps.w)) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
@@ -2564,7 +2564,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (sq(4096.0f) / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {

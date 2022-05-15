@@ -329,8 +329,8 @@ namespace Language_de {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Zyklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID Tuning fertig");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge. Falscher Extruder");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge. Temperatur zu hoch.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge.! Falscher Extruder");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("teste Wärmeverlust");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("Autotune MPC");

@@ -247,7 +247,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       probe_triggered = PROBE_TRIGGERED();
       if (probe_triggered) {
         endstops.hit_on_purpose();
-        TERN_(LEVEL_CORNERS_AUDIO_FEEDBACK, ui.buzz(200, 600));
+        TERN_(LEVEL_CORNERS_AUDIO_FEEDBACK, BUZZ(200, 600));
       }
       idle();
     }

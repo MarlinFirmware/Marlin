@@ -541,7 +541,7 @@ typedef struct SettingsDataStruct {
   // Buzzer enable/disable
   //
   #if ENABLED(SOUND_MENU_ITEM)
-    bool buzzer_enabled;
+    bool sound_on;
   #endif
 
   //
@@ -1517,7 +1517,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(dwin_data);
       char dwin_data[eeprom_data_size] = { 0 };
-      DWIN_StoreSettings(dwin_data);
+      DWIN_CopySettingsTo(dwin_data);
       EEPROM_WRITE(dwin_data);
     }
     #endif
@@ -1576,7 +1576,7 @@ void MarlinSettings::postprocess() {
     // Buzzer enable/disable
     //
     #if ENABLED(SOUND_MENU_ITEM)
-      EEPROM_WRITE(ui.buzzer_enabled);
+      EEPROM_WRITE(ui.sound_on);
     #endif
 
     //
@@ -2493,7 +2493,7 @@ void MarlinSettings::postprocess() {
         const char dwin_data[eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_data);
         EEPROM_READ(dwin_data);
-        if (!validating) DWIN_LoadSettings(dwin_data);
+        if (!validating) DWIN_CopySettingsFrom(dwin_data);
       }
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
@@ -2546,8 +2546,8 @@ void MarlinSettings::postprocess() {
       // Buzzer enable/disable
       //
       #if ENABLED(SOUND_MENU_ITEM)
-        _FIELD_TEST(buzzer_enabled);
-        EEPROM_READ(ui.buzzer_enabled);
+        _FIELD_TEST(sound_on);
+        EEPROM_READ(ui.sound_on);
       #endif
 
       //
@@ -2929,7 +2929,6 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
   TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
   //
@@ -2945,7 +2944,9 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
+  #if ENABLED(SOUND_MENU_ITEM)
+    ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
+  #endif
 
   //
   // Magnetic Parking Extruder
@@ -3301,6 +3302,11 @@ void MarlinSettings::reset() {
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
+
+  //
+  // Ender-3 V2 with ProUI
+  //
+  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
 
   //
   // Model predictive control

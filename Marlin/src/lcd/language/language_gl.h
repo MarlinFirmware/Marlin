@@ -261,9 +261,9 @@ namespace Language_gl {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Auto-Sint. PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Auto-Sint. PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Fin Auto-Sint PID");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-Sint. fallida. Extrusor danado.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-Sint. fallida. Temperatura moi alta.");
-  LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-Sint. fallida. Tempo excedido.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-Sint. fallida! Extrusor danado.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-Sint. fallida! Temperatura moi alta.");
+  LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-Sint. fallida! Tempo excedido.");
   LSTR MSG_SELECT                         = _UxGT("Escolla");
   LSTR MSG_SELECT_E                       = _UxGT("Escolla *");
   LSTR MSG_ACC                            = _UxGT("Acel");
