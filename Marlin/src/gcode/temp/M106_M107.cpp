@@ -37,8 +37,8 @@
 #endif
 
 #if ENABLED(SINGLENOZZLE)
-  #define _ALT_P active_extruder
-  #define _CNT_P EXTRUDERS
+  #define _ALT_P 0
+  #define _CNT_P FAN_COUNT
 #else
   #define _ALT_P _MIN(active_extruder, FAN_COUNT - 1)
   #define _CNT_P FAN_COUNT
