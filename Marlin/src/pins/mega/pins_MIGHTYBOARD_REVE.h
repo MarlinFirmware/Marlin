@@ -149,8 +149,8 @@
 
 #define MOSFET_1_PIN                           6  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
 #define MOSFET_2_PIN                           7  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
-#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB6 #24 -> Logical 11
-#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB5 #25 -> Logical 12
+#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB5 #24 -> Logical 11
+#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB6 #25 -> Logical 12
 #define MOSFET_5_PIN                          45  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
 #define MOSFET_6_PIN                          44  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
 
