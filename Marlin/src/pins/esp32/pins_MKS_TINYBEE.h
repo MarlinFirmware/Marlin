@@ -185,7 +185,7 @@
     #endif
 ` 
   #else
-    #error "You  have Slected a unsupport LCD controller"
+    #error "You have slected a unsupport LCD controller"
   #endif 
 
 #endif // HAS_WIRED_LCD
