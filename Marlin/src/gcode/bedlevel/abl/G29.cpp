@@ -915,30 +915,28 @@ G29_TYPE GcodeSuite::G29() {
         if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
       }
 
+      // Auto Bed Leveling is complete! Enable if possible.
+      planner.leveling_active = !abl.dryrun || abl.reenable;
+      // Sync the planner from the current_position
+      if (planner.leveling_active) sync_plan_position();
+
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!abl.dryrun || abl.reenable) {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("G29 uncorrected Z:", current_position.z);
 
-        // Unapply the offset because it is going to be immediately applied
-        // and cause compensation movement in Z
-        const float fade_scaling_factor = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.fade_scaling_factor_for_z(current_position.z), 1);
-        current_position.z -= fade_scaling_factor * bbl.get_z_correction(current_position);
+        // Auto Bed Leveling is complete! Enable if possible.
+        set_bed_leveling_enabled(true);
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" corrected Z:", current_position.z);
       }
 
     #endif // ABL_PLANAR
 
-    // Auto Bed Leveling is complete! Enable if possible.
-    planner.leveling_active = !abl.dryrun || abl.reenable;
   } // !isnan(abl.measured_z)
 
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
-
-  // Sync the planner from the current_position
-  if (planner.leveling_active) sync_plan_position();
 
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
