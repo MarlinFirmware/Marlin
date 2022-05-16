@@ -30,7 +30,6 @@
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
-
 #define USES_DIAG_JUMPERS
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define M5_EXTENDER                               // The M5 extender is attached
@@ -50,8 +49,16 @@
   #define TOOL_SENSOR2_PIN                  PI4
   //#define TOOL_SENSOR3_PIN                PF4
 #else
-  #define PS_ON_PIN                         PH6
+  //#define PS_ON_PIN                         PH6
 #endif
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PH6
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PI11
+#endif
+
 
 //
 // Trinamic Stallguard pins
@@ -135,12 +142,74 @@
 #endif
 
 #define Z_STEP_PIN                          PB8
-#define Z_DIR_PIN                           PB7   // PB7
+#define Z_DIR_PIN                           PB7   //PB7
 #define Z_ENABLE_PIN                        PB9
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                          PB5
 #endif
 
+#define E0_STEP_PIN                         PG12
+#define E0_DIR_PIN                          PG11
+#define E0_ENABLE_PIN                       PG13
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN                         PG10
+#endif
+
+#define E1_STEP_PIN                         PD6
+#define E1_DIR_PIN                          PD5
+#define E1_ENABLE_PIN                       PD7
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                         PD4
+#endif
+
+#define E2_STEP_PIN                         PD1
+#define E2_DIR_PIN                          PD0
+#define E2_ENABLE_PIN                       PD2
+#ifndef E2_CS_PIN
+  #define E2_CS_PIN                         PC12
+#endif
+
+#if ENABLED(M5_EXTENDER)
+
+  #define E3_STEP_PIN                       PF3
+  #define E3_DIR_PIN                        PG3
+  #define E3_ENABLE_PIN                     PF8
+  #ifndef E3_CS_PIN
+    #define E3_CS_PIN                       PG4
+  #endif
+
+  #define E4_STEP_PIN                       PD14
+  #define E4_DIR_PIN                        PD11
+  #define E4_ENABLE_PIN                     PG2
+  #ifndef E4_CS_PIN
+    #define E4_CS_PIN                       PE15
+  #endif
+
+  #define E5_STEP_PIN                       PE12
+  #define E5_DIR_PIN                        PE10
+  #define E5_ENABLE_PIN                     PF14
+  #ifndef E5_CS_PIN
+    #define E5_CS_PIN                       PE7
+  #endif
+
+  #define E6_STEP_PIN                       PG0
+  #define E6_DIR_PIN                        PG1
+  #define E6_ENABLE_PIN                     PE8
+  #ifndef E6_CS_PIN
+    #define E6_CS_PIN                       PF15
+  #endif
+
+  #define Z2_STEP_PIN                       PH12
+  #define Z2_DIR_PIN                        PH15
+  #define Z2_ENABLE_PIN                     PI0
+  #ifndef Z2_CS_PIN
+    #define Z2_CS_PIN                       PH14
+  #endif
+#endif
+
+
+
+/*
 #define E0_STEP_PIN                         PG12
 #define E0_DIR_PIN                          PG11
 #define E0_ENABLE_PIN                       PG13
@@ -198,9 +267,8 @@
   #ifndef E7_CS_PIN
     #define E7_CS_PIN                       PH14
   #endif
-
 #endif
-
+*/
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
@@ -238,40 +306,85 @@
   //#define E6_HARDWARE_SERIAL Serial1  // M5 MOTOR 4
   //#define E7_HARDWARE_SERIAL Serial1  // M5 MOTOR 5
 
+  //
+  // Software serial
+  //
+ 
+/*
   #define X_SERIAL_TX_PIN                   PC14
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
+  #define X_SERIAL_RX_PIN                   PC14
 
   #define Y_SERIAL_TX_PIN                   PE1
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
+  #define Y_SERIAL_RX_PIN                   PE1
 
   #define Z_SERIAL_TX_PIN                   PB5
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
+  #define Z_SERIAL_RX_PIN                   PB5
 
   #define E0_SERIAL_TX_PIN                  PG10
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
+  #define E0_SERIAL_RX_PIN                  PG10
 
   #define E1_SERIAL_TX_PIN                  PD4
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+  #define E1_SERIAL_RX_PIN                  PD4
 
   #define E2_SERIAL_TX_PIN                  PC12
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
+  #define E2_SERIAL_RX_PIN                  PC12
 
   #if ENABLED(M5_EXTENDER)
     #define E3_SERIAL_TX_PIN                PG4
-    #define E3_SERIAL_RX_PIN    E3_SERIAL_TX_PIN
+    #define E3_SERIAL_RX_PIN                PG4
 
     #define E4_SERIAL_TX_PIN                PE15
-    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
+    #define E4_SERIAL_RX_PIN                PE15
 
     #define E5_SERIAL_TX_PIN                PE7
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
+    #define E5_SERIAL_RX_PIN                PE7
 
     #define E6_SERIAL_TX_PIN                PF15
-    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
+    #define E6_SERIAL_RX_PIN                PF15
 
     #define E7_SERIAL_TX_PIN                PH14
-    #define E7_SERIAL_RX_PIN    E7_SERIAL_TX_PIN
+    #define E7_SERIAL_RX_PIN                PH14
   #endif
+
+*/
+
+ 
+
+  #define X_SERIAL_TX_PIN                   PC14
+  #define X_SERIAL_RX_PIN                   PC14
+
+  #define Y_SERIAL_TX_PIN                   PE1
+  #define Y_SERIAL_RX_PIN                   PE1
+
+  #define Z_SERIAL_TX_PIN                   PB5
+  #define Z_SERIAL_RX_PIN                   PB5
+
+  #define E0_SERIAL_TX_PIN                  PG10
+  #define E0_SERIAL_RX_PIN                  PG10
+
+  #define E1_SERIAL_TX_PIN                  PD4
+  #define E1_SERIAL_RX_PIN                  PD4
+
+  #define E2_SERIAL_TX_PIN                  PC12
+  #define E2_SERIAL_RX_PIN                  PC12
+
+  #if ENABLED(M5_EXTENDER)
+    #define E3_SERIAL_TX_PIN                PG4
+    #define E3_SERIAL_RX_PIN                PG4
+
+    #define E4_SERIAL_TX_PIN                PE15
+    #define E4_SERIAL_RX_PIN                PE15
+
+    #define E5_SERIAL_TX_PIN                PE7
+    #define E5_SERIAL_RX_PIN                PE7
+
+    #define E6_SERIAL_TX_PIN                PF15
+    #define E6_SERIAL_RX_PIN                PF15
+
+    #define Z2_SERIAL_TX_PIN                PH14
+    #define Z2_SERIAL_RX_PIN                PH14
+  #endif
+  
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -325,16 +438,16 @@
 
 #define HEATER_BED_PIN                      PA2   // Hotbed
 
-#define FAN_PIN                             PE5   // Fan0
-#define FAN1_PIN                            PE6   // Fan1
-#define FAN2_PIN                            PC8   // Fan2
+//#define FAN_PIN                             PE5   // Fan0
+#define FAN_PIN                             PE6   // Fan1
+#define FAN1_PIN                            PC8   // Fan2
 
 #if ENABLED(M5_EXTENDER)
-  #define FAN3_PIN                          PI5   // M5 FAN1
-  #define FAN4_PIN                          PE9   // M5 FAN2
-  #define FAN5_PIN                          PE11  // M5 FAN3
-  //#define FAN6_PIN                        PC9   // M5 FAN4
-  //#define FAN7_PIN                        PE14  // M5 FAN5
+  #define FAN2_PIN                          PI5   // M5 FAN1
+  #define FAN3_PIN                          PE9   // M5 FAN2
+  #define FAN4_PIN                          PE11  // M5 FAN3
+  #define FAN5_PIN                          PC9   // M5 FAN4
+  #define FAN8_PIN                          PE14  // M5 FAN5
 #endif
 
 #ifndef SDCARD_CONNECTION
