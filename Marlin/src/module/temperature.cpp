@@ -3337,14 +3337,6 @@ public:
  */
 void Temperature::isr() {
 
-  // shutdown laser if steppers inactive for > LASER_WATCHDOG_TIME mSecs 
-  #if (ENABLED(LASER_FEATURE) && LASER_WATCHDOG_TIME)
-    if ((ELAPSED(millis(), LASER_WATCHDOG_TIME + gcode.previous_move_ms)) && (cutter.last_power_applied != 0)) { // expired?
-      cutter.power = 0; // stops planner idle re-enabling power
-      cutter.apply_power(0);
-    }
-  #endif
-
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
