@@ -1587,13 +1587,14 @@ void Planner::check_axes_activity() {
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-      #elif DISABLED(MESH_BED_LEVELING)
+      #else
         constexpr float fade_scaling_factor = 1.0;
       #endif
 
       raw.z += (
         #if ENABLED(MESH_BED_LEVELING)
-          mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
+          mbl.get_z_correction_fixed() + 
+          fade_scaling_factor ? fade_scaling_factor * mbl.get_z_correction_fadable(raw) : 0.0
         #elif ENABLED(AUTO_BED_LEVELING_UBL)
           fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -1617,21 +1618,34 @@ void Planner::check_axes_activity() {
 
     #elif HAS_MESH
 
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-      #elif DISABLED(MESH_BED_LEVELING)
-        constexpr float fade_scaling_factor = 1.0;
+      #if ENABLED(MESH_BED_LEVELING)
+        const float z_correction_fixed = mbl.get_z_correction_fixed();
+      #else
+        constexpr float z_correction_fixed = 0.0f;
       #endif
 
-      raw.z -= (
+      float z_correction_fadable = 
         #if ENABLED(MESH_BED_LEVELING)
-          mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
+          mbl.get_z_correction_fadable(raw);
         #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
+          ubl.get_z_correction(raw);
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          fade_scaling_factor ? fade_scaling_factor * bbl.get_z_correction(raw) : 0.0
+          bbl.get_z_correction(raw);
         #endif
-      );
+
+      const float z_full_fade = raw.z - z_correction_fixed;
+      const float z_no_fade = z_full_fade - z_correction_fadable;
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        if (!z_fade_height || z_no_fade <= 0.0f)
+          raw.z = z_no_fade;
+        else if (z_full_fade >= z_fade_height)
+          raw.z = z_full_fade;
+        else
+          raw.z = z_no_fade / (1.0f - z_correction_fadable * inverse_z_fade_height);
+      #else
+        raw.z = z_no_fade;
+      #endif
 
     #endif
   }

@@ -102,12 +102,11 @@ public:
     return z1 + delta_a * delta_z;
   }
 
-  static float get_z(const xy_pos_t &pos
-    OPTARG(ENABLE_LEVELING_FADE_HEIGHT, const_float_t factor=1.0f)
-  ) {
-    #if DISABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      constexpr float factor = 1.0f;
-    #endif
+  static float get_z_correction_fixed() {
+    return z_offset;
+  }
+
+  static float get_z_correction_fadable(const xy_pos_t &pos) {
     const xy_int8_t ind = cell_indexes(pos);
     const float x1 = index_to_xpos[ind.x], x2 = index_to_xpos[ind.x+1],
                 y1 = index_to_xpos[ind.y], y2 = index_to_xpos[ind.y+1],
@@ -115,7 +114,7 @@ public:
                 z2 = calc_z0(pos.x, x1, z_values[ind.x][ind.y+1], x2, z_values[ind.x+1][ind.y+1]),
                 zf = calc_z0(pos.y, y1, z1, y2, z2);
 
-    return z_offset + zf * factor;
+    return zf;
   }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
