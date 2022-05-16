@@ -432,7 +432,7 @@ void Draw_Back_First(const bool is_sel=true) {
 //PopUps
 void Popup_window_PauseOrStop() {
   if (HMI_IsChinese()) {
-    DWINUI::ClearMenuArea();
+    DWINUI::ClearMainArea();
     Draw_Popup_Bkgd();
          if (select_print.now == PRINT_PAUSE_RESUME) DWIN_Frame_AreaCopy(1, 237, 338, 269, 356, 98, 150);
     else if (select_print.now == PRINT_STOP) DWIN_Frame_AreaCopy(1, 221, 320, 253, 336, 98, 150);
@@ -451,7 +451,7 @@ void Popup_window_PauseOrStop() {
   void Popup_Window_ETempTooLow() {
     if (HMI_IsChinese()) {
       HMI_SaveProcessID(WaitResponse);
-      DWINUI::ClearMenuArea();
+      DWINUI::ClearMainArea();
       Draw_Popup_Bkgd();
       DWINUI::Draw_Icon(ICON_TempTooLow, 102, 105);
       DWIN_Frame_AreaCopy(1, 103, 371, 136, 386,  69, 240);
@@ -469,7 +469,7 @@ void Popup_window_PauseOrStop() {
   void DWIN_Popup_Temperature(const bool toohigh) {
     HMI_SaveProcessID(WaitResponse);
     if (HMI_IsChinese()) {
-      DWINUI::ClearMenuArea();
+      DWINUI::ClearMainArea();
       Draw_Popup_Bkgd();
       if (toohigh) {
         DWINUI::Draw_Icon(ICON_TempTooHigh, 102, 165);
@@ -579,13 +579,13 @@ void Draw_Print_ProgressBar() {
 void Draw_Print_ProgressElapsed() {
   char buf[10];
   duration_t elapsed = print_job_timer.duration(); // print timer
-  sprintf_P(buf, PSTR("%02i:%02i"), (uint16_t)(elapsed.value / 3600), ((uint16_t)elapsed.value % 3600) / 60);
+  sprintf_P(buf, PSTR("%02i:%02i "), (uint16_t)(elapsed.value / 3600), ((uint16_t)elapsed.value % 3600) / 60);
   DWINUI::Draw_String(HMI_data.Text_Color, HMI_data.Background_Color, 47, 192, buf);
 }
 
 void Draw_Print_ProgressRemain() {
   char buf[10];
-  sprintf_P(buf, PSTR("%02i:%02i"), (uint16_t)(_remain_time / 3600), ((uint16_t)_remain_time % 3600) / 60);
+  sprintf_P(buf, PSTR("%02i:%02i "), (uint16_t)(_remain_time / 3600), ((uint16_t)_remain_time % 3600) / 60);
   DWINUI::Draw_String(HMI_data.Text_Color, HMI_data.Background_Color, 181, 192, buf);
 }
 
@@ -612,7 +612,7 @@ void Draw_PrintProcess() {
     Title.FrameCopy(30, 1, 42, 14);                     // "Printing"
   else
     Title.ShowCaption(GET_TEXT_F(MSG_PRINTING));
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   DWIN_Print_Header(sdprint ? card.longest_filename() : nullptr);
   Draw_Print_Labels();
   DWINUI::Draw_Icon(ICON_PrintTime, 15, 173);
@@ -641,7 +641,7 @@ void Draw_PrintDone() {
   _remain_time = 0;
 
   Title.ShowCaption(GET_TEXT_F(MSG_PRINT_DONE));
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   DWIN_Print_Header(nullptr);
   Draw_Print_ProgressBar();
   Draw_Print_Labels();
@@ -663,7 +663,7 @@ void Goto_PrintDone() {
 }
 
 void Draw_Main_Menu() {
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   if (HMI_IsChinese())
     Title.FrameCopy(2, 2, 26, 13);   // "Home" etc
   else
@@ -933,7 +933,7 @@ void Redraw_SD_List() {
   select_file.reset();
   index_file = MROWS;
 
-  DWINUI::ClearMenuArea(); // Leave title bar unchanged
+  DWINUI::ClearMainArea(); // Leave title bar unchanged
 
   Draw_Back_First();
 
@@ -1041,7 +1041,7 @@ void DWIN_Draw_Dashboard() {
 }
 
 void Draw_Info_Menu() {
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   Draw_Back_First();
   if (HMI_IsChinese())
     Title.FrameCopy(30, 17, 28, 13);                        // "Info"
@@ -1107,7 +1107,7 @@ void HMI_MainMenu() {
       case PAGE_PRINT:
         checkkey = SelectFile;
         card.mount();
-        delay(300);
+        safe_delay(300);
         Draw_Print_File_Menu();
         break;
       case PAGE_PREPARE: Draw_Prepare_Menu(); break;
@@ -1349,8 +1349,8 @@ void HMI_Init() {
 
 void EachMomentUpdate() {
   static millis_t next_var_update_ms = 0, next_rts_update_ms = 0, next_status_update_ms = 0;
-
   const millis_t ms = millis();
+
   if (ELAPSED(ms, next_var_update_ms)) {
     next_var_update_ms = ms + DWIN_VAR_UPDATE_INTERVAL;
     update_variable();
@@ -1439,7 +1439,7 @@ void EachMomentUpdate() {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   void Popup_PowerLossRecovery() {
-    DWINUI::ClearMenuArea();
+    DWINUI::ClearMainArea();
     Draw_Popup_Bkgd();
     if (HMI_IsChinese()) {
       DWIN_Frame_AreaCopy(1, 160, 338, 235, 354, 98, 115);
@@ -1478,7 +1478,7 @@ void EachMomentUpdate() {
 
   void Goto_PowerLossRecovery() {
     recovery.dwin_flag = false;
-    LCD_MESSAGE_F(GET_TEXT_F(MSG_CONTINUE_PRINT_JOB));
+    LCD_MESSAGE(MSG_CONTINUE_PRINT_JOB);
     Goto_Popup(Popup_PowerLossRecovery, onClick_PowerLossRecovery);
   }
 
@@ -1581,15 +1581,15 @@ void DWIN_PidTuning(pidresult_t result) {
       break;
     case PID_BAD_EXTRUDER_NUM:
       checkkey = last_checkkey;
-      DWIN_Popup_Confirm(ICON_TempTooLow, F("PID Autotune failed!"), F("Bad extruder"));
+      DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_BAD_EXTRUDER_NUM));
       break;
     case PID_TUNING_TIMEOUT:
       checkkey = last_checkkey;
-      DWIN_Popup_Confirm(ICON_TempTooHigh, F("Error"), GET_TEXT_F(MSG_PID_TIMEOUT));
+      DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_PID_TIMEOUT));
       break;
     case PID_TEMP_TOO_HIGH:
       checkkey = last_checkkey;
-      DWIN_Popup_Confirm(ICON_TempTooHigh, F("PID Autotune failed!"), F("Temperature too high"));
+      DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
       break;
     case PID_DONE:
       checkkey = last_checkkey;
@@ -1637,7 +1637,7 @@ void DWIN_Print_Finished() {
   HMI_flag.pause_flag = false;
   wait_for_heatup = false;
   planner.finish_and_disable();
-    thermalManager.cooldown();
+  thermalManager.cooldown();
   Goto_PrintDone();
 }
 
@@ -1652,7 +1652,7 @@ void DWIN_Print_Aborted() {
 }
 
 // Progress Bar update
-void DWIN_Progress_Update() {
+void DWIN_M73() {
   if (parser.seenval('P')) _percent_done = parser.byteval('P');
   if (parser.seenval('R')) {
     _remain_time = parser.ulongval('R') * 60;
@@ -1707,11 +1707,11 @@ void DWIN_SetDataDefaults() {
   TERN_(BAUD_RATE_GCODE, SetBaud250K());
 }
 
-void DWIN_StoreSettings(char *buff) {
+void DWIN_CopySettingsTo(char * const buff) {
   memcpy(buff, &HMI_data, _MIN(sizeof(HMI_data), eeprom_data_size));
 }
 
-void DWIN_LoadSettings(const char *buff) {
+void DWIN_CopySettingsFrom(const char * const buff) {
   // (void *)-> Avoid Warning when save data different from uintX_t in HMI_data_t struct
   memcpy((void *)&HMI_data, buff, _MIN(sizeof(HMI_data), eeprom_data_size));
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
@@ -1729,6 +1729,7 @@ void DWIN_LoadSettings(const char *buff) {
     // Apply Led Color
     leds.set_color(HMI_data.Led_Color);
   #endif
+
 }
 
 // Initialize or re-initialize the LCD
@@ -1773,10 +1774,10 @@ void DWIN_RebootScreen() {
   DWIN_JPG_ShowAndCache(0);
   DWINUI::Draw_CenteredString(Color_White, 220, GET_TEXT_F(MSG_PLEASE_WAIT_REBOOT));
   DWIN_UpdateLCD();
-  delay(500);
+  safe_delay(500);
 }
 
-void DWIN_Redraw_screen() {
+void DWIN_RedrawScreen() {
   Draw_Main_Area();
   hash_changed = true;
   DWIN_DrawStatusMessage();
@@ -1898,13 +1899,13 @@ void Goto_ConfirmToPrint() {
 
   void ReadEeprom() {
     const bool success = settings.load();
-    DWIN_Redraw_screen();
+    DWIN_RedrawScreen();
     HMI_AudioFeedback(success);
   }
 
   void ResetEeprom() {
     settings.reset();
-    DWIN_Redraw_screen();
+    DWIN_RedrawScreen();
     HMI_AudioFeedback();
   }
 #endif
@@ -1947,7 +1948,7 @@ void SetHome() {
 }
 
 #if HAS_ZOFFSET_ITEM
-  bool printer_busy() { return planner.movesplanned() || printingIsActive(); }
+
   void ApplyZOffset() { TERN_(EEPROM_SETTINGS, settings.save()); }
   void LiveZOffset() {
     last_zoffset = dwin_zoffset;
@@ -2066,7 +2067,7 @@ void SetPID(celsius_t t, heater_id_t h) {
   void ApplyBrightness() { ui.set_brightness(MenuData.Value); }
   void LiveBrightness() { DWIN_LCD_Brightness(MenuData.Value); }
   void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, ApplyBrightness, LiveBrightness); }
-  void TurnOffBacklight() { HMI_SaveProcessID(WaitResponse); ui.set_brightness(0); DWIN_Redraw_screen(); }
+  void TurnOffBacklight() { HMI_SaveProcessID(WaitResponse); ui.set_brightness(0); DWIN_RedrawScreen(); }
 #endif
 
 #if ENABLED(CASE_LIGHT_MENU)
@@ -2170,7 +2171,7 @@ void SetPID(celsius_t t, heater_id_t h) {
 void RestoreDefaultsColors() {
   DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
-  DWIN_Redraw_screen();
+  DWIN_RedrawScreen();
 }
 
 void SelColor() {
@@ -2981,7 +2982,7 @@ void Draw_Prepare_Menu() {
 }
 
 void Draw_Tramming_Menu() {
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   checkkey = Menu;
   if (!TrammingMenu) TrammingMenu = new MenuClass();
   if (CurrentMenu != TrammingMenu) {

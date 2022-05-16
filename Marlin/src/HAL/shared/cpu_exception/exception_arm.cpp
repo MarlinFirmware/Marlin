@@ -54,7 +54,7 @@
 
 #include "exception_hook.h"
 #include "../backtrace/backtrace.h"
-#include "../HAL_MinSerial.h"
+#include "../MinSerial.h"
 
 #define HW_REG(X)  (*((volatile unsigned long *)(X)))
 

@@ -260,8 +260,8 @@ namespace Language_zh_CN {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("自动PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("自动PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID调整完成");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败. 坏的挤出机");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败. 温度太高");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败! 坏的挤出机");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败! 温度太高");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("自动调失败! 超时");
   LSTR MSG_SELECT                         = _UxGT("选择");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("选择 *");

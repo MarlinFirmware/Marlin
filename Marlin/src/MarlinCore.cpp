@@ -321,6 +321,10 @@ bool pin_is_protected(const pin_t pin) {
 
 #pragma GCC diagnostic pop
 
+bool printer_busy() {
+  return planner.movesplanned() || printingIsActive();
+}
+
 /**
  * A Print Job exists when the timer is running or SD is printing
  */
@@ -1573,10 +1577,6 @@ void setup() {
     SETUP_RUN(hostui.prompt_end());
   #endif
 
-  #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
-    SETUP_RUN(test_tmc_connection());
-  #endif
-
   #if HAS_DRIVER_SAFE_POWER_PROTECT
     SETUP_RUN(stepper_driver_backward_report());
   #endif
@@ -1632,6 +1632,10 @@ void setup() {
 
   #if ENABLED(EASYTHREED_UI)
     SETUP_RUN(easythreed_ui.init());
+  #endif
+
+  #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
+    SETUP_RUN(test_tmc_connection());
   #endif
 
   marlin_state = MF_RUNNING;

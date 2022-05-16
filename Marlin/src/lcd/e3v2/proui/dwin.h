@@ -114,14 +114,14 @@ void Goto_Info_Menu();
 void Goto_PowerLossRecovery();
 void Goto_ConfirmToPrint();
 void DWIN_Draw_Dashboard(const bool with_update); // Status Area
-void Draw_Main_Area();      // Redraw main area;
-void DWIN_Redraw_screen();  // Redraw all screen elements
+void Draw_Main_Area();      // Redraw main area
+void DWIN_RedrawScreen();   // Redraw all screen elements
 void HMI_MainMenu();        // Main process screen
 void HMI_SelectFile();      // File page
 void HMI_Printing();        // Print page
 void HMI_ReturnScreen();    // Return to previous screen before popups
 void ApplyExtMinT();
-void HMI_SetLanguageCache(); // Set the languaje image cache
+void HMI_SetLanguageCache(); // Set the language image cache
 void RebootPrinter();
 #if ENABLED(BAUD_RATE_GCODE)
   void HMI_SetBaudRate();
@@ -158,12 +158,12 @@ void DWIN_Print_Aborted();
 #if HAS_FILAMENT_SENSOR
   void DWIN_FilamentRunout(const uint8_t extruder);
 #endif
-void DWIN_Progress_Update();
+void DWIN_M73();
 void DWIN_Print_Header(const char *text);
 void DWIN_SetColorDefaults();
 void DWIN_ApplyColor();
-void DWIN_StoreSettings(char *buff);
-void DWIN_LoadSettings(const char *buff);
+void DWIN_CopySettingsTo(char * const buff);
+void DWIN_CopySettingsFrom(const char * const buff);
 void DWIN_SetDataDefaults();
 void DWIN_RebootScreen();
 
