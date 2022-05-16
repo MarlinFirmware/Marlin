@@ -3668,6 +3668,18 @@
     // Define the minimum and maximum test pulse time values for a laser test fire function
     #define LASER_TEST_PULSE_MIN           1   // Used with Laser Control Menu
     #define LASER_TEST_PULSE_MAX         999   // Caution: Menu may not show more than 3 characters
+    
+    /**
+    * Laser safety watchdog
+    * 
+    * If no head movement for this period then the laser will turn off.
+    * Consider material flammability, cut rate and gcode order when
+    * setting value.  Too low and it could turn off during a slow move,
+    * too high and the material may ignite before shutdown.
+    * 
+    * Must be > LASER_TEST_PULSE_MAX and < (DEFAULT_STEPPER_DEACTIVE_TIME * 1000) 
+    */
+    //#define LASER_WATCHDOG_TIME       500   // mSecs 
 
     /**
      * Enable inline laser power to be handled in the planner / stepper routines.

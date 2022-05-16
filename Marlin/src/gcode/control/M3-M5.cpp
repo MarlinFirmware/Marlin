@@ -107,6 +107,10 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
   cutter.set_reverse(is_M4);
 
+  #if ENABLED(LASER_FEATURE && LASER_WATCHDOG_TIME
+    reset_stepper_timeout(); // reset laser timeout to let subsequent gcode turn on laser imm.
+  #endif
+
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     if (parser.seenval('O')) {
       cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
