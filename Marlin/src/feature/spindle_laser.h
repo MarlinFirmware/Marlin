@@ -85,6 +85,7 @@ public:
 
   static const cutter_power_t mpower_min() { return cpwr_to_upwr(SPEED_POWER_MIN); }
   static const cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
+  static uint8_t last_power_applied;                      // Basic power state tracking
 
   #if ENABLED(LASER_FEATURE)
     static cutter_test_pulse_t testPulse; // Test fire Pulse ms value

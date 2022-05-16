@@ -3670,6 +3670,18 @@
     #define LASER_TEST_PULSE_MAX         999   // Caution: Menu may not show more than 3 characters
 
     /**
+    * Laser safety watchdog
+    * 
+    * If no head movement for this period then the laser will turn off.
+    * Consider material flammability, cut rate and gcode order when
+    * setting value.  Too low and it could turn off during a very slow move,
+    * too high a value and the material may ignite before the laser is turned off.
+    * 
+    * Must be > LASER_TEST_PULSE_MAX and < (DEFAULT_STEPPER_DEACTIVE_TIME * 1000) 
+    */
+    //#define LASER_WATCHDOG_TIME       300   // mSecs 
+
+    /**
      * Enable inline laser power to be handled in the planner / stepper routines.
      * Inline power is specified by the I (inline) flag in an M3 command (e.g., M3 S20 I)
      * or by the 'S' parameter in G0/G1/G2/G3 moves (see LASER_MOVE_POWER).

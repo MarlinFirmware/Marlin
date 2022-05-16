@@ -71,6 +71,10 @@
   #include "../libs/nozzle.h"
 #endif
 
+#if (ENABLED(LASER_FEATURE) && LASER_WATCHDOG_TIME)
+  #include "../feature/spindle_laser.h"
+#endif
+
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 #define TEMP_SENSOR_IS_ANY_MAX_TC(n) (ENABLED(TEMP_SENSOR_##n##_IS_MAX_TC) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
@@ -3328,6 +3332,7 @@ public:
 
 /**
  * Handle various ~1kHz tasks associated with temperature
+ *  - Check laser watchdog
  *  - Heater PWM (~1kHz with scaler)
  *  - LCD Button polling (~500Hz)
  *  - Start / Read one ADC sensor
@@ -3336,6 +3341,14 @@ public:
  *  - Planner clean buffer
  */
 void Temperature::isr() {
+
+  // shutdown laser if steppers inactive for > LASER_WATCHDOG_TIME mSecs 
+  #if (ENABLED(LASER_FEATURE) && LASER_WATCHDOG_TIME)
+    if ((ELAPSED(millis(), LASER_WATCHDOG_TIME + gcode.previous_move_ms)) && (cutter.last_power_applied != 0)) { // expired?
+      cutter.power = 0; // stops planner idle re-enabling power
+      cutter.apply_power(0);
+    }
+  #endif
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
