@@ -102,11 +102,9 @@ public:
     return z1 + delta_a * delta_z;
   }
 
-  static float get_z_correction_fixed() {
-    return z_offset;
-  }
+  static float get_z_offset() { return z_offset; }
 
-  static float get_z_correction_fadable(const xy_pos_t &pos) {
+  static float get_z_correction(const xy_pos_t &pos) {
     const xy_int8_t ind = cell_indexes(pos);
     const float x1 = index_to_xpos[ind.x], x2 = index_to_xpos[ind.x+1],
                 y1 = index_to_xpos[ind.y], y2 = index_to_xpos[ind.y+1],

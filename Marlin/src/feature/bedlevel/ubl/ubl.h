@@ -287,6 +287,8 @@ public:
   }
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
+  static constexpr float get_z_offset() { return 0.0f; }
+
   static float mesh_index_to_xpos(const uint8_t i) {
     return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
   }

@@ -53,8 +53,7 @@ bool leveling_is_valid() {
 }
 
 /**
- * Turn bed leveling on or off, fixing the current
- * position as-needed.
+ * Turn bed leveling on or off, correcting the current position.
  *
  * Disable: Current position = physical position
  *  Enable: Current position = "unleveled" physical position
@@ -65,26 +64,25 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
   if (can_change && enable != planner.leveling_active) {
 
+    auto _report_leveling = []{
+      if (DEBUGGING(LEVELING)) {
+        if (planner.leveling_active)
+          DEBUG_POS("Leveling ON", current_position);
+        else
+          DEBUG_POS("Leveling OFF", current_position);
+      }
+    };
+
+    _report_leveling();
     planner.synchronize();
 
-    if (planner.leveling_active) {      // leveling from on to off
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
-      // change unleveled current_position to physical current_position without moving steppers.
-      planner.apply_modifiers(current_position);
-      planner.leveling_active = false;  // disable only BETWEEN calling apply_modifiers() and unapply_modifiers()
-      planner.unapply_modifiers(current_position);
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", current_position);
-    }
-    else {                              // leveling from off to on
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", current_position);
-      // change physical current_position to unleveled current_position without moving steppers.
-      planner.apply_modifiers(current_position);
-      planner.leveling_active = true;   // enable BETWEEN calling apply_modifiers() and unapply_modifiers()
-      planner.unapply_modifiers(current_position);
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", current_position);
-    }
+    // Get the corrected leveled / unleveled position
+    planner.apply_modifiers(current_position);    // Physical position with all modifiers
+    planner.leveling_active ^= true;              // Toggle leveling between apply and unapply
+    planner.unapply_modifiers(current_position);  // Logical position with modifiers removed
 
     sync_plan_position();
+    _report_leveling();
   }
 }
 

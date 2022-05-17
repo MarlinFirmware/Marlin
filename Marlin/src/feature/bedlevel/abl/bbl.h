@@ -60,6 +60,7 @@ public:
   static float get_mesh_x(int16_t i) { return grid_start.x + i * grid_spacing.x; }
   static float get_mesh_y(int16_t j) { return grid_start.y + j * grid_spacing.y; }
   static float get_z_correction(const xy_pos_t &raw);
+  static constexpr float get_z_offset() { return 0.0f; }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
     static void line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);

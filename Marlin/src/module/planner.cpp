@@ -1570,6 +1570,14 @@ void Planner::check_axes_activity() {
     TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_HOME_POS)
   };
 
+  #if ENABLED(MESH_BED_LEVELING)
+    #define BLS mbl
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    #define BLS ubl
+  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #define BLS bbl
+  #endif
+
   /**
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
@@ -1591,16 +1599,10 @@ void Planner::check_axes_activity() {
         constexpr float fade_scaling_factor = 1.0;
       #endif
 
-      raw.z += (
-        #if ENABLED(MESH_BED_LEVELING)
-          mbl.get_z_correction_fixed() + 
-          fade_scaling_factor ? fade_scaling_factor * mbl.get_z_correction_fadable(raw) : 0.0
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          fade_scaling_factor ? fade_scaling_factor * bbl.get_z_correction(raw) : 0.0
-        #endif
-      );
+      if (fade_scaling_factor)
+        raw.z += fade_scaling_factor * BLS.get_z_correction(raw);
+
+      TERN_(MESH_BED_LEVELING, raw.z += BLS.get_z_offset());
 
     #endif
   }
@@ -1618,31 +1620,17 @@ void Planner::check_axes_activity() {
 
     #elif HAS_MESH
 
-      #if ENABLED(MESH_BED_LEVELING)
-        const float z_correction_fixed = mbl.get_z_correction_fixed();
-      #else
-        constexpr float z_correction_fixed = 0.0f;
-      #endif
-
-      float z_correction_fadable = 
-        #if ENABLED(MESH_BED_LEVELING)
-          mbl.get_z_correction_fadable(raw);
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.get_z_correction(raw);
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          bbl.get_z_correction(raw);
-        #endif
-
-      const float z_full_fade = raw.z - z_correction_fixed;
-      const float z_no_fade = z_full_fade - z_correction_fadable;
+      const float z_correction = BLS.get_z_correction(raw),
+                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, BLS.get_z_offset()),
+                  z_no_fade = z_full_fade - z_correction;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        if (!z_fade_height || z_no_fade <= 0.0f)
-          raw.z = z_no_fade;
-        else if (z_full_fade >= z_fade_height)
-          raw.z = z_full_fade;
-        else
-          raw.z = z_no_fade / (1.0f - z_correction_fadable * inverse_z_fade_height);
+        if (!z_fade_height || z_no_fade <= 0.0f)                              // Not fading or at bed level?
+          raw.z = z_no_fade;                                                  //  Unapply full mesh Z.
+        else if (z_full_fade >= z_fade_height)                                // Above the fade height?
+          raw.z = z_full_fade;                                                //  Nothing more to unapply.
+        else                                                                  // Within the fade zone?
+          raw.z = z_no_fade / (1.0f - z_correction * inverse_z_fade_height);  // Unapply the faded Z offset
       #else
         raw.z = z_no_fade;
       #endif
