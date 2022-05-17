@@ -278,7 +278,7 @@
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
-#define ZERO(a)             memset(a,0,sizeof(a))
+#define ZERO(a)             memset((void*)a,0,sizeof(a))
 #define COPY(a,b) do{ \
     static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
