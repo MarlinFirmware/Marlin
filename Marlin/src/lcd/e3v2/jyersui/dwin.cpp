@@ -1246,7 +1246,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           if (draw)
             Draw_Menu_Item(row, ICON_SetHome, F("Set Home Position"));
           else {
-            gcode.process_subcommands_now(F("G92 X0 Y0 Z0"));
+            gcode.process_subcommands_now(F("G92X0Y0Z0"));
             AudioFeedback();
           }
           break;

@@ -1943,7 +1943,7 @@ void HomeZ() { queue.inject(F("G28Z")); }
 
 void SetHome() {
   // Apply workspace offset, making the current position 0,0,0
-  queue.inject(F("G92 X0 Y0 Z0"));
+  queue.inject(F("G92X0Y0Z0"));
   HMI_AudioFeedback();
 }
 
