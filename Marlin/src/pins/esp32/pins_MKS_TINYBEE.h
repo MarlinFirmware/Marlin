@@ -183,7 +183,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-` 
+ 
   #else
     #error "You have slected a unsupport LCD controller"
   #endif 
