@@ -10,6 +10,7 @@ if pioutil.is_pio_build():
 
 	from platformio.package.meta import PackageSpec
 	from platformio.project.config import ProjectConfig
+	from platformio import VERSION as PIO_VERSION
 
 	verbose = 0
 	FEATURE_CONFIG = {}
@@ -17,7 +18,6 @@ if pioutil.is_pio_build():
 	def validate_pio():
 		PIO_VERSION_MIN = (5, 0, 3)
 		try:
-			from platformio import VERSION as PIO_VERSION
 			weights = (1000, 100, 1)
 			version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
 			version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
@@ -60,7 +60,7 @@ if pioutil.is_pio_build():
 		for line in atoms:
 			parts = line.split('=')
 			name = parts.pop(0)
-			if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
+			if name in ['build_flags', 'extra_scripts', 'custom_marlin_src_filter', 'lib_ignore']:
 				feat[name] = '='.join(parts)
 				blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
 			else:
@@ -69,6 +69,28 @@ if pioutil.is_pio_build():
 					lib_re = re.compile('(?!^' + lib_name + '\\b)')
 					feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
 					blab("[%s] lib_deps = %s" % (feature, dep), 3)
+
+	def append_src_filter(new_srcs):
+		if PIO_VERSION[0] < 6:
+			src_filter_key = 'src_filter'
+		else:
+			src_filter_key = 'build_src_filter'
+
+		src_filter = ' '.join(env.GetProjectOption(src_filter_key))
+		# We need to remove +<*> added by default when no src_field is configured in PIO
+		src_filter = re.sub(r'\+<\*>', '', src_filter)
+		# first we need to remove the references to the same folder
+		my_srcs = re.findall(r'[+-](<.*?>)', new_srcs)
+		cur_srcs = re.findall(r'[+-](<.*?>)', src_filter)
+		for d in my_srcs:
+			if d in cur_srcs:
+				src_filter = re.sub(r'[+-]' + d, '', src_filter)
+
+		src_filter = new_srcs + ' ' + src_filter
+		set_env_field(src_filter_key, [src_filter])
+		env.Replace(**{src_filter_key.upper() : src_filter })
+		src_filter = ' '.join(env.GetProjectOption(src_filter_key))
+		blab("Updated src_filter: " + src_filter)
 
 	def load_config():
 		blab("========== Gather [features] entries...")
@@ -84,6 +106,9 @@ if pioutil.is_pio_build():
 		all_opts = env.GetProjectOptions()
 		for n in all_opts:
 			key = n[0]
+			if key == 'custom_marlin_src_filter':
+				append_src_filter(n[1])
+				continue
 			mat = re.match(r'custom_marlin\.(.+)', key)
 			if mat:
 				try:
@@ -173,19 +198,9 @@ if pioutil.is_pio_build():
 				blab("Running extra_scripts for %s... " % feature, 2)
 				env.SConscript(feat['extra_scripts'], exports="env")
 
-			if 'src_filter' in feat:
-				blab("========== Adding src_filter for %s... " % feature, 2)
-				src_filter = ' '.join(env.GetProjectOption('src_filter'))
-				# first we need to remove the references to the same folder
-				my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
-				cur_srcs = re.findall(r'[+-](<.*?>)', src_filter)
-				for d in my_srcs:
-					if d in cur_srcs:
-						src_filter = re.sub(r'[+-]' + d, '', src_filter)
-
-				src_filter = feat['src_filter'] + ' ' + src_filter
-				set_env_field('src_filter', [src_filter])
-				env.Replace(SRC_FILTER=src_filter)
+			if 'custom_marlin_src_filter' in feat:
+				blab("========== Adding custom_marlin_src_filter for %s... " % feature, 2)
+				append_src_filter(feat['custom_marlin_src_filter'])
 
 			if 'lib_ignore' in feat:
 				blab("========== Adding lib_ignore for %s... " % feature, 2)
