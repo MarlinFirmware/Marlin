@@ -24,8 +24,8 @@
 /**
  * Lock screen implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 2.1
- * Date: 2021/11/09
+ * Version: 2.2.0
+ * Date: 2022/04/11
  */
 
 #include "../common/encoder.h"
