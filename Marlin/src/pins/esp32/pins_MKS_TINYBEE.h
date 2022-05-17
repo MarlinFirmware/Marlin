@@ -57,6 +57,11 @@
 // Enable I2S stepper stream
 //
 #define I2S_STEPPER_STREAM
+#ifdef MAX_EXPANDER_BITS
+  #undef MAX_EXPANDER_BITS
+  #define MAX_EXPANDER_BITS 24    // TinyBee has 3 x HC595
+#endif
+
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
