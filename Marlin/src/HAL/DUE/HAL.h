@@ -115,8 +115,8 @@ typedef Servo hal_servo_t;
 //
 // Interrupts
 //
-#define sei() noInterrupts()
-#define cli() interrupts()
+#define sei() interrupts()
+#define cli() noInterrupts()
 
 #define CRITICAL_SECTION_START()  const bool _irqon = hal.isr_state(); hal.isr_off()
 #define CRITICAL_SECTION_END()    if (_irqon) hal.isr_on()
