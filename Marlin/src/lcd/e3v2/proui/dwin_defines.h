@@ -34,6 +34,23 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include <stddef.h>
 
+#define HAS_ESDIAG 1
+#if defined(__STM32F1__) || defined(STM32F1)
+  #define DASH_REDRAW 1
+#endif
+
+#if DISABLED(LIMITED_MAX_FR_EDITING)
+  #error "LIMITED_MAX_FR_EDITING is required with ProUI."
+#endif
+#if DISABLED(LIMITED_MAX_ACCEL_EDITING)
+  #error "LIMITED_MAX_ACCEL_EDITING is required with ProUI."
+#endif
+#if ENABLED(CLASSIC_JERK) && DISABLED(LIMITED_JERK_EDITING)
+  #error "LIMITED_JERK_EDITING is required with ProUI."
+#endif
+#if DISABLED(FILAMENT_RUNOUT_SENSOR)
+  #error "FILAMENT_RUNOUT_SENSOR is required with ProUI."
+#endif
 #if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   #error "INDIVIDUAL_AXIS_HOMING_SUBMENU is required with ProUI."
 #endif
@@ -81,7 +98,7 @@
 #define HAS_ESDIAG 1
 
 #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-  #define Def_Leds_Color      LEDColorWhite()
+  #define Def_Leds_Color 0xFFFFFFFF
 #endif
 #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
   #define Def_CaseLight_Brightness 255
@@ -128,14 +145,13 @@ typedef struct {
   #endif
   bool FullManualTramming = false;
   // Led
-  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor Led_Color = Def_Leds_Color;
+  #if ENABLED(MESH_BED_LEVELING)
+    float ManualZOffset = 0;
   #endif
-  // Case Light
-  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
-    uint8_t CaseLight_Brightness = Def_CaseLight_Brightness;
+  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    uint32_t LED_Color = Def_Leds_Color;
   #endif
 } HMI_data_t;
 
-static constexpr size_t eeprom_data_size = 64;
+static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
 extern HMI_data_t HMI_data;
