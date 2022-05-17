@@ -883,7 +883,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNF(lcd_error); }
 
-  #if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
+  #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT_F(MSG_KILLED), lcd_component ?: FPSTR(NUL_STR));
   #else
     UNUSED(lcd_error); UNUSED(lcd_component);
