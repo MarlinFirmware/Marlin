@@ -3591,8 +3591,11 @@
   #define SPINDLE_LASER_USE_PWM                // Enable if your controller supports setting the speed/power
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     #define SPINDLE_LASER_PWM_INVERT    false  // Set to "true" if the speed/power goes up when you want it to go slower
-    #define SPINDLE_LASER_FREQUENCY     2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR, ESP32, and LPC)
-  #endif
+    #define SPINDLE_LASER_FREQUENCY     2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR, LPC, ESP32)
+                                               // ESP32: If SPINDLE_LASER_PWM_PIN is a CPU pin then 78125Hz max., if an I2S 
+                                               // expander pin then freq determines PWM resolution. 2500Hz = 0-100, 977Hz
+                                               // = 0-255, etc. (250000 / SPINDLE_LASER_FREQUENCY) = max value.
+#endif
 
   //#define AIR_EVACUATION                     // Cutter Vacuum / Laser Blower motor control with G-codes M10-M11
   #if ENABLED(AIR_EVACUATION)
