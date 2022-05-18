@@ -88,7 +88,7 @@ if pioutil.is_pio_build():
 
 		src_filter = new_srcs + ' ' + src_filter
 		set_env_field(src_filter_key, [src_filter])
-		env.Replace(**{src_filter_key.upper() : src_filter })
+		env.Replace(SRC_FILTER = src_filter)
 		src_filter = ' '.join(env.GetProjectOption(src_filter_key))
 		blab("Updated src_filter: " + src_filter)
 
