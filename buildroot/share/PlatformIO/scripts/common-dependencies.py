@@ -92,6 +92,18 @@ if pioutil.is_pio_build():
 		src_filter = ' '.join(env.GetProjectOption(src_filter_key))
 		blab("Updated src_filter: " + src_filter)
 
+		def	append_src_flags(new_srcs):
+			if PIO_VERSION[0] < 6:
+				src_flag_key = 'src_build_flags'
+			else:
+				src_flag_key = 'build_src_flags'
+			src_flag = ' '.join(env.GetProjectOption(src_filter_key))
+			src_flag = new_srcs + ' ' + src_flag
+			set_env_field(src_filter_key, [src_flag])
+ 	  	#env.Replace(SRC_FILTER = src_filter)
+			blab("Updated src_flag: " + src_flag)
+
+
 	def load_config():
 		blab("========== Gather [features] entries...")
 		items = ProjectConfig().items('features')
@@ -108,6 +120,9 @@ if pioutil.is_pio_build():
 			key = n[0]
 			if key == 'custom_marlin_src_filter':
 				append_src_filter(n[1])
+				continue
+			if key == 'custom_build_src_flags':
+				append_src_flags(n[1])
 				continue
 			mat = re.match(r'custom_marlin\.(.+)', key)
 			if mat:
