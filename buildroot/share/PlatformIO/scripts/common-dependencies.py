@@ -100,6 +100,7 @@ if pioutil.is_pio_build():
 		src_flag = ' '.join(env.GetProjectOption(src_flag_key))
 		src_flag = new_srcs + ' ' + src_flag
 		set_env_field(src_flag_key, [src_flag])
+		env.Replace(SRC_BUILD_FLAGS = src_flag)
 		blab("Updated src_flag: " + src_flag)
 
 	def load_config():
