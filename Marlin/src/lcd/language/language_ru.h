@@ -390,8 +390,8 @@ namespace Language_ru {
   LSTR MSG_PID_AUTOTUNE                     = _UxGT("Автоподбор PID");
   LSTR MSG_PID_AUTOTUNE_E                   = _UxGT("Автоподбор PID *");
   LSTR MSG_PID_AUTOTUNE_DONE                = _UxGT("Подбор PID выполнен");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Сбой автоподбора. Плохой экструдер.");
-  LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора. Температура повышена.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Сбой автоподбора! Плохой экструдер.");
+  LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора! Температура повышена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой автоподбора! Завершение времени.");
 
   LSTR MSG_SELECT                           = _UxGT("Выбор");

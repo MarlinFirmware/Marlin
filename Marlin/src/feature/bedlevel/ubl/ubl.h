@@ -83,7 +83,6 @@ private:
   static bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
     return smart_fill_one(pos.x, pos.y, dir.x, dir.y);
   }
-  static void smart_fill_mesh();
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     static void g29_what_command();
@@ -106,6 +105,7 @@ public:
   static void set_all_mesh_points_to_value(const_float_t value);
   static void adjust_mesh_to_mean(const bool cflag, const_float_t value);
   static bool sanity_check();
+  static void smart_fill_mesh();
 
   static void G29() __O0;                           // O0 for no optimization
   static void smart_fill_wlsf(const_float_t ) __O2; // O2 gives smaller code than Os on A2560
