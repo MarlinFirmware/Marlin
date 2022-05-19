@@ -47,14 +47,11 @@
 #endif
 
 bool leveling_is_valid() {
-  return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
-      && TERN1(AUTO_BED_LEVELING_BILINEAR, bbl.has_mesh())
-      && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
+  return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
 }
 
 /**
- * Turn bed leveling on or off, fixing the current
- * position as-needed.
+ * Turn bed leveling on or off, correcting the current position.
  *
  * Disable: Current position = physical position
  *  Enable: Current position = "unleveled" physical position
@@ -65,24 +62,31 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
   if (can_change && enable != planner.leveling_active) {
 
+    auto _report_leveling = []{
+      if (DEBUGGING(LEVELING)) {
+        if (planner.leveling_active)
+          DEBUG_POS("Leveling ON", current_position);
+        else
+          DEBUG_POS("Leveling OFF", current_position);
+      }
+    };
+
+    _report_leveling();
     planner.synchronize();
 
     if (planner.leveling_active) {      // leveling from on to off
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
       // change unleveled current_position to physical current_position without moving steppers.
       planner.apply_leveling(current_position);
       planner.leveling_active = false;  // disable only AFTER calling apply_leveling
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", current_position);
     }
     else {                              // leveling from off to on
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", current_position);
       planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
       // change physical current_position to unleveled current_position without moving steppers.
       planner.unapply_leveling(current_position);
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", current_position);
     }
 
     sync_plan_position();
+    _report_leveling();
   }
 }
 
@@ -116,18 +120,9 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
  */
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl.reset();
-  #else
-    set_bed_leveling_enabled(false);
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.reset();
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      bbl.reset();
-    #elif ABL_PLANAR
-      planner.bed_level_matrix.set_to_identity();
-    #endif
-  #endif
+  IF_DISABLED(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(false));
+  TERN_(HAS_MESH, bedlevel.reset());
+  TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
 #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)

@@ -341,8 +341,8 @@ void DGUSTxHandler::ABLGrid(DGUS_VP &vp) {
   int16_t fixed;
 
   for (int i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
-    point.x = i % GRID_MAX_POINTS_X;
-    point.y = i / GRID_MAX_POINTS_X;
+    point.x = i % (GRID_MAX_POINTS_X);
+    point.y = i / (GRID_MAX_POINTS_X);
     fixed = dgus_display.ToFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point));
     data[i] = Swap16(fixed);
   }

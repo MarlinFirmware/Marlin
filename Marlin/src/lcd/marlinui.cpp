@@ -855,7 +855,7 @@ void MarlinUI::init() {
 
       void MarlinUI::external_encoder() {
         if (external_control && encoderDiff) {
-          ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
+          bedlevel.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
           encoderDiff = 0;                  // Hide encoder events from the screen handler
           refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
         }

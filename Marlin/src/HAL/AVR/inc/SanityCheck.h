@@ -37,16 +37,16 @@
   || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN  == N \
 )
 #if CONF_SERIAL_IS(0) // D0-D1. No known conflicts.
-#endif 
+#endif
 #if CONF_SERIAL_IS(1) && (CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19))
   #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
-#endif 
+#endif
 #if CONF_SERIAL_IS(2) && (CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17))
   #error "Serial Port 2 pin D16 and/or D17 conflicts with another pin on the board."
 #endif
 #if CONF_SERIAL_IS(3) && (CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15))
   #error "Serial Port 3 pin D14 and/or D15 conflicts with another pin on the board."
-#endif 
+#endif
 #undef CHECK_SERIAL_PIN
 
 /**
