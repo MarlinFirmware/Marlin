@@ -63,6 +63,28 @@ uint8_t MarlinHAL::get_reset_source() {
 }
 
 // ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  #define WDT_TIMEOUT_MS TERN(WATCHDOG_DURATION_8S, 8000, 4000) // 4 or 8 second timeout
+
+  void MarlinHAL::watchdog_init() {
+    WDOG_TOVALH = 0;
+    WDOG_TOVALL = WDT_TIMEOUT_MS;
+    WDOG_STCTRLH = WDOG_STCTRLH_WDOGEN;
+  }
+
+  void MarlinHAL::watchdog_refresh() {
+    // Watchdog refresh sequence
+    WDOG_REFRESH = 0xA602;
+    WDOG_REFRESH = 0xB480;
+  }
+
+#endif
+
+// ------------------------
 // ADC
 // ------------------------
 

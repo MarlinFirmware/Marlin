@@ -45,7 +45,6 @@ uint8_t _getc();
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-#include "watchdog.h"
 #include "serial.h"
 
 // ------------------------
@@ -207,6 +206,10 @@ public:
 
   // Earliest possible init, before setup()
   MarlinHAL() {}
+
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
 
   static void init() {}        // Called early in setup()
   static void init_board() {}  // Called less early in setup()

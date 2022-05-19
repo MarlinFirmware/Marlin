@@ -140,6 +140,29 @@ uint8_t MarlinHAL::get_reset_source() {
 
 void MarlinHAL::clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
+// ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+
+  #include <IWatchdog.h>
+
+  void MarlinHAL::watchdog_init() {
+    IF_DISABLED(DISABLE_WATCHDOG_INIT, IWatchdog.begin(WDT_TIMEOUT_US));
+  }
+
+  void MarlinHAL::watchdog_refresh() {
+    IWatchdog.reload();
+    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // heartbeat indicator
+    #endif
+  }
+
+#endif
+
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }

@@ -249,7 +249,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
   uint32_t arg;
 
-  watchdog_refresh(); // In case init takes too long
+  hal.watchdog_refresh(); // In case init takes too long
 
   // Set pin modes
   #if ENABLED(ZONESTAR_12864OLED)
@@ -270,7 +270,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   // Must supply min of 74 clock cycles with CS high.
   LOOP_L_N(i, 10) spiSend(0xFF);
 
-  watchdog_refresh(); // In case init takes too long
+  hal.watchdog_refresh(); // In case init takes too long
 
   // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
@@ -284,7 +284,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
     crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
   #endif
 
-  watchdog_refresh(); // In case init takes too long
+  hal.watchdog_refresh(); // In case init takes too long
 
   // check SD version
   for (;;) {
@@ -306,7 +306,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
     }
   }
 
-  watchdog_refresh(); // In case init takes too long
+  hal.watchdog_refresh(); // In case init takes too long
 
   // Initialize card and send host supports SDHC if SD2
   arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
