@@ -34,9 +34,6 @@ enum MeshLevelingState : char {
 
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
-#define _GET_MESH_X(I) mbl.index_to_xpos[I]
-#define _GET_MESH_Y(J) mbl.index_to_ypos[J]
-#define Z_VALUES_ARR mbl.z_values
 
 class mesh_bed_leveling {
 public:
@@ -56,6 +53,8 @@ public:
     return false;
   }
 
+  static bool mesh_is_valid() { return has_mesh(); }
+
   static void set_z(const int8_t px, const int8_t py, const_float_t z) { z_values[px][py] = z; }
 
   static void zigzag(const int8_t index, int8_t &px, int8_t &py) {
@@ -69,6 +68,9 @@ public:
     zigzag(index, px, py);
     set_z(px, py, z);
   }
+
+  static float get_mesh_x(const uint8_t i) { return index_to_xpos[i]; }
+  static float get_mesh_y(const uint8_t i) { return index_to_ypos[i]; }
 
   static int8_t cell_index_x(const_float_t x) {
     int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
@@ -102,12 +104,9 @@ public:
     return z1 + delta_a * delta_z;
   }
 
-  static float get_z(const xy_pos_t &pos
-    OPTARG(ENABLE_LEVELING_FADE_HEIGHT, const_float_t factor=1.0f)
-  ) {
-    #if DISABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      constexpr float factor = 1.0f;
-    #endif
+  static float get_z_offset() { return z_offset; }
+
+  static float get_z_correction(const xy_pos_t &pos) {
     const xy_int8_t ind = cell_indexes(pos);
     const float x1 = index_to_xpos[ind.x], x2 = index_to_xpos[ind.x+1],
                 y1 = index_to_xpos[ind.y], y2 = index_to_xpos[ind.y+1],
@@ -115,7 +114,7 @@ public:
                 z2 = calc_z0(pos.x, x1, z_values[ind.x][ind.y+1], x2, z_values[ind.x+1][ind.y+1]),
                 zf = calc_z0(pos.y, y1, z1, y2, z2);
 
-    return z_offset + zf * factor;
+    return zf;
   }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
@@ -123,4 +122,4 @@ public:
   #endif
 };
 
-extern mesh_bed_leveling mbl;
+extern mesh_bed_leveling bedlevel;

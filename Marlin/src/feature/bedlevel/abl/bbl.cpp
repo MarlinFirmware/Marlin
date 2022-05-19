@@ -35,7 +35,7 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
-LevelingBilinear bbl;
+LevelingBilinear bedlevel;
 
 xy_pos_t LevelingBilinear::grid_spacing,
          LevelingBilinear::grid_start;

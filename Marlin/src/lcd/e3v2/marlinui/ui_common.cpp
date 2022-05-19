@@ -525,7 +525,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Show X and Y positions at top of screen
       dwin_font.fg = Color_White;
       dwin_font.solid = true;
-      const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
+      const xy_pos_t pos = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) },
                      lpos = pos.asLogical();
 
       lcd_moveto(
@@ -555,8 +555,8 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // Show the location value
       dwin_string.set(Z_LBL);
-      if (!isnan(Z_VALUES_ARR[x_plot][y_plot]))
-        dwin_string.add(ftostr43sign(Z_VALUES_ARR[x_plot][y_plot]));
+      if (!isnan(bedlevel.z_values[x_plot][y_plot]))
+        dwin_string.add(ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
       else
         dwin_string.add(PSTR(" -----"));
       lcd_moveto(

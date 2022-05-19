@@ -214,7 +214,7 @@
     BACK_ITEM(MSG_BED_LEVELING);
     EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_MAX_POINTS_X) - 1);
     EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, (GRID_MAX_POINTS_Y) - 1);
-    EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
+    EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &bedlevel.z_values[xind][yind], -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
     END_MENU();
   }
 
@@ -281,7 +281,7 @@ void menu_bed_leveling() {
     #else
       #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
     #endif
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_BED_Z, &mbl.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_BED_Z, &bedlevel.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
