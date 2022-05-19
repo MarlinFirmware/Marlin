@@ -27,7 +27,6 @@
 #if ENABLED(POSTMORTEM_DEBUGGING)
 
 #include "../shared/MinSerial.h"
-#include "watchdog.h"
 
 #include <libmaple/usart.h>
 #include <libmaple/rcc.h>
@@ -82,7 +81,7 @@ static void TX(char c) {
   #if WITHIN(SERIAL_PORT, 1, 6)
     struct usart_dev* dev = MYSERIAL1.c_dev();
     while (!(dev->regs->SR & USART_SR_TXE)) {
-      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+      hal.watchdog_refresh();
       sw_barrier();
     }
     dev->regs->DR = c;
