@@ -1587,12 +1587,10 @@ void Planner::check_axes_activity() {
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
+        if (fade_scaling_factor) raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
       #else
-        constexpr float fade_scaling_factor = 1.0;
+        raw.z += bedlevel.get_z_correction(raw);
       #endif
-
-      if (fade_scaling_factor)
-        raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
 
       TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
 

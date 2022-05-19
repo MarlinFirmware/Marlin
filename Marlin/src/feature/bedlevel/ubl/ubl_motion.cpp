@@ -450,10 +450,7 @@
         if (--segments == 0) raw = destination;     // if this is last segment, use destination for exact
 
         const float z_cxcy = (z_cxy0 + z_cxym * cell.y) // interpolated mesh z height along cell.x at cell.y
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            * fade_scaling_factor                   // apply fade factor to interpolated mesh height
-          #endif
-        ;
+          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
 
         const float oldz = raw.z; raw.z += z_cxcy;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration) );
