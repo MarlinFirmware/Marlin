@@ -185,7 +185,16 @@
     #endif
  
   #else
-    #error "You have slected a unsupport LCD controller"
+   #define LCD_PINS_D4               EXP1_06_PIN
+    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+      #define LCD_PINS_D5            EXP1_05_PIN
+      #define LCD_PINS_D6            EXP1_04_PIN
+      #define LCD_PINS_D7            EXP1_03_PIN
+    #endif
+
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             600  
   #endif 
 
 #endif // HAS_WIRED_LCD
