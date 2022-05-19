@@ -63,7 +63,6 @@ namespace Language_vi {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Chiều cao mờ dần");                     // Fade Height
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Đặt bù đắp nhà");                       // Set home offsets
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Bù đắp được áp dụng");                  // Offsets applied
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Đặt nguồn gốc");                        // Set origin
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat

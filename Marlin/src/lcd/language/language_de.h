@@ -91,7 +91,6 @@ namespace Language_de {
   LSTR MSG_HOME_OFFSET_V                  = _UxGT("Homeversatz ") STR_V;
   LSTR MSG_HOME_OFFSET_W                  = _UxGT("Homeversatz ") STR_W;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Homeversatz aktiv");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in marlinui.cpp
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Assistent");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wählen Sie Ursprung");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Letzter Wert ");
@@ -330,8 +329,8 @@ namespace Language_de {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Zyklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID Tuning fertig");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge. Falscher Extruder");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge. Temperatur zu hoch.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge.! Falscher Extruder");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("teste Wärmeverlust");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("Autotune MPC");

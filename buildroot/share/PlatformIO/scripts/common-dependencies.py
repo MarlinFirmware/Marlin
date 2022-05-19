@@ -15,7 +15,7 @@ if pioutil.is_pio_build():
 	FEATURE_CONFIG = {}
 
 	def validate_pio():
-		PIO_VERSION_MIN = (5, 0, 3)
+		PIO_VERSION_MIN = (6, 0, 1)
 		try:
 			from platformio import VERSION as PIO_VERSION
 			weights = (1000, 100, 1)
@@ -174,7 +174,7 @@ if pioutil.is_pio_build():
 				env.SConscript(feat['extra_scripts'], exports="env")
 
 			if 'src_filter' in feat:
-				blab("========== Adding src_filter for %s... " % feature, 2)
+				blab("========== Adding build_src_filter for %s... " % feature, 2)
 				src_filter = ' '.join(env.GetProjectOption('src_filter'))
 				# first we need to remove the references to the same folder
 				my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
@@ -184,7 +184,7 @@ if pioutil.is_pio_build():
 						src_filter = re.sub(r'[+-]' + d, '', src_filter)
 
 				src_filter = feat['src_filter'] + ' ' + src_filter
-				set_env_field('src_filter', [src_filter])
+				set_env_field('build_src_filter', [src_filter])
 				env.Replace(SRC_FILTER=src_filter)
 
 			if 'lib_ignore' in feat:

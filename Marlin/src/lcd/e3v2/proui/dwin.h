@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.15.2
- * Date: 2022/03/01
+ * Version: 3.17.2
+ * Date: 2022/04/08
  */
 
 #include "dwin_defines.h"
@@ -73,12 +73,13 @@ enum pidresult_t : uint8_t {
 typedef struct {
   int8_t Color[3];                    // Color components
   pidresult_t pidresult   = PID_DONE;
-  int8_t Preheat          = 0;        // Material Select 0: PLA, 1: ABS, 2: Custom
+  uint8_t Select          = 0;        // Auxiliary selector variable
   AxisEnum axis           = X_AXIS;   // Axis Select
 } HMI_value_t;
 
 typedef struct {
   uint8_t language;
+  bool percent_flag:1;  // percent was override by M73
   bool remain_flag:1;   // remain was override by M73
   bool pause_flag:1;    // printing is paused
   bool pause_action:1;  // flag a pause action
@@ -103,9 +104,53 @@ extern millis_t dwin_heat_time;
   void Popup_PowerLossRecovery();
 #endif
 
-// SD Card
-void HMI_SDCardInit();
-void HMI_SDCardUpdate();
+// Tool Functions
+#if ENABLED(EEPROM_SETTINGS)
+  void WriteEeprom();
+  void ReadEeprom();
+  void ResetEeprom();
+  #if HAS_MESH
+    void SaveMesh();
+  #endif
+#endif
+void RebootPrinter();
+void DisableMotors();
+void AutoLev();
+void AutoHome();
+#if HAS_PREHEAT
+  void DoPreheat0();
+  void DoPreheat1();
+  void DoPreheat2();
+#endif
+void DoCoolDown();
+#if HAS_HOTEND
+  void HotendPID();
+#endif
+#if HAS_HEATED_BED
+  void BedPID();
+#endif
+#if ENABLED(BAUD_RATE_GCODE)
+  void HMI_SetBaudRate();
+  void SetBaud115K();
+  void SetBaud250K();
+#endif
+#if HAS_LCD_BRIGHTNESS
+  void TurnOffBacklight();
+#endif
+void ApplyExtMinT();
+void ParkHead();
+#if HAS_ONESTEP_LEVELING
+  void Trammingwizard();
+#endif
+#if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+  void ApplyLEDColor();
+#endif
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  void UBLTiltMesh();
+  bool UBLValidMesh();
+  void UBLSaveMesh();
+  void UBLLoadMesh();
+#endif
 
 // Other
 void Goto_PrintProcess();
@@ -114,29 +159,19 @@ void Goto_Info_Menu();
 void Goto_PowerLossRecovery();
 void Goto_ConfirmToPrint();
 void DWIN_Draw_Dashboard(const bool with_update); // Status Area
-void Draw_Main_Area();      // Redraw main area;
-void DWIN_Redraw_screen();  // Redraw all screen elements
+void Draw_Main_Area();      // Redraw main area
+void DWIN_DrawStatusLine(const char *text); // Draw simple status text
+void DWIN_DrawStatusLine(FSTR_P fstr);
+void DWIN_RedrawDash();     // Redraw Dash and Status line
+void DWIN_RedrawScreen();   // Redraw all screen elements
 void HMI_MainMenu();        // Main process screen
 void HMI_SelectFile();      // File page
 void HMI_Printing();        // Print page
 void HMI_ReturnScreen();    // Return to previous screen before popups
-void ApplyExtMinT();
-void HMI_SetLanguageCache(); // Set the languaje image cache
-void RebootPrinter();
-#if ENABLED(BAUD_RATE_GCODE)
-  void HMI_SetBaudRate();
-  void SetBaud115K();
-  void SetBaud250K();
-#endif
-#if ENABLED(EEPROM_SETTINGS)
-  void WriteEeprom();
-  void ReadEeprom();
-  void ResetEeprom();
-#endif
-
 void HMI_WaitForUser();
 void HMI_SaveProcessID(const uint8_t id);
-void HMI_AudioFeedback(const bool success=true);
+void HMI_SDCardInit();
+void HMI_SDCardUpdate();
 void EachMomentUpdate();
 void update_variable();
 void DWIN_InitScreen();
@@ -158,12 +193,12 @@ void DWIN_Print_Aborted();
 #if HAS_FILAMENT_SENSOR
   void DWIN_FilamentRunout(const uint8_t extruder);
 #endif
-void DWIN_Progress_Update();
+void DWIN_M73();
 void DWIN_Print_Header(const char *text);
 void DWIN_SetColorDefaults();
 void DWIN_ApplyColor();
-void DWIN_StoreSettings(char *buff);
-void DWIN_LoadSettings(const char *buff);
+void DWIN_CopySettingsTo(char * const buff);
+void DWIN_CopySettingsFrom(const char * const buff);
 void DWIN_SetDataDefaults();
 void DWIN_RebootScreen();
 
@@ -247,4 +282,13 @@ void Draw_Steps_Menu();
 #endif
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   void Draw_Homing_Menu();
+#endif
+#if ENABLED(FWRETRACT)
+  void Draw_FWRetract_Menu();
+#endif
+#if HAS_MESH
+  void Draw_MeshSet_Menu();
+  #if ENABLED(MESH_EDIT_MENU)
+    void Draw_EditMesh_Menu();
+  #endif
 #endif

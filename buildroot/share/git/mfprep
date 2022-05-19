@@ -2,11 +2,16 @@
 #
 # mfprep tag1 [tag2]
 #
-# Find commits in bugfix-2.0.x not yet in 2.0.x
+# Find commits in bugfix-2.0.x that are not yet in 2.0.x.
+#
+# Specify a version tag to start from, and optional version tag to end at.
+# For bugfix-2.0.x the tag will be prefixed by bf- to distinguish it from the version tag,
+# so at every release be sure to create a bf- tag and publish it to origin.
 #
 
 SED=$(which gsed sed | head -n1)
 SELF=`basename "$0"`
+DRYRUN=0
 
 [[ $# < 1 || $# > 2 ]] && { echo "Usage $SELF tag1 [tag2]" ; exit 1 ; }
 
@@ -38,13 +43,22 @@ git log --pretty="[%h] %s" $TAG1..$TAG2 | $SED '1!G;h;$!d' >"$LOG2" || { echo "C
 
 cat "$LOG2" | while read line; do
   #echo "... $line"
-  if [[ $line =~ (\(#[0-9]{5}\))$ ]]; then
-    PATT=${BASH_REMATCH[1]}
+  if [[ $line =~ \(((#[0-9]{5}),* *)((#[0-9]{5}),* *)?((#[0-9]{5}),* *)?\)$ ]]; then
+    PATT=""
+    for i in ${!BASH_REMATCH[@]}; do
+      if ((i > 0 && (i % 2 == 0))); then
+        if [[ -n "${BASH_REMATCH[i]}" ]]; then
+          [[ -n "$PATT" ]] && PATT="$PATT|"
+          PATT="$PATT${BASH_REMATCH[i]}"
+        fi
+      fi
+    done
     #echo "... $PATT"
+    [[ -n $PATT ]] && { grep -vE "$PATT" "$LOGB" >"$TMPF" ; cp "$TMPF" "$LOGB" ; }
   else
     PATT=$( $SED -E 's/^\[[0-9a-f]{10}\]( . )?(.+)$/\2/' <<<"$line" )
+    [[ -n $PATT ]] && { grep -v "$PATT" "$LOGB" >"$TMPF" ; cp "$TMPF" "$LOGB" ; }
   fi
-  [[ -n $PATT ]] && { grep -v "$PATT" "$LOGB" >"$TMPF" ; cp "$TMPF" "$LOGB" ; }
 done
 
 # Convert remaining commits into git commands
@@ -62,4 +76,4 @@ done
 mv "$TMPF" "$SCRF"
 chmod ug+x "$SCRF"
 
-open "$TMPDIR"
+((DRYRUN)) && rm -r "$TMPDIR" || open "$TMPDIR"

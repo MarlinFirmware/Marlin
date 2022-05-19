@@ -70,20 +70,19 @@ private:
     static void move_z_with_encoder(const_float_t multiplier);
     static float measure_point_with_encoder();
     static float measure_business_card_thickness();
-    static void manually_probe_remaining_mesh(const xy_pos_t&, const_float_t , const_float_t , const bool) _O0;
-    static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) _O0;
+    static void manually_probe_remaining_mesh(const xy_pos_t&, const_float_t , const_float_t , const bool) __O0;
+    static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) __O0;
   #endif
 
-  static bool G29_parse_parameters() _O0;
+  static bool G29_parse_parameters() __O0;
   static void shift_mesh_height();
-  static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) _O0;
+  static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) __O0;
   static void tilt_mesh_based_on_3pts(const_float_t z1, const_float_t z2, const_float_t z3);
   static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
   static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
   static bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
     return smart_fill_one(pos.x, pos.y, dir.x, dir.y);
   }
-  static void smart_fill_mesh();
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     static void g29_what_command();
@@ -98,17 +97,18 @@ public:
   static void report_state();
   static void save_ubl_active_state_and_disable();
   static void restore_ubl_active_state_and_leave();
-  static void display_map(const uint8_t) _O0;
-  static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
-  static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
+  static void display_map(const uint8_t) __O0;
+  static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) __O0;
+  static mesh_index_pair find_furthest_invalid_mesh_point() __O0;
   static void reset();
   static void invalidate();
   static void set_all_mesh_points_to_value(const_float_t value);
   static void adjust_mesh_to_mean(const bool cflag, const_float_t value);
   static bool sanity_check();
+  static void smart_fill_mesh();
 
-  static void G29() _O0;                          // O0 for no optimization
-  static void smart_fill_wlsf(const_float_t ) _O2; // O2 gives smaller code than Os on A2560
+  static void G29() __O0;                           // O0 for no optimization
+  static void smart_fill_wlsf(const_float_t ) __O2; // O2 gives smaller code than Os on A2560
 
   static int8_t storage_slot;
 
@@ -215,7 +215,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * RECIPROCAL(MESH_X_DIST),
+    const float xratio = (rx0 - get_mesh_x(x1_i)) * RECIPROCAL(MESH_X_DIST),
                 z1 = z_values[x1_i][yi];
 
     return z1 + xratio * (z_values[_MIN(x1_i, (GRID_MAX_POINTS_X) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
@@ -238,7 +238,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * RECIPROCAL(MESH_Y_DIST),
+    const float yratio = (ry0 - get_mesh_y(y1_i)) * RECIPROCAL(MESH_Y_DIST),
                 z1 = z_values[xi][y1_i];
 
     return z1 + yratio * (z_values[xi][_MIN(y1_i, (GRID_MAX_POINTS_Y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
@@ -264,16 +264,17 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
-    const float z1 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][cy], mesh_index_to_xpos(cx + 1), z_values[mx][cy]);
-    const float z2 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][my], mesh_index_to_xpos(cx + 1), z_values[mx][my]);
-    float z0 = calc_z0(ry0, mesh_index_to_ypos(cy), z1, mesh_index_to_ypos(cy + 1), z2);
+    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1,
+                  x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1);
+    const float z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
+                z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
+    float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
 
-    if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
-      z0 = 0.0;      // in ubl.z_values[][] and propagate through the
-                     // calculations. If our correction is NAN, we throw it out
-                     // because part of the Mesh is undefined and we don't have the
-                     // information we need to complete the height correction.
+    if (isnan(z0)) { // If part of the Mesh is undefined, it will show up as NAN
+      z0 = 0.0;      // in z_values[][] and propagate through the calculations.
+                     // If our correction is NAN, we throw it out because part of
+                     // the Mesh is undefined and we don't have the information
+                     // needed to complete the height correction.
 
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }
@@ -287,10 +288,12 @@ public:
   }
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
-  static float mesh_index_to_xpos(const uint8_t i) {
+  static constexpr float get_z_offset() { return 0.0f; }
+
+  static float get_mesh_x(const uint8_t i) {
     return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
   }
-  static float mesh_index_to_ypos(const uint8_t i) {
+  static float get_mesh_y(const uint8_t i) {
     return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
   }
 
@@ -307,11 +310,7 @@ public:
 
 }; // class unified_bed_leveling
 
-extern unified_bed_leveling ubl;
-
-#define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
-#define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
-#define Z_VALUES_ARR ubl.z_values
+extern unified_bed_leveling bedlevel;
 
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"

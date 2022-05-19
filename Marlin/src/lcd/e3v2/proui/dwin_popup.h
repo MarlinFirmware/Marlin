@@ -50,7 +50,7 @@ inline void Draw_Popup_Bkgd() {
 
 template<typename T, typename U>
 void DWIN_Draw_Popup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   Draw_Popup_Bkgd();
   if (icon) DWINUI::Draw_Icon(icon, 101, 105);
   if (amsg1) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 210, amsg1);

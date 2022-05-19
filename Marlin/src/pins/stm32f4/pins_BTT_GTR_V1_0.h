@@ -37,7 +37,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x2000  // 8KB (24C64 ... 64Kb = 8KB)
+#define MARLIN_EEPROM_SIZE                0x2000  // 8K (24C64)
 
 //
 // Servos

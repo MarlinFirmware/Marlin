@@ -36,7 +36,7 @@
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
 #endif
@@ -118,6 +118,14 @@
 #define TEMP_0_PIN                          PC1   // TH1
 #define TEMP_1_PIN                          PA2   // TH2
 #define TEMP_BED_PIN                        PC0   // TB1
+
+#if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
+  #if TEMP_SENSOR_PROBE
+    #define TEMP_PROBE_PIN            TEMP_1_PIN
+  #elif TEMP_SENSOR_CHAMBER
+    #define TEMP_CHAMBER_PIN          TEMP_1_PIN
+  #endif
+#endif
 
 //
 // Heaters / Fans

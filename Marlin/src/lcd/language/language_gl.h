@@ -69,7 +69,6 @@ namespace Language_gl {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Compensación Altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Axustar Desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfases aplicados");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Fixar orixe");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Prequentar ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";
@@ -262,9 +261,9 @@ namespace Language_gl {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Auto-Sint. PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Auto-Sint. PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Fin Auto-Sint PID");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-Sint. fallida. Extrusor danado.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-Sint. fallida. Temperatura moi alta.");
-  LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-Sint. fallida. Tempo excedido.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-Sint. fallida! Extrusor danado.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-Sint. fallida! Temperatura moi alta.");
+  LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-Sint. fallida! Tempo excedido.");
   LSTR MSG_SELECT                         = _UxGT("Escolla");
   LSTR MSG_SELECT_E                       = _UxGT("Escolla *");
   LSTR MSG_ACC                            = _UxGT("Acel");
