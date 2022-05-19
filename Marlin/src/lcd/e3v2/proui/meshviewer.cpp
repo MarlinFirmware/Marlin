@@ -117,7 +117,7 @@ void MeshViewerClass::Draw(bool withsave /*= false*/) {
     ubl_tools.viewer_print_value = true;
     ubl_tools.Draw_Bed_Mesh(-1, 1, 8, 10 + TITLE_HEIGHT);
   #else
-    DrawMesh(Z_VALUES_ARR, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+    DrawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   #endif
   if (withsave) {
     DWINUI::Draw_Button(BTN_Save, 26, 305);

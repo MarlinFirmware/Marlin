@@ -58,7 +58,7 @@ inline float rounded_mesh_value() {
 
 /**
  * This screen displays the temporary mesh value and updates it based on encoder
- * movement. While this screen is active ubl.fine_tune_mesh sits in a loop getting
+ * movement. While this screen is active bedlevel.fine_tune_mesh sits in a loop getting
  * the current value via ubl_mesh_value, moves the Z axis, and updates the mesh
  * value until the encoder button is pressed.
  *
@@ -70,12 +70,12 @@ inline float rounded_mesh_value() {
 void _lcd_mesh_fine_tune(PGM_P const msg) {
   constexpr float mesh_edit_step = 1.0f / 200.0f;
   ui.defer_status_screen();
-  if (ubl.encoder_diff) {
+  if (bedlevel.encoder_diff) {
     mesh_edit_accumulator += TERN(IS_TFTGLCD_PANEL,
-      ubl.encoder_diff * mesh_edit_step / ENCODER_PULSES_PER_STEP,
-      ubl.encoder_diff > 0 ? mesh_edit_step : -mesh_edit_step
+      bedlevel.encoder_diff * mesh_edit_step / ENCODER_PULSES_PER_STEP,
+      bedlevel.encoder_diff > 0 ? mesh_edit_step : -mesh_edit_step
     );
-    ubl.encoder_diff = 0;
+    bedlevel.encoder_diff = 0;
     IF_DISABLED(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
   }
   TERN_(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
@@ -89,7 +89,7 @@ void _lcd_mesh_fine_tune(PGM_P const msg) {
 }
 
 //
-// Init mesh editing and go to the fine tuning screen (ubl.fine_tune_mesh)
+// Init mesh editing and go to the fine tuning screen (bedlevel.fine_tune_mesh)
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
 void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
@@ -99,7 +99,7 @@ void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
 }
 
 //
-// Get the mesh value within a Z adjustment loop (ubl.fine_tune_mesh)
+// Get the mesh value within a Z adjustment loop (bedlevel.fine_tune_mesh)
 //
 float MarlinUI::ubl_mesh_value() { return rounded_mesh_value(); }
 
@@ -291,7 +291,7 @@ void _menu_ubl_fillin() {
 }
 
 void _lcd_ubl_invalidate() {
-  ubl.invalidate();
+  bedlevel.invalidate();
   SERIAL_ECHOLNPGM("Mesh invalidated.");
 }
 
@@ -390,8 +390,8 @@ void _lcd_ubl_storage_mesh() {
  */
 void _lcd_ubl_map_edit_cmd() {
   char ubl_lcd_gcode[50], str[10], str2[10];
-  dtostrf(ubl.mesh_index_to_xpos(x_plot), 0, 2, str);
-  dtostrf(ubl.mesh_index_to_ypos(y_plot), 0, 2, str2);
+  dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str);
+  dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2);
   snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29P4X%sY%sR%i"), str, str2, int(n_edit_pts));
   queue.inject(ubl_lcd_gcode);
 }
@@ -400,7 +400,7 @@ void _lcd_ubl_map_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
-  const xy_pos_t xy = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) };
+  const xy_pos_t xy = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) };
 
   // Some printers have unreachable areas in the mesh. Skip the move if unreachable.
   if (!position_is_reachable(xy)) return;
@@ -459,7 +459,7 @@ void ubl_map_screen() {
 
       // Validate if needed
       #if IS_KINEMATIC
-        const xy_pos_t xy = { ubl.mesh_index_to_xpos(x), ubl.mesh_index_to_ypos(y) };
+        const xy_pos_t xy = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
         if (position_is_reachable(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif
@@ -500,7 +500,7 @@ void _ubl_map_screen_homing() {
   ui.defer_status_screen();
   _lcd_draw_homing();
   if (all_axes_homed()) {
-    ubl.lcd_map_control = true;     // Return to the map screen after editing Z
+    bedlevel.lcd_map_control = true;     // Return to the map screen after editing Z
     ui.goto_screen(ubl_map_screen, grid_index(x_plot, y_plot)); // Pre-set the encoder value
     ui.manual_move.menu_scale = 0;  // Immediate move
     ubl_map_move_to_xy();           // Move to current mesh point
