@@ -313,8 +313,8 @@ G29_TYPE GcodeSuite::G29() {
 
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
-          i = (rx - bbl.get_grid_start().x) / bbl.get_grid_spacing().x + 0.5f;
-          j = (ry - bbl.get_grid_start().y) / bbl.get_grid_spacing().y + 0.5f;
+          i = (rx - bedlevel.grid_start.x) / bedlevel.grid_spacing.x + 0.5f;
+          j = (ry - bedlevel.grid_start.y) / bedlevel.grid_spacing.y + 0.5f;
           LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
           LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
         }
@@ -323,8 +323,8 @@ G29_TYPE GcodeSuite::G29() {
 
         if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
           set_bed_leveling_enabled(false);
-          Z_VALUES_ARR[i][j] = rz;
-          bbl.refresh_bed_level();
+          bedlevel.z_values[i][j] = rz;
+          bedlevel.refresh_bed_level();
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           set_bed_leveling_enabled(abl.reenable);
           if (abl.reenable) report_current_position();
@@ -463,7 +463,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       if (!abl.dryrun
-        && (abl.gridSpacing != bbl.get_grid_spacing() || abl.probe_position_lf != bbl.get_grid_start())
+        && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
@@ -473,7 +473,7 @@ G29_TYPE GcodeSuite::G29() {
       }
 
       // Pre-populate local Z values from the stored mesh
-      TERN_(IS_KINEMATIC, COPY(abl.z_values, Z_VALUES_ARR));
+      TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
 
     #endif // AUTO_BED_LEVELING_BILINEAR
 
@@ -760,14 +760,14 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        bbl.print_leveling_grid(&abl.z_values);
+        bedlevel.print_leveling_grid(&abl.z_values);
       else {
-        bbl.set_grid(abl.gridSpacing, abl.probe_position_lf);
-        COPY(Z_VALUES_ARR, abl.z_values);
-        TERN_(IS_KINEMATIC, bbl.extrapolate_unprobed_bed_level());
-        bbl.refresh_bed_level();
+        bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
+        COPY(bedlevel.z_values, abl.z_values);
+        TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
+        bedlevel.refresh_bed_level();
 
-        bbl.print_leveling_grid();
+        bedlevel.print_leveling_grid();
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -887,8 +887,8 @@ G29_TYPE GcodeSuite::G29() {
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
-        const float fade_scaling_factor = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.fade_scaling_factor_for_z(current_position.z), 1);
-        current_position.z -= fade_scaling_factor * bbl.get_z_correction(current_position);
+        current_position.z -= bedlevel.get_z_correction(current_position)
+          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * planner.fade_scaling_factor_for_z(current_position.z));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" corrected Z:", current_position.z);
       }

@@ -24,10 +24,12 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 class LevelingBilinear {
-private:
-  static xy_pos_t grid_spacing, grid_start;
-  static xy_float_t grid_factor;
+public:
   static bed_mesh_t z_values;
+  static xy_pos_t grid_spacing, grid_start;
+
+private:
+  static xy_float_t grid_factor;
   static xy_pos_t cached_rel;
   static xy_int8_t cached_g;
 
@@ -54,20 +56,15 @@ public:
   static void print_leveling_grid(const bed_mesh_t* _z_values = NULL);
   static void refresh_bed_level();
   static bool has_mesh() { return !!grid_spacing.x; }
-  static bed_mesh_t& get_z_values() { return z_values; }
-  static const xy_pos_t& get_grid_spacing() { return grid_spacing; }
-  static const xy_pos_t& get_grid_start() { return grid_start; }
-  static float get_mesh_x(int16_t i) { return grid_start.x + i * grid_spacing.x; }
-  static float get_mesh_y(int16_t j) { return grid_start.y + j * grid_spacing.y; }
+  static bool mesh_is_valid() { return has_mesh(); }
+  static float get_mesh_x(const uint8_t i) { return grid_start.x + i * grid_spacing.x; }
+  static float get_mesh_y(const uint8_t j) { return grid_start.y + j * grid_spacing.y; }
   static float get_z_correction(const xy_pos_t &raw);
+  static constexpr float get_z_offset() { return 0.0f; }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
     static void line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
   #endif
 };
 
-extern LevelingBilinear bbl;
-
-#define _GET_MESH_X(I) bbl.get_mesh_x(I)
-#define _GET_MESH_Y(J) bbl.get_mesh_y(J)
-#define Z_VALUES_ARR bbl.get_z_values()
+extern LevelingBilinear bedlevel;

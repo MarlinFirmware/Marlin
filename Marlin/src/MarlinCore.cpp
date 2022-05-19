@@ -443,7 +443,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         TERN_(DISABLE_INACTIVE_K, stepper.disable_axis(K_AXIS));
         TERN_(DISABLE_INACTIVE_E, stepper.disable_e_steppers());
 
-        TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
+        TERN_(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
       }
     }
     else
