@@ -738,8 +738,8 @@ void GcodeSuite::G26() {
       // which is always drawn counter-clockwise.
       const xy_int8_t st = location;
       const bool f = st.y == 0,
-                 r = st.x >= GRID_MAX_POINTS_X - 1,
-                 b = st.y >= GRID_MAX_POINTS_Y - 1;
+                 r = st.x >= (GRID_MAX_POINTS_X) - 1,
+                 b = st.y >= (GRID_MAX_POINTS_Y) - 1;
 
       #if ENABLED(ARC_SUPPORT)
 

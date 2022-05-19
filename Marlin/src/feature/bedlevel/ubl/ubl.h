@@ -269,11 +269,11 @@ public:
     const float z2 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][my], mesh_index_to_xpos(cx + 1), z_values[mx][my]);
     float z0 = calc_z0(ry0, mesh_index_to_ypos(cy), z1, mesh_index_to_ypos(cy + 1), z2);
 
-    if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
-      z0 = 0.0;      // in ubl.z_values[][] and propagate through the
-                     // calculations. If our correction is NAN, we throw it out
-                     // because part of the Mesh is undefined and we don't have the
-                     // information we need to complete the height correction.
+    if (isnan(z0)) { // If part of the Mesh is undefined, it will show up as NAN
+      z0 = 0.0;      // in z_values[][] and propagate through the calculations.
+                     // If our correction is NAN, we throw it out because part of
+                     // the Mesh is undefined and we don't have the information
+                     // needed to complete the height correction.
 
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }

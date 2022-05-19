@@ -258,8 +258,8 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values /*= NULL*
               );
           }
   }
-#endif // ABL_BILINEAR_SUBDIVISION
 
+#endif // ABL_BILINEAR_SUBDIVISION
 
 // Refresh after other values have been updated
 void LevelingBilinear::refresh_bed_level() {

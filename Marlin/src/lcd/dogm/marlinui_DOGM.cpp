@@ -579,9 +579,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       u8g.setColorIndex(1);
       const u8g_uint_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
             u8g_uint_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
-      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
+      for (uint8_t j = 0; j < (GRID_MAX_POINTS_Y); j++, y += pixels_per_y_mesh_pnt)
         if (PAGE_CONTAINS(y, y))
-          for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
+          for (uint8_t i = 0, x = sx; i < (GRID_MAX_POINTS_X); i++, x += pixels_per_x_mesh_pnt)
             u8g.drawBox(x, y, 1, 1);
 
       // Fill in the Specified Mesh Point

@@ -306,16 +306,16 @@ CrealityDWINClass CrealityDWIN;
 
     void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7) {
       drawing_mesh = true;
-      const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
-      const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
-      const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
+      const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
+                     cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
+                     cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
       const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       DWIN_Draw_Rectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
       if (selected >= 0) {
-        const auto selected_y = selected / GRID_MAX_POINTS_X;
-        const auto selected_x = selected - (GRID_MAX_POINTS_X * selected_y);
+        const auto selected_y = selected / (GRID_MAX_POINTS_X);
+        const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
         const auto start_y_px = padding_y_top + selected_y * cell_height_px;
         const auto start_x_px = padding_x + selected_x * cell_width_px;
         DWIN_Draw_Rectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
@@ -417,14 +417,14 @@ void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selected/*=fal
 }
 
 void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options, uint8_t row, bool selected/*=false*/, bool color/*=false*/) {
-  uint16_t bColor = (selected) ? Select_Color : Color_Bg_Black;
-  uint16_t tColor = (color) ? GetColor(value, Color_White, false) : Color_White;
+  uint16_t bColor = (selected) ? Select_Color : Color_Bg_Black,
+           tColor = (color) ? GetColor(value, Color_White, false) : Color_White;
   DWIN_Draw_Rectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
   DWIN_Draw_String(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
 uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
-  switch (color){
+  switch (color) {
     case Default:
       return original;
       break;
@@ -3418,11 +3418,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case MMESH_OLD:
             uint8_t mesh_x, mesh_y;
             // 0,0 -> 1,0 -> 2,0 -> 2,1 -> 1,1 -> 0,1 -> 0,2 -> 1,2 -> 2,2
-            mesh_y = (gridpoint - 1) / GRID_MAX_POINTS_Y;
-            mesh_x = (gridpoint - 1) % GRID_MAX_POINTS_X;
+            mesh_y = (gridpoint - 1) / (GRID_MAX_POINTS_Y);
+            mesh_x = (gridpoint - 1) % (GRID_MAX_POINTS_X);
 
             if (mesh_y % 2 == 1)
-              mesh_x = GRID_MAX_POINTS_X - mesh_x - 1;
+              mesh_x = (GRID_MAX_POINTS_X) - mesh_x - 1;
 
             const float currval = Z_VALUES_ARR[mesh_x][mesh_y];
 

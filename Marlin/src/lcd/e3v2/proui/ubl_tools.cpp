@@ -177,15 +177,15 @@ bool UBLMeshToolsClass::validate() {
   void UBLMeshToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
-    const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
-    const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
+    const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);
+    const uint16_t cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
     const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
     DWIN_Draw_Rectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
     if (selected >= 0) {
-      const auto selected_y = selected / GRID_MAX_POINTS_X;
-      const auto selected_x = selected - (GRID_MAX_POINTS_X * selected_y);
+      const auto selected_y = selected / (GRID_MAX_POINTS_X);
+      const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
       const auto start_y_px = padding_y_top + selected_y * cell_height_px;
       const auto start_x_px = padding_x + selected_x * cell_width_px;
       DWIN_Draw_Rectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
@@ -196,7 +196,7 @@ bool UBLMeshToolsClass::validate() {
     GRID_LOOP(x, y) {
       const auto start_x_px = padding_x + x * cell_width_px;
       const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
-      const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
+      const auto start_y_px = padding_y_top + ((GRID_MAX_POINTS_Y) - y - 1) * cell_height_px;
       const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
       DWIN_Draw_Rectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
         isnan(Z_VALUES_ARR[x][y]) ? Color_Grey : (                                                           // gray if undefined
