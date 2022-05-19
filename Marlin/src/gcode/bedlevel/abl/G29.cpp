@@ -74,14 +74,18 @@
   #endif
 #endif
 
+static void pre_g29_return(const bool retry, const bool did) {
+  if (!retry) {
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false));
+  }
+  if (did) {
+    TERN_(HAS_DWIN_E3V2_BASIC, DWIN_LevelingDone());
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+  }
+}
+
 #define G29_RETURN(retry, did) do{ \
-  if (TERN(G29_RETRY_AND_RECOVER, !retry, true)) { \
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false)); \
-  } \
-  if (did) { \
-    TERN_(HAS_DWIN_E3V2_BASIC, DWIN_LevelingDone()); \
-    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone()); \
-  } \
+  pre_g29_return(TERN0(G29_RETRY_AND_RECOVER, retry), did); \
   return TERN_(G29_RETRY_AND_RECOVER, retry); \
 }while(0)
 
@@ -326,8 +330,10 @@ G29_TYPE GcodeSuite::G29() {
           bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
-          set_bed_leveling_enabled(abl.reenable);
-          if (abl.reenable) report_current_position();
+          if (abl.reenable) {
+            set_bed_leveling_enabled(true);
+            report_current_position();
+          }
         }
         G29_RETURN(false, false);
       } // parser.seen_test('W')
@@ -693,7 +699,7 @@ G29_TYPE GcodeSuite::G29() {
 
           #endif
 
-          abl.reenable = false;
+          abl.reenable = false; // Don't re-enable after modifying the mesh
           idle_no_sleep();
 
         } // inner
@@ -878,32 +884,27 @@ G29_TYPE GcodeSuite::G29() {
         current_position = converted;
 
         if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+
+        abl.reenable = true;
+      }
+
+      // Auto Bed Leveling is complete! Enable if possible.
+      if (abl.reenable) {
+        planner.leveling_active = true;
+        sync_plan_position();
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      if (!abl.dryrun) {
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("G29 uncorrected Z:", current_position.z);
+      // Auto Bed Leveling is complete! Enable if possible.
+      if (!abl.dryrun || abl.reenable) set_bed_leveling_enabled(true);
 
-        // Unapply the offset because it is going to be immediately applied
-        // and cause compensation movement in Z
-        current_position.z -= bedlevel.get_z_correction(current_position)
-          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * planner.fade_scaling_factor_for_z(current_position.z));
+    #endif
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" corrected Z:", current_position.z);
-      }
-
-    #endif // ABL_PLANAR
-
-    // Auto Bed Leveling is complete! Enable if possible.
-    planner.leveling_active = !abl.dryrun || abl.reenable;
   } // !isnan(abl.measured_z)
 
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
-
-  // Sync the planner from the current_position
-  if (planner.leveling_active) sync_plan_position();
 
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
