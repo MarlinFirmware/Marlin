@@ -168,22 +168,18 @@
 
   #if ENABLED(MKS_MINI_12864)
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-
     #define DOGLCD_CS                EXP1_05_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN                     -1
-
   #elif ENABLED(FYSETC_MINI_12864_2_1)
   // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
     #define DOGLCD_CS                EXP1_08_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN            EXP1_06_PIN
-
     #define NEOPIXEL_PIN             EXP1_05_PIN
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
- 
   #else
    #define LCD_PINS_D4               EXP1_06_PIN
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
@@ -191,10 +187,8 @@
       #define LCD_PINS_D6            EXP1_04_PIN
       #define LCD_PINS_D7            EXP1_03_PIN
     #endif
-
     #define BOARD_ST7920_DELAY_1              96
     #define BOARD_ST7920_DELAY_2              48
-    #define BOARD_ST7920_DELAY_3             600  
-  #endif 
-
+    #define BOARD_ST7920_DELAY_3             600
+  #endif
 #endif // HAS_WIRED_LCD
