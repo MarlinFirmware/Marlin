@@ -209,8 +209,8 @@ CrealityDWINClass CrealityDWIN;
         GRID_LOOP(x, y) {
           if (!isnan(Z_VALUES_ARR[x][y])) {
             xy_pos_t rpos;
-            rpos.x = ubl.mesh_index_to_xpos(x);
-            rpos.y = ubl.mesh_index_to_ypos(y);
+            rpos.x = bedlevel.mesh_index_to_xpos(x);
+            rpos.y = bedlevel.mesh_index_to_ypos(y);
             incremental_LSF(&lsf_results, rpos, Z_VALUES_ARR[x][y]);
           }
         }
@@ -220,12 +220,12 @@ CrealityDWINClass CrealityDWIN;
           return true;
         }
 
-        ubl.set_all_mesh_points_to_value(0);
+        bedlevel.set_all_mesh_points_to_value(0);
 
         matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
         GRID_LOOP(i, j) {
-          float mx = ubl.mesh_index_to_xpos(i),
-                my = ubl.mesh_index_to_ypos(j),
+          float mx = bedlevel.mesh_index_to_xpos(i),
+                my = bedlevel.mesh_index_to_ypos(j),
                 mz = Z_VALUES_ARR[i][j];
 
           if (DEBUGGING(LEVELING)) {
@@ -2842,7 +2842,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (draw)
                 Draw_Menu_Item(row, ICON_Tilt, F("Autotilt Current Mesh"));
               else {
-                if (ubl.storage_slot < 0) {
+                if (bedlevel.storage_slot < 0) {
                   Popup_Handler(MeshSlot);
                   break;
                 }
@@ -2914,7 +2914,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
               #endif
               #if ENABLED(AUTO_BED_LEVELING_UBL)
-                if (ubl.storage_slot < 0) {
+                if (bedlevel.storage_slot < 0) {
                   Popup_Handler(MeshSlot);
                   break;
                 }
@@ -2949,7 +2949,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Mesh, GET_TEXT(MSG_MESH_VIEW), nullptr, true);
             else {
               #if ENABLED(AUTO_BED_LEVELING_UBL)
-                if (ubl.storage_slot < 0) {
+                if (bedlevel.storage_slot < 0) {
                   Popup_Handler(MeshSlot);
                   break;
                 }
@@ -2967,16 +2967,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case LEVELING_SLOT:
             if (draw) {
               Draw_Menu_Item(row, ICON_PrintSize, F("Mesh Slot"));
-              Draw_Float(ubl.storage_slot, row, false, 1);
+              Draw_Float(bedlevel.storage_slot, row, false, 1);
             }
             else
-              Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes() - 1, 1);
+              Modify_Value(bedlevel.storage_slot, 0, settings.calc_num_meshes() - 1, 1);
             break;
           case LEVELING_LOAD:
             if (draw)
               Draw_Menu_Item(row, ICON_ReadEEPROM, F("Load Mesh"));
             else {
-              if (ubl.storage_slot < 0) {
+              if (bedlevel.storage_slot < 0) {
                 Popup_Handler(MeshSlot);
                 break;
               }
@@ -2989,7 +2989,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             if (draw)
               Draw_Menu_Item(row, ICON_WriteEEPROM, F("Save Mesh"));
             else {
-              if (ubl.storage_slot < 0) {
+              if (bedlevel.storage_slot < 0) {
                 Popup_Handler(MeshSlot);
                 break;
               }
@@ -3104,7 +3104,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (draw)
                 Draw_Menu_Item(row, ICON_Mesh, F("Clear Current Mesh"));
               else
-                ubl.invalidate();
+                bedlevel.invalidate();
               break;
           #endif // AUTO_BED_LEVELING_UBL
         }
@@ -3146,7 +3146,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Back, F("Back"));
             else {
               set_bed_leveling_enabled(level_state);
-              TERN_(AUTO_BED_LEVELING_BILINEAR, bbl.refresh_bed_level());
+              TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
               Draw_Menu(Leveling, LEVELING_MANUAL);
             }
             break;
@@ -4283,7 +4283,7 @@ void CrealityDWINClass::Popup_Control() {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         case MeshSlot:
-          if (selection == 0) ubl.storage_slot = 0;
+          if (selection == 0) bedlevel.storage_slot = 0;
           Redraw_Menu(true, true);
           break;
       #endif

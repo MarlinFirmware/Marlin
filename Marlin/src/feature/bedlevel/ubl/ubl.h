@@ -270,7 +270,7 @@ public:
     float z0 = calc_z0(ry0, mesh_index_to_ypos(cy), z1, mesh_index_to_ypos(cy + 1), z2);
 
     if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
-      z0 = 0.0;      // in ubl.z_values[][] and propagate through the
+      z0 = 0.0;      // in bedlevel.z_values[][] and propagate through the
                      // calculations. If our correction is NAN, we throw it out
                      // because part of the Mesh is undefined and we don't have the
                      // information we need to complete the height correction.
@@ -309,11 +309,11 @@ public:
 
 }; // class unified_bed_leveling
 
-extern unified_bed_leveling ubl;
+extern unified_bed_leveling bedlevel;
 
-#define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
-#define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)
-#define Z_VALUES_ARR ubl.z_values
+#define _GET_MESH_X(I) bedlevel.mesh_index_to_xpos(I)
+#define _GET_MESH_Y(J) bedlevel.mesh_index_to_ypos(J)
+#define Z_VALUES_ARR bedlevel.z_values
 
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"

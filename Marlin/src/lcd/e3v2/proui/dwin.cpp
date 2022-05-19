@@ -3622,18 +3622,18 @@ void Draw_Steps_Menu() {
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  void ApplyUBLSlot() { ubl.storage_slot = MenuData.Value; }
-  void SetUBLSlot() { SetIntOnClick(0, settings.calc_num_meshes() - 1, ubl.storage_slot, ApplyUBLSlot); }
+  void ApplyUBLSlot() { bedlevel.storage_slot = MenuData.Value; }
+  void SetUBLSlot() { SetIntOnClick(0, settings.calc_num_meshes() - 1, bedlevel.storage_slot, ApplyUBLSlot); }
   void onDrawUBLSlot(MenuItemClass* menuitem, int8_t line) {
-    if (ubl.storage_slot < 0) ubl.storage_slot = 0;
-    onDrawIntMenu(menuitem, line, ubl.storage_slot);
+    if (bedlevel.storage_slot < 0) bedlevel.storage_slot = 0;
+    onDrawIntMenu(menuitem, line, bedlevel.storage_slot);
   }
 
   void ApplyUBLTiltGrid() { ubl_tools.tilt_grid = MenuData.Value; }
   void SetUBLTiltGrid() { SetIntOnClick(1, 3, ubl_tools.tilt_grid, ApplyUBLTiltGrid); }
 
   void UBLTiltMesh() {
-    if (ubl.storage_slot < 0) ubl.storage_slot = 0;
+    if (bedlevel.storage_slot < 0) bedlevel.storage_slot = 0;
     char buf[15];
     if (ubl_tools.tilt_grid > 1) {
       sprintf_P(buf, PSTR("G28O\nG29 J%i"), ubl_tools.tilt_grid);
@@ -3645,28 +3645,28 @@ void Draw_Steps_Menu() {
   }
 
   void UBLSmartFillMesh() {
-    ubl.smart_fill_mesh();
+    bedlevel.smart_fill_mesh();
     LCD_MESSAGE(MSG_UBL_MESH_FILLED);
   }
 
   bool UBLValidMesh() {
     const bool valid = ubl_tools.validate();
-    if (!valid) ubl.invalidate();
+    if (!valid) bedlevel.invalidate();
     return valid;
   }
 
   void UBLSaveMesh() {
-    if (ubl.storage_slot < 0) ubl.storage_slot = 0;
-    settings.store_mesh(ubl.storage_slot);
-    ui.status_printf(0, GET_TEXT_F(MSG_MESH_SAVED), ubl.storage_slot);
+    if (bedlevel.storage_slot < 0) bedlevel.storage_slot = 0;
+    settings.store_mesh(bedlevel.storage_slot);
+    ui.status_printf(0, GET_TEXT_F(MSG_MESH_SAVED), bedlevel.storage_slot);
     DONE_BUZZ(true);
   }
 
   void UBLLoadMesh() {
-    if (ubl.storage_slot < 0) ubl.storage_slot = 0;
-    settings.load_mesh(ubl.storage_slot);
+    if (bedlevel.storage_slot < 0) bedlevel.storage_slot = 0;
+    settings.load_mesh(bedlevel.storage_slot);
     if (UBLValidMesh()) {
-      ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), ubl.storage_slot);
+      ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
       DONE_BUZZ(true);
     }
     else {
@@ -3691,7 +3691,7 @@ void Draw_Steps_Menu() {
         MENU_ITEM_F(ICON_Level, MSG_AUTO_MESH, onDrawMenuItem, AutoLev);
       #endif
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        EDIT_ITEM_F(ICON_UBLActive, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, SetUBLSlot, &ubl.storage_slot);
+        EDIT_ITEM_F(ICON_UBLActive, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, SetUBLSlot, &bedlevel.storage_slot);
         MENU_ITEM_F(ICON_UBLActive, MSG_UBL_SAVE_MESH, onDrawMenuItem, UBLSaveMesh);
         MENU_ITEM_F(ICON_UBLActive, MSG_UBL_LOAD_MESH, onDrawMenuItem, UBLLoadMesh);
         EDIT_ITEM_F(ICON_UBLActive, MSG_UBL_TILTING_GRID, onDrawPInt8Menu, SetUBLTiltGrid, &ubl_tools.tilt_grid);

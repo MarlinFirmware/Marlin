@@ -525,7 +525,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Show X and Y positions at top of screen
       dwin_font.fg = Color_White;
       dwin_font.solid = true;
-      const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
+      const xy_pos_t pos = { bedlevel.mesh_index_to_xpos(x_plot), bedlevel.mesh_index_to_ypos(y_plot) },
                      lpos = pos.asLogical();
 
       lcd_moveto(

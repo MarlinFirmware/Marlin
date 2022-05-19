@@ -65,8 +65,8 @@ char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
     GRID_LOOP(x, y) {
       if (!isnan(Z_VALUES_ARR[x][y])) {
         xy_pos_t rpos;
-        rpos.x = ubl.mesh_index_to_xpos(x);
-        rpos.y = ubl.mesh_index_to_ypos(y);
+        rpos.x = bedlevel.mesh_index_to_xpos(x);
+        rpos.y = bedlevel.mesh_index_to_ypos(y);
         incremental_LSF(&lsf_results, rpos, Z_VALUES_ARR[x][y]);
       }
     }
@@ -76,12 +76,12 @@ char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
       return true;
     }
 
-    ubl.set_all_mesh_points_to_value(0);
+    bedlevel.set_all_mesh_points_to_value(0);
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
     GRID_LOOP(i, j) {
-      float mx = ubl.mesh_index_to_xpos(i),
-            my = ubl.mesh_index_to_ypos(j),
+      float mx = bedlevel.mesh_index_to_xpos(i),
+            my = bedlevel.mesh_index_to_ypos(j),
             mz = Z_VALUES_ARR[i][j];
 
       if (DEBUGGING(LEVELING)) {

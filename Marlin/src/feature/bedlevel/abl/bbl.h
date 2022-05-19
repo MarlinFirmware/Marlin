@@ -54,6 +54,7 @@ public:
   static void print_leveling_grid(const bed_mesh_t* _z_values = NULL);
   static void refresh_bed_level();
   static bool has_mesh() { return !!grid_spacing.x; }
+  static bool mesh_is_valid() { return has_mesh(); }
   static bed_mesh_t& get_z_values() { return z_values; }
   static const xy_pos_t& get_grid_spacing() { return grid_spacing; }
   static const xy_pos_t& get_grid_start() { return grid_start; }
@@ -67,8 +68,8 @@ public:
   #endif
 };
 
-extern LevelingBilinear bbl;
+extern LevelingBilinear bedlevel;
 
-#define _GET_MESH_X(I) bbl.get_mesh_x(I)
-#define _GET_MESH_Y(J) bbl.get_mesh_y(J)
-#define Z_VALUES_ARR bbl.get_z_values()
+#define _GET_MESH_X(I) bedlevel.get_mesh_x(I)
+#define _GET_MESH_Y(J) bedlevel.get_mesh_y(J)
+#define Z_VALUES_ARR bedlevel.get_z_values()

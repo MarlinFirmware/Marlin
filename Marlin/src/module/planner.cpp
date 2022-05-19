@@ -1570,14 +1570,6 @@ void Planner::check_axes_activity() {
     TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_HOME_POS)
   };
 
-  #if ENABLED(MESH_BED_LEVELING)
-    #define BLS mbl
-  #elif ENABLED(AUTO_BED_LEVELING_UBL)
-    #define BLS ubl
-  #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    #define BLS bbl
-  #endif
-
   /**
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
@@ -1600,9 +1592,9 @@ void Planner::check_axes_activity() {
       #endif
 
       if (fade_scaling_factor)
-        raw.z += fade_scaling_factor * BLS.get_z_correction(raw);
+        raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
 
-      TERN_(MESH_BED_LEVELING, raw.z += BLS.get_z_offset());
+      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
 
     #endif
   }
@@ -1620,8 +1612,8 @@ void Planner::check_axes_activity() {
 
     #elif HAS_MESH
 
-      const float z_correction = BLS.get_z_correction(raw),
-                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, BLS.get_z_offset()),
+      const float z_correction = bedlevel.get_z_correction(raw),
+                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, bedlevel.get_z_offset()),
                   z_no_fade = z_full_fade - z_correction;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

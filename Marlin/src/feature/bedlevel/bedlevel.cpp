@@ -47,9 +47,7 @@
 #endif
 
 bool leveling_is_valid() {
-  return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
-      && TERN1(AUTO_BED_LEVELING_BILINEAR, bbl.has_mesh())
-      && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
+  return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
 }
 
 /**
@@ -116,18 +114,9 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
  */
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl.reset();
-  #else
-    set_bed_leveling_enabled(false);
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.reset();
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      bbl.reset();
-    #elif ABL_PLANAR
-      planner.bed_level_matrix.set_to_identity();
-    #endif
-  #endif
+  IF_DISABLED(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(false));
+  TERN_(HAS_MESH, bedlevel.reset());
+  TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
 #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)

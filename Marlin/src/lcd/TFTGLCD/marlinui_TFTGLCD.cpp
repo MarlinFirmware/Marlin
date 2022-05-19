@@ -1069,15 +1069,15 @@ void MarlinUI::draw_status_screen() {
 
       // Show all values
       lcd.setCursor(_LCD_W_POS, 1); lcd_put_u8str(F("X:"));
-      lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+      lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&bedlevel._mesh_index_to_xpos[x_plot]))));
       lcd.setCursor(_LCD_W_POS, 2); lcd_put_u8str(F("Y:"));
-      lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+      lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&bedlevel._mesh_index_to_ypos[y_plot]))));
 
       // Show the location value
       lcd.setCursor(_LCD_W_POS, 3); lcd_put_u8str(F("Z:"));
 
-      if (!isnan(ubl.z_values[x_plot][y_plot]))
-        lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      if (!isnan(bedlevel.z_values[x_plot][y_plot]))
+        lcd.print(ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
       else
         lcd_put_u8str(F(" -----"));
 

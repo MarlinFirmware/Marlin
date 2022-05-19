@@ -34,9 +34,9 @@ enum MeshLevelingState : char {
 
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
-#define _GET_MESH_X(I) mbl.index_to_xpos[I]
-#define _GET_MESH_Y(J) mbl.index_to_ypos[J]
-#define Z_VALUES_ARR mbl.z_values
+#define _GET_MESH_X(I) bedlevel.index_to_xpos[I]
+#define _GET_MESH_Y(J) bedlevel.index_to_ypos[J]
+#define Z_VALUES_ARR bedlevel.z_values
 
 class mesh_bed_leveling {
 public:
@@ -55,6 +55,8 @@ public:
     GRID_LOOP(x, y) if (z_values[x][y]) return true;
     return false;
   }
+
+  static bool mesh_is_valid() { return has_mesh(); }
 
   static void set_z(const int8_t px, const int8_t py, const_float_t z) { z_values[px][py] = z; }
 
@@ -120,4 +122,4 @@ public:
   #endif
 };
 
-extern mesh_bed_leveling mbl;
+extern mesh_bed_leveling bedlevel;

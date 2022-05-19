@@ -601,7 +601,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Show X and Y positions at top of screen
       u8g.setColorIndex(1);
       if (PAGE_UNDER(7)) {
-        const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
+        const xy_pos_t pos = { bedlevel.mesh_index_to_xpos(x_plot), bedlevel.mesh_index_to_ypos(y_plot) },
                        lpos = pos.asLogical();
         lcd_put_u8str_P(5, 7, X_LBL);
         lcd_put_u8str(ftostr52(lpos.x));
@@ -619,8 +619,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
         // Show the location value
         lcd_put_u8str_P(74, LCD_PIXEL_HEIGHT, Z_LBL);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        if (!isnan(bedlevel.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str(F(" -----"));
       }

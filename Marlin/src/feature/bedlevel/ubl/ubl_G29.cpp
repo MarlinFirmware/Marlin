@@ -1329,11 +1329,11 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
 
   static bool test_func(uint8_t i, uint8_t j, void *data) {
     find_closest_t *d = (find_closest_t*)data;
-    if (  d->type == CLOSEST || d->type == (isnan(ubl.z_values[i][j]) ? INVALID : REAL)
+    if (  d->type == CLOSEST || d->type == (isnan(bedlevel.z_values[i][j]) ? INVALID : REAL)
       || (d->type == SET_IN_BITMAP && !d->done_flags->marked(i, j))
     ) {
       // Found a Mesh Point of the specified type!
-      const xy_pos_t mpos = { ubl.mesh_index_to_xpos(i), ubl.mesh_index_to_ypos(j) };
+      const xy_pos_t mpos = { bedlevel.mesh_index_to_xpos(i), bedlevel.mesh_index_to_ypos(j) };
 
       // If using the probe as the reference there are some unreachable locations.
       // Also for round beds, there are grid points outside the bed the nozzle can't reach.
