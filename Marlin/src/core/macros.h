@@ -82,11 +82,11 @@
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
-#define _O0          __attribute__((optimize("O0")))
-#define _Os          __attribute__((optimize("Os")))
-#define _O1          __attribute__((optimize("O1")))
-#define _O2          __attribute__((optimize("O2")))
-#define _O3          __attribute__((optimize("O3")))
+#define __O0         __attribute__((optimize("O0")))
+#define __Os         __attribute__((optimize("Os")))
+#define __O1         __attribute__((optimize("O1")))
+#define __O2         __attribute__((optimize("O2")))
+#define __O3         __attribute__((optimize("O3")))
 
 #define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
 
@@ -290,7 +290,7 @@
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
-#define ZERO(a)             memset(a,0,sizeof(a))
+#define ZERO(a)             memset((void*)a,0,sizeof(a))
 #define COPY(a,b) do{ \
     static_assert(sizeof(a[0]) == sizeof(b[0]), "COPY: '" STRINGIFY(a) "' and '" STRINGIFY(b) "' types (sizes) don't match!"); \
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \

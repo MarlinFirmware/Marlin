@@ -42,9 +42,7 @@ namespace ExtUI {
   void onMediaError()     { AnycubicTFT.OnSDCardError(); }
   void onMediaRemoved()   { AnycubicTFT.OnSDCardStateChange(false); }
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
-    #if ENABLED(SPEAKER)
-      ::tone(BEEPER_PIN, frequency, duration);
-    #endif
+    TERN_(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
   }
   void onPrintTimerStarted()  { AnycubicTFT.OnPrintTimerStarted(); }
   void onPrintTimerPaused()   { AnycubicTFT.OnPrintTimerPaused(); }

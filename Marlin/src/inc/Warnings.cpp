@@ -740,10 +740,10 @@
 #endif
 
 /**
- * FYSETC backlighting
+ * FYSETC/MKS/BTT Mini Panel backlighting
  */
 #if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
-  #warning "Your FYSETC Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
+  #warning "Your FYSETC/MKS/BTT Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
 #endif
 
 #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
@@ -757,7 +757,7 @@
 #endif
 
 /**
- * Maple environent
+ * Maple environment
  */
 #ifdef __STM32F1__
   #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."

@@ -68,7 +68,6 @@ namespace Language_zh_CN {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("淡出高度");     // "Fade Height"
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("设置原点偏移");     // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已启用");     // "Offsets applied"
-  LSTR MSG_SET_ORIGIN                     = _UxGT("设置原点");     // "Set origin"
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("预热 ") PREHEAT_1_LABEL;     // "Preheat PREHEAT_2_LABEL"
     LSTR MSG_PREHEAT_1_H                  = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     // "Preheat PREHEAT_2_LABEL"
@@ -261,8 +260,8 @@ namespace Language_zh_CN {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("自动PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("自动PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID调整完成");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败. 坏的挤出机");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败. 温度太高");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败! 坏的挤出机");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败! 温度太高");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("自动调失败! 超时");
   LSTR MSG_SELECT                         = _UxGT("选择");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("选择 *");

@@ -600,6 +600,10 @@
       #define LCD_PINS_D6            AUX2_08_PIN
       #define LCD_PINS_D7            AUX2_10_PIN
 
+    #elif ENABLED(AZSMZ_12864)
+
+      // Pins only defined for RAMPS_SMART currently
+
     #else
 
       #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
@@ -752,7 +756,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+        // From https://wiki.fysetc.com/Mini12864_Panel/
 
         #define DOGLCD_A0            EXP1_07_PIN
         #define DOGLCD_CS            EXP1_08_PIN

@@ -71,7 +71,7 @@ void draw_es_state(const bool is_hit) {
 
 void ESDiagClass::Draw() {
   Title.ShowCaption(F("End-stops Diagnostic"));
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   Draw_Popup_Bkgd();
   DWINUI::Draw_Button(BTN_Continue, 86, 250);
   DWINUI::cursor.y = 80;

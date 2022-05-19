@@ -29,6 +29,7 @@
 #if HAS_MARLINUI_MENU
 
 #include "menu_item.h"
+#include "../../MarlinCore.h"
 #include "../../module/planner.h"
 
 #if DISABLED(NO_VOLUMETRICS)

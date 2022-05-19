@@ -68,7 +68,6 @@ namespace Language_ro {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Inaltime");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Seteaza Offseturile Acasa");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offseturi Aplicate");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Seteaza Originea");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
@@ -261,8 +260,8 @@ namespace Language_ro {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune failed. Bad extruder.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed. Temperature too high.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune failed! Bad extruder.");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
   LSTR MSG_SELECT                         = _UxGT("Select");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");

@@ -524,11 +524,11 @@
 #elif defined(Z_QUAD_ENDSTOPS_ADJUSTMENT2) || defined(Z_QUAD_ENDSTOPS_ADJUSTMENT3) || defined(Z_QUAD_ENDSTOPS_ADJUSTMENT4)
   #error "Z_QUAD_ENDSTOPS_ADJUSTMENT[234] is now Z[234]_ENDSTOP_ADJUSTMENT."
 #elif defined(Z_DUAL_STEPPER_DRIVERS)
-  #error "Z_DUAL_STEPPER_DRIVERS is now NUM_Z_STEPPER_DRIVERS with a value of 2."
+  #error "Z_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Z_TRIPLE_STEPPER_DRIVERS)
-  #error "Z_TRIPLE_STEPPER_DRIVERS is now NUM_Z_STEPPER_DRIVERS with a value of 3."
+  #error "Z_TRIPLE_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Z_QUAD_STEPPER_DRIVERS)
-  #error "Z_QUAD_STEPPER_DRIVERS is now NUM_Z_STEPPER_DRIVERS with a value of 4."
+  #error "Z_QUAD_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Z_DUAL_ENDSTOPS) || defined(Z_TRIPLE_ENDSTOPS) || defined(Z_QUAD_ENDSTOPS)
   #error "Z_(DUAL|TRIPLE|QUAD)_ENDSTOPS is now Z_MULTI_ENDSTOPS."
 #elif defined(DUGS_UI_MOVE_DIS_OPTION)
@@ -621,6 +621,12 @@
   #error "DWIN_CREALITY_LCD_ENHANCED is now DWIN_LCD_PROUI."
 #elif defined(LINEAR_AXES)
   #error "LINEAR_AXES is now NUM_AXES (to account for rotational axes)."
+#elif defined(X_DUAL_STEPPER_DRIVERS)
+  #error "X_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(Y_DUAL_STEPPER_DRIVERS)
+  #error "Y_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(NUM_Z_STEPPER_DRIVERS)
+  #error "NUM_Z_STEPPER_DRIVERS is no longer needed and should be removed."
 #endif
 
 constexpr float arm[] = AXIS_RELATIVE_MODES;
@@ -737,27 +743,21 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Multiple Stepper Drivers Per Axis
  */
 #define GOOD_AXIS_PINS(A) (HAS_##A##_ENABLE && HAS_##A##_STEP && HAS_##A##_DIR)
-#if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #error "DUAL_X_CARRIAGE is not compatible with X_DUAL_STEPPER_DRIVERS."
-  #elif !GOOD_AXIS_PINS(X)
-    #error "X_DUAL_STEPPER_DRIVERS requires X2 pins to be defined."
-  #endif
+#if HAS_X2_STEPPER && !GOOD_AXIS_PINS(X)
+  #error "If X2_DRIVER_TYPE is defined, then X2 ENABLE/STEP/DIR pins are also needed."
 #endif
 
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS) && !GOOD_AXIS_PINS(Y)
-  #error "Y_DUAL_STEPPER_DRIVERS requires Y2 pins to be defined."
+#if HAS_DUAL_Y_STEPPERS && !GOOD_AXIS_PINS(Y)
+  #error "If Y2_DRIVER_TYPE is defined, then Y2 ENABLE/STEP/DIR pins are also needed."
 #endif
 
 #if HAS_Z_AXIS
-  #if !WITHIN(NUM_Z_STEPPER_DRIVERS, 1, 4)
-    #error "NUM_Z_STEPPER_DRIVERS must be an integer from 1 to 4."
-  #elif NUM_Z_STEPPER_DRIVERS == 2 && !GOOD_AXIS_PINS(Z2)
-    #error "If NUM_Z_STEPPER_DRIVERS is 2, you must define stepper pins for Z2."
-  #elif NUM_Z_STEPPER_DRIVERS == 3 && !(GOOD_AXIS_PINS(Z2) && GOOD_AXIS_PINS(Z3))
-    #error "If NUM_Z_STEPPER_DRIVERS is 3, you must define stepper pins for Z2 and Z3."
-  #elif NUM_Z_STEPPER_DRIVERS == 4 && !(GOOD_AXIS_PINS(Z2) && GOOD_AXIS_PINS(Z3) && GOOD_AXIS_PINS(Z4))
-    #error "If NUM_Z_STEPPER_DRIVERS is 4, you must define stepper pins for Z2, Z3, and Z4."
+  #if NUM_Z_STEPPERS >= 2 && !GOOD_AXIS_PINS(Z2)
+    #error "If Z2_DRIVER_TYPE is defined, then Z2 ENABLE/STEP/DIR pins are also needed."
+  #elif NUM_Z_STEPPERS >= 3 && !GOOD_AXIS_PINS(Z3)
+    #error "If Z3_DRIVER_TYPE is defined, then Z3 ENABLE/STEP/DIR pins are also needed."
+  #elif NUM_Z_STEPPERS >= 4 && !GOOD_AXIS_PINS(Z4)
+    #error "If Z4_DRIVER_TYPE is defined, then Z4 ENABLE/STEP/DIR pins are also needed."
   #endif
 #endif
 
@@ -1917,7 +1917,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * LCD_BED_LEVELING requirements
  */
 #if ENABLED(LCD_BED_LEVELING)
-  #if NONE(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+  #if !HAS_MARLINUI_MENU
     #error "LCD_BED_LEVELING is not supported by the selected LCD controller."
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
@@ -2374,18 +2374,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if TEMP_SENSOR_PROBE
   #if !PIN_EXISTS(TEMP_PROBE)
     #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
-  #elif !HAS_TEMP_ADC_PROBE
-    #error "TEMP_PROBE_PIN must be an ADC pin."
-  #elif DISABLED(FIX_MOUNTED_PROBE)
-    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
-  #endif
-#endif
-
-#if TEMP_SENSOR_PROBE
-  #if !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
-  #elif !HAS_TEMP_ADC_PROBE
-    #error "TEMP_PROBE_PIN must be an ADC pin."
   #elif DISABLED(FIX_MOUNTED_PROBE)
     #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
   #endif
@@ -2394,8 +2382,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if TEMP_SENSOR_BOARD
   #if !PIN_EXISTS(TEMP_BOARD)
     #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
-  #elif !HAS_TEMP_ADC_BOARD
-    #error "TEMP_BOARD_PIN must be an ADC pin."
   #elif ENABLED(THERMAL_PROTECTION_BOARD) && (!defined(BOARD_MINTEMP) || !defined(BOARD_MAXTEMP))
     #error "THERMAL_PROTECTION_BOARD requires BOARD_MINTEMP and BOARD_MAXTEMP."
   #endif
@@ -2443,23 +2429,23 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * FYSETC LCD Requirements
+ * FYSETC/MKS/BTT Mini Panel Requirements
  */
 #if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
-  #ifndef NEO_GRB
-    #define NEO_GRB 123
+  #ifndef NEO_RGB
+    #define NEO_RGB 123
     #define FAUX_RGB 1
   #endif
-  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_GRB
-    #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_GRB."
+  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
+    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
   #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
-    #error "Your FYSETC Mini Panel requires NEOPIXEL_PIXELS >= 3."
+    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_PIXELS >= 3."
   #endif
   #if FAUX_RGB
-    #undef NEO_GRB
+    #undef NEO_RGB
     #undef FAUX_RGB
   #endif
-#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && !DISABLED(RGB_LED)
+#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #error "Your FYSETC Mini Panel requires RGB_LED."
 #endif
 
@@ -2639,10 +2625,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_MULTI_ENDSTOPS is not compatible with DELTA."
   #elif !Z2_USE_ENDSTOP
     #error "Z2_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS."
-  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPER_DRIVERS >= 3
-    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and NUM_Z_STEPPER_DRIVERS >= 3."
-  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPER_DRIVERS >= 4
-    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and NUM_Z_STEPPER_DRIVERS >= 4."
+  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPERS >= 3
+    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
+  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPERS >= 4
+    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
   #endif
 #endif
 
@@ -3703,14 +3689,14 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  #if NUM_Z_STEPPER_DRIVERS <= 1
-    #error "Z_STEPPER_AUTO_ALIGN requires NUM_Z_STEPPER_DRIVERS greater than 1."
+  #if NUM_Z_STEPPERS <= 1
+    #error "Z_STEPPER_AUTO_ALIGN requires more than one Z stepper."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
   #elif HAS_Z_STEPPER_ALIGN_STEPPER_XY
     static_assert(WITHIN(Z_STEPPER_ALIGN_AMP, 0.5, 2.0), "Z_STEPPER_ALIGN_AMP must be between 0.5 and 2.0.");
-    #if NUM_Z_STEPPER_DRIVERS < 3
-      #error "Z_STEPPER_ALIGN_STEPPER_XY requires NUM_Z_STEPPER_DRIVERS to be 3 or 4."
+    #if NUM_Z_STEPPERS < 3
+      #error "Z_STEPPER_ALIGN_STEPPER_XY requires 3 or 4 Z steppers."
     #endif
   #endif
 #endif
