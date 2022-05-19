@@ -264,16 +264,17 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
-    const float z1 = calc_z0(rx0, get_mesh_x(cx), z_values[cx][cy], get_mesh_x(cx + 1), z_values[mx][cy]);
-    const float z2 = calc_z0(rx0, get_mesh_x(cx), z_values[cx][my], get_mesh_x(cx + 1), z_values[mx][my]);
+    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1,
+                  x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1);
+    const float z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
+                z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
     float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
 
-    if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
-      z0 = 0.0;      // in bedlevel.z_values[][] and propagate through the
-                     // calculations. If our correction is NAN, we throw it out
-                     // because part of the Mesh is undefined and we don't have the
-                     // information we need to complete the height correction.
+    if (isnan(z0)) { // If part of the Mesh is undefined, it will show up as NAN
+      z0 = 0.0;      // in z_values[][] and propagate through the calculations.
+                     // If our correction is NAN, we throw it out because part of
+                     // the Mesh is undefined and we don't have the information
+                     // needed to complete the height correction.
 
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }
@@ -310,10 +311,6 @@ public:
 }; // class unified_bed_leveling
 
 extern unified_bed_leveling bedlevel;
-
-#define _GET_MESH_X(I) bedlevel.get_mesh_x(I)
-#define _GET_MESH_Y(J) bedlevel.get_mesh_y(J)
-#define Z_VALUES_ARR bedlevel.z_values
 
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"

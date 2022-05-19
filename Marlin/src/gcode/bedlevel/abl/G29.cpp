@@ -313,8 +313,8 @@ G29_TYPE GcodeSuite::G29() {
 
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
-          i = (rx - bedlevel.get_grid_start().x) / bedlevel.get_grid_spacing().x + 0.5f;
-          j = (ry - bedlevel.get_grid_start().y) / bedlevel.get_grid_spacing().y + 0.5f;
+          i = (rx - bedlevel.grid_start.x) / bedlevel.grid_spacing.x + 0.5f;
+          j = (ry - bedlevel.grid_start.y) / bedlevel.grid_spacing.y + 0.5f;
           LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
           LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
         }
@@ -323,7 +323,7 @@ G29_TYPE GcodeSuite::G29() {
 
         if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
           set_bed_leveling_enabled(false);
-          Z_VALUES_ARR[i][j] = rz;
+          bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           set_bed_leveling_enabled(abl.reenable);
@@ -499,7 +499,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       if (!abl.dryrun
-        && (abl.gridSpacing != bedlevel.get_grid_spacing() || abl.probe_position_lf != bedlevel.get_grid_start())
+        && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
@@ -509,7 +509,7 @@ G29_TYPE GcodeSuite::G29() {
       }
 
       // Pre-populate local Z values from the stored mesh
-      TERN_(IS_KINEMATIC, COPY(abl.z_values, Z_VALUES_ARR));
+      TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
 
     #endif // AUTO_BED_LEVELING_BILINEAR
 
@@ -798,7 +798,7 @@ G29_TYPE GcodeSuite::G29() {
         bedlevel.print_leveling_grid(&abl.z_values);
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
-        COPY(Z_VALUES_ARR, abl.z_values);
+        COPY(bedlevel.z_values, abl.z_values);
         TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
 

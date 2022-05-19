@@ -34,9 +34,6 @@ enum MeshLevelingState : char {
 
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
-#define _GET_MESH_X(I) bedlevel.index_to_xpos[I]
-#define _GET_MESH_Y(J) bedlevel.index_to_ypos[J]
-#define Z_VALUES_ARR bedlevel.z_values
 
 class mesh_bed_leveling {
 public:
@@ -71,6 +68,9 @@ public:
     zigzag(index, px, py);
     set_z(px, py, z);
   }
+
+  static float get_mesh_x(const uint8_t i) { return index_to_xpos[i]; }
+  static float get_mesh_y(const uint8_t i) { return index_to_ypos[i]; }
 
   static int8_t cell_index_x(const_float_t x) {
     int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);

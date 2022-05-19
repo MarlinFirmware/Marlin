@@ -516,8 +516,8 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Display Mesh Point Locations
       const dwin_coord_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
             dwin_coord_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
-      for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
-        for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
+      for (uint8_t j = 0; j < (GRID_MAX_POINTS_Y); j++, y += pixels_per_y_mesh_pnt)
+        for (uint8_t i = 0, x = sx; i < (GRID_MAX_POINTS_X); i++, x += pixels_per_x_mesh_pnt)
           DWIN_Draw_Point(Color_White, 1, 1, x, y);
 
       // Put Relevant Text on Display
@@ -555,8 +555,8 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // Show the location value
       dwin_string.set(Z_LBL);
-      if (!isnan(Z_VALUES_ARR[x_plot][y_plot]))
-        dwin_string.add(ftostr43sign(Z_VALUES_ARR[x_plot][y_plot]));
+      if (!isnan(bedlevel.z_values[x_plot][y_plot]))
+        dwin_string.add(ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
       else
         dwin_string.add(PSTR(" -----"));
       lcd_moveto(

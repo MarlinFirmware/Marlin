@@ -3611,7 +3611,7 @@ void Draw_Steps_Menu() {
   #define Z_OFFSET_MIN -3
   #define Z_OFFSET_MAX  3
 
-  void LiveEditMesh() { ((MenuItemPtrClass*)EditZValueItem)->value = &Z_VALUES_ARR[HMI_value.Select ? mesh_x : MenuData.Value][HMI_value.Select ? MenuData.Value : mesh_y]; EditZValueItem->redraw(); }
+  void LiveEditMesh() { ((MenuItemPtrClass*)EditZValueItem)->value = &bedlevel.z_values[HMI_value.Select ? mesh_x : MenuData.Value][HMI_value.Select ? MenuData.Value : mesh_y]; EditZValueItem->redraw(); }
   void ApplyEditMeshX() { mesh_x = MenuData.Value; }
   void SetEditMeshX() { HMI_value.Select = 0; SetIntOnClick(0, GRID_MAX_POINTS_X - 1, mesh_x, ApplyEditMeshX, LiveEditMesh); }
   void ApplyEditMeshY() { mesh_y = MenuData.Value; }
@@ -3714,7 +3714,7 @@ void Draw_Steps_Menu() {
         BACK_ITEM(Draw_MeshSet_Menu);
         EDIT_ITEM_F(ICON_UBLActive, MSG_MESH_X, onDrawPInt8Menu, SetEditMeshX, &mesh_x);
         EDIT_ITEM_F(ICON_UBLActive, MSG_MESH_Y, onDrawPInt8Menu, SetEditMeshY, &mesh_y);
-        EditZValueItem = EDIT_ITEM_F(ICON_UBLActive, MSG_MESH_EDIT_Z, onDrawPFloat3Menu, SetEditZValue, &Z_VALUES_ARR[mesh_x][mesh_y]);
+        EditZValueItem = EDIT_ITEM_F(ICON_UBLActive, MSG_MESH_EDIT_Z, onDrawPFloat3Menu, SetEditZValue, &bedlevel.z_values[mesh_x][mesh_y]);
       }
       UpdateMenu(EditMeshMenu);
     }

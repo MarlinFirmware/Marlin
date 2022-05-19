@@ -74,8 +74,8 @@ void GcodeSuite::M420() {
         bedlevel.set_grid(spacing, start);
       #endif
       GRID_LOOP(x, y) {
-        Z_VALUES(x, y) = 0.001 * random(-200, 200);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
+        bedlevel.z_values[x][y] = 0.001 * random(-200, 200);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
       }
       TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
@@ -156,7 +156,7 @@ void GcodeSuite::M420() {
 
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
-            GRID_LOOP(x, y) mesh_sum += Z_VALUES(x, y);
+            GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
             const float zmean = mesh_sum / float(GRID_MAX_POINTS);
 
           #else // midrange
@@ -164,7 +164,7 @@ void GcodeSuite::M420() {
             // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
             GRID_LOOP(x, y) {
-              const float z = Z_VALUES(x, y);
+              const float z = bedlevel.z_values[x][y];
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
             }
@@ -178,8 +178,8 @@ void GcodeSuite::M420() {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
             GRID_LOOP(x, y) {
-              Z_VALUES(x, y) -= zmean;
-              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
+              bedlevel.z_values[x][y] -= zmean;
+              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
             }
             TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
           }

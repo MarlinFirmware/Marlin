@@ -69,9 +69,6 @@ class TemporaryBedLevelingState {
     #include "mbl/mesh_bed_leveling.h"
   #endif
 
-  #define Z_VALUES(X,Y) Z_VALUES_ARR[X][Y]
-  #define _GET_MESH_POS(M) { _GET_MESH_X(M.a), _GET_MESH_Y(M.b) }
-
   #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
     #include <stdint.h>

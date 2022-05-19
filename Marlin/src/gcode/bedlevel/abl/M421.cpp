@@ -58,8 +58,8 @@ void GcodeSuite::M421() {
               sy = iy >= 0 ? iy : 0, ey = iy >= 0 ? iy : GRID_MAX_POINTS_Y - 1;
       LOOP_S_LE_N(x, sx, ex) {
         LOOP_S_LE_N(y, sy, ey) {
-          Z_VALUES_ARR[x][y] = zval + (hasQ ? Z_VALUES_ARR[x][y] : 0);
-          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES_ARR[x][y]));
+          bedlevel.z_values[x][y] = zval + (hasQ ? bedlevel.z_values[x][y] : 0);
+          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
         }
       }
       bedlevel.refresh_bed_level();
