@@ -601,7 +601,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Show X and Y positions at top of screen
       u8g.setColorIndex(1);
       if (PAGE_UNDER(7)) {
-        const xy_pos_t pos = { bedlevel.mesh_index_to_xpos(x_plot), bedlevel.mesh_index_to_ypos(y_plot) },
+        const xy_pos_t pos = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) },
                        lpos = pos.asLogical();
         lcd_put_u8str_P(5, 7, X_LBL);
         lcd_put_u8str(ftostr52(lpos.x));

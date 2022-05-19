@@ -209,8 +209,8 @@ CrealityDWINClass CrealityDWIN;
         GRID_LOOP(x, y) {
           if (!isnan(Z_VALUES_ARR[x][y])) {
             xy_pos_t rpos;
-            rpos.x = bedlevel.mesh_index_to_xpos(x);
-            rpos.y = bedlevel.mesh_index_to_ypos(y);
+            rpos.x = bedlevel.get_mesh_x(x);
+            rpos.y = bedlevel.get_mesh_y(y);
             incremental_LSF(&lsf_results, rpos, Z_VALUES_ARR[x][y]);
           }
         }
@@ -224,8 +224,8 @@ CrealityDWINClass CrealityDWIN;
 
         matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
         GRID_LOOP(i, j) {
-          float mx = bedlevel.mesh_index_to_xpos(i),
-                my = bedlevel.mesh_index_to_ypos(j),
+          float mx = bedlevel.get_mesh_x(i),
+                my = bedlevel.get_mesh_y(j),
                 mz = Z_VALUES_ARR[i][j];
 
           if (DEBUGGING(LEVELING)) {

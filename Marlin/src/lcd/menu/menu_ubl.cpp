@@ -390,8 +390,8 @@ void _lcd_ubl_storage_mesh() {
  */
 void _lcd_ubl_map_edit_cmd() {
   char ubl_lcd_gcode[50], str[10], str2[10];
-  dtostrf(bedlevel.mesh_index_to_xpos(x_plot), 0, 2, str);
-  dtostrf(bedlevel.mesh_index_to_ypos(y_plot), 0, 2, str2);
+  dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str);
+  dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2);
   snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29P4X%sY%sR%i"), str, str2, int(n_edit_pts));
   queue.inject(ubl_lcd_gcode);
 }
@@ -400,7 +400,7 @@ void _lcd_ubl_map_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
-  const xy_pos_t xy = { bedlevel.mesh_index_to_xpos(x_plot), bedlevel.mesh_index_to_ypos(y_plot) };
+  const xy_pos_t xy = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) };
 
   // Some printers have unreachable areas in the mesh. Skip the move if unreachable.
   if (!position_is_reachable(xy)) return;
@@ -459,7 +459,7 @@ void ubl_map_screen() {
 
       // Validate if needed
       #if IS_KINEMATIC
-        const xy_pos_t xy = { bedlevel.mesh_index_to_xpos(x), bedlevel.mesh_index_to_ypos(y) };
+        const xy_pos_t xy = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
         if (position_is_reachable(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif

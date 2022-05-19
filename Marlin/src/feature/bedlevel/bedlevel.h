@@ -92,7 +92,7 @@ class TemporaryBedLevelingState {
     bool valid() const { return pos.x >= 0 && pos.y >= 0; }
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       xy_pos_t meshpos() {
-        return { bedlevel.mesh_index_to_xpos(pos.x), bedlevel.mesh_index_to_ypos(pos.y) };
+        return { bedlevel.get_mesh_x(pos.x), bedlevel.get_mesh_y(pos.y) };
       }
     #endif
     operator xy_int8_t&() { return pos; }

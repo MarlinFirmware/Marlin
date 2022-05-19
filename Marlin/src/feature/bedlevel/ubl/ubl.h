@@ -215,7 +215,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * RECIPROCAL(MESH_X_DIST),
+    const float xratio = (rx0 - get_mesh_x(x1_i)) * RECIPROCAL(MESH_X_DIST),
                 z1 = z_values[x1_i][yi];
 
     return z1 + xratio * (z_values[_MIN(x1_i, (GRID_MAX_POINTS_X) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
@@ -238,7 +238,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * RECIPROCAL(MESH_Y_DIST),
+    const float yratio = (ry0 - get_mesh_y(y1_i)) * RECIPROCAL(MESH_Y_DIST),
                 z1 = z_values[xi][y1_i];
 
     return z1 + yratio * (z_values[xi][_MIN(y1_i, (GRID_MAX_POINTS_Y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
@@ -265,9 +265,9 @@ public:
     #endif
 
     const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
-    const float z1 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][cy], mesh_index_to_xpos(cx + 1), z_values[mx][cy]);
-    const float z2 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][my], mesh_index_to_xpos(cx + 1), z_values[mx][my]);
-    float z0 = calc_z0(ry0, mesh_index_to_ypos(cy), z1, mesh_index_to_ypos(cy + 1), z2);
+    const float z1 = calc_z0(rx0, get_mesh_x(cx), z_values[cx][cy], get_mesh_x(cx + 1), z_values[mx][cy]);
+    const float z2 = calc_z0(rx0, get_mesh_x(cx), z_values[cx][my], get_mesh_x(cx + 1), z_values[mx][my]);
+    float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
 
     if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
       z0 = 0.0;      // in bedlevel.z_values[][] and propagate through the
@@ -289,10 +289,10 @@ public:
 
   static constexpr float get_z_offset() { return 0.0f; }
 
-  static float mesh_index_to_xpos(const uint8_t i) {
+  static float get_mesh_x(const uint8_t i) {
     return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
   }
-  static float mesh_index_to_ypos(const uint8_t i) {
+  static float get_mesh_y(const uint8_t i) {
     return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
   }
 
@@ -311,8 +311,8 @@ public:
 
 extern unified_bed_leveling bedlevel;
 
-#define _GET_MESH_X(I) bedlevel.mesh_index_to_xpos(I)
-#define _GET_MESH_Y(J) bedlevel.mesh_index_to_ypos(J)
+#define _GET_MESH_X(I) bedlevel.get_mesh_x(I)
+#define _GET_MESH_Y(J) bedlevel.get_mesh_y(J)
 #define Z_VALUES_ARR bedlevel.z_values
 
 // Prevent debugging propagating to other files
