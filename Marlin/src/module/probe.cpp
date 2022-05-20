@@ -404,10 +404,13 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #elif HAS_Z_SERVO_PROBE
 
     servo[Z_PROBE_SERVO_NR].move(servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-
     #ifdef Z_SERVO_MEASURE_ANGLE
       // After deploy move back to the measure angle...
       if (deploy) MOVE_SERVO(Z_PROBE_SERVO_NR, Z_SERVO_MEASURE_ANGLE);
+    #endif
+    #ifdef Z_SERVO_DEACTIVATE_AFTER_STOW
+      if(!deploy)
+        servo[Z_PROBE_SERVO_NR].detach();
     #endif
 
   #elif ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
@@ -940,7 +943,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
      * There's no way to know where the nozzle is positioned until
      * homing has been done - no homing with z-probe without init!
      */
-    STOW_Z_SERVO();
+    servo[Z_PROBE_SERVO_NR].move(servo_angles[Z_PROBE_SERVO_NR][1]);
+    #ifdef Z_SERVO_DEACTIVATE_AFTER_STOW
+        servo[Z_PROBE_SERVO_NR].detach();
+    #endif
   }
 
 #endif // HAS_Z_SERVO_PROBE

@@ -1392,6 +1392,7 @@
 //#define Z_SERVO_ANGLES { 70, 0 }    // Z Servo Deploy and Stow angles
 //#define Z_SERVO_MEASURE_ANGLE 45    // Use if the servo must move to a "free" position for measuring after deploy.
 //#define Z_SERVO_INTERMEDIATE_STOW   // Stow the probe between points.
+//#define Z_SERVO_DEACTIVATE_AFTER_STOW   // Deactivate Z_SERVO when probe is stowed
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
