@@ -164,13 +164,13 @@
     if (parser.seenval('S'))
       segments_per_second = parser.value_float();
     if (parser.seenval('L'))
-      draw_area_max.x = parser.value_float();
+      draw_area_min.x = parser.value_float();
     if (parser.seenval('R'))
-      draw_area_max.y = parser.value_float();
+      draw_area_max.x = parser.value_float();
     if (parser.seenval('T'))
-      draw_area_min.y = parser.value_float();
-    if (parser.seenval('B'))
       draw_area_max.y = parser.value_float();
+    if (parser.seenval('B'))
+      draw_area_min.y = parser.value_float();
     if (parser.seenval('H'))
       polargraph_max_belt_len = parser.value_float();
   }
@@ -184,7 +184,6 @@
         PSTR(" T"), LINEAR_UNIT(draw_area_max.y),
         PSTR(" B"), LINEAR_UNIT(draw_area_min.y),
         PSTR(" H"), LINEAR_UNIT(polargraph_max_belt_len)
-      
     );
   }
 
