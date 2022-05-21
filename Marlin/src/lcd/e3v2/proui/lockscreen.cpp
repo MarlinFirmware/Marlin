@@ -23,8 +23,8 @@
 /**
  * Lock screen implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 2.1
- * Date: 2021/11/09
+ * Version: 2.2.0
+ * Date: 2022/04/11
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -50,6 +50,7 @@ void LockScreenClass::init() {
 }
 
 void LockScreenClass::draw() {
+  Title.SetCaption(GET_TEXT_F(MSG_LOCKSCREEN));
   DWINUI::ClearMainArea();
   DWINUI::Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
   DWINUI::Draw_CenteredString(Color_White, 180, GET_TEXT_F(MSG_LOCKSCREEN_LOCKED));

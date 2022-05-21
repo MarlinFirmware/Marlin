@@ -111,7 +111,7 @@ void GcodeSuite::M290() {
     #endif
 
     #if ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHOLNPGM("MBL Adjust Z", mbl.z_offset);
+      SERIAL_ECHOLNPGM("MBL Adjust Z", bedlevel.z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)

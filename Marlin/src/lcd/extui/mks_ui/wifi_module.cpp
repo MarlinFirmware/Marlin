@@ -123,7 +123,7 @@ uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
 void wifi_delay(int n) {
   const uint32_t start = getWifiTick();
   while (getWifiTickDiff(start, getWifiTick()) < (uint32_t)n)
-    watchdog_refresh();
+    hal.watchdog_refresh();
 }
 
 void wifi_reset() {
@@ -1882,7 +1882,7 @@ void wifi_rcv_handle() {
 void wifi_looping() {
   do {
     wifi_rcv_handle();
-    watchdog_refresh();
+    hal.watchdog_refresh();
   } while (wifi_link_state == WIFI_TRANS_FILE);
 }
 
@@ -1897,7 +1897,7 @@ void mks_esp_wifi_init() {
 
   esp_state = TRANSFER_IDLE;
   esp_port_begin(1);
-  watchdog_refresh();
+  hal.watchdog_refresh();
   wifi_reset();
 
   #if 0
@@ -1950,14 +1950,14 @@ void mks_esp_wifi_init() {
 }
 
 void mks_wifi_firmware_update() {
-  watchdog_refresh();
+  hal.watchdog_refresh();
   card.openFileRead((char *)ESP_FIRMWARE_FILE);
 
   if (card.isFileOpen()) {
     card.closefile();
 
     wifi_delay(2000);
-    watchdog_refresh();
+    hal.watchdog_refresh();
     if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) return;
 
     clear_cur_ui();
@@ -1965,7 +1965,7 @@ void mks_wifi_firmware_update() {
     lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
 
     lv_task_handler();
-    watchdog_refresh();
+    hal.watchdog_refresh();
 
     if (wifi_upload(0) >= 0) {
       card.removeFile((char *)ESP_FIRMWARE_FILE_RENAME);
