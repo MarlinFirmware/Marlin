@@ -30,6 +30,8 @@
 
 #include "menu_item.h"
 
+#include "../../MarlinCore.h"
+
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif

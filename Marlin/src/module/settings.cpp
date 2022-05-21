@@ -178,11 +178,12 @@
 #endif
 
 #define _EN_ITEM(N) , E##N
+#define _EN1_ITEM(N) , E##N:1
 
-typedef struct { uint16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_stepper_current_t;
-typedef struct { uint32_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_hybrid_threshold_t;
-typedef struct {  int16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4;                              } tmc_sgt_t;
-typedef struct {     bool LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_stealth_enabled_t;
+typedef struct { uint16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint16_t;
+typedef struct { uint32_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint32_t;
+typedef struct {  int16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4;                              } mot_stepper_int16_t;
+typedef struct {     bool LINEAR_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1), X2:1, Y2:1, Z2:1, Z3:1, Z4:1 REPEAT(E_STEPPERS, _EN1_ITEM); } per_stepper_bool_t;
 
 #undef _EN_ITEM
 
@@ -430,10 +431,10 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC_CONFIG
   //
-  tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z...
-  tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z...
-  tmc_sgt_t tmc_sgt;                                    // M914 X Y Z...
-  tmc_stealth_enabled_t tmc_stealth_enabled;            // M569 X Y Z...
+  per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
+  per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+  mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
+  per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
   //
   // LIN_ADVANCE
@@ -1213,7 +1214,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(tmc_stepper_current);
 
-      tmc_stepper_current_t tmc_stepper_current{0};
+      per_stepper_uint16_t tmc_stepper_current{0};
 
       #if HAS_TRINAMIC_CONFIG
         #if AXIS_IS_TMC(X)
@@ -1284,7 +1285,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(tmc_hybrid_threshold);
 
       #if ENABLED(HYBRID_THRESHOLD)
-        tmc_hybrid_threshold_t tmc_hybrid_threshold{0};
+        per_stepper_uint32_t tmc_hybrid_threshold{0};
         TERN_(X_HAS_STEALTHCHOP,  tmc_hybrid_threshold.X =  stepperX.get_pwm_thrs());
         TERN_(Y_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Y =  stepperY.get_pwm_thrs());
         TERN_(Z_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Z =  stepperZ.get_pwm_thrs());
@@ -1306,7 +1307,7 @@ void MarlinSettings::postprocess() {
         TERN_(E7_HAS_STEALTHCHOP, tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs());
       #else
         #define _EN_ITEM(N) , .E##N =  30
-        const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
+        const per_stepper_uint32_t tmc_hybrid_threshold = {
           LINEAR_AXIS_LIST(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3),
           .X2 = 100, .Y2 = 100, .Z2 = 3, .Z3 = 3, .Z4 = 3
           REPEAT(E_STEPPERS, _EN_ITEM)
@@ -1320,7 +1321,7 @@ void MarlinSettings::postprocess() {
     // TMC StallGuard threshold
     //
     {
-      tmc_sgt_t tmc_sgt{0};
+      mot_stepper_int16_t tmc_sgt{0};
       #if USE_SENSORLESS
         LINEAR_AXIS_CODE(
           TERN_(X_SENSORLESS, tmc_sgt.X = stepperX.homing_threshold()),
@@ -1345,7 +1346,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(tmc_stealth_enabled);
 
-      tmc_stealth_enabled_t tmc_stealth_enabled = { false };
+      per_stepper_bool_t tmc_stealth_enabled = { false };
       TERN_(X_HAS_STEALTHCHOP,  tmc_stealth_enabled.X  = stepperX.get_stored_stealthChop());
       TERN_(Y_HAS_STEALTHCHOP,  tmc_stealth_enabled.Y  = stepperY.get_stored_stealthChop());
       TERN_(Z_HAS_STEALTHCHOP,  tmc_stealth_enabled.Z  = stepperZ.get_stored_stealthChop());
@@ -1477,7 +1478,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(dwin_data);
       char dwin_data[eeprom_data_size] = { 0 };
-      DWIN_StoreSettings(dwin_data);
+      DWIN_CopySettingsTo(dwin_data);
       EEPROM_WRITE(dwin_data);
     }
     #endif
@@ -2135,7 +2136,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(tmc_stepper_current);
 
-        tmc_stepper_current_t currents;
+        per_stepper_uint16_t currents;
         EEPROM_READ(currents);
 
         #if HAS_TRINAMIC_CONFIG
@@ -2205,7 +2206,7 @@ void MarlinSettings::postprocess() {
 
       // TMC Hybrid Threshold
       {
-        tmc_hybrid_threshold_t tmc_hybrid_threshold;
+        per_stepper_uint32_t tmc_hybrid_threshold;
         _FIELD_TEST(tmc_hybrid_threshold);
         EEPROM_READ(tmc_hybrid_threshold);
 
@@ -2238,7 +2239,7 @@ void MarlinSettings::postprocess() {
       // TMC StallGuard threshold.
       //
       {
-        tmc_sgt_t tmc_sgt;
+        mot_stepper_int16_t tmc_sgt;
         _FIELD_TEST(tmc_sgt);
         EEPROM_READ(tmc_sgt);
         #if USE_SENSORLESS
@@ -2264,7 +2265,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(tmc_stealth_enabled);
 
-        tmc_stealth_enabled_t tmc_stealth_enabled;
+        per_stepper_bool_t tmc_stealth_enabled;
         EEPROM_READ(tmc_stealth_enabled);
 
         #if HAS_TRINAMIC_CONFIG
@@ -2425,7 +2426,7 @@ void MarlinSettings::postprocess() {
         const char dwin_data[eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_data);
         EEPROM_READ(dwin_data);
-        if (!validating) DWIN_LoadSettings(dwin_data);
+        if (!validating) DWIN_CopySettingsFrom(dwin_data);
       }
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
@@ -2842,7 +2843,6 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
   TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
   //
@@ -3212,6 +3212,11 @@ void MarlinSettings::reset() {
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
+
+  //
+  // Ender-3 V2 with ProUI
+  //
+  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
 
   postprocess();
 

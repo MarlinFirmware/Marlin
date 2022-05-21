@@ -84,7 +84,7 @@ Stepper stepper; // Singleton
 #define BABYSTEPPING_EXTRA_DIR_WAIT
 
 #ifdef __AVR__
-  #include "speed_lookuptable.h"
+  #include "stepper/speed_lookuptable.h"
 #endif
 
 #include "endstops.h"
@@ -153,7 +153,7 @@ Stepper stepper; // Singleton
   #endif
 #endif
 
-axis_flags_t Stepper::axis_enabled; // {0}
+stepper_flags_t Stepper::axis_enabled; // {0}
 
 // private:
 
