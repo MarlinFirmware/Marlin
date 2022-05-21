@@ -916,31 +916,33 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
    * Save offset sensorless adj
    */
   void Probe::save_offset_sensorless(const bool onoff, const_float_t sz) {
-    offset_sensorless = -3; 
-    if (onoff) {
-      if (test_sensitivity.x) offset_sensorless_adj.a = sz;
-      if (test_sensitivity.y) offset_sensorless_adj.b = sz;
-      if (test_sensitivity.z) offset_sensorless_adj.c = sz;
-    } 
-    else {
-      if (TEST(endstops.state(), X_MAX)) {
-        offset_sensorless = offset_sensorless_adj.a;        
-        DEBUG_ECHOLNPGM("Endstop_X :", offset_sensorless, " TowerX");
+    #if ENABLED(SENSORLESS_PROBING)
+      offset_sensorless = -3; 
+      if (onoff) {
+        if (test_sensitivity.x) offset_sensorless_adj.a = sz;
+        if (test_sensitivity.y) offset_sensorless_adj.b = sz;
+        if (test_sensitivity.z) offset_sensorless_adj.c = sz;
+      } 
+      else {
+        if (TEST(endstops.state(), X_MAX)) {
+          offset_sensorless = offset_sensorless_adj.a;        
+          DEBUG_ECHOLNPGM("Endstop_X :", offset_sensorless, " TowerX");
 
-      }
-      if (TEST(endstops.state(), Y_MAX)) {
-        if (offset_sensorless_adj.b > offset_sensorless) {   
-           offset_sensorless = offset_sensorless_adj.b;           
-         }
-        DEBUG_ECHOLNPGM("Endstop_Y :", offset_sensorless, " TowerY");
-      }
-      if (TEST(endstops.state(), Z_MAX)) {
-        if (offset_sensorless_adj.c > offset_sensorless) {  
-          offset_sensorless = offset_sensorless_adj.c;          
         }
-        DEBUG_ECHOLNPGM("Endstop_Z :", offset_sensorless, " TowerZ");
+        if (TEST(endstops.state(), Y_MAX)) {
+          if (offset_sensorless_adj.b > offset_sensorless) {   
+             offset_sensorless = offset_sensorless_adj.b;           
+           }
+          DEBUG_ECHOLNPGM("Endstop_Y :", offset_sensorless, " TowerY");
+        }
+        if (TEST(endstops.state(), Z_MAX)) {
+          if (offset_sensorless_adj.c > offset_sensorless) {  
+            offset_sensorless = offset_sensorless_adj.c;          
+          }
+          DEBUG_ECHOLNPGM("Endstop_Z :", offset_sensorless, " TowerZ");
+        }
       }
-    }
+    #endif
   }
 
 #endif // SENSORLESS_PROBING || SENSORLESS_HOMING
