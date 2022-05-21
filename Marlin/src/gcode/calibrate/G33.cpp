@@ -694,7 +694,9 @@ void GcodeSuite::G33() {
   ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
-  probe.test_sensitivity = {true, true, true};
+  #if HAS_DELTA_SENSORLESS_PROBING
+    probe.test_sensitivity = {true, true, true};
+  #endif
 }
 
 #endif // DELTA_AUTO_CALIBRATION
