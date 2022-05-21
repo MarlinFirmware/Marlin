@@ -1671,11 +1671,10 @@ void prepare_line_to_destination() {
       }
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
-      TERN_(SENSORLESS_HOMING, {
+      #if ENABLED(SENSORLESS_HOMING)
         stealth_states = start_sensorless_homing_per_axis(axis);
         safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-        }
-      );
+      #endif
     }
 
     #if EITHER(MORGAN_SCARA, MP_SCARA)
@@ -1711,11 +1710,10 @@ void prepare_line_to_destination() {
       endstops.validate_homing_move();
 
       // Re-enable stealthChop if used. Disable diag1 pin on driver.
-      TERN_(SENSORLESS_HOMING, {
+      #if ENABLED(SENSORLESS_HOMING)
         end_sensorless_homing_per_axis(axis, stealth_states);
         safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-        }
-      );
+      #endif
     }
   }
 

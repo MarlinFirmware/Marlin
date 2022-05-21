@@ -103,7 +103,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
-  Probe::sense_bool_t Probe::test_sensitivity = {true, true, true};
+  Probe::sense_bool_t Probe::test_sensitivity = { true, true, true };
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -531,12 +531,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
     #if HAS_DELTA_SENSORLESS_PROBING
-      if (test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
+      if (test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX); // Delta watches all DIAG pins for a stall
       if (test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
-    if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);    // All machines will check Z-DIAG for stall
+    if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);   // All machines will check Z-DIAG for stall
+    endstops.set_homing_current(true); // The "homing" current also applies to probing
     endstops.enable(true);
-    endstops.set_homing_current(true);                                 // The "homing" current also applies to probing
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
@@ -553,8 +553,8 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
   ;
 
-  //Offset sensorless probing
-  #if HAS_DELTA_SENSORLESS_PROBING  
+  // Offset sensorless probing
+  #if HAS_DELTA_SENSORLESS_PROBING
     if (probe_triggered) probe.save_offset_sensorless(false, 0);
   #endif
 
@@ -563,12 +563,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     endstops.not_homing();
+    endstops.set_homing_current(false);
     #if HAS_DELTA_SENSORLESS_PROBING
       if (test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
       if (test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     if (test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
-    endstops.set_homing_current(false);
   #endif
 
   #if ENABLED(BLTOUCH)
@@ -671,12 +671,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
-    #if HAS_DELTA_SENSORLESS_PROBING
-       const float first_probe_z = current_position.z - offset_sensorless;
-    #else
-       const float first_probe_z = current_position.z;  
-    #endif
-
+    const float first_probe_z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, offset_sensorless);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
@@ -718,11 +713,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
-      #if HAS_DELTA_SENSORLESS_PROBING
-        const float z = current_position.z - offset_sensorless;
-      #else
-        const float z = current_position.z;  
-      #endif
+      const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, offset_sensorless);
 
       #if EXTRA_PROBING > 0
         // Insert Z measurement into probes[]. Keep it sorted ascending.
@@ -773,11 +764,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #elif TOTAL_PROBING == 2
 
-    #if HAS_DELTA_SENSORLESS_PROBING
-       const float z2 = current_position.z - offset_sensorless;   
-    #else
-       const float z2 = current_position.z;  
-    #endif
+    const float z2 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, offset_sensorless);
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
 
@@ -860,7 +847,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
     #endif
   }
-  DEBUG_ECHOLNPGM("measured_z :", measured_z);
+  DEBUG_ECHOLNPGM("measured_z: ", measured_z);
   return measured_z;
 }
 
@@ -912,34 +899,34 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     #endif
   }
 
-    /**
+  /**
    * Save offset sensorless adj
    */
   void Probe::save_offset_sensorless(const bool onoff, const_float_t sz) {
     #if ENABLED(SENSORLESS_PROBING)
-      offset_sensorless = -3; 
+      DEBUG_SECTION(pso, "Probe::save_offset_sensorless", true);
+      offset_sensorless = -3;
       if (onoff) {
-        if (test_sensitivity.x) offset_sensorless_adj.a = sz;
-        if (test_sensitivity.y) offset_sensorless_adj.b = sz;
+        #if HAS_DELTA_SENSORLESS_PROBING
+          if (test_sensitivity.x) offset_sensorless_adj.a = sz;
+          if (test_sensitivity.y) offset_sensorless_adj.b = sz;
+        #endif
         if (test_sensitivity.z) offset_sensorless_adj.c = sz;
-      } 
+      }
       else {
-        if (TEST(endstops.state(), X_MAX)) {
-          offset_sensorless = offset_sensorless_adj.a;        
-          DEBUG_ECHOLNPGM("Endstop_X :", offset_sensorless, " TowerX");
-
-        }
-        if (TEST(endstops.state(), Y_MAX)) {
-          if (offset_sensorless_adj.b > offset_sensorless) {   
-             offset_sensorless = offset_sensorless_adj.b;           
-           }
-          DEBUG_ECHOLNPGM("Endstop_Y :", offset_sensorless, " TowerY");
-        }
-        if (TEST(endstops.state(), Z_MAX)) {
-          if (offset_sensorless_adj.c > offset_sensorless) {  
-            offset_sensorless = offset_sensorless_adj.c;          
+        #if HAS_DELTA_SENSORLESS_PROBING
+          if (TEST(endstops.state(), X_MAX)) {
+            offset_sensorless = offset_sensorless_adj.a;
+            DEBUG_ECHOLNPGM("Endstop_X: ", offset_sensorless, " TowerX");
           }
-          DEBUG_ECHOLNPGM("Endstop_Z :", offset_sensorless, " TowerZ");
+          if (TEST(endstops.state(), Y_MAX)) {
+            NOLESS(offset_sensorless, offset_sensorless_adj.b);
+            DEBUG_ECHOLNPGM("Endstop_Y: ", offset_sensorless, " TowerY");
+          }
+        #endif
+        if (TEST(endstops.state(), Z_MAX)) {
+          NOLESS(offset_sensorless, offset_sensorless_adj.c);
+          DEBUG_ECHOLNPGM("Endstop_Z: ", offset_sensorless, " TowerZ");
         }
       }
     #endif

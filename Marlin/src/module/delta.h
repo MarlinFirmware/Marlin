@@ -53,8 +53,9 @@ void recalc_delta_settings();
  * Get a safe radius for calibration
  */
 #if ENABLED(SENSORLESS_PROBING)
-  extern float sensorless_radius_factor;
+  static constexpr float sensorless_radius_factor = 0.7f;
 #endif
+
 /**
  * Delta Inverse Kinematics
  *
