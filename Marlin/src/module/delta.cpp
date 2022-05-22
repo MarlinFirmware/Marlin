@@ -60,6 +60,10 @@ xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
 abc_float_t delta_diagonal_rod_trim;
+#if ENABLED(SENSORLESS_PROBING)
+  abc_float_t offset_sensorless_adj{0};
+  float offset_sensorless = 0; 
+#endif
 
 float delta_safe_distance_from_top();
 
@@ -88,6 +92,13 @@ void recalc_delta_settings() {
   update_software_endstops(Z_AXIS);
   set_all_unhomed();
 }
+/**
+ * Get a safe radius for calibration
+ */
+
+#if ENABLED(SENSORLESS_PROBING)
+  float sensorless_radius_factor = 0.7f;
+#endif
 
 /**
  * Delta Inverse Kinematics
@@ -236,6 +247,7 @@ void home_delta() {
     TERN_(U_SENSORLESS, sensorless_t stealth_states_u = start_sensorless_homing_per_axis(U_AXIS));
     TERN_(V_SENSORLESS, sensorless_t stealth_states_v = start_sensorless_homing_per_axis(V_AXIS));
     TERN_(W_SENSORLESS, sensorless_t stealth_states_w = start_sensorless_homing_per_axis(W_AXIS));
+    safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle 
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
@@ -255,6 +267,7 @@ void home_delta() {
     TERN_(U_SENSORLESS, end_sensorless_homing_per_axis(U_AXIS, stealth_states_u));
     TERN_(V_SENSORLESS, end_sensorless_homing_per_axis(V_AXIS, stealth_states_v));
     TERN_(W_SENSORLESS, end_sensorless_homing_per_axis(W_AXIS, stealth_states_w));
+    safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle 
   #endif
 
   endstops.validate_homing_move();
