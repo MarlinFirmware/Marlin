@@ -26,7 +26,7 @@
  */
 
 #if HAS_MULTI_HOTEND
-  #error "Only 1 hotend is supported for Vertex Nano."
+  #error "K8600 only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "K8600"
