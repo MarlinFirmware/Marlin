@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Artillery Ruby supports up to 1 hotends / E-steppers."
+  #error "Artillery Ruby only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "Artillery Ruby"

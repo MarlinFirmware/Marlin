@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 6 || E_STEPPERS > 6
-  #error "FLYF407ZG supports up to 6 hotends / E-steppers."
+  #error "FLYF407ZG supports up to 6 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"
