@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
+  #error "MKS Robin Nano V3 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin PRO V2"
