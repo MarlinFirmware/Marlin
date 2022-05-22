@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "STM32F4 supports up to 2 hotends / E-steppers."
+  #error "STM32F4 VAkE supports up to 2 hotends / E steppers."
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
