@@ -180,9 +180,9 @@
 #define _EN_ITEM(N) , E##N
 #define _EN1_ITEM(N) , E##N:1
 
-typedef struct { uint16_t NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint16_t;
-typedef struct { uint32_t NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint32_t;
-typedef struct {  int16_t NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4;                              } mot_stepper_int16_t;
+typedef struct { uint16_t MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint16_t;
+typedef struct { uint32_t MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint32_t;
+typedef struct {  int16_t MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4;                              } mot_stepper_int16_t;
 typedef struct {     bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1), X2:1, Y2:1, Z2:1, Z3:1, Z4:1 REPEAT(E_STEPPERS, _EN1_ITEM); } per_stepper_bool_t;
 
 #undef _EN_ITEM
