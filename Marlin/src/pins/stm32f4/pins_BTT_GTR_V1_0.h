@@ -26,7 +26,7 @@
 #if E_STEPPERS > MAX_E_STEPPERS
   #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #elif HOTENDS > 8 || E_STEPPERS > 8
-  #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
+  #error "BIGTREE GTR V1.0 supports up to 8 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"

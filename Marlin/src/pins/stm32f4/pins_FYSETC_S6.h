@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "FYSETC S6 supports up to 3 hotends / E-steppers."
+  #error "FYSETC S6 supports up to 3 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
