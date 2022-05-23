@@ -50,8 +50,6 @@
 #define LED_PIN                             PA13
 #define BEEPER_PIN                          PA14
 
-#define TFT_BACKLIGHT_PIN                   PB5
-
 #define POWER_MONITOR_PIN                   PB0
 #define RPI_POWER_PIN                       PE5
 
