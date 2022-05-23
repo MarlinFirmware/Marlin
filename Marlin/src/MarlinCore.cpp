@@ -373,8 +373,12 @@ void startOrResumeJob() {
 
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
-    #ifdef EVENT_GCODE_SD_ABORT
+    #if defined(EVENT_GCODE_SD_ABORT) && defined(EVENT_GCODE_SD_ABORT_NOTHOMED)
+      queue.inject(all_axes_trusted() ? F(EVENT_GCODE_SD_ABORT) : F(EVENT_GCODE_SD_ABORT_NOTHOMED));
+    #elif defined(EVENT_GCODE_SD_ABORT)
       queue.inject(F(EVENT_GCODE_SD_ABORT));
+    #elif defined(EVENT_GCODE_SD_ABORT_NOTHOMED)
+      if (!all_axes_trusted()) queue.inject(F(EVENT_GCODE_SD_ABORT_NOTHOMED));
     #endif
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
