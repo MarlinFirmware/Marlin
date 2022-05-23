@@ -31,9 +31,9 @@
 #include "env_validate.h"
 
 #if EXTRUDERS > 2 || E_STEPPERS > 2
-  #error "MKS ESP Nano only supports two E Steppers. Comment out this line to continue."
+  #error "MKS TinyBee supports up to 2 E steppers."
 #elif HOTENDS > 2
-  #error "MKS ESP Nano only supports two hotend / E-stepper. Comment out this line to continue."
+  #error "MKS TinyBee supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "MKS TinyBee"
