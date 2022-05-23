@@ -208,7 +208,7 @@ bool SDIO_Init() {
 
   uint8_t retry_Cnt = retryCnt;
   for (;;) {
-    TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+    hal.watchdog_refresh();
     status = (bool) HAL_SD_Init(&hsd);
     if (!status) break;
     if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
@@ -219,7 +219,7 @@ bool SDIO_Init() {
   #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3) // go to 4 bit wide mode if pins are defined
     retry_Cnt = retryCnt;
     for (;;) {
-      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+      hal.watchdog_refresh();
       if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
       if (!--retry_Cnt) break;
     }
@@ -228,7 +228,7 @@ bool SDIO_Init() {
       SD_LowLevel_Init();
       retry_Cnt = retryCnt;
       for (;;) {
-        TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+        hal.watchdog_refresh();
         status = (bool) HAL_SD_Init(&hsd);
         if (!status) break;
         if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
@@ -243,7 +243,7 @@ bool SDIO_Init() {
 static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t *src, uint8_t *dst) {
   if (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) return false;
 
-  TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+  hal.watchdog_refresh();
 
   HAL_StatusTypeDef ret;
   if (src) {

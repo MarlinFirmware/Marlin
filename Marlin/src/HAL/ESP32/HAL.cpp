@@ -180,6 +180,31 @@ void _delay_ms(int delay_ms) { delay(delay_ms); }
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 // ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+
+  extern "C" {
+    esp_err_t esp_task_wdt_reset();
+  }
+
+  void watchdogSetup() {
+    // do whatever. don't remove this function.
+  }
+
+  void MarlinHAL::watchdog_init() {
+    // TODO
+  }
+
+  // Reset watchdog.
+  void MarlinHAL::watchdog_refresh() { esp_task_wdt_reset(); }
+
+#endif
+
+// ------------------------
 // ADC
 // ------------------------
 

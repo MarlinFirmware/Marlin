@@ -45,7 +45,3 @@ extern MarlinHAL hal;
 #ifndef PGMSTR
   #define PGMSTR(NAM,STR) const char NAM[] = STR
 #endif
-
-inline void watchdog_refresh() {
-  TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
-}
