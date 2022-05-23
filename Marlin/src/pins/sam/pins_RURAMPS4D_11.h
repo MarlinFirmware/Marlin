@@ -153,7 +153,7 @@
 // SPI for MAX Thermocouple
 /*
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       53
+  #define TEMP_0_CS_PIN              EXP1_03_PIN
 #else
   #define TEMP_0_CS_PIN                       49
 #endif
@@ -190,59 +190,87 @@
 // 32Mb FLASH
 //#define SPI_FLASH_CS_PIN        ?
 
+/**
+ *              ------                                ------
+ * (BEEPER) 62 |10  9 | 40 (BTN_ENC)  (MISO)      74 |10  9 | 76 (SCK)
+ * (LCD_EN) 64 | 8  7 | 63 (LCD_RS)   (BTN_EN1)   44 | 8  7 | 10 (SD_SS)
+ * (LCD_D4) 48 | 6  5   50 (LCD_D5)   (BTN_EN2)   42 | 6  5   75 (MOSI)
+ * (LCD_D6) 52 | 4  3 | 53 (LCD_D7)   (SD_DETECT) 51 | 4  3 | RESET
+ *         GND | 2  1 | 5V                       GND | 2  1 | --
+ *              ------                                ------
+ *               EXP1                                  EXP2
+ */
+#define EXP1_03_PIN                           53
+#define EXP1_04_PIN                           52
+#define EXP1_05_PIN                           50
+#define EXP1_06_PIN                           48
+#define EXP1_07_PIN                           63
+#define EXP1_08_PIN                           64
+#define EXP1_09_PIN                           40
+#define EXP1_10_PIN                           62
+
+#define EXP2_03_PIN                           -1  // RESET
+#define EXP2_04_PIN                           51
+#define EXP2_05_PIN                           75  // MOSI
+#define EXP2_06_PIN                           42
+#define EXP2_07_PIN                           10
+#define EXP2_08_PIN                           44
+#define EXP2_09_PIN                           76  // SCK
+#define EXP2_10_PIN                           74  // MISO
+
 //
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
 
   #if ANY(RADDS_DISPLAY, IS_RRD_SC, IS_RRD_FG_SC)
-    #define BEEPER_PIN                        62
-    #define LCD_PINS_D4                       48
-    #define LCD_PINS_D5                       50
-    #define LCD_PINS_D6                       52
-    #define LCD_PINS_D7                       53
-    #define SD_DETECT_PIN                     51
+    #define BEEPER_PIN               EXP1_10_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
+    #define LCD_PINS_D5              EXP1_05_PIN
+    #define LCD_PINS_D6              EXP1_04_PIN
+    #define LCD_PINS_D7              EXP1_03_PIN
+    #define SD_DETECT_PIN            EXP2_04_PIN
   #endif
 
   #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
 
-    #define LCD_PINS_RS                       63
-    #define LCD_PINS_ENABLE                   64
+    #define LCD_PINS_RS              EXP1_07_PIN
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
 
   #elif IS_RRD_FG_SC
 
-    #define LCD_PINS_RS                       52
-    #define LCD_PINS_ENABLE                   53
+    #define LCD_PINS_RS              EXP1_04_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
 
   #elif HAS_U8GLIB_I2C_OLED
 
-    #define BEEPER_PIN                        62
-    #define LCD_SDSS                          10
-    #define SD_DETECT_PIN                     51
+    #define BEEPER_PIN               EXP1_10_PIN
+    #define LCD_SDSS                 EXP2_07_PIN
+    #define SD_DETECT_PIN            EXP2_04_PIN
 
   #elif ENABLED(FYSETC_MINI_12864)
 
-    #define BEEPER_PIN                        62
-    #define DOGLCD_CS                         64
-    #define DOGLCD_A0                         63
+    #define BEEPER_PIN               EXP1_10_PIN
+    #define DOGLCD_CS                EXP1_08_PIN
+    #define DOGLCD_A0                EXP1_07_PIN
 
     //#define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-    #define LCD_RESET_PIN                     48  // Must be high or open for LCD to operate normally.
+    #define LCD_RESET_PIN            EXP1_06_PIN  // Must be high or open for LCD to operate normally.
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN                 50  // D5
+        #define RGB_LED_R_PIN        EXP1_05_PIN  // D5
       #endif
       #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN                 52  // D6
+        #define RGB_LED_G_PIN        EXP1_04_PIN  // D6
       #endif
       #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN                 53  // D7
+        #define RGB_LED_B_PIN        EXP1_03_PIN  // D7
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN                    50  // D5
+      #define NEOPIXEL_PIN           EXP1_05_PIN  // D5
     #endif
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
@@ -259,9 +287,9 @@
   #endif // SPARK_FULL_GRAPHICS
 
   #if IS_NEWPANEL
-    #define BTN_EN1                           44
-    #define BTN_EN2                           42
-    #define BTN_ENC                           40
+    #define BTN_EN1                  EXP2_08_PIN
+    #define BTN_EN2                  EXP2_06_PIN
+    #define BTN_ENC                  EXP1_09_PIN
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
