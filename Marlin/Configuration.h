@@ -809,6 +809,10 @@
 #define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 170
 
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  //#define COLD_EXTRUSION_MENU_ITEM  // Enable/Disable cold extrusion from the LCD
+#endif
+
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
  * Note: For Bowden Extruders make this large enough to allow load/unload.

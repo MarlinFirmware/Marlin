@@ -248,6 +248,10 @@ void menu_move() {
     EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
   #endif
 
+  #if BOTH(PREVENT_COLD_EXTRUSION, COLD_EXTRUSION_MENU_ITEM)
+    EDIT_ITEM(bool, MSG_COLD_EXTRUSION, &thermalManager.allow_cold_extrude);
+  #endif
+
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
     if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
       SUBMENU(MSG_MOVE_X, []{ _menu_move_distance(X_AXIS, lcd_move_x); });
