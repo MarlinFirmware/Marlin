@@ -472,19 +472,18 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
+  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
+
+  static uint8_t prev_stat = 2;     // At boot we don't know if media is present or not
+  uint8_t stat = uint8_t(IS_SD_INSERTED());
+  if (stat == prev_stat) return;    // Already checked and still no change?
+
+  DEBUG_ECHOLNPGM("Media present: ", prev_stat, " -> ", stat);
+
   if (!ui.detected()) {
     DEBUG_ECHOLNPGM("SD: No UI Detected.");
     return;
   }
-
-  static bool did_first_insert = false;
-  static uint8_t prev_stat = 2;     // At boot we don't know if media is present or not
-
-  uint8_t stat = IS_SD_INSERTED();
-  if (stat == prev_stat) return;    // Already checked and still no change?
-
-  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
-  DEBUG_ECHOLNPGM("Media present: ", prev_stat, " -> ", stat);
 
   flag.workDirIsRoot = true;        // Return to root on mount/release/init
 
@@ -513,6 +512,7 @@ void CardReader::manage_media() {
 
   if (!stat) return;                // Exit if no media is present
 
+  static bool did_first_insert = false;
   if (did_first_insert) return;     // Did a media insert already happen?
   did_first_insert = true;          // Definitely handling this media insert...
 

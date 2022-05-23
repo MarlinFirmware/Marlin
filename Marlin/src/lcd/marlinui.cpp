@@ -1733,7 +1733,7 @@ void MarlinUI::init() {
     #include "extui/ui_api.h"
   #endif
 
-  void MarlinUI::media_changed(const uint8_t old_status, const bool status) {
+  void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
       return;
