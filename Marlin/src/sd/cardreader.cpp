@@ -472,12 +472,11 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
-
   static uint8_t prev_stat = 2;     // At boot we don't know if media is present or not
   uint8_t stat = uint8_t(IS_SD_INSERTED());
   if (stat == prev_stat) return;    // Already checked and still no change?
 
+  DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
   DEBUG_ECHOLNPGM("Media present: ", prev_stat, " -> ", stat);
 
   if (!ui.detected()) {
