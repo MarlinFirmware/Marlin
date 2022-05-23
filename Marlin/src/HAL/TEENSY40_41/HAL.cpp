@@ -79,6 +79,31 @@ void MarlinHAL::clear_reset_source() {
 }
 
 // ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  #define WDT_TIMEOUT TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
+
+  constexpr uint8_t timeoutval = (WDT_TIMEOUT - 0.5f) / 0.5f;
+
+  void MarlinHAL::watchdog_init() {
+    CCM_CCGR3 |= CCM_CCGR3_WDOG1(3);  // enable WDOG1 clocks
+    WDOG1_WMCR = 0;                   // disable power down PDE
+    WDOG1_WCR |= WDOG_WCR_SRS | WDOG_WCR_WT(timeoutval);
+    WDOG1_WCR |= WDOG_WCR_WDE | WDOG_WCR_WDT | WDOG_WCR_SRE;
+  }
+
+  void MarlinHAL::watchdog_refresh() {
+    // Watchdog refresh sequence
+    WDOG1_WSR = 0x5555;
+    WDOG1_WSR = 0xAAAA;
+  }
+
+#endif
+
+// ------------------------
 // ADC
 // ------------------------
 

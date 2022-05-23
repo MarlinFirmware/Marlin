@@ -309,7 +309,6 @@ void GcodeSuite::M917() {
         }
         DEBUG_ECHOLNPGM(".");
         reset_stepper_timeout(); // keep steppers powered
-        watchdog_refresh();
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {

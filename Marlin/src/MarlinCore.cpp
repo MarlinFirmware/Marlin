@@ -931,18 +931,18 @@ void minkill(const bool steppers_off/*=false*/) {
 
     // Wait for both KILL and ENC to be released
     while (TERN0(HAS_KILL, kill_state()) || TERN0(SOFT_RESET_ON_KILL, ui.button_pressed()))
-      watchdog_refresh();
+      hal.watchdog_refresh();
 
     // Wait for either KILL or ENC to be pressed again
     while (TERN1(HAS_KILL, !kill_state()) && TERN1(SOFT_RESET_ON_KILL, !ui.button_pressed()))
-      watchdog_refresh();
+      hal.watchdog_refresh();
 
     // Reboot the board
     hal.reboot();
 
   #else
 
-    for (;;) watchdog_refresh();  // Wait for RESET button or power-cycle
+    for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
 
   #endif
 }
@@ -1549,7 +1549,7 @@ void setup() {
   #endif
 
   #if ENABLED(USE_WATCHDOG)
-    SETUP_RUN(watchdog_init());       // Reinit watchdog after hal.get_reset_source call
+    SETUP_RUN(hal.watchdog_init());   // Reinit watchdog after hal.get_reset_source call
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
