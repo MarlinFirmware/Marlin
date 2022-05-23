@@ -310,7 +310,7 @@
     #define TFT_RESET_PIN            EXP1_07_PIN
     #define TFT_BACKLIGHT_PIN        EXP1_08_PIN
 
-    #define TFT_RST_PIN              EXP2_04_PIN
+    //#define TFT_RST_PIN            EXP2_04_PIN
     #define TFT_MOSI_PIN             EXP2_05_PIN
     #define TFT_SCK_PIN              EXP2_09_PIN
     #define TFT_MISO_PIN             EXP2_10_PIN
