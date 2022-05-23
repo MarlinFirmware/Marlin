@@ -49,6 +49,11 @@
  */
 void GcodeSuite::G30() {
 
+  #if HAS_MULTI_HOTEND
+    const uint8_t old_tool_index = active_extruder;
+    tool_change(0);
+  #endif
+
   const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
                          parser.linearval('Y', current_position.y + probe.offset_xy.y) };
 
@@ -56,6 +61,10 @@ void GcodeSuite::G30() {
     #if ENABLED(DWIN_LCD_PROUI)
       SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
       LCD_MESSAGE(MSG_ZPROBE_OUT);
+    #endif
+    // Restore the active tool after aborting
+    #if HAS_MULTI_HOTEND
+      tool_change(old_tool_index);   // Do move if one of these
     #endif
     return;
   }
@@ -89,6 +98,11 @@ void GcodeSuite::G30() {
 
   if (raise_after == PROBE_PT_STOW)
     probe.move_z_after_probing();
+
+  // Restore the active tool after probing
+  #if HAS_MULTI_HOTEND
+    tool_change(old_tool_index);   // Do move if one of these
+  #endif
 
   report_current_position();
 }
