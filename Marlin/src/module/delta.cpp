@@ -92,13 +92,6 @@ void recalc_delta_settings() {
   update_software_endstops(Z_AXIS);
   set_all_unhomed();
 }
-/**
- * Get a safe radius for calibration
- */
-
-#if ENABLED(SENSORLESS_PROBING)
-  float sensorless_radius_factor = 0.7f;
-#endif
 
 /**
  * Delta Inverse Kinematics

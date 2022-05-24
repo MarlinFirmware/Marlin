@@ -905,7 +905,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   void Probe::save_offset_sensorless(const bool onoff, const_float_t sz) {
     #if ENABLED(SENSORLESS_PROBING)
       DEBUG_SECTION(pso, "Probe::save_offset_sensorless", true);
-      offset_sensorless = -3;
       if (onoff) {
         #if HAS_DELTA_SENSORLESS_PROBING
           if (test_sensitivity.x) offset_sensorless_adj.a = sz;
@@ -914,6 +913,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         if (test_sensitivity.z) offset_sensorless_adj.c = sz;
       }
       else {
+        offset_sensorless = -3;
         #if HAS_DELTA_SENSORLESS_PROBING
           if (TEST(endstops.state(), X_MAX)) {
             offset_sensorless = offset_sensorless_adj.a;
