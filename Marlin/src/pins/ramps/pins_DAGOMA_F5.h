@@ -22,7 +22,7 @@
 #pragma once
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Dagoma3D F5 supports only 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Dagoma3D F5 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Dagoma3D F5"

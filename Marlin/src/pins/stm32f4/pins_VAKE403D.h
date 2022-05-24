@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "STM32F4 supports up to 2 hotends / E-steppers."
+  #error "STM32F4 VAkE supports up to 2 hotends / E steppers."
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
@@ -161,27 +161,61 @@
 #define POWER_LOSS_PIN                      PA4   // ?? Power loss / nAC_FAULT
 
 #if ENABLED(SDSUPPORT)
-  #define SD_DETECT_PIN                     PB7
-  #define SD_SS_PIN                        PB_15  // USD_CS -> CS for onboard SD
+  #define SD_DETECT_PIN              EXP2_04_PIN
+  #define SD_SS_PIN                         PB15  // USD_CS -> CS for onboard SD
 #endif
+
+/**
+ *        ------                  ------
+ *   PC9 |10  9 | PB12         ? |10  9 | ?
+ *   PD7 | 8  7 | PC12       PD6 | 8  7 | ?
+ *   PD1 | 6  5   PD2        PD0 | 6  5   ?
+ *   PD3 | 4  3 | PD4        PB7 | 4  3 | RESET
+ *   GND | 2  1 | 5V         GND | 2  1 | 3.3V
+ *        ------                  ------
+ *         EXP1                    EXP2
+ */
+#define EXP1_03_PIN                         PD4
+#define EXP1_04_PIN                         PD3
+#define EXP1_05_PIN                         PD2
+#define EXP1_06_PIN                         PD1
+#define EXP1_07_PIN                         PC12
+#define EXP1_08_PIN                         PD7
+#define EXP1_09_PIN                         PB12
+#define EXP1_10_PIN                         PC9
+
+#define EXP2_03_PIN                         -1
+#define EXP2_04_PIN                         PB7
+//#define EXP2_05_PIN                       ?
+#define EXP2_06_PIN                         PD0
+//#define EXP2_07_PIN                       ?
+#define EXP2_08_PIN                         PD6
+//#define EXP2_09_PIN                       ?
+//#define EXP2_10_PIN                       ?
 
 //
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
+
   #if ENABLED(SDSUPPORT)
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
-  #define BEEPER_PIN                        PC9
-  #define LCD_PINS_RS                       PC12
-  #define LCD_PINS_ENABLE                   PD7
-  #define LCD_PINS_D4                       PD1
-  #define LCD_PINS_D5                       PD2
-  #define LCD_PINS_D6                       PD3
-  #define LCD_PINS_D7                       PD4
-  #define BTN_EN1                           PD6
-  #define BTN_EN2                           PD0
-  #define BTN_ENC                           PB12
+
+  #define BEEPER_PIN                 EXP1_10_PIN
+
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP1_09_PIN
+
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+
+  #define LCD_PINS_D4                EXP1_06_PIN
+  #define LCD_PINS_D5                EXP1_05_PIN
+  #define LCD_PINS_D6                EXP1_04_PIN
+  #define LCD_PINS_D7                EXP1_03_PIN
+
 #endif
 
 // Alter timing for graphical display

@@ -207,11 +207,9 @@ CrealityDWINClass CrealityDWIN;
         struct linear_fit_data lsf_results;
         incremental_LSF_reset(&lsf_results);
         GRID_LOOP(x, y) {
-          if (!isnan(Z_VALUES_ARR[x][y])) {
-            xy_pos_t rpos;
-            rpos.x = ubl.mesh_index_to_xpos(x);
-            rpos.y = ubl.mesh_index_to_ypos(y);
-            incremental_LSF(&lsf_results, rpos, Z_VALUES_ARR[x][y]);
+          if (!isnan(bedlevel.z_values[x][y])) {
+            xy_pos_t rpos = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
+            incremental_LSF(&lsf_results, rpos, bedlevel.z_values[x][y]);
           }
         }
 
@@ -220,13 +218,13 @@ CrealityDWINClass CrealityDWIN;
           return true;
         }
 
-        ubl.set_all_mesh_points_to_value(0);
+        bedlevel.set_all_mesh_points_to_value(0);
 
         matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
         GRID_LOOP(i, j) {
-          float mx = ubl.mesh_index_to_xpos(i),
-                my = ubl.mesh_index_to_ypos(j),
-                mz = Z_VALUES_ARR[i][j];
+          float mx = bedlevel.get_mesh_x(i),
+                my = bedlevel.get_mesh_y(j),
+                mz = bedlevel.z_values[i][j];
 
           if (DEBUGGING(LEVELING)) {
             DEBUG_ECHOPAIR_F("before rotation = [", mx, 7);
@@ -250,7 +248,7 @@ CrealityDWINClass CrealityDWIN;
             DEBUG_DELAY(20);
           }
 
-          Z_VALUES_ARR[i][j] = mz - lsf_results.D;
+          bedlevel.z_values[i][j] = mz - lsf_results.D;
         }
         return false;
       }
@@ -268,7 +266,7 @@ CrealityDWINClass CrealityDWIN;
     void manual_move(bool zmove=false) {
       if (zmove) {
         planner.synchronize();
-        current_position.z = goto_mesh_value ? Z_VALUES_ARR[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
+        current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
         planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
         planner.synchronize();
       }
@@ -279,7 +277,7 @@ CrealityDWINClass CrealityDWIN;
         sprintf_P(cmd, PSTR("G42 F4000 I%i J%i"), mesh_x, mesh_y);
         gcode.process_subcommands_now(cmd);
         planner.synchronize();
-        current_position.z = goto_mesh_value ? Z_VALUES_ARR[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
+        current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
         planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
         planner.synchronize();
         CrealityDWIN.Redraw_Menu();
@@ -289,8 +287,8 @@ CrealityDWINClass CrealityDWIN;
     float get_max_value() {
       float max = __FLT_MIN__;
       GRID_LOOP(x, y) {
-        if (!isnan(Z_VALUES_ARR[x][y]) && Z_VALUES_ARR[x][y] > max)
-          max = Z_VALUES_ARR[x][y];
+        if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
+          max = bedlevel.z_values[x][y];
       }
       return max;
     }
@@ -298,24 +296,24 @@ CrealityDWINClass CrealityDWIN;
     float get_min_value() {
       float min = __FLT_MAX__;
       GRID_LOOP(x, y) {
-        if (!isnan(Z_VALUES_ARR[x][y]) && Z_VALUES_ARR[x][y] < min)
-          min = Z_VALUES_ARR[x][y];
+        if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] < min)
+          min = bedlevel.z_values[x][y];
       }
       return min;
     }
 
     void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7) {
       drawing_mesh = true;
-      const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
-      const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
-      const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
+      const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
+                     cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
+                     cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
       const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       DWIN_Draw_Rectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
       if (selected >= 0) {
-        const auto selected_y = selected / GRID_MAX_POINTS_X;
-        const auto selected_x = selected - (GRID_MAX_POINTS_X * selected_y);
+        const auto selected_y = selected / (GRID_MAX_POINTS_X);
+        const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
         const auto start_y_px = padding_y_top + selected_y * cell_height_px;
         const auto start_x_px = padding_x + selected_x * cell_width_px;
         DWIN_Draw_Rectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
@@ -329,11 +327,11 @@ CrealityDWINClass CrealityDWIN;
         const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
         const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
         DWIN_Draw_Rectangle(1,                                                                                 // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
-          isnan(Z_VALUES_ARR[x][y]) ? Color_Grey : (                                                           // gray if undefined
-            (Z_VALUES_ARR[x][y] < 0 ?
-              (uint16_t)round(0x1F * -Z_VALUES_ARR[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
-              (uint16_t)round(0x3F *  Z_VALUES_ARR[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
-                _MIN(0x1F, (((uint8_t)abs(Z_VALUES_ARR[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
+          isnan(bedlevel.z_values[x][y]) ? Color_Grey : (                                                           // gray if undefined
+            (bedlevel.z_values[x][y] < 0 ?
+              (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
+              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
+                _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px
         );
 
@@ -343,14 +341,14 @@ CrealityDWINClass CrealityDWIN;
         // Draw value text on
         if (viewer_print_value) {
           int8_t offset_x, offset_y = cell_height_px / 2 - 6;
-          if (isnan(Z_VALUES_ARR[x][y])) {  // undefined
+          if (isnan(bedlevel.z_values[x][y])) {  // undefined
             DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
           }
           else {                          // has value
             if (GRID_MAX_POINTS_X < 10)
-              sprintf_P(buf, PSTR("%s"), dtostrf(abs(Z_VALUES_ARR[x][y]), 1, 2, str_1));
+              sprintf_P(buf, PSTR("%s"), dtostrf(abs(bedlevel.z_values[x][y]), 1, 2, str_1));
             else
-              sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(Z_VALUES_ARR[x][y] - (int16_t)Z_VALUES_ARR[x][y]) * 100));
+              sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
             offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
             if (!(GRID_MAX_POINTS_X < 10))
               DWIN_Draw_String(false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
@@ -417,14 +415,14 @@ void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selected/*=fal
 }
 
 void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options, uint8_t row, bool selected/*=false*/, bool color/*=false*/) {
-  uint16_t bColor = (selected) ? Select_Color : Color_Bg_Black;
-  uint16_t tColor = (color) ? GetColor(value, Color_White, false) : Color_White;
+  uint16_t bColor = (selected) ? Select_Color : Color_Bg_Black,
+           tColor = (color) ? GetColor(value, Color_White, false) : Color_White;
   DWIN_Draw_Rectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
   DWIN_Draw_String(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
 uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
-  switch (color){
+  switch (color) {
     case Default:
       return original;
       break;
@@ -2842,7 +2840,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (draw)
                 Draw_Menu_Item(row, ICON_Tilt, F("Autotilt Current Mesh"));
               else {
-                if (ubl.storage_slot < 0) {
+                if (bedlevel.storage_slot < 0) {
                   Popup_Handler(MeshSlot);
                   break;
                 }
@@ -2914,7 +2912,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
               #endif
               #if ENABLED(AUTO_BED_LEVELING_UBL)
-                if (ubl.storage_slot < 0) {
+                if (bedlevel.storage_slot < 0) {
                   Popup_Handler(MeshSlot);
                   break;
                 }
@@ -2946,10 +2944,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case LEVELING_VIEW:
             if (draw)
-              Draw_Menu_Item(row, ICON_Mesh, GET_TEXT(MSG_MESH_VIEW), nullptr, true);
+              Draw_Menu_Item(row, ICON_Mesh, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
             else {
               #if ENABLED(AUTO_BED_LEVELING_UBL)
-                if (ubl.storage_slot < 0) {
+                if (bedlevel.storage_slot < 0) {
                   Popup_Handler(MeshSlot);
                   break;
                 }
@@ -2967,16 +2965,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case LEVELING_SLOT:
             if (draw) {
               Draw_Menu_Item(row, ICON_PrintSize, F("Mesh Slot"));
-              Draw_Float(ubl.storage_slot, row, false, 1);
+              Draw_Float(bedlevel.storage_slot, row, false, 1);
             }
             else
-              Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes() - 1, 1);
+              Modify_Value(bedlevel.storage_slot, 0, settings.calc_num_meshes() - 1, 1);
             break;
           case LEVELING_LOAD:
             if (draw)
               Draw_Menu_Item(row, ICON_ReadEEPROM, F("Load Mesh"));
             else {
-              if (ubl.storage_slot < 0) {
+              if (bedlevel.storage_slot < 0) {
                 Popup_Handler(MeshSlot);
                 break;
               }
@@ -2989,7 +2987,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             if (draw)
               Draw_Menu_Item(row, ICON_WriteEEPROM, F("Save Mesh"));
             else {
-              if (ubl.storage_slot < 0) {
+              if (bedlevel.storage_slot < 0) {
                 Popup_Handler(MeshSlot);
                 break;
               }
@@ -3019,7 +3017,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case LEVELING_VIEW_MESH:
             if (draw)
-              Draw_Menu_Item(row, ICON_PrintSize, GET_TEXT(MSG_MESH_VIEW), nullptr, true);
+              Draw_Menu_Item(row, ICON_PrintSize, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
             else
               Draw_Menu(MeshViewer);
             break;
@@ -3098,13 +3096,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (draw)
                 Draw_Menu_Item(row, ICON_Mesh, F("Zero Current Mesh"));
               else
-                ZERO(Z_VALUES_ARR);
+                ZERO(bedlevel.z_values);
               break;
             case LEVELING_SETTINGS_UNDEF:
               if (draw)
                 Draw_Menu_Item(row, ICON_Mesh, F("Clear Current Mesh"));
               else
-                ubl.invalidate();
+                bedlevel.invalidate();
               break;
           #endif // AUTO_BED_LEVELING_UBL
         }
@@ -3146,7 +3144,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Back, F("Back"));
             else {
               set_bed_leveling_enabled(level_state);
-              TERN_(AUTO_BED_LEVELING_BILINEAR, bbl.refresh_bed_level());
+              TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
               Draw_Menu(Leveling, LEVELING_MANUAL);
             }
             break;
@@ -3184,36 +3182,36 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case LEVELING_M_OFFSET:
             if (draw) {
               Draw_Menu_Item(row, ICON_SetZOffset, F("Point Z Offset"));
-              Draw_Float(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
+              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
             }
             else {
-              if (isnan(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y]))
-                Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
-              Modify_Value(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              if (isnan(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y]))
+                bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
+              Modify_Value(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             }
             break;
           case LEVELING_M_UP:
             if (draw)
               Draw_Menu_Item(row, ICON_Axis, F("Microstep Up"));
-            else if (Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
-              Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
+            else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
+              bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
               gcode.process_subcommands_now(F("M290 Z0.01"));
               planner.synchronize();
               current_position.z += 0.01f;
               sync_plan_position();
-              Draw_Float(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
+              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
             }
             break;
           case LEVELING_M_DOWN:
             if (draw)
               Draw_Menu_Item(row, ICON_AxisD, F("Microstep Down"));
-            else if (Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
-              Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
+            else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
+              bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               planner.synchronize();
               current_position.z -= 0.01f;
               sync_plan_position();
-              Draw_Float(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
+              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
             }
             break;
           case LEVELING_M_GOTO_VALUE:
@@ -3305,36 +3303,36 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case UBL_M_OFFSET:
             if (draw) {
               Draw_Menu_Item(row, ICON_SetZOffset, F("Point Z Offset"));
-              Draw_Float(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
+              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
             }
             else {
-              if (isnan(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y]))
-                Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
-              Modify_Value(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              if (isnan(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y]))
+                bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
+              Modify_Value(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             }
             break;
           case UBL_M_UP:
             if (draw)
               Draw_Menu_Item(row, ICON_Axis, F("Microstep Up"));
-            else if (Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
-              Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
+            else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
+              bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
               gcode.process_subcommands_now(F("M290 Z0.01"));
               planner.synchronize();
               current_position.z += 0.01f;
               sync_plan_position();
-              Draw_Float(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
+              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
             }
             break;
           case UBL_M_DOWN:
             if (draw)
               Draw_Menu_Item(row, ICON_Axis, F("Microstep Down"));
-            else if (Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
-              Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
+            else if (bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
+              bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               planner.synchronize();
               current_position.z -= 0.01f;
               sync_plan_position();
-              Draw_Float(Z_VALUES_ARR[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
+              Draw_Float(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
             }
             break;
         }
@@ -3418,13 +3416,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case MMESH_OLD:
             uint8_t mesh_x, mesh_y;
             // 0,0 -> 1,0 -> 2,0 -> 2,1 -> 1,1 -> 0,1 -> 0,2 -> 1,2 -> 2,2
-            mesh_y = (gridpoint - 1) / GRID_MAX_POINTS_Y;
-            mesh_x = (gridpoint - 1) % GRID_MAX_POINTS_X;
+            mesh_y = (gridpoint - 1) / (GRID_MAX_POINTS_Y);
+            mesh_x = (gridpoint - 1) % (GRID_MAX_POINTS_X);
 
             if (mesh_y % 2 == 1)
-              mesh_x = GRID_MAX_POINTS_X - mesh_x - 1;
+              mesh_x = (GRID_MAX_POINTS_X) - mesh_x - 1;
 
-            const float currval = Z_VALUES_ARR[mesh_x][mesh_y];
+            const float currval = bedlevel.z_values[mesh_x][mesh_y];
 
             if (draw) {
               Draw_Menu_Item(row, ICON_Zoffset, F("Goto Mesh Value"));
@@ -4283,7 +4281,7 @@ void CrealityDWINClass::Popup_Control() {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         case MeshSlot:
-          if (selection == 0) ubl.storage_slot = 0;
+          if (selection == 0) bedlevel.storage_slot = 0;
           Redraw_Menu(true, true);
           break;
       #endif

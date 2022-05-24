@@ -74,7 +74,7 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
   LOOP_S_L_N(x, 1, sizex - 1) DrawMeshVLine(x);
   LOOP_S_L_N(y, 1, sizey - 1) DrawMeshHLine(y);
   LOOP_L_N(y, sizey) {
-    watchdog_refresh();
+    hal.watchdog_refresh();
     LOOP_L_N(x, sizex) {
       uint16_t color = DWINUI::RainbowInt(zmesh[x][y], _MIN(-5, minz), _MAX(5, maxz));
       uint8_t radius = rm(zmesh[x][y]);
@@ -117,7 +117,7 @@ void MeshViewerClass::Draw(bool withsave /*= false*/) {
     ubl_tools.viewer_print_value = true;
     ubl_tools.Draw_Bed_Mesh(-1, 1, 8, 10 + TITLE_HEIGHT);
   #else
-    DrawMesh(Z_VALUES_ARR, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+    DrawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   #endif
   if (withsave) {
     DWINUI::Draw_Button(BTN_Save, 26, 305);
