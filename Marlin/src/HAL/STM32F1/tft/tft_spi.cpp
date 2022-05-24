@@ -30,7 +30,7 @@ SPIClass TFT_SPI::SPIx(1);
 
 void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
-    OUT_WRITE(TFT_RST_PIN, HIGH);
+    OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(100);
   #endif
 

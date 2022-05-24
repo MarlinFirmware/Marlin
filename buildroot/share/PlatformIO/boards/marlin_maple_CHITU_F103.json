@@ -14,29 +14,23 @@
         "0x0004"
       ]
     ],
-    "libopencm3": {
-      "ldscript": "stm32f103xc.ld"
-    },
-    "mcu": "stm32f103rct6",
-    "variant": "marlin_MEEB_3DP"
+    "mcu": "stm32f103zet6",
+    "variant": "marlin_maple_CHITU_F103"
   },
   "debug": {
-    "jlink_device": "STM32F103RC",
+    "jlink_device": "STM32F103ZE",
     "openocd_target": "stm32f1x",
     "svd_path": "STM32F103xx.svd"
   },
   "frameworks": [
-    "arduino",
-    "cmsis",
-    "libopencm3",
-    "stm32cube"
+    "arduino"
   ],
-  "name": "3D Printer control board for MEEB with 512k flash/rs422 bus/tmc2208 drivers",
+  "name": "CHITU STM32F103Z (64k RAM. 512k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 49152,
-    "maximum_size": 524288,
-    "protocol": "dfu",
+    "maximum_ram_size": 60536,
+    "maximum_size": 480288,
+    "protocol": "stlink",
     "protocols": [
       "jlink",
       "stlink",
@@ -48,6 +42,6 @@
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://github.com/ccrobot-online/MEEB_3DP",
-  "vendor": "CCROBOT-ONLINE"
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f103ze.html",
+  "vendor": "Generic"
 }

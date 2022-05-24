@@ -214,7 +214,7 @@ void GcodeSuite::D(const int16_t dcode) {
 
         c = 1024 * 4;
         while (c--) {
-          TERN_(USE_WATCHDOG, watchdog_refresh());
+          hal.watchdog_refresh();
           card.write(buf, COUNT(buf));
         }
         SERIAL_ECHOLNPGM(" done");
@@ -231,7 +231,7 @@ void GcodeSuite::D(const int16_t dcode) {
         __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
         uint16_t c = 1024 * 4;
         while (c--) {
-          TERN_(USE_WATCHDOG, watchdog_refresh());
+          hal.watchdog_refresh();
           card.read(buf, COUNT(buf));
           bool error = false;
           for (uint16_t i = 0; i < COUNT(buf); i++) {

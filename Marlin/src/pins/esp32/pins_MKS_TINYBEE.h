@@ -31,14 +31,16 @@
 #include "env_validate.h"
 
 #if EXTRUDERS > 2 || E_STEPPERS > 2
-  #error "MKS ESP Nano only supports two E Steppers. Comment out this line to continue."
+  #error "MKS TinyBee supports up to 2 E steppers."
 #elif HOTENDS > 2
-  #error "MKS ESP Nano only supports two hotend / E-stepper. Comment out this line to continue."
+  #error "MKS TinyBee supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "MKS TinyBee"
 #define BOARD_WEBSITE_URL    "https://github.com/makerbase-mks"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+
+// MAX_EXPANDER_BITS is defined for MKS TinyBee in HAL/ESP32/inc/Conditionals_adv.h
 
 //
 // Servos
@@ -66,9 +68,6 @@
   #define I2S_WS                              26
   #define I2S_BCK                             25
   #define I2S_DATA                            27
-  #if ENABLED(LIN_ADVANCE)
-    #error "I2S stream is currently incompatible with LIN_ADVANCE."
-  #endif
 #endif
 
 //
