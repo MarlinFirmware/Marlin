@@ -484,15 +484,16 @@ void GcodeSuite::G33() {
       xyz_pos_t reset{0};
       offset_sensorless_adj = reset;
 
-      float z_at_pt[NPP + 1] = { 0.0f };
+      float z_at_pt[NPP + 1];
+      LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
       probe.test_sensitivity = { true, false, false };
       if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
         probe.save_offset_sensorless(true, z_at_pt[CEN]);
-      z_at_pt[NPP + 1] = { 0.0f };
+      LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
       probe.test_sensitivity = { false, true, false };
       if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
         probe.save_offset_sensorless(true, z_at_pt[CEN]);
-      z_at_pt[NPP + 1] = { 0.0f };
+      LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
       probe.test_sensitivity = { false, false, true };
       if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
         probe.save_offset_sensorless(true, z_at_pt[CEN]);
