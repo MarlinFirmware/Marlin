@@ -27,13 +27,16 @@
   #include "../bedlevel.h"
 
   #include "../../../module/motion.h"
-  #include "../../../module/planner.h"
 
   #if ENABLED(EXTENSIBLE_UI)
     #include "../../../lcd/extui/ui_api.h"
   #endif
 
   mesh_bed_leveling bedlevel;
+
+  #if ENABLED(ENABLE_MESH_Z_OFFSET)
+    float mesh_bed_leveling::z_offset; // Initialized by settings.load()
+  #endif
 
   float mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
         mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
@@ -48,7 +51,7 @@
   }
 
   void mesh_bed_leveling::reset() {
-    TERN_(ENABLE_MESH_Z_OFFSET, planner.mesh_z_offset = 0);
+    TERN_(ENABLE_MESH_Z_OFFSET, z_offset = 0);
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
       GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
@@ -123,12 +126,13 @@
   #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_ECHOPGM(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh.");
+    #define STR_MESH_SIZE STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh."
     #if ENABLED(ENABLE_MESH_Z_OFFSET)
-      SERIAL_ECHOPAIR_F(" Z offset: ", planner.mesh_z_offset, 5);
+      SERIAL_ECHOPAIR_F(STR_MESH_SIZE " Z offset: ", z_offset, 5);
+      SERIAL_ECHOLNPGM("\nMeasured points:");
+    #else
+      SERIAL_ECHOLNPGM(STR_MESH_SIZE "\nMeasured points:");
     #endif
-
-    SERIAL_ECHOLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
   }
 

@@ -24,8 +24,9 @@
 
 #if ENABLED(ENABLE_MESH_Z_OFFSET)
 
-#include "../parser.h"
+#include "../gcode.h"
 #include "../../module/planner.h"
+#include "../../feature/bedlevel/bedlevel.h"
 
 /**
  * M423: Set Z Mesh Offset
@@ -35,14 +36,16 @@ void GcodeSuite::M423() {
   if (parser.seenval('Z')) {
     const float zval = parser.value_linear_units();
     if (WITHIN(zval, -2, 2)) {
-      planner.synchronize();
-      planner.mesh_z_offset = parser.value_linear_units(); // TODO: Handle the change in position when leveling is on
+      if (zval != bedlevel.z_offset) {
+        planner.synchronize();
+        bedlevel.z_offset = zval; // TODO: Handle the change in position when leveling is on
+      }
     }
     else
       SERIAL_ECHOLNPGM("?Z out of range (-2..2)");
   }
   else
-    SERIAL_ECHOPAIR("Mesh Z Offset: ", planner.mesh_z_offset);
+    SERIAL_ECHOLNPGM("Mesh Z Offset: ", bedlevel.z_offset);
 
 }
 

@@ -179,12 +179,6 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
 #if HAS_LEVELING
   bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
 
-  #if ENABLED(ENABLE_MESH_Z_OFFSET)
-    float Planner::mesh_z_offset = 0.0f;
-  #else
-    constexpr float Planner::mesh_z_offset;
-  #endif
-
   #if ABL_PLANAR
     matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
   #endif
@@ -1584,8 +1578,6 @@ void Planner::check_axes_activity() {
   void Planner::apply_leveling(xyz_pos_t &raw) {
     if (!leveling_active) return;
 
-    raw.z += mesh_z_offset;
-
     #if ABL_PLANAR
 
       xy_pos_t d = raw - level_fulcrum;
@@ -1601,7 +1593,7 @@ void Planner::check_axes_activity() {
         raw.z += bedlevel.get_z_correction(raw);
       #endif
 
-      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
+      TERN_(ENABLE_MESH_Z_OFFSET, raw.z += bedlevel.z_offset);
 
     #endif
   }
@@ -1620,7 +1612,7 @@ void Planner::check_axes_activity() {
     #elif HAS_MESH
 
       const float z_correction = bedlevel.get_z_correction(raw),
-                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, bedlevel.get_z_offset()),
+                  z_full_fade = DIFF_TERN(ENABLE_MESH_Z_OFFSET, raw.z, bedlevel.z_offset),
                   z_no_fade = z_full_fade - z_correction;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

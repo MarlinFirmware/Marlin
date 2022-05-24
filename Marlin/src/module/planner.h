@@ -397,12 +397,6 @@ class Planner {
     #if HAS_LEVELING
       static bool leveling_active;          // Flag that bed leveling is enabled
 
-      #if ENABLED(ENABLE_MESH_Z_OFFSET)
-        static float mesh_z_offset;
-      #else
-        static constexpr float mesh_z_offset = 0.0f;
-      #endif
-
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
       #endif
@@ -666,9 +660,6 @@ class Planner {
         unapply_leveling(raw);
         leveling_active = false;
       }
-      #if ENABLED(ENABLE_MESH_Z_OFFSET)
-        FORCE_INLINE static void set_mesh_z_offset(const float &uzo) { mesh_z_offset = uzo; }
-      #endif
     #else
       FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
       FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}

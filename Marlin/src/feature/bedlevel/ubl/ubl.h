@@ -112,6 +112,9 @@ public:
 
   static int8_t storage_slot;
 
+  #if ENABLED(ENABLE_MESH_Z_OFFSET)
+    static float z_offset;
+  #endif
   static bed_mesh_t z_values;
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
@@ -287,8 +290,6 @@ public:
     return z0;
   }
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
-
-  static constexpr float get_z_offset() { return 0.0f; }
 
   static float get_mesh_x(const uint8_t i) {
     return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);

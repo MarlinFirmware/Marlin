@@ -37,6 +37,9 @@ enum MeshLevelingState : char {
 
 class mesh_bed_leveling {
 public:
+  #if ENABLED(ENABLE_MESH_Z_OFFSET)
+    static float z_offset;
+  #endif
   static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
                index_to_xpos[GRID_MAX_POINTS_X],
                index_to_ypos[GRID_MAX_POINTS_Y];
@@ -102,8 +105,6 @@ public:
                 delta_a = a0 - a1;
     return z1 + delta_a * delta_z;
   }
-
-  static float get_z_offset() { return z_offset; }
 
   static float get_z_correction(const xy_pos_t &pos) {
     const xy_int8_t ind = cell_indexes(pos);
