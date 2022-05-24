@@ -89,13 +89,13 @@ uint8_t read_byte(uint8_t *byte) { return *byte; }
 /**
  * Add a string, applying substitutions for the following characters:
  *
- *   $ displays an inserted C-string given by the itemString parameter
+ *   $ displays an inserted C-string given by the inStr parameter
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
-void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString/*=nullptr*/) {
+void TFT_String::add(uint8_t *string, int8_t index, uint8_t *inStr/*=nullptr*/) {
   wchar_t wchar;
 
   while (*string) {
@@ -113,8 +113,8 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString/*=nullpt
       else
         add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
     }
-    else if (ch == '$' && itemString)
-      add(itemString);
+    else if (ch == '$' && inStr)
+      add(inStr);
     else if (ch == '@')
       add_character(AXIS_CHAR(index));
     else

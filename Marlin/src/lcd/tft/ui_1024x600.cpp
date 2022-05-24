@@ -105,12 +105,12 @@ void MarlinUI::draw_kill_screen() {
 
   line++;
   menu_line(line++, COLOR_KILL_SCREEN_BG);
-  tft_string.set(GET_TEXT(MSG_HALTED));
+  tft_string.set(GET_TEXT_F(MSG_HALTED));
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
 
   menu_line(line++, COLOR_KILL_SCREEN_BG);
-  tft_string.set(GET_TEXT(MSG_PLEASE_RESET));
+  tft_string.set(GET_TEXT_F(MSG_PLEASE_RESET));
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
 
@@ -352,14 +352,14 @@ void MarlinUI::draw_status_screen() {
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
+void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
   TERN_(TOUCH_SCREEN, touch.clear());
 
   uint16_t line = 1;
 
   menu_line(line++);
-  tft_string.set(pstr, itemIndex, itemString);
+  tft_string.set(FTOP(fstr), itemIndex, FTOP(itemString));
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
 
@@ -421,7 +421,7 @@ void TFT::draw_edit_screen_buttons() {
 }
 
 // The Select Screen presents a prompt and two "buttons"
-void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
+void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
   uint16_t line = 1;
 
   if (!string) line++;
@@ -473,7 +473,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     #endif
 
     menu_line(row);
-    tft_string.set(GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE));
+    tft_string.set(GET_TEXT_F(MSG_FILAMENT_CHANGE_NOZZLE));
     tft_string.add('E');
     tft_string.add((char)('1' + extruder));
     tft_string.add(' ');
@@ -501,14 +501,14 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.set_background(COLOR_BACKGROUND);
     tft.add_rectangle(0, 0, GRID_WIDTH, GRID_HEIGHT, COLOR_WHITE);
 
-    for (uint16_t x = 0; x < GRID_MAX_POINTS_X ; x++)
-      for (uint16_t y = 0; y < GRID_MAX_POINTS_Y ; y++)
-        if (position_is_reachable({ ubl.mesh_index_to_xpos(x), ubl.mesh_index_to_ypos(y) }))
-          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 2, 2, COLOR_UBL);
+    for (uint16_t x = 0; x < (GRID_MAX_POINTS_X); x++)
+      for (uint16_t y = 0; y < (GRID_MAX_POINTS_Y); y++)
+        if (position_is_reachable({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }))
+          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / (GRID_MAX_POINTS_X) / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / (GRID_MAX_POINTS_Y) / 2), 2, 2, COLOR_UBL);
 
-    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 6, 6, COLOR_UBL);
+    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / (GRID_MAX_POINTS_X) / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / (GRID_MAX_POINTS_Y) / 2), 6, 6, COLOR_UBL);
 
-    const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
+    const xy_pos_t pos = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) },
                    lpos = pos.asLogical();
 
     tft.canvas(320, GRID_OFFSET_Y + (GRID_HEIGHT - MENU_ITEM_HEIGHT) / 2 - MENU_ITEM_HEIGHT, 120, MENU_ITEM_HEIGHT);
@@ -531,7 +531,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(Z_LBL);
     tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-    tft_string.set(isnan(ubl.z_values[x_plot][y_plot]) ? "-----" : ftostr43sign(ubl.z_values[x_plot][y_plot]));
+    tft_string.set(isnan(bedlevel.z_values[x_plot][y_plot]) ? "-----" : ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
     tft_string.trim();
     tft.add_text(120 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
@@ -693,18 +693,18 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
         drawAxisValue(axis);
       }
       else {
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
     #elif HAS_BED_PROBE
       // only change probe.offset.z
       probe.offset.z += diff;
       if (direction < 0 && current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
         current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
       else if (direction > 0 && current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
         current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
       else {
         drawMessage(""); // clear the error
@@ -733,7 +733,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     #if IS_KINEMATIC
       UNUSED(limited);
     #else
-      PGM_P const msg = limited ? GET_TEXT(MSG_LCD_SOFT_ENDSTOPS) : NUL_STR;
+      FSTR_P const msg = limited ? GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS) : FPSTR(NUL_STR);
       drawMessage(msg);
     #endif
 
@@ -766,7 +766,7 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
   static void do_home() {
     quick_feedback();
-    drawMessage(GET_TEXT(MSG_LEVEL_BED_HOMING));
+    drawMessage(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
     queue.inject_P(G28_STR);
     // Disable touch until home is done
     TERN_(TOUCH_SCREEN, touch.disable());
