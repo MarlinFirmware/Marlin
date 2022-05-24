@@ -252,7 +252,6 @@ class Endstops {
     #if USE_SENSORLESS
       static void set_homing_current(const bool onoff);
     #endif
-
 };
 
 extern Endstops endstops;

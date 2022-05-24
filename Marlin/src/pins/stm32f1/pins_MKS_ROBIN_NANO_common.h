@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin nano boards support up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_NO_NATIVE_USB

@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "MKS Robin mini only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "MKS Robin mini only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin Mini"
@@ -152,6 +152,9 @@
 #if EITHER(HAS_FSMC_GRAPHICAL_TFT, TFT_320x240)
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2

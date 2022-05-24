@@ -32,6 +32,9 @@
 #include "../lcd/marlinui.h"
 #include "../core/debug_out.h"
 
+#define DEBUG_OUT BOTH(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
+
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
@@ -1628,56 +1631,58 @@ void Endstops::update() {
    */
   void Endstops::set_homing_current(const bool onoff) {
     #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-    #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
-      #if ENABLED(DELTA)
-        static int16_t saved_current_X, saved_current_Y;
+    #define HAS_DELTA_X_CURRENT (ENABLED(DELTA) && HAS_CURRENT_HOME(X))
+    #define HAS_DELTA_Y_CURRENT (ENABLED(DELTA) && HAS_CURRENT_HOME(Y))
+    #if HAS_DELTA_X_CURRENT || HAS_DELTA_Y_CURRENT || HAS_CURRENT_HOME(Z)
+      #if HAS_DELTA_X_CURRENT
+        static int16_t saved_current_x;
+      #endif
+      #if HAS_DELTA_Y_CURRENT
+        static int16_t saved_current_y;
       #endif
       #if HAS_CURRENT_HOME(Z)
-        static int16_t saved_current_Z;
+        static int16_t saved_current_z;
       #endif
-      #if ((ENABLED(DELTA) && (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y))) || HAS_CURRENT_HOME(Z))
-        auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
-        };
-      #endif  
+      auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
+        if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
+      };
       if (onoff) {
-        #if ENABLED(DELTA)
-          #if HAS_CURRENT_HOME(X)
-            saved_current_X = stepperX.getMilliamps();
-            stepperX.rms_current(X_CURRENT_HOME);
-            debug_current_on(PSTR("X"), saved_current_X, X_CURRENT_HOME);
-          #endif
-          #if HAS_CURRENT_HOME(Y)
-            saved_current_Y = stepperY.getMilliamps();
-            stepperY.rms_current(Y_CURRENT_HOME);
-            debug_current_on(PSTR("Y"), saved_current_Y, Y_CURRENT_HOME);
-          #endif
+        #if HAS_DELTA_X_CURRENT
+          saved_current_x = stepperX.getMilliamps();
+          stepperX.rms_current(X_CURRENT_HOME);
+          debug_current_on(PSTR("X"), saved_current_x, X_CURRENT_HOME);
+        #endif
+        #if HAS_DELTA_Y_CURRENT
+          saved_current_y = stepperY.getMilliamps();
+          stepperY.rms_current(Y_CURRENT_HOME);
+          debug_current_on(PSTR("Y"), saved_current_y, Y_CURRENT_HOME);
         #endif
         #if HAS_CURRENT_HOME(Z)
-          saved_current_Z = stepperZ.getMilliamps();
+          saved_current_z = stepperZ.getMilliamps();
           stepperZ.rms_current(Z_CURRENT_HOME);
-          debug_current_on(PSTR("Z"), saved_current_Z, Z_CURRENT_HOME);
+          debug_current_on(PSTR("Z"), saved_current_z, Z_CURRENT_HOME);
         #endif
-        TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
-        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle 
       }
       else {
-        #if ENABLED(DELTA)
-          #if HAS_CURRENT_HOME(X)
-            stepperX.rms_current(saved_current_X);
-            debug_current_on(PSTR("X"), X_CURRENT_HOME, saved_current_X);
-          #endif
-          #if HAS_CURRENT_HOME(Y)
-            stepperY.rms_current(saved_current_Y);
-            debug_current_on(PSTR("Y"), Y_CURRENT_HOME, saved_current_Y);
-          #endif
+        #if HAS_DELTA_X_CURRENT
+          stepperX.rms_current(saved_current_x);
+          debug_current_on(PSTR("X"), X_CURRENT_HOME, saved_current_x);
+        #endif
+        #if HAS_DELTA_Y_CURRENT
+          stepperY.rms_current(saved_current_y);
+          debug_current_on(PSTR("Y"), Y_CURRENT_HOME, saved_current_y);
         #endif
         #if HAS_CURRENT_HOME(Z)
-          stepperZ.rms_current(saved_current_Z);
-          debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_Z);
+          stepperZ.rms_current(saved_current_z);
+          debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_z);
         #endif
-        TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
       }
-    #endif
+
+      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+        planner.enable_stall_prevention(onoff);
+        if (onoff) safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+      #endif
+
+    #endif // XYZ
   }
 #endif
