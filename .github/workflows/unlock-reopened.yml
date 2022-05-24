@@ -1,0 +1,22 @@
+#
+# unlock-reopened.yml
+# Unlock an issue whenever it is re-opened
+#
+
+name: "Unlock reopened issue"
+
+on:
+  issues:
+    types: [reopened]
+
+jobs:
+  unlock:
+    name: Unlock Reopened
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: OSDKDev/unlock-issues@v1.1
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
