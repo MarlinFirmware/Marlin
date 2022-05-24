@@ -38,7 +38,7 @@ extern xy_float_t delta_tower[ABC];
 extern abc_float_t delta_diagonal_rod_2_tower;
 extern float delta_clip_start_height;
 extern abc_float_t delta_diagonal_rod_trim;
-#if ENABLED(SENSORLESS_PROBING)
+#if HAS_DELTA_SENSORLESS_PROBING
   extern abc_float_t offset_sensorless_adj;
   extern float offset_sensorless;
 #endif
@@ -52,7 +52,7 @@ void recalc_delta_settings();
 /**
  * Get a safe radius for calibration
  */
-#if ENABLED(SENSORLESS_PROBING)
+#if HAS_DELTA_SENSORLESS_PROBING
   static constexpr float sensorless_radius_factor = 0.7f;
 #endif
 
