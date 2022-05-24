@@ -622,7 +622,6 @@ namespace Language_it {
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Timeout inatt.ugello");
   LSTR MSG_FAN_SPEED_FAULT                = _UxGT("Err.vel.della ventola");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luci Case");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Luminosità Luci");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("STAMPANTE ERRATA");

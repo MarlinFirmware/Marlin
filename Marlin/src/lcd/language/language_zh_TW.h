@@ -247,7 +247,6 @@ namespace Language_zh_TW {
   LSTR MSG_LCD_ON                         = _UxGT("開 ");     // "On"
   LSTR MSG_LCD_OFF                        = _UxGT("關 ");     // "Off"
 
-
   LSTR MSG_SELECT                         = _UxGT("選擇");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("選擇 *");
   LSTR MSG_ACC                            = _UxGT("加速度");     // "Accel" acceleration

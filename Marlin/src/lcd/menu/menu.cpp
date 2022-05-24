@@ -332,12 +332,12 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #endif // BABYSTEP_ZPROBE_OFFSET
 
-#if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+#if ENABLED(BABYSTEP_MESH_Z_OFFSET)
 
   #include "../../feature/babystep.h"
   #include "../../module/motion.h"
 
-  void lcd_babystep_global_zoffset() {
+  void lcd_babystep_mesh_zoffset() {
     if (!babystep.can_babystep(Z_AXIS)) {
       // TODO: Needs proper message
       TERN_(HAS_DISPLAY, ui.set_status(GET_TEXT(MSG_HOME_FIRST)));
@@ -366,11 +366,11 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
     if (ui.should_draw()) {
       MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
-      TERN_(BABYSTEP_GLOBAL_Z_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
+      TERN_(BABYSTEP_MESH_Z_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
     }
   }
 
-#endif // BABYSTEP_GLOBAL_Z_OFFSET
+#endif // BABYSTEP_MESH_Z_OFFSET
 void _lcd_draw_homing() {
   if (ui.should_draw()) {
     constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;

@@ -201,6 +201,5 @@ namespace Language_el_gr {
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Βαθμονόμηση Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Βαθμονόμηση κέντρου");
 
-
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Εσφαλμένος εκτυπωτής");
 }

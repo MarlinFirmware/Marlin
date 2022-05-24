@@ -474,7 +474,6 @@ namespace Language_gl {
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Reloxo Traballo: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Reloxo Traballo: ON");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luz da Caixa");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Brillo Luces");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("IMPRESORA INCORRECTA");

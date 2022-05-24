@@ -243,9 +243,9 @@ void menu_tune() {
       #else
         SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
       #endif
-      #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+      #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
         // TODO: Needs proper name
-        SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+        SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_mesh_zoffset);
       #endif
     }
   #endif

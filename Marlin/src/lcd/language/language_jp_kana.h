@@ -231,7 +231,6 @@ namespace Language_jp_kana {
   LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_2_LINE("フィラメントソウテンチュウ", "シバラクオマチクダサイ"));   // "Wait for filament load"
   LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_2_LINE("プリントヲサイカイシマス", "シバラクオマチクダサイ"));   // "Wait for print to resume"
 
-
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("マチガッタプリンター");               // "Wrong printer"
 
   LSTR MSG_CONFIGURATION                  = _UxGT("セッテイカンリ");

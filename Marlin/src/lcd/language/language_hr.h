@@ -134,7 +134,6 @@ namespace Language_hr {
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Osvjetljenje");
 
-
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Neispravan pisač");
 
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2

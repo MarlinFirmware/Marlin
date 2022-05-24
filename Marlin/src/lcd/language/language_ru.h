@@ -828,7 +828,6 @@ namespace Language_ru {
   #endif
   LSTR MSG_PASSWORD_REMOVED                 = _UxGT("Пароль удалён");
 
-
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display

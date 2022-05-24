@@ -184,7 +184,6 @@ namespace Language_an {
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Calibrar Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
 
-
   LSTR MSG_INFO_MENU                      = _UxGT("Inf. Impresora");
   LSTR MSG_INFO_PRINTER_MENU              = _UxGT("Inf. Impresora");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Estadisticas Imp.");

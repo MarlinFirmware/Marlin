@@ -377,7 +377,6 @@ namespace Language_cz {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Vysunout filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunout vše");
 
-
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načíst médium");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vyměnit médium");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Vysunout médium");

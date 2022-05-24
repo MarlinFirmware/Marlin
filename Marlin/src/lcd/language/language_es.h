@@ -458,7 +458,6 @@ namespace Language_es {
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Vig. Fuga Térm.: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Vig. Fuga Térm.: ON");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luz cabina");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Brillo cabina");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impresora incorrecta");

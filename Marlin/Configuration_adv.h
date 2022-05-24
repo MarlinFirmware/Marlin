@@ -1989,9 +1989,9 @@
 
   //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
 
-  //#define BABYSTEP_GLOBAL_Z_OFFSET        // Combine M206 Z and Babystepping
-  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-    //#define BABYSTEP_GLOBAL_Z_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
+  //#define BABYSTEP_MESH_Z_OFFSET          // Combine M206 Z and Babystepping
+  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
+    //#define BABYSTEP_MESH_Z_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
   #endif
 
   //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping

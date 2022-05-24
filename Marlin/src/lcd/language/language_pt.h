@@ -160,7 +160,6 @@ namespace Language_pt {
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Calibrar Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
 
-
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Fim de curso");
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impressora Incorreta");

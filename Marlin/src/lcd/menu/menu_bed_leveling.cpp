@@ -238,7 +238,7 @@ void menu_bed_leveling() {
   const bool is_homed = all_axes_trusted(),
              is_valid = leveling_is_valid();
 
-  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
     const bool can_babystep = babystep.can_babystep(Z_AXIS);
   #endif
 
@@ -289,10 +289,8 @@ void menu_bed_leveling() {
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
-  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-    // TODO: Needs proper name
-    if (can_babystep)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_mesh_zoffset);
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)

@@ -481,7 +481,6 @@ namespace Language_ro {
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Runaway Watch: ON");
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Hotend Idle Timeout");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case Light");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");

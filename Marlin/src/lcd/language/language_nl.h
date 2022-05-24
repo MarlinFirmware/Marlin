@@ -175,7 +175,6 @@ namespace Language_nl {
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibratie");
   LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Zet Delta Hoogte");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case licht");
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Onjuiste printer");

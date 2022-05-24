@@ -84,7 +84,6 @@ namespace Language_da {
   LSTR MSG_NOZZLE                         = _UxGT("Dyse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dyse ~");
 
-
   LSTR MSG_BED                            = _UxGT("Plade");
   LSTR MSG_FAN_SPEED                      = _UxGT("Blæser hastighed");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser hastighed ~");

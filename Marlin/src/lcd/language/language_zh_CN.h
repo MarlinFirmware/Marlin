@@ -484,7 +484,6 @@ namespace Language_zh_CN {
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("监控温度失控:开");
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("热端空闲超时");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("外壳灯");     // "Case light"
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("灯亮度");     // "Light BRIGHTNESS"
 

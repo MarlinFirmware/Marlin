@@ -592,7 +592,6 @@ namespace Language_de {
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Hotend Idle Timeout");
   LSTR MSG_FAN_SPEED_FAULT                = _UxGT("Fehler Lüftergeschw.");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Beleuchtung");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Helligkeit");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Falscher Drucker");

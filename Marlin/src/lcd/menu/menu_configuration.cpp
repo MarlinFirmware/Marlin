@@ -51,6 +51,10 @@
   #endif
 #endif
 
+#if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+  #include "../../feature/babystep.h"
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
@@ -473,7 +477,7 @@ void menu_advanced_settings();
 void menu_configuration() {
   const bool busy = printer_busy();
 
-  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_MESH_Z_OFFSET)
     const bool can_babystep = babystep.can_babystep(Z_AXIS);
   #endif
 
@@ -500,16 +504,13 @@ void menu_configuration() {
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    if (can_babystep)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
-  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-    // TODO: Needs proper name
-    if (can_babystep)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_mesh_zoffset);
   #endif
 
   //

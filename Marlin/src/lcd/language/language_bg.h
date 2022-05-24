@@ -155,5 +155,4 @@ namespace Language_bg {
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Калибровка Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Калибровка Център");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Неправилен принтер");
-
 }

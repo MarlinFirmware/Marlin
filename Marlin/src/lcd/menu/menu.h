@@ -25,7 +25,7 @@
 #include "../../libs/numtostr.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
+#if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_MESH_Z_GFX_OVERLAY)
   #define SHOW_KNOB_GFX_OVERLAY 1
 #endif
 
@@ -241,8 +241,8 @@ void _lcd_draw_homing();
     void lcd_babystep_z();
   #endif
 
-  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-    void lcd_babystep_global_zoffset();
+  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
+    void lcd_babystep_mesh_zoffset();
   #endif
 
   #if ENABLED(BABYSTEP_MILLIMETER_UNITS)

@@ -259,7 +259,6 @@ namespace Language_tr {
   LSTR MSG_SELECT_E                       = _UxGT("Seç *");
   LSTR MSG_ACC                            = _UxGT("İvme");
 
-
   LSTR MSG_JERK                           = _UxGT("Sarsım");
   LSTR MSG_VA_JERK                        = _UxGT("V") STR_A _UxGT("-Sarsım");
   LSTR MSG_VB_JERK                        = _UxGT("V") STR_B _UxGT("-Sarsım");

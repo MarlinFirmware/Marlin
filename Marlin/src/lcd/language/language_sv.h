@@ -518,7 +518,6 @@ namespace Language_sv {
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Överdrift Övervakning: PÅ");
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Hetände Overksam Tidsgräns");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Lådljus");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Ljus ljusstyrka");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INKORREKT SKRIVARE");

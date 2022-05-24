@@ -285,7 +285,6 @@ namespace Language_eu {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Inprim. denbora");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Imprimatze luzeena");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estruituta guztira");
-
   #else
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Inprimatze");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Burututa");

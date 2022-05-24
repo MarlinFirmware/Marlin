@@ -101,7 +101,6 @@ namespace Language_ca {
   LSTR MSG_FLOW_N                         = _UxGT("Flux ~");
   LSTR MSG_VTRAV_MIN                      = _UxGT("VViatge min");
 
-
   LSTR MSG_A_RETRACT                      = _UxGT("Accel. retracc");
   LSTR MSG_A_TRAVEL                       = _UxGT("Accel. Viatge");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Passos/mm");

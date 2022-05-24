@@ -282,7 +282,6 @@ namespace Language_pl {
   LSTR MSG_VE_JERK                        = _UxGT("Zryw Ve");
   LSTR MSG_VELOCITY                       = _UxGT("Prędkość (V)");
 
-
   LSTR MSG_VTRAV_MIN                      = _UxGT("Vskok min");
   LSTR MSG_ACCELERATION                   = _UxGT("Przyspieszenie (A)");
 

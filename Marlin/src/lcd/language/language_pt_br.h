@@ -395,7 +395,6 @@ namespace Language_pt_br {
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Taxa de Transmissão");
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocolo");
 
-
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luz da Impressora");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Intensidade Brilho");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impressora Incorreta");

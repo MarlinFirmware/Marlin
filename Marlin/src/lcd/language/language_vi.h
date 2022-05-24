@@ -388,7 +388,6 @@ namespace Language_vi {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tổng số thời gian in");                // Total print time
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Thời gian việc lâu nhất");              // Longest job time
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Tổng số đùn");                          // Extruded total
-
   #else
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("In");                                   // prints
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Đã hoàn thành");                        // Completed

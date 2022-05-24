@@ -671,7 +671,6 @@ namespace Language_en {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");
 
-
   LSTR MSG_COLORS_GET                     = _UxGT("Get Color");
   LSTR MSG_COLORS_SELECT                  = _UxGT("Select Colors");
   LSTR MSG_COLORS_APPLIED                 = _UxGT("Colors applied");

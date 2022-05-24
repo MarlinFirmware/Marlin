@@ -260,7 +260,6 @@ namespace Language_fr {
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra ventil.  ");
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra ventil. ~");
 
-
   LSTR MSG_FLOW                           = _UxGT("Flux");
   LSTR MSG_FLOW_N                         = _UxGT("Flux ~");
   LSTR MSG_CONTROL                        = _UxGT("Contrôler");
