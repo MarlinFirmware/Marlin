@@ -69,7 +69,7 @@
 #define CHANNEL_MAX_NUM  15u   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
 #define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
 #ifndef MAX_EXPANDER_BITS
-  #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32) 
+  #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
 #endif
 
 // ------------------------
@@ -81,7 +81,7 @@ typedef int16_t pin_t;
 
 typedef struct pwm_pin {
   uint32_t pwm_cycle_ticks = ((1000000 / PWM_FREQUENCY) / 4);   // # ticks per pwm cycle
-  uint32_t pwm_tick_count = 0;    // current tick count 
+  uint32_t pwm_tick_count = 0;    // current tick count
   uint32_t pwm_duty_ticks = 0;    // # of ticks for current duty cycle
 } pwm_pin_t;
 
