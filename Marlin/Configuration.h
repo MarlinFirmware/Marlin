@@ -1708,7 +1708,7 @@
     #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) Default fade height.
   #endif
 
-  // Add Z offset (M423 Z) that applies to all moves at the planner level.
+  // Add Z offset (M424 Z) that applies to all moves at the planner level.
   //#define ENABLE_MESH_Z_OFFSET
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
