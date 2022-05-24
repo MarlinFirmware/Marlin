@@ -331,31 +331,33 @@ int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res)
 }
 
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=_BV(PWM_RESOLUTION)-1*/, const bool invert/*=false*/) {
-  #if defined(I2S_STEPPER_STREAM)
+  #if ENABLED(I2S_STEPPER_STREAM)
     if (pin > 127) {
-      uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, pwm_pin_data[pin & 0x7F].pwm_cycle_ticks);
-      if ((duty == pwm_pin_data[pin & 0x7F].pwm_cycle_ticks) || duty == 0) { // max or min (i.e., on/off)
-        pwm_pin_data[pin & 0x7f].pwm_duty_ticks = 0; // turn off PWM for this pin
-        (duty == 0) ? CBI32(i2s_port_data, pin & 0x7f) : SBI32(i2s_port_data, pin & 0x7f); // set pin level
+      const uint8_t pinlo = pin & 0x7F;
+      pwm_pin_t &pindata = pwm_pin_data[pinlo];
+      const uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, pindata.pwm_cycle_ticks);
+      if (duty == 0 || duty == pindata.pwm_cycle_ticks) { // max or min (i.e., on/off)
+        pindata.pwm_duty_ticks = 0;  // turn off PWM for this pin
+        duty ? SBI32(i2s_port_data, pinlo) : CBI32(i2s_port_data, pinlo); // set pin level
       }
-      else {
-        pwm_pin_data[pin & 0x7F].pwm_duty_ticks = duty; // PWM duty count = # of 4µs ticks per full PWM cycle
-      }
-    } else
+      else
+        pindata.pwm_duty_ticks = duty; // PWM duty count = # of 4µs ticks per full PWM cycle
+    }
+    else
   #endif
     {
       const int8_t cid = get_pwm_channel(pin, PWM_FREQUENCY, PWM_RESOLUTION);
       if (cid >= 0) {
-        uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, _BV(PWM_RESOLUTION)-1);
+        const uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, _BV(PWM_RESOLUTION)-1);
         ledcWrite(cid, duty);
       }
     }
 }
 
 int8_t MarlinHAL::set_pwm_frequency(const pin_t pin, const uint32_t f_desired) {
-  #if defined(I2S_STEPPER_STREAM)
+  #if ENABLED(I2S_STEPPER_STREAM)
     if (pin > 127) {
-      pwm_pin_data[pin & 0x7F].pwm_cycle_ticks = ((1000000 / f_desired) / 4); // # of 4µs ticks per full PWM cycle
+      pwm_pin_data[pin & 0x7F].pwm_cycle_ticks = 1000000UL / f_desired / 4; // # of 4µs ticks per full PWM cycle
       return 0;
     }
     else

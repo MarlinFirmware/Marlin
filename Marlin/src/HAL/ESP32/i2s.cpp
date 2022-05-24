@@ -340,20 +340,20 @@ void i2s_push_sample() {
   // Every 4µs (when space in DMA buffer) toggle each expander PWM output using
   // the current duty cycle/frequency so they sync with any steps (once
   // through the DMA/FIFO buffers).  PWM signal inversion handled by other functions
-  for (uint8_t pin = 0; pin < MAX_EXPANDER_BITS; pin++) {
-    if (hal.pwm_pin_data[pin].pwm_duty_ticks > 0) { // pin has active pwm?
-      if (hal.pwm_pin_data[pin].pwm_tick_count == 0) {
-        if (TEST32(i2s_port_data, pin)) {  // hi->lo
-          CBI32(i2s_port_data, pin);
-          hal.pwm_pin_data[pin].pwm_tick_count = hal.pwm_pin_data[pin].pwm_cycle_ticks - hal.pwm_pin_data[pin].pwm_duty_ticks;
+  LOOP_L_N(p, MAX_EXPANDER_BITS) {
+    if (hal.pwm_pin_data[p].pwm_duty_ticks > 0) { // pin has active pwm?
+      if (hal.pwm_pin_data[p].pwm_tick_count == 0) {
+        if (TEST32(i2s_port_data, p)) {  // hi->lo
+          CBI32(i2s_port_data, p);
+          hal.pwm_pin_data[p].pwm_tick_count = hal.pwm_pin_data[p].pwm_cycle_ticks - hal.pwm_pin_data[p].pwm_duty_ticks;
         }
         else { // lo->hi
-          SBI32(i2s_port_data, pin);
-          hal.pwm_pin_data[pin].pwm_tick_count = hal.pwm_pin_data[pin].pwm_duty_ticks;
+          SBI32(i2s_port_data, p);
+          hal.pwm_pin_data[p].pwm_tick_count = hal.pwm_pin_data[p].pwm_duty_ticks;
         }
       }
       else
-        hal.pwm_pin_data[pin].pwm_tick_count--;
+        hal.pwm_pin_data[p].pwm_tick_count--;
     }
   }
 

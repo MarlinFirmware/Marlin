@@ -80,9 +80,9 @@ typedef double isr_float_t;   // FPU ops are used for single-precision, so use d
 typedef int16_t pin_t;
 
 typedef struct pwm_pin {
-  uint32_t pwm_cycle_ticks = ((1000000 / PWM_FREQUENCY) / 4);   // # ticks per pwm cycle
-  uint32_t pwm_tick_count = 0;    // current tick count
-  uint32_t pwm_duty_ticks = 0;    // # of ticks for current duty cycle
+  uint32_t pwm_cycle_ticks = 1000000UL / (PWM_FREQUENCY) / 4; // # ticks per pwm cycle
+  uint32_t pwm_tick_count = 0;  // current tick count
+  uint32_t pwm_duty_ticks = 0;  // # of ticks for current duty cycle
 } pwm_pin_t;
 
 class Servo;
