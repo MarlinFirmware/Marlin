@@ -41,8 +41,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
   }
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define GRID_COLS 2
-    #define GRID_ROWS 9
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)
     #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(2,1)
     #define FILAMENT_POS    BTN_POS(1,3), BTN_SIZE(2,1)
@@ -54,8 +52,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define ADVANCED_SETTINGS_POS BTN_POS(1,9), BTN_SIZE(1,1)
     #define BACK_POS        BTN_POS(2,9), BTN_SIZE(1,1)
   #else
-    #define GRID_COLS 2
-    #define GRID_ROWS 5
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(1,1)
     #define NUDGE_NOZ_POS   BTN_POS(2,1), BTN_SIZE(1,1)
     #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(1,1)

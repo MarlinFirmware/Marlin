@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "MKS Robin mini only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "MKS Robin mini only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin Mini"
