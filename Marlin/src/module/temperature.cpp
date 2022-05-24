@@ -392,7 +392,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
         return;
       }
     #endif
-    
+
     if (fan >= FAN_COUNT) return;
 
     fan_speed[fan] = speed;
