@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #ifdef __PLAT_LINUX__
 
 //#define GPIO_LOGGING // Full GPIO and Positional Logging
@@ -105,8 +109,8 @@ int main() {
   std::thread write_serial (write_serial_thread);
   std::thread read_serial (read_serial_thread);
 
-  #ifdef MYSERIAL0
-    MYSERIAL0.begin(BAUDRATE);
+  #ifdef MYSERIAL1
+    MYSERIAL1.begin(BAUDRATE);
     SERIAL_ECHOLNPGM("x86_64 Initialized");
     SERIAL_FLUSHTX();
   #endif

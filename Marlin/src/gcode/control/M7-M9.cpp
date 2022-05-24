@@ -20,9 +20,9 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(COOLANT_CONTROL)
+#if ANY(COOLANT_MIST, COOLANT_FLOOD, AIR_ASSIST)
 
 #include "../gcode.h"
 #include "../../module/planner.h"
@@ -37,27 +37,41 @@
   }
 #endif
 
-#if ENABLED(COOLANT_FLOOD)
+#if EITHER(COOLANT_FLOOD, AIR_ASSIST)
+
+  #if ENABLED(AIR_ASSIST)
+    #include "../../feature/spindle_laser.h"
+  #endif
+
   /**
-   * M8: Flood Coolant On
+   * M8: Flood Coolant / Air Assist ON
    */
   void GcodeSuite::M8() {
-    planner.synchronize();                              // Wait for move to arrive
-    WRITE(COOLANT_FLOOD_PIN, !(COOLANT_FLOOD_INVERT));  // Turn on Flood coolant
+    planner.synchronize();                            // Wait for move to arrive
+    #if ENABLED(COOLANT_FLOOD)
+      WRITE(COOLANT_FLOOD_PIN, !(COOLANT_FLOOD_INVERT)); // Turn on Flood coolant
+    #endif
+    #if ENABLED(AIR_ASSIST)
+      cutter.air_assist_enable();                     // Turn on Air Assist
+    #endif
   }
+
 #endif
 
 /**
- * M9: Coolant OFF
+ * M9: Coolant / Air Assist OFF
  */
 void GcodeSuite::M9() {
-  planner.synchronize();                            // Wait for move to arrive
+  planner.synchronize();                              // Wait for move to arrive
   #if ENABLED(COOLANT_MIST)
-    WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);   // Turn off Mist coolant
+    WRITE(COOLANT_MIST_PIN, COOLANT_MIST_INVERT);     // Turn off Mist coolant
   #endif
   #if ENABLED(COOLANT_FLOOD)
-    WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT); // Turn off Flood coolant
+    WRITE(COOLANT_FLOOD_PIN, COOLANT_FLOOD_INVERT);   // Turn off Flood coolant
+  #endif
+  #if ENABLED(AIR_ASSIST)
+    cutter.air_assist_disable();                      // Turn off Air Assist
   #endif
 }
 
-#endif // COOLANT_CONTROL
+#endif // COOLANT_MIST | COOLANT_FLOOD | AIR_ASSIST

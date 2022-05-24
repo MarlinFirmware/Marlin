@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS BASE 1.6 only supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS BASE 1.6 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.6"
@@ -56,4 +56,4 @@
   #define PS_ON_PIN                           -1
 #endif
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS

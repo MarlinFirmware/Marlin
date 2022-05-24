@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
  * Based on u8g_com_msp430_hw_spi.c
  *
@@ -60,7 +59,7 @@
 
 #if HAS_MARLINUI_U8GLIB
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #include "../../../MarlinCore.h"
 

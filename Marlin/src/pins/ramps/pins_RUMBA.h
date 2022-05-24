@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
+  #error "RUMBA supports up to 3 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -47,12 +47,27 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             37
-#define X_MAX_PIN                             36
-#define Y_MIN_PIN                             35
-#define Y_MAX_PIN                             34
-#define Z_MIN_PIN                             33
-#define Z_MAX_PIN                             32
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN                           37
+#endif
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN                           37
+#endif
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN                           36
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN                           35
+#endif
+#ifndef Y_MAX_PIN
+  #define Y_MAX_PIN                           34
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                           33
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN                           32
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -205,7 +220,7 @@
       #define RGB_LED_B_PIN                   40
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                      25
+    #define NEOPIXEL_PIN                      38
   #endif
 
 #else

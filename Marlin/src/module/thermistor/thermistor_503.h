@@ -23,7 +23,7 @@
 
 // Zonestar (Z8XM2) Heated Bed thermistor. Added By AvanOsch
 // These are taken from the Zonestar settings in original Repetier firmware: Z8XM2_ZRIB_LCD12864_V51.zip
-const temp_entry_t temptable_503[] PROGMEM = {
+constexpr temp_entry_t temptable_503[] PROGMEM = {
    { OV(  12), 300 },
    { OV(  27), 270 },
    { OV(  47), 250 },

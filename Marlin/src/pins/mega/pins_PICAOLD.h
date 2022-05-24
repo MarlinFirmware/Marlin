@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #define HEATER_0_PIN                          9   // E0
 #define HEATER_1_PIN                         10   // E1

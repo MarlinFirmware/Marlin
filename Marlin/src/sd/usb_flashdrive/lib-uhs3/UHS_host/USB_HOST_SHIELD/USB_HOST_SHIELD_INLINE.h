@@ -76,7 +76,7 @@ void UHS_NI MAX3421E_HOST::regWr(uint8_t reg, uint8_t data) {
 /* multiple-byte write                            */
 
 /* returns a pointer to memory position after last written */
-uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
         SPIclass.beginTransaction(MAX3421E_SPI_Settings);
         MARLIN_UHS_WRITE_SS(LOW);
         SPIclass.transfer(reg | 0x02);
@@ -117,7 +117,7 @@ uint8_t UHS_NI MAX3421E_HOST::regRd(uint8_t reg) {
 /* multiple-byte register read  */
 
 /* returns a pointer to a memory position after last read   */
-uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
         SPIclass.beginTransaction(MAX3421E_SPI_Settings);
         MARLIN_UHS_WRITE_SS(LOW);
         SPIclass.transfer(reg);
@@ -472,7 +472,7 @@ uint8_t UHS_NI MAX3421E_HOST::SetAddress(uint8_t addr, uint8_t ep, UHS_EpInfo **
  * @param data pointer to data buffer
  * @return 0 on success
  */
-uint8_t UHS_NI MAX3421E_HOST::InTransfer(UHS_EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t* data) {
+uint8_t UHS_NI MAX3421E_HOST::InTransfer(UHS_EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t *data) {
         uint8_t rcode = 0;
         uint8_t pktsize;
 

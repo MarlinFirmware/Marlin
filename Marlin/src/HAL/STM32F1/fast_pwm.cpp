@@ -21,32 +21,57 @@
  */
 #ifdef __STM32F1__
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if NEEDS_HARDWARE_PWM
+#include "../../inc/MarlinConfig.h"
 
 #include <pwm.h>
-#include "HAL.h"
-#include "timers.h"
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+#define NR_TIMERS TERN(STM32_XL_DENSITY, 14, 8) // Maple timers, 14 for STM32_XL_DENSITY (F/G chips), 8 for HIGH density (C D E)
+
+static uint16_t timer_freq[NR_TIMERS];
+
+inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
+  *timer_ptr = PIN_MAP[pin].timer_device;
+  for (uint8_t i = 0; i < NR_TIMERS; i++) if (*timer_ptr == HAL_get_timer_dev(i))
+    return i;
+  return 0;
+}
+
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+  const uint16_t duty = invert ? v_size - v : v;
+  if (PWM_PIN(pin)) {
+    timer_dev *timer; UNUSED(timer);
+    if (timer_freq[timer_and_index_for_pin(pin, &timer)] == 0)
+      set_pwm_frequency(pin, PWM_FREQUENCY);
+    const uint8_t channel = PIN_MAP[pin].timer_channel;
+    timer_set_compare(timer, channel, duty);
+    timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
+  }
+  else {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, duty < v_size / 2 ? LOW : HIGH);
+  }
+}
+
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return;                    // Don't proceed if no hardware timer
 
-  timer_dev *timer = PIN_MAP[pin].timer_device;
-  uint8_t channel = PIN_MAP[pin].timer_channel;
+  timer_dev *timer; UNUSED(timer);
+  timer_freq[timer_and_index_for_pin(pin, &timer)] = f_desired;
 
   // Protect used timers
-  if (timer == get_timer_dev(TEMP_TIMER_NUM)) return;
-  if (timer == get_timer_dev(STEP_TIMER_NUM)) return;
-  #if PULSE_TIMER_NUM != STEP_TIMER_NUM
-    if (timer == get_timer_dev(PULSE_TIMER_NUM)) return;
+  if (timer == HAL_get_timer_dev(MF_TIMER_TEMP)) return;
+  if (timer == HAL_get_timer_dev(MF_TIMER_STEP)) return;
+  #if MF_TIMER_PULSE != MF_TIMER_STEP
+    if (timer == HAL_get_timer_dev(MF_TIMER_PULSE)) return;
   #endif
 
   if (!(timer->regs.bas->SR & TIMER_CR1_CEN))   // Ensure the timer is enabled
     timer_init(timer);
 
+  const uint8_t channel = PIN_MAP[pin].timer_channel;
   timer_set_mode(timer, channel, TIMER_PWM);
-  uint16_t preload = 255;                       // Lock 255 PWM resolution for high frequencies
+  // Preload (resolution) cannot be equal to duty of 255 otherwise it may not result in digital off or on.
+  uint16_t preload = 254;
   int32_t prescaler = (HAL_TIMER_RATE) / (preload + 1) / f_desired - 1;
   if (prescaler > 65535) {                      // For low frequencies increase prescaler
     prescaler = 65535;
@@ -57,12 +82,4 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   timer_set_prescaler(timer, prescaler);
 }
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  timer_dev *timer = PIN_MAP[pin].timer_device;
-  uint16_t max_val = timer->regs.bas->ARR * v / v_size;
-  if (invert) max_val = v_size - max_val;
-  pwmWrite(pin, max_val);
-}
-
-#endif // NEEDS_HARDWARE_PWM
 #endif // __STM32F1__

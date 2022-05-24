@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Azteeg X3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Azteeg X3 supports up to 2 hotends / E steppers."
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
@@ -43,7 +43,7 @@
 #define SERVO0_PIN                            44  // SERVO1 port
 #define SERVO1_PIN                            55  // SERVO2 port
 
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
 
 //
 // LCD / Controller

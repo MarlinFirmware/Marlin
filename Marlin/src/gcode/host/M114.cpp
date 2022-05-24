@@ -34,34 +34,31 @@
     #include "../../core/debug_out.h"
   #endif
 
-  void report_xyze(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
+  void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=LOGICAL_AXES, const uint8_t precision=3) {
     char str[12];
     LOOP_L_N(a, n) {
-      SERIAL_CHAR(' ', axis_codes[a], ':');
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]));
       if (pos[a] >= 0) SERIAL_CHAR(' ');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();
   }
-  inline void report_xyz(const xyze_pos_t &pos) { report_xyze(pos, XYZ); }
+  inline void report_linear_axis_pos(const xyze_pos_t &pos) { report_all_axis_pos(pos, XYZ); }
 
-  void report_xyz(const xyz_pos_t &pos, const uint8_t precision=3) {
+  void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    LOOP_XYZ(a) {
-      SERIAL_CHAR(' ', XYZ_CHAR(a), ':');
-      SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
-    }
+    LOOP_NUM_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), dtostrf(pos[a], 1, precision, str));
     SERIAL_EOL();
   }
 
   void report_current_position_detail() {
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
-    report_xyz(current_position.asLogical());
+    report_linear_axis_pos(current_position.asLogical());
 
     // Cartesian position in native machine space
     SERIAL_ECHOPGM("Raw:    ");
-    report_xyz(current_position);
+    report_linear_axis_pos(current_position);
 
     xyze_pos_t leveled = current_position;
 
@@ -69,20 +66,20 @@
       // Current position with leveling applied
       SERIAL_ECHOPGM("Leveled:");
       planner.apply_leveling(leveled);
-      report_xyz(leveled);
+      report_linear_axis_pos(leveled);
 
       // Test planner un-leveling. This should match the Raw result.
       SERIAL_ECHOPGM("UnLevel:");
       xyze_pos_t unleveled = leveled;
       planner.unapply_leveling(unleveled);
-      report_xyz(unleveled);
+      report_linear_axis_pos(unleveled);
     #endif
 
     #if IS_KINEMATIC
       // Kinematics applied to the leveled position
       SERIAL_ECHOPGM(TERN(IS_SCARA, "ScaraK: ", "DeltaK: "));
       inverse_kinematics(leveled);  // writes delta[]
-      report_xyz(delta);
+      report_linear_axis_pos(delta);
     #endif
 
     planner.synchronize();
@@ -125,6 +122,24 @@
       #if AXIS_IS_L64XX(Z4)
         REPORT_ABSOLUTE_POS(Z4);
       #endif
+      #if AXIS_IS_L64XX(I)
+        REPORT_ABSOLUTE_POS(I);
+      #endif
+      #if AXIS_IS_L64XX(J)
+        REPORT_ABSOLUTE_POS(J);
+      #endif
+      #if AXIS_IS_L64XX(K)
+        REPORT_ABSOLUTE_POS(K);
+      #endif
+      #if AXIS_IS_L64XX(U)
+        REPORT_ABSOLUTE_POS(U);
+      #endif
+      #if AXIS_IS_L64XX(V)
+        REPORT_ABSOLUTE_POS(V);
+      #endif
+      #if AXIS_IS_L64XX(W)
+        REPORT_ABSOLUTE_POS(W);
+      #endif
       #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
       #endif
@@ -153,9 +168,8 @@
     #endif // HAS_L64XX
 
     SERIAL_ECHOPGM("Stepper:");
-    LOOP_XYZE(i) {
-      SERIAL_CHAR(' ', axis_codes[i], ':');
-      SERIAL_ECHO(stepper.position((AxisEnum)i));
+    LOOP_LOGICAL_AXES(i) {
+      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[i]), stepper.position((AxisEnum)i));
     }
     SERIAL_EOL();
 
@@ -165,17 +179,28 @@
         planner.get_axis_position_degrees(B_AXIS)
       };
       SERIAL_ECHOPGM("Degrees:");
-      report_xyze(deg, 2);
+      report_all_axis_pos(deg, 2);
     #endif
 
     SERIAL_ECHOPGM("FromStp:");
     get_cartesian_from_steppers();  // writes 'cartes' (with forward kinematics)
-    xyze_pos_t from_steppers = { cartes.x, cartes.y, cartes.z, planner.get_axis_position_mm(E_AXIS) };
-    report_xyze(from_steppers);
+    xyze_pos_t from_steppers = LOGICAL_AXIS_ARRAY(
+      planner.get_axis_position_mm(E_AXIS),
+      cartes.x, cartes.y, cartes.z,
+      planner.get_axis_position_mm(I_AXIS),
+      planner.get_axis_position_mm(J_AXIS),
+      planner.get_axis_position_mm(K_AXIS),
+      planner.get_axis_position_mm(U_AXIS),
+      planner.get_axis_position_mm(V_AXIS),
+      planner.get_axis_position_mm(W_AXIS)
+    );
+    report_all_axis_pos(from_steppers);
 
     const xyze_float_t diff = from_steppers - leveled;
     SERIAL_ECHOPGM("Diff:   ");
-    report_xyze(diff);
+    report_all_axis_pos(diff);
+
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   }
 
 #endif // M114_DETAIL
@@ -191,7 +216,7 @@
 void GcodeSuite::M114() {
 
   #if ENABLED(M114_DETAIL)
-    if (parser.seen('D')) {
+    if (parser.seen_test('D')) {
       #if DISABLED(M114_LEGACY)
         planner.synchronize();
       #endif
@@ -199,16 +224,20 @@ void GcodeSuite::M114() {
       report_current_position_detail();
       return;
     }
-    if (parser.seen('E')) {
-      SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
-      return;
-    }
+    #if HAS_EXTRUDERS
+      if (parser.seen_test('E')) {
+        SERIAL_ECHOLNPGM("Count E:", stepper.position(E_AXIS));
+        return;
+      }
+    #endif
   #endif
 
   #if ENABLED(M114_REALTIME)
-    if (parser.seen('R')) { report_real_position(); return; }
+    if (parser.seen_test('R')) { report_real_position(); return; }
   #endif
 
   TERN_(M114_LEGACY, planner.synchronize());
   report_current_position_projected();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
 }

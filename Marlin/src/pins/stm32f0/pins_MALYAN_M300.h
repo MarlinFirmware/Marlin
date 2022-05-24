@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
@@ -34,7 +33,7 @@
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
   #ifndef MARLIN_EEPROM_SIZE
-    #define MARLIN_EEPROM_SIZE 0x800U             // 2KB
+    #define MARLIN_EEPROM_SIZE 0x800U             // 2K
   #endif
 #endif
 
@@ -46,8 +45,8 @@
 //
 // Timers
 //
-#define STEP_TIMER                             6
-#define TEMP_TIMER                             7
+#define STEP_TIMER  6
+#define TEMP_TIMER  7
 
 //
 // Limit Switches

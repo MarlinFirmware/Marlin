@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 /**
- * 21017 Victor Perez Marlin for stm32f1 test
+ * 10 Dec 2017 Victor Perez Marlin for stm32f1 test
  */
 
 #define BOARD_INFO_NAME      "STM3R Mini"
@@ -91,7 +91,7 @@
 #endif
 #define FAN1_PIN                            PD13
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Temperature Sensors

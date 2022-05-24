@@ -33,7 +33,13 @@
 void GcodeSuite::M20() {
   if (card.flag.mounted) {
     SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
-    card.ls();
+    card.ls(
+      TERN_(CUSTOM_FIRMWARE_UPLOAD, parser.boolval('F'))
+      #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
+        ,
+      #endif
+      TERN_(LONG_FILENAME_HOST_SUPPORT, parser.boolval('L'))
+    );
     SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
   }
   else

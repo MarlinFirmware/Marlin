@@ -51,7 +51,7 @@ void LinearAxis::update() {
 }
 
 void LinearAxis::interrupt(GpioEvent ev) {
-  if (ev.pin_id == step_pin && !Gpio::pin_map[enable_pin].value){
+  if (ev.pin_id == step_pin && !Gpio::pin_map[enable_pin].value) {
     if (ev.event == GpioEvent::RISE) {
       last_update = ev.timestamp;
       position += -1 + 2 * Gpio::pin_map[dir_pin].value;

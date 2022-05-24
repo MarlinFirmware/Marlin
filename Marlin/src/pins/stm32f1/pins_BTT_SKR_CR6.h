@@ -49,17 +49,13 @@
   #define I2C_EEPROM
 #endif
 
-/* I2C */
 #if ENABLED(I2C_EEPROM)
   #define IIC_EEPROM_SDA                    PB7
   #define IIC_EEPROM_SCL                    PB6
-
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
-
-#define E2END           (MARLIN_EEPROM_SIZE - 1)  // 2KB
 
 //
 // Limit Switches
@@ -67,15 +63,22 @@
 
 #define X_STOP_PIN                          PC0
 #define Y_STOP_PIN                          PC1
-#define Z_STOP_PIN                          PC14  // Endtop or Probe
+#define Z_STOP_PIN                          PC14  // Endstop or Probe
 
 #define FIL_RUNOUT_PIN                      PC15
 
 //
 // Probe
 //
-#define PROBE_TARE_PIN                      PA1
-#define PROBE_ACTIVATION_SWITCH_PIN         PC2   // Optoswitch to Enable Z Probe
+#ifndef PROBE_TARE_PIN
+  #define PROBE_TARE_PIN                    PA1
+#endif
+
+#if ENABLED(PROBE_ACTIVATION_SWITCH)
+  #ifndef PROBE_ACTIVATION_SWITCH_PIN
+    #define PROBE_ACTIVATION_SWITCH_PIN     PC2   // Optoswitch to Enable Z Probe
+  #endif
+#endif
 
 //
 // Steppers
@@ -110,7 +113,7 @@
 #define HEATER_BED_PIN                      PC9   // HOT BED
 
 #define FAN_PIN                             PC6   // FAN
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 #define CONTROLLER_FAN_PIN                  PC7
 
@@ -158,24 +161,26 @@
 // SD Card
 //
 
-#define HAS_ONBOARD_SD
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-
-  #define ON_BOARD_SPI_DEVICE                  1  // SPI1
   #define ONBOARD_SD_CS_PIN                 PA4   // Chip select for "System" SD card
+  #define SDSS                 ONBOARD_SD_CS_PIN
 #endif
 
 //
 // Misc. Functions
 //
-#define LED_CONTROL_PIN                     PA13
+#define CASE_LIGHT_PIN                      PA13
 
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PA8
+#endif
+
+#define SUICIDE_PIN                         PC13
+#ifndef SUICIDE_PIN_STATE
+  #define SUICIDE_PIN_STATE                  LOW
 #endif

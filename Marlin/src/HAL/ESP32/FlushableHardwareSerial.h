@@ -31,4 +31,4 @@ public:
   FlushableHardwareSerial(int uart_nr) : HardwareSerial(uart_nr) {}
 };
 
-extern Serial0Type<FlushableHardwareSerial> flushableSerial;
+extern Serial1Class<FlushableHardwareSerial> flushableSerial;

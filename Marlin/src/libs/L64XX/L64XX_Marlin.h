@@ -35,7 +35,9 @@
 #define dSPIN_STEP_CLOCK_REV dSPIN_STEP_CLOCK+1
 #define HAS_L64XX_EXTRUDER (AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5) || AXIS_IS_L64XX(E6) || AXIS_IS_L64XX(E7))
 
-enum L64XX_axis_t : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7, MAX_L64XX };
+#define _EN_ITEM(N) , E##N
+enum L64XX_axis_t : uint8_t { MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM), MAX_L64XX };
+#undef _EN_ITEM
 
 class L64XX_Marlin : public L64XXHelper {
 public:
@@ -116,11 +118,11 @@ public:
 
   #if ENABLED(MONITOR_L6470_DRIVER_STATUS)
     static bool monitor_paused;
-    static inline void pause_monitor(const bool p) { monitor_paused = p; }
+    static void pause_monitor(const bool p) { monitor_paused = p; }
     static void monitor_update(L64XX_axis_t stepper_index);
     static void monitor_driver();
   #else
-    static inline void pause_monitor(const bool) {}
+    static void pause_monitor(const bool) {}
   #endif
 
 //protected:

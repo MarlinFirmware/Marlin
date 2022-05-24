@@ -27,7 +27,7 @@
 // Beta = 3974
 // R1 = 0 Ohm
 // R2 = 4700 Ohm
-const temp_entry_t temptable_71[] PROGMEM = {
+constexpr temp_entry_t temptable_71[] PROGMEM = {
   { OV(  35), 300 },
   { OV(  51), 269 },
   { OV(  59), 258 },

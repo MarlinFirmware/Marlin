@@ -40,6 +40,9 @@
 #elif MB(AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI)
   #define DIGIPOT_I2C_FACTOR      113.5f
   #define DIGIPOT_I2C_MAX_CURRENT   2.0f
+#elif MB(AZTEEG_X5_GT)
+  #define DIGIPOT_I2C_FACTOR       51.0f
+  #define DIGIPOT_I2C_MAX_CURRENT   3.0f
 #else
   #define DIGIPOT_I2C_FACTOR      106.7f
   #define DIGIPOT_I2C_MAX_CURRENT   2.5f

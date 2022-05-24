@@ -24,10 +24,16 @@
 
 #if ENABLED(PLATFORM_M997_SUPPORT)
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../lcd/e3v2/proui/dwin.h"
+#endif
+
 /**
  * M997: Perform in-application firmware update
  */
 void GcodeSuite::M997() {
+
+  TERN_(DWIN_LCD_PROUI, DWIN_RebootScreen());
 
   flashFirmware(parser.intval('S'));
 

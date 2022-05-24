@@ -22,7 +22,7 @@
 #pragma once
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Creality3D RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Creality RAMPS supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Creality3D RAMPS"
@@ -30,9 +30,8 @@
 //
 // Heaters / Fans
 //
-
-// Power outputs EFBF or EFBE
-#define MOSFET_D_PIN                           7
+#define MOSFET_B_PIN                           7  // For HEATER_1_PIN ("EEF" or "EEB")
+#define FAN_PIN                                9
 
 #define FIL_RUNOUT_PIN                         2
 #if NUM_RUNOUT_SENSORS >= 2
@@ -40,7 +39,12 @@
 #endif
 
 #ifndef SD_DETECT_PIN
-  #define SD_DETECT_PIN                       49  // Always define onboard SD detect
+  #if SD_CONNECTION_IS(ONBOARD)
+    //#define HAS_ONBOARD_SD_DETECT               // If the SD_DETECT_PIN is wired up
+  #endif
+  #if ENABLED(HAS_ONBOARD_SD_DETECT) || !SD_CONNECTION_IS(ONBOARD)
+    #define SD_DETECT_PIN                     49
+  #endif
 #endif
 
 #ifndef PS_ON_PIN
@@ -63,6 +67,6 @@
 #define EXP4_PIN                              12  // PS_ON_PIN
 
 #define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING             true
+#ifndef SUICIDE_PIN_STATE
+  #define SUICIDE_PIN_STATE                 HIGH
 #endif

@@ -40,7 +40,7 @@ struct GpioEvent {
   pin_type pin_id;
   GpioEvent::Type event;
 
-  GpioEvent(uint64_t timestamp, pin_type pin_id, GpioEvent::Type event){
+  GpioEvent(uint64_t timestamp, pin_type pin_id, GpioEvent::Type event) {
     this->timestamp = timestamp;
     this->pin_id = pin_id;
     this->event = event;

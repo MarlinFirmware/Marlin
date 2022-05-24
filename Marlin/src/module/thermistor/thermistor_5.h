@@ -26,7 +26,7 @@
 // ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan)
 // Verified by linagee. Source: https://www.mouser.com/datasheet/2/362/semitec%20usa%20corporation_gtthermistor-1202937.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
-const temp_entry_t temptable_5[] PROGMEM = {
+constexpr temp_entry_t temptable_5[] PROGMEM = {
   { OV(   1), 713 },
   { OV(  17), 300 }, // top rating 300C
   { OV(  20), 290 },

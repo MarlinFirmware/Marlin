@@ -19,12 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_MARLINUI_U8GLIB
 
 #include "HAL_LCD_com_defines.h"
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #define WIDTH 128
 #define HEIGHT 64
@@ -88,7 +89,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_off[] PROGMEM = {
 };
 
 uint8_t u8g_dev_ssd1309_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
-  switch(msg) {
+  switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1309_128x64_init_seq);

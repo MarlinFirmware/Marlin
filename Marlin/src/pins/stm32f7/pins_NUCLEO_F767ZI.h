@@ -57,8 +57,8 @@
  * TIM14 - TEMP_TIMER (Marlin)
  *
  */
-#define STEP_TIMER                             4
-#define TEMP_TIMER                            14
+#define STEP_TIMER  4
+#define TEMP_TIMER 14
 
 /**
  * These pin assignments are arbitrary and intending for testing purposes.
@@ -69,7 +69,7 @@
  *                                              (X_DIR) PB15 | · · | PB9 (X_CS)
  *                                             (LCD_D4) PB13 | · · | AVDD
  *                 _CN8_                                PB12 | · · | GND
- *             NC | · · | PC8                (HEATER_0) PA15 | · · | PA5  (SCLK)
+ *             -- | · · | PC8                (HEATER_0) PA15 | · · | PA5  (SCLK)
  *          IOREF | · · | PC9                   (BEEPER) PC7 | · · | PA6  (MISO)
  *          RESET | · · | PC10              (SERVO1_PIN) PB5 | · · | PA7  (MOSI)
  *          +3.3V | · · | PC11              (HEATER_BED) PB3 | · · | PD14 (SD_DETECT)
@@ -86,7 +86,7 @@
  *            PF3 | · · | PD4                            PF4 | · · | PF15
  *            PF5 | · · | PD3                   (E_STEP) PB6 | · · | PG14 (E_EN)
  *           PF10 | · · | GND                    (E_DIR) PB2 | · · | PG9  (E_CS)
- *             NC | · · | PE2                            GND | · · | PE8
+ *             -- | · · | PE2                            GND | · · | PE8
  *            PA7 | · · | PE4                           PD13 | · · | PE7
  *            PF2 | · · | PE5                           PD12 | · · | GND
  *   (Y_STEP) PF1 | · · | PE6 (Y_EN)           (Z_STEP) PD11 | · · | PE10 (Z_EN)
@@ -130,16 +130,16 @@
 
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PB9
-  #define X_SERIAL_RX_PIN                   PB9
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PE12
-  #define Z_SERIAL_RX_PIN                   PE12
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define E_SERIAL_TX_PIN                   PG9
-  #define E_SERIAL_RX_PIN                   PG9
+  #define E0_SERIAL_TX_PIN                  PG9
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 #endif
 
 //
@@ -191,7 +191,7 @@
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2
 
-  #define BOARD_ST7920_DELAY_1  DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2  DELAY_NS(63)
-  #define BOARD_ST7920_DELAY_3  DELAY_NS(780)
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2                63
+  #define BOARD_ST7920_DELAY_3               780
 #endif

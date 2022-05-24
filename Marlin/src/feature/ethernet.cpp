@@ -124,7 +124,7 @@ void MarlinEthernet::check() {
       if (!Ethernet.localIP()) break;
 
       SERIAL_ECHOPGM("Successfully started telnet server with IP ");
-      MYSERIAL0.println(Ethernet.localIP());
+      MYSERIAL1.println(Ethernet.localIP());
 
       linkState = LINKED;
       break;
@@ -147,7 +147,7 @@ void MarlinEthernet::check() {
           " | Author: " STRING_CONFIG_H_AUTHOR
         );
       #endif
-      telnetClient.println("Compiled: " __DATE__);
+      telnetClient.println(" Compiled: " __DATE__);
 
       SERIAL_ECHOLNPGM("Client connected");
       have_telnet_client = true;

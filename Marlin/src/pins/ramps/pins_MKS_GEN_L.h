@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS GEN L supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS GEN L supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS GEN L"
@@ -36,6 +36,12 @@
 //
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
+
+// Hotend, Hotend, Bed + Fan on D9
+#if FET_ORDER_EEB
+  #define MOSFET_B_PIN 7
+  #define FAN_PIN 9
+#endif
 
 //
 // CS Pins wired to avoid conflict with the LCD

@@ -19,9 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * CREALITY v4.2.7 (STM32F103) board pin assignments
+ * CREALITY v4.2.7 (STM32F103RE / STM32F103RC) board pin assignments
  */
 
 #define BOARD_INFO_NAME      "Creality v4.2.7"

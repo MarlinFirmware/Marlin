@@ -33,9 +33,9 @@
  *      OR, with 'C' get the current filename.
  */
 void GcodeSuite::M27() {
-  if (parser.seen('C')) {
+  if (parser.seen_test('C')) {
     SERIAL_ECHOPGM("Current file: ");
-    card.printFilename();
+    card.printSelectedFilename();
     return;
   }
 

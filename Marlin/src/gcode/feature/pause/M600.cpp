@@ -34,8 +34,11 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#if ENABLED(MMU2_MENUS)
-  #include "../../../lcd/menu/menu_mmu2.h"
+#if HAS_PRUSA_MMU2
+  #include "../../../feature/mmu/mmu2.h"
+  #if ENABLED(MMU2_MENUS)
+    #include "../../../lcd/menu/menu_mmu2.h"
+  #endif
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -51,8 +54,14 @@
  *
  *  E[distance] - Retract the filament this far
  *  Z[distance] - Move the Z axis by this distance
- *  X[position] - Move to this X position, with Y
- *  Y[position] - Move to this Y position, with X
+ *  X[position] - Move to this X position (instead of NOZZLE_PARK_POINT.x)
+ *  Y[position] - Move to this Y position (instead of NOZZLE_PARK_POINT.y)
+ *  I[position] - Move to this I position (instead of NOZZLE_PARK_POINT.i)
+ *  J[position] - Move to this J position (instead of NOZZLE_PARK_POINT.j)
+ *  K[position] - Move to this K position (instead of NOZZLE_PARK_POINT.k)
+ *  C[position] - Move to this U position (instead of NOZZLE_PARK_POINT.u)
+ *  H[position] - Move to this V position (instead of NOZZLE_PARK_POINT.v)
+ *  O[position] - Move to this W position (instead of NOZZLE_PARK_POINT.w)
  *  U[distance] - Retract distance for removal (manual reload)
  *  L[distance] - Extrude distance for insertion (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
@@ -64,13 +73,13 @@
 void GcodeSuite::M600() {
 
   #if ENABLED(MIXING_EXTRUDER)
-    const int8_t target_e_stepper = get_target_e_stepper_from_command();
-    if (target_e_stepper < 0) return;
+    const int8_t eindex = get_target_e_stepper_from_command();
+    if (eindex < 0) return;
 
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_DIRECT_SET_TOOL);
 
-    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(target_e_stepper) ? 1.0 : 0.0);
+    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(eindex) ? 1.0 : 0.0);
     mixer.normalize();
 
     const int8_t target_extruder = active_extruder;
@@ -81,8 +90,8 @@ void GcodeSuite::M600() {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     int8_t DXC_ext = target_extruder;
-    if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
-                              // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
+    if (!parser.seen_test('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
+                                   // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if MULTI_FILAMENT_SENSOR
         if (idex_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
@@ -92,56 +101,47 @@ void GcodeSuite::M600() {
     }
   #endif
 
-  // Show initial "wait for start" message
-  #if DISABLED(MMU2_MENUS)
-    ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
-  #endif
+  const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
 
-  #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
-    // If needed, home before parking for filament change
-    if (!all_axes_trusted()) home_all_axes(true);
-  #endif
+  // Show initial "wait for start" message
+  if (standardM600)
+    ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
+
+  // If needed, home before parking for filament change
+  TERN_(HOME_BEFORE_FILAMENT_CHANGE, home_if_needed(true));
 
   #if HAS_MULTI_EXTRUDER
     // Change toolhead if specified
     const uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !idex_is_duplicating()))
-      tool_change(target_extruder, false);
+      tool_change(target_extruder);
   #endif
 
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
+  const float retract = -ABS(parser.axisunitsval('E', E_AXIS, PAUSE_PARK_RETRACT_LENGTH));
 
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
-  // Lift Z axis
-  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
-
   // Move XY axes to filament change position or given position
-  if (parser.seenval('X')) park_point.x = parser.linearval('X');
-  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+  NUM_AXIS_CODE(
+    if (parser.seenval('X')) park_point.x = parser.linearval('X'),
+    if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
+    if (parser.seenval('I')) park_point.i = parser.linearval('I'),
+    if (parser.seenval('J')) park_point.j = parser.linearval('J'),
+    if (parser.seenval('K')) park_point.k = parser.linearval('K'),
+    if (parser.seenval('C')) park_point.u = parser.linearval('C'),    // U axis
+    if (parser.seenval('H')) park_point.v = parser.linearval('H'),    // V axis
+    if (parser.seenval('O')) park_point.w = parser.linearval('O')     // W axis
+  );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point += hotend_offset[active_extruder];
   #endif
 
-  #if ENABLED(MMU2_MENUS)
-    // For MMU2 reset retract and load/unload values so they don't mess with MMU filament handling
-    constexpr float unload_length = 0.5f,
-                    slow_load_length = 0.0f,
-                    fast_load_length = 0.0f;
-  #else
-    // Unload filament
-    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
-                                                      : fc_settings[active_extruder].unload_length);
-
-    // Slow load filament
-    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
-
-    // Fast load filament
-    const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                        : fc_settings[active_extruder].load_length);
-  #endif
+  // Unload filament
+  // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
+  const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
 
   const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -149,21 +149,30 @@ void GcodeSuite::M600() {
     #endif
   );
 
-  if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
-    #if ENABLED(MMU2_MENUS)
-      mmu2_M600();
-      resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
-    #else
+  if (pause_print(retract, park_point, true, unload_length DXC_PASS)) {
+    if (standardM600) {
       wait_for_confirmation(true, beep_count DXC_PASS);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH,
-                   beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
-    #endif
+      resume_print(
+        FILAMENT_CHANGE_SLOW_LOAD_LENGTH,
+        ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
+        ADVANCED_PAUSE_PURGE_LENGTH,
+        beep_count,
+        parser.celsiusval('R')
+        DXC_PASS
+      );
+    }
+    else {
+      #if ENABLED(MMU2_MENUS)
+        mmu2_M600();
+        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+      #endif
+    }
   }
 
   #if HAS_MULTI_EXTRUDER
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, false);
+      tool_change(active_extruder_before_filament_change);
   #endif
 
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool

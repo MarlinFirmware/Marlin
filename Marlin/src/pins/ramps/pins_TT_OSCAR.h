@@ -19,11 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 #include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
-  #error "TTOSCAR supports up to 5 hotends / E-steppers. Comment out this line to continue."
+  #error "TTOSCAR supports up to 5 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "TT OSCAR"
@@ -116,10 +117,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                     -1  // 59
   #define X_SERIAL_RX_PIN                     -1  // 63
   #define X2_SERIAL_TX_PIN                    -1
@@ -180,11 +177,11 @@
   #define TEMP_4_PIN                          12
 #endif
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 //#if DISABLED(SDSUPPORT)
-//  #define MAX6675_SS_PIN   66   // Don't use 53 if using Display/SD card
+//  #define TEMP_0_CS_PIN    66   // Don't use 53 if using Display/SD card
 //#else
-//  #define MAX6675_SS_PIN   66   // Don't use 49 (SD_DETECT_PIN)
+//  #define TEMP_0_CS_PIN    66   // Don't use 49 (SD_DETECT_PIN)
 //#endif
 
 //
@@ -227,9 +224,24 @@
 #endif
 
 //
+// M3/M4/M5 - Spindle/Laser Control
+//
+#if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
+  #if !NUM_SERVOS                                 // Prefer the servo connector
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_DIR_PIN                    5
+  #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
+    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_DIR_PIN                   65
+  #endif
+#endif
+
+//
 // Case Light
 //
-#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENA_PIN)
   #if !NUM_SERVOS                                 // Prefer the servo connector
     #define CASE_LIGHT_PIN                     6  // Hardware PWM
   #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
@@ -238,32 +250,19 @@
 #endif
 
 //
-// M3/M4/M5 - Spindle/Laser Control
-//
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
-  #if !NUM_SERVOS                                 // Prefer the servo connector
-    #define SPINDLE_LASER_ENABLE_PIN           4  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
-    #define SPINDLE_DIR_PIN                    5
-  #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
-    #define SPINDLE_LASER_ENABLE_PIN          40  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
-    #define SPINDLE_DIR_PIN                   65
-  #endif
-#endif
-
-//
 // Průša i3 MK2 Multiplexer Support
 //
-//#ifndef E_MUX0_PIN
-//  #define E_MUX0_PIN       58   // Y_CS_PIN
-//#endif
-//#ifndef E_MUX1_PIN
-//  #define E_MUX1_PIN       53   // Z_CS_PIN
-//#endif
-//#ifndef E_MUX2_PIN
-//  #define E_MUX2_PIN       49   // En_CS_PIN
-//#endif
+#if 0 && HAS_PRUSA_MMU1
+  #ifndef E_MUX0_PIN
+    #define E_MUX0_PIN                        58  // Y_CS_PIN
+  #endif
+  #ifndef E_MUX1_PIN
+    #define E_MUX1_PIN                        53  // Z_CS_PIN
+  #endif
+  #ifndef E_MUX2_PIN
+    #define E_MUX2_PIN                        49  // En_CS_PIN
+  #endif
+#endif
 
 //////////////////////////
 // LCDs and Controllers //
@@ -405,7 +404,6 @@
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44
-      #define LCD_SCREEN_ROT_180
 
       #define BEEPER_PIN                      33
       #define STAT_LED_RED_PIN                32
@@ -418,6 +416,8 @@
       #define SDSS                            53
       #define SD_DETECT_PIN                   -1  // Pin 49 for display SD interface, 72 for easy adapter board
       //#define KILL_PIN                      31
+
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
@@ -440,13 +440,6 @@
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25
 
-      // GLCD features
-      //#define LCD_CONTRAST_INIT            190
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       #define BEEPER_PIN                      37
 
       #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
@@ -458,6 +451,9 @@
       #define SD_DETECT_PIN                   49
       //#define KILL_PIN                      64
 
+      //#define LCD_CONTRAST_INIT            190
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+
     #elif ENABLED(MINIPANEL)
 
       #define BEEPER_PIN                      42
@@ -467,13 +463,6 @@
       #define DOGLCD_A0                       44
       #define DOGLCD_CS                       66
 
-      // GLCD features
-      //#define LCD_CONTRAST_INIT            190
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
       #define BTN_EN1                         40
       #define BTN_EN2                         63
       #define BTN_ENC                         59
@@ -481,6 +470,9 @@
       #define SDSS                            53
       #define SD_DETECT_PIN                   49
       //#define KILL_PIN                      64
+
+      //#define LCD_CONTRAST_INIT            190
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #else
 

@@ -59,7 +59,7 @@
 
 #if HAS_MARLINUI_U8GLIB
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
 
 #ifndef LCD_SPI_SPEED

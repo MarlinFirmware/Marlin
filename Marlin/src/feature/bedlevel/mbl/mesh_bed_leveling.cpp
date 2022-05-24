@@ -33,7 +33,7 @@
     #include "../../../lcd/extui/ui_api.h"
   #endif
 
-  mesh_bed_leveling mbl;
+  mesh_bed_leveling bedlevel;
 
   float mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
         mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
@@ -61,13 +61,13 @@
      * Prepare a mesh-leveled linear move in a Cartesian setup,
      * splitting the move where it crosses mesh borders.
      */
-    void mesh_bed_leveling::line_to_destination(const feedRate_t &scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
+    void mesh_bed_leveling::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
       xy_int8_t scel = cell_indexes(current_position), ecel = cell_indexes(destination);
-      NOMORE(scel.x, GRID_MAX_POINTS_X - 2);
-      NOMORE(scel.y, GRID_MAX_POINTS_Y - 2);
-      NOMORE(ecel.x, GRID_MAX_POINTS_X - 2);
-      NOMORE(ecel.y, GRID_MAX_POINTS_Y - 2);
+      NOMORE(scel.x, GRID_MAX_CELLS_X - 1);
+      NOMORE(scel.y, GRID_MAX_CELLS_Y - 1);
+      NOMORE(ecel.x, GRID_MAX_CELLS_X - 1);
+      NOMORE(ecel.y, GRID_MAX_CELLS_Y - 1);
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
@@ -129,9 +129,7 @@
     #endif
 
     SERIAL_ECHOLNPGM("\nMeasured points:");
-    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
-      [](const uint8_t ix, const uint8_t iy) { return z_values[ix][iy]; }
-    );
+    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
   }
 
 #endif // MESH_BED_LEVELING

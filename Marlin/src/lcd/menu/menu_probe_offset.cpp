@@ -39,33 +39,20 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+void _goto_manual_move_z(const_float_t);
+
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-TERN_(HAS_LEVELING, bool leveling_was_active);
-
 inline void z_clearance_move() {
-  do_z_clearance(
-    #ifdef Z_AFTER_HOMING
-      Z_AFTER_HOMING
-    #elif defined(Z_HOMING_HEIGHT)
-      Z_HOMING_HEIGHT
-    #else
-      10
-    #endif
-  );
+  do_z_clearance(Z_POST_CLEARANCE);
 }
 
-void set_offset_and_go_back(const float &z) {
+void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
   ui.goto_previous_screen_no_defer();
-}
-
-void _goto_manual_move_z(const float scale) {
-  ui.manual_move.menu_scale = scale;
-  ui.goto_screen(lcd_move_z);
 }
 
 void probe_offset_wizard_menu() {
@@ -75,7 +62,7 @@ void probe_offset_wizard_menu() {
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(current_position.z));
+  STATIC_ITEM_F(F("Z"), SS_CENTER, ftostr42_52(current_position.z));
   STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
 
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
@@ -88,12 +75,12 @@ void probe_offset_wizard_menu() {
                          !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
     sprintf_P(tmp, GET_TEXT(MSG_MOVE_N_MM), dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
     #if DISABLED(HAS_GRAPHICAL_TFT)
-      SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
+      SUBMENU_F(FPSTR(NUL_STR), []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
       MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
       lcd_put_u8str(tmp);
       MENU_ITEM_ADDON_END();
     #else
-      SUBMENU_P(tmp, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
+      SUBMENU_F(tmp, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
     #endif
   }
 
@@ -109,7 +96,7 @@ void probe_offset_wizard_menu() {
     // If wizard-homing was done by probe with PROBE_OFFSET_WIZARD_START_Z
     #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
       set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
-      queue.inject_P(PSTR("G28Z"));
+      queue.inject(F("G28Z"));
     #else // Otherwise do a Z clearance move like after Homing
       z_clearance_move();
     #endif
@@ -120,7 +107,7 @@ void probe_offset_wizard_menu() {
 
 void prepare_for_probe_offset_wizard() {
   #if defined(PROBE_OFFSET_WIZARD_XY_POS) || !HOMING_Z_WITH_PROBE
-    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_PROBE_WIZARD_PROBING));
+    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT_F(MSG_PROBE_WIZARD_PROBING));
 
     if (ui.wait_for_move) return;
 
@@ -146,7 +133,7 @@ void prepare_for_probe_offset_wizard() {
   ui.wait_for_move = true;
   current_position += probe.offset_xy;
   line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
-  ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
+  ui.synchronize(GET_TEXT_F(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
 
   SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
