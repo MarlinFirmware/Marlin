@@ -32,7 +32,6 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
 #include "i2s.h"
 
 #if ENABLED(WIFISUPPORT)
