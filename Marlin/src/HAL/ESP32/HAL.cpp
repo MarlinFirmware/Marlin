@@ -65,7 +65,7 @@ portMUX_TYPE MarlinHAL::spinlock = portMUX_INITIALIZER_UNLOCKED;
 // ------------------------
 
 uint16_t MarlinHAL::adc_result;
-pwm_pin_t MarlinHAL::pwm_pin_data[32]; // max # of expander pins
+pwm_pin_t MarlinHAL::pwm_pin_data[MAX_EXPANDER_BITS];
 
 // ------------------------
 // Private Variables
