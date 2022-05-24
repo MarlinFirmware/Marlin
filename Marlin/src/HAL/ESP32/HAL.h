@@ -69,7 +69,7 @@
 #define CHANNEL_MAX_NUM  15u   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
 #define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
 #ifndef MAX_EXPANDER_BITS
-  #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32) 
+  #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
 #endif
 
 // ------------------------
@@ -80,9 +80,9 @@ typedef double isr_float_t;   // FPU ops are used for single-precision, so use d
 typedef int16_t pin_t;
 
 typedef struct pwm_pin {
-  uint32_t pwm_cycle_ticks = ((1000000 / PWM_FREQUENCY) / 4);   // # ticks per pwm cycle
-  uint32_t pwm_tick_count = 0;    // current tick count 
-  uint32_t pwm_duty_ticks = 0;    // # of ticks for current duty cycle
+  uint32_t pwm_cycle_ticks = 1000000UL / (PWM_FREQUENCY) / 4; // # ticks per pwm cycle
+  uint32_t pwm_tick_count = 0;  // current tick count
+  uint32_t pwm_duty_ticks = 0;  // # of ticks for current duty cycle
 } pwm_pin_t;
 
 class Servo;
@@ -180,9 +180,13 @@ public:
   // Earliest possible init, before setup()
   MarlinHAL() {}
 
-  static void init() {}  // Called early in setup()
-  static void init_board();     // Called less early in setup()
-  static void reboot();         // Restart the firmware
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+
+  static void init() {}        // Called early in setup()
+  static void init_board();    // Called less early in setup()
+  static void reboot();        // Restart the firmware
 
   // Interrupts
   static portMUX_TYPE spinlock;
