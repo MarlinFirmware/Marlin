@@ -275,7 +275,7 @@ namespace Language_hu {
   LSTR MSG_MOVE_01IN                      = _UxGT("Mozgás 2.54mm");
   LSTR MSG_MOVE_1IN                       = _UxGT("Mozgáá 25.4mm");
   LSTR MSG_SPEED                          = _UxGT("Sebesség");
-  LSTR MSG_BED_Z                          = _UxGT("Z ágy");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z ágy");
   LSTR MSG_NOZZLE                         = _UxGT("Fej");
   LSTR MSG_NOZZLE_N                       = _UxGT("Fej ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Fej parkolva");

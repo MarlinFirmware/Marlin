@@ -241,7 +241,7 @@ namespace Language_cz {
   LSTR MSG_MOVE_10MM                      = _UxGT("Posunout o 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Posunout o 100mm");
   LSTR MSG_SPEED                          = _UxGT("Rychlost");
-  LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
   LSTR MSG_BED                            = _UxGT("Podložka");

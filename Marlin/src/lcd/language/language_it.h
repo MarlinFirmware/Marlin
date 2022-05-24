@@ -309,7 +309,7 @@ namespace Language_it {
   LSTR MSG_MAXSPEED_Z                     = _UxGT("Vel.massima ") STR_C;
   LSTR MSG_MAXSPEED_E                     = _UxGT("Vel.massima ") STR_E;
   LSTR MSG_MAXSPEED_A                     = _UxGT("Vel.massima @");
-  LSTR MSG_BED_Z                          = _UxGT("Piatto Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Piatto Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ugello");
   LSTR MSG_NOZZLE_N                       = _UxGT("Ugello ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Ugello parcheggiato");

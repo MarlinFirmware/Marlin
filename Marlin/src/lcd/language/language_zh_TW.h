@@ -227,7 +227,7 @@ namespace Language_zh_TW {
   LSTR MSG_MOVE_10MM                      = _UxGT("移動 10 mm");     // "Move 10mm"
   LSTR MSG_MOVE_100MM                     = _UxGT("移動 100 mm");    // "Move 100mm"
   LSTR MSG_SPEED                          = _UxGT("速率");     // "Speed"
-  LSTR MSG_BED_Z                          = _UxGT("熱床Z");     // "Bed Z"
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("熱床Z");     // "Bed Z"
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴");     // "Nozzle" 噴嘴
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴 ~");
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" 熱床");     // "Bed"

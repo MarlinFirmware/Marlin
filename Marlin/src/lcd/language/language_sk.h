@@ -303,7 +303,7 @@ namespace Language_sk {
   LSTR MSG_MAXSPEED_Z                     = _UxGT("Max rýchl. ") STR_C;
   LSTR MSG_MAXSPEED_E                     = _UxGT("Max rýchl. ") STR_E;
   LSTR MSG_MAXSPEED_A                     = _UxGT("Max rýchl. @");
-  LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Tryska zaparkovaná");

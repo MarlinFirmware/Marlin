@@ -84,7 +84,7 @@ namespace Language_hr {
   LSTR MSG_MOVE_10MM                      = _UxGT("Miči 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Miči 100mm");
   LSTR MSG_SPEED                          = _UxGT("Brzina");
-  LSTR MSG_BED_Z                          = _UxGT("Bed Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dizna");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dizna ~");
   LSTR MSG_BED                            = _UxGT("Bed");
