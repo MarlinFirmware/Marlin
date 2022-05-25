@@ -563,12 +563,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     endstops.not_homing();
-    endstops.set_homing_current(false);
     #if HAS_DELTA_SENSORLESS_PROBING
       if (test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
       if (test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     if (test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
+    endstops.set_homing_current(false);
   #endif
 
   #if ENABLED(BLTOUCH)

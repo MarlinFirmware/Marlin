@@ -1677,11 +1677,9 @@ void Endstops::update() {
           debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_z);
         #endif
       }
-
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        planner.enable_stall_prevention(onoff);
-        if (onoff) safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-      #endif
+      
+      TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(onoff));
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
 
     #endif // XYZ
   }
