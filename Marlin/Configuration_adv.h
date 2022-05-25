@@ -3677,9 +3677,9 @@
     * setting value.  Too low and it could turn off during a very slow move,
     * too high a value and the material may ignite before the laser is turned off.
     * 
-    * Must be > LASER_TEST_PULSE_MAX and < (DEFAULT_STEPPER_DEACTIVE_TIME * 1000) 
+    * Value must be < (DEFAULT_STEPPER_DEACTIVE_TIME * 1000) 
     */
-    //#define LASER_WATCHDOG_TIME       300   // mSecs 
+    //#define LASER_WATCHDOG_TIME       1000   // mSecs 
 
     /**
      * Enable inline laser power to be handled in the planner / stepper routines.
