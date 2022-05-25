@@ -84,7 +84,7 @@
 #endif
 
 #define Z_MAX_PIN                              7
-#ifndef Z_MIN_PIN                              7
+#ifndef Z_MIN_PIN
   #define Z_MIN_PIN                           10  // Z-
 #endif
 

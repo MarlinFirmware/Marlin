@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "MKS Robin E3P only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "MKS Robin E3P only supports 1 hotend / E stepper."
 #elif HAS_FSMC_TFT
   #error "MKS Robin E3P doesn't support FSMC-based TFT displays."
 #endif
@@ -205,6 +205,34 @@
 
 //#define LED_PIN                           PB2
 
+/**
+ *        ------                  ------
+ *  PC5  |10  9 | PE13       PA6 |10  9 | PA5
+ *  PD13 | 8  7 | PC6        PE8 | 8  7 | PE10
+ *  PE14 | 6  5   PE15      PE11 | 6  5   PA7
+ *  PD11 | 4  3 | PD10      PE12 | 4  3 | RESET
+ *   GND | 2  1 | 5V         GND | 2  1 | 3.3V
+ *        ------                  ------
+ *         EXP1                    EXP2
+ */
+#define EXP1_03_PIN                         PD10
+#define EXP1_04_PIN                         PD11
+#define EXP1_05_PIN                         PE15
+#define EXP1_06_PIN                         PE14
+#define EXP1_07_PIN                         PC6
+#define EXP1_08_PIN                         PD13
+#define EXP1_09_PIN                         PE13
+#define EXP1_10_PIN                         PC5
+
+#define EXP2_03_PIN                         -1
+#define EXP2_04_PIN                         PE12
+#define EXP2_05_PIN                         PA7
+#define EXP2_06_PIN                         PE11
+#define EXP2_07_PIN                         PE10
+#define EXP2_08_PIN                         PE8
+#define EXP2_09_PIN                         PA5
+#define EXP2_10_PIN                         PA6
+
 //
 // SD Card
 //
@@ -219,11 +247,11 @@
   #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI1
-  #define SDSS                              PE10
-  #define SD_SCK_PIN                        PA5
-  #define SD_MISO_PIN                       PA6
-  #define SD_MOSI_PIN                       PA7
-  #define SD_DETECT_PIN                     PE12
+  #define SDSS                       EXP2_07_PIN
+  #define SD_SCK_PIN                 EXP2_09_PIN
+  #define SD_MISO_PIN                EXP2_10_PIN
+  #define SD_MOSI_PIN                EXP2_05_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
 #endif
 
 //
@@ -240,27 +268,26 @@
 
   // Shared SPI TFT
 
-  #define LCD_BACKLIGHT_PIN                 PD13
+  #define LCD_BACKLIGHT_PIN          EXP1_08_PIN
 
-  #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
-  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
-  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
+  #define TOUCH_CS_PIN               EXP1_06_PIN  // SPI1_NSS
+  #define TOUCH_SCK_PIN              EXP2_09_PIN  // SPI1_SCK
+  #define TOUCH_MISO_PIN             EXP2_10_PIN  // SPI1_MISO
+  #define TOUCH_MOSI_PIN             EXP2_05_PIN  // SPI1_MOSI
 
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
-  #define BTN_ENC                           PE13
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP1_09_PIN
 
-  #define TFT_CS_PIN                        PD11
-  #define TFT_SCK_PIN                       PA5
-  #define TFT_MISO_PIN                      PA6
-  #define TFT_MOSI_PIN                      PA7
-  #define TFT_DC_PIN                        PD10
-  #define TFT_RST_PIN                       PC6
+  #define TFT_CS_PIN                 EXP1_04_PIN
+  #define TFT_SCK_PIN                EXP2_09_PIN
+  #define TFT_MISO_PIN               EXP2_10_PIN
+  #define TFT_MOSI_PIN               EXP2_05_PIN
+  #define TFT_DC_PIN                 EXP1_03_PIN
   #define TFT_A0_PIN                  TFT_DC_PIN
 
-  #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
+  #define TFT_RESET_PIN              EXP1_07_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
@@ -271,22 +298,22 @@
 
 #if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-  #define BTN_ENC                           PE13
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define BTN_ENC                    EXP1_09_PIN
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
 #elif ENABLED(TFT_COLOR_UI)
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
-  #define BEEPER_PIN                        PC5
-  #define BTN_ENC                           PE13
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
+  #define BEEPER_PIN                 EXP1_10_PIN
+  #define BTN_ENC                    EXP1_09_PIN
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
   #define LCD_BACKLIGHT_PIN                 -1
 
   #if ENABLED(MKS_MINI_12864)
@@ -296,18 +323,18 @@
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
-    #define DOGLCD_A0                       PD11
-    #define DOGLCD_CS                       PE15
-    #define DOGLCD_SCK                      PA5
-    #define DOGLCD_MOSI                     PA7
+    #define DOGLCD_A0                EXP1_04_PIN
+    #define DOGLCD_CS                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP2_09_PIN
+    #define DOGLCD_MOSI              EXP2_05_PIN
 
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define PIN_SPI_SCK                   PA5
-      #define PIN_TFT_MISO                  PA6
-      #define PIN_TFT_MOSI                  PA7
-      #define TFTGLCD_CS                    PE8
+      #define PIN_SPI_SCK            EXP2_09_PIN
+      #define PIN_TFT_MISO           EXP2_10_PIN
+      #define PIN_TFT_MOSI           EXP2_05_PIN
+      #define TFTGLCD_CS             EXP2_08_PIN
     #endif
 
     #ifndef BEEPER_PIN
@@ -315,14 +342,14 @@
     #endif
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define LCD_PINS_DC                     PC6
-    #define DOGLCD_CS                       PD13
+    #define LCD_PINS_DC              EXP1_07_PIN
+    #define DOGLCD_CS                EXP1_08_PIN
     #define DOGLCD_A0                  DOGLCD_A0
     #define LCD_BACKLIGHT_PIN               -1
-    #define LCD_RESET_PIN                   PE14
-    #define NEOPIXEL_PIN                    PE15
-    #define DOGLCD_MOSI                     PA7
-    #define DOGLCD_SCK                      PA5
+    #define LCD_RESET_PIN            EXP1_06_PIN
+    #define NEOPIXEL_PIN             EXP1_05_PIN
+    #define DOGLCD_MOSI              EXP2_05_PIN
+    #define DOGLCD_SCK               EXP2_09_PIN
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
@@ -330,11 +357,11 @@
 
   #else                                           // !MKS_MINI_12864
 
-    #define LCD_PINS_D4                     PE14
+    #define LCD_PINS_D4              EXP1_06_PIN
     #if IS_ULTIPANEL
-      #define LCD_PINS_D5                   PE15
-      #define LCD_PINS_D6                   PD11
-      #define LCD_PINS_D7                   PD10
+      #define LCD_PINS_D5            EXP1_05_PIN
+      #define LCD_PINS_D6            EXP1_04_PIN
+      #define LCD_PINS_D7            EXP1_03_PIN
 
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
@@ -360,7 +387,7 @@
 #endif
 
 #ifndef BEEPER_PIN
-  #define BEEPER_PIN                        PC5
+  #define BEEPER_PIN                 EXP1_10_PIN
 #endif
 
 #if ENABLED(SPEAKER) && BEEPER_PIN == PC5

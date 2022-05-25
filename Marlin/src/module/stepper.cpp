@@ -498,11 +498,7 @@ xyze_int8_t Stepper::count_direction{0};
 void Stepper::enable_axis(const AxisEnum axis) {
   #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); break;
   switch (axis) {
-    NUM_AXIS_CODE(
-      _CASE_ENABLE(X), _CASE_ENABLE(Y), _CASE_ENABLE(Z),
-      _CASE_ENABLE(I), _CASE_ENABLE(J), _CASE_ENABLE(K),
-      _CASE_ENABLE(U), _CASE_ENABLE(V), _CASE_ENABLE(W)
-    );
+    MAIN_AXIS_MAP(_CASE_ENABLE)
     default: break;
   }
   mark_axis_enabled(axis);
@@ -518,11 +514,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   if (can_disable) {
     #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
     switch (axis) {
-      NUM_AXIS_CODE(
-        _CASE_DISABLE(X), _CASE_DISABLE(Y), _CASE_DISABLE(Z),
-        _CASE_DISABLE(I), _CASE_DISABLE(J), _CASE_DISABLE(K),
-        _CASE_DISABLE(U), _CASE_DISABLE(V), _CASE_DISABLE(W)
-      );
+      MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
   }
@@ -619,7 +611,7 @@ void Stepper::set_directions() {
   #if DISABLED(LIN_ADVANCE)
     #if ENABLED(MIXING_EXTRUDER)
        // Because this is valid for the whole block we don't know
-       // what e-steppers will step. Likely all. Set all.
+       // what E steppers will step. Likely all. Set all.
       if (motor_direction(E_AXIS)) {
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
         count_direction.e = -1;

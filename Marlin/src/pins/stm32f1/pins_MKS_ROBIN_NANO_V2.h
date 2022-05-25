@@ -28,7 +28,7 @@
 #if NOT_TARGET(__STM32F1__, STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin nano supports up to 2 hotends / E steppers."
 #elif HAS_FSMC_TFT
   #error "MKS Robin nano v2 doesn't support FSMC-based TFT displays."
 #endif
@@ -282,11 +282,10 @@
   #define TFT_MISO_PIN                      PA6
   #define TFT_MOSI_PIN                      PA7
   #define TFT_DC_PIN                        PD10
-  #define TFT_RST_PIN                       PC6
   #define TFT_A0_PIN                  TFT_DC_PIN
 
   #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1

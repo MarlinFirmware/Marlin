@@ -47,19 +47,10 @@ void GcodeSuite::M425() {
   bool noArgs = true;
 
   auto axis_can_calibrate = [](const uint8_t a) {
+    #define _CAN_CASE(N) case N##_AXIS: return AXIS_CAN_CALIBRATE(N);
     switch (a) {
       default: return false;
-      NUM_AXIS_CODE(
-        case X_AXIS: return AXIS_CAN_CALIBRATE(X),
-        case Y_AXIS: return AXIS_CAN_CALIBRATE(Y),
-        case Z_AXIS: return AXIS_CAN_CALIBRATE(Z),
-        case I_AXIS: return AXIS_CAN_CALIBRATE(I),
-        case J_AXIS: return AXIS_CAN_CALIBRATE(J),
-        case K_AXIS: return AXIS_CAN_CALIBRATE(K),
-        case U_AXIS: return AXIS_CAN_CALIBRATE(U),
-        case V_AXIS: return AXIS_CAN_CALIBRATE(V),
-        case W_AXIS: return AXIS_CAN_CALIBRATE(W)
-      );
+      MAIN_AXIS_MAP(_CAN_CASE)
     }
   };
 

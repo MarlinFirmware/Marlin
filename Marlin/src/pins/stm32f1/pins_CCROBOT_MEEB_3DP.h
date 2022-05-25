@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "CCROBOT-ONLINE MEEB_3DP only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "CCROBOT-ONLINE MEEB_3DP only supports 1 hotend / E stepper."
 #endif
 
 // https://github.com/ccrobot-online/MEEB_3DP
