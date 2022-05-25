@@ -201,7 +201,6 @@ static void _lcd_level_bed_corners_get_next_position() {
       , []{ corner_probing_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
       , GET_TEXT_F(MSG_BED_TRAMMING_RAISE)
-      , (const char*)nullptr, NUL_STR
     );
   }
 
@@ -213,7 +212,6 @@ static void _lcd_level_bed_corners_get_next_position() {
       , []{ queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR))); ui.return_to_status(); }
       , TERN(HAS_LEVELING, ui.goto_previous_screen_no_defer, []{})
       , GET_TEXT_F(MSG_BED_TRAMMING_IN_RANGE)
-      , (const char*)nullptr, NUL_STR
     );
   }
 
