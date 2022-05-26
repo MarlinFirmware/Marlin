@@ -891,8 +891,8 @@ void MMU2::filament_runout() {
   }
 
   bool MMU2::can_load() {
-    static const E_Step can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE },
-                        can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE };
+    static constexpr E_Step can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE },
+                  can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE };
 
     execute_extruder_sequence(can_load_sequence, COUNT(can_load_sequence));
 
@@ -1041,7 +1041,8 @@ void MMU2::load_to_nozzle_sequence() {
   execute_extruder_sequence(sequence, COUNT(sequence));
 }
 
-void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
+void MMU2::execute_extruder_sequence(const E_Step * const sequence, const uint8_t steps) {
+
   planner.synchronize();
 
   const E_Step *step = sequence;
