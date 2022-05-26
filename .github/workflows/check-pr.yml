@@ -1,0 +1,33 @@
+#
+# check-pr.yml
+# Close PRs directed at release branches
+#
+
+name: PR Bad Target
+
+on:
+  pull_request_target:
+    types: [opened]
+    branches:
+    - 1.0.x
+    - 1.1.x
+    - 2.0.x
+
+jobs:
+  bad_target:
+    name: PR Bad Target
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: superbrothers/close-pull-request@v3
+      with:
+        comment: >
+          Thanks for your contribution! Unfortunately we can't accept PRs directed at release branches. We make patches to the bugfix branches and only later do we push them out as releases.
+
+          Please redo this PR starting with the `bugfix-2.0.x` branch and be careful to target `bugfix-2.0.x` when resubmitting the PR.
+
+          It may help to set your fork's default branch to `bugfix-2.0.x`.
+
+          See [this page](http://marlinfw.org/docs/development/getting_started_pull_requests.html) for full instructions.

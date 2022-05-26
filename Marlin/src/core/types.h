@@ -47,6 +47,7 @@ struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_DEFS(T,V)  NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES     NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
+#define STR_AXES_MAIN       NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(E,V...) NUM_AXIS_GANG(V) GANG_ITEM_E(E)
 #define LOGICAL_AXIS_CODE(E,V...) NUM_AXIS_CODE(V) CODE_ITEM_E(E)
@@ -59,8 +60,7 @@ struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_DECL(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define LOGICAL_AXIS_NAMES      LOGICAL_AXIS_LIST(E, X, Y, Z, I, J, K, U, V, W)
 #define LOGICAL_AXIS_MAP(F)     MAP(F, LOGICAL_AXIS_NAMES)
-
-#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
+#define STR_AXES_LOGICAL     LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define XYZ_GANG(V...) GANG_N(PRIMARY_LINEAR_AXES, V)
 #define XYZ_CODE(V...) CODE_N(PRIMARY_LINEAR_AXES, V)
