@@ -274,14 +274,14 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
       static uint8_t old_trusted;
       if (dopause) {
-        old_trusted = axis_trusted;
+        old_trusted = axes_trusted;
         stepper.disable_axis(X_AXIS);
         stepper.disable_axis(Y_AXIS);
       }
       else {
         if (TEST(old_trusted, X_AXIS)) stepper.enable_axis(X_AXIS);
         if (TEST(old_trusted, Y_AXIS)) stepper.enable_axis(Y_AXIS);
-        axis_trusted = old_trusted;
+        axes_trusted = old_trusted;
       }
     #endif
     if (dopause) safe_delay(_MAX(DELAY_BEFORE_PROBING, 25));
