@@ -1442,7 +1442,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         if (fabs(e_speed) > planner.settings.max_feedrate_mm_s[E_AXIS])
           mpc_e_position = e_position;
         else if (e_speed > 0.0f) {  // Ignore retract/recover moves
-          ambient_xfer_coeff += e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
+          ambient_xfer_coeff += e_speed * constants.filament_heat_capacity_permm;
           mpc_e_position = e_position;
         }
       }

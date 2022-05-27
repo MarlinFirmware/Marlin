@@ -3319,6 +3319,7 @@ void MarlinSettings::reset() {
     #if ENABLED(MPC_INCLUDE_FAN)
       constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
     #endif
+    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
 
     static_assert(COUNT(_mpc_heater_power) == HOTENDS, "MPC_HEATER_POWER must have HOTENDS items.");
     static_assert(COUNT(_mpc_block_heat_capacity) == HOTENDS, "MPC_BLOCK_HEAT_CAPACITY must have HOTENDS items.");
@@ -3327,6 +3328,7 @@ void MarlinSettings::reset() {
     #if ENABLED(MPC_INCLUDE_FAN)
       static_assert(COUNT(_mpc_ambient_xfer_coeff_fan255) == HOTENDS, "MPC_AMBIENT_XFER_COEFF_FAN255 must have HOTENDS items.");
     #endif
+    static_assert(COUNT(_filament_heat_capacity_permm) == HOTENDS, "FILAMENT_HEAT_CAPACITY_PERMM must have HOTENDS items.");
 
     HOTEND_LOOP() {
       thermalManager.temp_hotend[e].constants.heater_power = _mpc_heater_power[e];
@@ -3336,6 +3338,7 @@ void MarlinSettings::reset() {
       #if ENABLED(MPC_INCLUDE_FAN)
         thermalManager.temp_hotend[e].constants.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
       #endif
+      thermalManager.temp_hotend[e].constants.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
     }
   #endif
 
