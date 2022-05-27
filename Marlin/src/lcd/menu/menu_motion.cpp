@@ -166,7 +166,9 @@ void _goto_manual_move(const_float_t scale) {
   ui.defer_status_screen();
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);
-  thermalManager.set_menu_cold_override(true);
+  #if E_MANUAL
+    thermalManager.set_menu_cold_override(true);
+  #endif 
 }
 
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=active_extruder) {
