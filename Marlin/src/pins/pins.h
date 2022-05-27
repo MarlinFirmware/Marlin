@@ -841,8 +841,8 @@
   #elif MB(RAMPS_LONGER3D_LK4PRO)
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
-    #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
-  #elif MB(BOARD_TH3D_EZBOARD_LITE_V2)
+    #error "BOARD_BTT_SKR_V2_0 is now BOARD_BTT_SKR_V2_0_REV_A or BOARD_BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
+  #elif MB(TH3D_EZBOARD_LITE_V2)
     #error "BOARD_TH3D_EZBOARD_LITE_V2 is now BOARD_TH3D_EZBOARD_V2. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
@@ -873,6 +873,7 @@
   #undef BOARD_RAMPS_DAGOMA
   #undef BOARD_RAMPS_LONGER3D_LK4PRO
   #undef BOARD_BTT_SKR_V2_0
+  #undef BOARD_TH3D_EZBOARD_LITE_V2
 
 #endif
 
