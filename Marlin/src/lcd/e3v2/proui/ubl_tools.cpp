@@ -22,10 +22,10 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+
+#if BOTH(DWIN_LCD_PROUI, HAS_MESH)
+
 #include "ubl_tools.h"
-
-#if ENABLED(DWIN_LCD_PROUI)
-
 #include "../../marlinui.h"
 #include "../../../core/types.h"
 #include "dwin.h"
