@@ -31,6 +31,37 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
+#if DISABLED(LIMITED_MAX_FR_EDITING)
+  #warning "LIMITED_MAX_FR_EDITING is recommended with ProUI."
+#endif
+#if DISABLED(LIMITED_MAX_ACCEL_EDITING)
+  #warning "LIMITED_MAX_ACCEL_EDITING is recommended with ProUI."
+#endif
+#if ENABLED(CLASSIC_JERK) && DISABLED(LIMITED_JERK_EDITING)
+  #warning "LIMITED_JERK_EDITING is recommended with ProUI."
+#endif
+#if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
+  #warning "INDIVIDUAL_AXIS_HOMING_SUBMENU is recommended with ProUI."
+#endif
+#if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+  #warning "LCD_SET_PROGRESS_MANUALLY is recommended with ProUI."
+#endif
+#if DISABLED(STATUS_MESSAGE_SCROLLING)
+  #warning "STATUS_MESSAGE_SCROLLING is recommended with ProUI."
+#endif
+#if DISABLED(BAUD_RATE_GCODE)
+  #warning "BAUD_RATE_GCODE is recommended with ProUI."
+#endif
+#if DISABLED(SOUND_MENU_ITEM)
+  #warning "SOUND_MENU_ITEM is recommended with ProUI."
+#endif
+#if DISABLED(PRINTCOUNTER)
+  #warning "PRINTCOUNTER is recommended with ProUI."
+#endif
+#if HAS_MESH && DISABLED(MESH_EDIT_MENU)
+  #warning "MESH_EDIT_MENU is recommended with ProUI."
+#endif
+
 #include "dwin.h"
 #include "menus.h"
 #include "dwin_popup.h"
@@ -162,7 +193,12 @@
 #define DWIN_SCROLL_UPDATE_INTERVAL      SEC_TO_MS(2)
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL SEC_TO_MS(20)
 
-#define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, HMI_data.ManualZOffset)
+#if HAS_MESH
+  #define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, HMI_data.ManualZOffset)
+#else
+  float z_offset = 0;
+  #define BABY_Z_VAR z_offset
+#endif
 
 // Structs
 HMI_value_t HMI_value;
@@ -200,11 +236,28 @@ uint8_t index_file     = MROWS;
 
 bool hash_changed = true; // Flag to know if message status was changed
 
-constexpr float max_feedrate_edit_values[] = MAX_FEEDRATE_EDIT_VALUES;
-constexpr float max_acceleration_edit_values[] = MAX_ACCEL_EDIT_VALUES;
-
+constexpr float max_feedrate_edit_values[] =
+  #ifdef MAX_FEEDRATE_EDIT_VALUES
+    MAX_FEEDRATE_EDIT_VALUES
+  #else
+    { 1000, 1000, 10, 50 }
+  #endif
+;
+constexpr float max_acceleration_edit_values[] =
+  #ifdef MAX_ACCEL_EDIT_VALUES
+    MAX_ACCEL_EDIT_VALUES
+  #else
+    { 1000, 1000, 200, 2000 }
+  #endif
+;
 #if HAS_CLASSIC_JERK
-  constexpr float max_jerk_edit_values[] = MAX_JERK_EDIT_VALUES;
+  constexpr float max_jerk_edit_values[] =
+    #ifdef MAX_JERK_EDIT_VALUES
+      MAX_JERK_EDIT_VALUES
+    #else
+      { DEFAULT_XJERK * 2, DEFAULT_YJERK * 2, DEFAULT_ZJERK * 2, DEFAULT_EJERK * 2 }
+    #endif
+  ;
 #endif
 
 static uint8_t _percent_done = 0;
@@ -815,6 +868,8 @@ void update_variable() {
       else
         DWINUI::Draw_Icon(ICON_Zoffset, 187, 416);
     }
+  #else
+    DWINUI::Draw_Icon(ICON_Zoffset, 187, 416);
   #endif
 
   _draw_xyz_position(false);
@@ -2292,48 +2347,45 @@ void ApplyFlow() { planner.refresh_e_factor(0); }
 void SetFlow() { SetPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, ApplyFlow); }
 
 // Bed Tramming
-TERN(HAS_BED_PROBE, float, void) Tram(uint8_t point) {
-  char cmd[100] = "";
-  #if HAS_BED_PROBE
+
+void TramXY(const uint8_t point, const float &margin, float &x, float &y) {
+  switch (point) {
+    case 0:
+      LCD_MESSAGE(MSG_LEVBED_FL);
+      x = y = margin;
+      break;
+    case 1:
+      LCD_MESSAGE(MSG_LEVBED_FR);
+      x = X_BED_SIZE - margin; y = margin;
+      break;
+    case 2:
+      LCD_MESSAGE(MSG_LEVBED_BR);
+      x = X_BED_SIZE - margin; y = Y_BED_SIZE - margin;
+      break;
+    case 3:
+      LCD_MESSAGE(MSG_LEVBED_BL);
+      x = margin; y = Y_BED_SIZE - margin;
+      break;
+    case 4:
+      LCD_MESSAGE(MSG_LEVBED_C);
+      x = X_CENTER; y = Y_CENTER;
+      break;
+  }
+}
+
+#if HAS_BED_PROBE
+
+  float Tram(const uint8_t point) {
+    char cmd[100] = "";
     static bool inLev = false;
     float xpos = 0, ypos = 0, zval = 0, margin = 0;
     char str_1[6] = "", str_2[6] = "", str_3[6] = "";
     if (inLev) return NAN;
     margin = HMI_data.FullManualTramming ? 30 : PROBING_MARGIN;
-  #else
-    int16_t xpos = 0, ypos = 0;
-    int16_t margin = 30;
-  #endif
 
-  switch (point) {
-    case 0:
-      LCD_MESSAGE(MSG_LEVBED_FL);
-      xpos = ypos = margin;
-      break;
-    case 1:
-      LCD_MESSAGE(MSG_LEVBED_FR);
-      xpos = X_BED_SIZE - margin; ypos = margin;
-      break;
-    case 2:
-      LCD_MESSAGE(MSG_LEVBED_BR);
-      xpos = X_BED_SIZE - margin; ypos = Y_BED_SIZE - margin;
-      break;
-    case 3:
-      LCD_MESSAGE(MSG_LEVBED_BL);
-      xpos = margin; ypos = Y_BED_SIZE - margin;
-      break;
-    case 4:
-      LCD_MESSAGE(MSG_LEVBED_C);
-      xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
-      break;
-  }
-
-  planner.synchronize();
-
-  #if HAS_BED_PROBE
+    TramXY(point, margin, xpos, ypos);
 
     if (HMI_data.FullManualTramming) {
-      planner.synchronize();
       sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%sY%sF5000\nG0Z0F300"),
         dtostrf(xpos, 1, 1, str_1),
         dtostrf(ypos, 1, 1, str_2)
@@ -2341,6 +2393,20 @@ TERN(HAS_BED_PROBE, float, void) Tram(uint8_t point) {
       queue.inject(cmd);
     }
     else {
+      // AUTO_BED_LEVELING_BILINEAR does not define MESH_INSET
+      #ifndef MESH_MIN_X
+        #define MESH_MIN_X (_MAX(X_MIN_BED + PROBING_MARGIN, X_MIN_POS))
+      #endif
+      #ifndef MESH_MIN_Y
+        #define MESH_MIN_Y (_MAX(Y_MIN_BED + PROBING_MARGIN, Y_MIN_POS))
+      #endif
+      #ifndef MESH_MAX_X
+        #define MESH_MAX_X (_MIN(X_MAX_BED - (PROBING_MARGIN), X_MAX_POS))
+      #endif
+      #ifndef MESH_MAX_Y
+        #define MESH_MAX_Y (_MIN(Y_MAX_BED - (PROBING_MARGIN), Y_MAX_POS))
+      #endif
+
       LIMIT(xpos, MESH_MIN_X, MESH_MAX_X);
       LIMIT(ypos, MESH_MIN_Y, MESH_MAX_Y);
       probe.stow();
@@ -2360,14 +2426,20 @@ TERN(HAS_BED_PROBE, float, void) Tram(uint8_t point) {
       inLev = false;
     }
     return zval;
+  }
 
-  #else // !HAS_BED_PROBE
+#else
 
-    sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"), xpos, ypos);
+  void Tram(const uint8_t point) {
+    float xpos = 0, ypos = 0, margin = 30;
+    TramXY(point, margin, xpos, ypos);
+
+    char cmd[100] = "", str_1[6] = "", str_2[6] = "";
+    sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%sY%sF5000\nG0Z0F300"), dtostrf(xpos, 1, 1, str_1), dtostrf(ypos, 1, 1, str_2));
     queue.inject(cmd);
+  }
 
-  #endif
-}
+#endif
 
 void TramFL() { Tram(0); }
 void TramFR() { Tram(1); }
@@ -3606,18 +3678,18 @@ void Draw_Steps_Menu() {
     void SetBedLevT() { SetPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
   #endif
 
-  uint8_t mesh_x = 0;
-  uint8_t mesh_y = 0;
-  #define Z_OFFSET_MIN -3
-  #define Z_OFFSET_MAX  3
+  #if ENABLED(MESH_EDIT_MENU)
+    uint8_t mesh_x = 0, mesh_y = 0;
+    #define Z_OFFSET_MIN -3
+    #define Z_OFFSET_MAX  3
 
-  void LiveEditMesh() { ((MenuItemPtrClass*)EditZValueItem)->value = &bedlevel.z_values[HMI_value.Select ? mesh_x : MenuData.Value][HMI_value.Select ? MenuData.Value : mesh_y]; EditZValueItem->redraw(); }
-  void ApplyEditMeshX() { mesh_x = MenuData.Value; }
-  void SetEditMeshX() { HMI_value.Select = 0; SetIntOnClick(0, GRID_MAX_POINTS_X - 1, mesh_x, ApplyEditMeshX, LiveEditMesh); }
-  void ApplyEditMeshY() { mesh_y = MenuData.Value; }
-  void SetEditMeshY() { HMI_value.Select = 1; SetIntOnClick(0, GRID_MAX_POINTS_Y - 1, mesh_y, ApplyEditMeshY, LiveEditMesh); }
-  void SetEditZValue() { SetPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
-
+    void LiveEditMesh() { ((MenuItemPtrClass*)EditZValueItem)->value = &bedlevel.z_values[HMI_value.Select ? mesh_x : MenuData.Value][HMI_value.Select ? MenuData.Value : mesh_y]; EditZValueItem->redraw(); }
+    void ApplyEditMeshX() { mesh_x = MenuData.Value; }
+    void SetEditMeshX() { HMI_value.Select = 0; SetIntOnClick(0, GRID_MAX_POINTS_X - 1, mesh_x, ApplyEditMeshX, LiveEditMesh); }
+    void ApplyEditMeshY() { mesh_y = MenuData.Value; }
+    void SetEditMeshY() { HMI_value.Select = 1; SetIntOnClick(0, GRID_MAX_POINTS_Y - 1, mesh_y, ApplyEditMeshY, LiveEditMesh); }
+    void SetEditZValue() { SetPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
+  #endif
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
