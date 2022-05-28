@@ -39,40 +39,6 @@
   #define DASH_REDRAW 1
 #endif
 
-#if DISABLED(LIMITED_MAX_FR_EDITING)
-  #warning "LIMITED_MAX_FR_EDITING can be enabled with ProUI."
-#endif
-#if DISABLED(LIMITED_MAX_ACCEL_EDITING)
-  #warning "LIMITED_MAX_ACCEL_EDITING can be enabled with ProUI."
-#endif
-#if ENABLED(CLASSIC_JERK) && DISABLED(LIMITED_JERK_EDITING)
-  #warning "LIMITED_JERK_EDITING can be enabled with ProUI."
-#endif
-#if DISABLED(FILAMENT_RUNOUT_SENSOR)
-  #warning "FILAMENT_RUNOUT_SENSOR can be enabled with ProUI."
-#endif
-#if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
-  #warning "INDIVIDUAL_AXIS_HOMING_SUBMENU can be enabled with ProUI."
-#endif
-#if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-  #warning "LCD_SET_PROGRESS_MANUALLY can be enabled with ProUI."
-#endif
-#if DISABLED(STATUS_MESSAGE_SCROLLING)
-  #warning "STATUS_MESSAGE_SCROLLING can be enabled with ProUI."
-#endif
-#if DISABLED(BAUD_RATE_GCODE)
-  #warning "BAUD_RATE_GCODE can be enabled with ProUI."
-#endif
-#if DISABLED(SOUND_MENU_ITEM)
-  #warning "SOUND_MENU_ITEM can be enabled with ProUI."
-#endif
-#if DISABLED(PRINTCOUNTER)
-  #warning "PRINTCOUNTER can be enabled with ProUI."
-#endif
-#if DISABLED(MESH_EDIT_MENU)
-  #warning "MESH_EDIT_MENU can be enabled with ProUI."
-#endif
-
 #include "../common/dwin_color.h"
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../../feature/leds/leds.h"
