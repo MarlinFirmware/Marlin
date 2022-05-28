@@ -464,14 +464,14 @@
   #include "sam/pins_ARCHIM2.h"                 // SAM3X8E                                env:DUE_archim env:DUE_archim_debug
 #elif MB(ALLIGATOR)
   #include "sam/pins_ALLIGATOR_R2.h"            // SAM3X8E                                env:DUE env:DUE_debug
-#elif MB(ADSK)
-  #include "sam/pins_ADSK.h"                    // SAM3X8E                                env:DUE env:DUE_debug
-#elif MB(PRINTRBOARD_G2)
-  #include "sam/pins_PRINTRBOARD_G2.h"          // SAM3X8C                                env:DUE_USB
 #elif MB(CNCONTROLS_15D)
   #include "sam/pins_CNCONTROLS_15D.h"          // SAM3X8E                                env:DUE env:DUE_USB
 #elif MB(KRATOS32)
   #include "sam/pins_KRATOS32.h"                // SAM3X8E                                env:DUE env:DUE_USB
+#elif MB(PRINTRBOARD_G2)
+  #include "sam/pins_PRINTRBOARD_G2.h"          // SAM3X8C                                env:DUE_USB
+#elif MB(ADSK)
+  #include "sam/pins_ADSK.h"                    // SAM3X8C                                env:DUE env:DUE_debug
 
 //
 // STM32 ARM Cortex-M0
