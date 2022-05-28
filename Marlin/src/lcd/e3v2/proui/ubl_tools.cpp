@@ -23,7 +23,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_MESH)
+#if BOTH(DWIN_LCD_PROUI, AUTO_BED_LEVELING_UBL)
 
 #include "ubl_tools.h"
 #include "../../marlinui.h"
@@ -249,4 +249,4 @@ bool UBLMeshToolsClass::validate() {
   }
 #endif
 
-#endif // DWIN_LCD_PROUI
+#endif // DWIN_LCD_PROUI && AUTO_BED_LEVELING_UBL
