@@ -32,7 +32,6 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
 #include "i2s.h"
 
 #if ENABLED(WIFISUPPORT)
@@ -172,9 +171,13 @@ public:
   // Earliest possible init, before setup()
   MarlinHAL() {}
 
-  static void init() {}  // Called early in setup()
-  static void init_board();     // Called less early in setup()
-  static void reboot();         // Restart the firmware
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+
+  static void init() {}        // Called early in setup()
+  static void init_board();    // Called less early in setup()
+  static void reboot();        // Restart the firmware
 
   // Interrupts
   static portMUX_TYPE spinlock;

@@ -23,6 +23,7 @@
 #include "../gcode.h"
 #include "../../MarlinCore.h" // for stepper_inactive_time, disable_e_steppers
 #include "../../lcd/marlinui.h"
+#include "../../module/motion.h" // for e_axis_mask
 #include "../../module/stepper.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -43,7 +44,7 @@ inline stepper_flags_t selected_axis_bits() {
           selected.bits = _BV(INDEX_OF_AXIS(E_AXIS, e));
       }
       else
-        selected.bits = selected.e_bits();
+        selected.bits = e_axis_mask;
     }
   #endif
   selected.bits |= NUM_AXIS_GANG(
@@ -233,6 +234,6 @@ void GcodeSuite::M18_M84() {
     else
       planner.finish_and_disable();
 
-    TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
+    TERN_(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
   }
 }

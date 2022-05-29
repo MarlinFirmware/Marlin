@@ -32,9 +32,9 @@
 #include "env_validate.h"
 
 #if EXTRUDERS > 2 || E_STEPPERS > 2
-  #error "MRR ESPE only supports two E Steppers. Comment out this line to continue."
+  #error "MRR ESPE supports up to 2 E steppers."
 #elif HAS_MULTI_HOTEND
-  #error "MRR ESPE only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "MRR ESPE only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "MRR ESPE"

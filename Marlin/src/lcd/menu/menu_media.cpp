@@ -61,10 +61,10 @@ inline void sdcard_start_selected_file() {
 
 class MenuItem_sdfile : public MenuItem_sdbase {
   public:
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
-      MenuItem_sdbase::draw(sel, row, pstr, theCard, false);
+    static inline void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard) {
+      MenuItem_sdbase::draw(sel, row, fstr, theCard, false);
     }
-    static void action(PGM_P const pstr, CardReader &) {
+    static void action(FSTR_P const fstr, CardReader &) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
         sd_encoder_position = ui.encoderPosition;
@@ -72,30 +72,30 @@ class MenuItem_sdfile : public MenuItem_sdbase {
         sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
-        MenuItem_submenu::action(pstr, []{
+        MenuItem_submenu::action(fstr, []{
           char * const longest = card.longest_filename();
           char buffer[strlen(longest) + 2];
           buffer[0] = ' ';
           strcpy(buffer + 1, longest);
           MenuItem_confirm::select_screen(
-            GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
+            GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
             sdcard_start_selected_file, nullptr,
-            GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
+            GET_TEXT_F(MSG_START_PRINT), buffer, F("?")
           );
         });
       #else
         sdcard_start_selected_file();
-        UNUSED(pstr);
+        UNUSED(fstr);
       #endif
     }
 };
 
 class MenuItem_sdfolder : public MenuItem_sdbase {
   public:
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
-      MenuItem_sdbase::draw(sel, row, pstr, theCard, true);
+    static inline void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard) {
+      MenuItem_sdbase::draw(sel, row, fstr, theCard, true);
     }
-    static void action(PGM_P const, CardReader &theCard) {
+    static void action(FSTR_P const, CardReader &theCard) {
       card.cd(theCard.filename);
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
@@ -119,7 +119,7 @@ void menu_media_filelist() {
   #if ENABLED(MULTI_VOLUME)
     ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
   #else
-    BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
   #endif
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
@@ -127,7 +127,7 @@ void menu_media_filelist() {
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER " .."), lcd_sd_updir);
+    ACTION_ITEM_F(F(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
@@ -146,7 +146,7 @@ void menu_media_filelist() {
 #if ENABLED(MULTI_VOLUME)
   void menu_media_select() {
     START_MENU();
-    BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
     #if ENABLED(VOLUME_SD_ONBOARD)
       ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
     #endif

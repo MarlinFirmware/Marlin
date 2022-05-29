@@ -265,7 +265,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     EspUploadResult stat;
 
     //IWDG_ReloadCounter();
-    watchdog_refresh();
+    hal.watchdog_refresh();
 
     if (getWifiTickDiff(startTime, getWifiTick()) > msTimeout)
       return timeout;
@@ -445,7 +445,7 @@ EspUploadResult Sync(uint16_t timeout) {
     for (;;) {
       size_t bodyLen;
       EspUploadResult rc = readPacket(ESP_SYNC, 0, &bodyLen, defaultTimeout);
-      watchdog_refresh();
+      hal.watchdog_refresh();
       if (rc != success || bodyLen != 2) break;
     }
   }
@@ -673,7 +673,7 @@ int32_t wifi_upload(int type) {
 
   while (esp_upload.state != upload_idle) {
     upload_spin();
-    watchdog_refresh();
+    hal.watchdog_refresh();
   }
 
   ResetWiFiForUpload(1);

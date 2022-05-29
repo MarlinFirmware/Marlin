@@ -30,7 +30,6 @@
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
-bool printer_busy();
 
 typedef void (*selectFunc_t)();
 
@@ -55,72 +54,72 @@ class MenuItemBase {
     static int8_t itemIndex;
 
     // An optional pointer for use in display or by the action
-    static PGM_P itemString;
+    static FSTR_P itemString;
 
     // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const int8_t ind=0, PGM_P const pstr=nullptr) { itemIndex = ind; itemString = pstr; }
+    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemString = fstr; }
 
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
     // Menus may set up itemIndex, itemString and pass them to string-building or string-emitting functions
-    static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
+    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char);
 
     // Draw an item either selected ('>') or not (space) with post_char
-    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char post_char) {
-      _draw(sel, row, pstr, '>', post_char);
+    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char) {
+      _draw(sel, row, fstr, '>', post_char);
     }
 };
 
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)
 class MenuItem_back : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr) {
-      _draw(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr) {
+      _draw(sel, row, fstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
     }
     // Back Item action goes back one step in history
-    FORCE_INLINE static void action(PGM_P const=nullptr) { ui.go_back(); }
+    FORCE_INLINE static void action(FSTR_P const=nullptr) { ui.go_back(); }
 };
 
 // CONFIRM_ITEM(LABEL,Y,N,FY,FN,...),
 // YESNO_ITEM(LABEL,FY,FN,...)
 class MenuItem_confirm : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
+      _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0]);
     }
     // Implemented for HD44780 and DOGM
     // Draw the prompt, buttons, and state
     static void draw_select_screen(
-      PGM_P const yes,            // Right option label
-      PGM_P const no,             // Left option label
+      FSTR_P const yes,           // Right option label
+      FSTR_P const no,            // Left option label
       const bool yesno,           // Is "yes" selected?
-      PGM_P const pref,           // Prompt prefix
+      FSTR_P const pref,          // Prompt prefix
       const char * const string,  // Prompt runtime string
-      PGM_P const suff            // Prompt suffix
+      FSTR_P const suff           // Prompt suffix
     );
     static void select_screen(
-      PGM_P const yes, PGM_P const no,
+      FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr
+      FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr
     );
     static void select_screen(
-      PGM_P const yes, PGM_P const no,
+      FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      PGM_P const pref, FSTR_P const string, PGM_P const suff=nullptr
+      FSTR_P const pref, FSTR_P const string, FSTR_P const suff=nullptr
     ) {
       char str[strlen_P(FTOP(string)) + 1];
       strcpy_P(str, FTOP(string));
       select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
     }
     // Shortcut for prompt with "NO"/ "YES" labels
-    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr) {
-      select_screen(GET_TEXT(MSG_YES), GET_TEXT(MSG_NO), yesFunc, noFunc, pref, string, suff);
+    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr) {
+      select_screen(GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO), yesFunc, noFunc, pref, string, suff);
     }
 };
 
@@ -149,7 +148,7 @@ class MenuEditItemBase : public MenuItemBase {
     // The action() method acts like the instantiator. The entire lifespan
     // of a menu item is within its declaration, so all these values decompose
     // into behavior and unused items get optimized out.
-    static PGM_P editLabel;
+    static FSTR_P editLabel;
     static void *editValue;
     static int32_t minEditValue, maxEditValue;  // Encoder value range
     static screenFunc_t callbackFunc;
@@ -158,7 +157,7 @@ class MenuEditItemBase : public MenuItemBase {
     typedef const char* (*strfunc_t)(const int32_t);
     typedef void (*loadfunc_t)(void *, const int32_t);
     static void goto_edit_screen(
-      PGM_P const el,         // Edit label
+      FSTR_P const el,        // Edit label
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
@@ -171,11 +170,15 @@ class MenuEditItemBase : public MenuItemBase {
   public:
     // Implementation-specific:
     // Draw the current item at specified row with edit data
-    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm=false);
+    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm=false);
+
+    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, FSTR_P const inStr) {
+      draw(sel, row, fstr, FTOP(inStr), true);
+    }
 
     // Implementation-specific:
     // This low-level method is good to draw from anywhere
-    static void draw_edit_screen(PGM_P const pstr, const char * const value);
+    static void draw_edit_screen(FSTR_P const fstr, const char * const value);
 
     // This method is for the current menu item
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
@@ -186,7 +189,7 @@ class MenuEditItemBase : public MenuItemBase {
   class MenuItem_sdbase {
     public:
       // Implemented for HD44780 and DOGM
-      static void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
+      static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard, const bool isDir);
   };
 #endif
 

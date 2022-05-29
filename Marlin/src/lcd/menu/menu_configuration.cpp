@@ -30,6 +30,8 @@
 
 #include "menu_item.h"
 
+#include "../../MarlinCore.h"
+
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
@@ -76,7 +78,7 @@ void menu_advanced_settings();
     bar_percent += (int8_t)ui.encoderPosition;
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
-    MenuItem_static::draw(0, GET_TEXT(MSG_PROGRESS_BAR_TEST), SS_DEFAULT|SS_INVERT);
+    MenuItem_static::draw(0, GET_TEXT_F(MSG_PROGRESS_BAR_TEST), SS_DEFAULT|SS_INVERT);
     lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_wchar('%');
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
@@ -135,7 +137,7 @@ void menu_advanced_settings();
     #include "../../gcode/queue.h"
 
     void menu_toolchange_migration() {
-      PGM_P const msg_migrate = GET_TEXT(MSG_TOOL_MIGRATION_SWAP);
+      FSTR_P const msg_migrate = GET_TEXT_F(MSG_TOOL_MIGRATION_SWAP);
 
       START_MENU();
       BACK_ITEM(MSG_CONFIGURATION);
@@ -147,7 +149,7 @@ void menu_advanced_settings();
       // Migrate to a chosen extruder
       EXTRUDER_LOOP() {
         if (e != active_extruder) {
-          ACTION_ITEM_N_P(e, msg_migrate, []{
+          ACTION_ITEM_N_F(e, msg_migrate, []{
             char cmd[12];
             sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
             queue.inject(cmd);
@@ -197,16 +199,16 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
 
-    GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605S1\nG28X\nG1X0"));
+    GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  F("M605S1\nG28X\nG1X0"));
     GCODES_ITEM(MSG_IDEX_MODE_DUPLICATE, need_g28
-      ? PSTR("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0")         // If Y or Z is not homed, do a full G28 first
-      : PSTR("M605S1\nT0\nM605S2\nG28X\nG1X0")
+      ? F("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0")         // If Y or Z is not homed, do a full G28 first
+      : F("M605S1\nT0\nM605S2\nG28X\nG1X0")
     );
     GCODES_ITEM(MSG_IDEX_MODE_MIRRORED_COPY, need_g28
-      ? PSTR("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0\nM605S3") // If Y or Z is not homed, do a full G28 first
-      : PSTR("M605S1\nT0\nM605S2\nG28 X\nG1X0\nM605S3")
+      ? F("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0\nM605S3") // If Y or Z is not homed, do a full G28 first
+      : F("M605S1\nT0\nM605S2\nG28 X\nG1X0\nM605S3")
     );
-    GCODES_ITEM(MSG_IDEX_MODE_FULL_CTRL, PSTR("M605S0\nG28X"));
+    GCODES_ITEM(MSG_IDEX_MODE_FULL_CTRL, F("M605S0\nG28X"));
 
     EDIT_ITEM(float42_52, MSG_IDEX_DUPE_GAP, &duplicate_extruder_x_offset, (X2_MIN_POS) - (X1_MIN_POS), (X_BED_SIZE) - 20);
 
@@ -244,11 +246,11 @@ void menu_advanced_settings();
       EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.high_speed_mode);
     #endif
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
-      CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, nullptr, GET_TEXT_F(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, nullptr, GET_TEXT_F(MSG_BLTOUCH_MODE_CHANGE));
       ACTION_ITEM(MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
-      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_5V, MSG_BLTOUCH_MODE_STORE_5V, MSG_BUTTON_CANCEL, bltouch.mode_conv_5V, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_OD, MSG_BLTOUCH_MODE_STORE_OD, MSG_BUTTON_CANCEL, bltouch.mode_conv_OD, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_5V, MSG_BLTOUCH_MODE_STORE_5V, MSG_BUTTON_CANCEL, bltouch.mode_conv_5V, nullptr, GET_TEXT_F(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_OD, MSG_BLTOUCH_MODE_STORE_OD, MSG_BUTTON_CANCEL, bltouch.mode_conv_OD, nullptr, GET_TEXT_F(MSG_BLTOUCH_MODE_CHANGE));
       ACTION_ITEM(MSG_BLTOUCH_MODE_ECHO, bltouch_report);
     #endif
     END_MENU();
@@ -262,10 +264,10 @@ void menu_advanced_settings();
     ui.defer_status_screen();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    GCODES_ITEM(MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
+    GCODES_ITEM(MSG_TOUCHMI_INIT, F("M851 Z0\nG28\nG1 F200 Z0"));
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    GCODES_ITEM(MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
-    GCODES_ITEM(MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
+    GCODES_ITEM(MSG_TOUCHMI_SAVE, F("M500\nG1 F200 Z10"));
+    GCODES_ITEM(MSG_TOUCHMI_ZTEST, F("G28\nG1 F200 Z0"));
     END_MENU();
   }
 
@@ -327,7 +329,7 @@ void menu_advanced_settings();
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
     const uint8_t m = MenuItemBase::itemIndex;
     START_MENU();
-    STATIC_ITEM_P(ui.get_preheat_label(m), SS_DEFAULT|SS_INVERT);
+    STATIC_ITEM_F(ui.get_preheat_label(m), SS_DEFAULT|SS_INVERT);
     BACK_ITEM(MSG_CONFIGURATION);
     #if HAS_FAN
       editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
@@ -367,13 +369,13 @@ void menu_advanced_settings();
       #define _DONE_SCRIPT ""
     #endif
     #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(F(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
-    #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
-    #define _CUSTOM_ITEM_CONF_CONFIRM(N)               \
-      SUBMENU_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), []{ \
-          MenuItem_confirm::confirm_screen(            \
-            GCODE_LAMBDA_CONF(N), nullptr,             \
-            PSTR(CONFIG_MENU_ITEM_##N##_DESC "?")      \
-          );                                           \
+    #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_F(F(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
+    #define _CUSTOM_ITEM_CONF_CONFIRM(N)            \
+      SUBMENU_F(F(CONFIG_MENU_ITEM_##N##_DESC), []{ \
+          MenuItem_confirm::confirm_screen(         \
+            GCODE_LAMBDA_CONF(N), nullptr,          \
+            F(CONFIG_MENU_ITEM_##N##_DESC "?")      \
+          );                                        \
         })
 
     #define CUSTOM_ITEM_CONF(N) do{ \
@@ -481,7 +483,7 @@ void menu_configuration() {
   #if ENABLED(CUSTOM_MENU_CONFIG)
     if (TERN1(CUSTOM_MENU_CONFIG_ONLY_IDLE, !busy)) {
       #ifdef CUSTOM_MENU_CONFIG_TITLE
-        SUBMENU_P(PSTR(CUSTOM_MENU_CONFIG_TITLE), custom_menus_configuration);
+        SUBMENU_F(F(CUSTOM_MENU_CONFIG_TITLE), custom_menus_configuration);
       #else
         SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_configuration);
       #endif

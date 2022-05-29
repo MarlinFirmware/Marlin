@@ -31,9 +31,9 @@
 #include "env_validate.h"
 
 #if EXTRUDERS > 2 || E_STEPPERS > 2
-  #error "MKS ESP Nano only supports two E Steppers. Comment out this line to continue."
+  #error "MKS TinyBee supports up to 2 E steppers."
 #elif HOTENDS > 2
-  #error "MKS ESP Nano only supports two hotend / E-stepper. Comment out this line to continue."
+  #error "MKS TinyBee supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "MKS TinyBee"
@@ -116,17 +116,7 @@
 //
 // ADC Reference Voltage
 //
-#define ADC_REFERENCE_VOLTAGE                2.5  // 2.5V reference VDDA
-
-//
-// MicroSD card
-//
-#define SD_MOSI_PIN                           23
-#define SD_MISO_PIN                           19
-#define SD_SCK_PIN                            18
-#define SDSS                                   5
-#define SD_DETECT_PIN                         34  // IO34 default is SD_DET signal (Jump to SDDET)
-#define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
+#define ADC_REFERENCE_VOLTAGE                  2.5  // 2.5V reference VDDA
 
 /**
  *                ------                                 ------
@@ -157,56 +147,48 @@
 #define EXP2_09_PIN                           18
 #define EXP2_10_PIN                           19
 
-#if HAS_WIRED_LCD
+//
+// MicroSD card
+//
+//#define SD_MOSI_PIN                EXP2_05_PIN  // uses esp32 default 23
+//#define SD_MISO_PIN                EXP2_10_PIN  // uses esp32 default 19
+//#define SD_SCK_PIN                 EXP2_09_PIN  // uses esp32 default 18
+#define SDSS                         EXP2_07_PIN
+#define SD_DETECT_PIN                EXP2_04_PIN  // IO34 default is SD_DET signal (Jump to SDDET)
+#define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 
-  #define BEEPER_PIN                         149
-  #define BTN_ENC                             13
-  #define LCD_PINS_ENABLE                     21
-  #define LCD_PINS_RS                          4
-  #define BTN_EN1                             14
-  #define BTN_EN2                             12
+#if HAS_WIRED_LCD
+  #define BEEPER_PIN                 EXP1_10_PIN
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define BTN_ENC                    EXP1_09_PIN
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
   #define LCD_BACKLIGHT_PIN                   -1
 
-  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
-
-    //#define LCD_BACKLIGHT_PIN               -1
-    //#define LCD_RESET_PIN                   -1
-    #define DOGLCD_A0                         15
-    #define DOGLCD_CS                         16
-    //#define DOGLCD_SCK                      19
-    //#define DOGLCD_MOSI                     23
-
-    // Required for MKS_MINI_12864 with this board
-    //#define MKS_LCD12864B
-
-  #elif ENABLED(MKS_MINI_12864_V3)
-
-    #define LCD_PINS_DC              EXP1_07_PIN
+  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
+    #define DOGLCD_CS                EXP1_05_PIN
+    #define DOGLCD_A0                EXP1_04_PIN
+    #define LCD_RESET_PIN                     -1
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
+  // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
     #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                LCD_PINS_DC
-    #define LCD_BACKLIGHT_PIN                 -1
+    #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN            EXP1_06_PIN
     #define NEOPIXEL_PIN             EXP1_05_PIN
-    #define DOGLCD_MOSI              EXP2_05_PIN
-    #define DOGLCD_SCK               EXP2_09_PIN
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-
-  #else // !MKS_MINI_12864
-
-    #define LCD_PINS_D4                        0
+  #else
+   #define LCD_PINS_D4               EXP1_06_PIN
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-      #define LCD_PINS_D5                     16
-      #define LCD_PINS_D6                     15
-      #define LCD_PINS_D7                     17
+      #define LCD_PINS_D5            EXP1_05_PIN
+      #define LCD_PINS_D6            EXP1_04_PIN
+      #define LCD_PINS_D7            EXP1_03_PIN
     #endif
-
     #define BOARD_ST7920_DELAY_1              96
     #define BOARD_ST7920_DELAY_2              48
     #define BOARD_ST7920_DELAY_3             600
-
-  #endif // !MKS_MINI_12864
-
+  #endif
 #endif // HAS_WIRED_LCD

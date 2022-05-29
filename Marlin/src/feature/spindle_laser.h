@@ -40,6 +40,7 @@
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
 #define PCT_TO_SERVO(X) ((X) * 180 / 100)
 
+
 // Laser/Cutter operation mode
 enum CutterMode : int8_t {
   CUTTER_MODE_ERROR = -1,
