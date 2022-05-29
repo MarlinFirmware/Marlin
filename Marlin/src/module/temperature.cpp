@@ -994,7 +994,7 @@ volatile bool Temperature::raw_temps_ready = false;
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
 
-    constants.ambient_xfer_coeff_fan0 = constants.heater_power * MPC_MAX / 255 / (asymp_temp - ambient_temp);
+    constants.ambient_xfer_coeff_fan0 = constants.heater_power * (MPC_MAX) / 255 / (asymp_temp - ambient_temp);
     constants.fan255_adjustment = 0.0f;
     constants.block_heat_capacity = constants.ambient_xfer_coeff_fan0 / block_responsiveness;
     constants.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
@@ -1058,7 +1058,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     // Calculate a new and better asymptotic temperature and re-evaluate the other constants
-    asymp_temp = ambient_temp + constants.heater_power / constants.ambient_xfer_coeff_fan0;
+    asymp_temp = ambient_temp + constants.heater_power * (MPC_MAX) / 255 / constants.ambient_xfer_coeff_fan0;
     block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * (sample_count >> 1));
     constants.block_heat_capacity = constants.ambient_xfer_coeff_fan0 / block_responsiveness;
     constants.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
@@ -1442,7 +1442,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         if (fabs(e_speed) > planner.settings.max_feedrate_mm_s[E_AXIS])
           mpc_e_position = e_position;
         else if (e_speed > 0.0f) {  // Ignore retract/recover moves
-          ambient_xfer_coeff += e_speed * FILAMENT_HEAT_CAPACITY_PERMM;
+          ambient_xfer_coeff += e_speed * constants.filament_heat_capacity_permm;
           mpc_e_position = e_position;
         }
       }

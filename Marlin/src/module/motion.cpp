@@ -1382,10 +1382,10 @@ void prepare_line_to_destination() {
 
 #if HAS_ENDSTOPS
 
-  linear_axis_bits_t axis_homed, axis_trusted; // = 0
+  main_axes_bits_t axes_homed, axes_trusted; // = 0
 
-  linear_axis_bits_t axes_should_home(linear_axis_bits_t axis_bits/*=linear_bits*/) {
-    auto set_should = [](linear_axis_bits_t &b, AxisEnum a) {
+  main_axes_bits_t axes_should_home(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
+    auto set_should = [](main_axes_bits_t &b, AxisEnum a) {
       if (TEST(b, a) && TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(a))
         CBI(b, a);
     };
@@ -1398,23 +1398,12 @@ void prepare_line_to_destination() {
     return axis_bits;
   }
 
-  bool homing_needed_error(linear_axis_bits_t axis_bits/*=linear_bits*/) {
+  bool homing_needed_error(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
     if ((axis_bits = axes_should_home(axis_bits))) {
       PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
       char msg[30];
-      sprintf_P(msg, home_first,
-        NUM_AXIS_LIST(
-          TEST(axis_bits, X_AXIS) ? STR_A : "",
-          TEST(axis_bits, Y_AXIS) ? STR_B : "",
-          TEST(axis_bits, Z_AXIS) ? STR_C : "",
-          TEST(axis_bits, I_AXIS) ? STR_I : "",
-          TEST(axis_bits, J_AXIS) ? STR_J : "",
-          TEST(axis_bits, K_AXIS) ? STR_K : "",
-          TEST(axis_bits, U_AXIS) ? STR_U : "",
-          TEST(axis_bits, V_AXIS) ? STR_V : "",
-          TEST(axis_bits, W_AXIS) ? STR_W : ""
-        )
-      );
+      #define _AXIS_CHAR(N) TEST(axis_bits, _AXIS(N)) ? STR_##N : ""
+      sprintf_P(msg, home_first, MAPLIST(_AXIS_CHAR, MAIN_AXIS_NAMES));
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
       ui.set_status(msg);

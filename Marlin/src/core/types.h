@@ -181,7 +181,6 @@ enum AxisEnum : uint8_t {
 };
 
 typedef IF<(NUM_AXIS_ENUMS > 8), uint16_t, uint8_t>::type axis_bits_t;
-typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
 
 //
 // Loop over axes
