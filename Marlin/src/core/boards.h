@@ -228,33 +228,33 @@
 #define BOARD_RAMPS_14_RE_ARM_EFF     2002  // Re-ARM with RAMPS 1.4 (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS_14_RE_ARM_EEF     2003  // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_14_RE_ARM_SF      2004  // Re-ARM with RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
-#define BOARD_MKS_SBASE               2005  // MKS-Sbase (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_MKS_SBASE               2005  // MKS-Sbase
 #define BOARD_AZSMZ_MINI              2006  // AZSMZ Mini
-#define BOARD_BIQU_BQ111_A4           2007  // BIQU BQ111-A4 (Power outputs: Hotend, Fan, Bed)
-#define BOARD_SELENA_COMPACT          2008  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
-#define BOARD_BIQU_B300_V1_0          2009  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
-#define BOARD_MKS_SGEN_L              2010  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_BIQU_BQ111_A4           2007  // BIQU BQ111-A4
+#define BOARD_SELENA_COMPACT          2008  // Selena Compact
+#define BOARD_BIQU_B300_V1_0          2009  // BIQU B300_V1.0
+#define BOARD_MKS_SGEN_L              2010  // MKS-SGen-L
 #define BOARD_GMARSH_X6_REV1          2011  // GMARSH X6, revision 1 prototype
-#define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1
+#define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3
+#define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4
 
 //
 // LPC1769 ARM Cortex M3
 //
 
-#define BOARD_MKS_SGEN                2500  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_AZTEEG_X5_GT            2501  // Azteeg X5 GT (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_AZTEEG_X5_MINI          2502  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_AZTEEG_X5_MINI_WIFI     2503  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_MKS_SGEN                2500  // MKS-SGen
+#define BOARD_AZTEEG_X5_GT            2501  // Azteeg X5 GT
+#define BOARD_AZTEEG_X5_MINI          2502  // Azteeg X5 Mini
+#define BOARD_AZTEEG_X5_MINI_WIFI     2503  // Azteeg X5 Mini Wifi
 #define BOARD_COHESION3D_REMIX        2504  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI         2505  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD           2506  // Smoothieboard
 #define BOARD_TH3D_EZBOARD            2507  // TH3D EZBoard v1.0
-#define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2 (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1)
-#define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY (Power outputs: Hotend0, Hotend1, Hotend2, Bed, Fan0, Fan1, Fan2)
+#define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO
+#define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2
+#define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo
+#define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY
 
 //
 // SAM3X8E ARM Cortex M3
@@ -280,8 +280,8 @@
 #define BOARD_RAMPS4DUE_EFF           3017  // RAMPS4DUE (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS4DUE_EEF           3018  // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS4DUE_SF            3019  // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
-#define BOARD_RURAMPS4D_11            3020  // RuRAMPS4Duo v1.1 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
-#define BOARD_RURAMPS4D_13            3021  // RuRAMPS4Duo v1.3 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
+#define BOARD_RURAMPS4D_11            3020  // RuRAMPS4Duo v1.1
+#define BOARD_RURAMPS4D_13            3021  // RuRAMPS4Duo v1.3
 #define BOARD_ULTRATRONICS_PRO        3022  // ReprapWorld Ultratronics Pro V1.0
 #define BOARD_ARCHIM1                 3023  // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2                 3024  // UltiMachine Archim2 (with TMC2130 drivers)
@@ -293,7 +293,7 @@
 // SAM3X8C ARM Cortex M3
 //
 
-#define BOARD_PRINTRBOARD_G2          3100  // PRINTRBOARD G2
+#define BOARD_PRINTRBOARD_G2          3100  // Printrboard G2
 #define BOARD_ADSK                    3101  // Arduino DUE Shield Kit (ADSK)
 
 //

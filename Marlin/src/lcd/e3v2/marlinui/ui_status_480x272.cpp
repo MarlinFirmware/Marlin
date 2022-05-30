@@ -80,9 +80,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     dwin_string.set();
     if (blink)
       dwin_string.add(value);
-    else if (!TEST(axis_homed, axis))
+    else if (!TEST(axes_homed, axis))
       while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
-    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axis_trusted, axis))
+    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
       dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
     else
       dwin_string.add(value);
@@ -105,11 +105,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (blink)
       dwin_string.add(value);
     else {
-      if (!TEST(axis_homed, axis))
+      if (!TEST(axes_homed, axis))
         while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
       else {
         #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
-          if (!TEST(axis_trusted, axis))
+          if (!TEST(axes_trusted, axis))
             dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
           else
         #endif

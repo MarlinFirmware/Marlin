@@ -4137,3 +4137,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #elif ENABLED(DISABLE_JTAG) && !defined(JTAG_DISABLE)
   #error "DISABLE_JTAG is not supported for the selected MCU/Board."
 #endif
+
+// Check requirements for upload.py
+#if ENABLED(XFER_BUILD) && !BOTH(BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
+  #error "BINARY_FILE_TRANSFER and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
+#endif
