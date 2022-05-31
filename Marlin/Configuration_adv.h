@@ -3669,17 +3669,15 @@
     #define LASER_TEST_PULSE_MIN           1   // Used with Laser Control Menu
     #define LASER_TEST_PULSE_MAX         999   // Caution: Menu may not show more than 3 characters
 
-    /**
-    * Laser safety watchdog
-    * 
-    * If no head movement for this period then the laser will turn off.
-    * Consider material flammability, cut rate and gcode order when
-    * setting value.  Too low and it could turn off during a very slow move,
-    * too high a value and the material may ignite before the laser is turned off.
-    * 
-    * Value must be < (DEFAULT_STEPPER_DEACTIVE_TIME * 1000) 
+   /**
+    * Laser Safety Timeout
+    *
+    * The laser should be turned off when there is no movement for a period of time.
+    * Consider material flammability, cut rate, and G-code order when setting this
+    * value. Too low and it could turn off during a very slow move; too high and
+    * the material could ignite.
     */
-    //#define LASER_WATCHDOG_TIME       1000   // mSecs 
+    #define LASER_SAFETY_TIMEOUT_MS     1000   // (ms)
 
     /**
      * Enable inline laser power to be handled in the planner / stepper routines.

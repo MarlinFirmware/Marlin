@@ -85,14 +85,14 @@ public:
 
   static const cutter_power_t mpower_min() { return cpwr_to_upwr(SPEED_POWER_MIN); }
   static const cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
-  static uint8_t last_power_applied;                      // Basic power state tracking
 
   #if ENABLED(LASER_FEATURE)
     static cutter_test_pulse_t testPulse; // Test fire Pulse ms value
   #endif
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
-  static uint8_t power;
+  static uint8_t power,
+                 last_power_applied;      // Basic power state tracking
 
   #if ENABLED(MARLIN_DEV_MODE)
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K

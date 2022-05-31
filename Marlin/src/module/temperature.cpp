@@ -71,7 +71,7 @@
   #include "../libs/nozzle.h"
 #endif
 
-#if (ENABLED(LASER_FEATURE) && LASER_WATCHDOG_TIME)
+#if (ENABLED(LASER_FEATURE) && LASER_SAFETY_TIMEOUT_MS)
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -3332,7 +3332,7 @@ public:
 
 /**
  * Handle various ~1kHz tasks associated with temperature
- *  - Check laser watchdog
+ *  - Check laser safety timeout
  *  - Heater PWM (~1kHz with scaler)
  *  - LCD Button polling (~500Hz)
  *  - Start / Read one ADC sensor
@@ -3342,14 +3342,12 @@ public:
  */
 void Temperature::isr() {
 
-  // shutdown laser if steppers inactive for > LASER_WATCHDOG_TIME mSecs 
-  #if (ENABLED(LASER_FEATURE) && LASER_WATCHDOG_TIME)
-    #if ((DEFAULT_STEPPER_DEACTIVE_TIME * 1000) > LASER_WATCHDOG_TIME))
-    if ((ELAPSED(millis(), LASER_WATCHDOG_TIME + gcode.previous_move_ms)) && (cutter.last_power_applied != 0)) { // expired?
-      cutter.power = 0; // stops planner idle re-enabling power
+  // Shut down the laser if steppers are inactive for > LASER_SAFETY_TIMEOUT_MS ms
+  #if ENABLED(LASER_FEATURE) && LASER_SAFETY_TIMEOUT_MS > 0 && LASER_SAFETY_TIMEOUT_MS < ((DEFAULT_STEPPER_DEACTIVE_TIME) * 1000)
+    if (ELAPSED(millis(), gcode.previous_move_ms + LASER_SAFETY_TIMEOUT_MS) && cutter.last_power_applied != 0) { // expired?
+      cutter.power = 0;       // Prevent planner idle from re-enabling power
       cutter.apply_power(0);
     }
-    #endif
   #endif
 
   static int8_t temp_count = -1;

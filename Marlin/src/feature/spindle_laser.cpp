@@ -39,8 +39,8 @@
 #endif
 
 SpindleLaser cutter;
-uint8_t SpindleLaser::power;
-uint8_t SpindleLaser::last_power_applied = 0;                       // Basic power state tracking
+uint8_t SpindleLaser::power,
+        SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 #if ENABLED(LASER_FEATURE)
   cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // Test fire Pulse time ms value.
 #endif

@@ -66,8 +66,8 @@
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
-  #if ENABLED(LASER_FEATURE) && LASER_WATCHDOG_TIME
-    reset_stepper_timeout(); // reset laser timeout to let subsequent gcode turn on laser imm.
+  #if ENABLED(LASER_FEATURE) && LASER_SAFETY_TIMEOUT_MS
+    reset_stepper_timeout(); // Reset timeout to allow subsequent G-code to power the laser (imm.)
   #endif
 
   #if EITHER(SPINDLE_LASER_USE_PWM, SPINDLE_SERVO)
