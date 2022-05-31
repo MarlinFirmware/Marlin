@@ -39,7 +39,8 @@
 #endif
 
 SpindleLaser cutter;
-uint8_t SpindleLaser::power;
+uint8_t SpindleLaser::power,
+        SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 #if ENABLED(LASER_FEATURE)
   cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // Test fire Pulse time ms value.
 #endif
@@ -113,7 +114,6 @@ void SpindleLaser::init() {
  * @param opwr Power value. Range 0 to MAX. When 0 disable spindle/laser.
  */
 void SpindleLaser::apply_power(const uint8_t opwr) {
-  static uint8_t last_power_applied = 0;
   if (opwr == last_power_applied) return;
   last_power_applied = opwr;
   power = opwr;

@@ -71,6 +71,10 @@
   #include "../libs/nozzle.h"
 #endif
 
+#if LASER_SAFETY_TIMEOUT_MS > 0
+  #include "../feature/spindle_laser.h"
+#endif
+
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 #define TEMP_SENSOR_IS_ANY_MAX_TC(n) (ENABLED(TEMP_SENSOR_##n##_IS_MAX_TC) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
@@ -3328,6 +3332,7 @@ public:
 
 /**
  * Handle various ~1kHz tasks associated with temperature
+ *  - Check laser safety timeout
  *  - Heater PWM (~1kHz with scaler)
  *  - LCD Button polling (~500Hz)
  *  - Start / Read one ADC sensor
@@ -3336,6 +3341,14 @@ public:
  *  - Planner clean buffer
  */
 void Temperature::isr() {
+
+  // Shut down the laser if steppers are inactive for > LASER_SAFETY_TIMEOUT_MS ms
+  #if LASER_SAFETY_TIMEOUT_MS > 0
+    if (cutter.last_power_applied && ELAPSED(millis(), gcode.previous_move_ms + (LASER_SAFETY_TIMEOUT_MS))) {
+      cutter.power = 0;       // Prevent planner idle from re-enabling power
+      cutter.apply_power(0);
+    }
+  #endif
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
