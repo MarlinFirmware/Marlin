@@ -485,15 +485,6 @@
 // E3V2 extras
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #define SERIAL_CATCHALL 0
-  #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
-      #define LCD_SERIAL_PORT 1
-    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423)
-      #define LCD_SERIAL_PORT 2 // Creality Ender3S1 board
-    #else
-      #define LCD_SERIAL_PORT 3 // Creality 4.x board
-    #endif
-  #endif
   #define HAS_LCD_BRIGHTNESS 1
   #define LCD_BRIGHTNESS_MAX 250
   #if ENABLED(DWIN_LCD_PROUI)
@@ -1250,7 +1241,7 @@
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
-  #if ENABLED(DELTA)
+  #if EITHER(DELTA, SEGMENT_LEVELED_MOVES)
     #define UBL_SEGMENTED 1
   #endif
 #endif

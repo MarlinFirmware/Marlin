@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Nano V3 supports up to 2 hotends / E-steppers."
+  #error "MKS Robin Nano V3 supports up to 2 hotends / E steppers."
 #elif HAS_FSMC_TFT
   #error "MKS Robin Nano V3 doesn't support FSMC-based TFT displays."
 #endif

@@ -74,7 +74,7 @@ inline void DWIN_Text(size_t &i, const char * const string, uint16_t rlimit=0xFF
 
 inline void DWIN_Text(size_t &i, FSTR_P string, uint16_t rlimit=0xFFFF) {
   if (!string) return;
-  const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, _MIN(rlimit, strlen_P((PGM_P)string))); // cast to PGM_P (const char*) measure with strlen_P.
+  const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, _MIN(rlimit, strlen_P(FTOP(string))));
   if (len == 0) return;
   memcpy_P(&DWIN_SendBuf[i+1], string, len);
   i += len;

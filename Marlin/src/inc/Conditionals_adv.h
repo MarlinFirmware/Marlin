@@ -1014,6 +1014,24 @@
   #define HAS_USER_ITEM(N) 0
 #endif
 
+/**
+ * LCD_SERIAL_PORT must be defined ahead of HAL.h
+ */
+#ifndef LCD_SERIAL_PORT
+  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423)
+      #define LCD_SERIAL_PORT 2 // Creality Ender3S1 board
+    #else
+      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #endif
+  #endif
+  #ifdef LCD_SERIAL_PORT
+    #define AUTO_ASSIGNED_LCD_SERIAL 1
+  #endif
+#endif
+
 #if !HAS_MULTI_SERIAL
   #undef MEATPACK_ON_SERIAL_PORT_2
 #endif

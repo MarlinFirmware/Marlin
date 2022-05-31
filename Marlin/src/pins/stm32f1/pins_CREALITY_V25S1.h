@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality V2.5.S1 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "Creality V2.5.S1 only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "Creality v2.5.S1"

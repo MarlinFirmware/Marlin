@@ -25,10 +25,6 @@
 #include "../shared/Delay.h"
 #include "../../../gcode/parser.h"
 
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
-#endif
-
 DefaultSerial1 USBSerial(false, UsbSerial);
 
 uint32_t MarlinHAL::adc_result = 0;
@@ -61,9 +57,7 @@ uint8_t MarlinHAL::get_reset_source() {
   return RST_POWER_ON;
 }
 
-void MarlinHAL::clear_reset_source() {
-  TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
-}
+void MarlinHAL::clear_reset_source() { watchdog_clear_timeout_flag(); }
 
 void flashFirmware(const int16_t) {
   delay(500);          // Give OS time to disconnect
@@ -71,6 +65,52 @@ void flashFirmware(const int16_t) {
   delay(1000);         // Give OS time to notice
   hal.reboot();
 }
+
+#if ENABLED(USE_WATCHDOG)
+
+  #include <lpc17xx_wdt.h>
+
+  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+
+  void MarlinHAL::watchdog_init() {
+    #if ENABLED(WATCHDOG_RESET_MANUAL)
+      // We enable the watchdog timer, but only for the interrupt.
+
+      // Configure WDT to only trigger an interrupt
+      // Disable WDT interrupt (just in case, to avoid triggering it!)
+      NVIC_DisableIRQ(WDT_IRQn);
+
+      // We NEED memory barriers to ensure Interrupts are actually disabled!
+      // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+      __DSB();
+      __ISB();
+
+      // Configure WDT to only trigger an interrupt
+      // Initialize WDT with the given parameters
+      WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_INT_ONLY);
+
+      // Configure and enable WDT interrupt.
+      NVIC_ClearPendingIRQ(WDT_IRQn);
+      NVIC_SetPriority(WDT_IRQn, 0); // Use highest priority, so we detect all kinds of lockups
+      NVIC_EnableIRQ(WDT_IRQn);
+    #else
+      WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
+    #endif
+    WDT_Start(WDT_TIMEOUT_US);
+  }
+
+  void MarlinHAL::watchdog_refresh() {
+    WDT_Feed();
+    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // heartbeat indicator
+    #endif
+  }
+
+  // Timeout state
+  bool MarlinHAL::watchdog_timed_out() { return TEST(WDT_ReadTimeOutFlag(), 0); }
+  void MarlinHAL::watchdog_clear_timeout_flag() { WDT_ClrTimeOutFlag(); }
+
+#endif // USE_WATCHDOG
 
 // For M42/M43, scan command line for pin code
 //   return index into pin map array if found and the pin is valid.

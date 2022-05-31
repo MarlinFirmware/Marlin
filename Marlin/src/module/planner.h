@@ -163,7 +163,7 @@ enum BlockFlag : char {
  * A single entry in the planner buffer.
  * Tracks linear movement over multiple axes.
  *
- * The "nominal" values are as-specified by gcode, and
+ * The "nominal" values are as-specified by G-code, and
  * may never actually be reached due to acceleration limits.
  */
 typedef struct block_t {
@@ -412,7 +412,7 @@ class Planner {
 
     /**
      * The current position of the tool in absolute steps
-     * Recalculated if any axis_steps_per_mm are changed by gcode
+     * Recalculated if any axis_steps_per_mm are changed by G-code
      */
     static xyze_long_t position;
 

@@ -214,7 +214,7 @@
     // Directions are set up for MIXING_STEPPERS - like before.
     // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
     //   These loops are a bit faster than advancing a bresenham counter.
-    // Always only one e-stepper is stepped.
+    // Always only one E stepper is stepped.
     #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
   #else
     #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
@@ -246,7 +246,11 @@
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
-typedef IF<(ENABLE_COUNT > 8), uint16_t, uint8_t>::type ena_mask_t;
+#if ENABLE_COUNT > 16
+  typedef uint32_t ena_mask_t;
+#else
+  typedef IF<(ENABLE_COUNT > 8), uint16_t, uint8_t>::type ena_mask_t;
+#endif
 
 // Axis flags type, for enabled state or other simple state
 typedef struct {
@@ -259,8 +263,6 @@ typedef struct {
       #endif
     };
   };
-  constexpr ena_mask_t linear_bits() { return _BV(NUM_AXES) - 1; }
-  constexpr ena_mask_t e_bits() { return (_BV(EXTRUDERS) - 1) << NUM_AXES; }
 } stepper_flags_t;
 
 // All the stepper enable pins
