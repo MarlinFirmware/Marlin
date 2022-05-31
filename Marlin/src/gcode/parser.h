@@ -45,7 +45,7 @@
 /**
  * GCode parser
  *
- *  - Parse a single gcode line for its letter, code, subcode, and parameters
+ *  - Parse a single G-code line for its letter, code, subcode, and parameters
  *  - FASTER_GCODE_PARSER:
  *    - Flags existing params (1 bit each)
  *    - Stores value offsets (1 byte each)

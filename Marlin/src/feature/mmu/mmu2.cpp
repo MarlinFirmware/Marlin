@@ -939,7 +939,7 @@ bool MMU2::load_filament_to_nozzle(const uint8_t index) {
  * Load filament to nozzle of multimaterial printer
  *
  * This function is used only after T? (user select filament) and M600 (change filament).
- * It is not used after T0 .. T4 command (select filament), in such case, gcode is responsible for loading
+ * It is not used after T0 .. T4 command (select filament), in such case, G-code is responsible for loading
  * filament to nozzle.
  */
 void MMU2::load_to_nozzle() {
