@@ -168,9 +168,7 @@ void MenuEditItemBase::goto_edit_screen(
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
-    #if E_MANUAL
-      thermalManager.set_menu_cold_override(false);
-    #endif
+    thermalManager.set_menu_cold_override(false);
 
     TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
 
