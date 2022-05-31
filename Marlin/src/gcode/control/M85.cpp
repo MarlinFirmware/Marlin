@@ -28,8 +28,18 @@
 void GcodeSuite::M85() {
 
   if (parser.seen('S')) {
+    const millis_t ms = parser.value_millis_from_seconds();
+    #ifdef LASER_SAFETY_TIMEOUT_MS
+      if (ms <= LASER_SAFETY_TIMEOUT_MS) {
+        SERIAL_ECHO_START();
+        SERIAL_ECHOPGM("Stepper");
+        SERIAL_ECHOPGM(" max");
+        SERIAL_ECHOLNPGM(" timeout must be > ", LASER_SAFETY_TIMEOUT_MS, " ms for laser safety.");
+        return;
+      }
+    #endif
     reset_stepper_timeout();
-    max_inactive_time = parser.value_millis_from_seconds();
+    max_inactive_time = ms;
   }
 
 }

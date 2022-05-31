@@ -209,8 +209,19 @@ void try_to_disable(const stepper_flags_t to_disable) {
  */
 void GcodeSuite::M18_M84() {
   if (parser.seenval('S')) {
+    #if HAS_DISABLE_INACTIVE_AXIS
+      const millis_t ms = parser.value_millis_from_seconds();
+      #ifdef LASER_SAFETY_TIMEOUT_MS
+        if (ms <= LASER_SAFETY_TIMEOUT_MS) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPGM("Stepper");
+          SERIAL_ECHOLNPGM(" timeout must be > ", LASER_SAFETY_TIMEOUT_MS, " ms for laser safety.");
+          return;
+        }
+      #endif
+      stepper_inactive_time = ms;
+    #endif
     reset_stepper_timeout();
-    stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
     if (parser.seen_axis()) {
