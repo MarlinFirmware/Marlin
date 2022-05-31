@@ -213,7 +213,7 @@ void GcodeSuite::M18_M84() {
     reset_stepper_timeout();
     #if HAS_DISABLE_INACTIVE_AXIS
       const millis_t ms = parser.value_millis_from_seconds();
-      #ifdef LASER_SAFETY_TIMEOUT_MS
+      #if LASER_SAFETY_TIMEOUT_MS > 0
         if (ms && ms <= LASER_SAFETY_TIMEOUT_MS) {
           SERIAL_ECHO_MSG("M18 timeout must be > ", MS_TO_SEC(LASER_SAFETY_TIMEOUT_MS + 999), " s for laser safety.");
           return;

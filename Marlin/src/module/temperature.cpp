@@ -71,7 +71,7 @@
   #include "../libs/nozzle.h"
 #endif
 
-#if (ENABLED(LASER_FEATURE) && LASER_SAFETY_TIMEOUT_MS)
+#if LASER_SAFETY_TIMEOUT_MS > 0
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -3343,7 +3343,7 @@ public:
 void Temperature::isr() {
 
   // Shut down the laser if steppers are inactive for > LASER_SAFETY_TIMEOUT_MS ms
-  #if ENABLED(LASER_FEATURE) && LASER_SAFETY_TIMEOUT_MS > 0
+  #if LASER_SAFETY_TIMEOUT_MS > 0
     if (cutter.last_power_applied && ELAPSED(millis(), gcode.previous_move_ms + (LASER_SAFETY_TIMEOUT_MS))) {
       cutter.power = 0;       // Prevent planner idle from re-enabling power
       cutter.apply_power(0);
