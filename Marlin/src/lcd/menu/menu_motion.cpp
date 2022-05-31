@@ -219,8 +219,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   inline void _menu_move_distance_e_maybe() {
-    const bool too_cold = thermalManager.tooColdToExtrude(active_extruder);
-    if (too_cold) {
+    if (thermalManager.tooColdToExtrude(active_extruder)) {
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(
           GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
@@ -228,12 +227,12 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
           GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
         );
       });
-      return;
     }
-    _goto_menu_move_distance_e();
+    else
+      _goto_menu_move_distance_e();
   }
 
-#endif // E_MANUAL
+#endif
 
 void menu_move() {
   START_MENU();
