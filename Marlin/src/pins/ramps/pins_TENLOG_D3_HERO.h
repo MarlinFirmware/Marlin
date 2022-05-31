@@ -35,6 +35,8 @@
 #define BOARD_INFO_NAME      "Tenlog D3 Hero"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
+//#define PS_ON_PIN          40 // Pin 40 is the power supply unit pin for M81 gcode command if your tenlog v2.1, v2.2 or v2.3 mainboard supports it. 
+
 //
 // Servos
 //
