@@ -103,7 +103,7 @@ hotend_pid_t;
     #if ENABLED(MPC_INCLUDE_FAN)
       float fan255_adjustment;          // M306 F
     #endif
-    float filament_heat_capacity_permm; // M306 M
+    float filament_heat_capacity_permm; // M306 H
   } MPC_t;
 #endif
 
