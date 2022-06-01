@@ -268,7 +268,7 @@ class MenuItem_bool : public MenuEditItemBase {
   #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER)
 #endif
 
-#define _MENU_INNER_P(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
+#define _MENU_INNER_F(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
   FSTR_P const flabel = FLABEL;                                \
   if (encoderLine == _thisItemNr && ui.use_click()) {          \
     _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
@@ -283,7 +283,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define _MENU_ITEM_F(TYPE, V...) do { \
   if (_menuLineNr == _thisItemNr) {   \
     _skipStatic = false;              \
-    _MENU_INNER_P(TYPE, ##V);         \
+    _MENU_INNER_F(TYPE, ##V);         \
   }                                   \
   NEXT_ITEM();                        \
 }while(0)
@@ -293,7 +293,7 @@ class MenuItem_bool : public MenuEditItemBase {
   if (_menuLineNr == _thisItemNr) {            \
     _skipStatic = false;                       \
     MenuItemBase::init(N, S);                  \
-    _MENU_INNER_P(TYPE, ##V);                  \
+    _MENU_INNER_F(TYPE, ##V);                  \
   }                                            \
   NEXT_ITEM();                                 \
 }while(0)
@@ -303,7 +303,7 @@ class MenuItem_bool : public MenuEditItemBase {
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
     MenuItemBase::itemIndex = N;          \
-    _MENU_INNER_P(TYPE, ##V);             \
+    _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \
 }while(0)
@@ -313,7 +313,7 @@ class MenuItem_bool : public MenuEditItemBase {
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
     MenuItemBase::itemString = S;         \
-    _MENU_INNER_P(TYPE, ##V);             \
+    _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \
 }while(0)
