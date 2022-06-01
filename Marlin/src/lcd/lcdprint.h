@@ -152,20 +152,20 @@ void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row);
 /**
  * @brief Draw a ROM UTF-8 string
  *
- * @param utf8_pstr : the ROM UTF-8 string
+ * @param pstr : the ROM UTF-8 string
  * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
  *
  * @return the pixel width
  *
  * Draw a ROM UTF-8 string
  */
-int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length);
-inline int lcd_put_u8str_max_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P utf8_pstr, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(PGM_P pstr, pixel_len_t max_length);
+inline int lcd_put_u8str_max_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P pstr, pixel_len_t max_length) {
   lcd_moveto(col, row);
-  return lcd_put_u8str_max_P(utf8_pstr, max_length);
+  return lcd_put_u8str_max_P(pstr, max_length);
 }
-inline int lcd_put_u8str_max(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const utf8_fstr, pixel_len_t max_length) {
-  return lcd_put_u8str_max_P(col, row, FTOP(utf8_fstr), max_length);
+inline int lcd_put_u8str_max(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const fstr, pixel_len_t max_length) {
+  return lcd_put_u8str_max_P(col, row, FTOP(fstr), max_length);
 }
 
 void lcd_put_int(const int i);

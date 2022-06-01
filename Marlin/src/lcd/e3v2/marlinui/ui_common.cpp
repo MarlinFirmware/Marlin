@@ -311,7 +311,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
@@ -320,14 +320,14 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_font.fg = Color_White;
 
       dwin_string.set();
-      const int8_t plen = fstr ? utf8_strlen(fstr) : 0,
+      const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
                    vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
         int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
         while (--pad) dwin_string.add(' ');
       }
 
-      if (plen) dwin_string.add((uint8_t*)FTOP(fstr), itemIndex, (uint8_t*)FTOP(itemString));
+      if (plen) dwin_string.add((uint8_t*)FTOP(ftpl), itemIndex, (uint8_t*)FTOP(itemString));
       if (vlen) dwin_string.add((uint8_t*)vstr);
       if (style & SS_CENTER) {
         int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
@@ -340,13 +340,13 @@ void MarlinUI::draw_status_message(const bool blink) {
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;
       dwin_font.fg = Color_White;
 
-      dwin_string.set(fstr, itemIndex, FTOP(itemString));
+      dwin_string.set(ftpl, itemIndex, FTOP(itemString));
 
       pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length();
       while (--n > 1) dwin_string.add(' ');
@@ -361,7 +361,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   //
   // Draw a menu item with an editable value
   //
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;
@@ -369,7 +369,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(S(inStr)));
 
-      dwin_string.set(fstr, itemIndex, FTOP(itemString));
+      dwin_string.set(ftpl, itemIndex, FTOP(itemString));
       if (vallen) dwin_string.add(':');
 
       lcd_moveto(1, row);

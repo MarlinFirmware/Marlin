@@ -152,13 +152,13 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
 }
 
 // Draw a menu item with a (potentially) editable value
-void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const data, const bool pgm) {
+void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
   menu_item(row, sel);
 
   tft_string.set(FTOP(fstr), itemIndex, FTOP(itemString));
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-  if (data) {
-    tft_string.set(data);
+  if (inStr) {
+    tft_string.set(inStr);
     tft.add_text(TFT_WIDTH - MENU_TEXT_X_OFFSET - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
   }
 }

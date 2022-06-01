@@ -1082,18 +1082,18 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
     lcd_put_wchar(0, row, sel ? pre_char : ' ');
-    uint8_t n = lcd_put_u8str_ind(fstr, itemIndex, itemString, LCD_WIDTH - 2);
+    uint8_t n = lcd_put_u8str_ind(ftpl, itemIndex, itemString, LCD_WIDTH - 2);
     for (; n; --n) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-    uint8_t n = lcd_put_u8str_ind(fstr, itemIndex, itemString, LCD_WIDTH - 2 - vlen);
+    uint8_t n = lcd_put_u8str_ind(ftpl, itemIndex, itemString, LCD_WIDTH - 2 - vlen);
     if (vlen) {
       lcd_put_wchar(':');
       for (; n; --n) lcd_put_wchar(' ');
@@ -1102,9 +1102,9 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-  void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
-    uint8_t n = lcd_put_u8str_ind(0, 1, fstr, itemIndex, itemString, LCD_WIDTH - 1);
+    uint8_t n = lcd_put_u8str_ind(0, 1, ftpl, itemIndex, itemString, LCD_WIDTH - 1);
     if (value) {
       lcd_put_wchar(':'); n--;
       const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
