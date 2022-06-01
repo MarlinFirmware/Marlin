@@ -620,7 +620,7 @@ void menu_advanced_settings() {
     #endif
 
     // M203 / M205 - Feedrate items
-    SUBMENU(MSG_VELOCITY, menu_advanced_velocity);
+    SUBMENU(MSG_MAX_SPEED, menu_advanced_velocity);
 
     // M201 - Acceleration items
     SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);

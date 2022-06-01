@@ -84,17 +84,11 @@ namespace Language_ru {
     LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещение дома X");
     LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещение дома Y");
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещение дома Z");
-    LSTR MSG_HOME_OFFSET_I                  = _UxGT("Смещение дома ") STR_I;
-    LSTR MSG_HOME_OFFSET_J                  = _UxGT("Смещение дома ") STR_J;
-    LSTR MSG_HOME_OFFSET_K                  = _UxGT("Смещение дома ") STR_K;
   #else
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Установ.смещ.дома");
     LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещ. дома X");
     LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещ. дома Y");
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещ. дома Z");
-    LSTR MSG_HOME_OFFSET_I                  = _UxGT("Смещ. дома ") STR_I;
-    LSTR MSG_HOME_OFFSET_J                  = _UxGT("Смещ. дома ") STR_J;
-    LSTR MSG_HOME_OFFSET_K                  = _UxGT("Смещ. дома ") STR_K;
   #endif
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Выберите ноль");
@@ -338,9 +332,7 @@ namespace Language_ru {
   LSTR MSG_MOVE_X                           = _UxGT("Движение по X");
   LSTR MSG_MOVE_Y                           = _UxGT("Движение по Y");
   LSTR MSG_MOVE_Z                           = _UxGT("Движение по Z");
-  LSTR MSG_MOVE_I                           = _UxGT("Движение по ") STR_I;
-  LSTR MSG_MOVE_J                           = _UxGT("Движение по ") STR_J;
-  LSTR MSG_MOVE_K                           = _UxGT("Движение по ") STR_K;
+  LSTR MSG_MOVE_N                           = _UxGT("Движение по @");
   LSTR MSG_MOVE_E                           = _UxGT("Экструдер");
   LSTR MSG_MOVE_EN                          = _UxGT("Экструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло не нагрето");
@@ -401,23 +393,19 @@ namespace Language_ru {
   LSTR MSG_VA_JERK                          = _UxGT("V") STR_A _UxGT("-рывок");
   LSTR MSG_VB_JERK                          = _UxGT("V") STR_B _UxGT("-рывок");
   LSTR MSG_VC_JERK                          = _UxGT("V") STR_C _UxGT("-рывок");
-  LSTR MSG_VI_JERK                          = _UxGT("V") STR_I _UxGT("-рывок");
-  LSTR MSG_VJ_JERK                          = _UxGT("V") STR_J _UxGT("-рывок");
-  LSTR MSG_VK_JERK                          = _UxGT("V") STR_K _UxGT("-рывок");
+  LSTR MSG_VN_JERK                          = _UxGT("V@-рывок");
   LSTR MSG_VE_JERK                          = _UxGT("Ve-рывок");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Отклонение узла");
   #else
     LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Отклон. узла");
   #endif
-  LSTR MSG_VELOCITY                         = _UxGT("Скорость, мм/с");
+  LSTR MSG_MAX_SPEED                        = _UxGT("Скорость, мм/с");
   LSTR MSG_VMAX_A                           = _UxGT("Скор.макс ") STR_A;
   LSTR MSG_VMAX_B                           = _UxGT("Скор.макс ") STR_B;
   LSTR MSG_VMAX_C                           = _UxGT("Скор.макс ") STR_C;
-  LSTR MSG_VMAX_I                           = _UxGT("Скор.макс ") STR_I;
-  LSTR MSG_VMAX_J                           = _UxGT("Скор.макс ") STR_J;
-  LSTR MSG_VMAX_K                           = _UxGT("Скор.макс ") STR_K;
-  LSTR MSG_VMAX_E                           = _UxGT("Скор.макс ") STR_E;
+  LSTR MSG_VMAX_N                           = _UxGT("Скор.макс @");
+  LSTR MSG_VMAX_E                           = _UxGT("Скор.макс E");
   LSTR MSG_VMAX_EN                          = _UxGT("Скор.макс *");
   LSTR MSG_VMIN                             = _UxGT("Скор.мин");
   LSTR MSG_VTRAV_MIN                        = _UxGT("Перемещение мин");
@@ -425,10 +413,8 @@ namespace Language_ru {
   LSTR MSG_AMAX_A                           = _UxGT("Ускор.макс ") STR_A;
   LSTR MSG_AMAX_B                           = _UxGT("Ускор.макс ") STR_B;
   LSTR MSG_AMAX_C                           = _UxGT("Ускор.макс ") STR_C;
-  LSTR MSG_AMAX_I                           = _UxGT("Ускор.макс ") STR_I;
-  LSTR MSG_AMAX_J                           = _UxGT("Ускор.макс ") STR_J;
-  LSTR MSG_AMAX_K                           = _UxGT("Ускор.макс ") STR_K;
-  LSTR MSG_AMAX_E                           = _UxGT("Ускор.макс ") STR_E;
+  LSTR MSG_AMAX_N                           = _UxGT("Ускор.макс @");
+  LSTR MSG_AMAX_E                           = _UxGT("Ускор.макс E");
   LSTR MSG_AMAX_EN                          = _UxGT("Ускор.макс *");
   LSTR MSG_A_RETRACT                        = _UxGT("Ускор.втягив.");
   LSTR MSG_A_TRAVEL                         = _UxGT("Ускор.путеш.");
@@ -438,9 +424,7 @@ namespace Language_ru {
   LSTR MSG_A_STEPS                          = STR_A _UxGT(" шаг/мм");
   LSTR MSG_B_STEPS                          = STR_B _UxGT(" шаг/мм");
   LSTR MSG_C_STEPS                          = STR_C _UxGT(" шаг/мм");
-  LSTR MSG_I_STEPS                          = STR_I _UxGT(" шаг/мм");
-  LSTR MSG_J_STEPS                          = STR_J _UxGT(" шаг/мм");
-  LSTR MSG_K_STEPS                          = STR_K _UxGT(" шаг/мм");
+  LSTR MSG_N_STEPS                          = _UxGT("@ шаг/мм");
   LSTR MSG_E_STEPS                          = _UxGT("E шаг/мм");
   LSTR MSG_EN_STEPS                         = _UxGT("* шаг/мм");
   LSTR MSG_TEMPERATURE                      = _UxGT("Температура");
@@ -611,9 +595,7 @@ namespace Language_ru {
   LSTR MSG_BABYSTEP_X                       = _UxGT("Микрошаг X");
   LSTR MSG_BABYSTEP_Y                       = _UxGT("Микрошаг Y");
   LSTR MSG_BABYSTEP_Z                       = _UxGT("Микрошаг Z");
-  LSTR MSG_BABYSTEP_I                       = _UxGT("Микрошаг ") STR_I;
-  LSTR MSG_BABYSTEP_J                       = _UxGT("Микрошаг ") STR_J;
-  LSTR MSG_BABYSTEP_K                       = _UxGT("Микрошаг ") STR_K;
+  LSTR MSG_BABYSTEP_N                       = _UxGT("Микрошаг @");
   LSTR MSG_BABYSTEP_TOTAL                   = _UxGT("Сумарно");
   LSTR MSG_ENDSTOP_ABORT                    = _UxGT("Сработал концевик");
   LSTR MSG_HEATING_FAILED_LCD               = _UxGT("Разогрев не удался");
@@ -710,13 +692,7 @@ namespace Language_ru {
   LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_PSU                         = _UxGT("БП");
   LSTR MSG_DRIVE_STRENGTH                   = _UxGT("Сила привода");
-  LSTR MSG_DAC_PERCENT_A                    = STR_A _UxGT(" Привод, %");
-  LSTR MSG_DAC_PERCENT_B                    = STR_B _UxGT(" Привод, %");
-  LSTR MSG_DAC_PERCENT_C                    = STR_C _UxGT(" Привод, %");
-  LSTR MSG_DAC_PERCENT_I                    = STR_I _UxGT(" Привод, %");
-  LSTR MSG_DAC_PERCENT_J                    = STR_J _UxGT(" Привод, %");
-  LSTR MSG_DAC_PERCENT_K                    = STR_K _UxGT(" Привод, %");
-  LSTR MSG_DAC_PERCENT_E                    = _UxGT("E Привод, %");
+  LSTR MSG_DAC_PERCENT_N                    = _UxGT("@ Привод, %");
   LSTR MSG_ERROR_TMC                        = _UxGT("СБОЙ СВЯЗИ С TMC");
   LSTR MSG_DAC_EEPROM_WRITE                 = _UxGT("Запись DAC в EEPROM");
   LSTR MSG_FILAMENT_CHANGE_HEADER           = _UxGT("ЗАМЕНА ФИЛАМЕНТА");

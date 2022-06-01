@@ -54,6 +54,8 @@
 // "Motion" > "Move Axis" submenu
 //
 
+// TODO: Use substitution here with MSG_MOVE_N
+
 static void _lcd_move_xyz(FSTR_P const name, const AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
   if (ui.encoderPosition && !ui.manual_move.processing) {
