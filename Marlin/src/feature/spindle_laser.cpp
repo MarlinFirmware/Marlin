@@ -39,13 +39,13 @@
 #endif
 
 SpindleLaser cutter;
-uint8_t SpindleLaser::power = 0;                                      // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
-bool SpindleLaser::enable_state = false;                              // Virtual enable state, controls enable pin if present and or apply power if > 0
-uint8_t SpindleLaser::last_power_applied = 0;                         // Basic power state tracking
+bool SpindleLaser::enable_state;                                      // Virtual enable state, controls enable pin if present and or apply power if > 0
+uint8_t SpindleLaser::power,                                          // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
+        SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 
 #if ENABLED(LASER_FEATURE)
   cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // (ms) Test fire pulse default duration
-  uint8_t SpindleLaser::last_block_power = 0;                         // Track power changes for dynamic inline power
+  uint8_t SpindleLaser::last_block_power; // = 0                      // Track power changes for dynamic inline power
   feedRate_t SpindleLaser::feedrate_mm_m = 1500,
              SpindleLaser::last_feedrate_mm_m; // = 0                 // (mm/min) Track feedrate changes for dynamic power
 #endif
@@ -150,7 +150,6 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
     isReadyForUI = false; // Only used for UI display updates.
     TERN_(SPINDLE_LASER_USE_PWM, ocr_off());
   }
-}
 
 #if ENABLED(SPINDLE_CHANGE_DIR)
   /**

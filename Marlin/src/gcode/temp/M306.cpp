@@ -74,7 +74,7 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
     #if ENABLED(MPC_INCLUDE_FAN)
       SERIAL_ECHOPAIR_F(" F", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
     #endif
-    SERIAL_ECHOPAIR_F(" M", constants.filament_heat_capacity_permm, 4);
+    SERIAL_ECHOPAIR_F(" H", constants.filament_heat_capacity_permm, 4);
     SERIAL_EOL();
   }
 }

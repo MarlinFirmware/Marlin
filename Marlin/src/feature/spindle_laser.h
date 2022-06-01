@@ -106,7 +106,8 @@ public:
 
   static bool isReadyForUI;               // Ready to apply power setting from the UI to OCR
   static bool enable_state;
-  static uint8_t power;
+  static uint8_t power,
+                 last_power_applied;      // Basic power state tracking
 
   static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
 
