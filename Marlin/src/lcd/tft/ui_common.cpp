@@ -96,16 +96,15 @@ void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
   lcd_gotopixel(int(col) * (TFT_COL_WIDTH), int(row) * MENU_LINE_HEIGHT);
 }
 
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
+int lcd_put_wchar_max(const wchar_t c, const pixel_len_t max_length) {
   if (max_length < 1) return 0;
-  tft_string.set();
-  tft_string.add(c);
+  tft_string.set(c);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * MENU_LINE_HEIGHT);
   return tft_string.width();
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
   if (max_length < 1) return 0;
   tft_string.set(utf8_pstr);
   tft_string.trim();
@@ -115,7 +114,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length) {
   return tft_string.width();
 }
 
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   return lcd_put_u8str_max_P(utf8_str, max_length);
 }
 
@@ -155,7 +154,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
 void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
   menu_item(row, sel);
 
-  tft_string.set(FTOP(fstr), itemIndex, FTOP(itemString));
+  tft_string.set(fstr, itemIndex, nullptr, itemString);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   if (inStr) {
     tft_string.set(inStr);
