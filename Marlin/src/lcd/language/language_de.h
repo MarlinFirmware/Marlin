@@ -279,7 +279,7 @@ namespace Language_de {
   LSTR MSG_MOVE_E                         = _UxGT("Bewege Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Bewege Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend zu kalt");
-  LSTR MSG_MOVE_N_MM                      = _UxGT(" %s mm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT(" $ mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("  0,1  mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("  1,0  mm");
   LSTR MSG_MOVE_10MM                      = _UxGT(" 10,0  mm");

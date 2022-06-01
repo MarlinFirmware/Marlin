@@ -252,7 +252,7 @@ namespace Language_sv {
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hetände för kall");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Flytta %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Flytta $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Flytta 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Flytta 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Flytta 10mm");

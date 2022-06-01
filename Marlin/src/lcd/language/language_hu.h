@@ -265,7 +265,7 @@ namespace Language_hu {
   LSTR MSG_MOVE_E                         = _UxGT("Adagoló");
   LSTR MSG_MOVE_EN                        = _UxGT("Adagoló *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("A fej túl hideg");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mozgás %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mozgás $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mozgás 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mozgás 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mozgás 10mm");

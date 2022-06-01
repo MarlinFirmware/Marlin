@@ -228,7 +228,7 @@ namespace Language_tr {
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Nozul Çok Soğuk");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("%smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("$mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("10mm");

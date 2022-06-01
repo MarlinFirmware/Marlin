@@ -80,7 +80,7 @@ namespace Language_pt {
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");

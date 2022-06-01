@@ -212,7 +212,7 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Extrus. mto fria");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");

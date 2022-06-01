@@ -239,7 +239,7 @@ namespace Language_fr {
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Buse trop froide");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Déplacer %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Déplacer $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Déplacer 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Déplacer 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Déplacer 10mm");

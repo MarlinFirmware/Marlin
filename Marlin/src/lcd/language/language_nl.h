@@ -86,7 +86,7 @@ namespace Language_nl {
   LSTR MSG_MOVE_Z                         = _UxGT("Verplaats Z");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Verplaats %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Verplaats $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Verplaats 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Verplaats 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Verplaats 10mm");
