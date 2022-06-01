@@ -517,7 +517,7 @@
   #define CONTROLLERFAN_IDLE_TIME        60 // (seconds) Extra time to keep the fan running after disabling motors
 
   // Use TEMP_SENSOR_BOARD as a trigger for enabling the controller fan
-  #define CONTROLLER_FAN_MIN_BOARD_TEMP 40  // 3DWORK MEJORA.. // (°C) Turn on the fan if the board reaches this temperature
+  //#define CONTROLLER_FAN_MIN_BOARD_TEMP 40  // 3DWORK MEJORA.. // (°C) Turn on the fan if the board reaches this temperature
 
   #define CONTROLLER_FAN_EDITABLE         // 3DWORK FAN2 Gestionable GCode M710.. // Enable M710 configurable settings
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
