@@ -181,13 +181,13 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
 
   tft.add_image(0, 18, image, Color);
 
-  tft_string.set((uint8_t *)i16tostr3rj(currentTemperature));
+  tft_string.set(i16tostr3rj(currentTemperature));
   tft_string.add(LCD_STR_DEGREE);
   tft_string.trim();
   tft.add_text(tft_string.center(64) + 2, 72, Color, tft_string);
 
   if (targetTemperature >= 0) {
-    tft_string.set((uint8_t *)i16tostr3rj(targetTemperature));
+    tft_string.set(i16tostr3rj(targetTemperature));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.trim();
     tft.add_text(tft_string.center(64) + 2, 8, Color, tft_string);
@@ -211,7 +211,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
 
   tft.add_image(0, 10, image, COLOR_FAN);
 
-  tft_string.set((uint8_t *)ui8tostr4pctrj(thermalManager.fan_speed[0]));
+  tft_string.set(ui8tostr4pctrj(thermalManager.fan_speed[0]));
   tft_string.trim();
   tft.add_text(tft_string.center(64) + 6, 72, COLOR_FAN, tft_string);
 }
@@ -588,7 +588,7 @@ static void quick_feedback() {
 
 #define CUR_STEP_VALUE_WIDTH 38
 static void drawCurStepValue() {
-  tft_string.set((uint8_t *)ftostr52sp(motionAxisState.currentStepSize));
+  tft_string.set(ftostr52sp(motionAxisState.currentStepSize));
   tft.canvas(motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, 20);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(CUR_STEP_VALUE_WIDTH - tft_string.width(), 0, COLOR_AXIS_HOMED, tft_string);

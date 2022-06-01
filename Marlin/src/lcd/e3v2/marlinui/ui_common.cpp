@@ -110,7 +110,7 @@ void MarlinUI::clear_lcd() {
       #define VERSION_Y   84
     #endif
 
-    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     TERN_(SHOW_CUSTOM_BOOTSCREEN, safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT));
     clear_lcd();
 
@@ -127,7 +127,7 @@ void MarlinUI::clear_lcd() {
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  INFO_CENTER - 100 / 2, 152);
       DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  INFO_CENTER - 126 / 2, 200);
     #endif
-    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     DWIN_UpdateLCD();
   }
 
@@ -284,7 +284,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       else
         dwin_string.add(PSTR("    "));
 
-      lcd_moveto(LCD_WIDTH - dwin_string.length(), row);
+      lcd_moveto(LCD_WIDTH - dwin_string.length, row);
       lcd_put_dwin_string();
     }
 
@@ -348,7 +348,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       dwin_string.set(ftpl, itemIndex, FTOP(itemString));
 
-      pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length();
+      pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
       while (--n > 1) dwin_string.add(' ');
 
       dwin_string.add(post_char);
@@ -464,8 +464,8 @@ void MarlinUI::draw_status_message(const bool blink) {
           maxlen -= 2;
         }
 
-        dwin_string.add((uint8_t*)ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
-        uint8_t n = maxlen - dwin_string.length();
+        dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+        uint8_t n = maxlen - dwin_string.length;
         while (n > 0) { dwin_string.add(' '); --n; }
         lcd_moveto(1, row);
         lcd_put_dwin_string();
@@ -548,7 +548,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_string.add(i8tostr3rj(y_plot));
       dwin_string.add(")");
       lcd_moveto(
-        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length()),
+        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length),
         TERN(DWIN_MARLINUI_LANDSCAPE, LCD_HEIGHT - 2, ((y_offset + y_map_pixels) / MENU_LINE_HEIGHT) + 1)
       );
       lcd_put_dwin_string();
@@ -560,7 +560,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       else
         dwin_string.add(PSTR(" -----"));
       lcd_moveto(
-        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length()),
+        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length),
         TERN(DWIN_MARLINUI_LANDSCAPE, LCD_HEIGHT - 1, ((y_offset + y_map_pixels) / MENU_LINE_HEIGHT) + 2)
       );
       lcd_put_dwin_string();

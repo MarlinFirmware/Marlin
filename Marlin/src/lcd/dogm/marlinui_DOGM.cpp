@@ -417,7 +417,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (mark_as_selected(row, style & SS_INVERT)) {
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
-      const int plen = ftpl ? calculateWidth(FTOP(ftpl)) : 0,
+      const int plen = ftpl ? calculateWidth(ftpl) : 0,
                 vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
         int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
