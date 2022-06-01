@@ -90,8 +90,8 @@ class MenuItem_back : public MenuItemBase {
 // YESNO_ITEM(LABEL,FY,FN,...)
 class MenuItem_confirm : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
-      _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, ...) {
+      _draw(sel, row, ftpl, '>', LCD_STR_ARROW_RIGHT[0]);
     }
     // Implemented for HD44780 and DOGM
     // Draw the prompt, buttons, and state
@@ -170,10 +170,10 @@ class MenuEditItemBase : public MenuItemBase {
   public:
     // Implementation-specific:
     // Draw the current item at specified row with edit data
-    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm=false);
+    static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm=false);
 
-    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, FSTR_P const inStr) {
-      draw(sel, row, fstr, FTOP(inStr), true);
+    static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, FSTR_P const fstr) {
+      draw(sel, row, ftpl, FTOP(fstr), true);
     }
 
     // Implementation-specific:

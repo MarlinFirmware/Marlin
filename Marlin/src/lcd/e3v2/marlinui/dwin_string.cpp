@@ -77,10 +77,10 @@ void DWIN_String::add(uint8_t *string, const int8_t index, uint8_t *inStr/*=null
   eol();
 }
 
-void DWIN_String::add(uint8_t *string, uint8_t max_len) {
+void DWIN_String::add(uint8_t *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
   wchar_t wchar;
-  while (*string && max_len) {
-    string = get_utf8_value_cb(string, read_byte, &wchar);
+  while (*cstr && max_len) {
+    cstr = get_utf8_value_cb(cstr, read_byte, &wchar);
     /*
     if (wchar > 255) wchar |= 0x0080;
     uint8_t ch = uint8_t(wchar & 0x00FF);

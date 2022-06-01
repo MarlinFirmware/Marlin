@@ -515,11 +515,9 @@ void menu_backlash();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
       #if HAS_JUNCTION_DEVIATION
-        #if ENABLED(LIN_ADVANCE)
-          EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f, planner.recalculate_max_e_jerk);
-        #else
-          EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.5f);
-        #endif
+        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, TERN(LIN_ADVANCE, 0.3f, 0.5f)
+          OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
+        );
       #endif
 
       constexpr xyze_float_t max_jerk_edit =
