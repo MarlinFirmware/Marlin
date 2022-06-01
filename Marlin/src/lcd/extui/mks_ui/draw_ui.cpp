@@ -159,7 +159,7 @@ void gCfgItems_init() {
     gCfgItems.spi_flash_flag = FLASH_INF_VALID_FLAG;
     W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
-    // init gcode command
+    // Init G-code command
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[0], AUTO_LEVELING_COMMAND_ADDR, 100);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[1], OTHERS_COMMAND_ADDR_1, 100);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[2], OTHERS_COMMAND_ADDR_2, 100);
@@ -238,7 +238,7 @@ void update_spi_flash() {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  // read back the gcode command before erase spi flash
+  // read back the G-code command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -249,7 +249,7 @@ void update_gcode_command(int addr, uint8_t *s) {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  // read back the gcode command before erase spi flash
+  // read back the G-code command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));

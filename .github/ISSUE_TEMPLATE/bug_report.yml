@@ -50,6 +50,8 @@ body:
         Describe the bug in this section. Tell us what you were trying to do and what
         happened that you did not expect. Provide a clear and concise description of the
         problem and include as many details as possible.
+
+        When pasting formatted text don't forget to put ` ``` ` (on its own line) before and after to make it readable.
       placeholder: |
         Marlin doesn't work.
     validations:
@@ -147,23 +149,20 @@ body:
         - Same as my slicer
         - Other (explain below)
 
-  - type: markdown
+  - type: checkboxes
     attributes:
-      value: >-
-        ## Other things to include
-
-        Please also be sure to include these items to help with troubleshooting:
-
-          * **A ZIP file** containing your `Configuration.h` and `Configuration_adv.h`.
-            (Please don't paste lengthy configuration text here.)
-          * **Log output** from the host. (`M111 S247` for maximum logging.)
-          * **Images or videos** demonstrating the problem, if it helps to make it clear.
-          * **A G-Code file** that exposes the problem, if not affecting _all_ G-code.
-
-        If you've made any other modifications to the firmware, please describe them in detail in the space provided.
-
-        When pasting formatted text into the box below don't forget to put ` ``` ` (on its own line) before and after to make it readable.
+      label: Other things to include
+      options:
+        - label: A ZIP file containing your `Configuration.h` and `Configuration_adv.h`.
+          required: true
+        - label: Log output from the host. (`M111 S247` for maximum logging.)
+        - label: Images or videos demonstrating the problem, if it helps to make it clear.
+        - label: A G-Code file that exposes the problem, if not affecting _all_ G-code.
 
   - type: textarea
     attributes:
       label: Additional information & file uploads
+      description: >-
+        If you've made any other modifications to the firmware, please describe them in detail.
+
+        When pasting formatted text don't forget to put ` ``` ` (on its own line) before and after to make it readable.
