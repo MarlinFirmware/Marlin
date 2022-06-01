@@ -150,6 +150,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
     isReadyForUI = false; // Only used for UI display updates.
     TERN_(SPINDLE_LASER_USE_PWM, ocr_off());
   }
+}
 
 #if ENABLED(SPINDLE_CHANGE_DIR)
   /**
