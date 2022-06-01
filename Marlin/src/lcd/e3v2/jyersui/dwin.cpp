@@ -1078,7 +1078,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define PREPARE_PREHEAT (PREPARE_ZOFFSET + ENABLED(HAS_PREHEAT))
       #define PREPARE_COOLDOWN (PREPARE_PREHEAT + EITHER(HAS_HOTEND, HAS_HEATED_BED))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
-      #define PREPARE_TOTAL PREPARE_CHANGEFIL
+      #define PREPARE_CUSTOM_MENU (PREPARE_CHANGEFIL + ENABLED(HAS_CUSTOM_MENU))
+      #define PREPARE_TOTAL PREPARE_CUSTOM_MENU
 
       switch (item) {
         case PREPARE_BACK:
@@ -1150,6 +1151,21 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Cool, F("Cooldown"));
             else
               thermalManager.cooldown();
+            break;
+        #endif
+
+        #if HAS_CUSTOM_MENU
+          case PREPARE_CUSTOM_MENU:
+            if (draw) {
+                #ifdef CUSTOM_MENU_CONFIG_TITLE
+                  Draw_Menu_Item(row, ICON_Version, F(CUSTOM_MENU_CONFIG_TITLE), nullptr, true);
+                #else
+                  Draw_Menu_Item(row, ICON_Version, F("Custom Commands"), nullptr, true);
+                #endif
+              }
+            else {
+                Draw_Menu(MenuCustom);
+              }
             break;
         #endif
 
@@ -1749,6 +1765,124 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         }
         break;
     #endif // FILAMENT_LOAD_UNLOAD_GCODES
+
+    #if HAS_CUSTOM_MENU
+      case MenuCustom:
+
+        #define CUSTOM_MENU_BACK 0
+        #define CUSTOM_MENU_1 (CUSTOM_MENU_BACK + (CUSTOM_MENU_COUNT >= 1))
+        #define CUSTOM_MENU_2 (CUSTOM_MENU_1 + (CUSTOM_MENU_COUNT >= 2))
+        #define CUSTOM_MENU_3 (CUSTOM_MENU_2 + (CUSTOM_MENU_COUNT >= 3))
+        #define CUSTOM_MENU_4 (CUSTOM_MENU_3 + (CUSTOM_MENU_COUNT >= 4))
+        #define CUSTOM_MENU_5 (CUSTOM_MENU_4 + (CUSTOM_MENU_COUNT >= 5))
+        #define CUSTOM_MENU_TOTAL CUSTOM_MENU_5
+
+        switch (item) {
+          case CUSTOM_MENU_BACK:
+            if (draw)
+              Draw_Menu_Item(row, ICON_Back, F("Back"));
+            else
+              Draw_Menu(Prepare, PREPARE_CUSTOM_MENU);
+            break;
+
+          #if CUSTOM_MENU_COUNT >= 1
+            case CUSTOM_MENU_1:
+              if (draw)
+                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_1_DESC));
+              else {
+                 Popup_Handler(Custom);
+                 //queue.inject(F(CONFIG_MENU_ITEM_1_GCODE)); // Old code
+                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_1_GCODE));
+                 planner.synchronize();
+                 Redraw_Menu();
+                    #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
+                        AudioFeedback();
+                    #endif
+                    #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
+                        queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
+                    #endif
+              }
+              break;
+          #endif
+
+          #if CUSTOM_MENU_COUNT >= 2
+            case CUSTOM_MENU_2:
+              if (draw)
+                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_2_DESC));
+              else {
+                 Popup_Handler(Custom);
+                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_2_GCODE));
+                 planner.synchronize();
+                 Redraw_Menu();
+                    #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
+                        AudioFeedback();
+                    #endif
+                    #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
+                        queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
+                    #endif
+              }
+              break;
+          #endif
+
+          #if CUSTOM_MENU_COUNT >= 3
+            case CUSTOM_MENU_3:
+              if (draw)
+                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_3_DESC));
+              else {
+                 Popup_Handler(Custom);
+                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_3_GCODE));
+                 planner.synchronize();
+                 Redraw_Menu();
+                    #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
+                        AudioFeedback();
+                    #endif
+                    #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
+                        queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
+                    #endif
+              }
+              break;
+          #endif
+
+          #if CUSTOM_MENU_COUNT >= 4
+            case CUSTOM_MENU_4:
+              if (draw)
+                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_4_DESC));
+              else {
+                 Popup_Handler(Custom);
+                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_4_GCODE));
+                 planner.synchronize();
+                 Redraw_Menu();
+                    #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
+                        AudioFeedback();
+                    #endif
+                    #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
+                        queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
+                    #endif
+              }
+              break;
+          #endif
+
+          #if CUSTOM_MENU_COUNT >= 5
+            case CUSTOM_MENU_5:
+              if (draw)
+                Draw_Menu_Item(row, ICON_Info, F(CONFIG_MENU_ITEM_5_DESC));
+              else {
+                 Popup_Handler(Custom);
+                 gcode.process_subcommands_now(F(CONFIG_MENU_ITEM_5_GCODE));
+                 planner.synchronize();
+                 Redraw_Menu();
+                    #if ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK)
+                        AudioFeedback();
+                    #endif
+                    #ifdef CUSTOM_MENU_CONFIG_SCRIPT_RETURN
+                        queue.inject(F(CUSTOM_MENU_CONFIG_SCRIPT_DONE));
+                    #endif
+              }
+              break;
+          #endif // Custom Menu
+        }
+        break;
+    #endif
 
     case Control:
 
@@ -3688,6 +3822,14 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:  return F("Change Filament");
     #endif
+    #if HAS_CUSTOM_MENU
+    case MenuCustom:
+      #ifdef CUSTOM_MENU_CONFIG_TITLE
+        return F(CUSTOM_MENU_CONFIG_TITLE);
+      #else
+        return F("Custom Commands");
+      #endif
+    #endif
     case Control:           return F("Control");
     case TempMenu:          return F("Temperature");
     #if HAS_HOTEND || HAS_HEATED_BED
@@ -3752,6 +3894,9 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #endif
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:  return CHANGEFIL_TOTAL;
+    #endif
+    #if HAS_CUSTOM_MENU
+    case MenuCustom:       return CUSTOM_MENU_TOTAL;
     #endif
     case Control:           return CONTROL_TOTAL;
     case TempMenu:          return TEMP_TOTAL;
@@ -3831,6 +3976,7 @@ void CrealityDWINClass::Popup_Handler(PopupID popupid, bool option/*=false*/) {
     case Runout:        Draw_Popup(F("Filament Runout"), F(""), F(""), Wait, ICON_BLTouch); break;
     case PIDWait:       Draw_Popup(F("PID Autotune"), F("in process"), F("Please wait until done."), Wait, ICON_BLTouch); break;
     case Resuming:      Draw_Popup(F("Resuming Print"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
+    case Custom:        Draw_Popup(F("Running Custom GCode"), F("Please wait until done."), F(""), Wait, ICON_BLTouch); break;
     default: break;
   }
 }
