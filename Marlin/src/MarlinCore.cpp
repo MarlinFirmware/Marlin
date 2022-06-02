@@ -1230,6 +1230,17 @@ void setup() {
     SETUP_RUN(tmc_serial_begin());
   #endif
 
+  #if HAS_TMC_SPI
+    #if DISABLED(TMC_USE_SW_SPI)
+      SETUP_RUN(SPI.begin());
+    #endif
+    SETUP_RUN(tmc_init_cs_pins());
+  #endif
+
+  #if HAS_L64XX
+    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
+  #endif
+
   #if ENABLED(PSU_CONTROL)
     SETUP_LOG("PSU_CONTROL");
     powerManager.init();
@@ -1239,19 +1250,8 @@ void setup() {
     SETUP_RUN(recovery.setup());
   #endif
 
-  #if HAS_L64XX
-    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
-  #endif
-
   #if HAS_STEPPER_RESET
     SETUP_RUN(disableStepperDrivers());
-  #endif
-
-  #if HAS_TMC_SPI
-    #if DISABLED(TMC_USE_SW_SPI)
-      SETUP_RUN(SPI.begin());
-    #endif
-    SETUP_RUN(tmc_init_cs_pins());
   #endif
 
   SETUP_RUN(hal.init_board());
