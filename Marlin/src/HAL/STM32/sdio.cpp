@@ -200,7 +200,8 @@ static uint32_t clock_to_divider(uint32_t clk) {
 
 bool SDIO_Init() {
   HAL_StatusTypeDef sd_state = HAL_OK;
-  HAL_SD_DeInit(&hsd);
+  if (hsd.Instance == SDIO)
+    HAL_SD_DeInit(&hsd);
 
   /* HAL SD initialization */
   hsd.Instance = SDIO;
