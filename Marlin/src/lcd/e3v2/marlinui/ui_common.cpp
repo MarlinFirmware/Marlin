@@ -327,8 +327,8 @@ void MarlinUI::draw_status_message(const bool blink) {
         while (--pad) dwin_string.add(' ');
       }
 
-      if (plen) dwin_string.add((uint8_t*)FTOP(ftpl), itemIndex, (uint8_t*)FTOP(itemString));
-      if (vlen) dwin_string.add((uint8_t*)vstr);
+      if (plen) dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
+      if (vlen) dwin_string.add(vstr);
       if (style & SS_CENTER) {
         int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
         while (--pad) dwin_string.add(' ');
@@ -346,7 +346,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_font.solid = false;
       dwin_font.fg = Color_White;
 
-      dwin_string.set(ftpl, itemIndex, FTOP(itemString));
+      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
 
       pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
       while (--n > 1) dwin_string.add(' ');
@@ -369,7 +369,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(S(inStr)));
 
-      dwin_string.set(ftpl, itemIndex, FTOP(itemString));
+      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
       if (vallen) dwin_string.add(':');
 
       lcd_moveto(1, row);
@@ -392,8 +392,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     const dwin_coord_t labellen = utf8_strlen(fstr), vallen = utf8_strlen(value);
 
-    dwin_string.set();
-    dwin_string.add((uint8_t*)FTOP(fstr), itemIndex);
+    dwin_string.set(FTOP(fstr), itemIndex);
     if (vallen) dwin_string.add(':');  // If a value is included, add a colon
 
     // Assume the label is alpha-numeric (with a descender)
@@ -406,8 +405,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     // If a value is included, print the value in larger text below the label
     if (vallen) {
-      dwin_string.set();
-      dwin_string.add(value);
+      dwin_string.set(value);
 
       const dwin_coord_t by = (row * MENU_LINE_HEIGHT) + MENU_FONT_HEIGHT + EXTRA_ROW_HEIGHT / 2;
       DWIN_Draw_String(true, font16x32, Color_Yellow, Color_Bg_Black, (LCD_PIXEL_WIDTH - vallen * 16) / 2, by, S(dwin_string.string()));

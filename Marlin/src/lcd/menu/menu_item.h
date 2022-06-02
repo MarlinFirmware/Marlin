@@ -312,7 +312,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define _MENU_ITEM_S_F(TYPE, S, V...) do{ \
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
-    MenuItemBase::itemString = S;         \
+    MenuItemBase::init(0, S);             \
     _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \

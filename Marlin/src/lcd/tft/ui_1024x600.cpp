@@ -359,7 +359,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
   uint16_t line = 1;
 
   menu_line(line++);
-  tft_string.set(FTOP(fstr), itemIndex, FTOP(itemString));
+  tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
 
