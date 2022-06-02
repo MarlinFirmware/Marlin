@@ -7,11 +7,11 @@
     "mcu": "stm32h743vit6",
     "product_line": "STM32H743xx",
     "variant": "MARLIN_H743Vx"
-  },  
+  },
   "connectivity": [
     "can",
     "ethernet"
-  ],  
+  ],
   "debug": {
     "jlink_device": "STM32H743VI",
     "openocd_target": "stm32h7x",
@@ -39,7 +39,7 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32H743VI (1024k RAM. 2048k Flash)",  
+  "name": "STM32H743VI (1024k RAM. 2048k Flash)",
   "upload": {
     "disable_flushing": false,
     "maximum_ram_size": 1048576,

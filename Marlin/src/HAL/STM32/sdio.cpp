@@ -58,21 +58,18 @@
 
 #if defined(STM32F1xx)
   DMA_HandleTypeDef hdma_sdio;
-  extern "C" void DMA2_Channel4_5_IRQHandler(void)
-  {
+  extern "C" void DMA2_Channel4_5_IRQHandler(void) {
     HAL_DMA_IRQHandler(&hdma_sdio);
   }
 #elif defined(STM32F4xx)
   DMA_HandleTypeDef hdma_sdio_rx;
   DMA_HandleTypeDef hdma_sdio_tx;
-  extern "C" void DMA2_Stream3_IRQHandler(void)
-  {
-    HAL_DMA_IRQHandler(&hdma_sdio_rx);    
+  extern "C" void DMA2_Stream3_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_sdio_rx);
   }
 
-  extern "C" void DMA2_Stream6_IRQHandler(void)
-  {
-    HAL_DMA_IRQHandler(&hdma_sdio_tx);    
+  extern "C" void DMA2_Stream6_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_sdio_tx);
   }
 #elif defined(STM32H7xx)
   #define __HAL_RCC_SDIO_FORCE_RESET          __HAL_RCC_SDMMC1_FORCE_RESET
@@ -134,7 +131,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
 
     __HAL_LINKDMA(hsd, hdmarx ,hdma_sdio);
     __HAL_LINKDMA(hsd, hdmatx, hdma_sdio);
-  #elif defined(STM32F4xx)  
+  #elif defined(STM32F4xx)
     __HAL_RCC_DMA2_CLK_ENABLE();
     HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
     HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
@@ -214,7 +211,7 @@ bool SDIO_Init() {
   hsd.Init.ClockDiv = clock_to_divider(SDIO_CLOCK);
   sd_state = HAL_SD_Init(&hsd);
 
-  #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3) 
+  #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3)
     if (sd_state == HAL_OK) {
       sd_state = HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B);
     }
@@ -223,26 +220,20 @@ bool SDIO_Init() {
   return (sd_state == HAL_OK) ? true : false;
 }
 
-bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {    
+bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   uint32_t timeout = HAL_GetTick() + SD_TIMEOUT;
 
-  while(HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) {
-    if (HAL_GetTick() >= timeout) {
-      return false;
-    }
+  while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) {
+    if (HAL_GetTick() >= timeout) return false;
   }
 
   waitingRxCplt = 1;
-  if (HAL_SD_ReadBlocks_DMA(&hsd, (uint8_t *)dst, block, 1) != HAL_OK) {
+  if (HAL_SD_ReadBlocks_DMA(&hsd, (uint8_t *)dst, block, 1) != HAL_OK)
     return false;
-  }
 
   timeout = HAL_GetTick() + SD_TIMEOUT;
-  while(waitingRxCplt) {
-    if (HAL_GetTick() >= timeout) {
-      return false;
-    }
-  }
+  while (waitingRxCplt)
+    if (HAL_GetTick() >= timeout) return false;
 
   return true;
 }
@@ -250,23 +241,16 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   uint32_t timeout = HAL_GetTick() + SD_TIMEOUT;
 
-  while(HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) {
-    if (HAL_GetTick() >= timeout) {
-      return false;
-    }
-  }
+  while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)
+    if (HAL_GetTick() >= timeout) return false;
 
   waitingTxCplt = 1;
-  if (HAL_SD_WriteBlocks_DMA(&hsd, (uint8_t *)src, block, 1) != HAL_OK) {
+  if (HAL_SD_WriteBlocks_DMA(&hsd, (uint8_t *)src, block, 1) != HAL_OK)
     return false;
-  }
 
   timeout = HAL_GetTick() + SD_TIMEOUT;
-  while(waitingTxCplt) {
-    if (HAL_GetTick() >= timeout) {
-      return false;
-    }
-  }
+  while (waitingTxCplt)
+    if (HAL_GetTick() >= timeout) return false;
 
   return true;
 }
