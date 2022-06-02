@@ -437,9 +437,7 @@ void GcodeSuite::G33() {
   const bool stow_after_each = parser.seen_test('E');
 
   #if HAS_DELTA_SENSORLESS_PROBING
-    probe.test_sensitivity.x = !parser.seen_test('X');
-    probe.test_sensitivity.y = !parser.seen_test('Y');
-    probe.test_sensitivity.z = !parser.seen_test('Z');
+    probe.test_sensitivity.set(!parser.seen_test('X'), !parser.seen_test('Y'), !parser.seen_test('Z'));
     const bool do_save_offset_adj = parser.seen_test('S');
   #endif
 

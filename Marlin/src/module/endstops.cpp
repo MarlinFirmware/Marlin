@@ -30,7 +30,6 @@
 #include "../sd/cardreader.h"
 #include "temperature.h"
 #include "../lcd/marlinui.h"
-#include "../core/debug_out.h"
 
 #define DEBUG_OUT BOTH(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
@@ -1625,9 +1624,10 @@ void Endstops::update() {
   }
 
 #endif // PINS_DEBUGGING
+
 #if USE_SENSORLESS
   /**
-   * Change the current in the TMC drivers to N##_CURRENT_HOME. And we save the current configuration of each TMC driver.
+   * Change TMC driver currents to N##_CURRENT_HOME, saving the current configuration of each.
    */
   void Endstops::set_homing_current(const bool onoff) {
     #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
@@ -1677,7 +1677,7 @@ void Endstops::update() {
           debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_z);
         #endif
       }
-      
+
       TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(onoff));
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
 
