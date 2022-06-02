@@ -132,7 +132,7 @@ void lcd_put_int(const int i) {
 void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
   menu_item(row, sel);
 
-  uint8_t *string = (uint8_t *)FTOP(fstr);
+  const char *string = FTOP(fstr);
   MarlinImage image = noImage;
   switch (*string) {
     case 0x01: image = imgRefresh; break;  // LCD_STR_REFRESH
@@ -146,7 +146,8 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
     tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
 
-  tft_string.set(string, itemIndex, FTOP(itemString));
+  tft_string.set(string, itemIndex, itemStringC, itemStringF);
+
   tft.add_text(offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
 }
 
@@ -154,7 +155,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
 void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
   menu_item(row, sel);
 
-  tft_string.set(fstr, itemIndex, nullptr, itemString);
+  tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   if (inStr) {
     tft_string.set(inStr);
@@ -165,7 +166,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 // Draw a static item with no left-right margin required. Centered by default.
 void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
   menu_item(row);
-  tft_string.set(FTOP(fstr), itemIndex, FTOP(itemString));
+  tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
   if (vstr) tft_string.add(vstr);
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
 }

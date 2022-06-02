@@ -53,15 +53,17 @@ class MenuItemBase {
     // Index to interject in the item label and/or for use by its action.
     static int8_t itemIndex;
 
-    // An optional pointer for use in display or by the action
-    static FSTR_P itemString;
+    // Optional pointers for use in display or by the action
+    static FSTR_P itemStringF;
+    static const char* itemStringC;
 
-    // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemString = fstr; }
+    // Store an index and string for later substitution
+    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
+    FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
 
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
-    // Menus may set up itemIndex, itemString and pass them to string-building or string-emitting functions
+    // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
     static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char);
 
     // Draw an item either selected ('>') or not (space) with post_char

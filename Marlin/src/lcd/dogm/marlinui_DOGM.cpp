@@ -330,13 +330,13 @@ void MarlinUI::update_language_font() {
 // The kill screen is displayed for unrecoverable conditions
 void MarlinUI::draw_kill_screen() {
   TERN_(LIGHTWEIGHT_UI, ST7920_Lite_Status_Screen::clear_text_buffer());
-  const u8g_uint_t h4 = u8g.getHeight() / 4;
+  const u8g_uint_t x = 0, h4 = u8g.getHeight() / 4;
   u8g.firstPage();
   do {
     set_font(FONT_MENU);
-    lcd_put_u8str(0, h4 * 1, status_message);
-    lcd_put_u8str(0, h4 * 2, GET_TEXT_F(MSG_HALTED));
-    lcd_put_u8str(0, h4 * 3, GET_TEXT_F(MSG_PLEASE_RESET));
+    lcd_put_u8str(x, h4 * 1, status_message);
+    lcd_put_u8str(x, h4 * 2, GET_TEXT_F(MSG_HALTED));
+    lcd_put_u8str(x, h4 * 3, GET_TEXT_F(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
@@ -424,7 +424,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         while (--pad >= 0) n -= lcd_put_wchar(' ');
       }
 
-      if (plen) n = lcd_put_u8str_ind(ftpl, itemIndex, itemString, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+      if (plen) n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
       if (vlen) n -= lcd_put_u8str_max(vstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
     }
@@ -433,7 +433,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
-      pixel_len_t n = lcd_put_u8str_ind(ftpl, itemIndex, itemString, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       lcd_put_wchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_wchar(' ');
@@ -443,16 +443,16 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a menu item with an editable value
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
-      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
-                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)inStr));
+      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)),
+                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
       const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
 
-      pixel_len_t n = lcd_put_u8str_ind(ftpl, itemIndex, itemString, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
       if (vallen) {
         lcd_put_wchar(':');
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
         lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
-        if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str((char*)inStr);
+        if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
       }
     }
   }
@@ -490,7 +490,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // Assume the label is alpha-numeric (with a descender)
     bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
-    if (onpage) lcd_put_u8str_ind(0, baseline, ftpl, itemIndex, itemString);
+    if (onpage) lcd_put_u8str(0, baseline, ftpl, itemIndex, itemStringC, itemStringF);
 
     // If a value is included, print a colon, then print the value right-justified
     if (value) {
@@ -508,8 +508,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     TERN_(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
   }
 
-  inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, FSTR_P const ftpl, const bool inv) {
-    const u8g_uint_t len = utf8_strlen(ftpl),
+  inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, FSTR_P const fstr, const bool inv) {
+    const u8g_uint_t len = utf8_strlen(fstr),
                       by = (y + 1) * (MENU_FONT_HEIGHT);
     const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
     const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
@@ -518,7 +518,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT), bw + 2, MENU_FONT_HEIGHT);
       u8g.setColorIndex(0);
     }
-    lcd_put_u8str(bx / prop, by, ftpl);
+    lcd_put_u8str(bx / prop, by, fstr);
     if (inv) u8g.setColorIndex(1);
   }
 
