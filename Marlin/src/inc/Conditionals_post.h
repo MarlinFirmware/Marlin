@@ -3211,28 +3211,6 @@
 #endif
 
 /**
- * Custom menu items with jyersLCD
- */
-#if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
-  #if ENABLED(CUSTOM_MENU_CONFIG)
-    #ifdef CONFIG_MENU_ITEM_5_DESC
-      #define CUSTOM_MENU_COUNT 5
-    #elif defined(CONFIG_MENU_ITEM_4_DESC)
-      #define CUSTOM_MENU_COUNT 4
-    #elif defined(CONFIG_MENU_ITEM_3_DESC)
-      #define CUSTOM_MENU_COUNT 3
-    #elif defined(CONFIG_MENU_ITEM_2_DESC)
-      #define CUSTOM_MENU_COUNT 2
-    #elif defined(CONFIG_MENU_ITEM_1_DESC)
-      #define CUSTOM_MENU_COUNT 1
-    #endif
-  #endif
-  #if CUSTOM_MENU_COUNT && ENABLED(CUSTOM_MENU_CONFIG)
-    #define HAS_CUSTOM_MENU 1
-  #endif
-#endif
-
-/**
  * Helper Macros for heaters and extruder fan
  */
 
