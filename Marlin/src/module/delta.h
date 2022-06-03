@@ -40,7 +40,7 @@ extern float delta_clip_start_height;
 extern abc_float_t delta_diagonal_rod_trim;
 #if HAS_DELTA_SENSORLESS_PROBING
   extern abc_float_t offset_sensorless_adj;
-  extern float offset_sensorless;
+  extern float largest_sensorless_adj;
 #endif
 
 /**

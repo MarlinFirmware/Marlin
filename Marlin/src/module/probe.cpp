@@ -555,7 +555,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
 
   // Offset sensorless probing
   #if HAS_DELTA_SENSORLESS_PROBING
-    if (probe_triggered) probe.save_offset_sensorless(false, 0);
+    if (probe_triggered) probe.refresh_largest_sensorless_adj();
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(false));
@@ -671,7 +671,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
-    const float first_probe_z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, offset_sensorless);
+    const float first_probe_z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
@@ -713,7 +713,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
-      const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, offset_sensorless);
+      const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
 
       #if EXTRA_PROBING > 0
         // Insert Z measurement into probes[]. Keep it sorted ascending.
@@ -764,7 +764,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #elif TOTAL_PROBING == 2
 
-    const float z2 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, offset_sensorless);
+    const float z2 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
 
@@ -900,34 +900,39 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   }
 
   /**
-   * Save offset sensorless adj
+   * Set the sensorless Z offset
    */
-  void Probe::save_offset_sensorless(const bool onoff, const_float_t sz) {
+  void Probe::set_offset_sensorless_adj(const_float_t sz) {
     #if ENABLED(SENSORLESS_PROBING)
-      DEBUG_SECTION(pso, "Probe::save_offset_sensorless", true);
-      if (onoff) {
-        #if HAS_DELTA_SENSORLESS_PROBING
-          if (test_sensitivity.x) offset_sensorless_adj.a = sz;
-          if (test_sensitivity.y) offset_sensorless_adj.b = sz;
-        #endif
-        if (test_sensitivity.z) offset_sensorless_adj.c = sz;
-      }
-      else {
-        offset_sensorless = -3;
-        #if HAS_DELTA_SENSORLESS_PROBING
-          if (TEST(endstops.state(), X_MAX)) {
-            offset_sensorless = offset_sensorless_adj.a;
-            DEBUG_ECHOLNPGM("Endstop_X: ", offset_sensorless, " TowerX");
-          }
-          if (TEST(endstops.state(), Y_MAX)) {
-            NOLESS(offset_sensorless, offset_sensorless_adj.b);
-            DEBUG_ECHOLNPGM("Endstop_Y: ", offset_sensorless, " TowerY");
-          }
-        #endif
-        if (TEST(endstops.state(), Z_MAX)) {
-          NOLESS(offset_sensorless, offset_sensorless_adj.c);
-          DEBUG_ECHOLNPGM("Endstop_Z: ", offset_sensorless, " TowerZ");
+      DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
+      #if HAS_DELTA_SENSORLESS_PROBING
+        if (test_sensitivity.x) offset_sensorless_adj.a = sz;
+        if (test_sensitivity.y) offset_sensorless_adj.b = sz;
+      #endif
+      if (test_sensitivity.z) offset_sensorless_adj.c = sz;
+    #endif
+  }
+
+  /**
+   * Refresh largest_sensorless_adj based on triggered endstops
+   */
+  void Probe::refresh_largest_sensorless_adj() {
+    #if ENABLED(SENSORLESS_PROBING)
+      DEBUG_SECTION(rso, "Probe::refresh_largest_sensorless_adj", true);
+      largest_sensorless_adj = -3;                                             // A reference away from any real probe height
+      #if HAS_DELTA_SENSORLESS_PROBING
+        if (TEST(endstops.state(), X_MAX)) {
+          NOLESS(largest_sensorless_adj, offset_sensorless_adj.a);
+          DEBUG_ECHOLNPGM("Endstop_X: ", largest_sensorless_adj, " TowerX");
         }
+        if (TEST(endstops.state(), Y_MAX)) {
+          NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
+          DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
+        }
+      #endif
+      if (TEST(endstops.state(), Z_MAX)) {
+        NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
+        DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
       }
     #endif
   }

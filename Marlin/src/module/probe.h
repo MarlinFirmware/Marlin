@@ -305,7 +305,8 @@ public:
   #if USE_SENSORLESS
     static void enable_stallguard_diag1();
     static void disable_stallguard_diag1();
-    static void save_offset_sensorless(const bool onoff, const_float_t sz);
+    static void set_offset_sensorless_adj(const_float_t sz);
+    static void refresh_largest_sensorless_adj();
   #endif
 
 private:
