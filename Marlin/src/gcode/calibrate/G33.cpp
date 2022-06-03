@@ -479,23 +479,20 @@ void GcodeSuite::G33() {
 
   #if HAS_DELTA_SENSORLESS_PROBING
     if (verbose_level > 0 && do_save_offset_adj) {
-      xyz_pos_t reset{0};
-      offset_sensorless_adj = reset;
+      offset_sensorless_adj.reset();
 
-      float z_at_pt[NPP + 1];
-      LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
-      probe.test_sensitivity = { true, false, false };
-      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
-        probe.set_offset_sensorless_adj(z_at_pt[CEN]);
-      LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
-      probe.test_sensitivity = { false, true, false };
-      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
-        probe.set_offset_sensorless_adj(z_at_pt[CEN]);
-      LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
-      probe.test_sensitivity = { false, false, true };
-      if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
-        probe.set_offset_sensorless_adj(z_at_pt[CEN]);
-      probe.test_sensitivity = { true, true, true };
+      auto caltower = [&](Probe::sense_bool_t s){
+        float z_at_pt[NPP + 1];
+        LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
+        probe.test_sensitivity = s;
+        if (probe_calibration_points(z_at_pt, 1, dcr, false, false, probe_at_offset))
+          probe.set_offset_sensorless_adj(z_at_pt[CEN]);
+      };
+      caltower({ true, false, false }); // A
+      caltower({ false, true, false }); // B
+      caltower({ false, false, true }); // C
+
+      probe.test_sensitivity = { true, true, true }; // reset to all
     }
   #endif
 
