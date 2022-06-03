@@ -211,10 +211,10 @@ void _lcd_ubl_edit_mesh() {
     #if HAS_PREHEAT
       #if HAS_HEATED_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
-          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, F("G28\nG26CPI" STRINGIFY(M)));
+          GCODES_ITEM_N_f(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, F("G28\nG26CPI" STRINGIFY(M)));
       #else
         #define VALIDATE_MESH_GCODE_ITEM(M) \
-          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, F("G28\nG26CPB0I" STRINGIFY(M)));
+          GCODES_ITEM_N_f(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, F("G28\nG26CPB0I" STRINGIFY(M)));
       #endif
       REPEAT(PREHEAT_COUNT, VALIDATE_MESH_GCODE_ITEM)
     #endif
@@ -317,7 +317,7 @@ void _lcd_ubl_build_mesh() {
     #else
       #define PREHEAT_BED_GCODE(M) ""
     #endif
-    #define BUILD_MESH_GCODE_ITEM(M) GCODES_ITEM_S(ui.get_preheat_label(M), MSG_UBL_BUILD_MESH_M, \
+    #define BUILD_MESH_GCODE_ITEM(M) GCODES_ITEM_f(ui.get_preheat_label(M), MSG_UBL_BUILD_MESH_M, \
       F( \
         "G28\n" \
         PREHEAT_BED_GCODE(M) \

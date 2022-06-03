@@ -69,7 +69,7 @@ void probe_offset_wizard_menu() {
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
 
   if ((FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f)
-    SUBMENU_S(STRINGIFY(FINE_MANUAL_MOVE), MSG_MOVE_N_MM, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
+    SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
