@@ -193,7 +193,6 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     if (!ExtUI::isPrintingFromMedia()) return; // avoid race condition when user stays in this menu and printer finishes.
     switch (swap16(*(uint16_t*)val_ptr)) {
       case 0: { // Resume
-
         auto cs = getCurrentScreen();
         if (runout_mks.runout_status != RUNOUT_WAITING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
           if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
@@ -213,7 +212,6 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       } break;
 
       case 1: // Pause
-
         GotoScreen(MKSLCD_SCREEN_PAUSE);
         if (!ExtUI::isPrintingFromMediaPaused()) {
           nozzle_park_mks.print_pause_start_flag = 1;
@@ -222,6 +220,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
           //ExtUI::mks_pausePrint();
         }
         break;
+
       case 2: // Abort
         HandleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
         break;
