@@ -60,6 +60,10 @@ xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
 abc_float_t delta_diagonal_rod_trim;
+#if HAS_DELTA_SENSORLESS_PROBING
+  abc_float_t offset_sensorless_adj{0};
+  float largest_sensorless_adj = 0;
+#endif
 
 float delta_safe_distance_from_top();
 
@@ -233,6 +237,9 @@ void home_delta() {
     TERN_(I_SENSORLESS, sensorless_t stealth_states_i = start_sensorless_homing_per_axis(I_AXIS));
     TERN_(J_SENSORLESS, sensorless_t stealth_states_j = start_sensorless_homing_per_axis(J_AXIS));
     TERN_(K_SENSORLESS, sensorless_t stealth_states_k = start_sensorless_homing_per_axis(K_AXIS));
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
@@ -249,6 +256,9 @@ void home_delta() {
     TERN_(I_SENSORLESS, end_sensorless_homing_per_axis(I_AXIS, stealth_states_i));
     TERN_(J_SENSORLESS, end_sensorless_homing_per_axis(J_AXIS, stealth_states_j));
     TERN_(K_SENSORLESS, end_sensorless_homing_per_axis(K_AXIS, stealth_states_k));
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
   #endif
 
   endstops.validate_homing_move();
