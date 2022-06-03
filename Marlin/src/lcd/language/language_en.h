@@ -320,6 +320,7 @@ namespace Language_en {
   LSTR MSG_MOVE_U                         = _UxGT("Move ") STR_U;
   LSTR MSG_MOVE_V                         = _UxGT("Move ") STR_V;
   LSTR MSG_MOVE_W                         = _UxGT("Move ") STR_W;
+  LSTR MSG_COLD_EXTRUSION                 = _UxGT("Cold Extrusion");
   LSTR MSG_MOVE_E                         = _UxGT("Move Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Move E*");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend too cold");
