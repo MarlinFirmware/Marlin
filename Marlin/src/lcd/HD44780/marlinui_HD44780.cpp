@@ -495,12 +495,13 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
 #endif // SHOW_BOOTSCREEN
 
 void MarlinUI::draw_kill_screen() {
-  lcd_put_u8str(0, 0, status_message);
-  lcd_uint_t y = 2;
+  lcd_uint_t x = 0, y = 0;
+  lcd_put_u8str(x, y, status_message);
+  y = 2;
   #if LCD_HEIGHT >= 4
-    lcd_put_u8str(0, y++, GET_TEXT_F(MSG_HALTED));
+    lcd_put_u8str(x, y++, GET_TEXT_F(MSG_HALTED));
   #endif
-  lcd_put_u8str(0, y, GET_TEXT_F(MSG_PLEASE_RESET));
+  lcd_put_u8str(x, y, GET_TEXT_F(MSG_PLEASE_RESET));
 }
 
 //
@@ -1076,24 +1077,24 @@ void MarlinUI::draw_status_screen() {
       int8_t pad = (LCD_WIDTH - plen - vlen) / 2;
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
     }
-    if (plen) n = lcd_put_u8str_ind(fstr, itemIndex, itemString, n);
+    if (plen) n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
     if (vlen) n -= lcd_put_u8str_max(vstr, n);
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
     lcd_put_wchar(0, row, sel ? pre_char : ' ');
-    uint8_t n = lcd_put_u8str_ind(fstr, itemIndex, itemString, LCD_WIDTH - 2);
+    uint8_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2);
     for (; n; --n) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-    uint8_t n = lcd_put_u8str_ind(fstr, itemIndex, itemString, LCD_WIDTH - 2 - vlen);
+    uint8_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vlen);
     if (vlen) {
       lcd_put_wchar(':');
       for (; n; --n) lcd_put_wchar(' ');
@@ -1102,9 +1103,9 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-  void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
-    uint8_t n = lcd_put_u8str_ind(0, 1, fstr, itemIndex, itemString, LCD_WIDTH - 1);
+    uint8_t n = lcd_put_u8str(0, 1, ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1);
     if (value) {
       lcd_put_wchar(':'); n--;
       const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
