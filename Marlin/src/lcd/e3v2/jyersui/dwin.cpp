@@ -4280,14 +4280,14 @@ void CrealityDWINClass::Print_Screen_Control() {
               card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
-              char cmnd[20];
+              char cmd[20];
               #if HAS_HEATED_BED
-                cmnd[sprintf_P(cmnd, PSTR("M140 S%i"), pausebed)] = '\0';
-                gcode.process_subcommands_now(cmnd);
+                sprintf_P(cmd, PSTR("M140 S%i"), pausebed);
+                gcode.process_subcommands_now(cmd);
               #endif
               #if HAS_EXTRUDERS
-                cmnd[sprintf_P(cmnd, PSTR("M109 S%i"), pausetemp)] = '\0';
-                gcode.process_subcommands_now(cmnd);
+                sprintf_P(cmd, PSTR("M109 S%i"), pausetemp);
+                gcode.process_subcommands_now(cmd);
               #endif
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();

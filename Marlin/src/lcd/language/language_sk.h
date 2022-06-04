@@ -31,10 +31,9 @@
  * Translated by Michal Holeš, Farma MaM
  * https://www.facebook.com/farmamam
  *
- * Substitutions are applied for the following characters when used
- * in menu items that call lcd_put_u8str_ind_P with an index:
+ * Substitutions are applied for the following characters when used in menu items titles:
  *
- *   $ displays an inserted C-string
+ *   $ displays an inserted string
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
@@ -98,9 +97,6 @@ namespace Language_sk {
   LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset");
   LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset");
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset");
-  LSTR MSG_HOME_OFFSET_I                  = STR_I _UxGT(" Ofset");
-  LSTR MSG_HOME_OFFSET_J                  = STR_J _UxGT(" Ofset");
-  LSTR MSG_HOME_OFFSET_K                  = STR_K _UxGT(" Ofset");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastavené");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Spriev. vyrovn.");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Vyberte začiatok");
@@ -281,13 +277,11 @@ namespace Language_sk {
   LSTR MSG_MOVE_X                         = _UxGT("Posunúť X");
   LSTR MSG_MOVE_Y                         = _UxGT("Posunúť Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Posunúť Z");
-  LSTR MSG_MOVE_I                         = _UxGT("Posunúť ") STR_I;
-  LSTR MSG_MOVE_J                         = _UxGT("Posunúť ") STR_J;
-  LSTR MSG_MOVE_K                         = _UxGT("Posunúť ") STR_K;
+  LSTR MSG_MOVE_N                         = _UxGT("Posunúť @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrudér");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrudér *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Posunúť o %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Posunúť o $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Posunúť o 0,1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Posunúť o 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Posunúť o 10mm");
@@ -297,12 +291,6 @@ namespace Language_sk {
   LSTR MSG_MOVE_01IN                      = _UxGT("Posunúť o 0,1in");
   LSTR MSG_MOVE_1IN                       = _UxGT("Posunúť o 1,0in");
   LSTR MSG_SPEED                          = _UxGT("Rýchlosť");
-  LSTR MSG_MAXSPEED                       = _UxGT("Max rýchl. (mm/s)");
-  LSTR MSG_MAXSPEED_X                     = _UxGT("Max rýchl. ") STR_A;
-  LSTR MSG_MAXSPEED_Y                     = _UxGT("Max rýchl. ") STR_B;
-  LSTR MSG_MAXSPEED_Z                     = _UxGT("Max rýchl. ") STR_C;
-  LSTR MSG_MAXSPEED_E                     = _UxGT("Max rýchl. ") STR_E;
-  LSTR MSG_MAXSPEED_A                     = _UxGT("Max rýchl. @");
   LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
@@ -347,30 +335,24 @@ namespace Language_sk {
   LSTR MSG_VA_JERK                        = _UxGT("V") STR_A _UxGT("-skok");
   LSTR MSG_VB_JERK                        = _UxGT("V") STR_B _UxGT("-skok");
   LSTR MSG_VC_JERK                        = _UxGT("V") STR_C _UxGT("-skok");
-  LSTR MSG_VI_JERK                        = _UxGT("V") STR_I _UxGT("-skok");
-  LSTR MSG_VJ_JERK                        = _UxGT("V") STR_J _UxGT("-skok");
-  LSTR MSG_VK_JERK                        = _UxGT("V") STR_K _UxGT("-skok");
+  LSTR MSG_VN_JERK                        = _UxGT("V@-skok");
   LSTR MSG_VE_JERK                        = _UxGT("Ve-skok");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Junction Dev");
-  LSTR MSG_VELOCITY                       = _UxGT("Rýchlosť");
-  LSTR MSG_VMAX_A                         = _UxGT("Vmax ") STR_A;
-  LSTR MSG_VMAX_B                         = _UxGT("Vmax ") STR_B;
-  LSTR MSG_VMAX_C                         = _UxGT("Vmax ") STR_C;
-  LSTR MSG_VMAX_I                         = _UxGT("Vmax ") STR_I;
-  LSTR MSG_VMAX_J                         = _UxGT("Vmax ") STR_J;
-  LSTR MSG_VMAX_K                         = _UxGT("Vmax ") STR_K;
-  LSTR MSG_VMAX_E                         = _UxGT("Vmax ") STR_E;
-  LSTR MSG_VMAX_EN                        = _UxGT("Vmax *");
+  LSTR MSG_MAX_SPEED                      = _UxGT("Max rýchl. (mm/s)");
+  LSTR MSG_VMAX_A                         = _UxGT("Max rýchl. ") STR_A;
+  LSTR MSG_VMAX_B                         = _UxGT("Max rýchl. ") STR_B;
+  LSTR MSG_VMAX_C                         = _UxGT("Max rýchl. ") STR_C;
+  LSTR MSG_VMAX_N                         = _UxGT("Max rýchl. @");
+  LSTR MSG_VMAX_E                         = _UxGT("Max rýchl. E");
+  LSTR MSG_VMAX_EN                        = _UxGT("Max rýchl. *");
   LSTR MSG_VMIN                           = _UxGT("Vmin");
   LSTR MSG_VTRAV_MIN                      = _UxGT("VPrej Min");
   LSTR MSG_ACCELERATION                   = _UxGT("Akcelerácia");
   LSTR MSG_AMAX_A                         = _UxGT("Amax ") STR_A;
   LSTR MSG_AMAX_B                         = _UxGT("Amax ") STR_B;
   LSTR MSG_AMAX_C                         = _UxGT("Amax ") STR_C;
-  LSTR MSG_AMAX_I                         = _UxGT("Amax ") STR_I;
-  LSTR MSG_AMAX_J                         = _UxGT("Amax ") STR_J;
-  LSTR MSG_AMAX_K                         = _UxGT("Amax ") STR_K;
-  LSTR MSG_AMAX_E                         = _UxGT("Amax ") STR_E;
+  LSTR MSG_AMAX_N                         = _UxGT("Amax @");
+  LSTR MSG_AMAX_E                         = _UxGT("Amax E");
   LSTR MSG_AMAX_EN                        = _UxGT("Amax *");
   LSTR MSG_A_RETRACT                      = _UxGT("A-retrakt");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-prejazd");
@@ -380,11 +362,9 @@ namespace Language_sk {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" krokov/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" krokov/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" krokov/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" krokov/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" krokov/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" krokov/mm");
-  LSTR MSG_E_STEPS                        = _UxGT("Ekrokov/mm");
-  LSTR MSG_EN_STEPS                       = _UxGT("*krokov/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ krokov/mm");
+  LSTR MSG_E_STEPS                        = _UxGT("E krokov/mm");
+  LSTR MSG_EN_STEPS                       = _UxGT("* krokov/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Teplota");
   LSTR MSG_MOTION                         = _UxGT("Pohyb");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
@@ -527,9 +507,7 @@ namespace Language_sk {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");
-  LSTR MSG_BABYSTEP_I                     = _UxGT("Babystep ") STR_I;
-  LSTR MSG_BABYSTEP_J                     = _UxGT("Babystep ") STR_J;
-  LSTR MSG_BABYSTEP_K                     = _UxGT("Babystep ") STR_K;
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Celkom");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Zastavenie Endstop");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Chyba ohrevu");
@@ -624,13 +602,7 @@ namespace Language_sk {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Teplota max");
   LSTR MSG_INFO_PSU                       = _UxGT("Nap. zdroj");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Budenie motorov");
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Motor %");
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Motor %");
   LSTR MSG_ERROR_TMC                      = _UxGT("CHYBA KOMUNIKÁ. TMC");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Uložiť do EEPROM");
   LSTR MSG_FILAMENT_CHANGE_HEADER         = _UxGT("VÝMENA FILAMENTU");

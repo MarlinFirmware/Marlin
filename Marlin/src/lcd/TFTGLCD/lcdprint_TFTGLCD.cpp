@@ -991,7 +991,7 @@ void lcd_put_int(const int i) {
 
 // return < 0 on error
 // return the advanced cols
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
+int lcd_put_wchar_max(const wchar_t c, const pixel_len_t max_length) {
 
   // find the HD44780 internal ROM first
   int ret;
@@ -1045,9 +1045,9 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
  *
  * Draw a UTF-8 string
  */
-static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
+static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_byte, const pixel_len_t max_length) {
   pixel_len_t ret = 0;
-  uint8_t *p = (uint8_t *)utf8_str;
+  const uint8_t *p = (uint8_t *)utf8_str;
   while (ret < max_length) {
     wchar_t ch = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &ch);
@@ -1057,11 +1057,11 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(u
   return (int)ret;
 }
 
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_pstr, read_byte_rom, max_length);
 }
 

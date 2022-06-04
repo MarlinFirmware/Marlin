@@ -416,10 +416,11 @@ void MarlinUI::init() {
           SETCURSOR(0, row);              // Simulate carriage return
         };
 
-        uint8_t *p = (uint8_t*)string;
+        const uint8_t *p = (uint8_t*)string;
         wchar_t ch;
         if (wordwrap) {
-          uint8_t *wrd = nullptr, c = 0;
+          const uint8_t *wrd = nullptr;
+          uint8_t c = 0;
           // find the end of the part
           for (;;) {
             if (!wrd) wrd = p;            // Get word start /before/ advancing
