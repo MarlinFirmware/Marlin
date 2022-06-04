@@ -2,11 +2,11 @@
 #
 # mfprep tag1 [tag2]
 #
-# Find commits in bugfix-2.0.x that are not yet in 2.0.x.
+# Find commits in bugfix-2.1.x that are not yet in 2.0.x.
 #
 # Specify a version tag to start from, and optional version tag to end at.
-# For bugfix-2.0.x the tag will be prefixed by bf- to distinguish it from the version tag,
-# so at every release be sure to create a bf- tag and publish it to origin.
+# For bugfix-2.1.x the tag will be prefixed by dev- to distinguish it from the version tag,
+# so at every release be sure to create a dev- tag and publish it to origin.
 #
 
 SED=$(which gsed sed | head -n1)
@@ -22,12 +22,12 @@ DEST=2.1.x
 
 # Validate that the required tags exist
 
-MTAG=`git tag | grep -e "^bf-$TAG1\$"`
-[[ -n "$MTAG" ]] || { echo "Can't find tag bf-$TAG1" ; exit 1 ; }
+MTAG=`git tag | grep -e "^dev-$TAG1\$"`
+[[ -n "$MTAG" ]] || { echo "Can't find tag dev-$TAG1" ; exit 1 ; }
 MTAG=`git tag | grep -e "^$TAG1\$"`
 [[ -n "$MTAG" ]] || { echo "Can't find tag $TAG1" ; exit 1 ; }
 
-# Generate log of recent commits for bugfix-2.0.x and DEST
+# Generate log of recent commits for bugfix-2.1.x and DEST
 
 TMPDIR=`mktemp -d`
 LOGB="$TMPDIR/log-bf.txt"
@@ -35,11 +35,11 @@ LOG2="$TMPDIR/log-2x.txt"
 TMPF="$TMPDIR/tmp.txt"
 SCRF="$TMPDIR/update-$DEST.sh"
 
-git checkout bugfix-2.0.x
-git log --pretty="[%h] %s" bf-$TAG1..$TAG2 | grep -v '\[cron\]' | $SED '1!G;h;$!d' >"$LOGB"
+git checkout bugfix-2.1.x
+git log --pretty="[%h] %s" dev-$TAG1..$TAG2 | grep -v '\[cron\]' | $SED '1!G;h;$!d' >"$LOGB"
 
 git checkout $DEST
-git log --pretty="[%h] %s" $TAG1..$TAG2 | $SED '1!G;h;$!d' >"$LOG2" || { echo "Can't find tag bf-$TAG1" ; exit 1 ; }
+git log --pretty="[%h] %s" $TAG1..$TAG2 | $SED '1!G;h;$!d' >"$LOG2" || { echo "Can't find tag dev-$TAG1" ; exit 1 ; }
 
 # Go through commit text from DEST removing all matches from the bugfix log
 
