@@ -104,7 +104,7 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
  * Get the screen pixel width of a ROM UTF-8 string
  */
 static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
-  uint8_t *p = (uint8_t*)utf8_msg;
+  const uint8_t *p = (uint8_t*)utf8_msg;
   for (;;) {
     wchar_t val = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &val);

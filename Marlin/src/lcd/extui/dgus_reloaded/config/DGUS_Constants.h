@@ -71,15 +71,15 @@ static_assert((DGUS_LEVEL_GRID_SIZE == GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y), "
   #define DGUS_DEFAULT_FILAMENT_LEN 10
 #endif
 
-#ifndef LEVEL_CORNERS_Z_HOP
-  #define LEVEL_CORNERS_Z_HOP 4.0
+#ifndef BED_TRAMMING_Z_HOP
+  #define BED_TRAMMING_Z_HOP 4.0
 #endif
 
-#ifndef LEVEL_CORNERS_HEIGHT
-  #define LEVEL_CORNERS_HEIGHT 0.0
+#ifndef BED_TRAMMING_HEIGHT
+  #define BED_TRAMMING_HEIGHT 0.0
 #endif
 
-static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
+static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0. Please update your configuration.");
 
 #ifndef DGUS_LEVEL_CENTER_X
   #define DGUS_LEVEL_CENTER_X ((X_BED_SIZE) / 2)

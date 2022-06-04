@@ -268,7 +268,7 @@ class MenuItem_bool : public MenuEditItemBase {
   #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER)
 #endif
 
-#define _MENU_INNER_P(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
+#define _MENU_INNER_F(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
   FSTR_P const flabel = FLABEL;                                \
   if (encoderLine == _thisItemNr && ui.use_click()) {          \
     _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
@@ -280,30 +280,41 @@ class MenuItem_bool : public MenuEditItemBase {
       (encoderLine == _thisItemNr, _lcdLineNr, flabel, ##V);   \
 }while(0)
 
+// Item with optional data
 #define _MENU_ITEM_F(TYPE, V...) do { \
   if (_menuLineNr == _thisItemNr) {   \
     _skipStatic = false;              \
-    _MENU_INNER_P(TYPE, ##V);         \
+    _MENU_INNER_F(TYPE, ##V);         \
   }                                   \
   NEXT_ITEM();                        \
 }while(0)
 
-// Indexed items set a global index value and optional data
+// Item with index value, C-string, and optional data
 #define _MENU_ITEM_N_S_F(TYPE, N, S, V...) do{ \
   if (_menuLineNr == _thisItemNr) {            \
     _skipStatic = false;                       \
     MenuItemBase::init(N, S);                  \
-    _MENU_INNER_P(TYPE, ##V);                  \
+    _MENU_INNER_F(TYPE, ##V);                  \
   }                                            \
   NEXT_ITEM();                                 \
 }while(0)
 
-// Indexed items set a global index value
+// Item with index value and F-string
+#define _MENU_ITEM_N_f_F(TYPE, N, f, V...) do{ \
+  if (_menuLineNr == _thisItemNr) {            \
+    _skipStatic = false;                       \
+    MenuItemBase::init(N, f);                  \
+    _MENU_INNER_F(TYPE, ##V);                  \
+  }                                            \
+  NEXT_ITEM();                                 \
+}while(0)
+
+// Item with index value
 #define _MENU_ITEM_N_F(TYPE, N, V...) do{ \
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
-    MenuItemBase::itemIndex = N;          \
-    _MENU_INNER_P(TYPE, ##V);             \
+    MenuItemBase::init(N);                \
+    _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \
 }while(0)
@@ -312,8 +323,18 @@ class MenuItem_bool : public MenuEditItemBase {
 #define _MENU_ITEM_S_F(TYPE, S, V...) do{ \
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
-    MenuItemBase::itemString = S;         \
-    _MENU_INNER_P(TYPE, ##V);             \
+    MenuItemBase::init(0, S);             \
+    _MENU_INNER_F(TYPE, ##V);             \
+  }                                       \
+  NEXT_ITEM();                            \
+}while(0)
+
+// Items with a unique F-string
+#define _MENU_ITEM_f_F(TYPE, f, V...) do{ \
+  if (_menuLineNr == _thisItemNr) {       \
+    _skipStatic = false;                  \
+    MenuItemBase::init(0, f);             \
+    _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \
 }while(0)
@@ -361,14 +382,23 @@ class MenuItem_bool : public MenuEditItemBase {
 #define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
 #define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_F(GET_TEXT_F(LABEL), N, ##V)
 
+// Menu item with index and composed C-string substitution
 #define MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)   _MENU_ITEM_N_S_F(TYPE, N, S, false, FLABEL, ##V)
 #define MENU_ITEM_N_S(TYPE, N, S, LABEL, V...)       MENU_ITEM_N_S_F(TYPE, N, S, GET_TEXT_F(LABEL), ##V)
+
+// Menu item with composed C-string substitution
 #define MENU_ITEM_S_F(TYPE, S, FLABEL, V...)          _MENU_ITEM_S_F(TYPE, S, false, FLABEL, ##V)
 #define MENU_ITEM_S(TYPE, S, LABEL, V...)              MENU_ITEM_S_F(TYPE, S, GET_TEXT_F(LABEL), ##V)
+
+// Menu item substitution, indexed
 #define MENU_ITEM_N_F(TYPE, N, FLABEL, V...)          _MENU_ITEM_N_F(TYPE, N, false, FLABEL, ##V)
 #define MENU_ITEM_N(TYPE, N, LABEL, V...)              MENU_ITEM_N_F(TYPE, N, GET_TEXT_F(LABEL), ##V)
+
+// Basic menu items, no substitution
 #define MENU_ITEM_F(TYPE, FLABEL, V...)                 _MENU_ITEM_F(TYPE, false, FLABEL, ##V)
 #define MENU_ITEM(TYPE, LABEL, V...)                     MENU_ITEM_F(TYPE, GET_TEXT_F(LABEL), ##V)
+
+// Predefined menu item types //
 
 #define BACK_ITEM_F(FLABEL)                              MENU_ITEM_F(back, FLABEL)
 #define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
@@ -418,6 +448,38 @@ class MenuItem_bool : public MenuEditItemBase {
 #define EDIT_ITEM_FAST_F(TYPE, FLABEL, V...)                _MENU_ITEM_F(TYPE, true, FLABEL, ##V)
 #define EDIT_ITEM_FAST(TYPE, LABEL, V...)               EDIT_ITEM_FAST_F(TYPE, GET_TEXT_F(LABEL), ##V)
 
+// F-string substitution instead of C-string //
+
+#define MENU_ITEM_N_f_F(TYPE, N, f, FLABEL, V...)   _MENU_ITEM_N_f_F(TYPE, N, f, false, FLABEL, ##V)
+#define MENU_ITEM_N_f(TYPE, N, f, LABEL, V...)       MENU_ITEM_N_f_F(TYPE, N, f, GET_TEXT_F(LABEL), ##V)
+#define MENU_ITEM_f_F(TYPE, f, FLABEL, V...)          _MENU_ITEM_f_F(TYPE, f, false, FLABEL, ##V)
+#define MENU_ITEM_f(TYPE, f, LABEL, V...)              MENU_ITEM_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
+#define ACTION_ITEM_N_f_F(N, f, FLABEL, ACTION)      MENU_ITEM_N_f_F(function, N, f, FLABEL, ACTION)
+#define ACTION_ITEM_N_f(N, f, LABEL, ACTION)       ACTION_ITEM_N_f_F(N, f, GET_TEXT_F(LABEL), ACTION)
+#define ACTION_ITEM_f_F(f, FLABEL, ACTION)             MENU_ITEM_f_F(function, f, FLABEL, ACTION)
+#define ACTION_ITEM_f(f, LABEL, ACTION)              ACTION_ITEM_f_F(f, GET_TEXT_F(LABEL), ACTION)
+
+#define GCODES_ITEM_N_f_F(N, f, FLABEL, GCODES)      MENU_ITEM_N_f_F(gcode, N, f, FLABEL, GCODES)
+#define GCODES_ITEM_N_f(N, f, LABEL, GCODES)       GCODES_ITEM_N_f_F(N, f, GET_TEXT_F(LABEL), GCODES)
+#define GCODES_ITEM_f_F(f, FLABEL, GCODES)             MENU_ITEM_f_F(gcode, f, FLABEL, GCODES)
+#define GCODES_ITEM_f(f, LABEL, GCODES)              GCODES_ITEM_f_F(f, GET_TEXT_F(LABEL), GCODES)
+
+#define SUBMENU_N_f_F(N, f, FLABEL, DEST)            MENU_ITEM_N_f_F(submenu, N, f, FLABEL, DEST)
+#define SUBMENU_N_f(N, f, LABEL, DEST)                 SUBMENU_N_f_F(N, f, GET_TEXT_F(LABEL), DEST)
+#define SUBMENU_f_F(f, FLABEL, DEST)                   MENU_ITEM_f_F(submenu, f, FLABEL, DEST)
+#define SUBMENU_f(f, LABEL, DEST)                        SUBMENU_f_F(f, GET_TEXT_F(LABEL), DEST)
+
+#define EDIT_ITEM_N_f_F(TYPE, N, f, FLABEL, V...)    MENU_ITEM_N_f_F(TYPE, N, f, FLABEL, ##V)
+#define EDIT_ITEM_N_f(TYPE, N, f, LABEL, V...)       EDIT_ITEM_N_f_F(TYPE, N, f, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_f_F(TYPE, f, FLABEL, V...)           MENU_ITEM_f_F(TYPE, f, FLABEL, ##V)
+#define EDIT_ITEM_f(TYPE, f, LABEL, V...)              EDIT_ITEM_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
+#define EDIT_ITEM_FAST_N_f_F(TYPE, N, f, FLABEL, V...)  _MENU_ITEM_N_f_F(TYPE, N, f, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_N_f(TYPE, N, f, LABEL, V...) EDIT_ITEM_FAST_N_f_F(TYPE, N, f, true, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_FAST_f_F(TYPE, f, FLABEL, V...)         _MENU_ITEM_f_F(TYPE, f, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_f(TYPE, f, LABEL, V...)        EDIT_ITEM_FAST_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
 #define _CONFIRM_ITEM_INNER_F(FLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \
     ui.push_current_screen();                                \
@@ -466,7 +528,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define YESNO_ITEM_N_F(N,FLABEL, V...)             CONFIRM_ITEM_N_F(N, FLABEL, MSG_YES, MSG_NO, ##V)
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
-#if ENABLED(LEVEL_BED_CORNERS)
+#if ENABLED(LCD_BED_TRAMMING)
   void _lcd_level_bed_corners();
 #endif
 

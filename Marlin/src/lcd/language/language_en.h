@@ -27,10 +27,9 @@
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  *
- * Substitutions are applied for the following characters when used
- * in menu items that call lcd_put_u8str_ind_P with an index:
+ * Substitutions are applied for the following characters when used in menu items titles:
  *
- *   $ displays an inserted C-string
+ *   $ displays an inserted string
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
@@ -106,12 +105,6 @@ namespace Language_en {
   LSTR MSG_HOME_OFFSET_X                  = _UxGT("Home Offset X");
   LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Home Offset Y");
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Home Offset Z");
-  LSTR MSG_HOME_OFFSET_I                  = _UxGT("Home Offset ") STR_I;
-  LSTR MSG_HOME_OFFSET_J                  = _UxGT("Home Offset ") STR_J;
-  LSTR MSG_HOME_OFFSET_K                  = _UxGT("Home Offset ") STR_K;
-  LSTR MSG_HOME_OFFSET_U                  = _UxGT("Home Offset ") STR_U;
-  LSTR MSG_HOME_OFFSET_V                  = _UxGT("Home Offset ") STR_V;
-  LSTR MSG_HOME_OFFSET_W                  = _UxGT("Home Offset ") STR_W;
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets Applied");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Select Origin");
@@ -314,16 +307,11 @@ namespace Language_en {
   LSTR MSG_MOVE_X                         = _UxGT("Move X"); // Used by draw_edit_screen
   LSTR MSG_MOVE_Y                         = _UxGT("Move Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Move Z");
-  LSTR MSG_MOVE_I                         = _UxGT("Move ") STR_I;
-  LSTR MSG_MOVE_J                         = _UxGT("Move ") STR_J;
-  LSTR MSG_MOVE_K                         = _UxGT("Move ") STR_K;
-  LSTR MSG_MOVE_U                         = _UxGT("Move ") STR_U;
-  LSTR MSG_MOVE_V                         = _UxGT("Move ") STR_V;
-  LSTR MSG_MOVE_W                         = _UxGT("Move ") STR_W;
+  LSTR MSG_MOVE_N                         = _UxGT("Move @");
   LSTR MSG_MOVE_E                         = _UxGT("Move Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Move E*");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend too cold");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Move %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Move $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Move 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Move 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Move 10mm");
@@ -333,12 +321,6 @@ namespace Language_en {
   LSTR MSG_MOVE_01IN                      = _UxGT("Move 0.1in");
   LSTR MSG_MOVE_1IN                       = _UxGT("Move 1.0in");
   LSTR MSG_SPEED                          = _UxGT("Speed");
-  LSTR MSG_MAXSPEED                       = _UxGT("Max Speed (mm/s)");
-  LSTR MSG_MAXSPEED_X                     = _UxGT("Max ") STR_A _UxGT(" Speed");
-  LSTR MSG_MAXSPEED_Y                     = _UxGT("Max ") STR_B _UxGT(" Speed");
-  LSTR MSG_MAXSPEED_Z                     = _UxGT("Max ") STR_C _UxGT(" Speed");
-  LSTR MSG_MAXSPEED_E                     = _UxGT("Max ") STR_E _UxGT(" Speed");
-  LSTR MSG_MAXSPEED_A                     = _UxGT("Max @ Speed");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
@@ -395,39 +377,24 @@ namespace Language_en {
   LSTR MSG_VA_JERK                        = _UxGT("Max ") STR_A _UxGT(" Jerk");
   LSTR MSG_VB_JERK                        = _UxGT("Max ") STR_B _UxGT(" Jerk");
   LSTR MSG_VC_JERK                        = _UxGT("Max ") STR_C _UxGT(" Jerk");
-  LSTR MSG_VI_JERK                        = _UxGT("Max ") STR_I _UxGT(" Jerk");
-  LSTR MSG_VJ_JERK                        = _UxGT("Max ") STR_J _UxGT(" Jerk");
-  LSTR MSG_VK_JERK                        = _UxGT("Max ") STR_K _UxGT(" Jerk");
-  LSTR MSG_VU_JERK                        = _UxGT("Max ") STR_U _UxGT(" Jerk");
-  LSTR MSG_VV_JERK                        = _UxGT("Max ") STR_V _UxGT(" Jerk");
-  LSTR MSG_VW_JERK                        = _UxGT("Max ") STR_W _UxGT(" Jerk");
+  LSTR MSG_VN_JERK                        = _UxGT("Max @ Jerk");
   LSTR MSG_VE_JERK                        = _UxGT("Max E Jerk");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Junction Dev");
-  LSTR MSG_VELOCITY                       = _UxGT("Velocity");
-  LSTR MSG_VMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Vel");
-  LSTR MSG_VMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Vel");
-  LSTR MSG_VMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Vel");
-  LSTR MSG_VMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Vel");
-  LSTR MSG_VMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Vel");
-  LSTR MSG_VMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Vel");
-  LSTR MSG_VMAX_U                         = _UxGT("Max ") STR_U _UxGT(" Vel");
-  LSTR MSG_VMAX_V                         = _UxGT("Max ") STR_V _UxGT(" Vel");
-  LSTR MSG_VMAX_W                         = _UxGT("Max ") STR_W _UxGT(" Vel");
-  LSTR MSG_VMAX_E                         = _UxGT("Max ") STR_E _UxGT(" Vel");
-  LSTR MSG_VMAX_EN                        = _UxGT("Max * Vel");
+  LSTR MSG_MAX_SPEED                      = _UxGT("Max Speed (mm/s)");
+  LSTR MSG_VMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Speed");
+  LSTR MSG_VMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Speed");
+  LSTR MSG_VMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Speed");
+  LSTR MSG_VMAX_N                         = _UxGT("Max @ Speed");
+  LSTR MSG_VMAX_E                         = _UxGT("Max E Speed");
+  LSTR MSG_VMAX_EN                        = _UxGT("Max * Speed");
   LSTR MSG_VMIN                           = _UxGT("Min Velocity");
-  LSTR MSG_VTRAV_MIN                      = _UxGT("Min Travel Vel");
+  LSTR MSG_VTRAV_MIN                      = _UxGT("Min Travel Speed");
   LSTR MSG_ACCELERATION                   = _UxGT("Acceleration");
   LSTR MSG_AMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Accel");
   LSTR MSG_AMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Accel");
   LSTR MSG_AMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Accel");
-  LSTR MSG_AMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Accel");
-  LSTR MSG_AMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Accel");
-  LSTR MSG_AMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Accel");
-  LSTR MSG_AMAX_U                         = _UxGT("Max ") STR_U _UxGT(" Accel");
-  LSTR MSG_AMAX_V                         = _UxGT("Max ") STR_V _UxGT(" Accel");
-  LSTR MSG_AMAX_W                         = _UxGT("Max ") STR_W _UxGT(" Accel");
-  LSTR MSG_AMAX_E                         = _UxGT("Max ") STR_E _UxGT(" Accel");
+  LSTR MSG_AMAX_N                         = _UxGT("Max @ Accel");
+  LSTR MSG_AMAX_E                         = _UxGT("Max E Accel");
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
   LSTR MSG_A_TRAVEL                       = _UxGT("Travel Accel");
@@ -437,12 +404,7 @@ namespace Language_en {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" Steps/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" Steps/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" Steps/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" Steps/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" Steps/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" Steps/mm");
-  LSTR MSG_U_STEPS                        = STR_U _UxGT(" Steps/mm");
-  LSTR MSG_V_STEPS                        = STR_V _UxGT(" Steps/mm");
-  LSTR MSG_W_STEPS                        = STR_W _UxGT(" Steps/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ steps/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E steps/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* Steps/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
@@ -605,12 +567,7 @@ namespace Language_en {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");
-  LSTR MSG_BABYSTEP_I                     = _UxGT("Babystep ") STR_I;
-  LSTR MSG_BABYSTEP_J                     = _UxGT("Babystep ") STR_J;
-  LSTR MSG_BABYSTEP_K                     = _UxGT("Babystep ") STR_K;
-  LSTR MSG_BABYSTEP_U                     = _UxGT("Babystep ") STR_U;
-  LSTR MSG_BABYSTEP_V                     = _UxGT("Babystep ") STR_V;
-  LSTR MSG_BABYSTEP_W                     = _UxGT("Babystep ") STR_W;
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Heating Failed");
@@ -707,16 +664,7 @@ namespace Language_en {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("PSU");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Drive Strength");
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_U                  = STR_U _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_V                  = STR_V _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_W                  = STR_W _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Driver %");
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driver %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC CONNECTION ERROR");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("DAC EEPROM Write");
   LSTR MSG_FILAMENT_CHANGE_HEADER         = _UxGT("FILAMENT CHANGE");
@@ -889,15 +837,7 @@ namespace Language_en {
   LSTR MSG_PID_C_E                        = _UxGT("PID-C *");
   LSTR MSG_PID_F                          = _UxGT("PID-F");
   LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
-  LSTR MSG_BACKLASH_A                     = STR_A;
-  LSTR MSG_BACKLASH_B                     = STR_B;
-  LSTR MSG_BACKLASH_C                     = STR_C;
-  LSTR MSG_BACKLASH_I                     = STR_I;
-  LSTR MSG_BACKLASH_J                     = STR_J;
-  LSTR MSG_BACKLASH_K                     = STR_K;
-  LSTR MSG_BACKLASH_U                     = STR_U;
-  LSTR MSG_BACKLASH_V                     = STR_V;
-  LSTR MSG_BACKLASH_W                     = STR_W;
+  LSTR MSG_BACKLASH_N                     = _UxGT("@");
 }
 
 #if FAN_COUNT == 1

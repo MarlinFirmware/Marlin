@@ -74,7 +74,7 @@ namespace Language_da {
   LSTR MSG_MOVE_X                         = _UxGT("Flyt X");
   LSTR MSG_MOVE_Y                         = _UxGT("Flyt Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Flyt Z");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Flyt %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Flyt $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Flyt 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Flyt 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Flyt 10mm");
@@ -172,13 +172,7 @@ namespace Language_da {
   LSTR MSG_INFO_PSU                       = _UxGT("Strømfors.");
 
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Driv Styrke");
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Driv %");
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Driv %");
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Driv %");
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Driv %");
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Driv %");
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Driv %");
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Driv %");
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driv %");
 
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("DAC EEPROM Skriv");
 

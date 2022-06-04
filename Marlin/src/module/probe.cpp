@@ -103,7 +103,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
-  Probe::sense_bool_t Probe::test_sensitivity;
+  Probe::sense_bool_t Probe::test_sensitivity = { true, true, true };
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -531,12 +531,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
     #if HAS_DELTA_SENSORLESS_PROBING
-      if (test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
+      if (test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX); // Delta watches all DIAG pins for a stall
       if (test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
-    if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);    // All machines will check Z-DIAG for stall
+    if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);   // All machines will check Z-DIAG for stall
+    endstops.set_homing_current(true);                                            // The "homing" current also applies to probing
     endstops.enable(true);
-    set_homing_current(true);                                 // The "homing" current also applies to probing
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
@@ -553,6 +553,11 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
   ;
 
+  // Offset sensorless probing
+  #if HAS_DELTA_SENSORLESS_PROBING
+    if (probe_triggered) probe.refresh_largest_sensorless_adj();
+  #endif
+
   TERN_(HAS_QUIET_PROBING, set_probing_paused(false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
@@ -563,7 +568,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       if (test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     if (test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
-    set_homing_current(false);
+    endstops.set_homing_current(false);
   #endif
 
   #if ENABLED(BLTOUCH)
@@ -666,8 +671,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
-    const float first_probe_z = current_position.z;
-
+    const float first_probe_z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
@@ -709,7 +713,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
-      const float z = current_position.z;
+      const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
 
       #if EXTRA_PROBING > 0
         // Insert Z measurement into probes[]. Keep it sorted ascending.
@@ -760,7 +764,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #elif TOTAL_PROBING == 2
 
-    const float z2 = current_position.z;
+    const float z2 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
 
@@ -843,7 +847,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
     #endif
   }
-
+  DEBUG_ECHOLNPGM("measured_z: ", measured_z);
   return measured_z;
 }
 
@@ -896,60 +900,39 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   }
 
   /**
-   * Change the current in the TMC drivers to N##_CURRENT_HOME. And we save the current configuration of each TMC driver.
+   * Set the sensorless Z offset
    */
-  void Probe::set_homing_current(const bool onoff) {
-    #define _defined(N) defined(N)
-    #define HAS_CURRENT_HOME(N) (N##_CURRENT_HOME > 0 && N##_CURRENT_HOME != N##_CURRENT)
-    #define _HOME_ELEM(N) HAS_CURRENT_HOME(N) ||
-    #if MAIN_AXIS_MAP(_HOME_ELEM) 0
-      #if ENABLED(DELTA)
-        static int16_t saved_current_X, saved_current_Y;
+  void Probe::set_offset_sensorless_adj(const_float_t sz) {
+    #if ENABLED(SENSORLESS_PROBING)
+      DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
+      #if HAS_DELTA_SENSORLESS_PROBING
+        if (test_sensitivity.x) offset_sensorless_adj.a = sz;
+        if (test_sensitivity.y) offset_sensorless_adj.b = sz;
       #endif
-      #if HAS_CURRENT_HOME(Z)
-        static int16_t saved_current_Z;
+      if (test_sensitivity.z) offset_sensorless_adj.c = sz;
+    #endif
+  }
+
+  /**
+   * Refresh largest_sensorless_adj based on triggered endstops
+   */
+  void Probe::refresh_largest_sensorless_adj() {
+    #if ENABLED(SENSORLESS_PROBING)
+      DEBUG_SECTION(rso, "Probe::refresh_largest_sensorless_adj", true);
+      largest_sensorless_adj = -3;                                             // A reference away from any real probe height
+      #if HAS_DELTA_SENSORLESS_PROBING
+        if (TEST(endstops.state(), X_MAX)) {
+          NOLESS(largest_sensorless_adj, offset_sensorless_adj.a);
+          DEBUG_ECHOLNPGM("Endstop_X: ", largest_sensorless_adj, " TowerX");
+        }
+        if (TEST(endstops.state(), Y_MAX)) {
+          NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
+          DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
+        }
       #endif
-      #if ((ENABLED(DELTA) && (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y))) || HAS_CURRENT_HOME(Z))
-        auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
-        };
-      #endif
-      if (onoff) {
-        #if ENABLED(DELTA)
-          #if HAS_CURRENT_HOME(X)
-            saved_current_X = stepperX.getMilliamps();
-            stepperX.rms_current(X_CURRENT_HOME);
-            debug_current_on(PSTR("X"), saved_current_X, X_CURRENT_HOME);
-          #endif
-          #if HAS_CURRENT_HOME(Y)
-            saved_current_Y = stepperY.getMilliamps();
-            stepperY.rms_current(Y_CURRENT_HOME);
-            debug_current_on(PSTR("Y"), saved_current_Y, Y_CURRENT_HOME);
-          #endif
-        #endif
-        #if HAS_CURRENT_HOME(Z)
-          saved_current_Z = stepperZ.getMilliamps();
-          stepperZ.rms_current(Z_CURRENT_HOME);
-          debug_current_on(PSTR("Z"), saved_current_Z, Z_CURRENT_HOME);
-        #endif
-        TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
-      }
-      else {
-        #if ENABLED(DELTA)
-          #if HAS_CURRENT_HOME(X)
-            stepperX.rms_current(saved_current_X);
-            debug_current_on(PSTR("X"), X_CURRENT_HOME, saved_current_X);
-          #endif
-          #if HAS_CURRENT_HOME(Y)
-            stepperY.rms_current(saved_current_Y);
-            debug_current_on(PSTR("Y"), Y_CURRENT_HOME, saved_current_Y);
-          #endif
-        #endif
-        #if HAS_CURRENT_HOME(Z)
-          stepperZ.rms_current(saved_current_Z);
-          debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_Z);
-        #endif
-        TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
+      if (TEST(endstops.state(), Z_MAX)) {
+        NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
+        DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
       }
     #endif
   }
