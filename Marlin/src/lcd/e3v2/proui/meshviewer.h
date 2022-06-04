@@ -27,13 +27,13 @@
 /**
  * Mesh Viewer for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * version: 3.12.1
- * Date: 2022/02/24
+ * version: 3.14.1
+ * Date: 2022/04/11
  */
 
 class MeshViewerClass {
 public:
-  float avg, max, min;
+  float max, min;
   void Draw(bool withsave = false);
   void DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8_t sizey);
 };

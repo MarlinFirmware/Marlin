@@ -200,7 +200,7 @@ void DGUSScreenHandler::StoreSettings(char *buff) {
   data.initialized = true;
   data.volume = dgus_display.GetVolume();
   data.brightness = dgus_display.GetBrightness();
-  data.abl = (ExtUI::getLevelingActive() && ExtUI::getMeshValid());
+  data.abl_okay = (ExtUI::getLevelingActive() && ExtUI::getMeshValid());
 
   memcpy(buff, &data, sizeof(data));
 }
@@ -216,8 +216,7 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
   dgus_display.SetBrightness(data.initialized ? data.brightness : DGUS_DEFAULT_BRIGHTNESS);
 
   if (data.initialized) {
-    leveling_active = (data.abl && ExtUI::getMeshValid());
-
+    leveling_active = (data.abl_okay && ExtUI::getMeshValid());
     ExtUI::setLevelingActive(leveling_active);
   }
 }

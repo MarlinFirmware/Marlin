@@ -592,13 +592,20 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
-      #error "CAUTION! ZONESTAR_LCD on RAMPS requires wiring modifications. It plugs into AUX2 but GND and 5V need to be swapped. Comment out this line to continue."
+      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+        #error "CAUTION! ZONESTAR_LCD on RAMPS requires wiring modifications. It plugs into AUX2 but GND and 5V need to be swapped. See 'pins_RAMPS.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+      #endif
+
       #define LCD_PINS_RS            AUX2_05_PIN
       #define LCD_PINS_ENABLE        AUX2_07_PIN
       #define LCD_PINS_D4            AUX2_04_PIN
       #define LCD_PINS_D5            AUX2_06_PIN
       #define LCD_PINS_D6            AUX2_08_PIN
       #define LCD_PINS_D7            AUX2_10_PIN
+
+    #elif ENABLED(AZSMZ_12864)
+
+      // Pins only defined for RAMPS_SMART currently
 
     #else
 
@@ -752,7 +759,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+        // From https://wiki.fysetc.com/Mini12864_Panel/
 
         #define DOGLCD_A0            EXP1_07_PIN
         #define DOGLCD_CS            EXP1_08_PIN
@@ -855,7 +862,9 @@
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_RAMPS.h' for details. Comment out this line to continue."
+  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_RAMPS.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+  #endif
 
   /**
    * FYSETC TFT-81050 display pinout

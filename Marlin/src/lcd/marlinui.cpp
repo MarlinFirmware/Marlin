@@ -118,19 +118,18 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
-  bool MarlinUI::buzzer_enabled = true;
+  bool MarlinUI::sound_on = ENABLED(SOUND_ON_DEFAULT);
 #endif
 
-#if EITHER(PCA9632_BUZZER, USE_BEEPER)
-  #include "../libs/buzzer.h" // for BUZZ() macro
+#if EITHER(PCA9632_BUZZER, HAS_BEEPER)
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    if (!buzzer_enabled) return;
+    if (!sound_on) return;
     #if ENABLED(PCA9632_BUZZER)
       PCA9632_buzz(duration, freq);
-    #elif USE_BEEPER
+    #elif HAS_BEEPER
       buzzer.tone(duration, freq);
     #endif
   }
@@ -141,12 +140,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
 
-  PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
+  FSTR_P MarlinUI::get_preheat_label(const uint8_t m) {
     #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);
     #define _PLBL(N) preheat_##N##_label,
     REPEAT_1(PREHEAT_COUNT, _PDEF);
     static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT_1(PREHEAT_COUNT, _PLBL) };
-    return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
+    return FPSTR((PGM_P)pgm_read_ptr(&preheat_labels[m]));
   }
 
   void MarlinUI::apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e/*=active_extruder*/) {
@@ -417,10 +416,11 @@ void MarlinUI::init() {
           SETCURSOR(0, row);              // Simulate carriage return
         };
 
-        uint8_t *p = (uint8_t*)string;
+        const uint8_t *p = (uint8_t*)string;
         wchar_t ch;
         if (wordwrap) {
-          uint8_t *wrd = nullptr, c = 0;
+          const uint8_t *wrd = nullptr;
+          uint8_t c = 0;
           // find the end of the part
           for (;;) {
             if (!wrd) wrd = p;            // Get word start /before/ advancing
@@ -455,20 +455,20 @@ void MarlinUI::init() {
         }
       }
 
-      void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
-        const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
+      void MarlinUI::draw_select_screen_prompt(FSTR_P const pref, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
+        const uint8_t plen = utf8_strlen(pref), slen = suff ? utf8_strlen(suff) : 0;
         uint8_t col = 0, row = 0;
         if (!string && plen + slen <= LCD_WIDTH) {
           col = (LCD_WIDTH - plen - slen) / 2;
           row = LCD_HEIGHT > 3 ? 1 : 0;
         }
         if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
-        wrap_string_P(col, row, pref, true);
+        wrap_string_P(col, row, FTOP(pref), true);
         if (string) {
           if (col) { col = 0; row++; } // Move to the start of the next line
           wrap_string(col, row, string);
         }
-        if (suff) wrap_string_P(col, row, suff);
+        if (suff) wrap_string_P(col, row, FTOP(suff));
       }
 
     #endif // !HAS_GRAPHICAL_TFT
@@ -485,17 +485,17 @@ void MarlinUI::init() {
 
     #if HAS_MARLINUI_MENU && !HAS_ADC_BUTTONS
 
-      void lcd_move_x();
-      void lcd_move_y();
-      void lcd_move_z();
-
       void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
         ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
         ui.encoderPosition = dir;
         switch (axis) {
-          case X_AXIS: lcd_move_x(); break;
-          case Y_AXIS: lcd_move_y(); break;
-          case Z_AXIS: lcd_move_z();
+          case X_AXIS: { void lcd_move_x(); lcd_move_x(); } break;
+          #if HAS_Y_AXIS
+            case Y_AXIS: { void lcd_move_y(); lcd_move_y(); } break;
+          #endif
+          #if HAS_Z_AXIS
+            case Z_AXIS: { void lcd_move_z(); lcd_move_z(); } break;
+          #endif
           default: break;
         }
       }
@@ -694,7 +694,7 @@ void MarlinUI::init() {
             const millis_t ms = millis();
           #endif
           if (ELAPSED(ms, next_beep)) {
-            buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+            BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
             next_beep = ms + 500UL;
           }
         #endif
@@ -748,7 +748,7 @@ void MarlinUI::init() {
 
     #if HAS_CHIRP
       chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
-      #if BOTH(HAS_MARLINUI_MENU, USE_BEEPER)
+      #if BOTH(HAS_MARLINUI_MENU, HAS_BEEPER)
         for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
       #elif HAS_MARLINUI_MENU
         delay(10);
@@ -864,7 +864,7 @@ void MarlinUI::init() {
 
       void MarlinUI::external_encoder() {
         if (external_control && encoderDiff) {
-          ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
+          bedlevel.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
           encoderDiff = 0;                  // Hide encoder events from the screen handler
           refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
         }
@@ -1646,13 +1646,13 @@ void MarlinUI::init() {
 
   void MarlinUI::flow_fault() {
     LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
-    TERN_(HAS_BUZZER, buzz(1000, 440));
+    BUZZ(1000, 440);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
   }
 
   void MarlinUI::pause_print() {
     #if HAS_MARLINUI_MENU
-      synchronize(GET_TEXT(MSG_PAUSING));
+      synchronize(GET_TEXT_F(MSG_PAUSING));
       defer_status_screen();
     #endif
 
@@ -1879,12 +1879,12 @@ void MarlinUI::init() {
 
   #if DISABLED(EEPROM_AUTO_INIT)
 
-    static inline PGM_P eeprom_err(const uint8_t msgid) {
+    static inline FSTR_P eeprom_err(const uint8_t msgid) {
       switch (msgid) {
         default:
-        case 0: return GET_TEXT(MSG_ERR_EEPROM_CRC);
-        case 1: return GET_TEXT(MSG_ERR_EEPROM_INDEX);
-        case 2: return GET_TEXT(MSG_ERR_EEPROM_VERSION);
+        case 0: return GET_TEXT_F(MSG_ERR_EEPROM_CRC);
+        case 1: return GET_TEXT_F(MSG_ERR_EEPROM_INDEX);
+        case 2: return GET_TEXT_F(MSG_ERR_EEPROM_VERSION);
       }
     }
 
@@ -1892,17 +1892,17 @@ void MarlinUI::init() {
       #if HAS_MARLINUI_MENU
         editable.uint8 = msgid;
         goto_screen([]{
-          PGM_P const restore_msg = GET_TEXT(MSG_INIT_EEPROM);
-          char msg[utf8_strlen_P(restore_msg) + 1];
-          strcpy_P(msg, restore_msg);
+          FSTR_P const restore_msg = GET_TEXT_F(MSG_INIT_EEPROM);
+          char msg[utf8_strlen(restore_msg) + 1];
+          strcpy_P(msg, FTOP(restore_msg));
           MenuItem_confirm::select_screen(
-            GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_IGNORE),
+            GET_TEXT_F(MSG_BUTTON_RESET), GET_TEXT_F(MSG_BUTTON_IGNORE),
             init_eeprom, return_to_status,
-            eeprom_err(editable.uint8), msg, PSTR("?")
+            eeprom_err(editable.uint8), msg, F("?")
           );
         });
       #else
-        set_status(FPSTR(eeprom_err(msgid)));
+        set_status(eeprom_err(msgid));
       #endif
     }
 

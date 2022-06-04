@@ -68,7 +68,7 @@ void GcodeSuite::G61() {
     SYNC_E(stored_position[slot].e);
   }
   else {
-    if (parser.seen(NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W))) {
+    if (parser.seen(STR_AXES_MAIN)) {
       DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
       LOOP_NUM_AXES(i) {
         destination[i] = parser.seenval(AXIS_CHAR(i))

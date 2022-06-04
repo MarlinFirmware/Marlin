@@ -223,7 +223,9 @@
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
 
-    #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
 
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
@@ -257,7 +259,9 @@
 
   #elif ENABLED(WYH_L12864)
 
-    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! WYH_L12864 requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
 
     /**
      * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
@@ -310,7 +314,7 @@
     #define TFT_RESET_PIN            EXP1_07_PIN
     #define TFT_BACKLIGHT_PIN        EXP1_08_PIN
 
-    #define TFT_RST_PIN              EXP2_04_PIN
+    //#define TFT_RST_PIN            EXP2_04_PIN
     #define TFT_MOSI_PIN             EXP2_05_PIN
     #define TFT_SCK_PIN              EXP2_09_PIN
     #define TFT_MISO_PIN             EXP2_10_PIN

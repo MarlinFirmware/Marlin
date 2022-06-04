@@ -69,7 +69,7 @@ inline void toggle_pins() {
       SERIAL_EOL();
     }
     else {
-      watchdog_refresh();
+      hal.watchdog_refresh();
       report_pin_state_extended(pin, ignore_protection, true, F("Pulsing   "));
       #ifdef __STM32F1__
         const auto prior_mode = _GET_MODE(i);
@@ -98,10 +98,10 @@ inline void toggle_pins() {
       {
         pinMode(pin, OUTPUT);
         for (int16_t j = 0; j < repeat; j++) {
-          watchdog_refresh(); extDigitalWrite(pin, 0); safe_delay(wait);
-          watchdog_refresh(); extDigitalWrite(pin, 1); safe_delay(wait);
-          watchdog_refresh(); extDigitalWrite(pin, 0); safe_delay(wait);
-          watchdog_refresh();
+          hal.watchdog_refresh(); extDigitalWrite(pin, 0); safe_delay(wait);
+          hal.watchdog_refresh(); extDigitalWrite(pin, 1); safe_delay(wait);
+          hal.watchdog_refresh(); extDigitalWrite(pin, 0); safe_delay(wait);
+          hal.watchdog_refresh();
         }
       }
       #ifdef __STM32F1__

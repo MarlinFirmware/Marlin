@@ -30,7 +30,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4KB (24C32 ... 32Kb = 4KB)
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K (24C32)
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
@@ -49,8 +49,6 @@
 
 #define LED_PIN                             PA13
 #define BEEPER_PIN                          PA14
-
-#define TFT_BACKLIGHT_PIN                   PB5
 
 #define POWER_MONITOR_PIN                   PB0
 #define RPI_POWER_PIN                       PE5

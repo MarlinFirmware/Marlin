@@ -293,10 +293,10 @@ typedef struct {
 
     if (circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
       xyz_pos_t s, e;
-      s.x = _GET_MESH_X(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
-      e.x = _GET_MESH_X(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
-      s.y = _GET_MESH_Y(p1.y) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
-      e.y = _GET_MESH_Y(p2.y) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
+      s.x = bedlevel.get_mesh_x(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
+      e.x = bedlevel.get_mesh_x(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
+      s.y = bedlevel.get_mesh_y(p1.y) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
+      e.y = bedlevel.get_mesh_y(p2.y) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
       s.z = e.z = layer_height;
 
       #if HAS_ENDSTOPS
@@ -448,7 +448,7 @@ typedef struct {
       GRID_LOOP(i, j) {
         if (!circle_flags.marked(i, j)) {
           // We found a circle that needs to be printed
-          const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
+          const xy_pos_t m = { bedlevel.get_mesh_x(i), bedlevel.get_mesh_y(j) };
 
           // Get the distance to this intersection
           float f = (pos - m).magnitude();
@@ -729,7 +729,7 @@ void GcodeSuite::G26() {
 
     if (location.valid()) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
-      const xy_pos_t circle = _GET_MESH_POS(location.pos);
+      const xy_pos_t circle = { bedlevel.get_mesh_x(location.pos.a), bedlevel.get_mesh_y(location.pos.b) };
 
       // If this mesh location is outside the printable radius, skip it.
       if (!position_is_reachable(circle)) continue;
@@ -738,8 +738,8 @@ void GcodeSuite::G26() {
       // which is always drawn counter-clockwise.
       const xy_int8_t st = location;
       const bool f = st.y == 0,
-                 r = st.x >= GRID_MAX_POINTS_X - 1,
-                 b = st.y >= GRID_MAX_POINTS_Y - 1;
+                 r = st.x >= (GRID_MAX_POINTS_X) - 1,
+                 b = st.y >= (GRID_MAX_POINTS_Y) - 1;
 
       #if ENABLED(ARC_SUPPORT)
 

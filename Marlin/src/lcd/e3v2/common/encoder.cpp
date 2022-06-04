@@ -51,11 +51,7 @@ ENCODER_Rate EncoderRate;
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    if (ui.buzzer_enabled) {
-      WRITE(BEEPER_PIN, HIGH);
-      delay(10);
-      WRITE(BEEPER_PIN, LOW);
-    }
+    if (ui.sound_on) buzzer.click(10);
   #endif
 }
 

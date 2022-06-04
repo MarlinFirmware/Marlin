@@ -1306,7 +1306,7 @@ void Planner::check_axes_activity() {
 
   #if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
     #define HAS_TAIL_FAN_SPEED 1
-    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 128);
+    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 13);
     bool fans_need_update = false;
   #endif
 
@@ -1342,18 +1342,18 @@ void Planner::check_axes_activity() {
 
     #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_E)
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-        block_t *block = &block_buffer[b];
+        block_t * const bnext = &block_buffer[b];
         LOGICAL_AXIS_CODE(
-          if (TERN0(DISABLE_E, block->steps.e)) axis_active.e = true,
-          if (TERN0(DISABLE_X, block->steps.x)) axis_active.x = true,
-          if (TERN0(DISABLE_Y, block->steps.y)) axis_active.y = true,
-          if (TERN0(DISABLE_Z, block->steps.z)) axis_active.z = true,
-          if (TERN0(DISABLE_I, block->steps.i)) axis_active.i = true,
-          if (TERN0(DISABLE_J, block->steps.j)) axis_active.j = true,
-          if (TERN0(DISABLE_K, block->steps.k)) axis_active.k = true,
-          if (TERN0(DISABLE_U, block->steps.u)) axis_active.u = true,
-          if (TERN0(DISABLE_V, block->steps.v)) axis_active.v = true,
-          if (TERN0(DISABLE_W, block->steps.w)) axis_active.w = true
+          if (TERN0(DISABLE_E, bnext->steps.e)) axis_active.e = true,
+          if (TERN0(DISABLE_X, bnext->steps.x)) axis_active.x = true,
+          if (TERN0(DISABLE_Y, bnext->steps.y)) axis_active.y = true,
+          if (TERN0(DISABLE_Z, bnext->steps.z)) axis_active.z = true,
+          if (TERN0(DISABLE_I, bnext->steps.i)) axis_active.i = true,
+          if (TERN0(DISABLE_J, bnext->steps.j)) axis_active.j = true,
+          if (TERN0(DISABLE_K, bnext->steps.k)) axis_active.k = true,
+          if (TERN0(DISABLE_U, bnext->steps.u)) axis_active.u = true,
+          if (TERN0(DISABLE_V, bnext->steps.v)) axis_active.v = true,
+          if (TERN0(DISABLE_W, bnext->steps.w)) axis_active.w = true
         );
       }
     #endif
@@ -1451,14 +1451,14 @@ void Planner::check_axes_activity() {
    * currently in the planner.
    */
   void Planner::autotemp_task() {
-    static float oldt = 0;
+    static float oldt = 0.0f;
 
     if (!autotemp_enabled) return;
     if (thermalManager.degTargetHotend(active_extruder) < autotemp_min - 2) return; // Below the min?
 
-    float high = 0.0;
+    float high = 0.0f;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-      block_t *block = &block_buffer[b];
+      const block_t * const block = &block_buffer[b];
       if (NUM_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, || block->steps.u, || block->steps.v, || block->steps.w)) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
@@ -1587,55 +1587,45 @@ void Planner::check_axes_activity() {
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-      #elif DISABLED(MESH_BED_LEVELING)
-        constexpr float fade_scaling_factor = 1.0;
+        if (fade_scaling_factor) raw.z += fade_scaling_factor * bedlevel.get_z_correction(raw);
+      #else
+        raw.z += bedlevel.get_z_correction(raw);
       #endif
 
-      raw.z += (
-        #if ENABLED(MESH_BED_LEVELING)
-          mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          fade_scaling_factor ? fade_scaling_factor * bbl.get_z_correction(raw) : 0.0
-        #endif
-      );
+      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
 
     #endif
   }
 
   void Planner::unapply_leveling(xyz_pos_t &raw) {
+    if (!leveling_active) return;
 
-    if (leveling_active) {
+    #if ABL_PLANAR
 
-      #if ABL_PLANAR
+      matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
-        matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
+      xy_pos_t d = raw - level_fulcrum;
+      inverse.apply_rotation_xyz(d.x, d.y, raw.z);
+      raw = d + level_fulcrum;
 
-        xy_pos_t d = raw - level_fulcrum;
-        inverse.apply_rotation_xyz(d.x, d.y, raw.z);
-        raw = d + level_fulcrum;
+    #elif HAS_MESH
 
-      #elif HAS_MESH
+      const float z_correction = bedlevel.get_z_correction(raw),
+                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, bedlevel.get_z_offset()),
+                  z_no_fade = z_full_fade - z_correction;
 
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          const float fade_scaling_factor = fade_scaling_factor_for_z(raw.z);
-        #elif DISABLED(MESH_BED_LEVELING)
-          constexpr float fade_scaling_factor = 1.0;
-        #endif
-
-        raw.z -= (
-          #if ENABLED(MESH_BED_LEVELING)
-            mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
-          #elif ENABLED(AUTO_BED_LEVELING_UBL)
-            fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
-          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-            fade_scaling_factor ? fade_scaling_factor * bbl.get_z_correction(raw) : 0.0
-          #endif
-        );
-
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        if (!z_fade_height || z_no_fade <= 0.0f)                              // Not fading or at bed level?
+          raw.z = z_no_fade;                                                  //  Unapply full mesh Z.
+        else if (z_full_fade >= z_fade_height)                                // Above the fade height?
+          raw.z = z_full_fade;                                                //  Nothing more to unapply.
+        else                                                                  // Within the fade zone?
+          raw.z = z_no_fade / (1.0f - z_correction * inverse_z_fade_height);  // Unapply the faded Z offset
+      #else
+        raw.z = z_no_fade;
       #endif
-    }
+
+    #endif
   }
 
 #endif // HAS_LEVELING
@@ -1673,10 +1663,7 @@ void Planner::quick_stop() {
   // forced to empty, there's no risk the ISR will touch this.
   delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
 
-  #if HAS_WIRED_LCD
-    // Clear the accumulated runtime
-    clear_block_buffer_runtime();
-  #endif
+  TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // Clear the accumulated runtime
 
   // Make sure to drop any attempt of queuing moves for 1 second
   cleaning_buffer_counter = TEMP_TIMER_FREQUENCY;
@@ -2564,7 +2551,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (sq(4096.0f) / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
