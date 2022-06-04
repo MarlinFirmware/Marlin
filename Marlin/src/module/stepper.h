@@ -46,7 +46,7 @@
 #include "planner.h"
 #include "stepper/indirection.h"
 #ifdef __AVR__
-  #include "speed_lookuptable.h"
+  #include "stepper/speed_lookuptable.h"
 #endif
 
 // Disable multiple steps per ISR
@@ -214,7 +214,7 @@
     // Directions are set up for MIXING_STEPPERS - like before.
     // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
     //   These loops are a bit faster than advancing a bresenham counter.
-    // Always only one e-stepper is stepped.
+    // Always only one E stepper is stepped.
     #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
   #else
     #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
@@ -246,7 +246,11 @@
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
-typedef IF<(ENABLE_COUNT > 8), uint16_t, uint8_t>::type ena_mask_t;
+#if ENABLE_COUNT > 16
+  typedef uint32_t ena_mask_t;
+#else
+  typedef IF<(ENABLE_COUNT > 8), uint16_t, uint8_t>::type ena_mask_t;
+#endif
 
 // Axis flags type, for enabled state or other simple state
 typedef struct {
@@ -259,8 +263,6 @@ typedef struct {
       #endif
     };
   };
-  constexpr ena_mask_t linear_bits() { return _BV(NUM_AXES) - 1; }
-  constexpr ena_mask_t e_bits() { return (_BV(EXTRUDERS) - 1) << NUM_AXES; }
 } stepper_flags_t;
 
 // All the stepper enable pins
@@ -366,9 +368,9 @@ class Stepper {
     #endif
     #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool locked_Z_motor, locked_Z2_motor
-                  #if NUM_Z_STEPPER_DRIVERS >= 3
+                  #if NUM_Z_STEPPERS >= 3
                     , locked_Z3_motor
-                    #if NUM_Z_STEPPER_DRIVERS >= 4
+                    #if NUM_Z_STEPPERS >= 4
                       , locked_Z4_motor
                     #endif
                   #endif
@@ -570,18 +572,18 @@ class Stepper {
     #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_z1_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
-      #if NUM_Z_STEPPER_DRIVERS >= 3
+      #if NUM_Z_STEPPERS >= 3
         FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
-        #if NUM_Z_STEPPER_DRIVERS >= 4
+        #if NUM_Z_STEPPERS >= 4
           FORCE_INLINE static void set_z4_lock(const bool state) { locked_Z4_motor = state; }
         #endif
       #endif
       static void set_all_z_lock(const bool lock, const int8_t except=-1) {
         set_z1_lock(lock ^ (except == 0));
         set_z2_lock(lock ^ (except == 1));
-        #if NUM_Z_STEPPER_DRIVERS >= 3
+        #if NUM_Z_STEPPERS >= 3
           set_z3_lock(lock ^ (except == 2));
-          #if NUM_Z_STEPPER_DRIVERS >= 4
+          #if NUM_Z_STEPPERS >= 4
             set_z4_lock(lock ^ (except == 3));
           #endif
         #endif

@@ -110,7 +110,7 @@
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
  *
- * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted. (Requires DIRECT_PIN_CONTROL)
+ * M42  - Change pin status via G-code: M42 P<pin> S<value>. LED pin assumed if P is omitted. (Requires DIRECT_PIN_CONTROL)
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
@@ -396,14 +396,20 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  static millis_t previous_move_ms, max_inactive_time, stepper_inactive_time;
-  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
+  static millis_t previous_move_ms, max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
     return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
   }
-  FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
-    return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
-  }
+  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
+
+  #if HAS_DISABLE_INACTIVE_AXIS
+    static millis_t stepper_inactive_time;
+    FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
+      return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+    }
+  #else
+    static bool stepper_inactive_timeout(const millis_t) { return false; }
+  #endif
 
   static void report_echo_start(const bool forReplay);
   static void report_heading(const bool forReplay, FSTR_P const fstr, const bool eol=true);

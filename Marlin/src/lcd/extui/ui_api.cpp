@@ -919,11 +919,11 @@ namespace ExtUI {
 
     #if HAS_MESH
 
-      bed_mesh_t& getMeshArray() { return Z_VALUES_ARR; }
-      float getMeshPoint(const xy_uint8_t &pos) { return Z_VALUES(pos.x, pos.y); }
+      bed_mesh_t& getMeshArray() { return bedlevel.z_values; }
+      float getMeshPoint(const xy_uint8_t &pos) { return bedlevel.z_values[pos.x][pos.y]; }
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
         if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
-          Z_VALUES(pos.x, pos.y) = zoff;
+          bedlevel.z_values[pos.x][pos.y] = zoff;
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
@@ -936,12 +936,10 @@ namespace ExtUI {
           if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
             feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
-            destination = current_position;
-            destination.z = Z_CLEARANCE_BETWEEN_PROBES;
+            destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
             prepare_line_to_destination();
             feedrate_mm_s = XY_PROBE_FEEDRATE;
-            destination.x = x_target;
-            destination.y = y_target;
+            destination.set(x_target, y_target);
             prepare_line_to_destination();
           }
           feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;

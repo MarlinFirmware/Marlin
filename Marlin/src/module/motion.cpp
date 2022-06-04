@@ -427,7 +427,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
-      ubl.line_to_destination_segmented(scaled_fr_mm_s);
+      bedlevel.line_to_destination_segmented(scaled_fr_mm_s);
     #else
       if (current_position == destination) return;
 
@@ -738,10 +738,12 @@ void restore_feedrate_and_scaling() {
 #if HAS_SOFTWARE_ENDSTOPS
 
   // Software Endstops are based on the configured limits.
+  #define _AMIN(A) A##_MIN_POS
+  #define _AMAX(A) A##_MAX_POS
   soft_endstops_t soft_endstop = {
     true, false,
-    NUM_AXIS_ARRAY(X_MIN_POS, Y_MIN_POS, Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
-    NUM_AXIS_ARRAY(X_MAX_BED, Y_MAX_BED, Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS)
+    { MAPLIST(_AMIN, MAIN_AXIS_NAMES) },
+    { MAPLIST(_AMAX, MAIN_AXIS_NAMES) },
   };
 
   /**
@@ -958,8 +960,6 @@ void restore_feedrate_and_scaling() {
 
 #endif // !HAS_SOFTWARE_ENDSTOPS
 
-#if !UBL_SEGMENTED
-
 FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   const millis_t ms = millis();
   if (ELAPSED(ms, next_idle_ms)) {
@@ -995,7 +995,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
    * small incremental moves for DELTA or SCARA.
    *
    * For Unified Bed Leveling (Delta or Segmented Cartesian)
-   * the ubl.line_to_destination_segmented method replaces this.
+   * the bedlevel.line_to_destination_segmented method replaces this.
    *
    * For Auto Bed Leveling (Bilinear) with SEGMENT_LEVELED_MOVES
    * this is replaced by segmented_line_to_destination below.
@@ -1076,7 +1076,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
 #else // !IS_KINEMATIC
 
-  #if ENABLED(SEGMENT_LEVELED_MOVES)
+  #if ENABLED(SEGMENT_LEVELED_MOVES) && DISABLED(AUTO_BED_LEVELING_UBL)
 
     /**
      * Prepare a segmented move on a CARTESIAN setup.
@@ -1136,7 +1136,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       planner.buffer_line(destination, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
     }
 
-  #endif // SEGMENT_LEVELED_MOVES
+  #endif // SEGMENT_LEVELED_MOVES && !AUTO_BED_LEVELING_UBL
 
   /**
    * Prepare a linear move in a Cartesian setup.
@@ -1151,8 +1151,12 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #if HAS_MESH
       if (planner.leveling_active && planner.leveling_active_at_z(destination.z)) {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.line_to_destination_cartesian(scaled_fr_mm_s, active_extruder); // UBL's motion routine needs to know about
-          return true;                                                        // all moves, including Z-only moves.
+          #if UBL_SEGMENTED
+            return bedlevel.line_to_destination_segmented(scaled_fr_mm_s);
+          #else
+            bedlevel.line_to_destination_cartesian(scaled_fr_mm_s, active_extruder); // UBL's motion routine needs to know about
+            return true;                                                             // all moves, including Z-only moves.
+          #endif
         #elif ENABLED(SEGMENT_LEVELED_MOVES)
           segmented_line_to_destination(scaled_fr_mm_s);
           return false; // caller will update current_position
@@ -1163,9 +1167,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
            */
           if (xy_pos_t(current_position) != xy_pos_t(destination)) {
             #if ENABLED(MESH_BED_LEVELING)
-              mbl.line_to_destination(scaled_fr_mm_s);
+              bedlevel.line_to_destination(scaled_fr_mm_s);
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-              bbl.line_to_destination(scaled_fr_mm_s);
+              bedlevel.line_to_destination(scaled_fr_mm_s);
             #endif
             return true;
           }
@@ -1178,7 +1182,6 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   }
 
 #endif // !IS_KINEMATIC
-#endif // !UBL_SEGMENTED
 
 #if HAS_DUPLICATION_MODE
   bool extruder_duplication_enabled;
@@ -1363,7 +1366,7 @@ void prepare_line_to_destination() {
   if (
     #if UBL_SEGMENTED
       #if IS_KINEMATIC // UBL using Kinematic / Cartesian cases as a workaround for now.
-        ubl.line_to_destination_segmented(MMS_SCALED(feedrate_mm_s))
+        bedlevel.line_to_destination_segmented(MMS_SCALED(feedrate_mm_s))
       #else
         line_to_destination_cartesian()
       #endif
@@ -1379,10 +1382,10 @@ void prepare_line_to_destination() {
 
 #if HAS_ENDSTOPS
 
-  linear_axis_bits_t axis_homed, axis_trusted; // = 0
+  main_axes_bits_t axes_homed, axes_trusted; // = 0
 
-  linear_axis_bits_t axes_should_home(linear_axis_bits_t axis_bits/*=linear_bits*/) {
-    auto set_should = [](linear_axis_bits_t &b, AxisEnum a) {
+  main_axes_bits_t axes_should_home(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
+    auto set_should = [](main_axes_bits_t &b, AxisEnum a) {
       if (TEST(b, a) && TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(a))
         CBI(b, a);
     };
@@ -1395,23 +1398,12 @@ void prepare_line_to_destination() {
     return axis_bits;
   }
 
-  bool homing_needed_error(linear_axis_bits_t axis_bits/*=linear_bits*/) {
+  bool homing_needed_error(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
     if ((axis_bits = axes_should_home(axis_bits))) {
       PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
       char msg[30];
-      sprintf_P(msg, home_first,
-        NUM_AXIS_LIST(
-          TEST(axis_bits, X_AXIS) ? STR_A : "",
-          TEST(axis_bits, Y_AXIS) ? STR_B : "",
-          TEST(axis_bits, Z_AXIS) ? STR_C : "",
-          TEST(axis_bits, I_AXIS) ? STR_I : "",
-          TEST(axis_bits, J_AXIS) ? STR_J : "",
-          TEST(axis_bits, K_AXIS) ? STR_K : "",
-          TEST(axis_bits, U_AXIS) ? STR_U : "",
-          TEST(axis_bits, V_AXIS) ? STR_V : "",
-          TEST(axis_bits, W_AXIS) ? STR_W : ""
-        )
-      );
+      #define _AXIS_CHAR(N) TEST(axis_bits, _AXIS(N)) ? STR_##N : ""
+      sprintf_P(msg, home_first, MAPLIST(_AXIS_CHAR, MAIN_AXIS_NAMES));
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
       ui.set_status(msg);
@@ -1694,7 +1686,12 @@ void prepare_line_to_destination() {
       }
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
-      TERN_(SENSORLESS_HOMING, stealth_states = start_sensorless_homing_per_axis(axis));
+      #if ENABLED(SENSORLESS_HOMING)
+        stealth_states = start_sensorless_homing_per_axis(axis);
+        #if SENSORLESS_STALLGUARD_DELAY
+          safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+        #endif
+      #endif
     }
 
     #if EITHER(MORGAN_SCARA, MP_SCARA)
@@ -1739,7 +1736,12 @@ void prepare_line_to_destination() {
       endstops.validate_homing_move();
 
       // Re-enable stealthChop if used. Disable diag1 pin on driver.
-      TERN_(SENSORLESS_HOMING, end_sensorless_homing_per_axis(axis, stealth_states));
+      #if ENABLED(SENSORLESS_HOMING)
+        end_sensorless_homing_per_axis(axis, stealth_states);
+        #if SENSORLESS_STALLGUARD_DELAY
+          safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+        #endif
+      #endif
     }
   }
 
@@ -1786,7 +1788,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(X);
             phaseCurrent = stepperX.get_microstep_counter();
             effectorBackoutDir = -X_HOME_DIR;
-            stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_X_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef Y_MICROSTEPS
@@ -1794,7 +1796,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(Y);
             phaseCurrent = stepperY.get_microstep_counter();
             effectorBackoutDir = -Y_HOME_DIR;
-            stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_Y_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef Z_MICROSTEPS
@@ -1802,7 +1804,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(Z);
             phaseCurrent = stepperZ.get_microstep_counter();
             effectorBackoutDir = -Z_HOME_DIR;
-            stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_Z_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef I_MICROSTEPS
@@ -1810,7 +1812,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(I);
             phaseCurrent = stepperI.get_microstep_counter();
             effectorBackoutDir = -I_HOME_DIR;
-            stepperBackoutDir = INVERT_I_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_I_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef J_MICROSTEPS
@@ -1818,7 +1820,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(J);
             phaseCurrent = stepperJ.get_microstep_counter();
             effectorBackoutDir = -J_HOME_DIR;
-            stepperBackoutDir = INVERT_J_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_J_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef K_MICROSTEPS
@@ -1826,7 +1828,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(K);
             phaseCurrent = stepperK.get_microstep_counter();
             effectorBackoutDir = -K_HOME_DIR;
-            stepperBackoutDir = INVERT_K_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_K_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef U_MICROSTEPS
@@ -1834,7 +1836,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(U);
             phaseCurrent = stepperU.get_microstep_counter();
             effectorBackoutDir = -U_HOME_DIR;
-            stepperBackoutDir = INVERT_U_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_U_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef V_MICROSTEPS
@@ -1842,7 +1844,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(V);
             phaseCurrent = stepperV.get_microstep_counter();
             effectorBackoutDir = -V_HOME_DIR;
-            stepperBackoutDir = INVERT_V_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_V_DIR, -)effectorBackoutDir;
             break;
         #endif
         #ifdef W_MICROSTEPS
@@ -1850,7 +1852,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(W);
             phaseCurrent = stepperW.get_microstep_counter();
             effectorBackoutDir = -W_HOME_DIR;
-            stepperBackoutDir = INVERT_W_DIR ? effectorBackoutDir : -effectorBackoutDir;
+            stepperBackoutDir = IF_DISABLED(INVERT_W_DIR, -)effectorBackoutDir;
             break;
         #endif
         default: return;
@@ -1909,17 +1911,8 @@ void prepare_line_to_destination() {
         || TERN0(A##_HOME_TO_MIN, A##_MIN_PIN > -1) \
         || TERN0(A##_HOME_TO_MAX, A##_MAX_PIN > -1) \
       ))
-      if (NUM_AXIS_GANG(
-           !_CAN_HOME(X),
-        && !_CAN_HOME(Y),
-        && !_CAN_HOME(Z),
-        && !_CAN_HOME(I),
-        && !_CAN_HOME(J),
-        && !_CAN_HOME(K),
-        && !_CAN_HOME(U),
-        && !_CAN_HOME(V),
-        && !_CAN_HOME(W))
-      ) return;
+      #define _ANDCANT(N) && !_CAN_HOME(N)
+      if (true MAIN_AXIS_MAP(_ANDCANT)) return;
     #endif
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
@@ -2070,7 +2063,7 @@ void prepare_line_to_destination() {
       #if ENABLED(Z_MULTI_ENDSTOPS)
         if (axis == Z_AXIS) {
 
-          #if NUM_Z_STEPPER_DRIVERS == 2
+          #if NUM_Z_STEPPERS == 2
 
             const float adj = ABS(endstops.z2_endstop_adj);
             if (adj) {
@@ -2088,13 +2081,13 @@ void prepare_line_to_destination() {
 
             adjustFunc_t lock[] = {
               stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 , stepper.set_z4_lock
               #endif
             };
             float adj[] = {
               0, endstops.z2_endstop_adj, endstops.z3_endstop_adj
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 , endstops.z4_endstop_adj
               #endif
             };
@@ -2113,7 +2106,7 @@ void prepare_line_to_destination() {
               lock[1] = lock[2], adj[1] = adj[2];
               lock[2] = tempLock, adj[2] = tempAdj;
             }
-            #if NUM_Z_STEPPER_DRIVERS >= 4
+            #if NUM_Z_STEPPERS >= 4
               if (adj[3] < adj[2]) {
                 tempLock = lock[2], tempAdj = adj[2];
                 lock[2] = lock[3], adj[2] = adj[3];
@@ -2138,14 +2131,14 @@ void prepare_line_to_destination() {
               // lock the second stepper for the final correction
               (*lock[1])(true);
               do_homing_move(axis, adj[2] - adj[1]);
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 // lock the third stepper for the final correction
                 (*lock[2])(true);
                 do_homing_move(axis, adj[3] - adj[2]);
               #endif
             }
             else {
-              #if NUM_Z_STEPPER_DRIVERS >= 4
+              #if NUM_Z_STEPPERS >= 4
                 (*lock[3])(true);
                 do_homing_move(axis, adj[2] - adj[3]);
               #endif
@@ -2158,7 +2151,7 @@ void prepare_line_to_destination() {
             stepper.set_z1_lock(false);
             stepper.set_z2_lock(false);
             stepper.set_z3_lock(false);
-            #if NUM_Z_STEPPER_DRIVERS >= 4
+            #if NUM_Z_STEPPERS >= 4
               stepper.set_z4_lock(false);
             #endif
 

@@ -161,7 +161,7 @@
 #define BOARD_PICA_REVB               1324  // PICA Shield (original version)
 #define BOARD_PICA                    1325  // PICA Shield (rev C or later)
 #define BOARD_INTAMSYS40              1326  // Intamsys 4.0 (Funmat HT)
-#define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
+#define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
 #define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1329  // Mega controller & Protoneer CNC Shield V3.00
 #define BOARD_WEEDO_62A               1330  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
@@ -228,33 +228,33 @@
 #define BOARD_RAMPS_14_RE_ARM_EFF     2002  // Re-ARM with RAMPS 1.4 (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS_14_RE_ARM_EEF     2003  // Re-ARM with RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_14_RE_ARM_SF      2004  // Re-ARM with RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
-#define BOARD_MKS_SBASE               2005  // MKS-Sbase (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_MKS_SBASE               2005  // MKS-Sbase
 #define BOARD_AZSMZ_MINI              2006  // AZSMZ Mini
-#define BOARD_BIQU_BQ111_A4           2007  // BIQU BQ111-A4 (Power outputs: Hotend, Fan, Bed)
-#define BOARD_SELENA_COMPACT          2008  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
-#define BOARD_BIQU_B300_V1_0          2009  // BIQU B300_V1.0 (Power outputs: Hotend0, Fan, Bed, SPI Driver)
-#define BOARD_MKS_SGEN_L              2010  // MKS-SGen-L (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_BIQU_BQ111_A4           2007  // BIQU BQ111-A4
+#define BOARD_SELENA_COMPACT          2008  // Selena Compact
+#define BOARD_BIQU_B300_V1_0          2009  // BIQU B300_V1.0
+#define BOARD_MKS_SGEN_L              2010  // MKS-SGen-L
 #define BOARD_GMARSH_X6_REV1          2011  // GMARSH X6, revision 1 prototype
-#define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1
+#define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3
+#define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4
 
 //
 // LPC1769 ARM Cortex M3
 //
 
-#define BOARD_MKS_SGEN                2500  // MKS-SGen (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_AZTEEG_X5_GT            2501  // Azteeg X5 GT (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_AZTEEG_X5_MINI          2502  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
-#define BOARD_AZTEEG_X5_MINI_WIFI     2503  // Azteeg X5 Mini Wifi (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_MKS_SGEN                2500  // MKS-SGen
+#define BOARD_AZTEEG_X5_GT            2501  // Azteeg X5 GT
+#define BOARD_AZTEEG_X5_MINI          2502  // Azteeg X5 Mini
+#define BOARD_AZTEEG_X5_MINI_WIFI     2503  // Azteeg X5 Mini Wifi
 #define BOARD_COHESION3D_REMIX        2504  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI         2505  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD           2506  // Smoothieboard
 #define BOARD_TH3D_EZBOARD            2507  // TH3D EZBoard v1.0
-#define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2 (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1)
-#define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY (Power outputs: Hotend0, Hotend1, Hotend2, Bed, Fan0, Fan1, Fan2)
+#define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO
+#define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2
+#define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo
+#define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY
 
 //
 // SAM3X8E ARM Cortex M3
@@ -280,8 +280,8 @@
 #define BOARD_RAMPS4DUE_EFF           3017  // RAMPS4DUE (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS4DUE_EEF           3018  // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS4DUE_SF            3019  // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
-#define BOARD_RURAMPS4D_11            3020  // RuRAMPS4Duo v1.1 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
-#define BOARD_RURAMPS4D_13            3021  // RuRAMPS4Duo v1.3 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
+#define BOARD_RURAMPS4D_11            3020  // RuRAMPS4Duo v1.1
+#define BOARD_RURAMPS4D_13            3021  // RuRAMPS4Duo v1.3
 #define BOARD_ULTRATRONICS_PRO        3022  // ReprapWorld Ultratronics Pro V1.0
 #define BOARD_ARCHIM1                 3023  // UltiMachine Archim1 (with DRV8825 drivers)
 #define BOARD_ARCHIM2                 3024  // UltiMachine Archim2 (with TMC2130 drivers)
@@ -293,7 +293,7 @@
 // SAM3X8C ARM Cortex M3
 //
 
-#define BOARD_PRINTRBOARD_G2          3100  // PRINTRBOARD G2
+#define BOARD_PRINTRBOARD_G2          3100  // Printrboard G2
 #define BOARD_ADSK                    3101  // Arduino DUE Shield Kit (ADSK)
 
 //
@@ -352,19 +352,20 @@
 #define BOARD_CREALITY_V431_D         4049  // Creality v4.3.1d (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V452           4050  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V453           4051  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V24S1          4052  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender 7
-#define BOARD_CREALITY_V24S1_301      4053  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) as found in the Ender 3 S1
-#define BOARD_TRIGORILLA_PRO          4054  // Trigorilla Pro (STM32F103ZE)
-#define BOARD_FLY_MINI                4055  // FLYmaker FLY MINI (STM32F103RC)
-#define BOARD_FLSUN_HISPEED           4056  // FLSUN HiSpeedV1 (STM32F103VE)
-#define BOARD_BEAST                   4057  // STM32F103RE Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4058  // STM32F103ZE Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4059  // STM32F103VE controller
-#define BOARD_ZONESTAR_ZM3E2          4060  // Zonestar ZM3E2    (STM32F103RC)
-#define BOARD_ZONESTAR_ZM3E4          4061  // Zonestar ZM3E4 V1 (STM32F103VC)
-#define BOARD_ZONESTAR_ZM3E4V2        4062  // Zonestar ZM3E4 V2 (STM32F103VC)
-#define BOARD_ERYONE_ERY32_MINI       4063  // Eryone Ery32 mini (STM32F103VE)
-#define BOARD_PANDA_PI_V29            4064  // Panda Pi V2.9 - Standalone (STM32F103RC)
+#define BOARD_CREALITY_V24S1          4052  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender-7
+#define BOARD_CREALITY_V24S1_301      4053  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) v301 as found in the Ender-3 S1
+#define BOARD_CREALITY_V25S1          4054  // Creality v2.5.S1 (STM32F103RE) as found in the CR-10 Smart Pro
+#define BOARD_TRIGORILLA_PRO          4055  // Trigorilla Pro (STM32F103ZE)
+#define BOARD_FLY_MINI                4056  // FLYmaker FLY MINI (STM32F103RC)
+#define BOARD_FLSUN_HISPEED           4057  // FLSUN HiSpeedV1 (STM32F103VE)
+#define BOARD_BEAST                   4058  // STM32F103RE Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4059  // STM32F103ZE Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4060  // STM32F103VE controller
+#define BOARD_ZONESTAR_ZM3E2          4061  // Zonestar ZM3E2    (STM32F103RC)
+#define BOARD_ZONESTAR_ZM3E4          4062  // Zonestar ZM3E4 V1 (STM32F103VC)
+#define BOARD_ZONESTAR_ZM3E4V2        4063  // Zonestar ZM3E4 V2 (STM32F103VC)
+#define BOARD_ERYONE_ERY32_MINI       4064  // Eryone Ery32 mini (STM32F103VE)
+#define BOARD_PANDA_PI_V29            4065  // Panda Pi V2.9 - Standalone (STM32F103RC)
 
 //
 // ARM Cortex-M4F
@@ -417,6 +418,7 @@
 #define BOARD_MKS_EAGLE               4237  // MKS Eagle (STM32F407VE)
 #define BOARD_ARTILLERY_RUBY          4238  // Artillery Ruby (STM32F401RC)
 #define BOARD_FYSETC_SPIDER_V2_2      4239  // FYSETC Spider V2.2 (STM32F446VE)
+#define BOARD_CREALITY_V24S1_301F4    4240  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
 
 //
 // ARM Cortex M7
@@ -427,6 +429,8 @@
 #define BOARD_T41U5XBB                5002  // T41U5XBB Teensy 4.1 breakout board
 #define BOARD_NUCLEO_F767ZI           5003  // ST NUCLEO-F767ZI Dev Board
 #define BOARD_BTT_SKR_SE_BX           5004  // BigTreeTech SKR SE BX (STM32H743II)
+#define BOARD_BTT_SKR_V3_0            5005  // BigTreeTech SKR V3.0 (STM32H743VG)
+#define BOARD_BTT_SKR_V3_0_EZ         5006  // BigTreeTech SKR V3.0 EZ (STM32H743VG)
 
 //
 // Espressif ESP32 WiFi

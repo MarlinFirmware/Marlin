@@ -50,7 +50,9 @@
     #include "../dogm/marlinui_DOGM.h"
   #endif
 
-  void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {
+  // TODO: Replace fmsg with MSG_BABYSTEP_N and index substitution
+
+  void _lcd_babystep(const AxisEnum axis, FSTR_P const fmsg) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       const int16_t steps = int16_t(ui.encoderPosition) * (
@@ -66,7 +68,7 @@
     }
     if (ui.should_draw()) {
       const float mps = planner.mm_per_step[axis];
-      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(mps * babystep.accum));
+      MenuEditItemBase::draw_edit_screen(fmsg, BABYSTEP_TO_STR(mps * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
         const bool in_view = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
@@ -94,12 +96,12 @@
   }
 
   #if ENABLED(BABYSTEP_XY)
-    void _lcd_babystep_x() { _lcd_babystep(X_AXIS, GET_TEXT(MSG_BABYSTEP_X)); }
-    void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, GET_TEXT(MSG_BABYSTEP_Y)); }
+    void _lcd_babystep_x() { _lcd_babystep(X_AXIS, GET_TEXT_F(MSG_BABYSTEP_X)); }
+    void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, GET_TEXT_F(MSG_BABYSTEP_Y)); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, GET_TEXT(MSG_BABYSTEP_Z)); }
+    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, GET_TEXT_F(MSG_BABYSTEP_Z)); }
     void lcd_babystep_z()  { _lcd_babystep_go(_lcd_babystep_z); }
   #endif
 
@@ -118,7 +120,7 @@ void menu_tune() {
   // Manual bed leveling, Bed Z:
   //
   #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+    EDIT_ITEM(float43, MSG_BED_Z, &bedlevel.z_offset, -1, 1);
   #endif
 
   //
@@ -223,13 +225,13 @@ void menu_tune() {
   //
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
-      SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
-      SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
+      SUBMENU_N(X_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_x); });
+      SUBMENU_N(Y_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_y); });
     #endif
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     #else
-      SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
+      SUBMENU_N(Z_AXIS, MSG_BABYSTEP_N, lcd_babystep_z);
     #endif
   #endif
 

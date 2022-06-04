@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// TODO: Make AVR-compatible with separate ROM / RAM string methods
+
 #include <stdint.h>
 
 extern const uint8_t ISO10646_1_5x7[];
@@ -67,14 +69,15 @@ class TFT_String {
     static glyph_t *glyphs[256];
     static font_t *font_header;
 
-    static uint8_t data[MAX_STRING_LENGTH + 1];
+    static char data[MAX_STRING_LENGTH + 1];
     static uint16_t span;   // in pixels
-    static uint8_t length;  // in characters
 
-    static void add_character(uint8_t character);
-    static void eol() { data[length] = 0x00; }
+    static void add_character(const char character);
+    static void eol() { data[length] = '\0'; }
 
   public:
+    static uint8_t length;  // in characters
+
     static void set_font(const uint8_t *font);
     static void add_glyphs(const uint8_t *font);
 
@@ -83,25 +86,69 @@ class TFT_String {
     static glyph_t *glyph(uint8_t character) { return glyphs[character] ?: glyphs[0x3F]; }  /* Use '?' for unknown glyphs */
     static glyph_t *glyph(uint8_t *character) { return glyph(*character); }
 
+    /**
+     * @brief Set the string empty
+     */
     static void set();
-    static void add(uint8_t character) { add_character(character); eol(); }
-    static void add(uint8_t *string, uint8_t max_len=MAX_STRING_LENGTH);
-    static void add(uint8_t *string, int8_t index, uint8_t *itemString=nullptr);
-    static void set(uint8_t *string) { set(); add(string); };
-    static void set(uint8_t *string, int8_t index, const char *itemString=nullptr) { set(); add(string, index, (uint8_t *)itemString); };
-    static void set(const char *string) { set((uint8_t *)string); }
-    static void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
-    static void add(const char *string) { add((uint8_t *)string); }
 
-    static void trim(uint8_t character=0x20);
-    static void rtrim(uint8_t character=0x20);
-    static void ltrim(uint8_t character=0x20);
+    /**
+     * @brief Append an ASCII character and EOL
+     *
+     * @param character The ASCII character
+     */
+    static void add(const char character) { add_character(character); eol(); }
+    static void set(wchar_t character) { set(); add(character); }
 
-    static void truncate(uint8_t maxlen) { if (length > maxlen) { length = maxlen; eol(); } }
+    /**
+     * @brief Append / Set C-string
+     *
+     * @param cstr The string
+     * @param max_len Character limit
+     */
+    static void add(const char *cstr, uint8_t max_len=MAX_STRING_LENGTH);
+    static void set(const char *cstr, uint8_t max_len=MAX_STRING_LENGTH) { set(); add(cstr, max_len); }
 
+    /**
+     * @brief Append / Set F-string
+     *
+     * @param fstr The string
+     * @param max_len Character limit
+     */
+    static void add(FSTR_P const fstr, uint8_t max_len=MAX_STRING_LENGTH) { add(FTOP(fstr), max_len); }
+    static void set(FSTR_P const fstr, uint8_t max_len=MAX_STRING_LENGTH) { set(FTOP(fstr), max_len); }
+
+    /**
+     * @brief Append / Set C-string with optional substitution
+     *
+     * @param tpl A string with optional substitution
+     * @param index An index
+     * @param cstr An SRAM C-string to use for $ substitution
+     * @param fstr A ROM F-string to use for $ substitution
+     */
+    static void add(const char *tpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr);
+    static void set(const char *tpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr) { set(); add(tpl, index, cstr, fstr); }
+
+    /**
+     * @brief Append / Set F-string with optional substitution
+     *
+     * @param ftpl A ROM F-string with optional substitution
+     * @param index An index
+     * @param cstr An SRAM C-string to use for $ substitution
+     * @param fstr A ROM F-string to use for $ substitution
+     */
+    static void add(FSTR_P const ftpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr) { add(FTOP(ftpl), index, cstr, fstr); }
+    static void set(FSTR_P const ftpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr) { set(); add(ftpl, index, cstr, fstr); }
+
+    // Common string ops
+    static void trim(const char character=' ');
+    static void rtrim(const char character=' ');
+    static void ltrim(const char character=' ');
+    static void truncate(const uint8_t maxlen) { if (length > maxlen) { length = maxlen; eol(); } }
+
+    // Accessors
+    static char *string() { return data; }
     static uint16_t width() { return span; }
-    static uint8_t *string() { return data; }
-    static uint16_t center(uint16_t width) { return span > width ? 0 : (width - span) / 2; }
+    static uint16_t center(const uint16_t width) { return span > width ? 0 : (width - span) / 2; }
 };
 
 extern TFT_String tft_string;

@@ -72,17 +72,16 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
     uint8_t vallen = utf8_strlen(value);
     if (!ui.did_first_redraw) {
-      dwin_string.set();
-      dwin_string.add('X' + axis);
+      dwin_string.set('X' + axis);
       DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (vallen * 14 - 14) / 2, y + 2, S(dwin_string.string()));
     }
 
     dwin_string.set();
     if (blink)
       dwin_string.add(value);
-    else if (!TEST(axis_homed, axis))
+    else if (!TEST(axes_homed, axis))
       while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
-    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axis_trusted, axis))
+    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
       dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
     else
       dwin_string.add(value);
@@ -96,8 +95,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #else // !DWIN_MARLINUI_PORTRAIT
 
     if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
-      dwin_string.set();
-      dwin_string.add('X' + axis);
+      dwin_string.set('X' + axis);
       DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
     }
 
@@ -105,11 +103,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     if (blink)
       dwin_string.add(value);
     else {
-      if (!TEST(axis_homed, axis))
+      if (!TEST(axes_homed, axis))
         while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
       else {
         #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
-          if (!TEST(axis_trusted, axis))
+          if (!TEST(axes_trusted, axis))
             dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
           else
         #endif
@@ -391,7 +389,7 @@ void MarlinUI::draw_status_screen() {
     time.toDigital(buffer);
     dwin_string.add(prefix);
     dwin_string.add(buffer);
-    DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, (LCD_PIXEL_WIDTH - ((dwin_string.length() + 1) * 14)), 290, S(dwin_string.string()));
+    DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, (LCD_PIXEL_WIDTH - ((dwin_string.length + 1) * 14)), 290, S(dwin_string.string()));
 
   #else
 
@@ -454,7 +452,7 @@ void MarlinUI::draw_status_screen() {
         dwin_string.add(PSTR("%"));
         DWIN_Draw_String(
           false, font16x32, Percent_Color, Color_Bg_Black,
-          pb_left + (pb_width - dwin_string.length() * 16) / 2,
+          pb_left + (pb_width - dwin_string.length * 16) / 2,
           pb_top + (pb_height - 32) / 2,
           S(dwin_string.string())
         );

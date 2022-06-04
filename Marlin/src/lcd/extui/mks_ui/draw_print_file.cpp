@@ -369,7 +369,7 @@ uint32_t lv_open_gcode_file(char *path) {
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
     ps4 = (uint32_t *)strstr((char *)public_buf, ";simage:");
-    // Ignore the beginning message of gcode file
+    // Ignore the beginning message of G-code file
     if (ps4) {
       pre_sread_cnt = (uintptr_t)ps4 - (uintptr_t)((uint32_t *)(&public_buf[0]));
       card.setIndex(pre_sread_cnt);
@@ -402,7 +402,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
     char temp_test[200];
     volatile uint16_t *p_index;
 
-    watchdog_refresh();
+    hal.watchdog_refresh();
     memset(public_buf, 0, 200);
 
     while (card.isFileOpen()) {
@@ -490,7 +490,7 @@ void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
                 //&& (strIndex2 != 0) && (strIndex1 < strIndex2)
                 ) ? strIndex1 + 1 : tmpFile;
 
-  if (strIndex2 == 0 || (strIndex1 > strIndex2)) { // not gcode file
+  if (strIndex2 == 0 || (strIndex1 > strIndex2)) { // not G-code file
     #if _LFN_UNICODE
       if (wcslen(beginIndex) > len)
         wcsncpy(outStr, beginIndex, len);
@@ -503,7 +503,7 @@ void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
         strcpy(outStr, beginIndex);
     #endif
   }
-  else { // gcode file
+  else { // G-code file
     if (strIndex2 - beginIndex > (len - 2)) {
       #if _LFN_UNICODE
         wcsncpy(outStr, (const WCHAR *)beginIndex, len - 3);

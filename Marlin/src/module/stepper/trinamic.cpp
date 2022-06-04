@@ -493,7 +493,7 @@ enum StealthIndex : uint8_t {
   #endif
 
   #define _EN_ITEM(N) , E##N
-  enum TMCAxis : uint8_t { NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
+  enum TMCAxis : uint8_t { MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
   #undef _EN_ITEM
 
   void tmc_serial_begin() {
@@ -1023,18 +1023,16 @@ void reset_trinamic_drivers() {
 // 2. For each axis in use, static_assert using a constexpr function, which counts the
 //      number of matching/conflicting axis. If the value is not exactly 1, fail.
 
+#define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
+
 #if ANY_AXIS_HAS(HW_SERIAL)
   // Hardware serial names are compared as strings, since actually resolving them cannot occur in a constexpr.
   // Using a fixed-length character array for the port name allows this to be constexpr compatible.
   struct SanityHwSerialDetails { const char port[20]; uint32_t address; };
   #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)
-  #define TMC_HW_DETAIL(A) { TMC_HW_DETAIL_ARGS(A) }
+  #define TMC_HW_DETAIL(A) { TMC_HW_DETAIL_ARGS(A) },
   constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = {
-    TMC_HW_DETAIL(X), TMC_HW_DETAIL(X2),
-    TMC_HW_DETAIL(Y), TMC_HW_DETAIL(Y2),
-    TMC_HW_DETAIL(Z), TMC_HW_DETAIL(Z2), TMC_HW_DETAIL(Z3), TMC_HW_DETAIL(Z4),
-    TMC_HW_DETAIL(I), TMC_HW_DETAIL(J), TMC_HW_DETAIL(K), TMC_HW_DETAIL(U), TMC_HW_DETAIL(V), TMC_HW_DETAIL(W),
-    TMC_HW_DETAIL(E0), TMC_HW_DETAIL(E1), TMC_HW_DETAIL(E2), TMC_HW_DETAIL(E3), TMC_HW_DETAIL(E4), TMC_HW_DETAIL(E5), TMC_HW_DETAIL(E6), TMC_HW_DETAIL(E7)
+    MAP(TMC_HW_DETAIL, ALL_AXIS_NAMES)
   };
 
   // constexpr compatible string comparison
@@ -1053,23 +1051,15 @@ void reset_trinamic_drivers() {
 
   #define TMC_HWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_HARDWARE_SERIAL"
   #define SA_NO_TMC_HW_C(A) static_assert(1 >= count_tmc_hw_serial_matches(TMC_HW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_hw_details)), TMC_HWSERIAL_CONFLICT_MSG(A));
-  SA_NO_TMC_HW_C(X); SA_NO_TMC_HW_C(X2);
-  SA_NO_TMC_HW_C(Y); SA_NO_TMC_HW_C(Y2);
-  SA_NO_TMC_HW_C(Z); SA_NO_TMC_HW_C(Z2); SA_NO_TMC_HW_C(Z3); SA_NO_TMC_HW_C(Z4);
-  SA_NO_TMC_HW_C(I); SA_NO_TMC_HW_C(J); SA_NO_TMC_HW_C(K); SA_NO_TMC_HW_C(U); SA_NO_TMC_HW_C(V); SA_NO_TMC_HW_C(W);
-  SA_NO_TMC_HW_C(E0); SA_NO_TMC_HW_C(E1); SA_NO_TMC_HW_C(E2); SA_NO_TMC_HW_C(E3); SA_NO_TMC_HW_C(E4); SA_NO_TMC_HW_C(E5); SA_NO_TMC_HW_C(E6); SA_NO_TMC_HW_C(E7);
+  MAP(SA_NO_TMC_HW_C, ALL_AXIS_NAMES)
 #endif
 
 #if ANY_AXIS_HAS(SW_SERIAL)
   struct SanitySwSerialDetails { int32_t txpin; int32_t rxpin; uint32_t address; };
   #define TMC_SW_DETAIL_ARGS(A) TERN(A##_HAS_SW_SERIAL, A##_SERIAL_TX_PIN, -1), TERN(A##_HAS_SW_SERIAL, A##_SERIAL_RX_PIN, -1), TERN0(A##_HAS_SW_SERIAL, A##_SLAVE_ADDRESS)
-  #define TMC_SW_DETAIL(A) TMC_SW_DETAIL_ARGS(A)
+  #define TMC_SW_DETAIL(A) TMC_SW_DETAIL_ARGS(A),
   constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = {
-    TMC_SW_DETAIL(X), TMC_SW_DETAIL(X2),
-    TMC_SW_DETAIL(Y), TMC_SW_DETAIL(Y2),
-    TMC_SW_DETAIL(Z), TMC_SW_DETAIL(Z2), TMC_SW_DETAIL(Z3), TMC_SW_DETAIL(Z4),
-    TMC_SW_DETAIL(I), TMC_SW_DETAIL(J), TMC_SW_DETAIL(K), TMC_SW_DETAIL(U), TMC_SW_DETAIL(V), TMC_SW_DETAIL(W),
-    TMC_SW_DETAIL(E0), TMC_SW_DETAIL(E1), TMC_SW_DETAIL(E2), TMC_SW_DETAIL(E3), TMC_SW_DETAIL(E4), TMC_SW_DETAIL(E5), TMC_SW_DETAIL(E6), TMC_SW_DETAIL(E7)
+    MAP(TMC_SW_DETAIL, ALL_AXIS_NAMES)
   };
 
   constexpr bool sc_sw_done(size_t start, size_t end) { return start == end; }
@@ -1083,11 +1073,7 @@ void reset_trinamic_drivers() {
 
   #define TMC_SWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_SERIAL_RX_PIN or " STRINGIFY(A) "_SERIAL_TX_PIN"
   #define SA_NO_TMC_SW_C(A) static_assert(1 >= count_tmc_sw_serial_matches(TMC_SW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_sw_details)), TMC_SWSERIAL_CONFLICT_MSG(A));
-  SA_NO_TMC_SW_C(X); SA_NO_TMC_SW_C(X2);
-  SA_NO_TMC_SW_C(Y); SA_NO_TMC_SW_C(Y2);
-  SA_NO_TMC_SW_C(Z); SA_NO_TMC_SW_C(Z2); SA_NO_TMC_SW_C(Z3); SA_NO_TMC_SW_C(Z4);
-  SA_NO_TMC_SW_C(I); SA_NO_TMC_SW_C(J); SA_NO_TMC_SW_C(K); SA_NO_TMC_SW_C(U); SA_NO_TMC_SW_C(V); SA_NO_TMC_SW_C(W);
-  SA_NO_TMC_SW_C(E0); SA_NO_TMC_SW_C(E1); SA_NO_TMC_SW_C(E2); SA_NO_TMC_SW_C(E3); SA_NO_TMC_SW_C(E4); SA_NO_TMC_SW_C(E5); SA_NO_TMC_SW_C(E6); SA_NO_TMC_SW_C(E7);
+  MAP(SA_NO_TMC_SW_C, ALL_AXIS_NAMES)
 #endif
 
 #endif // HAS_TRINAMIC_CONFIG

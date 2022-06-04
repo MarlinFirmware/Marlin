@@ -21,15 +21,12 @@
  */
 #pragma once
 
+#include "../inc/MarlinConfig.h"
 #include "../sd/cardreader.h"
 #include "../module/motion.h"
+#include "../libs/buzzer.h"
+
 #include "buttons.h"
-
-#include "../inc/MarlinConfig.h"
-
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
-#endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "tft_io/touch_calibration.h"
@@ -192,6 +189,9 @@ typedef bool (*statusResetFunc_t)();
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
 
+class MarlinUI;
+extern MarlinUI ui;
+
 class MarlinUI {
 public:
 
@@ -225,9 +225,9 @@ public:
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
-    static bool buzzer_enabled; // Initialized by settings.load()
+    static bool sound_on; // Initialized by settings.load()
   #else
-    static constexpr bool buzzer_enabled = true;
+    static constexpr bool sound_on = true;
   #endif
 
   #if HAS_BUZZER
@@ -235,7 +235,7 @@ public:
   #endif
 
   FORCE_INLINE static void chirp() {
-    TERN_(HAS_CHIRP, buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+    TERN_(HAS_CHIRP, TERN(HAS_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -520,7 +520,7 @@ public:
   #if HAS_PREHEAT
     enum PreheatTarget : uint8_t { PT_HOTEND, PT_BED, PT_FAN, PT_CHAMBER, PT_ALL = 0xFF };
     static preheat_t material_preset[PREHEAT_COUNT];
-    static PGM_P get_preheat_label(const uint8_t m);
+    static FSTR_P get_preheat_label(const uint8_t m);
     static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
     static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
     static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND))); }
@@ -559,7 +559,7 @@ public:
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
 
-    static void synchronize(PGM_P const msg=nullptr);
+    static void synchronize(FSTR_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
     static bool screen_changed;
@@ -605,7 +605,7 @@ public:
       static float ubl_mesh_value();
     #endif
 
-    static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
+    static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
 
   #else
 
@@ -785,8 +785,6 @@ private:
     #endif
   #endif
 };
-
-extern MarlinUI ui;
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
