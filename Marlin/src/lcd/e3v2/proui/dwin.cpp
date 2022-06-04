@@ -133,6 +133,10 @@
   #include "plot.h"
 #endif
 
+#if HAS_GCODE_PREVIEW
+  #include "gcode_preview.h"
+#endif
+
 #if HAS_MESH
   #include "meshviewer.h"
 #endif
@@ -709,13 +713,19 @@ void Draw_PrintDone() {
   Title.ShowCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::ClearMainArea();
   DWIN_Print_Header(nullptr);
-  Draw_Print_ProgressBar();
-  Draw_Print_Labels();
-  DWINUI::Draw_Icon(ICON_PrintTime, 15, 173);
-  DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
-  Draw_Print_ProgressElapsed();
-  Draw_Print_ProgressRemain();
-  DWINUI::Draw_Button(BTN_Continue, 86, 273);
+  if (sdprint && TERN0(HAS_GCODE_PREVIEW, Preview_Valid())) {
+    DWIN_ICON_Show(0, 0, 1, 21, 100, 0x00);
+    DWINUI::Draw_Button(BTN_Continue, 86, 300);
+  } 
+  else {
+    Draw_Print_ProgressBar();
+    Draw_Print_Labels();
+    DWINUI::Draw_Icon(ICON_PrintTime, 15, 173);
+    DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
+    Draw_Print_ProgressElapsed();
+    Draw_Print_ProgressRemain();
+    DWINUI::Draw_Button(BTN_Continue, 86, 273);
+  }
 }
 
 void Goto_PrintDone() {
@@ -2001,10 +2011,30 @@ void HMI_LockScreen() {
 }
 
 
-void Goto_ConfirmToPrint() {
-  card.openAndPrintFile(card.filename);
-  DWIN_Print_Started(true);
-}
+#if HAS_GCODE_PREVIEW
+
+  void onClick_ConfirmToPrint() {
+    if (HMI_flag.select_flag) {     // Confirm
+      card.openAndPrintFile(card.filename);
+      return DWIN_Print_Started(true);
+    }
+    else {                          // Cancel
+      DWIN_ResetStatusLine();
+      checkkey = SelectFile;
+      return Draw_Print_File_Menu();
+    }
+  }
+
+  void Goto_ConfirmToPrint() {
+    Goto_Popup(Preview_DrawFromSD, onClick_ConfirmToPrint);
+  }
+
+#else
+  void Goto_ConfirmToPrint() {
+    card.openAndPrintFile(card.filename);
+    DWIN_Print_Started(true);
+  }
+#endif
 
 #if HAS_ESDIAG
   void Draw_EndStopDiag() {
