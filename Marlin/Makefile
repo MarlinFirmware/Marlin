@@ -109,7 +109,7 @@ LIQUID_TWI2        ?= 0
 # This defines if Wire is needed
 WIRE               ?= 0
 
-# This defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
+# This defines if Tone is needed (i.e., SPEAKER is defined in Configuration.h)
 # Disabling this (and SPEAKER) saves approximately 350 bytes of memory.
 TONE               ?= 1
 
