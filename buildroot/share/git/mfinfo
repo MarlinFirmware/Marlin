@@ -7,13 +7,13 @@
 #   - Remote (upstream) Org name (MarlinFirmware)
 #   - Remote (origin) Org name (your Github username)
 #   - Repo Name (Marlin, MarlinDocumentation)
-#   - PR Target branch (e.g., bugfix-2.0.x)
+#   - PR Target branch (e.g., bugfix-2.1.x)
 #   - Branch Arg (the branch argument or current branch)
 #   - Current Branch
 #
 # Example output
 #   > mfinfo -q ongoing
-#   MarlinFirmware john.doe Marlin bugfix-2.0.x ongoing bugfix-2.0.x -q
+#   MarlinFirmware john.doe Marlin bugfix-2.1.x ongoing bugfix-2.1.x -q
 #
 
 CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$REPO" in
-  Marlin              ) TARG=bugfix-2.0.x ; ((INDEX == 1)) && TARG=bugfix-1.1.x ; [[ $BRANCH =~ ^[12]$ ]] && USAGE=1 ;;
+  Marlin              ) TARG=bugfix-2.1.x ; ((INDEX == 1)) && TARG=bugfix-1.1.x ; [[ $BRANCH =~ ^[12]$ ]] && USAGE=1 ;;
   Configurations      ) TARG=import-2.0.x ;;
   MarlinDocumentation ) TARG=master ;;
   AutoBuildMarlin     ) TARG=master ;;

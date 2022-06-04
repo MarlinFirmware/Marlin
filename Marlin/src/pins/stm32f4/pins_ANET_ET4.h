@@ -64,7 +64,7 @@
 // Z Probe
 //
 #if ENABLED(BLTOUCH)
-  #error "You will need to use 24V to 5V converter and remove one resistor and capacitor from the motherboard. See https://github.com/davidtgbe/Marlin/blob/bugfix-2.0.x/docs/Tutorials/bltouch-en.md for more information. Comment out this line to proceed at your own risk."
+  #error "You will need to use 24V to 5V converter and remove one resistor and capacitor from the motherboard. See https://bit.ly/3xg9cXO for more information. Comment out this line to proceed at your own risk."
   #define SERVO0_PIN                        PC3
 #elif !defined(Z_MIN_PROBE_PIN)
   #define Z_MIN_PROBE_PIN                   PC3
