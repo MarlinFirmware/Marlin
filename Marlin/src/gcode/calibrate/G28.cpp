@@ -321,7 +321,9 @@ void GcodeSuite::G28() {
       stepperW.rms_current(W_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(F(STR_W), tmc_save_current_W, W_CURRENT_HOME);
     #endif
-    safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -577,7 +579,9 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(W)
       stepperW.rms_current(tmc_save_current_W);
     #endif
-    safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
   #endif // HAS_HOMING_CURRENT
 
   ui.refresh();
