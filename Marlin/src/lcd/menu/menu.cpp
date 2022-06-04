@@ -68,9 +68,10 @@ typedef struct {
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
 
-int8_t MenuItemBase::itemIndex;   // Index number for draw and action
-FSTR_P MenuItemBase::itemString;  // A string for substitution
-chimera_t editable;               // Value Editing
+int8_t MenuItemBase::itemIndex;         // Index number for draw and action
+FSTR_P MenuItemBase::itemStringF;       // A string for substitution
+const char *MenuItemBase::itemStringC;
+chimera_t editable;                     // Value Editing
 
 // Menu Edit Items
 FSTR_P       MenuEditItemBase::editLabel;

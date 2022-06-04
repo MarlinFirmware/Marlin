@@ -85,7 +85,7 @@ namespace Language_ca {
   LSTR MSG_MOVE_Z                         = _UxGT("Mou Z");
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mou %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mou $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mou 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mou 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mou 10mm");
@@ -107,11 +107,9 @@ namespace Language_ca {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" passos/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" passos/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" passos/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" passos/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" passos/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" passos/mm");
-  LSTR MSG_E_STEPS                        = _UxGT("Epassos/mm");
-  LSTR MSG_EN_STEPS                       = _UxGT("*passos/mm");
+  LSTR MSG_E_STEPS                        = _UxGT("@ passos/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("E passos/mm");
+  LSTR MSG_EN_STEPS                       = _UxGT("* passos/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
   LSTR MSG_MOTION                         = _UxGT("Moviment");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
@@ -156,6 +154,7 @@ namespace Language_ca {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropas X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropas Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Micropas Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Micropas @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancel. Endstop");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Error al escalfar");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: TEMP REDUNDANT");

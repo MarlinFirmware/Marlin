@@ -110,7 +110,7 @@ void MarlinUI::clear_lcd() {
       #define VERSION_Y   84
     #endif
 
-    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     TERN_(SHOW_CUSTOM_BOOTSCREEN, safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT));
     clear_lcd();
 
@@ -127,7 +127,7 @@ void MarlinUI::clear_lcd() {
       DWIN_ICON_Show(BOOT_ICON, ICON_MarlinURL,  INFO_CENTER - 100 / 2, 152);
       DWIN_ICON_Show(BOOT_ICON, ICON_Copyright,  INFO_CENTER - 126 / 2, 200);
     #endif
-    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length() * 10) / 2, VERSION_Y, S(dwin_string.string()));
+    DWIN_Draw_String(false, font10x20, Color_Yellow, Color_Bg_Black, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     DWIN_UpdateLCD();
   }
 
@@ -284,7 +284,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       else
         dwin_string.add(PSTR("    "));
 
-      lcd_moveto(LCD_WIDTH - dwin_string.length(), row);
+      lcd_moveto(LCD_WIDTH - dwin_string.length, row);
       lcd_put_dwin_string();
     }
 
@@ -311,7 +311,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (mark_as_selected(row, (bool)(style & SS_INVERT), true)) {
@@ -320,15 +320,15 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_font.fg = Color_White;
 
       dwin_string.set();
-      const int8_t plen = fstr ? utf8_strlen(fstr) : 0,
+      const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
                    vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
         int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
         while (--pad) dwin_string.add(' ');
       }
 
-      if (plen) dwin_string.add((uint8_t*)FTOP(fstr), itemIndex, (uint8_t*)FTOP(itemString));
-      if (vlen) dwin_string.add((uint8_t*)vstr);
+      if (plen) dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
+      if (vlen) dwin_string.add(vstr);
       if (style & SS_CENTER) {
         int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
         while (--pad) dwin_string.add(' ');
@@ -340,15 +340,15 @@ void MarlinUI::draw_status_message(const bool blink) {
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;
       dwin_font.fg = Color_White;
 
-      dwin_string.set(fstr, itemIndex, FTOP(itemString));
+      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
 
-      pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length();
+      pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
       while (--n > 1) dwin_string.add(' ');
 
       dwin_string.add(post_char);
@@ -361,7 +361,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   //
   // Draw a menu item with an editable value
   //
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       ui.set_font(DWIN_FONT_MENU);
       dwin_font.solid = false;
@@ -369,7 +369,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen(S(inStr)));
 
-      dwin_string.set(fstr, itemIndex, FTOP(itemString));
+      dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
       if (vallen) dwin_string.add(':');
 
       lcd_moveto(1, row);
@@ -392,8 +392,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     const dwin_coord_t labellen = utf8_strlen(fstr), vallen = utf8_strlen(value);
 
-    dwin_string.set();
-    dwin_string.add((uint8_t*)FTOP(fstr), itemIndex);
+    dwin_string.set(FTOP(fstr), itemIndex);
     if (vallen) dwin_string.add(':');  // If a value is included, add a colon
 
     // Assume the label is alpha-numeric (with a descender)
@@ -406,8 +405,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     // If a value is included, print the value in larger text below the label
     if (vallen) {
-      dwin_string.set();
-      dwin_string.add(value);
+      dwin_string.set(value);
 
       const dwin_coord_t by = (row * MENU_LINE_HEIGHT) + MENU_FONT_HEIGHT + EXTRA_ROW_HEIGHT / 2;
       DWIN_Draw_String(true, font16x32, Color_Yellow, Color_Bg_Black, (LCD_PIXEL_WIDTH - vallen * 16) / 2, by, S(dwin_string.string()));
@@ -464,8 +462,8 @@ void MarlinUI::draw_status_message(const bool blink) {
           maxlen -= 2;
         }
 
-        dwin_string.add((uint8_t*)ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
-        uint8_t n = maxlen - dwin_string.length();
+        dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+        uint8_t n = maxlen - dwin_string.length;
         while (n > 0) { dwin_string.add(' '); --n; }
         lcd_moveto(1, row);
         lcd_put_dwin_string();
@@ -548,7 +546,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_string.add(i8tostr3rj(y_plot));
       dwin_string.add(")");
       lcd_moveto(
-        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length()),
+        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length),
         TERN(DWIN_MARLINUI_LANDSCAPE, LCD_HEIGHT - 2, ((y_offset + y_map_pixels) / MENU_LINE_HEIGHT) + 1)
       );
       lcd_put_dwin_string();
@@ -560,7 +558,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       else
         dwin_string.add(PSTR(" -----"));
       lcd_moveto(
-        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length()),
+        TERN(DWIN_MARLINUI_LANDSCAPE, ((x_offset + x_map_pixels) / MENU_FONT_WIDTH) + 2, LCD_WIDTH - dwin_string.length),
         TERN(DWIN_MARLINUI_LANDSCAPE, LCD_HEIGHT - 1, ((y_offset + y_map_pixels) / MENU_LINE_HEIGHT) + 2)
       );
       lcd_put_dwin_string();
