@@ -35,7 +35,7 @@ COMMIT_STEPS=0
 
 ACTION=${1:-init}
 IMPORT=${2:-"import-2.0.x"}
-EXPORT=${3:-"bugfix-2.0.x"}
+EXPORT=${3:-"bugfix-2.1.x"}
 
 echo -n "Doing grhh ... " ; grhh ; echo
 
@@ -52,7 +52,7 @@ if [[ $ACTION == "manual" ]]; then
   git checkout $IMPORT || exit
 
   # Reset from the latest complete state
-  #git reset --hard bugfix-2.0.x
+  #git reset --hard bugfix-2.1.x
 
   cp "$MARLINREPO/Marlin/"Configuration*.h "$CDEF/"
   #git add . && git commit -m "Changes from Marlin ($(date '+%Y-%m-%d %H:%M'))."

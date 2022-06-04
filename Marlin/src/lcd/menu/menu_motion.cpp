@@ -35,13 +35,10 @@
 
 #include "../../module/motion.h"
 #include "../../gcode/parser.h" // for inch support
+#include "../../module/temperature.h"
 
 #if ENABLED(DELTA)
   #include "../../module/delta.h"
-#endif
-
-#if ENABLED(PREVENT_COLD_EXTRUSION)
-  #include "../../module/temperature.h"
 #endif
 
 #if HAS_LEVELING
@@ -56,6 +53,8 @@
 //
 // "Motion" > "Move Axis" submenu
 //
+
+// TODO: Use substitution here with MSG_MOVE_N
 
 static void _lcd_move_xyz(FSTR_P const name, const AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
@@ -195,22 +194,8 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
     SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
-    if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f) {
-      // Determine digits needed right of decimal
-      constexpr uint8_t digs = !UNEAR_ZERO((FINE_MANUAL_MOVE) * 1000 - int((FINE_MANUAL_MOVE) * 1000)) ? 4 :
-                               !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
-      PGM_P const label = GET_TEXT(MSG_MOVE_N_MM);
-      char tmp[strlen_P(label) + 10 + 1], numstr[10];
-      sprintf_P(tmp, label, dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
-      #if DISABLED(HAS_GRAPHICAL_TFT)
-        SUBMENU_F(FPSTR(NUL_STR), []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
-        MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
-        lcd_put_u8str(tmp);
-        MENU_ITEM_ADDON_END();
-      #else
-        SUBMENU_F(FPSTR(tmp), []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
-      #endif
-    }
+    if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f)
+      SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
   }
   END_MENU();
 }
@@ -222,23 +207,20 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   inline void _menu_move_distance_e_maybe() {
-    #if ENABLED(PREVENT_COLD_EXTRUSION)
-      const bool too_cold = thermalManager.tooColdToExtrude(active_extruder);
-      if (too_cold) {
-        ui.goto_screen([]{
-          MenuItem_confirm::select_screen(
-            GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
-            _goto_menu_move_distance_e, nullptr,
-            GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
-          );
-        });
-        return;
-      }
-    #endif
-    _goto_menu_move_distance_e();
+    if (thermalManager.tooColdToExtrude(active_extruder)) {
+      ui.goto_screen([]{
+        MenuItem_confirm::select_screen(
+          GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
+          _goto_menu_move_distance_e, nullptr,
+          GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
+        );
+      });
+    }
+    else
+      _goto_menu_move_distance_e();
   }
 
-#endif // E_MANUAL
+#endif
 
 void menu_move() {
   START_MENU();
@@ -497,7 +479,7 @@ void menu_motion() {
 
   #endif
 
-  #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
+  #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
     SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
   #endif
 

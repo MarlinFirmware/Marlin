@@ -8,7 +8,7 @@ name: CI
 on:
   pull_request:
     branches:
-    - bugfix-2.0.x
+    - bugfix-2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -16,7 +16,7 @@ on:
     - '**/*.md'
   push:
     branches:
-    - bugfix-2.0.x
+    - bugfix-2.1.x
     paths-ignore:
     - config/**
     - data/**

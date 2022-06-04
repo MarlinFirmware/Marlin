@@ -18,19 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Ported sys0724 & Vynt
  */
 #pragma once
 
 /**
  * Arduino Mega? or Due with RuRAMPS4DUE pin assignments
- *
- * Applies to the following boards:
- *  RURAMPS4DUE      (Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
- *
- *  Differences between
- *     RADDS | RuRAMPS4DUE
- *           |
+ * Ported by sys0724 & Vynt
  */
 
 #include "env_validate.h"

@@ -96,13 +96,14 @@ hotend_pid_t;
 
 #if ENABLED(MPCTEMP)
   typedef struct {
-    float heater_power;             // M306 P
-    float block_heat_capacity;      // M306 C
-    float sensor_responsiveness;    // M306 R
-    float ambient_xfer_coeff_fan0;  // M306 A
+    float heater_power;                 // M306 P
+    float block_heat_capacity;          // M306 C
+    float sensor_responsiveness;        // M306 R
+    float ambient_xfer_coeff_fan0;      // M306 A
     #if ENABLED(MPC_INCLUDE_FAN)
-      float fan255_adjustment;      // M306 F
+      float fan255_adjustment;          // M306 F
     #endif
+    float filament_heat_capacity_permm; // M306 H
   } MPC_t;
 #endif
 
