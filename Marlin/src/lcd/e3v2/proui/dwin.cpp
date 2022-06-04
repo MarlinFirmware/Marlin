@@ -716,7 +716,7 @@ void Draw_PrintDone() {
   if (sdprint && TERN0(HAS_GCODE_PREVIEW, Preview_Valid())) {
     DWIN_ICON_Show(0, 0, 1, 21, 100, 0x00);
     DWINUI::Draw_Button(BTN_Continue, 86, 300);
-  } 
+  }
   else {
     Draw_Print_ProgressBar();
     Draw_Print_Labels();

@@ -1,11 +1,33 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * DWIN g-code thumbnail preview
  * Author: Miguel A. Risco-Castillo
  * version: 2.1
  * Date: 2021/06/19
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -17,10 +39,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * For commercial applications additional licences can be requested
+ * For commercial applications additional licenses can be requested
  */
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "dwin_defines.h"
 
 #if HAS_GCODE_PREVIEW
@@ -86,13 +107,14 @@ void Get_Value(char *buf, const char * const key, float &value) {
       if (!ISEOL(c) && (c != 0)) {
         if ((c > 47 && c < 58) || (c == '.')) num[i++] = c;
         posptr++;
-      } else {
+      }
+      else {
         num[i] = '\0';
         value = atof(num);
         return;
       }
     }
-  } 
+  }
 }
 
 bool Has_Preview() {
@@ -129,7 +151,8 @@ bool Has_Preview() {
       posptr = strstr(buf, tbstart);
       if (posptr != NULL) {
         fileprop.thumbstart = indx + (posptr - &buf[0]);
-      } else {
+      }
+      else {
         indx += _MAX(10, nbyte - (signed)strlen(tbstart));
         card.setIndex(indx);
       }
@@ -148,10 +171,11 @@ bool Has_Preview() {
     char c = card.get();
     if (!ISEOL(c)) {
       buf[i] = c;
-    } else {
+    }
+    else {
       buf[i] = 0;
       break;
-    } 
+    }
   }
   fileprop.thumbsize = atoi(buf);
 
@@ -185,33 +209,34 @@ bool Has_Preview() {
 
 void Preview_DrawFromSD() {
   if (Has_Preview()) {
-  char buf[46];
-  char str_1[6] = "";
-  char str_2[6] = "";
-  char str_3[6] = "";
-  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
-  if (fileprop.time) {
-    sprintf_P(buf, PSTR("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
-    DWINUI::Draw_String(20, 10, buf);
+    char buf[46];
+    char str_1[6] = "";
+    char str_2[6] = "";
+    char str_3[6] = "";
+    DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
+    if (fileprop.time) {
+      sprintf_P(buf, PSTR("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
+      DWINUI::Draw_String(20, 10, buf);
+    }
+    if (fileprop.filament) {
+      sprintf_P(buf, PSTR("Filament used: %s m"), dtostrf(fileprop.filament, 1, 2, str_1));
+      DWINUI::Draw_String(20, 30, buf);
+    }
+    if (fileprop.layer) {
+      sprintf_P(buf, PSTR("Layer height: %s mm"), dtostrf(fileprop.layer, 1, 2, str_1));
+      DWINUI::Draw_String(20, 50, buf);
+    }
+    if (fileprop.width) {
+      sprintf_P(buf, PSTR("Volume: %sx%sx%s mm"), dtostrf(fileprop.width, 1, 1, str_1), dtostrf(fileprop.length, 1, 1, str_2), dtostrf(fileprop.height, 1, 1, str_3));
+      DWINUI::Draw_String(20, 70, buf);
+    }
+    DWINUI::Draw_Button(BTN_Print, 26, 290);
+    DWINUI::Draw_Button(BTN_Cancel, 146, 290);
+    DWIN_ICON_Show(0, 0, 1, 21, 90, 0x00);
+    Draw_Select_Highlight(true, 290);
+    DWIN_UpdateLCD();
   }
-  if (fileprop.filament) {
-    sprintf_P(buf, PSTR("Filament used: %s m"), dtostrf(fileprop.filament, 1, 2, str_1));
-    DWINUI::Draw_String(20, 30, buf);
-  }
-  if (fileprop.layer) {
-    sprintf_P(buf, PSTR("Layer height: %s mm"), dtostrf(fileprop.layer, 1, 2, str_1));
-    DWINUI::Draw_String(20, 50, buf);
-  }
-  if (fileprop.width) {
-    sprintf_P(buf, PSTR("Volume: %sx%sx%s mm"), dtostrf(fileprop.width, 1, 1, str_1), dtostrf(fileprop.length, 1, 1, str_2), dtostrf(fileprop.height, 1, 1, str_3));
-    DWINUI::Draw_String(20, 70, buf);
-  }
-  DWINUI::Draw_Button(BTN_Print, 26, 290);
-  DWINUI::Draw_Button(BTN_Cancel, 146, 290);
-  DWIN_ICON_Show(0, 0, 1, 21, 90, 0x00);
-  Draw_Select_Highlight(true, 290);
-  DWIN_UpdateLCD();
-  } else {
+  else {
     HMI_flag.select_flag = 1;
     wait_for_user = false;
   }
@@ -225,4 +250,4 @@ void Preview_Reset() {
   fileprop.thumbsize = 0;
 }
 
-#endif //HAS_GCODE_PREVIEW
+#endif // HAS_GCODE_PREVIEW
