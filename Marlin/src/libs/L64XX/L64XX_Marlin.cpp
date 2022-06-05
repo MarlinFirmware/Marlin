@@ -38,7 +38,7 @@ L64XX_Marlin L64xxManager;
 #include "../../HAL/shared/Delay.h"
 
 static const char NUM_AXIS_LIST(
-                   str_X[] PROGMEM = "X ",          str_Y[] PROGMEM = "Y ",          str_Z[] PROGMEM = "Z ",
+                   str_X[] PROGMEM = "X ",      str_Y[] PROGMEM = "Y ",      str_Z[] PROGMEM = "Z ",
                    str_I[] PROGMEM = STR_I " ", str_J[] PROGMEM = STR_J " ", str_K[] PROGMEM = STR_K " "
                  ),
                  str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",

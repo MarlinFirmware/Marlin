@@ -59,7 +59,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(3) .button(TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
               .enabled(ENABLED(LIN_ADVANCE))
       .tag(4) .button(LIN_ADVANCE_POS,         GET_TEXT_F(MSG_LINEAR_ADVANCE))
-      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_VELOCITY))
+      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_MAX_SPEED))
       .tag(6) .button(ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
       .tag(7) .button(JERK_POS,               GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
       .tag(8) .button(ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))

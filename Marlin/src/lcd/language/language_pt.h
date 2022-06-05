@@ -80,7 +80,7 @@ namespace Language_pt {
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
@@ -104,9 +104,7 @@ namespace Language_pt {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" passo/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" passo/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" passo/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" passo/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" passo/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" passo/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ passo/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E passo/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* passo/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");

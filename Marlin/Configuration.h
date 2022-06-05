@@ -1806,18 +1806,18 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-//#define LEVEL_BED_CORNERS
+//#define LCD_BED_TRAMMING
 
-#if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
-  #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
-  #define LEVEL_CORNERS_Z_HOP       4.0   // (mm) Z height of nozzle between leveling points
-  //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
-  //#define LEVEL_CORNERS_USE_PROBE
-  #if ENABLED(LEVEL_CORNERS_USE_PROBE)
-    #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
-    #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
-    //#define LEVEL_CORNERS_AUDIO_FEEDBACK
+#if ENABLED(LCD_BED_TRAMMING)
+  #define BED_TRAMMING_INSET_LFRB { 30, 30, 30, 30 }  // (mm) Left, Front, Right, Back insets
+  #define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at leveling points
+  #define BED_TRAMMING_Z_HOP       4.0        // (mm) Z height of nozzle between leveling points
+  //#define BED_TRAMMING_INCLUDE_CENTER       // Move to the center after the last corner
+  //#define BED_TRAMMING_USE_PROBE
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
+    #define BED_TRAMMING_PROBE_TOLERANCE 0.1  // (mm)
+    #define BED_TRAMMING_VERIFY_RAISED        // After adjustment triggers the probe, re-probe to verify
+    //#define BED_TRAMMING_AUDIO_FEEDBACK
   #endif
 
   /**
@@ -1837,7 +1837,7 @@
    *  |  1       2  |   | 1         4 |    | 1         2 |   | 2           |
    *  LF --------- RF   LF --------- RF    LF --------- RF   LF --------- RF
    */
-  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, RB, LB }
+  #define BED_TRAMMING_LEVELING_ORDER { LF, RF, RB, LB }
 #endif
 
 /**

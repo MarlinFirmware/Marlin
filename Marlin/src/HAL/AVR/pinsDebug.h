@@ -74,7 +74,7 @@
 #define MULTI_NAME_PAD 26 // space needed to be pretty if not first name assigned to a pin
 
 void PRINT_ARRAY_NAME(uint8_t x) {
-  const char * const name_mem_pointer = (PGM_P)pgm_read_ptr(&pin_array[x].name);
+  PGM_P const name_mem_pointer = (PGM_P)pgm_read_ptr(&pin_array[x].name);
   LOOP_L_N(y, MAX_NAME_LENGTH) {
     char temp_char = pgm_read_byte(name_mem_pointer + y);
     if (temp_char != 0)

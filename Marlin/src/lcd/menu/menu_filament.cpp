@@ -95,7 +95,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   BACK_ITEM(MSG_BACK);
   #if HAS_PREHEAT
     LOOP_L_N(m, PREHEAT_COUNT)
-      ACTION_ITEM_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
+      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
   EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
     EXTRUDE_MINTEMP, thermalManager.hotend_max_target(extruder),
@@ -132,18 +132,18 @@ void menu_change_filament() {
 
     // Change filament
     #if E_STEPPERS == 1
-      FSTR_P const msg = GET_TEXT_F(MSG_FILAMENTCHANGE);
+      FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE);
       if (thermalManager.targetTooColdToExtrude(active_extruder))
-        SUBMENU_F(msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
+        SUBMENU_F(fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
       else
-        GCODES_ITEM_F(msg, F("M600 B0"));
+        GCODES_ITEM_F(fmsg, F("M600 B0"));
     #else
-      FSTR_P const msg = GET_TEXT_F(MSG_FILAMENTCHANGE_E);
+      FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE_E);
       LOOP_L_N(s, E_STEPPERS) {
         if (thermalManager.targetTooColdToExtrude(s))
-          SUBMENU_N_F(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
+          SUBMENU_N_F(s, fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
-          ACTION_ITEM_N_F(s, msg, []{
+          ACTION_ITEM_N_F(s, fmsg, []{
             PGM_P const cmdpstr = PSTR("M600 B0 T%i");
             char cmd[strlen_P(cmdpstr) + 3 + 1];
             sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
@@ -271,10 +271,10 @@ void menu_pause_option() {
 //
 // ADVANCED_PAUSE_FEATURE message screens
 //
-// Warning: msg must have three null bytes to delimit lines!
+// Warning: fmsg must have three null bytes to delimit lines!
 //
-void _lcd_pause_message(FSTR_P const msg) {
-  PGM_P const msg1 = FTOP(msg);
+void _lcd_pause_message(FSTR_P const fmsg) {
+  PGM_P const msg1 = FTOP(fmsg);
   PGM_P const msg2 = msg1 + strlen_P(msg1) + 1;
   PGM_P const msg3 = msg2 + strlen_P(msg2) + 1;
   const bool has2 = msg2[0], has3 = msg3[0],

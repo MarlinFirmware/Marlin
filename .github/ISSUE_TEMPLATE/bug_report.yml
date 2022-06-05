@@ -14,13 +14,13 @@ body:
 
         ## Before Reporting a Bug
 
-        - Read and understand Marlin's [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.0.x/.github/code_of_conduct.md). You are expected to comply with it, including treating everyone with respect.
+        - Read and understand Marlin's [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.1.x/.github/code_of_conduct.md). You are expected to comply with it, including treating everyone with respect.
 
-        - Test with the [`bugfix-2.0.x` branch](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.0.x.zip) to see whether the issue still exists.
+        - Test with the [`bugfix-2.1.x` branch](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.1.x.zip) to see whether the issue still exists.
 
         ## Instructions
 
-        Please follow the instructions below. Failure to do so may result in your issue being closed. See [Contributing to Marlin](https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.0.x/.github/contributing.md) for additional guidelines.
+        Please follow the instructions below. Failure to do so may result in your issue being closed. See [Contributing to Marlin](https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.1.x/.github/contributing.md) for additional guidelines.
 
         1. Provide a good title starting with [BUG].
         2. Fill out all sections of this bug report form.
@@ -28,10 +28,10 @@ body:
 
   - type: dropdown
     attributes:
-      label: Did you test the latest `bugfix-2.0.x` code?
+      label: Did you test the latest `bugfix-2.1.x` code?
       description: >-
         Always try the latest code to make sure the issue you are reporting is not already fixed. To download
-        the latest code just [click this link](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.0.x.zip).
+        the latest code just [click this link](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.1.x.zip).
       options:
         - Yes, and the problem still exists.
         - No, but I will test it now!

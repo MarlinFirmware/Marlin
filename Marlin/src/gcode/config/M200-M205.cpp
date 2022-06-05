@@ -209,7 +209,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   );
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(i, E_STEPPERS) {
-      SERIAL_ECHO_START();
+      if (!forReplay) SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])

@@ -266,7 +266,7 @@
  * No adjustable bed on non-cartesians
  */
 #if IS_KINEMATIC
-  #undef LEVEL_BED_CORNERS
+  #undef LCD_BED_TRAMMING
 #endif
 
 /**
