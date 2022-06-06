@@ -35,6 +35,8 @@
 #include <stddef.h>
 
 #define HAS_ESDIAG 1
+#define HAS_PIDPLOT 1
+#define HAS_GCODE_PREVIEW 1
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
