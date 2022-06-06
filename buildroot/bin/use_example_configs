@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+BRANCH=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
+
 IFS=: read -r PART1 PART2 <<< "$@"
 [ -n "${PART2}" ] && { REPO="$PART1" ; RDIR="${PART2// /%20}" ; } \
-                  || { REPO=bugfix-2.1.x   ; RDIR="${PART1// /%20}" ; }
+                  || { REPO=$BRANCH   ; RDIR="${PART1// /%20}" ; }
 EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/$REPO/config/examples"
 
 which curl >/dev/null && TOOL='curl -L -s -S -f -o wgot'
