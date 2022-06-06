@@ -44,6 +44,15 @@ extern const char point_name_1[], point_name_2[], point_name_3[]
       , point_name_5[]
       #ifdef TRAMMING_POINT_NAME_6
         , point_name_6[]
+        #ifdef TRAMMING_POINT_NAME_7
+          , point_name_7[]
+          #ifdef TRAMMING_POINT_NAME_8
+            , point_name_8[]
+            #ifdef TRAMMING_POINT_NAME_8
+              , point_name_8[]
+            #endif
+          #endif
+        #endif
       #endif
     #endif
   #endif
@@ -62,6 +71,18 @@ extern const char point_name_1[], point_name_2[], point_name_3[]
       #ifdef TRAMMING_POINT_NAME_6
         #undef _NR_TRAM_NAMES
         #define _NR_TRAM_NAMES 6
+        #ifdef TRAMMING_POINT_NAME_7
+          #undef _NR_TRAM_NAMES
+          #define _NR_TRAM_NAMES 7
+          #ifdef TRAMMING_POINT_NAME_8
+            #undef _NR_TRAM_NAMES
+            #define _NR_TRAM_NAMES 8
+            #ifdef TRAMMING_POINT_NAME_9
+              #undef _NR_TRAM_NAMES
+              #define _NR_TRAM_NAMES 9
+            #endif
+          #endif
+        #endif
       #endif
     #endif
   #endif

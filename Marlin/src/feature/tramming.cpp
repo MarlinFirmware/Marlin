@@ -38,6 +38,15 @@ PGMSTR(point_name_3, TRAMMING_POINT_NAME_3);
     PGMSTR(point_name_5, TRAMMING_POINT_NAME_5);
     #ifdef TRAMMING_POINT_NAME_6
       PGMSTR(point_name_6, TRAMMING_POINT_NAME_6);
+      #ifdef TRAMMING_POINT_NAME_7
+        PGMSTR(point_name_7, TRAMMING_POINT_NAME_7);
+        #ifdef TRAMMING_POINT_NAME_8
+          PGMSTR(point_name_8, TRAMMING_POINT_NAME_8);
+          #ifdef TRAMMING_POINT_NAME_9
+            PGMSTR(point_name_9, TRAMMING_POINT_NAME_9);
+          #endif
+        #endif
+      #endif
     #endif
   #endif
 #endif
@@ -50,6 +59,15 @@ PGM_P const tramming_point_name[] PROGMEM = {
       , point_name_5
       #ifdef TRAMMING_POINT_NAME_6
         , point_name_6
+        #ifdef TRAMMING_POINT_NAME_7
+          , point_name_7
+          #ifdef TRAMMING_POINT_NAME_8
+            , point_name_8
+            #ifdef TRAMMING_POINT_NAME_9
+              , point_name_9
+            #endif
+          #endif
+        #endif
       #endif
     #endif
   #endif
