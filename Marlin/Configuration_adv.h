@@ -984,18 +984,26 @@
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probe points.
-  #define TRAMMING_POINT_XY { {  20, 20 }, { 180,  20 }, { 180, 180 }, { 20, 180 } }
+  #define TRAMMING_POINT_XY { {  20, 20 }, { 200,  20 }, { 380,  20 }, {  380, 200 }, { 200,  200 }, { 20,  200 }, { 20, 380 }, { 200, 380 }, { 380, 380 } }
 
-  // Define position names for probe points.
+// Define position names for probe points.
   #define TRAMMING_POINT_NAME_1 "Front-Left"
-  #define TRAMMING_POINT_NAME_2 "Front-Right"
-  #define TRAMMING_POINT_NAME_3 "Back-Right"
-  #define TRAMMING_POINT_NAME_4 "Back-Left"
+  #define TRAMMING_POINT_NAME_2 "Front-Middle"
+  #define TRAMMING_POINT_NAME_3 "Front-Right"
+
+  #define TRAMMING_POINT_NAME_4 "Middle-Right"
+  #define TRAMMING_POINT_NAME_5 "Center"
+  #define TRAMMING_POINT_NAME_6 "Middle-Left"
+
+  #define TRAMMING_POINT_NAME_7 "Back-Left"
+  #define TRAMMING_POINT_NAME_8 "Back-Middle"
+  #define TRAMMING_POINT_NAME_9 "Back-Right"
+
 
   #define RESTORE_LEVELING_AFTER_G35    // Enable to restore leveling setup after operation
-  //#define REPORT_TRAMMING_MM          // Report Z deviation (mm) for each point relative to the first
+  #define REPORT_TRAMMING_MM          // Report Z deviation (mm) for each point relative to the first
 
-  //#define ASSISTED_TRAMMING_WIZARD    // Add a Tramming Wizard to the LCD menu
+  #define ASSISTED_TRAMMING_WIZARD    // Add a Tramming Wizard to the LCD menu
 
   //#define ASSISTED_TRAMMING_WAIT_POSITION { X_CENTER, Y_CENTER, 30 } // Move the nozzle out of the way for adjustment
 
