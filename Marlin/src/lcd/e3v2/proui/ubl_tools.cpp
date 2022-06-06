@@ -1,10 +1,9 @@
 /**
- * UBL Tools and Mesh Viewer for Pro UI
- * Version: 1.0.0
- * Date: 2022/04/13
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Original Author: Henri-J-Norden
- * Original Source: https://github.com/Jyers/Marlin/pull/126
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * UBL Tools and Mesh Viewer for Pro UI
+ * Version: 1.0.0
+ * Date: 2022/04/13
+ *
+ * Original Author: Henri-J-Norden
+ * Original Source: https://github.com/Jyers/Marlin/pull/126
  */
 
 #include "../../../inc/MarlinConfigPre.h"
