@@ -134,19 +134,19 @@ void initISR(const timer16_Sequence_t timer) {
 
 void finISR(const timer16_Sequence_t timer) {
   #ifdef _useTimer1
-    TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
+    if (timer == _timer1) TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
   #endif
   #ifdef _useTimer2
-    TC_Stop(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2);
+    if (timer == _timer2) TC_Stop(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2);
   #endif
   #ifdef _useTimer3
-    TC_Stop(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3);
+    if (timer == _timer3) TC_Stop(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3);
   #endif
   #ifdef _useTimer4
-    TC_Stop(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4);
+    if (timer == _timer4) TC_Stop(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4);
   #endif
   #ifdef _useTimer5
-    TC_Stop(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5);
+    if (timer == _timer5) TC_Stop(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5);
   #endif
 }
 
