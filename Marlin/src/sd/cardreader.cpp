@@ -496,7 +496,9 @@ void CardReader::manage_media() {
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
     if (!isMounted()) {             // Not mounted?
       stat = 0;
-      IF_DISABLED(SD_IGNORE_AT_STARTUP, prev_stat = 0);
+      #if PIN_EXISTS(SD_DETECT)
+        IF_DISABLED(SD_IGNORE_AT_STARTUP, prev_stat = 0);
+      #endif
     }
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
