@@ -52,7 +52,7 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 // ------------------------
 /// Interrupt handler for the TC0 channel 1.
 // ------------------------
-void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
+void Servo_Handler(const timer16_Sequence_t timer, Tc *pTc, const uint8_t channel);
 
 #ifdef _useTimer1
   void HANDLER_FOR_TIMER1() { Servo_Handler(_timer1, TC_FOR_TIMER1, CHANNEL_FOR_TIMER1); }
@@ -70,7 +70,7 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
   void HANDLER_FOR_TIMER5() { Servo_Handler(_timer5, TC_FOR_TIMER5, CHANNEL_FOR_TIMER5); }
 #endif
 
-void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
+void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel) {
   const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
   if (Channel[timer] < 0)
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                 // channel set to -1 indicated that refresh interval completed so reset the timer
@@ -82,16 +82,14 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
   Channel[timer]++;                                                 // increment to the next channel
   if (good_servo && Channel[timer] < SERVOS_PER_TIMER) {
     tc->TC_CHANNEL[channel].TC_RA = tc->TC_CHANNEL[channel].TC_CV + SERVO(timer,Channel[timer]).ticks;
-    if (SERVO(timer,Channel[timer]).Pin.isActive)                   // check if activated
+    if (SERVO(timer, Channel[timer]).Pin.isActive)                  // check if activated
       extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH);  // it's an active channel so pulse it high
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL);
-    tc->TC_CHANNEL[channel].TC_RA =
-      tc->TC_CHANNEL[channel].TC_CV + 4 < iticks
-        ? iticks                                                    // allow a few ticks to ensure the next OCR1A not missed
-        : tc->TC_CHANNEL[channel].TC_CV + 4;                        // at least REFRESH_INTERVAL has elapsed
+    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL), // At least the refresh interval has elapsed
+                       tctick = tc->TC_CHANNEL[channel].TC_CV + 4;  // allow a few ticks to ensure the next OCR1A not missed
+    tc->TC_CHANNEL[channel].TC_RA = max(tctick, iticks);
     Channel[timer] = -1;                                            // gets incremented at the end of the refresh period to start again at the first channel
   }
 
@@ -116,30 +114,25 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   TC_Start(tc, channel);
 }
 
-void initISR(timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer) {
   #ifdef _useTimer1
-    if (timer == _timer1)
-      _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
+    if (timer == _timer1) _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
   #endif
   #ifdef _useTimer2
-    if (timer == _timer2)
-      _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
+    if (timer == _timer2) _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
   #endif
   #ifdef _useTimer3
-    if (timer == _timer3)
-      _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
+    if (timer == _timer3) _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
   #endif
   #ifdef _useTimer4
-    if (timer == _timer4)
-      _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
+    if (timer == _timer4) _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
   #endif
   #ifdef _useTimer5
-    if (timer == _timer5)
-      _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
+    if (timer == _timer5) _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
   #endif
 }
 
-void finISR(timer16_Sequence_t) {
+void finISR(const timer16_Sequence_t timer) {
   #ifdef _useTimer1
     TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
   #endif

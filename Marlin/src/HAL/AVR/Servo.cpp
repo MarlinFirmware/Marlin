@@ -66,7 +66,7 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 
 /************ static functions common to all instances ***********************/
 
-static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
+static inline void handle_interrupts(const timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
   const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
   if (Channel[timer] < 0)
     *TCNTn = 0;                                                       // channel set to -1 indicated that refresh interval completed so reset the timer
@@ -81,11 +81,9 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
   }
   else {
     // Finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL);
-    if (((unsigned)*TCNTn) + 4 < iticks)                              // allow a few ticks to ensure the next OCR1A not missed
-      *OCRnA = iticks;
-    else
-      *OCRnA = *TCNTn + 4;                                            // at least REFRESH_INTERVAL has elapsed
+    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL), // At least the refresh interval has elapsed
+                       tctick = ((unsigned)*TCNTn) + 4;               // allow a few ticks to ensure the next OCR1A not missed
+    *OCRnA = max(tctick, iticks);
     Channel[timer] = -1;                                              // gets incremented at the end of the refresh period to start again at the first channel
   }
 }
@@ -123,7 +121,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
 /****************** end of static functions ******************************/
 
-void initISR(timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer) {
   #ifdef _useTimer1
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
@@ -182,7 +180,7 @@ void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
     if (timer == _timer1) {
@@ -192,7 +190,8 @@ void finISR(timer16_Sequence_t timer) {
         #else
           TIMSK
         #endif
-          , OCIE1A);    // disable timer 1 output compare interrupt
+        , OCIE1A    // disable timer 1 output compare interrupt
+      );
       timerDetach(TIMER1OUTCOMPAREA_INT);
     }
     else if (timer == _timer3) {
@@ -202,7 +201,8 @@ void finISR(timer16_Sequence_t timer) {
         #else
           ETIMSK
         #endif
-          , OCIE3A);    // disable the timer3 output compare A interrupt
+        , OCIE3A    // disable the timer3 output compare A interrupt
+      );
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
   #else // !WIRING
