@@ -38,6 +38,7 @@ extern GPIO_TypeDef * FastIOPortMap[];
 // ------------------------
 
 void FastIO_init(); // Must be called before using fast io macros
+#define FASTIO_INIT() FastIO_init()
 
 // ------------------------
 // Defines

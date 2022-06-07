@@ -48,7 +48,7 @@ void MarlinGame::draw_game_over() {
     u8g.setColorIndex(0);
     u8g.drawBox(lx - 1, ly - gohigh - 1, gowide + 2, gohigh + 2);
     u8g.setColorIndex(1);
-    if (ui.get_blink()) lcd_put_u8str_P(lx, ly, PSTR("GAME OVER"));
+    if (ui.get_blink()) lcd_put_u8str(lx, ly, F("GAME OVER"));
   }
 }
 

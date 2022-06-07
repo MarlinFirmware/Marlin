@@ -33,14 +33,22 @@
  * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
  */
 void GcodeSuite::M211() {
-  const xyz_pos_t l_soft_min = soft_endstop.min.asLogical(),
-                  l_soft_max = soft_endstop.max.asLogical();
-  SERIAL_ECHO_START();
-  SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
-  if (parser.seen('S')) soft_endstop._enabled = parser.value_bool();
-  serialprint_onoff(soft_endstop._enabled);
-  print_xyz(l_soft_min, PSTR(STR_SOFT_MIN), PSTR(" "));
-  print_xyz(l_soft_max, PSTR(STR_SOFT_MAX));
+  if (parser.seen('S'))
+    soft_endstop._enabled = parser.value_bool();
+  else
+    M211_report();
 }
 
-#endif
+void GcodeSuite::M211_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, F(STR_SOFT_ENDSTOPS));
+  SERIAL_ECHOPGM("  M211 S", AS_DIGIT(soft_endstop._enabled), " ; ");
+  serialprintln_onoff(soft_endstop._enabled);
+
+  report_echo_start(forReplay);
+  const xyz_pos_t l_soft_min = soft_endstop.min.asLogical(),
+                  l_soft_max = soft_endstop.max.asLogical();
+  print_pos(l_soft_min, F(STR_SOFT_MIN), F(" "));
+  print_pos(l_soft_max, F(STR_SOFT_MAX));
+}
+
+#endif // HAS_SOFTWARE_ENDSTOPS

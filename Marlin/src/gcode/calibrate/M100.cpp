@@ -51,7 +51,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(PGM_P const free_memory_start);
- *    void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
+ *    void M100_dump_routine(FSTR_P const title, const char * const start, const uintptr_t size);
  *
  * Initial version by Roxy-3D
  */
@@ -182,8 +182,8 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     }
   }
 
-  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size) {
-    SERIAL_ECHOLNPGM_P(title);
+  void M100_dump_routine(FSTR_P const title, const char * const start, const uintptr_t size) {
+    SERIAL_ECHOLNF(title);
     //
     // Round the start and end locations to produce full lines of output
     //
@@ -196,13 +196,13 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
 
 #endif // M100_FREE_MEMORY_DUMPER
 
-inline int check_for_free_memory_corruption(PGM_P const title) {
-  SERIAL_ECHOPGM_P(title);
+inline int check_for_free_memory_corruption(FSTR_P const title) {
+  SERIAL_ECHOF(title);
 
   char *start_free_memory = free_memory_start, *end_free_memory = free_memory_end;
   int n = end_free_memory - start_free_memory;
 
-  SERIAL_ECHOLNPAIR("\nfmc() n=", n,
+  SERIAL_ECHOLNPGM("\nfmc() n=", n,
                     "\nfree_memory_start=", hex_address(free_memory_start),
                     "  end=", hex_address(end_free_memory));
 
@@ -217,7 +217,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     //  idle();
     serial_delay(20);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, 0x0680);
+      M100_dump_routine(F("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, 0x0680);
     #endif
   }
 
@@ -227,15 +227,15 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     if (start_free_memory[i] == TEST_BYTE) {
       int32_t j = count_test_bytes(start_free_memory + i);
       if (j > 8) {
-        //SERIAL_ECHOPAIR("Found ", j);
-        //SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(start_free_memory + i));
+        //SERIAL_ECHOPGM("Found ", j);
+        //SERIAL_ECHOLNPGM(" bytes free at ", hex_address(start_free_memory + i));
         i += j;
         block_cnt++;
-        SERIAL_ECHOLNPAIR(" (", block_cnt, ") found=", j);
+        SERIAL_ECHOLNPGM(" (", block_cnt, ") found=", j);
       }
     }
   }
-  SERIAL_ECHOPAIR("  block_found=", block_cnt);
+  SERIAL_ECHOPGM("  block_found=", block_cnt);
 
   if (block_cnt != 1)
     SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
@@ -267,7 +267,7 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
     if (*addr == TEST_BYTE) {
       const int32_t j = count_test_bytes(addr);
       if (j > 8) {
-        SERIAL_ECHOLNPAIR("Found ", j, " bytes free at ", hex_address(addr));
+        SERIAL_ECHOLNPGM("Found ", j, " bytes free at ", hex_address(addr));
         if (j > max_cnt) {
           max_cnt  = j;
           max_addr = addr;
@@ -277,11 +277,11 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
       }
     }
   }
-  if (block_cnt > 1) SERIAL_ECHOLNPAIR(
+  if (block_cnt > 1) SERIAL_ECHOLNPGM(
     "\nMemory Corruption detected in free memory area."
     "\nLargest free block is ", max_cnt, " bytes at ", hex_address(max_addr)
   );
-  SERIAL_ECHOLNPAIR("check_for_free_memory_corruption() = ", check_for_free_memory_corruption(PSTR("M100 F ")));
+  SERIAL_ECHOLNPGM("check_for_free_memory_corruption() = ", check_for_free_memory_corruption(F("M100 F ")));
 }
 
 #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
@@ -299,7 +299,7 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
     for (uint32_t i = 1; i <= size; i++) {
       char * const addr = start_free_memory + i * j;
       *addr = i;
-      SERIAL_ECHOPAIR("\nCorrupting address: ", hex_address(addr));
+      SERIAL_ECHOPGM("\nCorrupting address: ", hex_address(addr));
     }
     SERIAL_EOL();
   }
@@ -327,8 +327,8 @@ inline void init_free_memory(char *start_free_memory, int32_t size) {
 
   for (int32_t i = 0; i < size; i++) {
     if (start_free_memory[i] != TEST_BYTE) {
-      SERIAL_ECHOPAIR("? address : ", hex_address(start_free_memory + i));
-      SERIAL_ECHOLNPAIR("=", hex_byte(start_free_memory[i]));
+      SERIAL_ECHOPGM("? address : ", hex_address(start_free_memory + i));
+      SERIAL_ECHOLNPGM("=", hex_byte(start_free_memory[i]));
       SERIAL_EOL();
     }
   }
@@ -340,14 +340,14 @@ inline void init_free_memory(char *start_free_memory, int32_t size) {
 void GcodeSuite::M100() {
   char *sp = top_of_stack();
   if (!free_memory_end) free_memory_end = sp - MEMORY_END_CORRECTION;
-                  SERIAL_ECHOPAIR("\nbss_end               : ", hex_address(end_bss));
-  if (heaplimit)  SERIAL_ECHOPAIR("\n__heaplimit           : ", hex_address(heaplimit));
-                  SERIAL_ECHOPAIR("\nfree_memory_start     : ", hex_address(free_memory_start));
-  if (stacklimit) SERIAL_ECHOPAIR("\n__stacklimit          : ", hex_address(stacklimit));
-                  SERIAL_ECHOPAIR("\nfree_memory_end       : ", hex_address(free_memory_end));
+                  SERIAL_ECHOPGM("\nbss_end               : ", hex_address(end_bss));
+  if (heaplimit)  SERIAL_ECHOPGM("\n__heaplimit           : ", hex_address(heaplimit));
+                  SERIAL_ECHOPGM("\nfree_memory_start     : ", hex_address(free_memory_start));
+  if (stacklimit) SERIAL_ECHOPGM("\n__stacklimit          : ", hex_address(stacklimit));
+                  SERIAL_ECHOPGM("\nfree_memory_end       : ", hex_address(free_memory_end));
   if (MEMORY_END_CORRECTION)
-                  SERIAL_ECHOPAIR("\nMEMORY_END_CORRECTION : ", MEMORY_END_CORRECTION);
-                  SERIAL_ECHOLNPAIR("\nStack Pointer       : ", hex_address(sp));
+                  SERIAL_ECHOPGM("\nMEMORY_END_CORRECTION : ", MEMORY_END_CORRECTION);
+                  SERIAL_ECHOLNPGM("\nStack Pointer       : ", hex_address(sp));
 
   // Always init on the first invocation of M100
   static bool m100_not_initialized = true;

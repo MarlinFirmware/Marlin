@@ -42,7 +42,7 @@
 // Private Variables
 // ------------------------
 
-const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
+const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
   { TC0, 0, TC0_IRQn,  3}, // 0 - [servo timer5]
   { TC0, 1, TC1_IRQn,  0}, // 1
   { TC0, 2, TC2_IRQn,  2}, // 2 - stepper
@@ -66,9 +66,9 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
 */
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  Tc *tc = TimerConfig[timer_num].pTimerRegs;
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
-  uint32_t channel = TimerConfig[timer_num].channel;
+  Tc *tc = timer_config[timer_num].pTimerRegs;
+  IRQn_Type irq = timer_config[timer_num].IRQ_Id;
+  uint32_t channel = timer_config[timer_num].channel;
 
   // Disable interrupt, just in case it was already enabled
   NVIC_DisableIRQ(irq);
@@ -86,7 +86,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
   pmc_set_writeprotect(false);
   pmc_enable_periph_clk((uint32_t)irq);
-  NVIC_SetPriority(irq, TimerConfig [timer_num].priority);
+  NVIC_SetPriority(irq, timer_config[timer_num].priority);
 
   // wave mode, reset counter on match with RC,
   TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
@@ -105,12 +105,12 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   NVIC_DisableIRQ(irq);
 
   // We NEED memory barriers to ensure Interrupts are actually disabled!
@@ -125,7 +125,7 @@ static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   return NVIC_GetEnabledIRQ(irq);
 }
 

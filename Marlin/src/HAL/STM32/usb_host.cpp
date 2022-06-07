@@ -20,7 +20,9 @@
  *
  */
 
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -87,9 +89,9 @@ void USBHost::setUsbTaskState(uint8_t state) {
     capacity = info.capacity.block_nbr / 2000;
     block_size = info.capacity.block_size;
     block_count = info.capacity.block_nbr;
-    // SERIAL_ECHOLNPAIR("info.capacity.block_nbr : %ld\n", info.capacity.block_nbr);
-    // SERIAL_ECHOLNPAIR("info.capacity.block_size: %d\n", info.capacity.block_size);
-    // SERIAL_ECHOLNPAIR("capacity                : %d MB\n", capacity);
+    //SERIAL_ECHOLNPGM("info.capacity.block_nbr : %ld\n", info.capacity.block_nbr);
+    //SERIAL_ECHOLNPGM("info.capacity.block_size: %d\n", info.capacity.block_size);
+    //SERIAL_ECHOLNPGM("capacity                : %d MB\n", capacity);
   }
 };
 
@@ -110,8 +112,8 @@ uint8_t BulkStorage::Read(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t bl
 }
 
 uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t blocks, const uint8_t * buf) {
-  return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast <uint8_t*>(buf), blocks) != USBH_OK;
+  return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast<uint8_t*>(buf), blocks) != USBH_OK;
 }
 
 #endif // USE_OTG_USB_HOST && USBHOST
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // HAL_STM32

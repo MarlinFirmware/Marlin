@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,23 +24,22 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "LERDGE X only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge X"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define STEP_TIMER                             4
-#define TEMP_TIMER                             2
+#define STEP_TIMER  4
+#define TEMP_TIMER  2
 
 #define I2C_EEPROM
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
 #define MARLIN_EEPROM_SIZE               0x10000  // FM24CL64 F-RAM 64K (8Kx8)
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
@@ -114,9 +116,23 @@
 //#define NEOPIXEL_PIN                      -1
 
 //
+// SD support (On board)
+//
+#define SDIO_SUPPORT
+#define SD_DETECT_PIN                       PA8
+#define SDIO_CLOCK                       4800000
+#if DISABLED(SDIO_SUPPORT)
+  #define SOFTWARE_SPI
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         PC11
+  #define SDSS                              PC11
+#endif
+
+//
 // Misc. Functions
 //
-#define SDSS                                PC11
 #define LED_PIN                             PC7   // Alive
 #define PS_ON_PIN                           -1
 #define KILL_PIN                            -1
@@ -124,36 +140,36 @@
 // Lerdge supports auto-power off and power loss sense through a single pin.
 #define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
 
-#define SD_SCK_PIN                          PC12
-#define SD_MISO_PIN                         PC8
-#define SD_MOSI_PIN                         PD2
-#define SD_SS_PIN                           PC11
-
 //
-// SD support
+// TFT with FSMC interface
 //
-#define SDIO_SUPPORT
-#define SD_DETECT_PIN                       PA8
-#define SDIO_CLOCK                       4800000
+#if HAS_FSMC_TFT
+  #ifndef TFT_DRIVER
+    #define TFT_DRIVER                    ST7796
+  #endif
+  #define ST7796S_INVERTED
 
-//
-// LCD / Controller
-//
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
 
-// The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD12
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define BTN_EN1                             PE3
-#define BTN_EN2                             PE4
-#define BTN_ENC                             PE2
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+  #define TOUCH_CS_PIN                      PB6
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
 
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD11
-
-#define TOUCH_CS_PIN                        PB6
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+#if IS_NEWPANEL
+  #define BEEPER_PIN                        PD12
+  #define BTN_EN1                           PE4
+  #define BTN_EN2                           PE3
+  #define BTN_ENC                           PE2
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #endif
+#endif

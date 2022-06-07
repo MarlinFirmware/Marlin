@@ -54,7 +54,7 @@ public:
 
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
     static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
-    static inline void reset_total(const AxisEnum axis) {
+    static void reset_total(const AxisEnum axis) {
       if (TERN1(BABYSTEP_XY, axis == Z_AXIS))
         axis_total[BS_TOTAL_IND(axis)] = 0;
     }
@@ -63,7 +63,7 @@ public:
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const_float_t mm);
 
-  static inline bool has_steps() {
+  static bool has_steps() {
     return steps[BS_AXIS_IND(X_AXIS)] || steps[BS_AXIS_IND(Y_AXIS)] || steps[BS_AXIS_IND(Z_AXIS)];
   }
 
@@ -71,7 +71,7 @@ public:
   // Called by the Temperature or Stepper ISR to
   // apply accumulated babysteps to the axes.
   //
-  static inline void task() {
+  static void task() {
     LOOP_LE_N(i, BS_AXIS_IND(Z_AXIS)) step_axis(BS_AXIS(i));
   }
 

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F103VE_ZM3E4V2_USB
+#
+
+# exit on first failure
+set -e
+
+restore_configs
+opt_set MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2 SERIAL_PORT 1
+exec_test $1 $2 "Zonestar ZM3E4 V2.0" "$3"
+
+# cleanup
+restore_configs

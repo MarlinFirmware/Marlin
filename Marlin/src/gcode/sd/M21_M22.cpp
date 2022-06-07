@@ -26,19 +26,30 @@
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
-#include "../../lcd/marlinui.h"
 
 /**
  * M21: Init SD Card
+ *
+ * With MULTI_VOLUME:
+ *  P0 or S - Change to the SD Card and mount it
+ *  P1 or U - Change to the USB Drive and mount it
  */
-void GcodeSuite::M21() { card.mount(); }
+void GcodeSuite::M21() {
+  #if ENABLED(MULTI_VOLUME)
+    const int8_t vol = parser.intval('P', -1);
+    if (vol == 0 || parser.seen_test('S'))       // "S" for SD Card
+      card.changeMedia(&card.media_driver_sdcard);
+    else if (vol == 1 || parser.seen_test('U'))  // "U" for USB
+      card.changeMedia(&card.media_driver_usbFlash);
+  #endif
+  card.mount();
+}
 
 /**
  * M22: Release SD Card
  */
 void GcodeSuite::M22() {
   if (!IS_SD_PRINTING()) card.release();
-  IF_ENABLED(TFT_COLOR_UI, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
 }
 
 #endif // SDSUPPORT

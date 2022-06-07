@@ -25,11 +25,7 @@
 // Based on https://github.com/niteris/ArduinoSoftSpi
 //
 
-#include "../HAL/shared/Marduino.h"
-
-#ifndef FORCE_INLINE
-  #define FORCE_INLINE inline __attribute__((always_inline))
-#endif
+#include "../HAL/shared/Marduino.h" // CORE_TEENSY
 
 #define nop __asm__ volatile ("nop") // NOP for timing
 

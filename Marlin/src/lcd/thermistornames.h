@@ -70,6 +70,10 @@
   #define THERMISTOR_NAME "Zonestar (P802M Hot Bed)"
 #elif THERMISTOR_ID == 503
   #define THERMISTOR_NAME "Zonestar (Z8XM2 Bed)"
+#elif THERMISTOR_ID == 504
+  #define THERMISTOR_NAME "Zonestar (P802QR2 Hot End)"
+#elif THERMISTOR_ID == 505
+  #define THERMISTOR_NAME "Zonestar (P802QR2 Bed)"
 #elif THERMISTOR_ID == 512
   #define THERMISTOR_NAME "RPW-Ultra"
 #elif THERMISTOR_ID == 6
@@ -128,6 +132,8 @@
   #define THERMISTOR_NAME "Pt100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
+#elif THERMISTOR_ID == 2000
+  #define THERMISTOR_NAME "TDK NTCG104LH104JT1"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61

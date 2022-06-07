@@ -37,7 +37,7 @@ void GcodeSuite::M380() {
   #if ENABLED(MANUAL_SOLENOID_CONTROL)
     enable_solenoid(parser.intval('S', active_extruder));
   #else
-    enable_solenoid_on_active_extruder();
+    enable_solenoid(active_extruder);
   #endif
 }
 

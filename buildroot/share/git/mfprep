@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+#
+# mfprep tag1 [tag2]
+#
+# Find commits in bugfix-2.0.x that are not yet in 2.0.x.
+#
+# Specify a version tag to start from, and optional version tag to end at.
+# For bugfix-2.0.x the tag will be prefixed by bf- to distinguish it from the version tag,
+# so at every release be sure to create a bf- tag and publish it to origin.
+#
+
+SED=$(which gsed sed | head -n1)
+SELF=`basename "$0"`
+DRYRUN=0
+
+[[ $# < 1 || $# > 2 ]] && { echo "Usage $SELF tag1 [tag2]" ; exit 1 ; }
+
+TAG1=$1
+TAG2=${2:-"HEAD"}
+
+DEST=2.1.x
+
+# Validate that the required tags exist
+
+MTAG=`git tag | grep -e "^bf-$TAG1\$"`
+[[ -n "$MTAG" ]] || { echo "Can't find tag bf-$TAG1" ; exit 1 ; }
+MTAG=`git tag | grep -e "^$TAG1\$"`
+[[ -n "$MTAG" ]] || { echo "Can't find tag $TAG1" ; exit 1 ; }
+
+# Generate log of recent commits for bugfix-2.0.x and DEST
+
+TMPDIR=`mktemp -d`
+LOGB="$TMPDIR/log-bf.txt"
+LOG2="$TMPDIR/log-2x.txt"
+TMPF="$TMPDIR/tmp.txt"
+SCRF="$TMPDIR/update-$DEST.sh"
+
+git checkout bugfix-2.0.x
+git log --pretty="[%h] %s" bf-$TAG1..$TAG2 | grep -v '\[cron\]' | $SED '1!G;h;$!d' >"$LOGB"
+
+git checkout $DEST
+git log --pretty="[%h] %s" $TAG1..$TAG2 | $SED '1!G;h;$!d' >"$LOG2" || { echo "Can't find tag bf-$TAG1" ; exit 1 ; }
+
+# Go through commit text from DEST removing all matches from the bugfix log
+
+cat "$LOG2" | while read line; do
+  if [[ $line =~ \(((#[0-9]{5}),* *)((#[0-9]{5}),* *)?((#[0-9]{5}),* *)?((#[0-9]{5}),* *)?((#[0-9]{5}),* *)?((#[0-9]{5}),* *)?\)$ ]]; then
+    PATT=""
+    for i in ${!BASH_REMATCH[@]}; do
+      if ((i > 0 && (i % 2 == 0))); then
+        if [[ -n "${BASH_REMATCH[i]}" ]]; then
+          [[ -n "$PATT" ]] && PATT="$PATT|"
+          PATT="$PATT${BASH_REMATCH[i]}"
+        fi
+      fi
+    done
+    #echo "... $PATT"
+    [[ -n "$PATT" ]] && { grep -vE "$PATT" "$LOGB" >"$TMPF" ; cp "$TMPF" "$LOGB" ; }
+  else
+    PATT=$( $SED -E 's/^\[[0-9a-f]{10}\]( . )?(.+)$/\2/' <<<"$line" )
+    [[ -n "$PATT" ]] && { grep -v "$PATT" "$LOGB" >"$TMPF" ; cp "$TMPF" "$LOGB" ; }
+  fi
+done
+
+# Convert remaining commits into git commands
+
+echo -e "#!/usr/bin/env bash\nset -e\ngit checkout ${DEST}\n" >"$TMPF"
+cat "$LOGB" | while read line; do
+  if [[ $line =~ ^\[([0-9a-f]{10})\]\ *(.*)$ ]]; then
+    CID=${BASH_REMATCH[1]}
+    REST=${BASH_REMATCH[2]}
+    echo "git cherry-pick $CID ;# $REST" >>"$TMPF"
+  else
+    echo ";# $line" >>"$TMPF"
+  fi
+done
+mv "$TMPF" "$SCRF"
+chmod +x "$SCRF"
+
+((DRYRUN)) && rm -r "$TMPDIR" || open "$TMPDIR"

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, PASSWORD_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, PASSWORD_FEATURE)
 
 #include "../../feature/password/password.h"
 
@@ -49,18 +49,18 @@ void Password::menu_password_entry() {
   START_MENU();
 
   // "Login" or "New Code"
-  STATIC_ITEM_P(authenticating ? GET_TEXT(MSG_LOGIN_REQUIRED) : GET_TEXT(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
+  STATIC_ITEM_F(authenticating ? GET_TEXT_F(MSG_LOGIN_REQUIRED) : GET_TEXT_F(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(NUL_STR, SS_CENTER, string);
+  STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, string);
 
   #if HAS_MARLINUI_U8GLIB
-    STATIC_ITEM_P(NUL_STR, SS_CENTER, "");
+    STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, "");
   #endif
 
   // Make the digit edit item look like a sub-menu
-  PGM_P const label = GET_TEXT(MSG_ENTER_DIGIT);
-  EDIT_ITEM_P(uint8, label, &editable.uint8, 0, 9, digit_entered);
-  MENU_ITEM_ADDON_START(utf8_strlen_P(label) + 1);
+  FSTR_P const label = GET_TEXT_F(MSG_ENTER_DIGIT);
+  EDIT_ITEM_F(uint8, label, &editable.uint8, 0, 9, digit_entered);
+  MENU_ITEM_ADDON_START(utf8_strlen(label) + 1);
     lcd_put_wchar(' ');
     lcd_put_wchar('1' + digit_no);
     SETCURSOR_X(LCD_WIDTH - 2);
@@ -177,11 +177,11 @@ void Password::menu_password() {
   START_MENU();
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
   SUBMENU(MSG_CHANGE_PASSWORD, screen_set_password);
-  ACTION_ITEM(MSG_REMOVE_PASSWORD, []{ ui.save_previous_screen(); remove_password(); } );
+  ACTION_ITEM(MSG_REMOVE_PASSWORD, []{ ui.push_current_screen(); remove_password(); } );
   #if ENABLED(EEPROM_SETTINGS)
     ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
   #endif
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && PASSWORD_FEATURE
+#endif // HAS_MARLINUI_MENU && PASSWORD_FEATURE

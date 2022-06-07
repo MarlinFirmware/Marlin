@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Ender-4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -36,6 +36,6 @@
 #if ENABLED(CASE_LIGHT_ENABLE)
   #undef FAN_PIN
   #ifndef CASE_LIGHT_PIN
-    #define CASE_LIGHT_PIN RAMPS_D9_PIN
+    #define CASE_LIGHT_PIN MOSFET_B_PIN
   #endif
 #endif

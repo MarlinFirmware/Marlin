@@ -49,7 +49,7 @@
 void GcodeSuite::T(const int8_t tool_index) {
 
   DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("...(", tool_index, ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("...(", tool_index, ")");
 
   // Count this command as movement / activity
   reset_stepper_timeout();

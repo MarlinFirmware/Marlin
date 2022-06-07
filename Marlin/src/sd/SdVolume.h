@@ -36,9 +36,11 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
-#elif ENABLED(SDIO_SUPPORT)
+#endif
+
+#if NEED_SD2CARD_SDIO
   #include "Sd2Card_sdio.h"
-#else
+#elif NEED_SD2CARD_SPI
   #include "Sd2Card.h"
 #endif
 
@@ -47,6 +49,7 @@
 
 //==============================================================================
 // SdVolume class
+
 /**
  * \brief Cache for an SD data block
  */
@@ -84,14 +87,14 @@ class SdVolume {
    * Initialize a FAT volume.  Try partition one first then try super
    * floppy format.
    *
-   * \param[in] dev The Sd2Card where the volume is located.
+   * \param[in] dev The DiskIODriver where the volume is located.
    *
    * \return true for success, false for failure.
    * Reasons for failure include not finding a valid partition, not finding
    * a valid FAT file system or an I/O error.
    */
-  bool init(Sd2Card *dev) { return init(dev, 1) ? true : init(dev, 0); }
-  bool init(Sd2Card *dev, uint8_t part);
+  bool init(DiskIODriver *dev) { return init(dev, 1) || init(dev, 0); }
+  bool init(DiskIODriver *dev, uint8_t part);
 
   // inline functions that return volume info
   uint8_t blocksPerCluster() const { return blocksPerCluster_; } //> \return The volume's cluster size in blocks.
@@ -112,10 +115,10 @@ class SdVolume {
   uint32_t rootDirStart() const { return rootDirStart_; }
 
   /**
-   * Sd2Card object for this volume
-   * \return pointer to Sd2Card object.
+   * DiskIODriver object for this volume
+   * \return pointer to DiskIODriver object.
    */
-  Sd2Card* sdCard() { return sdCard_; }
+  DiskIODriver* sdCard() { return sdCard_; }
 
   /**
    * Debug access to FAT table
@@ -138,13 +141,13 @@ class SdVolume {
   #if USE_MULTIPLE_CARDS
     cache_t cacheBuffer_;        // 512 byte cache for device blocks
     uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    Sd2Card *sdCard_;            // Sd2Card object for cache
+    DiskIODriver *sdCard_;       // DiskIODriver object for cache
     bool cacheDirty_;            // cacheFlush() will write block if true
     uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #else
     static cache_t cacheBuffer_;        // 512 byte cache for device blocks
     static uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    static Sd2Card *sdCard_;            // Sd2Card object for cache
+    static DiskIODriver *sdCard_;       // DiskIODriver object for cache
     static bool cacheDirty_;            // cacheFlush() will write block if true
     static uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #endif

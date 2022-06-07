@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 3960 K, 4.7 kOhm pull-up, RS thermistor 198-961
-const temp_entry_t temptable_10[] PROGMEM = {
+constexpr temp_entry_t temptable_10[] PROGMEM = {
   { OV(   1), 929 },
   { OV(  36), 299 },
   { OV(  71), 246 },

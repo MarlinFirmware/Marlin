@@ -173,7 +173,7 @@ static void udi_msc_cbw_wait(void);
  *
  * \param status       UDD_EP_TRANSFER_OK, if transfer is finished
  * \param status       UDD_EP_TRANSFER_ABORT, if transfer is aborted
- * \param nb_received  number of data transfered
+ * \param nb_received  number of data transferred
  */
 static void udi_msc_cbw_received(udd_ep_status_t status,
     iram_size_t nb_received, udd_ep_id_t ep);
@@ -211,7 +211,7 @@ static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size);
  *
  * \param status     UDD_EP_TRANSFER_OK, if transfer finish
  * \param status     UDD_EP_TRANSFER_ABORT, if transfer aborted
- * \param nb_sent    number of data transfered
+ * \param nb_sent    number of data transferred
  */
 static void udi_msc_data_sent(udd_ep_status_t status, iram_size_t nb_sent,
     udd_ep_id_t ep);
@@ -244,7 +244,7 @@ void udi_msc_csw_send(void);
  *
  * \param status     UDD_EP_TRANSFER_OK, if transfer is finished
  * \param status     UDD_EP_TRANSFER_ABORT, if transfer is aborted
- * \param nb_sent    number of data transfered
+ * \param nb_sent    number of data transferred
  */
 static void udi_msc_csw_sent(udd_ep_status_t status, iram_size_t nb_sent,
     udd_ep_id_t ep);
@@ -463,7 +463,7 @@ uint8_t udi_msc_getsetting(void)
 static void udi_msc_cbw_invalid(void)
 {
   if (!udi_msc_b_cbw_invalid)
-    return; // Don't re-stall endpoint if error reseted by setup
+    return; // Don't re-stall endpoint if error reset by setup
   udd_ep_set_halt(UDI_MSC_EP_OUT);
   // If stall cleared then re-stall it. Only Setup MSC Reset can clear it
   udd_ep_wait_stall_clear(UDI_MSC_EP_OUT, udi_msc_cbw_invalid);
@@ -472,7 +472,7 @@ static void udi_msc_cbw_invalid(void)
 static void udi_msc_csw_invalid(void)
 {
   if (!udi_msc_b_cbw_invalid)
-    return; // Don't re-stall endpoint if error reseted by setup
+    return; // Don't re-stall endpoint if error reset by setup
   udd_ep_set_halt(UDI_MSC_EP_IN);
   // If stall cleared then re-stall it. Only Setup MSC Reset can clear it
   udd_ep_wait_stall_clear(UDI_MSC_EP_IN, udi_msc_csw_invalid);

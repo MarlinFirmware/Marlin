@@ -61,7 +61,7 @@ void GcodeSuite::M355() {
     SERIAL_ECHOLNPGM(STR_OFF);
   else {
     #if CASELIGHT_USES_BRIGHTNESS
-      if (TERN(CASE_LIGHT_USE_NEOPIXEL, true, PWM_PIN(CASE_LIGHT_PIN))) {
+      if (TERN(CASE_LIGHT_USE_NEOPIXEL, true, TERN0(NEED_CASE_LIGHT_PIN, PWM_PIN(CASE_LIGHT_PIN)))) {
         SERIAL_ECHOLN(int(caselight.brightness));
         return;
       }

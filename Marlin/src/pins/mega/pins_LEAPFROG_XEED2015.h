@@ -84,7 +84,7 @@
 #define E1_ENABLE_PIN                         33
 
 //
-// Filament runout
+// Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                        42  // ROT2 Connector
 #define FIL_RUNOUT2_PIN                       44  // ROT1 Connector

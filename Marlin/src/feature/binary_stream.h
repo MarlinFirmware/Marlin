@@ -24,9 +24,11 @@
 #include "../inc/MarlinConfig.h"
 
 #define BINARY_STREAM_COMPRESSION
-
 #if ENABLED(BINARY_STREAM_COMPRESSION)
   #include "../libs/heatshrink/heatshrink_decoder.h"
+  // STM32 (and others?) require a word-aligned buffer for SD card transfers via DMA
+  static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
+  static heatshrink_decoder hsd;
 #endif
 
 inline bool bs_serial_data_available(const serial_index_t index) {
@@ -36,16 +38,6 @@ inline bool bs_serial_data_available(const serial_index_t index) {
 inline int bs_read_serial(const serial_index_t index) {
   return SERIAL_IMPL.read(index);
 }
-
-#if ENABLED(BINARY_STREAM_COMPRESSION)
-  static heatshrink_decoder hsd;
-  #if BOTH(ARDUINO_ARCH_STM32F1, SDIO_SUPPORT)
-    // STM32 requires a word-aligned buffer for SD card transfers via DMA
-    static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
-  #else
-    static uint8_t decode_buffer[512] = {};
-  #endif
-#endif
 
 class SDFileTransferProtocol  {
 private:
@@ -154,11 +146,11 @@ public:
     transfer_timeout = millis() + TIMEOUT;
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
-        SERIAL_ECHOPAIR("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
+        SERIAL_ECHOPGM("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
         #if ENABLED(BINARY_STREAM_COMPRESSION)
-          SERIAL_ECHOLNPAIR(":compresion:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
+          SERIAL_ECHOLNPGM(":compression:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
         #else
-          SERIAL_ECHOLNPGM(":compresion:none");
+          SERIAL_ECHOLNPGM(":compression:none");
         #endif
         break;
       case FileTransfer::OPEN:
@@ -330,7 +322,7 @@ public:
             if (packet.header.checksum == packet.header_checksum) {
               // The SYNC control packet is a special case in that it doesn't require the stream sync to be correct
               if (static_cast<Protocol>(packet.header.protocol()) == Protocol::CONTROL && static_cast<ProtocolControl>(packet.header.type()) == ProtocolControl::SYNC) {
-                  SERIAL_ECHOLNPAIR("ss", sync, ",", buffer_size, ",", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
+                  SERIAL_ECHOLNPGM("ss", sync, ",", buffer_size, ",", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
                   stream_state = StreamState::PACKET_RESET;
                   break;
               }
@@ -345,7 +337,7 @@ public:
                   stream_state = StreamState::PACKET_PROCESS;
               }
               else if (packet.header.sync == sync - 1) {           // ok response must have been lost
-                SERIAL_ECHOLNPAIR("ok", packet.header.sync);  // transmit valid packet received and drop the payload
+                SERIAL_ECHOLNPGM("ok", packet.header.sync);  // transmit valid packet received and drop the payload
                 stream_state = StreamState::PACKET_RESET;
               }
               else if (packet_retries) {
@@ -401,7 +393,7 @@ public:
           packet_retries = 0;
           bytes_received += packet.header.size;
 
-          SERIAL_ECHOLNPAIR("ok", packet.header.sync); // transmit valid packet received
+          SERIAL_ECHOLNPGM("ok", packet.header.sync); // transmit valid packet received
           dispatch();
           stream_state = StreamState::PACKET_RESET;
           break;
@@ -410,7 +402,7 @@ public:
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
             SERIAL_ECHO_MSG("Resend request ", packet_retries);
-            SERIAL_ECHOLNPAIR("rs", sync);
+            SERIAL_ECHOLNPGM("rs", sync);
           }
           else
             stream_state = StreamState::PACKET_ERROR;
@@ -420,7 +412,7 @@ public:
           stream_state = StreamState::PACKET_RESEND;
           break;
         case StreamState::PACKET_ERROR:
-          SERIAL_ECHOLNPAIR("fe", packet.header.sync);
+          SERIAL_ECHOLNPGM("fe", packet.header.sync);
           reset(); // reset everything, resync required
           stream_state = StreamState::PACKET_RESET;
           break;

@@ -24,7 +24,7 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if EITHER(RESTORE_LEVELING_AFTER_G28, ENABLE_LEVELING_AFTER_G28)
-  #define G28_L0_ENSURES_LEVELING_OFF 1
+  #define CAN_SET_LEVELING_AFTER_G28 1
 #endif
 
 #if ENABLED(PROBE_MANUALLY)
@@ -62,15 +62,12 @@ class TemporaryBedLevelingState {
   typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    #include "abl/abl.h"
+    #include "abl/bbl.h"
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
     #include "ubl/ubl.h"
   #elif ENABLED(MESH_BED_LEVELING)
     #include "mbl/mesh_bed_leveling.h"
   #endif
-
-  #define Z_VALUES(X,Y) Z_VALUES_ARR[X][Y]
-  #define _GET_MESH_POS(M) { _GET_MESH_X(M.a), _GET_MESH_Y(M.b) }
 
   #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
@@ -81,7 +78,7 @@ class TemporaryBedLevelingState {
     /**
      * Print calibration results for plotting or manual frame adjustment.
      */
-    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn);
+    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values);
 
   #endif
 
@@ -92,7 +89,7 @@ class TemporaryBedLevelingState {
     bool valid() const { return pos.x >= 0 && pos.y >= 0; }
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       xy_pos_t meshpos() {
-        return { ubl.mesh_index_to_xpos(pos.x), ubl.mesh_index_to_ypos(pos.y) };
+        return { bedlevel.get_mesh_x(pos.x), bedlevel.get_mesh_y(pos.y) };
       }
     #endif
     operator xy_int8_t&() { return pos; }

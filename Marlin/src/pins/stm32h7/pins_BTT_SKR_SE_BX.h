@@ -30,10 +30,9 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4KB (24C32 ... 32Kb = 4KB)
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K (24C32)
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Limit Switches
@@ -50,8 +49,6 @@
 
 #define LED_PIN                             PA13
 #define BEEPER_PIN                          PA14
-
-#define TFT_BACKLIGHT_PIN                   PB5
 
 #define POWER_MONITOR_PIN                   PB0
 #define RPI_POWER_PIN                       PE5
@@ -131,23 +128,20 @@
   //#define E6_HARDWARE_SERIAL Serial1
   //#define E7_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PG10
-  #define X_SERIAL_RX_PIN                   PG10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PD4
-  #define Y_SERIAL_RX_PIN                   PD4
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PD5
-  #define Z_SERIAL_RX_PIN                   PD5
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PI8
-  #define E0_SERIAL_RX_PIN                  PI8
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PC8
-  #define E1_SERIAL_RX_PIN                  PC8
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -207,19 +201,32 @@
   #define LCD_B4_PIN                        PI4
   #define LCD_B3_PIN                        PG11
 
+  // GT911 Capacitive Touch Sensor
+  #if ENABLED(TFT_TOUCH_DEVICE_GT911)
+    #define GT911_RST_PIN                   PE4
+    #define GT911_INT_PIN                   PE3
+    #define GT911_SW_I2C_SCL_PIN            PE2
+    #define GT911_SW_I2C_SDA_PIN            PE6
+  #endif
+
 #endif
 
-#define BTN_EN1                             PH6
-#define BTN_EN2                             PH7
-#define BTN_ENC                             PH8
+#if IS_NEWPANEL
+  #define BTN_EN1                           PH6
+  #define BTN_EN2                           PH7
+  #define BTN_ENC                           PH8
+#endif
 
+//
+// SD card
+//
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #define SOFTWARE_SPI
 #define SDSS                                PA15
-#define SS_PIN                              SDSS
+#define SD_SS_PIN                           SDSS
 #define SD_SCK_PIN                          PC10
 #define SD_MISO_PIN                         PC11
 #define SD_MOSI_PIN                         PC12

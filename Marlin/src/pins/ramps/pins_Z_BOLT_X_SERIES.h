@@ -213,10 +213,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   40
   #endif

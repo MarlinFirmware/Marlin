@@ -60,9 +60,9 @@ class ControllerFan {
     #else
       static const controllerFan_settings_t &settings;
     #endif
-    static inline bool state() { return speed > 0; }
-    static inline void init() { reset(); }
-    static inline void reset() { TERN_(CONTROLLER_FAN_EDITABLE, settings = controllerFan_defaults); }
+    static bool state() { return speed > 0; }
+    static void init() { reset(); }
+    static void reset() { TERN_(CONTROLLER_FAN_EDITABLE, settings = controllerFan_defaults); }
     static void setup();
     static void update();
 };

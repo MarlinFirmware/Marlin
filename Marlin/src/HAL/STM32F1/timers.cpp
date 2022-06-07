@@ -47,10 +47,7 @@
  * TODO: Calculate Timer prescale value, so we get the 32bit to adjust
  */
 
-
-
-
-void timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority) {
+void HAL_timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority) {
   nvic_irq_num irq_num;
   switch (timer_num) {
     case 1: irq_num = NVIC_TIMER1_CC; break;
@@ -73,7 +70,6 @@ void timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority)
   nvic_irq_set_priority(irq_num, priority);
 }
 
-
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   /**
    * Give the Stepper ISR a higher priority (lower number)
@@ -81,7 +77,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
    */
 
   switch (timer_num) {
-    case STEP_TIMER_NUM:
+    case MF_TIMER_STEP:
       timer_pause(STEP_TIMER_DEV);
       timer_set_mode(STEP_TIMER_DEV, STEP_TIMER_CHAN, TIMER_OUTPUT_COMPARE); // counter
       timer_set_count(STEP_TIMER_DEV, 0);
@@ -91,11 +87,11 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, _MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (STEPPER_TIMER_RATE) / frequency));
       timer_no_ARR_preload_ARPE(STEP_TIMER_DEV); // Need to be sure no preload on ARR register
       timer_attach_interrupt(STEP_TIMER_DEV, STEP_TIMER_CHAN, stepTC_Handler);
-      timer_set_interrupt_priority(STEP_TIMER_NUM, STEP_TIMER_IRQ_PRIO);
+      HAL_timer_set_interrupt_priority(MF_TIMER_STEP, STEP_TIMER_IRQ_PRIO);
       timer_generate_update(STEP_TIMER_DEV);
       timer_resume(STEP_TIMER_DEV);
       break;
-    case TEMP_TIMER_NUM:
+    case MF_TIMER_TEMP:
       timer_pause(TEMP_TIMER_DEV);
       timer_set_mode(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, TIMER_OUTPUT_COMPARE);
       timer_set_count(TEMP_TIMER_DEV, 0);
@@ -103,7 +99,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timer_set_reload(TEMP_TIMER_DEV, 0xFFFF);
       timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, _MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (F_CPU) / (TEMP_TIMER_PRESCALE) / frequency));
       timer_attach_interrupt(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, tempTC_Handler);
-      timer_set_interrupt_priority(TEMP_TIMER_NUM, TEMP_TIMER_IRQ_PRIO);
+      HAL_timer_set_interrupt_priority(MF_TIMER_TEMP, TEMP_TIMER_IRQ_PRIO);
       timer_generate_update(TEMP_TIMER_DEV);
       timer_resume(TEMP_TIMER_DEV);
       break;
@@ -112,31 +108,31 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case STEP_TIMER_NUM: ENABLE_STEPPER_DRIVER_INTERRUPT(); break;
-    case TEMP_TIMER_NUM: ENABLE_TEMPERATURE_INTERRUPT(); break;
+    case MF_TIMER_STEP: ENABLE_STEPPER_DRIVER_INTERRUPT(); break;
+    case MF_TIMER_TEMP: ENABLE_TEMPERATURE_INTERRUPT(); break;
   }
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case STEP_TIMER_NUM: DISABLE_STEPPER_DRIVER_INTERRUPT(); break;
-    case TEMP_TIMER_NUM: DISABLE_TEMPERATURE_INTERRUPT(); break;
+    case MF_TIMER_STEP: DISABLE_STEPPER_DRIVER_INTERRUPT(); break;
+    case MF_TIMER_TEMP: DISABLE_TEMPERATURE_INTERRUPT(); break;
   }
 }
 
-static inline bool timer_irq_enabled(const timer_dev * const dev, const uint8_t interrupt) {
+static inline bool HAL_timer_irq_enabled(const timer_dev * const dev, const uint8_t interrupt) {
   return bool(*bb_perip(&(dev->regs).gen->DIER, interrupt));
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
-    case STEP_TIMER_NUM: return timer_irq_enabled(STEP_TIMER_DEV, STEP_TIMER_CHAN);
-    case TEMP_TIMER_NUM: return timer_irq_enabled(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
+    case MF_TIMER_STEP: return HAL_timer_irq_enabled(STEP_TIMER_DEV, STEP_TIMER_CHAN);
+    case MF_TIMER_TEMP: return HAL_timer_irq_enabled(TEMP_TIMER_DEV, TEMP_TIMER_CHAN);
   }
   return false;
 }
 
-timer_dev* get_timer_dev(int number) {
+timer_dev* HAL_get_timer_dev(int number) {
   switch (number) {
     #if STM32_HAVE_TIMER(1)
       case 1: return &timer1;

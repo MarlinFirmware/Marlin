@@ -44,7 +44,7 @@ void GcodeSuite::M808() {
   // Allowed to go into the queue for logging purposes.
 
   // M808 K sent from the host to cancel all loops
-  if (parser.seen('K')) repeat.cancel();
+  if (parser.seen_test('K')) repeat.cancel();
 
 }
 

@@ -26,7 +26,7 @@
 // ANENG AN8009 DMM with a K-type probe used for measurements.
 
 // R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up, bqh2 stock thermistor
-const temp_entry_t temptable_70[] PROGMEM = {
+constexpr temp_entry_t temptable_70[] PROGMEM = {
   { OV(  18), 270 },
   { OV(  27), 248 },
   { OV(  34), 234 },

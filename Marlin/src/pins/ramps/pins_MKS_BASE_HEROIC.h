@@ -25,7 +25,7 @@
  * MKS BASE with Heroic HR4982 stepper drivers
  */
 
-#include "pins_MKS_BASE_15.h"
+#include "pins_MKS_BASE_15.h" // ... MKS_BASE_common ... RAMPS
 
 /**
  * Some new boards use HR4982 (Heroic) instead of the A4982 (Allegro) stepper drivers.

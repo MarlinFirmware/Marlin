@@ -60,7 +60,7 @@ uint8_t ServoCount = 0;
 #define US_TO_ANGLE(us)    int16_t(map((us), SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_PW, minAngle, maxAngle))
 
 void libServo::servoWrite(uint8_t inPin, uint16_t duty_cycle) {
-  #ifdef SERVO0_TIMER_NUM
+  #ifdef MF_TIMER_SERVO0
     if (servoIndex == 0) {
       pwmSetDuty(duty_cycle);
       return;
@@ -74,7 +74,7 @@ void libServo::servoWrite(uint8_t inPin, uint16_t duty_cycle) {
 
 libServo::libServo() {
   servoIndex = ServoCount < MAX_SERVOS ? ServoCount++ : INVALID_SERVO;
-  timer_set_interrupt_priority(SERVO0_TIMER_NUM, SERVO0_TIMER_IRQ_PRIO);
+  HAL_timer_set_interrupt_priority(MF_TIMER_SERVO0, SERVO0_TIMER_IRQ_PRIO);
 }
 
 bool libServo::attach(const int32_t inPin, const int32_t inMinAngle, const int32_t inMaxAngle) {
@@ -85,7 +85,7 @@ bool libServo::attach(const int32_t inPin, const int32_t inMinAngle, const int32
   maxAngle = inMaxAngle;
   angle = -1;
 
-  #ifdef SERVO0_TIMER_NUM
+  #ifdef MF_TIMER_SERVO0
     if (servoIndex == 0 && setupSoftPWM(inPin)) {
       pin = inPin; // set attached()
       return true;
@@ -119,7 +119,7 @@ bool libServo::detach() {
 
 int32_t libServo::read() const {
   if (attached()) {
-    #ifdef SERVO0_TIMER_NUM
+    #ifdef MF_TIMER_SERVO0
       if (servoIndex == 0) return angle;
     #endif
     timer_dev *tdev = PIN_MAP[pin].timer_device;
@@ -141,9 +141,9 @@ void libServo::move(const int32_t value) {
   }
 }
 
-#ifdef SERVO0_TIMER_NUM
+#ifdef MF_TIMER_SERVO0
   extern "C" void Servo_IRQHandler() {
-    static timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
+    static timer_dev *tdev = HAL_get_timer_dev(MF_TIMER_SERVO0);
     uint16_t SR = timer_get_status(tdev);
     if (SR & TIMER_SR_CC1IF) { // channel 1 off
       #ifdef SERVO0_PWM_OD
@@ -164,7 +164,7 @@ void libServo::move(const int32_t value) {
   }
 
   bool libServo::setupSoftPWM(const int32_t inPin) {
-    timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
+    timer_dev *tdev = HAL_get_timer_dev(MF_TIMER_SERVO0);
     if (!tdev) return false;
     #ifdef SERVO0_PWM_OD
       OUT_WRITE_OD(inPin, 1);
@@ -189,7 +189,7 @@ void libServo::move(const int32_t value) {
   }
 
   void libServo::pwmSetDuty(const uint16_t duty_cycle) {
-    timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
+    timer_dev *tdev = HAL_get_timer_dev(MF_TIMER_SERVO0);
     timer_set_compare(tdev, 1, duty_cycle);
     timer_generate_update(tdev);
     if (duty_cycle) {
@@ -208,7 +208,7 @@ void libServo::move(const int32_t value) {
   }
 
   void libServo::pauseSoftPWM() { // detach
-    timer_dev *tdev = get_timer_dev(SERVO0_TIMER_NUM);
+    timer_dev *tdev = HAL_get_timer_dev(MF_TIMER_SERVO0);
     timer_pause(tdev);
     pwmSetDuty(0);
   }

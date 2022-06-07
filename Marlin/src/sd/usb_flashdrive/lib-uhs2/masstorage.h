@@ -553,10 +553,7 @@ private:
   bool IsValidCSW(CommandStatusWrapper *pcsw, CommandBlockWrapperBase *pcbw);
 
   uint8_t ClearEpHalt(uint8_t index);
-  #if MS_WANT_PARSER
-    uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf, uint8_t flags);
-  #endif
-  uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf);
+  uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf OPTARG(MS_WANT_PARSER, uint8_t flags=0));
   uint8_t HandleUsbError(uint8_t error, uint8_t index);
   uint8_t HandleSCSIError(uint8_t status);
 };

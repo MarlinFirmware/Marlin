@@ -23,7 +23,7 @@
 
 // Unknown thermistor for the Zonestar P802M hot bed. Adjusted By Nerseth
 // These were the shipped settings from Zonestar in original firmware: P802M_8_Repetier_V1.6_Zonestar.zip
-const temp_entry_t temptable_502[] PROGMEM = {
+constexpr temp_entry_t temptable_502[] PROGMEM = {
    { OV(  56.0 / 4), 300 },
    { OV( 187.0 / 4), 250 },
    { OV( 615.0 / 4), 190 },

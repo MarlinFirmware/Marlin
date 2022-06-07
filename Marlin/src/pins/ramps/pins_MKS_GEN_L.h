@@ -37,6 +37,12 @@
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
+// Hotend, Hotend, Bed + Fan on D9
+#if FET_ORDER_EEB
+  #define MOSFET_B_PIN 7
+  #define FAN_PIN 9
+#endif
+
 //
 // CS Pins wired to avoid conflict with the LCD
 // See https://www.thingiverse.com/asset:66604

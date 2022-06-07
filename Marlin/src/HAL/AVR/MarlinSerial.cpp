@@ -486,7 +486,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
 
     // If global interrupts are disabled (as the result of being called from an ISR)...
-    if (!ISRS_ENABLED()) {
+    if (!hal.isr_state()) {
 
       // Make room by polling if it is possible to transmit, and do so!
       while (i == tx_buffer.tail) {
@@ -534,7 +534,7 @@ void MarlinSerial<Cfg>::flushTX() {
     if (!_written) return;
 
     // If global interrupts are disabled (as the result of being called from an ISR)...
-    if (!ISRS_ENABLED()) {
+    if (!hal.isr_state()) {
 
       // Wait until everything was transmitted - We must do polling, as interrupts are disabled
       while (tx_buffer.head != tx_buffer.tail || !B_TXC) {
@@ -567,7 +567,7 @@ ISR(SERIAL_REGNAME(USART, SERIAL_PORT, _UDRE_vect)) {
 
 // Because of the template definition above, it's required to instantiate the template to have all methods generated
 template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT> >;
-MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
+MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
 
 #ifdef SERIAL_PORT_2
 
@@ -582,7 +582,24 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
   template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> >;
   MSerialT2 customizedSerial2(MSerialT2::HasEmergencyParser);
-#endif
+
+#endif // SERIAL_PORT_2
+
+#ifdef SERIAL_PORT_3
+
+  // Hookup ISR handlers
+  ISR(SERIAL_REGNAME(USART, SERIAL_PORT_3, _RX_vect)) {
+    MarlinSerial<MarlinSerialCfg<SERIAL_PORT_3>>::store_rxd_char();
+  }
+
+  ISR(SERIAL_REGNAME(USART, SERIAL_PORT_3, _UDRE_vect)) {
+    MarlinSerial<MarlinSerialCfg<SERIAL_PORT_3>>::_tx_udr_empty_irq();
+  }
+
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> >;
+  MSerialT3 customizedSerial3(MSerialT3::HasEmergencyParser);
+
+#endif // SERIAL_PORT_3
 
 #ifdef MMU2_SERIAL_PORT
 
@@ -595,8 +612,9 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
   }
 
   template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
-  MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
-#endif
+  MSerialMMU2 mmuSerial(MSerialMMU2::HasEmergencyParser);
+
+#endif // MMU2_SERIAL_PORT
 
 #ifdef LCD_SERIAL_PORT
 
@@ -609,7 +627,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
   }
 
   template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
-  MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
+  MSerialLCD lcdSerial(MSerialLCD::HasEmergencyParser);
 
   #if HAS_DGUS_LCD
     template<typename Cfg>
@@ -622,13 +640,13 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     }
   #endif
 
-#endif
+#endif // LCD_SERIAL_PORT
 
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  MSerialT5 bluetoothSerial(false);
+  MSerialBT bluetoothSerial(false);
 #endif
 
 #endif // __AVR__

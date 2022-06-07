@@ -90,7 +90,7 @@ uint8_t UHS_USB_HOST_BASE::setEpInfoEntry(uint8_t addr, uint8_t iface, uint8_t e
 }
 
 /**
- * sets all enpoint addresses to zero.
+ * sets all endpoint addresses to zero.
  * Sets all max packet sizes to defaults
  * Clears all endpoint attributes
  * Sets bmNakPower to USB_NAK_DEFAULT

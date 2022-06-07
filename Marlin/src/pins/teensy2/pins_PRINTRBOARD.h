@@ -116,13 +116,12 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  26  // B6 SDCS
 #define FILWIDTH_PIN                           2  // Analog Input
 
 //
 // LCD / Controller
 //
-#if IS_ULTRA_LCD && IS_NEWPANEL
+#if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_ENABLE                      8  // E0       JP11-10
@@ -136,24 +135,24 @@
 
     #define DOGLCD_A0                         40  // F2       JP2-2
     #define DOGLCD_CS                         41  // F3       JP2-4
-    #define LCD_SCREEN_ROT_180
 
     #define BTN_EN1                            2  // D2 TX1   JP2-5
     #define BTN_EN2                            3  // D3 RX1   JP2-7
     #define BTN_ENC                           45  // F7 TDI   JP2-12
 
-    #undef SDSS
     #define SDSS                              43  // F5 TMS   JP2-8
 
     #define STAT_LED_RED_PIN                  12  // C2    JP11-14
     #define STAT_LED_BLUE_PIN                 10  // C0    JP11-12
+
+    #define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 
     #define BTN_EN1                            3  // D3 RX1   JP2-7
     #define BTN_EN2                            2  // D2 TX1   JP2-5
     #define BTN_ENC                           41  // F3       JP2-4
-    #undef SDSS
+
     #define SDSS                              38  // F0       B-THERM connector - use SD card on Panelolu2
 
   #else
@@ -164,4 +163,8 @@
 
   #endif
 
-#endif // IS_ULTRA_LCD && IS_NEWPANEL
+#endif // HAS_WIRED_LCD && IS_NEWPANEL
+
+#ifndef SDSS
+  #define SDSS                                26  // B6 SDCS
+#endif

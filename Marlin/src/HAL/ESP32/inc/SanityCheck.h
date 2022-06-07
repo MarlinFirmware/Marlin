@@ -25,8 +25,8 @@
   #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on ESP32."
+#if (ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125) || (ENABLED(FAST_PWM_FAN_FREQUENCY) && FAST_PWM_FAN_FREQUENCY > 78125)
+  #error "SPINDLE_LASER_FREQUENCY and FAST_PWM_FREQUENCY maximum value is 78125Hz for ESP32."
 #endif
 
 #if HAS_TMC_SW_SERIAL
@@ -39,4 +39,12 @@
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
   #error "POSTMORTEM_DEBUGGING is not yet supported on ESP32."
+#endif
+
+#if MB(MKS_TINYBEE) && ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not available on TinyBee."
+#endif
+
+#if USING_PULLDOWNS
+  #error "PULLDOWN pin mode is not available on ESP32 boards."
 #endif

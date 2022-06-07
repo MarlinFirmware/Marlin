@@ -38,8 +38,8 @@ private:
   static repeat_marker_t marker[MAX_REPEAT_NESTING];
   static uint8_t index;
 public:
-  static inline void reset() { index = 0; }
-  static inline bool is_active() {
+  static void reset() { index = 0; }
+  static bool is_active() {
     LOOP_L_N(i, index) if (marker[i].counter) return true;
     return false;
   }

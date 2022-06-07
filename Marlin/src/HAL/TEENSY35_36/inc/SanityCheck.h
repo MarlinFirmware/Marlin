@@ -40,3 +40,7 @@
 #if ENABLED(POSTMORTEM_DEBUGGING)
   #error "POSTMORTEM_DEBUGGING is not yet supported on Teensy 3.5/3.6."
 #endif
+
+#if USING_PULLDOWNS
+  #error "PULLDOWN pin mode is not available on Teensy 3.5/3.6 boards."
+#endif

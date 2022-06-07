@@ -57,7 +57,7 @@ class ConfigDescParser : public USBReadParser {
   uint8_t dscrLen; // Descriptor length
   uint8_t dscrType; // Descriptor type
 
-  bool isGoodInterface; // Apropriate interface flag
+  bool isGoodInterface; // Appropriate interface flag
   uint8_t confValue; // Configuration value
   uint8_t protoValue; // Protocol value
   uint8_t ifaceNumber; // Interface number

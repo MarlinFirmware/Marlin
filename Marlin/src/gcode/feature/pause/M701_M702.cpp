@@ -60,13 +60,13 @@ void GcodeSuite::M701() {
   if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;
 
   #if ENABLED(MIXING_EXTRUDER)
-    const int8_t target_e_stepper = get_target_e_stepper_from_command();
-    if (target_e_stepper < 0) return;
+    const int8_t eindex = get_target_e_stepper_from_command();
+    if (eindex < 0) return;
 
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_DIRECT_SET_TOOL);
 
-    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (i == (uint8_t)target_e_stepper) ? 1.0 : 0.0);
+    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(eindex) ? 1.0 : 0.0);
     mixer.normalize();
 
     const int8_t target_extruder = active_extruder;
@@ -85,12 +85,20 @@ void GcodeSuite::M701() {
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
-      tool_change(target_extruder, false);
+      tool_change(target_extruder);
   #endif
 
-  // Lift Z axis
-  if (park_point.z > 0)
-    do_blocking_move_to_z(_MIN(current_position.z + park_point.z, Z_MAX_POS), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+  auto move_z_by = [](const_float_t zdist) {
+    if (zdist) {
+      destination = current_position;
+      destination.z += zdist;
+      prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+    }
+  };
+
+  // Raise the Z axis (with max limit)
+  const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - current_position.z);
+  move_z_by(park_raise);
 
   // Load filament
   #if HAS_PRUSA_MMU2
@@ -106,20 +114,17 @@ void GcodeSuite::M701() {
       true,                                           // show_lcd
       thermalManager.still_heating(target_extruder),  // pause_for_user
       PAUSE_MODE_LOAD_FILAMENT                        // pause_mode
-      #if ENABLED(DUAL_X_CARRIAGE)
-        , target_extruder                             // Dual X target
-      #endif
+      OPTARG(DUAL_X_CARRIAGE, target_extruder)        // Dual X target
     );
   #endif
 
   // Restore Z axis
-  if (park_point.z > 0)
-    do_blocking_move_to_z(_MAX(current_position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+  move_z_by(-park_raise);
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, false);
+      tool_change(active_extruder_before_filament_change);
   #endif
 
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
@@ -160,10 +165,10 @@ void GcodeSuite::M702() {
     #endif
 
     if (seenT) {
-      const int8_t target_e_stepper = get_target_e_stepper_from_command();
-      if (target_e_stepper < 0) return;
+      const int8_t eindex = get_target_e_stepper_from_command();
+      if (eindex < 0) return;
       mixer.T(MIXER_DIRECT_SET_TOOL);
-      MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (i == (uint8_t)target_e_stepper) ? 1.0 : 0.0);
+      MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(eindex) ? 1.0 : 0.0);
       mixer.normalize();
     }
 
@@ -183,7 +188,7 @@ void GcodeSuite::M702() {
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
-      tool_change(target_extruder, false);
+      tool_change(target_extruder);
   #endif
 
   // Lift Z axis
@@ -197,7 +202,7 @@ void GcodeSuite::M702() {
     #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {
         HOTEND_LOOP() {
-          if (e != active_extruder) tool_change(e, false);
+          if (e != active_extruder) tool_change(e);
           unload_filament(-fc_settings[e].unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT);
         }
       }
@@ -223,7 +228,7 @@ void GcodeSuite::M702() {
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, false);
+      tool_change(active_extruder_before_filament_change);
   #endif
 
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool

@@ -33,7 +33,7 @@
  * For ARDUINO_ARCH_SAM
  * Note the code here was specifically crafted by disassembling what GCC produces
  * out of it, so GCC is able to optimize it out as much as possible to the least
- * amount of instructions. Be very carefull if you modify them, as "clean code"
+ * amount of instructions. Be very careful if you modify them, as "clean code"
  * leads to less efficient compiled code!!
  */
 

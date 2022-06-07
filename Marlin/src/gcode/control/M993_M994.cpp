@@ -37,7 +37,7 @@ void GcodeSuite::M993() {
   char fname[] = "spiflash.bin";
   card.openFileWrite(fname);
   if (!card.isFileOpen()) {
-    SERIAL_ECHOLNPAIR("Failed to open ", fname, " to write.");
+    SERIAL_ECHOLNPGM("Failed to open ", fname, " to write.");
     return;
   }
 
@@ -65,7 +65,7 @@ void GcodeSuite::M994() {
   char fname[] = "spiflash.bin";
   card.openFileRead(fname);
   if (!card.isFileOpen()) {
-    SERIAL_ECHOLNPAIR("Failed to open ", fname, " to read.");
+    SERIAL_ECHOLNPGM("Failed to open ", fname, " to read.");
     return;
   }
 

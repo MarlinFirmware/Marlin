@@ -80,7 +80,7 @@ void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
 
 void print_hex_long(const uint32_t w, const char delimiter) {
   SERIAL_ECHOPGM("0x");
-  for (int B = 24; B >= 8; B -= 8){
+  for (int B = 24; B >= 8; B -= 8) {
     print_hex_byte(w >> B);
     SERIAL_CHAR(delimiter);
   }

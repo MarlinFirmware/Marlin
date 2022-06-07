@@ -35,7 +35,7 @@
 #define PAGE_HEIGHT 16    // 256 byte framebuffer
 //#define PAGE_HEIGHT 32  // 512 byte framebuffer
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 void ST7920_SWSPI_SND_8BIT(uint8_t val);
 

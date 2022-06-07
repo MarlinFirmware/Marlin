@@ -3,7 +3,9 @@
  * Contents will be REPLACED by future processing!
  * Use genallfont.sh to generate font data for updated languages.
  */
-#include <U8glib.h>
+#pragma once
+
+#include "langdata.h"
 
 const u8g_fntpgm_uint8_t fontpage_8_128_255[1677] U8G_FONT_SECTION("fontpage_8_128_255") = {
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x80,0xFF,0x00,0x0A,0xFE,0x00,
@@ -223,9 +225,8 @@ const u8g_fntpgm_uint8_t fontpage_97_193_255[822] U8G_FONT_SECTION("fontpage_97_
   0x06,0x00,0x02,0x28,0x28,0x00,0x80,0x60,0x10,0x08,0x05,0x06,0x06,0x06,0x00,0x00,
   0xF8,0x08,0x08,0x08,0x08,0x08};
 
-#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
-static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(8, 128, 255, fontpage_8_128_255), // 'Ѐ' -- 'ѿ'
-    FONTDATA_ITEM(97, 129, 191, fontpage_97_129_191), // 'め' -- 'タ'
-    FONTDATA_ITEM(97, 193, 255, fontpage_97_193_255), // 'チ' -- 'ヿ'
+static const uxg_fontinfo_t g_fontinfo_test[] PROGMEM = {
+  FONTDATA_ITEM(8, 128, 255, fontpage_8_128_255), // 'Ѐ' -- 'ѿ'
+  FONTDATA_ITEM(97, 129, 191, fontpage_97_129_191), // 'め' -- 'タ'
+  FONTDATA_ITEM(97, 193, 255, fontpage_97_193_255), // 'チ' -- 'ヿ'
 };

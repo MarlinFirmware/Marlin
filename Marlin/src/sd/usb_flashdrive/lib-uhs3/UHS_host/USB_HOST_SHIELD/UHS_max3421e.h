@@ -59,19 +59,19 @@ e-mail   :  support@circuitsathome.com
 
 // (CPUCTL)
 #define         rCPUCTL 0x80            //16<<3
-#define     bmPUSLEWID1 0x80            //b7
+#define     bmPULSEWID1 0x80            //b7
 #define     bmPULSEWID0 0x40            //b6
 #define            bmIE 0x01            //b0
 
-// bmPUSLEWID1 bmPULSEWID0 Pulse width
+// bmPULSEWID1 bmPULSEWID0 Pulse width
 // 0           0           10.6uS
 // 0           1            5.3uS
 // 1           0            2.6uS
 // 1           1            1.3uS
-#define  PUSLEWIDTH10_6 (0)
-#define   PUSLEWIDTH5_3 (bmPULSEWID0)
-#define   PUSLEWIDTH2_6 (bmPUSLEWID1)
-#define   PUSLEWIDTH1_3 (bmPULSEWID0 | bmPUSLEWID1)
+#define  PULSEWIDTH10_6 (0)
+#define   PULSEWIDTH5_3 (bmPULSEWID0)
+#define   PULSEWIDTH2_6 (bmPULSEWID1)
+#define   PULSEWIDTH1_3 (bmPULSEWID0 | bmPULSEWID1)
 
 // (PINCTL)
 #define         rPINCTL 0x88            //17<<3
