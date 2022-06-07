@@ -122,7 +122,7 @@ void menu_media_filelist() {
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
   #endif
   if (card.flag.workDirIsRoot) {
-    #if !PIN_EXISTS(SD_DETECT)
+    #if !HAS_SD_DETECT
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
     #endif
   }

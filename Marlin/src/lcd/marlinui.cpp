@@ -1756,7 +1756,7 @@ void MarlinUI::init() {
       if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
-        #elif PIN_EXISTS(SD_DETECT)
+        #elif HAS_SD_DETECT
           LCD_MESSAGE(MSG_MEDIA_REMOVED);
           #if HAS_MARLINUI_MENU
             if (!defer_return_to_status) return_to_status();
