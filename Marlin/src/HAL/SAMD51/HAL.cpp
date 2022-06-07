@@ -598,7 +598,7 @@ void MarlinHAL::dma_init() {
 void MarlinHAL::init() {
   TERN_(DMA_IS_REQUIRED, dma_init());
   #if ENABLED(SDSUPPORT)
-    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
+    #if HAS_SD_DETECT && SD_CONNECTION_IS(ONBOARD)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
