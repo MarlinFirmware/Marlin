@@ -21,6 +21,7 @@
  */
 #pragma once
 
+<<<<<<<< HEAD:Marlin/src/feature/x_twist.h
 #include "../inc/MarlinConfigPre.h"
 
 typedef float xatc_array_t[XATC_MAX_POINTS];
@@ -38,3 +39,16 @@ public:
 };
 
 extern XATC xatc;
+========
+#define BOARD_INFO_NAME "FYSETC SPIDER V22"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+
+#define TEMP_3_PIN                          PC3
+#define TEMP_4_PIN                          PB1
+#define TEMP_BED_PIN                        PB0
+
+#define FAN_PIN                             PA13
+#define FAN1_PIN                            PA14
+
+#include "pins_FYSETC_SPIDER.h"
+>>>>>>>> upstream/bugfix-2.0.x:Marlin/src/pins/stm32f4/pins_FYSETC_SPIDER_V2_2.h

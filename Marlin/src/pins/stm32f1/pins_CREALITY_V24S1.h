@@ -21,6 +21,7 @@
  */
 #pragma once
 
+<<<<<<<< HEAD:Marlin/src/pins/stm32f1/pins_CREALITY_V24S1.h
 /**
  * Creality v2.4.S1 (STM32F103RE / STM32F103RC) v101 as found in the Ender 7
  */
@@ -34,3 +35,17 @@
 #define HEATER_BED_PIN                      PA15  // HOT BED
 
 #include "pins_CREALITY_V4.h"
+========
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS Eagle supports up to 2 hotends / E-steppers."
+#elif HAS_FSMC_TFT
+  #error "MKS Eagle doesn't support FSMC-based TFT displays."
+#endif
+
+#define BOARD_INFO_NAME "MKS Eagle"
+
+#include "pins_MKS_ROBIN_NANO_V3_common.h"
+>>>>>>>> upstream/bugfix-2.0.x:Marlin/src/pins/stm32f4/pins_MKS_EAGLE.h
