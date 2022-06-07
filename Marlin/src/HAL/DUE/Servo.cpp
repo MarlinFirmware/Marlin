@@ -71,29 +71,28 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
 #endif
 
 void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
+  const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
   if (Channel[timer] < 0)
-    tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG; // channel set to -1 indicated that refresh interval completed so reset the timer
-  else {
-  //else if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
-    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
-  }
+    tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                 // channel set to -1 indicated that refresh interval completed so reset the timer
+  else if (good_servo)
+    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW);     // pulse this channel low if activated
 
-  // clear interrupt
-  tc->TC_CHANNEL[channel].TC_SR;
+  tc->TC_CHANNEL[channel].TC_SR;                                    // clear interrupt
 
-  Channel[timer]++;    // increment to the next channel
-  if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
+  Channel[timer]++;                                                 // increment to the next channel
+  if (good_servo && Channel[timer] < SERVOS_PER_TIMER) {
     tc->TC_CHANNEL[channel].TC_RA = tc->TC_CHANNEL[channel].TC_CV + SERVO(timer,Channel[timer]).ticks;
-    if (SERVO(timer,Channel[timer]).Pin.isActive)    // check if activated
-      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // its an active channel so pulse it high
+    if (SERVO(timer,Channel[timer]).Pin.isActive)                   // check if activated
+      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH);  // it's an active channel so pulse it high
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
+    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL);
     tc->TC_CHANNEL[channel].TC_RA =
-      tc->TC_CHANNEL[channel].TC_CV < usToTicks(REFRESH_INTERVAL) - 4
-        ? (unsigned int)usToTicks(REFRESH_INTERVAL) // allow a few ticks to ensure the next OCR1A not missed
-        : tc->TC_CHANNEL[channel].TC_CV + 4;        // at least REFRESH_INTERVAL has elapsed
-    Channel[timer] = -1; // this will get incremented at the end of the refresh period to start again at the first channel
+      tc->TC_CHANNEL[channel].TC_CV + 4 < iticks
+        ? iticks                                                    // allow a few ticks to ensure the next OCR1A not missed
+        : tc->TC_CHANNEL[channel].TC_CV + 4;                        // at least REFRESH_INTERVAL has elapsed
+    Channel[timer] = -1;                                            // gets incremented at the end of the refresh period to start again at the first channel
   }
 
 }
