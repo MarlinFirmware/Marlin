@@ -1687,6 +1687,13 @@
   #define LEVELING_BED_TEMP     50
 #endif
 
+/*Bed Distance Sensor,
+ it can measure the distance from bed to nozzle with distance resolution 0.01mm
+ For information about this sensor https://github.com/markniu/Bed_Distance_sensor
+ Communicated to this sensor with I2C port,so it require a I2C libarary markyue/Panda_SoftMasterI2C
+*/
+#define BD_SENSOR 0  
+
 /**
  * Enable detailed logging of G28, G29, M48, etc.
  * Turn on with the command 'M111 S32'.
