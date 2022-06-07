@@ -496,8 +496,8 @@ void CardReader::manage_media() {
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
     if (!isMounted()) {             // Not mounted?
       stat = 0;
-      #if PIN_EXISTS(SD_DETECT)
-        IF_DISABLED(SD_IGNORE_AT_STARTUP, prev_stat = 0);
+      #if DISABLED(SD_IGNORE_AT_STARTUP) && PIN_EXISTS(SD_DETECT)
+        prev_stat = 0;
       #endif
     }
 
