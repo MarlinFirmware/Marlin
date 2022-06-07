@@ -112,6 +112,7 @@ void Servo::detach() {
   const timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if (anyTimerChannelActive(timer)) finISR(timer);
   servo_info[servoIndex].Pin.isActive = false;
+  //extDigitalWrite(servo_info[servoIndex].Pin.nbr, LOW); // The ISR won't be called, so set the pin LOW here
 }
 
 void Servo::write(int value) {
