@@ -1,6 +1,8 @@
 applet/
 .vscode/
 .pio/
+.pioenvs/
+.piolibdeps/
 *.o
 *~
 *.orig
