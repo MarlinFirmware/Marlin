@@ -71,12 +71,15 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
 #endif
 
 void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
-  // clear interrupt
-  tc->TC_CHANNEL[channel].TC_SR;
   if (Channel[timer] < 0)
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG; // channel set to -1 indicated that refresh interval completed so reset the timer
-  else if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
+  else {
+  //else if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
     extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
+  }
+
+  // clear interrupt
+  tc->TC_CHANNEL[channel].TC_SR;
 
   Channel[timer]++;    // increment to the next channel
   if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
@@ -92,6 +95,7 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
         : tc->TC_CHANNEL[channel].TC_CV + 4;        // at least REFRESH_INTERVAL has elapsed
     Channel[timer] = -1; // this will get incremented at the end of the refresh period to start again at the first channel
   }
+
 }
 
 static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
