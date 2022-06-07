@@ -34,7 +34,7 @@ COMMIT_STEPS=0
 #cd "$CONFIGREPO" 2>/dev/null || { echo "Can't find Configurations repo!" ; exit 1; }
 
 ACTION=${1:-init}
-IMPORT=${2:-"import-2.0.x"}
+IMPORT=${2:-"import-2.1.x"}
 EXPORT=${3:-"bugfix-2.1.x"}
 
 echo -n "Doing grhh ... " ; grhh ; echo
