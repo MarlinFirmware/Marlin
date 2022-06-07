@@ -109,9 +109,9 @@ int8_t Servo::attach(const int inPin, const int inMin, const int inMax) {
 }
 
 void Servo::detach() {
-  servo_info[servoIndex].Pin.isActive = false;
   const timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if (anyTimerChannelActive(timer)) finISR(timer);
+  servo_info[servoIndex].Pin.isActive = false;
 }
 
 void Servo::write(int value) {
