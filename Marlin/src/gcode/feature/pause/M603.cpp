@@ -48,7 +48,7 @@ void GcodeSuite::M603() {
   if (target_extruder < 0) return;
 
   // Unload length
-  if (parser.seenval('U')) {
+  if (parser.seen('U')) {
     fc_settings[target_extruder].unload_length = ABS(parser.value_axis_units(E_AXIS));
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       NOMORE(fc_settings[target_extruder].unload_length, EXTRUDE_MAXLENGTH);
@@ -56,7 +56,7 @@ void GcodeSuite::M603() {
   }
 
   // Load length
-  if (parser.seenval('L')) {
+  if (parser.seen('L')) {
     fc_settings[target_extruder].load_length = ABS(parser.value_axis_units(E_AXIS));
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       NOMORE(fc_settings[target_extruder].load_length, EXTRUDE_MAXLENGTH);

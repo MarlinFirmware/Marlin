@@ -1,10 +1,9 @@
 /**
- * UBL Tools and Mesh Viewer for Pro UI
- * Version: 1.0.0
- * Date: 2022/04/13
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Original Author: Henri-J-Norden
- * Original Source: https://github.com/Jyers/Marlin/pull/126
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,11 +20,20 @@
  *
  */
 
+/**
+ * UBL Tools and Mesh Viewer for Pro UI
+ * Version: 1.0.0
+ * Date: 2022/04/13
+ *
+ * Original Author: Henri-J-Norden
+ * Original Source: https://github.com/Jyers/Marlin/pull/126
+ */
+
 #include "../../../inc/MarlinConfigPre.h"
-
-#if BOTH(DWIN_LCD_PROUI, AUTO_BED_LEVELING_UBL)
-
 #include "ubl_tools.h"
+
+#if ENABLED(DWIN_LCD_PROUI)
+
 #include "../../marlinui.h"
 #include "../../../core/types.h"
 #include "dwin.h"
@@ -249,4 +257,4 @@ bool UBLMeshToolsClass::validate() {
   }
 #endif
 
-#endif // DWIN_LCD_PROUI && AUTO_BED_LEVELING_UBL
+#endif // DWIN_LCD_PROUI

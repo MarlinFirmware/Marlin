@@ -19,10 +19,6 @@
  */
 #pragma once
 
-/**
- * HAL for Arduino AVR
- */
-
 #include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"

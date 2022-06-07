@@ -34,10 +34,10 @@
     #include "../../core/debug_out.h"
   #endif
 
-  void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=LOGICAL_AXES, const uint8_t precision=3) {
+  void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
     char str[12];
     LOOP_L_N(a, n) {
-      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]));
+      SERIAL_CHAR(' ', axis_codes[a], ':');
       if (pos[a] >= 0) SERIAL_CHAR(' ');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
@@ -47,7 +47,10 @@
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    LOOP_NUM_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), dtostrf(pos[a], 1, precision, str));
+    LOOP_LINEAR_AXES(a) {
+      SERIAL_CHAR(' ', AXIS_CHAR(a), ':');
+      SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
+    }
     SERIAL_EOL();
   }
 
@@ -131,15 +134,6 @@
       #if AXIS_IS_L64XX(K)
         REPORT_ABSOLUTE_POS(K);
       #endif
-      #if AXIS_IS_L64XX(U)
-        REPORT_ABSOLUTE_POS(U);
-      #endif
-      #if AXIS_IS_L64XX(V)
-        REPORT_ABSOLUTE_POS(V);
-      #endif
-      #if AXIS_IS_L64XX(W)
-        REPORT_ABSOLUTE_POS(W);
-      #endif
       #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
       #endif
@@ -169,7 +163,8 @@
 
     SERIAL_ECHOPGM("Stepper:");
     LOOP_LOGICAL_AXES(i) {
-      SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[i]), stepper.position((AxisEnum)i));
+      SERIAL_CHAR(' ', axis_codes[i], ':');
+      SERIAL_ECHO(stepper.position((AxisEnum)i));
     }
     SERIAL_EOL();
 
@@ -189,10 +184,7 @@
       cartes.x, cartes.y, cartes.z,
       planner.get_axis_position_mm(I_AXIS),
       planner.get_axis_position_mm(J_AXIS),
-      planner.get_axis_position_mm(K_AXIS),
-      planner.get_axis_position_mm(U_AXIS),
-      planner.get_axis_position_mm(V_AXIS),
-      planner.get_axis_position_mm(W_AXIS)
+      planner.get_axis_position_mm(K_AXIS)
     );
     report_all_axis_pos(from_steppers);
 

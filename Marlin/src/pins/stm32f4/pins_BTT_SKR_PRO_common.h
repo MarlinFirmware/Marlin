@@ -456,9 +456,7 @@
 
   #elif ENABLED(WYH_L12864)
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! WYH_L12864 requires wiring modifications. See 'pins_BTT_SKR_PRO_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
 
     /**
      * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.

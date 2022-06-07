@@ -35,10 +35,13 @@
 
 #include "../../module/motion.h"
 #include "../../gcode/parser.h" // for inch support
-#include "../../module/temperature.h"
 
 #if ENABLED(DELTA)
   #include "../../module/delta.h"
+#endif
+
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  #include "../../module/temperature.h"
 #endif
 
 #if HAS_LEVELING
@@ -105,15 +108,6 @@ void lcd_move_x() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_X), X_AXIS); }
 #if HAS_K_AXIS
   void lcd_move_k() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_K), K_AXIS); }
 #endif
-#if HAS_U_AXIS
-  void lcd_move_u() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_U), U_AXIS); }
-#endif
-#if HAS_V_AXIS
-  void lcd_move_v() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_V), V_AXIS); }
-#endif
-#if HAS_W_AXIS
-  void lcd_move_w() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_W), W_AXIS); }
-#endif
 
 #if E_MANUAL
 
@@ -173,8 +167,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
-      #define _CASE_MOVE(N) case N##_AXIS: STATIC_ITEM(MSG_MOVE_##N, SS_DEFAULT|SS_INVERT); break;
-      MAIN_AXIS_MAP(_CASE_MOVE)
+      case X_AXIS: STATIC_ITEM(MSG_MOVE_X, SS_DEFAULT|SS_INVERT); break;
+      case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, SS_DEFAULT|SS_INVERT); break;
+      case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, SS_DEFAULT|SS_INVERT); break;
       default:
         TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
         STATIC_ITEM(MSG_MOVE_E, SS_DEFAULT|SS_INVERT);
@@ -207,20 +202,23 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   inline void _menu_move_distance_e_maybe() {
-    if (thermalManager.tooColdToExtrude(active_extruder)) {
-      ui.goto_screen([]{
-        MenuItem_confirm::select_screen(
-          GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
-          _goto_menu_move_distance_e, nullptr,
-          GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
-        );
-      });
-    }
-    else
-      _goto_menu_move_distance_e();
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      const bool too_cold = thermalManager.tooColdToExtrude(active_extruder);
+      if (too_cold) {
+        ui.goto_screen([]{
+          MenuItem_confirm::select_screen(
+            GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
+            _goto_menu_move_distance_e, nullptr,
+            GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
+          );
+        });
+        return;
+      }
+    #endif
+    _goto_menu_move_distance_e();
   }
 
-#endif
+#endif // E_MANUAL
 
 void menu_move() {
   START_MENU();
@@ -253,15 +251,6 @@ void menu_move() {
     #endif
     #if HAS_K_AXIS
       SUBMENU(MSG_MOVE_K, []{ _menu_move_distance(K_AXIS, lcd_move_k); });
-    #endif
-    #if HAS_U_AXIS
-      SUBMENU(MSG_MOVE_U, []{ _menu_move_distance(U_AXIS, lcd_move_u); });
-    #endif
-    #if HAS_V_AXIS
-      SUBMENU(MSG_MOVE_V, []{ _menu_move_distance(V_AXIS, lcd_move_v); });
-    #endif
-    #if HAS_W_AXIS
-      SUBMENU(MSG_MOVE_W, []{ _menu_move_distance(W_AXIS, lcd_move_w); });
     #endif
   }
   else
@@ -319,7 +308,7 @@ void menu_move() {
 
     #elif MULTI_E_MANUAL
 
-      // Independent extruders with one E stepper per hotend
+      // Independent extruders with one E-stepper per hotend
       LOOP_L_N(n, E_MANUAL) SUBMENU_MOVE_E(n);
 
     #endif
@@ -353,15 +342,6 @@ void menu_move() {
     #endif
     #if HAS_K_AXIS
       GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, F("G28" STR_K));
-    #endif
-    #if HAS_U_AXIS
-      GCODES_ITEM_N(U_AXIS, MSG_AUTO_HOME_A, F("G28" STR_U));
-    #endif
-    #if HAS_V_AXIS
-      GCODES_ITEM_N(V_AXIS, MSG_AUTO_HOME_A, F("G28" STR_V));
-    #endif
-    #if HAS_W_AXIS
-      GCODES_ITEM_N(W_AXIS, MSG_AUTO_HOME_A, F("G28" STR_W));
     #endif
 
     END_MENU();
@@ -415,15 +395,6 @@ void menu_motion() {
       #endif
       #if HAS_K_AXIS
         GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, F("G28" STR_K));
-      #endif
-      #if HAS_U_AXIS
-        GCODES_ITEM_N(U_AXIS, MSG_AUTO_HOME_A, F("G28" STR_U));
-      #endif
-      #if HAS_V_AXIS
-        GCODES_ITEM_N(V_AXIS, MSG_AUTO_HOME_A, F("G28" STR_V));
-      #endif
-      #if HAS_W_AXIS
-        GCODES_ITEM_N(W_AXIS, MSG_AUTO_HOME_A, F("G28" STR_W));
       #endif
     #endif
   #endif

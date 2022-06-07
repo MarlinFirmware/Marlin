@@ -72,7 +72,7 @@ void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nu
     else if (ch == '$' && cstr)
       add(cstr);
     else if (ch == '@')
-      add_character(AXIS_CHAR(index));
+      add_character(axis_codes[index]);
     else
       add_character(ch);
   }

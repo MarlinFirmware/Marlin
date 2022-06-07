@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Eryone Ery32 mini supports up to 2 hotends / E steppers."
+  #error "Eryone Ery32 mini supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME

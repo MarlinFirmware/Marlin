@@ -39,36 +39,24 @@
 #define _ISTOP_  0x04
 #define _JSTOP_  0x05
 #define _KSTOP_  0x06
-#define _USTOP_  0x07
-#define _VSTOP_  0x08
-#define _WSTOP_  0x09
 #define _XMIN_   0x11
 #define _YMIN_   0x12
 #define _ZMIN_   0x13
 #define _IMIN_   0x14
 #define _JMIN_   0x15
 #define _KMIN_   0x16
-#define _UMIN_   0x17
-#define _VMIN_   0x18
-#define _WMIN_   0x19
 #define _XMAX_   0x21
 #define _YMAX_   0x22
 #define _ZMAX_   0x23
 #define _IMAX_   0x24
 #define _JMAX_   0x25
 #define _KMAX_   0x26
-#define _UMAX_   0x27
-#define _VMAX_   0x28
-#define _WMAX_   0x29
 #define _XDIAG_  0x31
 #define _YDIAG_  0x32
 #define _ZDIAG_  0x33
 #define _IDIAG_  0x34
 #define _JDIAG_  0x35
 #define _KDIAG_  0x36
-#define _UDIAG_  0x37
-#define _VDIAG_  0x38
-#define _WDIAG_  0x39
 #define _E0DIAG_ 0xE0
 #define _E1DIAG_ 0xE1
 #define _E2DIAG_ 0xE2
@@ -362,7 +350,7 @@
 
 #define _LIST_N(N,V...) LIST_##N(V)
 #define LIST_N(N,V...) _LIST_N(N,V)
-#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
+#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
 #define ARRAY_N_1(N,K)  { LIST_N_1(N,K) }
 
@@ -712,22 +700,13 @@
 #define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
 
-// Call OP(A) with each item as an argument
-#define _MAP(_MAP_OP,A,V...)       \
-  _MAP_OP(A)                       \
-  IF_ELSE(HAS_ARGS(V))             \
-    ( DEFER2(__MAP)()(_MAP_OP,V) ) \
-    ( /* Do nothing */ )
-#define __MAP() _MAP
-
-#define MAP(OP,V...) EVAL(_MAP(OP,V))
-
-// Emit a list of OP(A) with the given items
-#define _MAPLIST(_MAP_OP,A,V...)         \
-  _MAP_OP(A)                             \
-  IF_ELSE(HAS_ARGS(V))                   \
-    ( , DEFER2(__MAPLIST)()(_MAP_OP,V) ) \
-    ( /* Do nothing */ )
-#define __MAPLIST() _MAPLIST
-
-#define MAPLIST(OP,V...) EVAL(_MAPLIST(OP,V))
+// See https://github.com/swansontec/map-macro
+#define MAP_OUT
+#define MAP_END(...)
+#define MAP_GET_END() 0, MAP_END
+#define MAP_NEXT0(test, next, ...) next MAP_OUT
+#define MAP_NEXT1(test, next) MAP_NEXT0 (test, next, 0)
+#define MAP_NEXT(test, next)  MAP_NEXT1 (MAP_GET_END test, next)
+#define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
+#define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
+#define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))
