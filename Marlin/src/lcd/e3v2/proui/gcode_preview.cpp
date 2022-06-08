@@ -238,7 +238,6 @@ void Preview_DrawFromSD() {
   }
   else {
     HMI_flag.select_flag = 1;
-    wait_for_user = false;
   }
 }
 
