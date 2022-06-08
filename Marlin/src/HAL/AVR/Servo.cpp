@@ -70,8 +70,8 @@ static inline void handle_interrupts(const timer16_Sequence_t timer, volatile ui
   const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
   if (Channel[timer] < 0)
     *TCNTn = 0;                                                       // channel set to -1 indicated that refresh interval completed so reset the timer
-  else if (good_servo && SERVO(timer, Channel[timer]).Pin.isActive)
-    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW);       // pulse this channel low if activated
+  else if (good_servo)
+    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW);       // always pulse the channel LOW
 
   Channel[timer]++;                                                   // increment to the next channel
   if (good_servo && Channel[timer] < SERVOS_PER_TIMER) {
