@@ -1881,7 +1881,7 @@ void Temperature::manage_heater() {
         #endif
         #if ENABLED(CHAMBER_VENT)
           flag_chamber_excess_heat = false;
-          MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 90);
+          servo[CHAMBER_VENT_SERVO_NR].move(90);
         #endif
       }
     #endif
@@ -1897,7 +1897,7 @@ void Temperature::manage_heater() {
           if (flag_chamber_excess_heat) {
             temp_chamber.soft_pwm_amount = 0;
             #if ENABLED(CHAMBER_VENT)
-              if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, temp_chamber.celsius <= temp_chamber.target ? 0 : 90);
+              if (!flag_chamber_off) servo[CHAMBER_VENT_SERVO_NR].move(temp_chamber.celsius <= temp_chamber.target ? 0 : 90);
             #endif
           }
           else {
@@ -1910,7 +1910,7 @@ void Temperature::manage_heater() {
               temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? (MAX_CHAMBER_POWER) >> 1 : 0;
             #endif
             #if ENABLED(CHAMBER_VENT)
-              if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 0);
+              if (!flag_chamber_off) servo[CHAMBER_VENT_SERVO_NR].move(0);
             #endif
           }
         }
