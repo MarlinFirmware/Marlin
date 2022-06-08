@@ -237,7 +237,7 @@
 //
 // LCD / Controller
 //
-#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, USB_FLASH_DRIVE_SUPPORT)
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
   #define LCD_PINS_ENABLE                     24  // D23 PA14_RTS1
@@ -249,9 +249,13 @@
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
 #endif
 
-#if ANY(IS_ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
+#if ANY(IS_ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, USB_FLASH_DRIVE_SUPPORT)
   // Buttons on AUX-2
   #define BTN_EN1                             60  // D60 PA3_TIOB1
   #define BTN_EN2                             13  // D13 PB27_TIOB0
   #define BTN_ENC                             16  // D16 PA13_TXD1 // the click
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #define DISABLE_DUE_SD_MMC
 #endif

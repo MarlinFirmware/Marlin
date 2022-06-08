@@ -1585,6 +1585,8 @@
     //#define USE_UHS2_USB
     //#define USE_UHS3_USB
 
+    #define DISABLE_DUE_SD_MMC // Disable USB Host access to USB Drive to prevent hangs on block access for DUE platform
+
     /**
      * Native USB Host supported by some boards (USB OTG)
      */
