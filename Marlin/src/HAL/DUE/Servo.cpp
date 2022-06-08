@@ -71,13 +71,14 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *pTc, const uint8_t channe
 #endif
 
 void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel) {
+  tc->TC_CHANNEL[channel].TC_SR;                                    // clear interrupt
+
   const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
   if (Channel[timer] < 0)
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                 // channel set to -1 indicated that refresh interval completed so reset the timer
-  else if (good_servo)
+  else if (good_servo && SERVO(timer, Channel[timer]).Pin.isActive)
     extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW);     // always pulse the channel low
 
-  tc->TC_CHANNEL[channel].TC_SR;                                    // clear interrupt
 
   Channel[timer]++;                                                 // increment to the next channel
   if (good_servo && Channel[timer] < SERVOS_PER_TIMER) {
@@ -98,7 +99,7 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
 static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   pmc_enable_periph_clk(id);
   TC_Configure(tc, channel,
-    TC_CMR_TCCLKS_TIMER_CLOCK3 | // MCK/32
+    TC_CMR_TCCLKS_TIMER_CLOCK1 | // MCK/32
     TC_CMR_WAVE |                // Waveform mode
     TC_CMR_WAVSEL_UP_RC );       // Counter running up and reset when equals to RC
 
