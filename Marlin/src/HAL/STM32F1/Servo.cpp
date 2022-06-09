@@ -147,17 +147,17 @@ void libServo::move(const int32_t value) {
     uint16_t SR = timer_get_status(tdev);
     if (SR & TIMER_SR_CC1IF) { // channel 1 off
       #ifdef SERVO0_PWM_OD
-        OUT_WRITE_OD(SERVO0_PIN, 1); // off
+        OUT_WRITE_OD(SERVO0_PIN, HIGH); // off
       #else
-        OUT_WRITE(SERVO0_PIN, 0);
+        OUT_WRITE(SERVO0_PIN, LOW);
       #endif
       timer_reset_status_bit(tdev, TIMER_SR_CC1IF_BIT);
     }
     if (SR & TIMER_SR_CC2IF) { // channel 2 resume
       #ifdef SERVO0_PWM_OD
-        OUT_WRITE_OD(SERVO0_PIN, 0); // on
+        OUT_WRITE_OD(SERVO0_PIN, LOW); // on
       #else
-        OUT_WRITE(SERVO0_PIN, 1);
+        OUT_WRITE(SERVO0_PIN, HIGH);
       #endif
       timer_reset_status_bit(tdev, TIMER_SR_CC2IF_BIT);
     }
@@ -167,9 +167,9 @@ void libServo::move(const int32_t value) {
     timer_dev *tdev = HAL_get_timer_dev(MF_TIMER_SERVO0);
     if (!tdev) return false;
     #ifdef SERVO0_PWM_OD
-      OUT_WRITE_OD(inPin, 1);
+      OUT_WRITE_OD(inPin, HIGH);
     #else
-      OUT_WRITE(inPin, 0);
+      OUT_WRITE(inPin, LOW);
     #endif
 
     timer_pause(tdev);
@@ -200,9 +200,9 @@ void libServo::move(const int32_t value) {
       timer_disable_irq(tdev, 1);
       timer_disable_irq(tdev, 2);
       #ifdef SERVO0_PWM_OD
-        OUT_WRITE_OD(pin, 1); // off
+        OUT_WRITE_OD(pin, HIGH); // off
       #else
-        OUT_WRITE(pin, 0);
+        OUT_WRITE(pin, LOW);
       #endif
     }
   }
