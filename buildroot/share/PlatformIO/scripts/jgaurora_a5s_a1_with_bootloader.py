@@ -7,6 +7,7 @@ if pioutil.is_pio_build():
 	import os,marlin
 	# Append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
 	def addboot(source, target, env):
+		os.rename(".pio\\build\\jgaurora_a5s_a1\\firmware.elf", ".pio\\build\\jgaurora_a5s_a1\\firmware.bin")
 		firmware = open(target[0].path, "rb")
 		lengthfirmware = os.path.getsize(target[0].path)
 		bootloader_bin = "buildroot/share/PlatformIO/scripts/" + "jgaurora_bootloader.bin"
