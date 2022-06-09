@@ -66,7 +66,7 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 
 /************ static functions common to all instances ***********************/
 
-static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
+static inline void handle_interrupts(const timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
   if (Channel[timer] < 0)
     *TCNTn = 0; // channel set to -1 indicated that refresh interval completed so reset the timer
   else {
