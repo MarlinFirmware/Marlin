@@ -77,7 +77,8 @@ HAL_SERVO_TIMER_ISR() {
   ;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
-  if (currentServoIndex[timer] < 0) {
+  int8_t cho = currentServoIndex[timer];
+  if (cho < 0) {
     #if defined(_useTimer1) && defined(_useTimer2)
       if (currentServoIndex[timer ^ 1] >= 0) {
         // Wait for both channels
@@ -89,28 +90,28 @@ HAL_SERVO_TIMER_ISR() {
     tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
   }
-  else if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && SERVO(timer, currentServoIndex[timer]).Pin.isActive)
-    digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, LOW);      // pulse this channel low if activated
+  else if (SERVO_INDEX(timer, cho) < ServoCount && SERVO(timer, cho).Pin.isActive)
+    digitalWrite(SERVO(timer, cho).Pin.nbr, LOW);      // pulse this channel low if activated
 
   // Select the next servo controlled by this timer
-  currentServoIndex[timer]++;
+  currentServoIndex[timer] = ++cho;
 
-  if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && currentServoIndex[timer] < SERVOS_PER_TIMER) {
-    if (SERVO(timer, currentServoIndex[timer]).Pin.isActive)                // check if activated
-      digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, HIGH);   // it's an active channel so pulse it high
+  if (SERVO_INDEX(timer, cho) < ServoCount && cho < SERVOS_PER_TIMER) {
+    if (SERVO(timer, cho).Pin.isActive)                // check if activated
+      digitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);   // it's an active channel so pulse it high
 
-    tc->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)SERVO(timer, currentServoIndex[timer]).ticks;
+    tc->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)SERVO(timer, cho).ticks;
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
     currentServoIndex[timer] = -1;   // this will get incremented at the end of the refresh period to start again at the first channel
 
-    const uint16_t tcCounterValue = getTimerCount();
+    const uint16_t tcCounterValue = getTimerCount(), ival = (uint16_t)usToTicks(REFRESH_INTERVAL);
 
-    if ((TC_COUNTER_START_VAL - tcCounterValue) + 4UL < usToTicks(REFRESH_INTERVAL))  // allow a few ticks to ensure the next OCR1A not missed
-      tc->COUNT16.CC[tcChannel].reg = TC_COUNTER_START_VAL - (uint16_t)usToTicks(REFRESH_INTERVAL);
+    if ((TC_COUNTER_START_VAL - tcCounterValue) + 4UL < ival)           // allow a few ticks to ensure the next OCR1A not missed
+      tc->COUNT16.CC[tcChannel].reg = TC_COUNTER_START_VAL - ival;
     else
-      tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - 4UL);               // at least REFRESH_INTERVAL has elapsed
+      tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - 4UL); // at least REFRESH_INTERVAL has elapsed
   }
   if (tcChannel == 0) {
     SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);

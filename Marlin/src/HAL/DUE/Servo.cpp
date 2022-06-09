@@ -52,7 +52,7 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 // ------------------------
 /// Interrupt handler for the TC0 channel 1.
 // ------------------------
-void Servo_Handler(const timer16_Sequence_t timer, Tc *pTc, const uint8_t channel);
+void Servo_Handler(const timer16_Sequence_t, Tc*, const uint8_t);
 
 #ifdef _useTimer1
   void HANDLER_FOR_TIMER1() { Servo_Handler(_timer1, TC_FOR_TIMER1, CHANNEL_FOR_TIMER1); }
@@ -71,35 +71,33 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *pTc, const uint8_t channe
 #endif
 
 void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel) {
-  tc->TC_CHANNEL[channel].TC_SR;                                    // clear interrupt
+  tc->TC_CHANNEL[channel].TC_SR;                                      // clear interrupt
+  int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
+  if (cho < 0)                                                        // Channel -1 indicates the refresh interval completed...
+    tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                   // ...so reset the timer
+  else if (SERVO_INDEX(timer, cho) < ServoCount && SERVO(timer, cho).Pin.isActive)  // prior channel... handled and active?
+    extDigitalWrite(SERVO(timer, cho).Pin.nbr, LOW);                  // pulse the prior channel LOW
 
-  const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
-  if (Channel[timer] < 0)
-    tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                 // channel set to -1 indicated that refresh interval completed so reset the timer
-  else if (good_servo && SERVO(timer, Channel[timer]).Pin.isActive)
-    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW);     // always pulse the channel low
-
-
-  Channel[timer]++;                                                 // increment to the next channel
-  if (good_servo && Channel[timer] < SERVOS_PER_TIMER) {
-    tc->TC_CHANNEL[channel].TC_RA = tc->TC_CHANNEL[channel].TC_CV + SERVO(timer,Channel[timer]).ticks;
-    if (SERVO(timer, Channel[timer]).Pin.isActive)                  // check if activated
-      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH);  // it's an active channel so pulse it high
+  Channel[timer] = ++cho;                                             // go to the next channel (or 0)
+  if (SERVO_INDEX(timer, cho) < ServoCount && cho < SERVOS_PER_TIMER) {
+    tc->TC_CHANNEL[channel].TC_RA = tc->TC_CHANNEL[channel].TC_CV + SERVO(timer, cho).ticks;
+    if (SERVO(timer, cho).Pin.isActive)                               // activated?
+      extDigitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);               // yes: pulse HIGH
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL), // At least the refresh interval has elapsed
-                       tctick = tc->TC_CHANNEL[channel].TC_CV + 4;  // allow a few ticks to ensure the next OCR1A not missed
-    tc->TC_CHANNEL[channel].TC_RA = max(tctick, iticks);
-    Channel[timer] = -1;                                            // gets incremented at the end of the refresh period to start again at the first channel
-  }
+    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + 4,      // at least REFRESH_INTERVAL has elapsed
+                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // allow a few ticks to ensure the next OCR1A not missed
+    tc->TC_CHANNEL[channel].TC_RA = max(cval, ival);
 
+    Channel[timer] = -1;                                              // reset the timer CCR on the next call
+  }
 }
 
 static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   pmc_enable_periph_clk(id);
   TC_Configure(tc, channel,
-    TC_CMR_TCCLKS_TIMER_CLOCK1 | // MCK/32
+    TC_CMR_TCCLKS_TIMER_CLOCK1 | // MCK/2
     TC_CMR_WAVE |                // Waveform mode
     TC_CMR_WAVSEL_UP_RC );       // Counter running up and reset when equals to RC
 
@@ -133,21 +131,21 @@ void initISR(const timer16_Sequence_t timer) {
   #endif
 }
 
-void finISR(const timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t) {
   #ifdef _useTimer1
-    if (timer == _timer1) TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
+    TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
   #endif
   #ifdef _useTimer2
-    if (timer == _timer2) TC_Stop(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2);
+    TC_Stop(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2);
   #endif
   #ifdef _useTimer3
-    if (timer == _timer3) TC_Stop(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3);
+    TC_Stop(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3);
   #endif
   #ifdef _useTimer4
-    if (timer == _timer4) TC_Stop(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4);
+    TC_Stop(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4);
   #endif
   #ifdef _useTimer5
-    if (timer == _timer5) TC_Stop(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5);
+    TC_Stop(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5);
   #endif
 }
 

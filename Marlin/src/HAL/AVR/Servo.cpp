@@ -67,24 +67,25 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 /************ static functions common to all instances ***********************/
 
 static inline void handle_interrupts(const timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
-  const bool good_servo = SERVO_INDEX(timer, Channel[timer]) < ServoCount;
-  if (Channel[timer] < 0)
-    *TCNTn = 0;                                                       // channel set to -1 indicated that refresh interval completed so reset the timer
-  else if (good_servo)
-    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW);       // always pulse the channel LOW
+  int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
+  if (cho < 0)                                                        // Channel -1 indicates the refresh interval completed...
+    *TCNTn = 0;                                                       // ...so reset the timer
+  else if (SERVO_INDEX(timer, cho) < ServoCount && SERVO(timer, cho).Pin.isActive) // prior channel ... handled and active?
+    extDigitalWrite(SERVO(timer, cho).Pin.nbr, LOW);                  // pulse the prior channel LOW
 
-  Channel[timer]++;                                                   // increment to the next channel
-  if (good_servo && Channel[timer] < SERVOS_PER_TIMER) {
-    *OCRnA = *TCNTn + SERVO(timer, Channel[timer]).ticks;
-    if (SERVO(timer, Channel[timer]).Pin.isActive)                    // check if activated
-      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH);    // it's an active channel so pulse it high
+  Channel[timer] = ++cho;                                             // Handle the next channel (or 0)
+  if (cho < SERVOS_PER_TIMER && SERVO_INDEX(timer, cho) < ServoCount) {
+    *OCRnA = *TCNTn + SERVO(timer, cho).ticks;                        // set compare to current ticks plus duration
+    if (SERVO(timer, cho).Pin.isActive)                               // check if activated
+      extDigitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);               // if active, set HIGH. (set LOW next interrupt)
   }
   else {
-    // Finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int iticks = (unsigned int)usToTicks(REFRESH_INTERVAL), // At least the refresh interval has elapsed
-                       tctick = ((unsigned)*TCNTn) + 4;               // allow a few ticks to ensure the next OCR1A not missed
-    *OCRnA = max(tctick, iticks);
-    Channel[timer] = -1;                                              // gets incremented at the end of the refresh period to start again at the first channel
+    // finished all channels so wait for the refresh period to expire before starting over
+    const unsigned int tval = ((unsigned)*TCNTn) + 4,                 // at least REFRESH_INTERVAL has elapsed
+                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // allow a few ticks to ensure the next OCR1A not missed
+    *OCRnA = max(tval, ival);
+
+    Channel[timer] = -1;                                              // reset the timer counter to 0 on the next call
   }
 }
 

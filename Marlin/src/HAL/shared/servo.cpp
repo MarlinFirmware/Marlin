@@ -101,7 +101,7 @@ int8_t Servo::attach(const int inPin, const int inMin, const int inMax) {
   max = (MAX_PULSE_WIDTH - inMax) / 4;
 
   // initialize the timer if it has not already been initialized
-  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
+  const timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if (!anyTimerChannelActive(timer)) initISR(timer);
   servo_info[servoIndex].Pin.isActive = true;  // this must be set after the check for anyTimerChannelActive
 
@@ -111,8 +111,8 @@ int8_t Servo::attach(const int inPin, const int inMin, const int inMax) {
 void Servo::detach() {
   servo_info[servoIndex].Pin.isActive = false;
   const timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-  if (anyTimerChannelActive(timer)) finISR(timer);
-  pinMode(servo_info[servoIndex].Pin.nbr, INPUT); // set servo pin to input
+  if (!anyTimerChannelActive(timer)) finISR(timer);
+  //pinMode(servo_info[servoIndex].Pin.nbr, INPUT); // set servo pin to input
 }
 
 void Servo::write(int value) {
