@@ -86,7 +86,7 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + 4,      // at least REFRESH_INTERVAL has elapsed
+    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + (256 / SERVO_TIMER_PRESCALER),      // at least REFRESH_INTERVAL has elapsed
                        ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // allow a few ticks to ensure the next OCR1A not missed
     tc->TC_CHANNEL[channel].TC_RA = max(cval, ival);
 
