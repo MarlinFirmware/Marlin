@@ -116,7 +116,7 @@
   void move_extruder_servo(const uint8_t e) {
     planner.synchronize();
     if ((EXTRUDERS & 1) && e < EXTRUDERS - 1) {
-      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e & 1]);
+      servo[_SERVO_NR(e)].move(servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
   }
@@ -131,7 +131,7 @@
       constexpr int8_t  sns_index[2] = { SWITCHING_NOZZLE_SERVO_NR, SWITCHING_NOZZLE_E1_SERVO_NR };
       constexpr int16_t sns_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
       planner.synchronize();
-      MOVE_SERVO(sns_index[e], sns_angles[angle_index]);
+      servo[sns_index[e]].move(sns_angles[angle_index]);
       safe_delay(500);
     }
 
@@ -142,7 +142,7 @@
 
     void move_nozzle_servo(const uint8_t angle_index) {
       planner.synchronize();
-      MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][angle_index]);
+      servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][angle_index]);
       safe_delay(500);
     }
 
@@ -443,7 +443,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
-      MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+      servo[SWITCHING_TOOLHEAD_SERVO_NR].move(swt_angles[locked ? 0 : 1]);
     #elif PIN_EXISTS(SWT_SOLENOID)
       OUT_WRITE(SWT_SOLENOID_PIN, locked);
       gcode.dwell(10);
