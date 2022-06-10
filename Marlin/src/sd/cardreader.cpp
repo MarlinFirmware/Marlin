@@ -494,8 +494,9 @@ void CardReader::manage_media() {
     safe_delay(500);                // Some boards need a delay to get settled
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
-    if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
-    if (!isMounted()) {             // Not mounted?
+    if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) {
+      mount();
+    } else {
       stat = 0;
       #if HAS_SD_DETECT && DISABLED(SD_IGNORE_AT_STARTUP)
         prev_stat = 0;
@@ -505,6 +506,7 @@ void CardReader::manage_media() {
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
   }
   else {
+    ui.reset_status(false); // Clear 'Media Init fail' if present
     TERN_(HAS_SD_DETECT, release()); // Card is released
   }
 
