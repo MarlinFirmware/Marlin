@@ -47,7 +47,7 @@
 ///////////// Global Variables /////////////
 ////////////////////////////////////////////
 
-#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+#if HAS_LEVELING && ANY(LCD_BED_TRAMMING, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
   bool leveling_was_active; // = false
 #endif
 #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
@@ -68,9 +68,10 @@ typedef struct {
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
 
-int8_t MenuItemBase::itemIndex;   // Index number for draw and action
-FSTR_P MenuItemBase::itemString;  // A string for substitution
-chimera_t editable;               // Value Editing
+int8_t MenuItemBase::itemIndex;         // Index number for draw and action
+FSTR_P MenuItemBase::itemStringF;       // A string for substitution
+const char *MenuItemBase::itemStringC;
+chimera_t editable;                     // Value Editing
 
 // Menu Edit Items
 FSTR_P       MenuEditItemBase::editLabel;

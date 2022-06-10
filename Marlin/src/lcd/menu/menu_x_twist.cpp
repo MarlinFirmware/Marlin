@@ -100,19 +100,10 @@ void xatc_wizard_menu() {
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
 
   if ((FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f) {
-    char tmp[20], numstr[10];
     // Determine digits needed right of decimal
     const uint8_t digs = !UNEAR_ZERO((FINE_MANUAL_MOVE) * 1000 - int((FINE_MANUAL_MOVE) * 1000)) ? 4 :
                          !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
-    sprintf_P(tmp, GET_TEXT(MSG_MOVE_N_MM), dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
-    #if DISABLED(HAS_GRAPHICAL_TFT)
-      SUBMENU_F(FPSTR(NUL_STR), []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
-      MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
-      lcd_put_u8str(tmp);
-      MENU_ITEM_ADDON_END();
-    #else
-      SUBMENU_F(FPSTR(tmp), []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
-    #endif
+    SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
   }
 
   ACTION_ITEM(MSG_BUTTON_DONE, xatc_wizard_set_offset_and_go_to_next_point);

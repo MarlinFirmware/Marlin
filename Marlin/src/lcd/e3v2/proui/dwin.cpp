@@ -129,6 +129,14 @@
   #include "endstop_diag.h"
 #endif
 
+#if HAS_PIDPLOT
+  #include "plot.h"
+#endif
+
+#if HAS_GCODE_PREVIEW
+  #include "gcode_preview.h"
+#endif
+
 #if HAS_MESH
   #include "meshviewer.h"
 #endif
@@ -705,13 +713,19 @@ void Draw_PrintDone() {
   Title.ShowCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::ClearMainArea();
   DWIN_Print_Header(nullptr);
-  Draw_Print_ProgressBar();
-  Draw_Print_Labels();
-  DWINUI::Draw_Icon(ICON_PrintTime, 15, 173);
-  DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
-  Draw_Print_ProgressElapsed();
-  Draw_Print_ProgressRemain();
-  DWINUI::Draw_Button(BTN_Continue, 86, 273);
+  if (sdprint && TERN0(HAS_GCODE_PREVIEW, Preview_Valid())) {
+    DWIN_ICON_Show(0, 0, 1, 21, 100, 0x00);
+    DWINUI::Draw_Button(BTN_Continue, 86, 300);
+  }
+  else {
+    Draw_Print_ProgressBar();
+    Draw_Print_Labels();
+    DWINUI::Draw_Icon(ICON_PrintTime, 15, 173);
+    DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
+    Draw_Print_ProgressElapsed();
+    Draw_Print_ProgressRemain();
+    DWINUI::Draw_Button(BTN_Continue, 86, 273);
+  }
 }
 
 void Goto_PrintDone() {
@@ -1409,6 +1423,9 @@ void EachMomentUpdate() {
     #if HAS_ESDIAG
       if (checkkey == ESDiagProcess) ESDiag.Update();
     #endif
+    #if HAS_PIDPLOT
+      if (checkkey == PidProcess) Plot.Update((HMI_value.pidresult == PID_EXTR_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
+    #endif
   }
 
   #if HAS_STATUS_MESSAGE_TIMEOUT
@@ -1635,15 +1652,49 @@ void DWIN_LevelingDone() {
 #endif
 
 // PID process
+
+#if HAS_PIDPLOT
+  void DWIN_Draw_PIDPopup() {
+    frame_rect_t gfrm = {40, 180, DWIN_WIDTH - 80, 120};
+    DWINUI::ClearMainArea();
+    Draw_Popup_Bkgd();
+    DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
+    DWINUI::Draw_String(HMI_data.PopupTxt_Color, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
+    switch (HMI_value.pidresult) {
+      case PID_EXTR_START:
+        DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for Nozzle is running."));
+        Plot.Draw(gfrm, thermalManager.hotend_maxtemp[0], HMI_data.HotendPidT);
+        DWINUI::Draw_Int(HMI_data.PopupTxt_Color, 3, gfrm.x + 90, gfrm.y - DWINUI::fontHeight() - 4, HMI_data.HotendPidT);
+        break;
+      case PID_BED_START:
+        DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for BED is running."));
+        Plot.Draw(gfrm, BED_MAXTEMP, HMI_data.BedPidT);
+        DWINUI::Draw_Int(HMI_data.PopupTxt_Color, 3, gfrm.x + 90, gfrm.y - DWINUI::fontHeight() - 4, HMI_data.BedPidT);
+        break;
+      default:
+        break;
+    }
+  }
+#endif
+
 void DWIN_PidTuning(pidresult_t result) {
+  HMI_value.pidresult = result;
   switch (result) {
     case PID_BED_START:
-      HMI_SaveProcessID(NothingToDo);
-      DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for BED is running."));
+      HMI_SaveProcessID(PidProcess);
+      #if HAS_PIDPLOT
+        DWIN_Draw_PIDPopup();
+      #else
+        DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for BED is running."));
+      #endif
       break;
     case PID_EXTR_START:
-      HMI_SaveProcessID(NothingToDo);
-      DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for Nozzle is running."));
+      HMI_SaveProcessID(PidProcess);
+      #if HAS_PIDPLOT
+        DWIN_Draw_PIDPopup();
+      #else
+        DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for Nozzle is running."));
+      #endif
       break;
     case PID_BAD_EXTRUDER_NUM:
       checkkey = last_checkkey;
@@ -1960,10 +2011,30 @@ void HMI_LockScreen() {
 }
 
 
-void Goto_ConfirmToPrint() {
-  card.openAndPrintFile(card.filename);
-  DWIN_Print_Started(true);
-}
+#if HAS_GCODE_PREVIEW
+
+  void onClick_ConfirmToPrint() {
+    if (HMI_flag.select_flag) {     // Confirm
+      card.openAndPrintFile(card.filename);
+      return DWIN_Print_Started(true);
+    }
+    else {                          // Cancel
+      DWIN_ResetStatusLine();
+      checkkey = SelectFile;
+      return Draw_Print_File_Menu();
+    }
+  }
+
+  void Goto_ConfirmToPrint() {
+    Goto_Popup(Preview_DrawFromSD, onClick_ConfirmToPrint);
+  }
+
+#else
+  void Goto_ConfirmToPrint() {
+    card.openAndPrintFile(card.filename);
+    DWIN_Print_Started(true);
+  }
+#endif
 
 #if HAS_ESDIAG
   void Draw_EndStopDiag() {
@@ -3509,14 +3580,14 @@ void Draw_MaxSpeed_Menu() {
   if (!MaxSpeedMenu) MaxSpeedMenu = new MenuClass();
   if (CurrentMenu != MaxSpeedMenu) {
     CurrentMenu = MaxSpeedMenu;
-    SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_MAXSPEED));
+    SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_MAX_SPEED));
     MenuItemsPrepare(5);
     BACK_ITEM(Draw_Motion_Menu);
-    EDIT_ITEM_F(ICON_MaxSpeedX, MSG_MAXSPEED_X, onDrawMaxSpeedX, SetMaxSpeedX, &planner.settings.max_feedrate_mm_s[X_AXIS]);
-    EDIT_ITEM_F(ICON_MaxSpeedY, MSG_MAXSPEED_Y, onDrawMaxSpeedY, SetMaxSpeedY, &planner.settings.max_feedrate_mm_s[Y_AXIS]);
-    EDIT_ITEM_F(ICON_MaxSpeedZ, MSG_MAXSPEED_Z, onDrawMaxSpeedZ, SetMaxSpeedZ, &planner.settings.max_feedrate_mm_s[Z_AXIS]);
+    EDIT_ITEM_F(ICON_MaxSpeedX, MSG_VMAX_A, onDrawMaxSpeedX, SetMaxSpeedX, &planner.settings.max_feedrate_mm_s[X_AXIS]);
+    EDIT_ITEM_F(ICON_MaxSpeedY, MSG_VMAX_B, onDrawMaxSpeedY, SetMaxSpeedY, &planner.settings.max_feedrate_mm_s[Y_AXIS]);
+    EDIT_ITEM_F(ICON_MaxSpeedZ, MSG_VMAX_C, onDrawMaxSpeedZ, SetMaxSpeedZ, &planner.settings.max_feedrate_mm_s[Z_AXIS]);
     #if HAS_HOTEND
-      EDIT_ITEM_F(ICON_MaxSpeedE, MSG_MAXSPEED_E, onDrawMaxSpeedE, SetMaxSpeedE, &planner.settings.max_feedrate_mm_s[E_AXIS]);
+      EDIT_ITEM_F(ICON_MaxSpeedE, MSG_VMAX_E, onDrawMaxSpeedE, SetMaxSpeedE, &planner.settings.max_feedrate_mm_s[E_AXIS]);
     #endif
   }
   CurrentMenu->draw();

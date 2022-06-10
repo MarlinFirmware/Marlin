@@ -171,7 +171,7 @@ CardReader::CardReader() {
   workDirDepth = 0;
   ZERO(workDirParents);
 
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+  #if BOTH(SDSUPPORT, HAS_SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
@@ -456,10 +456,11 @@ void CardReader::mount() {
 
   if (flag.mounted)
     cdroot();
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT) || PIN_EXISTS(SD_DETECT)
-    else if (marlin_state != MF_INITIALIZING)
-      LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
-  #endif
+  else {
+    #if EITHER(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
+      if (marlin_state != MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
+    #endif
+  }
 
   ui.refresh();
 }
@@ -496,15 +497,15 @@ void CardReader::manage_media() {
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
     if (!isMounted()) {             // Not mounted?
       stat = 0;
-      IF_DISABLED(SD_IGNORE_AT_STARTUP, prev_stat = 0);
+      #if HAS_SD_DETECT && DISABLED(SD_IGNORE_AT_STARTUP)
+        prev_stat = 0;
+      #endif
     }
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
   }
   else {
-    #if PIN_EXISTS(SD_DETECT)
-      release();                    // Card is released
-    #endif
+    TERN_(HAS_SD_DETECT, release()); // Card is released
   }
 
   ui.media_changed(old_stat, stat); // Update the UI or flag an error

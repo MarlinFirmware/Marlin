@@ -18,12 +18,32 @@ jobs:
 
     steps:
 
-    - name: Check out bugfix-2.0.x
+    - name: Check out bugfix-2.1.x
       uses: actions/checkout@v2
       with:
-        ref: bugfix-2.0.x
+        ref: bugfix-2.1.x
 
-    - name: Bump Distribution Date
+    - name: Bump Date (bugfix-2.0.x)
+      run: |
+        # Inline Bump Script
+        if [[ ! "$( git log -1 --pretty=%B )" =~ ^\[cron\] ]]; then
+          DIST=$( date +"%Y-%m-%d" )
+          eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/src/inc/Version.h" && \
+          eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/Version.h" && \
+          git config user.name "${GITHUB_ACTOR}" && \
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com" && \
+          git add . && \
+          git commit -m "[cron] Bump distribution date ($DIST)" && \
+          git push
+        fi
+        exit 0
+
+    - name: Check out bugfix-2.1.x
+      uses: actions/checkout@v2
+      with:
+        ref: bugfix-2.1.x
+
+    - name: Bump Date (bugfix-2.1.x)
       run: |
         # Inline Bump Script
         if [[ ! "$( git log -1 --pretty=%B )" =~ ^\[cron\] ]]; then

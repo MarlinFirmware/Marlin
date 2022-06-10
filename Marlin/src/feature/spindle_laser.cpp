@@ -66,7 +66,7 @@ cutter_frequency_t SpindleLaser::frequency;                           // PWM fre
  */
 void SpindleLaser::init() {
   #if ENABLED(SPINDLE_SERVO)
-    MOVE_SERVO(SPINDLE_SERVO_NR, SPINDLE_SERVO_MIN);
+    servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #else
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
   #endif

@@ -47,7 +47,7 @@ void menu_backlash() {
 
   #define EDIT_BACKLASH_DISTANCE(N) do { \
     editable.decimal = backlash.get_distance_mm(_AXIS(N)); \
-    EDIT_ITEM_FAST(float43, MSG_BACKLASH_##N, &editable.decimal, 0.0f, 9.9f, []{ backlash.set_distance_mm(_AXIS(N), editable.decimal); }); \
+    EDIT_ITEM_FAST_N(float43, _AXIS(N), MSG_BACKLASH_N, &editable.decimal, 0.0f, 9.9f, []{ backlash.set_distance_mm(_AXIS(N), editable.decimal); }); \
   } while (0);
 
   if (_CAN_CALI(A)) EDIT_BACKLASH_DISTANCE(A);
