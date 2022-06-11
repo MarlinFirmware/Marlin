@@ -79,7 +79,7 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
     extDigitalWrite(SERVO(timer, cho).Pin.nbr, LOW);                  // pulse the prior channel LOW
 
   Channel[timer] = ++cho;                                             // go to the next channel (or 0)
-  if (SERVO_INDEX(timer, cho) < ServoCount && cho < SERVOS_PER_TIMER) {
+  if (cho < SERVOS_PER_TIMER && SERVO_INDEX(timer, cho) < ServoCount) {
     tc->TC_CHANNEL[channel].TC_RA = tc->TC_CHANNEL[channel].TC_CV + SERVO(timer, cho).ticks;
     if (SERVO(timer, cho).Pin.isActive)                               // activated?
       extDigitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);               // yes: pulse HIGH

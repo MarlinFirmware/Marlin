@@ -76,8 +76,8 @@ static inline void handle_interrupts(const timer16_Sequence_t timer, volatile ui
   Channel[timer] = ++cho;                                             // Handle the next channel (or 0)
   if (cho < SERVOS_PER_TIMER && SERVO_INDEX(timer, cho) < ServoCount) {
     *OCRnA = *TCNTn + SERVO(timer, cho).ticks;                        // set compare to current ticks plus duration
-    if (SERVO(timer, cho).Pin.isActive)                               // check if activated
-      extDigitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);               // if active, set HIGH. (set LOW next interrupt)
+    if (SERVO(timer, cho).Pin.isActive)                               // activated?
+      extDigitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);               // yes: pulse HIGH
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
