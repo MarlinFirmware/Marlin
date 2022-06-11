@@ -70,7 +70,7 @@ static inline void handle_interrupts(const timer16_Sequence_t timer, volatile ui
   int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
   if (cho < 0)                                                        // Channel -1 indicates the refresh interval completed...
     *TCNTn = 0;                                                       // ...so reset the timer
-  else if (SERVO_INDEX(timer, cho) < ServoCount && SERVO(timer, cho).Pin.isActive) // prior channel ... handled and active?
+  else if (SERVO_INDEX(timer, cho) < ServoCount)                      // prior channel handled?
     extDigitalWrite(SERVO(timer, cho).Pin.nbr, LOW);                  // pulse the prior channel LOW
 
   Channel[timer] = ++cho;                                             // Handle the next channel (or 0)

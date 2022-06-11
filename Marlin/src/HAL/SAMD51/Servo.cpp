@@ -90,7 +90,7 @@ HAL_SERVO_TIMER_ISR() {
     tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;       // ...so reset the timer
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
   }
-  else if (SERVO_INDEX(timer, cho) < ServoCount && SERVO(timer, cho).Pin.isActive) // prior channel... handled and activated?
+  else if (SERVO_INDEX(timer, cho) < ServoCount)        // prior channel handled?
     digitalWrite(SERVO(timer, cho).Pin.nbr, LOW);       // pulse the prior channel LOW
 
   currentServoIndex[timer] = ++cho;                     // go to the next channel (or 0)

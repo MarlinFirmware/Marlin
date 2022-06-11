@@ -75,7 +75,7 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
   int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
   if (cho < 0)                                                        // Channel -1 indicates the refresh interval completed...
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                   // ...so reset the timer
-  else if (SERVO_INDEX(timer, cho) < ServoCount && SERVO(timer, cho).Pin.isActive)  // prior channel... handled and active?
+  else if (SERVO_INDEX(timer, cho) < ServoCount)                      // prior channel handled?
     extDigitalWrite(SERVO(timer, cho).Pin.nbr, LOW);                  // pulse the prior channel LOW
 
   Channel[timer] = ++cho;                                             // go to the next channel (or 0)
