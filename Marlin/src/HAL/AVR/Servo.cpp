@@ -81,9 +81,9 @@ static inline void handle_interrupts(const timer16_Sequence_t timer, volatile ui
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int tval = ((unsigned)*TCNTn) + 4,                 // at least REFRESH_INTERVAL has elapsed
-                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // allow a few ticks to ensure the next OCR1A not missed
-    *OCRnA = max(tval, ival);
+    const unsigned int cval = ((unsigned)*TCNTn) + 32 / (SERVO_TIMER_PRESCALER), // allow 32 cycles to ensure the next OCR1A not missed
+                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // at least REFRESH_INTERVAL has elapsed
+    *OCRnA = max(cval, ival);
 
     Channel[timer] = -1;                                              // reset the timer counter to 0 on the next call
   }

@@ -108,10 +108,11 @@ HAL_SERVO_TIMER_ISR() {
 
     const uint16_t tcCounterValue = getTimerCount(), ival = (uint16_t)usToTicks(REFRESH_INTERVAL);
 
-    if ((TC_COUNTER_START_VAL - tcCounterValue) + 4UL < ival)           // allow a few ticks to ensure the next OCR1A not missed
+    constexpr uint16_t minticks = 256 / (SERVO_TIMER_PRESCALER);
+    if ((TC_COUNTER_START_VAL - tcCounterValue) + minticks < ival)           // allow 256 cycles to ensure the next OCR1A not missed
       tc->COUNT16.CC[tcChannel].reg = TC_COUNTER_START_VAL - ival;
     else
-      tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - 4UL); // at least REFRESH_INTERVAL has elapsed
+      tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - minticks); // at least REFRESH_INTERVAL has elapsed
   }
   if (tcChannel == 0) {
     SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);

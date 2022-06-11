@@ -86,8 +86,8 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + (256 / SERVO_TIMER_PRESCALER), // at least REFRESH_INTERVAL has elapsed
-                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // allow a few ticks to ensure the next OCR1A not missed
+    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + 128 / (SERVO_TIMER_PRESCALER), // allow 128 cycles to ensure the next CV not missed
+                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // at least REFRESH_INTERVAL has elapsed
     tc->TC_CHANNEL[channel].TC_RA = max(cval, ival);
 
     Channel[timer] = -1;                                              // reset the timer CCR on the next call
@@ -101,13 +101,12 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
     TC_CMR_WAVE |                // Waveform mode
     TC_CMR_WAVSEL_UP_RC );       // Counter running up and reset when equals to RC
 
-  // 84MHz, MCK/32, for 1.5ms: 3937
-  TC_SetRA(tc, channel, 2625); // 1ms
+  // Wait 1ms before the first ISR
+  TC_SetRA(tc, channel, (F_CPU) / (SERVO_TIMER_PRESCALER) / 1000UL); // 1ms
 
-  /* Configure and enable interrupt */
+  // Configure and enable interrupt
   NVIC_EnableIRQ(irqn);
-  // TC_IER_CPAS: RA Compare
-  tc->TC_CHANNEL[channel].TC_IER = TC_IER_CPAS;
+  tc->TC_CHANNEL[channel].TC_IER = TC_IER_CPAS; // TC_IER_CPAS: RA Compare
 
   // Enables the timer clock and performs a software reset to start the counting
   TC_Start(tc, channel);
