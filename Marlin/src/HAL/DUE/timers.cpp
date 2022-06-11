@@ -92,8 +92,10 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   TC_Configure(tc, channel,
       TC_CMR_WAVE
     | TC_CMR_WAVSEL_UP_RC
-    | (HAL_TIMER_PRESCALER ==  2 ? TC_CMR_TCCLKS_TIMER_CLOCK1 : 0)
-    | (HAL_TIMER_PRESCALER == 32 ? TC_CMR_TCCLKS_TIMER_CLOCK3 : 0)
+    | (HAL_TIMER_PRESCALER ==   2 ? TC_CMR_TCCLKS_TIMER_CLOCK1 : 0)
+    | (HAL_TIMER_PRESCALER ==   8 ? TC_CMR_TCCLKS_TIMER_CLOCK2 : 0)
+    | (HAL_TIMER_PRESCALER ==  32 ? TC_CMR_TCCLKS_TIMER_CLOCK3 : 0)
+    | (HAL_TIMER_PRESCALER == 128 ? TC_CMR_TCCLKS_TIMER_CLOCK4 : 0)
   );
 
   // Set compare value

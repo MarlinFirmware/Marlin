@@ -99,8 +99,10 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   TC_Configure(tc, channel,
       TC_CMR_WAVE                   // Waveform mode
     | TC_CMR_WAVSEL_UP_RC           // Counter running up and reset when equal to RC
-    | (SERVO_TIMER_PRESCALER ==  2 ? TC_CMR_TCCLKS_TIMER_CLOCK1 : 0)  // MCK/2
-    | (SERVO_TIMER_PRESCALER == 32 ? TC_CMR_TCCLKS_TIMER_CLOCK3 : 0)  // MCK/32
+    | (SERVO_TIMER_PRESCALER ==   2 ? TC_CMR_TCCLKS_TIMER_CLOCK1 : 0) // MCK/2
+    | (SERVO_TIMER_PRESCALER ==   8 ? TC_CMR_TCCLKS_TIMER_CLOCK2 : 0) // MCK/8
+    | (SERVO_TIMER_PRESCALER ==  32 ? TC_CMR_TCCLKS_TIMER_CLOCK3 : 0) // MCK/32
+    | (SERVO_TIMER_PRESCALER == 128 ? TC_CMR_TCCLKS_TIMER_CLOCK4 : 0) // MCK/128
   );
 
   // Wait 1ms before the first ISR
