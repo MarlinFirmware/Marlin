@@ -307,12 +307,6 @@ namespace Language_en {
   LSTR MSG_MOVE_X                         = _UxGT("Move X"); // Used by draw_edit_screen
   LSTR MSG_MOVE_Y                         = _UxGT("Move Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Move Z");
-  LSTR MSG_MOVE_I                         = _UxGT("Move ") STR_I; // Used by menu_move
-  LSTR MSG_MOVE_J                         = _UxGT("Move ") STR_J;
-  LSTR MSG_MOVE_K                         = _UxGT("Move ") STR_K;
-  LSTR MSG_MOVE_U                         = _UxGT("Move ") STR_U;
-  LSTR MSG_MOVE_V                         = _UxGT("Move ") STR_V;
-  LSTR MSG_MOVE_W                         = _UxGT("Move ") STR_W;
   LSTR MSG_MOVE_N                         = _UxGT("Move @");
   LSTR MSG_MOVE_E                         = _UxGT("Move Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Move E*");
@@ -399,12 +393,6 @@ namespace Language_en {
   LSTR MSG_AMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Accel");
   LSTR MSG_AMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Accel");
   LSTR MSG_AMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Accel");
-  LSTR MSG_AMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Accel"); // Used by menu_advanced_acceleration
-  LSTR MSG_AMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Accel");
-  LSTR MSG_AMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Accel");
-  LSTR MSG_AMAX_U                         = _UxGT("Max ") STR_U _UxGT(" Accel");
-  LSTR MSG_AMAX_V                         = _UxGT("Max ") STR_V _UxGT(" Accel");
-  LSTR MSG_AMAX_W                         = _UxGT("Max ") STR_W _UxGT(" Accel");
   LSTR MSG_AMAX_N                         = _UxGT("Max @ Accel");
   LSTR MSG_AMAX_E                         = _UxGT("Max E Accel");
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
