@@ -49,6 +49,7 @@
 #include "../../../core/types.h"
 #include "../../marlinui.h"
 #include "../../../sd/cardreader.h"
+#include "../../../MarlinCore.h" // for wait_for_user
 #include "dwin_lcd.h"
 #include "dwinui.h"
 #include "dwin.h"
