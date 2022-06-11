@@ -97,9 +97,11 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
 static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   pmc_enable_periph_clk(id);
   TC_Configure(tc, channel,
-    TC_CMR_TCCLKS_TIMER_CLOCK1 | // MCK/2
-    TC_CMR_WAVE |                // Waveform mode
-    TC_CMR_WAVSEL_UP_RC );       // Counter running up and reset when equals to RC
+      TC_CMR_WAVE                   // Waveform mode
+    | TC_CMR_WAVSEL_UP_RC           // Counter running up and reset when equal to RC
+    | (SERVO_TIMER_PRESCALER ==  2 ? TC_CMR_TCCLKS_TIMER_CLOCK1 : 0)  // MCK/2
+    | (SERVO_TIMER_PRESCALER == 32 ? TC_CMR_TCCLKS_TIMER_CLOCK3 : 0)  // MCK/32
+  );
 
   // Wait 1ms before the first ISR
   TC_SetRA(tc, channel, (F_CPU) / (SERVO_TIMER_PRESCALER) / 1000UL); // 1ms
