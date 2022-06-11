@@ -86,7 +86,7 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + (256 / SERVO_TIMER_PRESCALER),      // at least REFRESH_INTERVAL has elapsed
+    const unsigned int cval = tc->TC_CHANNEL[channel].TC_CV + (256 / SERVO_TIMER_PRESCALER), // at least REFRESH_INTERVAL has elapsed
                        ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // allow a few ticks to ensure the next OCR1A not missed
     tc->TC_CHANNEL[channel].TC_RA = max(cval, ival);
 
@@ -101,7 +101,7 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
     TC_CMR_WAVE |                // Waveform mode
     TC_CMR_WAVSEL_UP_RC );       // Counter running up and reset when equals to RC
 
-  /* 84MHz, MCK/32, for 1.5ms: 3937 */
+  // 84MHz, MCK/32, for 1.5ms: 3937
   TC_SetRA(tc, channel, 2625); // 1ms
 
   /* Configure and enable interrupt */
