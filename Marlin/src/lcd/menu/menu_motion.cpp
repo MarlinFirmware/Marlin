@@ -67,7 +67,7 @@ void lcd_move_axis(const AxisEnum axis) {
     #endif
 
     // Get the new position
-    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
+    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale; // in mm (for linear axes) or ° (for rotational axes)
     (void)ui.manual_move.apply_diff(axis, diff, min, max);
     ui.manual_move.soon(axis);
     ui.refresh(LCDVIEW_REDRAW_NOW);
@@ -76,7 +76,7 @@ void lcd_move_axis(const AxisEnum axis) {
   if (ui.should_draw()) {
     MenuEditItemBase::itemIndex = axis;
     const float pos = ui.manual_move.axis_value(axis);
-    if (parser.using_inch_units()) {
+    if (parser.using_inch_units() && !IS_ROTATIONAL(axis)) {
       const float imp_pos = LINEAR_UNIT(pos);
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
@@ -149,8 +149,14 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
-  if (parser.using_inch_units()) {
-    if (LARGE_AREA_TEST) SUBMENU(MSG_MOVE_1IN, []{ _goto_manual_move(IN_TO_MM(1.000f)); });
+  if (IS_ROTATIONAL(axis)) {
+    SUBMENU(MSG_MOVE_10DEG,   []{ _goto_manual_move(10); });      
+    SUBMENU(MSG_MOVE_1DEG,    []{ _goto_manual_move(1.000f); });      
+    SUBMENU(MSG_MOVE_01DEG,   []{ _goto_manual_move(0.100f); });
+    SUBMENU(MSG_MOVE_001DEG,  []{ _goto_manual_move(0.010f); });
+  }
+  else if (parser.using_inch_units()) {
+    if (LARGE_AREA_TEST) SUBMENU(MSG_MOVE_1IN, []{ _goto_manual_move(IN_TO_MM(1.000f)); });      
     SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move(IN_TO_MM(0.100f)); });
     SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move(IN_TO_MM(0.010f)); });
     SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });

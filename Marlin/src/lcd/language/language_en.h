@@ -321,6 +321,10 @@ namespace Language_en {
   LSTR MSG_MOVE_001IN                     = _UxGT("Move 0.01in");
   LSTR MSG_MOVE_01IN                      = _UxGT("Move 0.1in");
   LSTR MSG_MOVE_1IN                       = _UxGT("Move 1.0in");
+  LSTR MSG_MOVE_001DEG                    = _UxGT("Move 0.01 °");
+  LSTR MSG_MOVE_01DEG                     = _UxGT("Move 0.1 °");
+  LSTR MSG_MOVE_1DEG                      = _UxGT("Move 1 °");
+  LSTR MSG_MOVE_10DEG                     = _UxGT("Move 10 °");
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
