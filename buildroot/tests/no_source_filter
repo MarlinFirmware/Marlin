@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Build tests for AVR ATmega2560
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+src_filter_disable
+exec_test $1 $2 "Default Configuration | no source filtering" "$3"
+
+# clean up
+restore_configs
+restore_platformio_ini
