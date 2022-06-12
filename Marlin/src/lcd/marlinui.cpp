@@ -65,6 +65,10 @@ MarlinUI ui;
   bool MarlinUI::wait_for_move; // = false
 #endif
 
+#if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
+  #include "../gcode/parser.h"
+#endif
+
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
@@ -821,12 +825,25 @@ void MarlinUI::init() {
           // previous invocation is being blocked. Modifications to offset shouldn't be made while
           // processing is true or the planner will get out of sync.
           processing = true;
+          #if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
+            if (IS_ROTATIONAL(axis) && parser.using_inch_units())
+              prepare_internal_move_to_destination(IN_TO_MM(fr_mm_s));
+            else 
+          #endif
           prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
           processing = false;
 
         #else
 
           // For Cartesian / Core motion simply move to the current_position
+          #if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
+            if (IS_ROTATIONAL(axis) && parser.using_inch_units()) {
+              planner.buffer_line(current_position, IN_TO_MM(fr_mm_s),
+                TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+              );
+            }
+            else
+          #endif
           planner.buffer_line(current_position, fr_mm_s,
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
