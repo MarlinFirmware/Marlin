@@ -13,6 +13,13 @@ set -e
 #exec_test $1 $2 "Default Configuration" "$3"
 
 #
+# Build with no source filers
+#
+restore_configs
+src_filter_disable
+exec_test $1 $2 "Default Configuration | no source filtering" "$3"
+
+#
 # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders
 #
 use_example_configs AnimationExample
@@ -253,3 +260,5 @@ exec_test $1 $2 "Formbot/T_Rex_3 example configuration." "$3"
 
 # clean up
 restore_configs
+restore_platformio_ini
+
