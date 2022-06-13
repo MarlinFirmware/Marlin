@@ -143,7 +143,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "CARGA? CR-10S SKR 2"  // 3DWORK SKR 2 
+#define CUSTOM_MACHINE_NAME "Snorre CR-10S SKR 2"  // 3DWORK SKR 2 
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
