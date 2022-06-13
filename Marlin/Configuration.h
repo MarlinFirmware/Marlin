@@ -143,7 +143,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Snorre CR-10S SKR 2"  // 3DWORK SKR 2 
+#define CUSTOM_MACHINE_NAME "CARGA? CR-10S SKR 2"  // 3DWORK SKR 2 
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -1763,7 +1763,7 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (8*60) }
+#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60) }  //3DWORK.io mejora TMC2209
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
