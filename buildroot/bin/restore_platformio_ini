@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-git checkout platformio.ini 2>/dev/null
