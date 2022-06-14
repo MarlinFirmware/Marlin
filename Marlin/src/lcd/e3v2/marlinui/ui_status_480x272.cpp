@@ -88,7 +88,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
     // For E_TOTAL there may be some characters to cover up
     if (BOTH(DWIN_MARLINUI_PORTRAIT, LCD_SHOW_E_TOTAL) && axis == X_AXIS)
-      dwin_string.add("   ");
+      dwin_string.add(F("   "));
 
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + 32, S(dwin_string.string()));
 
@@ -117,7 +117,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
     // For E_TOTAL there may be some characters to cover up
     if (ENABLED(LCD_SHOW_E_TOTAL) && (!ui.did_first_redraw  || ui.old_is_printing != print_job_timer.isRunning()) && axis == X_AXIS)
-      dwin_string.add("   ");
+      dwin_string.add(F("   "));
 
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x + 32, y + 4, S(dwin_string.string()));
 
@@ -133,7 +133,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
       if (!ui.did_first_redraw) {
         // Extra spaces to erase previous value
-        dwin_string.set("E         ");
+        dwin_string.set(F("E         "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (4 * 14 / 2) - 7, y + 2, S(dwin_string.string()));
       }
 
@@ -146,7 +146,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     #else // !DWIN_MARLINUI_PORTRAIT
 
       if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
-        dwin_string.set("E ");
+        dwin_string.set(F("E "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
       }
 
@@ -176,7 +176,7 @@ FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
   else {
     DWIN_ICON_AnimationControl(0x0000); // disable all icon animations (this is the only one)
     DWIN_ICON_Show(ICON, ICON_Fan0, x + fanx, y);
-    dwin_string.set(PSTR("    "));
+    dwin_string.set(F("    "));
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
   }
 }
@@ -289,7 +289,7 @@ FORCE_INLINE void _draw_feedrate_status(const char *value, uint16_t x, uint16_t 
   }
 
   dwin_string.set(value);
-  dwin_string.add(PSTR("%"));
+  dwin_string.add('%');
   DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x + 14, y, S(dwin_string.string()));
 }
 
@@ -396,7 +396,7 @@ void MarlinUI::draw_status_screen() {
     // landscape mode shows both elapsed and remaining (if SHOW_REMAINING_TIME)
     time = print_job_timer.duration();
     time.toDigital(buffer);
-    dwin_string.set(" ");
+    dwin_string.set(' ');
     dwin_string.add(buffer);
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, 230, 170, S(dwin_string.string()));
 
@@ -405,7 +405,7 @@ void MarlinUI::draw_status_screen() {
         time = get_remaining_time();
         DWIN_Draw_String(true, font14x28, Color_IconBlue, Color_Bg_Black, 336, 170, S(" R "));
         if (print_job_timer.isPaused() && blink)
-          dwin_string.set("     ");
+          dwin_string.set(F("     "));
         else {
           time.toDigital(buffer);
           dwin_string.set(buffer);
@@ -413,7 +413,7 @@ void MarlinUI::draw_status_screen() {
         DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, 378, 170, S(dwin_string.string()));
       }
       else if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
-        dwin_string.set("        ");
+        dwin_string.set(F("        "));
         DWIN_Draw_String(true, font14x28, Color_IconBlue, Color_Bg_Black, 336, 170, S(dwin_string.string()));
       }
     #endif
@@ -449,7 +449,7 @@ void MarlinUI::draw_status_screen() {
 
       #if ENABLED(SHOW_SD_PERCENT)
         dwin_string.set(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
-        dwin_string.add(PSTR("%"));
+        dwin_string.add('%');
         DWIN_Draw_String(
           false, font16x32, Percent_Color, Color_Bg_Black,
           pb_left + (pb_width - dwin_string.length * 16) / 2,
