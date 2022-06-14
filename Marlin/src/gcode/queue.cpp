@@ -196,14 +196,15 @@ bool GCodeQueue::process_injected_command() {
  * Never call this from a G-code handler!
  */
 void GCodeQueue::enqueue_one_now(const char * const cmd) { while (!enqueue_one(cmd)) idle(); }
+void GCodeQueue::enqueue_one_now(FSTR_P const fcmd) { while (!enqueue_one(fcmd)) idle(); }
 
 /**
  * Attempt to enqueue a single G-code command
  * and return 'true' if successful.
  */
-bool GCodeQueue::enqueue_one(FSTR_P const fgcode) {
+bool GCodeQueue::enqueue_one(FSTR_P const fcmd) {
   size_t i = 0;
-  PGM_P p = FTOP(fgcode);
+  PGM_P p = FTOP(fcmd);
   char c;
   while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
   char cmd[i + 1];
