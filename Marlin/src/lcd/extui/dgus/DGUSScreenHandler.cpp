@@ -474,13 +474,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleMotorLockUnlock");
-
-  char buf[4];
   const int16_t lock = swap16(*(uint16_t*)val_ptr);
-  strcpy_P(buf, lock ? PSTR("M18") : PSTR("M17"));
-
-  //DEBUG_ECHOPGM(" ", buf);
-  queue.enqueue_one_now(buf);
+  queue.enqueue_one_now(lock ? F("M18") : F("M17"));
 }
 
 void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
@@ -552,22 +547,22 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
           #if HAS_HOTEND
             case VP_PID_AUTOTUNE_E0: // Autotune Extruder 0
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
+              queue.enqueue_one_now(buf);
               break;
           #endif
           #if HAS_MULTI_HOTEND
             case VP_PID_AUTOTUNE_E1:
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E1);
+              queue.enqueue_one_now(buf);
               break;
           #endif
         #endif
         #if ENABLED(PIDTEMPBED)
           case VP_PID_AUTOTUNE_BED:
-            strcpy_P(buf, PSTR("M303 E-1 C5 S70 U1"));
+            queue.enqueue_one_now(F("M303 E-1 C5 S70 U1"));
             break;
         #endif
     }
-
-    if (buf[0]) queue.enqueue_one_now(buf);
 
     #if ENABLED(DGUS_UI_WAITING)
       sendinfoscreen(F("PID is autotuning"), F("please wait"), NUL_STR, NUL_STR, true, true, true, true);
