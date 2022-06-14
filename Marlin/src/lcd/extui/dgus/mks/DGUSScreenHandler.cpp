@@ -564,7 +564,7 @@ void DGUSScreenHandlerMKS::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           queue.enqueue_now(F("G29S2"));
           mesh_point_count--;
           if (mks_language_index == MKS_English) {
-            const char level_buf_en2[] = "Level Finish";
+            const char level_buf_en2[] = "Leveling Done";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en2, 32, true);
           }
           else if (mks_language_index == MKS_SimpleChinese) {
