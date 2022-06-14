@@ -18,6 +18,7 @@ set -e
 restore_configs
 src_filter_disable
 exec_test $1 $2 "Default Configuration | no source filtering" "$3"
+restore_platformio_ini
 
 #
 # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders
@@ -260,5 +261,3 @@ exec_test $1 $2 "Formbot/T_Rex_3 example configuration." "$3"
 
 # clean up
 restore_configs
-restore_platformio_ini
-
