@@ -13,6 +13,14 @@ set -e
 #exec_test $1 $2 "Default Configuration" "$3"
 
 #
+# Build with no source filers
+#
+restore_configs
+ci_src_filter -n
+exec_test $1 $2 "Default Configuration | no source filtering" "$3"
+ci_src_filter -y
+
+#
 # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders
 #
 use_example_configs AnimationExample
