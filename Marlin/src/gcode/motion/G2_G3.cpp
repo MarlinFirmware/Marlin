@@ -215,6 +215,10 @@ void plan_arc(
   // The number of whole segments in the arc, ignoring the remainder
   uint16_t segments = CEIL(flat_mm / segment_mm);
 
+  #if ENABLED(SCARA_FEEDRATE_SCALING)
+    const float inv_duration = scaled_fr_mm_s / segment_mm;
+  #endif
+
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
    * and phi is the angle of rotation. Based on the solution approach by Jens Geisler.
@@ -241,105 +245,106 @@ void plan_arc(
    * a correction, the planner should have caught up to the lag caused by the initial plan_arc overhead.
    * This is important when there are successive arc motions.
    */
-  // Vector rotation matrix values
+
   xyze_pos_t raw;
-  const float theta_per_segment = angular_travel / segments,
-              sq_theta_per_segment = sq(theta_per_segment),
-              sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
-              cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
-  #if DISABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKUVW_CODE(
-      const float per_segment_L = travel_L / segments,
-      const float per_segment_I = travel_I / segments,
-      const float per_segment_J = travel_J / segments,
-      const float per_segment_K = travel_K / segments,
-      const float per_segment_U = travel_U / segments,
-      const float per_segment_V = travel_V / segments,
-      const float per_segment_W = travel_W / segments
+  // do not calculate rotation parameters for trivial single-segment arcs
+  if (segments > 1) {
+    // Vector rotation matrix values
+    const float theta_per_segment = angular_travel / segments,
+                sq_theta_per_segment = sq(theta_per_segment),
+                sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
+                cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
+
+    #if DISABLED(AUTO_BED_LEVELING_UBL)
+      ARC_LIJKUVW_CODE(
+        const float per_segment_L = travel_L / segments,
+        const float per_segment_I = travel_I / segments,
+        const float per_segment_J = travel_J / segments,
+        const float per_segment_K = travel_K / segments,
+        const float per_segment_U = travel_U / segments,
+        const float per_segment_V = travel_V / segments,
+        const float per_segment_W = travel_W / segments
+      );
+    #endif
+
+    CODE_ITEM_E(const float extruder_per_segment = travel_E / segments);
+
+    // Initialize all linear axes and E
+    ARC_LIJKUVWE_CODE(
+      raw[axis_l] = current_position[axis_l],
+      raw.i       = current_position.i,
+      raw.j       = current_position.j,
+      raw.k       = current_position.k,
+      raw.u       = current_position.u,
+      raw.v       = current_position.v,
+      raw.w       = current_position.w,
+      raw.e       = current_position.e
     );
-  #endif
 
-  CODE_ITEM_E(const float extruder_per_segment = travel_E / segments);
-
-  // Initialize all linear axes and E
-  ARC_LIJKUVWE_CODE(
-    raw[axis_l] = current_position[axis_l],
-    raw.i       = current_position.i,
-    raw.j       = current_position.j,
-    raw.k       = current_position.k,
-    raw.u       = current_position.u,
-    raw.v       = current_position.v,
-    raw.w       = current_position.w,
-    raw.e       = current_position.e
-  );
-
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = scaled_fr_mm_s / segment_mm;
-  #endif
-
-  millis_t next_idle_ms = millis() + 200UL;
-
-  #if N_ARC_CORRECTION > 1
-    int8_t arc_recalc_count = N_ARC_CORRECTION;
-  #endif
-
-  for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
-
-    thermalManager.manage_heater();
-    const millis_t ms = millis();
-    if (ELAPSED(ms, next_idle_ms)) {
-      next_idle_ms = ms + 200UL;
-      idle();
-    }
+    millis_t next_idle_ms = millis() + 200UL;
 
     #if N_ARC_CORRECTION > 1
-      if (--arc_recalc_count) {
-        // Apply vector rotation matrix to previous rvec.a / 1
-        const float r_new_Y = rvec.a * sin_T + rvec.b * cos_T;
-        rvec.a = rvec.a * cos_T - rvec.b * sin_T;
-        rvec.b = r_new_Y;
+      int8_t arc_recalc_count = N_ARC_CORRECTION;
+    #endif
+
+    for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
+
+      thermalManager.manage_heater();
+      const millis_t ms = millis();
+      if (ELAPSED(ms, next_idle_ms)) {
+        next_idle_ms = ms + 200UL;
+        idle();
       }
-      else
-    #endif
-    {
+
       #if N_ARC_CORRECTION > 1
-        arc_recalc_count = N_ARC_CORRECTION;
+        if (--arc_recalc_count) {
+          // Apply vector rotation matrix to previous rvec.a / 1
+          const float r_new_Y = rvec.a * sin_T + rvec.b * cos_T;
+          rvec.a = rvec.a * cos_T - rvec.b * sin_T;
+          rvec.b = r_new_Y;
+        }
+        else
+      #endif
+      {
+        #if N_ARC_CORRECTION > 1
+          arc_recalc_count = N_ARC_CORRECTION;
+        #endif
+
+        // Arc correction to radius vector. Computed only every N_ARC_CORRECTION increments.
+        // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
+        // To reduce stuttering, the sin and cos could be computed at different times.
+        // For now, compute both at the same time.
+        const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
+        rvec.a = -offset[0] * cos_Ti + offset[1] * sin_Ti;
+        rvec.b = -offset[0] * sin_Ti - offset[1] * cos_Ti;
+      }
+
+      // Update raw location
+      raw[axis_p] = center_P + rvec.a;
+      raw[axis_q] = center_Q + rvec.b;
+      ARC_LIJKUVWE_CODE(
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          raw[axis_l] = start_L,
+          raw.i = start_I, raw.j = start_J, raw.k = start_K,
+          raw.u = start_U, raw.v = start_V, raw.w = start_V
+        #else
+          raw[axis_l] += per_segment_L,
+          raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
+          raw.u += per_segment_U, raw.v += per_segment_V, raw.w += per_segment_W
+        #endif
+        , raw.e += extruder_per_segment
+      );
+
+      apply_motion_limits(raw);
+
+      #if HAS_LEVELING && !PLANNER_LEVELING
+        planner.apply_leveling(raw);
       #endif
 
-      // Arc correction to radius vector. Computed only every N_ARC_CORRECTION increments.
-      // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
-      // To reduce stuttering, the sin and cos could be computed at different times.
-      // For now, compute both at the same time.
-      const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
-      rvec.a = -offset[0] * cos_Ti + offset[1] * sin_Ti;
-      rvec.b = -offset[0] * sin_Ti - offset[1] * cos_Ti;
+      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)))
+        break;
     }
-
-    // Update raw location
-    raw[axis_p] = center_P + rvec.a;
-    raw[axis_q] = center_Q + rvec.b;
-    ARC_LIJKUVWE_CODE(
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        raw[axis_l] = start_L,
-        raw.i = start_I, raw.j = start_J, raw.k = start_K,
-        raw.u = start_U, raw.v = start_V, raw.w = start_V
-      #else
-        raw[axis_l] += per_segment_L,
-        raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
-        raw.u += per_segment_U, raw.v += per_segment_V, raw.w += per_segment_W
-      #endif
-      , raw.e += extruder_per_segment
-    );
-
-    apply_motion_limits(raw);
-
-    #if HAS_LEVELING && !PLANNER_LEVELING
-      planner.apply_leveling(raw);
-    #endif
-
-    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)))
-      break;
   }
 
   // Ensure last segment arrives at target location.
