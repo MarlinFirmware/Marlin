@@ -600,15 +600,16 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    //CR-10S E3D V6 VIA PID AUTOTUNE M303 E0 S210 C8 Ventilador al 100%
-    //#define DEFAULT_Kp 18.08
-    //#define DEFAULT_Ki 1.09
-    //#define DEFAULT_Kd 74.70
+    //CR-10S E3D V6 VIA PID AUTOTUNE M303 E0 S205 C8 Ventilador al 100%
+    //PID Autotune finished! Put the last Kp, Ki and Kd constants from below into Configuration.h
+    //Recv: #define DEFAULT_Kp 15.81
+    //Recv: #define DEFAULT_Ki 1.05
+    //Recv: #define DEFAULT_Kd 59.44
     // DyzEnd Trianglelab-Sensor de temperatura de T-D500, 500 ℃
     // https://docs.dyzedesign.com/hotends.html#marlin-firmware
-    #define DEFAULT_Kp  14.11
-    #define DEFAULT_Ki   1.14
-    #define DEFAULT_Kd  43.72
+    #define DEFAULT_Kp  15.81
+    #define DEFAULT_Ki   1.05
+    #define DEFAULT_Kd  59.44
   #endif
 #endif // PIDTEMP
 
@@ -653,9 +654,9 @@
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
   //KEENOVO Silicone Heater 220V 750W NTC 100K thermistor (Beta 25/50 3950K-1%) on CR-10S (M303 E-1 S50 C8)
-  #define DEFAULT_bedKp 39.05
-  #define DEFAULT_bedKi 7.24
-  #define DEFAULT_bedKd 140.32
+  #define DEFAULT_bedKp 4.42
+  #define DEFAULT_bedKi 0.86
+  #define DEFAULT_bedKd 15.09
 #endif // PIDTEMPBED
 
 //===========================================================================
@@ -1192,7 +1193,7 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10
+#define PROBING_MARGIN 20
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (133*60)
@@ -1571,7 +1572,7 @@
  */
 #define PREHEAT_BEFORE_LEVELING
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP 170  //3DWORK SKR 2 ...   // (°C) Only applies to E0 at this time
+  #define LEVELING_NOZZLE_TEMP 190  //3DWORK SKR 2 ...   // (°C) Only applies to E0 at this time
   #define LEVELING_BED_TEMP     60
 #endif
 
@@ -1609,7 +1610,7 @@
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
-    #define MESH_TEST_HOTEND_TEMP  210    // (°C) Default nozzle temperature for G26.
+    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for G26.
     #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
     #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
     #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
@@ -1654,7 +1655,7 @@
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 10             // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 7       //3DWORKIO SKR 2 .. // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 6       //3DWORKIO SKR 2 .. // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_HILBERT_CURVE        //3DWORKIO SKR 2 .. // Use Hilbert distribution for less travel when probing multiple points
@@ -1690,14 +1691,14 @@
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
-  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
+  #define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
 #define LEVEL_BED_CORNERS  //3DWORKIO SKR 2 ..
 
 #if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET_LFRB { 20, 20, 20, 20 } //3DWORKIO SKR 2 ..// (mm) Left, Front, Right, Back insets
+  #define LEVEL_CORNERS_INSET_LFRB { 45, 45, 45, 45 } //3DWORKIO SKR 2 ..// (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       4.0   // (mm) Z height of nozzle between leveling points
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
