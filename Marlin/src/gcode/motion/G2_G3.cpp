@@ -213,12 +213,7 @@ void plan_arc(
   const float segment_mm = constrain(flat_mm / nominal_segments, MIN_ARC_SEGMENT_MM, MAX_ARC_SEGMENT_MM);
 
   // The number of whole segments in the arc, ignoring the remainder
-  uint16_t segments = FLOOR(flat_mm / segment_mm);
-
-  // Are the segments now too few to reach the destination?
-  const float segmented_length = segment_mm * segments;
-  const bool tooshort = segmented_length < flat_mm - 0.0001f;
-  const float proportion = tooshort ? segmented_length / flat_mm : 1.0f;
+  uint16_t segments = CEIL(flat_mm / segment_mm);
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
@@ -248,27 +243,24 @@ void plan_arc(
    */
   // Vector rotation matrix values
   xyze_pos_t raw;
-  const float theta_per_segment = proportion * angular_travel / segments,
+  const float theta_per_segment = angular_travel / segments,
               sq_theta_per_segment = sq(theta_per_segment),
               sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
               cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
   #if DISABLED(AUTO_BED_LEVELING_UBL)
     ARC_LIJKUVW_CODE(
-      const float per_segment_L = proportion * travel_L / segments,
-      const float per_segment_I = proportion * travel_I / segments,
-      const float per_segment_J = proportion * travel_J / segments,
-      const float per_segment_K = proportion * travel_K / segments,
-      const float per_segment_U = proportion * travel_U / segments,
-      const float per_segment_V = proportion * travel_V / segments,
-      const float per_segment_W = proportion * travel_W / segments
+      const float per_segment_L = travel_L / segments,
+      const float per_segment_I = travel_I / segments,
+      const float per_segment_J = travel_J / segments,
+      const float per_segment_K = travel_K / segments,
+      const float per_segment_U = travel_U / segments,
+      const float per_segment_V = travel_V / segments,
+      const float per_segment_W = travel_W / segments
     );
   #endif
 
-  CODE_ITEM_E(const float extruder_per_segment = proportion * travel_E / segments);
-
-  // For shortened segments, run all but the remainder in the loop
-  if (tooshort) segments++;
+  CODE_ITEM_E(const float extruder_per_segment = travel_E / segments);
 
   // Initialize all linear axes and E
   ARC_LIJKUVWE_CODE(
