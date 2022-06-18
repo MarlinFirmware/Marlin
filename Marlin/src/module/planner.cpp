@@ -2111,8 +2111,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
        */
       float distance_sqr = (
         #if ENABLED(ARTICULATED_ROBOT_ARM)
-          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
-          // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
+          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround,
+          // assume that motors sit on a mutually-orthogonal axes and we can think of distance as magnitude of an n-vector
+          // in an n-dimensional Euclidian space.
           NUM_AXIS_GANG(
               sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
@@ -2120,8 +2121,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           );
         #elif ENABLED(FOAMCUTTER_XYUV)
           #if HAS_J_AXIS
-          // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
-          _MAX(sq(steps_dist_mm.x) + sq(steps_dist_mm.y), sq(steps_dist_mm.i) + sq(steps_dist_mm.j))
+            // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
+            _MAX(sq(steps_dist_mm.x) + sq(steps_dist_mm.y), sq(steps_dist_mm.i) + sq(steps_dist_mm.j))
           #else // Foamcutter with only two axes (XY)
             sq(steps_dist_mm.x) + sq(steps_dist_mm.y)
           #endif
@@ -2132,7 +2133,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         #elif CORE_IS_YZ
           XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.head.z))
         #else
-          XYZ_GANG(sq(steps_dist_mm.x),       + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
+          XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
         #endif
       );
 
@@ -2203,15 +2204,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (NUM_AXIS_GANG(
-         block->steps.x,
-      || block->steps.y,
-      || block->steps.z,
-      || block->steps.i,
-      || block->steps.j,
-      || block->steps.k,
-      || block->steps.u,
-      || block->steps.v,
-      || block->steps.w
+         block->steps.x, || block->steps.y, || block->steps.z,
+      || block->steps.i, || block->steps.j, || block->steps.k,
+      || block->steps.u, || block->steps.v, || block->steps.w
     )) powerManager.power_on();
   #endif
 
