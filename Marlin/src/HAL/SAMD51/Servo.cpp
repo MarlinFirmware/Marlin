@@ -124,7 +124,7 @@ HAL_SERVO_TIMER_ISR() {
   }
 }
 
-void initISR(timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer) {
   Tc * const tc = timer_config[SERVO_TC].pTc;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
@@ -201,7 +201,7 @@ void initISR(timer16_Sequence_t timer) {
   }
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer) {
   Tc * const tc = timer_config[SERVO_TC].pTc;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
