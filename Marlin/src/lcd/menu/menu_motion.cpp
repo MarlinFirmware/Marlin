@@ -213,39 +213,20 @@ void menu_move() {
     EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
   #endif
 
+  // Move submenu for each axis
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
     if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
-      SUBMENU_N(X_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-      #if HAS_Y_AXIS
-        SUBMENU_N(Y_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-      #endif
+      for (uint8_t a = X_AXIS; a <= min(int(Y_AXIS), NUM_AXES - 1); a++)
+        SUBMENU_N(a, MSG_MOVE_N, _menu_move_n_distance);
     }
     else {
       #if ENABLED(DELTA)
         ACTION_ITEM(MSG_FREE_XY, []{ line_to_z(delta_clip_start_height); ui.synchronize(); });
       #endif
     }
-
     #if HAS_Z_AXIS
-      SUBMENU_N(Z_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-    #endif
-    #if HAS_I_AXIS
-      SUBMENU_N(I_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-    #endif
-    #if HAS_J_AXIS
-      SUBMENU_N(J_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-    #endif
-    #if HAS_K_AXIS
-      SUBMENU_N(K_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-    #endif
-    #if HAS_U_AXIS
-      SUBMENU_N(U_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-    #endif
-    #if HAS_V_AXIS
-      SUBMENU_N(V_AXIS, MSG_MOVE_N, _menu_move_n_distance);
-    #endif
-    #if HAS_W_AXIS
-      SUBMENU_N(W_AXIS, MSG_MOVE_N, _menu_move_n_distance);
+      for (uint8_t a = Z_AXIS; a < NUM_AXES; a++)
+        SUBMENU_N(a, MSG_MOVE_N, _menu_move_n_distance);
     #endif
   }
   else
