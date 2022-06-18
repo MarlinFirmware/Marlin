@@ -680,8 +680,8 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_EX_TEMP_INFO2_Dis             = 0x5620;
   constexpr uint16_t VP_EX_TEMP_INFO3_Dis             = 0x5630;
   constexpr uint16_t VP_LCD_BLK_Dis                   = 0x56A0;
-  constexpr uint16_t VP_Info_PrinfFinsh_1_Dis         = 0x5C00;
-  constexpr uint16_t VP_Info_PrinfFinsh_2_Dis         = 0x5C10;
+  constexpr uint16_t VP_Info_PrintFinish_1_Dis        = 0x5C00;
+  constexpr uint16_t VP_Info_PrintFinish_2_Dis        = 0x5C10;
 
   constexpr uint16_t VP_Length_Dis                    = 0x5B00;
 

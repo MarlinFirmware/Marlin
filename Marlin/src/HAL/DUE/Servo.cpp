@@ -52,7 +52,7 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 // ------------------------
 /// Interrupt handler for the TC0 channel 1.
 // ------------------------
-void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
+void Servo_Handler(const timer16_Sequence_t, Tc*, const uint8_t);
 
 #ifdef _useTimer1
   void HANDLER_FOR_TIMER1() { Servo_Handler(_timer1, TC_FOR_TIMER1, CHANNEL_FOR_TIMER1); }
@@ -70,7 +70,7 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
   void HANDLER_FOR_TIMER5() { Servo_Handler(_timer5, TC_FOR_TIMER5, CHANNEL_FOR_TIMER5); }
 #endif
 
-void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
+void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel) {
   // clear interrupt
   tc->TC_CHANNEL[channel].TC_SR;
   if (Channel[timer] < 0)
@@ -113,26 +113,21 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   TC_Start(tc, channel);
 }
 
-void initISR(timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer) {
   #ifdef _useTimer1
-    if (timer == _timer1)
-      _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
+    if (timer == _timer1) _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
   #endif
   #ifdef _useTimer2
-    if (timer == _timer2)
-      _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
+    if (timer == _timer2) _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
   #endif
   #ifdef _useTimer3
-    if (timer == _timer3)
-      _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
+    if (timer == _timer3) _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
   #endif
   #ifdef _useTimer4
-    if (timer == _timer4)
-      _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
+    if (timer == _timer4) _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
   #endif
   #ifdef _useTimer5
-    if (timer == _timer5)
-      _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
+    if (timer == _timer5) _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
   #endif
 }
 

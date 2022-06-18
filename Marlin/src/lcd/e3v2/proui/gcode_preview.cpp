@@ -42,6 +42,9 @@
  * For commercial applications additional licenses can be requested
  */
 
+#include "../../../inc/MarlinConfigPre.h"
+#if ENABLED(DWIN_LCD_PROUI)
+
 #include "dwin_defines.h"
 
 #if HAS_GCODE_PREVIEW
@@ -49,6 +52,7 @@
 #include "../../../core/types.h"
 #include "../../marlinui.h"
 #include "../../../sd/cardreader.h"
+#include "../../../MarlinCore.h" // for wait_for_user
 #include "dwin_lcd.h"
 #include "dwinui.h"
 #include "dwin.h"
@@ -251,3 +255,4 @@ void Preview_Reset() {
 }
 
 #endif // HAS_GCODE_PREVIEW
+#endif // DWIN_LCD_PROUI
