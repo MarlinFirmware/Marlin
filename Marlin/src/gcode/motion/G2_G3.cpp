@@ -197,8 +197,8 @@ void plan_arc(
   // Feedrate for the move, scaled by the feedrate multiplier
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
-  // Get the nominal segment length based on settings
-  const float nominal_segment_mm = (
+  // Get the ideal segment length for the move based on settings
+  const float ideal_segment_mm = (
     #if ARC_SEGMENTS_PER_SEC  // Length based on segments per second and feedrate
       constrain(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MIN_ARC_SEGMENT_MM, MAX_ARC_SEGMENT_MM)
     #else
@@ -206,13 +206,13 @@ void plan_arc(
     #endif
   );
 
-  // Number of whole segments based on the nominal segment length
-  const float nominal_segments = _MAX(FLOOR(flat_mm / nominal_segment_mm), min_segments);
+  // Number of whole segments based on the ideal segment length
+  const float nominal_segments = _MAX(FLOOR(flat_mm / ideal_segment_mm), min_segments),
+              nominal_segment_mm = flat_mm / nominal_segments;
 
   // The number of whole segments in the arc, with best attempt to honor MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM
-  const float segment_mm = flat_mm / nominal_segments;
-  const uint16_t segments = segment_mm > (MAX_ARC_SEGMENT_MM) ? CEIL(flat_mm / (MAX_ARC_SEGMENT_MM)) :
-                            segment_mm < (MIN_ARC_SEGMENT_MM) ? _MAX(1, FLOOR(flat_mm / (MIN_ARC_SEGMENT_MM))) :
+  const uint16_t segments = nominal_segment_mm > (MAX_ARC_SEGMENT_MM) ? CEIL(flat_mm / (MAX_ARC_SEGMENT_MM)) :
+                            nominal_segment_mm < (MIN_ARC_SEGMENT_MM) ? _MAX(1, FLOOR(flat_mm / (MIN_ARC_SEGMENT_MM))) :
                             nominal_segments;
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
