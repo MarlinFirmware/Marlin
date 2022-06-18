@@ -211,12 +211,12 @@ void plan_arc(
 
   // The number of whole segments in the arc, with best attempt to honor MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM
   const float segment_mm = flat_mm / nominal_segments;
-  uint16_t segments = segment_mm > MAX_ARC_SEGMENT_MM ? CEIL(flat_mm / MAX_ARC_SEGMENT_MM) :
-                      segment_mm < MIN_ARC_SEGMENT_MM ? _MAX(1, FLOOR(flat_mm / MIN_ARC_SEGMENT_MM)) :
-                      nominal_segments;
+  const uint16_t segments = segment_mm > (MAX_ARC_SEGMENT_MM) ? CEIL(flat_mm / (MAX_ARC_SEGMENT_MM)) :
+                            segment_mm < (MIN_ARC_SEGMENT_MM) ? _MAX(1, FLOOR(flat_mm / (MIN_ARC_SEGMENT_MM))) :
+                            nominal_segments;
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = scaled_fr_mm_s / flat_mm * segments;
+    const float inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
   #endif
 
   /**
