@@ -633,6 +633,14 @@
   #error "LEVEL_CORNERS_* settings have been renamed BED_TRAMMING_*."
 #elif defined(LEVEL_CENTER_TOO)
   #error "LEVEL_CENTER_TOO is now BED_TRAMMING_INCLUDE_CENTER."
+#elif defined(X_MAX_CURRENT) || defined(X2_MAX_CURRENT) || defined(Y_MAX_CURRENT) || defined(Y2_MAX_CURRENT) || defined(Z_MAX_CURRENT) || defined(Z2_MAX_CURRENT) || defined(Z3_MAX_CURRENT) || defined(Z4_MAX_CURRENT) \
+   || defined(I_MAX_CURRENT)|| defined(J_MAX_CURRENT)|| defined(K_MAX_CURRENT) || defined(U_MAX_CURRENT) || defined(V_MAX_CURRENT) || defined(W_MAX_CURRENT) \
+   || defined(E0_MAX_CURRENT) || defined(E1_MAX_CURRENT) || defined(E2_MAX_CURRENT) || defined(E3_MAX_CURRENT) || defined(E4_MAX_CURRENT) || defined(E5_MAX_CURRENT) || defined(E6_MAX_CURRENT) || defined(E7_MAX_CURRENT)
+  #error "[AXIS]_MAX_CURRENT in section \"tmc\" is now [AXIS]_CURRENT in section \"tmc_smart\"."
+#elif defined(X_SENSE_RESISTOR) || defined(X2_SENSE_RESISTOR) || defined(Y_SENSE_RESISTOR) || defined(Y2_SENSE_RESISTOR) || defined(Z_SENSE_RESISTOR) || defined(Z2_SENSE_RESISTOR) || defined(Z3_SENSE_RESISTOR) || defined(Z4_SENSE_RESISTOR) \
+   || defined(I_SENSE_RESISTOR)|| defined(J_SENSE_RESISTOR)|| defined(K_SENSE_RESISTOR) || defined(U_SENSE_RESISTOR) || defined(V_SENSE_RESISTOR) || defined(W_SENSE_RESISTOR) \
+   || defined(E0_SENSE_RESISTOR) || defined(E1_SENSE_RESISTOR) || defined(E2_SENSE_RESISTOR) || defined(E3_SENSE_RESISTOR) || defined(E4_SENSE_RESISTOR) || defined(E5_SENSE_RESISTOR) || defined(E6_SENSE_RESISTOR) || defined(E7_SENSE_RESISTOR)
+  #error "[AXIS]_SENSE_RESISTOR in section \"tmc\" is now [AXIS]_RSENSE in section \"tmc_smart\""
 #endif
 
 constexpr float arm[] = AXIS_RELATIVE_MODES;

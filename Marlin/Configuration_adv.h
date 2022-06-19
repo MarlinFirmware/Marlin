@@ -2581,150 +2581,6 @@
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
-// @section tmc
-
-/**
- * TMC26X Stepper Driver options
- *
- * The TMC26XStepper library is required for this stepper driver.
- * https://github.com/trinamic/TMC26XStepper
- */
-#if HAS_DRIVER(TMC26X)
-
-  #if AXIS_DRIVER_TYPE_X(TMC26X)
-    #define X_MAX_CURRENT     1000  // (mA)
-    #define X_SENSE_RESISTOR    91  // (mOhms)
-    #define X_MICROSTEPS        16  // Number of microsteps
-  #endif
-
-  #if AXIS_DRIVER_TYPE_X2(TMC26X)
-    #define X2_MAX_CURRENT    1000
-    #define X2_SENSE_RESISTOR   91
-    #define X2_MICROSTEPS       X_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Y(TMC26X)
-    #define Y_MAX_CURRENT     1000
-    #define Y_SENSE_RESISTOR    91
-    #define Y_MICROSTEPS        16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Y2(TMC26X)
-    #define Y2_MAX_CURRENT    1000
-    #define Y2_SENSE_RESISTOR   91
-    #define Y2_MICROSTEPS       Y_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Z(TMC26X)
-    #define Z_MAX_CURRENT     1000
-    #define Z_SENSE_RESISTOR    91
-    #define Z_MICROSTEPS        16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Z2(TMC26X)
-    #define Z2_MAX_CURRENT    1000
-    #define Z2_SENSE_RESISTOR   91
-    #define Z2_MICROSTEPS       Z_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Z3(TMC26X)
-    #define Z3_MAX_CURRENT    1000
-    #define Z3_SENSE_RESISTOR   91
-    #define Z3_MICROSTEPS       Z_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Z4(TMC26X)
-    #define Z4_MAX_CURRENT    1000
-    #define Z4_SENSE_RESISTOR   91
-    #define Z4_MICROSTEPS       Z_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_I(TMC26X)
-    #define I_MAX_CURRENT    1000
-    #define I_SENSE_RESISTOR   91
-    #define I_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_J(TMC26X)
-    #define J_MAX_CURRENT    1000
-    #define J_SENSE_RESISTOR   91
-    #define J_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_K(TMC26X)
-    #define K_MAX_CURRENT    1000
-    #define K_SENSE_RESISTOR   91
-    #define K_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_U(TMC26X)
-    #define U_MAX_CURRENT    1000
-    #define U_SENSE_RESISTOR   91
-    #define U_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_V(TMC26X)
-    #define V_MAX_CURRENT    1000
-    #define V_SENSE_RESISTOR   91
-    #define V_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_W(TMC26X)
-    #define W_MAX_CURRENT    1000
-    #define W_SENSE_RESISTOR   91
-    #define W_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E0(TMC26X)
-    #define E0_MAX_CURRENT    1000
-    #define E0_SENSE_RESISTOR   91
-    #define E0_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E1(TMC26X)
-    #define E1_MAX_CURRENT    1000
-    #define E1_SENSE_RESISTOR   91
-    #define E1_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E2(TMC26X)
-    #define E2_MAX_CURRENT    1000
-    #define E2_SENSE_RESISTOR   91
-    #define E2_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E3(TMC26X)
-    #define E3_MAX_CURRENT    1000
-    #define E3_SENSE_RESISTOR   91
-    #define E3_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E4(TMC26X)
-    #define E4_MAX_CURRENT    1000
-    #define E4_SENSE_RESISTOR   91
-    #define E4_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E5(TMC26X)
-    #define E5_MAX_CURRENT    1000
-    #define E5_SENSE_RESISTOR   91
-    #define E5_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E6(TMC26X)
-    #define E6_MAX_CURRENT    1000
-    #define E6_SENSE_RESISTOR   91
-    #define E6_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-  #if AXIS_DRIVER_TYPE_E7(TMC26X)
-    #define E7_MAX_CURRENT    1000
-    #define E7_SENSE_RESISTOR   91
-    #define E7_MICROSTEPS       E0_MICROSTEPS
-  #endif
-
-#endif // TMC26X
-
 // @section tmc_smart
 
 /**
@@ -2743,7 +2599,7 @@
  * TMCStepper library is required to use TMC stepper drivers.
  * https://github.com/teemuatlut/TMCStepper
  */
-#if HAS_TRINAMIC_CONFIG
+#if HAS_TRINAMIC_CONFIG || HAS_DRIVER(TMC26X)
 
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
 
@@ -2753,7 +2609,7 @@
    */
   #define INTERPOLATE      true
 
-  #if AXIS_IS_TMC(X)
+  #if AXIS_IS_TMC_CONFIG(X)
     #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16        // 0..256
@@ -2763,7 +2619,7 @@
     //#define X_HOLD_MULTIPLIER 0.5    // Enable to override 'HOLD_MULTIPLIER' for the X axis
   #endif
 
-  #if AXIS_IS_TMC(X2)
+  #if AXIS_IS_TMC_CONFIG(X2)
     #define X2_CURRENT      800
     #define X2_CURRENT_HOME X2_CURRENT
     #define X2_MICROSTEPS    X_MICROSTEPS
@@ -2773,7 +2629,7 @@
     //#define X2_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(Y)
+  #if AXIS_IS_TMC_CONFIG(Y)
     #define Y_CURRENT       800
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     16
@@ -2783,7 +2639,7 @@
     //#define Y_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(Y2)
+  #if AXIS_IS_TMC_CONFIG(Y2)
     #define Y2_CURRENT      800
     #define Y2_CURRENT_HOME Y2_CURRENT
     #define Y2_MICROSTEPS    Y_MICROSTEPS
@@ -2793,7 +2649,7 @@
     //#define Y2_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(Z)
+  #if AXIS_IS_TMC_CONFIG(Z)
     #define Z_CURRENT       800
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
@@ -2803,7 +2659,7 @@
     //#define Z_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(Z2)
+  #if AXIS_IS_TMC_CONFIG(Z2)
     #define Z2_CURRENT      800
     #define Z2_CURRENT_HOME Z2_CURRENT
     #define Z2_MICROSTEPS    Z_MICROSTEPS
@@ -2813,7 +2669,7 @@
     //#define Z2_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(Z3)
+  #if AXIS_IS_TMC_CONFIG(Z3)
     #define Z3_CURRENT      800
     #define Z3_CURRENT_HOME Z3_CURRENT
     #define Z3_MICROSTEPS    Z_MICROSTEPS
@@ -2823,7 +2679,7 @@
     //#define Z3_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(Z4)
+  #if AXIS_IS_TMC_CONFIG(Z4)
     #define Z4_CURRENT      800
     #define Z4_CURRENT_HOME Z4_CURRENT
     #define Z4_MICROSTEPS    Z_MICROSTEPS
@@ -2833,7 +2689,7 @@
     //#define Z4_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(I)
+  #if AXIS_IS_TMC_CONFIG(I)
     #define I_CURRENT      800
     #define I_CURRENT_HOME I_CURRENT
     #define I_MICROSTEPS    16
@@ -2843,7 +2699,7 @@
     //#define I_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(J)
+  #if AXIS_IS_TMC_CONFIG(J)
     #define J_CURRENT      800
     #define J_CURRENT_HOME J_CURRENT
     #define J_MICROSTEPS    16
@@ -2853,7 +2709,7 @@
     //#define J_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(K)
+  #if AXIS_IS_TMC_CONFIG(K)
     #define K_CURRENT      800
     #define K_CURRENT_HOME K_CURRENT
     #define K_MICROSTEPS    16
@@ -2863,7 +2719,7 @@
     //#define K_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(U)
+  #if AXIS_IS_TMC_CONFIG(U)
     #define U_CURRENT      800
     #define U_CURRENT_HOME U_CURRENT
     #define U_MICROSTEPS     8
@@ -2873,7 +2729,7 @@
     //#define U_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(V)
+  #if AXIS_IS_TMC_CONFIG(V)
     #define V_CURRENT      800
     #define V_CURRENT_HOME V_CURRENT
     #define V_MICROSTEPS     8
@@ -2883,7 +2739,7 @@
     //#define V_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(W)
+  #if AXIS_IS_TMC_CONFIG(W)
     #define W_CURRENT      800
     #define W_CURRENT_HOME W_CURRENT
     #define W_MICROSTEPS     8
@@ -2893,7 +2749,7 @@
     //#define W_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E0)
+  #if AXIS_IS_TMC_CONFIG(E0)
     #define E0_CURRENT      800
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
@@ -2902,7 +2758,7 @@
     //#define E0_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E1)
+  #if AXIS_IS_TMC_CONFIG(E1)
     #define E1_CURRENT      800
     #define E1_MICROSTEPS   E0_MICROSTEPS
     #define E1_RSENSE         0.11
@@ -2911,7 +2767,7 @@
     //#define E1_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E2)
+  #if AXIS_IS_TMC_CONFIG(E2)
     #define E2_CURRENT      800
     #define E2_MICROSTEPS   E0_MICROSTEPS
     #define E2_RSENSE         0.11
@@ -2920,7 +2776,7 @@
     //#define E2_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E3)
+  #if AXIS_IS_TMC_CONFIG(E3)
     #define E3_CURRENT      800
     #define E3_MICROSTEPS   E0_MICROSTEPS
     #define E3_RSENSE         0.11
@@ -2929,7 +2785,7 @@
     //#define E3_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E4)
+  #if AXIS_IS_TMC_CONFIG(E4)
     #define E4_CURRENT      800
     #define E4_MICROSTEPS   E0_MICROSTEPS
     #define E4_RSENSE         0.11
@@ -2938,7 +2794,7 @@
     //#define E4_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E5)
+  #if AXIS_IS_TMC_CONFIG(E5)
     #define E5_CURRENT      800
     #define E5_MICROSTEPS   E0_MICROSTEPS
     #define E5_RSENSE         0.11
@@ -2947,7 +2803,7 @@
     //#define E5_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E6)
+  #if AXIS_IS_TMC_CONFIG(E6)
     #define E6_CURRENT      800
     #define E6_MICROSTEPS   E0_MICROSTEPS
     #define E6_RSENSE         0.11
@@ -2956,7 +2812,7 @@
     //#define E6_HOLD_MULTIPLIER 0.5
   #endif
 
-  #if AXIS_IS_TMC(E7)
+  #if AXIS_IS_TMC_CONFIG(E7)
     #define E7_CURRENT      800
     #define E7_MICROSTEPS   E0_MICROSTEPS
     #define E7_RSENSE         0.11
@@ -3050,15 +2906,17 @@
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
-  #define STEALTHCHOP_XY
-  #define STEALTHCHOP_Z
-  #define STEALTHCHOP_I
-  #define STEALTHCHOP_J
-  #define STEALTHCHOP_K
-  #define STEALTHCHOP_U
-  #define STEALTHCHOP_V
-  #define STEALTHCHOP_W
-  #define STEALTHCHOP_E
+  #if HAS_STEALTHCHOP
+    #define STEALTHCHOP_XY
+    #define STEALTHCHOP_Z
+    #define STEALTHCHOP_I
+    #define STEALTHCHOP_J
+    #define STEALTHCHOP_K
+    #define STEALTHCHOP_U
+    #define STEALTHCHOP_V
+    #define STEALTHCHOP_W
+    #define STEALTHCHOP_E
+  #endif
 
   /**
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
