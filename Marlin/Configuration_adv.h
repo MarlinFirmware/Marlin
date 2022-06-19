@@ -2596,8 +2596,11 @@
  * a resistor.
  * The drivers can also be used with hardware serial.
  *
- * TMCStepper library is required to use TMC stepper drivers.
+ * TMCStepper library is required to use TMC stepper drivers except for the TMC26x.
  * https://github.com/teemuatlut/TMCStepper
+ *
+ * The TMC26XStepper library is required for TMC26X stepper drivers.
+ * https://github.com/MarlinFirmware/TMC26XStepper
  */
 #if HAS_TRINAMIC_CONFIG || HAS_DRIVER(TMC26X)
 
