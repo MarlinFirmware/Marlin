@@ -2587,7 +2587,7 @@
  * TMC26X Stepper Driver options
  *
  * The TMC26XStepper library is required for this stepper driver.
- * https://github.com/trinamic/TMC26XStepper
+ * https://github.com/MarlinFirmware/TMC26XStepper
  */
 #if HAS_DRIVER(TMC26X)
 
