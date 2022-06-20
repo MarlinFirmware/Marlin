@@ -776,7 +776,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
  *  - Handle Joystick jogging
  */
 void idle(bool no_stepper_sleep/*=false*/) {
-  TERN_(MAX7219_DEBUG_PROFILE, CodeProfiler idle_profiler);
+  #ifdef MAX7219_DEBUG_PROFILE
+    CodeProfiler idle_profiler;
+  #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
