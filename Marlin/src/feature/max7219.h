@@ -73,6 +73,46 @@
 #define max7219_reg_shutdown    0x0C
 #define max7219_reg_displayTest 0x0F
 
+#ifdef MAX7219_DEBUG_PROFILE
+  // This class sums up the amount of time for which its instances exist.
+  // By default there is one instantiated for the duration of the idle()
+  // function. But an instance can be created in any code block to measure
+  // the time spent from the point of instantiation until the CPU leaves
+  // block. Be careful about having multiple instances of CodeProfiler as
+  // it does not guard against double counting. Also do not use it inside
+  // ISRs.
+  class CodeProfiler {
+  private:
+    static uint8_t instance_count;
+    static uint32_t last_calc_time;
+    static uint32_t total_time;
+    static uint8_t time_fraction;
+
+    uint32_t start_time;
+
+  public:
+    CodeProfiler() : start_time(micros()) { instance_count++; }
+    ~CodeProfiler() {
+      const uint32_t now = micros();
+      total_time += now - start_time;
+
+      instance_count--;
+
+      // update time_fraction every hundred milliseconds
+      if (instance_count == 0 && ELAPSED(now, last_calc_time + 100000)) {
+        time_fraction = total_time * 200 / (now - last_calc_time);
+        if (time_fraction > 200)
+          SERIAL_ECHOLNPGM("now ", now, " last_calc_time ", last_calc_time, " total_time ", total_time);
+        last_calc_time = now;
+        total_time = 0;
+      }
+    }
+
+    // returns fraction of total time which was measured, scaled from 0 to 200
+    static uint8_t get_time_fraction() { return time_fraction; }
+  };
+#endif
+
 class Max7219 {
 public:
   static uint8_t led_line[MAX7219_LINES];
@@ -149,6 +189,7 @@ private:
   static void send_column(const uint8_t col);
   static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2);
   static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh);
+  static void quantity8(const uint8_t y, const uint8_t ov, const uint8_t nv);
   static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv);
 
   #ifdef MAX7219_INIT_TEST

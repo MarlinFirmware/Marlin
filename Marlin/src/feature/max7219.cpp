@@ -62,6 +62,13 @@
   #error "MAX7219_ROTATE must be a multiple of +/- 90°."
 #endif
 
+#ifdef MAX7219_DEBUG_PROFILE
+  uint8_t CodeProfiler::instance_count = 0;
+  uint32_t CodeProfiler::last_calc_time = micros();
+  uint8_t CodeProfiler::time_fraction = 0;
+  uint32_t CodeProfiler::total_time = 0;
+#endif
+
 Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
@@ -588,6 +595,11 @@ void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const
 }
 
 // Apply changes to update a quantity
+void Max7219::quantity8(const uint8_t pos, const uint8_t ov, const uint8_t nv) {
+  for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
+    led_set(i, pos, nv >= ov);
+}
+
 void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
     led_set(
@@ -686,6 +698,15 @@ void Max7219::idle_tasks() {
     if (current_depth != last_depth) {
       quantity16(MAX7219_DEBUG_PLANNER_QUEUE, last_depth, current_depth);
       last_depth = current_depth;
+    }
+  #endif
+
+  #ifdef MAX7219_DEBUG_PROFILE
+    static uint8_t last_time_fraction = 0;
+    const uint8_t current_time_fraction = CodeProfiler::get_time_fraction();
+    if (current_time_fraction != last_time_fraction) {
+      quantity8(MAX7219_DEBUG_PROFILE, (last_time_fraction + 12) / 25, (current_time_fraction + 12) / 25);
+      last_time_fraction = current_time_fraction;
     }
   #endif
 
