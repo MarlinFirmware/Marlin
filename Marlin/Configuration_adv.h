@@ -2193,9 +2193,6 @@
   #define N_ARC_CORRECTION       25   // Number of interpolated segments between corrections
   //#define ARC_P_CIRCLES             // Enable the 'P' parameter to specify complete circles
   //#define SF_ARC_FIX                // Enable only if using SkeinForge with "Arc Point" fillet procedure
-  #if HAS_JUNCTION_DEVIATION
-    #define ARC_ASSISTED_JD           // Pass the arc radius to the junction deviation code to save processor cycles
-  #endif
 #endif
 
 // G5 Bézier Curve Support with XYZE destination and IJPQ offsets

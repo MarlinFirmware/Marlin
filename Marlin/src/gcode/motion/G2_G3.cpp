@@ -346,9 +346,7 @@ void plan_arc(
       #endif
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-        OPTARG(ARC_ASSISTED_JD, i > 1 ? radius : 0.0)
-      ))
+        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration), i > 1 ? radius : 0.0))
         break;
     }
   }

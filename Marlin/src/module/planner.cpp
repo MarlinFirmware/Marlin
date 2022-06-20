@@ -1783,7 +1783,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters
-  OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius/*=0.0*/)
+  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/)
 ) {
 
   // Wait for the next available block
@@ -1800,7 +1800,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     OPTARG(HAS_POSITION_FLOAT, target_float)
     OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
     , fr_mm_s, extruder, millimeters
-    OPTARG(ARC_ASSISTED_JD, arc_radius)
+    OPTARG(ARC_SUPPORT, arc_radius)
   )) {
     // Movement was not queued, probably because it was too short.
     //  Simply accept that as movement queued and done
@@ -1843,7 +1843,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
-  OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius/*=0.0*/)
+  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/)
 ) {
   int32_t LOGICAL_AXIS_LIST(
     de = target.e - position.e,
@@ -2655,7 +2655,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         normalize_junction_vector(junction_unit_vec);
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
 
-        #if ENABLED(ARC_ASSISTED_JD)
+        #if ENABLED(ARC_SUPPORT)
           if (arc_radius > 0.0)
             vmax_junction_sqr = junction_acceleration * arc_radius;
           else
@@ -2974,7 +2974,7 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/, const_float_t millimeters/*=0.0*/
-  OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius/*=0.0*/)
+  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/)
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -3081,7 +3081,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_POSITION_FLOAT, target_float)
       OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
       , fr_mm_s, extruder, millimeters
-      OPTARG(ARC_ASSISTED_JD, arc_radius)
+      OPTARG(ARC_SUPPORT, arc_radius)
   )) return false;
 
   stepper.wake_up();
@@ -3101,7 +3101,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  */
 bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/, const float millimeters/*=0.0*/
   OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration/*=0.0*/)
-  OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius/*=0.0*/)
+  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/)
 ) {
   xyze_pos_t machine = cart;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
@@ -3138,13 +3138,13 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
       const feedRate_t feedrate = fr_mm_s;
     #endif
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
-    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, mm OPTARG(ARC_ASSISTED_JD, arc_radius))) {
+    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, mm OPTARG(ARC_SUPPORT, arc_radius))) {
       position_cart = cart;
       return true;
     }
     return false;
   #else
-    return buffer_segment(machine, fr_mm_s, extruder, millimeters OPTARG(ARC_ASSISTED_JD, arc_radius));
+    return buffer_segment(machine, fr_mm_s, extruder, millimeters OPTARG(ARC_SUPPORT, arc_radius));
   #endif
 } // buffer_line()
 

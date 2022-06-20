@@ -733,7 +733,7 @@ class Planner {
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
     );
 
     /**
@@ -752,7 +752,7 @@ class Planner {
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
     );
 
     /**
@@ -786,7 +786,7 @@ class Planner {
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
     );
 
   public:
@@ -804,7 +804,7 @@ class Planner {
      */
     static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const float millimeters=0.0
       OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration=0.0)
-      OPTARG(ARC_ASSISTED_JD, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
     );
 
     #if ENABLED(DIRECT_STEPPING)
