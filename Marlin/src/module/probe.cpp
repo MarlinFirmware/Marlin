@@ -309,7 +309,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       OKAY_BUZZ();
 
       FSTR_P const ds_str = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
-      ui.return_to_status();       // To display the new status message
+      #if DISABLED(DGUS_LCD_UI_MKS)
+        ui.return_to_status();       // To display the new status message
+      #endif
       ui.set_status(ds_str, 99);
       SERIAL_ECHOLNF(deploy ? GET_EN_TEXT_F(MSG_MANUAL_DEPLOY) : GET_EN_TEXT_F(MSG_MANUAL_STOW));
 
