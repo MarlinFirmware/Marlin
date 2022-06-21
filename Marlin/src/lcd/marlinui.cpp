@@ -489,13 +489,10 @@ void MarlinUI::init() {
         ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
         ui.encoderPosition = dir;
         switch (axis) {
-          case X_AXIS: { void lcd_move_x(); lcd_move_x(); } break;
-          #if HAS_Y_AXIS
-            case Y_AXIS: { void lcd_move_y(); lcd_move_y(); } break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: { void lcd_move_z(); lcd_move_z(); } break;
-          #endif
+          case X_AXIS:
+          TERN_(HAS_Y_AXIS, case Y_AXIS:)
+          TERN_(HAS_Z_AXIS, case Z_AXIS:)
+            lcd_move_axis(axis);
           default: break;
         }
       }
