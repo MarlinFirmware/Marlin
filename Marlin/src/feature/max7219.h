@@ -100,15 +100,13 @@
 
       // update time_fraction every hundred milliseconds
       if (instance_count == 0 && ELAPSED(now, last_calc_time + 100000)) {
-        time_fraction = total_time * 200 / (now - last_calc_time);
-        if (time_fraction > 200)
-          SERIAL_ECHOLNPGM("now ", now, " last_calc_time ", last_calc_time, " total_time ", total_time);
+        time_fraction = total_time * 128 / (now - last_calc_time);
         last_calc_time = now;
         total_time = 0;
       }
     }
 
-    // returns fraction of total time which was measured, scaled from 0 to 200
+    // returns fraction of total time which was measured, scaled from 0 to 128
     static uint8_t get_time_fraction() { return time_fraction; }
   };
 #endif
@@ -189,7 +187,7 @@ private:
   static void send_column(const uint8_t col);
   static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2, uint8_t* row_change_mask=0);
   static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh, uint8_t* row_change_mask=0);
-  static void quantity8(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask=0);
+  static void quantity(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask=0);
   static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask=0);
 
   #if MAX7219_INIT_TEST

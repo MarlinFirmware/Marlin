@@ -594,7 +594,7 @@ void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const
 }
 
 // Apply changes to update a quantity
-void Max7219::quantity8(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask/*=0*/) {
+void Max7219::quantity(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask/*=0*/) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
     led_set(i, pos, nv >= ov, row_change_mask);
 }
@@ -707,9 +707,9 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_PROFILE
     static uint8_t last_time_fraction = 0;
-    const uint8_t current_time_fraction = CodeProfiler::get_time_fraction();
+    const uint8_t current_time_fraction = (uint16_t(CodeProfiler::get_time_fraction()) * MAX7219_NUMBER_UNITS + 8) / 16;
     if (current_time_fraction != last_time_fraction) {
-      quantity8(MAX7219_DEBUG_PROFILE, (last_time_fraction + 12) / 25, (current_time_fraction + 12) / 25, &row_change_mask);
+      quantity(MAX7219_DEBUG_PROFILE, last_time_fraction, current_time_fraction, &row_change_mask);
       last_time_fraction = current_time_fraction;
     }
   #endif
