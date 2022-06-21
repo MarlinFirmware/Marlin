@@ -416,15 +416,15 @@ void DGUSScreenHandlerMKS::LanguageChange(DGUS_VP_Variable &var, void *val_ptr) 
     case MKS_SimpleChinese:
       DGUS_LanguageDisplay(MKS_SimpleChinese);
       mks_language_index = MKS_SimpleChinese;
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t) MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t) MKS_Language_NoChoose);
       settings.save();
       break;
     case MKS_English:
       DGUS_LanguageDisplay(MKS_English);
       mks_language_index = MKS_English;
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t) MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t) MKS_Language_Choose);
       settings.save();
       break;
     default: break;
@@ -1446,12 +1446,12 @@ bool DGUSScreenHandlerMKS::loop() {
 void DGUSScreenHandlerMKS::LanguagePInit() {
   switch (mks_language_index) {
     case MKS_SimpleChinese:
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t) MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t) MKS_Language_NoChoose);
       break;
     case MKS_English:
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t) MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t) MKS_Language_Choose);
       break;
     default:
       break;
