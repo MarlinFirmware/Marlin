@@ -32,6 +32,10 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if ENABLED(EXTENDED_CAPABILITIES_REPORT)
+  #include "../../libs/hex_print.h"
+#endif
+
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
@@ -191,6 +195,37 @@ void GcodeSuite::M115() {
 
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
+
+
+
+
+    #if MB(INDEX_REV03)
+    #ifdef STM32F4
+      //STM32 based devices, output the CPU device serial number
+      //Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations
+      //https://github.com/opulo-inc/lumenpnp
+      //Although this code should work on all STM32 based boards
+
+      SERIAL_ECHOPGM("Cap:");
+      SERIAL_ECHOF(F("STM32UID"));
+      SERIAL_CHAR(':');
+
+      uint32_t * uid_address=(uint32_t *)UID_BASE;
+      for (int loop = 0; loop <3; loop++ ) {
+
+        uint32_t UID;
+        UID = (uint32_t)(READ_REG(*(uid_address)));
+        uid_address+=4U;
+
+        // Output the 32bit value as HEX characters
+        for (int B = 24; B >= 8; B -= 8) {
+          print_hex_byte(UID >> B);
+        }
+        print_hex_byte(UID);
+      }
+      SERIAL_EOL();
+    #endif
+    #endif
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
