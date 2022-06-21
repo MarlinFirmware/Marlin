@@ -2073,9 +2073,9 @@ bool Planner::_populate_block(
     TERN_(HAS_K_AXIS, steps_dist_mm.k = dk * mm_per_step[K_AXIS]);
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.a      = (da - db) * mm_per_step[A_AXIS];
-    steps_dist_mm.b      = db * mm_per_step[B_AXIS];
+    steps_dist_mm.b      =       db  * mm_per_step[B_AXIS];
   #elif ENABLED(MARKFORGED_YX)
-    steps_dist_mm.a      = da * mm_per_step[A_AXIS];
+    steps_dist_mm.a      =       da  * mm_per_step[A_AXIS];
     steps_dist_mm.b      = (db - da) * mm_per_step[B_AXIS];
   #else
     XYZ_CODE(
@@ -2134,16 +2134,16 @@ bool Planner::_populate_block(
             sq(steps_dist_mm.x) + sq(steps_dist_mm.y)
           #endif
         #else
-          XYZ_GANG(sq(steps_dist_mm.x),       + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
+          XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
         #endif
       );
     }
 
     /**
      * At this point at least one of the axes has more steps than
-     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
-     * zero-length. It's important to not apply corrections
-     * to blocks that would get dropped!
+     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped
+     * as zero-length. It's important to not apply corrections to blocks
+     * that would get dropped!
      *
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
