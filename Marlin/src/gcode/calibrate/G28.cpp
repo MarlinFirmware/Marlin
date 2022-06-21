@@ -480,7 +480,12 @@ void GcodeSuite::G28() {
       #endif
 
       SECONDARY_AXIS_CODE(
-        if (doI) homeaxis(I_AXIS),
+        if (doI) 
+          #if NONE(USE_IMIN_PLUG, USE_IMAX_PLUG)
+            set_axis_is_at_home(I_AXIS),
+          #else 
+            homeaxis(I_AXIS),
+          #endif
         if (doJ) homeaxis(J_AXIS),
         if (doK) homeaxis(K_AXIS),
         if (doU) homeaxis(U_AXIS),
