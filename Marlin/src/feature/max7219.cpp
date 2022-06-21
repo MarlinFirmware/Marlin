@@ -76,7 +76,7 @@ uint8_t Max7219::suspended; // = 0;
 
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
 
-#if _ROT == 0 || _ROT == 270
+#if (_ROT == 0 || _ROT == 270) == DISABLED(MAX7219_REVERSE_EACH)
   #define _LED_BIT(Q)   (7 - ((Q) & 0x7))
 #else
   #define _LED_BIT(Q)   ((Q) & 0x7)
