@@ -495,12 +495,7 @@ void CardReader::manage_media() {
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
-    if (!isMounted()) {             // Not mounted?
-      stat = 0;
-      #if HAS_SD_DETECT && DISABLED(SD_IGNORE_AT_STARTUP)
-        prev_stat = 0;
-      #endif
-    }
+    if (!isMounted()) stat = 0;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
   }
@@ -512,20 +507,12 @@ void CardReader::manage_media() {
 
   if (!stat) return;                // Exit if no media is present
 
-  static bool did_first_insert = false;
-  if (did_first_insert) return;     // Did a media insert already happen?
-  did_first_insert = true;          // Definitely handling this media insert...
+  if (old_stat != 2) return;        // First mount?
 
   DEBUG_ECHOLNPGM("First mount.");
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
-
-  #if HAS_USB_FLASH_DRIVE
-    const millis_t ms = millis();
-    DEBUG_ECHOLNPGM("USB mount waiting time = ", ms);
-    if (ms > 5000) return;          // Too late to be considered "already inserted"?
-  #endif
 
   bool do_auto = true; UNUSED(do_auto);
 
