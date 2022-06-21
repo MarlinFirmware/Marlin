@@ -543,11 +543,7 @@ void Max7219::init() {
 
   register_setup();
 
-  LOOP_LE_N(i, 7) {  // Empty registers to turn all LEDs off
-    led_line[i] = 0x00;
-    send(max7219_reg_digit0 + i, 0);
-    pulse_load();                     // Tell the chips to load the clocked out data
-  }
+  clear();
 
   #if MAX7219_INIT_TEST
     start_test_pattern();
