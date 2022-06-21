@@ -150,10 +150,10 @@ public:
   #endif
 
   // Set a single LED by XY coordinate
-  static void led_set(const uint8_t x, const uint8_t y, const bool on);
-  static void led_on(const uint8_t x, const uint8_t y);
-  static void led_off(const uint8_t x, const uint8_t y);
-  static void led_toggle(const uint8_t x, const uint8_t y);
+  static void led_set(const uint8_t x, const uint8_t y, const bool on, uint8_t* row_change_mask=0);
+  static void led_on(const uint8_t x, const uint8_t y, uint8_t* row_change_mask=0);
+  static void led_off(const uint8_t x, const uint8_t y, uint8_t* row_change_mask=0);
+  static void led_toggle(const uint8_t x, const uint8_t y, uint8_t* row_change_mask=0);
 
   // Set all LEDs in a single column
   static void set_column(const uint8_t col, const uint32_t val);
@@ -187,10 +187,10 @@ private:
   static void set(const uint8_t line, const uint8_t bits);
   static void send_row(const uint8_t row);
   static void send_column(const uint8_t col);
-  static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2);
-  static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh);
-  static void quantity8(const uint8_t y, const uint8_t ov, const uint8_t nv);
-  static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv);
+  static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2, uint8_t* row_change_mask=0);
+  static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh, uint8_t* row_change_mask=0);
+  static void quantity8(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask=0);
+  static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask=0);
 
   #if MAX7219_INIT_TEST
     static void test_pattern();
