@@ -2049,9 +2049,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.a      = (da - db) * mm_per_step[A_AXIS];
-    steps_dist_mm.b      = db * mm_per_step[B_AXIS];
+    steps_dist_mm.b      =       db  * mm_per_step[B_AXIS];
   #elif ENABLED(MARKFORGED_YX)
-    steps_dist_mm.a      = da * mm_per_step[A_AXIS];
+    steps_dist_mm.a      =       da  * mm_per_step[A_AXIS];
     steps_dist_mm.b      = (db - da) * mm_per_step[B_AXIS];
   #else
     XYZ_CODE(
@@ -2097,12 +2097,21 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       block->millimeters = millimeters;
     else {
       /**
-       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of NIST
-       * RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
-       * Assume that X, Y, Z are the primary linear axes and U, V, W are secondary linear axes and A, B, C are
-       * rotational axes. Then dX, dY, dZ are the displacements of the primary linear axes and dU, dV, dW are the displacements of linear axes and
-       * dA, dB, dC are the displacements of rotational axes.
-       * The time it takes to execute move command with feedrate F is t = D/F, where D is the total distance, calculated as follows:
+       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of
+       * NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
+       *
+       * Assume:
+       *   - X, Y, Z are the primary linear axes;
+       *   - U, V, W are secondary linear axes;
+       *   - A, B, C are rotational axes.
+       *
+       * Then:
+       *   - dX, dY, dZ are the displacements of the primary linear axes;
+       *   - dU, dV, dW are the displacements of linear axes;
+       *   - dA, dB, dC are the displacements of rotational axes.
+       *
+       * The time it takes to execute move command with feedrate F is t = D/F,
+       * where D is the total distance, calculated as follows:
        *   D^2 = dX^2 + dY^2 + dZ^2
        *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
        *     D^2 = dU^2 + dV^2 + dW^2
@@ -2111,8 +2120,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
        */
       float distance_sqr = (
         #if ENABLED(ARTICULATED_ROBOT_ARM)
-          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
-          // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
+          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround,
+          // assume that motors sit on a mutually-orthogonal axes and we can think of distance as magnitude of an n-vector
+          // in an n-dimensional Euclidian space.
           NUM_AXIS_GANG(
               sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
@@ -2120,8 +2130,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           );
         #elif ENABLED(FOAMCUTTER_XYUV)
           #if HAS_J_AXIS
-          // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
-          _MAX(sq(steps_dist_mm.x) + sq(steps_dist_mm.y), sq(steps_dist_mm.i) + sq(steps_dist_mm.j))
+            // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
+            _MAX(sq(steps_dist_mm.x) + sq(steps_dist_mm.y), sq(steps_dist_mm.i) + sq(steps_dist_mm.j))
           #else // Foamcutter with only two axes (XY)
             sq(steps_dist_mm.x) + sq(steps_dist_mm.y)
           #endif
@@ -2132,7 +2142,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         #elif CORE_IS_YZ
           XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.head.z))
         #else
-          XYZ_GANG(sq(steps_dist_mm.x),       + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
+          XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
         #endif
       );
 
@@ -2165,9 +2175,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     /**
      * At this point at least one of the axes has more steps than
-     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
-     * zero-length. It's important to not apply corrections
-     * to blocks that would get dropped!
+     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped
+     * as zero-length. It's important to not apply corrections to blocks
+     * that would get dropped!
      *
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
@@ -2203,15 +2213,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (NUM_AXIS_GANG(
-         block->steps.x,
-      || block->steps.y,
-      || block->steps.z,
-      || block->steps.i,
-      || block->steps.j,
-      || block->steps.k,
-      || block->steps.u,
-      || block->steps.v,
-      || block->steps.w
+         block->steps.x, || block->steps.y, || block->steps.z,
+      || block->steps.i, || block->steps.j, || block->steps.k,
+      || block->steps.u, || block->steps.v, || block->steps.w
     )) powerManager.power_on();
   #endif
 
