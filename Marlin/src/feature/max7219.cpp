@@ -455,7 +455,7 @@ void Max7219::register_setup() {
   pulse_load();                               // Tell the chips to load the clocked out data
 }
 
-#ifdef MAX7219_INIT_TEST
+#if MAX7219_INIT_TEST
 
   uint8_t test_mode = 0;
   millis_t next_patt_ms;
@@ -549,7 +549,7 @@ void Max7219::init() {
     pulse_load();                     // Tell the chips to load the clocked out data
   }
 
-  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST
     start_test_pattern();
   #endif
 }
@@ -648,7 +648,7 @@ void Max7219::idle_tasks() {
     register_setup();
   }
 
-  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST
     if (test_mode) {
       run_test_pattern();
       return;

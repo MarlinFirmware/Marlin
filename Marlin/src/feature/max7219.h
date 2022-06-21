@@ -192,7 +192,7 @@ private:
   static void quantity8(const uint8_t y, const uint8_t ov, const uint8_t nv);
   static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv);
 
-  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST
     static void test_pattern();
     static void run_test_pattern();
     static void start_test_pattern();
