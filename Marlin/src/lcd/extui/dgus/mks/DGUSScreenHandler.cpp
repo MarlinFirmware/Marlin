@@ -258,7 +258,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     ) filelist.refresh();
   }
 
-  void DGUSScreenHandler::SDPrintingFinished() {
+  void DGUSScreenHandlerMKS::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
       queue.exhaust();
       gcode.process_subcommands_now(F("M81"));
