@@ -173,7 +173,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
-      #define _CASE_MOVE(N) case N##_AXIS: STATIC_ITEM(MSG_MOVE_##N, SS_DEFAULT|SS_INVERT); break;
+      #define _CASE_MOVE(N) case N##_AXIS: STATIC_ITEM_N(N##_AXIS, MSG_MOVE_N, SS_DEFAULT|SS_INVERT); break;
       MAIN_AXIS_MAP(_CASE_MOVE)
       default:
         TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
