@@ -502,10 +502,11 @@ public:
   #else // No LCD
 
     static void update() {}
-    static void return_to_status() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
+
+  static void return_to_status() {}
 
   #if ENABLED(SDSUPPORT)
     #if BOTH(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
