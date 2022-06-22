@@ -48,7 +48,7 @@
 #include "../shared/servo_private.h"
 
 static int8_t Channel[_Nbr_16timers];       // counter for the servo being pulsed for each timer (or -1 if refresh interval)
-static bool DisablePending[_Nbr_16timers];  // Instructs ISR to disable the timer at the next timer reset
+static Flags<_Nbr_16timers> DisablePending; // ISR should disable the timer at the next timer reset
 
 // ------------------------
 /// Interrupt handler for the TC0 channel 1.
@@ -78,7 +78,7 @@ void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel
     if (DisablePending[timer]) {
       // Disabling only after the full servo period expires prevents
       // pulses being too close together if immediately re-enabled.
-      DisablePending[timer] = false;
+      DisablePending.clear(timer);
       TC_Stop(tc, channel);
       tc->TC_CHANNEL[channel].TC_SR;                                  // clear interrupt
       return;
@@ -130,7 +130,7 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
 void initISR(const timer16_Sequence_t timer) {
   CRITICAL_SECTION_START();
   bool needsInit = !DisablePending[timer];
-  DisablePending[timer] = false;
+  DisablePending.clear(timer);
   CRITICAL_SECTION_END();
 
   if (needsInit) {
@@ -154,7 +154,7 @@ void initISR(const timer16_Sequence_t timer) {
 
 void finISR(timer16_Sequence_t timer) {
   // Timer is disabled from the ISR, to ensure proper final pulse length.
-  DisablePending[timer] = true;
+  DisablePending.set(timer);
 }
 
 #endif // HAS_SERVOS
