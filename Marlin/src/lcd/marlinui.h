@@ -502,7 +502,6 @@ public:
   #else // No LCD
 
     static void update() {}
-    static void return_to_status() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
@@ -608,6 +607,8 @@ public:
     static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
 
   #else
+
+    static void return_to_status() {}
 
     static constexpr bool on_status_screen() { return true; }
 

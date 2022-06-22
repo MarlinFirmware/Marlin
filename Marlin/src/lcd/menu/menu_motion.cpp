@@ -54,9 +54,7 @@
 // "Motion" > "Move Axis" submenu
 //
 
-// TODO: Use substitution here with MSG_MOVE_N
-
-static void _lcd_move_xyz(FSTR_P const name, const AxisEnum axis) {
+static void _lcd_move_xyz(const AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
   if (ui.encoderPosition && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
@@ -83,37 +81,20 @@ static void _lcd_move_xyz(FSTR_P const name, const AxisEnum axis) {
     const float pos = ui.manual_move.axis_value(axis);
     if (parser.using_inch_units()) {
       const float imp_pos = LINEAR_UNIT(pos);
-      MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
     else
-      MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? (LARGE_AREA_TEST ? ftostr51sign(pos) : ftostr41sign(pos)) : ftostr63(pos));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ui.manual_move.menu_scale >= 0.1f ? (LARGE_AREA_TEST ? ftostr51sign(pos) : ftostr41sign(pos)) : ftostr63(pos));
   }
 }
-void lcd_move_x() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_X), X_AXIS); }
-#if HAS_Y_AXIS
-  void lcd_move_y() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_Y), Y_AXIS); }
-#endif
-#if HAS_Z_AXIS
-  void lcd_move_z() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_Z), Z_AXIS); }
-#endif
-#if HAS_I_AXIS
-  void lcd_move_i() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_I), I_AXIS); }
-#endif
-#if HAS_J_AXIS
-  void lcd_move_j() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_J), J_AXIS); }
-#endif
-#if HAS_K_AXIS
-  void lcd_move_k() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_K), K_AXIS); }
-#endif
-#if HAS_U_AXIS
-  void lcd_move_u() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_U), U_AXIS); }
-#endif
-#if HAS_V_AXIS
-  void lcd_move_v() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_V), V_AXIS); }
-#endif
-#if HAS_W_AXIS
-  void lcd_move_w() { _lcd_move_xyz(GET_TEXT_F(MSG_MOVE_W), W_AXIS); }
-#endif
+
+void _lcd_move_axis_n() { _lcd_move_xyz(AxisEnum(MenuItemBase::itemIndex)); }
+
+// Move functions for non-menu code that hasn't set itemIndex (e.g., keypad)
+void lcd_move_axis(const AxisEnum axis) { MenuEditItemBase::itemIndex = int8_t(axis); _lcd_move_axis_n(); }
+
+// Move Z easy accessor
+void lcd_move_z() { lcd_move_axis(Z_AXIS); }
 
 #if E_MANUAL
 
@@ -173,7 +154,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
-      #define _CASE_MOVE(N) case N##_AXIS: STATIC_ITEM(MSG_MOVE_##N, SS_DEFAULT|SS_INVERT); break;
+      #define _CASE_MOVE(N) case N##_AXIS: STATIC_ITEM_N(N##_AXIS, MSG_MOVE_N, SS_DEFAULT|SS_INVERT); break;
       MAIN_AXIS_MAP(_CASE_MOVE)
       default:
         TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
@@ -199,6 +180,8 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
   END_MENU();
 }
+
+void _menu_move_n_distance() { _menu_move_distance(AxisEnum(MenuItemBase::itemIndex), _lcd_move_axis_n); }
 
 #if E_MANUAL
 
@@ -230,38 +213,20 @@ void menu_move() {
     EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
   #endif
 
+  // Move submenu for each axis
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
     if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
-      SUBMENU(MSG_MOVE_X, []{ _menu_move_distance(X_AXIS, lcd_move_x); });
-      #if HAS_Y_AXIS
-        SUBMENU(MSG_MOVE_Y, []{ _menu_move_distance(Y_AXIS, lcd_move_y); });
+      for (uint8_t a = X_AXIS; a <= min(int(Y_AXIS), NUM_AXES - 1); a++)
+        SUBMENU_N(a, MSG_MOVE_N, _menu_move_n_distance);
+    }
+    else {
+      #if ENABLED(DELTA)
+        ACTION_ITEM(MSG_FREE_XY, []{ line_to_z(delta_clip_start_height); ui.synchronize(); });
       #endif
     }
-    #if ENABLED(DELTA)
-      else
-        ACTION_ITEM(MSG_FREE_XY, []{ line_to_z(delta_clip_start_height); ui.synchronize(); });
-    #endif
-
     #if HAS_Z_AXIS
-      SUBMENU(MSG_MOVE_Z, []{ _menu_move_distance(Z_AXIS, lcd_move_z); });
-    #endif
-    #if HAS_I_AXIS
-      SUBMENU(MSG_MOVE_I, []{ _menu_move_distance(I_AXIS, lcd_move_i); });
-    #endif
-    #if HAS_J_AXIS
-      SUBMENU(MSG_MOVE_J, []{ _menu_move_distance(J_AXIS, lcd_move_j); });
-    #endif
-    #if HAS_K_AXIS
-      SUBMENU(MSG_MOVE_K, []{ _menu_move_distance(K_AXIS, lcd_move_k); });
-    #endif
-    #if HAS_U_AXIS
-      SUBMENU(MSG_MOVE_U, []{ _menu_move_distance(U_AXIS, lcd_move_u); });
-    #endif
-    #if HAS_V_AXIS
-      SUBMENU(MSG_MOVE_V, []{ _menu_move_distance(V_AXIS, lcd_move_v); });
-    #endif
-    #if HAS_W_AXIS
-      SUBMENU(MSG_MOVE_W, []{ _menu_move_distance(W_AXIS, lcd_move_w); });
+      for (uint8_t a = Z_AXIS; a < NUM_AXES; a++)
+        SUBMENU_N(a, MSG_MOVE_N, _menu_move_n_distance);
     #endif
   }
   else
@@ -329,6 +294,8 @@ void menu_move() {
   END_MENU();
 }
 
+#define _HOME_ITEM(N) GCODES_ITEM_N(N##_AXIS, MSG_AUTO_HOME_A, F("G28X" STR_##N));
+
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   //
   // "Motion" > "Homing" submenu
@@ -338,31 +305,7 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
-    GCODES_ITEM_N(X_AXIS, MSG_AUTO_HOME_A, F("G28X"));
-    #if HAS_Y_AXIS
-      GCODES_ITEM_N(Y_AXIS, MSG_AUTO_HOME_A, F("G28Y"));
-    #endif
-    #if HAS_Z_AXIS
-      GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, F("G28Z"));
-    #endif
-    #if HAS_I_AXIS
-      GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, F("G28" STR_I));
-    #endif
-    #if HAS_J_AXIS
-      GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, F("G28" STR_J));
-    #endif
-    #if HAS_K_AXIS
-      GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, F("G28" STR_K));
-    #endif
-    #if HAS_U_AXIS
-      GCODES_ITEM_N(U_AXIS, MSG_AUTO_HOME_A, F("G28" STR_U));
-    #endif
-    #if HAS_V_AXIS
-      GCODES_ITEM_N(V_AXIS, MSG_AUTO_HOME_A, F("G28" STR_V));
-    #endif
-    #if HAS_W_AXIS
-      GCODES_ITEM_N(W_AXIS, MSG_AUTO_HOME_A, F("G28" STR_W));
-    #endif
+    MAIN_AXIS_MAP(_HOME_ITEM);
 
     END_MENU();
   }
@@ -400,31 +343,7 @@ void menu_motion() {
   #else
     GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
-      GCODES_ITEM_N(X_AXIS, MSG_AUTO_HOME_A, F("G28X"));
-      #if HAS_Y_AXIS
-        GCODES_ITEM_N(Y_AXIS, MSG_AUTO_HOME_A, F("G28Y"));
-      #endif
-      #if HAS_Z_AXIS
-        GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, F("G28Z"));
-      #endif
-      #if HAS_I_AXIS
-        GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, F("G28" STR_I));
-      #endif
-      #if HAS_J_AXIS
-        GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, F("G28" STR_J));
-      #endif
-      #if HAS_K_AXIS
-        GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, F("G28" STR_K));
-      #endif
-      #if HAS_U_AXIS
-        GCODES_ITEM_N(U_AXIS, MSG_AUTO_HOME_A, F("G28" STR_U));
-      #endif
-      #if HAS_V_AXIS
-        GCODES_ITEM_N(V_AXIS, MSG_AUTO_HOME_A, F("G28" STR_V));
-      #endif
-      #if HAS_W_AXIS
-        GCODES_ITEM_N(W_AXIS, MSG_AUTO_HOME_A, F("G28" STR_W));
-      #endif
+      MAIN_AXIS_MAP(_HOME_ITEM);
     #endif
   #endif
 
