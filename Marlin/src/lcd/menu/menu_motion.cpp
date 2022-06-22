@@ -76,8 +76,8 @@ void lcd_move_axis(const AxisEnum axis) {
   if (ui.should_draw()) {
     MenuEditItemBase::itemIndex = axis;
     const float pos = ui.manual_move.axis_value(axis);
-    if (parser.using_inch_units() && !parser.is_rotational(axis)) {
-      const float imp_pos = LINEAR_UNIT(pos);
+    if (parser.axis_unit_factor(axis) != 1.0f) {
+      const float imp_pos = parser.axis_value_to_mm(axis, pos);
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
     else
@@ -149,7 +149,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
-  if (parser.is_rotational(axis)) {
+  if (parser.axis_is_rotational(axis)) {
     SUBMENU(MSG_MOVE_10DEG,   []{ _goto_manual_move(10); });
     SUBMENU(MSG_MOVE_1DEG,    []{ _goto_manual_move(1.000f); });
     SUBMENU(MSG_MOVE_01DEG,   []{ _goto_manual_move(0.100f); });
