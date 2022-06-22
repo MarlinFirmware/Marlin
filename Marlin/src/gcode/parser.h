@@ -306,7 +306,7 @@ public:
       volumetric_unit_factor = POW(linear_unit_factor, 3);
     }
 
-    static bool is_rotational(const AxisEnum axis) {
+    static constexpr bool is_rotational(const AxisEnum axis) {
       return (false
         || TERN0(AXIS4_ROTATES, axis == I_AXIS)
         || TERN0(AXIS5_ROTATES, axis == J_AXIS)
@@ -341,12 +341,6 @@ public:
   #endif
 
   static bool using_inch_units() { return mm_to_linear_unit(1.0f) != 1.0f; }
-
-  #if ROTATIONAL_AXES
-    #define IS_ROTATIONAL(V) parser.is_rotational(V)
-  #else 
-    #define IS_ROTATIONAL(V) false
-  #endif
 
   #define IN_TO_MM(I)        ((I) * 25.4f)
   #define MM_TO_IN(M)        ((M) / 25.4f)

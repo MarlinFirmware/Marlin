@@ -803,6 +803,13 @@ void MarlinUI::init() {
 
         const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
+        // For a rotational axis convert the "inch" feedrate to "mm" before applying it
+        // TODO: Assert that all units on a rotational axis are expressed in degrees, not by distance
+        feedRate_t fr = fr_mm_s;
+        #if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
+          if (parser.is_rotational(axis) && parser.using_inch_units()) fr = IN_TO_MM(fr);
+        #endif
+
         #if IS_KINEMATIC
 
           #if HAS_MULTI_EXTRUDER
@@ -829,26 +836,13 @@ void MarlinUI::init() {
           // previous invocation is being blocked. Modifications to offset shouldn't be made while
           // processing is true or the planner will get out of sync.
           processing = true;
-          #if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
-            if (IS_ROTATIONAL(axis) && parser.using_inch_units())
-              prepare_internal_move_to_destination(IN_TO_MM(fr_mm_s));
-            else 
-          #endif
-          prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+          prepare_internal_move_to_destination(fr);  // will set current_position from destination
           processing = false;
 
         #else
 
           // For Cartesian / Core motion simply move to the current_position
-          #if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
-            if (IS_ROTATIONAL(axis) && parser.using_inch_units()) {
-              planner.buffer_line(current_position, IN_TO_MM(fr_mm_s),
-                TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
-              );
-            }
-            else
-          #endif
-          planner.buffer_line(current_position, fr_mm_s,
+          planner.buffer_line(current_position, fr,
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
