@@ -2584,25 +2584,28 @@
 // @section tmc_smart
 
 /**
- * To use TMC2130, TMC2160, TMC2660, TMC5130, TMC5160 stepper drivers in SPI mode
- * connect your SPI pins to the hardware SPI interface on your board and define
- * the required CS pins in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3
- * pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
- * You may also use software SPI if you wish to use general purpose IO pins.
+ * Trinamic Smart Drivers
  *
- * To use TMC2208 stepper UART-configurable stepper drivers connect #_SERIAL_TX_PIN
- * to the driver side PDN_UART pin with a 1K resistor.
- * To use the reading capabilities, also connect #_SERIAL_RX_PIN to PDN_UART without
- * a resistor.
- * The drivers can also be used with hardware serial.
+ * To use TMC2130, TMC2160, TMC2660, TMC5130, TMC5160 stepper drivers in SPI mode:
+ *  - Connect your SPI pins to the Hardware SPI interface on the board.
+ *    Some boards have simple jumper connections! See your board's documentation.
+ *  - Define the required Stepper CS pins in your `pins_MYBOARD.h` file.
+ *    (See the RAMPS pins, for example.)
+ *  - You can also use Software SPI with GPIO pins instead of Hardware SPI.
  *
- * TMCStepper library is required to use TMC stepper drivers except for the TMC26x.
- * https://github.com/teemuatlut/TMCStepper
+ * To use TMC220x stepper drivers with Serial UART:
+ *  - Connect PDN_UART to the #_SERIAL_TX_PIN through a 1K resistor.
+ *    For reading capabilities also connect PDN_UART to #_SERIAL_RX_PIN with no resistor.
+ *    Some boards have simple jumper connections! See your board's documentation.
+ *  - These drivers can also be used with Hardware Serial.
  *
  * The TMC26XStepper library is required for TMC26X stepper drivers.
- * https://github.com/MarlinFirmware/TMC26XStepper
+ *   https://github.com/MarlinFirmware/TMC26XStepper
+ *
+ * The TMCStepper library is required for other TMC stepper drivers.
+ *   https://github.com/teemuatlut/TMCStepper
  */
-#if HAS_TRINAMIC_CONFIG || HAS_DRIVER(TMC26X)
+#if HAS_TRINAMIC_CONFIG || HAS_TMC26X
 
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
 
@@ -2616,7 +2619,7 @@
     #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16        // 0..256
-    #define X_RSENSE          0.11
+    #define X_RSENSE          0.11     // Multiplied x1000 for TMC26X
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
     //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
     //#define X_HOLD_MULTIPLIER 0.5    // Enable to override 'HOLD_MULTIPLIER' for the X axis
@@ -3095,7 +3098,7 @@
    */
   #define TMC_ADV() {  }
 
-#endif // HAS_TRINAMIC_CONFIG
+#endif // HAS_TRINAMIC_CONFIG || HAS_TMC26X
 
 // @section L64XX
 
