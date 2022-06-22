@@ -66,8 +66,8 @@ void lcd_move_axis(const AxisEnum axis) {
       }
     #endif
 
-    // Get the new position
-    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale; // in mm (for linear axes) or ° (for rotational axes)
+    // Get the new mm / degree position
+    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
     (void)ui.manual_move.apply_diff(axis, diff, min, max);
     ui.manual_move.soon(axis);
     ui.refresh(LCDVIEW_REDRAW_NOW);
