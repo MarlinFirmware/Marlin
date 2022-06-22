@@ -848,6 +848,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 421: M421(); break;                                  // M421: Set a Mesh Bed Leveling Z coordinate
       #endif
 
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        case 423: M423(); break;                                  // M423: Reset, modify, or report X-Twist Compensation data
+      #endif
+
       #if ENABLED(BACKLASH_GCODE)
         case 425: M425(); break;                                  // M425: Tune backlash compensation
       #endif
