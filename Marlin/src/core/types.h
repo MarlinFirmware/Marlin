@@ -99,8 +99,8 @@ struct Flags {
   void set(const int n)                    { b |=  (bits_t)_BV(n); }
   void clear(const int n)                  { b &= ~(bits_t)_BV(n); }
   bool test(const int n) const             { return TEST(b, n); }
-  bool operator[](const int n)             { return test(n); }
-  bool operator[](const int n) const       { return test(n); }
+  const bool operator[](const int n)       { return test(n); }
+  const bool operator[](const int n) const { return test(n); }
   int size() const                         { return sizeof(b); }
 };
 
@@ -113,8 +113,8 @@ struct Flags<1> {
   void set(const int)                     { b = true; }
   void clear(const int)                   { b = false; }
   bool test(const int) const              { return b; }
-  bool operator[](const int)              { return b; }
-  bool operator[](const int) const        { return b; }
+  bool& operator[](const int)             { return b; }
+  bool  operator[](const int) const       { return b; }
   int size() const                        { return sizeof(b); }
 };
 
