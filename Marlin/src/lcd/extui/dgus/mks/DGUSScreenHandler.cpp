@@ -1125,7 +1125,6 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
 #if ENABLED(BABYSTEPPING)
   void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
-    char babystep_buf[30];
     float step = ZOffset_distance;
 
     uint16_t flag = swap16(*(uint16_t*)val_ptr);
