@@ -155,14 +155,13 @@ void _goto_manual_move(const_float_t scale) {
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=active_extruder) {
   _manual_move_func_ptr = func;
   START_MENU();
+
   if (LCD_HEIGHT >= 4) {
-    switch (axis) {
-      #define _CASE_MOVE(N) case N##_AXIS: STATIC_ITEM_N(N##_AXIS, MSG_MOVE_N, SS_DEFAULT|SS_INVERT); break;
-      MAIN_AXIS_MAP(_CASE_MOVE)
-      default:
-        TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
-        STATIC_ITEM(MSG_MOVE_E, SS_DEFAULT|SS_INVERT);
-        break;
+    if (axis < LINEAR_AXES)
+      STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
+    else {
+      TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
+      STATIC_ITEM(MSG_MOVE_E, SS_DEFAULT|SS_INVERT);
     }
   }
 
