@@ -77,7 +77,7 @@ void lcd_move_axis(const AxisEnum axis) {
     MenuEditItemBase::itemIndex = axis;
     const float pos = ui.manual_move.axis_value(axis);
     if (parser.axis_unit_factor(axis) != 1.0f) {
-      const float imp_pos = parser.axis_value_to_mm(axis, pos);
+      const float imp_pos = parser.per_axis_value(axis, pos);
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
     else
