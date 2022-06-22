@@ -273,28 +273,27 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
 #endif // MAX7219_NUMERIC
 
 // Modify a single LED bit and send the changed line
-void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on, uint8_t* row_change_mask/*=0*/) {
+void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_set"), x, y);
   if (BIT_7219(x, y) == on) return;
   XOR_7219(x, y);
   refresh_unit_line(LED_IND(x, y));
-  if (row_change_mask)
-    *row_change_mask |= _BV(LED_IND(x, y) & 0x07);
+  if (rcm != nullptr) *rcm |= _BV(LED_IND(x, y) & 0x07);
 }
 
-void Max7219::led_on(const uint8_t x, const uint8_t y, uint8_t* row_change_mask/*=0*/) {
+void Max7219::led_on(const uint8_t x, const uint8_t y, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_on"), x, y);
-  led_set(x, y, true, row_change_mask);
+  led_set(x, y, true, rcm);
 }
 
-void Max7219::led_off(const uint8_t x, const uint8_t y, uint8_t* row_change_mask/*=0*/) {
+void Max7219::led_off(const uint8_t x, const uint8_t y, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_off"), x, y);
-  led_set(x, y, false, row_change_mask);
+  led_set(x, y, false, rcm);
 }
 
-void Max7219::led_toggle(const uint8_t x, const uint8_t y, uint8_t* row_change_mask/*=0*/) {
+void Max7219::led_toggle(const uint8_t x, const uint8_t y, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_toggle"), x, y);
-  led_set(x, y, !BIT_7219(x, y), row_change_mask);
+  led_set(x, y, !BIT_7219(x, y), rcm);
 }
 
 void Max7219::send_row(const uint8_t row) {
@@ -559,47 +558,47 @@ void Max7219::init() {
  */
 
 // Apply changes to update a marker
-void Max7219::mark16(const uint8_t pos, const uint8_t v1, const uint8_t v2, uint8_t* row_change_mask/*=0*/) {
+void Max7219::mark16(const uint8_t pos, const uint8_t v1, const uint8_t v2, uint8_t * const rcm/*=nullptr*/) {
   #if MAX7219_X_LEDS > 8    // At least 16 LEDs on the X-Axis. Use single line.
-    led_off(v1 & 0xF, pos, row_change_mask);
-     led_on(v2 & 0xF, pos, row_change_mask);
+    led_off(v1 & 0xF, pos, rcm);
+     led_on(v2 & 0xF, pos, rcm);
   #elif MAX7219_Y_LEDS > 8  // At least 16 LEDs on the Y-Axis. Use a single column.
-    led_off(pos, v1 & 0xF, row_change_mask);
-     led_on(pos, v2 & 0xF, row_change_mask);
+    led_off(pos, v1 & 0xF, rcm);
+     led_on(pos, v2 & 0xF, rcm);
   #else                     // Single 8x8 LED matrix. Use two lines to get 16 LEDs.
-    led_off(v1 & 0x7, pos + (v1 >= 8), row_change_mask);
-     led_on(v2 & 0x7, pos + (v2 >= 8), row_change_mask);
+    led_off(v1 & 0x7, pos + (v1 >= 8), rcm);
+     led_on(v2 & 0x7, pos + (v2 >= 8), rcm);
   #endif
 }
 
 // Apply changes to update a tail-to-head range
 void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh,
-  const uint8_t nh, uint8_t* row_change_mask/*=0*/) {
+  const uint8_t nh, uint8_t * const rcm/*=nullptr*/) {
   #if MAX7219_X_LEDS > 8    // At least 16 LEDs on the X-Axis. Use single line.
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      led_off(n & 0xF, y, row_change_mask);
+      led_off(n & 0xF, y, rcm);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       led_on(n & 0xF, y, row_change_mask);
+       led_on(n & 0xF, y, rcm);
   #elif MAX7219_Y_LEDS > 8  // At least 16 LEDs on the Y-Axis. Use a single column.
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      led_off(y, n & 0xF, row_change_mask);
+      led_off(y, n & 0xF, rcm);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       led_on(y, n & 0xF, row_change_mask);
+       led_on(y, n & 0xF, rcm);
   #else                     // Single 8x8 LED matrix. Use two lines to get 16 LEDs.
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      led_off(n & 0x7, y + (n >= 8), row_change_mask);
+      led_off(n & 0x7, y + (n >= 8), rcm);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       led_on(n & 0x7, y + (n >= 8), row_change_mask);
+       led_on(n & 0x7, y + (n >= 8), rcm);
   #endif
 }
 
 // Apply changes to update a quantity
-void Max7219::quantity(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask/*=0*/) {
+void Max7219::quantity(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
-    led_set(i, pos, nv >= ov, row_change_mask);
+    led_set(i, pos, nv >= ov, rcm);
 }
 
-void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t* row_change_mask/*=0*/) {
+void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
     led_set(
       #if MAX7219_X_LEDS > 8    // At least 16 LEDs on the X-Axis. Use single line.
@@ -610,7 +609,7 @@ void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, 
         i >> 1, pos + (i & 1)
       #endif
       , nv >= ov
-      , row_change_mask
+      , rcm
     );
 }
 
