@@ -194,9 +194,9 @@ void initISR(const timer16_Sequence_t timer) {
   }
 }
 
-void finISR(const timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer_index) {
   Tc * const tc = timer_config[SERVO_TC].pTc;
-  const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
+  const uint8_t tcChannel = TIMER_TCCHANNEL(timer_index);
 
   // Disable the match channel interrupt request
   tc->COUNT16.INTENCLR.reg = (tcChannel == 0) ? TC_INTENCLR_MC0 : TC_INTENCLR_MC1;

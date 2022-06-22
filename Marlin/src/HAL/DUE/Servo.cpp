@@ -127,13 +127,14 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   TC_Start(tc, channel);
 }
 
-void initISR(const timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer_index) {
   CRITICAL_SECTION_START();
-  const bool disable_soon = DisablePending[timer];
-  DisablePending.clear(timer);
+  const bool disable_soon = DisablePending[timer_index];
+  DisablePending.clear(timer_index);
   CRITICAL_SECTION_END();
 
-  if (!disable_soon) switch (timer) {
+  if (!disable_soon) switch (timer_index) {
+    default: break;
     #ifdef _useTimer1
       case _timer1: return _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
     #endif
@@ -152,9 +153,9 @@ void initISR(const timer16_Sequence_t timer) {
   }
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer_index) {
   // Timer is disabled from the ISR, to ensure proper final pulse length.
-  DisablePending.set(timer);
+  DisablePending.set(timer_index);
 }
 
 #endif // HAS_SERVOS

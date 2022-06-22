@@ -122,8 +122,10 @@ static inline void handle_interrupts(const timer16_Sequence_t timer, volatile ui
 
 /****************** end of static functions ******************************/
 
-void initISR(const timer16_Sequence_t timer) {
-  switch (timer) {
+void initISR(const timer16_Sequence_t timer_index) {
+  switch (timer_index) {
+    default: break;
+
     #ifdef _useTimer1
       case _timer1:
         TCCR1A = 0;             // normal counting mode
@@ -183,10 +185,12 @@ void initISR(const timer16_Sequence_t timer) {
   }
 }
 
-void finISR(const timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer_index) {
   // Disable use of the given timer
   #ifdef WIRING
-    switch (timer) {
+    switch (timer_index) {
+      default: break;
+
       case _timer1:
         CBI(
           #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
@@ -210,12 +214,10 @@ void finISR(const timer16_Sequence_t timer) {
         );
         timerDetach(TIMER3OUTCOMPAREA_INT);
         break;
-
-      default: break;
     }
   #else // !WIRING
     // For arduino - in future: call here to a currently undefined function to reset the timer
-    UNUSED(timer);
+    UNUSED(timer_index);
   #endif
 }
 
