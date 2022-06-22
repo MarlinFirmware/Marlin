@@ -47,7 +47,6 @@
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 
-static int8_t Channel[_Nbr_16timers];       // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 static Flags<_Nbr_16timers> DisablePending; // ISR should disable the timer at the next timer reset
 
 // ------------------------
@@ -72,6 +71,7 @@ void Servo_Handler(const timer16_Sequence_t, Tc*, const uint8_t);
 #endif
 
 void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel) {
+  static int8_t Channel[_Nbr_16timers];                               // Servo counters to pulse (or -1 for refresh interval)
   int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
   if (cho < 0) {                                                      // Channel -1 indicates the refresh interval completed...
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                   // ...so reset the timer
