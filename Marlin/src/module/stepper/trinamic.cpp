@@ -968,7 +968,7 @@ void reset_trinamic_drivers() {
 #if ANY_AXIS_HAS(SW_SERIAL)
   struct SanitySwSerialDetails { int32_t txpin; int32_t rxpin; uint32_t address; };
   #define TMC_SW_DETAIL_ARGS(A) TERN(A##_HAS_SW_SERIAL, A##_SERIAL_TX_PIN, -1), TERN(A##_HAS_SW_SERIAL, A##_SERIAL_RX_PIN, -1), TERN0(A##_HAS_SW_SERIAL, A##_SLAVE_ADDRESS)
-  #define TMC_SW_DETAIL(A) TMC_SW_DETAIL_ARGS(A)
+  #define TMC_SW_DETAIL(A) { TMC_SW_DETAIL_ARGS(A) }
   constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = {
     MAPLIST(TMC_SW_DETAIL, ALL_AXIS_NAMES)
   };
