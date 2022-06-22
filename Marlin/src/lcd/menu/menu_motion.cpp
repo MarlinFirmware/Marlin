@@ -316,6 +316,8 @@ void menu_move() {
   END_MENU();
 }
 
+#define _HOME_ITEM(N) GCODES_ITEM_N(N##_AXIS, MSG_AUTO_HOME_A, F("G28X" STR_##N));
+
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   //
   // "Motion" > "Homing" submenu
@@ -325,22 +327,7 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
-    GCODES_ITEM_N(X_AXIS, MSG_AUTO_HOME_A, F("G28X"));
-    #if HAS_Y_AXIS
-      GCODES_ITEM_N(Y_AXIS, MSG_AUTO_HOME_A, F("G28Y"));
-    #endif
-    #if HAS_Z_AXIS
-      GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, F("G28Z"));
-    #endif
-    #if HAS_I_AXIS
-      GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, F("G28" STR_I));
-    #endif
-    #if HAS_J_AXIS
-      GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, F("G28" STR_J));
-    #endif
-    #if HAS_K_AXIS
-      GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, F("G28" STR_K));
-    #endif
+    MAIN_AXIS_MAP(_HOME_ITEM);
 
     END_MENU();
   }
@@ -378,22 +365,7 @@ void menu_motion() {
   #else
     GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
-      GCODES_ITEM_N(X_AXIS, MSG_AUTO_HOME_A, F("G28X"));
-      #if HAS_Y_AXIS
-        GCODES_ITEM_N(Y_AXIS, MSG_AUTO_HOME_A, F("G28Y"));
-      #endif
-      #if HAS_Z_AXIS
-        GCODES_ITEM_N(Z_AXIS, MSG_AUTO_HOME_A, F("G28Z"));
-      #endif
-      #if HAS_I_AXIS
-        GCODES_ITEM_N(I_AXIS, MSG_AUTO_HOME_A, F("G28" STR_I));
-      #endif
-      #if HAS_J_AXIS
-        GCODES_ITEM_N(J_AXIS, MSG_AUTO_HOME_A, F("G28" STR_J));
-      #endif
-      #if HAS_K_AXIS
-        GCODES_ITEM_N(K_AXIS, MSG_AUTO_HOME_A, F("G28" STR_K));
-      #endif
+      MAIN_AXIS_MAP(_HOME_ITEM);
     #endif
   #endif
 
