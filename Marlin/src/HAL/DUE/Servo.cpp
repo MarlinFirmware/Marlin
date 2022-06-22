@@ -129,11 +129,11 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
 
 void initISR(const timer16_Sequence_t timer) {
   CRITICAL_SECTION_START();
-  bool needsInit = !DisablePending[timer];
+  const bool disable_soon = DisablePending[timer];
   DisablePending.clear(timer);
   CRITICAL_SECTION_END();
 
-  if (needsInit) {
+  if (!disable_soon) {
     #ifdef _useTimer1
       if (timer == _timer1) _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
     #endif
