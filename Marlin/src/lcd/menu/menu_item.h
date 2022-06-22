@@ -357,7 +357,7 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                          \
 } while(0)
 
-#define STATIC_ITEM_N_F(FLABEL, N, V...) do{ \
+#define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (_menuLineNr == _thisItemNr) {          \
     MenuItemBase::init(N);                   \
     STATIC_ITEM_INNER_F(FLABEL, ##V);        \
@@ -380,7 +380,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
 #define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_F(GET_TEXT_F(LABEL), N, ##V)
+#define STATIC_ITEM_N(N, LABEL, V...)                STATIC_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 // Menu item with index and composed C-string substitution
 #define MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)   _MENU_ITEM_N_S_F(TYPE, N, S, false, FLABEL, ##V)
