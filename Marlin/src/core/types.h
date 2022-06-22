@@ -36,6 +36,8 @@ struct IF { typedef R type; };
 template <class L, class R>
 struct IF<true, L, R> { typedef L type; };
 
+#define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
+
 #define NUM_AXIS_GANG(V...) GANG_N(NUM_AXES, V)
 #define NUM_AXIS_CODE(V...) CODE_N(NUM_AXES, V)
 #define NUM_AXIS_LIST(V...) LIST_N(NUM_AXES, V)

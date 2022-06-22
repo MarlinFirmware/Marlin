@@ -1023,8 +1023,6 @@ void reset_trinamic_drivers() {
 // 2. For each axis in use, static_assert using a constexpr function, which counts the
 //      number of matching/conflicting axis. If the value is not exactly 1, fail.
 
-#define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
-
 #if ANY_AXIS_HAS(HW_SERIAL)
   // Hardware serial names are compared as strings, since actually resolving them cannot occur in a constexpr.
   // Using a fixed-length character array for the port name allows this to be constexpr compatible.
