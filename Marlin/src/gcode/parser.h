@@ -290,6 +290,17 @@ public:
 
   // Units modes: Inches, Fahrenheit, Kelvin
 
+  static constexpr bool axis_is_rotational(const AxisEnum axis) {
+    return (false
+      || TERN0(AXIS4_ROTATES, axis == I_AXIS)
+      || TERN0(AXIS5_ROTATES, axis == J_AXIS)
+      || TERN0(AXIS6_ROTATES, axis == K_AXIS)
+      || TERN0(AXIS7_ROTATES, axis == U_AXIS)
+      || TERN0(AXIS8_ROTATES, axis == V_AXIS)
+      || TERN0(AXIS9_ROTATES, axis == W_AXIS)
+    );
+  }
+
   #if ENABLED(INCH_MODE_SUPPORT)
     static float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
     static float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
@@ -306,19 +317,8 @@ public:
       volumetric_unit_factor = POW(linear_unit_factor, 3);
     }
 
-    static constexpr bool is_rotational(const AxisEnum axis) {
-      return (false
-        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
-        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
-        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
-        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
-        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
-        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
-      );
-    }
-
     static float axis_unit_factor(const AxisEnum axis) {
-      if (is_rotational(axis)) return 1.0f;
+      if (axis_is_rotational(axis)) return 1.0f;
       #if HAS_EXTRUDERS
         if (axis >= E_AXIS && volumetric_enabled) return volumetric_unit_factor;
       #endif
@@ -330,6 +330,8 @@ public:
     static float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
 
   #else
+
+    static float axis_unit_factor(const AxisEnum) { return 1.0f; }
 
     static float mm_to_linear_unit(const_float_t mm)     { return mm; }
     static float mm_to_volumetric_unit(const_float_t mm) { return mm; }
