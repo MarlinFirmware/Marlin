@@ -513,7 +513,7 @@
   #define HAS_LCDPRINT 1
 #endif
 
-#if EITHER(HAS_DISPLAY, HAS_DWIN_E3V2)
+#if HAS_DISPLAY || HAS_DWIN_E3V2
   #define HAS_STATUS_MESSAGE 1
 #endif
 
