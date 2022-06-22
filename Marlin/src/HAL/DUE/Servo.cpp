@@ -133,21 +133,21 @@ void initISR(const timer16_Sequence_t timer) {
   DisablePending.clear(timer);
   CRITICAL_SECTION_END();
 
-  if (!disable_soon) {
+  if (!disable_soon) switch (timer) {
     #ifdef _useTimer1
-      if (timer == _timer1) _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
+      case _timer1: return _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
     #endif
     #ifdef _useTimer2
-      if (timer == _timer2) _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
+      case _timer2: return _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
     #endif
     #ifdef _useTimer3
-      if (timer == _timer3) _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
+      case _timer3: return _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
     #endif
     #ifdef _useTimer4
-      if (timer == _timer4) _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
+      case _timer4: return _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
     #endif
     #ifdef _useTimer5
-      if (timer == _timer5) _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
+      case _timer5: return _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
     #endif
   }
 }

@@ -123,88 +123,95 @@ static inline void handle_interrupts(const timer16_Sequence_t timer, volatile ui
 /****************** end of static functions ******************************/
 
 void initISR(const timer16_Sequence_t timer) {
-  #ifdef _useTimer1
-    if (timer == _timer1) {
-      TCCR1A = 0;             // normal counting mode
-      TCCR1B = _BV(CS11);     // set prescaler of 8
-      TCNT1 = 0;              // clear the timer count
-      #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega128__)
-        SBI(TIFR, OCF1A);      // clear any pending interrupts;
-        SBI(TIMSK, OCIE1A);    // enable the output compare interrupt
-      #else
-        // here if not ATmega8 or ATmega128
-        SBI(TIFR1, OCF1A);     // clear any pending interrupts;
-        SBI(TIMSK1, OCIE1A);   // enable the output compare interrupt
-      #endif
-      #ifdef WIRING
-        timerAttach(TIMER1OUTCOMPAREA_INT, Timer1Service);
-      #endif
-    }
-  #endif
+  switch (timer) {
+    #ifdef _useTimer1
+      case _timer1:
+        TCCR1A = 0;             // normal counting mode
+        TCCR1B = _BV(CS11);     // set prescaler of 8
+        TCNT1 = 0;              // clear the timer count
+        #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega128__)
+          SBI(TIFR, OCF1A);      // clear any pending interrupts;
+          SBI(TIMSK, OCIE1A);    // enable the output compare interrupt
+        #else
+          // here if not ATmega8 or ATmega128
+          SBI(TIFR1, OCF1A);     // clear any pending interrupts;
+          SBI(TIMSK1, OCIE1A);   // enable the output compare interrupt
+        #endif
+        #ifdef WIRING
+          timerAttach(TIMER1OUTCOMPAREA_INT, Timer1Service);
+        #endif
+        break;
+    #endif
 
-  #ifdef _useTimer3
-    if (timer == _timer3) {
-      TCCR3A = 0;             // normal counting mode
-      TCCR3B = _BV(CS31);     // set prescaler of 8
-      TCNT3 = 0;              // clear the timer count
-      #ifdef __AVR_ATmega128__
-        SBI(TIFR, OCF3A);     // clear any pending interrupts;
-        SBI(ETIMSK, OCIE3A);  // enable the output compare interrupt
-      #else
-        SBI(TIFR3, OCF3A);   // clear any pending interrupts;
-        SBI(TIMSK3, OCIE3A); // enable the output compare interrupt
-      #endif
-      #ifdef WIRING
-        timerAttach(TIMER3OUTCOMPAREA_INT, Timer3Service);  // for Wiring platform only
-      #endif
-    }
-  #endif
+    #ifdef _useTimer3
+      case _timer3:
+        TCCR3A = 0;             // normal counting mode
+        TCCR3B = _BV(CS31);     // set prescaler of 8
+        TCNT3 = 0;              // clear the timer count
+        #ifdef __AVR_ATmega128__
+          SBI(TIFR, OCF3A);     // clear any pending interrupts;
+          SBI(ETIMSK, OCIE3A);  // enable the output compare interrupt
+        #else
+          SBI(TIFR3, OCF3A);   // clear any pending interrupts;
+          SBI(TIMSK3, OCIE3A); // enable the output compare interrupt
+        #endif
+        #ifdef WIRING
+          timerAttach(TIMER3OUTCOMPAREA_INT, Timer3Service);  // for Wiring platform only
+        #endif
+        break;
+    #endif
 
-  #ifdef _useTimer4
-    if (timer == _timer4) {
-      TCCR4A = 0;             // normal counting mode
-      TCCR4B = _BV(CS41);     // set prescaler of 8
-      TCNT4 = 0;              // clear the timer count
-      TIFR4 = _BV(OCF4A);     // clear any pending interrupts;
-      TIMSK4 = _BV(OCIE4A);   // enable the output compare interrupt
-    }
-  #endif
+    #ifdef _useTimer4
+      case _timer4:
+        TCCR4A = 0;             // normal counting mode
+        TCCR4B = _BV(CS41);     // set prescaler of 8
+        TCNT4 = 0;              // clear the timer count
+        TIFR4 = _BV(OCF4A);     // clear any pending interrupts;
+        TIMSK4 = _BV(OCIE4A);   // enable the output compare interrupt
+        break;
+    #endif
 
-  #ifdef _useTimer5
-    if (timer == _timer5) {
-      TCCR5A = 0;             // normal counting mode
-      TCCR5B = _BV(CS51);     // set prescaler of 8
-      TCNT5 = 0;              // clear the timer count
-      TIFR5 = _BV(OCF5A);     // clear any pending interrupts;
-      TIMSK5 = _BV(OCIE5A);   // enable the output compare interrupt
-    }
-  #endif
+    #ifdef _useTimer5
+      case _timer5:
+        TCCR5A = 0;             // normal counting mode
+        TCCR5B = _BV(CS51);     // set prescaler of 8
+        TCNT5 = 0;              // clear the timer count
+        TIFR5 = _BV(OCF5A);     // clear any pending interrupts;
+        TIMSK5 = _BV(OCIE5A);   // enable the output compare interrupt
+        break;
+    #endif
+  }
 }
 
 void finISR(const timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
-    if (timer == _timer1) {
-      CBI(
-        #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-          TIMSK1
-        #else
-          TIMSK
-        #endif
-        , OCIE1A    // disable timer 1 output compare interrupt
-      );
-      timerDetach(TIMER1OUTCOMPAREA_INT);
-    }
-    else if (timer == _timer3) {
-      CBI(
-        #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-          TIMSK3
-        #else
-          ETIMSK
-        #endif
-        , OCIE3A    // disable the timer3 output compare A interrupt
-      );
-      timerDetach(TIMER3OUTCOMPAREA_INT);
+    switch (timer) {
+      case _timer1:
+        CBI(
+          #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+            TIMSK1
+          #else
+            TIMSK
+          #endif
+          , OCIE1A    // disable timer 1 output compare interrupt
+        );
+        timerDetach(TIMER1OUTCOMPAREA_INT);
+        break;
+
+      case _timer3:
+        CBI(
+          #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+            TIMSK3
+          #else
+            ETIMSK
+          #endif
+          , OCIE3A    // disable the timer3 output compare A interrupt
+        );
+        timerDetach(TIMER3OUTCOMPAREA_INT);
+        break;
+
+      default: break;
     }
   #else // !WIRING
     // For arduino - in future: call here to a currently undefined function to reset the timer
