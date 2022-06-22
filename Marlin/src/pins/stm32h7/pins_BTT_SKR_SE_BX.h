@@ -47,6 +47,7 @@
 #define FIL_RUNOUT_PIN                      PD13
 #define FIL_RUNOUT2_PIN                     PB13
 
+// Note: You need comment PA13 and PA14 on STM32H7 to use SWD debugger
 #define LED_PIN                             PA13
 #define BEEPER_PIN                          PA14
 
