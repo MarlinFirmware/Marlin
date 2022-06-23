@@ -52,24 +52,22 @@ def encrypt_mks(source, target, env, new_name):
 	mf = env["MARLIN_FEATURES"]
 	if "FIRMWARE_BIN" in mf: new_name = mf["FIRMWARE_BIN"]
 
-	fwpath = target[0].path
-	fwfile = open(fwpath, "rb")
-	enfile = open(target[0].dir.path + "/" + new_name, "wb")
-	length = os.path.getsize(fwpath)
+	firmware = open(target[0].path, "rb")
+	renamed = open(target[0].dir.path + "/" + new_name, "wb")
+	length = os.path.getsize(target[0].path)
 	position = 0
 	try:
 		while position < length:
-			byte = fwfile.read(1)
+			byte = firmware.read(1)
 			if position >= 320 and position < 31040:
 				byte = chr(ord(byte) ^ key[position & 31])
 				if sys.version_info[0] > 2:
 					byte = bytes(byte, 'latin1')
-			enfile.write(byte)
+			renamed.write(byte)
 			position += 1
 	finally:
-		fwfile.close()
-		enfile.close()
-		os.remove(fwpath)
+		firmware.close()
+		renamed.close()
 
 def add_post_action(action):
 	env.AddPostAction(join("$BUILD_DIR", "${PROGNAME}.bin"), action);
