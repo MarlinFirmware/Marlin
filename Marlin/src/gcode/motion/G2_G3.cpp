@@ -315,7 +315,7 @@ void plan_arc(
         // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
         // To reduce stuttering, the sin and cos could be computed at different times.
         // For now, compute both at the same time.
-        const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
+        const float Ti = i * theta_per_segment, cos_Ti = cos(Ti), sin_Ti = sin(Ti);
         rvec.a = -offset[0] * cos_Ti + offset[1] * sin_Ti;
         rvec.b = -offset[0] * sin_Ti - offset[1] * cos_Ti;
       }
