@@ -36,7 +36,17 @@
 #include "../../../MarlinCore.h"
 #include <math.h>
 
+//#define DEBUG_UBL_MOTION
+#define DEBUG_OUT ENABLED(DEBUG_UBL_MOTION)
+#include "../../../core/debug_out.h"
+
 #if !UBL_SEGMENTED
+
+  // TODO: The first and last parts of a move might result in very short segment(s)
+  //       after getting split on the cell boundary, so moves like that should not
+  //       get split. This will be most common for moves that start/end near the
+  //       corners of cells. To fix the issue, simply check if the start/end of the line
+  //       is very close to a cell boundary in advance and don't split the line there.
 
   void unified_bed_leveling::line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t extruder) {
     /**
@@ -176,7 +186,9 @@
           dest.z += z0;
           planner.buffer_segment(dest, scaled_fr_mm_s, extruder);
 
-        } //else printf("FIRST MOVE PRUNED  ");
+        }
+        else
+          DEBUG_ECHOLNPGM("[ubl] skip Y segment");
       }
 
       // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
@@ -225,7 +237,9 @@
           dest.z += z0;
           if (!planner.buffer_segment(dest, scaled_fr_mm_s, extruder)) break;
 
-        } //else printf("FIRST MOVE PRUNED  ");
+        }
+        else
+          DEBUG_ECHOLNPGM("[ubl] skip Y segment");
       }
 
       if (xy_pos_t(current_position) != xy_pos_t(end))

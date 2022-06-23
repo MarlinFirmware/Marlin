@@ -1782,7 +1782,7 @@ void Planner::synchronize() { while (busy()) idle(); }
 bool Planner::_buffer_steps(const xyze_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters
+  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
   OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/)
 ) {
 
@@ -1797,11 +1797,12 @@ bool Planner::_buffer_steps(const xyze_long_t &target
 
   // Fill the block with the specified movement
   if (!_populate_block(block, false, target
-    OPTARG(HAS_POSITION_FLOAT, target_float)
-    OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
-    , fr_mm_s, extruder, millimeters
-    OPTARG(ARC_SUPPORT, arc_radius)
-  )) {
+        OPTARG(HAS_POSITION_FLOAT, target_float)
+        OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
+        , fr_mm_s, extruder, millimeters
+        OPTARG(ARC_SUPPORT, arc_radius)
+      )
+  ) {
     // Movement was not queued, probably because it was too short.
     //  Simply accept that as movement queued and done
     return true;
@@ -1859,36 +1860,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   );
 
   /* <-- add a slash to enable
-    SERIAL_ECHOLNPGM(
-      "  _populate_block FR:", fr_mm_s,
-      " A:", target.a, " (", da, " steps)"
-      #if HAS_Y_AXIS
-        " B:", target.b, " (", db, " steps)"
-      #endif
-      #if HAS_Z_AXIS
-        " C:", target.c, " (", dc, " steps)"
-      #endif
-      #if HAS_I_AXIS
-        " " STR_I ":", target.i, " (", di, " steps)"
-      #endif
-      #if HAS_J_AXIS
-        " " STR_J ":", target.j, " (", dj, " steps)"
-      #endif
-      #if HAS_K_AXIS
-        " " STR_K ":", target.k, " (", dk, " steps)"
-      #endif
-      #if HAS_U_AXIS
-        " " STR_U ":", target.u, " (", du, " steps)"
-      #endif
-      #if HAS_V_AXIS
-        " " STR_V ":", target.v, " (", dv, " steps)"
-      #endif
-      #if HAS_W_AXIS
-        " " STR_W ":", target.w, " (", dw, " steps)"
-      #if HAS_EXTRUDERS
-        " E:", target.e, " (", de, " steps)"
-      #endif
-    );
+    #define _ALINE(A) " A:", target[_AXIS(A)], " (", int32_t(target[_AXIS(A)] - position[_AXIS(A)]), " steps)"
+    SERIAL_ECHOLNPGM("  _populate_block FR:", fr_mm_s, LOGICAL_AXIS_MAP(_ALINE));
   //*/
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
@@ -2653,14 +2626,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         // Convert delta vector to unit vector
         xyze_float_t junction_unit_vec = unit_vec - prev_unit_vec;
         normalize_junction_vector(junction_unit_vec);
+
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
 
-        #if ENABLED(ARC_SUPPORT)
-          if (arc_radius > 0.0)
-            vmax_junction_sqr = junction_acceleration * arc_radius;
-          else
-        #endif
-        {
+        if (TERN0(ARC_SUPPORT, arc_radius)) {
+          TERN_(ARC_SUPPORT, vmax_junction_sqr = junction_acceleration * arc_radius);
+        }
+        else {
           NOLESS(junction_cos_theta, -0.999999f); // Check for numerical round-off to avoid divide by zero.
 
           const float sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
