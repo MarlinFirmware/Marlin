@@ -41,7 +41,7 @@
  *
  * Distance to reach a specific speed with a constant acceleration:
  *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, d, t]
- *   d -> (m^2 - s^2)/(2 a) --> estimate_acceleration_distance()
+ *   d -> (m^2 - s^2)/(2 a)
  *
  * Speed after a given distance of travel with constant acceleration:
  *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, m, t]
@@ -52,10 +52,15 @@
  * When to start braking (di) to reach a specified destination speed (s2) after accelerating
  * from initial speed s1 without ever stopping at a plateau:
  *   Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]
- *   di -> (2 a d - s1^2 + s2^2)/(4 a) --> intersection_distance()
+ *   di -> (2 a d - s1^2 + s2^2)/(4 a)
  *
- * IntersectionDistance[s1_, s2_, a_, d_] := (2 a d - s1^2 + s2^2)/(4 a)
+ * We note, as an optimisation, that if we have already calculated an
+ * acceleration distance d1 from s1 to m and a deceration distance d2
+ * from m to s2 then
  *
+ *   d1 -> (m^2 - s1^2)/(2 a)
+ *   d2 -> (m^2 - s2^2)/(2 a)
+ *   di -> (d + d1 - d2) / 2
  * --
  *
  * The fast inverse function needed for Bézier interpolation for AVR
@@ -786,36 +791,44 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
   #if ENABLED(S_CURVE_ACCELERATION)
-    uint32_t cruise_rate = initial_rate;
+    // If we have some plateau time, the cruise rate will be the nominal rate
+    uint32_t cruise_rate = block->nominal_rate;
   #endif
 
   const int32_t accel = block->acceleration_steps_per_s2;
 
-          // Steps required for acceleration, deceleration to/from nominal rate
-  uint32_t accelerate_steps = CEIL(estimate_acceleration_distance(initial_rate, block->nominal_rate, accel)),
-           decelerate_steps = FLOOR(estimate_acceleration_distance(block->nominal_rate, final_rate, -accel));
-          // Steps between acceleration and deceleration, if any
-  int32_t plateau_steps = block->step_event_count - accelerate_steps - decelerate_steps;
+  // Steps for acceleration, plateau and deceleration
+  int32_t plateau_steps = block->step_event_count;
+  uint32_t accelerate_steps = 0,
+           decelerate_steps = 0;
 
-  // Does accelerate_steps + decelerate_steps exceed step_event_count?
-  // Then we can't possibly reach the nominal rate, there will be no cruising.
-  // Use intersection_distance() to calculate accel / braking time in order to
-  // reach the final_rate exactly at the end of this block.
-  if (plateau_steps < 0) {
-    const float accelerate_steps_float = CEIL(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
-    accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
-    decelerate_steps = block->step_event_count - accelerate_steps;
-    plateau_steps = 0;
+  if (accel != 0) {
+    // Steps required for acceleration, deceleration to/from nominal rate
+    const float nominal_rate_sq = sq(float(block->nominal_rate));
+    float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5 / accel);
+    accelerate_steps = CEIL(accelerate_steps_float);
+    const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5 / accel);
+    decelerate_steps = decelerate_steps_float;
 
-    #if ENABLED(S_CURVE_ACCELERATION)
-      // We won't reach the cruising rate. Let's calculate the speed we will reach
-      cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
-    #endif
+    // Steps between acceleration and deceleration, if any
+    plateau_steps -= accelerate_steps + decelerate_steps;
+
+    // Does accelerate_steps + decelerate_steps exceed step_event_count?
+    // Then we can't possibly reach the nominal rate, there will be no cruising.
+    // Calculate accel / braking time in order to reach the final_rate exactly
+    // at the end of this block.
+    if (plateau_steps < 0) {
+      accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5);
+      accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
+      decelerate_steps = block->step_event_count - accelerate_steps;
+      plateau_steps = 0;
+
+      #if ENABLED(S_CURVE_ACCELERATION)
+        // We won't reach the cruising rate. Let's calculate the speed we will reach
+        cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
+      #endif
+    }
   }
-  #if ENABLED(S_CURVE_ACCELERATION)
-    else // We have some plateau time, so the cruise rate will be the nominal rate
-      cruise_rate = block->nominal_rate;
-  #endif
 
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps

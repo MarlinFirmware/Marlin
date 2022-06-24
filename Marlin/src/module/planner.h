@@ -1010,28 +1010,6 @@ class Planner {
     static constexpr uint8_t prev_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
-     * Calculate the distance (not time) it takes to accelerate
-     * from initial_rate to target_rate using the given acceleration:
-     */
-    static float estimate_acceleration_distance(const_float_t initial_rate, const_float_t target_rate, const_float_t accel) {
-      if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
-      return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
-    }
-
-    /**
-     * Return the point at which you must start braking (at the rate of -'accel') if
-     * you start at 'initial_rate', accelerate (until reaching the point), and want to end at
-     * 'final_rate' after traveling 'distance'.
-     *
-     * This is used to compute the intersection point between acceleration and deceleration
-     * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
-     */
-    static float intersection_distance(const_float_t initial_rate, const_float_t final_rate, const_float_t accel, const_float_t distance) {
-      if (accel == 0) return 0; // accel was 0, set intersection distance to 0
-      return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
-    }
-
-    /**
      * Calculate the maximum allowable speed squared at this point, in order
      * to reach 'target_velocity_sqr' using 'acceleration' within a given
      * 'distance'.
