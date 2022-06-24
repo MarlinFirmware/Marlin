@@ -302,12 +302,10 @@ void plan_arc(
       ARC_LIJKE_CODE(
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           raw[axis_l] = start_L,
-          raw.i = start_I, raw.j = start_J, raw.k = start_K,
-          raw.u = start_U, raw.v = start_V, raw.w = start_V
+          raw.i = start_I, raw.j = start_J, raw.k = start_K
         #else
           raw[axis_l] += per_segment_L,
-          raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
-          raw.u += per_segment_U, raw.v += per_segment_V, raw.w += per_segment_W
+          raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K
         #endif
         , raw.e += extruder_per_segment
       );
