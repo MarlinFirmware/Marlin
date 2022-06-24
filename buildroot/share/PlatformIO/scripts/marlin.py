@@ -41,8 +41,8 @@ def custom_ld_script(ldname):
 		elif flag == "-T":
 			env["LINKFLAGS"][i + 1] = apath
 
-# Encrypt ${PROGNAME}.bin and save it with a new name
-# Called by specific encrypt() functions, mostly for MKS boards
+# Encrypt ${PROGNAME}.bin and save it with a new name. This applies (mostly) to MKS boards
+# This PostAction is set up by offset_and_rename.py for envs with 'build.encrypt_mks'.
 def encrypt_mks(source, target, env, new_name):
 	import sys
 
@@ -52,22 +52,24 @@ def encrypt_mks(source, target, env, new_name):
 	mf = env["MARLIN_FEATURES"]
 	if "FIRMWARE_BIN" in mf: new_name = mf["FIRMWARE_BIN"]
 
-	firmware = open(target[0].path, "rb")
-	renamed = open(target[0].dir.path + "/" + new_name, "wb")
-	length = os.path.getsize(target[0].path)
+	fwpath = target[0].path
+	fwfile = open(fwpath, "rb")
+	enfile = open(target[0].dir.path + "/" + new_name, "wb")
+	length = os.path.getsize(fwpath)
 	position = 0
 	try:
 		while position < length:
-			byte = firmware.read(1)
+			byte = fwfile.read(1)
 			if position >= 320 and position < 31040:
 				byte = chr(ord(byte) ^ key[position & 31])
 				if sys.version_info[0] > 2:
 					byte = bytes(byte, 'latin1')
-			renamed.write(byte)
+			enfile.write(byte)
 			position += 1
 	finally:
-		firmware.close()
-		renamed.close()
+		fwfile.close()
+		enfile.close()
+		os.remove(fwpath)
 
 def add_post_action(action):
 	env.AddPostAction(join("$BUILD_DIR", "${PROGNAME}.bin"), action);
