@@ -669,9 +669,9 @@
  * Number of Linear Axes (e.g., XYZIJKUVW)
  * All the logical axes except for the tool (E) axis
  */
-#ifdef LINEAR_AXES
-  #undef LINEAR_AXES
-  #define LINEAR_AXES_WARNING 1
+#ifdef NUM_AXES
+  #undef NUM_AXES
+  #define NUM_AXES_WARNING 1
 #endif
 
 #ifdef W_DRIVER_TYPE

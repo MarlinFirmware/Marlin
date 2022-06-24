@@ -619,6 +619,8 @@
   #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS is now just Z_STEPPER_ALIGN_STEPPER_XY."
 #elif defined(DWIN_CREALITY_LCD_ENHANCED)
   #error "DWIN_CREALITY_LCD_ENHANCED is now DWIN_LCD_PROUI."
+#elif defined(LINEAR_AXES)
+  #error "LINEAR_AXES is now NUM_AXES (to account for rotational axes)."
 #elif defined(X_DUAL_STEPPER_DRIVERS)
   #error "X_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Y_DUAL_STEPPER_DRIVERS)
