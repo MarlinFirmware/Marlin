@@ -355,8 +355,6 @@ namespace Language_vi {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Chỉnh Z Center");                       // Calibrate Center
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Cài Đặt Delta");                        // Delta Settings
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Cân Chỉnh Tự Động");                    // Auto Calibration
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Đặt Chiều Cao Delta");                  // Set Delta Height
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Đầu Dò Z-Bù Đắp");                      // Probe Z-offset
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Gậy Chéo");                             // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Chiều Cao");                            // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Bán Kính");                             // Radius
