@@ -1494,7 +1494,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
     #else // No PID or MPC enabled
 
       const bool is_idling = TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out);
-      const float pid_output = (!is_idling && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
+      const float pid_output = (!is_idling && temp_hotend[ee].is_below_target()) ? BANG_MAX : 0;
 
     #endif
 
@@ -1619,10 +1619,10 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
             #if ENABLED(BED_LIMIT_SWITCHING)
               if (temp_bed.celsius >= temp_bed.target + BED_HYSTERESIS)
                 temp_bed.soft_pwm_amount = 0;
-              else if (temp_bed.celsius <= temp_bed.target - (BED_HYSTERESIS))
+              else if (temp_bed.is_below_target(-(BED_HYSTERESIS) + 1))
                 temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
             #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-              temp_bed.soft_pwm_amount = temp_bed.celsius < temp_bed.target ? MAX_BED_POWER >> 1 : 0;
+              temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
             #endif
           }
           else {
@@ -1734,17 +1734,17 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
           if (flag_chamber_excess_heat) {
             temp_chamber.soft_pwm_amount = 0;
             #if ENABLED(CHAMBER_VENT)
-              if (!flag_chamber_off) servo[CHAMBER_VENT_SERVO_NR].move(temp_chamber.celsius <= temp_chamber.target ? 0 : 90);
+              if (!flag_chamber_off) servo[CHAMBER_VENT_SERVO_NR].move(temp_chamber.is_below_target() ? 0 : 90);
             #endif
           }
           else {
             #if ENABLED(CHAMBER_LIMIT_SWITCHING)
               if (temp_chamber.celsius >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
                 temp_chamber.soft_pwm_amount = 0;
-              else if (temp_chamber.celsius <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
+              else if (temp_chamber.is_below_target(-(TEMP_CHAMBER_HYSTERESIS) + 1))
                 temp_chamber.soft_pwm_amount = (MAX_CHAMBER_POWER) >> 1;
             #else
-              temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? (MAX_CHAMBER_POWER) >> 1 : 0;
+              temp_chamber.soft_pwm_amount = temp_chamber.is_below_target() ? (MAX_CHAMBER_POWER) >> 1 : 0;
             #endif
             #if ENABLED(CHAMBER_VENT)
               if (!flag_chamber_off) servo[CHAMBER_VENT_SERVO_NR].move(0);
