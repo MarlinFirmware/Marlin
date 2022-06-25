@@ -28,7 +28,7 @@
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Longer3D only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "Longer3D only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "Longer3D"

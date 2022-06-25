@@ -54,7 +54,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
 
 
       .tag(7) .button(BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
-      .tag(8) .button(BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
+      .tag(8) .button(BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_MAX_SPEED))
       .tag(9) .button(BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
       .tag(10) .button(BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
                .enabled(ENABLED(BACKLASH_GCODE))
@@ -64,7 +64,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(13) .button(BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE))
       .tag(14) .button(BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_DEFAULTS))
                .colors(action_btn)
-      .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_DONE));
+      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

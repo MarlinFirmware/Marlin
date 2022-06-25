@@ -109,7 +109,7 @@ LIQUID_TWI2        ?= 0
 # This defines if Wire is needed
 WIRE               ?= 0
 
-# This defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
+# This defines if Tone is needed (i.e., SPEAKER is defined in Configuration.h)
 # Disabling this (and SPEAKER) saves approximately 350 bytes of memory.
 TONE               ?= 1
 
@@ -512,7 +512,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1324)
 else ifeq ($(HARDWARE_MOTHERBOARD),1325)
 # Intamsys 4.0 (Funmat HT)
 else ifeq ($(HARDWARE_MOTHERBOARD),1326)
-# Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
+# Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
 else ifeq ($(HARDWARE_MOTHERBOARD),1327)
 # Geeetech GT2560 Rev B for A20(M/T/D)
 else ifeq ($(HARDWARE_MOTHERBOARD),1328)

@@ -238,9 +238,7 @@ void Draw_Tramming_Menu();
 #if HAS_BED_PROBE
   void Draw_ProbeSet_Menu();
 #endif
-#if HAS_FILAMENT_SENSOR
-  void Draw_FilSet_Menu();
-#endif
+void Draw_FilSet_Menu();
 #if ENABLED(NOZZLE_PARK_FEATURE)
   void Draw_ParkPos_Menu();
 #endif

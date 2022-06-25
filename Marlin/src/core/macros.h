@@ -644,8 +644,8 @@
 #define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
 #define PROBE() ~, 1                    // Second item will be 1 if this is passed
 #define _NOT_0 PROBE()
-#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
-#define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
+#define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
 
 #define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
 #define _IF_ELSE(TF) _CAT(_IF_, TF)
@@ -658,7 +658,6 @@
 
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0
-
 
 // Simple Inline IF Macros, friendly to use in other macro definitions
 #define IF(O, A, B) ((O) ? (A) : (B))
@@ -712,13 +711,22 @@
 #define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
 
-// See https://github.com/swansontec/map-macro
-#define MAP_OUT
-#define MAP_END(...)
-#define MAP_GET_END() 0, MAP_END
-#define MAP_NEXT0(test, next, ...) next MAP_OUT
-#define MAP_NEXT1(test, next) MAP_NEXT0 (test, next, 0)
-#define MAP_NEXT(test, next)  MAP_NEXT1 (MAP_GET_END test, next)
-#define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
-#define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
-#define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))
+// Call OP(A) with each item as an argument
+#define _MAP(_MAP_OP,A,V...)       \
+  _MAP_OP(A)                       \
+  IF_ELSE(HAS_ARGS(V))             \
+    ( DEFER2(__MAP)()(_MAP_OP,V) ) \
+    ( /* Do nothing */ )
+#define __MAP() _MAP
+
+#define MAP(OP,V...) EVAL(_MAP(OP,V))
+
+// Emit a list of OP(A) with the given items
+#define _MAPLIST(_MAP_OP,A,V...)         \
+  _MAP_OP(A)                             \
+  IF_ELSE(HAS_ARGS(V))                   \
+    ( , DEFER2(__MAPLIST)()(_MAP_OP,V) ) \
+    ( /* Do nothing */ )
+#define __MAPLIST() _MAPLIST
+
+#define MAPLIST(OP,V...) EVAL(_MAPLIST(OP,V))

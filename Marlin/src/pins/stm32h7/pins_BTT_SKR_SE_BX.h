@@ -33,6 +33,7 @@
 #define MARLIN_EEPROM_SIZE                0x1000  // 4K (24C32)
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+//#define SWD_DEBUG                               // Use pins PA13 and PA14 on STM32H7 for the SWD debugger
 
 //
 // Limit Switches
@@ -47,10 +48,10 @@
 #define FIL_RUNOUT_PIN                      PD13
 #define FIL_RUNOUT2_PIN                     PB13
 
-#define LED_PIN                             PA13
-#define BEEPER_PIN                          PA14
-
-#define TFT_BACKLIGHT_PIN                   PB5
+#ifndef SWD_DEBUG
+  #define LED_PIN                           PA13
+  #define BEEPER_PIN                        PA14
+#endif
 
 #define POWER_MONITOR_PIN                   PB0
 #define RPI_POWER_PIN                       PE5

@@ -130,83 +130,167 @@
 
 int lcd_glyph_height();
 
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length);
+/**
+ * @brief Draw a UTF-8 character
+ *
+ * @param utf8_str : the UTF-8 character
+ * @param max_length : the output width limit (in pixels on GLCD)
+ *
+ * @return the output width (in pixels on GLCD)
+ */
+int lcd_put_wchar_max(const wchar_t c, const pixel_len_t max_length);
 
 /**
- * @brief Draw a UTF-8 string
+ * @brief Draw a SRAM UTF-8 string
  *
  * @param utf8_str : the UTF-8 string
- * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
+ * @param max_length : the output width limit (in pixels on GLCD)
  *
- * @return the pixel width
- *
- * Draw a UTF-8 string
+ * @return the output width (in pixels on GLCD)
  */
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length);
+int lcd_put_u8str_max(const char *utf8_str, const pixel_len_t max_length);
 
 /**
- * Set the print baseline position
+ * Change the print cursor position
  */
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row);
 
 /**
  * @brief Draw a ROM UTF-8 string
  *
- * @param utf8_pstr : the ROM UTF-8 string
- * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
+ * @param pstr : the ROM UTF-8 string
+ * @param max_length : the output width limit (in pixels on GLCD)
  *
- * @return the pixel width
- *
- * Draw a ROM UTF-8 string
+ * @return the output width (in pixels on GLCD)
  */
-int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length);
-inline int lcd_put_u8str_max_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P utf8_pstr, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(PGM_P pstr, const pixel_len_t max_length);
+inline int lcd_put_u8str_max_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P pstr, const pixel_len_t max_length) {
   lcd_moveto(col, row);
-  return lcd_put_u8str_max_P(utf8_pstr, max_length);
+  return lcd_put_u8str_max_P(pstr, max_length);
 }
-inline int lcd_put_u8str_max(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const utf8_fstr, pixel_len_t max_length) {
-  return lcd_put_u8str_max_P(col, row, FTOP(utf8_fstr), max_length);
+inline int lcd_put_u8str_max(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const fstr, const pixel_len_t max_length) {
+  return lcd_put_u8str_max_P(col, row, FTOP(fstr), max_length);
 }
 
+/**
+ * @brief Draw an integer, left-justified
+ *
+ * @param i : the integer
+ */
 void lcd_put_int(const int i);
 inline void lcd_put_int(const lcd_uint_t col, const lcd_uint_t row, const int i) {
   lcd_moveto(col, row);
   lcd_put_int(i);
 }
 
+/**
+ * @brief Draw a ROM UTF-8 string
+ *
+ * @param i : the integer
+ */
 inline int lcd_put_u8str_P(PGM_P const pstr) { return lcd_put_u8str_max_P(pstr, PIXEL_LEN_NOLIMIT); }
 inline int lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const pstr) {
   lcd_moveto(col, row);
   return lcd_put_u8str_P(pstr);
 }
 
+/**
+ * @brief Draw a ROM UTF-8 F-string
+ *
+ * @param fstr The F-string pointer
+ * @return the output width (in pixels on GLCD)
+ */
 inline int lcd_put_u8str(FSTR_P const fstr) { return lcd_put_u8str_P(FTOP(fstr)); }
 inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const fstr) {
   return lcd_put_u8str_P(col, row, FTOP(fstr));
 }
 
-lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH);
-inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const pstr, const int8_t ind, PGM_P const inStr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
+/**
+ * @brief Draw a string with optional substitution
+ * @details Print a string with optional substitutions:
+ *   $ displays the clipped string given by fstr or cstr
+ *   = displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
+ *
+ * @param ptpl A ROM string (template)
+ * @param ind An index value to use for = ~ * substitution
+ * @param cstr An SRAM C-string to use for $ substitution
+ * @param fstr A ROM F-string to use for $ substitution
+ * @param maxlen The maximum size of the string (in pixels on GLCD)
+ * @return the output width (in pixels on GLCD)
+ */
+lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH);
+inline lcd_uint_t lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
   lcd_moveto(col, row);
-  return lcd_put_u8str_ind_P(pstr, ind, inStr, maxlen);
+  return lcd_put_u8str_P(ptpl, ind, cstr, fstr, maxlen);
 }
-inline lcd_uint_t lcd_put_u8str_ind(FSTR_P const fstr, const int8_t ind, FSTR_P const inFstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
-  return lcd_put_u8str_ind_P(FTOP(fstr), ind, FTOP(inFstr), maxlen);
+/**
+ * @brief Draw a ROM UTF-8 F-string with optional substitution
+ * @details (See above)
+ *
+ * @param ftpl A ROM F-string (template)
+ * @param ind An index value to use for = ~ * substitution
+ * @param cstr An SRAM C-string to use for $ substitution
+ * @param fstr A ROM F-string to use for $ substitution
+ * @param maxlen The maximum size of the string (in pixels on GLCD)
+ * @return the output width (in pixels on GLCD)
+ */
+inline lcd_uint_t lcd_put_u8str(FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
+  return lcd_put_u8str_P(FTOP(ftpl), ind, cstr, fstr, maxlen);
 }
-inline lcd_uint_t lcd_put_u8str_ind(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const fstr, const int8_t ind, FSTR_P const inFstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
-  return lcd_put_u8str_ind_P(col, row, FTOP(fstr), ind, FTOP(inFstr), maxlen);
+/**
+ * @param col
+ * @param row
+ */
+inline lcd_uint_t lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
+  return lcd_put_u8str_P(col, row, FTOP(ftpl), ind, cstr, fstr, maxlen);
 }
 
+/**
+ * @brief Draw a SRAM string with no width limit
+ *
+ * @param str The UTF-8 string
+ * @return the output width (in pixels on GLCD)
+ */
 inline int lcd_put_u8str(const char * const str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }
+/**
+ * @param col
+ * @param row
+ */
 inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, const char * const str) {
   lcd_moveto(col, row);
   return lcd_put_u8str(str);
 }
 
+/**
+ * @brief Draw a UTF-8 character with no width limit
+ *
+ * @param c The wchar to draw
+ * @return the output width (in pixels on GLCD)
+ */
 inline int lcd_put_wchar(const wchar_t c) { return lcd_put_wchar_max(c, PIXEL_LEN_NOLIMIT); }
+/**
+ * @param col
+ * @param row
+ */
 inline int lcd_put_wchar(const lcd_uint_t col, const lcd_uint_t row, const wchar_t c) {
   lcd_moveto(col, row);
   return lcd_put_wchar(c);
 }
 
+/**
+ * @brief Calculate the width of a ROM UTF-8 string (in pixels on GLCD)
+ *
+ * @param pstr The ROM-based UTF-8 string
+ * @return the string width (in pixels on GLCD)
+ */
 int calculateWidth(PGM_P const pstr);
+/**
+ * @brief Calculate the width of a ROM UTF-8 string (in pixels on GLCD)
+ *
+ * @param pstr The ROM-based UTF-8 string
+ * @return the string width (in pixels on GLCD)
+ */
+inline int calculateWidth(FSTR_P const fstr) { return calculateWidth(FTOP(fstr)); }

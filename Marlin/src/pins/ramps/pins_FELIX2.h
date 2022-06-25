@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Felix 2.0+ supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Felix 2.0+ supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Felix 2.0+"

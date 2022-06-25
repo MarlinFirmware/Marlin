@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "KFB 2.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "KFB 2.0 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "KFB 2.0"

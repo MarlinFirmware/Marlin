@@ -140,18 +140,20 @@
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                            16
+#if HAS_WIRED_LCD
+  #define BEEPER_PIN                          16
 
-// Pins for DOGM SPI LCD Support
-#define DOGLCD_A0                             39
-#define DOGLCD_CS                             35
-#define DOGLCD_MOSI                           48
-#define DOGLCD_SCK                            49
+  #define BTN_EN1                             36
+  #define BTN_EN2                             34
+  #define BTN_ENC                             38
 
-// The encoder and click button
-#define BTN_EN1                               36
-#define BTN_EN2                               34
-#define BTN_ENC                               38
+  #if HAS_MARLINUI_U8GLIB
+    #define DOGLCD_A0                         39
+    #define DOGLCD_CS                         35
+    #define DOGLCD_MOSI                       48
+    #define DOGLCD_SCK                        49
+  #endif
+#endif
 
 // Hardware buttons for manual movement of XYZ
 #define SHIFT_OUT_PIN                         42
