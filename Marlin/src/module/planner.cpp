@@ -1131,7 +1131,7 @@ void Planner::recalculate_trapezoids() {
   // The tail may be changed by the ISR so get a local copy.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
-  // Since there could be a sync block in the head of the queue, and the
+  // Since there could be a sync or page block in the head of the queue, and the
   // next loop must not recalculate the head block (as it needs to be
   // specially handled), scan backwards to the first non-SYNC block.
   while (head_block_index != block_index) {
@@ -1143,7 +1143,7 @@ void Planner::recalculate_trapezoids() {
     block_t *prev = &block_buffer[prev_index];
 
     // If not dealing with a sync block, we are done. The last block is not a SYNC block
-    if (!(prev->flag & BLOCK_MASK_SYNC)) break;
+    if (!(prev->flag & BLOCK_MASK_SYNC) && !IS_PAGE(prev)) break;
 
     // Examine the previous block. This and all following are SYNC blocks
     head_block_index = prev_index;
@@ -1202,12 +1202,12 @@ void Planner::recalculate_trapezoids() {
   }
 
   // Last/newest block in buffer. Exit speed is set with MINIMUM_PLANNER_SPEED. Always recalculated.
-  if (next) {
+  if (block) {
 
-    // Mark the next(last) block as RECALCULATE, to prevent the Stepper ISR running it.
+    // Mark the last block as RECALCULATE, to prevent the Stepper ISR running it.
     // As the last block is always recalculated here, there is a chance the block isn't
     // marked as RECALCULATE yet. That's the reason for the following line.
-    SBI(next->flag, BLOCK_BIT_RECALCULATE);
+    SBI(block->flag, BLOCK_BIT_RECALCULATE);
 
     // But there is an inherent race condition here, as the block maybe
     // became BUSY, just before it was marked as RECALCULATE, so check
@@ -1215,21 +1215,21 @@ void Planner::recalculate_trapezoids() {
     if (!stepper.is_block_busy(block)) {
       // Block is not BUSY, we won the race against the Stepper ISR:
 
-      const float next_nominal_speed = SQRT(next->nominal_speed_sqr),
-                  nomr = 1.0f / next_nominal_speed;
-      calculate_trapezoid_for_block(next, next_entry_speed * nomr, float(MINIMUM_PLANNER_SPEED) * nomr);
+      const float current_nominal_speed = SQRT(block->nominal_speed_sqr),
+                  nomr = 1.0f / current_nominal_speed;
+      calculate_trapezoid_for_block(block, current_entry_speed * nomr, float(MINIMUM_PLANNER_SPEED) * nomr);
       #if ENABLED(LIN_ADVANCE)
-        if (next->use_advance_lead) {
-          const float comp = next->e_D_ratio * extruder_advance_K[active_extruder] * settings.axis_steps_per_mm[E_AXIS];
-          next->max_adv_steps = next_nominal_speed * comp;
-          next->final_adv_steps = (MINIMUM_PLANNER_SPEED) * comp;
+        if (block->use_advance_lead) {
+          const float comp = block->e_D_ratio * extruder_advance_K[active_extruder] * settings.axis_steps_per_mm[E_AXIS];
+          block->max_adv_steps = current_nominal_speed * comp;
+          block->final_adv_steps = (MINIMUM_PLANNER_SPEED) * comp;
         }
       #endif
     }
 
-    // Reset next only to ensure its trapezoid is computed - The stepper is free to use
+    // Reset block to ensure its trapezoid is computed - The stepper is free to use
     // the block from now on.
-    CBI(next->flag, BLOCK_BIT_RECALCULATE);
+    CBI(block->flag, BLOCK_BIT_RECALCULATE);
   }
 }
 
