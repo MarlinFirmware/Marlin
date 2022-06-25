@@ -430,8 +430,6 @@ namespace Language_es {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Configuración Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibración");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Est. Altura Delta");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Ajustar Sonda Z");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra Diagonal");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radio");
