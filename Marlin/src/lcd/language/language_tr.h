@@ -426,8 +426,6 @@ namespace Language_tr {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Ayarla Merkez");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta Ayarları");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Oto Kalibrasyon");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Delta Yük. Ayarla");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Z Prob Ofseti");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Çapral Mil");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Yükseklik");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Yarıçap");
