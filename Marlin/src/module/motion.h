@@ -580,7 +580,8 @@ void home_if_needed(const bool keeplev=false);
 
     #endif
   }
-
+  #endif
+  
   inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
     return position_is_reachable(pos.x, pos.y, inset);
   }
