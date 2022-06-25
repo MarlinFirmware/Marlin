@@ -17,7 +17,7 @@ body:
 
         - Read and understand Marlin's [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md). You are expected to comply with it, including treating everyone with respect.
 
-        - Check the latest [`bugfix-2.0.x` branch](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.0.x.zip) to see if the feature already exists.
+        - Check the latest [`bugfix-2.1.x` branch](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.1.x.zip) to see if the feature already exists.
 
         - Before you proceed with your request, please consider if it is necessary to make it into a firmware feature, or if it may be better suited for a slicer or host feature.
 

@@ -57,15 +57,17 @@ class MenuItemBase {
     // Index to interject in the item label and/or for use by its action.
     static int8_t itemIndex;
 
-    // An optional pointer for use in display or by the action
-    static FSTR_P itemString;
+    // Optional pointers for use in display or by the action
+    static FSTR_P itemStringF;
+    static const char* itemStringC;
 
-    // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemString = fstr; }
+    // Store an index and string for later substitution
+    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
+    FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
 
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
-    // Menus may set up itemIndex, itemString and pass them to string-building or string-emitting functions
+    // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
     static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char);
 
     // Draw an item either selected ('>') or not (space) with post_char
@@ -94,8 +96,8 @@ class MenuItem_back : public MenuItemBase {
 // YESNO_ITEM(LABEL,FY,FN,...)
 class MenuItem_confirm : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
-      _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, ...) {
+      _draw(sel, row, ftpl, '>', LCD_STR_ARROW_RIGHT[0]);
     }
     // Implemented for HD44780 and DOGM
     // Draw the prompt, buttons, and state
@@ -115,11 +117,15 @@ class MenuItem_confirm : public MenuItemBase {
     static void select_screen(
       FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      FSTR_P const pref, FSTR_P const string, FSTR_P const suff=nullptr
+      FSTR_P const pref, FSTR_P const fstr, FSTR_P const suff=nullptr
     ) {
-      char str[strlen_P(FTOP(string)) + 1];
-      strcpy_P(str, FTOP(string));
-      select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+      #ifdef __AVR__
+        char str[strlen_P(FTOP(fstr)) + 1];
+        strcpy_P(str, FTOP(fstr));
+        select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+      #else
+        select_screen(yes, no, yesFunc, noFunc, pref, FTOP(fstr), suff);
+      #endif
     }
     // Shortcut for prompt with "NO"/ "YES" labels
     FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr) {
@@ -174,10 +180,10 @@ class MenuEditItemBase : public MenuItemBase {
   public:
     // Implementation-specific:
     // Draw the current item at specified row with edit data
-    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char * const inStr, const bool pgm=false);
+    static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm=false);
 
-    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, FSTR_P const inStr) {
-      draw(sel, row, fstr, FTOP(inStr), true);
+    static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, FSTR_P const fstr) {
+      draw(sel, row, ftpl, FTOP(fstr), true);
     }
 
     // Implementation-specific:
@@ -212,10 +218,11 @@ void menu_move();
 //////// Menu Item Helper Functions ////////
 ////////////////////////////////////////////
 
+void lcd_move_axis(const AxisEnum);
 void lcd_move_z();
 void _lcd_draw_homing();
 
-#define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LEVEL_BED_CORNERS)
+#define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LCD_BED_TRAMMING)
 
 #if HAS_LINE_TO_Z
   void line_to_z(const_float_t z);
@@ -266,7 +273,7 @@ inline void clear_menu_history() { screen_history_depth = 0; }
 
 #define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }
 
-#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+#if HAS_LEVELING && ANY(LCD_BED_TRAMMING, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
   extern bool leveling_was_active;
 #endif
 

@@ -35,7 +35,7 @@ PGMSTR(SP_P_STR, " P"); PGMSTR(SP_T_STR, " T"); PGMSTR(NUL_STR,   "");
 
 #define _N_STR(N) PGMSTR(N##_STR, STR_##N);
 #define _N_LBL(N) PGMSTR(N##_LBL, STR_##N ":");
-#define _SP_N_STR(N) PGMSTR(SP_##N##_STR, STR_##N ":");
+#define _SP_N_STR(N) PGMSTR(SP_##N##_STR, " " STR_##N);
 #define _SP_N_LBL(N) PGMSTR(SP_##N##_LBL, " " STR_##N ":");
 MAP(_N_STR, LOGICAL_AXIS_NAMES); MAP(_SP_N_STR, LOGICAL_AXIS_NAMES);
 MAP(_N_LBL, LOGICAL_AXIS_NAMES); MAP(_SP_N_LBL, LOGICAL_AXIS_NAMES);
@@ -72,8 +72,8 @@ void serial_print_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
 
-void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serial_print_P(echomagic); }
-void serial_error_start() { static PGMSTR(errormagic, "Error:"); serial_print_P(errormagic); }
+void serial_echo_start()  { serial_print(F("echo:")); }
+void serial_error_start() { serial_print(F("Error:")); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 

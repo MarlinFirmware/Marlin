@@ -3,7 +3,7 @@
 # mffp [1|2] [ref]
 #
 # Push the given commit (or HEAD) upstream immediately.
-# By default: `git push upstream HEAD:bugfix-2.0.x`
+# By default: `git push upstream HEAD:bugfix-2.1.x`
 #
 
 usage() { echo "usage: `basename $0` [1|2] [ref]" 1>&2 ; }

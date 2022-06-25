@@ -50,6 +50,8 @@
     #include "../dogm/marlinui_DOGM.h"
   #endif
 
+  // TODO: Replace fmsg with MSG_BABYSTEP_N and index substitution
+
   void _lcd_babystep(const AxisEnum axis, FSTR_P const fmsg) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
@@ -233,15 +235,15 @@ void menu_tune() {
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
       if (can_babystep_x)
-        SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
+        SUBMENU_N(X_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_x); });
       if (can_babystep_y)
-        SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
+        SUBMENU_N(Y_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_y); });
     #endif
     if (can_babystep_z) {
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
       #else
-        SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
+        SUBMENU_N(Z_AXIS, MSG_BABYSTEP_N, lcd_babystep_z);
       #endif
       #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
         // TODO: Needs proper name

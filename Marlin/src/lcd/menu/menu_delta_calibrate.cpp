@@ -41,6 +41,10 @@
   #include "../extui/ui_api.h"
 #endif
 
+#if HAS_PROBE_XY_OFFSET
+  #include "../../module/probe.h"
+#endif
+
 void _man_probe_pt(const xy_pos_t &xy) {
   if (!ui.wait_for_move) {
     ui.wait_for_move = true;
@@ -88,7 +92,9 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _goto_tower_a(const_float_t a) {
-    constexpr float dcr = DELTA_PRINTABLE_RADIUS;
+    float dcr = DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;
+    TERN_(HAS_PROBE_XY_OFFSET, dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y));
+    TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
     _man_probe_pt(tower_vec * dcr);
   }

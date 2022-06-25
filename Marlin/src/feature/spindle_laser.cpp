@@ -39,7 +39,8 @@
 #endif
 
 SpindleLaser cutter;
-uint8_t SpindleLaser::power;
+uint8_t SpindleLaser::power,
+        SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 #if ENABLED(LASER_FEATURE)
   cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // Test fire Pulse time ms value.
 #endif
@@ -57,7 +58,7 @@ cutter_power_t SpindleLaser::menuPower,                               // Power s
  */
 void SpindleLaser::init() {
   #if ENABLED(SPINDLE_SERVO)
-    MOVE_SERVO(SPINDLE_SERVO_NR, SPINDLE_SERVO_MIN);
+    servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #else
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
   #endif
@@ -113,7 +114,6 @@ void SpindleLaser::init() {
  * @param opwr Power value. Range 0 to MAX. When 0 disable spindle/laser.
  */
 void SpindleLaser::apply_power(const uint8_t opwr) {
-  static uint8_t last_power_applied = 0;
   if (opwr == last_power_applied) return;
   last_power_applied = opwr;
   power = opwr;
@@ -131,7 +131,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
       isReady = false;
     }
   #elif ENABLED(SPINDLE_SERVO)
-    MOVE_SERVO(SPINDLE_SERVO_NR, power);
+    servo[SPINDLE_SERVO_NR].move(power);
   #else
     WRITE(SPINDLE_LASER_ENA_PIN, enabled() ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
     isReady = true;
