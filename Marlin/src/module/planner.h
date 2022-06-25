@@ -199,9 +199,9 @@ typedef struct block_t {
   volatile bool is_move() { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
-  float nominal_speed_sqr,                  // The nominal speed for this block in (mm/sec)^2
-        entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
-        max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
+  float nominal_speed,                      // The nominal speed for this block in (mm/sec)
+        entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec^2)
+        max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec^2)
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
 
@@ -510,7 +510,7 @@ class Planner {
     /**
      * Nominal speed of previous path line segment (mm/s)^2
      */
-    static float previous_nominal_speed_sqr;
+    static float previous_nominal_speed;
 
     /**
      * Limit where 64bit math is necessary for acceleration calculation
