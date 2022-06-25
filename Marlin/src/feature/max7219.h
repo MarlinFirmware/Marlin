@@ -79,24 +79,36 @@
   // function. But an instance can be created in any code block to measure
   // the time spent from the point of instantiation until the CPU leaves
   // block. Be careful about having multiple instances of CodeProfiler as
-  // it does not guard against double counting. Also do not use it inside
-  // ISRs.
+  // it does not guard against double counting. In general mixing ISR and
+  // non-ISR use will require critical sections but note that mode setting
+  // is atomic so the total or average times can safely be read if you set
+  // mode to FREEZE first.
   class CodeProfiler {
+  public:
+    enum Mode : uint8_t { ACCUMULATE_AVERAGE, ACCUMULATE_TOTAL, FREEZE };
+
   private:
+    static Mode mode;
     static uint8_t instance_count;
     static uint32_t last_calc_time;
     static uint32_t total_time;
     static uint8_t time_fraction;
+    static uint16_t call_count;
 
     uint32_t start_time;
 
   public:
     CodeProfiler() : start_time(micros()) { instance_count++; }
     ~CodeProfiler() {
+      instance_count--;
+      if (mode == FREEZE) return;
+
+      call_count++;
+
       const uint32_t now = micros();
       total_time += now - start_time;
 
-      instance_count--;
+      if (mode == ACCUMULATE_TOTAL) return;
 
       // update time_fraction every hundred milliseconds
       if (instance_count == 0 && ELAPSED(now, last_calc_time + 100000)) {
@@ -106,8 +118,19 @@
       }
     }
 
+    static void set_mode(Mode _mode) { mode = _mode; }
+    static void reset() {
+      time_fraction = 0;
+      last_calc_time = micros();
+      total_time = 0;
+      call_count = 0;
+    }
     // returns fraction of total time which was measured, scaled from 0 to 128
     static uint8_t get_time_fraction() { return time_fraction; }
+    // returns total time in microseconds
+    static uint32_t get_total_time() { return total_time; }
+
+    static uint16_t get_call_count() { return call_count; }
   };
 #endif
 

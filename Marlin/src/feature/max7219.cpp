@@ -63,10 +63,12 @@
 #endif
 
 #ifdef MAX7219_DEBUG_PROFILE
+  CodeProfiler::Mode CodeProfiler::mode = ACCUMULATE_AVERAGE;
   uint8_t CodeProfiler::instance_count = 0;
   uint32_t CodeProfiler::last_calc_time = micros();
   uint8_t CodeProfiler::time_fraction = 0;
   uint32_t CodeProfiler::total_time = 0;
+  uint16_t CodeProfiler::call_count = 0;
 #endif
 
 Max7219 max7219;
