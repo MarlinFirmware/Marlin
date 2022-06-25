@@ -400,8 +400,6 @@ namespace Language_pl {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibruj środek");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Ustawienia delty");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto kalibrowanie");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Ustaw wysokość delty");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Przesun. Z sondy");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Ukośne ramię");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Wysokość");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Promień");
