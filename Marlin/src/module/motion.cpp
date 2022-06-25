@@ -300,6 +300,16 @@ void report_current_position_projected() {
 
 #endif
 
+#if ENABLED(POLARGRAPH)
+bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset/*=0*/) {
+  const float x1 = rx - (draw_area_min.x), x2 = (draw_area_max.x) - rx, y = ry - (draw_area_max.y),
+                a = HYPOT(x1, y), b = HYPOT(x2, y);
+    return a < (polargraph_max_belt_len) + 1
+        && b < (polargraph_max_belt_len) + 1
+        && (a + b) > _MIN(draw_area_size.x, draw_area_size.y);
+}
+#endif
+
 void home_if_needed(const bool keeplev/*=false*/) {
   if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
 }

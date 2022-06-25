@@ -153,17 +153,38 @@
    * Parameters:
    *
    *   S[segments-per-second] - Segments-per-second
+   *   L[left] - draw area minimum X
+   *   R[right] - draw area maximum X
+   *   T[top] - draw area maximum Y
+   *   B[bottom] - draw area minimum Y
+   *   H[max-belt-length] - maximum belt length
    */
   void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
     if (parser.seenval('S'))
       segments_per_second = parser.value_float();
-    else
-      M665_report();
+    if (parser.seenval('L'))
+      draw_area_min.x = parser.value_float();
+    if (parser.seenval('R'))
+      draw_area_max.x = parser.value_float();
+    if (parser.seenval('T'))
+      draw_area_max.y = parser.value_float();
+    if (parser.seenval('B'))
+      draw_area_min.y = parser.value_float();
+    if (parser.seenval('H'))
+      polargraph_max_belt_len = parser.value_float();
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, F(STR_POLARGRAPH_SETTINGS " (" STR_S_SEG_PER_SEC ")"));
-    SERIAL_ECHOLNPGM("  M665 S", segments_per_second);
+    report_heading_etc(forReplay, F(STR_POLARGRAPH_SETTINGS));
+    SERIAL_ECHOLNPGM_P(
+        PSTR("  M665 S"), LINEAR_UNIT(segments_per_second),
+        PSTR(" L"), LINEAR_UNIT(draw_area_min.x),
+        PSTR(" R"), LINEAR_UNIT(draw_area_max.x),
+        PSTR(" T"), LINEAR_UNIT(draw_area_max.y),
+        PSTR(" B"), LINEAR_UNIT(draw_area_min.y),
+        PSTR(" H"), LINEAR_UNIT(polargraph_max_belt_len)
+    );
   }
 
 #endif
