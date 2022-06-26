@@ -39,6 +39,10 @@
   };
 #endif
 
+#if ENABLED(PROBING_NEEDS_TOOL_SWITCH)
+  #include "tool_change.h"
+#endif
+
 #if USES_Z_MIN_PROBE_PIN
   #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
 #else
@@ -151,6 +155,19 @@ public:
     static bool set_deployed(const bool) { return false; }
 
     static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
+
+  #endif
+
+  #if ENABLED(PROBING_NEEDS_TOOL_SWITCH)
+    
+    static void change_to_probing_tool() {
+      pre_probing_active_tool = active_extruder;
+      tool_change(PROBING_TOOL, !PROBE_TOOL_SWITCH_WITH_MOVE);
+    }
+
+    static void revert_tool() {
+      tool_change(pre_probing_active_tool, !PROBE_TOOL_SWITCH_WITH_MOVE);
+    }
 
   #endif
 
@@ -313,6 +330,10 @@ private:
   static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);
   static float run_z_probe(const bool sanity_check=true);
+
+  #if ENABLED(PROBING_NEEDS_TOOL_SWITCH)
+    static int pre_probing_active_tool;
+  #endif
 };
 
 extern Probe probe;

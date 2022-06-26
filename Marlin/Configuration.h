@@ -1285,6 +1285,10 @@
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 
+// Toolchanger probing settings
+#define PROBING_TOOL                  0   // Set the tool number to switch to for any probing operation. Set to -1 to probe with any active tool.
+#define PROBE_TOOL_SWITCH_WITH_MOVE   0   // Set to 1 to park the active tool before switching to the probing tool.
+
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 10
