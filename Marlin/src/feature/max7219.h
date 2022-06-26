@@ -73,6 +73,67 @@
 #define max7219_reg_shutdown    0x0C
 #define max7219_reg_displayTest 0x0F
 
+#ifdef MAX7219_DEBUG_PROFILE
+  // This class sums up the amount of time for which its instances exist.
+  // By default there is one instantiated for the duration of the idle()
+  // function. But an instance can be created in any code block to measure
+  // the time spent from the point of instantiation until the CPU leaves
+  // block. Be careful about having multiple instances of CodeProfiler as
+  // it does not guard against double counting. In general mixing ISR and
+  // non-ISR use will require critical sections but note that mode setting
+  // is atomic so the total or average times can safely be read if you set
+  // mode to FREEZE first.
+  class CodeProfiler {
+  public:
+    enum Mode : uint8_t { ACCUMULATE_AVERAGE, ACCUMULATE_TOTAL, FREEZE };
+
+  private:
+    static Mode mode;
+    static uint8_t instance_count;
+    static uint32_t last_calc_time;
+    static uint32_t total_time;
+    static uint8_t time_fraction;
+    static uint16_t call_count;
+
+    uint32_t start_time;
+
+  public:
+    CodeProfiler() : start_time(micros()) { instance_count++; }
+    ~CodeProfiler() {
+      instance_count--;
+      if (mode == FREEZE) return;
+
+      call_count++;
+
+      const uint32_t now = micros();
+      total_time += now - start_time;
+
+      if (mode == ACCUMULATE_TOTAL) return;
+
+      // update time_fraction every hundred milliseconds
+      if (instance_count == 0 && ELAPSED(now, last_calc_time + 100000)) {
+        time_fraction = total_time * 128 / (now - last_calc_time);
+        last_calc_time = now;
+        total_time = 0;
+      }
+    }
+
+    static void set_mode(Mode _mode) { mode = _mode; }
+    static void reset() {
+      time_fraction = 0;
+      last_calc_time = micros();
+      total_time = 0;
+      call_count = 0;
+    }
+    // returns fraction of total time which was measured, scaled from 0 to 128
+    static uint8_t get_time_fraction() { return time_fraction; }
+    // returns total time in microseconds
+    static uint32_t get_total_time() { return total_time; }
+
+    static uint16_t get_call_count() { return call_count; }
+  };
+#endif
+
 class Max7219 {
 public:
   static uint8_t led_line[MAX7219_LINES];
@@ -110,10 +171,10 @@ public:
   #endif
 
   // Set a single LED by XY coordinate
-  static void led_set(const uint8_t x, const uint8_t y, const bool on);
-  static void led_on(const uint8_t x, const uint8_t y);
-  static void led_off(const uint8_t x, const uint8_t y);
-  static void led_toggle(const uint8_t x, const uint8_t y);
+  static void led_set(const uint8_t x, const uint8_t y, const bool on, uint8_t * const rcm=nullptr);
+  static void led_on(const uint8_t x, const uint8_t y, uint8_t * const rcm=nullptr);
+  static void led_off(const uint8_t x, const uint8_t y, uint8_t * const rcm=nullptr);
+  static void led_toggle(const uint8_t x, const uint8_t y, uint8_t * const rcm=nullptr);
 
   // Set all LEDs in a single column
   static void set_column(const uint8_t col, const uint32_t val);
@@ -147,11 +208,12 @@ private:
   static void set(const uint8_t line, const uint8_t bits);
   static void send_row(const uint8_t row);
   static void send_column(const uint8_t col);
-  static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2);
-  static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh);
-  static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv);
+  static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2, uint8_t * const rcm=nullptr);
+  static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh, uint8_t * const rcm=nullptr);
+  static void quantity(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t * const rcm=nullptr);
+  static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv, uint8_t * const rcm=nullptr);
 
-  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST
     static void test_pattern();
     static void run_test_pattern();
     static void start_test_pattern();
