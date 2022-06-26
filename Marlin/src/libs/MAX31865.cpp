@@ -139,7 +139,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
  * @param wire   The resistance of the wire connecting the sensor to the RTD, in ohms.
  */
 void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, float wire_res) {
-  zeroRes = zero_res;
+  resNormalizer = 100 / zero_res;
   refRes = ref_res;
   wireRes = wire_res;
 
@@ -450,6 +450,9 @@ float MAX31865::temperature(uint16_t adc_val) {
  * @return            the temperature in degC
  */
 float MAX31865::temperature(float rtd_res) {
+
+  rtd_res = rtd_res * resNormalizer; // normalize to 100 ohm
+
   float temp = (RTD_Z1 + sqrt(RTD_Z2 + (RTD_Z3 * rtd_res))) * RECIPROCAL(RTD_Z4);
 
   // From the PDF...
@@ -461,7 +464,6 @@ float MAX31865::temperature(float rtd_res) {
   // of resistance.
   //
   if (temp < 0) {
-    rtd_res = (rtd_res / zeroRes) * 100; // normalize to 100 ohm
     float rpoly = rtd_res;
 
     temp = -242.02 + (2.2228 * rpoly);

@@ -103,7 +103,7 @@ private:
 
   uint16_t spiDelay;
 
-  float zeroRes, refRes, wireRes;
+  float resNormalizer, refRes, wireRes;
 
   #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
     millis_t lastReadStamp = 0;
