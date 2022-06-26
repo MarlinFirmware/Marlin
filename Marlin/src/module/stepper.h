@@ -524,8 +524,7 @@ class Stepper {
     // Discard current block and free any resources
     FORCE_INLINE static void discard_current_block() {
       #if ENABLED(DIRECT_STEPPING)
-        if (IS_PAGE(current_block))
-          page_manager.free_page(current_block->page_idx);
+        if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
       #endif
       current_block = nullptr;
       axis_did_move = 0;
