@@ -1106,7 +1106,7 @@ void Planner::forward_pass() {
     block = &block_buffer[block_index];
 
     // Skip SYNC and page blocks
-    if (!block->is_move()) {
+    if (block->is_move()) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
       // the previous block became BUSY, so assume the current block's
@@ -1142,7 +1142,7 @@ void Planner::recalculate_trapezoids() {
     block_t *prev = &block_buffer[prev_index];
 
     // If not dealing with a sync or page block, we are done. The last block is not a SYNC or PAGE block.
-    if (!prev->is_move()) break;
+    if (prev->is_move()) break;
 
     // Examine the previous block. This and all following are SYNC blocks
     head_block_index = prev_index;
@@ -1156,7 +1156,7 @@ void Planner::recalculate_trapezoids() {
     next = &block_buffer[block_index];
 
     // Skip sync and page blocks
-    if (!next->is_move()) {
+    if (next->is_move()) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
       if (block) {
