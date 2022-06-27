@@ -162,11 +162,13 @@ public:
     
     static void change_to_probing_tool() {
       pre_probing_active_tool = active_extruder;
-      tool_change(PROBING_TOOL, !PROBE_TOOL_SWITCH_WITH_MOVE);
+      if (PROBING_TOOL != active_extruder)
+        tool_change(PROBING_TOOL, !PROBE_TOOL_SWITCH_WITH_MOVE);
     }
 
     static void revert_tool() {
-      tool_change(pre_probing_active_tool, !PROBE_TOOL_SWITCH_WITH_MOVE);
+      if (pre_probing_active_tool != active_extruder)
+        tool_change(pre_probing_active_tool, !PROBE_TOOL_SWITCH_WITH_MOVE);
     }
 
   #endif
