@@ -1699,7 +1699,7 @@ void Stepper::pulse_phase_isr() {
     }while(0)
 
     // Direct Stepping page?
-    const bool is_page = IS_PAGE(current_block);
+    const bool is_page = current_block->is_page();
 
     #if ENABLED(DIRECT_STEPPING)
       // Direct stepping is currently not ready for HAS_I_AXIS
@@ -1977,7 +1977,7 @@ uint32_t Stepper::block_phase_isr() {
             count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] * count_direction[_AXIS(AXIS)];
         #endif
 
-        if (IS_PAGE(current_block)) {
+        if (current_block->is_page()) {
           PAGE_SEGMENT_UPDATE_POS(X);
           PAGE_SEGMENT_UPDATE_POS(Y);
           PAGE_SEGMENT_UPDATE_POS(Z);
@@ -2167,16 +2167,13 @@ uint32_t Stepper::block_phase_isr() {
     if ((current_block = planner.get_current_block())) {
 
       // Sync block? Sync the stepper counts or fan speeds and return
-      while (current_block->flag & BLOCK_MASK_SYNC) {
+      while (current_block->is_sync()) {
 
-        #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-          const bool is_sync_fans = TEST(current_block->flag, BLOCK_BIT_SYNC_FANS);
-          if (is_sync_fans) planner.sync_fan_speeds(current_block->fan_speed);
-        #else
-          constexpr bool is_sync_fans = false;
-        #endif
-
-        if (!is_sync_fans) _set_position(current_block->position);
+        if (current_block->is_fan_sync()) {
+          TERN_(LASER_SYNCHRONOUS_M106_M107, planner.sync_fan_speeds(current_block->fan_speed));
+        }
+        else
+          _set_position(current_block->position);
 
         discard_current_block();
 
@@ -2196,7 +2193,7 @@ uint32_t Stepper::block_phase_isr() {
       #endif
 
       #if ENABLED(DIRECT_STEPPING)
-        if (IS_PAGE(current_block)) {
+        if (current_block->is_page()) {
           page_step_state.segment_steps = 0;
           page_step_state.segment_idx = 0;
           page_step_state.page = page_manager.get_page(current_block->page_idx);
