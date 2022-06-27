@@ -652,8 +652,6 @@ namespace Language_uk {
   LSTR MSG_DELTA_CALIBRATE_CENTER           = _UxGT("Калібр. центр");
   LSTR MSG_DELTA_SETTINGS                   = _UxGT("Параметри Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE             = _UxGT("Автокалібрування");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE           = _UxGT("Встан. Висоту Delta");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE         = _UxGT("Z-зміщення зонду");
   LSTR MSG_DELTA_DIAG_ROD                   = _UxGT("Діагональ стрижня");
   LSTR MSG_DELTA_HEIGHT                     = _UxGT("Висота");
   LSTR MSG_DELTA_RADIUS                     = _UxGT("Радіус");

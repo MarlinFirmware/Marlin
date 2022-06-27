@@ -257,7 +257,6 @@ namespace Language_eu {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibratu Zentrua");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta ezarpenak");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Kalibraketa");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Delta Alt. Ezar.");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonala");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altuera");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Erradioa");

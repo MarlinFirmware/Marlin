@@ -486,10 +486,7 @@ xyze_int8_t Stepper::count_direction{0};
 void Stepper::enable_axis(const AxisEnum axis) {
   #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); break;
   switch (axis) {
-    LINEAR_AXIS_CODE(
-      _CASE_ENABLE(X), _CASE_ENABLE(Y), _CASE_ENABLE(Z),
-      _CASE_ENABLE(I), _CASE_ENABLE(J), _CASE_ENABLE(K)
-    );
+    MAIN_AXIS_MAP(_CASE_ENABLE)
     default: break;
   }
   mark_axis_enabled(axis);
@@ -505,10 +502,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   if (can_disable) {
     #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
     switch (axis) {
-      LINEAR_AXIS_CODE(
-        _CASE_DISABLE(X), _CASE_DISABLE(Y), _CASE_DISABLE(Z),
-        _CASE_DISABLE(I), _CASE_DISABLE(J), _CASE_DISABLE(K)
-      );
+      MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
   }
@@ -1869,9 +1863,7 @@ void Stepper::pulse_phase_isr() {
       #endif
     #endif
 
-    #if ENABLED(I2S_STEPPER_STREAM)
-      i2s_push_sample();
-    #endif
+    TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
     // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
     #if ISR_MULTI_STEPS
