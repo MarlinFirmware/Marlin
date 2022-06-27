@@ -1551,7 +1551,7 @@ void Planner::check_axes_activity() {
       TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
       TERN_(HAS_CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
     }
-    reset_acceleration_rates();
+    refresh_acceleration_rates();
   }
 
 #endif
@@ -3161,7 +3161,7 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
  *          - acceleration_long_cutoff based on the largest max_acceleration_steps_per_s2 (M201)
  *          - max_e_jerk for all extruders based on junction_deviation_mm (M205 J)
  */
-void Planner::reset_acceleration_rates() {
+void Planner::refresh_acceleration_rates() {
   uint32_t highest_rate = 1;
   LOOP_DISTINCT_AXES(i) {
     max_acceleration_steps_per_s2[i] = settings.max_acceleration_mm_per_s2[i] * settings.axis_steps_per_mm[i];
@@ -3179,7 +3179,7 @@ void Planner::reset_acceleration_rates() {
 void Planner::refresh_positioning() {
   LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
   set_position_mm(current_position);
-  reset_acceleration_rates();
+  refresh_acceleration_rates();
 }
 
 // Apply limits to a variable and give a warning if the value was out of range
@@ -3198,7 +3198,7 @@ inline void limit_and_warn(float &val, const AxisEnum axis, PGM_P const setting_
 /**
  * For the specified 'axis' set the Maximum Acceleration to the given value (mm/s^2)
  * The value may be limited with warning feedback, if configured.
- * Calls reset_acceleration_rates to precalculate planner terms in steps.
+ * Calls refresh_acceleration_rates to precalculate planner terms in steps.
  *
  * This hard limit is applied as a block is being added to the planner queue.
  */
@@ -3216,7 +3216,7 @@ void Planner::set_max_acceleration(const AxisEnum axis, float inMaxAccelMMS2) {
   settings.max_acceleration_mm_per_s2[axis] = inMaxAccelMMS2;
 
   // Update steps per s2 to agree with the units per s2 (since they are used in the planner)
-  reset_acceleration_rates();
+  refresh_acceleration_rates();
 }
 
 /**
