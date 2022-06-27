@@ -1065,11 +1065,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     while (--segments) {
       segment_idle(next_idle_ms);
       raw += segment_distance;
-      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))) break;
+      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder
+        , planner_hints_t(cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)))) break;
     }
 
     // Ensure last segment arrives at target location.
-    planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+    planner.buffer_line(destination, scaled_fr_mm_s, active_extruder
+      , planner_hints_t(cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)));
 
     return false; // caller will update current_position
   }
@@ -1128,12 +1130,14 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       while (--segments) {
         segment_idle(next_idle_ms);
         raw += segment_distance;
-        if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))) break;
+        if (!planner.buffer_line(raw, fr_mm_s, active_extruder
+          , planner_hints_t(cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)))) break;
       }
 
       // Since segment_distance is only approximate,
       // the final move must be to the exact destination.
-      planner.buffer_line(destination, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+      planner.buffer_line(destination, fr_mm_s, active_extruder
+        , planner_hints_t(cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)));
     }
 
   #endif // SEGMENT_LEVELED_MOVES && !AUTO_BED_LEVELING_UBL

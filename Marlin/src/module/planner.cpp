@@ -943,7 +943,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
 void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next
-  OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr)
+  OPTARG(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)
 ) {
   if (current) {
     // If entry speed is already at the maximum entry speed, and there was no change of speed
@@ -964,7 +964,7 @@ void Planner::reverse_pass_kernel(block_t * const current, const block_t * const
       // the reverse and forward planners, the corresponding block junction speed will always be at the
       // the maximum junction speed and may always be ignored for any speed reduction checks.
 
-      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : TERN_(ARC_SUPPORT, safe_exit_speed_sqr > 0.0 ? safe_exit_speed_sqr : ) sq(float(MINIMUM_PLANNER_SPEED)),
+      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr > 0.0 ? safe_exit_speed_sqr : ) sq(float(MINIMUM_PLANNER_SPEED)),
                   new_entry_speed_sqr = current->flag.nominal_length
                     ? max_entry_speed_sqr
                     : _MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next_entry_speed_sqr, current->millimeters));
@@ -996,7 +996,7 @@ void Planner::reverse_pass_kernel(block_t * const current, const block_t * const
  * recalculate() needs to go over the current plan twice.
  * Once in reverse and once forward. This implements the reverse pass.
  */
-void Planner::reverse_pass(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr)) {
+void Planner::reverse_pass(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)) {
   // Initialize block index to the last block in the planner buffer.
   uint8_t block_index = prev_block_index(block_buffer_head);
 
@@ -1020,7 +1020,7 @@ void Planner::reverse_pass(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr)
 
     // Only process movement blocks
     if (current->is_move()) {
-      reverse_pass_kernel(current, next OPTARG(ARC_SUPPORT, safe_exit_speed_sqr));
+      reverse_pass_kernel(current, next OPTARG(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr));
       next = current;
     }
 
@@ -1133,7 +1133,7 @@ void Planner::forward_pass() {
  * according to the entry_factor for each junction. Must be called by
  * recalculate() after updating the blocks.
  */
-void Planner::recalculate_trapezoids(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr)) {
+void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)) {
   // The tail may be changed by the ISR so get a local copy.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
@@ -1210,7 +1210,7 @@ void Planner::recalculate_trapezoids(TERN_(ARC_SUPPORT, const_float_t safe_exit_
   // Last/newest block in buffer. Always recalculated.
   if (block) {
     // Exit speed is set with MINIMUM_PLANNER_SPEED unless some code higher up knows better.
-    next_entry_speed = TERN_(ARC_SUPPORT, safe_exit_speed_sqr > 0.0 ? SQRT(safe_exit_speed_sqr) : ) float(MINIMUM_PLANNER_SPEED);
+    next_entry_speed = TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr > 0.0 ? SQRT(safe_exit_speed_sqr) : ) float(MINIMUM_PLANNER_SPEED);
 
     // Mark the last block as RECALCULATE, to prevent the Stepper ISR running it.
     // As the last block is always recalculated here, there is a chance the block isn't
@@ -1241,15 +1241,15 @@ void Planner::recalculate_trapezoids(TERN_(ARC_SUPPORT, const_float_t safe_exit_
   }
 }
 
-void Planner::recalculate(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr)) {
+void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_speed_sqr)) {
   // Initialize block index to the last block in the planner buffer.
   const uint8_t block_index = prev_block_index(block_buffer_head);
   // If there is just one block, no planning can be done. Avoid it!
   if (block_index != block_buffer_planned) {
-    reverse_pass(TERN_(ARC_SUPPORT, safe_exit_speed_sqr));
+    reverse_pass(TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr));
     forward_pass();
   }
-  recalculate_trapezoids(TERN_(ARC_SUPPORT, safe_exit_speed_sqr));
+  recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr));
 }
 
 /**
@@ -1783,15 +1783,14 @@ void Planner::synchronize() { while (busy()) idle(); }
  *  target_float  - target position in direct (mm, degrees) units. optional
  *  fr_mm_s       - (target) speed of the move
  *  extruder      - target extruder
- *  millimeters   - the length of the movement, if known
+ *  hints         - optional parameters to aid planner's calculations
  *
  * Returns true if movement was properly queued, false otherwise (if cleaning)
  */
 bool Planner::_buffer_steps(const xyze_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
-  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr/*=0.0*/)
+  , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
 ) {
 
   // Wait for the next available block
@@ -1807,8 +1806,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   if (!_populate_block(block, false, target
         OPTARG(HAS_POSITION_FLOAT, target_float)
         OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
-        , fr_mm_s, extruder, millimeters
-        OPTARG(ARC_SUPPORT, arc_radius)
+        , fr_mm_s, extruder, hints
       )
   ) {
     // Movement was not queued, probably because it was too short.
@@ -1830,7 +1828,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   block_buffer_head = next_buffer_head;
 
   // Recalculate and optimize trapezoidal speed profiles
-  recalculate(TERN_(ARC_SUPPORT, safe_exit_speed_sqr));
+  recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, hints.safe_exit_speed_sqr));
 
   // Movement successfully queued!
   return true;
@@ -1844,6 +1842,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
  *  target      - target position in steps units
  *  fr_mm_s     - (target) speed of the move
  *  extruder    - target extruder
+ *  hints       - optional parameters to aid planner's calculations
  *
  * Returns true if movement is acceptable, false otherwise
  */
@@ -1851,8 +1850,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
-  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/)
+  , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
 ) {
   int32_t LOGICAL_AXIS_LIST(
     de = target.e - position.e,
@@ -2077,8 +2075,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->millimeters = TERN0(HAS_EXTRUDERS, ABS(steps_dist_mm.e));
   }
   else {
-    if (millimeters)
-      block->millimeters = millimeters;
+    if (hints.millimeters)
+      block->millimeters = hints.millimeters;
     else {
       /**
        * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of NIST
@@ -2637,8 +2635,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
 
-        if (TERN0(ARC_SUPPORT, arc_radius)) {
-          TERN_(ARC_SUPPORT, vmax_junction_sqr = junction_acceleration * arc_radius);
+        if (TERN0(HINTS_CURVE_RADIUS, hints.curve_radius)) {
+          TERN_(HINTS_CURVE_RADIUS, vmax_junction_sqr = junction_acceleration * hints.curve_radius);
         }
         else {
           NOLESS(junction_cos_theta, -0.999999f); // Check for numerical round-off to avoid divide by zero.
@@ -2946,14 +2944,14 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFl
  *  a,b,c,e     - target positions in mm and/or degrees
  *  fr_mm_s     - (target) speed of the move
  *  extruder    - target extruder
- *  millimeters - the length of the movement, if known
+ *  hints       - optional parameters to aid planner's calculations
  *
  * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/, const_float_t millimeters/*=0.0*/
-  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr/*=0.0*/)
+  , const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/
+  , const planner_hints_t &hints/* = planner_hints_t()*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -3059,8 +3057,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
   if (!_buffer_steps(target
       OPTARG(HAS_POSITION_FLOAT, target_float)
       OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
-      , fr_mm_s, extruder, millimeters
-      OPTARG(ARC_SUPPORT, arc_radius) OPTARG(ARC_SUPPORT, safe_exit_speed_sqr)
+      , fr_mm_s, extruder, hints
   )) return false;
 
   stepper.wake_up();
@@ -3075,12 +3072,10 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  *  cart            - target position in mm or degrees
  *  fr_mm_s         - (target) speed of the move (mm/s)
  *  extruder        - target extruder
- *  millimeters     - the length of the movement, if known
- *  inv_duration    - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
+ *  hints           - optional parameters to aid planner's calculations
  */
-bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/, const float millimeters/*=0.0*/
-  OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration/*=0.0*/)
-  OPTARG(ARC_SUPPORT, const_float_t arc_radius/*=0.0*/) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr/*=0.0*/)
+bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
+  , const uint8_t extruder/*=active_extruder*/, const planner_hints_t &hints/*=planner_hints_t()*/
 ) {
   xyze_pos_t machine = cart;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
@@ -3102,7 +3097,9 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
       );
     #endif
 
-    const float mm = millimeters ?: (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
+    planner_hints_t _hints(hints);
+    if (!_hints.millimeters)
+      _hints.millimeters = (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
@@ -3110,20 +3107,20 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
-      const float duration_recip = inv_duration ?: fr_mm_s / mm;
+      const float duration_recip = hints.inv_duration ?: fr_mm_s / _hints.millimeters;
       const xyz_pos_t diff = delta - position_float;
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
     #endif
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
-    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, mm OPTARG(ARC_SUPPORT, arc_radius) OPTARG(ARC_SUPPORT, safe_exit_speed_sqr))) {
+    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, _hints)) {
       position_cart = cart;
       return true;
     }
     return false;
   #else
-    return buffer_segment(machine, fr_mm_s, extruder, millimeters OPTARG(ARC_SUPPORT, arc_radius) OPTARG(ARC_SUPPORT, safe_exit_speed_sqr));
+    return buffer_segment(machine, fr_mm_s, extruder, hints);
   #endif
 } // buffer_line()
 

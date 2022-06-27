@@ -344,6 +344,33 @@ typedef struct {
   typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
 #endif
 
+#if ENABLED(ARC_SUPPORT)
+  #define HINTS_CURVE_RADIUS
+  #define HINTS_SAFE_EXIT_SPEED
+#endif
+
+struct planner_hints_t {
+  // the length of the movement, if known
+  float millimeters = 0.0;
+  // the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
+  TERN_(SCARA_FEEDRATE_SCALING, float inv_duration = 0.0);
+  // the radius of curvature of the tool head path - for cornering speed calculation
+  TERN_(HINTS_CURVE_RADIUS, float curve_radius = 0.0);
+  // the square of the speed which would be "safe" at the end of this segment, i.e. <= the exit speed
+  // of the segment that the planner would calculate of it knew the as yet unbuffered path
+  TERN_(HINTS_SAFE_EXIT_SPEED, float safe_exit_speed_sqr = 0.0);
+
+  planner_hints_t(float _millimeters = 0.0
+                  OPTARG(SCARA_FEEDRATE_SCALING, const_float_t _inv_duration = 0.0)
+                  OPTARG(HINTS_CURVE_RADIUS, const_float_t _curve_radius = 0.0)
+                  OPTARG (HINTS_SAFE_EXIT_SPEED, const_float_t _safe_exit_speed_sqr = 0.0)
+  ) : millimeters(_millimeters)
+      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration(_inv_duration))
+      OPTARG(HINTS_CURVE_RADIUS, curve_radius(_curve_radius))
+      OPTARG (HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr(_safe_exit_speed_sqr))
+  {}
+};
+
 class Planner {
   public:
 
@@ -747,15 +774,14 @@ class Planner {
      *  target      - target position in steps units
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
-     *  millimeters - the length of the movement, if known
+     *  hints       - optional parameters to aid planner's calculations
      *
      * Returns true if movement was buffered, false otherwise
      */
     static bool _buffer_steps(const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr=0.0)
+      , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
     );
 
     /**
@@ -766,15 +792,14 @@ class Planner {
      *  target      - target position in steps units
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
-     *  millimeters - the length of the movement, if known
+     *  hints       - optional parameters to aid planner's calculations
      *
      * Returns true is movement is acceptable, false otherwise
      */
     static bool _populate_block(block_t * const block, bool split_move, const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
+      , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
     );
 
     /**
@@ -803,12 +828,12 @@ class Planner {
      *  a,b,c,e     - target positions in mm and/or degrees
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
-     *  millimeters - the length of the movement, if known
+     *  hints       - optional parameters to aid planner's calculations
      */
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr=0.0)
+      , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder
+      , const planner_hints_t &hints = planner_hints_t()
     );
 
   public:
@@ -821,12 +846,10 @@ class Planner {
      *  cart         - target position in mm or degrees
      *  fr_mm_s      - (target) speed of the move (mm/s)
      *  extruder     - target extruder
-     *  millimeters  - the length of the movement, if known
-     *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
+     *  hints        - optional parameters to aid planner's calculations
      */
-    static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const float millimeters=0.0
-      OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration=0.0)
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr=0.0)
+    static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s,
+      const uint8_t extruder=active_extruder, const planner_hints_t &hints=planner_hints_t()
     );
 
     #if ENABLED(DIRECT_STEPPING)
