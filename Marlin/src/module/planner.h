@@ -755,7 +755,7 @@ class Planner {
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr=0.0)
     );
 
     /**
@@ -808,7 +808,7 @@ class Planner {
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const_float_t millimeters=0.0
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr=0.0)
     );
 
   public:
@@ -826,7 +826,7 @@ class Planner {
      */
     static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const float millimeters=0.0
       OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration=0.0)
-      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0)
+      OPTARG(ARC_SUPPORT, const_float_t arc_radius=0.0) OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr=0.0)
     );
 
     #if ENABLED(DIRECT_STEPPING)
@@ -1019,15 +1019,15 @@ class Planner {
 
     static void calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor);
 
-    static void reverse_pass_kernel(block_t * const current, const block_t * const next);
+    static void reverse_pass_kernel(block_t * const current, const block_t * const next OPTARG(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
     static void forward_pass_kernel(const block_t * const previous, block_t * const current, uint8_t block_index);
 
-    static void reverse_pass();
+    static void reverse_pass(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
     static void forward_pass();
 
-    static void recalculate_trapezoids();
+    static void recalculate_trapezoids(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
 
-    static void recalculate();
+    static void recalculate(TERN_(ARC_SUPPORT, const_float_t safe_exit_speed_sqr));
 
     #if HAS_JUNCTION_DEVIATION
 
