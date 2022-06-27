@@ -514,7 +514,7 @@ class Planner {
      */
 
     // Recalculate steps/s^2 accelerations based on mm/s^2 settings
-    static void reset_acceleration_rates();
+    static void refresh_acceleration_rates();
 
     /**
      * Recalculate 'position' and 'mm_per_step'.
