@@ -1011,7 +1011,7 @@ void Planner::reverse_pass() {
     // Perform the reverse pass
     block_t *current = &block_buffer[block_index];
 
-    // Only consider non sync-and-page blocks
+    // Only process movement blocks
     if (current->is_move()) {
       reverse_pass_kernel(current, next);
       next = current;
@@ -1105,7 +1105,7 @@ void Planner::forward_pass() {
     // Perform the forward pass
     block = &block_buffer[block_index];
 
-    // Skip SYNC and page blocks
+    // Only process movement blocks
     if (block->is_move()) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
@@ -1130,9 +1130,10 @@ void Planner::recalculate_trapezoids() {
   // The tail may be changed by the ISR so get a local copy.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
-  // Since there could be a sync or page block in the head of the queue, and the
+
+  // Since there could be non-move blocks in the head of the queue, and the
   // next loop must not recalculate the head block (as it needs to be
-  // specially handled), scan backwards to the first non-SYNC block.
+  // specially handled), scan backwards to the first move block.
   while (head_block_index != block_index) {
 
     // Go back (head always point to the first free block)
@@ -1141,7 +1142,7 @@ void Planner::recalculate_trapezoids() {
     // Get the pointer to the block
     block_t *prev = &block_buffer[prev_index];
 
-    // If not dealing with a sync or page block, we are done. The last block is not a SYNC or PAGE block.
+    // It the block is a move, we're done with this loop
     if (prev->is_move()) break;
 
     // Examine the previous block. This and all following are SYNC blocks
@@ -1155,7 +1156,7 @@ void Planner::recalculate_trapezoids() {
 
     next = &block_buffer[block_index];
 
-    // Skip sync and page blocks
+    // Only process movement blocks
     if (next->is_move()) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
@@ -2889,7 +2890,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
  * Add a block to the buffer that just updates the position,
  * or in case of LASER_SYNCHRONOUS_M106_M107 the fan PWM
  */
-void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFlagBit sync_flag)) {
+void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_POSITION*/)) {
   #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
     constexpr BlockFlagBit sync_flag = BLOCK_BIT_SYNC_POSITION;
   #endif
