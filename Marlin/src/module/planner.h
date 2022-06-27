@@ -113,6 +113,9 @@
 
 #endif
 
+/**
+ * Planner block flags as boolean bit fields
+ */
 enum BlockFlagBit {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
@@ -139,6 +142,9 @@ enum BlockFlagBit {
   #endif
 };
 
+/**
+ * Planner block flags as boolean bit fields
+ */
 typedef struct {
   union {
     uint8_t bits;
@@ -165,17 +171,14 @@ typedef struct {
   void clear() volatile { bits = 0; }
   void apply(const uint8_t f) volatile { bits |= f; }
   void apply(const BlockFlagBit b) volatile { SBI(bits, b); }
-  void only(const BlockFlagBit b) volatile { bits = _BV(b); }
+  void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
   void set_nominal(const bool n) volatile { recalculate = true; if (n) nominal_length = true; }
 
 } block_flags_t;
 
-
 /**
- * struct block_t
- *
- * A single entry in the planner buffer.
- * Tracks linear movement over multiple axes.
+ * A single entry in the planner buffer, used to set up and
+ * track a coordinated linear motion for one or more axes.
  *
  * The "nominal" values are as-specified by G-code, and
  * may never actually be reached due to acceleration limits.
@@ -511,7 +514,7 @@ class Planner {
      */
 
     // Recalculate steps/s^2 accelerations based on mm/s^2 settings
-    static void reset_acceleration_rates();
+    static void refresh_acceleration_rates();
 
     /**
      * Recalculate 'position' and 'mm_per_step'.

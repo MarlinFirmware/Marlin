@@ -1557,7 +1557,7 @@ void Planner::check_axes_activity() {
       TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
       TERN_(HAS_CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
     }
-    reset_acceleration_rates();
+    refresh_acceleration_rates();
   }
 
 #endif
@@ -2908,7 +2908,6 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFl
   #if ENABLED(BACKLASH_COMPENSATION)
     LOOP_NUM_AXES(axis) block->position[axis] += backlash.get_applied_steps((AxisEnum)axis);
   #endif
-
   #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
@@ -3121,6 +3120,14 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
 
 #if ENABLED(DIRECT_STEPPING)
 
+  /**
+   * @brief Add a direct stepping page block to the buffer
+   *        and wake up the Stepper ISR to process it.
+   *
+   * @param page_idx Page index provided by G6 I<index>
+   * @param extruder The extruder to use in the move
+   * @param num_steps Number of steps to process in the ISR
+   */
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
       kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
@@ -3130,7 +3137,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
     uint8_t next_buffer_head;
     block_t * const block = get_next_free_block(next_buffer_head);
 
-    block->flag.only(BLOCK_BIT_PAGE);
+    block->flag.reset(BLOCK_BIT_PAGE);
 
     #if HAS_FAN
       FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
@@ -3218,6 +3225,12 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   }
 }
 
+/**
+ * @brief Set the Planner position in mm
+ * @details Set the Planner position from a native machine position in mm
+ *
+ * @param xyze A native (Cartesian) machine position
+ */
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
   xyze_pos_t machine = xyze;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
@@ -3253,8 +3266,14 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
 
 #endif
 
-// Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
-void Planner::reset_acceleration_rates() {
+/**
+ * @brief Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
+ * @details Update planner movement factors after a change to certain settings:
+ *          - max_acceleration_steps_per_s2 from settings max_acceleration_mm_per_s2 * axis_steps_per_mm (M201, M92)
+ *          - acceleration_long_cutoff based on the largest max_acceleration_steps_per_s2 (M201)
+ *          - max_e_jerk for all extruders based on junction_deviation_mm (M205 J)
+ */
+void Planner::refresh_acceleration_rates() {
   uint32_t highest_rate = 1;
   LOOP_DISTINCT_AXES(i) {
     max_acceleration_steps_per_s2[i] = settings.max_acceleration_mm_per_s2[i] * settings.axis_steps_per_mm[i];
@@ -3266,13 +3285,13 @@ void Planner::reset_acceleration_rates() {
 }
 
 /**
- * Recalculate 'position' and 'mm_per_step'.
- * Must be called whenever settings.axis_steps_per_mm changes!
+ * @brief Recalculate 'position' and 'mm_per_step'.
+ * @details Required whenever settings.axis_steps_per_mm changes!
  */
 void Planner::refresh_positioning() {
   LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
   set_position_mm(current_position);
-  reset_acceleration_rates();
+  refresh_acceleration_rates();
 }
 
 // Apply limits to a variable and give a warning if the value was out of range
@@ -3291,7 +3310,7 @@ inline void limit_and_warn(float &val, const AxisEnum axis, PGM_P const setting_
 /**
  * For the specified 'axis' set the Maximum Acceleration to the given value (mm/s^2)
  * The value may be limited with warning feedback, if configured.
- * Calls reset_acceleration_rates to precalculate planner terms in steps.
+ * Calls refresh_acceleration_rates to precalculate planner terms in steps.
  *
  * This hard limit is applied as a block is being added to the planner queue.
  */
@@ -3309,7 +3328,7 @@ void Planner::set_max_acceleration(const AxisEnum axis, float inMaxAccelMMS2) {
   settings.max_acceleration_mm_per_s2[axis] = inMaxAccelMMS2;
 
   // Update steps per s2 to agree with the units per s2 (since they are used in the planner)
-  reset_acceleration_rates();
+  refresh_acceleration_rates();
 }
 
 /**
