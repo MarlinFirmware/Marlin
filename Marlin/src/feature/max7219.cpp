@@ -597,7 +597,11 @@ void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const
 // Apply changes to update a quantity
 void Max7219::quantity(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
+  #if MAX7219_X_LEDS >= MAX7219_Y_LEDS    // Landscape orientation, draw horizontal bar graph.
     led_set(i, pos, nv >= ov, rcm);
+  #else                                   // Portrait orientation, draw vertical bar graph.
+    led_set(pos, i, nv >= ov, rcm);
+  #endif
 }
 
 void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
