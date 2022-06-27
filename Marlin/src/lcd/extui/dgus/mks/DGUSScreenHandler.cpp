@@ -1141,7 +1141,7 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
         else
           queue.inject(F("M290 Z-0.01"));
 
-        z_offset_add = z_offset_add - ZOffset_distance;
+        z_offset_add -= ZOffset_distance;
         break;
 
       case 1:
@@ -1156,7 +1156,7 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
         else
           queue.inject(F("M290 Z-0.01"));
 
-        z_offset_add = z_offset_add + ZOffset_distance;
+        z_offset_add += ZOffset_distance;
         break;
 
       default:
