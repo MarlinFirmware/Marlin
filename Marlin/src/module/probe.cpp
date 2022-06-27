@@ -259,7 +259,56 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #endif
   }
 
-#endif // Z_PROBE_ALLEN_KEY
+
+#elif ENABLED(MAG_MOUNTED_PROBE)
+
+  inline void run_deploy_moves_script() {
+    #ifdef MAG_MOUNTED_DEPLOY_1
+      constexpr xyz_pos_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
+      do_blocking_move_to(deploy_1, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_1_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_2
+      constexpr xyz_pos_t deploy_2 = MAG_MOUNTED_DEPLOY_2;
+      do_blocking_move_to(deploy_2, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_2_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_3
+      constexpr xyz_pos_t deploy_3 = MAG_MOUNTED_DEPLOY_3;
+      do_blocking_move_to(deploy_3, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_3_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_4
+      constexpr xyz_pos_t deploy_4 = MAG_MOUNTED_DEPLOY_4;
+      do_blocking_move_to(deploy_4, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_4_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_5
+      constexpr xyz_pos_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
+      do_blocking_move_to(deploy_5, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_5_FEEDRATE));
+    #endif
+  }
+
+  inline void run_stow_moves_script() {
+    #ifdef MAG_MOUNTED_STOW_1
+           constexpr xyz_pos_t stow_1 = MAG_MOUNTED_STOW_1;
+      do_blocking_move_to(stow_1, MMM_TO_MMS(MAG_MOUNTED_STOW_1_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_2
+           constexpr xyz_pos_t stow_2 = MAG_MOUNTED_STOW_2;
+      do_blocking_move_to(stow_2, MMM_TO_MMS(MAG_MOUNTED_STOW_2_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_3
+           constexpr xyz_pos_t stow_3 = MAG_MOUNTED_STOW_3;
+      do_blocking_move_to(stow_3, MMM_TO_MMS(MAG_MOUNTED_STOW_3_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_4
+           constexpr xyz_pos_t stow_4 = MAG_MOUNTED_STOW_4;
+      do_blocking_move_to(stow_4, MMM_TO_MMS(MAG_MOUNTED_STOW_4_FEEDRATE));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_5
+           constexpr xyz_pos_t stow_5 = MAG_MOUNTED_STOW_5;
+      do_blocking_move_to(stow_5, MMM_TO_MMS(MAG_MOUNTED_STOW_5_FEEDRATE));
+    #endif
+  }
+
+#endif // MISC Z probes
 
 #if HAS_QUIET_PROBING
 
@@ -345,7 +394,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     servo[Z_PROBE_SERVO_NR].move(servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
-  #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
+  #elif ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
 
     deploy ? run_deploy_moves_script() : run_stow_moves_script();
 
