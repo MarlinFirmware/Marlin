@@ -1858,7 +1858,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   );
 
   /* <-- add a slash to enable
-    #define _ALINE(A) " A:", target[_AXIS(A)], " (", int32_t(target[_AXIS(A)] - position[_AXIS(A)]), " steps)"
+    #define _ALINE(A) " " STR_##A  ":", target[_AXIS(A)], " (", int32_t(target[_AXIS(A)] - position[_AXIS(A)]), " steps)"
     SERIAL_ECHOLNPGM("  _populate_block FR:", fr_mm_s, LOGICAL_AXIS_MAP(_ALINE));
   //*/
 
