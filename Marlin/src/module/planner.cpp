@@ -964,7 +964,7 @@ void Planner::reverse_pass_kernel(block_t * const current, const block_t * const
       // the reverse and forward planners, the corresponding block junction speed will always be at the
       // the maximum junction speed and may always be ignored for any speed reduction checks.
 
-      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr > 0.0 ? safe_exit_speed_sqr : ) sq(float(MINIMUM_PLANNER_SPEED)),
+      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : _MAX(TERN0(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr), sq(float(MINIMUM_PLANNER_SPEED))),
                   new_entry_speed_sqr = current->flag.nominal_length
                     ? max_entry_speed_sqr
                     : _MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next_entry_speed_sqr, current->millimeters));
@@ -1210,7 +1210,7 @@ void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t 
   // Last/newest block in buffer. Always recalculated.
   if (block) {
     // Exit speed is set with MINIMUM_PLANNER_SPEED unless some code higher up knows better.
-    next_entry_speed = TERN_(HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr > 0.0 ? SQRT(safe_exit_speed_sqr) : ) float(MINIMUM_PLANNER_SPEED);
+    next_entry_speed = _MAX(TERN0(HINTS_SAFE_EXIT_SPEED, SQRT(safe_exit_speed_sqr)), float(MINIMUM_PLANNER_SPEED));
 
     // Mark the last block as RECALCULATE, to prevent the Stepper ISR running it.
     // As the last block is always recalculated here, there is a chance the block isn't
