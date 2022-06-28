@@ -132,7 +132,7 @@ uint8_t CardReader::workDirDepth;
 #endif
 
 DiskIODriver* CardReader::driver = nullptr;
-SdVolume CardReader::volume;
+MarlinVolume CardReader::volume;
 MarlinFile CardReader::file;
 
 #if HAS_MEDIA_SUBCALLS

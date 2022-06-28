@@ -326,7 +326,7 @@ private:
   #endif // SDCARD_SORT_ALPHA
 
   static DiskIODriver *driver;
-  static SdVolume volume;
+  static MarlinVolume volume;
   static MarlinFile file;
 
   static uint32_t filesize, // Total size of the current file, in bytes
