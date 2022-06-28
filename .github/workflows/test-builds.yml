@@ -81,7 +81,6 @@ jobs:
         - STM32F401RC_creality
         - STM32F103VE_longer
         - STM32F407VE_black
-        - STM32F401VE_STEVAL
         - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
