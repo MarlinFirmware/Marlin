@@ -469,21 +469,29 @@ float MAX31865::temperature(float rtd_res) {
   // of resistance. So here we use a Linear Approximation instead.
   //
   if (temp < 0) {
+    #ifndef MAX31865_APPROX
+      #define MAX31865_APPROX 5
+    #endif
+
+    constexpr float RTD_C[] = {
+      #if MAX31865_APPROX == 5
+        -242.02, +2.2228, +2.5859e-3, -4.8260e-6, -2.8183e-8, +1.5243e-10
+      #elif MAX31865_APPROX == 4
+        -241.96, +2.2163, +2.8541e-3, -9.9121e-6, -1.7152e-8
+      #elif MAX31865_APPROX == 3
+        -242.09, +2.2276, +2.5178e-3, -5.8620e-6
+      #else
+        -242.97, +2.2838, +1.4727e-3
+      #endif
+    };
+
     float rpoly = rtd_res;
-
-    constexpr float RTD_C0 = -242.02,
-                    RTD_C1 = +5557.0 / 2500.0,
-                    RTD_C2 = +2.5859e-3,
-                    RTD_C3 = -4.8260e-6,
-                    RTD_C4 = -2.8183e-8,
-                    RTD_C5 = +1.5243e-10;
-
-    temp = RTD_C0;
-                      temp += rpoly * RTD_C1; // ^1
-    rpoly *= rtd_res; temp += rpoly * RTD_C2; // ^2
-    rpoly *= rtd_res; temp += rpoly * RTD_C3; // ^3
-    rpoly *= rtd_res; temp += rpoly * RTD_C4; // ^4
-    rpoly *= rtd_res; temp += rpoly * RTD_C5; // ^5
+    temp = RTD_C[0];
+    temp += rpoly * RTD_C[1];
+    rpoly *= rtd_res; temp += rpoly * RTD_C[2];
+    if (MAX31865_APPROX >= 3) rpoly *= rtd_res; temp += rpoly * RTD_C[3];
+    if (MAX31865_APPROX >= 4) rpoly *= rtd_res; temp += rpoly * RTD_C[4];
+    if (MAX31865_APPROX >= 5) rpoly *= rtd_res; temp += rpoly * RTD_C[5];
   }
 
   return temp;
