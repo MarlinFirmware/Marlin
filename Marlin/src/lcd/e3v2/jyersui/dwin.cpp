@@ -4562,7 +4562,7 @@ void CrealityDWINClass::Start_Print(bool sd) {
     if (sd) {
       #if ENABLED(POWER_LOSS_RECOVERY)
         if (recovery.valid()) {
-          SdFile *diveDir = nullptr;
+          MarlinFile *diveDir = nullptr;
           const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
           card.selectFileByName(fname);
         }
