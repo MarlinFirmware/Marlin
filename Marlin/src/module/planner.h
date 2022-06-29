@@ -274,6 +274,8 @@ typedef struct block_t {
     block_laser_t laser;
   #endif
 
+  void reset() { memset((char*)this, 0, sizeof(*this)); }
+
 } block_t;
 
 #if ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
