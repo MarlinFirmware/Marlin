@@ -106,7 +106,7 @@
   #define HOTEND7_PULLUP_RESISTOR_OHMS 4700    // Pullup resistor
   #define HOTEND7_RESISTANCE_25C_OHMS  100000  // Resistance at 25C
   #define HOTEND7_BETA                 3950    // Beta value
-  #define HOTEND8_SH_C_COEFF              0    // Steinhart-Hart C coefficient
+  #define HOTEND7_SH_C_COEFF              0    // Steinhart-Hart C coefficient
 #endif
 
 #if TEMP_SENSOR_BED == 1000
