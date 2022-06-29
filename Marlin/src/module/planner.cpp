@@ -2821,7 +2821,7 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
   block_t * const block = get_next_free_block(next_buffer_head);
 
   // Clear block
-  memset(block, 0, sizeof(block_t));
+  block->reset();
 
   block->flag = sync_flag;
 
