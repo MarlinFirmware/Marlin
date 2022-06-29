@@ -349,6 +349,8 @@
   #error "HAVE_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130."
 #elif defined(HAVE_TMC2208)
   #error "HAVE_TMC2208 is now [AXIS]_DRIVER_TYPE TMC2208."
+#elif defined(HAVE_L6470DRIVER)
+  #error "HAVE_L6470DRIVER is obsolete. L64xx stepper drivers are no longer supported in Marlin."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) || defined(Z3_IS_TMC) \
    || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC) || defined(E5_IS_TMC) || defined(E6_IS_TMC) || defined(E7_IS_TMC)
   #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X."
@@ -630,6 +632,26 @@
   #error "LEVEL_CENTER_TOO is now BED_TRAMMING_INCLUDE_CENTER."
 #endif
 
+// L64xx stepper drivers have been removed
+#define _L6470              0x6470
+#define _L6474              0x6474
+#define _L6480              0x6480
+#define _POWERSTEP01        0xF00D
+#if HAS_DRIVER(L6470)
+  #error "L6470 stepper drivers are no longer supported in Marlin."
+#elif HAS_DRIVER(L6474)
+  #error "L6474 stepper drivers are no longer supported in Marlin."
+#elif HAS_DRIVER(L6480)
+  #error "L6480 stepper drivers are no longer supported in Marlin."
+#elif HAS_DRIVER(POWERSTEP01)
+  #error "POWERSTEP01 stepper drivers are no longer supported in Marlin."
+#endif
+#undef _L6470
+#undef _L6474
+#undef _L6480
+#undef _POWERSTEP01
+
+// Check AXIS_RELATIVE_MODES
 constexpr float arm[] = AXIS_RELATIVE_MODES;
 static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
