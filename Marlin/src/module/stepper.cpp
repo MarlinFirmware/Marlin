@@ -2161,26 +2161,20 @@ uint32_t Stepper::block_phase_isr() {
     if ((current_block = planner.get_current_block())) {
 
       // Sync block? Sync the stepper counts or fan speeds and return
-      while (current_block->flag & BLOCK_MASK_SYNC) {
-
-        bool is_sync_pwr = false;
-
-        #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-          is_sync_pwr = TEST(current_block->flag, BLOCK_BIT_SYNC_FANS);
-          if (is_sync_pwr) planner.sync_fan_speeds(current_block->fan_speed);
-        #endif
+      while (current_block->is_sync()) {
 
         #if ENABLED(LASER_POWER_SYNC)
-        if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-          is_sync_pwr = TEST(current_block->flag, BLOCK_BIT_LASER_PWR);
-          if (is_sync_pwr) {
-            planner.laser_inline.status.isSyncPower = true;
-            cutter.apply_power(current_block->laser.power);
+          if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+            if (current_block->is_pwr_sync()) {
+              planner.laser_inline.status.isSyncPower = true;
+              cutter.apply_power(current_block->laser.power);
+            }
           }
-        }
         #endif
 
-        if (!is_sync_pwr) _set_position(current_block->position);
+        TERN_(LASER_SYNCHRONOUS_M106_M107, if (current_block->is_fan_sync()) planner.sync_fan_speeds(current_block->fan_speed));
+
+        if (!(current_block->is_fan_sync() || current_block->is_pwr_sync())) _set_position(current_block->position);
 
         discard_current_block();
 

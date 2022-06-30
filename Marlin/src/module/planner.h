@@ -92,7 +92,10 @@
   #define HAS_DIST_MM_ARG 1
 #endif
 
-enum BlockFlagBit : char {
+/**
+ * Planner block flags as boolean bit fields
+ */
+enum BlockFlagBit {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
 
@@ -108,7 +111,9 @@ enum BlockFlagBit : char {
   BLOCK_BIT_SYNC_POSITION
 
   // Direct stepping page
-  OPTARG(DIRECT_STEPPING, BLOCK_BIT_IS_PAGE)
+  #if ENABLED(DIRECT_STEPPING)
+    , BLOCK_BIT_PAGE
+  #endif
 
   // Sync the fan speeds from the block
   OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_BIT_SYNC_FANS)
@@ -117,17 +122,43 @@ enum BlockFlagBit : char {
   OPTARG(LASER_POWER_SYNC, BLOCK_BIT_LASER_PWR)
 };
 
-enum BlockFlag : char {
-    BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE)
-  , BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH)
-  , BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
-  , BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
-  OPTARG(DIRECT_STEPPING,             BLOCK_FLAG_IS_PAGE   = _BV(BLOCK_BIT_IS_PAGE))
-  OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS = _BV(BLOCK_BIT_SYNC_FANS))
-  OPTARG(LASER_POWER_SYNC,            BLOCK_FLAG_LASER_PWR = _BV(BLOCK_BIT_LASER_PWR))
-};
+/**
+ * Planner block flags as boolean bit fields
+ */
+typedef struct {
+  union {
+    uint8_t bits;
 
-#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) | TERN0(LASER_POWER_SYNC, BLOCK_FLAG_LASER_PWR) )
+    struct {
+      bool recalculate:1;
+
+      bool nominal_length:1;
+
+      bool continued:1;
+
+      bool sync_position:1;
+
+      #if ENABLED(DIRECT_STEPPING)
+        bool page:1;
+      #endif
+
+      #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+        bool sync_fans:1;
+      #endif
+
+      #if ENABLED(LASER_POWER_SYNC)
+        bool sync_laser_pwr:1;
+      #endif
+    };
+  };
+
+  void clear() volatile { bits = 0; }
+  void apply(const uint8_t f) volatile { bits |= f; }
+  void apply(const BlockFlagBit b) volatile { SBI(bits, b); }
+  void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
+  void set_nominal(const bool n) volatile { recalculate = true; if (n) nominal_length = true; }
+
+} block_flags_t;
 
 #if ENABLED(LASER_FEATURE)
 
@@ -136,7 +167,7 @@ enum BlockFlag : char {
     bool dir:1;
     bool isPowered:1;                                 // Set on any parsed G1, G2, G3, or G5 powered move, cleared on G0 and G28.
     bool isSyncPower:1;                               // Set on a M3 sync based set laser power, used to determine active trap power
-    bool Reserved:6;
+    bool Reserved:4;
   } power_status_t;
 
   typedef struct {
@@ -163,7 +194,13 @@ enum BlockFlag : char {
  */
 typedef struct block_t {
 
-  volatile uint8_t flag;                    // Block flags (See BlockFlag enum above) - Modified by ISR and main thread!
+  volatile block_flags_t flag;              // Block flags
+
+  volatile bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  volatile bool is_pwr_sync() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
+  volatile bool is_sync() { return flag.sync_position || is_fan_sync() || is_pwr_sync(); }
+  volatile bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
+  volatile bool is_move() { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed_sqr,                  // The nominal speed for this block in (mm/sec)^2
@@ -754,7 +791,7 @@ class Planner {
      * @param sync_flag sets a condition bit to process additional items
      * such as sync fan pwm or sync M3/M4 laser power into a queued block
      */
-    static void buffer_sync_block(const uint8_t sync_flag=BLOCK_FLAG_SYNC_POSITION);
+      static void buffer_sync_block(const BlockFlagBit flag=BLOCK_BIT_SYNC_POSITION);
 
   #if IS_KINEMATIC
     private:

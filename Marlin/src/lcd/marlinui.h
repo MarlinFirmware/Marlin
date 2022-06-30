@@ -137,12 +137,16 @@ typedef bool (*statusResetFunc_t)();
       static xyze_pos_t all_axes_destination;
     #endif
   public:
+    static screenFunc_t screen_ptr;
     static float menu_scale;
     #if IS_KINEMATIC
       static float offset;
     #endif
+    #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+      static float e_origin;
+    #endif
     template <typename T>
-    void set_destination(const T& dest) {
+    static void set_destination(const T& dest) {
       #if IS_KINEMATIC
         // Moves are segmented, so the entire move is not submitted at once.
         // Using a separate variable prevents corrupting the in-progress move.
@@ -153,10 +157,10 @@ typedef bool (*statusResetFunc_t)();
         current_position.set(dest);
       #endif
     }
-    float axis_value(const AxisEnum axis) {
+    static float axis_value(const AxisEnum axis) {
       return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
     }
-    bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+    static bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
       #if IS_KINEMATIC
         float &valref = offset;
         const float rmin = min - current_position[axis], rmax = max - current_position[axis];
@@ -166,12 +170,7 @@ typedef bool (*statusResetFunc_t)();
       #endif
       valref += diff;
       const float pre = valref;
-      if (min != max) {
-        if (diff < 0)
-          NOLESS(valref, rmin);
-        else
-          NOMORE(valref, rmax);
-      }
+      if (min != max) { if (diff < 0) NOLESS(valref, rmin); else NOMORE(valref, rmax); }
       return pre != valref;
     }
     #if IS_KINEMATIC
@@ -502,7 +501,6 @@ public:
   #else // No LCD
 
     static void update() {}
-    static void return_to_status() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
@@ -553,6 +551,7 @@ public:
 
     // Manual Movement
     static ManualMove manual_move;
+    static bool can_show_slider() { return !external_control && currentScreen != manual_move.screen_ptr; }
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
@@ -608,6 +607,8 @@ public:
     static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
 
   #else
+
+    static void return_to_status() {}
 
     static constexpr bool on_status_screen() { return true; }
 
