@@ -716,9 +716,9 @@ class Temperature {
     static void readings_ready();
 
     /**
-     * Call periodically to manage heaters
+     * Call periodically to manage heaters and keep the watchdog fed
      */
-    static void manage_heater() __O2; // __O2 added to work around a compiler error
+    static void task();
 
     /**
      * Preheating hotends

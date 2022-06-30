@@ -123,7 +123,7 @@ void cubic_b_spline(
 
   for (float t = 0; t < 1;) {
 
-    thermalManager.manage_heater();
+    thermalManager.task();
     millis_t now = millis();
     if (ELAPSED(now, next_idle_ms)) {
       next_idle_ms = now + 200UL;

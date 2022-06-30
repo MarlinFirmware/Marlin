@@ -1837,7 +1837,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
  *  - Apply filament width to the extrusion rate (may move)
  *  - Update the heated bed PID output value
  */
-void Temperature::manage_heater() {
+void Temperature::task() {
   if (marlin_state == MF_INITIALIZING) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
 
   static bool no_reentry = false;  // Prevent recursion
@@ -2393,7 +2393,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 /**
  * Initialize the temperature manager
  *
- * The manager is implemented by periodic calls to manage_heater()
+ * The manager is implemented by periodic calls to task()
  *
  *  - Init (and disable) SPI thermocouples like MAX6675 and MAX31865
  *  - Disable RUMBA JTAG to accommodate a thermocouple extension
