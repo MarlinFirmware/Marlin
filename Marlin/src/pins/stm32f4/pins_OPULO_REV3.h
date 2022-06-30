@@ -22,15 +22,15 @@
 #pragma once
 
 /**
- * STM32F407VET6 on Index PnP Mobo Rev03
- * Website - https://indexmachines.io/
+ * STM32F407VET6 on Opulo REV3
  */
 
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME      "Index Mobo Rev03"
-#define DEFAULT_MACHINE_NAME "Index Pick and Place"
+#define BOARD_INFO_NAME      "Opulo REV3"
+#define DEFAULT_MACHINE_NAME "Opulo LumenPnP"
+#define DEFAULT_BOARD_WEBSITE_URL "opulo.io"
 
 /**
  * By default, the extra stepper motor configuration is:
@@ -179,7 +179,7 @@
 #define I2C_SCL_PIN                         PB6
 
 /**
- * The index mobo rev03 has 3 aux ports. We define them here so they may be used
+ * The Opulo REV3 has 3 aux ports. We define them here so they may be used
  * in other places and to make sure someone doesn't have to go look up the pinout
  * in the board files. Each 12 pin aux port has this pinout:
  *
@@ -190,17 +190,17 @@
  * A1     9  10    COPI (MOSI_PIN)
  * A2     11 12    SCK  (SCK_PIN)
  */
-#define INDEX_AUX1_PWM1                     PA15
-#define INDEX_AUX1_PWM2                     PA5
-#define INDEX_AUX1_A1                       PC0
-#define INDEX_AUX1_A2                       PC1
+#define OPULO_AUX1_PWM1                     PA15
+#define OPULO_AUX1_PWM2                     PA5
+#define OPULO_AUX1_A1                       PC0
+#define OPULO_AUX1_A2                       PC1
 
-#define INDEX_AUX2_PWM1                     PA6
-#define INDEX_AUX2_PWM2                     PA7
-#define INDEX_AUX2_A1                       PC2
-#define INDEX_AUX2_A2                       PC3
+#define OPULO_AUX2_PWM1                     PA6
+#define OPULO_AUX2_PWM2                     PA7
+#define OPULO_AUX2_A1                       PC2
+#define OPULO_AUX2_A2                       PC3
 
-#define INDEX_AUX3_PWM1                     PB8
-#define INDEX_AUX3_PWM2                     PB9
-#define INDEX_AUX3_A1                       PA0
-#define INDEX_AUX3_A2                       PA1
+#define OPULO_AUX3_PWM1                     PB8
+#define OPULO_AUX3_PWM2                     PB9
+#define OPULO_AUX3_A1                       PA0
+#define OPULO_AUX3_A2                       PA1
