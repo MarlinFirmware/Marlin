@@ -97,7 +97,7 @@ class TFT_String {
      * @param character The ASCII character
      */
     static void add(const char character) { add_character(character); eol(); }
-    static void set(wchar_t character) { set(); add(character); }
+    static void set(const lchar_t &character) { set(); add(character); }
 
     /**
      * @brief Append / Set C-string

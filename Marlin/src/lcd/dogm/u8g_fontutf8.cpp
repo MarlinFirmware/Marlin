@@ -60,11 +60,11 @@ static int fontgroup_init(font_group_t * root, const uxg_fontinfo_t * fntinfo, i
   return 0;
 }
 
-static const font_t* fontgroup_find(font_group_t * root, wchar_t val) {
-  uxg_fontinfo_t vcmp = {(uint16_t)(val / 128), (uint8_t)(val % 128 + 128), (uint8_t)(val % 128 + 128), 0, 0};
-  size_t idx = 0;
+static const font_t* fontgroup_find(font_group_t * root, const lchar_t &val) {
+  if (val <= 0xFF) return nullptr;
 
-  if (val < 256) return nullptr;
+  uxg_fontinfo_t vcmp = { uint16_t(val >> 7), uint8_t((val & 0x7F) + 0x80), uint8_t((val & 0x7F) + 0x80), 0, 0 };
+  size_t idx = 0;
 
   if (pf_bsearch_r((void*)root->m_fntifo, root->m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void*)&vcmp, &idx) < 0)
     return nullptr;
@@ -73,7 +73,7 @@ static const font_t* fontgroup_find(font_group_t * root, wchar_t val) {
   return vcmp.fntdata;
 }
 
-static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, wchar_t val, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
+static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, const lchar_t &val, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
   uint8_t buf[2] = {0, 0};
   const font_t * fntpqm = (font_t*)fontgroup_find(group, val);
   if (!fntpqm) {
@@ -106,10 +106,10 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
 static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
   const uint8_t *p = (uint8_t*)utf8_msg;
   for (;;) {
-    wchar_t val = 0;
-    p = get_utf8_value_cb(p, cb_read_byte, &val);
-    if (!val) break;
-    fontgroup_drawwchar(group, fnt_default, val, userdata, cb_draw_ram);
+    lchar_t ch;
+    p = get_utf8_value_cb(p, cb_read_byte, ch);
+    if (!ch) break;
+    fontgroup_drawwchar(group, fnt_default, ch, userdata, cb_draw_ram);
   }
 }
 
@@ -149,19 +149,19 @@ static int fontgroup_cb_draw_u8g(void *userdata, const font_t *fnt_current, cons
 }
 
 /**
- * @brief Draw a wchar_t at the specified position
+ * @brief Draw a lchar_t at the specified position
  *
  * @param pu8g : U8G pointer
  * @param x : position x axis
  * @param y : position y axis
- * @param ch : the wchar_t
+ * @param ch : the lchar_t
  * @param max_width : the pixel width of the string allowed
  *
  * @return number of pixels advanced
  *
  * Draw a UTF-8 string at the specified position
  */
-unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, wchar_t ch, pixel_len_t max_width) {
+unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lchar_t &ch, pixel_len_t max_width) {
   struct _uxg_drawu8_data_t data;
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);

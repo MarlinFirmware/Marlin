@@ -47,19 +47,19 @@ lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/
   const uint8_t *p = (uint8_t*)ptpl;
   int8_t n = maxlen;
   while (n > 0) {
-    wchar_t ch;
-    p = get_utf8_value_cb(p, read_byte_rom, &ch);
+    lchar_t ch;
+    p = get_utf8_value_cb(p, read_byte_rom, ch);
     if (!ch) break;
     if (ch == '=' || ch == '~' || ch == '*') {
       if (ind >= 0) {
-        if (ch == '*') { lcd_put_wchar('E'); n--; }
+        if (ch == '*') { lcd_put_lchar('E'); n--; }
         if (n) {
           int8_t inum = ind + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
           if (inum >= 10) {
-            lcd_put_wchar('0' + (inum / 10)); n--;
+            lcd_put_lchar('0' + (inum / 10)); n--;
             inum %= 10;
           }
-          if (n) { lcd_put_wchar('0' + inum); n--; }
+          if (n) { lcd_put_lchar('0' + inum); n--; }
         }
       }
       else {
@@ -78,11 +78,11 @@ lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/
       n -= lcd_put_u8str_max(cstr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
     }
     else if (ch == '@') {
-      lcd_put_wchar(AXIS_CHAR(ind));
+      lcd_put_lchar(AXIS_CHAR(ind));
       n--;
     }
     else {
-      lcd_put_wchar(ch);
+      lcd_put_lchar(ch);
       n -= ch > 255 ? prop : 1;
     }
   }
@@ -97,8 +97,8 @@ int calculateWidth(PGM_P const pstr) {
   int n = 0;
 
   do {
-    wchar_t ch;
-    p = get_utf8_value_cb(p, read_byte_rom, &ch);
+    lchar_t ch;
+    p = get_utf8_value_cb(p, read_byte_rom, ch);
     if (!ch) break;
     n += (ch > 255) ? prop : 1;
   } while (1);
