@@ -925,20 +925,24 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       this block can never be less than block_buffer_tail and will always be pushed forward and maintain
       this requirement when encountered by the Planner::release_current_block() routine during a cycle.
 
-  NOTE: Since the planner only computes on what's in the planner buffer, some motions with lots of short
-  line segments, like complex curves, may seem to move slow. This is because there simply isn't enough
-  combined distance traveled in the entire buffer to accelerate up to the nominal speed and then decelerate
-  to a complete stop at the end of the buffer, as stated by the guidelines. If this happens and becomes an
-  annoyance, there are a few simple solutions:
-  (1) Maximize the machine acceleration. The planner will be able to compute higher velocity profiles
+  NOTE: Since the planner only computes on what's in the planner buffer, some motions with many short
+        segments (e.g., complex curves) may seem to move slowly. This is because there simply isn't
+        enough combined distance traveled in the entire buffer to accelerate up to the nominal speed and
+        then decelerate to a complete stop at the end of the buffer, as stated by the guidelines. If this
+        happens and becomes an annoyance, there are a few simple solutions:
+
+    - Maximize the machine acceleration. The planner will be able to compute higher velocity profiles
       within the same combined distance.
-  (2) Maximize line motion(s) distance per block to a desired tolerance. The more combined distance the
+
+    - Maximize line motion(s) distance per block to a desired tolerance. The more combined distance the
       planner has to use, the faster it can go.
-  (3) Maximize the planner buffer size. This also will increase the combined distance for the planner to
+
+    - Maximize the planner buffer size. This also will increase the combined distance for the planner to
       compute over. It also increases the number of computations the planner has to perform to compute an
       optimal plan, so select carefully.
-  (4) Use G2/G3 arcs instead of many short segment. These now inform the planner of a safe exit speed at
-      the end of the last segment, which alleviates this problem.
+
+    - Use G2/G3 arcs instead of many short segments. Arcs inform the planner of a safe exit speed at the
+      end of the last segment, which alleviates this problem.
 */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
@@ -3101,24 +3105,24 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       );
     #endif
 
-    PlannerHints _hints(hints);
-    if (!_hints.millimeters)
-      _hints.millimeters = (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
-
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
+
+    PlannerHints ph = hints;
+    if (!hints.millimeters)
+      ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
-      const float duration_recip = hints.inv_duration ?: fr_mm_s / _hints.millimeters;
+      const float duration_recip = hints.inv_duration ?: fr_mm_s / ph.millimeters;
       const xyz_pos_t diff = delta - position_float;
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
     #endif
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
-    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, _hints)) {
+    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
       position_cart = cart;
       return true;
     }

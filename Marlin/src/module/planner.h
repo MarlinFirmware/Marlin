@@ -352,31 +352,20 @@ typedef struct {
 #endif
 
 struct PlannerHints {
-  // the length of the movement, if known
-  float millimeters = 0.0;
-  // the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
+  float millimeters = 0.0;            // Move Length, if known, else 0.
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    float inv_duration = 0.0;
+    float inv_duration = 0.0;         // Reciprocal of the move duration, if known
   #endif
-  // the radius of curvature of the tool head path - for cornering speed calculation
   #if ENABLED(HINTS_CURVE_RADIUS)
-    float curve_radius = 0.0;
+    float curve_radius = 0.0;         // Radius of curvature of the motion path - to calculate cornering speed
+  #else
+    static constexpr float curve_radius = 0.0;
   #endif
-  // the square of the speed which would be "safe" at the end of this segment, i.e. <= the exit speed
-  // of the segment that the planner would calculate of it knew the as yet unbuffered path
   #if ENABLED(HINTS_SAFE_EXIT_SPEED)
-    float safe_exit_speed_sqr = 0.0;
+    float safe_exit_speed_sqr = 0.0;  // Square of the speed considered "safe" at the end of the segment
+                                      // i.e., at or below the exit speed of the segment that the planner
+                                      // would calculate if it knew the as-yet-unbuffered path
   #endif
-
-  PlannerHints(float _millimeters = 0.0
-               OPTARG(SCARA_FEEDRATE_SCALING, const_float_t _inv_duration = 0.0)
-               OPTARG(HINTS_CURVE_RADIUS, const_float_t _curve_radius = 0.0)
-               OPTARG (HINTS_SAFE_EXIT_SPEED, const_float_t _safe_exit_speed_sqr = 0.0)
-  ) : millimeters(_millimeters)
-      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration(_inv_duration))
-      OPTARG(HINTS_CURVE_RADIUS, curve_radius(_curve_radius))
-      OPTARG (HINTS_SAFE_EXIT_SPEED, safe_exit_speed_sqr(_safe_exit_speed_sqr))
-  {}
 };
 
 class Planner {

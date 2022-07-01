@@ -214,10 +214,12 @@ void plan_arc(
   const uint16_t segments = nominal_segment_mm > (MAX_ARC_SEGMENT_MM) ? CEIL(flat_mm / (MAX_ARC_SEGMENT_MM)) :
                             nominal_segment_mm < (MIN_ARC_SEGMENT_MM) ? _MAX(1, FLOOR(flat_mm / (MIN_ARC_SEGMENT_MM))) :
                             nominal_segments;
-  float segment_mm = flat_mm / segments;
+  const float segment_mm = flat_mm / segments;
 
+  // Add hints to help optimize the move
+  PlannerHints hints;
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
+    hints.inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
   #endif
 
   /**
@@ -355,11 +357,12 @@ void plan_arc(
 
       // calculate safe speed for stopping by the end of the arc
       arc_mm_remaining -= segment_mm;
-      const float safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
-      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder
-              , PlannerHints(0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration), i > 1 ? radius : 0, safe_exit_speed_sqr))
-      ) break;
+      hints.curve_radius = i > 1 ? radius : 0;
+      hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
+
+      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
+        break;
     }
   }
 
@@ -379,7 +382,8 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+  hints.curve_radius = 0;
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     ARC_LIJKUVW_CODE(
