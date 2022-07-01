@@ -21,6 +21,10 @@ if pioutil.is_pio_build():
 
 	from platformio.package.meta import PackageSpec
 	platform_packages = env.GetProjectOption('platform_packages')
+
+	# Remove all tool items from platform_packages
+	platform_packages = [x for x in platform_packages if not x.startswith("platformio/tool-")]
+
 	if len(platform_packages) == 0:
 		framewords = {
 			"Ststm32Platform": "framework-arduinoststm32",

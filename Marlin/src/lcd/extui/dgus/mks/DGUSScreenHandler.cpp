@@ -258,7 +258,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     ) filelist.refresh();
   }
 
-  void DGUSScreenHandler::SDPrintingFinished() {
+  void DGUSScreenHandlerMKS::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
       queue.exhaust();
       gcode.process_subcommands_now(F("M81"));
@@ -416,15 +416,15 @@ void DGUSScreenHandlerMKS::LanguageChange(DGUS_VP_Variable &var, void *val_ptr) 
     case MKS_SimpleChinese:
       DGUS_LanguageDisplay(MKS_SimpleChinese);
       mks_language_index = MKS_SimpleChinese;
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_NoChoose);
       settings.save();
       break;
     case MKS_English:
       DGUS_LanguageDisplay(MKS_English);
       mks_language_index = MKS_English;
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_Choose);
       settings.save();
       break;
     default: break;
@@ -1125,7 +1125,6 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
 #if ENABLED(BABYSTEPPING)
   void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
-    char babystep_buf[30];
     float step = ZOffset_distance;
 
     uint16_t flag = swap16(*(uint16_t*)val_ptr);
@@ -1142,7 +1141,7 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
         else
           queue.inject(F("M290 Z-0.01"));
 
-        z_offset_add = z_offset_add - ZOffset_distance;
+        z_offset_add -= ZOffset_distance;
         break;
 
       case 1:
@@ -1157,7 +1156,7 @@ void DGUSScreenHandlerMKS::HandleAccChange(DGUS_VP_Variable &var, void *val_ptr)
         else
           queue.inject(F("M290 Z-0.01"));
 
-        z_offset_add = z_offset_add + ZOffset_distance;
+        z_offset_add += ZOffset_distance;
         break;
 
       default:
@@ -1446,12 +1445,12 @@ bool DGUSScreenHandlerMKS::loop() {
 void DGUSScreenHandlerMKS::LanguagePInit() {
   switch (mks_language_index) {
     case MKS_SimpleChinese:
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_NoChoose);
       break;
     case MKS_English:
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
-      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_NoChoose);
+      dgusdisplay.WriteVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_Choose);
       break;
     default:
       break;

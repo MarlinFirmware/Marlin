@@ -79,6 +79,31 @@
 #endif
 
 //
+// Foam Cutter requirements
+//
+
+#if ENABLED(FOAMCUTTER_XYUV)
+  #ifndef MOSFET_C_PIN
+    #define MOSFET_C_PIN                      -1
+  #endif
+  #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN) && NUM_SERVOS < 2
+    #define SPINDLE_LASER_PWM_PIN              8  // Hardware PWM
+  #endif
+  #ifndef Z_MIN_PIN
+    #define Z_MIN_PIN                         -1
+  #endif
+  #ifndef Z_MAX_PIN
+    #define Z_MAX_PIN                         -1
+  #endif
+  #ifndef I_STOP_PIN
+    #define I_STOP_PIN                        18
+  #endif
+  #ifndef J_STOP_PIN
+    #define J_STOP_PIN                        19
+  #endif
+#endif
+
+//
 // Limit Switches
 //
 #ifndef X_STOP_PIN
@@ -272,7 +297,9 @@
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
   #if NUM_SERVOS < 2                              // Use servo connector if possible
     #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #ifndef SPINDLE_LASER_PWM_PIN
+      #define SPINDLE_LASER_PWM_PIN            6  // Hardware PWM
+    #endif
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS
     #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!

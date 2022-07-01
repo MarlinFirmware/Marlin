@@ -41,8 +41,8 @@ def custom_ld_script(ldname):
 		elif flag == "-T":
 			env["LINKFLAGS"][i + 1] = apath
 
-# Encrypt ${PROGNAME}.bin and save it with a new name
-# Called by specific encrypt() functions, mostly for MKS boards
+# Encrypt ${PROGNAME}.bin and save it with a new name. This applies (mostly) to MKS boards
+# This PostAction is set up by offset_and_rename.py for envs with 'build.encrypt_mks'.
 def encrypt_mks(source, target, env, new_name):
 	import sys
 
