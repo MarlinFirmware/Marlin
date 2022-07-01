@@ -52,6 +52,7 @@
   #define HAS_SIDE_BY_SIDE 1
 #endif
 
+#define _ROT ((MAX7219_ROTATE + 360) % 360)
 #if _ROT == 0 || _ROT == 180
   #define MAX7219_X_LEDS TERN(HAS_SIDE_BY_SIDE, 8, MAX7219_LINES)
   #define MAX7219_Y_LEDS TERN(HAS_SIDE_BY_SIDE, MAX7219_LINES, 8)
@@ -597,7 +598,15 @@ void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const
 // Apply changes to update a quantity
 void Max7219::quantity(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
-    led_set(i, pos, nv >= ov, rcm);
+    led_set(
+      #if MAX7219_X_LEDS >= MAX7219_Y_LEDS
+        i, pos  // Single matrix or multiple matrices in Landscape
+      #else
+        pos, i  // Multiple matrices in Portrait
+      #endif
+      , nv >= ov
+      , rcm
+    );
 }
 
 void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
