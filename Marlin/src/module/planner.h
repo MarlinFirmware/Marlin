@@ -351,21 +351,27 @@ typedef struct {
   #define HINTS_SAFE_EXIT_SPEED
 #endif
 
-struct planner_hints_t {
+struct PlannerHints {
   // the length of the movement, if known
   float millimeters = 0.0;
   // the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
-  TERN_(SCARA_FEEDRATE_SCALING, float inv_duration = 0.0);
+  #if ENABLED(SCARA_FEEDRATE_SCALING)
+    float inv_duration = 0.0;
+  #endif
   // the radius of curvature of the tool head path - for cornering speed calculation
-  TERN_(HINTS_CURVE_RADIUS, float curve_radius = 0.0);
+  #if ENABLED(HINTS_CURVE_RADIUS)
+    float curve_radius = 0.0;
+  #endif
   // the square of the speed which would be "safe" at the end of this segment, i.e. <= the exit speed
   // of the segment that the planner would calculate of it knew the as yet unbuffered path
-  TERN_(HINTS_SAFE_EXIT_SPEED, float safe_exit_speed_sqr = 0.0);
+  #if ENABLED(HINTS_SAFE_EXIT_SPEED)
+    float safe_exit_speed_sqr = 0.0;
+  #endif
 
-  planner_hints_t(float _millimeters = 0.0
-                  OPTARG(SCARA_FEEDRATE_SCALING, const_float_t _inv_duration = 0.0)
-                  OPTARG(HINTS_CURVE_RADIUS, const_float_t _curve_radius = 0.0)
-                  OPTARG (HINTS_SAFE_EXIT_SPEED, const_float_t _safe_exit_speed_sqr = 0.0)
+  PlannerHints(float _millimeters = 0.0
+               OPTARG(SCARA_FEEDRATE_SCALING, const_float_t _inv_duration = 0.0)
+               OPTARG(HINTS_CURVE_RADIUS, const_float_t _curve_radius = 0.0)
+               OPTARG (HINTS_SAFE_EXIT_SPEED, const_float_t _safe_exit_speed_sqr = 0.0)
   ) : millimeters(_millimeters)
       OPTARG(SCARA_FEEDRATE_SCALING, inv_duration(_inv_duration))
       OPTARG(HINTS_CURVE_RADIUS, curve_radius(_curve_radius))
@@ -783,7 +789,7 @@ class Planner {
     static bool _buffer_steps(const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
+      , feedRate_t fr_mm_s, const uint8_t extruder, const PlannerHints &hints
     );
 
     /**
@@ -801,7 +807,7 @@ class Planner {
     static bool _populate_block(block_t * const block, bool split_move, const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
+      , feedRate_t fr_mm_s, const uint8_t extruder, const PlannerHints &hints
     );
 
     /**
@@ -835,7 +841,7 @@ class Planner {
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder
-      , const planner_hints_t &hints = planner_hints_t()
+      , const PlannerHints &hints = PlannerHints()
     );
 
   public:
@@ -851,7 +857,7 @@ class Planner {
      *  hints        - optional parameters to aid planner's calculations
      */
     static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s,
-      const uint8_t extruder=active_extruder, const planner_hints_t &hints=planner_hints_t()
+      const uint8_t extruder=active_extruder, const PlannerHints &hints=PlannerHints()
     );
 
     #if ENABLED(DIRECT_STEPPING)

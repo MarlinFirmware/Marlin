@@ -358,7 +358,7 @@ void plan_arc(
       const float safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder
-              , planner_hints_t(0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration), i > 1 ? radius : 0, safe_exit_speed_sqr))
+              , PlannerHints(0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration), i > 1 ? radius : 0, safe_exit_speed_sqr))
       ) break;
     }
   }

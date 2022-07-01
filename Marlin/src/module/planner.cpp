@@ -1790,7 +1790,7 @@ void Planner::synchronize() { while (busy()) idle(); }
 bool Planner::_buffer_steps(const xyze_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
+  , feedRate_t fr_mm_s, const uint8_t extruder, const PlannerHints &hints
 ) {
 
   // Wait for the next available block
@@ -1850,7 +1850,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , feedRate_t fr_mm_s, const uint8_t extruder, const planner_hints_t &hints
+  , feedRate_t fr_mm_s, const uint8_t extruder, const PlannerHints &hints
 ) {
   int32_t LOGICAL_AXIS_LIST(
     de = target.e - position.e,
@@ -2955,7 +2955,7 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFl
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/
-  , const planner_hints_t &hints/* = planner_hints_t()*/
+  , const PlannerHints &hints/* = PlannerHints()*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -3079,7 +3079,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  *  hints           - optional parameters to aid planner's calculations
  */
 bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
-  , const uint8_t extruder/*=active_extruder*/, const planner_hints_t &hints/*=planner_hints_t()*/
+  , const uint8_t extruder/*=active_extruder*/, const PlannerHints &hints/*=PlannerHints()*/
 ) {
   xyze_pos_t machine = cart;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
@@ -3101,7 +3101,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       );
     #endif
 
-    planner_hints_t _hints(hints);
+    PlannerHints _hints(hints);
     if (!_hints.millimeters)
       _hints.millimeters = (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 

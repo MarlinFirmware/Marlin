@@ -393,11 +393,11 @@
       while (--segments) {
         raw += diff;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder
-          , planner_hints_t(segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))
+          , PlannerHints(segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))
         );
       }
       planner.buffer_line(destination, scaled_fr_mm_s, active_extruder
-        , planner_hints_t(segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))
+        , PlannerHints(segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))
       );
       return false; // Did not set current from destination
     }
@@ -468,7 +468,7 @@
 
         const float oldz = raw.z; raw.z += z_cxcy;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder
-          , planner_hints_t(segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)));
+          , PlannerHints(segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)));
         raw.z = oldz;
 
         if (segments == 0)                        // done with last segment
