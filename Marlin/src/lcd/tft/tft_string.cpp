@@ -97,7 +97,7 @@ void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nul
   lchar_t lch;
 
   while (*tpl) {
-    tpl = get_utf8_value_cb(tpl, read_byte_ram, ch);
+    tpl = get_utf8_value_cb(tpl, read_byte_ram, lch);
     if (lch > 255) lch |= 0x0080;
     const uint8_t ch = uint8_t(lch & 0x00FF);
 
@@ -126,7 +126,7 @@ void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nul
 void TFT_String::add(const char *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
   lchar_t lch;
   while (*cstr && max_len) {
-    cstr = get_utf8_value_cb(cstr, read_byte_ram, ch);
+    cstr = get_utf8_value_cb(cstr, read_byte_ram, lch);
     if (lch > 255) lch |= 0x0080;
     const uint8_t ch = uint8_t(lch & 0x00FF);
     add_character(ch);
