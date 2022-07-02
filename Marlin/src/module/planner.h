@@ -760,18 +760,23 @@ class Planner {
     );
 
     /**
-     * Planner::_populate_block
+     * @brief Populate a block in preparation for insertion
+     * @details Populate the fields of a new linear movement block
+     *          that will be added to the queue and processed soon
+     *          by the Stepper ISR.
      *
-     * Fills a new linear movement in the block (in terms of steps).
+     * @param block         A block to populate
+     * @param target        Target position in steps units
+     * @param target_float  Target position in native mm
+     * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
+     * @param fr_mm_s       (target) speed of the move
+     * @param extruder      target extruder
+     * @param millimeters   A pre-calculated linear distance for the move, in mm,
+     *                      or 0.0 to have the distance calculated here.
      *
-     *  target      - target position in steps units
-     *  fr_mm_s     - (target) speed of the move
-     *  extruder    - target extruder
-     *  millimeters - the length of the movement, if known
-     *
-     * Returns true is movement is acceptable, false otherwise
+     * @return  true if movement is acceptable, false otherwise
      */
-    static bool _populate_block(block_t * const block, bool split_move, const xyze_long_t &target
+    static bool _populate_block(block_t * const block, const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
