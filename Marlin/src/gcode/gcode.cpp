@@ -174,6 +174,11 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
  */
 void GcodeSuite::get_destination_from_command() {
   xyze_bool_t seen{false};
+  
+  #if HAS_ROTATIONAL_AXES
+    bool seen_rotational_axes = false;
+    bool seen_linear_axes = false;
+  #endif
 
   #if ENABLED(CANCEL_OBJECTS)
     const bool &skip_move = cancelable.skipping;
@@ -183,6 +188,15 @@ void GcodeSuite::get_destination_from_command() {
 
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
+    #if HAS_ROTATIONAL_AXES
+      if (parser.seen(AXIS_CHAR(i))) {
+        if (parser.axis_is_rotational((AxisEnum)i))
+          seen_rotational_axes = true;
+        else
+          seen_linear_axes = true;
+      }
+      #endif
+
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)

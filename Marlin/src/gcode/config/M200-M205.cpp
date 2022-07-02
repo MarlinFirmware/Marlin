@@ -224,9 +224,11 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
  *    P = Printing moves
  *    R = Retract only (no X, Y, Z) moves
  *    T = Travel (non printing) moves
+ *    I = Angular printing moves
+ *    J = Angular Travel (non-printing) moves
  */
 void GcodeSuite::M204() {
-  if (!parser.seen("PRST"))
+  if (!parser.seen("PRST" TERN_(HAS_ROTATIONAL_AXES, "IJ")))
     return M204_report();
   else {
     //planner.synchronize();
@@ -235,6 +237,10 @@ void GcodeSuite::M204() {
     if (parser.seenval('P')) planner.settings.acceleration = parser.value_linear_units();
     if (parser.seenval('R')) planner.settings.retract_acceleration = parser.value_linear_units();
     if (parser.seenval('T')) planner.settings.travel_acceleration = parser.value_linear_units();
+    #if HAS_ROTATIONAL_AXES
+      if (parser.seenval('I')) planner.settings.angular_acceleration = parser.value_float();
+      if (parser.seenval('J')) planner.settings.angular_travel_acceleration = parser.value_float();
+    #endif
   }
 }
 
@@ -244,6 +250,10 @@ void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
       PSTR("  M204 P"), LINEAR_UNIT(planner.settings.acceleration)
     , PSTR(" R"), LINEAR_UNIT(planner.settings.retract_acceleration)
     , SP_T_STR, LINEAR_UNIT(planner.settings.travel_acceleration)
+    #if HAS_ROTATIONAL_AXES
+      , PSTR(" I"), planner.settings.angular_acceleration
+      , PSTR(" J"), planner.settings.angular_travel_acceleration
+    #endif
   );
 }
 
@@ -258,15 +268,21 @@ void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
  *    J = Junction Deviation (mm) (If not using CLASSIC_JERK)
+ *    P = Min Angular Feed Rate (°/s)
+ *    Q = Min Angular Travel Feed Rate (°/s)
  */
 void GcodeSuite::M205() {
-  if (!parser.seen("BST" TERN_(HAS_JUNCTION_DEVIATION, "J") TERN_(HAS_CLASSIC_JERK, "XYZE")))
+  if (!parser.seen("BST" TERN_(HAS_JUNCTION_DEVIATION, "J") TERN_(HAS_CLASSIC_JERK, "XYZE") TERN_(HAS_ROTATIONAL_AXES, "PQ")))
     return M205_report();
 
   //planner.synchronize();
   if (parser.seenval('B')) planner.settings.min_segment_time_us = parser.value_ulong();
   if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
+  #if HAS_ROTATIONAL_AXES
+    if (parser.seenval('P')) planner.settings.min_feedrate_deg_s = parser.value_float();
+    if (parser.seenval('Q')) planner.settings.min_travel_feedrate_deg_s = parser.value_float();
+  #endif
   #if HAS_JUNCTION_DEVIATION
     #if HAS_CLASSIC_JERK && AXIS_COLLISION('J')
       #error "Can't set_max_jerk for 'J' axis because 'J' is used for Junction Deviation."
@@ -320,6 +336,10 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
       PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
     , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
     , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
+    #if HAS_ROTATIONAL_AXES
+      , SP_P_STR, planner.settings.min_feedrate_deg_s
+      , PSTR(" Q"), planner.settings.min_travel_feedrate_deg_s
+    #endif
     #if HAS_JUNCTION_DEVIATION
       , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
     #endif

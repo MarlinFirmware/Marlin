@@ -121,7 +121,9 @@ void GcodeSuite::G38(const int8_t subcode) {
   // If any axis has enough movement, do the move
   LOOP_NUM_AXES(i)
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
-      if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
+      if (!parser.seenval('F')) {
+        feedrate_mm_s = homing_feedrate((AxisEnum)i);
+        TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = homing_feedrate((AxisEnum)i));
       // If G38.2 fails throw an error
       if (!G38_run_probe() && error_on_fail) SERIAL_ERROR_MSG("Failed to reach target");
       break;

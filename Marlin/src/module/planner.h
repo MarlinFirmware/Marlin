@@ -315,6 +315,12 @@ typedef struct {
             travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
  feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
+  #if HAS_ROTATIONAL_AXES
+         float angular_acceleration,            // (°/s^2) M204 I - Normal acceleration for angular moves. DEFAULT ANGULAR ACCELERATION for all angular printing moves.
+               angular_travel_acceleration;     // (°/s^2) M204 J - Normal acceleration for angular travel moves. DEFAULT ANGULAR ACCELERATION for all angular NON printing moves.
+    feedRate_t min_feedrate_deg_s,              // (°/s) M205 P - Minimum linear feedrate
+               min_travel_feedrate_deg_s;       // (°/s) M205 Q - Minimum travel feedrate
+  #endif
 } planner_settings_t;
 
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)

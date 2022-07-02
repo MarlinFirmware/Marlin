@@ -65,10 +65,6 @@ MarlinUI ui;
   bool MarlinUI::wait_for_move; // = false
 #endif
 
-#if ENABLED(INCH_MODE_SUPPORT) && ROTATIONAL_AXES
-  #include "../gcode/parser.h"
-#endif
-
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
@@ -801,7 +797,7 @@ void MarlinUI::init() {
       // Add a manual move to the queue?
       if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-        const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+        const feedRate_t fr = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
         #if IS_KINEMATIC
 
@@ -815,7 +811,7 @@ void MarlinUI::init() {
           // Apply a linear offset to a single axis
           if (axis == ALL_AXES_ENUM)
             destination = all_axes_destination;
-          else if (axis <= XYZE) {
+          else if (axis <= LOGICAL_AXES) {
             destination = current_position;
             destination[axis] += offset;
           }
@@ -829,17 +825,21 @@ void MarlinUI::init() {
           // previous invocation is being blocked. Modifications to offset shouldn't be made while
           // processing is true or the planner will get out of sync.
           processing = true;
-          prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+          prepare_internal_move_to_destination(fr
+            OPTARG(HAS_ROTATIONAL_AXES, fr)
+          );  // will set current_position from destination
           processing = false;
 
         #else
 
           // For Cartesian / Core motion simply move to the current_position
-          planner.buffer_line(current_position, fr_mm_s,
-            TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+          planner.buffer_line(current_position
+            OPTARG(HAS_ROTATIONAL_AXES, fr)
+            , fr
+            , TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr);
 
           axis = NO_AXIS_ENUM;
 

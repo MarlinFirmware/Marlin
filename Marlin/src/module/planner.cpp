@@ -2130,7 +2130,7 @@ bool Planner::_populate_block(
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += steps_dist_mm.e);
 
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+  #if ENABLED(HAS_ROTATIONAL_AXES)
     bool cartesian_move = true;
   #endif
 
@@ -2212,7 +2212,7 @@ bool Planner::_populate_block(
       #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
         if (UNEAR_ZERO(distance_sqr)) {
           // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          TERN_(INCH_MODE_SUPPORT, cartesian_move = false);
+          cartesian_move = false;
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k), + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w));
         }
       #endif
@@ -2347,9 +2347,23 @@ bool Planner::_populate_block(
   #endif // HAS_EXTRUDERS
 
   if (esteps)
-    NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
+    #if HAS_ROTATIONAL_AXES
+      if (cartesian_move)
+        NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
+      else
+        NOLESS(fr_mm_s, settings.min_feedrate_deg_s);
+    #else
+      NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
+    #endif
   else
-    NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
+    #if HAS_ROTATIONAL_AXES
+      if (cartesian_move)
+        NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
+      else
+        NOLESS(fr_mm_s, settings.min_travel_feedrate_deg_s);
+    #else
+        NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
+    #endif
 
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
@@ -2357,8 +2371,33 @@ bool Planner::_populate_block(
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
   float inverse_secs;
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-    inverse_secs = inverse_millimeters * (cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s));
+
+  #if HAS_ROTATIONAL_AXES
+    if (cartesian_move)
+      inverse_secs = inverse_millimeters * fr_mm_s;
+    /** 
+     * work around for angular moves in absolute mode. Needed for the situation where parser sees linear 
+     * axes and all linear axes are already at target position.
+     * if the parser saw a linear axis, it updated fr_mm_s instead of fr_deg_s.
+     */ 
+    else if (
+      NUM_AXIS_GANG(
+           parser.seen(axis_codes.x),
+        || parser.seen(axis_codes.y),
+        || parser.seen(axis_codes.z),
+        || TERN(AXIS4_ROTATES, false, parser.seen(axis_codes.i)),
+        || TERN(AXIS5_ROTATES, false, parser.seen(axis_codes.j)),
+        || TERN(AXIS6_ROTATES, false, parser.seen(axis_codes.k)),
+        || TERN(AXIS7_ROTATES, false, parser.seen(axis_codes.u)),
+        || TERN(AXIS8_ROTATES, false, parser.seen(axis_codes.v)),
+        || TERN(AXIS9_ROTATES, false, parser.seen(axis_codes.w))
+      )
+    ) {
+      inverse_secs = inverse_millimeters * LINEAR_UNIT(fr_mm_s);
+    }
+    else {
+      inverse_secs = inverse_millimeters * fr_deg_s;
+    }
   #else
     inverse_secs = fr_mm_s * inverse_millimeters;
   #endif
@@ -2527,8 +2566,12 @@ bool Planner::_populate_block(
     }while(0)
 
     // Start with print or travel acceleration
-    accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
+    #if HAS_ROTATIONAL_AXES
+      accel = CEIL((esteps ? (cartesian_move ? settings.acceleration : settings.angular_acceleration) : ( cartesian_move ? settings.angular_travel_acceleration : settings.travel_acceleration)) * steps_per_mm);
+    #else
+      accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
 
+    #endif
     #if ENABLED(LIN_ADVANCE)
       // Linear advance is currently not ready for HAS_I_AXIS
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
@@ -3171,6 +3214,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
+      TERN_(HAS_ROATIONAL_AXES, const feedRate_t angular_feedrate = fr_deg_s);
     #endif
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
     if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
