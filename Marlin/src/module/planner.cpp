@@ -2545,6 +2545,7 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
+          // Scale E acceleration so that it will be possible to jump to the advance speed.
           const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[extruder] * e_D_ratio) * steps_per_mm;
           if (TERN0(LA_DEBUG, accel > max_accel_steps_per_s2))
             SERIAL_ECHOLNPGM("Acceleration limited.");
@@ -2577,16 +2578,25 @@ bool Planner::_populate_block(
     block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
+    block->la_advance_rate = 0;
+    block->la_scaling = 0;
+
     if (use_advance_lead) {
       // the Bresenham algorithm will convert this step rate into extruder steps
       block->la_advance_rate = extruder_advance_K[extruder] * block->acceleration_steps_per_s2;
+
+      // Minimise LA ISR frequency by calling it only often enough to ensure that there will
+      // never be more than one extruder step per call. Since we use the Bresenham algorithm
+      // this means E steps * 2 ^ la_scaling is at least half of step_event_count and no more
+      // step_event_count.
+      for (uint32_t dividend = block->steps.e << 1; dividend <= block->step_event_count; dividend <<= 1)
+        block->la_scaling++;
+
       #if ENABLED(LA_DEBUG)
-        if (block->la_advance_rate > 10000)
+        if (block->la_advance_rate >> block->la_scaling > 10000)
           SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
       #endif
     }
-    else
-      block->la_advance_rate = 0;
   #endif
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2

@@ -220,6 +220,7 @@ uint32_t Stepper::advance_divisor = 0,
   uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
            Stepper::la_advance_rate = 0,
            Stepper::la_interval = LA_ADV_NEVER;
+  uint8_t  Stepper::la_scaling = 0;
 #endif
 
 #if ENABLED(INTEGRATED_BABYSTEPPING)
@@ -1963,7 +1964,7 @@ uint32_t Stepper::block_phase_isr() {
         #if ENABLED(LIN_ADVANCE)
           if (la_advance_rate) {
             const uint32_t la_step_rate = acc_step_rate + la_advance_rate;
-            la_interval = calc_timer_interval(la_step_rate);
+            la_interval = calc_timer_interval(la_step_rate) << la_scaling;
           }
         #endif
 
@@ -2054,7 +2055,7 @@ uint32_t Stepper::block_phase_isr() {
                 DIR_WAIT_AFTER();
               }
             }
-            la_interval = calc_timer_interval(la_step_rate);
+            la_interval = calc_timer_interval(la_step_rate) << la_scaling;
           }
         #endif // LIN_ADVANCE
 
@@ -2088,7 +2089,7 @@ uint32_t Stepper::block_phase_isr() {
         interval = ticks_nominal;
 
         #if ENABLED(LIN_ADVANCE)
-          if (la_advance_rate) la_interval = interval;
+          if (la_advance_rate) la_interval = interval << la_scaling;
         #endif
       }
 
@@ -2319,6 +2320,8 @@ uint32_t Stepper::block_phase_isr() {
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
         la_advance_rate = current_block->la_advance_rate;
+        la_scaling = current_block->la_scaling;
+        advance_dividend.e <<= la_scaling;
       #endif
 
       if ( ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
@@ -2377,7 +2380,7 @@ uint32_t Stepper::block_phase_isr() {
       #if ENABLED(LIN_ADVANCE)
         if (la_advance_rate) {
           const uint32_t la_step_rate = acc_step_rate + la_advance_rate;
-          la_interval = calc_timer_interval(la_step_rate);
+          la_interval = calc_timer_interval(la_step_rate) << la_scaling;
         }
       #endif
     }

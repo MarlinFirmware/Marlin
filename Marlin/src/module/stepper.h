@@ -418,7 +418,10 @@ class Stepper {
       static uint32_t nextAdvanceISR,
                       la_advance_rate,  // Rate in steps/s calculated from current_block->acceleration_rate
                       la_interval;      // Interval between ISR calls for LA
+      static uint8_t  la_scaling;       // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
     #endif
+
+friend class GcodeSuite;
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
       static constexpr uint32_t BABYSTEP_NEVER = 0xFFFFFFFF;
