@@ -57,8 +57,8 @@ int pf_bsearch_r(void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, 
 /* Get the character, decoding multibyte UTF8 characters and returning a pointer to the start of the next UTF8 character */
 const uint8_t* get_utf8_value_cb(const uint8_t *pstart, read_byte_cb_t cb_read_byte, lchar_t &pval);
 
-inline const char* get_utf8_value_cb(const char *pstart, read_byte_cb_t cb_read_byte, lchar_t &pval) {
-  return (const char *)get_utf8_value_cb((const uint8_t *)pstart, cb_read_byte, pval);
+inline const char * get_utf8_value_cb(const char *pstart, read_byte_cb_t cb_read_byte, lchar_t &pval) {
+  return (const char *)get_utf8_value_cb(FTOP(pstart), cb_read_byte, pval);
 }
 
 /* Returns length of string in CHARACTERS, NOT BYTES */

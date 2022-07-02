@@ -25,7 +25,7 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "tft_string.h"
-#include "../fontutils.h"
+// #include "../fontutils.h"
 #include "../marlinui.h"
 
 //#define DEBUG_TFT_FONT
@@ -112,7 +112,7 @@ void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nul
         add(index == -2 ? GET_TEXT_F(MSG_CHAMBER) : GET_TEXT_F(MSG_BED));
     }
     else if (ch == '$' && fstr)
-      add(fstr);
+      add(fstr); 
     else if (ch == '$' && cstr)
       add(cstr);
     else if (ch == '@')

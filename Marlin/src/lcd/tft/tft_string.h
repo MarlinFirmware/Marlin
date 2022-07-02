@@ -24,6 +24,7 @@
 // TODO: Make AVR-compatible with separate ROM / RAM string methods
 
 #include <stdint.h>
+#include "../fontutils.h"
 
 extern const uint8_t ISO10646_1_5x7[];
 extern const uint8_t font10x20[];
