@@ -213,7 +213,7 @@ void MarlinUI::draw_status_message(const bool blink) {
         lcd_put_u8str(status_message);
 
         // Fill the rest with spaces
-        while (slen < max_status_chars) { lcd_put_wchar(' '); ++slen; }
+        while (slen < max_status_chars) { lcd_put_lchar(' '); ++slen; }
       }
     }
     else {
@@ -227,10 +227,10 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // If the string doesn't completely fill the line...
       if (rlen < max_status_chars) {
-        lcd_put_wchar('.');                   // Always at 1+ spaces left, draw a dot
+        lcd_put_lchar('.');                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = max_status_chars - rlen;  // Amount of space left in characters
         if (--chars) {                        // Draw a second dot if there's space
-          lcd_put_wchar('.');
+          lcd_put_lchar('.');
           if (--chars)
             lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
         }
@@ -254,7 +254,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       lcd_put_u8str_max(status_message, max_status_chars);
 
       // Fill the rest with spaces if there are missing spaces
-      while (slen < max_status_chars) { lcd_put_wchar(' '); ++slen; }
+      while (slen < max_status_chars) { lcd_put_lchar(' '); ++slen; }
     }
 
   #endif
