@@ -1722,6 +1722,12 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.settings.travel_acceleration);
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
+        #if HAS_ROTATIONAL_AXES
+          EEPROM_READ(planner.settings.angular_acceleration);
+          EEPROM_READ(planner.settings.angular_travel_acceleration);
+          EEPROM_READ(planner.settings.min_feedrate_deg_s);
+          EEPROM_READ(planner.settings.min_travel_feedrate_deg_s);
+        #endif
 
         #if HAS_CLASSIC_JERK
           EEPROM_READ(planner.max_jerk);
@@ -2842,7 +2848,12 @@ void MarlinSettings::reset() {
   planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
-
+  #if HAS_ROTATIONAL_AXES
+    planner.settings.angular_acceleration = DEFAULT_ANGULAR_ACCELERATION;
+    planner.settings.angular_travel_acceleration = DEFAULT_ANGULAR_TRAVEL_ACCELERATION;
+    planner.settings.min_feedrate_deg_s = feedRate_t(DEFAULT_ANGULAR_MINIMUMFEEDRATE);
+    planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_ANGULAR_MINTRAVELFEEDRATE);
+  #endif
   #if HAS_CLASSIC_JERK
     #ifndef DEFAULT_XJERK
       #define DEFAULT_XJERK 0
