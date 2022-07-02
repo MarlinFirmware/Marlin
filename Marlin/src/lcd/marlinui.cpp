@@ -416,10 +416,10 @@ void MarlinUI::init() {
           SETCURSOR(0, row);              // Simulate carriage return
         };
 
-        const uint8_t *p = (uint8_t*)string;
+        const char *p = string;
         lchar_t ch;
         if (wordwrap) {
-          const uint8_t *wrd = nullptr;
+          const char *wrd = nullptr;
           uint8_t c = 0;
           // find the end of the part
           for (;;) {

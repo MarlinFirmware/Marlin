@@ -44,7 +44,7 @@
  */
 lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   const uint8_t prop = USE_WIDE_GLYPH ? 2 : 1;
-  const uint8_t *p = (uint8_t*)ptpl;
+  const char *p = ptpl;
   int8_t n = maxlen;
   while (n > 0) {
     lchar_t ch;
