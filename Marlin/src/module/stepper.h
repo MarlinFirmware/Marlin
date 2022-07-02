@@ -415,10 +415,9 @@ class Stepper {
 
     #if ENABLED(LIN_ADVANCE)
       static constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
-      static uint32_t nextAdvanceISR, LA_isr_rate;
-      static uint16_t LA_current_adv_steps, LA_final_adv_steps, LA_max_adv_steps; // Copy from current executed block. Needed because current_block is set to NULL "too early".
-      static int8_t LA_steps;
-      static bool LA_use_advance_lead;
+      static uint32_t nextAdvanceISR,
+                      la_advance_rate,  // Rate in steps/s calculated from current_block->acceleration_rate
+                      la_interval;      // Interval between ISR calls for LA
     #endif
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
@@ -473,8 +472,7 @@ class Stepper {
 
     #if ENABLED(LIN_ADVANCE)
       // The Linear advance ISR phase
-      static uint32_t advance_isr();
-      FORCE_INLINE static void initiateLA() { nextAdvanceISR = 0; }
+      static void advance_isr();
     #endif
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
@@ -629,9 +627,37 @@ class Stepper {
     // Set the current position in steps
     static void _set_position(const abce_long_t &spos);
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate) {
       uint32_t timer;
 
+      #ifdef CPU_32_BIT
+        // In case of high-performance processor, it is able to calculate in real-time
+        timer = uint32_t(STEPPER_TIMER_RATE) / step_rate;
+      #else
+        constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
+        NOLESS(step_rate, min_step_rate);
+        step_rate -= min_step_rate; // Correct for minimal speed
+        if (step_rate >= (8 * 256)) { // higher step rate
+          const uint8_t tmp_step_rate = (step_rate & 0x00FF);
+          const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
+                         gain = (uint16_t)pgm_read_word(table_address + 2);
+          timer = MultiU16X8toH16(tmp_step_rate, gain);
+          timer = (uint16_t)pgm_read_word(table_address) - timer;
+        }
+        else { // lower step rates
+          uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
+          table_address += ((step_rate) >> 1) & 0xFFFC;
+          timer = (uint16_t)pgm_read_word(table_address)
+                - (((uint16_t)pgm_read_word(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
+        }
+        // (there is no need to limit the timer value here. All limits have been
+        // applied above, and AVR is able to keep up at 30khz Stepping ISR rate)
+      #endif
+
+      return timer;
+    }
+
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
       // Scale the frequency, as requested by the caller
       step_rate <<= oversampling_factor;
 
@@ -662,31 +688,7 @@ class Stepper {
       #endif
       *loops = multistep;
 
-      #ifdef CPU_32_BIT
-        // In case of high-performance processor, it is able to calculate in real-time
-        timer = uint32_t(STEPPER_TIMER_RATE) / step_rate;
-      #else
-        constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
-        NOLESS(step_rate, min_step_rate);
-        step_rate -= min_step_rate; // Correct for minimal speed
-        if (step_rate >= (8 * 256)) { // higher step rate
-          const uint8_t tmp_step_rate = (step_rate & 0x00FF);
-          const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
-                         gain = (uint16_t)pgm_read_word(table_address + 2);
-          timer = MultiU16X8toH16(tmp_step_rate, gain);
-          timer = (uint16_t)pgm_read_word(table_address) - timer;
-        }
-        else { // lower step rates
-          uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
-          table_address += ((step_rate) >> 1) & 0xFFFC;
-          timer = (uint16_t)pgm_read_word(table_address)
-                - (((uint16_t)pgm_read_word(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
-        }
-        // (there is no need to limit the timer value here. All limits have been
-        // applied above, and AVR is able to keep up at 30khz Stepping ISR rate)
-      #endif
-
-      return timer;
+      return calc_timer_interval(step_rate);
     }
 
     #if ENABLED(S_CURVE_ACCELERATION)
