@@ -70,9 +70,6 @@
 
 #if ENABLED(DIRECT_STEPPING)
   #include "../feature/direct_stepping.h"
-  #define IS_PAGE(B) TEST(B->flag, BLOCK_BIT_IS_PAGE)
-#else
-  #define IS_PAGE(B) false
 #endif
 
 #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
@@ -91,47 +88,6 @@
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
   #define HAS_DIST_MM_ARG 1
 #endif
-
-enum BlockFlagBit : char {
-  // Recalculate trapezoids on entry junction. For optimization.
-  BLOCK_BIT_RECALCULATE,
-
-  // Nominal speed always reached.
-  // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
-  // from a safe speed (in consideration of jerking from zero speed).
-  BLOCK_BIT_NOMINAL_LENGTH,
-
-  // The block is segment 2+ of a longer move
-  BLOCK_BIT_CONTINUED,
-
-  // Sync the stepper counts from the block
-  BLOCK_BIT_SYNC_POSITION
-
-  // Direct stepping page
-  #if ENABLED(DIRECT_STEPPING)
-    , BLOCK_BIT_IS_PAGE
-  #endif
-
-  // Sync the fan speeds from the block
-  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    , BLOCK_BIT_SYNC_FANS
-  #endif
-};
-
-enum BlockFlag : char {
-    BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE)
-  , BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH)
-  , BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
-  , BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
-  #if ENABLED(DIRECT_STEPPING)
-    , BLOCK_FLAG_IS_PAGE            = _BV(BLOCK_BIT_IS_PAGE)
-  #endif
-  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    , BLOCK_FLAG_SYNC_FANS          = _BV(BLOCK_BIT_SYNC_FANS)
-  #endif
-};
-
-#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) )
 
 #if ENABLED(LASER_POWER_INLINE)
 
@@ -158,17 +114,83 @@ enum BlockFlag : char {
 #endif
 
 /**
- * struct block_t
- *
- * A single entry in the planner buffer.
- * Tracks linear movement over multiple axes.
+ * Planner block flags as boolean bit fields
+ */
+enum BlockFlagBit {
+  // Recalculate trapezoids on entry junction. For optimization.
+  BLOCK_BIT_RECALCULATE,
+
+  // Nominal speed always reached.
+  // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
+  // from a safe speed (in consideration of jerking from zero speed).
+  BLOCK_BIT_NOMINAL_LENGTH,
+
+  // The block is segment 2+ of a longer move
+  BLOCK_BIT_CONTINUED,
+
+  // Sync the stepper counts from the block
+  BLOCK_BIT_SYNC_POSITION
+
+  // Direct stepping page
+  #if ENABLED(DIRECT_STEPPING)
+    , BLOCK_BIT_PAGE
+  #endif
+
+  // Sync the fan speeds from the block
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+    , BLOCK_BIT_SYNC_FANS
+  #endif
+};
+
+/**
+ * Planner block flags as boolean bit fields
+ */
+typedef struct {
+  union {
+    uint8_t bits;
+
+    struct {
+      bool recalculate:1;
+
+      bool nominal_length:1;
+
+      bool continued:1;
+
+      bool sync_position:1;
+
+      #if ENABLED(DIRECT_STEPPING)
+        bool page:1;
+      #endif
+
+      #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+        bool sync_fans:1;
+      #endif
+    };
+  };
+
+  void clear() volatile { bits = 0; }
+  void apply(const uint8_t f) volatile { bits |= f; }
+  void apply(const BlockFlagBit b) volatile { SBI(bits, b); }
+  void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
+  void set_nominal(const bool n) volatile { recalculate = true; if (n) nominal_length = true; }
+
+} block_flags_t;
+
+/**
+ * A single entry in the planner buffer, used to set up and
+ * track a coordinated linear motion for one or more axes.
  *
  * The "nominal" values are as-specified by G-code, and
  * may never actually be reached due to acceleration limits.
  */
 typedef struct block_t {
 
-  volatile uint8_t flag;                    // Block flags (See BlockFlag enum above) - Modified by ISR and main thread!
+  volatile block_flags_t flag;              // Block flags
+
+  volatile bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  volatile bool is_sync() { return flag.sync_position || is_fan_sync(); }
+  volatile bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
+  volatile bool is_move() { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed_sqr,                  // The nominal speed for this block in (mm/sec)^2
@@ -251,6 +273,8 @@ typedef struct block_t {
   #if ENABLED(LASER_POWER_INLINE)
     block_laser_t laser;
   #endif
+
+  void reset() { memset((char*)this, 0, sizeof(*this)); }
 
 } block_t;
 
@@ -492,7 +516,7 @@ class Planner {
      */
 
     // Recalculate steps/s^2 accelerations based on mm/s^2 settings
-    static void reset_acceleration_rates();
+    static void refresh_acceleration_rates();
 
     /**
      * Recalculate 'position' and 'mm_per_step'.
@@ -736,18 +760,23 @@ class Planner {
     );
 
     /**
-     * Planner::_populate_block
+     * @brief Populate a block in preparation for insertion
+     * @details Populate the fields of a new linear movement block
+     *          that will be added to the queue and processed soon
+     *          by the Stepper ISR.
      *
-     * Fills a new linear movement in the block (in terms of steps).
+     * @param block         A block to populate
+     * @param target        Target position in steps units
+     * @param target_float  Target position in native mm
+     * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
+     * @param fr_mm_s       (target) speed of the move
+     * @param extruder      target extruder
+     * @param millimeters   A pre-calculated linear distance for the move, in mm,
+     *                      or 0.0 to have the distance calculated here.
      *
-     *  target      - target position in steps units
-     *  fr_mm_s     - (target) speed of the move
-     *  extruder    - target extruder
-     *  millimeters - the length of the movement, if known
-     *
-     * Returns true is movement is acceptable, false otherwise
+     * @return  true if movement is acceptable, false otherwise
      */
-    static bool _populate_block(block_t * const block, bool split_move, const xyze_long_t &target
+    static bool _populate_block(block_t * const block, const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
@@ -759,7 +788,7 @@ class Planner {
      * case of LASER_SYNCHRONOUS_M106_M107 the fan pwm
      */
     static void buffer_sync_block(
-      TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_flag=BLOCK_FLAG_SYNC_POSITION)
+      TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFlagBit flag=BLOCK_BIT_SYNC_POSITION)
     );
 
   #if IS_KINEMATIC

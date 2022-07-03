@@ -94,12 +94,12 @@ void TFT_String::set() {
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/) {
-  wchar_t wchar;
+  lchar_t ch;
 
   while (*tpl) {
-    tpl = get_utf8_value_cb(tpl, read_byte_ram, &wchar);
-    if (wchar > 255) wchar |= 0x0080;
-    const uint8_t ch = uint8_t(wchar & 0x00FF);
+    tpl = get_utf8_value_cb(tpl, read_byte_ram, ch);
+    if (ch > 255) ch |= 0x0080;
+    const uint8_t ch = uint8_t(ch & 0x00FF);
 
     if (ch == '=' || ch == '~' || ch == '*') {
       if (index >= 0) {
@@ -124,11 +124,11 @@ void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nul
 }
 
 void TFT_String::add(const char *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
-  wchar_t wchar;
+  lchar_t ch;
   while (*cstr && max_len) {
-    cstr = get_utf8_value_cb(cstr, read_byte_ram, &wchar);
-    if (wchar > 255) wchar |= 0x0080;
-    const uint8_t ch = uint8_t(wchar & 0x00FF);
+    cstr = get_utf8_value_cb(cstr, read_byte_ram, ch);
+    if (ch > 255) ch |= 0x0080;
+    const uint8_t ch = uint8_t(ch & 0x00FF);
     add_character(ch);
     max_len--;
   }
