@@ -1282,8 +1282,8 @@
 // For Z_PROBE_ALLEN_KEY see the Delta example configurations.
 //
 
-//Add probe deploy and stow options to the motion menu.
-//#define PROBE_DEPLOY_STOW_MENU
+//Hide probe deploy and stow options in the motion menu. Option is enabled when a compatible probe is defined.
+//#define NO_PROBE_DEPLOY_STOW_MENU
 
 /**
  * Nozzle-to-Probe offsets { X, Y, Z }

@@ -1730,13 +1730,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   /**
-   * Probe stow and deploy menu requirments
-   */
-  #if NONE(BLTOUCH, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE) && ENABLED(PROBE_DEPLOY_STOW_MENU)
-    #error "Probe stow & deploy menu requres a probe with probe and deploy scripts"
-  #endif
-
-  /**
    * MagLev V4 probe requirements
    */
   #if ENABLED(MAGLEV4)
