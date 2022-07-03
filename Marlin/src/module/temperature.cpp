@@ -918,13 +918,13 @@ volatile bool Temperature::raw_temps_ready = false;
     MPC_t &constants = hotend.constants;
 
     // Move to center of bed, just above bed height and cool with max fan
+    gcode.home_all_axes(true);
     disable_all_heaters();
     #if HAS_FAN
       zero_fan_speeds();
       set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
       planner.sync_fan_speeds(fan_speed);
     #endif
-    gcode.home_all_axes(true);
     const xyz_pos_t tuningpos = MPC_TUNING_POS;
     do_blocking_move_to(tuningpos);
 
