@@ -301,7 +301,6 @@ typedef struct block_t {
     /**
      * Laser power: 0 or 255 in case of PWM-less laser,
      * or the OCR (oscillator count register) value;
-     *
      * Using OCR instead of raw power, because it avoids
      * floating point operations during the move loop.
      */
