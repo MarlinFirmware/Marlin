@@ -661,9 +661,6 @@ friend class GcodeSuite;
     }
 
     FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
-      // Scale the frequency, as requested by the caller
-      step_rate <<= oversampling_factor;
-
       uint8_t multistep = 1;
       #if DISABLED(DISABLE_MULTI_STEPPING)
 
