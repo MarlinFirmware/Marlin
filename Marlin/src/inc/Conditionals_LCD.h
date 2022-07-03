@@ -542,7 +542,7 @@
   #define HAS_UTF8_UTILS 1
 #endif
 
-#if HAS_DISPLAY || HAS_DWIN_E3V2
+#if ANY(HAS_DISPLAY, HAS_DWIN_E3V2)
   #define HAS_STATUS_MESSAGE 1
 #endif
 
