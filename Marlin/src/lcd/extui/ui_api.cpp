@@ -169,7 +169,7 @@ namespace ExtUI {
   }
 
   void yield() {
-    if (!flags.printer_killed) thermalManager.manage_heater();
+    if (!flags.printer_killed) thermalManager.task();
   }
 
   void enableHeater(const extruder_t extruder) {
