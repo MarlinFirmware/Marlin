@@ -290,7 +290,7 @@ void plan_arc(
 
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
-      thermalManager.manage_heater();
+      thermalManager.task();
       const millis_t ms = millis();
       if (ELAPSED(ms, next_idle_ms)) {
         next_idle_ms = ms + 200UL;
