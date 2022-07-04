@@ -428,9 +428,10 @@
 #define BOARD_TEENSY41                5001  // Teensy 4.1
 #define BOARD_T41U5XBB                5002  // T41U5XBB Teensy 4.1 breakout board
 #define BOARD_NUCLEO_F767ZI           5003  // ST NUCLEO-F767ZI Dev Board
-#define BOARD_BTT_SKR_SE_BX           5004  // BigTreeTech SKR SE BX (STM32H743II)
-#define BOARD_BTT_SKR_V3_0            5005  // BigTreeTech SKR V3.0 (STM32H743VG)
-#define BOARD_BTT_SKR_V3_0_EZ         5006  // BigTreeTech SKR V3.0 EZ (STM32H743VG)
+#define BOARD_BTT_SKR_SE_BX_V2        5004  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
+#define BOARD_BTT_SKR_SE_BX_V3        5005  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
+#define BOARD_BTT_SKR_V3_0            5006  // BigTreeTech SKR V3.0 (STM32H743VG)
+#define BOARD_BTT_SKR_V3_0_EZ         5007  // BigTreeTech SKR V3.0 EZ (STM32H743VG)
 
 //
 // Espressif ESP32 WiFi
