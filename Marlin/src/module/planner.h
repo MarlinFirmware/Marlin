@@ -70,9 +70,6 @@
 
 #if ENABLED(DIRECT_STEPPING)
   #include "../feature/direct_stepping.h"
-  #define IS_PAGE(B) TEST(B->flag, BLOCK_BIT_IS_PAGE)
-#else
-  #define IS_PAGE(B) false
 #endif
 
 #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
@@ -111,9 +108,8 @@ enum BlockFlagBit {
   BLOCK_BIT_SYNC_POSITION
 
   // Direct stepping page
-  #if ENABLED(DIRECT_STEPPING)
-    , BLOCK_BIT_PAGE
-  #endif
+  OPTARG(DIRECT_STEPPING, BLOCK_BIT_PAGE)
+
 
   // Sync the fan speeds from the block
   OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_BIT_SYNC_FANS)
