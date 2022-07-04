@@ -113,7 +113,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
       get_s_power();                                                                                // Update cutter.power if seen
       #if ENABLED(LASER_POWER_SYNC)
         // With power sync we only set power so it does not effect queued inline power sets
-        planner.buffer_sync_block(BLOCK_FLAG_LASER_PWR);                                            // Send the flag, queueing inline power
+        planner.buffer_sync_block(BLOCK_BIT_LASER_PWR);                                            // Send the flag, queueing inline power
       #else
         planner.synchronize();
         cutter.inline_power(cutter.power);
