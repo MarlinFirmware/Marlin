@@ -261,7 +261,7 @@ public:
     static void ApplyLEDColor();
   #endif
 
-  #if HAS_HOSTACTION_MENUS
+  #if ENABLED(HOST_ACTION_COMMANDS, HAS_HOSTACTION_MENUS)
     static void Draw_String(char * string, uint8_t row, bool selected=false, bool below=false);
     static const uint64_t Encode_String(const char * string);
     static void Decode_String(uint64_t num, char * string);
