@@ -1803,7 +1803,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   // This must be after get_next_free_block() because it calls idle()
   // where cleaning_buffer_counter can be changed
   if (cleaning_buffer_counter) return false;
-
+  
   // Fill the block with the specified movement
   if (!_populate_block(block, target
         OPTARG(HAS_POSITION_FLOAT, target_float)
