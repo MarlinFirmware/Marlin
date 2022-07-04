@@ -5988,7 +5988,9 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
   temp_val.corner_pos = eeprom_settings.corner_pos / 10.0f;
-  if (eeprom_settings.Baud115k) queue.inject(F("M575 P0 B115200"));
+  #if ENABLED(BAUD_RATE_GCODE)
+    if (eeprom_settings.Baud115k) queue.inject(F("M575 P0 B115200"));
+  #endif
   #if ENABLED(FWRETRACT)
     temp_val.auto_fw_retract = fwretract.autoretract_enabled;
   #endif
