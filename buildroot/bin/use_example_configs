@@ -13,8 +13,8 @@ CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
 [[ $CURR == "bugfix-2.0.x" ]] && BRANCH=bugfix-2.0.x || BRANCH=bugfix-2.1.x
 
 IFS=: read -r PART1 PART2 <<< "$@"
-[[ -n $PART2 ]] && { REPO="$PART1" ; RDIR="${PART2// /%20}" ; } \
-                || { REPO=$BRANCH  ; RDIR="${PART1// /%20}" ; }
+[[ -n $PART2 ]] && { REPO="$PART1" ; UDIR="$PART2" ; } \
+                || { REPO=$BRANCH  ; UDIR="$PART1" ; }
 EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/$REPO/config/examples"
 
 which curl >/dev/null && TOOL='curl -L -s -S -f -o wgot'
@@ -24,7 +24,8 @@ restore_configs
 
 cd Marlin
 
-echo "Fetching $RDIR configurations from $REPO..."
+RDIR="${UDIR// /%20}"
+echo "Fetching $UDIR configurations from $REPO..."
 
 $TOOL "$EXAMPLES/$RDIR/Configuration.h"     >/dev/null 2>&1 && mv wgot Configuration.h
 $TOOL "$EXAMPLES/$RDIR/Configuration_adv.h" >/dev/null 2>&1 && mv wgot Configuration_adv.h

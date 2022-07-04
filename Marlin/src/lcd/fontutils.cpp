@@ -99,7 +99,7 @@ static inline bool utf8_is_start_byte_of_char(const uint8_t b) {
 
 /* This function gets the character at the pstart position, interpreting UTF8 multibyte sequences
    and returns the pointer to the next character */
-const uint8_t* get_utf8_value_cb(const uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval) {
+const uint8_t* get_utf8_value_cb(const uint8_t *pstart, read_byte_cb_t cb_read_byte, lchar_t &pval) {
   uint32_t val = 0;
   const uint8_t *p = pstart;
 
@@ -158,7 +158,7 @@ const uint8_t* get_utf8_value_cb(const uint8_t *pstart, read_byte_cb_t cb_read_b
   else
     for (; 0xFC < (0xFE & valcur); ) { p++; valcur = cb_read_byte(p); }
 
-  if (pval) *pval = val;
+  pval = val;
 
   return p;
 }

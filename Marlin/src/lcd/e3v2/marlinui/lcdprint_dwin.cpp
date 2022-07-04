@@ -63,7 +63,7 @@ int lcd_put_dwin_string() {
 
 // return < 0 on error
 // return the advanced cols
-int lcd_put_wchar_max(const wchar_t c, const pixel_len_t max_length) {
+int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
   dwin_string.set(c);
   dwin_string.truncate(max_length);
   // Draw the char(s) at the cursor and advance the cursor
@@ -87,8 +87,8 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_by
   const uint8_t *p = (uint8_t *)utf8_str;
   dwin_string.set();
   while (dwin_string.length < max_length) {
-    wchar_t ch = 0;
-    p = get_utf8_value_cb(p, cb_read_byte, &ch);
+    lchar_t ch;
+    p = get_utf8_value_cb(p, cb_read_byte, ch);
     if (!ch) break;
     dwin_string.add(ch);
   }

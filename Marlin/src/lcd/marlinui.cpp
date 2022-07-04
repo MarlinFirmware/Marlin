@@ -417,14 +417,14 @@ void MarlinUI::init() {
         };
 
         const uint8_t *p = (uint8_t*)string;
-        wchar_t ch;
+        lchar_t ch;
         if (wordwrap) {
           const uint8_t *wrd = nullptr;
           uint8_t c = 0;
           // find the end of the part
           for (;;) {
             if (!wrd) wrd = p;            // Get word start /before/ advancing
-            p = get_utf8_value_cb(p, cb_read_byte, &ch);
+            p = get_utf8_value_cb(p, cb_read_byte, ch);
             const bool eol = !ch;         // zero ends the string
             // End or a break between phrases?
             if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
@@ -435,8 +435,8 @@ void MarlinUI::init() {
               col += c;                   // advance col to new position
               while (c) {                 // character countdown
                 --c;                      // count down to zero
-                wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
-                lcd_put_wchar(ch);        // character to the LCD
+                wrd = get_utf8_value_cb(wrd, cb_read_byte, ch); // get characters again
+                lcd_put_lchar(ch);        // character to the LCD
               }
               if (eol) break;             // all done!
               wrd = nullptr;              // set up for next word
@@ -446,9 +446,9 @@ void MarlinUI::init() {
         }
         else {
           for (;;) {
-            p = get_utf8_value_cb(p, cb_read_byte, &ch);
+            p = get_utf8_value_cb(p, cb_read_byte, ch);
             if (!ch) break;
-            lcd_put_wchar(ch);
+            lcd_put_lchar(ch);
             col++;
             if (col >= LCD_WIDTH) _newline();
           }
