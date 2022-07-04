@@ -3541,7 +3541,7 @@
   #ifndef MESH_MAX_Y
     #define MESH_MAX_Y _MESH_MAX_Y
   #endif
-#else
+#elif !ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #undef MESH_MIN_X
   #undef MESH_MIN_Y
   #undef MESH_MAX_X

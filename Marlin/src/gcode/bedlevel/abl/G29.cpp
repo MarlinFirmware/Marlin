@@ -51,6 +51,8 @@
   #include "../../../lcd/e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../../../lcd/e3v2/proui/dwin.h"
+#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #include "../../../lcd/e3v2/jyersui/dwin.h"
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -442,7 +444,7 @@ G29_TYPE GcodeSuite::G29() {
     if (!faux) {
       remember_feedrate_scaling_off();
 
-      #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      #if ENABLED(PREHEAT_BEFORE_LEVELING, HAS_BED_PROBE)
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
           #if BOTH(DWIN_LCD_PROUI, HAS_HEATED_BED)
             HMI_data.BedLevT
