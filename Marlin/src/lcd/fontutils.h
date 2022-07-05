@@ -38,14 +38,22 @@
 
 #define MAX_UTF8_CHAR_SIZE 4
 
+// Use a longer character type (if needed) because wchar_t is only 16 bits wide
+#ifdef MAX_UTF8_CHAR_SIZE
+  #if MAX_UTF8_CHAR_SIZE > 2
+    typedef uint32_t lchar_t;
+  #else
+    typedef wchar_t lchar_t;
+  #endif
+#else
+  #define wchar_t uint32_t
+#endif
+
 // read a byte from ROM or RAM
 typedef uint8_t (*read_byte_cb_t)(const uint8_t * str);
 
 uint8_t read_byte_ram(const uint8_t *str);
 uint8_t read_byte_rom(const uint8_t *str);
-
-// An extra long character type because wchar_t is only 2 bytes
-typedef uint32_t lchar_t;
 
 typedef uint16_t pixel_len_t;
 #define PIXEL_LEN_NOLIMIT ((pixel_len_t)(-1))

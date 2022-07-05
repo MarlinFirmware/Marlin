@@ -87,10 +87,10 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_by
   const uint8_t *p = (uint8_t *)utf8_str;
   dwin_string.set();
   while (dwin_string.length < max_length) {
-    lchar_t ch;
-    p = get_utf8_value_cb(p, cb_read_byte, ch);
-    if (!ch) break;
-    dwin_string.add(ch);
+    lchar_t wc;
+    p = get_utf8_value_cb(p, cb_read_byte, wc);
+    if (!wc) break;
+    dwin_string.add(wc);
   }
   DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
   lcd_advance_cursor(dwin_string.length);

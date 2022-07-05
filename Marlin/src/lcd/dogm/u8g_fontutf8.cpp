@@ -106,10 +106,10 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
 static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
   const uint8_t *p = (uint8_t*)utf8_msg;
   for (;;) {
-    lchar_t ch;
-    p = get_utf8_value_cb(p, cb_read_byte, ch);
-    if (!ch) break;
-    fontgroup_drawwchar(group, fnt_default, ch, userdata, cb_draw_ram);
+    lchar_t wc;
+    p = get_utf8_value_cb(p, cb_read_byte, wc);
+    if (!wc) break;
+    fontgroup_drawwchar(group, fnt_default, wc, userdata, cb_draw_ram);
   }
 }
 
@@ -154,14 +154,14 @@ static int fontgroup_cb_draw_u8g(void *userdata, const font_t *fnt_current, cons
  * @param pu8g : U8G pointer
  * @param x : position x axis
  * @param y : position y axis
- * @param ch : the lchar_t
+ * @param wc : the lchar_t
  * @param max_width : the pixel width of the string allowed
  *
  * @return number of pixels advanced
  *
  * Draw a UTF-8 string at the specified position
  */
-unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lchar_t &ch, pixel_len_t max_width) {
+unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lchar_t &wc, pixel_len_t max_width) {
   struct _uxg_drawu8_data_t data;
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
@@ -176,7 +176,7 @@ unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lc
   data.adv = 0;
   data.max_width = max_width;
   data.fnt_prev = nullptr;
-  fontgroup_drawwchar(group, fnt_default, ch, (void*)&data, fontgroup_cb_draw_u8g);
+  fontgroup_drawwchar(group, fnt_default, wc, (void*)&data, fontgroup_cb_draw_u8g);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 
   return data.adv;

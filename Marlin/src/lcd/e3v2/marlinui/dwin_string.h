@@ -69,10 +69,10 @@ class DWIN_String {
     /**
      * @brief Append a UTF-8 character
      *
-     * @param ch The UTF-8 character
+     * @param wc The UTF-8 character
      */
-    static void add(const lchar_t &ch);
-    static void set(const lchar_t &ch) { set(); add(ch); }
+    static void add(const lchar_t &wc);
+    static void set(const lchar_t &wc) { set(); add(wc); }
 
     /**
      * @brief Append / Set C-string

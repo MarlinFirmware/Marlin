@@ -1049,10 +1049,10 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_by
   pixel_len_t ret = 0;
   const uint8_t *p = (uint8_t *)utf8_str;
   while (ret < max_length) {
-    lchar_t ch;
-    p = get_utf8_value_cb(p, cb_read_byte, ch);
-    if (!ch) break;
-    ret += lcd_put_lchar_max(ch, max_length - ret);
+    lchar_t wc;
+    p = get_utf8_value_cb(p, cb_read_byte, wc);
+    if (!wc) break;
+    ret += lcd_put_lchar_max(wc, max_length - ret);
   }
   return (int)ret;
 }
