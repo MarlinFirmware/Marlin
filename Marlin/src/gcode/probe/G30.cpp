@@ -33,7 +33,7 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+#if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #include "../../lcd/marlinui.h"
 #endif
 
@@ -53,7 +53,7 @@ void GcodeSuite::G30() {
                          parser.linearval('Y', current_position.y + probe.offset_xy.y) };
 
   if (!probe.can_reach(pos)) {
-    #if ENABLED(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+    #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
       SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
       LCD_MESSAGE(MSG_ZPROBE_OUT);
     #endif
@@ -65,7 +65,7 @@ void GcodeSuite::G30() {
 
   remember_feedrate_scaling_off();
 
-  #if ENABLED(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
     process_subcommands_now(F("G28O"));
   #endif
 
@@ -76,7 +76,7 @@ void GcodeSuite::G30() {
   TERN_(HAS_PTC, ptc.set_enabled(true));
   if (!isnan(measured_z)) {
     SERIAL_ECHOLNPGM("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
-    #if ENABLED(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+    #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
       char msg[31], str_1[6], str_2[6], str_3[6];
       sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
         dtostrf(pos.x, 1, 1, str_1),

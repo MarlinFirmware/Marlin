@@ -30,8 +30,8 @@
  * Date: Jun 16, 2022
  */
 
-#include "../../../inc/MarlinConfigPre.h"
 #include "dwin_defines.h"
+
 #include "../../../inc/MarlinConfig.h"
 
 enum processID : uint8_t {
@@ -212,8 +212,8 @@ public:
   static uint8_t Get_Menu_Size(uint8_t menu);
   static void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
-  static void Popup_Handler(PopupID popupid, bool option = false);
-  static void Confirm_Handler(PopupID popupid, bool option = false);
+  static void Popup_Handler(PopupID popupid, bool option=false);
+  static void Confirm_Handler(PopupID popupid, bool option=false);
 
   static void Main_Menu_Control();
   static void Menu_Control();
@@ -261,7 +261,7 @@ public:
     static void ApplyLEDColor();
   #endif
 
-  #if ENABLED(HOST_ACTION_COMMANDS, HAS_HOSTACTION_MENUS)
+  #if HAS_HOSTACTION_MENUS
     static void Draw_String(char * string, uint8_t row, bool selected=false, bool below=false);
     static const uint64_t Encode_String(const char * string);
     static void Decode_String(uint64_t num, char * string);

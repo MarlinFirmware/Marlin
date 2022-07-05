@@ -79,10 +79,7 @@ void GcodeSuite::M0_M1() {
     else
       DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT_F(MSG_STOPPED), GET_TEXT_F(MSG_USERWAIT));
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    if (parser.string_arg)
-      CrealityDWIN.Confirm_Handler(UserInput);
-    else
-      CrealityDWIN.Confirm_Handler(UserInput, true);
+    CrealityDWIN.Confirm_Handler(UserInput, parser.string_arg == nullptr);
   #else
 
     if (parser.string_arg) {

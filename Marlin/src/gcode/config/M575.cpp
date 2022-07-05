@@ -69,11 +69,9 @@ void GcodeSuite::M575() {
 
       SERIAL_FLUSH();
 
-      if (set1) { 
-        MYSERIAL1.end(); MYSERIAL1.begin(baud); 
-        #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-          eeprom_settings.Baud115k = (baud == 115200)? 1 : 0;
-        #endif
+      if (set1) {
+        MYSERIAL1.end(); MYSERIAL1.begin(baud);
+        TERN_(DWIN_CREALITY_LCD_JYERSUI, eeprom_settings.Baud115k = (baud == 115200));
       }
       #if HAS_MULTI_SERIAL
         if (set2) { MYSERIAL2.end(); MYSERIAL2.begin(baud); }

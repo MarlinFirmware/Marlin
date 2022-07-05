@@ -444,7 +444,7 @@ G29_TYPE GcodeSuite::G29() {
     if (!faux) {
       remember_feedrate_scaling_off();
 
-      #if ENABLED(PREHEAT_BEFORE_LEVELING, HAS_BED_PROBE)
+      #if ENABLED(PREHEAT_BEFORE_LEVELING)
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
           #if BOTH(DWIN_LCD_PROUI, HAS_HEATED_BED)
             HMI_data.BedLevT

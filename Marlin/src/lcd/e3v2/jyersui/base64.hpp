@@ -205,4 +205,4 @@ uint16_t decode_base64(unsigned char input[], uint16_t input_length, unsigned ch
   return output_length;
 }
 
-#endif // ifndef
+#endif // BASE64_H_INCLUDED
