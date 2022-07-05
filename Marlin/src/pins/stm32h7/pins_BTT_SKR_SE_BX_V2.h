@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,27 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#define BOARD_INFO_NAME      "BTT SKR SE BX V2.0"
 
-#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
+#define SAFE_POWER_PIN                      PI11
 
-#include "../gcode.h"
-
-/**
- * M149: Set temperature units
- */
-void GcodeSuite::M149() {
-       if (parser.seen('C')) parser.set_input_temp_units(TEMPUNIT_C);
-  else if (parser.seen('K')) parser.set_input_temp_units(TEMPUNIT_K);
-  else if (parser.seen('F')) parser.set_input_temp_units(TEMPUNIT_F);
-  else M149_report();
-}
-
-void GcodeSuite::M149_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_TEMPERATURE_UNITS));
-  SERIAL_ECHOPGM("  M149 ", AS_CHAR(parser.temp_units_code()), " ; Units in ");
-  SERIAL_ECHOLNF(parser.temp_units_name());
-}
-
-#endif // TEMPERATURE_UNITS_SUPPORT
+#include "pins_BTT_SKR_SE_BX_common.h"
