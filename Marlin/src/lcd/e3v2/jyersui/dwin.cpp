@@ -511,6 +511,7 @@ void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options,
       }
     }
   }
+
 #endif // HAS_HOSTACTION_MENUS
 
 uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
@@ -2009,7 +2010,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define HOSTACTIONS_3 (HOSTACTIONS_2 + 1)
         #define HOSTACTIONS_TOTAL HOSTACTIONS_3
 
-        switch(item) {
+        switch (item) {
           case HOSTACTIONS_BACK:
             if (draw)
               Draw_Menu_Item(row, ICON_Back, GET_TEXT_F(MSG_BACK));
@@ -5621,6 +5622,7 @@ void CrealityDWINClass::Confirm_Control() {
     }
     DWIN_UpdateLCD();
   }
+
 #endif // HAS_HOSTACTION_MENUS
 
 /* In-Menu Value Modification */
