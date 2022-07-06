@@ -53,12 +53,41 @@ void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y) {
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
-// Draw an Icon
+// Draw an Icon with transparent background
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
 void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
-  DWIN_ICON_Show(true, false, false, libID, picID, x, y);
+  DWIN_ICON_Show(false, false, true, libID, picID, x, y);
+}
+
+// From DWIN Enhanced implementation for PRO UI v3.10.1
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) {
+  const uint8_t max_size = 128;
+  uint16_t pending = length;
+  uint16_t to_send;
+  uint16_t indx;
+  uint8_t block = 0;
+
+  while (pending > 0) {
+    indx = block * max_size;
+    to_send = _MIN(pending, max_size);
+    size_t i = 0;
+    DWIN_Byte(i, 0x31);
+    DWIN_Byte(i, mem);
+    DWIN_Word(i, addr + indx); // start address of the data block
+    ++i;
+    LOOP_L_N(j, i) { LCD_SERIAL.write(DWIN_SendBuf[j]); delayMicroseconds(1); }  // Buf header
+    for (uint16_t j = indx; j <= indx + to_send - 1; j++) LCD_SERIAL.write(*(data + j)); delayMicroseconds(1);  // write block of data
+    LOOP_L_N(j, 4) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
+    block++;
+    pending -= to_send;
+  }
 }
 
 #endif // DWIN_CREALITY_LCD_JYERSUI

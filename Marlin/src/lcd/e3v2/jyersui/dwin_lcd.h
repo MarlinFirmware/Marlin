@@ -32,3 +32,11 @@
 // Color: color
 //  x/y: Upper-left coordinate of the first pixel
 void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y);
+
+// From DWIN Enhanced implementation for PRO UI v3.10.1
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data);

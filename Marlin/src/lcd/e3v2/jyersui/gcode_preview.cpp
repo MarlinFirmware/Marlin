@@ -26,24 +26,11 @@
  * version: 2.1
  * Date: 2021/06/19
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * For commercial applications additional licenses can be requested
+ * Modded for JYERSUI by LCH-77
  */
 
 #include "../../../inc/MarlinConfigPre.h"
-#if ENABLED(DWIN_LCD_PROUI)
+#if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
 
 #include "dwin_defines.h"
 
@@ -56,7 +43,6 @@
 #include "dwin_lcd.h"
 #include "dwinui.h"
 #include "dwin.h"
-#include "dwin_popup.h"
 #include "base64.hpp"
 #include "gcode_preview.h"
 
@@ -177,7 +163,7 @@ bool Has_Preview() {
       buf[i] = c;
     }
     else {
-      buf[i] = 0;
+      buf[i] = '\0';
       break;
     }
   }
@@ -212,10 +198,12 @@ bool Has_Preview() {
 }
 
 void Preview_DrawFromSD() {
-  if (Has_Preview()) {
+  bool _has_preview = Has_Preview();
+  CrealityDWIN.Popup_Handler(PrintConfirm, _has_preview);
+  if (_has_preview) {
     char buf[46];
     char str_1[6] = "", str_2[6] = "", str_3[6] = "";
-    DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
+    // DWIN_Draw_Rectangle(1, Def_Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
     if (fileprop.time) {
       sprintf_P(buf, PSTR("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
       DWINUI::Draw_String(20, 10, buf);
@@ -232,16 +220,16 @@ void Preview_DrawFromSD() {
       sprintf_P(buf, PSTR("Volume: %sx%sx%s mm"), dtostrf(fileprop.width, 1, 1, str_1), dtostrf(fileprop.length, 1, 1, str_2), dtostrf(fileprop.height, 1, 1, str_3));
       DWINUI::Draw_String(20, 70, buf);
     }
-    DWINUI::Draw_Button(BTN_Print, 26, 290);
-    DWINUI::Draw_Button(BTN_Cancel, 146, 290);
+    // DWINUI::Draw_Button(BTN_Print, 26, 290);
+    // DWINUI::Draw_Button(BTN_Cancel, 146, 290);
     DWIN_ICON_Show(0, 0, 1, 21, 90, 0x00);
-    Draw_Select_Highlight(true, 290);
+    // Draw_Select_Highlight(true, 290);
     DWIN_UpdateLCD();
   }
-  else {
-    HMI_flag.select_flag = 1;
-    wait_for_user = false;
-  }
+  // else {
+  //   HMI_flag.select_flag = 1;
+  //   wait_for_user = false;
+  // }
 }
 
 bool Preview_Valid() {

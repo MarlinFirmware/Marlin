@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,26 +20,15 @@
  *
  */
 
-#include "../gcode.h"
-
-#if ENABLED(PLATFORM_M997_SUPPORT)
-
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "../../lcd/e3v2/jyersui/dwin.h"
-#endif
-
 /**
- * M997: Perform in-application firmware update
+ * DWIN G-code thumbnail preview
+ * Author: Miguel A. Risco-Castillo
+ * version: 2.1
+ * Date: 2021/06/19
  */
-void GcodeSuite::M997() {
 
-  TERN_(DWIN_LCD_PROUI, DWIN_RebootScreen());
-  TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.DWIN_RebootScreen());
+#pragma once
 
-  flashFirmware(parser.intval('S'));
-
-}
-
-#endif
+void Preview_DrawFromSD();
+bool Preview_Valid();
+void Preview_Reset();
