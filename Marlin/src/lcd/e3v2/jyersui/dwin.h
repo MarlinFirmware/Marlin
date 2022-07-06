@@ -23,27 +23,26 @@
 
 /**
  * lcd/e3v2/jyersui/dwin.h
+ * JYERSUI Author: Jacob Myers
+ *
+ * JYERSUI Enhanced by LCH-77
+ * Version: 1.9
+ * Date: Jun 16, 2022
  */
 
-#include "dwin_lcd.h"
-#include "../common/dwin_set.h"
-#include "../common/dwin_font.h"
-#include "../common/dwin_color.h"
-#include "../common/encoder.h"
-#include "../../../libs/BL24CXX.h"
+#include "dwin_defines.h"
 
-#include "../../../inc/MarlinConfigPre.h"
-
-//#define DWIN_CREALITY_LCD_CUSTOM_ICONS
+#include "../../../inc/MarlinConfig.h"
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
+  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait, Locked, Cancel, Keyboard
 };
 
 enum PopupID : uint8_t {
   Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, MeshSlot,
-  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming, ManualProbing,
-  FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete, Custom
+  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, Resuming, ManualProbing,
+  FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete, Custom, ESDiagPopup, PrintConfirm,
+  PIDWait, PIDWaitH, PIDWaitB, BadextruderNumber, TempTooHigh, PIDTimeout, PIDDone
 };
 
 enum menuID : uint8_t {
@@ -55,6 +54,7 @@ enum menuID : uint8_t {
       ZOffset,
       Preheat,
       ChangeFilament,
+      HostActions,
       MenuCustom,
     Control,
       TempMenu,
@@ -69,105 +69,108 @@ enum menuID : uint8_t {
         HomeOffsets,
         MaxSpeed,
         MaxAcceleration,
-        MaxJerk,
+        #if HAS_CLASSIC_JERK
+          MaxJerk,
+        #endif
+        #if HAS_JUNCTION_DEVIATION
+          JDmenu,
+        #endif
         Steps,
+      #if ENABLED(FWRETRACT)
+        FwRetraction,
+      #endif
       Visual,
         ColorSettings,
+      HostSettings,
+        ActionCommands,
       Advanced,
-        ProbeMenu,
+        #if HAS_BED_PROBE
+          ProbeMenu,
+        #endif
       Info,
-    Leveling,
-      LevelManual,
-      LevelView,
-      MeshViewer,
-      LevelSettings,
-      ManualMesh,
-      UBLMesh,
+    #if HAS_MESH
+      Leveling,
+        LevelManual,
+        LevelView,
+        MeshViewer,
+        LevelSettings,
+        #if ENABLED(PROBE_MANUALLY)
+          ManualMesh,
+        #endif
+        #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
+          UBLMesh,
+        #endif
+    #endif
     InfoMain,
   Tune,
-  PreheatHotend
+  PreheatHotend,
+  #if ANY(CASE_LIGHT_MENU, LED_CONTROL_MENU)
+    Ledsmenu,
+    #if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+      CaseLightmenu,
+    #endif
+    #if ENABLED(LED_CONTROL_MENU)
+      LedControlmenu,
+      #if HAS_COLOR_LEDS
+        #if ENABLED(LED_COLOR_PRESETS)
+          LedControlpresets,
+        #else
+          LedControlcustom,
+        #endif
+      #endif
+    #endif
+  #endif
 };
 
-// Custom icons
-#if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS)
-  // index of every custom icon should be >= CUSTOM_ICON_START
-  #define CUSTOM_ICON_START         ICON_Checkbox_F
-  #define ICON_Checkbox_F           200
-  #define ICON_Checkbox_T           201
-  #define ICON_Fade                 202
-  #define ICON_Mesh                 203
-  #define ICON_Tilt                 204
-  #define ICON_Brightness           205
-  #define ICON_AxisD                249
-  #define ICON_AxisBR               250
-  #define ICON_AxisTR               251
-  #define ICON_AxisBL               252
-  #define ICON_AxisTL               253
-  #define ICON_AxisC                254
-#else
-  #define ICON_Fade                 ICON_Version
-  #define ICON_Mesh                 ICON_Version
-  #define ICON_Tilt                 ICON_Version
-  #define ICON_Brightness           ICON_Version
-  #define ICON_AxisD                ICON_Axis
-  #define ICON_AxisBR               ICON_Axis
-  #define ICON_AxisTR               ICON_Axis
-  #define ICON_AxisBL               ICON_Axis
-  #define ICON_AxisTL               ICON_Axis
-  #define ICON_AxisC                ICON_Axis
-#endif
+typedef struct {
+  // Flags
+  bool flag_tune = false;
+  bool auto_fw_retract = false;
+  bool printing = false;
+  bool paused = false;
+  bool sdprint = false;
+  bool livemove = false;
+  bool liveadjust = false;
+  bool probe_deployed = false;
+  // Auxiliary values
+  AxisEnum axis = X_AXIS;    // Axis Select
+  int16_t pausetemp = 0;
+  int16_t pausebed = 0;
+  int16_t pausefan = 0;
+  uint8_t preheatmode = 0;
+  uint8_t zoffsetmode = 0;
+  float zoffsetvalue = 0;
+  uint8_t gridpoint;
+  float corner_avg;
+  float corner_pos;
+  float zval;
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    uint8_t LevelingTempmode = 0;
+  #endif
+  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    uint32_t LED_Color = Def_Leds_Color;
+  #endif
+  #if HAS_PID_HEATING
+    uint16_t PID_e_temp = 180;
+    uint16_t PID_bed_temp = 60;
+  #endif
+} temp_val_t;
+extern temp_val_t temp_val;
 
+#define Custom_Colors 10
 enum colorID : uint8_t {
   Default, White, Green, Cyan, Blue, Magenta, Red, Orange, Yellow, Brown, Black
 };
-
-#define Custom_Colors       10
-#define Color_Aqua          RGB(0x00,0x3F,0x1F)
-#define Color_Light_White   0xBDD7
-#define Color_Green         RGB(0x00,0x3F,0x00)
-#define Color_Light_Green   0x3460
-#define Color_Cyan          0x07FF
-#define Color_Light_Cyan    0x04F3
-#define Color_Blue          0x015F
-#define Color_Light_Blue    0x3A6A
-#define Color_Magenta       0xF81F
-#define Color_Light_Magenta 0x9813
-#define Color_Light_Red     0x8800
-#define Color_Orange        0xFA20
-#define Color_Light_Orange  0xFBC0
-#define Color_Light_Yellow  0x8BE0
-#define Color_Brown         0xCC27
-#define Color_Light_Brown   0x6204
-#define Color_Black         0x0000
-#define Color_Grey          0x18E3
-#define Check_Color         0x4E5C  // Check-box check color
-#define Confirm_Color       0x34B9
-#define Cancel_Color        0x3186
+enum pidresult_t : uint8_t { PID_STARTED, PID_EXTR_START, PID_BED_START, PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
 
 class CrealityDWINClass {
 public:
-  static constexpr size_t eeprom_data_size = 48;
-  static struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
-    bool time_format_textual : 1;
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      uint8_t tilt_grid_size : 3;
-    #endif
-    uint16_t corner_pos : 10;
-    uint8_t cursor_color : 4;
-    uint8_t menu_split_line : 4;
-    uint8_t menu_top_bg : 4;
-    uint8_t menu_top_txt : 4;
-    uint8_t highlight_box : 4;
-    uint8_t progress_percent : 4;
-    uint8_t progress_time : 4;
-    uint8_t status_bar_text : 4;
-    uint8_t status_area_text : 4;
-    uint8_t coordinates_text : 4;
-    uint8_t coordinates_split_line : 4;
-  } eeprom_settings;
-
   static constexpr const char * const color_names[11] = { "Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black" };
   static constexpr const char * const preheat_modes[3] = { "Both", "Hotend", "Bed" };
+  static constexpr const char * const zoffset_modes[3] = { "No Live" , "OnClick", "   Live" };
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    static constexpr const char * const preheat_levmodes[4] = { "   Both", " Hotend", "    Bed", "   None" };
+  #endif
 
   static void Clear_Screen(uint8_t e=3);
   static void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
@@ -192,7 +195,7 @@ public:
     static void Draw_Print_ProgressRemain();
   #endif
   static void Draw_Print_ProgressElapsed();
-  static void Draw_Print_confirm();
+  static void Draw_PrintDone_confirm();
   static void Draw_SD_Item(uint8_t item, uint8_t row);
   static void Draw_SD_List(bool removed=false);
   static void Draw_Status_Area(bool icons=false);
@@ -209,8 +212,8 @@ public:
   static uint8_t Get_Menu_Size(uint8_t menu);
   static void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
-  static void Popup_Handler(PopupID popupid, bool option = false);
-  static void Confirm_Handler(PopupID popupid);
+  static void Popup_Handler(PopupID popupid, bool option=false);
+  static void Confirm_Handler(PopupID popupid, bool option=false);
 
   static void Main_Menu_Control();
   static void Menu_Control();
@@ -231,6 +234,7 @@ public:
   static void Modify_Option(uint8_t value, const char * const * options, uint8_t max);
 
   static void Update_Status(const char * const text);
+  static void Update_Status(FSTR_P text);
   static void Start_Print(bool sd);
   static void Stop_Print();
   static void Update();
@@ -240,6 +244,40 @@ public:
   static void Save_Settings(char *buff);
   static void Load_Settings(const char *buff);
   static void Reset_Settings();
+  static void PreheatBefore();
+
+  #if HAS_ESDIAG
+    static void DWIN_EndstopsDiag();
+  #endif
+  #if HAS_LOCKSCREEN
+    static void DWIN_LockScreen();
+    static void DWIN_UnLockScreen();
+    static void HMI_LockScreen();
+  #endif
+  static void DWIN_RebootScreen();
+  static void RebootPrinter();
+  static void Update_Print_Filename(const char * const text);
+  #if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    static void ApplyLEDColor();
+  #endif
+
+  #if HAS_HOSTACTION_MENUS
+    static void Draw_String(char * string, uint8_t row, bool selected=false, bool below=false);
+    static const uint64_t Encode_String(const char * string);
+    static void Decode_String(uint64_t num, char * string);
+    static void Draw_Keyboard(bool restrict, bool numeric, uint8_t selected=0, bool uppercase=false, bool lock=false);
+    static void Draw_Keys(uint8_t index, bool selected, bool uppercase=false, bool lock=false);
+    static void Modify_String(char * string, uint8_t maxlength, bool restrict);
+    static void Keyboard_Control();
+  #endif
+
+  #if HAS_PIDPLOT
+    static void DWIN_Draw_PIDPopup(const pidresult_t pidresult);
+  #endif
+
+  #if HAS_PID_HEATING
+    static void DWIN_PidTuning(const pidresult_t pidresult);
+  #endif
 };
 
 extern CrealityDWINClass CrealityDWIN;

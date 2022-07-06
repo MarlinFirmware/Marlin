@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,27 +19,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../gcode.h"
-
-#if ENABLED(PLATFORM_M997_SUPPORT)
-
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "../../lcd/e3v2/jyersui/dwin.h"
-#endif
+#pragma once
 
 /**
- * M997: Perform in-application firmware update
+ * Lock screen implementation for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 2.2.0
+ * Date: 2022/04/11
+ *
+ * Modded for JYERSUI by LCH-77
  */
-void GcodeSuite::M997() {
 
-  TERN_(DWIN_LCD_PROUI, DWIN_RebootScreen());
-  TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.DWIN_RebootScreen());
+#include "../../../core/types.h"
+#include "../common/encoder.h"
+#include <stdint.h>
 
-  flashFirmware(parser.intval('S'));
+class LockScreenClass {
+private:
+  static bool unlocked;
+  static uint8_t lock_pos;
+public:
+  static uint8_t rprocess;
+  static void init();
+  static void onEncoder(EncoderState encoder_diffState);
+  static void draw();
+  static bool isUnlocked() { return unlocked; }
+};
 
-}
-
-#endif
+extern LockScreenClass lockScreen;
