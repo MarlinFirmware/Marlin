@@ -1904,9 +1904,10 @@ void Temperature::task() {
   #if ENABLED(LASER_COOLANT_FLOW_METER)
     cooler.flowmeter_task(ms);
     #if ENABLED(FLOWMETER_SAFETY)
-      if (cutter.enabled() && cooler.check_flow_too_low()) {
+      if (cooler.check_flow_too_low()) {
+        TERN_(HAS_DISPLAY, if (cutter.enabled()) ui.flow_fault());
         cutter.disable();
-        TERN_(HAS_DISPLAY, ui.flow_fault());
+        cutter.cutter_mode = CUTTER_MODE_ERROR;   // Immediately kill stepper inline power output
       }
     #endif
   #endif
