@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,23 +26,23 @@
  *
  * DiskIODriver:
  *  Do all low level IO with the underline hardware or block device: SPI, SDIO, OTG
- *  
+ *
  * FilesystemDriver:
  *  Handle the filesystem format / implementation. Uses the io driver to read and write data.
  *  Sd2Card is the very first and current filesystem implementation on Marlin, supporting FAT.
  *  FatFS - Work in progress.
- * 
- * 
+ *
+ *
  * Marlin Abstractions:
- * 
+ *
  *   Using this names allow us to isolate filesystem driver code, keeping all Marlin code agnostic.
- * 
+ *
  * MarlinFilesystem:
  *  Abstraction of systemwide filesystem operation.
- * 
+ *
  * MarlinVolume:
- *  Abstraction of a filesystem volume. 
- * 
+ *  Abstraction of a filesystem volume.
+ *
  * MarlinFile:
  *  Abstraction of a generic file. Using this name allow us to isolate filesystem driver code,
  *  keeping all Marlin code agnostic.
@@ -52,9 +52,9 @@
  *
  */
 
-/* 
+/*
 
-Interface definition. Don't need to be compiled, as we use duck typing allowing drivers 
+Interface definition. Doesn't need to be compiled, as we use duck typing allowing drivers
 to just use type alias.
 
 Class MarlinVolume {
