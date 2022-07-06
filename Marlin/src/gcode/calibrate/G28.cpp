@@ -59,7 +59,7 @@
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
 
-#if ENABLED(LASER_MOVE_G28_OFF)
+#if ENABLED(LASER_FEATURE)
   #include "../../feature/spindle_laser.h"
 #endif
 
@@ -205,7 +205,12 @@ void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
-  TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
+  /*
+   * Set the laser power to false to stop the planner from processing the current power setting.
+   */
+  #if ENABLED(LASER_FEATURE)
+    planner.laser_inline.status.isPowered = false;
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
