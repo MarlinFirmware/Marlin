@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality v4 only supports 1 hotend / E stepper."
+  //#error "Creality v4 only supports 1 hotend / E stepper."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -128,6 +128,10 @@
   #define E0_DIR_PIN                        PB3
 #endif
 #define E0_ENABLE_PIN               X_ENABLE_PIN
+
+#define E1_ENABLE_PIN                       PC3 //(connect to ground to always enable)
+#define E1_STEP_PIN                         PA14 //SWCLK (STEP - pulled low)
+#define E1_DIR_PIN                          PA13 //SWIO  (DIR - pulled high)
 
 //
 // Temperature Sensors
