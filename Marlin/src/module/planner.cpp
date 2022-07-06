@@ -2585,11 +2585,9 @@ bool Planner::_populate_block(
       // the Bresenham algorithm will convert this step rate into extruder steps
       block->la_advance_rate = extruder_advance_K[extruder] * block->acceleration_steps_per_s2;
 
-      // Minimise LA ISR frequency by calling it only often enough to ensure that there will
-      // never be more than one extruder step per call. Since we use the Bresenham algorithm
-      // this means E steps * 2 ^ la_scaling is at least half of step_event_count and no more
-      // step_event_count.
-      for (uint32_t dividend = block->steps.e << 1; dividend <= block->step_event_count; dividend <<= 1)
+      // reduce LA ISR frequency by calling it only often enough to ensure that there will
+      // never be more than four extruder steps per call
+      for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
         block->la_scaling++;
 
       #if ENABLED(LA_DEBUG)
