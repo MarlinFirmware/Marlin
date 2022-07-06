@@ -3671,7 +3671,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "A very large BLOCK_BUFFER_SIZE is not needed and takes longer to drain the buffer on pause / cancel."
 #endif
 
-#if ENABLED(LED_CONTROL_MENU) && NONE(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
+#if ENABLED(LED_CONTROL_MENU) && NONE(HAS_MARLINUI_MENU, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #error "LED_CONTROL_MENU requires an LCD controller that implements the menu."
 #endif
 
