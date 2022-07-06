@@ -99,8 +99,6 @@
   #include "lockscreen.h"
 #endif
 
-#define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
-
 #if ENABLED(CASE_LIGHT_MENU)
   #include "../../../feature/caselight.h"
 #endif
@@ -115,6 +113,8 @@
 #if HAS_GCODE_PREVIEW
   #include "gcode_preview.h"
 #endif
+
+#define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 
 #define MENU_CHAR_LIMIT 24
 #define STATUS_CHAR_LIMIT 30
@@ -151,6 +151,11 @@
   #define MIN_BED_TEMP 0
 #endif
 
+#if HAS_JUNCTION_DEVIATION
+  #define MIN_JD_MM 0.01
+  #define MAX_JD_MM 0.3
+#endif
+
 /**
  * Custom menu items with jyersLCD
  */
@@ -176,11 +181,6 @@ constexpr float default_max_acceleration[] = DEFAULT_MAX_ACCELERATION;
 constexpr float default_steps[]            = DEFAULT_AXIS_STEPS_PER_UNIT;
 #if HAS_CLASSIC_JERK
   constexpr float default_max_jerk[]       = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
-#endif
-
-#if HAS_JUNCTION_DEVIATION
-  #define MIN_JD_MM 0.01
-  #define MAX_JD_MM 0.3
 #endif
 
 enum SelectItem : uint8_t {
@@ -390,7 +390,7 @@ CrealityDWINClass CrealityDWIN;
         if (viewer_print_value) {
           int8_t offset_x, offset_y = cell_height_px / 2 - 6;
           if (isnan(bedlevel.z_values[x][y])) {  // undefined
-            DWIN_Draw_String(false, font6x12, Def_Text_Color, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
+            DWINUI::Draw_String(font6x12, Def_Text_Color, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
           }
           else {                          // has value
             if (GRID_MAX_POINTS_X < 10)
@@ -399,8 +399,8 @@ CrealityDWINClass CrealityDWIN;
               sprintf_P(buf, PSTR("%02i"), (uint16_t)(abs(bedlevel.z_values[x][y] - (int16_t)bedlevel.z_values[x][y]) * 100));
             offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
             if (!(GRID_MAX_POINTS_X < 10))
-              DWIN_Draw_String(false, font6x12, Def_Text_Color, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
-            DWIN_Draw_String(false, font6x12, Def_Text_Color, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
+              DWINUI::Draw_String(font6x12, Def_Text_Color, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
+            DWINUI::Draw_String(font6x12, Def_Text_Color, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
           }
           safe_delay(10);
           LCD_SERIAL.flushTX();
@@ -457,10 +457,10 @@ void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selected/*=fal
   const uint16_t xpos = 240 - (digits * 8);
   DWIN_Draw_Rectangle(1, Def_Background_Color, 194, MBASE(row), 234 - (digits * 8), MBASE(row) + 16);
   if (isnan(value))
-    DWIN_Draw_String(true, DWIN_FONT_MENU, Def_Text_Color, bColor, xpos - 8, MBASE(row), F(" NaN"));
+    DWINUI::Draw_String(Def_Text_Color, bColor, xpos - 8, MBASE(row), F(" NaN"));
   else {
     DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Def_Text_Color, bColor, digits - log10(minunit) + 1, log10(minunit), xpos, MBASE(row), (value < 0 ? -value : value));
-    DWIN_Draw_String(true, DWIN_FONT_MENU, Def_Text_Color, bColor, xpos - 8, MBASE(row), value < 0 ? F("-") : F(" "));
+    DWINUI::Draw_String(Def_Text_Color, bColor, xpos - 8, MBASE(row), value < 0 ? F("-") : F(" "));
   }
 }
 
@@ -468,7 +468,7 @@ void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options,
   uint16_t bColor = (selected) ? Def_Selected_Color : Def_Background_Color,
            tColor = (color) ? GetColor(value, Def_Text_Color, false) : Def_Text_Color;
   DWIN_Draw_Rectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
-  DWIN_Draw_String(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
+  DWINUI::Draw_String(tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
 #if HAS_HOSTACTION_MENUS
@@ -478,7 +478,7 @@ void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options,
     const uint8_t offset_x = DWIN_WIDTH - strlen(string) * 8 - 20;
     const uint8_t offset_y = (below) ? MENU_CHR_H * 3 / 5 : 0;
     DWIN_Draw_Rectangle(1, Def_Background_Color, offset_x - 10, MBASE(row) + offset_y - 1, offset_x, MBASE(row) + 16 + offset_y);
-    DWIN_Draw_String(true, DWIN_FONT_MENU, Def_Text_Color, (selected) ? Def_Selected_Color : Def_Background_Color, offset_x, MBASE(row) - 1 + offset_y, string);
+    DWINUI::Draw_String(Def_Text_Color, (selected) ? Def_Selected_Color : Def_Background_Color, offset_x, MBASE(row) - 1 + offset_y, string);
   }
 
   const uint64_t CrealityDWINClass::Encode_String(const char * string) {
@@ -531,33 +531,33 @@ uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool ligh
 }
 
 void CrealityDWINClass::Draw_Title(const char * ctitle) {
-  DWIN_Draw_String(false, DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Def_TitleTxt_color, false), Def_TitleBg_color, (DWIN_WIDTH - strlen(ctitle) * STAT_CHR_W) / 2, 5, ctitle);
+  DWINUI::Draw_CenteredString((uint8_t)DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Def_TitleTxt_color, false), 5, ctitle);
 }
 void CrealityDWINClass::Draw_Title(FSTR_P const ftitle) {
-  DWIN_Draw_String(false, DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Def_TitleTxt_color, false), Def_TitleBg_color, (DWIN_WIDTH - strlen_P(FTOP(ftitle)) * STAT_CHR_W) / 2, 5, ftitle);
+   DWINUI::Draw_CenteredString((uint8_t)DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Def_TitleTxt_color, false), 5, ftitle);
 }
 
 void _Decorate_Menu_Item(uint8_t row, uint8_t icon, bool more) {
   if (icon) DWIN_ICON_Show(ICON, icon, 26, MBASE(row) - 3);   //Draw Menu Icon
   if (more) DWIN_ICON_Show(ICON, ICON_More, 226, MBASE(row) - 3); // Draw More Arrow
-  DWIN_Draw_Line(CrealityDWIN.GetColor(eeprom_settings.menu_split_line, Def_SplitLine_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
+  DWIN_Draw_HLine(CrealityDWIN.GetColor(eeprom_settings.menu_split_line, Def_SplitLine_Color, true), 16, MBASE(row) + 33, 240); // Draw Menu Line
 }
 
 void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, const char * label1, const char * label2, bool more/*=false*/, bool centered/*=false*/) {
   const uint8_t label_offset_y = (label1 && label2) ? MENU_CHR_H * 3 / 5 : 0,
-                label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2),
-                label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
-  if (label1) DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
-  if (label2) DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, label2_offset_x, MBASE(row) - 1 + label_offset_y, label2); // Draw Label
+                label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5U, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2),
+                label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5U, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
+  if (label1) DWINUI::Draw_String(label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
+  if (label2) DWINUI::Draw_String(label2_offset_x, MBASE(row) - 1 + label_offset_y, label2); // Draw Label
   _Decorate_Menu_Item(row, icon, more);
 }
 
 void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, FSTR_P const flabel1, FSTR_P const flabel2, bool more/*=false*/, bool centered/*=false*/) {
   const uint8_t label_offset_y = (flabel1 && flabel2) ? MENU_CHR_H * 3 / 5 : 0,
-                label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5, (DWIN_WIDTH - LBLX - (flabel1 ? strlen_P(FTOP(flabel1)) : 0) * MENU_CHR_W) / 2),
-                label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5, (DWIN_WIDTH - LBLX - (flabel2 ? strlen_P(FTOP(flabel2)) : 0) * MENU_CHR_W) / 2);
-  if (flabel1) DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, label1_offset_x, MBASE(row) - 1 - label_offset_y, flabel1); // Draw Label
-  if (flabel2) DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, label2_offset_x, MBASE(row) - 1 + label_offset_y, flabel2); // Draw Label
+                label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5U, (DWIN_WIDTH - LBLX - (flabel1 ? strlen_P(FTOP(flabel1)) : 0) * MENU_CHR_W) / 2),
+                label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1/5U, (DWIN_WIDTH - LBLX - (flabel2 ? strlen_P(FTOP(flabel2)) : 0) * MENU_CHR_W) / 2);
+  if (flabel1) DWINUI::Draw_String(label1_offset_x, MBASE(row) - 1 - label_offset_y, flabel1); // Draw Label
+  if (flabel2) DWINUI::Draw_String(label2_offset_x, MBASE(row) - 1 + label_offset_y, flabel2); // Draw Label
   _Decorate_Menu_Item(row, icon, more);
 }
 
@@ -731,8 +731,8 @@ void CrealityDWINClass::Draw_Print_Screen() {
   Print_Screen_Icons();
   DWIN_ICON_Show(ICON, ICON_PrintTime, 14, 171);
   DWIN_ICON_Show(ICON, ICON_RemainTime, 147, 169);
-  DWIN_Draw_String(false, DWIN_FONT_MENU, Def_PercentTxt_Color, Def_Background_Color, 41, 163, GET_TEXT_F(MSG_INFO_PRINT_TIME));
-  DWIN_Draw_String(false, DWIN_FONT_MENU, Def_PercentTxt_Color, Def_Background_Color, 176, 163, GET_TEXT_F(MSG_REMAINING_TIME));
+  DWINUI::Draw_String(Def_PercentTxt_Color, 41, 163, GET_TEXT_F(MSG_INFO_PRINT_TIME));
+  DWINUI::Draw_String(Def_PercentTxt_Color, 176, 163, GET_TEXT_F(MSG_REMAINING_TIME));
   Update_Status_Bar(true);
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
@@ -760,14 +760,14 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
       dispname[len] = '\0';
       DWIN_Draw_Rectangle(1, Def_Background_Color, 8, 50, DWIN_WIDTH - 8, 80);
       const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, npos, 60, dispname);
+      DWINUI::Draw_String(npos, 60, dispname);
       if (-pos >= STATUS_CHAR_LIMIT) namescrl = 0;
       namescrl++;
     }
     else {
       DWIN_Draw_Rectangle(1, Def_Background_Color, 8, 50, DWIN_WIDTH - 8, 80);
       const int8_t npos = (DWIN_WIDTH - strlen(filename) * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, npos, 60, filename);
+      DWINUI::Draw_String(npos, 60, filename);
     }
   }
 }
@@ -777,7 +777,7 @@ void CrealityDWINClass::Draw_Print_ProgressBar() {
   DWINUI::DRAW_IconWB(ICON, ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, Def_Barfill_Color, 16 + printpercent * 240 / 100, 93, 256, 113);
   DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_percent, Def_PercentTxt_Color), Def_Background_Color, 3, 109, 133, printpercent);
-  DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_percent, Def_PercentTxt_Color), Def_Background_Color, 134, 133, F("%"));
+  DWINUI::Draw_String(GetColor(eeprom_settings.progress_percent, Def_PercentTxt_Color), Def_Background_Color, 134, 133, F("%"));
 }
 
 #if ENABLED(USE_M73_REMAINING_TIME)
@@ -787,11 +787,11 @@ void CrealityDWINClass::Draw_Print_ProgressBar() {
     DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 2, 176, 187, remainingtime / 3600);
     DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 2, 201, 187, (remainingtime % 3600) / 60);
     if (eeprom_settings.time_format_textual) {
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 193, 187, F("h"));
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 217, 187, F("m"));
+      DWINUI::Draw_String(GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 193, 187, F("h"));
+      DWINUI::Draw_String(GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 217, 187, F("m"));
     }
     else
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 193, 187, F(":"));
+      DWINUI::Draw_String(GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 193, 187, F(":"));
   }
 
 #endif
@@ -801,11 +801,11 @@ void CrealityDWINClass::Draw_Print_ProgressElapsed() {
   DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 2, 42, 187, elapsed.value / 3600);
   DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 2, 67, 187, (elapsed.value % 3600) / 60);
   if (eeprom_settings.time_format_textual) {
-    DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 59, 187, F("h"));
-    DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 83, 187, F("m"));
+    DWINUI::Draw_String(GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 59, 187, F("h"));
+    DWINUI::Draw_String(GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 83, 187, F("m"));
   }
   else
-    DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 59, 187, F(":"));
+    DWINUI::Draw_String(GetColor(eeprom_settings.progress_time, Def_PercentTxt_Color), Def_Background_Color, 59, 187, F(":"));
 }
 
 void CrealityDWINClass::Draw_PrintDone_confirm() {
@@ -859,7 +859,7 @@ void CrealityDWINClass::Draw_SD_List(bool removed/*=false*/) {
   else {
     Draw_Menu_Item(0, ICON_Back, GET_TEXT_F(MSG_BACK));
     DWIN_Draw_Rectangle(1, Def_AlertBg_Color, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-    DWIN_Draw_String(false, font16x32, Def_AlertTxt_Color, Def_AlertBg_Color, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), GET_TEXT_F(MSG_NO_MEDIA));
+    DWINUI::Draw_String(font16x32, Def_AlertTxt_Color, Def_AlertBg_Color, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), GET_TEXT_F(MSG_NO_MEDIA));
   }
   DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Def_Cursor_color), 0, MBASE(0) - 18, 14, MBASE(0) + 33);
 }
@@ -875,7 +875,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
       hotend = -1;
       hotendtarget = -1;
       DWIN_ICON_Show(ICON, ICON_HotendTemp, 10, 383);
-      DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
+      DWINUI::Draw_String(DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
     }
     if (thermalManager.temp_hotend[0].celsius != hotend) {
       hotend = thermalManager.temp_hotend[0].celsius;
@@ -890,7 +890,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
     if (icons) {
       flow = -1;
       DWIN_ICON_Show(ICON, ICON_StepE, 112, 417);
-      DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
+      DWINUI::Draw_String(DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
     }
     if (planner.flow_percentage[0] != flow) {
       flow = planner.flow_percentage[0];
@@ -905,7 +905,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
       bed = -1;
       bedtarget = -1;
       DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
-      DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
+      DWINUI::Draw_String(DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
     }
     if (thermalManager.temp_bed.celsius != bed) {
       bed = thermalManager.temp_bed.celsius;
@@ -965,7 +965,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
   if (icons) {
     feedrate = -1;
     DWIN_ICON_Show(ICON, ICON_Speed, 113, 383);
-    DWIN_Draw_String(false, DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
+    DWINUI::Draw_String(DWIN_FONT_STAT, GetColor(eeprom_settings.status_area_text, Def_Indicator_Color), Def_Background_Color, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
   }
   if (feedrate_percentage != feedrate) {
     feedrate = feedrate_percentage;
@@ -987,21 +987,21 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
   if (update_x) {
     x = current_position.x;
     if ((update_x = axis_should_home(X_AXIS) && ui.get_blink()))
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 39, 459, F("  -?-  "));
+      DWINUI::Draw_String(GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 39, 459, F("  -?-  "));
     else
       DWINUI::Draw_Signed_Float(DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 3, 1, 31, 459, current_position.x);
   }
   if (update_y) {
     y = current_position.y;
     if ((update_y = axis_should_home(Y_AXIS) && ui.get_blink()))
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 124, 459, F("  -?-  "));
+      DWINUI::Draw_String(GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 124, 459, F("  -?-  "));
     else
       DWINUI::Draw_Signed_Float(DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 3, 1, 116, 459, current_position.y);
   }
   if (update_z) {
     z = current_position.z;
     if ((update_z = axis_should_home(Z_AXIS) && ui.get_blink()))
-      DWIN_Draw_String(true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 205, 459, F("  -?-  "));
+      DWINUI::Draw_String(GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 205, 459, F("  -?-  "));
     else
       DWINUI::Draw_Signed_Float(DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Def_Coordinate_Color), Def_Background_Color, 3, 2, 197, 459, current_position.z);
   }
@@ -1072,12 +1072,12 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
     if (process == Print) {
       DWIN_Draw_Rectangle(1, Def_StatusBg_Color, 8, 214, DWIN_WIDTH - 8, 238);
       const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 219, dispmsg);
+      DWINUI::Draw_String(GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 219, dispmsg);
     }
     else {
       DWIN_Draw_Rectangle(1, Def_StatusBg_Color, 8, 352, DWIN_WIDTH - 8, 376);
       const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 357, dispmsg);
+      DWINUI::Draw_String(GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 357, dispmsg);
     }
     if (-pos >= STATUS_CHAR_LIMIT) msgscrl = 0;
     msgscrl++;
@@ -1088,12 +1088,12 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
       if (process == Print) {
         DWIN_Draw_Rectangle(1, Def_StatusBg_Color, 8, 214, DWIN_WIDTH - 8, 238);
         const int8_t npos = (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
-        DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 219, statusmsg);
+        DWINUI::Draw_String(GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 219, statusmsg);
       }
       else {
         DWIN_Draw_Rectangle(1, Def_StatusBg_Color, 8, 352, DWIN_WIDTH - 8, 376);
         const int8_t npos = (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
-        DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 357, statusmsg);
+        DWINUI::Draw_String(GetColor(eeprom_settings.status_bar_text, Def_StatusTxt_Color), Def_StatusBg_Color, npos, 357, statusmsg);
       }
     }
   }
@@ -1140,7 +1140,7 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
       else if (index == 27) {
         DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7) + xOffset[2], KEY_Y1(2), KEY_X2(9), KEY_Y2(2));
         DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(7) + xOffset[2] + 1, KEY_Y1(2) + 1, KEY_X2(9) - 1, KEY_Y2(2) - 1);
-        DWIN_Draw_String(true, DWIN_FONT_MENU, Color_Red, Def_Background_Color, KEY_X1(7) + xOffset[2] + 3, KEY_Y1(2) + 5, F("<--"));
+        DWINUI::Draw_String(Color_Red, KEY_X1(7) + xOffset[2] + 3, KEY_Y1(2) + 5, F("<--"));
       }
       else {
         if (index > 19) index--;
@@ -1152,7 +1152,7 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
         const char keyStr[2] = {keys[(y > 0) * rowCount[0] + (y > 1) * rowCount[1] + x], '\0'};
         DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(x) + xOffset[y], KEY_Y1(y), KEY_X2(x) + xOffset[y], KEY_Y2(y));
         DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(x) + xOffset[y] + 1, KEY_Y1(y) + 1, KEY_X2(x) + xOffset[y] - 1, KEY_Y2(y) - 1);
-        DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(x) + xOffset[y] + 5, KEY_Y1(y) + 5, keyStr);
+        DWINUI::Draw_String(KEY_X1(x) + xOffset[y] + 5, KEY_Y1(y) + 5, keyStr);
         if (keyboard_restrict && numeric_keyboard && index > 9) {
           DWIN_Draw_Line(Color_Light_Red, KEY_X1(x) + xOffset[y] + 1, KEY_Y1(y) + 1, KEY_X2(x) + xOffset[y] - 1, KEY_Y2(y) - 1);
           DWIN_Draw_Line(Color_Light_Red, KEY_X1(x) + xOffset[y] + 1, KEY_Y2(y) - 1, KEY_X2(x) + xOffset[y] - 1, KEY_Y1(y) + 1);
@@ -1164,22 +1164,22 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
         case 28:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(0), KEY_Y1(3), KEY_X2(0) + xOffset[1], KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(0) + 1, KEY_Y1(3) + 1, KEY_X2(0) + xOffset[1] - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(0) - 1, KEY_Y1(3) + 5, F("?123"));
+          DWINUI::Draw_String(KEY_X1(0) - 1, KEY_Y1(3) + 5, F("?123"));
           break;
         case 29:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(1) + xOffset[1], KEY_Y1(3), KEY_X2(1) + xOffset[1], KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(1) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(1) + xOffset[1] - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(1) + xOffset[1] + 5, KEY_Y1(3) + 5, F("-"));
+          DWINUI::Draw_String(KEY_X1(1) + xOffset[1] + 5, KEY_Y1(3) + 5, F("-"));
           break;
         case 30:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(2) + xOffset[1], KEY_Y1(3), KEY_X2(2) + xOffset[1], KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(2) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(2) + xOffset[1] - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(2) + xOffset[1] + 5, KEY_Y1(3) + 5, F("_"));
+          DWINUI::Draw_String(KEY_X1(2) + xOffset[1] + 5, KEY_Y1(3) + 5, F("_"));
           break;
         case 31:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(3) + xOffset[1], KEY_Y1(3), KEY_X2(5) + xOffset[1], KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(3) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(5) + xOffset[1] - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(3) + xOffset[1] + 14, KEY_Y1(3) + 5, F("Space"));
+          DWINUI::Draw_String(KEY_X1(3) + xOffset[1] + 14, KEY_Y1(3) + 5, F("Space"));
           if (keyboard_restrict) {
             DWIN_Draw_Line(Color_Light_Red, KEY_X1(3) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(5) + xOffset[1] - 1, KEY_Y2(3) - 1);
             DWIN_Draw_Line(Color_Light_Red, KEY_X1(3) + xOffset[1] + 1, KEY_Y2(3) - 1, KEY_X2(5) + xOffset[1] - 1, KEY_Y1(3) + 1);
@@ -1188,7 +1188,7 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
         case 32:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(6) + xOffset[1], KEY_Y1(3), KEY_X2(6) + xOffset[1], KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(6) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(6) + xOffset[1] - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(6) + xOffset[1] + 7, KEY_Y1(3) + 5, F("."));
+          DWINUI::Draw_String(KEY_X1(6) + xOffset[1] + 7, KEY_Y1(3) + 5, F("."));
           if (keyboard_restrict) {
             DWIN_Draw_Line(Color_Light_Red, KEY_X1(6) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(6) + xOffset[1] - 1, KEY_Y2(3) - 1);
             DWIN_Draw_Line(Color_Light_Red, KEY_X1(6) + xOffset[1] + 1, KEY_Y2(3) - 1, KEY_X2(6) + xOffset[1] - 1, KEY_Y1(3) + 1);
@@ -1197,7 +1197,7 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
         case 33:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7) + xOffset[1], KEY_Y1(3), KEY_X2(7) + xOffset[1], KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(7) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(7) + xOffset[1] - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(false, DWIN_FONT_MENU, Def_Text_Color, Def_Background_Color, KEY_X1(7) + xOffset[1] + 4, KEY_Y1(3) + 5, F("/"));
+          DWINUI::Draw_String(KEY_X1(7) + xOffset[1] + 4, KEY_Y1(3) + 5, F("/"));
           if (keyboard_restrict) {
             DWIN_Draw_Line(Color_Light_Red, KEY_X1(7) + xOffset[1] + 1, KEY_Y1(3) + 1, KEY_X2(7) + xOffset[1] - 1, KEY_Y2(3) - 1);
             DWIN_Draw_Line(Color_Light_Red, KEY_X1(7) + xOffset[1] + 1, KEY_Y2(3) - 1, KEY_X2(7) + xOffset[1] - 1, KEY_Y1(3) + 1);
@@ -1206,7 +1206,7 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
         case 34:
           DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7) + xOffset[2], KEY_Y1(3), KEY_X2(9), KEY_Y2(3));
           DWIN_Draw_Rectangle(0, (selected) ? Def_Selected_Color : Def_Background_Color, KEY_X1(7) + xOffset[2] + 1, KEY_Y1(3) + 1, KEY_X2(9) - 1, KEY_Y2(3) - 1);
-          DWIN_Draw_String(true, DWIN_FONT_MENU, Color_Cyan, Def_Background_Color, KEY_X1(7) + xOffset[2] + 3, KEY_Y1(3) + 5, F("-->"));
+          DWINUI::Draw_String(Color_Cyan, KEY_X1(7) + xOffset[2] + 3, KEY_Y1(3) + 5, F("-->"));
           break;
       }
     }
@@ -2216,7 +2216,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           else
             Draw_Menu(Visual);
           break;
-        #if HAS_HOSTACTION_MENUS && DISABLED(HAS_RC_CPU_AND_UBL)
+        #if HAS_HOSTACTION_MENUS
           case CONTROL_HOSTSETTINGS:
             if (draw)
               Draw_Menu_Item(row, ICON_Contact, F("Host Settings"), nullptr, true);
@@ -3353,7 +3353,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       } // switch (item)
       break;
 
-    #if HAS_HOSTACTION_MENUS && DISABLED(HAS_RC_CPU_AND_UBL)
+    #if HAS_HOSTACTION_MENUS
       case HostSettings:
 
         #define HOSTSETTINGS_BACK 0
@@ -4502,7 +4502,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
         #endif
 
-        #if HAS_HOSTACTION_MENUS && DISABLED(HAS_RC_CPU_AND_UBL)
+        #if HAS_HOSTACTION_MENUS
           case TUNE_HOSTACTIONS:
             if (draw)
               Draw_Menu_Item(row, ICON_SetHome, F("Host Actions"), nullptr, true);
@@ -6027,7 +6027,7 @@ void CrealityDWINClass::Reset_Settings() {
       OPTARG(HAS_WHITE_LED, (temp_val.LED_Color >> 24) & 0xFF)
       );
   #endif
-  #if HAS_HOSTACTION_MENUS && DISABLED(HAS_RC_CPU_AND_UBL)
+  #if HAS_HOSTACTION_MENUS
     eeprom_settings.host_action_label_1 = 0;
     eeprom_settings.host_action_label_2 = 0;
     eeprom_settings.host_action_label_3 = 0;
