@@ -1224,44 +1224,26 @@
   #define Z_PROBE_RETRACT_X X_MAX_POS
 #endif
 
-// A probe mounted by magnets, can be used for Z-homing depending on design like euclid probe, Klicky probe, & Klackender probe
-// Requires Z_SAFE_HOMING if being used for Z-homing
-// Coordinates for deploy and stow moves. Uncomment and edit as appropriate for your printer/probe.
+/**
+ * Magnetically Mounted Probe
+ * For probes such as Euclid, Klicky, Klackender, etc.
+ */
 //#define MAG_MOUNTED_PROBE
 #if ENABLED(MAG_MOUNTED_PROBE)
-  #define PROBE_DEPLOY_FEEDRATE (133*60) //Probe deploy speed 
-  #define PROBE_STOW_FEEDRATE (133*60)  //Probe stow speed
-  #define MAG_MOUNTED_DEPLOY_1 {245, 114, 30}  //Move to side Dock & Attach probe 
-  #define MAG_MOUNTED_DEPLOY_1_FEEDRATE PROBE_DEPLOY_FEEDRATE
+  #define PROBE_DEPLOY_FEEDRATE (133*60)  // (mm/min) Probe deploy speed
+  #define PROBE_STOW_FEEDRATE   (133*60)  // (mm/min) Probe stow speed
 
-  #define MAG_MOUNTED_DEPLOY_2 {210, 114, 30}  //Move probe off dock
-  #define MAG_MOUNTED_DEPLOY_2_FEEDRATE PROBE_DEPLOY_FEEDRATE
-
-  #define MAG_MOUNTED_DEPLOY_3 {0, 0, 0}  //Extra move if needed
-  #define MAG_MOUNTED_DEPLOY_3_FEEDRATE PROBE_DEPLOY_FEEDRATE
-
-  #define MAG_MOUNTED_DEPLOY_4 {0, 0, 0}  //Extra move if needed
-  #define MAG_MOUNTED_DEPLOY_4_FEEDRATE PROBE_DEPLOY_FEEDRATE
-
-  #define MAG_MOUNTED_DEPLOY_5 {0, 0, 0}  //Extra move if needed
-  #define MAG_MOUNTED_DEPLOY_5_FEEDRATE PROBE_DEPLOY_FEEDRATE
-
-  #define MAG_MOUNTED_STOW_1 { 245, 114, 20 } // Move to dock
-  #define MAG_MOUNTED_STOW_1_FEEDRATE PROBE_STOW_FEEDRATE
-
-  #define MAG_MOUNTED_STOW_2 { 245, 114, 0 } //Place probe beside remover
-  #define MAG_MOUNTED_STOW_2_FEEDRATE PROBE_STOW_FEEDRATE
-
-  #define MAG_MOUNTED_STOW_3 { 230, 114, 0 } //Side move to remove probe
-  #define MAG_MOUNTED_STOW_3_FEEDRATE PROBE_STOW_FEEDRATE
-
-  #define MAG_MOUNTED_STOW_4 { 210, 114, 20 } //Side move to remove probe
-  #define MAG_MOUNTED_STOW_4_FEEDRATE PROBE_STOW_FEEDRATE
-
-  #define MAG_MOUNTED_STOW_5 { 0, 0, 0 }  //Extra move if needed
-  #define MAG_MOUNTED_STOW_5_FEEDRATE PROBE_STOW_FEEDRATE
-
-#endif // MAG_MOUNTED_PROBE //
+  #define MAG_MOUNTED_DEPLOY_1 { PROBE_DEPLOY_FEEDRATE, { 245, 114, 30 } }  // Move to side Dock & Attach probe
+  #define MAG_MOUNTED_DEPLOY_2 { PROBE_DEPLOY_FEEDRATE, { 210, 114, 30 } }  // Move probe off dock
+  #define MAG_MOUNTED_DEPLOY_3 { PROBE_DEPLOY_FEEDRATE, {   0,   0,  0 } }  // Extra move if needed
+  #define MAG_MOUNTED_DEPLOY_4 { PROBE_DEPLOY_FEEDRATE, {   0,   0,  0 } }  // Extra move if needed
+  #define MAG_MOUNTED_DEPLOY_5 { PROBE_DEPLOY_FEEDRATE, {   0,   0,  0 } }  // Extra move if needed
+  #define MAG_MOUNTED_STOW_1   { PROBE_STOW_FEEDRATE,   { 245, 114, 20 } }  // Move to dock
+  #define MAG_MOUNTED_STOW_2   { PROBE_STOW_FEEDRATE,   { 245, 114,  0 } }  // Place probe beside remover
+  #define MAG_MOUNTED_STOW_3   { PROBE_STOW_FEEDRATE,   { 230, 114,  0 } }  // Side move to remove probe
+  #define MAG_MOUNTED_STOW_4   { PROBE_STOW_FEEDRATE,   { 210, 114, 20 } }  // Side move to remove probe
+  #define MAG_MOUNTED_STOW_5   { PROBE_STOW_FEEDRATE,   {   0,   0,  0 } }  // Extra move if needed
+#endif
 
 // Duet Smart Effector (for delta printers) - https://bit.ly/2ul5U7J
 // When the pin is defined you can use M672 to set/reset the probe sensitivity.
@@ -1281,9 +1263,6 @@
 //
 // For Z_PROBE_ALLEN_KEY see the Delta example configurations.
 //
-
-//Hide probe deploy and stow options in the motion menu. Option is enabled when a compatible probe is defined.
-//#define NO_PROBE_DEPLOY_STOW_MENU
 
 /**
  * Nozzle-to-Probe offsets { X, Y, Z }

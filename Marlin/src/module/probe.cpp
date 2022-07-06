@@ -259,56 +259,57 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #endif
   }
 
-
 #elif ENABLED(MAG_MOUNTED_PROBE)
+
+  typedef struct { float fr_mm_min; xyz_pos_t where; } mag_probe_move_t;
 
   inline void run_deploy_moves_script() {
     #ifdef MAG_MOUNTED_DEPLOY_1
-      constexpr xyz_pos_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
-      do_blocking_move_to(deploy_1, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_1_FEEDRATE));
+      constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
+      do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_2
-      constexpr xyz_pos_t deploy_2 = MAG_MOUNTED_DEPLOY_2;
-      do_blocking_move_to(deploy_2, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_2_FEEDRATE));
+      constexpr mag_probe_move_t deploy_2 = MAG_MOUNTED_DEPLOY_2;
+      do_blocking_move_to(deploy_2.where, MMM_TO_MMS(deploy_2.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_3
-      constexpr xyz_pos_t deploy_3 = MAG_MOUNTED_DEPLOY_3;
-      do_blocking_move_to(deploy_3, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_3_FEEDRATE));
+      constexpr mag_probe_move_t deploy_3 = MAG_MOUNTED_DEPLOY_3;
+      do_blocking_move_to(deploy_3.where, MMM_TO_MMS(deploy_3.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_4
-      constexpr xyz_pos_t deploy_4 = MAG_MOUNTED_DEPLOY_4;
-      do_blocking_move_to(deploy_4, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_4_FEEDRATE));
+      constexpr mag_probe_move_t deploy_4 = MAG_MOUNTED_DEPLOY_4;
+      do_blocking_move_to(deploy_4.where, MMM_TO_MMS(deploy_4.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_5
-      constexpr xyz_pos_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
-      do_blocking_move_to(deploy_5, MMM_TO_MMS(MAG_MOUNTED_DEPLOY_5_FEEDRATE));
+      constexpr mag_probe_move_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
+      do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
     #endif
   }
 
   inline void run_stow_moves_script() {
     #ifdef MAG_MOUNTED_STOW_1
-           constexpr xyz_pos_t stow_1 = MAG_MOUNTED_STOW_1;
-      do_blocking_move_to(stow_1, MMM_TO_MMS(MAG_MOUNTED_STOW_1_FEEDRATE));
+      constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
+      do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_2
-           constexpr xyz_pos_t stow_2 = MAG_MOUNTED_STOW_2;
-      do_blocking_move_to(stow_2, MMM_TO_MMS(MAG_MOUNTED_STOW_2_FEEDRATE));
+      constexpr mag_probe_move_t stow_2 = MAG_MOUNTED_STOW_2;
+      do_blocking_move_to(stow_2.where, MMM_TO_MMS(stow_2.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_3
-           constexpr xyz_pos_t stow_3 = MAG_MOUNTED_STOW_3;
-      do_blocking_move_to(stow_3, MMM_TO_MMS(MAG_MOUNTED_STOW_3_FEEDRATE));
+      constexpr mag_probe_move_t stow_3 = MAG_MOUNTED_STOW_3;
+      do_blocking_move_to(stow_3.where, MMM_TO_MMS(stow_3.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_4
-           constexpr xyz_pos_t stow_4 = MAG_MOUNTED_STOW_4;
-      do_blocking_move_to(stow_4, MMM_TO_MMS(MAG_MOUNTED_STOW_4_FEEDRATE));
+      constexpr mag_probe_move_t stow_4 = MAG_MOUNTED_STOW_4;
+      do_blocking_move_to(stow_4.where, MMM_TO_MMS(stow_4.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_5
-           constexpr xyz_pos_t stow_5 = MAG_MOUNTED_STOW_5;
-      do_blocking_move_to(stow_5, MMM_TO_MMS(MAG_MOUNTED_STOW_5_FEEDRATE));
+      constexpr mag_probe_move_t stow_5 = MAG_MOUNTED_STOW_5;
+      do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
     #endif
   }
 
-#endif // MISC Z probes
+#endif // MAG_MOUNTED_PROBE
 
 #if HAS_QUIET_PROBING
 

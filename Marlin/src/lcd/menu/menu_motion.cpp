@@ -308,18 +308,6 @@ void menu_move() {
   void goto_tramming_wizard();
 #endif
 
-#if DISABLED(NO_PROBE_DEPLOY_STOW_MENU)
-void probe_deploy_stow() {
-  START_MENU();
-    BACK_ITEM(MSG_MOTION);
-
-    GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
-    GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
-
-    END_MENU();
-    }
-#endif
-
 void menu_motion() {
   START_MENU();
 
@@ -361,9 +349,9 @@ void menu_motion() {
   #endif
 
   //
-  // Deploy/Stow probe
+  // Probe Deploy/Stow
   //
-  #if DISABLED(NO_PROBE_DEPLOY_STOW_MENU) && ANY(TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
+  #if ENABLED(PROBE_DEPLOY_STOW_MENU)
     GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
     GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
   #endif
