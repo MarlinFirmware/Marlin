@@ -62,16 +62,16 @@
   #endif
 #endif
 
+#if ENABLED(SENSORLESS_PROBING)
+  extern abc_float_t offset_sensorless_adj;
+#endif
+
 class Probe {
 public:
 
   #if ENABLED(SENSORLESS_PROBING)
     typedef struct {
-      #if HAS_DELTA_SENSORLESS_PROBING
         bool x:1, y:1, z:1;
-      #else
-        bool z;
-      #endif
     } sense_bool_t;
     static sense_bool_t test_sensitivity;
   #endif

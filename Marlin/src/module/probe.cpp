@@ -48,6 +48,11 @@
   #include "delta.h"
 #endif
 
+#if ENABLED(SENSORLESS_PROBING)
+  abc_float_t offset_sensorless_adj{0};
+  float largest_sensorless_adj = 0;
+#endif
+
 #if ANY(HAS_QUIET_PROBING, USE_SENSORLESS)
   #include "stepper/indirection.h"
   #if BOTH(HAS_QUIET_PROBING, PROBING_ESTEPPERS_OFF)
@@ -929,11 +934,16 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
           NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
           DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
         }
+        if (TEST(endstops.state(), Z_MAX)) {
+          NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
+          DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
+        }
+      #else
+        if (TEST(endstops.state(), Z_ENDSTOP)) {
+          NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
+          DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " Z endstop");
+        }
       #endif
-      if (TEST(endstops.state(), Z_MAX)) {
-        NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
-        DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
-      }
     #endif
   }
 
