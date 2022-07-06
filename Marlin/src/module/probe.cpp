@@ -48,6 +48,11 @@
   #include "delta.h"
 #endif
 
+#if ENABLED(SENSORLESS_PROBING)
+  abc_float_t offset_sensorless_adj{0};
+  float largest_sensorless_adj = 0;
+#endif
+
 #if ANY(HAS_QUIET_PROBING, USE_SENSORLESS)
   #include "stepper/indirection.h"
   #if BOTH(HAS_QUIET_PROBING, PROBING_ESTEPPERS_OFF)
@@ -867,76 +872,38 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-#if USE_SENSORLESS
-
-  sensorless_t stealth_states { false };
-
-  /**
-   * Disable stealthChop if used. Enable diag1 pin on driver.
-   */
-  void Probe::enable_stallguard_diag1() {
-    #if ENABLED(SENSORLESS_PROBING)
-      #if HAS_DELTA_SENSORLESS_PROBING
-        stealth_states.x = tmc_enable_stallguard(stepperX);
-        stealth_states.y = tmc_enable_stallguard(stepperY);
-      #endif
-      stealth_states.z = tmc_enable_stallguard(stepperZ);
-      endstops.enable(true);
-    #endif
-  }
-
-  /**
-   * Re-enable stealthChop if used. Disable diag1 pin on driver.
-   */
-  void Probe::disable_stallguard_diag1() {
-    #if ENABLED(SENSORLESS_PROBING)
-      endstops.not_homing();
-      #if HAS_DELTA_SENSORLESS_PROBING
-        tmc_disable_stallguard(stepperX, stealth_states.x);
-        tmc_disable_stallguard(stepperY, stealth_states.y);
-      #endif
-      tmc_disable_stallguard(stepperZ, stealth_states.z);
-    #endif
-  }
+#if HAS_DELTA_SENSORLESS_PROBING
 
   /**
    * Set the sensorless Z offset
    */
   void Probe::set_offset_sensorless_adj(const_float_t sz) {
-    #if ENABLED(SENSORLESS_PROBING)
-      DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
-      #if HAS_DELTA_SENSORLESS_PROBING
-        if (test_sensitivity.x) offset_sensorless_adj.a = sz;
-        if (test_sensitivity.y) offset_sensorless_adj.b = sz;
-      #endif
-      if (test_sensitivity.z) offset_sensorless_adj.c = sz;
-    #endif
+    DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
+    if (test_sensitivity.x) offset_sensorless_adj.a = sz;
+    if (test_sensitivity.y) offset_sensorless_adj.b = sz;
+    if (test_sensitivity.z) offset_sensorless_adj.c = sz;
   }
 
   /**
    * Refresh largest_sensorless_adj based on triggered endstops
    */
   void Probe::refresh_largest_sensorless_adj() {
-    #if ENABLED(SENSORLESS_PROBING)
-      DEBUG_SECTION(rso, "Probe::refresh_largest_sensorless_adj", true);
-      largest_sensorless_adj = -3;                                             // A reference away from any real probe height
-      #if HAS_DELTA_SENSORLESS_PROBING
-        if (TEST(endstops.state(), X_MAX)) {
-          NOLESS(largest_sensorless_adj, offset_sensorless_adj.a);
-          DEBUG_ECHOLNPGM("Endstop_X: ", largest_sensorless_adj, " TowerX");
-        }
-        if (TEST(endstops.state(), Y_MAX)) {
-          NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
-          DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
-        }
-      #endif
-      if (TEST(endstops.state(), Z_MAX)) {
-        NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
-        DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
-      }
-    #endif
+    DEBUG_SECTION(rso, "Probe::refresh_largest_sensorless_adj", true);
+    largest_sensorless_adj = -3;  // A reference away from any real probe height
+    if (TEST(endstops.state(), X_MAX)) {
+      NOLESS(largest_sensorless_adj, offset_sensorless_adj.a);
+      DEBUG_ECHOLNPGM("Endstop_X: ", largest_sensorless_adj, " TowerX");
+    }
+    if (TEST(endstops.state(), Y_MAX)) {
+      NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
+      DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
+    }
+    if (TEST(endstops.state(), Z_MAX)) {
+      NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
+      DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
+    }
   }
 
-#endif // SENSORLESS_PROBING || SENSORLESS_HOMING
+#endif
 
 #endif // HAS_BED_PROBE
