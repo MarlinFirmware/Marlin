@@ -302,9 +302,7 @@ public:
   #endif
 
   // Basic functions for Sensorless Homing and Probing
-  #if USE_SENSORLESS
-    static void enable_stallguard_diag1();
-    static void disable_stallguard_diag1();
+  #if HAS_DELTA_SENSORLESS_PROBING
     static void set_offset_sensorless_adj(const_float_t sz);
     static void refresh_largest_sensorless_adj();
   #endif

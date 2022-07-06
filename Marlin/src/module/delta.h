@@ -39,7 +39,6 @@ extern abc_float_t delta_diagonal_rod_2_tower;
 extern float delta_clip_start_height;
 extern abc_float_t delta_diagonal_rod_trim;
 
-
 /**
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
