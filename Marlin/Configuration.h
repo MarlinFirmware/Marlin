@@ -2669,6 +2669,12 @@
 //
 //#define SILVER_GATE_GLCD_CONTROLLER
 
+//
+// eMotion Tech LCD with SD
+// https://www.reprap-france.com/produit/1234568748-ecran-graphique-128-x-64-points-2-1
+//
+//#define EMOTION_TECH_LCD
+
 //=============================================================================
 //==============================  OLED Displays  ==============================
 //=============================================================================
