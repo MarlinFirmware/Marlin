@@ -1,5 +1,5 @@
 /**
- * DWIN G-code thumbnail preview
+ * DWIN g-code thumbnail preview
  * Author: Miguel A. Risco-Castillo
  * version: 2.1
  * Date: 2021/06/19
