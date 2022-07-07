@@ -149,8 +149,8 @@
 
 #define MOSFET_1_PIN                           6  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
 #define MOSFET_2_PIN                           7  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
-#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB6 #24 -> Logical 11
-#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB5 #25 -> Logical 12
+#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB5 #24 -> Logical 11
+#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB6 #25 -> Logical 12
 #define MOSFET_5_PIN                          45  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
 #define MOSFET_6_PIN                          44  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
 
@@ -166,19 +166,23 @@
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           MOSFET_2_PIN
 #else
-  #define FAN_PIN                   MOSFET_2_PIN
+  #ifndef FAN_PIN
+    #define FAN_PIN                 MOSFET_2_PIN
+  #endif
 #endif
 // EX2 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
 #ifndef E1_AUTO_FAN_PIN
   #define E1_AUTO_FAN_PIN           MOSFET_4_PIN
 #else
-  #define FAN1_PIN                  MOSFET_4_PIN
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                MOSFET_4_PIN
+  #endif
 #endif
 
 //
 // Misc. Functions
 //
-#define LED_PIN                     MOSFET_6_PIN  // B7
+#define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
 #define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)

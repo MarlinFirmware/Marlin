@@ -124,13 +124,13 @@ void menu_configuration();
       #define _DONE_SCRIPT ""
     #endif
     #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(F(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
-    #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
-    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
-      SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \
-          MenuItem_confirm::confirm_screen(          \
-            GCODE_LAMBDA_MAIN(N), nullptr,           \
-            PSTR(MAIN_MENU_ITEM_##N##_DESC "?")      \
-          );                                         \
+    #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_F(F(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
+    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)          \
+      SUBMENU_F(F(MAIN_MENU_ITEM_##N##_DESC), []{ \
+          MenuItem_confirm::confirm_screen(       \
+            GCODE_LAMBDA_MAIN(N), nullptr,        \
+            F(MAIN_MENU_ITEM_##N##_DESC "?")      \
+          );                                      \
         })
 
     #define CUSTOM_ITEM_MAIN(N) do{ \
@@ -246,11 +246,11 @@ void menu_main() {
 
       if (card_detected) {
         if (!card_open) {
-          #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
-          #else                                               // - or -
-            ACTION_ITEM(MSG_RELEASE_MEDIA, []{                // M22 Release Media
-              queue.inject(PSTR("M22"));
+          #if HAS_SD_DETECT
+            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21"));        // M21 Change Media
+          #else                                             // - or -
+            ACTION_ITEM(MSG_RELEASE_MEDIA, []{              // M22 Release Media
+              queue.inject(F("M22"));
               #if ENABLED(TFT_COLOR_UI)
                 // Menu display issue on item removal with multi language selection menu
                 if (encoderTopLine > 0) encoderTopLine--;
@@ -258,14 +258,14 @@ void menu_main() {
               #endif
             });
           #endif
-          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);      // Media Menu (or Password First)
         }
       }
       else {
-        #if PIN_EXISTS(SD_DETECT)
-          ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // "No Media"
+        #if HAS_SD_DETECT
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
         #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));         // M21 Attach Media
+          GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));          // M21 Attach Media
         #endif
       }
     };
@@ -279,9 +279,9 @@ void menu_main() {
     #if MACHINE_CAN_STOP
       SUBMENU(MSG_STOP_PRINT, []{
         MenuItem_confirm::select_screen(
-          GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
+          GET_TEXT_F(MSG_BUTTON_STOP), GET_TEXT_F(MSG_BACK),
           ui.abort_print, nullptr,
-          GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
+          GET_TEXT_F(MSG_STOP_PRINT), (const char *)nullptr, F("?")
         );
       });
     #endif
@@ -342,7 +342,7 @@ void menu_main() {
   #if ENABLED(CUSTOM_MENU_MAIN)
     if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
       #ifdef CUSTOM_MENU_MAIN_TITLE
-        SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
+        SUBMENU_F(F(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
       #else
         SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
       #endif
@@ -353,7 +353,7 @@ void menu_main() {
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
         menu_change_filament, nullptr,
-        GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
+        GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?")
       );
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
@@ -377,13 +377,13 @@ void menu_main() {
         CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
           MSG_YES, MSG_NO,
           ui.poweroff, nullptr,
-          GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
+          GET_TEXT_F(MSG_SWITCH_PS_OFF), (const char *)nullptr, F("?")
         );
       #else
         ACTION_ITEM(MSG_SWITCH_PS_OFF, ui.poweroff);
       #endif
     else
-      GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
+      GCODES_ITEM(MSG_SWITCH_PS_ON, F("M80"));
   #endif
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
@@ -398,24 +398,24 @@ void menu_main() {
       ui.return_to_status();
     };
     #if SERVICE_INTERVAL_1 > 0
-      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
+      CONFIRM_ITEM_F(F(SERVICE_NAME_1),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
         []{ _service_reset(1); }, nullptr,
-        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
+        GET_TEXT_F(MSG_SERVICE_RESET), F(SERVICE_NAME_1), F("?")
       );
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
+      CONFIRM_ITEM_F(F(SERVICE_NAME_2),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
         []{ _service_reset(2); }, nullptr,
-        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
+        GET_TEXT_F(MSG_SERVICE_RESET), F(SERVICE_NAME_2), F("?")
       );
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
+      CONFIRM_ITEM_F(F(SERVICE_NAME_3),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
         []{ _service_reset(3); }, nullptr,
-        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
+        GET_TEXT_F(MSG_SERVICE_RESET), F(SERVICE_NAME_3), F("?")
       );
     #endif
   #endif
@@ -451,9 +451,9 @@ void menu_main() {
   #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
     SUBMENU(MSG_HOST_SHUTDOWN, []{
       MenuItem_confirm::select_screen(
-        GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BUTTON_CANCEL),
+        GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BUTTON_CANCEL),
         []{ ui.return_to_status(); hostui.shutdown(); }, nullptr,
-        GET_TEXT(MSG_HOST_SHUTDOWN), (const char *)nullptr, PSTR("?")
+        GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
       );
     });
   #endif

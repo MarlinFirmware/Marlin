@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Tenlog supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Tenlog supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "Tenlog D3 Hero"
@@ -148,6 +148,7 @@
 //
 // Misc. Functions
 //
+//#define PS_ON_PIN                           40  // The M80/M81 PSU pin for boards v2.1-2.3
 //#define CASE_LIGHT_PIN                       5
 #define SDSS                                  53
 //#ifndef LED_PIN

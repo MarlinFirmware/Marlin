@@ -70,10 +70,10 @@
 #define ticksToUs(_ticks) (unsigned(_ticks) * (SERVO_TIMER_PRESCALER) / clockCyclesPerMicrosecond())
 
 // convenience macros
-#define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / (SERVOS_PER_TIMER))) // returns the timer controlling this servo
-#define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % (SERVOS_PER_TIMER))       // returns the index of the servo on this timer
-#define SERVO_INDEX(_timer,_channel)  ((_timer*(SERVOS_PER_TIMER)) + _channel)     // macro to access servo index by timer and channel
-#define SERVO(_timer,_channel)  (servo_info[SERVO_INDEX(_timer,_channel)])       // macro to access servo class by timer and channel
+#define SERVO_INDEX_TO_TIMER(_servo_nbr) timer16_Sequence_t(_servo_nbr / (SERVOS_PER_TIMER)) // the timer controlling this servo
+#define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % (SERVOS_PER_TIMER))      // the index of the servo on this timer
+#define SERVO_INDEX(_timer,_channel)  ((_timer*(SERVOS_PER_TIMER)) + _channel)    // servo index by timer and channel
+#define SERVO(_timer,_channel)  servo_info[SERVO_INDEX(_timer,_channel)]          // servo class by timer and channel
 
 // Types
 
@@ -94,5 +94,5 @@ extern ServoInfo_t servo_info[MAX_SERVOS];
 
 // Public functions
 
-extern void initISR(timer16_Sequence_t timer);
-extern void finISR(timer16_Sequence_t timer);
+void initISR(const timer16_Sequence_t timer_index);
+void finISR(const timer16_Sequence_t timer_index);

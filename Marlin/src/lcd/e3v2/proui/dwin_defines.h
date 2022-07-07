@@ -34,23 +34,11 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include <stddef.h>
 
-#if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
-  #error "INDIVIDUAL_AXIS_HOMING_SUBMENU is required with ProUI."
-#endif
-#if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-  #error "LCD_SET_PROGRESS_MANUALLY is required with ProUI."
-#endif
-#if DISABLED(STATUS_MESSAGE_SCROLLING)
-  #error "STATUS_MESSAGE_SCROLLING is required with ProUI."
-#endif
-#if DISABLED(BAUD_RATE_GCODE)
-  #error "BAUD_RATE_GCODE is required with ProUI."
-#endif
-#if DISABLED(SOUND_MENU_ITEM)
-  #error "SOUND_MENU_ITEM is required with ProUI."
-#endif
-#if DISABLED(PRINTCOUNTER)
-  #error "PRINTCOUNTER is required with ProUI."
+#define HAS_ESDIAG 1
+#define HAS_PIDPLOT 1
+#define HAS_GCODE_PREVIEW 1
+#if defined(__STM32F1__) || defined(STM32F1)
+  #define DASH_REDRAW 1
 #endif
 
 #include "../common/dwin_color.h"
@@ -80,8 +68,8 @@
 
 #define HAS_ESDIAG 1
 
-#if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-  #define Def_Leds_Color      LEDColorWhite()
+#if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+  #define Def_Leds_Color 0xFFFFFFFF
 #endif
 #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
   #define Def_CaseLight_Brightness 255
@@ -128,14 +116,13 @@ typedef struct {
   #endif
   bool FullManualTramming = false;
   // Led
-  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor Led_Color = Def_Leds_Color;
+  #if ENABLED(MESH_BED_LEVELING)
+    float ManualZOffset = 0;
   #endif
-  // Case Light
-  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
-    uint8_t CaseLight_Brightness = Def_CaseLight_Brightness;
+  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    uint32_t LED_Color = Def_Leds_Color;
   #endif
 } HMI_data_t;
 
-static constexpr size_t eeprom_data_size = 64;
+static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
 extern HMI_data_t HMI_data;
