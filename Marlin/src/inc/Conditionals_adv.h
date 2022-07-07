@@ -79,6 +79,10 @@
   #define SERVO_DELAY { 50 }
 #endif
 
+#if !HAS_STOWABLE_PROBE
+  #undef PROBE_DEPLOY_STOW_MENU
+#endif
+
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
