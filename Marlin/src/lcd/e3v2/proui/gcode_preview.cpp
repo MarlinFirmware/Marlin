@@ -21,7 +21,7 @@
  */
 
 /**
- * DWIN G-code thumbnail preview
+ * DWIN g-code thumbnail preview
  * Author: Miguel A. Risco-Castillo
  * version: 2.1
  * Date: 2021/06/19
@@ -214,7 +214,9 @@ bool Has_Preview() {
 void Preview_DrawFromSD() {
   if (Has_Preview()) {
     char buf[46];
-    char str_1[6] = "", str_2[6] = "", str_3[6] = "";
+    char str_1[6] = "";
+    char str_2[6] = "";
+    char str_3[6] = "";
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
     if (fileprop.time) {
       sprintf_P(buf, PSTR("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
