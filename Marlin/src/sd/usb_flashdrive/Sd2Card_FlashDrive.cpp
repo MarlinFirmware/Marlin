@@ -62,7 +62,7 @@
   #define USB_HOST_MANUAL_POLL // Optimization to shut off IRQ automatically
 
   // Workarounds to keep Marlin's watchdog timer from barking...
-  void marlin_yield() { thermalManager.manage_heater(); }
+  void marlin_yield() { thermalManager.task(); }
   #define SYSTEM_OR_SPECIAL_YIELD(...) marlin_yield();
   #define delay(x) safe_delay(x)
 

@@ -53,7 +53,7 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
     void PowerMonitor::draw_current() {
       const float amps = getAmps();
       lcd_put_u8str(amps < 100 ? ftostr31ns(amps) : ui16tostr4rj((uint16_t)amps));
-      lcd_put_wchar('A');
+      lcd_put_lchar('A');
     }
   #endif
 
@@ -61,7 +61,7 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
     void PowerMonitor::draw_voltage() {
       const float volts = getVolts();
       lcd_put_u8str(volts < 100 ? ftostr31ns(volts) : ui16tostr4rj((uint16_t)volts));
-      lcd_put_wchar('V');
+      lcd_put_lchar('V');
     }
   #endif
 
@@ -69,7 +69,7 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
     void PowerMonitor::draw_power() {
       const float power = getPower();
       lcd_put_u8str(power < 100 ? ftostr31ns(power) : ui16tostr4rj((uint16_t)power));
-      lcd_put_wchar('W');
+      lcd_put_lchar('W');
     }
   #endif
 

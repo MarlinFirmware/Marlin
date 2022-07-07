@@ -76,8 +76,6 @@
     #include "lcd/e3v2/creality/dwin.h"
   #elif ENABLED(DWIN_LCD_PROUI)
     #include "lcd/e3v2/proui/dwin.h"
-  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    #include "lcd/e3v2/jyersui/dwin.h"
   #endif
 #endif
 
@@ -789,7 +787,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   manage_inactivity(no_stepper_sleep);
 
   // Manage Heaters (and Watchdog)
-  thermalManager.manage_heater();
+  thermalManager.task();
 
   // Max7219 heartbeat, animation, etc
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());

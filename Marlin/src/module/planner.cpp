@@ -128,8 +128,13 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 
 planner_settings_t Planner::settings;           // Initialized by settings.load()
 
-#if ENABLED(LASER_POWER_INLINE)
+/**
+ * Set up inline block variables
+ * Set laser_power_floor based on SPEED_POWER_MIN to pevent a zero power output state with LASER_POWER_TRAP
+ */
+#if ENABLED(LASER_FEATURE)
   laser_state_t Planner::laser_inline;          // Current state for blocks
+  const uint8_t laser_power_floor = cutter.pct_to_ocr(SPEED_POWER_MIN);
 #endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
@@ -799,6 +804,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   if (plateau_steps < 0) {
     const float accelerate_steps_float = CEIL(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
     accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
+    decelerate_steps = block->step_event_count - accelerate_steps;
     plateau_steps = 0;
 
     #if ENABLED(S_CURVE_ACCELERATION)
@@ -822,7 +828,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
   // Store new block parameters
   block->accelerate_until = accelerate_steps;
-  block->decelerate_after = accelerate_steps + plateau_steps;
+  block->decelerate_after = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
   #if ENABLED(S_CURVE_ACCELERATION)
     block->acceleration_time = acceleration_time;
@@ -833,46 +839,52 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
   block->final_rate = final_rate;
 
-  /**
-   * Laser trapezoid calculations
-   *
-   * Approximate the trapezoid with the laser, incrementing the power every `entry_per` while accelerating
-   * and decrementing it every `exit_power_per` while decelerating, thus ensuring power is related to feedrate.
-   *
-   * LASER_POWER_INLINE_TRAPEZOID_CONT doesn't need this as it continuously approximates
-   *
-   * Note this may behave unreliably when running with S_CURVE_ACCELERATION
-   */
-  #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-    if (block->laser.power > 0) { // No need to care if power == 0
-      const uint8_t entry_power = block->laser.power * entry_factor; // Power on block entry
-      #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-        // Speedup power
-        const uint8_t entry_power_diff = block->laser.power - entry_power;
-        if (entry_power_diff) {
-          block->laser.entry_per = accelerate_steps / entry_power_diff;
-          block->laser.power_entry = entry_power;
+  #if ENABLED(LASER_POWER_TRAP)
+    /**
+     * Laser Trapezoid Calculations
+     *
+     * Approximate the trapezoid with the laser, incrementing the power every `trap_ramp_entry_incr` steps while accelerating,
+     * and decrementing the power every `trap_ramp_exit_decr` while decelerating, to keep power proportional to feedrate.
+     * Laser power trap will reduce the initial power to no less than the laser_power_floor value. Based on the number
+     * of calculated accel/decel steps the power is distributed over the trapezoid entry- and exit-ramp steps.
+     *
+     * trap_ramp_active_pwr - The active power is initially set at a reduced level factor of initial power / accel steps and
+     * will be additively incremented using a trap_ramp_entry_incr value for each accel step processed later in the stepper code.
+     * The trap_ramp_exit_decr value is calculated as power / decel steps and is also adjusted to no less than the power floor.
+     *
+     * If the power == 0 the inline mode variables need to be set to zero to prevent stepper processing. The method allows
+     * for simpler non-powered moves like G0 or G28.
+     *
+     * Laser Trap Power works for all Jerk and Curve modes; however Arc-based moves will have issues since the segments are
+     * usually too small.
+     */
+    if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+      if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
+        if (block->laser.power > 0) {
+          NOLESS(block->laser.power, laser_power_floor);
+          block->laser.trap_ramp_active_pwr = (block->laser.power - laser_power_floor) * (initial_rate / float(block->nominal_rate)) + laser_power_floor;
+          block->laser.trap_ramp_entry_incr = (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps;
+          float laser_pwr = block->laser.power * (final_rate / float(block->nominal_rate));
+          NOLESS(laser_pwr, laser_power_floor);
+          block->laser.trap_ramp_exit_decr = (block->laser.power - laser_pwr) / decelerate_steps;
+          #if ENABLED(DEBUG_LASER_TRAP)
+            SERIAL_ECHO_MSG("lp:",block->laser.power);
+            SERIAL_ECHO_MSG("as:",accelerate_steps);
+            SERIAL_ECHO_MSG("ds:",decelerate_steps);
+            SERIAL_ECHO_MSG("p.trap:",block->laser.trap_ramp_active_pwr);
+            SERIAL_ECHO_MSG("p.incr:",block->laser.trap_ramp_entry_incr);
+            SERIAL_ECHO_MSG("p.decr:",block->laser.trap_ramp_exit_decr);
+          #endif
         }
         else {
-          block->laser.entry_per = 0;
-          block->laser.power_entry = block->laser.power;
+          block->laser.trap_ramp_active_pwr = 0;
+          block->laser.trap_ramp_entry_incr = 0;
+          block->laser.trap_ramp_exit_decr = 0;
         }
-        // Slowdown power
-        const uint8_t exit_power = block->laser.power * exit_factor, // Power on block entry
-                      exit_power_diff = block->laser.power - exit_power;
-        if (exit_power_diff) {
-          block->laser.exit_per = (block->step_event_count - block->decelerate_after) / exit_power_diff;
-          block->laser.power_exit = exit_power;
-        }
-        else {
-          block->laser.exit_per = 0;
-          block->laser.power_exit = block->laser.power;
-        }
-      #else
-        block->laser.power_entry = entry_power;
-      #endif
+
+      }
     }
-  #endif
+  #endif // LASER_POWER_TRAP
 }
 
 /*                            PLANNER SPEED DEFINITION
@@ -1141,10 +1153,9 @@ void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t 
   // The tail may be changed by the ISR so get a local copy.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
-
-  // Since there could be non-move blocks in the head of the queue, and the
+  // Since there could be a sync block in the head of the queue, and the
   // next loop must not recalculate the head block (as it needs to be
-  // specially handled), scan backwards to the first move block.
+  // specially handled), scan backwards to the first non-SYNC block.
   while (head_block_index != block_index) {
 
     // Go back (head always point to the first free block)
@@ -1216,7 +1227,7 @@ void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t 
     // Exit speed is set with MINIMUM_PLANNER_SPEED unless some code higher up knows better.
     next_entry_speed = _MAX(TERN0(HINTS_SAFE_EXIT_SPEED, SQRT(safe_exit_speed_sqr)), float(MINIMUM_PLANNER_SPEED));
 
-    // Mark the last block as RECALCULATE, to prevent the Stepper ISR running it.
+    // Mark the next(last) block as RECALCULATE, to prevent the Stepper ISR running it.
     // As the last block is always recalculated here, there is a chance the block isn't
     // marked as RECALCULATE yet. That's the reason for the following line.
     block->flag.recalculate = true;
@@ -1308,7 +1319,7 @@ void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_s
 #endif // HAS_FAN
 
 /**
- * Maintain fans, paste extruder pressure,
+ * Maintain fans, paste extruder pressure, spindle/laser power
  */
 void Planner::check_axes_activity() {
 
@@ -1372,7 +1383,7 @@ void Planner::check_axes_activity() {
   }
   else {
 
-    TERN_(HAS_CUTTER, cutter.refresh());
+    TERN_(HAS_CUTTER, if (cutter.cutter_mode == CUTTER_MODE_STANDARD) cutter.refresh());
 
     #if HAS_TAIL_FAN_SPEED
       FANS_LOOP(i) {
@@ -1472,7 +1483,7 @@ void Planner::check_axes_activity() {
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       const block_t * const block = &block_buffer[b];
       if (NUM_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, || block->steps.u, || block->steps.v, || block->steps.w)) {
-        const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec
+        const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
     }
@@ -1807,7 +1818,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   if (cleaning_buffer_counter) return false;
 
   // Fill the block with the specified movement
-  if (!_populate_block(block, false, target
+  if (!_populate_block(block, target
         OPTARG(HAS_POSITION_FLOAT, target_float)
         OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
         , fr_mm_s, extruder, hints
@@ -1839,18 +1850,23 @@ bool Planner::_buffer_steps(const xyze_long_t &target
 }
 
 /**
- * Planner::_populate_block
+ * @brief Populate a block in preparation for insertion
+ * @details Populate the fields of a new linear movement block
+ *          that will be added to the queue and processed soon
+ *          by the Stepper ISR.
  *
- * Fills a new linear movement in the block (in terms of steps).
+ * @param block         A block to populate
+ * @param target        Target position in steps units
+ * @param target_float  Target position in native mm
+ * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
+ * @param fr_mm_s       (target) speed of the move
+ * @param extruder      target extruder
+ * @param hints         optional parameters to aid planner's calculations
  *
- *  target      - target position in steps units
- *  fr_mm_s     - (target) speed of the move
- *  extruder    - target extruder
- *  hints       - optional parameters to aid planner's calculations
- *
- * Returns true if movement is acceptable, false otherwise
+ * @return  true if movement is acceptable, false otherwise
  */
-bool Planner::_populate_block(block_t * const block, bool split_move,
+bool Planner::_populate_block(
+  block_t * const block,
   const abce_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
@@ -1870,8 +1886,36 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   );
 
   /* <-- add a slash to enable
-    #define _ALINE(A) " " STR_##A  ":", target[_AXIS(A)], " (", int32_t(target[_AXIS(A)] - position[_AXIS(A)]), " steps)"
-    SERIAL_ECHOLNPGM("  _populate_block FR:", fr_mm_s, LOGICAL_AXIS_MAP(_ALINE));
+    SERIAL_ECHOLNPGM(
+      "  _populate_block FR:", fr_mm_s,
+      " A:", target.a, " (", da, " steps)"
+      #if HAS_Y_AXIS
+        " B:", target.b, " (", db, " steps)"
+      #endif
+      #if HAS_Z_AXIS
+        " C:", target.c, " (", dc, " steps)"
+      #endif
+      #if HAS_I_AXIS
+        " " STR_I ":", target.i, " (", di, " steps)"
+      #endif
+      #if HAS_J_AXIS
+        " " STR_J ":", target.j, " (", dj, " steps)"
+      #endif
+      #if HAS_K_AXIS
+        " " STR_K ":", target.k, " (", dk, " steps)"
+      #endif
+      #if HAS_U_AXIS
+        " " STR_U ":", target.u, " (", du, " steps)"
+      #endif
+      #if HAS_V_AXIS
+        " " STR_V ":", target.v, " (", dv, " steps)"
+      #endif
+      #if HAS_W_AXIS
+        " " STR_W ":", target.w, " (", dw, " steps)"
+      #if HAS_EXTRUDERS
+        " E:", target.e, " (", de, " steps)"
+      #endif
+    );
   //*/
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
@@ -1969,11 +2013,34 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Set direction bits
   block->direction_bits = dm;
 
-  // Update block laser power
-  #if ENABLED(LASER_POWER_INLINE)
-    laser_inline.status.isPlanned = true;
-    block->laser.status = laser_inline.status;
-    block->laser.power = laser_inline.power;
+  /**
+   * Update block laser power
+   * For standard mode get the cutter.power value for processing, since it's
+   * only set by apply_power().
+   */
+  #if HAS_CUTTER
+    switch (cutter.cutter_mode) {
+      default: break;
+
+      case CUTTER_MODE_STANDARD: block->cutter_power = cutter.power; break;
+
+      #if ENABLED(LASER_FEATURE)
+        /**
+         * For inline mode get the laser_inline variables, including power and status.
+         * Dynamic mode only needs to update if the feedrate has changed, since it's
+         * calculated from the current feedrate and power level.
+         */
+        case CUTTER_MODE_CONTINUOUS:
+          block->laser.power = laser_inline.power;
+          block->laser.status = laser_inline.status;
+          break;
+
+        case CUTTER_MODE_DYNAMIC:
+          if (cutter.laser_feedrate_changed())  // Only process changes in rate
+            block->laser.power = laser_inline.power = cutter.calc_dynamic_power();
+          break;
+      #endif
+    }
   #endif
 
   // Number of steps for each axis
@@ -2035,9 +2102,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.a      = (da - db) * mm_per_step[A_AXIS];
-    steps_dist_mm.b      =       db  * mm_per_step[B_AXIS];
+    steps_dist_mm.b      = db * mm_per_step[B_AXIS];
   #elif ENABLED(MARKFORGED_YX)
-    steps_dist_mm.a      =       da  * mm_per_step[A_AXIS];
+    steps_dist_mm.a      = da * mm_per_step[A_AXIS];
     steps_dist_mm.b      = (db - da) * mm_per_step[B_AXIS];
   #else
     XYZ_CODE(
@@ -2083,21 +2150,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       block->millimeters = hints.millimeters;
     else {
       /**
-       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of
-       * NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
-       *
-       * Assume:
-       *   - X, Y, Z are the primary linear axes;
-       *   - U, V, W are secondary linear axes;
-       *   - A, B, C are rotational axes.
-       *
-       * Then:
-       *   - dX, dY, dZ are the displacements of the primary linear axes;
-       *   - dU, dV, dW are the displacements of linear axes;
-       *   - dA, dB, dC are the displacements of rotational axes.
-       *
-       * The time it takes to execute move command with feedrate F is t = D/F,
-       * where D is the total distance, calculated as follows:
+       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of NIST
+       * RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
+       * Assume that X, Y, Z are the primary linear axes and U, V, W are secondary linear axes and A, B, C are
+       * rotational axes. Then dX, dY, dZ are the displacements of the primary linear axes and dU, dV, dW are the displacements of linear axes and
+       * dA, dB, dC are the displacements of rotational axes.
+       * The time it takes to execute move command with feedrate F is t = D/F, where D is the total distance, calculated as follows:
        *   D^2 = dX^2 + dY^2 + dZ^2
        *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
        *     D^2 = dU^2 + dV^2 + dW^2
@@ -2106,9 +2164,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
        */
       float distance_sqr = (
         #if ENABLED(ARTICULATED_ROBOT_ARM)
-          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround,
-          // assume that motors sit on a mutually-orthogonal axes and we can think of distance as magnitude of an n-vector
-          // in an n-dimensional Euclidian space.
+          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
+          // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
           NUM_AXIS_GANG(
               sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
@@ -2128,7 +2185,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         #elif CORE_IS_YZ
           XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.head.z))
         #else
-          XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
+          XYZ_GANG(sq(steps_dist_mm.x),       + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
         #endif
       );
 
@@ -2161,9 +2218,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     /**
      * At this point at least one of the axes has more steps than
-     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped
-     * as zero-length. It's important to not apply corrections to blocks
-     * that would get dropped!
+     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
+     * zero-length. It's important to not apply corrections
+     * to blocks that would get dropped!
      *
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
@@ -2184,7 +2241,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
-  TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
   #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
@@ -2199,9 +2255,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (NUM_AXIS_GANG(
-         block->steps.x, || block->steps.y, || block->steps.z,
-      || block->steps.i, || block->steps.j, || block->steps.k,
-      || block->steps.u, || block->steps.v, || block->steps.w
+         block->steps.x,
+      || block->steps.y,
+      || block->steps.z,
+      || block->steps.i,
+      || block->steps.j,
+      || block->steps.k,
+      || block->steps.u,
+      || block->steps.v,
+      || block->steps.w
     )) powerManager.power_on();
   #endif
 
@@ -2435,7 +2497,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (speed_factor < 1.0f) {
     current_speed *= speed_factor;
     block->nominal_rate *= speed_factor;
-    block->nominal_speed_sqr *= sq(speed_factor);
+    block->nominal_speed_sqr = block->nominal_speed_sqr * sq(speed_factor);
   }
 
   // Compute and limit the acceleration rate for the trapezoid generator.
@@ -2868,9 +2930,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
   const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, sq(float(MINIMUM_PLANNER_SPEED)), block->millimeters);
 
-  // If we are trying to add a split block, start with the
-  // max. allowed speed to avoid an interrupted first move.
-  block->entry_speed_sqr = !split_move ? sq(float(MINIMUM_PLANNER_SPEED)) : _MIN(vmax_junction_sqr, v_allowable_sqr);
+  // Start with the minimum allowed speed
+  block->entry_speed_sqr = sq(float(MINIMUM_PLANNER_SPEED));
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
@@ -2902,21 +2963,19 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
 /**
  * Planner::buffer_sync_block
- * Add a block to the buffer that just updates the position,
- * or in case of LASER_SYNCHRONOUS_M106_M107 the fan PWM
+ * Add a block to the buffer that just updates the position
+ * @param sync_flag BLOCK_FLAG_SYNC_FANS & BLOCK_FLAG_LASER_PWR
+ * Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.
  */
-void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_POSITION*/)) {
-  #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
-    constexpr BlockFlagBit sync_flag = BLOCK_BIT_SYNC_POSITION;
-  #endif
+
+void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_POSITION*/) {
 
   // Wait for the next available block
   uint8_t next_buffer_head;
   block_t * const block = get_next_free_block(next_buffer_head);
 
   // Clear block
-  block->reset();
-
+  memset(block, 0, sizeof(block_t));
   block->flag.apply(sync_flag);
 
   block->position = position;
@@ -2926,6 +2985,12 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, const BlockFl
   #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
+
+  /**
+   * M3-based power setting can be processed inline with a laser power sync block.
+   * During active moves cutter.power is processed immediately, otherwise on the next move.
+   */
+  TERN_(LASER_POWER_SYNC, block->laser.power = cutter.power);
 
   // If this is the first added movement, reload the delay, otherwise, cancel it.
   if (block_buffer_head == block_buffer_tail) {
@@ -3113,7 +3178,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
-      // For SCARA scale the feed rate from mm/s to degrees/s
+      // For SCARA scale the feedrate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float duration_recip = hints.inv_duration ?: fr_mm_s / ph.millimeters;
       const xyz_pos_t diff = delta - position_float;
@@ -3134,14 +3199,6 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
 #if ENABLED(DIRECT_STEPPING)
 
-  /**
-   * @brief Add a direct stepping page block to the buffer
-   *        and wake up the Stepper ISR to process it.
-   *
-   * @param page_idx Page index provided by G6 I<index>
-   * @param extruder The extruder to use in the move
-   * @param num_steps Number of steps to process in the ISR
-   */
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
       kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
@@ -3226,7 +3283,7 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   if (has_blocks_queued()) {
     //previous_nominal_speed_sqr = 0.0; // Reset planner junction speeds. Assume start from rest.
     //previous_speed.reset();
-    buffer_sync_block();
+    buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
   }
   else {
     #if ENABLED(BACKLASH_COMPENSATION)
@@ -3239,12 +3296,6 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   }
 }
 
-/**
- * @brief Set the Planner position in mm
- * @details Set the Planner position from a native machine position in mm
- *
- * @param xyze A native (Cartesian) machine position
- */
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
   xyze_pos_t machine = xyze;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
@@ -3273,20 +3324,14 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
     TERN_(IS_KINEMATIC, TERN_(HAS_EXTRUDERS, position_cart.e = e));
 
     if (has_blocks_queued())
-      buffer_sync_block();
+      buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
     else
       stepper.set_axis_position(E_AXIS, position.e);
   }
 
 #endif
 
-/**
- * @brief Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
- * @details Update planner movement factors after a change to certain settings:
- *          - max_acceleration_steps_per_s2 from settings max_acceleration_mm_per_s2 * axis_steps_per_mm (M201, M92)
- *          - acceleration_long_cutoff based on the largest max_acceleration_steps_per_s2 (M201)
- *          - max_e_jerk for all extruders based on junction_deviation_mm (M205 J)
- */
+// Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::refresh_acceleration_rates() {
   uint32_t highest_rate = 1;
   LOOP_DISTINCT_AXES(i) {
@@ -3299,8 +3344,8 @@ void Planner::refresh_acceleration_rates() {
 }
 
 /**
- * @brief Recalculate 'position' and 'mm_per_step'.
- * @details Required whenever settings.axis_steps_per_mm changes!
+ * Recalculate 'position' and 'mm_per_step'.
+ * Must be called whenever settings.axis_steps_per_mm changes!
  */
 void Planner::refresh_positioning() {
   LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
