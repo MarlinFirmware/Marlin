@@ -797,19 +797,16 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   // Use intersection_distance() to calculate accel / braking time in order to
   // reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
+    plateau_steps = 0;
     const float accelerate_steps_float = CEIL(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
     accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
-    plateau_steps = 0;
+    decelerate_steps = block->step_event_count - accelerate_steps;
 
-    #if ENABLED(S_CURVE_ACCELERATION)
-      // We won't reach the cruising rate. Let's calculate the speed we will reach
-      cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
-    #endif
+    TERN_(S_CURVE_ACCELERATION, cruise_rate = final_speed(initial_rate, accel, accelerate_steps)); // Won't reach the cruising rate. Find the reachable speed.
   }
-  #if ENABLED(S_CURVE_ACCELERATION)
-    else // We have some plateau time, so the cruise rate will be the nominal rate
-      cruise_rate = block->nominal_rate;
-  #endif
+  else {
+    TERN_(S_CURVE_ACCELERATION, cruise_rate = block->nominal_rate) // With some plateau time the cruise rate will be the nominal rate
+  }
 
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
