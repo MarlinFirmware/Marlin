@@ -1554,12 +1554,10 @@
    * Endstops must be activated for this option to work.
    */
   //#define SD_ABORT_ON_ENDSTOP_HIT
-
-  /**
-   * Run custom G-Code when endstop hit occured.
-   */
-  //#define SD_ABORT_ON_ENDSTOP_HIT_CUSTOM_GCODE "M300 S1000 P500"
-
+  #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
+    //#define SD_ABORT_ON_ENDSTOP_HIT_CUSTOM_GCODE "M300 S1000 P500" //Run custom G-Code when endstop hit occured.
+  #endif
+  
   //#define SD_REPRINT_LAST_SELECTED_FILE // On print completion open the LCD Menu and select the same file
 
   //#define AUTO_REPORT_SD_STATUS         // Auto-report media status with 'M27 S<seconds>'
