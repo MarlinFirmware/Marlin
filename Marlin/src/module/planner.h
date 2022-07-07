@@ -280,6 +280,8 @@ typedef struct block_t {
     block_laser_t laser;
   #endif
 
+  void reset() { memset((char*)this, 0, sizeof(*this)); }
+
 } block_t;
 
 #if ANY(LIN_ADVANCE, SCARA_FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
@@ -369,6 +371,8 @@ struct PlannerHints {
                                       // i.e., at or below the exit speed of the segment that the planner
                                       // would calculate if it knew the as-yet-unbuffered path
   #endif
+
+  PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
 };
 
 class Planner {
@@ -774,7 +778,7 @@ class Planner {
      *  target      - target position in steps units
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
-     *  hints       - optional parameters to aid planner's calculations
+     *  hints       - parameters to aid planner calculations
      *
      * Returns true if movement was buffered, false otherwise
      */
@@ -796,7 +800,7 @@ class Planner {
      * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
      * @param fr_mm_s       (target) speed of the move
      * @param extruder      target extruder
-     * @param hints         optional parameters to aid planner's calculations
+     * @param hints         parameters to aid planner calculations
      *
      * @return  true if movement is acceptable, false otherwise
      */
@@ -830,13 +834,14 @@ class Planner {
      *
      *  a,b,c,e     - target positions in mm and/or degrees
      *  fr_mm_s     - (target) speed of the move
-     *  extruder    - target extruder
-     *  hints       - optional parameters to aid planner's calculations
+     *  extruder    - optional target extruder (otherwise active_extruder)
+     *  hints       - optional parameters to aid planner calculations
      */
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder
-      , const PlannerHints &hints = PlannerHints()
+      , const_feedRate_t fr_mm_s
+      , const uint8_t extruder=active_extruder
+      , const PlannerHints &hints=PlannerHints()
     );
 
   public:
@@ -848,11 +853,12 @@ class Planner {
      *
      *  cart         - target position in mm or degrees
      *  fr_mm_s      - (target) speed of the move (mm/s)
-     *  extruder     - target extruder
-     *  hints        - optional parameters to aid planner's calculations
+     *  extruder     - optional target extruder (otherwise active_extruder)
+     *  hints        - optional parameters to aid planner calculations
      */
-    static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s,
-      const uint8_t extruder=active_extruder, const PlannerHints &hints=PlannerHints()
+    static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
+      , const uint8_t extruder=active_extruder
+      , const PlannerHints &hints=PlannerHints()
     );
 
     #if ENABLED(DIRECT_STEPPING)

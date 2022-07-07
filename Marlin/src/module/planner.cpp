@@ -843,20 +843,22 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     /**
      * Laser Trapezoid Calculations
      *
-     * Approximate the trapezoid with the laser, incrementing the power every `trap_ramp_entry_incr` steps while accelerating,
-     * and decrementing the power every `trap_ramp_exit_decr` while decelerating, to keep power proportional to feedrate.
-     * Laser power trap will reduce the initial power to no less than the laser_power_floor value. Based on the number
-     * of calculated accel/decel steps the power is distributed over the trapezoid entry- and exit-ramp steps.
+     * Approximate the trapezoid with the laser, incrementing the power every `trap_ramp_entry_incr`
+     * steps while accelerating, and decrementing the power every `trap_ramp_exit_decr` while decelerating,
+     * to keep power proportional to feedrate. Laser power trap will reduce the initial power to no less
+     * than the laser_power_floor value. Based on the number of calculated accel/decel steps the power is
+     * distributed over the trapezoid entry- and exit-ramp steps.
      *
-     * trap_ramp_active_pwr - The active power is initially set at a reduced level factor of initial power / accel steps and
-     * will be additively incremented using a trap_ramp_entry_incr value for each accel step processed later in the stepper code.
-     * The trap_ramp_exit_decr value is calculated as power / decel steps and is also adjusted to no less than the power floor.
+     * trap_ramp_active_pwr - The active power is initially set at a reduced level factor of initial
+     * power / accel steps and will be additively incremented using a trap_ramp_entry_incr value for each
+     * accel step processed later in the stepper code. The trap_ramp_exit_decr value is calculated as
+     * power / decel steps and is also adjusted to no less than the power floor.
      *
-     * If the power == 0 the inline mode variables need to be set to zero to prevent stepper processing. The method allows
-     * for simpler non-powered moves like G0 or G28.
+     * If the power == 0 the inline mode variables need to be set to zero to prevent stepper processing.
+     * The method allows for simpler non-powered moves like G0 or G28.
      *
-     * Laser Trap Power works for all Jerk and Curve modes; however Arc-based moves will have issues since the segments are
-     * usually too small.
+     * Laser Trap Power works for all Jerk and Curve modes; however Arc-based moves will have issues since
+     * the segments are usually too small.
      */
     if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
       if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
@@ -1790,17 +1792,16 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 void Planner::synchronize() { while (busy()) idle(); }
 
 /**
- * Planner::_buffer_steps
+ * @brief Add a new linear movement to the planner queue (in terms of steps).
  *
- * Add a new linear movement to the planner queue (in terms of steps).
+ * @param target        Target position in steps units
+ * @param target_float  Target position in direct (mm, degrees) units.
+ * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
+ * @param fr_mm_s       (target) speed of the move
+ * @param extruder      target extruder
+ * @param hints         parameters to aid planner calculations
  *
- *  target        - target position in steps units
- *  target_float  - target position in direct (mm, degrees) units. optional
- *  fr_mm_s       - (target) speed of the move
- *  extruder      - target extruder
- *  hints         - optional parameters to aid planner's calculations
- *
- * Returns true if movement was properly queued, false otherwise (if cleaning)
+ * @return  true if movement was properly queued, false otherwise (if cleaning)
  */
 bool Planner::_buffer_steps(const xyze_long_t &target
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
@@ -1861,7 +1862,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
  * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
  * @param fr_mm_s       (target) speed of the move
  * @param extruder      target extruder
- * @param hints         optional parameters to aid planner's calculations
+ * @param hints         parameters to aid planner calculations
  *
  * @return  true if movement is acceptable, false otherwise
  */
@@ -2255,15 +2256,9 @@ bool Planner::_populate_block(
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (NUM_AXIS_GANG(
-         block->steps.x,
-      || block->steps.y,
-      || block->steps.z,
-      || block->steps.i,
-      || block->steps.j,
-      || block->steps.k,
-      || block->steps.u,
-      || block->steps.v,
-      || block->steps.w
+         block->steps.x, || block->steps.y, || block->steps.z,
+      || block->steps.i, || block->steps.j, || block->steps.k,
+      || block->steps.u, || block->steps.v, || block->steps.w
     )) powerManager.power_on();
   #endif
 
@@ -2574,29 +2569,17 @@ bool Planner::_populate_block(
     if (block->step_event_count <= acceleration_long_cutoff) {
       LOGICAL_AXIS_CODE(
         LIMIT_ACCEL_LONG(E_AXIS, E_INDEX_N(extruder)),
-        LIMIT_ACCEL_LONG(A_AXIS, 0),
-        LIMIT_ACCEL_LONG(B_AXIS, 0),
-        LIMIT_ACCEL_LONG(C_AXIS, 0),
-        LIMIT_ACCEL_LONG(I_AXIS, 0),
-        LIMIT_ACCEL_LONG(J_AXIS, 0),
-        LIMIT_ACCEL_LONG(K_AXIS, 0),
-        LIMIT_ACCEL_LONG(U_AXIS, 0),
-        LIMIT_ACCEL_LONG(V_AXIS, 0),
-        LIMIT_ACCEL_LONG(W_AXIS, 0)
+        LIMIT_ACCEL_LONG(A_AXIS, 0), LIMIT_ACCEL_LONG(B_AXIS, 0), LIMIT_ACCEL_LONG(C_AXIS, 0),
+        LIMIT_ACCEL_LONG(I_AXIS, 0), LIMIT_ACCEL_LONG(J_AXIS, 0), LIMIT_ACCEL_LONG(K_AXIS, 0),
+        LIMIT_ACCEL_LONG(U_AXIS, 0), LIMIT_ACCEL_LONG(V_AXIS, 0), LIMIT_ACCEL_LONG(W_AXIS, 0)
       );
     }
     else {
       LOGICAL_AXIS_CODE(
         LIMIT_ACCEL_FLOAT(E_AXIS, E_INDEX_N(extruder)),
-        LIMIT_ACCEL_FLOAT(A_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(B_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(C_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(I_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(J_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(K_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(U_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(V_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(W_AXIS, 0)
+        LIMIT_ACCEL_FLOAT(A_AXIS, 0), LIMIT_ACCEL_FLOAT(B_AXIS, 0), LIMIT_ACCEL_FLOAT(C_AXIS, 0),
+        LIMIT_ACCEL_FLOAT(I_AXIS, 0), LIMIT_ACCEL_FLOAT(J_AXIS, 0), LIMIT_ACCEL_FLOAT(K_AXIS, 0),
+        LIMIT_ACCEL_FLOAT(U_AXIS, 0), LIMIT_ACCEL_FLOAT(V_AXIS, 0), LIMIT_ACCEL_FLOAT(W_AXIS, 0)
       );
     }
   }
@@ -2661,7 +2644,10 @@ bool Planner::_populate_block(
       #if HAS_DIST_MM_ARG
         cart_dist_mm
       #else
-        LOGICAL_AXIS_ARRAY(steps_dist_mm.e, steps_dist_mm.x, steps_dist_mm.y, steps_dist_mm.z, steps_dist_mm.i, steps_dist_mm.j, steps_dist_mm.k, steps_dist_mm.u, steps_dist_mm.v, steps_dist_mm.w)
+        LOGICAL_AXIS_ARRAY(steps_dist_mm.e,
+          steps_dist_mm.x, steps_dist_mm.y, steps_dist_mm.z,
+          steps_dist_mm.i, steps_dist_mm.j, steps_dist_mm.k,
+          steps_dist_mm.u, steps_dist_mm.v, steps_dist_mm.w)
       #endif
     ;
 
@@ -2682,7 +2668,7 @@ bool Planner::_populate_block(
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
       float junction_cos_theta = LOGICAL_AXIS_GANG(
                                  + (-prev_unit_vec.e * unit_vec.e),
-                                   (-prev_unit_vec.x * unit_vec.x),
+                                 + (-prev_unit_vec.x * unit_vec.x),
                                  + (-prev_unit_vec.y * unit_vec.y),
                                  + (-prev_unit_vec.z * unit_vec.z),
                                  + (-prev_unit_vec.i * unit_vec.i),
@@ -2962,12 +2948,11 @@ bool Planner::_populate_block(
 } // _populate_block()
 
 /**
- * Planner::buffer_sync_block
- * Add a block to the buffer that just updates the position
- * @param sync_flag BLOCK_FLAG_SYNC_FANS & BLOCK_FLAG_LASER_PWR
- * Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.
+ * @brief Add a block to the buffer that just updates the position
+ *        Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.
+ *
+ * @param sync_flag  The sync flag to set, determining the type of sync the block will do
  */
-
 void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_POSITION*/) {
 
   // Wait for the next available block
@@ -2975,7 +2960,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   block_t * const block = get_next_free_block(next_buffer_head);
 
   // Clear block
-  memset(block, 0, sizeof(block_t));
+  block->reset();
   block->flag.apply(sync_flag);
 
   block->position = position;
@@ -3008,23 +2993,24 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
 } // buffer_sync_block()
 
 /**
- * Planner::buffer_segment
+ * @brief Add a single linear movement
  *
- * Add a new linear movement to the buffer in axis units.
+ * @description Add a new linear movement to the buffer in axis units.
+ *              Leveling and kinematics should be applied before calling this.
  *
- * Leveling and kinematics should be applied ahead of calling this.
+ * @param abce          Target position in mm and/or degrees
+ * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
+ * @param fr_mm_s       (target) speed of the move
+ * @param extruder      optional target extruder (otherwise active_extruder)
+ * @param hints         optional parameters to aid planner calculations
  *
- *  a,b,c,e     - target positions in mm and/or degrees
- *  fr_mm_s     - (target) speed of the move
- *  extruder    - target extruder
- *  hints       - optional parameters to aid planner's calculations
- *
- * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
+ * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/
-  , const PlannerHints &hints/* = PlannerHints()*/
+  , const_feedRate_t fr_mm_s
+  , const uint8_t extruder/*=active_extruder*/
+  , const PlannerHints &hints/*=PlannerHints()*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -3144,11 +3130,12 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  *
  *  cart            - target position in mm or degrees
  *  fr_mm_s         - (target) speed of the move (mm/s)
- *  extruder        - target extruder
- *  hints           - optional parameters to aid planner's calculations
+ *  extruder        - optional target extruder (otherwise active_extruder)
+ *  hints           - optional parameters to aid planner calculations
  */
 bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
-  , const uint8_t extruder/*=active_extruder*/, const PlannerHints &hints/*=PlannerHints()*/
+  , const uint8_t extruder/*=active_extruder*/
+  , const PlannerHints &hints/*=PlannerHints()*/
 ) {
   xyze_pos_t machine = cart;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));

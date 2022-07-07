@@ -1045,8 +1045,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     const xyze_float_t segment_distance = diff * inv_segments;
 
     // Add hints to help optimize the move
-    PlannerHints hints;
-    hints.millimeters = cartesian_mm * inv_segments;
+    PlannerHints hints(cartesian_mm * inv_segments);
     TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
     /*
@@ -1113,8 +1112,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       const xyze_float_t segment_distance = diff * inv_segments;
 
       // Add hints to help optimize the move
-      PlannerHints hints;
-      hints.millimeters = cartesian_mm * inv_segments;
+      PlannerHints hints(cartesian_mm * inv_segments);
       TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
