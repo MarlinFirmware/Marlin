@@ -810,7 +810,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     TERN_(S_CURVE_ACCELERATION, cruise_rate = final_speed(initial_rate, accel, accelerate_steps)); // Won't reach the cruising rate. Find the reachable speed.
   }
   else {
-    TERN_(S_CURVE_ACCELERATION, cruise_rate = block->nominal_rate) // With some plateau time the cruise rate will be the nominal rate
+    TERN_(S_CURVE_ACCELERATION, cruise_rate = block->nominal_rate); // With some plateau time the cruise rate will be the nominal rate
   }
 
   #if ENABLED(S_CURVE_ACCELERATION)

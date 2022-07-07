@@ -436,6 +436,7 @@ void DGUSScreenHandlerMKS::Level_Ctrl(DGUS_VP_Variable &var, void *val_ptr) {
   #if ENABLED(MESH_BED_LEVELING)
     auto cs = getCurrentScreen();
   #endif
+  const uint16_t lev_but = BE16_P(val_ptr);
   switch (lev_but) {
     case 0:
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -589,6 +590,7 @@ void DGUSScreenHandlerMKS::SD_FileBack(DGUS_VP_Variable&, void*) {
 
 void DGUSScreenHandlerMKS::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
 
+  const uint16_t lcd_value = BE16_P(val_ptr);
   lcd_default_light = constrain(lcd_value, 10, 100);
 
   const uint16_t lcd_data[2] = { lcd_default_light, lcd_default_light };
