@@ -544,6 +544,10 @@ void Endstops::event_handler() {
         card.abortFilePrintNow();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
+        #ifdef SD_ABORT_ON_ENDSTOP_HIT_CUSTOM_GCODE
+          queue.clear();
+          queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_CUSTOM_GCODE));
+        #endif
         print_job_timer.stop();
       }
     #endif
