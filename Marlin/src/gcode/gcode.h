@@ -886,7 +886,7 @@ private:
     static void M250_report(const bool forReplay=true);
   #endif
 
-  #if HAS_DISPLAY_SLEEP
+  #if HAS_GCODE_M255
     static void M255();
     static void M255_report(const bool forReplay=true);
   #endif
