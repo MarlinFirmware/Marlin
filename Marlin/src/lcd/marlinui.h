@@ -32,10 +32,6 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
-  #define HAS_ENCODER_ACTION 1
-#endif
-
 #if E_MANUAL > 1
   #define MULTI_E_MANUAL 1
 #endif
@@ -273,8 +269,8 @@ public:
   #endif
 
   #if LCD_BACKLIGHT_TIMEOUT
-    #define LCD_BKL_TIMEOUT_MIN 1
-    #define LCD_BKL_TIMEOUT_MAX (60*60*18) // 18 hours max within uint16_t
+    #define LCD_BKL_TIMEOUT_MIN 1u
+    #define LCD_BKL_TIMEOUT_MAX UINT16_MAX // Slightly more than 18 hours
     static uint16_t lcd_backlight_timeout;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
