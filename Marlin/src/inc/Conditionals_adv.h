@@ -561,14 +561,14 @@
 #endif
 
 // Probe Temperature Compensation
-#if !TEMP_SENSOR_PROBE
-  #undef PTC_PROBE
+#if !TEMP_SENSOR_PROBE && ENABLED(PTC_PROBE)
+  #error "PTC_PROBE requires a probe with a thermistor. Please update your configuration."
 #endif
-#if !TEMP_SENSOR_BED
-  #undef PTC_BED
+#if !TEMP_SENSOR_BED && ENABLED(PTC_BED)
+  #error "PTC_BED requires a bed with a thermistor. Please update your configuration."
 #endif
-#if !HAS_EXTRUDERS
-  #undef PTC_HOTEND
+#if !HAS_EXTRUDERS && ENABLED(PTC_HOTEND)
+  #error "PTC_HOTEND requires a hotend with a thermistor. Please update your configuration."
 #endif
 #if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   #define HAS_PTC 1
