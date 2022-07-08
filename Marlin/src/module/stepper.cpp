@@ -1958,14 +1958,15 @@ uint32_t Stepper::block_phase_isr() {
           else if (LA_steps) nextAdvanceISR = 0;
         #endif
 
-        /*
+        /**
          * Adjust Laser Power - Accelerating
-         * isPowered - True when a move is powered.
-         * isEnabled - laser power is active.
-         * Laser power variables are calulated and stored in this block by the planner code.
          *
-         * trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
-         * trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
+         *  isPowered - True when a move is powered.
+         *  isEnabled - laser power is active.
+         *
+         * Laser power variables are calulated and stored in this block by the planner code.
+         *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
+         *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
          *
          * Apply the starting active power and then increase power per step by the trap_ramp_entry_incr value if positive.
          */
@@ -1988,6 +1989,7 @@ uint32_t Stepper::block_phase_isr() {
         uint32_t step_rate;
 
         #if ENABLED(S_CURVE_ACCELERATION)
+
           // If this is the 1st time we process the 2nd half of the trapezoid...
           if (!bezier_2nd_half) {
             // Initialize the Bézier speed curve
@@ -2002,6 +2004,7 @@ uint32_t Stepper::block_phase_isr() {
               ? _eval_bezier_curve(deceleration_time)
               : current_block->final_rate;
           }
+
         #else
           // Using the old trapezoidal control
           step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
@@ -2011,9 +2014,8 @@ uint32_t Stepper::block_phase_isr() {
           }
           else
             step_rate = current_block->final_rate;
-        #endif
 
-        // step_rate is in steps/second
+        #endif
 
         // step_rate to timer interval and steps per stepper isr
         interval = calc_timer_interval(step_rate, &steps_per_isr);
@@ -2065,10 +2067,10 @@ uint32_t Stepper::block_phase_isr() {
         interval = ticks_nominal;
       }
 
-      /* Adjust Laser Power - Cruise
+      /**
+       * Adjust Laser Power - Cruise
        * power - direct or floor adjusted active laser power.
        */
-
       #if ENABLED(LASER_POWER_TRAP)
         if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
           if (step_events_completed + 1 == accelerate_until) {
@@ -2086,7 +2088,7 @@ uint32_t Stepper::block_phase_isr() {
     }
 
     #if ENABLED(LASER_FEATURE)
-      /*
+      /**
        * CUTTER_MODE_DYNAMIC is experimental and developing.
        * Super-fast method to dynamically adjust the laser power OCR value based on the input feedrate in mm-per-minute.
        * TODO: Set up Min/Max OCR offsets to allow tuning and scaling of various lasers.
@@ -2103,9 +2105,8 @@ uint32_t Stepper::block_phase_isr() {
   }
   else { // !current_block
     #if ENABLED(LASER_FEATURE)
-      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
         cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
-      }
     #endif
   }
 
