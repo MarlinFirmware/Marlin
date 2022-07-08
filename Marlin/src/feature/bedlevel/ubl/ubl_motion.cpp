@@ -374,11 +374,12 @@
     #endif
 
     NOLESS(segments, 1U);                                                            // Must have at least one segment
-    const float inv_segments = 1.0f / segments,                                      // Reciprocal to save calculation
-                segment_xyz_mm = SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments;    // Length of each segment
+    const float inv_segments = 1.0f / segments;                                      // Reciprocal to save calculation
 
+    // Add hints to help optimize the move
+    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);             // Length of each segment
     #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float inv_duration = scaled_fr_mm_s / segment_xyz_mm;
+      hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
 
     xyze_float_t diff = total * inv_segments;
@@ -392,13 +393,9 @@
     if (!planner.leveling_active || !planner.leveling_active_at_z(destination.z)) {
       while (--segments) {
         raw += diff;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-        );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
       }
-      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-      );
+      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
       return false; // Did not set current from destination
     }
 
@@ -467,7 +464,7 @@
           TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
 
         const float oldz = raw.z; raw.z += z_cxcy;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration) );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
         raw.z = oldz;
 
         if (segments == 0)                        // done with last segment
