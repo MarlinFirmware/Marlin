@@ -560,16 +560,6 @@
   #endif
 #endif
 
-// Probe Temperature Compensation
-#if !TEMP_SENSOR_PROBE
-  #undef PTC_PROBE
-#endif
-#if !TEMP_SENSOR_BED
-  #undef PTC_BED
-#endif
-#if !HAS_EXTRUDERS
-  #undef PTC_HOTEND
-#endif
 #if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   #define HAS_PTC 1
 #endif
