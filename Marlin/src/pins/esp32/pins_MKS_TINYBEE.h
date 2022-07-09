@@ -115,7 +115,7 @@
 //
 // ADC Reference Voltage
 //
-#define ADC_REFERENCE_VOLTAGE                  2.5  // 2.5V reference VDDA
+#define ADC_REFERENCE_VOLTAGE                  2.565  // 2.5V reference VDDA
 
 /**
  *                ------                                 ------

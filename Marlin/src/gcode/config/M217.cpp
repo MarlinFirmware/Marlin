@@ -174,14 +174,12 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
         #if HAS_Y_AXIS
           , SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y)
         #endif
-        #if HAS_I_AXIS
-          , SP_I_STR, LINEAR_UNIT(toolchange_settings.change_point.i)
-        #endif
-        #if HAS_J_AXIS
-          , SP_J_STR, LINEAR_UNIT(toolchange_settings.change_point.j)
-        #endif
-        #if HAS_K_AXIS
-          , SP_K_STR, LINEAR_UNIT(toolchange_settings.change_point.k)
+        #if SECONDARY_AXES >= 1
+          , LIST_N(DOUBLE(SECONDARY_AXES),
+              SP_I_STR, I_AXIS_UNIT(toolchange_settings.change_point.i),
+              SP_J_STR, J_AXIS_UNIT(toolchange_settings.change_point.j),
+              SP_K_STR, K_AXIS_UNIT(toolchange_settings.change_point.k)
+            )
         #endif
       );
     }

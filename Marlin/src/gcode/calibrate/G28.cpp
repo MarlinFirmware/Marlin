@@ -169,7 +169,7 @@
       motion_state.jerk_state = planner.max_jerk;
       planner.max_jerk.set(0, 0 OPTARG(DELTA, 0));
     #endif
-    planner.reset_acceleration_rates();
+    planner.refresh_acceleration_rates();
     return motion_state;
   }
 
@@ -178,7 +178,7 @@
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
     TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
     TERN_(HAS_CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
-    planner.reset_acceleration_rates();
+    planner.refresh_acceleration_rates();
   }
 
 #endif // IMPROVE_HOMING_RELIABILITY
@@ -460,9 +460,11 @@ void GcodeSuite::G28() {
       }
     #endif
 
-    TERN_(HAS_I_AXIS, if (doI) homeaxis(I_AXIS));
-    TERN_(HAS_J_AXIS, if (doJ) homeaxis(J_AXIS));
-    TERN_(HAS_K_AXIS, if (doK) homeaxis(K_AXIS));
+    SECONDARY_AXIS_CODE(
+      if (doI) homeaxis(I_AXIS),
+      if (doJ) homeaxis(J_AXIS),
+      if (doK) homeaxis(K_AXIS)
+    );
 
     sync_plan_position();
 

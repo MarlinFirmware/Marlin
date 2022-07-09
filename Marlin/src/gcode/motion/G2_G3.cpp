@@ -168,12 +168,7 @@ void plan_arc(
 
   // Return if the move is near zero
   if (flat_mm < 0.0001f
-    GANG_N(SUB2(LINEAR_AXES),
-      && travel_L < 0.0001f,
-      && travel_I < 0.0001f,
-      && travel_J < 0.0001f,
-      && travel_K < 0.0001f
-    )
+    GANG_N(SUB2(LINEAR_AXES), && travel_L < 0.0001f, && travel_I < 0.0001f, && travel_J < 0.0001f, && travel_K < 0.0001f)
   ) return;
 
   // Feedrate for the move, scaled by the feedrate multiplier
@@ -291,7 +286,7 @@ void plan_arc(
         // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
         // To reduce stuttering, the sin and cos could be computed at different times.
         // For now, compute both at the same time.
-        const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
+        const float Ti = i * theta_per_segment, cos_Ti = cos(Ti), sin_Ti = sin(Ti);
         rvec.a = -offset[0] * cos_Ti + offset[1] * sin_Ti;
         rvec.b = -offset[0] * sin_Ti - offset[1] * cos_Ti;
       }

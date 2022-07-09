@@ -54,9 +54,9 @@ struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_GANG(E,V...) LINEAR_AXIS_GANG(V) GANG_ITEM_E(E)
 #define LOGICAL_AXIS_CODE(E,V...) LINEAR_AXIS_CODE(V) CODE_ITEM_E(E)
 #define LOGICAL_AXIS_LIST(E,V...) LINEAR_AXIS_LIST(V) LIST_ITEM_E(E)
-#define LOGICAL_AXIS_LIST_1(E,V)  LINEAR_AXIS_LIST_1(V) LIST_ITEM_E(E)
+#define LOGICAL_AXIS_LIST_1(V)    LINEAR_AXIS_LIST_1(V) LIST_ITEM_E(V)
 #define LOGICAL_AXIS_ARRAY(E,V...) { LOGICAL_AXIS_LIST(E,V) }
-#define LOGICAL_AXIS_ARRAY_1(E,V)  { LOGICAL_AXIS_LIST_1(E,V) }
+#define LOGICAL_AXIS_ARRAY_1(V)    { LOGICAL_AXIS_LIST_1(V) }
 #define LOGICAL_AXIS_ARGS(T...) LOGICAL_AXIS_LIST(T e, T x, T y, T z, T i, T j, T k)
 #define LOGICAL_AXIS_ELEM(O)    LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k)
 #define LOGICAL_AXIS_DECL(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V)
@@ -65,6 +65,12 @@ struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_MAP(F)     MAP(F, LOGICAL_AXIS_NAMES)
 
 #define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K)
+
+#define XYZ_GANG(V...) GANG_N(PRIMARY_LINEAR_AXES, V)
+#define XYZ_CODE(V...) CODE_N(PRIMARY_LINEAR_AXES, V)
+
+#define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
+#define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
 
 #if HAS_EXTRUDERS
   #define LIST_ITEM_E(N) , N
@@ -126,9 +132,9 @@ typedef struct AxisFlags {
   void set(const int n, const bool onoff)  { flags.set(n, onoff); }
   void clear(const int n)                  { flags.clear(n); }
   bool test(const int n) const             { return flags.test(n); }
-        bool operator[](const int n)       { return flags[n]; }
-  const bool operator[](const int n) const { return flags[n]; }
-  const int size() const                   { return sizeof(flags); }
+  bool operator[](const int n)             { return flags[n]; }
+  bool operator[](const int n) const       { return flags[n]; }
+  int size() const                         { return sizeof(flags); }
 } axis_flags_t;
 
 //
@@ -451,7 +457,7 @@ template<typename T>
 struct XYZval {
   union {
     struct { T LINEAR_AXIS_ARGS(); };
-    struct { T LINEAR_AXIS_LIST(a, b, c, u, v, w); };
+    struct { T LINEAR_AXIS_LIST(a, b, c, _i, _j, _k); };
     T pos[LINEAR_AXES];
   };
 
@@ -466,11 +472,11 @@ struct XYZval {
   FI void set(const T (&arr)[XY])                      { x = arr[0]; y = arr[1]; }
   #if HAS_Z_AXIS
     FI void set(const T (&arr)[LINEAR_AXES])           { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5]); }
-    FI void set(LINEAR_AXIS_ARGS(const T))             { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      u = i,      v = j,      w = k    ); }
+    FI void set(LINEAR_AXIS_ARGS(const T))             { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,     _i = i,     _j = j,     _k = k); }
   #endif
   #if LOGICAL_AXES > LINEAR_AXES
     FI void set(const T (&arr)[LOGICAL_AXES])          { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5]); }
-    FI void set(LOGICAL_AXIS_ARGS(const T))            { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      u = i,      v = j,      w = k    ); }
+    FI void set(LOGICAL_AXIS_ARGS(const T))            { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,     _i = i,     _j = j,     _k = k); }
     #if DISTINCT_AXES > LOGICAL_AXES
       FI void set(const T (&arr)[DISTINCT_AXES])       { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5]); }
     #endif
@@ -597,7 +603,7 @@ template<typename T>
 struct XYZEval {
   union {
     struct { T LOGICAL_AXIS_ARGS(); };
-    struct { T LOGICAL_AXIS_LIST(_e, a, b, c, u, v, w); };
+    struct { T LOGICAL_AXIS_LIST(_e, a, b, c, _i, _j, _k); };
     T pos[LOGICAL_AXES];
   };
   // Reset all to 0
@@ -619,13 +625,13 @@ struct XYZEval {
   FI void set(const XYval<T> pxy)                  { x = pxy.x; y = pxy.y; }
   FI void set(const XYZval<T> pxyz)                { set(LINEAR_AXIS_ELEM(pxyz)); }
   #if HAS_Z_AXIS
-    FI void set(LINEAR_AXIS_ARGS(const T))         { LINEAR_AXIS_CODE(a = x, b = y, c = z, u = i, v = j, w = k); }
+    FI void set(LINEAR_AXIS_ARGS(const T))         { LINEAR_AXIS_CODE(a = x, b = y, c = z, _i = i, _j = j, _k = k); }
   #endif
   FI void set(const XYval<T> pxy, const T pz)      { set(pxy); TERN_(HAS_Z_AXIS, z = pz); }
   #if LOGICAL_AXES > LINEAR_AXES
     FI void set(const XYval<T> pxy, const T pz, const T pe) { set(pxy, pz); e = pe; }
     FI void set(const XYZval<T> pxyz, const T pe)  { set(pxyz); e = pe; }
-    FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, u = i, v = j, w = k); }
+    FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, _i = i, _j = j, _k = k); }
   #endif
 
   // Length reduced to one dimension
