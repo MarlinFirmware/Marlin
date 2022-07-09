@@ -1850,10 +1850,10 @@ void DWIN_CopySettingsFrom(const char * const buff) {
   #endif
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     leds.set_color(
-      (HMI_data.LED_Color >> 16) & 0xFF,
-      (HMI_data.LED_Color >>  8) & 0xFF,
-      (HMI_data.LED_Color >>  0) & 0xFF
-      OPTARG(HAS_WHITE_LED, (HMI_data.LED_Color >> 24) & 0xFF)
+      HMI_data.Led_Color.r,
+      HMI_data.Led_Color.g,
+      HMI_data.Led_Color.b
+      OPTARG(HAS_WHITE_LED, HMI_data.Led_Color.w)
     );
     leds.update();
   #endif
@@ -2264,7 +2264,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     }
   #endif
   #if HAS_COLOR_LEDS
-    void ApplyLEDColor() { HMI_data.LED_Color = TERN0(HAS_WHITE_LED, (leds.color.w << 24)) | (leds.color.r << 16) | (leds.color.g << 8) | leds.color.b; }
+    void ApplyLEDColor() { HMI_data.Led_Color = TERN(HAS_WHITE_LED, LEDColor({0, 0, 0, leds.color.w}), LEDColor({leds.color.r, leds.color.g, leds.color.b})); }
     void LiveLEDColor(uint8_t *color) { *color = MenuData.Value; leds.update(); }
     void LiveLEDColorR() { LiveLEDColor(&leds.color.r); }
     void LiveLEDColorG() { LiveLEDColor(&leds.color.g); }

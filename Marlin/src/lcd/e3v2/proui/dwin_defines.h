@@ -69,7 +69,7 @@
 #define HAS_ESDIAG 1
 
 #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-  #define Def_Leds_Color 0xFFFFFFFF
+  #define Def_Leds_Color      LEDColorWhite()
 #endif
 #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
   #define Def_CaseLight_Brightness 255
@@ -115,12 +115,16 @@ typedef struct {
     bool Baud115K = false;
   #endif
   bool FullManualTramming = false;
-  // Led
   #if ENABLED(MESH_BED_LEVELING)
     float ManualZOffset = 0;
   #endif
+  // Led
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    uint32_t LED_Color = Def_Leds_Color;
+    LEDColor Led_Color = Def_Leds_Color;
+  #endif
+  // Case Light
+  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+    uint8_t CaseLight_Brightness = Def_CaseLight_Brightness;
   #endif
 } HMI_data_t;
 
