@@ -241,11 +241,11 @@ def Upload(source, target, env):
         #echologger = MarlinBinaryProtocol.EchoProtocol(protocol)
         protocol.connect()
         filetransfer = MarlinBinaryProtocol.FileTransferProtocol(protocol)
-        filetransfer.copy(upload_firmware_source_name, upload_firmware_target_name, upload_compression, upload_test)
+        transferOK = filetransfer.copy(upload_firmware_source_name, upload_firmware_target_name, upload_compression, upload_test)
         protocol.disconnect()
 
         # Notify upload completed
-        protocol.send_ascii('M117 Firmware uploaded')
+        protocol.send_ascii('M117 Firmware uploaded' if transferOK else 'M117 Firmware upload failed')
 
         # Remount SD card
         print('Wait for SD card release...')
@@ -254,12 +254,12 @@ def Upload(source, target, env):
         protocol.send_ascii('M21')
 
         # Trigger firmware update
-        if upload_reset:
+        if transferOK and upload_reset:
             print('Trigger firmware update...')
             protocol.send_ascii('M997', True)
 
         protocol.shutdown()
-        print('Firmware update completed')
+        print('Firmware update completed' if transferOK else 'Firmware update failed')
 
     except KeyboardInterrupt:
         if port: port.close()
