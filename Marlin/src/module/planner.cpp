@@ -821,7 +821,6 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5);
       accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
       decelerate_steps = block->step_event_count - accelerate_steps;
-      plateau_steps = 0;
 
       #if ENABLED(S_CURVE_ACCELERATION)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
