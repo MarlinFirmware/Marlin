@@ -825,18 +825,20 @@ void MarlinUI::init() {
           // previous invocation is being blocked. Modifications to offset shouldn't be made while
           // processing is true or the planner will get out of sync.
           processing = true;
-          prepare_internal_move_to_destination(fr
-            OPTARG(HAS_ROTATIONAL_AXES, fr)
-          );  // will set current_position from destination
+          prepare_internal_move_to_destination(fr OPTARG(HAS_ROTATIONAL_AXES, fr));  // will set current_position from destination
           processing = false;
 
         #else
 
+          #if HAS_ROTATIONAL_AXES
+            PlannerHints hints;
+            hints.fr_deg_s = fr;
+          #endif
+
           // For Cartesian / Core motion simply move to the current_position
-          planner.buffer_line(current_position
-            OPTARG(HAS_ROTATIONAL_AXES, fr)
-            , fr
+          planner.buffer_line(current_position, fr
             , TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+            OPTARG(HAS_ROTATIONAL_AXES, hints)
           );
 
           //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr);

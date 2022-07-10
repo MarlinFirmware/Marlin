@@ -966,6 +966,9 @@
 #else
   #define ROTATIONAL_AXES 0
 #endif
+#if ROTATIONAL_AXES
+  #define HAS_ROTATIONAL_AXES 1
+#endif
 
 /**
  * Number of Secondary Linear Axes (e.g., UVW)

@@ -110,13 +110,7 @@ void GcodeSuite::G38(const int8_t subcode) {
 
   remember_feedrate_scaling_off();
 
-  const bool error_on_fail =
-    #if ENABLED(G38_PROBE_AWAY)
-      !TEST(subcode, 0)
-    #else
-      (subcode == 2)
-    #endif
-  ;
+  const bool error_on_fail = TERN(G38_PROBE_AWAY, !TEST(subcode, 0), subcode == 2);
 
   // If any axis has enough movement, do the move
   LOOP_NUM_AXES(i)
@@ -124,6 +118,7 @@ void GcodeSuite::G38(const int8_t subcode) {
       if (!parser.seenval('F')) {
         feedrate_mm_s = homing_feedrate((AxisEnum)i);
         TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = homing_feedrate((AxisEnum)i));
+      }
       // If G38.2 fails throw an error
       if (!G38_run_probe() && error_on_fail) SERIAL_ERROR_MSG("Failed to reach target");
       break;

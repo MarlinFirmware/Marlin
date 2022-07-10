@@ -39,7 +39,9 @@ extern xyze_pos_t destination;
 
 #if ENABLED(VARIABLE_G0_FEEDRATE)
   feedRate_t fast_move_feedrate = MMM_TO_MMS(G0_FEEDRATE);
-  TERN_(HAS_ROTATIONAL_AXES, feedRate_t fast_move_angular_feedrate = MMM_TO_MMS(G0_ANGULAR_FEEDRATE));
+  #if HAS_ROTATIONAL_AXES
+    feedRate_t fast_move_angular_feedrate = DPM_TO_DPS(G0_ANGULAR_FEEDRATE);
+  #endif
 #endif
 
 /**
@@ -67,7 +69,9 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
 
     #ifdef G0_FEEDRATE
       feedRate_t old_feedrate;
-      TERN_(HAS_ROTATIONAL_AXES, feedRate_t old_angular_feedrate);
+      #if HAS_ROTATIONAL_AXES
+        feedRate_t old_angular_feedrate;
+      #endif
       #if ENABLED(VARIABLE_G0_FEEDRATE)
         if (fast_move) {
           old_feedrate = feedrate_mm_s;                                         // Back up the (old) motion mode feedrate
@@ -92,7 +96,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
           feedrate_mm_s = MMM_TO_MMS(G0_FEEDRATE);                              // Get the fixed G0 feedrate
           #if HAS_ROTATIONAL_AXES
             old_angular_feedrate = feedrate_deg_s;                              // Back up the (new) motion mode angular feedrate
-            feedrate_deg_s = MMM_TO_MMS(G0_ANGULAR_FEEDRATE);                   // Get the fixed G0 angular feedrate
+            feedrate_deg_s = DPM_TO_DPS(G0_ANGULAR_FEEDRATE);                   // Get the fixed G0 angular feedrate
           #endif
         #endif
       }

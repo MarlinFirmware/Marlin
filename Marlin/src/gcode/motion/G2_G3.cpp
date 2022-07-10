@@ -195,7 +195,7 @@ void plan_arc(
   ) return;
 
   // Feedrate for the move, scaled by the feedrate multiplier
-  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  const feedRate_t scaled_fr_mm_s = FR_SCALED(feedrate_mm_s);
 
   // Get the ideal segment length for the move based on settings
   const float ideal_segment_mm = (
