@@ -1843,11 +1843,6 @@ void DWIN_CopySettingsFrom(const char * const buff) {
   TERN_(PREVENT_COLD_EXTRUSION, ApplyExtMinT());
   feedrate_percentage = 100;
   TERN_(BAUD_RATE_GCODE, HMI_SetBaudRate());
-  #if BOTH(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
-    // Apply Case light brightness
-    caselight.brightness = HMI_data.CaseLight_Brightness;
-    caselight.update_brightness();
-  #endif
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     leds.set_color(
       HMI_data.Led_Color.r,

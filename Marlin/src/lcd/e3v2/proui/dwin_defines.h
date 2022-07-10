@@ -71,9 +71,6 @@
 #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
 #endif
-#if ENABLED(CASELIGHT_USES_BRIGHTNESS)
-  #define Def_CaseLight_Brightness 255
-#endif
 
 typedef struct {
   // Color settings
@@ -121,10 +118,6 @@ typedef struct {
   // Led
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
-  #endif
-  // Case Light
-  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
-    uint8_t CaseLight_Brightness = Def_CaseLight_Brightness;
   #endif
 } HMI_data_t;
 
