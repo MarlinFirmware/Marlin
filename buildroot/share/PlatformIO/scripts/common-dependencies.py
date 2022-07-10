@@ -251,3 +251,30 @@ if pioutil.is_pio_build():
 
 	from signature import compute_build_signature
 	compute_build_signature(env)
+		
+	def config_dump_target(*args, **kwargs):
+		if 'BUILD_SIGNATURE' not in env:
+			print("Can't generate config dump")
+			return
+		
+		opt_output = True
+		key = 'config-dump'
+		output_suffix = '.sh'
+		outfile = open('./' + key + output_suffix, 'w')
+		for k, v in env['BUILD_SIGNATURE'].items():
+			if opt_output:
+				if v != '':
+					if '"' in v:
+						v = "'%s'" % v
+					elif ' ' in v:
+						v = '"%s"' % v
+					define = 'opt_set ' + k + ' ' + v + '\n'
+				else:
+					define = 'opt_enable ' + k + '\n'
+			else:
+				define = '#define ' + k + ' ' + v + '\n'
+			print(define)
+			outfile.write(define)
+		outfile.close()
+
+	env.AddCustomTarget("dump-config", None, config_dump_target)

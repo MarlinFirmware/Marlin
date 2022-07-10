@@ -109,9 +109,6 @@ def compute_build_signature(env):
 
 		defines[key] = value if len(value) else ""
 
-	if not 'CONFIGURATION_EMBEDDING' in defines:
-		return
-
 	# Second step is to filter useless macro
 	resolved_defines = {}
 	for key in defines:
@@ -130,6 +127,10 @@ def compute_build_signature(env):
 
 		# Don't be that smart guy here
 		resolved_defines[key] = defines[key]
+
+	env['BUILD_SIGNATURE'] = resolved_defines
+	if not 'CONFIGURATION_EMBEDDING' in defines:
+		return
 
 	# Generate a build signature now
 	# We are making an object that's a bit more complex than a basic dictionary here
