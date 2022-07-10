@@ -2381,6 +2381,7 @@ uint32_t Stepper::block_phase_isr() {
 
       // Calculate the initial timer interval
       interval = calc_timer_interval(current_block->initial_rate << oversampling_factor, &steps_per_isr);
+      acceleration_time += interval;
 
       #if ENABLED(LIN_ADVANCE)
         if (la_advance_rate) {
