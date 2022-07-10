@@ -108,7 +108,7 @@
   #include "../../../module/probe.h"
 #endif
 
-#ifdef BLTOUCH_HS_MODE
+#ifdef BLTOUCH
   #include "../../../feature/bltouch.h"
 #endif
 
