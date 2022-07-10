@@ -1204,6 +1204,7 @@
   #define DEFAULT_ANGULAR_ACCELERATION        3000  // I, J, K acceleration for rotational-only printing moves
   #define DEFAULT_ANGULAR_TRAVEL_ACCELERATION 3000  // I, J, K acceleration for rotational-only travel (non printing) moves
 #endif
+
 /**
  * Default Jerk limits (mm/s)
  * Override with M205 X Y Z . . . E

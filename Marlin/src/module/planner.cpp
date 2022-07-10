@@ -2150,13 +2150,23 @@ bool Planner::_populate_block(
       block->millimeters = hints.millimeters;
     else {
       /**
-       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of NIST
-       * RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
-       * Assume that X, Y, Z are the primary linear axes and U, V, W are secondary linear axes and A, B, C are
-       * rotational axes. Then dX, dY, dZ are the displacements of the primary linear axes and dU, dV, dW are the displacements of linear axes and
-       * dA, dB, dC are the displacements of rotational axes.
-       * The time it takes to execute a move command with feedrate F is t = D/F plus any time for acceleration and deceleration.
+       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of
+       * NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
+       *
+       * Assume:
+       *   - X, Y, Z are the primary linear axes;
+       *   - U, V, W are secondary linear axes;
+       *   - A, B, C are rotational axes.
+       *
+       * Then:
+       *   - dX, dY, dZ are the displacements of the primary linear axes;
+       *   - dU, dV, dW are the displacements of linear axes;
+       *   - dA, dB, dC are the displacements of rotational axes.
+       *
+       * The time it takes to execute a move command with feedrate F is t = D/F,
+       * plus any time for acceleration and deceleration.
        * Here, D is the total distance, calculated as follows:
+       *
        *   D^2 = dX^2 + dY^2 + dZ^2
        *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
        *     D^2 = dU^2 + dV^2 + dW^2
@@ -2343,24 +2353,11 @@ bool Planner::_populate_block(
     }
   #endif // HAS_EXTRUDERS
 
-  if (esteps)
-    #if HAS_ROTATIONAL_AXES
-      if (cartesian_move)
-        NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
-      else
-        NOLESS(fr_mm_s, settings.min_feedrate_deg_s);
-    #else
-      NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
-    #endif
-  else
-    #if HAS_ROTATIONAL_AXES
-      if (cartesian_move)
-        NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
-      else
-        NOLESS(fr_mm_s, settings.min_travel_feedrate_deg_s);
-    #else
-        NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
-    #endif
+  // Keep the feedrate above the minimum
+  NOLESS(fr_mm_s,
+    esteps ? (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.min_feedrate_deg_s :) settings.min_feedrate_mm_s)
+           : (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.min_travel_feedrate_deg_s :) settings.min_travel_feedrate_mm_s)
+  );
 
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
@@ -2563,12 +2560,11 @@ bool Planner::_populate_block(
     }while(0)
 
     // Start with print or travel acceleration
-    #if HAS_ROTATIONAL_AXES
-      accel = CEIL((esteps ? (cartesian_move ? settings.acceleration : settings.angular_acceleration) : ( cartesian_move ? settings.angular_travel_acceleration : settings.travel_acceleration)) * steps_per_mm);
-    #else
-      accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
+    accel = CEIL(steps_per_mm * (
+      esteps ? (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.angular_acceleration :) settings.acceleration)
+             : (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.angular_travel_acceleration :) settings.travel_acceleration)
+    ));
 
-    #endif
     #if ENABLED(LIN_ADVANCE)
       // Linear advance is currently not ready for HAS_I_AXIS
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)

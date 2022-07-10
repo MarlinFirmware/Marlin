@@ -176,8 +176,7 @@ void GcodeSuite::get_destination_from_command() {
   xyze_bool_t seen{false};
   
   #if HAS_ROTATIONAL_AXES
-    bool seen_rotational_axes = false;
-    bool seen_linear_axes = false;
+    bool seen_rotational_axes = false, seen_linear_axes = false;
   #endif
 
   #if ENABLED(CANCEL_OBJECTS)
@@ -195,7 +194,7 @@ void GcodeSuite::get_destination_from_command() {
         else
           seen_linear_axes = true;
       }
-      #endif
+    #endif
 
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
