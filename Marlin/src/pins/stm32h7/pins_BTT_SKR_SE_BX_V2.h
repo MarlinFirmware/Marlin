@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,8 @@
  */
 #pragma once
 
-/********************************************************************************
- * @file     lcd/e3v2/jyersui/dwin_lcd.h
- * @brief    DWIN screen control functions
- ********************************************************************************/
+#define BOARD_INFO_NAME      "BTT SKR SE BX V2.0"
 
-#include "../common/dwin_api.h"
+#define SAFE_POWER_PIN                      PI11
 
-// Draw the degree (°) symbol
-// Color: color
-//  x/y: Upper-left coordinate of the first pixel
-void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y);
+#include "pins_BTT_SKR_SE_BX_common.h"

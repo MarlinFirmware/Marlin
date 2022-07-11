@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,27 +21,6 @@
  */
 #pragma once
 
-#include "Gpio.h"
+#define BOARD_INFO_NAME      "BTT SKR SE BX V3.0"
 
-struct LowpassFilter {
-  uint64_t data_delay = 0;
-  uint16_t update(uint16_t value) {
-    data_delay += value - (data_delay >> 6);
-    return uint16_t(data_delay >> 6);
-  }
-};
-
-class Heater: public Peripheral {
-public:
-  Heater(pin_t heater, pin_t adc);
-  virtual ~Heater();
-  void interrupt(GpioEvent ev);
-  void update();
-
-  pin_t heater_pin, adc_pin;
-  uint16_t room_temp_raw;
-  uint16_t heater_state;
-  LowpassFilter pwmcap;
-  double heat;
-  uint64_t last;
-};
+#include "pins_BTT_SKR_SE_BX_common.h"

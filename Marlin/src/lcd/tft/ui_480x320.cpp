@@ -388,8 +388,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     }
   #endif
 
-  extern screenFunc_t _manual_move_func_ptr;
-  if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
+  if (ui.can_show_slider()) {
 
     #define SLIDER_LENGTH 336
     #define SLIDER_Y_POSITION 186

@@ -79,6 +79,10 @@
   #define SERVO_DELAY { 50 }
 #endif
 
+#if !HAS_STOWABLE_PROBE
+  #undef PROBE_DEPLOY_STOW_MENU
+#endif
+
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
@@ -556,16 +560,6 @@
   #endif
 #endif
 
-// Probe Temperature Compensation
-#if !TEMP_SENSOR_PROBE
-  #undef PTC_PROBE
-#endif
-#if !TEMP_SENSOR_BED
-  #undef PTC_BED
-#endif
-#if !HAS_EXTRUDERS
-  #undef PTC_HOTEND
-#endif
 #if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   #define HAS_PTC 1
 #endif
@@ -585,6 +579,10 @@
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
+  #define HAS_ENCODER_ACTION 1
 #endif
 
 #if STATUS_MESSAGE_TIMEOUT_SEC > 0
