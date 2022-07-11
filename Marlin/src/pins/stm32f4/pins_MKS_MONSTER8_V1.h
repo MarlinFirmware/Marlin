@@ -23,13 +23,16 @@
 
 #define BOARD_INFO_NAME "MKS Monster8 V1"
 
-// Limit Switches for endstops
+//
+// Limit Switches
+//
 #define X_MAX_PIN                           PA13
 #define Y_MAX_PIN                           PC5
 
+//
 // Steppers
-//Driver7
-#define E4_ENABLE_PIN                       PD14
+//
+#define E4_ENABLE_PIN                       PD14  // Driver7
 
 //
 // Misc. Functions

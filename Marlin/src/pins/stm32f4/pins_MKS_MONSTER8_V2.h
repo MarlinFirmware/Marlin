@@ -23,9 +23,10 @@
 
 #define BOARD_INFO_NAME "MKS Monster8 V2"
 
+//
 // Steppers
-//Driver7
-#define E4_ENABLE_PIN                       PB6
+//
+#define E4_ENABLE_PIN                       PB6   // Driver7
 
 //
 // Misc. Functions
@@ -41,7 +42,9 @@
   #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
+//
 // MKS WIFI MODULE
+//
 //#define WIFI_SERIAL 1// USART1
 #if ENABLED(MKS_WIFI_MODULE)
   #define WIFI_IO0_PIN PB14	// MKS ESP WIFI IO0 PIN
