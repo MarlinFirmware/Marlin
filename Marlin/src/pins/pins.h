@@ -683,8 +683,10 @@
   #include "stm32f4/pins_ANET_ET4P.h"           // STM32F4                                env:Anet_ET4_no_bootloader env:Anet_ET4_OpenBLT
 #elif MB(FYSETC_CHEETAH_V20)
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"  // STM32F4                                env:FYSETC_CHEETAH_V20
-#elif MB(MKS_MONSTER8)
-  #include "stm32f4/pins_MKS_MONSTER8.h"        // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
+#elif MB(MKS_MONSTER8_V1)
+  #include "stm32f4/pins_MKS_MONSTER8_V1.h"     // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
+#elif MB(MKS_MONSTER8_V2)
+  #include "stm32f4/pins_MKS_MONSTER8_V2.h"     // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
 #elif MB(TH3D_EZBOARD_V2)
   #include "stm32f4/pins_TH3D_EZBOARD_V2.h"     // STM32F4                                env:TH3D_EZBoard_V2_no_bootloader env:TH3D_EZBoard_V2_OpenBLT
 #elif MB(OPULO_LUMEN_REV3)
@@ -800,6 +802,7 @@
   #define BOARD_BTT_SKR_V2_0            99922
   #define BOARD_TH3D_EZBOARD_LITE_V2    99923
   #define BOARD_BTT_SKR_SE_BX           99924
+  #define BOARD_MKS_MONSTER8            99925
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -853,6 +856,8 @@
     #error "BOARD_TH3D_EZBOARD_LITE_V2 is now BOARD_TH3D_EZBOARD_V2. Please update your configuration."
   #elif MB(BTT_SKR_SE_BX)
     #error "BOARD_BTT_SKR_SE_BX is now BOARD_BTT_SKR_SE_BX_V2 or BOARD_BTT_SKR_SE_BX_V3. Please update your configuration."
+  #elif MB(MKS_MONSTER8)
+    #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -884,6 +889,7 @@
   #undef BOARD_BTT_SKR_V2_0
   #undef BOARD_TH3D_EZBOARD_LITE_V2
   #undef BOARD_BTT_SKR_SE_BX
+  #undef BOARD_MKS_MONSTER8
 
 #endif
 
