@@ -711,9 +711,13 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());
 
-  TERN(DWIN_LCD_PROUI, DWIN_Print_Resume(), ui.reset_status());
-  TERN_(HAS_MARLINUI_MENU, ui.return_to_status());
-  TERN_(DWIN_LCD_PROUI, HMI_ReturnScreen());
+  #if ENABLED(DWIN_LCD_PROUI)
+    DWIN_Print_Resume();
+    HMI_ReturnScreen();
+  #else
+    ui.reset_status();
+    ui.return_to_status();
+  #endif
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

@@ -26,7 +26,7 @@
 #if E_STEPPERS > MAX_E_STEPPERS
   #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #elif HOTENDS > 8 || E_STEPPERS > 8
-  #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
+  #error "BIGTREE GTR V1.0 supports up to 8 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
@@ -37,7 +37,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x2000  // 8KB (24C64 ... 64Kb = 8KB)
+#define MARLIN_EEPROM_SIZE                0x2000  // 8K (24C64)
 
 //
 // Servos

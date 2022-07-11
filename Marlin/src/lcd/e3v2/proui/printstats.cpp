@@ -50,7 +50,7 @@ void PrintStatsClass::Draw() {
   constexpr int8_t MRG = 30;
 
   Title.ShowCaption(GET_TEXT_F(MSG_INFO_STATS_MENU));
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   Draw_Popup_Bkgd();
   DWINUI::Draw_Button(BTN_Continue, 86, 250);
   printStatistics ps = print_job_timer.getStats();
@@ -71,7 +71,7 @@ void PrintStatsClass::Draw() {
 
 void PrintStatsClass::Reset() {
   print_job_timer.initStats();
-  HMI_AudioFeedback();
+  DONE_BUZZ(true);
 }
 
 void Goto_PrintStats() {

@@ -9,6 +9,7 @@ on:
   pull_request:
     branches:
     - bugfix-2.0.x
+    - bugfix-2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -17,6 +18,7 @@ on:
   push:
     branches:
     - bugfix-2.0.x
+    - bugfix-2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -59,7 +61,7 @@ jobs:
         #- STM32F103RC_btt_maple
         - STM32F103RC_btt_USB_maple
         - STM32F103RC_fysetc_maple
-        - STM32F103RC_meeb
+        - STM32F103RC_meeb_maple
         - jgaurora_a5s_a1_maple
         - STM32F103VE_longer_maple
         #- mks_robin_maple
@@ -76,6 +78,7 @@ jobs:
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
+        - STM32F401RC_creality
         - STM32F103VE_longer
         - STM32F407VE_black
         - STM32F401VE_STEVAL
@@ -97,7 +100,7 @@ jobs:
         - REMRAM_V1
         - BTT_SKR_SE_BX
         - chitu_f103
-        - Index_Mobo_Rev03
+        - Opulo_Lumen_REV3
 
         # Put lengthy tests last
 
@@ -137,8 +140,9 @@ jobs:
 
     - name: Install PlatformIO
       run: |
-        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
-        platformio update
+        pip install -U platformio
+        pio upgrade --dev
+        pio pkg update --global
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |

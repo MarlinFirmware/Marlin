@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Longer3D LGT KIT V1.0 board only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "Longer3D LGT KIT V1.0 only supports 1 hotend / E stepper."
 #endif
 
 #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || SERIAL_PORT_3 == 1

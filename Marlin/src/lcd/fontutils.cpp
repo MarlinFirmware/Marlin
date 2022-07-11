@@ -31,8 +31,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#define MAX_UTF8_CHAR_SIZE 4
-
 #if HAS_WIRED_LCD
   #include "marlinui.h"
   #include "../MarlinCore.h"
@@ -40,13 +38,8 @@
 
 #include "fontutils.h"
 
-uint8_t read_byte_ram(uint8_t * str) {
-  return *str;
-}
-
-uint8_t read_byte_rom(uint8_t * str) {
-  return pgm_read_byte(str);
-}
+uint8_t read_byte_ram(const uint8_t *str) { return *str; }
+uint8_t read_byte_rom(const uint8_t *str) { return pgm_read_byte(str); }
 
 /**
  * @brief Using binary search to find the position by data_pin
@@ -104,9 +97,9 @@ static inline bool utf8_is_start_byte_of_char(const uint8_t b) {
 
 /* This function gets the character at the pstart position, interpreting UTF8 multibyte sequences
    and returns the pointer to the next character */
-uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval) {
+const uint8_t* get_utf8_value_cb(const uint8_t *pstart, read_byte_cb_t cb_read_byte, lchar_t &pval) {
   uint32_t val = 0;
-  uint8_t *p = pstart;
+  const uint8_t *p = pstart;
 
   #define NEXT_6_BITS() do{ val <<= 6; p++; valcur = cb_read_byte(p); val |= (valcur & 0x3F); }while(0)
 
@@ -163,7 +156,7 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
   else
     for (; 0xFC < (0xFE & valcur); ) { p++; valcur = cb_read_byte(p); }
 
-  if (pval) *pval = val;
+  pval = val;
 
   return p;
 }

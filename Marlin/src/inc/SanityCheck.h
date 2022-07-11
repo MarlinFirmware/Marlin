@@ -371,7 +371,7 @@
 #elif defined(FILAMENT_CHANGE_LOAD_LENGTH)
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH."
 #elif defined(LEVEL_CORNERS_INSET)
-  #error "LEVEL_CORNERS_INSET is now LEVEL_CORNERS_INSET_LFRB."
+  #error "LEVEL_CORNERS_INSET is now BED_TRAMMING_INSET_LFRB."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION."
 #elif HAS_JUNCTION_DEVIATION && defined(JUNCTION_DEVIATION_FACTOR)
@@ -447,6 +447,16 @@
   #error "SPINDLE_LASER_ACTIVE_HIGH is now SPINDLE_LASER_ACTIVE_STATE."
 #elif defined(SPINDLE_LASER_ENABLE_INVERT)
   #error "SPINDLE_LASER_ENABLE_INVERT is now SPINDLE_LASER_ACTIVE_STATE."
+#elif defined(LASER_POWER_INLINE)
+  #error "LASER_POWER_INLINE is not required, inline mode is enabled with 'M3 I' and disabled with 'M5 I'."
+#elif defined(LASER_POWER_INLINE_TRAPEZOID)
+  #error "LASER_POWER_INLINE_TRAPEZOID is now LASER_POWER_TRAP."
+#elif defined(LASER_POWER_INLINE_TRAPEZOID_CONT)
+  #error "LASER_POWER_INLINE_TRAPEZOID_CONT is replaced with LASER_POWER_TRAP."
+#elif defined(LASER_POWER_INLINE_TRAPEZOID_PER)
+  #error "LASER_POWER_INLINE_TRAPEZOID_CONT_PER  replaced with LASER_POWER_TRAP."
+#elif defined(LASER_POWER_INLINE_CONTINUOUS)
+  #error "LASER_POWER_INLINE_CONTINUOUS is not required, inline mode is enabled with 'M3 I' and disabled with 'M5 I'."
 #elif defined(CUTTER_POWER_DISPLAY)
   #error "CUTTER_POWER_DISPLAY is now CUTTER_POWER_UNIT."
 #elif defined(CHAMBER_HEATER_PIN)
@@ -524,11 +534,11 @@
 #elif defined(Z_QUAD_ENDSTOPS_ADJUSTMENT2) || defined(Z_QUAD_ENDSTOPS_ADJUSTMENT3) || defined(Z_QUAD_ENDSTOPS_ADJUSTMENT4)
   #error "Z_QUAD_ENDSTOPS_ADJUSTMENT[234] is now Z[234]_ENDSTOP_ADJUSTMENT."
 #elif defined(Z_DUAL_STEPPER_DRIVERS)
-  #error "Z_DUAL_STEPPER_DRIVERS is now NUM_Z_STEPPER_DRIVERS with a value of 2."
+  #error "Z_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Z_TRIPLE_STEPPER_DRIVERS)
-  #error "Z_TRIPLE_STEPPER_DRIVERS is now NUM_Z_STEPPER_DRIVERS with a value of 3."
+  #error "Z_TRIPLE_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Z_QUAD_STEPPER_DRIVERS)
-  #error "Z_QUAD_STEPPER_DRIVERS is now NUM_Z_STEPPER_DRIVERS with a value of 4."
+  #error "Z_QUAD_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(Z_DUAL_ENDSTOPS) || defined(Z_TRIPLE_ENDSTOPS) || defined(Z_QUAD_ENDSTOPS)
   #error "Z_(DUAL|TRIPLE|QUAD)_ENDSTOPS is now Z_MULTI_ENDSTOPS."
 #elif defined(DUGS_UI_MOVE_DIS_OPTION)
@@ -595,6 +605,8 @@
   #error "ARC_SUPPORT no longer uses ARC_SEGMENTS_PER_R."
 #elif ENABLED(ARC_SUPPORT) && (!defined(MIN_ARC_SEGMENT_MM) || !defined(MAX_ARC_SEGMENT_MM))
   #error "ARC_SUPPORT now requires MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM."
+#elif defined(LASER_POWER_INLINE)
+  #error "LASER_POWER_INLINE is obsolete."
 #elif defined(SPINDLE_LASER_PWM)
   #error "SPINDLE_LASER_PWM (true) is now set with SPINDLE_LASER_USE_PWM (enabled)."
 #elif ANY(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF)
@@ -621,6 +633,18 @@
   #error "DWIN_CREALITY_LCD_ENHANCED is now DWIN_LCD_PROUI."
 #elif defined(LINEAR_AXES)
   #error "LINEAR_AXES is now NUM_AXES (to account for rotational axes)."
+#elif defined(X_DUAL_STEPPER_DRIVERS)
+  #error "X_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(Y_DUAL_STEPPER_DRIVERS)
+  #error "Y_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(NUM_Z_STEPPER_DRIVERS)
+  #error "NUM_Z_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(LEVEL_BED_CORNERS)
+  #error "LEVEL_BED_CORNERS is now LCD_BED_TRAMMING."
+#elif defined(LEVEL_CORNERS_INSET_LFRB) || defined(LEVEL_CORNERS_HEIGHT) || defined(LEVEL_CORNERS_Z_HOP) || defined(LEVEL_CORNERS_USE_PROBE) || defined(LEVEL_CORNERS_PROBE_TOLERANCE) || defined(LEVEL_CORNERS_VERIFY_RAISED) || defined(LEVEL_CORNERS_AUDIO_FEEDBACK)
+  #error "LEVEL_CORNERS_* settings have been renamed BED_TRAMMING_*."
+#elif defined(LEVEL_CENTER_TOO)
+  #error "LEVEL_CENTER_TOO is now BED_TRAMMING_INCLUDE_CENTER."
 #endif
 
 constexpr float arm[] = AXIS_RELATIVE_MODES;
@@ -642,34 +666,46 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #endif
   #endif
 
-  #ifdef PTC_PROBE_START
-    constexpr auto _ptc_sample_start = PTC_PROBE_START;
-    constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
-    static_assert(_test_ptc_sample_start != 12.3f, "PTC_PROBE_START must be a whole number.");
+  #if ENABLED(PTC_PROBE)
+    #if !TEMP_SENSOR_PROBE
+      #error "PTC_PROBE requires a probe with a thermistor."
+    #endif
+    #ifdef PTC_PROBE_START
+      constexpr auto _ptc_sample_start = PTC_PROBE_START;
+      constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
+      static_assert(_test_ptc_sample_start != 12.3f, "PTC_PROBE_START must be a whole number.");
+    #endif
+    #ifdef PTC_PROBE_RES
+      constexpr auto _ptc_sample_res = PTC_PROBE_RES;
+      constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
+      static_assert(_test_ptc_sample_res != 12.3f, "PTC_PROBE_RES must be a whole number.");
+    #endif
+    #if ENABLED(PTC_BED) && defined(PTC_PROBE_TEMP)
+      constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
+      constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
+      static_assert(_test_btc_probe_temp != 12.3f, "PTC_PROBE_TEMP must be a whole number.");
+    #endif
   #endif
-  #ifdef PTC_PROBE_RES
-    constexpr auto _ptc_sample_res = PTC_PROBE_RES;
-    constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
-    static_assert(_test_ptc_sample_res != 12.3f, "PTC_PROBE_RES must be a whole number.");
+
+  #if ENABLED(PTC_BED)
+    #if !TEMP_SENSOR_BED
+      #error "PTC_BED requires a bed with a thermistor."
+    #endif
+    #ifdef PTC_BED_START
+      constexpr auto _btc_sample_start = PTC_BED_START;
+      constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
+      static_assert(_test_btc_sample_start != 12.3f, "PTC_BED_START must be a whole number.");
+    #endif
+    #ifdef PTC_BED_RES
+      constexpr auto _btc_sample_res = PTC_BED_RES;
+      constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
+      static_assert(_test_btc_sample_res != 12.3f, "PTC_BED_RES must be a whole number.");
+    #endif
   #endif
-  #ifdef PTC_BED_START
-    constexpr auto _btc_sample_start = PTC_BED_START;
-    constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
-    static_assert(_test_btc_sample_start != 12.3f, "PTC_BED_START must be a whole number.");
-  #endif
-  #ifdef PTC_BED_RES
-    constexpr auto _btc_sample_res = PTC_BED_RES;
-    constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
-    static_assert(_test_btc_sample_res != 12.3f, "PTC_BED_RES must be a whole number.");
-  #endif
-  #ifdef PTC_PROBE_TEMP
-    constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
-    constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
-    static_assert(_test_btc_probe_temp != 12.3f, "PTC_PROBE_TEMP must be a whole number.");
-  #endif
+
   #if ENABLED(PTC_HOTEND)
     #if EXTRUDERS != 1
-      #error "PTC_HOTEND only works with a single extruder."
+      #error "PTC_HOTEND requires a single extruder."
     #endif
     #ifdef PTC_HOTEND_START
       constexpr auto _etc_sample_start = PTC_HOTEND_START;
@@ -737,27 +773,21 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Multiple Stepper Drivers Per Axis
  */
 #define GOOD_AXIS_PINS(A) (HAS_##A##_ENABLE && HAS_##A##_STEP && HAS_##A##_DIR)
-#if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #error "DUAL_X_CARRIAGE is not compatible with X_DUAL_STEPPER_DRIVERS."
-  #elif !GOOD_AXIS_PINS(X)
-    #error "X_DUAL_STEPPER_DRIVERS requires X2 pins to be defined."
-  #endif
+#if HAS_X2_STEPPER && !GOOD_AXIS_PINS(X)
+  #error "If X2_DRIVER_TYPE is defined, then X2 ENABLE/STEP/DIR pins are also needed."
 #endif
 
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS) && !GOOD_AXIS_PINS(Y)
-  #error "Y_DUAL_STEPPER_DRIVERS requires Y2 pins to be defined."
+#if HAS_DUAL_Y_STEPPERS && !GOOD_AXIS_PINS(Y)
+  #error "If Y2_DRIVER_TYPE is defined, then Y2 ENABLE/STEP/DIR pins are also needed."
 #endif
 
 #if HAS_Z_AXIS
-  #if !WITHIN(NUM_Z_STEPPER_DRIVERS, 1, 4)
-    #error "NUM_Z_STEPPER_DRIVERS must be an integer from 1 to 4."
-  #elif NUM_Z_STEPPER_DRIVERS == 2 && !GOOD_AXIS_PINS(Z2)
-    #error "If NUM_Z_STEPPER_DRIVERS is 2, you must define stepper pins for Z2."
-  #elif NUM_Z_STEPPER_DRIVERS == 3 && !(GOOD_AXIS_PINS(Z2) && GOOD_AXIS_PINS(Z3))
-    #error "If NUM_Z_STEPPER_DRIVERS is 3, you must define stepper pins for Z2 and Z3."
-  #elif NUM_Z_STEPPER_DRIVERS == 4 && !(GOOD_AXIS_PINS(Z2) && GOOD_AXIS_PINS(Z3) && GOOD_AXIS_PINS(Z4))
-    #error "If NUM_Z_STEPPER_DRIVERS is 4, you must define stepper pins for Z2, Z3, and Z4."
+  #if NUM_Z_STEPPERS >= 2 && !GOOD_AXIS_PINS(Z2)
+    #error "If Z2_DRIVER_TYPE is defined, then Z2 ENABLE/STEP/DIR pins are also needed."
+  #elif NUM_Z_STEPPERS >= 3 && !GOOD_AXIS_PINS(Z3)
+    #error "If Z3_DRIVER_TYPE is defined, then Z3 ENABLE/STEP/DIR pins are also needed."
+  #elif NUM_Z_STEPPERS >= 4 && !GOOD_AXIS_PINS(Z4)
+    #error "If Z4_DRIVER_TYPE is defined, then Z4 ENABLE/STEP/DIR pins are also needed."
   #endif
 #endif
 
@@ -855,7 +885,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
 #elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
-  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_*, OR EXTENSIBLE_UI."
+  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_MARLINUI_*, OR EXTENSIBLE_UI."
 #endif
 
 #if ENABLED(USE_M73_REMAINING_TIME) && DISABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -887,9 +917,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * SD Card Settings
  */
-#if ALL(SDSUPPORT, ELB_FULL_GRAPHIC_CONTROLLER, HAS_MARLINUI_MENU) && PIN_EXISTS(SD_DETECT) && SD_DETECT_STATE != HIGH && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+#if ALL(SDSUPPORT, HAS_SD_DETECT, SD_CONNECTION_TYPICAL, ELB_FULL_GRAPHIC_CONTROLLER, HAS_MARLINUI_MENU) && SD_DETECT_STATE == LOW
   #error "SD_DETECT_STATE must be set HIGH for SD on the ELB_FULL_GRAPHIC_CONTROLLER."
 #endif
+#undef SD_CONNECTION_TYPICAL
 
 /**
  * SD File Sorting
@@ -1560,8 +1591,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, FOAMCUTTER_XYUV)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, or FOAMCUTTER_XYUV."
+#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, ARTICULATED_ROBOT_ARM, FOAMCUTTER_XYUV)
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, ARTICULATED_ROBOT_ARM, or FOAMCUTTER_XYUV."
 #endif
 
 /**
@@ -1608,8 +1639,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if 1 < 0 \
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
-  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, or Z Servo."
+  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
+  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE or Z Servo."
 #endif
 
 #if HAS_BED_PROBE
@@ -1716,12 +1747,19 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   /**
+   * Mag mounted probe requirements
+   */
+  #if BOTH(MAG_MOUNTED_PROBE, USE_PROBE_FOR_Z_HOMING) && DISABLED(Z_SAFE_HOMING)
+    #error "MAG_MOUNTED_PROBE requires Z_SAFE_HOMING if it's being used to home Z."
+  #endif
+
+  /**
    * MagLev V4 probe requirements
    */
   #if ENABLED(MAGLEV4)
     #if !PIN_EXISTS(MAGLEV_TRIGGER)
       #error "MAGLEV4 requires MAGLEV_TRIGGER_PIN to be defined."
-    #elif DISABLED(Z_SAFE_HOMING)
+    #elif ENABLED(HOMING_Z_WITH_PROBE) && DISABLED(Z_SAFE_HOMING)
       #error "MAGLEV4 requires Z_SAFE_HOMING."
     #elif MAGLEV_TRIGGER_DELAY != 15
       #error "MAGLEV_TRIGGER_DELAY should not be changed. Comment out this line to continue."
@@ -1824,14 +1862,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #endif
 
-#if ENABLED(LEVEL_BED_CORNERS)
-  #ifndef LEVEL_CORNERS_INSET_LFRB
-    #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
-  #elif ENABLED(LEVEL_CORNERS_USE_PROBE)
+#if ENABLED(LCD_BED_TRAMMING)
+  #ifndef BED_TRAMMING_INSET_LFRB
+    #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+  #elif ENABLED(BED_TRAMMING_USE_PROBE)
     #if !HAS_BED_PROBE
-      #error "LEVEL_CORNERS_USE_PROBE requires a real probe."
+      #error "BED_TRAMMING_USE_PROBE requires a real probe."
     #elif ENABLED(SENSORLESS_PROBING)
-      #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
+      #error "BED_TRAMMING_USE_PROBE is incompatible with SENSORLESS_PROBING."
     #endif
   #endif
 #endif
@@ -1917,7 +1955,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * LCD_BED_LEVELING requirements
  */
 #if ENABLED(LCD_BED_LEVELING)
-  #if NONE(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+  #if !HAS_MARLINUI_MENU
     #error "LCD_BED_LEVELING is not supported by the selected LCD controller."
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
@@ -2374,18 +2412,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if TEMP_SENSOR_PROBE
   #if !PIN_EXISTS(TEMP_PROBE)
     #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
-  #elif !HAS_TEMP_ADC_PROBE
-    #error "TEMP_PROBE_PIN must be an ADC pin."
-  #elif DISABLED(FIX_MOUNTED_PROBE)
-    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
-  #endif
-#endif
-
-#if TEMP_SENSOR_PROBE
-  #if !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
-  #elif !HAS_TEMP_ADC_PROBE
-    #error "TEMP_PROBE_PIN must be an ADC pin."
   #elif DISABLED(FIX_MOUNTED_PROBE)
     #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
   #endif
@@ -2394,8 +2420,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if TEMP_SENSOR_BOARD
   #if !PIN_EXISTS(TEMP_BOARD)
     #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
-  #elif !HAS_TEMP_ADC_BOARD
-    #error "TEMP_BOARD_PIN must be an ADC pin."
   #elif ENABLED(THERMAL_PROTECTION_BOARD) && (!defined(BOARD_MINTEMP) || !defined(BOARD_MAXTEMP))
     #error "THERMAL_PROTECTION_BOARD requires BOARD_MINTEMP and BOARD_MAXTEMP."
   #endif
@@ -2443,23 +2467,23 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * FYSETC LCD Requirements
+ * FYSETC/MKS/BTT Mini Panel Requirements
  */
 #if EITHER(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
-  #ifndef NEO_GRB
-    #define NEO_GRB 123
+  #ifndef NEO_RGB
+    #define NEO_RGB 123
     #define FAUX_RGB 1
   #endif
-  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_GRB
-    #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_GRB."
+  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
+    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
   #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
-    #error "Your FYSETC Mini Panel requires NEOPIXEL_PIXELS >= 3."
+    #error "Your FYSETC/MKS/BTT Mini Panel requires NEOPIXEL_PIXELS >= 3."
   #endif
   #if FAUX_RGB
-    #undef NEO_GRB
+    #undef NEO_RGB
     #undef FAUX_RGB
   #endif
-#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && !DISABLED(RGB_LED)
+#elif EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #error "Your FYSETC Mini Panel requires RGB_LED."
 #endif
 
@@ -2639,10 +2663,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_MULTI_ENDSTOPS is not compatible with DELTA."
   #elif !Z2_USE_ENDSTOP
     #error "Z2_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS."
-  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPER_DRIVERS >= 3
-    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and NUM_Z_STEPPER_DRIVERS >= 3."
-  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPER_DRIVERS >= 4
-    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and NUM_Z_STEPPER_DRIVERS >= 4."
+  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPERS >= 3
+    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
+  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPERS >= 4
+    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
   #endif
 #endif
 
@@ -2841,7 +2865,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
   + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS, DGUS_LCD_UI_RELOADED) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY) \
-  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE) \
+  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
   + COUNT_ENABLED(MKS_12864OLED, MKS_12864OLED_SSD1306) \
@@ -2930,8 +2954,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if defined(GRAPHICAL_TFT_UPSCALE) && !WITHIN(GRAPHICAL_TFT_UPSCALE, 2, 4)
-  #error "GRAPHICAL_TFT_UPSCALE must be 2, 3, or 4."
+#if defined(GRAPHICAL_TFT_UPSCALE) && !WITHIN(GRAPHICAL_TFT_UPSCALE, 2, 6)
+  #error "GRAPHICAL_TFT_UPSCALE must be between 2 and 6."
 #endif
 
 #if BOTH(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
@@ -2966,8 +2990,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
   #elif EITHER(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support MPC_EDIT_MENU or MPC_AUTOTUNE_MENU."
-  #elif ENABLED(LEVEL_BED_CORNERS)
-    #error "DWIN_CREALITY_LCD does not support LEVEL_BED_CORNERS."
+  #elif ENABLED(LCD_BED_TRAMMING)
+    #error "DWIN_CREALITY_LCD does not support LCD_BED_TRAMMING."
   #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
     #error "DWIN_CREALITY_LCD does not support LCD_BED_LEVELING with PROBE_MANUALLY."
   #endif
@@ -2978,8 +3002,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "DWIN_LCD_PROUI does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
   #elif EITHER(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
     #error "DWIN_LCD_PROUI does not support MPC_EDIT_MENU or MPC_AUTOTUNE_MENU."
-  #elif ENABLED(LEVEL_BED_CORNERS)
-    #error "DWIN_LCD_PROUI does not support LEVEL_BED_CORNERS."
+  #elif ENABLED(LCD_BED_TRAMMING)
+    #error "DWIN_LCD_PROUI does not support LCD_BED_TRAMMING."
   #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
     #error "DWIN_LCD_PROUI does not support LCD_BED_LEVELING with PROBE_MANUALLY."
   #endif
@@ -3049,6 +3073,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "The ANYCUBIC LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
+  #elif ENABLED(NEXTION_LCD)
+    #error "NEXTION_LCD requires LCD_SERIAL_PORT to be defined."
   #endif
 #endif
 
@@ -3703,14 +3729,14 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  #if NUM_Z_STEPPER_DRIVERS <= 1
-    #error "Z_STEPPER_AUTO_ALIGN requires NUM_Z_STEPPER_DRIVERS greater than 1."
+  #if NUM_Z_STEPPERS <= 1
+    #error "Z_STEPPER_AUTO_ALIGN requires more than one Z stepper."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
   #elif HAS_Z_STEPPER_ALIGN_STEPPER_XY
     static_assert(WITHIN(Z_STEPPER_ALIGN_AMP, 0.5, 2.0), "Z_STEPPER_ALIGN_AMP must be between 0.5 and 2.0.");
-    #if NUM_Z_STEPPER_DRIVERS < 3
-      #error "Z_STEPPER_ALIGN_STEPPER_XY requires NUM_Z_STEPPER_DRIVERS to be 3 or 4."
+    #if NUM_Z_STEPPERS < 3
+      #error "Z_STEPPER_ALIGN_STEPPER_XY requires 3 or 4 Z steppers."
     #endif
   #endif
 #endif
@@ -3846,39 +3872,29 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #error "CUTTER_POWER_UNIT must be PWM255, PERCENT, RPM, or SERVO."
   #endif
 
-  #if ENABLED(LASER_POWER_INLINE)
+  #if ENABLED(LASER_FEATURE)
     #if ENABLED(SPINDLE_CHANGE_DIR)
-      #error "SPINDLE_CHANGE_DIR and LASER_POWER_INLINE are incompatible."
-    #elif ENABLED(LASER_MOVE_G0_OFF) && DISABLED(LASER_MOVE_POWER)
-      #error "LASER_MOVE_G0_OFF requires LASER_MOVE_POWER."
+      #error "SPINDLE_CHANGE_DIR and LASER_FEATURE are incompatible."
+    #elif ENABLED(LASER_MOVE_G0_OFF)
+      #error "LASER_MOVE_G0_OFF is no longer required, G0 and G28 cannot apply power."
+    #elif ENABLED(LASER_MOVE_G28_OFF)
+      #error "LASER_MOVE_G0_OFF is no longer required, G0 and G28 cannot apply power."
+    #elif ENABLED(LASER_MOVE_POWER)
+      #error "LASER_MOVE_POWER is no longer applicable."
     #endif
-    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
+    #if ENABLED(LASER_POWER_TRAP)
       #if DISABLED(SPINDLE_LASER_USE_PWM)
-        #error "LASER_POWER_INLINE_TRAPEZOID requires SPINDLE_LASER_USE_PWM to function."
-      #elif ENABLED(S_CURVE_ACCELERATION)
-        //#ifndef LASER_POWER_INLINE_S_CURVE_ACCELERATION_WARN
-        //  #define LASER_POWER_INLINE_S_CURVE_ACCELERATION_WARN
-        //  #warning "Combining LASER_POWER_INLINE_TRAPEZOID with S_CURVE_ACCELERATION may result in unintended behavior."
-        //#endif
+        #error "LASER_POWER_TRAP requires SPINDLE_LASER_USE_PWM to function."
       #endif
-    #endif
-    #if ENABLED(LASER_POWER_INLINE_INVERT)
-      //#ifndef LASER_POWER_INLINE_INVERT_WARN
-      //  #define LASER_POWER_INLINE_INVERT_WARN
-      //  #warning "Enabling LASER_POWER_INLINE_INVERT means that `M5` won't kill the laser immediately; use `M5 I` instead."
-      //#endif
     #endif
   #else
     #if SPINDLE_LASER_POWERUP_DELAY < 1
       #error "SPINDLE_LASER_POWERUP_DELAY must be greater than 0."
     #elif SPINDLE_LASER_POWERDOWN_DELAY < 1
       #error "SPINDLE_LASER_POWERDOWN_DELAY must be greater than 0."
-    #elif ENABLED(LASER_MOVE_POWER)
-      #error "LASER_MOVE_POWER requires LASER_POWER_INLINE."
-    #elif ANY(LASER_POWER_INLINE_TRAPEZOID, LASER_POWER_INLINE_INVERT, LASER_MOVE_G0_OFF, LASER_MOVE_POWER)
-      #error "Enabled an inline laser feature without inline laser power being enabled."
     #endif
   #endif
+
   #define _PIN_CONFLICT(P) (PIN_EXISTS(P) && P##_PIN == SPINDLE_LASER_PWM_PIN)
   #if BOTH(SPINDLE_FEATURE, LASER_FEATURE)
     #error "Enable only one of SPINDLE_FEATURE or LASER_FEATURE."
@@ -3893,7 +3909,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
       #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
     #elif !defined(SPINDLE_LASER_PWM_INVERT)
       #error "SPINDLE_LASER_PWM_INVERT is required for (SPINDLE|LASER)_FEATURE."
-    #elif !(defined(SPEED_POWER_INTERCEPT) && defined(SPEED_POWER_MIN) && defined(SPEED_POWER_MAX) && defined(SPEED_POWER_STARTUP))
+    #elif !(defined(SPEED_POWER_MIN) && defined(SPEED_POWER_MAX) && defined(SPEED_POWER_STARTUP))
       #error "SPINDLE_LASER_USE_PWM equation constant(s) missing."
     #elif _PIN_CONFLICT(X_MIN)
       #error "SPINDLE_LASER_USE_PWM pin conflicts with X_MIN_PIN."
@@ -3946,6 +3962,11 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #endif
   #endif
   #undef _PIN_CONFLICT
+
+  #ifdef LASER_SAFETY_TIMEOUT_MS
+    static_assert(LASER_SAFETY_TIMEOUT_MS < (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL, "LASER_SAFETY_TIMEOUT_MS must be less than DEFAULT_STEPPER_DEACTIVE_TIME (" STRINGIFY(DEFAULT_STEPPER_DEACTIVE_TIME) " seconds)");
+  #endif
+
 #endif
 
 #if ENABLED(COOLANT_MIST) && !PIN_EXISTS(COOLANT_MIST)
@@ -4127,8 +4148,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #error "DGUS_LCD_UI_RELOADED requires a bed probe."
   #elif !HAS_MESH
     #error "DGUS_LCD_UI_RELOADED requires mesh leveling."
-  #elif DISABLED(LEVEL_BED_CORNERS)
-    #error "DGUS_LCD_UI_RELOADED requires LEVEL_BED_CORNERS."
+  #elif DISABLED(LCD_BED_TRAMMING)
+    #error "DGUS_LCD_UI_RELOADED requires LCD_BED_TRAMMING."
   #elif DISABLED(BABYSTEP_ALWAYS_AVAILABLE)
     #error "DGUS_LCD_UI_RELOADED requires BABYSTEP_ALWAYS_AVAILABLE."
   #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -4148,4 +4169,9 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "DISABLE_DEBUG is not supported for the selected MCU/Board."
 #elif ENABLED(DISABLE_JTAG) && !defined(JTAG_DISABLE)
   #error "DISABLE_JTAG is not supported for the selected MCU/Board."
+#endif
+
+// Check requirements for upload.py
+#if ENABLED(XFER_BUILD) && !BOTH(BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
+  #error "BINARY_FILE_TRANSFER and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
 #endif

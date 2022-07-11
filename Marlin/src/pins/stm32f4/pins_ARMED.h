@@ -27,7 +27,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Arm'ed supports up to 2 hotends / E-steppers."
+  #error "Arm'ed supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef ARMED_V1_0
@@ -40,7 +40,7 @@
 
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -150,7 +150,7 @@
 
 #if ENABLED(FYSETC_MINI_12864)
   //
-  // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+  // See https://wiki.fysetc.com/Mini12864_Panel/
   //
   #define DOGLCD_A0                         PE9
   #define DOGLCD_CS                         PE8

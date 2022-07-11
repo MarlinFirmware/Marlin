@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 6 || E_STEPPERS > 6
-  #error "FLYF407ZG supports up to 6 hotends / E-steppers."
+  #error "FLYF407ZG supports up to 6 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"
@@ -50,11 +50,11 @@
   // the 128kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8K
 #endif
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //

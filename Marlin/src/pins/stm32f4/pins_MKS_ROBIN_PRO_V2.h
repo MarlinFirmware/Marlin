@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
+  #error "MKS Robin Nano V3 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin PRO V2"
@@ -37,7 +37,7 @@
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
@@ -305,16 +305,15 @@
   #define TFT_MISO_PIN               EXP2_10_PIN
   #define TFT_MOSI_PIN               EXP2_05_PIN
   #define TFT_DC_PIN                 EXP1_03_PIN
-  #define TFT_RST_PIN                EXP1_07_PIN
   #define TFT_A0_PIN                  TFT_DC_PIN
 
   #define TFT_RESET_PIN              EXP1_07_PIN
-  #define TFT_BACKLIGHT_PIN          EXP1_08_PIN
+  #define LCD_BACKLIGHT_PIN          EXP1_08_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
 
-  #define LCD_BACKLIGHT_PIN          EXP1_08_PIN
   #ifndef TFT_WIDTH
     #define TFT_WIDTH                        480
   #endif
