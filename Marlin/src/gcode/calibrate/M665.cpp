@@ -174,12 +174,12 @@
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
     report_heading_etc(forReplay, F(STR_POLARGRAPH_SETTINGS));
     SERIAL_ECHOLNPGM_P(
-        PSTR("  M665 S"), LINEAR_UNIT(segments_per_second),
-        PSTR(" L"), LINEAR_UNIT(draw_area_min.x),
-        PSTR(" R"), LINEAR_UNIT(draw_area_max.x),
-        SP_T_STR, LINEAR_UNIT(draw_area_max.y),
-        SP_B_STR, LINEAR_UNIT(draw_area_min.y),
-        PSTR(" H"), LINEAR_UNIT(polargraph_max_belt_len)
+      PSTR("  M665 S"), LINEAR_UNIT(segments_per_second),
+      PSTR(" L"), LINEAR_UNIT(draw_area_min.x),
+      PSTR(" R"), LINEAR_UNIT(draw_area_max.x),
+      SP_T_STR, LINEAR_UNIT(draw_area_max.y),
+      SP_B_STR, LINEAR_UNIT(draw_area_min.y),
+      PSTR(" H"), LINEAR_UNIT(polargraph_max_belt_len)
     );
   }
 
