@@ -30,8 +30,6 @@
   #error "MKS Monster doesn't support FSMC-based TFT displays."
 #endif
 
-#define BOARD_INFO_NAME "MKS Monster8 V1.x"
-
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
 
@@ -54,22 +52,20 @@
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
-// Limit Switches for diag signal
+// Limit Switches for diag signals
 //
-#define X_DIAG_PIN                          PA14  // Driver0 diag signal is connect to X-
-#define Y_DIAG_PIN                          PA15  // Driver1 diag signal is connect to Y-
-#define Z_DIAG_PIN                          PB13  // Driver2 diag signal is connect to Z-
-#define E0_DIAG_PIN                         PA13  // Driver3 diag signal is connect to X+
-#define E1_DIAG_PIN                         PC5   // Driver4 diag signal is connect to Y+
-#define E2_DIAG_PIN                         PB12  // Driver5 diag signal is connect to Z+
-#define E3_DIAG_PIN                         -1    // Driver6 diag signal is not connect
-#define E4_DIAG_PIN                         -1    // Driver7 diag signal is not connect
+#define X_DIAG_PIN                          PA14  // Driver0 diag signal is connected to X-
+#define Y_DIAG_PIN                          PA15  // Driver1 diag signal is connected to Y-
+#define Z_DIAG_PIN                          PB13  // Driver2 diag signal is connected to Z-
+#define E0_DIAG_PIN                         PA13  // Driver3 diag signal is connected to X+
+#define E1_DIAG_PIN                         PC5   // Driver4 diag signal is connected to Y+
+#define E2_DIAG_PIN                         PB12  // Driver5 diag signal is connected to Z+
+#define E3_DIAG_PIN                         -1    // Driver6 diag signal is not connected
+#define E4_DIAG_PIN                         -1    // Driver7 diag signal is not connected
 
-// Limit Switches for endstop
+// Limit Switches for endstops
 #define X_MIN_PIN                           PA14
-#define X_MAX_PIN                           PA13
 #define Y_MIN_PIN                           PA15
-#define Y_MAX_PIN                           PC5
 #define Z_MIN_PIN                           PB13
 #define Z_MAX_PIN                           PB12
 
@@ -128,7 +124,6 @@
   #define E3_CS_PIN                         PD15
 #endif
 //Driver7
-#define E4_ENABLE_PIN                       PD14
 #define E4_STEP_PIN                         PD13
 #define E4_DIR_PIN                          PD12
 #ifndef E4_CS_PIN
@@ -206,20 +201,6 @@
 #define FAN_PIN                             PA2   // FAN0
 #define FAN1_PIN                            PA1   // FAN1
 #define FAN2_PIN                            PA0   // FAN2
-
-//
-// Misc. Functions
-//
-#define PW_DET                              PC5   // Y+
-#define PW_OFF                              PB12  // Z+
-#define MT_DET_1_PIN                      PW_DET
-#define MT_DET_2_PIN                      PW_OFF
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
-#endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
-#endif
 
 //
 // Power Supply Control
