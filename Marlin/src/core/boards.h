@@ -395,7 +395,7 @@
 #define BOARD_BTT_GTR_V1_0            4214  // BigTreeTech GTR v1.0 (STM32F407IGT)
 #define BOARD_BTT_OCTOPUS_V1_0        4215  // BigTreeTech Octopus v1.0 (STM32F446ZE)
 #define BOARD_BTT_OCTOPUS_V1_1        4216  // BigTreeTech Octopus v1.1 (STM32F446ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0    4217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZE/STM32F429ZG)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0    4217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZE / STM32F429ZG)
 #define BOARD_LERDGE_K                4218  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_S                4219  // Lerdge S (STM32F407VE)
 #define BOARD_LERDGE_X                4220  // Lerdge X (STM32F407VE)
