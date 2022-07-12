@@ -332,14 +332,14 @@
 #define BOARD_BTT_SKR_E3_DIP          4029  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
 #define BOARD_BTT_SKR_CR6             4030  // BigTreeTech SKR CR6 v1.0 (STM32F103RE)
 #define BOARD_JGAURORA_A5S_A1         4031  // JGAurora A5S A1 (STM32F103ZE)
-#define BOARD_FYSETC_AIO_II           4032  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4033  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4034  // FYSETC Cheetah V1.2
+#define BOARD_FYSETC_AIO_II           4032  // FYSETC AIO_II (STM32F103RC)
+#define BOARD_FYSETC_CHEETAH          4033  // FYSETC Cheetah (STM32F103RC)
+#define BOARD_FYSETC_CHEETAH_V12      4034  // FYSETC Cheetah V1.2 (STM32F103RC)
 #define BOARD_LONGER3D_LK             4035  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VE
 #define BOARD_CCROBOT_MEEB_3DP        4036  // ccrobot-online.com MEEB_3DP (STM32F103RC)
-#define BOARD_CHITU3D_V5              4037  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board
-#define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board
+#define BOARD_CHITU3D_V5              4037  // Chitu3D TronXY X5SA V5 Board (STM32F103ZE)
+#define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board (STM32F103ZE)
+#define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board (STM32F103ZE)
 #define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V422           4041  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V423           4042  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
