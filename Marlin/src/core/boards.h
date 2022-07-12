@@ -335,7 +335,7 @@
 #define BOARD_FYSETC_AIO_II           4032  // FYSETC AIO_II (STM32F103RC)
 #define BOARD_FYSETC_CHEETAH          4033  // FYSETC Cheetah (STM32F103RC)
 #define BOARD_FYSETC_CHEETAH_V12      4034  // FYSETC Cheetah V1.2 (STM32F103RC)
-#define BOARD_LONGER3D_LK             4035  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VE
+#define BOARD_LONGER3D_LK             4035  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / (STM32F103VE)
 #define BOARD_CCROBOT_MEEB_3DP        4036  // ccrobot-online.com MEEB_3DP (STM32F103RC)
 #define BOARD_CHITU3D_V5              4037  // Chitu3D TronXY X5SA V5 Board (STM32F103ZE)
 #define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board (STM32F103ZE)
