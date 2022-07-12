@@ -200,8 +200,8 @@ typedef struct block_t {
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                      // The nominal speed for this block in (mm/sec)
-        entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec^2)
-        max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec^2)
+        entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
+        max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
 
