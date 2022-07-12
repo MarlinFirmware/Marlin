@@ -413,7 +413,7 @@
 #define BOARD_ANET_ET4                4232  // ANET ET4 V1.x (STM32F407VG)
 #define BOARD_ANET_ET4P               4233  // ANET ET4P V1.x (STM32F407VG)
 #define BOARD_FYSETC_CHEETAH_V20      4234  // FYSETC Cheetah V2.0 (STM32F401RC)
-#define BOARD_TH3D_EZBOARD_V2         4235  // TH3D EZBoard v2.0 (STM32F405RGT6)
+#define BOARD_TH3D_EZBOARD_V2         4235  // TH3D EZBoard v2.0 (STM32F405RG)
 #define BOARD_OPULO_LUMEN_REV3        4236  // Opulo Lumen PnP Controller REV3 (STM32F407VE/VG)
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4237  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
 #define BOARD_MKS_EAGLE               4238  // MKS Eagle (STM32F407VE)
