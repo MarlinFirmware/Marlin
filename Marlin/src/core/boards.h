@@ -238,6 +238,7 @@
 #define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1
 #define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3
 #define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4
+#define BOARD_EMOTRONIC               2015  // eMotion-Tech eMotronic
 
 //
 // LPC1769 ARM Cortex M3
