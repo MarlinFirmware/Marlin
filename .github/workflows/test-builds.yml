@@ -101,6 +101,9 @@ jobs:
         - chitu_f103
         - Opulo_Lumen_REV3
 
+        # ESP32 environments
+        - mks_tinybee
+
         # Put lengthy tests last
 
         - LPC1768
