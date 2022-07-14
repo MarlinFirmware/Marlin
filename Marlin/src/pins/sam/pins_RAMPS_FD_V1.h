@@ -217,7 +217,7 @@
 
   #endif
 
-  #if ANY(VIKI2, miniVIKI)
+  #if EITHER(VIKI2, miniVIKI)
     #define DOGLCD_A0                EXP1_04_PIN
     #define KILL_PIN                          51
     #define STAT_LED_BLUE_PIN        EXP1_08_PIN
