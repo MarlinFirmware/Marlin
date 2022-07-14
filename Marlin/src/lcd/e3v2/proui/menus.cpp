@@ -480,7 +480,7 @@ void MenuItemClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, 
 }
 
 void MenuItemClass::draw(int8_t line) {
-  if (line < 0 || line >= TROWS) return;
+  if (!WITHIN(line, 0, TROWS - 1)) return;
   if (onDraw != nullptr) (*onDraw)(this, line);
 };
 

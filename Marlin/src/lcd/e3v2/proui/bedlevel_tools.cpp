@@ -199,7 +199,7 @@ bool BedLevelToolsClass::meshvalidate() {
     if (bedlevel.z_values[x][y] < min) min = bedlevel.z_values[x][y];
     if (bedlevel.z_values[x][y] > max) max = bedlevel.z_values[x][y];
   }
-  return (max <= MESH_Z_OFFSET_MAX) && (min >= MESH_Z_OFFSET_MIN);
+  return WITHIN(max, MESH_Z_OFFSET_MIN, MESH_Z_OFFSET_MAX);
 }
 
 #if USE_UBL_VIEWER
