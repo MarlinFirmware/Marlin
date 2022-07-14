@@ -551,11 +551,10 @@ void Popup_window_PauseOrStop() {
 #endif
 
 // Draw status line
-void DWIN_DrawStatusLine(const char *text) {
+void DWIN_DrawStatusLine() {
   DWIN_Draw_Rectangle(1, HMI_data.StatusBg_Color, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
-  if (text) DWINUI::Draw_CenteredString(HMI_data.StatusTxt_Color, STATUS_Y + 2, text);
+  DWINUI::Draw_CenteredString(HMI_data.StatusTxt_Color, STATUS_Y + 2, ui.status_message);
 }
-void DWIN_DrawStatusLine(FSTR_P fstr) { DWIN_DrawStatusLine(FTOP(fstr)); }
 
 // Clear & reset status line
 void DWIN_ResetStatusLine() {
@@ -583,7 +582,7 @@ void DWIN_DrawStatusMessage() {
     // If the string fits the status line do not scroll it
     if (slen <= LCD_WIDTH) {
        if (hash_changed) {
-         DWIN_DrawStatusLine(ui.status_message);
+         DWIN_DrawStatusLine();
          hash_changed = false;
        }
     }
@@ -615,7 +614,7 @@ void DWIN_DrawStatusMessage() {
 
     if (hash_changed) {
       ui.status_message[LCD_WIDTH] = 0;
-      DWIN_DrawStatusLine(ui.status_message);
+      DWIN_DrawStatusLine();
       hash_changed = false;
     }
 
@@ -658,7 +657,7 @@ void ICON_ResumeOrPause() {
 }
 
 // Update filename on print
-void DWIN_Print_Header(const char *text = nullptr) {
+void DWIN_Print_Header(const char *text=nullptr) {
   static char headertxt[31] = "";  // Print header text
   if (text) {
     const int8_t size = _MIN(30U, strlen_P(text));
@@ -1874,7 +1873,7 @@ void DWIN_InitScreen() {
   index_file = MROWS;
   hash_changed = true;
   last_E = 0;
-  DWIN_DrawStatusLine(FSTR_P(nullptr));
+  DWIN_DrawStatusLine();
   DWIN_Draw_Dashboard();
   Goto_Main_Menu();
 }
@@ -2049,7 +2048,8 @@ void DWIN_RedrawScreen() {
 
 #if ENABLED(EEPROM_SETTINGS)
   void WriteEeprom() {
-    DWIN_DrawStatusLine(GET_TEXT_F(MSG_STORE_EEPROM));
+    ui.set_status(GET_TEXT_F(MSG_STORE_EEPROM));
+    DWIN_DrawStatusLine();
     DWIN_UpdateLCD();
     DONE_BUZZ(settings.save());
   }
