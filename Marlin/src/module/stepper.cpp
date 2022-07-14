@@ -117,12 +117,6 @@ Stepper stepper; // Singleton
   #include "../feature/runout.h"
 #endif
 
-#if HAS_L64XX
-  #include "../libs/L64XX/L64XX_Marlin.h"
-  uint8_t L6470_buf[MAX_L64XX + 1];   // chip command sequence - element 0 not used
-  bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
-#endif
-
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
 #endif
@@ -617,27 +611,6 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
-
-  #if HAS_L64XX
-    if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
-      if (L64xxManager.spi_active) {
-        L64xxManager.spi_abort = true;                    // Interrupted SPI transfer needs to shut down gracefully
-        for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-          L6470_buf[j] = dSPIN_NOP;                         // Fill buffer with NOOPs
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
-      }
-
-      // L64xxManager.dir_commands[] is an array that holds direction command for each stepper
-
-      // Scan command array, copy matches into L64xxManager.transfer
-      for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-        L6470_buf[j] = L64xxManager.dir_commands[L64XX::chain[j]];
-
-      L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
-    }
-  #endif
 
   DIR_WAIT_AFTER();
 }
@@ -2351,13 +2324,11 @@ uint32_t Stepper::block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if ( ENABLED(HAS_L64XX)       // Always set direction for L64xx (Also enables the chips)
-        || ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
+      if ( ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
         E_TERN_(last_moved_extruder = stepper_extruder);
-        TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
         set_directions(current_block->direction_bits);
       }
 

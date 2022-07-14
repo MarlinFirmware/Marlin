@@ -904,7 +904,7 @@ volatile bool Temperature::raw_temps_ready = false;
         temp_hotend[active_extruder].target = 0.0f;
         temp_hotend[active_extruder].soft_pwm_amount = 0;
         #if HAS_FAN
-          set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
+          set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
           planner.sync_fan_speeds(fan_speed);
         #endif
 
@@ -922,7 +922,7 @@ volatile bool Temperature::raw_temps_ready = false;
     disable_all_heaters();
     #if HAS_FAN
       zero_fan_speeds();
-      set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
+      set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
       planner.sync_fan_speeds(fan_speed);
     #endif
     const xyz_pos_t tuningpos = MPC_TUNING_POS;
@@ -949,7 +949,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
 
     #if HAS_FAN
-      set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
+      set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
       planner.sync_fan_speeds(fan_speed);
     #endif
 
@@ -1031,7 +1031,7 @@ volatile bool Temperature::raw_temps_ready = false;
           total_energy_fan0 += constants.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * constants.block_heat_capacity;
         #if HAS_FAN
           else if (ELAPSED(ms, test_end_ms) && !fan0_done) {
-            set_fan_speed(ANY(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
+            set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
             planner.sync_fan_speeds(fan_speed);
             settle_end_ms = ms + settle_time;
             test_end_ms = settle_end_ms + test_duration;
@@ -1430,7 +1430,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       float ambient_xfer_coeff = constants.ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
-        const uint8_t fan_index = ANY(MPC_FAN_0_ACTIVE_HOTEND, MPC_FAN_0_ALL_HOTENDS) ? 0 : ee;
+        const uint8_t fan_index = EITHER(MPC_FAN_0_ACTIVE_HOTEND, MPC_FAN_0_ALL_HOTENDS) ? 0 : ee;
         const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) fan_speed[fan_index] * RECIPROCAL(255);
         ambient_xfer_coeff += fan_fraction * constants.fan255_adjustment;
       #endif
