@@ -2259,7 +2259,11 @@ void SetPID(celsius_t t, heater_id_t h) {
     }
   #endif
   #if HAS_COLOR_LEDS
-    void ApplyLEDColor() { HMI_data.Led_Color = TERN(HAS_WHITE_LED, LEDColor({0, 0, 0, leds.color.w}), LEDColor({leds.color.r, leds.color.g, leds.color.b})); }
+    void ApplyLEDColor() {
+      HMI_data.Led_Color = LEDColor(
+        TERN(HAS_WHITE_LED, { 0, 0, 0, leds.color.w }, { leds.color.r, leds.color.g, leds.color.b })
+      );
+    }
     void LiveLEDColor(uint8_t *color) { *color = MenuData.Value; leds.update(); }
     void LiveLEDColorR() { LiveLEDColor(&leds.color.r); }
     void LiveLEDColorG() { LiveLEDColor(&leds.color.g); }
