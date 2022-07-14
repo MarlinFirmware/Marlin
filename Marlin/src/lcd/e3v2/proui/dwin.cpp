@@ -2230,6 +2230,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     if (HMI_data.Baud115K) SetBaud115K(); else SetBaud250K();
   }
   void SetBaudRate() {
+    HMI_data.Baud115K = !HMI_data.Baud115K;
     HMI_SetBaudRate();
     Draw_Chkb_Line(CurrentMenu->line(), HMI_data.Baud115K);
     DWIN_UpdateLCD();
