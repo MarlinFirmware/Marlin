@@ -30,8 +30,6 @@
   #error "MKS Monster doesn't support FSMC-based TFT displays."
 #endif
 
-#define BOARD_INFO_NAME "MKS Monster8 V1.x"
-
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
 
@@ -54,82 +52,76 @@
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
-// Limit Switches for diag signal
+// Limit Switches for diag signals
 //
-#define X_DIAG_PIN                          PA14  // Driver0 diag signal is connect to X-
-#define Y_DIAG_PIN                          PA15  // Driver1 diag signal is connect to Y-
-#define Z_DIAG_PIN                          PB13  // Driver2 diag signal is connect to Z-
-#define E0_DIAG_PIN                         PA13  // Driver3 diag signal is connect to X+
-#define E1_DIAG_PIN                         PC5   // Driver4 diag signal is connect to Y+
-#define E2_DIAG_PIN                         PB12  // Driver5 diag signal is connect to Z+
-#define E3_DIAG_PIN                         -1    // Driver6 diag signal is not connect
-#define E4_DIAG_PIN                         -1    // Driver7 diag signal is not connect
+#define X_DIAG_PIN                          PA14  // Driver0 diag signal is connected to X-
+#define Y_DIAG_PIN                          PA15  // Driver1 diag signal is connected to Y-
+#define Z_DIAG_PIN                          PB13  // Driver2 diag signal is connected to Z-
+#define E0_DIAG_PIN                         PA13  // Driver3 diag signal is connected to X+
+#define E1_DIAG_PIN                         PC5   // Driver4 diag signal is connected to Y+
+#define E2_DIAG_PIN                         PB12  // Driver5 diag signal is connected to Z+
+#define E3_DIAG_PIN                         -1    // Driver6 diag signal is not connected
+#define E4_DIAG_PIN                         -1    // Driver7 diag signal is not connected
 
-// Limit Switches for endstop
+// Limit Switches for endstops
 #define X_MIN_PIN                           PA14
-#define X_MAX_PIN                           PA13
 #define Y_MIN_PIN                           PA15
-#define Y_MAX_PIN                           PC5
 #define Z_MIN_PIN                           PB13
 #define Z_MAX_PIN                           PB12
 
 //
 // Steppers
-// Driver 0  1  2  3  4  5  6  7
-// For    X  Y  Z  E0 E1 E2 E3 E4(default pin settings)
 //
-//Driver0
-#define X_ENABLE_PIN                        PC15
+#define X_ENABLE_PIN                        PC15  // Driver0
 #define X_STEP_PIN                          PC14
 #define X_DIR_PIN                           PC13
 #ifndef X_CS_PIN
   #define X_CS_PIN                          PE6
 #endif
-//Driver1
-#define Y_ENABLE_PIN                        PC15
+
+#define Y_ENABLE_PIN                        PC15  // Driver1
 #define Y_STEP_PIN                          PE5
 #define Y_DIR_PIN                           PE4
 #ifndef Y_CS_PIN
   #define Y_CS_PIN                          PE3
 #endif
-//Driver2
-#define Z_ENABLE_PIN                        PE2
+
+#define Z_ENABLE_PIN                        PE2   // Driver2
 #define Z_STEP_PIN                          PE1
 #define Z_DIR_PIN                           PE0
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                          PB7
 #endif
-//Driver3
-#define E0_ENABLE_PIN                       PB6
+
+#define E0_ENABLE_PIN                       PB6   // Driver3
 #define E0_STEP_PIN                         PB5
 #define E0_DIR_PIN                          PB4
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PB3
 #endif
-//Driver4
-#define E1_ENABLE_PIN                       PD7
+
+#define E1_ENABLE_PIN                       PD7   // Driver4
 #define E1_STEP_PIN                         PD6
 #define E1_DIR_PIN                          PD5
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PD4
 #endif
-//Driver5
-#define E2_ENABLE_PIN                       PD3
+
+#define E2_ENABLE_PIN                       PD3   // Driver5
 #define E2_STEP_PIN                         PD2
 #define E2_DIR_PIN                          PD1
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PD0
 #endif
-//Driver6
-#define E3_ENABLE_PIN                       PC8
+
+#define E3_ENABLE_PIN                       PC8   // Driver6
 #define E3_STEP_PIN                         PC7
 #define E3_DIR_PIN                          PC6
 #ifndef E3_CS_PIN
   #define E3_CS_PIN                         PD15
 #endif
-//Driver7
-#define E4_ENABLE_PIN                       PD14
-#define E4_STEP_PIN                         PD13
+
+#define E4_STEP_PIN                         PD13  // Driver7
 #define E4_DIR_PIN                          PD12
 #ifndef E4_CS_PIN
   #define E4_CS_PIN                         PD11
@@ -208,20 +200,6 @@
 #define FAN2_PIN                            PA0   // FAN2
 
 //
-// Misc. Functions
-//
-#define PW_DET                              PC5   // Y+
-#define PW_OFF                              PB12  // Z+
-#define MT_DET_1_PIN                      PW_DET
-#define MT_DET_2_PIN                      PW_OFF
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
-#endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
-#endif
-
-//
 // Power Supply Control
 //
 #if ENABLED(MKS_PWC)
@@ -283,7 +261,7 @@
   #endif
 #endif
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
+#if EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_04_PIN
   #define TFT_SCK_PIN                EXP2_09_PIN
   #define TFT_MISO_PIN               EXP2_10_PIN
@@ -347,8 +325,8 @@
     #define DOGLCD_CS                EXP1_05_PIN
     #define DOGLCD_SCK               EXP2_09_PIN
     #define DOGLCD_MOSI              EXP2_05_PIN
-    //#define LCD_BACKLIGHT_PIN               -1
-    //#define LCD_RESET_PIN                   -1
+    //#define LCD_BACKLIGHT_PIN             -1
+    //#define LCD_RESET_PIN                 -1
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,29 +19,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * stepper/indirection.cpp
- *
- * Stepper motor driver indirection to allow some stepper functions to
- * be done via SPI/I2c instead of direct pin manipulation.
- *
- * Copyright (c) 2015 Dominik Wenger
- */
+#define BOARD_INFO_NAME "MKS Monster8 V1"
 
-#include "../../inc/MarlinConfig.h"
-#include "indirection.h"
+//
+// Limit Switches
+//
+#define X_MAX_PIN                           PA13
+#define Y_MAX_PIN                           PC5
 
-void restore_stepper_drivers() {
-  TERN_(HAS_TRINAMIC_CONFIG, restore_trinamic_drivers());
-}
+//
+// Steppers
+//
+#define E4_ENABLE_PIN                       PD14  // Driver7
 
-void reset_stepper_drivers() {
-  TERN_(HAS_TMC26X, tmc26x_init_to_defaults());
-  TERN_(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
-}
-
-#if ENABLED(SOFTWARE_DRIVER_ENABLE)
-  // Flags to optimize XYZ Enabled state
-  xyz_bool_t axis_sw_enabled; // = { false, false, false }
+//
+// Misc. Functions
+//
+#define PW_DET                               PC5  // Y+
+#define PW_OFF                              PB12  // Z+
+#define MT_DET_1_PIN                      PW_DET
+#define MT_DET_2_PIN                      PW_OFF
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
 #endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
+#endif
+
+#include "pins_MKS_MONSTER8_common.h"

@@ -117,12 +117,6 @@ Stepper stepper; // Singleton
   #include "../feature/runout.h"
 #endif
 
-#if HAS_L64XX
-  #include "../libs/L64XX/L64XX_Marlin.h"
-  uint8_t L6470_buf[MAX_L64XX + 1];   // chip command sequence - element 0 not used
-  bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
-#endif
-
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
 #endif
@@ -617,27 +611,6 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
-
-  #if HAS_L64XX
-    if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
-      if (L64xxManager.spi_active) {
-        L64xxManager.spi_abort = true;                    // Interrupted SPI transfer needs to shut down gracefully
-        for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-          L6470_buf[j] = dSPIN_NOP;                         // Fill buffer with NOOPs
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
-      }
-
-      // L64xxManager.dir_commands[] is an array that holds direction command for each stepper
-
-      // Scan command array, copy matches into L64xxManager.transfer
-      for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-        L6470_buf[j] = L64xxManager.dir_commands[L64XX::chain[j]];
-
-      L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
-    }
-  #endif
 
   DIR_WAIT_AFTER();
 }
@@ -2002,14 +1975,15 @@ uint32_t Stepper::block_phase_isr() {
           else if (LA_steps) nextAdvanceISR = 0;
         #endif
 
-        /*
+        /**
          * Adjust Laser Power - Accelerating
-         * isPowered - True when a move is powered.
-         * isEnabled - laser power is active.
-         * Laser power variables are calulated and stored in this block by the planner code.
          *
-         * trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
-         * trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
+         *  isPowered - True when a move is powered.
+         *  isEnabled - laser power is active.
+         *
+         * Laser power variables are calulated and stored in this block by the planner code.
+         *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
+         *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
          *
          * Apply the starting active power and then increase power per step by the trap_ramp_entry_incr value if positive.
          */
@@ -2032,6 +2006,7 @@ uint32_t Stepper::block_phase_isr() {
         uint32_t step_rate;
 
         #if ENABLED(S_CURVE_ACCELERATION)
+
           // If this is the 1st time we process the 2nd half of the trapezoid...
           if (!bezier_2nd_half) {
             // Initialize the Bézier speed curve
@@ -2046,6 +2021,7 @@ uint32_t Stepper::block_phase_isr() {
               ? _eval_bezier_curve(deceleration_time)
               : current_block->final_rate;
           }
+
         #else
           // Using the old trapezoidal control
           step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
@@ -2055,9 +2031,8 @@ uint32_t Stepper::block_phase_isr() {
           }
           else
             step_rate = current_block->final_rate;
-        #endif
 
-        // step_rate is in steps/second
+        #endif
 
         // step_rate to timer interval and steps per stepper isr
         interval = calc_timer_interval(step_rate, &steps_per_isr);
@@ -2109,10 +2084,10 @@ uint32_t Stepper::block_phase_isr() {
         interval = ticks_nominal;
       }
 
-      /* Adjust Laser Power - Cruise
+      /**
+       * Adjust Laser Power - Cruise
        * power - direct or floor adjusted active laser power.
        */
-
       #if ENABLED(LASER_POWER_TRAP)
         if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
           if (step_events_completed + 1 == accelerate_until) {
@@ -2130,7 +2105,7 @@ uint32_t Stepper::block_phase_isr() {
     }
 
     #if ENABLED(LASER_FEATURE)
-      /*
+      /**
        * CUTTER_MODE_DYNAMIC is experimental and developing.
        * Super-fast method to dynamically adjust the laser power OCR value based on the input feedrate in mm-per-minute.
        * TODO: Set up Min/Max OCR offsets to allow tuning and scaling of various lasers.
@@ -2147,9 +2122,8 @@ uint32_t Stepper::block_phase_isr() {
   }
   else { // !current_block
     #if ENABLED(LASER_FEATURE)
-      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
         cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
-      }
     #endif
   }
 
@@ -2350,13 +2324,11 @@ uint32_t Stepper::block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if ( ENABLED(HAS_L64XX)       // Always set direction for L64xx (Also enables the chips)
-        || ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
+      if ( ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
         E_TERN_(last_moved_extruder = stepper_extruder);
-        TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
         set_directions(current_block->direction_bits);
       }
 

@@ -52,6 +52,11 @@ if pioutil.is_pio_build():
 		if 'PIOENV' not in env:
 			raise SystemExit("Error: PIOENV is not defined. This script is intended to be used with PlatformIO")
 
+		# Require PlatformIO 6.1.1 or later
+		vers = pioutil.get_pio_version()
+		if vers < [6, 1, 1]:
+			raise SystemExit("Error: Marlin requires PlatformIO >= 6.1.1. Use 'pio upgrade' to get a newer version.")
+
 		if 'MARLIN_FEATURES' not in env:
 			raise SystemExit("Error: this script should be used after common Marlin scripts")
 
