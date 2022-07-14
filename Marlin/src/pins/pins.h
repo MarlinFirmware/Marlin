@@ -567,6 +567,8 @@
   #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
 #elif MB(CREALITY_V4210)
   #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
+#elif MB(CREALITY_V425)
+  #include "stm32f1/pins_CREALITY_V425.h"       // STM32F1                                env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
 #elif MB(CREALITY_V422)
   #include "stm32f1/pins_CREALITY_V422.h"       // STM32F1                                env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
 #elif MB(CREALITY_V423)
