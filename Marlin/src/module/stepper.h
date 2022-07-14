@@ -416,9 +416,7 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       static constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
       static uint32_t nextAdvanceISR,
-                      la_advance_rate,  // Rate in steps/s calculated from current_block->acceleration_rate
                       la_interval;      // Interval between ISR calls for LA
-      static uint8_t  la_scaling;       // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
     #endif
 
 friend class GcodeSuite;
@@ -511,6 +509,7 @@ friend class GcodeSuite;
       current_block = nullptr;
       axis_did_move = 0;
       planner.release_current_block();
+      TERN_(LIN_ADVANCE, nextAdvanceISR = LA_ADV_NEVER);
     }
 
     // Quickly stop all steppers

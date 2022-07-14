@@ -218,9 +218,7 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if ENABLED(LIN_ADVANCE)
   uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
-           Stepper::la_advance_rate = 0,
            Stepper::la_interval = LA_ADV_NEVER;
-  uint8_t  Stepper::la_scaling = 0;
 #endif
 
 #if ENABLED(INTEGRATED_BABYSTEPPING)
@@ -1792,7 +1790,7 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(W);
       #endif
 
-      if (TERN1(LIN_ADVANCE, !la_advance_rate)) {
+      if (TERN1(LIN_ADVANCE, !current_block->la_advance_rate)) {
         #if ENABLED(MIXING_EXTRUDER)
           delta_error.e += advance_dividend.e;
           if (delta_error.e >= 0) {
@@ -1841,7 +1839,7 @@ void Stepper::pulse_phase_isr() {
       PULSE_START(W);
     #endif
 
-    if (TERN1(LIN_ADVANCE, !la_advance_rate)) {
+    if (TERN1(LIN_ADVANCE, !current_block->la_advance_rate)) {
       #if ENABLED(MIXING_EXTRUDER)
         if (step_needed.e) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
       #elif HAS_E0_STEP
@@ -1886,7 +1884,7 @@ void Stepper::pulse_phase_isr() {
       PULSE_STOP(W);
     #endif
 
-    if (TERN1(LIN_ADVANCE, !la_advance_rate)) {
+    if (TERN1(LIN_ADVANCE, !current_block->la_advance_rate)) {
       #if ENABLED(MIXING_EXTRUDER)
         if (delta_error.e >= 0) {
           delta_error.e -= advance_divisor;
@@ -1962,9 +1960,9 @@ uint32_t Stepper::block_phase_isr() {
         acceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
-          if (la_advance_rate) {
-            const uint32_t la_step_rate = acc_step_rate + la_advance_rate;
-            la_interval = calc_timer_interval(la_step_rate) << la_scaling;
+          if (current_block->la_advance_rate) {
+            const uint32_t la_step_rate = acc_step_rate + current_block->la_advance_rate;
+            la_interval = calc_timer_interval(la_step_rate) << current_block->la_scaling;
           }
         #endif
 
@@ -2032,13 +2030,13 @@ uint32_t Stepper::block_phase_isr() {
         deceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
-          if (la_advance_rate && la_advance_rate != step_rate) {
+          if (current_block->la_advance_rate && current_block->la_advance_rate != step_rate) {
             uint32_t la_step_rate;
-            if (la_advance_rate < step_rate) {
-              la_step_rate = step_rate - la_advance_rate;
+            if (current_block->la_advance_rate < step_rate) {
+              la_step_rate = step_rate - current_block->la_advance_rate;
             }
             else {
-              la_step_rate = la_advance_rate - step_rate;
+              la_step_rate = current_block->la_advance_rate - step_rate;
 
               if (!motor_direction(E_AXIS)) {
                 SBI(last_direction_bits, E_AXIS);
@@ -2055,7 +2053,7 @@ uint32_t Stepper::block_phase_isr() {
                 DIR_WAIT_AFTER();
               }
             }
-            la_interval = calc_timer_interval(la_step_rate) << la_scaling;
+            la_interval = calc_timer_interval(la_step_rate) << current_block->la_scaling;
           }
         #endif // LIN_ADVANCE
 
@@ -2090,7 +2088,8 @@ uint32_t Stepper::block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           // No more acceleration, so re-use ticks_nominal but discount the effect of oversampling_factor
-          if (la_advance_rate) la_interval = (ticks_nominal << la_scaling) << oversampling_factor;
+          if (current_block->la_advance_rate)
+            la_interval = (ticks_nominal << current_block->la_scaling) << oversampling_factor;
         #endif
       }
 
@@ -2320,10 +2319,8 @@ uint32_t Stepper::block_phase_isr() {
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
-        la_advance_rate = current_block->la_advance_rate;
-        if (la_advance_rate) {
-          la_scaling = current_block->la_scaling;
-          advance_dividend.e <<= la_scaling;
+        if (current_block->la_advance_rate) {
+          advance_dividend.e <<= current_block->la_scaling;
           // discount the effect of frequency scaling for the stepper
           advance_dividend.e <<= oversampling;
         }
@@ -2384,9 +2381,9 @@ uint32_t Stepper::block_phase_isr() {
       acceleration_time += interval;
 
       #if ENABLED(LIN_ADVANCE)
-        if (la_advance_rate) {
-          const uint32_t la_step_rate = current_block->initial_rate + la_advance_rate;
-          la_interval = calc_timer_interval(la_step_rate) << la_scaling;
+        if (current_block->la_advance_rate) {
+          const uint32_t la_step_rate = current_block->initial_rate + current_block->la_advance_rate;
+          la_interval = calc_timer_interval(la_step_rate) << current_block->la_scaling;
         }
       #endif
     }
