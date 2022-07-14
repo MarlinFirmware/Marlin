@@ -2778,7 +2778,6 @@ void MarlinSettings::postprocess() {
           }
           else
             ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
-          DONE_BUZZ(!status);
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
