@@ -251,12 +251,12 @@ if pioutil.is_pio_build():
 
 	from signature import compute_build_signature
 	compute_build_signature(env)
-		
+
 	def config_dump_target(*args, **kwargs):
 		if 'BUILD_SIGNATURE' not in env:
 			print("Can't generate config dump")
 			return
-		
+
 		opt_output = True
 		key = 'config-dump'
 		output_suffix = '.sh'
