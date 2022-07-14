@@ -32,7 +32,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "Creality V4.2.5"
+  #define BOARD_INFO_NAME "Creality V4.2.5"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "CR200B"
@@ -54,10 +54,10 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE 0x800                // 2K (24C16)
 #else
   #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+  #define MARLIN_EEPROM_SIZE 0x800                // 2K
 #endif
 
 //
@@ -68,9 +68,9 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PA3 //OK
+#define X_STOP_PIN                          PA3
 #define Y_STOP_PIN                          PA4
-#define Z_STOP_PIN                          PA5 //OK
+#define Z_STOP_PIN                          PA5
 
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB0   // BLTouch IN
@@ -137,7 +137,7 @@
 // SD Card
 //
 #define SD_DETECT_PIN                       PC7
-#define SDCARD_CONNECTION                ONBOARD
+#define SDCARD_CONNECTION ONBOARD
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
@@ -201,25 +201,29 @@
   #define BTN_EN1                    EXP1_08_PIN
   #define BTN_EN2                    EXP1_06_PIN
 
-#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+#elif ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI, DWIN_VET6_CREALITY_LCD)
 
-  // RET6 DWIN ENCODER LCD
-  #define BTN_ENC                           PB14
-  #define BTN_EN1                           PB15
-  #define BTN_EN2                           PB12
-
-  //#define LCD_LED_PIN                     PB2
-  #ifndef BEEPER_PIN
-    #define BEEPER_PIN                      PB13
+  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+    // RET6 DWIN ENCODER LCD
+    #define EXP1_03_PIN                     PB15
+    #define EXP1_04_PIN                     PB12
+    #define EXP1_05_PIN                     PB13
+    #define EXP1_06_PIN                     PB14
+    //#define LCD_LED_PIN                   PB2
+  #else
+    // VET6 DWIN ENCODER LCD
+    #define EXP1_03_PIN                     PA7
+    #define EXP1_04_PIN                     PA4
+    #define EXP1_05_PIN                     PA5
+    #define EXP1_06_PIN                     PA6
   #endif
 
-#elif ENABLED(DWIN_VET6_CREALITY_LCD)
+  #define BTN_ENC                    EXP1_06_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_04_PIN
 
-  // VET6 DWIN ENCODER LCD
-  #define BTN_ENC                           PA6
-  #define BTN_EN1                           PA7
-  #define BTN_EN2                           PA4
-
-  #define BEEPER_PIN                        PA5
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN               EXP1_05_PIN
+  #endif
 
 #endif
