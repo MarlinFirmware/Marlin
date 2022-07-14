@@ -25,7 +25,7 @@
  * Extended by: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 2.0.0
  * Date: 2022/05/23
- * 
+ *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
  */
@@ -36,8 +36,8 @@
 
 //#define USE_UBL_VIEWER 1
 
-#define UBL_Z_OFFSET_MIN -3.0
-#define UBL_Z_OFFSET_MAX  3.0
+#define MESH_Z_OFFSET_MIN -3.0
+#define MESH_Z_OFFSET_MAX  3.0
 
 class BedLevelToolsClass {
 public:

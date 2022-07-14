@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -25,7 +25,7 @@
  * Extended by: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 2.0.0
  * Date: 2022/05/23
- * 
+ *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
  */
@@ -199,7 +199,7 @@ bool BedLevelToolsClass::meshvalidate() {
     if (bedlevel.z_values[x][y] < min) min = bedlevel.z_values[x][y];
     if (bedlevel.z_values[x][y] > max) max = bedlevel.z_values[x][y];
   }
-  return (max <= UBL_Z_OFFSET_MAX) && (min >= UBL_Z_OFFSET_MIN);
+  return (max <= MESH_Z_OFFSET_MAX) && (min >= MESH_Z_OFFSET_MIN);
 }
 
 #if ENABLED(USE_UBL_VIEWER)
