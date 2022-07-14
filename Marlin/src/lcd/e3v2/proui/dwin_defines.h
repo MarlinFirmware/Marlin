@@ -38,6 +38,9 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include "../common/dwin_color.h"
 #include <stddef.h>
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../../feature/leds/leds.h"
+#endif
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
