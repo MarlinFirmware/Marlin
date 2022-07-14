@@ -2957,7 +2957,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   block_t * const block = get_next_free_block(next_buffer_head);
 
   // Clear block
-  memset(block, 0, sizeof(block_t));
+  block->reset();
   block->flag.apply(sync_flag);
 
   block->position = position;

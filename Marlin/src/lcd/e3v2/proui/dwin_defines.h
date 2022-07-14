@@ -36,8 +36,8 @@
 //#define NEED_HEX_PRINT 1
 
 #include "../../../inc/MarlinConfigPre.h"
-#include <stddef.h>
 #include "../common/dwin_color.h"
+#include <stddef.h>
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1

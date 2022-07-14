@@ -50,7 +50,7 @@
 
 BedLevelToolsClass BedLevelTools;
 
-#if ENABLED(USE_UBL_VIEWER)
+#if USE_UBL_VIEWER
   bool BedLevelToolsClass::viewer_asymmetric_range = false;
   bool BedLevelToolsClass::viewer_print_value = false;
 #endif
@@ -202,7 +202,8 @@ bool BedLevelToolsClass::meshvalidate() {
   return (max <= MESH_Z_OFFSET_MAX) && (min >= MESH_Z_OFFSET_MIN);
 }
 
-#if ENABLED(USE_UBL_VIEWER)
+#if USE_UBL_VIEWER
+
   void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
@@ -279,6 +280,7 @@ bool BedLevelToolsClass::meshvalidate() {
     ui.set_status(msg);
     drawing_mesh = false;
   }
-#endif
 
-#endif // DWIN_LCD_PROUI
+#endif // USE_UBL_VIEWER
+
+#endif // DWIN_LCD_PROUI && HAS_LEVELING

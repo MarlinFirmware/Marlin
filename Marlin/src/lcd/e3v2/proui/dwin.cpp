@@ -108,11 +108,11 @@
   #include "../../../module/probe.h"
 #endif
 
-#ifdef BLTOUCH
+#if ENABLED(BLTOUCH)
   #include "../../../feature/bltouch.h"
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE)
+#if EITHER(BABYSTEPPING, HAS_BED_PROBE)
   #define HAS_ZOFFSET_ITEM 1
   #if ENABLED(BABYSTEPPING)
     #include "../../../feature/babystep.h"

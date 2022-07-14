@@ -188,7 +188,7 @@ typedef struct {
  * The "nominal" values are as-specified by G-code, and
  * may never actually be reached due to acceleration limits.
  */
-typedef struct block_t {
+typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
@@ -279,6 +279,8 @@ typedef struct block_t {
   #if ENABLED(LASER_FEATURE)
     block_laser_t laser;
   #endif
+
+  void reset() { memset((char*)this, 0, sizeof(*this)); }
 
 } block_t;
 

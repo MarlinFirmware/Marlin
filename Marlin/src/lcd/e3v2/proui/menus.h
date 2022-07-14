@@ -168,7 +168,7 @@ bool SetMenu(MenuClass* &menu, FSTR_P title, int8_t totalitems);
 void UpdateMenu(MenuClass* &menu);
 
 //Redraw the current Menu if it is valid
-void ReDrawMenu(bool force = false);
+void ReDrawMenu(const bool force=false);
 
 // Clear MenuItems array and free MenuItems elements
 void MenuItemsClear();

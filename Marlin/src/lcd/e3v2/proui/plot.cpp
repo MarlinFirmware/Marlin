@@ -48,7 +48,7 @@
 
 #include "dwin_defines.h"
 
-#ifdef HAS_PIDPLOT
+#if HAS_PIDPLOT
 
 #include "plot.h"
 

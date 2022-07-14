@@ -168,7 +168,7 @@ void onDrawChkbMenu(MenuItemClass* menuitem, int8_t line) {
 
 void DrawItemEdit() {
   switch (checkkey) {
-    case SetIntNoDraw:  if(MenuData.LiveUpdate) MenuData.LiveUpdate(); break;
+    case SetIntNoDraw:  if (MenuData.LiveUpdate) MenuData.LiveUpdate(); break;
     case SetInt:
     case SetPInt:       DWINUI::Draw_Signed_Int(HMI_data.Text_Color, HMI_data.Selected_Color, 4 , VALX, MBASE(CurrentMenu->line()) - 1, MenuData.Value); break;
     case SetFloat:
@@ -558,8 +558,8 @@ void UpdateMenu(MenuClass* &menu) {
   menu->draw();
 }
 
-void ReDrawMenu(bool force /*= false*/) {
-  if (CurrentMenu && (force || checkkey==Menu)) CurrentMenu->draw();
+void ReDrawMenu(const bool force/*=false*/) {
+  if (CurrentMenu && (force || checkkey == Menu)) CurrentMenu->draw();
   if (force) DrawItemEdit();
 }
 

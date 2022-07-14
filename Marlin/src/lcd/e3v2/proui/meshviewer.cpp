@@ -111,7 +111,7 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
 
 void MeshViewerClass::Draw(bool withsave /*= false*/) {
   Title.ShowCaption(GET_TEXT_F(MSG_MESH_VIEWER));
-  #if ENABLED(USE_UBL_VIEWER)
+  #if USE_UBL_VIEWER
     DWINUI::ClearMainArea();
     BedLevelTools.viewer_print_value = true;
     BedLevelTools.Draw_Bed_Mesh(-1, 1, 8, 10 + TITLE_HEIGHT);
@@ -126,7 +126,7 @@ void MeshViewerClass::Draw(bool withsave /*= false*/) {
   else
     DWINUI::Draw_Button(BTN_Continue, 86, 305);
 
-  #if ENABLED(USE_UBL_VIEWER)
+  #if USE_UBL_VIEWER
     BedLevelTools.Set_Mesh_Viewer_Status();
   #else
     char str_1[6], str_2[6] = "";

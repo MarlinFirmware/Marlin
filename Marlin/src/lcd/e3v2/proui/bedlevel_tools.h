@@ -34,14 +34,16 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-//#define USE_UBL_VIEWER 1
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  //#define USE_UBL_VIEWER 1
+#endif
 
 #define MESH_Z_OFFSET_MIN -3.0
 #define MESH_Z_OFFSET_MAX  3.0
 
 class BedLevelToolsClass {
 public:
-  #if ENABLED(USE_UBL_VIEWER)
+  #if USE_UBL_VIEWER
     static bool viewer_asymmetric_range;
     static bool viewer_print_value;
   #endif
@@ -64,7 +66,7 @@ public:
   static float get_max_value();
   static float get_min_value();
   static bool meshvalidate();
-  #if ENABLED(USE_UBL_VIEWER)
+  #if USE_UBL_VIEWER
     static void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7);
     static void Set_Mesh_Viewer_Status();
   #endif
