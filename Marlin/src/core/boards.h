@@ -407,17 +407,18 @@
 #define BOARD_MKS_ROBIN_PRO_V2        4227  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4228  // MKS Robin Nano V3 (STM32F407VG)
 #define BOARD_MKS_ROBIN_NANO_V3_1     4229  // MKS Robin Nano V3.1 (STM32F407VE)
-#define BOARD_MKS_MONSTER8            4230  // MKS Monster8 (STM32F407VG)
-#define BOARD_ANET_ET4                4231  // ANET ET4 V1.x (STM32F407VG)
-#define BOARD_ANET_ET4P               4232  // ANET ET4P V1.x (STM32F407VG)
-#define BOARD_FYSETC_CHEETAH_V20      4233  // FYSETC Cheetah V2.0
-#define BOARD_TH3D_EZBOARD_V2         4234  // TH3D EZBoard v2.0
-#define BOARD_INDEX_REV03             4235  // Index PnP Controller REV03 (STM32F407VE/VG)
-#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4236  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
-#define BOARD_MKS_EAGLE               4237  // MKS Eagle (STM32F407VE)
-#define BOARD_ARTILLERY_RUBY          4238  // Artillery Ruby (STM32F401RC)
-#define BOARD_FYSETC_SPIDER_V2_2      4239  // FYSETC Spider V2.2 (STM32F446VE)
-#define BOARD_CREALITY_V24S1_301F4    4240  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
+#define BOARD_MKS_MONSTER8_V1         4230  // MKS Monster8 V1 (STM32F407VG)
+#define BOARD_MKS_MONSTER8_V2         4231  // MKS Monster8 V2 (STM32F407VG)
+#define BOARD_ANET_ET4                4232  // ANET ET4 V1.x (STM32F407VG)
+#define BOARD_ANET_ET4P               4233  // ANET ET4P V1.x (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V20      4234  // FYSETC Cheetah V2.0
+#define BOARD_TH3D_EZBOARD_V2         4235  // TH3D EZBoard v2.0
+#define BOARD_OPULO_LUMEN_REV3        4236  // Opulo Lumen PnP Controller REV3 (STM32F407VE/VG)
+#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4237  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
+#define BOARD_MKS_EAGLE               4238  // MKS Eagle (STM32F407VE)
+#define BOARD_ARTILLERY_RUBY          4239  // Artillery Ruby (STM32F401RC)
+#define BOARD_FYSETC_SPIDER_V2_2      4240  // FYSETC Spider V2.2 (STM32F446VE)
+#define BOARD_CREALITY_V24S1_301F4    4241  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
 
 //
 // ARM Cortex M7
@@ -427,9 +428,10 @@
 #define BOARD_TEENSY41                5001  // Teensy 4.1
 #define BOARD_T41U5XBB                5002  // T41U5XBB Teensy 4.1 breakout board
 #define BOARD_NUCLEO_F767ZI           5003  // ST NUCLEO-F767ZI Dev Board
-#define BOARD_BTT_SKR_SE_BX           5004  // BigTreeTech SKR SE BX (STM32H743II)
-#define BOARD_BTT_SKR_V3_0            5005  // BigTreeTech SKR V3.0 (STM32H743VG)
-#define BOARD_BTT_SKR_V3_0_EZ         5006  // BigTreeTech SKR V3.0 EZ (STM32H743VG)
+#define BOARD_BTT_SKR_SE_BX_V2        5004  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
+#define BOARD_BTT_SKR_SE_BX_V3        5005  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
+#define BOARD_BTT_SKR_V3_0            5006  // BigTreeTech SKR V3.0 (STM32H743VG)
+#define BOARD_BTT_SKR_V3_0_EZ         5007  // BigTreeTech SKR V3.0 EZ (STM32H743VG)
 
 //
 // Espressif ESP32 WiFi

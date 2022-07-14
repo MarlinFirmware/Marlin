@@ -60,8 +60,8 @@
   #endif
 #endif
 
-#define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
-#define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&spinlock)
+#define CRITICAL_SECTION_START() portENTER_CRITICAL(&hal.spinlock)
+#define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&hal.spinlock)
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 #define PWM_FREQUENCY  1000u   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()

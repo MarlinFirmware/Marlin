@@ -424,7 +424,7 @@
       //#define LCD_SDSS                    SDSS
       //#define SD_DETECT_PIN        EXP2_01_PIN
 
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       // TO TEST
       //#define DOGLCD_CS                     45

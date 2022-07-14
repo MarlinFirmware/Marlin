@@ -966,7 +966,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     next_idle_ms = ms + 200UL;
     return idle();
   }
-  thermalManager.manage_heater();  // Returns immediately on most calls
+  thermalManager.task();  // Returns immediately on most calls
 }
 
 #if IS_KINEMATIC
@@ -1041,19 +1041,18 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     NOLESS(segments, 1U);
 
     // The approximate length of each segment
-    const float inv_segments = 1.0f / float(segments),
-                cartesian_segment_mm = cartesian_mm * inv_segments;
+    const float inv_segments = 1.0f / float(segments);
     const xyze_float_t segment_distance = diff * inv_segments;
 
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float inv_duration = scaled_fr_mm_s / cartesian_segment_mm;
-    #endif
+    // Add hints to help optimize the move
+    PlannerHints hints(cartesian_mm * inv_segments);
+    TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
     /*
     SERIAL_ECHOPGM("mm=", cartesian_mm);
     SERIAL_ECHOPGM(" seconds=", seconds);
     SERIAL_ECHOPGM(" segments=", segments);
-    SERIAL_ECHOPGM(" segment_mm=", cartesian_segment_mm);
+    SERIAL_ECHOPGM(" segment_mm=", hints.millimeters);
     SERIAL_EOL();
     //*/
 
@@ -1065,11 +1064,12 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     while (--segments) {
       segment_idle(next_idle_ms);
       raw += segment_distance;
-      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))) break;
+      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
+        break;
     }
 
     // Ensure last segment arrives at target location.
-    planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+    planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
 
     return false; // caller will update current_position
   }
@@ -1108,17 +1108,16 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       NOLESS(segments, 1U);
 
       // The approximate length of each segment
-      const float inv_segments = 1.0f / float(segments),
-                  cartesian_segment_mm = cartesian_mm * inv_segments;
+      const float inv_segments = 1.0f / float(segments);
       const xyze_float_t segment_distance = diff * inv_segments;
 
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        const float inv_duration = scaled_fr_mm_s / cartesian_segment_mm;
-      #endif
+      // Add hints to help optimize the move
+      PlannerHints hints(cartesian_mm * inv_segments);
+      TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);
-      //SERIAL_ECHOLNPGM(" segment_mm=", cartesian_segment_mm);
+      //SERIAL_ECHOLNPGM(" segment_mm=", hints.millimeters);
 
       // Get the raw current position as starting point
       xyze_pos_t raw = current_position;
@@ -1128,12 +1127,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       while (--segments) {
         segment_idle(next_idle_ms);
         raw += segment_distance;
-        if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))) break;
+        if (!planner.buffer_line(raw, fr_mm_s, active_extruder, hints))
+          break;
       }
 
       // Since segment_distance is only approximate,
       // the final move must be to the exact destination.
-      planner.buffer_line(destination, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+      planner.buffer_line(destination, fr_mm_s, active_extruder, hints);
     }
 
   #endif // SEGMENT_LEVELED_MOVES && !AUTO_BED_LEVELING_UBL

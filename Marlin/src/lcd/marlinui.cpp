@@ -49,8 +49,6 @@ MarlinUI ui;
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "e3v2/proui/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "e3v2/jyersui/dwin.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -161,7 +159,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   bool MarlinUI::lcd_clicked;
 #endif
 
-#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+#if HAS_WIRED_LCD
 
   bool MarlinUI::get_blink() {
     static uint8_t blink = 0;
@@ -417,26 +415,26 @@ void MarlinUI::init() {
         };
 
         const uint8_t *p = (uint8_t*)string;
-        wchar_t ch;
+        lchar_t wc;
         if (wordwrap) {
           const uint8_t *wrd = nullptr;
           uint8_t c = 0;
           // find the end of the part
           for (;;) {
             if (!wrd) wrd = p;            // Get word start /before/ advancing
-            p = get_utf8_value_cb(p, cb_read_byte, &ch);
-            const bool eol = !ch;         // zero ends the string
+            p = get_utf8_value_cb(p, cb_read_byte, wc);
+            const bool eol = !wc;         // zero ends the string
             // End or a break between phrases?
-            if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
-              if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
+            if (eol || wc == ' ' || wc == '-' || wc == '+' || wc == '.') {
+              if (!c && wc == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
               // Past the right and the word is not too long?
               if (col + c > LCD_WIDTH && col >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
               c += !eol;                  // +1 so the space will be printed
               col += c;                   // advance col to new position
               while (c) {                 // character countdown
                 --c;                      // count down to zero
-                wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
-                lcd_put_wchar(ch);        // character to the LCD
+                wrd = get_utf8_value_cb(wrd, cb_read_byte, wc); // get characters again
+                lcd_put_lchar(wc);        // character to the LCD
               }
               if (eol) break;             // all done!
               wrd = nullptr;              // set up for next word
@@ -446,9 +444,9 @@ void MarlinUI::init() {
         }
         else {
           for (;;) {
-            p = get_utf8_value_cb(p, cb_read_byte, &ch);
-            if (!ch) break;
-            lcd_put_wchar(ch);
+            p = get_utf8_value_cb(p, cb_read_byte, wc);
+            if (!wc) break;
+            lcd_put_lchar(wc);
             col++;
             if (col >= LCD_WIDTH) _newline();
           }
@@ -1575,7 +1573,6 @@ void MarlinUI::init() {
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
     TERN_(DWIN_LCD_PROUI, DWIN_CheckStatusMessage());
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
