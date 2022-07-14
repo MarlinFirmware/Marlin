@@ -21,7 +21,7 @@
  */
 #pragma once
 
-typedef uint8_t font_t;
+typedef uint8_t fontid_t;
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
