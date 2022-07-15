@@ -223,7 +223,7 @@ float Planner::previous_nominal_speed;
 #ifdef XY_FREQUENCY_LIMIT
   int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
   float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
-  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0 / (XY_FREQUENCY_LIMIT));
+  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -803,9 +803,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   if (accel != 0) {
     // Steps required for acceleration, deceleration to/from nominal rate
     const float nominal_rate_sq = sq(float(block->nominal_rate));
-    float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5 / accel);
+    float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f / accel);
     accelerate_steps = CEIL(accelerate_steps_float);
-    const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5 / accel);
+    const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5f / accel);
     decelerate_steps = decelerate_steps_float;
 
     // Steps between acceleration and deceleration, if any
@@ -816,7 +816,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     // Calculate accel / braking time in order to reach the final_rate exactly
     // at the end of this block.
     if (plateau_steps < 0) {
-      accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5);
+      accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
       accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
       decelerate_steps = block->step_event_count - accelerate_steps;
 
@@ -1185,7 +1185,7 @@ void Planner::recalculate_trapezoids(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t 
 
   // Go from the tail (currently executed block) to the first block, without including it)
   block_t *block = nullptr, *next = nullptr;
-  float current_entry_speed = 0.0, next_entry_speed = 0.0;
+  float current_entry_speed = 0.0f, next_entry_speed = 0.0f;
   while (block_index != head_block_index) {
 
     next = &block_buffer[block_index];
@@ -1489,7 +1489,7 @@ void Planner::check_axes_activity() {
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       const block_t * const block = &block_buffer[b];
       if (NUM_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, || block->steps.u, || block->steps.v, || block->steps.w)) {
-        const float se = (float)block->steps.e / block->step_event_count * block->nominal_speed; // mm/sec
+        const float se = float(block->steps.e) / block->step_event_count * block->nominal_speed; // mm/sec
         NOLESS(high, se);
       }
     }
@@ -1940,7 +1940,7 @@ bool Planner::_populate_block(
           #if ENABLED(MIXING_EXTRUDER)
             bool ignore_e = false;
             float collector[MIXING_STEPPERS];
-            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+            mixer.refresh_collector(1.0f, mixer.get_current_vtool(), collector);
             MIXER_STEPPER_LOOP(e)
               if (e_steps * collector[e] > max_e_steps) { ignore_e = true; break; }
           #else
@@ -2197,7 +2197,7 @@ bool Planner::_populate_block(
       #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
         if (NEAR_ZERO(distance_sqr)) {
           // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          distance_sqr = (0.0
+          distance_sqr = (0.0f
             SECONDARY_AXIS_GANG(
               IF_DISABLED(AXIS4_ROTATES, + sq(steps_dist_mm.i)),
               IF_DISABLED(AXIS5_ROTATES, + sq(steps_dist_mm.j)),
@@ -3260,7 +3260,7 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   );
 
   if (has_blocks_queued()) {
-    //previous_nominal_speed = 0.0; // Reset planner junction speeds. Assume start from rest.
+    //previous_nominal_speed = 0.0f; // Reset planner junction speeds. Assume start from rest.
     //previous_speed.reset();
     buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
   }
@@ -3336,7 +3336,7 @@ void Planner::refresh_positioning() {
 inline void limit_and_warn(float &val, const AxisEnum axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = TERN_(HAS_EXTRUDERS, axis > E_AXIS ? E_AXIS :) axis;
   const float before = val;
-  LIMIT(val, 0.1, max_limit[lim_axis]);
+  LIMIT(val, 0.1f, max_limit[lim_axis]);
   if (before != val) {
     SERIAL_CHAR(AXIS_CHAR(lim_axis));
     SERIAL_ECHOPGM(" Max ");
