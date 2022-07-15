@@ -84,9 +84,9 @@ def Upload(source, target, env):
             try:
                 clean_response = Resp.decode('utf8').rstrip().lstrip()
                 clean_responses.append(clean_response)
+                debugPrint(f'<< {clean_response}')
             except:
                 pass
-            debugPrint(f'<< {clean_response}')
         return clean_responses
 
     #------------------#
