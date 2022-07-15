@@ -28,12 +28,14 @@
  * Derived from Grbl
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  *
- * The ring buffer implementation gleaned from the wiring_serial library by David A. Mellis.
+ * Ring buffer gleaned from wiring_serial library by David A. Mellis.
  *
+ * Fast inverse function needed for Bézier interpolation for AVR
+ * was designed, written and tested by Eduardo José Tagle, April 2018.
  *
- * Reasoning behind the mathematics in this module (in the key of 'Mathematica'):
+ * Planner mathematics (Mathematica-style):
  *
- * s == speed, a == acceleration, t == time, d == distance
+ * Where: s == speed, a == acceleration, t == time, d == distance
  *
  * Basic definitions:
  *   Speed[s_, a_, t_] := s + (a*t)
@@ -41,7 +43,7 @@
  *
  * Distance to reach a specific speed with a constant acceleration:
  *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, d, t]
- *   d -> (m^2 - s^2)/(2 a)
+ *   d -> (m^2 - s^2) / (2 a)
  *
  * Speed after a given distance of travel with constant acceleration:
  *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, m, t]
@@ -49,22 +51,18 @@
  *
  * DestinationSpeed[s_, a_, d_] := Sqrt[2 a d + s^2]
  *
- * When to start braking (di) to reach a specified destination speed (s2) after accelerating
- * from initial speed s1 without ever stopping at a plateau:
+ * When to start braking (di) to reach a specified destination speed (s2) after
+ * acceleration from initial speed s1 without ever reaching a plateau:
  *   Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]
  *   di -> (2 a d - s1^2 + s2^2)/(4 a)
  *
- * We note, as an optimisation, that if we have already calculated an
+ * We note, as an optimization, that if we have already calculated an
  * acceleration distance d1 from s1 to m and a deceration distance d2
  * from m to s2 then
  *
- *   d1 -> (m^2 - s1^2)/(2 a)
- *   d2 -> (m^2 - s2^2)/(2 a)
+ *   d1 -> (m^2 - s1^2) / (2 a)
+ *   d2 -> (m^2 - s2^2) / (2 a)
  *   di -> (d + d1 - d2) / 2
- * --
- *
- * The fast inverse function needed for Bézier interpolation for AVR
- * was designed, written and tested by Eduardo José Tagle on April/2018
  */
 
 #include "planner.h"
@@ -831,8 +829,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
-    uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
-             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE),
+    uint32_t acceleration_time = (float(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
+             deceleration_time = (float(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE),
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
              acceleration_time_inverse = get_period_inverse(acceleration_time),
              deceleration_time_inverse = get_period_inverse(deceleration_time);
@@ -1300,14 +1298,10 @@ void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_s
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
     const millis_t ms = millis();
-    TERN_(HAS_FAN0, FAN_SET(0));
-    TERN_(HAS_FAN1, FAN_SET(1));
-    TERN_(HAS_FAN2, FAN_SET(2));
-    TERN_(HAS_FAN3, FAN_SET(3));
-    TERN_(HAS_FAN4, FAN_SET(4));
-    TERN_(HAS_FAN5, FAN_SET(5));
-    TERN_(HAS_FAN6, FAN_SET(6));
-    TERN_(HAS_FAN7, FAN_SET(7));
+    TERN_(HAS_FAN0, FAN_SET(0)); TERN_(HAS_FAN1, FAN_SET(1));
+    TERN_(HAS_FAN2, FAN_SET(2)); TERN_(HAS_FAN3, FAN_SET(3));
+    TERN_(HAS_FAN4, FAN_SET(4)); TERN_(HAS_FAN5, FAN_SET(5));
+    TERN_(HAS_FAN6, FAN_SET(6)); TERN_(HAS_FAN7, FAN_SET(7));
   }
 
   #if FAN_KICKSTART_TIME
