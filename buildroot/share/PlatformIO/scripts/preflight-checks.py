@@ -79,22 +79,26 @@ if pioutil.is_pio_build():
 					raise SystemExit(err)
 
 		#
+		# Find the name.cpp.o or name.o and remove it
+		#
+		def rm_ofile(subdir, name):
+			build_dir = os.path.join(env['PROJECT_BUILD_DIR'], build_env);
+			for outdir in [ build_dir, os.path.join(build_dir, "debug") ]:
+				for ext in [ ".cpp.o", ".o" ]:
+					fpath = os.path.join(outdir, "src", "src", subdir, name + ext)
+					if os.path.exists(fpath):
+						os.remove(fpath)
+
+		#
 		# Give warnings on every build
 		#
-		build_dir = os.path.join(env['PROJECT_BUILD_DIR'], build_env);
-		for outdir in [ build_dir, os.path.join(build_dir, "debug") ]:
-			for wext in [ ".cpp", "" ]:
-				warnfile = os.path.join(outdir, "src", "src", "inc", "Warnings" + wext + ".o")
-				if os.path.exists(warnfile):
-					os.remove(warnfile)
+		rm_ofile("inc", "Warnings")
 
 		#
 		# Rebuild 'settings.cpp' for EEPROM_INIT_NOW
 		#
 		if 'EEPROM_INIT_NOW' in env['MARLIN_FEATURES']:
-			setfile = os.path.join(srcpath, "module", "settings.cpp.o")
-			if os.path.exists(setfile):
-				os.remove(setfile)
+			rm_ofile("module", "settings")
 
 		#
 		# Check for old files indicating an entangled Marlin (mixing old and new code)
