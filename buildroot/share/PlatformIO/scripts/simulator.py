@@ -50,5 +50,3 @@ if pioutil.is_pio_build():
 
 			# Break out of the PIO build immediately
 			sys.exit(1)
-
-	env.AddCustomTarget("upload", "$BUILD_DIR/${PROGNAME}", "$BUILD_DIR/${PROGNAME}")
