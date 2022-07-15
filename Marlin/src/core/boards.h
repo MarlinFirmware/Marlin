@@ -332,14 +332,14 @@
 #define BOARD_BTT_SKR_E3_DIP          4029  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
 #define BOARD_BTT_SKR_CR6             4030  // BigTreeTech SKR CR6 v1.0 (STM32F103RE)
 #define BOARD_JGAURORA_A5S_A1         4031  // JGAurora A5S A1 (STM32F103ZE)
-#define BOARD_FYSETC_AIO_II           4032  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4033  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4034  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4035  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VE
+#define BOARD_FYSETC_AIO_II           4032  // FYSETC AIO_II (STM32F103RC)
+#define BOARD_FYSETC_CHEETAH          4033  // FYSETC Cheetah (STM32F103RC)
+#define BOARD_FYSETC_CHEETAH_V12      4034  // FYSETC Cheetah V1.2 (STM32F103RC)
+#define BOARD_LONGER3D_LK             4035  // Longer3D LK1/2 - Alfawise U20/U20+/U30 (STM32F103VE)
 #define BOARD_CCROBOT_MEEB_3DP        4036  // ccrobot-online.com MEEB_3DP (STM32F103RC)
-#define BOARD_CHITU3D_V5              4037  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board
-#define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board
+#define BOARD_CHITU3D_V5              4037  // Chitu3D TronXY X5SA V5 Board (STM32F103ZE)
+#define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board (STM32F103ZE)
+#define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board (STM32F103ZE)
 #define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V422           4041  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V423           4042  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
@@ -395,7 +395,7 @@
 #define BOARD_BTT_GTR_V1_0            4214  // BigTreeTech GTR v1.0 (STM32F407IGT)
 #define BOARD_BTT_OCTOPUS_V1_0        4215  // BigTreeTech Octopus v1.0 (STM32F446ZE)
 #define BOARD_BTT_OCTOPUS_V1_1        4216  // BigTreeTech Octopus v1.1 (STM32F446ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0    4217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZE/STM32F429ZG)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0    4217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZE / STM32F429ZG)
 #define BOARD_LERDGE_K                4218  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_S                4219  // Lerdge S (STM32F407VE)
 #define BOARD_LERDGE_X                4220  // Lerdge X (STM32F407VE)
@@ -408,13 +408,13 @@
 #define BOARD_MKS_ROBIN_PRO_V2        4227  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4228  // MKS Robin Nano V3 (STM32F407VG)
 #define BOARD_MKS_ROBIN_NANO_V3_1     4229  // MKS Robin Nano V3.1 (STM32F407VE)
-#define BOARD_MKS_MONSTER8_V1         4230  // MKS Monster8 V1 (STM32F407VG)
-#define BOARD_MKS_MONSTER8_V2         4231  // MKS Monster8 V2 (STM32F407VG)
+#define BOARD_MKS_MONSTER8_V1         4230  // MKS Monster8 V1 (STM32F407VE)
+#define BOARD_MKS_MONSTER8_V2         4231  // MKS Monster8 V2 (STM32F407VE)
 #define BOARD_ANET_ET4                4232  // ANET ET4 V1.x (STM32F407VG)
 #define BOARD_ANET_ET4P               4233  // ANET ET4P V1.x (STM32F407VG)
-#define BOARD_FYSETC_CHEETAH_V20      4234  // FYSETC Cheetah V2.0
-#define BOARD_TH3D_EZBOARD_V2         4235  // TH3D EZBoard v2.0
-#define BOARD_OPULO_LUMEN_REV3        4236  // Opulo Lumen PnP Controller REV3 (STM32F407VE/VG)
+#define BOARD_FYSETC_CHEETAH_V20      4234  // FYSETC Cheetah V2.0 (STM32F401RC)
+#define BOARD_TH3D_EZBOARD_V2         4235  // TH3D EZBoard v2.0 (STM32F405RG)
+#define BOARD_OPULO_LUMEN_REV3        4236  // Opulo Lumen PnP Controller REV3 (STM32F407VE / STM32F407VG)
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4237  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
 #define BOARD_MKS_EAGLE               4238  // MKS Eagle (STM32F407VE)
 #define BOARD_ARTILLERY_RUBY          4239  // Artillery Ruby (STM32F401RC)
