@@ -36,89 +36,56 @@
 //
 // Limit Switches
 //
-#define _S0_PIN                            P1_22  // (S0)
-#define _S1_PIN                            P1_23  // (S1)
-#define _S2_PIN                            P1_24  // (S2)
-#define _S3_PIN                            P0_26  // (S3)
-#define _S4_PIN                            P0_26  // (S4: optocoupled)
+#define X_STOP_PIN                         P1_22  // S0
+#define Y_STOP_PIN                         P1_23  // S1
+#define Z_STOP_PIN                         P1_24  // S2
 
-#define X_MAX_PIN                        _S0_PIN
-#define Y_MAX_PIN                        _S1_PIN
-#define Z_MAX_PIN                        _S2_PIN
-#define Z_MIN_PIN                        _S4_PIN  // manual probe
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                  P0_26  // S3 / S4 (opto)
+#endif
 
 //
 // Steppers
 //
-#define _M1_STEP_PIN                       P2_00
-#define _M1_DIR_PIN                        P3_26
-#define _M1_ENABLE_PIN                     P3_25
+#define X_STEP_PIN                         P2_02  // M3
+#define X_DIR_PIN                          P4_28
+#define X_ENABLE_PIN                       P4_29
 
-#define _M2_STEP_PIN                       P2_01
-#define _M2_DIR_PIN                        P0_22
-#define _M2_ENABLE_PIN                     P0_21
+#define Y_STEP_PIN                         P2_01  // M2
+#define Y_DIR_PIN                          P0_22
+#define Y_ENABLE_PIN                       P0_21
 
-#define _M3_STEP_PIN                       P2_02
-#define _M3_DIR_PIN                        P4_28
-#define _M3_ENABLE_PIN                     P4_29
+#define Z_STEP_PIN                         P2_00  // M1
+#define Z_DIR_PIN                          P3_26
+#define Z_ENABLE_PIN                       P3_25
 
-#define _M4_STEP_PIN                       P2_03
-#define _M4_DIR_PIN                        P0_04
-#define _M4_ENABLE_PIN                     P0_05  // the doc wrongly says 0.3
+#define E0_STEP_PIN                        P2_03
+#define E0_DIR_PIN                         P0_04
+#define E0_ENABLE_PIN                      P0_05  // Correct!
 
-#define _M5_STEP_PIN                       P2_08
-#define _M5_DIR_PIN                        P0_20
-#define _M5_ENABLE_PIN                     P0_19
-
-#define X_STEP_PIN                  _M3_STEP_PIN
-#define X_DIR_PIN                    _M3_DIR_PIN
-#define X_ENABLE_PIN              _M3_ENABLE_PIN
-
-#define Y_STEP_PIN                  _M2_STEP_PIN
-#define Y_DIR_PIN                    _M2_DIR_PIN
-#define Y_ENABLE_PIN              _M2_ENABLE_PIN
-
-#define Z_STEP_PIN                  _M1_STEP_PIN
-#define Z_DIR_PIN                    _M1_DIR_PIN
-#define Z_ENABLE_PIN              _M1_ENABLE_PIN
-
-#define E0_STEP_PIN                 _M4_STEP_PIN
-#define E0_DIR_PIN                   _M4_DIR_PIN
-#define E0_ENABLE_PIN             _M4_ENABLE_PIN
-
-#define E1_STEP_PIN                 _M5_STEP_PIN
-#define E1_DIR_PIN                   _M5_DIR_PIN
-#define E1_ENABLE_PIN             _M5_ENABLE_PIN
+#define E1_STEP_PIN                        P2_08
+#define E1_DIR_PIN                         P0_20
+#define E1_ENABLE_PIN                      P0_19
 
 //
 // Temperature Sensors
 // 3.3V max when defined as an analog input
 //
-#define _TH0_PIN                        P0_23_A0  // (TH0)
-#define _TH1_PIN                        P0_24_A1  // (TH1)
-#define _TH2_PIN                        P0_25_A2  // (TH2)
-
-#define TEMP_0_PIN                      _TH1_PIN
-#define TEMP_1_PIN                      _TH0_PIN
-#define TEMP_BED_PIN                    _TH2_PIN
+#define TEMP_0_PIN                      P0_24_A1  // A1 (TH1)
+#define TEMP_1_PIN                      P0_23_A0  // A0 (TH0)
+#define TEMP_BED_PIN                    P0_25_A2  // A2 (TH2)
 
 //
 // Heaters / Fans
 //
 #define _H0_PIN                            P2_04  // (H0: 15A)
-#define _H1_PIN                            P2_05  // (H1: 10A shared)
-#define _H2_PIN                            P2_06  // (H2: 10A shared)
-#define _H3_PIN                            P2_07  // (H3: 10A shared)
 
-#define _FAN0_PIN                          P2_11  // (FAN0: 1A)
-#define _FAN1_PIN                          P2_13  // (FAN1: 1A)
+#define HEATER_BED_PIN                     P2_05  // (H1: 10A shared)
+#define HEATER_0_PIN                       P2_06  // (H2: 10A shared)
+#define HEATER_1_PIN                       P2_07  // (H3: 10A shared)
 
-#define HEATER_BED_PIN                   _H1_PIN
-#define HEATER_0_PIN                     _H2_PIN
-#define HEATER_1_PIN                     _H3_PIN
-
-#define FAN_PIN                        _FAN0_PIN  // part cooling on Micro-Delta Rework
-#define FAN1_PIN                       _FAN1_PIN  // extruder fan on Micro-Delta Rework
+#define FAN_PIN                            P2_11  // (FAN0: 1A)
+#define FAN1_PIN                           P2_13  // (FAN1: 1A)
 
 //
 // Extension ports
