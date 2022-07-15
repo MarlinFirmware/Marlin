@@ -23,8 +23,8 @@
 
 /**
  * eMotion-Tech eMotronic pin assignments
- * 
- * Board pins<->features assignments are based on the 
+ *
+ * Board pins<->features assignments are based on the
  * Micro-Delta Rework printer default connections.
  */
 
@@ -123,27 +123,25 @@
 //
 // Extension ports
 //
-#define _EXT1_01                           P0_03  // RX0
-#define _EXT1_02                           P0_02  // TX0
-#define _EXT1_03                           P1_30
-#define _EXT1_04                           P1_31
-#define _EXT1_05                           P0_17  // MISO0
-#define _EXT1_06                           P0_18  // MOSI0
-#define _EXT1_07                           P0_15  // SCK0
-#define _EXT1_08                           P0_16  // SSEL0
-#define _EXT1_09                           P0_27  // SDA0
-#define _EXT1_10                           P0_28  // SCL0
+#define EXP1_01_PIN                        P0_28  // SCL0
+#define EXP1_02_PIN                        P0_27  // SDA0
+#define EXP1_03_PIN                        P0_16  // SSEL0
+#define EXP1_04_PIN                        P0_15  // SCK0
+#define EXP1_05_PIN                        P0_18  // MOSI0
+#define EXP1_06_PIN                        P0_17  // MISO0
+#define EXP1_07_PIN                        P1_31
+#define EXP1_08_PIN                        P1_30
+#define EXP1_09_PIN                        P0_02  // TX0
+#define EXP1_10_PIN                        P0_03  // RX0
 
-#define _EXT2_01                           P0_10
-#define _EXT2_02                           P0_11
-#define _EXT2_03                           P0_00  // SDA1
-#define _EXT2_04                           P0_01  // SCL1
-#define _EXT2_05                           P1_28
-#define _EXT2_06                           P1_29
-#define _EXT2_07                           P1_26
-#define _EXT2_08                           P1_27
-#define _EXT2_09                           -1 /* GND */
-#define _EXT2_10                           -1 /* 5V */
+#define EXP2_03_PIN                        P1_27
+#define EXP2_04_PIN                        P1_26
+#define EXP2_05_PIN                        P1_29
+#define EXP2_06_PIN                        P1_28
+#define EXP2_07_PIN                        P0_01  // SCL1
+#define EXP2_08_PIN                        P0_00  // SDA1
+#define EXP2_09_PIN                        P0_11
+#define EXP2_10_PIN                        P0_10
 
 //
 // SD Support
@@ -158,11 +156,11 @@
   #define SD_MOSI_PIN                      P0_09
   #define SD_SS_PIN                        P0_06
 #elif SD_CONNECTION_IS(LCD)
-  #define SD_SCK_PIN                    _EXT1_07
-  #define SD_MISO_PIN                   _EXT1_05
-  #define SD_MOSI_PIN                   _EXT1_06
-  #define SD_SS_PIN                     _EXT1_08
-  #define SD_DETECT_PIN                 _EXT1_04
+  #define SD_SCK_PIN                 EXP1_04_PIN
+  #define SD_MISO_PIN                EXP1_06_PIN
+  #define SD_MOSI_PIN                EXP1_05_PIN
+  #define SD_SS_PIN                  EXP1_03_PIN
+  #define SD_DETECT_PIN              EXP1_07_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -171,13 +169,13 @@
 // LCD / Controller
 //
 #if ENABLED(EMOTION_TECH_LCD)
-  #define BEEPER_PIN                    _EXT2_01
-  #define DOGLCD_A0                     _EXT2_06
-  #define DOGLCD_CS                     _EXT2_04
-  #define DOGLCD_SCK                    _EXT1_07
-  #define DOGLCD_MOSI                   _EXT1_06
+  #define BEEPER_PIN                 EXP2_10_PIN
+  #define DOGLCD_A0                  EXP2_05_PIN
+  #define DOGLCD_CS                  EXP2_07_PIN
+  #define DOGLCD_SCK                 EXP1_04_PIN
+  #define DOGLCD_MOSI                EXP1_05_PIN
 
-  #define BTN_EN1                       _EXT2_07
-  #define BTN_EN2                       _EXT2_05
-  #define BTN_ENC                       _EXT2_02
+  #define BTN_EN1                    EXP2_04_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP2_09_PIN
 #endif
