@@ -417,6 +417,8 @@ class Stepper {
       static constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
       static uint32_t nextAdvanceISR,
                       la_interval;      // Interval between ISR calls for LA
+      static int32_t  la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
+                      la_advance_steps; // Count of steps added to increase nozzle pressure
     #endif
 
 friend class GcodeSuite;
