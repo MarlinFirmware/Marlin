@@ -54,8 +54,8 @@
 
 #include "pins_RAMPS.h"
 
-#undef EXP2_03_PIN
-#define EXP2_03_PIN                           -1  // RESET
+#undef EXP2_08_PIN
+#define EXP2_08_PIN                           -1  // RESET
 
 //
 // LCD / Controller
@@ -85,11 +85,11 @@
    * This configuration uses the following arrangement:
    *
    *             ------                       ------
-   *       ENCB |10  9 |  ENCA          MISO |10  9 | SCK
-   *   BLUE_LED | 8  7 |  RED_LED     ENCBTN | 8  7 | SDCS
-   *       KILL   6  5 |  BEEPER               6  5 | MOSI
-   *         A0 | 4  3 |  LCD_CS        SDCD | 4  3 |
-   *        GND | 2  1 | 5V              GND | 2  1 | --
+   *       ENCB | 1  2 |  ENCA          MISO | 1  2 | SCK
+   *   BLUE_LED | 3  4 |  RED_LED     ENCBTN | 3  4 | SDCS
+   *       KILL   5  6 |  BEEPER               5  6 | MOSI
+   *         A0 | 7  8 |  LCD_CS        SDCD | 7  8 |
+   *        GND | 9 10 | 5V              GND | 9 10 | --
    *             ------                       ------
    *              EXP1                         EXP2
    */
@@ -107,24 +107,24 @@
   //
   // VIKI2 12-wire lead
   //
-  #define SD_DETECT_PIN              EXP2_04_PIN  // SDCD     orange/white
-  #define BTN_EN1                    EXP1_09_PIN  // ENCA     white
-  #define BTN_EN2                    EXP1_10_PIN  // ENCB     green
-  #define BTN_ENC                    EXP2_08_PIN  // ENCBTN   purple
-  #define DOGLCD_A0                  EXP1_04_PIN  // A0       brown
-  #define DOGLCD_CS                  EXP1_03_PIN  // LCS      green/white
+  #define SD_DETECT_PIN              EXP2_07_PIN  // SDCD     orange/white
+  #define BTN_EN1                    EXP1_02_PIN  // ENCA     white
+  #define BTN_EN2                    EXP1_01_PIN  // ENCB     green
+  #define BTN_ENC                    EXP2_03_PIN  // ENCBTN   purple
+  #define DOGLCD_A0                  EXP1_07_PIN  // A0       brown
+  #define DOGLCD_CS                  EXP1_08_PIN  // LCS      green/white
 
-  // EXP2_10_PIN  gray   MISO
-  // EXP2_05_PIN  yellow MOSI
-  // EXP2_09_PIN  orange SCK
+  // EXP2_01_PIN  gray   MISO
+  // EXP2_06_PIN  yellow MOSI
+  // EXP2_02_PIN  orange SCK
 
-  //#define SDSS                     EXP2_07_PIN  // SDCS     blue
+  //#define SDSS                     EXP2_04_PIN  // SDCS     blue
 
   //
   // VIKI2 4-wire lead
   //
-  #define KILL_PIN                   EXP1_06_PIN  // BTN      blue
-  #define BEEPER_PIN                 EXP1_05_PIN  // BUZZER   green
-  #define STAT_LED_RED_PIN           EXP1_07_PIN  // RED-LED  yellow
-  #define STAT_LED_BLUE_PIN          EXP1_08_PIN  // BLUE-LED white
+  #define KILL_PIN                   EXP1_05_PIN  // BTN      blue
+  #define BEEPER_PIN                 EXP1_06_PIN  // BUZZER   green
+  #define STAT_LED_RED_PIN           EXP1_04_PIN  // RED-LED  yellow
+  #define STAT_LED_BLUE_PIN          EXP1_03_PIN  // BLUE-LED white
 #endif
