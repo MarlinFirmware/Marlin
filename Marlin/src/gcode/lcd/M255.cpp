@@ -36,7 +36,7 @@ void GcodeSuite::M255() {
       const int m = parser.value_int();
       ui.sleep_timeout_minutes = constrain(m, SLEEP_TIMEOUT_MIN, SLEEP_TIMEOUT_MAX);
     #else
-      const int s = parser.value_int() * 60;
+      const unsigned int s = parser.value_ushort() * 60;
       ui.lcd_backlight_timeout = constrain(s, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX);
     #endif
   }
