@@ -36,12 +36,14 @@
 //
 // Limit Switches
 //
+#define _S3_PIN                            P1_25  // S3
+
 #define X_STOP_PIN                         P1_22  // S0
 #define Y_STOP_PIN                         P1_23  // S1
 #define Z_STOP_PIN                         P1_24  // S2
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                  P0_26  // S3 / S4 (opto)
+  #define Z_MIN_PROBE_PIN                  P0_26  // S4 (opto)
 #endif
 
 //
