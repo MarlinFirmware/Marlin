@@ -1791,13 +1791,7 @@ void Stepper::pulse_phase_isr() {
       #endif
 
       if (TERN1(LIN_ADVANCE, !current_block->la_advance_rate)) {
-        #if ENABLED(MIXING_EXTRUDER)
-          delta_error.e += advance_dividend.e;
-          if (delta_error.e >= 0) {
-            count_position.e += count_direction.e;
-            step_needed.e = true;
-          }
-        #elif HAS_E0_STEP
+        #if HAS_E0_STEP || ENABLED(MIXING_EXTRUDER)
           PULSE_PREP(E);
         #endif
       }
@@ -1886,10 +1880,7 @@ void Stepper::pulse_phase_isr() {
 
     if (TERN1(LIN_ADVANCE, !current_block->la_advance_rate)) {
       #if ENABLED(MIXING_EXTRUDER)
-        if (delta_error.e >= 0) {
-          delta_error.e -= advance_divisor;
-          E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
-        }
+        if (step_needed.e) E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
       #elif HAS_E0_STEP
         PULSE_STOP(E);
       #endif
