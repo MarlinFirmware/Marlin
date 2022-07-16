@@ -47,7 +47,6 @@
 #ifndef MAX7219_ROTATE
   #define MAX7219_ROTATE 0
 #endif
-#define _ROT ((MAX7219_ROTATE + 360) % 360)
 
 #ifndef MAX7219_NUMBER_UNITS
   #define MAX7219_NUMBER_UNITS 1

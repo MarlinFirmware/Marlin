@@ -76,8 +76,6 @@
     #include "lcd/e3v2/creality/dwin.h"
   #elif ENABLED(DWIN_LCD_PROUI)
     #include "lcd/e3v2/proui/dwin.h"
-  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    #include "lcd/e3v2/jyersui/dwin.h"
   #endif
 #endif
 
@@ -226,10 +224,6 @@
 
 #if HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
-#endif
-
-#if HAS_L64XX
-  #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -434,7 +428,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
       if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()) {
         if (!already_shutdown_steppers) {
-          already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
+          already_shutdown_steppers = true;
 
           // Individual axes will be disabled if configured
           TERN_(DISABLE_INACTIVE_X, stepper.disable_axis(X_AXIS));
@@ -733,8 +727,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(MONITOR_DRIVER_STATUS, monitor_tmc_drivers());
 
-  TERN_(MONITOR_L6470_DRIVER_STATUS, L64xxManager.monitor_driver());
-
   // Limit check_axes_activity frequency to 10Hz
   static millis_t next_check_axes_ms = 0;
   if (ELAPSED(ms, next_check_axes_ms)) {
@@ -789,7 +781,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   manage_inactivity(no_stepper_sleep);
 
   // Manage Heaters (and Watchdog)
-  thermalManager.manage_heater();
+  thermalManager.task();
 
   // Max7219 heartbeat, animation, etc
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());
@@ -1064,7 +1056,6 @@ inline void tmc_standby_setup() {
  *    • TMC220x Stepper Drivers (Serial)
  *    • PSU control
  *    • Power-loss Recovery
- *    • L64XX Stepper Drivers (SPI)
  *    • Stepper Driver Reset: DISABLE
  *    • TMC Stepper Drivers (SPI)
  *    • Run hal.init_board() for additional pins setup
@@ -1251,10 +1242,6 @@ void setup() {
       SETUP_RUN(SPI.begin());
     #endif
     SETUP_RUN(tmc_init_cs_pins());
-  #endif
-
-  #if HAS_L64XX
-    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
 
   #if ENABLED(PSU_CONTROL)

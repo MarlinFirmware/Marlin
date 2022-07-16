@@ -76,8 +76,7 @@
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "../lcd/e3v2/jyersui/dwin.h"
+  #include "../lcd/e3v2/proui/bedlevel_tools.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -502,8 +501,6 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(DWIN_LCD_PROUI)
     uint8_t dwin_data[eeprom_data_size];
-  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    uint8_t dwin_settings[CrealityDWIN.eeprom_data_size];
   #endif
 
   //
@@ -1522,15 +1519,6 @@ void MarlinSettings::postprocess() {
     }
     #endif
 
-    #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    {
-      _FIELD_TEST(dwin_settings);
-      char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
-      CrealityDWIN.Save_Settings(dwin_settings);
-      EEPROM_WRITE(dwin_settings);
-    }
-    #endif
-
     //
     // Case Light Brightness
     //
@@ -2495,13 +2483,6 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dwin_data);
         if (!validating) DWIN_CopySettingsFrom(dwin_data);
       }
-      #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-      {
-        const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
-        _FIELD_TEST(dwin_settings);
-        EEPROM_READ(dwin_settings);
-        if (!validating) CrealityDWIN.Load_Settings(dwin_settings);
-      }
       #endif
 
       //
@@ -2776,7 +2757,7 @@ void MarlinSettings::postprocess() {
         #endif
 
         persistentStore.access_start();
-        const uint16_t status = persistentStore.read_data(pos, dest, MESH_STORE_SIZE, &crc);
+        uint16_t status = persistentStore.read_data(pos, dest, MESH_STORE_SIZE, &crc);
         persistentStore.access_finish();
 
         #if ENABLED(OPTIMIZED_MESH_STORAGE)
@@ -2787,6 +2768,16 @@ void MarlinSettings::postprocess() {
           }
           else
             bedlevel.set_mesh_from_store(z_mesh_store, bedlevel.z_values);
+        #endif
+
+        #if ENABLED(DWIN_LCD_PROUI)
+          status = !BedLevelTools.meshvalidate();
+          if (status) {
+            bedlevel.invalidate();
+            LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+          }
+          else
+            ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
@@ -2928,8 +2919,6 @@ void MarlinSettings::reset() {
       backlash.set_smoothing_mm(BACKLASH_SMOOTHING_MM);
     #endif
   #endif
-
-  TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
   //
   // Case Light Brightness
