@@ -2226,11 +2226,9 @@ void SetPID(celsius_t t, heater_id_t h) {
 #endif
 
 #if ENABLED(BAUD_RATE_GCODE)
-  void HMI_SetBaudRate() {
-    if (HMI_data.Baud115K) SetBaud115K(); else SetBaud250K();
-  }
+  void HMI_SetBaudRate() { HMI_data.Baud115K ? SetBaud115K() : SetBaud250K(); }
   void SetBaudRate() {
-    HMI_data.Baud115K = !HMI_data.Baud115K;
+    HMI_data.Baud115K ^= true;
     HMI_SetBaudRate();
     Draw_Chkb_Line(CurrentMenu->line(), HMI_data.Baud115K);
     DWIN_UpdateLCD();
