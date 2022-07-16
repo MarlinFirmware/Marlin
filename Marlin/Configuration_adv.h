@@ -3796,10 +3796,10 @@
 
 /**
  * Spindle control with M106/M107
- * 
+ *
  * If enabled, M106/M107 is mapped to M3/M5. This allows for printers with a laser
  * module connected to the fan header to use the LASER_POWER_INLINE by configuring the
- * fan pin as spindle PWM pin and still used unmodified G code.
+ * fan pin as spindle PWM pin and still used unmodified G-code.
  */
 //#define SPINDLE_CONTROL_M106_M107
 
