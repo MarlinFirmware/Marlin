@@ -278,7 +278,7 @@ G29_TYPE GcodeSuite::G29() {
    */
   if (!g29_in_progress) {
 
-    TERN_(PROBING_NEEDS_TOOL_SWITCH, Probe::change_to_probing_tool());
+    probe.use_probing_tool();
 
     #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
       abl.abl_probe_index = -1;
@@ -943,7 +943,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(Z_PROBE_END_SCRIPT));
   #endif
 
-  TERN_(PROBING_NEEDS_TOOL_SWITCH, Probe::revert_tool());
+  probe.use_probing_tool(false);
 
   report_current_position();
 

@@ -86,7 +86,7 @@ void GcodeSuite::G35() {
     workspace_plane = PLANE_XY;
   #endif
 
-  TERN_(PROBING_NEEDS_TOOL_SWITCH, Probe::change_to_probing_tool());
+  probe.use_probing_tool();
 
   // Disable duplication mode on homing
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
@@ -150,7 +150,7 @@ void GcodeSuite::G35() {
     SERIAL_ECHOLNPGM("G35 aborted.");
 
   // Restore the active tool after homing
-  TERN_(PROBING_NEEDS_TOOL_SWITCH, Probe::revert_tool());
+  probe.use_probing_tool(false);
 
   #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
     set_bed_leveling_enabled(leveling_was_active);

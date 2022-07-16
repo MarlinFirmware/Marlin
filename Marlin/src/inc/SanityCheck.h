@@ -2409,10 +2409,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
-  #if defined(PROBING_TOOL) && PROBING_TOOL >= HOTENDS
-    #error "PROBING_TOOL must be a valid tool number or negative."
-  #endif
 #endif // HAS_MULTI_HOTEND
+
+#if DO_TOOLCHANGE_FOR_PROBING && PROBING_TOOL >= EXTRUDERS
+  #error "PROBING_TOOL must be a valid tool index."
+#endif
 
 /**
  * Pins must be set for temp sensors, with some other feature requirements.

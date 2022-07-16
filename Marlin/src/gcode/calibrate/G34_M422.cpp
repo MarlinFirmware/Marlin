@@ -142,7 +142,7 @@ void GcodeSuite::G34() {
 
       TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
-      TERN_(PROBING_NEEDS_TOOL_SWITCH, Probe::change_to_probing_tool());
+      probe.use_probing_tool();
 
       TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
@@ -442,7 +442,7 @@ void GcodeSuite::G34() {
         sync_plan_position();
       #endif
 
-      TERN_(PROBING_NEEDS_TOOL_SWITCH, Probe::revert_tool());
+      probe.use_probing_tool(false);
 
       #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
         set_bed_leveling_enabled(leveling_was_active);
