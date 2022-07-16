@@ -91,27 +91,25 @@
 //
 // Extension ports
 //
-// warning: pins are backward numbered w.r.t. to the
-// schematics, e.g. EXP1_01 / EXP1_02 are X1-10 / X1-9.
-#define EXP1_01_PIN                        P0_28  // SCL0
-#define EXP1_02_PIN                        P0_27  // SDA0
-#define EXP1_03_PIN                        P0_16  // SSEL0
-#define EXP1_04_PIN                        P0_15  // SCK0
-#define EXP1_05_PIN                        P0_18  // MOSI0
-#define EXP1_06_PIN                        P0_17  // MISO0
-#define EXP1_07_PIN                        P1_31
-#define EXP1_08_PIN                        P1_30
-#define EXP1_09_PIN                        P0_02  // TX0
-#define EXP1_10_PIN                        P0_03  // RX0
+#define EXP1_01_PIN                        P0_03  // RX0
+#define EXP1_02_PIN                        P0_02  // TX0
+#define EXP1_03_PIN                        P1_30
+#define EXP1_04_PIN                        P1_31
+#define EXP1_05_PIN                        P0_17  // MISO0
+#define EXP1_06_PIN                        P0_18  // MOSI0
+#define EXP1_07_PIN                        P0_15  // SCK0
+#define EXP1_08_PIN                        P0_16  // SSEL0
+#define EXP1_09_PIN                        P0_27  // SDA0
+#define EXP1_10_PIN                        P0_28  // SCL0
 
-#define EXP2_03_PIN                        P1_27
-#define EXP2_04_PIN                        P1_26
-#define EXP2_05_PIN                        P1_29
-#define EXP2_06_PIN                        P1_28
-#define EXP2_07_PIN                        P0_01  // SCL1
-#define EXP2_08_PIN                        P0_00  // SDA1
-#define EXP2_09_PIN                        P0_11
-#define EXP2_10_PIN                        P0_10
+#define EXP2_01_PIN                        P0_10
+#define EXP2_02_PIN                        P0_11
+#define EXP2_03_PIN                        P0_00  // SDA1
+#define EXP2_04_PIN                        P0_01  // SCL1
+#define EXP2_05_PIN                        P1_28
+#define EXP2_06_PIN                        P1_29
+#define EXP2_07_PIN                        P1_26
+#define EXP2_08_PIN                        P1_27
 
 //
 // SD Support
@@ -126,11 +124,11 @@
   #define SD_MOSI_PIN                      P0_09
   #define SD_SS_PIN                        P0_06
 #elif SD_CONNECTION_IS(LCD)
-  #define SD_SCK_PIN                 EXP1_04_PIN
-  #define SD_MISO_PIN                EXP1_06_PIN
-  #define SD_MOSI_PIN                EXP1_05_PIN
-  #define SD_SS_PIN                  EXP1_03_PIN
-  #define SD_DETECT_PIN              EXP1_07_PIN
+  #define SD_SCK_PIN                 EXP1_07_PIN
+  #define SD_MISO_PIN                EXP1_05_PIN
+  #define SD_MOSI_PIN                EXP1_06_PIN
+  #define SD_SS_PIN                  EXP1_08_PIN
+  #define SD_DETECT_PIN              EXP1_04_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -139,13 +137,13 @@
 // LCD / Controller
 //
 #if ENABLED(EMOTION_TECH_LCD)
-  #define BEEPER_PIN                 EXP2_10_PIN
-  #define DOGLCD_A0                  EXP2_05_PIN
-  #define DOGLCD_CS                  EXP2_07_PIN
-  #define DOGLCD_SCK                 EXP1_04_PIN
-  #define DOGLCD_MOSI                EXP1_05_PIN
+  #define BEEPER_PIN                 EXP2_01_PIN
+  #define DOGLCD_A0                  EXP2_06_PIN
+  #define DOGLCD_CS                  EXP2_04_PIN
+  #define DOGLCD_SCK                 EXP1_07_PIN
+  #define DOGLCD_MOSI                EXP1_06_PIN
 
-  #define BTN_EN1                    EXP2_04_PIN
-  #define BTN_EN2                    EXP2_06_PIN
-  #define BTN_ENC                    EXP2_09_PIN
+  #define BTN_EN1                    EXP2_07_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP2_02_PIN
 #endif
