@@ -157,11 +157,11 @@
 
 /**
  *                 ------
- * (BEEPER)  PA15 |10  9 | PB6 (BTN_ENC)
- * (BTN_EN1) PA9  | 8  7 | RESET
- * (BTN_EN2) PA10   6  5 | PB9 (LCD_D4)
- * (LCD_RS)  PB8  | 4  3 | PB7 (LCD_EN)
- *            GND | 2  1 | 5V
+ * (BEEPER)  PA15 | 1  2 | PB6 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9 (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB7 (LCD_EN)
+ *            GND | 9 10 | 5V
  *                 ------
  *                  EXP1
  */
@@ -198,11 +198,11 @@
 
     /** Creality Ender-2 display pinout
      *                   ------
-     *   (SCK)     PA15 |10  9 | PB6 (BTN_ENC)
-     *   (BTN_EN1) PA9  | 8  7 | RESET
-     *   (BTN_EN2) PA10   6  5 | PB9 (LCD_A0)
-     *   (LCD_RS)  PB8  | 4  3 | PB7 (MOSI)
-     *              GND | 2  1 | 5V
+     *   (SCK)     PA15 | 1  2 | PB6 (BTN_ENC)
+     *   (BTN_EN1) PA9  | 3  4 | RESET
+     *   (BTN_EN2) PA10   5  6 | PB9 (LCD_A0)
+     *   (LCD_RS)  PB8  | 7  8 | PB7 (MOSI)
+     *              GND | 9 10 | 5V
      *                   ------
      *                    EXP1
      */
@@ -234,11 +234,11 @@
    *
    *                   Board                                   Display
    *                   ------                                  ------
-   * (SD_DET)    PA15 |10  9 | PB6 (BEEPER)                5V |10  9 | GND
-   * (MOD_RESET) PA9  | 8  7 | RESET                  (RESET) | 8  7 | (SD_DET)
-   * (SD_CS)     PA10   6  5 | PB9                    (MOSI)    6  5 | (LCD_CS)
-   * (LCD_CS)    PB8  | 4  3 | PB7                    (SD_CS) | 4  3 | (MOD_RESET)
-   *              GND | 2  1 | 5V                     (SCK)   | 2  1 | (MISO)
+   * (SD_DET)    PA15 | 1  2 | PB6 (BEEPER)                5V | 1  2 | GND
+   * (MOD_RESET) PA9  | 3  4 | RESET                  (RESET) | 3  4 | (SD_DET)
+   * (SD_CS)     PA10   5  6 | PB9                    (MOSI)    5  6 | (LCD_CS)
+   * (LCD_CS)    PB8  | 7  8 | PB7                    (SD_CS) | 7  8 | (MOD_RESET)
+   *              GND | 9 10 | 5V                     (SCK)   | 9 10 | (MISO)
    *                   ------                                  ------
    *                    EXP1                                    EXP1
    *

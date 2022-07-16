@@ -186,11 +186,11 @@
 /**
  *              BTT E3 RRF
  *                ------
- * (BEEPER)  PE8 |10  9 | PE9  (BTN_ENC)
- * (BTN_EN1) PE7 | 8  7 | RESET
- * (BTN_EN2) PB2   6  5 | PE10 (LCD_D4)
- * (LCD_RS)  PB1 | 4  3 | PE11 (LCD_EN)
- *           GND | 2  1 | 5V
+ * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)
+ * (BTN_EN1) PE7 | 3  4 | RESET
+ * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)
+ * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)
+ *           GND | 9 10 | 5V
  *                ------
  *                 EXP1
  */
@@ -219,11 +219,11 @@
       *
       *               BTT E3 RRF                                   Display Ribbon
       *                ------                                         ------
-      * (BEEPER)  PE8 |10  9 | PE9  (BTN_ENC)                    GND |10  9 | 5V
-      * (BTN_EN1) PE7 | 8  7 | RESET                          BEEPER | 8  7 | ESTOP    (RESET)
-      * (BTN_EN2) PB2   6  5 | PE10 (LCD_D4)       (BTN_ENC) ENC_BTN | 6  5 | LCD_SCLK (LCD_D4)
-      * (LCD_RS)  PB1 | 4  3 | PE11 (LCD_EN)       (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
-      *           GND | 2  1 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
+      * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)                    GND | 1  2 | 5V
+      * (BTN_EN1) PE7 | 3  4 | RESET                          BEEPER | 3  4 | ESTOP    (RESET)
+      * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)       (BTN_ENC) ENC_BTN | 5  6 | LCD_SCLK (LCD_D4)
+      * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)       (BTN_EN2) ENC_A   | 7  8 | LCD_DATA (LCD_EN)
+      *           GND | 9 10 | 5V                  (BTN_EN1) ENC_B   | 9 10 | LCD_CS   (LCD_RS)
       *                ------                                         ------
       *                 EXP1                                          Ribbon
       *
@@ -286,11 +286,11 @@
        *
        *                  Board                       Display
        *                  ------                       ------
-       * (SD_DET)    PE8 |10  9 | PE9 (BEEPER)     5V |10  9 | GND
-       * (MOD_RESET) PE7 | 8  7 | RESET            -- | 8  7 | (SD_DET)
-       * (SD_CS)     PB2   6  5 | PE10        (MOSI)    6  5 | --
-       * (LCD_CS)    PB1 | 4  3 | PE11        (SD_CS) | 4  3 | (LCD_CS)
-       *             GND | 2  1 | 5V          (SCK)   | 2  1 | (MISO)
+       * (SD_DET)    PE8 | 1  2 | PE9 (BEEPER)     5V | 1  2 | GND
+       * (MOD_RESET) PE7 | 3  4 | RESET            -- | 3  4 | (SD_DET)
+       * (SD_CS)     PB2   5  6 | PE10        (MOSI)    5  6 | --
+       * (LCD_CS)    PB1 | 7  8 | PE11        (SD_CS) | 7  8 | (LCD_CS)
+       *             GND | 9 10 | 5V          (SCK)   | 9 10 | (MISO)
        *                  ------                       ------
        *                   EXP1                         EXP1
        *
@@ -341,11 +341,11 @@
    *
    *                  Board                          Display
    *                  ------                          ------
-   * (SD_DET)    PE8 |10  9 | PE9 (BEEPER)        5V |10  9 | GND
-   * (MOD_RESET) PE7 | 8  7 | RESET            RESET | 8  7 | (SD_DET)
-   * (SD_CS)     PB2   6  5 | PE10           (MOSI)  | 6  5 | (LCD_CS)
-   * (LCD_CS)    PB1 | 4  3 | PE11           (SD_CS) | 4  3 | (MOD_RESET)
-   *             GND | 2  1 | 5V             (SCK)   | 2  1 | (MISO)
+   * (SD_DET)    PE8 | 1  2 | PE9 (BEEPER)        5V | 1  2 | GND
+   * (MOD_RESET) PE7 | 3  4 | RESET            RESET | 3  4 | (SD_DET)
+   * (SD_CS)     PB2   5  6 | PE10           (MOSI)  | 5  6 | (LCD_CS)
+   * (LCD_CS)    PB1 | 7  8 | PE11           (SD_CS) | 7  8 | (MOD_RESET)
+   *             GND | 9 10 | 5V             (SCK)   | 9 10 | (MISO)
    *                  ------                          ------
    *                   EXP1                            EXP1
    *
