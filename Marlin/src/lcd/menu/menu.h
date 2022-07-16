@@ -113,11 +113,15 @@ class MenuItem_confirm : public MenuItemBase {
     static void select_screen(
       FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      FSTR_P const pref, FSTR_P const string, FSTR_P const suff=nullptr
+      FSTR_P const pref, FSTR_P const fstr, FSTR_P const suff=nullptr
     ) {
-      char str[strlen_P(FTOP(string)) + 1];
-      strcpy_P(str, FTOP(string));
-      select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+      #ifdef __AVR__
+        char str[strlen_P(FTOP(fstr)) + 1];
+        strcpy_P(str, FTOP(fstr));
+        select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+      #else
+        select_screen(yes, no, yesFunc, noFunc, pref, FTOP(fstr), suff);
+      #endif
     }
     // Shortcut for prompt with "NO"/ "YES" labels
     FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr) {
@@ -210,6 +214,7 @@ void menu_move();
 //////// Menu Item Helper Functions ////////
 ////////////////////////////////////////////
 
+void lcd_move_axis(const AxisEnum);
 void lcd_move_z();
 void _lcd_draw_homing();
 

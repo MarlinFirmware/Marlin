@@ -133,13 +133,13 @@ SPISettings MAX31865::spiConfig = SPISettings(
 /**
  * Initialize the SPI interface and set the number of RTD wires used
  *
- * @param wires  The number of wires in enum format. Can be MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE.
- * @param zero   The resistance of the RTD at 0 degC, in ohms.
- * @param ref    The resistance of the reference resistor, in ohms.
- * @param wire   The resistance of the wire connecting the sensor to the RTD, in ohms.
+ * @param wires     The number of wires as an enum: MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE.
+ * @param zero_res  The resistance of the RTD at 0°C, in ohms.
+ * @param ref_res   The resistance of the reference resistor, in ohms.
+ * @param wire_res  The resistance of the wire connecting the sensor to the RTD, in ohms.
  */
-void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, float wire_res) {
-  zeroRes = zero_res;
+void MAX31865::begin(max31865_numwires_t wires, const_float_t zero_res, const_float_t ref_res, const_float_t wire_res) {
+  resNormalizer = 100.0f / zero_res;  // reciprocal of resistance, scaled by 100
   refRes = ref_res;
   wireRes = wire_res;
 
@@ -437,42 +437,61 @@ float MAX31865::temperature() {
  *
  * @return  Temperature in C
  */
-float MAX31865::temperature(uint16_t adc_val) {
+float MAX31865::temperature(const uint16_t adc_val) {
   return temperature(((adc_val) * RECIPROCAL(32768.0f)) * refRes - wireRes);
 }
 
 /**
  * Calculate the temperature in C from the RTD resistance.
- * Uses the technique outlined in this PDF:
- * http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
  *
  * @param    rtd_res  the resistance value in ohms
- * @return            the temperature in degC
+ * @return            the temperature in °C
  */
 float MAX31865::temperature(float rtd_res) {
+
+  rtd_res *= resNormalizer; // normalize to 100 ohm
+
+  // Constants for calculating temperature from the measured RTD resistance.
+  // http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
+  constexpr float RTD_Z1 = -0.0039083,
+                  RTD_Z2 = +1.758480889e-5,
+                  RTD_Z3 = -2.31e-8,
+                  RTD_Z4 = -1.155e-6;
+
+  // Callender-Van Dusen equation
   float temp = (RTD_Z1 + sqrt(RTD_Z2 + (RTD_Z3 * rtd_res))) * RECIPROCAL(RTD_Z4);
 
-  // From the PDF...
   //
   // The previous equation is valid only for temperatures of 0°C and above.
   // The equation for RRTD(t) that defines negative temperature behavior is a
   // fourth-order polynomial (after expanding the third term) and is quite
   // impractical to solve for a single expression of temperature as a function
-  // of resistance.
+  // of resistance. So here we use a Linear Approximation instead.
   //
   if (temp < 0) {
-    rtd_res = (rtd_res / zeroRes) * 100; // normalize to 100 ohm
-    float rpoly = rtd_res;
+    #ifndef MAX31865_APPROX
+      #define MAX31865_APPROX 5
+    #endif
 
-    temp = -242.02 + (2.2228 * rpoly);
-    rpoly *= rtd_res; // square
-    temp += 2.5859e-3 * rpoly;
-    rpoly *= rtd_res; // ^3
-    temp -= 4.8260e-6 * rpoly;
-    rpoly *= rtd_res; // ^4
-    temp -= 2.8183e-8 * rpoly;
-    rpoly *= rtd_res; // ^5
-    temp += 1.5243e-10 * rpoly;
+    constexpr float RTD_C[] = {
+      #if MAX31865_APPROX == 5
+        -242.02, +2.2228, +2.5859e-3, -4.8260e-6, -2.8183e-8, +1.5243e-10
+      #elif MAX31865_APPROX == 4
+        -241.96, +2.2163, +2.8541e-3, -9.9121e-6, -1.7152e-8
+      #elif MAX31865_APPROX == 3
+        -242.09, +2.2276, +2.5178e-3, -5.8620e-6
+      #else
+        -242.97, +2.2838, +1.4727e-3
+      #endif
+    };
+
+    float rpoly = rtd_res;
+    temp = RTD_C[0];
+    temp += rpoly * RTD_C[1];
+    rpoly *= rtd_res; temp += rpoly * RTD_C[2];
+    if (MAX31865_APPROX >= 3) rpoly *= rtd_res; temp += rpoly * RTD_C[3];
+    if (MAX31865_APPROX >= 4) rpoly *= rtd_res; temp += rpoly * RTD_C[4];
+    if (MAX31865_APPROX >= 5) rpoly *= rtd_res; temp += rpoly * RTD_C[5];
   }
 
   return temp;

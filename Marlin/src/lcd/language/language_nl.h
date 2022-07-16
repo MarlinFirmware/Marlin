@@ -173,8 +173,8 @@ namespace Language_nl {
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Kalibreer Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Kalibreer Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibreer Midden");
+  LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta conf");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibratie");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Zet Delta Hoogte");
 
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case licht");
 

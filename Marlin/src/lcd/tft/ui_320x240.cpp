@@ -282,7 +282,7 @@ void MarlinUI::draw_status_screen() {
   const bool nhz = axis_should_home(Z_AXIS);
   uint16_t offset = 25;
   if (blink && nhz)
-    tft_string.set("?");
+    tft_string.set('?');
   else {
     const float z = LOGICAL_Z_POSITION(current_position.z);
     tft_string.set(ftostr52sp((int16_t)z));
@@ -383,8 +383,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     }
   #endif
 
-  extern screenFunc_t _manual_move_func_ptr;
-  if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
+  if (ui.can_show_slider()) {
 
     #define SLIDER_LENGTH 224
     #define SLIDER_Y_POSITION 140
@@ -461,7 +460,7 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
     tft_string.add(' ');
     tft_string.add(i16tostr3rj(thermalManager.wholeDegHotend(extruder)));
     tft_string.add(LCD_STR_DEGREE);
-    tft_string.add(" / ");
+    tft_string.add(F(" / "));
     tft_string.add(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.trim();
@@ -593,19 +592,19 @@ static void drawCurStepValue() {
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(CUR_STEP_VALUE_WIDTH - tft_string.width(), 0, COLOR_AXIS_HOMED, tft_string);
   tft.queue.sync();
-  tft_string.set("mm");
+  tft_string.set(F("mm"));
   tft.canvas(motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y + 20, CUR_STEP_VALUE_WIDTH, 20);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(CUR_STEP_VALUE_WIDTH - tft_string.width(), 0, COLOR_AXIS_HOMED, tft_string);
 }
 
 static void drawCurZSelection() {
-  tft_string.set("Z");
+  tft_string.set('Z');
   tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), 20);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
   tft.queue.sync();
-  tft_string.set("Offset");
+  tft_string.set(F("Offset"));
   tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + 34, tft_string.width(), 20);
   tft.set_background(COLOR_BACKGROUND);
   if (motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
@@ -616,7 +615,7 @@ static void drawCurZSelection() {
 static void drawCurESelection() {
   tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
-  tft_string.set("E");
+  tft_string.set('E');
   tft.add_text(0, 0, E_BTN_COLOR , tft_string);
   tft.add_text(tft_string.width(), 0, E_BTN_COLOR, ui8tostr3rj(motionAxisState.e_selection));
 }
@@ -626,6 +625,8 @@ static void drawMessage(PGM_P const msg) {
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, COLOR_YELLOW, msg);
 }
+
+static void drawMessage(FSTR_P const fmsg) { drawMessage(FTOP(fmsg)); }
 
 static void drawAxisValue(const AxisEnum axis) {
   const float value = (
@@ -652,7 +653,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
-      drawMessage(PSTR("Too cold"));
+      drawMessage(F("Too cold"));
       return;
     }
   #endif
@@ -679,18 +680,18 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
         drawAxisValue(axis);
       }
       else {
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
     #elif HAS_BED_PROBE
       // only change probe.offset.z
       probe.offset.z += diff;
       if (direction < 0 && current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
         current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
       else if (direction > 0 && current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
         current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
-        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+        drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
       else {
         drawMessage(NUL_STR); // clear the error
@@ -752,7 +753,7 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
   static void do_home() {
     quick_feedback();
-    drawMessage(GET_TEXT(MSG_LEVEL_BED_HOMING));
+    drawMessage(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
     queue.inject_P(G28_STR);
     // Disable touch until home is done
     TERN_(HAS_TFT_XPT2046, touch.disable());
