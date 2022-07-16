@@ -933,7 +933,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if IS_KINEMATIC
-        case 665: M665(); break;                                  // M665: Set Delta/SCARA parameters
+        case 665: M665(); break;                                  // M665: Set Kinematics parameters
       #endif
 
       #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
