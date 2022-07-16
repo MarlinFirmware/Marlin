@@ -7,18 +7,6 @@
 set -e
 
 #
-# Build with the default configurations
-#
-restore_configs
-opt_set MOTHERBOARD BOARD_MKS_TINYBEE TX_BUFFER_SIZE 64 \
-        WIFI_SSID '"ssid"' WIFI_PWD '"password"'
-opt_enable WIFISUPPORT WEBSUPPORT GCODE_MACROS BAUD_RATE_GCODE M115_GEOMETRY_REPORT REPETIER_GCODE_M360
-exec_test $1 $2 "MKS TinyBee with WIFISUPPORT and WEBSUPPORT" "$3"
-
-# Somehow following test fails if executed not right after '--target clean'
-exec_test $1 "$2 --target clean" "Clean and setup build environment..." "$3"
-
-#
 # Build with ESP3D WiFi, OTA and custom WIFI commands support
 #
 restore_configs
@@ -27,17 +15,6 @@ opt_set MOTHERBOARD BOARD_MKS_TINYBEE TX_BUFFER_SIZE 64 \
         SERIAL_PORT_2 -1 BAUDRATE_2 250000
 opt_enable ESP3D_WIFISUPPORT WEBSUPPORT OTASUPPORT WIFI_CUSTOM_COMMAND
 exec_test $1 "$2" "MKS TinyBee with ESP3D_WIFISUPPORT" "$3"
-
-#
-# Build with TMC drivers using hardware serial
-#
-restore_configs
-opt_set MOTHERBOARD BOARD_MKS_TINYBEE \
-        X_DRIVER_TYPE TMC2209 Y_DRIVER_TYPE TMC2208 Z_DRIVER_TYPE TMC2209 E0_DRIVER_TYPE TMC2209 \
-        X_HARDWARE_SERIAL Serial1 Y_HARDWARE_SERIAL Serial1 Z_HARDWARE_SERIAL Serial1 E0_HARDWARE_SERIAL Serial1 \
-        X_SLAVE_ADDRESS 0 Y_SLAVE_ADDRESS 1 Z_SLAVE_ADDRESS 2 E0_SLAVE_ADDRESS 3
-opt_enable HOTEND_IDLE_TIMEOUT SOFTWARE_DRIVER_ENABLE
-exec_test $1 $2 "MKS TinyBee, TMC HW Serial, Hotend Idle" "$3"
 
 #
 # Build with LCD, SD support and Speaker support
