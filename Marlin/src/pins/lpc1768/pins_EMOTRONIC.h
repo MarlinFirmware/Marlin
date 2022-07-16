@@ -59,11 +59,11 @@
 #define Z_DIR_PIN                          P3_26
 #define Z_ENABLE_PIN                       P3_25
 
-#define E0_STEP_PIN                        P2_03
+#define E0_STEP_PIN                        P2_03  // M4
 #define E0_DIR_PIN                         P0_04
 #define E0_ENABLE_PIN                      P0_05  // Correct!
 
-#define E1_STEP_PIN                        P2_08
+#define E1_STEP_PIN                        P2_08  // M5
 #define E1_DIR_PIN                         P0_20
 #define E1_ENABLE_PIN                      P0_19
 
@@ -90,6 +90,8 @@
 //
 // Extension ports
 //
+// warning: pins are backward numbered w.r.t. to the
+// schematics, e.g. EXP1_01 / EXP1_02 are X1-10 / X1-9.
 #define EXP1_01_PIN                        P0_28  // SCL0
 #define EXP1_02_PIN                        P0_27  // SDA0
 #define EXP1_03_PIN                        P0_16  // SSEL0
