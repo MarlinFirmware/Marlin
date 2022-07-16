@@ -37,12 +37,14 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 #include "../common/dwin_color.h"
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../../feature/leds/leds.h"
+#endif
 #include <stddef.h>
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
-
 
 #define Def_Background_Color  RGB( 1, 12,  8)
 #define Def_Cursor_color      RGB(20, 49, 31)
