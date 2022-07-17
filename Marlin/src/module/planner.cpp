@@ -806,7 +806,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f / accel);
     accelerate_steps = CEIL(accelerate_steps_float);
     const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5f / accel);
-    decelerate_steps = decelerate_steps_float;
+    decelerate_steps = FLOOR(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
     plateau_steps -= accelerate_steps + decelerate_steps;
