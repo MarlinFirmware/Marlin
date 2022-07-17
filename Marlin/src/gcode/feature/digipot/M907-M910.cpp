@@ -68,7 +68,7 @@ void GcodeSuite::M907() {
     )) return M907_report();
 
     #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K)
-      if (NUM_AXIS_GANG(
+      if (LINEAR_AXIS_GANG(
              parser.seenval('X'), || parser.seenval('Y'), || false,
           || parser.seenval('I'), || parser.seenval('J'), || parser.seenval('K')
       )) stepper.set_digipot_current(0, parser.value_int());
