@@ -2138,7 +2138,7 @@ void HomeZ() { queue.inject(F("G28Z")); }
       );
       gcode.process_subcommands_now(cmd);
     #else
-      set_bed_leveling_enabled(false);
+      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
       gcode.process_subcommands_now(F("G28O\nG0Z0F300\nM400"));
     #endif
     ui.reset_status();
