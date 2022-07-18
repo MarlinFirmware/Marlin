@@ -294,11 +294,12 @@ void plan_arc(
     // An arc can always complete within limits from a speed which...
     // a) is <= any configured maximum speed,
     // b) does not require centripetal force greater than any configured maximum acceleration,
-    // c) allows the print head to stop in the remining length of the curve within all configured maximum accelerations.
+    // c) is <= nominal speed,
+    // d) allows the print head to stop in the remining length of the curve within all configured maximum accelerations.
     // The last has to be calculated every time through the loop.
     const float limiting_accel = _MIN(planner.settings.max_acceleration_mm_per_s2[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
                 limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
-                limiting_speed_sqr = _MIN(sq(limiting_speed), limiting_accel * radius);
+                limiting_speed_sqr = _MIN(sq(limiting_speed), limiting_accel * radius, sq(scaled_fr_mm_s));
     float arc_mm_remaining = flat_mm;
 
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
@@ -357,12 +358,12 @@ void plan_arc(
 
       // calculate safe speed for stopping by the end of the arc
       arc_mm_remaining -= segment_mm;
-
-      hints.curve_radius = i > 1 ? radius : 0;
       hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
         break;
+
+      hints.curve_radius = radius;
     }
   }
 
@@ -383,6 +384,7 @@ void plan_arc(
   #endif
 
   hints.curve_radius = 0;
+  hints.safe_exit_speed_sqr = 0.0f;
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
