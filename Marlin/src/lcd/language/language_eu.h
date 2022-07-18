@@ -136,6 +136,7 @@ namespace Language_eu {
   LSTR MSG_MOVE_X                         = _UxGT("Mugitu X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mugitu Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mugitu Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mugitu @");
   LSTR MSG_MOVE_E                         = _UxGT("Estrusorea");
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
