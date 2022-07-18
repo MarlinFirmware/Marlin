@@ -356,14 +356,14 @@ void plan_arc(
         planner.apply_leveling(raw);
       #endif
 
-      hints.curve_radius = i > 1 ? radius : 0;
-
       // calculate safe speed for stopping by the end of the arc
       arc_mm_remaining -= segment_mm;
       hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
         break;
+
+      hints.curve_radius = radius;
     }
   }
 
