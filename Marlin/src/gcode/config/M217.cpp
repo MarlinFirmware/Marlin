@@ -50,9 +50,9 @@
  *  W[linear]     0/1 Enable park & Z Raise
  *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK)
- *  I[linear]     Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
- *  J[linear]     Park J (Requires TOOLCHANGE_PARK and NUM_AXES >= 5)
- *  K[linear]     Park K (Requires TOOLCHANGE_PARK and NUM_AXES >= 6)
+ *  I[linear]     Park I (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 4)
+ *  J[linear]     Park J (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 5)
+ *  K[linear]     Park K (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 6)
  *  Z[linear]     Z Raise
  *  F[speed]      Fan Speed 0-255
  *  D[seconds]    Fan time

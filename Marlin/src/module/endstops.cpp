@@ -81,9 +81,9 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 #endif
 #if ENABLED(Z_MULTI_ENDSTOPS)
   float Endstops::z2_endstop_adj;
-  #if NUM_Z_STEPPER_DRIVERS >= 3
+  #if NUM_Z_STEPPERS >= 3
     float Endstops::z3_endstop_adj;
-    #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if NUM_Z_STEPPERS >= 4
       float Endstops::z4_endstop_adj;
     #endif
   #endif
@@ -708,14 +708,14 @@ void Endstops::update() {
       #else
         COPY_LIVE_STATE(Z_MIN, Z2_MIN);
       #endif
-      #if NUM_Z_STEPPER_DRIVERS >= 3
+      #if NUM_Z_STEPPERS >= 3
         #if HAS_Z3_MIN
           UPDATE_ENDSTOP_BIT(Z3, MIN);
         #else
           COPY_LIVE_STATE(Z_MIN, Z3_MIN);
         #endif
       #endif
-      #if NUM_Z_STEPPER_DRIVERS >= 4
+      #if NUM_Z_STEPPERS >= 4
         #if HAS_Z4_MIN
           UPDATE_ENDSTOP_BIT(Z4, MIN);
         #else
@@ -740,14 +740,14 @@ void Endstops::update() {
       #else
         COPY_LIVE_STATE(Z_MAX, Z2_MAX);
       #endif
-      #if NUM_Z_STEPPER_DRIVERS >= 3
+      #if NUM_Z_STEPPERS >= 3
         #if HAS_Z3_MAX
           UPDATE_ENDSTOP_BIT(Z3, MAX);
         #else
           COPY_LIVE_STATE(Z_MAX, Z3_MAX);
         #endif
       #endif
-      #if NUM_Z_STEPPER_DRIVERS >= 4
+      #if NUM_Z_STEPPERS >= 4
         #if HAS_Z4_MAX
           UPDATE_ENDSTOP_BIT(Z4, MAX);
         #else
@@ -930,9 +930,9 @@ void Endstops::update() {
 
   #if DISABLED(Z_MULTI_ENDSTOPS)
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_ENDSTOP(Z, MINMAX)
-  #elif NUM_Z_STEPPER_DRIVERS == 4
+  #elif NUM_Z_STEPPERS == 4
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_QUAD_ENDSTOP(Z, MINMAX)
-  #elif NUM_Z_STEPPER_DRIVERS == 3
+  #elif NUM_Z_STEPPERS == 3
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_TRIPLE_ENDSTOP(Z, MINMAX)
   #else
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)

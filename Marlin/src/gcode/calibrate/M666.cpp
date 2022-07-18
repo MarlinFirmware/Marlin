@@ -93,12 +93,12 @@
     #if ENABLED(Z_MULTI_ENDSTOPS)
       if (parser.seenval('Z')) {
         const float z_adj = parser.value_linear_units();
-        #if NUM_Z_STEPPER_DRIVERS == 2
+        #if NUM_Z_STEPPERS == 2
           endstops.z2_endstop_adj = z_adj;
         #else
           const int ind = parser.intval('S');
           #define _SET_ZADJ(N) if (!ind || ind == N) endstops.z##N##_endstop_adj = z_adj;
-          REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _SET_ZADJ)
+          REPEAT_S(2, INCREMENT(NUM_Z_STEPPERS), _SET_ZADJ)
         #endif
       }
     #endif
@@ -114,11 +114,11 @@
       SERIAL_ECHOLNPGM_P(SP_Y_STR, LINEAR_UNIT(endstops.y2_endstop_adj));
     #endif
     #if ENABLED(Z_MULTI_ENDSTOPS)
-      #if NUM_Z_STEPPER_DRIVERS >= 3
+      #if NUM_Z_STEPPERS >= 3
         SERIAL_ECHOPGM(" S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
         report_echo_start(forReplay);
         SERIAL_ECHOPGM("  M666 S3 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
-        #if NUM_Z_STEPPER_DRIVERS >= 4
+        #if NUM_Z_STEPPERS >= 4
           report_echo_start(forReplay);
           SERIAL_ECHOPGM("  M666 S4 Z", LINEAR_UNIT(endstops.z4_endstop_adj));
         #endif

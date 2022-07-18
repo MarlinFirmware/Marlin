@@ -35,6 +35,10 @@
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
 #endif
 
+#if LINEAR_AXES_WARNING
+  #warning "Note: LINEAR_AXES is now based on the *_DRIVER_TYPE settings so you can remove LINEAR_AXES from Configuration.h."
+#endif
+
 // Safety Features
 #if DISABLED(USE_WATCHDOG)
   #warning "Safety Alert! Enable USE_WATCHDOG for the final build!"
