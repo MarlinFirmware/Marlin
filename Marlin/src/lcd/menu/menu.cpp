@@ -191,7 +191,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
         else {
           #if ENABLED(MOVE_Z_WHEN_IDLE)
             ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
-            screen = lcd_move_z;
+            screen = []{ lcd_move_axis(Z_AXIS); };
           #endif
         }
       }

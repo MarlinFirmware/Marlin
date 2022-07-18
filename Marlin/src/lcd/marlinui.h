@@ -176,6 +176,8 @@ typedef bool (*statusResetFunc_t)();
     static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
+  void lcd_move_axis(const AxisEnum);
+
 #endif
 
 ////////////////////////////////////////////
