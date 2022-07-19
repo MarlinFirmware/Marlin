@@ -186,44 +186,43 @@
 #elif HAS_WIRED_LCD
 
   #if ENABLED(SKR_MINI_SCREEN_ADAPTER)
-    /* https://github.com/VoronDesign/Voron-Hardware/tree/master/SKR-Mini_Screen_Adaptor/SRK%20Mini%20E3%20V3.0
-    *
-    *             SKR Mini E3 V3.0                   SKR Mini Screen Adaptor
-    *                  ------                                ------
-    *            +5V  | 1  2 | GND                     MISO | 1  2 | SCK
-    *             CS  | 3  4 | SCK               (EN1) PA10 | 3  4 |
-    *           MOSI  | 5  6 | MISO              (EN2)  PA9   5  6 | MOSI
-    *            3V3  | 7  8 | GND                          | 7  8 |
-    *                  ------                           GND | 9  10| RESET (Kill)
-    *                   SPI                                  ------
-    *                                                         EXP2
-    *
-    *                  ------                                ------
-    *             PB5 | 1  2 | PA15                     N/C | 1  2 | PB5  (BTN_ENC)
-    *             PA9 | 3  4 | RESET           (LCD CS) PB8 | 3  4 | PD6  (LCD_A0)
-    *            PA10   5  6 | PB9              (RESET) PB9   5  6 | PA15 (DIN)
-    *             PB8 | 7  8 | PD6                      N/C | 7  8 | N/C
-    *             GND | 9  10| 5V                       GND | 9  10| +5v
-    *                  ------                                ------
-    *                   EXP1                                  EXP1
-    */
-
+    /** https://github.com/VoronDesign/Voron-Hardware/tree/master/SKR-Mini_Screen_Adaptor/SRK%20Mini%20E3%20V3.0
+     *
+     *            SKR Mini E3 V3.0                   SKR Mini Screen Adaptor
+     *                 ------                                ------
+     *           +5V  | 1  2 | GND                     MISO | 1  2 | SCK
+     *            CS  | 3  4 | SCK               (EN1) PA10 | 3  4 |
+     *          MOSI  | 5  6 | MISO              (EN2)  PA9   5  6 | MOSI
+     *           3V3  | 7  8 | GND                          | 7  8 |
+     *                 ------                           GND | 9  10| RESET (Kill)
+     *                  SPI                                  ------
+     *                                                        EXP2
+     *
+     *                 ------                                ------
+     *            PB5 | 1  2 | PA15                     N/C | 1  2 | PB5  (BTN_ENC)
+     *            PA9 | 3  4 | RESET           (LCD CS) PB8 | 3  4 | PD6  (LCD_A0)
+     *           PA10   5  6 | PB9              (RESET) PB9   5  6 | PA15 (DIN)
+     *            PB8 | 7  8 | PD6                      N/C | 7  8 | N/C
+     *            GND | 9  10| 5V                       GND | 9  10| +5v
+     *                 ------                                ------
+     *                  EXP1                                  EXP1
+     */
     #if ENABLED(FYSETC_MINI_12864_2_1)
       #define BTN_ENC                EXP1_01_PIN
       #define BTN_EN1                EXP1_03_PIN
       #define BTN_EN2                EXP1_05_PIN
-      #define BEEPER_PIN                      -1
+      #define BEEPER_PIN                    -1
       #define LCD_RESET_PIN          EXP1_06_PIN
       #define DOGLCD_CS              EXP1_07_PIN
       #define DOGLCD_A0              EXP1_08_PIN
-      #define DOGLCD_SCK                     PA5
-      #define DOGLCD_MOSI                    PA7
+      #define DOGLCD_SCK                    PA5
+      #define DOGLCD_MOSI                   PA7
 
       #define FORCE_SOFT_SPI
-      #define LCD_BACKLIGHT_PIN               -1
+      #define LCD_BACKLIGHT_PIN             -1
       #define NEOPIXEL_PIN           EXP1_02_PIN
     #else
-      #error "Only CR10_FYSETC_MINI_12864_2_1 and comptables are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER"
+      #error "Only CR10_FYSETC_MINI_12864_2_1 and compatibles are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER"
     #endif
 
   #else
@@ -240,7 +239,7 @@
       #define LCD_PINS_ENABLE        EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
 
-    #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    #elif ENABLED(ZONESTAR_LCD)                   // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
       #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
         #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
@@ -252,7 +251,7 @@
       #define LCD_PINS_D5            EXP1_05_PIN
       #define LCD_PINS_D6            EXP1_03_PIN
       #define LCD_PINS_D7            EXP1_01_PIN
-      #define ADC_KEYPAD_PIN                 PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+      #define ADC_KEYPAD_PIN                PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
@@ -266,7 +265,7 @@
       #define DOGLCD_MOSI            EXP1_08_PIN
 
       #define FORCE_SOFT_SPI
-      #define LCD_BACKLIGHT_PIN               -1
+      #define LCD_BACKLIGHT_PIN             -1
 
     #elif IS_TFTGLCD_PANEL
 
@@ -281,11 +280,11 @@
          *
          *                 Board                               Display
          *                 ------                               ------
-        * (BEEPER) PB6  | 1  2 | PB5  (SD_DET)             5V | 1  2 | GND
-        *         RESET | 3  4 | PA9  (MOD_RESET)          -- | 3  4 | (SD_DET)
-        *          PB9    5  6 | PA10 (SD_CS)         (MOSI)  | 5  6 | --
-        *          PB7  | 7  8 | PB8  (LCD_CS)        (SD_CS) | 7  8 | (LCD_CS)
-        *           GND | 9 10 | 5V                   (SCK)   | 9 10 | (MISO)
+         * (BEEPER) PB6  | 1  2 | PB5  (SD_DET)             5V | 1  2 | GND
+         *         RESET | 3  4 | PA9  (MOD_RESET)          -- | 3  4 | (SD_DET)
+         *          PB9    5  6 | PA10 (SD_CS)         (MOSI)  | 5  6 | --
+         *          PB7  | 7  8 | PB8  (LCD_CS)        (SD_CS) | 7  8 | (LCD_CS)
+         *           GND | 9 10 | 5V                   (SCK)   | 9 10 | (MISO)
          *                 ------                               ------
          *                  EXP1                                 EXP1
          *
@@ -344,7 +343,7 @@
       #define BTN_ENC                EXP1_02_PIN
       #define BTN_EN1                EXP1_06_PIN
       #define BTN_EN2                EXP1_01_PIN
-      #define BEEPER_PIN                      -1
+      #define BEEPER_PIN                    -1
 
       #define DOGLCD_CS              EXP1_03_PIN
       #define DOGLCD_A0              EXP1_05_PIN
@@ -352,7 +351,7 @@
       #define DOGLCD_MOSI            EXP1_08_PIN
 
       #define FORCE_SOFT_SPI
-      #define LCD_BACKLIGHT_PIN               -1
+      #define LCD_BACKLIGHT_PIN             -1
 
     #else
       #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BIGTREE_SKR_MINI_E3."
@@ -426,8 +425,8 @@
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
-#define SDSS                  ONBOARD_SD_CS_PIN
-#define SD_SS_PIN             ONBOARD_SD_CS_PIN
+#define SDSS                   ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
