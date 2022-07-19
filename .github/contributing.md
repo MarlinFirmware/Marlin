@@ -32,7 +32,7 @@ This project and everyone participating in it is governed by the [Marlin Code of
 
 > **Note:** Please don't file an issue to ask a question. You'll get faster results by using the resources below.
 
-We have a Message Board and a Facebook group where our knowledgeable user community can provide helpful advice if you have questions.
+We have a Message Board and a Facebook group where our knowledgable user community can provide helpful advice if you have questions.
 
 - [Marlin Documentation](https://marlinfw.org) - Official Marlin documentation
 - Facebook Group ["Marlin Firmware"](https://www.facebook.com/groups/1049718498464482/)
