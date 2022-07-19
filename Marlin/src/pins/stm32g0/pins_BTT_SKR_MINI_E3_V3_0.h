@@ -190,7 +190,7 @@
      *
      *            SKR Mini E3 V3.0                   SKR Mini Screen Adaptor
      *                 ------                                ------
-     *           +5V  | 1  2 | GND                     MISO | 1  2 | SCK
+     *            5V  | 1  2 | GND                     MISO | 1  2 | SCK
      *            CS  | 3  4 | SCK               (EN1) PA10 | 3  4 | --
      *          MOSI  | 5  6 | MISO              (EN2)  PA9   5  6 | MOSI
      *           3V3  | 7  8 | GND                       -- | 7  8 | --
@@ -203,7 +203,7 @@
      *            PA9 | 3  4 | RESET           (LCD CS) PB8 | 3  4 | PD6  (LCD_A0)
      *           PA10   5  6 | PB9              (RESET) PB9   5  6 | PA15 (DIN)
      *            PB8 | 7  8 | PD6                       -- | 7  8 | --
-     *            GND | 9  10| 5V                       GND | 9  10| +5v
+     *            GND | 9  10| 5V                       GND | 9  10| 5V
      *                 ------                                ------
      *                  EXP1                                  EXP1
      */
