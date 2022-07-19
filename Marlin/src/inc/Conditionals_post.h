@@ -3564,7 +3564,10 @@
 #if PIN_EXISTS(BEEPER)
   #define HAS_BEEPER 1
 #endif
-#if ANY(HAS_BEEPER, LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER)
+  #define USE_MARLINUI_BUZZER 1
+#endif
+#if EITHER(HAS_BEEPER, USE_MARLINUI_BUZZER)
   #define HAS_SOUND 1
 #endif
 
@@ -3590,6 +3593,7 @@
   #endif
 #else
   #undef SOUND_MENU_ITEM   // No buzzer menu item without a buzzer
+  #undef SOUND_ON_DEFAULT
 #endif
 
 /**
