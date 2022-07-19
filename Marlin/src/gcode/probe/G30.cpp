@@ -66,49 +66,43 @@ void GcodeSuite::G30() {
       SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
       LCD_MESSAGE(MSG_ZPROBE_OUT);
     #endif
-    // Restore the active tool after aborting
-    #if HAS_MULTI_HOTEND
-      tool_change(old_tool_index);   // Do move if one of these
-    #endif
-    return;
+  }
+  else {
+    // Disable leveling so the planner won't mess with us
+    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+
+    remember_feedrate_scaling_off();
+
+    TERN_(DWIN_LCD_PROUI, process_subcommands_now(F("G28O")));
+
+    const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
+
+    TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
+    const float measured_z = probe.probe_at_point(pos, raise_after, 1);
+    TERN_(HAS_PTC, ptc.set_enabled(true));
+    if (!isnan(measured_z)) {
+      SERIAL_ECHOLNPGM("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
+      #if ENABLED(DWIN_LCD_PROUI)
+        char msg[31], str_1[6], str_2[6], str_3[6];
+        sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
+          dtostrf(pos.x, 1, 1, str_1),
+          dtostrf(pos.y, 1, 1, str_2),
+          dtostrf(measured_z, 1, 2, str_3)
+        );
+        ui.set_status(msg);
+      #endif
+    }
+
+    restore_feedrate_and_scaling();
+
+    if (raise_after == PROBE_PT_STOW)
+      probe.move_z_after_probing();
+
+    report_current_position();
   }
 
-  // Disable leveling so the planner won't mess with us
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
-
-  remember_feedrate_scaling_off();
-
-  TERN_(DWIN_LCD_PROUI, process_subcommands_now(F("G28O")));
-
-  const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
-
-  TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
-  const float measured_z = probe.probe_at_point(pos, raise_after, 1);
-  TERN_(HAS_PTC, ptc.set_enabled(true));
-  if (!isnan(measured_z)) {
-    SERIAL_ECHOLNPGM("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
-    #if ENABLED(DWIN_LCD_PROUI)
-      char msg[31], str_1[6], str_2[6], str_3[6];
-      sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
-        dtostrf(pos.x, 1, 1, str_1),
-        dtostrf(pos.y, 1, 1, str_2),
-        dtostrf(measured_z, 1, 2, str_3)
-      );
-      ui.set_status(msg);
-    #endif
-  }
-
-  restore_feedrate_and_scaling();
-
-  if (raise_after == PROBE_PT_STOW)
-    probe.move_z_after_probing();
-
-  // Restore the active tool after probing
-  #if HAS_MULTI_HOTEND
-    tool_change(old_tool_index);   // Do move if one of these
-  #endif
-
-  report_current_position();
+  // Restore the active tool
+  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
 }
 
 #endif // HAS_BED_PROBE
