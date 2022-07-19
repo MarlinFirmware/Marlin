@@ -451,7 +451,7 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_BUZZER
+      #if HAS_SOUND
         static void completion_feedback(const bool good=true);
       #else
         static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }

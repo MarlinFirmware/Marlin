@@ -683,7 +683,7 @@ void MarlinUI::init() {
       if (old_frm != new_frm) {
         feedrate_percentage = new_frm;
         encoderPosition = 0;
-        #if BOTH(HAS_BUZZER, BEEP_ON_FEEDRATE_CHANGE)
+        #if BOTH(HAS_SOUND, BEEP_ON_FEEDRATE_CHANGE)
           static millis_t next_beep;
           #ifndef GOT_MS
             const millis_t ms = millis();
