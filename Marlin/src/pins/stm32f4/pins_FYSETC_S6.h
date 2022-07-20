@@ -207,23 +207,23 @@
  *         ------                 ------
  *          EXP1                   EXP2
  */
-#define EXP1_08_PIN                         PD1
-#define EXP1_07_PIN                         PD0
-#define EXP1_06_PIN                         PC12
-#define EXP1_05_PIN                         PC10
-#define EXP1_04_PIN                         PD2
-#define EXP1_03_PIN                         PC11
-#define EXP1_02_PIN                         PA8
 #define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PA8
+#define EXP1_03_PIN                         PC11
+#define EXP1_04_PIN                         PD2
+#define EXP1_05_PIN                         PC10
+#define EXP1_06_PIN                         PC12
+#define EXP1_07_PIN                         PD0
+#define EXP1_08_PIN                         PD1
 
-#define EXP2_08_PIN                         -1    // RESET
-#define EXP2_07_PIN                         PB10
-#define EXP2_06_PIN                         PA7
-#define EXP2_05_PIN                         PC7
-#define EXP2_04_PIN                         PA4
-#define EXP2_03_PIN                         PC6
-#define EXP2_02_PIN                         PA5
 #define EXP2_01_PIN                         PA6
+#define EXP2_02_PIN                         PA5
+#define EXP2_03_PIN                         PC6
+#define EXP2_04_PIN                         PA4
+#define EXP2_05_PIN                         PC7
+#define EXP2_06_PIN                         PA7
+#define EXP2_07_PIN                         PB10
+#define EXP2_08_PIN                         -1    // RESET
 
 //
 // SPI / SD Card

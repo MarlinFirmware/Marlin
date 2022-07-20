@@ -91,25 +91,25 @@
 //
 // Extension ports
 //
-#define EXP1_10_PIN                        P0_28  // SCL0
-#define EXP1_09_PIN                        P0_27  // SDA0
-#define EXP1_08_PIN                        P0_16  // SSEL0
-#define EXP1_07_PIN                        P0_15  // SCK0
-#define EXP1_06_PIN                        P0_18  // MOSI0
-#define EXP1_05_PIN                        P0_17  // MISO0
-#define EXP1_04_PIN                        P1_31
-#define EXP1_03_PIN                        P1_30
-#define EXP1_02_PIN                        P0_02  // TX0
 #define EXP1_01_PIN                        P0_03  // RX0
+#define EXP1_02_PIN                        P0_02  // TX0
+#define EXP1_03_PIN                        P1_30
+#define EXP1_04_PIN                        P1_31
+#define EXP1_05_PIN                        P0_17  // MISO0
+#define EXP1_06_PIN                        P0_18  // MOSI0
+#define EXP1_07_PIN                        P0_15  // SCK0
+#define EXP1_08_PIN                        P0_16  // SSEL0
+#define EXP1_09_PIN                        P0_27  // SDA0
+#define EXP1_10_PIN                        P0_28  // SCL0
 
-#define EXP2_08_PIN                        P1_27
-#define EXP2_07_PIN                        P1_26
-#define EXP2_06_PIN                        P1_29
-#define EXP2_05_PIN                        P1_28
-#define EXP2_04_PIN                        P0_01  // SCL1
-#define EXP2_03_PIN                        P0_00  // SDA1
-#define EXP2_02_PIN                        P0_11
 #define EXP2_01_PIN                        P0_10
+#define EXP2_02_PIN                        P0_11
+#define EXP2_03_PIN                        P0_00  // SDA1
+#define EXP2_04_PIN                        P0_01  // SCL1
+#define EXP2_05_PIN                        P1_28
+#define EXP2_06_PIN                        P1_29
+#define EXP2_07_PIN                        P1_26
+#define EXP2_08_PIN                        P1_27
 
 //
 // SD Support

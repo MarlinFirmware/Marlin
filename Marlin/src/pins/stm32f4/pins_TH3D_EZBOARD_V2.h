@@ -213,14 +213,14 @@
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
  */
-#define EXP1_08_PIN                         PB15
-#define EXP1_07_PIN                         PB12
-#define EXP1_06_PIN                         PB13
-#define EXP1_05_PIN                         PC5
-//#define EXP1_04_PIN                       -1
-#define EXP1_03_PIN                         PC4
-#define EXP1_02_PIN                         PB0
 #define EXP1_01_PIN                         PA14
+#define EXP1_02_PIN                         PB0
+#define EXP1_03_PIN                         PC4
+//#define EXP1_04_PIN                       -1
+#define EXP1_05_PIN                         PC5
+#define EXP1_06_PIN                         PB13
+#define EXP1_07_PIN                         PB12
+#define EXP1_08_PIN                         PB15
 
 #if ENABLED(CR10_STOCKDISPLAY)
   /**          ------

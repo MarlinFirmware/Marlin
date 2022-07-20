@@ -146,14 +146,14 @@
  *  - Functionally the pins are assigned in the same order as on the Ender-3 board.
  *  - Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
  */
-#define EXP1_08_PIN                         PB15
-#define EXP1_07_PIN                         PB12
-#define EXP1_06_PIN                         PB13
-#define EXP1_05_PIN                         PC10
-#define EXP1_04_PIN                         PB14
-#define EXP1_03_PIN                         PC11
-#define EXP1_02_PIN                         PC12
 #define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PC12
+#define EXP1_03_PIN                         PC11
+#define EXP1_04_PIN                         PB14
+#define EXP1_05_PIN                         PC10
+#define EXP1_06_PIN                         PB13
+#define EXP1_07_PIN                         PB12
+#define EXP1_08_PIN                         PB15
 
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN

@@ -175,23 +175,23 @@
  *        ------                  ------
  *         EXP1                    EXP2
  */
-#define EXP1_08_PIN                         PD4
-#define EXP1_07_PIN                         PD3
-#define EXP1_06_PIN                         PD2
-#define EXP1_05_PIN                         PD1
-#define EXP1_04_PIN                         PC12
-#define EXP1_03_PIN                         PD7
-#define EXP1_02_PIN                         PB12
 #define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PB12
+#define EXP1_03_PIN                         PD7
+#define EXP1_04_PIN                         PC12
+#define EXP1_05_PIN                         PD1
+#define EXP1_06_PIN                         PD2
+#define EXP1_07_PIN                         PD3
+#define EXP1_08_PIN                         PD4
 
-#define EXP2_08_PIN                         -1
-#define EXP2_07_PIN                         PB7
-//#define EXP2_06_PIN                       ?
-#define EXP2_05_PIN                         PD0
-//#define EXP2_04_PIN                       ?
-#define EXP2_03_PIN                         PD6
-//#define EXP2_02_PIN                       ?
 //#define EXP2_01_PIN                       ?
+//#define EXP2_02_PIN                       ?
+#define EXP2_03_PIN                         PD6
+//#define EXP2_04_PIN                       ?
+#define EXP2_05_PIN                         PD0
+//#define EXP2_06_PIN                       ?
+#define EXP2_07_PIN                         PB7
+#define EXP2_08_PIN                         -1
 
 //
 // LCD / Controller
