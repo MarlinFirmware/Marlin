@@ -88,16 +88,16 @@
  *                 ------
  *               "E3" EXP1
  */
-#define EXP3_10_PIN                         -1    // 5V
-#define EXP3_09_PIN                         -1    // GND
-#define EXP3_08_PIN                         PC2
-#define EXP3_07_PIN                         PC3
-#define EXP3_06_PIN                         PC1
-#define EXP3_05_PIN                         PB4
-#define EXP3_04_PIN                         PA11  // RESET?
-#define EXP3_03_PIN                         PB5
-#define EXP3_02_PIN                         PB3
 #define EXP3_01_PIN                         PD2
+#define EXP3_02_PIN                         PB3
+#define EXP3_03_PIN                         PB5
+#define EXP3_04_PIN                         PA11  // RESET?
+#define EXP3_05_PIN                         PB4
+#define EXP3_06_PIN                         PC1
+#define EXP3_07_PIN                         PC3
+#define EXP3_08_PIN                         PC2
+#define EXP3_09_PIN                         -1    // GND
+#define EXP3_10_PIN                         -1    // 5V
 
 //
 // LCD Pins

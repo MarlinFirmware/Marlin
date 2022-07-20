@@ -321,23 +321,23 @@
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
-#define EXP1_08_PIN                         PG7
-#define EXP1_07_PIN                         PG6
-#define EXP1_06_PIN                         PG3
-#define EXP1_05_PIN                         PG2
-#define EXP1_04_PIN                         PD10
-#define EXP1_03_PIN                         PD11
-#define EXP1_02_PIN                         PA8
 #define EXP1_01_PIN                         PG4
+#define EXP1_02_PIN                         PA8
+#define EXP1_03_PIN                         PD11
+#define EXP1_04_PIN                         PD10
+#define EXP1_05_PIN                         PG2
+#define EXP1_06_PIN                         PG3
+#define EXP1_07_PIN                         PG6
+#define EXP1_08_PIN                         PG7
 
-#define EXP2_08_PIN                         -1
-#define EXP2_07_PIN                         PF12
-#define EXP2_06_PIN                         PB15
-#define EXP2_05_PIN                         PF11
-#define EXP2_04_PIN                         PB12
-#define EXP2_03_PIN                         PG10
-#define EXP2_02_PIN                         PB13
 #define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PG10
+#define EXP2_04_PIN                         PB12
+#define EXP2_05_PIN                         PF11
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PF12
+#define EXP2_08_PIN                         -1
 
 //
 // Onboard SD card

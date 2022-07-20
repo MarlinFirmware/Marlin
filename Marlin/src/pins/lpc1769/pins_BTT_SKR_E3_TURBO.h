@@ -194,14 +194,14 @@
  *                  ------
  *                   EXP
  */
-#define EXP1_08_PIN                        P0_18
-#define EXP1_07_PIN                        P0_17
-#define EXP1_06_PIN                        P0_15
-#define EXP1_05_PIN                        P0_20
-#define EXP1_04_PIN                        -1
-#define EXP1_03_PIN                        P0_19
-#define EXP1_02_PIN                        P0_16
 #define EXP1_01_PIN                        P2_08
+#define EXP1_02_PIN                        P0_16
+#define EXP1_03_PIN                        P0_19
+#define EXP1_04_PIN                        -1
+#define EXP1_05_PIN                        P0_20
+#define EXP1_06_PIN                        P0_15
+#define EXP1_07_PIN                        P0_17
+#define EXP1_08_PIN                        P0_18
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING

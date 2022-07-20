@@ -160,23 +160,23 @@
  *                      EXP3
  */
 
-#define EXP1_08_PIN                         PB7
-#define EXP1_07_PIN                         PB6
-#define EXP1_06_PIN                         PB14
-#define EXP1_05_PIN                         PB13
-#define EXP1_04_PIN                         PB12
-#define EXP1_03_PIN                         PB15
-#define EXP1_02_PIN                         PC12
 #define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PC12
+#define EXP1_03_PIN                         PB15
+#define EXP1_04_PIN                         PB12
+#define EXP1_05_PIN                         PB13
+#define EXP1_06_PIN                         PB14
+#define EXP1_07_PIN                         PB6
+#define EXP1_08_PIN                         PB7
 
-#define EXP2_08_PIN                         -1
-#define EXP2_07_PIN                         PC3
-#define EXP2_06_PIN                         PA7
-#define EXP2_05_PIN                         PC11
-#define EXP2_04_PIN                         PA4
-#define EXP2_03_PIN                         PC10
-#define EXP2_02_PIN                         PA5
 #define EXP2_01_PIN                         PA6
+#define EXP2_02_PIN                         PA5
+#define EXP2_03_PIN                         PC10
+#define EXP2_04_PIN                         PA4
+#define EXP2_05_PIN                         PC11
+#define EXP2_06_PIN                         PA7
+#define EXP2_07_PIN                         PC3
+#define EXP2_08_PIN                         -1
 
 #if HAS_WIRED_LCD
 

@@ -515,18 +515,18 @@
  */
 #ifndef EXP1_08_PIN
 
-  #define EXP1_08_PIN                AUX4_13_PIN
-  #define EXP1_07_PIN                AUX4_14_PIN
-  #define EXP1_06_PIN                AUX4_15_PIN
-  #define EXP1_05_PIN                AUX4_16_PIN
-  #define EXP1_04_PIN                AUX4_18_PIN
   #define EXP1_03_PIN                AUX4_17_PIN
+  #define EXP1_04_PIN                AUX4_18_PIN
+  #define EXP1_05_PIN                AUX4_16_PIN
+  #define EXP1_06_PIN                AUX4_15_PIN
+  #define EXP1_07_PIN                AUX4_14_PIN
+  #define EXP1_08_PIN                AUX4_13_PIN
 
-  #define EXP2_07_PIN                AUX3_02_PIN
-  #define EXP2_06_PIN                AUX3_04_PIN
-  #define EXP2_04_PIN                AUX3_06_PIN
-  #define EXP2_02_PIN                AUX3_05_PIN
   #define EXP2_01_PIN                AUX3_03_PIN
+  #define EXP2_02_PIN                AUX3_05_PIN
+  #define EXP2_04_PIN                AUX3_06_PIN
+  #define EXP2_06_PIN                AUX3_04_PIN
+  #define EXP2_07_PIN                AUX3_02_PIN
 
   #if ENABLED(G3D_PANEL)
     /**                  Gadgets3D Smart Adapter
@@ -539,12 +539,12 @@
      *              ------                        ------
      *               EXP1                          EXP2
      */
-    #define EXP1_02_PIN              AUX4_12_PIN
     #define EXP1_01_PIN              AUX4_11_PIN
+    #define EXP1_02_PIN              AUX4_12_PIN
 
-    #define EXP2_08_PIN              AUX4_07_PIN
-    #define EXP2_05_PIN              AUX4_09_PIN
     #define EXP2_03_PIN              AUX4_10_PIN
+    #define EXP2_05_PIN              AUX4_09_PIN
+    #define EXP2_08_PIN              AUX4_07_PIN
 
   #else
 
@@ -558,17 +558,17 @@
      *             ------                           ------
      *              EXP1                             EXP2
      */
-    #define EXP1_02_PIN              AUX4_10_PIN
     #define EXP1_01_PIN              AUX4_09_PIN
+    #define EXP1_02_PIN              AUX4_10_PIN
 
     #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
-      #define EXP2_08_PIN                     -1  // RESET
-      #define EXP2_05_PIN            AUX4_12_PIN
       #define EXP2_03_PIN            AUX4_11_PIN
+      #define EXP2_05_PIN            AUX4_12_PIN
+      #define EXP2_08_PIN                     -1  // RESET
     #else
-      #define EXP2_08_PIN            AUX4_07_PIN
-      #define EXP2_05_PIN            AUX4_11_PIN
       #define EXP2_03_PIN            AUX4_12_PIN
+      #define EXP2_05_PIN            AUX4_11_PIN
+      #define EXP2_08_PIN            AUX4_07_PIN
     #endif
 
   #endif

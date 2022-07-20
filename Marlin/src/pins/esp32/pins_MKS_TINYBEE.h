@@ -128,23 +128,23 @@
  *                 EXP1                                   EXP2
  */
 
-#define EXP1_08_PIN                           17
-#define EXP1_07_PIN                           15
-#define EXP1_06_PIN                           16
-#define EXP1_05_PIN                            0
-#define EXP1_04_PIN                            4
-#define EXP1_03_PIN                           21
-#define EXP1_02_PIN                           13
 #define EXP1_01_PIN                          149
+#define EXP1_02_PIN                           13
+#define EXP1_03_PIN                           21
+#define EXP1_04_PIN                            4
+#define EXP1_05_PIN                            0
+#define EXP1_06_PIN                           16
+#define EXP1_07_PIN                           15
+#define EXP1_08_PIN                           17
 
-#define EXP2_08_PIN                           -1  // RESET
-#define EXP2_07_PIN                           34
-#define EXP2_06_PIN                           23
-#define EXP2_05_PIN                           12
-#define EXP2_04_PIN                            5
-#define EXP2_03_PIN                           14
-#define EXP2_02_PIN                           18
 #define EXP2_01_PIN                           19
+#define EXP2_02_PIN                           18
+#define EXP2_03_PIN                           14
+#define EXP2_04_PIN                            5
+#define EXP2_05_PIN                           12
+#define EXP2_06_PIN                           23
+#define EXP2_07_PIN                           34
+#define EXP2_08_PIN                           -1  // RESET
 
 //
 // MicroSD card
