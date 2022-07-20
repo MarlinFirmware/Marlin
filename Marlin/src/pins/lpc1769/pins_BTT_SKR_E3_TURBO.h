@@ -210,12 +210,12 @@
 
  /**
   *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo
-  *                ------                                     ------                                  RX  8 -->  5  P0_15
-  *           --  | 1  2 | --                (BEEPER)  P2_08 | 1  2 | P0_16 (BTN_ENC)                 TX  7 -->  9  P0_16
-  * (SKR_TX1) RX  | 3  4 | TX (SKR_RX1)      (BTN_EN1) P0_19 | 3  4 | RESET                       BEEPER  5 --> 10  P2_08
-  * (BTN_ENC) ENT   5  6 | BEEPER            (BTN_EN2) P0_20   5  6 | P0_15 (LCD_D4)
-  * (BTN_E2)  B   | 7  8 | A  (BTN_E1)       (LCD_RS)  P0_17 | 7  8 | P0_18 (LCD_EN)
-  *           GND | 9 10 | 5V                            GND | 9 10 | 5V
+  *                ------                                     ------                                  RX  3 -->  5  P0_15
+  *           --  | 1  2 | --                (BEEPER)  P2_08 |10  9 | P0_16 (BTN_ENC)                 TX  4 -->  9  P0_16
+  * (SKR_TX1) RX  | 3  4 | TX (SKR_RX1)      (BTN_EN1) P0_19 | 8  7 | RESET                       BEEPER  6 --> 10  P2_08
+  * (BTN_ENC) ENT   5  6 | BEEPER            (BTN_EN2) P0_20   6  5 | P0_15 (LCD_D4)
+  * (BTN_E2)  B   | 7  8 | A  (BTN_E1)       (LCD_RS)  P0_17 | 4  3 | P0_18 (LCD_EN)
+  *           GND | 9 10 | 5V                            GND | 2  1 | 5V
   *                ------                                     ------
   */
 

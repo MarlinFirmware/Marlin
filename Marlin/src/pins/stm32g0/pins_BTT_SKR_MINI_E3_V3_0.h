@@ -163,11 +163,11 @@
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
    *        ------                ------                ------
-   * (ENT) | 1  2 | (BEEP)       | 1  2 |              | 1  2 |
-   *  (RX) | 3  4 |         (RX) | 3  4 | (TX)      RX | 3  4 | TX
-   *  (TX)   5  6 |        (ENT)   5  6 | (BEEP)   ENT | 5  6 | BEEP
-   *   (B) | 7  8 | (A)      (B) | 7  8 | (A)        B | 7  8 | A
-   *   GND | 9 10 | (VCC)    GND | 9 10 | VCC      GND | 9 10 | VCC
+   * (ENT) | 1  2 | (BEEP)       |10  9 |              |10  9 |
+   *  (RX) | 3  4 |         (RX) | 8  7 | (TX)      RX | 8  7 | TX
+   *  (TX)   5  6 |        (ENT)   6  5 | (BEEP)   ENT | 6  5 | BEEP
+   *   (B) | 7  8 | (A)      (B) | 4  3 | (A)        B | 4  3 | A
+   *   GND | 9 10 | (VCC)    GND | 2  1 | VCC      GND | 2  1 | VCC
    *        ------                ------                ------
    *         EXP1                  DWIN               DWIN (plug)
    *
@@ -280,11 +280,11 @@
          *
          *                 Board                               Display
          *                 ------                               ------
-         * (BEEPER) PB6  | 1  2 | PB5  (SD_DET)             5V | 1  2 | GND
-         *         RESET | 3  4 | PA9  (MOD_RESET)          -- | 3  4 | (SD_DET)
-         *          PB9    5  6 | PA10 (SD_CS)         (MOSI)  | 5  6 | --
-         *          PB7  | 7  8 | PB8  (LCD_CS)        (SD_CS) | 7  8 | (LCD_CS)
-         *           GND | 9 10 | 5V                   (SCK)   | 9 10 | (MISO)
+         * (BEEPER) PB6  | 1  2 | PB5  (SD_DET)             5V |10  9 | GND
+         *         RESET | 3  4 | PA9  (MOD_RESET)          -- | 8  7 | (SD_DET)
+         *          PB9    5  6 | PA10 (SD_CS)         (MOSI)  | 6  5 | --
+         *          PB7  | 7  8 | PB8  (LCD_CS)        (SD_CS) | 4  3 | (LCD_CS)
+         *           GND | 9 10 | 5V                   (SCK)   | 2  1 | (MISO)
          *                 ------                               ------
          *                  EXP1                                 EXP1
          *
@@ -292,16 +292,16 @@
          *
          *    Board             Display
          *
-         *   EXP1-1 ----------- EXP1-10
-         *   EXP1-2 ----------- EXP1-9
-         *   SPI1-4 ----------- EXP1-6
-         *   EXP1-4 ----------- FREE
-         *   SPI1-3 ----------- EXP1-2
-         *   EXP1-6 ----------- EXP1-4
-         *   EXP1-7 ----------- FREE
-         *   EXP1-8 ----------- EXP1-3
-         *   SPI1-1 ----------- EXP1-1
-         *  EXP1-10 ----------- EXP1-7
+         *  EXP1-10 ----------- EXP1-10  5V
+         *  EXP1-9 ------------ EXP1-9   GND
+         *  SPI1-4 ------------ EXP1-6   MOSI
+         *  EXP1-7 ------------ n/c
+         *  SPI1-3 ------------ EXP1-2   SCK
+         *  EXP1-5 ------------ EXP1-4   SD_CS
+         *  EXP1-4 ------------ n/c
+         *  EXP1-3 ------------ EXP1-3   LCD_CS
+         *  SPI1-1 ------------ EXP1-1   MISO
+         *  EXP1-1 ------------ EXP1-7   SD_DET
          */
 
         #define TFTGLCD_CS           EXP1_03_PIN
@@ -318,26 +318,26 @@
        *
        *                 Board                               Display
        *                 ------                               ------
-       *    (EN2)  PB5  | 1  2 | PA15(BTN_ENC)            5V | 1  2 | GND
-       *  (LCD_CS) PA9  | 3  4 | RST (RESET)              -- | 3  4 | --
-       *  (LCD_A0) PA10 |#6  5 | PB9 (EN1)            (DIN)  | 6  5#| (RESET)
-       *  (LCD_SCK)PB8  | 7  8 | PD6 (MOSI)         (LCD_A0) | 7  8 | (LCD_CS)
-       *            GND | 9 10 | 5V                (BTN_ENC) | 9 10 | --
+       *    (EN2)  PB5  | 1  2 | PA15(BTN_ENC)            5V |10  9 | GND
+       *  (LCD_CS) PA9  | 3  4 | RST (RESET)              -- | 8  7 | --
+       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET)
+       *  (LCD_SCK)PB8  | 7  8 | PD6 (MOSI)         (LCD_A0) | 4  3 | (LCD_CS)
+       *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
        *                 ------                               ------
        *                  EXP1                                 EXP1
        *
        *                                                      ------
-       *                                                  -- | 1  2 | --
-       *                   ---                       (RESET) | 3  4 | --
-       *                  | 3 |                      (MOSI)  | 6  5#| (EN2)
-       *                  | 2 | (DIN)                     -- | 7  8 | (EN1)
-       *                  | 1 |                     (LCD_SCK)| 9 10 | --
+       *                                                  -- |10  9 | --
+       *                   ---                       (RESET) | 8  7 | --
+       *                  | 3 |                      (MOSI)  | 6  5   (EN2)
+       *                  | 2 | (DIN)                     -- | 4  3 | (EN1)
+       *                  | 1 |                     (LCD_SCK)| 2  1 | --
        *                   ---                                ------
        *                Neopixel                               EXP2
        *
        * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
        *
-       * Check twice index position!!! (marked as # here)
+       * Check the index/notch position twice!!!
        * On BTT boards pins from IDC10 connector are numbered in unusual order.
        */
       #define BTN_ENC                EXP1_02_PIN
@@ -372,28 +372,28 @@
    *
    *                   Board                             Display
    *                   ------                            ------
-   * (SD_DET)    PB5  | 1  2 | PB6 (BEEPER)          5V | 1  2 | GND
-   * (MOD_RESET) PA9  | 3  4 | RESET            (RESET) | 3  4 | (SD_DET)
-   * (SD_CS)     PA10   5  6 | PB9 (FREE)       (MOSI)  | 5  6 | (LCD_CS)
-   * (LCD_CS)    PB8  | 7  8 | PB7 (FREE)       (SD_CS) | 7  8 | (MOD_RESET)
-   *               5V | 9 10 | GND              (SCK)   | 9 10 | (MISO)
+   * (SD_DET)    PB5  | 1  2 | PB6 (BEEPER)          5V |10  9 | GND
+   * (MOD_RESET) PA9  | 3  4 | RESET            (RESET) | 8  7 | (SD_DET)
+   * (SD_CS)     PA10   5  6 | PB9 (FREE)       (MOSI)  | 6  5 | (LCD_CS)
+   * (LCD_CS)    PB8  | 7  8 | PB7 (FREE)       (SD_CS) | 4  3 | (MOD_RESET)
+   *               5V | 9 10 | GND              (SCK)   | 2  1 | (MISO)
    *                   ------                            ------
    *                    EXP1                              EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *           _________
-   *   EXP1-1 ----------- EXP1-10
-   *   EXP1-2 ----------- EXP1-9
-   *   SPI1-4 ----------- EXP1-6
-   *   EXP1-4 ----------- EXP1-5
-   *   SPI1-3 ----------- EXP1-2
-   *   EXP1-6 ----------- EXP1-4
-   *   EXP1-7 ----------- EXP1-8
-   *   EXP1-8 ----------- EXP1-3
-   *   SPI1-1 ----------- EXP1-1
-   *  EXP1-10 ----------- EXP1-7
+   *   ----------------------------------
+   *   EXP1-10 ----------- EXP1-10  5V
+   *   EXP1-9 ------------ EXP1-9   GND
+   *   SPI1-4 ------------ EXP1-6   MOSI
+   *   EXP1-7 ------------ EXP1-5   LCD_CS
+   *   SPI1-3 ------------ EXP1-2   SCK
+   *   EXP1-5 ------------ EXP1-4   SD_CS
+   *   EXP1-4 ------------ EXP1-8   RESET
+   *   EXP1-3 ------------ EXP1-3   MOD_RST
+   *   SPI1-1 ------------ EXP1-1   MISO
+   *   EXP1-1 ------------ EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector

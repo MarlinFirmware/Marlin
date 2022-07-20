@@ -300,11 +300,11 @@
      *
      *                BEFORE                     AFTER
      *                ------                     ------
-     *      (BEEPER) | 1  2 | (CLK)    (BEEPER) | 1  2 | (CLK)
-     *     (BTN_ENC) | 3  4 | --      (BTN_ENC) | 3  4 | --
-     *     (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   5  6 | (SID)
-     *     (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 7  8 | (CS)
-     *            5V | 9 10 | GND           GND | 9 10 | 5V
+     *      (BEEPER) | 1  2 | (CLK)    (BEEPER) |10  9 | (CLK)
+     *     (BTN_ENC) | 3  4 | --      (BTN_ENC) | 8  7 | --
+     *     (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   6  5 | (SID)
+     *     (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 4  3 | (CS)
+     *            5V | 9 10 | GND           GND | 2  1 | 5V
      *                ------                     ------
      *                 LCD                        LCD
      */
@@ -336,11 +336,11 @@
     *
     *            BEFORE                     AFTER
     *            ------                     ------
-    *  (BEEPER) | 1  2 | (CLK)    (BEEPER) | 1  2 | --
-    * (BTN_ENC) | 3  4 | --      (BTN_ENC) | 3  4 | (CLK)
-    * (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   5  6 | (SID)
-    * (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 7  8 | (CS)
-    *        5V | 9 10 | GND           GND | 9 10 | 5V
+    *  (BEEPER) | 1  2 | (CLK)    (BEEPER) |10  9 | --
+    * (BTN_ENC) | 3  4 | --      (BTN_ENC) | 8  7 | (CLK)
+    * (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   6  5 | (SID)
+    * (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 4  3 | (CS)
+    *        5V | 9 10 | GND           GND | 2  1 | 5V
     *            ------                     ------
     *             LCD                        LCD
     */
