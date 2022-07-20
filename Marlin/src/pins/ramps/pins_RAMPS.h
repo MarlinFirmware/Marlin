@@ -594,12 +594,33 @@
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
-    #define LCD_PINS_RS              AUX2_06_PIN
-    #define LCD_PINS_ENABLE          AUX2_08_PIN
-    #define LCD_PINS_D4              AUX2_10_PIN
-    #define LCD_PINS_D5              AUX2_09_PIN
-    #define LCD_PINS_D6              AUX2_07_PIN
-    #define LCD_PINS_D7              AUX2_05_PIN
+    /**
+     *                  PANEL_ONE
+     *         ------                 ------
+     *    NC  | 1  2 | NC        DB4 | 1  2 | DB5
+     *    VCC | 3  4 | ENC         E | 3  4 | DB6
+     *   MISO | 5  6 | MOSI       RS | 5  6 | DB7
+     *    SCK | 7  8 | SDSS      EN2 | 7  8 | EN1
+     *    GND | 9 10 | NC        GND | 9 10 | 5V
+     *         ------                 ------
+     *           P1                     P2
+     */
+
+    // Each board defines its own EXP adapters
+    #define EXP1_04_PIN              AUX3_02_PIN  // ENC
+    #define EXP1_05_PIN                     MISO
+    #define EXP1_06_PIN                     MOSI
+    #define EXP1_07_PIN                      SCK
+    #define EXP1_08_PIN                     SDSS
+
+    #define EXP2_01_PIN              AUX2_10_PIN  // DB4
+    #define EXP2_02_PIN              AUX2_09_PIN  // DB5
+    #define EXP2_03_PIN              AUX2_08_PIN  // ENA
+    #define EXP2_04_PIN              AUX2_07_PIN  // DB6
+    #define EXP2_05_PIN              AUX2_06_PIN  // RS
+    #define EXP2_06_PIN              AUX2_05_PIN  // DB7
+    #define EXP2_07_PIN              AUX2_04_PIN  // EN2
+    #define EXP2_08_PIN              AUX2_03_PIN  // EN1
 
   #elif ENABLED(TFTGLCD_PANEL_SPI)
 
@@ -859,10 +880,8 @@
 
       #define BEEPER_PIN             EXP2_05_PIN
 
-      #if ENABLED(PANEL_ONE)                       // Buttons connect directly to AUX-2
-        #define BTN_EN1              AUX2_03_PIN
-        #define BTN_EN2              AUX2_04_PIN
-        #define BTN_ENC              AUX3_02_PIN
+      #if ENABLED(PANEL_ONE)                      // Buttons connect directly to AUX-2
+        // Moved
       #else
         #define BTN_EN1              EXP1_01_PIN
         #define BTN_EN2              EXP1_02_PIN

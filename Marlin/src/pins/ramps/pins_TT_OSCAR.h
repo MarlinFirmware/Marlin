@@ -284,12 +284,12 @@
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
-    #define LCD_PINS_RS                       40
-    #define LCD_PINS_ENABLE                   42
-    #define LCD_PINS_D4                       65
-    #define LCD_PINS_D5                       66
-    #define LCD_PINS_D6                       44
-    #define LCD_PINS_D7                       64
+    #define EXP2_01_PIN                       65
+    #define EXP2_02_PIN                       66
+    #define EXP2_03_PIN                       42
+    #define EXP2_04_PIN                       44
+    #define EXP2_05_PIN                       40
+    #define EXP2_06_PIN                       64
 
   #elif ENABLED(ZONESTAR_LCD)
 
@@ -491,9 +491,9 @@
         #define BTN_EN2                       59
         #define BTN_ENC                       63
       #elif ENABLED(PANEL_ONE)
-        #define BTN_EN1                       59  // AUX2 PIN 3
-        #define BTN_EN2                       63  // AUX2 PIN 4
-        #define BTN_ENC                       49  // AUX3 PIN 7
+        #define EXP1_04_PIN                   49
+        #define EXP2_07_PIN                   63
+        #define EXP2_08_PIN                   59
       #else
         #define BTN_EN1                       37
         #define BTN_EN2                       35
