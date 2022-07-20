@@ -129,11 +129,11 @@
  *                 EXP1                                      EXP1
  */
 #ifdef SKR_MINI_E3_V2
-  #define EXP1_9                            PA15
-  #define EXP1_3                            PB15
+  #define EXP1_02_PIN                       PA15
+  #define EXP1_08_PIN                       PB15
 #else
-  #define EXP1_9                            PB6
-  #define EXP1_3                            PB7
+  #define EXP1_02_PIN                       PB6
+  #define EXP1_08_PIN                       PB7
 #endif
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
@@ -154,8 +154,8 @@
     #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
 
-  #define BEEPER_PIN                      EXP1_9
-  #define BTN_EN1                         EXP1_3
+  #define BEEPER_PIN                 EXP1_02_PIN
+  #define BTN_EN1                    EXP1_08_PIN
   #define BTN_EN2                           PB8
   #define BTN_ENC                           PB5
 
@@ -164,13 +164,13 @@
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN                      PB5
-    #define BTN_ENC                       EXP1_9
+    #define BTN_ENC                  EXP1_02_PIN
 
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE               EXP1_3
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4                     PB9
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -180,7 +180,7 @@
     #endif
 
     #define LCD_PINS_RS                     PB9
-    #define LCD_PINS_ENABLE               EXP1_9
+    #define LCD_PINS_ENABLE          EXP1_02_PIN
     #define LCD_PINS_D4                     PB8
     #define LCD_PINS_D5                     PA10
     #define LCD_PINS_D6                     PA9
@@ -189,14 +189,14 @@
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-    #define BTN_ENC                       EXP1_9
+    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define DOGLCD_CS                       PB8
     #define DOGLCD_A0                       PB9
     #define DOGLCD_SCK                      PB5
-    #define DOGLCD_MOSI                   EXP1_3
+    #define DOGLCD_MOSI              EXP1_08_PIN
 
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
@@ -349,9 +349,9 @@
    *  EXP1-10 ----------- EXP1-7
    */
 
-  #define CLCD_SPI_BUS                         1  // SPI1 connector
+  #define CLCD_SPI_BUS 1                          // SPI1 connector
 
-  #define BEEPER_PIN                      EXP1_9
+  #define BEEPER_PIN                 EXP1_02_PIN
 
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8
@@ -375,7 +375,7 @@
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif
 
-#define ONBOARD_SPI_DEVICE                     1  // SPI1 -> used only by HAL/STM32F1...
+#define ONBOARD_SPI_DEVICE 1                      // SPI1 -> used only by HAL/STM32F1...
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
