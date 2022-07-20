@@ -305,13 +305,10 @@
 
     #if ENABLED(CR10_STOCKDISPLAY)
 
-      #define LCD_PINS_RS                     27
-      #define LCD_PINS_ENABLE                 29
-      #define LCD_PINS_D4                     25
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN                    37
-      #endif
+      #define EXP1_01_PIN                     37
+      #define EXP1_06_PIN                     25
+      #define EXP1_07_PIN                     27
+      #define EXP1_08_PIN                     29
 
     #else
 
@@ -364,14 +361,15 @@
       #define BEEPER_PIN                      37
 
       #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1                       17
-        #define BTN_EN2                       23
+        #define EXP1_02_PIN                   35  // ENC
+        #define EXP2_03_PIN                   17  // EN1
+        #define EXP2_05_PIN                   23  // EN2
       #else
+        #define BTN_ENC                       35
         #define BTN_EN1                       31
         #define BTN_EN2                       33
       #endif
 
-      #define BTN_ENC                         35
       #define SD_DETECT_PIN                   49
       //#define KILL_PIN                      41
 
