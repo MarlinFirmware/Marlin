@@ -166,33 +166,33 @@
  *      BTN_ENCODER 40         KILL_PIN      49
  */
 
-#define EXP1_08_PIN                           39
-#define EXP1_07_PIN                           38
-#define EXP1_06_PIN                           37
-#define EXP1_05_PIN                           36
-#define EXP1_04_PIN                           34
-#define EXP1_03_PIN                           35
-#define EXP1_02_PIN                           40
 #define EXP1_01_PIN                           41
+#define EXP1_02_PIN                           40
+#define EXP1_03_PIN                           35
+#define EXP1_04_PIN                           34
+#define EXP1_05_PIN                           36
+#define EXP1_06_PIN                           37
+#define EXP1_07_PIN                           38
+#define EXP1_08_PIN                           39
 
-#define EXP2_10_PIN                           49
-#define EXP2_07_PIN                           44
-#define EXP2_06_PIN                           51
-#define EXP2_05_PIN                           42
-#define EXP2_04_PIN                           53
-#define EXP2_03_PIN                           43
-#define EXP2_02_PIN                           52
 #define EXP2_01_PIN                           50
+#define EXP2_02_PIN                           52
+#define EXP2_03_PIN                           43
+#define EXP2_04_PIN                           53
+#define EXP2_05_PIN                           42
+#define EXP2_06_PIN                           51
+#define EXP2_07_PIN                           44
+#define EXP2_10_PIN                           49
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define EXP3_03_PIN                EXP1_08_PIN
-  #define EXP3_04_PIN                EXP1_07_PIN
-  #define EXP3_05_PIN                EXP1_06_PIN
-  #define EXP3_06_PIN                EXP1_05_PIN
-  #define EXP3_07_PIN                EXP1_04_PIN
-  #define EXP3_08_PIN                EXP1_03_PIN
-  #define EXP3_09_PIN                EXP1_02_PIN
-  #define EXP3_10_PIN                EXP1_01_PIN
+  #define EXP3_01_PIN                EXP1_01_PIN
+  #define EXP3_02_PIN                EXP1_02_PIN
+  #define EXP3_03_PIN                EXP1_03_PIN
+  #define EXP3_04_PIN                EXP1_04_PIN
+  #define EXP3_05_PIN                EXP1_05_PIN
+  #define EXP3_06_PIN                EXP1_06_PIN
+  #define EXP3_07_PIN                EXP1_07_PIN
+  #define EXP3_08_PIN                EXP1_08_PIN
 #endif
 
 /************************************/

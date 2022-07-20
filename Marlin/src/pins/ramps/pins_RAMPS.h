@@ -515,18 +515,18 @@
  */
 #ifndef EXP1_08_PIN
 
-  #define EXP1_08_PIN                AUX4_13_PIN
-  #define EXP1_07_PIN                AUX4_14_PIN
-  #define EXP1_06_PIN                AUX4_15_PIN
-  #define EXP1_05_PIN                AUX4_16_PIN
-  #define EXP1_04_PIN                AUX4_18_PIN
   #define EXP1_03_PIN                AUX4_17_PIN
+  #define EXP1_04_PIN                AUX4_18_PIN
+  #define EXP1_05_PIN                AUX4_16_PIN
+  #define EXP1_06_PIN                AUX4_15_PIN
+  #define EXP1_07_PIN                AUX4_14_PIN
+  #define EXP1_08_PIN                AUX4_13_PIN
 
-  #define EXP2_07_PIN                AUX3_02_PIN
-  #define EXP2_06_PIN                AUX3_04_PIN
-  #define EXP2_04_PIN                AUX3_06_PIN
-  #define EXP2_02_PIN                AUX3_05_PIN
   #define EXP2_01_PIN                AUX3_03_PIN
+  #define EXP2_02_PIN                AUX3_05_PIN
+  #define EXP2_04_PIN                AUX3_06_PIN
+  #define EXP2_06_PIN                AUX3_04_PIN
+  #define EXP2_07_PIN                AUX3_02_PIN
 
   #if ENABLED(G3D_PANEL)
     /**                  Gadgets3D Smart Adapter
@@ -539,12 +539,12 @@
      *              ------                        ------
      *               EXP1                          EXP2
      */
-    #define EXP1_02_PIN              AUX4_12_PIN
     #define EXP1_01_PIN              AUX4_11_PIN
+    #define EXP1_02_PIN              AUX4_12_PIN
 
-    #define EXP2_08_PIN              AUX4_07_PIN
-    #define EXP2_05_PIN              AUX4_09_PIN
     #define EXP2_03_PIN              AUX4_10_PIN
+    #define EXP2_05_PIN              AUX4_09_PIN
+    #define EXP2_08_PIN              AUX4_07_PIN
 
   #else
 
@@ -558,17 +558,17 @@
      *             ------                           ------
      *              EXP1                             EXP2
      */
-    #define EXP1_02_PIN              AUX4_10_PIN
     #define EXP1_01_PIN              AUX4_09_PIN
+    #define EXP1_02_PIN              AUX4_10_PIN
 
     #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
-      #define EXP2_08_PIN                     -1  // RESET
-      #define EXP2_05_PIN            AUX4_12_PIN
       #define EXP2_03_PIN            AUX4_11_PIN
+      #define EXP2_05_PIN            AUX4_12_PIN
+      #define EXP2_08_PIN                     -1  // RESET
     #else
-      #define EXP2_08_PIN            AUX4_07_PIN
-      #define EXP2_05_PIN            AUX4_11_PIN
       #define EXP2_03_PIN            AUX4_12_PIN
+      #define EXP2_05_PIN            AUX4_11_PIN
+      #define EXP2_08_PIN            AUX4_07_PIN
     #endif
 
   #endif
@@ -898,28 +898,28 @@
    *
    *               Board                            Display
    *               ------                           ------
-   *    (MISO) 50 | 1  2 | 52 (SCK)             5V | 1  2 | GND
-   * (BTN_EN2) 33 | 3  4 | 53 (SD_CS)        RESET | 3  4 | (SD_DET)
-   * (BTN_EN1) 31   5  6 | 51 (MOSI)        (MOSI)   5  6 | (LCD_CS)
-   *  (SD_DET) 49 | 7  8 | RESET           (SD_CS) | 7  8 | (MOD_RESET)
-   *          GND | 9 10 | --                (SCK) | 9 10 | (MISO)
+   *    (MISO) 50 | 1  2 | 52 (SCK)             5V |10  9 | GND
+   *  (LCD_CS) 33 | 3  4 | 53 (SD_CS)        RESET | 8  7 | (SD_DET)
+   *           31   5  6 | 51 (MOSI)        (MOSI)   6  5 | (LCD_CS)
+   *  (SD_DET) 49 | 7  8 | RESET           (SD_CS) | 4  3 | (MOD_RESET)
+   *          GND | 9 10 | --                (SCK) | 2  1 | (MISO)
    *               ------                           ------
-   *                EXP2
+   *                EXP2                             EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *           _________
-   *   EXP2-1 ----------- EXP1-10
-   *   EXP2-2 ----------- EXP1-9
-   *   EXP2-4 ----------- EXP1-8
-   *   EXP2-4 ----------- EXP1-7
-   *   EXP2-3 ----------- EXP1-6
-   *   EXP2-6 ----------- EXP1-5
-   *   EXP2-7 ----------- EXP1-4
-   *   EXP2-8 ----------- EXP1-3
-   *   EXP2-1 ----------- EXP1-2
-   *   EXP1-10 ---------- EXP1-1
+   *   ----------------------------------
+   *   EXP2-1 <--diode--- EXP1-1    MISO
+   *   EXP2-2 ----------- EXP1-2    SCK
+   *   EXP2-4 ----------- EXP1-3    MOD_RST
+   *   EXP2-4 ----------- EXP1-4    SD_CS
+   *   EXP2-3 ----------- EXP1-5    LCD_CS
+   *   EXP2-6 ----------- EXP1-6    MOSI
+   *   EXP2-7 ----------- EXP1-7    SD DET
+   *   EXP2-8 ----------- EXP1-8    RESET
+   *   EXP2-1 ----------- EXP1-9    MISO->GND
+   *   EXP1-10 ---------- EXP1-10   5V
    *
    *  NOTE: The MISO pin should not get a 5V signal.
    *        To fix, insert a 1N4148 diode in the MISO line.

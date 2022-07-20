@@ -208,24 +208,24 @@
  *                 EXP1                                      EXP2               |
  * ------------------------------------------------------------------------------
  */
-#define EXP1_08_PIN                         PE13
-#define EXP1_07_PIN                         PE12
-#define EXP1_06_PIN                         PE11
-#define EXP1_05_PIN                         PE10
-#define EXP1_04_PIN                         PE8
-#define EXP1_03_PIN                         PE9
-#define EXP1_02_PIN                         PB1
 #define EXP1_01_PIN                         PE7
+#define EXP1_02_PIN                         PB1
+#define EXP1_03_PIN                         PE9
+#define EXP1_04_PIN                         PE8
+#define EXP1_05_PIN                         PE10
+#define EXP1_06_PIN                         PE11
+#define EXP1_07_PIN                         PE12
+#define EXP1_08_PIN                         PE13
 
-#define EXP2_10_PIN                         PA3
-#define EXP2_08_PIN                         -1
-#define EXP2_07_PIN                         PC4
-#define EXP2_06_PIN                         PA7
-#define EXP2_05_PIN                         PB0
-#define EXP2_04_PIN                         PA4
-#define EXP2_03_PIN                         PC5
-#define EXP2_02_PIN                         PA5
 #define EXP2_01_PIN                         PA6
+#define EXP2_02_PIN                         PA5
+#define EXP2_03_PIN                         PC5
+#define EXP2_04_PIN                         PA4
+#define EXP2_05_PIN                         PB0
+#define EXP2_06_PIN                         PA7
+#define EXP2_07_PIN                         PC4
+#define EXP2_08_PIN                         -1
+#define EXP2_10_PIN                         PA3
 
 // HAL SPI1 pins
 #define SD_SCK_PIN                   EXP2_02_PIN  // SPI1 SCLK

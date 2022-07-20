@@ -334,23 +334,23 @@
  *                ------                                   ------
  *                 EXP1                                     EXP2
  */
-#define EXP1_08_PIN                         PE12
-#define EXP1_07_PIN                         PE11
-#define EXP1_06_PIN                         PE10
-#define EXP1_05_PIN                         PE9
-#define EXP1_04_PIN                         PE8
-#define EXP1_03_PIN                         PB1
-#define EXP1_02_PIN                         PB0
 #define EXP1_01_PIN                         PC5
+#define EXP1_02_PIN                         PB0
+#define EXP1_03_PIN                         PB1
+#define EXP1_04_PIN                         PE8
+#define EXP1_05_PIN                         PE9
+#define EXP1_06_PIN                         PE10
+#define EXP1_07_PIN                         PE11
+#define EXP1_08_PIN                         PE12
 
-#define EXP2_08_PIN                         -1
-#define EXP2_07_PIN                         PC4
-#define EXP2_06_PIN                         PA7
-#define EXP2_05_PIN                         PB2
-#define EXP2_04_PIN                         PA4
-#define EXP2_03_PIN                         PE7
-#define EXP2_02_PIN                         PA5
 #define EXP2_01_PIN                         PA6
+#define EXP2_02_PIN                         PA5
+#define EXP2_03_PIN                         PE7
+#define EXP2_04_PIN                         PA4
+#define EXP2_05_PIN                         PB2
+#define EXP2_06_PIN                         PA7
+#define EXP2_07_PIN                         PC4
+#define EXP2_08_PIN                         -1
 
 //
 // Onboard SD card
@@ -371,14 +371,14 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       -----                        -----
-   *    -- | . . | GND               -- | . . | GND
-   *    -- | . . | M1EN            M2EN | . . | M3EN
-   * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
-   * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
-   * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
-   *        -----                        -----
-   *        EXP2                         EXP1
+  /**        ------                  ------
+   * M3DIAG | 1  2 | M3RX     M3STP | 1  2 | M3DIR
+   * M2DIAG | 3  4 | M2RX     M2STP | 3  4 | M2DIR
+   * M1DIAG   5  6 | M1RX     M1DIR   5  6 | M1STP
+   * M3EN   | 7  8 | M2EN     M1EN  | 7  8 |    --
+   * GND    | 9 10 |   --     GND   | 9 10 |    --
+   *         ------                  ------
+   *          EXP1                    EXP2
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */

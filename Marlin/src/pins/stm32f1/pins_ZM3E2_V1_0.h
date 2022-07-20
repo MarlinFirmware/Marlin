@@ -72,14 +72,14 @@
 //   2 +5V
 //   1 GND
 
-#define EXP1_08_PIN                         PB11
-#define EXP1_07_PIN                         PB10
-#define EXP1_06_PIN                         PB2
-#define EXP1_05_PIN                         PC5
-#define EXP1_04_PIN                         PA10
-#define EXP1_03_PIN                         PA9
-#define EXP1_02_PIN                         PB0
 #define EXP1_01_PIN                         PB1
+#define EXP1_02_PIN                         PB0
+#define EXP1_03_PIN                         PA9
+#define EXP1_04_PIN                         PA10
+#define EXP1_05_PIN                         PC5
+#define EXP1_06_PIN                         PB2
+#define EXP1_07_PIN                         PB10
+#define EXP1_08_PIN                         PB11
 
 // AUX1 connector
 //  1 +5V

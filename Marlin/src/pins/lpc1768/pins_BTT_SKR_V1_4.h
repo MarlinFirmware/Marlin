@@ -254,23 +254,23 @@
  *        ------                ------
  *         EXP1                  EXP2
  */
-#define EXP1_08_PIN                        P1_23
-#define EXP1_07_PIN                        P1_22
-#define EXP1_06_PIN                        P1_21
-#define EXP1_05_PIN                        P1_20
-#define EXP1_04_PIN                        P1_19
-#define EXP1_03_PIN                        P1_18
-#define EXP1_02_PIN                        P0_28
 #define EXP1_01_PIN                        P1_30
+#define EXP1_02_PIN                        P0_28
+#define EXP1_03_PIN                        P1_18
+#define EXP1_04_PIN                        P1_19
+#define EXP1_05_PIN                        P1_20
+#define EXP1_06_PIN                        P1_21
+#define EXP1_07_PIN                        P1_22
+#define EXP1_08_PIN                        P1_23
 
-#define EXP2_08_PIN                        -1     // RESET
-#define EXP2_07_PIN                        P1_31
-#define EXP2_06_PIN                        P0_18
-#define EXP2_05_PIN                        P3_25
-#define EXP2_04_PIN                        P0_16
-#define EXP2_03_PIN                        P3_26
-#define EXP2_02_PIN                        P0_15
 #define EXP2_01_PIN                        P0_17
+#define EXP2_02_PIN                        P0_15
+#define EXP2_03_PIN                        P3_26
+#define EXP2_04_PIN                        P0_16
+#define EXP2_05_PIN                        P3_25
+#define EXP2_06_PIN                        P0_18
+#define EXP2_07_PIN                        P1_31
+#define EXP2_08_PIN                        -1     // RESET
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
@@ -300,11 +300,11 @@
      *
      *                BEFORE                     AFTER
      *                ------                     ------
-     *      (BEEPER) | 1  2 | (CLK)    (BEEPER) | 1  2 | (CLK)
-     *     (BTN_ENC) | 3  4 | --      (BTN_ENC) | 3  4 | --
-     *     (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   5  6 | (SID)
-     *     (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 7  8 | (CS)
-     *            5V | 9 10 | GND           GND | 9 10 | 5V
+     *      (BEEPER) | 1  2 | (CLK)    (BEEPER) |10  9 | (CLK)
+     *     (BTN_ENC) | 3  4 | --      (BTN_ENC) | 8  7 | --
+     *     (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   6  5 | (SID)
+     *     (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 4  3 | (CS)
+     *            5V | 9 10 | GND           GND | 2  1 | 5V
      *                ------                     ------
      *                 LCD                        LCD
      */
@@ -336,11 +336,11 @@
     *
     *            BEFORE                     AFTER
     *            ------                     ------
-    *  (BEEPER) | 1  2 | (CLK)    (BEEPER) | 1  2 | --
-    * (BTN_ENC) | 3  4 | --      (BTN_ENC) | 3  4 | (CLK)
-    * (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   5  6 | (SID)
-    * (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 7  8 | (CS)
-    *        5V | 9 10 | GND           GND | 9 10 | 5V
+    *  (BEEPER) | 1  2 | (CLK)    (BEEPER) |10  9 | --
+    * (BTN_ENC) | 3  4 | --      (BTN_ENC) | 8  7 | (CLK)
+    * (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   6  5 | (SID)
+    * (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 4  3 | (CS)
+    *        5V | 9 10 | GND           GND | 2  1 | 5V
     *            ------                     ------
     *             LCD                        LCD
     */
