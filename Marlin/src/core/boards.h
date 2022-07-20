@@ -100,7 +100,7 @@
 #define BOARD_VORON                   1144  // VORON Design
 #define BOARD_TRONXY_V3_1_0           1145  // Tronxy TRONXY-V3-1.0
 #define BOARD_Z_BOLT_X_SERIES         1146  // Z-Bolt X Series
-#define BOARD_TT_OSCAR                1147  // TT OSCAR
+#define BOARD_TT_OSCAR                1147  // thingNthinks TT Oscar v1.0 by YM Tech.LTD
 #define BOARD_OVERLORD                1148  // Overlord/Overlord Pro
 #define BOARD_HJC2560C_REV1           1149  // ADIMLab Gantry v1
 #define BOARD_HJC2560C_REV2           1150  // ADIMLab Gantry v2

@@ -373,9 +373,70 @@
   #endif
 #endif
 
+//
+// AUX1    5V  GND D2  D1
+//          2   4   6   8
+//          1   3   5   7
+//         5V  GND A3  A4
+//
+#define AUX1_05_PIN                           57  // (A3)
+#define AUX1_06_PIN                            2
+#define AUX1_07_PIN                           58  // (A4)
+#define AUX1_08_PIN                            1
+
+//
+// AUX2    GND A9 D40 D42 A11
+//          2   4   6   8  10
+//          1   3   5   7   9
+//         VCC A5 A10 D44 A12
+//
+#define AUX2_03_PIN                           59  // (A5)
+#define AUX2_04_PIN                           63  // (A9)
+#define AUX2_05_PIN                           64  // (A10)
+#define AUX2_06_PIN                           40
+#define AUX2_07_PIN                           44
+#define AUX2_08_PIN                           42
+#define AUX2_09_PIN                           66  // (A12)
+#define AUX2_10_PIN                           65  // (A11)
+
+//
+// AUX3    GND D52 D50 5V
+//          7   5   3   1
+//          8   6   4   2
+//         NC  D53 D51 D49
+//
+#define AUX3_02_PIN                           49
+#define AUX3_03_PIN                           50
+#define AUX3_04_PIN                           51
+#define AUX3_05_PIN                           52
+#define AUX3_06_PIN                           53
+
+//
+// AUX4    5V GND D32 D47 D45 D43 D41 D39 D37 D35 D33 D31 D29 D27 D25 D23 D17 D16
+//
+#define AUX4_03_PIN                           32
+#define AUX4_04_PIN                           47
+#define AUX4_05_PIN                           45
+#define AUX4_06_PIN                           43
+#define AUX4_07_PIN                           41
+#define AUX4_08_PIN                           39
+#define AUX4_09_PIN                           37
+#define AUX4_10_PIN                           35
+#define AUX4_11_PIN                           33
+#define AUX4_12_PIN                           31
+#define AUX4_13_PIN                           29
+#define AUX4_14_PIN                           27
+#define AUX4_15_PIN                           25
+#define AUX4_16_PIN                           23
+#define AUX4_17_PIN                           17
+#define AUX4_18_PIN                           16
+
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
+
+// Custom Simulator Back Button
+#define BTN_BACK                              70
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
@@ -453,8 +514,6 @@
     #endif
   #endif
 
-  #define BTN_BACK                            70
-
 #elif HAS_WIRED_LCD
 
   //
@@ -462,9 +521,9 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-    #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
-    #define LCD_PINS_D4                       52  // SCK (CLK) clock
+    #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE          EXP2_06_PIN  // SID (MOSI)
+    #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
@@ -689,9 +748,6 @@
         #define KILL_PIN                      41
       #endif
     #endif
-
-    // CUSTOM SIMULATOR INPUTS
-    #define BTN_BACK                          70
 
   #endif // IS_NEWPANEL
 

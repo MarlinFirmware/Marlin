@@ -21,6 +21,9 @@
  */
 #pragma once
 
+/**
+ * thingNthinks TT Oscar v1.0 by YM Tech.LTD
+ */
 #include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5

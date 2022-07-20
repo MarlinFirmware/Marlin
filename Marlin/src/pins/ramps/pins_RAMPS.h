@@ -706,6 +706,8 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // TODO: Define adapters that connect to AUX ports
+
       #define BTN_EN1                AUX2_05_PIN
       #define BTN_EN2                AUX2_03_PIN
       #define BTN_ENC                AUX2_04_PIN

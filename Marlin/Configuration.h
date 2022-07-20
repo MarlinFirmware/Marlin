@@ -2856,6 +2856,7 @@
 //
 // FYSETC OLED 2.42" 128×64 Full Graphics Controller with WS2812 RGB
 // Where to find : https://www.aliexpress.com/item/4000345255731.html
+//
 //#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
 
 //
