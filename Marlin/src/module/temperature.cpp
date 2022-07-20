@@ -63,7 +63,7 @@
   #include "../feature/host_actions.h"
 #endif
 
-#if HAS_TEMP_SENSOR
+#if EITHER(HAS_TEMP_SENSOR, LASER_FEATURE)
   #include "../gcode/gcode.h"
 #endif
 
