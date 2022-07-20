@@ -234,28 +234,28 @@
    *
    *                   Board                                   Display
    *                   ------                                  ------
-   * (SD_DET)    PA15 | 1  2 | PB6 (BEEPER)                5V | 1  2 | GND
-   * (MOD_RESET) PA9  | 3  4 | RESET                  (RESET) | 3  4 | (SD_DET)
-   * (SD_CS)     PA10   5  6 | PB9                    (MOSI)    5  6 | (LCD_CS)
-   * (LCD_CS)    PB8  | 7  8 | PB7                    (SD_CS) | 7  8 | (MOD_RESET)
-   *              GND | 9 10 | 5V                     (SCK)   | 9 10 | (MISO)
+   * (SD_DET)    PA15 | 1  2 | PB6 (BEEPER)                5V |10  9 | GND
+   * (MOD_RESET) PA9  | 3  4 | RESET                  (RESET) | 8  7 | (SD_DET)
+   * (SD_CS)     PA10   5  6 | PB9                    (MOSI)    6  5 | (LCD_CS)
+   * (LCD_CS)    PB8  | 7  8 | PB7                    (SD_CS) | 4  3 | (MOD_RESET)
+   *              GND | 9 10 | 5V                     (SCK)   | 2  1 | (MISO)
    *                   ------                                  ------
    *                    EXP1                                    EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *           _________
-   *   EXP1-1 ----------- EXP1-10
-   *   EXP1-2 ----------- EXP1-9
-   *   SPI1-4 ----------- EXP1-6
-   *   EXP1-4 ----------- EXP1-5
-   *   SP11-3 ----------- EXP1-2
-   *   EXP1-6 ----------- EXP1-4
-   *   EXP1-7 ----------- EXP1-8
-   *   EXP1-8 ----------- EXP1-3
-   *   SPI1-1 ----------- EXP1-1
-   *  EXP1-10 ----------- EXP1-7
+   *   ----------------------------------
+   *   EXP1-10 ---------- EXP1-10  5V
+   *   EXP1-9 ----------- EXP1-9   GND
+   *   SPI1-4 ----------- EXP1-6   MOSI
+   *   EXP1-7 ----------- EXP1-5   LCD_CS
+   *   SP11-3 ----------- EXP1-2   SCK
+   *   EXP1-5 ----------- EXP1-4   SD_CS
+   *   EXP1-4 ----------- EXP1-8   RESET
+   *   EXP1-3 ----------- EXP1-3   MOD_RST
+   *   SPI1-1 ----------- EXP1-1   MISO
+   *   EXP1-1 ----------- EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector

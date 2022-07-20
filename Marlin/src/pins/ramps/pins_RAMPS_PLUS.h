@@ -73,22 +73,22 @@
  *         ------                     ------
  *          EXP1                       EXP2
  */
-#define EXP1_08_PIN                           44
-#define EXP1_07_PIN                           42
-#define EXP1_06_PIN                           23
-#define EXP1_05_PIN                           33
-#define EXP1_04_PIN                           41
-#define EXP1_03_PIN                           31
-#define EXP1_02_PIN                           35
 #define EXP1_01_PIN                           37
+#define EXP1_02_PIN                           35
+#define EXP1_03_PIN                           31
+#define EXP1_04_PIN                           41
+#define EXP1_05_PIN                           33
+#define EXP1_06_PIN                           23
+#define EXP1_07_PIN                           42
+#define EXP1_08_PIN                           44
 
-#define EXP2_08_PIN                           27
-#define EXP2_07_PIN                           49
-#define EXP2_06_PIN                           51
-#define EXP2_05_PIN                           25
-#define EXP2_04_PIN                           53
-#define EXP2_03_PIN                           29
-#define EXP2_02_PIN                           52
 #define EXP2_01_PIN                           50
+#define EXP2_02_PIN                           52
+#define EXP2_03_PIN                           29
+#define EXP2_04_PIN                           53
+#define EXP2_05_PIN                           25
+#define EXP2_06_PIN                           51
+#define EXP2_07_PIN                           49
+#define EXP2_08_PIN                           27
 
 #include "pins_RAMPS.h"

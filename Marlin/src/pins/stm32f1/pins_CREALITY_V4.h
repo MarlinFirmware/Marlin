@@ -176,17 +176,17 @@
      *        ------
      *         EXP1
      */
-    #define EXP1_03_PIN                     PB15
-    #define EXP1_04_PIN                     PB12
-    #define EXP1_05_PIN                     PB13
-    #define EXP1_06_PIN                     PB14
-    #define EXP1_07_PIN                     PE8
-    #define EXP1_08_PIN                     PB10
-    #define EXP1_09_PIN                     PB2
-    #define EXP1_10_PIN                     PC6
+    #define EXP1_01_PIN                     PC6
+    #define EXP1_02_PIN                     PB2
+    #define EXP1_03_PIN                     PB10
+    #define EXP1_04_PIN                     PE8
+    #define EXP1_05_PIN                     PB14
+    #define EXP1_06_PIN                     PB13
+    #define EXP1_07_PIN                     PB12
+    #define EXP1_08_PIN                     PB15
 
     #ifndef HAS_PIN_27_BOARD
-      #define BEEPER_PIN             EXP1_10_PIN
+      #define BEEPER_PIN             EXP1_01_PIN
     #endif
 
   #elif ENABLED(VET6_12864_LCD)
@@ -202,50 +202,50 @@
      *        ------
      *         EXP1
      */
-    #define EXP1_03_PIN                     PA7
-    #define EXP1_04_PIN                     PA4
-    #define EXP1_05_PIN                     PA5
-    #define EXP1_06_PIN                     PA6
-    #define EXP1_07_PIN                     -1
-    #define EXP1_08_PIN                     PB10
-    #define EXP1_09_PIN                     PC5
-    #define EXP1_10_PIN                     -1
+    #define EXP1_01_PIN                     -1
+    #define EXP1_02_PIN                     PC5
+    #define EXP1_03_PIN                     PB10
+    #define EXP1_04_PIN                     -1
+    #define EXP1_05_PIN                     PA6
+    #define EXP1_06_PIN                     PA5
+    #define EXP1_07_PIN                     PA4
+    #define EXP1_08_PIN                     PA7
 
   #else
     #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
   #endif
 
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_D4                EXP1_06_PIN
 
-  #define BTN_ENC                    EXP1_09_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_06_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
 
 #elif ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI, DWIN_VET6_CREALITY_LCD)
 
   #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
     // RET6 DWIN ENCODER LCD
-    #define EXP1_03_PIN                     PB15
-    #define EXP1_04_PIN                     PB12
-    #define EXP1_05_PIN                     PB13
-    #define EXP1_06_PIN                     PB14
+    #define EXP1_05_PIN                     PB14
+    #define EXP1_06_PIN                     PB13
+    #define EXP1_07_PIN                     PB12
+    #define EXP1_08_PIN                     PB15
     //#define LCD_LED_PIN                   PB2
   #else
     // VET6 DWIN ENCODER LCD
-    #define EXP1_03_PIN                     PA7
-    #define EXP1_04_PIN                     PA4
-    #define EXP1_05_PIN                     PA5
-    #define EXP1_06_PIN                     PA6
+    #define EXP1_05_PIN                     PA6
+    #define EXP1_06_PIN                     PA5
+    #define EXP1_07_PIN                     PA4
+    #define EXP1_08_PIN                     PA7
   #endif
 
-  #define BTN_ENC                    EXP1_06_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_04_PIN
+  #define BTN_ENC                    EXP1_05_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_07_PIN
 
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN               EXP1_05_PIN
+    #define BEEPER_PIN               EXP1_06_PIN
   #endif
 
 #endif

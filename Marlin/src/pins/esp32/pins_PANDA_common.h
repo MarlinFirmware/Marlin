@@ -90,19 +90,19 @@
  *             ------                              ------
  *              EXP2                                EXP1
  */
-#define EXP1_05_PIN                           14
-#define EXP1_04_PIN                           27
-#define EXP1_03_PIN                           26
-#define EXP1_02_PIN                           12
 #define EXP1_01_PIN                          129
+#define EXP1_02_PIN                           12
+#define EXP1_03_PIN                           26
+#define EXP1_04_PIN                           27
+#define EXP1_05_PIN                           14
 
-#define EXP2_07_PIN                            2  // ?
-#define EXP2_06_PIN                           23  // ?
-#define EXP2_05_PIN                           32
-#define EXP2_04_PIN                            5  // ?
-#define EXP2_03_PIN                           33
-#define EXP2_02_PIN                           18  // ?
 #define EXP2_01_PIN                           19  // ?
+#define EXP2_02_PIN                           18  // ?
+#define EXP2_03_PIN                           33
+#define EXP2_04_PIN                            5  // ?
+#define EXP2_05_PIN                           32
+#define EXP2_06_PIN                           23  // ?
+#define EXP2_07_PIN                            2  // ?
 
 //
 // SD Card

@@ -321,23 +321,23 @@
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
-#define EXP1_08_PIN                         PG7
-#define EXP1_07_PIN                         PG6
-#define EXP1_06_PIN                         PG3
-#define EXP1_05_PIN                         PG2
-#define EXP1_04_PIN                         PD10
-#define EXP1_03_PIN                         PD11
-#define EXP1_02_PIN                         PA8
 #define EXP1_01_PIN                         PG4
+#define EXP1_02_PIN                         PA8
+#define EXP1_03_PIN                         PD11
+#define EXP1_04_PIN                         PD10
+#define EXP1_05_PIN                         PG2
+#define EXP1_06_PIN                         PG3
+#define EXP1_07_PIN                         PG6
+#define EXP1_08_PIN                         PG7
 
-#define EXP2_08_PIN                         -1
-#define EXP2_07_PIN                         PF12
-#define EXP2_06_PIN                         PB15
-#define EXP2_05_PIN                         PF11
-#define EXP2_04_PIN                         PB12
-#define EXP2_03_PIN                         PG10
-#define EXP2_02_PIN                         PB13
 #define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PG10
+#define EXP2_04_PIN                         PB12
+#define EXP2_05_PIN                         PF11
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PF12
+#define EXP2_08_PIN                         -1
 
 //
 // Onboard SD card
@@ -553,10 +553,10 @@
 
 /**
  *          ------
- *      RX | 3  4 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *   GPIO0 | 5  6 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *   GPIO2 | 7  8 | Enable    Reset  PG0  ... active low, probably OK to leave floating
- *     GND | 9 10 | TX        Enable PG1  ... Must be high for module to run
+ *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
+ *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
  *          ------
  *            W1
  */

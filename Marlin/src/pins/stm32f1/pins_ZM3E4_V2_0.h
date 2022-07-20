@@ -90,14 +90,14 @@
 //   2 +5V
 //   1 GND
 
-#define EXP1_08_PIN                         PE14
-#define EXP1_07_PIN                         PE15
-#define EXP1_06_PIN                         PE9
-#define EXP1_05_PIN                         PE8
-#define EXP1_04_PIN                         PE10
-#define EXP1_03_PIN                         PE12
-#define EXP1_02_PIN                         PE11
 #define EXP1_01_PIN                         PE13
+#define EXP1_02_PIN                         PE11
+#define EXP1_03_PIN                         PE12
+#define EXP1_04_PIN                         PE10
+#define EXP1_05_PIN                         PE8
+#define EXP1_06_PIN                         PE9
+#define EXP1_07_PIN                         PE15
+#define EXP1_08_PIN                         PE14
 
 // EXP2 connector
 //     MARK     I/O     ZONESTAR_LCD12864   REPRAPDISCOUNT_LCD12864
@@ -112,14 +112,14 @@
 //   2 +5V
 //   1 GND
 
-#define EXP2_08_PIN                         PB3
-#define EXP2_07_PIN                         PB5
-#define EXP2_06_PIN                         PB4
-#define EXP2_05_PIN                         PA15
-#define EXP2_04_PIN                         PA10
-#define EXP2_03_PIN                         PA9
-#define EXP2_02_PIN                         PE7
 #define EXP2_01_PIN                         PC0
+#define EXP2_02_PIN                         PE7
+#define EXP2_03_PIN                         PA9
+#define EXP2_04_PIN                         PA10
+#define EXP2_05_PIN                         PA15
+#define EXP2_06_PIN                         PB4
+#define EXP2_07_PIN                         PB5
+#define EXP2_08_PIN                         PB3
 
 // AUX1 connector
 //  1 +5V

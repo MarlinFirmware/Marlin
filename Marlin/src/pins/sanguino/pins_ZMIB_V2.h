@@ -171,18 +171,18 @@
  *      (GND) | 9 10 | (5V)
  *             ------
  */
-#define EXP1_08_PIN                            2
-#define EXP1_07_PIN                           29
+#define EXP1_01_PIN                            5
+#define EXP1_02_PIN                            7
+#define EXP1_03_PIN                           11
+#define EXP1_04_PIN                           10
+#define EXP1_05_PIN                           12
 #ifndef IS_ZMIB_V2
   #define EXP1_06_PIN                          4  // ZMIB V1
 #else
   #define EXP1_06_PIN                          3  // ZMIB V2
 #endif
-#define EXP1_05_PIN                           12
-#define EXP1_04_PIN                           10
-#define EXP1_03_PIN                           11
-#define EXP1_02_PIN                            7
-#define EXP1_01_PIN                            5
+#define EXP1_07_PIN                           29
+#define EXP1_08_PIN                            2
 
 #if ENABLED(ZONESTAR_12864LCD)
   //

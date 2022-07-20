@@ -158,14 +158,14 @@
      *        ------
      *         EXP1
      */
-    #define EXP1_08_PIN                     PB15
-    #define EXP1_07_PIN                     PB12
-    #define EXP1_06_PIN                     PB13
-    #define EXP1_05_PIN                     PB14
-    #define EXP1_04_PIN                     PE8
-    #define EXP1_03_PIN                     PB10
-    #define EXP1_02_PIN                     PB2
     #define EXP1_01_PIN                     PC6
+    #define EXP1_02_PIN                     PB2
+    #define EXP1_03_PIN                     PB10
+    #define EXP1_04_PIN                     PE8
+    #define EXP1_05_PIN                     PB14
+    #define EXP1_06_PIN                     PB13
+    #define EXP1_07_PIN                     PB12
+    #define EXP1_08_PIN                     PB15
 
     #define BEEPER_PIN               EXP1_01_PIN
 
@@ -182,14 +182,14 @@
      *        ------
      *         EXP1
      */
-    #define EXP1_08_PIN                     PA7
-    #define EXP1_07_PIN                     PA4
-    #define EXP1_06_PIN                     PA5
-    #define EXP1_05_PIN                     PA6
-    #define EXP1_04_PIN                     -1
-    #define EXP1_03_PIN                     PB10
-    #define EXP1_02_PIN                     PC5
     #define EXP1_01_PIN                     -1
+    #define EXP1_02_PIN                     PC5
+    #define EXP1_03_PIN                     PB10
+    #define EXP1_04_PIN                     -1
+    #define EXP1_05_PIN                     PA6
+    #define EXP1_06_PIN                     PA5
+    #define EXP1_07_PIN                     PA4
+    #define EXP1_08_PIN                     PA7
 
   #else
     #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
