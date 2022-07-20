@@ -898,6 +898,11 @@
 #endif
 
 //
+// Include LCD pins
+//
+#include "pins_lcd.h"
+
+//
 // Post-process pins according to configured settings
 //
 #include "pins_postprocess.h"
