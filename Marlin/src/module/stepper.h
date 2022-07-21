@@ -631,7 +631,7 @@ friend class GcodeSuite;
     // Set the current position in steps
     static void _set_position(const abce_long_t &spos);
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate) {
+    static uint32_t calc_timer_interval(uint32_t step_rate) {
       uint32_t timer;
 
       #ifdef CPU_32_BIT
@@ -661,7 +661,7 @@ friend class GcodeSuite;
       return timer;
     }
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
+    static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
       uint8_t multistep = 1;
       #if DISABLED(DISABLE_MULTI_STEPPING)
 
