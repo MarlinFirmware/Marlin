@@ -32,6 +32,22 @@
  */
 #define CONFIGURATION_ADV_H_VERSION 02010100
 
+/**
+ * Configuration Dump
+ *
+ * Dump the configuration as part of the build. (See signature.py)
+ * Output files are saved with the build (e.g., .pio/build/mega2560).
+ *
+ * See `build_all_examples --ini` as an example of config.ini archiving.
+ *
+ *  1 = marlin_config.json - Dictionary containing the configuration.
+ *      This file is also generated for CONFIGURATION_EMBEDDING.
+ *  2 = config.ini - File format for PlatformIO preprocessing.
+ *  3 = schema.json - The entire configuration schema. (13 = pattern groups)
+ *  4 = schema.yml - The entire configuration schema.
+ */
+//#define CONFIG_DUMP   // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml']
+
 //===========================================================================
 //============================= Thermal Settings ============================
 //===========================================================================

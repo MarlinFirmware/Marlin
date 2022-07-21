@@ -109,7 +109,10 @@ def compute_build_signature(env):
 
 		defines[key] = value if len(value) else ""
 
-	if not 'CONFIGURATION_EMBEDDING' in defines:
+	#
+	# Continue to gather data for CONFIGURATION_EMBEDDING or CONFIG_DUMP
+	#
+	if not ('CONFIGURATION_EMBEDDING' in defines or 'CONFIG_DUMP' in defines):
 		return
 
 	# Second step is to filter useless macro
@@ -145,6 +148,35 @@ def compute_build_signature(env):
 			if key in conf_defines[header]:
 				data[header][key] = resolved_defines[key]
 
+	# Every python needs this toy
+	def tryint(key):
+		try:
+			return int(defines[key])
+		except:
+			return 0
+
+	config_dump = tryint('CONFIG_DUMP')
+
+	#
+	# Produce an INI file if CONFIG_DUMP == 2
+	#
+	if config_dump == 2:
+		print("Generating config.ini ...")
+		ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_DUMP')
+		filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+		config_ini = os.path.join(build_dir, 'config.ini')
+		with open(config_ini, 'w') as outfile:
+			outfile.write('#\n# Marlin Firmware\n# config.ini - Options to apply before the build\n#\n')
+			# Loop through the data array of arrays
+			for header in data:
+				if header.startswith('__'):
+					continue
+				outfile.write('\n[' + filegrp[header] + ']\n')
+				for key in sorted(data[header]):
+					if key not in ignore:
+						val = 'on' if data[header][key] == '' else data[header][key]
+						outfile.write('{0:40}{1}'.format(key.lower(), ' = ' + val) + '\n')
+
 	# Append the source code version and date
 	data['VERSION'] = {}
 	data['VERSION']['DETAILED_BUILD_VERSION'] = resolved_defines['DETAILED_BUILD_VERSION']
@@ -160,6 +192,12 @@ def compute_build_signature(env):
 	#
 	with open(marlin_json, 'w') as outfile:
 		json.dump(data, outfile, separators=(',', ':'))
+
+	#
+	# The rest only applies to CONFIGURATION_EMBEDDING
+	#
+	if not 'CONFIGURATION_EMBEDDING' in defines:
+		return
 
 	# Compress the JSON file as much as we can
 	compress_file(marlin_json, marlin_zip)
