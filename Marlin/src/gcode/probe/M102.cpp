@@ -19,17 +19,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#include <stdint.h>
+/**
+ * M102.cpp - Configure Bed Distance Sensor
+ */
 
-class BDS_Leveling {
-public:
-  static int8_t config_state;
-  static uint8_t homing;
-  static void echo_name();
-  static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
-  static void process();
-};
+#include "../../inc/MarlinConfig.h"
 
-extern BDS_Leveling bdl;
+#if ENABLED(BD_SENSOR)
+
+#include "../gcode.h"
+#include "../../feature/bedlevel/bdl/bdl.h"
+
+/**
+ * M102: Configure the Bed Distance Sensor
+ */
+void GcodeSuite::M102() {
+  if (parser.seenval('S'))
+    bdl.config_state = parser.value_int();
+  else
+    M102_report();
+}
+
+void GcodeSuite::M102_report(const bool forReplay/*=true*/) {
+  report_heading(forReplay, F("Bed Distance Sensor"));
+  SERIAL_ECHOLNPGM("  M102 S", bdl.config_state);
+}
+
+#endif // BD_SENSOR
