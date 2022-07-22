@@ -69,6 +69,7 @@ namespace Language_fi {
   LSTR MSG_MOVE_X                         = _UxGT("Liikuta X");
   LSTR MSG_MOVE_Y                         = _UxGT("Liikuta Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Liikuta Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Liikuta @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Liikuta $mm");

@@ -508,8 +508,6 @@ namespace Language_hu {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Központ kalibrálás");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta beállítások");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto kalibráció");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Delta magasság kalib.");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Z eltolás");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag rúd");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Magasság");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Sugár");

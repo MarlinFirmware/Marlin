@@ -21,19 +21,20 @@
  */
 
 /**
- * UBL Tools and Mesh Viewer for Pro UI
- * Version: 1.0.0
- * Date: 2022/04/13
+ * Bed Level Tools for Pro UI
+ * Extended by: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 2.0.0
+ * Date: 2022/05/23
  *
- * Original Author: Henri-J-Norden
- * Original Source: https://github.com/Jyers/Marlin/pull/126
+ * Based on the original work of: Henri-J-Norden
+ * https://github.com/Jyers/Marlin/pull/126
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+#include "bedlevel_tools.h"
 
-#if BOTH(DWIN_LCD_PROUI, AUTO_BED_LEVELING_UBL)
+#if BOTH(DWIN_LCD_PROUI, HAS_LEVELING)
 
-#include "ubl_tools.h"
 #include "../../marlinui.h"
 #include "../../../core/types.h"
 #include "dwin.h"
@@ -47,27 +48,29 @@
 #include "../../../libs/least_squares_fit.h"
 #include "../../../libs/vector_3.h"
 
-UBLMeshToolsClass ubl_tools;
+BedLevelToolsClass BedLevelTools;
 
-#if ENABLED(USE_UBL_VIEWER)
-  bool UBLMeshToolsClass::viewer_asymmetric_range = false;
-  bool UBLMeshToolsClass::viewer_print_value = false;
+#if USE_UBL_VIEWER
+  bool BedLevelToolsClass::viewer_asymmetric_range = false;
+  bool BedLevelToolsClass::viewer_print_value = false;
 #endif
-bool UBLMeshToolsClass::goto_mesh_value = false;
-uint8_t UBLMeshToolsClass::tilt_grid = 1;
+bool BedLevelToolsClass::goto_mesh_value = false;
+uint8_t BedLevelToolsClass::mesh_x = 0;
+uint8_t BedLevelToolsClass::mesh_y = 0;
+uint8_t BedLevelToolsClass::tilt_grid = 1;
 
 bool drawing_mesh = false;
 char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  void UBLMeshToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined/*=false*/) {
+  void BedLevelToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined/*=false*/) {
     sprintf_P(cmd, PSTR("M421 I%i J%i Z%s %s"), mesh_x, mesh_y, dtostrf(current_position.z, 1, 3, str_1), undefined ? "N" : "");
     gcode.process_subcommands_now(cmd);
     planner.synchronize();
   }
 
-  bool UBLMeshToolsClass::create_plane_from_mesh() {
+  bool BedLevelToolsClass::create_plane_from_mesh() {
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
     GRID_LOOP(x, y) {
@@ -119,7 +122,7 @@ char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
 
 #else
 
-  void UBLMeshToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y) {
+  void BedLevelToolsClass::manual_value_update(const uint8_t mesh_x, const uint8_t mesh_y) {
     sprintf_P(cmd, PSTR("G29 I%i J%i Z%s"), mesh_x, mesh_y, dtostrf(current_position.z, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
     planner.synchronize();
@@ -127,7 +130,8 @@ char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
 
 #endif
 
-void UBLMeshToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove/*=false*/) {
+void BedLevelToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove/*=false*/) {
+  gcode.process_subcommands_now(F("G28O"));
   if (zmove) {
     planner.synchronize();
     current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
@@ -149,8 +153,28 @@ void UBLMeshToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y, 
   }
 }
 
-float UBLMeshToolsClass::get_max_value() {
-  float max = __FLT_MIN__;
+void BedLevelToolsClass::MoveToXYZ() {
+  BedLevelTools.goto_mesh_value = true;
+  BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, false);
+}
+void BedLevelToolsClass::MoveToXY() {
+  BedLevelTools.goto_mesh_value = false;
+  BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, false);
+}
+void BedLevelToolsClass::MoveToZ() {
+  BedLevelTools.goto_mesh_value = true;
+  BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, true);
+}
+void BedLevelToolsClass::ProbeXY() {
+  sprintf_P(cmd, PSTR("G30X%sY%s"),
+    dtostrf(bedlevel.get_mesh_x(BedLevelTools.mesh_x), 1, 2, str_1),
+    dtostrf(bedlevel.get_mesh_y(BedLevelTools.mesh_y), 1, 2, str_2)
+  );
+  gcode.process_subcommands_now(cmd);
+}
+
+float BedLevelToolsClass::get_max_value() {
+  float max = __FLT_MAX__ * -1;
   GRID_LOOP(x, y) {
     if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] > max)
       max = bedlevel.z_values[x][y];
@@ -158,7 +182,7 @@ float UBLMeshToolsClass::get_max_value() {
   return max;
 }
 
-float UBLMeshToolsClass::get_min_value() {
+float BedLevelToolsClass::get_min_value() {
   float min = __FLT_MAX__;
   GRID_LOOP(x, y) {
     if (!isnan(bedlevel.z_values[x][y]) && bedlevel.z_values[x][y] < min)
@@ -167,19 +191,20 @@ float UBLMeshToolsClass::get_min_value() {
   return min;
 }
 
-bool UBLMeshToolsClass::validate() {
-  float min = __FLT_MAX__, max = __FLT_MIN__;
+bool BedLevelToolsClass::meshvalidate() {
+  float min = __FLT_MAX__, max = __FLT_MAX__ * -1;
 
   GRID_LOOP(x, y) {
     if (isnan(bedlevel.z_values[x][y])) return false;
     if (bedlevel.z_values[x][y] < min) min = bedlevel.z_values[x][y];
     if (bedlevel.z_values[x][y] > max) max = bedlevel.z_values[x][y];
   }
-  return max <= UBL_Z_OFFSET_MAX && min >= UBL_Z_OFFSET_MIN;
+  return WITHIN(max, MESH_Z_OFFSET_MIN, MESH_Z_OFFSET_MAX);
 }
 
-#if ENABLED(USE_UBL_VIEWER)
-  void UBLMeshToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
+#if USE_UBL_VIEWER
+
+  void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
     const uint16_t cell_width_px  = total_width_px / (GRID_MAX_POINTS_X);
@@ -237,7 +262,7 @@ bool UBLMeshToolsClass::validate() {
     }
   }
 
-  void UBLMeshToolsClass::Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
+  void BedLevelToolsClass::Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
     float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
     if (v_min > 3e+10F) v_min = 0.0000001;
     if (v_max > 3e+10F) v_max = 0.0000001;
@@ -255,6 +280,7 @@ bool UBLMeshToolsClass::validate() {
     ui.set_status(msg);
     drawing_mesh = false;
   }
-#endif
 
-#endif // DWIN_LCD_PROUI && AUTO_BED_LEVELING_UBL
+#endif // USE_UBL_VIEWER
+
+#endif // DWIN_LCD_PROUI && HAS_LEVELING

@@ -2625,15 +2625,13 @@ void Draw_HomeOff_Menu() {
 #include "../../../libs/buzzer.h"
 
 void HMI_AudioFeedback(const bool success=true) {
-  #if HAS_BUZZER
-    if (success) {
-      buzzer.tone(100, 659);
-      buzzer.tone(10, 0);
-      buzzer.tone(100, 698);
-    }
-    else
-      buzzer.tone(40, 440);
-  #endif
+  if (success) {
+    BUZZ(100, 659);
+    BUZZ(10, 0);
+    BUZZ(100, 698);
+  }
+  else
+    BUZZ(40, 440);
 }
 
 // Prepare
@@ -4307,9 +4305,13 @@ void DWIN_StatusChanged(const char * const cstr/*=nullptr*/) {
 }
 
 void DWIN_StatusChanged(FSTR_P const fstr) {
-  char str[strlen_P(FTOP(fstr)) + 1];
-  strcpy_P(str, FTOP(fstr));
-  DWIN_StatusChanged(str);
+  #ifdef __AVR__
+    char str[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(str, FTOP(fstr));
+    DWIN_StatusChanged(str);
+  #else
+    DWIN_StatusChanged(FTOP(fstr));
+  #endif
 }
 
 #endif // DWIN_CREALITY_LCD

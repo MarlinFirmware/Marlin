@@ -72,8 +72,8 @@ void serial_print_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
 
-void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serial_print_P(echomagic); }
-void serial_error_start() { static PGMSTR(errormagic, "Error:"); serial_print_P(errormagic); }
+void serial_echo_start()  { serial_print(F("echo:")); }
+void serial_error_start() { serial_print(F("Error:")); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 

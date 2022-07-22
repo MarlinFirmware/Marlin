@@ -37,7 +37,7 @@
 #define _useTimer5
 
 #define TRIM_DURATION             2   // compensation ticks to trim adjust for digitalWrite delays
-#define SERVO_TIMER_PRESCALER     32  // timer prescaler
+#define SERVO_TIMER_PRESCALER     2   // timer prescaler
 
 /*
   TC0, chan 0 => TC0_Handler

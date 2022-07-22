@@ -22,15 +22,15 @@
 #pragma once
 
 /**
- * STM32F407VET6 on Index PnP Mobo Rev03
- * Website - https://indexmachines.io/
+ * STM32F407VET6 on Opulo Lumen PnP Rev3
+ * Website - https://opulo.io/
  */
 
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME      "Index Mobo Rev03"
-#define DEFAULT_MACHINE_NAME "Index Pick and Place"
+#define BOARD_INFO_NAME      "Opulo Lumen REV3"
+#define DEFAULT_MACHINE_NAME "Opulo Pick-and-Place"
 
 /**
  * By default, the extra stepper motor configuration is:

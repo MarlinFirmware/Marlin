@@ -222,6 +222,7 @@ namespace Language_ro {
   LSTR MSG_MOVE_X                         = _UxGT("Move X");
   LSTR MSG_MOVE_Y                         = _UxGT("Move Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Move Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Move @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Capat Prea Rece");
@@ -452,8 +453,6 @@ namespace Language_ro {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrate Center");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta Settings");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibration");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Set Delta Height");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Probe Z-offset");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag Rod");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Inaltime");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radius");
