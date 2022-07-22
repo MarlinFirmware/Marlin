@@ -49,11 +49,12 @@ BDS_Leveling bdl;
 //M102 S4     Set the adjustable Z height value (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm , disable with 'M102 S0'.)
 //M102 S-1    Read sensor information
 
-#define MAX_BD_HEIGHT                 6.9f
+#define MAX_BD_HEIGHT                 4.0f
 #define CMD_START_READ_CALIBRATE_DATA 1017
 #define CMD_END_READ_CALIBRATE_DATA   1018
 #define CMD_START_CALIBRATE           1019
 #define CMD_END_CALIBRATE             1021
+#define CMD_READ_VERSION  1016
 
 I2C_SegmentBED BD_I2C_SENSOR;
 
@@ -64,12 +65,22 @@ uint8_t BDS_Leveling::homing;
 
 void BDS_Leveling::echo_name() { SERIAL_ECHOPGM("Bed Distance Leveling"); }
 
-void BDS_Leveling::init(unsigned char _sda, unsigned char _scl, int delay_s) {
+void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
   int ret = BD_I2C_SENSOR.i2c_init(_sda, _scl, BD_SENSOR_I2C_ADDR, delay_s);
   if (ret != 1) SERIAL_ECHOLNPGM("BD_I2C_SENSOR Init Fail return code:",ret);
   config_state = 0;
 }
 
+float BDS_Leveling::BD_sensor_read(void){
+  unsigned short tmp=0;
+  float BD_z = NAN;
+  tmp=BD_I2C_SENSOR.BD_i2c_read();      
+  if(BD_I2C_SENSOR.BD_Check_OddEven(tmp)&&(tmp&0x3ff)<1020){
+    BD_z=(tmp&0x3ff)/100.0;
+  }
+  return BD_z;
+
+}
 void BDS_Leveling::process(void){
  static millis_t timeout_auto = 0;
  static float z_pose = 0.0f;

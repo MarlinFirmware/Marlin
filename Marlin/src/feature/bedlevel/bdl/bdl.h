@@ -30,6 +30,7 @@ public:
   static void echo_name();
   static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
   static void process();
+  static float BD_sensor_read(void);
 };
 
 extern BDS_Leveling bdl;

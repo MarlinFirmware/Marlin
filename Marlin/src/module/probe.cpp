@@ -47,7 +47,9 @@
 #if ENABLED(DELTA)
   #include "delta.h"
 #endif
-
+#if ENABLED(BD_SENSOR)
+#include "../feature/bedlevel/bdl/bdl.h"
+#endif
 #if ANY(HAS_QUIET_PROBING, USE_SENSORLESS)
   #include "stepper/indirection.h"
   #if BOTH(HAS_QUIET_PROBING, PROBING_ESTEPPERS_OFF)
@@ -822,8 +824,11 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
+#if ENABLED(BD_SENSOR)  
+   return BD_Level.BD_sensor_read();
+#endif  
 
-  float measured_z = NAN;
+  float measured_z = NAN; 
   if (!deploy()) {
     measured_z = run_z_probe(sanity_check) + offset.z;
     TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
