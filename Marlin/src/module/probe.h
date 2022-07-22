@@ -302,11 +302,15 @@ public:
   #endif
 
   // Basic functions for Sensorless Homing and Probing
-  #if HAS_DELTA_SENSORLESS_PROBING
+ // #if HAS_DELTA_SENSORLESS_PROBING
+  #if USE_SENSORLESS
     static void set_offset_sensorless_adj(const_float_t sz);
     static void refresh_largest_sensorless_adj();
   #endif
-
+#if  USE_SENSORLESS
+  void enable_stallguard_diag1(void); 
+  void disable_stallguard_diag1(void); 
+#endif
 private:
   static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);
