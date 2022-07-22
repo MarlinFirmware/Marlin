@@ -35,7 +35,7 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
-#if BD_SENSOR
+#if ENABLED(BD_SENSOR)
 	#include "../feature/bedlevel/bdl/bdl.h"
 #endif
 #if ENABLED(PRINTCOUNTER)
@@ -386,9 +386,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       case 28:
-#if BD_SENSOR  
-        BD_Level.BDsensor_config=0;
-#endif      
+#if ENABLED(BD_SENSOR)
+        bdl.config_state=0;
+#endif
        G28();
        break;                                      // G28: Home one or more axes
 
@@ -567,10 +567,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
 
-      #if BD_SENSOR      
-        case 102:  
-          BD_Level.BDsensor_config = parser.intval('S');
-          SERIAL_ECHOLNPGM("BDsensor config:",BD_Level.BDsensor_config);
+      #if ENABLED(BD_SENSOR)
+        case 102:
+          bdl.config_state = parser.intval('S');
+          SERIAL_ECHOLNPGM("BDsensor config:",bdl.config_state);
         break;
       #endif
 

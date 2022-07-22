@@ -780,9 +780,10 @@ void idle(bool no_stepper_sleep/*=false*/) {
     static uint16_t idle_depth = 0;
     if (++idle_depth > 5) SERIAL_ECHOLNPGM("idle() call depth: ", idle_depth);
   #endif
-#if BD_SENSOR
-  BD_Level.BD_sensor_process();
-#endif  
+
+  // Bed Distance Sensor task
+  TERN_(BD_SENSOR, bdl.process());
+
   // Core Marlin activities
   manage_inactivity(no_stepper_sleep);
 
@@ -1641,10 +1642,10 @@ void setup() {
     SETUP_RUN(test_tmc_connection());
   #endif
 
-#if BD_SENSOR
-   // Serial.end();
-    BD_Level.init(I2C_BD_SDA_PIN,I2C_BD_SCL_PIN,I2C_BD_DELAY);   
-#endif
+  #if ENABLED(BD_SENSOR)
+    SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
+  #endif
+
   marlin_state = MF_RUNNING;
 
   SETUP_LOG("setup() completed.");

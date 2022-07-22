@@ -21,20 +21,15 @@
  */
 #pragma once
 
-class Bed_Distance_sensor_level {
-private:
+#include <stdint.h>
 
+class BDS_Leveling {
 public:
-  int BDsensor_config; 
-  int homing; 
+  static int8_t config_state;
+  static uint8_t homing;
   static void echo_name();
-  void init(unsigned char _sda,unsigned char _scl,int delay_s);
-  void BD_sensor_process(void);
+  static void init(uint8_t _sda, uint8_t _scl, uint16_t delay_s);
+  static void process();
+};
 
-}; // class Bed_Distance_sensor_level
-
-extern Bed_Distance_sensor_level BD_Level;
-
-
-
-
+extern BDS_Leveling bdl;

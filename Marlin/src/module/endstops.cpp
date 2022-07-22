@@ -62,15 +62,14 @@ bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.l
 
 volatile Endstops::endstop_mask_t Endstops::hit_state;
 Endstops::endstop_mask_t Endstops::live_state = 0;
-#if BD_SENSOR
-bool BD_Z_state;
-#define READ_ENDSTOP(PIN)  (PIN==Z_MIN_PIN)?BD_Z_state:READ(PIN)
-void Endstops::BD_Zaxis_update(bool z_state){
-  BD_Z_state=z_state;
-}
+
+#if ENABLED(BD_SENSOR)
+  bool Endstops::bdp_z_state; // = false
+  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? bdp_z_state : READ(P))
 #else
-#define READ_ENDSTOP(PIN)  READ(PIN)
+  #define READ_ENDSTOP(P) READ(P)
 #endif
+
 #if ENDSTOP_NOISE_THRESHOLD
   Endstops::endstop_mask_t Endstops::validated_live_state;
   uint8_t Endstops::endstop_poll_count;
