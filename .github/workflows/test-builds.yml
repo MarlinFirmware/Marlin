@@ -81,7 +81,6 @@ jobs:
         - STM32F401RC_creality
         - STM32F103VE_longer
         - STM32F407VE_black
-        - STM32F401VE_STEVAL
         - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
@@ -100,7 +99,10 @@ jobs:
         - REMRAM_V1
         - BTT_SKR_SE_BX
         - chitu_f103
-        - Index_Mobo_Rev03
+        - Opulo_Lumen_REV3
+
+        # ESP32 environments
+        - mks_tinybee
 
         # Put lengthy tests last
 

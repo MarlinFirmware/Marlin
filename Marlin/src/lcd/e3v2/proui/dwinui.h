@@ -24,8 +24,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.17.1
- * Date: 2022/04/12
+ * Version: 3.18.1
+ * Date: 2022/07/05
  */
 
 #include "dwin_lcd.h"
@@ -39,6 +39,7 @@
 #define ICON_BedSizeY             ICON_PrintSize
 #define ICON_BedTramming          ICON_SetHome
 #define ICON_Binary               ICON_Contact
+#define ICON_BltouchReset         ICON_StockConfiguration
 #define ICON_Brightness           ICON_Motion
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_SetEndTemp
@@ -145,7 +146,7 @@
 #define DWIN_FONT_HEAD font10x20
 #define DWIN_FONT_ALERT font10x20
 #define STATUS_Y 354
-#define LCD_WIDTH (DWIN_WIDTH / 8)  // only if the default font is font8x16
+#define LCD_WIDTH (DWIN_WIDTH / 8)  // only if the default fontid is font8x16
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
@@ -156,7 +157,7 @@ constexpr uint8_t  TITLE_HEIGHT = 30,                          // Title bar heig
                    TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
                    MROWS = TROWS - 1,                          // Other-than-Back
                    ICOX = 26,                                  // Menu item icon X position
-                   LBLX = 60,                                  // Menu item label X position
+                   LBLX = 55,                                  // Menu item label X position
                    VALX = 210,                                 // Menu item value X position
                    MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
                    STAT_CHR_W = 10;
@@ -196,7 +197,7 @@ namespace DWINUI {
   extern uint16_t textcolor;
   extern uint16_t backcolor;
   extern uint16_t buttoncolor;
-  extern uint8_t  font;
+  extern fontid_t fontid;
   extern FSTR_P const Author;
 
   extern void (*onTitleDraw)(TitleClass* title);
@@ -205,15 +206,15 @@ namespace DWINUI {
   void init();
 
   // Set text/number font
-  void setFont(uint8_t cfont);
+  void setFont(fontid_t cfont);
 
   // Get font character width
-  uint8_t fontWidth(uint8_t cfont);
-  inline uint8_t fontWidth() { return fontWidth(font); };
+  uint8_t fontWidth(fontid_t cfont);
+  inline uint8_t fontWidth() { return fontWidth(fontid); };
 
   // Get font character height
-  uint8_t fontHeight(uint8_t cfont);
-  inline uint8_t fontHeight() { return fontHeight(font); };
+  uint8_t fontHeight(fontid_t cfont);
+  inline uint8_t fontHeight() { return fontHeight(fontid); };
 
   // Get screen x coordinates from text column
   uint16_t ColToX(uint8_t col);
@@ -278,108 +279,108 @@ namespace DWINUI {
   // Draw a numeric integer value
   //  bShow: true=display background color; false=don't display background color
   //  signedMode: 1=signed; 0=unsigned
-  //  size: Font size
+  //  fid: Font ID
   //  color: Character color
   //  bColor: Background color
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  void Draw_Int(uint8_t bShow, bool signedMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
+  void Draw_Int(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
 
   // Draw a positive integer
-  inline void Draw_Int(uint8_t bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(bShow, 0, size, color, bColor, iNum, x, y, value);
+  inline void Draw_Int(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+    Draw_Int(bShow, 0, fid, color, bColor, iNum, x, y, value);
   }
   inline void Draw_Int(uint8_t iNum, long value) {
-    Draw_Int(false, 0, font, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
-    MoveBy(iNum * fontWidth(font), 0);
+    Draw_Int(false, 0, fontid, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
+    MoveBy(iNum * fontWidth(fontid), 0);
   }
   inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(false, 0, font, textcolor, backcolor, iNum, x, y, value);
+    Draw_Int(false, 0, fontid, textcolor, backcolor, iNum, x, y, value);
   }
   inline void Draw_Int(uint16_t color, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(false, 0, font, color, backcolor, iNum, x, y, value);
+    Draw_Int(false, 0, fontid, color, backcolor, iNum, x, y, value);
   }
   inline void Draw_Int(uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(true, 0, font, color, bColor, iNum, x, y, value);
+    Draw_Int(true, 0, fontid, color, bColor, iNum, x, y, value);
   }
-  inline void Draw_Int(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(true, 0, size, color, bColor, iNum, x, y, value);
+  inline void Draw_Int(fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+    Draw_Int(true, 0, fid, color, bColor, iNum, x, y, value);
   }
 
   // Draw a signed integer
-  inline void Draw_Signed_Int(uint8_t bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(bShow, 1, size, color, bColor, iNum, x, y, value);
+  inline void Draw_Signed_Int(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+    Draw_Int(bShow, 1, fid, color, bColor, iNum, x, y, value);
   }
   inline void Draw_Signed_Int(uint8_t iNum, long value) {
-    Draw_Int(false, 1, font, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
-    MoveBy(iNum * fontWidth(font), 0);
+    Draw_Int(false, 1, fontid, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
+    MoveBy(iNum * fontWidth(fontid), 0);
   }
   inline void Draw_Signed_Int(uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(false, 1, font, textcolor, backcolor, iNum, x, y, value);
+    Draw_Int(false, 1, fontid, textcolor, backcolor, iNum, x, y, value);
   }
   inline void Draw_Signed_Int(uint16_t color, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(false, 1, font, color, backcolor, iNum, x, y, value);
+    Draw_Int(false, 1, fontid, color, backcolor, iNum, x, y, value);
   }
   inline void Draw_Signed_Int(uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(true, 1, font, color, bColor, iNum, x, y, value);
+    Draw_Int(true, 1, fontid, color, bColor, iNum, x, y, value);
   }
-  inline void Draw_Signed_Int(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
-    Draw_Int(true, 1, size, color, bColor, iNum, x, y, value);
+  inline void Draw_Signed_Int(fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+    Draw_Int(true, 1, fid, color, bColor, iNum, x, y, value);
   }
 
   // Draw a numeric float value
   //  bShow: true=display background color; false=don't display background color
   //  signedMode: 1=signed; 0=unsigned
-  //  size: Font size
+  //  fid: Font ID
   //  color: Character color
   //  bColor: Background color
   //  iNum: Number of digits
   //  fNum: Number of decimal digits
   //  x/y: Upper-left coordinate
   //  value: float value
-  void Draw_Float(uint8_t bShow, bool signedMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value);
+  void Draw_Float(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value);
 
   // Draw a positive floating point number
-  inline void Draw_Float(uint8_t bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(bShow, 0, size, color, bColor, iNum, fNum, x, y, value);
+  inline void Draw_Float(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+    Draw_Float(bShow, 0, fid, color, bColor, iNum, fNum, x, y, value);
   }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, float value) {
-    Draw_Float(false, 0, font, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
-    MoveBy((iNum + fNum + 1) * fontWidth(font), 0);
+    Draw_Float(false, 0, fontid, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
+    MoveBy((iNum + fNum + 1) * fontWidth(fontid), 0);
   }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(false, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
+    Draw_Float(false, 0, fontid, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Float(uint8_t size, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(false, 0, size, textcolor, backcolor, iNum, fNum, x, y, value);
+  inline void Draw_Float(fontid_t fid, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+    Draw_Float(false, 0, fid, textcolor, backcolor, iNum, fNum, x, y, value);
   }
   inline void Draw_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(true, 0, font, color, bColor, iNum, fNum, x, y, value);
+    Draw_Float(true, 0, fontid, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(true, 0, size, color, bColor, iNum, fNum, x, y, value);
+  inline void Draw_Float(fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+    Draw_Float(true, 0, fid, color, bColor, iNum, fNum, x, y, value);
   }
 
   // Draw a signed floating point number
-  inline void Draw_Signed_Float(uint8_t bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(bShow, 1, size, color, bColor, iNum, fNum, x, y, value);
+  inline void Draw_Signed_Float(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+    Draw_Float(bShow, 1, fid, color, bColor, iNum, fNum, x, y, value);
   }
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, float value) {
-    Draw_Float(false, 1, font, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
-    MoveBy((iNum + fNum + 1) * fontWidth(font), 0);
+    Draw_Float(false, 1, fontid, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
+    MoveBy((iNum + fNum + 1) * fontWidth(fontid), 0);
   }
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(false, 1, font, textcolor, backcolor, iNum, fNum, x, y, value);
+    Draw_Float(false, 1, fontid, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Signed_Float(uint8_t size, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(false, 1, size, textcolor, backcolor, iNum, fNum, x, y, value);
+  inline void Draw_Signed_Float(fontid_t fid, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+    Draw_Float(false, 1, fid, textcolor, backcolor, iNum, fNum, x, y, value);
   }
   inline void Draw_Signed_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(true, 1, font, color, bColor, iNum, fNum, x, y, value);
+    Draw_Float(true, 1, fontid, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-    Draw_Float(true, 1, size, color, bColor, iNum, fNum, x, y, value);
+  inline void Draw_Signed_Float(fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+    Draw_Float(true, 1, fid, color, bColor, iNum, fNum, x, y, value);
   }
 
   // Draw a char
@@ -407,70 +408,70 @@ namespace DWINUI {
   }
 
   // Draw a string
-  //  size: Font size
+  //  fid: Font ID
   //  color: Character color
   //  bColor: Background color
   //  x/y: Upper-left coordinate of the string
   //  *string: The string
   inline void Draw_String(uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, string);
+    DWIN_Draw_String(false, fontid, textcolor, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, FTOP(title));
+    DWIN_Draw_String(false, fontid, textcolor, backcolor, x, y, FTOP(title));
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, font, color, backcolor, x, y, string);
+    DWIN_Draw_String(false, fontid, color, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, font, color, backcolor, x, y, title);
+    DWIN_Draw_String(false, fontid, color, backcolor, x, y, title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(true, font, color, bgcolor, x, y, string);
+    DWIN_Draw_String(true, fontid, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, font, color, bgcolor, x, y, title);
+    DWIN_Draw_String(true, fontid, color, bgcolor, x, y, title);
   }
-  inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(true, size, color, bgcolor, x, y, string);
+  inline void Draw_String(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
+    DWIN_Draw_String(true, fid, color, bgcolor, x, y, string);
   }
-  inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, size, color, bgcolor, x, y, title);
+  inline void Draw_String(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
+    DWIN_Draw_String(true, fid, color, bgcolor, x, y, title);
   }
 
   // Draw a centered string using DWIN_WIDTH
   //  bShow: true=display background color; false=don't display background color
-  //  size: Font size
+  //  fid: Font ID
   //  color: Character color
   //  bColor: Background color
   //  y: Upper coordinate of the string
   //  *string: The string
-  void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string);
-  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
-    Draw_CenteredString(bShow, size, color, bColor, 0, DWIN_WIDTH, y, string);
+  void Draw_CenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string);
+  inline void Draw_CenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+    Draw_CenteredString(bShow, fid, color, bColor, 0, DWIN_WIDTH, y, string);
   }
-  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P string) {
-    Draw_CenteredString(bShow, size, color, bColor, y, FTOP(string));
+  inline void Draw_CenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P string) {
+    Draw_CenteredString(bShow, fid, color, bColor, y, FTOP(string));
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
-    Draw_CenteredString(true, font, color, bcolor, y, string);
+    Draw_CenteredString(true, fontid, color, bcolor, y, string);
   }
-  inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const char * const string) {
-    Draw_CenteredString(false, size, color, backcolor, y, string);
+  inline void Draw_CenteredString(fontid_t fid, uint16_t color, uint16_t y, const char * const string) {
+    Draw_CenteredString(false, fid, color, backcolor, y, string);
   }
-  inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, size, color, backcolor, y, title);
+  inline void Draw_CenteredString(fontid_t fid, uint16_t color, uint16_t y, FSTR_P title) {
+    Draw_CenteredString(false, fid, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const char * const string) {
-    Draw_CenteredString(false, font, color, backcolor, y, string);
+    Draw_CenteredString(false, fontid, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, font, color, backcolor, y, title);
+    Draw_CenteredString(false, fontid, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t y, const char * const string) {
-    Draw_CenteredString(false, font, textcolor, backcolor, y, string);
+    Draw_CenteredString(false, fontid, textcolor, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, font, textcolor, backcolor, y, title);
+    Draw_CenteredString(false, fontid, textcolor, backcolor, y, title);
   }
 
   // Draw a box

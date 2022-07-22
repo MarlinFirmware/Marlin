@@ -1638,7 +1638,7 @@ void esp_data_parser(char *cmdRxBuf, int len) {
 
       esp_msg_index += cpyLen;
 
-      leftLen = leftLen - cpyLen;
+      leftLen -= cpyLen;
       tail_pos = charAtArray(esp_msg_buf, esp_msg_index, ESP_PROTOC_TAIL);
 
       if (tail_pos == -1) {

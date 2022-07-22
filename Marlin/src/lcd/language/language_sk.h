@@ -50,7 +50,10 @@ namespace Language_sk {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pripravená.");
   LSTR MSG_YES                            = _UxGT("ÁNO");
   LSTR MSG_NO                             = _UxGT("NIE");
+  LSTR MSG_HIGH                           = _UxGT("VYSOKÁ");
+  LSTR MSG_LOW                            = _UxGT("NÍZKA");
   LSTR MSG_BACK                           = _UxGT("Naspäť");
+  LSTR MSG_ERROR                          = _UxGT("Chyba");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Ruším...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Karta vložená");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Karta vybraná");
@@ -64,6 +67,8 @@ namespace Language_sk {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft. endstopy");
   LSTR MSG_MAIN                           = _UxGT("Hlavná ponuka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Pokročilé nastav.");
+  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Panel nástrojov");
+  LSTR MSG_OPTION_DISABLED                = _UxGT("Možnosť vypnutá");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurácia");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto-štart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolniť motory");
@@ -77,6 +82,7 @@ namespace Language_sk {
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Domov os Z");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Nastav. filamentu");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Správa filamentu");
+  LSTR MSG_MANUAL_LEVELING                = _UxGT("Ručné rovnanie");
   LSTR MSG_LEVBED_FL                      = _UxGT("Ľavý predný");
   LSTR MSG_LEVBED_FR                      = _UxGT("Pravý predný");
   LSTR MSG_LEVBED_C                       = _UxGT("Stred");
@@ -109,7 +115,14 @@ namespace Language_sk {
     LSTR MSG_PREHEAT_1_ALL                = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" všetko");
     LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" podlož");
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" nast.");
-
+    #ifdef PREHEAT_2_LABEL
+      LSTR MSG_PREHEAT_2                  = _UxGT("Zahriať ") PREHEAT_2_LABEL;
+      LSTR MSG_PREHEAT_2_SETTINGS         = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" nast.");
+    #endif
+    #ifdef PREHEAT_3_LABEL
+      LSTR MSG_PREHEAT_3                  = _UxGT("Zahriať ") PREHEAT_3_LABEL;
+      LSTR MSG_PREHEAT_3_SETTINGS         = _UxGT("Zahriať ") PREHEAT_3_LABEL _UxGT(" nast.");
+    #endif
     LSTR MSG_PREHEAT_M                    = _UxGT("Zahriať $");
     LSTR MSG_PREHEAT_M_H                  = _UxGT("Zahriať $ ~");
     LSTR MSG_PREHEAT_M_END                = _UxGT("Zahriať $ hotend");
@@ -144,7 +157,8 @@ namespace Language_sk {
   LSTR MSG_BED_LEVELING                   = _UxGT("Vyrovnanie podložky");
   LSTR MSG_LEVEL_BED                      = _UxGT("Vyrovnať podložku");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Vyrovnať rohy");
-  LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Zdvyhnite podl., kým sa nezopne sonda");
+  LSTR MSG_BED_TRAMMING_MANUAL            = _UxGT("Ručné vyrovnanie");
+  LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Zdvihnite podl., kým sa nezopne sonda");
   LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl.");
   LSTR MSG_BED_TRAMMING_GOOD_POINTS       = _UxGT("Dobré body: ");
   LSTR MSG_BED_TRAMMING_LAST_Z            = _UxGT("Posl. Z: ");
@@ -155,10 +169,19 @@ namespace Language_sk {
   LSTR MSG_MESH_VIEW                      = _UxGT("Zobraz. sieť bodov");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Koniec úprav siete");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("Neplatná sieť bodov");
+  LSTR MSG_ACTIVATE_MESH                  = _UxGT("Zapnúť vyrovnanie");
   LSTR MSG_PROBING_POINT                  = _UxGT("Skúšam bod");
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
+  LSTR MSG_MESH_INSET                     = _UxGT("Vložiť sieť");
+  LSTR MSG_MESH_MIN_X                     = _UxGT("Min. X sieťe");
+  LSTR MSG_MESH_MAX_X                     = _UxGT("Max. X sieťe");
+  LSTR MSG_MESH_MIN_Y                     = _UxGT("Min. Y sieťe");
+  LSTR MSG_MESH_MAX_Y                     = _UxGT("Max. Y sieťe");
+  LSTR MSG_MESH_AMAX                      = _UxGT("Maximál. oblasť");
+  LSTR MSG_MESH_CENTER                    = _UxGT("Stredová oblasť");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Hodnota Z");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mriežka zrušená");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Vlastné príkazy");
   LSTR MSG_M48_TEST                       = _UxGT("M48 Test sondy");
   LSTR MSG_M48_POINT                      = _UxGT("M48 Bod");
@@ -177,6 +200,9 @@ namespace Language_sk {
   LSTR MSG_UBL_TOOLS                      = _UxGT("Nástroje UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("UBL rovnanie");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnávam bod");
+  LSTR MSG_UBL_TILT_MESH                  = _UxGT("Nakloniť sieť");
+  LSTR MSG_UBL_TILTING_GRID               = _UxGT("Veľkosť nakl. siete");
+  LSTR MSG_UBL_MESH_TILTED                = _UxGT("Sieť naklonená");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Manuálna sieť bodov");
   LSTR MSG_UBL_MESH_WIZARD                = _UxGT("Spriev. UBL rovnan.");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Položte a zmerajte");
@@ -225,6 +251,7 @@ namespace Language_sk {
   LSTR MSG_UBL_MANUAL_FILLIN              = _UxGT("Ručné vyplnenie");
   LSTR MSG_UBL_SMART_FILLIN               = _UxGT("Chytré vyplnenie");
   LSTR MSG_UBL_FILLIN_MESH                = _UxGT("Vyplniť mriežku");
+  LSTR MSG_UBL_MESH_FILLED                = _UxGT("Doplnené chýb. body");
   LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Zrušiť všetko");
   LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Zrušiť najbližší");
   LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Upraviť všetky");
@@ -233,6 +260,7 @@ namespace Language_sk {
   LSTR MSG_UBL_STORAGE_SLOT               = _UxGT("Pamäťový slot");
   LSTR MSG_UBL_LOAD_MESH                  = _UxGT("Načítať sieť bodov");
   LSTR MSG_UBL_SAVE_MESH                  = _UxGT("Uložiť sieť bodov");
+  LSTR MSG_UBL_INVALID_SLOT               = _UxGT("Najskôr zvol. slot siete");
   LSTR MSG_MESH_LOADED                    = _UxGT("Sieť %i načítaná");
   LSTR MSG_MESH_SAVED                     = _UxGT("Sieť %i uložená");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("Nedostatok miesta");
@@ -325,9 +353,21 @@ namespace Language_sk {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Kalibrácia PID *");
   LSTR MSG_PID_CYCLE                      = _UxGT("Cykly PID");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Kal. PID dokončená");
+  LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kal. PID zlyhala!");
+  LSTR MSG_BAD_EXTRUDER_NUM               = _UxGT("Zlý extrudér");
+  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Príliš vysoká tepl.");
+  LSTR MSG_TIMEOUT                        = _UxGT("Čas vypršal.");
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-kal. zlyhala! Zlý extrúder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-kal. zlyhala! Príliš vysoká tepl.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-kal. zlyhala! Čas vypršal.");
+  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Test. tepl. straty");
+  LSTR MSG_MPC_AUTOTUNE                   = _UxGT("Auto-kal. MPC");
+  LSTR MSG_MPC_EDIT                       = _UxGT("Upraviť * MPC");
+  LSTR MSG_MPC_POWER_E                    = _UxGT("Výkon *");
+  LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("Blokovať C *");
+  LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Rozliš. senz. *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("H okolia *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("H vent. okolia *");
   LSTR MSG_SELECT                         = _UxGT("Vybrať");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrať *");
   LSTR MSG_ACC                            = _UxGT("Zrýchlenie");
@@ -379,6 +419,9 @@ namespace Language_sk {
   LSTR MSG_ADVANCE_K_E                    = _UxGT("K pre posun *");
   LSTR MSG_CONTRAST                       = _UxGT("Kontrast LCD");
   LSTR MSG_BRIGHTNESS                     = _UxGT("Jas LCD");
+  LSTR MSG_LCD_TIMEOUT_SEC                = _UxGT("Čas. limit LCD (s)");
+  LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("Čas. limit LCD (m)");
+  LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Podsviet. vyp.");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Uložiť nastavenie");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Načítať nastavenie");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Obnoviť nastavenie");
@@ -391,6 +434,10 @@ namespace Language_sk {
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reštart. tlačiar.");
   LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Obnoviť");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info. obrazovka");
+  LSTR MSG_INFO_MACHINENAME               = _UxGT("Názov stroja");
+  LSTR MSG_INFO_SIZE                      = _UxGT("Rozmer");
+  LSTR MSG_INFO_FWVERSION                 = _UxGT("Verzia firmvéru");
+  LSTR MSG_INFO_BUILD                     = _UxGT("Čas zostavenia");
   LSTR MSG_PREPARE                        = _UxGT("Príprava tlače");
   LSTR MSG_TUNE                           = _UxGT("Doladenie tlače");
   LSTR MSG_POWER_MONITOR                  = _UxGT("Monitor napájania");
@@ -405,6 +452,8 @@ namespace Language_sk {
   LSTR MSG_BUTTON_RESET                   = _UxGT("Vynulovať");
   LSTR MSG_BUTTON_IGNORE                  = _UxGT("Ignorovať");
   LSTR MSG_BUTTON_CANCEL                  = _UxGT("Zrušiť");
+  LSTR MSG_BUTTON_CONFIRM                 = _UxGT("Potvrdiť");
+  LSTR MSG_BUTTON_CONTINUE                = _UxGT("Pokračovať");
   LSTR MSG_BUTTON_DONE                    = _UxGT("Hotovo");
   LSTR MSG_BUTTON_BACK                    = _UxGT("Naspäť");
   LSTR MSG_BUTTON_PROCEED                 = _UxGT("Pokračovať");
@@ -414,6 +463,8 @@ namespace Language_sk {
   LSTR MSG_BUTTON_PAUSE                   = _UxGT("Pauza");
   LSTR MSG_BUTTON_RESUME                  = _UxGT("Obnoviť");
   LSTR MSG_BUTTON_ADVANCED                = _UxGT("Pokročilé");
+  LSTR MSG_BUTTON_SAVE                    = _UxGT("Uložiť");
+  LSTR MSG_BUTTON_PURGE                   = _UxGT("Vytlačiť");
   LSTR MSG_PAUSING                        = _UxGT("Pozastavujem...");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("Pozastaviť tlač");
   LSTR MSG_ADVANCED_PAUSE                 = _UxGT("Pokročil. pauza");
@@ -433,11 +484,15 @@ namespace Language_sk {
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Tlač pozastavená");
   LSTR MSG_PRINTING                       = _UxGT("Tlačím...");
   LSTR MSG_STOPPING                       = _UxGT("Zastavujem...");
+  LSTR MSG_REMAINING_TIME                 = _UxGT("Zostávajúci");
   LSTR MSG_PRINT_ABORTED                  = _UxGT("Tlač zrušená");
   LSTR MSG_PRINT_DONE                     = _UxGT("Tlač dokončená");
+  LSTR MSG_PRINTER_KILLED                 = _UxGT("Tlačiareň zastavená!");
+  LSTR MSG_TURN_OFF                       = _UxGT("Vypnite tlačiareň");
   LSTR MSG_NO_MOVE                        = _UxGT("Žiadny pohyb.");
   LSTR MSG_KILLED                         = _UxGT("PRERUŠENÉ. ");
   LSTR MSG_STOPPED                        = _UxGT("ZASTAVENÉ. ");
+  LSTR MSG_FWRETRACT                      = _UxGT("Firmv. retrakcia");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Retrakt mm");
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Výmena Re.mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retraktovať  V");
@@ -503,6 +558,9 @@ namespace Language_sk {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Hranica sondy");
+  LSTR MSG_Z_FEED_RATE                    = _UxGT("Rýchl. posunu Z");
+  LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Povoliť rež. HS");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Pos. trysku k podl.");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
@@ -540,8 +598,6 @@ namespace Language_sk {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibrovať stred");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta nastavenia");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto-kalibrácia");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Nast. výšku delty");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Ofset sondy Z");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag. rameno");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Výška");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Polomer");
@@ -568,30 +624,32 @@ namespace Language_sk {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Jas svetla");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Nesprávna tlačiareň");
 
+  LSTR MSG_COLORS_GET                     = _UxGT("Zvoliť farbu");
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Zvoliť farby");
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farby aplikované");
+  LSTR MSG_COLORS_RED                     = _UxGT("Červená");
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Zelená");
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Modrá");
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Biela");
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("Jazyk rozhrania");
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Povoliť zvuky");
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Uzamknúť obrazovku");
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Tlačiareň je uzamknutá,");
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("potiahnite pre odomknutie.");
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Prosím čakajte do reštartu.");
+
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");
-    LSTR MSG_REMAINING_TIME               = _UxGT("Zostávajúci čas");
-    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Prosím čakajte do reštartu. ");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend.");
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Vynulovať počítadlo");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tlačí");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdlhšia tlač");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Celkom vytlačené");
-    LSTR MSG_COLORS_GET                   = _UxGT("Zvoliť farbu");
-    LSTR MSG_COLORS_SELECT                = _UxGT("Zvoliť farby");
-    LSTR MSG_COLORS_APPLIED               = _UxGT("Farby aplikované");
-    LSTR MSG_COLORS_RED                   = _UxGT("Červená");
-    LSTR MSG_COLORS_GREEN                 = _UxGT("Zelená");
-    LSTR MSG_COLORS_BLUE                  = _UxGT("Modrá");
-    LSTR MSG_UI_LANGUAGE                  = _UxGT("Jazyk rozhrania");
-    LSTR MSG_SOUND_ENABLE                 = _UxGT("Povoliť zvuky");
-    LSTR MSG_LOCKSCREEN                   = _UxGT("Uzamknúť obrazovku");
   #else
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Žiadna karta");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Tlače");
-    LSTR MSG_REMAINING_TIME               = _UxGT("Zostávajúci");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Čas");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdlhšia");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Vytlačené");
@@ -612,10 +670,14 @@ namespace Language_sk {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("MOŽNOSTI POKRAČ.:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Vytlačiť viacej");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Obnoviť tlač");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Vytlač. alebo pokrač.?");
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Tryska: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Senzor filamentu");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Vzd. mm fil. senz.");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Zapnúť senzor");
+  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Senz. fil. zapn.");
+  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert. extrudér");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Min. tepl. extrud.");
   LSTR MSG_FANCHECK                       = _UxGT("Kontrola rýchl.");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Parkovanie zlyhalo");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Kalibrácia zlyhala");

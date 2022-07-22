@@ -32,10 +32,6 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
-  #define HAS_ENCODER_ACTION 1
-#endif
-
 #if E_MANUAL > 1
   #define MULTI_E_MANUAL 1
 #endif
@@ -87,11 +83,9 @@ typedef bool (*statusResetFunc_t)();
 
   #endif // HAS_MARLINUI_MENU
 
-#endif // HAS_WIRED_LCD
-
-#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
   #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
-#endif
+
+#endif // HAS_WIRED_LCD
 
 #if HAS_MARLINUI_U8GLIB
   enum MarlinFont : uint8_t {
@@ -137,12 +131,16 @@ typedef bool (*statusResetFunc_t)();
       static xyze_pos_t all_axes_destination;
     #endif
   public:
+    static screenFunc_t screen_ptr;
     static float menu_scale;
     #if IS_KINEMATIC
       static float offset;
     #endif
+    #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+      static float e_origin;
+    #endif
     template <typename T>
-    void set_destination(const T& dest) {
+    static void set_destination(const T& dest) {
       #if IS_KINEMATIC
         // Moves are segmented, so the entire move is not submitted at once.
         // Using a separate variable prevents corrupting the in-progress move.
@@ -153,10 +151,10 @@ typedef bool (*statusResetFunc_t)();
         current_position.set(dest);
       #endif
     }
-    float axis_value(const AxisEnum axis) {
+    static float axis_value(const AxisEnum axis) {
       return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
     }
-    bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+    static bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
       #if IS_KINEMATIC
         float &valref = offset;
         const float rmin = min - current_position[axis], rmax = max - current_position[axis];
@@ -166,12 +164,7 @@ typedef bool (*statusResetFunc_t)();
       #endif
       valref += diff;
       const float pre = valref;
-      if (min != max) {
-        if (diff < 0)
-          NOLESS(valref, rmin);
-        else
-          NOMORE(valref, rmax);
-      }
+      if (min != max) { if (diff < 0) NOLESS(valref, rmin); else NOMORE(valref, rmax); }
       return pre != valref;
     }
     #if IS_KINEMATIC
@@ -182,6 +175,8 @@ typedef bool (*statusResetFunc_t)();
     static void task();
     static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
+
+  void lcd_move_axis(const AxisEnum);
 
 #endif
 
@@ -230,12 +225,12 @@ public:
     static constexpr bool sound_on = true;
   #endif
 
-  #if HAS_BUZZER
+  #if USE_MARLINUI_BUZZER
     static void buzz(const long duration, const uint16_t freq);
   #endif
 
-  FORCE_INLINE static void chirp() {
-    TERN_(HAS_CHIRP, TERN(HAS_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+  static void chirp() {
+    TERN_(HAS_CHIRP, TERN(USE_MARLINUI_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -274,8 +269,8 @@ public:
   #endif
 
   #if LCD_BACKLIGHT_TIMEOUT
-    #define LCD_BKL_TIMEOUT_MIN 1
-    #define LCD_BKL_TIMEOUT_MAX (60*60*18) // 18 hours max within uint16_t
+    #define LCD_BKL_TIMEOUT_MIN 1u
+    #define LCD_BKL_TIMEOUT_MAX UINT16_MAX // Slightly more than 18 hours
     static uint16_t lcd_backlight_timeout;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
@@ -394,7 +389,7 @@ public:
       static void poweroff();
     #endif
 
-    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+    #if HAS_WIRED_LCD
       static bool get_blink();
     #endif
 
@@ -458,7 +453,7 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_BUZZER
+      #if HAS_SOUND
         static void completion_feedback(const bool good=true);
       #else
         static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
@@ -502,7 +497,6 @@ public:
   #else // No LCD
 
     static void update() {}
-    static void return_to_status() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
@@ -553,6 +547,7 @@ public:
 
     // Manual Movement
     static ManualMove manual_move;
+    static bool can_show_slider() { return !external_control && currentScreen != manual_move.screen_ptr; }
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
@@ -609,6 +604,8 @@ public:
 
   #else
 
+    static void return_to_status() {}
+
     static constexpr bool on_status_screen() { return true; }
 
     #if HAS_WIRED_LCD
@@ -629,7 +626,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,31 @@
  */
 #pragma once
 
-/********************************************************************************
- * @file     lcd/e3v2/jyersui/dwin_lcd.h
- * @brief    DWIN screen control functions
- ********************************************************************************/
+#define BOARD_INFO_NAME "MKS Monster8 V1"
 
-#include "../common/dwin_api.h"
+//
+// Limit Switches
+//
+#define X_MAX_PIN                           PA13
+#define Y_MAX_PIN                           PC5
 
-// Draw the degree (°) symbol
-// Color: color
-//  x/y: Upper-left coordinate of the first pixel
-void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y);
+//
+// Steppers
+//
+#define E4_ENABLE_PIN                       PD14  // Driver7
+
+//
+// Misc. Functions
+//
+#define PW_DET                               PC5  // Y+
+#define PW_OFF                              PB12  // Z+
+#define MT_DET_1_PIN                      PW_DET
+#define MT_DET_2_PIN                      PW_OFF
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
+#endif
+
+#include "pins_MKS_MONSTER8_common.h"
