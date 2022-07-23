@@ -115,12 +115,12 @@ enum colorMode_t : uint8_t {
 typedef colorMode_t ColorMode;
 
 #ifdef __AVR__
-  #define PACKED __attribute__((__packed__))
+  #define IMG_PACKED __attribute__((__packed__))
 #else
-  #define PACKED
+  #define IMG_PACKED
 #endif
 
-typedef struct PACKED {
+typedef struct IMG_PACKED {
   void *data;
   uint16_t width;
   uint16_t height;
