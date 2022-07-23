@@ -199,7 +199,7 @@ namespace ExtUI {
   #endif
 
   inline void simulateUserClick() {
-    #if EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+    #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
       ui.lcd_clicked = true;
     #endif
   }
