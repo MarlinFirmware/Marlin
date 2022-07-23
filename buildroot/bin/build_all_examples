@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
 #
-# build_all_examples base_branch [resume_point]
+# Usage:
 #
+#  build_all_examples [-b|--branch=<branch>]
+#                     [-c|--continue]
+#                     [-d|--debug]
+#                     [-i|--ini]
+#                     [-l|--limit=#]
+#                     [-n|--nobuild]
+#                     [-r|--resume=<path>]
+#                     [-s|--skip]
+#
+# build_all_examples [...] branch [resume-from]
+#
+
+set -e
 
 GITREPO=https://github.com/MarlinFirmware/Configurations.git
 STAT_FILE=./.pio/.buildall
@@ -19,39 +32,82 @@ HERE=`dirname "$0"`
 # Check if called in the right location
 [[ -e "Marlin/src" ]] || { echo -e "This script must be called from a Marlin working copy with:\n ./buildroot/bin/$SELF $1" ; exit ; }
 
-if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo "Usage: $SELF base_branch [resume_point]
-  base_branch  - Configuration branch to download and build
-  resume_point - Configuration path to start from"
-  exit
-fi
+perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
+bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
 
-echo "This script downloads all Configurations and builds Marlin with each one."
+usage() { echo "
+Usage: $SELF [-b|--branch=<branch>] [-d|--debug] [-i|--ini] [-r|--resume=<path>]
+       $SELF [-b|--branch=<branch>] [-d|--debug] [-i|--ini] [-c|--continue]
+       $SELF [-b|--branch=<branch>] [-d|--debug] [-i|--ini] [-s|--skip]
+       $SELF [-b|--branch=<branch>] [-d|--debug] [-n|--nobuild]
+       $SELF [...] branch [resume-point]
+"
+}
+
+# Assume the most recent configs
+BRANCH=import-2.1.x
+unset FIRST_CONF
+EXIT_USAGE=
+LIMIT=1000
+
+while getopts 'b:cdhil:nqr:sv-:' OFLAG; do
+  case "${OFLAG}" in
+    b) BRANCH=$OPTARG       ; bugout "Branch: $BRANCH" ;;
+    r) FIRST_CONF="$OPTARG" ; bugout "Resume: $FIRST_CONF" ;;
+    c) CONTINUE=1           ; bugout "Continue" ;;
+    s) CONTSKIP=1           ; bugout "Continue, skipping" ;;
+    i) CREATE_INI=1         ; bugout "Generate an INI file" ;;
+    h) EXIT_USAGE=1 ; break ;;
+    l) LIMIT=$OPTARG        ; bugout "Limit to $LIMIT configs" ;;
+  d|v) DEBUG=1              ; bugout "Debug ON" ;;
+    n) DRYRUN=1             ; bugout "Dry Run" ;;
+    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+       case "$ONAM" in
+       branch) BRANCH=$OVAL       ; bugout "Branch: $BRANCH" ;;
+       resume) FIRST_CONF="$OVAL" ; bugout "Resume: $FIRST_CONF" ;;
+     continue) CONTINUE=1   ; bugout "Continue" ;;
+         skip) CONTSKIP=2   ; bugout "Continue, skipping" ;;
+        limit) LIMIT=$OVAL  ; bugout "Limit to $LIMIT configs" ;;
+          ini) CREATE_INI=1 ; bugout "Generate an INI file" ;;
+         help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
+        debug) DEBUG=1      ; bugout "Debug ON" ;;
+      nobuild) DRYRUN=1     ; bugout "Dry Run" ;;
+            *) EXIT_USAGE=2 ; echo "$SELF: unrecognized option \`--$ONAM'" ; break ;;
+       esac
+       ;;
+    *) EXIT_USAGE=2 ; break ;;
+  esac
+done
+
+# Extra arguments count as BRANCH, FIRST_CONF
+shift $((OPTIND - 1))
+[[ $# > 0 ]] && { BRANCH=$1 ; shift 1 ; bugout "BRANCH=$BRANCH" ; }
+[[ $# > 0 ]] && { FIRST_CONF=$1 ; shift 1 ; bugout "FIRST_CONF=$FIRST_CONF" ; }
+[[ $# > 0 ]] && { EXIT_USAGE=2 ; echo "too many arguments" ; }
+
+((EXIT_USAGE)) && { usage ; let EXIT_USAGE-- ; exit $EXIT_USAGE ; }
+
+echo "This script downloads each Configuration and attempts to build it."
 echo "On failure the last-built configs will be left in your working copy."
 echo "Restore your configs with 'git checkout -f' or 'git reset --hard HEAD'."
 
-unset BRANCH
-unset FIRST_CONF
 if [[ -f "$STAT_FILE" ]]; then
   IFS='*' read BRANCH FIRST_CONF <"$STAT_FILE"
 fi
 
 # If -c is given start from the last attempted build
-if [[ $1 == '-c' ]]; then
+if ((CONTINUE)); then
   if [[ -z $BRANCH || -z $FIRST_CONF ]]; then
     echo "Nothing to continue"
     exit
   fi
-elif [[ $1 == '-s' ]]; then
+elif ((CONTSKIP)); then
   if [[ -n $BRANCH && -n $FIRST_CONF ]]; then
     SKIP_CONF=1
   else
     echo "Nothing to skip"
     exit
   fi
-else
-  BRANCH=${1:-"import-2.0.x"}
-  FIRST_CONF=$2
 fi
 
 # Check if the current repository has unmerged changes
@@ -82,20 +138,49 @@ IFS='
 CONF_TREE=$( ls -d "$TMP"/config/examples/*/ "$TMP"/config/examples/*/*/ "$TMP"/config/examples/*/*/*/ "$TMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
 DOSKIP=0
 for CONF in $CONF_TREE ; do
+
   # Get a config's directory name
   DIR=$( echo $CONF | sed "s|$TMP/config/examples/||" )
+
   # If looking for a config, skip others
   [[ $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
   # Once found, stop looking
   unset FIRST_CONF
+
   # If skipping, don't build the found one
   [[ $SKIP_CONF ]] && { unset SKIP_CONF ; continue ; }
+
   # ...if skipping, don't build this one
   compgen -G "${CONF}Con*.h" > /dev/null || continue
+
+  # Remember where we are in case of failure
   echo "${BRANCH}*${DIR}" >"$STAT_FILE"
-  "$HERE/build_example" "internal" "$TMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
+
+  # Build or pretend to build
+  if [[ $DRYRUN ]]; then
+    echo "[DRYRUN] build_example internal \"$TMP\" \"$DIR\""
+  else
+    # Build folder is unknown so delete all "config.ini" files
+    [[ $CREATE_INI ]] && find ./.pio/build/ -name "config.ini" -exec rm "{}" \;
+    ((DEBUG)) && echo "\"$HERE/build_example\" \"internal\" \"$TMP\" \"$DIR\""
+    "$HERE/build_example" "internal" "$TMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
+    # Build folder is unknown so copy any "config.ini"
+    [[ $CREATE_INI ]] && find ./.pio/build/ -name "config.ini" -exec cp "{}" "$CONF" \;
+  fi
+
+  ((LIMIT--)) || { echo "Limit reached" ; break ; }
+
 done
 
-# Delete the temp folder and build state
-[[ -e "$TMP/config/examples" ]] && rm -rf "$TMP"
+# Delete the build state
 rm "$STAT_FILE"
+
+# Delete the temp folder if not preserving generated INI files
+if [[ -e "$TMP/config/examples" ]]; then
+  if [[ $CREATE_INI ]]; then
+    OPEN=$( which gnome-open xdg-open open | head -n1 )
+    $OPEN "$TMP"
+  else
+    rm -rf "$TMP"
+  fi
+fi
