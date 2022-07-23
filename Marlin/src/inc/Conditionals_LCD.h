@@ -668,6 +668,31 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+#if E_STEPPERS <= 7
+  #undef INVERT_E7_DIR
+  #if E_STEPPERS <= 6
+    #undef INVERT_E6_DIR
+    #if E_STEPPERS <= 5
+      #undef INVERT_E5_DIR
+      #if E_STEPPERS <= 4
+        #undef INVERT_E4_DIR
+        #if E_STEPPERS <= 3
+          #undef INVERT_E3_DIR
+          #if E_STEPPERS <= 2
+            #undef INVERT_E2_DIR
+            #if E_STEPPERS <= 1
+              #undef INVERT_E1_DIR
+              #if E_STEPPERS == 0
+                #undef INVERT_E0_DIR
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
+#endif
+
 /**
  * Number of Linear Axes (e.g., XYZIJKUVW)
  * All the logical axes except for the tool (E) axis
@@ -768,6 +793,9 @@
   #undef Y_MIN_POS
   #undef Y_MAX_POS
   #undef MANUAL_Y_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_Y
+  #undef MAX_SOFTWARE_ENDSTOP_Y
+  #undef SAFE_BED_LEVELING_START_Y
 #endif
 
 #if !HAS_Z_AXIS
@@ -785,6 +813,9 @@
   #undef Z_MIN_POS
   #undef Z_MAX_POS
   #undef MANUAL_Z_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_Z
+  #undef MAX_SOFTWARE_ENDSTOP_Z
+  #undef SAFE_BED_LEVELING_START_Z
 #endif
 
 #if !HAS_I_AXIS
@@ -799,6 +830,9 @@
   #undef I_MIN_POS
   #undef I_MAX_POS
   #undef MANUAL_I_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_I
+  #undef MAX_SOFTWARE_ENDSTOP_I
+  #undef SAFE_BED_LEVELING_START_I
 #endif
 
 #if !HAS_J_AXIS
@@ -813,6 +847,9 @@
   #undef J_MIN_POS
   #undef J_MAX_POS
   #undef MANUAL_J_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_J
+  #undef MAX_SOFTWARE_ENDSTOP_J
+  #undef SAFE_BED_LEVELING_START_J
 #endif
 
 #if !HAS_K_AXIS
@@ -827,6 +864,9 @@
   #undef K_MIN_POS
   #undef K_MAX_POS
   #undef MANUAL_K_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_K
+  #undef MAX_SOFTWARE_ENDSTOP_K
+  #undef SAFE_BED_LEVELING_START_K
 #endif
 
 #if !HAS_U_AXIS
@@ -841,6 +881,9 @@
   #undef U_MIN_POS
   #undef U_MAX_POS
   #undef MANUAL_U_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_U
+  #undef MAX_SOFTWARE_ENDSTOP_U
+  #undef SAFE_BED_LEVELING_START_U
 #endif
 
 #if !HAS_V_AXIS
@@ -855,6 +898,9 @@
   #undef V_MIN_POS
   #undef V_MAX_POS
   #undef MANUAL_V_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_V
+  #undef MAX_SOFTWARE_ENDSTOP_V
+  #undef SAFE_BED_LEVELING_START_V
 #endif
 
 #if !HAS_W_AXIS
@@ -869,6 +915,9 @@
   #undef W_MIN_POS
   #undef W_MAX_POS
   #undef MANUAL_W_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_W
+  #undef MAX_SOFTWARE_ENDSTOP_W
+  #undef SAFE_BED_LEVELING_START_W
 #endif
 
 #ifdef X2_DRIVER_TYPE
