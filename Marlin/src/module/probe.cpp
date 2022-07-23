@@ -843,6 +843,14 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #include "tool_change.h"
 
+  /**
+   * Switches to the appropriate tool (PROBING_TOOL) for probing (probing = true), and switches
+   * back to the old tool when probing = false. Uses a nesting count to avoid unnecessary
+   * checks and keep correct track of previous tool, so it should always be called symmetrically 
+   * (equal number of probing = true and probing = false invocations) in order to keep
+   * proper tracking of tool changes.
+   * 
+   */
   void Probe::use_probing_tool(const bool probing/*=true*/) {
     static uint8_t old_tool;
     static uint8_t nest_level = 0;
@@ -867,6 +875,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 #endif
 
 /**
+ * - Switch to PROBING_TOOL if necessary
  * - Move to the given XY
  * - Deploy the probe, if not already deployed
  * - Probe the bed, get the Z position
@@ -874,6 +883,12 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
  *   - Stow the probe, or
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
+ * - Revert to previous tool
+ * 
+ * A batch of multiple probing operations should always be preceded by use_probing_tool() invocation 
+ * and succeeded by use_probing_tool(false), in order to avoid multiple tool changes and to end up 
+ * with the previously active tool.
+ * 
  */
 float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
