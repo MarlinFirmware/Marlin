@@ -845,14 +845,20 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   void Probe::use_probing_tool(const bool probing/*=true*/) {
     static uint8_t old_tool;
+    static uint8_t nest_level = 0;
+    
     uint8_t tool;
 
     if (probing) {
+      if (nest_level ++) return;
+
       tool = PROBING_TOOL;
       old_tool = active_extruder;
-    }
-    else
+    } else {
+      if (-- nest_level) return;
+
       tool = old_tool;
+    }
 
     if (tool != active_extruder)
       tool_change(tool, ENABLED(PROBE_TOOLCHANGE_NO_MOVE));
@@ -897,6 +903,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   );
   if (!can_reach(npos, probe_relative)) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
+    use_probing_tool(false);
     return NAN;
   }
 
@@ -931,6 +938,9 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     #endif
   }
   DEBUG_ECHOLNPGM("measured_z: ", measured_z);
+
+  use_probing_tool(false);
+
   return measured_z;
 }
 
