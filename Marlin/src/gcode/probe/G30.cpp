@@ -37,7 +37,7 @@
   #include "../../module/tool_change.h"
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI)
+#if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #include "../../lcd/marlinui.h"
 #endif
 
