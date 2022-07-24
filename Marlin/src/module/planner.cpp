@@ -1883,14 +1883,6 @@ bool Planner::_populate_block(
       #if HAS_K_AXIS
         " " STR_K ":", target.k, " (", dk, " steps)"
       #endif
-      #if HAS_U_AXIS
-        " " STR_U ":", target.u, " (", du, " steps)"
-      #endif
-      #if HAS_V_AXIS
-        " " STR_V ":", target.v, " (", dv, " steps)"
-      #endif
-      #if HAS_W_AXIS
-        " " STR_W ":", target.w, " (", dw, " steps)"
       #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
       #endif
