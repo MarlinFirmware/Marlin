@@ -56,7 +56,7 @@ if pioutil.is_pio_build():
 		# Split up passed lines on commas or newlines and iterate
 		# Add common options to the features config under construction
 		# For lib_deps replace a previous instance of the same library
-		atoms = re.sub(r',\\s*', '\n', flines).strip().split('\n')
+		atoms = re.sub(r',\s*', '\n', flines).strip().split('\n')
 		for line in atoms:
 			parts = line.split('=')
 			name = parts.pop(0)
@@ -64,7 +64,7 @@ if pioutil.is_pio_build():
 				feat[name] = '='.join(parts)
 				blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
 			else:
-				for dep in re.split(r",\s*", line):
+				for dep in re.split(r',\s*', line):
 					lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
 					lib_re = re.compile('(?!^' + lib_name + '\\b)')
 					feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
@@ -89,7 +89,7 @@ if pioutil.is_pio_build():
 				except:
 					val = None
 				if val:
-					opt = mat.group(1).upper()
+					opt = mat[1].upper()
 					blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ))
 					add_to_feat_cnf(opt, val)
 
