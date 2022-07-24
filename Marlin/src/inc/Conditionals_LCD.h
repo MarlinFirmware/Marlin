@@ -811,48 +811,6 @@
   #undef MANUAL_K_HOME_POS
 #endif
 
-#if !HAS_U_AXIS
-  #undef ENDSTOPPULLUP_UMIN
-  #undef ENDSTOPPULLUP_UMAX
-  #undef U_MIN_ENDSTOP_INVERTING
-  #undef U_MAX_ENDSTOP_INVERTING
-  #undef U_ENABLE_ON
-  #undef DISABLE_U
-  #undef INVERT_U_DIR
-  #undef U_HOME_DIR
-  #undef U_MIN_POS
-  #undef U_MAX_POS
-  #undef MANUAL_U_HOME_POS
-#endif
-
-#if !HAS_V_AXIS
-  #undef ENDSTOPPULLUP_VMIN
-  #undef ENDSTOPPULLUP_VMAX
-  #undef V_MIN_ENDSTOP_INVERTING
-  #undef V_MAX_ENDSTOP_INVERTING
-  #undef V_ENABLE_ON
-  #undef DISABLE_V
-  #undef INVERT_V_DIR
-  #undef V_HOME_DIR
-  #undef V_MIN_POS
-  #undef V_MAX_POS
-  #undef MANUAL_V_HOME_POS
-#endif
-
-#if !HAS_W_AXIS
-  #undef ENDSTOPPULLUP_WMIN
-  #undef ENDSTOPPULLUP_WMAX
-  #undef W_MIN_ENDSTOP_INVERTING
-  #undef W_MAX_ENDSTOP_INVERTING
-  #undef W_ENABLE_ON
-  #undef DISABLE_W
-  #undef INVERT_W_DIR
-  #undef W_HOME_DIR
-  #undef W_MIN_POS
-  #undef W_MAX_POS
-  #undef MANUAL_W_HOME_POS
-#endif
-
 #ifdef X2_DRIVER_TYPE
   #define HAS_X2_STEPPER 1
   // Dual X Carriage isn't known yet. TODO: Consider moving it to Configuration.h.
