@@ -631,71 +631,9 @@ friend class GcodeSuite;
     // Set the current position in steps
     static void _set_position(const abce_long_t &spos);
 
-    static uint32_t calc_timer_interval(uint32_t step_rate) {
-      uint32_t interval;
-
-      #ifdef CPU_32_BIT
-        // In case of high-performance processor, it is able to calculate in real-time
-        interval = uint32_t(STEPPER_TIMER_RATE) / step_rate;
-      #else
-        constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
-        if (step_rate <= min_step_rate) {
-          step_rate = 0;
-          uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
-          interval = uint16_t(pgm_read_word(table_address));
-        }
-        else {
-          step_rate -= min_step_rate; // Correct for minimal speed
-          if (step_rate >= (8 * 256)) { // higher step rate
-            const uint8_t rate_mod_256 = (step_rate & 0x00FF);
-            const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)][0]),
-                            gain = uint16_t(pgm_read_word(table_address + 2));
-            interval = uint16_t(pgm_read_word(table_address)) - MultiU16X8toH16(rate_mod_256, gain);
-          }
-          else { // lower step rates
-            uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
-            table_address += ((step_rate) >> 1) & 0xFFFC;
-            interval = uint16_t(pgm_read_word(table_address))
-                     - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
-          }
-          // (there is no need to limit the interval here. All limits have been
-          // applied above, and AVR is able to keep up at 30khz Stepping ISR rate)
-        }
-      #endif
-
-      return interval;
-    }
-
-    static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t * const loops) {
-      uint8_t multistep = 1;
-      #if DISABLED(DISABLE_MULTI_STEPPING)
-
-        // The stepping frequency limits for each multistepping rate
-        static const uint32_t limit[] PROGMEM = {
-          (  MAX_STEP_ISR_FREQUENCY_1X     ),
-          (  MAX_STEP_ISR_FREQUENCY_2X >> 1),
-          (  MAX_STEP_ISR_FREQUENCY_4X >> 2),
-          (  MAX_STEP_ISR_FREQUENCY_8X >> 3),
-          ( MAX_STEP_ISR_FREQUENCY_16X >> 4),
-          ( MAX_STEP_ISR_FREQUENCY_32X >> 5),
-          ( MAX_STEP_ISR_FREQUENCY_64X >> 6),
-          (MAX_STEP_ISR_FREQUENCY_128X >> 7)
-        };
-
-        // Select the proper multistepping
-        uint8_t idx = 0;
-        while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
-          step_rate >>= 1;
-          multistep <<= 1;
-          ++idx;
-        };
-      #else
-        NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
-      #endif
-      *loops = multistep;
-
-      return calc_timer_interval(step_rate);
-    }
+    // Calculate timing interval for the given step rate
+    static uint32_t calc_timer_interval(uint32_t step_rate);
+    static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t &loops);
 
     #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
