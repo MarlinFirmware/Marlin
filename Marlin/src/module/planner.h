@@ -1017,7 +1017,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
+    #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */

@@ -1792,7 +1792,7 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(W);
       #endif
 
-      #if HAS_E0_STEP || ENABLED(MIXING_EXTRUDER)
+      #if EITHER(HAS_E0_STEP, MIXING_EXTRUDER)
         PULSE_PREP(E);
 
         #if ENABLED(LIN_ADVANCE)
@@ -2302,8 +2302,7 @@ uint32_t Stepper::block_phase_isr() {
       step_event_count = current_block->step_event_count << oversampling;
 
       // Initialize Bresenham delta errors to 1/2
-      delta_error = -int32_t(step_event_count);
-      TERN_(LIN_ADVANCE, la_delta_error = -int32_t(step_event_count));
+      TERN_(LIN_ADVANCE, la_delta_error =) delta_error = -int32_t(step_event_count);
 
       // Calculate Bresenham dividends and divisors
       advance_dividend = current_block->steps << 1;

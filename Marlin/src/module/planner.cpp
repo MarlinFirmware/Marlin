@@ -788,7 +788,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
-  #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
+  #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
     uint32_t cruise_rate = block->nominal_rate;
   #endif
@@ -820,7 +820,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
       decelerate_steps = block->step_event_count - accelerate_steps;
 
-      #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
+      #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
         cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
       #endif
@@ -848,6 +848,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     block->cruise_rate = cruise_rate;
   #endif
   block->final_rate = final_rate;
+
   #if ENABLED(LIN_ADVANCE)
     if (block->la_advance_rate) {
       const float comp = extruder_advance_K[block->extruder] * block->steps.e / block->step_event_count;
@@ -906,75 +907,76 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif // LASER_POWER_TRAP
 }
 
-/*                            PLANNER SPEED DEFINITION
-                                     +--------+   <- current->nominal_speed
-                                    /          \
-         current->entry_speed ->   +            \
-                                   |             + <- next->entry_speed (aka exit speed)
-                                   +-------------+
-                                       time -->
-
-  Recalculates the motion plan according to the following basic guidelines:
-
-    1. Go over every feasible block sequentially in reverse order and calculate the junction speeds
-        (i.e. current->entry_speed) such that:
-      a. No junction speed exceeds the pre-computed maximum junction speed limit or nominal speeds of
-         neighboring blocks.
-      b. A block entry speed cannot exceed one reverse-computed from its exit speed (next->entry_speed)
-         with a maximum allowable deceleration over the block travel distance.
-      c. The last (or newest appended) block is planned from a complete stop (an exit speed of zero).
-    2. Go over every block in chronological (forward) order and dial down junction speed values if
-      a. The exit speed exceeds the one forward-computed from its entry speed with the maximum allowable
-         acceleration over the block travel distance.
-
-  When these stages are complete, the planner will have maximized the velocity profiles throughout the all
-  of the planner blocks, where every block is operating at its maximum allowable acceleration limits. In
-  other words, for all of the blocks in the planner, the plan is optimal and no further speed improvements
-  are possible. If a new block is added to the buffer, the plan is recomputed according to the said
-  guidelines for a new optimal plan.
-
-  To increase computational efficiency of these guidelines, a set of planner block pointers have been
-  created to indicate stop-compute points for when the planner guidelines cannot logically make any further
-  changes or improvements to the plan when in normal operation and new blocks are streamed and added to the
-  planner buffer. For example, if a subset of sequential blocks in the planner have been planned and are
-  bracketed by junction velocities at their maximums (or by the first planner block as well), no new block
-  added to the planner buffer will alter the velocity profiles within them. So we no longer have to compute
-  them. Or, if a set of sequential blocks from the first block in the planner (or a optimal stop-compute
-  point) are all accelerating, they are all optimal and can not be altered by a new block added to the
-  planner buffer, as this will only further increase the plan speed to chronological blocks until a maximum
-  junction velocity is reached. However, if the operational conditions of the plan changes from infrequently
-  used feed holds or feedrate overrides, the stop-compute pointers will be reset and the entire plan is
-  recomputed as stated in the general guidelines.
-
-  Planner buffer index mapping:
-  - block_buffer_tail: Points to the beginning of the planner buffer. First to be executed or being executed.
-  - block_buffer_head: Points to the buffer block after the last block in the buffer. Used to indicate whether
-      the buffer is full or empty. As described for standard ring buffers, this block is always empty.
-  - block_buffer_planned: Points to the first buffer block after the last optimally planned block for normal
-      streaming operating conditions. Use for planning optimizations by avoiding recomputing parts of the
-      planner buffer that don't change with the addition of a new block, as describe above. In addition,
-      this block can never be less than block_buffer_tail and will always be pushed forward and maintain
-      this requirement when encountered by the Planner::release_current_block() routine during a cycle.
-
-  NOTE: Since the planner only computes on what's in the planner buffer, some motions with many short
-        segments (e.g., complex curves) may seem to move slowly. This is because there simply isn't
-        enough combined distance traveled in the entire buffer to accelerate up to the nominal speed and
-        then decelerate to a complete stop at the end of the buffer, as stated by the guidelines. If this
-        happens and becomes an annoyance, there are a few simple solutions:
-
-    - Maximize the machine acceleration. The planner will be able to compute higher velocity profiles
-      within the same combined distance.
-
-    - Maximize line motion(s) distance per block to a desired tolerance. The more combined distance the
-      planner has to use, the faster it can go.
-
-    - Maximize the planner buffer size. This also will increase the combined distance for the planner to
-      compute over. It also increases the number of computations the planner has to perform to compute an
-      optimal plan, so select carefully.
-
-    - Use G2/G3 arcs instead of many short segments. Arcs inform the planner of a safe exit speed at the
-      end of the last segment, which alleviates this problem.
-*/
+/**
+ *                              PLANNER SPEED DEFINITION
+ *                                     +--------+   <- current->nominal_speed
+ *                                    /          \
+ *         current->entry_speed ->   +            \
+ *                                   |             + <- next->entry_speed (aka exit speed)
+ *                                   +-------------+
+ *                                       time -->
+ *
+ *  Recalculates the motion plan according to the following basic guidelines:
+ *
+ *    1. Go over every feasible block sequentially in reverse order and calculate the junction speeds
+ *        (i.e. current->entry_speed) such that:
+ *      a. No junction speed exceeds the pre-computed maximum junction speed limit or nominal speeds of
+ *         neighboring blocks.
+ *      b. A block entry speed cannot exceed one reverse-computed from its exit speed (next->entry_speed)
+ *         with a maximum allowable deceleration over the block travel distance.
+ *      c. The last (or newest appended) block is planned from a complete stop (an exit speed of zero).
+ *    2. Go over every block in chronological (forward) order and dial down junction speed values if
+ *      a. The exit speed exceeds the one forward-computed from its entry speed with the maximum allowable
+ *         acceleration over the block travel distance.
+ *
+ *  When these stages are complete, the planner will have maximized the velocity profiles throughout the all
+ *  of the planner blocks, where every block is operating at its maximum allowable acceleration limits. In
+ *  other words, for all of the blocks in the planner, the plan is optimal and no further speed improvements
+ *  are possible. If a new block is added to the buffer, the plan is recomputed according to the said
+ *  guidelines for a new optimal plan.
+ *
+ *  To increase computational efficiency of these guidelines, a set of planner block pointers have been
+ *  created to indicate stop-compute points for when the planner guidelines cannot logically make any further
+ *  changes or improvements to the plan when in normal operation and new blocks are streamed and added to the
+ *  planner buffer. For example, if a subset of sequential blocks in the planner have been planned and are
+ *  bracketed by junction velocities at their maximums (or by the first planner block as well), no new block
+ *  added to the planner buffer will alter the velocity profiles within them. So we no longer have to compute
+ *  them. Or, if a set of sequential blocks from the first block in the planner (or a optimal stop-compute
+ *  point) are all accelerating, they are all optimal and can not be altered by a new block added to the
+ *  planner buffer, as this will only further increase the plan speed to chronological blocks until a maximum
+ *  junction velocity is reached. However, if the operational conditions of the plan changes from infrequently
+ *  used feed holds or feedrate overrides, the stop-compute pointers will be reset and the entire plan is
+ *  recomputed as stated in the general guidelines.
+ *
+ *  Planner buffer index mapping:
+ *  - block_buffer_tail: Points to the beginning of the planner buffer. First to be executed or being executed.
+ *  - block_buffer_head: Points to the buffer block after the last block in the buffer. Used to indicate whether
+ *      the buffer is full or empty. As described for standard ring buffers, this block is always empty.
+ *  - block_buffer_planned: Points to the first buffer block after the last optimally planned block for normal
+ *      streaming operating conditions. Use for planning optimizations by avoiding recomputing parts of the
+ *      planner buffer that don't change with the addition of a new block, as describe above. In addition,
+ *      this block can never be less than block_buffer_tail and will always be pushed forward and maintain
+ *      this requirement when encountered by the Planner::release_current_block() routine during a cycle.
+ *
+ *  NOTE: Since the planner only computes on what's in the planner buffer, some motions with many short
+ *        segments (e.g., complex curves) may seem to move slowly. This is because there simply isn't
+ *        enough combined distance traveled in the entire buffer to accelerate up to the nominal speed and
+ *        then decelerate to a complete stop at the end of the buffer, as stated by the guidelines. If this
+ *        happens and becomes an annoyance, there are a few simple solutions:
+ *
+ *    - Maximize the machine acceleration. The planner will be able to compute higher velocity profiles
+ *      within the same combined distance.
+ *
+ *    - Maximize line motion(s) distance per block to a desired tolerance. The more combined distance the
+ *      planner has to use, the faster it can go.
+ *
+ *    - Maximize the planner buffer size. This also will increase the combined distance for the planner to
+ *      compute over. It also increases the number of computations the planner has to perform to compute an
+ *      optimal plan, so select carefully.
+ *
+ *    - Use G2/G3 arcs instead of many short segments. Arcs inform the planner of a safe exit speed at the
+ *      end of the last segment, which alleviates this problem.
+ */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
 void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next
@@ -2495,7 +2497,9 @@ bool Planner::_populate_block(
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
-  TERN_(LIN_ADVANCE, bool use_advance_lead = false);
+  #if ENABLED(LIN_ADVANCE)
+    bool use_advance_lead = false;
+  #endif
   if (NUM_AXIS_GANG(
          !block->steps.a, && !block->steps.b, && !block->steps.c,
       && !block->steps.i, && !block->steps.j, && !block->steps.k,
@@ -2538,14 +2542,11 @@ bool Planner::_populate_block(
 
       if (use_advance_lead) {
         float e_D_ratio = (target_float.e - position_float.e) /
-          #if IS_KINEMATIC
-            block->millimeters
-          #else
+          TERN(IS_KINEMATIC, block->millimeters,
             SQRT(sq(target_float.x - position_float.x)
                + sq(target_float.y - position_float.y)
                + sq(target_float.z - position_float.z))
-          #endif
-        ;
+          );
 
         // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment. Never execute this with advance!
         // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
