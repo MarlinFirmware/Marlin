@@ -421,8 +421,6 @@ class Stepper {
                       la_advance_steps; // Count of steps added to increase nozzle pressure
     #endif
 
-friend class GcodeSuite;
-
     #if ENABLED(INTEGRATED_BABYSTEPPING)
       static constexpr uint32_t BABYSTEP_NEVER = 0xFFFFFFFF;
       static uint32_t nextBabystepISR;

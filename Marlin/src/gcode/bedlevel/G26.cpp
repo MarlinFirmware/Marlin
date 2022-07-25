@@ -107,7 +107,6 @@
 
 #include "../../MarlinCore.h"
 #include "../../module/planner.h"
-#include "../../module/stepper.h"
 #include "../../module/motion.h"
 #include "../../module/tool_change.h"
 #include "../../module/temperature.h"

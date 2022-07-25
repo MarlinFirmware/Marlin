@@ -1458,19 +1458,19 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     hal.isr_on();
 
-    if (!nextMainISR) pulse_phase_isr();                            // 0 = Do coordinated axes Stepper pulses
+    if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
 
     #if ENABLED(LIN_ADVANCE)
-      if (!nextAdvanceISR) {                                        // 0 = Do Linear Advance E Stepper pulses
+      if (!nextAdvanceISR) {                            // 0 = Do Linear Advance E Stepper pulses
         advance_isr();
         nextAdvanceISR = la_interval;
       }
-      else if (nextAdvanceISR == LA_ADV_NEVER)                      // Start LA steps if neccessary
+      else if (nextAdvanceISR == LA_ADV_NEVER)          // Start LA steps if necessary
         nextAdvanceISR = la_interval;
     #endif
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
-      const bool is_babystep = (nextBabystepISR == 0);              // 0 = Do Babystepping (XY)Z pulses
+      const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
       if (is_babystep) nextBabystepISR = babystepping_isr();
     #endif
 
