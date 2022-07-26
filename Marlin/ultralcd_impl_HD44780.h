@@ -1164,8 +1164,9 @@ static void lcd_implementation_status_screen() {
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
 
-      if (thermalManager.degTargetBed() > 0) leds |= LED_A;
-
+      #if HAS_HEATED_BED
+        if (thermalManager.degTargetBed() > 0) leds |= LED_A;
+      #endif
       if (thermalManager.degTargetHotend(0) > 0) leds |= LED_B;
 
       #if FAN_COUNT > 0

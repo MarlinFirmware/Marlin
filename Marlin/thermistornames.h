@@ -61,10 +61,14 @@
   #define THERMISTOR_NAME "Unknown"
 #elif THERMISTOR_ID == 13
   #define THERMISTOR_NAME "Hisens"
+#elif THERMISTOR_ID == 15
+  #define THERMISTOR_NAME "Hisens +"
 #elif THERMISTOR_ID == 20
   #define THERMISTOR_NAME "PT100 UltiMB"
 #elif THERMISTOR_ID == 60
   #define THERMISTOR_NAME "Makers Tool"
+#elif THERMISTOR_ID == 66
+  #define THERMISTOR_NAME "Makers Tool +"
 #elif THERMISTOR_ID == 70
   #define THERMISTOR_NAME "Hephestos 2"
 #elif THERMISTOR_ID == 75

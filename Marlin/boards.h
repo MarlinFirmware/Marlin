@@ -63,6 +63,7 @@
 #define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
 #define BOARD_MKS_GEN_13        47    // MKS GEN v1.3 or 1.4
 #define BOARD_MKS_GEN_L         53    // MKS GEN L
+#define BOARD_MKS_GEN_L_V2      54    // MKS GEN L V2
 #define BOARD_ZRIB_V20          504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
 #define BOARD_FELIX2            37    // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_RIGIDBOARD        42    // Invent-A-Part RigidBoard
