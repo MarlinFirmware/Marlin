@@ -3,6 +3,7 @@
 # use_example_configs [repo:]configpath
 #
 # Examples:
+#   use_example_configs
 #   use_example_configs Creality/CR-10/CrealityV1
 #   use_example_configs release-2.0.9.4:Creality/CR-10/CrealityV1
 #
