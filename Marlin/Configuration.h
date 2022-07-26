@@ -1527,13 +1527,22 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
+#if ENABLED(BD_SENSOR)
+#define Z_CLEARANCE_DEPLOY_PROBE   0 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  1 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     1 // Z Clearance between multiple probes
+//#define Z_AFTER_PROBING           5 // Z position after probing is done
+
+#define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+
+#else
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
-
+#endif
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
 #define Z_PROBE_OFFSET_RANGE_MAX 20
@@ -1860,6 +1869,15 @@
   #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
   #define LEVELING_BED_TEMP     50
 #endif
+
+/**
+ * Bed Distance Sensor
+ *
+ * Measures the distance from bed to nozzle with accuracy of 0.01mm.
+ * For information about this sensor https://github.com/markniu/Bed_Distance_sensor
+ * Uses I2C port, so it requires I2C library markyue/Panda_SoftMasterI2C.
+ */
+//#define BD_SENSOR
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.

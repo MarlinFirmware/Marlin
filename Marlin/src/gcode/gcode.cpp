@@ -35,7 +35,9 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
-
+#if ENABLED(BD_SENSOR)
+	#include "../feature/bedlevel/bdl/bdl.h"
+#endif
 #if ENABLED(PRINTCOUNTER)
   #include "../module/printcounter.h"
 #endif
@@ -53,7 +55,7 @@ GcodeSuite gcode;
   #include "../feature/cancel_object.h"
 #endif
 
-#if ENABLED(LASER_FEATURE)
+#if ENABLED(LASER_MOVE_POWER)
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -210,11 +212,8 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  if (parser.floatval('F') > 0) {
+  if (parser.floatval('F') > 0)
     feedrate_mm_s = parser.value_feedrate();
-    // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = MMS_TO_MMM(feedrate_mm_s));
-  }
 
   #if BOTH(PRINTCOUNTER, HAS_EXTRUDERS)
     if (!DEBUGGING(DRYRUN) && !skip_move)
@@ -226,29 +225,15 @@ void GcodeSuite::get_destination_from_command() {
     M165();
   #endif
 
-  #if ENABLED(LASER_FEATURE)
-    if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
-      // Set the cutter power in the planner to configure this move
-      cutter.last_feedrate_mm_m = 0;
-      if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
-        planner.laser_inline.status.isPowered = true;
-        if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
-        if (parser.seen('S')) {
-          const float v = parser.value_float(),
-                      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
-          cutter.menuPower = cutter.unitPower = u;
-          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
-        }
-      }
-      else if (parser.codenum == 0) {
-        // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
-        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
-        cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
-      }
+  #if ENABLED(LASER_MOVE_POWER)
+    // Set the laser power in the planner to configure this move
+    if (parser.seen('S')) {
+      const float spwr = parser.value_float();
+      cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
     }
-    else if (parser.codenum == 0)
-      cutter.apply_power(0);
-  #endif // LASER_FEATURE
+    else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
+      cutter.set_inline_enabled(false);
+  #endif
 }
 
 /**
@@ -400,7 +385,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 27: G27(); break;                                    // G27: Nozzle Park
       #endif
 
-      case 28: G28(); break;                                      // G28: Home one or more axes
+      case 28:
+#if ENABLED(BD_SENSOR)
+        bdl.config_state=0;
+#endif
+       G28();
+       break;                                      // G28: Home one or more axes
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
@@ -575,6 +565,13 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100: M100(); break;                                  // M100: Free Memory Report
+      #endif
+
+      #if ENABLED(BD_SENSOR)
+        case 102:
+          bdl.config_state = parser.intval('S');
+          SERIAL_ECHOLNPGM("BDsensor config:",bdl.config_state);
+        break;
       #endif
 
       #if HAS_EXTRUDERS
@@ -765,7 +762,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 290: M290(); break;                                  // M290: Babystepping
       #endif
 
-      #if HAS_SOUND
+      #if HAS_BUZZER
         case 300: M300(); break;                                  // M300: Play beep tone
       #endif
 
@@ -865,10 +862,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 421: M421(); break;                                  // M421: Set a Mesh Bed Leveling Z coordinate
       #endif
 
-      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        case 423: M423(); break;                                  // M423: Reset, modify, or report X-Twist Compensation data
-      #endif
-
       #if ENABLED(BACKLASH_GCODE)
         case 425: M425(); break;                                  // M425: Tune backlash compensation
       #endif
@@ -933,7 +926,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if IS_KINEMATIC
-        case 665: M665(); break;                                  // M665: Set Kinematics parameters
+        case 665: M665(); break;                                  // M665: Set Delta/SCARA parameters
       #endif
 
       #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
@@ -1003,6 +996,14 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
         #endif
         case 919: M919(); break;                                  // M919: Set stepper Chopper Times
+      #endif
+
+      #if HAS_L64XX
+        case 122: M122(); break;                                   // M122: Report status
+        case 906: M906(); break;                                   // M906: Set or get motor drive level
+        case 916: M916(); break;                                   // M916: L6470 tuning: Increase drive level until thermal warning
+        case 917: M917(); break;                                   // M917: L6470 tuning: Find minimum current thresholds
+        case 918: M918(); break;                                   // M918: L6470 tuning: Increase speed until max or error
       #endif
 
       #if HAS_MICROSTEPS
