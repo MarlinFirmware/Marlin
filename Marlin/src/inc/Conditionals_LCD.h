@@ -1447,6 +1447,10 @@
   #define EXTRUDE_MINTEMP 170
 #endif
 
+#if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+  #define HAS_PID_DEBUG 1
+#endif
+
 /**
  * TFT Displays
  *

@@ -953,7 +953,7 @@ class Temperature {
      */
     #if HAS_PID_HEATING
 
-      #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+      #if HAS_PID_DEBUG
         static bool pid_debug_flag;
       #endif
 
