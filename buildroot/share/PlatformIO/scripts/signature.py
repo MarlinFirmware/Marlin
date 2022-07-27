@@ -1,7 +1,9 @@
 #
 # signature.py
 #
-import os,subprocess,re,json,hashlib
+import subprocess,re,json,hashlib
+import schema
+from pathlib import Path
 
 #
 # Return all macro names in a header as an array, so we can take
@@ -51,19 +53,19 @@ def compute_build_signature(env):
 	# Definitions from these files will be kept
 	files_to_keep = [ 'Marlin/Configuration.h', 'Marlin/Configuration_adv.h' ]
 
-	build_dir = os.path.join(env['PROJECT_BUILD_DIR'], env['PIOENV'])
+	build_path = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
 
 	# Check if we can skip processing
 	hashes = ''
 	for header in files_to_keep:
 		hashes += get_file_sha256sum(header)[0:10]
 
-	marlin_json = os.path.join(build_dir, 'marlin_config.json')
-	marlin_zip = os.path.join(build_dir, 'mc')
+	marlin_json = build_path / 'marlin_config.json'
+	marlin_zip = build_path / 'mc'
 
 	# Read existing config file
 	try:
-		with open(marlin_json, 'r') as infile:
+		with marlin_json.open() as infile:
 			conf = json.load(infile)
 			if conf['__INITIAL_HASH'] == hashes:
 				# Same configuration, skip recomputing the building signature
@@ -164,8 +166,8 @@ def compute_build_signature(env):
 		print("Generating config.ini ...")
 		ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_DUMP')
 		filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
-		config_ini = os.path.join(build_dir, 'config.ini')
-		with open(config_ini, 'w') as outfile:
+		config_ini = build_path / 'config.ini'
+		with config_ini.open('w') as outfile:
 			outfile.write('#\n# Marlin Firmware\n# config.ini - Options to apply before the build\n#\n')
 			# Loop through the data array of arrays
 			for header in data:
@@ -176,6 +178,42 @@ def compute_build_signature(env):
 					if key not in ignore:
 						val = 'on' if data[header][key] == '' else data[header][key]
 						outfile.write('{0:40}{1}'.format(key.lower(), ' = ' + val) + '\n')
+
+	#
+	# Produce a schema.json file if CONFIG_DUMP == 3
+	#
+	if config_dump >= 3:
+		try:
+			conf_schema = schema.extract()
+		except Exception as exc:
+			print("Error: " + str(exc))
+			conf_schema = None
+
+		if conf_schema:
+			#
+			# Produce a schema.json file if CONFIG_DUMP == 3
+			#
+			if config_dump in (3, 13):
+				print("Generating schema.json ...")
+				schema.dump_json(conf_schema, build_path / 'schema.json')
+				if config_dump == 13:
+					schema.group_options(conf_schema)
+					schema.dump_json(conf_schema, build_path / 'schema_grouped.json')
+
+			#
+			# Produce a schema.yml file if CONFIG_DUMP == 4
+			#
+			elif config_dump == 4:
+				print("Generating schema.yml ...")
+				try:
+					import yaml
+				except ImportError:
+					env.Execute(env.VerboseAction(
+						'$PYTHONEXE -m pip install "pyyaml"',
+						"Installing YAML for schema.yml export",
+					))
+					import yaml
+				schema.dump_yaml(conf_schema, build_path / 'schema.yml')
 
 	# Append the source code version and date
 	data['VERSION'] = {}
@@ -188,10 +226,11 @@ def compute_build_signature(env):
 		pass
 
 	#
-	# Produce a JSON file for CONFIGURATION_EMBEDDING or CONFIG_DUMP > 0
+	# Produce a JSON file for CONFIGURATION_EMBEDDING or CONFIG_DUMP == 1
 	#
-	with open(marlin_json, 'w') as outfile:
-		json.dump(data, outfile, separators=(',', ':'))
+	if config_dump == 1 or 'CONFIGURATION_EMBEDDING' in defines:
+		with marlin_json.open('w') as outfile:
+			json.dump(data, outfile, separators=(',', ':'))
 
 	#
 	# The rest only applies to CONFIGURATION_EMBEDDING
@@ -211,11 +250,11 @@ def compute_build_signature(env):
 			+ b'const unsigned char mc_zip[] PROGMEM = {\n '
 		)
 		count = 0
-		for b in open(os.path.join(build_dir, 'mc.zip'), 'rb').read():
+		for b in (build_path / 'mc.zip').open('rb').read():
 			result_file.write(b' 0x%02X,' % b)
 			count += 1
-			if (count % 16 == 0):
-			 	result_file.write(b'\n ')
-		if (count % 16):
+			if count % 16 == 0:
+				result_file.write(b'\n ')
+		if count % 16:
 			result_file.write(b'\n')
 		result_file.write(b'};\n')
