@@ -152,12 +152,14 @@ void BDS_Leveling::process() {
         //BD_I2C_SENSOR.BD_i2c_write(1019); // begin calibrate
         //delay(1000);
         gcode.stepper_inactive_time = SEC_TO_MS(60 * 5);
-        sprintf_P(tmp_1, PSTR("M17 Z"));
-        parser.parse(tmp_1);
-        gcode.process_parsed_command();
-        sprintf_P(tmp_1, PSTR("G1 Z0.0"));
-        parser.parse(tmp_1);
-        gcode.process_parsed_command();
+        gcode.process_subcommands_now(F("M17 Z"));
+        //strcpy_P(tmp_1, PSTR("M17 Z"));
+        //parser.parse(tmp_1);
+        //gcode.process_parsed_command();
+        gcode.process_subcommands_now(F("G1 Z0.0"));
+        //strcpy_P(tmp_1, PSTR("G1 Z0.0"));
+        //parser.parse(tmp_1);
+        //gcode.process_parsed_command();
         z_pose = 0;
         safe_delay(1000);
         BD_I2C_SENSOR.BD_i2c_write(CMD_START_CALIBRATE); // Begin calibrate
@@ -176,10 +178,11 @@ void BDS_Leveling::process() {
         else {
           float tmp_k = 0;
           sprintf_P(tmp_1, PSTR("G1 Z%d.%d"), int(z_pose), int(int(z_pose * 10) % 10));
-          parser.parse(tmp_1);
-          gcode.process_parsed_command();
+          gcode.process_subcommands_now(tmp_1);
+          //parser.parse(tmp_1);
+          //gcode.process_parsed_command();
 
-          SERIAL_ECHOPGM(tmp_1);
+          SERIAL_ECHO(tmp_1);
           SERIAL_ECHOLNPGM(" ,Z:", current_position.z);
 
           while (tmp_k < (z_pose - 0.1f)) {
