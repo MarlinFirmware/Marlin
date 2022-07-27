@@ -47,7 +47,9 @@
 #if ENABLED(DELTA)
   #include "delta.h"
 #endif
-
+#if ENABLED(BD_SENSOR)
+#include "../feature/bedlevel/bdl/bdl.h"
+#endif
 #if ENABLED(SENSORLESS_PROBING)
   abc_float_t offset_sensorless_adj{0};
   float largest_sensorless_adj = 0;
@@ -877,6 +879,9 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
+#if ENABLED(BD_SENSOR)  
+   return bdl.BD_sensor_read();
+#endif  
 
   float measured_z = NAN;
   if (!deploy()) {
