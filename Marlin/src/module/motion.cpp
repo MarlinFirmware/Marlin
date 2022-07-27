@@ -1331,8 +1331,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         #endif
       }
     #endif // HAS_MESH
-
-    planner.buffer_line(destination OPTARG(HAS_ROTATIONAL_AXES, scaled_fr_deg_s), scaled_fr_mm_s);
+    #if HAS_ROTATIONAL_AXES
+      PlannerHints hints;
+      hints.fr_deg_s = scaled_fr_deg_s;
+      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
+    #else
+      planner.buffer_line(destination, scaled_fr_mm_s);
+    #endif
     return false; // caller will update current_position
   }
 
@@ -1850,11 +1855,13 @@ void prepare_line_to_destination() {
 
       // Set delta/cartesian axes directly
       target[axis] = distance;                  // The move will be towards the endstop
-      planner.buffer_segment(target
-        OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
-        OPTARG(HAS_ROTATIONAL_AXES, home_fr)
-        , home_fr, active_extruder
-      );
+      #if HAS_ROTATIONAL_AXES
+        PlannerHints hints;
+        hints.fr_deg_s = home_fr;
+        planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr, active_extruder, hints);
+      #else
+        planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr, active_extruder);
+      #endif
     #endif
 
     planner.synchronize();
@@ -2101,7 +2108,7 @@ void prepare_line_to_destination() {
       use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
     );
 
-    //z_probe_fast_mm_s
+    //
     // Fast move towards endstop until triggered
     //
     const float move_length = 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
