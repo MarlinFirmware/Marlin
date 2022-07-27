@@ -1016,7 +1016,7 @@ class Temperature {
       static void set_heating_message(const uint8_t, const bool=false) {}
     #endif
 
-    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE
+    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
       static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
