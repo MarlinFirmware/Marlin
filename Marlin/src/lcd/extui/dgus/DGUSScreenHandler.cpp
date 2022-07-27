@@ -606,9 +606,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       break;
     #endif
 
-    case VP_BED_CONTROL:
-      preheat_temp = PREHEAT_1_TEMP_BED;
-      break;
+    #if HAS_HEATED_BED
+      case VP_BED_CONTROL:
+        preheat_temp = PREHEAT_1_TEMP_BED;
+        break;
+    #endif
   }
 
   *(int16_t*)var.memadr = *(int16_t*)var.memadr > 0 ? 0 : preheat_temp;
