@@ -125,6 +125,10 @@
   #include "feature/bltouch.h"
 #endif
 
+#if ENABLED(BD_SENSOR)
+  #include "feature/bedlevel/bdl/bdl.h"
+#endif
+
 #if ENABLED(POLL_JOG)
   #include "feature/joystick.h"
 #endif

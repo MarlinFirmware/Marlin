@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -67,21 +67,19 @@ void BDS_Leveling::echo_name() { SERIAL_ECHOPGM("Bed Distance Leveling"); }
 
 void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
   int ret = BD_I2C_SENSOR.i2c_init(_sda, _scl, BD_SENSOR_I2C_ADDR, delay_s);
-  if (ret != 1) SERIAL_ECHOLNPGM("BD_I2C_SENSOR Init Fail return code:",ret);
+  if (ret != 1) SERIAL_ECHOLNPGM("BD_I2C_SENSOR Init Fail return code:", ret);
   config_state = 0;
 }
 
-float BDS_Leveling::BD_sensor_read(void){
-  unsigned short tmp=0;
+float BDS_Leveling::read() {
+  const uint16_t tmp = BD_I2C_SENSOR.BD_i2c_read();
   float BD_z = NAN;
-  tmp=BD_I2C_SENSOR.BD_i2c_read();      
-  if(BD_I2C_SENSOR.BD_Check_OddEven(tmp)&&(tmp&0x3ff)<1020){
-    BD_z=(tmp&0x3ff)/100.0;
-  }
+  if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1020)
+    BD_z = (tmp & 0x3FF) / 100.0f;
   return BD_z;
-
 }
-void BDS_Leveling::process(void){
+
+void BDS_Leveling::process() {
  static millis_t timeout_auto = 0;
  static float z_pose = 0.0f;
  int timeout_y = 100;

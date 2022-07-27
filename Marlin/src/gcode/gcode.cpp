@@ -35,9 +35,7 @@ GcodeSuite gcode;
 #include "parser.h"
 #include "queue.h"
 #include "../module/motion.h"
-#if ENABLED(BD_SENSOR)
-	#include "../feature/bedlevel/bdl/bdl.h"
-#endif
+
 #if ENABLED(PRINTCOUNTER)
   #include "../module/printcounter.h"
 #endif
@@ -402,12 +400,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 27: G27(); break;                                    // G27: Nozzle Park
       #endif
 
-      case 28:
-#if ENABLED(BD_SENSOR)
-        bdl.config_state=0;
-#endif
-       G28();
-       break;                                      // G28: Home one or more axes
+      case 28: G28(); break;                                      // G28: Home one or more axes
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
@@ -585,10 +578,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(BD_SENSOR)
-        case 102:
-          bdl.config_state = parser.intval('S');
-          SERIAL_ECHOLNPGM("BDsensor config:",bdl.config_state);
-        break;
+        case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
       #if HAS_EXTRUDERS
