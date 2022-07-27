@@ -2358,46 +2358,19 @@ bool Planner::_populate_block(
 
   // Keep the feedrate above the minimum
   NOLESS(fr_mm_s,
-    esteps ? (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.min_feedrate_deg_s :) settings.min_feedrate_mm_s)
-           : (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.min_travel_feedrate_deg_s :) settings.min_travel_feedrate_mm_s)
-  );
+    esteps ? settings.min_feedrate_mm_s : settings.min_travel_feedrate_mm_s);
+  #if HAS_ROTATIONAL_AXES
+    feedRate_t fr_deg_s = hints.fr_deg_s;
+    NOLESS(fr_deg_s,
+      esteps ? settings.min_feedrate_deg_s : settings.min_travel_feedrate_deg_s);
+  #endif
 
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
-  float inverse_secs;
-
-  #if HAS_ROTATIONAL_AXES
-    if (cartesian_move)
-      inverse_secs = inverse_millimeters * fr_mm_s;
-    /** 
-     * work around for angular moves in absolute mode. Needed for the situation where parser sees linear 
-     * axes and all linear axes are already at target position.
-     * if the parser saw a linear axis, it updated fr_mm_s instead of fr_deg_s.
-     */ 
-    else if (
-      NUM_AXIS_GANG(
-           parser.seen(axis_codes.x),
-        || parser.seen(axis_codes.y),
-        || parser.seen(axis_codes.z),
-        || TERN(AXIS4_ROTATES, false, parser.seen(axis_codes.i)),
-        || TERN(AXIS5_ROTATES, false, parser.seen(axis_codes.j)),
-        || TERN(AXIS6_ROTATES, false, parser.seen(axis_codes.k)),
-        || TERN(AXIS7_ROTATES, false, parser.seen(axis_codes.u)),
-        || TERN(AXIS8_ROTATES, false, parser.seen(axis_codes.v)),
-        || TERN(AXIS9_ROTATES, false, parser.seen(axis_codes.w))
-      )
-    ) {
-      inverse_secs = inverse_millimeters * LINEAR_UNIT(fr_mm_s);
-    }
-    else {
-      inverse_secs = inverse_millimeters * fr_deg_s;
-    }
-  #else
-    inverse_secs = fr_mm_s * inverse_millimeters;
-  #endif
+  float inverse_secs = inverse_millimeters * (TERN(HAS_ROTATIONAL_AXES, cartesian_move ? fr_mm_s : fr_deg_s, fr_mm_s));
 
   // Get the number of non busy movements in queue (non busy means that they can be altered)
   const uint8_t moves_queued = nonbusy_movesplanned();
@@ -3210,7 +3183,6 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
     #else
       const feedRate_t feedrate = fr_mm_s;
-      TERN_(HAS_ROATIONAL_AXES, const feedRate_t angular_feedrate = fr_deg_s);
     #endif
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
     if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
