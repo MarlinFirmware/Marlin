@@ -26,7 +26,6 @@
 
 #include "../bedlevel.h"
 #include "../../../module/planner.h"
-#include "../../../module/stepper.h"
 #include "../../../module/motion.h"
 
 #if ENABLED(DELTA)

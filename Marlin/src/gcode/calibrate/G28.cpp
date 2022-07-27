@@ -24,8 +24,9 @@
 
 #include "../gcode.h"
 
-#include "../../module/stepper.h"
 #include "../../module/endstops.h"
+#include "../../module/planner.h"
+#include "../../module/stepper.h" // for various
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
