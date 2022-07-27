@@ -83,9 +83,11 @@ typedef bool (*statusResetFunc_t)();
 
   #endif // HAS_MARLINUI_MENU
 
-  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
-
 #endif // HAS_WIRED_LCD
+
+#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
+#endif
 
 #if HAS_MARLINUI_U8GLIB
   enum MarlinFont : uint8_t {
@@ -176,6 +178,8 @@ typedef bool (*statusResetFunc_t)();
     static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
+  void lcd_move_axis(const AxisEnum);
+
 #endif
 
 ////////////////////////////////////////////
@@ -223,12 +227,12 @@ public:
     static constexpr bool sound_on = true;
   #endif
 
-  #if HAS_BUZZER
+  #if USE_MARLINUI_BUZZER
     static void buzz(const long duration, const uint16_t freq);
   #endif
 
-  FORCE_INLINE static void chirp() {
-    TERN_(HAS_CHIRP, TERN(HAS_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+  static void chirp() {
+    TERN_(HAS_CHIRP, TERN(USE_MARLINUI_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -387,7 +391,7 @@ public:
       static void poweroff();
     #endif
 
-    #if HAS_WIRED_LCD
+    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
       static bool get_blink();
     #endif
 
@@ -451,7 +455,7 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_BUZZER
+      #if HAS_SOUND
         static void completion_feedback(const bool good=true);
       #else
         static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
@@ -624,7 +628,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}

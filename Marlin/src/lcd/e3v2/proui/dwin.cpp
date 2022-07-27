@@ -99,7 +99,7 @@
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
-#if HAS_MESH || HAS_ONESTEP_LEVELING
+#if HAS_MESH || (HAS_LEVELING && HAS_ZOFFSET_ITEM)
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "bedlevel_tools.h"
 #endif
@@ -2138,7 +2138,7 @@ void HomeZ() { queue.inject(F("G28Z")); }
       );
       gcode.process_subcommands_now(cmd);
     #else
-      set_bed_leveling_enabled(false);
+      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
       gcode.process_subcommands_now(F("G28O\nG0Z0F300\nM400"));
     #endif
     ui.reset_status();
@@ -3825,6 +3825,7 @@ void Draw_Steps_Menu() {
 #endif // AUTO_BED_LEVELING_UBL
 
 #if HAS_MESH
+
   void Draw_MeshSet_Menu() {
     checkkey = Menu;
     if (SetMenu(MeshMenu, GET_TEXT_F(MSG_MESH_LEVELING), 15)) {

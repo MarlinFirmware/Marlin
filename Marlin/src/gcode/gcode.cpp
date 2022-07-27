@@ -765,7 +765,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 290: M290(); break;                                  // M290: Babystepping
       #endif
 
-      #if HAS_BUZZER
+      #if HAS_SOUND
         case 300: M300(); break;                                  // M300: Play beep tone
       #endif
 
@@ -933,7 +933,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if IS_KINEMATIC
-        case 665: M665(); break;                                  // M665: Set Delta/SCARA parameters
+        case 665: M665(); break;                                  // M665: Set Kinematics parameters
       #endif
 
       #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS

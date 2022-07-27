@@ -77,6 +77,8 @@
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
   #include "../lcd/e3v2/proui/bedlevel_tools.h"
+#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -501,6 +503,8 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(DWIN_LCD_PROUI)
     uint8_t dwin_data[eeprom_data_size];
+  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    uint8_t dwin_settings[CrealityDWIN.eeprom_data_size];
   #endif
 
   //
@@ -1519,6 +1523,15 @@ void MarlinSettings::postprocess() {
     }
     #endif
 
+    #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    {
+      _FIELD_TEST(dwin_settings);
+      char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+      CrealityDWIN.Save_Settings(dwin_settings);
+      EEPROM_WRITE(dwin_settings);
+    }
+    #endif
+
     //
     // Case Light Brightness
     //
@@ -2483,6 +2496,13 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dwin_data);
         if (!validating) DWIN_CopySettingsFrom(dwin_data);
       }
+      #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+      {
+        const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+        _FIELD_TEST(dwin_settings);
+        EEPROM_READ(dwin_settings);
+        if (!validating) CrealityDWIN.Load_Settings(dwin_settings);
+      }
       #endif
 
       //
@@ -2919,6 +2939,8 @@ void MarlinSettings::reset() {
       backlash.set_smoothing_mm(BACKLASH_SMOOTHING_MM);
     #endif
   #endif
+
+  TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
   //
   // Case Light Brightness

@@ -154,7 +154,7 @@ void reset_bed_level() {
       #endif
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
-        const float offset = values[x * sx + y];
+        const float offset = values[x * sy + y];
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO_F(offset, int(precision));
