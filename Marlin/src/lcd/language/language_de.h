@@ -637,14 +637,14 @@ namespace Language_de {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Gesamt Extrudiert");
   #else
     LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Auf Neustart warten");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte vorheizen");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Drucke");
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrud.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte vorheizen");
   #endif
 
-  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Komplette");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("Netzteil");
