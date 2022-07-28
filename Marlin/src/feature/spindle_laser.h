@@ -198,6 +198,7 @@ public:
    *    This mode allows a global power shutdown action to occur.
    */
   static void set_enabled(const bool enable) {
+    enable_state = enable;
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
         apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
@@ -215,7 +216,6 @@ public:
     #if SPINDLE_LASER_ENA_PIN
       WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
     #endif
-    enable_state = enable;
   }
 
   static void disable() { isReadyForUI = false; set_enabled(false); }
