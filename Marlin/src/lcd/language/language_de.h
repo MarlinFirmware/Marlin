@@ -612,16 +612,16 @@ namespace Language_de {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Helligkeit");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Falscher Drucker");
 
-    LSTR MSG_COLORS_GET                   = _UxGT("Farbe");
-    LSTR MSG_COLORS_SELECT                = _UxGT("Farben auswählen");
-    LSTR MSG_COLORS_APPLIED               = _UxGT("Farben verwenden");
-    LSTR MSG_COLORS_RED                   = _UxGT("Rot");
-    LSTR MSG_COLORS_GREEN                 = _UxGT("Grün");
-    LSTR MSG_COLORS_BLUE                  = _UxGT("Blau");
-    LSTR MSG_COLORS_WHITE                 = _UxGT("Weiß");
-    LSTR MSG_UI_LANGUAGE                  = _UxGT("UI Sprache");
-    LSTR MSG_SOUND_ENABLE                 = _UxGT("Ton aktivieren");
-    LSTR MSG_LOCKSCREEN                   = _UxGT("Bildschirm sperren");
+  LSTR MSG_COLORS_GET                     = _UxGT("Farbe");
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Farben auswählen");
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farben verwenden");
+  LSTR MSG_COLORS_RED                     = _UxGT("Rot");
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Grün");
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Blau");
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Weiß");
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Sprache");
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Ton aktivieren");
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Bildschirm sperren");
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Drucker ist gesperrt,");
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scrollen zum Entsper.");
 
