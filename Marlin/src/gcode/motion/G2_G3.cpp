@@ -154,7 +154,7 @@ void plan_arc(
 
     xyze_pos_t temp_position = current_position;
     for (uint16_t n = circles; n--;) {
-      ARC_LIJKUVWE_CODE(                                           // Destination Linear Axes
+      ARC_LIJKUVWE_CODE(                                        // Destination Linear Axes
         temp_position[axis_l] += per_circle_L,
         temp_position.i       += per_circle_I,
         temp_position.j       += per_circle_J,
@@ -183,14 +183,15 @@ void plan_arc(
 
   // Return if the move is near zero
   if (flat_mm < 0.0001f
+    && TERN0(HAS_EXTRUDERS, NEAR_ZERO(travel_E))
     GANG_N(SUB2(NUM_AXES),
-      && travel_L < 0.0001f,
-      && travel_I < 0.0001f,
-      && travel_J < 0.0001f,
-      && travel_K < 0.0001f,
-      && travel_U < 0.0001f,
-      && travel_V < 0.0001f,
-      && travel_W < 0.0001f
+      && NEAR_ZERO(travel_L),
+      && NEAR_ZERO(travel_I),
+      && NEAR_ZERO(travel_J),
+      && NEAR_ZERO(travel_K),
+      && NEAR_ZERO(travel_U),
+      && NEAR_ZERO(travel_V),
+      && NEAR_ZERO(travel_W)
     )
   ) return;
 
