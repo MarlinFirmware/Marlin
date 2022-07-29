@@ -824,7 +824,7 @@
  * Number of Primary Linear Axes (e.g., XYZ)
  * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
  */
-#if HAS_I_AXIS
+#if LINEAR_AXES >= 3
   #define PRIMARY_LINEAR_AXES 3
 #else
   #define PRIMARY_LINEAR_AXES LINEAR_AXES
@@ -961,7 +961,7 @@
 #endif
 
 /**
- * Set a flag for any type of bed probe, including the paper-test
+ * Set flags for any form of bed probe
  */
 #if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE, MAGLEV4)
   #define HAS_BED_PROBE 1
@@ -1282,29 +1282,6 @@
 #endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
-#endif
-
-// Fallback axis inverting
-#ifndef INVERT_X_DIR
-  #define INVERT_X_DIR false
-#endif
-#if HAS_Y_AXIS && !defined(INVERT_Y_DIR)
-  #define INVERT_Y_DIR false
-#endif
-#if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
-  #define INVERT_Z_DIR false
-#endif
-#if HAS_I_AXIS && !defined(INVERT_I_DIR)
-  #define INVERT_I_DIR false
-#endif
-#if HAS_J_AXIS && !defined(INVERT_J_DIR)
-  #define INVERT_J_DIR false
-#endif
-#if HAS_K_AXIS && !defined(INVERT_K_DIR)
-  #define INVERT_K_DIR false
-#endif
-#if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
-  #define INVERT_E_DIR false
 #endif
 
 /**

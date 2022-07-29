@@ -28,12 +28,14 @@
  * Derived from Grbl
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  *
- * The ring buffer implementation gleaned from the wiring_serial library by David A. Mellis.
+ * Ring buffer gleaned from wiring_serial library by David A. Mellis.
  *
+ * Fast inverse function needed for Bézier interpolation for AVR
+ * was designed, written and tested by Eduardo José Tagle, April 2018.
  *
- * Reasoning behind the mathematics in this module (in the key of 'Mathematica'):
+ * Planner mathematics (Mathematica-style):
  *
- * s == speed, a == acceleration, t == time, d == distance
+ * Where: s == speed, a == acceleration, t == time, d == distance
  *
  * Basic definitions:
  *   Speed[s_, a_, t_] := s + (a*t)
@@ -41,7 +43,7 @@
  *
  * Distance to reach a specific speed with a constant acceleration:
  *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, d, t]
- *   d -> (m^2 - s^2)/(2 a) --> estimate_acceleration_distance()
+ *   d -> (m^2 - s^2) / (2 a)
  *
  * Speed after a given distance of travel with constant acceleration:
  *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, m, t]
@@ -49,17 +51,18 @@
  *
  * DestinationSpeed[s_, a_, d_] := Sqrt[2 a d + s^2]
  *
- * When to start braking (di) to reach a specified destination speed (s2) after accelerating
- * from initial speed s1 without ever stopping at a plateau:
+ * When to start braking (di) to reach a specified destination speed (s2) after
+ * acceleration from initial speed s1 without ever reaching a plateau:
  *   Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]
- *   di -> (2 a d - s1^2 + s2^2)/(4 a) --> intersection_distance()
+ *   di -> (2 a d - s1^2 + s2^2)/(4 a)
  *
- * IntersectionDistance[s1_, s2_, a_, d_] := (2 a d - s1^2 + s2^2)/(4 a)
+ * We note, as an optimization, that if we have already calculated an
+ * acceleration distance d1 from s1 to m and a deceration distance d2
+ * from m to s2 then
  *
- * --
- *
- * The fast inverse function needed for Bézier interpolation for AVR
- * was designed, written and tested by Eduardo José Tagle on April/2018
+ *   d1 -> (m^2 - s1^2) / (2 a)
+ *   d2 -> (m^2 - s2^2) / (2 a)
+ *   di -> (d + d1 - d2) / 2
  */
 
 #include "planner.h"
@@ -220,7 +223,7 @@ float Planner::previous_nominal_speed_sqr;
 #ifdef XY_FREQUENCY_LIMIT
   int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
   float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
-  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0 / (XY_FREQUENCY_LIMIT));
+  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -843,20 +846,22 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     /**
      * Laser Trapezoid Calculations
      *
-     * Approximate the trapezoid with the laser, incrementing the power every `trap_ramp_entry_incr` steps while accelerating,
-     * and decrementing the power every `trap_ramp_exit_decr` while decelerating, to keep power proportional to feedrate.
-     * Laser power trap will reduce the initial power to no less than the laser_power_floor value. Based on the number
-     * of calculated accel/decel steps the power is distributed over the trapezoid entry- and exit-ramp steps.
+     * Approximate the trapezoid with the laser, incrementing the power every `trap_ramp_entry_incr`
+     * steps while accelerating, and decrementing the power every `trap_ramp_exit_decr` while decelerating,
+     * to keep power proportional to feedrate. Laser power trap will reduce the initial power to no less
+     * than the laser_power_floor value. Based on the number of calculated accel/decel steps the power is
+     * distributed over the trapezoid entry- and exit-ramp steps.
      *
-     * trap_ramp_active_pwr - The active power is initially set at a reduced level factor of initial power / accel steps and
-     * will be additively incremented using a trap_ramp_entry_incr value for each accel step processed later in the stepper code.
-     * The trap_ramp_exit_decr value is calculated as power / decel steps and is also adjusted to no less than the power floor.
+     * trap_ramp_active_pwr - The active power is initially set at a reduced level factor of initial
+     * power / accel steps and will be additively incremented using a trap_ramp_entry_incr value for each
+     * accel step processed later in the stepper code. The trap_ramp_exit_decr value is calculated as
+     * power / decel steps and is also adjusted to no less than the power floor.
      *
-     * If the power == 0 the inline mode variables need to be set to zero to prevent stepper processing. The method allows
-     * for simpler non-powered moves like G0 or G28.
+     * If the power == 0 the inline mode variables need to be set to zero to prevent stepper processing.
+     * The method allows for simpler non-powered moves like G0 or G28.
      *
-     * Laser Trap Power works for all Jerk and Curve modes; however Arc-based moves will have issues since the segments are
-     * usually too small.
+     * Laser Trap Power works for all Jerk and Curve modes; however Arc-based moves will have issues since
+     * the segments are usually too small.
      */
     if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
       if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
@@ -937,16 +942,21 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       this block can never be less than block_buffer_tail and will always be pushed forward and maintain
       this requirement when encountered by the Planner::release_current_block() routine during a cycle.
 
-  NOTE: Since the planner only computes on what's in the planner buffer, some motions with lots of short
-  line segments, like G2/3 arcs or complex curves, may seem to move slow. This is because there simply isn't
-  enough combined distance traveled in the entire buffer to accelerate up to the nominal speed and then
-  decelerate to a complete stop at the end of the buffer, as stated by the guidelines. If this happens and
-  becomes an annoyance, there are a few simple solutions: (1) Maximize the machine acceleration. The planner
-  will be able to compute higher velocity profiles within the same combined distance. (2) Maximize line
-  motion(s) distance per block to a desired tolerance. The more combined distance the planner has to use,
-  the faster it can go. (3) Maximize the planner buffer size. This also will increase the combined distance
-  for the planner to compute over. It also increases the number of computations the planner has to perform
-  to compute an optimal plan, so select carefully.
+  NOTE: Since the planner only computes on what's in the planner buffer, some motions with many short
+        segments (e.g., complex curves) may seem to move slowly. This is because there simply isn't
+        enough combined distance traveled in the entire buffer to accelerate up to the nominal speed and
+        then decelerate to a complete stop at the end of the buffer, as stated by the guidelines. If this
+        happens and becomes an annoyance, there are a few simple solutions:
+
+    - Maximize the machine acceleration. The planner will be able to compute higher velocity profiles
+      within the same combined distance.
+
+    - Maximize line motion(s) distance per block to a desired tolerance. The more combined distance the
+      planner has to use, the faster it can go.
+
+    - Maximize the planner buffer size. This also will increase the combined distance for the planner to
+      compute over. It also increases the number of computations the planner has to perform to compute an
+      optimal plan, so select carefully.
 */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
@@ -1162,7 +1172,7 @@ void Planner::recalculate_trapezoids() {
 
   // Go from the tail (currently executed block) to the first block, without including it)
   block_t *block = nullptr, *next = nullptr;
-  float current_entry_speed = 0.0, next_entry_speed = 0.0;
+  float current_entry_speed = 0.0f, next_entry_speed = 0.0f;
   while (block_index != head_block_index) {
 
     next = &block_buffer[block_index];
@@ -1237,7 +1247,7 @@ void Planner::recalculate_trapezoids() {
       #endif
     }
 
-    // Reset next only to ensure its trapezoid is computed - The stepper is free to use
+    // Reset block to ensure its trapezoid is computed - The stepper is free to use
     // the block from now on.
     next->flag.recalculate = false;
   }
@@ -2848,12 +2858,11 @@ bool Planner::_populate_block(
 } // _populate_block()
 
 /**
- * Planner::buffer_sync_block
- * Add a block to the buffer that just updates the position
- * @param sync_flag BLOCK_FLAG_SYNC_FANS & BLOCK_FLAG_LASER_PWR
- * Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.
+ * @brief Add a block to the buffer that just updates the position
+ *        Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.
+ *
+ * @param sync_flag  The sync flag to set, determining the type of sync the block will do
  */
-
 void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_POSITION*/) {
 
   // Wait for the next available block
@@ -2861,14 +2870,13 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   block_t * const block = get_next_free_block(next_buffer_head);
 
   // Clear block
-  memset(block, 0, sizeof(block_t));
+  block->reset();
   block->flag.apply(sync_flag);
 
   block->position = position;
   #if ENABLED(BACKLASH_COMPENSATION)
     LOOP_LINEAR_AXES(axis) block->position[axis] += backlash.get_applied_steps((AxisEnum)axis);
   #endif
-
   #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
@@ -3219,7 +3227,7 @@ void Planner::refresh_positioning() {
 inline void limit_and_warn(float &val, const AxisEnum axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = TERN_(HAS_EXTRUDERS, axis > E_AXIS ? E_AXIS :) axis;
   const float before = val;
-  LIMIT(val, 0.1, max_limit[lim_axis]);
+  LIMIT(val, 0.1f, max_limit[lim_axis]);
   if (before != val) {
     SERIAL_CHAR(AXIS_CHAR(lim_axis));
     SERIAL_ECHOPGM(" Max ");
