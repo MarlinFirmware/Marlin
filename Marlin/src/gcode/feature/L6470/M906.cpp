@@ -25,7 +25,7 @@
 #if HAS_L64XX
 
 #if AXIS_COLLISION('I')
-  #error "M906 parameter collision with axis name."
+  #error "M906 parameter 'I' collision with axis name."
 #endif
 
 #include "../../gcode.h"
@@ -211,7 +211,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
  *     1 - monitor only X2, Y2, Z2
  *     2 - monitor only Z3
  *     3 - monitor only Z4
- * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
+ * Xxxx, Yxxx, Zxxx, Axxx, Bxxx, Cxxx, Exxx - axis to change (optional)
  *     L6474 - current in mA (4A max)
  *     All others - 0-255
  *
@@ -236,7 +236,7 @@ void GcodeSuite::M906() {
     constexpr int8_t index = -1;
   #endif
 
-  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(AXIS_CHAR(i))) {
 
     report_current = false;
 

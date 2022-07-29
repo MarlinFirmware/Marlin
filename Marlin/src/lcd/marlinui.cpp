@@ -489,13 +489,10 @@ void MarlinUI::init() {
         ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
         ui.encoderPosition = dir;
         switch (axis) {
-          case X_AXIS: { void lcd_move_x(); lcd_move_x(); } break;
-          #if HAS_Y_AXIS
-            case Y_AXIS: { void lcd_move_y(); lcd_move_y(); } break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: { void lcd_move_z(); lcd_move_z(); } break;
-          #endif
+          case X_AXIS:
+          TERN_(HAS_Y_AXIS, case Y_AXIS:)
+          TERN_(HAS_Z_AXIS, case Z_AXIS:)
+            lcd_move_axis(axis);
           default: break;
         }
       }
@@ -841,7 +838,7 @@ void MarlinUI::init() {
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
+          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
 
           axis = NO_AXIS_ENUM;
 
@@ -858,7 +855,7 @@ void MarlinUI::init() {
       TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
       start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
       axis = move_axis;
-      //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
+      //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(AXIS_CHAR(axis)), " soon.");
     }
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)

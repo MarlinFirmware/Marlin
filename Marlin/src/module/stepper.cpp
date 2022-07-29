@@ -1958,14 +1958,15 @@ uint32_t Stepper::block_phase_isr() {
           else if (LA_steps) nextAdvanceISR = 0;
         #endif
 
-        /*
+        /**
          * Adjust Laser Power - Accelerating
-         * isPowered - True when a move is powered.
-         * isEnabled - laser power is active.
-         * Laser power variables are calulated and stored in this block by the planner code.
          *
-         * trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
-         * trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
+         *  isPowered - True when a move is powered.
+         *  isEnabled - laser power is active.
+         *
+         * Laser power variables are calulated and stored in this block by the planner code.
+         *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
+         *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
          *
          * Apply the starting active power and then increase power per step by the trap_ramp_entry_incr value if positive.
          */
@@ -1988,6 +1989,7 @@ uint32_t Stepper::block_phase_isr() {
         uint32_t step_rate;
 
         #if ENABLED(S_CURVE_ACCELERATION)
+
           // If this is the 1st time we process the 2nd half of the trapezoid...
           if (!bezier_2nd_half) {
             // Initialize the Bézier speed curve
@@ -2002,6 +2004,7 @@ uint32_t Stepper::block_phase_isr() {
               ? _eval_bezier_curve(deceleration_time)
               : current_block->final_rate;
           }
+
         #else
           // Using the old trapezoidal control
           step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
@@ -2011,9 +2014,8 @@ uint32_t Stepper::block_phase_isr() {
           }
           else
             step_rate = current_block->final_rate;
-        #endif
 
-        // step_rate is in steps/second
+        #endif
 
         // step_rate to timer interval and steps per stepper isr
         interval = calc_timer_interval(step_rate, &steps_per_isr);
@@ -2065,10 +2067,10 @@ uint32_t Stepper::block_phase_isr() {
         interval = ticks_nominal;
       }
 
-      /* Adjust Laser Power - Cruise
+      /**
+       * Adjust Laser Power - Cruise
        * power - direct or floor adjusted active laser power.
        */
-
       #if ENABLED(LASER_POWER_TRAP)
         if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
           if (step_events_completed + 1 == accelerate_until) {
@@ -2086,7 +2088,7 @@ uint32_t Stepper::block_phase_isr() {
     }
 
     #if ENABLED(LASER_FEATURE)
-      /*
+      /**
        * CUTTER_MODE_DYNAMIC is experimental and developing.
        * Super-fast method to dynamically adjust the laser power OCR value based on the input feedrate in mm-per-minute.
        * TODO: Set up Min/Max OCR offsets to allow tuning and scaling of various lasers.
@@ -2103,9 +2105,8 @@ uint32_t Stepper::block_phase_isr() {
   }
   else { // !current_block
     #if ENABLED(LASER_FEATURE)
-      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
         cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
-      }
     #endif
   }
 
@@ -3485,7 +3486,7 @@ void Stepper::report_positions() {
   void Stepper::microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2, const int8_t ms3) {
     if (ms1 >= 0) switch (driver) {
       #if HAS_X_MS_PINS || HAS_X2_MS_PINS
-        case 0:
+        case X_AXIS:
           #if HAS_X_MS_PINS
             WRITE(X_MS1_PIN, ms1);
           #endif
@@ -3495,7 +3496,7 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
-        case 1:
+        case Y_AXIS:
           #if HAS_Y_MS_PINS
             WRITE(Y_MS1_PIN, ms1);
           #endif
@@ -3505,7 +3506,7 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_SOME_Z_MS_PINS
-        case 2:
+        case Z_AXIS:
           #if HAS_Z_MS_PINS
             WRITE(Z_MS1_PIN, ms1);
           #endif
@@ -3520,43 +3521,43 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_E0_MS_PINS
-        case  3: WRITE(E0_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E1_MS_PINS
-        case  4: WRITE(E1_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E2_MS_PINS
-        case  5: WRITE(E2_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E3_MS_PINS
-        case  6: WRITE(E3_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E4_MS_PINS
-        case  7: WRITE(E4_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E5_MS_PINS
-        case  8: WRITE(E5_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E6_MS_PINS
-        case  9: WRITE(E6_MS1_PIN, ms1); break;
-      #endif
-      #if HAS_E7_MS_PINS
-        case 10: WRITE(E7_MS1_PIN, ms1); break;
-      #endif
       #if HAS_I_MS_PINS
-        case 11: WRITE(I_MS1_PIN, ms1); break
+        case  I_AXIS: WRITE(I_MS1_PIN, ms1); break
       #endif
       #if HAS_J_MS_PINS
-        case 12: WRITE(J_MS1_PIN, ms1); break
+        case  J_AXIS: WRITE(J_MS1_PIN, ms1); break
       #endif
       #if HAS_K_MS_PINS
-        case 13: WRITE(K_MS1_PIN, ms1); break
+        case  K_AXIS: WRITE(K_MS1_PIN, ms1); break
+      #endif
+      #if HAS_E0_MS_PINS
+        case  E_AXIS: WRITE(E0_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E1_MS_PINS
+        case (E_AXIS + 1): WRITE(E1_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E2_MS_PINS
+        case (E_AXIS + 2): WRITE(E2_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E3_MS_PINS
+        case (E_AXIS + 3): WRITE(E3_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E4_MS_PINS
+        case (E_AXIS + 4): WRITE(E4_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E5_MS_PINS
+        case (E_AXIS + 5): WRITE(E5_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E6_MS_PINS
+        case (E_AXIS + 6): WRITE(E6_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_E7_MS_PINS
+        case (E_AXIS + 7): WRITE(E7_MS1_PIN, ms1); break;
       #endif
     }
     if (ms2 >= 0) switch (driver) {
       #if HAS_X_MS_PINS || HAS_X2_MS_PINS
-        case 0:
+        case X_AXIS:
           #if HAS_X_MS_PINS
             WRITE(X_MS2_PIN, ms2);
           #endif
@@ -3566,7 +3567,7 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
-        case 1:
+        case Y_AXIS:
           #if HAS_Y_MS_PINS
             WRITE(Y_MS2_PIN, ms2);
           #endif
@@ -3576,7 +3577,7 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_SOME_Z_MS_PINS
-        case 2:
+        case Z_AXIS:
           #if HAS_Z_MS_PINS
             WRITE(Z_MS2_PIN, ms2);
           #endif
@@ -3591,43 +3592,43 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_E0_MS_PINS
-        case  3: WRITE(E0_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E1_MS_PINS
-        case  4: WRITE(E1_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E2_MS_PINS
-        case  5: WRITE(E2_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E3_MS_PINS
-        case  6: WRITE(E3_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E4_MS_PINS
-        case  7: WRITE(E4_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E5_MS_PINS
-        case  8: WRITE(E5_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E6_MS_PINS
-        case  9: WRITE(E6_MS2_PIN, ms2); break;
-      #endif
-      #if HAS_E7_MS_PINS
-        case 10: WRITE(E7_MS2_PIN, ms2); break;
-      #endif
       #if HAS_I_MS_PINS
-        case 11: WRITE(I_MS2_PIN, ms2); break
+        case  I_AXIS: WRITE(I_MS2_PIN, ms2); break
       #endif
       #if HAS_J_MS_PINS
-        case 12: WRITE(J_MS2_PIN, ms2); break
+        case  J_AXIS: WRITE(J_MS2_PIN, ms2); break
       #endif
       #if HAS_K_MS_PINS
-        case 13: WRITE(K_MS2_PIN, ms2); break
+        case  K_AXIS: WRITE(K_MS2_PIN, ms2); break
+      #endif
+      #if HAS_E0_MS_PINS
+        case  E_AXIS: WRITE(E0_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E1_MS_PINS
+        case (E_AXIS + 1): WRITE(E1_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E2_MS_PINS
+        case (E_AXIS + 2): WRITE(E2_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E3_MS_PINS
+        case (E_AXIS + 3): WRITE(E3_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E4_MS_PINS
+        case (E_AXIS + 4): WRITE(E4_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E5_MS_PINS
+        case (E_AXIS + 5): WRITE(E5_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E6_MS_PINS
+        case (E_AXIS + 6): WRITE(E6_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E7_MS_PINS
+        case (E_AXIS + 7): WRITE(E7_MS2_PIN, ms2); break;
       #endif
     }
     if (ms3 >= 0) switch (driver) {
       #if HAS_X_MS_PINS || HAS_X2_MS_PINS
-        case 0:
+        case X_AXIS:
           #if HAS_X_MS_PINS && PIN_EXISTS(X_MS3)
             WRITE(X_MS3_PIN, ms3);
           #endif
@@ -3637,7 +3638,7 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
-        case 1:
+        case Y_AXIS:
           #if HAS_Y_MS_PINS && PIN_EXISTS(Y_MS3)
             WRITE(Y_MS3_PIN, ms3);
           #endif
@@ -3647,7 +3648,7 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_SOME_Z_MS_PINS
-        case 2:
+        case Z_AXIS:
           #if HAS_Z_MS_PINS && PIN_EXISTS(Z_MS3)
             WRITE(Z_MS3_PIN, ms3);
           #endif
@@ -3662,29 +3663,38 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
+      #if HAS_I_MS_PINS
+        case  I_AXIS: WRITE(I_MS3_PIN, ms3); break
+      #endif
+      #if HAS_J_MS_PINS
+        case  J_AXIS: WRITE(J_MS3_PIN, ms3); break
+      #endif
+      #if HAS_K_MS_PINS
+        case  K_AXIS: WRITE(K_MS3_PIN, ms3); break
+      #endif
       #if HAS_E0_MS_PINS && PIN_EXISTS(E0_MS3)
-        case  3: WRITE(E0_MS3_PIN, ms3); break;
+        case  E_AXIS: WRITE(E0_MS3_PIN, ms3); break;
       #endif
       #if HAS_E1_MS_PINS && PIN_EXISTS(E1_MS3)
-        case  4: WRITE(E1_MS3_PIN, ms3); break;
+        case (E_AXIS + 1): WRITE(E1_MS3_PIN, ms3); break;
       #endif
       #if HAS_E2_MS_PINS && PIN_EXISTS(E2_MS3)
-        case  5: WRITE(E2_MS3_PIN, ms3); break;
+        case (E_AXIS + 2): WRITE(E2_MS3_PIN, ms3); break;
       #endif
       #if HAS_E3_MS_PINS && PIN_EXISTS(E3_MS3)
-        case  6: WRITE(E3_MS3_PIN, ms3); break;
+        case (E_AXIS + 3): WRITE(E3_MS3_PIN, ms3); break;
       #endif
       #if HAS_E4_MS_PINS && PIN_EXISTS(E4_MS3)
-        case  7: WRITE(E4_MS3_PIN, ms3); break;
+        case (E_AXIS + 4): WRITE(E4_MS3_PIN, ms3); break;
       #endif
       #if HAS_E5_MS_PINS && PIN_EXISTS(E5_MS3)
-        case  8: WRITE(E5_MS3_PIN, ms3); break;
+        case (E_AXIS + 5): WRITE(E5_MS3_PIN, ms3); break;
       #endif
       #if HAS_E6_MS_PINS && PIN_EXISTS(E6_MS3)
-        case  9: WRITE(E6_MS3_PIN, ms3); break;
+        case (E_AXIS + 6): WRITE(E6_MS3_PIN, ms3); break;
       #endif
       #if HAS_E7_MS_PINS && PIN_EXISTS(E7_MS3)
-        case 10: WRITE(E7_MS3_PIN, ms3); break;
+        case (E_AXIS + 7): WRITE(E7_MS3_PIN, ms3); break;
       #endif
     }
   }

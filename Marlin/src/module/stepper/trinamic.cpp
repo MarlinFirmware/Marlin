@@ -942,9 +942,7 @@ void reset_trinamic_drivers() {
   struct SanityHwSerialDetails { const char port[20]; uint32_t address; };
   #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)
   #define TMC_HW_DETAIL(A) { TMC_HW_DETAIL_ARGS(A) }
-  constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = {
-    MAPLIST(TMC_HW_DETAIL, ALL_AXIS_NAMES)
-  };
+  constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = { MAPLIST(TMC_HW_DETAIL, ALL_AXIS_NAMES) };
 
   // constexpr compatible string comparison
   constexpr bool str_eq_ce(const char * a, const char * b) {
@@ -969,9 +967,7 @@ void reset_trinamic_drivers() {
   struct SanitySwSerialDetails { int32_t txpin; int32_t rxpin; uint32_t address; };
   #define TMC_SW_DETAIL_ARGS(A) TERN(A##_HAS_SW_SERIAL, A##_SERIAL_TX_PIN, -1), TERN(A##_HAS_SW_SERIAL, A##_SERIAL_RX_PIN, -1), TERN0(A##_HAS_SW_SERIAL, A##_SLAVE_ADDRESS)
   #define TMC_SW_DETAIL(A) { TMC_SW_DETAIL_ARGS(A) }
-  constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = {
-    MAPLIST(TMC_SW_DETAIL, ALL_AXIS_NAMES)
-  };
+  constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = { MAPLIST(TMC_SW_DETAIL, ALL_AXIS_NAMES) };
 
   constexpr bool sc_sw_done(size_t start, size_t end) { return start == end; }
   constexpr bool sc_sw_skip(int32_t txpin) { return txpin < 0; }
@@ -984,7 +980,7 @@ void reset_trinamic_drivers() {
 
   #define TMC_SWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_SERIAL_RX_PIN or " STRINGIFY(A) "_SERIAL_TX_PIN"
   #define SA_NO_TMC_SW_C(A) static_assert(1 >= count_tmc_sw_serial_matches(TMC_SW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_sw_details)), TMC_SWSERIAL_CONFLICT_MSG(A));
-  MAPLIST(SA_NO_TMC_SW_C, ALL_AXIS_NAMES)
+  MAP(SA_NO_TMC_SW_C, ALL_AXIS_NAMES)
 #endif
 
 #endif // HAS_TRINAMIC_CONFIG

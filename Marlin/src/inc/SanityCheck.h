@@ -664,34 +664,46 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #endif
   #endif
 
-  #ifdef PTC_PROBE_START
-    constexpr auto _ptc_sample_start = PTC_PROBE_START;
-    constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
-    static_assert(_test_ptc_sample_start != 12.3f, "PTC_PROBE_START must be a whole number.");
+  #if ENABLED(PTC_PROBE)
+    #if !TEMP_SENSOR_PROBE
+      #error "PTC_PROBE requires a probe with a thermistor."
+    #endif
+    #ifdef PTC_PROBE_START
+      constexpr auto _ptc_sample_start = PTC_PROBE_START;
+      constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
+      static_assert(_test_ptc_sample_start != 12.3f, "PTC_PROBE_START must be a whole number.");
+    #endif
+    #ifdef PTC_PROBE_RES
+      constexpr auto _ptc_sample_res = PTC_PROBE_RES;
+      constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
+      static_assert(_test_ptc_sample_res != 12.3f, "PTC_PROBE_RES must be a whole number.");
+    #endif
+    #if ENABLED(PTC_BED) && defined(PTC_PROBE_TEMP)
+      constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
+      constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
+      static_assert(_test_btc_probe_temp != 12.3f, "PTC_PROBE_TEMP must be a whole number.");
+    #endif
   #endif
-  #ifdef PTC_PROBE_RES
-    constexpr auto _ptc_sample_res = PTC_PROBE_RES;
-    constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
-    static_assert(_test_ptc_sample_res != 12.3f, "PTC_PROBE_RES must be a whole number.");
+
+  #if ENABLED(PTC_BED)
+    #if !TEMP_SENSOR_BED
+      #error "PTC_BED requires a bed with a thermistor."
+    #endif
+    #ifdef PTC_BED_START
+      constexpr auto _btc_sample_start = PTC_BED_START;
+      constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
+      static_assert(_test_btc_sample_start != 12.3f, "PTC_BED_START must be a whole number.");
+    #endif
+    #ifdef PTC_BED_RES
+      constexpr auto _btc_sample_res = PTC_BED_RES;
+      constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
+      static_assert(_test_btc_sample_res != 12.3f, "PTC_BED_RES must be a whole number.");
+    #endif
   #endif
-  #ifdef PTC_BED_START
-    constexpr auto _btc_sample_start = PTC_BED_START;
-    constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
-    static_assert(_test_btc_sample_start != 12.3f, "PTC_BED_START must be a whole number.");
-  #endif
-  #ifdef PTC_BED_RES
-    constexpr auto _btc_sample_res = PTC_BED_RES;
-    constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
-    static_assert(_test_btc_sample_res != 12.3f, "PTC_BED_RES must be a whole number.");
-  #endif
-  #ifdef PTC_PROBE_TEMP
-    constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
-    constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
-    static_assert(_test_btc_probe_temp != 12.3f, "PTC_PROBE_TEMP must be a whole number.");
-  #endif
+
   #if ENABLED(PTC_HOTEND)
     #if EXTRUDERS != 1
-      #error "PTC_HOTEND only works with a single extruder."
+      #error "PTC_HOTEND requires a single extruder."
     #endif
     #ifdef PTC_HOTEND_START
       constexpr auto _etc_sample_start = PTC_HOTEND_START;
@@ -1478,8 +1490,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "CNC_WORKSPACE_PLANES currently requires LINEAR_AXES >= 3"
 #elif ENABLED(DIRECT_STEPPING) && LINEAR_AXES > XYZ
   #error "DIRECT_STEPPING currently requires LINEAR_AXES 3"
-#elif ENABLED(FOAMCUTTER_XYUV) && LINEAR_AXES < 5
-  #error "FOAMCUTTER_XYUV requires LINEAR_AXES >= 5."
 #elif ENABLED(LINEAR_ADVANCE) && HAS_I_AXIS
   #error "LINEAR_ADVANCE currently requires LINEAR_AXES <= 3."
 #endif
@@ -1526,8 +1536,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, FOAMCUTTER_XYUV)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, or FOAMCUTTER_XYUV."
+#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX)
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, or MARKFORGED_YX."
 #endif
 
 /**
