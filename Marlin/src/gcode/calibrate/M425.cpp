@@ -54,7 +54,7 @@ void GcodeSuite::M425() {
     }
   };
 
-  LOOP_LINEAR_AXES(a) {
+  LOOP_NUM_AXES(a) {
     if (axis_can_calibrate(a) && parser.seen(AXIS_CHAR(a))) {
       planner.synchronize();
       backlash.set_distance_mm((AxisEnum)a, parser.has_value() ? parser.value_axis_units((AxisEnum)a) : backlash.get_measurement((AxisEnum)a));
@@ -82,7 +82,7 @@ void GcodeSuite::M425() {
     SERIAL_ECHOLNPGM("active:");
     SERIAL_ECHOLNPGM("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
-    LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a)) {
+    LOOP_NUM_AXES(a) if (axis_can_calibrate(a)) {
       SERIAL_ECHOLNPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_distance_mm((AxisEnum)a));
     }
 
@@ -93,7 +93,7 @@ void GcodeSuite::M425() {
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
-        LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
+        LOOP_NUM_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
           SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_measurement((AxisEnum)a));
         }
       }
@@ -111,7 +111,7 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
-    , LIST_N(DOUBLE(LINEAR_AXES),
+    , LIST_N(DOUBLE(NUM_AXES),
         SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
         SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
         SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),

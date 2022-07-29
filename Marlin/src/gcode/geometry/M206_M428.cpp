@@ -39,7 +39,7 @@
  */
 void GcodeSuite::M206() {
   if (!parser.seen_any()) return M206_report();
-  LOOP_LINEAR_AXES(a)
+  LOOP_NUM_AXES(a)
     if (parser.seenval(AXIS_CHAR(a))) set_home_offset((AxisEnum)a, parser.value_axis_units((AxisEnum)a));
   #if ENABLED(MORGAN_SCARA)
     if (parser.seenval('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
@@ -53,7 +53,7 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_HOME_OFFSET));
   SERIAL_ECHOLNPGM_P(
     #if IS_CARTESIAN
-      LIST_N(DOUBLE(LINEAR_AXES),
+      LIST_N(DOUBLE(NUM_AXES),
         PSTR("  M206 X"), LINEAR_UNIT(home_offset.x),
         SP_Y_STR, LINEAR_UNIT(home_offset.y),
         SP_Z_STR, LINEAR_UNIT(home_offset.z),
@@ -82,7 +82,7 @@ void GcodeSuite::M428() {
   if (homing_needed_error()) return;
 
   xyz_float_t diff;
-  LOOP_LINEAR_AXES(i) {
+  LOOP_NUM_AXES(i) {
     diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
     if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
       diff[i] = -current_position[i];
@@ -94,7 +94,7 @@ void GcodeSuite::M428() {
     }
   }
 
-  LOOP_LINEAR_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
+  LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
   report_current_position();
   LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
   OKAY_BUZZ();

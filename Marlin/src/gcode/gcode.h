@@ -916,7 +916,7 @@ private:
     static void M290();
   #endif
 
-  #if HAS_BUZZER
+  #if HAS_SOUND
     static void M300();
   #endif
 

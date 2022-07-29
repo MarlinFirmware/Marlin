@@ -905,19 +905,19 @@
 #endif
 
 // Remove unused STEALTHCHOP flags
-#if LINEAR_AXES < 6
+#if NUM_AXES < 6
   #undef STEALTHCHOP_K
   #undef CALIBRATION_MEASURE_KMIN
   #undef CALIBRATION_MEASURE_KMAX
-  #if LINEAR_AXES < 5
+  #if NUM_AXES < 5
     #undef STEALTHCHOP_J
     #undef CALIBRATION_MEASURE_JMIN
     #undef CALIBRATION_MEASURE_JMAX
-    #if LINEAR_AXES < 4
+    #if NUM_AXES < 4
       #undef STEALTHCHOP_I
       #undef CALIBRATION_MEASURE_IMIN
       #undef CALIBRATION_MEASURE_IMAX
-      #if LINEAR_AXES < 3
+      #if NUM_AXES < 3
         #undef Z_IDLE_HEIGHT
         #undef STEALTHCHOP_Z
         #undef Z_PROBE_SLED
@@ -927,7 +927,7 @@
         #undef ENABLE_LEVELING_FADE_HEIGHT
         #undef NUM_Z_STEPPERS
         #undef CNC_WORKSPACE_PLANES
-        #if LINEAR_AXES < 2
+        #if NUM_AXES < 2
           #undef STEALTHCHOP_Y
         #endif
       #endif
