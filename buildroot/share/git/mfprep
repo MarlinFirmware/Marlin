@@ -18,7 +18,7 @@ DRYRUN=0
 TAG1=$1
 TAG2=${2:-"HEAD"}
 
-DEST=2.1.x
+DEST=2.0.x
 
 # Validate that the required tags exist
 
