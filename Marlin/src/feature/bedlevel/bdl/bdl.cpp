@@ -80,22 +80,21 @@ float BDS_Leveling::read() {
 }
 
 void BDS_Leveling::process() {
- static millis_t timeout_auto = 0;
- static float z_pose = 0.0f;
- int timeout_y = 100;
- float z_sensor = 0;
  //if (config_state == 0) return;
- if (config_state < 0) timeout_y = 1000;
- if ((millis() - timeout_auto) > timeout_y) {
+ static millis_t next_check_ms = 0; // starting at T=0
+ static float z_pose = 0.0f;
+ const millis_t ms = millis();
+ if (ELAPSED(ms, next_check_ms)) { // timed out (or first run)
+    next_check_ms = ms + (config_state < 0 ? 1000 : 100);   // check at 1Hz or 10Hz
+
     unsigned short tmp = 0;
-    char tmp_1[50];
-    float cur_z = planner.get_axis_position_mm(Z_AXIS); //current_position.z
+    const float cur_z = planner.get_axis_position_mm(Z_AXIS); //current_position.z
     static float old_cur_z = cur_z,
                  old_buf_z = current_position.z;
 
     tmp = BD_I2C_SENSOR.BD_i2c_read();
     if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && (tmp & 0x3FF) < 1020) {
-      z_sensor = (tmp & 0x3FF) / 100.0f;
+      const float z_sensor = (tmp & 0x3FF) / 100.0f;
       if (cur_z < 0) config_state = 0;
       //float abs_z = current_position.z > cur_z ? (current_position.z - cur_z) : (cur_z - current_position.z);
       if ( cur_z < config_state / 10.0f
@@ -116,7 +115,7 @@ void BDS_Leveling::process() {
       }
       old_cur_z = cur_z;
       old_buf_z = current_position.z;
-      endstops.bdp_update(z_sensor <= 0.01f);
+      endstops.bdp_state_update(z_sensor <= 0.01f);
       //endstops.update();
     }
     else
@@ -153,13 +152,7 @@ void BDS_Leveling::process() {
         //delay(1000);
         gcode.stepper_inactive_time = SEC_TO_MS(60 * 5);
         gcode.process_subcommands_now(F("M17 Z"));
-        //strcpy_P(tmp_1, PSTR("M17 Z"));
-        //parser.parse(tmp_1);
-        //gcode.process_parsed_command();
         gcode.process_subcommands_now(F("G1 Z0.0"));
-        //strcpy_P(tmp_1, PSTR("G1 Z0.0"));
-        //parser.parse(tmp_1);
-        //gcode.process_parsed_command();
         z_pose = 0;
         safe_delay(1000);
         BD_I2C_SENSOR.BD_i2c_write(CMD_START_CALIBRATE); // Begin calibrate
@@ -177,10 +170,9 @@ void BDS_Leveling::process() {
         }
         else {
           float tmp_k = 0;
+          char tmp_1[30];
           sprintf_P(tmp_1, PSTR("G1 Z%d.%d"), int(z_pose), int(int(z_pose * 10) % 10));
           gcode.process_subcommands_now(tmp_1);
-          //parser.parse(tmp_1);
-          //gcode.process_parsed_command();
 
           SERIAL_ECHO(tmp_1);
           SERIAL_ECHOLNPGM(" ,Z:", current_position.z);
@@ -197,9 +189,7 @@ void BDS_Leveling::process() {
           //queue.enqueue_now_P(PSTR("G90"));
         }
       }
-
     }
-    timeout_auto = millis();
   }
 }
 

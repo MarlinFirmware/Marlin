@@ -64,8 +64,8 @@ volatile Endstops::endstop_mask_t Endstops::hit_state;
 Endstops::endstop_mask_t Endstops::live_state = 0;
 
 #if ENABLED(BD_SENSOR)
-  bool Endstops::bdp_z_state; // = false
-  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? bdp_z_state : READ(P))
+  bool Endstops::bdp_state; // = false
+  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? bdp_state : READ(P))
 #else
   #define READ_ENDSTOP(P) READ(P)
 #endif
