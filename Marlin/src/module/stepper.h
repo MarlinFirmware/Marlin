@@ -420,6 +420,7 @@ class Stepper {
       static uint32_t nextAdvanceISR,
                       la_interval;      // Interval between ISR calls for LA
       static int32_t  la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
+                      la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
                       la_advance_steps; // Count of steps added to increase nozzle pressure
     #endif
 
@@ -511,7 +512,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move = 0;
       planner.release_current_block();
-      TERN_(LIN_ADVANCE, nextAdvanceISR = LA_ADV_NEVER);
+      TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
 
     // Quickly stop all steppers

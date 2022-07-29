@@ -220,6 +220,7 @@ uint32_t Stepper::advance_divisor = 0,
   uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
            Stepper::la_interval = LA_ADV_NEVER;
   int32_t  Stepper::la_delta_error = 0,
+           Stepper::la_dividend = 0,
            Stepper::la_advance_steps = 0;
 #endif
 
@@ -1971,8 +1972,6 @@ uint32_t Stepper::block_phase_isr() {
   // If no queued movements, just wait 1ms for the next block
   uint32_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
-  TERN_(LIN_ADVANCE, la_interval = LA_ADV_NEVER);
-
   // If there is a current block
   if (current_block) {
     // If current block is finished, reset pointer and finalize state
@@ -2146,16 +2145,15 @@ uint32_t Stepper::block_phase_isr() {
         if (ticks_nominal < 0) {
           // step_rate to timer interval and loops for the nominal speed
           ticks_nominal = calc_timer_interval(current_block->nominal_rate << oversampling_factor, steps_per_isr);
+
+          #if ENABLED(LIN_ADVANCE)
+            if (current_block->la_advance_rate)
+              la_interval = calc_timer_interval(current_block->nominal_rate) << current_block->la_scaling;
+          #endif
         }
 
         // The timer interval is just the nominal value for the nominal speed
         interval = ticks_nominal;
-
-        #if ENABLED(LIN_ADVANCE)
-          // No more acceleration, so re-use ticks_nominal but discount the effect of oversampling_factor
-          if (current_block->la_advance_rate)
-            la_interval = (ticks_nominal << current_block->la_scaling) << oversampling_factor;
-        #endif
       }
 
       /**
@@ -2389,9 +2387,8 @@ uint32_t Stepper::block_phase_isr() {
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
         if (current_block->la_advance_rate) {
-          advance_dividend.e <<= current_block->la_scaling;
-          // discount the effect of frequency scaling for the stepper
-          advance_dividend.e <<= oversampling;
+          // apply LA scaling and discount the effect of frequency scaling
+          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling;
         }
       #endif
 
@@ -2469,7 +2466,7 @@ uint32_t Stepper::block_phase_isr() {
     // Apply Bresenham algorithm so that linear advance can piggy back on
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
-    la_delta_error += advance_dividend.e;
+    la_delta_error += la_dividend;
     if (la_delta_error >= 0) {
       count_position.e += count_direction.e;
       la_advance_steps += count_direction.e;
