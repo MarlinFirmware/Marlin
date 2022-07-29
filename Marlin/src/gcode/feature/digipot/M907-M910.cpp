@@ -108,7 +108,7 @@ void GcodeSuite::M907() {
     // Additional extruders use B,C,D.
     // TODO: Change these parameters because 'E' is used and because 'D' should be reserved for debugging. B<index>?
     #if E_STEPPERS >= 2
-      for (uint8_t i = E_AXIS + 1; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
+      for (uint8_t i = E_AXIS + 1; i < _MIN(DIGIPOT_I2C_NUM_CHANNELS, (E_AXIS+E_STEPPERS)); i++)
         if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c.set_current(i, parser.value_float());
     #endif
   #endif
