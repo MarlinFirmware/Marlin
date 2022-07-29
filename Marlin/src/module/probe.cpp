@@ -845,29 +845,15 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   /**
    * Switches to the appropriate tool (PROBING_TOOL) for probing (probing = true), and switches
-   * back to the old tool when probing = false. Uses a nesting count to avoid unnecessary
-   * checks and keep correct track of previous tool, so it should always be called symmetrically 
-   * (equal number of probing = true and probing = false invocations) in order to keep
-   * proper tracking of tool changes.
-   * 
+   * back to the old tool when probing = false. Uses statics to avoid unnecessary checks and to
+   * cache the previous tool, so always call with false after calling with true.
    */
   void Probe::use_probing_tool(const bool probing/*=true*/) {
     static uint8_t old_tool;
-    static uint8_t nest_level = 0;
-    
-    uint8_t tool;
-
-    if (probing) {
-      if (nest_level ++) return;
-
-      tool = PROBING_TOOL;
-      old_tool = active_extruder;
-    } else {
-      if (-- nest_level) return;
-
-      tool = old_tool;
-    }
-
+    static bool old_state = false;
+    if (probing == old_state) return;
+    if ((old_state = probing)) old_tool = active_extruder;
+    const uint8_t tool = probing ? PROBING_TOOL : old_tool;
     if (tool != active_extruder)
       tool_change(tool, ENABLED(PROBE_TOOLCHANGE_NO_MOVE));
   }
@@ -884,11 +870,11 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  * - Revert to previous tool
- * 
- * A batch of multiple probing operations should always be preceded by use_probing_tool() invocation 
- * and succeeded by use_probing_tool(false), in order to avoid multiple tool changes and to end up 
+ *
+ * A batch of multiple probing operations should always be preceded by use_probing_tool() invocation
+ * and succeeded by use_probing_tool(false), in order to avoid multiple tool changes and to end up
  * with the previously active tool.
- * 
+ *
  */
 float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
