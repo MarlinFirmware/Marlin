@@ -37,7 +37,7 @@ L64XX_Marlin L64xxManager;
 #include "../../module/planner.h"
 #include "../../HAL/shared/Delay.h"
 
-static const char LINEAR_AXIS_LIST(
+static const char NUM_AXIS_LIST(
                    str_X[] PROGMEM = "X ",      str_Y[] PROGMEM = "Y ",      str_Z[] PROGMEM = "Z ",
                    str_I[] PROGMEM = STR_I " ", str_J[] PROGMEM = STR_J " ", str_K[] PROGMEM = STR_K " "
                  ),
@@ -53,7 +53,7 @@ static const char LINEAR_AXIS_LIST(
 
 #define _EN_ITEM(N) , str_E##N
 PGM_P const L64XX_Marlin::index_to_axis[] PROGMEM = {
-  LINEAR_AXIS_LIST(str_X, str_Y, str_Z, str_I, str_J, str_K),
+  NUM_AXIS_LIST(str_X, str_Y, str_Z, str_I, str_J, str_K),
   str_X2, str_Y2, str_Z2, str_Z3, str_Z4
   REPEAT(E_STEPPERS, _EN_ITEM)
 };
@@ -68,7 +68,7 @@ uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction comma
 
 #define _EN_ITEM(N) , ENABLED(INVERT_E##N##_DIR)
 const uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = {
-    LINEAR_AXIS_LIST(ENABLED(INVERT_X_DIR), ENABLED(INVERT_Y_DIR), ENABLED(INVERT_Z_DIR), ENABLED(INVERT_I_DIR), ENABLED(INVERT_J_DIR), ENABLED(INVERT_K_DIR))
+    NUM_AXIS_LIST(ENABLED(INVERT_X_DIR), ENABLED(INVERT_Y_DIR), ENABLED(INVERT_Z_DIR), ENABLED(INVERT_I_DIR), ENABLED(INVERT_J_DIR), ENABLED(INVERT_K_DIR))
   , ENABLED(INVERT_X_DIR) ^ BOTH(HAS_DUAL_X_STEPPERS, INVERT_X2_VS_X_DIR) // X2
   , ENABLED(INVERT_Y_DIR) ^ BOTH(HAS_DUAL_Y_STEPPERS, INVERT_Y2_VS_Y_DIR) // Y2
   , ENABLED(INVERT_Z_DIR) ^ ENABLED(INVERT_Z2_VS_Z_DIR) // Z2

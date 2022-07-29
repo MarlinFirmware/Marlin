@@ -48,7 +48,7 @@ inline stepper_flags_t selected_axis_bits() {
         selected.bits = e_axis_mask;
     }
   #endif
-  selected.bits |= LINEAR_AXIS_GANG(
+  selected.bits |= NUM_AXIS_GANG(
       (parser.seen_test('X')        << X_AXIS),
     | (parser.seen_test('Y')        << Y_AXIS),
     | (parser.seen_test('Z')        << Z_AXIS),
@@ -71,7 +71,7 @@ void do_enable(const stepper_flags_t to_enable) {
   ena_mask_t also_enabled = 0;    // Track steppers enabled due to overlap
 
   // Enable all flagged axes
-  LOOP_LINEAR_AXES(a) {
+  LOOP_NUM_AXES(a) {
     if (TEST(shall_enable, a)) {
       stepper.enable_axis(AxisEnum(a));         // Mark and enable the requested axis
       DEBUG_ECHOLNPGM("Enabled ", AXIS_CHAR(a), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... Enabled: ", hex_word(stepper.axis_enabled.bits));
@@ -91,7 +91,7 @@ void do_enable(const stepper_flags_t to_enable) {
 
   if ((also_enabled &= ~(shall_enable | was_enabled))) {
     SERIAL_CHAR('(');
-    LOOP_LINEAR_AXES(a) if (TEST(also_enabled, a)) SERIAL_CHAR(AXIS_CHAR(a), ' ');
+    LOOP_NUM_AXES(a) if (TEST(also_enabled, a)) SERIAL_CHAR(AXIS_CHAR(a), ' ');
     #if HAS_EXTRUDERS
       #define _EN_ALSO(N) if (TEST(also_enabled, INDEX_OF_AXIS(E_AXIS, N))) SERIAL_CHAR('E', '0' + N, ' ');
       REPEAT(EXTRUDERS, _EN_ALSO)
@@ -127,7 +127,7 @@ void GcodeSuite::M17() {
             stepper.enable_e_steppers();
         }
       #endif
-      LOOP_LINEAR_AXES(a)
+      LOOP_NUM_AXES(a)
         if (parser.seen_test(AXIS_CHAR(a))) stepper.enable_axis((AxisEnum)a);
     }
   }
@@ -145,7 +145,7 @@ void try_to_disable(const stepper_flags_t to_disable) {
   if (!still_enabled) return;
 
   // Attempt to disable all flagged axes
-  LOOP_LINEAR_AXES(a)
+  LOOP_NUM_AXES(a)
     if (TEST(to_disable.bits, a)) {
       DEBUG_ECHOPGM("Try to disable ", AXIS_CHAR(a), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
       if (stepper.disable_axis(AxisEnum(a))) {            // Mark the requested axis and request to disable
@@ -174,7 +174,7 @@ void try_to_disable(const stepper_flags_t to_disable) {
 
   auto overlap_warning = [](const ena_mask_t axis_bits) {
     SERIAL_ECHOPGM(" not disabled. Shared with");
-    LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]));
+    LOOP_NUM_AXES(a) if (TEST(axis_bits, a)) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]));
     #if HAS_EXTRUDERS
       #define _EN_STILLON(N) if (TEST(axis_bits, INDEX_OF_AXIS(E_AXIS, N))) SERIAL_CHAR(' ', 'E', '0' + N);
       REPEAT(EXTRUDERS, _EN_STILLON)
@@ -183,7 +183,7 @@ void try_to_disable(const stepper_flags_t to_disable) {
   };
 
   // If any of the requested axes are still enabled, give a warning
-  LOOP_LINEAR_AXES(a) {
+  LOOP_NUM_AXES(a) {
     if (TEST(still_enabled, a)) {
       SERIAL_CHAR(AXIS_CHAR(a));
       overlap_warning(stepper.axis_enabled.bits & enable_overlap[a]);
@@ -234,7 +234,7 @@ void GcodeSuite::M18_M84() {
               stepper.disable_e_steppers();
           }
         #endif
-        LOOP_LINEAR_AXES(a)
+        LOOP_NUM_AXES(a)
           if (parser.seen_test(AXIS_CHAR(a))) stepper.disable_axis((AxisEnum)a);
       }
     }

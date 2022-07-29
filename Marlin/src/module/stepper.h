@@ -236,7 +236,7 @@
 // Perhaps DISABLE_MULTI_STEPPING should be required with ADAPTIVE_STEP_SMOOTHING.
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
-#define ENABLE_COUNT (LINEAR_AXES + E_STEPPERS)
+#define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
 typedef IF<(ENABLE_COUNT > 8), uint16_t, uint8_t>::type ena_mask_t;
 
 // Axis flags type, for enabled state or other simple state
@@ -244,7 +244,7 @@ typedef struct {
   union {
     ena_mask_t bits;
     struct {
-      bool LINEAR_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1);
+      bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1);
       #if HAS_EXTRUDERS
         bool LIST_N(EXTRUDERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
       #endif
@@ -254,13 +254,13 @@ typedef struct {
 
 // All the stepper enable pins
 constexpr pin_t ena_pins[] = {
-  LINEAR_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN),
+  NUM_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN),
   LIST_N(E_STEPPERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
 };
 
 // Index of the axis or extruder element in a combined array
 constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
-  return uint8_t(axis) + (E_TERN0(axis < LINEAR_AXES ? 0 : eindex));
+  return uint8_t(axis) + (E_TERN0(axis < NUM_AXES ? 0 : eindex));
 }
 //#define __IAX_N(N,V...)           _IAX_##N(V)
 //#define _IAX_N(N,V...)            __IAX_N(N,V)
@@ -290,7 +290,7 @@ constexpr bool any_enable_overlap(const uint8_t a=0) {
 //       (e.g., CoreXY, Dual XYZ, or E with multiple steppers, etc.).
 constexpr ena_mask_t enable_overlap[] = {
   #define _OVERLAP(N) ena_overlap(INDEX_OF_AXIS(AxisEnum(N))),
-  REPEAT(LINEAR_AXES, _OVERLAP)
+  REPEAT(NUM_AXES, _OVERLAP)
   #if HAS_EXTRUDERS
     #define _E_OVERLAP(N) ena_overlap(INDEX_OF_AXIS(E_AXIS, N)),
     REPEAT(E_STEPPERS, _E_OVERLAP)

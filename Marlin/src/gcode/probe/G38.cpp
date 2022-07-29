@@ -49,7 +49,7 @@ inline bool G38_run_probe() {
   #if MULTIPLE_PROBING > 1
     // Get direction of move and retract
     xyz_float_t retract_mm;
-    LOOP_LINEAR_AXES(i) {
+    LOOP_NUM_AXES(i) {
       const float dist = destination[i] - current_position[i];
       retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
@@ -119,7 +119,7 @@ void GcodeSuite::G38(const int8_t subcode) {
   ;
 
   // If any axis has enough movement, do the move
-  LOOP_LINEAR_AXES(i)
+  LOOP_NUM_AXES(i)
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error

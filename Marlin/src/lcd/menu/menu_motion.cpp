@@ -144,7 +144,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
 
   if (LCD_HEIGHT >= 4) {
-    if (axis < LINEAR_AXES)
+    if (axis < NUM_AXES)
       STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
     else {
       TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = current_position.e);
@@ -218,7 +218,7 @@ void menu_move() {
     }
     #if HAS_Z_AXIS
       #define _AXIS_MOVE(N) SUBMENU_N(N, MSG_MOVE_N, []{ _menu_move_distance(AxisEnum(N), []{ lcd_move_axis(AxisEnum(N)); }); });
-      REPEAT_S(2, LINEAR_AXES, _AXIS_MOVE);
+      REPEAT_S(2, NUM_AXES, _AXIS_MOVE);
     #endif
   }
   else

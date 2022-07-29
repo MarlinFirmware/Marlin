@@ -63,7 +63,7 @@ void GcodeSuite::G92() {
 
     #if ENABLED(CNC_COORDINATE_SYSTEMS) && !IS_SCARA
       case 1:                                                         // G92.1 - Zero the Workspace Offset
-        LOOP_LINEAR_AXES(i) if (position_shift[i]) {
+        LOOP_NUM_AXES(i) if (position_shift[i]) {
           position_shift[i] = 0;
           update_workspace_offset((AxisEnum)i);
         }

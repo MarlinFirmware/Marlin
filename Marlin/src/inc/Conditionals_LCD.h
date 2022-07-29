@@ -675,21 +675,21 @@
 #endif
 
 #ifdef K_DRIVER_TYPE
-  #define LINEAR_AXES 6
+  #define NUM_AXES 6
 #elif defined(J_DRIVER_TYPE)
-  #define LINEAR_AXES 5
+  #define NUM_AXES 5
 #elif defined(I_DRIVER_TYPE)
-  #define LINEAR_AXES 4
+  #define NUM_AXES 4
 #elif defined(Z_DRIVER_TYPE)
-  #define LINEAR_AXES 3
+  #define NUM_AXES 3
 #elif defined(Y_DRIVER_TYPE)
-  #define LINEAR_AXES 2
+  #define NUM_AXES 2
 #else
-  #define LINEAR_AXES 1
+  #define NUM_AXES 1
 #endif
-#if LINEAR_AXES >= XY
+#if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
-  #if LINEAR_AXES >= XYZ
+  #if NUM_AXES >= XYZ
     #define HAS_Z_AXIS 1
     #ifdef Z4_DRIVER_TYPE
       #define NUM_Z_STEPPERS 4
@@ -700,11 +700,11 @@
     #else
       #define NUM_Z_STEPPERS 1
     #endif
-    #if LINEAR_AXES >= 4
+    #if NUM_AXES >= 4
       #define HAS_I_AXIS 1
-      #if LINEAR_AXES >= 5
+      #if NUM_AXES >= 5
         #define HAS_J_AXIS 1
-        #if LINEAR_AXES >= 6
+        #if NUM_AXES >= 6
           #define HAS_K_AXIS 1
         #endif
       #endif
@@ -824,17 +824,17 @@
  * Number of Primary Linear Axes (e.g., XYZ)
  * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
  */
-#if LINEAR_AXES >= 3
+#if NUM_AXES >= 3
   #define PRIMARY_LINEAR_AXES 3
 #else
-  #define PRIMARY_LINEAR_AXES LINEAR_AXES
+  #define PRIMARY_LINEAR_AXES NUM_AXES
 #endif
 
 /**
  * Number of Secondary Axes (e.g., IJK)
  * All linear/rotational axes between XYZ and E.
  */
-#define SECONDARY_AXES SUB3(LINEAR_AXES)
+#define SECONDARY_AXES SUB3(NUM_AXES)
 
 /**
  * Number of Logical Axes (e.g., XYZIJKE)
@@ -842,9 +842,9 @@
  * Delta maps stepper-specific values to ABC steppers.
  */
 #if HAS_EXTRUDERS
-  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+  #define LOGICAL_AXES INCREMENT(NUM_AXES)
 #else
-  #define LOGICAL_AXES LINEAR_AXES
+  #define LOGICAL_AXES NUM_AXES
 #endif
 
 /**
@@ -862,7 +862,7 @@
  *  distinguished.
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
+  #define DISTINCT_AXES (NUM_AXES + E_STEPPERS)
   #define DISTINCT_E E_STEPPERS
   #define E_INDEX_N(E) (E)
 #else
