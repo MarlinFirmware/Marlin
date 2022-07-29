@@ -40,7 +40,10 @@ def run_preprocessor(env, fn=None):
 	depcmd = cmd + [ filename ]
 	cmd = ' '.join(depcmd)
 	blab(cmd)
-	define_list = subprocess.check_output(cmd, shell=True).splitlines()
+	try:
+		define_list = subprocess.check_output(cmd, shell=True).splitlines()
+	except:
+		define_list = {}
 	preprocessor_cache[filename] = define_list
 	return define_list
 

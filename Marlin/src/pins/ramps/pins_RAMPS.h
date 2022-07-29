@@ -272,7 +272,9 @@
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
   #if NUM_SERVOS < 2                              // Use servo connector if possible
     #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #ifndef SPINDLE_LASER_PWM_PIN
+      #define SPINDLE_LASER_PWM_PIN            6  // Hardware PWM
+    #endif
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS
     #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
