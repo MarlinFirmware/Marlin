@@ -984,7 +984,7 @@ void reset_trinamic_drivers() {
 
   #define TMC_SWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_SERIAL_RX_PIN or " STRINGIFY(A) "_SERIAL_TX_PIN"
   #define SA_NO_TMC_SW_C(A) static_assert(1 >= count_tmc_sw_serial_matches(TMC_SW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_sw_details)), TMC_SWSERIAL_CONFLICT_MSG(A));
-  MAPLIST(SA_NO_TMC_SW_C, ALL_AXIS_NAMES)
+  MAP(SA_NO_TMC_SW_C, ALL_AXIS_NAMES)
 #endif
 
 #endif // HAS_TRINAMIC_CONFIG
