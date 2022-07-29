@@ -14,9 +14,7 @@ which curl >/dev/null && TOOL='curl -L -s -S -f -o wgot'
 which wget >/dev/null && TOOL='wget -q -O wgot'
 
 CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
-[[ $CURR == "bugfix-2.0.x" ]] && BRANCH=bugfix-2.0.x || BRANCH=bugfix-2.1.x
-
-REPO=$BRANCH
+REPO=bugfix-2.0.x
 
 if [[ $# > 0 ]]; then
   IFS=: read -r PART1 PART2 <<< "$@"
