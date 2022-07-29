@@ -530,7 +530,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
 void Stepper::enable_all_steppers() {
   TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
-  LINEAR_AXIS_CODE(
+  NUM_AXIS_CODE(
     enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
     enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
   );
@@ -540,7 +540,7 @@ void Stepper::enable_all_steppers() {
 }
 
 void Stepper::disable_all_steppers() {
-  LINEAR_AXIS_CODE(
+  NUM_AXIS_CODE(
     disable_axis(X_AXIS), disable_axis(Y_AXIS), disable_axis(Z_AXIS),
     disable_axis(I_AXIS), disable_axis(J_AXIS), disable_axis(K_AXIS)
   );
@@ -2236,7 +2236,7 @@ uint32_t Stepper::block_phase_isr() {
       #endif
 
       axis_bits_t axis_bits = 0;
-      LINEAR_AXIS_CODE(
+      NUM_AXIS_CODE(
         if (X_MOVE_TEST)            SBI(axis_bits, A_AXIS),
         if (Y_MOVE_TEST)            SBI(axis_bits, B_AXIS),
         if (Z_MOVE_TEST)            SBI(axis_bits, C_AXIS),
@@ -2742,7 +2742,7 @@ void Stepper::init() {
 
   // Init direction bits for first moves
   set_directions(0
-    LINEAR_AXIS_GANG(
+    NUM_AXIS_GANG(
       | TERN0(INVERT_X_DIR, _BV(X_AXIS)),
       | TERN0(INVERT_Y_DIR, _BV(Y_AXIS)),
       | TERN0(INVERT_Z_DIR, _BV(Z_AXIS)),
@@ -2899,7 +2899,7 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(LINEAR_AXES),
+    LIST_N(DOUBLE(NUM_AXES),
       TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
       TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
       TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
@@ -3061,14 +3061,14 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          LINEAR_AXIS_CODE(
+          NUM_AXIS_CODE(
             enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
             enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
           );
 
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(
+          const xyz_byte_t old_dir = NUM_AXIS_ARRAY(
             X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(),
             I_DIR_READ(), J_DIR_READ(), K_DIR_READ()
           );

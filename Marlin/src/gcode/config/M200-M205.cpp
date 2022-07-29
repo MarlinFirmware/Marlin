@@ -122,7 +122,7 @@
  *  S<percent> : Speed factor percentage.
  */
 void GcodeSuite::M201() {
-  if (!parser.seen("T" LOGICAL_AXES_STRING TERN_(XY_FREQUENCY_LIMIT, "FS")))
+  if (!parser.seen("T" STR_AXES_LOGICAL TERN_(XY_FREQUENCY_LIMIT, "FS")))
     return M201_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
@@ -144,7 +144,7 @@ void GcodeSuite::M201() {
 void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MAX_ACCELERATION));
   SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(LINEAR_AXES),
+    LIST_N(DOUBLE(NUM_AXES),
       PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]),
       SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS]),
@@ -173,7 +173,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
  *       With multiple extruders use T to specify which one.
  */
 void GcodeSuite::M203() {
-  if (!parser.seen("T" LOGICAL_AXES_STRING))
+  if (!parser.seen("T" STR_AXES_LOGICAL))
     return M203_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
@@ -189,7 +189,7 @@ void GcodeSuite::M203() {
 void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MAX_FEEDRATES));
   SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(LINEAR_AXES),
+    LIST_N(DOUBLE(NUM_AXES),
       PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]),
       SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]),
@@ -298,7 +298,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
     "Advanced (B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
     #if HAS_CLASSIC_JERK
-      LINEAR_AXIS_GANG(
+      NUM_AXIS_GANG(
         " X<max_jerk>", " Y<max_jerk>", " Z<max_jerk>",
         " " STR_I "<max_jerk>", " " STR_J "<max_jerk>", " " STR_K "<max_jerk>"
       )
@@ -314,7 +314,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
       , PSTR(" J"), LINEAR_UNIT(planner.junction_deviation_mm)
     #endif
     #if HAS_CLASSIC_JERK
-      , LIST_N(DOUBLE(LINEAR_AXES),
+      , LIST_N(DOUBLE(NUM_AXES),
         SP_X_STR, LINEAR_UNIT(planner.max_jerk.x),
         SP_Y_STR, LINEAR_UNIT(planner.max_jerk.y),
         SP_Z_STR, LINEAR_UNIT(planner.max_jerk.z),

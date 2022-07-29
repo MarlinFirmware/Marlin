@@ -161,7 +161,7 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
 
   if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k) {
     say_M569(forReplay);
-    LINEAR_AXIS_CODE(
+    NUM_AXIS_CODE(
       if (chop_x) SERIAL_ECHOPGM_P(SP_X_STR),
       if (chop_y) SERIAL_ECHOPGM_P(SP_Y_STR),
       if (chop_z) SERIAL_ECHOPGM_P(SP_Z_STR),

@@ -120,7 +120,7 @@ void GcodeSuite::M600() {
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  LINEAR_AXIS_CODE(
+  NUM_AXIS_CODE(
     if (parser.seenval('X')) park_point.x = parser.linearval('X'),
     if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis

@@ -47,7 +47,7 @@
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    LOOP_LINEAR_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), dtostrf(pos[a], 1, precision, str));
+    LOOP_NUM_AXES(a) SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_LBL[a]), dtostrf(pos[a], 1, precision, str));
     SERIAL_EOL();
   }
 

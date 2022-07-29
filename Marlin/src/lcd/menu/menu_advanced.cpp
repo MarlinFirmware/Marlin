@@ -429,7 +429,7 @@ void menu_backlash();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-    LOOP_LINEAR_AXES(a)
+    LOOP_NUM_AXES(a)
       EDIT_ITEM_FAST_N(float5, a, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[a], 1, max_fr_edit_scaled[a]);
 
     #if E_STEPPERS
@@ -484,7 +484,7 @@ void menu_backlash();
     EDIT_ITEM_FAST(float5_25, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 25, max_accel);
 
     #define EDIT_AMAX(Q,L) EDIT_ITEM_FAST_N(long5_25, _AXIS(Q), MSG_AMAX_N, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], []{ planner.refresh_acceleration_rates(); })
-    LINEAR_AXIS_CODE(
+    NUM_AXIS_CODE(
       EDIT_AMAX(A, 100), EDIT_AMAX(B, 100), EDIT_AMAX(C, 10),
       EDIT_AMAX(I,  10), EDIT_AMAX(J,  10), EDIT_AMAX(K, 10)
     );
@@ -574,7 +574,7 @@ void menu_advanced_steps_per_mm() {
   START_MENU();
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-  LOOP_LINEAR_AXES(a)
+  LOOP_NUM_AXES(a)
     EDIT_ITEM_FAST_N(float61, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
 
   #if ENABLED(DISTINCT_E_FACTORS)

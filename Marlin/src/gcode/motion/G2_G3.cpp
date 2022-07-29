@@ -48,7 +48,7 @@
   #define MIN_ARC_SEGMENT_MM MAX_ARC_SEGMENT_MM
 #endif
 
-#define ARC_LIJK_CODE(L,I,J,K)    CODE_N(SUB2(LINEAR_AXES),L,I,J,K)
+#define ARC_LIJK_CODE(L,I,J,K)    CODE_N(SUB2(NUM_AXES),L,I,J,K)
 #define ARC_LIJKE_CODE(L,I,J,K,E) ARC_LIJK_CODE(L,I,J,K); CODE_ITEM_E(E)
 
 /**
@@ -168,7 +168,7 @@ void plan_arc(
 
   // Return if the move is near zero
   if (flat_mm < 0.0001f
-    GANG_N(SUB2(LINEAR_AXES), && travel_L < 0.0001f, && travel_I < 0.0001f, && travel_J < 0.0001f, && travel_K < 0.0001f)
+    GANG_N(SUB2(NUM_AXES), && travel_L < 0.0001f, && travel_I < 0.0001f, && travel_J < 0.0001f, && travel_K < 0.0001f)
   ) return;
 
   // Feedrate for the move, scaled by the feedrate multiplier

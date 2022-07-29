@@ -427,7 +427,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-      char LINEAR_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' '),
+      char NUM_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' '),
            chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -450,7 +450,7 @@ void Endstops::event_handler() {
 
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
-    LINEAR_AXIS_CODE(
+    NUM_AXIS_CODE(
        ENDSTOP_HIT_TEST_X(),
        ENDSTOP_HIT_TEST_Y(),
        ENDSTOP_HIT_TEST_Z(),
@@ -467,9 +467,9 @@ void Endstops::event_handler() {
 
     TERN_(HAS_STATUS_MESSAGE,
       ui.status_printf(0,
-        F(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
+        F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
-        LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK), chrP
+        NUM_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK), chrP
       )
     );
 
