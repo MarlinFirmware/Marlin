@@ -3,7 +3,7 @@
 #  mftest                             Select a test to apply and build
 #  mftest -b [#]                      Build the auto-detected environment
 #  mftest -u [#]                      Upload the auto-detected environment
-#  mftest [name] [index] [-y]         Set config options and optionally build a test
+#  mftest -tname -n# [-y]             Set config options and optionally build a test
 #
 
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
