@@ -121,12 +121,12 @@ void GcodeSuite::M600() {
 
   // Move XY axes to filament change position or given position
   LINEAR_AXIS_CODE(
-    if (parser.seenval('X')) park_point.x = parser.value_linear_units(),
-    if (parser.seenval('Y')) park_point.y = parser.value_linear_units(),
-    if (parser.seenval('Z')) park_point.z = parser.value_linear_units(),    // Lift Z axis
-    if (parser.seenval('I')) park_point.i = parser.value_linear_units(),
-    if (parser.seenval('J')) park_point.j = parser.value_linear_units(),
-    if (parser.seenval('K')) park_point.k = parser.value_linear_units()
+    if (parser.seenval('X')) park_point.x = parser.linearval('X'),
+    if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
+    if (parser.seenval('I')) park_point.i = parser.linearval('I'),
+    if (parser.seenval('J')) park_point.j = parser.linearval('J'),
+    if (parser.seenval('K')) park_point.k = parser.linearval('K')
   );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
