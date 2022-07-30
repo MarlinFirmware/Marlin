@@ -197,8 +197,7 @@ public:
    *  - For CUTTER_MODE_ERROR set the output enable_state flag directly and set power to 0 for any mode.
    *    This mode allows a global power shutdown action to occur.
    */
-  static void set_enabled(const bool enable) {
-    enable_state = enable;
+  static void set_enabled(bool enable) {
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
         apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
@@ -210,12 +209,13 @@ public:
         TERN_(LASER_FEATURE, set_inline_enabled(enable));
         break;
       case CUTTER_MODE_ERROR: // Error mode, no enable and kill power.
-        enable_state = false;
+        enable = false;
         apply_power(0);
     }
     #if SPINDLE_LASER_ENA_PIN
       WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
     #endif
+    enable_state = enable;
   }
 
   static void disable() { isReadyForUI = false; set_enabled(false); }
