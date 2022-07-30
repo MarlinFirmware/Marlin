@@ -61,7 +61,7 @@ PGM_P const tramming_point_name[] PROGMEM = {
   void move_to_tramming_wait_pos() {
     constexpr xyz_pos_t wait_pos = ASSISTED_TRAMMING_WAIT_POSITION;
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Moving away");
-    do_blocking_move_to(wait_pos, XY_PROBE_FEEDRATE_MM_S);
+    do_blocking_move_to(wait_pos, XY_PROBE_FEEDRATE_MM_S OPTARG(HAS_ROTATIONAL_AXES, XY_PROBE_FEEDRATE_MM_S));
   }
 
 #endif

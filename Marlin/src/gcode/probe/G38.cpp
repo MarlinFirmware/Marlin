@@ -81,6 +81,7 @@ inline bool G38_run_probe() {
       planner.synchronize();
 
       REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
+      REMEMBER(angular_fr, feedrate_deg_s, feedrate_deg_s * 0.25);
 
       // Bump the target more slowly
       destination -= retract_mm * 2;
