@@ -509,6 +509,8 @@
   #include "stm32f1/pins_CHITU3D.h"             // STM32F103ZE                            env:STM32F103ZE env:STM32F103RE_maple
 #elif MB(MKS_ROBIN)
   #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_maple
+#elif MB(ZNP_ROBIN_NANO)
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:znp_robin_nano35
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini env:mks_robin_mini_maple
 #elif MB(MKS_ROBIN_NANO)
@@ -679,6 +681,12 @@
   #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3 env:mks_robin_nano_v3_usb_flash_drive env:mks_robin_nano_v3_usb_flash_drive_msc
 #elif MB(MKS_ROBIN_NANO_V3_1)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3_1 env:mks_robin_nano_v3_1_usb_flash_drive env:mks_robin_nano_v3_1_usb_flash_drive_msc
+#elif MB(MKS_NEPTUNE_X)
+  #include "stm32f4/pins_MKS_NEPTUNE_X.h"       // STM32F4                                env:mks_neptune_x
+#elif MB(MKS_NEPTUNE_3)
+  #include "stm32f4/pins_NEPTUNE_3.h"           // STM32F4                                env:mks_neptune_3
+#elif MB(ZNP_ROBIN_NANO_V1_3)
+  #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h" // STM32F4                             env:znp_robin_nano_v1_3
 #elif MB(ANET_ET4)
   #include "stm32f4/pins_ANET_ET4.h"            // STM32F4                                env:Anet_ET4_no_bootloader env:Anet_ET4_OpenBLT
 #elif MB(ANET_ET4P)
