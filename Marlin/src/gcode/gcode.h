@@ -64,6 +64,8 @@
  * G35  - Read bed corners to help adjust bed screws: T<screw_thread> (Requires ASSISTED_TRAMMING)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G43  - Enable Rotational Tool Center Point Control Mode with G43.4 (Requires HAS_TOOL_CENTER_POINT_CONTROL)
+ * G49  - Tool Length Compensation Cancel. Cancels G43.4 Tool Center Point Control Mode (Requires HAS_TOOL_CENTER_POINT_CONTROL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
  * G76  - Calibrate first layer temperature offsets. (Requires PTC_PROBE and PTC_BED)
@@ -569,6 +571,11 @@ private:
 
   #if HAS_MESH
     static void G42();
+  #endif
+
+  #if HAS_TOOL_CENTERPOINT_CONTROL
+    static void G43();
+    static void G49();
   #endif
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)

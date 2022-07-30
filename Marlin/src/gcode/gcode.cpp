@@ -440,6 +440,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
       #endif
 
+      #if HAS_TOOL_CENTER_POINT_CONTROL
+        case 43: G43(); break;                                    // G43.4: Rotational Tool Center Point Control Mode
+        case 49: G49(); break;
+      #endif
+
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
         case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
         case 54: G54(); break;                                    // G54: Switch to Workspace 1

@@ -3168,9 +3168,40 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y)
-        ? xyz_pos_t(cart_dist_mm).magnitude()
-        : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
+      #if HAS_TOOL_CENTERPOINT_CONTROL
+        float dist_sqr = 0.0f XYZ_GANG(sq(cart_dist_mm.x), + sq(cart_dist_mm.y), + sq(cart_dist_mm.y));
+
+        #if SECONDARY_LINEAR_AXES >= 1
+          if (UNEAR_ZERO(distance_sqr)) {
+            // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes that define linear movent in a coordinate system that is rotated with the tool
+            distance_sqr = (0.0f
+              SECONDARY_AXIS_GANG(
+                IF_DISABLED(AXIS4_ROTATES, + sq(cart_dist_mm.i)),
+                IF_DISABLED(AXIS5_ROTATES, + sq(cart_dist_mm.j)),
+                IF_DISABLED(AXIS6_ROTATES, + sq(cart_dist_mm.k)),
+                IF_DISABLED(AXIS7_ROTATES, + sq(cart_dist_mm.u)),
+                IF_DISABLED(AXIS8_ROTATES, + sq(cart_dist_mm.v)),
+                IF_DISABLED(AXIS9_ROTATES, + sq(cart_dist_mm.w))
+              )
+            );
+          }
+        #endif
+
+        #if HAS_ROTATIONAL_AXES
+          if (UNEAR_ZERO(distance_sqr)) {
+            // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+            ph.cartesian_move = false;
+            distance_sqr = ROTATIONAL_AXIS_GANG(sq(cart_dist_mm.i), + sq(cart_dist_mm.j), + sq(cart_dist_mm.k), + sq(cart_dist_mm.u), + sq(cart_dist_mm.v), + sq(cart_dist_mm.w));
+          }
+        #endif
+
+        ph.millimeters = SQRT(distance_sqr);
+      #else
+        ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y)
+          ? xyz_pos_t(cart_dist_mm).magnitude()
+          : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
+      #endif
+    }
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feedrate from mm/s to degrees/s

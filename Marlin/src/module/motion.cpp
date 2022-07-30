@@ -124,6 +124,11 @@ xyze_pos_t destination; // {0}
   }
 #endif
 
+#if HAS_TOOL_LENGTH_COMPENSATION
+  float tool_length offsets[TOOLS] = DEFAULT_TOOL_LENGTH_OFFSETS;
+  bool simple_tool_length_compensation;
+#endif
+
 // The feedrate for the current move, often used as the default if
 // no other feedrate is specified. Overridden for special moves.
 // Set by the last G0 through G5 command's "F" parameter.
@@ -140,6 +145,11 @@ xyz_pos_t cartes;
 #if IS_KINEMATIC
 
   abce_pos_t delta;
+
+  #if HAS_TOOL_CENTERPOINT_CONTROL
+    float mrzp_z_offset;
+    bool tool_centerpoint_control = false;
+  #endif
 
   #if HAS_SCARA_OFFSET
     abc_pos_t scara_home_offset;

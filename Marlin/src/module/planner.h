@@ -50,6 +50,8 @@
   #include "delta.h"
 #elif ENABLED(POLARGRAPH)
   #include "polargraph.h"
+#elif ENABLED(XYZBC_HEAD_TAIL)
+  #include "xyzbc_head_table.h"
 #endif
 
 #if ABL_PLANAR
@@ -378,6 +380,11 @@ struct PlannerHints {
   #endif
   #if HAS_ROTATIONAL_AXES
     feedRate_t fr_deg_s = 0.0f;        // Feedrate in °/s. For moves involving only rotational axes
+  #endif
+  #if HAS_TOOL_CENTERPOINT_CONTROL
+    bool cartesian_move = true;        // True if linear motion of the tool centerpoint relative to the workpiece occurs. 
+                                       // False if no movement of the tool center point relative to the work piece occurs
+                                       // (i.e. tool rotates around the tool centerpoint)
   #endif
 
   PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
