@@ -35,7 +35,7 @@
 //
 // #define DISABLE_DEBUG
 
-#define BOARD_INFO_NAME "MKS Robin Nano E3"
+#define BOARD_INFO_NAME "MKS Neptune 3"
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
