@@ -23,7 +23,7 @@
 #pragma once
 
 //
-// MKS Robin E3 V2 pinmap
+// MKS Neptune 3 pinmap
 //
 
 // Avoid conflict with TIMER_TONE
