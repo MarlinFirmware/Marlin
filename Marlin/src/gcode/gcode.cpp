@@ -212,9 +212,7 @@ void GcodeSuite::get_destination_from_command() {
 
   if (parser.floatval('F') > 0) {
     feedrate_mm_s = parser.value_feedrate();
-    #if HAS_ROTATIONAL_AXES
-      feedrate_deg_s = parser.value_angular_feedrate();
-    #endif
+    TERN_(HAS_ROTATIONAL_FEEDRATE, feedrate_deg_s = parser.value_angular_feedrate());
     // Update the cutter feed rate for use by M4 I set inline moves.
     TERN_(LASER_FEATURE, cutter.feedrate_mm_m = MMS_TO_MMM(feedrate_mm_s));
   }

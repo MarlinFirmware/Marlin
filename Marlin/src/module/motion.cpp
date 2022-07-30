@@ -490,7 +490,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
-    line_to_current_position(fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_mm_s));
+    line_to_current_position(fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
     planner.synchronize();
   }
 #endif
@@ -500,16 +500,19 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/
   /**
    * Buffer a fast move without interpolation. Set current_position to destination
    */
-  void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s/*=FR_SCALED(feedrate_mm_s)*/) {
+  void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s/*=FR_SCALED(feedrate_mm_s)*/ OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t scaled_fr_deg_s/*=FR_SCALED(feedrate_deg_s)*/)) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
-
+    #if HAS_ROTATIONAL_AXES
+      PlannerHints hints;
+      hints.fr_deg_s = scaled_fr_deg_s;
+    #endif
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
       bedlevel.line_to_destination_segmented(scaled_fr_mm_s);
     #else
       if (current_position == destination) return;
 
-      planner.buffer_line(destination, scaled_fr_mm_s);
+      planner.buffer_line(destination, scaled_fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, active_extruder) OPTARG(HAS_ROTATIONAL_AXES, hints));
     #endif
 
     current_position = destination;
@@ -523,10 +526,16 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/
  *  - Extrude the specified length regardless of flow percentage.
  */
 void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0f*/)
   OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
 ) {
   const feedRate_t old_feedrate = feedrate_mm_s;
+  #if HAS_ROTATIONAL_AXES
+    const feedRate_t old_angular_feedrate = feedrate_deg_s;
+  #endif
+
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
+  TERN_(HAS_ROTATIONAL_AXES, if (fr_deg_s) feedrate_deg_s = fr_deg_s);
 
   const uint16_t old_pct = feedrate_percentage;
   feedrate_percentage = 100;
@@ -542,6 +551,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
     prepare_line_to_destination();
 
   feedrate_mm_s = old_feedrate;
+  TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = old_angular_feedrate);
   feedrate_percentage = old_pct;
   TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
 }
@@ -584,6 +594,9 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
   #if ENABLED(DELTA)
 
     REMEMBER(fr, feedrate_mm_s, xy_feedrate);
+    #if HAS_ROTATIONAL_AXES
+      REMEMBER(angular_fr, feedrate_deg_s, i_feedrate);
+    #endif
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("destination = current_position", destination);
 
@@ -1161,7 +1174,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
     // If the move is only in Z/E don't split up the move
     if (!diff.x && !diff.y) {
-      planner.buffer_line(destination, scaled_fr_mm_s);
+      #if HAS_ROTATIONAL_AXES
+        PlannerHints hints;
+        hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
+        planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
+      #else
+        planner.buffer_line(destination, scaled_fr_mm_s);
+      #endif
       return false; // caller will update current_position
     }
 
@@ -1243,7 +1262,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
       // If the move is only in Z/E don't split up the move
       if (!diff.x && !diff.y) {
-        planner.buffer_line(destination, fr_mm_s);
+        #if HAS_ROTATIONAL_AXES
+          PlannerHints hints;
+          hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
+          planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
+        #else
+          planner.buffer_line(destination, fr_mm_s);
+        #endif
         return;
       }
 
@@ -2022,7 +2047,7 @@ void prepare_line_to_destination() {
 
       if (mmDelta != 0) {
         // Retrace by the amount computed in mmDelta.
-        do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
+        do_homing_move(axis, mmDelta OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)), get_homing_bump_feedrate(axis));
       }
     }
   #endif

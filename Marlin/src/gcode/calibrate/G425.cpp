@@ -140,7 +140,7 @@ struct measurements_t {
 #endif
 
 inline void calibration_move() {
-  do_blocking_move_to((xyz_pos_t)current_position, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
+  do_blocking_move_to((xyz_pos_t)current_position, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL) OPTARG(HAS_ROTATIONAL_AXES, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL)));
 }
 
 /**
@@ -209,7 +209,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
   destination = current_position;
   for (float travel = 0; travel < limit; travel += step) {
     destination[axis] += dir * step;
-    do_blocking_move_to((xyz_pos_t)destination, mms);
+    do_blocking_move_to((xyz_pos_t)destination, mms OPTARG(HAS_ROTATIONAL_AXES, mms));
     planner.synchronize();
     if (read_calibration_pin() == stop_state) break;
   }
@@ -244,7 +244,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
   // Move back to the starting position
   destination = current_position;
   destination[axis] = start_pos;
-  do_blocking_move_to((xyz_pos_t)destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
+  do_blocking_move_to((xyz_pos_t)destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL) OPTARG(HAS_ROTATIONAL_AXES, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL)));
   return measured_pos;
 }
 

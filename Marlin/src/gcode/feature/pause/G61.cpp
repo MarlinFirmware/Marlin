@@ -59,12 +59,18 @@ void GcodeSuite::G61() {
 
   // Apply any given feedrate over 0.0
   feedRate_t saved_feedrate = feedrate_mm_s;
-  const float fr = parser.linearval('F');
-  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
+  #if HAS_ROTATIONAL_AXES
+    feedRate_t saved_angular_feedrate = feedrate_deg_s;
+  #endif
+  const float fr = parser.feedrateval('F');
+  if (fr > 0.0f) {
+    feedrate_mm_s = fr;
+    TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = LINEAR_UNIT(fr));
+  }
 
   if (!parser.seen_axis()) {
     DEBUG_ECHOLNPGM("Default position restore");
-    do_blocking_move_to(stored_position[slot], feedrate_mm_s);
+    do_blocking_move_to(stored_position[slot], feedrate_mm_s OPTARG(HAS_ROTATIONAL_AXES, feedrate_deg_s));
     SYNC_E(stored_position[slot].e);
   }
   else {
@@ -90,6 +96,7 @@ void GcodeSuite::G61() {
   }
 
   feedrate_mm_s = saved_feedrate;
+  TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = saved_angular_feedrate);
 }
 
 #endif // SAVED_POSITIONS
