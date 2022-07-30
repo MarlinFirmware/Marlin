@@ -279,7 +279,7 @@ public:
 
     #if ENABLED(LASER_FEATURE)
       // Toggle the laser on/off with menuPower. Apply SPEED_POWER_STARTUP if it was 0 on entry.
-      static void laser_menu_toggle(const bool state) {
+      static void menu_set_enabled(const bool state) {
         set_enabled(state);
         if (state) {
           if (!menuPower) menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
@@ -295,10 +295,10 @@ public:
        */
       static void test_fire_pulse() {
         BUZZ(30, 3000);
-        cutter_mode = CUTTER_MODE_STANDARD;// Menu needs standard mode.
-        laser_menu_toggle(true);           // Laser On
-        delay(testPulse);                  // Delay for time set by user in pulse ms menu screen.
-        laser_menu_toggle(false);          // Laser Off
+        cutter_mode = CUTTER_MODE_STANDARD; // Menu needs standard mode.
+        menu_set_enabled(true);             // Laser On
+        delay(testPulse);                   // Delay for time set by user in pulse ms menu screen.
+        menu_set_enabled(false);            // Laser Off
       }
     #endif // LASER_FEATURE
 
@@ -308,14 +308,14 @@ public:
 
     // Dynamic mode rate calculation
     static uint8_t calc_dynamic_power() {
-      if (feedrate_mm_m > 65535) return 255;         // Too fast, go always on
-      uint16_t rate = uint16_t(feedrate_mm_m);       // 16 bits from the G-code parser float input
-      rate >>= 8;                                    // Take the G-code input e.g. F40000 and shift off the lower bits to get an OCR value from 1-255
+      if (feedrate_mm_m > 65535) return 255;    // Too fast, go always on
+      uint16_t rate = uint16_t(feedrate_mm_m);  // 16 bits from the G-code parser float input
+      rate >>= 8;                               // Take the G-code input e.g. F40000 and shift off the lower bits to get an OCR value from 1-255
       return uint8_t(rate);
     }
 
     // Inline modes of all other functions; all enable planner inline power control
-    static void set_inline_enabled(const bool enable) { planner.laser_inline.status.isEnabled = enable;}
+    static void set_inline_enabled(const bool enable) { planner.laser_inline.status.isEnabled = enable; }
 
     // Set the power for subsequent movement blocks
     static void inline_power(const cutter_power_t cpwr) {
