@@ -53,10 +53,7 @@
  */
 void GcodeSuite::G30() {
 
-  #if HAS_MULTI_HOTEND
-    const uint8_t old_tool_index = active_extruder;
-    tool_change(0);
-  #endif
+  probe.use_probing_tool();
 
   const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
                          parser.linearval('Y', current_position.y + probe.offset_xy.y) };
@@ -103,8 +100,7 @@ void GcodeSuite::G30() {
     report_current_position();
   }
 
-  // Restore the active tool
-  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
+  probe.use_probing_tool(false);
 }
 
 #endif // HAS_BED_PROBE
