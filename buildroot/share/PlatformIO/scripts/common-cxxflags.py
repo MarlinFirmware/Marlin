@@ -30,8 +30,8 @@ if pioutil.is_pio_build():
 	# release, for flashing when upload is not done automatically by jlink/stlink.
 	# Without this, PIO needs to recompile everything twice for any small change.
 	#
-	# 	if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink', 'custom']:
-	# 		env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
+	#if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink', 'custom']:
+	#	env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
 
 	# On some platform, F_CPU is a runtime variable. Since it's used to convert from ns
 	# to CPU cycles, this adds overhead preventing small delay (in the order of less than
