@@ -1084,7 +1084,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (!position_is_reachable(destination)) return true;
 
     // Get the linear distance in XYZ
-    float cartesian_mm = SQRT(NUM_AXIS_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z), + sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w)));
+    float cartesian_mm = xyz_float_t(diff).magnitude();
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));

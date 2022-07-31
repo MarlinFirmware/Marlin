@@ -3155,7 +3155,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
     PlannerHints ph = hints;
     if (!hints.millimeters)
       ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y)
-        ? (SQRT(NUM_AXIS_GANG(sq(cart_dist_mm.x), + sq(cart_dist_mm.y), + sq(cart_dist_mm.z), + sq(cart_dist_mm.i), + sq(cart_dist_mm.j), + sq(cart_dist_mm.k), + sq(cart_dist_mm.u), + sq(cart_dist_mm.v), + sq(cart_dist_mm.w))))
+        ? xyz_pos_t(cart_dist_mm).magnitude()
         : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
