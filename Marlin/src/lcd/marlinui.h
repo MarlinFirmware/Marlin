@@ -694,11 +694,7 @@ public:
 
     static void update_buttons();
 
-    #if HAS_ENCODER_NOISE
-      #ifndef ENCODER_SAMPLES
-        #define ENCODER_SAMPLES 10
-      #endif
-
+    #if ENABLED(ENCODER_NOISE_FILTER)
       /**
        * Some printers may have issues with EMI noise especially using a motherboard with 3.3V logic levels
        * it may cause the logical LOW to float into the undefined region and register as a logical HIGH
