@@ -2107,7 +2107,8 @@ uint32_t Stepper::block_phase_isr() {
                   #else
                     REV_E_DIR(stepper_extruder);
                   #endif
-                } else {
+                }
+                else {
                   #if ENABLED(MIXING_EXTRUDER)
                     MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
                   #else
