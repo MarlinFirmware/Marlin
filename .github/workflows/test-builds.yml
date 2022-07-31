@@ -8,7 +8,6 @@ name: CI
 on:
   pull_request:
     branches:
-    - bugfix-2.0.x
     - bugfix-2.1.x
     paths-ignore:
     - config/**
@@ -17,7 +16,6 @@ on:
     - '**/*.md'
   push:
     branches:
-    - bugfix-2.0.x
     - bugfix-2.1.x
     paths-ignore:
     - config/**
@@ -100,6 +98,9 @@ jobs:
         - BTT_SKR_SE_BX
         - chitu_f103
         - Opulo_Lumen_REV3
+
+        # ESP32 environments
+        - mks_tinybee
 
         # Put lengthy tests last
 

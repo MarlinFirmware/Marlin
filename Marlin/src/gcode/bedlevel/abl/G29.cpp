@@ -32,7 +32,6 @@
 #include "../../../feature/bedlevel/bedlevel.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
-#include "../../../module/stepper.h"
 #include "../../../module/probe.h"
 #include "../../queue.h"
 

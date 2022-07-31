@@ -223,6 +223,7 @@ namespace Language_gl {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Bico moi frío");

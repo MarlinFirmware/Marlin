@@ -72,6 +72,7 @@ namespace Language_bg {
   LSTR MSG_MOVE_X                         = _UxGT("Движение по X");
   LSTR MSG_MOVE_Y                         = _UxGT("Движение по Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Движение по Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Движение по @");
   LSTR MSG_MOVE_E                         = _UxGT("Екструдер");
   LSTR MSG_MOVE_EN                        = _UxGT("Екструдер *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Премести с $mm");

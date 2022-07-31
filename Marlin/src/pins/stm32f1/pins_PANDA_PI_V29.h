@@ -179,30 +179,30 @@
 
   /** FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                     Display
-   *               -----                                      -----
-   *           5V | 1 2 | GND               (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-   * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)     (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
-   * (FREE)   PB9 | 5 6   PA10 (SD_CS)      (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)
-   *        RESET | 7 8 | PA9  (MOD_RESET)  (PA15)    SD_DET | 7 8 | RESET
-   * (BEEPER) PB6 | 9 10| PA15 (SD_DET)                  GND | 9 10| 5V
-   *               -----                                      -----
-   *                EXP1                                       EXP1
+   *                   Board                                   Display
+   *                   ------                                  ------
+   * (SD_DET)    PA15 | 1  2 | PB6 (BEEPER)  (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
+   * (MOD_RESET) PA9  | 3  4 | RESET                MOD_RESET | 3  4 | SD_CS
+   * (SD_CS)     PA10   5  6 | PB9 (FREE)              LCD_CS | 5  6   MOSI  (SPI1-MOSI)
+   * (LCD_CS)    PB8  | 7  8 | PB7 (FREE)              SD_DET | 7  8 | RESET
+   *             GND  | 9 10 |  5V                        GND | 9 10 | 5V
+   *                   ------                                  ------
+   *                    EXP1                                    EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *           _________
-   *   EXP1-1 ----------- EXP1-10
-   *   EXP1-2 ----------- EXP1-9
-   *   SPI1-4 ----------- EXP1-6
-   *   EXP1-4 ----------- EXP1-5
-   *   SP11-3 ----------- EXP1-2
-   *   EXP1-6 ----------- EXP1-4
-   *   EXP1-7 ----------- EXP1-8
-   *   EXP1-8 ----------- EXP1-3
-   *   SPI1-1 ----------- EXP1-1
-   *  EXP1-10 ----------- EXP1-7
+   *   ----------------------------------
+   *   EXP1-10 ---------- EXP1-10  5V
+   *   EXP1-9 ----------- EXP1-9   GND
+   *   SPI1-4 ----------- EXP1-6   MOSI
+   *   EXP1-7 ----------- EXP1-5   LCD_CS
+   *   SP11-3 ----------- EXP1-2   SCK
+   *   EXP1-5 ----------- EXP1-4   SD_CS
+   *   EXP1-4 ----------- EXP1-8   RESET
+   *   EXP1-3 ----------- EXP1-3   MOD_RST
+   *   SPI1-1 ----------- EXP1-1   MISO
+   *   EXP1-1 ----------- EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector

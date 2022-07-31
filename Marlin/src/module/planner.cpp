@@ -806,7 +806,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f / accel);
     accelerate_steps = CEIL(accelerate_steps_float);
     const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5f / accel);
-    decelerate_steps = decelerate_steps_float;
+    decelerate_steps = FLOOR(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
     plateau_steps -= accelerate_steps + decelerate_steps;
@@ -2195,7 +2195,7 @@ bool Planner::_populate_block(
       );
 
       #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (NEAR_ZERO(distance_sqr)) {
+        if (UNEAR_ZERO(distance_sqr)) {
           // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
           distance_sqr = (0.0f
             SECONDARY_AXIS_GANG(
@@ -2211,7 +2211,7 @@ bool Planner::_populate_block(
       #endif
 
       #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (NEAR_ZERO(distance_sqr)) {
+        if (UNEAR_ZERO(distance_sqr)) {
           // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
           TERN_(INCH_MODE_SUPPORT, cartesian_move = false);
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k), + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w));
@@ -3154,7 +3154,9 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y) ? cart_dist_mm.magnitude() : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
+      ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y)
+        ? xyz_pos_t(cart_dist_mm).magnitude()
+        : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feedrate from mm/s to degrees/s

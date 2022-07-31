@@ -316,6 +316,8 @@ constexpr ena_mask_t enable_overlap[] = {
 // Stepper class definition
 //
 class Stepper {
+  friend class KinematicSystem;
+  friend class DeltaKinematicSystem;
 
   public:
 

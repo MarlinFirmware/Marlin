@@ -120,10 +120,11 @@ static void createChar_P(const char c, const byte * const ptr) {
 #endif
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
+
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    if (!sound_on) return;
-    lcd.buzz(duration, freq);
+    if (sound_on) lcd.buzz(duration, freq);
   }
+
 #endif
 
 void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARSET_INFO*/) {
