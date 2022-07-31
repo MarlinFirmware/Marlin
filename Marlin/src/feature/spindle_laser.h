@@ -285,7 +285,8 @@ public:
           if (!menuPower) menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
           power = upower_to_ocr(menuPower);
           apply_power(power);
-        }
+        } else 
+          apply_power(0);
       }
 
       /**
