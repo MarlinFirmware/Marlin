@@ -160,8 +160,7 @@ void Goto_PowerLossRecovery();
 void Goto_ConfirmToPrint();
 void DWIN_Draw_Dashboard(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area
-void DWIN_DrawStatusLine(const char *text); // Draw simple status text
-void DWIN_DrawStatusLine(FSTR_P fstr);
+void DWIN_DrawStatusLine(); // Draw simple status text
 void DWIN_RedrawDash();     // Redraw Dash and Status line
 void DWIN_RedrawScreen();   // Redraw all screen elements
 void HMI_MainMenu();        // Main process screen
@@ -210,9 +209,11 @@ void DWIN_RebootScreen();
 #endif
 
 // Utility and extensions
-void DWIN_LockScreen();
-void DWIN_UnLockScreen();
-void HMI_LockScreen();
+#if HAS_LOCKSCREEN
+  void DWIN_LockScreen();
+  void DWIN_UnLockScreen();
+  void HMI_LockScreen();
+#endif
 #if HAS_MESH
   void DWIN_MeshViewer();
 #endif

@@ -249,6 +249,7 @@ namespace Language_sv {
   LSTR MSG_MOVE_X                         = _UxGT("Flytta X");
   LSTR MSG_MOVE_Y                         = _UxGT("Flytta Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Flytta Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Flytta @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hetände för kall");
@@ -489,8 +490,6 @@ namespace Language_sv {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibrera Center");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta Inställningar");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Kalibrering");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Sätt Delta Höjd");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Sond Z-offset");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag Rod");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Höjd");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radius");

@@ -26,7 +26,6 @@
 
 #include "../bedlevel.h"
 #include "../../../module/planner.h"
-#include "../../../module/stepper.h"
 #include "../../../module/motion.h"
 
 #if ENABLED(DELTA)
@@ -36,7 +35,17 @@
 #include "../../../MarlinCore.h"
 #include <math.h>
 
+//#define DEBUG_UBL_MOTION
+#define DEBUG_OUT ENABLED(DEBUG_UBL_MOTION)
+#include "../../../core/debug_out.h"
+
 #if !UBL_SEGMENTED
+
+  // TODO: The first and last parts of a move might result in very short segment(s)
+  //       after getting split on the cell boundary, so moves like that should not
+  //       get split. This will be most common for moves that start/end near the
+  //       corners of cells. To fix the issue, simply check if the start/end of the line
+  //       is very close to a cell boundary in advance and don't split the line there.
 
   void unified_bed_leveling::line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t extruder) {
     /**
@@ -176,7 +185,9 @@
           dest.z += z0;
           planner.buffer_segment(dest, scaled_fr_mm_s, extruder);
 
-        } //else printf("FIRST MOVE PRUNED  ");
+        }
+        else
+          DEBUG_ECHOLNPGM("[ubl] skip Y segment");
       }
 
       // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
@@ -225,7 +236,9 @@
           dest.z += z0;
           if (!planner.buffer_segment(dest, scaled_fr_mm_s, extruder)) break;
 
-        } //else printf("FIRST MOVE PRUNED  ");
+        }
+        else
+          DEBUG_ECHOLNPGM("[ubl] skip Y segment");
       }
 
       if (xy_pos_t(current_position) != xy_pos_t(end))
@@ -360,11 +373,12 @@
     #endif
 
     NOLESS(segments, 1U);                                                            // Must have at least one segment
-    const float inv_segments = 1.0f / segments,                                      // Reciprocal to save calculation
-                segment_xyz_mm = SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments;    // Length of each segment
+    const float inv_segments = 1.0f / segments;                                      // Reciprocal to save calculation
 
+    // Add hints to help optimize the move
+    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);             // Length of each segment
     #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float inv_duration = scaled_fr_mm_s / segment_xyz_mm;
+      hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
 
     xyze_float_t diff = total * inv_segments;
@@ -378,13 +392,9 @@
     if (!planner.leveling_active || !planner.leveling_active_at_z(destination.z)) {
       while (--segments) {
         raw += diff;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-        );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
       }
-      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-      );
+      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
       return false; // Did not set current from destination
     }
 
@@ -453,7 +463,7 @@
           TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
 
         const float oldz = raw.z; raw.z += z_cxcy;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration) );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
         raw.z = oldz;
 
         if (segments == 0)                        // done with last segment
