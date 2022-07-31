@@ -684,7 +684,7 @@
 #elif MB(MKS_NEPTUNE_X)
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"       // STM32F4                                env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
-  #include "stm32f4/pins_NEPTUNE_3.h"           // STM32F4                                env:mks_neptune_3
+  #include "stm32f4/pins_MKS_NEPTUNE_3.h"       // STM32F4                                env:mks_neptune_3
 #elif MB(ZNP_ROBIN_NANO_V1_3)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h" // STM32F4                             env:znp_robin_nano_v1_3
 #elif MB(ANET_ET4)

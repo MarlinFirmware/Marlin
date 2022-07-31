@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,17 +34,17 @@
 // Software SPI pins for TMC2130 stepper drivers
 // This board only supports SW SPI for stepper drivers
 //
-#if HAS_TMC_SPI
-  #define TMC_USE_SW_SPI
+#if HAS_TMC_SPI && DISABLED(TMC_USE_SW_SPI)
+  #warning "TMC_USE_SW_SPI is required for MKS Neptune X with TMC drivers."
 #endif
 #if ENABLED(TMC_USE_SW_SPI)
-  #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
+  #ifndef TMC_SW_MOSI
     #define TMC_SW_MOSI                     PD14
   #endif
-  #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
+  #ifndef TMC_SW_MISO
     #define TMC_SW_MISO                     PD1
   #endif
-  #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
+  #ifndef TMC_SW_SCK
     #define TMC_SW_SCK                      PD0
   #endif
 #endif
