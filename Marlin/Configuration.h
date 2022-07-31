@@ -2472,8 +2472,8 @@
 //
 // This option increases encoder samples to filter out phantom encoder clicks caused by EMI noise.
 //
-//#define HAS_ENCODER_NOISE
-#if ENABLED(HAS_ENCODER_NOISE)
+//#define ENCODER_NOISE_FILTER
+#if ENABLED(ENCODER_NOISE_FILTER)
   #define ENCODER_SAMPLES 10
 #endif
 
