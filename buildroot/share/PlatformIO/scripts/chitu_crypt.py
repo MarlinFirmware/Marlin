@@ -4,9 +4,7 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-	import os,random,struct,uuid,marlin
-	# Relocate firmware from 0x08000000 to 0x08008800
-	marlin.relocate_firmware("0x08008800")
+	import struct,uuid
 
 	def calculate_crc(contents, seed):
 		accumulating_xor_value = seed;
@@ -105,13 +103,13 @@ if pioutil.is_pio_build():
 
 	# Encrypt ${PROGNAME}.bin and save it as 'update.cbd'
 	def encrypt(source, target, env):
-		firmware = open(target[0].path, "rb")
-		update = open(target[0].dir.path + '/update.cbd', "wb")
-		length = os.path.getsize(target[0].path)
+		from pathlib import Path
+		fwpath = Path(target[0].path)
+		fwsize = fwpath.stat().st_size
+		fwfile = fwpath.open("rb")
+		upfile = Path(target[0].dir.path, 'update.cbd').open("wb")
+		encrypt_file(fwfile, upfile, fwsize)
 
-		encrypt_file(firmware, update, length)
-
-		firmware.close()
-		update.close()
-
+	import marlin
+	marlin.relocate_firmware("0x08008800")
 	marlin.add_post_action(encrypt);
