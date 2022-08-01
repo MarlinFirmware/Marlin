@@ -37,7 +37,8 @@
   || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN  == N \
   || BTN_EN1    == N || BTN_EN2    == N \
 )
-#if CONF_SERIAL_IS(0) // D0-D1. No known conflicts.
+#if CONF_SERIAL_IS(0)
+  // D0-D1. No known conflicts.
 #endif
 #if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
   #if CONF_SERIAL_IS(1) && (CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19))
