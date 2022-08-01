@@ -2,21 +2,18 @@
 # marlin.py
 # Helper module with some commonly-used functions
 #
-import os,shutil
+import shutil
+from pathlib import Path
 
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 
-from os.path import join
-
 def copytree(src, dst, symlinks=False, ignore=None):
-	for item in os.listdir(src):
-		s = join(src, item)
-		d = join(dst, item)
-		if os.path.isdir(s):
-			shutil.copytree(s, d, symlinks, ignore)
+	for item in src.iterdir():
+		if item.is_dir():
+			shutil.copytree(item, dst / item.name, symlinks, ignore)
 		else:
-			shutil.copy2(s, d)
+			shutil.copy2(item, dst / item.name)
 
 def replace_define(field, value):
 	for define in env['CPPDEFINES']:
@@ -34,7 +31,7 @@ def relocate_vtab(address):
 
 # Replace the existing -Wl,-T with the given ldscript path
 def custom_ld_script(ldname):
-	apath = os.path.abspath("buildroot/share/PlatformIO/ldscripts/" + ldname)
+	apath = str(Path("buildroot/share/PlatformIO/ldscripts", ldname).resolve())
 	for i, flag in enumerate(env["LINKFLAGS"]):
 		if "-Wl,-T" in flag:
 			env["LINKFLAGS"][i] = "-Wl,-T" + apath
@@ -52,15 +49,15 @@ def encrypt_mks(source, target, env, new_name):
 	mf = env["MARLIN_FEATURES"]
 	if "FIRMWARE_BIN" in mf: new_name = mf["FIRMWARE_BIN"]
 
-	fwpath = target[0].path
-	fwfile = open(fwpath, "rb")
-	enfile = open(target[0].dir.path + "/" + new_name, "wb")
-	length = os.path.getsize(fwpath)
+	fwpath = Path(target[0].path)
+	fwfile = fwpath.open("rb")
+	enfile = Path(target[0].dir.path, new_name).open("wb")
+	length = fwpath.stat().st_size
 	position = 0
 	try:
 		while position < length:
 			byte = fwfile.read(1)
-			if position >= 320 and position < 31040:
+			if 320 <= position < 31040:
 				byte = chr(ord(byte) ^ key[position & 31])
 				if sys.version_info[0] > 2:
 					byte = bytes(byte, 'latin1')
@@ -69,7 +66,7 @@ def encrypt_mks(source, target, env, new_name):
 	finally:
 		fwfile.close()
 		enfile.close()
-		os.remove(fwpath)
+		fwpath.unlink()
 
 def add_post_action(action):
-	env.AddPostAction(join("$BUILD_DIR", "${PROGNAME}.bin"), action);
+	env.AddPostAction(str(Path("$BUILD_DIR", "${PROGNAME}.bin")), action);

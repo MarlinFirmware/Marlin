@@ -8,10 +8,8 @@
 import pioutil
 if pioutil.is_pio_build():
 	import os,marlin
-	Import("env")
 
-	from SCons.Script import DefaultEnvironment
-	board = DefaultEnvironment().BoardConfig()
+	board = marlin.env.BoardConfig()
 
 	def encryptByte(byte):
 		byte = 0xFF & ((byte << 6) | (byte >> 2))
