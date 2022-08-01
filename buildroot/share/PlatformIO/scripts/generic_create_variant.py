@@ -7,16 +7,14 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-	import os,shutil,marlin
-	from SCons.Script import DefaultEnvironment
-	from platformio import util
-
-	env = DefaultEnvironment()
+	import shutil,marlin
+	from pathlib import Path
 
 	#
 	# Get the platform name from the 'platform_packages' option,
 	# or look it up by the platform.class.name.
 	#
+	env = marlin.env
 	platform = env.PioPlatform()
 
 	from platformio.package.meta import PackageSpec
@@ -37,8 +35,8 @@ if pioutil.is_pio_build():
 	if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
 		platform_name = "framework-arduinoststm32"
 
-	FRAMEWORK_DIR = platform.get_package_dir(platform_name)
-	assert os.path.isdir(FRAMEWORK_DIR)
+	FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
+	assert FRAMEWORK_DIR.is_dir()
 
 	board = env.BoardConfig()
 
@@ -47,14 +45,14 @@ if pioutil.is_pio_build():
 	#series = mcu_type[:7].upper() + "xx"
 
 	# Prepare a new empty folder at the destination
-	variant_dir = os.path.join(FRAMEWORK_DIR, "variants", variant)
-	if os.path.isdir(variant_dir):
+	variant_dir = FRAMEWORK_DIR / "variants" / variant
+	if variant_dir.is_dir():
 		shutil.rmtree(variant_dir)
-	if not os.path.isdir(variant_dir):
-		os.mkdir(variant_dir)
+	if not variant_dir.is_dir():
+		variant_dir.mkdir()
 
 	# Source dir is a local variant sub-folder
-	source_dir = os.path.join("buildroot/share/PlatformIO/variants", variant)
-	assert os.path.isdir(source_dir)
+	source_dir = Path("buildroot/share/PlatformIO/variants", variant)
+	assert source_dir.is_dir()
 
 	marlin.copytree(source_dir, variant_dir)
