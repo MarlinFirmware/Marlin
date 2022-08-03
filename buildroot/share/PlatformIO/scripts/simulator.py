@@ -2,13 +2,14 @@
 # simulator.py
 # PlatformIO pre: script for simulator builds
 #
+
+# Get the environment thus far for the build
+Import("env")
+
+#print(env.Dump())
+
 import pioutil
 if pioutil.is_pio_build():
-	# Get the environment thus far for the build
-	Import("env")
-
-	#print(env.Dump())
-
 	#
 	# Give the binary a distinctive name
 	#
@@ -50,3 +51,11 @@ if pioutil.is_pio_build():
 
 			# Break out of the PIO build immediately
 			sys.exit(1)
+
+from marlin import copytree
+def debug_mv(*args, **kwargs):
+	from pathlib import Path
+	bpath = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
+	copytree(bpath / "debug", bpath)
+
+env.AddCustomTarget("fastdebug", "$BUILD_DIR/${PROGNAME}", debug_mv, "Fast Debug")
