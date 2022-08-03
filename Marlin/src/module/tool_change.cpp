@@ -152,7 +152,13 @@
 
 // Move to position routines
 void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
-  line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale OPTARG(HAS_ROTATIONAL_AXES, planner.settings.max_feedrate_mm_s[fr_axis]));
+  #if HAS_ROTATIONAL_AXES
+    PlannerHints hints;
+    hints.fr_deg_s = planner.settings.max_feedrate_mm_s[fr_axis] * fscale;
+    line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale, active_extruder, hints);
+  #else
+    line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
+  #endif
 }
 void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.2f); }
 void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
