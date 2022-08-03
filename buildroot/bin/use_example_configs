@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# use_example_configs [repo:]configpath
+#
+# Examples:
+#   use_example_configs
+#   use_example_configs Creality/CR-10/CrealityV1
+#   use_example_configs release-2.0.9.4:Creality/CR-10/CrealityV1
+#
+# If a configpath has spaces (or quotes) escape them or enquote the path
+#
+
+which curl >/dev/null && TOOL='curl -L -s -S -f -o wgot'
+which wget >/dev/null && TOOL='wget -q -O wgot'
+
+CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
+[[ $CURR == "bugfix-2.0.x" ]] && BRANCH=bugfix-2.0.x || BRANCH=bugfix-2.1.x
+
+REPO=$BRANCH
+
+if [[ $# > 0 ]]; then
+  IFS=: read -r PART1 PART2 <<< "$@"
+  [[ -n $PART2 ]] && { UDIR="$PART2" ; REPO="$PART1" ; } \
+                  || { UDIR="$PART1" ; }
+  RDIR="${UDIR// /%20}"
+  echo "Fetching $UDIR configurations from $REPO..."
+  EXAMPLES="examples/$RDIR"
+else
+  EXAMPLES="default"
+fi
+
+CONFIGS="https://raw.githubusercontent.com/MarlinFirmware/Configurations/$REPO/config/${EXAMPLES}"
+
+restore_configs
+
+cd Marlin
+
+$TOOL "$CONFIGS/Configuration.h"     >/dev/null 2>&1 && mv wgot Configuration.h
+$TOOL "$CONFIGS/Configuration_adv.h" >/dev/null 2>&1 && mv wgot Configuration_adv.h
+$TOOL "$CONFIGS/_Bootscreen.h"       >/dev/null 2>&1 && mv wgot _Bootscreen.h
+$TOOL "$CONFIGS/_Statusscreen.h"     >/dev/null 2>&1 && mv wgot _Statusscreen.h
+
+rm -f wgot
+cd - >/dev/null
