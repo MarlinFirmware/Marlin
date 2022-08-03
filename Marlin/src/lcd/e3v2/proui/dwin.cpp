@@ -2327,7 +2327,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     DWIN_UpdateLCD();
   }
   void ApplyRunoutDistance() { runout.set_runout_distance(MenuData.Value / MINUNITMULT); }
-  void SetRunoutDistance() { SetFloatOnClick(0, 999, UNITFDIGITS, runout.runout_distance(), ApplyRunoutDistance); }
+  void SetRunoutDistance() { SetFloatOnClick(0, 999, UNITFDIGITS, runout.runout_distance(0), ApplyRunoutDistance); }
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -3324,7 +3324,7 @@ void Draw_FilSet_Menu() {
       EDIT_ITEM_F(ICON_Runout, MSG_RUNOUT_ENABLE, onDrawChkbMenu, SetRunoutEnable, &runout.enabled[0]);
     #endif
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      EDIT_ITEM_F(ICON_Runout, MSG_RUNOUT_DISTANCE_MM, onDrawPFloatMenu, SetRunoutDistance, &runout.runout_distance());
+      EDIT_ITEM_F(ICON_Runout, MSG_RUNOUT_DISTANCE_MM, onDrawPFloatMenu, SetRunoutDistance, &runout.runout_distance(0));
     #endif
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       EDIT_ITEM_F(ICON_ExtrudeMinT, MSG_EXTRUDER_MIN_TEMP, onDrawPIntMenu, SetExtMinT, &HMI_data.ExtMinT);
