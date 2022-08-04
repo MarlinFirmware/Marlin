@@ -39,15 +39,23 @@
 
 #include "../core/types.h"
 
-// Machine rotary zero point Z offset is the distance between the center of rotation of the B axis and Z home.
-constexpr float mrzp_z_offset;
+// Machine rotary zero point Z offset is the distance from the center of rotation of the B axis to the gauge line.
+constexpr float mrzp_z_offset = DEFAULT_MRZP_Z_OFFSET_MM;
+
 
 /**
  * xyzbc inverse kinematics
  *
+ * Calculate the joints positions for a given position, storing the result in the global delta[] array.
+ * if joints control mode is active (default), input position is interpreted as joints position.
+ * If rotational tool center point control mode is active, input position is interpreted as machine position using ik_calc.
+ */
+void inverse_kinematics(const xyz_pos_t &raw);
+
+/**
  * Calculate the joints positions for a given machine
  * position, storing the result in the global delta[] array.
  *
  * This is an expensive calculation.
  */
-void inverse_kinematics(const xyz_pos_t &raw);
+void ik_calc(const xyz_pos_t &pos);

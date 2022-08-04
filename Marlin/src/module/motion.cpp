@@ -124,11 +124,6 @@ xyze_pos_t destination; // {0}
   }
 #endif
 
-#if HAS_TOOL_LENGTH_COMPENSATION
-  float tool_length offsets[TOOLS] = DEFAULT_TOOL_LENGTH_OFFSETS;
-  bool simple_tool_length_compensation;
-#endif
-
 // The feedrate for the current move, often used as the default if
 // no other feedrate is specified. Overridden for special moves.
 // Set by the last G0 through G5 command's "F" parameter.
@@ -146,11 +141,6 @@ xyz_pos_t cartes;
 
   abce_pos_t delta;
 
-  #if HAS_TOOL_CENTERPOINT_CONTROL
-    float mrzp_z_offset;
-    bool tool_centerpoint_control = false;
-  #endif
-
   #if HAS_SCARA_OFFSET
     abc_pos_t scara_home_offset;
   #endif
@@ -165,8 +155,16 @@ xyz_pos_t cartes;
                     delta_max_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
   #endif
 
+  #if HAS_TOOL_CENTERPOINT_CONTROL
+    bool tool_centerpoint_control = false;
+  #endif
+
 #endif
 
+#if HAS_TOOL_LENGTH_COMPENSATION
+  float tool_length offsets[TOOLS] = DEFAULT_TOOL_LENGTH_OFFSETS;
+  bool simple_tool_length_compensation = false;
+#endif
 /**
  * The workspace can be offset by some commands, or
  * these offsets may be omitted to save on computation.
@@ -2500,8 +2498,11 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
-    workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
+    workspace_offset[axis] = home_offset[axis] + position_shift[axis]
+    #if HAS_TOOL_LENGTH_OFFSETS
+      if (simple_tool_length_compensation) workspace_offset.z += tool_length_offset;
+    #endif
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis] OPTARG(HAS_TOOL_LENGTH_OFFSET, " tool length offset = ")  OPTARG(HAS_TOOL_LENGTH_OFFSET, tool_length_offset));
   }
 #endif
 

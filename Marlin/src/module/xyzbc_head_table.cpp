@@ -39,39 +39,52 @@
 #include "motion.h"
 
 
-// Distance between the center of rotation of the rotary axis and home position.
-// Machine rotary zero point Z offset is the distance from the center of rotation of the B axis to the gauge line.
-constexpr float mrzp_z_offset = DEFAULT_MRZP_Z_OFFSET_MM;
-
 /**
  * xyzbc inverse kinematics
  *
+ * Calculate the joints positions for a given position, storing the result in the global delta[] array.
+ * if joints control mode is active (default), input position is interpreted as joints position.
+ * If rotational tool center point control mode is active, input position is interpreted as machine position using ik_calc.
+ */
+void inverse_kinematics(const xyz_pos_t &raw) {
+  #if HAS_HOTEND_OFFSET
+    // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
+    xyz_pos_t pos = NUM_AXIS_ARRAY(raw.x - hotend_offset[active_extruder].x,
+                      raw.y - hotend_offset[active_extruder].y,
+                      raw.z,
+                      raw.i,
+                      raw.j
+                    );
+    if (!tool_centerpoint_control)
+      delta = pos;
+    else
+      ik_calc(pos);
+  #else
+    if (!tool_centerpoint_control)
+      delta = raw;
+    else
+      ik_calc(raw);
+  #endif
+}
+
+/**
  * Calculate the joints positions for a given machine
  * position, storing the result in the global delta[] array.
  *
  * This is an expensive calculation.
  */
+void ik_calc(const xyz_pos_t &pos) {
+  const float pivot_length = tool_length_offset + mrzp_z_offset
 
-void inverse_kinematics(const xyz_pos_t &pos) {
-  if (!tool_centerpoint_control && !tool_Length_compensation)
-    delta = pos;
-  else if (tool_Length_compensation) {
-    delta.set(pos.x, pos.y, pos.z + tool_length_offsets[active_extruder], pos.i, pos.j)
-  }
-  else {
+  // B correction
+  const float zb = (pivot_length + pos.w) * cos(RADIANS(pos.i));
+  const float xb = (pivot_length + pos.w) * sin(RADIANS(pos.i));
 
-    const float pivot_length = tool_length_offset + mrzp_z_offset
+  // C correction
+  const float xyr = HYPOT2(pos.x, pos.y);
+  const float xytheta = ATAN2(pos.y, pos.x) - RADIANS(pos.j);
 
-    // B correction
-    const float zb = (pivot_length + pos.w) * cos(RADIANS(pos.i));
-    const float xb = (pivot_length + pos.w) * sin(RADIANS(pos.i));
-        
-    // C correction
-    const float xyr = HYPOT2(pos.x, pos.y);
-    const float xytheta = ATAN2(pos.y, pos.x) - RADIANS(pos.j);
-
-    delta.set(xyr * cos(xytheta) - xb, xyr * sin(xytheta), pos.z + zb - pivot_length, pos.i, pos.j);
-  }
+  delta.set(xyr * cos(xytheta) - xb, xyr * sin(xytheta), pos.z + zb - pivot_length, pos.i, pos.j);
 }
 
 #endif //XYZBC_HEAD_TABLE

@@ -61,13 +61,15 @@ void GcodeSuite::G43() {
     default: return;                                              // Ignore unknown G43.x
 
     case 0:                                                       // G43 - Tool Length Compensation.
-      cartesian_tool_length_compensation = true
+      TERN_(HAS_TOOL_CENTERPOINT_CONTROL, tool_centerpoint_control = false);
+      simple_tool_length_compensation = true
       tool_length_offset = tool_length_offsets[active_extruder];
+      update_workspace_offset(Z_AXIS);
       break;
 
     #if HAS_TOOL_CENTERPOINT_CONTROL
-      case 4: 
-        cartesian_tool_length compensation                                                      // G43.4 - Rotational Tool Center Point Control Mode.
+      case 4:                                                     // G43.4 - Rotational Tool Center Point Control Mode.
+        simple_tool_length_compensation = false;
         tool_centerpoint_control = true;
         tool_length_offset = tool_length_offsets[active_extruder];
         break;
@@ -82,7 +84,8 @@ void GcodeSuite::G43() {
  * Rotational Tool Center Point Control Mode can be enabled with G43.3
  */
 void GcodeSuite::G49() {
-    tool_centerpoint_control = false; 
+    tool_centerpoint_control = false;
+    TERN_(HAS_TOOL_CENTERPOINT_CONTROL, tool_centerpoint_control = false);
   }
 
 #endif

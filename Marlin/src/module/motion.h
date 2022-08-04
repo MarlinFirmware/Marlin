@@ -60,7 +60,6 @@ extern xyz_pos_t cartes;
 #if IS_KINEMATIC
   extern abce_pos_t delta;
   #if HAS_TOOL_CENTERPOINT_CONTROL
-    extern float mrzp_z_offset;
     extern bool tool_centerpoint_control;
   #endif
 #endif

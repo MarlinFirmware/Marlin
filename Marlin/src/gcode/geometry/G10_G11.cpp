@@ -46,62 +46,100 @@ void GcodeSuite::G10() {
     fwretract.retract(true E_OPTARG(parser.boolval('S')));
   #endif
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    const int8_t target_system = parser.intval('P') - 1, // Subtract 1 because P1 is G54, which is Marlin coordinate_system 0
-                offset_type   = parser.intval('L');
+  #if EITHER(CNC_COORDINATE_SYSTEMS, HAS_TOOL_LENGTH_OFFSET)
+    const uint8_t p_val = parser.val_byte('P'),
+                  offset_type = parser.val_byte('L');
 
-    if (WITHIN(target_system, 0, MAX_COORDINATE_SYSTEMS - 1)) {
-      const int8_t current_system = gcode.active_coordinate_system; // Store current coord system
-      if (current_system != target_system) {
-        gcode.select_coordinate_system(target_system); // Select New Coordinate System If Needed
+    #if HAS_TOOL_LENGTH_OFFSET
+      if (offset_type == 1 || offset_type == 10) {
+        if (parser.seenval('P')) {
+          const uint8_t tool_index = p_val;
+          if (parser.seenval(AXIS_CHAR(Z_AXIS))) {
+            const uint8_t tool_index = p_val;
+          }
+
+        switch (offset_type) {
+          case 1: // Sets the tool offset
+            if (parser.seenval('P')) {
+              const uint8_t tool_index = p_val;
+              if ((tool_index < TOOLS) && parser.seenval(AXIS_CHAR(Z_AXIS))) {
+                const float z_val = parser.value_float();
+                tool_length_offsets[tool_index] = z_val;
+              }
+            }
+            break;
+
+          // G10 L10 changes the tool table entry for tool P so that if the tool offset is reloaded, with the machine in its 
+          // current position and with the current G5x and G52/G92 offsets active, the current coordinates for the given axes 
+          // will become the given values. (Intended to work the same as LinuxCNC).
+          // e.g. G10 L10 P1 Z1.5 followed by G43 sets the current position for Z to be 1.5.
+          case 10:
+            if (parser.seenval('P')) {
+              const uint8_t tool_index = parser.value_byte();
+              if parser.seenval(AXIS_CHAR(Z_AXIS)) {
+                const float z_val = parser.linear_value_to_mm();
+                tool_length_offsets[tool_index] = current_position.z - z_val;
+              }
+            }
+            break;
+        }
+      }
+    #endif
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)
+      if (offset_type == 2 || offset_type == 20) {
+        target_system = p_val ? gcode.active_coordinate_system : pval - 1;  // P0 selects current coordinate system. Otherwise, subtract 1 because P1 is G54, which is Marlin coordinate_system 0 
+        if (WITHIN(target_system, 0, MAX_COORDINATE_SYSTEMS - 1)) {
+          const int8_t current_system = gcode.active_coordinate_system; // Store current coord system
+          if (current_system != target_system) {
+            gcode.select_coordinate_system(target_system); // Select new coordinate system if needed
+            #if ENABLED(DEBUG_G10)
+              SERIAL_ECHOLNPGM("Switching to workspace ", target_system);
+              report_current_position();
+            #endif
+          }
+        }
+        switch (offset_type) {
+          // Sets the work offsets of the specified (P[1-9]) coordinate system, by subtracting the specified X, Y, Z... values
+          // from the current machine coordinate X, Y, Z... values (Works the same as LinuxCNC)
+          // eg: If G53's X=50, Y=100 then G10 P1 L2 X10 Y2 will set G54's X=40, Y=98
+          case 2:
+            LOOP_LOGICAL_AXES(i) {
+              if (parser.seen(axis_codes[i])) {
+                if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
+                  const float axis_shift = parser.axis_value_to_mm((AxisEnum)i, parser.value_float());
+                  position_shift[i]      = -axis_shift;
+                  update_workspace_offset((AxisEnum)i);
+                }
+              }
+            }
+            break;
+        
+          // Sets the work coordinates of the specified (P[1-9]) coordinate system, by matching the specified X, Y, Z... values
+          // Works similar to G92, except you can specifiy a coordinate system directly (Works the same as LinuxCNC)
+          // eg: G10 P2 L20 X10 Y50 will set G55's X=10, Y=50 no matter which coordinate system is currently selected
+          case 20:
+            LOOP_LOGICAL_AXES(i) {
+              if (parser.seen(axis_codes[i])) {
+                if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
+                  const float axis_value = parser.axis_value_to_mm((AxisEnum)i, parser.value_float());
+                  position_shift[i]       = -current_position[i] + axis_value;
+                  update_workspace_offset((AxisEnum)i);
+                }
+              }
+            }
+            break;
+        }
+        gcode.coordinate_system[gcode.active_coordinate_system] = position_shift;
         #if ENABLED(DEBUG_G10)
-          SERIAL_ECHOLNPGM("Switching to workspace ", target_system);
+          SERIAL_ECHOLNPGM("New position for workspace ", target_system);
           report_current_position();
         #endif
+        if (current_system != target_system) {
+          gcode.select_coordinate_system(current_system);
+        }
       }
-      switch (offset_type) {
-        case 1: // Sets the tool offset, as if the L parameter was not present
-          SERIAL_ECHOLN("Error: L1 not supported, only L2 and L20");
-          break;
-        // Sets the work offsets of the specified (P[1-9]) coordinate system, by subtracting the specified X, Y, Z... values
-        // from the current machine coordinate X, Y, Z... values (Works the same as LinuxCNC)
-        // eg: If G53's X=50, Y=100 then G10 P1 L2 X10 Y2 will set G54's X=40, Y=98
-        case 2:
-          LOOP_LOGICAL_AXES(i) {
-            if (parser.seen(axis_codes[i])) {
-              if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
-                const float axis_shift = parser.axis_value_to_mm((AxisEnum)i, parser.value_float());
-                position_shift[i]      = -axis_shift;
-                update_workspace_offset((AxisEnum)i);
-              }
-            }
-          }
-          break;
-        // Sets the work coordinates of the specified (P[1-9]) coordinate system, by matching the specified X, Y, Z... values
-        // Works similar to G92, except you can specifiy a coordinate system directly (Works the same as LinuxCNC)
-        // eg: G10 P2 L20 X10 Y50 will set G55's X=10, Y=50 no matter which coordinate system is currently selected
-        case 20:
-          LOOP_LOGICAL_AXES(i) {
-            if (parser.seen(axis_codes[i])) {
-              if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
-                const float axis_value = parser.axis_value_to_mm((AxisEnum)i, parser.value_float());
-                position_shift[i]       = -current_position[i] + axis_value;
-                update_workspace_offset((AxisEnum)i);
-              }
-            }
-          }
-          break;
-      }
-      gcode.coordinate_system[gcode.active_coordinate_system] = position_shift;
-    #if ENABLED(DEBUG_G10)
-      SERIAL_ECHOLNPGM("New position for workspace ", target_system);
-      report_current_position();
-    #endif
-      if (current_system != target_system) {
-        gcode.select_coordinate_system(current_system);
-      }
-    }
-  #endif // ENABLED(CNC_COORDINATE_SYSTEMS)
+    #endif // ENABLED(CNC_COORDINATE_SYSTEMS)
+  #endif // EITHER CNC_COORDINATE_SYSTEMS, HAS_TOOL_LENGTH_COMPENSATION
 }
 #endif   // EITHER(FWRETRACT, CNC_COORDINATE_SYSTEMS)
 
