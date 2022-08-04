@@ -4295,6 +4295,9 @@
 //
 //#define PINS_DEBUGGING
 
+// Enable Tests that will run at startup and produce a report
+//#define MARLIN_TEST_BUILD
+
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
 
