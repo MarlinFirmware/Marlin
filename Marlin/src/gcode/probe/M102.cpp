@@ -33,6 +33,14 @@
 
 /**
  * M102: Configure the Bed Distance Sensor
+ *
+ *   M102 S<10ths> : Set adjustable Z height in 10ths of a mm (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm.)
+ *   M102 S0       : Disable adjustable Z height.
+ *
+ * Negative S values are commands:
+ *   M102 S-1       : Read sensor information
+ *   M102 S-5       : Read raw Calibration data
+ *   M102 S-6       : Start Calibration
  */
 void GcodeSuite::M102() {
   if (parser.seenval('S'))

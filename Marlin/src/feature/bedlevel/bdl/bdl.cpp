@@ -27,14 +27,13 @@
 #include "../../../MarlinCore.h"
 #include "../../../gcode/gcode.h"
 #include "../../../module/settings.h"
-#include "../../../module/planner.h"
 #include "../../../module/motion.h"
+#include "../../../module/planner.h"
+#include "../../../module/stepper.h"
 #include "../../../module/probe.h"
 #include "../../../module/temperature.h"
 #include "../../../module/endstops.h"
 #include "../../babystep.h"
-#include "../../../module/stepper/indirection.h"
-#include "../../../module/stepper.h"
 
 // I2C software Master library for segment bed heating and bed distance sensor
 #include <Panda_segmentBed_I2C.h>
@@ -44,10 +43,10 @@ BDS_Leveling bdl;
 
 //#define DEBUG_OUT_BD
 
-//M102 S-5    Read raw Calibrate data
-//M102 S-6    Start Calibrate
-//M102 S4     Set the adjustable Z height value (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm , disable with 'M102 S0'.)
-//M102 S-1    Read sensor information
+// M102 S-5   Read raw Calibrate data
+// M102 S-6   Start Calibrate
+// M102 S4    Set the adjustable Z height value (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm , disable with 'M102 S0'.)
+// M102 S-1   Read sensor information
 
 #define MAX_BD_HEIGHT                 4.0f
 #define CMD_START_READ_CALIBRATE_DATA 1017
@@ -97,7 +96,7 @@ void BDS_Leveling::process() {
       const float z_sensor = (tmp & 0x3FF) / 100.0f;
       if (cur_z < 0) config_state = 0;
       //float abs_z = current_position.z > cur_z ? (current_position.z - cur_z) : (cur_z - current_position.z);
-      if ( cur_z < config_state / 10.0f
+      if ( cur_z < config_state * 0.1f
         && config_state > 0
         && old_cur_z == cur_z
         && old_buf_z == current_position.z
