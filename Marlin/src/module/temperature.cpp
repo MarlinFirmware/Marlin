@@ -77,7 +77,7 @@
 
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
-#define TEMP_SENSOR_IS_ANY_MAX_TC(n) (ENABLED(TEMP_SENSOR_##n##_IS_MAX_TC) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
+#define TEMP_SENSOR_IS_ANY_MAX_TC(n) (TEMP_SENSOR_IS_MAX_TC(n) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 
 // LIB_MAX6675 can be added to the build_flags in platformio.ini to use a user-defined library
 // If LIB_MAX6675 is not on the build_flags then raw SPI reads will be used.
@@ -1317,8 +1317,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
   _temp_error(heater_id, F(STR_T_MINTEMP), GET_TEXT_F(MSG_ERR_MINTEMP));
 }
 
-#if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
-  #define HAS_PID_DEBUG 1
+#if HAS_PID_DEBUG
   bool Temperature::pid_debug_flag; // = false
 #endif
 
@@ -1418,7 +1417,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       // At startup, initialize modeled temperatures
       if (isnan(hotend.modeled_block_temp)) {
-        hotend.modeled_ambient_temp = min(30.0f, hotend.celsius);   // Cap initial value at reasonable max room temperature of 30C
+        hotend.modeled_ambient_temp = _MIN(30.0f, hotend.celsius);   // Cap initial value at reasonable max room temperature of 30C
         hotend.modeled_block_temp = hotend.modeled_sensor_temp = hotend.celsius;
       }
 
@@ -1464,7 +1463,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       // Only correct ambient when close to steady state (output power is not clipped or asymptotic temperature is reached)
       if (WITHIN(hotend.soft_pwm_amount, 1, 126) || fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
-        hotend.modeled_ambient_temp += delta_to_apply > 0.f ? max(delta_to_apply, MPC_MIN_AMBIENT_CHANGE * MPC_dT) : min(delta_to_apply, -MPC_MIN_AMBIENT_CHANGE * MPC_dT);
+        hotend.modeled_ambient_temp += delta_to_apply > 0.f ? _MAX(delta_to_apply, MPC_MIN_AMBIENT_CHANGE * MPC_dT) : _MIN(delta_to_apply, -MPC_MIN_AMBIENT_CHANGE * MPC_dT);
 
       float power = 0.0;
       if (hotend.target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
@@ -1856,15 +1855,15 @@ void Temperature::task() {
   if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
-    #if TEMP_SENSOR_0_IS_MAX_TC
+    #if TEMP_SENSOR_IS_MAX_TC(0)
       if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
       if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
     #endif
-    #if TEMP_SENSOR_1_IS_MAX_TC
+    #if TEMP_SENSOR_IS_MAX_TC(1)
       if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
       if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
     #endif
-    #if TEMP_SENSOR_REDUNDANT_IS_MAX_TC
+    #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
       if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
       if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) min_temp_error(H_REDUNDANT);
     #endif
@@ -2072,7 +2071,7 @@ void Temperature::task() {
       case 0:
         #if TEMP_SENSOR_0_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
-        #elif TEMP_SENSOR_0_IS_MAX_TC
+        #elif TEMP_SENSOR_IS_MAX_TC(0)
           #if TEMP_SENSOR_0_IS_MAX31865
             return TERN(LIB_INTERNAL_MAX31865,
               max31865_0.temperature(raw),
@@ -2091,7 +2090,7 @@ void Temperature::task() {
       case 1:
         #if TEMP_SENSOR_1_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_1, raw);
-        #elif TEMP_SENSOR_1_IS_MAX_TC
+        #elif TEMP_SENSOR_IS_MAX_TC(1)
           #if TEMP_SENSOR_0_IS_MAX31865
             return TERN(LIB_INTERNAL_MAX31865,
               max31865_1.temperature(raw),
@@ -2275,9 +2274,9 @@ void Temperature::task() {
   celsius_float_t Temperature::analog_to_celsius_redundant(const raw_adc_t raw) {
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_REDUNDANT, raw);
-    #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E0)
+    #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E0)
       return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25);
-    #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E1)
+    #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1)
       return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25);
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
@@ -2308,9 +2307,15 @@ void Temperature::updateTemperaturesFromRawValues() {
 
   hal.watchdog_refresh(); // Reset because raw_temps_ready was set by the interrupt
 
-  TERN_(TEMP_SENSOR_0_IS_MAX_TC, temp_hotend[0].setraw(READ_MAX_TC(0)));
-  TERN_(TEMP_SENSOR_1_IS_MAX_TC, temp_hotend[1].setraw(READ_MAX_TC(1)));
-  TERN_(TEMP_SENSOR_REDUNDANT_IS_MAX_TC, temp_redundant.setraw(READ_MAX_TC(HEATER_ID(TEMP_SENSOR_REDUNDANT_SOURCE))));
+  #if TEMP_SENSOR_IS_MAX_TC(0)
+    temp_hotend[0].setraw(READ_MAX_TC(0));
+  #endif
+  #if TEMP_SENSOR_IS_MAX_TC(1)
+    temp_hotend[1].setraw(READ_MAX_TC(1));
+  #endif
+  #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
+    temp_redundant.setraw(READ_MAX_TC(HEATER_ID(TEMP_SENSOR_REDUNDANT_SOURCE)));
+  #endif
 
   #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].getraw(), e);
@@ -3139,15 +3144,15 @@ void Temperature::disable_all_heaters() {
 void Temperature::update_raw_temperatures() {
 
   // TODO: can this be collapsed into a HOTEND_LOOP()?
-  #if HAS_TEMP_ADC_0 && !TEMP_SENSOR_0_IS_MAX_TC
+  #if HAS_TEMP_ADC_0 && !TEMP_SENSOR_IS_MAX_TC(0)
     temp_hotend[0].update();
   #endif
 
-  #if HAS_TEMP_ADC_1 && !TEMP_SENSOR_1_IS_MAX_TC
+  #if HAS_TEMP_ADC_1 && !TEMP_SENSOR_IS_MAX_TC(1)
     temp_hotend[1].update();
   #endif
 
-  #if HAS_TEMP_ADC_REDUNDANT && !TEMP_SENSOR_REDUNDANT_IS_MAX_TC
+  #if HAS_TEMP_ADC_REDUNDANT && !TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
     temp_redundant.update();
   #endif
 
