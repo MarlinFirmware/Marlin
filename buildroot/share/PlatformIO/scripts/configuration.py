@@ -18,7 +18,7 @@ def apply_opt(name, val, conf=None):
 	if name == "lcd": name, val = val, "on"
 
 	# Create a regex to match the option and capture parts of the line
-	regex = re.compile(r'^(\s*)(//\s*)?(#define\s+)(' + name + r'\b)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
+	regex = re.compile(rf'^(\s*)(//\s*)?(#define\s+)({name}\b)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
 
 	# Find and enable and/or update all matches
 	for file in ("Configuration.h", "Configuration_adv.h"):
@@ -86,6 +86,9 @@ def apply_opt(name, val, conf=None):
 def fetch_example(path):
 	if path.endswith("/"):
 		path = path[:-1]
+
+	if '@' in path:
+		path, brch = map(strip, path.split('@'))
 
 	url = path.replace("%", "%25").replace(" ", "%20")
 	if not path.startswith('http'):
