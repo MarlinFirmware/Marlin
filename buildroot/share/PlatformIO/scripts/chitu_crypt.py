@@ -4,7 +4,9 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-	import struct,uuid
+	import struct,uuid,os,marlin
+
+	board = marlin.env.BoardConfig()
 
 	def calculate_crc(contents, seed):
 		accumulating_xor_value = seed;
@@ -104,11 +106,18 @@ if pioutil.is_pio_build():
 	# Encrypt ${PROGNAME}.bin and save it as 'update.cbd'
 	def encrypt(source, target, env):
 		from pathlib import Path
-		fwpath = Path(target[0].path)
-		fwsize = fwpath.stat().st_size
-		fwfile = fwpath.open("rb")
-		upfile = Path(target[0].dir.path, 'update.cbd').open("wb")
-		encrypt_file(fwfile, upfile, fwsize)
+
+		fwpath = target[0].path
+		enname = board.get("build.crypt_chitu")
+		print("Encrypting %s to %s" % (fwpath, enname))
+		fwfile = open(fwpath, "rb")
+		enfile = open(target[0].dir.path + "/" + enname, "wb")
+		length = os.path.getsize(fwpath)
+
+		encrypt_file(fwfile, enfile, length)
+		fwfile.close()
+		enfile.close()
+		os.remove(fwpath)
 
 	import marlin
 	marlin.relocate_firmware("0x08008800")
