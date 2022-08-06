@@ -38,6 +38,12 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
+#if ENABLED(BD_SENSOR)
+  #define I2C_BD_SDA_PIN                    PC6
+  #define I2C_BD_SCL_PIN                    PB2
+  #define I2C_BD_DELAY 10                         // (seconds)
+#endif
+
 //
 // Servos
 //

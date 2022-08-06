@@ -97,6 +97,10 @@ Stepper stepper; // Singleton
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
+#if ENABLED(BD_SENSOR)
+  #include "../feature/bedlevel/bdl/bdl.h"
+#endif
+
 #if ENABLED(INTEGRATED_BABYSTEPPING)
   #include "../feature/babystep.h"
 #endif

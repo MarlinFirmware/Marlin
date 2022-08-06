@@ -45,6 +45,7 @@ jobs:
         - teensy35
         - teensy41
         - SAMD51_grandcentral_m4
+        - PANDA_PI_V29
 
         # Extended AVR Environments
 

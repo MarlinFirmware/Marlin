@@ -577,6 +577,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
 
+      #if ENABLED(BD_SENSOR)
+        case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
+      #endif
+
       #if HAS_EXTRUDERS
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
