@@ -393,8 +393,12 @@ def main():
 		except ImportError:
 			print("Installing YAML module ...")
 			import subprocess
-			subprocess.run(['python3', '-m', 'pip', 'install', 'pyyaml'])
-			import yaml
+			try:
+				subprocess.run(['python3', '-m', 'pip', 'install', 'pyyaml'])
+				import yaml
+			except:
+				print("Failed to install YAML module")
+				return
 
 		print("Generating YML ...")
 		dump_yaml(schema, Path('schema.yml'))
