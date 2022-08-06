@@ -163,7 +163,7 @@
 //
 // LCD / Controller
 //
-#if ANY(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
+#if EITHER(BOARD_REV_1_0, BOARD_REV_1_1_TO_1_3)
 
   #define LCD_PINS_RS                         24
   #define LCD_PINS_ENABLE                     22

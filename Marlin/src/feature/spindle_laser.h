@@ -197,7 +197,7 @@ public:
    *  - For CUTTER_MODE_ERROR set the output enable_state flag directly and set power to 0 for any mode.
    *    This mode allows a global power shutdown action to occur.
    */
-  static void set_enabled(const bool enable) {
+  static void set_enabled(bool enable) {
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
         apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
@@ -209,7 +209,7 @@ public:
         TERN_(LASER_FEATURE, set_inline_enabled(enable));
         break;
       case CUTTER_MODE_ERROR: // Error mode, no enable and kill power.
-        enable_state = false;
+        enable = false;
         apply_power(0);
     }
     #if SPINDLE_LASER_ENA_PIN
@@ -279,13 +279,14 @@ public:
 
     #if ENABLED(LASER_FEATURE)
       // Toggle the laser on/off with menuPower. Apply SPEED_POWER_STARTUP if it was 0 on entry.
-      static void laser_menu_toggle(const bool state) {
+      static void menu_set_enabled(const bool state) {
         set_enabled(state);
         if (state) {
           if (!menuPower) menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
           power = upower_to_ocr(menuPower);
           apply_power(power);
-        }
+        } else 
+          apply_power(0);
       }
 
       /**
@@ -294,11 +295,11 @@ public:
        * If not set defaults to 80% power
        */
       static void test_fire_pulse() {
-        TERN_(HAS_BEEPER, buzzer.tone(30, 3000));
-        cutter_mode = CUTTER_MODE_STANDARD;// Menu needs standard mode.
-        laser_menu_toggle(true);           // Laser On
-        delay(testPulse);                  // Delay for time set by user in pulse ms menu screen.
-        laser_menu_toggle(false);          // Laser Off
+        BUZZ(30, 3000);
+        cutter_mode = CUTTER_MODE_STANDARD; // Menu needs standard mode.
+        menu_set_enabled(true);             // Laser On
+        delay(testPulse);                   // Delay for time set by user in pulse ms menu screen.
+        menu_set_enabled(false);            // Laser Off
       }
     #endif // LASER_FEATURE
 
@@ -308,14 +309,14 @@ public:
 
     // Dynamic mode rate calculation
     static uint8_t calc_dynamic_power() {
-      if (feedrate_mm_m > 65535) return 255;         // Too fast, go always on
-      uint16_t rate = uint16_t(feedrate_mm_m);       // 16 bits from the G-code parser float input
-      rate >>= 8;                                    // Take the G-code input e.g. F40000 and shift off the lower bits to get an OCR value from 1-255
+      if (feedrate_mm_m > 65535) return 255;    // Too fast, go always on
+      uint16_t rate = uint16_t(feedrate_mm_m);  // 16 bits from the G-code parser float input
+      rate >>= 8;                               // Take the G-code input e.g. F40000 and shift off the lower bits to get an OCR value from 1-255
       return uint8_t(rate);
     }
 
     // Inline modes of all other functions; all enable planner inline power control
-    static void set_inline_enabled(const bool enable) { planner.laser_inline.status.isEnabled = enable;}
+    static void set_inline_enabled(const bool enable) { planner.laser_inline.status.isEnabled = enable; }
 
     // Set the power for subsequent movement blocks
     static void inline_power(const cutter_power_t cpwr) {

@@ -8,7 +8,6 @@ name: CI
 on:
   pull_request:
     branches:
-    - bugfix-2.0.x
     - bugfix-2.1.x
     paths-ignore:
     - config/**
@@ -17,7 +16,6 @@ on:
     - '**/*.md'
   push:
     branches:
-    - bugfix-2.0.x
     - bugfix-2.1.x
     paths-ignore:
     - config/**
@@ -47,6 +45,7 @@ jobs:
         - teensy35
         - teensy41
         - SAMD51_grandcentral_m4
+        - PANDA_PI_V29
 
         # Extended AVR Environments
 
@@ -81,7 +80,6 @@ jobs:
         - STM32F401RC_creality
         - STM32F103VE_longer
         - STM32F407VE_black
-        - STM32F401VE_STEVAL
         - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
@@ -101,6 +99,9 @@ jobs:
         - BTT_SKR_SE_BX
         - chitu_f103
         - Opulo_Lumen_REV3
+
+        # ESP32 environments
+        - mks_tinybee
 
         # Put lengthy tests last
 

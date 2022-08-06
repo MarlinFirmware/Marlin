@@ -2,6 +2,7 @@
 # simulator.py
 # PlatformIO pre: script for simulator builds
 #
+
 import pioutil
 if pioutil.is_pio_build():
 	# Get the environment thus far for the build
@@ -50,5 +51,3 @@ if pioutil.is_pio_build():
 
 			# Break out of the PIO build immediately
 			sys.exit(1)
-
-	env.AddCustomTarget("upload", "$BUILD_DIR/${PROGNAME}", "$BUILD_DIR/${PROGNAME}")

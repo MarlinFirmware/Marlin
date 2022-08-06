@@ -773,3 +773,10 @@
 #if MB(BTT_BTT002_V1_0, EINSY_RAMBO) && DISABLED(NO_MK3_FAN_PINS_WARNING)
   #warning "Define MK3_FAN_PINS to swap hotend and part cooling fan pins. (Define NO_MK3_FAN_PINS_WARNING to suppress this warning.)"
 #endif
+
+/**
+ * BD Sensor should always include BABYSTEPPING
+ */
+#if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
+  #warning "BABYSTEPPING is recommended with BD_SENSOR."
+#endif

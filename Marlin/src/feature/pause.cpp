@@ -35,9 +35,12 @@
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
 #include "../module/planner.h"
-#include "../module/stepper.h"
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
+
+#if HAS_EXTRUDERS
+  #include "../module/stepper.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "bedlevel/bedlevel.h"
@@ -63,7 +66,7 @@
 
 #include "../lcd/marlinui.h"
 
-#if HAS_BUZZER
+#if HAS_SOUND
   #include "../libs/buzzer.h"
 #endif
 
@@ -98,7 +101,7 @@ fil_change_settings_t fc_settings[EXTRUDERS];
   #define _PMSG(L) L##_LCD
 #endif
 
-#if HAS_BUZZER
+#if HAS_SOUND
   static void impatient_beep(const int8_t max_beep_count, const bool restart=false) {
 
     if (TERN0(HAS_MARLINUI_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
