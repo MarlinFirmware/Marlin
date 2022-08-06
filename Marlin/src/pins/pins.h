@@ -590,7 +590,7 @@
 #elif MB(CREALITY_V25S1)
   #include "stm32f1/pins_CREALITY_V25S1.h"      // STM32F1                                env:STM32F103RE_creality_smartPro env:STM32F103RE_creality_smartPro_maple
 #elif MB(TRIGORILLA_PRO)
-  #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro env:trigorilla_pro_maple
+  #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro env:trigorilla_pro_maple env:trigorilla_pro_disk
 #elif MB(FLY_MINI)
   #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI env:FLY_MINI_maple
 #elif MB(FLSUN_HISPEED)
