@@ -39,8 +39,8 @@ def get_file_sha256sum(filepath):
 # Compress a JSON file into a zip file
 #
 import zipfile
-def compress_file(filepath, outputbase):
-	with zipfile.ZipFile(outputbase + '.zip', 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
+def compress_file(filepath, outpath):
+	with zipfile.ZipFile(outpath, 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
 		zipf.write(filepath, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
 #
@@ -63,7 +63,7 @@ def compute_build_signature(env):
 		hashes += get_file_sha256sum(header)[0:10]
 
 	marlin_json = build_path / 'marlin_config.json'
-	marlin_zip = build_path / 'mc'
+	marlin_zip = build_path / 'mc.zip'
 
 	# Read existing config file
 	try:
@@ -260,7 +260,7 @@ def compute_build_signature(env):
 	# Generate a C source file for storing this array
 	with open('Marlin/src/mczip.h','wb') as result_file:
 		result_file.write(
-			  b'#ifndef NO_CONFIGURATION_EMBEDDING_WARNING\n'
+				b'#ifndef NO_CONFIGURATION_EMBEDDING_WARNING\n'
 			+ b'  #warning "Generated file \'mc.zip\' is embedded (Define NO_CONFIGURATION_EMBEDDING_WARNING to suppress this warning.)"\n'
 			+ b'#endif\n'
 			+ b'const unsigned char mc_zip[] PROGMEM = {\n '
