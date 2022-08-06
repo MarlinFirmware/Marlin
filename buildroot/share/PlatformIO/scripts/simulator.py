@@ -2,6 +2,7 @@
 # simulator.py
 # PlatformIO pre: script for simulator builds
 #
+
 import pioutil
 if pioutil.is_pio_build():
 	# Get the environment thus far for the build
