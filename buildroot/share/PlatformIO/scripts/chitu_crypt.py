@@ -4,7 +4,7 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-	import struct,uuid,os,marlin
+	import struct,uuid,marlin
 
 	board = marlin.env.BoardConfig()
 
@@ -107,18 +107,20 @@ if pioutil.is_pio_build():
 	def encrypt(source, target, env):
 		from pathlib import Path
 
-		fwpath = target[0].path
-		enname = board.get("build.crypt_chitu")
-		print("Encrypting %s to %s" % (fwpath, enname))
-		fwfile = open(fwpath, "rb")
-		enfile = open(target[0].dir.path + "/" + enname, "wb")
-		length = os.path.getsize(fwpath)
+		fwpath = Path(target[0].path)
+		fwsize = fwpath.stat().st_size
 
-		encrypt_file(fwfile, enfile, length)
+		enname = board.get("build.crypt_chitu")
+		enpath = Path(target[0].dir.path)
+
+		fwfile = fwpath.open("rb")
+		enfile = (enpath / enname).open("wb")
+
+		print(f"Encrypting {fwpath} to {enname}")
+		encrypt_file(fwfile, enfile, fwsize)
 		fwfile.close()
 		enfile.close()
-		os.remove(fwpath)
+		fwpath.unlink()
 
-	import marlin
 	marlin.relocate_firmware("0x08008800")
 	marlin.add_post_action(encrypt);
