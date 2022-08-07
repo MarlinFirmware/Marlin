@@ -106,8 +106,8 @@ namespace DGUSRxHandler {
         *(T*)vp.extra = (T)data;
         break;
       }
-      case 2: {
-        const uint16_t data = Swap16(*(uint16_t*)data_ptr);
+      case 2: { 
+        const uint16_t data = BE16_P(data_ptr);
         *(T*)vp.extra = (T)data;
         break;
       }
