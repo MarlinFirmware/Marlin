@@ -16,7 +16,7 @@ from pathlib import Path
 # resulting config.ini to produce more exact configuration files.
 #
 def extract_defines(filepath):
-	f = open(filepath, encoding="utf8").read().split("\n")
+	f = open(filepath, encoding="utf8", errors='ignore').read().split("\n")
 	a = []
 	for line in f:
 		sline = line.strip()
