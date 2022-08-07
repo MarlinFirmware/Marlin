@@ -335,6 +335,9 @@ void _lcd_ubl_build_mesh() {
           BUILD_MESH_GCODE_ITEM(3);
           #if PREHEAT_COUNT > 4
             BUILD_MESH_GCODE_ITEM(4);
+            #if PREHEAT_COUNT > 5
+              BUILD_MESH_GCODE_ITEM(5);
+            #endif
           #endif
         #endif
       #endif
