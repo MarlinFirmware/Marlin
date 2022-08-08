@@ -1405,6 +1405,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       const float pid_output = hotend_pid[ee].get_pid_output();
 
+      if (active_extruder >= EXTRUDERS) return 0.0f;
+
       #if ENABLED(PID_DEBUG)
         if (ee == active_extruder)
           hotend_pid[ee].debug(temp_hotend[ee].celsius, pid_output, F("E"), ee);
@@ -4054,6 +4056,7 @@ void Temperature::isr() {
 
     #if ENABLED(WAIT_FOR_HOTEND)
       void Temperature::wait_for_hotend_heating(const uint8_t target_extruder) {
+        if (target_extruder >= EXTRUDERS) return;
         if (isHeatingHotend(target_extruder)) {
           SERIAL_ECHOLNPGM("Wait for hotend heating...");
           LCD_MESSAGE(MSG_HEATING);

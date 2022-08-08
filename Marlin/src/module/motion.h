@@ -52,8 +52,9 @@ extern xyze_pos_t current_position,  // High-level current tool position
 extern xyz_pos_t cartes;
 
 #if HAS_TOOL_LENGTH_COMPENSATION
-  extern float tool_length offset;
-  extern bool cartesian_tool_length_compensation;
+  extern xyz_pos_t tool_offsets[TOOLS];
+  void reset_tool_offsets();
+  extern bool simple_tool_length_compensation;
 #endif
 
 // Until kinematics.cpp is created, declare this here
@@ -117,7 +118,7 @@ extern int16_t feedrate_percentage;
 #define FR_SCALED(V) ((V) * 0.01f * feedrate_percentage)
 
 // The active extruder (tool). Set with T<extruder> command.
-#if HAS_MULTI_EXTRUDER
+#if HAS_MULTI_EXTRUDER || HAS_MULTI_TOOLS
   extern uint8_t active_extruder;
 #else
   constexpr uint8_t active_extruder = 0;
@@ -237,9 +238,11 @@ inline float home_bump_mm(const AxisEnum axis) {
   } soft_endstops_t;
 
   extern soft_endstops_t soft_endstop;
+  void handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos);
+  void handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos);
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
-    #if HAS_HOTEND_OFFSET
+    #if EITHER(HAS_HOTEND_OFFSET, HAS_TOOL_LENGTH_COMPENSATION)
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
@@ -633,7 +636,7 @@ void home_if_needed(const bool keeplev=false);
 /**
  * position_is_reachable family of functions
  */
-#if IS_KINEMATIC // (DELTA or SCARA)
+#if IS_KINEMATIC && !HAS_TOOL_CENTERPOINT_CONTROL // (DELTA or SCARA)
 
   #if HAS_SCARA_OFFSET
     extern abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
@@ -654,6 +657,14 @@ void home_if_needed(const bool keeplev=false);
     return position_is_reachable(pos.x, pos.y);
   }
 
+#endif
+
+#if HAS_TOOL_CENTERPOINT_CONTROL // XYZBC_HEAD_TABLE
+
+  bool position_is_reachable_xyijkuvw(NUM_AXIS_LIST(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t ri, const_float_t rj, const_float_t rk, const_float_t ru, const_float_t rv, const_float_t rw));
+  inline bool position_is_reachable_xyijkuvw(const xyz_pos_t &pos) {
+    return position_is_reachable_xyijkuvw(NUM_AXIS_LIST(pos.x, pos.y, pos.z, pos.i, pos.j, pos.k, pos.u, pos.v, pos.w));
+  }
 #endif
 
 /**

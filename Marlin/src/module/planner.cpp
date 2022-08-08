@@ -159,6 +159,10 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
   bool Planner::abort_on_endstop_hit = false;
 #endif
 
+#if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+  bool Planner::abort_on_software_endstop = false;
+#endif
+
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif
@@ -1436,6 +1440,7 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
     void Planner::_autotemp_update_from_hotend() {
+      if (active_extruder >= EXTRUDERS) return;
       const celsius_t target = thermalManager.degTargetHotend(active_extruder);
       autotemp_min = target + AUTOTEMP_MIN_P;
       autotemp_max = target + AUTOTEMP_MAX_P;
@@ -1477,6 +1482,7 @@ void Planner::check_axes_activity() {
   void Planner::autotemp_task() {
     static float oldt = 0.0f;
 
+    if (active_extruder >= EXTRUDERS) return;
     if (!autotemp_enabled) return;
     if (thermalManager.degTargetHotend(active_extruder) < autotemp_min - 2) return; // Below the min?
 
@@ -3163,46 +3169,40 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       );
     #endif
 
-    // Cartesian XYZ to kinematic ABC, stored in global 'delta'
-    inverse_kinematics(machine);
-
     PlannerHints ph = hints;
-    if (!hints.millimeters)
-      #if HAS_TOOL_CENTERPOINT_CONTROL
-        float dist_sqr = 0.0f XYZ_GANG(sq(cart_dist_mm.x), + sq(cart_dist_mm.y), + sq(cart_dist_mm.y));
+    if (!hints.millimeters) {
+      float dist_sqr = XYZ_GANG(sq(cart_dist_mm.x), + sq(cart_dist_mm.y), + sq(cart_dist_mm.z));
 
-        #if SECONDARY_LINEAR_AXES >= 1
-          if (UNEAR_ZERO(distance_sqr)) {
-            // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes that define linear movent in a coordinate system that is rotated with the tool
-            distance_sqr = (0.0f
-              SECONDARY_AXIS_GANG(
-                IF_DISABLED(AXIS4_ROTATES, + sq(cart_dist_mm.i)),
-                IF_DISABLED(AXIS5_ROTATES, + sq(cart_dist_mm.j)),
-                IF_DISABLED(AXIS6_ROTATES, + sq(cart_dist_mm.k)),
-                IF_DISABLED(AXIS7_ROTATES, + sq(cart_dist_mm.u)),
-                IF_DISABLED(AXIS8_ROTATES, + sq(cart_dist_mm.v)),
-                IF_DISABLED(AXIS9_ROTATES, + sq(cart_dist_mm.w))
-              )
-            );
-          }
-        #endif
-
-        #if HAS_ROTATIONAL_AXES
-          if (UNEAR_ZERO(distance_sqr)) {
-            // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-            ph.cartesian_move = false;
-            distance_sqr = ROTATIONAL_AXIS_GANG(sq(cart_dist_mm.i), + sq(cart_dist_mm.j), + sq(cart_dist_mm.k), + sq(cart_dist_mm.u), + sq(cart_dist_mm.v), + sq(cart_dist_mm.w));
-          }
-        #endif
-
-        ph.millimeters = SQRT(distance_sqr);
-      #else
-        ph.millimeters = (cart_dist_mm.x || cart_dist_mm.y)
-          ? xyz_pos_t(cart_dist_mm).magnitude()
-          : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
+      #if SECONDARY_LINEAR_AXES >= 1
+        if (UNEAR_ZERO(dist_sqr)) {
+          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes that define linear movent in a coordinate system that is rotated with the tool
+          dist_sqr = (0.0f
+            SECONDARY_AXIS_GANG(
+              IF_DISABLED(AXIS4_ROTATES, + sq(cart_dist_mm.i)),
+              IF_DISABLED(AXIS5_ROTATES, + sq(cart_dist_mm.j)),
+              IF_DISABLED(AXIS6_ROTATES, + sq(cart_dist_mm.k)),
+              IF_DISABLED(AXIS7_ROTATES, + sq(cart_dist_mm.u)),
+              IF_DISABLED(AXIS8_ROTATES, + sq(cart_dist_mm.v)),
+              IF_DISABLED(AXIS9_ROTATES, + sq(cart_dist_mm.w))
+            )
+          );
+        }
       #endif
+
+      #if HAS_ROTATIONAL_AXES
+        if (UNEAR_ZERO(dist_sqr)) {
+          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+          ph.cartesian_move = false;
+          dist_sqr = ROTATIONAL_AXIS_GANG(sq(cart_dist_mm.i), + sq(cart_dist_mm.j), + sq(cart_dist_mm.k), + sq(cart_dist_mm.u), + sq(cart_dist_mm.v), + sq(cart_dist_mm.w));
+        }
+      #endif
+
+      ph.millimeters = SQRT(dist_sqr);
     }
 
+    // Cartesian XYZ to kinematic ABC, stored in global 'delta'
+    inverse_kinematics(machine);
+  
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // For SCARA scale the feedrate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.

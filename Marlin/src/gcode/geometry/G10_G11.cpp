@@ -20,25 +20,32 @@
  *
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(FWRETRACT)
+  #include "../../feature/fwretract.h"
+#endif
 
-#include "../../../feature/fwretract.h"
-#include "../../gcode.h"
-#include "../../../module/motion.h"
+#if EITHER(FWRETRACT, CNC_COORDINATE_SYSTEMS)
 
-  // #define DEBUG_G10 // Show debug messages
+#include "../gcode.h"
+#include "../../module/motion.h"
+
+//#define DEBUG_G10 // Show debug messages
 
 /**
- * G10 S#         - Retract filament according to settings of M207
+ * G10 S#                    - Retract filament according to settings of M207
+ *     L1 P# X# Y# Z#...     - Sets the tool length of the tool specified by the P parameter (0 to (TOOLS - 1))
+ *     L10 P# Z#             - Set the tool length of the tool specified by the P parameter (0 to (TOOLS - 1)) so that if the tool offset is reloaded, with the machine in its 
+ *                             current position and with the current G5x and G52/G92 offsets active, the current coordinates for the given axes 
+ *                             will become the given Z value.
  *     L2/L20 P# X# Y# Z#... - Sets the origin of the coordinate system, specified by the P parameter (1 to 9)
+ *     L2/L20 P0 X# Y# Z#... - Sets the origin of the current coordinate system
+ *
  *
  * Beta L2/L20 implementation based on https://github.com/MarlinFirmware/Marlin/issues/14734
  * and http://linuxcnc.org/docs/2.6/html/gcode/gcode.html#sec:G10-L1_
  *
- * *Supported CNC_COORDINATE_SYSTEMS parameters: L2 and L20
- * *Unsupported parameters: L1
  * !Beta - Use with caution.
  */
 void GcodeSuite::G10() {
@@ -46,27 +53,34 @@ void GcodeSuite::G10() {
     fwretract.retract(true E_OPTARG(parser.boolval('S')));
   #endif
 
-  #if EITHER(CNC_COORDINATE_SYSTEMS, HAS_TOOL_LENGTH_OFFSET)
-    const uint8_t p_val = parser.val_byte('P'),
-                  offset_type = parser.val_byte('L');
+  #if EITHER(CNC_COORDINATE_SYSTEMS, HAS_TOOL_LENGTH_COMPENSATION)
+    uint8_t index,
+            offset_type;
 
-    #if HAS_TOOL_LENGTH_OFFSET
-      if (offset_type == 1 || offset_type == 10) {
-        if (parser.seenval('P')) {
-          const uint8_t tool_index = p_val;
-          if (parser.seenval(AXIS_CHAR(Z_AXIS))) {
-            const uint8_t tool_index = p_val;
-          }
+    if (parser.seenval('P'))
+      index = parser.value_byte();
+    else
+      return;
+    if (parser.seenval('L'))
+      offset_type = parser.value_byte();
+    else
+      return;
 
+    #if HAS_TOOL_LENGTH_COMPENSATION
+      if ((offset_type == 1 || offset_type == 10) && WITHIN(index, 0, TOOLS)) {
+        xyz_pos_t new_tool_length_offset;
         switch (offset_type) {
+
+          default: break;                                              // Ignore unknown G10 Lx
+
           case 1: // Sets the tool offset
-            if (parser.seenval('P')) {
-              const uint8_t tool_index = p_val;
-              if ((tool_index < TOOLS) && parser.seenval(AXIS_CHAR(Z_AXIS))) {
-                const float z_val = parser.value_float();
-                tool_length_offsets[tool_index] = z_val;
+            LOOP_NUM_AXES(i) {
+              if (parser.seen(axis_codes[i])) {
+                const float axis_value = parser.value_axis_units((AxisEnum)i);
+                new_tool_length_offset[i] = axis_value;
               }
             }
+            tool_offsets[index] = new_tool_length_offset;
             break;
 
           // G10 L10 changes the tool table entry for tool P so that if the tool offset is reloaded, with the machine in its 
@@ -74,22 +88,22 @@ void GcodeSuite::G10() {
           // will become the given values. (Intended to work the same as LinuxCNC).
           // e.g. G10 L10 P1 Z1.5 followed by G43 sets the current position for Z to be 1.5.
           case 10:
-            if (parser.seenval('P')) {
-              const uint8_t tool_index = parser.value_byte();
-              if parser.seenval(AXIS_CHAR(Z_AXIS)) {
-                const float z_val = parser.linear_value_to_mm();
-                tool_length_offsets[tool_index] = current_position.z - z_val;
+            LOOP_NUM_AXES(i) {
+              if (parser.seen(axis_codes[i])) {
+                const float axis_value = parser.value_axis_units((AxisEnum)i);
+                new_tool_length_offset[i] = current_position[i] - axis_value;
               }
             }
             break;
         }
+        tool_offsets[index] = new_tool_length_offset;
       }
     #endif
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
       if (offset_type == 2 || offset_type == 20) {
-        target_system = p_val ? gcode.active_coordinate_system : pval - 1;  // P0 selects current coordinate system. Otherwise, subtract 1 because P1 is G54, which is Marlin coordinate_system 0 
+        const int8_t target_system = (index == 0) ? gcode.active_coordinate_system : (index - 1);  // P0 selects current coordinate system. P1 is G54, which is Marlin coordinate_system 0 
+        const int8_t current_system = gcode.active_coordinate_system; // Store current coord system
         if (WITHIN(target_system, 0, MAX_COORDINATE_SYSTEMS - 1)) {
-          const int8_t current_system = gcode.active_coordinate_system; // Store current coord system
           if (current_system != target_system) {
             gcode.select_coordinate_system(target_system); // Select new coordinate system if needed
             #if ENABLED(DEBUG_G10)
@@ -99,14 +113,16 @@ void GcodeSuite::G10() {
           }
         }
         switch (offset_type) {
+          default: break;                                              // Ignore unknown G10 Lx
+
           // Sets the work offsets of the specified (P[1-9]) coordinate system, by subtracting the specified X, Y, Z... values
           // from the current machine coordinate X, Y, Z... values (Works the same as LinuxCNC)
           // eg: If G53's X=50, Y=100 then G10 P1 L2 X10 Y2 will set G54's X=40, Y=98
           case 2:
             LOOP_LOGICAL_AXES(i) {
-              if (parser.seen(axis_codes[i])) {
+              if (parser.seenval(axis_codes[i])) {
                 if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
-                  const float axis_shift = parser.axis_value_to_mm((AxisEnum)i, parser.value_float());
+                  const float axis_shift = parser.value_axis_units((AxisEnum)i);
                   position_shift[i]      = -axis_shift;
                   update_workspace_offset((AxisEnum)i);
                 }
@@ -119,10 +135,10 @@ void GcodeSuite::G10() {
           // eg: G10 P2 L20 X10 Y50 will set G55's X=10, Y=50 no matter which coordinate system is currently selected
           case 20:
             LOOP_LOGICAL_AXES(i) {
-              if (parser.seen(axis_codes[i])) {
+              if (parser.seenval(axis_codes[i])) {
                 if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
-                  const float axis_value = parser.axis_value_to_mm((AxisEnum)i, parser.value_float());
-                  position_shift[i]       = -current_position[i] + axis_value;
+                  const float axis_value = parser.value_axis_units((AxisEnum)i);
+                  position_shift[i] = axis_value - current_position[i];
                   update_workspace_offset((AxisEnum)i);
                 }
               }

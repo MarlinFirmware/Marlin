@@ -146,11 +146,15 @@ public:
 
   #else
 
-    static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY(0, 0, 0, 0, 0, 0)); // See #16767
+    static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY(0, 0, 0, 0, 0, 0, 0, 0, 0)); // See #16767
 
     static bool set_deployed(const bool) { return false; }
 
-    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
+    #if HAS_TOOL_CENTERPOINT_CONTROL
+      static bool can_reach(NUM_AXIS_LIST(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t ri, const_float_t rj, const_float_t rk, const_float_t ru, const_float_t rv, const_float_t rw), const bool=true) { return position_is_reachable_xyijkuvw(NUM_AXIS_LIST(rx, ry, rz, ri, rj, rk, ru, rv, rw)); }
+    #else
+      static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
+    #endif
 
   #endif
 
@@ -162,17 +166,21 @@ public:
     #endif
   }
 
-  static bool can_reach(const xy_pos_t &pos, const bool probe_relative=true) { return can_reach(pos.x, pos.y, probe_relative); }
-
-  static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
-    return (
-      #if IS_KINEMATIC
-        can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
-      #else
-        can_reach(lf) && can_reach(rb)
-      #endif
-    );
-  }
+  #if HAS_TOOL_CENTERPOINT_CONTROL
+    static bool can_reach(const xyz_pos_t &pos, const bool probe_relative=true) { return can_reach(NUM_AXIS_LIST(pos.x, pos.y, pos.z, pos.i, pos.j, pos.k, pos.u, pos.v, pos.w), probe_relative); }
+    static bool good_bounds(const xyz_pos_t &lf, const xyz_pos_t &rb) { return (can_reach(lf) && can_reach(rb)); }
+  #else
+    static bool can_reach(const xy_pos_t &pos, const bool probe_relative=true) { return can_reach(pos.x, pos.y, probe_relative); }
+    static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
+      return (
+        #if IS_KINEMATIC
+          can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
+        #else
+          can_reach(lf) && can_reach(rb)
+        #endif
+      );
+    }
+  #endif
 
   // Use offset_xy for read only access
   // More optimal the XY offset is known to always be zero.

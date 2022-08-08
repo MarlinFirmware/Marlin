@@ -37,7 +37,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
 
-#if HAS_MULTI_EXTRUDER
+#if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
 
@@ -152,13 +152,7 @@
 
 // Move to position routines
 void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
-  #if HAS_ROTATIONAL_AXES
-    PlannerHints hints;
-    hints.fr_deg_s = planner.settings.max_feedrate_mm_s[fr_axis] * fscale;
-    line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale, active_extruder, hints);
-  #else
-    line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
-  #endif
+  line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale OPTARG(HAS_ROTATIONAL_AXES, planner.settings.max_feedrate_mm_s[fr_axis] * fscale));
 }
 void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.2f); }
 void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
@@ -448,7 +442,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       }
     }
   }
+#endif // TOOL_SENSOR
 
+#if ENABLED(SWITCHING_TOOLHEAD)
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
@@ -460,8 +456,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #error "No toolhead locking mechanism configured."
     #endif
   }
-
-  #include <bitset>
 
   void swt_init() {
     switching_toolhead_lock(true);
@@ -502,10 +496,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       LCD_MESSAGE_F("TC Success");
     #endif // TOOL_SENSOR
   }
-
-#endif // TOOL_SENSOR
-
-#if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
@@ -1139,19 +1129,19 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     mmu2.tool_change(new_tool);
 
-  #elif EXTRUDERS == 0
+  #elif (EXTRUDERS == 0) && (!TOOLS)
 
     // Nothing to do
     UNUSED(new_tool); UNUSED(no_move);
 
-  #elif EXTRUDERS < 2
+  #elif (EXTRUDERS < 2) && (TOOLS < 2)
 
     UNUSED(no_move);
 
     if (new_tool) invalid_extruder_error(new_tool);
     return;
 
-  #elif HAS_MULTI_EXTRUDER
+  #elif HAS_MULTI_EXTRUDER || HAS_MULTI_TOOLS
 
     planner.synchronize();
 
@@ -1160,7 +1150,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
          return invalid_extruder_error(new_tool);
     #endif
 
-    if (new_tool >= EXTRUDERS)
+    if (new_tool >= TERN(HAS_MULTI_TOOLS, TOOLS, EXTRUDERS))
       return invalid_extruder_error(new_tool);
 
     if (!no_move && homing_needed()) {
@@ -1279,8 +1269,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           planner.synchronize();
         }
       #endif
-
-      #if HAS_HOTEND_OFFSET
+      #if HAS_TOOL_LENGTH_COMPENSATION
+        xyz_pos_t diff = (tool_centerpoint_control ? (tool_offsets[old_tool] - tool_offsets[new_tool]) : xyz_pos_t({ 0.0 })) TERN_(HAS_HOTEND_OFFSET, + (hotend_offset[new_tool] - hotend_offset[old_tool]));
+      #elif HAS_HOTEND_OFFSET
         xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
       #else
@@ -1386,7 +1377,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
                 do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
                 do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])              
               );
-
             #endif
 
           #endif

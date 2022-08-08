@@ -674,6 +674,11 @@ void menu_advanced_settings() {
     EDIT_ITEM(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
   #endif
 
+  // M541 S - Abort on software endstop hit
+  #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+    EDIT_ITEM(bool, MSG_SOFTWARE_ENDSTOP_ABORT, &planner.abort_on_software_endstop);
+  #endif
+
   #if ENABLED(SD_FIRMWARE_UPDATE)
     EDIT_ITEM(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
       //

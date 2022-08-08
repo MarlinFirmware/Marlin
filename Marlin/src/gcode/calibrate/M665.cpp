@@ -183,6 +183,24 @@
     );
   }
 
+#elif ENABLED(XYZBC_HEAD_TABLE)
+
+  #include "../../module/xyzbc_head_table.h"
+
+  void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
+    if (parser.seenval('S')) segments_per_second = parser.value_float();
+    if (parser.seenval('O')) mrzp_offset = parser.value_linear_units();
+  }
+
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    report_heading_etc(forReplay, F(STR_XYZBC_SETTINGS));
+    SERIAL_ECHOLNPGM_P(
+      PSTR("  M665 S"), LINEAR_UNIT(segments_per_second),
+      PSTR(" O"), LINEAR_UNIT(mrzp_offset)
+    );
+  }
+
 #endif
 
 #endif // IS_KINEMATIC

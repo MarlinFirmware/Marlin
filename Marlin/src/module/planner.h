@@ -50,7 +50,7 @@
   #include "delta.h"
 #elif ENABLED(POLARGRAPH)
   #include "polargraph.h"
-#elif ENABLED(XYZBC_HEAD_TAIL)
+#elif ENABLED(XYZBC_HEAD_TABLE)
   #include "xyzbc_head_table.h"
 #endif
 
@@ -213,7 +213,7 @@ typedef struct PlannerBlock {
   };
   uint32_t step_event_count;                // The number of step events required to complete this block
 
-  #if HAS_MULTI_EXTRUDER
+  #if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
     uint8_t extruder;                       // The extruder to move (if E move)
   #else
     static constexpr uint8_t extruder = 0;
@@ -380,8 +380,6 @@ struct PlannerHints {
   #endif
   #if HAS_ROTATIONAL_AXES
     feedRate_t fr_deg_s = 0.0f;        // Feedrate in °/s. For moves involving only rotational axes
-  #endif
-  #if HAS_TOOL_CENTERPOINT_CONTROL
     bool cartesian_move = true;        // True if linear motion of the tool centerpoint relative to the workpiece occurs. 
                                        // False if no movement of the tool center point relative to the work piece occurs
                                        // (i.e. tool rotates around the tool centerpoint)
@@ -497,6 +495,11 @@ class Planner {
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
     #endif
+
+    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+      static bool abort_on_software_endstop;
+    #endif
+
     #ifdef XY_FREQUENCY_LIMIT
       static int8_t xy_freq_limit_hz;         // Minimum XY frequency setting
       static float xy_freq_min_speed_factor;  // Minimum speed factor setting
@@ -832,13 +835,6 @@ class Planner {
      * such as sync fan pwm or sync M3/M4 laser power into a queued block
      */
       static void buffer_sync_block(const BlockFlagBit flag=BLOCK_BIT_SYNC_POSITION);
-
-  #if IS_KINEMATIC
-    private:
-
-      // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool OPTARG(HAS_ROTATIONAL_AXES, const feedRate_t));
-  #endif
 
     /**
      * Planner::buffer_segment

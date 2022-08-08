@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if EITHER(HAS_MULTI_EXTRUDER, DEBUG_LEVELING_FEATURE)
+#if ANY(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS, DEBUG_LEVELING_FEATURE)
   #include "../../module/motion.h"
 #endif
 
@@ -62,7 +62,7 @@ void GcodeSuite::T(const int8_t tool_index) {
   #endif
 
   tool_change(tool_index
-    #if HAS_MULTI_EXTRUDER
+    #if EITHER(HAS_MULTI_EXTRUDER,HAS_MULTI_TOOLS)
       ,  TERN(PARKING_EXTRUDER, false, tool_index == active_extruder) // For PARKING_EXTRUDER motion is decided in tool_change()
       || parser.boolval('S')
     #endif

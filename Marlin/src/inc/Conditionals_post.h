@@ -3434,14 +3434,14 @@
   #endif
 #endif
 
-#if HAS_MULTI_EXTRUDER && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
+#if (HAS_MULTI_EXTRUDER || HAS_MULTI_TOOLS) && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
   #define TOOLCHANGE_FS_EXTRA_PRIME 0
 #endif
 
 /**
  * Only constrain Z on DELTA / SCARA machines
  */
-#if IS_KINEMATIC
+#if IS_KINEMATIC && DISABLED(HAS_TOOL_CENTERPOINT_CONTROL)
   #undef MIN_SOFTWARE_ENDSTOP_X
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_X
@@ -3456,7 +3456,7 @@
   #define PROBING_MARGIN 0
 #endif
 
-#if IS_KINEMATIC
+#if IS_KINEMATIC && DISABLED(HAS_TOOL_CENTERPOINT_CONTROL)
   #undef PROBING_MARGIN_LEFT
   #undef PROBING_MARGIN_RIGHT
   #undef PROBING_MARGIN_FRONT
@@ -3651,7 +3651,7 @@
 // Updated G92 behavior shifts the workspace
 #if DISABLED(NO_WORKSPACE_OFFSETS)
   #define HAS_POSITION_SHIFT 1
-  #if IS_CARTESIAN
+  #if EITHER(IS_CARTESIAN, HAS_TOOL_LENGTH_COMPENSATION)
     #define HAS_HOME_OFFSET 1       // The home offset also shifts the coordinate space
     #define HAS_WORKSPACE_OFFSET 1  // Cumulative offset to workspace to save some calculation
     #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
@@ -3671,7 +3671,7 @@
 #endif
 
 // Add commands that need sub-codes to this list
-#if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
+#if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY, HAS_TOOL_CENTERPOINT_CONTROL)
   #define USE_GCODE_SUBCODES 1
 #endif
 

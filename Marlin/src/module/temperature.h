@@ -443,8 +443,8 @@ class Temperature {
       static bool allow_cold_extrude;
       static celsius_t extrude_min_temp;
       static bool tooCold(const celsius_t temp) { return !allow_cold_extrude && !allow_cold_extrude_override && temp < extrude_min_temp - (TEMP_WINDOW); }
-      static bool tooColdToExtrude(const uint8_t E_NAME)       { return tooCold(wholeDegHotend(HOTEND_INDEX)); }
-      static bool targetTooColdToExtrude(const uint8_t E_NAME) { return tooCold(degTargetHotend(HOTEND_INDEX)); }
+      static bool tooColdToExtrude(const uint8_t E_NAME)       { return (HOTEND_INDEX < EXTRUDERS) ? tooCold(wholeDegHotend(HOTEND_INDEX)) : false; }
+      static bool targetTooColdToExtrude(const uint8_t E_NAME) { return (HOTEND_INDEX < EXTRUDERS) ? tooCold(degTargetHotend(HOTEND_INDEX)) : false; }
     #else
       static bool tooColdToExtrude(const uint8_t) { return false; }
       static bool targetTooColdToExtrude(const uint8_t) { return false; }
@@ -742,20 +742,24 @@ class Temperature {
     //deg=degreeCelsius
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
+      if (HOTEND_INDEX >= EXTRUDERS) return 0;
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
     static celsius_t wholeDegHotend(const uint8_t E_NAME) {
+      if (HOTEND_INDEX >= EXTRUDERS) return 0;
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
+        if (HOTEND_INDEX >= EXTRUDERS) return 0;
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
       }
     #endif
 
     static celsius_t degTargetHotend(const uint8_t E_NAME) {
+      if (HOTEND_INDEX >= EXTRUDERS) return 0;
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
     }
 

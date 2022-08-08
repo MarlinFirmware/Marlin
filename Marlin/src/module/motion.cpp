@@ -101,7 +101,7 @@ xyze_pos_t destination; // {0}
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
-#if HAS_MULTI_EXTRUDER
+#if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
   uint8_t active_extruder = 0; // = 0
 #endif
 
@@ -162,8 +162,17 @@ xyz_pos_t cartes;
 #endif
 
 #if HAS_TOOL_LENGTH_COMPENSATION
-  float tool_length offsets[TOOLS] = DEFAULT_TOOL_LENGTH_OFFSETS;
+  xyz_pos_t tool_offsets[TOOLS];
   bool simple_tool_length_compensation = false;
+  void reset_tool_offsets() {
+    constexpr float tmpTLO[XYZ][TOOLS] = { DEFAULT_TOOL_OFFSET_X, DEFAULT_TOOL_OFFSET_Y, DEFAULT_TOOL_OFFSET_Z };
+    // Transpose from [XYZ][TOOLS] to [TOOLS][XYZ]
+    for (uint8_t e = 0; e < TOOLS; e++) {
+      for (uint8_t a = 0; a < XYZ; a++) {
+        tool_offsets[e][a] = tmpTLO[a][e];
+      }
+    }
+  }
 #endif
 /**
  * The workspace can be offset by some commands, or
@@ -311,7 +320,7 @@ void report_current_position_projected() {
 
 #endif
 
-#if IS_KINEMATIC
+#if IS_KINEMATIC && !HAS_TOOL_CENTERPOINT_CONTROL
 
   bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset/*=0*/) {
 
@@ -377,6 +386,26 @@ void report_current_position_projected() {
 
 #endif // CARTESIAN
 
+#if HAS_TOOL_CENTERPOINT_CONTROL
+  bool position_is_reachable_xyijkuvw(NUM_AXIS_LIST(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t ri, const_float_t rj, const_float_t rk, const_float_t ru, const_float_t rv, const_float_t rw)) {
+
+    const bool can_reach = (
+      NUM_AXIS_GANG(
+           COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop),
+        && COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop),
+        && true,
+        && COORDINATE_OKAY(ri, I_MIN_POS - fslop, I_MAX_POS + fslop),
+        && COORDINATE_OKAY(rj, J_MIN_POS - fslop, J_MAX_POS + fslop),
+        && COORDINATE_OKAY(rk, K_MIN_POS - fslop, K_MAX_POS + fslop),
+        && COORDINATE_OKAY(ru, U_MIN_POS - fslop, U_MAX_POS + fslop),
+        && COORDINATE_OKAY(rv, V_MIN_POS - fslop, V_MAX_POS + fslop),
+        && COORDINATE_OKAY(rw, W_MIN_POS - fslop, W_MAX_POS + fslop)
+      )
+    );
+
+    return can_reach;
+  }
+#endif
 
 void home_if_needed(const bool keeplev/*=false*/) {
   if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
@@ -549,8 +578,8 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   feedrate_percentage = 100;
 
   #if HAS_EXTRUDERS
-    const float old_fac = planner.e_factor[active_extruder];
-    planner.e_factor[active_extruder] = 1.0f;
+    const float old_fac = (active_extruder < EXTRUDERS) ? planner.e_factor[active_extruder] : 1.0f;
+    if (active_extruder < EXTRUDERS) planner.e_factor[active_extruder] = 1.0f;
   #endif
 
   if (TERN0(IS_KINEMATIC, is_fast))
@@ -561,7 +590,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   feedrate_mm_s = old_feedrate;
   TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = old_angular_feedrate);
   feedrate_percentage = old_pct;
-  TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
+  TERN_(HAS_EXTRUDERS, if (active_extruder < EXTRUDERS) planner.e_factor[active_extruder] = old_fac);
 }
 
 /**
@@ -594,8 +623,11 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
     const feedRate_t w_feedrate = TERN(AXIS9_ROTATES, fr_deg_s, fr_mm_s) ?: homing_feedrate(W_AXIS)
   );
 
-  #if IS_KINEMATIC
+  #if IS_KINEMATIC && !HAS_TOOL_CENTERPOINT_CONTROL
     if (!position_is_reachable(x, y)) return;
+    destination = current_position;          // sync destination at the start
+  #elif HAS_TOOL_CENTERPOINT_CONTROL
+    if (!position_is_reachable_xyijkuvw(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))) return;
     destination = current_position;          // sync destination at the start
   #endif
 
@@ -640,55 +672,57 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
   #elif IS_SCARA
 
     // If Z needs to raise, do it before moving XY
-    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
+    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f)); }
 
-    destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate);
+    destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate OPTARG(HAS_ROTATIONAL_AXES, xy_feedrate));
 
     // If Z needs to lower, do it after moving XY
-    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
+    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f)); }
 
   #else
 
     #if HAS_Z_AXIS  // If Z needs to raise, do it before moving XY
       if (current_position.z < z) {
         current_position.z = z;
-        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, z_feedrate));
+        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
       }
     #endif
 
-    current_position.set(x, y);
-    line_to_current_position(xy_feedrate OPTARG(HAS_ROTATIONAL_AXES, xy_feedrate));
+    #if SECONDARY_AXES >= 1
+      feedRate_t min_feedrate = xy_feedrate;
+    #endif
 
-    #if HAS_I_AXIS
-      current_position.i = i;
-      line_to_current_position(i_feedrate OPTARG(HAS_ROTATIONAL_AXES, i_feedrate));
-    #endif
-    #if HAS_J_AXIS
-      current_position.j = j;
-      line_to_current_position(j_feedrate OPTARG(HAS_ROTATIONAL_AXES, j_feedrate));
-    #endif
-    #if HAS_K_AXIS
-      current_position.k = k;
-      line_to_current_position(k_feedrate OPTARG(HAS_ROTATIONAL_AXES, k_feedrate));
-    #endif
-    #if HAS_U_AXIS
-      current_position.u = u;
-      line_to_current_position(u_feedrate OPTARG(HAS_ROTATIONAL_AXES, u_feedrate));
-    #endif
-    #if HAS_V_AXIS
-      current_position.v = v;
-      line_to_current_position(v_feedrate OPTARG(HAS_ROTATIONAL_AXES, v_feedrate));
-    #endif
-    #if HAS_W_AXIS
-      current_position.w = w;
-      line_to_current_position(w_feedrate OPTARG(HAS_ROTATIONAL_AXES, w_feedrate));
+    SECONDARY_AXIS_CODE(
+      if (!NEAR(current_position.i, i)) min_feedrate = _MIN(min_feedrate, i_feedrate),
+      if (!NEAR(current_position.j, j)) min_feedrate = _MIN(min_feedrate, j_feedrate),
+      if (!NEAR(current_position.k, k)) min_feedrate = _MIN(min_feedrate, k_feedrate),
+      if (!NEAR(current_position.u, u)) min_feedrate = _MIN(min_feedrate, u_feedrate),
+      if (!NEAR(current_position.v, v)) min_feedrate = _MIN(min_feedrate, v_feedrate),
+      if (!NEAR(current_position.w, w)) min_feedrate = _MIN(min_feedrate, w_feedrare)
+    );
+
+    current_position.set(x, y);
+    SECONDARY_AXIS_CODE(
+      current_position.i = i,
+      current_position.j = j,
+      current_position.k = k,
+      current_position.u = u,
+      current_position.v = v,
+      current_position.w = w
+    );
+
+
+    #if SECONDARY_AXES >= 1
+      line_to_current_position(min_feedrate OPTARG(HAS_ROTATIONAL_AXES, min_feedrate));
+    #else
+      line_to_current_position(xy_feedrate);
     #endif
 
     #if HAS_Z_AXIS
       // If Z needs to lower, do it after moving XY
       if (current_position.z > z) {
         current_position.z = z;
-        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, z_feedrate));
+        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
       }
     #endif
 
@@ -929,7 +963,10 @@ void restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis
-    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
+    #if EITHER(HAS_HOTEND_OFFSET, HAS_MULTI_TOOLS)
+      , const uint8_t old_tool_index/*=0*/
+      , const uint8_t new_tool_index/*=0*/
+    #endif
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -975,19 +1012,19 @@ void restore_feedrate_and_scaling() {
         default: break;
       }
 
-    #elif HAS_HOTEND_OFFSET
+    #elif EITHER(HAS_HOTEND_OFFSET, HAS_TOOL_LENGTH_COMPENSATION)
 
       // Software endstops are relative to the tool 0 workspace, so
       // the movement limits must be shifted by the tool offset to
       // retain the same physical limit when other tools are selected.
 
       if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
-        const float offs = (axis == Z_AXIS) ? 0 : hotend_offset[active_extruder][axis];
+        const float offs = (axis == Z_AXIS) ? 0 : 0.0f TERN_(HAS_HOTEND_OFFSET, + ((active_extruder < EXTRUDERS) ? hotend_offset[active_extruder][axis] : 0.0f)) TERN_(HAS_TOOL_LENGTH_COMPENSATION, + tool_offsets[active_extruder][axis]);
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
       else {
-        const float diff = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
+        const float diff = 0.0f TERN_(HAS_HOTEND_OFFSET, + ((new_tool_index < EXTRUDERS) ? hotend_offset[new_tool_index][axis] : 0.0f)) TERN_(HAS_TOOL_LENGTH_COMPENSATION, + tool_offsets[new_tool_index][axis]) TERN_(HAS_HOTEND_OFFSET, - ((old_tool_index < EXTRUDERS) ? hotend_offset[old_tool_index][axis] : 0.0f)) TERN_(HAS_TOOL_LENGTH_COMPENSATION, - tool_offsets[old_tool_index][axis]);
         soft_endstop.min[axis] += diff;
         soft_endstop.max[axis] += diff;
       }
@@ -1003,6 +1040,50 @@ void restore_feedrate_and_scaling() {
       SERIAL_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
 
+  void handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
+    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+      if (planner.abort_on_software_endstop) {
+        if (target_pos[axis] < soft_endstop.min[axis]) {
+          NOLESS(target_pos[axis], soft_endstop.min[axis]);
+          SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
+          quickstop_stepper();
+          #if HAS_CUTTER
+            TERN_(SPINDLE_FEATURE, safe_delay(1000));
+            cutter.kill();
+          #endif
+          stop();
+        }
+        else {
+          NOLESS(target_pos[axis], soft_endstop.min[axis]);
+        }
+      }
+    #else
+      NOLESS(target_pos[axis], soft_endstop.min[axis]);
+    #endif
+  }
+
+  void handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
+    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+      if (planner.abort_on_software_endstop) {
+        if (target_pos[axis] > soft_endstop.max[axis]) {
+          NOMORE(target_pos[axis], soft_endstop.max[axis]);
+          SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
+          quickstop_stepper();
+          #if HAS_CUTTER
+            TERN_(SPINDLE_FEATURE, safe_delay(1000));
+            cutter.kill();
+          #endif
+          stop();
+        }
+        else {
+          NOMORE(target_pos[axis], soft_endstop.max[axis]);
+        }
+      }
+    #else
+      NOMORE(target_pos[axis], soft_endstop.max[axis]);
+    #endif
+  }
+
   /**
    * Constrain the given coordinates to the software endstops.
    *
@@ -1013,7 +1094,7 @@ void restore_feedrate_and_scaling() {
 
     if (!soft_endstop._enabled) return;
 
-    #if IS_KINEMATIC
+    #if IS_KINEMATIC && DISABLED(XYZBC_HEAD_TABLE)
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
@@ -1035,20 +1116,20 @@ void restore_feedrate_and_scaling() {
 
       if (axis_was_homed(X_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-          NOLESS(target.x, soft_endstop.min.x);
+          handle_min_software_endstop(X_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-          NOMORE(target.x, soft_endstop.max.x);
+          handle_max_software_endstop(X_AXIS, target); 
         #endif
       }
 
       #if HAS_Y_AXIS
         if (axis_was_homed(Y_AXIS)) {
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            NOLESS(target.y, soft_endstop.min.y);
+            handle_min_software_endstop(Y_AXIS, target);
           #endif
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            NOMORE(target.y, soft_endstop.max.y);
+            handle_max_software_endstop(Y_AXIS, target); 
           #endif
         }
       #endif
@@ -1058,70 +1139,70 @@ void restore_feedrate_and_scaling() {
     #if HAS_Z_AXIS
       if (axis_was_homed(Z_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-          NOLESS(target.z, soft_endstop.min.z);
+          handle_min_software_endstop(Z_AXIS, target);
         #endif
-        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-          NOMORE(target.z, soft_endstop.max.z);
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+          handle_max_software_endstop(Z_AXIS, target); 
         #endif
       }
     #endif
     #if HAS_I_AXIS
       if (axis_was_homed(I_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_I)
-          NOLESS(target.i, soft_endstop.min.i);
+          handle_min_software_endstop(I_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_I)
-          NOMORE(target.i, soft_endstop.max.i);
+          handle_max_software_endstop(I_AXIS, target); 
         #endif
       }
     #endif
     #if HAS_J_AXIS
-      if (axis_was_homed(J_AXIS)) {
+     if (axis_was_homed(J_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_J)
-          NOLESS(target.j, soft_endstop.min.j);
+          handle_min_software_endstop(J_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_J)
-          NOMORE(target.j, soft_endstop.max.j);
+          handle_max_software_endstop(J_AXIS, target); 
         #endif
       }
     #endif
     #if HAS_K_AXIS
       if (axis_was_homed(K_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_K)
-          NOLESS(target.k, soft_endstop.min.k);
+          handle_min_software_endstop(K_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_K)
-          NOMORE(target.k, soft_endstop.max.k);
+          handle_max_software_endstop(K_AXIS, target); 
         #endif
       }
     #endif
     #if HAS_U_AXIS
-      if (axis_was_homed(U_AXIS)) {
+     if (axis_was_homed(U_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_U)
-          NOLESS(target.u, soft_endstop.min.u);
+          handle_min_software_endstop(U_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_U)
-          NOMORE(target.u, soft_endstop.max.u);
+          handle_max_software_endstop(U_AXIS, target); 
         #endif
       }
     #endif
     #if HAS_V_AXIS
-      if (axis_was_homed(V_AXIS)) {
+     if (axis_was_homed(V_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_V)
-          NOLESS(target.v, soft_endstop.min.v);
+          handle_min_software_endstop(W_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_V)
-          NOMORE(target.v, soft_endstop.max.v);
+          handle_max_software_endstop(W_AXIS, target); 
         #endif
       }
     #endif
     #if HAS_W_AXIS
       if (axis_was_homed(W_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_W)
-          NOLESS(target.w, soft_endstop.min.w);
+          handle_min_software_endstop(W_AXIS, target);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_W)
-          NOMORE(target.w, soft_endstop.max.w);
+          handle_max_software_endstop(W_AXIS, target); 
         #endif
       }
     #endif
@@ -1180,8 +1261,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
     const xyze_float_t diff = destination - current_position;
 
-    // If the move is only in Z/E don't split up the move
-    if (!diff.x && !diff.y) {
+    #if ENABLED(XYZBC_HEAD_TABLE)
+      // If the move is only in X/Y/Z/E don't split up the move
+      if (!diff.i && TERN1(HAS_J_AXIS, !diff.j)) {
+    #else
+      // If the move is only in Z/E don't split up the move
+      if (!diff.x && !diff.y) {
+    #endif
       #if HAS_ROTATIONAL_AXES
         PlannerHints hints;
         hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
@@ -1193,10 +1279,51 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     }
 
     // Fail if attempting move outside printable radius
-    if (!position_is_reachable(destination)) return true;
+    #if HAS_TOOL_CENTERPOINT_CONTROL
+      // Abort if attempting move outside printable radius
+      if (!position_is_reachable(destination)) {
+        SERIAL_ERROR_MSG("Position not reachable.");
+        quickstop_stepper();
+        #if HAS_CUTTER
+          TERN_(SPINDLE_FEATURE, safe_delay(1000));
+          cutter.kill();
+        #endif
+        stop();
+        return true;
+      }    
+    #else    
+      if (!position_is_reachable(destination)) return true);
+    #endif
 
     // Get the linear distance in XYZ
-    float cartesian_mm = xyz_float_t(diff).magnitude();
+    bool cartes_move = true;
+    float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
+
+    #if SECONDARY_LINEAR_AXES
+      if (UNEAR_ZERO(cartesian_mm_sqr)) {
+        // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+        cartesian_mm_sqr = (0.0f
+          SECONDARY_AXIS_GANG(
+            IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
+            IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
+            IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
+            IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
+            IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
+            IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
+          )
+        );
+      }
+    #endif
+
+    #if HAS_ROTATIONAL_AXES
+      if (UNEAR_ZERO(cartesian_mm_sqr)) {
+        // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+        cartes_move = false;
+        cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+      }
+    #endif
+
+    float cartesian_mm = SQRT(cartesian_mm_sqr);
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1225,6 +1352,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);
+    #if HAS_ROTATIONAL_AXES
+      hints.cartesian_move = cartes_move;
+      hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
+    #endif
     TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
     /*
@@ -1264,27 +1395,52 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
      * small incremental moves. This allows the planner to
      * apply more detailed bed leveling to the full move.
      */
-    inline void segmented_line_to_destination(const_feedRate_t fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
+    inline void segmented_line_to_destination(const_feedRate_t fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s), const float segment_size=LEVELED_SEGMENT_LENGTH) {
 
       const xyze_float_t diff = destination - current_position;
 
+      #if HAS_ROTATIONAL_AXES
+        PlannerHints hints;
+        hints.fr_deg_s = fr_deg_s;
+      #endif
       // If the move is only in Z/E don't split up the move
       if (!diff.x && !diff.y) {
-        #if HAS_ROTATIONAL_AXES
-          PlannerHints hints;
-          hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
-          planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
-        #else
-          planner.buffer_line(destination, fr_mm_s);
-        #endif
+        planner.buffer_line(destination, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, active_extruder) OPTARG(HAS_ROTATIONAL_AXES, hints));
         return;
       }
 
       // Get the linear distance in XYZ
+      float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
+
+      #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
+        if (UNEAR_ZERO(distance_sqr)) {
+          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+          cartesian_mm_sqr = (0.0f
+            SECONDARY_AXIS_GANG(
+              IF_DISABLED(AXIS4_ROTATES, + sq(steps_dist_mm.i)),
+              IF_DISABLED(AXIS5_ROTATES, + sq(steps_dist_mm.j)),
+              IF_DISABLED(AXIS6_ROTATES, + sq(steps_dist_mm.k)),
+              IF_DISABLED(AXIS7_ROTATES, + sq(steps_dist_mm.u)),
+              IF_DISABLED(AXIS8_ROTATES, + sq(steps_dist_mm.v)),
+              IF_DISABLED(AXIS9_ROTATES, + sq(steps_dist_mm.w))
+            )
+          );
+        }
+      #endif
+
+      #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
+        if (UNEAR_ZERO(distance_sqr)) {
+          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+          hints.cartesian_move = false;
+          cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k), + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w));
+        }
+      #endif
+
+      float cartesian_mm = SQRT(cartesian_mm_sqr);
+
       // If the move is very short, check the E move distance
-      // No E move either? Game over.
-      float cartesian_mm = diff.magnitude();
       TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      // No E move either? Game over.
       if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
@@ -1346,7 +1502,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             return true;                                                             // all moves, including Z-only moves.
           #endif
         #elif ENABLED(SEGMENT_LEVELED_MOVES)
-          segmented_line_to_destination(scaled_fr_mm_s);
+          segmented_line_to_destination(scaled_fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, scaled_fr_deg_s));
           return false; // caller will update current_position
         #else
           /**
@@ -1355,9 +1511,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
            */
           if (xy_pos_t(current_position) != xy_pos_t(destination)) {
             #if ENABLED(MESH_BED_LEVELING)
-              bedlevel.line_to_destination(scaled_fr_mm_s);
+              bedlevel.line_to_destination(scaled_fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-              bedlevel.line_to_destination(scaled_fr_mm_s);
+              bedlevel.line_to_destination(scaled_fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
             #endif
             return true;
           }
@@ -1527,22 +1683,24 @@ void prepare_line_to_destination() {
       #endif
 
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
-        if (e_delta > (EXTRUDE_MAXLENGTH)) {
-          #if ENABLED(MIXING_EXTRUDER)
-            float collector[MIXING_STEPPERS];
-            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
-            MIXER_STEPPER_LOOP(e) {
-              if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
-                ignore_e = true;
-                SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-                break;
+        if (active_extruder < EXTRUDERS) {
+          const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
+          if (e_delta > (EXTRUDE_MAXLENGTH)) {
+            #if ENABLED(MIXING_EXTRUDER)
+              float collector[MIXING_STEPPERS];
+              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+              MIXER_STEPPER_LOOP(e) {
+                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
+                  ignore_e = true;
+                  SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+                  break;
+                }
               }
-            }
-          #else
-            ignore_e = true;
-            SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-          #endif
+            #else
+              ignore_e = true;
+              SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+            #endif
+          }
         }
       #endif
 
@@ -2122,7 +2280,7 @@ void prepare_line_to_destination() {
     //
     // Back away to prevent an early sensorless trigger
     //
-    #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
+    #if DISABLED(DELTA) && DISABLED(XYZBC_HEAD_TABLE) && defined(SENSORLESS_BACKOFF_MM)
       const xyz_float_t backoff = SENSORLESS_BACKOFF_MM;
       if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
@@ -2375,7 +2533,7 @@ void prepare_line_to_destination() {
       // Retrace by the amount specified in delta_endstop_adj if more than min steps.
       if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
-        do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
+        do_homing_move(axis, adjDistance OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)), get_homing_bump_feedrate(axis));
       }
 
     #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
@@ -2396,7 +2554,7 @@ void prepare_line_to_destination() {
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-        line_to_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
+        line_to_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis) OPTARG(HAS_ROTATIONAL_AXES, homing_feedrate(axis)));
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
@@ -2498,11 +2656,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
-    workspace_offset[axis] = home_offset[axis] + position_shift[axis]
-    #if HAS_TOOL_LENGTH_OFFSETS
-      if (simple_tool_length_compensation) workspace_offset.z += tool_length_offset;
-    #endif
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis] OPTARG(HAS_TOOL_LENGTH_OFFSET, " tool length offset = ")  OPTARG(HAS_TOOL_LENGTH_OFFSET, tool_length_offset));
+    workspace_offset[axis] = home_offset[axis] + DIFF_TERN(HAS_TOOL_LENGTH_COMPENSATION, position_shift[axis], (simple_tool_length_compensation ? tool_offsets[active_extruder][axis] : 0.0f));
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis] OPTARG(HAS_TOOL_LENGTH_COMPENSATION, " tool offset = ")  OPTARG(HAS_TOOL_LENGTH_COMPENSATION, tool_offsets[active_extruder][axis]));
   }
 #endif
 

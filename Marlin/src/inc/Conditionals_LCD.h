@@ -572,6 +572,16 @@
 #undef EXTENDABLE_EMU_MMU2S
 
 /**
+ * Tools have no stepper motor and no hotend. A tool changer is used to change the tool in the
+ * single tool holder.
+ * 
+ * TOOLS         - Number of Selectable Tools
+ */
+#if TOOLS > 1
+  #define HAS_MULTI_TOOLS 1
+#endif
+
+/**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
  *
@@ -1394,7 +1404,7 @@
   #define IS_KINEMATIC 1
 #elif EITHER(DELTA, POLARGRAPH)
   #define IS_KINEMATIC 1
-elif XYZBC_HEAD_TABLE
+#elif ENABLED(XYZBC_HEAD_TABLE)
   #define IS_KINEMATIC 1
   #define HAS_TOOL_LENGTH_COMPENSATION 1
   #define HAS_TOOL_CENTERPOINT_CONTROL 1

@@ -137,7 +137,7 @@ void GcodeSuite::say_units() {
 int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
-    if (e < EXTRUDERS) return e;
+    if (e < TERN(HAS_MULTI_TOOLS, TOOLS, EXTRUDERS)) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
     SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
@@ -443,7 +443,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
       #endif
 
-      #if HAS_TOOL_CENTER_POINT_CONTROL
+      #if HAS_TOOL_LENGTH_COMPENSATION
         case 43: G43(); break;                                    // G43.4: Rotational Tool Center Point Control Mode
         case 49: G49(); break;
       #endif
@@ -746,7 +746,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
       #endif
 
-      #if HAS_MULTI_EXTRUDER
+      #if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 

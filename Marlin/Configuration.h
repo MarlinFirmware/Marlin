@@ -1012,14 +1012,18 @@
 //#define ARTICULATED_ROBOT_ARM
 
 // For a 5 axis CNC machine in Head-Table configuration. 
-// This machine has a tilting head (B axis parallel to the Y axis) and a horizontal rotary
+// This machine has a swivel head (B axis parallel to the Y axis) and a horizontal rotary
 // table (C axis parallel to the Z axis).
 //#define XYZBC_HEAD_TABLE
 #if ENABLED(XYZBC_HEAD_TABLE)
   #define TOOLS 1 // Number of tools;
-  // Machine rotary zero point Z offset is the distance between the center of rotation of the B axis to the gauge line.
-  #define DEFAULT_MRZP_Z_OFFSET_MM 100.0 // (mm)
-  #define DEFAULT_TOOL_LENGTH_OFFSETS { 0.0 } // (mm) Gauge length (Tool length)
+  // Machine rotary zero point offset is the distance between the center of rotation of the B axis to the gauge line at the tool head.
+  #define DEFAULT_MRZP_OFFSET_MM 100.0 // (mm)
+  #define DEFAULT_TOOL_OFFSET_X { 0.0 } // (mm) Tool offset X
+  #define DEFAULT_TOOL_OFFSET_Y { 0.0 } // (mm) Tool offset Y
+  #define DEFAULT_TOOL_OFFSET_Z { 0.0 } // (mm) Gauge length (Tool length)
+  #define XYZBC_SEGMENTS_PER_SECOND 200
+
 #endif
 
 // For a hot wire cutter with parallel horizontal axes (X, I) where the heights of the two wire
@@ -1765,6 +1769,13 @@
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+
+  /**
+   * Abort printing when any software endstop is triggered.
+   * This feature is enabled with 'M541 S1' or from the LCD menu.
+   * Software endstops must be activated for this option to work.
+   */
+  //#define ABORT_ON_SOFTWARE_ENDSTOP
 #endif
 
 /**

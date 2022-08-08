@@ -122,7 +122,7 @@
   extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
-#if HAS_MULTI_EXTRUDER
+#if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
   #include "tool_change.h"
   void M217_report(const bool eeprom);
 #endif
@@ -323,7 +323,12 @@ typedef struct SettingsDataStruct {
   //
   #if IS_KINEMATIC
     float segments_per_second;                          // M665 S
-    #if ENABLED(DELTA)
+    #if HAS_TOOL_LENGTH_COMPENSATION
+      xyz_pos_t tool_offsets[TOOLS];
+    #endif
+    #if ENABLED(XYZBC_HEAD_TABLE)
+      float mrzp_offset;                                // M665 O
+    #elif ENABLED(DELTA)
       float delta_height;                               // M666 H
       abc_float_t delta_endstop_adj;                    // M666 X Y Z
       float delta_radius,                               // M665 R
@@ -480,7 +485,7 @@ typedef struct SettingsDataStruct {
   //
   // Tool-change settings
   //
-  #if HAS_MULTI_EXTRUDER
+  #if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
     toolchange_settings_t toolchange_settings;          // M217 S P R
   #endif
 
@@ -993,7 +998,15 @@ void MarlinSettings::postprocess() {
     #if IS_KINEMATIC
     {
       EEPROM_WRITE(segments_per_second);
-      #if ENABLED(DELTA)
+      #if HAS_TOOL_LENGTH_COMPENSATION
+        LOOP_S_L_N(e, 0, TOOLS) {
+          EEPROM_WRITE(tool_offsets[e]);
+        }
+      #endif
+      #if ENABLED(XYZBC_HEAD_TABLE)
+        _FIELD_TEST(mrzp_offset);
+        EEPROM_WRITE(mrzp_offset);               // 1 float
+      #elif ENABLED(DELTA)
         _FIELD_TEST(delta_height);
         EEPROM_WRITE(delta_height);              // 1 float
         EEPROM_WRITE(delta_endstop_adj);         // 3 floats
@@ -1471,7 +1484,7 @@ void MarlinSettings::postprocess() {
     // Multiple Extruders
     //
 
-    #if HAS_MULTI_EXTRUDER
+    #if ANY(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
       _FIELD_TEST(toolchange_settings);
       EEPROM_WRITE(toolchange_settings);
     #endif
@@ -1954,7 +1967,15 @@ void MarlinSettings::postprocess() {
       #if IS_KINEMATIC
       {
         EEPROM_READ(segments_per_second);
-        #if ENABLED(DELTA)
+        #if HAS_TOOL_LENGTH_COMPENSATION
+          LOOP_S_L_N(e, 0, TOOLS) {
+            EEPROM_READ(tool_offsets[e]);
+          }
+        #endif
+        #if ENABLED(XYZBC_HEAD_TABLE)
+          _FIELD_TEST(mrzp_offset);
+          EEPROM_READ(mrzp_offset);
+        #elif ENABLED(DELTA)
           _FIELD_TEST(delta_height);
           EEPROM_READ(delta_height);              // 1 float
           EEPROM_READ(delta_endstop_adj);         // 3 floats
@@ -2454,7 +2475,7 @@ void MarlinSettings::postprocess() {
       //
       // Tool-change settings
       //
-      #if HAS_MULTI_EXTRUDER
+      #if EITHER(HAS_MULTI_EXTRUDER, HAS_MULTI_TOOLS)
         _FIELD_TEST(toolchange_settings);
         EEPROM_READ(toolchange_settings);
       #endif
@@ -3033,8 +3054,12 @@ void MarlinSettings::reset() {
       TERN_(DELTA, DELTA_SEGMENTS_PER_SECOND)
       TERN_(IS_SCARA, SCARA_SEGMENTS_PER_SECOND)
       TERN_(POLARGRAPH, POLAR_SEGMENTS_PER_SECOND)
+      TERN_(XYZBC_HEAD_TABLE, XYZBC_SEGMENTS_PER_SECOND)
     );
-    #if ENABLED(DELTA)
+    TERN_(HAS_TOOL_LENGTH_COMPENSATION, reset_tool_offsets());
+    #if ENABLED(XYZBC_HEAD_TABLE)
+      mrzp_offset = DEFAULT_MRZP_OFFSET_MM;
+    #elif ENABLED(DELTA)
       const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
       delta_height = DELTA_HEIGHT;
       delta_endstop_adj = adj;

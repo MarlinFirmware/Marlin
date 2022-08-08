@@ -575,6 +575,7 @@ namespace Language_en {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
+  LSTR MSG_SOFTWARE_ENDSTOP_ABORT         = _UxGT("Software Endstop Abort");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Heating Failed");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: REDUNDANT TEMP");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("THERMAL RUNAWAY");

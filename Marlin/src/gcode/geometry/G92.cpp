@@ -89,10 +89,10 @@ void GcodeSuite::G92() {
       LOOP_LOGICAL_AXES(i) {
         if (parser.seenval(AXIS_CHAR(i))) {
           const float l = parser.value_axis_units((AxisEnum)i),       // Given axis coordinate value, converted to millimeters
-                      v = TERN0(HAS_EXTRUDERS, i == E_AXIS) ? l : LOGICAL_TO_NATIVE(l, i),  // Axis position in NATIVE space (applying the existing offset)
-                      d = v - current_position[i];                    // How much is the current axis position altered by?
+                      v = TERN0(HAS_EXTRUDERS, i == E_AXIS) ? l : LOGICAL_TO_NATIVE(l, i);  // Axis position in NATIVE space (applying the existing offset)
+          const float d = v - current_position[i];                    // How much is the current axis position altered by?
           if (!NEAR_ZERO(d)) {
-            #if HAS_POSITION_SHIFT && NONE(IS_SCARA, POLARGRAPH)      // When using workspaces...
+            #if HAS_POSITION_SHIFT && NONE(IS_SCARA, POLARGRAPH)  // When using workspaces...
               if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
                 position_shift[i] += d;                               // ...most axes offset the workspace...
                 update_workspace_offset((AxisEnum)i);
