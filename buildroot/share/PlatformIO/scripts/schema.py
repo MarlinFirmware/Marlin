@@ -95,7 +95,7 @@ def extract():
 	# Regex for #define NAME [VALUE] [COMMENT] with sanitized line
 	defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
 	# Defines to ignore
-	ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXPORT')
+	ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
 	# Start with unknown state
 	state = Parse.NORMAL
 	# Serial ID
@@ -294,8 +294,6 @@ def extract():
 							'sid': sid
 						}
 
-						if val != '': define_info['value'] = val
-
 						# Type is based on the value
 						if val == '':
 							value_type = 'switch'
@@ -318,6 +316,7 @@ def extract():
 									else 'array'	if val[0] == '{' \
 									else ''
 
+						if val != '': define_info['value'] = val
 						if value_type != '': define_info['type'] = value_type
 
 						# Join up accumulated conditions with &&
