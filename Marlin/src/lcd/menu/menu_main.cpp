@@ -232,7 +232,7 @@ void menu_main() {
 
   START_MENU();
   
-  #ifndef TFT_COLOR_UI
+  #if ANY(HAS_ROTARY_ENCODER, HAS_ADC_BUTTONS)
     BACK_ITEM(MSG_INFO_SCREEN);
   #endif
 
