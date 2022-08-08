@@ -11,9 +11,8 @@ set -e
 # MKS/ZNP Robin nano v1.3 Emulated DOGM FSMC and native USB mod
 #
 use_example_configs Mks/Robin
-opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO
-opt_set USB_MOD
-opt_set SERIAL_PORT -1
+opt_enable USB_MOD
+opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO SERIAL_PORT -1
 exec_test $1 $2 "MKS/ZNP Robin nano v1.3 Emulated DOGM FSMC and native USB mod" "$3"
 
 # cleanup
