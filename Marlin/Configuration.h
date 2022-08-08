@@ -3170,6 +3170,8 @@
   #if ENABLED(TFT_COLOR_UI)
     //#define SINGLE_TOUCH_NAVIGATION
   #endif
+
+  #define TOUCH_USE_ENCODER_TOO         // Use encoder or buttons control together with touchscreen
 #endif
 
 //

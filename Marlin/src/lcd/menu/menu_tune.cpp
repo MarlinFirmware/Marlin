@@ -109,7 +109,7 @@
 
 void menu_tune() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
 
   //
   // Speed:
