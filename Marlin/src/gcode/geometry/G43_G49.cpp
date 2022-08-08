@@ -1,10 +1,6 @@
 /**
- * Marlin2ForPipetBot
- * Copyright 2022 DerAndere
- * 
- * Based on:
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -29,6 +25,8 @@
  * @file G43_G49.cpp
  * @author DerAndere
  * @brief G-codes related to Tool Length Compensation and Rotational Tool Center Point Control
+ * 
+ * Copyright 2022 DerAndere
  */
 
 #include "../../inc/MarlinConfig.h"

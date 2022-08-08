@@ -1,10 +1,9 @@
 /**
- * Marlin2ForPipetBot [https://github.com/DerAndere1/Marlin]
- * Copyright 2022 DerAndere
- * 
- * Based on:
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +25,12 @@
 /**
  * @file xyzbc_head_table.h
  * @author DerAndere
- * @brief Kinematics for 5 axis CNC machine in head-table configuration.
+ * @brief Kinematics for a 5 axis CNC machine in head-table configuration.
  * 
- * This machine has a tilting head (B axis parallel to the Y axis) and a horizontal rotary
- * table (C axis parallel to the Z axis). The user can use axes U, V, W to move in the rotated coordinate system.
+ * This machine has a swivel head (B axis parallel to the Y axis) and a horizontal rotary
+ * table (C axis parallel to the Z axis).
+ *
+ * Copyright 2022 DerAndere
  *
  * Inspired by: 
  * LinuxCNC maxkins.c (https://github.com/LinuxCNC/linuxcnc/blob/master/src/emc/kinematics/maxkins.c)
