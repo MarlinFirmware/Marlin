@@ -37,9 +37,9 @@
   #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
 #endif
 
-#if defined(STM32F4xx) && BOTH(PRINTCOUNTER, FLASH_EEPROM_EMULATION)
-  #warning "FLASH_EEPROM_EMULATION may cause long delays when writing and should not be used while printing."
-  #error "Disable PRINTCOUNTER or choose another EEPROM emulation."
+#if defined(STM32F4xx) && BOTH(PRINTCOUNTER, FLASH_EEPROM_EMULATION) && PRINTCOUNTER_SAVE_INTERVAL > 0
+  #warning "PRINTCOUNTER with FLASH_EEPROM_EMULATION and PRINTCOUNTER_SAVE_INTERVAL > 0 may cause long delays when writing and should not be used while printing."
+  #error "Set PRINTCOUNTER_SAVE_INTERVAL to 0 or choose another EEPROM emulation."
 #endif
 
 #if !defined(STM32F4xx) && ENABLED(FLASH_EEPROM_LEVELING)
