@@ -83,16 +83,14 @@ def apply_opt(name, val, conf=None):
 
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
-def fetch_example(path):
-	if path.endswith("/"):
-		path = path[:-1]
-
-	if '@' in path:
-		path, brch = map(strip, path.split('@'))
-
-	url = path.replace("%", "%25").replace(" ", "%20")
-	if not path.startswith('http'):
-		url = "https://raw.githubusercontent.com/MarlinFirmware/Configurations/bugfix-2.1.x/config/%s" % url
+def fetch_example(url):
+	if url.endswith("/"): url = url[:-1]
+	if url.startswith('http'):
+		url = url.replace("%", "%25").replace(" ", "%20")
+	else:
+		brch = "bugfix-2.1.x"
+		if '@' in path: path, brch = map(str.strip, path.split('@'))
+		url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
 
 	# Find a suitable fetch command
 	if shutil.which("curl") is not None:
@@ -108,16 +106,14 @@ def fetch_example(path):
 	# Reset configurations to default
 	os.system("git reset --hard HEAD")
 
-	gotfile = False
-
 	# Try to fetch the remote files
+	gotfile = False
 	for fn in ("Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h"):
-		if os.system("%s wgot %s/%s >/dev/null 2>&1" % (fetch, url, fn)) == 0:
+		if os.system(f"{fetch} wgot {url}/{fn} >/dev/null 2>&1") == 0:
 			shutil.move('wgot', config_path(fn))
 			gotfile = True
 
-	if Path('wgot').exists():
-		shutil.rmtree('wgot')
+	if Path('wgot').exists(): shutil.rmtree('wgot')
 
 	return gotfile
 
@@ -144,13 +140,13 @@ def apply_all_sections(cp):
 			apply_ini_by_name(cp, sect)
 
 # Apply certain config sections from a parsed file
-def apply_sections(cp, ckey='all', addbase=False):
-	blab("[config] apply section key: %s" % ckey)
+def apply_sections(cp, ckey='all'):
+	blab(f"Apply section key: {ckey}")
 	if ckey == 'all':
 		apply_all_sections(cp)
 	else:
 		# Apply the base/root config.ini settings after external files are done
-		if addbase or ckey in ('base', 'root'):
+		if ckey in ('base', 'root'):
 			apply_ini_by_name(cp, 'config:base')
 
 		# Apply historically 'Configuration.h' settings everywhere
@@ -175,7 +171,7 @@ def apply_config_ini(cp):
 	config_keys = ['base']
 	for ikey, ival in base_items:
 		if ikey == 'ini_use_config':
-			config_keys = [ x.strip() for x in ival.split(',') ]
+			config_keys = map(str.strip, ival.split(','))
 
 	# For each ini_use_config item perform an action
 	for ckey in config_keys:
@@ -196,11 +192,11 @@ def apply_config_ini(cp):
 		# For 'examples/<path>' fetch an example set from GitHub.
 		# For https?:// do a direct fetch of the URL.
 		elif ckey.startswith('examples/') or ckey.startswith('http'):
-			addbase = True
 			fetch_example(ckey)
+			ckey = 'base'
 
 		# Apply keyed sections after external files are done
-		apply_sections(cp, 'config:' + ckey, addbase)
+		apply_sections(cp, 'config:' + ckey)
 
 if __name__ == "__main__":
 	#
