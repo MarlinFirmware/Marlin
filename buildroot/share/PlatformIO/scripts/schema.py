@@ -213,11 +213,8 @@ def extract():
 					elif cpos2 != -1 and (cpos2 < cpos1 or cpos1 == -1):
 						cpos = cpos2
 
-						# Expire end-of-line options after first use
-						if cline.startswith(':'): eol_options = True
-
 						# Comment after a define may be continued on the following lines
-						if state == Parse.NORMAL and defmatch != None and cpos > 10:
+						if defmatch != None and cpos > 10:
 							state = Parse.EOL_COMMENT
 							comment_buff = []
 
@@ -225,9 +222,12 @@ def extract():
 					if cpos != -1:
 						cline, line = line[cpos+2:].strip(), line[:cpos].strip()
 
-						# Strip leading '*' from block comments
 						if state == Parse.BLOCK_COMMENT:
+							# Strip leading '*' from block comments
 							if cline.startswith('*'): cline = cline[1:].strip()
+						else:
+							# Expire end-of-line options after first use
+							if cline.startswith(':'): eol_options = True
 
 						# Buffer a non-empty comment start
 						if cline != '':
