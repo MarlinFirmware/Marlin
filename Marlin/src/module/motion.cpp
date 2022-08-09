@@ -632,19 +632,19 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
   #elif IS_SCARA
 
     // If Z needs to raise, do it before moving XY
-    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
+    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f)); }
 
-    destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate);
+    destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate OPTARG(HAS_ROTATIONAL_AXES, xy_feedrate));
 
     // If Z needs to lower, do it after moving XY
-    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
+    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f)); }
 
   #else
 
     #if HAS_Z_AXIS  // If Z needs to raise, do it before moving XY
       if (current_position.z < z) {
         current_position.z = z;
-        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, z_feedrate));
+        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
       }
     #endif
 
@@ -680,7 +680,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
       // If Z needs to lower, do it after moving XY
       if (current_position.z > z) {
         current_position.z = z;
-        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, z_feedrate));
+        line_to_current_position(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
       }
     #endif
 
@@ -1256,7 +1256,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
      * small incremental moves. This allows the planner to
      * apply more detailed bed leveling to the full move.
      */
-    inline void segmented_line_to_destination(const_feedRate_t fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
+    inline void segmented_line_to_destination(const_feedRate_t fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s), const float segment_size=LEVELED_SEGMENT_LENGTH) {
 
       const xyze_float_t diff = destination - current_position;
 
@@ -1264,8 +1264,8 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       if (!diff.x && !diff.y) {
         #if HAS_ROTATIONAL_AXES
           PlannerHints hints;
-          hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
-          planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
+          hints.fr_deg_s = fr_deg_s;
+          planner.buffer_line(destination, fr_mm_s, active_extruder, hints);
         #else
           planner.buffer_line(destination, fr_mm_s);
         #endif
@@ -1338,7 +1338,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             return true;                                                             // all moves, including Z-only moves.
           #endif
         #elif ENABLED(SEGMENT_LEVELED_MOVES)
-          segmented_line_to_destination(scaled_fr_mm_s);
+          segmented_line_to_destination(scaled_fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, scaled_fr_deg_s));
           return false; // caller will update current_position
         #else
           /**
