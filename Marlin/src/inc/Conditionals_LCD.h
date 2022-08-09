@@ -522,6 +522,7 @@
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
   #define HAS_MARLINUI_MENU 1
+  #define HAS_BACK_ITEM
 #endif
 
 #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
@@ -1618,6 +1619,10 @@
         #define HAS_RES_TOUCH_BUTTONS 1
       #endif
     #endif
+  #endif
+  #undef HAS_BACK_ITEM
+  #if ANY(HAS_ROTARY_ENCODER, HAS_ADC_BUTTONS) && ANY(TFT_CLASSIC_UI, TFT_COLOR_UI) && ENABLED(TOUCH_USE_ENCODER_TOO)
+    #define HAS_BACK_ITEM
   #endif
 #endif
 

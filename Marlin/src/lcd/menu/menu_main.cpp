@@ -114,7 +114,7 @@ void menu_configuration();
 
   void custom_menus_main() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
@@ -232,9 +232,8 @@ void menu_main() {
 
   START_MENU();
   
-  #if ANY(HAS_ROTARY_ENCODER, HAS_ADC_BUTTONS)
-    BACK_ITEM(MSG_INFO_SCREEN);
-  #endif
+
+  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_INFO_SCREEN));
 
   #if ENABLED(SDSUPPORT)
 

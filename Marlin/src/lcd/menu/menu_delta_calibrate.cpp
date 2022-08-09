@@ -111,7 +111,7 @@ void lcd_delta_settings() {
     recalc_delta_settings();
   };
   START_MENU();
-  BACK_ITEM(MSG_DELTA_CALIBRATE);
+  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_DELTA_CALIBRATE));
   EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
   #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM_F(float43, F(LABEL), &delta_endstop_adj.N, -5, 0, _recalc_delta_settings)
   EDIT_ENDSTOP_ADJ("Ex", a);
@@ -132,7 +132,7 @@ void menu_delta_calibrate() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, F("G33"));

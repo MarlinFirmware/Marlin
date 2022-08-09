@@ -107,7 +107,7 @@
       const uint8_t m = editable.int8; // Don't re-use 'editable' in this menu
 
       START_MENU();
-      BACK_ITEM(MSG_TEMPERATURE);
+      TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_TEMPERATURE));
 
       #if HOTENDS == 1
 
@@ -162,7 +162,7 @@ void menu_temperature() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
 
   //
   // Nozzle:
@@ -291,7 +291,7 @@ void menu_temperature() {
 
   void menu_preheat_only() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
 
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
