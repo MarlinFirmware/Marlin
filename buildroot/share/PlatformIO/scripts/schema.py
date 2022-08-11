@@ -294,8 +294,6 @@ def extract():
 							'sid': sid
 						}
 
-						if val != '': define_info['value'] = val
-
 						# Type is based on the value
 						if val == '':
 							value_type = 'switch'
@@ -318,6 +316,7 @@ def extract():
 									else 'array'	if val[0] == '{' \
 									else ''
 
+						if val != '': define_info['value'] = val
 						if value_type != '': define_info['type'] = value_type
 
 						# Join up accumulated conditions with &&
