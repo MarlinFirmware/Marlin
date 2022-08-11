@@ -26,6 +26,11 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
+
+#if BUTTONS_EXIST(EN1, EN2, ENC)
+  #define HAS_ROTARY_ENCODER 1
+#endif
+
 // MKS_LCD12864A/B is a variant of MKS_MINI_12864
 #if EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define MKS_MINI_12864
@@ -522,6 +527,7 @@
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
   #define HAS_MARLINUI_MENU 1
+  #define HAS_BACK_ITEM 1
 #endif
 
 #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
