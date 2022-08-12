@@ -3171,7 +3171,8 @@
     //#define SINGLE_TOUCH_NAVIGATION
   #endif
 
-//#define TOUCH_USE_ENCODER_TOO         // Use encoder or buttons control together with touchscreen
+//#define DISABLE_ENCODER         // Don't use encoder or buttons control together with touchscreen,
+                                  // removes redundant "back" menu item.
 #endif
 
 //
