@@ -265,9 +265,9 @@
    *
    *                 Board (RET6 12864 LCD)              Display
    *                 ------                               ------
-   *  (EN2)    PC6  | 1  2 | PB2  (BTN_ENC)           5V |10  9 | GND
+   *  (EN1)    PC6  | 1  2 | PB2  (BTN_ENC)           5V |10  9 | GND
    *  (LCD_CS) PB10 | 3  4 | PB11 (LCD RESET)         -- | 8  7 | --
-   *  (LCD_A0) PB14   5  6 | PB13 (EN1)           (DIN)  | 6  5   (LCD RESET)
+   *  (LCD_A0) PB14   5  6 | PB13 (EN2)           (DIN)  | 6  5   (LCD RESET)
    *  (LCD_SCK)PB12 | 7  8 | PB15 (MOSI)        (LCD_A0) | 4  3 | (LCD_CS)
    *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
    *                 ------                               ------
@@ -288,8 +288,8 @@
    */
 
   #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP1_06_PIN
-  #define BTN_EN2                    EXP1_01_PIN
+  #define BTN_EN1                    EXP1_01_PIN
+  #define BTN_EN2                    EXP1_06_PIN
   #define BEEPER_PIN                        -1
 
   #define DOGLCD_CS                  EXP1_03_PIN
