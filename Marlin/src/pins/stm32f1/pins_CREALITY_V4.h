@@ -161,7 +161,7 @@
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
-#if ANY(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
+#if EITHER(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
 
   #if ENABLED(RET6_12864_LCD)
 
