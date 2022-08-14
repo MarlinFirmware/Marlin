@@ -95,7 +95,7 @@ def extract():
 	# Regex for #define NAME [VALUE] [COMMENT] with sanitized line
 	defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
 	# Defines to ignore
-	ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXPORT')
+	ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
 	# Start with unknown state
 	state = Parse.NORMAL
 	# Serial ID
