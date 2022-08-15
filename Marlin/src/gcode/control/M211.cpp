@@ -27,15 +27,34 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 
+
+#if ENABLED(ABORT_ON_ENDSTOP)
+  #include "../../module/planner.h"
+#endif
+
 /**
  * M211: Enable, Disable, and/or Report software endstops
- *
- * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
+ * 
+ * Parameters
+ *   S<bool>: flag to enable (1, default) or disable (0) software endstops.
+ *   H<bool>: flag to abort print on software endstops (1) or clamp movement to software endstops (0, default) 
+ *            if software endstops are enabled. Requires ABORT_ON_ENDSTOP
+ * 
+ * Report the software endstop status if no parameter is specified, 
+ * 
+ * Examples:
+ *   M211 S0 to disable software endstops
+ *   M211 S1 H1 to enable software endstops and halt printer on the next move beyond software endstops
+ *   M211 S1 H0 to enable software endstops and clamp movement to software endstops (default)
  */
 void GcodeSuite::M211() {
   if (parser.seen('S'))
     motion.soft_endstop._enabled = parser.value_bool();
-  else
+  #if ENABLED(ABORT_ON_ENDSTOP)
+    if (parser.seen('H'))
+      planner.abort_on_sw_endstop = parser.value_bool();
+  #endif
+  if (!(parser.seen('S') || TERN0(ABORT_ON_ENDSTOP, parser.seen('H'))))
     M211_report();
 }
 

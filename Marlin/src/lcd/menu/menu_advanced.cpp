@@ -782,6 +782,16 @@ void menu_advanced_settings() {
     EDIT_ITEM(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
   #endif
 
+  // M120 H - Abort on endstop hit
+  #if ENABLED(ABORT_ON_ENDSTOP)
+    EDIT_ITEM(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop);
+  #endif
+
+  // M211 H - Abort on software endstop hit
+  #if ENABLED(ABORT_ON_ENDSTOP)
+    EDIT_ITEM(bool, MSG_SW_ENDSTOP_ABORT, &planner.abort_on_sw_endstop);
+  #endif
+
   #if ENABLED(SD_FIRMWARE_UPDATE)
     EDIT_ITEM(bool, MSG_MEDIA_UPDATE, &sd_update_state, []{
       //

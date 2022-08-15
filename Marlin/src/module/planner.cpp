@@ -164,6 +164,11 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
   bool Planner::abort_on_endstop_hit = false;
 #endif
 
+#if ENABLED(ABORT_ON_ENDSTOP)
+  bool Planner::abort_on_endstop = false;
+  bool Planner::abort_on_sw_endstop = false;
+#endif
+
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif

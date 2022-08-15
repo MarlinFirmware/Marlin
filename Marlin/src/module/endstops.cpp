@@ -67,6 +67,10 @@
   #include "probe.h"
 #endif
 
+#if ANY(SD_ABORT_ON_ENDSTOP_HIT, ABORT_ON_ENDSTOP) && HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 #define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -360,8 +364,28 @@ void Endstops::event_handler() {
         card.abortFilePrintNow();
         motion.quickstop_stepper();
         thermalManager.disable_all_heaters();
+        #if HAS_CUTTER
+          TERN_(SPINDLE_FEATURE, safe_delay(1000));
+          cutter.kill();
+        #endif
         #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
           queue.clear();
+          queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
+        #endif
+        print_job_timer.stop();
+      }
+
+    #elif ENABLED(ABORT_ON_ENDSTOP)
+      if (planner.abort_on_endstop) {
+        TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
+        motion.quickstop_stepper();
+        #if HAS_CUTTER
+          TERN_(SPINDLE_FEATURE, safe_delay(1000));
+          cutter.kill();
+        #endif
+        queue.clear();
+        set_all_unhomed();
+        #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
           queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
         #endif
         print_job_timer.stop();
