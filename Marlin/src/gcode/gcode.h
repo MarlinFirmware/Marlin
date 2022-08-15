@@ -254,6 +254,7 @@
  * M512 - Set/Change/Remove Password (Requires PASSWORD_CHANGE_GCODE)
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
+ * M541 - Enable/disable abort on software endstop hit: "M541 S<state>". (Requires ABORT_ON_SOFTWARE_ENDSTOP)
  * M552 - Get or set IP address. Enable/disable network interface. (Requires enabled Ethernet port)
  * M553 - Get or set IP netmask. (Requires enabled Ethernet port)
  * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
@@ -1060,6 +1061,10 @@ private:
 
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
     static void M540();
+  #endif
+
+  #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+    static void M541();
   #endif
 
   #if HAS_ETHERNET

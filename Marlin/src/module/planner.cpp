@@ -159,6 +159,10 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
   bool Planner::abort_on_endstop_hit = false;
 #endif
 
+#if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
+  bool Planner::abort_on_software_endstop = false;
+#endif
+
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
 #endif
