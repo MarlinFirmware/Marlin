@@ -42,6 +42,10 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
+#if ENABLED(VARIABLE_SUPPORT)
+  typedef enum : uint8_t {TempUnit, LinearUnit} VaraUnit;
+#endif
+
 /**
  * GCode parser
  *
@@ -76,6 +80,10 @@ public:
     static float linear_unit_factor, volumetric_unit_factor;
   #endif
 
+  #if ENABLED(VARIABLE_SUPPORT)
+   static float linear_unit_factor, VaraUnit
+  #endif
+
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
     static TempUnit input_temp_units;
   #endif
@@ -83,7 +91,7 @@ public:
   // Command line state
   static char *command_ptr,               // The command, so it can be echoed
               *string_arg,                // string of command line
-              command_letter;             // G, M, or T
+              command_letter;             // G, M, #, or T
   static uint16_t codenum;                // 123
   #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
