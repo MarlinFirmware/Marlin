@@ -41,6 +41,9 @@ bool GCodeParser::volumetric_enabled;
   TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
+#if ENABLE(VARIABLE_SUPPORT)
+  VarUnit GCodeParser::input_variable = 
+
 char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
      *GCodeParser::value_ptr;
@@ -173,7 +176,7 @@ void GCodeParser::parse(char *p) {
    * With Motion Modes enabled any axis letter can come first.
    */
   switch (letter) {
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) {
+    case 'G': case 'M': case 'T': case '#': TERN_(MARLIN_DEV_MODE, case 'D':) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
