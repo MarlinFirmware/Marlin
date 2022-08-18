@@ -261,7 +261,7 @@ public:
       for (;;) {
         const char c = *e;
         if (c == '\0' || c == ' ') break;
-        if (c == 'E' || c == 'e') {
+        if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
           *e = '\0';
           const float ret = strtof(value_ptr, nullptr);
           *e = c;
