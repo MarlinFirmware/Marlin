@@ -111,15 +111,21 @@ xyze_pos_t destination; // {0}
 
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
-  xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load()
+  xyz_pos_t hotend_offset[TOOLS]; // Initialized by settings.load()
   void reset_hotend_offsets() {
-    constexpr float tmp[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
-    static_assert(
-      !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
-      "Offsets for the first hotend must be 0.0."
-    );
-    // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
-    HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
+    constexpr float tmp[XYZ][TOOLS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
+    #if !HAS_MULTI_TOOLS
+      static_assert(
+        !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
+        "Offsets for the first hotend must be 0.0."
+      );
+    #endif
+    // Transpose from [XYZ][TOOLS] to [TOOLS][XYZ]
+    for (uint8_t e = 0; e < TOOLS; e++) {
+      for (uint8_t a = 0; a < XYZ; a++) {
+        hotend_offset[e][a] = tmp[a][e];
+      }
+    }
     TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
 #endif
@@ -136,6 +142,10 @@ int16_t feedrate_percentage = 100;
 
 // Cartesian conversion result goes here:
 xyz_pos_t cartes;
+
+#if HAS_TOOL_LENGTH_COMPENSATION
+  bool simple_tool_length_compensation = false;
+#endif
 
 #if IS_KINEMATIC
 
@@ -161,19 +171,6 @@ xyz_pos_t cartes;
 
 #endif
 
-#if HAS_TOOL_LENGTH_COMPENSATION
-  xyz_pos_t tool_offsets[TOOLS];
-  bool simple_tool_length_compensation = false;
-  void reset_tool_offsets() {
-    constexpr float tmpTLO[XYZ][TOOLS] = { DEFAULT_TOOL_OFFSET_X, DEFAULT_TOOL_OFFSET_Y, DEFAULT_TOOL_OFFSET_Z };
-    // Transpose from [XYZ][TOOLS] to [TOOLS][XYZ]
-    for (uint8_t e = 0; e < TOOLS; e++) {
-      for (uint8_t a = 0; a < XYZ; a++) {
-        tool_offsets[e][a] = tmpTLO[a][e];
-      }
-    }
-  }
-#endif
 /**
  * The workspace can be offset by some commands, or
  * these offsets may be omitted to save on computation.
@@ -1019,12 +1016,12 @@ void restore_feedrate_and_scaling() {
       // retain the same physical limit when other tools are selected.
 
       if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
-        const float offs = (axis == Z_AXIS) ? 0 : 0.0f TERN_(HAS_HOTEND_OFFSET, + ((active_extruder < EXTRUDERS) ? hotend_offset[active_extruder][axis] : 0.0f)) TERN_(HAS_TOOL_LENGTH_COMPENSATION, + tool_offsets[active_extruder][axis]);
+        const float offs = (axis == Z_AXIS) ? 0 : 0.0f TERN_(HAS_HOTEND_OFFSET, + hotend_offset[active_extruder][axis]);
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
       else {
-        const float diff = 0.0f TERN_(HAS_HOTEND_OFFSET, + ((new_tool_index < EXTRUDERS) ? hotend_offset[new_tool_index][axis] : 0.0f)) TERN_(HAS_TOOL_LENGTH_COMPENSATION, + tool_offsets[new_tool_index][axis]) TERN_(HAS_HOTEND_OFFSET, - ((old_tool_index < EXTRUDERS) ? hotend_offset[old_tool_index][axis] : 0.0f)) TERN_(HAS_TOOL_LENGTH_COMPENSATION, - tool_offsets[old_tool_index][axis]);
+        const float diff = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
         soft_endstop.min[axis] += diff;
         soft_endstop.max[axis] += diff;
       }
@@ -1292,7 +1289,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         return true;
       }    
     #else    
-      if (!position_is_reachable(destination)) return true);
+      if (!position_is_reachable(destination)) return true;
     #endif
 
     // Get the linear distance in XYZ
@@ -2656,8 +2653,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
-    workspace_offset[axis] = home_offset[axis] + DIFF_TERN(HAS_TOOL_LENGTH_COMPENSATION, position_shift[axis], (simple_tool_length_compensation ? tool_offsets[active_extruder][axis] : 0.0f));
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis] OPTARG(HAS_TOOL_LENGTH_COMPENSATION, " tool offset = ")  OPTARG(HAS_TOOL_LENGTH_COMPENSATION, tool_offsets[active_extruder][axis]));
+    workspace_offset[axis] = home_offset[axis] + DIFF_TERN(HAS_TOOL_LENGTH_COMPENSATION, position_shift[axis], (simple_tool_length_compensation ? hotend_offset[active_extruder][axis] : 0.0f));
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis] OPTARG(HAS_TOOL_LENGTH_COMPENSATION, " tool offset = ", hotend_offset[active_extruder][axis]));
   }
 #endif
 

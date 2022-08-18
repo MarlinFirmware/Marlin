@@ -69,15 +69,14 @@ xyz_pos_t native_to_joint(const xyz_pos_t &native) {
 
   // X and Y hotend offsets must be applied in Cartesian space with no "spoofing"
   xyz_pos_t pos = NUM_AXIS_ARRAY(
-                    native.x - tool_offsets[active_extruder].x TERN_(HAS_HOTEND_OFFSET, - hotend_offset[active_extruder].x),
-                    native.y - tool_offsets[active_extruder].y TERN_(HAS_HOTEND_OFFSET, - hotend_offset[active_extruder].y),
+                    native.x - hotend_offset[active_extruder].x,
+                    native.y - hotend_offset[active_extruder].y,
                     native.z,
                     native.i,
                     native.j
                   );
 
-  const float offset = tool_offsets[active_extruder].z TERN_(HAS_HOTEND_OFFSET, + hotend_offset[active_extruder].z);
-  const float pivot_length = mrzp_offset + offset;
+  const float pivot_length = mrzp_offset + hotend_offset[active_extruder].z;
 
   #if HAS_J_AXIS || AXIS4_NAME == 'B'
     // B correction
@@ -106,7 +105,7 @@ xyz_pos_t native_to_joint(const xyz_pos_t &native) {
     const xyz_pos_t joints_pos = NUM_AXIS_ARRAY(
       xyr * cos(xytheta),
       xyr * sin(xytheta),
-      pos.z + offset,
+      pos.z + hotend_offset[active_extruder].z,
       pos.i,
       pos.j
     );

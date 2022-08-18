@@ -230,7 +230,9 @@ typedef struct SettingsDataStruct {
   //
   // Hotend Offset
   //
-  #if HAS_HOTEND_OFFSET
+  #if HAS_MULTI_TOOLS
+    xyz_pos_t hotend_offset[TOOLS];               // M218 XYZ
+  #elif HAS_HOTEND_OFFSET
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
 
@@ -323,9 +325,6 @@ typedef struct SettingsDataStruct {
   //
   #if IS_KINEMATIC
     float segments_per_second;                          // M665 S
-    #if HAS_TOOL_LENGTH_COMPENSATION
-      xyz_pos_t tool_offsets[TOOLS];
-    #endif
     #if ENABLED(XYZBC_HEAD_TABLE)
       float mrzp_offset;                                // M665 O
     #elif ENABLED(DELTA)
@@ -810,8 +809,8 @@ void MarlinSettings::postprocess() {
     //
     {
       #if HAS_HOTEND_OFFSET
-        // Skip hotend 0 which must be 0
-        LOOP_S_L_N(e, 1, HOTENDS)
+        // If HAS_MULTI_TOOLS is disabled, skip hotend 0 which must be 0
+        LOOP_S_L_N(e, TERN1(HAS_MULTI_TOOLS, 0) , TOOLS)
           EEPROM_WRITE(hotend_offset[e]);
       #endif
     }
@@ -998,11 +997,6 @@ void MarlinSettings::postprocess() {
     #if IS_KINEMATIC
     {
       EEPROM_WRITE(segments_per_second);
-      #if HAS_TOOL_LENGTH_COMPENSATION
-        LOOP_S_L_N(e, 0, TOOLS) {
-          EEPROM_WRITE(tool_offsets[e]);
-        }
-      #endif
       #if ENABLED(XYZBC_HEAD_TABLE)
         _FIELD_TEST(mrzp_offset);
         EEPROM_WRITE(mrzp_offset);               // 1 float
@@ -1776,8 +1770,8 @@ void MarlinSettings::postprocess() {
       //
       {
         #if HAS_HOTEND_OFFSET
-          // Skip hotend 0 which must be 0
-          LOOP_S_L_N(e, 1, HOTENDS)
+          // If HAS_MULTI_TOOLS is disabled, skip hotend 0 which must be 0
+          LOOP_S_L_N(e, TERN1(HAS_MULTI_TOOLS, 0), TOOLS)
             EEPROM_READ(hotend_offset[e]);
         #endif
       }
@@ -1967,11 +1961,6 @@ void MarlinSettings::postprocess() {
       #if IS_KINEMATIC
       {
         EEPROM_READ(segments_per_second);
-        #if HAS_TOOL_LENGTH_COMPENSATION
-          LOOP_S_L_N(e, 0, TOOLS) {
-            EEPROM_READ(tool_offsets[e]);
-          }
-        #endif
         #if ENABLED(XYZBC_HEAD_TABLE)
           _FIELD_TEST(mrzp_offset);
           EEPROM_READ(mrzp_offset);
@@ -3056,7 +3045,6 @@ void MarlinSettings::reset() {
       TERN_(POLARGRAPH, POLAR_SEGMENTS_PER_SECOND)
       TERN_(XYZBC_HEAD_TABLE, XYZBC_SEGMENTS_PER_SECOND)
     );
-    TERN_(HAS_TOOL_LENGTH_COMPENSATION, reset_tool_offsets());
     #if ENABLED(XYZBC_HEAD_TABLE)
       mrzp_offset = DEFAULT_MRZP_OFFSET_MM;
     #elif ENABLED(DELTA)

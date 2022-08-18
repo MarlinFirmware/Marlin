@@ -52,8 +52,6 @@ extern xyze_pos_t current_position,  // High-level current tool position
 extern xyz_pos_t cartes;
 
 #if HAS_TOOL_LENGTH_COMPENSATION
-  extern xyz_pos_t tool_offsets[TOOLS];
-  void reset_tool_offsets();
   extern bool simple_tool_length_compensation;
 #endif
 

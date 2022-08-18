@@ -572,16 +572,6 @@
 #undef EXTENDABLE_EMU_MMU2S
 
 /**
- * Tools have no stepper motor and no hotend. A tool changer is used to change the tool in the
- * single tool holder.
- * 
- * TOOLS         - Number of Selectable Tools
- */
-#if TOOLS > 1
-  #define HAS_MULTI_TOOLS 1
-#endif
-
-/**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
  *
@@ -1074,6 +1064,22 @@
 #endif
 
 /**
+ * Tools include non-extruder/hotend-tools and extruder/hotend-tools. Non-extruder/hotend-tools have no stepper motor and no hotend.
+ * 
+ * TOOLS         - Number of Selectable Tools
+ */
+#if !defined(TOOLS)
+  #define TOOLS HOTENDS
+#else
+  #if TOOLS > 0
+    #define HAS_TOOL_LENGTH_COMPENSATION 1
+  #endif
+  #if TOOLS > 1
+    #define HAS_MULTI_TOOLS 1
+  #endif
+#endif
+
+/**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
  */
@@ -1406,7 +1412,6 @@
   #define IS_KINEMATIC 1
 #elif ENABLED(XYZBC_HEAD_TABLE)
   #define IS_KINEMATIC 1
-  #define HAS_TOOL_LENGTH_COMPENSATION 1
   #define HAS_TOOL_CENTERPOINT_CONTROL 1
 #else
   #define IS_CARTESIAN 1

@@ -1270,7 +1270,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
       #endif
       #if HAS_TOOL_LENGTH_COMPENSATION
-        xyz_pos_t diff = (tool_centerpoint_control ? (tool_offsets[old_tool] - tool_offsets[new_tool]) : xyz_pos_t({ 0.0 })) TERN_(HAS_HOTEND_OFFSET, + (hotend_offset[new_tool] - hotend_offset[old_tool]));
+        xyz_pos_t diff = (tool_centerpoint_control ? (hotend_offset[old_tool] - hotend_offset[new_tool]) : xyz_pos_t({ 0.0 }));
       #elif HAS_HOTEND_OFFSET
         xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
@@ -1311,6 +1311,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       TERN_(TOOL_SENSOR, tool_sensor_disabled = false);
 
       (void)check_tool_sensor_stats(active_extruder, true);
+
+      #if HAS_TOOL_LENGTH_COMPENSATION
+        LOOP_NUM_AXES(i) { update_workspace_offset((AxisEnum)i); }
+      #endif
 
       // The newly-selected extruder XYZ is actually at...
       DEBUG_ECHOLNPGM("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");

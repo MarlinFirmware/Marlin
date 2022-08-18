@@ -381,12 +381,15 @@
   #endif
 #endif
 
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
-//#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
-//#define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle
+/**
+ * Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+ * The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+ * For the other hotends it is their distance from the extruder 0 hotend.
+ * Require a value for each tool, indluding extruders. For machines with non-extruder TOOLS, tool 0 can be the empty tool holder so that the gauge line can be used as the reference.
+ */
+//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle.
+//#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle.
+//#define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle (distance from each tool tip to the tip of tool 0 in Z direction).
 
 // @section psu control
 
@@ -1019,9 +1022,6 @@
   #define TOOLS 1 // Number of tools;
   // Machine rotary zero point offset is the distance between the center of rotation of the B axis to the gauge line at the tool head.
   #define DEFAULT_MRZP_OFFSET_MM 100.0 // (mm)
-  #define DEFAULT_TOOL_OFFSET_X { 0.0 } // (mm) Tool offset X
-  #define DEFAULT_TOOL_OFFSET_Y { 0.0 } // (mm) Tool offset Y
-  #define DEFAULT_TOOL_OFFSET_Z { 0.0 } // (mm) Gauge length (Tool length)
   #define XYZBC_SEGMENTS_PER_SECOND 200
 
 #endif

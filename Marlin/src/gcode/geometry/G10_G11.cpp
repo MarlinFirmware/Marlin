@@ -80,7 +80,7 @@ void GcodeSuite::G10() {
                 new_tool_length_offset[i] = axis_value;
               }
             }
-            tool_offsets[index] = new_tool_length_offset;
+            hotend_offset[index] = new_tool_length_offset;
             break;
 
           // G10 L10 changes the tool table entry for tool P so that if the tool offset is reloaded, with the machine in its 
@@ -96,7 +96,7 @@ void GcodeSuite::G10() {
             }
             break;
         }
-        tool_offsets[index] = new_tool_length_offset;
+        hotend_offset[index] = new_tool_length_offset;
       }
     #endif
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
