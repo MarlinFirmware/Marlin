@@ -178,7 +178,7 @@ void GCodeParser::parse(char *p) {
    * With Motion Modes enabled any axis letter can come first.
    */
   switch (letter) {
-    case 'G': case 'M': case 'T': case '#': TERN_(MARLIN_DEV_MODE, case 'D':) {
+    case 'G': case 'M': case 'T': case 'L': TERN_(MARLIN_DEV_MODE, case 'D':) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -281,8 +281,8 @@ void GCodeParser::parse(char *p) {
     default: break;
   }
 
-  // Only use string_arg for these # variables
-  if (letter == '#') switch (codenum) {
+  // Only use string_arg for these L variables
+  if (letter == 'L') switch (codenum) {
     TERN_(VARIABLE_SUPPORT, case 100 ... 115:)
     TERN_(EXPECTED_PRINTER_CHECK, case 16:)
     case 23: case 28: case 30: case 117 ... 118: case 928:
