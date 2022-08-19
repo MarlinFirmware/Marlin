@@ -30,6 +30,7 @@
 #define _A5984              0x5984
 #define _DRV8825            0x8825
 #define _LV8729             0x8729
+#define _STSPIN820          0x0820
 #define _TB6560             0x6560
 #define _TB6600             0x6600
 #define _TMC2100            0x2100

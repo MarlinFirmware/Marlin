@@ -2275,6 +2275,7 @@
  * Minimum delay before and after setting the stepper DIR (in ns)
  *     0 : No delay (Expect at least 10µS since one Stepper ISR must transpire)
  *    20 : Minimum for TMC2xxx drivers
+ *    20 : Minimum for STSPIN820 drivers
  *   200 : Minimum for A4988 drivers
  *   400 : Minimum for A5984 drivers
  *   500 : Minimum for LV8729 drivers (guess, no info in datasheet)
@@ -2290,6 +2291,7 @@
 /**
  * Minimum stepper driver pulse width (in µs)
  *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
+ *   0 : Minimum 20ns for STSPIN820, adjusted in stepper.h
  *   0 : Minimum 500ns for LV8729, adjusted in stepper.h
  *   1 : Minimum for A4988 and A5984 stepper drivers
  *   2 : Minimum for DRV8825 stepper drivers
@@ -2304,6 +2306,7 @@
  * Maximum stepping rate (in Hz) the stepper driver allows
  *  If undefined, defaults to 1MHz / (2 * MINIMUM_STEPPER_PULSE)
  *  5000000 : Maximum for TMC2xxx stepper drivers
+ *  4000000 : Maximum for STSPIN820 stepper driver
  *  1000000 : Maximum for LV8729 stepper driver
  *  500000  : Maximum for A4988 stepper driver
  *  250000  : Maximum for DRV8825 stepper driver
