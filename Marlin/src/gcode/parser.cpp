@@ -41,8 +41,6 @@ bool GCodeParser::volumetric_enabled;
   TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
-#if ENABLE(VARIABLE_SUPPORT)
-  VarUnit GCodeParser::input_variable = 
 
 char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
@@ -60,6 +58,10 @@ uint16_t GCodeParser::codenum;
     uint8_t GCodeParser::motion_mode_subcode;
   #endif
 #endif
+
+//#if ENABLED(VARIABLE_SUPPORT)
+//  uint16_t GCodeParser::input_var;
+//#endif
 
 #if ENABLED(FASTER_GCODE_PARSER)
   // Optimized Parameters
@@ -272,6 +274,16 @@ void GCodeParser::parse(char *p) {
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) {
     TERN_(GCODE_MACROS, case 810 ... 819:)
+    TERN_(EXPECTED_PRINTER_CHECK, case 16:)
+    case 23: case 28: case 30: case 117 ... 118: case 928:
+      string_arg = unescape_string(p);
+      return;
+    default: break;
+  }
+
+  // Only use string_arg for these # variables
+  if (letter == '#') switch (codenum) {
+    TERN_(VARIABLE_SUPPORT, case 100 ... 115:)
     TERN_(EXPECTED_PRINTER_CHECK, case 16:)
     case 23: case 28: case 30: case 117 ... 118: case 928:
       string_arg = unescape_string(p);
