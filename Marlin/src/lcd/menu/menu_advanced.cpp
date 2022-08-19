@@ -67,7 +67,7 @@ void menu_backlash();
     static xyze_uint8_t driverPercent;
     LOOP_LOGICAL_AXES(i) driverPercent[i] = stepper_dac.get_current_percent((AxisEnum)i);
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     LOOP_LOGICAL_AXES(a)
       EDIT_ITEM_N(uint8, a, MSG_DAC_PERCENT_N, &driverPercent[a], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); });
@@ -84,7 +84,7 @@ void menu_backlash();
 
   void menu_pwm() {
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) EDIT_ITEM_F(long5, F(LABEL), &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
     #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_A STR_B, 0);
@@ -106,7 +106,7 @@ void menu_backlash();
   //
   void menu_advanced_filament() {
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(LIN_ADVANCE)
       #if EXTRUDERS == 1
@@ -268,7 +268,7 @@ void menu_backlash();
     #endif
 
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     //
     // Autotemp, Min, Max, Fact
@@ -366,7 +366,7 @@ void menu_backlash();
         static auto mpc_edit_hotend = [](const uint8_t e) {
           MPC_EDIT_DEFS(e);
           START_MENU();
-          TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_TEMPERATURE));
+          BACK_ITEM(MSG_TEMPERATURE);
           MPC_EDIT_ITEMS(e);
           END_MENU();
         };
@@ -427,7 +427,7 @@ void menu_backlash();
     #endif
 
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     LOOP_NUM_AXES(a)
       EDIT_ITEM_FAST_N(float5, a, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[a], 1, max_fr_edit_scaled[a]);
@@ -470,7 +470,7 @@ void menu_backlash();
     #endif
 
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     // M204 P Acceleration
     EDIT_ITEM_FAST(float5_25, MSG_ACC, &planner.settings.acceleration, 25, max_accel);
@@ -514,7 +514,7 @@ void menu_backlash();
 
     void menu_advanced_jerk() {
       START_MENU();
-      TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
       #if HAS_JUNCTION_DEVIATION
         EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, TERN(LIN_ADVANCE, 0.3f, 0.5f)
@@ -549,7 +549,7 @@ void menu_backlash();
   #if HAS_BED_PROBE
     void menu_probe_offsets() {
       START_MENU();
-      TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
       #if HAS_PROBE_XY_OFFSET
         EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(X_BED_SIZE), X_BED_SIZE);
         EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
@@ -573,7 +573,7 @@ void menu_backlash();
 // M92 Steps-per-mm
 void menu_advanced_steps_per_mm() {
   START_MENU();
-  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_ADVANCED_SETTINGS));
+  BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
   LOOP_NUM_AXES(a)
     EDIT_ITEM_FAST_N(float61, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
@@ -602,7 +602,7 @@ void menu_advanced_settings() {
   #endif
 
   START_MENU();
-  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_CONFIGURATION));
+  BACK_ITEM(MSG_CONFIGURATION);
 
   #if DISABLED(SLIM_LCD_MENUS)
 

@@ -114,7 +114,7 @@ void menu_configuration();
 
   void custom_menus_main() {
     START_MENU();
-    TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
+    BACK_ITEM(MSG_MAIN);
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
@@ -231,9 +231,7 @@ void menu_main() {
   ;
 
   START_MENU();
-  
-
-  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_INFO_SCREEN));
+  BACK_ITEM(MSG_INFO_SCREEN);
 
   #if ENABLED(SDSUPPORT)
 
@@ -322,7 +320,11 @@ void menu_main() {
   #if HAS_CUTTER
     SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
   #endif
-  
+
+  #if HAS_TEMPERATURE
+    SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #endif
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
@@ -332,10 +334,6 @@ void menu_main() {
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
-  #endif
-
-  #if HAS_TEMPERATURE
-    SUBMENU(MSG_TEMPERATURE, menu_temperature);
   #endif
 
   #if HAS_POWER_MONITOR

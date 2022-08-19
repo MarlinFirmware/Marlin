@@ -33,7 +33,7 @@
 
 void menu_power_monitor() {
   START_MENU();
-  TERN_(HAS_BACK_ITEM, BACK_ITEM(MSG_MAIN));
+  BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(POWER_MONITOR_CURRENT)
   {
