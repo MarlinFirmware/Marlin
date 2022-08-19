@@ -82,11 +82,11 @@ if pioutil.is_pio_build():
 					for drive in drives:
 						try:
 							fpath = mpath / drive
-							files = [ x for x in fpath.iterdir() if x.is_file() ]
+							filenames = [ x.name for x in fpath.iterdir() if x.is_file() ]
 						except:
 							continue
 						else:
-							if target_filename in files:
+							if target_filename in filenames:
 								upload_disk = mpath / drive
 								target_file_found = True
 								break
@@ -104,21 +104,21 @@ if pioutil.is_pio_build():
 				# platformio.ini will accept this for a OSX upload port designation: 'upload_port = /media/media_name/drive'
 				#
 				dpath = Path('/Volumes')  # human readable names
-				drives = [ x for x in dpath.iterdir() ]
+				drives = [ x for x in dpath.iterdir() if x.is_dir() ]
 				if target_drive in drives and not target_file_found:  # set upload if not found target file yet
 					target_drive_found = True
 					upload_disk = dpath / target_drive
 				for drive in drives:
 					try:
-						fpath = dpath / drive   # will get an error if the drive is protected
-						files = [ x for x in fpath.iterdir() ]
+						fpath = dpath / drive	# will get an error if the drive is protected
+						filenames = [ x.name for x in fpath.iterdir() if x.is_file() ]
 					except:
 						continue
 					else:
-						if target_filename in files:
-							if not target_file_found:
-								upload_disk = dpath / drive
+						if target_filename in filenames:
+							upload_disk = dpath / drive
 							target_file_found = True
+							break
 
 			#
 			# Set upload_port to drive if found
