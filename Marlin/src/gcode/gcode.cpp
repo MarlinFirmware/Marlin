@@ -479,25 +479,25 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
     break;
 
-    case '#': switch (parser.codenum) {
+    case 'L': switch (parser.codenum) {
 
       #if ENABLED(VARIABLE_SUPPORT)
-        case 100: #100(); break;
-        case 101: #101(); break;
-        case 102: #102(); break;
-        case 103: #103(); break;
-        case 104: #104(); break;
-        case 105: #105(); break;
-        case 106: #106(); break;
-        case 107: #107(); break;
-        case 108: #108(); break;
-        case 109: #109(); break;
-        case 110: #110(); break;
-        case 111: #111(); break;
-        case 112: #112(); break;
-        case 113: #113(); break;
-        case 114: #114(); break;
-        case 115: #115(); break;
+        case 100: parser.input_var(0); break;
+        case 101: parser.input_var(0); break;
+        case 102: parser.input_var(0); break;
+        case 103: parser.input_var(0); break;
+        case 104: parser.input_var(0); break;
+        case 105: parser.input_var(0); break;
+        case 106: parser.input_var(0); break;
+        case 107: parser.input_var(0); break;
+        case 108: parser.input_var(0); break;
+        case 109: parser.input_var(0); break;
+        case 110: parser.input_var(0); break;
+        case 111: parser.input_var(0); break;
+        case 112: parser.input_var(0); break;
+        case 113: parser.input_var(0); break;
+        case 114: parser.input_var(0); break;
+        case 115: parser.input_var(0); break;
       #endif
 
         default: parser.unknown_command_warning(); break;
