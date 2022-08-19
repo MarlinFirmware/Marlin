@@ -474,7 +474,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleMotorLockUnlock");
-  const int16_t lock = BE16_P(*(uint16_t*)val_ptr);
+  const int16_t lock = BE16_P(val_ptr);
   queue.enqueue_one_now(lock ? F("M18") : F("M17"));
 }
 
