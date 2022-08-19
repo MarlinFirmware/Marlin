@@ -256,22 +256,20 @@ public:
 
   // Float removes 'E' to prevent scientific notation interpretation
   static float value_float() {
-    if (value_ptr) {
-      char *e = value_ptr;
-      for (;;) {
-        const char c = *e;
-        if (c == '\0' || c == ' ') break;
-        if (c == 'E' || c == 'e') {
-          *e = '\0';
-          const float ret = strtof(value_ptr, nullptr);
-          *e = c;
-          return ret;
-        }
-        ++e;
+    if (!value_ptr) return 0;
+    char *e = value_ptr;
+    for (;;) {
+      const char c = *e;
+      if (c == '\0' || c == ' ') break;
+      if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
+        *e = '\0';
+        const float ret = strtof(value_ptr, nullptr);
+        *e = c;
+        return ret;
       }
-      return strtof(value_ptr, nullptr);
+      ++e;
     }
-    return 0;
+    return strtof(value_ptr, nullptr);
   }
 
   // Code value as a long or ulong
