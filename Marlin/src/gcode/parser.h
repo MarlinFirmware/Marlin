@@ -42,10 +42,6 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
-#if ENABLED(VARIABLE_SUPPORT)
-  typedef enum : uint8_t {TempUnit, LinearUnit} VaraUnit;
-#endif
-
 /**
  * GCode parser
  *
@@ -80,10 +76,6 @@ public:
     static float linear_unit_factor, volumetric_unit_factor;
   #endif
 
-  #if ENABLED(VARIABLE_SUPPORT)
-   static float linear_unit_factor, VaraUnit
-  #endif
-
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
     static TempUnit input_temp_units;
   #endif
@@ -103,6 +95,11 @@ public:
       static uint8_t motion_mode_subcode;
     #endif
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
+  #endif
+
+  
+  #if ENABLED(VARIABLE_SUPPORT)
+    static uint16_t VarUnit;
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
@@ -264,21 +261,21 @@ public:
 
   // Float removes 'E' to prevent scientific notation interpretation
   static float value_float() {
-    if (!value_ptr) return 0;
-    char *e = value_ptr;
-    for (;;) {
-      const char c = *e;
-      if (c == '\0' || c == ' ') break;
-      if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
-        *e = '\0';
-        const float ret = strtof(value_ptr, nullptr);
-        *e = c;
-        return ret;
+	    if (!value_ptr) return 0;
+      char *e = value_ptr;
+      for (;;) {
+        const char c = *e;
+        if (c == '\0' || c == ' ') break;
+	      if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
+          *e = '\0';
+          const float ret = strtof(value_ptr, nullptr);
+          *e = c;
+          return ret;
+        }
+        ++e;
       }
-      ++e;
+      return strtof(value_ptr, nullptr);
     }
-    return strtof(value_ptr, nullptr);
-  }
 
   // Code value as a long or ulong
   static int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
@@ -416,6 +413,15 @@ public:
     static celsius_t value_celsius_diff() { return value_int(); }
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
+
+
+    #if ENABLED(VARIABLE_SUPPORT)
+
+
+      static uint16_t input_var(volatile uint16_t VarUnit);
+
+
+    #endif
 
   static feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 
