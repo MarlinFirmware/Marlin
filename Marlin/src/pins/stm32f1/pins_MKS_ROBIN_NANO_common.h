@@ -61,11 +61,11 @@
 #define X_STOP_PIN                          PA15
 #define Z_MAX_PIN                           PC4
 #ifndef USB_MOD
-  #define Y_STOP_PIN                          PA12
-  #define Z_MIN_PIN                           PA11
+  #define Y_STOP_PIN                        PA12
+  #define Z_MIN_PIN                         PA11
 #else
-  #define Y_STOP_PIN                          PB10
-  #define Z_MIN_PIN                           PB11
+  #define Y_STOP_PIN                        PB10
+  #define Z_MIN_PIN                         PB11
 #endif
 
 //
