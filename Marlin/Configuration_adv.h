@@ -48,7 +48,7 @@
  *  3 = schema.json - The entire configuration schema. (13 = pattern groups)
  *  4 = schema.yml - The entire configuration schema.
  */
-//#define CONFIG_EXPORT   // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml']
+//#define CONFIG_EXPORT 2 // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml']
 
 //===========================================================================
 //============================= Thermal Settings ============================
