@@ -302,7 +302,7 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + SEC_TO_MS(MIN_TO_SEC(ui.sleep_timeout_minutes));
+    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
   }
 
 #endif // HAS_TOUCH_SLEEP

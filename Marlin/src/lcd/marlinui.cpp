@@ -174,20 +174,20 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
-#if LCD_BACKLIGHT_TIMEOUT
+#if LCD_BACKLIGHT_TIMEOUT_MINS
 
-  constexpr uint16_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
+  constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
 
-  uint16_t MarlinUI::backlight_timeout; // Initialized by settings.load()
+  uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::backlight_off_ms = 0;
   void MarlinUI::refresh_backlight_timeout() {
-    backlight_off_ms = backlight_timeout ? millis() + backlight_timeout * 1000UL : 0;
+    backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
   }
 
 #elif HAS_DISPLAY_SLEEP
 
-  constexpr uint16_t MarlinUI::sleep_timeout_min, MarlinUI::sleep_timeout_max;
+  constexpr uint8_t MarlinUI::sleep_timeout_min, MarlinUI::sleep_timeout_max;
 
   uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::screen_timeout_millis = 0;
@@ -1063,7 +1063,7 @@ void MarlinUI::init() {
 
           reset_status_timeout(ms);
 
-          #if LCD_BACKLIGHT_TIMEOUT
+          #if LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
           #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
@@ -1173,7 +1173,7 @@ void MarlinUI::init() {
           return_to_status();
       #endif
 
-      #if LCD_BACKLIGHT_TIMEOUT
+      #if LCD_BACKLIGHT_TIMEOUT_MINS
         if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
           WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           backlight_off_ms = 0;
