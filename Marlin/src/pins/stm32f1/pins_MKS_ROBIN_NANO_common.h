@@ -32,6 +32,7 @@
 #ifndef USB_MOD
   #define BOARD_NO_NATIVE_USB
 #endif
+
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
 #define TEMP_TIMER  5
 
