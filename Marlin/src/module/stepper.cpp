@@ -3891,6 +3891,9 @@ void Stepper::report_positions() {
       #if HAS_MICROSTEP128
         case 128: microstep_ms(driver, MICROSTEP128); break;
       #endif
+      #if HAS_MICROSTEP256
+        case 256: microstep_ms(driver, MICROSTEP256); break;
+      #endif
 
       default: SERIAL_ERROR_MSG("Microsteps unavailable"); break;
     }

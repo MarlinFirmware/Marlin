@@ -3145,6 +3145,20 @@
   #ifndef MICROSTEP8
     #define MICROSTEP8 HIGH,HIGH,LOW
   #endif
+  #if HAS_DRIVER(STSPIN820)
+    #ifndef MICROSTEP16
+      #define MICROSTEP16 LOW,LOW,HIGH
+    #endif
+    #ifndef MICROSTEP32
+      #define MICROSTEP32 HIGH,LOW,HIGH
+    #endif
+    #ifndef MICROSTEP128
+      #define MICROSTEP128 LOW,HIGH,HIGH
+    #endif
+    #ifndef MICROSTEP256
+      #define MICROSTEP256 HIGH,HIGH,HIGH
+    #endif
+  #endif
   #ifdef __SAM3X8E__
     #if MB(ALLIGATOR)
       #ifndef MICROSTEP16
@@ -3187,6 +3201,9 @@
   #endif
   #ifdef MICROSTEP128
     #define HAS_MICROSTEP128 1
+  #endif
+  #ifdef MICROSTEP256
+    #define HAS_MICROSTEP256 1
   #endif
 
 #endif // HAS_MICROSTEPS
