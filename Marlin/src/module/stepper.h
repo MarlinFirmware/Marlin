@@ -230,7 +230,8 @@
 // Now estimate the total ISR execution time in cycles given a step per ISR multiplier
 #define ISR_EXECUTION_CYCLES(R) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + (ISR_LOOP_CYCLES) * (R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / (R))
 
-// The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
+// The maximum allowable stepping frequency when doing x256-x1 stepping (in Hz)
+#define MAX_STEP_ISR_FREQUENCY_256X ((F_CPU) / ISR_EXECUTION_CYCLES(256))
 #define MAX_STEP_ISR_FREQUENCY_128X ((F_CPU) / ISR_EXECUTION_CYCLES(128))
 #define MAX_STEP_ISR_FREQUENCY_64X  ((F_CPU) / ISR_EXECUTION_CYCLES(64))
 #define MAX_STEP_ISR_FREQUENCY_32X  ((F_CPU) / ISR_EXECUTION_CYCLES(32))

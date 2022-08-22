@@ -1949,12 +1949,13 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
       ( MAX_STEP_ISR_FREQUENCY_16X >> 4),
       ( MAX_STEP_ISR_FREQUENCY_32X >> 5),
       ( MAX_STEP_ISR_FREQUENCY_64X >> 6),
-      (MAX_STEP_ISR_FREQUENCY_128X >> 7)
+      (MAX_STEP_ISR_FREQUENCY_128X >> 7),
+      (MAX_STEP_ISR_FREQUENCY_256X >> 8)
     };
 
     // Select the proper multistepping
     uint8_t idx = 0;
-    while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
+    while (idx < 8 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
       step_rate >>= 1;
       multistep <<= 1;
       ++idx;
