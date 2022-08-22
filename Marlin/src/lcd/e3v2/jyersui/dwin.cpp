@@ -289,7 +289,6 @@ private:
 
         bedlevel.set_all_mesh_points_to_value(0);
 
-
         matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
         GRID_LOOP(i, j) {
           float mx = bedlevel.get_mesh_x(i),
