@@ -111,8 +111,341 @@ void GCodeParser::reset() {
 
 #endif
 
+// Check for and process a conditional GCode language command returning true if we found one, false if it's a regular line of GCode that we need to process
+// If we just finished skipping an if- or elif-block when the condition was false then 'skippedBlockType' is the type of that block, else it is BlockType::plain
+bool GCodeParser::ProcessConditionalGCode(const StringRef& reply, BlockType skippedBlockType, bool doingFile) THROWS(GCodeException)
+{
+	// First count the number of lowercase characters.
+	unsigned int i = 0;
+	while (gb.buffer[i] >= 'a' && gb.buffer[i] <= 'z')
+	{
+		++i;
+		if (i == 9)
+		{
+			break;				// all command words are less than 9 characters long
+		}
+	}
+
+	if (i >= 2 && i < 9
+		&& (gb.buffer[i] == 0 || gb.buffer[i] == ' ' || gb.buffer[i] == '\t' || gb.buffer[i] == '{' || gb.buffer[i] == '"' || gb.buffer[i] == '(')	// if the command word is properly terminated
+	   )
+	{
+		readPointer = i;
+		const char * const command = gb.buffer;
+		switch (i)
+		{
+		case 2:
+			if (doingFile && StringStartsWith(command, "if"))
+			{
+				ProcessIfCommand();
+				return true;
+			}
+			break;
+
+		case 3:
+			if (StringStartsWith(command, "var"))
+			{
+				ProcessVarOrGlobalCommand(false);
+				return true;
+			}
+			if (StringStartsWith(command, "set"))
+			{
+				ProcessSetCommand();
+				return true;
+			}
+			break;
+
+		case 4:
+			if (StringStartsWith(command, "echo"))
+			{
+				ProcessEchoCommand(reply);
+				return true;
+			}
+			if (StringStartsWith(command, "skip"))
+			{
+				return true;
+			}
+			if (doingFile)
+			{
+				if (StringStartsWith(command, "else"))
+				{
+					ProcessElseCommand(skippedBlockType);
+					return true;
+				}
+				if (StringStartsWith(command, "elif"))
+				{
+					ProcessElifCommand(skippedBlockType);
+					return true;
+				}
+			}
+			break;
+
+		case 5:
+			if (doingFile)
+			{
+				if (StringStartsWith(command, "while"))
+				{
+					ProcessWhileCommand();
+					return true;
+				}
+				if (StringStartsWith(command, "break"))
+				{
+					ProcessBreakCommand();
+					return true;
+				}
+				if (StringStartsWith(command, "abort"))
+				{
+					ProcessAbortCommand(reply);
+					return true;
+				}
+			}
+			break;
+
+		case 6:
+			if (StringStartsWith(command, "global"))
+			{
+				ProcessVarOrGlobalCommand(true);
+				return true;
+			}
+			break;
+
+		case 8:
+			if (doingFile && StringStartsWith(command, "continue"))
+			{
+				ProcessContinueCommand();
+				return true;
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	readPointer = -1;
+	return false;
+}
+
+void GCodeParser::ProcessIfCommand() THROWS(GCodeException)
+{
+	if (EvaluateCondition())
+	{
+		gb.GetBlockState().SetIfTrueBlock();
+	}
+	else
+	{
+		gb.GetBlockState().SetIfFalseNoneTrueBlock();
+		indentToSkipTo = gb.GetBlockIndent();			// skip forwards to the end of the block
+	}
+}
+
+
+
+// Add a byte to the code being assembled.  If false is returned, the code is
+// not yet complete.  If true, it is complete and ready to be acted upon and 'indent'
+// is the number of leading white space characters..
+bool GCodeParser::Put(char c) noexcept
+{
+	if (c != 0)
+	{
+		++commandLength;
+	}
+
+	if (c == 0 || c == '\n' || c == '\r')
+	{
+		return LineFinished();
+	}
+
+	if (c == 0x7F && gb.bufferState != GCodeBufferState::discarding)
+	{
+		// The UART receiver stores 0x7F in the buffer if an overrun or framing errors occurs. So discard the command and resync on the next newline.
+		gcodeLineEnd = 0;
+		gb.bufferState = GCodeBufferState::discarding;
+	}
+
+	// Process the incoming character in a state machine
+	bool again;
+	do
+	{
+		again = false;
+		switch (gb.bufferState)
+		{
+		case GCodeBufferState::parseNotStarted:				// we haven't started parsing yet
+			braceCount = 0;
+			switch (c)
+			{
+			case 'N':
+			case 'n':
+				hadLineNumber = true;
+				crc16.Reset(0);
+				AddToChecksum(c);
+				gb.bufferState = GCodeBufferState::parsingLineNumber;
+				receivedLineNumber = 0;
+				break;
+
+			case ' ':
+				AddToChecksum(c);
+				++commandIndent;
+				seenLeadingSpace = true;
+				break;
+
+			case '\t':
+				AddToChecksum(c);
+				commandIndent = (commandIndent + 4) & ~3;	// move on at least 1 to next multiple of 4
+				seenLeadingTab = true;
+				break;
+
+			default:
+				gb.bufferState = GCodeBufferState::parsingGCode;
+				commandStart = 0;
+				again = true;
+				break;
+			}
+			break;
+
+		case GCodeBufferState::parsingLineNumber:			// we saw N at the start and we are parsing the line number
+			if (isDigit(c))
+			{
+				AddToChecksum(c);
+				receivedLineNumber = (10 * receivedLineNumber) + (c - '0');
+				break;
+			}
+			else
+			{
+				gb.bufferState = GCodeBufferState::parsingWhitespace;
+				again = true;
+			}
+			break;
+
+		case GCodeBufferState::parsingWhitespace:
+			switch (c)
+			{
+			case ' ':
+			case '\t':
+				AddToChecksum(c);
+				break;
+
+			default:
+				gb.bufferState = GCodeBufferState::parsingGCode;
+				commandStart = 0;
+				again = true;
+				break;
+			}
+			break;
+
+		case GCodeBufferState::parsingGCode:				// parsing GCode words
+			switch (c)
+			{
+			case '*':
+				if (hadLineNumber && braceCount == 0)
+				{
+					declaredChecksum = 0;
+					checksumCharsReceived = 0;
+					hadChecksum = true;
+					gb.bufferState = GCodeBufferState::parsingChecksum;
+				}
+				else
+				{
+					StoreAndAddToChecksum(c);
+				}
+				break;
+
+			case ';':
+				if (commandIndent == 0 && gcodeLineEnd == 0)
+				{
+					StoreAndAddToChecksum(c);
+					gb.bufferState = GCodeBufferState::parsingComment;
+				}
+				else
+				{
+					gb.bufferState = GCodeBufferState::discarding;
+				}
+				break;
+
+			case '(':
+				if (braceCount == 0 && reprap.GetGCodes().GetMachineType() == MachineType::cnc)
+				{
+					AddToChecksum(c);
+					gb.bufferState = GCodeBufferState::parsingBracketedComment;
+				}
+				else
+				{
+					StoreAndAddToChecksum(c);
+				}
+				break;
+
+			case '"':
+				StoreAndAddToChecksum(c);
+				gb.bufferState = GCodeBufferState::parsingQuotedString;
+				break;
+
+			case '{':
+				++braceCount;
+				seenExpression = true;
+				StoreAndAddToChecksum(c);
+				break;
+
+			case '}':
+				if (braceCount != 0)
+				{
+					--braceCount;
+				}
+				StoreAndAddToChecksum(c);
+				break;
+
+			default:
+				StoreAndAddToChecksum(c);
+			}
+			break;
+
+		case GCodeBufferState::parsingComment:
+			// We are parsing a whole-line comment, which may possibly be of interest
+			// For now we assume that a '*' character is not the start of a checksum
+			StoreAndAddToChecksum(c);
+			break;
+
+		case GCodeBufferState::parsingBracketedComment:		// inside a (...) comment
+			AddToChecksum(c);
+			if (c == ')')
+			{
+				gb.bufferState = GCodeBufferState::parsingGCode;
+			}
+			break;
+
+		case GCodeBufferState::parsingQuotedString:			// inside a double-quoted string
+			StoreAndAddToChecksum(c);
+			if (c == '"')
+			{
+				gb.bufferState = GCodeBufferState::parsingGCode;
+			}
+			break;
+
+		case GCodeBufferState::parsingChecksum:				// parsing the checksum after '*'
+			if (isDigit(c))
+			{
+				declaredChecksum = (10 * declaredChecksum) + (c - '0');
+				++checksumCharsReceived;
+			}
+			else
+			{
+				gb.bufferState = GCodeBufferState::discarding;
+				again = true;
+			}
+			break;
+
+		case GCodeBufferState::discarding:					// discarding characters after the checksum or an end-of-line comment
+		default:
+			// throw the character away
+			break;
+		}
+	} while (again);
+
+	return false;
+}
+
+
 // Functions to read values from lines of GCode, allowing for expressions and variable substitution
-float StringParser::ReadFloatValue() THROWS(GCodeException)
+float GCodeParser::ReadFloatValue() THROWS(GCodeException)
 {
 	if (gb.buffer[readPointer] == '{')
 	{
