@@ -111,6 +111,25 @@ void GCodeParser::reset() {
 
 #endif
 
+// Functions to read values from lines of GCode, allowing for expressions and variable substitution
+float StringParser::ReadFloatValue() THROWS(GCodeException)
+{
+	if (gb.buffer[readPointer] == '{')
+	{
+		ExpressionParser parser(gb, gb.buffer + readPointer, gb.buffer + ARRAY_SIZE(gb.buffer), commandIndent + readPointer);
+		const float val = parser.ParseFloat();
+		readPointer = parser.GetEndptr() - gb.buffer;
+		return val;
+	}
+
+	const char *endptr;
+	const float rslt = SafeStrtof(gb.buffer + readPointer, &endptr);
+	CheckNumberFound(endptr);
+	return rslt;
+}
+
+
+
 /**
  * Populate the command line state (command_letter, codenum, subcode, and string_arg)
  * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
