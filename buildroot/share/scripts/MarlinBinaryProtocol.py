@@ -376,11 +376,13 @@ class FileTransferProtocol(object):
         token, data = self.await_response(1000)
         if token == 'PFT:success':
             print("File closed")
-            return
+            return True
         elif token == 'PFT:ioerror':
             print("Client storage device IO error")
+            return False
         elif token == 'PFT:invalid':
             print("No open file")
+            return False
 
     def abort(self):
         self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.ABORT);
@@ -417,12 +419,23 @@ class FileTransferProtocol(object):
             self.write(data[start:end])
             kibs = (( (i+1) * block_size) / 1024) / (millis() + 1 - start_time) * 1000
             if (i / blocks) >= dump_pctg:
-                print("\r{0:2.2f}% {1:4.2f}KiB/s {2} Errors: {3}".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors), end='')
+                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors), end='')
                 dump_pctg += 0.1
-        print("\r{0:2.2f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
+            if self.protocol.errors > 0:
+                # Dump last status (errors may not be visible)
+                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3} - Aborting...".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors), end='')
+                print("")   # New line to break the transfer speed line
+                self.close()
+                print("Transfer aborted due to protocol errors")
+                #raise Exception("Transfer aborted due to protocol errors")
+                return False;
+        print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
 
-        self.close()
+        if not self.close():
+            print("Transfer failed")
+            return False
         print("Transfer complete")
+        return True
 
 
 class EchoProtocol(object):

@@ -232,6 +232,7 @@ public:
 typedef struct HeaterInfo : public TempInfo {
   celsius_t target;
   uint8_t soft_pwm_amount;
+  bool is_below_target(const celsius_t offs=0) const { return (celsius < (target + offs)); }
 } heater_info_t;
 
 // A heater with PID stabilization
@@ -715,9 +716,9 @@ class Temperature {
     static void readings_ready();
 
     /**
-     * Call periodically to manage heaters
+     * Call periodically to manage heaters and keep the watchdog fed
      */
-    static void manage_heater() __O2; // __O2 added to work around a compiler error
+    static void task();
 
     /**
      * Preheating hotends
@@ -807,6 +808,8 @@ class Temperature {
         #endif
       }
 
+      static void manage_hotends(const millis_t &ms);
+
     #endif // HAS_HOTEND
 
     #if HAS_HEATED_BED
@@ -819,6 +822,9 @@ class Temperature {
       static celsius_t degTargetBed()  { return temp_bed.target; }
       static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
+      static bool degBedNear(const celsius_t temp) {
+        return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
+      }
 
       // Start watching the Bed to make sure it's really heating up
       static void start_watching_bed() { TERN_(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())); }
@@ -835,9 +841,7 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      static bool degBedNear(const celsius_t temp) {
-        return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
-      }
+      static void manage_heated_bed(const millis_t &ms);
 
     #endif // HAS_HEATED_BED
 
@@ -863,6 +867,7 @@ class Temperature {
         static bool isHeatingChamber()       { return temp_chamber.target > temp_chamber.celsius; }
         static bool isCoolingChamber()       { return temp_chamber.target < temp_chamber.celsius; }
         static bool wait_for_chamber(const bool no_wait_for_cooling=true);
+        static void manage_heated_chamber(const millis_t &ms);
       #endif
     #endif
 
@@ -886,6 +891,7 @@ class Temperature {
         static bool isLaserHeating()       { return temp_cooler.target > temp_cooler.celsius; }
         static bool isLaserCooling()       { return temp_cooler.target < temp_cooler.celsius; }
         static bool wait_for_cooler(const bool no_wait_for_cooling=true);
+        static void manage_cooler(const millis_t &ms);
       #endif
     #endif
 
@@ -947,7 +953,7 @@ class Temperature {
      */
     #if HAS_PID_HEATING
 
-      #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+      #if HAS_PID_DEBUG
         static bool pid_debug_flag;
       #endif
 
@@ -1010,7 +1016,7 @@ class Temperature {
       static void set_heating_message(const uint8_t, const bool=false) {}
     #endif
 
-    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE
+    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
       static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
@@ -1029,7 +1035,7 @@ class Temperature {
 
     // MAX Thermocouples
     #if HAS_MAX_TC
-      #define MAX_TC_COUNT COUNT_ENABLED(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC, TEMP_SENSOR_REDUNDANT_IS_MAX_TC)
+      #define MAX_TC_COUNT TEMP_SENSOR_IS_MAX_TC(0) + TEMP_SENSOR_IS_MAX_TC(1) + TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
         #define READ_MAX_TC(N) read_max_tc(N)

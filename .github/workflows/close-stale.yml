@@ -25,4 +25,4 @@ jobs:
         days-before-close: 10
         stale-issue-label: 'stale-closing-soon'
         exempt-all-assignees: true
-        exempt-issue-labels: 'Bug: Confirmed !,T: Feature Request,Needs: Discussion,Needs: Documentation,Needs: Patch,Needs: Work,Needs: Testing,help wanted,no-locking'
+        exempt-issue-labels: 'Bug: Confirmed !,T: Feature Request,Needs: More Data,Needs: Discussion,Needs: Documentation,Needs: Patch,Needs: Work,Needs: Testing,help wanted,no-locking'
