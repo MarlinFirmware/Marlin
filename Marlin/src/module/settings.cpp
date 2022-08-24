@@ -1058,11 +1058,11 @@ void MarlinSettings::postprocess() {
             NAN, NAN, NAN,
             NAN, NAN
           #else
-                         PID_PARAM(Kp, e),
-            unscalePID_i(PID_PARAM(Ki, e)),
-            unscalePID_d(PID_PARAM(Kd, e)),
-                         PID_PARAM(Kc, e),
-                         PID_PARAM(Kf, e)
+                         _PID_Kp(e),
+            unscalePID_i(_PID_Ki(e)),
+            unscalePID_d(_PID_Kd(e)),
+                         _PID_Kc(e),
+                         _PID_Kf(e)
           #endif
         };
         EEPROM_WRITE(pidcf);
@@ -3137,18 +3137,16 @@ void MarlinSettings::reset() {
         ;
         static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
       #endif
-      #define RESET_PID_PARAM(F,E) PID_PARAM(F,E)
       #define PID_DEFAULT(N,E)     def##N[E]
     #else
-      #define RESET_PID_PARAM(F,E) _PID_##F(E)
       #define PID_DEFAULT(N,E)     DEFAULT_##N
     #endif
     HOTEND_LOOP() {
-      RESET_PID_PARAM(Kp, e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
-      RESET_PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
-      RESET_PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
-      TERN_(PID_EXTRUSION_SCALING, RESET_PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
-      TERN_(PID_FAN_SCALING, RESET_PID_PARAM(Kf, e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
+      _PID_Kp(e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
+      _PID_Ki(e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
+      _PID_Kd(e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
+      TERN_(PID_EXTRUSION_SCALING, _PID_Kc(e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
+      TERN_(PID_FAN_SCALING, _PID_Kf(e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
     }
   #endif
 

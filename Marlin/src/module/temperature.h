@@ -82,7 +82,11 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
-#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
+#if ENABLED(PID_PARAMS_PER_HOTEND)
+  #define SET_PID_PARAM(F,H,V) _PID_##F(H) = V
+#else
+  #define SET_PID_PARAM(F,H,V) HOTEND_LOOP() { _PID_##F(H) = V; }
+#endif
 #define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
 #define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
 #define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)

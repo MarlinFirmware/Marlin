@@ -57,19 +57,19 @@ void GcodeSuite::M301() {
 
   if (e < HOTENDS) { // catch bad input value
 
-    if (parser.seenval('P')) PID_PARAM(Kp, e) = parser.value_float();
-    if (parser.seenval('I')) PID_PARAM(Ki, e) = scalePID_i(parser.value_float());
-    if (parser.seenval('D')) PID_PARAM(Kd, e) = scalePID_d(parser.value_float());
+    if (parser.seenval('P')) SET_PID_PARAM(Kp, e, parser.value_float());
+    if (parser.seenval('I')) SET_PID_PARAM(Ki, e, scalePID_i(parser.value_float()));
+    if (parser.seenval('D')) SET_PID_PARAM(Kd, e, scalePID_d(parser.value_float()));
 
     #if ENABLED(PID_EXTRUSION_SCALING)
-      if (parser.seenval('C')) PID_PARAM(Kc, e) = parser.value_float();
+      if (parser.seenval('C')) SET_PID_PARAM(Kc, e, parser.value_float());
       if (parser.seenval('L')) thermalManager.lpq_len = parser.value_int();
       NOMORE(thermalManager.lpq_len, LPQ_MAX_LEN);
       NOLESS(thermalManager.lpq_len, 0);
     #endif
 
     #if ENABLED(PID_FAN_SCALING)
-      if (parser.seenval('F')) PID_PARAM(Kf, e) = parser.value_float();
+      if (parser.seenval('F')) SET_PID_PARAM(Kf, e, parser.value_float());
     #endif
 
     thermalManager.updatePID();
@@ -90,16 +90,16 @@ void GcodeSuite::M301_report(const bool forReplay/*=true*/ E_OPTARG(const int8_t
         #else
           PSTR("  M301 P")
         #endif
-        ,                          PID_PARAM(Kp, e)
-        , PSTR(" I"), unscalePID_i(PID_PARAM(Ki, e))
-        , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
+        ,                          _PID_Kp(e)
+        , PSTR(" I"), unscalePID_i(_PID_Ki(e))
+        , PSTR(" D"), unscalePID_d(_PID_Kd(e))
       );
       #if ENABLED(PID_EXTRUSION_SCALING)
-        SERIAL_ECHOPGM_P(SP_C_STR, PID_PARAM(Kc, e));
+        SERIAL_ECHOPGM_P(SP_C_STR, _PID_Kc(e));
         if (e == 0) SERIAL_ECHOPGM(" L", thermalManager.lpq_len);
       #endif
       #if ENABLED(PID_FAN_SCALING)
-        SERIAL_ECHOPGM(" F", PID_PARAM(Kf, e));
+        SERIAL_ECHOPGM(" F", _PID_Kf(e));
       #endif
       SERIAL_EOL();
     }

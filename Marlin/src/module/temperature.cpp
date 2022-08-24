@@ -806,9 +806,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
         auto _set_hotend_pid = [](const uint8_t e, const PID_t &in_pid) {
           #if ENABLED(PIDTEMP)
-            PID_PARAM(Kp, e) = in_pid.Kp;
-            PID_PARAM(Ki, e) = scalePID_i(in_pid.Ki);
-            PID_PARAM(Kd, e) = scalePID_d(in_pid.Kd);
+            SET_PID_PARAM(Kp, e, in_pid.Kp);
+            SET_PID_PARAM(Ki, e, scalePID_i(in_pid.Ki));
+            SET_PID_PARAM(Kd, e, scalePID_d(in_pid.Kd));
             updatePID();
           #else
             UNUSED(e); UNUSED(in_pid);

@@ -976,14 +976,22 @@ namespace ExtUI {
   float getFeedrate_percent() { return feedrate_percentage; }
 
   #if ENABLED(PIDTEMP)
-    float getPIDValues_Kp(const extruder_t tool) { return PID_PARAM(Kp, tool); }
-    float getPIDValues_Ki(const extruder_t tool) { return unscalePID_i(PID_PARAM(Ki, tool)); }
-    float getPIDValues_Kd(const extruder_t tool) { return unscalePID_d(PID_PARAM(Kd, tool)); }
+    float getPIDValues_Kp(const extruder_t tool) { return _PID_Kp(tool); }
+    float getPIDValues_Ki(const extruder_t tool) { return unscalePID_i(_PID_Ki(tool)); }
+    float getPIDValues_Kd(const extruder_t tool) { return unscalePID_d(_PID_Kd(tool)); }
 
     void setPIDValues(const_float_t p, const_float_t i, const_float_t d, extruder_t tool) {
-      thermalManager.temp_hotend[tool].pid.Kp = p;
-      thermalManager.temp_hotend[tool].pid.Ki = scalePID_i(i);
-      thermalManager.temp_hotend[tool].pid.Kd = scalePID_d(d);
+      #if ENABLED(PID_PARAMS_PER_HOTEND)
+        const extruder_t e = tool;
+      #else
+        HOTEND_LOOP() {
+      #endif
+        thermalManager.temp_hotend[e].pid.Kp = p;
+        thermalManager.temp_hotend[e].pid.Ki = scalePID_i(i);
+        thermalManager.temp_hotend[e].pid.Kd = scalePID_d(d);
+      #if DISABLED(PID_PARAMS_PER_HOTEND)
+        }
+      #endif
       thermalManager.updatePID();
     }
 
