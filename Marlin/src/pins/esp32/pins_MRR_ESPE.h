@@ -51,7 +51,6 @@
 //
 // Enable I2S stepper stream
 //
-#define I2S_STEPPER_STREAM
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
