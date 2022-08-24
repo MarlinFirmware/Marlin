@@ -217,8 +217,8 @@ void menu_backlash();
     float raw_Kf; // place-holders for Kf edits
   #endif
 
-  // Helpers for editing PID Kp, Ki, Kd, Kc & kF values
-  // grab the PID value out of the temp variable; scale it (Ki, Kd); then update the PID driver
+  // Helpers for editing PID Ki and Kd values
+  // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
