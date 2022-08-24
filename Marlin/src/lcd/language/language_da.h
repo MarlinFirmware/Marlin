@@ -74,6 +74,9 @@ namespace Language_da {
   LSTR MSG_MOVE_X                         = _UxGT("Flyt X");
   LSTR MSG_MOVE_Y                         = _UxGT("Flyt Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Flyt Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Flyt @");
+  LSTR MSG_MOVE_E                         = _UxGT("Flyt E");
+  LSTR MSG_MOVE_EN                        = _UxGT("Flyt *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Flyt $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Flyt 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Flyt 1mm");

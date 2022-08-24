@@ -99,7 +99,7 @@
   #define IS_ULTIPANEL 1
   #define STD_ENCODER_PULSES_PER_STEP 2
 
-#elif ANY(miniVIKI, VIKI2, WYH_L12864, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
+#elif ANY(miniVIKI, VIKI2, WYH_L12864, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864, EMOTION_TECH_LCD)
 
   #define DOGLCD
   #define IS_DOGM_12864 1
@@ -116,6 +116,9 @@
     #define IS_U8GLIB_LM6059_AF 1
   #elif ENABLED(AZSMZ_12864)
     #define IS_U8GLIB_ST7565_64128N 1
+  #elif ENABLED(EMOTION_TECH_LCD)
+    #define IS_U8GLIB_ST7565_64128N 1
+    #define ST7565_VOLTAGE_DIVIDER_VALUE 0x07
   #endif
 
 #elif ENABLED(OLED_PANEL_TINYBOY2)
@@ -461,7 +464,7 @@
   #define HAS_DGUS_LCD_CLASSIC 1
 #endif
 
-#if ANY(HAS_DGUS_LCD_CLASSIC, DGUS_LCD_UI_RELOADED)
+#if EITHER(HAS_DGUS_LCD_CLASSIC, DGUS_LCD_UI_RELOADED)
   #define HAS_DGUS_LCD 1
 #endif
 
@@ -665,6 +668,31 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+#if E_STEPPERS <= 7
+  #undef INVERT_E7_DIR
+  #if E_STEPPERS <= 6
+    #undef INVERT_E6_DIR
+    #if E_STEPPERS <= 5
+      #undef INVERT_E5_DIR
+      #if E_STEPPERS <= 4
+        #undef INVERT_E4_DIR
+        #if E_STEPPERS <= 3
+          #undef INVERT_E3_DIR
+          #if E_STEPPERS <= 2
+            #undef INVERT_E2_DIR
+            #if E_STEPPERS <= 1
+              #undef INVERT_E1_DIR
+              #if E_STEPPERS == 0
+                #undef INVERT_E0_DIR
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
+#endif
+
 /**
  * Number of Linear Axes (e.g., XYZIJKUVW)
  * All the logical axes except for the tool (E) axis
@@ -765,6 +793,9 @@
   #undef Y_MIN_POS
   #undef Y_MAX_POS
   #undef MANUAL_Y_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_Y
+  #undef MAX_SOFTWARE_ENDSTOP_Y
+  #undef SAFE_BED_LEVELING_START_Y
 #endif
 
 #if !HAS_Z_AXIS
@@ -782,6 +813,9 @@
   #undef Z_MIN_POS
   #undef Z_MAX_POS
   #undef MANUAL_Z_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_Z
+  #undef MAX_SOFTWARE_ENDSTOP_Z
+  #undef SAFE_BED_LEVELING_START_Z
 #endif
 
 #if !HAS_I_AXIS
@@ -796,6 +830,9 @@
   #undef I_MIN_POS
   #undef I_MAX_POS
   #undef MANUAL_I_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_I
+  #undef MAX_SOFTWARE_ENDSTOP_I
+  #undef SAFE_BED_LEVELING_START_I
 #endif
 
 #if !HAS_J_AXIS
@@ -810,6 +847,9 @@
   #undef J_MIN_POS
   #undef J_MAX_POS
   #undef MANUAL_J_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_J
+  #undef MAX_SOFTWARE_ENDSTOP_J
+  #undef SAFE_BED_LEVELING_START_J
 #endif
 
 #if !HAS_K_AXIS
@@ -824,6 +864,9 @@
   #undef K_MIN_POS
   #undef K_MAX_POS
   #undef MANUAL_K_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_K
+  #undef MAX_SOFTWARE_ENDSTOP_K
+  #undef SAFE_BED_LEVELING_START_K
 #endif
 
 #if !HAS_U_AXIS
@@ -838,6 +881,9 @@
   #undef U_MIN_POS
   #undef U_MAX_POS
   #undef MANUAL_U_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_U
+  #undef MAX_SOFTWARE_ENDSTOP_U
+  #undef SAFE_BED_LEVELING_START_U
 #endif
 
 #if !HAS_V_AXIS
@@ -852,6 +898,9 @@
   #undef V_MIN_POS
   #undef V_MAX_POS
   #undef MANUAL_V_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_V
+  #undef MAX_SOFTWARE_ENDSTOP_V
+  #undef SAFE_BED_LEVELING_START_V
 #endif
 
 #if !HAS_W_AXIS
@@ -866,6 +915,9 @@
   #undef W_MIN_POS
   #undef W_MAX_POS
   #undef MANUAL_W_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_W
+  #undef MAX_SOFTWARE_ENDSTOP_W
+  #undef SAFE_BED_LEVELING_START_W
 #endif
 
 #ifdef X2_DRIVER_TYPE
@@ -1046,9 +1098,12 @@
 #endif
 
 /**
- * Set a flag for any type of bed probe, including the paper-test
+ * Set flags for any form of bed probe
  */
-#if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE, MAGLEV4)
+#if ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, SOLENOID_PROBE, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
+  #define HAS_STOWABLE_PROBE 1
+#endif
+#if ANY(HAS_STOWABLE_PROBE, HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, BD_SENSOR, NOZZLE_AS_PROBE)
   #define HAS_BED_PROBE 1
 #endif
 
@@ -1206,13 +1261,13 @@
   #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, HAS_DELTA_SENSORLESS_PROBING)
     #define USES_Z_MIN_PROBE_PIN 1
   #endif
-  #if Z_HOME_TO_MIN && TERN1(USES_Z_MIN_PROBE_PIN, ENABLED(USE_PROBE_FOR_Z_HOMING))
+  #if Z_HOME_TO_MIN && (DISABLED(USES_Z_MIN_PROBE_PIN) || ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT
     #define Z_PROBE_LOW_POINT -5
   #endif
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
+  #if EITHER(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
@@ -1392,6 +1447,10 @@
   #define EXTRUDE_MINTEMP 170
 #endif
 
+#if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+  #define HAS_PID_DEBUG 1
+#endif
+
 /**
  * TFT Displays
  *
@@ -1427,7 +1486,7 @@
   #define TFT_DEFAULT_ORIENTATION 0
   #define TFT_RES_480x272
   #define TFT_INTERFACE_FSMC
-#elif ANY(MKS_ROBIN_TFT_V1_1R, LONGER_LK_TFT28)                               // ILI9328 or R61505
+#elif EITHER(MKS_ROBIN_TFT_V1_1R, LONGER_LK_TFT28)                            // ILI9328 or R61505
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
@@ -1463,8 +1522,13 @@
 #elif ENABLED(TFT_RES_1024x600)
   #define TFT_WIDTH  1024
   #define TFT_HEIGHT 600
-  #define GRAPHICAL_TFT_UPSCALE 6
-  #define TFT_PIXEL_OFFSET_X 120
+  #if ENABLED(TOUCH_SCREEN)
+    #define GRAPHICAL_TFT_UPSCALE 6
+    #define TFT_PIXEL_OFFSET_X 120
+  #else
+    #define GRAPHICAL_TFT_UPSCALE 8
+    #define TFT_PIXEL_OFFSET_X 0
+  #endif
 #endif
 
 // FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi|ltdc).h

@@ -23,8 +23,8 @@
 /**
  * Menu functions for ProUI
  * Author: Miguel A. Risco-Castillo
- * Version: 1.4.1
- * Date: 2022/04/14
+ * Version: 1.5.1
+ * Date: 2022/05/23
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -164,6 +164,17 @@ void onDrawChkbMenu(MenuItemClass* menuitem, int8_t line, bool checked) {
 void onDrawChkbMenu(MenuItemClass* menuitem, int8_t line) {
   const bool val = *(bool*)static_cast<MenuItemPtrClass*>(menuitem)->value;
   onDrawChkbMenu(menuitem, line, val);
+}
+
+void DrawItemEdit() {
+  switch (checkkey) {
+    case SetIntNoDraw:  if (MenuData.LiveUpdate) MenuData.LiveUpdate(); break;
+    case SetInt:
+    case SetPInt:       DWINUI::Draw_Signed_Int(HMI_data.Text_Color, HMI_data.Selected_Color, 4 , VALX, MBASE(CurrentMenu->line()) - 1, MenuData.Value); break;
+    case SetFloat:
+    case SetPFloat:     DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, MenuData.dp, VALX - MenuData.dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), MenuData.Value / POW(10, MenuData.dp)); break;
+    default: break;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -307,7 +318,7 @@ int8_t HMI_GetInt(const int32_t lo, const int32_t hi) {
       return 2;
     }
     LIMIT(MenuData.Value, lo, hi);
-    DWINUI::Draw_Signed_Int(HMI_data.Text_Color, HMI_data.Selected_Color, 4 , VALX, MBASE(CurrentMenu->line()) - 1, MenuData.Value);
+    DrawItemEdit();
     return 1;
   }
   return 0;
@@ -361,7 +372,7 @@ int8_t HMI_GetFloat(uint8_t dp, int32_t lo, int32_t hi) {
       return 2;
     }
     LIMIT(MenuData.Value, lo, hi);
-    DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, dp, VALX - dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), MenuData.Value / POW(10, dp));
+    DrawItemEdit();
     return 1;
   }
   return 0;
@@ -469,7 +480,7 @@ void MenuItemClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, 
 }
 
 void MenuItemClass::draw(int8_t line) {
-  if (line < 0 || line >= TROWS) return;
+  if (!WITHIN(line, 0, TROWS - 1)) return;
   if (onDraw != nullptr) (*onDraw)(this, line);
 };
 
@@ -547,6 +558,9 @@ void UpdateMenu(MenuClass* &menu) {
   menu->draw();
 }
 
-void ReDrawMenu() { if (CurrentMenu && checkkey==Menu) CurrentMenu->draw(); }
+void ReDrawMenu(const bool force/*=false*/) {
+  if (CurrentMenu && (force || checkkey == Menu)) CurrentMenu->draw();
+  if (force) DrawItemEdit();
+}
 
 #endif // DWIN_LCD_PROUI
