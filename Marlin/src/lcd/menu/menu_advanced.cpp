@@ -211,14 +211,14 @@ void menu_backlash();
 
   float raw_Kp, raw_Ki, raw_Kd; // place-holders for Kp, Ki and Kd edits
   #if ENABLED(PID_EXTRUSION_SCALING)
-    float raw_Kc, raw_Kf; // place-holders for Kc and Kf edits
+    float raw_Kc; // place-holders for Kc edits
+  #endif
+  #if ENABLED(PID_FAN_SCALING)
+    float raw_Kf; // place-holders for Kf edits
   #endif
 
   // Helpers for editing PID Kp, Ki, Kd, Kc & kF values
   // grab the PID value out of the temp variable; scale it (Ki, Kd); then update the PID driver
-  void copyPID_p(const int8_t e) {
-    SET_PID_PARAM(Kp, e, raw_Kp);
-  }
   void copy_and_scalePID_i(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
@@ -251,14 +251,6 @@ void menu_backlash();
         break;
     }
   }
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    void copyPID_c(const int8_t e) {
-      SET_PID_PARAM(Kc, e, raw_Kc);
-    }
-    void copyPID_f(const int8_t e) {
-      SET_PID_PARAM(Kf, e, raw_Kf);
-    }
-  #endif
 #endif
 
 #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU, MPC_AUTOTUNE_MENU, MPC_EDIT_MENU)
@@ -308,7 +300,7 @@ void menu_backlash();
         raw_Kp = _PID_Kp(N) \
         raw_Ki = unscalePID_i(_PID_Ki(N)); \
         raw_Kd = unscalePID_d(_PID_Kd(N)); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ copyPID_p(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ SET_PID_PARAM(Kp, N, raw_Kp); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
         EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
@@ -316,7 +308,7 @@ void menu_backlash();
         #define _PID_HOTEND_MENU_ITEMS(N) \
           __PID_HOTEND_MENU_ITEMS(N); \
           raw_Kc = _PID_Kc(N) \
-          EDIT_ITEM_N(float4, N, MSG_PID_C_E, &raw_Kc, 1, 9990, []{ copyPID_c(N); });)
+          EDIT_ITEM_N(float4, N, MSG_PID_C_E, &raw_Kc, 1, 9990, []{ SET_PID_PARAM(Kc, N, raw_Kc); });)
       #else
         #define _PID_HOTEND_MENU_ITEMS(N) __PID_HOTEND_MENU_ITEMS(N)
       #endif
@@ -324,8 +316,8 @@ void menu_backlash();
       #if ENABLED(PID_FAN_SCALING)
         #define _HOTEND_PID_EDIT_MENU_ITEMS(N) \
           _PID_HOTEND_MENU_ITEMS(N); \
-          raw_Kf = _PID_Kc(N) \
-          EDIT_ITEM_N(float4, N, MSG_PID_F_E, &raw_Kf, 1, 9990, []{ copyPID_f(N); }); \
+          raw_Kf = _PID_Kf(N) \
+          EDIT_ITEM_N(float4, N, MSG_PID_F_E, &raw_Kf, 1, 9990, []{ SET_PID_PARAM(Kf, N, raw_Kf); });
       #else
         #define _HOTEND_PID_EDIT_MENU_ITEMS(N) _PID_HOTEND_MENU_ITEMS(N)
       #endif
