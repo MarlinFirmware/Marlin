@@ -2008,11 +2008,11 @@ void MarlinSettings::postprocess() {
           #if ENABLED(PIDTEMP)
             if (!validating && !isnan(pidcf.Kp)) {
               // Scale PID values since EEPROM values are unscaled
-              PID_PARAM(Kp, e) = pidcf.Kp;
-              PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
-              PID_PARAM(Kd, e) = scalePID_d(pidcf.Kd);
-              TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = pidcf.Kc);
-              TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = pidcf.Kf);
+              _PID_Kp(e) = pidcf.Kp;
+              _PID_Ki(e) = scalePID_i(pidcf.Ki);
+              _PID_Kd(e) = scalePID_d(pidcf.Kd);
+              TERN_(PID_EXTRUSION_SCALING, _PID_Kc(e) = pidcf.Kc);
+              TERN_(PID_FAN_SCALING, _PID_Kf(e) = pidcf.Kf);
             }
           #endif
         }
@@ -3137,16 +3137,18 @@ void MarlinSettings::reset() {
         ;
         static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
       #endif
-      #define PID_DEFAULT(N,E) def##N[E]
+      #define RESET_PID_PARAM(F,E) PID_PARAM(F,E)
+      #define PID_DEFAULT(N,E)     def##N[E]
     #else
-      #define PID_DEFAULT(N,E) DEFAULT_##N
+      #define RESET_PID_PARAM(F,E) _PID_##F(E)
+      #define PID_DEFAULT(N,E)     DEFAULT_##N
     #endif
     HOTEND_LOOP() {
-      PID_PARAM(Kp, e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
-      PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
-      PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
-      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
-      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
+      RESET_PID_PARAM(Kp, e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
+      RESET_PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
+      RESET_PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
+      TERN_(PID_EXTRUSION_SCALING, RESET_PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
+      TERN_(PID_FAN_SCALING, RESET_PID_PARAM(Kf, e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
     }
   #endif
 
