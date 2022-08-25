@@ -133,6 +133,10 @@ Stepper stepper; // Singleton
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(I2S_STEPPER_STREAM)
+  #include "../HAL/ESP32/i2s.h"
+#endif
+
 // public:
 
 #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
