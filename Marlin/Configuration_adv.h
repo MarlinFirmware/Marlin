@@ -2042,17 +2042,7 @@
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
   //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
   //#define ALLOW_LOW_EJERK     // Allow a DEFAULT_EJERK value of <10. Recommended for direct drive hotends.
-#endif
-
-// @section I2S pin streaming
-
-/**
- * Use the I2S port to stream into shift registers as extended digital output ports.
- * (Supported on ESP32 boards.)
- */
-#define I2S_STEPPER_STREAM
-#if ENABLED(I2S_STEPPER_STREAM)
-  //#define I2S_STREAM_LIN_ADVANCE      // Experimental: allow LIN_ADVANCE with I2S_STEPPER_STREAM. LA performance degrades as the LA step rate increases above about 20kHz.
+  //#define EXPERIMENTAL_I2S_LA // Enable this option to permit I2S_STEPPER_STREAM. LA performance degrades as the LA step rate increases above about 20kHz.
 #endif
 
 // @section leveling

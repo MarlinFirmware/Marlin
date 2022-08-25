@@ -30,3 +30,8 @@
 #define BOARD_INFO_NAME "Rutilea ESP32"
 
 #include "pins_ESPA_common.h"
+
+//
+// I2S (steppers & other output-only pins)
+//
+#define I2S_STEPPER_STREAM
