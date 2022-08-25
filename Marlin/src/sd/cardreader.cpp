@@ -198,7 +198,7 @@ char *createFilename(char * const buffer, const dir_t &p) {
 //
 // Return 'true' if the item is a folder, G-code file or Binary file
 //
-bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)) {
+bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)) {
   //uint8_t pn0 = p.name[0];
 
   #if DISABLED(CUSTOM_FIRMWARE_UPLOAD)
@@ -280,13 +280,17 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
  * this can blow up the stack, so a 'depth' parameter would be a
  * good addition.
  */
-void CardReader::printListing(
-  SdFile parent, const char * const prepend
-  OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)
-  OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
-  OPTARG(TIMESTAMP_FILENAME_SUPPORT, const bool includeTimestamps/*=false*/)
+void CardReader::printListing(SdFile parent,  const char * const prepend, const uint8_t lsflags
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
+  const bool includeTime = TERN0(M20_TIMESTAMP_SUPPORT, TEST(lsflags, LS_TIMESTAMP));
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    const bool includeLong = TEST(lsflags, LS_LONG_FILENAME);
+  #endif
+  #if ENABLED(CUSTOM_FIRMWARE_UPLOAD)
+    const bool onlyBin = TEST(lsflags, LS_ONLY_BIN);
+  #endif
+  UNUSED(lsflags);
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
@@ -303,23 +307,17 @@ void CardReader::printListing(
       SdFile child; // child.close() in destructor
       if (child.open(&parent, dosFilename, O_READ)) {
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-          if (includeLongNames) {
-            size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
+          if (includeLong) {
+            const size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
             // Allocate enough stack space for the full long path including / separator
             char pathLong[lenPrependLong + strlen(longFilename) + 1];
             if (prependLong) { strcpy(pathLong, prependLong); pathLong[lenPrependLong - 1] = '/'; }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin),
-			    true OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps),
-			    pathLong);
+            printListing(child, path, lsflags, pathLong);
+            continue;
           }
-          else
-            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin)
-			    OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps));
-        #else
-          printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin)
-			  OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps));
         #endif
+        printListing(child, path, lsflags);
       }
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
@@ -331,22 +329,18 @@ void CardReader::printListing(
       SERIAL_ECHO(createFilename(filename, p));
       SERIAL_CHAR(' ');
       SERIAL_ECHO(p.fileSize);
-      #if ENABLED(TIMESTAMP_FILENAME_SUPPORT)
-        if (includeTimestamps) {
-		SERIAL_CHAR(' ');
-		uint16_t crmodDate = p.lastWriteDate;
-		uint16_t crmodTime = p.lastWriteTime;
-		if (crmodDate < p.creationDate || ( crmodDate == p.creationDate && crmodTime < p.creationTime )) {
-			crmodDate = p.creationDate;
-			crmodTime = p.creationTime;
-		}
-		SERIAL_ECHO("0x");
-		print_hex_word(crmodDate);
-		print_hex_word(crmodTime);
-	}
-      #endif
+      if (includeTime) {
+    		SERIAL_CHAR(' ');
+    		uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
+    		if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
+    			crmodDate = p.creationDate;
+    			crmodTime = p.creationTime;
+    		}
+    		SERIAL_ECHOPGM("0x", hex_word(crmodDate));
+    		print_hex_word(crmodTime);
+    	}
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        if (includeLongNames) {
+        if (includeLong) {
           SERIAL_CHAR(' ');
           if (prependLong) { SERIAL_ECHO(prependLong); SERIAL_CHAR('/'); }
           SERIAL_ECHO(longFilename[0] ? longFilename : filename);
@@ -360,22 +354,10 @@ void CardReader::printListing(
 //
 // List all files on the SD card
 //
-void CardReader::ls(
-  TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)
-  #if ENABLED(CUSTOM_FIRMWARE_UPLOAD) && ANY(LONG_FILENAME_HOST_SUPPORT, TIMESTAMP_FILENAME_SUPPORT)
-    ,
-  #endif
-  TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
-  #if BOTH(LONG_FILENAME_HOST_SUPPORT, TIMESTAMP_FILENAME_SUPPORT)
-    ,
-  #endif
-  TERN_(TIMESTAMP_FILENAME_SUPPORT, const bool includeTimestamps/*=false*/)
-) {
+void CardReader::ls(const uint8_t lsflags) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root, nullptr OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin)
-		    OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames)
-		    OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps));
+    printListing(root, nullptr, lsflags);
   }
 }
 
