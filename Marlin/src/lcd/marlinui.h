@@ -270,20 +270,19 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if LCD_BACKLIGHT_TIMEOUT
-    #define LCD_BKL_TIMEOUT_MIN 1u
-    #define LCD_BKL_TIMEOUT_MAX UINT16_MAX // Slightly more than 18 hours
-    static uint16_t lcd_backlight_timeout;
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
+    static constexpr uint8_t backlight_timeout_min = 0;
+    static constexpr uint8_t backlight_timeout_max = 99;
+    static uint8_t backlight_timeout_minutes;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
   #elif HAS_DISPLAY_SLEEP
-    #define SLEEP_TIMEOUT_MIN 0
-    #define SLEEP_TIMEOUT_MAX 99
+    static constexpr uint8_t sleep_timeout_min = 0;
+    static constexpr uint8_t sleep_timeout_max = 99;
     static uint8_t sleep_timeout_minutes;
     static millis_t screen_timeout_millis;
     static void refresh_screen_timeout();
-    static void sleep_on();
-    static void sleep_off();
+    static void sleep_display(const bool sleep=true);
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
