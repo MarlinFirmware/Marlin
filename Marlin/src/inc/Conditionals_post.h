@@ -3306,7 +3306,15 @@
 #endif
 
 #if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC)
-  #ifdef PREHEAT_6_LABEL
+  #ifdef PREHEAT_10_LABEL
+    #define PREHEAT_COUNT 10
+  #elif defined(PREHEAT_9_LABEL)
+    #define PREHEAT_COUNT 9
+  #elif defined(PREHEAT_8_LABEL)
+    #define PREHEAT_COUNT 8
+  #elif defined(PREHEAT_7_LABEL)
+    #define PREHEAT_COUNT 7
+  #elif defined(PREHEAT_6_LABEL)
     #define PREHEAT_COUNT 6
   #elif defined(PREHEAT_5_LABEL)
     #define PREHEAT_COUNT 5
