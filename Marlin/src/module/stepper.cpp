@@ -2468,7 +2468,8 @@ uint32_t Stepper::block_phase_isr() {
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
     la_delta_error += la_dividend;
-    if (la_delta_error >= 0) {
+    const bool step_needed = la_delta_error >= 0;
+    if (step_needed) {
       count_position.e += count_direction.e;
       la_advance_steps += count_direction.e;
       la_delta_error -= advance_divisor;
@@ -2480,7 +2481,13 @@ uint32_t Stepper::block_phase_isr() {
         E_STEP_WRITE(stepper_extruder, !INVERT_E_STEP_PIN);
       #endif
 
-      TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
+    #if ENABLED(I2S_STEPPER_STREAM)
+      }
+
+      i2s_push_sample();
+
+      if (step_needed) {
+    #endif
 
       // Enforce a minimum duration for STEP pulse ON
       #if ISR_PULSE_CONTROL

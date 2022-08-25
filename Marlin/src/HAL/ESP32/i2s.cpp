@@ -139,36 +139,43 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
 }
 
 void stepperTask(void *parameter) {
-  int32_t nextMainISR = 0;
-  TERN_(LIN_ADVANCE, int32_t nextAdvanceISR = Stepper::LA_ADV_NEVER);
+  uint32_t nextMainISR = 0;
+  TERN_(LIN_ADVANCE, uint32_t nextAdvanceISR = Stepper::LA_ADV_NEVER);
 
   while (1) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
     while (dma.rw_pos < DMA_SAMPLE_COUNT) {
-      nextMainISR--;
-      TERN_(LIN_ADVANCE, nextAdvanceISR--);
-
       // Fill with the port data post pulse_phase until the next step
-      if (nextMainISR > 0 && TERN1(LIN_ADVANCE, nextAdvanceISR > 0))
+      if (nextMainISR && TERN1(LIN_ADVANCE, nextAdvanceISR))
         i2s_push_sample();
 
       // i2s_push_sample() is also called from Stepper::pulse_phase_isr() and Stepper::advance_isr()
-      else if (nextMainISR <= 0) {
-        Stepper::pulse_phase_isr();
-        nextMainISR += Stepper::block_phase_isr();
-      }
+      // in a rare case where both are called, we need to double decrement the counters
+      const uint8_t push_count = !nextMainISR && TERN0(LIN_ADVANCE, !nextAdvanceISR) ? 2 : 1;
 
       #if ENABLED(LIN_ADVANCE)
-        else if (nextAdvanceISR <= 0) {
+        if (!nextAdvanceISR) {
           Stepper::advance_isr();
-          nextAdvanceISR += Stepper::la_interval;
+          nextAdvanceISR = Stepper::la_interval;
         }
-
-        if (nextAdvanceISR == Stepper::LA_ADV_NEVER)
+        else if (nextAdvanceISR == Stepper::LA_ADV_NEVER)
           nextAdvanceISR = Stepper::la_interval;
       #endif
+
+      if (!nextMainISR) {
+        Stepper::pulse_phase_isr();
+        nextMainISR = Stepper::block_phase_isr();
+      }
+
+      LOOP_L_N(i, push_count) {
+        nextMainISR--;
+        #if ENABLED(LIN_ADVANCE)
+          if (nextAdvanceISR != Stepper::LA_ADV_NEVER)
+            nextAdvanceISR--;
+        #endif
+      }
     }
   }
 }
