@@ -29,6 +29,7 @@
 #include "cardreader.h"
 
 #include "../MarlinCore.h"
+#include "../libs/hex_print.h"
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -283,6 +284,7 @@ void CardReader::printListing(
   SdFile parent, const char * const prepend
   OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+  OPTARG(TIMESTAMP_FILENAME_SUPPORT, const bool includeTimestamps/*=false*/)
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
   dir_t p;
@@ -307,12 +309,16 @@ void CardReader::printListing(
             char pathLong[lenPrependLong + strlen(longFilename) + 1];
             if (prependLong) { strcpy(pathLong, prependLong); pathLong[lenPrependLong - 1] = '/'; }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin), true, pathLong);
+            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin),
+			    true OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps),
+			    pathLong);
           }
           else
-            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin));
+            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin)
+			    OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps));
         #else
-          printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin));
+          printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin)
+			  OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps));
         #endif
       }
       else {
@@ -325,6 +331,20 @@ void CardReader::printListing(
       SERIAL_ECHO(createFilename(filename, p));
       SERIAL_CHAR(' ');
       SERIAL_ECHO(p.fileSize);
+      #if ENABLED(TIMESTAMP_FILENAME_SUPPORT)
+        if (includeTimestamps) {
+		SERIAL_CHAR(' ');
+		uint16_t crmodDate = p.lastWriteDate;
+		uint16_t crmodTime = p.lastWriteTime;
+		if (crmodDate < p.creationDate || ( crmodDate == p.creationDate && crmodTime < p.creationTime )) {
+			crmodDate = p.creationDate;
+			crmodTime = p.creationTime;
+		}
+		SERIAL_ECHO("0x");
+		print_hex_word(crmodDate);
+		print_hex_word(crmodTime);
+	}
+      #endif
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
         if (includeLongNames) {
           SERIAL_CHAR(' ');
@@ -342,14 +362,20 @@ void CardReader::printListing(
 //
 void CardReader::ls(
   TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)
-  #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
+  #if ENABLED(CUSTOM_FIRMWARE_UPLOAD) && ANY(LONG_FILENAME_HOST_SUPPORT, TIMESTAMP_FILENAME_SUPPORT)
     ,
   #endif
   TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+  #if BOTH(LONG_FILENAME_HOST_SUPPORT, TIMESTAMP_FILENAME_SUPPORT)
+    ,
+  #endif
+  TERN_(TIMESTAMP_FILENAME_SUPPORT, const bool includeTimestamps/*=false*/)
 ) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root, nullptr OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin) OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
+    printListing(root, nullptr OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin)
+		    OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames)
+		    OPTARG(TIMESTAMP_FILENAME_SUPPORT, includeTimestamps));
   }
 }
 

@@ -209,10 +209,14 @@ public:
 
   static void ls(
     TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
-    #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
+    #if ENABLED(CUSTOM_FIRMWARE_UPLOAD) && ANY(LONG_FILENAME_HOST_SUPPORT, TIMESTAMP_FILENAME_SUPPORT)
       ,
     #endif
     TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
+    #if BOTH(LONG_FILENAME_HOST_SUPPORT, TIMESTAMP_FILENAME_SUPPORT)
+      ,
+    #endif
+    TERN_(TIMESTAMP_FILENAME_SUPPORT, const bool includeTimestamps=false)
   );
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -352,6 +356,7 @@ private:
     SdFile parent, const char * const prepend
     OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
+    OPTARG(TIMESTAMP_FILENAME_SUPPORT, const bool includeTimestamps=false)
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
 
