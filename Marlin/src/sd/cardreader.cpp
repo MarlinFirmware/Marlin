@@ -283,7 +283,7 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
 void CardReader::printListing(SdFile parent,  const char * const prepend, const uint8_t lsflags
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
-  const bool includeTime = TERN0(M20_TIMESTAMP_SUPPORT, TEST(lsflags, LS_TIMESTAMP);
+  const bool includeTime = TERN0(M20_TIMESTAMP_SUPPORT, TEST(lsflags, LS_TIMESTAMP));
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     const bool includeLong = TEST(lsflags, LS_LONG_FILENAME);
   #endif
