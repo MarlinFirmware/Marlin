@@ -89,11 +89,7 @@ typedef struct {
     ;
 } card_flags_t;
 
-enum ListingFlags : uint8_t {
-  LS_LONG_FILENAME = _BV(0),
-  LS_ONLY_BIN      = _BV(1),
-  LS_TIMESTAMP     = _BV(2)
-};
+enum ListingFlags : uint8_t { LS_LONG_FILENAME, LS_ONLY_BIN, LS_TIMESTAMP };
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
   #include "../libs/autoreport.h"
