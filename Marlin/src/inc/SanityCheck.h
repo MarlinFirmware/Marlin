@@ -2276,7 +2276,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Redundant temperature sensor config
  */
 #if HAS_TEMP_REDUNDANT
-  #if !defined(TEMP_SENSOR_REDUNDANT_SOURCE)
+  #ifndef TEMP_SENSOR_REDUNDANT_SOURCE
     #error "TEMP_SENSOR_REDUNDANT requires TEMP_SENSOR_REDUNDANT_SOURCE."
   #elif !defined(TEMP_SENSOR_REDUNDANT_TARGET)
     #error "TEMP_SENSOR_REDUNDANT requires TEMP_SENSOR_REDUNDANT_TARGET."
@@ -2984,7 +2984,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
-  #if !defined(BEEPER_PIN)
+  #ifndef BEEPER_PIN
     #error "ANYCUBIC_LCD_CHIRON requires BEEPER_PIN"
   #elif DISABLED(SDSUPPORT)
     #error "ANYCUBIC_LCD_CHIRON requires SDSUPPORT"

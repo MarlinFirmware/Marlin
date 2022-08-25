@@ -29,7 +29,9 @@
   #error "MKS Robin nano boards support up to 2 hotends / E steppers."
 #endif
 
-#define BOARD_NO_NATIVE_USB
+#ifndef USB_MOD
+  #define BOARD_NO_NATIVE_USB
+#endif
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
 #define TEMP_TIMER  5
@@ -58,9 +60,14 @@
 // Limit Switches
 //
 #define X_STOP_PIN                          PA15
-#define Y_STOP_PIN                          PA12
-#define Z_MIN_PIN                           PA11
 #define Z_MAX_PIN                           PC4
+#ifndef USB_MOD
+  #define Y_STOP_PIN                        PA12
+  #define Z_MIN_PIN                         PA11
+#else
+  #define Y_STOP_PIN                        PB10
+  #define Z_MIN_PIN                         PB11
+#endif
 
 //
 // Steppers
