@@ -151,7 +151,7 @@ void stepperTask(void *parameter) {
       TERN_(LIN_ADVANCE, nextAdvanceISR--);
 
       // Fill with the port data post pulse_phase until the next step
-      if (nextMainISR > 0 && nextAdvanceISR > 0)
+      if (nextMainISR > 0 && TERN1(LIN_ADVANCE, nextAdvanceISR > 0))
         i2s_push_sample();
 
       // i2s_push_sample() is also called from Stepper::pulse_phase_isr() and Stepper::advance_isr()
