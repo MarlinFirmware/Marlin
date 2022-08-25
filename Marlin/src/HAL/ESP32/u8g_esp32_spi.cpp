@@ -33,11 +33,11 @@
 #include "SPI.h"
 
 #if ENABLED(SDSUPPORT)
-#include "../../sd/cardreader.h"
-#if ENABLED(ESP3D_WIFISUPPORT)
-#include "sd_ESP32.h"
-#endif // ESP3D_WIFISUPPORT
-#endif //SDSUPPORT
+  #include "../../sd/cardreader.h"
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    #include "sd_ESP32.h"
+  #endif
+#endif
 
 static SPISettings spiConfig;
 
@@ -52,20 +52,10 @@ static SPISettings spiConfig;
 
 uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
-  
-  
-#if ENABLED(MKS_MINI_12864_V3) && (MOTHERBOARD == BOARD_MKS_TINYBEE)
-#if ENABLED(SDSUPPORT)
-  if (card.flag.saving || card.flag.logging) {
-      return 0;
-  }
-#if ENABLED(ESP3D_WIFISUPPORT)
-  if (sd_busy_lock == true) {
-      return 0;
-  }
-#endif //ESP3D_WIFISUPPORT
-#endif //SDSUPPORT
-#endif //ENABLED(MKS_MINI_12864_V3)  && (MOTHERBOARD == BOARD_MKS_TINYBEE)
+
+  #if ENABLED(PAUSE_LCD_FOR_BUSY_SD)
+    if (card.flag.saving || card.flag.logging || TERN0(ESP3D_WIFISUPPORT, sd_busy_lock == true)) return 0;
+  #endif
 
   if (msgInitCount) {
     if (msg == U8G_COM_MSG_INIT) msgInitCount--;
