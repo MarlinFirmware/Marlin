@@ -61,8 +61,45 @@
   //
   // Software serial
   //
-
   #define TMC_BAUD_RATE 19200
+
+  #if HAS_TMC220x
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial1
+  //#define Y_HARDWARE_SERIAL  Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
+  //#define E1_HARDWARE_SERIAL Serial1
+
+  //
+  // Software serial
+  //
+
+  // #ifndef X_SERIAL_TX_PIN
+  //   #define X_SERIAL_TX_PIN  PA6 //E1_STEP_PIN
+  // #endif
+  // #ifndef X_SERIAL_RX_PIN
+  //   #define X_SERIAL_RX_PIN  PA1 //E1_DIR_PIN
+  // #endif
+
+  // #ifndef Y_SERIAL_TX_PIN
+  //   #define Y_SERIAL_TX_PIN  PA6 //E1_STEP_PIN
+  // #endif
+  // #ifndef Y_SERIAL_RX_PIN
+  //   #define Y_SERIAL_RX_PIN  PA1 //E1_DIR_PIN
+  // #endif
+
+  // #ifndef Z_SERIAL_TX_PIN
+  //   #define Z_SERIAL_TX_PIN  PA6 //E1_STEP_PIN
+  // #endif
+  // #ifndef Z_SERIAL_RX_PIN
+  //   #define Z_SERIAL_RX_PIN  PA1 //E1_DIR_PIN
+  // #endif
 
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN PA6 //E1_STEP_PIN
@@ -70,4 +107,6 @@
   #ifndef E0_SERIAL_RX_PIN
     #define E0_SERIAL_RX_PIN PA1 //E1_DIR_PIN
   #endif
+#endif
+
 #endif
