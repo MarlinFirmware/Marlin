@@ -707,9 +707,8 @@
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
-// Ender 3 Pro (but, apparently all Creality 4.2.2 boards)
-#if ENABLED(EMIT_CREALITY_422_WARNING) || MB(CREALITY_V4)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225)."
+#if ENABLED(EMIT_CREALITY_422_WARNING)
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225). (Define EMIT_CREALITY_422_WARNING false to suppress this warning.)"
 #endif
 
 #if PRINTCOUNTER_SYNC
