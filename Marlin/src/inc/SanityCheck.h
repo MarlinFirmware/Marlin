@@ -2040,6 +2040,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   );
 #endif
 
+#if ANY(Z_SENSORLESS, Z2_SENSORLESS, Z3_SENSORLESS, Z4_SENSORLESS)
+  #if DISABLED(Z_SENSORLESS) || (NUM_Z_STEPPERS > 1 && DISABLED(Z2_SENSORLESS)) || (NUM_Z_STEPPERS > 2 && DISABLED(Z3_SENSORLESS)) || (NUM_Z_STEPPERS > 3 && DISABLED(Z4_SENSORLESS))
+    #error "All installed Z stepper have to use SENSORLESS."
+  #endif
+#endif
+
 #ifdef SENSORLESS_BACKOFF_MM
   constexpr float sbm[] = SENSORLESS_BACKOFF_MM;
   static_assert(COUNT(sbm) == NUM_AXES, "SENSORLESS_BACKOFF_MM must have " _NUM_AXES_STR "elements (and no others).");

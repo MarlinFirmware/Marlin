@@ -505,21 +505,21 @@
       const int16_t value = parser.value_int();
       report = false;
       switch (i) {
-        #if X_SENSORLESS || X2_SENSORLESS
+        #if X_SENSORLESS
           case X_AXIS:
-            TERN_(X_SENSORLESS,  if (index < 2) stepperX.homing_threshold(value));
+            if (index < 2) stepperX.homing_threshold(value);
             TERN_(X2_SENSORLESS, if (!index || index == 2) stepperX2.homing_threshold(value));
             break;
         #endif
-        #if Y_SENSORLESS || Y2_SENSORLESS
+        #if Y_SENSORLESS
           case Y_AXIS:
-            TERN_(Y_SENSORLESS,  if (index < 2) stepperY.homing_threshold(value));
+            if (index < 2) stepperY.homing_threshold(value);
             TERN_(Y2_SENSORLESS, if (!index || index == 2) stepperY2.homing_threshold(value));
             break;
         #endif
-        #if Z_SENSORLESS || Z2_SENSORLESS || Z3_SENSORLESS || Z4_SENSORLESS
+        #if Z_SENSORLESS
           case Z_AXIS:
-            TERN_(Z_SENSORLESS,  if (index < 2) stepperZ.homing_threshold(value));
+            if (index < 2) stepperZ.homing_threshold(value);
             TERN_(Z2_SENSORLESS, if (!index || index == 2) stepperZ2.homing_threshold(value));
             TERN_(Z3_SENSORLESS, if (!index || index == 3) stepperZ3.homing_threshold(value));
             TERN_(Z4_SENSORLESS, if (!index || index == 4) stepperZ4.homing_threshold(value));
