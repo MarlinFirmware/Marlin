@@ -701,6 +701,8 @@
   #include "stm32f4/pins_ARTILLERY_RUBY.h"      // STM32F4                                env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
   #include "stm32f4/pins_CREALITY_V24S1_301F4.h" // STM32F4                               env:STM32F401RC_creality env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink
+#elif MB(FYSETC_SPIDER_KING407)
+  #include "stm32f4/pins_FYSETC_SPIDER_KING407.h"  // STM32F4                             env:FYSETC_SPIDER_KING407
 
 //
 // ARM Cortex M7
