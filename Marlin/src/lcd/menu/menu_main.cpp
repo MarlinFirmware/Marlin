@@ -222,6 +222,16 @@ void menu_configuration();
 
 #endif // CUSTOM_MENU_MAIN
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  // This menu item is last with an encoder. Otherwise, somewhere in the middle.
+  #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+    #define FILAMENT_CHANGE_ITEM() YESNO_ITEM(MSG_FILAMENTCHANGE, menu_change_filament, nullptr, \
+                                    GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?"))
+  #else
+    #define FILAMENT_CHANGE_ITEM() SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament)
+  #endif
+#endif
+
 void menu_main() {
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
@@ -317,15 +327,8 @@ void menu_main() {
     SUBMENU(MSG_MOTION, menu_motion);
   }
 
-  #if ENABLED(DISABLE_ENCODER) && ENABLED(ADVANCED_PAUSE_FEATURE)
-    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      YESNO_ITEM(MSG_FILAMENTCHANGE,
-        menu_change_filament, nullptr,
-        GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?")
-      );
-    #else
-      SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
-    #endif
+  #if BOTH(ADVANCED_PAUSE_FEATURE, DISABLE_ENCODER)
+    FILAMENT_CHANGE_ITEM();
   #endif
 
   #if HAS_CUTTER
@@ -335,7 +338,6 @@ void menu_main() {
   #if HAS_TEMPERATURE
     SUBMENU(MSG_TEMPERATURE, menu_temperature);
   #endif
-
 
   #if HAS_POWER_MONITOR
     SUBMENU(MSG_POWER_MONITOR, menu_power_monitor);
@@ -459,15 +461,8 @@ void menu_main() {
     });
   #endif
 
-  #if DISABLED(DISABLE_ENCODER) && ENABLED(ADVANCED_PAUSE_FEATURE)
-    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      YESNO_ITEM(MSG_FILAMENTCHANGE,
-        menu_change_filament, nullptr,
-        GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?")
-      );
-    #else
-      SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
-    #endif
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && DISABLED(DISABLE_ENCODER)
+    FILAMENT_CHANGE_ITEM();
   #endif
 
   END_MENU();
