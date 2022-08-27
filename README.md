@@ -1,27 +1,57 @@
-<p align="center"><img src="buildroot/share/pixmaps/logo/marlin-outrun-nf-500.png" height="250" alt="MarlinFirmware's logo" /></p>
+# Custom Marlin Firmware
 
-<h1 align="center">Marlin 3D Printer Firmware</h1>
+My personal build of Marlin. This fork contains the following customizations:
 
-<p align="center">
-    <a href="/LICENSE"><img alt="GPL-V3.0 License" src="https://img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/releases"><img alt="Last Release Date" src="https://img.shields.io/github/release-date/MarlinFirmware/Marlin"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/actions"><img alt="CI Status" src="https://github.com/MarlinFirmware/Marlin/actions/workflows/test-builds.yml/badge.svg"></a>
-    <a href="https://github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
-    <br />
-    <a href="https://twitter.com/MarlinFirmware"><img alt="Follow MarlinFirmware on Twitter" src="https://img.shields.io/twitter/follow/MarlinFirmware?style=social&logo=twitter"></a>
-</p>
+## Build setup for Ender 3 with SKR Mini E3 V2
+This fork is designed to compile and run on an Ender 3 Pro with a SKR Mini E3 V2 main board, and therefore must fit within the limited (256K) memory on the board.
+
+## Features Enabled:
+
+### Z-Probe Homing
+My printer is currently equipped with a Creatily CRTouch Z-probe. **THIS FIRMWARE HAS THE Z-MIN SWITCH DISABLED!!** If you are homing with a Z-MIN switch (e.g., the factory Z endstop switch), you will need to change this around line 788 in Configuration.h. This firmware is setup to perform Z homing roughly in the center of the bed via a BLTouch / CRTouch style Z-probe mounted with [this bracket](https://www.thingiverse.com/thing:3148733). It also has a default Z-offset from the probe of -2.34. This will need to be adjusted (even when you change nozzles), which can be done with the Z-offset wizard available under "Advanced Configuration" on the printer LCD screen.
+
+### Skew Correction
+As this fork represents my personal setup, **PLEASE NOTE THAT SKEW CORRECTION IS ENABLED!!** The skew correction factors set in the firmware are measurements from my personal printer. Skew correction can be disabled around line 1815 in Configuration.h, or you can measure your own skew correction factors by printing a calibration cube.
+
+## Filament Run-out Sensor
+This firmware is setup to use a filament runout sensor. If you do not have one, you will need to disable this feature either in the firmware or in the "Configuration" menu on the printer LCD screen.
+
+### Bilinear Bed Leveling
+This firmware enables 16-point bilinear automatic bed leveling (ABL), optimized for speed via BLTouch / CRTouch high-speed mode and relatively quick XYZ movements. Multiple probing is enabled, with each point being measure by a fast probe followed by a slow probe to help smooth out probing tolerances.
+
+### Custom Spodermen Boot Screen And Status Icon
+So Spodermen can supervise your prints.
+
+### Arc-Welder Support
+Support for G2/G3 Arc commands is enabled, enable this in your slicer or OctoPrint to take advantage of firmware-calculated arcs.
+
+### Power Loss Recovery
+Power loss recovery for SD prints is enabled. Support for UPS power loss recovery via the power loss pin is also available, and setup for an active-high power loss signal. To support this feature, Advanced Park is enabled. This means that you can also pause and resume your prints.
+
+### Junction Deviation and S-Curve Acceleration
+Junction deviation and S-Curve acceleration are enabled. Some users have reported issues with these features, but I haven't noticed any change in quality either way. In theory, these should improve the quality of prints.
+
+### Quick Home
+The quick home feature is enabled, allowing the printer to home the X and Y axes at the same time.
+
+### Other Features
+A number of other things have been enabled and/or tweaked, that I might get around to documenting later.
+
+# Marlin 3D Printer Firmware
+
+![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
+![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
+![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
+[![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
+
+<img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
 Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
-## Marlin 2.0 Bugfix Branch
-
-__Not for production use. Use with caution!__
+## Marlin 2.0
 
 Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
-
-This branch is for patches to the latest 2.0.x release version. Periodically this branch will form the basis for the next minor 2.0.x release.
 
 Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
 
@@ -31,24 +61,23 @@ Before building Marlin you'll need to configure it for your specific hardware. Y
 
 ## Building Marlin 2.0
 
-To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](https://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](https://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](https://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
+To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
 
-## Hardware Abstraction Layer (HAL)
-
-Marlin 2.0 introduces a layer of abstraction so that all the existing high-level code can be built for 32-bit platforms while still retaining full 8-bit AVR compatibility. Retaining AVR compatibility and a single code-base is important to us, because we want to make sure that features and patches get as much testing and attention as possible, and that all platforms always benefit from the latest improvements.
+  - [Installing Marlin (Arduino)](http://marlinfw.org/docs/basics/install_arduino.html)
+  - [Installing Marlin (VSCode)](http://marlinfw.org/docs/basics/install_platformio_vscode.html).
 
 ### Supported Platforms
 
   Platform|MCU|Example Boards
   --------|---|-------
   [Arduino AVR](https://www.arduino.cc/)|ATmega|RAMPS, Melzi, RAMBo
-  [Teensy++ 2.0](https://www.microchip.com/en-us/product/AT90USB1286)|AT90USB1286|Printrboard
+  [Teensy++ 2.0](http://www.microchip.com/wwwproducts/en/AT90USB1286)|AT90USB1286|Printrboard
   [Arduino Due](https://www.arduino.cc/en/Guide/ArduinoDue)|SAM3X8E|RAMPS-FD, RADDS, RAMPS4DUE
   [ESP32](https://github.com/espressif/arduino-esp32)|ESP32|FYSETC E4, E4d@BOX, MRR
-  [LPC1768](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100)|ARM® Cortex-M3|MKS SBASE, Re-ARM, Selena Compact
-  [LPC1769](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100)|ARM® Cortex-M3|Smoothieboard, Azteeg X5 mini, TH3D EZBoard
+  [LPC1768](http://www.nxp.com/products/microcontrollers-and-processors/arm-based-processors-and-mcus/lpc-cortex-m-mcus/lpc1700-cortex-m3/512kb-flash-64kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100)|ARM® Cortex-M3|MKS SBASE, Re-ARM, Selena Compact
+  [LPC1769](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512kb-flash-64kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100)|ARM® Cortex-M3|Smoothieboard, Azteeg X5 mini, TH3D EZBoard
   [STM32F103](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html)|ARM® Cortex-M3|Malyan M200, GTM32 Pro, MKS Robin, BTT SKR Mini
-  [STM32F401](https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html)|ARM® Cortex-M4|ARMED, Rumba32, SKR Pro, Lerdge, FYSETC S6, Artillery Ruby
+  [STM32F401](https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html)|ARM® Cortex-M4|ARMED, Rumba32, SKR Pro, Lerdge, FYSETC S6
   [STM32F7x6](https://www.st.com/en/microcontrollers-microprocessors/stm32f7x6.html)|ARM® Cortex-M7|The Borg, RemRam V1
   [SAMD51P20A](https://www.adafruit.com/product/4064)|ARM® Cortex-M4|Adafruit Grand Central M4
   [Teensy 3.5](https://www.pjrc.com/store/teensy35.html)|ARM® Cortex-M4|
@@ -57,27 +86,20 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
   [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)|ARM® Cortex-M7|
   Linux Native|x86/ARM/etc.|Raspberry Pi
 
-## Submitting Patches
+## Submitting Changes
 
-Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.0.x)) branch.
-
-- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.0.x life-cycle.
-- Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
-- Please submit Feature Requests and Bug Reports to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues/new/choose). Support resources are also listed there.
-- Whenever you add new features, be sure to add tests to `buildroot/tests` and then run your tests locally, if possible.
-  - It's optional: Running all the tests on Windows might take a long time, and they will run anyway on GitHub.
-  - If you're running the tests on Linux (or on WSL with the code on a Linux volume) the speed is much faster.
-  - You can use `make tests-all-local` or `make tests-single-local TEST_TARGET=...`.
-  - If you prefer Docker you can use `make tests-all-local-docker` or `make tests-all-local-docker TEST_TARGET=...`.
+- Submit **Bug Fixes** as Pull Requests to the ([bugfix-2.0.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.0.x)) branch.
+- Follow the [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
+- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues).
 
 ## Marlin Support
 
 The Issue Queue is reserved for Bug Reports and Feature Requests. To get help with configuration and troubleshooting, please use the following resources:
 
-- [Marlin Documentation](https://marlinfw.org) - Official Marlin documentation
+- [Marlin Documentation](http://marlinfw.org) - Official Marlin documentation
 - [Marlin Discord](https://discord.gg/n5NJ59y) - Discuss issues with Marlin users and developers
 - Facebook Group ["Marlin Firmware"](https://www.facebook.com/groups/1049718498464482/)
-- RepRap.org [Marlin Forum](https://forums.reprap.org/list.php?415)
+- RepRap.org [Marlin Forum](http://forums.reprap.org/list.php?415)
 - Facebook Group ["Marlin Firmware for 3D Printers"](https://www.facebook.com/groups/3Dtechtalk/)
 - [Marlin Configuration](https://www.youtube.com/results?search_query=marlin+configuration) on YouTube
 
@@ -89,16 +111,15 @@ Marlin is constantly improving thanks to a huge number of contributors from all 
 
 Regular users can open and close their own issues, but only the administrators can do project-related things like add labels, merge changes, set milestones, and kick trolls. The current Marlin admin team consists of:
 
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA - Project Maintainer &nbsp; [💸 Donate](https://www.thinkyhead.com/donate-to-marlin)
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA - Project Maintainer &nbsp; [![Donate](https://api.flattr.com/button/flattr-badge-large.png)](http://www.thinkyhead.com/donate-to-marlin)
  - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
- - Keith Bennett [[@thisiskeithb](https://github.com/thisiskeithb)] - USA &nbsp; [💸 Donate](https://github.com/sponsors/thisiskeithb)
- - Peter Ellens [[@ellensp](https://github.com/ellensp)] - New Zealand  &nbsp; [💸 Donate](https://ko-fi.com/ellensp)
+ - Keith Bennett [[@thisiskeithb](https://github.com/thisiskeithb)] - USA
  - Victor Oliveira [[@rhapsodyv](https://github.com/rhapsodyv)] - Brazil
  - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
  - Jason Smith [[@sjasonsmith](https://github.com/sjasonsmith)] - USA
  - Luu Lac [[@shitcreek](https://github.com/shitcreek)] - USA
  - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 ## License
 
