@@ -915,10 +915,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   // Cool down with fan
   inline void filament_swap_cooling() {
-    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
+    #if HAS_FAN
+      thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)] = toolchange_settings.fan_speed;
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+      thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)] = 0;
     #endif
   }
 
@@ -1033,9 +1033,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       const bool ok = TERN1(TOOLCHANGE_PARK, all_axes_homed() && toolchange_settings.enable_park);
 
-      #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+      #if HAS_FAN
         // Store and stop fan. Restored on any exit.
-        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+        REMEMBER(fan, thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)], 0);
       #endif
 
       // Z raise
@@ -1076,6 +1076,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
             const float temp = destination.z;
             destination = current_position;
             destination.z = temp;
+          #else
+            destination.e = current_position.e;
           #endif
           prepare_internal_move_to_destination(TERN(TOOLCHANGE_NO_RETURN, planner.settings.max_feedrate_mm_s[Z_AXIS], MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)));
         }
@@ -1173,13 +1175,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
+      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN)
         // Store and stop fan. Restored on any exit.
-        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+        REMEMBER(fan, thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)], 0);
       #endif
 
       // Z raise before retraction
-      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
+      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
@@ -1223,7 +1225,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
-      #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
+      #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
@@ -1233,7 +1235,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Toolchange park
-      #if ENABLED(TOOLCHANGE_PARK) && DISABLED(SWITCHING_NOZZLE)
+      #if ENABLED(TOOLCHANGE_PARK)
         if (can_move_away && toolchange_settings.enable_park) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
@@ -1362,7 +1364,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             extruder_cutting_recover(0); // New extruder primed and set to 0
 
             // Restart Fan
-            #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+            #if HAS_FAN
               RESTORE(fan);
             #endif
           }

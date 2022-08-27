@@ -3258,6 +3258,8 @@
  * *** CAUTION ***
  *
  * LED Type. Enable only one of the following two options.
+ * Require PWM frequency between 50 <> 100hz (Check hal or variant settings)
+ * Use FAST_PWM_FAN if possible, fans can be noisy.
  */
 //#define RGB_LED
 //#define RGBW_LED
@@ -3267,6 +3269,8 @@
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35
   //#define RGB_LED_W_PIN -1
+  #define RGB_STARTUP_ANIMATION // If pwm pins, fade between all colors if not only switch.
+  #define RGB_STARTUP_ANIM_SLOWING_MS 10 // (ms) Reduce or increase fading speed.
 #endif
 
 // Support for Adafruit NeoPixel LED driver

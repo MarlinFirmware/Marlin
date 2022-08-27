@@ -873,6 +873,9 @@
 
 //#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
+#if ENABLED(HOME_Y_BEFORE_X)
+  #define OPPOSITE_AXIS_BACKOFF_MM  10      // (linear=mm, rotational=°) Backoff X before Y homing or inverse (prevent colision with opposite axis endstop)
+#endif
 //#define HOME_Z_FIRST                        // Home Z first. Requires a Z-MIN endstop (not a probe).
 //#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
 
@@ -2524,6 +2527,7 @@
 
     // Cool after prime to reduce stringing
     #define TOOLCHANGE_FS_FAN                 -1  // Fan index or -1 to skip
+    #define TOOLCHANGE_ACTIVE_TOOL_FAN            //Active extruder fan activation, override TOOLCHANGE_FAN_FS
     #define TOOLCHANGE_FS_FAN_SPEED          255  // 0-255
     #define TOOLCHANGE_FS_FAN_TIME            10  // (seconds)
 

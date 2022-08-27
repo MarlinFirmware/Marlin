@@ -1994,6 +1994,17 @@ void prepare_line_to_destination() {
       }
     #endif
 
+    //
+    // Back away to prevent opposite endstop damage
+    //
+    #if !defined(SENSORLESS_BACKOFF_MM) && defined(OPPOSITE_AXIS_BACKOFF_MM)
+      if (axis == Y_AXIS || axis == X_AXIS ){
+       const AxisEnum opposite_axis = axis == Y_AXIS ? X_AXIS : Y_AXIS ;
+       const float backoff_length = -ABS(OPPOSITE_AXIS_BACKOFF_MM) * home_dir(opposite_axis);
+       do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
+      }
+    #endif
+
     // Determine if a homing bump will be done and the bumps distance
     // When homing Z with probe respect probe clearance
     const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(axis));
