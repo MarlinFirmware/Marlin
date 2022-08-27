@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V86"
+#define EEPROM_VERSION "V87"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -2876,6 +2876,7 @@ void MarlinSettings::reset() {
       toolchange_settings.unretract_speed = TOOLCHANGE_FS_UNRETRACT_SPEED;
       toolchange_settings.extra_prime     = TOOLCHANGE_FS_EXTRA_PRIME;
       toolchange_settings.prime_speed     = TOOLCHANGE_FS_PRIME_SPEED;
+      toolchange_settings.wipe_retract    = TOOLCHANGE_FS_WIPE_RETRACT;
       toolchange_settings.fan_speed       = TOOLCHANGE_FS_FAN_SPEED;
       toolchange_settings.fan_time        = TOOLCHANGE_FS_FAN_TIME;
     #endif
