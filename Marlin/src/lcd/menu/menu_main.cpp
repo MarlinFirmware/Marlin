@@ -317,15 +317,7 @@ void menu_main() {
     SUBMENU(MSG_MOTION, menu_motion);
   }
 
-  #if HAS_CUTTER
-    SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
-  #endif
-
-  #if HAS_TEMPERATURE
-    SUBMENU(MSG_TEMPERATURE, menu_temperature);
-  #endif
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(DISABLE_ENCODER) && ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
         menu_change_filament, nullptr,
@@ -335,6 +327,15 @@ void menu_main() {
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
   #endif
+
+  #if HAS_CUTTER
+    SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
+  #endif
+
+  #if HAS_TEMPERATURE
+    SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #endif
+
 
   #if HAS_POWER_MONITOR
     SUBMENU(MSG_POWER_MONITOR, menu_power_monitor);
@@ -456,6 +457,17 @@ void menu_main() {
         GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
       );
     });
+  #endif
+
+  #if DISABLED(DISABLE_ENCODER) && ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      YESNO_ITEM(MSG_FILAMENTCHANGE,
+        menu_change_filament, nullptr,
+        GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?")
+      );
+    #else
+      SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
+    #endif
   #endif
 
   END_MENU();
