@@ -1166,7 +1166,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
     const bool can_move_away = !no_move && !idex_full_control;
 
-    if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)  || TERN_(TOOLCHANGE_FS_PRIME_FIRST_USED, can_prime_T0)) { // PARKING_EXTRUDER may need to attach old_tool when homing
+    if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked) || TERN0(TOOLCHANGE_FS_PRIME_FIRST_USED, can_prime_T0)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
       #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN)
