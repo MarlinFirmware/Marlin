@@ -53,8 +53,13 @@ if pioutil.is_pio_build():
     #
     if 'rename' in board_keys:
 
+        # If FIRMWARE_BIN is defined by config, override all
+        mf = env["MARLIN_FEATURES"]
+        if "FIRMWARE_BIN" in mf: new_name = mf["FIRMWARE_BIN"]
+        else: new_name = board.get("build.rename")
+
         def rename_target(source, target, env):
             from pathlib import Path
-            Path(target[0].path).replace(Path(target[0].dir.path, board.get("build.rename")))
+            Path(target[0].path).replace(Path(target[0].dir.path, new_name))
 
         marlin.add_post_action(rename_target)
