@@ -632,12 +632,12 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
   #elif IS_SCARA
 
     // If Z needs to raise, do it before moving XY
-    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f)); }
+    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
 
     destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate OPTARG(HAS_ROTATIONAL_AXES, xy_feedrate));
 
     // If Z needs to lower, do it after moving XY
-    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate OPTARG(HAS_ROTATIONAL_AXES, 0.0f)); }
+    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
 
   #else
 
@@ -719,7 +719,7 @@ void do_blocking_move_to_x(const_float_t rx
     NUM_AXIS_LIST(rx, current_position.y, current_position.z,
                   current_position.i, current_position.j, current_position.k,
                   current_position.u, current_position.v, current_position.w)
-    OPTARG(HAS_ROTATIONAL_AXES, fr_mm_s), fr_mm_s
+    OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
   );
 }
 
@@ -729,7 +729,7 @@ void do_blocking_move_to_x(const_float_t rx
       NUM_AXIS_LIST(current_position.x, ry, current_position.z,
                     current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_mm_s), fr_mm_s
+      OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
     );
   }
 #endif
@@ -852,7 +852,7 @@ void do_blocking_move_to_x(const_float_t rx
       NUM_AXIS_LIST(rx, ry, current_position.z,
                     current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_mm_s), fr_mm_s
+      OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
     );
   }
   void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
@@ -866,7 +866,7 @@ void do_blocking_move_to_x(const_float_t rx
       NUM_AXIS_LIST(raw.x, raw.y, z,
                     current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_mm_s), fr_mm_s
+      OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
     );
   }
   void do_z_clearance(const_float_t zclear, const bool lower_allowed/*=false*/) {
