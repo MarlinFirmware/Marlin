@@ -547,6 +547,7 @@ void CardReader::release() {
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
     nrFiles = 0;
   #endif
+  SERIAL_ECHO_MSG(STR_SD_CARD_RELEASED);
 }
 
 /**
