@@ -642,7 +642,10 @@ void announceOpen(const uint8_t doing, const char * const path) {
 //   - 2 : Resuming from a sub-procedure
 //
 void CardReader::openFileRead(const char * const path, const uint8_t subcall_type/*=0*/) {
-  if (!isMounted()) return;
+  if (!isMounted()) {
+	  openFailed(path);
+	  return;
+  }
 
   switch (subcall_type) {
     case 0:      // Starting a new print. "Now fresh file: ..."
@@ -684,7 +687,10 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 
   SdFile *diveDir;
   const char * const fname = diveToFile(true, diveDir, path);
-  if (!fname) return;
+  if (!fname) {
+	  openFailed(path);
+	  return;
+  }
 
   if (file.open(diveDir, fname, O_READ)) {
     filesize = file.fileSize();
