@@ -1214,7 +1214,7 @@
  *      - normally-open switches to 5V and D32.
  */
 // #define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default
-#define HAS_PIN_27_BOARD
+// #define HAS_PIN_27_BOARD
 /**
  * Probe Type
  *
@@ -1606,7 +1606,7 @@
  */
 
 // Min software endstops constrain movement within minimum coordinate bounds
-// #define MIN_SOFTWARE_ENDSTOPS
+#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
@@ -1889,7 +1889,7 @@
 #define LCD_BED_TRAMMING
 
 #if ENABLED(LCD_BED_TRAMMING)
-  #define BED_TRAMMING_INSET_LFRB { 30, 30, 60, 30 } // (mm) Left, Front, Right, Back insets
+  #define BED_TRAMMING_INSET_LFRB { 50, 50, 70, 50 } // (mm) Left, Front, Right, Back insets
   #define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at leveling points
   #define BED_TRAMMING_Z_HOP       4.0        // (mm) Z height of nozzle between leveling points
   //#define BED_TRAMMING_INCLUDE_CENTER       // Move to the center after the last corner
