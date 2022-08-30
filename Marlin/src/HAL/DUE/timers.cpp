@@ -89,10 +89,17 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   NVIC_SetPriority(irq, timer_config[timer_num].priority);
 
   // wave mode, reset counter on match with RC,
-  TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
+  TC_Configure(tc, channel,
+      TC_CMR_WAVE
+    | TC_CMR_WAVSEL_UP_RC
+    | (HAL_TIMER_PRESCALER ==   2 ? TC_CMR_TCCLKS_TIMER_CLOCK1 : 0)
+    | (HAL_TIMER_PRESCALER ==   8 ? TC_CMR_TCCLKS_TIMER_CLOCK2 : 0)
+    | (HAL_TIMER_PRESCALER ==  32 ? TC_CMR_TCCLKS_TIMER_CLOCK3 : 0)
+    | (HAL_TIMER_PRESCALER == 128 ? TC_CMR_TCCLKS_TIMER_CLOCK4 : 0)
+  );
 
   // Set compare value
-  TC_SetRC(tc, channel, VARIANT_MCK / 2 / frequency);
+  TC_SetRC(tc, channel, VARIANT_MCK / (HAL_TIMER_PRESCALER) / frequency);
 
   // And start timer
   TC_Start(tc, channel);

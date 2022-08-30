@@ -63,7 +63,6 @@ namespace Language_vi {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Chiều cao mờ dần");                     // Fade Height
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Đặt bù đắp nhà");                       // Set home offsets
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Bù đắp được áp dụng");                  // Offsets applied
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Đặt nguồn gốc");                        // Set origin
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat
@@ -199,6 +198,7 @@ namespace Language_vi {
   LSTR MSG_MOVE_X                         = _UxGT("Di chuyển X");                          // Move X
   LSTR MSG_MOVE_Y                         = _UxGT("Di chuyển Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Di chuyển Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Di chuyển @");
   LSTR MSG_MOVE_E                         = _UxGT("Máy đùn");                              // Extruder
   LSTR MSG_MOVE_EN                        = _UxGT("Máy đùn *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Đầu nóng quá lạnh");                    // Hotend too cold
@@ -231,19 +231,15 @@ namespace Language_vi {
   LSTR MSG_VA_JERK                        = _UxGT("Giật-V") STR_A;
   LSTR MSG_VB_JERK                        = _UxGT("Giật-V") STR_B;
   LSTR MSG_VC_JERK                        = _UxGT("Giật-V") STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("Giật-V") STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("Giật-V") STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("Giật-V") STR_K;
+  LSTR MSG_VN_JERK                        = _UxGT("Giật-V@");
   LSTR MSG_VE_JERK                        = _UxGT("Giật-Ve");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Độ Lệch Chỗ Giao");                    // Junction Dev
-  LSTR MSG_VELOCITY                       = _UxGT("Vận tốc");                              // velocity
+  LSTR MSG_MAX_SPEED                      = _UxGT("Vận tốc");                              // velocity
   LSTR MSG_VMAX_A                         = _UxGT("Vđa") STR_A;                        // Vmax
   LSTR MSG_VMAX_B                         = _UxGT("Vđa") STR_B;
   LSTR MSG_VMAX_C                         = _UxGT("Vđa") STR_C;
-  LSTR MSG_VMAX_I                         = _UxGT("Vđa") STR_I;
-  LSTR MSG_VMAX_J                         = _UxGT("Vđa") STR_J;
-  LSTR MSG_VMAX_K                         = _UxGT("Vđa") STR_K;
-  LSTR MSG_VMAX_E                         = _UxGT("Vđa") STR_E;
+  LSTR MSG_VMAX_N                         = _UxGT("Vđa@");
+  LSTR MSG_VMAX_E                         = _UxGT("VđaE");
   LSTR MSG_VMAX_EN                        = _UxGT("Vđa *");
   LSTR MSG_VMIN                           = _UxGT("Vthiểu");                               // Vmin
   LSTR MSG_VTRAV_MIN                      = _UxGT("Vchuyển thiểu");                        // VTrav min
@@ -251,10 +247,8 @@ namespace Language_vi {
   LSTR MSG_AMAX_A                         = _UxGT("Tăng tốc ca") STR_A;                // Amax
   LSTR MSG_AMAX_B                         = _UxGT("Tăng tốc ca") STR_B;
   LSTR MSG_AMAX_C                         = _UxGT("Tăng tốc ca") STR_C;
-  LSTR MSG_AMAX_I                         = _UxGT("Tăng tốc ca") STR_I;                // Amax
-  LSTR MSG_AMAX_J                         = _UxGT("Tăng tốc ca") STR_J;
-  LSTR MSG_AMAX_K                         = _UxGT("Tăng tốc ca") STR_K;
-  LSTR MSG_AMAX_E                         = _UxGT("Tăng tốc ca") STR_E;
+  LSTR MSG_AMAX_N                         = _UxGT("Tăng tốc ca@");
+  LSTR MSG_AMAX_E                         = _UxGT("Tăng tốc caE");
   LSTR MSG_AMAX_EN                        = _UxGT("Tăng tốc ca *");
   LSTR MSG_A_RETRACT                      = _UxGT("TT-Rút");                               // A-retract
   LSTR MSG_A_TRAVEL                       = _UxGT("TT-Chuyển");                            // A-travel
@@ -262,9 +256,7 @@ namespace Language_vi {
   LSTR MSG_A_STEPS                        = _UxGT("Bước") STR_A _UxGT("/mm");          // Steps/mm
   LSTR MSG_B_STEPS                        = _UxGT("Bước") STR_B _UxGT("/mm");
   LSTR MSG_C_STEPS                        = _UxGT("Bước") STR_C _UxGT("/mm");
-  LSTR MSG_I_STEPS                        = _UxGT("Bước") STR_I _UxGT("/mm");          // Steps/mm
-  LSTR MSG_J_STEPS                        = _UxGT("Bước") STR_J _UxGT("/mm");
-  LSTR MSG_K_STEPS                        = _UxGT("Bước") STR_K _UxGT("/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("Bước@/mm");
   LSTR MSG_E_STEPS                        = _UxGT("BướcE/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("Bước */mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Nhiệt độ");                             // Temperature
@@ -340,6 +332,7 @@ namespace Language_vi {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Nhít X");                               // Babystep X
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Nhít Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Nhít Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Nhít @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Hủy bỏ công tắc");                      // Endstop abort
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Sưởi đầu phun không thành công");       // Heating failed
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Điều sai: nhiệt độ dư");                // Err: REDUNDANT TEMP
@@ -363,8 +356,6 @@ namespace Language_vi {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Chỉnh Z Center");                       // Calibrate Center
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Cài Đặt Delta");                        // Delta Settings
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Cân Chỉnh Tự Động");                    // Auto Calibration
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Đặt Chiều Cao Delta");                  // Set Delta Height
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Đầu Dò Z-Bù Đắp");                      // Probe Z-offset
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Gậy Chéo");                             // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Chiều Cao");                            // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Bán Kính");                             // Radius
@@ -400,13 +391,7 @@ namespace Language_vi {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Nhiệt độ tối đa");                      // Max temp
   LSTR MSG_INFO_PSU                       = _UxGT("Bộ nguồn");                             // PSU
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Sức mạnh ổ đĩa");                       // Drive Strength
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" % trình điều khiển");        // X Driver %
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" % trình điều khiển");
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" % trình điều khiển");
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" % trình điều khiển");
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" % trình điều khiển");
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" % trình điều khiển");
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E % trình điều khiển");
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ % trình điều khiển");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Ghi DAC EEPROM");                       // DAC EEPROM Write
   LSTR MSG_FILAMENT_CHANGE_HEADER_PAUSE   = _UxGT("In tạm dừng");                          // PRINT PAUSED
   LSTR MSG_FILAMENT_CHANGE_HEADER_LOAD    = _UxGT("Nạp dây nhựa");

@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
-  #error "Azteeg X3 Pro supports up to 5 hotends / E-steppers. Comment out this line to continue."
+  #error "Azteeg X3 Pro supports up to 5 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Azteeg X3 Pro"
@@ -142,7 +142,7 @@
 #undef BEEPER_PIN
 #define BEEPER_PIN                            33
 
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       49  // For easy adapter board
   #undef BEEPER_PIN
@@ -158,7 +158,7 @@
 #if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT) && defined(DOGLCD_A0) && DOGLCD_A0 == CASE_LIGHT_PIN
   #undef DOGLCD_A0                                // Steal pin 44 for the case light; if you have a Viki2 and have connected it
   #define DOGLCD_A0                           57  // following the Panucatt wiring diagram, you may need to tweak these pin assignments
-                                // as the wiring diagram uses pin 44 for DOGLCD_A0
+                                                  // as the wiring diagram uses pin 44 for DOGLCD_A0.
 #endif
 
 //
@@ -169,7 +169,7 @@
 #undef SPINDLE_DIR_PIN
 
 #if HAS_CUTTER                                    // EXP2 header
-  #if ANY(VIKI2, miniVIKI)
+  #if EITHER(VIKI2, miniVIKI)
     #define BTN_EN2                           31  // Pin 7 needed for Spindle PWM
   #endif
   #define SPINDLE_LASER_PWM_PIN                7  // Hardware PWM

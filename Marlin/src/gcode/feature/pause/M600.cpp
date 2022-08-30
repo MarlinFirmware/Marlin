@@ -34,7 +34,7 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#if ENABLED(HAS_PRUSA_MMU2)
+#if HAS_PRUSA_MMU2
   #include "../../../feature/mmu/mmu2.h"
   #if ENABLED(MMU2_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"

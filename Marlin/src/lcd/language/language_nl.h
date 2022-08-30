@@ -53,7 +53,6 @@ namespace Language_nl {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Bed level kompl.");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Zet home offsets");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("H offset toegep.");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Nulpunt instellen");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
     LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
@@ -85,9 +84,10 @@ namespace Language_nl {
   LSTR MSG_MOVE_X                         = _UxGT("Verplaats X");
   LSTR MSG_MOVE_Y                         = _UxGT("Verplaats Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Verplaats Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Verplaats @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Verplaats %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Verplaats $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Verplaats 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Verplaats 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Verplaats 10mm");
@@ -158,6 +158,7 @@ namespace Language_nl {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystap Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Babystap @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop afbr.");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Voorverw. fout");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Redun. temp fout");
@@ -173,8 +174,8 @@ namespace Language_nl {
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Kalibreer Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Kalibreer Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibreer Midden");
+  LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta conf");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibratie");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Zet Delta Hoogte");
 
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case licht");
 

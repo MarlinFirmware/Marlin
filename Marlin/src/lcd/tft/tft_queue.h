@@ -139,7 +139,10 @@ class TFT_Queue {
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
     static void canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
     static void set_background(uint16_t color);
-    static void add_text(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, uint16_t maxWidth);
+    static void add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth);
+    static void add_text(uint16_t x, uint16_t y, uint16_t color, const char *string, uint16_t maxWidth) {
+      add_text(x, y, color, (uint8_t *)string, maxWidth);
+    }
 
     static void add_image(int16_t x, int16_t y, MarlinImage image, uint16_t *colors);
     static void add_image(int16_t x, int16_t y, MarlinImage image, uint16_t color_main, uint16_t color_background, uint16_t color_shadow);

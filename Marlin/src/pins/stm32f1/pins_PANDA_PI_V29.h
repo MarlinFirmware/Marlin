@@ -33,9 +33,15 @@
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
+#endif
+
+#if ENABLED(BD_SENSOR)
+  #define I2C_BD_SDA_PIN                    PC6
+  #define I2C_BD_SCL_PIN                    PB2
+  #define I2C_BD_DELAY 10                         // (seconds)
 #endif
 
 //
@@ -173,34 +179,36 @@
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_E3_DIP.h' for details. Comment out this line to continue."
+  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_PANDA_PI_V29.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+  #endif
 
   /** FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                     Display
-   *               -----                                      -----
-   *           5V | 1 2 | GND               (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-   * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)     (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
-   * (FREE)   PB9 | 5 6   PA10 (SD_CS)      (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)
-   *        RESET | 7 8 | PA9  (MOD_RESET)  (PA15)    SD_DET | 7 8 | RESET
-   * (BEEPER) PB6 | 9 10| PA15 (SD_DET)                  GND | 9 10| 5V
-   *               -----                                      -----
-   *                EXP1                                       EXP1
+   *                   Board                                   Display
+   *                   ------                                  ------
+   * (SD_DET)    PA15 | 1  2 | PB6 (BEEPER)  (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
+   * (MOD_RESET) PA9  | 3  4 | RESET                MOD_RESET | 3  4 | SD_CS
+   * (SD_CS)     PA10   5  6 | PB9 (FREE)              LCD_CS | 5  6   MOSI  (SPI1-MOSI)
+   * (LCD_CS)    PB8  | 7  8 | PB7 (FREE)              SD_DET | 7  8 | RESET
+   *             GND  | 9 10 |  5V                        GND | 9 10 | 5V
+   *                   ------                                  ------
+   *                    EXP1                                    EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *           _________
-   *   EXP1-1 ----------- EXP1-10
-   *   EXP1-2 ----------- EXP1-9
-   *   SPI1-4 ----------- EXP1-6
-   *   EXP1-4 ----------- EXP1-5
-   *   SP11-3 ----------- EXP1-2
-   *   EXP1-6 ----------- EXP1-4
-   *   EXP1-7 ----------- EXP1-8
-   *   EXP1-8 ----------- EXP1-3
-   *   SPI1-1 ----------- EXP1-1
-   *  EXP1-10 ----------- EXP1-7
+   *   ----------------------------------
+   *   EXP1-10 ---------- EXP1-10  5V
+   *   EXP1-9 ----------- EXP1-9   GND
+   *   SPI1-4 ----------- EXP1-6   MOSI
+   *   EXP1-7 ----------- EXP1-5   LCD_CS
+   *   SP11-3 ----------- EXP1-2   SCK
+   *   EXP1-5 ----------- EXP1-4   SD_CS
+   *   EXP1-4 ----------- EXP1-8   RESET
+   *   EXP1-3 ----------- EXP1-3   MOD_RST
+   *   SPI1-1 ----------- EXP1-1   MISO
+   *   EXP1-1 ----------- EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector

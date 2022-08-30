@@ -313,31 +313,31 @@
 #endif
 
 /**               ------                                      ------
- * (BEEPER) PG4  |10  9 | PA8  (BTN_ENC)         (MISO) PB14 |10  9 | PB13 (SCK)
- * (LCD_EN) PD11 | 8  7 | PD10 (LCD_RS)       (BTN_EN1) PG10 | 8  7 | PB12 (SD_SS)
- * (LCD_D4) PG2    6  5 | PG3  (LCD_D5)       (BTN_EN2) PF11   6  5 | PB15 (MOSI)
- * (LCD_D6) PG6  | 4  3 | PG7  (LCD_D7)     (SD_DETECT) PF12 | 4  3 | RESET
- *           GND | 2  1 | 5V                             GND | 2  1 | --
+ * (BEEPER) PG4  | 1  2 | PA8  (BTN_ENC)         (MISO) PB14 | 1  2 | PB13 (SCK)
+ * (LCD_EN) PD11 | 3  4 | PD10 (LCD_RS)       (BTN_EN1) PG10 | 3  4 | PB12 (SD_SS)
+ * (LCD_D4) PG2    5  6 | PG3  (LCD_D5)       (BTN_EN2) PF11   5  6 | PB15 (MOSI)
+ * (LCD_D6) PG6  | 7  8 | PG7  (LCD_D7)     (SD_DETECT) PF12 | 7  8 | RESET
+ *           GND | 9 10 | 5V                             GND | 9 10 | --
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
-#define EXP1_03_PIN                         PG7
-#define EXP1_04_PIN                         PG6
-#define EXP1_05_PIN                         PG3
-#define EXP1_06_PIN                         PG2
-#define EXP1_07_PIN                         PD10
-#define EXP1_08_PIN                         PD11
-#define EXP1_09_PIN                         PA8
-#define EXP1_10_PIN                         PG4
+#define EXP1_01_PIN                         PG4
+#define EXP1_02_PIN                         PA8
+#define EXP1_03_PIN                         PD11
+#define EXP1_04_PIN                         PD10
+#define EXP1_05_PIN                         PG2
+#define EXP1_06_PIN                         PG3
+#define EXP1_07_PIN                         PG6
+#define EXP1_08_PIN                         PG7
 
-#define EXP2_03_PIN                         -1
-#define EXP2_04_PIN                         PF12
-#define EXP2_05_PIN                         PB15
-#define EXP2_06_PIN                         PF11
-#define EXP2_07_PIN                         PB12
-#define EXP2_08_PIN                         PG10
-#define EXP2_09_PIN                         PB13
-#define EXP2_10_PIN                         PB14
+#define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PG10
+#define EXP2_04_PIN                         PB12
+#define EXP2_05_PIN                         PF11
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PF12
+#define EXP2_08_PIN                         -1
 
 //
 // Onboard SD card
@@ -345,8 +345,8 @@
 //
 #if SD_CONNECTION_IS(LCD)
 
-  #define SD_DETECT_PIN              EXP2_04_PIN
-  #define SDSS                       EXP2_07_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
+  #define SDSS                       EXP2_04_PIN
 
 #elif SD_CONNECTION_IS(ONBOARD)
 
@@ -379,46 +379,46 @@
    */
 
   // M1 on Driver Expansion Module
-  #define E3_STEP_PIN                EXP2_05_PIN
-  #define E3_DIR_PIN                 EXP2_06_PIN
-  #define E3_ENABLE_PIN              EXP2_04_PIN
+  #define E3_STEP_PIN                EXP2_06_PIN
+  #define E3_DIR_PIN                 EXP2_05_PIN
+  #define E3_ENABLE_PIN              EXP2_07_PIN
   #if !EXP_MOT_USE_EXP2_ONLY
-    #define E3_DIAG_PIN              EXP1_06_PIN
-    #define E3_CS_PIN                EXP1_05_PIN
+    #define E3_DIAG_PIN              EXP1_05_PIN
+    #define E3_CS_PIN                EXP1_06_PIN
     #if HAS_TMC_UART
-      #define E3_SERIAL_TX_PIN       EXP1_05_PIN
-      #define E3_SERIAL_RX_PIN       EXP1_05_PIN
+      #define E3_SERIAL_TX_PIN       EXP1_06_PIN
+      #define E3_SERIAL_RX_PIN       EXP1_06_PIN
     #endif
   #endif
 
   // M2 on Driver Expansion Module
-  #define E4_STEP_PIN                EXP2_08_PIN
-  #define E4_DIR_PIN                 EXP2_07_PIN
+  #define E4_STEP_PIN                EXP2_03_PIN
+  #define E4_DIR_PIN                 EXP2_04_PIN
   #if !EXP_MOT_USE_EXP2_ONLY
-    #define E4_ENABLE_PIN            EXP1_03_PIN
-    #define E4_DIAG_PIN              EXP1_08_PIN
-    #define E4_CS_PIN                EXP1_07_PIN
+    #define E4_ENABLE_PIN            EXP1_08_PIN
+    #define E4_DIAG_PIN              EXP1_03_PIN
+    #define E4_CS_PIN                EXP1_04_PIN
     #if HAS_TMC_UART
-      #define E4_SERIAL_TX_PIN       EXP1_07_PIN
-      #define E4_SERIAL_RX_PIN       EXP1_07_PIN
+      #define E4_SERIAL_TX_PIN       EXP1_04_PIN
+      #define E4_SERIAL_RX_PIN       EXP1_04_PIN
     #endif
   #else
-    #define E4_ENABLE_PIN            EXP2_04_PIN
+    #define E4_ENABLE_PIN            EXP2_07_PIN
   #endif
 
   // M3 on Driver Expansion Module
-  #define E5_STEP_PIN                EXP2_10_PIN
-  #define E5_DIR_PIN                 EXP2_09_PIN
+  #define E5_STEP_PIN                EXP2_01_PIN
+  #define E5_DIR_PIN                 EXP2_02_PIN
   #if !EXP_MOT_USE_EXP2_ONLY
-    #define E5_ENABLE_PIN            EXP1_04_PIN
-    #define E5_DIAG_PIN              EXP1_10_PIN
-    #define E5_CS_PIN                EXP1_09_PIN
+    #define E5_ENABLE_PIN            EXP1_07_PIN
+    #define E5_DIAG_PIN              EXP1_01_PIN
+    #define E5_CS_PIN                EXP1_02_PIN
     #if HAS_TMC_UART
-      #define E5_SERIAL_TX_PIN       EXP1_09_PIN
-      #define E5_SERIAL_RX_PIN       EXP1_09_PIN
+      #define E5_SERIAL_TX_PIN       EXP1_02_PIN
+      #define E5_SERIAL_RX_PIN       EXP1_02_PIN
     #endif
   #else
-    #define E5_ENABLE_PIN            EXP2_04_PIN
+    #define E5_ENABLE_PIN            EXP2_07_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION
@@ -429,34 +429,36 @@
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS               EXP2_08_PIN
+    #define TFTGLCD_CS               EXP2_03_PIN
   #endif
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                 EXP1_10_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define LCD_PINS_RS              EXP1_04_PIN
+    #define LCD_PINS_RS              EXP1_07_PIN
 
-    #define BTN_EN1                  EXP1_08_PIN
-    #define BTN_EN2                  EXP1_06_PIN
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
 
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_05_PIN
-    #define BTN_EN1                  EXP2_08_PIN
-    #define BTN_EN2                  EXP2_06_PIN
+    #define DOGLCD_A0                EXP1_07_PIN
+    #define DOGLCD_CS                EXP1_06_PIN
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
 
   #elif ENABLED(WYH_L12864)
 
-    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! WYH_L12864 requires wiring modifications. See 'pins_BTT_SKR_PRO_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
 
     /**
      * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
@@ -468,59 +470,59 @@
      *
      *                  BEFORE                     AFTER
      *                  ------                     ------
-     *              -- |10  9 | MOSI           -- |10  9 | MOSI
-     *         BTN_ENC | 8  7 | SCK       BTN_ENC | 8  7 | SCK
-     *         BTN_EN1 | 6  5   SID       BTN_EN1 | 6  5   SID
-     *         BTN_EN2 | 4  3 | CS        BTN_EN2 | 4  3 | CS
-     *              5V | 2  1 | GND           GND | 2  1 | 5V
+     *              -- | 1  2 | MOSI           -- | 1  2 | MOSI
+     *         BTN_ENC | 3  4 | SCK       BTN_ENC | 3  4 | SCK
+     *         BTN_EN1 | 5  6   SID       BTN_EN1 | 5  6   SID
+     *         BTN_EN2 | 7  8 | CS        BTN_EN2 | 7  8 | CS
+     *              5V | 9 10 | GND           GND | 9 10 | 5V
      *                  ------                     ------
      *                   LCD                        LCD
      */
     #undef BEEPER_PIN
     #undef BTN_ENC
-    #define BTN_EN1                  EXP1_06_PIN
-    #define BTN_EN2                  EXP1_04_PIN
-    #define BTN_ENC                  EXP1_08_PIN
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                EXP1_05_PIN
-    #define DOGLCD_SCK               EXP1_07_PIN
-    #define DOGLCD_MOSI              EXP1_09_PIN
+    #define BTN_EN1                  EXP1_05_PIN
+    #define BTN_EN2                  EXP1_07_PIN
+    #define BTN_ENC                  EXP1_03_PIN
+    #define DOGLCD_CS                EXP1_08_PIN
+    #define DOGLCD_A0                EXP1_06_PIN
+    #define DOGLCD_SCK               EXP1_04_PIN
+    #define DOGLCD_MOSI              EXP1_02_PIN
     #define LCD_BACKLIGHT_PIN            -1
 
   #else
 
-    #define LCD_PINS_RS              EXP1_07_PIN
+    #define LCD_PINS_RS              EXP1_04_PIN
 
-    #define BTN_EN1                  EXP2_08_PIN
-    #define BTN_EN2                  EXP2_06_PIN
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS              EXP1_08_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
+      #define DOGLCD_CS              EXP1_03_PIN
+      #define DOGLCD_A0              EXP1_04_PIN
       //#define LCD_BACKLIGHT_PIN           -1
-      #define LCD_RESET_PIN          EXP1_06_PIN  // Must be high or open for LCD to operate normally.
+      #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN      EXP1_05_PIN
+          #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN      EXP1_04_PIN
+          #define RGB_LED_G_PIN      EXP1_07_PIN
         #endif
         #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN      EXP1_03_PIN
+          #define RGB_LED_B_PIN      EXP1_08_PIN
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN         EXP1_05_PIN
+        #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
     #endif // !FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_05_PIN
-      #define LCD_PINS_D6            EXP1_04_PIN
-      #define LCD_PINS_D7            EXP1_03_PIN
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
 
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder

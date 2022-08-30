@@ -48,17 +48,17 @@
 #ifdef __STM32F1__
   #define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
   #define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
-#elif STM32F1
+#elif defined(STM32F1) || defined(STM32F4)
   #define SDA_IN()  SET_INPUT(IIC_EEPROM_SDA)
   #define SDA_OUT() SET_OUTPUT(IIC_EEPROM_SDA)
 #endif
 
 // IO ops
-#define IIC_SCL_0()   WRITE(IIC_EEPROM_SCL, LOW)
-#define IIC_SCL_1()   WRITE(IIC_EEPROM_SCL, HIGH)
-#define IIC_SDA_0()   WRITE(IIC_EEPROM_SDA, LOW)
-#define IIC_SDA_1()   WRITE(IIC_EEPROM_SDA, HIGH)
-#define READ_SDA()    READ(IIC_EEPROM_SDA)
+#define IIC_SCL_0() WRITE(IIC_EEPROM_SCL, LOW)
+#define IIC_SCL_1() WRITE(IIC_EEPROM_SCL, HIGH)
+#define IIC_SDA_0() WRITE(IIC_EEPROM_SDA, LOW)
+#define IIC_SDA_1() WRITE(IIC_EEPROM_SDA, HIGH)
+#define READ_SDA()  READ(IIC_EEPROM_SDA)
 
 //
 // Simple IIC interface via libmaple

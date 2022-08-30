@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 6 || E_STEPPERS > 6
-  #error "FLYF407ZG supports up to 6 hotends / E-steppers."
+  #error "FLYF407ZG supports up to 6 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"
@@ -50,11 +50,11 @@
   // the 128kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8K
 #endif
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -177,31 +177,31 @@
 
 /**
  *        ------                ------
- *  PB10 |10  9 | PE15    PB14 |10  9 | PB13
- *  PE14 | 8  7 | PE12    PC5  | 8  7 | PF11
- *  PE10   6  5 | PE9     PC4    6  5 | PB15
- *  PE8  | 4  3 | PE7     PB2  | 4  3 | RESET
- *   GND | 2  1 | 5V       GND | 2  1 | --
+ *  PB10 | 1  2 | PE15    PB14 | 1  2 | PB13
+ *  PE14 | 3  4 | PE12    PC5  | 3  4 | PF11
+ *  PE10   5  6 | PE9     PC4    5  6 | PB15
+ *  PE8  | 7  8 | PE7     PB2  | 7  8 | RESET
+ *   GND | 9 10 | 5V       GND | 9 10 | --
  *        ------                ------
  *         EXP1                  EXP2
  */
-#define EXP1_03_PIN                         PE7
-#define EXP1_04_PIN                         PE8
-#define EXP1_05_PIN                         PE9
-#define EXP1_06_PIN                         PE10
-#define EXP1_07_PIN                         PE12
-#define EXP1_08_PIN                         PE14
-#define EXP1_09_PIN                         PE15
-#define EXP1_10_PIN                         PB10
+#define EXP1_01_PIN                         PB10
+#define EXP1_02_PIN                         PE15
+#define EXP1_03_PIN                         PE14
+#define EXP1_04_PIN                         PE12
+#define EXP1_05_PIN                         PE10
+#define EXP1_06_PIN                         PE9
+#define EXP1_07_PIN                         PE8
+#define EXP1_08_PIN                         PE7
 
-#define EXP2_03_PIN                         -1    // RESET
-#define EXP2_04_PIN                         PB2
-#define EXP2_05_PIN                         PB15
-#define EXP2_06_PIN                         PC4
-#define EXP2_07_PIN                         PF11
-#define EXP2_08_PIN                         PC5
-#define EXP2_09_PIN                         PB13
-#define EXP2_10_PIN                         PB14
+#define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PC5
+#define EXP2_04_PIN                         PF11
+#define EXP2_05_PIN                         PC4
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PB2
+#define EXP2_08_PIN                         -1    // RESET
 
 //
 // Onboard SD support
@@ -226,11 +226,11 @@
 
 #elif SD_CONNECTION_IS(LCD)
 
-  #define SD_SCK_PIN                 EXP2_09_PIN
-  #define SD_MISO_PIN                EXP2_10_PIN
-  #define SD_MOSI_PIN                EXP2_05_PIN
-  #define SDSS                       EXP2_07_PIN
-  #define SD_DETECT_PIN              EXP2_04_PIN
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SDSS                       EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
 
 #endif
 
@@ -239,13 +239,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK               EXP2_09_PIN
+    #define TMC_SW_SCK               EXP2_02_PIN
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO              EXP2_10_PIN
+    #define TMC_SW_MISO              EXP2_01_PIN
   #endif
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI              EXP2_05_PIN
+    #define TMC_SW_MOSI              EXP2_06_PIN
   #endif
 #endif
 
@@ -286,16 +286,16 @@
 // LCD / Controller
 //
 #if IS_RRD_SC
-  #define BEEPER_PIN                 EXP1_10_PIN
-  #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
-  #define LCD_PINS_D4                EXP1_06_PIN
-  #define LCD_PINS_D5                EXP1_05_PIN
-  #define LCD_PINS_D6                EXP1_04_PIN
-  #define LCD_PINS_D7                EXP1_03_PIN
-  #define BTN_EN1                    EXP2_06_PIN
-  #define BTN_EN2                    EXP2_08_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 #endif
 
 //

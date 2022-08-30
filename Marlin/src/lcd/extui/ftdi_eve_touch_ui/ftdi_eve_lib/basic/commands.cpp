@@ -1024,9 +1024,7 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   uint16_t Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
   if (Command_Space < (len + padding)) {
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("Waiting for ", len + padding);
-      SERIAL_ECHOLNPGM(" bytes in command queue, now free: ", Command_Space);
+      SERIAL_ECHO_MSG("Waiting for ", len + padding, " bytes in command queue, now free: ", Command_Space);
     #endif
     do {
       Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
@@ -1210,7 +1208,7 @@ void CLCD::default_display_orientation() {
       + ENABLED(TOUCH_UI_INVERTED) * 1
     );
     cmd.execute();
-  #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
+  #elif EITHER(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)
     mem_write_32(REG::ROTATE, 1);

@@ -407,38 +407,41 @@ void restore_feedrate_and_scaling();
 /**
  * Homing and Trusted Axes
  */
-typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
-constexpr linear_axis_bits_t linear_bits = _BV(NUM_AXES) - 1;
+typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type main_axes_bits_t;
+constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
+
+typedef IF<(NUM_AXES + EXTRUDERS > 8), uint16_t, uint8_t>::type e_axis_bits_t;
+constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
 
 void set_axis_is_at_home(const AxisEnum axis);
 
 #if HAS_ENDSTOPS
   /**
-   * axis_homed
+   * axes_homed
    *   Flags that each linear axis was homed.
    *   XYZ on cartesian, ABC on delta, ABZ on SCARA.
    *
-   * axis_trusted
+   * axes_trusted
    *   Flags that the position is trusted in each linear axis. Set when homed.
    *   Cleared whenever a stepper powers off, potentially losing its position.
    */
-  extern linear_axis_bits_t axis_homed, axis_trusted;
+  extern main_axes_bits_t axes_homed, axes_trusted;
   void homeaxis(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
-  linear_axis_bits_t axes_should_home(linear_axis_bits_t axis_bits=linear_bits);
-  bool homing_needed_error(linear_axis_bits_t axis_bits=linear_bits);
-  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
-  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
-  inline void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
-  inline void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
-  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
-  inline void set_all_homed()                         { axis_homed = axis_trusted = linear_bits; }
+  main_axes_bits_t axes_should_home(main_axes_bits_t axes_mask=main_axes_mask);
+  bool homing_needed_error(main_axes_bits_t axes_mask=main_axes_mask);
+  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axes_homed, axis); }
+  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axes_trusted, axis); }
+  inline void set_all_unhomed()                       { axes_homed = axes_trusted = 0; }
+  inline void set_axis_homed(const AxisEnum axis)     { SBI(axes_homed, axis); }
+  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axes_trusted, axis); }
+  inline void set_all_homed()                         { axes_homed = axes_trusted = main_axes_mask; }
 #else
-  constexpr linear_axis_bits_t axis_homed = linear_bits, axis_trusted = linear_bits; // Zero-endstop machines are always homed and trusted
+  constexpr main_axes_bits_t axes_homed = main_axes_mask, axes_trusted = main_axes_mask; // Zero-endstop machines are always homed and trusted
   inline void homeaxis(const AxisEnum axis)           {}
   inline void set_axis_never_homed(const AxisEnum)    {}
-  inline linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return 0; }
-  inline bool homing_needed_error(linear_axis_bits_t=linear_bits) { return false; }
+  inline main_axes_bits_t axes_should_home(main_axes_bits_t=main_axes_mask) { return 0; }
+  inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
   inline void set_axis_unhomed(const AxisEnum axis)   {}
   inline void set_axis_untrusted(const AxisEnum axis) {}
   inline void set_all_unhomed()                       {}
@@ -447,13 +450,13 @@ void set_axis_is_at_home(const AxisEnum axis);
   inline void set_all_homed()                         {}
 #endif
 
-inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axis_homed, axis); }
-inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axis_trusted, axis); }
+inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
+inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
 inline bool axis_should_home(const AxisEnum axis)     { return (axes_should_home() & _BV(axis)) != 0; }
-inline bool no_axes_homed()                           { return !axis_homed; }
-inline bool all_axes_homed()                          { return linear_bits == (axis_homed & linear_bits); }
+inline bool no_axes_homed()                           { return !axes_homed; }
+inline bool all_axes_homed()                          { return main_axes_mask == (axes_homed & main_axes_mask); }
 inline bool homing_needed()                           { return !all_axes_homed(); }
-inline bool all_axes_trusted()                        { return linear_bits == (axis_trusted & linear_bits); }
+inline bool all_axes_trusted()                        { return main_axes_mask == (axes_trusted & main_axes_mask); }
 
 void home_if_needed(const bool keeplev=false);
 
@@ -546,63 +549,21 @@ void home_if_needed(const bool keeplev=false);
   #endif
 
   // Return true if the given point is within the printable area
-  inline bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0) {
-    #if ENABLED(DELTA)
-
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
-
-    #elif ENABLED(POLARGRAPH)
-
-      const float x1 = rx - (X_MIN_POS), x2 = (X_MAX_POS) - rx, y = ry - (Y_MAX_POS),
-                  a = HYPOT(x1, y), b = HYPOT(x2, y);
-      return a < (POLARGRAPH_MAX_BELT_LEN) + 1
-          && b < (POLARGRAPH_MAX_BELT_LEN) + 1
-          && (a + b) > _MIN(X_BED_SIZE, Y_BED_SIZE);
-
-    #elif ENABLED(AXEL_TPARA)
-
-      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
-      return (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-        #endif
-      );
-
-    #elif IS_SCARA
-
-      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-      return (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-        #endif
-      );
-
-    #endif
-  }
+  bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0);
 
   inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
     return position_is_reachable(pos.x, pos.y, inset);
   }
 
-#else // CARTESIAN
+#else
 
   // Return true if the given position is within the machine bounds.
-  inline bool position_is_reachable(const_float_t rx, const_float_t ry) {
-    if (!COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
-    #if ENABLED(DUAL_X_CARRIAGE)
-      if (active_extruder)
-        return COORDINATE_OKAY(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
-      else
-        return COORDINATE_OKAY(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
-    #else
-      return COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
-    #endif
+  bool position_is_reachable(const_float_t rx, const_float_t ry);
+  inline bool position_is_reachable(const xy_pos_t &pos) {
+    return position_is_reachable(pos.x, pos.y);
   }
-  inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
 
-#endif // CARTESIAN
+#endif
 
 /**
  * Duplication mode

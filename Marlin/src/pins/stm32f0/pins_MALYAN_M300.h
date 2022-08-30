@@ -33,7 +33,7 @@
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
   #ifndef MARLIN_EEPROM_SIZE
-    #define MARLIN_EEPROM_SIZE 0x800U             // 2KB
+    #define MARLIN_EEPROM_SIZE 0x800U             // 2K
   #endif
 #endif
 
@@ -51,10 +51,13 @@
 //
 // Limit Switches
 //
-#define X_MAX_PIN                           PC13
-#define Y_MAX_PIN                           PC14
-#define Z_MAX_PIN                           PC15
-#define Z_MIN_PIN                           PB7
+#define X_STOP_PIN                          PC13
+#define Y_STOP_PIN                          PC14
+#define Z_STOP_PIN                          PC15
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB7
+#endif
 
 //
 // Steppers

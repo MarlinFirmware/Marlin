@@ -49,22 +49,22 @@ void Password::menu_password_entry() {
   START_MENU();
 
   // "Login" or "New Code"
-  STATIC_ITEM_P(authenticating ? GET_TEXT(MSG_LOGIN_REQUIRED) : GET_TEXT(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
+  STATIC_ITEM_F(authenticating ? GET_TEXT_F(MSG_LOGIN_REQUIRED) : GET_TEXT_F(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(NUL_STR, SS_CENTER, string);
+  STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, string);
 
   #if HAS_MARLINUI_U8GLIB
-    STATIC_ITEM_P(NUL_STR, SS_CENTER, "");
+    STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, "");
   #endif
 
   // Make the digit edit item look like a sub-menu
-  PGM_P const label = GET_TEXT(MSG_ENTER_DIGIT);
-  EDIT_ITEM_P(uint8, label, &editable.uint8, 0, 9, digit_entered);
-  MENU_ITEM_ADDON_START(utf8_strlen_P(label) + 1);
-    lcd_put_wchar(' ');
-    lcd_put_wchar('1' + digit_no);
+  FSTR_P const label = GET_TEXT_F(MSG_ENTER_DIGIT);
+  EDIT_ITEM_F(uint8, label, &editable.uint8, 0, 9, digit_entered);
+  MENU_ITEM_ADDON_START(utf8_strlen(label) + 1);
+    lcd_put_lchar(' ');
+    lcd_put_lchar('1' + digit_no);
     SETCURSOR_X(LCD_WIDTH - 2);
-    lcd_put_wchar('>');
+    lcd_put_lchar('>');
   MENU_ITEM_ADDON_END();
 
   ACTION_ITEM(MSG_START_OVER, start_over);
