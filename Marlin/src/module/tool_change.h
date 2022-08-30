@@ -51,10 +51,6 @@
     extern bool enable_first_prime; // M217 V
   #endif
 
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    void tool_change_prime(); // Prime the currently selected extruder
-  #endif
-
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     typedef struct {
       uint8_t target, last;

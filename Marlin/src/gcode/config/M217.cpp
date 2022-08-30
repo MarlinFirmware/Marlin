@@ -36,9 +36,6 @@
 /**
  * M217 - Set toolchange parameters
  *
- *  // Tool change command
- *  Q           Prime active tool and exit
- *
  *  // Tool change settings
  *  S[linear]     Swap length
  *  B[linear]     Extra Swap resume length
@@ -72,8 +69,6 @@ void GcodeSuite::M217() {
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
     static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
-
-    if (parser.seen('Q')) { tool_change_prime(); return; }
 
     if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
     if (parser.seenval('B')) { const float v = parser.value_linear_units(); toolchange_settings.extra_resume = constrain(v, -10, 10); }
