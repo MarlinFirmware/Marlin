@@ -26,9 +26,7 @@
 
 #if ENABLED(VARIABLE_SUPPORT)
 
-//#include "../../inc/MarlinConfig.h"
-//#include"../../queue.h"
-//#include"../../parser.h"
+#include"../parser.h"
 #include "../gcode.h"
 
 //char gcode_variables[VARIABLE_SLOTS][VARIABLE_SLOT_SIZE +1] = {{ 0 }};
@@ -36,83 +34,83 @@
 /**
  * L100: Input Variable #100
  */
-static uint16_t GCodeParser::input_var(uint16_t VarUnit) {};
-//uint16_t GcodeSuite::L100() { parser.input_var(0); };
+//uint16_t GCodeParser::input_var();
+void GcodeSuite::L100() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L101() { parser.input_var(0); };
+void GcodeSuite::L101() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L102() { parser.input_var(0); };
+void GcodeSuite::L102() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L103() { parser.input_var(0); };
+void GcodeSuite::L103() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L104() { parser.input_var(0); };
+void GcodeSuite::L104() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L105() { parser.input_var(0); };
+void GcodeSuite::L105() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L106() { parser.input_var(0); };
+void GcodeSuite::L106() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L107() { parser.input_var(0); };
+void GcodeSuite::L107() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L108() { parser.input_var(0); };
+void GcodeSuite::L108() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L109() { parser.input_var(0); };
+void GcodeSuite::L109() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L110() { parser.input_var(0); };
+void GcodeSuite::L110() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L111() { parser.input_var(0); };
+void GcodeSuite::L111() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L112() { parser.input_var(0); };
+void GcodeSuite::L112() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L113() { parser.input_var(0); };
+void GcodeSuite::L113() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L114() { parser.input_var(0); };
+void GcodeSuite::L114() { parser.input_var; };
 
 /**
  * L101: Input Variable #101
  */
-//uint16_t GcodeSuite::L115() { parser.input_var(0); };
+void GcodeSuite::L115() { parser.input_var; };
 
 //char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
 
