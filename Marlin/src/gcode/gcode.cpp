@@ -150,14 +150,14 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Get the variable target data from the L parameter
  * Return -1 if the P parameter is out of range
  */
-GcodeSuite::get_var_from_command() {
+int8_t GcodeSuite::get_var_from_command() {
   if (parser.seenval('L')) {
 	const int8_t e = parser.value_byte();
-	if (e < EXTRUDERS) return e;
-	SERIAL_ECHO_START();
-	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
-	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
-	return -1;
+//	if (e < EXTRUDERS) return e;
+//	SERIAL_ECHO_START();
+//	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
+//	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
+//	return -1;
   }
   return stored_var;
 }
