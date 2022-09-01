@@ -140,7 +140,9 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
 
 void stepperTask(void *parameter) {
   uint32_t nextMainISR = 0;
-  TERN_(LIN_ADVANCE, uint32_t nextAdvanceISR = Stepper::LA_ADV_NEVER);
+  #if ENABLED(LIN_ADVANCE)
+    uint32_t nextAdvanceISR = Stepper::LA_ADV_NEVER;
+  #endif
 
   while (1) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
