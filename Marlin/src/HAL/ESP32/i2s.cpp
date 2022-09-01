@@ -144,7 +144,7 @@ void stepperTask(void *parameter) {
     uint32_t nextAdvanceISR = Stepper::LA_ADV_NEVER;
   #endif
 
-  while (1) {
+  for (;;) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
