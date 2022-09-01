@@ -252,6 +252,11 @@
   #include "tests/marlin_tests.h"
 #endif
 
+#if ENABLED(VARIABLE_SUPPORT)
+	uint8_t input_var; // = 0
+	uint8_t StoredVar;
+  bool is_var; // = false
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -488,7 +493,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     }
   #endif
 
-  #if ENABLED(FREEZE_FEATURE)
+  #if HAS_FREEZE_PIN
     stepper.frozen = READ(FREEZE_PIN) == FREEZE_STATE;
   #endif
 
