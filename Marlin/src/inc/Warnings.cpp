@@ -35,6 +35,10 @@
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
 #endif
 
+#if ENABLED(LA_DEBUG)
+  #warning "WARNING! Disable LA_DEBUG for the final build!"
+#endif
+
 #if NUM_AXES_WARNING
   #warning "Note: NUM_AXES is now based on the *_DRIVER_TYPE settings so you can remove NUM_AXES from Configuration.h."
 #endif
