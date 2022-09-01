@@ -547,10 +547,10 @@ void menu_configuration() {
   //
   // Set display backlight / sleep timeout
   //
-  #if LCD_BACKLIGHT_TIMEOUT && LCD_BKL_TIMEOUT_MIN < LCD_BKL_TIMEOUT_MAX
-    EDIT_ITEM(uint16_4, MSG_LCD_TIMEOUT_SEC, &ui.lcd_backlight_timeout, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.refresh_backlight_timeout);
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
+    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.backlight_timeout_minutes, ui.backlight_timeout_min, ui.backlight_timeout_max, ui.refresh_backlight_timeout);
   #elif HAS_DISPLAY_SLEEP
-    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, SLEEP_TIMEOUT_MIN, SLEEP_TIMEOUT_MAX, ui.refresh_screen_timeout);
+    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, ui.sleep_timeout_min, ui.sleep_timeout_max, ui.refresh_screen_timeout);
   #endif
 
   #if ENABLED(FWRETRACT)
