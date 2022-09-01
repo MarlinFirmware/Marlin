@@ -2473,7 +2473,6 @@ uint32_t Stepper::block_phase_isr() {
 
       // Set the STEP pulse ON
       E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_next_stepper(), stepper_extruder), !INVERT_E_STEP_PIN);
-
     }
 
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());

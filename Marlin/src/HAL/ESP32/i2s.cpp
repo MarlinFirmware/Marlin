@@ -172,14 +172,7 @@ void stepperTask(void *parameter) {
       }
 
       nextMainISR -= push_count;
-      #if ENABLED(LIN_ADVANCE)
-        if (nextAdvanceISR != Stepper::LA_ADV_NEVER) {
-          if (nextAdvanceISR > push_count)
-            nextAdvanceISR -= push_count;
-          else
-            nextAdvanceISR = 0;
-        }
-      #endif
+      TERN_(LIN_ADVANCE, nextAdvanceISR -= push_count);
     }
   }
 }
