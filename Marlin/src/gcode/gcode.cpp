@@ -150,7 +150,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Get the variable target data from the L parameter
  * Return -1 if the P parameter is out of range
  */
-int8_t GcodeSuite::get_var_from_command() {
+GcodeSuite::get_var_from_command() {
   if (parser.seenval('L')) {
 	const int8_t e = parser.value_byte();
 	if (e < EXTRUDERS) return e;
