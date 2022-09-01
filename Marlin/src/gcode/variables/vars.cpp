@@ -35,7 +35,16 @@
  * L100: Input Variable #100
  */
 //uint16_t GCodeParser::input_var();
-void GcodeSuite::L100() { parser.input_var; };
+void GcodeSuite::L100() { 
+  
+  const int8_t stored_var = get_var_from_command();
+  if (stored_var != 0) return;
+  
+  SERIAL_ECHOPGM(VAL_OK);
+  
+  else
+  parser.input_var; 
+}
 
 /**
  * L101: Input Variable #101
