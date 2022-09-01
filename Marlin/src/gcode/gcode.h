@@ -187,14 +187,14 @@
  * M203 - Set maximum feedrate: "M203 X<fr> Y<fr> Z<fr> E<fr>" in units/sec.
  * M204 - Set default acceleration in units/sec^2: P<printing> R<extruder_only> T<travel>
  * M205 - Set advanced settings. Current units apply:
-            S<print> T<travel> minimum speeds
-            B<minimum segment time>
-            X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
+			S<print> T<travel> minimum speeds
+			B<minimum segment time>
+			X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
  * M206 - Set additional homing offset. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT_AUTORETRACT)
-          Every normal extrude-only move will be classified as retract depending on the direction.
+		  Every normal extrude-only move will be classified as retract depending on the direction.
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
  * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
@@ -326,7 +326,10 @@
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
- *** "#" Variables ***
+
+ *** 'L' Variables ***
+=======
+
  # L100-L115 - Definable variables 
  *
  */
@@ -346,7 +349,7 @@
 enum AxisRelative : uint8_t {
   LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K, REL_U, REL_V, REL_W)
   #if HAS_EXTRUDERS
-    , E_MODE_ABS, E_MODE_REL
+	, E_MODE_ABS, E_MODE_REL
   #endif
 };
 
@@ -358,69 +361,69 @@ public:
   static axis_bits_t axis_relative;
 
   static bool axis_is_relative(const AxisEnum a) {
-    #if HAS_EXTRUDERS
-      if (a == E_AXIS) {
-        if (TEST(axis_relative, E_MODE_REL)) return true;
-        if (TEST(axis_relative, E_MODE_ABS)) return false;
-      }
-    #endif
-    return TEST(axis_relative, a);
+	#if HAS_EXTRUDERS
+	  if (a == E_AXIS) {
+		if (TEST(axis_relative, E_MODE_REL)) return true;
+		if (TEST(axis_relative, E_MODE_ABS)) return false;
+	  }
+	#endif
+	return TEST(axis_relative, a);
   }
   static void set_relative_mode(const bool rel) {
-    axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
-      | _BV(REL_E),
-      | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
-      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
-      | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
-    )) : 0;
+	axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
+	  | _BV(REL_E),
+	  | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
+	  | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
+	  | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
+	)) : 0;
   }
   #if HAS_EXTRUDERS
-    static void set_e_relative() {
-      CBI(axis_relative, E_MODE_ABS);
-      SBI(axis_relative, E_MODE_REL);
-    }
-    static void set_e_absolute() {
-      CBI(axis_relative, E_MODE_REL);
-      SBI(axis_relative, E_MODE_ABS);
-    }
+	static void set_e_relative() {
+	  CBI(axis_relative, E_MODE_ABS);
+	  SBI(axis_relative, E_MODE_REL);
+	}
+	static void set_e_absolute() {
+	  CBI(axis_relative, E_MODE_REL);
+	  SBI(axis_relative, E_MODE_ABS);
+	}
   #endif
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
-    /**
-     * Workspace planes only apply to G2/G3 moves
-     * (and "canned cycles" - not a current feature)
-     */
-    enum WorkspacePlane : char { PLANE_XY, PLANE_ZX, PLANE_YZ };
-    static WorkspacePlane workspace_plane;
+	/**
+	 * Workspace planes only apply to G2/G3 moves
+	 * (and "canned cycles" - not a current feature)
+	 */
+	enum WorkspacePlane : char { PLANE_XY, PLANE_ZX, PLANE_YZ };
+	static WorkspacePlane workspace_plane;
   #endif
 
   #define MAX_COORDINATE_SYSTEMS 9
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    static int8_t active_coordinate_system;
-    static xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];
-    static bool select_coordinate_system(const int8_t _new);
+	static int8_t active_coordinate_system;
+	static xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];
+	static bool select_coordinate_system(const int8_t _new);
   #endif
 
   static millis_t previous_move_ms, max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
-    return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
+	return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
   }
   FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
 
   #if HAS_DISABLE_INACTIVE_AXIS
-    static millis_t stepper_inactive_time;
-    FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
-      return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
-    }
+	static millis_t stepper_inactive_time;
+	FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
+	  return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+	}
   #else
-    static bool stepper_inactive_timeout(const millis_t) { return false; }
+	static bool stepper_inactive_timeout(const millis_t) { return false; }
   #endif
 
   static void report_echo_start(const bool forReplay);
   static void report_heading(const bool forReplay, FSTR_P const fstr, const bool eol=true);
   static void report_heading_etc(const bool forReplay, FSTR_P const fstr, const bool eol=true) {
-    report_heading(forReplay, fstr, eol);
-    report_echo_start(forReplay);
+	report_heading(forReplay, fstr, eol);
+	report_echo_start(forReplay);
   }
   static void say_units();
 
@@ -436,43 +439,50 @@ public:
   static void process_subcommands_now(char * gcode);
 
   static void home_all_axes(const bool keep_leveling=false) {
-    process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
+	process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
+
+  #if ENABLED(VARIABLE_SUPPORT)
+	static int8_t get_var_from_command(const int8_t dval=0);
+  #endif
+
+
+
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
-    static bool autoreport_paused;
-    static bool set_autoreport_paused(const bool p) {
-      const bool was = autoreport_paused;
-      autoreport_paused = p;
-      return was;
-    }
+	static bool autoreport_paused;
+	static bool set_autoreport_paused(const bool p) {
+	  const bool was = autoreport_paused;
+	  autoreport_paused = p;
+	  return was;
+	}
   #else
-    static constexpr bool autoreport_paused = false;
-    static bool set_autoreport_paused(const bool) { return false; }
+	static constexpr bool autoreport_paused = false;
+	static bool set_autoreport_paused(const bool) { return false; }
   #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
-    /**
-     * States for managing Marlin and host communication
-     * Marlin sends messages if blocked or busy
-     */
-    enum MarlinBusyState : char {
-      NOT_BUSY,           // Not in a handler
-      IN_HANDLER,         // Processing a GCode
-      IN_PROCESS,         // Known to be blocking command input (as in G29)
-      PAUSED_FOR_USER,    // Blocking pending any input
-      PAUSED_FOR_INPUT    // Blocking pending text input (concept)
-    };
+	/**
+	 * States for managing Marlin and host communication
+	 * Marlin sends messages if blocked or busy
+	 */
+	enum MarlinBusyState : char {
+	  NOT_BUSY,           // Not in a handler
+	  IN_HANDLER,         // Processing a GCode
+	  IN_PROCESS,         // Known to be blocking command input (as in G29)
+	  PAUSED_FOR_USER,    // Blocking pending any input
+	  PAUSED_FOR_INPUT    // Blocking pending text input (concept)
+	};
 
-    static MarlinBusyState busy_state;
-    static uint8_t host_keepalive_interval;
+	static MarlinBusyState busy_state;
+	static uint8_t host_keepalive_interval;
 
-    static void host_keepalive();
-    static bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
+	static void host_keepalive();
+	static bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
 
-    #define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
+	#define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
   #else
-    #define KEEPALIVE_STATE(N) NOOP
+	#define KEEPALIVE_STATE(N) NOOP
   #endif
 
   static void dwell(millis_t time);
@@ -482,128 +492,147 @@ private:
   friend class MarlinSettings;
 
   #if ENABLED(MARLIN_DEV_MODE)
-    static void D(const int16_t dcode);
+	static void D(const int16_t dcode);
   #endif
 
   static void G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move=false));
 
   #if ENABLED(ARC_SUPPORT)
-    static void G2_G3(const bool clockwise);
+	static void G2_G3(const bool clockwise);
   #endif
 
   static void G4();
 
   #if ENABLED(BEZIER_CURVE_SUPPORT)
-    static void G5();
+	static void G5();
   #endif
 
   #if ENABLED(DIRECT_STEPPING)
-    static void G6();
+	static void G6();
   #endif
 
   #if ENABLED(FWRETRACT)
-    static void G10();
-    static void G11();
+	static void G10();
+	static void G11();
   #endif
 
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
-    static void G12();
+	static void G12();
   #endif
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
-    static void G17();
-    static void G18();
-    static void G19();
+	static void G17();
+	static void G18();
+	static void G19();
   #endif
 
   #if ENABLED(INCH_MODE_SUPPORT)
-    static void G20();
-    static void G21();
+	static void G20();
+	static void G21();
   #endif
 
   #if ENABLED(G26_MESH_VALIDATION)
-    static void G26();
+	static void G26();
   #endif
 
   #if ENABLED(NOZZLE_PARK_FEATURE)
-    static void G27();
+	static void G27();
   #endif
 
   static void G28();
 
   #if HAS_LEVELING
-    #if ENABLED(G29_RETRY_AND_RECOVER)
-      static void event_probe_failure();
-      static void event_probe_recover();
-      static void G29_with_retry();
-      #define G29_TYPE bool
-    #else
-      #define G29_TYPE void
-    #endif
-    static G29_TYPE G29();
+	#if ENABLED(G29_RETRY_AND_RECOVER)
+	  static void event_probe_failure();
+	  static void event_probe_recover();
+	  static void G29_with_retry();
+	  #define G29_TYPE bool
+	#else
+	  #define G29_TYPE void
+	#endif
+	static G29_TYPE G29();
   #endif
 
   #if HAS_BED_PROBE
-    static void G30();
-    #if ENABLED(Z_PROBE_SLED)
-      static void G31();
-      static void G32();
-    #endif
+	static void G30();
+	#if ENABLED(Z_PROBE_SLED)
+	  static void G31();
+	  static void G32();
+	#endif
   #endif
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
-    static void G33();
+	static void G33();
   #endif
 
   #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
-    static void G34();
+	static void G34();
   #endif
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    static void M422();
-    static void M422_report(const bool forReplay=true);
+	static void M422();
+	static void M422_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(ASSISTED_TRAMMING)
-    static void G35();
+	static void G35();
   #endif
 
   #if ENABLED(G38_PROBE_TARGET)
-    static void G38(const int8_t subcode);
+	static void G38(const int8_t subcode);
   #endif
 
   #if HAS_MESH
-    static void G42();
+	static void G42();
   #endif
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    static void G53();
-    static void G54();
-    static void G55();
-    static void G56();
-    static void G57();
-    static void G58();
-    static void G59();
+	static void G53();
+	static void G54();
+	static void G55();
+	static void G56();
+	static void G57();
+	static void G58();
+	static void G59();
   #endif
 
   #if BOTH(PTC_PROBE, PTC_BED)
-    static void G76();
+	static void G76();
   #endif
 
   #if SAVED_POSITIONS
-    static void G60();
-    static void G61();
+	static void G60();
+	static void G61();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
-    static void G80();
+	static void G80();
   #endif
 
   static void G92();
 
   #if ENABLED(CALIBRATION_GCODE)
-    static void G425();
+	static void G425();
   #endif
+
+  #if ENABLED(VARIABLE_SUPPORT)
+	static void L100();
+	static void L101();
+	static void L102();
+	static void L103();
+	static void L104();
+	static void L105();
+	static void L106();
+	static void L107();
+	static void L108();
+	static void L109();
+	static void L110();
+	static void L111();
+	static void L112();
+	static void L113();
+	static void L114();
+	static void L115();
+  #endif 
 
   #if ENABLED(VARIABLE_SUPPORT)
     uint16_t L100();
@@ -625,37 +654,37 @@ private:
   #endif 
 
   #if HAS_RESUME_CONTINUE
-    static void M0_M1();
+	static void M0_M1();
   #endif
 
   #if HAS_CUTTER
-    static void M3_M4(const bool is_M4);
-    static void M5();
+	static void M3_M4(const bool is_M4);
+	static void M5();
   #endif
 
   #if ENABLED(COOLANT_MIST)
-    static void M7();
+	static void M7();
   #endif
 
   #if EITHER(AIR_ASSIST, COOLANT_FLOOD)
-    static void M8();
+	static void M8();
   #endif
 
   #if EITHER(AIR_ASSIST, COOLANT_CONTROL)
-    static void M9();
+	static void M9();
   #endif
 
   #if ENABLED(AIR_EVACUATION)
-    static void M10();
-    static void M11();
+	static void M10();
+	static void M11();
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    static void M12();
+	static void M12();
   #endif
 
   #if ENABLED(EXPECTED_PRINTER_CHECK)
-    static void M16();
+	static void M16();
   #endif
 
   static void M17();
@@ -663,46 +692,46 @@ private:
   static void M18_M84();
 
   #if ENABLED(SDSUPPORT)
-    static void M20();
-    static void M21();
-    static void M22();
-    static void M23();
-    static void M24();
-    static void M25();
-    static void M26();
-    static void M27();
-    static void M28();
-    static void M29();
-    static void M30();
+	static void M20();
+	static void M21();
+	static void M22();
+	static void M23();
+	static void M24();
+	static void M25();
+	static void M26();
+	static void M27();
+	static void M28();
+	static void M29();
+	static void M30();
   #endif
 
   static void M31();
 
   #if ENABLED(SDSUPPORT)
-    #if HAS_MEDIA_SUBCALLS
-      static void M32();
-    #endif
-    #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-      static void M33();
-    #endif
-    #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
-      static void M34();
-    #endif
+	#if HAS_MEDIA_SUBCALLS
+	  static void M32();
+	#endif
+	#if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+	  static void M33();
+	#endif
+	#if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
+	  static void M34();
+	#endif
   #endif
 
   #if ENABLED(DIRECT_PIN_CONTROL)
-    static void M42();
+	static void M42();
   #endif
   #if ENABLED(PINS_DEBUGGING)
-    static void M43();
+	static void M43();
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    static void M48();
+	static void M48();
   #endif
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    static void M73();
+	static void M73();
   #endif
 
   static void M75();
@@ -710,17 +739,17 @@ private:
   static void M77();
 
   #if ENABLED(PRINTCOUNTER)
-    static void M78();
+	static void M78();
   #endif
 
   #if ENABLED(PSU_CONTROL)
-    static void M80();
+	static void M80();
   #endif
   static void M81();
 
   #if HAS_EXTRUDERS
-    static void M82();
-    static void M83();
+	static void M82();
+	static void M83();
   #endif
 
   static void M85();
@@ -728,48 +757,48 @@ private:
   static void M92_report(const bool forReplay=true, const int8_t e=-1);
 
   #if ENABLED(M100_FREE_MEMORY_WATCHER)
-    static void M100();
+	static void M100();
   #endif
 
   #if ENABLED(BD_SENSOR)
-    static void M102();
-    static void M102_report(const bool forReplay=true);
+	static void M102();
+	static void M102_report(const bool forReplay=true);
   #endif
 
   #if HAS_EXTRUDERS
-    static void M104_M109(const bool isM109);
-    FORCE_INLINE static void M104() { M104_M109(false); }
-    FORCE_INLINE static void M109() { M104_M109(true); }
+	static void M104_M109(const bool isM109);
+	FORCE_INLINE static void M104() { M104_M109(false); }
+	FORCE_INLINE static void M109() { M104_M109(true); }
   #endif
 
   static void M105();
 
   #if HAS_FAN
-    static void M106();
-    static void M107();
+	static void M106();
+	static void M107();
   #endif
 
   #if DISABLED(EMERGENCY_PARSER)
-    static void M108();
-    static void M112();
-    static void M410();
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      static void M876();
-    #endif
+	static void M108();
+	static void M112();
+	static void M410();
+	#if ENABLED(HOST_PROMPT_SUPPORT)
+	  static void M876();
+	#endif
   #endif
 
   static void M110();
   static void M111();
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
-    static void M113();
+	static void M113();
   #endif
 
   static void M114();
   static void M115();
 
   #if HAS_STATUS_MESSAGE
-    static void M117();
+	static void M117();
   #endif
 
   static void M118();
@@ -778,86 +807,86 @@ private:
   static void M121();
 
   #if HAS_FANCHECK
-    static void M123();
+	static void M123();
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    static void M125();
+	static void M125();
   #endif
 
   #if ENABLED(BARICUDA)
-    #if HAS_HEATER_1
-      static void M126();
-      static void M127();
-    #endif
-    #if HAS_HEATER_2
-      static void M128();
-      static void M129();
-    #endif
+	#if HAS_HEATER_1
+	  static void M126();
+	  static void M127();
+	#endif
+	#if HAS_HEATER_2
+	  static void M128();
+	  static void M129();
+	#endif
   #endif
 
   #if HAS_HEATED_BED
-    static void M140_M190(const bool isM190);
-    FORCE_INLINE static void M140() { M140_M190(false); }
-    FORCE_INLINE static void M190() { M140_M190(true); }
+	static void M140_M190(const bool isM190);
+	FORCE_INLINE static void M140() { M140_M190(false); }
+	FORCE_INLINE static void M190() { M140_M190(true); }
   #endif
 
   #if HAS_HEATED_CHAMBER
-    static void M141();
-    static void M191();
+	static void M141();
+	static void M191();
   #endif
 
   #if HAS_TEMP_PROBE
-    static void M192();
+	static void M192();
   #endif
 
   #if HAS_COOLER
-    static void M143();
-    static void M193();
+	static void M143();
+	static void M193();
   #endif
 
   #if HAS_PREHEAT
-    static void M145();
-    static void M145_report(const bool forReplay=true);
+	static void M145();
+	static void M145_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-    static void M149();
-    static void M149_report(const bool forReplay=true);
+	static void M149();
+	static void M149_report(const bool forReplay=true);
   #endif
 
   #if HAS_COLOR_LEDS
-    static void M150();
+	static void M150();
   #endif
 
   #if ENABLED(AUTO_REPORT_POSITION)
-    static void M154();
+	static void M154();
   #endif
 
   #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
-    static void M155();
+	static void M155();
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    static void M163();
-    static void M164();
-    #if ENABLED(DIRECT_MIXING_IN_G1)
-      static void M165();
-    #endif
-    #if ENABLED(GRADIENT_MIX)
-      static void M166();
-    #endif
+	static void M163();
+	static void M164();
+	#if ENABLED(DIRECT_MIXING_IN_G1)
+	  static void M165();
+	#endif
+	#if ENABLED(GRADIENT_MIX)
+	  static void M166();
+	#endif
   #endif
 
   #if DISABLED(NO_VOLUMETRICS)
-    static void M200();
-    static void M200_report(const bool forReplay=true);
+	static void M200();
+	static void M200_report(const bool forReplay=true);
   #endif
   static void M201();
   static void M201_report(const bool forReplay=true);
 
   #if 0
-    static void M202(); // Not used for Sprinter/grbl gen6
+	static void M202(); // Not used for Sprinter/grbl gen6
   #endif
 
   static void M203();
@@ -868,401 +897,401 @@ private:
   static void M205_report(const bool forReplay=true);
 
   #if HAS_M206_COMMAND
-    static void M206();
-    static void M206_report(const bool forReplay=true);
+	static void M206();
+	static void M206_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(FWRETRACT)
-    static void M207();
-    static void M207_report(const bool forReplay=true);
-    static void M208();
-    static void M208_report(const bool forReplay=true);
-    #if ENABLED(FWRETRACT_AUTORETRACT)
-      static void M209();
-      static void M209_report(const bool forReplay=true);
-    #endif
+	static void M207();
+	static void M207_report(const bool forReplay=true);
+	static void M208();
+	static void M208_report(const bool forReplay=true);
+	#if ENABLED(FWRETRACT_AUTORETRACT)
+	  static void M209();
+	  static void M209_report(const bool forReplay=true);
+	#endif
   #endif
 
   static void M211();
   static void M211_report(const bool forReplay=true);
 
   #if HAS_MULTI_EXTRUDER
-    static void M217();
-    static void M217_report(const bool forReplay=true);
+	static void M217();
+	static void M217_report(const bool forReplay=true);
   #endif
 
   #if HAS_HOTEND_OFFSET
-    static void M218();
-    static void M218_report(const bool forReplay=true);
+	static void M218();
+	static void M218_report(const bool forReplay=true);
   #endif
 
   static void M220();
 
   #if HAS_EXTRUDERS
-    static void M221();
+	static void M221();
   #endif
 
   #if ENABLED(DIRECT_PIN_CONTROL)
-    static void M226();
+	static void M226();
   #endif
 
   #if ENABLED(PHOTO_GCODE)
-    static void M240();
+	static void M240();
   #endif
 
   #if HAS_LCD_CONTRAST
-    static void M250();
-    static void M250_report(const bool forReplay=true);
+	static void M250();
+	static void M250_report(const bool forReplay=true);
   #endif
 
   #if HAS_GCODE_M255
-    static void M255();
-    static void M255_report(const bool forReplay=true);
+	static void M255();
+	static void M255_report(const bool forReplay=true);
   #endif
 
   #if HAS_LCD_BRIGHTNESS
-    static void M256();
-    static void M256_report(const bool forReplay=true);
+	static void M256();
+	static void M256_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS)
-    static void M260();
-    static void M261();
+	static void M260();
+	static void M261();
   #endif
 
   #if HAS_SERVOS
-    static void M280();
-    #if ENABLED(EDITABLE_SERVO_ANGLES)
-      static void M281();
-      static void M281_report(const bool forReplay=true);
-    #endif
-    #if ENABLED(SERVO_DETACH_GCODE)
-      static void M282();
-    #endif
+	static void M280();
+	#if ENABLED(EDITABLE_SERVO_ANGLES)
+	  static void M281();
+	  static void M281_report(const bool forReplay=true);
+	#endif
+	#if ENABLED(SERVO_DETACH_GCODE)
+	  static void M282();
+	#endif
   #endif
 
   #if ENABLED(BABYSTEPPING)
-    static void M290();
+	static void M290();
   #endif
 
   #if HAS_SOUND
-    static void M300();
+	static void M300();
   #endif
 
   #if ENABLED(PIDTEMP)
-    static void M301();
-    static void M301_report(const bool forReplay=true E_OPTARG(const int8_t eindex=-1));
+	static void M301();
+	static void M301_report(const bool forReplay=true E_OPTARG(const int8_t eindex=-1));
   #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    static void M302();
+	static void M302();
   #endif
 
   #if HAS_PID_HEATING
-    static void M303();
+	static void M303();
   #endif
 
   #if ENABLED(PIDTEMPBED)
-    static void M304();
-    static void M304_report(const bool forReplay=true);
+	static void M304();
+	static void M304_report(const bool forReplay=true);
   #endif
 
   #if HAS_USER_THERMISTORS
-    static void M305();
+	static void M305();
   #endif
 
   #if ENABLED(MPCTEMP)
-    static void M306();
-    static void M306_report(const bool forReplay=true);
+	static void M306();
+	static void M306_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(PIDTEMPCHAMBER)
-    static void M309();
-    static void M309_report(const bool forReplay=true);
+	static void M309();
+	static void M309_report(const bool forReplay=true);
   #endif
 
   #if HAS_MICROSTEPS
-    static void M350();
-    static void M351();
+	static void M350();
+	static void M351();
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)
-    static void M355();
+	static void M355();
   #endif
 
   #if ENABLED(REPETIER_GCODE_M360)
-    static void M360();
+	static void M360();
   #endif
 
   #if ENABLED(MORGAN_SCARA)
-    static bool M360();
-    static bool M361();
-    static bool M362();
-    static bool M363();
-    static bool M364();
+	static bool M360();
+	static bool M361();
+	static bool M362();
+	static bool M363();
+	static bool M364();
   #endif
 
   #if EITHER(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
-    static void M380();
-    static void M381();
+	static void M380();
+	static void M381();
   #endif
 
   static void M400();
 
   #if HAS_BED_PROBE
-    static void M401();
-    static void M402();
+	static void M401();
+	static void M402();
   #endif
 
   #if HAS_PRUSA_MMU2
-    static void M403();
+	static void M403();
   #endif
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    static void M404();
-    static void M405();
-    static void M406();
-    static void M407();
+	static void M404();
+	static void M405();
+	static void M406();
+	static void M407();
   #endif
 
   #if HAS_FILAMENT_SENSOR
-    static void M412();
-    static void M412_report(const bool forReplay=true);
+	static void M412();
+	static void M412_report(const bool forReplay=true);
   #endif
 
   #if HAS_MULTI_LANGUAGE
-    static void M414();
-    static void M414_report(const bool forReplay=true);
+	static void M414();
+	static void M414_report(const bool forReplay=true);
   #endif
 
   #if HAS_LEVELING
-    static void M420();
-    static void M420_report(const bool forReplay=true);
-    static void M421();
+	static void M420();
+	static void M420_report(const bool forReplay=true);
+	static void M421();
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    static void M425();
-    static void M425_report(const bool forReplay=true);
+	static void M425();
+	static void M425_report(const bool forReplay=true);
   #endif
 
   #if HAS_M206_COMMAND
-    static void M428();
+	static void M428();
   #endif
 
   #if HAS_POWER_MONITOR
-    static void M430();
+	static void M430();
   #endif
 
   #if ENABLED(CANCEL_OBJECTS)
-    static void M486();
+	static void M486();
   #endif
 
   static void M500();
   static void M501();
   static void M502();
   #if DISABLED(DISABLE_M503)
-    static void M503();
+	static void M503();
   #endif
   #if ENABLED(EEPROM_SETTINGS)
-    static void M504();
+	static void M504();
   #endif
 
   #if ENABLED(PASSWORD_FEATURE)
-    static void M510();
-    #if ENABLED(PASSWORD_UNLOCK_GCODE)
-      static void M511();
-    #endif
-    #if ENABLED(PASSWORD_CHANGE_GCODE)
-      static void M512();
-    #endif
+	static void M510();
+	#if ENABLED(PASSWORD_UNLOCK_GCODE)
+	  static void M511();
+	#endif
+	#if ENABLED(PASSWORD_CHANGE_GCODE)
+	  static void M512();
+	#endif
   #endif
 
   #if ENABLED(SDSUPPORT)
-    static void M524();
+	static void M524();
   #endif
 
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
-    static void M540();
+	static void M540();
   #endif
 
   #if HAS_ETHERNET
-    static void M552();
-    static void M552_report();
-    static void M553();
-    static void M553_report();
-    static void M554();
-    static void M554_report();
+	static void M552();
+	static void M552_report();
+	static void M553();
+	static void M553_report();
+	static void M554();
+	static void M554_report();
   #endif
 
   #if HAS_STEALTHCHOP
-    static void M569();
-    static void M569_report(const bool forReplay=true);
+	static void M569();
+	static void M569_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(BAUD_RATE_GCODE)
-    static void M575();
+	static void M575();
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    static void M600();
-    static void M603();
-    static void M603_report(const bool forReplay=true);
+	static void M600();
+	static void M603();
+	static void M603_report(const bool forReplay=true);
   #endif
 
   #if HAS_DUPLICATION_MODE
-    static void M605();
+	static void M605();
   #endif
 
   #if IS_KINEMATIC
-    static void M665();
-    static void M665_report(const bool forReplay=true);
+	static void M665();
+	static void M665_report(const bool forReplay=true);
   #endif
 
   #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
-    static void M666();
-    static void M666_report(const bool forReplay=true);
+	static void M666();
+	static void M666_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
-    static void M672();
+	static void M672();
   #endif
 
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-    static void M701();
-    static void M702();
+	static void M701();
+	static void M702();
   #endif
 
   #if ENABLED(GCODE_REPEAT_MARKERS)
-    static void M808();
+	static void M808();
   #endif
 
   #if ENABLED(GCODE_MACROS)
-    static void M810_819();
+	static void M810_819();
   #endif
 
   #if HAS_BED_PROBE
-    static void M851();
-    static void M851_report(const bool forReplay=true);
+	static void M851();
+	static void M851_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
-    static void M852();
-    static void M852_report(const bool forReplay=true);
+	static void M852();
+	static void M852_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    FORCE_INLINE static void M860() { I2CPEM.M860(); }
-    FORCE_INLINE static void M861() { I2CPEM.M861(); }
-    FORCE_INLINE static void M862() { I2CPEM.M862(); }
-    FORCE_INLINE static void M863() { I2CPEM.M863(); }
-    FORCE_INLINE static void M864() { I2CPEM.M864(); }
-    FORCE_INLINE static void M865() { I2CPEM.M865(); }
-    FORCE_INLINE static void M866() { I2CPEM.M866(); }
-    FORCE_INLINE static void M867() { I2CPEM.M867(); }
-    FORCE_INLINE static void M868() { I2CPEM.M868(); }
-    FORCE_INLINE static void M869() { I2CPEM.M869(); }
+	FORCE_INLINE static void M860() { I2CPEM.M860(); }
+	FORCE_INLINE static void M861() { I2CPEM.M861(); }
+	FORCE_INLINE static void M862() { I2CPEM.M862(); }
+	FORCE_INLINE static void M863() { I2CPEM.M863(); }
+	FORCE_INLINE static void M864() { I2CPEM.M864(); }
+	FORCE_INLINE static void M865() { I2CPEM.M865(); }
+	FORCE_INLINE static void M866() { I2CPEM.M866(); }
+	FORCE_INLINE static void M867() { I2CPEM.M867(); }
+	FORCE_INLINE static void M868() { I2CPEM.M868(); }
+	FORCE_INLINE static void M869() { I2CPEM.M869(); }
   #endif
 
   #if HAS_PTC
-    static void M871();
+	static void M871();
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    static void M900();
-    static void M900_report(const bool forReplay=true);
+	static void M900();
+	static void M900_report(const bool forReplay=true);
   #endif
 
   #if HAS_TRINAMIC_CONFIG
-    static void M122();
-    static void M906();
-    static void M906_report(const bool forReplay=true);
-    #if ENABLED(MONITOR_DRIVER_STATUS)
-      static void M911();
-      static void M912();
-    #endif
-    #if ENABLED(HYBRID_THRESHOLD)
-      static void M913();
-      static void M913_report(const bool forReplay=true);
-    #endif
-    #if USE_SENSORLESS
-      static void M914();
-      static void M914_report(const bool forReplay=true);
-    #endif
-    static void M919();
+	static void M122();
+	static void M906();
+	static void M906_report(const bool forReplay=true);
+	#if ENABLED(MONITOR_DRIVER_STATUS)
+	  static void M911();
+	  static void M912();
+	#endif
+	#if ENABLED(HYBRID_THRESHOLD)
+	  static void M913();
+	  static void M913_report(const bool forReplay=true);
+	#endif
+	#if USE_SENSORLESS
+	  static void M914();
+	  static void M914_report(const bool forReplay=true);
+	#endif
+	static void M919();
   #endif
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
-    static void M907();
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
-      static void M907_report(const bool forReplay=true);
-    #endif
+	static void M907();
+	#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+	  static void M907_report(const bool forReplay=true);
+	#endif
   #endif
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
-    static void M908();
+	static void M908();
   #endif
   #if HAS_MOTOR_CURRENT_DAC
-    static void M909();
-    static void M910();
+	static void M909();
+	static void M910();
   #endif
 
   #if ENABLED(SDSUPPORT)
-    static void M928();
+	static void M928();
   #endif
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    static void M951();
+	static void M951();
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    static void M995();
+	static void M995();
   #endif
 
   #if BOTH(HAS_SPI_FLASH, SDSUPPORT)
-    static void M993();
-    static void M994();
+	static void M993();
+	static void M994();
   #endif
 
   #if ENABLED(PLATFORM_M997_SUPPORT)
-    static void M997();
+	static void M997();
   #endif
 
   static void M999();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    static void M413();
-    static void M413_report(const bool forReplay=true);
-    static void M1000();
+	static void M413();
+	static void M413_report(const bool forReplay=true);
+	static void M1000();
   #endif
 
   #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    static void M423();
-    static void M423_report(const bool forReplay=true);
+	static void M423();
+	static void M423_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(SDSUPPORT)
-    static void M1001();
+	static void M1001();
   #endif
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-    static void M1002();
+	static void M1002();
   #endif
 
   #if ENABLED(UBL_MESH_WIZARD)
-    static void M1004();
+	static void M1004();
   #endif
 
   #if ENABLED(HAS_MCP3426_ADC)
-    static void M3426();
+	static void M3426();
   #endif
 
   #if ENABLED(MAX7219_GCODE)
-    static void M7219();
+	static void M7219();
   #endif
 
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    static void M710();
-    static void M710_report(const bool forReplay=true);
+	static void M710();
+	static void M710_report(const bool forReplay=true);
   #endif
 
   static void T(const int8_t tool_index);
