@@ -2485,13 +2485,7 @@ uint32_t Stepper::block_phase_isr() {
         E_STEP_WRITE(stepper_extruder, !INVERT_E_STEP_PIN);
       #endif
 
-    #if ENABLED(I2S_STEPPER_STREAM)
-      }
-
-      i2s_push_sample();
-
-      if (step_needed) {
-    #endif
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
       // Enforce a minimum duration for STEP pulse ON
       #if ISR_PULSE_CONTROL
