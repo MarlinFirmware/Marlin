@@ -155,7 +155,7 @@ void stepperTask(void *parameter) {
 
       // i2s_push_sample() is also called from Stepper::pulse_phase_isr() and Stepper::advance_isr()
       // in a rare case where both are called, we need to double decrement the counters
-      const uint8_t push_count = !nextMainISR && TERN0(LIN_ADVANCE, !nextAdvanceISR) ? 2 : 1;
+      const uint8_t push_count = 1 + (!nextMainISR && TERN0(LIN_ADVANCE, !nextAdvanceISR));
 
       #if ENABLED(LIN_ADVANCE)
         if (!nextAdvanceISR) {
@@ -171,13 +171,15 @@ void stepperTask(void *parameter) {
         nextMainISR = Stepper::block_phase_isr();
       }
 
-      LOOP_L_N(i, push_count) {
-        nextMainISR--;
-        #if ENABLED(LIN_ADVANCE)
-          if (nextAdvanceISR != Stepper::LA_ADV_NEVER)
-            nextAdvanceISR--;
-        #endif
-      }
+      nextMainISR -= push_count;
+      #if ENABLED(LIN_ADVANCE)
+        if (nextAdvanceISR != Stepper::LA_ADV_NEVER) {
+          if (nextAdvanceISR > push_count)
+            nextAdvanceISR -= push_count;
+          else
+            nextAdvanceISR = 0;
+        }
+      #endif
     }
   }
 }
