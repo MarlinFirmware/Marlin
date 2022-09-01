@@ -256,6 +256,7 @@
 	uint8_t input_var; // = 0
 	uint8_t StoredVar;
   bool is_var; // = false
+#endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
