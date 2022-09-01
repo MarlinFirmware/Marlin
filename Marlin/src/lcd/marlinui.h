@@ -303,7 +303,7 @@ public:
       #define PROGRESS_SCALE 1U
       #define PROGRESS_MASK 0x7F
     #endif
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    #if ENABLED(SET_PROGRESS_MANUALLY)
       static progress_t progress_override;
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
@@ -322,6 +322,11 @@ public:
         FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
       #else
         FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
+      #endif
+      #if ENABLED(USE_M73_INTERACTION_TIME)
+        static uint32_t interaction_time;
+        FORCE_INLINE static void set_interaction_time(const uint32_t r) { interaction_time = r; }
+        FORCE_INLINE static void reset_interaction_time() { set_interaction_time(0); }
       #endif
     #endif
     static progress_t _get_progress();

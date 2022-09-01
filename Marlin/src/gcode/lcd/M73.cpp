@@ -22,11 +22,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if ENABLED(SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
+#include "../../libs/numtostr.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
   #include "../../lcd/e3v2/proui/dwin.h"
@@ -36,8 +37,16 @@
  * M73: Set percentage complete (for display on LCD)
  *
  * Example:
- *   M73 P25 ; Set progress to 25%
+ *   M73 P25   ; Set progress to 25%
+ *   M73 R456  ; Set remaining time to 456 minutes
+ *   M73 C12   ; Set next interaction countdown to 12 minutes
+ *   M73       ; Report current values
+ * 
+ * Use Prusa-like report format: 
+ * M73 Percent done: ---; Print time remaining in mins: -----; Change in mins: -----;
+ * 
  */
+
 void GcodeSuite::M73() {
 
   #if ENABLED(DWIN_LCD_PROUI)
@@ -55,8 +64,24 @@ void GcodeSuite::M73() {
     #if ENABLED(USE_M73_REMAINING_TIME)
       if (parser.seenval('R')) ui.set_remaining_time(60 * parser.value_ulong());
     #endif
+    
+    #if ENABLED(USE_M73_INTERACTION_TIME)
+      if (parser.seenval('C')) ui.set_interaction_time(60 * parser.value_ulong());
+    #endif
 
+  #endif
+
+  #if ENABLED(M73_REPORT)
+    SERIAL_ECHO_MSG("  M73 Percent done: ", ui._get_progress()/100
+                    #if ENABLED(USE_M73_REMAINING_TIME)
+                    , "; Print time remaining in mins: ", ui.remaining_time/60
+                    #endif
+                    #if ENABLED(USE_M73_INTERACTION_TIME)
+                    , "; Change in mins: ", ui.interaction_time/60
+                    #endif
+                    , ";");
   #endif
 }
 
-#endif // LCD_SET_PROGRESS_MANUALLY
+#endif // SET_PROGRESS_MANUALLY
+

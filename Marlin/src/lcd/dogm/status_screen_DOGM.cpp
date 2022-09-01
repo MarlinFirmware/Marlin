@@ -541,7 +541,7 @@ void MarlinUI::draw_status_screen() {
           else
             strcpy(progress_string, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
 
-          #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Tri-state progress display mode
+          #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Multi-state progress display mode
             progress_x_pos = _SD_INFO_X(strlen(progress_string) + 1);
           #endif
         #endif
@@ -556,7 +556,7 @@ void MarlinUI::draw_status_screen() {
         #if ENABLED(SHOW_REMAINING_TIME)
           if (!(ev & 0x3)) {
             uint32_t timeval = (0
-              #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+              #if BOTH(SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
                 + get_remaining_time()
               #endif
             );
@@ -777,7 +777,7 @@ void MarlinUI::draw_status_screen() {
 
         if (prev_blink != blink) {
           prev_blink = blink;
-          if (++progress_state >= 3) progress_state = 0;
+          if (++progress_state >= 4) progress_state = 0;
         }
 
         if (progress_state == 0) {
@@ -789,6 +789,10 @@ void MarlinUI::draw_status_screen() {
         else if (progress_state == 2 && estimation_string[0]) {
           lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
+        }
+        else if (progress_state == 3) {
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
+          lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, interaction_time);
         }
         else if (elapsed_string[0]) {
           lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
