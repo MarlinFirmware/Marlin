@@ -407,7 +407,6 @@ namespace Language_de {
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Vorschubfaktor *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD-Kontrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD-Helligkeit");
-  LSTR MSG_LCD_TIMEOUT_SEC                = _UxGT("LCD-Ruhezustand (s)");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("LCD ausschalten");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Konfig. speichern");

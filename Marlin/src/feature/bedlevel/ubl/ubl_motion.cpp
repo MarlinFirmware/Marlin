@@ -423,10 +423,12 @@
       LIMIT(icell.x, 0, GRID_MAX_CELLS_X);
       LIMIT(icell.y, 0, GRID_MAX_CELLS_Y);
 
-      float z_x0y0 = z_values[icell.x  ][icell.y  ],  // z at lower left corner
-            z_x1y0 = z_values[icell.x+1][icell.y  ],  // z at upper left corner
-            z_x0y1 = z_values[icell.x  ][icell.y+1],  // z at lower right corner
-            z_x1y1 = z_values[icell.x+1][icell.y+1];  // z at upper right corner
+      const int8_t ncellx = _MIN(icell.x+1, GRID_MAX_CELLS_X),
+                   ncelly = _MIN(icell.y+1, GRID_MAX_CELLS_Y);
+      float z_x0y0 = z_values[icell.x][icell.y],  // z at lower left corner
+            z_x1y0 = z_values[ncellx ][icell.y],  // z at upper left corner
+            z_x0y1 = z_values[icell.x][ncelly ],  // z at lower right corner
+            z_x1y1 = z_values[ncellx ][ncelly ];  // z at upper right corner
 
       if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
       if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
