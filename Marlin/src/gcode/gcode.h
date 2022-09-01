@@ -326,7 +326,10 @@
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
+
  *** 'L' Variables ***
+=======
+
  # L100-L115 - Definable variables 
  *
  */
@@ -629,6 +632,25 @@ private:
 	static void L113();
 	static void L114();
 	static void L115();
+  #endif 
+
+  #if ENABLED(VARIABLE_SUPPORT)
+    uint16_t L100();
+    uint16_t L101();
+    uint16_t L102();
+    uint16_t L103();
+    uint16_t L104();
+    uint16_t L105();
+    uint16_t L106();
+    uint16_t L107();
+    uint16_t L108();
+    uint16_t L109();
+    uint16_t L110();
+    uint16_t L111();
+    uint16_t L112();
+    uint16_t L113();
+    uint16_t L114();
+    uint16_t L115();
   #endif 
 
   #if HAS_RESUME_CONTINUE

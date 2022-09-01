@@ -367,6 +367,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
   switch (parser.command_letter) {
 
+
 	case 'G': switch (parser.codenum) {
 
 	  case 0: case 1:                                             // G0: Fast Move, G1: Linear Move
@@ -1147,7 +1148,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 		if (wifi_custom_command(parser.command_ptr)) break;
 	  #endif
 	  parser.unknown_command_warning();
-  }
+}
 
   if (!no_ok) queue.ok_to_send();
 

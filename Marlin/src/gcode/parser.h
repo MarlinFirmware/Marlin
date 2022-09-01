@@ -90,8 +90,10 @@ public:
 
   // Command line state
   static char *command_ptr,               // The command, so it can be echoed
+
 			  *string_arg,                // string of command line
 			  command_letter;             // G, M, V, or T
+
   static uint16_t codenum;                // 123
   #if USE_GCODE_SUBCODES
 	static uint8_t subcode;               // .1
@@ -106,9 +108,11 @@ public:
   #endif
 
   
-//  #if ENABLED(VARIABLE_SUPPORT)
-//	static void input_var();
-//  #endif
+
+  #if ENABLED(VARIABLE_SUPPORT)
+	static void input_var();
+  #endif
+
 
   #if ENABLED(DEBUG_GCODE_PARSER)
 	static void debug();
@@ -288,6 +292,7 @@ public:
 
   // Float removes 'E' to prevent scientific notation interpretation
   static float value_float() {
+
 		if (!value_ptr) return 0;
 	  char *e = value_ptr;
 	  for (;;) {
@@ -303,6 +308,7 @@ public:
 	  }
 	  return strtof(value_ptr, nullptr);
 	}
+
 
   // Code value as a long or ulong
   static int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
@@ -442,11 +448,13 @@ public:
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
 
+
   #if ENABLED(VARIABLE_SUPPORT)
 
 	static int to_input_var(int8_t c) { return (int)c; };
 	
   #endif
+
 
   static feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 

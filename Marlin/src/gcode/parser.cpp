@@ -41,6 +41,7 @@ bool GCodeParser::volumetric_enabled;
 	TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
+
 char *GCodeParser::command_ptr,
 		 *GCodeParser::string_arg,
 		 *GCodeParser::value_ptr;
@@ -57,6 +58,10 @@ uint16_t GCodeParser::codenum;
 		uint8_t GCodeParser::motion_mode_subcode;
 	#endif
 #endif  
+
+//#if ENABLED(VARIABLE_SUPPORT)
+//  uint16_t GCodeParser::input_var;
+//#endif
 
 #if ENABLED(FASTER_GCODE_PARSER)
 	// Optimized Parameters
@@ -176,6 +181,7 @@ void GCodeParser::reset() {
  * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
  */
 void GCodeParser::parse(char *p) {
+
 
 	reset(); // No codes to report
 
