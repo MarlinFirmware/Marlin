@@ -953,7 +953,7 @@ class Temperature {
      */
     #if HAS_PID_HEATING
 
-      #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+      #if HAS_PID_DEBUG
         static bool pid_debug_flag;
       #endif
 
@@ -1035,7 +1035,7 @@ class Temperature {
 
     // MAX Thermocouples
     #if HAS_MAX_TC
-      #define MAX_TC_COUNT COUNT_ENABLED(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC, TEMP_SENSOR_REDUNDANT_IS_MAX_TC)
+      #define MAX_TC_COUNT TEMP_SENSOR_IS_MAX_TC(0) + TEMP_SENSOR_IS_MAX_TC(1) + TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
         #define READ_MAX_TC(N) read_max_tc(N)

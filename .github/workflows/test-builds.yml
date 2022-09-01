@@ -45,6 +45,7 @@ jobs:
         - teensy35
         - teensy41
         - SAMD51_grandcentral_m4
+        - PANDA_PI_V29
 
         # Extended AVR Environments
 
@@ -65,7 +66,7 @@ jobs:
         #- mks_robin_maple
         - mks_robin_lite_maple
         - mks_robin_pro_maple
-        #- mks_robin_nano35_maple
+        #- mks_robin_nano_v1v2_maple
         #- STM32F103RE_creality_maple
         - STM32F103VE_ZM3E4V2_USB_maple
 
@@ -92,7 +93,9 @@ jobs:
         - rumba32
         - LERDGEX
         - LERDGEK
-        - mks_robin_nano35
+        - mks_robin_nano_v1v2
+        - mks_robin_nano_v1_2_usbmod
+        - mks_robin_nano_v1_3_f4_usbmod
         - NUCLEO_F767ZI
         - REMRAM_V1
         - BTT_SKR_SE_BX

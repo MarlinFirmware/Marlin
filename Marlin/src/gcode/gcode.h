@@ -132,6 +132,8 @@
  *
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  *
+ * M102 - Configure Bed Distance Sensor. (Requires BD_SENSOR)
+ *
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
  * M106 - Set print fan speed.
@@ -703,6 +705,11 @@ private:
 
   #if ENABLED(M100_FREE_MEMORY_WATCHER)
     static void M100();
+  #endif
+
+  #if ENABLED(BD_SENSOR)
+    static void M102();
+    static void M102_report(const bool forReplay=true);
   #endif
 
   #if HAS_EXTRUDERS

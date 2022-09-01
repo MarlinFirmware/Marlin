@@ -233,7 +233,7 @@ void GcodeSuite::get_destination_from_command() {
       if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
         planner.laser_inline.status.isPowered = true;
         if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
-        if (parser.seen('S')) {
+        if (parser.seenval('S')) {
           const float v = parser.value_float(),
                       u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
           cutter.menuPower = cutter.unitPower = u;
@@ -575,6 +575,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100: M100(); break;                                  // M100: Free Memory Report
+      #endif
+
+      #if ENABLED(BD_SENSOR)
+        case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
       #if HAS_EXTRUDERS
