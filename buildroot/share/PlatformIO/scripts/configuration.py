@@ -78,8 +78,8 @@ def apply_opt(name, val, conf=None):
                 elif not isdef:
                     break
                 linenum += 1
-            lines.insert(linenum, f"{prefix}#define {added} // Added by config.ini")
-            fullpath.write_text('\n'.join(lines))
+            lines.insert(linenum, f"{prefix}#define {added} // Added by config.ini\n")
+            fullpath.write_text(''.join(lines))
 
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
