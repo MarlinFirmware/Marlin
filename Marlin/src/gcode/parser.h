@@ -38,10 +38,6 @@
   typedef enum : uint8_t { TEMPUNIT_C, TEMPUNIT_K, TEMPUNIT_F } TempUnit;
 #endif
 
-#if ENABLED(VARIABLE_SUPPORT)
-  static uint8_t StoredVar;
-#endif
-
 #if ENABLED(INCH_MODE_SUPPORT)
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
@@ -84,10 +80,6 @@ public:
 	static TempUnit input_temp_units;
   #endif
 
-  #if ENABLED(VARIABLE_SUPPORT)
-	static StoredVar input_var;
-  #endif
-
   // Command line state
   static char *command_ptr,               // The command, so it can be echoed
 
@@ -106,13 +98,6 @@ public:
 	#endif
 	FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
   #endif
-
-  
-
-  #if ENABLED(VARIABLE_SUPPORT)
-	static void input_var();
-  #endif
-
 
   #if ENABLED(DEBUG_GCODE_PARSER)
 	static void debug();
@@ -249,25 +234,18 @@ public:
   #else
 	FORCE_INLINE static char* unescape_string(char* &src) { return src; }
   #endif
-
-  #if ENABLED(VARIABLE_SUPPORT)
-	static uint8_t input_var(uint8_t* &src);
-  #else
-	FORCE_INLINE static uint8_t* input_var(uint8_t* &src) { return src; }
-  #endif
-
   
-  #if ENABLED(GCODE_MATHS_STRINGS)
-	static char* math_string(char* &src);
-  #else
-	FORCE_INLINE static char* math_string(char* &src) { return src; }
-  #endif
+//  #if ENABLED(GCODE_MATHS_STRINGS)
+//	static char* math_string(char* &src);
+//  #else
+//	FORCE_INLINE static char* math_string(char* &src) { return src; }
+//  #endif
 
-  #if ENABLED(GCODE_LOGIC_STRINGS)
-	static char* logic_string(char* &src);
-  #else
-	FORCE_INLINE static char* logic_string(char* &src) { return src; }
-  #endif
+//  #if ENABLED(GCODE_LOGIC_STRINGS)
+//	static char* logic_string(char* &src);
+//  #else
+//	FORCE_INLINE static char* logic_string(char* &src) { return src; }
+//  #endif
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
@@ -446,15 +424,6 @@ public:
 	static celsius_t value_celsius_diff() { return value_int(); }
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
-
-
-
-  #if ENABLED(VARIABLE_SUPPORT)
-
-	static int to_input_var(int8_t c) { return (int)c; };
-	
-  #endif
-
 
   static feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
 

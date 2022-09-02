@@ -1,9 +1,8 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2022 Carlon LaMont
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +20,57 @@
  */
 
 
-
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(VARIABLE_SUPPORT)
 
-#include"../parser.h"
 #include "../gcode.h"
+#include "../queue.h"
+#include "../parser.h"
+
+/**
+ * Get the variable target data from the L parameter
+ * Return -1 if the P parameter is out of range
+ */
+int8_t GcodeSuite::get_var_from_command() {
+  if (parser.seenval('L')) {
+	const int8_t e = parser.value_byte();
+//	if (e < EXTRUDERS) return e;
+//	SERIAL_ECHO_START();
+//	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
+//	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
+//	return -1;
+  }
+  return stored_var;
+}
+
+
+void GcodeSuite::M98() {
+  if (card.isMounted() && parser.seen('P')) {
+    char *path = parser.value_string();
+    char *lb = strchr(p, ' ');
+    if (!lb) lb = strchr(p, ';');
+    if (lb) *lb = '\0';
+    card.runMacro(path);
+  }
+}
+
+const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
+char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
+	#else
+		int bool has_val = valid_float(p);
+			#if ENABLED(FASTER_GCODE_PARSER)
+				char * const varptr = has_val ? p : nullptr;
+	        #endif
+#endif
+
+bool used_var_arg = false;
+
+
+
+//#if ENABLED(VARIABLE_SUPPORT)
+//  uint16_t GCodeParser::input_var;
+//#endif
 
 //char gcode_variables[VARIABLE_SLOTS][VARIABLE_SLOT_SIZE +1] = {{ 0 }};
 
