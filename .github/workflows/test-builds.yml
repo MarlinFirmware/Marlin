@@ -94,8 +94,8 @@ jobs:
         - LERDGEX
         - LERDGEK
         - mks_robin_nano_v1v2
-        - mks_robin_nano_v1_2_usbmod
-        - mks_robin_nano_v1_3_f4_usbmod
+        #- mks_robin_nano_v1v2_usbmod
+        #- mks_robin_nano_v1_3_f4_usbmod
         - NUCLEO_F767ZI
         - REMRAM_V1
         - BTT_SKR_SE_BX
