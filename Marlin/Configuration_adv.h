@@ -1430,7 +1430,7 @@
 #endif
 
 // Add an 'M73' G-code to set the current percentage
-#define SET_PROGRESS_MANUALLY
+//#define SET_PROGRESS_MANUALLY
 #if ENABLED(SET_PROGRESS_MANUALLY)
   #define USE_M73_REMAINING_TIME    // Add 'R' parameter to set remaining time
   #define USE_M73_INTERACTION_TIME  // Add 'C' parameter to set time until next filament change or other user interaction
