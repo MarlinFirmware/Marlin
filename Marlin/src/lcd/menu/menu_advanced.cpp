@@ -218,7 +218,23 @@ void menu_backlash();
     float raw_Kf;
   #endif
 
-  // Helpers for editing PID Ki and Kd values
+  // Helpers for editing PID Kp, Ki and Kd values
+  void apply_PID_p(const int8_t e) {
+    switch (e) {
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: thermalManager.temp_bed.pid.set_Ki(raw_Ki); break;
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Ki(raw_Ki); break;
+      #endif
+      default:
+        #if ENABLED(PIDTEMP)
+          SET_HOTEND_PID(Kp, e, raw_Kp);
+          thermalManager.updatePID();
+        #endif
+        break;
+    }
+  }
   void apply_PID_i(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
@@ -300,7 +316,7 @@ void menu_backlash();
         raw_Kp = thermalManager.temp_hotend[N].pid.p(); \
         raw_Ki = thermalManager.temp_hotend[N].pid.i(); \
         raw_Kd = thermalManager.temp_hotend[N].pid.d(); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ SET_HOTEND_PID(Kp, N, raw_Kp); thermalManager.updatePID(); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
         EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
 
@@ -330,8 +346,10 @@ void menu_backlash();
 
     #if ENABLED(PID_EDIT_MENU) && EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
       #define _PID_EDIT_ITEMS_TMPL(N,T) \
-        raw_Ki = T.pid.i(); raw_Kd = T.pid.d(); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
+        raw_Kp = T.pid.p(); \
+        raw_Ki = T.pid.i(); \
+        raw_Kd = T.pid.d(); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
         EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
     #endif
