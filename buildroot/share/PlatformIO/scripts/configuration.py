@@ -67,7 +67,7 @@ def apply_opt(name, val, conf=None):
 
         # Prepend the new option after the first set of #define lines
         fullpath = config_path("Configuration.h")
-        with fullpath.open() as f:
+        with fullpath.open(encoding='utf-8') as f:
             lines = f.readlines()
             linenum = 0
             gotdef = False
