@@ -10,7 +10,7 @@ def blab(str,level=1):
     if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
-    return Path("Marlin", cpath)
+    return Path("Marlin", cpath, encoding='utf-8')
 
 # Apply a single name = on/off ; name = value ; etc.
 # TODO: Limit to the given (optional) configuration
