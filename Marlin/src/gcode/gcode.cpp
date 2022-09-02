@@ -147,22 +147,6 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 }
 
 /**
- * Get the variable target data from the L parameter
- * Return -1 if the P parameter is out of range
- */
-int8_t GcodeSuite::get_var_from_command() {
-  if (parser.seenval('L')) {
-	const int8_t e = parser.value_byte();
-	if (e < EXTRUDERS) return e;
-	SERIAL_ECHO_START();
-	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
-	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
-	return -1;
-  }
-  return stored_var;
-}
-
-/**
  * Get the target E stepper from the 'T' parameter.
  * If there is no 'T' parameter then dval will be substituted.
  * Returns -1 if the resulting E stepper index is out of range.
@@ -496,30 +480,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 	}
 	break;
 
-	case 'L': switch (parser.codenum) {
-
-	  #if ENABLED(VARIABLE_SUPPORT)
-		case 100: L100(); break;
-		case 101: L101(); break;
-		case 102: L102(); break;
-		case 103: L103(); break;
-		case 104: L104(); break;
-		case 105: L105(); break;
-		case 106: L106(); break;
-		case 107: L107(); break;
-		case 108: L108(); break;
-		case 109: L109(); break;
-		case 110: L110(); break;
-		case 111: L111(); break;
-		case 112: L112(); break;
-		case 113: L113(); break;
-		case 114: L114(); break;
-		case 115: L115(); break;
-	  #endif
-
-		default: parser.unknown_command_warning(); break;
-	}
-	break;
+	#if ENABLED(VARIABLE_SUPPORT)
+		#include "variables/variables.cpp"
+	#endif
 
 	case 'M': switch (parser.codenum) {
 

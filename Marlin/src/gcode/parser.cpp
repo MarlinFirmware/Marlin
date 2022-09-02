@@ -59,10 +59,6 @@ uint16_t GCodeParser::codenum;
 	#endif
 #endif  
 
-//#if ENABLED(VARIABLE_SUPPORT)
-//  uint16_t GCodeParser::input_var;
-//#endif
-
 #if ENABLED(FASTER_GCODE_PARSER)
 	// Optimized Parameters
 	uint32_t GCodeParser::codebits;  // found bits
@@ -350,7 +346,7 @@ void GCodeParser::parse(char *p) {
 	// Only use string_arg for these L variables
 	if (letter == 'L') switch (codenum) {
 		TERN_(VARIABLE_SUPPORT, case 100 ... 115:)
-			string_arg = unescape_string(p);
+			var_arg = unescape_string(p);
 			return;
 		default: break;
 	}

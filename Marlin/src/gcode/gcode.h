@@ -326,17 +326,11 @@
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
-
- *** 'L' Variables ***
-=======
-
+ *** 'L' Codes ***
  # L100-L115 - Definable variables 
- *
  */
 
-
 #include "../inc/MarlinConfig.h"
-#include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   #include "../feature/encoder_i2c.h"
@@ -361,31 +355,31 @@ public:
   static axis_bits_t axis_relative;
 
   static bool axis_is_relative(const AxisEnum a) {
-	#if HAS_EXTRUDERS
-	  if (a == E_AXIS) {
-		if (TEST(axis_relative, E_MODE_REL)) return true;
-		if (TEST(axis_relative, E_MODE_ABS)) return false;
-	  }
-	#endif
-	return TEST(axis_relative, a);
+	  #if HAS_EXTRUDERS
+	    if (a == E_AXIS) {
+		    if (TEST(axis_relative, E_MODE_REL)) return true;
+		    if (TEST(axis_relative, E_MODE_ABS)) return false;
+	    }
+	  #endif
+	  return TEST(axis_relative, a);
   }
   static void set_relative_mode(const bool rel) {
-	axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
-	  | _BV(REL_E),
-	  | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
-	  | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
-	  | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
+	  axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
+	    | _BV(REL_E),
+	    | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
+	    | _BV(REL_I), | _BV(REL_J), | _BV(REL_K),
+	    | _BV(REL_U), | _BV(REL_V), | _BV(REL_W)
 	)) : 0;
   }
   #if HAS_EXTRUDERS
-	static void set_e_relative() {
-	  CBI(axis_relative, E_MODE_ABS);
-	  SBI(axis_relative, E_MODE_REL);
-	}
+	  static void set_e_relative() {
+	    CBI(axis_relative, E_MODE_ABS);
+	    SBI(axis_relative, E_MODE_REL);
+	 }
 	static void set_e_absolute() {
 	  CBI(axis_relative, E_MODE_REL);
 	  SBI(axis_relative, E_MODE_ABS);
-	}
+	  }
   #endif
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -441,12 +435,6 @@ public:
   static void home_all_axes(const bool keep_leveling=false) {
 	process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
-
-
-  #if ENABLED(VARIABLE_SUPPORT)
-	static int8_t get_var_from_command(const int8_t dval=0);
-  #endif
-
 
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -614,44 +602,6 @@ private:
   #if ENABLED(CALIBRATION_GCODE)
 	static void G425();
   #endif
-
-  #if ENABLED(VARIABLE_SUPPORT)
-	static void L100();
-	static void L101();
-	static void L102();
-	static void L103();
-	static void L104();
-	static void L105();
-	static void L106();
-	static void L107();
-	static void L108();
-	static void L109();
-	static void L110();
-	static void L111();
-	static void L112();
-	static void L113();
-	static void L114();
-	static void L115();
-  #endif 
-
-  #if ENABLED(VARIABLE_SUPPORT)
-    uint16_t L100();
-    uint16_t L101();
-    uint16_t L102();
-    uint16_t L103();
-    uint16_t L104();
-    uint16_t L105();
-    uint16_t L106();
-    uint16_t L107();
-    uint16_t L108();
-    uint16_t L109();
-    uint16_t L110();
-    uint16_t L111();
-    uint16_t L112();
-    uint16_t L113();
-    uint16_t L114();
-    uint16_t L115();
-  #endif 
 
   #if HAS_RESUME_CONTINUE
 	static void M0_M1();

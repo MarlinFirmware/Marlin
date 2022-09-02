@@ -2399,6 +2399,22 @@
   //#include "Configuration_Secure.h"       // External file with PASSWORD_DEFAULT_VALUE
 #endif
 
+/**
+ * Variable
+ *
+ * Set a numerical values into L variables:
+ *
+ * The following L-codes can be used:
+ *
+ *  L100 - L115
+ *
+ * The L variable can take a S, Position (X,Y,Z) or any int8_t number
+ * and store it within the L# pointer. Then be recalled in code for data
+ * comparison and or value recalls.
+ */
+#define Variable_Support
+
+
 //=============================================================================
 //============================= LCD and SD support ============================
 //=============================================================================
