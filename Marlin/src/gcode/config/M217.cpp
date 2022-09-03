@@ -44,6 +44,7 @@
  *  B[linear]     Extra Swap resume length
  *  E[linear]     Extra Prime length (as used by M217 Q)
  *  P[linear/min] Prime speed
+ *  Q[linear/min] Cutting wipe retract 
  *  R[linear/min] Retract speed
  *  U[linear/min] UnRetract speed
  *  V[linear]     0/1 Enable auto prime first extruder used
@@ -79,6 +80,7 @@ void GcodeSuite::M217() {
     if (parser.seenval('B')) { const float v = parser.value_linear_units(); toolchange_settings.extra_resume = constrain(v, -10, 10); }
     if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, max_extrude); }
     if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
+    if (parser.seenval('Q')) { const int16_t v = parser.value_linear_units(); toolchange_settings.wipe_retract = constrain(v, 0, 100); }
     if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
     if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
     #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
@@ -167,7 +169,8 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
     SERIAL_ECHOPGM(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPGM_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
                      SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
-                     SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
+                     SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed),
+                     SP_P_STR, LINEAR_UNIT(toolchange_settings.wipe_retract));
     SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
                    " F", toolchange_settings.fan_speed,
