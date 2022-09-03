@@ -346,7 +346,7 @@ void GCodeParser::parse(char *p) {
 	// Only use string_arg for these L variables
 	if (letter == 'L') switch (codenum) {
 		TERN_(VARIABLE_SUPPORT, case 100 ... 115:)
-			var_arg = unescape_string(p);
+			var_arg = input_var(p);
 			return;
 		default: break;
 	}
@@ -424,7 +424,7 @@ void GCodeParser::parse(char *p) {
 				const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
 				char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
 			#else
-				int bool has_val = valid_float(p);
+				const bool has_val = valid_float(p);
 					#if ENABLED(FASTER_GCODE_PARSER)
 						char * const varptr = has_val ? p : nullptr;
 					#endif

@@ -84,7 +84,7 @@ public:
   static char *command_ptr,               // The command, so it can be echoed
 
 			  *string_arg,                // string of command line
-			  command_letter;             // G, M, V, or T
+			  command_letter;             // G, M, L, or T
 
   static uint16_t codenum;                // 123
   #if USE_GCODE_SUBCODES
