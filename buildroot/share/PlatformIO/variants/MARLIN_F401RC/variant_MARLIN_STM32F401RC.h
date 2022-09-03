@@ -86,6 +86,7 @@
 
 #define NUM_DIGITAL_PINS        50
 #define NUM_ANALOG_INPUTS       16
+#define NUM_ANALOG_FIRST        192
 
 // On-board LED pin number
 #ifndef LED_BUILTIN
