@@ -10,7 +10,7 @@ def blab(str,level=1):
     if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
-    return Path("Marlin", cpath)
+    return Path("Marlin", cpath, encoding='utf-8')
 
 # Apply a single name = on/off ; name = value ; etc.
 # TODO: Limit to the given (optional) configuration
@@ -23,7 +23,7 @@ def apply_opt(name, val, conf=None):
     # Find and enable and/or update all matches
     for file in ("Configuration.h", "Configuration_adv.h"):
         fullpath = config_path(file)
-        lines = fullpath.read_text().split('\n')
+        lines = fullpath.read_text(encoding='utf-8').split('\n')
         found = False
         for i in range(len(lines)):
             line = lines[i]
@@ -46,7 +46,7 @@ def apply_opt(name, val, conf=None):
 
         # If the option was found, write the modified lines
         if found:
-            fullpath.write_text('\n'.join(lines))
+            fullpath.write_text('\n'.join(lines), encoding='utf-8')
             break
 
     # If the option didn't appear in either config file, add it
@@ -67,7 +67,7 @@ def apply_opt(name, val, conf=None):
 
         # Prepend the new option after the first set of #define lines
         fullpath = config_path("Configuration.h")
-        with fullpath.open() as f:
+        with fullpath.open(encoding='utf-8') as f:
             lines = f.readlines()
             linenum = 0
             gotdef = False
@@ -79,7 +79,7 @@ def apply_opt(name, val, conf=None):
                     break
                 linenum += 1
             lines.insert(linenum, f"{prefix}#define {added} // Added by config.ini\n")
-            fullpath.write_text('\n'.join(lines))
+            fullpath.write_text('\n'.join(lines), encoding='utf-8')
 
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
