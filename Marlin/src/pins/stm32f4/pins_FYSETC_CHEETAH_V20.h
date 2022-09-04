@@ -49,21 +49,21 @@
 #if ENABLED(BLTOUCH)
   #error "You need to set jumper to 5v for Bltouch, then comment out this line to proceed."
 #endif
-#define SERVO0_PIN                          PB1 // Z-MIN for BLTOUCH SIG
+#define SERVO0_PIN                          PB1 // BL-TOUCH/PWM
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PB4
-#define Y_STOP_PIN                          PC8
-#if NUM_SERVOS>0
-  #define Z_STOP_PIN                        PA0 // PROBE pin for BLTOUCH Z-MIN
-#else
-  #define Z_STOP_PIN                        PB1 // Z-MIN
-#endif
+#define X_STOP_PIN                          PB4 // X-MIN
+#define Y_STOP_PIN                          PC8 // Y-MIN
+#define Z_STOP_PIN                          PA0 // Z-MIN
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PA0
+  #if DISABLED(USE_PROBE_FOR_Z_HOMING) && NUM_SERVOS == 0
+    #define Z_MIN_PROBE_PIN                 PB1 // BL-TOUCH/PWM repurposed as input
+  #endif
+    #define Z_MIN_PROBE_PIN                 PA0 // Z-MIN
+  #endif
 #endif
 
 //
