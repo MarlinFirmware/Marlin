@@ -127,7 +127,7 @@ def apply_ini_by_name(cp, sect):
         iniok = False
         items = section_items(cp, 'config:base') + section_items(cp, 'config:root')
     else:
-        items = cp.items(sect)
+        items = section_items(cp, sect)
 
     for item in items:
         if iniok or not item[0].startswith('ini_'):
@@ -195,8 +195,12 @@ def apply_config_ini(cp):
             fetch_example(ckey)
             ckey = 'base'
 
-        # Apply keyed sections after external files are done
-        apply_sections(cp, 'config:' + ckey)
+        elif ckey == 'all':
+            apply_sections(cp)
+
+        else:
+            # Apply keyed sections after external files are done
+            apply_sections(cp, 'config:' + ckey)
 
 if __name__ == "__main__":
     #
