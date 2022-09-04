@@ -597,7 +597,7 @@ volatile bool Temperature::raw_temps_ready = false;
     millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
     long t_high = 0, t_low = 0;
 
-    PID_t tune_pid = { 0, 0, 0 };
+    raw_pid_t tune_pid = { 0, 0, 0 };
     celsius_float_t maxT = 0, minT = 10000;
 
     const bool isbed = (heater_id == H_BED),
@@ -716,16 +716,16 @@ volatile bool Temperature::raw_temps_ready = false;
                           pf = (ischamber || isbed) ? 0.2f : 0.6f,
                           df = (ischamber || isbed) ? 1.0f / 3.0f : 1.0f / 8.0f;
 
-              tune_pid.Kp = Ku * pf;
-              tune_pid.Ki = tune_pid.Kp * 2.0f / Tu;
-              tune_pid.Kd = tune_pid.Kp * Tu * df;
+              tune_pid.p = Ku * pf;
+              tune_pid.i = tune_pid.p * 2.0f / Tu;
+              tune_pid.d = tune_pid.p * Tu * df;
 
               SERIAL_ECHOLNPGM(STR_KU, Ku, STR_TU, Tu);
               if (ischamber || isbed)
                 SERIAL_ECHOLNPGM(" No overshoot");
               else
                 SERIAL_ECHOLNPGM(STR_CLASSIC_PID);
-              SERIAL_ECHOLNPGM(STR_KP, tune_pid.Kp, STR_KI, tune_pid.Ki, STR_KD, tune_pid.Kd);
+              SERIAL_ECHOLNPGM(STR_KP, tune_pid.p, STR_KI, tune_pid.i, STR_KD, tune_pid.d);
             }
           }
           SHV((bias + d) >> 1);
@@ -795,39 +795,36 @@ volatile bool Temperature::raw_temps_ready = false;
 
         #if EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
           FSTR_P const estring = GHV(F("chamber"), F("bed"), FPSTR(NUL_STR));
-          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Kp ", tune_pid.Kp);
-          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Ki ", tune_pid.Ki);
-          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Kd ", tune_pid.Kd);
+          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Kp ", tune_pid.p);
+          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Ki ", tune_pid.i);
+          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Kd ", tune_pid.d);
         #else
-          say_default_(); SERIAL_ECHOLNPGM("Kp ", tune_pid.Kp);
-          say_default_(); SERIAL_ECHOLNPGM("Ki ", tune_pid.Ki);
-          say_default_(); SERIAL_ECHOLNPGM("Kd ", tune_pid.Kd);
+          say_default_(); SERIAL_ECHOLNPGM("Kp ", tune_pid.p);
+          say_default_(); SERIAL_ECHOLNPGM("Ki ", tune_pid.i);
+          say_default_(); SERIAL_ECHOLNPGM("Kd ", tune_pid.d);
         #endif
 
-        auto _set_hotend_pid = [](const uint8_t e, const PID_t &in_pid) {
+        auto _set_hotend_pid = [](const uint8_t tool, const raw_pid_t &in_pid) {
           #if ENABLED(PIDTEMP)
-            PID_PARAM(Kp, e) = in_pid.Kp;
-            PID_PARAM(Ki, e) = scalePID_i(in_pid.Ki);
-            PID_PARAM(Kd, e) = scalePID_d(in_pid.Kd);
+            #if ENABLED(PID_PARAMS_PER_HOTEND)
+              thermalManager.temp_hotend[tool].pid.set(in_pid);
+            #else
+              HOTEND_LOOP() thermalManager.temp_hotend[e].pid.set(in_pid);
+            #endif
             updatePID();
-          #else
-            UNUSED(e); UNUSED(in_pid);
           #endif
+          UNUSED(tool); UNUSED(in_pid);
         };
 
         #if ENABLED(PIDTEMPBED)
-          auto _set_bed_pid = [](const PID_t &in_pid) {
-            temp_bed.pid.Kp = in_pid.Kp;
-            temp_bed.pid.Ki = scalePID_i(in_pid.Ki);
-            temp_bed.pid.Kd = scalePID_d(in_pid.Kd);
+          auto _set_bed_pid = [](const raw_pid_t &in_pid) {
+            temp_bed.pid.set(in_pid);
           };
         #endif
 
         #if ENABLED(PIDTEMPCHAMBER)
-          auto _set_chamber_pid = [](const PID_t &in_pid) {
-            temp_chamber.pid.Kp = in_pid.Kp;
-            temp_chamber.pid.Ki = scalePID_i(in_pid.Ki);
-            temp_chamber.pid.Kd = scalePID_d(in_pid.Kd);
+          auto _set_chamber_pid = [](const raw_pid_t &in_pid) {
+            temp_chamber.pid.set(in_pid);
           };
         #endif
 
