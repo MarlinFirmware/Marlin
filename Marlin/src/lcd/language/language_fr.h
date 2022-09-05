@@ -376,6 +376,7 @@ namespace Language_fr {
   LSTR MSG_TOOL_CHANGE                    = _UxGT("Changement outil");
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Vitesse primaire");
+  LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Purge Retract");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract°");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Garer Extrudeur");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Vitesse reprise");

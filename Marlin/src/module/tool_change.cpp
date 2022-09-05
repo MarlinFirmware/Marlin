@@ -935,13 +935,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Cutting recovery -- Recover from cutting retraction that occurs at the end of nozzle priming
    *
    * If the active_extruder is up to temp (!too_cold):
-   *  Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
+   *  Extrude filament distance = toolchange_settings.extra_resume + toolchange_settings.wipe_retract
    *  current_position.e = e;
    *  sync_plan_position_e();
    */
   void extruder_cutting_recover(const_float_t e) {
     if (!too_cold(active_extruder)) {
-      const float dist = toolchange_settings.extra_resume + (TOOLCHANGE_FS_WIPE_RETRACT);
+      const float dist = toolchange_settings.extra_resume + (toolchange_settings.wipe_retract);
       FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
       unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
       planner.synchronize();
@@ -1006,21 +1006,18 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
-      FS_DEBUG("Performing Cutting Retraction | Distance: ", -(TOOLCHANGE_FS_WIPE_RETRACT), " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
-      unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+      FS_DEBUG("Performing Cutting Retraction | Distance: ", -(toolchange_settings.wipe_retract), " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
+      unscaled_e_move(-(toolchange_settings.wipe_retract), MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
 
     // Cool down with fan
-    filament_swap_cooling();
-
+    if(toolchange_settings.fan_time) filament_swap_cooling();
   }
-  
-  // Define any variables required
-  Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
 
-
+// Define any variables required
+Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
 
 /**
  * Perform a tool-change, which may result in moving the
