@@ -794,6 +794,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   const int32_t accel = block->acceleration_steps_per_s2;
+  const float inverse_accel = RECIPROCAL(accel);
 
   // Steps for acceleration, plateau and deceleration
   int32_t plateau_steps = block->step_event_count;
@@ -803,9 +804,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   if (accel != 0) {
     // Steps required for acceleration, deceleration to/from nominal rate
     const float nominal_rate_sq = sq(float(block->nominal_rate));
-    float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f / accel);
+    float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f * inverse_accel);
     accelerate_steps = CEIL(accelerate_steps_float);
-    const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5f / accel);
+    const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5f * inverse_accel);
     decelerate_steps = FLOOR(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
@@ -829,8 +830,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
-    uint32_t acceleration_time = (float(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
-             deceleration_time = (float(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE),
+    uint32_t acceleration_time = (float(cruise_rate - initial_rate) * inverse_accel) * (STEPPER_TIMER_RATE),
+             deceleration_time = (float(cruise_rate - final_rate) * inverse_accel) * (STEPPER_TIMER_RATE),
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
              acceleration_time_inverse = get_period_inverse(acceleration_time),
              deceleration_time_inverse = get_period_inverse(deceleration_time);
