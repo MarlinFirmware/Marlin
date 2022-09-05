@@ -902,8 +902,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #define FS_DEBUG(...) NOOP
   #endif
 
-  // Define any variables required
-  static Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
+
 
   #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
     bool enable_first_prime; // As set by M217 V
@@ -1015,8 +1014,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     filament_swap_cooling();
 
   }
+  
+  // Define any variables required
+  Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
+
+
 
 /**
  * Perform a tool-change, which may result in moving the

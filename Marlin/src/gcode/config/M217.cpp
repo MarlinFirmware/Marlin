@@ -41,6 +41,7 @@
  *  B[linear]     Extra Swap resume length
  *  E[linear]     Extra Prime length (as used by M217 Q)
  *  P[linear/min] Prime speed
+ *  Q[linear]     [extruder] Reset primed statut (To prime on next T...)
  *  R[linear/min] Retract speed
  *  U[linear/min] UnRetract speed
  *  V[linear]     0/1 Enable auto prime first extruder used
@@ -69,7 +70,7 @@ void GcodeSuite::M217() {
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
     static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
-
+    if (parser.seenval('Q')) { const float v = parser.value_linear_units(); extruder_was_primed.clear(constrain(v, 0, EXTRUDERS-1)) ; }
     if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, max_extrude); }
     if (parser.seenval('B')) { const float v = parser.value_linear_units(); toolchange_settings.extra_resume = constrain(v, -10, 10); }
     if (parser.seenval('E')) { const float v = parser.value_linear_units(); toolchange_settings.extra_prime = constrain(v, 0, max_extrude); }

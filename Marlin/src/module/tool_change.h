@@ -123,3 +123,5 @@
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, bool no_move=false);
+// Define any variables required
+extern Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
