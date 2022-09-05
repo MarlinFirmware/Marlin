@@ -911,10 +911,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   // Cool down with fan
   inline void filament_swap_cooling() {
-    #if HAS_FAN
-      thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)] = toolchange_settings.fan_speed;
+    #if HAS_FAN && defined(TOOLCHANGE_FS_FAN)
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN < 0 ? active_extruder : TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-      thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)] = 0;
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN < 0 ? active_extruder : TOOLCHANGE_FS_FAN] = 0;
     #endif
   }
 
@@ -1099,9 +1099,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked) || TERN0(TOOLCHANGE_FS_PRIME_FIRST_USED, can_prime_T0)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN)
+      #if HAS_FAN && defined(TOOLCHANGE_FS_FAN)
         // Store and stop fan. Restored on any exit.
-        REMEMBER(fan, thermalManager.fan_speed[TERN(TOOLCHANGE_ACTIVE_TOOL_FAN , active_extruder, TOOLCHANGE_FS_FAN)], 0);
+        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN < 0 ? active_extruder : TOOLCHANGE_FS_FAN], 0);
       #endif
 
       // Z raise before retraction

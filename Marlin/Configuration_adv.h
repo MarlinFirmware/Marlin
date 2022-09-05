@@ -2525,10 +2525,11 @@
     #define TOOLCHANGE_FS_WIPE_RETRACT         0  // (mm) Retract before cooling for less stringing, better wipe, etc.
 
     // Cool after prime to reduce stringing
-    #define TOOLCHANGE_FS_FAN                 -1  // Fan index or -1 to skip
-    #define TOOLCHANGE_ACTIVE_TOOL_FAN            //Active extruder fan activation, override TOOLCHANGE_FAN_FS
-    #define TOOLCHANGE_FS_FAN_SPEED          255  // 0-255
-    #define TOOLCHANGE_FS_FAN_TIME            10  // (seconds)
+    //#define TOOLCHANGE_FS_FAN               -1  // Fan index or -1 for the current extruder fan. Disable to skip.
+    #ifdef TOOLCHANGE_FS_FAN
+      #define TOOLCHANGE_FS_FAN_SPEED        255  // 0-255
+      #define TOOLCHANGE_FS_FAN_TIME          10  // (seconds)
+    #endif
 
     // Use TOOLCHANGE_FS_PRIME_SPEED feedrate the first time each extruder is primed
     //#define TOOLCHANGE_FS_SLOW_FIRST_PRIME
