@@ -4,7 +4,6 @@
 import pioutil
 if pioutil.is_pio_build():
 
-	import os
 	Import("env", "projenv")
 
 	flash_size = 0
