@@ -1288,7 +1288,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             extruder_cutting_recover(0); // New extruder primed and set to 0
 
             // Restart Fan
-            #if HAS_FAN
+            #if HAS_FAN && defined(TOOLCHANGE_FS_FAN)
               RESTORE(fan);
             #endif
           }
