@@ -969,17 +969,17 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
 
     #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
-    /*
-     * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
-     */
-    static Flags<EXTRUDERS> extruder_did_first_prime;  // Extruders first priming status
-    if (!extruder_did_first_prime[active_extruder]) {
-      extruder_did_first_prime.set(active_extruder);   // Log first prime complete
-      // new nozzle - prime at user-specified speed.
-      FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
-      fr = toolchange_settings.prime_speed;
-      unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
-    }
+      /**
+       * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
+       */
+      static Flags<EXTRUDERS> extruder_did_first_prime;  // Extruders first priming status
+      if (!extruder_did_first_prime[active_extruder]) {
+        extruder_did_first_prime.set(active_extruder);   // Log first prime complete
+        // new nozzle - prime at user-specified speed.
+        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
+        fr = toolchange_settings.prime_speed;
+        unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
+      }
     #endif
 
     //Calculate and perform the priming distance
