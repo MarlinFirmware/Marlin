@@ -46,7 +46,7 @@
  *  R[linear/min] Retract speed
  *  U[linear/min] UnRetract speed
  *  V[linear]     0/1 Enable auto prime first extruder used
- *  W[linear]     0/1 Enable park & Z Raise
+ *  W[linear]     0/1 Enable park
  *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK)
  *  I[linear]     Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
