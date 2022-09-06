@@ -3,7 +3,7 @@
     "core": "stm32",
     "cpu": "cortex-m7",
     "extra_flags": "-DSTM32H7xx -DSTM32H743xx",
-    "f_cpu": "400000000L",
+    "f_cpu": "480000000L",
     "mcu": "stm32h743vit6",
     "product_line": "STM32H743xx",
     "variant": "MARLIN_H743Vx"
