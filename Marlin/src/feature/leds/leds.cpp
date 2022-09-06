@@ -77,8 +77,8 @@ void LEDLights::setup() {
         if (PWM_PIN(RGB_LED_W_PIN) && led_pin_count) led_pin_count++;
       #endif
       // Startup animation
-      if (led_pin_count){
-        //blackout
+      if (led_pin_count) {
+        // blackout
         if (PWM_PIN(RGB_LED_R_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_R_PIN), 0); else WRITE(RGB_LED_R_PIN, LOW);
         if (PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), 0); else WRITE(RGB_LED_G_PIN, LOW);
         if (PWM_PIN(RGB_LED_B_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_B_PIN), 0); else WRITE(RGB_LED_B_PIN, LOW);

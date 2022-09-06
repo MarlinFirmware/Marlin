@@ -1998,10 +1998,10 @@ void prepare_line_to_destination() {
     // Back away to prevent opposite endstop damage
     //
     #if !defined(SENSORLESS_BACKOFF_MM) && XY_COUNTERPART_BACKOFF_MM
-      if (!axis_was_homed(X_AXIS) && !axis_was_homed(Y_AXIS) && (axis == Y_AXIS || axis == X_AXIS)){
-       const AxisEnum opposite_axis = axis == Y_AXIS ? X_AXIS : Y_AXIS ;
-       const float backoff_length = -ABS(OPPOSITE_AXIS_BACKOFF_MM) * home_dir(opposite_axis);
-       do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
+      if (!(axis_was_homed(X_AXIS) || axis_was_homed(Y_AXIS)) && (axis == X_AXIS || axis == Y_AXIS)) {
+        const AxisEnum opposite_axis = axis == X_AXIS ? Y_AXIS : X_AXIS;
+        const float backoff_length = -ABS(XY_COUNTERPART_BACKOFF_MM) * home_dir(opposite_axis);
+        do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
       }
     #endif
 
