@@ -30,133 +30,30 @@
 
 /**
  * Get the variable target data from the L parameter
- * Return -1 if the P parameter is out of range
+ * 
  */
-int8_t GcodeSuite::get_var_from_command() {
-  if (parser.seenval('L')) {
-	const int8_t e = parser.value_byte();
-//	if (e < EXTRUDERS) return e;
-//	SERIAL_ECHO_START();
-//	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
-//	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
-//	return -1;
-  }
-  return stored_var;
+
+void GcodeSuite::L100() {
+  const uint8_t index = parser.codenum - 100;
+  #if (parser.seenval('L')) {
+    bool used_var_arg = false;
+    const int8_t q = parser.value_byte();
+    *p = parser.string_arg
+    const bool is_var = (*p == 'L');
+    has_val = is_var || valid_int(p + 1); 
+    char * const varptr = has_val ? is_var ? input_var(p) : p+1:nullptr;
+    #if (has_val = nul)
+      export_val()
+    #if (has_val = int)
+      import_val()    
+    #else
+		  int bool has_val = valid_int(p);
+			  #if ENABLED(FASTER_GCODE_PARSER)
+				  char * const varptr = has_val ? p : nullptr;
+	       #endif
+    #endif
+  #endif
 }
-
-
-void GcodeSuite::M98() {
-  if (card.isMounted() && parser.seen('P')) {
-    char *path = parser.value_string();
-    char *lb = strchr(p, ' ');
-    if (!lb) lb = strchr(p, ';');
-    if (lb) *lb = '\0';
-    card.runMacro(path);
-  }
-}
-
-const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
-char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
-	#else
-		int bool has_val = valid_float(p);
-			#if ENABLED(FASTER_GCODE_PARSER)
-				char * const varptr = has_val ? p : nullptr;
-	        #endif
-#endif
-
-bool used_var_arg = false;
-
-
-
-//#if ENABLED(VARIABLE_SUPPORT)
-//  uint16_t GCodeParser::input_var;
-//#endif
-
-//char gcode_variables[VARIABLE_SLOTS][VARIABLE_SLOT_SIZE +1] = {{ 0 }};
-
-/**
- * L100: Input Variable #100
- */
-//uint16_t GCodeParser::input_var();
-void GcodeSuite::L100() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L101() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L102() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L103() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L104() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L105() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L106() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L107() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L108() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L109() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L110() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L111() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L112() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L113() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L114() { parser.input_var; };
-
-/**
- * L101: Input Variable #101
- */
-void GcodeSuite::L115() { parser.input_var; };
-
-//char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
-
 /**
  * M810_819: Set/execute a G-code macro.
  *
@@ -190,6 +87,148 @@ void GcodeSuite::L115() { parser.input_var; };
 //}
 
 //#endif // GCODE_MACROS
+
+//bool used_var_arg = false;
+
+
+//int8_t GcodeSuite::input_var() {
+//  #if (parser.seenval('L')) {
+//    const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
+//    char * const input_var = has_val ? is_var ? input_var(p) : p+1 : nullptr;
+//	#else
+//		int bool has_val = valid_float(p);
+//			#if ENABLED(FASTER_GCODE_PARSER)
+//				char * const varptr = has_val ? p : nullptr;
+//	        #endif
+//#endif
+
+//bool used_var_arg = false;
+
+//  if (parser.seenval('L')) {
+//	const int8_t q = parser.value_byte();
+//	if (q > 0) return e;
+//	SERIAL_ECHO_START();
+//	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
+//	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
+//	return -1;
+//  }
+//  return stored_var;
+//}
+
+
+//void GcodeSuite::M98() {
+//  if (card.isMounted() && parser.seen('P')) {
+//    char *path = parser.value_string();
+//    char *lb = strchr(p, ' ');
+//    if (!lb) lb = strchr(p, ';');
+//    if (lb) *lb = '\0';
+//    card.runMacro(path);
+//  }
+//}
+
+//const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
+//char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
+//	#else
+//		int bool has_val = valid_float(p);
+//			#if ENABLED(FASTER_GCODE_PARSER)
+//				char * const varptr = has_val ? p : nullptr;
+//	        #endif
+//#endif
+
+//bool used_var_arg = false;
+
+
+
+//#if ENABLED(VARIABLE_SUPPORT)
+//  uint16_t GCodeParser::input_var;
+//#endif
+
+//char gcode_variables[VARIABLE_SLOTS][VARIABLE_SLOT_SIZE +1] = {{ 0 }};
+
+/**
+ * L100: Input Variable #100
+ */
+//uint16_t GCodeParser::input_var();
+//void GcodeSuite::L100() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L101() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L102() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L103() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L104() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L105() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L106() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L107() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L108() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L109() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L110() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L111() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L112() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L113() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L114() { parser.input_var; };
+
+/**
+ * L101: Input Variable #101
+ */
+//void GcodeSuite::L115() { parser.input_var; };
+
+//char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
+
+
 
 
 #endif // VARIABLE_SUPPORT
