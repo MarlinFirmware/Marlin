@@ -29,6 +29,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(VARIABLE_SUPPORT)
+  #include "variables/variables.h
+#endif
+
 //#define DEBUG_GCODE_PARSER
 #if ENABLED(DEBUG_GCODE_PARSER)
   #include "../libs/hex_print.h"
