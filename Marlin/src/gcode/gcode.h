@@ -331,6 +331,7 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   #include "../feature/encoder_i2c.h"
