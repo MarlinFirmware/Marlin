@@ -108,12 +108,12 @@ void GCodeParser::reset() {
 #endif
 
 // Create Variable Declaration
-#if ENABLED(VARIABLE_SUPPORT)
+//#if ENABLED(VARIABLE_SUPPORT)
 	
 	 // Pass the data being stored 
-	char* GCodeParser::input_var(char* &src); //{
-		if (*src == 'L') src;     // Skip the leading Letter
-		int * const out = src;     // Start of the string
+//	char* GCodeParser::input_var(char* &src); //{
+//		if (*src == 'L') src;     // Skip the leading Letter
+//		int * const out = src;     // Start of the string
 //		char *dst = src;            // Prepare to unescape and terminate
 //		for (;;) {
 //			char c = *src++;          // Get the next char
@@ -421,7 +421,7 @@ void GCodeParser::parse(char *p) {
 		
 
 			#if ENABLED(VARIABLE_SUPPORT)
-				const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
+				const bool is_var = (*p == 'L'), has_val = is_int || valid_float(p + 1);
 				char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
 			#else
 				const bool has_val = valid_float(p);
