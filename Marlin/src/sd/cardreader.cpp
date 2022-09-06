@@ -789,7 +789,7 @@ void CardReader::removeFile(const char * const name) {
 }
 
 void CardReader::report_status() {
-  if (isPrinting()) {
+  if (isPrinting() || isPaused()) {
     SERIAL_ECHOPGM(STR_SD_PRINTING_BYTE, sdpos);
     SERIAL_CHAR('/');
     SERIAL_ECHOLN(filesize);
