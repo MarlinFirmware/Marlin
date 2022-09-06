@@ -31,27 +31,29 @@
 #include "../queue.h"
 #include "../parser.h"
 
-static int8_t get_var_from_command(const int8_t dval=0);
-static uint8_t StoredVar;
+static void var_from_command(const int8_t dval=0);
+static uint8_t StoredVar();
 static void input_var();
-static int to_input_var(int8_t c) { return (int)c; };
+static void export_var();
+static void has_val();
+static bool is_var();
 
 
-static uint8_t L100();
-static uint8_t L101();
-static uint8_t L102();
-static uint8_t L103();
-static uint8_t L104();
-static uint8_t L105();
-static uint8_t L106();
-static uint8_t L107();
-static uint8_t L108();
-static uint8_t L109();
-static uint8_t L110();
-static uint8_t L111();
-static uint8_t L112();
-static uint8_t L113();
-static uint8_t L114();
-static uint8_t L115();
+static void L100();
+static void L101();
+static void L102();
+static void L103();
+static void L104();
+static void L105();
+static void L106();
+static void L107();
+static void L108();
+static void L109();
+static void L110();
+static void L111();
+static void L112();
+static void L113();
+static void L114();
+static void L115();
 
 #endif
