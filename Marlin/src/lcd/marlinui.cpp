@@ -1679,19 +1679,6 @@ void MarlinUI::init() {
     print_job_timer.start(); // Also called by M24
   }
 
-  #if HAS_PRINT_PROGRESS
-
-    MarlinUI::progress_t MarlinUI::_get_progress() {
-      return (
-        TERN0(SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
-        #if ENABLED(SDSUPPORT)
-          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
-        #endif
-      );
-    }
-
-  #endif
-
   #if HAS_TOUCH_BUTTONS
 
     //
@@ -1724,6 +1711,19 @@ void MarlinUI::init() {
   #endif
 
 #endif // HAS_DISPLAY
+
+#if HAS_PRINT_PROGRESS
+
+  MarlinUI::progress_t MarlinUI::_get_progress() {
+    return (
+      TERN0(SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
+      #if ENABLED(SDSUPPORT)
+        ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
+      #endif
+    );
+  }
+
+#endif
 
 #if ENABLED(SDSUPPORT)
 

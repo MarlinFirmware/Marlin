@@ -25,7 +25,6 @@
 #include "../sd/cardreader.h"
 #include "../module/motion.h"
 #include "../libs/buzzer.h"
-
 #include "buttons.h"
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -36,7 +35,7 @@
   #define MULTI_E_MANUAL 1
 #endif
 
-#if HAS_DISPLAY
+#if HAS_PRINT_PROGRESS
   #include "../module/printcounter.h"
 #endif
 
@@ -309,7 +308,7 @@ public:
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
     #endif
-    #if ENABLED(SHOW_REMAINING_TIME)
+    #if EITHER(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
       static uint32_t _calculated_remaining_time() {
         const duration_t elapsed = print_job_timer.duration();
         const progress_t progress = _get_progress();

@@ -1443,11 +1443,9 @@
 
 // LCD Print Progress options
 #if EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
-  #if CAN_SHOW_REMAINING_TIME
-    #define SHOW_REMAINING_TIME         // Display estimated time to completion
-    #if ENABLED(SHOW_REMAINING_TIME)
-      #define ROTATE_PROGRESS_DISPLAY   // Display (P)rogress, (E)lapsed, filament (C)hange and (R)emaining time
-    #endif
+  #define SHOW_REMAINING_TIME         // Display estimated time to completion
+  #if ENABLED(SHOW_REMAINING_TIME)
+    #define ROTATE_PROGRESS_DISPLAY   // Display (P)rogress, (E)lapsed, filament (C)hange and (R)emaining time
   #endif
 
   #if EITHER(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI)
