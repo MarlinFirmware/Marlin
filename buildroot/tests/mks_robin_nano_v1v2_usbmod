@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for MKS Robin nano
+# Build tests for MKS Robin nano V1.2 and V2 with native USB modification
 # (STM32F1 genericSTM32F103VE)
 #
 
@@ -8,12 +8,12 @@
 set -e
 
 #
-# MKS/ZNP Robin nano v1.2 Emulated DOGM FSMC and native USB mod
+# MKS/ZNP Robin nano v1.2 with Emulated DOGM FSMC
 #
 use_example_configs Mks/Robin
 opt_add USB_MOD
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO SERIAL_PORT -1
-exec_test $1 $2 "MKS/ZNP Robin nano v1.2 Emulated DOGM FSMC and native USB mod" "$3"
+exec_test $1 $2 "MKS/ZNP Robin nano v1.2 with Emulated DOGM FSMC (native USB mod)" "$3"
 
 # cleanup
 restore_configs
