@@ -52,6 +52,10 @@
     extern bool enable_first_prime; // M217 V
   #endif
 
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    extern Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
+  #endif
+
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     typedef struct {
       uint8_t target, last;
@@ -61,7 +65,8 @@
     extern migration_settings_t migration;
     bool extruder_migration();
   #endif
-#endif
+
+#endif // HAS_MULTI_EXTRUDER
 
 #if DO_SWITCH_EXTRUDER
   void move_extruder_servo(const uint8_t e);
@@ -124,5 +129,3 @@
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, bool no_move=false);
-// Define any variables required
-extern Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
