@@ -2667,13 +2667,15 @@ void SetStepsY() { HMI_value.axis = Y_AXIS, SetPFloatOnClick( MIN_STEP, MAX_STEP
 void SetStepsZ() { HMI_value.axis = Z_AXIS, SetPFloatOnClick( MIN_STEP, MAX_STEP, UNITFDIGITS); }
 #if HAS_HOTEND
   void SetStepsE() { HMI_value.axis = E_AXIS; SetPFloatOnClick( MIN_STEP, MAX_STEP, UNITFDIGITS); }
-  void SetHotendPidT() { SetPIntOnClick(MIN_ETEMP, MAX_ETEMP); }
+  #if ENABLED(PIDTEMP)
+    void SetHotendPidT() { SetPIntOnClick(MIN_ETEMP, MAX_ETEMP); }
+  #endif
 #endif
-#if HAS_HEATED_BED
+#if ENABLED(PIDTEMPBED)
   void SetBedPidT() { SetPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
 #endif
 
-#if HAS_HOTEND || HAS_HEATED_BED
+#if EITHER(PIDTEMP, PIDTEMPBED)
   void SetPidCycles() { SetPIntOnClick(3, 50); }
   void SetKp() { SetPFloatOnClick(0, 1000, 2); }
   void ApplyPIDi() {
@@ -3222,10 +3224,10 @@ void Draw_AdvancedSettings_Menu() {
     #if HAS_HOME_OFFSET
       MENU_ITEM_F(ICON_HomeOffset, MSG_SET_HOME_OFFSETS, onDrawSubMenu, Draw_HomeOffset_Menu);
     #endif
-    #if HAS_HOTEND
+    #if ENABLED(PIDTEMP)
       MENU_ITEM(ICON_PIDNozzle, F(STR_HOTEND_PID " Settings"), onDrawSubMenu, Draw_HotendPID_Menu);
     #endif
-    #if HAS_HEATED_BED
+    #if ENABLED(PIDTEMPBED)
       MENU_ITEM(ICON_PIDbed, F(STR_BED_PID " Settings"), onDrawSubMenu, Draw_BedPID_Menu);
     #endif
       MENU_ITEM_F(ICON_FilSet, MSG_FILAMENT_SET, onDrawSubMenu, Draw_FilSet_Menu);
@@ -3668,10 +3670,10 @@ void Draw_Steps_Menu() {
   CurrentMenu->draw();
 }
 
-#if HAS_HOTEND
+#if ENABLED(PIDTEMP)
   void Draw_HotendPID_Menu() {
     checkkey = Menu;
-    if (SetMenu(HotendPIDMenu, F(STR_HOTEND_PID " Settings"),8)) {
+    if (SetMenu(HotendPIDMenu, F(STR_HOTEND_PID " Settings"), 8)) {
       BACK_ITEM(Draw_AdvancedSettings_Menu);
       MENU_ITEM(ICON_PIDNozzle, F(STR_HOTEND_PID), onDrawMenuItem, HotendPID);
       EDIT_ITEM(ICON_PIDValue, F("Set" STR_KP), onDrawPFloat2Menu, SetKp, &thermalManager.temp_hotend[0].pid.Kp);
@@ -3687,10 +3689,10 @@ void Draw_Steps_Menu() {
   }
 #endif
 
-#if HAS_HEATED_BED
+#if ENABLED(PIDTEMPBED)
   void Draw_BedPID_Menu() {
     checkkey = Menu;
-    if (SetMenu(BedPIDMenu, F(STR_BED_PID " Settings"),8)) {
+    if (SetMenu(BedPIDMenu, F(STR_BED_PID " Settings"), 8)) {
       BACK_ITEM(Draw_AdvancedSettings_Menu);
       MENU_ITEM(ICON_PIDNozzle, F(STR_BED_PID), onDrawMenuItem,BedPID);
       EDIT_ITEM(ICON_PIDValue, F("Set" STR_KP), onDrawPFloat2Menu, SetKp, &thermalManager.temp_bed.pid.Kp);

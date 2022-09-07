@@ -421,6 +421,7 @@
 #define BOARD_ARTILLERY_RUBY          4238  // Artillery Ruby (STM32F401RC)
 #define BOARD_FYSETC_SPIDER_V2_2      4239  // FYSETC Spider V2.2 (STM32F446VE)
 #define BOARD_CREALITY_V24S1_301F4    4240  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
+#define BOARD_OPULO_LUMEN_REV4        4241  // Opulo Lumen PnP Controller REV4 (STM32F407VE / STM32F407VG)
 
 //
 // ARM Cortex M7

@@ -512,7 +512,7 @@
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini env:mks_robin_mini_maple
 #elif MB(MKS_ROBIN_NANO)
-  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano_v1v2_maple env:mks_robin_nano_v1_2_usbmod
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano_v1v2_maple env:mks_robin_nano_v1v2_usbmod
 #elif MB(MKS_ROBIN_NANO_V2)
   #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano3_v1v2_maple
 #elif MB(MKS_ROBIN_LITE)
@@ -701,6 +701,8 @@
   #include "stm32f4/pins_ARTILLERY_RUBY.h"      // STM32F4                                env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
   #include "stm32f4/pins_CREALITY_V24S1_301F4.h" // STM32F4                               env:STM32F401RC_creality env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink
+#elif MB(OPULO_LUMEN_REV4)
+  #include "stm32f4/pins_OPULO_LUMEN_REV4.h"    // STM32F4                                env:Opulo_Lumen_REV4
 
 //
 // ARM Cortex M7
