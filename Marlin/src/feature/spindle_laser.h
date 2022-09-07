@@ -295,7 +295,10 @@ public:
        * If not set defaults to 80% power
        */
       static void test_fire_pulse() {
+        #if HAS_BEEPER
         BUZZ(30, 3000);
+        #endif
+        
         cutter_mode = CUTTER_MODE_STANDARD; // Menu needs standard mode.
         menu_set_enabled(true);             // Laser On
         delay(testPulse);                   // Delay for time set by user in pulse ms menu screen.
