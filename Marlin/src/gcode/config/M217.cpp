@@ -41,10 +41,10 @@
  *  B[linear]     Extra Swap resume length
  *  E[linear]     Extra Prime length (as used by M217 Q)
  *  G[linear]     Cutting wipe retract length (<=100mm)
- *  P[linear/min] Prime speed
- *  Q[extruder]   Reset specified (or active) extruder primed status (To prime on next T...)
  *  R[linear/min] Retract speed
  *  U[linear/min] UnRetract speed
+ *  P[linear/min] Prime speed
+ *  Q[extruder]   Reset specified (or active) extruder primed status (To prime on next T...)
  *  V[linear]     0/1 Enable auto prime first extruder used
  *  W[linear]     0/1 Enable park
  *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
@@ -162,22 +162,24 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
   SERIAL_ECHOPGM("  M217");
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    SERIAL_ECHOPGM(" S", LINEAR_UNIT(toolchange_settings.swap_length));
-    SERIAL_ECHOPGM_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
-                     SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
-                     SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed),
-                   PSTR(" G"), LINEAR_UNIT(toolchange_settings.wipe_retract));
-    SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
-                   " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
-                   " F", toolchange_settings.fan_speed,
-                   " D", toolchange_settings.fan_time);
+    SERIAL_ECHOPGM_P(
+      PSTR(" S"), LINEAR_UNIT(toolchange_settings.swap_length),
+        SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
+        SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
+        SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed),
+      PSTR(" G"), LINEAR_UNIT(toolchange_settings.wipe_retract),
+      PSTR(" R"), LINEAR_UNIT(toolchange_settings.retract_speed),
+      PSTR(" U"), LINEAR_UNIT(toolchange_settings.unretract_speed),
+      PSTR(" F"), toolchange_settings.fan_speed,
+      PSTR(" D"), toolchange_settings.fan_time
+    );
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPGM(" A", migration.automode);
-      SERIAL_ECHOPGM(" L", LINEAR_UNIT(migration.last));
+      SERIAL_ECHOPGM(" A", migration.automode, " L", LINEAR_UNIT(migration.last));
     #endif
 
     #if ENABLED(TOOLCHANGE_PARK)
+    {
       SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
       SERIAL_ECHOPGM_P(
             SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x)
@@ -195,6 +197,7 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
             )
         #endif
       );
+    }
     #endif
 
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
