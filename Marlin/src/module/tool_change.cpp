@@ -902,8 +902,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #define FS_DEBUG(...) NOOP
   #endif
 
-
-
   #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
     bool enable_first_prime; // As set by M217 V
   #endif
@@ -1011,7 +1009,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
 
     // Cool down with fan
-    if(toolchange_settings.fan_time) filament_swap_cooling();
+    if (toolchange_settings.fan_time) filament_swap_cooling();
   }
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
@@ -1105,16 +1103,20 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN < 0 ? active_extruder : TOOLCHANGE_FS_FAN], 0);
       #endif
 
-      // Z raise before retraction
-      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
-        if (can_move_away && toolchange_settings.z_raise) {
+      auto toolchange_zraise = [] {
+        if (toolchange_settings.z_raise) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
           TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
           fast_line_to_current(Z_AXIS);
-          planner.synchronize();
+          return true;
         }
-      #endif
+        return false;
+      };
+
+      // Z raise (before retraction)
+      if (TERN0(TOOLCHANGE_ZRAISE_BEFORE_RETRACT, can_move_away) && toolchange_zraise())
+        planner.synchronize();
 
       // Unload / Retract
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -1150,14 +1152,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
-      #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT)
-        if (can_move_away && toolchange_settings.z_raise) {
-          // Do a small lift to avoid the workpiece in the move back (below)
-          current_position.z += toolchange_settings.z_raise;
-          TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
-          fast_line_to_current(Z_AXIS);
-        }
-      #endif
+      // Z raise (after retraction)
+      if (TERN(TOOLCHANGE_ZRAISE_BEFORE_RETRACT, false, can_move_away))
+        toolchange_zraise();
 
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK)

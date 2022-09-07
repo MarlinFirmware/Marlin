@@ -2522,8 +2522,7 @@
     // Longer prime to clean out a SINGLENOZZLE
     #define TOOLCHANGE_FS_EXTRA_PRIME          0  // (mm) Extra priming length
     #define TOOLCHANGE_FS_PRIME_SPEED    (4.6*60) // (mm/min) Extra priming feedrate
-    // (mm) Travel retract, recover out of park / Retract before cooling for less stringing, better wipe,t etc.
-    #define TOOLCHANGE_FS_WIPE_RETRACT         0
+    #define TOOLCHANGE_FS_WIPE_RETRACT         0  // (mm) Cutting retraction out of park, for less stringing, better wipe, etc.
 
     // Cool after prime to reduce stringing
     //#define TOOLCHANGE_FS_FAN               -1  // Fan index or -1 for the current extruder fan. Disable to skip.
