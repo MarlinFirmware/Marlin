@@ -156,7 +156,7 @@ extern "C" {
 // This must be a literal
 #define NUM_DIGITAL_PINS        114
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
-#define NUM_ANALOG_INPUTS       24
+#define NUM_ANALOG_INPUTS       7
 #define NUM_ANALOG_FIRST        107
 
 
