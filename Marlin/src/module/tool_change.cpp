@@ -939,7 +939,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    */
   void extruder_cutting_recover(const_float_t e) {
     if (!too_cold(active_extruder)) {
-      const float dist = toolchange_settings.extra_resume + (toolchange_settings.wipe_retract);
+      const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
       FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
       unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
       planner.synchronize();
@@ -1004,8 +1004,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
-      FS_DEBUG("Performing Cutting Retraction | Distance: ", -(toolchange_settings.wipe_retract), " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
-      unscaled_e_move(-(toolchange_settings.wipe_retract), MMM_TO_MMS(toolchange_settings.retract_speed));
+      FS_DEBUG("Performing Cutting Retraction | Distance: ", -toolchange_settings.wipe_retract, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
+      unscaled_e_move(-toolchange_settings.wipe_retract, MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
 
     // Cool down with fan

@@ -40,7 +40,7 @@
  *  S[linear]     Swap length
  *  B[linear]     Extra Swap resume length
  *  E[linear]     Extra Prime length (as used by M217 Q)
- *  G[linear/min] Cutting wipe retract
+ *  G[linear]     Cutting wipe retract length (<=100mm)
  *  P[linear/min] Prime speed
  *  Q[linear]     [extruder] Reset primed statut (To prime on next T...)
  *  R[linear/min] Retract speed
@@ -48,7 +48,7 @@
  *  V[linear]     0/1 Enable auto prime first extruder used
  *  W[linear]     0/1 Enable park
  *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
- *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK)
+ *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK and NUM_AXES >= 2)
  *  I[linear]     Park I (Requires TOOLCHANGE_PARK and NUM_AXES >= 4)
  *  J[linear]     Park J (Requires TOOLCHANGE_PARK and NUM_AXES >= 5)
  *  K[linear]     Park K (Requires TOOLCHANGE_PARK and NUM_AXES >= 6)
@@ -166,7 +166,7 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
     SERIAL_ECHOPGM_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
                      SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
                      SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed),
-                     SP_P_STR, LINEAR_UNIT(toolchange_settings.wipe_retract));
+                   PSTR(" G"), LINEAR_UNIT(toolchange_settings.wipe_retract));
     SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
                    " F", toolchange_settings.fan_speed,
