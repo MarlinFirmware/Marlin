@@ -54,12 +54,13 @@ void GcodeSuite::M73() {
     DWIN_M73();
 
   #else
-
-    if (parser.seenval('P'))
-      ui.set_progress((PROGRESS_SCALE) > 1
-        ? parser.value_float() * (PROGRESS_SCALE)
-        : parser.value_byte()
-      );
+    #if ENABLED(USE_M73_PERCENT)
+      if (parser.seenval('P'))
+        ui.set_progress((PROGRESS_SCALE) > 1
+          ? parser.value_float() * (PROGRESS_SCALE)
+          : parser.value_byte()
+        );
+    #endif
 
     #if ENABLED(USE_M73_REMAINING_TIME)
       if (parser.seenval('R')) ui.set_remaining_time(60 * parser.value_ulong());

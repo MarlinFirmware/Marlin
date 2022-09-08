@@ -447,7 +447,7 @@ void MarlinUI::draw_status_screen() {
       //if (pb_solid < old_solid)
         DWIN_Draw_Rectangle(1, Color_Bg_Black, pb_left + 1 + pb_solid, pb_top + 1, pb_right - 1, pb_bottom - 1); // Erase the rest
 
-      #if ENABLED(SHOW_SD_PERCENT)
+      #if ENABLED(SHOW_PROGRESS_PERCENT)
         dwin_string.set(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
         dwin_string.add('%');
         DWIN_Draw_String(

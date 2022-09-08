@@ -4565,7 +4565,7 @@ void CrealityDWINClass::Start_Print(bool sd) {
     }
     else
       strcpy_P(filename, PSTR("Host Print"));
-    TERN_(SET_PROGRESS_MANUALLY, ui.set_progress(0));
+    TERN_(USE_M73_PERCENT, ui.set_progress(0));
     TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
     Draw_Print_Screen();
   }
@@ -4575,7 +4575,7 @@ void CrealityDWINClass::Stop_Print() {
   printing = false;
   sdprint = false;
   thermalManager.cooldown();
-  TERN_(SET_PROGRESS_MANUALLY, ui.set_progress(100 * (PROGRESS_SCALE)));
+  TERN_(USE_M73_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
   TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
   Draw_Print_confirm();
 }

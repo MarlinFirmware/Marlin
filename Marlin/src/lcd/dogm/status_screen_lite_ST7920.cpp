@@ -840,7 +840,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
 }
 
 void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
-  #if EITHER(SET_PROGRESS_MANUALLY, SDSUPPORT)
+  #if EITHER(USE_M73_PERCENT, SDSUPPORT)
 
     // Since the progress bar involves writing
     // quite a few bytes to GDRAM, only do this

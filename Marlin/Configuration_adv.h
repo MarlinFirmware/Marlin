@@ -1434,17 +1434,24 @@
 #endif
 
 // Add an 'M73' G-code to set the current percentage
-//#define SET_PROGRESS_MANUALLY
+#define SET_PROGRESS_MANUALLY
 #if ENABLED(SET_PROGRESS_MANUALLY)
-  #define USE_M73_REMAINING_TIME    // Add 'R' parameter to set remaining time
+  // #define USE_M73_PERCENT        // Add 'P' pazrameter to set percentage done, else use Marlin's estimation
+  // #define USE_M73_REMAINING_TIME    // Add 'R' parameter to set remaining time, else use Marlin's estimation
   #define USE_M73_INTERACTION_TIME  // Add 'C' parameter to set time until next filament change or other user interaction
   #define M73_REPORT                // Report M73 values to host
 #endif
 
 // LCD Print Progress options
 #if EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
+  #define SHOW_PROGRESS_PERCENT       // Show print progress percentage next to the progress bar
+  #define SHOW_ELAPSED_TIME           // Display printing time
   #define SHOW_REMAINING_TIME         // Display estimated time to completion
-  #if ENABLED(SHOW_REMAINING_TIME)
+
+  #if ENABLED(USE_M73_INTERACTION_TIME)
+    #define SHOW_INTERACTION_TIME       // Display time to next user interaction
+  #endif
+  #if MANY(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
     #define ROTATE_PROGRESS_DISPLAY   // Display (P)rogress, (E)lapsed, filament (C)hange and (R)emaining time
   #endif
 
@@ -1501,7 +1508,7 @@
 
   //#define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
 
-  //#define MEDIA_MENU_AT_TOP               // Force the media menu to be listed on the top of the main menu
+  #define MEDIA_MENU_AT_TOP               // Force the media menu to be listed on the top of the main menu
 
   #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 
@@ -1800,14 +1807,8 @@
 #endif // HAS_MARLINUI_U8GLIB
 
 #if HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
-  // Show SD percentage next to the progress bar
-  //#define SHOW_SD_PERCENT
-
-  // Enable to save many cycles by drawing a hollow frame on Menu Screens
-  #define MENU_HOLLOW_FRAME
-
-  // Swap the CW/CCW indicators in the graphics overlay
-  //#define OVERLAY_GFX_REVERSE
+  #define MENU_HOLLOW_FRAME          // Enable to save many cycles by drawing a hollow frame on Menu Screens
+  //#define OVERLAY_GFX_REVERSE      // Swap the CW/CCW indicators in the graphics overlay
 #endif
 
 //
