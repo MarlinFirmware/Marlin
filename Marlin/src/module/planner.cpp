@@ -793,19 +793,21 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     uint32_t cruise_rate = block->nominal_rate;
   #endif
 
-  const int32_t accel = block->acceleration_steps_per_s2;
-
   // Steps for acceleration, plateau and deceleration
   int32_t plateau_steps = block->step_event_count;
   uint32_t accelerate_steps = 0,
            decelerate_steps = 0;
 
+  const int32_t accel = block->acceleration_steps_per_s2;
+  float inverse_accel = 0.0f;
   if (accel != 0) {
-    // Steps required for acceleration, deceleration to/from nominal rate
-    const float nominal_rate_sq = sq(float(block->nominal_rate));
-    float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f / accel);
+    inverse_accel = 1.0f / accel;
+    const float half_inverse_accel = 0.5f * inverse_accel,
+                nominal_rate_sq = sq(float(block->nominal_rate)),
+                // Steps required for acceleration, deceleration to/from nominal rate
+                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(final_rate)));
+          float accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(initial_rate)));
     accelerate_steps = CEIL(accelerate_steps_float);
-    const float decelerate_steps_float = (nominal_rate_sq - sq(float(final_rate))) * (0.5f / accel);
     decelerate_steps = FLOOR(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
@@ -828,9 +830,10 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   }
 
   #if ENABLED(S_CURVE_ACCELERATION)
+    const float rate_factor = inverse_accel * (STEPPER_TIMER_RATE);
     // Jerk controlled speed requires to express speed versus time, NOT steps
-    uint32_t acceleration_time = (float(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
-             deceleration_time = (float(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE),
+    uint32_t acceleration_time = rate_factor * float(cruise_rate - initial_rate),
+             deceleration_time = rate_factor * float(cruise_rate - final_rate),
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
              acceleration_time_inverse = get_period_inverse(acceleration_time),
              deceleration_time_inverse = get_period_inverse(deceleration_time);
