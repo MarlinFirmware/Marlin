@@ -1391,6 +1391,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
 
+    const bool is_idling = TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out);
+
     #if ENABLED(PIDTEMP)
 
       typedef PIDRunner<hotend_info_t, 0, PID_MAX> PIDRunnerHotend;
@@ -1400,7 +1402,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         REPEAT(HOTENDS, _HOTENDPID)
       };
 
-      const float pid_output = hotend_pid[ee].get_pid_output();
+      const float pid_output = is_idling ? 0 : hotend_pid[ee].get_pid_output();
 
       #if ENABLED(PID_DEBUG)
         if (ee == active_extruder)
@@ -1463,7 +1465,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         hotend.modeled_ambient_temp += delta_to_apply > 0.f ? _MAX(delta_to_apply, MPC_MIN_AMBIENT_CHANGE * MPC_dT) : _MIN(delta_to_apply, -MPC_MIN_AMBIENT_CHANGE * MPC_dT);
 
       float power = 0.0;
-      if (hotend.target != 0 && TERN1(HEATER_IDLE_HANDLER, !heater_idle[ee].timed_out)) {
+      if (hotend.target != 0 && !is_idling) {
         // Plan power level to get to target temperature in 2 seconds
         power = (hotend.target - hotend.modeled_block_temp) * constants.block_heat_capacity / 2.0f;
         power -= (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff;
@@ -1489,7 +1491,6 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     #else // No PID or MPC enabled
 
-      const bool is_idling = TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out);
       const float pid_output = (!is_idling && temp_hotend[ee].is_below_target()) ? BANG_MAX : 0;
 
     #endif
