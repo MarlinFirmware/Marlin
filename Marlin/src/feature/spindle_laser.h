@@ -30,9 +30,7 @@
 
 #include "spindle_laser_types.h"
 
-#if HAS_BEEPER
-  #include "../libs/buzzer.h"
-#endif
+#include "../libs/buzzer.h"
 
 // Inline laser power
 #include "../module/planner.h"
@@ -295,10 +293,7 @@ public:
        * If not set defaults to 80% power
        */
       static void test_fire_pulse() {
-        #if HAS_BEEPER
         BUZZ(30, 3000);
-        #endif
-        
         cutter_mode = CUTTER_MODE_STANDARD; // Menu needs standard mode.
         menu_set_enabled(true);             // Laser On
         delay(testPulse);                   // Delay for time set by user in pulse ms menu screen.
