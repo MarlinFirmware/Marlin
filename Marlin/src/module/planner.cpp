@@ -793,15 +793,15 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     uint32_t cruise_rate = block->nominal_rate;
   #endif
 
-  const int32_t accel = block->acceleration_steps_per_s2;
-  const float inverse_accel = RECIPROCAL(accel);
-
   // Steps for acceleration, plateau and deceleration
   int32_t plateau_steps = block->step_event_count;
   uint32_t accelerate_steps = 0,
            decelerate_steps = 0;
 
+  const int32_t accel = block->acceleration_steps_per_s2;
+  float inverse_accel = 0.0f;
   if (accel != 0) {
+    const float inverse_accel = 1.0f / accel;
     // Steps required for acceleration, deceleration to/from nominal rate
     const float nominal_rate_sq = sq(float(block->nominal_rate));
     float accelerate_steps_float = (nominal_rate_sq - sq(float(initial_rate))) * (0.5f * inverse_accel);
