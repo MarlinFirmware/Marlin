@@ -133,7 +133,7 @@ void GcodeSuite::M115() {
     // SPINDLE AND LASER CONTROL (M3, M4, M5)
     #if ENABLED(SPINDLE_FEATURE)
       cap_line(F("SPINDLE"), true);
-    #elif ENABLED(SPINDLE_FEATURE)
+    #elif ENABLED(LASER_FEATURE)
       cap_line(F("LASER"), true);
     #endif
 
