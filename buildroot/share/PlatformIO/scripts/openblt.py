@@ -3,7 +3,6 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    import os,sys
     from os.path import join
 
     Import("env")

@@ -294,14 +294,14 @@
         #if X_HAS_STEALTHCHOP || X2_HAS_STEALTHCHOP
           case X_AXIS:
             TERN_(X_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(X,X));
-            TERN_(X2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(X,X2));
+            TERN_(X2_HAS_STEALTHCHOP, if (!index || index == 2) TMC_SET_PWMTHRS(X,X2));
             break;
         #endif
 
         #if Y_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP
           case Y_AXIS:
             TERN_(Y_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(Y,Y));
-            TERN_(Y2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2));
+            TERN_(Y2_HAS_STEALTHCHOP, if (!index || index == 2) TMC_SET_PWMTHRS(Y,Y2));
             break;
         #endif
 
@@ -499,7 +499,6 @@
    * M914: Set StallGuard sensitivity.
    */
   void GcodeSuite::M914() {
-
     bool report = true;
     const uint8_t index = parser.byteval('I');
     LOOP_NUM_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
@@ -509,13 +508,13 @@
         #if X_SENSORLESS
           case X_AXIS:
             if (index < 2) stepperX.homing_threshold(value);
-            TERN_(X2_SENSORLESS, if (!(index & 1)) stepperX2.homing_threshold(value));
+            TERN_(X2_SENSORLESS, if (!index || index == 2) stepperX2.homing_threshold(value));
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
             if (index < 2) stepperY.homing_threshold(value);
-            TERN_(Y2_SENSORLESS, if (!(index & 1)) stepperY2.homing_threshold(value));
+            TERN_(Y2_SENSORLESS, if (!index || index == 2) stepperY2.homing_threshold(value));
             break;
         #endif
         #if Z_SENSORLESS
