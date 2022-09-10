@@ -29,6 +29,6 @@
 
 // LPC1768 boards seem to lose steps when saving to EEPROM during print (issue #20785)
 // TODO: Which other boards are incompatible?
-#if defined(MCU_LPC1768) && PRINTCOUNTER_SAVE_INTERVAL > 0
+#if defined(MCU_LPC1768) && ENABLED(FLASH_EEPROM_EMULATION) && PRINTCOUNTER_SAVE_INTERVAL > 0
   #define PRINTCOUNTER_SYNC 1
 #endif
