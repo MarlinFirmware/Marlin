@@ -112,7 +112,7 @@ const XrefInfo pin_xref[] PROGMEM = {
   #define HAS_HIGH_ANALOG_PINS 1
 #endif
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS)
-#define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
+#define VALID_PIN(ANUM) (((ANUM) >= 0 && (ANUM) < NUM_DIGITAL_PINS) TERN_(HAS_HIGH_ANALOG_PINS, || ((ANUM) >= NUM_ANALOG_FIRST  && (ANUM) < NUM_ANALOG_FIRST+NUM_ANALOG_INPUTS)))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
@@ -206,8 +206,11 @@ void port_print(const pin_t Ard_num) {
     SERIAL_ECHO_SP(7);
 
   // Print number to be used with M42
-  int calc_p = Ard_num % (NUM_DIGITAL_PINS + 1);
-  if (Ard_num > NUM_DIGITAL_PINS && calc_p > 7) calc_p += 8;
+  int calc_p = Ard_num;
+  if (Ard_num > NUM_DIGITAL_PINS) {
+    calc_p -= NUM_ANALOG_FIRST;
+    if (calc_p > 7) calc_p += 8;
+  }
   SERIAL_ECHOPGM(" M42 P", calc_p);
   SERIAL_CHAR(' ');
   if (calc_p < 100) {
