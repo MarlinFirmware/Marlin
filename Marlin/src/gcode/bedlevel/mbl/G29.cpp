@@ -267,12 +267,6 @@ void GcodeSuite::G29() {
     if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
-  #ifdef Z_PROBE_END_SCRIPT
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
-    planner.synchronize();
-    process_subcommands_now(F(Z_PROBE_END_SCRIPT));
-  #endif
-
   TERN_(HAS_MULTI_HOTEND, if (mbl_tool_index != 0) tool_change(mbl_tool_index));
 
   report_current_position();
