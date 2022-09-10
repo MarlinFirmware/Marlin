@@ -38,7 +38,7 @@ jobs:
         # - DUE
         # - DUE_archim
         # - esp32
-        - linux_native
+        # - linux_native
         # - mega2560
         # - at90usb1286_dfu
         # - teensy31
