@@ -1267,11 +1267,16 @@
 //
 
 /**
- * Where is the probe attached PROBE_PORT or Z_MIN_PORT
- * The probe replaces the Z-MIN endstop and is used for Z homing.
- * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
+ * Set PROBE_IS_PLUGGED_INTO to one of the following:
+ *
+ *    PROBE_PORT - Probe is plugged into the probe port on the controller.
+ *    Z_MIN_PORT - Probe is plugged into the z-min port on the controller.
+ *
+ * :[ 'PROBE_PORT', 'Z_MIN_PORT' ]
+ *
+ * If Z_MIN_PORT then USE_PROBE_FOR_Z_HOMING is automatically enabled.
  */
-#define PROBE_IS_PLUGGED_INTO PROBE_PORT
+//#define PROBE_IS_PLUGGED_INTO undefined
 
 // Force the use of the probe for Z-axis homing
 //#define USE_PROBE_FOR_Z_HOMING
