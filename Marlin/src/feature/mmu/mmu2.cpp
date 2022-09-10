@@ -585,7 +585,7 @@ static void mmu2_not_responding() {
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       mmu_continue_loading();
-      command(MMU_CMD_C0);
+      //command(MMU_CMD_C0);
       extruder = index;
       active_extruder = 0;
 
@@ -652,14 +652,38 @@ static void mmu2_not_responding() {
     set_runout_valid(true);
   }
 
-  void MMU2::mmu_continue_loading() {
+  void MMU2::mmu_continue_loading() { 
+  
+    unsigned long now_time = 0;
+
     for (uint8_t i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
       DEBUG_ECHOLNPGM("Additional load attempt #", i);
       if (FILAMENT_PRESENT()) break;
+    
       command(MMU_CMD_C0);
+      stepper.enable_extruder();
+      now_time = millis() / 1000;
+
+      while (!FILAMENT_PRESENT()){
+      
+        current_position.e += 1;
+        line_to_current_position(MMU_LOAD_FEEDRATE);
+        planner.synchronize();
+        if (((millis() / 1000) - now_time) > 3) {
+          break;
+        }
+        // when (T0 rx->ok) load ready,but In fact it did not load successfully or load too much creates pressure in the extruder.
+        // send (C0) load more and move E_AXIS a little .to release pressure
+        if (FILAMENT_PRESENT()) {
+          MMU2_COMMAND("A");
+          break;
+        }
+      }
+      stepper.disable_extruder();
       manage_response(true, true);
     }
     if (!FILAMENT_PRESENT()) {
+    
       DEBUG_ECHOLNPGM("Filament never reached sensor, runout");
       filament_runout();
     }
