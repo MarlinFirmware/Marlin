@@ -2989,6 +2989,7 @@
 //#define ANYCUBIC_LCD_CHIRON
 #if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
   //#define ANYCUBIC_LCD_DEBUG
+  //#define ANYCUBIC_LCD_USE_GCODE  // extend special menu entries with ".gcode" for compatibility with DGUS-clones
 #endif
 
 //
