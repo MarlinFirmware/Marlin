@@ -47,7 +47,7 @@
   #error "PROBE_IS_PLUGGED_INTO must be set to either Z_MIN_PORT or FIVE_PIN_PROBE_PORT"
 #endif
 
-#if PROBE_CONNECTION_IS(Z_MIN_PORT)
+#if PROBE_CONNECTION_IS(Z_MIN_PORT) || !defined(PROBE_IS_PLUGGED_INTO) 
   #define PROBE_IS_ON_Z_MIN
 #endif
 
