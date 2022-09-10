@@ -75,6 +75,10 @@ void GcodeSuite::G29() {
     }
   #endif
 
+  #if HAS_MULTI_HOTEND
+    uint8_t mbl_tool_index;
+  #endif
+
   static int mbl_probe_index = -1;
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -106,6 +110,11 @@ void GcodeSuite::G29() {
         queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
         TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
         TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+
+        #if HAS_MULTI_HOTEND
+          mbl_tool_index = active_extruder;
+          if (active_extruder != 0) tool_change(0, true);
+        #endif
 
         // Position bed horizontally and Z probe vertically.
         #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
@@ -257,6 +266,14 @@ void GcodeSuite::G29() {
     SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
     if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
+
+  #ifdef Z_PROBE_END_SCRIPT
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+    planner.synchronize();
+    process_subcommands_now(F(Z_PROBE_END_SCRIPT));
+  #endif
+
+  TERN_(HAS_MULTI_HOTEND, if (mbl_tool_index != 0) tool_change(mbl_tool_index));
 
   report_current_position();
 
