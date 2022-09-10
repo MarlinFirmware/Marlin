@@ -132,6 +132,8 @@
   #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 #endif
 
+const bool blink = ui.get_blink();
+
 #if HAS_POWER_MONITOR
 
   void display_power_monitor(const uint8_t x, const uint8_t y) {
@@ -445,6 +447,75 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
+// Prepare strings for progress display 
+#if HAS_PRINT_PROGRESS
+  static uint8_t lastProgress = 0xFF;
+  static u8g_uint_t progress_bar_solid_width = 0;
+
+    #if ENABLED(SHOW_PROGRESS_PERCENT)
+      static u8g_uint_t progress_x_pos = TERN(ROTATE_PROGRESS_DISPLAY, 0, 77);
+      static char progress_string[5];
+      static void stringPercent(){
+        if (progress_string[0]) {
+          lcd_put_u8str(progress_x_pos, EXTRAS_BASELINE, progress_string);
+          lcd_put_lchar('%');
+        }
+      }
+    #endif
+    #if ENABLED(SHOW_REMAINING_TIME)
+      static u8g_uint_t remaining_x_pos = 0;
+      static char remaining_string[10];
+      static void stringRemain(){
+        if (IF_DISABLED(ROTATE_PROGRESS_DISPLAY, blink &&) remaining_string[0]){
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
+          lcd_put_u8str(remaining_x_pos, EXTRAS_BASELINE, remaining_string);
+        }
+      }
+    #endif
+    #if ENABLED(SHOW_INTERACTION_TIME)
+      static u8g_uint_t interaction_x_pos = 0;
+      static char interaction_string[10];
+      static void stringInter(){
+        if (IF_DISABLED(ROTATE_PROGRESS_DISPLAY, blink &&) interaction_string[0]) {
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
+          lcd_put_u8str(interaction_x_pos, EXTRAS_BASELINE, interaction_string);
+        }
+      }
+    #endif
+    #if ENABLED(SHOW_ELAPSED_TIME)
+      static uint8_t lastElapsed;
+      static u8g_uint_t elapsed_x_pos = 0;
+      static char elapsed_string[10];
+      static void stringElapsed(){
+        if (elapsed_string[0]) {
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
+          lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
+        }
+      }
+    #endif
+
+    #if ENABLED(ROTATE_PROGRESS_DISPLAY)
+      static uint8_t progress_state;
+      static bool prev_blink;
+      // pointer array
+      #define STRINGS COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
+      void (*string_ptr[STRINGS])() = {
+        #if ENABLED(SHOW_PROGRESS_PERCENT)
+          stringPercent,
+        #endif
+        #if ENABLED(SHOW_REMAINING_TIME)
+          stringRemain,
+        #endif
+        #if ENABLED(SHOW_INTERACTION_TIME)
+          stringInter,
+        #endif
+        #if ENABLED(SHOW_ELAPSED_TIME)
+          stringElapsed
+        #endif
+        };
+    #endif
+#endif //HAS_PRINT_PROGRESS
+
 /**
  * Draw the Status Screen for a 128x64 DOGM (U8glib) display.
  *
@@ -457,38 +528,6 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
-  #endif
-
-  #if HAS_PRINT_PROGRESS
-    #if DISABLED(SHOW_PROGRESS_PERCENT)
-      #define _SD_INFO_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH) / 2 - (len) * (MENU_FONT_WIDTH) / 2)
-    #else
-      #define _SD_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
-    #endif
-
-    static uint8_t lastProgress = 0xFF;
-    static u8g_uint_t progress_bar_solid_width = 0;
-    #if ENABLED(SHOW_PROGRESS_PERCENT)
-      static u8g_uint_t progress_x_pos = 0;
-      static char progress_string[5];
-    #endif
-    #if ENABLED(SHOW_ELAPSED_TIME)
-      static uint8_t lastElapsed = 0xFF;
-      static u8g_uint_t elapsed_x_pos = 0;
-      static char elapsed_string[16];
-    #endif
-    #if ENABLED(SHOW_REMAINING_TIME)
-      static u8g_uint_t estimation_x_pos = 0;
-      static char estimation_string[10];
-    #endif
-    #if ENABLED(SHOW_INTERACTION_TIME)
-      static u8g_uint_t interaction_x_pos = 0;
-      static char interaction_string[10];
-    #endif
-    #if ENABLED(ROTATE_PROGRESS_DISPLAY)
-      static uint8_t progress_state = 0;
-      static bool prev_blink = 0;
-    #endif
   #endif
 
   const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
@@ -530,6 +569,7 @@ void MarlinUI::draw_status_screen() {
 
     // Progress / elapsed / estimation updates and string formatting to avoid float math on each LCD draw
     #if HAS_PRINT_PROGRESS
+      #define _PRGR_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
       const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
       duration_t elapsed = print_job_timer.duration();
       const uint8_t p = progress & 0xFF, ev = elapsed.value & 0xFF;
@@ -546,7 +586,7 @@ void MarlinUI::draw_status_screen() {
             strcpy(progress_string, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
           
           #if BOTH(SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY) // Multi-state progress display mode
-            progress_x_pos = _SD_INFO_X(strlen(progress_string) + 1);
+            progress_x_pos = _PRGR_INFO_X(strlen(progress_string) + 1);
           #endif
         #endif
       }
@@ -556,14 +596,14 @@ void MarlinUI::draw_status_screen() {
       #if ENABLED(SHOW_INTERACTION_TIME)
         duration_t estimation = interaction_time;
         estimation.toDigital(interaction_string, can_show_days && estimation.value >= 60*60*24L);
-        interaction_x_pos = _SD_INFO_X(strlen(interaction_string));
+        interaction_x_pos = _PRGR_INFO_X(strlen(interaction_string));
       #endif
 
       #if ENABLED(SHOW_ELAPSED_TIME)
         if (ev != lastElapsed) {
           lastElapsed = ev;
           const uint8_t len = elapsed.toDigital(elapsed_string, can_show_days && elapsed.value >= 60*60*24L);
-          elapsed_x_pos = _SD_INFO_X(len);
+          elapsed_x_pos = _PRGR_INFO_X(len);
         }
       #endif
 
@@ -576,20 +616,18 @@ void MarlinUI::draw_status_screen() {
           );
           if (!timeval && progress > 0) timeval = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
           if (!timeval) {
-            estimation_string[0] = '\0';
-            estimation_x_pos = _SD_INFO_X(0);
+            remaining_string[0] = '\0';
+            remaining_x_pos = _PRGR_INFO_X(0);
           }
           else {
             duration_t estimation = timeval;
-            const uint8_t len = estimation.toDigital(estimation_string, can_show_days && estimation.value >= 60*60*24L);
-            estimation_x_pos = _SD_INFO_X(len + !BOTH(SHOW_PRORGESS_PERCENT, ROTATE_PROGRESS_DISPLAY));
+            const uint8_t len = estimation.toDigital(remaining_string, can_show_days && estimation.value >= 60*60*24L);
+            remaining_x_pos = _PRGR_INFO_X(len);
           }
         }
       #endif
     #endif
   }
-
-  const bool blink = get_blink();
 
   // Status Menu Font
   set_font(FONT_STATUSMENU);
@@ -770,85 +808,30 @@ void MarlinUI::draw_status_screen() {
   #endif // SDSUPPORT
 
   #if HAS_PRINT_PROGRESS
-    //
-    // Progress bar frame
-    //
 
+    // Progress bar frame
     if (PAGE_CONTAINS(PROGRESS_BAR_Y, PROGRESS_BAR_Y + 3))
       u8g.drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
 
-    //
     // Progress bar solid part
-    //
-
     if (PAGE_CONTAINS(PROGRESS_BAR_Y + 1, PROGRESS_BAR_Y + 2))
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
-
+    
+    // Progress strings
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
-
-      #if ENABLED(ROTATE_PROGRESS_DISPLAY) && COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME) > 1
-        int cycles = 0;  // ugly reliance on compile optimization
-
-        #if ENABLED(SHOW_PROGRESS_PERCENT)
-        cycles++;
-        if (progress_state == cycles-1 && progress_string[0]) {
-          lcd_put_u8str(progress_x_pos, EXTRAS_BASELINE, progress_string);
-          lcd_put_lchar('%');
-        }
-        #endif
-
-        #if ENABLED(SHOW_REMAINING_TIME)
-        cycles++;
-        if (progress_state == cycles-1 && estimation_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
-          lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
-        }
-        #endif
-
-        #if ENABLED(SHOW_INTERACTION_TIME)
-        cycles++;
-        if (progress_state == cycles-1 && interaction_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
-          lcd_put_u8str(interaction_x_pos, EXTRAS_BASELINE, interaction_string);
-        }
-        #endif
-
-        #if ENABLED(SHOW_ELAPSED_TIME)
-        cycles++;
-        if (progress_state == cycles-1 && elapsed_string[0]) {
-          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
-          lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
-        }
-        #endif
-
+      #if ENABLED(ROTATE_PROGRESS_DISPLAY) && (STRINGS > 1)
         if (prev_blink != blink) {
           prev_blink = blink;
-          if (++progress_state >= cycles) progress_state = 0;
+          if (++progress_state >= STRINGS) progress_state = 0;
+          (*string_ptr[progress_state])();
         }
-
       #else // !ROTATE_PROGRESS_DISPLAY
-
-        // Print job percent complete
-        #if ENABLED(SHOW_PROGRESS_PERCENT)
-          if (progress_string[0]) {
-            lcd_put_u8str(55, EXTRAS_BASELINE, progress_string); // Percent complete
-            lcd_put_lchar('%');
-          }
-        #endif
-
-        // Elapsed Time
-        #if ENABLED(SHOW_REMAINING_TIME)
-          if (blink && estimation_string[0]) {
-            lcd_put_lchar(estimation_x_pos, EXTRAS_BASELINE, 'R:');
-            lcd_put_u8str(estimation_string);
-          }
-          else
-        #endif
-            lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
-
-      #endif // !SHOW_PROGRESS_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
+        TERN_(SHOW_PROGRESS_PERCENT, stringPercent();)
+        TERN_(SHOW_REMAINING_TIME, stringRemain();)
+        TERN_(SHOW_INTERACTION_TIME, stringInter();)
+        TERN_(SHOW_ELAPSED_TIME, stringElapsed();)
+      #endif // !ROTATE_PROGRESS_DISPLAY
     }
-
   #endif // HAS_PRINT_PROGRESS
 
   //

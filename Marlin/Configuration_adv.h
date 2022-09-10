@@ -1436,15 +1436,15 @@
 // Add an 'M73' G-code to set the current percentage
 #define SET_PROGRESS_MANUALLY
 #if ENABLED(SET_PROGRESS_MANUALLY)
-  // #define USE_M73_PERCENT        // Add 'P' pazrameter to set percentage done, else use Marlin's estimation
-  // #define USE_M73_REMAINING_TIME    // Add 'R' parameter to set remaining time, else use Marlin's estimation
+  #define USE_M73_PERCENT           // Add 'P' pazrameter to set percentage done, else use Marlin's estimation
+  #define USE_M73_REMAINING_TIME    // Add 'R' parameter to set remaining time, else use Marlin's estimation
   #define USE_M73_INTERACTION_TIME  // Add 'C' parameter to set time until next filament change or other user interaction
   #define M73_REPORT                // Report M73 values to host
 #endif
 
 // LCD Print Progress options
 #if EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
-  #define SHOW_PROGRESS_PERCENT       // Show print progress percentage next to the progress bar
+  #define SHOW_PROGRESS_PERCENT       // Show print progress percentage (progress bar is always showing)
   #define SHOW_ELAPSED_TIME           // Display printing time
   #define SHOW_REMAINING_TIME         // Display estimated time to completion
 
@@ -1456,7 +1456,7 @@
   #endif
 
   #if EITHER(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI)
-    //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
+    #define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
   #endif
 
   #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
