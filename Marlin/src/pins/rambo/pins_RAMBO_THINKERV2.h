@@ -36,13 +36,13 @@
 
 // Support BLTouch and fixed probes
 #if ENABLED(BLTOUCH)
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #if ENABLED(PROBE_IS_ON_Z_MIN)
     #define Z_MIN_PIN                         22
   #elif !defined(Z_MIN_PROBE_PIN)
     #define Z_MIN_PROBE_PIN                   22
   #endif
 #elif ENABLED(FIX_MOUNTED_PROBE)
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #if ENABLED(PROBE_IS_ON_Z_MIN)
     #define Z_MIN_PIN                          4
   #elif !defined(Z_MIN_PROBE_PIN)
     #define Z_MIN_PROBE_PIN                    4

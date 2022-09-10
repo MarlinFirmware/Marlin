@@ -2338,7 +2338,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
         current_position.z -= probe.offset.z;
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED WITH PROBE (PROBE_IS_PLUGGED_INTO Z_MIN_PORT) ***\n> probe.offset.z = ", probe.offset.z);
 
       #else
 

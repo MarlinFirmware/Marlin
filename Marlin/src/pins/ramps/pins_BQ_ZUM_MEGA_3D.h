@@ -38,8 +38,8 @@
 // This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
 // decided to ship the printer only with the probe and no additional Z-min
 // endstop and the instruction manual advises the user to connect the probe to
-// IND_S_5V the option Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN will not work.
-#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+// IND_S_5V the option PROBE_IS_PLUGGED_INTO Z_MIN_PORT will not work.
+#if ENABLED(PROBE_IS_ON_Z_MIN)
   #define Z_MIN_PIN                           19  // IND_S_5V
   #define Z_MAX_PIN                           18  // Z-MIN Label
 #endif

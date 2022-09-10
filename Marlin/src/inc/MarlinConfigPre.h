@@ -38,6 +38,15 @@
 #include "../core/boards.h"
 #include "../../Configuration.h"
 
+#define _PROBE_FIVE_PIN_PROBE_PORT          1
+#define _PROBE_Z_MIN_PORT                   2
+#define _PROBE_ID(V) _CAT(_PROBE_, V)
+#define PROBE_CONNECTION_IS(V) (_PROBE_ID(PROBE_IS_PLUGGED_INTO) == _PROBE_ID(V))
+
+#if PROBE_CONNECTION_IS(Z_MIN_PORT)
+  #define PROBE_IS_ON_Z_MIN
+#endif
+
 #ifdef CUSTOM_VERSION_FILE
   #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
     #include STRINGIFY(../../CUSTOM_VERSION_FILE)
