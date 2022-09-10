@@ -333,6 +333,11 @@ public:
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
+    static void stringPercent();
+    static void stringRemain();
+    static void stringInter();
+    static void stringElapsed();
+    static void rotate_progress();
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
@@ -781,6 +786,25 @@ private:
         static bool touch_pressed();
       #endif
     #endif
+  #endif
+
+  #if HAS_PRINT_PROGRESS
+    // universal pointer array
+    #define STRINGS COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
+    static constexpr void (*string_ptr[STRINGS])() = {
+      #if ENABLED(SHOW_PROGRESS_PERCENT)
+        stringPercent,
+      #endif
+      #if ENABLED(SHOW_REMAINING_TIME)
+        stringRemain,
+      #endif
+      #if ENABLED(SHOW_INTERACTION_TIME)
+        stringInter,
+      #endif
+      #if ENABLED(SHOW_ELAPSED_TIME)
+        stringElapsed
+      #endif
+      };
   #endif
 };
 

@@ -455,7 +455,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     static u8g_uint_t progress_x_pos = TERN(ROTATE_PROGRESS_DISPLAY, 0, 77);
     static char progress_string[5];
-    static void stringPercent(){
+    void MarlinUI::stringPercent(){
       if (progress_string[0]) {
         lcd_put_u8str(progress_x_pos, EXTRAS_BASELINE, progress_string);
         lcd_put_lchar('%');
@@ -465,7 +465,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_REMAINING_TIME)
     static u8g_uint_t remaining_x_pos = 0;
     static char remaining_string[10];
-    static void stringRemain(){
+    void MarlinUI::stringRemain(){
       if (IF_DISABLED(ROTATE_PROGRESS_DISPLAY, blink &&) remaining_string[0]){
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
         lcd_put_u8str(remaining_x_pos, EXTRAS_BASELINE, remaining_string);
@@ -475,7 +475,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_INTERACTION_TIME)
     static u8g_uint_t interaction_x_pos = 0;
     static char interaction_string[10];
-    static void stringInter(){
+    void MarlinUI::stringInter(){
       if (IF_DISABLED(ROTATE_PROGRESS_DISPLAY, blink &&) interaction_string[0]) {
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
         lcd_put_u8str(interaction_x_pos, EXTRAS_BASELINE, interaction_string);
@@ -486,33 +486,13 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     static uint8_t lastElapsed;
     static u8g_uint_t elapsed_x_pos = 0;
     static char elapsed_string[10];
-    static void stringElapsed(){
+    void MarlinUI::stringElapsed(){
       if (elapsed_string[0]) {
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
         lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
       }
     }
   #endif
-  #if ENABLED(ROTATE_PROGRESS_DISPLAY)
-    static uint8_t progress_state;
-    static bool prev_blink;
-  #endif
-  // pointer array, or just one pointer that should be optimized away
-  #define STRINGS COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
-  void (*string_ptr[STRINGS])() = {
-    #if ENABLED(SHOW_PROGRESS_PERCENT)
-      stringPercent,
-    #endif
-    #if ENABLED(SHOW_REMAINING_TIME)
-      stringRemain,
-    #endif
-    #if ENABLED(SHOW_INTERACTION_TIME)
-      stringInter,
-    #endif
-    #if ENABLED(SHOW_ELAPSED_TIME)
-      stringElapsed
-    #endif
-    };
 #endif //HAS_PRINT_PROGRESS
 
 /**
@@ -807,7 +787,6 @@ void MarlinUI::draw_status_screen() {
   #endif // SDSUPPORT
 
   #if HAS_PRINT_PROGRESS
-
     // Progress bar frame
     if (PAGE_CONTAINS(PROGRESS_BAR_Y, PROGRESS_BAR_Y + 3))
       u8g.drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
@@ -817,17 +796,8 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
     
     // Progress strings
-    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
-      #if ENABLED(ROTATE_PROGRESS_DISPLAY) && (STRINGS > 1)
-        if (prev_blink != blink) {
-          prev_blink = blink;
-          if (++progress_state >= STRINGS) progress_state = 0;
-          (*string_ptr[progress_state])();
-        }
-      #else // !ROTATE_PROGRESS_DISPLAY
-        (*string_ptr[0])();
-      #endif // !ROTATE_PROGRESS_DISPLAY
-    }
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1))
+      ui.rotate_progress();
   #endif // HAS_PRINT_PROGRESS
 
   //

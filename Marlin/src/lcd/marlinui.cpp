@@ -1725,6 +1725,20 @@ void MarlinUI::init() {
     );
   }
 
+  void MarlinUI::rotate_progress(){
+    #if ENABLED(ROTATE_PROGRESS_DISPLAY)
+      static bool prev_blink;
+      static uint8_t i;
+      if (prev_blink != get_blink()) {
+        prev_blink = get_blink();
+        if (++i >= STRINGS) i = 0;
+        (*string_ptr[i])();
+      }
+    #else
+      (*string_ptr[0])(); 
+    #endif
+  };
+
 #endif
 
 #if ENABLED(SDSUPPORT)
