@@ -76,7 +76,7 @@ void GcodeSuite::G29() {
   #endif
 
   #if HAS_MULTI_HOTEND
-    uint8_t mbl_tool_index;
+    static uint8_t mbl_tool_index;
   #endif
 
   static int mbl_probe_index = -1;
@@ -208,6 +208,8 @@ void GcodeSuite::G29() {
         home_all_axes();
         set_bed_leveling_enabled(true);
 
+        TERN_(HAS_MULTI_HOTEND, if (mbl_tool_index != 0) tool_change(mbl_tool_index));
+
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position.z = 0;
           line_to_current_position(homing_feedrate(Z_AXIS));
@@ -266,8 +268,6 @@ void GcodeSuite::G29() {
     SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
     if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
-
-  TERN_(HAS_MULTI_HOTEND, if (mbl_tool_index != 0) tool_change(mbl_tool_index));
 
   report_current_position();
 
