@@ -48,7 +48,7 @@
 #endif
 
 #if (!PROBE_CONNECTION_IS(Z_MIN_PORT) && !PROBE_CONNECTION_IS(FIVE_PIN_PROBE_PORT))
-  #error "PROBE_CONNECTION_IS must be set to either Z_MIN_PORT or FIVE_PIN_PROBE_PORT"
+  #error "PROBE_IS_PLUGGED_INTO must be set to either Z_MIN_PORT or FIVE_PIN_PROBE_PORT"
 #endif 
 
 #ifdef CUSTOM_VERSION_FILE
