@@ -647,7 +647,7 @@
 #elif defined(LCD_BACKLIGHT_TIMEOUT)
   #error "LCD_BACKLIGHT_TIMEOUT (seconds) is now LCD_BACKLIGHT_TIMEOUT_MINS (minutes)."
 #elif defined(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-  #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is now PROBE_IS_PLUGGED_INTO (Z_MIN_PORT|FIVE_PIN_PROBE_PORT)."
+  #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is now PROBE_IS_PLUGGED_INTO (Z_MIN_PORT|PROBE_PORT)."
 #endif
 
 // L64xx stepper drivers have been removed

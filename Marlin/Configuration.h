@@ -1267,11 +1267,11 @@
 //
 
 /**
- * Where is the probe attached FIVE_PIN_PROBE_PORT or Z_MIN_PORT
+ * Where is the probe attached PROBE_PORT or Z_MIN_PORT
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#define PROBE_IS_PLUGGED_INTO FIVE_PIN_PROBE_PORT
+#define PROBE_IS_PLUGGED_INTO PROBE_PORT
 
 // Force the use of the probe for Z-axis homing
 //#define USE_PROBE_FOR_Z_HOMING

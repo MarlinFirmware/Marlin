@@ -38,13 +38,13 @@
 #include "../core/boards.h"
 #include "../../Configuration.h"
 
-#define _PROBE_FIVE_PIN_PROBE_PORT          1
+#define _PROBE_PROBE_PORT          1
 #define _PROBE_Z_MIN_PORT                   2
 #define _PROBE_ID(V) _CAT(_PROBE_, V)
 #define PROBE_CONNECTION_IS(V) (_PROBE_ID(PROBE_IS_PLUGGED_INTO) == _PROBE_ID(V))
 
-#if (defined(PROBE_IS_PLUGGED_INTO) && !PROBE_CONNECTION_IS(Z_MIN_PORT) && !PROBE_CONNECTION_IS(FIVE_PIN_PROBE_PORT))
-  #error "PROBE_IS_PLUGGED_INTO must be set to either Z_MIN_PORT or FIVE_PIN_PROBE_PORT"
+#if (defined(PROBE_IS_PLUGGED_INTO) && !PROBE_CONNECTION_IS(Z_MIN_PORT) && !PROBE_CONNECTION_IS(PROBE_PORT))
+  #error "PROBE_IS_PLUGGED_INTO must be set to either Z_MIN_PORT or PROBE_PORT"
 #endif
 
 #if PROBE_CONNECTION_IS(Z_MIN_PORT)
