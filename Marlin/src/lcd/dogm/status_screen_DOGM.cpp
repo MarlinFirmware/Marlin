@@ -466,7 +466,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     static u8g_uint_t remaining_x_pos = 0;
     static char remaining_string[10];
     void MarlinUI::stringRemain(){
-      if (IF_DISABLED(ROTATE_PROGRESS_DISPLAY, blink &&) remaining_string[0]){
+      if (remaining_string[0]){
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
         lcd_put_u8str(remaining_x_pos, EXTRAS_BASELINE, remaining_string);
       }
@@ -476,7 +476,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     static u8g_uint_t interaction_x_pos = 0;
     static char interaction_string[10];
     void MarlinUI::stringInter(){
-      if (IF_DISABLED(ROTATE_PROGRESS_DISPLAY, blink &&) interaction_string[0]) {
+      if (interaction_string[0]) {
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
         lcd_put_u8str(interaction_x_pos, EXTRAS_BASELINE, interaction_string);
       }
@@ -558,9 +558,8 @@ void MarlinUI::draw_status_screen() {
         progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * (progress / (PROGRESS_SCALE)) * 0.01f);
 
         #if ENABLED(SHOW_PROGRESS_PERCENT)
-          if (progress == 0) {
+          if (progress == 0)
             progress_string[0] = '\0';
-          }
           else
             strcpy(progress_string, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
           

@@ -53,6 +53,7 @@
 #include "../../module/motion.h"
 #include "../../module/printcounter.h"
 #include "../../module/temperature.h"
+#include "../../libs/numtostr.h"
 
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
@@ -592,14 +593,10 @@ void ST7920_Lite_Status_Screen::draw_fan_speed(const uint8_t value) {
   write_byte('%');
 }
 
-void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed, char suffix) {
-  #if HOTENDS == 1
-    set_ddram_address(DDRAM_LINE_3);
-  #else
-    set_ddram_address(DDRAM_LINE_3 + 5);
-  #endif
+void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &time, char suffix) {
+  set_ddram_address(DDRAM_LINE_3 + TERN(HOTENDS == 1, 5, 0));
   char str[7];
-  int str_length = elapsed.toDigital(str);
+  int str_length = time.toDigital(str);
   str[str_length++] = suffix;
   begin_data();
   write_str(str, str_length);
@@ -714,12 +711,56 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   last_checksum = checksum;
   return true;
 }
+// #undef SHOW_PROGRESS_PERCENT
+// #undef SHOW_REMAINING_TIME
+// #undef SHOW_INTERACTION_TIME
+// #undef SHOW_ELAPSED_TIME
+// #undef ROTATE_PROGRESS_DISPLAY
+
+// #define SHOW_PROGRESS_PERCENT
+// #define SHOW_REMAINING_TIME
+// #define SHOW_INTERACTION_TIME
+// #define SHOW_ELAPSED_TIME
+// #define ROTATE_PROGRESS_DISPLA
+
+// Process progress strings
+#if HAS_PRINT_PROGRESS
+  #if ENABLED(SHOW_PROGRESS_PERCENT)
+    const uint8_t progress = ui.get_progress_percent();
+    static char progress_string[6];
+    void MarlinUI::stringPercent() {ST7920_Lite_Status_Screen::drawPercent();}
+    void ST7920_Lite_Status_Screen::drawPercent(){
+      if (progress == 0)
+        progress_string[0] = '\0';
+      else
+        strcpy(progress_string, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
+      set_ddram_address(DDRAM_LINE_3 + TERN(HOTENDS == 1, 5, 0));
+      int str_length = sizeof(progress_string);
+      progress_string[str_length++] = '%';
+      begin_data();
+      write_str(progress_string, str_length);
+    }
+  #endif
+  #if ENABLED(SHOW_REMAINING_TIME)
+    const duration_t remaining_time = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
+    void MarlinUI::stringRemain() {ST7920_Lite_Status_Screen::drawRemain();}
+    void ST7920_Lite_Status_Screen::drawRemain(){ draw_print_time(remaining_time, 'R'); }
+  #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    const duration_t interaction_time  = ui.interaction_time;
+    void MarlinUI::stringInter() {ST7920_Lite_Status_Screen::drawInter();}
+    void ST7920_Lite_Status_Screen::drawInter(){ draw_print_time(interaction_time, 'C'); }
+  #endif
+  #if ENABLED(SHOW_ELAPSED_TIME)
+    const duration_t elapsed_time = print_job_timer.duration();
+    void MarlinUI::stringElapsed() {ST7920_Lite_Status_Screen::drawElapsed();}
+    void ST7920_Lite_Status_Screen::drawElapsed(){ draw_print_time(elapsed_time, 'E'); }
+  #endif
+#endif // HAS_PRINT_PROGRESS
 
 void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
     const bool       blink              = ui.get_blink();
-    const duration_t elapsed            = print_job_timer.duration();
-    duration_t       remaining          = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
     const uint16_t   feedrate_perc      = feedrate_percentage;
     const celsius_t  extruder_1_temp    = thermalManager.wholeDegHotend(0),
                      extruder_1_target  = thermalManager.degTargetHotend(0);
@@ -742,26 +783,20 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
         spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
     draw_fan_speed(thermalManager.pwmToPercent(spd));
-
-    // Draw elapsed/remaining time
-    const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);
-    if (show_remaining && !remaining.second()) {
-      const auto progress = ui.get_progress_percent();
-      if (progress)
-        remaining = elapsed.second() * (100 - progress) / progress;
-    }
-    if (show_remaining && remaining.second())
-      draw_print_time(remaining, 'R');
-    else
-      draw_print_time(elapsed);
-
-    draw_feedrate_percentage(feedrate_perc);
-
     // Update the fan and bed animations
     if (spd) draw_fan_icon(blink);
     TERN_(HAS_HEATED_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
+
+    draw_feedrate_percentage(feedrate_perc);
+
+    // Update and draw progress strings
+    #if HAS_PRINT_PROGRESS
+      ui.rotate_progress();
+    #endif
   }
 }
+
+
 
 bool ST7920_Lite_Status_Screen::position_changed() {
   const xyz_pos_t pos = current_position;

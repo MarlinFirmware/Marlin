@@ -103,4 +103,10 @@ class ST7920_Lite_Status_Screen {
     static void on_entry();
     static void on_exit();
     static void clear_text_buffer();
+  #if HAS_PRINT_PROGRESS
+    static void drawPercent();
+    static void drawRemain();
+    static void drawInter();
+    static void drawElapsed();
+  #endif
 };
