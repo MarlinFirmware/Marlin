@@ -20,3 +20,9 @@
  *
  */
 #pragma once
+
+// ESP32 boards seem to lose steps when saving to EEPROM during print (see issue #20785)
+// TODO: Which other boards are incompatible?
+#if PRINTCOUNTER_SAVE_INTERVAL > 0
+  #define PRINTCOUNTER_SYNC 1
+#endif
