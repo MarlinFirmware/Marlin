@@ -28,18 +28,19 @@
 #include "../queue.h"
 #include "../parser.h"
 
+
 /**
  * Get the variable target data from the L parameter
  * 
  */
 
-void GcodeSuite::L100() {
+void GcodeSuite::L.append(100)() {
   const uint8_t index = parser.codenum - 100;
-  #if (parser.seenval('L')) {
+  #if (parser.seenval(L)) {
     bool used_var_arg = false;
     const int8_t q = parser.value_byte();
     *p = parser.string_arg
-    const bool is_var = (*p == 'L');
+    const bool is_var = (*p == L);
     has_val = is_var || valid_int(p + 1); 
     char * const varptr = has_val ? is_var ? input_var(p) : p+1:nullptr;
     #if (has_val = nul)
