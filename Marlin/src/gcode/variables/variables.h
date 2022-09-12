@@ -39,6 +39,8 @@ static void has_val();
 static bool is_var();
 static bool used_var_arg();
 static void var_arg();
+char[]letter={'#'}
+string L=new string(letter)
 
 
 static void L100();
