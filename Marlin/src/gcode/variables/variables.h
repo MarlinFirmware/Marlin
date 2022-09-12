@@ -39,11 +39,11 @@ static void has_val();
 static bool is_var();
 static bool used_var_arg();
 static void var_arg();
-char[]letter={'#'}
-string L=new string(letter)
+char[] letter = {'#'}
+string L = new_string(letter)
 
 
-static void L100();
+static void L.append(100)();
 static void L101();
 static void L102();
 static void L103();
