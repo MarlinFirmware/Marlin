@@ -1381,20 +1381,20 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_X_OFFSET -44
-#define NOZZLE_Y_OFFSET -7
-#define NOZZLE_TO_PROBE_OFFSET {NOZZLE_X_OFFSET, NOZZLE_Y_OFFSET, 0 }
+#define NOZZLE_X_OFFSET -49
+#define NOZZLE_Y_OFFSET -12
+#define NOZZLE_Z_OFFSET -2.976
+#define NOZZLE_TO_PROBE_OFFSET {NOZZLE_X_OFFSET, NOZZLE_Y_OFFSET, NOZZLE_Z_OFFSET }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 15
-#define PROBING_MARGIN_LEFT 40
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_FEEDRATE (133*60)
+#define XY_PROBE_FEEDRATE (150*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (4*60)
+#define Z_PROBE_FEEDRATE_FAST (5*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
@@ -1878,7 +1878,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-// #define LCD_BED_LEVELING
+#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -1957,7 +1957,7 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (20*60), (20*60), (4*60) }
+#define HOMING_FEEDRATE_MM_M { (30*60), (30*60), (5*60) }
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS

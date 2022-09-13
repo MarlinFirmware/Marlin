@@ -989,7 +989,7 @@
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probe points.
-  #define TRAMMING_POINT_XY { {  50, 30 }, { 170,  30 }, { 170, 170 }, { 50, 170 } }
+  #define TRAMMING_POINT_XY { {  30, 30 }, { 170,  30 }, { 170, 170 }, { 50, 170 } }
 
   // Define position names for probe points.
   #define TRAMMING_POINT_NAME_1 "Front-Left"
@@ -1917,7 +1917,7 @@
 
 //
 // Classic UI Options
-//
+//f
 #if TFT_SCALED_DOGLCD
   //#define TFT_MARLINUI_COLOR 0xFFFF // White
   //#define TFT_MARLINBG_COLOR 0x0000 // Black
