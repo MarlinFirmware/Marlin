@@ -368,6 +368,7 @@
 #define BOARD_ZONESTAR_ZM3E4V2        4064  // Zonestar ZM3E4 V2 (STM32F103VC)
 #define BOARD_ERYONE_ERY32_MINI       4065  // Eryone Ery32 mini (STM32F103VE)
 #define BOARD_PANDA_PI_V29            4066  // Panda Pi V2.9 - Standalone (STM32F103RC)
+#define BOARD_CREALITY_V521           4067 // SV04 Board
 
 //
 // ARM Cortex-M4F
