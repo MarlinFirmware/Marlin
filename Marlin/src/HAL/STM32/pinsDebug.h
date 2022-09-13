@@ -102,17 +102,18 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PIN_NUM_ALPHA_LEFT(P) (((P & 0x000F) < 10) ? ('0' + (P & 0x000F)) : '1')
 #define PIN_NUM_ALPHA_RIGHT(P) (((P & 0x000F) > 9)  ? ('0' + (P & 0x000F) - 10) : 0 )
 #define PORT_NUM(P) ((P  >> 4) & 0x0007)
-#define PORT_ALPHA(P) ('A' + (P  >> 4))
+#define PORT_ALPHA(P) ('A' + (P >> 4))
 
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#if PA0 >= NUM_DIGITAL_PINS
+#if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
   #define HAS_HIGH_ANALOG_PINS 1
 #endif
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS)
-#define VALID_PIN(ANUM) (((ANUM) >= 0 && (ANUM) < NUM_DIGITAL_PINS) TERN_(HAS_HIGH_ANALOG_PINS, || ((ANUM) >= NUM_ANALOG_FIRST  && (ANUM) < NUM_ANALOG_FIRST+NUM_ANALOG_INPUTS)))
+#define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
+#define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
+#define VALID_PIN(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
@@ -168,7 +169,7 @@ bool GET_PINMODE(const pin_t Ard_num) {
 }
 
 int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
-  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_FIRST + NUM_ANALOG_INPUTS - 1))
+  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
     return Ard_num - NUM_ANALOG_FIRST;
 
   const uint32_t ind = digitalPinToAnalogInput(Ard_num);
