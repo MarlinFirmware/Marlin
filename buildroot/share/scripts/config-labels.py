@@ -130,7 +130,7 @@ def process_file(subdir: str, filename: str):
 		# Note: no need to create output dirs, as the initial copy_tree
 		# will do that.
 
-		print('  writing ' + outfilepath)
+		print('  writing ' + str(outfilepath))
 		try:
 			# Preserve unicode chars; Avoid CR-LF on Windows.
 			with outfilepath.open("w", encoding="utf-8", newline='\n') as outfile:
@@ -140,7 +140,7 @@ def process_file(subdir: str, filename: str):
 			print('Failed to write file: ' + str(e) )
 			raise Exception
 	else:
-		print('  no change for ' + outfilepath)
+		print('  no change for ' + str(outfilepath))
 
 #----------
 def main():
