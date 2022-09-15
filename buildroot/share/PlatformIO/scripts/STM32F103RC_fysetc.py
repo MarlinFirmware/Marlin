@@ -3,7 +3,6 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-	import os
 	from os.path import join
 	from os.path import expandvars
 	Import("env")

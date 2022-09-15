@@ -30,7 +30,9 @@
 
 #include "spindle_laser_types.h"
 
-#include "../libs/buzzer.h"
+#if HAS_BEEPER
+  #include "../libs/buzzer.h"
+#endif
 
 // Inline laser power
 #include "../module/planner.h"

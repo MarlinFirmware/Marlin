@@ -209,37 +209,59 @@ void menu_backlash();
 
 #if ENABLED(PID_EDIT_MENU)
 
-  float raw_Ki, raw_Kd; // place-holders for Ki and Kd edits
+  // Placeholders for PID editing
+  float raw_Kp, raw_Ki, raw_Kd;
+  #if ENABLED(PID_EXTRUSION_SCALING)
+    float raw_Kc;
+  #endif
+  #if ENABLED(PID_FAN_SCALING)
+    float raw_Kf;
+  #endif
 
-  // Helpers for editing PID Ki & Kd values
-  // grab the PID value out of the temp variable; scale it; then update the PID driver
-  void copy_and_scalePID_i(const int8_t e) {
+  // Helpers for editing PID Kp, Ki and Kd values
+  void apply_PID_p(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.Ki = scalePID_i(raw_Ki); break;
+        case H_BED: thermalManager.temp_bed.pid.set_Ki(raw_Ki); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
-        case H_CHAMBER: thermalManager.temp_chamber.pid.Ki = scalePID_i(raw_Ki); break;
+        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Ki(raw_Ki); break;
       #endif
       default:
         #if ENABLED(PIDTEMP)
-          PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
+          SET_HOTEND_PID(Kp, e, raw_Kp);
           thermalManager.updatePID();
         #endif
         break;
     }
   }
-  void copy_and_scalePID_d(const int8_t e) {
+  void apply_PID_i(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.Kd = scalePID_d(raw_Kd); break;
+        case H_BED: thermalManager.temp_bed.pid.set_Ki(raw_Ki); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
-        case H_CHAMBER: thermalManager.temp_chamber.pid.Kd = scalePID_d(raw_Kd); break;
+        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Ki(raw_Ki); break;
       #endif
       default:
         #if ENABLED(PIDTEMP)
-          PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
+          SET_HOTEND_PID(Ki, e, raw_Ki);
+          thermalManager.updatePID();
+        #endif
+        break;
+    }
+  }
+  void apply_PID_d(const int8_t e) {
+    switch (e) {
+      #if ENABLED(PIDTEMPBED)
+        case H_BED: thermalManager.temp_bed.pid.set_Kd(raw_Kd); break;
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Kd(raw_Kd); break;
+      #endif
+      default:
+        #if ENABLED(PIDTEMP)
+          SET_HOTEND_PID(Kd, e, raw_Kd);
           thermalManager.updatePID();
         #endif
         break;
@@ -291,16 +313,18 @@ void menu_backlash();
 
     #if BOTH(PIDTEMP, PID_EDIT_MENU)
       #define __PID_HOTEND_MENU_ITEMS(N) \
-        raw_Ki = unscalePID_i(PID_PARAM(Ki, N)); \
-        raw_Kd = unscalePID_d(PID_PARAM(Kd, N)); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &PID_PARAM(Kp, N), 1, 9990); \
-        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
+        raw_Kp = thermalManager.temp_hotend[N].pid.p(); \
+        raw_Ki = thermalManager.temp_hotend[N].pid.i(); \
+        raw_Kd = thermalManager.temp_hotend[N].pid.d(); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_HOTEND_MENU_ITEMS(N) \
           __PID_HOTEND_MENU_ITEMS(N); \
-          EDIT_ITEM_N(float4, N, MSG_PID_C_E, &PID_PARAM(Kc, N), 1, 9990)
+          raw_Kc = thermalManager.temp_hotend[N].pid.c(); \
+          EDIT_ITEM_N(float4, N, MSG_PID_C_E, &raw_Kc, 1, 9990, []{ SET_HOTEND_PID(Kc, N, raw_Kc); thermalManager.updatePID(); });
       #else
         #define _PID_HOTEND_MENU_ITEMS(N) __PID_HOTEND_MENU_ITEMS(N)
       #endif
@@ -308,7 +332,8 @@ void menu_backlash();
       #if ENABLED(PID_FAN_SCALING)
         #define _HOTEND_PID_EDIT_MENU_ITEMS(N) \
           _PID_HOTEND_MENU_ITEMS(N); \
-          EDIT_ITEM_N(float4, N, MSG_PID_F_E, &PID_PARAM(Kf, N), 1, 9990)
+          raw_Kf = thermalManager.temp_hotend[N].pid.f(); \
+          EDIT_ITEM_N(float4, N, MSG_PID_F_E, &raw_Kf, 1, 9990, []{ SET_HOTEND_PID(Kf, N, raw_Kf); thermalManager.updatePID(); });
       #else
         #define _HOTEND_PID_EDIT_MENU_ITEMS(N) _PID_HOTEND_MENU_ITEMS(N)
       #endif
@@ -321,11 +346,12 @@ void menu_backlash();
 
     #if ENABLED(PID_EDIT_MENU) && EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
       #define _PID_EDIT_ITEMS_TMPL(N,T) \
-        raw_Ki = unscalePID_i(T.pid.Ki); \
-        raw_Kd = unscalePID_d(T.pid.Kd); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &T.pid.Kp, 1, 9990); \
-        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
+        raw_Kp = T.pid.p(); \
+        raw_Ki = T.pid.i(); \
+        raw_Kd = T.pid.d(); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
     #endif
 
     #if ENABLED(PIDTEMP)

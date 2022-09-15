@@ -22,8 +22,8 @@
 
 # Generate Marlin TFT Images from bitmaps/PNG/JPG
 
-import sys,re,struct
-from PIL import Image,ImageDraw
+import sys,struct
+from PIL import Image
 
 def image2bin(image, output_file):
 	if output_file.endswith(('.c', '.cpp')):
