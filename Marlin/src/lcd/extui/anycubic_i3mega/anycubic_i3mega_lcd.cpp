@@ -49,8 +49,8 @@
 // Append ".gcode" to filename, if requested. Used for some DGUS-clone displays with built-in filter.
 // Filenames are limited to 26 characters, so the actual name for the FILENAME can be 20 characters at most.
 // If a longer string is desired without "extension, use the ALTNAME macro to provide a (longer) alternative.
-#define SPECIAL_MENU_FILENAME(A) TERN(ANYCUBIC_LCD_USE_GCODE, A ".gcode", A)
-#define SPECIAL_MENU_ALTNAME(A, B) TERN(ANYCUBIC_LCD_USE_GCODE, A ".gcode", B)
+#define SPECIAL_MENU_FILENAME(A) A TERN_(ANYCUBIC_LCD_GCODE_EXT, ".gcode")
+#define SPECIAL_MENU_ALTNAME(A, B) TERN(ANYCUBIC_LCD_GCODE_EXT, A ".gcode", B)
 
 AnycubicTFTClass AnycubicTFT;
 
