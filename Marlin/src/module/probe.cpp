@@ -852,7 +852,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     static uint8_t old_tool;
     static bool old_state = false;
     if (probing == old_state) return;
-    if ((old_state = probing)) old_tool = active_extruder;
+    old_state = probing;
+    if (probing) old_tool = active_extruder;
     const uint8_t tool = probing ? PROBING_TOOL : old_tool;
     if (tool != active_extruder)
       tool_change(tool, ENABLED(PROBE_TOOLCHANGE_NO_MOVE));
