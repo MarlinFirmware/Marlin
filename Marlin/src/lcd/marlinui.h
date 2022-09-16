@@ -25,7 +25,6 @@
 #include "../sd/cardreader.h"
 #include "../module/motion.h"
 #include "../libs/buzzer.h"
-
 #include "buttons.h"
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -36,7 +35,7 @@
   #define MULTI_E_MANUAL 1
 #endif
 
-#if HAS_DISPLAY
+#if HAS_PRINT_PROGRESS
   #include "../module/printcounter.h"
 #endif
 
@@ -303,13 +302,13 @@ public:
       #define PROGRESS_SCALE 1U
       #define PROGRESS_MASK 0x7F
     #endif
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    #if ENABLED(USE_M73_PERCENT)
       static progress_t progress_override;
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
     #endif
-    #if ENABLED(SHOW_REMAINING_TIME)
+    #if EITHER(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
       static uint32_t _calculated_remaining_time() {
         const duration_t elapsed = print_job_timer.duration();
         const progress_t progress = _get_progress();
@@ -323,12 +322,22 @@ public:
       #else
         FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
       #endif
+      #if ENABLED(USE_M73_INTERACTION_TIME)
+        static uint32_t interaction_time;
+        FORCE_INLINE static void set_interaction_time(const uint32_t r) { interaction_time = r; }
+        FORCE_INLINE static void reset_interaction_time() { set_interaction_time(0); }
+      #endif
     #endif
     static progress_t _get_progress();
     #if HAS_PRINT_PROGRESS_PERMYRIAD
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
+    static void stringPercent();
+    static void stringRemain();
+    static void stringInter();
+    static void stringElapsed();
+    static void rotate_progress();
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
@@ -777,6 +786,10 @@ private:
         static bool touch_pressed();
       #endif
     #endif
+  #endif
+
+  #if HAS_PRINT_PROGRESS
+    static void (*const string_ptr[])();
   #endif
 };
 

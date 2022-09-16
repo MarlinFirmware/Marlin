@@ -79,10 +79,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  MarlinUI::progress_t MarlinUI::progress_override; // = 0
+#if ENABLED(SET_PROGRESS_MANUALLY)
+  #if ENABLED(USE_M73_PERCENT)
+    MarlinUI::progress_t MarlinUI::progress_override; // = 0
+  #endif
   #if ENABLED(USE_M73_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
+  #endif
+  #if ENABLED(USE_M73_INTERACTION_TIME)
+    uint32_t MarlinUI::interaction_time;
   #endif
 #endif
 
@@ -1676,19 +1681,6 @@ void MarlinUI::init() {
     print_job_timer.start(); // Also called by M24
   }
 
-  #if HAS_PRINT_PROGRESS
-
-    MarlinUI::progress_t MarlinUI::_get_progress() {
-      return (
-        TERN0(LCD_SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
-        #if ENABLED(SDSUPPORT)
-          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
-        #endif
-      );
-    }
-
-  #endif
-
   #if HAS_TOUCH_BUTTONS
 
     //
@@ -1721,6 +1713,44 @@ void MarlinUI::init() {
   #endif
 
 #endif // HAS_DISPLAY
+
+#if HAS_PRINT_PROGRESS
+
+  MarlinUI::progress_t MarlinUI::_get_progress() {
+    return (
+      TERN0(USE_M73_PERCENT, (progress_override & PROGRESS_MASK))
+      #if ENABLED(SDSUPPORT)
+        ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
+      #endif
+    );
+  }
+  
+  void (*const MarlinUI::string_ptr[])() = {
+    #if ENABLED(SHOW_REMAINING_TIME)
+      MarlinUI::stringRemain,
+    #endif
+    #if ENABLED(SHOW_INTERACTION_TIME)
+      MarlinUI::stringInter,
+    #endif
+    #if ENABLED(SHOW_PROGRESS_PERCENT)
+      MarlinUI::stringPercent,
+    #endif
+    #if ENABLED(SHOW_ELAPSED_TIME)
+      MarlinUI::stringElapsed
+    #endif
+  };
+  
+  #define STRINGS (COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME))
+  void MarlinUI::rotate_progress(){ // Renew and redraw all enabled progress strings
+    static bool prev_blink;
+    static uint8_t i;
+    if (prev_blink != get_blink()) {
+      prev_blink = get_blink();
+      if (++i >= STRINGS) i = 0;
+      (*string_ptr[i])();
+    }
+  };
+#endif
 
 #if ENABLED(SDSUPPORT)
 
