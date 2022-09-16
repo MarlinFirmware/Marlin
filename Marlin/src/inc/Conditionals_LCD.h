@@ -1078,7 +1078,7 @@
     #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
   #endif
 
-  #if ENABLED(PROBE_IS_ON_Z_MIN)
+  #if PROBE_IS_ON_Z_MIN
     #if Z_MIN_ENDSTOP_INVERTING
       #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
     #endif
@@ -1280,6 +1280,7 @@
   #endif
 #else
   // Clear probe pin settings when no probe is selected
+  #undef PROBE_IS_PLUGGED_INTO
   #undef PROBE_IS_ON_Z_MIN
   #undef USE_PROBE_FOR_Z_HOMING
 #endif

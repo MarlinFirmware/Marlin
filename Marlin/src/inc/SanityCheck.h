@@ -647,7 +647,7 @@
 #elif defined(LCD_BACKLIGHT_TIMEOUT)
   #error "LCD_BACKLIGHT_TIMEOUT (seconds) is now LCD_BACKLIGHT_TIMEOUT_MINS (minutes)."
 #elif defined(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-  #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is now PROBE_IS_PLUGGED_INTO (Z_MIN_PORT|PROBE_PORT)."
+  #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN is now PROBE_IS_PLUGGED_INTO Z_MIN_PORT."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -1802,7 +1802,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #elif !Z_SENSORLESS
       #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z."
     #endif
-  #elif ENABLED(PROBE_IS_ON_Z_MIN)
+  #elif PROBE_IS_ON_Z_MIN
     #if DISABLED(USE_ZMIN_PLUG)
       #error "PROBE_IS_PLUGGED_INTO Z_MIN_PORT requires USE_ZMIN_PLUG to be enabled."
     #elif !HAS_Z_MIN
@@ -3540,7 +3540,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(SENSORLESS_PROBING)
   #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
     #error "SENSORLESS_PROBING for DELTA requires TMC stepper drivers with StallGuard on X, Y, and Z axes."
-  #elif ENABLED(PROBE_IS_ON_Z_MIN)
+  #elif PROBE_IS_ON_Z_MIN
     #error "SENSORLESS_PROBING cannot be used with PROBE_IS_PLUGGED_INTO Z_MIN_PORT."
   #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
     #error "SENSORLESS_PROBING cannot be used with USE_PROBE_FOR_Z_HOMING."

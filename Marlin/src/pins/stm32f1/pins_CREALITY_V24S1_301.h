@@ -33,7 +33,7 @@
 #endif
 
 #if BOTH(BLTOUCH, PROBE_IS_ON_Z_MIN)
-  #error "Disable PROBE_IS_PLUGGED_INTO Z_MIN_PORT when using BLTOUCH with Creality V24S1-301."
+  #error "PROBE_IS_PLUGGED_INTO must be set to PROBE_PORT when using BLTOUCH with Creality V24S1-301."
 #endif
 
 #ifndef BOARD_INFO_NAME

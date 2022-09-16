@@ -138,7 +138,7 @@ inline void servo_probe_test() {
 
     bool deploy_state = false, stow_state;
 
-    #if ENABLED(PROBE_IS_ON_Z_MIN)
+    #if PROBE_IS_ON_Z_MIN
 
       #define PROBE_TEST_PIN Z_MIN_PIN
       constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;

@@ -1276,7 +1276,7 @@
  *
  * If Z_MIN_PORT then USE_PROBE_FOR_Z_HOMING is automatically enabled.
  */
-//#define PROBE_IS_PLUGGED_INTO undefined
+#define PROBE_IS_PLUGGED_INTO Z_MIN_PORT
 
 // Force the use of the probe for Z-axis homing
 //#define USE_PROBE_FOR_Z_HOMING
