@@ -45,6 +45,10 @@
   #error "FAST_PWM_FAN is not available on TinyBee."
 #endif
 
+#if BOTH(I2S_STEPPER_STREAM, BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
+  #error "BABYSTEPPING on I2S stream requires INTEGRATED_BABYSTEPPING."
+#endif
+
 #if USING_PULLDOWNS
   #error "PULLDOWN pin mode is not available on ESP32 boards."
 #endif
