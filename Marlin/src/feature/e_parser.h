@@ -58,7 +58,9 @@ public:
     EP_M10, EP_M108,
     EP_M11, EP_M112,
     EP_M4, EP_M41, EP_M410,
-    EP_M5, EP_M52, EP_M524,
+    #if ENABLED(SDSUPPORT)
+      EP_M5, EP_M52, EP_M524,
+    #endif
     #if ENABLED(HOST_PROMPT_SUPPORT)
       EP_M8, EP_M87, EP_M876, EP_M876S, EP_M876SN,
     #endif
@@ -76,7 +78,10 @@ public:
 
   static bool killed_by_M112;
   static bool quickstop_by_M410;
-  static bool sd_abort_by_M524;
+
+  #if ENABLED(SDSUPPORT)
+    static bool sd_abort_by_M524;
+  #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     static uint8_t M876_reason;
@@ -147,7 +152,9 @@ public:
           case ' ': break;
           case '1': state = EP_M1;     break;
           case '4': state = EP_M4;     break;
-          case '5': state = EP_M5;     break;
+          #if ENABLED(SDSUPPORT)
+            case '5': state = EP_M5;   break;
+          #endif
           #if ENABLED(HOST_PROMPT_SUPPORT)
             case '8': state = EP_M8;     break;
           #endif
@@ -167,8 +174,11 @@ public:
       case EP_M11: state = (c == '2') ? EP_M112 : EP_IGNORE; break;
       case EP_M4:  state = (c == '1') ? EP_M41  : EP_IGNORE; break;
       case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
-      case EP_M5:  state = (c == '2') ? EP_M52  : EP_IGNORE; break;
-      case EP_M52: state = (c == '4') ? EP_M524 : EP_IGNORE; break;
+
+      #if ENABLED(SDSUPPORT)
+        case EP_M5:  state = (c == '2') ? EP_M52  : EP_IGNORE; break;
+        case EP_M52: state = (c == '4') ? EP_M524 : EP_IGNORE; break;
+      #endif
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
 
@@ -205,7 +215,9 @@ public:
             case EP_M108: wait_for_user = wait_for_heatup = false; break;
             case EP_M112: killed_by_M112 = true; break;
             case EP_M410: quickstop_by_M410 = true; break;
-            case EP_M524: sd_abort_by_M524 = true; break;
+            #if ENABLED(SDSUPPORT)
+              case EP_M524: sd_abort_by_M524 = true; break;
+            #endif
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: hostui.handle_response(M876_reason); break;
             #endif
