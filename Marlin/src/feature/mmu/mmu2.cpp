@@ -654,11 +654,12 @@ static void mmu2_not_responding() {
 
   void MMU2::mmu_continue_loading() {
     // Try to load the filament a limited number of times
+    bool fil_present = 0;
     for (uint8_t i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
       DEBUG_ECHOLNPGM("Load attempt #", i + 1);
 
       // Done as soon as filament is present
-      bool fil_present = FILAMENT_PRESENT();
+      fil_present = FILAMENT_PRESENT();
       if (fil_present) break;
 
       // Attempt to load the filament, 1mm at a time, for 3s
