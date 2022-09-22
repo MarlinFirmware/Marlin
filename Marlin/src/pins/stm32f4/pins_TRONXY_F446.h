@@ -35,9 +35,9 @@
 
 #if NO_EEPROM_SELECTED
   #if TRONXY_UI
-  #define EEPROM_AT24CXX
+    #define EEPROM_AT24CXX
   #else
-  #define FLASH_EEPROM_EMULATION
+    #define FLASH_EEPROM_EMULATION
   #endif
 #endif
 
@@ -111,35 +111,31 @@
 #define E1_STEP_PIN                         PD12
 #define E1_DIR_PIN                          PG4
 
-#if NEED_HEAT_HEAD                                //如果不需要加热喷嘴,disable这一块
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC3   // TH1               
+#define TEMP_0_PIN                          PC3   // TH1
 
 //
 // Heaters
 //
 #define HEATER_0_PIN                        PG7   // HEATER1
-#endif
 
 #define STEP_TIMER                             6
 #define TEMP_TIMER                            14
 
 #if ENABLED(LASER_FEATURE)
-#define SPINDLE_LASER_ENA_PIN               PB11  //wifi:TX
+  #define SPINDLE_LASER_ENA_PIN             PB11  //wifi:TX
 #endif
 #if ENABLED(SPINDLE_LASER_USE_PWM)
-#define SPINDLE_LASER_PWM_PIN               PB10  //wifi:RX-TIM2_CH3
-//这里必须复合PeripheralPins.c中的PWM pin定义const PinMap PinMap_PWM[]
-//详见PWM_PIN(x)定义
+  #define SPINDLE_LASER_PWM_PIN             PB10  //wifi:RX-TIM2_CH3
+  //这里必须复合PeripheralPins.c中的PWM pin定义const PinMap PinMap_PWM[]
+  //详见PWM_PIN(x)定义
 #endif
 // #define SERVO0_PIN                            PB10 //使能NUM_SERVOS>1后开放
 
-#if NEED_HEAT_BED
-  #define TEMP_BED_PIN                      PC2   // TB1
-  #define HEATER_BED_PIN                    PE2   // HOT BED
-#endif
+#define TEMP_BED_PIN                        PC2   // TB1
+#define HEATER_BED_PIN                      PE2   // HOT BED
 //#define HEATER_BED_INVERTING              true
 
 //
@@ -156,12 +152,12 @@
 // Misc
 //
 #define BEEPER_PIN                          PA8
-//#define LED_PIN                           PG10
+  //#define LED_PIN                         PG10
 #define PS_ON_PIN                           PG10  //YSZ-COMMENT:暂时以LED模拟开关机
 #if TRONXY_BACKUP_POWER
-#define POWER_LOSS_PIN                      PF11  // 配置成下拉输入
+  #define POWER_LOSS_PIN                    PF11  // 配置成下拉输入
 #else
-#define POWER_LOSS_PIN                      PE1   // PW_DET YSZ-COMMENT:这里接的是比较器LM393的输出,配置成上拉输入
+  #define POWER_LOSS_PIN                    PE1   // PW_DET YSZ-COMMENT:这里接的是比较器LM393的输出,配置成上拉输入
 #endif
 #define POWER_LM393_PIN                     PE0   //YSZ-COMMENT:这里接的是比较器LM393的正极,必须配置成输出,高电平
 #ifndef FIL_RUNOUT_PIN
@@ -209,30 +205,30 @@
 // #define TFT_BUFFER_SIZE                  14400
 
 #if (LCD_CHIP_INDEX == 1 && (TRONXY_UI == 1 || TRONXY_UI == 2)) || LCD_CHIP_INDEX == 3
-#define XPT2046_X_CALIBRATION             -17181
-#define XPT2046_Y_CALIBRATION              11434
-#define XPT2046_X_OFFSET                     501
-#define XPT2046_Y_OFFSET                      -9
+  #define XPT2046_X_CALIBRATION           -17181
+  #define XPT2046_Y_CALIBRATION            11434
+  #define XPT2046_X_OFFSET                   501
+  #define XPT2046_Y_OFFSET                    -9
 #elif LCD_CHIP_INDEX == 1 && TRONXY_UI == 4
-#define XPT2046_X_CALIBRATION              11166
-#define XPT2046_Y_CALIBRATION              17162
-#define XPT2046_X_OFFSET                     -10
-#define XPT2046_Y_OFFSET                     -16
+  #define XPT2046_X_CALIBRATION            11166
+  #define XPT2046_Y_CALIBRATION            17162
+  #define XPT2046_X_OFFSET                   -10
+  #define XPT2046_Y_OFFSET                   -16
 #elif LCD_CHIP_INDEX == 4 && TRONXY_UI == 3
-// #define XPT2046_X_CALIBRATION             8781
-// #define XPT2046_Y_CALIBRATION            11773
-// #define XPT2046_X_OFFSET                   -17
-// #define XPT2046_Y_OFFSET                   -16
-//倒过来
-#define XPT2046_X_CALIBRATION              -8553
-#define XPT2046_Y_CALIBRATION             -11667
-#define XPT2046_X_OFFSET                     253
-#define XPT2046_Y_OFFSET                     331
+  // #define XPT2046_X_CALIBRATION             8781
+  // #define XPT2046_Y_CALIBRATION            11773
+  // #define XPT2046_X_OFFSET                   -17
+  // #define XPT2046_Y_OFFSET                   -16
+  //倒过来
+  #define XPT2046_X_CALIBRATION            -8553
+  #define XPT2046_Y_CALIBRATION           -11667
+  #define XPT2046_X_OFFSET                   253
+  #define XPT2046_Y_OFFSET                   331
 #elif LCD_CHIP_INDEX == 2
-#define XPT2046_X_CALIBRATION              17184
-#define XPT2046_Y_CALIBRATION              10604
-#define XPT2046_X_OFFSET                     -31
-#define XPT2046_Y_OFFSET                     -29
+  #define XPT2046_X_CALIBRATION            17184
+  #define XPT2046_Y_CALIBRATION            10604
+  #define XPT2046_X_OFFSET                   -31
+  #define XPT2046_Y_OFFSET                   -29
 #endif
 
 #define AT24CXX_SCL                         PB8
