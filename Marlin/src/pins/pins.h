@@ -707,6 +707,8 @@
   #include "stm32f4/pins_OPULO_LUMEN_REV4.h"    // STM32F4                                env:Opulo_Lumen_REV4
 #elif MB(FYSETC_SPIDER_KING407)
   #include "stm32f4/pins_FYSETC_SPIDER_KING407.h" // STM32F4                              env:FYSETC_SPIDER_KING407
+#elif MB(TRONXY_V10)
+  #include "stm32f4/pins_TRONXY_F446.h"         //STM32F4                                 env:tronxy_stm32f446
 
 //
 // ARM Cortex M7
