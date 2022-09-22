@@ -93,7 +93,7 @@
 #define Z_STEP_PIN                          PA6
 #define Z_DIR_PIN                           PF15
 
-#if NUM_Z_STEPPER_DRIVERS > 1
+#if NUM_Z_STEPPERS >= 1
   #define Z2_ENABLE_PIN                     PF7
   #define Z2_STEP_PIN                       PF6
   #define Z2_DIR_PIN                        PF4
