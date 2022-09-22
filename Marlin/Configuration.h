@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define CONFIG_EXAMPLES_DIR "Creality/Ender-5 Pro/CrealityV422"
+// #define CONFIG_EXAMPLES_DIR "Creality/Ender-5 Pro/CrealityV422"
 
 /**
  * Configuration.h
@@ -510,7 +510,7 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 66
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -565,7 +565,7 @@
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP   5
+#define HEATER_0_MINTEMP   21
 #define HEATER_1_MINTEMP   5
 #define HEATER_2_MINTEMP   5
 #define HEATER_3_MINTEMP   5
@@ -582,7 +582,7 @@
 #define HEATER_0_MAXTEMP 320
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275s
 #define HEATER_4_MAXTEMP 275
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
@@ -1090,7 +1090,7 @@
 #if ENABLED(ENDER5_USE_MICROSWISS)
   #define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 800, 137.6 }
 #else
-  #define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 800, 93 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 800, 415 }
 #endif
 
 /**
@@ -1381,9 +1381,9 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_X_OFFSET -49
-#define NOZZLE_Y_OFFSET -12
-#define NOZZLE_Z_OFFSET -2.976
+#define NOZZLE_X_OFFSET -44
+#define NOZZLE_Y_OFFSET -0
+#define NOZZLE_Z_OFFSET -0.797
 #define NOZZLE_TO_PROBE_OFFSET {NOZZLE_X_OFFSET, NOZZLE_Y_OFFSET, NOZZLE_Z_OFFSET }
 
 // Most probes should stay away from the edges of the bed, but
@@ -1488,7 +1488,7 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-//#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #if ENABLED(PROBING_HEATERS_OFF)
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
   //#define WAIT_FOR_HOTEND         // Wait for hotend to heat back up between probes (to improve accuracy & prevent cold extrude)
@@ -2069,7 +2069,7 @@
 // Preheat Constants - Up to 6 are supported without changes
 //
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_HOTEND 195
 #define PREHEAT_1_TEMP_BED     55
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
@@ -2386,7 +2386,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#define SPEAKER
+// #define SPEAKER
 
 //
 // The duration and frequency for the UI feedback sound.
@@ -3037,7 +3037,7 @@
 
 // Set number of user-controlled fans. Disable to use all board-defined fans.
 // :[1,2,3,4,5,6,7,8]
-//#define NUM_M106_FANS 1
+#define NUM_M106_FANS 1
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
