@@ -426,7 +426,6 @@
 #define BOARD_FYSETC_SPIDER_KING407   4242  // FYSETC Spider King407 (STM32F407ZG)
 #define BOARD_TRONXY_V10              4243  // TRONXY V10 (STM32F446ZE)
 
-
 //
 // ARM Cortex M7
 //
