@@ -84,6 +84,7 @@ namespace Language_nl {
   LSTR MSG_MOVE_X                         = _UxGT("Verplaats X");
   LSTR MSG_MOVE_Y                         = _UxGT("Verplaats Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Verplaats Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Verplaats @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Verplaats $mm");
@@ -173,8 +174,8 @@ namespace Language_nl {
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Kalibreer Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Kalibreer Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibreer Midden");
+  LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta conf");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibratie");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Zet Delta Hoogte");
 
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case licht");
 

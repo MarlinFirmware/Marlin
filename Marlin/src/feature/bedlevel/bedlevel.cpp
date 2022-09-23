@@ -75,9 +75,9 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     planner.synchronize();
 
     // Get the corrected leveled / unleveled position
-    planner.apply_modifiers(current_position);    // Physical position with all modifiers
-    planner.leveling_active ^= true;              // Toggle leveling between apply and unapply
-    planner.unapply_modifiers(current_position);  // Logical position with modifiers removed
+    planner.apply_modifiers(current_position, true);    // Physical position with all modifiers
+    planner.leveling_active ^= true;                    // Toggle leveling between apply and unapply
+    planner.unapply_modifiers(current_position, true);  // Logical position with modifiers removed
 
     sync_plan_position();
     _report_leveling();
@@ -154,7 +154,7 @@ void reset_bed_level() {
       #endif
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
-        const float offset = values[x * sx + y];
+        const float offset = values[x * sy + y];
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO_F(offset, int(precision));

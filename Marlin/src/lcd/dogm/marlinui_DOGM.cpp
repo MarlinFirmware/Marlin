@@ -343,8 +343,7 @@ void MarlinUI::draw_kill_screen() {
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_on()  { u8g.sleepOn(); }
-  void MarlinUI::sleep_off() { u8g.sleepOff(); }
+  void MarlinUI::sleep_display(const bool sleep)  { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
 #endif
 
 #if HAS_LCD_BRIGHTNESS
@@ -371,11 +370,11 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       if (!PAGE_CONTAINS(y1 + 1, y2 + 2)) return;
 
-      lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), y2, 'E');
-      lcd_put_wchar((char)('1' + extruder));
-      lcd_put_wchar(' ');
+      lcd_put_lchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), y2, 'E');
+      lcd_put_lchar((char)('1' + extruder));
+      lcd_put_lchar(' ');
       lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegHotend(extruder)));
-      lcd_put_wchar('/');
+      lcd_put_lchar('/');
 
       if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
@@ -421,12 +420,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
                 vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
         int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
-        while (--pad >= 0) n -= lcd_put_wchar(' ');
+        while (--pad >= 0) n -= lcd_put_lchar(' ');
       }
 
       if (plen) n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
       if (vlen) n -= lcd_put_u8str_max(vstr, n);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
+      while (n > MENU_FONT_WIDTH) n -= lcd_put_lchar(' ');
     }
   }
 
@@ -434,9 +433,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
       pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
-      lcd_put_wchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
-      lcd_put_wchar(' ');
+      while (n > MENU_FONT_WIDTH) n -= lcd_put_lchar(' ');
+      lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+      lcd_put_lchar(' ');
     }
   }
 
@@ -449,8 +448,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
       if (vallen) {
-        lcd_put_wchar(':');
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
+        lcd_put_lchar(':');
+        while (n > MENU_FONT_WIDTH) n -= lcd_put_lchar(' ');
         lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
         if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
       }
@@ -494,14 +493,14 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // If a value is included, print a colon, then print the value right-justified
     if (value) {
-      lcd_put_wchar(':');
+      lcd_put_lchar(':');
       if (extra_row) {
         // Assume that value is numeric (with no descender)
         baseline += EDIT_FONT_ASCENT + 2;
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
-        lcd_put_wchar(((lcd_chr_fit - 1) - (vallen * prop + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
+        lcd_put_lchar(((lcd_chr_fit - 1) - (vallen * prop + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
         lcd_put_u8str(value);
       }
     }
@@ -533,10 +532,10 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
         const uint8_t maxlen = LCD_WIDTH - isDir;
-        if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
+        if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
         const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
         pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
-        while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
+        while (n > MENU_FONT_WIDTH) n -= lcd_put_lchar(' ');
       }
     }
 
@@ -611,11 +610,11 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       // Print plot position
       if (PAGE_CONTAINS(LCD_PIXEL_HEIGHT - (INFO_FONT_HEIGHT - 1), LCD_PIXEL_HEIGHT)) {
-        lcd_put_wchar(5, LCD_PIXEL_HEIGHT, '(');
+        lcd_put_lchar(5, LCD_PIXEL_HEIGHT, '(');
         u8g.print(x_plot);
-        lcd_put_wchar(',');
+        lcd_put_lchar(',');
         u8g.print(y_plot);
-        lcd_put_wchar(')');
+        lcd_put_lchar(')');
 
         // Show the location value
         lcd_put_u8str_P(74, LCD_PIXEL_HEIGHT, Z_LBL);

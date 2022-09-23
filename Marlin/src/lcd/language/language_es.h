@@ -226,6 +226,7 @@ namespace Language_es {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend muy frio");
@@ -430,8 +431,6 @@ namespace Language_es {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Configuración Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibración");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Est. Altura Delta");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Ajustar Sonda Z");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra Diagonal");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radio");

@@ -160,8 +160,7 @@ void Goto_PowerLossRecovery();
 void Goto_ConfirmToPrint();
 void DWIN_Draw_Dashboard(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area
-void DWIN_DrawStatusLine(const char *text); // Draw simple status text
-void DWIN_DrawStatusLine(FSTR_P fstr);
+void DWIN_DrawStatusLine(); // Draw simple status text
 void DWIN_RedrawDash();     // Redraw Dash and Status line
 void DWIN_RedrawScreen();   // Redraw all screen elements
 void HMI_MainMenu();        // Main process screen
@@ -210,9 +209,11 @@ void DWIN_RebootScreen();
 #endif
 
 // Utility and extensions
-void DWIN_LockScreen();
-void DWIN_UnLockScreen();
-void HMI_LockScreen();
+#if HAS_LOCKSCREEN
+  void DWIN_LockScreen();
+  void DWIN_UnLockScreen();
+  void HMI_LockScreen();
+#endif
 #if HAS_MESH
   void DWIN_MeshViewer();
 #endif
@@ -263,7 +264,9 @@ void Draw_Motion_Menu();
   void Draw_Preheat1_Menu();
   void Draw_Preheat2_Menu();
   void Draw_Preheat3_Menu();
-  void Draw_HotendPID_Menu();
+  #if ENABLED(PIDTEMP)
+    void Draw_HotendPID_Menu();
+  #endif
 #endif
 void Draw_Temperature_Menu();
 void Draw_MaxSpeed_Menu();
@@ -272,7 +275,7 @@ void Draw_MaxAccel_Menu();
   void Draw_MaxJerk_Menu();
 #endif
 void Draw_Steps_Menu();
-#if HAS_HEATED_BED
+#if ENABLED(PIDTEMPBED)
   void Draw_BedPID_Menu();
 #endif
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)

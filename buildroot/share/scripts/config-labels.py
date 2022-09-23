@@ -22,7 +22,7 @@
 # 2020-06-05 SRL style tweaks
 #-----------------------------------
 #
-import sys,os
+import sys
 from pathlib import Path
 from distutils.dir_util import copy_tree  # for copy_tree, because shutil.copytree can't handle existing files, dirs
 
@@ -58,10 +58,10 @@ def process_file(subdir: str, filename: str):
 	# Read file
 	#------------------------
 	lines = []
-	infilepath = os.path.join(input_examples_dir, subdir, filename)
+	infilepath = Path(input_examples_dir, subdir, filename)
 	try:
 		# UTF-8 because some files contain unicode chars
-		with open(infilepath, 'rt', encoding="utf-8") as infile:
+		with infilepath.open('rt', encoding="utf-8") as infile:
 			lines = infile.readlines()
 
 	except Exception as e:
@@ -123,8 +123,8 @@ def process_file(subdir: str, filename: str):
 	#-------------------------
 	#     Output file
 	#-------------------------
-	outdir      = os.path.join(output_examples_dir, subdir)
-	outfilepath = os.path.join(outdir, filename)
+	outdir      = Path(output_examples_dir, subdir)
+	outfilepath = outdir / filename
 
 	if file_modified:
 		# Note: no need to create output dirs, as the initial copy_tree
@@ -133,9 +133,8 @@ def process_file(subdir: str, filename: str):
 		print('  writing ' + str(outfilepath))
 		try:
 			# Preserve unicode chars; Avoid CR-LF on Windows.
-			with open(outfilepath, "w", encoding="utf-8", newline='\n') as outfile:
-				outfile.write("\n".join(outlines))
-				outfile.write("\n")
+			with outfilepath.open("w", encoding="utf-8", newline='\n') as outfile:
+				outfile.write("\n".join(outlines) + "\n")
 
 		except Exception as e:
 			print('Failed to write file: ' + str(e) )
@@ -159,8 +158,8 @@ def main():
 	output_examples_dir = output_examples_dir.strip()
 	output_examples_dir = output_examples_dir.rstrip('\\/')
 
-	for dir in [input_examples_dir, output_examples_dir]:
-		if not (os.path.exists(dir)):
+	for dir in (input_examples_dir, output_examples_dir):
+		if not Path(dir).exists():
 			print('Directory not found: ' + dir)
 			sys.exit(1)
 
@@ -181,8 +180,7 @@ def main():
 	#-----------------------------
 	# Find and process files
 	#-----------------------------
-	len_input_examples_dir = len(input_examples_dir);
-	len_input_examples_dir += 1
+	len_input_examples_dir = 1 + len(input_examples_dir)
 
 	for filename in files_to_mod:
 		input_path = Path(input_examples_dir)

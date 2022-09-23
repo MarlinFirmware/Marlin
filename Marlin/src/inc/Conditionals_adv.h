@@ -79,6 +79,10 @@
   #define SERVO_DELAY { 50 }
 #endif
 
+#if !HAS_STOWABLE_PROBE
+  #undef PROBE_DEPLOY_STOW_MENU
+#endif
+
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
@@ -110,6 +114,31 @@
   #undef LCD_SHOW_E_TOTAL
   #undef MANUAL_E_MOVES_RELATIVE
   #undef STEALTHCHOP_E
+#endif
+
+#if HOTENDS <= 7
+  #undef E7_AUTO_FAN_PIN
+  #if HOTENDS <= 6
+    #undef E6_AUTO_FAN_PIN
+    #if HOTENDS <= 5
+      #undef E5_AUTO_FAN_PIN
+      #if HOTENDS <= 4
+        #undef E4_AUTO_FAN_PIN
+        #if HOTENDS <= 3
+          #undef E3_AUTO_FAN_PIN
+          #if HOTENDS <= 2
+            #undef E2_AUTO_FAN_PIN
+            #if HOTENDS <= 1
+              #undef E1_AUTO_FAN_PIN
+              #if HOTENDS == 0
+                #undef E0_AUTO_FAN_PIN
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 
 /**
@@ -150,8 +179,7 @@
   #define REDUNDANT_TEMP_MATCH(...) 0
 #endif
 
-#if TEMP_SENSOR_0 == -5 || TEMP_SENSOR_0 == -3 || TEMP_SENSOR_0 == -2
-  #define TEMP_SENSOR_0_IS_MAX_TC 1
+#if TEMP_SENSOR_IS_MAX_TC(0)
   #if TEMP_SENSOR_0 == -5
     #define TEMP_SENSOR_0_IS_MAX31865 1
     #define TEMP_SENSOR_0_MAX_TC_TMIN    0
@@ -187,8 +215,7 @@
   #undef HEATER_0_MAXTEMP
 #endif
 
-#if TEMP_SENSOR_1 == -5 || TEMP_SENSOR_1 == -3 || TEMP_SENSOR_1 == -2
-  #define TEMP_SENSOR_1_IS_MAX_TC 1
+#if TEMP_SENSOR_IS_MAX_TC(1)
   #if TEMP_SENSOR_1 == -5
     #define TEMP_SENSOR_1_IS_MAX31865 1
     #define TEMP_SENSOR_1_MAX_TC_TMIN    0
@@ -234,9 +261,7 @@
   #undef HEATER_1_MAXTEMP
 #endif
 
-#if TEMP_SENSOR_REDUNDANT == -5 || TEMP_SENSOR_REDUNDANT == -3 || TEMP_SENSOR_REDUNDANT == -2
-  #define TEMP_SENSOR_REDUNDANT_IS_MAX_TC 1
-
+#if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
   #if TEMP_SENSOR_REDUNDANT == -5
     #if !REDUNDANT_TEMP_MATCH(SOURCE, E0) && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
       #error "MAX31865 Thermocouples (-5) not supported for TEMP_SENSOR_REDUNDANT_SOURCE other than TEMP_SENSOR_0/TEMP_SENSOR_1 (0/1)."
@@ -278,7 +303,7 @@
     #endif
   #endif
 
-  #if (TEMP_SENSOR_0_IS_MAX_TC && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_0) || (TEMP_SENSOR_1_IS_MAX_TC && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_1)
+  #if (TEMP_SENSOR_IS_MAX_TC(0) && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_0) || (TEMP_SENSOR_IS_MAX_TC(1) && TEMP_SENSOR_REDUNDANT != TEMP_SENSOR_1)
     #if   TEMP_SENSOR_REDUNDANT == -5
       #error "If MAX31865 Thermocouple (-5) is used for TEMP_SENSOR_0/TEMP_SENSOR_1 then TEMP_SENSOR_REDUNDANT must match."
     #elif TEMP_SENSOR_REDUNDANT == -3
@@ -300,7 +325,7 @@
   #endif
 #endif
 
-#if TEMP_SENSOR_0_IS_MAX_TC || TEMP_SENSOR_1_IS_MAX_TC || TEMP_SENSOR_REDUNDANT_IS_MAX_TC
+#if TEMP_SENSOR_IS_MAX_TC(0) || TEMP_SENSOR_IS_MAX_TC(1) || TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
   #define HAS_MAX_TC 1
 #endif
 #if TEMP_SENSOR_0_IS_MAX6675 || TEMP_SENSOR_1_IS_MAX6675 || TEMP_SENSOR_REDUNDANT_IS_MAX6675
@@ -556,16 +581,6 @@
   #endif
 #endif
 
-// Probe Temperature Compensation
-#if !TEMP_SENSOR_PROBE
-  #undef PTC_PROBE
-#endif
-#if !TEMP_SENSOR_BED
-  #undef PTC_BED
-#endif
-#if !HAS_EXTRUDERS
-  #undef PTC_HOTEND
-#endif
 #if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   #define HAS_PTC 1
 #endif
@@ -585,6 +600,10 @@
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
+  #define HAS_ENCODER_ACTION 1
 #endif
 
 #if STATUS_MESSAGE_TIMEOUT_SEC > 0
@@ -628,10 +647,10 @@
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
-#ifdef DISPLAY_SLEEP_MINUTES
+#if DISPLAY_SLEEP_MINUTES || TOUCH_IDLE_SLEEP_MINS
   #define HAS_DISPLAY_SLEEP 1
 #endif
-#if HAS_DISPLAY_SLEEP || LCD_BACKLIGHT_TIMEOUT
+#if HAS_DISPLAY_SLEEP || LCD_BACKLIGHT_TIMEOUT_MINS
   #define HAS_GCODE_M255 1
 #endif
 
@@ -984,7 +1003,7 @@
 #endif
 
 // Flag whether hex_print.cpp is used
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT)
   #define NEED_HEX_PRINT 1
 #endif
 
@@ -1018,13 +1037,13 @@
  * LCD_SERIAL_PORT must be defined ahead of HAL.h
  */
 #ifndef LCD_SERIAL_PORT
-  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI || HAS_DGUS_LCD
     #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
       #define LCD_SERIAL_PORT 1
-    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423)
-      #define LCD_SERIAL_PORT 2 // Creality Ender3S1 board
+    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423, MKS_ROBIN)
+      #define LCD_SERIAL_PORT 2 // Creality Ender3S1, MKS Robin
     #else
-      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+      #define LCD_SERIAL_PORT 3 // Other boards
     #endif
   #endif
   #ifdef LCD_SERIAL_PORT

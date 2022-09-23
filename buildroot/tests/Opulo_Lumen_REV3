@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Build tests for Opulo_Lumen_REV3
+#
+
+# exit on first failure
+set -e
+
+use_example_configs Opulo/Lumen_REV3
+exec_test $1 $2 "Opulo Lumen REV3 Pick-and-Place" "$3"
+
+# cleanup
+restore_configs

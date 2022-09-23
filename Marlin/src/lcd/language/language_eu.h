@@ -136,6 +136,7 @@ namespace Language_eu {
   LSTR MSG_MOVE_X                         = _UxGT("Mugitu X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mugitu Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mugitu Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mugitu @");
   LSTR MSG_MOVE_E                         = _UxGT("Estrusorea");
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
@@ -257,7 +258,6 @@ namespace Language_eu {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibratu Zentrua");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta ezarpenak");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Kalibraketa");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Delta Alt. Ezar.");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonala");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altuera");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Erradioa");

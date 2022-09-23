@@ -128,7 +128,7 @@
 
   // LCD Display input pins
   #if IS_NEWPANEL
-    #if ANY(VIKI2, miniVIKI)
+    #if EITHER(VIKI2, miniVIKI)
       #undef DOGLCD_A0
       #define DOGLCD_A0                       23
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
