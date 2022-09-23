@@ -416,17 +416,17 @@
 #elif defined(CHDK)
   #error "CHDK is now CHDK_PIN."
 #elif ANY_PIN( \
-        MAX6675_SS, MAX6675_SS2, MAX6675_CS, MAX6675_CS2, \
-        MAX31855_SS, MAX31855_SS2, MAX31855_CS, MAX31855_CS2, \
-        MAX31865_SS, MAX31865_SS2, MAX31865_CS, MAX31865_CS2)
-  #warning "MAX*_SS_PIN, MAX*_SS2_PIN, MAX*_CS_PIN, and MAX*_CS2_PIN are deprecated and will be removed in a future version. Please use TEMP_0_CS_PIN/TEMP_1_CS_PIN instead."
+        MAX6675_SS, MAX6675_SS2,  MAX6675_SS3, MAX6675_CS, MAX6675_CS2, MAX6675_CS3,\
+        MAX31855_SS, MAX31855_SS2, MAX31855_SS3, MAX31855_CS, MAX31855_CS2, MAX31855_CS3, \
+        MAX31865_SS, MAX31865_SS2, MAX31865_SS3, MAX31865_CS, MAX31865_CS2, MAX31865_CS3)
+  #warning "MAX*_SS_PIN, MAX*_SS2_PIN, MAX*_SS3_PIN, MAX*_CS_PIN, MAX*_CS2_PIN, and MAX*_CS3_PIN, are deprecated and will be removed in a future version. Please use TEMP_0_CS_PIN/TEMP_1_CS_PIN/TEMP_2_CS_PIN instead."
 #elif ANY_PIN(MAX6675_SCK, MAX31855_SCK, MAX31865_SCK)
-  #warning "MAX*_SCK_PIN is deprecated and will be removed in a future version. Please use TEMP_0_SCK_PIN/TEMP_1_SCK_PIN instead."
+  #warning "MAX*_SCK_PIN is deprecated and will be removed in a future version. Please use TEMP_0_SCK_PIN/TEMP_1_SCK_PIN/TEMP_2_SCK_PIN instead."
 #elif ANY_PIN(MAX6675_MISO, MAX6675_DO, MAX31855_MISO, MAX31855_DO, MAX31865_MISO, MAX31865_DO)
-  #warning "MAX*_MISO_PIN and MAX*_DO_PIN are deprecated and will be removed in a future version. Please use TEMP_0_MISO_PIN/TEMP_1_MISO_PIN instead."
+  #warning "MAX*_MISO_PIN and MAX*_DO_PIN are deprecated and will be removed in a future version. Please use TEMP_0_MISO_PIN/TEMP_1_MISO_PIN/TEMP_2_MISO_PIN instead."
 #elif PIN_EXISTS(MAX31865_MOSI)
-  #warning "MAX31865_MOSI_PIN is deprecated and will be removed in a future version. Please use TEMP_0_MOSI_PIN/TEMP_1_MOSI_PIN instead."
-#elif ANY_PIN(THERMO_CS1_PIN, THERMO_CS2_PIN, THERMO_DO_PIN, THERMO_SCK_PIN)
+  #warning "MAX31865_MOSI_PIN is deprecated and will be removed in a future version. Please use TEMP_0_MOSI_PIN/TEMP_1_MOSI_PIN/TEMP_2_MOSI_PIN instead."
+#elif ANY_PIN(THERMO_CS1_PIN, THERMO_CS2_PIN, THERMO_CS3_PIN, THERMO_DO_PIN, THERMO_SCK_PIN)
   #error "THERMO_*_PIN is now TEMP_n_CS_PIN, TEMP_n_SCK_PIN, TEMP_n_MOSI_PIN, TEMP_n_MISO_PIN."
 #elif defined(MAX31865_SENSOR_OHMS)
   #error "MAX31865_SENSOR_OHMS is now MAX31865_SENSOR_OHMS_0."
@@ -2287,6 +2287,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "MAX31865_SENSOR_WIRES_1 must be defined as an integer between 2 and 4."
   #elif !defined(MAX31865_SENSOR_OHMS_1) || !defined(MAX31865_CALIBRATION_OHMS_1)
     #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set if TEMP_SENSOR_1/TEMP_SENSOR_REDUNDANT is MAX31865."
+  #endif
+#endif
+#if TEMP_SENSOR_2_IS_MAX31865 || (TEMP_SENSOR_REDUNDANT_IS_MAX31865 && REDUNDANT_TEMP_MATCH(SOURCE, E2))
+  #if !defined(MAX31865_SENSOR_WIRES_2) || !WITHIN(MAX31865_SENSOR_WIRES_2, 2, 4)
+    #error "MAX31865_SENSOR_WIRES_2 must be defined as an integer between 2 and 4."
+  #elif !defined(MAX31865_SENSOR_OHMS_2) || !defined(MAX31865_CALIBRATION_OHMS_2)
+    #error "MAX31865_SENSOR_OHMS_2 and MAX31865_CALIBRATION_OHMS_2 must be set if TEMP_SENSOR_2/TEMP_SENSOR_REDUNDANT is MAX31865."
   #endif
 #endif
 

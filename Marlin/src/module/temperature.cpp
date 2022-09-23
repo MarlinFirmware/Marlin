@@ -121,8 +121,12 @@
 #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && TEMP_SENSOR_1_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
     #define TEMP_SENSOR_1_USES_SW_SPI 1
 #endif
+#if TEMP_SENSOR_IS_ANY_MAX_TC(2) && TEMP_SENSOR_2_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
+    #define TEMP_SENSOR_2_USES_SW_SPI 1
+#endif
 
-#if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
+
+#if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI || TEMP_SENSOR_2_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
   #include "../libs/private_spi.h"
   #define HAS_MAXTC_SW_SPI 1
 
@@ -133,12 +137,18 @@
     #if PIN_EXISTS(TEMP_0_MOSI)
       #define SW_SPI_MOSI_PIN TEMP_0_MOSI_PIN
     #endif
-  #else
+  #elif TEMP_SENSOR_1_USES_SW_SPI
     #define SW_SPI_SCK_PIN    TEMP_1_SCK_PIN
     #define SW_SPI_MISO_PIN   TEMP_1_MISO_PIN
     #if PIN_EXISTS(TEMP_1_MOSI)
       #define SW_SPI_MOSI_PIN TEMP_1_MOSI_PIN
     #endif
+  #elif TEMP_SENSOR_2_USES_SW_SPI
+    #define SW_SPI_SCK_PIN    TEMP_2_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_2_MISO_PIN
+    #if PIN_EXISTS(TEMP_2_MOSI)
+      #define SW_SPI_MOSI_PIN TEMP_2_MOSI_PIN
+    #endif  
   #endif
   #ifndef SW_SPI_MOSI_PIN
     #define SW_SPI_MOSI_PIN   SD_MOSI_PIN
@@ -259,6 +269,9 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if TEMP_SENSOR_IS_MAX(1, 6675)
       MAXTC_INIT(1, 6675);
     #endif
+    #if TEMP_SENSOR_IS_MAX(2, 6675)
+      MAXTC_INIT(2, 6675);
+    #endif
   #endif
 
   #if HAS_MAX31855_LIBRARY
@@ -268,12 +281,16 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if TEMP_SENSOR_IS_MAX(1, 31855)
       MAXTC_INIT(1, 31855);
     #endif
+    #if TEMP_SENSOR_IS_MAX(2, 31855)
+      MAXTC_INIT(2, 31855);
+    #endif
   #endif
 
   // MAX31865 always uses a library, unlike '55 & 6675
   #if HAS_MAX31865
     #define _MAX31865_0_SW TEMP_SENSOR_0_USES_SW_SPI
     #define _MAX31865_1_SW TEMP_SENSOR_1_USES_SW_SPI
+    #define _MAX31865_2_SW TEMP_SENSOR_2_USES_SW_SPI
 
     #if TEMP_SENSOR_IS_MAX(0, 31865)
       MAXTC_INIT(0, 31865);
@@ -281,9 +298,13 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if TEMP_SENSOR_IS_MAX(1, 31865)
       MAXTC_INIT(1, 31865);
     #endif
+    #if TEMP_SENSOR_IS_MAX(2, 31865)
+      MAXTC_INIT(2, 31865);
+    #endif
 
     #undef _MAX31865_0_SW
     #undef _MAX31865_1_SW
+    #undef _MAX31865_2_SW
   #endif
 
   #undef MAXTC_INIT
@@ -1867,6 +1888,10 @@ void Temperature::task() {
       if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
       if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
     #endif
+    #if TEMP_SENSOR_IS_MAX_TC(2)
+      if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) max_temp_error(H_E2);
+      if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) min_temp_error(H_E2);
+    #endif
     #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
       if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
       if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) min_temp_error(H_REDUNDANT);
@@ -2113,6 +2138,15 @@ void Temperature::task() {
       case 2:
         #if TEMP_SENSOR_2_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_2, raw);
+        #elif TEMP_SENSOR_IS_MAX_TC(2)
+          #if TEMP_SENSOR_0_IS_MAX31865
+            return TERN(LIB_INTERNAL_MAX31865,
+              max31865_2.temperature(raw),
+              max31865_2.temperature(MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2)
+            );
+          #else
+            return (int16_t)raw * 0.25;
+          #endif
         #elif TEMP_SENSOR_2_IS_AD595
           return TEMP_AD595(raw);
         #elif TEMP_SENSOR_2_IS_AD8495
@@ -2282,6 +2316,8 @@ void Temperature::task() {
       return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1)
       return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25);
+    #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2)
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), (int16_t)raw * 0.25);
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD595
@@ -2317,6 +2353,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if TEMP_SENSOR_IS_MAX_TC(1)
     temp_hotend[1].setraw(READ_MAX_TC(1));
   #endif
+  #if TEMP_SENSOR_IS_MAX_TC(2)
+    temp_hotend[2].setraw(READ_MAX_TC(2));
+  #endif
   #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
     temp_redundant.setraw(READ_MAX_TC(HEATER_ID(TEMP_SENSOR_REDUNDANT_SOURCE)));
   #endif
@@ -2348,9 +2387,15 @@ void Temperature::updateTemperaturesFromRawValues() {
         #else
           , TEMPDIR(1)
         #endif
-        #if HOTENDS > 2
+        #if TEMP_SENSOR_IS_ANY_MAX_TC(2)
+          , 0
+        #else
+          , TEMPDIR(2)
+        #endif
+
+        #if HOTENDS > 3
           #define _TEMPDIR(N) , TEMPDIR(N)
-          REPEAT_S(2, HOTENDS, _TEMPDIR)
+          REPEAT_S(3, HOTENDS, _TEMPDIR)
         #endif
       #endif
     };
@@ -2433,6 +2478,9 @@ void Temperature::init() {
   #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && PIN_EXISTS(TEMP_1_CS)
     OUT_WRITE(TEMP_1_CS_PIN, HIGH);
   #endif
+  #if TEMP_SENSOR_IS_ANY_MAX_TC(2) && PIN_EXISTS(TEMP_2_CS)
+    OUT_WRITE(TEMP_2_CS_PIN, HIGH);
+  #endif
 
   // Setup objects for library-based polling of MAX TCs
   #if HAS_MAXTC_LIBRARIES
@@ -2460,6 +2508,18 @@ void Temperature::init() {
         OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1, MAX31865_WIRE_OHMS_1)
       );
     #endif
+
+    #if TEMP_SENSOR_IS_MAX(2, 6675) && HAS_MAX6675_LIBRARY
+      max6675_2.begin();
+    #elif TEMP_SENSOR_IS_MAX(2, 31855) && HAS_MAX31855_LIBRARY
+      max31855_2.begin();
+    #elif TEMP_SENSOR_IS_MAX(2, 31865)
+      max31865_2.begin(
+        MAX31865_WIRES(MAX31865_SENSOR_WIRES_2) // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+        OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2, MAX31865_WIRE_OHMS_2)
+      );
+    #endif
+
     #undef MAX31865_WIRES
     #undef _MAX31865_WIRES
   #endif
@@ -2486,6 +2546,15 @@ void Temperature::init() {
   #if PIN_EXISTS(TEMP_1_TR_ENABLE)
     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, (
       #if TEMP_SENSOR_IS_ANY_MAX_TC(1)
+        HIGH
+      #else
+        LOW
+      #endif
+    ));
+  #endif
+  #if PIN_EXISTS(TEMP_2_TR_ENABLE)
+    OUT_WRITE(TEMP_2_TR_ENABLE_PIN, (
+      #if TEMP_SENSOR_IS_ANY_MAX_TC(2)
         HIGH
       #else
         LOW
@@ -3010,25 +3079,29 @@ void Temperature::disable_all_heaters() {
       // Needed to return the correct temp when this is called between readings
       static raw_adc_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
-      #define THERMO_SEL(A,B) (hindex ? (B) : (A))
-      #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
+      #define THERMO_SEL(A,B,C) (hindex > 1 ? (C) : hindex == 1 ? (B) : (A))
+      #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; case 2: WRITE(TEMP_2_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
     #else
       // When we have only 1 max tc, THERMO_SEL will pick the appropriate sensor
       // variable, and MAXTC_*() macros will be hardcoded to the correct CS pin.
       constexpr uint8_t hindex = 0;
       #define THERMO_TEMP(I) max_tc_temp
       #if TEMP_SENSOR_IS_ANY_MAX_TC(0)
-        #define THERMO_SEL(A,B) A
+        #define THERMO_SEL(A,B,C) A
         #define MAXTC_CS_WRITE(V)  WRITE(TEMP_0_CS_PIN, V)
-      #else
-        #define THERMO_SEL(A,B) B
+      #elif TEMP_SENSOR_IS_ANY_MAX_TC(1)
+        #define THERMO_SEL(A,B,C) B
         #define MAXTC_CS_WRITE(V)  WRITE(TEMP_1_CS_PIN, V)
+      #elif TEMP_SENSOR_IS_ANY_MAX_TC(2)
+        #define THERMO_SEL(A,B,C) C
+        #define MAXTC_CS_WRITE(V)  WRITE(TEMP_2_CS_PIN, V)
       #endif
     #endif
 
     static TERN(HAS_MAX31855, uint32_t, uint16_t) max_tc_temp = THERMO_SEL(
       TEMP_SENSOR_0_MAX_TC_TMAX,
-      TEMP_SENSOR_1_MAX_TC_TMAX
+      TEMP_SENSOR_1_MAX_TC_TMAX,
+      TEMP_SENSOR_2_MAX_TC_TMAX
     );
 
     static uint8_t max_tc_errors[MAX_TC_COUNT] = { 0 };
@@ -3063,17 +3136,17 @@ void Temperature::disable_all_heaters() {
       MAXTC_CS_WRITE(HIGH);  // Disable MAXTC
     #else
       #if HAS_MAX6675_LIBRARY
-        MAX6675 &max6675ref = THERMO_SEL(max6675_0, max6675_1);
+        MAX6675 &max6675ref = THERMO_SEL(max6675_0, max6675_1, max6675_2);
         max_tc_temp = max6675ref.readRaw16();
       #endif
 
       #if HAS_MAX31855_LIBRARY
-        MAX31855 &max855ref = THERMO_SEL(max31855_0, max31855_1);
+        MAX31855 &max855ref = THERMO_SEL(max31855_0, max31855_1, max31855_2);
         max_tc_temp = max855ref.readRaw32();
       #endif
 
       #if HAS_MAX31865
-        MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1);
+        MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1, max31865_2);
         max_tc_temp = TERN(LIB_INTERNAL_MAX31865, max865ref.readRaw(), max865ref.readRTD_with_Fault());
       #endif
     #endif
@@ -3118,7 +3191,7 @@ void Temperature::disable_all_heaters() {
         #endif
 
         // Set thermocouple above max temperature (TMAX)
-        max_tc_temp = THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX) << (MAX_TC_DISCARD_BITS + 1);
+        max_tc_temp = THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX, TEMP_SENSOR_2_MAX_TC_TMAX) << (MAX_TC_DISCARD_BITS + 1);
       }
     }
     else {
@@ -3154,6 +3227,10 @@ void Temperature::update_raw_temperatures() {
 
   #if HAS_TEMP_ADC_1 && !TEMP_SENSOR_IS_MAX_TC(1)
     temp_hotend[1].update();
+  #endif
+
+  #if HAS_TEMP_ADC_2 && !TEMP_SENSOR_IS_MAX_TC(2)
+    temp_hotend[2].update();
   #endif
 
   #if HAS_TEMP_ADC_REDUNDANT && !TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
