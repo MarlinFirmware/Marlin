@@ -50,3 +50,29 @@
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32H7xx, STM32F4xx, STM32F1xx)
   #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32H7, STM32F4 and STM32F1 hardware."
 #endif
+
+/**
+ * Check for common serial pin conflicts
+ */
+#define CHECK_SERIAL_PIN(N) ( \
+     BTN_EN1 == N || DOGLCD_CS == N || HEATER_BED_PIN == N || FAN_PIN == N \
+)
+#if CONF_SERIAL_IS(1) && (CHECK_SERIAL_PIN(UART1_TX_PIN) || CHECK_SERIAL_PIN(UART1_RX_PIN))
+  #error "Serial Port 1 IO pins conflict with another pin on the board."
+#endif
+#if CONF_SERIAL_IS(2) && (CHECK_SERIAL_PIN(UART2_TX_PIN) || CHECK_SERIAL_PIN(UART2_RX_PIN))
+  #error "Serial Port 2 IO pins conflict with another pin on the board."
+#endif
+#if CONF_SERIAL_IS(3) && (CHECK_SERIAL_PIN(UART3_TX_PIN) || CHECK_SERIAL_PIN(UART3_RX_PIN))
+  #error "Serial Port 3 IO pins conflict with another pin on the board."
+#endif
+#if CONF_SERIAL_IS(4) && (CHECK_SERIAL_PIN(UART4_TX_PIN) || CHECK_SERIAL_PIN(UART4_RX_PIN))
+  #error "Serial Port 4 IO pins conflict with another pin on the board."
+#endif
+#if CONF_SERIAL_IS(5) && (CHECK_SERIAL_PIN(UART5_TX_PIN) || CHECK_SERIAL_PIN(UART5_RX_PIN))
+  #error "Serial Port 5 IO pins conflict with another pin on the board."
+#endif
+#if CONF_SERIAL_IS(6) && (CHECK_SERIAL_PIN(UART5_TX_PIN) || CHECK_SERIAL_PIN(UART6_RX_PIN))
+  #error "Serial Port 6 IO pins conflict with another pin on the board."
+#endif
+#undef CHECK_SERIAL_PIN
