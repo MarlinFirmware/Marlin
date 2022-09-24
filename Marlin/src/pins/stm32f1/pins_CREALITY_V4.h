@@ -47,10 +47,10 @@
 #define UART2_RX_PIN                        PA3  // not connected
 #define UART3_TX_PIN                        PB10 // default use LCD connector
 #define UART3_RX_PIN                        PB11 // default use LCD connector
-#define UART4_TX_PIN                        PC10 // default use sdcard
-#define UART4_RX_PIN                        PC11 // default use sdcard
-#define UART5_TX_PIN                        PC12 // default use sdcard
-#define UART5_RX_PIN                        PD2  // default use sdcard
+#define UART4_TX_PIN                        PC10 // default use sdcard SDIO_D2
+#define UART4_RX_PIN                        PC11 // default use sdcard SDIO_D3
+#define UART5_TX_PIN                        PC12 // default use sdcard SDIO_CK
+#define UART5_RX_PIN                        PD2  // default use sdcard SDIO_CMD
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
