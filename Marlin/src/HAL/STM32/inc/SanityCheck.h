@@ -55,7 +55,8 @@
  * Check for common serial pin conflicts
  */
 #define CHECK_SERIAL_PIN(N) ( \
-     BTN_EN1 == N || DOGLCD_CS == N || HEATER_BED_PIN == N || FAN_PIN == N \
+     BTN_EN1 == N || DOGLCD_CS == N || HEATER_BED_PIN == N || FAN_PIN == N || \
+     SDIO_D2_PIN == N || SDIO_D3_PIN == N || SDIO_CK_PIN == N || SDIO_CMD_PIN == N \
 )
 #if CONF_SERIAL_IS(1) 
   #if defined(UART1_TX_PIN) && CHECK_SERIAL_PIN(UART1_TX_PIN)
