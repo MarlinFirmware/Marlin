@@ -72,7 +72,7 @@
 #if CONF_SERIAL_IS(5) && (CHECK_SERIAL_PIN(UART5_TX_PIN) || CHECK_SERIAL_PIN(UART5_RX_PIN))
   #error "Serial Port 5 IO pins conflict with another pin on the board."
 #endif
-#if CONF_SERIAL_IS(6) && (CHECK_SERIAL_PIN(UART5_TX_PIN) || CHECK_SERIAL_PIN(UART6_RX_PIN))
+#if CONF_SERIAL_IS(6) && (CHECK_SERIAL_PIN(UART6_TX_PIN) || CHECK_SERIAL_PIN(UART6_RX_PIN))
   #error "Serial Port 6 IO pins conflict with another pin on the board."
 #endif
 #undef CHECK_SERIAL_PIN
