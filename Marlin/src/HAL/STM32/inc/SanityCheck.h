@@ -57,22 +57,52 @@
 #define CHECK_SERIAL_PIN(N) ( \
      BTN_EN1 == N || DOGLCD_CS == N || HEATER_BED_PIN == N || FAN_PIN == N \
 )
-#if CONF_SERIAL_IS(1) && (CHECK_SERIAL_PIN(UART1_TX_PIN) || CHECK_SERIAL_PIN(UART1_RX_PIN))
-  #error "Serial Port 1 IO pins conflict with another pin on the board."
+#if CONF_SERIAL_IS(1) 
+  #if defined(UART1_TX_PIN) && CHECK_SERIAL_PIN(UART1_TX_PIN)
+    #error "Serial Port 1 TX IO pins conflict with another pin on the board."
+  #endif
+  #if defined(UART1_RX_PIN) && CHECK_SERIAL_PIN(UART1_RX_PIN)
+    #error "Serial Port 1 RX IO pins conflict with another pin on the board."
+  #endif
 #endif
-#if CONF_SERIAL_IS(2) && (CHECK_SERIAL_PIN(UART2_TX_PIN) || CHECK_SERIAL_PIN(UART2_RX_PIN))
-  #error "Serial Port 2 IO pins conflict with another pin on the board."
+#if CONF_SERIAL_IS(2) 
+  #if defined(UART2_TX_PIN) && CHECK_SERIAL_PIN(UART2_TX_PIN)
+    #error "Serial Port 2 TX IO pins conflict with another pin on the board."
+  #endif
+  #if defined(UART2_RX_PIN) && CHECK_SERIAL_PIN(UART2_RX_PIN)
+    #error "Serial Port 2 RX IO pins conflict with another pin on the board."
+  #endif
 #endif
-#if CONF_SERIAL_IS(3) && (CHECK_SERIAL_PIN(UART3_TX_PIN) || CHECK_SERIAL_PIN(UART3_RX_PIN))
-  #error "Serial Port 3 IO pins conflict with another pin on the board."
+#if CONF_SERIAL_IS(3) 
+  #if defined(UART3_TX_PIN) && CHECK_SERIAL_PIN(UART3_TX_PIN)
+    #error "Serial Port 3 TX IO pins conflict with another pin on the board."
+  #endif
+  #if defined(UART3_RX_PIN) && CHECK_SERIAL_PIN(UART3_RX_PIN)
+    #error "Serial Port 3 RX IO pins conflict with another pin on the board."
+  #endif
 #endif
-#if CONF_SERIAL_IS(4) && (CHECK_SERIAL_PIN(UART4_TX_PIN) || CHECK_SERIAL_PIN(UART4_RX_PIN))
-  #error "Serial Port 4 IO pins conflict with another pin on the board."
+#if CONF_SERIAL_IS(4) 
+  #if defined(UART4_TX_PIN) && CHECK_SERIAL_PIN(UART4_TX_PIN)
+    #error "Serial Port 4 TX IO pins conflict with another pin on the board."
+  #endif
+  #if defined(UART4_RX_PIN) && CHECK_SERIAL_PIN(UART4_RX_PIN)
+    #error "Serial Port 4 RX IO pins conflict with another pin on the board."
+  #endif
 #endif
-#if CONF_SERIAL_IS(5) && (CHECK_SERIAL_PIN(UART5_TX_PIN) || CHECK_SERIAL_PIN(UART5_RX_PIN))
-  #error "Serial Port 5 IO pins conflict with another pin on the board."
+#if CONF_SERIAL_IS(5) 
+  #if defined(UART5_TX_PIN) && CHECK_SERIAL_PIN(UART5_TX_PIN)
+    #error "Serial Port 5 TX IO pins conflict with another pin on the board."
+  #endif
+  #if defined(UART5_RX_PIN) && CHECK_SERIAL_PIN(UART5_RX_PIN)
+    #error "Serial Port 5 RX IO pins conflict with another pin on the board."
+  #endif
 #endif
-#if CONF_SERIAL_IS(6) && (CHECK_SERIAL_PIN(UART6_TX_PIN) || CHECK_SERIAL_PIN(UART6_RX_PIN))
-  #error "Serial Port 6 IO pins conflict with another pin on the board."
+#if CONF_SERIAL_IS(6) 
+  #if defined(UART6_TX_PIN) && CHECK_SERIAL_PIN(UART6_TX_PIN)
+    #error "Serial Port 6 TX IO pins conflict with another pin on the board."
+  #endif
+  #if defined(UART6_RX_PIN) && CHECK_SERIAL_PIN(UART6_RX_PIN)
+    #error "Serial Port 6 RX IO pins conflict with another pin on the board."
+  #endif
 #endif
 #undef CHECK_SERIAL_PIN
