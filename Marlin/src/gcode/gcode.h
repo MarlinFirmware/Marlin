@@ -325,6 +325,9 @@
  *** "T" Codes ***
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
+ * 
+ *  * ****** Geofabrica Custom GCODES***************
+ * M3333 - Turn on or off refill
  */
 
 #include "../inc/MarlinConfig.h"
@@ -1243,6 +1246,9 @@ private:
 
   static void T(const int8_t tool_index);
 
+  #if ENABLED(REFILL_CONTROL_FEATURE)
+    static void M3333();
+  #endif
 };
 
 extern GcodeSuite gcode;
