@@ -758,7 +758,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
       // Did the temperature overshoot very far?
       #ifndef MAX_OVERSHOOT_PID_AUTOTUNE
-        #define MAX_OVERSHOOT_PID_AUTOTUNE 30
+        #define MAX_OVERSHOOT_PID_AUTOTUNE 100
       #endif
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
