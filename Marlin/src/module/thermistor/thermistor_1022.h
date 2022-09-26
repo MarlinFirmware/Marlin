@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,30 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * e_parser.cpp - Intercept special commands directly in the serial stream
- */
+#define REVERSE_TEMP_SENSOR_RANGE_1022 1
 
-#include "../inc/MarlinConfigPre.h"
-
-#if ENABLED(EMERGENCY_PARSER)
-
-#include "e_parser.h"
-
-// Static data members
-bool EmergencyParser::killed_by_M112, // = false
-     EmergencyParser::quickstop_by_M410,
-     #if ENABLED(SDSUPPORT)
-       EmergencyParser::sd_abort_by_M524,
-     #endif
-     EmergencyParser::enabled;
-
-#if ENABLED(HOST_PROMPT_SUPPORT)
-  uint8_t EmergencyParser::M876_reason; // = 0
-#endif
-
-// Global instance
-EmergencyParser emergency_parser;
-
-#endif // EMERGENCY_PARSER
+// Pt1000 with 1k0 pullup
+constexpr temp_entry_t temptable_1022[] PROGMEM = {
+  PtLine(  0, 1000, 2200),
+  PtLine( 25, 1000, 2200),
+  PtLine( 50, 1000, 2200),
+  PtLine( 75, 1000, 2200),
+  PtLine(100, 1000, 2200),
+  PtLine(125, 1000, 2200),
+  PtLine(150, 1000, 2200),
+  PtLine(175, 1000, 2200),
+  PtLine(200, 1000, 2200),
+  PtLine(225, 1000, 2200),
+  PtLine(250, 1000, 2200),
+  PtLine(275, 1000, 2200),
+  PtLine(300, 1000, 2200),
+  PtLine(350, 1000, 2200),
+  PtLine(400, 1000, 2200),
+  PtLine(450, 1000, 2200),
+  PtLine(500, 1000, 2200)
+};
