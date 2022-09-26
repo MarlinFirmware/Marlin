@@ -1849,11 +1849,13 @@ void Temperature::task() {
       quickstop_stepper();
     }
 
-    if (emergency_parser.sd_abort_by_M524) { // abort SD print immediately
-      emergency_parser.sd_abort_by_M524 = false;
-      card.flag.abort_sd_printing = true;
-      gcode.process_subcommands_now(F("M524"));
-    }
+    #if ENABLED(SDSUPPORT)
+      if (emergency_parser.sd_abort_by_M524) { // abort SD print immediately
+        emergency_parser.sd_abort_by_M524 = false;
+        card.flag.abort_sd_printing = true;
+        gcode.process_subcommands_now(F("M524"));
+      }
+    #endif
   #endif
 
   if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
