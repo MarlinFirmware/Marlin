@@ -43,6 +43,7 @@
 #if NO_EEPROM_SELECTED
   //#define I2C_EEPROM                            // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
+  //#undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(I2C_EEPROM)
