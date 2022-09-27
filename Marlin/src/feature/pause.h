@@ -72,6 +72,8 @@ enum PauseMessage : char {
 extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
+extern bool maintenance_park_enabled;
+extern void maintenance_park_disable();
 
 #define DXC_PARAMS OPTARG(DUAL_X_CARRIAGE, const int8_t DXC_ext=-1)
 #define DXC_ARGS   OPTARG(DUAL_X_CARRIAGE, const int8_t DXC_ext)

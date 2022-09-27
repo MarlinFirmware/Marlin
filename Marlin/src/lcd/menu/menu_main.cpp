@@ -66,6 +66,10 @@
   #include "../../feature/repeat.h"
 #endif
 
+#if ENABLED(PARK_HEAD_ON_PAUSE)
+  #include "../../feature/pause.h"
+#endif
+
 void menu_tune();
 void menu_cancelobject();
 void menu_motion();
@@ -313,8 +317,17 @@ void menu_main() {
       sdcard_menu_items();
     #endif
 
-    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
-      ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
+    #if ENABLED(PARK_HEAD_ON_PAUSE)
+      if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused())) {
+        if (maintenance_park_enabled)
+          ACTION_ITEM(MSG_RESUME_PRINT, maintenance_park_disable);
+        else
+          ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
+      }
+    #else
+      if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+        ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
+    #endif
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
       ACTION_ITEM(MSG_HOST_START_PRINT, hostui.start);

@@ -392,6 +392,10 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
  * Return 'true' if pause was completed, 'false' for abort
  */
 uint8_t did_pause_print = 0;
+bool maintenance_park_enabled = false;
+void maintenance_park_disable(){
+  maintenance_park_enabled = false;
+};
 
 bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const_float_t unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
