@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,124 +22,128 @@
 #pragma once
 
 /**
- * Creality 4.2.10 (STM32F103RE / STM32F103RC) board pin assignments
+ * Creality 5.2.1 (STM32F103RE) board pin assignments
  */
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Creality v4.2.10 only supports 1 hotend / E stepper."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Creality v5.2.1 supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "Creality V4.2.10"
+  #define BOARD_INFO_NAME      "Creality V521"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "3DPrintMill"
+  #define DEFAULT_MACHINE_NAME "Creality V5.2.1"
 #endif
-
-#define BOARD_NO_NATIVE_USB
-
-//
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
-//
-#define DISABLE_DEBUG
 
 //
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
-#endif
-#if ENABLED(IIC_BL24CXX_EEPROM)
-  #define IIC_EEPROM_SDA                    PA11
-  #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
-#else
-  #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+  // FLASH
+  //#define FLASH_EEPROM_EMULATION
+
+  // I2C
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    #define IIC_EEPROM_SDA                  PC2
+    #define IIC_EEPROM_SCL                  PC3
+    #define MARLIN_EEPROM_SIZE             0x800  // 2K (24C16)
+  #else
+    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
+    #define MARLIN_EEPROM_SIZE             0x800  // 2K
+  #endif
+
+  #undef NO_EEPROM_SELECTED
 #endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                          PB0   // BLTouch OUT
+#define SERVO0_PIN                          PD13  // BLTouch OUT
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PA3
-#define Y_STOP_PIN                          PA7
-#define Z_STOP_PIN                          PA5
+#define X_STOP_PIN                          PD10  // X
+#define X2_STOP_PIN                         PE15  // X2
+#define Y_STOP_PIN                          PE0   // Y
+#define Z_STOP_PIN                          PE1   // Z
+#define Z2_STOP_PIN                         PE2   // Z2
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PA5   // BLTouch IN
+  #define Z_MIN_PROBE_PIN                   PD12  // BLTouch IN
 #endif
 
 //
 // Filament Runout Sensor
 //
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA6   // "Pulled-high"
-#endif
+#define FIL_RUNOUT_PIN                      PE5   // "Pulled-high"
+#define FIL_RUNOUT2_PIN                     PE6   // "Pulled-high"
 
 //
 // Steppers
 //
-#ifndef X_STEP_PIN
-  #define X_STEP_PIN                        PC2
-#endif
-#ifndef X_DIR_PIN
-  #define X_DIR_PIN                         PB9
-#endif
-#define X_ENABLE_PIN                        PC3
+#define X_ENABLE_PIN                        PC7
+#define X_STEP_PIN                          PD15
+#define X_DIR_PIN                           PD14
 
-#ifndef Y_STEP_PIN
-  #define Y_STEP_PIN                        PB8
-#endif
-#ifndef Y_DIR_PIN
-  #define Y_DIR_PIN                         PB7
-#endif
-#define Y_ENABLE_PIN                X_ENABLE_PIN
+#define Y_ENABLE_PIN                        PB9
+#define Y_STEP_PIN                          PB7
+#define Y_DIR_PIN                           PB6
 
-#ifndef Z_STEP_PIN
-  #define Z_STEP_PIN                        PB6
-#endif
-#ifndef Z_DIR_PIN
-  #define Z_DIR_PIN                         PB5
-#endif
-#define Z_ENABLE_PIN                X_ENABLE_PIN
+#define Z_ENABLE_PIN                        PB5
+#define Z_STEP_PIN                          PB3
+#define Z_DIR_PIN                           PD7
 
-#ifndef E0_STEP_PIN
-  #define E0_STEP_PIN                       PB4
-#endif
-#ifndef E0_DIR_PIN
-  #define E0_DIR_PIN                        PB3
-#endif
-#define E0_ENABLE_PIN               X_ENABLE_PIN
+#define E0_ENABLE_PIN                       PD4
+#define E0_STEP_PIN                         PD1
+#define E0_DIR_PIN                          PD0
+
+#define E1_ENABLE_PIN                       PE7
+#define E1_STEP_PIN                         PB1
+#define E1_DIR_PIN                          PB0
+
+#define X2_ENABLE_PIN                       PE11
+#define X2_STEP_PIN                         PE9
+#define X2_DIR_PIN                          PE8
+
+#define Z2_ENABLE_PIN                       PC5
+#define Z2_STEP_PIN                         PA7
+#define Z2_DIR_PIN                          PA6
+
+//
+// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+//
+#define DISABLE_JTAG
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC5   // TH1
-#define TEMP_BED_PIN                        PC4   // TB1
+#define TEMP_0_PIN                          PA4   // TH0
+#define TEMP_1_PIN                          PA5   // TH1
+#define TEMP_BED_PIN                        PA3   // TB1
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA0   // HEATER1
-#define HEATER_BED_PIN                      PA1   // HOT BED
+#define HEATER_0_PIN                        PA1   // HEATER0
+#define HEATER_1_PIN                        PA0   // HEATER1
+#define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define FAN_PIN                             PA2   // FAN
-#define FAN_SOFT_PWM_REQUIRED
+#define FAN_PIN                             PB14  // FAN
+#define FAN1_PIN                            PB12  // FAN
+#define FAN_SOFT_PWM
 
 //
 // SD Card
 //
-#define SD_DETECT_PIN                       PC7
+#define SD_DETECT_PIN                       PA8
 #define SDCARD_CONNECTION                ONBOARD
 #define ONBOARD_SPI_DEVICE                     1
-#define ONBOARD_SD_CS_PIN                   PA4   // SDSS
+#define ONBOARD_SD_CS_PIN                   PC11  // SDSS
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
@@ -214,4 +218,9 @@
     #define BEEPER_PIN               EXP3_06_PIN
   #endif
 
+#endif
+
+// DGUS LCDs
+#if HAS_DGUS_LCD
+  #define LCD_SERIAL_PORT                      3
 #endif
