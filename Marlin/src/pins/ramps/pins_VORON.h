@@ -22,11 +22,11 @@
 #pragma once
 
 /**
- * VORON Design v2 pin assignments
+ * VORON Design v1 pin assignments
  * See https://github.com/mzbotreprap/VORON/blob/master/Firmware/Marlin/pins_RAMPS_VORON.h
  */
 
-#define BOARD_INFO_NAME "VORON Design v2"
+#define BOARD_INFO_NAME "VORON Design v1"
 
 #define MOSFET_C_PIN                          11
 
