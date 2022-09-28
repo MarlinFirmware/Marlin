@@ -2276,32 +2276,31 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Required thermistor 66 (Dyze Design / Trianglelab T-D500) settings
  * https://docs.dyzedesign.com/hotends.html#_500-%C2%B0c-thermistor
  */
-#if TEMP_SENSOR_0 == 66 && HEATER_0_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_0_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_1 == 66 && HEATER_1_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_1_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_2 == 66 && HEATER_2_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_2_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_3 == 66 && HEATER_3_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_3_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_4 == 66 && HEATER_4_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_4_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_5 == 66 && HEATER_5_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_5_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_6 == 66 && HEATER_6_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_6_MINTEMP to be ≥ 21."
-#elif TEMP_SENSOR_7 == 66 && HEATER_7_MINTEMP < 21
-  #error "Thermistor 66 requires HEATER_7_MINTEMP to be ≥ 21."
-#endif
-
-#if TEMP_SENSOR_0 == 66 || TEMP_SENSOR_1 == 66 || TEMP_SENSOR_2 == 66 || TEMP_SENSOR_3 == 66 || TEMP_SENSOR_4 == 66 || TEMP_SENSOR_5 == 66 || TEMP_SENSOR_6 == 66 || TEMP_SENSOR_7 == 66
+#if ANY_E_SENSOR_IS(66)
+  #define _BAD_MINTEMP(N) (TEMP_SENSOR(N) == 66 && HEATER_##N##_MINTEMP < 21)
+  #if _BAD_MINTEMP(0)
+    #error "Thermistor 66 requires HEATER_0_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(1)
+    #error "Thermistor 66 requires HEATER_1_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(2)
+    #error "Thermistor 66 requires HEATER_2_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(3)
+    #error "Thermistor 66 requires HEATER_3_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(4)
+    #error "Thermistor 66 requires HEATER_4_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(5)
+    #error "Thermistor 66 requires HEATER_5_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(6)
+    #error "Thermistor 66 requires HEATER_6_MINTEMP ≥ 21."
+  #elif _BAD_MINTEMP(7)
+    #error "Thermistor 66 requires HEATER_7_MINTEMP ≥ 21."
+  #endif
   #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED < 5
-    #error "Thermistor 66 requires MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED to be ≥ 5."
+    #error "Thermistor 66 requires MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED ≥ 5."
+  #elif MILLISECONDS_PREHEAT_TIME < 30000
+    #error "Thermistor 66 requires MILLISECONDS_PREHEAT_TIME ≥ 30000."
   #endif
-
-  #if MILLISECONDS_PREHEAT_TIME < 30000
-    #error "Thermistor 66 requires MILLISECONDS_PREHEAT_TIME to be ≥ 30000."
-  #endif
+  #undef _BAD_MINTEMP
 #endif
 
 /**
