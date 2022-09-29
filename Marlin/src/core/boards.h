@@ -355,20 +355,21 @@
 #define BOARD_CREALITY_V431_D         4051  // Creality v4.3.1d (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V452           4052  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V453           4053  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V24S1          4054  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender-7
-#define BOARD_CREALITY_V24S1_301      4055  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) v301 as found in the Ender-3 S1
-#define BOARD_CREALITY_V25S1          4056  // Creality v2.5.S1 (STM32F103RE) as found in the CR-10 Smart Pro
-#define BOARD_TRIGORILLA_PRO          4057  // Trigorilla Pro (STM32F103ZE)
-#define BOARD_FLY_MINI                4058  // FLYmaker FLY MINI (STM32F103RC)
-#define BOARD_FLSUN_HISPEED           4059  // FLSUN HiSpeedV1 (STM32F103VE)
-#define BOARD_BEAST                   4060  // STM32F103RE Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4061  // STM32F103ZE Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4062  // STM32F103VE controller
-#define BOARD_ZONESTAR_ZM3E2          4063  // Zonestar ZM3E2    (STM32F103RC)
-#define BOARD_ZONESTAR_ZM3E4          4064  // Zonestar ZM3E4 V1 (STM32F103VC)
-#define BOARD_ZONESTAR_ZM3E4V2        4065  // Zonestar ZM3E4 V2 (STM32F103VC)
-#define BOARD_ERYONE_ERY32_MINI       4066  // Eryone Ery32 mini (STM32F103VE)
-#define BOARD_PANDA_PI_V29            4067  // Panda Pi V2.9 - Standalone (STM32F103RC)
+#define BOARD_CREALITY_V521           4054  // SV04 Board
+#define BOARD_CREALITY_V24S1          4055  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender-7
+#define BOARD_CREALITY_V24S1_301      4056  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) v301 as found in the Ender-3 S1
+#define BOARD_CREALITY_V25S1          4057  // Creality v2.5.S1 (STM32F103RE) as found in the CR-10 Smart Pro
+#define BOARD_TRIGORILLA_PRO          4058  // Trigorilla Pro (STM32F103ZE)
+#define BOARD_FLY_MINI                4059  // FLYmaker FLY MINI (STM32F103RC)
+#define BOARD_FLSUN_HISPEED           4060  // FLSUN HiSpeedV1 (STM32F103VE)
+#define BOARD_BEAST                   4061  // STM32F103RE Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4062  // STM32F103ZE Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4063  // STM32F103VE controller
+#define BOARD_ZONESTAR_ZM3E2          4064  // Zonestar ZM3E2    (STM32F103RC)
+#define BOARD_ZONESTAR_ZM3E4          4065  // Zonestar ZM3E4 V1 (STM32F103VC)
+#define BOARD_ZONESTAR_ZM3E4V2        4066  // Zonestar ZM3E4 V2 (STM32F103VC)
+#define BOARD_ERYONE_ERY32_MINI       4067  // Eryone Ery32 mini (STM32F103VE)
+#define BOARD_PANDA_PI_V29            4068  // Panda Pi V2.9 - Standalone (STM32F103RC)
 
 //
 // ARM Cortex-M4F
