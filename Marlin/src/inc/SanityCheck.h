@@ -1328,10 +1328,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Linear Advance 1.5 - Check K value range
  */
 #if ENABLED(LIN_ADVANCE)
+  constexpr float lak[] = LIN_ADVANCE_K;
+  static_assert(COUNT(lak) == EXTRUDERS, "LIN_ADVANCE_K must be an array EXTRUDERS long.");
   static_assert(
-    WITHIN(LIN_ADVANCE_K, 0, 10),
-    "LIN_ADVANCE_K must be a value from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
+    WITHIN(lak[0], 0, 10),
+    "LIN_ADVANCE_K must be values from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
   );
+  #if EXTRUDERS > 1
+    static_assert(
+      WITHIN(lak[1], 0, 10),
+      "LIN_ADVANCE_K must be values from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
+    );
+  #endif
   #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
     #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
   #elif ENABLED(DIRECT_STEPPING)

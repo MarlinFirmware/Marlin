@@ -3208,9 +3208,10 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(LIN_ADVANCE)
+    constexpr float linAdvanceK[] = LIN_ADVANCE_K;
     EXTRUDER_LOOP() {
-      planner.extruder_advance_K[e] = LIN_ADVANCE_K;
-      TERN_(EXTRA_LIN_ADVANCE_K, other_extruder_advance_K[e] = LIN_ADVANCE_K);
+      planner.extruder_advance_K[e] = linAdvanceK[e];
+      TERN_(EXTRA_LIN_ADVANCE_K, other_extruder_advance_K[e] = linAdvanceK[e]);
     }
   #endif
 
