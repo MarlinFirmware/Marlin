@@ -21,13 +21,25 @@
  */
 #pragma once
 
-/**
- * CREALITY v4.2.2 (STM32F103RE / STM32F103RC) board pin assignments
- */
+#define REVERSE_TEMP_SENSOR_RANGE_1022 1
 
-#define BOARD_INFO_NAME      "Creality v4.2.2"
-#define DEFAULT_MACHINE_NAME "Creality3D"
-
-#define EMIT_CREALITY_422_WARNING
-
-#include "pins_CREALITY_V4.h"
+// Pt1000 with 1k0 pullup
+constexpr temp_entry_t temptable_1022[] PROGMEM = {
+  PtLine(  0, 1000, 2200),
+  PtLine( 25, 1000, 2200),
+  PtLine( 50, 1000, 2200),
+  PtLine( 75, 1000, 2200),
+  PtLine(100, 1000, 2200),
+  PtLine(125, 1000, 2200),
+  PtLine(150, 1000, 2200),
+  PtLine(175, 1000, 2200),
+  PtLine(200, 1000, 2200),
+  PtLine(225, 1000, 2200),
+  PtLine(250, 1000, 2200),
+  PtLine(275, 1000, 2200),
+  PtLine(300, 1000, 2200),
+  PtLine(350, 1000, 2200),
+  PtLine(400, 1000, 2200),
+  PtLine(450, 1000, 2200),
+  PtLine(500, 1000, 2200)
+};
