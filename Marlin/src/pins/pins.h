@@ -710,7 +710,7 @@
 #elif MB(FYSETC_SPIDER_KING407)
   #include "stm32f4/pins_FYSETC_SPIDER_KING407.h" // STM32F4                              env:FYSETC_SPIDER_KING407
 #elif MB(MKS_SKIPR_V1)
-  #include "stm32f4/pins_MKS_SKIPR_V1_0.h"       // STM32F4                               env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
+  #include "stm32f4/pins_MKS_SKIPR_V1_0.h"      // STM32F4                                env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
 
 //
 // ARM Cortex M7

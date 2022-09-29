@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,6 +22,10 @@
 #pragma once
 
 #include "env_validate.h"
+
+#if HOTENDS > 4 || E_STEPPERS > 4
+  #error "MKS SKIPR supports up to 4 hotends / E steppers."
+#endif
 
 #define BOARD_INFO_NAME "MKS SKIPR V1.0"
 
@@ -108,9 +112,9 @@
   #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-
 #endif
 
-#if (DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) || ENABLED(USE_PROBE_FOR_Z_HOMING))
+#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) || ENABLED(USE_PROBE_FOR_Z_HOMING)
   #ifndef Z_MIN_PROBE
-    #define Z_MIN_PROBE_PIN E2_DIAG_PIN           // defaults to 'Z+' connector
+    #define Z_MIN_PROBE_PIN          E2_DIAG_PIN  // defaults to 'Z+' connector
   #endif
 #endif
 
@@ -121,53 +125,52 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                          PC14  // X motor
+#define X_STEP_PIN                          PC14
 #define X_DIR_PIN                           PC13
 #define X_ENABLE_PIN                        PC15
 #ifndef X_CS_PIN
   #define X_CS_PIN                          PE6
 #endif
 
-#define Y_STEP_PIN                          PE5   // Y motor
+#define Y_STEP_PIN                          PE5
 #define Y_DIR_PIN                           PE4
 #define Y_ENABLE_PIN                        PD14
 #ifndef Y_CS_PIN
   #define Y_CS_PIN                          PE3
 #endif
 
-#define Z_STEP_PIN                          PE1   // Z motor
-#define Z_DIR_PIN                           PE0   // labeled 'Z1'
+#define Z_STEP_PIN                          PE1   // "Z1"
+#define Z_DIR_PIN                           PE0
 #define Z_ENABLE_PIN                        PE2
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                          PB7
 #endif
 
-#define E0_STEP_PIN                         PB5   // E0 motor
+#define E0_STEP_PIN                         PB5
 #define E0_DIR_PIN                          PB4
 #define E0_ENABLE_PIN                       PB6
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PB3
 #endif
 
-#define E1_STEP_PIN                         PD6   // E1 motor
-#define E1_DIR_PIN                          PD5   // labeled 'Z2'
+#define E1_STEP_PIN                         PD6   // "Z2"
+#define E1_DIR_PIN                          PD5
 #define E1_ENABLE_PIN                       PD7
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PD4
 #endif
 
-#define E2_STEP_PIN                         PD2   // E2 motor
-#define E2_DIR_PIN                          PD1   // labeled 'Z3'
+#define E2_STEP_PIN                         PD2   // "Z3"
+#define E2_DIR_PIN                          PD1
 #define E2_ENABLE_PIN                       PD3
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PD0
 #endif
 
-#define E3_STEP_PIN                         PC7   // E3 motor
-#define E3_DIR_PIN                          PC6   // labeled 'Z4'
+#define E3_STEP_PIN                         PC7   // "Z4"
+#define E3_DIR_PIN                          PC6
 #define E3_ENABLE_PIN                       PC8
 #ifndef E3_CS_PIN
-
   #define E3_CS_PIN                         PD15
 #endif
 
@@ -197,9 +200,9 @@
 //
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI                     PE14
-  #define TMC_SW_MISO                     PE13
-  #define TMC_SW_SCK                      PE12
+  #define TMC_SW_MOSI                       PE14
+  #define TMC_SW_MISO                       PE13
+  #define TMC_SW_SCK                        PE12
 #endif
 
 //
@@ -207,25 +210,25 @@
 // This board is routed for one-wire software serial
 //
 #if HAS_TMC_UART
-  #define X_SERIAL_TX_PIN       PE6
-  #define X_SERIAL_RX_PIN       X_SERIAL_TX_PIN
+  #define X_SERIAL_TX_PIN                   PE6
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
-  #define Y_SERIAL_TX_PIN       PE3
-  #define Y_SERIAL_RX_PIN       Y_SERIAL_TX_PIN
+  #define Y_SERIAL_TX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN       PB7
-  #define Z_SERIAL_RX_PIN       Z_SERIAL_TX_PIN
+  #define Z_SERIAL_TX_PIN                   PB7
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define E0_SERIAL_TX_PIN      PB3
+  #define E0_SERIAL_TX_PIN                  PB3
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
-  #define E1_SERIAL_TX_PIN      PD4
+  #define E1_SERIAL_TX_PIN                  PD4
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
-  #define E2_SERIAL_TX_PIN      PD0
+  #define E2_SERIAL_TX_PIN                  PD0
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
-  #define E3_SERIAL_TX_PIN      PD15
+  #define E3_SERIAL_TX_PIN                  PD15
   #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
@@ -265,26 +268,26 @@
 //
 #if ENABLED(SDSUPPORT)
   #ifndef SDCARD_CONNECTION
-    #define SDCARD_CONNECTION               LCD
+    #define SDCARD_CONNECTION                LCD
   #endif
   #if SD_CONNECTION_IS(ONBOARD)
-    // #define SOFTWARE_SPI
-    // #define SD_SPI_SPEED                    SPI_HALF_SPEED
+    //#define SOFTWARE_SPI
+    //#define SD_SPI_SPEED        SPI_HALF_SPEED
     #undef SD_DETECT_STATE
-    #define SD_DETECT_STATE                 LOW
+    #define SD_DETECT_STATE                  LOW
     #define SD_DETECT_PIN                   PC4
   #elif SD_CONNECTION_IS(LCD)
-    // #define SOFTWARE_SPI
-    // #define SD_SPI_SPEED                    SPI_QUARTER_SPEED
-    #define SD_SS_PIN                       EXP2_04_PIN
-    #define SD_SCK_PIN                      EXP2_02_PIN
-    #define SD_MISO_PIN                     EXP2_01_PIN
-    #define SD_MOSI_PIN                     EXP2_06_PIN
-    #define SD_DETECT_PIN                   EXP2_07_PIN
+    //#define SOFTWARE_SPI
+    //#define SD_SPI_SPEED     SPI_QUARTER_SPEED
+    #define SD_SS_PIN                EXP2_04_PIN
+    #define SD_SCK_PIN               EXP2_02_PIN
+    #define SD_MISO_PIN              EXP2_01_PIN
+    #define SD_MOSI_PIN              EXP2_06_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
   #elif SD_CONNECTION_IS(CUSTOM_CABLE)
     #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
   #endif
-  #define SDSS  SD_SS_PIN
+  #define SDSS                         SD_SS_PIN
 #endif
 
 //
@@ -345,11 +348,9 @@
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN
-
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
-
     #endif
 
   #endif
@@ -373,8 +374,8 @@
 // MAX31865
 //
 #if HAS_MAX31865
-  #define TEMP_0_CS_PIN                       PD11
-  #define TEMP_0_SCK_PIN                      PE12
-  #define TEMP_0_MISO_PIN                     PE13
-  #define TEMP_0_MOSI_PIN                     PE14
+  #define TEMP_0_CS_PIN                     PD11
+  #define TEMP_0_SCK_PIN                    PE12
+  #define TEMP_0_MISO_PIN                   PE13
+  #define TEMP_0_MOSI_PIN                   PE14
 #endif
