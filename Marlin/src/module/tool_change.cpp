@@ -440,7 +440,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
   }
 
-  inline void switching_toolhead_lock(const bool locked) {
+
+#endif // TOOL_SENSOR
+
+#if ENABLED(SWITCHING_TOOLHEAD)
+
+  inline void switching_toolhead_lock(const bool locked)
+ {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
       servo[SWITCHING_TOOLHEAD_SERVO_NR].move(swt_angles[locked ? 0 : 1]);
@@ -451,8 +457,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #error "No toolhead locking mechanism configured."
     #endif
   }
-
-  #include <bitset>
 
   void swt_init() {
     switching_toolhead_lock(true);
@@ -493,10 +497,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       LCD_MESSAGE_F("TC Success");
     #endif // TOOL_SENSOR
   }
-
-#endif // TOOL_SENSOR
-
-#if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
