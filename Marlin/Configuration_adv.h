@@ -1617,7 +1617,7 @@
    *
    * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
-  #define USB_FLASH_DRIVE_SUPPORT     //MKSF
+ // #define USB_FLASH_DRIVE_SUPPORT     //MKSF
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     /**
      * USB Host Shield Library
@@ -1629,8 +1629,8 @@
      *   is less tested and is known to interfere with Servos.
      *   [1] This requires USB_INTR_PIN to be interrupt-capable.
      */
-    //#define USE_UHS2_USB
-    //#define USE_UHS3_USB
+    // #define USE_UHS2_USB
+    //#define USE_UHS3_USB     //HOBL troublesshooting Octoprint terminal
 
     #define DISABLE_DUE_SD_MMC // Disable USB Host access to USB Drive to prevent hangs on block access for DUE platform
 
