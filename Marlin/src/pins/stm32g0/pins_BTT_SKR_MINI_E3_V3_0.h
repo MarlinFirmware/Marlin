@@ -311,7 +311,7 @@
     #elif ENABLED(FYSETC_MINI_12864_2_1)
 
       #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_BTT_SKR_MINI_E3_V3_0.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning"
+        #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_BTT_SKR_MINI_E3_V3_0.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning."
       #endif
 
       /**
