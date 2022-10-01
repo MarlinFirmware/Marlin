@@ -603,5 +603,5 @@ void GcodeSuite::G28() {
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
-
+TERN_(HAS_LEVELING, set_bed_leveling_enabled(true));
 }
