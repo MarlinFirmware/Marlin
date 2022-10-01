@@ -2772,7 +2772,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if ENABLED(LIN_ADVANCE)
           case ADVANCED_LA:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxAccelerated, F("Lin Advance Kp"));
+              Draw_Menu_Item(row, ICON_MaxAccelerated, F("Lin Advance K"));
               Draw_Float(planner.extruder_advance_K[0], row, false, 100);
             }
             else
