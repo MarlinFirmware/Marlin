@@ -63,7 +63,7 @@ if pioutil.is_pio_build():
             raise SystemExit("Error: this script should be used after common Marlin scripts")
 
         if len(env['MARLIN_FEATURES']) == 0:
-            raise SystemExit("Error: An error occured. Please read the errors above.")
+            raise SystemExit("Error: An error occurred. Please read the errors above.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
