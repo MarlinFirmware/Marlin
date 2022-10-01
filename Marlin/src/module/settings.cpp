@@ -642,7 +642,7 @@ void MarlinSettings::postprocess() {
 
   #if LCD_BACKLIGHT_TIMEOUT_MINS
     ui.refresh_backlight_timeout();
-  #elif HAS_DISPLAY_SLEEP
+  #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
     ui.refresh_screen_timeout();
   #endif
 }
@@ -3167,7 +3167,7 @@ void MarlinSettings::reset() {
   #if LCD_BACKLIGHT_TIMEOUT_MINS
     ui.backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
   #elif HAS_DISPLAY_SLEEP
-    ui.sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+    ui.sleep_timeout_minutes = TERN(TOUCH_SCREEN, TOUCH_IDLE_SLEEP_MINS, DISPLAY_SLEEP_MINUTES);
   #endif
 
   //

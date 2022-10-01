@@ -591,6 +591,8 @@
   #include "stm32f1/pins_CREALITY_V24S1_301.h"  // STM32F1                                env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
 #elif MB(CREALITY_V25S1)
   #include "stm32f1/pins_CREALITY_V25S1.h"      // STM32F1                                env:STM32F103RE_creality_smartPro env:STM32F103RE_creality_smartPro_maple
+#elif MB(CREALITY_V521)
+  #include "stm32f1/pins_CREALITY_V521.h"       // STM32F103VE                            env:STM32F103VE_creality
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro env:trigorilla_pro_maple env:trigorilla_pro_disk
 #elif MB(FLY_MINI)
@@ -611,8 +613,6 @@
   #include "stm32f1/pins_ERYONE_ERY32_MINI.h"   // STM32F103VET6                          env:ERYONE_ERY32_MINI_maple
 #elif MB(PANDA_PI_V29)
   #include "stm32f1/pins_PANDA_PI_V29.h"        // STM32F103RCT6                          env:PANDA_PI_V29
-#elif MB(CREALITY_V521)
-  #include "stm32f1/pins_CREALITY_V521.h"       // STM32F103RET6                          env:STM32F103RET6_creality
 
 //
 // ARM Cortex-M4F
