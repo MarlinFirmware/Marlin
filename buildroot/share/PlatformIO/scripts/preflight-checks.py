@@ -62,8 +62,8 @@ if pioutil.is_pio_build():
         if 'MARLIN_FEATURES' not in env:
             raise SystemExit("Error: this script should be used after common Marlin scripts")
 
-        if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
-            raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
+        if len(env['MARLIN_FEATURES']) == 0:
+            raise SystemExit("Error: An error occured. Please read the errors above.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
