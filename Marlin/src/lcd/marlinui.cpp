@@ -191,11 +191,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::screen_timeout_millis = 0;
-  void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-    sleep_display(false);
-  }
-
+  #if DISABLED(TFT_COLOR_UI)
+    void MarlinUI::refresh_screen_timeout() {
+      screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
+      sleep_display(false);
+    }
+  #endif
 #endif
 
 void MarlinUI::init() {
@@ -1065,7 +1066,7 @@ void MarlinUI::init() {
 
           #if LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
-          #elif HAS_DISPLAY_SLEEP
+          #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
             refresh_screen_timeout();
           #endif
 
@@ -1178,9 +1179,9 @@ void MarlinUI::init() {
           WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           backlight_off_ms = 0;
         }
-      #elif HAS_DISPLAY_SLEEP
+      #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
-          sleep_display();
+          sleep_display(true);
       #endif
 
       // Change state of drawing flag between screen updates
