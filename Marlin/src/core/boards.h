@@ -355,7 +355,7 @@
 #define BOARD_CREALITY_V431_D         4051  // Creality v4.3.1d (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V452           4052  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V453           4053  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V521           4054  // SV04 Board
+#define BOARD_CREALITY_V521           4054  // Creality v5.2.1 (STM32F103VE) as found in the SV04
 #define BOARD_CREALITY_V24S1          4055  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender-7
 #define BOARD_CREALITY_V24S1_301      4056  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) v301 as found in the Ender-3 S1
 #define BOARD_CREALITY_V25S1          4057  // Creality v2.5.S1 (STM32F103RE) as found in the CR-10 Smart Pro
