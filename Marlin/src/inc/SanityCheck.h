@@ -2277,23 +2277,23 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * https://docs.dyzedesign.com/hotends.html#_500-%C2%B0c-thermistor
  */
 #if ANY_E_SENSOR_IS(66)
-  #define _BAD_MINTEMP(N) (TEMP_SENSOR(N) == 66 && HEATER_##N##_MINTEMP < 21)
+  #define _BAD_MINTEMP(N) (TEMP_SENSOR(N) == 66 && HEATER_##N##_MINTEMP <= 20)
   #if _BAD_MINTEMP(0)
-    #error "Thermistor 66 requires HEATER_0_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_0_MINTEMP > 20."
   #elif _BAD_MINTEMP(1)
-    #error "Thermistor 66 requires HEATER_1_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_1_MINTEMP > 20."
   #elif _BAD_MINTEMP(2)
-    #error "Thermistor 66 requires HEATER_2_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_2_MINTEMP > 20."
   #elif _BAD_MINTEMP(3)
-    #error "Thermistor 66 requires HEATER_3_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_3_MINTEMP > 20."
   #elif _BAD_MINTEMP(4)
-    #error "Thermistor 66 requires HEATER_4_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_4_MINTEMP > 20."
   #elif _BAD_MINTEMP(5)
-    #error "Thermistor 66 requires HEATER_5_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_5_MINTEMP > 20."
   #elif _BAD_MINTEMP(6)
-    #error "Thermistor 66 requires HEATER_6_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_6_MINTEMP > 20."
   #elif _BAD_MINTEMP(7)
-    #error "Thermistor 66 requires HEATER_7_MINTEMP ≥ 21."
+    #error "Thermistor 66 requires HEATER_7_MINTEMP > 20."
   #endif
   #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED < 5
     #error "Thermistor 66 requires MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED ≥ 5."
