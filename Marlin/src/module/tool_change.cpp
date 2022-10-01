@@ -445,8 +445,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #if ENABLED(SWITCHING_TOOLHEAD)
 
-  inline void switching_toolhead_lock(const bool locked)
- {
+  inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
       servo[SWITCHING_TOOLHEAD_SERVO_NR].move(swt_angles[locked ? 0 : 1]);
