@@ -738,6 +738,7 @@
 #define MAPLIST(OP,V...) EVAL(_MAPLIST(OP,V))
 
 // Temperature Sensor Config
-#define _HAS_E_TEMP(N) || (TEMP_SENSOR_##N != 0)
+#define TEMP_SENSOR(N) TEMP_SENSOR_##N
+#define _HAS_E_TEMP(N) || TEMP_SENSOR(N)
 #define HAS_E_TEMP_SENSOR (0 REPEAT(EXTRUDERS, _HAS_E_TEMP))
-#define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR_##T == -5 || TEMP_SENSOR_##T == -3 || TEMP_SENSOR_##T == -2)
+#define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR(T) == -5 || TEMP_SENSOR(T) == -3 || TEMP_SENSOR(T) == -2)
