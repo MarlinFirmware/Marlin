@@ -1423,27 +1423,27 @@
       //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
     #endif
     #if ENABLED(NEO2_COLOR_PRESETS)
-      #define NEO2_USER_PRESET_RED        255  // User defined RED value
-      #define NEO2_USER_PRESET_GREEN      128  // User defined GREEN value
-      #define NEO2_USER_PRESET_BLUE         0  // User defined BLUE value
-      #define NEO2_USER_PRESET_WHITE      255  // User defined WHITE value
-      #define NEO2_USER_PRESET_BRIGHTNESS 255  // User defined intensity
-      //#define NEO2_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup for the second strip
+      #define NEO2_USER_PRESET_RED        255 // User defined RED value
+      #define NEO2_USER_PRESET_GREEN      128 // User defined GREEN value
+      #define NEO2_USER_PRESET_BLUE         0 // User defined BLUE value
+      #define NEO2_USER_PRESET_WHITE      255 // User defined WHITE value
+      #define NEO2_USER_PRESET_BRIGHTNESS 255 // User defined intensity
+      //#define NEO2_USER_PRESET_STARTUP      // Have the printer display the user preset color on startup for the second strip
     #endif
   #endif
 
-#endif
+#endif // HAS_DISPLAY || DWIN_LCD_PROUI
 
 // Add an 'M73' G-code to set the current percentage
 //#define SET_PROGRESS_MANUALLY
 #if ENABLED(SET_PROGRESS_MANUALLY)
-  //#define USE_M73_PERCENT             // Add 'P' parameter to set percentage done, otherwise use Marlin's estimate
-  //#define USE_M73_REMAINING_TIME      // Add 'R' parameter to set remaining time, otherwise use Marlin's estimate
-  //#define USE_M73_INTERACTION_TIME    // Add 'C' parameter to set time until next filament change or other user interaction
+  //#define USE_M73_PERCENT               // Add 'P' parameter to set percentage done, otherwise use Marlin's estimate
+  //#define USE_M73_REMAINING_TIME        // Add 'R' parameter to set remaining time, otherwise use Marlin's estimate
+  //#define USE_M73_INTERACTION_TIME      // Add 'C' parameter to set time until next filament change or other user interaction
   #if ENABLED(USE_M73_INTERACTION_TIME)
-    #define SHOW_INTERACTION_TIME       // Display time until next user interaction ('C' = filament change)
+    #define SHOW_INTERACTION_TIME         // Display time until next user interaction ('C' = filament change)
   #endif
-  //#define M73_REPORT                  // Report M73 values to host
+  //#define M73_REPORT                    // Report M73 values to host
 #endif
 
 // LCD Print Progress options, multiple can be rotated depending on screen layout
@@ -4055,7 +4055,7 @@
 
 /**
  * Mechanical Gantry Calibration
- * Modern replacement for the Prusa TMC_Z_CALIBRATION.
+ * Modern replacement for the Průša TMC_Z_CALIBRATION.
  * Adds capability to work with any adjustable current drivers.
  * Implemented as G34 because M915 is deprecated.
  * @section calibrate
