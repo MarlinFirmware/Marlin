@@ -2823,6 +2823,8 @@
 
 //
 // BigTreeTech Mini 12864 V1.0 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+// If the display lights up but does not show characters, edit the parameter in the file: Marlin\src\lcd\dogm\marlinui_DOGM.cpp
+// change parameter: void MarlinUI::_set_contrast() { u8g.setContrast(contrast); } change to: void MarlinUI::_set_contrast() { u8g.setContrast(255); }
 //
 //#define BTT_MINI_12864_V1
 

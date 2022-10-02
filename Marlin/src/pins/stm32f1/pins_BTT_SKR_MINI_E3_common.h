@@ -269,8 +269,8 @@
      *
      *            ---                   ------
      *       RST | 1 |          (MISO) |10  9 | SCK
-     * (RX2) PA2 | 2 |         BTN_EN1 | 8  7 | (SS)
-     * (TX2) PA3 | 3 |         BTN_EN2 | 6  5 | MOSI
+     * (RX2) PA3 | 2 |         BTN_EN1 | 8  7 | (SS)
+     * (TX2) PA2 | 3 |         BTN_EN2 | 6  5 | MOSI
      *       GND | 4 |            (CD) | 4  3 | (RST)
      *        5V | 5 |           (GND) | 2  1 | (KILL)
      *            ---                   ------
@@ -285,24 +285,24 @@
      *   EXP1-8 ----------- EXP2-6   EN2
      *   EXP1-7 ----------- EXP1-5   RED
      *   EXP1-6 ----------- EXP2-8   EN1
-     *   EXP1-5 ----------- EXP1-6   LCD_RST
-     *   EXP1-4 ----------- n/c
+     *   EXP1-5 ----------- n/c
+     *   EXP1-4 ----------- EXP2-3   RESET
      *   EXP1-3 ----------- EXP1-8   LCD_CS
      *   EXP1-2 ----------- EXP1-9   ENC
      *   EXP1-1 ----------- EXP1-7   LCD_A0
      *
-     *    TFT-2 ----------- EXP2-9   SCK
-     *    TFT-3 ----------- EXP2-5   MOSI
+     *    TFT-2 ----------- EXP2-5   SCK
+     *    TFT-3 ----------- EXP2-9   MOSI
      *
      * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
      */
 
-    #define LCD_PINS_RS              EXP1_03_PIN    // CS
-    #define LCD_PINS_ENABLE                 PA3     // MOSI
+    //#define LCD_PINS_RS              EXP1_03_PIN    // CS
+    //#define LCD_PINS_ENABLE                 PA3     // MOSI
     #define LCD_BACKLIGHT_PIN               -1
     #define NEOPIXEL_PIN             EXP1_07_PIN
     #define LCD_CONTRAST                    255
-    #define LCD_RESET_PIN            EXP1_05_PIN
+    //#define LCD_RESET_PIN            EXP1_05_PIN
 
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_01_PIN
