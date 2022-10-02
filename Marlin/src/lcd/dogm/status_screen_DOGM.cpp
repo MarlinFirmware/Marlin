@@ -445,7 +445,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
-// Prepare strings for progress display 
+// Prepare strings for progress display
 #if HAS_PRINT_PROGRESS
   #define _PRGR_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
   #define PCENTERED 1  // center percent value over progress bar, else align to the right
@@ -563,7 +563,7 @@ void MarlinUI::draw_status_screen() {
           progress_x_pos = TERN(PCENTERED, 77, _PRGR_INFO_X(strlen(progress_string) + 1));
         #endif
       }
-      
+
       #if ENABLED(SHOW_INTERACTION_TIME)
         if (!(interaction_time)) {
           interaction_string[0] = '\0';
@@ -787,7 +787,7 @@ void MarlinUI::draw_status_screen() {
     // Progress bar solid part
     if (PAGE_CONTAINS(PROGRESS_BAR_Y + 1, PROGRESS_BAR_Y + 2))
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
-    
+
     // Progress strings
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1))
       ui.rotate_progress();

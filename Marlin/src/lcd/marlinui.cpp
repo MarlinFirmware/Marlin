@@ -1725,7 +1725,7 @@ void MarlinUI::init() {
       #endif
     );
   }
-  
+
   void (*const MarlinUI::string_ptr[])() = {
     #if ENABLED(SHOW_REMAINING_TIME)
       MarlinUI::stringRemain,
@@ -1740,9 +1740,9 @@ void MarlinUI::init() {
       MarlinUI::stringElapsed
     #endif
   };
-  
-  #define STRINGS (COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME))
-  void MarlinUI::rotate_progress(){ // Renew and redraw all enabled progress strings
+
+  #define STRINGS COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
+  void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
     static bool prev_blink;
     static uint8_t i;
     if (prev_blink != get_blink()) {
@@ -1750,8 +1750,9 @@ void MarlinUI::init() {
       if (++i >= STRINGS) i = 0;
       (*string_ptr[i])();
     }
-  };
-#endif
+  }
+
+#endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(SDSUPPORT)
 

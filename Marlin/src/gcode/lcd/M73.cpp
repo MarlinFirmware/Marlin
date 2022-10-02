@@ -35,20 +35,19 @@
 
 /**
  * M73: Set percentage complete (for display on LCD)
- * 
+ *
  * Example:
  *   M73 P25.63   ; Set progress to 25.63%
  *   M73 R456  ; Set remaining time to 456 minutes
  *   M73 C12   ; Set next interaction countdown to 12 minutes
  *   M73       ; Report current values
- * 
- * Use Prusa-like report format: 
- * M73 Percent done: ---; Print time remaining in mins: -----; Change in mins: -----;
- * 
+ *
+ * Use a shorter-than-Průša report format:
+ * M73 Percent done: ---%; Time left: -----m; Change: -----m;
+ *
  * When PRINT_PROGRESS_SHOW_DECIMALS is enabled - reports percent with 100 / 23.4 / 3.45 format
- * 
+ *
  */
-
 void GcodeSuite::M73() {
 
   #if ENABLED(DWIN_LCD_PROUI)
@@ -67,7 +66,7 @@ void GcodeSuite::M73() {
     #if ENABLED(USE_M73_REMAINING_TIME)
       if (parser.seenval('R')) ui.set_remaining_time(60 * parser.value_ulong());
     #endif
-    
+
     #if ENABLED(USE_M73_INTERACTION_TIME)
       if (parser.seenval('C')) ui.set_interaction_time(60 * parser.value_ulong());
     #endif
@@ -75,16 +74,20 @@ void GcodeSuite::M73() {
   #endif
 
   #if ENABLED(M73_REPORT)
-    SERIAL_ECHO_MSG("  M73 Percent done: ", TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
-                    #if ENABLED(USE_M73_REMAINING_TIME)
-                    , "; Print time remaining in mins: ", ui.remaining_time / 60
-                    #endif
-                    #if ENABLED(USE_M73_INTERACTION_TIME)
-                    , "; Change in mins: ", ui.interaction_time/60
-                    #endif
-                    , ";");
+  {
+    SERIAL_ECHO_MSG(
+      "M73 Percent done: ",
+      TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
+      #if ENABLED(USE_M73_REMAINING_TIME)
+        , "%; Time left: ", ui.remaining_time / 60
+      #endif
+      #if ENABLED(USE_M73_INTERACTION_TIME)
+        , "m; Change: ", ui.interaction_time / 60
+      #endif
+      , "m"
+    );
+  }
   #endif
 }
 
 #endif // SET_PROGRESS_MANUALLY
-

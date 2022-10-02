@@ -42,26 +42,26 @@
 
 /** One hotend layout
  *  ------------------
- *  |⟱ xxx➜xxx° ✱xxx% 
+ *  |⟱ xxx➜xxx° ✱xxx%
  *  |＿ xxx➜xxx° Fxxx%
  *  ||||||||||R•xxx:xx
- *  |  status string 
+ *  |  status string
  *  ------------------
- * 
+ *
  *  hotend temp | fan speed
  *  bed temp    | feedrate
  *  progress bar| progress time
  *       status string
- * 
+ *
  * ****************************
  *  Two hotends layout
  *  ------------------
- *  |⟱ xxx➜xxx° ✱xxx% 
+ *  |⟱ xxx➜xxx° ✱xxx%
  *  |⟱ xxx➜xxx°|||||||
  *  |＿ xxx➜xxx°Rxxx:xx
- *  |  status string 
+ *  |  status string
  *  ------------------
- * 
+ *
  *  hotend temp | fan speed
  *  hotend temp | progress bar
  *  bed temp    | progress time
@@ -697,9 +697,9 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
         memcpy(&screenstr[2 - LSHIFT], \
                   TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)), \
                   TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3));
-        screenstr[(TERN(PRINT_PROGRESS_SHOW_DECIMALS, 6, 5) - LSHIFT)] = '%'; 
+        screenstr[(TERN(PRINT_PROGRESS_SHOW_DECIMALS, 6, 5) - LSHIFT)] = '%';
         draw_progress_string(PPOS, screenstr);
-      }  
+      }
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)

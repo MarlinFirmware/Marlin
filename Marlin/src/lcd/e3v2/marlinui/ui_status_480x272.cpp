@@ -378,9 +378,7 @@ void MarlinUI::draw_status_screen() {
     dwin_string.set();
     char prefix = ' ';
     #if ENABLED(SHOW_REMAINING_TIME)
-      //  i have no idea how this works and no hardwaer to dabble, someone please make it work with global MarlinUI::rotate_progress()
-      // if (TERN1(ROTATE_PROGRESS_DISPLAY, blink) && print_job_timer.isRunning())
-      if (blink && print_job_timer.isRunning()) { 
+      if (TERN1(ROTATE_PROGRESS_DISPLAY, blink) && print_job_timer.isRunning()) {
         time = get_remaining_time();
         prefix = 'R';
       }

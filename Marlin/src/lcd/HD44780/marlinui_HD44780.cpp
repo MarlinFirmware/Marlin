@@ -727,7 +727,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   static uint8_t timepos = TPOFFSET - 6;
   static char buffer[14];
   static lcd_uint_t pc, pr;
-  
+
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::stringPercent(){
       const uint8_t progress = ui.get_progress_percent();
@@ -769,7 +769,7 @@ void MarlinUI::draw_status_message(const bool blink) {
         lcd_put_u8str(buffer);
       }
     }
-  #endif 
+  #endif
 #endif //HAS_PRINT_PROGRESS
 
 /**
