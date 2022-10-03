@@ -503,6 +503,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
                 grabxpos = toolheadposx[new_tool];
+    const float offset_x = hotend_offset[active_extruder].x;
+    const float offset_y = hotend_offset[active_extruder].y;
+    const float offset_z = hotend_offset[active_extruder].z;
 
     (void)check_tool_sensor_stats(active_extruder, true);
 
@@ -517,14 +520,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     DEBUG_POS("Start ST Tool-Change", current_position);
 
-    current_position.x = placexpos;
+    current_position.x = placexpos + offset_x;
 
     DEBUG_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move X SwitchPos", current_position);
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY);
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY) + offset_y;
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -539,7 +542,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(false);
     safe_delay(500);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS;
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS + offset_y;
     DEBUG_POS("Move Y SwitchPos", current_position);
     slow_line_to_current(Y_AXIS);
 
@@ -547,7 +550,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(200);
 
-    current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR - offset_y;
     DEBUG_POS("Move back Y clear", current_position);
     slow_line_to_current(Y_AXIS); // move away from docked toolhead
 
@@ -555,7 +558,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 3. Move to the new toolhead
 
-    current_position.x = grabxpos;
+    current_position.x = grabxpos + offset_x;
 
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(3) Move to new toolhead position");
@@ -563,7 +566,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY);
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY) + offset_y;
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -572,7 +575,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 4. Grab and lock the new toolhead
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS;
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS + offset_y;
 
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab and lock new toolhead");
@@ -589,7 +592,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(true);
     safe_delay(500);
 
-    current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR - offset_y;
     DEBUG_POS("Move back Y clear", current_position);
     slow_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
