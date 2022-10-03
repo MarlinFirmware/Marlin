@@ -442,7 +442,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[_MAX(DISTINCT_E, 1)]; // M900 K  planner.extruder_advance_K
+  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -2334,7 +2334,7 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
       {
-        float extruder_advance_K[_MAX(DISTINCT_E, 1)];
+        float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
         #if ENABLED(LIN_ADVANCE)
