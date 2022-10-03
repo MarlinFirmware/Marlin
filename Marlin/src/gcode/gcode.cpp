@@ -792,7 +792,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_LCD_CONTRAST
         case 250: M250(); break;                                  // M250: Set LCD contrast
       #endif
-
+      
+      #if HAS_GCODE_M255
+        case 255: M255(); break;                                  // M255: Set LCD Sleep/Backlight Timeout (Minutes)
+      #endif
+      
       #if HAS_LCD_BRIGHTNESS
         case 256: M256(); break;                                  // M256: Set LCD brightness
       #endif
