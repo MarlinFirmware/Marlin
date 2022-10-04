@@ -84,7 +84,7 @@ void GcodeSuite::M1001() {
   process_subcommands_now(F("M77"));
 
   // Set the progress bar "done" state
-  TERN_(USE_M73_PERCENT, ui.set_progress_done());
+  TERN_(SET_PROGRESS_PERCENT, ui.set_progress_done());
 
   // Announce SD file completion
   {

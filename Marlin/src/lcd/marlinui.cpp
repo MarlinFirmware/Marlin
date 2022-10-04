@@ -80,13 +80,13 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if ENABLED(SET_PROGRESS_MANUALLY)
-  #if ENABLED(USE_M73_PERCENT)
+  #if ENABLED(SET_PROGRESS_PERCENT)
     MarlinUI::progress_t MarlinUI::progress_override; // = 0
   #endif
-  #if ENABLED(USE_M73_REMAINING_TIME)
+  #if ENABLED(SET_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
   #endif
-  #if ENABLED(USE_M73_INTERACTION_TIME)
+  #if ENABLED(SET_INTERACTION_TIME)
     uint32_t MarlinUI::interaction_time;
   #endif
 #endif
@@ -1719,7 +1719,7 @@ void MarlinUI::init() {
 
   MarlinUI::progress_t MarlinUI::_get_progress() {
     return (
-      TERN0(USE_M73_PERCENT, (progress_override & PROGRESS_MASK))
+      TERN0(SET_PROGRESS_PERCENT, (progress_override & PROGRESS_MASK))
       #if ENABLED(SDSUPPORT)
         ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
       #endif
