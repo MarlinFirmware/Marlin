@@ -719,9 +719,6 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif
 }
 
-#undef LCD_INFO_SCREEN_STYLE
-#define LCD_INFO_SCREEN_STYLE 0
-
 #if HAS_PRINT_PROGRESS
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
@@ -729,9 +726,9 @@ void MarlinUI::draw_status_message(const bool blink) {
   static lcd_uint_t pc, pr;
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
-    void MarlinUI::stringPercent(){
+    void MarlinUI::stringPercent() {
       const uint8_t progress = ui.get_progress_percent();
-      if (progress){
+      if (progress) {
         lcd_moveto(pc, pr);
         lcd_put_u8str(F(TERN(IS_SD_PRINTING, "SD", "P:")));
         lcd_put_u8str(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)));
@@ -740,7 +737,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
-    void MarlinUI::stringRemain(){
+    void MarlinUI::stringRemain() {
       const duration_t remaint = ui.get_remaining_time();
       if (printJobOngoing()) {
         timepos = TPOFFSET - remaint.toDigital(buffer);
@@ -750,7 +747,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
-    void MarlinUI::stringInter(){
+    void MarlinUI::stringInter() {
       const duration_t interactt = ui.interaction_time;
       if (printingIsActive() && interactt.value) {
         timepos = TPOFFSET - interactt.toDigital(buffer);
@@ -760,17 +757,17 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
-    void MarlinUI::stringElapsed(){
+    void MarlinUI::stringElapsed() {
       const duration_t elapsedt = print_job_timer.duration();
       if (printJobOngoing()) {
         timepos = TPOFFSET - elapsedt.toDigital(buffer);
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'E');
-        // lcd_put_lchar(timepos, 2, LCD_STR_CLOCK[0]);
+        //lcd_put_lchar(timepos, 2, LCD_STR_CLOCK[0]);
         lcd_put_u8str(buffer);
       }
     }
   #endif
-#endif //HAS_PRINT_PROGRESS
+#endif // HAS_PRINT_PROGRESS
 
 /**
  *  LCD_INFO_SCREEN_STYLE 0 : Classic Status Screen

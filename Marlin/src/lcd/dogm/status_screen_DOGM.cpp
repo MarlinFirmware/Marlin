@@ -492,7 +492,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
       }
     }
   #endif
-#endif //HAS_PRINT_PROGRESS
+#endif // HAS_PRINT_PROGRESS
 
 /**
  * Draw the Status Screen for a 128x64 DOGM (U8glib) display.
@@ -791,7 +791,7 @@ void MarlinUI::draw_status_screen() {
     // Progress strings
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1))
       ui.rotate_progress();
-  #endif // HAS_PRINT_PROGRESS
+  #endif
 
   //
   // XYZ Coordinates

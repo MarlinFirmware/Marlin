@@ -33,14 +33,18 @@
   #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
+#if ENABLED(M73_REPORT)
+  #define M73_REPORT_PRUSA
+#endif
+
 /**
  * M73: Set percentage complete (for display on LCD)
  *
  * Example:
- *   M73 P25.63   ; Set progress to 25.63%
- *   M73 R456  ; Set remaining time to 456 minutes
- *   M73 C12   ; Set next interaction countdown to 12 minutes
- *   M73       ; Report current values
+ *   M73 P25.63 ; Set progress to 25.63%
+ *   M73 R456   ; Set remaining time to 456 minutes
+ *   M73 C12    ; Set next interaction countdown to 12 minutes
+ *   M73        ; Report current values
  *
  * Use a shorter-than-Průša report format:
  * M73 Percent done: ---%; Time left: -----m; Change: -----m;
@@ -55,6 +59,7 @@ void GcodeSuite::M73() {
     DWIN_M73();
 
   #else
+
     #if ENABLED(USE_M73_PERCENT)
       if (parser.seenval('P'))
         ui.set_progress((PROGRESS_SCALE) > 1
@@ -76,15 +81,15 @@ void GcodeSuite::M73() {
   #if ENABLED(M73_REPORT)
   {
     SERIAL_ECHO_MSG(
-      "M73 Percent done: ",
-      TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
+        TERN(M73_REPORT_PRUSA, "M73 Percent done: ", "Progress: ")
+      , TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
       #if ENABLED(USE_M73_REMAINING_TIME)
-        , "%; Time left: ", ui.remaining_time / 60
+        , TERN(M73_REPORT_PRUSA, "; Print time remaining in mins: ", "%; Time left: "), ui.remaining_time / 60
       #endif
       #if ENABLED(USE_M73_INTERACTION_TIME)
-        , "m; Change: ", ui.interaction_time / 60
+        , TERN(M73_REPORT_PRUSA, "; Change in mins: ", "m; Change: "), ui.interaction_time / 60
       #endif
-      , "m"
+      , TERN(M73_REPORT_PRUSA, ";", "m")
     );
   }
   #endif

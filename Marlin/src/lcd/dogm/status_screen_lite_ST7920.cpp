@@ -827,22 +827,20 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     TERN_(HAS_MULTI_HOTEND, draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate));
     TERN_(HAS_HEATED_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
 
+    // Update the fan and bed animations
     uint8_t spd = thermalManager.fan_speed[0];
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink && thermalManager.fan_speed_scaler[0] < 128)
         spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
     draw_fan_speed(thermalManager.pwmToPercent(spd));
-    // Update the fan and bed animations
     if (spd) draw_fan_icon(blink);
     TERN_(HAS_HEATED_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
 
     draw_feedrate_percentage(feedrate_perc);
 
     // Update and draw progress strings
-    #if HAS_PRINT_PROGRESS
-      ui.rotate_progress();
-    #endif
+    TERN_(HAS_PRINT_PROGRESS, ui.rotate_progress());
   }
 }
 
