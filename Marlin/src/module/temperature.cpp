@@ -63,7 +63,7 @@
   #include "../feature/host_actions.h"
 #endif
 
-#if EITHER(HAS_TEMP_SENSOR, LASER_FEATURE)
+#if ANY(HAS_TEMP_SENSOR, LASER_FEATURE, SPINDLE_FEATURE)
   #include "../gcode/gcode.h"
 #endif
 
