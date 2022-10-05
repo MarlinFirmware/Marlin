@@ -130,8 +130,6 @@
   #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 #endif
 
-const bool blink = ui.get_blink();
-
 #if HAS_POWER_MONITOR
 
   void display_power_monitor(const uint8_t x, const uint8_t y) {
@@ -454,7 +452,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     static char progress_string[5];
     static u8g_uint_t progress_x_pos;
-    void MarlinUI::stringPercent(){
+    void MarlinUI::drawPercent() {
       if (progress_string[0]) {
         lcd_put_u8str(progress_x_pos, EXTRAS_BASELINE, progress_string);
         lcd_put_lchar('%');
@@ -464,7 +462,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_REMAINING_TIME)
     static char remaining_string[10];
     static u8g_uint_t remaining_x_pos = 0;
-    void MarlinUI::stringRemain(){
+    void MarlinUI::drawRemain() {
       if (printJobOngoing()){
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
         lcd_put_u8str(remaining_x_pos, EXTRAS_BASELINE, remaining_string);
@@ -474,7 +472,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_INTERACTION_TIME)
     static char interaction_string[10];
     static u8g_uint_t interaction_x_pos = 0;
-    void MarlinUI::stringInter(){
+    void MarlinUI::drawInter() {
       if (printingIsActive() && interaction_string[0]) {
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
         lcd_put_u8str(interaction_x_pos, EXTRAS_BASELINE, interaction_string);
@@ -485,7 +483,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     static char elapsed_string[10];
     static u8g_uint_t elapsed_x_pos = 0;
     static uint8_t lastElapsed;
-    void MarlinUI::stringElapsed(){
+    void MarlinUI::drawElapsed() {
       if (printJobOngoing()) {
         lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
         lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
@@ -657,6 +655,8 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBitmapP(STATUS_CHAMBER_X, chambery, STATUS_CHAMBER_BYTEWIDTH, chamberh, CHAMBER_BITMAP(CHAMBER_ALT()));
   #endif
 
+  const bool blink = ui.get_blink();
+
   #if DO_DRAW_FAN
     #if STATUS_FAN_FRAMES > 2
       static bool old_blink;
@@ -687,8 +687,7 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     #if DO_DRAW_HOTENDS
-      LOOP_L_N(e, MAX_HOTEND_DRAW)
-        _draw_hotend_status((heater_id_t)e, blink);
+      LOOP_L_N(e, MAX_HOTEND_DRAW) _draw_hotend_status((heater_id_t)e, blink);
     #endif
 
     // Laser / Spindle

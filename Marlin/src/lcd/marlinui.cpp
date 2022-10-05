@@ -158,7 +158,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   bool MarlinUI::lcd_clicked;
 #endif
 
-#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+#if LCD_WITH_BLINK
 
   bool MarlinUI::get_blink() {
     static uint8_t blink = 0;
@@ -1715,7 +1715,7 @@ void MarlinUI::init() {
 
 #endif // HAS_DISPLAY
 
-#if HAS_PRINT_PROGRESS
+#if HAS_PRINT_PROGRESS && LCD_WITH_BLINK
 
   MarlinUI::progress_t MarlinUI::_get_progress() {
     return (
@@ -1726,33 +1726,25 @@ void MarlinUI::init() {
     );
   }
 
-  void (*const MarlinUI::string_ptr[])() = {
-    #if ENABLED(SHOW_REMAINING_TIME)
-      MarlinUI::stringRemain,
-    #endif
-    #if ENABLED(SHOW_INTERACTION_TIME)
-      MarlinUI::stringInter,
-    #endif
-    #if ENABLED(SHOW_PROGRESS_PERCENT)
-      MarlinUI::stringPercent,
-    #endif
-    #if ENABLED(SHOW_ELAPSED_TIME)
-      MarlinUI::stringElapsed
-    #endif
-  };
+  typedef void (*PrintProgress_t)();
 
-  #define STRINGS COUNT_ENABLED(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
   void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
+    const PrintProgress_t progFunc[] = {
+      OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
+      OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
+      OPTITEM(SHOW_REMAINING_TIME, drawRemain)
+      OPTITEM(SHOW_INTERACTION_TIME, drawInter)
+    };
     static bool prev_blink;
     static uint8_t i;
     if (prev_blink != get_blink()) {
       prev_blink = get_blink();
-      if (++i >= STRINGS) i = 0;
-      (*string_ptr[i])();
+      if (++i >= COUNT(progFunc)) i = 0;
+      (*progFunc[i])();
     }
   }
 
-#endif // HAS_PRINT_PROGRESS
+#endif // HAS_PRINT_PROGRESS && (HAS_WIRED_LCD || DWIN_CREALITY_LCD_JYERSUI)
 
 #if ENABLED(SDSUPPORT)
 

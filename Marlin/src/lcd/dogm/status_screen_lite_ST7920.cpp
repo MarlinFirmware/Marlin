@@ -72,8 +72,6 @@
 
 #if ENABLED(LIGHTWEIGHT_UI)
 
-#include "status_screen_lite_ST7920.h"
-
 #include "../marlinui.h"
 #include "../fontutils.h"
 #include "../lcdprint.h"
@@ -100,6 +98,9 @@
 #define DDRAM_LINE_2   0x10
 #define DDRAM_LINE_3   0x08
 #define DDRAM_LINE_4   0x18
+
+#include "status_screen_lite_ST7920.h"
+extern ST7920_Lite_Status_Screen lightUI;
 
 ST7920_Lite_Status_Screen::st7920_state_t ST7920_Lite_Status_Screen::current_bits;
 
@@ -664,10 +665,6 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
 
 // Process progress strings
 #if HAS_PRINT_PROGRESS
-  void MarlinUI::stringPercent() {ST7920_Lite_Status_Screen::drawPercent();}
-  void MarlinUI::stringRemain() {ST7920_Lite_Status_Screen::drawRemain();}
-  void MarlinUI::stringInter() {ST7920_Lite_Status_Screen::drawInter();}
-  void MarlinUI::stringElapsed() {ST7920_Lite_Status_Screen::drawElapsed();}
   static char screenstr[8];
 
   char * ST7920_Lite_Status_Screen::prepare_time_string(const duration_t &time, char prefix) {
@@ -689,7 +686,8 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #define PPOS (DDRAM_LINE_3 + TERN(HOTENDS == 1, 4, 5)) // progress string position, in 16-bit words
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
-    void ST7920_Lite_Status_Screen::drawPercent(){
+    void MarlinUI::drawPercent() { lightUI.drawPercent(); }
+    void ST7920_Lite_Status_Screen::drawPercent() {
       #define LSHIFT TERN(HOTENDS == 1, 0, 1)
       const uint8_t progress = ui.get_progress_percent();
       memset(&screenstr, 0x20, 8); // fill with spaces to avoid artifacts
@@ -703,7 +701,8 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
-    void ST7920_Lite_Status_Screen::drawRemain(){
+    void MarlinUI::drawRemain() { lightUI.drawRemain(); }
+    void ST7920_Lite_Status_Screen::drawRemain() {
       const duration_t remaint = TERN0(SET_REMAINING_TIME, ui.get_remaining_time());
       if (printJobOngoing() && remaint.value) {
         draw_progress_string( PPOS, prepare_time_string(remaint, 'R'));
@@ -711,15 +710,17 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
-    void ST7920_Lite_Status_Screen::drawInter(){
-      const duration_t interactt  = ui.interaction_time;
+    void MarlinUI::drawInter() { lightUI.drawInter(); }
+    void ST7920_Lite_Status_Screen::drawInter() {
+      const duration_t interactt = ui.interaction_time;
       if (printingIsActive() && interactt.value) {
         draw_progress_string( PPOS, prepare_time_string(interactt, 'C'));
       }
     }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
-    void ST7920_Lite_Status_Screen::drawElapsed(){
+    void MarlinUI::drawElapsed() { lightUI.drawElapsed(); }
+    void ST7920_Lite_Status_Screen::drawElapsed() {
       if (printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         draw_progress_string( PPOS, prepare_time_string(elapsedt, 'E'));
@@ -844,8 +845,6 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   }
 }
 
-
-
 bool ST7920_Lite_Status_Screen::position_changed() {
   const xyz_pos_t pos = current_position;
   const uint8_t checksum = uint8_t(pos.x) ^ uint8_t(pos.y) ^ uint8_t(pos.z);
@@ -964,7 +963,7 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
 }
 
 void MarlinUI::draw_status_screen() {
-  ST7920_Lite_Status_Screen::update(false);
+  lightUI.update(false);
 }
 
 // This method is called before each screen update and
@@ -974,9 +973,9 @@ void MarlinUI::lcd_in_status(const bool inStatus) {
   static bool lastInStatus = false;
   if (lastInStatus == inStatus) return;
   if ((lastInStatus = inStatus))
-    ST7920_Lite_Status_Screen::on_entry();
+    lightUI.on_entry();
   else
-    ST7920_Lite_Status_Screen::on_exit();
+    lightUI.on_exit();
 }
 
 #endif // LIGHTWEIGHT_UI

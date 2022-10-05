@@ -726,7 +726,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   static lcd_uint_t pc, pr;
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
-    void MarlinUI::stringPercent() {
+    void MarlinUI::drawPercent() {
       const uint8_t progress = ui.get_progress_percent();
       if (progress) {
         lcd_moveto(pc, pr);
@@ -737,7 +737,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
-    void MarlinUI::stringRemain() {
+    void MarlinUI::drawRemain() {
       const duration_t remaint = ui.get_remaining_time();
       if (printJobOngoing()) {
         timepos = TPOFFSET - remaint.toDigital(buffer);
@@ -747,7 +747,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
-    void MarlinUI::stringInter() {
+    void MarlinUI::drawInter() {
       const duration_t interactt = ui.interaction_time;
       if (printingIsActive() && interactt.value) {
         timepos = TPOFFSET - interactt.toDigital(buffer);
@@ -757,7 +757,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
-    void MarlinUI::stringElapsed() {
+    void MarlinUI::drawElapsed() {
       const duration_t elapsedt = print_job_timer.duration();
       if (printJobOngoing()) {
         timepos = TPOFFSET - elapsedt.toDigital(buffer);

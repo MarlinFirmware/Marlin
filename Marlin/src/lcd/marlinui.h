@@ -85,6 +85,7 @@ typedef bool (*statusResetFunc_t)();
 #endif // HAS_WIRED_LCD
 
 #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+  #define LCD_WITH_BLINK 1
   #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
 #endif
 
@@ -333,11 +334,21 @@ public:
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
-    static void stringPercent();
-    static void stringRemain();
-    static void stringInter();
-    static void stringElapsed();
-    static void rotate_progress();
+    #if LCD_WITH_BLINK
+      #if ENABLED(SHOW_PROGRESS_PERCENT)
+        static void drawPercent();
+      #endif
+      #if ENABLED(SHOW_ELAPSED_TIME)
+        static void drawElapsed();
+      #endif
+      #if ENABLED(SHOW_REMAINING_TIME)
+        static void drawRemain();
+      #endif
+      #if ENABLED(SHOW_INTERACTION_TIME)
+        static void drawInter();
+      #endif
+      static void rotate_progress();
+    #endif
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
@@ -399,7 +410,7 @@ public:
       static void poweroff();
     #endif
 
-    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+    #if LCD_WITH_BLINK
       static bool get_blink();
     #endif
 

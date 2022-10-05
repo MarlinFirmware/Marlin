@@ -114,3 +114,5 @@ class ST7920_Lite_Status_Screen {
     static void drawElapsed();
   #endif
 };
+
+extern ST7920_Lite_Status_Screen lightUI;
