@@ -798,10 +798,6 @@ private:
       #endif
     #endif
   #endif
-
-  #if HAS_PRINT_PROGRESS
-    static void (*const string_ptr[])();
-  #endif
 };
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
