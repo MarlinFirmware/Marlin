@@ -73,10 +73,10 @@ const char* i8tostr3rj(const int8_t x) {
 }
 
 #if HAS_PRINT_PROGRESS_PERMYRIAD
-  // Convert unsigned 16-bit permyriad to percent with 100 / 23 / 23.4 / 3.45 format
+  // Convert unsigned 16-bit permyriad to percent with 100 / 23.4 / 3.45 format
   const char* permyriadtostr4(const uint16_t xx) {
     if (xx >= 10000)
-      return "100";
+      return " 100"; // space to keep 4-width alignment
     else if (xx >= 1000) {
       conv[3] = DIGIMOD(xx, 1000);
       conv[4] = DIGIMOD(xx, 100);
