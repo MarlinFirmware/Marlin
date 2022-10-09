@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define CONFIG_EXAMPLES_DIR "Creality/CR-10S/CrealityV1"
+
 /**
  * Configuration_adv.h
  *
@@ -2074,7 +2076,7 @@
  */
 //#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
-  //#define EXTRA_LIN_ADVANCE_K // Add a second linear advance constant, configurable with M900.
+  //#define EXTRA_LIN_ADVANCE_K // Add a second linear advance constant, configurable with M900 L.
   #define LIN_ADVANCE_K 0.22    // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // Print debug information to serial during operation. Disable for production use.
   //#define EXPERIMENTAL_SCURVE // Allow S-Curve Acceleration to be used with LA.
@@ -4077,7 +4079,7 @@
 
 /**
  * Mechanical Gantry Calibration
- * Modern replacement for the Prusa TMC_Z_CALIBRATION.
+ * Modern replacement for the Průša TMC_Z_CALIBRATION.
  * Adds capability to work with any adjustable current drivers.
  * Implemented as G34 because M915 is deprecated.
  * @section calibrate
