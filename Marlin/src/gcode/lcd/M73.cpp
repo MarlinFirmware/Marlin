@@ -22,21 +22,35 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if ENABLED(SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
+#include "../../libs/numtostr.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
   #include "../../lcd/e3v2/proui/dwin.h"
+#endif
+
+#if ENABLED(M73_REPORT)
+  #define M73_REPORT_PRUSA
 #endif
 
 /**
  * M73: Set percentage complete (for display on LCD)
  *
  * Example:
- *   M73 P25 ; Set progress to 25%
+ *   M73 P25.63 ; Set progress to 25.63%
+ *   M73 R456   ; Set remaining time to 456 minutes
+ *   M73 C12    ; Set next interaction countdown to 12 minutes
+ *   M73        ; Report current values
+ *
+ * Use a shorter-than-Průša report format:
+ * M73 Percent done: ---%; Time left: -----m; Change: -----m;
+ *
+ * When PRINT_PROGRESS_SHOW_DECIMALS is enabled - reports percent with 100 / 23.4 / 3.45 format
+ *
  */
 void GcodeSuite::M73() {
 
@@ -46,17 +60,39 @@ void GcodeSuite::M73() {
 
   #else
 
-    if (parser.seenval('P'))
-      ui.set_progress((PROGRESS_SCALE) > 1
-        ? parser.value_float() * (PROGRESS_SCALE)
-        : parser.value_byte()
-      );
+    #if ENABLED(SET_PROGRESS_PERCENT)
+      if (parser.seenval('P'))
+        ui.set_progress((PROGRESS_SCALE) > 1
+          ? parser.value_float() * (PROGRESS_SCALE)
+          : parser.value_byte()
+        );
+    #endif
 
-    #if ENABLED(USE_M73_REMAINING_TIME)
+    #if ENABLED(SET_REMAINING_TIME)
       if (parser.seenval('R')) ui.set_remaining_time(60 * parser.value_ulong());
     #endif
 
+    #if ENABLED(SET_INTERACTION_TIME)
+      if (parser.seenval('C')) ui.set_interaction_time(60 * parser.value_ulong());
+    #endif
+
+  #endif
+
+  #if ENABLED(M73_REPORT)
+  {
+    SERIAL_ECHO_MSG(
+        TERN(M73_REPORT_PRUSA, "M73 Percent done: ", "Progress: ")
+      , TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
+      #if ENABLED(SET_REMAINING_TIME)
+        , TERN(M73_REPORT_PRUSA, "; Print time remaining in mins: ", "%; Time left: "), ui.remaining_time / 60
+      #endif
+      #if ENABLED(SET_INTERACTION_TIME)
+        , TERN(M73_REPORT_PRUSA, "; Change in mins: ", "m; Change: "), ui.interaction_time / 60
+      #endif
+      , TERN(M73_REPORT_PRUSA, ";", "m")
+    );
+  }
   #endif
 }
 
-#endif // LCD_SET_PROGRESS_MANUALLY
+#endif // SET_PROGRESS_MANUALLY

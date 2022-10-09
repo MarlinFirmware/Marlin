@@ -561,8 +561,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        case 73: M73(); break;                                    // M73: Set progress percentage (for display on LCD)
+      #if ENABLED(SET_PROGRESS_MANUALLY)
+        case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
 
       case 75: M75(); break;                                      // M75: Start print timer

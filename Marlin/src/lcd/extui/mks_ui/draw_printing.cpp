@@ -39,7 +39,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+#if ENABLED(SET_REMAINING_TIME)
   #include "../../marlinui.h"
 #endif
 
@@ -244,7 +244,7 @@ void disp_fan_speed() {
 }
 
 void disp_print_time() {
-  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+  #if ENABLED(SET_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
     sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
   #else
