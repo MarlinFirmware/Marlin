@@ -252,6 +252,10 @@
   #include "tests/marlin_tests.h"
 #endif
 
+#if ENABLED(RS485_ENABLED)
+  #include "feature/rs485.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -1641,6 +1645,10 @@ void setup() {
 
   #if ENABLED(BD_SENSOR)
     SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
+  #endif
+
+  #if ENABLED(RS485_ENABLED)
+    SETUP_RUN(rs485_init());
   #endif
 
   marlin_state = MF_RUNNING;

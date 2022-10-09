@@ -270,7 +270,7 @@ void GCodeParser::parse(char *p) {
   if (letter == 'M') switch (codenum) {
     TERN_(GCODE_MACROS, case 810 ... 819:)
     TERN_(EXPECTED_PRINTER_CHECK, case 16:)
-    case 23: case 28: case 30: case 117 ... 118: case 928:
+    case 23: case 28: case 30: case 117 ... 118: case 485: case 928:
       string_arg = unescape_string(p);
       return;
     default: break;
