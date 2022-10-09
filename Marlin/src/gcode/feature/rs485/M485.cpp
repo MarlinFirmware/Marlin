@@ -30,7 +30,19 @@ void GcodeSuite::M485() {
 
   PacketWriteResult writeResult = packetizer.writePacket(buffer, strlen(parser.string_arg) / 2);
 
-  SERIAL_ECHOLN((uint8_t)writeResult);
+  switch(writeResult) {
+    case PacketWriteResult::OK:
+      break;  // Nothing to do
+    case PacketWriteResult::FAILED_INTERRUPTED:
+      SERIAL_ERROR_MSG("RS485: Write failed interrupted");
+      break;
+    case PacketWriteResult::FAILED_BUFFER_FULL:
+      SERIAL_ERROR_MSG("RS485: Write failed buffer full");
+      break;
+    case PacketWriteResult::FAILED_TIMEOUT:
+      SERIAL_ERROR_MSG("RS485: Write failed timeout");
+      break;
+  }
 
   packetizer.setMaxReadTimeout(100);
   if(packetizer.hasPacket()) {
