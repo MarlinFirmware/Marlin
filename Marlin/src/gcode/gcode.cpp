@@ -600,11 +600,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 108: M108(); break;                                  // M108: Cancel Waiting
         case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)                     // M876: Handle Host prompt responses
+        TERN_(HOST_PROMPT_SUPPORT, case 876: M876();)                     // M876: Handle Host prompt responses
       #else
         case 108: case 112: case 410:
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)
         break;
+        TERN_(HOST_PROMPT_SUPPORT, case 876: M876();)
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
