@@ -109,9 +109,9 @@ void menu_backlash();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(LIN_ADVANCE)
-      #if EXTRUDERS == 1
+      #if DISTINCT_E < 2
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
-      #elif HAS_MULTI_EXTRUDER
+      #else
         EXTRUDER_LOOP()
           EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
       #endif
@@ -687,11 +687,11 @@ void menu_advanced_settings() {
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
     SUBMENU(MSG_FILAMENT, menu_advanced_filament);
   #elif ENABLED(LIN_ADVANCE)
-    #if EXTRUDERS == 1
+    #if DISTINCT_E < 2
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
-    #elif HAS_MULTI_EXTRUDER
-      LOOP_L_N(n, E_STEPPERS)
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 10);
+    #else
+      EXTRUDER_LOOP()
+        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
     #endif
   #endif
 

@@ -459,7 +459,7 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_K[EXTRUDERS];
+      static float extruder_advance_K[DISTINCT_E];
     #endif
 
     /**

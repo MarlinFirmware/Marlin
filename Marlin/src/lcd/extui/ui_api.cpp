@@ -712,17 +712,17 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     bool getPowerLossRecoveryEnabled()                 { return recovery.enabled; }
-    void setPowerLossRecoveryEnabled(const bool value) {  recovery.enable(value); }
+    void setPowerLossRecoveryEnabled(const bool value) { recovery.enable(value); }
   #endif
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
-      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
+      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[E_INDEX_N(extruder - E0)] : 0;
     }
 
     void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 10);
+        planner.extruder_advance_K[E_INDEX_N(extruder - E0)] = constrain(value, 0, 10);
     }
   #endif
 
