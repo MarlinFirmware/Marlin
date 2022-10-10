@@ -198,7 +198,9 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
     say_M569(forReplay, F("I1"));
     if (chop_x2) SERIAL_ECHOPGM_P(SP_X_STR);
     if (chop_y2) SERIAL_ECHOPGM_P(SP_Y_STR);
-    if (chop_z2) SERIAL_ECHOPGM_P(SP_Z_STR);
+    #if HAS_Z_AXIS
+      if (chop_z2) SERIAL_ECHOPGM_P(SP_Z_STR);
+    #endif
     SERIAL_EOL();
   }
 

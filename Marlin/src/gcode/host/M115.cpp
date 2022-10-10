@@ -222,10 +222,10 @@ void GcodeSuite::M115() {
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
-      const xyz_pos_t bmin = { 0, 0, 0 },
-                      bmax = { X_BED_SIZE , Y_BED_SIZE, Z_MAX_POS },
-                      dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-                      dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+      const xyz_pos_t bmin = { 0, 0, TERN_(HAS_Z_AXIS, 0) },
+                      bmax = { X_BED_SIZE , Y_BED_SIZE, TERN_(HAS_Z_AXIS, Z_MAX_POS) },
+                      dmin = { X_MIN_POS, Y_MIN_POS, TERN_(HAS_Z_AXIS, Z_MIN_POS) },
+                      dmax = { X_MAX_POS, Y_MAX_POS, TERN_(HAS_Z_AXIS, Z_MAX_POS) };
       xyz_pos_t cmin = bmin, cmax = bmax;
       apply_motion_limits(cmin);
       apply_motion_limits(cmax);
@@ -234,12 +234,12 @@ void GcodeSuite::M115() {
       SERIAL_ECHOLNPGM(
         "area:{"
           "full:{"
-            "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
-            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
+            "min:{x:", lmin.x, ",y:", lmin.y, OPTITEM(HAS_Z_AXIS, ",z:") OPTITEM(HAS_Z_AXIS, lmin.z) "},"
+            "max:{x:", lmax.x, ",y:", lmax.y, OPTITEM(HAS_Z_AXIS, ",z:") OPTITEM(HAS_Z_AXIS, lmax.z) "}"
           "},"
           "work:{"
-            "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
-            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
+            "min:{x:", wmin.x, ",y:", wmin.y, OPTITEM(HAS_Z_AXIS, ",z:") OPTITEM(HAS_Z_AXIS, wmin.z) "},"
+            "max:{x:", wmax.x, ",y:", wmax.y, OPTITEM(HAS_Z_AXIS, ",z:") OPTITEM(HAS_Z_AXIS, wmax.z) "}",
           "}"
         "}"
       );
