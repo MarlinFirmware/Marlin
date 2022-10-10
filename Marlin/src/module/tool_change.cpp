@@ -1487,7 +1487,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // Migrate Linear Advance K factor to the new extruder
-    TERN_(LIN_ADVANCE, planner.extruder_advance_K[E_INDEX_N(active_extruder)] = planner.extruder_advance_K[E_INDEX_N(migration_extruder)]);
+    TERN_(LIN_ADVANCE, planner.extruder_advance_K[active_extruder] = planner.extruder_advance_K[migration_extruder]);
 
     // Perform the tool change
     tool_change(migration_extruder);
