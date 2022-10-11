@@ -257,7 +257,7 @@
     #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_CREALITY_V4.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning"
   #endif
 
-  #if SD_CONNECTION_IS(LCD) 
+  #if SD_CONNECTION_IS(LCD)
     #error "The LCD sdcard is not connected with this configuration"
   #endif
 
