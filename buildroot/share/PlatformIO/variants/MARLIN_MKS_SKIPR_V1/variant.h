@@ -1,32 +1,41 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-#ifndef _VARIANT_ARDUINO_STM32_
-#define _VARIANT_ARDUINO_STM32_
+ *******************************************************************************
+ * Copyright (c) 2017, STMicroelectronics
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
+ */
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-
+// 
 /*----------------------------------------------------------------------------
  *        Pins
  *----------------------------------------------------------------------------*/
-
                       // | DIGITAL | ANALOG IN  | ANALOG OUT | UART/USART            | TWI                  | SPI                               | SPECIAL   |
                       // |---------|------------|------------|-----------------------|----------------------|-----------------------------------|-----------|
 #define PA0  PIN_A0   // | 0       | A0 (ADC1)  |            | UART4_TX              |                      |                                   |           |
@@ -122,56 +131,38 @@ extern "C" {
 #define NUM_DIGITAL_PINS        82
 #define NUM_ANALOG_INPUTS       16
 
-// On-board LED pin number
-#ifndef LED_BUILTIN
-#define LED_BUILTIN             PA5
-#endif
-#define LED_GREEN               LED_BUILTIN
+// Below SPI and I2C definitions already done in the core
+// Could be redefined here if differs from the default one
+// SPI Definitions
+#define PIN_SPI_SS              PC9
+#define PIN_SPI_SCK             PC10
+#define PIN_SPI_MISO            PC11
+#define PIN_SPI_MOSI            PC12
 
-// On-board user button
-#ifndef USER_BTN
-#define USER_BTN                PC13
-#endif
-
-// SPI definitions
-#define PIN_SPI_SS              PA4
-#define PIN_SPI_SS1             PA4
-#define PIN_SPI_SS2             PB12
-#define PIN_SPI_SS3             PA15
-#define PIN_SPI_MOSI            PA7
-#define PIN_SPI_MISO            PA6
-#define PIN_SPI_SCK             PA5
-
-// I2C definitions
-#ifndef PIN_WIRE_SDA
-  #define PIN_WIRE_SDA          PB9
-#endif
-#ifndef PIN_WIRE_SCL
-  #define PIN_WIRE_SCL          PB8
-#endif
+// I2C Definitions
+#define PIN_WIRE_SCL            PB8
+#define PIN_WIRE_SDA            PB9
 
 // Timer Definitions
-// Use TIM6/TIM7 when possible as servo and tone don't need GPIO output pin
-#ifndef TIMER_TONE
-  #define TIMER_TONE            TIM6  // TIMER_TONE must be defined in this file
-#endif
-#ifndef TIMER_SERVO
-  #define TIMER_SERVO           TIM7  // TIMER_SERVO must be defined in this file
-#endif
-#ifndef TIMER_SERIAL
-  #define TIMER_SERIAL          TIM5  // TIMER_SERIAL must be defined in this file
-#endif
+// Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
+// TIM1 = HEATER0, HEATER1, [SERVO]
+// TIM2 = FAN1, FAN2, [BEEPER]
+// TIM4 = HEATER_BED
+// TIM5 = HEATER2, FAN0
+// Uses default for STM32F4xx STEP_TIMER 6 and TEMP_TIMER 14
+#define TIMER_SERVO             TIM1  // TIMER_SERVO must be defined in this file
+#define TIMER_TONE              TIM2  // TIMER_TONE must be defined in this file
+#define TIMER_SERIAL            TIM3  // TIMER_SERIAL must be defined in this file
 
-// UART Definitions
-#define SERIAL_UART_INSTANCE    2
+// USART1 (direct to RK3328 SoC)
+#define ENABLE_HWSERIAL1
+#define PIN_SERIAL1_TX           PA9
+#define PIN_SERIAL1_RX          PA10
 
-// Default pin used for 'Serial' instance
-// Mandatory for Firmata
-#define PIN_SERIAL_RX           PA3
-#define PIN_SERIAL_TX           PA2
-
-/* Extra HAL modules */
-#define HAL_DAC_MODULE_ENABLED
+// USART3 connector
+#define ENABLE_HWSERIAL3
+#define PIN_SERIAL3_TX          PB10
+#define PIN_SERIAL3_RX          PB11
 
 #ifdef __cplusplus
 } // extern "C"
@@ -181,23 +172,25 @@ extern "C" {
  *----------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
-  // These serial port names are intended to allow libraries and architecture-neutral
-  // sketches to automatically default to the correct port name for a particular type
-  // of use.  For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
-  // the first hardware serial port whose RX/TX pins are not dedicated to another use.
-  //
-  // SERIAL_PORT_MONITOR        Port which normally prints to the Arduino Serial Monitor
-  //
-  // SERIAL_PORT_USBVIRTUAL     Port which is USB virtual serial
-  //
-  // SERIAL_PORT_LINUXBRIDGE    Port which connects to a Linux system via Bridge library
-  //
-  // SERIAL_PORT_HARDWARE       Hardware serial port, physical RX & TX pins.
-  //
-  // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
-  //                            pins are NOT connected to anything by default.
-  #define SERIAL_PORT_MONITOR     Serial
-  #define SERIAL_PORT_HARDWARE    Serial1
+// These serial port names are intended to allow libraries and architecture-neutral
+// sketches to automatically default to the correct port name for a particular type
+// of use.  For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
+// the first hardware serial port whose RX/TX pins are not dedicated to another use.
+//
+// SERIAL_PORT_MONITOR        Port which normally prints to the Arduino Serial Monitor
+//
+// SERIAL_PORT_USBVIRTUAL     Port which is USB virtual serial
+//
+// SERIAL_PORT_LINUXBRIDGE    Port which connects to a Linux system via Bridge library
+//
+// SERIAL_PORT_HARDWARE       Hardware serial port, physical RX & TX pins.
+//
+// SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
+//                            pins are NOT connected to anything by default.
+#define SERIAL_PORT_MONITOR         Serial1
+#define SERIAL_PORT_USBVIRTUAL      SerialUSB
+#define SERIAL_PORT_HARDWARE        Serial1
+#define SERIAL_PORT_HARDWARE1       Serial3
+#define SERIAL_PORT_HARDWARE_OPEN   Serial1
+#define SERIAL_PORT_HARDWARE_OPEN1  Serial3
 #endif
-
-#endif /* _VARIANT_ARDUINO_STM32_ */
