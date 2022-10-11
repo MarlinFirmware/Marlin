@@ -118,8 +118,8 @@
   #endif
 #endif
 
-#if ENABLED(EXTRA_LIN_ADVANCE_K)
-  extern float other_extruder_advance_K[EXTRUDERS];
+#if ENABLED(ADVANCE_K_EXTRA)
+  extern float other_extruder_advance_K[DISTINCT_E];
 #endif
 
 #if HAS_MULTI_EXTRUDER
@@ -442,7 +442,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[_MAX(EXTRUDERS, 1)]; // M900 K  planner.extruder_advance_K
+  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -642,7 +642,7 @@ void MarlinSettings::postprocess() {
 
   #if LCD_BACKLIGHT_TIMEOUT_MINS
     ui.refresh_backlight_timeout();
-  #elif HAS_DISPLAY_SLEEP
+  #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
     ui.refresh_screen_timeout();
   #endif
 }
@@ -2334,7 +2334,7 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
       {
-        float extruder_advance_K[_MAX(EXTRUDERS, 1)];
+        float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
         #if ENABLED(LIN_ADVANCE)
@@ -3167,7 +3167,7 @@ void MarlinSettings::reset() {
   #if LCD_BACKLIGHT_TIMEOUT_MINS
     ui.backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
   #elif HAS_DISPLAY_SLEEP
-    ui.sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+    ui.sleep_timeout_minutes = TERN(TOUCH_SCREEN, TOUCH_IDLE_SLEEP_MINS, DISPLAY_SLEEP_MINUTES);
   #endif
 
   //
@@ -3206,12 +3206,17 @@ void MarlinSettings::reset() {
   //
   // Linear Advance
   //
-
   #if ENABLED(LIN_ADVANCE)
-    EXTRUDER_LOOP() {
-      planner.extruder_advance_K[e] = LIN_ADVANCE_K;
-      TERN_(EXTRA_LIN_ADVANCE_K, other_extruder_advance_K[e] = LIN_ADVANCE_K);
-    }
+    #if ENABLED(DISTINCT_E_FACTORS)
+      constexpr float linAdvanceK[] = ADVANCE_K;
+      EXTRUDER_LOOP() {
+        const float a = linAdvanceK[_MAX(e, COUNT(linAdvanceK) - 1)];
+        planner.extruder_advance_K[e] = a;
+        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = a);
+      }
+    #else
+      planner.extruder_advance_K[0] = ADVANCE_K;
+    #endif
   #endif
 
   //
