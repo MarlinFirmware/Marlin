@@ -313,7 +313,7 @@ void GcodeSuite::M43() {
 
   // 'P' Get the range of pins to test or watch
   uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
-          last_pin = parser.seenval('P') ? first_pin : TERN(HAS_HIGH_ANALOG_PINS, NUM_DIGITAL_PINS, NUMBER_PINS_TOTAL) - 1;
+          last_pin = parser.seenval('P') ? first_pin : (NUMBER_PINS_TOTAL) - 1;
 
   if (first_pin > last_pin) return;
 
