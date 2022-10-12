@@ -44,7 +44,7 @@ xy_pos_t draw_area_min = { X_MIN_POS, Y_MIN_POS },
 
 xy_float_t draw_area_size = { X_MAX_POS - X_MIN_POS, Y_MAX_POS - Y_MIN_POS };
 
-float polargraph_max_belt_len = HYPOT(draw_area_size.x, draw_area_size.y);
+float polargraph_max_belt_len = POLARGRAPH_MAX_BELT_LEN;
 
 void inverse_kinematics(const xyz_pos_t &raw) {
   const float x1 = raw.x - (draw_area_min.x), x2 = (draw_area_max.x) - raw.x, y = raw.y - (draw_area_max.y);
