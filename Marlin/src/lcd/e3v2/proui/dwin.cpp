@@ -43,8 +43,8 @@
 #if DISABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   #warning "INDIVIDUAL_AXIS_HOMING_SUBMENU is recommended with ProUI."
 #endif
-#if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-  #warning "LCD_SET_PROGRESS_MANUALLY is recommended with ProUI."
+#if DISABLED(SET_PROGRESS_MANUALLY)
+  #warning "SET_PROGRESS_MANUALLY is recommended with ProUI."
 #endif
 #if DISABLED(STATUS_MESSAGE_SCROLLING)
   #warning "STATUS_MESSAGE_SCROLLING is recommended with ProUI."
