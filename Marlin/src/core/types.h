@@ -587,8 +587,8 @@ struct XYZval {
   FI XYZval<T>& operator-=(const XYZEval<T> &rs)       { NUM_AXIS_CODE(x -= rs.x, y -= rs.y, z -= rs.z, i -= rs.i, j -= rs.j, k -= rs.k, u -= rs.u, v -= rs.v, w -= rs.w); return *this; }
   FI XYZval<T>& operator*=(const XYZEval<T> &rs)       { NUM_AXIS_CODE(x *= rs.x, y *= rs.y, z *= rs.z, i *= rs.i, j *= rs.j, k *= rs.k, u *= rs.u, v *= rs.v, w *= rs.w); return *this; }
   FI XYZval<T>& operator/=(const XYZEval<T> &rs)       { NUM_AXIS_CODE(x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
-  FI XYZval<T>& operator*=(const float &v)             { NUM_AXIS_CODE(x *= v,    y *= v,    z *= v,    i *= v,    j *= v,    k *= v,    u *= v,    v *= v,    w *= v);    return *this; }
-  FI XYZval<T>& operator*=(const int &v)               { NUM_AXIS_CODE(x *= v,    y *= v,    z *= v,    i *= v,    j *= v,    k *= v,    u *= v,    v *= v,    w *= v);    return *this; }
+  FI XYZval<T>& operator*=(const float &a)             { NUM_AXIS_CODE(x *= a,    y *= a,    z *= a,    i *= a,    j *= a,    k *= a,    u *= a,    v *= a,    w *= a);    return *this; }
+  FI XYZval<T>& operator*=(const int &a)               { NUM_AXIS_CODE(x *= a,    y *= a,    z *= a,    i *= a,    j *= a,    k *= a,    u *= a,    v *= a,    w *= a);    return *this; }
   FI XYZval<T>& operator>>=(const int &v)              { NUM_AXIS_CODE(_RS(x),    _RS(y),    _RS(z),    _RS(i),    _RS(j),    _RS(k),    _RS(u),    _RS(v),    _RS(w));    return *this; }
   FI XYZval<T>& operator<<=(const int &v)              { NUM_AXIS_CODE(_LS(x),    _LS(y),    _LS(z),    _LS(i),    _LS(j),    _LS(k),    _LS(u),    _LS(v),    _LS(w));    return *this; }
 
@@ -737,7 +737,7 @@ struct XYZEval {
   FI XYZEval<T>& operator-=(const XYZEval<T> &rs)         { LOGICAL_AXIS_CODE(e -= rs.e, x -= rs.x, y -= rs.y, z -= rs.z, i -= rs.i, j -= rs.j, k -= rs.k, u -= rs.u, v -= rs.v, w -= rs.w); return *this; }
   FI XYZEval<T>& operator*=(const XYZEval<T> &rs)         { LOGICAL_AXIS_CODE(e *= rs.e, x *= rs.x, y *= rs.y, z *= rs.z, i *= rs.i, j *= rs.j, k *= rs.k, u *= rs.u, v *= rs.v, w *= rs.w); return *this; }
   FI XYZEval<T>& operator/=(const XYZEval<T> &rs)         { LOGICAL_AXIS_CODE(e /= rs.e, x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
-  FI XYZEval<T>& operator*=(const T &v)                   { LOGICAL_AXIS_CODE(e *= v,    x *= v,    y *= v,    z *= v,    i *= v,    j *= v,    k *= v,    u *= v,    v *= v,    w *= v);    return *this; }
+  FI XYZEval<T>& operator*=(const T &a)                   { LOGICAL_AXIS_CODE(e *= a,    x *= a,    y *= a,    z *= a,    i *= a,    j *= a,    k *= a,    u *= a,    v *= a,    w *= a);    return *this; }
   FI XYZEval<T>& operator>>=(const int &v)                { LOGICAL_AXIS_CODE(_RS(e),    _RS(x),    _RS(y),    _RS(z),    _RS(i),    _RS(j),    _RS(k),    _RS(u),    _RS(v),    _RS(w));    return *this; }
   FI XYZEval<T>& operator<<=(const int &v)                { LOGICAL_AXIS_CODE(_LS(e),    _LS(x),    _LS(y),    _LS(z),    _LS(i),    _LS(j),    _LS(k),    _LS(u),    _LS(v),    _LS(w));    return *this; }
 

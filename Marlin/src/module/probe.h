@@ -146,7 +146,7 @@ public:
 
   #else
 
-    static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY(0, 0, 0, 0, 0, 0)); // See #16767
+    static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY(0, 0, 0 OPTARG(HAS_I_AXIS, 0) OPTARG(HAS_J_AXIS, 0) OPTARG(HAS_K_AXIS, 0) OPTARG(HAS_U_AXIS, 0) OPTARG(HAS_V_AXIS, 0) OPTARG(HAS_W_AXIS, 0))); // See #16767
 
     static bool set_deployed(const bool) { return false; }
 
