@@ -1118,6 +1118,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
 #endif
 
+#if ENABLED(DELTA) && ANY(X_HOME_TO_MIN, Y_HOME_TO_MIN, Z_HOME_TO_MIN)
+  #error "DELTA kinematic require homing to MAX, set [XYZ]_HOME_DIR to 1"
+#endif
+
 /**
  * Sanity checking for all Průša MMU
  */
