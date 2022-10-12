@@ -605,8 +605,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #else
         case 108: case 112: case 410:
+        TERN_(HOST_PROMPT_SUPPORT, case 876:)
         break;
-        TERN_(HOST_PROMPT_SUPPORT, case 876: M876();)
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
