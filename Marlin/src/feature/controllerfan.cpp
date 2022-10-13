@@ -72,6 +72,29 @@ void ControllerFan::update() {
       ? settings.active_speed : settings.idle_speed
     );
 
+    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
+      #define CALC_FAN_SPEED (speed ? map(speed, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
+    #else
+      #define CALC_FAN_SPEED (speed ?: FAN_OFF_PWM)
+    #endif
+
+    do{
+      #if FAN_KICKSTART_TIME
+        const millis_t ms = millis();
+        static millis_t fan_kick_end = { 0 };
+        if (speed) {
+          if (fan_kick_end == 0) {
+            fan_kick_end = ms + FAN_KICKSTART_TIME;
+            fan_speed = 255;
+          }
+          else if (PENDING(ms, fan_kick_end))
+            speed = 255;
+        }
+        else
+          fan_kick_end = 0;
+
+    #endif
+
     #if ENABLED(FAN_SOFT_PWM)
       thermalManager.soft_pwm_controller_speed = speed;
     #else
@@ -80,6 +103,7 @@ void ControllerFan::update() {
       else
         WRITE(CONTROLLER_FAN_PIN, speed > 0);
     #endif
+    }while(0)
   }
 }
 
