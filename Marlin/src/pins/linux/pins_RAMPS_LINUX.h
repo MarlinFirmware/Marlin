@@ -450,6 +450,19 @@
       #ifndef TOUCH_OFFSET_Y
         #define TOUCH_OFFSET_Y                 1
       #endif
+    #elif ENABLED(TFT_RES_1024x600)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        65533
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        38399
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                 2
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                 1
+      #endif
     #endif
   #endif
 

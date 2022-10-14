@@ -1726,7 +1726,7 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK
+  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
     typedef void (*PrintProgress_t)();
     void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
       const PrintProgress_t progFunc[] = {
