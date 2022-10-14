@@ -1575,8 +1575,7 @@
     #if ENABLED(TFT_INTERFACE_LTDC)
       #define TFT_1024x600_LTDC
     #else
-      // "Simulation" - for testing purposes only
-      #define TFT_1024x600_SIM
+      #define TFT_1024x600_SIM  // "Simulation" - for testing purposes only
     #endif
   #endif
 #endif
