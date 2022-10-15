@@ -227,14 +227,14 @@ void MarlinUI::init() {
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
     #endif
-    #if BUTTON_EXISTS(DWN)
-      SET_INPUT(BTN_DWN);
+    #if BUTTON_EXISTS(DOWN)
+      SET_INPUT(BTN_DOWN);
     #endif
     #if BUTTON_EXISTS(LFT)
-      SET_INPUT(BTN_LFT);
+      SET_INPUT(BTN_LEFT);
     #endif
     #if BUTTON_EXISTS(RT)
-      SET_INPUT(BTN_RT);
+      SET_INPUT(BTN_RIGHT);
     #endif
   #endif
 
@@ -1303,7 +1303,7 @@ void MarlinUI::init() {
           //
           // Directional buttons
           //
-          #if ANY_BUTTON(UP, DWN, LFT, RT)
+          #if ANY_BUTTON(UP, DOWN, LEFT, RIGHT)
 
             const int8_t pulses = epps * encoderDirection;
 
@@ -1311,20 +1311,20 @@ void MarlinUI::init() {
               encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
               next_button_update_ms = now + 300;
             }
-            else if (BUTTON_PRESSED(DWN)) {
+            else if (BUTTON_PRESSED(DOWN)) {
               encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
               next_button_update_ms = now + 300;
             }
-            else if (BUTTON_PRESSED(LFT)) {
+            else if (BUTTON_PRESSED(LEFT)) {
               encoderDiff = -pulses;
               next_button_update_ms = now + 300;
             }
-            else if (BUTTON_PRESSED(RT)) {
+            else if (BUTTON_PRESSED(RIGHT)) {
               encoderDiff = pulses;
               next_button_update_ms = now + 300;
             }
 
-          #endif // UP || DWN || LFT || RT
+          #endif // UP || DOWN || LEFT || RIGHT
 
           buttons = (newbutton | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
             #if BOTH(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
