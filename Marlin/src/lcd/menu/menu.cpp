@@ -175,7 +175,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
-    TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
+    TERN_(SET_PROGRESS_PERCENT, progress_reset());
 
     #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;

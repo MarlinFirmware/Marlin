@@ -561,8 +561,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        case 73: M73(); break;                                    // M73: Set progress percentage (for display on LCD)
+      #if ENABLED(SET_PROGRESS_MANUALLY)
+        case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
 
       case 75: M75(); break;                                      // M75: Start print timer
@@ -600,7 +600,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 108: M108(); break;                                  // M108: Cancel Waiting
         case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)                     // M876: Handle Host prompt responses
+        #if ENABLED(HOST_PROMPT_SUPPORT)
+          case 876: M876(); break;                                // M876: Handle Host prompt responses
+        #endif
       #else
         case 108: case 112: case 410:
         TERN_(HOST_PROMPT_SUPPORT, case 876:)
@@ -791,6 +793,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_LCD_CONTRAST
         case 250: M250(); break;                                  // M250: Set LCD contrast
+      #endif
+
+      #if HAS_GCODE_M255
+        case 255: M255(); break;                                  // M255: Set LCD Sleep/Backlight Timeout (Minutes)
       #endif
 
       #if HAS_LCD_BRIGHTNESS
