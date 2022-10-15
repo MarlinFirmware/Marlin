@@ -722,7 +722,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 #if HAS_PRINT_PROGRESS
   #define TPOFFSET (LCD_WIDTH - 1)
   static uint8_t timepos = TPOFFSET - 6;
-  static char buffer[14];
+  static char buffer[8];
   static lcd_uint_t pc, pr;
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
@@ -950,7 +950,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH >= 20
 
         #if HAS_PRINT_PROGRESS
-          pc = timepos - 7, pr = 2;
+          pc = 6, pr = 2;
           rotate_progress();
         #else
           char c;

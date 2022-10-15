@@ -79,7 +79,10 @@ void GcodeSuite::M73() {
   #endif
 
   #if ENABLED(M73_REPORT)
-  {
+    #if ENABLED(M73_REPORT_SD_ONLY)
+      if(IS_SD_PRINTING)
+    #endif
+    {
     SERIAL_ECHO_MSG(
         TERN(M73_REPORT_PRUSA, "M73 Percent done: ", "Progress: ")
       , TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
@@ -91,7 +94,7 @@ void GcodeSuite::M73() {
       #endif
       , TERN(M73_REPORT_PRUSA, ";", "m")
     );
-  }
+    }
   #endif
 }
 

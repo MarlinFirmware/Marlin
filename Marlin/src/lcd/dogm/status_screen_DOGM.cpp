@@ -460,7 +460,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
-    static char remaining_string[10];
+    static char remaining_string[13];
     static u8g_uint_t remaining_x_pos = 0;
     void MarlinUI::drawRemain() {
       if (printJobOngoing()){
@@ -470,7 +470,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
-    static char interaction_string[10];
+    static char interaction_string[13];
     static u8g_uint_t interaction_x_pos = 0;
     void MarlinUI::drawInter() {
       if (printingIsActive() && interaction_string[0]) {
@@ -480,7 +480,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
-    static char elapsed_string[10];
+    static char elapsed_string[13];
     static u8g_uint_t elapsed_x_pos = 0;
     static uint8_t lastElapsed;
     void MarlinUI::drawElapsed() {
