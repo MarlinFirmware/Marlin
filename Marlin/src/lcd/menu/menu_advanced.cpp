@@ -31,6 +31,7 @@
 #include "menu_item.h"
 #include "../../MarlinCore.h"
 #include "../../module/planner.h"
+#include "../../module/stepper.h"
 
 #if DISABLED(NO_VOLUMETRICS)
   #include "../../gcode/parser.h"
@@ -79,8 +80,6 @@ void menu_backlash();
 #endif
 
 #if HAS_MOTOR_CURRENT_PWM
-
-  #include "../../module/stepper.h"
 
   void menu_pwm() {
     START_MENU();
@@ -536,6 +535,42 @@ void menu_backlash();
     END_MENU();
   }
 
+  #if ENABLED(INPUT_SHAPING) && ENABLED(SHAPING_MENU)
+    void menu_advanced_input_shaping() {
+      START_MENU();
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+      #ifdef __AVR__
+        constexpr float min_frequency = float(STEPPER_TIMER_RATE) / 2 / 0x10000;
+      #else
+        constexpr float min_frequency = 1.0f;
+      #endif
+
+      // M593 F Frequency
+      #if HAS_SHAPING_X
+        editable.decimal = Stepper::get_shaping_frequency(X_AXIS);
+        EDIT_ITEM_FAST(float61, MSG_SHAPING_X_FREQ, &editable.decimal, min_frequency, 200.0f, []{ Stepper::set_shaping_frequency(X_AXIS, editable.decimal); });
+      #endif
+      #if HAS_SHAPING_Y
+        editable.decimal = Stepper::get_shaping_frequency(Y_AXIS);
+        EDIT_ITEM_FAST(float61, MSG_SHAPING_Y_FREQ, &editable.decimal, min_frequency, 200.0f, []{ Stepper::set_shaping_frequency(Y_AXIS, editable.decimal); });
+      #endif
+
+      // M593 D Damping ratio
+      #if HAS_SHAPING_X
+        editable.decimal = Stepper::get_shaping_damping_ratio(X_AXIS);
+        EDIT_ITEM_FAST(float42_52, MSG_SHAPING_X_ZETA, &editable.decimal, 0.0f, 1.0f, []{ Stepper::set_shaping_damping_ratio(X_AXIS, editable.decimal); });
+      #endif
+      #if HAS_SHAPING_Y
+        editable.decimal = Stepper::get_shaping_damping_ratio(Y_AXIS);
+        EDIT_ITEM_FAST(float42_52, MSG_SHAPING_Y_ZETA, &editable.decimal, 0.0f, 1.0f, []{ Stepper::set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
+      #endif
+
+
+      END_MENU();
+    }
+  #endif
+
   #if HAS_CLASSIC_JERK
 
     void menu_advanced_jerk() {
@@ -644,6 +679,11 @@ void menu_advanced_settings() {
 
     // M201 - Acceleration items
     SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);
+
+    // M593 - Acceleration items
+    #if ENABLED(INPUT_SHAPING) && ENABLED(SHAPING_MENU)
+      SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
+    #endif
 
     #if HAS_CLASSIC_JERK
       // M205 - Max Jerk
