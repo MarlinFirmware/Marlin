@@ -80,6 +80,8 @@ class HostUI {
     private:
     static void prompt(FSTR_P const ptype, const bool eol=true);
     static void prompt_plus(FSTR_P const ptype, FSTR_P const fstr, const char extra_char='\0');
+    static void prompt_plus(FSTR_P const ptype, char * const str, const char extra_char='\0');
+
     static void prompt_show();
     static void _prompt_show(FSTR_P const btn1, FSTR_P const btn2);
 
@@ -97,6 +99,11 @@ class HostUI {
     static void prompt_end();
     static void prompt_do(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
     static void prompt_do(const PromptReason reason, FSTR_P const pstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+
+    static void prompt_do(const PromptReason reason, char * const str, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+    static void prompt_do(const PromptReason reason, char * const str, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+    static void prompt_begin(const PromptReason reason, char * const str, const char extra_char='\0');
+
     static void prompt_open(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
       if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
     }
