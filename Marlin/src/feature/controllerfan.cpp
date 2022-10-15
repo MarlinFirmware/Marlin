@@ -85,7 +85,7 @@ void ControllerFan::update() {
         if (speed) {
           if (fan_kick_end == 0) {
             fan_kick_end = ms + FAN_KICKSTART_TIME; // May be longer based on slow update interval for controller fn check. Sets minimum
-            fan_speed = 255;
+            speed = 255;
           }
           else if (PENDING(ms, fan_kick_end))
             speed = 255;
