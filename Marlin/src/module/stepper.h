@@ -316,52 +316,7 @@ constexpr ena_mask_t enable_overlap[] = {
 
   typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
 
-  class DelayNowTimer {
-    private:
-      static shaping_time_t now;
-    public:
-      static void decrement_delays(const shaping_time_t interval) { now += interval; }
-  };
-
-  template<int SIZE>
-  class DelayQueue : public DelayNowTimer {
-    protected:
-      shaping_time_t times[SIZE];
-      uint16_t head = 0, tail = 0;
-
-    public:
-      void enqueue(const shaping_time_t delay) {
-        times[tail] = now + delay;
-        if (++tail == SIZE) tail = 0;
-      }
-      shaping_time_t peek() {
-        if (head != tail) return times[head] - now;
-        else return shaping_time_t(-1);
-      }
-      void dequeue() { if (++head == SIZE) head = 0; }
-      void purge() { tail = head; }
-      bool empty() { return head == tail; }
-      uint16_t free_count() { return head > tail ? head - tail - 1 : head + SIZE - tail - 1; }
-  };
-
-  template<int SIZE>
-  class ParamDelayQueue : public DelayQueue<SIZE> {
-    private:
-      int32_t params[SIZE];
-
-    public:
-      void enqueue(const shaping_time_t delay, const int32_t param) {
-        params[DelayQueue<SIZE>::tail] = param;
-        DelayQueue<SIZE>::enqueue(delay);
-      }
-      const int32_t dequeue() {
-        const int32_t result = params[DelayQueue<SIZE>::head];
-        DelayQueue<SIZE>::dequeue();
-        return result;
-      }
-  };
-
-  // These constexpr are used to calculate the shaping queue buffer size
+  // These constexpr are used to calculate the shaping queue buffer sizes
   constexpr xyze_float_t max_feedrate = DEFAULT_MAX_FEEDRATE;
   constexpr xyze_float_t steps_per_unit = DEFAULT_AXIS_STEPS_PER_UNIT;
   constexpr float max_steprate = _MAX(LOGICAL_AXIS_LIST(
@@ -376,17 +331,94 @@ constexpr ena_mask_t enable_overlap[] = {
                                       max_feedrate.v * steps_per_unit.v,
                                       max_feedrate.w * steps_per_unit.w
                                     ));
-  constexpr uint16_t shaping_segments = max_steprate / (MIN_STEPS_PER_SEGMENT) / _MIN(TERN0(HAS_SHAPING_X, SHAPING_FREQ_X), TERN0(HAS_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
+  constexpr uint16_t shaping_dividends = max_steprate / _MIN(0x7FFFFFFFL OPTARG(HAS_SHAPING_X, SHAPING_FREQ_X) OPTARG(HAS_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
+  constexpr uint16_t shaping_segments = max_steprate / (MIN_STEPS_PER_SEGMENT) / _MIN(0x7FFFFFFFL OPTARG(HAS_SHAPING_X, SHAPING_FREQ_X) OPTARG(HAS_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
 
-  template<int BUF>
+  class DelayTimeManager {
+    private:
+      static shaping_time_t now;
+      #ifdef HAS_SHAPING_X
+        static shaping_time_t delay_x;
+      #endif
+      #ifdef HAS_SHAPING_Y
+        static shaping_time_t delay_y;
+      #endif
+    public:
+      static void decrement_delays(const shaping_time_t interval) { now += interval; }
+      static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
+        TERN_(HAS_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
+        TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
+      }
+  };
+
+  template<int SIZE>
+  class DelayQueue : public DelayTimeManager {
+    protected:
+      shaping_time_t times[SIZE];
+      uint16_t tail = 0 OPTARG(HAS_SHAPING_X, head_x = 0) OPTARG(HAS_SHAPING_Y, head_y = 0);
+
+    public:
+      void enqueue() {
+        times[tail] = now;
+        if (++tail == SIZE) tail = 0;
+      }
+      #ifdef HAS_SHAPING_X
+        shaping_time_t peek_x() {
+          if (head_x != tail) return times[head_x] + delay_x - now;
+          else return shaping_time_t(-1);
+        }
+        void dequeue_x() { if (++head_x == SIZE) head_x = 0; }
+        bool empty_x() { return head_x == tail; }
+        uint16_t free_count_x() { return head_x > tail ? head_x - tail - 1 : head_x + SIZE - tail - 1; }
+      #endif
+      #ifdef HAS_SHAPING_Y
+        shaping_time_t peek_y() {
+          if (head_y != tail) return times[head_y] + delay_y - now;
+          else return shaping_time_t(-1);
+        }
+        void dequeue_y() { if (++head_y == SIZE) head_y = 0; }
+        bool empty_y() { return head_y == tail; }
+        uint16_t free_count_y() { return head_y > tail ? head_y - tail - 1 : head_y + SIZE - tail - 1; }
+      #endif
+      void purge() { auto temp = TERN_(HAS_SHAPING_X, head_x) = TERN_(HAS_SHAPING_Y, head_y) = tail; UNUSED(temp);}
+  };
+
+  class ParamDelayQueue : public DelayQueue<shaping_segments> {
+    private:
+      #ifdef HAS_SHAPING_X
+        int32_t params_x[shaping_segments];
+      #endif
+      #ifdef HAS_SHAPING_Y
+        int32_t params_y[shaping_segments];
+      #endif
+
+    public:
+      void enqueue(const int32_t param_x, const int32_t param_y) {
+        TERN(HAS_SHAPING_X, params_x[DelayQueue<shaping_segments>::tail] = param_x, UNUSED(param_x));
+        TERN(HAS_SHAPING_Y, params_y[DelayQueue<shaping_segments>::tail] = param_y, UNUSED(param_y));
+        DelayQueue<shaping_segments>::enqueue();
+      }
+      #ifdef HAS_SHAPING_X
+        const int32_t dequeue_x() {
+          const int32_t result = params_x[DelayQueue<shaping_segments>::head_x];
+          DelayQueue<shaping_segments>::dequeue_x();
+          return result;
+        }
+      #endif
+      #ifdef HAS_SHAPING_Y
+        const int32_t dequeue_y() {
+          const int32_t result = params_y[DelayQueue<shaping_segments>::head_y];
+          DelayQueue<shaping_segments>::dequeue_y();
+          return result;
+        }
+      #endif
+  };
+
   struct ShapeParams {
+    float frequency;
     float zeta;
     uint8_t factor;
     int32_t dividend;
-    float frequency;
-    shaping_time_t delay;
-    DelayQueue<BUF> queue;
-    ParamDelayQueue<shaping_segments> dividend_queue;
   };
 
 #endif // INPUT_SHAPING
@@ -495,11 +527,15 @@ class Stepper {
       static bool bezier_2nd_half; // If Bézier curve has been initialized or not
     #endif
 
+    #if ENABLED(INPUT_SHAPING)
+      static ParamDelayQueue shaping_dividend_queue;
+      static DelayQueue<shaping_dividends> shaping_queue;
+    #endif
     #if HAS_SHAPING_X
-      static ShapeParams<int(max_steprate / (SHAPING_FREQ_X) / 2 + 3)> shaping_x;
+      static ShapeParams shaping_x;
     #endif
     #if HAS_SHAPING_Y
-      static ShapeParams<int(max_steprate / (SHAPING_FREQ_Y) / 2 + 3)> shaping_y;
+      static ShapeParams shaping_y;
     #endif
 
     #if ENABLED(LIN_ADVANCE)
