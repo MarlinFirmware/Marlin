@@ -176,7 +176,6 @@
 // Misc
 //
 #define BEEPER_PIN                          PA8
-#define SPEAKER                                   // Buzzer passive
 
 //#define LED_PIN                           PG10
 #define PS_ON_PIN                           PG10  // Temporarily switch the machine with LED simulation
@@ -190,7 +189,7 @@
 
 
 #if ENABLED TFT_TRONXY_X5SA
-  #error TFT_TRONXY_X5SA is not supported (yet)
+  #error TFT_TRONXY_X5SA is not yet supported.
 #endif
 
 
