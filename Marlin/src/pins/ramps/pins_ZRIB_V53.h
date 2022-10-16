@@ -62,10 +62,10 @@
 // Servos / XS3 Connector
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                          11  // Analog Output
+  #define SERVO0_PIN                          65 // A11 Analog Output
 #endif
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN                          12  // Analog Output
+  #define SERVO1_PIN                          66 // A12 Analog Output 
 #endif
 
 //
