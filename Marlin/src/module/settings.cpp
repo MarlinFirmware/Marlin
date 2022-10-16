@@ -603,8 +603,6 @@ void MarlinSettings::postprocess() {
   // planner position so the stepper counts will be set correctly.
   TERN_(DELTA, recalc_delta_settings());
 
-  TERN_(POLARGRAPH, refresh_polargraph_size());
-
   TERN_(PIDTEMP, thermalManager.updatePID());
 
   #if DISABLED(NO_VOLUMETRICS)
