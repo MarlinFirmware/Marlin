@@ -238,6 +238,7 @@ namespace Language_fr {
   LSTR MSG_MOVE_01MM                      = _UxGT("Déplacer 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Déplacer 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Déplacer 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Déplacer 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Déplacer 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Déplacer 0.001\"");
   LSTR MSG_MOVE_001IN                     = _UxGT("Déplacer 0.01\"");

@@ -264,6 +264,7 @@ namespace Language_hu {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mozgás 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mozgás 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mozgás 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mozgás 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mozgás 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Mozgás 0.025mm");
   LSTR MSG_MOVE_001IN                     = _UxGT("Mozgás 0.254mm");
