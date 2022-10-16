@@ -1434,7 +1434,7 @@
 
 #endif // HAS_DISPLAY || DWIN_LCD_PROUI
 
-// Add the G-code 'M73' to set / report the current job progress. Until M73 P/R is sent display Marlin's built-in estimate.
+// Add the G-code 'M73' to set current job progress.
 //#define SET_PROGRESS_MANUALLY
 #if ENABLED(SET_PROGRESS_MANUALLY)
   #define SET_PROGRESS_PERCENT            // Add 'P' parameter to set percentage done
@@ -1446,7 +1446,7 @@
   #endif
 #endif
 
-// LCD Print Progress options, multiple can be rotated depending on screen layout
+// LCD Print Progress options, multiple can be rotated depending on screen layout. Until M73 P/R is sent, display Marlin's built-in estimate.
 #if HAS_DISPLAY && EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
   #define SHOW_PROGRESS_PERCENT           // Show print progress percentage (doesn't affect progress bar)
   #define SHOW_ELAPSED_TIME               // Display elapsed printing time (prefix 'E')
