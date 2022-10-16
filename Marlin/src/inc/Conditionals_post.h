@@ -155,7 +155,7 @@
   #define W_BED_SIZE W_MAX_LENGTH
 #endif
 
-// Require 0,0 bed center for Delta and SCARA
+// Require 0,0 bed center for Delta, SCARA, and Polargraph
 #if IS_KINEMATIC
   #define BED_CENTER_AT_0_0
 #endif

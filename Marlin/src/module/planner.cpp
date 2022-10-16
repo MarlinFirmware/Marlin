@@ -2244,7 +2244,6 @@ bool Planner::_populate_block(
 
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
-
   #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
