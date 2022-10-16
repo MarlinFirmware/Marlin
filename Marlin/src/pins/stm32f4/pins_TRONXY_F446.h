@@ -188,61 +188,67 @@
 #endif
 //#define POWER_LM393_PIN                   PE0   // +V for the LM393 comparator, configured as output high
 
-//
-// TFT with FSMC interface
-//
-#if HAS_FSMC_TFT
-  #define TFT_RESET_PIN                     PB12
-  #define TFT_BACKLIGHT_PIN                 PG8
 
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define TFT_CS_PIN                        PG12
-  #define TFT_RS_PIN                        PG2
-
-  //#define TFT_WIDTH                        480
-  //#define TFT_HEIGHT                       320
-  //#define TFT_PIXEL_OFFSET_X                48
-  //#define TFT_PIXEL_OFFSET_Y                32
-  //#define TFT_DRIVER                   ILI9488
-  //#define TFT_BUFFER_SIZE                14400
-
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PD11  // SPI1_NSS
-    #define TOUCH_SCK_PIN                   PB13  // SPI1_SCK
-    #define TOUCH_MISO_PIN                  PB14  // SPI1_MISO
-    #define TOUCH_MOSI_PIN                  PB15  // SPI1_MOSI
-  #endif
-
-  #if (LCD_CHIP_INDEX == 1 && (TRONXY_UI == 1 || TRONXY_UI == 2)) || LCD_CHIP_INDEX == 3
-    #define TOUCH_CALIBRATION_X           -17181
-    #define TOUCH_CALIBRATION_Y            11434
-    #define TOUCH_OFFSET_X                   501
-    #define TOUCH_OFFSET_Y                    -9
-  #elif LCD_CHIP_INDEX == 1 && TRONXY_UI == 4
-    #define TOUCH_CALIBRATION_X            11166
-    #define TOUCH_CALIBRATION_Y            17162
-    #define TOUCH_OFFSET_X                   -10
-    #define TOUCH_OFFSET_Y                   -16
-  #elif LCD_CHIP_INDEX == 4 && TRONXY_UI == 3
-    //#define TOUCH_CALIBRATION_X           8781
-    //#define TOUCH_CALIBRATION_Y          11773
-    //#define TOUCH_OFFSET_X                 -17
-    //#define TOUCH_OFFSET_Y                 -16
-    //倒过来
-    #define TOUCH_CALIBRATION_X            -8553
-    #define TOUCH_CALIBRATION_Y           -11667
-    #define TOUCH_OFFSET_X                   253
-    #define TOUCH_OFFSET_Y                   331
-  #elif LCD_CHIP_INDEX == 2
-    #define TOUCH_CALIBRATION_X            17184
-    #define TOUCH_CALIBRATION_Y            10604
-    #define TOUCH_OFFSET_X                   -31
-    #define TOUCH_OFFSET_Y                   -29
-  #endif
+#if ENABLED TFT_TRONXY_X5SA
+  #error TFT_TRONXY_X5SA is not supported (yet)
 #endif
+
+
+// //
+// // TFT with FSMC interface
+// //
+// #if HAS_FSMC_TFT
+//   #define TFT_RESET_PIN                     PB12
+//   #define TFT_BACKLIGHT_PIN                 PG8
+
+//   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+//   #define FSMC_DMA_DEV                      DMA2
+//   #define FSMC_DMA_CHANNEL               DMA_CH5
+
+//   #define TFT_CS_PIN                        PG12
+//   #define TFT_RS_PIN                        PG2
+
+//   //#define TFT_WIDTH                        480
+//   //#define TFT_HEIGHT                       320
+//   //#define TFT_PIXEL_OFFSET_X                48
+//   //#define TFT_PIXEL_OFFSET_Y                32
+//   //#define TFT_DRIVER                   ILI9488
+//   //#define TFT_BUFFER_SIZE                14400
+
+//   #if NEED_TOUCH_PINS
+//     #define TOUCH_CS_PIN                    PD11  // SPI1_NSS
+//     #define TOUCH_SCK_PIN                   PB13  // SPI1_SCK
+//     #define TOUCH_MISO_PIN                  PB14  // SPI1_MISO
+//     #define TOUCH_MOSI_PIN                  PB15  // SPI1_MOSI
+//   #endif
+
+//   #if (LCD_CHIP_INDEX == 1 && (TRONXY_UI == 1 || TRONXY_UI == 2)) || LCD_CHIP_INDEX == 3
+//     #define TOUCH_CALIBRATION_X           -17181
+//     #define TOUCH_CALIBRATION_Y            11434
+//     #define TOUCH_OFFSET_X                   501
+//     #define TOUCH_OFFSET_Y                    -9
+//   #elif LCD_CHIP_INDEX == 1 && TRONXY_UI == 4
+//     #define TOUCH_CALIBRATION_X            11166
+//     #define TOUCH_CALIBRATION_Y            17162
+//     #define TOUCH_OFFSET_X                   -10
+//     #define TOUCH_OFFSET_Y                   -16
+//   #elif LCD_CHIP_INDEX == 4 && TRONXY_UI == 3
+//     //#define TOUCH_CALIBRATION_X           8781
+//     //#define TOUCH_CALIBRATION_Y          11773
+//     //#define TOUCH_OFFSET_X                 -17
+//     //#define TOUCH_OFFSET_Y                 -16
+//     //倒过来
+//     #define TOUCH_CALIBRATION_X            -8553
+//     #define TOUCH_CALIBRATION_Y           -11667
+//     #define TOUCH_OFFSET_X                   253
+//     #define TOUCH_OFFSET_Y                   331
+//   #elif LCD_CHIP_INDEX == 2
+//     #define TOUCH_CALIBRATION_X            17184
+//     #define TOUCH_CALIBRATION_Y            10604
+//     #define TOUCH_OFFSET_X                   -31
+//     #define TOUCH_OFFSET_Y                   -29
+//   #endif
+// #endif
 
 //
 // SD Card
