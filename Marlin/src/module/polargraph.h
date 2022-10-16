@@ -34,3 +34,4 @@ extern xy_float_t draw_area_size;
 extern float polargraph_max_belt_len;
 
 void inverse_kinematics(const xyz_pos_t &raw);
+void refresh_polargraph_size();
