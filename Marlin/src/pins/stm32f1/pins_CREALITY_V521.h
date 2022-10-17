@@ -67,7 +67,7 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PD10
+#define X_STOP_PIN                          PD10  // X
 #define X2_STOP_PIN                         PE15  // X2
 #define Y_STOP_PIN                          PE0   // Y
 #define Z_STOP_PIN                          PE1   // Z

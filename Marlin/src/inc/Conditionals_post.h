@@ -861,7 +861,12 @@
         #define X2_MAX_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(X2_MAX_PIN) && !defined(X2_STOP_PIN)
+    #if PIN_EXISTS(X2_STOP) && !PIN_EXISTS(X2_MAX)
+      #undef X2_MAX_PIN
+      #define X2_MAX_PIN X2_STOP_PIN
+    #endif
+    #if !ANY_PIN(X2_MAX, X2_STOP)
+      #undef X2_MAX_PIN
       #if X2_USE_ENDSTOP == _XMIN_
         #define X2_MAX_PIN X_MIN_PIN
       #elif X2_USE_ENDSTOP == _XMAX_
@@ -925,7 +930,12 @@
         #define X2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(X2_MIN_PIN) && !defined(X2_STOP_PIN)
+    #if PIN_EXISTS(X2_STOP) && !PIN_EXISTS(X2_MIN)
+      #undef X2_MIN_PIN
+      #define X2_MIN_PIN X2_STOP_PIN
+    #endif
+    #if !ANY_PIN(X2_MIN, X2_STOP)
+      #undef X2_MIN_PIN
       #if X2_USE_ENDSTOP == _XMIN_
         #define X2_MIN_PIN X_MIN_PIN
       #elif X2_USE_ENDSTOP == _XMAX_
@@ -996,7 +1006,12 @@
         #define Y2_MAX_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(Y2_MAX_PIN) && !defined(Y2_STOP_PIN)
+    #if PIN_EXISTS(Y2_STOP) && !PIN_EXISTS(Y2_MAX)
+      #undef Y2_MAX_PIN
+      #define Y2_MAX_PIN Y2_STOP_PIN
+    #endif
+    #if !ANY_PIN(Y2_MAX, Y2_STOP)
+      #undef Y2_MAX_PIN
       #if Y2_USE_ENDSTOP == _XMIN_
         #define Y2_MAX_PIN X_MIN_PIN
       #elif Y2_USE_ENDSTOP == _XMAX_
@@ -1060,7 +1075,12 @@
         #define Y2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(Y2_MIN_PIN) && !defined(Y2_STOP_PIN)
+    #if PIN_EXISTS(Y2_STOP) && !PIN_EXISTS(Y2_MIN)
+      #undef Y2_MIN_PIN
+      #define Y2_MIN_PIN Y2_STOP_PIN
+    #endif
+    #if !ANY_PIN(Y2_MIN, Y2_STOP)
+      #undef Y2_MIN_PIN
       #if Y2_USE_ENDSTOP == _XMIN_
         #define Y2_MIN_PIN X_MIN_PIN
       #elif Y2_USE_ENDSTOP == _XMAX_
@@ -1132,7 +1152,12 @@
         #define Z2_MAX_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(Z2_MAX_PIN) && !defined(Z2_STOP_PIN)
+    #if PIN_EXISTS(Z2_STOP) && !PIN_EXISTS(Z2_MAX)
+      #undef Z2_MAX_PIN
+      #define Z2_MAX_PIN Z2_STOP_PIN
+    #endif
+    #if !ANY_PIN(Z2_MAX, Z2_STOP)
+      #undef Z2_MAX_PIN
       #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MAX_PIN X_MIN_PIN
       #elif Z2_USE_ENDSTOP == _XMAX_
@@ -1196,7 +1221,12 @@
         #define Z2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
-    #ifndef Z2_MIN_PIN
+    #if PIN_EXISTS(Z2_STOP) && !PIN_EXISTS(Z2_MIN)
+      #undef Z2_MIN_PIN
+      #define Z2_MIN_PIN Z2_STOP_PIN
+    #endif
+    #if !ANY_PIN(Z2_MIN, Z2_STOP)
+      #undef Z2_MIN_PIN
       #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MIN_PIN X_MIN_PIN
       #elif Z2_USE_ENDSTOP == _XMAX_
@@ -1263,7 +1293,12 @@
           #define Z3_MAX_ENDSTOP_INVERTING false
         #endif
       #endif
-      #ifndef Z3_MAX_PIN
+      #if PIN_EXISTS(Z3_STOP) && !PIN_EXISTS(Z3_MAX)
+        #undef Z3_MAX_PIN
+        #define Z3_MAX_PIN Z3_STOP_PIN
+      #endif
+      #if !ANY_PIN(Z3_MAX, Z3_STOP)
+        #undef Z3_MAX_PIN
         #if Z3_USE_ENDSTOP == _XMIN_
           #define Z3_MAX_PIN X_MIN_PIN
         #elif Z3_USE_ENDSTOP == _XMAX_
@@ -1327,7 +1362,12 @@
           #define Z3_MIN_ENDSTOP_INVERTING false
         #endif
       #endif
-      #ifndef Z3_MIN_PIN
+      #if PIN_EXISTS(Z3_STOP) && !PIN_EXISTS(Z3_MIN)
+        #undef Z3_MIN_PIN
+        #define Z3_MIN_PIN Z3_STOP_PIN
+      #endif
+      #if !ANY_PIN(Z3_MIN, Z3_STOP)
+        #undef Z3_MIN_PIN
         #if Z3_USE_ENDSTOP == _XMIN_
           #define Z3_MIN_PIN X_MIN_PIN
         #elif Z3_USE_ENDSTOP == _XMAX_
@@ -1395,7 +1435,12 @@
           #define Z4_MAX_ENDSTOP_INVERTING false
         #endif
       #endif
-      #ifndef Z4_MAX_PIN
+      #if PIN_EXISTS(Z4_STOP) && !PIN_EXISTS(Z4_MAX)
+        #undef Z4_MAX_PIN
+        #define Z4_MAX_PIN Z4_STOP_PIN
+      #endif
+      #if !ANY_PIN(Z4_MAX, Z4_STOP)
+        #undef Z4_MAX_PIN
         #if Z4_USE_ENDSTOP == _XMIN_
           #define Z4_MAX_PIN X_MIN_PIN
         #elif Z4_USE_ENDSTOP == _XMAX_
@@ -1459,7 +1504,12 @@
           #define Z4_MIN_ENDSTOP_INVERTING false
         #endif
       #endif
-      #ifndef Z4_MIN_PIN
+      #if PIN_EXISTS(Z4_STOP) && !PIN_EXISTS(Z4_MIN)
+        #undef Z4_MIN_PIN
+        #define Z4_MIN_PIN Z4_STOP_PIN
+      #endif
+      #if !ANY_PIN(Z4_MIN, Z4_STOP)
+        #undef Z4_MIN_PIN
         #if Z4_USE_ENDSTOP == _XMIN_
           #define Z4_MIN_PIN X_MIN_PIN
         #elif Z4_USE_ENDSTOP == _XMAX_
