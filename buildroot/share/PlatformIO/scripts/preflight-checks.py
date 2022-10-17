@@ -60,10 +60,10 @@ if pioutil.is_pio_build():
             raise SystemExit("Error: Marlin requires PlatformIO >= 6.1.1. Use 'pio upgrade' to get a newer version.")
 
         if 'MARLIN_FEATURES' not in env:
-            raise SystemExit("Error: this script should be used after common Marlin scripts")
+            raise SystemExit("Error: this script should be used after common Marlin scripts.")
 
-        if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
-            raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
+        if len(env['MARLIN_FEATURES']) == 0:
+            raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']

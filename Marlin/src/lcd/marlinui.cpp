@@ -79,10 +79,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  MarlinUI::progress_t MarlinUI::progress_override; // = 0
-  #if ENABLED(USE_M73_REMAINING_TIME)
+#if ENABLED(SET_PROGRESS_MANUALLY)
+  #if ENABLED(SET_PROGRESS_PERCENT)
+    MarlinUI::progress_t MarlinUI::progress_override; // = 0
+  #endif
+  #if ENABLED(SET_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
+  #endif
+  #if ENABLED(SET_INTERACTION_TIME)
+    uint32_t MarlinUI::interaction_time;
   #endif
 #endif
 
@@ -153,7 +158,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   bool MarlinUI::lcd_clicked;
 #endif
 
-#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+#if LCD_WITH_BLINK
 
   bool MarlinUI::get_blink() {
     static uint8_t blink = 0;
@@ -191,11 +196,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::screen_timeout_millis = 0;
-  void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-    sleep_display(false);
-  }
-
+  #if DISABLED(TFT_COLOR_UI)
+    void MarlinUI::refresh_screen_timeout() {
+      screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
+      sleep_display(false);
+    }
+  #endif
 #endif
 
 void MarlinUI::init() {
@@ -1065,7 +1071,7 @@ void MarlinUI::init() {
 
           #if LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
-          #elif HAS_DISPLAY_SLEEP
+          #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
             refresh_screen_timeout();
           #endif
 
@@ -1178,9 +1184,9 @@ void MarlinUI::init() {
           WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           backlight_off_ms = 0;
         }
-      #elif HAS_DISPLAY_SLEEP
+      #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
-          sleep_display();
+          sleep_display(true);
       #endif
 
       // Change state of drawing flag between screen updates
@@ -1676,19 +1682,6 @@ void MarlinUI::init() {
     print_job_timer.start(); // Also called by M24
   }
 
-  #if HAS_PRINT_PROGRESS
-
-    MarlinUI::progress_t MarlinUI::_get_progress() {
-      return (
-        TERN0(LCD_SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
-        #if ENABLED(SDSUPPORT)
-          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
-        #endif
-      );
-    }
-
-  #endif
-
   #if HAS_TOUCH_BUTTONS
 
     //
@@ -1721,6 +1714,38 @@ void MarlinUI::init() {
   #endif
 
 #endif // HAS_DISPLAY
+
+#if HAS_PRINT_PROGRESS
+
+  MarlinUI::progress_t MarlinUI::_get_progress() {
+    return (
+      TERN0(SET_PROGRESS_PERCENT, (progress_override & PROGRESS_MASK))
+      #if ENABLED(SDSUPPORT)
+        ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
+      #endif
+    );
+  }
+
+  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
+    typedef void (*PrintProgress_t)();
+    void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
+      const PrintProgress_t progFunc[] = {
+        OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
+        OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
+        OPTITEM(SHOW_REMAINING_TIME, drawRemain)
+        OPTITEM(SHOW_INTERACTION_TIME, drawInter)
+      };
+      static bool prev_blink;
+      static uint8_t i;
+      if (prev_blink != get_blink()) {
+        prev_blink = get_blink();
+        if (++i >= COUNT(progFunc)) i = 0;
+        (*progFunc[i])();
+      }
+    }
+  #endif
+
+#endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(SDSUPPORT)
 

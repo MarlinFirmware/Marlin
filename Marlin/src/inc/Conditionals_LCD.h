@@ -529,10 +529,6 @@
   #define HAS_MANUAL_MOVE_MENU 1
 #endif
 
-#if ANY(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, IS_DWIN_MARLINUI, DWIN_CREALITY_LCD_JYERSUI)
-  #define CAN_SHOW_REMAINING_TIME 1
-#endif
-
 #if HAS_MARLINUI_U8GLIB
   #ifndef LCD_PIXEL_WIDTH
     #define LCD_PIXEL_WIDTH 128
@@ -994,7 +990,7 @@
  *  with shared motion and temperature settings.
  *
  * DISTINCT_E is the number of distinguished extruders. By default this
- *  well be 1 which indicates all extruders share the same settings.
+ *  will be 1 which indicates all extruders share the same settings.
  *
  * E_INDEX_N(E) should be used to get the E index of any item that might be
  *  distinguished.
@@ -1500,7 +1496,7 @@
   #endif
 #elif ENABLED(TFT_GENERIC)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
-  #if NONE(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320)
+  #if NONE(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, TFT_RES_1024x600)
     #define TFT_RES_320x240
   #endif
   #if NONE(TFT_INTERFACE_FSMC, TFT_INTERFACE_SPI)
@@ -1578,6 +1574,8 @@
   #elif TFT_HEIGHT == 600
     #if ENABLED(TFT_INTERFACE_LTDC)
       #define TFT_1024x600_LTDC
+    #else
+      #define TFT_1024x600_SIM  // "Simulation" - for testing purposes only
     #endif
   #endif
 #endif
@@ -1588,7 +1586,7 @@
   #define HAS_UI_480x320 1
 #elif EITHER(TFT_480x272, TFT_480x272_SPI)
   #define HAS_UI_480x272 1
-#elif defined(TFT_1024x600_LTDC)
+#elif EITHER(TFT_1024x600_LTDC, TFT_1024x600_SIM)
   #define HAS_UI_1024x600 1
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)

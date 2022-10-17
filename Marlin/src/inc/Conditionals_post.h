@@ -155,7 +155,7 @@
   #define W_BED_SIZE W_MAX_LENGTH
 #endif
 
-// Require 0,0 bed center for Delta and SCARA
+// Require 0,0 bed center for Delta, SCARA, and Polargraph
 #if IS_KINEMATIC
   #define BED_CENTER_AT_0_0
 #endif
@@ -2744,7 +2744,7 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
-#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && !TEMP_SENSOR_IS_MAX_TC(P) && !TEMP_SENSOR_##P##_IS_DUMMY)
+#define HAS_ADC_TEST(P) (TEMP_SENSOR(P) && PIN_EXISTS(TEMP_##P) && !TEMP_SENSOR_IS_MAX_TC(P) && !TEMP_SENSOR_##P##_IS_DUMMY)
 #if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
