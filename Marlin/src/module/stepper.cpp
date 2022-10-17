@@ -1639,8 +1639,8 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING)
         shaping_dividend_queue.purge();
         shaping_queue.purge();
-        TERN_(INPUT_SHAPING_X, delta_error.x = 0);
-        TERN_(INPUT_SHAPING_Y, delta_error.y = 0);
+        TERN_(HAS_SHAPING_X, delta_error.x = 0);
+        TERN_(HAS_SHAPING_Y, delta_error.y = 0);
       #endif
     }
   }
