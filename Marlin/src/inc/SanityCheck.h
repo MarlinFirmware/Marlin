@@ -1128,10 +1128,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
 #endif
 
-#if ENABLED(DELTA) && ANY(X_HOME_TO_MIN, Y_HOME_TO_MIN, Z_HOME_TO_MIN)
-  #error "DELTA kinematics require homing "XYZ" axes to MAX. Set [XYZ]_HOME_DIR to 1."
-#endif
-
 /**
  * Sanity checking for all Průša MMU
  */
@@ -1643,7 +1639,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Delta requirements
  */
 #if ENABLED(DELTA)
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
+  #if ANY(X_HOME_TO_MIN, Y_HOME_TO_MIN, Z_HOME_TO_MIN)
+    #error "DELTA kinematics require homing "XYZ" axes to MAX. Set [XYZ]_HOME_DIR to 1."
+  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
   #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || HAS_MARLINUI_MENU)
     #error "DELTA_AUTO_CALIBRATION requires a probe or LCD Controller."
