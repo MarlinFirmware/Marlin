@@ -100,38 +100,31 @@
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
 
-#ifdef SKR_MINI_E3_V2
-  #define FAN_PIN                           PC6
-#else
+#ifndef FAN_PIN
   #define FAN_PIN                           PA8   // "FAN0"
 #endif
 
 //
 // USB connect control
 //
-#ifdef SKR_MINI_E3_V2
-  #define USB_CONNECT_PIN                   PA14
-#else
+#ifndef USB_CONNECT_PIN
   #define USB_CONNECT_PIN                   PC13
 #endif
 
 #define USB_CONNECT_INVERTING              false
 
 /**
- *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
- *                ------                                    ------
- * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)    (BEEPER)  PB5  | 1  2 | PA15 (BTN_ENC)
- * (BTN_EN1) PA9  | 3  4 | RESET            (BTN_EN1) PA9  | 3  4 | RESET
- * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)    (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
- * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)    (LCD_RS)  PB8  | 7  8 | PB15 (LCD_EN)
- *            GND | 9 10 | 5V                          GND | 9 10 | 5V
- *                ------                                    ------
- *                 EXP1                                      EXP1
+ *        SKR Mini E3 V1.0, V1.2
+ *                ------
+ * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
+ *            GND | 9 10 | 5V
+ *                ------
+ *                 EXP1
  */
-#ifdef SKR_MINI_E3_V2
-  #define EXP1_02_PIN                       PA15
-  #define EXP1_08_PIN                       PB15
-#else
+#ifndef EXP1_02_PIN
   #define EXP1_02_PIN                       PB6
   #define EXP1_08_PIN                       PB7
 #endif
