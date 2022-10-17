@@ -236,15 +236,14 @@ uint32_t Stepper::advance_divisor = 0,
   shaping_time_t                DelayTimeManager::now = 0;
   ParamDelayQueue               Stepper::shaping_dividend_queue;
   DelayQueue<shaping_dividends> Stepper::shaping_queue;
-#endif
-
-#if HAS_SHAPING_X
-  shaping_time_t DelayTimeManager::delay_x;
-  ShapeParams Stepper::shaping_x;
-#endif
-#if HAS_SHAPING_Y
-  shaping_time_t DelayTimeManager::delay_y;
-  ShapeParams Stepper::shaping_y;
+  #if HAS_SHAPING_X
+    shaping_time_t DelayTimeManager::delay_x;
+    ShapeParams Stepper::shaping_x;
+  #endif
+  #if HAS_SHAPING_Y
+    shaping_time_t DelayTimeManager::delay_y;
+    ShapeParams Stepper::shaping_y;
+  #endif
 #endif
 
 #if ENABLED(INTEGRATED_BABYSTEPPING)
@@ -1971,26 +1970,27 @@ void Stepper::pulse_phase_isr() {
   void Stepper::shaping_isr() {
     xyze_bool_t step_needed{0};
 
-    // echo step behaviour
-    const bool shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x());
+    const bool shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x()),
+               shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
+
     #if HAS_SHAPING_X
       if (!shaping_dividend_queue.peek_x()) shaping_x.dividend = shaping_dividend_queue.dequeue_x();
+    #endif
+    #if HAS_SHAPING_Y
+      if (!shaping_dividend_queue.peek_y()) shaping_y.dividend = shaping_dividend_queue.dequeue_y();
+    #endif
 
+    #if HAS_SHAPING_X
       if (shapex) {
         shaping_queue.dequeue_x();
-
         PULSE_PREP_SHAPING(X, shaping_x.dividend);
         PULSE_START(X);
       }
     #endif
 
-    const bool shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
     #if HAS_SHAPING_Y
-      if (!shaping_dividend_queue.peek_y()) shaping_y.dividend = shaping_dividend_queue.dequeue_y();
-
       if (shapey) {
         shaping_queue.dequeue_y();
-
         PULSE_PREP_SHAPING(Y, shaping_y.dividend);
         PULSE_START(Y);
       }
@@ -2004,7 +2004,6 @@ void Stepper::pulse_phase_isr() {
         START_TIMED_PULSE();
         AWAIT_HIGH_PULSE();
       #endif
-
       #if HAS_SHAPING_X
         if (shapex) PULSE_STOP(X);
       #endif
@@ -3225,7 +3224,7 @@ void Stepper::report_positions() {
 
   #if EXTRA_CYCLES_BABYSTEP > 20
     #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(MF_TIMER_PULSE)
-    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(MF_TIMER_PULSE) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
+    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > uint32_t(HAL_timer_get_count(MF_TIMER_PULSE) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START() NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0

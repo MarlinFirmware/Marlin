@@ -530,12 +530,12 @@ class Stepper {
     #if ENABLED(INPUT_SHAPING)
       static ParamDelayQueue shaping_dividend_queue;
       static DelayQueue<shaping_dividends> shaping_queue;
-    #endif
-    #if HAS_SHAPING_X
-      static ShapeParams shaping_x;
-    #endif
-    #if HAS_SHAPING_Y
-      static ShapeParams shaping_y;
+      #if HAS_SHAPING_X
+        static ShapeParams shaping_x;
+      #endif
+      #if HAS_SHAPING_Y
+        static ShapeParams shaping_y;
+      #endif
     #endif
 
     #if ENABLED(LIN_ADVANCE)
