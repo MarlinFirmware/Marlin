@@ -1059,7 +1059,9 @@
  * This option uses a lot of SRAM for the step buffer, which is proportional
  * to the largest step rate possible for any axis. If the build fails due to
  * low SRAM the buffer size may be reduced by setting smaller values for
- * DEFAULT_AXIS_STEPS_PER_UNIT and/or DEFAULT_MAX_FEEDRATE.
+ * DEFAULT_AXIS_STEPS_PER_UNIT and/or DEFAULT_MAX_FEEDRATE. Runtime editing
+ * of max feedrate (M203) or resonant frequency (M593) may result feedrate
+ * being capped to prevent buffer overruns.
  *
  * Tune with M593 D<factor> F<frequency>:
  *

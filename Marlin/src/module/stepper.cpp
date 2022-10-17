@@ -1480,7 +1480,7 @@ void Stepper::isr() {
     hal.isr_on();
 
     #if ENABLED(INPUT_SHAPING)
-      // If any of the input shaping queues are full, then there may have to be a print stutter
+      // Speed limiting should ensure the buffers never get full. But if somehow they do, stutter rather than overflow.
       if (!nextMainISR) {
         TERN_(HAS_SHAPING_X, if (shaping_dividend_queue.free_count_x() == 0) nextMainISR = shaping_dividend_queue.peek_x() + 1);
         TERN_(HAS_SHAPING_Y, if (shaping_dividend_queue.free_count_y() == 0) NOLESS(nextMainISR, shaping_dividend_queue.peek_y() + 1));
