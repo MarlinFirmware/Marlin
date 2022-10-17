@@ -30,6 +30,7 @@
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 #include "../lcd/marlinui.h"
+#include "../gcode/gcode.h"
 
 #include "temperature.h"
 #include "endstops.h"
@@ -61,10 +62,6 @@
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../feature/host_actions.h"
-#endif
-
-#if EITHER(HAS_TEMP_SENSOR, LASER_FEATURE)
-  #include "../gcode/gcode.h"
 #endif
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
