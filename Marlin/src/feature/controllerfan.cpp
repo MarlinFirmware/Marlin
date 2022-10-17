@@ -80,31 +80,29 @@ void ControllerFan::update() {
       #endif
     );
 
-    do{
-      #if FAN_KICKSTART_TIME
-        const millis_t ms = millis();
-        static millis_t fan_kick_end = { 0 };
-        if (speed) {
-          if (fan_kick_end == 0) {
-            fan_kick_end = ms + FAN_KICKSTART_TIME; // May be longer based on slow update interval for controller fn check. Sets minimum
-            speed = 255;
-          }
-          else if (PENDING(ms, fan_kick_end))
-            speed = 255;
+    #if FAN_KICKSTART_TIME
+      ms = millis();
+      static millis_t fan_kick_end = { 0 };
+      if (speed) {
+        if (fan_kick_end == 0) {
+          fan_kick_end = ms + FAN_KICKSTART_TIME; // May be longer based on slow update interval for controller fn check. Sets minimum
+          speed = 255;
         }
-        else
-          fan_kick_end = 0;
-      #endif
+        else if (PENDING(ms, fan_kick_end))
+          speed = 255;
+      }
+      else
+        fan_kick_end = 0;
+    #endif
 
-      #if ENABLED(FAN_SOFT_PWM)
-        thermalManager.soft_pwm_controller_speed = speed;
-      #else
-        if (PWM_PIN(CONTROLLER_FAN_PIN))
-          hal.set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);
-        else
-          WRITE(CONTROLLER_FAN_PIN, speed > 0);
-      #endif
-    }while(0);
+    #if ENABLED(FAN_SOFT_PWM)
+      thermalManager.soft_pwm_controller_speed = speed;
+    #else
+      if (PWM_PIN(CONTROLLER_FAN_PIN))
+        hal.set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);
+      else
+        WRITE(CONTROLLER_FAN_PIN, speed > 0);
+    #endif
   }
 }
 
