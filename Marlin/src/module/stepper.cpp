@@ -1525,7 +1525,7 @@ void Stepper::isr() {
       uint32_t(HAL_TIMER_TYPE_MAX),                           // Come back in a very long time
       nextMainISR                                             // Time until the next Pulse / Block phase
       OPTARG(HAS_SHAPING_X, shaping_dividend_queue.peek_x())  // Time until next input shaping dividend change for X
-      OPTARG(HAS_SHAPING_X, shaping_dividend_queue.peek_y())  // Time until next input shaping dividend change for Y
+      OPTARG(HAS_SHAPING_Y, shaping_dividend_queue.peek_y())  // Time until next input shaping dividend change for Y
       OPTARG(HAS_SHAPING_X, shaping_queue.peek_x())           // Time until next input shaping echo for X
       OPTARG(HAS_SHAPING_Y, shaping_queue.peek_y())           // Time until next input shaping echo for Y
       OPTARG(LIN_ADVANCE, nextAdvanceISR)                     // Come back early for Linear Advance?
@@ -1637,10 +1637,12 @@ void Stepper::pulse_phase_isr() {
     abort_current_block = false;
     if (current_block) {
       discard_current_block();
-      TERN_(INPUT_SHAPING_X, shaping_dividend_queue.purge());
-      TERN_(INPUT_SHAPING_X, shaping_queue.purge());
-      TERN_(INPUT_SHAPING_X, delta_error.x = 0);
-      TERN_(INPUT_SHAPING_Y, delta_error.y = 0);
+      #if ENABLED(INPUT_SHAPING)
+        shaping_dividend_queue.purge();
+        shaping_queue.purge();
+        TERN_(INPUT_SHAPING_X, delta_error.x = 0);
+        TERN_(INPUT_SHAPING_Y, delta_error.y = 0);
+      #endif
     }
   }
 
@@ -3007,8 +3009,8 @@ void Stepper::init() {
   }
 
   void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
-    TERN_(HAS_SHAPING_X, if (axis == X_AXIS) { DelayTimeManager::set_delay(axis, uint32_t(STEPPER_TIMER_RATE) / freq / 2); shaping_x.frequency = freq; })
-    TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) { DelayTimeManager::set_delay(axis, uint32_t(STEPPER_TIMER_RATE) / freq / 2); shaping_y.frequency = freq; })
+    TERN_(HAS_SHAPING_X, if (axis == X_AXIS) { DelayTimeManager::set_delay(axis, float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq); shaping_x.frequency = freq; })
+    TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) { DelayTimeManager::set_delay(axis, float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq); shaping_y.frequency = freq; })
   }
 
   float Stepper::get_shaping_frequency(const AxisEnum axis) {
