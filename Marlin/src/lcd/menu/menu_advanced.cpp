@@ -222,10 +222,10 @@ void menu_backlash();
   void apply_PID_p(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.set_Ki(raw_Ki); break;
+        case H_BED: thermalManager.temp_bed.pid.set_Kp(raw_Kp); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
-        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Ki(raw_Ki); break;
+        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Kp(raw_Kp); break;
       #endif
       default:
         #if ENABLED(PIDTEMP)
