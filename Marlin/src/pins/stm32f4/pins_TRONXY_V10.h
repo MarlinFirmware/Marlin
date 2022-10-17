@@ -156,19 +156,19 @@
 #define FAN2_PIN                            PG9   // FAN2
 #define FAN3_PIN                            PF10  // FAN3
 #define CONTROLLER_FAN_PIN                  PD7   // BOARD FAN
-#define FAN_SOFT_PWM                              // fan not controlled
+#define FAN_SOFT_PWM
 //#define THROAT_FAN                           2
 
 //
 // Laser / Spindle
 //
-#if ENABLED(LASER_FEATURE)
+#if HAS_CUTTER
   #define SPINDLE_LASER_ENA_PIN             PB11  // wifi:TX
-#endif
-#if ENABLED(SPINDLE_LASER_USE_PWM)
-  #define SPINDLE_LASER_PWM_PIN             PB10  // wifi:RX-TIM2_CH3
-  // The PWM pin definition const PinMap PinMap_PWM[] in PeripheralPins.c must be compounded here
-  // See PWM_PIN(x) definition for details
+  #if ENABLED(SPINDLE_LASER_USE_PWM)
+    #define SPINDLE_LASER_PWM_PIN           PB10  // wifi:RX-TIM2_CH3
+    // The PWM pin definition const PinMap PinMap_PWM[] in PeripheralPins.c must be compounded here
+    // See PWM_PIN(x) definition for details
+  #endif
 #endif
 
 //
@@ -185,7 +185,6 @@
   #define POWER_LOSS_PIN                    PE1   // Output of LM393 comparator, configured as pullup
 #endif
 //#define POWER_LM393_PIN                   PE0   // +V for the LM393 comparator, configured as output high
-
 
 #if ENABLED(TFT_TRONXY_X5SA)
   #error "TFT_TRONXY_X5SA is not yet supported."
@@ -236,7 +235,7 @@
     //#define TOUCH_CALIBRATION_Y          11773
     //#define TOUCH_OFFSET_X                 -17
     //#define TOUCH_OFFSET_Y                 -16
-    //倒过来
+    // Upside-down
     #define TOUCH_CALIBRATION_X            -8553
     #define TOUCH_CALIBRATION_Y           -11667
     #define TOUCH_OFFSET_X                   253
