@@ -28,7 +28,7 @@
 
 #if HAS_MARLINUI_MENU
 
-#define LARGE_AREA_TEST ((X_BED_SIZE) >= 1000 || (Y_BED_SIZE) >= 1000 || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
+#define LARGE_AREA_TEST ((X_BED_SIZE) >= 1000 || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
 
 #include "menu_item.h"
 #include "menu_addon.h"

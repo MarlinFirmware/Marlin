@@ -500,8 +500,13 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  */
 void MarlinUI::draw_status_screen() {
   constexpr int xystorage = TERN(INCH_MODE_SUPPORT, 8, 5);
-  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)], ystring[xystorage];
-  OPTCODE(HAS_Z_AXIS, static char zstring[8])
+  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)];
+  #if HAS_Y_AXIS
+    static char ystring[xystorage];
+  #endif
+  #if HAS_Z_AXIS
+    static char zstring[8];
+  #endif
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
@@ -529,6 +534,7 @@ void MarlinUI::draw_status_screen() {
     #if HAS_Z_AXIS
       strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z));
     #endif
+
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
         const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
@@ -537,7 +543,7 @@ void MarlinUI::draw_status_screen() {
     }
     else {
       strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x));
-      strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y));
+      TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
     }
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -860,7 +866,7 @@ void MarlinUI::draw_status_screen() {
         }
         else {
           _draw_axis_value(X_AXIS, xstring, blink);
-          _draw_axis_value(Y_AXIS, ystring, blink);
+          TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
         }
 
       #endif
