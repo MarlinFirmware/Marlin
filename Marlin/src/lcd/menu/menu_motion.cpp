@@ -79,9 +79,6 @@ void lcd_move_axis(const AxisEnum axis) {
       const float imp_pos = LINEAR_UNIT(pos);
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
-    else
-      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ui.manual_move.menu_scale >= 0.1f ?);
-  }
 }
 
 #if E_MANUAL
