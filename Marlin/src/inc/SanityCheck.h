@@ -652,6 +652,8 @@
   #error "USE_M73_REMAINING_TIME is now SET_REMAINING_TIME."
 #elif defined(SHOW_SD_PERCENT)
   #error "SHOW_SD_PERCENT is now SHOW_PROGRESS_PERCENT."
+#elif defined(EXTRA_LIN_ADVANCE_K)
+  #error "EXTRA_LIN_ADVANCE_K is now ADVANCE_K_EXTRA."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -827,7 +829,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Granular software endstops (Marlin >= 1.1.7)
  */
-#if ENABLED(MIN_SOFTWARE_ENDSTOPS) && DISABLED(MIN_SOFTWARE_ENDSTOP_Z)
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) && NONE(MIN_SOFTWARE_ENDSTOP_Z, POLARGRAPH)
   #if IS_KINEMATIC
     #error "MIN_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MIN_SOFTWARE_ENDSTOP_Z."
   #elif NONE(MIN_SOFTWARE_ENDSTOP_X, MIN_SOFTWARE_ENDSTOP_Y)
@@ -835,7 +837,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if ENABLED(MAX_SOFTWARE_ENDSTOPS) && DISABLED(MAX_SOFTWARE_ENDSTOP_Z)
+#if ENABLED(MAX_SOFTWARE_ENDSTOPS) && NONE(MAX_SOFTWARE_ENDSTOP_Z, POLARGRAPH)
   #if IS_KINEMATIC
     #error "MAX_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MAX_SOFTWARE_ENDSTOP_Z."
   #elif NONE(MAX_SOFTWARE_ENDSTOP_X, MAX_SOFTWARE_ENDSTOP_Y)
@@ -1336,10 +1338,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Linear Advance 1.5 - Check K value range
  */
 #if ENABLED(LIN_ADVANCE)
-  static_assert(
-    WITHIN(LIN_ADVANCE_K, 0, 10),
-    "LIN_ADVANCE_K must be a value from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
-  );
+  #if DISTINCT_E > 1
+    constexpr float lak[] = ADVANCE_K;
+    static_assert(COUNT(lak) < DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
+    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
+    REPEAT(DISTINCT_E, _LIN_ASSERT)
+    #undef _LIN_ASSERT
+  #else
+    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
+  #endif
   #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
     #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
   #elif ENABLED(DIRECT_STEPPING)
@@ -3558,8 +3565,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP_XY and STEALTHCHOP_Z."
   #elif ENDSTOP_NOISE_THRESHOLD
     #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_THRESHOLD."
-  #elif !(X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS)
-    #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, or Z axes."
+  #elif !(X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS || I_SENSORLESS || J_SENSORLESS || K_SENSORLESS || U_SENSORLESS || V_SENSORLESS || W_SENSORLESS)
+    #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, Z, I, J, K, U, V, or W axes."
   #endif
 
   #undef X_ENDSTOP_INVERTING

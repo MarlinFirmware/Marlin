@@ -118,8 +118,8 @@
   #endif
 #endif
 
-#if ENABLED(EXTRA_LIN_ADVANCE_K)
-  extern float other_extruder_advance_K[EXTRUDERS];
+#if ENABLED(ADVANCE_K_EXTRA)
+  extern float other_extruder_advance_K[DISTINCT_E];
 #endif
 
 #if HAS_MULTI_EXTRUDER
@@ -257,7 +257,7 @@ typedef struct SettingsDataStruct {
   // HAS_BED_PROBE
   //
 
-  xyz_pos_t probe_offset;
+  xyz_pos_t probe_offset;                               // M851 X Y Z
 
   //
   // ABL_PLANAR
@@ -330,7 +330,11 @@ typedef struct SettingsDataStruct {
             delta_diagonal_rod;                         // M665 L
       abc_float_t delta_tower_angle_trim,               // M665 X Y Z
                   delta_diagonal_rod_trim;              // M665 A B C
+    #elif ENABLED(POLARGRAPH)
+      xy_pos_t draw_area_min, draw_area_max;            // M665 L R T B
+      float polargraph_max_belt_len;                    // M665 H
     #endif
+
   #endif
 
   //
@@ -442,7 +446,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[_MAX(EXTRUDERS, 1)]; // M900 K  planner.extruder_advance_K
+  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -468,7 +472,7 @@ typedef struct SettingsDataStruct {
   //
   // SKEW_CORRECTION
   //
-  skew_factor_t planner_skew_factor;                    // M852 I J K  planner.skew_factor
+  skew_factor_t planner_skew_factor;                    // M852 I J K
 
   //
   // ADVANCED_PAUSE_FEATURE
@@ -1001,6 +1005,11 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
         EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
+      #elif ENABLED(POLARGRAPH)
+        _FIELD_TEST(draw_area_min);
+        EEPROM_WRITE(draw_area_min);             // 2 floats
+        EEPROM_WRITE(draw_area_max);             // 2 floats
+        EEPROM_WRITE(polargraph_max_belt_len);   // 1 float
       #endif
     }
     #endif
@@ -1434,6 +1443,14 @@ void MarlinSettings::postprocess() {
     //
     _FIELD_TEST(planner_skew_factor);
     EEPROM_WRITE(planner.skew_factor);
+
+    //
+    // POLARGRAPH
+    //
+    #if ENABLED(POLARGRAPH)
+      _FIELD_TEST(polargraph_max_belt_len);
+      EEPROM_WRITE(polargraph_max_belt_len);
+    #endif
 
     //
     // Advanced Pause filament load & unload lengths
@@ -1936,6 +1953,11 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
           EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
+        #elif ENABLED(POLARGRAPH)
+          _FIELD_TEST(draw_area_min);
+          EEPROM_READ(draw_area_min);             // 2 floats
+          EEPROM_READ(draw_area_max);             // 2 floats
+          EEPROM_READ(polargraph_max_belt_len);   // 1 float
         #endif
       }
       #endif
@@ -2334,7 +2356,7 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
       {
-        float extruder_advance_K[_MAX(EXTRUDERS, 1)];
+        float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
         #if ENABLED(LIN_ADVANCE)
@@ -2996,6 +3018,10 @@ void MarlinSettings::reset() {
       delta_diagonal_rod = DELTA_DIAGONAL_ROD;
       delta_tower_angle_trim = dta;
       delta_diagonal_rod_trim = ddr;
+    #elif ENABLED(POLARGRAPH)
+      draw_area_min.set(X_MIN_POS, Y_MIN_POS);
+      draw_area_max.set(X_MAX_POS, Y_MAX_POS);
+      polargraph_max_belt_len = POLARGRAPH_MAX_BELT_LEN;
     #endif
   #endif
 
@@ -3206,12 +3232,17 @@ void MarlinSettings::reset() {
   //
   // Linear Advance
   //
-
   #if ENABLED(LIN_ADVANCE)
-    EXTRUDER_LOOP() {
-      planner.extruder_advance_K[e] = LIN_ADVANCE_K;
-      TERN_(EXTRA_LIN_ADVANCE_K, other_extruder_advance_K[e] = LIN_ADVANCE_K);
-    }
+    #if ENABLED(DISTINCT_E_FACTORS)
+      constexpr float linAdvanceK[] = ADVANCE_K;
+      EXTRUDER_LOOP() {
+        const float a = linAdvanceK[_MAX(e, COUNT(linAdvanceK) - 1)];
+        planner.extruder_advance_K[e] = a;
+        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = a);
+      }
+    #else
+      planner.extruder_advance_K[0] = ADVANCE_K;
+    #endif
   #endif
 
   //
@@ -3487,9 +3518,7 @@ void MarlinSettings::reset() {
     //
     // LCD Preheat Settings
     //
-    #if HAS_PREHEAT
-      gcode.M145_report(forReplay);
-    #endif
+    TERN_(HAS_PREHEAT, gcode.M145_report(forReplay));
 
     //
     // PID
