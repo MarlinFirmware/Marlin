@@ -632,10 +632,20 @@ void menu_advanced_settings() {
 
   #if DISABLED(SLIM_LCD_MENUS)
 
+    #if ENABLED(POLARGRAPH)
+      // M665 - Polargraph Settings
+      if (!is_busy) {
+        EDIT_ITEM_FAST(float4, MSG_SEGMENTS_PER_SECOND, &segments_per_second, 100, 9999);               // M665 S
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_X, &draw_area_min.x, X_MIN_POS, draw_area_max.x - 10); // M665 L
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_X, &draw_area_max.x, draw_area_min.x + 10, X_MAX_POS); // M665 R
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_Y, &draw_area_min.y, Y_MIN_POS, draw_area_max.y - 10); // M665 T
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_Y, &draw_area_max.y, draw_area_min.y + 10, Y_MAX_POS); // M665 B
+        EDIT_ITEM_FAST(float51sign, MSG_MAX_BELT_LEN, &polargraph_max_belt_len, 500, 2000);             // M665 H
+      }
+    #endif
+
     #if HAS_M206_COMMAND
-      //
-      // Set Home Offsets
-      //
+      // M428 - Set Home Offsets
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
