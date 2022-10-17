@@ -72,11 +72,13 @@ void ControllerFan::update() {
       ? settings.active_speed : settings.idle_speed
     );
 
-    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      speed = (speed ? map(speed, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM);
-    #else
-      speed = (speed ?: FAN_OFF_PWM);
-    #endif
+    speed = (
+      #if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255
+        speed ?: FAN_OFF_PWM
+      #else
+        speed ? map(speed, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM
+      #endif
+    );
 
     do{
       #if FAN_KICKSTART_TIME
