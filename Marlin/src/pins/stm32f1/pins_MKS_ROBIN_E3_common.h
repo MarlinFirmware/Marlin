@@ -204,10 +204,10 @@
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN            EXP1_05_PIN
     #define NEOPIXEL_PIN             EXP1_06_PIN
-    #define DOGLCD_MOSI              EXP2_06_PIN
-    #define DOGLCD_SCK               EXP2_02_PIN
-    #define FORCE_SOFT_SPI
-    #define SOFTWARE_SPI
+    #define DOGLCD_MOSI              EXP2_06_PIN  // SPI2_MOSI
+    #define DOGLCD_SCK               EXP2_02_PIN  // SPI2_SCK
+    //#define FORCE_SOFT_SPI
+    //#define SOFTWARE_SPI
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
@@ -249,17 +249,23 @@
 //
 // SD Card
 //
-#define SDCARD_CONNECTION                ONBOARD
-#define SPI_DEVICE                             2
-#define ONBOARD_SPI_DEVICE                     2
-#define SDSS                           SD_SS_PIN
-#define ONBOARD_SD_CS_PIN              SD_SS_PIN
-#define SD_DETECT_PIN                       PC10  // EXP2_07_PIN
-#define NO_SD_HOST_DRIVE
+// DEFAULT_SPI  == 2 defines the following pins
+//
+// #define PIN_SPI_SS            PB12
+// #define PIN_SPI_MOSI          PB15
+// #define PIN_SPI_MISO          PB14
+// #define PIN_SPI_SCK           PB13
+//
+// Onboard SDCARD uses thes pins and is shared on EXP2 for LCD's
+//
+// SPI2_CS   PA15
+// SPI2_MOSI PB15
+// SPI2_SCK  PB13
+// SPI2_MISO PB14
+// SPI2_DET  PC10
 
-// TODO: This is the only way to set SPI for SD on STM32 (for now)
-#define ENABLE_SPI2
-#define SD_SCK_PIN                   EXP2_02_PIN
-#define SD_MISO_PIN                  EXP2_01_PIN
-#define SD_MOSI_PIN                  EXP2_06_PIN
-#define SD_SS_PIN                    EXP2_04_PIN
+#if ENABLED(SDSUPPORT)
+  #define NO_SD_HOST_DRIVE
+  #define SDSS                                EXP2_04_PIN // PA15
+  #define SD_DETECT_PIN                       EXP2_07_PIN // PC10
+#endif 
