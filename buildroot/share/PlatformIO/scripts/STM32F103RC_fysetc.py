@@ -26,3 +26,4 @@ if pioutil.is_pio_build():
 		UPLOADER=UPLOAD_TOOL,
 		UPLOADCMD=expandvars(UPLOAD_TOOL + " -v -i rts,-dtr,dtr -R -b 115200 -g 0x8000000 -w \"" + join("$BUILD_DIR","${PROGNAME}.hex")+"\"" + " $UPLOAD_PORT")
 	)
+arm-none-eabi-objcopy -O binary build\STM32F103RE_creality\firmware-20221001-140312.elf build\STM32F103RE_creality\firmware-20221001-140312.bin

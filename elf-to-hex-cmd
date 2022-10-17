@@ -1,0 +1,1 @@
+arm-none-eabi-objcopy -O ihex build\STM32F103RE_creality\firmware-20221001-140312.elf build\STM32F103RE_creality\firmware-20221001-140312.hex
