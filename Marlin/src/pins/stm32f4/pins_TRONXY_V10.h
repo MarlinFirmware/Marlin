@@ -42,6 +42,7 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
+  #undef NO_EEPROM_SELECTED
   #if TRONXY_UI > 0
     #define EEPROM_AT24CXX
   #else
