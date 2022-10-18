@@ -466,6 +466,10 @@
 #define BOARD_MELLOW_FLY_E3_V2        5249  // Mellow Fly E3 V2 (STM32F407VG)
 #define BOARD_FYSETC_CHEETAH_V30      5250  // FYSETC Cheetah V3.0 (STM32F446RC)
 #define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
+#define BOARD_ZNP_ROBIN_NANO_V1_3     5252  // Elegoo Neptune 2 v1.3 board
+#define BOARD_MKS_NEPTUNE_X           5253  // Elegoo Neptune X
+#define BOARD_ZNP_ROBIN_NANO          5254  // Elegoo Neptune 2 v1.2 board
+#define BOARD_MKS_NEPTUNE_3           5255  // Elegoo Neptune 3
 
 //
 // ARM Cortex-M7
