@@ -477,7 +477,9 @@ void menu_backlash();
 
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
-    const float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[A_AXIS], planner.settings.max_acceleration_mm_per_s2[B_AXIS], planner.settings.max_acceleration_mm_per_s2[C_AXIS]);
+    float max_accel = planner.settings.max_acceleration_mm_per_s2[A_AXIS];
+    TERN_(HAS_Y_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[B_AXIS]));
+    TERN_(HAS_Z_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[C_AXIS]));
 
     // M201 settings
     constexpr xyze_ulong_t max_accel_edit =
