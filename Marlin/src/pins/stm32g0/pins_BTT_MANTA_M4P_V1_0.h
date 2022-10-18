@@ -116,7 +116,7 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -134,7 +134,6 @@
 #define FAN_PIN                             PD2   // "FAN0"
 #define FAN1_PIN                            PD3   // "FAN1"
 #define FAN2_PIN                            PD4   // "FAN2"
-
 
 /**
  *                ------                                    ------
@@ -176,10 +175,10 @@
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SD_SCK_PIN                         PA5
-  #define SD_MISO_PIN                        PA6
-  #define SD_MOSI_PIN                        PA7
-  #define ONBOARD_SD_CS_PIN                  PA4  // Chip select for "System" SD card
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define ONBOARD_SD_CS_PIN                 PA4   // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."

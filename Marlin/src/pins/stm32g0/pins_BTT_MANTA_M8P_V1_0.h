@@ -51,7 +51,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB2  // PF6 for Proximity switch
+  #define Z_MIN_PROBE_PIN                   PB2   // PF6 for Proximity switch
 #endif
 
 //
@@ -60,10 +60,10 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX 1
+    #define NEEDS_X_MINMAX                     1
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX 1
+    #define NEEDS_Y_MINMAX                     1
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -119,7 +119,7 @@
 #define FIL_RUNOUT2_PIN                     PC2   // E1DET
 
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN                         PC3  // Power Supply Control
+  #define PS_ON_PIN                         PC3   // Power Supply Control
 #endif
 
 //
@@ -197,7 +197,7 @@
   #endif
 #endif
 
-#if HAS_TMC_UART  
+#if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PC10
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
@@ -260,7 +260,6 @@
   #endif
 #endif
 
-
 /**
  *                ------                                    ------
  * (BEEPER) PE9  | 1  2 | PE10 (BTN_ENC)  (MISO)      PB14 | 1  2 | PB13 (SCK)
@@ -301,11 +300,11 @@
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SD_DETECT_PIN                      PE8
-  #define SD_SCK_PIN                         PB13
-  #define SD_MISO_PIN                        PB14
-  #define SD_MOSI_PIN                        PB11
-  #define ONBOARD_SD_CS_PIN                  PB14  // Chip select for "System" SD card
+  #define SD_DETECT_PIN                     PE8
+  #define SD_SCK_PIN                        PB13
+  #define SD_MISO_PIN                       PB14
+  #define SD_MOSI_PIN                       PB11
+  #define ONBOARD_SD_CS_PIN                 PB14  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."

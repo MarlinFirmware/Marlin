@@ -544,7 +544,7 @@
   #elif MB(BTT_MANTA_M4P_V1_0)
   #include "stm32g0/pins_BTT_MANTA_M4P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
   #elif MB(BTT_MANTA_M8P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"    // STM32G0                              env:STM32G0B1VE_btt
+  #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"    // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"// STM32F4                              env:STM32F401RC_btt
 #elif MB(BTT_SKR_MINI_MZ_V1_0)
