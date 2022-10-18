@@ -538,7 +538,7 @@ void menu_backlash();
   #if ENABLED(SHAPING_MENU)
 
     void menu_advanced_input_shaping() {
-      constexpr float min_frequency = TERN_(__AVR__, float(STEPPER_TIMER_RATE) / 2 / 0x10000, 1.0f);
+      constexpr float min_frequency = TERN(__AVR__, float(STEPPER_TIMER_RATE) / 2 / 0x10000, 1.0f);
 
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
