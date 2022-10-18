@@ -158,7 +158,6 @@
 #define FAN3_PIN                            PF10  // FAN3
 #define CONTROLLER_FAN_PIN                  PD7   // BOARD FAN
 #define FAN_SOFT_PWM
-//#define THROAT_FAN                           2
 
 //
 // Laser / Spindle
