@@ -3059,7 +3059,7 @@
 //#define MKS_ROBIN_TFT_V1_1R
 
 //
-// 480x320, 3.5", FSMC Stock Display from TronxXY
+// 480x320, 3.5", FSMC Stock Display from Tronxy
 //
 //#define TFT_TRONXY_X5SA
 
