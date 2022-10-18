@@ -2446,7 +2446,7 @@
 //
 
 // Flag the indexed hardware serial ports in use
-#define CONF_SERIAL_IS(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
+#define SERIAL_IN_USE(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
                           || (defined(SERIAL_PORT_2)    && SERIAL_PORT_2 == N) \
                           || (defined(SERIAL_PORT_3)    && SERIAL_PORT_3 == N) \
                           || (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == N) \
@@ -2454,7 +2454,7 @@
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
-#define ANY_SERIAL_IS(N) (  CONF_SERIAL_IS(N) \
+#define ANY_SERIAL_IS(N) (  SERIAL_IN_USE(N) \
                          || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
                          || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
                          || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
@@ -2481,7 +2481,7 @@
 #define HW_MSerial9  518
 #define HW_MSerial10 519
 
-#if CONF_SERIAL_IS(-1)
+#if SERIAL_IN_USE(-1)
   #define USING_HW_SERIALUSB 1
 #endif
 #if ANY_SERIAL_IS(0)

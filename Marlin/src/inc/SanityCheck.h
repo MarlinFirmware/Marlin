@@ -2641,7 +2641,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #define _PLUG_UNUSED_TEST(A,P) (DISABLED(USE_##P##MIN_PLUG, USE_##P##MAX_PLUG) \
   && !(ENABLED(A##_DUAL_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) \
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
-#define _AXIS_PLUG_UNUSED_TEST(A) (1 NUM_AXIS_GANG(&& _PLUG_UNUSED_TEST(A,X), && _PLUG_UNUSED_TEST(A,Y), && _PLUG_UNUSED_TEST(A,Z), \
+#define _AXIS_PLUG_UNUSED_TEST(A) (HAS_##A##_A NUM_AXIS_GANG(&& _PLUG_UNUSED_TEST(A,X), && _PLUG_UNUSED_TEST(A,Y), && _PLUG_UNUSED_TEST(A,Z), \
                                                       && _PLUG_UNUSED_TEST(A,I), && _PLUG_UNUSED_TEST(A,J), && _PLUG_UNUSED_TEST(A,K), \
                                                       && _PLUG_UNUSED_TEST(A,U), && _PLUG_UNUSED_TEST(A,V), && _PLUG_UNUSED_TEST(A,W) ) )
 
@@ -2656,22 +2656,22 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if _AXIS_PLUG_UNUSED_TEST(Z)
     #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
   #endif
-  #if HAS_I_AXIS && _AXIS_PLUG_UNUSED_TEST(I)
+  #if _AXIS_PLUG_UNUSED_TEST(I)
     #error "You must enable USE_IMIN_PLUG or USE_IMAX_PLUG."
   #endif
-  #if HAS_J_AXIS && _AXIS_PLUG_UNUSED_TEST(J)
+  #if _AXIS_PLUG_UNUSED_TEST(J)
     #error "You must enable USE_JMIN_PLUG or USE_JMAX_PLUG."
   #endif
-  #if HAS_K_AXIS && _AXIS_PLUG_UNUSED_TEST(K)
+  #if _AXIS_PLUG_UNUSED_TEST(K)
     #error "You must enable USE_KMIN_PLUG or USE_KMAX_PLUG."
   #endif
-  #if HAS_U_AXIS && _AXIS_PLUG_UNUSED_TEST(U)
+  #if _AXIS_PLUG_UNUSED_TEST(U)
     #error "You must enable USE_UMIN_PLUG or USE_UMAX_PLUG."
   #endif
-  #if HAS_V_AXIS && _AXIS_PLUG_UNUSED_TEST(V)
+  #if _AXIS_PLUG_UNUSED_TEST(V)
     #error "You must enable USE_VMIN_PLUG or USE_VMAX_PLUG."
   #endif
-  #if HAS_W_AXIS && _AXIS_PLUG_UNUSED_TEST(W)
+  #if _AXIS_PLUG_UNUSED_TEST(W)
     #error "You must enable USE_WMIN_PLUG or USE_WMAX_PLUG."
   #endif
 
@@ -2685,29 +2685,29 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "Enable USE_YMIN_PLUG when homing Y to MIN."
     #elif Y_HOME_TO_MAX && DISABLED(USE_YMAX_PLUG)
       #error "Enable USE_YMAX_PLUG when homing Y to MAX."
-    #elif HAS_I_AXIS && I_HOME_TO_MIN && DISABLED(USE_IMIN_PLUG)
+    #elif I_HOME_TO_MIN && DISABLED(USE_IMIN_PLUG)
       #error "Enable USE_IMIN_PLUG when homing I to MIN."
-    #elif HAS_I_AXIS && I_HOME_TO_MAX && DISABLED(USE_IMAX_PLUG)
+    #elif I_HOME_TO_MAX && DISABLED(USE_IMAX_PLUG)
       #error "Enable USE_IMAX_PLUG when homing I to MAX."
-    #elif HAS_J_AXIS && J_HOME_TO_MIN && DISABLED(USE_JMIN_PLUG)
+    #elif J_HOME_TO_MIN && DISABLED(USE_JMIN_PLUG)
       #error "Enable USE_JMIN_PLUG when homing J to MIN."
-    #elif HAS_J_AXIS && J_HOME_TO_MAX && DISABLED(USE_JMAX_PLUG)
+    #elif J_HOME_TO_MAX && DISABLED(USE_JMAX_PLUG)
       #error "Enable USE_JMAX_PLUG when homing J to MAX."
-    #elif HAS_K_AXIS && K_HOME_TO_MIN && DISABLED(USE_KMIN_PLUG)
+    #elif K_HOME_TO_MIN && DISABLED(USE_KMIN_PLUG)
       #error "Enable USE_KMIN_PLUG when homing K to MIN."
-    #elif HAS_K_AXIS && K_HOME_TO_MAX && DISABLED(USE_KMAX_PLUG)
+    #elif K_HOME_TO_MAX && DISABLED(USE_KMAX_PLUG)
       #error "Enable USE_KMAX_PLUG when homing K to MAX."
-    #elif HAS_U_AXIS && U_HOME_TO_MIN && DISABLED(USE_UMIN_PLUG)
+    #elif U_HOME_TO_MIN && DISABLED(USE_UMIN_PLUG)
       #error "Enable USE_UMIN_PLUG when homing U to MIN."
-    #elif HAS_U_AXIS && U_HOME_TO_MAX && DISABLED(USE_UMAX_PLUG)
+    #elif U_HOME_TO_MAX && DISABLED(USE_UMAX_PLUG)
       #error "Enable USE_UMAX_PLUG when homing U to MAX."
-    #elif HAS_V_AXIS && V_HOME_TO_MIN && DISABLED(USE_VMIN_PLUG)
+    #elif V_HOME_TO_MIN && DISABLED(USE_VMIN_PLUG)
       #error "Enable USE_VMIN_PLUG when homing V to MIN."
-    #elif HAS_V_AXIS && V_HOME_TO_MAX && DISABLED(USE_VMAX_PLUG)
+    #elif V_HOME_TO_MAX && DISABLED(USE_VMAX_PLUG)
       #error "Enable USE_VMAX_PLUG when homing V to MAX."
-    #elif HAS_W_AXIS && W_HOME_TO_MIN && DISABLED(USE_WMIN_PLUG)
+    #elif W_HOME_TO_MIN && DISABLED(USE_WMIN_PLUG)
       #error "Enable USE_WMIN_PLUG when homing W to MIN."
-    #elif HAS_W_AXIS && W_HOME_TO_MAX && DISABLED(USE_WMAX_PLUG)
+    #elif W_HOME_TO_MAX && DISABLED(USE_WMAX_PLUG)
       #error "Enable USE_WMAX_PLUG when homing W to MAX."
     #endif
   #endif
@@ -3106,7 +3106,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Display Sleep is not supported by these common displays
  */
 #if HAS_DISPLAY_SLEEP
-  #if ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI, ENDER2_STOCKDISPLAY, MINIPANEL)
+  #if ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI, CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY, MINIPANEL)
     #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
   #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
     #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
@@ -3565,8 +3565,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP_XY and STEALTHCHOP_Z."
   #elif ENDSTOP_NOISE_THRESHOLD
     #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_THRESHOLD."
-  #elif !(X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS)
-    #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, or Z axes."
+  #elif !(X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS || I_SENSORLESS || J_SENSORLESS || K_SENSORLESS || U_SENSORLESS || V_SENSORLESS || W_SENSORLESS)
+    #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, Z, I, J, K, U, V, or W axes."
   #endif
 
   #undef X_ENDSTOP_INVERTING
