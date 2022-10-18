@@ -222,10 +222,10 @@ void menu_backlash();
   void apply_PID_p(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.set_Ki(raw_Ki); break;
+        case H_BED: thermalManager.temp_bed.pid.set_Kp(raw_Kp); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
-        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Ki(raw_Ki); break;
+        case H_CHAMBER: thermalManager.temp_chamber.pid.set_Kp(raw_Kp); break;
       #endif
       default:
         #if ENABLED(PIDTEMP)
@@ -477,7 +477,9 @@ void menu_backlash();
 
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
-    const float max_accel = _MAX(planner.settings.max_acceleration_mm_per_s2[A_AXIS], planner.settings.max_acceleration_mm_per_s2[B_AXIS], planner.settings.max_acceleration_mm_per_s2[C_AXIS]);
+    float max_accel = planner.settings.max_acceleration_mm_per_s2[A_AXIS];
+    TERN_(HAS_Y_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[B_AXIS]));
+    TERN_(HAS_Z_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[C_AXIS]));
 
     // M201 settings
     constexpr xyze_ulong_t max_accel_edit =
@@ -632,10 +634,20 @@ void menu_advanced_settings() {
 
   #if DISABLED(SLIM_LCD_MENUS)
 
+    #if ENABLED(POLARGRAPH)
+      // M665 - Polargraph Settings
+      if (!is_busy) {
+        EDIT_ITEM_FAST(float4, MSG_SEGMENTS_PER_SECOND, &segments_per_second, 100, 9999);               // M665 S
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_X, &draw_area_min.x, X_MIN_POS, draw_area_max.x - 10); // M665 L
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_X, &draw_area_max.x, draw_area_min.x + 10, X_MAX_POS); // M665 R
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_Y, &draw_area_min.y, Y_MIN_POS, draw_area_max.y - 10); // M665 T
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_Y, &draw_area_max.y, draw_area_min.y + 10, Y_MAX_POS); // M665 B
+        EDIT_ITEM_FAST(float51sign, MSG_MAX_BELT_LEN, &polargraph_max_belt_len, 500, 2000);             // M665 H
+      }
+    #endif
+
     #if HAS_M206_COMMAND
-      //
-      // Set Home Offsets
-      //
+      // M428 - Set Home Offsets
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
