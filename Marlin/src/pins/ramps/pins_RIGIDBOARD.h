@@ -103,9 +103,9 @@
 
   // Direction buttons
   #define BTN_UP                              37
-  #define BTN_DWN                             35
-  #define BTN_LFT                             33
-  #define BTN_RT                              32
+  #define BTN_DOWN                            35
+  #define BTN_LEFT                            33
+  #define BTN_RIGHT                           32
 
   // 'R' button
   #undef BTN_ENC
