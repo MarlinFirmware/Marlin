@@ -85,10 +85,11 @@
 #define X_MAX_PIN                           PB0
 #define Y_STOP_PIN                          PC14
 
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PE3
+#endif
+
 #if ENABLED(DUAL_Z_ENDSTOP_PROBE)
-  #ifndef Z_MIN_PROBE_PIN
-    #define Z_MIN_PROBE_PIN                 PE3   // Usually connected to the probe
-  #endif
   #if NUM_Z_STEPPERS > 1 && Z_HOME_TO_MAX         // Swap Z1/Z2 for dual Z with max homing
     #define Z_MIN_PIN                       PF11
     #define Z_MAX_PIN                       PC13
@@ -96,12 +97,11 @@
     #define Z_MIN_PIN                       PC13
     #define Z_MAX_PIN                       PF11
   #endif
-#elif ENABLED(FIX_MOUNTED_PROBE)
-  #define Z_STOP_PIN                        PE3
 #else
-  #define Z_STOP_PIN                        PC13
+  #ifndef Z_STOP_PIN
+    #define Z_STOP_PIN                      PC13
+  #endif
 #endif
-
 //
 // Filament Sensors
 //
