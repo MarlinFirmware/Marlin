@@ -482,14 +482,14 @@ void lv_encoder_pin_init() {
   #if BUTTON_EXISTS(UP)
     SET_INPUT(BTN_UP);
   #endif
-  #if BUTTON_EXISTS(DWN)
-    SET_INPUT(BTN_DWN);
+  #if BUTTON_EXISTS(DOWN)
+    SET_INPUT(BTN_DOWN);
   #endif
-  #if BUTTON_EXISTS(LFT)
-    SET_INPUT(BTN_LFT);
+  #if BUTTON_EXISTS(LEFT)
+    SET_INPUT(BTN_LEFT);
   #endif
-  #if BUTTON_EXISTS(RT)
-    SET_INPUT(BTN_RT);
+  #if BUTTON_EXISTS(RIGHT)
+    SET_INPUT(BTN_RIGHT);
   #endif
 }
 
