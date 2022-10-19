@@ -810,6 +810,8 @@ void MarlinUI::draw_status_screen() {
     _draw_print_progress();
   #endif
 
+  // TODO!
+
   char buffer[10];
   duration_t elapsed = print_job_timer.duration();
   uint8_t len = elapsed.toDigital(buffer);
