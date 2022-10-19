@@ -319,7 +319,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Kinematic Settings
+  // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
   //
   #if IS_KINEMATIC
     float segments_per_second;                          // M665 S
@@ -992,7 +992,7 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // Kinematic Settings
+    // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
     //
     #if IS_KINEMATIC
     {
@@ -1443,14 +1443,6 @@ void MarlinSettings::postprocess() {
     //
     _FIELD_TEST(planner_skew_factor);
     EEPROM_WRITE(planner.skew_factor);
-
-    //
-    // POLARGRAPH
-    //
-    #if ENABLED(POLARGRAPH)
-      _FIELD_TEST(polargraph_max_belt_len);
-      EEPROM_WRITE(polargraph_max_belt_len);
-    #endif
 
     //
     // Advanced Pause filament load & unload lengths
@@ -1940,7 +1932,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // Kinematic Segments-per-second
+      // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
       //
       #if IS_KINEMATIC
       {
@@ -3001,7 +2993,7 @@ void MarlinSettings::reset() {
   #endif
 
   //
-  // Kinematic settings
+  // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
   //
 
   #if IS_KINEMATIC
