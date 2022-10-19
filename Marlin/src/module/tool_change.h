@@ -27,41 +27,72 @@
 
 #if HAS_MULTI_EXTRUDER
 
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    // Define any variables required
+    extern Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
+    extern bool enable_first_prime_used;      // M217 V
+  #endif
+
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       float swap_length;            // M217 S
       float extra_prime;            // M217 E
       float extra_resume;           // M217 B
       int16_t prime_speed;          // M217 P
-      int16_t wipe_retract;         // M217 G
+      int16_t wipe_retract;         // M217 W
       int16_t retract_speed;        // M217 R
       int16_t unretract_speed;      // M217 U
       uint8_t fan_speed;            // M217 F
       uint8_t fan_time;             // M217 D
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
-      bool enable_park;             // M217 W
-      xyz_pos_t change_point;       // M217 X Y I J K C H O
+      bool enable_park;             // M216 P
+      bool no_return;               // M216 R
+      xyz_pos_t change_point;       // M216 X Y I J K C H O
     #endif
     float z_raise;                  // M217 Z
   } toolchange_settings_t;
 
   extern toolchange_settings_t toolchange_settings;
 
-  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-    extern bool enable_first_prime; // M217 V
-  #endif
+  typedef struct {
+    bool  swap_mode, // M217 N
+          cut_wipe_mode, // M217 H
+          do_swap,
+          do_cut_wipe,
+          in_progress;
+    float resume_e,
+          z_raise; // z_raise stored to avoid changing value by lcd between process
+    toolchange_settings_t tool_settings;
+  } smart_recover_settings_t;
 
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    extern Flags<EXTRUDERS> extruder_was_primed; // Extruders primed status
-  #endif
+  constexpr smart_recover_settings_t smart_recover_defaults = {
+    //swap_mode
+    TERN0(TOOLCHANGE_SMART_SWAP, true),
+    //cut_wipe_mode
+    TERN0(TOOLCHANGE_SMART_CUT_WIPE, true),
+    //do_swap
+    false,
+    //do_cut_wipe
+    false,
+    // in_progress
+    false,
+    //Resume E
+    0,
+    //z_raise
+    0
+  };
+
+  extern smart_recover_settings_t smart_recover;
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     typedef struct {
       uint8_t target, last;
-      bool automode, in_progress;
+      bool automode, swap_only_mode, in_progress;
     } migration_settings_t;
-    constexpr migration_settings_t migration_defaults = { 0, 0, false, false };
+    constexpr migration_settings_t migration_defaults = { 0, 0, false,
+                TERN0(TOOLCHANGE_MIGRATION_SWAP_ONLY_MODE, true),
+                false };
     extern migration_settings_t migration;
     bool extruder_migration();
   #endif
@@ -129,3 +160,11 @@
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, bool no_move=false);
+
+/**
+ * Recover active extruder after toolchange
+ */
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  void extruder_prime();
+  void extruder_cutting_recover(const_float_t e);
+#endif

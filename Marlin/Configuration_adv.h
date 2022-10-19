@@ -1169,7 +1169,8 @@
 
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
-
+  //#define CALIBRATION_ALLOW_XY_IS_CORE  // Backlash & calibration allowed for CORE X/Y axis
+  //#define CALIBRATION_TOOLCHANGE_FEATURE_DISABLED // Disable prime, swap, moves and park during calibration
   #define CALIBRATION_MEASUREMENT_RESOLUTION     0.01 // mm
 
   #define CALIBRATION_FEEDRATE_SLOW             60    // mm/min
@@ -2491,12 +2492,9 @@
  */
 #if HAS_MULTI_EXTRUDER
   // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE                 2 // (mm)
+  #define TOOLCHANGE_ZRAISE                 5 // (mm)
   //#define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Apply raise before swap retraction (if enabled)
-  //#define TOOLCHANGE_NO_RETURN              // Never return to previous position on tool-change
-  #if ENABLED(TOOLCHANGE_NO_RETURN)
-    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // Extra G-code to run after tool-change
-  #endif
+  //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // Extra G-code to run after tool-change
 
   /**
    * Extra G-code to run while executing tool-change commands. Can be used to use an additional
@@ -2524,29 +2522,51 @@
     #define TOOLCHANGE_FS_RETRACT_SPEED   (50*60) // (mm/min) (Unloading)
     #define TOOLCHANGE_FS_UNRETRACT_SPEED (25*60) // (mm/min) (On SINGLENOZZLE or Bowden loading must be slowed down)
 
-    // Longer prime to clean out a SINGLENOZZLE
-    #define TOOLCHANGE_FS_EXTRA_PRIME          0  // (mm) Extra priming length
+    // Longer prime to clean out
+    #define TOOLCHANGE_FS_EXTRA_PRIME         30  // (mm) Extra priming length
     #define TOOLCHANGE_FS_PRIME_SPEED    (4.6*60) // (mm/min) Extra priming feedrate
-    #define TOOLCHANGE_FS_WIPE_RETRACT         0  // (mm) Cutting retraction out of park, for less stringing, better wipe, etc. Adjust with LCD or M217 G.
+    #define TOOLCHANGE_FS_WIPE_RETRACT         5  // (mm) Retract before cooling for less stringing, better wipe, etc.
+
+    // M217 N 0/1 Recover new tool just before printing.(Clean travel without leaks)
+    // Usefull with prime tower. On tool change the new tool stay swapped, travel over the object to prime tower position and print
+    // Or to play easily with colors in real time as you want.
+    // Cutting wipe + park are disabled when active.
+    // Migration disable this, only when priming with park
+    // M217 Q 'priming' disable this feature during process.
+    // Prime tool if not primed before.
+    // Disable toolchange if not recovered before
+    // For better results, adjust resume length in negative and swap during infills printing
+    //#define TOOLCHANGE_SMART_SWAP
+
+    // M217 H 0/1 Cutting wipe/travel Recover new tool just before printing.(Clean travel without leaks)
+    // Usefull for travelling after toolchange or to cut filament after priming with cooling and resume print cleaner.
+    // Disabled when TOOLCHANGE_SMART_SWAP enabled.
+    // Disable toolchange if not recovered before
+    //#define TOOLCHANGE_SMART_CUT_WIPE
 
     // Cool after prime to reduce stringing
-    //#define TOOLCHANGE_FS_FAN               -1  // Fan index or -1 for the current extruder fan. Disable to skip.
+    #define TOOLCHANGE_FS_FAN                 -1  // Fan index or -1 for the current extruder fan. Disable to skip.
     #ifdef TOOLCHANGE_FS_FAN
       #define TOOLCHANGE_FS_FAN_SPEED        255  // 0-255
       #define TOOLCHANGE_FS_FAN_TIME          10  // (seconds)
     #endif
 
-    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate the first time each extruder is primed
-    //#define TOOLCHANGE_FS_SLOW_FIRST_PRIME
-
     /**
-     * Prime T0 the first time T0 is sent to the printer:
+     * Prime Txxx the first time Txxx is sent to the printer:
      *  [ Power-On -> T0 { Activate & Prime T0 } -> T1 { Retract T0, Activate & Prime T1 } ]
      * If disabled, no priming on T0 until switching back to T0 from another extruder:
      *  [ Power-On -> T0 { T0 Activated } -> T1 { Activate & Prime T1 } -> T0 { Retract T1, Activate & Prime T0 } ]
      * Enable with M217 V1 before printing to avoid unwanted priming on host connect.
+     * To avoid unwanted priming, value not stored, must be applied on printing file.
+     * Note: M217 Q, prime tool without resuming position. Can only be used for starting, not during printing
      */
-    //#define TOOLCHANGE_FS_PRIME_FIRST_USED
+    #define TOOLCHANGE_FS_PRIME_FIRST_USED 1 // 0-1
+
+    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate the first time each extruder is primed
+    #define TOOLCHANGE_FS_SLOW_FIRST_PRIME
+
+    // Use TOOLCHANGE_FS_PRIME_SPEED feedrate the first time each extruder is primed
+    #define TOOLCHANGE_FS_SLOW_FIRST_PRIME
 
     /**
      * Tool Change Migration
@@ -2559,12 +2579,29 @@
      *   - Switch to a different nozzle on an extruder jam
      */
     #define TOOLCHANGE_MIGRATION_FEATURE
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      //Override toolchange settings (To use prime tower(toolchange inside bed) with Migration outside)
+      #define MIGRATION_OVERRIDE_TOOLCHANGE_SETTINGS
+      #if ENABLED(MIGRATION_OVERRIDE_TOOLCHANGE_SETTINGS)
+        #define MIGRATION_ZRAISE                  5 // (mm)
 
+        // Longer prime to clean out
+        #define MIGRATION_FS_EXTRA_PRIME         50  // (mm) Extra priming length
+        #define MIGRATION_FS_WIPE_RETRACT         5  // (mm) Retract before cooling for less stringing, better wipe, clean travel, etc.()
+
+        // Cool after prime to reduce stringing
+        #ifdef TOOLCHANGE_FS_FAN
+          #define MIGRATION_FS_FAN_SPEED        255  // 0-255
+          #define MIGRATION_FS_FAN_TIME          10  // (seconds)
+        #endif
+      #endif // MIGRATION_OVERRIDE_TOOLCHANGE_SETTINGS
+    #endif //ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   #endif
 
   /**
    * Position to park head during tool change.
    * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
+   * M216 Gcodes (See m216.cpp for settings documentation)
    */
   //#define TOOLCHANGE_PARK
   #if ENABLED(TOOLCHANGE_PARK)
@@ -2572,6 +2609,17 @@
     #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/min)
     //#define TOOLCHANGE_PARK_X_ONLY          // X axis only move
     //#define TOOLCHANGE_PARK_Y_ONLY          // Y axis only move
+    //#define TOOLCHANGE_NO_RETURN_DEFAULT_ON   // M216 R 0/1 Never return to previous position on tool-change
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      // Force park on normal mode migration
+      #define TOOLCHANGE_MIGRATION_ALWAYS_PARK
+
+      // Disable park & priming if target extruder already primed and swapped
+      // For playing easily with colors in realtime between primed extruders
+      // If not primed, make a normal migration
+      // M217 M[0/1]
+      #define TOOLCHANGE_MIGRATION_SWAP_ONLY_MODE
+    #endif
   #endif
 #endif // HAS_MULTI_EXTRUDER
 

@@ -35,6 +35,11 @@
   #include "../../module/planner.h"
 #endif
 
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  #include "../../module/tool_change.h"
+  #include "../../module/planner.h"
+#endif
+
 extern xyze_pos_t destination;
 
 #if ENABLED(VARIABLE_G0_FEEDRATE)
@@ -105,6 +110,40 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       }
 
     #endif // FWRETRACT
+
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+      if (smart_recover.in_progress) {
+        // Cancel lower Z, if previous G0/G1 before printing
+        if (parser.seen_test('Z') && smart_recover.z_raise) destination.z += smart_recover.z_raise;
+        // Extrusion detection
+        if (parser.seen_test('E') && parser.seen(STR_AXES_MAIN)) {
+          // Lower Z at first
+          if (smart_recover.z_raise) {
+            destination.z -= smart_recover.z_raise;
+            do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+            planner.synchronize();
+            smart_recover.z_raise = 0;
+          }
+          // Restore previous settings
+          REMEMBER(smart_recover_tmp, toolchange_settings);
+          toolchange_settings = smart_recover.tool_settings;
+          // Recover
+          if (smart_recover.do_swap) {
+            extruder_prime();
+            extruder_cutting_recover(migration.in_progress? smart_recover.resume_e : 0);
+          }
+          if (smart_recover.do_cut_wipe) {
+            extruder_cutting_recover(migration.in_progress? smart_recover.resume_e : 0);
+          }
+          // Reset and restore
+          smart_recover.do_swap = smart_recover.do_cut_wipe = smart_recover.in_progress = false;
+          RESTORE(smart_recover_tmp);
+          #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+            migration.in_progress = false;
+          #endif
+        }
+      }
+    #endif
 
     #if IS_SCARA
       fast_move ? prepare_fast_move_to_destination() : prepare_line_to_destination();
