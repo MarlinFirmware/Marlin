@@ -84,13 +84,6 @@ const char* i8tostr3rj(const int8_t x) {
       conv[6] = DIGIMOD(xx, 10);
       return &conv[3];
     }
-    // disabled to keep constant width, [1.99%] switching to [   2%] to [2.01%] looks really bad
-    // else if (xx % 100 == 0) {
-    //   conv[4] = ' ';
-    //   conv[5] = RJDIGIT(xx, 1000);
-    //   conv[6] = DIGIMOD(xx, 100);
-    //   return &conv[4];
-    // }
     else {
       conv[3] = DIGIMOD(xx, 100);
       conv[4] = '.';
