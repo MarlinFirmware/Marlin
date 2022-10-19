@@ -863,7 +863,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH < 20
 
         #if HAS_PRINT_PROGRESS
-          pc = 0, pr = 2;
+          pc = 0; pr = 2;
           rotate_progress();
         #endif
 
@@ -950,14 +950,14 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH >= 20
 
         #if HAS_PRINT_PROGRESS
-          pc = 6, pr = 2;
+          pc = 6; pr = 2;
           rotate_progress();
         #else
           char c;
           uint16_t per;
           #if HAS_FAN0
             if (true
-              #if EXTRUDERS && ENABLED(ADAPTIVE_FAN_SLOWING)
+              #if BOTH(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
                 && (blink || thermalManager.fan_speed_scaler[0] < 128)
               #endif
             ) {
@@ -1031,7 +1031,7 @@ void MarlinUI::draw_status_screen() {
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS 1
-      pc = 0, pr = 2;
+      pc = 0; pr = 2;
       rotate_progress();
     #endif
 
@@ -1039,7 +1039,7 @@ void MarlinUI::draw_status_screen() {
     // All progress strings
     //
     #if HAS_PRINT_PROGRESS && !DREW_PRINT_PROGRESS
-      pc = LCD_WIDTH - 9, pr = 2;
+      pc = LCD_WIDTH - 9; pr = 2;
       rotate_progress();
     #endif
   #endif // LCD_INFO_SCREEN_STYLE 1

@@ -79,21 +79,18 @@ void GcodeSuite::M73() {
   #endif
 
   #if ENABLED(M73_REPORT)
-    #if ENABLED(M73_REPORT_SD_ONLY)
-      if(IS_SD_PRINTING)
-    #endif
-    {
-    SERIAL_ECHO_MSG(
-        TERN(M73_REPORT_PRUSA, "M73 Percent done: ", "Progress: ")
-      , TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
-      #if ENABLED(SET_REMAINING_TIME)
-        , TERN(M73_REPORT_PRUSA, "; Print time remaining in mins: ", "%; Time left: "), ui.remaining_time / 60
-      #endif
-      #if ENABLED(SET_INTERACTION_TIME)
-        , TERN(M73_REPORT_PRUSA, "; Change in mins: ", "m; Change: "), ui.interaction_time / 60
-      #endif
-      , TERN(M73_REPORT_PRUSA, ";", "m")
-    );
+    if (TERN1(M73_REPORT_SD_ONLY, IS_SD_PRINTING)) {
+      SERIAL_ECHO_MSG(
+          TERN(M73_REPORT_PRUSA, "M73 Percent done: ", "Progress: ")
+        , TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent())
+        #if ENABLED(SET_REMAINING_TIME)
+          , TERN(M73_REPORT_PRUSA, "; Print time remaining in mins: ", "%; Time left: "), ui.remaining_time / 60
+        #endif
+        #if ENABLED(SET_INTERACTION_TIME)
+          , TERN(M73_REPORT_PRUSA, "; Change in mins: ", "m; Change: "), ui.interaction_time / 60
+        #endif
+        , TERN(M73_REPORT_PRUSA, ";", "m")
+      );
     }
   #endif
 }
