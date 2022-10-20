@@ -288,16 +288,16 @@
 // Changing these will not change the pin they are on.
 
 // Hardware UART pins
-#define UART1_TX_PIN                        PA9   // default use CH340 RX
-#define UART1_RX_PIN                        PA10  // default use CH340 TX
-#define UART2_TX_PIN                        PA2   // default use HEATER_BED_PIN
+#define UART1_TX_PIN                        PA9   // default uses CH340 RX
+#define UART1_RX_PIN                        PA10  // default uses CH340 TX
+#define UART2_TX_PIN                        PA2   // default uses HEATER_BED_PIN
 #define UART2_RX_PIN                        PA3   // not connected
-#define UART3_TX_PIN                        PB10  // default use LCD connector
-#define UART3_RX_PIN                        PB11  // default use LCD connector
-#define UART4_TX_PIN                        PC10  // default use sdcard SDIO_D2
-#define UART4_RX_PIN                        PC11  // default use sdcard SDIO_D3
-#define UART5_TX_PIN                        PC12  // default use sdcard SDIO_CK
-#define UART5_RX_PIN                        PD2   // default use sdcard SDIO_CMD
+#define UART3_TX_PIN                        PB10  // default uses LCD connector
+#define UART3_RX_PIN                        PB11  // default uses LCD connector
+#define UART4_TX_PIN                        PC10  // default uses sdcard SDIO_D2
+#define UART4_RX_PIN                        PC11  // default uses sdcard SDIO_D3
+#define UART5_TX_PIN                        PC12  // default uses sdcard SDIO_CK
+#define UART5_RX_PIN                        PD2   // default uses sdcard SDIO_CMD
 
 // SDIO pins
 #define SDIO_D0_PIN                         PC8
