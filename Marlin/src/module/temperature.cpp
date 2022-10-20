@@ -309,19 +309,19 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #endif
 
 #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
-  uint8_t Temperature::autofan_speed[HOTENDS] = {FAN_OFF_PWM};
+  uint8_t Temperature::autofan_speed[HOTENDS] = ARRAY_N_1(HOTENDS, FAN_OFF_PWM);
 #endif
 
 #if ENABLED(AUTO_POWER_CHAMBER_FAN)
-  uint8_t Temperature::chamberfan_speed = {FAN_OFF_PWM}
+  uint8_t Temperature::chamberfan_speed = FAN_OFF_PWM;
 #endif
 
 #if ENABLED(AUTO_POWER_COOLER_FAN)
-  uint8_t Temperature::coolerfan_speed = {FAN_OFF_PWM};
+  uint8_t Temperature::coolerfan_speed = FAN_OFF_PWM;
 #endif
 
 #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-  uint8_t Temperature::soft_pwm_controller_speed = {FAN_OFF_PWM};
+  uint8_t Temperature::soft_pwm_controller_speed = FAN_OFF_PWM;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -345,11 +345,11 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 // HAS_FAN does not include CONTROLLER_FAN
 #if HAS_FAN
 
-  uint8_t Temperature::fan_speed[FAN_COUNT] = {FAN_OFF_PWM};
+  uint8_t Temperature::fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, FAN_OFF_PWM);
 
   #if ENABLED(EXTRA_FAN_SPEED)
 
-    Temperature::extra_fan_t Temperature::extra_fan_speed[FAN_COUNT] = {FAN_OFF_PWM};
+    Temperature::extra_fan_t Temperature::extra_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, FAN_OFF_PWM);
 
     /**
      * Handle the M106 P<fan> T<speed> command:
@@ -376,7 +376,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
     bool Temperature::fans_paused; // = false;
-    uint8_t Temperature::saved_fan_speed[FAN_COUNT] = {FAN_OFF_PWM};
+    uint8_t Temperature::saved_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, FAN_OFF_PWM);
   #endif
 
   #if ENABLED(ADAPTIVE_FAN_SLOWING)
