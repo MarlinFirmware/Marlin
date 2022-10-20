@@ -53,15 +53,25 @@
 //
 // Limit Switches
 //
+#ifndef NO_STOP_PINS
+#if !defined(X_STOP_PIN)
 #define X_STOP_PIN                          PA12
+#endif
+#if !defined(Y_STOP_PIN)
 #define Y_STOP_PIN                          PA11
+#endif
+#if !defined(Z_STOP_PIN)
 #define Z_STOP_PIN                          PC6
+#endif
+#endif
 
 //
 // Z Probe
 //
+#if HAS_BED_PROBE
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB1
+#endif
 #endif
 
 //
@@ -180,14 +190,15 @@
 #if HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
+
+    #define BTN_ENC                    EXP1_02_PIN
+    #define LCD_PINS_ENABLE            EXP1_03_PIN
+    #define LCD_PINS_RS                EXP1_04_PIN
+    #define BTN_EN1                    EXP2_03_PIN
+    #define BTN_EN2                    EXP2_05_PIN
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
@@ -197,6 +208,12 @@
     #define DOGLCD_MOSI              EXP2_06_PIN
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
+
+    #define BTN_ENC                    EXP1_02_PIN
+    #define LCD_PINS_ENABLE            EXP1_03_PIN
+    #define LCD_PINS_RS                EXP1_04_PIN
+    #define BTN_EN1                    EXP2_03_PIN
+    #define BTN_EN2                    EXP2_05_PIN
 
     #define LCD_PINS_DC              EXP1_04_PIN
     #define DOGLCD_CS                EXP1_03_PIN
@@ -209,6 +226,38 @@
     #define FORCE_SOFT_SPI
     #define SOFTWARE_SPI
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
+
+  #elif ENABLED(MKS_TS35_V2_0)
+
+    // DISPLAY PINS.
+    #define TFT_A0_PIN             EXP1_08_PIN
+    #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
+    #define TFT_RESET_PIN          EXP1_04_PIN
+
+    // SPI BUS PINS.
+    #define TFT_SCK_PIN            EXP2_02_PIN
+    #define TFT_MISO_PIN           -1 // has to be custom soldered to work!
+    #define TFT_MOSI_PIN           EXP2_06_PIN
+    #define TOUCH_SCK_PIN          TFT_SCK_PIN
+    #define TOUCH_MISO_PIN         EXP2_01_PIN
+    #define TOUCH_MOSI_PIN         TFT_MOSI_PIN
+
+    // SPI BUS CHIP-SELECT PINS.
+    #define TFT_CS_PIN             EXP1_07_PIN
+    #define TOUCH_CS_PIN           EXP1_05_PIN
+
+    #define TOUCH_INT_PIN          EXP1_06_PIN
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE              -1
+    #define LCD_PINS_RS                  -1
+
+    #ifndef TFT_BUFFERSIZE
+      #define TFT_BUFFER_SIZE             1200
+    #endif
+    #ifndef TFT_QUEUE_SIZE
+      #define TFT_QUEUE_SIZE              6144
+    #endif
 
   #else
 

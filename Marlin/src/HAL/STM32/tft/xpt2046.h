@@ -64,16 +64,21 @@ class XPT2046 {
 private:
   static SPI_HandleTypeDef SPIx;
 
+  static uint8_t _GetClockDivider(uint32_t spibasefreq, uint32_t speed);
+
   static bool isBusy() { return false; }
 
   static uint16_t getRawData(const XPTCoordinate coordinate);
   static bool isTouched();
 
-  static void DataTransferBegin() { if (SPIx.Instance) { HAL_SPI_Init(&SPIx); } WRITE(TOUCH_CS_PIN, LOW); };
-  static void DataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
+  static void DataTransferBegin();
+  static void DataTransferEnd();
   static uint16_t HardwareIO(uint16_t data);
   static uint16_t SoftwareIO(uint16_t data);
   static uint16_t IO(uint16_t data = 0) { return SPIx.Instance ? HardwareIO(data) : SoftwareIO(data); }
+
+  static void HALPrepare(void);
+  static void HALDismantle(void);
 
 public:
   static void Init();

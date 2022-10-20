@@ -166,6 +166,8 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
 
   switch (lcd_id) {
     case LTDC_RGB:
+      io.DataTransferBegin(DATASIZE_8BIT);
+
       io.WriteReg(0x01);
       io.WriteData(Xmin);
       io.WriteReg(0x02);
@@ -175,6 +177,8 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
       io.WriteReg(0x04);
       io.WriteData(Ymax);
       io.WriteReg(0x00);
+
+      io.DataTransferEnd();
       break;
     case ST7735:    // ST7735     160x128
     case ST7789:    // ST7789V    320x240
@@ -201,6 +205,8 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
 
       // RAMWR: Memory Write
       io.WriteReg(ILI9341_RAMWR);
+
+      io.DataTransferEnd();
       break;
     case R61505:    // R61505U    320x240
     case ILI9328:   // ILI9328    320x240
@@ -222,12 +228,12 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
       io.WriteData(Xmin);
 
       io.WriteReg(ILI9328_RAMWR);
+
+      io.DataTransferEnd();
       break;
     default:
       break;
   }
-
-  io.DataTransferEnd();
 }
 
 void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
@@ -243,7 +249,7 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
       continue;
     }
     data = *Sequence++;
-    if (data == 0x7FFF) return;
+    if (data == 0x7FFF) break;
     if (data == 0xFFFF)
       io.WriteData(0xFFFF);
     else if (data & 0x8000)

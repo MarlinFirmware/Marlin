@@ -1481,6 +1481,11 @@
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
   #define TFT_INTERFACE_SPI
+  #define TFT_BAUDRATE_READ 8000000    // Hz
+  #define TFT_BAUDRATE_WRITE 32000000   // Hz
+  #if defined(MKS_TS35_V2_0) && defined(TOUCH_SCREEN)
+    #define TFT_TOUCH_DEVICE_XPT2046
+  #endif
 #elif EITHER(LERDGE_TFT35, ANET_ET5_TFT35)                                    // ST7796
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
@@ -1622,6 +1627,9 @@
   #if ENABLED(TFT_TOUCH_DEVICE_GT911)         // GT911 Capacitive touch screen such as BIQU_BX_TFT70
     #undef TOUCH_SCREEN_CALIBRATION
     #undef TOUCH_CALIBRATION_AUTO_SAVE
+  #endif
+  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046) && ENABLED(TFT_INTERFACE_SPI)
+    #define TOUCH_BAUDRATE 2500000 // Hz
   #endif
   #if !HAS_GRAPHICAL_TFT
     #undef TOUCH_SCREEN

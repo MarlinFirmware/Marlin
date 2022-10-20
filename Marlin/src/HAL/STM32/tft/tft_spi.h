@@ -41,6 +41,13 @@
 #define TFT_IO_DRIVER  TFT_SPI
 
 class TFT_SPI {
+
+  enum class eSPIMode
+  {
+    READ,
+    WRITE
+  };
+
 private:
   static SPI_HandleTypeDef SPIx;
 
@@ -52,6 +59,19 @@ private:
     static void TransmitDMA_IT(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
   #endif
 
+  static void HALPrepare(eSPIMode spiMode);
+  static void HALDismantle(void);
+
+  static uint8_t _GetClockDivider( uint32_t spibasefreq, uint32_t speed );
+
+#if PIN_EXISTS(TFT_MISO)
+  static uint8_t clkdiv_read;
+#endif
+  static uint8_t clkdiv_write;
+
+  static bool active_transfer;
+  static bool active_dma;
+
 public:
   static DMA_HandleTypeDef DMAtx;
 
@@ -60,8 +80,8 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
-  static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); };
+  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT, eSPIMode spiMode = eSPIMode::WRITE);
+  static void DataTransferEnd();
   static void DataTransferAbort();
 
   static void WriteData(uint16_t Data) { Transmit(Data); }

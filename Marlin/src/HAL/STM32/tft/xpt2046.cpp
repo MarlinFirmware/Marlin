@@ -35,6 +35,46 @@ uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 
 SPI_HandleTypeDef XPT2046::SPIx;
 
+uint8_t XPT2046::_GetClockDivider( uint32_t spibasefreq, uint32_t speed )
+{
+  if ( speed >= (spibasefreq / 2) )
+  {
+    return SPI_BAUDRATEPRESCALER_2;
+  }
+  else if ( speed >= (spibasefreq / 4) )
+  {
+    return SPI_BAUDRATEPRESCALER_4;
+  }
+  else if ( speed >= (spibasefreq / 8) )
+  {
+    return SPI_BAUDRATEPRESCALER_8;
+  }
+  else if ( speed >= (spibasefreq / 16) )
+  {
+    return SPI_BAUDRATEPRESCALER_16;
+  }
+  else if ( speed >= (spibasefreq / 32) )
+  {
+    return SPI_BAUDRATEPRESCALER_32;
+  }
+  else if ( speed >= (spibasefreq / 64) )
+  {
+    return SPI_BAUDRATEPRESCALER_64;
+  }
+  else if ( speed >= (spibasefreq / 128) )
+  {
+    return SPI_BAUDRATEPRESCALER_128;
+  }
+  else
+  {
+    return SPI_BAUDRATEPRESCALER_256;
+  }
+}
+
+extern "C" {
+  #include <utility/spi_com.h>
+}
+
 void XPT2046::Init() {
   SPI_TypeDef *spiInstance;
 
@@ -49,14 +89,37 @@ void XPT2046::Init() {
   if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TOUCH_MOSI_PIN), PinMap_SPI_MOSI)) spiInstance = NP;
   if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TOUCH_MISO_PIN), PinMap_SPI_MISO)) spiInstance = NP;
 
-  SPIx.Instance                = spiInstance;
+  SPIx.Instance = spiInstance;
 
-  if (SPIx.Instance) {
+  if (spiInstance) {
+    uint8_t clkdiv;
+#ifdef TOUCH_BAUDRATE
+    spi_t tmp_spi;
+    tmp_spi.pin_sclk = digitalPinToPinName(TOUCH_SCK_PIN);
+    uint32_t spibasefreq = spi_getClkFreq(&tmp_spi);
+
+    clkdiv = _GetClockDivider(spibasefreq, TOUCH_BAUDRATE);
+#else
+    bool has_clkdiv = false;
+
+    #ifdef SPI1_BASE
+      if (spiInstance == SPI1)
+      {
+        clkdiv = SPI_BAUDRATEPRESCALER_16;
+        has_clkdiv = true;
+      }
+    #endif
+    if ( !has_clkdiv )
+    {
+      clkdiv = SPI_BAUDRATEPRESCALER_8;
+    }
+#endif
+
     SPIx.State                   = HAL_SPI_STATE_RESET;
     SPIx.Init.NSS                = SPI_NSS_SOFT;
     SPIx.Init.Mode               = SPI_MODE_MASTER;
     SPIx.Init.Direction          = SPI_DIRECTION_2LINES;
-    SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_8;
+    SPIx.Init.BaudRatePrescaler  = clkdiv;
     SPIx.Init.CLKPhase           = SPI_PHASE_2EDGE;
     SPIx.Init.CLKPolarity        = SPI_POLARITY_HIGH;
     SPIx.Init.DataSize           = SPI_DATASIZE_8BIT;
@@ -64,36 +127,132 @@ void XPT2046::Init() {
     SPIx.Init.TIMode             = SPI_TIMODE_DISABLE;
     SPIx.Init.CRCCalculation     = SPI_CRCCALCULATION_DISABLE;
     SPIx.Init.CRCPolynomial      = 10;
-
-    pinmap_pinout(digitalPinToPinName(TOUCH_SCK_PIN), PinMap_SPI_SCLK);
-    pinmap_pinout(digitalPinToPinName(TOUCH_MOSI_PIN), PinMap_SPI_MOSI);
-    pinmap_pinout(digitalPinToPinName(TOUCH_MISO_PIN), PinMap_SPI_MISO);
-
-    #ifdef SPI1_BASE
-      if (SPIx.Instance == SPI1) {
-        __HAL_RCC_SPI1_CLK_ENABLE();
-        SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_16;
-      }
-    #endif
-    #ifdef SPI2_BASE
-      if (SPIx.Instance == SPI2) {
-        __HAL_RCC_SPI2_CLK_ENABLE();
-      }
-    #endif
-    #ifdef SPI3_BASE
-      if (SPIx.Instance == SPI3) {
-        __HAL_RCC_SPI3_CLK_ENABLE();
-      }
-    #endif
   }
   else {
-    SPIx.Instance = nullptr;
     SET_INPUT(TOUCH_MISO_PIN);
     SET_OUTPUT(TOUCH_MOSI_PIN);
     SET_OUTPUT(TOUCH_SCK_PIN);
   }
 
   getRawData(XPT2046_Z1);
+}
+
+void XPT2046::HALPrepare(void)
+{
+  pinmap_pinout(digitalPinToPinName(TOUCH_SCK_PIN), PinMap_SPI_SCLK);
+  pinmap_pinout(digitalPinToPinName(TOUCH_MOSI_PIN), PinMap_SPI_MOSI);
+  pinmap_pinout(digitalPinToPinName(TOUCH_MISO_PIN), PinMap_SPI_MISO);
+
+  pin_PullConfig(get_GPIO_Port(STM_PORT(digitalPinToPinName(TOUCH_SCK_PIN))), STM_LL_GPIO_PIN(digitalPinToPinName(TOUCH_SCK_PIN)), GPIO_PULLDOWN);
+
+  #ifdef SPI1_BASE
+    if (SPIx.Instance == SPI1) {
+      __HAL_RCC_SPI1_CLK_ENABLE();
+      __HAL_RCC_SPI1_FORCE_RESET();
+      __HAL_RCC_SPI1_RELEASE_RESET();
+    }
+  #endif
+  #ifdef SPI2_BASE
+    if (SPIx.Instance == SPI2) {
+      __HAL_RCC_SPI2_CLK_ENABLE();
+      __HAL_RCC_SPI2_FORCE_RESET();
+      __HAL_RCC_SPI2_RELEASE_RESET();
+    }
+  #endif
+  #ifdef SPI3_BASE
+    if (SPIx.Instance == SPI3) {
+      __HAL_RCC_SPI3_CLK_ENABLE();
+      __HAL_RCC_SPI3_FORCE_RESET();
+      __HAL_RCC_SPI3_RELEASE_RESET();
+    }
+  #endif
+  #ifdef SPI4_BASE
+    if (SPIx.Instance == SPI4) {
+      __HAL_RCC_SPI4_CLK_ENABLE();
+      __HAL_RCC_SPI4_FORCE_RESET();
+      __HAL_RCC_SPI4_RELEASE_RESET();
+    }
+  #endif
+  #ifdef SPI5_BASE
+    if (SPIx.Instance == SPI5) {
+      __HAL_RCC_SPI5_CLK_ENABLE();
+      __HAL_RCC_SPI5_FORCE_RESET();
+      __HAL_RCC_SPI5_RELEASE_RESET();
+    }
+  #endif
+  #ifdef SPI6_BASE
+    if (SPIx.Instance == SPI6) {
+      __HAL_RCC_SPI6_CLK_ENABLE();
+      __HAL_RCC_SPI6_FORCE_RESET();
+      __HAL_RCC_SPI6_RELEASE_RESET();
+    }
+  #endif
+}
+
+void XPT2046::HALDismantle(void)
+{
+  #ifdef SPI1_BASE
+    if (SPIx.Instance == SPI1) {
+      __HAL_RCC_SPI1_FORCE_RESET();
+      __HAL_RCC_SPI1_RELEASE_RESET();
+      __HAL_RCC_SPI1_CLK_DISABLE();
+    }
+  #endif
+  #ifdef SPI2_BASE
+    if (SPIx.Instance == SPI2) {
+      __HAL_RCC_SPI2_FORCE_RESET();
+      __HAL_RCC_SPI2_RELEASE_RESET();
+      __HAL_RCC_SPI2_CLK_DISABLE();
+    }
+  #endif
+  #ifdef SPI3_BASE
+    if (SPIx.Instance == SPI3) {
+      __HAL_RCC_SPI3_FORCE_RESET();
+      __HAL_RCC_SPI3_RELEASE_RESET();
+      __HAL_RCC_SPI3_CLK_DISABLE();
+    }
+  #endif
+  #ifdef SPI4_BASE
+    if (SPIx.Instance == SPI4) {
+      __HAL_RCC_SPI4_FORCE_RESET();
+      __HAL_RCC_SPI4_RELEASE_RESET();
+      __HAL_RCC_SPI4_CLK_DISABLE();
+    }
+  #endif
+  #ifdef SPI5_BASE
+    if (SPIx.Instance == SPI5) {
+      __HAL_RCC_SPI5_FORCE_RESET();
+      __HAL_RCC_SPI5_RELEASE_RESET();
+      __HAL_RCC_SPI5_CLK_DISABLE();
+    }
+  #endif
+  #ifdef SPI6_BASE
+    if (SPIx.Instance == SPI6) {
+      __HAL_RCC_SPI6_FORCE_RESET();
+      __HAL_RCC_SPI6_RELEASE_RESET();
+      __HAL_RCC_SPI6_CLK_DISABLE();
+    }
+  #endif
+}
+
+void XPT2046::DataTransferBegin(void)
+ {
+  if (SPIx.Instance)
+  {
+    HALPrepare();
+    HAL_SPI_Init(&SPIx);
+  }
+  WRITE(TOUCH_CS_PIN, LOW);
+}
+
+void XPT2046::DataTransferEnd(void)
+{
+  WRITE(TOUCH_CS_PIN, HIGH);
+  if (SPIx.Instance)
+  {
+    HAL_SPI_DeInit(&SPIx);
+    HALDismantle();
+  }
 }
 
 bool XPT2046::isTouched() {
