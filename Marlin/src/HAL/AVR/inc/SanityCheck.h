@@ -40,13 +40,15 @@
 #if SERIAL_IN_USE(0)
   // D0-D1. No known conflicts.
 #endif
-#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
-  #if SERIAL_IN_USE(1) && (CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19))
-    #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
-  #endif
-#else
-  #if SERIAL_IN_USE(1) && (CHECK_SERIAL_PIN(10) || CHECK_SERIAL_PIN(11))
-    #error "Serial Port 1 pin D10 and/or D11 conflicts with another pin on the board."
+#if SERIAL_IN_USE(1)
+  #if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
+    #if CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19)
+      #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
+    #endif
+  #else
+    #if CHECK_SERIAL_PIN(10) || CHECK_SERIAL_PIN(11)
+      #error "Serial Port 1 pin D10 and/or D11 conflicts with another pin on the board."
+    #endif
   #endif
 #endif
 #if SERIAL_IN_USE(2) && (CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17))
