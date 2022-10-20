@@ -503,9 +503,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
                 grabxpos = toolheadposx[new_tool];
-    const float offset_x = hotend_offset[active_extruder].x;
-    const float offset_y = hotend_offset[active_extruder].y;
-    const float offset_z = hotend_offset[active_extruder].z;
+    #if HAS_HOTEND_OFFSET
+      const float offset_x = hotend_offset[active_extruder].x;
+      const float offset_y = hotend_offset[active_extruder].y;
+      // const float offset_z = hotend_offset[active_extruder].z;
+    #endif
 
     (void)check_tool_sensor_stats(active_extruder, true);
 
@@ -520,14 +522,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     DEBUG_POS("Start ST Tool-Change", current_position);
 
-    current_position.x = placexpos + offset_x;
+    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, placexpos, offset_x);
 
     DEBUG_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move X SwitchPos", current_position);
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY) + offset_y;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY), offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -542,7 +544,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(false);
     safe_delay(500);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + offset_y;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS , offset_y);
     DEBUG_POS("Move Y SwitchPos", current_position);
     slow_line_to_current(Y_AXIS);
 
@@ -550,7 +552,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(200);
 
-    current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR - offset_y;
+    current_position.y -= DIFF_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_CLEAR, offset_y);
     DEBUG_POS("Move back Y clear", current_position);
     slow_line_to_current(Y_AXIS); // move away from docked toolhead
 
@@ -558,7 +560,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 3. Move to the new toolhead
 
-    current_position.x = grabxpos + offset_x;
+    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, grabxpos, offset_x);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(3) Move to new toolhead position");
@@ -566,7 +568,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY) + offset_y;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY),  offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -575,7 +577,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 4. Grab and lock the new toolhead
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + offset_y;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS , offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab and lock new toolhead");
@@ -592,7 +594,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(true);
     safe_delay(500);
 
-    current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR - offset_y;
+    current_position.y -= DIFF_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_CLEAR, offset_y);
     DEBUG_POS("Move back Y clear", current_position);
     slow_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
@@ -1277,7 +1279,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         if (!no_move) {
-          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          const float newz = SUM_TERN(HAS_HOTEND_OFFSET, current_position.z, _MAX(-diff.z, 0.0));
 
           // Check if Z has space to compensate at least z_offset, and if not, just abort now
           const float maxz = _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS);
@@ -1295,9 +1297,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       (void)check_tool_sensor_stats(active_extruder, true);
 
-      // The newly-selected extruder XYZ is actually at...
-      DEBUG_ECHOLNPGM("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
-      current_position += diff;
+      #if HAS_HOTEND_OFFSET
+        // The newly-selected extruder XYZ is actually at...
+        DEBUG_ECHOLNPGM("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
+        current_position += diff;
+      #endif
 
       // Tell the planner the new "current position"
       sync_plan_position();
