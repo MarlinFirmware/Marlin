@@ -743,7 +743,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
                 grabxpos = toolheadposx[new_tool];
-    const xyz_pos_t &hoffs = hotend_offset[active_extruder];
+    const xyz_pos_t &hotend_offsets = hotend_offset[active_extruder];
 
     /**
      * 1. Raise Z-Axis to give enough clearance
@@ -771,8 +771,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_ECHOLNPGM("(2) Move near active extruder parking", active_extruder);
     DEBUG_POS("Moving ParkPos", current_position);
 
-    current_position.set(hoffs.x + placexpos,
-                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+    current_position.set(hotend_offsets.x + placexpos,
+                         hotend_offsets.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
     fast_line_to_current(X_AXIS);
 
     // 3. Move gently to park position of active extruder
@@ -797,8 +797,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
     slow_line_to_current(Y_AXIS);
-    current_position.set(hoffs.x + grabxpos,
-                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+    current_position.set(hotend_offsets.x + grabxpos,
+                         hotend_offsets.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
     fast_line_to_current(X_AXIS);
 
     // 6. Move gently to park position of new extruder
@@ -826,7 +826,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 9. Apply Z hotend offset to current position
 
     DEBUG_POS("(9) Applying Z-offset", current_position);
-    current_position.z += hoffs.z - hotend_offset[new_tool].z;
+    current_position.z += hotend_offsets.z - hotend_offset[new_tool].z;
 
     DEBUG_POS("EMST Tool-Change done.", current_position);
   }
