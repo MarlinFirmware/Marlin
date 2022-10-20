@@ -165,13 +165,13 @@
 #define EXP2_05_PIN                         PB0
 #define EXP2_06_PIN                         PB15
 #define EXP2_07_PIN                         PC10
-#define EXP2_08_PIN                         -1   // RESET
+#define EXP2_08_PIN                         -1    // RESET
 
 // "Ender-3 EXP1"
 #define EXP3_01_PIN                         PC1
 #define EXP3_02_PIN                         PC3
 #define EXP3_03_PIN                         PB11
-#define EXP3_04_PIN                         -1   // RESET
+#define EXP3_04_PIN                         -1    // RESET
 #define EXP3_05_PIN                         PB0
 #define EXP3_06_PIN                         PA6
 #define EXP3_07_PIN                         PA5
@@ -249,14 +249,16 @@
 //
 // SD Card
 //
-// DEFAULT_SPI  == 2 defines the following pins
+// DEFAULT_SPI == 2 defines the following pins,
+// used as overrides in HAL/STM32/spi_pins.h
 //
-// #define PIN_SPI_SS            PB12
-// #define PIN_SPI_MOSI          PB15
-// #define PIN_SPI_MISO          PB14
-// #define PIN_SPI_SCK           PB13
+//#define PIN_SPI_SS                        PB12
+//#define PIN_SPI_MOSI                      PB15
+//#define PIN_SPI_MISO                      PB14
+//#define PIN_SPI_SCK                       PB13
+
 //
-// Onboard SDCARD uses thes pins and is shared on EXP2 for LCD's
+// Onboard SDCARD uses these pins and is shared on EXP2 for LCDs
 //
 // SPI2_CS   PA15
 // SPI2_MOSI PB15
@@ -266,6 +268,6 @@
 
 #if ENABLED(SDSUPPORT)
   #define NO_SD_HOST_DRIVE
-  #define SDSS                                EXP2_04_PIN // PA15
-  #define SD_DETECT_PIN                       EXP2_07_PIN // PC10
-#endif 
+  #define SDSS                       EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
+#endif

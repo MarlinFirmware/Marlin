@@ -250,7 +250,7 @@
     #define SD_SCK_PIN                      PC10
     #define SD_MISO_PIN                     PC11
     #define SD_MOSI_PIN                     PC12
-    #define SD_DETECT_PIN                   PC4   // SD_DETECT_PIN doesn't work with NO_SD_HOST_DRIVE disabled
+    #define SD_DETECT_PIN                   PC4   // Doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
   #elif SD_CONNECTION_IS(LCD)
     #define ENABLE_SPI1
     #define SDSS                     EXP2_04_PIN

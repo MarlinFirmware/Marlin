@@ -106,7 +106,7 @@
 #define FAN2_PIN                             135
 #define FAN3_PIN                             136
 
-// #define FAN_SOFT_PWM_REQUIRED // check if needed
+//#define FAN_SOFT_PWM_REQUIRED // check if needed
 
 // Neopixel Rings
 #define NEOPIXEL_PIN                          14
