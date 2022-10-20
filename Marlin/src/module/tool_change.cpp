@@ -617,6 +617,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
                 grabxpos = toolheadposx[new_tool],
                 grabxclear = toolheadclearx[new_tool];
 
+    #if HAS_HOTEND_OFFSET
+      const float offset_x = hotend_offset[active_extruder].x;
+      const float offset_y = hotend_offset[active_extruder].y;
+      // const float offset_z = hotend_offset[active_extruder].z;
+    #endif
+
     /**
      * 1. Move to switch position of current toolhead
      * 2. Release and place toolhead in the dock
@@ -628,28 +634,28 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Move to switch position current toolhead
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR, offset_y);
 
     SERIAL_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
     fast_line_to_current(Y_AXIS);
 
-    current_position.x = placexclear;
+    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, placexclear, offset_x);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move X SwitchPos + Security", current_position);
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos", current_position);
 
     fast_line_to_current(Y_AXIS);
 
-    current_position.x = placexpos;
+    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, placexpos, offset_x);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move X SwitchPos", current_position);
@@ -661,11 +667,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE, offset_y);
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_SECURITY;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_SECURITY, offse_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
@@ -677,7 +683,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(3) Move to new toolhead position");
 
-    current_position.x = grabxpos;
+    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, grabxpos, offset_x);
     DEBUG_POS("Move to new toolhead X", current_position);
     fast_line_to_current(X_AXIS);
 
@@ -686,11 +692,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE, offset_x);
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS;
+    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, offset_y);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos", current_position);
@@ -711,7 +717,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       safe_delay(100); // Give switch time to settle
     #endif
 
-    current_position.x = grabxclear;
+    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, grabxclear, offset_x);
     DEBUG_POS("Move to new toolhead X + Security", current_position);
     _line_to_current(X_AXIS, 0.1f);
     planner.synchronize();
