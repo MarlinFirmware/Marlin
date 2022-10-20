@@ -91,16 +91,14 @@
 #define E2_ENABLE_PIN                       PD0
 #define E2_CS_PIN                           PD1
 
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     PA7
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     PA6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      PA5
 #endif
 
 //

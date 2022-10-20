@@ -145,19 +145,17 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers.
+// SPI pins for TMC2130 stepper drivers.
 // Required for the Archim2 board.
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       28  // PD3
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       26  // PD1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        27  // PD2
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                       28  // PD3
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                       26  // PD1
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                        27  // PD2
 #endif
 
 //

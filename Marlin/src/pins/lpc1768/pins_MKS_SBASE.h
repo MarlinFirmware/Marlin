@@ -300,16 +300,14 @@
   // Hardware SPI is on EXP2. See if you can make it work:
   // https://github.com/makerbase-mks/MKS-SBASE/issues/25
   #define TMC_USE_SW_SPI
-  #if ENABLED(TMC_USE_SW_SPI)
-    #ifndef TMC_SW_MOSI
-      #define TMC_SW_MOSI                  P0_03  // AUX1
-    #endif
-    #ifndef TMC_SW_MISO
-      #define TMC_SW_MISO                  P0_02  // AUX1
-    #endif
-    #ifndef TMC_SW_SCK
-      #define TMC_SW_SCK                   P0_26  // TH4
-    #endif
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                  P0_03  // AUX1
+  #endif
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                  P0_02  // AUX1
+  #endif
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                   P0_26  // TH4
   #endif
 
 #endif

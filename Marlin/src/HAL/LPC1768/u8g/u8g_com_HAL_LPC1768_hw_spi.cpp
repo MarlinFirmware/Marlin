@@ -73,6 +73,7 @@
 uint8_t u8g_com_HAL_LPC1768_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   switch (msg) {
     case U8G_COM_MSG_STOP:
+      spiClose();
       break;
 
     case U8G_COM_MSG_INIT:

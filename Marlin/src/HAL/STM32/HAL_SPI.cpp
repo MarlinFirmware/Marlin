@@ -81,6 +81,10 @@ static SPISettings spiConfig;
     SPI.begin();
   }
 
+  void spiClose() {
+    SPI.end();
+  }
+
   // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) { /* do nothing */ }
 
@@ -171,7 +175,12 @@ static SPISettings spiConfig;
     SPI.setMOSI(SD_MOSI_PIN);
     SPI.setSCLK(SD_SCK_PIN);
 
-    SPI.begin();
+    SPI.beginTransaction(spiConfig);
+  }
+
+  void spiClose() {
+    // Terminates SPI activity.
+    SPI.end();
   }
 
   /**

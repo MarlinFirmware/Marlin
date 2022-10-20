@@ -102,6 +102,10 @@ void spiInit(uint8_t spiRate) {
   SPI.setDataMode(SPI_MODE0);
 }
 
+void spiClose() {
+  SPI.end();
+}
+
 /**
  * @brief  Receive a single byte from the SPI port.
  *

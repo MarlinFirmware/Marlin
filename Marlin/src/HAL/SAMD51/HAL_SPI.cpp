@@ -82,6 +82,10 @@
     sdSPI.begin();
   }
 
+  void spiClose() {
+    sdSPI.end();
+  }
+
   /**
    * @brief  Receives a single byte from the SPI port.
    *

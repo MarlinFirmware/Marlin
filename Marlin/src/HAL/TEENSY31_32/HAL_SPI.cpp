@@ -70,6 +70,10 @@ void spiInit(uint8_t spiRate) {
   SPI.begin();
 }
 
+void spiClose() {
+  SPI.end();
+}
+
 // SPI receive a byte
 uint8_t spiRec() {
   SPI.beginTransaction(spiConfig);

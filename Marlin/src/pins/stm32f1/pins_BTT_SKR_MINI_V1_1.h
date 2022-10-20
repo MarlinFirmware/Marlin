@@ -68,16 +68,15 @@
 #define E0_DIR_PIN                          PB0
 #define E0_ENABLE_PIN                       PC4
 
-#if ENABLED(TMC_USE_SW_SPI)                       // Shared with EXP2
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB3
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB4
-  #endif
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB5
-  #endif
+// Shared with EXP2
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      PB3
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     PB4
+#endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     PB5
 #endif
 
 #if HAS_TMC_UART                                  // Shared with EXP1

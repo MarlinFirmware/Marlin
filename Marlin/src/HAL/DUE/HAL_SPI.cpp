@@ -521,6 +521,8 @@
     WRITE(SD_SCK_PIN, LOW);
   }
 
+  void spiClose() {}
+
   /** Begin SPI transaction, set clock, bit order, data mode */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // TODO: to be implemented
@@ -566,6 +568,10 @@
                         SPI_CSR_DLYBCT(1));
       SPI_Enable(SPI0);
       spiInitialized = true;
+    }
+
+    void spiClose() {
+      // TODO?
     }
 
     void spiBegin() {
@@ -781,6 +787,10 @@
       // SPI mode 3, 8 Bit data transfer, baud rate
       SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDivider[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // use same CSR as TMC2130
       SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDivider[1]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // U8G default to 4MHz
+    }
+
+    void spiClose() {
+      // TODO?
     }
 
     void spiBegin() { spiInit(); }

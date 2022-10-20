@@ -3059,6 +3059,11 @@ void Temperature::disable_all_heaters() {
         if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
       }
 
+      #if !HAS_MAXTC_SW_SPI
+        // Need to terminate our work.
+        spiClose();
+      #endif
+
       MAXTC_CS_WRITE(HIGH);  // Disable MAXTC
     #else
       #if HAS_MAX6675_LIBRARY

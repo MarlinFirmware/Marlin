@@ -164,11 +164,11 @@
 
   // When using any TMC SPI-based drivers, software SPI is used
   // because pins may be shared with the display or SD card.
-  #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI                EXP2_06_PIN
-  #define TMC_SW_MISO                EXP2_01_PIN
+  //#define TMC_USE_SW_SPI
+  #define TMC_SPI_MOSI                EXP2_06_PIN
+  #define TMC_SPI_MISO                EXP2_01_PIN
   // To minimize pin usage use the same clock pin as the display/SD card reader. (May generate LCD noise.)
-  #define TMC_SW_SCK                 EXP2_02_PIN
+  #define TMC_SPI_SCK                 EXP2_02_PIN
   // If pin 2_06 is unused, it can be used for the clock to avoid the LCD noise.
   //#define TMC_SW_SCK                     P2_06
 

@@ -81,6 +81,10 @@ void spiBegin() {
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
   }
 
+  void spiClose() {
+    // nop.
+  }
+
   /** SPI receive a byte */
   uint8_t spiRec() {
     SPDR = 0xFF;
@@ -186,6 +190,7 @@ void spiBegin() {
   #define nop asm volatile ("\tnop\n")
 
   void spiInit(uint8_t) { /* do nothing */ }
+  void spiClose() { /* do nothing */ }
 
   // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) { /* do nothing */ }

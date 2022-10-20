@@ -63,7 +63,9 @@ uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
   }
 
   switch (msg) {
-    case U8G_COM_MSG_STOP: break;
+    case U8G_COM_MSG_STOP:
+      spiClose();
+      break;
 
     case U8G_COM_MSG_INIT:
       OUT_WRITE(DOGLCD_CS, HIGH);

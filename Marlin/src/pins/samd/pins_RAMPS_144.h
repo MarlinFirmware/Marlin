@@ -164,18 +164,16 @@
 #endif
 
 //
-// TMC software SPI
+// TMC SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       58  // Mega/Due:66 - AGCM4:58
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        56  // Mega/Due:64 - AGCM4:56
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                       58  // Mega/Due:66 - AGCM4:58
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                       44
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                        56  // Mega/Due:64 - AGCM4:56
 #endif
 
 #if HAS_TMC_UART

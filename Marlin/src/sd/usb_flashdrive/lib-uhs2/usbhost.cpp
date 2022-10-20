@@ -121,12 +121,12 @@ bool MAX3421e::start() {
   const uint8_t revision = regRd(rREVISION);
   if (revision == 0x00 || revision == 0xFF) {
     SERIAL_ECHOLNPGM("Revision register appears incorrect on MAX3421e initialization. Got ", revision);
-    return false;
+    goto fail;
   }
 
   if (!reset()) {
     SERIAL_ECHOLNPGM("OSCOKIRQ hasn't asserted in time");
-    return false;
+    goto fail;
   }
 
   // Delay a minimum of 1 second to ensure any capacitors are drained.
@@ -149,7 +149,11 @@ bool MAX3421e::start() {
   // GPX pin on. This is done here so that busprobe will fail if we have a switch connected.
   regWr(rPINCTL, bmFDUPSPI | bmINTLEVEL);
 
+  spiClose();
   return true;
+fail:
+  spiClose();
+  return false;
 }
 
 // Probe bus to determine device presence and speed. Switch host to this speed.

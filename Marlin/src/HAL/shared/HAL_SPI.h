@@ -64,6 +64,9 @@ void spiBegin();
 // Configure SPI for specified SPI speed
 void spiInit(uint8_t spiRate);
 
+// Terminates SPI connection.
+void spiClose();
+
 // Write single byte to SPI
 void spiSend(uint8_t b);
 

@@ -80,6 +80,9 @@
     SPI_speed = swSpiInit(spiRate, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
+  void spiClose() {
+  }
+
   uint8_t spiRec() { return spiTransfer(0xFF); }
 
   void spiRead(uint8_t*buf, uint16_t nbyte) {
@@ -122,6 +125,8 @@
     SPI.setClock(SPISettings::spiRate2Clock(spiRate));
     SPI.begin();
   }
+
+  void spiClose() { SPI.end(); }
 
   static uint8_t doio(uint8_t b) {
     return SPI.transfer(b & 0x00FF) & 0x00FF;

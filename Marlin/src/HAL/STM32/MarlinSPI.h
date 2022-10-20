@@ -67,7 +67,7 @@ public:
   }
 
   void begin(void);
-  void end(void) {}
+  void end(void);
 
   byte transfer(uint8_t _data);
   uint8_t dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16_t length);

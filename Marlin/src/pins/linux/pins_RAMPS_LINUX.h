@@ -247,18 +247,16 @@
 #endif
 
 /**
- * Default pins for TMC software SPI
+ * Default pins for TMC SPI
  */
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       66
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        64
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                       66
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                       44
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                        64
 #endif
 
 #if HAS_TMC_UART
