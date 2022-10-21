@@ -1085,3 +1085,17 @@
 #else
   #define CALC_FAN_SPEED(f) (f ? map(f, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
 #endif
+
+// Input shaping
+#if ENABLED(INPUT_SHAPING)
+  #if !HAS_Y_AXIS
+    #undef SHAPING_FREQ_Y
+    #undef SHAPING_BUFFER_Y
+  #endif
+  #ifdef SHAPING_FREQ_X
+    #define HAS_SHAPING_X 1
+  #endif
+  #ifdef SHAPING_FREQ_Y
+    #define HAS_SHAPING_Y 1
+  #endif
+#endif
