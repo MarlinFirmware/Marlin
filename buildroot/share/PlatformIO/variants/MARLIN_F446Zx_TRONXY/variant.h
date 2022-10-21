@@ -24,8 +24,9 @@ extern "C" {
 #endif // __cplusplus
 
 extern unsigned long myvar[];
-void myshow(int fre,int times);
-void debugStr(const char*str);
+void myshow(int fre, int times);
+void debugStr(const char *str);
+
 /*----------------------------------------------------------------------------
  *        Pins
  *----------------------------------------------------------------------------*/
