@@ -1056,7 +1056,7 @@
 // @section motion
 
 /**
- * Input Shaping
+ * Input Shaping -- EXPERIMENTAL
  *
  * Zero Vibration (ZV) Input Shaping for X and/or Y movements.
  *
