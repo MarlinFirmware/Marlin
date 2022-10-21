@@ -1075,6 +1075,17 @@
   #define HAS_DISABLE_INACTIVE_AXIS 1
 #endif
 
+// Fan Kickstart
+#if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
+  #define FAN_KICKSTART_POWER 180
+#endif
+
+#if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255
+  #define CALC_FAN_SPEED(f) (f ?: FAN_OFF_PWM)
+#else
+  #define CALC_FAN_SPEED(f) (f ? map(f, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
+#endif
+
 // Input shaping
 #if ENABLED(INPUT_SHAPING)
   #if !HAS_Y_AXIS
