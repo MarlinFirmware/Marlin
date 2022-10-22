@@ -163,7 +163,15 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
-      tool_change(extruder);
+      #if ENABLED(CALIBRATION_TOOLCHANGE_FEATURE_DISABLED)
+        toolchange_settings_t tmp0 = {0};
+        REMEMBER(tmp, toolchange_settings);
+        toolchange_settings = tmp0;
+        tool_change(extruder);
+        RESTORE(tmp);
+      #else
+        tool_change(extruder);
+      #endif
     }
   }
 #endif
@@ -268,10 +276,10 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
   #define _PCASE(N) _ACASE(N, N##MINIMUM, N##MAXIMUM)
 
   switch (side) {
-    #if AXIS_CAN_CALIBRATE(X)
+    #if HAS_X_AXIS && ( AXIS_CAN_CALIBRATE(X) || ENABLED(CALIBRATION_ALLOW_XY_IS_CORE))
       _ACASE(X, RIGHT, LEFT);
     #endif
-    #if HAS_Y_AXIS && AXIS_CAN_CALIBRATE(Y)
+    #if HAS_Y_AXIS && ( AXIS_CAN_CALIBRATE(Y) || ENABLED(CALIBRATION_ALLOW_XY_IS_CORE))
       _ACASE(Y, BACK, FRONT);
     #endif
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
