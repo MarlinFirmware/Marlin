@@ -2543,6 +2543,21 @@
 #undef TMC_UART_IS
 #undef ANY_SERIAL_IS
 
+// Clean up unused ESP_WIFI pins
+#ifdef ESP_WIFI_MODULE_COM
+  #if !SERIAL_IN_USE(ESP_WIFI_MODULE_COM)
+    #undef ESP_WIFI_MODULE_COM
+    #undef ESP_WIFI_MODULE_BAUDRATE
+    #undef ESP_WIFI_MODULE_RESET_PIN
+    #undef ESP_WIFI_MODULE_ENABLE_PIN
+    #undef ESP_WIFI_MODULE_TXD_PIN
+    #undef ESP_WIFI_MODULE_RXD_PIN
+    #undef ESP_WIFI_MODULE_GPIO0_PIN
+    #undef ESP_WIFI_MODULE_GPIO2_PIN
+    #undef ESP_WIFI_MODULE_GPIO4_PIN
+  #endif
+#endif
+
 //
 // Endstops and bed probe
 //
