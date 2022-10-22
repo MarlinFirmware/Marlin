@@ -521,7 +521,7 @@ namespace Language_it {
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Ritrazione pulizia");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Velocità ritrazione");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Parcheggia testa");
-  LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Recover Speed");
+  LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Veloc. di recupero");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Velocità ventola");
   LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Tempo ventola");
   LSTR MSG_TOOL_MIGRATION_ON              = _UxGT("Auto ON");
