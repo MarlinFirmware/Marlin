@@ -739,7 +739,7 @@
       #endif
 
     /*
-    #not sure if this should be referencing 1, makes sense for it to be 0.  
+    #not sure if this should be referencing 1, makes sense for it to be 0.
 
     #elif TEMP_SENSOR_1_IS_MAX31865
       #if !PIN_EXISTS(TEMP_1_MISO) // DO

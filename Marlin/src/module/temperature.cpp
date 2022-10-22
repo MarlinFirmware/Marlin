@@ -113,15 +113,14 @@
 //  3. CS, MISO, and SCK pins w/ FORCE_HW_SPI:  Hardware SPI on the default bus, ignoring MISO, SCK.
 //
 #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && TEMP_SENSOR_0_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
-    #define TEMP_SENSOR_0_USES_SW_SPI 1
+  #define TEMP_SENSOR_0_USES_SW_SPI 1
 #endif
 #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && TEMP_SENSOR_1_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
-    #define TEMP_SENSOR_1_USES_SW_SPI 1
+  #define TEMP_SENSOR_1_USES_SW_SPI 1
 #endif
 #if TEMP_SENSOR_IS_ANY_MAX_TC(2) && TEMP_SENSOR_2_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
-    #define TEMP_SENSOR_2_USES_SW_SPI 1
+  #define TEMP_SENSOR_2_USES_SW_SPI 1
 #endif
-
 
 #if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI || TEMP_SENSOR_2_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
   #include "../libs/private_spi.h"
@@ -145,7 +144,7 @@
     #define SW_SPI_MISO_PIN   TEMP_2_MISO_PIN
     #if PIN_EXISTS(TEMP_2_MOSI)
       #define SW_SPI_MOSI_PIN TEMP_2_MOSI_PIN
-    #endif  
+    #endif
   #endif
   #ifndef SW_SPI_MOSI_PIN
     #define SW_SPI_MOSI_PIN   SD_MOSI_PIN
@@ -562,6 +561,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
+  #define MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR 1
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
 #endif
 
@@ -2391,7 +2391,6 @@ void Temperature::updateTemperaturesFromRawValues() {
         #else
           , TEMPDIR(2)
         #endif
-
         #if HOTENDS > 3
           #define _TEMPDIR(N) , TEMPDIR(N)
           REPEAT_S(3, HOTENDS, _TEMPDIR)
@@ -2407,15 +2406,12 @@ void Temperature::updateTemperaturesFromRawValues() {
 
       const bool heater_on = temp_hotend[e].target > 0;
       if (heater_on && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min))) {
-        #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
-          if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
-        #endif
-            min_temp_error((heater_id_t)e);
+        if (TERN1(MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR, ++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED))
+          min_temp_error((heater_id_t)e);
       }
-      #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
-        else
-          consecutive_low_temperature_error[e] = 0;
-      #endif
+      else {
+        TERN_(MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR, consecutive_low_temperature_error[e] = 0);
+      }
     }
 
   #endif // HAS_HOTEND
