@@ -737,25 +737,6 @@
       #if !PIN_EXISTS(TEMP_0_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
         #define TEMP_0_MOSI_PIN MAX31865_MOSI_PIN
       #endif
-
-    /*
-    #not sure if this should be referencing 1, makes sense for it to be 0.
-
-    #elif TEMP_SENSOR_1_IS_MAX31865
-      #if !PIN_EXISTS(TEMP_1_MISO) // DO
-        #if PIN_EXISTS(MAX31865_MISO)
-          #define TEMP_1_MISO_PIN MAX31865_MISO_PIN
-        #elif PIN_EXISTS(MAX31865_DO)
-          #define TEMP_1_MISO_PIN MAX31865_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX31865_SCK)
-        #define TEMP_1_SCK_PIN MAX31865_SCK_PIN
-      #endif
-      #if !PIN_EXISTS(TEMP_1_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
-        #define TEMP_1_MOSI_PIN MAX31865_MOSI_PIN
-      #endif
-    */
     #endif
 
     // Software SPI - enable if MISO/SCK are defined.
