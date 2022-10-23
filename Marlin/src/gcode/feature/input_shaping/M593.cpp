@@ -30,13 +30,14 @@
 void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F("Input Shaping"));
   #if HAS_SHAPING_X
-    SERIAL_ECHO_MSG("M593 X"
+    SERIAL_ECHOLNPGM("  M593 X"
       " F", stepper.get_shaping_frequency(X_AXIS),
       " D", stepper.get_shaping_damping_ratio(X_AXIS)
     );
   #endif
   #if HAS_SHAPING_Y
-    SERIAL_ECHO_MSG("M593 Y"
+    TERN_(HAS_SHAPING_X, report_echo_start(forReplay));
+    SERIAL_ECHOLNPGM("  M593 Y"
       " F", stepper.get_shaping_frequency(Y_AXIS),
       " D", stepper.get_shaping_damping_ratio(Y_AXIS)
     );
