@@ -115,7 +115,7 @@
 
   void move_extruder_servo(const uint8_t e) {
     planner.synchronize();
-    if ((EXTRUDERS & 1) && e < EXTRUDERS - 1) {
+    if (e < EXTRUDERS) {
       servo[_SERVO_NR(e)].move(servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
