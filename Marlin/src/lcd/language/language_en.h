@@ -399,6 +399,11 @@ namespace Language_en {
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
   LSTR MSG_A_TRAVEL                       = _UxGT("Travel Accel");
+  LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
+  LSTR MSG_SHAPING_X_FREQ                 = STR_X _UxGT(" frequency");
+  LSTR MSG_SHAPING_Y_FREQ                 = STR_Y _UxGT(" frequency");
+  LSTR MSG_SHAPING_X_ZETA                 = STR_X _UxGT(" damping");
+  LSTR MSG_SHAPING_Y_ZETA                 = STR_Y _UxGT(" damping");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("XY Freq Limit");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min FR Factor");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Steps/mm");

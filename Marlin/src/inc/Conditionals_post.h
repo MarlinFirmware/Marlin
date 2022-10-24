@@ -723,19 +723,19 @@
         #define TEMP_0_SCK_PIN MAX31855_SCK_PIN
       #endif
 
-    #elif TEMP_SENSOR_1_IS_MAX31865
-      #if !PIN_EXISTS(TEMP_1_MISO) // DO
+    #elif TEMP_SENSOR_0_IS_MAX31865
+      #if !PIN_EXISTS(TEMP_0_MISO) // DO
         #if PIN_EXISTS(MAX31865_MISO)
-          #define TEMP_1_MISO_PIN MAX31865_MISO_PIN
+          #define TEMP_0_MISO_PIN MAX31865_MISO_PIN
         #elif PIN_EXISTS(MAX31865_DO)
-          #define TEMP_1_MISO_PIN MAX31865_DO_PIN
+          #define TEMP_0_MISO_PIN MAX31865_DO_PIN
         #endif
       #endif
-      #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX31865_SCK)
-        #define TEMP_1_SCK_PIN MAX31865_SCK_PIN
+      #if !PIN_EXISTS(TEMP_0_SCK) && PIN_EXISTS(MAX31865_SCK)
+        #define TEMP_0_SCK_PIN MAX31865_SCK_PIN
       #endif
-      #if !PIN_EXISTS(TEMP_1_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
-        #define TEMP_1_MOSI_PIN MAX31865_MOSI_PIN
+      #if !PIN_EXISTS(TEMP_0_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
+        #define TEMP_0_MOSI_PIN MAX31865_MOSI_PIN
       #endif
     #endif
 
@@ -818,6 +818,75 @@
     #endif
 
   #endif // TEMP_SENSOR_IS_MAX_TC(1)
+
+  #if TEMP_SENSOR_IS_MAX_TC(2) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2))
+
+    #if !PIN_EXISTS(TEMP_2_CS) // SS3, CS3
+      #if PIN_EXISTS(MAX6675_SS3)
+        #define TEMP_2_CS_PIN MAX6675_SS3_PIN
+      #elif PIN_EXISTS(MAX6675_CS)
+        #define TEMP_2_CS_PIN MAX6675_CS3_PIN
+      #elif PIN_EXISTS(MAX31855_SS3)
+        #define TEMP_2_CS_PIN MAX31855_SS3_PIN
+      #elif PIN_EXISTS(MAX31855_CS3)
+        #define TEMP_2_CS_PIN MAX31855_CS3_PIN
+      #elif PIN_EXISTS(MAX31865_SS3)
+        #define TEMP_2_CS_PIN MAX31865_SS3_PIN
+      #elif PIN_EXISTS(MAX31865_CS3)
+        #define TEMP_2_CS_PIN MAX31865_CS3_PIN
+      #endif
+    #endif
+
+    #if TEMP_SENSOR_2_IS_MAX6675
+      #if !PIN_EXISTS(TEMP_2_MISO) // DO
+        #if PIN_EXISTS(MAX6675_MISO)
+          #define TEMP_2_MISO_PIN MAX6675_MISO_PIN
+        #elif PIN_EXISTS(MAX6675_DO)
+          #define TEMP_2_MISO_PIN MAX6675_DO_PIN
+        #endif
+      #endif
+      #if !PIN_EXISTS(TEMP_2_SCK) && PIN_EXISTS(MAX6675_SCK)
+        #define TEMP_2_SCK_PIN MAX6675_SCK_PIN
+      #endif
+
+    #elif TEMP_SENSOR_2_IS_MAX31855
+      #if !PIN_EXISTS(TEMP_2_MISO) // DO
+        #if PIN_EXISTS(MAX31855_MISO)
+          #define TEMP_2_MISO_PIN MAX31855_MISO_PIN
+        #elif PIN_EXISTS(MAX31855_DO)
+          #define TEMP_2_MISO_PIN MAX31855_DO_PIN
+        #endif
+      #endif
+      #if !PIN_EXISTS(TEMP_2_SCK) && PIN_EXISTS(MAX31855_SCK)
+        #define TEMP_2_SCK_PIN MAX31855_SCK_PIN
+      #endif
+
+    #elif TEMP_SENSOR_2_IS_MAX31865
+      #if !PIN_EXISTS(TEMP_2_MISO) // DO
+        #if PIN_EXISTS(MAX31865_MISO)
+          #define TEMP_2_MISO_PIN MAX31865_MISO_PIN
+        #elif PIN_EXISTS(MAX31865_DO)
+          #define TEMP_2_MISO_PIN MAX31865_DO_PIN
+        #endif
+      #endif
+      #if !PIN_EXISTS(TEMP_2_SCK) && PIN_EXISTS(MAX31865_SCK)
+        #define TEMP_2_SCK_PIN MAX31865_SCK_PIN
+      #endif
+      #if !PIN_EXISTS(TEMP_2_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
+        #define TEMP_2_MOSI_PIN MAX31865_MOSI_PIN
+      #endif
+    #endif
+
+    // Software SPI - enable if MISO/SCK are defined.
+    #if PIN_EXISTS(TEMP_2_MISO) && PIN_EXISTS(TEMP_2_SCK) && DISABLED(TEMP_SENSOR_2_FORCE_HW_SPI)
+      #if TEMP_SENSOR_2_IS_MAX31865 && !PIN_EXISTS(TEMP_2_MOSI)
+        #error "TEMP_SENSOR_2 MAX31865 requires TEMP_2_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_2_FORCE_HW_SPI."
+      #else
+        #define TEMP_SENSOR_2_HAS_SPI_PINS 1
+      #endif
+    #endif
+
+  #endif // TEMP_SENSOR_IS_MAX_TC(2)
 
   //
   // User-defined thermocouple libraries
@@ -2446,11 +2515,11 @@
 //
 
 // Flag the indexed hardware serial ports in use
-#define SERIAL_IN_USE(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
-                          || (defined(SERIAL_PORT_2)    && SERIAL_PORT_2 == N) \
-                          || (defined(SERIAL_PORT_3)    && SERIAL_PORT_3 == N) \
-                          || (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == N) \
-                          || (defined(LCD_SERIAL_PORT)  && LCD_SERIAL_PORT == N) )
+#define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)      && N == SERIAL_PORT) \
+                          || (defined(SERIAL_PORT_2)    && N == SERIAL_PORT_2) \
+                          || (defined(SERIAL_PORT_3)    && N == SERIAL_PORT_3) \
+                          || (defined(MMU2_SERIAL_PORT) && N == MMU2_SERIAL_PORT) \
+                          || (defined(LCD_SERIAL_PORT)  && N == LCD_SERIAL_PORT) )
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
@@ -2542,6 +2611,21 @@
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
 #undef ANY_SERIAL_IS
+
+// Clean up unused ESP_WIFI pins
+#ifdef ESP_WIFI_MODULE_COM
+  #if !SERIAL_IN_USE(ESP_WIFI_MODULE_COM)
+    #undef ESP_WIFI_MODULE_COM
+    #undef ESP_WIFI_MODULE_BAUDRATE
+    #undef ESP_WIFI_MODULE_RESET_PIN
+    #undef ESP_WIFI_MODULE_ENABLE_PIN
+    #undef ESP_WIFI_MODULE_TXD_PIN
+    #undef ESP_WIFI_MODULE_RXD_PIN
+    #undef ESP_WIFI_MODULE_GPIO0_PIN
+    #undef ESP_WIFI_MODULE_GPIO2_PIN
+    #undef ESP_WIFI_MODULE_GPIO4_PIN
+  #endif
+#endif
 
 //
 // Endstops and bed probe

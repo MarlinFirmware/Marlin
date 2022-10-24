@@ -1282,16 +1282,10 @@ void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_s
 
   void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
 
-    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (fan_speed[f] ? map(fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
-    #else
-      #define CALC_FAN_SPEED(f) (fan_speed[f] ?: FAN_OFF_PWM)
-    #endif
-
     #if ENABLED(FAN_SOFT_PWM)
-      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
+      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(fan_speed[F]);
     #else
-      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
+      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(fan_speed[F]));
     #endif
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
@@ -1306,13 +1300,13 @@ void Planner::recalculate(TERN_(HINTS_SAFE_EXIT_SPEED, const_float_t safe_exit_s
 
     void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
-      if (fan_speed[f]) {
+      if (fan_speed[f] > FAN_OFF_PWM) {
         if (fan_kick_end[f] == 0) {
           fan_kick_end[f] = ms + FAN_KICKSTART_TIME;
-          fan_speed[f] = 255;
+          fan_speed[f] = FAN_KICKSTART_POWER;
         }
         else if (PENDING(ms, fan_kick_end[f]))
-          fan_speed[f] = 255;
+          fan_speed[f] = FAN_KICKSTART_POWER;
       }
       else
         fan_kick_end[f] = 0;
@@ -2488,6 +2482,14 @@ bool Planner::_populate_block(
     }
 
   #endif // XY_FREQUENCY_LIMIT
+
+  #if ENABLED(INPUT_SHAPING)
+    const float top_freq = _MIN(float(0x7FFFFFFFL)
+                                OPTARG(HAS_SHAPING_X, stepper.get_shaping_frequency(X_AXIS))
+                                OPTARG(HAS_SHAPING_Y, stepper.get_shaping_frequency(Y_AXIS))),
+                max_factor = (top_freq * float(shaping_dividends - 3) * 2.0f) / block->nominal_rate;
+    NOMORE(speed_factor, max_factor);
+  #endif
 
   // Correct the speed
   if (speed_factor < 1.0f) {
