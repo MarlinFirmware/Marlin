@@ -445,31 +445,35 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 // Prepare strings for progress display
 #if HAS_PRINT_PROGRESS
-  #define _PRGR_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
-  #define PCENTERED 1  // center percent value over progress bar, else align to the right
-
   static MarlinUI::progress_t progress = 0;
+  static char bufferc[13];
+
+  static void prepare_time_string(const duration_t &time, char prefix) {
+    char str[9];
+    memset(&bufferc[2], 0x20, 5); // partialy fill with spaces to avoid artifacts and terminator
+    bufferc[0] = prefix;
+    bufferc[1] = ':';
+    int str_length = time.toDigital(str, time.value >= 60*60*24L);
+    strcpy(&bufferc[sizeof(bufferc) - str_length - 1], str);
+  }
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::drawPercent() {
       if (progress != 0) {
-        char bufferc[13];
-        strcpy(bufferc, TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
-        const u8g_uint_t strxpos = TERN(PCENTERED, 77, _PRGR_INFO_X(strlen(bufferc) + 1));
-        lcd_put_u8str(strxpos, EXTRAS_BASELINE, bufferc);
-        lcd_put_lchar('%');
+        #define PCENTERED 0  // center percent value over progress bar, else align to the right
+        #define PPOS TERN(PCENTERED, 4, 0)
+        #define PLEN TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3)
+        memset(&bufferc, 0x20, 12);
+        memcpy(&bufferc[PPOS], TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))), PLEN);
+        bufferc[PPOS+PLEN] = '%';
       }
     }
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing()) {
+      if (printJobOngoing() && ui.get_remaining_time() != 0) {
         const duration_t buffert = ui.get_remaining_time();
-        char bufferc[13];
-        const uint8_t len = buffert.toDigital(bufferc, buffert.value >= 60*60*24L);
-        const u8g_uint_t strxpos = _PRGR_INFO_X(len);
-        lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
-        lcd_put_u8str(strxpos, EXTRAS_BASELINE, bufferc);
+        prepare_time_string(buffert, 'R');
       }
     }
   #endif
@@ -477,11 +481,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     void MarlinUI::drawInter() {
       if (printingIsActive() && interaction_time) {
         const duration_t buffert = interaction_time;
-        char bufferc[13];
-        const uint8_t len = buffert.toDigital(bufferc, buffert.value >= 60*60*24L);
-        const u8g_uint_t strxpos = _PRGR_INFO_X(len);
-        lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("C:"));
-        lcd_put_u8str(strxpos, EXTRAS_BASELINE, bufferc);
+        prepare_time_string(buffert, 'C');
       }
     }
   #endif
@@ -489,11 +489,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     void MarlinUI::drawElapsed() {
       if (printJobOngoing()) {
         const duration_t buffert = print_job_timer.duration();
-        char bufferc[13];
-        const uint8_t len = buffert.toDigital(bufferc, buffert.value >= 60*60*24L);
-        const u8g_uint_t strxpos = _PRGR_INFO_X(len);
-        lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
-        lcd_put_u8str(strxpos, EXTRAS_BASELINE, bufferc);
+        prepare_time_string(buffert, 'E');
       }
     }
   #endif
@@ -754,8 +750,10 @@ void MarlinUI::draw_status_screen() {
       u8g.drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     // Progress strings
-    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1))
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)){
       ui.rotate_progress();
+      lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, bufferc);
+    }
   #endif
 
   //
