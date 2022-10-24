@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -49,7 +49,6 @@
   #define Z_MAX_PIN                           19
 #endif
 
-
 //
 // Steppers
 //
@@ -60,7 +59,6 @@
 #define X2_STEP_PIN                           36
 #define X2_DIR_PIN                            34
 #define X2_ENABLE_PIN                         30
-
 
 #define Y_STEP_PIN                            60
 #define Y_DIR_PIN                             61
@@ -73,7 +71,6 @@
 #define Z2_STEP_PIN                           65
 #define Z2_DIR_PIN                            66
 #define Z2_ENABLE_PIN                         64
-
 
 #define E0_STEP_PIN                           57
 #define E0_DIR_PIN                            58
@@ -107,25 +104,28 @@
 //
 // PSU and Powerloss Recovery
 //
-#ifdef PSU_CONTROL
-   #define PS_ON_PIN               40
+#if ENABLED(PSU_CONTROL)
+  #define PS_ON_PIN                           40  // The M80/M81 PSU pin for boards v2.1-2.3
 #endif
 
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                           40  // The M80/M81 PSU pin for boards v2.1-2.3
 //#define CASE_LIGHT_PIN                       5
-#define SDSS                                  53
 //#ifndef LED_PIN
-  //#define LED_PIN                           13
+//  #define LED_PIN                           13
 //#endif
 
-//#define SPINDLE_LASER_PWM_PIN               -1  // Hardware PWM
-//#define SPINDLE_LASER_ENA_PIN                4  // Pullup!
+#if HAS_CUTTER
+  //#define SPINDLE_LASER_PWM_PIN             -1  // Hardware PWM
+  //#define SPINDLE_LASER_ENA_PIN              4  // Pullup!
+#endif
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 //#define FILWIDTH_PIN                         5  // Analog Input
+
+#define SDSS                                  53
+#define SD_DETECT_PIN                         49
 
 //
 // LCD / Controller
@@ -133,21 +133,23 @@
 
 //#if IS_RRD_SC
 
+//#ifndef BEEPER_PIN
+//  #define BEEPER_PIN                        -1
+//#endif
+
 #define LCD_PINS_RS                           -1
 #define LCD_PINS_ENABLE                       -1
 #define LCD_PINS_D4                           -1
 #define LCD_PINS_D5                           -1
 #define LCD_PINS_D6                           -1
 #define LCD_PINS_D7                           -1
+
 //#define BTN_EN1                             31
 //#define BTN_EN2                             33
 //#define BTN_ENC                             35
-#define SD_DETECT_PIN                         49
+
 //#ifndef KILL_PIN
-  //#define KILL_PIN                          41
-//#endif
-//#ifndef BEEPER_PIN
-#define BEEPER_PIN                            -1
+//  #define KILL_PIN                          41
 //#endif
 
 //#endif // IS_RRD_SC

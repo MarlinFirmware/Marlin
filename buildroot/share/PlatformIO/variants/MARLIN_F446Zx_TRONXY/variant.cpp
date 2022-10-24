@@ -196,7 +196,7 @@ void myshow(int fre,int times)//YSZ-WORK
 HAL_StatusTypeDef SDMMC_IsProgramming(SDIO_TypeDef *SDIOx,uint32_t RCA)
 {
   HAL_SD_CardStateTypeDef CardState;
-  volatile uint32_t respR1 = 0, status = 0; 
+  volatile uint32_t respR1 = 0, status = 0;
   SDIO_CmdInitTypeDef  sdmmc_cmdinit;
   do {
     sdmmc_cmdinit.Argument         = RCA << 16;
@@ -204,7 +204,7 @@ HAL_StatusTypeDef SDMMC_IsProgramming(SDIO_TypeDef *SDIOx,uint32_t RCA)
     sdmmc_cmdinit.Response         = SDIO_RESPONSE_SHORT;
     sdmmc_cmdinit.WaitForInterrupt = SDIO_WAIT_NO;
     sdmmc_cmdinit.CPSM             = SDIO_CPSM_ENABLE;
-    SDIO_SendCommand(SDIOx,&sdmmc_cmdinit);//发送CMD13  
+    SDIO_SendCommand(SDIOx,&sdmmc_cmdinit);//发送CMD13
     do status = SDIOx->STA;
     while(!(status & ((1 << 0) | (1 << 6) | (1 << 2))));//等待操作完成
     if(status & (1 << 0)) //CRC检测失败
@@ -212,7 +212,7 @@ HAL_StatusTypeDef SDMMC_IsProgramming(SDIO_TypeDef *SDIOx,uint32_t RCA)
       SDIOx->ICR |= 1 << 0;		//清除错误标记
       return HAL_ERROR;
     }
-    if(status & (1 << 2)) //命令超时 
+    if(status & (1 << 2)) //命令超时
     {
       SDIOx->ICR |= 1 << 2; //清除错误标记
       return HAL_ERROR;
@@ -226,7 +226,7 @@ HAL_StatusTypeDef SDMMC_IsProgramming(SDIO_TypeDef *SDIOx,uint32_t RCA)
 }
 void debugStr(const char*str) {
 	while(*str) {
-		while((USART1->SR & 0x40) == 0); 
+		while((USART1->SR & 0x40) == 0);
 		USART1->DR = *str++;
 	}
 }
@@ -265,8 +265,8 @@ WEAK void SystemClock_Config(void)
   /* Enable Power Control clock */
   __HAL_RCC_PWR_CLK_ENABLE();
 
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
+  /* The voltage scaling allows optimizing the power consumption when the device is
+     clocked below the maximum system frequency, to update the voltage scaling value
      regarding system frequency refer to product datasheet.  */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
@@ -281,10 +281,10 @@ WEAK void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLQ = 7;
   RCC_OscInitStruct.PLL.PLLR = 2;
   ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  
+
   if(ret != HAL_OK)myshow(10,-1);
   HAL_PWREx_EnableOverDrive();
- 
+
   /* Select PLLSAI output as USB clock source */
   PeriphClkInitStruct.PLLSAI.PLLSAIM = 8;
   PeriphClkInitStruct.PLLSAI.PLLSAIN = 192;
@@ -294,13 +294,13 @@ WEAK void SystemClock_Config(void)
   PeriphClkInitStruct.SdioClockSelection = RCC_SDIOCLKSOURCE_CLK48;//SDIO Clock Mux
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
      clocks dividers */
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
   if(ret != HAL_OK)myshow(10,-1);
 
