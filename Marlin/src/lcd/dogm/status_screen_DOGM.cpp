@@ -460,7 +460,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     void MarlinUI::drawPercent() {
       if (progress != 0) {
-        #define PCENTERED 0  // center percent value over progress bar, else align to the right
+        #define PCENTERED 1  // center percent value over progress bar, else align to the right
         #define PPOS TERN(PCENTERED, 4, 0)
         #define PLEN TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3)
         memset(&bufferc, 0x20, 12);
@@ -471,27 +471,18 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing() && ui.get_remaining_time() != 0) {
-        const duration_t buffert = ui.get_remaining_time();
-        prepare_time_string(buffert, 'R');
-      }
-    }
+      if (printJobOngoing() && get_remaining_time() != 0)
+        prepare_time_string(get_remaining_time(), 'R'); }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
-      if (printingIsActive() && interaction_time) {
-        const duration_t buffert = interaction_time;
-        prepare_time_string(buffert, 'C');
-      }
-    }
+      if (printingIsActive() && interaction_time)
+        prepare_time_string(interaction_time, 'C'); }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
-      if (printJobOngoing()) {
-        const duration_t buffert = print_job_timer.duration();
-        prepare_time_string(buffert, 'E');
-      }
-    }
+      if (printJobOngoing())
+        prepare_time_string(print_job_timer.duration(), 'E'); }
   #endif
 #endif // HAS_PRINT_PROGRESS
 
