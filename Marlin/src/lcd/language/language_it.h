@@ -178,7 +178,7 @@ namespace Language_it {
   LSTR MSG_MESH_AMAX                      = _UxGT("Massimizza area");
   LSTR MSG_MESH_CENTER                    = _UxGT("Area centrale");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Valore di Z");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellato");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellata");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Comandi personaliz.");
   LSTR MSG_M48_TEST                       = _UxGT("Test sonda M48");
   LSTR MSG_M48_POINT                      = _UxGT("Punto M48");
@@ -251,7 +251,7 @@ namespace Language_it {
   LSTR MSG_UBL_SMART_FILLIN               = _UxGT("Riempimento Smart");
   LSTR MSG_UBL_FILLIN_MESH                = _UxGT("Riempimento Mesh");
   LSTR MSG_UBL_MESH_FILLED                = _UxGT("Pts mancanti riempiti");
-  LSTR MSG_UBL_MESH_INVALID               = _UxGT("Mesh non valido");
+  LSTR MSG_UBL_MESH_INVALID               = _UxGT("Mesh non valida");
   LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Invalida Tutto");
   LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Invalid.Punto Vicino");
   LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Ritocca Tutto");
