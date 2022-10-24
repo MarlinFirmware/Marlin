@@ -631,8 +631,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     void MarlinUI::drawInter() {
       const duration_t interactt = ui.interaction_time;
       if (printingIsActive() && interactt.value) {
-        timepos = TPOFFSET - interactt.toDigital(buffer);
         char buffer[10];
+        timepos = TPOFFSET - interactt.toDigital(buffer);
         lcd_moveto(timepos, 1);
         lcd.write('C');
         lcd.print(buffer);
