@@ -338,10 +338,10 @@ constexpr ena_mask_t enable_overlap[] = {
     private:
       static shaping_time_t now;
       #ifdef HAS_SHAPING_X
-        static shaping_time_t delay_x;
+        static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
       #endif
       #ifdef HAS_SHAPING_Y
-        static shaping_time_t delay_y;
+        static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
       #endif
     public:
       static void decrement_delays(const shaping_time_t interval) { now += interval; }
@@ -361,6 +361,8 @@ constexpr ena_mask_t enable_overlap[] = {
       void enqueue() {
         times[tail] = now;
         if (++tail == SIZE) tail = 0;
+        TERN_(HAS_SHAPING_X, if (delay_x == shaping_time_t(-1)) head_x = tail);
+        TERN_(HAS_SHAPING_Y, if (delay_y == shaping_time_t(-1)) head_y = tail);
       }
       #ifdef HAS_SHAPING_X
         shaping_time_t peek_x() {
@@ -619,6 +621,20 @@ class Stepper {
 
     // Check if the given block is busy or not - Must not be called from ISR contexts
     static bool is_block_busy(const block_t * const block);
+
+    #if ENABLED(INPUT_SHAPING)
+      // Check whether the stepper is processing any input shaping echoes
+      static bool input_shaping_busy() {
+        const bool was_on = hal.isr_state();
+        hal.isr_off();
+
+        const bool result = !shaping_queue.empty_x() || !shaping_queue.empty_y();
+
+        if (was_on) hal.isr_on();
+
+        return result;
+      }
+    #endif
 
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
