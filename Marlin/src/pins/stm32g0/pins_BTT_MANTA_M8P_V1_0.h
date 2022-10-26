@@ -33,9 +33,30 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
+// EEPROM
+//
+#if NO_EEPROM_SELECTED
+  #define SDCARD_EEPROM_EMULATION
+  //#define FLASH_EEPROM_EMULATION
+  //#ifndef MARLIN_EEPROM_SIZE
+  //  #define MARLIN_EEPROM_SIZE 0x800U             // 2K
+  //#endif
+  #undef NO_EEPROM_SELECTED
+#endif
+
+//
 // Servos
 //
 #define SERVO0_PIN                          PB1   // SERVOS
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE)
+  #ifndef PROBE_ENABLE_PIN
+    #define PROBE_ENABLE_PIN         SERVO0_PIN
+  #endif
+#endif
 
 //
 // Trinamic Stallguard pins
