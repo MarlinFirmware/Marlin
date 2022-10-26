@@ -115,7 +115,8 @@
 
   void move_extruder_servo(const uint8_t e) {
     planner.synchronize();
-    if ((EXTRUDERS & 1) && e < EXTRUDERS - 1) {
+    constexpr bool evenExtruders = !(EXTRUDERS & 1);
+    if (evenExtruders || e < EXTRUDERS - 1) {
       servo[_SERVO_NR(e)].move(servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
@@ -917,7 +918,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = FAN_OFF_PWM;
     #endif
   }
 

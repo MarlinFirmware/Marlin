@@ -167,8 +167,6 @@
     if (parser.seenval('T')) draw_area_max.y = parser.value_linear_units();
     if (parser.seenval('B')) draw_area_min.y = parser.value_linear_units();
     if (parser.seenval('H')) polargraph_max_belt_len = parser.value_linear_units();
-    draw_area_size.x = draw_area_max.x - draw_area_min.x;
-    draw_area_size.y = draw_area_max.y - draw_area_min.y;
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {

@@ -399,6 +399,11 @@ namespace Language_en {
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
   LSTR MSG_A_TRAVEL                       = _UxGT("Travel Accel");
+  LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
+  LSTR MSG_SHAPING_X_FREQ                 = STR_X _UxGT(" frequency");
+  LSTR MSG_SHAPING_Y_FREQ                 = STR_Y _UxGT(" frequency");
+  LSTR MSG_SHAPING_X_ZETA                 = STR_X _UxGT(" damping");
+  LSTR MSG_SHAPING_Y_ZETA                 = STR_Y _UxGT(" damping");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("XY Freq Limit");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min FR Factor");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Steps/mm");
@@ -418,6 +423,12 @@ namespace Language_en {
   LSTR MSG_FILAMENT_DIAM_E                = _UxGT("Fil. Dia. *");
   LSTR MSG_FILAMENT_UNLOAD                = _UxGT("Unload mm");
   LSTR MSG_FILAMENT_LOAD                  = _UxGT("Load mm");
+  LSTR MSG_SEGMENTS_PER_SECOND            = _UxGT("Segments/Sec");
+  LSTR MSG_DRAW_MIN_X                     = _UxGT("Draw Min X");
+  LSTR MSG_DRAW_MAX_X                     = _UxGT("Draw Max X");
+  LSTR MSG_DRAW_MIN_Y                     = _UxGT("Draw Min Y");
+  LSTR MSG_DRAW_MAX_Y                     = _UxGT("Draw Max Y");
+  LSTR MSG_MAX_BELT_LEN                   = _UxGT("Max Belt Len");
   LSTR MSG_ADVANCE_K                      = _UxGT("Advance K");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");

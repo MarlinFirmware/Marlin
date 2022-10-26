@@ -612,20 +612,6 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
 }
 
-#if HAS_PRINT_PROGRESS
-
-  FORCE_INLINE void _draw_print_progress() {
-    const uint8_t progress = ui.get_progress_percent();
-    lcd_put_u8str(F(TERN(SDSUPPORT, "SD", "P:")));
-    if (progress)
-      lcd_put_u8str(ui8tostr3rj(progress));
-    else
-      lcd_put_u8str(F("---"));
-    lcd_put_lchar('%');
-  }
-
-#endif
-
 #if ENABLED(LCD_PROGRESS_BAR)
 
   void MarlinUI::draw_progress_bar(const uint8_t percent) {
@@ -733,6 +719,56 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif
 }
 
+#if HAS_PRINT_PROGRESS
+  #define TPOFFSET (LCD_WIDTH - 1)
+  static uint8_t timepos = TPOFFSET - 6;
+  static char buffer[14];
+  static lcd_uint_t pc, pr;
+
+  #if ENABLED(SHOW_PROGRESS_PERCENT)
+    void MarlinUI::drawPercent() {
+      const uint8_t progress = ui.get_progress_percent();
+      if (progress) {
+        lcd_moveto(pc, pr);
+        lcd_put_u8str(F(TERN(IS_SD_PRINTING, "SD", "P:")));
+        lcd_put_u8str(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)));
+        lcd_put_lchar('%');
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_REMAINING_TIME)
+    void MarlinUI::drawRemain() {
+      const duration_t remaint = ui.get_remaining_time();
+      if (printJobOngoing()) {
+        timepos = TPOFFSET - remaint.toDigital(buffer);
+        lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'R');
+        lcd_put_u8str(buffer);
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    void MarlinUI::drawInter() {
+      const duration_t interactt = ui.interaction_time;
+      if (printingIsActive() && interactt.value) {
+        timepos = TPOFFSET - interactt.toDigital(buffer);
+        lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'C');
+        lcd_put_u8str(buffer);
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_ELAPSED_TIME)
+    void MarlinUI::drawElapsed() {
+      const duration_t elapsedt = print_job_timer.duration();
+      if (printJobOngoing()) {
+        timepos = TPOFFSET - elapsedt.toDigital(buffer);
+        lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'E');
+        //lcd_put_lchar(timepos, 2, LCD_STR_CLOCK[0]);
+        lcd_put_u8str(buffer);
+      }
+    }
+  #endif
+#endif // HAS_PRINT_PROGRESS
+
 /**
  *  LCD_INFO_SCREEN_STYLE 0 : Classic Status Screen
  *
@@ -764,35 +800,6 @@ void MarlinUI::draw_status_message(const bool blink) {
  *  |B000/000°  SD---%   |
  *  |01234567890123456789|
  */
-
-inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink) {
-  char buffer[14];
-
-  #if ENABLED(SHOW_REMAINING_TIME)
-    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && printingIsActive();
-    if (show_remain) {
-      #if ENABLED(USE_M73_REMAINING_TIME)
-        duration_t remaining = ui.get_remaining_time();
-      #else
-        uint8_t progress = ui.get_progress_percent();
-        uint32_t elapsed = print_job_timer.duration();
-        duration_t remaining = (progress > 0) ? ((elapsed * 25600 / progress) >> 8) - elapsed : 0;
-      #endif
-      timepos -= remaining.toDigital(buffer);
-      lcd_put_lchar(timepos, 2, 'R');
-    }
-  #else
-    constexpr bool show_remain = false;
-  #endif
-
-  if (!show_remain) {
-    duration_t elapsed = print_job_timer.duration();
-    timepos -= elapsed.toDigital(buffer);
-    lcd_put_lchar(timepos, 2, LCD_STR_CLOCK[0]);
-  }
-  lcd_put_u8str(buffer);
-  return timepos;
-}
 
 void MarlinUI::draw_status_screen() {
 
@@ -856,8 +863,8 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH < 20
 
         #if HAS_PRINT_PROGRESS
-          lcd_moveto(0, 2);
-          _draw_print_progress();
+          pc = 0, pr = 2;
+          rotate_progress();
         #endif
 
       #else // LCD_WIDTH >= 20
@@ -940,12 +947,11 @@ void MarlinUI::draw_status_screen() {
       lcd_put_u8str(i16tostr3rj(feedrate_percentage));
       lcd_put_lchar('%');
 
-      const uint8_t timepos = draw_elapsed_or_remaining_time(LCD_WIDTH - 1, blink);
-
       #if LCD_WIDTH >= 20
-        lcd_moveto(timepos - 7, 2);
+
         #if HAS_PRINT_PROGRESS
-          _draw_print_progress();
+          pc = timepos - 7, pr = 2;
+          rotate_progress();
         #else
           char c;
           uint16_t per;
@@ -1016,7 +1022,7 @@ void MarlinUI::draw_status_screen() {
     // ========== Line 3 ==========
 
     //
-    // SD Percent, Hotend 2, or Bed
+    // Progress percent, Hotend 2, or Bed
     //
     lcd_moveto(0, 2);
     #if HOTENDS > 2
@@ -1025,24 +1031,17 @@ void MarlinUI::draw_status_screen() {
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS 1
-      _draw_print_progress();
+      pc = 0, pr = 2;
+      rotate_progress();
     #endif
 
     //
-    // Elapsed Time or SD Percent
+    // All progress strings
     //
-    lcd_moveto(LCD_WIDTH - 9, 2);
-
     #if HAS_PRINT_PROGRESS && !DREW_PRINT_PROGRESS
-
-      _draw_print_progress();
-
-    #else
-
-      (void)draw_elapsed_or_remaining_time(LCD_WIDTH - 4, blink);
-
+      pc = LCD_WIDTH - 9, pr = 2;
+      rotate_progress();
     #endif
-
   #endif // LCD_INFO_SCREEN_STYLE 1
 
   // ========= Last Line ========
