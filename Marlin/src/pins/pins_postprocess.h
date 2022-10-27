@@ -307,6 +307,76 @@
   #define E7_CS_PIN -1
 #endif
 
+//
+// Destroy stepper driver RX and TX pins when set to -1
+//
+#if !PIN_EXISTS(Z2_SERIAL_TX)
+  #undef Z2_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z2_SERIAL_RX)
+  #undef Z2_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Z3_SERIAL_TX)
+  #undef Z3_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z3_SERIAL_RX)
+  #undef Z3_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Z4_SERIAL_TX)
+  #undef Z4_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z4_SERIAL_RX)
+  #undef Z4_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(X2_SERIAL_TX)
+  #undef X2_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(X2_SERIAL_RX)
+  #undef X2_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Y2_SERIAL_TX)
+  #undef Y2_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Y2_SERIAL_RX)
+  #undef Y2_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(I_SERIAL_TX)
+  #undef I_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(I_SERIAL_RX)
+  #undef I_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(J_SERIAL_TX)
+  #undef J_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(J_SERIAL_RX)
+  #undef J_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(K_SERIAL_TX)
+  #undef K_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(K_SERIAL_RX)
+  #undef K_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(U_SERIAL_TX)
+  #undef U_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(U_SERIAL_RX)
+  #undef U_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(V_SERIAL_TX)
+  #undef V_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(V_SERIAL_RX)
+  #undef V_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(W_SERIAL_TX)
+  #undef W_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(W_SERIAL_RX)
+  #undef W_SERIAL_RX_PIN
+#endif
+
 #ifndef FAN_PIN
   #define FAN_PIN -1
 #endif
