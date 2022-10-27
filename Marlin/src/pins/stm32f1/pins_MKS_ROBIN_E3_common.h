@@ -229,6 +229,12 @@
 
   #elif ENABLED(MKS_TS35_V2_0)
 
+    // OPTIONAL CONTROLS BESIDE THE TOUCH SCREEN
+    // (the TS35-R V2.0 model does not have them)
+    #define BTN_ENC                EXP1_02_PIN
+    #define BTN_EN1                EXP2_03_PIN
+    #define BTN_EN2                EXP2_05_PIN
+
     // DISPLAY PINS.
     #define TFT_A0_PIN             EXP1_08_PIN
     #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
