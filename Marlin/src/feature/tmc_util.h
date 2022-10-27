@@ -290,8 +290,11 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
     TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
       TMC2660Stepper(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
-      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, bool softSPI) :
+      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK, softSPI)
+      {}
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t, bool softSPI) :
+      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK, softSPI)
       {}
     uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
     void rms_current(const uint16_t mA) {
