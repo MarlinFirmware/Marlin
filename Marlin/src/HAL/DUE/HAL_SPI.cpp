@@ -883,7 +883,7 @@
 
       // Default to slowest rate if not specified)
       // Also sets U8G SPI rate to 4MHz and the SPI mode to 3
-      if (spiRate == SPI_RATE_DEFAULT)
+      if (spiRate == SPI_SPEED_DEFAULT)
         spiRate = 6;
 
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
@@ -915,7 +915,7 @@
       // TODO?
     }
 
-    void spiBegin() { spiInit(SPI_RATE_DEFAULT); }
+    void spiBegin() { spiInit(SPI_SPEED_DEFAULT); }
 
     static uint8_t spiTransfer(uint8_t data) {
       WHILE_TX(0);
