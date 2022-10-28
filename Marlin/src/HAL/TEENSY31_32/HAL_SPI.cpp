@@ -32,6 +32,7 @@ static SPISettings spiConfig;
 
 /**
  * Standard SPI functions
+ * https://github.com/arduino/ArduinoCore-avr/blob/master/libraries/SPI/src/SPI.h
  */
 
 // Initialize SPI bus
@@ -42,19 +43,11 @@ void spiBegin() {
   SET_OUTPUT(SD_SCK_PIN);
   SET_INPUT(SD_MISO_PIN);
   SET_OUTPUT(SD_MOSI_PIN);
-
-  #if 0 && DISABLED(SOFTWARE_SPI)
-    // set SS high - may be chip select for another SPI device
-    #if SET_SPI_SS_HIGH
-      WRITE(SD_SS_PIN, HIGH);
-    #endif
-    // set a default rate
-    spiInit(SPI_HALF_SPEED); // 1
-  #endif
 }
 
 // Configure SPI for specified SPI speed
-void spiInit(uint8_t spiRate) {
+void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  // Ignore the pin hints, there is nothing we can do (see arduino core).
   // Use data rates Marlin uses
   uint32_t clock;
   switch (spiRate) {

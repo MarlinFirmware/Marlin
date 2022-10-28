@@ -38,7 +38,12 @@
 #endif
 size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 
-bool PersistentStore::access_finish() { return true; }
+bool PersistentStore::access_finish() {
+#if ENABLED(SPI_EEPROM)
+  spiClose();
+#endif
+  return true;
+}
 
 bool PersistentStore::access_start() {
   eeprom_init();
@@ -48,8 +53,10 @@ bool PersistentStore::access_start() {
       SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
       SET_INPUT(BOARD_SPI1_MISO_PIN);
       SET_OUTPUT(SPI_EEPROM1_CS_PIN);
+      spiInit(0, BOARD_SPI1_SCK_PIN, BOARD_SPI1_MISO_PIN, BOARD_SPI1_MOSI_PIN, SPI_EEPROM1_CS_PIN);
+    #else
+      spiInit(0);
     #endif
-    spiInit(0);
   #endif
   return true;
 }

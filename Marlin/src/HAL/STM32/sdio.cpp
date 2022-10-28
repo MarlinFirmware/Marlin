@@ -397,7 +397,13 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   #else
 
     uint8_t retries = SDIO_READ_RETRIES;
-    while (retries--) if (SDIO_ReadWriteBlock_DMA(block, nullptr, dst)) return true;
+    while (retries--)
+    {
+      if (SDIO_ReadWriteBlock_DMA(block, nullptr, dst)) return true;
+#ifdef SD_RETRY_DO_DELAY
+      delay(SD_RETRY_DELAY_MS);
+#endif
+    }
     return false;
 
   #endif
@@ -433,7 +439,13 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   #else
 
     uint8_t retries = SDIO_READ_RETRIES;
-    while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) return true;
+    while (retries--)
+    {
+      if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) return true;
+#ifdef SD_RETRY_DO_DELAY
+      delay(SD_RETRY_DELAY_MS);
+#endif
+    }
     return false;
 
   #endif

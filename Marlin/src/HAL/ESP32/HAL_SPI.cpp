@@ -58,7 +58,7 @@ void spiBegin() {
   #endif
 }
 
-void spiInit(uint8_t spiRate) {
+void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
   uint32_t clock;
 
   switch (spiRate) {
@@ -73,10 +73,12 @@ void spiInit(uint8_t spiRate) {
   }
 
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-  SPI.begin();
+  // https://github.com/espressif/arduino-esp32/blob/master/libraries/SPI/src/SPI.cpp SPIClass::begin method.
+  SPI.begin(hint_sck, hint_miso, hint_mosi, hint_cs);
 }
 
 void spiClose() {
+  SPI.end();
 }
 
 uint8_t spiRec() {

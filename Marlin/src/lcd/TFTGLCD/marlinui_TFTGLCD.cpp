@@ -171,9 +171,12 @@ void TFTGLCD::clear_buffer() {
 void TFTGLCD::clr_screen() {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    spiBegin();
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(CLR_SCREEN);
     WRITE(TFTGLCD_CS, HIGH);
+    spiClose();
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
     Wire.write(CLR_SCREEN);
@@ -201,11 +204,14 @@ void TFTGLCD::print(const char *line) {
 void TFTGLCD::print_line() {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    spiBegin();
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(LCD_PUT);
     SPI_SEND_ONE(cour_line);
     SPI_SEND_SOME(framebuffer, LCD_WIDTH, cour_line * LCD_WIDTH);
     WRITE(TFTGLCD_CS, HIGH);
+    spiClose();
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
     Wire.write(LCD_PUT);
@@ -222,10 +228,13 @@ void TFTGLCD::print_screen() {
   framebuffer[FBSIZE - 1] = ledBits;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // Send all framebuffer to panel
+    spiBegin();
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(LCD_WRITE);
     SPI_SEND_SOME(framebuffer, FBSIZE, 0);
     WRITE(TFTGLCD_CS, HIGH);
+    spiClose();
   #else
     uint8_t r;
     // Send framebuffer to panel by line
@@ -250,10 +259,13 @@ void TFTGLCD::print_screen() {
 void TFTGLCD::setContrast(uint16_t contrast) {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    spiBegin();
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(CONTRAST);
     SPI_SEND_ONE((uint8_t)contrast);
     WRITE(TFTGLCD_CS, HIGH);
+    spiClose();
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(CONTRAST);
@@ -269,6 +281,8 @@ uint8_t MarlinUI::read_slow_buttons() {
   if (!PanelDetected)    return 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     uint8_t b = 0;
+    spiBegin();
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(READ_ENCODER);
     #ifndef STM32F4xx
@@ -281,6 +295,7 @@ uint8_t MarlinUI::read_slow_buttons() {
     #endif
     b = SPI_SEND_ONE(GET_SPI_DATA);
     WRITE(TFTGLCD_CS, HIGH);
+    spiClose();
     return b;
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
@@ -303,11 +318,14 @@ void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
   if (!sound_on) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    spiBegin();
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(BUZZER);
     SPI_SEND_TWO((uint16_t)duration);
     SPI_SEND_TWO(freq);
     WRITE(TFTGLCD_CS, HIGH);
+    spiClose();
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(BUZZER);
@@ -327,6 +345,8 @@ void MarlinUI::init_lcd() {
     // SPI speed must be less 10MHz
     SET_OUTPUT(TFTGLCD_CS);
     WRITE(TFTGLCD_CS, HIGH);
+    // TODO: hint the SPI pins here.
+    spiBegin();
     spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(GET_LCD_ROW);
@@ -363,6 +383,9 @@ void MarlinUI::init_lcd() {
   }
   else
     PanelDetected = 0;
+#if ENABLED(TFTGLCD_PANEL_SPI)
+  spiClose();
+#endif
   safe_delay(100);
 }
 

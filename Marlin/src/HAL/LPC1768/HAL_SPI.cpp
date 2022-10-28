@@ -76,8 +76,12 @@
     swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
 
-  void spiInit(uint8_t spiRate) {
-    SPI_speed = swSpiInit(spiRate, SD_SCK_PIN, SD_MOSI_PIN);
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    SPI_speed =
+      swSpiInit(spiRate,
+        ( hint_sck != -1 ) ? hint_sck : SD_SCK_PIN,
+        ( hint_mosi != -1 ) ? hint_mosi : SD_MOSI_PIN
+      );
   }
 
   void spiClose() {
@@ -111,14 +115,22 @@
     #define INIT_SPI_SPEED SPI_FULL_SPEED
   #endif
 
-  void spiBegin() { spiInit(INIT_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
+  void spiBegin() {} // Set up SCK, MOSI & MISO pins for SSP0
 
-  void spiInit(uint8_t spiRate) {
-    #if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    if (spiRate == SPI_SPEED_DEFAULT)
+      spiRate = INIT_SPI_SPEED;
+    // We basically ignore all pins other than MISO because we assume that all
+    // belong to the same hardware SPI capable pin "module".
+    int used_miso_pin = ( hint_miso != -1 ) ? hint_miso : SD_MISO_PIN;
+#ifdef BOARD_SPI1_MISO_PIN
+    if (used_miso_pin == BOARD_SPI1_MISO_PIN)
       SPI.setModule(1);
-    #elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
+#endif
+#ifdef BOARD_SPI2_MISO_PIN
+    if (used_miso_pin == BOARD_SPI2_MISO_PIN)
       SPI.setModule(2);
-    #endif
+#endif
     SPI.setDataSize(DATA_SIZE_8BIT);
     SPI.setDataMode(SPI_MODE0);
 

@@ -57,18 +57,11 @@ void spiBegin() {
   //SET_OUTPUT(SD_SCK_PIN);
   //SET_INPUT(SD_MISO_PIN);
   //SET_OUTPUT(SD_MOSI_PIN);
-
-  #if 0 && DISABLED(SOFTWARE_SPI)
-    // set SS high - may be chip select for another SPI device
-    #if SET_SPI_SS_HIGH
-      WRITE(SD_SS_PIN, HIGH);
-    #endif
-    // set a default rate
-    spiInit(SPI_HALF_SPEED); // 1
-  #endif
 }
 
-void spiInit(uint8_t spiRate) {
+void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  // Ignore the SPI pin hints.
+
   // Use Marlin data-rates
   uint32_t clock;
   switch (spiRate) {

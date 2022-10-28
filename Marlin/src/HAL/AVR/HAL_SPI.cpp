@@ -47,8 +47,6 @@ void spiBegin() {
   SET_OUTPUT(SD_SCK_PIN);
   SET_INPUT(SD_MISO_PIN);
   SET_OUTPUT(SD_MOSI_PIN);
-
-  IF_DISABLED(SOFTWARE_SPI, spiInit(SPI_HALF_SPEED));
 }
 
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
@@ -66,7 +64,9 @@ void spiBegin() {
    * Initialize hardware SPI
    * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
    */
-  void spiInit(uint8_t spiRate) {
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Ignore SPI pin hints.
+
     // See avr processor documentation
     CBI(
       #ifdef PRR
@@ -189,7 +189,7 @@ void spiBegin() {
   // nop to tune soft SPI timing
   #define nop asm volatile ("\tnop\n")
 
-  void spiInit(uint8_t) { /* do nothing */ }
+  void spiInit(uint8_t, int, int, int, int) { /* do nothing */ }
   void spiClose() { /* do nothing */ }
 
   // Begin SPI transaction, set clock, bit order, data mode

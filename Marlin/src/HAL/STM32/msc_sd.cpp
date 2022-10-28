@@ -33,6 +33,10 @@
 #define BLOCK_SIZE 512
 #define PRODUCT_ID 0x29
 
+#ifndef SD_MULTIBLOCK_READ_RETRY_CNT
+  #define SD_MULTIBLOCK_READ_RETRY_CNT 1
+#endif
+
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
   DiskIODriver* diskIODriver() {
@@ -58,19 +62,32 @@ public:
     // single block
     if (blkLen == 1) {
       hal.watchdog_refresh();
-      sd2card->writeBlock(blkAddr, pBuf);
-      return true;
+      return sd2card->writeBlock(blkAddr, pBuf);
     }
 
     // multi block optimization
-    sd2card->writeStart(blkAddr, blkLen);
-    while (blkLen--) {
+    uint32_t multi_retry_cnt = SD_MULTIBLOCK_READ_RETRY_CNT;
+
+  RETRY_MULTI:
+    uint32 i = blkLen;
+    uint8_t *cBuf = pBuf;
+    sd2card->writeStart(blkAddr);
+    while (i--) {
       hal.watchdog_refresh();
-      sd2card->writeData(pBuf);
-      pBuf += BLOCK_SIZE;
+      if (sd2card->writeData(cBuf) == false)
+      {
+        sd2card->writeStop();
+        if (--multi_retry_cnt == 0)
+          goto FAIL;
+        multi_retry_cnt--;
+        goto RETRY_MULTI:
+      }
+      cBuf += BLOCK_SIZE;
     }
     sd2card->writeStop();
     return true;
+    FAIL:
+    return false;
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
@@ -78,19 +95,32 @@ public:
     // single block
     if (blkLen == 1) {
       hal.watchdog_refresh();
-      sd2card->readBlock(blkAddr, pBuf);
-      return true;
+      return sd2card->readBlock(blkAddr, pBuf);
     }
 
     // multi block optimization
+    uint32_t multi_retry_cnt = SD_MULTIBLOCK_READ_RETRY_CNT;
+
+  RETRY_MULTI:
+    uint32 i = blkLen;
+    uint8_t *cBuf = pBuf;
     sd2card->readStart(blkAddr);
-    while (blkLen--) {
+    while (i--) {
       hal.watchdog_refresh();
-      sd2card->readData(pBuf);
-      pBuf += BLOCK_SIZE;
+      if (sd2card->readData(cBuf) == false)
+      {
+        sd2card->readStop();
+        if (--multi_retry_cnt == 0)
+          goto FAIL;
+        multi_retry_cnt--;
+        goto RETRY_MULTI:
+      }
+      cBuf += BLOCK_SIZE;
     }
     sd2card->readStop();
     return true;
+    FAIL:
+    return false;
   }
 
   bool IsReady() {

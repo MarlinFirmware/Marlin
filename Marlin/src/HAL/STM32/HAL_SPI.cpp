@@ -67,7 +67,7 @@ static SPISettings spiConfig;
   void delaySPI_2000() { DELAY_NS(2000 - CALLING_COST_NS); }
   void delaySPI_4000() { DELAY_NS(4000 - CALLING_COST_NS); }
 
-  void spiInit(uint8_t spiRate) {
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     // Use datarates Marlin uses
     switch (spiRate) {
       case SPI_FULL_SPEED:   delaySPIFunc =  &delaySPI_125; break;  // desired: 8,000,000  actual: ~1.1M
@@ -78,6 +78,11 @@ static SPISettings spiConfig;
       case SPI_SPEED_6:      delaySPIFunc = &delaySPI_2000; break;  // desired:   250,000  actual: ~210K
       default:               delaySPIFunc = &delaySPI_4000; break;  // desired:   125,000  actual: ~123K
     }
+    // TODO: there is an issue on Github by BTT(?) that this does not use software but hardware SPI.
+    // we are kind of lying to the user here, is that OK?
+    SPI.setMISO(hint_miso);
+    SPI.setMOSI(hint_mosi);
+    SPI.setSCLK(hint_sck);
     SPI.begin();
   }
 
@@ -156,7 +161,9 @@ static SPISettings spiConfig;
   }
 
   // Configure SPI for specified SPI speed
-  void spiInit(uint8_t spiRate) {
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Ignore chip-select because the software manages it already.
+    
     // Use datarates Marlin uses
     uint32_t clock;
     switch (spiRate) {

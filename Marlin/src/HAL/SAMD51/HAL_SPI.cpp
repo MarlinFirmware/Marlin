@@ -60,12 +60,15 @@
 
   // ------------------------
   // Hardware SPI
+  // https://github.com/arduino/ArduinoCore-samd/blob/master/libraries/SPI/SPI.h
   // ------------------------
   void spiBegin() {
-    spiInit(SPI_HALF_SPEED);
   }
 
-  void spiInit(uint8_t spiRate) {
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Ignore all pin hints.
+    if (spiRate == SPI_SPEED_DEFAULT)
+      spiRate = SPI_HALF_SPEED;
     // Use datarates Marlin uses
     uint32_t clock;
     switch (spiRate) {
@@ -139,7 +142,7 @@
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
     sdSPI.beginTransaction(spiConfig);
     sdSPI.transfer(token);
-    sdSPI.transfer((uint8_t*)buf, nullptr, 512);
+    sdSPI.transfer(buf, nullptr, 512);
     sdSPI.endTransaction();
   }
 

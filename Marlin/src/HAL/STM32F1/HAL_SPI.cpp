@@ -74,7 +74,8 @@ void spiBegin() {
  *
  * @details
  */
-void spiInit(uint8_t spiRate) {
+void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  // TODO: maybe use the more generic STM32 SPI stuff instead, ignore the pins here.
   /**
    * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
    * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1

@@ -167,7 +167,7 @@ void DiskIODriver_SPI_SD::chipDeselect() {
 }
 
 void DiskIODriver_SPI_SD::chipSelect() {
-  spiInit(spiRate_);
+  spiInit(spiRate_, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, chipSelectPin_);
   extDigitalWrite(chipSelectPin_, LOW);
 }
 
@@ -266,7 +266,7 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
 
   // Set SCK rate for initialization commands
   spiRate_ = SPI_SD_INIT_RATE;
-  spiInit(spiRate_);
+  spiInit(spiRate_, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, chipSelectPin_);
 
   // Must supply min of 74 clock cycles with CS high.
   LOOP_L_N(i, 10) spiSend(0xFF);
@@ -354,7 +354,7 @@ bool DiskIODriver_SPI_SD::readBlock(uint32_t blockNumber, uint8_t *dst) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
 
   #if ENABLED(SD_CHECK_AND_RETRY)
-    uint8_t retryCnt = 3;
+    uint8_t retryCnt = SD_RETRY_COUNT;
     for (;;) {
       if (cardCommand(CMD17, blockNumber))
         error(SD_CARD_ERROR_CMD17);

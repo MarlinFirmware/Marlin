@@ -493,7 +493,7 @@
    *  5 :  250 - 312 kHz
    *  6 :  125 - 156 kHz
    */
-  void spiInit(uint8_t spiRate) {
+  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     switch (spiRate) {
       case 0:
         spiTransferTx = (pfnSpiTransfer)spiTransferTx0;
@@ -517,8 +517,8 @@
     }
 
     _SS_WRITE(HIGH);
-    WRITE(SD_MOSI_PIN, HIGH);
-    WRITE(SD_SCK_PIN, LOW);
+    WRITE(( hint_mosi != -1 ) ? hint_mosi : SD_MOSI_PIN, HIGH);
+    WRITE(( hint_sck != -1 ) ? hint_sck : SD_SCK_PIN, LOW);
   }
 
   void spiClose() {}
@@ -532,9 +532,123 @@
 
 #else // !SOFTWARE_SPI
 
+  // https://github.com/arduino/ArduinoCore-sam/blob/master/system/libsam/include/spi.h
+
   #define WHILE_TX(N) while ((SPI0->SPI_SR & SPI_SR_TDRE) == (N))
   #define WHILE_RX(N) while ((SPI0->SPI_SR & SPI_SR_RDRF) == (N))
   #define FLUSH_TX() do{ WHILE_RX(1) SPI0->SPI_RDR; }while(0)
+
+  #if 0
+    static SPISettings spiConfig;
+
+    // Generic SPI implementation (test me please)
+    static bool _has_spi_pins = false;
+    static int _spi_pin_cs; // all SPI pins are tied together (CS, MISO, MOSI, SCK)
+
+    // ------------------------
+    // hardware SPI
+    // https://github.com/arduino/ArduinoCore-sam/blob/master/libraries/SPI/src/SPI.h
+    // ------------------------
+    void spiBegin() {}
+
+    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+      // Use datarates Marlin uses
+      uint32_t clock;
+      switch (spiRate) {
+        case SPI_FULL_SPEED:      clock = 8000000; break;
+        case SPI_HALF_SPEED:      clock = 4000000; break;
+        case SPI_QUARTER_SPEED:   clock = 2000000; break;
+        case SPI_EIGHTH_SPEED:    clock = 1000000; break;
+        case SPI_SIXTEENTH_SPEED: clock =  500000; break;
+        case SPI_SPEED_5:         clock =  250000; break;
+        case SPI_SPEED_6:         clock =  125000; break;
+        default:                  clock = 4000000; break; // Default from the SPI library
+      }
+      spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+      // We ignore all pins other than chip-select because they have to be tied together anyway.
+      if (hint_cs != -1)
+      {
+        sdSPI.begin(hint_cs);
+        _spi_pin_cs = hint_cs;
+        _has_spi_pins = true;
+      }
+      else
+      {
+        sdSPI.begin();
+        _has_spi_pins = false;
+      }
+    }
+
+    void spiClose() {
+      if (_has_spi_pins)
+        sdSPI.end(_spi_pin_cs);
+      else
+        sdSPI.end();
+      _has_spi_pins = false;
+      _spi_pin_cs = -1;
+    }
+
+    uint8_t spiRec() {
+      if (_has_spi_pins)
+        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+      else
+        sdSPI.beginTransaction(spiConfig);
+      uint8_t returnByte = sdSPI.transfer(0xFF);
+      if (_has_spi_pins)
+        sdSPI.endTransaction(_spi_pin_cs);
+      else
+        sdSPI.endTransaction();
+      return returnByte;
+    }
+
+    void spiRead(uint8_t *buf, uint16_t nbyte) {
+      if (nbyte == 0) return;
+      memset(buf, 0xFF, nbyte);
+      if (_has_spi_pins == false)
+      {
+        sdSPI.beginTransaction(spiConfig);
+        sdSPI.transfer(buf, nbyte);
+      }
+      else
+      {
+        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+        sdSPI.transfer(_spi_pin_cs, buf, nbyte);
+      }
+      // There is no pin-specific endTransaction method.
+      sdSPI.endTransaction();
+    }
+
+    void spiSend(uint8_t b) {
+      if (_has_spi_pins)
+      {
+        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+        sdSPI.transfer(_spi_pin_cs, b);
+      }
+      else
+      {
+        sdSPI.beginTransaction(spiConfig);
+        sdSPI.transfer(b);
+      }
+      sdSPI.endTransaction();
+    }
+
+    // SD-card specific.
+    void spiSendBlock(uint8_t token, const uint8_t *buf) {
+      if (_has_spi_pins)
+      {
+        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+        sdSPI.transfer(_spi_pin_cs, token);
+        sdSPI.transfer(_spi_pin_cs, (uint8_t*)buf, 512);
+      }
+      else
+      {
+        sdSPI.beginTransaction(spiConfig);
+        sdSPI.transfer(token);
+        sdSPI.transfer(buf, 512);
+      }
+      sdSPI.endTransaction();
+    }
+  #endif
 
   #if MB(ALLIGATOR)
 
@@ -546,7 +660,9 @@
     // ------------------------
     static bool spiInitialized = false;
 
-    void spiInit(uint8_t spiRate) {
+    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+      // I guess ignore the hinted pins?
+
       if (spiInitialized) return;
 
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
@@ -571,7 +687,8 @@
     }
 
     void spiClose() {
-      // TODO?
+      spiInitialized = false;
+      SPI_Disable(SPI0);
     }
 
     void spiBegin() {
@@ -745,7 +862,7 @@
      *  macro returns immediately which can result in the SPI chip select going
      *  inactive before all the data has been sent.
      *
-     *  The TMC2130 library uses SPI0->SPI_CSR[3].
+     *  The TMC2130 library uses SPI0->SPI_CSR[3] (???)
      *
      *  The U8G hardware SPI uses SPI0->SPI_CSR[0]. The system hangs and/or the
      *  FYSETC_MINI_12864 gets upset if lower baud rates are used and the SD card
@@ -761,8 +878,13 @@
      *  display to use software SPI.
      */
 
-    void spiInit(uint8_t spiRate=6) {  // Default to slowest rate if not specified)
-                                       // Also sets U8G SPI rate to 4MHz and the SPI mode to 3
+    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) { 
+      // We ignore the hinted pins? Why don't we use the standard, already implemented SPI library?
+
+      // Default to slowest rate if not specified)
+      // Also sets U8G SPI rate to 4MHz and the SPI mode to 3
+      if (spiRate == SPI_RATE_DEFAULT)
+        spiRate = 6;
 
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
@@ -793,7 +915,7 @@
       // TODO?
     }
 
-    void spiBegin() { spiInit(); }
+    void spiBegin() { spiInit(SPI_RATE_DEFAULT); }
 
     static uint8_t spiTransfer(uint8_t data) {
       WHILE_TX(0);

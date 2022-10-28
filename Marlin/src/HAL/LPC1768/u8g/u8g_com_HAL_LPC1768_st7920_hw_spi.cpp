@@ -64,7 +64,7 @@
 #include "../../shared/Delay.h"
 
 void spiBegin();
-void spiInit(uint8_t spiRate);
+void spiInit(uint8_t spiRate, int hint_sck = -1, int hint_miso = -1, int hint_mosi = -1, int hint_cs = -1);
 void spiSend(uint8_t b);
 void spiSend(const uint8_t *buf, size_t n);
 
@@ -89,6 +89,7 @@ uint8_t u8g_com_HAL_LPC1768_ST7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t ar
       u8g_SetPIOutput(u8g, U8G_PI_CS);
       u8g_Delay(5);
       spiBegin();
+      // TODO: hint the SPI pins here.
       spiInit(SPI_EIGHTH_SPEED);            // ST7920 max speed is about 1.1 MHz
       u8g->pin_list[U8G_PI_A0_STATE] = 0;   // initial RS state: command mode
       break;
