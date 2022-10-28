@@ -517,8 +517,8 @@
     }
 
     _SS_WRITE(HIGH);
-    WRITE(( hint_mosi != -1 ) ? hint_mosi : SD_MOSI_PIN, HIGH);
-    WRITE(( hint_sck != -1 ) ? hint_sck : SD_SCK_PIN, LOW);
+    WRITE(SD_MOSI_PIN, HIGH);
+    WRITE(SD_SCK_PIN, LOW);
   }
 
   void spiClose() {}
