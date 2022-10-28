@@ -40,6 +40,10 @@
 
 #include "../MarlinCore.h"
 
+#ifndef SD_RETRY_COUNT
+  #define SD_RETRY_COUNT 3
+#endif
+
 #if ENABLED(SD_CHECK_AND_RETRY)
   static bool crcSupported = true;
 
