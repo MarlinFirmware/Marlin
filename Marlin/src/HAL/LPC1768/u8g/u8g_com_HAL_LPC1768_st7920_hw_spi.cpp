@@ -63,11 +63,6 @@
 #include "../../shared/HAL_SPI.h"
 #include "../../shared/Delay.h"
 
-void spiBegin();
-void spiInit(uint8_t spiRate, int hint_sck = -1, int hint_miso = -1, int hint_mosi = -1, int hint_cs = -1);
-void spiSend(uint8_t b);
-void spiSend(const uint8_t *buf, size_t n);
-
 static uint8_t rs_last_state = 255;
 
 static void u8g_com_LPC1768_st7920_write_byte_hw_spi(uint8_t rs, uint8_t val) {
