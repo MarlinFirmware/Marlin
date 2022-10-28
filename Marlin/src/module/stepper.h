@@ -202,8 +202,11 @@
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
 
+// The main loop can be called up to three times as often with input shaping
+#define INPUT_SHAPING_FACTOR (1 + TERN0(HAS_SHAPING_X, 1) + TERN0(HAS_SHAPING_Y, 1))
+
 // But the user could be enforcing a minimum time, so the loop time is
-#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
+#define ISR_LOOP_CYCLES ((ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES)) * INPUT_SHAPING_FACTOR)
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
