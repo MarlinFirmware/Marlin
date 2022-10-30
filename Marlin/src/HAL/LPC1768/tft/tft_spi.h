@@ -63,9 +63,9 @@ public:
   static void WriteReg(uint16_t Reg) { OUT_WRITE(TFT_A0_PIN, LOW); Transmit(Reg); OUT_WRITE(TFT_A0_PIN, HIGH); }
 
   static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
-  // static void WriteMultiple(uint16_t Color, uint16_t Count) { uint16_t Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  // static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    uint16_t Data = Color;
+    static uint16_t Data; Data = Color;
     //LPC dma can only write 0xFFF bytes at once.
     #define MAX_DMA_SIZE (0xFFF - 1)
     while (Count > 0) {

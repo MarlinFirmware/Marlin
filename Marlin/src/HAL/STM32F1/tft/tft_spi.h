@@ -61,9 +61,9 @@ public:
   static void WriteReg(uint16_t Reg) { WRITE(TFT_A0_PIN, LOW); Transmit(Reg); WRITE(TFT_A0_PIN, HIGH); }
 
   static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
-  static void WriteMultiple(uint16_t Color, uint16_t Count) { uint16_t Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    uint16_t Data = Color;
+    static uint16_t Data; Data = Color;
     while (Count > 0) {
       TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
       Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
