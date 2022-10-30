@@ -62,10 +62,10 @@
 // Servos / XS3 Connector
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                          65 // A11 Analog Output
+  #define SERVO0_PIN                          65  // PWM
 #endif
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN                          66 // A12 Analog Output 
+  #define SERVO1_PIN                          66  // PWM
 #endif
 
 //
@@ -424,7 +424,7 @@
  *  |--------|   Power
  *  |  GND   |
  *  ==========
- * XS3/Servos Connector
+ * Servos / XS3 Connector
  *  =================
  *  | 65 | GND | 5V |      (65)  PK3 ** Pin86 ** A11
  *  |----|-----|----|
