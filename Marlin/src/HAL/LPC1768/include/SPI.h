@@ -62,7 +62,7 @@
 
 class SPISettings {
 public:
-  SPISettings(uint32_t spiRate, int inBitOrder, int inDataMode) {
+  SPISettings(uint8_t spiRate, int inBitOrder, int inDataMode) {
     init_AlwaysInline(spiRate2Clock(spiRate), inBitOrder, inDataMode, DATA_SIZE_8BIT);
   }
   SPISettings(uint32_t inClock, uint8_t inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
@@ -77,7 +77,7 @@ public:
 
   //uint32_t spiRate() const { return spi_speed; }
 
-  static uint32_t spiRate2Clock(uint32_t spiRate) {
+  static uint32_t spiRate2Clock(uint8_t spiRate) {
     constexpr uint32_t Marlin_speed[] = { // CPSR is always 2
       SPI_CLOCK_DIV2,   //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
       SPI_CLOCK_DIV4,   //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
