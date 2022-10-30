@@ -194,11 +194,9 @@ void TFT_SPI::HAL_SPI_Prepare(eSPIMode spiMode) {
 
 void TFT_SPI::HAL_SPI_Dismantle() {
   #ifdef STM32F1xx
-    #define _DMATX_DISMANTLE(N1,N4) \
-      __HAL_RCC_DMA##N1##_CLK_DISABLE(); \
+    #define _DMATX_DISMANTLE(N1,N4) __HAL_RCC_DMA##N1##_CLK_DISABLE()
   #elif defined(STM32F4xx)
-    #define _DMATX_DISMANTLE(N1,N4) \
-      __HAL_RCC_DMA##N4##_CLK_DISABLE(); \
+    #define _DMATX_DISMANTLE(N1,N4) __HAL_RCC_DMA##N4##_CLK_DISABLE()
   #else
     #define _DMATX_DISMANTLE(...) NOOP
   #endif
