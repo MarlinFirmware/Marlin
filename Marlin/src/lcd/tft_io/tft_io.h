@@ -126,7 +126,7 @@ public:
     inline static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { io.WriteSequenceIT(Data, Count); };
   #endif
 
-  // static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  // static void WriteMultiple(uint16_t Color, uint16_t Count) { uint16_t Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
   inline static void WriteMultiple(uint16_t Color, uint32_t Count) { io.WriteMultiple(Color, Count); };
 
 protected:

@@ -74,7 +74,7 @@ void spiBegin() {
  *
  * @details
  */
-void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
   // TODO: maybe use the more generic STM32 SPI stuff instead, ignore the pins here.
   /**
    * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
@@ -103,9 +103,7 @@ void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hi
   SPI.setDataMode(SPI_MODE0);
 }
 
-void spiClose() {
-  SPI.end();
-}
+void spiClose() { SPI.end(); }
 
 /**
  * @brief  Receive a single byte from the SPI port.

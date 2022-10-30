@@ -76,16 +76,14 @@
     swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
 
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-    SPI_speed =
-      swSpiInit(spiRate,
-        ( hint_sck != -1 ) ? hint_sck : SD_SCK_PIN,
-        ( hint_mosi != -1 ) ? hint_mosi : SD_MOSI_PIN
-      );
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
+    SPI_speed = swSpiInit(spiRate,
+      hint_sck < 0 ? SD_SCK_PIN : hint_sck,
+      hint_mosi < 0 ? SD_MOSI_PIN : hint_mosi
+    );
   }
 
-  void spiClose() {
-  }
+  void spiClose() { /* do nothing */ }
 
   uint8_t spiRec() { return spiTransfer(0xFF); }
 
@@ -117,20 +115,17 @@
 
   void spiBegin() {} // Set up SCK, MOSI & MISO pins for SSP0
 
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-    if (spiRate == SPI_SPEED_DEFAULT)
-      spiRate = INIT_SPI_SPEED;
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
+    if (spiRate == SPI_SPEED_DEFAULT) spiRate = INIT_SPI_SPEED;
     // We basically ignore all pins other than MISO because we assume that all
     // belong to the same hardware SPI capable pin "module".
     int used_miso_pin = ( hint_miso != -1 ) ? hint_miso : SD_MISO_PIN;
-#ifdef BOARD_SPI1_MISO_PIN
-    if (used_miso_pin == BOARD_SPI1_MISO_PIN)
-      SPI.setModule(1);
-#endif
-#ifdef BOARD_SPI2_MISO_PIN
-    if (used_miso_pin == BOARD_SPI2_MISO_PIN)
-      SPI.setModule(2);
-#endif
+    #ifdef BOARD_SPI1_MISO_PIN
+      if (used_miso_pin == BOARD_SPI1_MISO_PIN) SPI.setModule(1);
+    #endif
+    #ifdef BOARD_SPI2_MISO_PIN
+      if (used_miso_pin == BOARD_SPI2_MISO_PIN) SPI.setModule(2);
+    #endif
     SPI.setDataSize(DATA_SIZE_8BIT);
     SPI.setDataMode(SPI_MODE0);
 
@@ -219,7 +214,8 @@ SPIClass::SPIClass(uint8_t device) {
   GPDMA_Init();
 }
 
-SPIClass::SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel) {
+SPIClass::SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel/*=-1*/) {
+  UNUSED(miso); UNUSED(sclk); UNUSED(ssel);
   #if BOARD_NR_SPI >= 1
     if (mosi == BOARD_SPI1_MOSI_PIN) SPIClass(1);
   #endif

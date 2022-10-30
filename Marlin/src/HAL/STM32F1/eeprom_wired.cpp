@@ -39,9 +39,7 @@
 size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_finish() {
-#if ENABLED(SPI_EEPROM)
-  spiClose();
-#endif
+  TERN_(SPI_EEPROM, spiClose());
   return true;
 }
 

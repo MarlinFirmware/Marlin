@@ -60,9 +60,9 @@ class TFT_FSMC {
     static void WriteReg(uint16_t Reg);
 
     static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_MODE, Data, Count); }
-    static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_CIRC_MODE, &Data, Count); }
+    static void WriteMultiple(uint16_t Color, uint16_t Count) { uint16_t Data = Color; TransmitDMA(DMA_CIRC_MODE, &Data, Count); }
     static void WriteMultiple(uint16_t Color, uint32_t Count) {
-      static uint16_t Data; Data = Color;
+      uint16_t Data = Color;
       while (Count > 0) {
         TransmitDMA(DMA_CIRC_MODE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
         Count = Count > 0xFFFF ? Count - 0xFFFF : 0;

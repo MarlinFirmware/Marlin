@@ -46,7 +46,7 @@ static SPISettings spiConfig;
 
   #include "../shared/Delay.h"
 
-  void spiBegin(void) {
+  void spiBegin() {
     #if PIN_EXISTS(SD_SS)
       OUT_WRITE(SD_SS_PIN, HIGH);
     #endif
@@ -67,7 +67,7 @@ static SPISettings spiConfig;
   void delaySPI_2000() { DELAY_NS(2000 - CALLING_COST_NS); }
   void delaySPI_4000() { DELAY_NS(4000 - CALLING_COST_NS); }
 
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     // Use datarates Marlin uses
     switch (spiRate) {
       case SPI_FULL_SPEED:   delaySPIFunc =  &delaySPI_125; break;  // desired: 8,000,000  actual: ~1.1M
@@ -86,9 +86,7 @@ static SPISettings spiConfig;
     SPI.begin();
   }
 
-  void spiClose() {
-    SPI.end();
-  }
+  void spiClose() { SPI.end(); }
 
   // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) { /* do nothing */ }
@@ -161,9 +159,9 @@ static SPISettings spiConfig;
   }
 
   // Configure SPI for specified SPI speed
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     // Ignore chip-select because the software manages it already.
-    
+
     // Use datarates Marlin uses
     uint32_t clock;
     switch (spiRate) {
@@ -185,13 +183,11 @@ static SPISettings spiConfig;
     SPI.beginTransaction(spiConfig);
   }
 
-  void spiClose() {
-    // Terminates SPI activity.
-    SPI.end();
-  }
+  // Terminate SPI activity
+  void spiClose() { SPI.end(); }
 
   /**
-   * @brief  Receives a single byte from the SPI port.
+   * @brief  Receive a single byte from the SPI port.
    *
    * @return Byte received
    *

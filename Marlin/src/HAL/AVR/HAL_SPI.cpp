@@ -49,6 +49,8 @@ void spiBegin() {
   SET_OUTPUT(SD_MOSI_PIN);
 }
 
+void spiClose() { /* do nothing */ }
+
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
@@ -64,7 +66,7 @@ void spiBegin() {
    * Initialize hardware SPI
    * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
    */
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     // Ignore SPI pin hints.
 
     // See avr processor documentation
@@ -78,17 +80,13 @@ void spiBegin() {
     );
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
-    SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
-  }
-
-  void spiClose() {
-    // nop.
+    SPSR = spiRate & 1 || spiRate == SPI_SPEED_6 ? 0 : _BV(SPI2X);
   }
 
   /** SPI receive a byte */
   uint8_t spiRec() {
     SPDR = 0xFF;
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
     return SPDR;
   }
 
@@ -97,34 +95,33 @@ void spiBegin() {
     if (nbyte-- == 0) return;
     SPDR = 0xFF;
     for (uint16_t i = 0; i < nbyte; i++) {
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      while (!TEST(SPSR, SPIF)) { /* do nothing */ }
       buf[i] = SPDR;
       SPDR = 0xFF;
     }
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
     buf[nbyte] = SPDR;
   }
 
   /** SPI send a byte */
   void spiSend(uint8_t b) {
     SPDR = b;
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
   }
 
   /** SPI send block  */
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
     SPDR = token;
     for (uint16_t i = 0; i < 512; i += 2) {
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      while (!TEST(SPSR, SPIF)) { /* do nothing */ }
       SPDR = buf[i];
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      while (!TEST(SPSR, SPIF)) { /* do nothing */ }
       SPDR = buf[i + 1];
     }
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
   }
 
-
-  /** begin spi transaction */
+  /** Begin SPI transaction */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // Based on Arduino SPI library
     // Clock settings are defined as follows. Note that this shows SPI2X
@@ -179,7 +176,6 @@ void spiBegin() {
     SPSR = clockDiv | 0x01;
   }
 
-
 #else // SOFTWARE_SPI || FORCE_SOFT_SPI
 
   // ------------------------
@@ -189,8 +185,7 @@ void spiBegin() {
   // nop to tune soft SPI timing
   #define nop asm volatile ("\tnop\n")
 
-  void spiInit(uint8_t, int, int, int, int) { /* do nothing */ }
-  void spiClose() { /* do nothing */ }
+  void spiInit(uint8_t, const int=-1, const int=-1, const int=-1, const int=-1) { /* do nothing */ }
 
   // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) { /* do nothing */ }

@@ -42,11 +42,7 @@
 
 class TFT_SPI {
 
-  enum class eSPIMode
-  {
-    READ,
-    WRITE
-  };
+  enum class eSPIMode { READ, WRITE };
 
 private:
   static SPI_HandleTypeDef SPIx;
@@ -59,14 +55,14 @@ private:
     static void TransmitDMA_IT(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
   #endif
 
-  static void HALPrepare(eSPIMode spiMode);
-  static void HALDismantle(void);
+  static void HAL_SPI_Prepare(eSPIMode spiMode);
+  static void HAL_SPI_Dismantle();
 
-  static uint8_t _GetClockDivider( uint32_t spibasefreq, uint32_t speed );
+  static uint8_t _GetClockDivider(uint32_t spibasefreq, uint32_t speed);
 
-#if PIN_EXISTS(TFT_MISO)
-  static uint8_t clkdiv_read;
-#endif
+  #if PIN_EXISTS(TFT_MISO)
+    static uint8_t clkdiv_read;
+  #endif
   static uint8_t clkdiv_write;
 
   static bool active_transfer;
@@ -80,7 +76,7 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT, eSPIMode spiMode = eSPIMode::WRITE);
+  static void DataTransferBegin(uint16_t DataWidth=DATASIZE_16BIT, eSPIMode spiMode=eSPIMode::WRITE);
   static void DataTransferEnd();
   static void DataTransferAbort();
 
@@ -93,9 +89,9 @@ public:
     static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { TransmitDMA_IT(DMA_MINC_ENABLE, Data, Count); }
   #endif
 
-  static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  static void WriteMultiple(uint16_t Color, uint16_t Count) { uint16_t Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    static uint16_t Data; Data = Color;
+    uint16_t Data = Color;
     while (Count > 0) {
       TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
       Count = Count > 0xFFFF ? Count - 0xFFFF : 0;

@@ -54,13 +54,13 @@
 // Software and hardware actually, they are connected to SPI2 bus.
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     PB15
+  #define TMC_SPI_MOSI                      PB15
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     PB14
+  #define TMC_SPI_MISO                      PB14
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      PB13
+  #define TMC_SPI_SCK                       PB13
 #endif
 
 #include "pins_MKS_ROBIN_E3_V1_1_common.h" // ... MKS_ROBIN_E3_common

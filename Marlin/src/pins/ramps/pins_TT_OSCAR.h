@@ -150,15 +150,15 @@
 //
 // Default pins for TMC SPI
 //
-//  #ifndef TMC_SPI_MOSI
-//    #define TMC_SPI_MOSI    66
-//  #endif
-//  #ifndef TMC_SPI_MISO
-//    #define TMC_SPI_MISO    44
-//  #endif
-//  #ifndef TMC_SPI_SCK
-//    #define TMC_SPI_SCK     64
-//  #endif
+//#ifndef TMC_SPI_MOSI
+//  #define TMC_SPI_MOSI                      66
+//#endif
+//#ifndef TMC_SPI_MISO
+//  #define TMC_SPI_MISO                      44
+//#endif
+//#ifndef TMC_SPI_SCK
+//  #define TMC_SPI_SCK                       64
+//#endif
 
 //
 // Temperature Sensors
@@ -177,9 +177,9 @@
 
 // SPI for MAX Thermocouple
 //#if DISABLED(SDSUPPORT)
-//  #define TEMP_0_CS_PIN    66   // Don't use 53 if using Display/SD card
+//  #define TEMP_0_CS_PIN                     66   // Don't use 53 if using Display/SD card
 //#else
-//  #define TEMP_0_CS_PIN    66   // Don't use 49 (SD_DETECT_PIN)
+//  #define TEMP_0_CS_PIN                     66   // Don't use 49 (SD_DETECT_PIN)
 //#endif
 
 //
@@ -211,7 +211,7 @@
 #define LED_PIN                               13
 
 //#ifndef FILWIDTH_PIN
-//  #define FILWIDTH_PIN      5   // Analog Input
+//  #define FILWIDTH_PIN                       5   // Analog Input
 //#endif
 
 // DIO 4 (Servos plug) for the runout sensor.

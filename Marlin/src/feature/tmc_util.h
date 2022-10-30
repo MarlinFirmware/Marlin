@@ -91,11 +91,11 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t axis_chain_index) :
       TMC(cs_pin, RS, axis_chain_index)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, bool softSPI) :
-      TMC(CS, RS, pinMOSI, pinMISO, pinSCK, softSPI)
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const bool isSoftSPI=false) :
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK, isSoftSPI)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index, bool softSPI) :
-      TMC(CS, RS, pinMOSI, pinMISO, pinSCK, axis_chain_index, softSPI)
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index, const bool isSoftSPI=false) :
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK, axis_chain_index, isSoftSPI)
       {}
     uint16_t rms_current() { return TMC::rms_current(); }
     void rms_current(uint16_t mA) {
@@ -290,11 +290,11 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
     TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
       TMC2660Stepper(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, bool softSPI) :
-      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK, softSPI)
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const bool isSoftSPI=false) :
+      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK, isSoftSPI)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t, bool softSPI) :
-      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK, softSPI)
+    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t, const bool isSoftSPI=false) :
+      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK, isSoftSPI)
       {}
     uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
     void rms_current(const uint16_t mA) {

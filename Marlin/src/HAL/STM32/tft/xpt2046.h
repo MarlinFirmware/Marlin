@@ -77,8 +77,8 @@ private:
   static uint16_t SoftwareIO(uint16_t data);
   static uint16_t IO(uint16_t data = 0) { return SPIx.Instance ? HardwareIO(data) : SoftwareIO(data); }
 
-  static void HALPrepare(void);
-  static void HALDismantle(void);
+  static void HAL_SPI_Prepare();
+  static void HAL_SPI_Dismantle();
 
 public:
   static void Init();

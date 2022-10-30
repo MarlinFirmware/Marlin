@@ -219,13 +219,13 @@
 // TMC SPI
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                       51
+  #define TMC_SPI_MOSI                        51
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                       50
+  #define TMC_SPI_MISO                        50
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                        53
+  #define TMC_SPI_SCK                         53
 #endif
 
 //

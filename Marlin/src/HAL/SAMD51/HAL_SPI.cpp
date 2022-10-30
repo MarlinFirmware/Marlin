@@ -65,10 +65,10 @@
   void spiBegin() {
   }
 
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     // Ignore all pin hints.
-    if (spiRate == SPI_SPEED_DEFAULT)
-      spiRate = SPI_HALF_SPEED;
+    if (spiRate == SPI_SPEED_DEFAULT) spiRate = SPI_HALF_SPEED;
+
     // Use datarates Marlin uses
     uint32_t clock;
     switch (spiRate) {
@@ -85,9 +85,7 @@
     sdSPI.begin();
   }
 
-  void spiClose() {
-    sdSPI.end();
-  }
+  void spiClose() { sdSPI.end(); }
 
   /**
    * @brief  Receives a single byte from the SPI port.

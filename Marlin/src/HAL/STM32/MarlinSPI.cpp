@@ -42,14 +42,12 @@ void MarlinSPI::setClockDivider(uint8_t _div) {
   _clockDivider = _div;
 }
 
-void MarlinSPI::begin(void) {
-  //TODO: only call spi_init if any parameter changed!!
+void MarlinSPI::begin() {
+  // TODO: only call spi_init if any parameter changed!!
   spi_init(&_spi, _speed, _dataMode, _bitOrder, _dataSize);
 }
 
-void MarlinSPI::end(void) {
-  spi_deinit(&_spi);
-}
+void MarlinSPI::end() { spi_deinit(&_spi); }
 
 void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc) {
   _dmaHandle.Init.Direction = direction;

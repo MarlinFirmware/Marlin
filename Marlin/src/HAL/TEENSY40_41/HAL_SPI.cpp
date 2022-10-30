@@ -59,7 +59,7 @@ void spiBegin() {
   //SET_OUTPUT(SD_MOSI_PIN);
 }
 
-void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
   // Ignore the SPI pin hints.
 
   // Use Marlin data-rates
@@ -78,9 +78,7 @@ void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hi
   SPI.begin();
 }
 
-void spiClose() {
-  SPI.end();
-}
+void spiClose() { SPI.end(); }
 
 uint8_t spiRec() {
   SPI.beginTransaction(spiConfig);

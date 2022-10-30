@@ -3114,7 +3114,7 @@ void Temperature::disable_all_heaters() {
 
       #if !HAS_MAXTC_SW_SPI
         // Initialize SPI using the default Hardware SPI bus.
-        // FIXME: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
+        // FIXME: spiBegin, spiRec and spiInit doesn't work when Soft SPI is used.
         spiBegin();
         spiInit(MAX_TC_SPEED_BITS);
       #endif
@@ -3128,10 +3128,7 @@ void Temperature::disable_all_heaters() {
         if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
       }
 
-      #if !HAS_MAXTC_SW_SPI
-        // Need to terminate our work.
-        spiClose();
-      #endif
+      IF_DISABLED(HAS_MAXTC_SW_SPI, spiClose());  // Terminate our work
 
       MAXTC_CS_WRITE(HIGH);  // Disable MAXTC
     #else
@@ -3224,15 +3221,12 @@ void Temperature::update_raw_temperatures() {
   #if HAS_TEMP_ADC_0 && !TEMP_SENSOR_IS_MAX_TC(0)
     temp_hotend[0].update();
   #endif
-
   #if HAS_TEMP_ADC_1 && !TEMP_SENSOR_IS_MAX_TC(1)
     temp_hotend[1].update();
   #endif
-
   #if HAS_TEMP_ADC_2 && !TEMP_SENSOR_IS_MAX_TC(2)
     temp_hotend[2].update();
   #endif
-
   #if HAS_TEMP_ADC_REDUNDANT && !TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
     temp_redundant.update();
   #endif

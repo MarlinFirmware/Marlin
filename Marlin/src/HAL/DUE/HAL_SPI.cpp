@@ -493,7 +493,7 @@
    *  5 :  250 - 312 kHz
    *  6 :  125 - 156 kHz
    */
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     switch (spiRate) {
       case 0:
         spiTransferTx = (pfnSpiTransfer)spiTransferTx0;
@@ -521,7 +521,7 @@
     WRITE(SD_SCK_PIN, LOW);
   }
 
-  void spiClose() {}
+  void spiClose() { /* do nothing */ }
 
   /** Begin SPI transaction, set clock, bit order, data mode */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
@@ -539,19 +539,21 @@
   #define FLUSH_TX() do{ WHILE_RX(1) SPI0->SPI_RDR; }while(0)
 
   #if 0
+    // ------------------------
+    // Hardware SPI
+    // https://github.com/arduino/ArduinoCore-sam/blob/master/libraries/SPI/src/SPI.h
+    // ------------------------
+    #include <SPI.h>
+
     static SPISettings spiConfig;
 
     // Generic SPI implementation (test me please)
     static bool _has_spi_pins = false;
     static int _spi_pin_cs; // all SPI pins are tied together (CS, MISO, MOSI, SCK)
 
-    // ------------------------
-    // hardware SPI
-    // https://github.com/arduino/ArduinoCore-sam/blob/master/libraries/SPI/src/SPI.h
-    // ------------------------
     void spiBegin() {}
 
-    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
       // Use datarates Marlin uses
       uint32_t clock;
       switch (spiRate) {
@@ -566,87 +568,79 @@
       }
       spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
       // We ignore all pins other than chip-select because they have to be tied together anyway.
-      if (hint_cs != -1)
-      {
-        sdSPI.begin(hint_cs);
+      if (hint_cs != -1) {
+        SPI.begin(hint_cs);
         _spi_pin_cs = hint_cs;
         _has_spi_pins = true;
       }
-      else
-      {
-        sdSPI.begin();
+      else {
+        SPI.begin();
         _has_spi_pins = false;
       }
     }
 
     void spiClose() {
       if (_has_spi_pins)
-        sdSPI.end(_spi_pin_cs);
+        SPI.end(_spi_pin_cs);
       else
-        sdSPI.end();
+        SPI.end();
       _has_spi_pins = false;
       _spi_pin_cs = -1;
     }
 
     uint8_t spiRec() {
       if (_has_spi_pins)
-        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+        SPI.beginTransaction(_spi_pin_cs, spiConfig);
       else
-        sdSPI.beginTransaction(spiConfig);
-      uint8_t returnByte = sdSPI.transfer(0xFF);
+        SPI.beginTransaction(spiConfig);
+      uint8_t returnByte = SPI.transfer(0xFF);
       if (_has_spi_pins)
-        sdSPI.endTransaction(_spi_pin_cs);
+        SPI.endTransaction(_spi_pin_cs);
       else
-        sdSPI.endTransaction();
+        SPI.endTransaction();
       return returnByte;
     }
 
     void spiRead(uint8_t *buf, uint16_t nbyte) {
       if (nbyte == 0) return;
       memset(buf, 0xFF, nbyte);
-      if (_has_spi_pins == false)
-      {
-        sdSPI.beginTransaction(spiConfig);
-        sdSPI.transfer(buf, nbyte);
+      if (_has_spi_pins == false) {
+        SPI.beginTransaction(spiConfig);
+        SPI.transfer(buf, nbyte);
       }
-      else
-      {
-        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
-        sdSPI.transfer(_spi_pin_cs, buf, nbyte);
+      else {
+        SPI.beginTransaction(_spi_pin_cs, spiConfig);
+        SPI.transfer(_spi_pin_cs, buf, nbyte);
       }
       // There is no pin-specific endTransaction method.
-      sdSPI.endTransaction();
+      SPI.endTransaction();
     }
 
     void spiSend(uint8_t b) {
-      if (_has_spi_pins)
-      {
-        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
-        sdSPI.transfer(_spi_pin_cs, b);
+      if (_has_spi_pins) {
+        SPI.beginTransaction(_spi_pin_cs, spiConfig);
+        SPI.transfer(_spi_pin_cs, b);
       }
-      else
-      {
-        sdSPI.beginTransaction(spiConfig);
-        sdSPI.transfer(b);
+      else {
+        SPI.beginTransaction(spiConfig);
+        SPI.transfer(b);
       }
-      sdSPI.endTransaction();
+      SPI.endTransaction();
     }
 
     // SD-card specific.
     void spiSendBlock(uint8_t token, const uint8_t *buf) {
-      if (_has_spi_pins)
-      {
-        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
-        sdSPI.transfer(_spi_pin_cs, token);
-        sdSPI.transfer(_spi_pin_cs, (uint8_t*)buf, 512);
+      if (_has_spi_pins) {
+        SPI.beginTransaction(_spi_pin_cs, spiConfig);
+        SPI.transfer(_spi_pin_cs, token);
+        SPI.transfer(_spi_pin_cs, (uint8_t*)buf, 512);
       }
-      else
-      {
-        sdSPI.beginTransaction(spiConfig);
-        sdSPI.transfer(token);
-        sdSPI.transfer(buf, 512);
+      else {
+        SPI.beginTransaction(spiConfig);
+        SPI.transfer(token);
+        SPI.transfer(buf, 512);
       }
-      sdSPI.endTransaction();
+      SPI.endTransaction();
     }
   #endif
 
@@ -660,14 +654,14 @@
     // ------------------------
     static bool spiInitialized = false;
 
-    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
       // I guess ignore the hinted pins?
 
       if (spiInitialized) return;
 
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
-      if (spiRate > 6) spiRate = 1;
+      if (spiRate > SPI_SPEED_6) spiRate = SPI_HALF_SPEED;
 
       // Set SPI mode 1, clock, select not active after transfer, with delay between transfers
       SPI_ConfigureNPCS(SPI0, SPI_CHAN_DAC,
@@ -878,17 +872,16 @@
      *  display to use software SPI.
      */
 
-    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) { 
+    void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
       // We ignore the hinted pins? Why don't we use the standard, already implemented SPI library?
 
       // Default to slowest rate if not specified)
       // Also sets U8G SPI rate to 4MHz and the SPI mode to 3
-      if (spiRate == SPI_SPEED_DEFAULT)
-        spiRate = 6;
+      if (spiRate == SPI_SPEED_DEFAULT) spiRate = SPI_SPEED_6;
 
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       constexpr int spiDivider[] = { 10, 21, 42, 84, 168, 255, 255 };
-      if (spiRate > 6) spiRate = 1;
+      if (spiRate > SPI_SPEED_6) spiRate = SPI_HALF_SPEED;
 
       // Enable PIOA and SPI0
       REG_PMC_PCER0 = (1UL << ID_PIOA) | (1UL << ID_SPI0);
@@ -911,9 +904,7 @@
       SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDivider[1]) | SPI_CSR_CSAAT | SPI_MODE_3_DUE_HW;  // U8G default to 4MHz
     }
 
-    void spiClose() {
-      // TODO?
-    }
+    void spiClose() { /* do nothing */ }
 
     void spiBegin() { spiInit(SPI_SPEED_DEFAULT); }
 

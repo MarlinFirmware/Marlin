@@ -175,13 +175,13 @@
 // SPI pins for TMC2130 stepper drivers
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     PC12
+  #define TMC_SPI_MOSI                      PC12
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     PC11
+  #define TMC_SPI_MISO                      PC11
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      PC10
+  #define TMC_SPI_SCK                       PC10
 #endif
 
 #if HAS_TMC_UART

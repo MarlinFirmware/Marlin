@@ -53,7 +53,7 @@
 #define SPI_SIXTEENTH_SPEED 4   // Set SCK rate to 1/16 of max rate
 #define SPI_SPEED_5         5   // Set SCK rate to 1/32 of max rate
 #define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
-#define SPI_SPEED_DEFAULT   255 // Let the framework decide (usually recommended value)    
+#define SPI_SPEED_DEFAULT   255 // Let the framework decide (usually recommended value)
 
 //
 // Standard SPI functions
@@ -63,7 +63,7 @@
 void spiBegin();
 
 // Configure SPI for specified SPI speed
-void spiInit(uint8_t spiRate, int hint_sck = -1, int hint_miso = -1, int hint_mosi = -1, int hint_cs = -1);
+void spiInit(uint8_t spiRate, const int hint_sck=-1, const int hint_miso=-1, const int hint_mosi=-1, const int hint_cs=-1);
 
 // Terminates SPI connection.
 void spiClose();

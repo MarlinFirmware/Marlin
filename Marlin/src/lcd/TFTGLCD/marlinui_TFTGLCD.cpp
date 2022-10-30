@@ -383,9 +383,8 @@ void MarlinUI::init_lcd() {
   }
   else
     PanelDetected = 0;
-#if ENABLED(TFTGLCD_PANEL_SPI)
-  spiClose();
-#endif
+
+  TERN_(TFTGLCD_PANEL_SPI, spiClose());
   safe_delay(100);
 }
 

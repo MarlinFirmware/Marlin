@@ -46,7 +46,7 @@ void spiBegin() {
 }
 
 // Configure SPI for specified SPI speed
-void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
   // Ignore the pin hints, there is nothing we can do (see arduino core).
   // Use data rates Marlin uses
   uint32_t clock;
@@ -63,9 +63,7 @@ void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hi
   SPI.begin();
 }
 
-void spiClose() {
-  SPI.end();
-}
+void spiClose() { SPI.end(); }
 
 // SPI receive a byte
 uint8_t spiRec() {
