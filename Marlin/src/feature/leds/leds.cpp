@@ -34,10 +34,6 @@
   #include "blinkm.h"
 #endif
 
-#if ENABLED(PCA9632)
-  #include "pca9632.h"
-#endif
-
 #if ENABLED(PCA9533)
   #include "pca9533.h"
 #endif

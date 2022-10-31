@@ -40,6 +40,12 @@
   #undef _NEOPIXEL_INCLUDE_
 #endif
 
+#if HAS_COLOR_LEDS
+  #if ENABLED(PCA9632)
+    #include "pca9632.h"
+  #endif
+#endif
+
 /**
  * LEDcolor type for use with leds.set_color
  */
