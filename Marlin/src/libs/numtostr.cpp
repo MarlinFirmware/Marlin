@@ -73,10 +73,10 @@ const char* i8tostr3rj(const int8_t x) {
 }
 
 #if HAS_PRINT_PROGRESS_PERMYRIAD
-  // Convert unsigned 16-bit permyriad to percent with 100 / 23 / 23.4 / 3.45 format
+  // Convert unsigned 16-bit permyriad to percent with 100 / 23.4 / 3.45 format
   const char* permyriadtostr4(const uint16_t xx) {
     if (xx >= 10000)
-      return "100";
+      return " 100"; // space to keep 4-width alignment
     else if (xx >= 1000) {
       conv[3] = DIGIMOD(xx, 1000);
       conv[4] = DIGIMOD(xx, 100);
@@ -377,10 +377,10 @@ const char* ftostr53sign(const_float_t f) {
   return conv;
 }
 
-// Convert unsigned float to string with ____4.5, __34.5, _234.5, 1234.5 format
-const char* ftostr51rj(const_float_t f) {
+// Convert unsigned float to string with ____5.6, ___45.6, __345.6, _2345.6, 12345.6 format
+const char* ftostr61rj(const_float_t f) {
   const long i = UINTFLOAT(f, 1);
-  conv[0] = ' ';
+  conv[0] = RJDIGIT(i, 100000);
   conv[1] = RJDIGIT(i, 10000);
   conv[2] = RJDIGIT(i, 1000);
   conv[3] = RJDIGIT(i, 100);

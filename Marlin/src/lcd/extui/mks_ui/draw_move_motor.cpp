@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -75,15 +76,14 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_M_STEP:
-      if (abs(10 * (int)uiCfg.move_dist) == 100)
+      if (ABS(10 * (int)uiCfg.move_dist) == 100)
         uiCfg.move_dist = 0.1;
       else
         uiCfg.move_dist *= 10.0f;
       disp_move_dist();
       break;
     case ID_M_RETURN:
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       return;
   }
   disp_cur_pos();

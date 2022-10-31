@@ -42,7 +42,7 @@
   #include "pca9533.h"
 #endif
 
-#if ENABLED(CASE_LIGHT_USE_RGB_LED)
+#if EITHER(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
   #include "../../feature/caselight.h"
 #endif
 
@@ -69,6 +69,44 @@ void LEDLights::setup() {
     #if ENABLED(RGBW_LED)
       if (PWM_PIN(RGB_LED_W_PIN)) SET_PWM(RGB_LED_W_PIN); else SET_OUTPUT(RGB_LED_W_PIN);
     #endif
+
+    #if ENABLED(RGB_STARTUP_TEST)
+      int8_t led_pin_count = 0;
+      if (PWM_PIN(RGB_LED_R_PIN) && PWM_PIN(RGB_LED_G_PIN) && PWM_PIN(RGB_LED_B_PIN)) led_pin_count = 3;
+      #if ENABLED(RGBW_LED)
+        if (PWM_PIN(RGB_LED_W_PIN) && led_pin_count) led_pin_count++;
+      #endif
+      // Startup animation
+      if (led_pin_count) {
+        // blackout
+        if (PWM_PIN(RGB_LED_R_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_R_PIN), 0); else WRITE(RGB_LED_R_PIN, LOW);
+        if (PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), 0); else WRITE(RGB_LED_G_PIN, LOW);
+        if (PWM_PIN(RGB_LED_B_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_B_PIN), 0); else WRITE(RGB_LED_B_PIN, LOW);
+        #if ENABLED(RGBW_LED)
+          if (PWM_PIN(RGB_LED_W_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_W_PIN), 0);
+          else WRITE(RGB_LED_W_PIN, LOW);
+        #endif
+        delay(200);
+
+        LOOP_L_N(i, led_pin_count) {
+          LOOP_LE_N(b, 200) {
+            const uint16_t led_pwm = b <= 100 ? b : 200 - b;
+            if (i == 0 && PWM_PIN(RGB_LED_R_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_R_PIN), led_pwm); else WRITE(RGB_LED_R_PIN, b < 100 ? HIGH : LOW);
+            if (i == 1 && PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), led_pwm); else WRITE(RGB_LED_G_PIN, b < 100 ? HIGH : LOW);
+            if (i == 2 && PWM_PIN(RGB_LED_B_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_B_PIN), led_pwm); else WRITE(RGB_LED_B_PIN, b < 100 ? HIGH : LOW);
+            #if ENABLED(RGBW_LED)
+              if (i == 3){
+                if (PWM_PIN(RGB_LED_W_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_W_PIN), led_pwm);
+                else WRITE(RGB_LED_W_PIN, b < 100 ? HIGH : LOW);
+                delay(RGB_STARTUP_TEST_INNER_MS);//More slowing for ending
+              }
+            #endif
+            delay(RGB_STARTUP_TEST_INNER_MS);
+          }
+        }
+        delay(500);
+      }
+    #endif // RGB_STARTUP_TEST
   #endif
   TERN_(NEOPIXEL_LED, neo.init());
   TERN_(PCA9533, PCA9533_init());
@@ -95,6 +133,10 @@ void LEDLights::set_color(const LEDColor &incol
       #endif
     #endif
 
+    #if BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+      // Update brightness only if caselight is ON or switching leds off
+      if (caselight.on || incol.is_off())
+    #endif
     neo.set_brightness(incol.i);
 
     #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
@@ -106,6 +148,10 @@ void LEDLights::set_color(const LEDColor &incol
       }
     #endif
 
+    #if BOTH(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
+      // Update color only if caselight is ON or switching leds off
+      if (caselight.on || incol.is_off())
+    #endif
     neo.set_color(neocolor);
 
   #endif
@@ -121,11 +167,11 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define _UPDATE_RGBW(C,c) do {                \
-      if (PWM_PIN(RGB_LED_##C##_PIN))             \
-        analogWrite(pin_t(RGB_LED_##C##_PIN), c); \
-      else                                        \
-        WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW); \
+    #define _UPDATE_RGBW(C,c) do {                     \
+      if (PWM_PIN(RGB_LED_##C##_PIN))                  \
+        hal.set_pwm_duty(pin_t(RGB_LED_##C##_PIN), c); \
+      else                                             \
+        WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW);      \
     }while(0)
     #define UPDATE_RGBW(C,c) _UPDATE_RGBW(C, TERN1(CASE_LIGHT_USE_RGB_LED, caselight.on) ? incol.c : 0)
     UPDATE_RGBW(R,r); UPDATE_RGBW(G,g); UPDATE_RGBW(B,b);
@@ -150,7 +196,7 @@ void LEDLights::set_color(const LEDColor &incol
   void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
 #endif
 
-#ifdef LED_BACKLIGHT_TIMEOUT
+#if LED_POWEROFF_TIMEOUT > 0
 
   millis_t LEDLights::led_off_time; // = 0
 
@@ -170,9 +216,9 @@ void LEDLights::set_color(const LEDColor &incol
 
   #if ENABLED(NEO2_COLOR_PRESETS)
     const LEDColor LEDLights2::defaultLEDColor = LEDColor(
-      LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE
-      OPTARG(HAS_WHITE_LED2, LED_USER_PRESET_WHITE)
-      OPTARG(NEOPIXEL_LED, LED_USER_PRESET_BRIGHTNESS)
+      NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE
+      OPTARG(HAS_WHITE_LED2, NEO2_USER_PRESET_WHITE)
+      OPTARG(NEOPIXEL_LED, NEO2_USER_PRESET_BRIGHTNESS)
     );
   #endif
 

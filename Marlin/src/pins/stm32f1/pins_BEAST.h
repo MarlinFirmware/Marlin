@@ -93,7 +93,7 @@
   #define FAN_PIN                           PB10
 #endif
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Temperature Sensors
@@ -131,7 +131,7 @@
       #error "LCD_I2C_PANELOLU2 is not supported."
     #elif ENABLED(LCD_I2C_VIKI)
       #error "LCD_I2C_VIKI is not supported."
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
       #error "VIKI2 / miniVIKI is not supported."
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #error "ELB_FULL_GRAPHIC_CONTROLLER is not supported."

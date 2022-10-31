@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,6 +41,10 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
+#if HAS_TOUCH_SLEEP
+  millis_t TouchButtons::next_sleep_ms;
+#endif
+
 #include "../buttons.h" // For EN_C bit mask
 #include "../marlinui.h" // For ui.refresh
 #include "../tft_io/tft_io.h"
@@ -50,28 +57,42 @@
 #define BUTTON_AREA_TOP BUTTON_Y_LO
 #define BUTTON_AREA_BOT BUTTON_Y_HI
 
-TouchButtons touch;
+TouchButtons touchBt;
 
-void TouchButtons::init() { touchIO.Init(); }
+void TouchButtons::init() {
+  touchIO.Init();
+  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60));
+}
 
 uint8_t TouchButtons::read_buttons() {
   #ifdef HAS_WIRED_LCD
     int16_t x, y;
 
-    const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
-    if (!is_touched) return 0;
+    #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+      const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
+      #if HAS_TOUCH_SLEEP
+        if (is_touched)
+          wakeUp();
+        else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+          sleepTimeout();
+      #endif
+      if (!is_touched) return 0;
 
-    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      const calibrationState state = touch_calibration.get_calibration_state();
-      if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
-        if (touch_calibration.handleTouch(x, y)) ui.refresh();
-        return 0;
-      }
-      x = int16_t((int32_t(x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
-      y = int16_t((int32_t(y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
-    #else
-      x = uint16_t((uint32_t(x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
-      y = uint16_t((uint32_t(y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
+      #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+        const calibrationState state = touch_calibration.get_calibration_state();
+        if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_RIGHT)) {
+          if (touch_calibration.handleTouch(x, y)) ui.refresh();
+          return 0;
+        }
+        x = int16_t((int32_t(x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+        y = int16_t((int32_t(y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+      #else
+        x = uint16_t((uint32_t(x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
+        y = uint16_t((uint32_t(y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
+      #endif
+    #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
+      bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? touchIO.getPoint(&y, &x) : touchIO.getPoint(&x, &y));
+      if (!is_touched) return 0;
     #endif
 
     // Touch within the button area simulates an encoder button
@@ -95,5 +116,28 @@ uint8_t TouchButtons::read_buttons() {
   #endif
   return 0;
 }
+
+#if HAS_TOUCH_SLEEP
+
+  void TouchButtons::sleepTimeout() {
+    #if HAS_LCD_BRIGHTNESS
+      ui.set_brightness(0);
+    #elif PIN_EXISTS(TFT_BACKLIGHT)
+      WRITE(TFT_BACKLIGHT_PIN, LOW);
+    #endif
+    next_sleep_ms = TSLP_SLEEPING;
+  }
+  void TouchButtons::wakeUp() {
+    if (isSleeping()) {
+      #if HAS_LCD_BRIGHTNESS
+        ui.set_brightness(ui.brightness);
+      #elif PIN_EXISTS(TFT_BACKLIGHT)
+        WRITE(TFT_BACKLIGHT_PIN, HIGH);
+      #endif
+    }
+    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
+  }
+
+#endif // HAS_TOUCH_SLEEP
 
 #endif // HAS_TOUCH_BUTTONS

@@ -31,5 +31,4 @@
 #define ILI9341         0x9341
 #define ILI9488         0x9488
 #define ILI9488_ID1     0x8066 // Some ILI9488 have 0x8066 in the 0x04
-#define LERDGE_ST7796   0xFFFE
 #define AUTO            0xFFFF

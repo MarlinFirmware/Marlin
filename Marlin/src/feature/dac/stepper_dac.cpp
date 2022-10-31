@@ -29,7 +29,6 @@
 #if HAS_MOTOR_CURRENT_DAC
 
 #include "stepper_dac.h"
-#include "../../MarlinCore.h" // for SP_X_LBL...
 
 bool dac_present = false;
 constexpr xyze_uint8_t dac_order = DAC_STEPPER_ORDER;
@@ -60,7 +59,7 @@ int StepperDAC::init() {
 }
 
 void StepperDAC::set_current_value(const uint8_t channel, uint16_t val) {
-  if (!dac_present) return;
+  if (!(dac_present && channel < LOGICAL_AXES)) return;
 
   NOMORE(val, uint16_t(DAC_STEPPER_MAX));
 
@@ -85,15 +84,13 @@ void StepperDAC::print_values() {
   if (!dac_present) return;
   SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR_P(SP_X_LBL, dac_perc(X_AXIS), PSTR(" ("), dac_amps(X_AXIS), PSTR(")"));
-  #if HAS_Y_AXIS
-    SERIAL_ECHOPAIR_P(SP_Y_LBL, dac_perc(Y_AXIS), PSTR(" ("), dac_amps(Y_AXIS), PSTR(")"));
-  #endif
-  #if HAS_Z_AXIS
-    SERIAL_ECHOPAIR_P(SP_Z_LBL, dac_perc(Z_AXIS), PSTR(" ("), dac_amps(Z_AXIS), PSTR(")"));
-  #endif
+  LOOP_LOGICAL_AXES(a) {
+    SERIAL_CHAR(' ', IAXIS_CHAR(a), ':');
+    SERIAL_ECHO(dac_perc(a));
+    SERIAL_ECHOPGM_P(PSTR(" ("), dac_amps(AxisEnum(a)), PSTR(")"));
+  }
   #if HAS_EXTRUDERS
-    SERIAL_ECHOLNPAIR_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));
+    SERIAL_ECHOLNPGM_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));
   #endif
 }
 

@@ -53,7 +53,7 @@ void ZOffsetScreen::onRedraw(draw_mode_t what) {
   w.heading(                  GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
   w.color(z_axis).adjuster(4, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), getZOffset_mm());
   w.increments();
-  w.button(2, GET_TEXT_F(MSG_PROBE_WIZARD), !isPrinting());
+  w.button(2, GET_TEXT_F(MSG_PROBE_WIZARD), !isPrinting() && !wizardRunning());
 }
 
 void ZOffsetScreen::move(float mm, int16_t steps) {
@@ -84,7 +84,7 @@ void ZOffsetScreen::runWizard() {
   strcat(cmd, str);
   injectCommands(cmd);
   // Show instructions for user.
-  AlertDialogBox::show(PSTR("After the printer finishes homing, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
+  AlertDialogBox::show(F("After the printer finishes homing, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
 }
 
 bool ZOffsetScreen::wizardRunning() {

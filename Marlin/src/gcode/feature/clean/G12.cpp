@@ -45,12 +45,14 @@
  *  X, Y, Z          : Specify axes to move during cleaning. Default: ALL.
  */
 void GcodeSuite::G12() {
+
   // Don't allow nozzle cleaning without homing first
-  if (homing_needed_error()) return;
+  constexpr main_axes_bits_t clean_axis_mask = main_axes_mask & ~TERN0(NOZZLE_CLEAN_NO_Z, Z_AXIS) & ~TERN0(NOZZLE_CLEAN_NO_Y, Y_AXIS);
+  if (homing_needed_error(clean_axis_mask)) return;
 
   #ifdef WIPE_SEQUENCE_COMMANDS
     if (!parser.seen_any()) {
-      gcode.process_subcommands_now_P(PSTR(WIPE_SEQUENCE_COMMANDS));
+      process_subcommands_now(F(WIPE_SEQUENCE_COMMANDS));
       return;
     }
   #endif

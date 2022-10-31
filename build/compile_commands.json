@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI/build",
+  "command": "/usr/bin/c++   -O2 -g -DNDEBUG -o CMakeFiles/h32.dir/h32.cpp.o -c /home/andrew/Documents/PlatformIO/Projects/MriscocProUI/h32.cpp",
+  "file": "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI/h32.cpp"
+}
+]

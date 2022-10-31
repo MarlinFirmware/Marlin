@@ -1,0 +1,9 @@
+Configurations generator script for the Professional Firmware
+Author: Miguel A. Risco Castillo (c) 2022
+
+-Process Ender3V2-422-MM/Configuration.h
+-Process Ender3V2-422-MM/Configuration_adv.h
+-Process Ender3V2-422-MM/Version.h
+-Process Ender3V2-422-MM/platformio.ini
+
+Configuration files correctly generated

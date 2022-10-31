@@ -150,7 +150,7 @@ e-mail   :  support@circuitsathome.com
 // HANDY MACROS
 ////////////////////////////////////////////////////////////////////////////////
 
-// Atmoically set/clear single bits using bitbands.
+// Atomically set/clear single bits using bitbands.
 // Believe it or not, this boils down to a constant,
 // and is less code than using |= &= operators.
 // Bonus, it makes code easier to read too.

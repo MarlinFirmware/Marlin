@@ -31,10 +31,9 @@ struct ConfirmStartPrintDialogBoxData {
 
 class ConfirmStartPrintDialogBox : public DialogBoxBaseClass, public UncachedScreen {
   private:
-    inline static const char *getShortFilename() {return getFilename(false);}
-    inline static const char *getLongFilename()  {return getFilename(true);}
+    inline static const char *getShortFilename() {return getFilename(true);}
 
-    static const char *getFilename(bool longName);
+    static const char *getFilename(bool shortName = false);
   public:
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t);

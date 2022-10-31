@@ -108,7 +108,6 @@ enum {
 #include "../generic/display_tuning_screen.h"
 #include "../generic/statistics_screen.h"
 #include "../generic/stepper_current_screen.h"
-#include "../generic/leveling_menu.h"
 #include "../generic/z_offset_screen.h"
 #include "../generic/bed_mesh_base.h"
 #include "../generic/bed_mesh_view_screen.h"
@@ -118,7 +117,6 @@ enum {
 #include "../generic/files_screen.h"
 #include "../generic/move_axis_screen.h"
 #include "../generic/flow_percent_screen.h"
-#include "../generic/tune_menu.h"
 #if HAS_JUNCTION_DEVIATION
   #include "../generic/junction_deviation_screen.h"
 #else
@@ -131,5 +129,6 @@ enum {
 #include "preheat_menu.h"
 #include "preheat_screen.h"
 #include "load_chocolate.h"
+#include "leveling_menu.h"
 #include "move_xyz_screen.h"
 #include "move_e_screen.h"

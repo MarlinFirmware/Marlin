@@ -23,8 +23,8 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "CCROBOT-ONLINE MEEB_3DP only supports one hotend / E-stepper. Comment out this line to continue."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "CCROBOT-ONLINE MEEB_3DP only supports 1 hotend / E stepper."
 #endif
 
 // https://github.com/ccrobot-online/MEEB_3DP
@@ -43,9 +43,9 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE                0x800U  // 2KB
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -84,15 +84,20 @@
 #define E0_STEP_PIN                         PA6
 #define E0_DIR_PIN                          PA5
 
-// Stepper drivers Serial UART
-#define X_SERIAL_TX_PIN                     PB3
-#define X_SERIAL_RX_PIN                     PD2
-#define Y_SERIAL_TX_PIN                     PA15
-#define Y_SERIAL_RX_PIN                     PC6
-#define Z_SERIAL_TX_PIN                     PB11
-#define Z_SERIAL_RX_PIN                     PB10
-#define E0_SERIAL_TX_PIN                    PC5
-#define E0_SERIAL_RX_PIN                    PC4
+#if HAS_TMC_UART
+  // Stepper drivers Serial UART
+  #define X_SERIAL_TX_PIN                   PB3
+  #define X_SERIAL_RX_PIN                   PD2
+
+  #define Y_SERIAL_TX_PIN                   PA15
+  #define Y_SERIAL_RX_PIN                   PC6
+
+  #define Z_SERIAL_TX_PIN                   PB11
+  #define Z_SERIAL_RX_PIN                   PB10
+
+  #define E0_SERIAL_TX_PIN                  PC5
+  #define E0_SERIAL_RX_PIN                  PC4
+#endif
 
 // Reduce baud rate to improve software serial reliability
 #define TMC_BAUD_RATE                      19200
@@ -117,41 +122,43 @@
 #define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
 
 /**
- *     1 _____ 2
- *  PB5 | · · | PB6
- *  PA2 | · · | RESET
- *  PA3 | · · | PB8
- *  PB7 | · · | PA4
- *  GND | · · | VCC5
- *     9 ----- 10
- *      LCD EXP
+ *       ------
+ *  PB5 | 1  2 | PB6
+ *  PA2 | 3  4 | RESET
+ *  PA3   5  6 | PB8
+ *  PB7 | 7  8 | PA4
+ *  GND | 9 10 | VCC5
+ *       ------
+ *        EXP1
  */
+#define EXP1_01_PIN                         PB5
+#define EXP1_02_PIN                         PB6
+#define EXP1_03_PIN                         PA2
+#define EXP1_04_PIN                         -1   // RESET
+#define EXP1_05_PIN                         PA3
+#define EXP1_06_PIN                         PB8
+#define EXP1_07_PIN                         PB7
+#define EXP1_08_PIN                         PA4
 
 //
 // LCD / Controller
 //
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define BEEPER_PIN                        PB5
-  #define BTN_EN1                           PA2
-  #define BTN_EN2                           PA3
-  #define BTN_ENC                           PB6
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_PINS_RS                       PB7   // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4                       PB8   // SCLK
-  #define LCD_PINS_ENABLE                   PA4   // DATA MOSI
+  #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
+  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
 #endif
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
-  #endif
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif
 
 //

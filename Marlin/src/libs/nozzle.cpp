@@ -161,7 +161,7 @@ Nozzle nozzle;
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const_float_t radius, const uint8_t &objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
-    const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
+    const uint8_t arrPos = EITHER(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
     #if NOZZLE_CLEAN_MIN_TEMP > 20
       if (thermalManager.degTargetHotend(arrPos) < NOZZLE_CLEAN_MIN_TEMP) {
@@ -254,11 +254,18 @@ Nozzle nozzle;
         break;
     }
 
-    do_blocking_move_to_xy(
-      TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
-      TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
-      fr_xy
-    );
+    #ifndef NOZZLE_PARK_MOVE
+      #define NOZZLE_PARK_MOVE 0
+    #endif
+    switch (NOZZLE_PARK_MOVE) {
+      case 0: do_blocking_move_to_xy(park, fr_xy); break;
+      case 1: do_blocking_move_to_x(park.x, fr_xy); break;
+      case 2: do_blocking_move_to_y(park.y, fr_xy); break;
+      case 3: do_blocking_move_to_x(park.x, fr_xy);
+              do_blocking_move_to_y(park.y, fr_xy); break;
+      case 4: do_blocking_move_to_y(park.y, fr_xy);
+              do_blocking_move_to_x(park.x, fr_xy); break;
+    }
 
     report_current_position();
   }

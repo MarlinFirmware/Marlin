@@ -135,11 +135,11 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
   while ((instruction = UnwTabGetNextInstruction(cb, ucb)) != -1) {
 
     if ((instruction & 0xC0) == 0x00) { // ARM_EXIDX_CMD_DATA_POP
-      /* vsp = vsp + (xxxxxx << 2) + 4 */
+      /* vsp += (xxxxxx << 2) + 4 */
       ucb->vrs[13] += ((instruction & 0x3F) << 2) + 4;
     }
     else if ((instruction & 0xC0) == 0x40) { // ARM_EXIDX_CMD_DATA_PUSH
-      /* vsp = vsp - (xxxxxx << 2) - 4 */
+      /* vsp -= (xxxxxx << 2) - 4 */
       ucb->vrs[13] -= ((instruction & 0x3F) << 2) - 4;
     }
     else if ((instruction & 0xF0) == 0x80) {

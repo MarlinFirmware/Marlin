@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, POWER_LOSS_RECOVERY)
+#if BOTH(HAS_MARLINUI_MENU, POWER_LOSS_RECOVERY)
 
 #include "menu_item.h"
 #include "../../gcode/queue.h"
@@ -35,7 +35,7 @@
 
 static void lcd_power_loss_recovery_resume() {
   ui.return_to_status();
-  queue.inject_P(PSTR("M1000"));
+  queue.inject(F("M1000"));
 }
 
 void lcd_power_loss_recovery_cancel() {
@@ -54,4 +54,4 @@ void menu_job_recovery() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && POWER_LOSS_RECOVERY
+#endif // HAS_MARLINUI_MENU && POWER_LOSS_RECOVERY

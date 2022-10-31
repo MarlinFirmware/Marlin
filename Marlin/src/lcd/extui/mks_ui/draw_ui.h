@@ -69,6 +69,7 @@
 #include "draw_max_feedrate_settings.h"
 #include "draw_tmc_step_mode_settings.h"
 #include "draw_level_settings.h"
+#include "draw_z_offset_wizard.h"
 #include "draw_tramming_pos_settings.h"
 #include "draw_auto_level_offset_settings.h"
 #include "draw_filament_change.h"
@@ -143,8 +144,8 @@
 
   #define PARA_UI_ARROW_V          12
 
-  #define PARA_UI_BACL_POS_X        400
-  #define PARA_UI_BACL_POS_Y        270
+  #define PARA_UI_BACK_POS_X        400
+  #define PARA_UI_BACK_POS_Y        270
 
   #define PARA_UI_TURN_PAGE_POS_X   320
   #define PARA_UI_TURN_PAGE_POS_Y   270
@@ -178,7 +179,7 @@
 #endif // ifdef TFT35
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+  extern "C" {
 #endif
 
 extern char public_buf_m[100];
@@ -208,7 +209,7 @@ typedef struct {
   uint32_t  curFilesize;
 } CFG_ITMES;
 
-typedef struct {
+typedef struct UI_Config_Struct {
   uint8_t curTempType:1,
           extruderIndex:3,
           stepHeat:4,
@@ -228,8 +229,16 @@ typedef struct {
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
+  // Extruder Steps distances (mm)
   uint8_t extruStep;
+  static constexpr uint8_t eStepMin =  1,
+                           eStepMed =  5,
+                           eStepMax = 10;
+  // Extruder speed (mm/s)
   uint8_t extruSpeed;
+  static constexpr uint8_t eSpeedH = 20,
+                           eSpeedN = 10,
+                           eSpeedL =  1;
   uint8_t print_state;
   uint8_t stepPrintSpeed;
   uint8_t waitEndMoves;
@@ -258,11 +267,12 @@ typedef enum {
   PRINT_FILE_UI,
   PRINTING_UI,
   MOVE_MOTOR_UI,
+  Z_OFFSET_WIZARD_UI,
   OPERATE_UI,
   PAUSE_UI,
   EXTRUSION_UI,
   FAN_UI,
-  PRE_HEAT_UI,
+  PREHEAT_UI,
   CHANGE_SPEED_UI,
   TEMP_UI,
   SET_UI,
@@ -296,15 +306,14 @@ typedef enum {
   MACHINE_SETTINGS_UI,
   TEMPERATURE_SETTINGS_UI,
   MOTOR_SETTINGS_UI,
-  MACHINETYPE_UI,
+  MACHINE_TYPE_UI,
   STROKE_UI,
   HOME_DIR_UI,
   ENDSTOP_TYPE_UI,
   FILAMENT_SETTINGS_UI,
-  LEVELING_SETTIGNS_UI,
   LEVELING_PARA_UI,
   DELTA_LEVELING_PARA_UI,
-  MANUAL_LEVELING_POSIGION_UI,
+  MANUAL_LEVELING_POSITION_UI,
   MAXFEEDRATE_UI,
   STEPS_UI,
   ACCELERATION_UI,
@@ -317,7 +326,7 @@ typedef enum {
   DOUBLE_Z_UI,
   ENABLE_INVERT_UI,
   NUMBER_KEY_UI,
-  BABY_STEP_UI,
+  BABYSTEP_UI,
   ERROR_MESSAGE_UI,
   PAUSE_POS_UI,
   TMC_CURRENT_UI,
@@ -328,7 +337,7 @@ typedef enum {
   ENCODER_SETTINGS_UI,
   TOUCH_CALIBRATION_UI,
   GCODE_UI,
-  MEDIA_SELECT_UI,
+  MEDIA_SELECT_UI
 } DISP_STATE;
 
 typedef struct {
@@ -450,8 +459,8 @@ void tft_style_init();
 extern char *creat_title_text();
 void preview_gcode_prehandle(char *path);
 void update_spi_flash();
-void update_gcode_command(int addr,uint8_t *s);
-void get_gcode_command(int addr,uint8_t *d);
+void update_gcode_command(int addr, uint8_t *s);
+void get_gcode_command(int addr, uint8_t *d);
 void lv_serial_capt_hook(void *, uint8_t);
 void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW
@@ -460,6 +469,7 @@ void lv_eom_hook(void *);
 void GUI_RefreshPage();
 void clear_cur_ui();
 void draw_return_ui();
+void goto_previous_ui();
 void sd_detection();
 void gCfg_to_spiFlah();
 void print_time_count();

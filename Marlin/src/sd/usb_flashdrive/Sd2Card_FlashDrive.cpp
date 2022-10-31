@@ -34,9 +34,9 @@
 #define USB_STARTUP_DELAY 0
 
 // uncomment to get 'printf' console debugging. NOT FOR UNO!
-//#define HOST_DEBUG(...)     {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
-//#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
-//#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
+//#define HOST_DEBUG(...)     {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
+//#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
+//#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
@@ -61,10 +61,8 @@
   #define USB_NO_TEST_UNIT_READY // Required for removable media adapter
   #define USB_HOST_MANUAL_POLL // Optimization to shut off IRQ automatically
 
-  // Workarounds for keeping Marlin's watchdog timer from barking...
-  void marlin_yield() {
-    thermalManager.manage_heater();
-  }
+  // Workarounds to keep Marlin's watchdog timer from barking...
+  void marlin_yield() { thermalManager.task(); }
   #define SYSTEM_OR_SPECIAL_YIELD(...) marlin_yield();
   #define delay(x) safe_delay(x)
 
@@ -82,6 +80,7 @@
 
   #define UHS_START  (usb.Init() == 0)
   #define UHS_STATE(state) UHS_USB_HOST_STATE_##state
+
 #elif ENABLED(USE_OTG_USB_HOST)
 
   #if HAS_SD_HOST_DRIVE
@@ -93,7 +92,9 @@
   #define UHS_START usb.start()
   #define rREVISION 0
   #define UHS_STATE(state) USB_STATE_##state
+
 #else
+
   #include "lib-uhs2/Usb.h"
   #include "lib-uhs2/masstorage.h"
 
@@ -102,6 +103,7 @@
 
   #define UHS_START usb.start()
   #define UHS_STATE(state) USB_STATE_##state
+
 #endif
 
 #include "Sd2Card_FlashDrive.h"
@@ -126,7 +128,7 @@ bool DiskIODriver_USBFlash::usbStartup() {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
-      LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
+      LCD_MESSAGE(MSG_MEDIA_USB_FAILED);
       return false;
     }
 
@@ -157,20 +159,20 @@ void DiskIODriver_USBFlash::idle() {
       static uint8_t laststate = 232;
       if (task_state != laststate) {
         laststate = task_state;
-        #define UHS_USB_DEBUG(x) case UHS_STATE(x): SERIAL_ECHOLNPGM(#x); break
+        #define UHS_USB_DEBUG(x,y) case UHS_STATE(x): SERIAL_ECHOLNPGM(y); break
         switch (task_state) {
-          UHS_USB_DEBUG(IDLE);
-          UHS_USB_DEBUG(RESET_DEVICE);
-          UHS_USB_DEBUG(RESET_NOT_COMPLETE);
-          UHS_USB_DEBUG(DEBOUNCE);
-          UHS_USB_DEBUG(DEBOUNCE_NOT_COMPLETE);
-          UHS_USB_DEBUG(WAIT_SOF);
-          UHS_USB_DEBUG(ERROR);
-          UHS_USB_DEBUG(CONFIGURING);
-          UHS_USB_DEBUG(CONFIGURING_DONE);
-          UHS_USB_DEBUG(RUNNING);
+          UHS_USB_DEBUG(IDLE, "IDLE");
+          UHS_USB_DEBUG(RESET_DEVICE, "RESET_DEVICE");
+          UHS_USB_DEBUG(RESET_NOT_COMPLETE, "RESET_NOT_COMPLETE");
+          UHS_USB_DEBUG(DEBOUNCE, "DEBOUNCE");
+          UHS_USB_DEBUG(DEBOUNCE_NOT_COMPLETE, "DEBOUNCE_NOT_COMPLETE");
+          UHS_USB_DEBUG(WAIT_SOF, "WAIT_SOF");
+          UHS_USB_DEBUG(ERROR, "ERROR");
+          UHS_USB_DEBUG(CONFIGURING, "CONFIGURING");
+          UHS_USB_DEBUG(CONFIGURING_DONE, "CONFIGURING_DONE");
+          UHS_USB_DEBUG(RUNNING, "RUNNING");
           default:
-            SERIAL_ECHOLNPAIR("UHS_USB_HOST_STATE: ", task_state);
+            SERIAL_ECHOLNPGM("UHS_USB_HOST_STATE: ", task_state);
             break;
         }
       }
@@ -221,7 +223,7 @@ void DiskIODriver_USBFlash::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("Waiting for media");
           #endif
-          LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
+          LCD_MESSAGE(MSG_MEDIA_WAITING);
           GOTO_STATE_AFTER_DELAY(state, 2000);
         }
         break;
@@ -236,7 +238,7 @@ void DiskIODriver_USBFlash::idle() {
         SERIAL_ECHOLNPGM("USB device removed");
       #endif
       if (state != MEDIA_READY)
-        LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
+        LCD_MESSAGE(MSG_MEDIA_USB_REMOVED);
       GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
@@ -245,12 +247,12 @@ void DiskIODriver_USBFlash::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("Media removed");
       #endif
-      LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
+      LCD_MESSAGE(MSG_MEDIA_REMOVED);
       GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (task_state == UHS_STATE(ERROR)) {
-      LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
+      LCD_MESSAGE(MSG_MEDIA_READ_ERROR);
       GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
     }
   }
@@ -271,16 +273,16 @@ bool DiskIODriver_USBFlash::init(const uint8_t, const pin_t) {
   if (!isInserted()) return false;
 
   #if USB_DEBUG >= 1
-  const uint32_t sectorSize = bulk.GetSectorSize(0);
-  if (sectorSize != 512) {
-    SERIAL_ECHOLNPAIR("Expecting sector size of 512. Got: ", sectorSize);
-    return false;
-  }
+    const uint32_t sectorSize = bulk.GetSectorSize(0);
+    if (sectorSize != 512) {
+      SERIAL_ECHOLNPGM("Expecting sector size of 512. Got: ", sectorSize);
+      return false;
+    }
   #endif
 
   #if USB_DEBUG >= 3
     lun0_capacity = bulk.GetCapacity(0);
-    SERIAL_ECHOLNPAIR("LUN Capacity (in blocks): ", lun0_capacity);
+    SERIAL_ECHOLNPGM("LUN Capacity (in blocks): ", lun0_capacity);
   #endif
   return true;
 }
@@ -299,11 +301,11 @@ bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t *dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
-      SERIAL_ECHOLNPAIR("Attempt to read past end of LUN: ", block);
+      SERIAL_ECHOLNPGM("Attempt to read past end of LUN: ", block);
       return false;
     }
     #if USB_DEBUG >= 4
-      SERIAL_ECHOLNPAIR("Read block ", block);
+      SERIAL_ECHOLNPGM("Read block ", block);
     #endif
   #endif
   return bulk.Read(0, block, 512, 1, dst) == 0;
@@ -313,11 +315,11 @@ bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t *src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
-      SERIAL_ECHOLNPAIR("Attempt to write past end of LUN: ", block);
+      SERIAL_ECHOLNPGM("Attempt to write past end of LUN: ", block);
       return false;
     }
     #if USB_DEBUG >= 4
-      SERIAL_ECHOLNPAIR("Write block ", block);
+      SERIAL_ECHOLNPGM("Write block ", block);
     #endif
   #endif
   return bulk.Write(0, block, 512, 1, src) == 0;

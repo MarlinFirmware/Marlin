@@ -40,7 +40,7 @@ void GcodeSuite::M108() {
  * M112: Full Shutdown
  */
 void GcodeSuite::M112() {
-  kill(M112_KILL_STR, nullptr, true);
+  kill(FPSTR(M112_KILL_STR), nullptr, true);
 }
 
 /**

@@ -282,7 +282,7 @@ constexpr uint16_t VP_BED_PID_P = 0x3710;
 constexpr uint16_t VP_BED_PID_I = 0x3712;
 constexpr uint16_t VP_BED_PID_D = 0x3714;
 
-// Wating screen status
+// Waiting screen status
 constexpr uint16_t VP_WAITING_STATUS = 0x3800;
 
 // SPs for certain variables...

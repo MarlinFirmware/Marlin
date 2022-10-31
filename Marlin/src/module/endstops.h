@@ -45,6 +45,12 @@ enum EndstopEnum : char {
   _ES_ITEM(HAS_J_MAX, J_MAX)
   _ES_ITEM(HAS_K_MIN, K_MIN)
   _ES_ITEM(HAS_K_MAX, K_MAX)
+  _ES_ITEM(HAS_U_MIN, U_MIN)
+  _ES_ITEM(HAS_U_MAX, U_MAX)
+  _ES_ITEM(HAS_V_MIN, V_MIN)
+  _ES_ITEM(HAS_V_MAX, V_MAX)
+  _ES_ITEM(HAS_W_MIN, W_MIN)
+  _ES_ITEM(HAS_W_MAX, W_MAX)
 
   // Extra Endstops for XYZ
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -58,18 +64,20 @@ enum EndstopEnum : char {
   #if ENABLED(Z_MULTI_ENDSTOPS)
     _ES_ITEM(HAS_Z_MIN, Z2_MIN)
     _ES_ITEM(HAS_Z_MAX, Z2_MAX)
-    #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if NUM_Z_STEPPERS >= 3
       _ES_ITEM(HAS_Z_MIN, Z3_MIN)
       _ES_ITEM(HAS_Z_MAX, Z3_MAX)
     #endif
-    #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if NUM_Z_STEPPERS >= 4
       _ES_ITEM(HAS_Z_MIN, Z4_MIN)
       _ES_ITEM(HAS_Z_MAX, Z4_MAX)
     #endif
   #endif
 
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
-  _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(HAS_CUSTOM_PROBE_PIN, = Z_MIN))
+  #if !HAS_DELTA_SENSORLESS_PROBING
+    _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(USES_Z_MIN_PROBE_PIN, = Z_MIN))
+  #endif
 
   // The total number of states
   NUM_ENDSTOP_STATES
@@ -83,6 +91,15 @@ enum EndstopEnum : char {
   #endif
   #if HAS_Z_MIN || HAS_Z_MAX || HOMING_Z_WITH_PROBE
     , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))
+  #endif
+  #if HAS_I_MIN || HAS_I_MAX
+    , I_ENDSTOP = TERN(I_HOME_TO_MAX, I_MAX, I_MIN)
+  #endif
+  #if HAS_J_MIN || HAS_J_MAX
+    , J_ENDSTOP = TERN(J_HOME_TO_MAX, J_MAX, J_MIN)
+  #endif
+  #if HAS_K_MIN || HAS_K_MAX
+    , K_ENDSTOP = TERN(K_HOME_TO_MAX, K_MAX, K_MIN)
   #endif
 };
 
@@ -103,10 +120,10 @@ class Endstops {
     #if ENABLED(Z_MULTI_ENDSTOPS)
       static float z2_endstop_adj;
     #endif
-    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3
       static float z3_endstop_adj;
     #endif
-    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4
       static float z4_endstop_adj;
     #endif
 
@@ -135,7 +152,7 @@ class Endstops {
       return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled);
     }
 
-    static inline bool global_enabled() { return enabled_globally; }
+    static bool global_enabled() { return enabled_globally; }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -148,6 +165,11 @@ class Endstops {
      * Called from ISR contexts.
      */
     static void update();
+
+    #if ENABLED(BD_SENSOR)
+      static bool bdp_state;
+      static void bdp_state_update(const bool z_state) { bdp_state = z_state; }
+    #endif
 
     /**
      * Get Endstop hit state.
@@ -167,7 +189,7 @@ class Endstops {
       ;
     }
 
-    static inline bool probe_switch_activated() {
+    static bool probe_switch_activated() {
       return (true
         #if ENABLED(PROBE_ACTIVATION_SWITCH)
           && READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE
@@ -223,12 +245,17 @@ class Endstops {
       typedef struct {
         union {
           bool any;
-          struct { bool LINEAR_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1); };
+          struct { bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1); };
         };
       } tmc_spi_homing_t;
       static tmc_spi_homing_t tmc_spi_homing;
       static void clear_endstop_state();
       static bool tmc_spi_homing_check();
+    #endif
+  public:
+    // Basic functions for Sensorless Homing
+    #if USE_SENSORLESS
+      static void set_homing_current(const bool onoff);
     #endif
 };
 

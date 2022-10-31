@@ -66,7 +66,7 @@ uint16_t CLCD::FontMetrics::get_text_width(const char *str, size_t n) const {
   return width;
 }
 
-uint16_t CLCD::FontMetrics::get_text_width(progmem_str str, size_t n) const {
+uint16_t CLCD::FontMetrics::get_text_width(FSTR_P str, size_t n) const {
   uint16_t width = 0;
   const uint8_t *p = (const uint8_t *) str;
   for (;;) {
@@ -162,7 +162,7 @@ void CLCD::mem_write_bulk(uint32_t reg_address, const void *data, uint16_t len, 
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM
-void CLCD::mem_write_bulk(uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_bulk(uint32_t reg_address, FSTR_P str, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<pgm_write>(str, len, padding);
@@ -178,7 +178,7 @@ void CLCD::mem_write_pgm(uint32_t reg_address, const void *data, uint16_t len, u
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM, reversing bytes (suitable for loading XBM images)
-void CLCD::mem_write_xbm(uint32_t reg_address, progmem_str data, uint16_t len, uint8_t padding) {
+void CLCD::mem_write_xbm(uint32_t reg_address, FSTR_P data, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_bulk<xbm_write>(data, len, padding);
@@ -1024,9 +1024,7 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   uint16_t Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
   if (Command_Space < (len + padding)) {
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("Waiting for ", len + padding);
-      SERIAL_ECHOLNPAIR(" bytes in command queue, now free: ", Command_Space);
+      SERIAL_ECHO_MSG("Waiting for ", len + padding, " bytes in command queue, now free: ", Command_Space);
     #endif
     do {
       Command_Space = mem_read_32(REG::CMDB_SPACE) & 0x0FFF;
@@ -1048,7 +1046,7 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
 #endif // ... FTDI_API_LEVEL != 800
 
 template bool CLCD::CommandFifo::write(const void*, uint16_t);
-template bool CLCD::CommandFifo::write(progmem_str, uint16_t);
+template bool CLCD::CommandFifo::write(FSTR_P, uint16_t);
 
 // CO_PROCESSOR COMMANDS
 
@@ -1071,7 +1069,7 @@ void CLCD::CommandFifo::str(const char * data) {
   write(data, strlen(data)+1);
 }
 
-void CLCD::CommandFifo::str(progmem_str data) {
+void CLCD::CommandFifo::str(FSTR_P data) {
   write(data, strlen_P((const char*)data)+1);
 }
 
@@ -1079,7 +1077,7 @@ void CLCD::CommandFifo::str(progmem_str data) {
 
 void CLCD::init() {
   spi_init();                                  // Set Up I/O Lines for SPI and FT800/810 Control
-  ftdi_reset();                                // Power down/up the FT8xx with the apropriate delays
+  ftdi_reset();                                // Power down/up the FT8xx with the appropriate delays
 
   host_cmd(Use_Crystal ? CLKEXT : CLKINT, 0);
   host_cmd(FTDI::ACTIVE, 0);                        // Activate the System Clock
@@ -1210,7 +1208,7 @@ void CLCD::default_display_orientation() {
       + ENABLED(TOUCH_UI_INVERTED) * 1
     );
     cmd.execute();
-  #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
+  #elif EITHER(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)
     mem_write_32(REG::ROTATE, 1);

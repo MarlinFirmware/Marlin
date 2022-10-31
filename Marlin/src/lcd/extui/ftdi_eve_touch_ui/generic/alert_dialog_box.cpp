@@ -43,7 +43,7 @@ void AlertDialogBox::onRedraw(draw_mode_t what) {
 }
 
 template<typename T>
-void AlertDialogBox::show(const T message) {
+void AlertDialogBox::show(T message) {
   drawMessage(message);
   storeBackground();
   mydata.isError = false;
@@ -51,7 +51,7 @@ void AlertDialogBox::show(const T message) {
 }
 
 template<typename T>
-void AlertDialogBox::showError(const T message) {
+void AlertDialogBox::showError(T message) {
   drawMessage(message);
   storeBackground();
   mydata.isError = true;
@@ -64,8 +64,8 @@ void AlertDialogBox::hide() {
 }
 
 template void AlertDialogBox::show(const char *);
-template void AlertDialogBox::show(const progmem_str);
+template void AlertDialogBox::show(FSTR_P);
 template void AlertDialogBox::showError(const char *);
-template void AlertDialogBox::showError(const progmem_str);
+template void AlertDialogBox::showError(FSTR_P);
 
 #endif // FTDI_ALERT_DIALOG_BOX

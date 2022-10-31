@@ -77,7 +77,7 @@ void HotendIdleProtection::check() {
 void HotendIdleProtection::timed_out() {
   next_protect_ms = 0;
   SERIAL_ECHOLNPGM("Hotend Idle Timeout");
-  LCD_MESSAGEPGM(MSG_HOTEND_IDLE_TIMEOUT);
+  LCD_MESSAGE(MSG_HOTEND_IDLE_TIMEOUT);
   HOTEND_LOOP() {
     if ((HOTEND_IDLE_NOZZLE_TARGET) < thermalManager.degTargetHotend(e))
       thermalManager.setTargetHotend(HOTEND_IDLE_NOZZLE_TARGET, e);

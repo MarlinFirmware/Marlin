@@ -28,14 +28,16 @@
   #error "TRAMMING_SCREW_THREAD must be equal to 30, 31, 40, 41, 50, or 51."
 #endif
 
-constexpr xy_pos_t screws_tilt_adjust_pos[] = TRAMMING_POINT_XY;
+constexpr xy_pos_t tramming_points[] = TRAMMING_POINT_XY;
 
-#define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
+#define G35_PROBE_COUNT COUNT(tramming_points)
 static_assert(WITHIN(G35_PROBE_COUNT, 3, 6), "TRAMMING_POINT_XY requires between 3 and 6 XY positions.");
 
-#define VALIDATE_TRAMMING_POINT(N) static_assert(N >= G35_PROBE_COUNT || Probe::build_time::can_reach(screws_tilt_adjust_pos[N]), \
-  "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
-VALIDATE_TRAMMING_POINT(0); VALIDATE_TRAMMING_POINT(1); VALIDATE_TRAMMING_POINT(2); VALIDATE_TRAMMING_POINT(3); VALIDATE_TRAMMING_POINT(4); VALIDATE_TRAMMING_POINT(5);
+#if !ProUIex
+  #define VALIDATE_TRAMMING_POINT(N) static_assert(N >= G35_PROBE_COUNT || Probe::build_time::can_reach(tramming_points[N]), \
+    "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
+  VALIDATE_TRAMMING_POINT(0); VALIDATE_TRAMMING_POINT(1); VALIDATE_TRAMMING_POINT(2); VALIDATE_TRAMMING_POINT(3); VALIDATE_TRAMMING_POINT(4); VALIDATE_TRAMMING_POINT(5);
+#endif
 
 extern const char point_name_1[], point_name_2[], point_name_3[]
   #ifdef TRAMMING_POINT_NAME_4

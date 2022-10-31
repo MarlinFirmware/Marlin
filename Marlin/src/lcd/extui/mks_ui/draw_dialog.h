@@ -22,7 +22,7 @@
 #pragma once
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+  extern "C" {
 #endif
 
 enum {
@@ -54,7 +54,7 @@ enum {
 
   DIALOG_WIFI_ENABLE_TIPS,
 
-  DIALOG_PAUSE_MESSAGE_PAUSING,
+  DIALOG_PAUSE_MESSAGE_PARKING,
   DIALOG_PAUSE_MESSAGE_CHANGING,
   DIALOG_PAUSE_MESSAGE_UNLOAD,
   DIALOG_PAUSE_MESSAGE_WAITING,

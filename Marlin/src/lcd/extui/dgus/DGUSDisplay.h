@@ -29,6 +29,9 @@
 
 #include <stdlib.h>    // size_t
 
+//#define DEBUG_DGUSLCD
+//#define DEBUG_DGUSLCD_COMM
+
 #if HAS_BED_PROBE
   #include "../../../module/probe.h"
 #endif
@@ -36,7 +39,6 @@
 
 enum DGUSLCD_Screens : uint8_t;
 
-//#define DEBUG_DGUSLCD
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../core/debug_out.h"
 
@@ -46,6 +48,8 @@ typedef enum : uint8_t {
   DGUS_HEADER2_SEEN,   //< DGUS_HEADER2 received
   DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
 } rx_datagram_state_t;
+
+constexpr uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
 
 // Low-Level access to the display.
 class DGUSDisplay {
@@ -63,8 +67,6 @@ public:
   static void WriteVariable(uint16_t adr, uint8_t value);
   static void WriteVariable(uint16_t adr, int8_t value);
   static void WriteVariable(uint16_t adr, long value);
-  static void MKS_WriteVariable(uint16_t adr, uint8_t value);
-
 
   // Utility functions for bridging ui_api and dbus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>
@@ -93,28 +95,27 @@ public:
   // Helper for users of this class to estimate if an interaction would be blocking.
   static size_t GetFreeTxBuffer();
 
-  // Checks two things: Can we confirm the presence of the display and has we initiliazed it.
+  // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
-  static inline bool isInitialized() { return Initialized; }
+  static bool isInitialized() { return Initialized; }
 
 private:
   static void WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen);
   static void WritePGM(const char str[], uint8_t len);
   static void ProcessRx();
 
-  static inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
   static rx_datagram_state_t rx_datagram_state;
   static uint8_t rx_datagram_len;
   static bool Initialized, no_reentrance;
 };
 
-#define GET_VARIABLE(f, t, V...) (&DGUSDisplay::GetVariable<decltype(t), f, t, ##V>)
-#define SET_VARIABLE(f, t, V...) (&DGUSDisplay::SetVariable<decltype(t), f, t, ##V>)
-
 extern DGUSDisplay dgusdisplay;
 
 // compile-time x^y
 constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
+
+///
+const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen);
 
 /// Find the flash address of a DGUS_VP_Variable for the VP.
 const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);

@@ -63,6 +63,9 @@
 #define WIDTH 128
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
+#ifndef ST7565_XOFFSET
+  #define ST7565_XOFFSET 0x00
+#endif
 
 #define ST7565_ADC_REVERSE(N)    ((N) ? 0xA1 : 0xA0)
 #define ST7565_BIAS_MODE(N)      ((N) ? 0xA3 : 0xA2)
@@ -71,7 +74,6 @@
 #define ST7565_ON(N)             ((N) ? 0xAF : 0xAE)
 #define ST7565_OUT_MODE(N)       ((N) ? 0xC8 : 0xC0)
 #define ST7565_POWER_CONTROL(N)  (0x28 | (N))
-#define ST7565_V0_RATIO(N)       (0x10 | ((N) & 0x7))
 #define ST7565_V5_RATIO(N)       (0x20 | ((N) & 0x7))
 #define ST7565_CONTRAST(N)       (0x81), (N)
 
@@ -103,11 +105,14 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
   ST7565_POWER_CONTROL(0x7),  // power control: turn on voltage follower
   U8G_ESC_DLY(50),            // delay 50 ms
 
-  ST7565_V0_RATIO(0),         // Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N
+  #ifdef ST7565_VOLTAGE_DIVIDER_VALUE
+                              // Set V5 voltage resistor ratio. Affects brightness of Displaytech 64128N
+    ST7565_V5_RATIO(ST7565_VOLTAGE_DIVIDER_VALUE),
+  #endif
 
   ST7565_INVERTED(0),         // display normal, bit val 0: LCD pixel off.
 
-  ST7565_CONTRAST(0x1E),      // Contrast value. Setting for controlling brightness of Displaytech 64128N
+  ST7565_CONTRAST(0x1E),      // Contrast value for Displaytech 64128N
 
   ST7565_ON(1),               // display on
 
@@ -123,7 +128,7 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
 static const uint8_t u8g_dev_st7565_64128n_HAL_data_start[] PROGMEM = {
   U8G_ESC_ADR(0),             // instruction mode
   U8G_ESC_CS(1),              // enable chip
-  ST7565_COLUMN_ADR(0x00),    // high 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
+  ST7565_COLUMN_ADR(ST7565_XOFFSET), // high 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
   U8G_ESC_END                 // end of sequence
 };
 

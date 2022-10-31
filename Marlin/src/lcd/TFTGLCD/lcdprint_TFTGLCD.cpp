@@ -45,10 +45,10 @@
 
 #include <string.h>
 
-int lcd_glyph_height(void) { return 1; }
+int lcd_glyph_height() { return 1; }
 
 typedef struct _TFTGLCD_charmap_t {
-  wchar_t uchar; // the unicode char
+  lchar_t uchar; // the unicode char
   uint8_t idx;   // the glyph of the char in the ROM
   uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
 } TFTGLCD_charmap_t;
@@ -991,7 +991,7 @@ void lcd_put_int(const int i) {
 
 // return < 0 on error
 // return the advanced cols
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
+int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
 
   // find the HD44780 internal ROM first
   int ret;
@@ -1045,24 +1045,24 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
  *
  * Draw a UTF-8 string
  */
-static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
+static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_byte, const pixel_len_t max_length) {
   pixel_len_t ret = 0;
-  uint8_t *p = (uint8_t *)utf8_str;
+  const uint8_t *p = (uint8_t *)utf8_str;
   while (ret < max_length) {
-    wchar_t ch = 0;
-    p = get_utf8_value_cb(p, cb_read_byte, &ch);
-    if (!ch) break;
-    ret += lcd_put_wchar_max(ch, max_length - ret);
+    lchar_t wc;
+    p = get_utf8_value_cb(p, cb_read_byte, wc);
+    if (!wc) break;
+    ret += lcd_put_lchar_max(wc, max_length - ret);
   }
   return (int)ret;
 }
 
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
-  return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
+  return lcd_put_u8str_max_cb(utf8_pstr, read_byte_rom, max_length);
 }
 
 #if ENABLED(DEBUG_LCDPRINT)
@@ -1119,7 +1119,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
     return 0;
   }
 
-  int test_TFTGLCD_charmap_all(void) {
+  int test_TFTGLCD_charmap_all() {
     int flg_error = 0;
     if (test_TFTGLCD_charmap(g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), "g_TFTGLCD_charmap_device", 0) < 0) {
       flg_error = 1;

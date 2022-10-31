@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
-#include "../../../module/stepper/indirection.h"
+#include "../../../module/stepper/indirection.h" // for restore_stepper_drivers
 
 /**
  * M122: Debug TMC drivers
@@ -35,7 +35,7 @@ void GcodeSuite::M122() {
   xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
 
   bool print_all = true;
-  LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) { print_axis[i] = true; print_all = false; }
+  LOOP_LOGICAL_AXES(i) if (parser.seen_test(AXIS_CHAR(i))) { print_axis[i] = true; print_all = false; }
 
   if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
 
@@ -43,10 +43,13 @@ void GcodeSuite::M122() {
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      uint16_t interval = MONITOR_DRIVER_STATUS_INTERVAL_MS;
-      if (parser.seen('S') && !parser.value_bool()) interval = 0;
-      if (parser.seenval('P')) NOMORE(interval, parser.value_ushort());
-      tmc_set_report_interval(interval);
+      const bool sflag = parser.seen_test('S'), sval = sflag && parser.value_bool();
+      if (sflag && !sval)
+        tmc_set_report_interval(0);
+      else if (parser.seenval('P'))
+        tmc_set_report_interval(_MAX(250, parser.value_ushort()));
+      else if (sval)
+        tmc_set_report_interval(MONITOR_DRIVER_STATUS_INTERVAL_MS);
     #endif
 
     if (parser.seen_test('V'))

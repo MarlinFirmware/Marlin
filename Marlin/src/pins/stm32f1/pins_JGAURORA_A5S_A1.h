@@ -32,8 +32,8 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "JGAurora A5S A1 only supports one hotend / E-stepper. Comment out this line to continue."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "JGAurora A5S A1 only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "JGAurora A5S A1"
@@ -45,14 +45,19 @@
 #endif
 
 //#define MCU_STM32F103ZE // not yet required
+
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
+#if NO_EEPROM_SELECTED
+  //#define I2C_EEPROM                            // AT24C64
+  //#define FLASH_EEPROM_EMULATION
+#endif
 
-//#define I2C_EEPROM                              // AT24C64
-//#define MARLIN_EEPROM_SIZE            0x8000UL  // 64KB
-
-//#define FLASH_EEPROM_EMULATION
-//#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
-//#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
+#if ENABLED(I2C_EEPROM)
+  //#define MARLIN_EEPROM_SIZE          0x8000UL  // 32K
+#elif ENABLED(FLASH_EEPROM_EMULATION)
+  //#define MARLIN_EEPROM_SIZE          0x1000UL  // 4K
+  //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
+#endif
 
 //
 // Limit Switches

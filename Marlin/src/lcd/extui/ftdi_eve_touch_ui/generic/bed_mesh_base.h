@@ -1,18 +1,6 @@
-<<<<<<< HEAD
 /*******************
  * bed_mesh_base.h *
  *******************/
-=======
-<<<<<<< HEAD:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_edit_screen.h
-/**************************
- * bed_mesh_edit_screen.h *
- *************************/
-=======
-/*******************
- * bed_mesh_base.h *
- *******************/
->>>>>>> upstream/bugfix-2.0.x:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_base.h
->>>>>>> upstream/bugfix-2.0.x
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2020                                        *
@@ -33,36 +21,6 @@
 
 #pragma once
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_edit_screen.h
-#define FTDI_BED_MESH_EDIT_SCREEN
-#define FTDI_BED_MESH_EDIT_SCREEN_CLASS BedMeshEditScreen
-
-struct BedMeshEditScreenData {
-  bool needSave, savedMeshLevelingState, savedEndstopState;
-  xy_uint8_t highlight;
-  float zAdjustment;
-};
-
-class BedMeshEditScreen : public BedMeshBase, public CachedScreen<BED_MESH_EDIT_SCREEN_CACHE> {
-  private:
-    static float getHighlightedValue();
-    static void setHighlightedValue(float value);
-    static void moveToHighlightedValue();
-    static void adjustHighlightedValue(float increment);
-    static void saveAdjustedHighlightedValue();
-    static bool changeHighlightedValue(uint8_t tag);
-    static void drawHighlightedPointValue();
-  public:
-    static void onEntry();
-    static void onExit();
-    static void onRedraw(draw_mode_t);
-    static bool onTouchHeld(uint8_t tag);
-    static bool onTouchEnd(uint8_t tag);
-    static void show();
-=======
->>>>>>> upstream/bugfix-2.0.x
 #define FTDI_BED_MESH_BASE
 
 class BedMeshBase : public BaseScreen {
@@ -85,8 +43,4 @@ class BedMeshBase : public BaseScreen {
     static void drawMeshBackground(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h);
     static uint8_t pointToTag(uint8_t x, uint8_t y);
     static bool tagToPoint(uint8_t tag, xy_uint8_t &pt);
-<<<<<<< HEAD
-=======
->>>>>>> upstream/bugfix-2.0.x:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_base.h
->>>>>>> upstream/bugfix-2.0.x
 };

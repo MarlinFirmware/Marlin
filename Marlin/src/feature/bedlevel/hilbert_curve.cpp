@@ -26,16 +26,25 @@
 #include "bedlevel.h"
 #include "hilbert_curve.h"
 
-constexpr int8_t  to_fix(int8_t  v) { return v * 2; }
-constexpr int8_t  to_int(int8_t  v) { return v / 2; }
-constexpr uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
-constexpr uint8_t  order(uint8_t n) { return uint8_t(log2(n - 1)) + 1; }
-constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
-constexpr uint8_t dim = _BV(ord);
+#if ProUIex
+  int8_t  to_fix(int8_t  v) { return v * 2; }
+  int8_t  to_int(int8_t  v) { return v / 2; }
+  uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
+  uint8_t  order(uint8_t n) { return uint8_t(log2(n - 1)) + 1; }
+  #define ord order(GRID_MAX_POINTS_X)
+  #define dim _BV(ord)
+#else
+  constexpr int8_t  to_fix(int8_t  v) { return v * 2; }
+  constexpr int8_t  to_int(int8_t  v) { return v / 2; }
+  constexpr uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
+  constexpr uint8_t  order(uint8_t n) { return uint8_t(log2(n - 1)) + 1; }
+  constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
+  constexpr uint8_t dim = _BV(ord);
+#endif
 
 static inline bool eval_candidate(int8_t x, int8_t y, hilbert_curve::callback_ptr func, void *data) {
   // The print bed likely has fewer points than the full Hilbert
-  // curve, so cull unecessary points
+  // curve, so cull unnecessary points
   return x < (GRID_MAX_POINTS_X) && y < (GRID_MAX_POINTS_Y) ? func(x, y, data) : false;
 }
 

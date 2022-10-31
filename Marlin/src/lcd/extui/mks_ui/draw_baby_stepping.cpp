@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -44,17 +45,17 @@ static lv_obj_t *scr;
 static lv_obj_t *labelV, *buttonV, *zOffsetText;
 
 enum {
-  ID_BABY_STEP_X_P = 1,
-  ID_BABY_STEP_X_N,
-  ID_BABY_STEP_Y_P,
-  ID_BABY_STEP_Y_N,
-  ID_BABY_STEP_Z_P,
-  ID_BABY_STEP_Z_N,
-  ID_BABY_STEP_DIST,
-  ID_BABY_STEP_RETURN
+  ID_BABYSTEP_X_P = 1,
+  ID_BABYSTEP_X_N,
+  ID_BABYSTEP_Y_P,
+  ID_BABYSTEP_Y_N,
+  ID_BABYSTEP_Z_P,
+  ID_BABYSTEP_Z_N,
+  ID_BABYSTEP_DIST,
+  ID_BABYSTEP_RETURN
 };
 
-static float babystep_dist=0.01;
+static float babystep_dist  = 0.01;
 static uint8_t has_adjust_z = 0;
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -62,73 +63,71 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   char baby_buf[30] = { 0 };
   char str_1[16];
   switch (obj->mks_obj_id) {
-    case ID_BABY_STEP_X_P:
+    case ID_BABYSTEP_X_P:
       sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABY_STEP_X_N:
+    case ID_BABYSTEP_X_N:
       sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(-babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABY_STEP_Y_P:
+    case ID_BABYSTEP_Y_P:
       sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABY_STEP_Y_N:
+    case ID_BABYSTEP_Y_N:
       sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(-babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABY_STEP_Z_P:
+    case ID_BABYSTEP_Z_P:
       sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABY_STEP_Z_N:
+    case ID_BABYSTEP_Z_N:
       sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(-babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABY_STEP_DIST:
-      if (abs((int)(100 * babystep_dist)) == 1)
+    case ID_BABYSTEP_DIST:
+      if (ABS((int)(100 * babystep_dist)) == 1)
         babystep_dist = 0.05;
-      else if (abs((int)(100 * babystep_dist)) == 5)
+      else if (ABS((int)(100 * babystep_dist)) == 5)
         babystep_dist = 0.1;
       else
         babystep_dist = 0.01;
       disp_baby_step_dist();
       break;
-    case ID_BABY_STEP_RETURN:
+    case ID_BABYSTEP_RETURN:
       if (has_adjust_z == 1) {
         TERN_(EEPROM_SETTINGS, (void)settings.save());
         has_adjust_z = 0;
       }
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
   }
 }
 
 void lv_draw_baby_stepping() {
-  scr = lv_screen_create(BABY_STEP_UI);
-  lv_big_button_create(scr, "F:/bmp_xAdd.bin", move_menu.x_add, INTERVAL_V, titleHeight, event_handler, ID_BABY_STEP_X_P);
-  lv_big_button_create(scr, "F:/bmp_xDec.bin", move_menu.x_dec, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_X_N);
-  lv_big_button_create(scr, "F:/bmp_yAdd.bin", move_menu.y_add, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_BABY_STEP_Y_P);
-  lv_big_button_create(scr, "F:/bmp_yDec.bin", move_menu.y_dec, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_Y_N);
-  lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_BABY_STEP_Z_P);
-  lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_Z_N);
-  buttonV = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_BABY_STEP_DIST);
+  scr = lv_screen_create(BABYSTEP_UI);
+  lv_big_button_create(scr, "F:/bmp_xAdd.bin", move_menu.x_add, INTERVAL_V, titleHeight, event_handler, ID_BABYSTEP_X_P);
+  lv_big_button_create(scr, "F:/bmp_xDec.bin", move_menu.x_dec, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABYSTEP_X_N);
+  lv_big_button_create(scr, "F:/bmp_yAdd.bin", move_menu.y_add, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_BABYSTEP_Y_P);
+  lv_big_button_create(scr, "F:/bmp_yDec.bin", move_menu.y_dec, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABYSTEP_Y_N);
+  lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_BABYSTEP_Z_P);
+  lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABYSTEP_Z_N);
+  buttonV = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_BABYSTEP_DIST);
   labelV = lv_label_create_empty(buttonV);
   #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
+    if (gCfgItems.encoder_enable)
       lv_group_add_obj(g, buttonV);
-    }
   #endif
 
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_RETURN);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABYSTEP_RETURN);
 
   disp_baby_step_dist();
 

@@ -1,6 +1,6 @@
-/*************************
- * bio_status_screen.cpp *
- *************************/
+/*********************
+ * status_screen.cpp *
+ *********************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -52,7 +52,7 @@ bool  StatusScreen::jog_xy;
 bool  StatusScreen::fine_motion;
 
 void StatusScreen::unlockMotors() {
-  injectCommands_P(PSTR("M84 XY"));
+  injectCommands(F("M84 XY"));
   jog_xy = false;
 }
 
@@ -122,7 +122,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
       ui.bounds(POLY(bed_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
-      #endif
+    #endif
   }
 }
 
@@ -305,7 +305,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 12:
       if (!jog_xy) {
         jog_xy = true;
-        injectCommands_P(PSTR("M17"));
+        injectCommands(F("M17"));
       }
       jog({ 0, 0, 0 });
       break;
@@ -316,7 +316,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case  9: GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
     case 13: GOTO_SCREEN(BioConfirmHomeE); break;
-    case 14: SpinnerDialogBox::enqueueAndWait_P(PSTR("G28Z")); break;
+    case 14: SpinnerDialogBox::enqueueAndWait(F("G28Z")); break;
     case 15: GOTO_SCREEN(TemperatureScreen);  break;
     case 16: fine_motion = !fine_motion; break;
     default: return false;
@@ -354,8 +354,8 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(progmem_str pstr) {
-  BioPrintingDialogBox::setStatusMessage(pstr);
+void StatusScreen::setStatusMessage(FSTR_P fstr) {
+  BioPrintingDialogBox::setStatusMessage(fstr);
 }
 
 void StatusScreen::setStatusMessage(const char * const str) {

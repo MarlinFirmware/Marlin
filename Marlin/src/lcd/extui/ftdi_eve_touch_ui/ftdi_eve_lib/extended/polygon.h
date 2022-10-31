@@ -41,7 +41,7 @@
  *        ...
  *   p.end_fill();
  *
- * Based on the example from "Applicaton Note AN_334, FT801 Polygon Application":
+ * Based on the example from "Application Note AN_334, FT801 Polygon Application":
  *
  *   https://brtchip.com/wp-content/uploads/Support/Documentation/Application_Notes/ICs/EVE/AN_334-FT801_Polygon_Application.pdf
  */

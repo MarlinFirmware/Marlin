@@ -33,7 +33,7 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
   inline void serial_delay(const millis_t) {}
 #endif
 
-#if (GRID_MAX_POINTS_X) && (GRID_MAX_POINTS_Y)
+#if TERN(ProUIex, HAS_MESH, (GRID_MAX_POINTS_X) && (GRID_MAX_POINTS_Y))
 
   // 16x16 bit arrays
   template <int W, int H>
@@ -49,7 +49,11 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
     inline bool marked(const xy_int8_t &xy)       { return marked(xy.x, xy.y); }
   };
 
-  typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;
+  #if ProUIex
+    typedef FlagBits<GRID_LIMIT, GRID_LIMIT> MeshFlags;
+  #else
+    typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;
+  #endif
 
 #endif
 
@@ -59,6 +63,11 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
   #define log_machine_info() NOOP
 #endif
 
+/**
+ * A restorer instance remembers a variable's value before setting a
+ * new value, then restores the old value when it goes out of scope.
+ * Put operator= on your type to get extended behavior on value change.
+ */
 template<typename T>
 class restorer {
   T& ref_;
@@ -77,10 +86,13 @@ public:
 // in the range 0-100 while avoiding rounding artifacts
 constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
 
-const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME);
-
-#if LINEAR_AXES <= XYZ
+// Axis names for G-code parsing, reports, etc.
+const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME, AXIS7_NAME, AXIS8_NAME, AXIS9_NAME);
+#if NUM_AXES <= XYZ && !HAS_EXTRUDERS
   #define AXIS_CHAR(A) ((char)('X' + A))
+  #define IAXIS_CHAR AXIS_CHAR
 #else
+  const xyze_char_t iaxis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', 'I', 'J', 'K', 'U', 'V', 'W');
   #define AXIS_CHAR(A) axis_codes[A]
+  #define IAXIS_CHAR(A) iaxis_codes[A]
 #endif

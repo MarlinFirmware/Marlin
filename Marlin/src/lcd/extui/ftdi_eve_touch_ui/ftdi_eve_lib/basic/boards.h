@@ -138,7 +138,7 @@
  * Settings for the Aleph Objects Color LCD User Interface
  * Datasheet https://www.hantronix.com/files/data/s1501799605s500-gh7.pdf
  */
-#elif defined(LCD_ALEPHOBJECTS_CLCD_UI)
+#elif defined(LCD_LULZBOT_CLCD_UI)
   #if !HAS_RESOLUTION
     #define TOUCH_UI_800x480
   #endif

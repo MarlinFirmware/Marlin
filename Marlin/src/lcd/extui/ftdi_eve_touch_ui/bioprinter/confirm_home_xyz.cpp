@@ -1,6 +1,6 @@
-/****************************
- * bio_confirm_home_xyz.cpp *
- ****************************/
+/************************
+ * confirm_home_xyz.cpp *
+ ************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -36,7 +36,7 @@ bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       #ifdef PARK_AND_RELEASE_COMMANDS
-        SpinnerDialogBox::enqueueAndWait_P(PSTR(
+        SpinnerDialogBox::enqueueAndWait(F(
          "G28\n"
          PARK_AND_RELEASE_COMMANDS
         ));

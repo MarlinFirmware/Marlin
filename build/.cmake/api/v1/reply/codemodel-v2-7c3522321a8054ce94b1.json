@@ -1,0 +1,312 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-RelWithDebInfo-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "h32",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Continuous::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Continuous-RelWithDebInfo-c740418fd305f79fc84f.json",
+					"name" : "Continuous",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousBuild::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousBuild-RelWithDebInfo-6a57d8d46c9f92ad05a5.json",
+					"name" : "ContinuousBuild",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousConfigure::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousConfigure-RelWithDebInfo-359f208de9d49c09dac2.json",
+					"name" : "ContinuousConfigure",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousCoverage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousCoverage-RelWithDebInfo-d696b139d47bdc29cd05.json",
+					"name" : "ContinuousCoverage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousMemCheck::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousMemCheck-RelWithDebInfo-8e65dc71e3652a3f2d4d.json",
+					"name" : "ContinuousMemCheck",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousStart::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousStart-RelWithDebInfo-fbff50df2a3c61e36310.json",
+					"name" : "ContinuousStart",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousSubmit::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousSubmit-RelWithDebInfo-cac79e80851f1d1b5461.json",
+					"name" : "ContinuousSubmit",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousTest-RelWithDebInfo-c50798de1d10e49b8336.json",
+					"name" : "ContinuousTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ContinuousUpdate::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ContinuousUpdate-RelWithDebInfo-8a9ba72e6a7e47027022.json",
+					"name" : "ContinuousUpdate",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Experimental::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Experimental-RelWithDebInfo-c99091c40cd8f6c39f82.json",
+					"name" : "Experimental",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalBuild::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalBuild-RelWithDebInfo-19ee3da1622357c27241.json",
+					"name" : "ExperimentalBuild",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalConfigure::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalConfigure-RelWithDebInfo-d97ed7f67f0032257ffc.json",
+					"name" : "ExperimentalConfigure",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalCoverage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalCoverage-RelWithDebInfo-d9a8e6350f77501657d7.json",
+					"name" : "ExperimentalCoverage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalMemCheck::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalMemCheck-RelWithDebInfo-4005965172a094c43f0c.json",
+					"name" : "ExperimentalMemCheck",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalStart::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalStart-RelWithDebInfo-53b17bb01b1caf9765ae.json",
+					"name" : "ExperimentalStart",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalSubmit::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalSubmit-RelWithDebInfo-473643190adfa723dd61.json",
+					"name" : "ExperimentalSubmit",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalTest-RelWithDebInfo-bd5267b520220dcb09b3.json",
+					"name" : "ExperimentalTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ExperimentalUpdate::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ExperimentalUpdate-RelWithDebInfo-3168bb3b34e3969cdbd4.json",
+					"name" : "ExperimentalUpdate",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Nightly::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Nightly-RelWithDebInfo-eb6ae478d41f8dd57cd6.json",
+					"name" : "Nightly",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyBuild::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyBuild-RelWithDebInfo-46d2c636010583d6be7a.json",
+					"name" : "NightlyBuild",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyConfigure::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyConfigure-RelWithDebInfo-a80e5c310e517befc00b.json",
+					"name" : "NightlyConfigure",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyCoverage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyCoverage-RelWithDebInfo-f09dca56088dcfb153c7.json",
+					"name" : "NightlyCoverage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyMemCheck::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyMemCheck-RelWithDebInfo-3ff06de087b2a1c25bfd.json",
+					"name" : "NightlyMemCheck",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyMemoryCheck::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyMemoryCheck-RelWithDebInfo-8831dfa94d20f3ef4f90.json",
+					"name" : "NightlyMemoryCheck",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyStart::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyStart-RelWithDebInfo-e44436f8a000484aee2e.json",
+					"name" : "NightlyStart",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlySubmit::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlySubmit-RelWithDebInfo-01424511075c985379ba.json",
+					"name" : "NightlySubmit",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyTest-RelWithDebInfo-c8f21b01e37d3bda7863.json",
+					"name" : "NightlyTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NightlyUpdate::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NightlyUpdate-RelWithDebInfo-61a6d718c114982aa3ed.json",
+					"name" : "NightlyUpdate",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "h32::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-h32-RelWithDebInfo-c500b0d0c47271a22276.json",
+					"name" : "h32",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI/build",
+		"source" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

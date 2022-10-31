@@ -47,14 +47,11 @@
 #endif
 
 bool leveling_is_valid() {
-  return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
-      && TERN1(AUTO_BED_LEVELING_BILINEAR, !!bilinear_grid_spacing.x)
-      && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
+  return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
 }
 
 /**
- * Turn bed leveling on or off, fixing the current
- * position as-needed.
+ * Turn bed leveling on or off, correcting the current position.
  *
  * Disable: Current position = physical position
  *  Enable: Current position = "unleveled" physical position
@@ -65,30 +62,25 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
   if (can_change && enable != planner.leveling_active) {
 
+    auto _report_leveling = []{
+      if (DEBUGGING(LEVELING)) {
+        if (planner.leveling_active)
+          DEBUG_POS("Leveling ON", current_position);
+        else
+          DEBUG_POS("Leveling OFF", current_position);
+      }
+    };
+
+    _report_leveling();
     planner.synchronize();
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Force bilinear_z_offset to re-calculate next time
-      const xyz_pos_t reset { -9999.999, -9999.999, 0 };
-      (void)bilinear_z_offset(reset);
-    #endif
-
-    if (planner.leveling_active) {      // leveling from on to off
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling ON", current_position);
-      // change unleveled current_position to physical current_position without moving steppers.
-      planner.apply_leveling(current_position);
-      planner.leveling_active = false;  // disable only AFTER calling apply_leveling
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now OFF", current_position);
-    }
-    else {                              // leveling from off to on
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Leveling OFF", current_position);
-      planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
-      // change physical current_position to unleveled current_position without moving steppers.
-      planner.unapply_leveling(current_position);
-      if (DEBUGGING(LEVELING)) DEBUG_POS("...Now ON", current_position);
-    }
+    // Get the corrected leveled / unleveled position
+    planner.apply_modifiers(current_position, true);    // Physical position with all modifiers
+    planner.leveling_active ^= true;                    // Toggle leveling between apply and unapply
+    planner.unapply_modifiers(current_position, true);  // Logical position with modifiers removed
 
     sync_plan_position();
+    _report_leveling();
   }
 }
 
@@ -122,23 +114,9 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
  */
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl.reset();
-  #else
-    set_bed_leveling_enabled(false);
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.reset();
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      bilinear_start.reset();
-      bilinear_grid_spacing.reset();
-      GRID_LOOP(x, y) {
-        z_values[x][y] = NAN;
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
-      }
-    #elif ABL_PLANAR
-      planner.bed_level_matrix.set_to_identity();
-    #endif
-  #endif
+  IF_DISABLED(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(false));
+  TERN_(HAS_MESH, bedlevel.reset());
+  TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
 #if EITHER(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
@@ -156,7 +134,7 @@ void reset_bed_level() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn) {
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
     #ifndef SCAD_MESH_OUTPUT
       LOOP_L_N(x, sx) {
         serial_spaces(precision + (x < 10 ? 3 : 2));
@@ -176,7 +154,11 @@ void reset_bed_level() {
       #endif
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
-        const float offset = fn(x, y);
+        #if ProUIex
+          const float offset = ProEx.getZvalues(sy, x, y, values);
+        #else
+          const float offset = values[x * sy + y];
+        #endif
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO_F(offset, int(precision));

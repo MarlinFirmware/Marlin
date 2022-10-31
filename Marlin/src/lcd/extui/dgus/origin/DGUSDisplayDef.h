@@ -24,17 +24,17 @@
 #include "../DGUSDisplayDef.h"
 
 enum DGUSLCD_Screens : uint8_t {
-  DGUSLCD_SCREEN_BOOT                = 0,
-  DGUSLCD_SCREEN_MAIN                = 10,
-  DGUSLCD_SCREEN_TEMPERATURE         = 20,
-  DGUSLCD_SCREEN_STATUS              = 30,
-  DGUSLCD_SCREEN_STATUS2             = 32,
-  DGUSLCD_SCREEN_MANUALMOVE          = 40,
-  DGUSLCD_SCREEN_MANUALEXTRUDE       = 42,
-  DGUSLCD_SCREEN_FANANDFEEDRATE      = 44,
-  DGUSLCD_SCREEN_FLOWRATES           = 46,
-  DGUSLCD_SCREEN_SDFILELIST          = 50,
-  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 52,
+  DGUSLCD_SCREEN_BOOT                =   0,
+  DGUSLCD_SCREEN_MAIN                =  10,
+  DGUSLCD_SCREEN_TEMPERATURE         =  20,
+  DGUSLCD_SCREEN_STATUS              =  30,
+  DGUSLCD_SCREEN_STATUS2             =  32,
+  DGUSLCD_SCREEN_MANUALMOVE          =  40,
+  DGUSLCD_SCREEN_MANUALEXTRUDE       =  42,
+  DGUSLCD_SCREEN_FANANDFEEDRATE      =  44,
+  DGUSLCD_SCREEN_FLOWRATES           =  46,
+  DGUSLCD_SCREEN_SDFILELIST          =  50,
+  DGUSLCD_SCREEN_SDPRINTMANIPULATION =  52,
   DGUSLCD_SCREEN_POWER_LOSS          = 100,
   DGUSLCD_SCREEN_PREHEAT             = 120,
   DGUSLCD_SCREEN_UTILITY             = 110,
@@ -268,7 +268,7 @@ constexpr uint16_t VP_BED_PID_P = 0x3710;
 constexpr uint16_t VP_BED_PID_I = 0x3712;
 constexpr uint16_t VP_BED_PID_D = 0x3714;
 
-// Wating screen status
+// Waiting screen status
 constexpr uint16_t VP_WAITING_STATUS = 0x3800;
 
 // SPs for certain variables...

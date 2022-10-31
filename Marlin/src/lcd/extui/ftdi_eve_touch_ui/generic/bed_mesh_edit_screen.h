@@ -1,18 +1,6 @@
-<<<<<<< HEAD
-<<<<<<< HEAD:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_edit_screen.h
 /**************************
  * bed_mesh_edit_screen.h *
  *************************/
-=======
-/*******************
- * bed_mesh_base.h *
- *******************/
->>>>>>> upstream/bugfix-2.0.x:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_base.h
-=======
-/**************************
- * bed_mesh_edit_screen.h *
- *************************/
->>>>>>> upstream/bugfix-2.0.x
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2020                                        *
@@ -33,10 +21,6 @@
 
 #pragma once
 
-<<<<<<< HEAD
-<<<<<<< HEAD:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_edit_screen.h
-=======
->>>>>>> upstream/bugfix-2.0.x
 #define FTDI_BED_MESH_EDIT_SCREEN
 #define FTDI_BED_MESH_EDIT_SCREEN_CLASS BedMeshEditScreen
 
@@ -63,31 +47,4 @@ class BedMeshEditScreen : public BedMeshBase, public CachedScreen<BED_MESH_EDIT_
     static bool onTouchHeld(uint8_t tag);
     static bool onTouchEnd(uint8_t tag);
     static void show();
-<<<<<<< HEAD
-=======
-#define FTDI_BED_MESH_BASE
-
-class BedMeshBase : public BaseScreen {
-  protected:
-    typedef float (*mesh_getter_ptr)(uint8_t x, uint8_t y, void *data);
-
-  private:
-    enum MeshOpts {
-      USE_POINTS    = 0x01,
-      USE_COLORS    = 0x02,
-      USE_TAGS      = 0x04,
-      USE_HIGHLIGHT = 0x08,
-      USE_AUTOSCALE = 0x10
-    };
-
-    static void _drawMesh(CommandProcessor &, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t opts, float autoscale_max, uint8_t highlightedTag, mesh_getter_ptr func, void *data);
-
-  protected:
-    static void drawMeshForeground(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h, mesh_getter_ptr func, void *data, uint8_t highlightedTag = 0, float progress = 1.0);
-    static void drawMeshBackground(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h);
-    static uint8_t pointToTag(uint8_t x, uint8_t y);
-    static bool tagToPoint(uint8_t tag, xy_uint8_t &pt);
->>>>>>> upstream/bugfix-2.0.x:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_base.h
-=======
->>>>>>> upstream/bugfix-2.0.x
 };

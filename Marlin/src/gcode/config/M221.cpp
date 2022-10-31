@@ -38,7 +38,7 @@ void GcodeSuite::M221() {
   else {
     SERIAL_ECHO_START();
     SERIAL_CHAR('E', '0' + target_extruder);
-    SERIAL_ECHOPAIR(" Flow: ", planner.flow_percentage[target_extruder]);
+    SERIAL_ECHOPGM(" Flow: ", planner.flow_percentage[target_extruder]);
     SERIAL_CHAR('%');
     SERIAL_EOL();
   }

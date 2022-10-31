@@ -26,7 +26,7 @@
  * Algorithm & Implementation: Scott Mudge - mail@scottmudge.com
  * Date: Dec. 2020
  *
- * Character Frequencies from ~30 MB of comment-stripped gcode:
+ * Character Frequencies from ~30 MB of comment-stripped G-code:
  *  '1' -> 4451136    '4' -> 1353273   '\n' -> 1087683    '-' ->   90242
  *  '0' -> 4253577    '9' -> 1352147    'G' -> 1075806    'Z' ->   34109
  *  ' ' -> 3053297    '3' -> 1262929    'X' ->  975742    'M' ->   11879
@@ -140,7 +140,7 @@ void MeatPack::handle_output_char(const uint8_t c) {
   #if ENABLED(MP_DEBUG)
     if (chars_decoded < 1024) {
       ++chars_decoded;
-      DEBUG_ECHOLNPAIR("RB: ", AS_CHAR(c));
+      DEBUG_ECHOLNPGM("RB: ", AS_CHAR(c));
     }
   #endif
 }
@@ -169,10 +169,9 @@ void MeatPack::handle_command(const MeatPack_Command c) {
 void MeatPack::report_state() {
   // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
   // should not contain the "PV' substring, as this is used to indicate protocol version
-  SERIAL_ECHOPGM("[MP] ");
-  SERIAL_ECHOPGM(MeatPack_ProtocolVersion " ");
+  SERIAL_ECHOPGM("[MP] " MeatPack_ProtocolVersion " ");
   serialprint_onoff(TEST(state, MPConfig_Bit_Active));
-  SERIAL_ECHOPGM_P(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
+  SERIAL_ECHOF(TEST(state, MPConfig_Bit_NoSpaces) ? F(" NSP\n") : F(" ESP\n"));
 }
 
 /**

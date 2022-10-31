@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -37,7 +38,7 @@ TIPS_DISP tips_disp;
 tips_menu_def tips_menu;
 
 void lv_draw_wifi_tips() {
-  static lv_obj_t *text_tips,*wifi_name;
+  static lv_obj_t *text_tips, *wifi_name;
 
   scr = lv_screen_create(WIFI_TIPS_UI, "");
 

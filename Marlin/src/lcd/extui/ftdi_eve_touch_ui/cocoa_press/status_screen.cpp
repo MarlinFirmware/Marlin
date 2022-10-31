@@ -233,7 +233,7 @@ bool StatusScreen::onTouchStart(uint8_t) {
 
 bool StatusScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case  1: SpinnerDialogBox::enqueueAndWait_P(PSTR("G28 O\nG27")); break;
+    case  1: SpinnerDialogBox::enqueueAndWait(F("G28 O\nG27")); break;
     case  2: GOTO_SCREEN(LoadChocolateScreen); break;
     case  3: GOTO_SCREEN(PreheatMenu); break;
     case  4: GOTO_SCREEN(MainMenu); break;
@@ -242,7 +242,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       if (ExtUI::isPrintingFromMedia())
         ExtUI::pausePrint();
       #ifdef ACTION_ON_PAUSE
-        else host_action_pause();
+        else hostui.pause();
       #endif
       GOTO_SCREEN(StatusScreen);
       break;
@@ -251,7 +251,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       if (ExtUI::isPrintingFromMedia())
         ExtUI::resumePrint();
       #ifdef ACTION_ON_RESUME
-        else host_action_resume();
+        else hostui.resume();
       #endif
       GOTO_SCREEN(StatusScreen);
       break;
@@ -279,7 +279,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(progmem_str) {
+void StatusScreen::setStatusMessage(FSTR_P) {
 }
 
 void StatusScreen::setStatusMessage(const char * const) {
@@ -292,6 +292,16 @@ void StatusScreen::onIdle() {
       onRefresh();
     refresh_timer.start();
   }
+}
+
+void StatusScreen::onMediaInserted() {
+  if (AT_SCREEN(StatusScreen))
+    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+}
+
+void StatusScreen::onMediaRemoved() {
+  if (AT_SCREEN(StatusScreen) || ExtUI::isPrintingFromMedia())
+    setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
 }
 
 #endif // COCOA_STATUS_SCREEN

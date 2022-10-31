@@ -40,7 +40,7 @@ namespace FTDI {
 
     /* Returns true if the string has UTF8 string characters */
 
-    bool has_utf8_chars(progmem_str str);
+    bool has_utf8_chars(FSTR_P str);
     bool has_utf8_chars(const char *str);
 
     /* Returns the next character in a UTF8 string and increments the
@@ -51,14 +51,14 @@ namespace FTDI {
 
     /* Returns the next character in a UTF8 string, without incrementing */
 
-    inline utf8_char_t get_utf8_char(const char *c) {return get_utf8_char_and_inc(c);}
+    inline utf8_char_t get_utf8_char(const char *c) { return get_utf8_char_and_inc(c); }
 
     void load_utf8_data(uint32_t addr);
   #else
     typedef char utf8_char_t;
 
-    inline utf8_char_t get_utf8_char_and_inc(const char *&c) {return *c++;}
-    inline utf8_char_t get_utf8_char(const char *c) {return *c;}
+    inline utf8_char_t get_utf8_char_and_inc(const char *&c) { return *c++; }
+    inline utf8_char_t get_utf8_char(const char *c) { return *c; }
 
     inline void load_utf8_data(uint32_t) {}
   #endif
@@ -66,10 +66,10 @@ namespace FTDI {
   void load_utf8_bitmaps(CommandProcessor& cmd);
 
   uint16_t get_utf8_char_width(utf8_char_t, font_size_t);
-  uint16_t get_utf8_text_width(progmem_str, font_size_t);
+  uint16_t get_utf8_text_width(FSTR_P, font_size_t);
   uint16_t get_utf8_text_width(const char *, font_size_t, size_t maxlen=SIZE_MAX);
 
-  void draw_utf8_text(CommandProcessor&, int x, int y, progmem_str, font_size_t, uint16_t options = 0);
+  void draw_utf8_text(CommandProcessor&, int x, int y, FSTR_P, font_size_t, uint16_t options = 0);
   void draw_utf8_text(CommandProcessor&, int x, int y, const char *, font_size_t, uint16_t options = 0, size_t maxlen=SIZE_MAX);
 
   // Similar to CLCD::FontMetrics, but can be used with UTF8 encoded strings.

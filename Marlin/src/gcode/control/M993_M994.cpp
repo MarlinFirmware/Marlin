@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+#if ALL(SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
@@ -37,7 +37,7 @@ void GcodeSuite::M993() {
   char fname[] = "spiflash.bin";
   card.openFileWrite(fname);
   if (!card.isFileOpen()) {
-    SERIAL_ECHOLNPAIR("Failed to open ", fname, " to write.");
+    SERIAL_ECHOLNPGM("Failed to open ", fname, " to write.");
     return;
   }
 
@@ -65,7 +65,7 @@ void GcodeSuite::M994() {
   char fname[] = "spiflash.bin";
   card.openFileRead(fname);
   if (!card.isFileOpen()) {
-    SERIAL_ECHOLNPAIR("Failed to open ", fname, " to read.");
+    SERIAL_ECHOLNPGM("Failed to open ", fname, " to read.");
     return;
   }
 
@@ -85,4 +85,4 @@ void GcodeSuite::M994() {
   card.closefile();
 }
 
-#endif // HAS_SPI_FLASH && SDSUPPORT && MARLIN_DEV_MODE
+#endif // SPI_FLASH && SDSUPPORT && MARLIN_DEV_MODE

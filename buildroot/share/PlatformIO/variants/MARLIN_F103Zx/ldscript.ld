@@ -23,7 +23,7 @@
 *****************************************************************************
 ** @attention
 **
-** <h2><center>&copy; COPYRIGHT(c) 2019 STMicroelectronics</center></h2>
+** Copyright (c) 2019 STMicroelectronics
 **
 ** Redistribution and use in source and binary forms, with or without modification,
 ** are permitted provided that the following conditions are met:
@@ -162,7 +162,7 @@ SECTIONS
   . = ALIGN(4);
   .bss :
   {
-    /* This is used by the startup in order to initialize the .bss secion */
+    /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
     *(.bss)

@@ -1,41 +1,68 @@
-# Voxelab Aquila 
+# Professional Firmware for the Voxelab Aquila and Creality Ender 3 Printers
+\
+![GitHub contributors](https://img.shields.io/github/contributors/classicrocker883/MriscocProUI.svg)
+![GitHub Release Date](https://img.shields.io/github/release-date/classicrocker883/MriscocProUI.svg)
+[![Build Status](https://github.com/classicrocker883/MriscocProUI/workflows/CI/badge.svg?branch=MriscocProUI)](https://github.com/classicrocker883/MriscocProUI/actions)
 
-This fork was created made so [Alex's Firmware](https://github.com/alexqzd/Marlin) works with Creality 4.2.7 boards that are most commonly replaced on Voxelab Aquila X2 and original machines. I have compiled firmware that speeds up the printer and enables some extra settings. These firmwares also work with the original mainboards using G32 and N32 chips. (H32 chip machines still not compatible). 
+## Universal RET6/RCT6 chips: G32, N32, (working on H32), Creality 4.2.7 and 4.2.2 boards
 
-Under Configuration Files folder - specifically the firmware I use is compiled from ConfigurationA.h, and the firmware I compiled for everyone else under Releases does not have the A. 
+I will be working on more upgrades and features and tweaks along the way. Enjoy using this fork of Marlin as I intend it to be the best. It is easy to use and convenient. So far I really enjoy the new settings and toolbar for the main menu. There is a variety of parameters and options that can be changed without having to reflash the firmware. 
 
+[Linear Advance Information](https://github.com/MarlinFirmware/MarlinDocumentation/blob/master/_features/lin_advance.md)
 
-## Forked from Alex's Marlin firmware for Voxelab Aquila, forked from Ender 3 V2 JyersUI
+The Precompiled binary files of this firmware can work with STM32 (STM32F103RET6/RCT6) and it's clones G32 (GD32F103RET6), N32 (Nation), and possibly H32. They can be downloaded from:
+[Latest Release](https://github.com/classicrocker883/MriscocProUI/releases/latest)
 
-## Releases
-Precompiled files can be found in the [releases section of GitHub](https://github.com/classicrocker883/Marlin/releases).
+<img height=260 src="https://enfss.voxelab3dp.com/10001/picture/2021/09/b849845bd0ffa889f00a782aae76ccf3.jpg" align="left" />
+<img height=260 src="https://enfss.voxelab3dp.com/10001/picture/2021/09/677b721574efca3daa5c0d39e438fee6.jpg" align="middle" /> 
+<img height=260 src="buildroot/share/pixmaps/Ender-3V2.jpg" align="left" />
+<img height=300 src="buildroot/share/pixmaps/Ender-3S1.jpg" align="middle"  />
+<BR/>
 
+## Donations
+Please consider making a donation, as large or as small and as often as you'd like.
+Thank you for your support, I receive donations through [Paypal](https://www.paypal.com/paypalme/andrewleduc)   
 
-## Issues
+[<img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">](https://www.paypal.com/donate/?business=PFNSKQX9WQQ8W&no_recurring=0&currency_code=USD)   
 
-If you believe you need something changed, create a new issue from [My issues tab on GitHub](https://github.com/classicrocker883/Marlin/issues) | If you believe you have found a bug in the firmware, go to [Alex's issues tab on GitHub](https://github.com/alexqzd/Marlin/issues), or create a [pull request](https://github.com/alexqzd/Marlin/pulls).
+## Wiki
+ - [How to install the firmware](https://github.com/mriscoc/Ender3V2S1/wiki/How-to-install-the-firmware)
+ - [Installing a 3D/BLTouch](https://github.com/mriscoc/Ender3V2S1/wiki/3D-BLTouch)
+ - [Color themes](https://github.com/mriscoc/Ender3V2S1/wiki/Color-Themes)
+ - [How to use with Octoprint](https://github.com/mriscoc/Ender3V2S1/wiki/Octoprint)
+  
+## Community links
+* [Telegram](https://t.me/ender3v2s1firmware)
+* [Aquila Reddit](https://www.reddit.com/r/VoxelabAquila) 
+* [E3V2 Reddit](https://www.reddit.com/r/Ender3v2Firmware) 
+* [E3V2 Facebook](https://www.facebook.com/groups/ender3v2firmware)
+* [E3S1 Facebook](https://www.facebook.com/groups/ender3s1printer)
 
-ClassicRocker883 (Me) [PayPal](https://paypal.me/AndrewLeDuc)
+<!--[](https://raw.githubusercontent.com/mriscoc/Ender3V2S1/Ender3V2S1-Released/screenshots/main.jpg)-->
 
-JyersUI [Patreon](https://www.patreon.com/jyers)
-[wiki tab on GitHub](https://github.com/Jyers/Marlin/wiki)
+## Credits
 
+This fork of Mriscoc's ProUI firmware is maintained by [@classicrocker883](https://github.com/classicrocker883) (yours truly)
 
-# Marlin 3D Printer Firmware
+ProUI is a Marlin based firmware maintained by [@mriscoc](https://github.com/mriscoc)
 
-![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
-![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
-[![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
+Marlin is maintained mainly by [@thinkyhead](https://github.com/thinkyhead) 
 
-<img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
+This work would not be possible without me spending time working on it for free.
 
-Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
-Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
+I would greatly appreate supporters, helpers and betatesters whenever possible.
 
+Please consider making a donation or show your support or input if you end up using this firmware.
 
-## License
+It wasn't easy getting it to this point. I am just a basic programmer and the work is mostly trial and error. Thank goodness for VS Code's compiler which shows me what changes need to be made as I make them.
 
-Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+Marlin firmware is an Open Source project hosted on Github, [Marlin](https://marlinfw.org/) is owned and maintained by the maker community.  
 
-While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
+VS Code is an IDE program owned and maintained by Microsoft.
+
+## Disclaimer  
+
+THIS FIRMWARE AND ALL OTHER FILES IN THE DOWNLOAD ARE PROVIDED FREE OF CHARGE WITH NO WARRANTY OR GUARANTEE. SUPPORT IS NOT INCLUDED JUST BECAUSE YOU DOWNLOADED THE FIRMWARE. WE ARE NOT LIABLE FOR ANY DAMAGE TO YOUR PRINTER, PERSON, OR ANY OTHER PROPERTY DUE TO USE OF THIS FIRMWARE. IF YOU DO NOT AGREE TO THESE TERMS THEN DO NOT USE THE FIRMWARE.
+
+## LICENSE
+For the license, check the header of each file, if the license is not specified there, the project license will be used. Marlin is licensed under the GPL.

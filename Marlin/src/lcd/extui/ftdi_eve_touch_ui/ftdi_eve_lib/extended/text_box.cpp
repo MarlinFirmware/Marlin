@@ -23,6 +23,10 @@
 
 #if ENABLED(FTDI_EXTENDED)
 
+#define IS_LINE_SEPARATOR(c) c == '\n' || c == '\t'
+#define IS_WORD_SEPARATOR(c) c == ' '
+#define IS_SEPARATOR(c) IS_LINE_SEPARATOR(c) || IS_WORD_SEPARATOR(c)
+
 namespace FTDI {
   /**
    * Given a str, end will be set to the position at which a line needs to
@@ -37,11 +41,11 @@ namespace FTDI {
       const char *next = p;
       const utf8_char_t c = get_utf8_char_and_inc(next);
       // Decide whether to break the string at this location
-      if (c == '\n' || c == '\0' || c == ' ') {
+      if (IS_SEPARATOR(c) || c == '\0' ) {
         end = p;
         result = lw;
       }
-      if (c == '\n' || c == '\0') break;
+      if (IS_LINE_SEPARATOR(c) || c == '\0') break;
       // Measure the next character
       const uint16_t cw = use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c];
       // Stop processing once string exceeds the display width
@@ -67,12 +71,12 @@ namespace FTDI {
     width = height = 0;
     for (;;) {
       const uint16_t line_width = find_line_break(utf8_fm, clcd_fm, wrap_width, line_start, line_end, use_utf8);
-      if (line_end == line_start) break;
       width  = max(width, line_width);
       height += utf8_fm.get_height();
+      if (IS_SEPARATOR(*line_end)) line_end++;
+      if (*line_end == '\0') break;
+      if (line_end == line_start) break;
       line_start = line_end;
-      if (*line_start == '\n' || *line_start == ' ') line_start++;
-      if (*line_start == '\0') break;
     }
   }
 
@@ -109,7 +113,6 @@ namespace FTDI {
     const char *line_start = str, *line_end;
     for (;;) {
       find_line_break(utf8_fm, clcd_fm, w, line_start, line_end, use_utf8);
-      if (line_end == line_start) break;
 
       const size_t line_len = line_end - line_start;
       if (line_len) {
@@ -125,16 +128,21 @@ namespace FTDI {
       }
       y += utf8_fm.get_height();
 
+      if (IS_SEPARATOR(*line_end)) line_end++;
+      if (*line_end == '\0') break;
+      if (line_end == line_start) break;
       line_start = line_end;
-      if (*line_start == '\n' || *line_start == ' ') line_start++;
-      if (*line_start == '\0') break;
     }
   }
 
-  void draw_text_box(CommandProcessor& cmd, int x, int y, int w, int h, progmem_str pstr, uint16_t options, uint8_t font) {
-    char str[strlen_P((const char*)pstr) + 1];
-    strcpy_P(str, (const char*)pstr);
-    draw_text_box(cmd, x, y, w, h, (const char*) str, options, font);
+  void draw_text_box(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P fstr, uint16_t options, uint8_t font) {
+    #ifdef __AVR__
+      char str[strlen_P(FTOP(fstr)) + 1];
+      strcpy_P(str, FTOP(fstr));
+      draw_text_box(cmd, x, y, w, h, (const char*) str, options, font);
+    #else
+      draw_text_box(cmd, x, y, w, h, FTOP(fstr), options, font);
+    #endif
   }
 } // namespace FTDI
 

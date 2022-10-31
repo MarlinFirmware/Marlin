@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,15 +22,15 @@
 #pragma once
 
 /**
- * Support routines for STM32GENERIC (Maple)
+ * Support routines for MAPLE_STM32F1
  */
 
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#ifndef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
-   #error "Expected BOARD_NR_GPIO_PINS not found"
+#ifndef BOARD_NR_GPIO_PINS // Only in MAPLE_STM32F1
+  #error "Expected BOARD_NR_GPIO_PINS not found"
 #endif
 
 #include "fastio.h"
@@ -41,6 +44,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define pwm_status(pin) PWM_PIN(pin)
 #define digitalRead_mod(p) extDigitalRead(p)
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(p) print_port(p)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 21 // space needed to be pretty if not first name assigned to a pin
@@ -50,11 +54,11 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
   #define M43_NEVER_TOUCH(Q) (Q >= 9 && Q <= 12) // SERIAL/USB pins PA9(TX) PA10(RX)
 #endif
 
-static inline int8_t get_pin_mode(pin_t pin) {
+static int8_t get_pin_mode(pin_t pin) {
   return VALID_PIN(pin) ? _GET_MODE(pin) : -1;
 }
 
-static inline pin_t DIGITAL_PIN_TO_ANALOG_PIN(pin_t pin) {
+static pin_t DIGITAL_PIN_TO_ANALOG_PIN(pin_t pin) {
   if (!VALID_PIN(pin)) return -1;
   int8_t adc_channel = int8_t(PIN_MAP[pin].adc_channel);
   #ifdef NUM_ANALOG_INPUTS
@@ -63,7 +67,7 @@ static inline pin_t DIGITAL_PIN_TO_ANALOG_PIN(pin_t pin) {
   return pin_t(adc_channel);
 }
 
-static inline bool IS_ANALOG(pin_t pin) {
+static bool IS_ANALOG(pin_t pin) {
   if (!VALID_PIN(pin)) return false;
   if (PIN_MAP[pin].adc_channel != ADCx) {
     #ifdef NUM_ANALOG_INPUTS
@@ -74,11 +78,11 @@ static inline bool IS_ANALOG(pin_t pin) {
   return false;
 }
 
-static inline bool GET_PINMODE(const pin_t pin) {
+static bool GET_PINMODE(const pin_t pin) {
   return VALID_PIN(pin) && !IS_INPUT(pin);
 }
 
-static inline bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin) {
+static bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin) {
   const pin_t pin = GET_ARRAY_PIN(array_pin);
   return (!IS_ANALOG(pin)
     #ifdef NUM_ANALOG_INPUTS
@@ -89,7 +93,7 @@ static inline bool GET_ARRAY_IS_DIGITAL(const int16_t array_pin) {
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-static inline void pwm_details(const pin_t pin) {
+static void pwm_details(const pin_t pin) {
   if (PWM_PIN(pin)) {
     timer_dev * const tdev = PIN_MAP[pin].timer_device;
     const uint8_t channel = PIN_MAP[pin].timer_channel;
@@ -109,7 +113,7 @@ static inline void pwm_details(const pin_t pin) {
   }
 }
 
-static inline void print_port(pin_t pin) {
+static void print_port(pin_t pin) {
   const char port = 'A' + char(pin >> 4); // pin div 16
   const int16_t gbit = PIN_MAP[pin].gpio_bit;
   char buffer[8];

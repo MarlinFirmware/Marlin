@@ -72,7 +72,7 @@
 from __future__ import print_function
 from __future__ import division
 
-import sys,os
+import sys,os,re
 
 pwd = os.getcwd()  # make sure we're executing from the correct directory level
 pwd = pwd.replace('\\', '/')
@@ -123,7 +123,7 @@ from datetime import datetime, date, time
 #
 ##########################################################################################
 
-def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
+def get_answer(board_name, question_txt, options, default_value=1):
 
   if python_ver == 2:
     import Tkinter as tk
@@ -151,10 +151,10 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
   root_get_answer.protocol("WM_DELETE_WINDOW", disable_event)
   root_get_answer.resizable(False, False)
 
-  root_get_answer.radio_state = 1  # declare variables used by TK and enable
+  root_get_answer.radio_state = default_value  # declare variables used by TK and enable
 
   global get_answer_val
-  get_answer_val = 2  # return get_answer_val, set default to match radio_state default
+  get_answer_val = default_value  # return get_answer_val, set default to match radio_state default
 
   radio_state = tk.IntVar()
   radio_state.set(get_answer_val)
@@ -162,35 +162,27 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
   l1 = tk.Label(text=board_name, fg="light green", bg="dark green",
                 font="default 14 bold").grid(row=0, columnspan=2, sticky='EW', ipadx=2, ipady=2)
 
-  l2 = tk.Label(text=cpu_label_txt).grid(row=1, pady=4, columnspan=2, sticky='EW')
+  l2 = tk.Label(text=question_txt).grid(row=1, pady=4, columnspan=2, sticky='EW')
 
-  b4 = tk.Radiobutton(
-    text=cpu_a_txt,
-    fg="black",
-    bg="lightgray",
-    relief=tk.SUNKEN,
-    selectcolor="green",
-    variable=radio_state,
-    value=1,
-    indicatoron=0,
-    command=CPU_exit_3
-  ).grid(row=2, pady=1, ipady=2, ipadx=10, columnspan=2)
+  buttons = []
 
-  b5 = tk.Radiobutton(
-    text=cpu_b_txt,
-    fg="black",
-    bg="lightgray",
-    relief=tk.SUNKEN,
-    selectcolor="green",
-    variable=radio_state,
-    value=2,
-    indicatoron=0,
-    command=CPU_exit_3
-  ).grid(row=3, pady=1, ipady=2, ipadx=10, columnspan=2)  # use same variable but inverted so they will track
+  for index, val in enumerate(options):
+    buttons.append(
+      tk.Radiobutton(
+        text=val,
+        fg="black",
+        bg="lightgray",
+        relief=tk.SUNKEN,
+        selectcolor="green",
+        variable=radio_state,
+        value=index + 1,
+        indicatoron=0,
+        command=CPU_exit_3
+      ).grid(row=index + 2, pady=1, ipady=2, ipadx=10, columnspan=2))
 
-  b6 = tk.Button(text="Cancel", fg="red", command=kill_session).grid(row=4, column=0, padx=4, pady=4, ipadx=2, ipady=2)
+  b6 = tk.Button(text="Cancel", fg="red", command=kill_session).grid(row=(2 + len(options)), column=0, padx=4, pady=4, ipadx=2, ipady=2)
 
-  b7 = tk.Button(text="Continue", fg="green", command=got_answer).grid(row=4, column=1, padx=4, pady=4, ipadx=2, ipady=2)
+  b7 = tk.Button(text="Continue", fg="green", command=got_answer).grid(row=(2 + len(options)), column=1, padx=4, pady=4, ipadx=2, ipady=2)
 
   def got_answer_():
     root_get_answer.destroy()
@@ -260,7 +252,7 @@ def resolve_path(path):
     while 0 <= path.find('../'):
       end = path.find('../') - 1
       start = path.find('/')
-      while 0 <= path.find('/', start) and end > path.find('/', start):
+      while 0 <= path.find('/', start) < end:
         start = path.find('/', start) + 1
       path = path[0:start] + path[end + 4:]
 
@@ -485,6 +477,11 @@ def get_env_from_line(line, start_position):
   return env, next_position
 
 
+def invalid_board():
+  print('ERROR - invalid board')
+  print(board_name)
+  raise SystemExit(0)  # quit if unable to find board
+
 # scan pins.h for board name and return the environment(s) found
 def get_starting_env(board_name_full, version):
   # get environment starting point
@@ -496,48 +493,26 @@ def get_starting_env(board_name_full, version):
   with open(path, 'r') as myfile:
     pins_h = myfile.read()
 
-  env_A = ''
-  env_B = ''
-  env_C = ''
-
   board_name = board_name_full[6:]  # only use the part after "BOARD_" since we're searching the pins.h file
   pins_h = pins_h.split('\n')
-  environment = ''
-  board_line = ''
-  cpu_A = ''
-  cpu_B = ''
-  i = 0
   list_start_found = False
-  for lines in pins_h:
-    i = i + 1  # i is always one ahead of the index into pins_h
-    if 0 < lines.find("Unknown MOTHERBOARD value set in Configuration.h"):
-      break  #  no more
-    if 0 < lines.find('1280'):
+  possible_envs = None
+  for i, line in enumerate(pins_h):
+    if 0 < line.find("Unknown MOTHERBOARD value set in Configuration.h"):
+      invalid_board();
+    if list_start_found == False and 0 < line.find('1280'):
       list_start_found = True
-    if list_start_found == False:  # skip lines until find start of CPU list
+    elif list_start_found == False:  # skip lines until find start of CPU list
       continue
-    board = lines.find(board_name)
-    comment_start = lines.find('// ')
-    cpu_A_loc = comment_start
-    cpu_B_loc = 0
-    if board > 0:  # need to look at the next line for environment info
-      cpu_line = pins_h[i]
-      comment_start = cpu_line.find('// ')
-      env_A, next_position = get_env_from_line(cpu_line, comment_start)  # get name of environment & start of search for next
-      env_B, next_position = get_env_from_line(cpu_line, next_position)  # get next environment, if it exists
-      env_C, next_position = get_env_from_line(cpu_line, next_position)  # get next environment, if it exists
+
+    # Use a regex to find the board. Make sure it is surrounded by separators so the full boardname
+    # will be matched, even if multiple exist in a single MB macro. This avoids problems with boards
+    # such as MALYAN_M200 and MALYAN_M200_V2 where one board is a substring of the other.
+    if re.search(r'MB.*[\(, ]' + board_name + r'[, \)]', line):
+      # need to look at the next line for environment info
+      possible_envs = re.findall(r'env:([^ ]+)', pins_h[i + 1])
       break
-  return env_A, env_B, env_C
-
-
-# Scan input string for CPUs that users may need to select from
-#   return: CPU name
-def get_CPU_name(environment):
-  CPU_list = ('1280', '2560', '644', '1284', 'LPC1768', 'DUE')
-  CPU_name = ''
-  for CPU in CPU_list:
-    if 0 < environment.find(CPU):
-      return CPU
+  return possible_envs
 
 
 # get environment to be used for the build
@@ -549,71 +524,81 @@ def get_env(board_name, ver_Marlin):
     print(board_name)
     raise SystemExit(0)  # no environment so quit
 
-  def invalid_board():
-    print('ERROR - invalid board')
-    print(board_name)
-    raise SystemExit(0)  # quit if unable to find board
+  possible_envs = get_starting_env(board_name, ver_Marlin)
 
-  CPU_question = (('1280', '2560', '1280 or 2560 CPU?'), ('644', '1284', '644 or 1284 CPU?'))
+  if not possible_envs:
+    no_environment()
 
-  if 0 < board_name.find('MELZI'):
-    get_answer(
-      board_name, " Which flavor of Melzi? ", "Melzi (Optiboot bootloader)", "Melzi                                      "
-    )
+  # Proceed to ask questions based on the available environments to filter down to a smaller list.
+  # If more then one remains after this filtering the user will be prompted to choose between
+  # all remaining options.
+
+  # Filter selection based on CPU choice
+  CPU_questions = [
+    {'options':['1280',        '2560'],        'text':'1280 or 2560 CPU?', 'default':2},
+    {'options':['644',         '1284'],        'text':'644 or 1284 CPU?',  'default':2},
+    {'options':['STM32F103RC', 'STM32F103RE'], 'text':'MCU Type?',         'default':1}]
+
+  for question in CPU_questions:
+    if any(question['options'][0] in env for env in possible_envs) and any(question['options'][1] in env for env in possible_envs):
+      get_answer(board_name, question['text'], [question['options'][0], question['options'][1]], question['default'])
+      possible_envs = [env for env in possible_envs if question['options'][get_answer_val - 1] in env]
+
+  # Choose which STM32 framework to use, if both are available
+  if [env for env in possible_envs if '_maple' in env] and [env for env in possible_envs if '_maple' not in env]:
+    get_answer(board_name, 'Which STM32 Framework should be used?', ['ST STM32 (Preferred)', 'Maple (Deprecated)'])
     if 1 == get_answer_val:
-      target_env = 'melzi_optiboot'
+      possible_envs = [env for env in possible_envs if '_maple' not in env]
     else:
-      target_env = 'melzi'
-  else:
-    env_A, env_B, env_C = get_starting_env(board_name, ver_Marlin)
+      possible_envs = [env for env in possible_envs if '_maple' in env]
 
-    if env_A == '':
-      no_environment()
-    if env_B == '':
-      return env_A  # only one environment so finished
+  # Both USB and non-USB STM32 options exist, filter based on these
+  if any('STM32F103R' in env for env in possible_envs) and any('_USB' in env for env in possible_envs) and any('_USB' not in env for env in possible_envs):
+    get_answer(board_name, 'USB Support?', ['USB', 'No USB'])
+    if 1 == get_answer_val:
+      possible_envs = [env for env in possible_envs if '_USB' in env]
+    else:
+      possible_envs = [env for env in possible_envs if '_USB' not in env]
 
-    CPU_A = get_CPU_name(env_A)
-    CPU_B = get_CPU_name(env_B)
+  if not possible_envs:
+    no_environment()
+  if len(possible_envs) == 1:
+    return possible_envs[0]  # only one environment so finished
 
-    for item in CPU_question:
-      if CPU_A == item[0]:
-        get_answer(board_name, item[2], item[0], item[1])
-        if 2 == get_answer_val:
-          target_env = env_B
-        else:
-          target_env = env_A
-        return target_env
+  target_env = None
 
-    if env_A == 'LPC1768':
-      if build_type == 'traceback' or (build_type == 'clean' and get_build_last() == 'LPC1768_debug_and_upload'):
-        target_env = 'LPC1768_debug_and_upload'
-      else:
-        target_env = 'LPC1768'
-    elif env_A == 'DUE':
-      target_env = 'DUE'
-      if build_type == 'traceback' or (build_type == 'clean' and get_build_last() == 'DUE_debug'):
-        target_env = 'DUE_debug'
-      elif env_B == 'DUE_USB':
-        get_answer(board_name, 'DUE Download Port?', '(Native) USB port', 'Programming port')
-        if 1 == get_answer_val:
-          target_env = 'DUE_USB'
-        else:
-          target_env = 'DUE'
-    elif env_A == 'STM32F103RC_btt' or env_A == 'STM32F103RE_btt':
-      if env_A == 'STM32F103RE_btt':
-        get_answer(board_name, 'MCU Type?', 'STM32F103RC', 'STM32F103RE')
-        if 1 == get_answer_val:
-          env_A = 'STM32F103RC_btt'
-      target_env = env_A
-      if env_A == 'STM32F103RC_btt':
-        get_answer(board_name, 'RCT6 Flash Size?', '512K', '256K')
-        if 1 == get_answer_val:
-          target_env += '_512K'
-      get_answer(board_name, 'USB Support?', 'USB', 'No USB')
+  # A few environments require special behavior
+  if 'LPC1768' in possible_envs:
+    if build_type == 'traceback' or (build_type == 'clean' and get_build_last() == 'LPC1768_debug_and_upload'):
+      target_env = 'LPC1768_debug_and_upload'
+    else:
+      target_env = 'LPC1768'
+  elif 'DUE' in possible_envs:
+    target_env = 'DUE'
+    if build_type == 'traceback' or (build_type == 'clean' and get_build_last() == 'DUE_debug'):
+      target_env = 'DUE_debug'
+    elif 'DUE_USB' in possible_envs:
+      get_answer(board_name, 'DUE Download Port?', ['(Native) USB port', 'Programming port'])
       if 1 == get_answer_val:
-        target_env += '_USB'
-    else:
-      invalid_board()
+        target_env = 'DUE_USB'
+      else:
+        target_env = 'DUE'
+  else:
+    options = possible_envs
+    # Perform some substitutions for environment names which follow a consistent
+    # naming pattern and are very commonly used. This is fragile code, and replacements
+    # should only be made here for stable environments unlikely to change often.
+    for i, option in enumerate(options):
+      if 'melzi' in option:
+        options[i] = 'Melzi'
+      elif 'sanguino1284p' in option:
+        options[i] = 'sanguino1284p'
+      if 'optiboot' in option:
+        options[i] = options[i] + ' (Optiboot Bootloader)'
+      if 'optimized' in option:
+        options[i] = options[i] + ' (Optimized for Size)'
+    get_answer(board_name, 'Which environment?', options)
+    target_env = possible_envs[get_answer_val - 1]
 
   if build_type == 'traceback' and target_env != 'LPC1768_debug_and_upload' and target_env != 'DUE_debug' and Marlin_ver == 2:
     print("ERROR - this board isn't setup for traceback")
@@ -689,7 +674,7 @@ def line_print(line_input):
         if 0 == highlight[1]:
           found_1 = text.find(' ')
           found_tab = text.find('\t')
-          if found_1 < 0 or found_1 > found_tab:
+          if not (0 <= found_1 <= found_tab):
             found_1 = found_tab
           write_to_screen_queue(text[:found_1 + 1])
           for highlight_2 in highlights:
@@ -699,7 +684,7 @@ def line_print(line_input):
             if found >= 0:
               found_space = text.find(' ', found_1 + 1)
               found_tab = text.find('\t', found_1 + 1)
-              if found_space < 0 or found_space > found_tab:
+              if not (0 <= found_space <= found_tab):
                 found_space = found_tab
               found_right = text.find(']', found + 1)
               write_to_screen_queue(text[found_1 + 1:found_space + 1], highlight[2])
@@ -716,7 +701,7 @@ def line_print(line_input):
         break
     if did_something == False:
       r_loc = text.find('\r') + 1
-      if r_loc > 0 and r_loc < len(text):  # need to split this line
+      if 0 < r_loc < len(text):  # need to split this line
         text = text.split('\r')
         for line in text:
           if line != '':

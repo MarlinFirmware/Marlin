@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * ANYCUBIC Trigorilla Pro (STM32F130ZET6) board pin assignments.
+ * ANYCUBIC Trigorilla Pro (STM32F103ZET6) board pin assignments.
  * It is the same used by the Tronxy X5SA thanks to ftoz1 for sharing it
  * https://github.com/MarlinFirmware/Marlin/issues/14655
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
@@ -31,7 +31,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Trigorilla Pro supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Trigorilla Pro"
@@ -45,14 +45,16 @@
 //
 // EEPROM
 //
-#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 #if ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
-  #define EEPROM_PAGE_SIZE     (0x800U)     // 2KB, but will use 2x more (4KB)
+  #define EEPROM_PAGE_SIZE     (0x800U)     // 2K, but will use 2x more (4K)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE   (0x800U) // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE   (0x800U) // On SD, Limit to 2K, require this amount of RAM
 #endif
 
 //
@@ -146,6 +148,9 @@
 
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2

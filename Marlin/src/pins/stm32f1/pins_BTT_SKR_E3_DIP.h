@@ -33,9 +33,9 @@
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 //
@@ -120,20 +120,17 @@
   //#define Z_HARDWARE_SERIAL  MSerial1
   //#define E0_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC10
-  #define X_SERIAL_RX_PIN                   PC10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PC11
-  #define Y_SERIAL_RX_PIN                   PC11
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PC12
-  #define Z_SERIAL_RX_PIN                   PC12
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD2
-  #define E0_SERIAL_RX_PIN                  PD2
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -159,14 +156,14 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *                 _____
- *             5V | 1 2 | GND
- *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
- *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
- *          RESET | 7 8 | PA9  (BTN_EN1)
- * (BTN_ENC) PB6  | 9 10| PA15 (BEEPER)
- *                 -----
- *                 EXP1
+ *                 ------
+ * (BEEPER)  PA15 | 1  2 | PB6 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9 (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB7 (LCD_EN)
+ *            GND | 9 10 | 5V
+ *                 ------
+ *                  EXP1
  */
 
 #if HAS_WIRED_LCD
@@ -185,7 +182,9 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_DIP.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
 
     #define LCD_PINS_RS                     PB9
     #define LCD_PINS_ENABLE                 PB6
@@ -198,13 +197,13 @@
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   _____
-     *               5V | 1 2 | GND
-     *      (MOSI) PB7  | 3 4 | PB8  (LCD_RS)
-     *    (LCD_A0) PB9  | 5 6   PA10 (BTN_EN2)
-     *            RESET | 7 8 | PA9  (BTN_EN1)
-     *   (BTN_ENC) PB6  | 9 10| PA15 (SCK)
-     *                   -----
+     *                   ------
+     *   (SCK)     PA15 | 1  2 | PB6 (BTN_ENC)
+     *   (BTN_EN1) PA9  | 3  4 | RESET
+     *   (BTN_EN2) PA10   5  6 | PB9 (LCD_A0)
+     *   (LCD_RS)  PB8  | 7  8 | PB7 (MOSI)
+     *              GND | 9 10 | 5V
+     *                   ------
      *                    EXP1
      */
 
@@ -227,34 +226,36 @@
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_E3_DIP.h' for details. Comment out this line to continue."
+  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_E3_DIP.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+  #endif
 
   /** FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                     Display
-   *               _____                                      _____
-   *           5V | 1 2 | GND               (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-   * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)     (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
-   * (FREE)   PB9 | 5 6   PA10 (SD_CS)      (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)
-   *        RESET | 7 8 | PA9  (MOD_RESET)  (PA15)    SD_DET | 7 8 | RESET
-   * (BEEPER) PB6 | 9 10| PA15 (SD_DET)                  GND | 9 10| 5V
-   *               -----                                      -----
-   *                EXP1                                       EXP1
+   *                   Board                                   Display
+   *                   ------                                  ------
+   * (SD_DET)    PA15 | 1  2 | PB6 (BEEPER)                5V |10  9 | GND
+   * (MOD_RESET) PA9  | 3  4 | RESET                  (RESET) | 8  7 | (SD_DET)
+   * (SD_CS)     PA10   5  6 | PB9                    (MOSI)    6  5 | (LCD_CS)
+   * (LCD_CS)    PB8  | 7  8 | PB7                    (SD_CS) | 4  3 | (MOD_RESET)
+   *              GND | 9 10 | 5V                     (SCK)   | 2  1 | (MISO)
+   *                   ------                                  ------
+   *                    EXP1                                    EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
-   *           _________
-   *   EXP1-1 ----------- EXP1-10
-   *   EXP1-2 ----------- EXP1-9
-   *   SPI1-4 ----------- EXP1-6
-   *   EXP1-4 ----------- EXP1-5
-   *   SP11-3 ----------- EXP1-2
-   *   EXP1-6 ----------- EXP1-4
-   *   EXP1-7 ----------- EXP1-8
-   *   EXP1-8 ----------- EXP1-3
-   *   SPI1-1 ----------- EXP1-1
-   *  EXP1-10 ----------- EXP1-7
+   *   ----------------------------------
+   *   EXP1-10 ---------- EXP1-10  5V
+   *   EXP1-9 ----------- EXP1-9   GND
+   *   SPI1-4 ----------- EXP1-6   MOSI
+   *   EXP1-7 ----------- EXP1-5   LCD_CS
+   *   SP11-3 ----------- EXP1-2   SCK
+   *   EXP1-5 ----------- EXP1-4   SD_CS
+   *   EXP1-4 ----------- EXP1-8   RESET
+   *   EXP1-3 ----------- EXP1-3   MOD_RST
+   *   SPI1-1 ----------- EXP1-1   MISO
+   *   EXP1-1 ----------- EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector

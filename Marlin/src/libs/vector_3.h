@@ -75,10 +75,10 @@ struct vector_3 {
   vector_3 operator-(const vector_3 &v) { return vector_3(x - v.x, y - v.y, z - v.z); }
   vector_3 operator*(const float &v)    { return vector_3(x * v, y * v, z * v); }
 
-  operator xy_float_t() { return xy_float_t({ x, y }); }
-  operator xyz_float_t() { return xyz_float_t({ x, y, z }); }
+  operator xy_float_t() { return xy_float_t({ x OPTARG(HAS_Y_AXIS, y) }); }
+  operator xyz_float_t() { return xyz_float_t({ x OPTARG(HAS_Y_AXIS, y) OPTARG(HAS_Z_AXIS, z) }); }
 
-  void debug(PGM_P const title);
+  void debug(FSTR_P const title);
 };
 
 struct matrix_3x3 {
@@ -91,7 +91,7 @@ struct matrix_3x3 {
 
   void set_to_identity();
 
-  void debug(PGM_P const title);
+  void debug(FSTR_P const title);
 
   void apply_rotation_xyz(float &x, float &y, float &z);
 };

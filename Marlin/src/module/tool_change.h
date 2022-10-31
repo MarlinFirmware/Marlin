@@ -29,28 +29,35 @@
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      float swap_length, extra_prime, extra_resume;
-      int16_t prime_speed, retract_speed, unretract_speed, fan, fan_speed, fan_time;
+      float swap_length;            // M217 S
+      float extra_prime;            // M217 E
+      float extra_resume;           // M217 B
+      int16_t prime_speed;          // M217 P
+      int16_t wipe_retract;         // M217 G
+      int16_t retract_speed;        // M217 R
+      int16_t unretract_speed;      // M217 U
+      uint8_t fan_speed;            // M217 F
+      uint8_t fan_time;             // M217 D
     #endif
     #if ENABLED(TOOLCHANGE_PARK)
-      bool enable_park;
-      xy_pos_t change_point;
+      bool enable_park;             // M217 W
+      xyz_pos_t change_point;       // M217 X Y I J K C H O
     #endif
-    float z_raise;
+    float z_raise;                  // M217 Z
   } toolchange_settings_t;
 
   extern toolchange_settings_t toolchange_settings;
 
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    void tool_change_prime();
+  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+    extern bool enable_first_prime; // M217 V
   #endif
 
-  #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-    extern bool enable_first_prime;
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    void tool_change_prime(); // Prime the currently selected extruder
   #endif
 
   #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-    extern bool toolchange_extruder_ready[EXTRUDERS];
+    extern Flags<EXTRUDERS> toolchange_extruder_ready;
   #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

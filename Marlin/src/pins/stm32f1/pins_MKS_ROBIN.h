@@ -22,14 +22,14 @@
 #pragma once
 
 /**
- * MKS Robin (STM32F130ZET6) board pin assignments
+ * MKS Robin (STM32F103ZET6) board pin assignments
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
 #if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin"
@@ -53,7 +53,7 @@
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
 #endif
@@ -121,11 +121,11 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
 //
-// Filament runout sensor
+// Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PF11  // MT_DET
 
@@ -258,12 +258,12 @@
   //#define TMC_SOFTWARE_SERIAL
   #if ENABLED(TMC_SOFTWARE_SERIAL)
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
-    #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
-    #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
-    #define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
     #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
     #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
     #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
     #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
     #define TMC_BAUD_RATE                  19200
   #endif
@@ -272,11 +272,11 @@
 //
 // W25Q64 64Mb (8MB) SPI flash
 //
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x800000  // 8MB
-  #define W25QXX_CS_PIN                     PG9
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PG9
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

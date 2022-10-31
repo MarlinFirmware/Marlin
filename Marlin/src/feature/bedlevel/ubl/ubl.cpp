@@ -26,7 +26,7 @@
 
 #include "../bedlevel.h"
 
-unified_bed_leveling ubl;
+unified_bed_leveling bedlevel;
 
 #include "../../../MarlinCore.h"
 #include "../../../gcode/gcode.h"
@@ -51,7 +51,7 @@ void unified_bed_leveling::report_current_mesh() {
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("  M421 I", x, " J", y);
+      SERIAL_ECHOPGM("  M421 I", x, " J", y);
       SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
       serial_delay(75); // Prevent Printrun from exploding
     }
@@ -65,23 +65,30 @@ void unified_bed_leveling::report_state() {
 
 int8_t unified_bed_leveling::storage_slot;
 
-float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+#if ProUIex
+  float unified_bed_leveling::z_values[GRID_LIMIT][GRID_LIMIT];
+#else
+  float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+#endif
 
-#define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
 
-const float
-unified_bed_leveling::_mesh_index_to_xpos[GRID_MAX_POINTS_X] PROGMEM = ARRAY_N(GRID_MAX_POINTS_X,
-  _GRIDPOS(X,  0), _GRIDPOS(X,  1), _GRIDPOS(X,  2), _GRIDPOS(X,  3),
-  _GRIDPOS(X,  4), _GRIDPOS(X,  5), _GRIDPOS(X,  6), _GRIDPOS(X,  7),
-  _GRIDPOS(X,  8), _GRIDPOS(X,  9), _GRIDPOS(X, 10), _GRIDPOS(X, 11),
-  _GRIDPOS(X, 12), _GRIDPOS(X, 13), _GRIDPOS(X, 14), _GRIDPOS(X, 15)
-),
-unified_bed_leveling::_mesh_index_to_ypos[GRID_MAX_POINTS_Y] PROGMEM = ARRAY_N(GRID_MAX_POINTS_Y,
-  _GRIDPOS(Y,  0), _GRIDPOS(Y,  1), _GRIDPOS(Y,  2), _GRIDPOS(Y,  3),
-  _GRIDPOS(Y,  4), _GRIDPOS(Y,  5), _GRIDPOS(Y,  6), _GRIDPOS(Y,  7),
-  _GRIDPOS(Y,  8), _GRIDPOS(Y,  9), _GRIDPOS(Y, 10), _GRIDPOS(Y, 11),
-  _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
-);
+#if DISABLED(ProUIex)
+  #define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
+
+  const float
+  unified_bed_leveling::_mesh_index_to_xpos[GRID_MAX_POINTS_X] PROGMEM = ARRAY_N(GRID_MAX_POINTS_X,
+    _GRIDPOS(X,  0), _GRIDPOS(X,  1), _GRIDPOS(X,  2), _GRIDPOS(X,  3),
+    _GRIDPOS(X,  4), _GRIDPOS(X,  5), _GRIDPOS(X,  6), _GRIDPOS(X,  7),
+    _GRIDPOS(X,  8), _GRIDPOS(X,  9), _GRIDPOS(X, 10), _GRIDPOS(X, 11),
+    _GRIDPOS(X, 12), _GRIDPOS(X, 13), _GRIDPOS(X, 14), _GRIDPOS(X, 15)
+  ),
+  unified_bed_leveling::_mesh_index_to_ypos[GRID_MAX_POINTS_Y] PROGMEM = ARRAY_N(GRID_MAX_POINTS_Y,
+    _GRIDPOS(Y,  0), _GRIDPOS(Y,  1), _GRIDPOS(Y,  2), _GRIDPOS(Y,  3),
+    _GRIDPOS(Y,  4), _GRIDPOS(Y,  5), _GRIDPOS(Y,  6), _GRIDPOS(Y,  7),
+    _GRIDPOS(Y,  8), _GRIDPOS(Y,  9), _GRIDPOS(Y, 10), _GRIDPOS(Y, 11),
+    _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
+  );
+#endif
 
 volatile int16_t unified_bed_leveling::encoder_diff;
 
@@ -167,7 +174,7 @@ static void serial_echo_column_labels(const uint8_t sp) {
 void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
-  constexpr uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
+  IF_DISABLED(ProUIex, constexpr) uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
                     twixt = eachsp * (GRID_MAX_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
@@ -180,10 +187,8 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
     SERIAL_EOL();
     serial_echo_column_labels(eachsp - 2);
   }
-  else {
-    SERIAL_ECHOPGM(" for ");
-    SERIAL_ECHOPGM_P(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
-  }
+  else
+    SERIAL_ECHOPGM(" for ", csv ? F("CSV:\n") : F("LCD:\n"));
 
   // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
   // moving to the XY position to be measured. This ensures better agreement between
@@ -213,10 +218,10 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         // TODO: Display on Graphical LCD
       }
       else if (isnan(f))
-        SERIAL_ECHOPGM_P(human ? PSTR("  .   ") : PSTR("NAN"));
+        SERIAL_ECHOF(human ? F("  .   ") : F("NAN"));
       else if (human || csv) {
-        if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
-        SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
+        if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
+        SERIAL_DECIMAL(f);                                    // Positive: 5 digits, Negative: 6 digits
       }
       if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 
@@ -262,7 +267,7 @@ bool unified_bed_leveling::sanity_check() {
    */
   void GcodeSuite::M1004() {
 
-    #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
+    #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
     #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R")
 
     #if HAS_HOTEND
@@ -281,10 +286,10 @@ bool unified_bed_leveling::sanity_check() {
       }
     #endif
 
-    process_subcommands_now_P(G28_STR);               // Home
-    process_subcommands_now_P(PSTR(ALIGN_GCODE "\n"   // Align multi z axis if available
-                                   PROBE_GCODE "\n"   // Build mesh with available hardware
-                                   "G29P3\nG29P3"));  // Ensure mesh is complete by running smart fill twice
+    process_subcommands_now(FPSTR(G28_STR));      // Home
+    process_subcommands_now(F(ALIGN_GCODE         // Align multi z axis if available
+                              PROBE_GCODE "\n"    // Build mesh with available hardware
+                              "G29P3\nG29P3"));   // Ensure mesh is complete by running smart fill twice
 
     if (parser.seenval('S')) {
       char umw_gcode[32];
@@ -292,9 +297,9 @@ bool unified_bed_leveling::sanity_check() {
       queue.inject(umw_gcode);
     }
 
-    process_subcommands_now_P(PSTR("G29A\nG29F10\n"   // Set UBL Active & Fade 10
-                                   "M140S0\nM104S0\n" // Turn off heaters
-                                   "M500"));          // Store settings
+    process_subcommands_now(F("G29A\nG29F10\n"    // Set UBL Active & Fade 10
+                              "M140S0\nM104S0\n"  // Turn off heaters
+                              "M500"));           // Store settings
   }
 
 #endif // UBL_MESH_WIZARD

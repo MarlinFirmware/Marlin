@@ -23,11 +23,13 @@
 
 #include "menu.h"
 #include "../marlinui.h"
-#include "../../gcode/queue.h" // for inject_P
+#include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
 
-void lcd_move_z();
+#if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+  #include "../../module/planner.h"
+#endif
 
 ////////////////////////////////////////////
 ///////////// Base Menu Items //////////////
@@ -36,36 +38,36 @@ void lcd_move_z();
 // SUBMENU(LABEL, screen_handler)
 class MenuItem_submenu : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
+      _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0]);
     }
-    static inline void action(PGM_P const, const screenFunc_t func) { ui.push_current_screen(); ui.goto_screen(func); }
+    static void action(FSTR_P const, const screenFunc_t func) { ui.push_current_screen(); ui.goto_screen(func); }
 };
 
 // Any menu item that invokes an immediate action
 class MenuItem_button : public MenuItemBase {
   public:
     // Button-y Items are selectable lines with no other indicator
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', ' ');
+    static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
+      _draw(sel, row, fstr, '>', ' ');
     }
 };
 
 // ACTION_ITEM(LABEL, FUNC)
 class MenuItem_function : public MenuItem_button {
   public:
-    //static inline void action(PGM_P const, const uint8_t, const menuAction_t func) { (*func)(); };
-    static inline void action(PGM_P const, const menuAction_t func) { (*func)(); };
+    //static void action(FSTR_P const, const uint8_t, const menuAction_t func) { (*func)(); };
+    static void action(FSTR_P const, const menuAction_t func) { if (func) (*func)(); };
 };
 
 // GCODES_ITEM(LABEL, GCODES)
 class MenuItem_gcode : public MenuItem_button {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', ' ');
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
+      _draw(sel, row, fstr, '>', ' ');
     }
-    static void action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
-    static inline void action(PGM_P const pstr, const uint8_t, const char * const pgcode) { action(pstr, pgcode); }
+    static void action(FSTR_P const, FSTR_P const fgcode) { queue.inject(fgcode); }
+    static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
 
 ////////////////////////////////////////////
@@ -77,21 +79,21 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float scale(const_float_t value)    { return NAME::scale(value);            }
-    static inline float unscale(const_float_t value)  { return NAME::unscale(value);          }
+    static float scale(const_float_t value)    { return NAME::scale(value);            }
+    static float unscale(const_float_t value)  { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
     static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t * const data, ...) {
-      MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(*(data)));
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, type_t * const data, ...) {
+      MenuEditItemBase::draw(sel, row, fstr, NAME::strfunc(*(data)));
     }
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t (*pget)(), ...) {
-      MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(pget()));
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, type_t (*pget)(), ...) {
+      MenuEditItemBase::draw(sel, row, fstr, NAME::strfunc(pget()));
     }
     // Edit screen for this type of item
     static void edit_screen() { MenuEditItemBase::edit_screen(to_string, load); }
     static void action(
-      PGM_P const pstr,                     // Edit label
+      FSTR_P const fstr,                    // Edit label
       type_t * const ptr,                   // Value pointer
       const type_t minValue,                // Value range
       const type_t maxValue,
@@ -101,22 +103,36 @@ class TMenuEditItem : MenuEditItemBase {
       // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scale(minValue), INT32_MIN),
                     maxv = _MIN(scale(maxValue), INT32_MAX);
-      goto_edit_screen(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv,
+      goto_edit_screen(fstr, ptr, minv, maxv - minv, scale(*ptr) - minv,
         edit_screen, callback, live);
     }
 };
 
-// Provide a set of Edit Item Types which encompass a primitive
-// type, a string function, and a scale factor for edit and display.
-// These items call the Edit Item draw method passing the prepared string.
+/**
+ * DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
+ *
+ * Define struct types for use by EDIT_ITEM(...) macros, which encompass
+ * a primitive storage type, a string function, and a scale factor for edit / display.
+ * The EDIT_ITEM macros take care of calling action and draw methods as needed.
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM_TYPE(percent, uint8_t, ui8tostr4pctrj, 100.f/255.f, +0.5f) expands into:
+ *
+ *   struct MenuEditItemInfo_percent {
+ *     typedef uint8_t type_t;
+ *     static float scale(const_float_t value)   { return value * (100.f/255.f) +0.5f; }
+ *     static float unscale(const_float_t value) { return value / (100.f/255.f) +0.5f; }
+ *     static const char* strfunc(const_float_t value) { return ui8tostr4pctrj(_DOFIX(uint8_t,value)); }
+ *   };
+ *   typedef TMenuEditItem<MenuEditItemInfo_percent> MenuItem_percent
+ */
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static inline float scale(const_float_t value)   { return value * (SCALE) ETC; } \
-    static inline float unscale(const_float_t value) { return value / (SCALE) ETC; } \
-    static inline const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
+    static float scale(const_float_t value)   { return value * (SCALE) ETC; } \
+    static float unscale(const_float_t value) { return value / (SCALE) ETC; } \
+    static const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
@@ -136,7 +152,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000     );  
 DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1     );   // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10     );   // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10     );   // 12345.6    right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10     );   // +12.3
 DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
 DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
@@ -154,16 +170,16 @@ DEFINE_MENU_EDIT_ITEM_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f );  
 
 class MenuItem_bool : public MenuEditItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const bool onoff) {
-      MenuEditItemBase::draw(sel, row, pstr, onoff ? GET_TEXT(MSG_LCD_ON) : GET_TEXT(MSG_LCD_OFF), true);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, const bool onoff) {
+      MenuEditItemBase::draw(sel, row, fstr, onoff ? GET_TEXT_F(MSG_LCD_ON) : GET_TEXT_F(MSG_LCD_OFF));
     }
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, bool * const data, ...) {
-      draw(sel, row, pstr, *data);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, bool * const data, ...) {
+      draw(sel, row, fstr, *data);
     }
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const, bool (*pget)(), ...) {
-      draw(sel, row, pstr, pget());
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, FSTR_P const, bool (*pget)(), ...) {
+      draw(sel, row, fstr, pget());
     }
-    static void action(PGM_P const pstr, bool * const ptr, const screenFunc_t callbackFunc=nullptr) {
+    static void action(FSTR_P const fstr, bool * const ptr, const screenFunc_t callbackFunc=nullptr) {
       *ptr ^= true; ui.refresh();
       if (callbackFunc) (*callbackFunc)();
     }
@@ -236,16 +252,16 @@ class MenuItem_bool : public MenuEditItemBase {
  *
  * Examples:
  *   BACK_ITEM(MSG_INFO_SCREEN)
- *     MenuItem_back::action(plabel, ...)
- *     MenuItem_back::draw(sel, row, plabel, ...)
+ *     MenuItem_back::action(flabel, ...)
+ *     MenuItem_back::draw(sel, row, flabel, ...)
  *
  *   ACTION_ITEM(MSG_PAUSE_PRINT, lcd_sdcard_pause)
- *     MenuItem_function::action(plabel, lcd_sdcard_pause)
- *     MenuItem_function::draw(sel, row, plabel, lcd_sdcard_pause)
+ *     MenuItem_function::action(flabel, lcd_sdcard_pause)
+ *     MenuItem_function::draw(sel, row, flabel, lcd_sdcard_pause)
  *
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *     MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
- *     MenuItem_int3::draw(sel, row, plabel, &feedrate_percentage, 10, 999)
+ *     MenuItem_int3::action(flabel, &feedrate_percentage, 10, 999)
+ *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, 10, 999)
  */
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -254,52 +270,73 @@ class MenuItem_bool : public MenuEditItemBase {
   #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER)
 #endif
 
-#define _MENU_INNER_P(TYPE, USE_MULTIPLIER, PLABEL, V...) do { \
-  PGM_P const plabel = PLABEL;                                 \
+#define _MENU_INNER_F(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
+  FSTR_P const flabel = FLABEL;                                \
   if (encoderLine == _thisItemNr && ui.use_click()) {          \
     _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
-    MenuItem_##TYPE::action(plabel, ##V);                      \
+    MenuItem_##TYPE::action(flabel, ##V);                      \
     if (ui.screen_changed) return;                             \
   }                                                            \
   if (ui.should_draw())                                        \
     MenuItem_##TYPE::draw                                      \
-      (encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V);   \
+      (encoderLine == _thisItemNr, _lcdLineNr, flabel, ##V);   \
 }while(0)
 
-#define _MENU_ITEM_P(TYPE, V...) do { \
+// Item with optional data
+#define _MENU_ITEM_F(TYPE, V...) do { \
   if (_menuLineNr == _thisItemNr) {   \
     _skipStatic = false;              \
-    _MENU_INNER_P(TYPE, ##V);         \
+    _MENU_INNER_F(TYPE, ##V);         \
   }                                   \
   NEXT_ITEM();                        \
 }while(0)
 
-// Indexed items set a global index value and optional data
-#define _MENU_ITEM_N_S_P(TYPE, N, S, V...) do{ \
+// Item with index value, C-string, and optional data
+#define _MENU_ITEM_N_S_F(TYPE, N, S, V...) do{ \
   if (_menuLineNr == _thisItemNr) {            \
     _skipStatic = false;                       \
     MenuItemBase::init(N, S);                  \
-    _MENU_INNER_P(TYPE, ##V);                  \
+    _MENU_INNER_F(TYPE, ##V);                  \
   }                                            \
   NEXT_ITEM();                                 \
 }while(0)
 
-// Indexed items set a global index value
-#define _MENU_ITEM_N_P(TYPE, N, V...) do{ \
+// Item with index value and F-string
+#define _MENU_ITEM_N_f_F(TYPE, N, f, V...) do{ \
+  if (_menuLineNr == _thisItemNr) {            \
+    _skipStatic = false;                       \
+    MenuItemBase::init(N, f);                  \
+    _MENU_INNER_F(TYPE, ##V);                  \
+  }                                            \
+  NEXT_ITEM();                                 \
+}while(0)
+
+// Item with index value
+#define _MENU_ITEM_N_F(TYPE, N, V...) do{ \
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
-    MenuItemBase::itemIndex = N;          \
-    _MENU_INNER_P(TYPE, ##V);             \
+    MenuItemBase::init(N);                \
+    _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \
 }while(0)
 
 // Items with a unique string
-#define _MENU_ITEM_S_P(TYPE, S, V...) do{ \
+#define _MENU_ITEM_S_F(TYPE, S, V...) do{ \
   if (_menuLineNr == _thisItemNr) {       \
     _skipStatic = false;                  \
-    MenuItemBase::itemString = S;         \
-    _MENU_INNER_P(TYPE, ##V);             \
+    MenuItemBase::init(0, S);             \
+    _MENU_INNER_F(TYPE, ##V);             \
+  }                                       \
+  NEXT_ITEM();                            \
+}while(0)
+
+// Items with a unique F-string
+#define _MENU_ITEM_f_F(TYPE, f, V...) do{ \
+  if (_menuLineNr == _thisItemNr) {       \
+    _skipStatic = false;                  \
+    MenuItemBase::init(0, f);             \
+    _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
   NEXT_ITEM();                            \
 }while(0)
@@ -307,25 +344,25 @@ class MenuItem_bool : public MenuEditItemBase {
 // STATIC_ITEM draws a styled string with no highlight.
 // Parameters: label [, style [, char *value] ]
 
-#define STATIC_ITEM_INNER_P(PLABEL, V...) do{           \
+#define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
   if (_skipStatic && encoderLine <= _thisItemNr) {      \
     ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
     ++encoderLine;                                      \
   }                                                     \
   if (ui.should_draw())                                 \
-    MenuItem_static::draw(_lcdLineNr, PLABEL, ##V);     \
+    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V);     \
 } while(0)
 
-#define STATIC_ITEM_P(PLABEL, V...) do{ \
+#define STATIC_ITEM_F(FLABEL, V...) do{ \
   if (_menuLineNr == _thisItemNr)       \
-    STATIC_ITEM_INNER_P(PLABEL, ##V);   \
+    STATIC_ITEM_INNER_F(FLABEL, ##V);   \
   NEXT_ITEM();                          \
 } while(0)
 
-#define STATIC_ITEM_N_P(PLABEL, N, V...) do{ \
+#define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (_menuLineNr == _thisItemNr) {          \
     MenuItemBase::init(N);                   \
-    STATIC_ITEM_INNER_P(PLABEL, ##V);        \
+    STATIC_ITEM_INNER_F(FLABEL, ##V);        \
   }                                          \
   NEXT_ITEM();                               \
 }while(0)
@@ -333,126 +370,172 @@ class MenuItem_bool : public MenuEditItemBase {
 // PSTRING_ITEM is like STATIC_ITEM but it takes
 // two PSTRs with the style as the last parameter.
 
-#define PSTRING_ITEM_P(PLABEL, PVAL, STYL) do{ \
+#define PSTRING_ITEM_F(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                        \
   char msg[m+1];                               \
   msg[0] = ':'; msg[1] = ' ';                  \
   strncpy_P(msg+2, PSTR(PVAL), m-2);           \
   if (msg[m-1] & 0x80) msg[m-1] = '\0';        \
-  STATIC_ITEM_P(PLABEL, STYL, msg);            \
+  STATIC_ITEM_F(FLABEL, STYL, msg);            \
 }while(0)
 
-#define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_P(GET_TEXT(LABEL), ##V)
+#define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
-#define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_P(GET_TEXT(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_P(GET_TEXT(LABEL), N, ##V)
+#define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
+#define STATIC_ITEM_N(N, LABEL, V...)                STATIC_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
-#define MENU_ITEM_N_S_P(TYPE, N, S, PLABEL, V...)   _MENU_ITEM_N_S_P(TYPE, N, S, false, PLABEL, ##V)
-#define MENU_ITEM_N_S(TYPE, N, S, LABEL, V...)       MENU_ITEM_N_S_P(TYPE, N, S, GET_TEXT(LABEL), ##V)
-#define MENU_ITEM_S_P(TYPE, S, PLABEL, V...)          _MENU_ITEM_S_P(TYPE, S, false, PLABEL, ##V)
-#define MENU_ITEM_S(TYPE, S, LABEL, V...)              MENU_ITEM_S_P(TYPE, S, GET_TEXT(LABEL), ##V)
-#define MENU_ITEM_N_P(TYPE, N, PLABEL, V...)          _MENU_ITEM_N_P(TYPE, N, false, PLABEL, ##V)
-#define MENU_ITEM_N(TYPE, N, LABEL, V...)              MENU_ITEM_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
-#define MENU_ITEM_P(TYPE, PLABEL, V...)                 _MENU_ITEM_P(TYPE, false, PLABEL, ##V)
-#define MENU_ITEM(TYPE, LABEL, V...)                     MENU_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
+// Menu item with index and composed C-string substitution
+#define MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)   _MENU_ITEM_N_S_F(TYPE, N, S, false, FLABEL, ##V)
+#define MENU_ITEM_N_S(TYPE, N, S, LABEL, V...)       MENU_ITEM_N_S_F(TYPE, N, S, GET_TEXT_F(LABEL), ##V)
 
-#define BACK_ITEM_P(PLABEL)                              MENU_ITEM_P(back, PLABEL)
-#define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
+// Menu item with composed C-string substitution
+#define MENU_ITEM_S_F(TYPE, S, FLABEL, V...)          _MENU_ITEM_S_F(TYPE, S, false, FLABEL, ##V)
+#define MENU_ITEM_S(TYPE, S, LABEL, V...)              MENU_ITEM_S_F(TYPE, S, GET_TEXT_F(LABEL), ##V)
 
-#define ACTION_ITEM_N_S_P(N, S, PLABEL, ACTION)      MENU_ITEM_N_S_P(function, N, S, PLABEL, ACTION)
-#define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ACTION)
-#define ACTION_ITEM_S_P(S, PLABEL, ACTION)             MENU_ITEM_S_P(function, S, PLABEL, ACTION)
-#define ACTION_ITEM_S(S, LABEL, ACTION)              ACTION_ITEM_S_P(S, GET_TEXT(LABEL), ACTION)
-#define ACTION_ITEM_N_P(N, PLABEL, ACTION)             MENU_ITEM_N_P(function, N, PLABEL, ACTION)
-#define ACTION_ITEM_N(N, LABEL, ACTION)              ACTION_ITEM_N_P(N, GET_TEXT(LABEL), ACTION)
-#define ACTION_ITEM_P(PLABEL, ACTION)                    MENU_ITEM_P(function, PLABEL, ACTION)
-#define ACTION_ITEM(LABEL, ACTION)                     ACTION_ITEM_P(GET_TEXT(LABEL), ACTION)
+// Menu item substitution, indexed
+#define MENU_ITEM_N_F(TYPE, N, FLABEL, V...)          _MENU_ITEM_N_F(TYPE, N, false, FLABEL, ##V)
+#define MENU_ITEM_N(TYPE, N, LABEL, V...)              MENU_ITEM_N_F(TYPE, N, GET_TEXT_F(LABEL), ##V)
 
-#define GCODES_ITEM_N_S_P(N, S, PLABEL, GCODES)      MENU_ITEM_N_S_P(gcode, N, S, PLABEL, GCODES)
-#define GCODES_ITEM_N_S(N, S, LABEL, GCODES)       GCODES_ITEM_N_S_P(N, S, GET_TEXT(LABEL), GCODES)
-#define GCODES_ITEM_S_P(S, PLABEL, GCODES)             MENU_ITEM_S_P(gcode, S, PLABEL, GCODES)
-#define GCODES_ITEM_S(S, LABEL, GCODES)              GCODES_ITEM_S_P(S, GET_TEXT(LABEL), GCODES)
-#define GCODES_ITEM_N_P(N, PLABEL, GCODES)             MENU_ITEM_N_P(gcode, N, PLABEL, GCODES)
-#define GCODES_ITEM_N(N, LABEL, GCODES)              GCODES_ITEM_N_P(N, GET_TEXT(LABEL), GCODES)
-#define GCODES_ITEM_P(PLABEL, GCODES)                    MENU_ITEM_P(gcode, PLABEL, GCODES)
-#define GCODES_ITEM(LABEL, GCODES)                     GCODES_ITEM_P(GET_TEXT(LABEL), GCODES)
+// Basic menu items, no substitution
+#define MENU_ITEM_F(TYPE, FLABEL, V...)                 _MENU_ITEM_F(TYPE, false, FLABEL, ##V)
+#define MENU_ITEM(TYPE, LABEL, V...)                     MENU_ITEM_F(TYPE, GET_TEXT_F(LABEL), ##V)
 
-#define SUBMENU_N_S_P(N, S, PLABEL, DEST)            MENU_ITEM_N_S_P(submenu, N, S, PLABEL, DEST)
-#define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_P(N, S, GET_TEXT(LABEL), DEST)
-#define SUBMENU_S_P(S, PLABEL, DEST)                   MENU_ITEM_S_P(submenu, S, PLABEL, DEST)
-#define SUBMENU_S(S, LABEL, DEST)                        SUBMENU_S_P(S, GET_TEXT(LABEL), DEST)
-#define SUBMENU_N_P(N, PLABEL, DEST)                   MENU_ITEM_N_P(submenu, N, PLABEL, DEST)
-#define SUBMENU_N(N, LABEL, DEST)                        SUBMENU_N_P(N, GET_TEXT(LABEL), DEST)
-#define SUBMENU_P(PLABEL, DEST)                          MENU_ITEM_P(submenu, PLABEL, DEST)
-#define SUBMENU(LABEL, DEST)                               SUBMENU_P(GET_TEXT(LABEL), DEST)
+// Predefined menu item types //
 
-#define EDIT_ITEM_N_S_P(TYPE, N, S, PLABEL, V...)    MENU_ITEM_N_S_P(TYPE, N, S, PLABEL, ##V)
-#define EDIT_ITEM_N_S(TYPE, N, S, LABEL, V...)       EDIT_ITEM_N_S_P(TYPE, N, S, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_S_P(TYPE, S, PLABEL, V...)           MENU_ITEM_S_P(TYPE, S, PLABEL, ##V)
-#define EDIT_ITEM_S(TYPE, S, LABEL, V...)              EDIT_ITEM_S_P(TYPE, S, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_N_P(TYPE, N, PLABEL, V...)           MENU_ITEM_N_P(TYPE, N, PLABEL, ##V)
-#define EDIT_ITEM_N(TYPE, N, LABEL, V...)              EDIT_ITEM_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_P(TYPE, PLABEL, V...)                  MENU_ITEM_P(TYPE, PLABEL, ##V)
-#define EDIT_ITEM(TYPE, LABEL, V...)                     EDIT_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
+#if DISABLED(DISABLE_ENCODER)
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+#else
+  #define BACK_ITEM_F(FLABEL) NOOP
+  #define BACK_ITEM(LABEL)    NOOP
+#endif
 
-#define EDIT_ITEM_FAST_N_S_P(TYPE, N, S, PLABEL, V...)  _MENU_ITEM_N_S_P(TYPE, N, S, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST_N_S(TYPE, N, S, LABEL, V...) EDIT_ITEM_FAST_N_S_P(TYPE, N, S, true, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_FAST_S_P(TYPE, S, PLABEL, V...)         _MENU_ITEM_S_P(TYPE, S, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST_S(TYPE, S, LABEL, V...)        EDIT_ITEM_FAST_S_P(TYPE, S, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_FAST_N_P(TYPE, N, PLABEL, V...)         _MENU_ITEM_N_P(TYPE, N, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST_N(TYPE, N, LABEL, V...)        EDIT_ITEM_FAST_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_FAST_P(TYPE, PLABEL, V...)                _MENU_ITEM_P(TYPE, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST(TYPE, LABEL, V...)               EDIT_ITEM_FAST_P(TYPE, GET_TEXT(LABEL), ##V)
+#define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
+#define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ACTION)
+#define ACTION_ITEM_S_F(S, FLABEL, ACTION)             MENU_ITEM_S_F(function, S, FLABEL, ACTION)
+#define ACTION_ITEM_S(S, LABEL, ACTION)              ACTION_ITEM_S_F(S, GET_TEXT_F(LABEL), ACTION)
+#define ACTION_ITEM_N_F(N, FLABEL, ACTION)             MENU_ITEM_N_F(function, N, FLABEL, ACTION)
+#define ACTION_ITEM_N(N, LABEL, ACTION)              ACTION_ITEM_N_F(N, GET_TEXT_F(LABEL), ACTION)
+#define ACTION_ITEM_F(FLABEL, ACTION)                    MENU_ITEM_F(function, FLABEL, ACTION)
+#define ACTION_ITEM(LABEL, ACTION)                     ACTION_ITEM_F(GET_TEXT_F(LABEL), ACTION)
 
-#define _CONFIRM_ITEM_INNER_P(PLABEL, V...) do {             \
+#define GCODES_ITEM_N_S_F(N, S, FLABEL, GCODES)      MENU_ITEM_N_S_F(gcode, N, S, FLABEL, GCODES)
+#define GCODES_ITEM_N_S(N, S, LABEL, GCODES)       GCODES_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), GCODES)
+#define GCODES_ITEM_S_F(S, FLABEL, GCODES)             MENU_ITEM_S_F(gcode, S, FLABEL, GCODES)
+#define GCODES_ITEM_S(S, LABEL, GCODES)              GCODES_ITEM_S_F(S, GET_TEXT_F(LABEL), GCODES)
+#define GCODES_ITEM_N_F(N, FLABEL, GCODES)             MENU_ITEM_N_F(gcode, N, FLABEL, GCODES)
+#define GCODES_ITEM_N(N, LABEL, GCODES)              GCODES_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
+#define GCODES_ITEM_F(FLABEL, GCODES)                    MENU_ITEM_F(gcode, FLABEL, GCODES)
+#define GCODES_ITEM(LABEL, GCODES)                     GCODES_ITEM_F(GET_TEXT_F(LABEL), GCODES)
+
+#define SUBMENU_N_S_F(N, S, FLABEL, DEST)            MENU_ITEM_N_S_F(submenu, N, S, FLABEL, DEST)
+#define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_F(N, S, GET_TEXT_F(LABEL), DEST)
+#define SUBMENU_S_F(S, FLABEL, DEST)                   MENU_ITEM_S_F(submenu, S, FLABEL, DEST)
+#define SUBMENU_S(S, LABEL, DEST)                        SUBMENU_S_F(S, GET_TEXT_F(LABEL), DEST)
+#define SUBMENU_N_F(N, FLABEL, DEST)                   MENU_ITEM_N_F(submenu, N, FLABEL, DEST)
+#define SUBMENU_N(N, LABEL, DEST)                        SUBMENU_N_F(N, GET_TEXT_F(LABEL), DEST)
+#define SUBMENU_F(FLABEL, DEST)                          MENU_ITEM_F(submenu, FLABEL, DEST)
+#define SUBMENU(LABEL, DEST)                               SUBMENU_F(GET_TEXT_F(LABEL), DEST)
+
+#define EDIT_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)    MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, ##V)
+#define EDIT_ITEM_N_S(TYPE, N, S, LABEL, V...)       EDIT_ITEM_N_S_F(TYPE, N, S, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_S_F(TYPE, S, FLABEL, V...)           MENU_ITEM_S_F(TYPE, S, FLABEL, ##V)
+#define EDIT_ITEM_S(TYPE, S, LABEL, V...)              EDIT_ITEM_S_F(TYPE, S, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_N_F(TYPE, N, FLABEL, V...)           MENU_ITEM_N_F(TYPE, N, FLABEL, ##V)
+#define EDIT_ITEM_N(TYPE, N, LABEL, V...)              EDIT_ITEM_N_F(TYPE, N, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_F(TYPE, FLABEL, V...)                  MENU_ITEM_F(TYPE, FLABEL, ##V)
+#define EDIT_ITEM(TYPE, LABEL, V...)                     EDIT_ITEM_F(TYPE, GET_TEXT_F(LABEL), ##V)
+
+#define EDIT_ITEM_FAST_N_S_F(TYPE, N, S, FLABEL, V...)  _MENU_ITEM_N_S_F(TYPE, N, S, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_N_S(TYPE, N, S, LABEL, V...) EDIT_ITEM_FAST_N_S_F(TYPE, N, S, true, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_FAST_S_F(TYPE, S, FLABEL, V...)         _MENU_ITEM_S_F(TYPE, S, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_S(TYPE, S, LABEL, V...)        EDIT_ITEM_FAST_S_F(TYPE, S, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_FAST_N_F(TYPE, N, FLABEL, V...)         _MENU_ITEM_N_F(TYPE, N, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_N(TYPE, N, LABEL, V...)        EDIT_ITEM_FAST_N_F(TYPE, N, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_FAST_F(TYPE, FLABEL, V...)                _MENU_ITEM_F(TYPE, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST(TYPE, LABEL, V...)               EDIT_ITEM_FAST_F(TYPE, GET_TEXT_F(LABEL), ##V)
+
+// F-string substitution instead of C-string //
+
+#define MENU_ITEM_N_f_F(TYPE, N, f, FLABEL, V...)   _MENU_ITEM_N_f_F(TYPE, N, f, false, FLABEL, ##V)
+#define MENU_ITEM_N_f(TYPE, N, f, LABEL, V...)       MENU_ITEM_N_f_F(TYPE, N, f, GET_TEXT_F(LABEL), ##V)
+#define MENU_ITEM_f_F(TYPE, f, FLABEL, V...)          _MENU_ITEM_f_F(TYPE, f, false, FLABEL, ##V)
+#define MENU_ITEM_f(TYPE, f, LABEL, V...)              MENU_ITEM_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
+#define ACTION_ITEM_N_f_F(N, f, FLABEL, ACTION)      MENU_ITEM_N_f_F(function, N, f, FLABEL, ACTION)
+#define ACTION_ITEM_N_f(N, f, LABEL, ACTION)       ACTION_ITEM_N_f_F(N, f, GET_TEXT_F(LABEL), ACTION)
+#define ACTION_ITEM_f_F(f, FLABEL, ACTION)             MENU_ITEM_f_F(function, f, FLABEL, ACTION)
+#define ACTION_ITEM_f(f, LABEL, ACTION)              ACTION_ITEM_f_F(f, GET_TEXT_F(LABEL), ACTION)
+
+#define GCODES_ITEM_N_f_F(N, f, FLABEL, GCODES)      MENU_ITEM_N_f_F(gcode, N, f, FLABEL, GCODES)
+#define GCODES_ITEM_N_f(N, f, LABEL, GCODES)       GCODES_ITEM_N_f_F(N, f, GET_TEXT_F(LABEL), GCODES)
+#define GCODES_ITEM_f_F(f, FLABEL, GCODES)             MENU_ITEM_f_F(gcode, f, FLABEL, GCODES)
+#define GCODES_ITEM_f(f, LABEL, GCODES)              GCODES_ITEM_f_F(f, GET_TEXT_F(LABEL), GCODES)
+
+#define SUBMENU_N_f_F(N, f, FLABEL, DEST)            MENU_ITEM_N_f_F(submenu, N, f, FLABEL, DEST)
+#define SUBMENU_N_f(N, f, LABEL, DEST)                 SUBMENU_N_f_F(N, f, GET_TEXT_F(LABEL), DEST)
+#define SUBMENU_f_F(f, FLABEL, DEST)                   MENU_ITEM_f_F(submenu, f, FLABEL, DEST)
+#define SUBMENU_f(f, LABEL, DEST)                        SUBMENU_f_F(f, GET_TEXT_F(LABEL), DEST)
+
+#define EDIT_ITEM_N_f_F(TYPE, N, f, FLABEL, V...)    MENU_ITEM_N_f_F(TYPE, N, f, FLABEL, ##V)
+#define EDIT_ITEM_N_f(TYPE, N, f, LABEL, V...)       EDIT_ITEM_N_f_F(TYPE, N, f, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_f_F(TYPE, f, FLABEL, V...)           MENU_ITEM_f_F(TYPE, f, FLABEL, ##V)
+#define EDIT_ITEM_f(TYPE, f, LABEL, V...)              EDIT_ITEM_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
+#define EDIT_ITEM_FAST_N_f_F(TYPE, N, f, FLABEL, V...)  _MENU_ITEM_N_f_F(TYPE, N, f, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_N_f(TYPE, N, f, LABEL, V...) EDIT_ITEM_FAST_N_f_F(TYPE, N, f, true, GET_TEXT_F(LABEL), ##V)
+#define EDIT_ITEM_FAST_f_F(TYPE, f, FLABEL, V...)         _MENU_ITEM_f_F(TYPE, f, true, FLABEL, ##V)
+#define EDIT_ITEM_FAST_f(TYPE, f, LABEL, V...)        EDIT_ITEM_FAST_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
+#define _CONFIRM_ITEM_INNER_F(FLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \
     ui.push_current_screen();                                \
     ui.goto_screen([]{MenuItem_confirm::select_screen(V);}); \
     return;                                                  \
   }                                                          \
   if (ui.should_draw()) MenuItem_confirm::draw               \
-    (encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ##V);   \
+    (encoderLine == _thisItemNr, _lcdLineNr, FLABEL, ##V);   \
 }while(0)
 
 // Indexed items set a global index value and optional data
-#define _CONFIRM_ITEM_P(PLABEL, V...) do { \
+#define _CONFIRM_ITEM_F(FLABEL, V...) do { \
   if (_menuLineNr == _thisItemNr) {        \
     _skipStatic = false;                   \
-    _CONFIRM_ITEM_INNER_P(PLABEL, ##V);    \
+    _CONFIRM_ITEM_INNER_F(FLABEL, ##V);    \
   }                                        \
   NEXT_ITEM();                             \
 }while(0)
 
 // Indexed items set a global index value
-#define _CONFIRM_ITEM_N_S_P(N, S, V...) do{ \
+#define _CONFIRM_ITEM_N_S_F(N, S, V...) do{ \
   if (_menuLineNr == _thisItemNr) {         \
     _skipStatic = false;                    \
     MenuItemBase::init(N, S);               \
-    _CONFIRM_ITEM_INNER_P(TYPE, ##V);       \
+    _CONFIRM_ITEM_INNER_F(TYPE, ##V);       \
   }                                         \
   NEXT_ITEM();                              \
 }while(0)
 
 // Indexed items set a global index value
-#define _CONFIRM_ITEM_N_P(N, V...) _CONFIRM_ITEM_N_S_P(N, nullptr, V)
+#define _CONFIRM_ITEM_N_F(N, V...)              _CONFIRM_ITEM_N_S_F(N, nullptr, V)
 
-#define CONFIRM_ITEM_P(PLABEL,A,B,V...) _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM(LABEL, V...)        CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
+#define CONFIRM_ITEM_F(FLABEL,A,B,V...)         _CONFIRM_ITEM_F(FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
+#define CONFIRM_ITEM(LABEL, V...)                CONFIRM_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
-#define YESNO_ITEM_P(PLABEL, V...)      _CONFIRM_ITEM_P(PLABEL, ##V)
-#define YESNO_ITEM(LABEL, V...)            YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_F(FLABEL, V...)               CONFIRM_ITEM_F(FLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM(LABEL, V...)                    YESNO_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
-#define CONFIRM_ITEM_N_S_P(N,S,PLABEL,A,B,V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM_N_S(N,S,LABEL,V...)         CONFIRM_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
-#define CONFIRM_ITEM_N_P(N,PLABEL,A,B,V...)       _CONFIRM_ITEM_N_P(N, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
+#define CONFIRM_ITEM_N_S_F(N,S,FLABEL,A,B,V...) _CONFIRM_ITEM_N_S_F(N, S, FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
+#define CONFIRM_ITEM_N_S(N,S,LABEL,V...)         CONFIRM_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ##V)
+#define CONFIRM_ITEM_N_F(N,FLABEL,A,B,V...)       _CONFIRM_ITEM_N_F(N, FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
+#define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
-#define YESNO_ITEM_N_S_P(N,S,PLABEL, V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, ##V)
-#define YESNO_ITEM_N_S(N,S,LABEL, V...)       YESNO_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
-#define YESNO_ITEM_N_P(N,PLABEL, V...)       _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
-#define YESNO_ITEM_N(N,LABEL, V...)             YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_S_F(N,S,FLABEL, V...)      _CONFIRM_ITEM_N_S_F(N, S, FLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N_S(N,S,LABEL, V...)            YESNO_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ##V)
+#define YESNO_ITEM_N_F(N,FLABEL, V...)             CONFIRM_ITEM_N_F(N, FLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
-#if ENABLED(LEVEL_BED_CORNERS)
+#if ENABLED(LCD_BED_TRAMMING)
   void _lcd_level_bed_corners();
 #endif
 
@@ -462,6 +545,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
   inline void on_fan_update() {
     thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+    TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
   }
 
   #if ENABLED(EXTRA_FAN_SPEED)

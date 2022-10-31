@@ -30,6 +30,9 @@
 using namespace FTDI;
 using namespace Theme;
 
+#define GRID_COLS 2
+#define GRID_ROWS TERN(TOUCH_UI_PORTRAIT, 9, 5)
+
 void TuneMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
@@ -38,8 +41,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
   }
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define GRID_ROWS 9
-    #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)
     #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(2,1)
     #define FILAMENT_POS    BTN_POS(1,3), BTN_SIZE(2,1)
@@ -51,8 +52,6 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define ADVANCED_SETTINGS_POS BTN_POS(1,9), BTN_SIZE(1,1)
     #define BACK_POS        BTN_POS(2,9), BTN_SIZE(1,1)
   #else
-    #define GRID_ROWS 5
-    #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(1,1)
     #define NUDGE_NOZ_POS   BTN_POS(2,1), BTN_SIZE(1,1)
     #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(1,1)
@@ -77,8 +76,11 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .tag(3).button(FIL_CHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
        .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
        .tag(9).button(FILAMENT_POS, GET_TEXT_F(MSG_FILAMENT))
-       .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE) || ENABLED(BABYSTEPPING))
-       .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTEPPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
+       #if ENABLED(BABYSTEPPING) && HAS_MULTI_HOTEND
+         .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(MSG_NUDGE_NOZZLE))
+       #elif BOTH(HAS_LEVELING, HAS_BED_PROBE)
+         .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+       #endif
        .tag(5).button(SPEED_POS, GET_TEXT_F(MSG_PRINT_SPEED))
        .enabled(sdOrHostPrinting)
        .tag(sdOrHostPaused ? 7 : 6)
@@ -91,19 +93,17 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .tag(1).colors(action_btn)
              .button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
-  #undef GRID_COLS
-  #undef GRID_ROWS
 }
 
 bool TuneMenu::onTouchEnd(uint8_t tag) {
   using namespace Theme;
   using namespace ExtUI;
   switch (tag) {
-    case  1: GOTO_PREVIOUS();                    break;
+    case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     case  2: GOTO_SCREEN(TemperatureScreen);     break;
     case  3: GOTO_SCREEN(ChangeFilamentScreen);  break;
     case  4:
-      #if ENABLED(BABYSTEPPING)
+      #if ENABLED(BABYSTEPPING) && HAS_MULTI_HOTEND
         GOTO_SCREEN(NudgeNozzleScreen);
       #elif BOTH(HAS_LEVELING, HAS_BED_PROBE)
         GOTO_SCREEN(ZOffsetScreen);
@@ -135,7 +135,7 @@ void TuneMenu::pausePrint() {
   if (ExtUI::isPrintingFromMedia())
     ExtUI::pausePrint();
   #ifdef ACTION_ON_PAUSE
-    else host_action_pause();
+    else hostui.pause();
   #endif
   GOTO_SCREEN(StatusScreen);
 }
@@ -147,7 +147,7 @@ void TuneMenu::resumePrint() {
   else if (ExtUI::isPrintingFromMedia())
     ExtUI::resumePrint();
   #ifdef ACTION_ON_RESUME
-    else host_action_resume();
+    else hostui.resume();
   #endif
   GOTO_SCREEN(StatusScreen);
 }

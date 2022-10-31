@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin Lite3 supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -138,9 +138,9 @@
 
   #endif // !MKS_MINI_12864
 
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 
 #endif // HAS_WIRED_LCD
 

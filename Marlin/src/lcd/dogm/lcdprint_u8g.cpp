@@ -28,7 +28,7 @@ void lcd_put_int(const int i) { u8g.print(i); }
 
 // return < 0 on error
 // return the advanced pixels
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
+int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
   if (c < 256) {
     u8g.print((char)c);
     return u8g_GetFontBBXWidth(u8g.getU8g());
@@ -39,16 +39,16 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   return ret;
 }
 
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   u8g_uint_t x = u8g.getPrintCol(), y = u8g.getPrintRow(),
            ret = uxg_DrawUtf8Str(u8g.getU8g(), x, y, utf8_str, max_length);
   u8g.setPrintPos(x + ret, y);
   return ret;
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
   u8g_uint_t x = u8g.getPrintCol(), y = u8g.getPrintRow(),
-           ret = uxg_DrawUtf8StrP(u8g.getU8g(), x, y, utf8_str_P, max_length);
+           ret = uxg_DrawUtf8StrP(u8g.getU8g(), x, y, utf8_pstr, max_length);
   u8g.setPrintPos(x + ret, y);
   return ret;
 }

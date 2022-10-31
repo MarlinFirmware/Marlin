@@ -23,45 +23,19 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 
-void report_M92(const bool echo=true, const int8_t e=-1) {
-  if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-  SERIAL_ECHOPAIR_P(LIST_N(DOUBLE(LINEAR_AXES),
-    PSTR(" M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
-    SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
-    SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
-    SP_I_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[I_AXIS]),
-    SP_J_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[J_AXIS]),
-    SP_K_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]))
-  );
-  #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
-    SERIAL_ECHOPAIR_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
-  #endif
-  SERIAL_EOL();
-
-  #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(i, E_STEPPERS) {
-      if (e >= 0 && i != e) continue;
-      if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-      SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), i,
-                        SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
-    }
-  #endif
-
-  UNUSED(e);
-}
-
 /**
- * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, and E.
+ * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, [I, [J, [K, [U, [V, [W,]]]]]] and E.
  *      (Follows the same syntax as G92)
  *
  *      With multiple extruders use T to specify which one.
  *
  *      If no argument is given print the current values.
  *
- *    With MAGIC_NUMBERS_GCODE:
- *      Use 'H' and/or 'L' to get ideal layer-height information.
- *      'H' specifies micro-steps to use. We guess if it's not supplied.
- *      'L' specifies a desired layer height. Nearest good heights are shown.
+ * With MAGIC_NUMBERS_GCODE:
+ *
+ *   Use 'H' and/or 'L' to get ideal layer-height information.
+ *   H<microsteps> - Specify micro-steps to use. Best guess if not supplied.
+ *   L<linear>     - Desired layer height in current units. Nearest good heights are shown.
  */
 void GcodeSuite::M92() {
 
@@ -69,13 +43,11 @@ void GcodeSuite::M92() {
   if (target_extruder < 0) return;
 
   // No arguments? Show M92 report.
-  if (!parser.seen(
-    LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR)
-    TERN_(MAGIC_NUMBERS_GCODE, "HL")
-  )) return report_M92(true, target_extruder);
+  if (!parser.seen(STR_AXES_LOGICAL TERN_(MAGIC_NUMBERS_GCODE, "HL")))
+    return M92_report(true, target_extruder);
 
   LOOP_LOGICAL_AXES(i) {
-    if (parser.seenval(axis_codes[i])) {
+    if (parser.seenval(AXIS_CHAR(i))) {
       if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
         planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);
       else {
@@ -100,20 +72,52 @@ void GcodeSuite::M92() {
     #ifndef Z_MICROSTEPS
       #define Z_MICROSTEPS 16
     #endif
-    const float wanted = parser.floatval('L');
+    const float wanted = parser.linearval('L');
     if (parser.seen('H') || wanted) {
       const uint16_t argH = parser.ushortval('H'),
                      micro_steps = argH ?: Z_MICROSTEPS;
-      const float z_full_step_mm = micro_steps * planner.steps_to_mm[Z_AXIS];
+      const float z_full_step_mm = micro_steps * planner.mm_per_step[Z_AXIS];
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);
+      SERIAL_ECHOPGM("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);
       if (wanted) {
         const float best = uint16_t(wanted / z_full_step_mm) * z_full_step_mm;
-        SERIAL_ECHOPAIR(", best:[", best);
+        SERIAL_ECHOPGM(", best:[", best);
         if (best != wanted) { SERIAL_CHAR(','); SERIAL_DECIMAL(best + z_full_step_mm); }
         SERIAL_CHAR(']');
       }
       SERIAL_ECHOLNPGM(" }");
     }
+  #endif
+}
+
+void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/) {
+  report_heading_etc(forReplay, F(STR_STEPS_PER_UNIT));
+  SERIAL_ECHOPGM_P(LIST_N(DOUBLE(NUM_AXES),
+    PSTR("  M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
+    SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
+    SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
+    SP_I_STR, I_AXIS_UNIT(planner.settings.axis_steps_per_mm[I_AXIS]),
+    SP_J_STR, J_AXIS_UNIT(planner.settings.axis_steps_per_mm[J_AXIS]),
+    SP_K_STR, K_AXIS_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]),
+    SP_U_STR, U_AXIS_UNIT(planner.settings.axis_steps_per_mm[U_AXIS]),
+    SP_V_STR, V_AXIS_UNIT(planner.settings.axis_steps_per_mm[V_AXIS]),
+    SP_W_STR, W_AXIS_UNIT(planner.settings.axis_steps_per_mm[W_AXIS])
+  ));
+  #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
+    SERIAL_ECHOPGM_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+  #endif
+  SERIAL_EOL();
+
+  #if ENABLED(DISTINCT_E_FACTORS)
+    LOOP_L_N(i, E_STEPPERS) {
+      if (e >= 0 && i != e) continue;
+      report_echo_start(forReplay);
+      SERIAL_ECHOLNPGM_P(
+        PSTR("  M92 T"), i,
+        SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)])
+      );
+    }
+  #else
+    UNUSED(e);
   #endif
 }

@@ -155,7 +155,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
 
   #if PIN_EXISTS(I_MIN)
     #define _I_MIN I_MIN_PIN,
@@ -201,7 +201,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
 
   #if PIN_EXISTS(J_MIN)
     #define _J_MIN J_MIN_PIN,
@@ -247,7 +247,7 @@
 
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
 
   #if PIN_EXISTS(K_MIN)
     #define _K_MIN K_MIN_PIN,
@@ -290,6 +290,126 @@
 #else
 
   #define _K_PINS
+
+#endif
+
+#if HAS_U_AXIS
+  #if PIN_EXISTS(U_MIN)
+    #define _U_MIN U_MIN_PIN,
+  #else
+    #define _U_MIN
+  #endif
+  #if PIN_EXISTS(U_MAX)
+    #define _U_MAX U_MAX_PIN,
+  #else
+    #define _U_MAX
+  #endif
+  #if PIN_EXISTS(U_CS) && AXIS_HAS_SPI(U)
+    #define _U_CS U_CS_PIN,
+  #else
+    #define _U_CS
+  #endif
+  #if PIN_EXISTS(U_MS1)
+    #define _U_MS1 U_MS1_PIN,
+  #else
+    #define _U_MS1
+  #endif
+  #if PIN_EXISTS(U_MS2)
+    #define _U_MS2 U_MS2_PIN,
+  #else
+    #define _U_MS2
+  #endif
+  #if PIN_EXISTS(U_MS3)
+    #define _U_MS3 U_MS3_PIN,
+  #else
+    #define _U_MS3
+  #endif
+
+  #define _U_PINS U_STEP_PIN, U_DIR_PIN, U_ENABLE_PIN, _U_MIN _U_MAX _U_MS1 _U_MS2 _U_MS3 _U_CS
+
+#else
+
+  #define _U_PINS
+
+#endif
+
+#if HAS_V_AXIS
+  #if PIN_EXISTS(V_MIN)
+    #define _V_MIN V_MIN_PIN,
+  #else
+    #define _V_MIN
+  #endif
+  #if PIN_EXISTS(V_MAX)
+    #define _V_MAX V_MAX_PIN,
+  #else
+    #define _V_MAX
+  #endif
+  #if PIN_EXISTS(V_CS) && AXIS_HAS_SPI(V)
+    #define _V_CS V_CS_PIN,
+  #else
+    #define _V_CS
+  #endif
+  #if PIN_EXISTS(V_MS1)
+    #define _V_MS1 V_MS1_PIN,
+  #else
+    #define _V_MS1
+  #endif
+  #if PIN_EXISTS(V_MS2)
+    #define _V_MS2 V_MS2_PIN,
+  #else
+    #define _V_MS2
+  #endif
+  #if PIN_EXISTS(V_MS3)
+    #define _V_MS3 V_MS3_PIN,
+  #else
+    #define _V_MS3
+  #endif
+
+  #define _V_PINS V_STEP_PIN, V_DIR_PIN, V_ENABLE_PIN, _V_MIN _V_MAX _V_MS1 _V_MS2 _V_MS3 _V_CS
+
+#else
+
+  #define _V_PINS
+
+#endif
+
+#if HAS_W_AXIS
+  #if PIN_EXISTS(W_MIN)
+    #define _W_MIN W_MIN_PIN,
+  #else
+    #define _W_MIN
+  #endif
+  #if PIN_EXISTS(W_MAX)
+    #define _W_MAX W_MAX_PIN,
+  #else
+    #define _W_MAX
+  #endif
+  #if PIN_EXISTS(W_CS) && AXIS_HAS_SPI(W)
+    #define _W_CS W_CS_PIN,
+  #else
+    #define _W_CS
+  #endif
+  #if PIN_EXISTS(W_MS1)
+    #define _W_MS1 W_MS1_PIN,
+  #else
+    #define _W_MS1
+  #endif
+  #if PIN_EXISTS(W_MS2)
+    #define _W_MS2 W_MS2_PIN,
+  #else
+    #define _W_MS2
+  #endif
+  #if PIN_EXISTS(W_MS3)
+    #define _W_MS3 W_MS3_PIN,
+  #else
+    #define _W_MS3
+  #endif
+
+  #define _W_PINS W_STEP_PIN, W_DIR_PIN, W_ENABLE_PIN, _W_MIN _W_MAX _W_MS1 _W_MS2 _W_MS3 _W_CS
+
+#else
+
+  #define _W_PINS
 
 #endif
 
@@ -632,7 +752,7 @@
 // Chip Select and Digital Micro-stepping
 //
 
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+#if HAS_X2_STEPPER
   #if PIN_EXISTS(X2_CS) && AXIS_HAS_SPI(X2)
     #define _X2_CS X2_CS_PIN,
   #else
@@ -658,7 +778,7 @@
   #define _X2_PINS
 #endif
 
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+#if HAS_DUAL_Y_STEPPERS
   #if PIN_EXISTS(Y2_CS) && AXIS_HAS_SPI(Y2)
     #define _Y2_CS Y2_CS_PIN,
   #else
@@ -684,7 +804,7 @@
   #define _Y2_PINS
 #endif
 
-#if NUM_Z_STEPPER_DRIVERS >= 2
+#if NUM_Z_STEPPERS >= 2
   #if PIN_EXISTS(Z2_CS) && AXIS_HAS_SPI(Z2)
     #define _Z2_CS Z2_CS_PIN,
   #else
@@ -710,7 +830,7 @@
   #define _Z2_PINS
 #endif
 
-#if NUM_Z_STEPPER_DRIVERS >= 3
+#if NUM_Z_STEPPERS >= 3
   #if PIN_EXISTS(Z3_CS) && AXIS_HAS_SPI(Z3)
     #define _Z3_CS Z3_CS_PIN,
   #else
@@ -736,7 +856,7 @@
   #define _Z3_PINS
 #endif
 
-#if NUM_Z_STEPPER_DRIVERS >= 4
+#if NUM_Z_STEPPERS >= 4
   #if PIN_EXISTS(Z4_CS) && AXIS_HAS_SPI(Z4)
     #define _Z4_CS Z4_CS_PIN,
   #else
@@ -886,7 +1006,7 @@
 #endif
 
 #define SENSITIVE_PINS \
-  _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS \
+  _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS _U_PINS _V_PINS _W_PINS \
   _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS _Z4_PINS _Z_PROBE \
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \

@@ -38,9 +38,9 @@ namespace ExtUI {
 
   void onIdle() { EventLoop::loop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    char str[strlen_P(error) + strlen_P(component) + 3];
-    sprintf_P(str, PSTR(S_FMT ": " S_FMT), error, component);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
+    char str[strlen_P(FTOP(error)) + strlen_P(FTOP(component)) + 3];
+    sprintf_P(str, PSTR(S_FMT ": " S_FMT), FTOP(error), FTOP(component));
     KillScreen::show(str);
   }
 
@@ -71,7 +71,6 @@ namespace ExtUI {
   }
 
   void onStatusChanged(const char *lcd_msg) { StatusScreen::setStatusMessage(lcd_msg); }
-  void onStatusChanged(progmem_str lcd_msg) { StatusScreen::setStatusMessage(lcd_msg); }
 
   void onPrintTimerStarted() {
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_STARTED);
@@ -81,7 +80,7 @@ namespace ExtUI {
   }
 
   void onPrintTimerPaused() {}
-  void onPrintFinished() {}
+  void onPrintDone() {}
 
   void onFilamentRunout(const extruder_t extruder) {
     char lcd_msg[30];
@@ -91,14 +90,14 @@ namespace ExtUI {
   }
 
   void onHomingStart() {}
-  void onHomingComplete() {}
+  void onHomingDone() {}
 
   void onFactoryReset() { InterfaceSettingsScreen::defaultSettings(); }
   void onStoreSettings(char *buff) { InterfaceSettingsScreen::saveSettings(buff); }
   void onLoadSettings(const char *buff) { InterfaceSettingsScreen::loadSettings(buff); }
   void onPostprocessSettings() {} // Called after loading or resetting stored settings
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       if (success && InterfaceSettingsScreen::backupEEPROM()) {
         SERIAL_ECHOLNPGM("EEPROM backed up to SPI Flash");
@@ -107,7 +106,7 @@ namespace ExtUI {
       UNUSED(success);
     #endif
   }
-  void onConfigurationStoreRead(bool) {}
+  void onSettingsLoaded(bool) {}
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) { sound.play_tone(frequency, duration); }
 
@@ -119,7 +118,8 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
     void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) { BedMeshViewScreen::onMeshUpdate(x, y, val); }
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) { BedMeshViewScreen::onMeshUpdate(x, y, state); }
   #endif
@@ -131,8 +131,11 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      //SERIAL_ECHOLNPGM("OnPidTuning:", rst);
       switch (rst) {
+        case PID_STARTED:
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+          break;
         case PID_BAD_EXTRUDER_NUM:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
           break;

@@ -1,0 +1,1787 @@
+{
+	"entries" : 
+	[
+		{
+			"name" : "BUILD_TESTING",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Build the testing tree."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "BZRCOMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "(This variable does not exist and should not be used)"
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_ADDR2LINE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/addr2line"
+		},
+		{
+			"name" : "CMAKE_AR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/ar"
+		},
+		{
+			"name" : "CMAKE_BUILD_TYPE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "No help, variable specified on the command line."
+				}
+			],
+			"type" : "STRING",
+			"value" : "RelWithDebInfo"
+		},
+		{
+			"name" : "CMAKE_CACHEFILE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "This is the directory where this CMakeCache.txt was created"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI/build"
+		},
+		{
+			"name" : "CMAKE_CACHE_MAJOR_VERSION",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Major version of cmake used to create the current loaded cache"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "3"
+		},
+		{
+			"name" : "CMAKE_CACHE_MINOR_VERSION",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Minor version of cmake used to create the current loaded cache"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "24"
+		},
+		{
+			"name" : "CMAKE_CACHE_PATCH_VERSION",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Patch version of cmake used to create the current loaded cache"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "1"
+		},
+		{
+			"name" : "CMAKE_COLOR_MAKEFILE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable/Disable color output during build."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CMAKE_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to CMake executable."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/usr/local/bin/cmake"
+		},
+		{
+			"name" : "CMAKE_CPACK_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to cpack program executable."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/usr/local/bin/cpack"
+		},
+		{
+			"name" : "CMAKE_CTEST_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to ctest program executable."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/usr/local/bin/ctest"
+		},
+		{
+			"name" : "CMAKE_CXX_COMPILER",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "CXX compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/c++"
+		},
+		{
+			"name" : "CMAKE_CXX_COMPILER_AR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gcc-ar-11"
+		},
+		{
+			"name" : "CMAKE_CXX_COMPILER_RANLIB",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gcc-ranlib-11"
+		},
+		{
+			"name" : "CMAKE_CXX_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the CXX compiler during all build types."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_CXX_FLAGS_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the CXX compiler during DEBUG builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-g"
+		},
+		{
+			"name" : "CMAKE_CXX_FLAGS_MINSIZEREL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the CXX compiler during MINSIZEREL builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-Os -DNDEBUG"
+		},
+		{
+			"name" : "CMAKE_CXX_FLAGS_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the CXX compiler during RELEASE builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-O3 -DNDEBUG"
+		},
+		{
+			"name" : "CMAKE_CXX_FLAGS_RELWITHDEBINFO",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the CXX compiler during RELWITHDEBINFO builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-O2 -g -DNDEBUG"
+		},
+		{
+			"name" : "CMAKE_C_COMPILER",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "C compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/cc"
+		},
+		{
+			"name" : "CMAKE_C_COMPILER_AR",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gcc-ar-11"
+		},
+		{
+			"name" : "CMAKE_C_COMPILER_RANLIB",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gcc-ranlib-11"
+		},
+		{
+			"name" : "CMAKE_C_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the C compiler during all build types."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_C_FLAGS_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the C compiler during DEBUG builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-g"
+		},
+		{
+			"name" : "CMAKE_C_FLAGS_MINSIZEREL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the C compiler during MINSIZEREL builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-Os -DNDEBUG"
+		},
+		{
+			"name" : "CMAKE_C_FLAGS_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the C compiler during RELEASE builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-O3 -DNDEBUG"
+		},
+		{
+			"name" : "CMAKE_C_FLAGS_RELWITHDEBINFO",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the C compiler during RELWITHDEBINFO builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : "-O2 -g -DNDEBUG"
+		},
+		{
+			"name" : "CMAKE_DLLTOOL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "CMAKE_DLLTOOL-NOTFOUND"
+		},
+		{
+			"name" : "CMAKE_EDIT_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to cache edit program executable."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/usr/local/bin/ccmake"
+		},
+		{
+			"name" : "CMAKE_EXECUTABLE_FORMAT",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Executable file format"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "ELF"
+		},
+		{
+			"name" : "CMAKE_EXE_LINKER_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during all build types."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_EXE_LINKER_FLAGS_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during DEBUG builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_EXE_LINKER_FLAGS_MINSIZEREL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during MINSIZEREL builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_EXE_LINKER_FLAGS_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during RELEASE builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during RELWITHDEBINFO builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_EXPORT_COMPILE_COMMANDS",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "No help, variable specified on the command line."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "TRUE"
+		},
+		{
+			"name" : "CMAKE_EXTRA_GENERATOR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Name of external makefile project generator."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_FIND_PACKAGE_REDIRECTS_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake."
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI/build/CMakeFiles/pkgRedirects"
+		},
+		{
+			"name" : "CMAKE_GENERATOR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Name of generator."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "Unix Makefiles"
+		},
+		{
+			"name" : "CMAKE_GENERATOR_INSTANCE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Generator instance identifier."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_GENERATOR_PLATFORM",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Name of generator platform."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_GENERATOR_TOOLSET",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Name of generator toolset."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_HOME_DIRECTORY",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Source directory with the top level CMakeLists.txt file for this project"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI"
+		},
+		{
+			"name" : "CMAKE_INSTALL_PREFIX",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Install path prefix, prepended onto install directories."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/local"
+		},
+		{
+			"name" : "CMAKE_INSTALL_SO_NO_EXE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Install .so files without execute permission."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "1"
+		},
+		{
+			"name" : "CMAKE_LINKER",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/ld"
+		},
+		{
+			"name" : "CMAKE_MAKE_PROGRAM",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gmake"
+		},
+		{
+			"name" : "CMAKE_MODULE_LINKER_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of modules during all build types."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_MODULE_LINKER_FLAGS_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of modules during DEBUG builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of modules during MINSIZEREL builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_MODULE_LINKER_FLAGS_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of modules during RELEASE builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of modules during RELWITHDEBINFO builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_NM",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/nm"
+		},
+		{
+			"name" : "CMAKE_NUMBER_OF_MAKEFILES",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "number of local generators"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "1"
+		},
+		{
+			"name" : "CMAKE_OBJCOPY",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/objcopy"
+		},
+		{
+			"name" : "CMAKE_OBJDUMP",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/objdump"
+		},
+		{
+			"name" : "CMAKE_PLATFORM_INFO_INITIALIZED",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Platform information initialized"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "1"
+		},
+		{
+			"name" : "CMAKE_PROJECT_DESCRIPTION",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_PROJECT_HOMEPAGE_URL",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_PROJECT_NAME",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "h32"
+		},
+		{
+			"name" : "CMAKE_PROJECT_VERSION",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "0.1.0"
+		},
+		{
+			"name" : "CMAKE_PROJECT_VERSION_MAJOR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "0"
+		},
+		{
+			"name" : "CMAKE_PROJECT_VERSION_MINOR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "1"
+		},
+		{
+			"name" : "CMAKE_PROJECT_VERSION_PATCH",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "0"
+		},
+		{
+			"name" : "CMAKE_PROJECT_VERSION_TWEAK",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_RANLIB",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/ranlib"
+		},
+		{
+			"name" : "CMAKE_READELF",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/readelf"
+		},
+		{
+			"name" : "CMAKE_ROOT",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to CMake installation."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/usr/local/share/cmake-3.24"
+		},
+		{
+			"name" : "CMAKE_SHARED_LINKER_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of shared libraries during all build types."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_SHARED_LINKER_FLAGS_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of shared libraries during DEBUG builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of shared libraries during MINSIZEREL builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_SHARED_LINKER_FLAGS_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of shared libraries during RELEASE builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of shared libraries during RELWITHDEBINFO builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_SKIP_INSTALL_RPATH",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "If set, runtime paths are not added when installing shared libraries, but are added when building."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "NO"
+		},
+		{
+			"name" : "CMAKE_SKIP_RPATH",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "If set, runtime paths are not added when using shared libraries."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "NO"
+		},
+		{
+			"name" : "CMAKE_STATIC_LINKER_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of static libraries during all build types."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_STATIC_LINKER_FLAGS_DEBUG",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of static libraries during DEBUG builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of static libraries during MINSIZEREL builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_STATIC_LINKER_FLAGS_RELEASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of static libraries during RELEASE builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Flags used by the linker during the creation of static libraries during RELWITHDEBINFO builds."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_STRIP",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/strip"
+		},
+		{
+			"name" : "CMAKE_UNAME",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "uname command"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "/usr/bin/uname"
+		},
+		{
+			"name" : "CMAKE_VERBOSE_MAKEFILE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "If this value is on, makefiles will be generated without the .SILENT directive, and all commands will be echoed to the console during the make.  This is useful for debugging only. With Visual Studio IDE projects all commands are done without /nologo."
+				}
+			],
+			"type" : "BOOL",
+			"value" : "FALSE"
+		},
+		{
+			"name" : "COVERAGE_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to the coverage program that CTest uses for performing coverage inspection"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gcov"
+		},
+		{
+			"name" : "COVERAGE_EXTRA_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Extra command line flags to pass to the coverage tool"
+				}
+			],
+			"type" : "STRING",
+			"value" : "-l"
+		},
+		{
+			"name" : "CPACK_BINARY_DEB",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build Debian packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_FREEBSD",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build FreeBSD packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_IFW",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build IFW packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_NSIS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build NSIS packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_RPM",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build RPM packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_STGZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build STGZ packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_BINARY_TBZ2",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TBZ2 packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_TGZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TGZ packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_BINARY_TXZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TXZ packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_BINARY_TZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TZ packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_SOURCE_RPM",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build RPM source packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CPACK_SOURCE_TBZ2",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TBZ2 source packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_SOURCE_TGZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TGZ source packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_SOURCE_TXZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TXZ source packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_SOURCE_TZ",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build TZ source packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "ON"
+		},
+		{
+			"name" : "CPACK_SOURCE_ZIP",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable to build ZIP source packages"
+				}
+			],
+			"type" : "BOOL",
+			"value" : "OFF"
+		},
+		{
+			"name" : "CTEST_SUBMIT_RETRY_COUNT",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "How many times to retry timed-out CTest submissions."
+				}
+			],
+			"type" : "STRING",
+			"value" : "3"
+		},
+		{
+			"name" : "CTEST_SUBMIT_RETRY_DELAY",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "How long to wait between timed-out CTest submissions."
+				}
+			],
+			"type" : "STRING",
+			"value" : "5"
+		},
+		{
+			"name" : "CVSCOMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "(This variable does not exist and should not be used)"
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : ""
+		},
+		{
+			"name" : "CVS_UPDATE_OPTIONS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "(This variable does not exist and should not be used)"
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : ""
+		},
+		{
+			"name" : "DART_TESTING_TIMEOUT",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Maximum time allowed before CTest will kill the test."
+				}
+			],
+			"type" : "STRING",
+			"value" : "1500"
+		},
+		{
+			"name" : "GITCOMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/git"
+		},
+		{
+			"name" : "HGCOMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "(This variable does not exist and should not be used)"
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : ""
+		},
+		{
+			"name" : "MAKECOMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Command to build the project"
+				}
+			],
+			"type" : "STRING",
+			"value" : "/usr/local/bin/cmake --build . --config \"${CTEST_CONFIGURATION_TYPE}\" -- -i"
+		},
+		{
+			"name" : "MEMORYCHECK_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to the memory checking command, used for memory error detection."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "MEMORYCHECK_COMMAND-NOTFOUND"
+		},
+		{
+			"name" : "MEMORYCHECK_SUPPRESSIONS_FILE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "File that contains suppressions for the memory checker"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : ""
+		},
+		{
+			"name" : "P4COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "(This variable does not exist and should not be used)"
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : ""
+		},
+		{
+			"name" : "SITE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Name of the computer/site where compile is being run"
+				}
+			],
+			"type" : "STRING",
+			"value" : "veriton"
+		},
+		{
+			"name" : "SVNCOMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "(This variable does not exist and should not be used)"
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : ""
+		},
+		{
+			"name" : "_CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "linker supports push/pop state"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "TRUE"
+		},
+		{
+			"name" : "h32_BINARY_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI/build"
+		},
+		{
+			"name" : "h32_IS_TOP_LEVEL",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "ON"
+		},
+		{
+			"name" : "h32_SOURCE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/andrew/Documents/PlatformIO/Projects/MriscocProUI"
+		}
+	],
+	"kind" : "cache",
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 0
+	}
+}

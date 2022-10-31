@@ -147,7 +147,7 @@ void MarlinEthernet::check() {
           " | Author: " STRING_CONFIG_H_AUTHOR
         );
       #endif
-      telnetClient.println("Compiled: " __DATE__);
+      telnetClient.println(" Compiled: " __DATE__);
 
       SERIAL_ECHOLNPGM("Client connected");
       have_telnet_client = true;

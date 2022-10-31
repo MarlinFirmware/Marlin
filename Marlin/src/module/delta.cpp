@@ -63,6 +63,13 @@ abc_float_t delta_diagonal_rod_trim;
 
 float delta_safe_distance_from_top();
 
+void refresh_delta_clip_start_height() {
+  delta_clip_start_height = TERN(HAS_SOFTWARE_ENDSTOPS,
+    soft_endstop.max.z,
+    DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z)
+  ) - delta_safe_distance_from_top();
+}
+
 /**
  * Recalculate factors used for delta kinematics whenever
  * settings have been changed (e.g., by M665).
@@ -83,28 +90,6 @@ void recalc_delta_settings() {
 }
 
 /**
- * Get a safe radius for calibration
- */
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-
-  #if ENABLED(DELTA_AUTO_CALIBRATION)
-    float calibration_radius_factor = 1;
-  #endif
-
-  float delta_calibration_radius() {
-    return calibration_radius_factor * (
-      #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
-      #else
-        DELTA_PRINTABLE_RADIUS
-      #endif
-    );
-  }
-
-#endif
-
-/**
  * Delta Inverse Kinematics
  *
  * Calculate the tower positions for a given machine
@@ -121,8 +106,8 @@ void recalc_delta_settings() {
  */
 
 #define DELTA_DEBUG(VAR) do { \
-    SERIAL_ECHOLNPAIR_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
-    SERIAL_ECHOLNPAIR_P(PSTR("Delta A"), delta.a, SP_B_STR, delta.b, SP_C_STR, delta.c); \
+    SERIAL_ECHOLNPGM_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
+    SERIAL_ECHOLNPGM_P(PSTR("Delta A"), delta.a, SP_B_STR, delta.b, SP_C_STR, delta.c); \
   }while(0)
 
 void inverse_kinematics(const xyz_pos_t &raw) {
@@ -248,13 +233,19 @@ void home_delta() {
     TERN_(I_SENSORLESS, sensorless_t stealth_states_i = start_sensorless_homing_per_axis(I_AXIS));
     TERN_(J_SENSORLESS, sensorless_t stealth_states_j = start_sensorless_homing_per_axis(J_AXIS));
     TERN_(K_SENSORLESS, sensorless_t stealth_states_k = start_sensorless_homing_per_axis(K_AXIS));
+    TERN_(U_SENSORLESS, sensorless_t stealth_states_u = start_sensorless_homing_per_axis(U_AXIS));
+    TERN_(V_SENSORLESS, sensorless_t stealth_states_v = start_sensorless_homing_per_axis(V_AXIS));
+    TERN_(W_SENSORLESS, sensorless_t stealth_states_w = start_sensorless_homing_per_axis(W_AXIS));
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
   current_position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
-  TERN_(SENSORLESS_PROBING,endstops.report_states());
+  TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
@@ -264,6 +255,12 @@ void home_delta() {
     TERN_(I_SENSORLESS, end_sensorless_homing_per_axis(I_AXIS, stealth_states_i));
     TERN_(J_SENSORLESS, end_sensorless_homing_per_axis(J_AXIS, stealth_states_j));
     TERN_(K_SENSORLESS, end_sensorless_homing_per_axis(K_AXIS, stealth_states_k));
+    TERN_(U_SENSORLESS, end_sensorless_homing_per_axis(U_AXIS, stealth_states_u));
+    TERN_(V_SENSORLESS, end_sensorless_homing_per_axis(V_AXIS, stealth_states_v));
+    TERN_(W_SENSORLESS, end_sensorless_homing_per_axis(W_AXIS, stealth_states_w));
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
   #endif
 
   endstops.validate_homing_move();

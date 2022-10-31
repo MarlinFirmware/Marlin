@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -50,8 +51,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_FILAMNT_IN:
       uiCfg.filament_load_heat_flg = true;
-      if (abs(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
-          || gCfgItems.filament_limit_temp <= thermalManager.wholeDegHotend(uiCfg.extruderIndex)) {
+      if (ABS(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
+        || gCfgItems.filament_limit_temp <= thermalManager.wholeDegHotend(uiCfg.extruderIndex)
+      ) {
         lv_clear_filament_change();
         lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
       }
@@ -67,7 +69,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_FILAMNT_OUT:
       uiCfg.filament_unload_heat_flg = true;
       if (thermalManager.degTargetHotend(uiCfg.extruderIndex)
-          && (abs(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
+          && (ABS(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
               || thermalManager.wholeDegHotend(uiCfg.extruderIndex) >= gCfgItems.filament_limit_temp)
       ) {
         lv_clear_filament_change();
@@ -92,15 +94,14 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_FILAMNT_RETURN:
       #if HAS_MULTI_EXTRUDER
         if (uiCfg.print_state != IDLE && uiCfg.print_state != REPRINTED)
-          gcode.process_subcommands_now_P(uiCfg.extruderIndexBak == 1 ? PSTR("T1") : PSTR("T0"));
+          gcode.process_subcommands_now(uiCfg.extruderIndexBak == 1 ? F("T1") : F("T0"));
       #endif
       feedrate_mm_s = (float)uiCfg.moveSpeed_bak;
       if (uiCfg.print_state == PAUSED)
         planner.set_e_position_mm((destination.e = current_position.e = uiCfg.current_e_position_bak));
       thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
 
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
   }
 }
@@ -114,9 +115,8 @@ void lv_draw_filament_change() {
 
   buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_TYPE);
   #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
+    if (gCfgItems.encoder_enable)
       lv_group_add_obj(g, buttonType);
-    }
   #endif
 
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_RETURN);

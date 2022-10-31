@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(MARLIN_DEV_MODE)
@@ -37,7 +38,7 @@
 #include "../sd/cardreader.h"
 #include "../MarlinCore.h" // for kill
 
-extern void dump_delay_accuracy_check();
+void dump_delay_accuracy_check();
 
 /**
  * Dn: G-code for development and testing
@@ -53,11 +54,11 @@ void GcodeSuite::D(const int16_t dcode) {
       for (;;) { /* loop forever (watchdog reset) */ }
 
     case 0:
-      HAL_reboot();
+      hal.reboot();
       break;
 
     case 10:
-      kill(PSTR("D10"), PSTR("KILL TEST"), parser.seen_test('P'));
+      kill(F("D10"), F("KILL TEST"), parser.seen_test('P'));
       break;
 
     case 1: {
@@ -73,7 +74,7 @@ void GcodeSuite::D(const int16_t dcode) {
         settings.reset();
         settings.save();
       #endif
-      HAL_reboot();
+      hal.reboot();
     } break;
 
     case 2: { // D2 Read / Write SRAM
@@ -179,7 +180,7 @@ void GcodeSuite::D(const int16_t dcode) {
       break;
 
     case 7: // D7 dump the current serial port type (hence configuration)
-      SERIAL_ECHOLNPAIR("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
+      SERIAL_ECHOLNPGM("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
       SERIAL_ECHOLN(gtn(&SERIAL_IMPL));
       break;
 
@@ -188,12 +189,12 @@ void GcodeSuite::D(const int16_t dcode) {
       SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
       thermalManager.disable_all_heaters();
       delay(1000); // Allow time to print
-      DISABLE_ISRS();
+      hal.isr_off();
       // Use a low-level delay that does not rely on interrupts to function
       // Do not spin forever, to avoid thermal risks if heaters are enabled and
       // watchdog does not work.
       for (int i = 10000; i--;) DELAY_US(1000UL);
-      ENABLE_ISRS();
+      hal.isr_on();
       SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
     } break;
 
@@ -202,7 +203,7 @@ void GcodeSuite::D(const int16_t dcode) {
       case 101: { // D101 Test SD Write
         card.openFileWrite("test.gco");
         if (!card.isFileOpen()) {
-          SERIAL_ECHOLNPAIR("Failed to open test.gco to write.");
+          SERIAL_ECHOLNPGM("Failed to open test.gco to write.");
           return;
         }
         __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
@@ -213,7 +214,7 @@ void GcodeSuite::D(const int16_t dcode) {
 
         c = 1024 * 4;
         while (c--) {
-          TERN_(USE_WATCHDOG, watchdog_refresh());
+          hal.watchdog_refresh();
           card.write(buf, COUNT(buf));
         }
         SERIAL_ECHOLNPGM(" done");
@@ -224,13 +225,13 @@ void GcodeSuite::D(const int16_t dcode) {
         char testfile[] = "test.gco";
         card.openFileRead(testfile);
         if (!card.isFileOpen()) {
-          SERIAL_ECHOLNPAIR("Failed to open test.gco to read.");
+          SERIAL_ECHOLNPGM("Failed to open test.gco to read.");
           return;
         }
         __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
         uint16_t c = 1024 * 4;
         while (c--) {
-          TERN_(USE_WATCHDOG, watchdog_refresh());
+          hal.watchdog_refresh();
           card.read(buf, COUNT(buf));
           bool error = false;
           for (uint16_t i = 0; i < COUNT(buf); i++) {

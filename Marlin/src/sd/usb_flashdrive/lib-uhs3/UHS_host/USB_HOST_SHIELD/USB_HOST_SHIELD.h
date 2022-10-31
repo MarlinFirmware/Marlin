@@ -272,11 +272,11 @@ e-mail   :  support@circuitsathome.com
 //
 #define IRQ_SENSE FALLING
 #ifdef ARDUINO_ARCH_PIC32
-//#define bmPULSEWIDTH PUSLEWIDTH10_6
+//#define bmPULSEWIDTH PULSEWIDTH10_6
 #define bmPULSEWIDTH 0
 #define bmIRQ_SENSE 0
 #else
-#define bmPULSEWIDTH PUSLEWIDTH1_3
+#define bmPULSEWIDTH PULSEWIDTH1_3
 #define bmIRQ_SENSE 0
 #endif
 #else

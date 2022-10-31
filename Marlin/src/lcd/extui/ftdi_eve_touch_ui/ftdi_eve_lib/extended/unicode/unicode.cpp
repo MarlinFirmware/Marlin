@@ -44,7 +44,7 @@
     return false;
   }
 
-  bool FTDI::has_utf8_chars(progmem_str _str) {
+  bool FTDI::has_utf8_chars(FSTR_P _str) {
     const char *str = (const char *) _str;
     for (;;) {
       const char c = pgm_read_byte(str++);
@@ -66,17 +66,19 @@
    *          character (this is not the unicode codepoint)
    */
 
-  utf8_char_t FTDI::get_utf8_char_and_inc(const char *&c) {
+  utf8_char_t FTDI::get_utf8_char_and_inc(char *&c) {
     utf8_char_t val = *(uint8_t*)c++;
-    while ((*c & 0xC0) == 0x80)
-      val = (val << 8) | *(uint8_t*)c++;
+    if ((val & 0xC0) == 0xC0)
+      while ((*c & 0xC0) == 0x80)
+        val = (val << 8) | *(uint8_t*)c++;
     return val;
   }
 
-  utf8_char_t FTDI::get_utf8_char_and_inc(char *&c) {
+  utf8_char_t FTDI::get_utf8_char_and_inc(const char *&c) {
     utf8_char_t val = *(uint8_t*)c++;
-    while ((*c & 0xC0) == 0x80)
-      val = (val << 8) | *(uint8_t*)c++;
+    if ((val & 0xC0) == 0xC0)
+      while ((*c & 0xC0) == 0x80)
+        val = (val << 8) | *(uint8_t*)c++;
     return val;
   }
 
@@ -189,10 +191,14 @@
     return render_utf8_text(nullptr, 0, 0, str, fs, maxlen);
   }
 
-  uint16_t FTDI::get_utf8_text_width(progmem_str pstr, font_size_t fs) {
-    char str[strlen_P((const char*)pstr) + 1];
-    strcpy_P(str, (const char*)pstr);
-    return get_utf8_text_width(str, fs);
+  uint16_t FTDI::get_utf8_text_width(FSTR_P fstr, font_size_t fs) {
+    #ifdef __AVR__
+      char str[strlen_P(FTOP(fstr)) + 1];
+      strcpy_P(str, FTOP(fstr));
+      return get_utf8_text_width(str, fs);
+    #else
+      return get_utf8_text_width(FTOP(fstr), fs);
+    #endif
   }
 
    /**
@@ -232,9 +238,9 @@
     cmd.cmd(RESTORE_CONTEXT());
   }
 
-  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, progmem_str pstr, font_size_t fs, uint16_t options) {
-    char str[strlen_P((const char*)pstr) + 1];
-    strcpy_P(str, (const char*)pstr);
+  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, FSTR_P fstr, font_size_t fs, uint16_t options) {
+    char str[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(str, FTOP(fstr));
     draw_utf8_text(cmd, x, y, (const char*) str, fs, options);
   }
 

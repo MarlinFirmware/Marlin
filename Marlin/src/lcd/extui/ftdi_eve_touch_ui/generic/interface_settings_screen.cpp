@@ -52,14 +52,13 @@ void InterfaceSettingsScreen::onEntry() {
   BaseScreen::onEntry();
 }
 
+#define GRID_COLS 4
+#define GRID_ROWS TERN(TOUCH_UI_PORTRAIT, 7, 6)
+
 void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
   if (what & BACKGROUND) {
-
-    #define GRID_COLS 4
-    #define GRID_ROWS TERN(TOUCH_UI_PORTRAIT, 7, 6)
-
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled))
@@ -104,8 +103,8 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #endif
     #undef EDGE_R
     #define EDGE_R 0
-    #if ENABLED(TOUCH_UI_PORTRAIT)
        .colors(normal_btn)
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
        .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BUTTON_DONE));
@@ -128,7 +127,7 @@ bool InterfaceSettingsScreen::onTouchEnd(uint8_t tag) {
           LockScreen::disable();
         break;
     #endif
-    case 5: UIData::enable_animations(!UIData::animations_enabled());; break;
+    case 5: UIData::enable_animations(!UIData::animations_enabled()); break;
     case 6: GOTO_SCREEN(InterfaceSoundsScreen); return true;
     default:
       return false;
@@ -148,8 +147,6 @@ bool InterfaceSettingsScreen::onTouchStart(uint8_t tag) {
   }
   #undef EDGE_R
   #define EDGE_R 0
-  #undef GRID_COLS
-  #undef GRID_ROWS
   return true;
 }
 

@@ -88,7 +88,7 @@ class UIFlashStorage : private SPIFlash {
     static void    write_config_data  (const void *data, size_t size);
     static bool    verify_config_data (const void *data, size_t size);
     static bool    read_config_data   (void *data, size_t size);
-    static error_t write_media_file   (progmem_str filename, uint8_t slot = 0);
+    static error_t write_media_file   (FSTR_P filename, uint8_t slot = 0);
 
     class BootMediaReader;
 };
