@@ -425,6 +425,7 @@ constexpr ena_mask_t enable_overlap[] = {
     uint8_t factor;
     int32_t dividend = 0UL;
     int32_t remainder = 0UL;
+    int32_t last_block_end_pos = 0;
   };
 
 #endif // INPUT_SHAPING

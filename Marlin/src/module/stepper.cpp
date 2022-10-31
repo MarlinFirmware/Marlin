@@ -1641,6 +1641,8 @@ void Stepper::pulse_phase_isr() {
         shaping_queue.purge();
         if (TERN0(HAS_SHAPING_X, shaping_x.frequency)) delta_error.x = 0;
         if (TERN0(HAS_SHAPING_Y, shaping_y.frequency)) delta_error.y = 0;
+        TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos = count_position.x);
+        TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos = count_position.y);
       #endif
     }
   }
@@ -2508,9 +2510,11 @@ uint32_t Stepper::block_phase_isr() {
       #endif
 
       if (TERN0(HAS_SHAPING_X, shaping_x.frequency)) {
+        const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
+        TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos += steps);
+
         // For input shaped axes, advance_divisor is replaced with 0x20000000
         // and the dividend is directional, i.e. signed.
-        const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
         TERN_(HAS_SHAPING_X, advance_dividend.x = ((steps << 29) + shaping_x.remainder) / step_event_count);
         TERN_(HAS_SHAPING_X, LIMIT(advance_dividend.x, -0x20000000, 0x20000000));
 
@@ -2543,6 +2547,7 @@ uint32_t Stepper::block_phase_isr() {
       // Y follows the same logic as X (but the comments aren't repeated)
       if (TERN0(HAS_SHAPING_Y, shaping_y.frequency)) {
         const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
+        TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos += steps);
         TERN_(HAS_SHAPING_Y, advance_dividend.y = ((steps << 29) + shaping_y.remainder) / step_event_count);
         TERN_(HAS_SHAPING_Y, LIMIT(advance_dividend.y, -0x20000000, 0x20000000));
         TERN_(HAS_SHAPING_Y, shaping_y.remainder += 0x10000000L - ((0x10000000L + advance_dividend.y * step_event_count) & 0x1FFFFFFFUL));
@@ -3069,6 +3074,13 @@ void Stepper::init() {
  * derive the current XYZE position later on.
  */
 void Stepper::_set_position(const abce_long_t &spos) {
+  #if HAS_SHAPING_X
+    int32_t x_shaping_delta = count_position.x - shaping_x.last_block_end_pos;
+  #endif
+  #if HAS_SHAPING_Y
+    int32_t y_shaping_delta = count_position.y - shaping_y.last_block_end_pos;
+  #endif
+
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
     #if CORE_IS_XY
       // corexy positioning
@@ -3098,6 +3110,11 @@ void Stepper::_set_position(const abce_long_t &spos) {
     // default non-h-bot planning
     count_position = spos;
   #endif
+
+  TERN_(HAS_SHAPING_X, count_position.x += x_shaping_delta);
+  TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos = spos.x);
+  TERN_(HAS_SHAPING_Y, count_position.y += y_shaping_delta);
+  TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos = spos.y);
 }
 
 /**
@@ -3137,6 +3154,8 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   #endif
 
   count_position[a] = v;
+  TERN_(HAS_SHAPING_X, if (a == X_AXIS) shaping_x.last_block_end_pos = v);
+  TERN_(HAS_SHAPING_Y, if (a == Y_AXIS) shaping_y.last_block_end_pos = v);
 
   #ifdef __AVR__
     // Reenable Stepper ISR
