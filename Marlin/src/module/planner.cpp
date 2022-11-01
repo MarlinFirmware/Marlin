@@ -110,6 +110,22 @@
   #include "../feature/spindle_laser.h"
 #endif
 
+//Generate z steps for next movement baised on pythagorean kinematics
+float GenZ(float zcoor, int axis_steps_per_mm) {
+
+  float t;
+  t = 62.95;          // place holder for now 
+  float c = 246.0696; // place holder for now 
+  float q;
+  q = t + zcoor - Z_MIN_POS + home_offset[c];
+  if (zcoor > 0) {
+  return (SQRT(c * c - t * t) - SQRT(c * c - q * q)) * axis_steps_per_mm;
+  }
+  else {
+  return zcoor * axis_steps_per_mm;
+  }
+}
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -3027,7 +3043,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       int32_t(LROUND(abce.e * settings.axis_steps_per_mm[E_AXIS_N(extruder)])),
       int32_t(LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS])),
       int32_t(LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS])),
-      int32_t(LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS])),
+      int32_t(LROUND(GenZ(abce.c, settings.axis_steps_per_mm[C_AXIS]))),
       int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])),
       int32_t(LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS])),
       int32_t(LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS])),
@@ -3255,7 +3271,7 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
       LROUND(abce.e * settings.axis_steps_per_mm[E_AXIS_N(active_extruder)]),
       LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS]),
       LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS]),
-      LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS]),
+      LROUND(GenZ(abce.c, settings.axis_steps_per_mm[C_AXIS])),
       LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS]),
       LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS]),
       LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS]),
