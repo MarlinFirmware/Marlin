@@ -72,12 +72,13 @@ void GcodeSuite::M593() {
 
   if (parser.seen('F')) {
     const float freq = parser.value_float();
-    if (freq > 0) {
+    constexpr float max_freq = float(uint32_t(STEPPER_TIMER_RATE) / 2) / shaping_time_t(-2);
+    if (freq == 0.0f || freq > max_freq) {
       if (for_X) stepper.set_shaping_frequency(X_AXIS, freq);
       if (for_Y) stepper.set_shaping_frequency(Y_AXIS, freq);
     }
     else
-      SERIAL_ECHO_MSG("?Frequency (F) must be greater than 0");
+      SERIAL_ECHOLNPGM("?Frequency (F) must be greater than ", max_freq, " or 0 to disable");
   }
 }
 
