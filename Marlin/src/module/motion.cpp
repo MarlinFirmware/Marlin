@@ -1191,8 +1191,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (!position_is_reachable(destination)) return true;
 
     // Get the linear distance in XYZ
-    bool cartes_move = true;
     float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
+    #if HAS_ROTATIONAL_AXES
+      bool cartes_move = true;
+    #endif
 
     #if SECONDARY_LINEAR_AXES
       if (UNEAR_ZERO(cartesian_mm_sqr)) {
@@ -1230,7 +1232,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #if HAS_ROTATIONAL_AXES
       const float seconds = cartesian_mm / (cartes_move ? scaled_fr_mm_s : scaled_fr_deg_s);
     #else 
-      const float seconds = cartesian_mm / scaled_fr_mm_s
+      const float seconds = cartesian_mm / scaled_fr_mm_s;
     #endif
     // The number of segments-per-second times the duration
     // gives the number of segments

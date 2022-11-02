@@ -378,8 +378,10 @@ struct PlannerHints {
   #endif
   #if HAS_ROTATIONAL_AXES
     feedRate_t fr_deg_s = 0.0f;        // Feedrate in °/s. For moves involving only rotational axes
+    bool cartesian_move = true;        // True if linear motion of the tool centerpoint relative to the workpiece occurs. 
+                                       // False if no movement of the tool center point relative to the work piece occurs
+                                       // (i.e. tool rotates around the tool centerpoint)  #endif
   #endif
-
   PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
 };
 
