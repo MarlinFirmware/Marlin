@@ -1169,6 +1169,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
     // Get the top feedrate of the move in the XY plane
     const float scaled_fr_mm_s = FR_SCALED(feedrate_mm_s);
+    #if HAS_ROTATIONAL_AXES
+      const float scaled_fr_deg_s = FR_SCALED(feedrate_deg_s);
+    #endif
 
     const xyze_float_t diff = destination - current_position;
 
@@ -1176,7 +1179,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (!diff.x && !diff.y) {
       #if HAS_ROTATIONAL_AXES
         PlannerHints hints;
-        hints.fr_deg_s = FR_SCALED(feedrate_deg_s);
+        hints.fr_deg_s = scaled_fr_deg_s;
         planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
       #else
         planner.buffer_line(destination, scaled_fr_mm_s);
@@ -1188,7 +1191,34 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (!position_is_reachable(destination)) return true;
 
     // Get the linear distance in XYZ
-    float cartesian_mm = xyz_float_t(diff).magnitude();
+    bool cartes_move = true;
+    float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
+
+    #if SECONDARY_LINEAR_AXES
+      if (UNEAR_ZERO(cartesian_mm_sqr)) {
+        // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+        cartesian_mm_sqr = (0.0f
+          SECONDARY_AXIS_GANG(
+            IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
+            IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
+            IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
+            IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
+            IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
+            IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
+          )
+        );
+      }
+    #endif
+
+    #if HAS_ROTATIONAL_AXES
+      if (UNEAR_ZERO(cartesian_mm_sqr)) {
+        // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+        cartes_move = false;
+        cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+      }
+    #endif
+
+    float cartesian_mm = SQRT(cartesian_mm_sqr);
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1197,8 +1227,11 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    const float seconds = cartesian_mm / scaled_fr_mm_s;
-
+    #if HAS_ROTATIONAL_AXES
+      const float seconds = cartesian_mm / (cartes_move ? scaled_fr_mm_s : scaled_fr_deg_s);
+    #else 
+      const float seconds = cartesian_mm / scaled_fr_mm_s
+    #endif
     // The number of segments-per-second times the duration
     // gives the number of segments
     uint16_t segments = segments_per_second * seconds;
@@ -1217,6 +1250,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);
+    #if HAS_ROTATIONAL_AXES
+      hints.cartesian_move = cartes_move;
+      hints.fr_deg_s = scaled_fr_deg_s;
+    #endif
     TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
     /*
@@ -1273,10 +1310,40 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       }
 
       // Get the linear distance in XYZ
+      #if HAS_ROTATIONAL_AXES
+        bool cartes_move = true;
+      #endif
+      float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
+
+      #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
+        if (UNEAR_ZERO(distance_sqr)) {
+          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+          cartesian_mm_sqr = (0.0f
+            SECONDARY_AXIS_GANG(
+              IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
+              IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
+              IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
+              IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
+              IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
+              IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
+            )
+          );
+        }
+      #endif
+
+      #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
+        if (UNEAR_ZERO(distance_sqr)) {
+          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+          cartes_move = false;
+          cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.w));
+        }
+      #endif
+
+      float cartesian_mm = SQRT(cartesian_mm_sqr);
+
       // If the move is very short, check the E move distance
-      // No E move either? Game over.
-      float cartesian_mm = diff.magnitude();
       TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      // No E move either? Game over.
       if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
@@ -1290,6 +1357,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
+      #if HAS_ROTATIONAL_AXES
+        hints.cartesian_move = cartes_move;
+        hints.fr_deg_s = fr_deg_s;
+      #endif
       TERN_(SCARA_FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
@@ -2378,7 +2449,7 @@ void prepare_line_to_destination() {
       // Retrace by the amount specified in delta_endstop_adj if more than min steps.
       if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
-        do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
+        do_homing_move(axis, adjDistance OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)), get_homing_bump_feedrate(axis));
       }
 
     #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX

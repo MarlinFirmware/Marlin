@@ -416,9 +416,6 @@ public:
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
   static feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
-  #if HAS_ROTATIONAL_AXES
-    static feedRate_t value_angular_feedrate() { return DPM_TO_DPS(value_float()); }
-  #endif
 
   void unknown_command_warning();
 

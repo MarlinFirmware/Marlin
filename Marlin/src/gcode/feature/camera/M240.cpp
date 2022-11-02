@@ -148,7 +148,7 @@ void GcodeSuite::M240() {
     #endif
     if (fr_mm_s) {
       NOLESS(fr_mm_s, 10.0f);
-      TERN_(HAS_ROTATIONAL_AXES, fr_deg_s = parser.liner_value_to_mm(fr_mm_s));
+      TERN_(HAS_ROTATIONAL_AXES, fr_deg_s = parser.linear_value_to_mm(fr_mm_s);
     }
 
     constexpr xyz_pos_t photo_position = PHOTO_POSITION;
