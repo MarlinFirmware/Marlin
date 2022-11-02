@@ -143,12 +143,11 @@ void GcodeSuite::M240() {
     #endif
 
     feedRate_t fr_mm_s = parser.feedrateval('F');
-    #if HAS_ROTATIONAL_AXES
-      feedRate_t fr_deg_s = 0.0f; 
-    #endif
     if (fr_mm_s) {
       NOLESS(fr_mm_s, 10.0f);
-      TERN_(HAS_ROTATIONAL_AXES, fr_deg_s = parser.linear_value_to_mm(fr_mm_s);
+    #if HAS_ROTATIONAL_AXES
+      const feedRate_t fr_deg_s = parser.linear_value_to_mm(fr_mm_s);
+    #endif
     }
 
     constexpr xyz_pos_t photo_position = PHOTO_POSITION;
