@@ -24,7 +24,7 @@ void GcodeSuite::M485() {
 
   for(size_t i=0; i<strlen(parser.string_arg); i += 2) {
     // TODO Throw an error if it's not within the hex range
-    uint8_t byte = HEXCHR(parser.string_arg[i]) << 4 | HEXCHR(parser.string_arg[i+1]);
+    uint8_t byte = HEXCHR(parser.string_arg[2*i]) << 4 | HEXCHR(parser.string_arg[2*i+1]);
     buffer[i] = byte;
   }
 
