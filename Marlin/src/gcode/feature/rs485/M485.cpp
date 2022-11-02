@@ -4,7 +4,7 @@
 #include "../../../feature/rs485.h"
 #include "../../gcode.h"
 
-#define RS485_SEND_BUFFER_SIZE 4
+#define RS485_SEND_BUFFER_SIZE 32
 
 void GcodeSuite::M485() {
   bus.setReadBackDelay(10);
