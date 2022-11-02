@@ -26,6 +26,7 @@ void GcodeSuite::M485() {
     // TODO Throw an error if it's not within the hex range
     uint8_t byte = HEXCHR(parser.string_arg[2*i]) << 4 | HEXCHR(parser.string_arg[2*i+1]);
     buffer[i] = byte;
+    SERIAL_PRINT(byte, PrintBase::Hex);
   }
 
   PacketWriteResult writeResult = packetizer.writePacket(buffer, strlen(parser.string_arg) / 2);
