@@ -385,7 +385,7 @@ constexpr ena_mask_t enable_overlap[] = {
         bool empty_y() { return head_y == tail; }
         uint16_t free_count_y() { return head_y > tail ? head_y - tail - 1 : head_y + SIZE - tail - 1; }
       #endif
-      void purge() { auto temp = TERN_(HAS_SHAPING_X, head_x) = TERN_(HAS_SHAPING_Y, head_y) = tail; UNUSED(temp);}
+      void purge() { auto temp = TERN_(HAS_SHAPING_X, head_x =) TERN_(HAS_SHAPING_Y, head_y =) tail; UNUSED(temp);}
   };
 
   class ParamDelayQueue : public DelayQueue<shaping_segments> {
@@ -633,7 +633,7 @@ class Stepper {
         const bool was_on = hal.isr_state();
         hal.isr_off();
 
-        const bool result = !shaping_queue.empty_x() || !shaping_queue.empty_y();
+        const bool result = TERN0(HAS_SHAPING_X, !shaping_queue.empty_x()) || TERN0(HAS_SHAPING_Y, !shaping_queue.empty_y());
 
         if (was_on) hal.isr_on();
 

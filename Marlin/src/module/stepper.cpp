@@ -2503,14 +2503,15 @@ uint32_t Stepper::block_phase_isr() {
       advance_divisor = step_event_count << 1;
 
       #if HAS_SHAPING_X
-        int32_t echo_x;
+        int32_t echo_x = 0;
       #endif
       #if HAS_SHAPING_Y
-        int32_t echo_y;
+        int32_t echo_y = 0;
       #endif
 
       if (TERN0(HAS_SHAPING_X, shaping_x.frequency)) {
         const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
+        UNUSED(steps);
         TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos += steps);
 
         // For input shaped axes, advance_divisor is replaced with 0x20000000
@@ -2547,6 +2548,7 @@ uint32_t Stepper::block_phase_isr() {
       // Y follows the same logic as X (but the comments aren't repeated)
       if (TERN0(HAS_SHAPING_Y, shaping_y.frequency)) {
         const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
+        UNUSED(steps);
         TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos += steps);
         TERN_(HAS_SHAPING_Y, advance_dividend.y = ((steps << 29) + shaping_y.remainder) / step_event_count);
         TERN_(HAS_SHAPING_Y, LIMIT(advance_dividend.y, -0x20000000, 0x20000000));
@@ -2557,7 +2559,8 @@ uint32_t Stepper::block_phase_isr() {
       }
 
       // plan the change of values for advance_dividend for the input shaping echoes
-      TERN_(INPUT_SHAPING, shaping_dividend_queue.enqueue(TERN0(HAS_SHAPING_X, echo_x), TERN0(HAS_SHAPING_Y, echo_y)));
+      if (TERN0(HAS_SHAPING_X, shaping_x.frequency) || TERN0(HAS_SHAPING_Y, shaping_y.frequency))
+        TERN_(INPUT_SHAPING, shaping_dividend_queue.enqueue(TERN0(HAS_SHAPING_X, echo_x), TERN0(HAS_SHAPING_Y, echo_y)));
 
       // No step events completed so far
       step_events_completed = 0;
@@ -3048,10 +3051,16 @@ void Stepper::init() {
     if (TERN0(HAS_SHAPING_X, axis == X_AXIS)) {
       DelayTimeManager::set_delay(X_AXIS, delay);
       TERN_(HAS_SHAPING_X, shaping_x.frequency = freq);
+      delta_error = 0L;
+      TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos = count_position.x);
+      TERN_(HAS_SHAPING_X, shaping_x.dividend = shaping_x.remainder = 0UL);
     }
     if (TERN0(HAS_SHAPING_Y, axis == Y_AXIS)) {
       DelayTimeManager::set_delay(Y_AXIS, delay);
       TERN_(HAS_SHAPING_Y, shaping_y.frequency = freq);
+      delta_error = 0L;
+      TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos = count_position.y);
+      TERN_(HAS_SHAPING_Y, shaping_y.dividend = shaping_y.remainder = 0UL);
     }
 
     if (was_on) hal.isr_on();
@@ -3111,10 +3120,14 @@ void Stepper::_set_position(const abce_long_t &spos) {
     count_position = spos;
   #endif
 
-  TERN_(HAS_SHAPING_X, count_position.x += x_shaping_delta);
-  TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos = spos.x);
-  TERN_(HAS_SHAPING_Y, count_position.y += y_shaping_delta);
-  TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos = spos.y);
+  if (TERN0(HAS_SHAPING_X, shaping_x.frequency)) {
+    TERN_(HAS_SHAPING_X, count_position.x += x_shaping_delta);
+    TERN_(HAS_SHAPING_X, shaping_x.last_block_end_pos = spos.x);
+  }
+  if (TERN0(HAS_SHAPING_Y, shaping_y.frequency)) {
+    TERN_(HAS_SHAPING_Y, count_position.y += y_shaping_delta);
+    TERN_(HAS_SHAPING_Y, shaping_y.last_block_end_pos = spos.y);
+  }
 }
 
 /**
