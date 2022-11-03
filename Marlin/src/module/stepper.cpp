@@ -1976,44 +1976,54 @@ void Stepper::pulse_phase_isr() {
   void Stepper::shaping_isr() {
     xyze_bool_t step_needed{0};
 
-    const bool shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x()),
-               shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
+    bool shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x()),
+         shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
 
-    #if HAS_SHAPING_X
-      if (shapex) {
-        shaping_queue.dequeue_x();
-        PULSE_PREP_SHAPING(X, shaping_x.dividend);
-        PULSE_START(X);
-      }
-    #endif
-
-    #if HAS_SHAPING_Y
-      if (shapey) {
-        shaping_queue.dequeue_y();
-        PULSE_PREP_SHAPING(Y, shaping_y.dividend);
-        PULSE_START(Y);
-      }
-    #endif
-
-    TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
-
-    if (shapex || shapey) {
-      #if ISR_MULTI_STEPS
-        USING_TIMED_PULSE();
-        START_TIMED_PULSE();
-        AWAIT_HIGH_PULSE();
-      #endif
+    while (true) {
       #if HAS_SHAPING_X
-        if (shapex) PULSE_STOP(X);
+        if (shapex) {
+          shaping_queue.dequeue_x();
+          PULSE_PREP_SHAPING(X, shaping_x.dividend);
+          PULSE_START(X);
+        }
       #endif
+
       #if HAS_SHAPING_Y
-        if (shapey) PULSE_STOP(Y);
+        if (shapey) {
+          shaping_queue.dequeue_y();
+          PULSE_PREP_SHAPING(Y, shaping_y.dividend);
+          PULSE_START(Y);
+        }
       #endif
+
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
+
+      USING_TIMED_PULSE();
+      if (shapex || shapey) {
+        #if ISR_MULTI_STEPS
+          START_TIMED_PULSE();
+          AWAIT_HIGH_PULSE();
+        #endif
+        #if HAS_SHAPING_X
+          if (shapex) PULSE_STOP(X);
+        #endif
+        #if HAS_SHAPING_Y
+          if (shapey) PULSE_STOP(Y);
+        #endif
+      }
+
+      shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x());
+      shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
+
+      if (!shapex && !shapey) break;
+
+      START_TIMED_PULSE();
+      AWAIT_LOW_PULSE();
     }
 
-    // if a new dividend appears in the same "moment" that a step takes place, it is because
-    // the step is the last step of a segment and the new dividend is for the new segment
-    // so only update the dividend after the step
+    // if a new dividend appears in the same "moment" that steps takes place, it is because
+    // the steps are the last steps of a segment and the new dividend is for the new segment
+    // so only update the dividend after the steps
     #if HAS_SHAPING_X
       if (!shaping_dividend_queue.peek_x()) shaping_x.dividend = shaping_dividend_queue.dequeue_x();
     #endif
