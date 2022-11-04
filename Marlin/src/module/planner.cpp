@@ -114,8 +114,8 @@
 float GenZ(float zcoor, int axis_steps_per_mm) {
 
   float t;
-  t = 60;        // place holder for now, distance between top and bottom when at minimum z
-  float c = 250; // place holder for now, arm length 
+  t = 53;        // place holder for now, distance between top and bottom when at minimum z
+  float c = 191; // place holder for now, arm length 
   float q;
   q = t + zcoor - Z_MIN_POS + home_offset[c];
   if (zcoor > 0) {
