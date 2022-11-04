@@ -752,7 +752,7 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
 }
 
 void CrealityDWINClass::Draw_Print_ProgressBar() {
-  uint8_t printpercent = sdprint ? card.percentDone() : (ui._get_progress() / 100);
+  uint8_t printpercent = ui.get_progress_percent();
   DWIN_ICON_Show(ICON, ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, BarFill_Color, 16 + printpercent * 240 / 100, 93, 256, 113);
   DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_percent, Percent_Color), Color_Bg_Black, 3, 109, 133, printpercent);
