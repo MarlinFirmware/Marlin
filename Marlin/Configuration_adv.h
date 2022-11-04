@@ -2405,6 +2405,21 @@
   //#define SERIAL_XON_XOFF
 #endif
 
+/**
+ * Line Number Error Handler
+ * 
+ * Add function to delay resend requests for line number 
+ * errors, for Hosts that send N# line number with GCode.
+ * Prevents resend cycles causing stuttering and failure
+ * on systems with latency between Host and Printer.
+ * eg. Octoprint through ESP8266(WIFI) pass-through
+*/
+#define RESEND_HANDLER
+#if ENABLED(RESEND_HANDLER)
+  #define RESEND_HANDLER_DROP_GCODE 1   //Number of GCode lines to drop before resend request sent to Host. Octprint>>ESP3D; Min 5
+  //#define RESEND_HANDLER_NOTICE       //Send additional details to host terminal
+#endif
+
 #if ENABLED(SDSUPPORT)
   // Enable this option to collect and display the maximum
   // RX queue usage after transferring a file to SD.
