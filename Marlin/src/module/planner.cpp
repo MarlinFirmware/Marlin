@@ -1724,13 +1724,6 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
   return result * mm_per_step[axis];
 }
 
-bool Planner::busy() {
-  return (has_blocks_queued() || cleaning_buffer_counter
-      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      || TERN0(INPUT_SHAPING, stepper.input_shaping_busy())
-  );
-}
-
 void Planner::finish_and_disable() {
   while (has_blocks_queued() || cleaning_buffer_counter) idle();
   stepper.disable_all_steppers();
@@ -2491,12 +2484,10 @@ bool Planner::_populate_block(
   #endif // XY_FREQUENCY_LIMIT
 
   #if ENABLED(INPUT_SHAPING)
-    float bottom_freq = float(0x7FFFFFFFL);
-    if (TERN0(HAS_SHAPING_X, stepper.get_shaping_frequency(X_AXIS)))
-      NOMORE(bottom_freq, stepper.get_shaping_frequency(X_AXIS));
-    if (TERN0(HAS_SHAPING_Y, stepper.get_shaping_frequency(Y_AXIS)))
-      NOMORE(bottom_freq, stepper.get_shaping_frequency(Y_AXIS));
-    const float max_factor = (bottom_freq * (float(shaping_dividends - 3) * 2.0f)) / block->nominal_rate;
+    const float top_freq = _MIN(float(0x7FFFFFFFL)
+                                OPTARG(HAS_SHAPING_X, stepper.get_shaping_frequency(X_AXIS))
+                                OPTARG(HAS_SHAPING_Y, stepper.get_shaping_frequency(Y_AXIS))),
+                max_factor = (top_freq * float(shaping_dividends - 3) * 2.0f) / block->nominal_rate;
     NOMORE(speed_factor, max_factor);
   #endif
 
