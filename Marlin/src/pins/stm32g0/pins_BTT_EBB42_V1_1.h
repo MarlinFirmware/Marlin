@@ -1,0 +1,155 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
+
+//#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
+
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BTT EBB42 V1.1"
+#endif
+
+//#define USES_DIAG_JUMPERS
+
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
+#define LED_PIN                             PA13
+
+#define SDA_PIN                             PB4
+#define SCL_PIN                             PB3
+
+// Onboard I2C EEPROM
+// #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+//   #undef NO_EEPROM_SELECTED
+//   #define I2C_EEPROM
+//   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+//   #define I2C_SCL_PIN                       PB6
+//   #define I2C_SDA_PIN                       PB7
+//   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+// #endif
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PB9   // SERVOS
+
+//
+// Limit Switches
+//
+#define X_STOP_PIN                          PB6   // X-STOP
+#define Y_STOP_PIN                          PB5   // Y-STOP
+#define Z_STOP_PIN                          PB7   // Z-STOP
+
+//
+// Z Probe must be this pin
+//
+#define Z_MIN_PROBE_PIN                     PB8   // PROBE
+
+//
+// Filament Runout Sensor
+//
+// #ifndef FIL_RUNOUT_PIN
+//   #define FIL_RUNOUT_PIN                    P     // E0-STOP
+// #endif
+
+//
+// Power-loss Detection
+//
+// #ifndef POWER_LOSS_PIN
+//   #define POWER_LOSS_PIN                    PC12  // Power Loss Detection: PWR-DET
+// #endif
+
+// #ifndef PS_ON_PIN
+//   #define PS_ON_PIN                         PC13  // Power Supply Control
+// #endif
+
+//
+// Steppers
+//
+
+#define X_ENABLE_PIN                        -1
+#define X_STEP_PIN                          PA10 //unused pin
+#define X_DIR_PIN                           -1
+
+#define Y_ENABLE_PIN                        -1
+#define Y_STEP_PIN                          PA10 //unused pin
+#define Y_DIR_PIN                           -1
+
+#define Z_ENABLE_PIN                        -1
+#define Z_STEP_PIN                          PA10 //unused pin
+#define Z_DIR_PIN                           -1
+
+#define E0_ENABLE_PIN                       PD2
+#define E0_STEP_PIN                         PD0
+#define E0_DIR_PIN                          PD1
+
+#if HAS_TMC_UART
+  /**
+   * TMC220x stepper drivers
+   * Hardware serial communication ports
+   */
+  //#define E0_HARDWARE_SERIAL MSerial4
+
+  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
+  //#define TMC_BAUD_RATE 250000
+
+  #define E1_SERIAL_TX_PIN                  PA15
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+
+  // Default TMC slave addresses
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 0b00
+  #endif
+#endif
+
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN                          PA3   // Analog Input "TH0"
+// #define TEMP_BED_PIN                        PC4   // Analog Input "TB0"
+
+// SPI for MAX Thermocouple
+// Uses a separate SPI bus
+
+#define TEMP_0_CS_PIN                       PA4   // GTR K-TEMP
+#define TEMP_0_SCK_PIN                      PA5   // SCK
+#define TEMP_0_MISO_PIN                     PA6   // MISO
+#define TEMP_0_MOSI_PIN                     PA7   // For MAX31865
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN                        PA2   // "HE"
+// #define HEATER_BED_PIN                      PC9   // "HB"
+#define FAN_PIN                             PA0   // "FAN0"
+#define FAN1_PIN                            PA1   // "FAN1"
+
+
+//
+// Default NEOPIXEL_PIN
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PD3   // LED driving pin
+#endif

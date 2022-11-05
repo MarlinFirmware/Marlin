@@ -533,6 +533,8 @@
   #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"  // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p env:mks_robin_e3p_maple
+#elif MB(BTT_EBB42_V1_1)
+  #include "stm32g0/pins_BTT_EBB42_V1_1.h"      // STM32G0                                env:BTT_EBB42_V1_1
 #elif MB(BTT_SKR_MINI_V1_1)
   #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V1_0)
