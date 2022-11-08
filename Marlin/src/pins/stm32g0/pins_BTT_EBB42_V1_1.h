@@ -19,9 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-//#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
+/** CAUTION **
+ *This board definition is to facilitate support for a Filament Extrusion
+ *devices, used to convert waste plastic into 3D printable filament. 
+ *This board is NOT a general 3D printing controller,
+ *it is NOT supported as a toolboard via CANBUS (as it was originally designed)
+ *or any device that requires kinematics
+ */
+#pragma once
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT EBB42 V1.1"
@@ -55,25 +61,18 @@
 #define Z_MIN_PROBE_PIN                     PB8   // PROBE
 
 //
-// Filament Runout Sensor
-//
-// #ifndef FIL_RUNOUT_PIN
-//   #define FIL_RUNOUT_PIN                    P     // E0-STOP
-// #endif
-
-//
 // Steppers
 //
 #define X_ENABLE_PIN                        -1
-#define X_STEP_PIN                          PA10 //unused pin
+#define X_STEP_PIN                          PA10 //unused pin. Only assigned to a unattached pin to allow Marlin to compile
 #define X_DIR_PIN                           -1
 
 #define Y_ENABLE_PIN                        -1
-#define Y_STEP_PIN                          PA10 //unused pin
+#define Y_STEP_PIN                          PA10 //unused pin. Only assigned to a unattached pin to allow Marlin to compile
 #define Y_DIR_PIN                           -1
 
 #define Z_ENABLE_PIN                        -1
-#define Z_STEP_PIN                          PA10 //unused pin
+#define Z_STEP_PIN                          PA10 //unused pin. Only assigned to a unattached pin to allow Marlin to compile
 #define Z_DIR_PIN                           -1
 
 #define E0_ENABLE_PIN                       PD2
@@ -134,17 +133,13 @@
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
-
-  #if HAS_U8GLIB_I2C_OLED
-    #undef X_STOP_PIN
-    #undef Y_STOP_PIN
-    #undef Z_STOP_PIN
-    #define X_STOP_PIN                        -1
-    #define Y_STOP_PIN                        -1
-    #define Z_STOP_PIN                        -1
-    #define BTN_EN1                           PB7
-    #define BTN_EN2                           PB5
-    #define BTN_ENC                           PB6
-  #endif
-
+  #undef X_STOP_PIN //Reusing the 'endstop' pins for a rotary encoder
+  #undef Y_STOP_PIN
+  #undef Z_STOP_PIN
+  #define X_STOP_PIN                        -1
+  #define Y_STOP_PIN                        -1
+  #define Z_STOP_PIN                        -1
+  #define BTN_EN1                           PB7
+  #define BTN_EN2                           PB5
+  #define BTN_ENC                           PB6
 #endif // HAS_WIRED_LCD
