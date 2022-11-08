@@ -34,18 +34,8 @@
 
 #define LED_PIN                             PA13
 
-#define SDA_PIN                             PB4
-#define SCL_PIN                             PB3
-
-// Onboard I2C EEPROM
-// #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
-//   #undef NO_EEPROM_SELECTED
-//   #define I2C_EEPROM
-//   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
-//   #define I2C_SCL_PIN                       PB6
-//   #define I2C_SDA_PIN                       PB7
-//   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
-// #endif
+#define I2C_SDA_PIN                         PB4
+#define I2C_SCL_PIN                         PB3
 
 //
 // Servos
@@ -72,20 +62,8 @@
 // #endif
 
 //
-// Power-loss Detection
-//
-// #ifndef POWER_LOSS_PIN
-//   #define POWER_LOSS_PIN                    PC12  // Power Loss Detection: PWR-DET
-// #endif
-
-// #ifndef PS_ON_PIN
-//   #define PS_ON_PIN                         PC13  // Power Supply Control
-// #endif
-
-//
 // Steppers
 //
-
 #define X_ENABLE_PIN                        -1
 #define X_STEP_PIN                          PA10 //unused pin
 #define X_DIR_PIN                           -1
@@ -128,7 +106,6 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA3   // Analog Input "TH0"
-// #define TEMP_BED_PIN                        PC4   // Analog Input "TB0"
 
 // SPI for MAX Thermocouple
 // Uses a separate SPI bus
@@ -142,7 +119,6 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PA2   // "HE"
-// #define HEATER_BED_PIN                      PC9   // "HB"
 #define FAN_PIN                             PA0   // "FAN0"
 #define FAN1_PIN                            PA1   // "FAN1"
 
@@ -153,3 +129,22 @@
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PD3   // LED driving pin
 #endif
+
+//
+// LCD / Controller
+//
+#if HAS_WIRED_LCD
+
+  #if HAS_U8GLIB_I2C_OLED
+    #undef X_STOP_PIN
+    #undef Y_STOP_PIN
+    #undef Z_STOP_PIN
+    #define X_STOP_PIN                        -1
+    #define Y_STOP_PIN                        -1
+    #define Z_STOP_PIN                        -1
+    #define BTN_EN1                           PB7
+    #define BTN_EN2                           PB5
+    #define BTN_ENC                           PB6
+  #endif
+
+#endif // HAS_WIRED_LCD
