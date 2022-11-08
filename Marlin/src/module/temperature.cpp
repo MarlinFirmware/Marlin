@@ -2407,7 +2407,15 @@ void Temperature::updateTemperaturesFromRawValues() {
         max_temp_error((heater_id_t)e);
 
       const bool heater_on = temp_hotend[e].target > 0;
-      if (heater_on && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min))) {
+
+      /*
+      //DEBUG PREHEATING TIME
+      SERIAL_ECHOLNPGM("\nExtruder = ", e ," Preheating On/Off = ",is_preheating(e));
+      const float test_is_preheating = (preheat_end_time[HOTEND_INDEX] - millis()) / 1000;
+      if (test_is_preheating < 31) SERIAL_ECHOLNPGM("Extruder = ", e ," Preheating remaining time = ", test_is_preheating , "s", "\n");
+      */
+
+      if (!is_preheating(e) && (heater_on && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min)))) {
         if (TERN1(MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR, ++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED))
           min_temp_error((heater_id_t)e);
       }
