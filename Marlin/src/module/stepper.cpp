@@ -1976,12 +1976,12 @@ void Stepper::pulse_phase_isr() {
 #if ENABLED(INPUT_SHAPING)
 
   void Stepper::shaping_isr() {
-    xyze_bool_t step_needed{0};
+    xy_bool_t step_needed{0};
 
     bool shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x()),
          shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
 
-    while (true) {
+    if (shapex || shapey) while (true) {
       #if HAS_SHAPING_X
         if (shapex) {
           shaping_queue.dequeue_x();
@@ -2001,16 +2001,16 @@ void Stepper::pulse_phase_isr() {
       TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
       USING_TIMED_PULSE();
-      if (shapex || shapey) {
+      if (step_needed.x || step_needed.y) {
         #if ISR_MULTI_STEPS
           START_TIMED_PULSE();
           AWAIT_HIGH_PULSE();
         #endif
         #if HAS_SHAPING_X
-          if (shapex) PULSE_STOP(X);
+          PULSE_STOP(X);
         #endif
         #if HAS_SHAPING_Y
-          if (shapey) PULSE_STOP(Y);
+          PULSE_STOP(Y);
         #endif
       }
 
