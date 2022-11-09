@@ -2114,6 +2114,9 @@
     #ifndef X_INTERPOLATE
       #define X_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef X_INTERNAL_RSENSE
+      #define X_INTERNAL_RSENSE false
+    #endif
     #ifndef X_HOLD_MULTIPLIER
       #define X_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2131,6 +2134,9 @@
     #endif
     #ifndef X2_INTERPOLATE
       #define X2_INTERPOLATE X_INTERPOLATE
+    #endif
+    #ifndef X2_INTERNAL_RSENSE
+      #define X2_INTERNAL_RSENSE false
     #endif
     #ifndef X2_HOLD_MULTIPLIER
       #define X2_HOLD_MULTIPLIER X_HOLD_MULTIPLIER
@@ -2153,6 +2159,9 @@
     #ifndef Y_INTERPOLATE
       #define Y_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef Y_INTERNAL_RSENSE
+      #define Y_INTERNAL_RSENSE false
+    #endif
     #ifndef Y_HOLD_MULTIPLIER
       #define Y_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2169,6 +2178,9 @@
       #ifndef Y2_INTERPOLATE
         #define Y2_INTERPOLATE Y_INTERPOLATE
       #endif
+    #ifndef Y2_INTERNAL_RSENSE
+      #define Y2_INTERNAL_RSENSE false
+    #endif
       #ifndef Y2_HOLD_MULTIPLIER
         #define Y2_HOLD_MULTIPLIER Y_HOLD_MULTIPLIER
       #endif
@@ -2200,6 +2212,9 @@
     #ifndef Z_INTERPOLATE
       #define Z_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef Z_INTERNAL_RSENSE
+      #define Z_INTERNAL_RSENSE false
+    #endif
     #ifndef Z_HOLD_MULTIPLIER
       #define Z_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2215,6 +2230,9 @@
       #endif
       #ifndef Z2_INTERPOLATE
         #define Z2_INTERPOLATE Z_INTERPOLATE
+      #endif
+      #ifndef Z2_INTERNAL_RSENSE
+        #define Z2_INTERNAL_RSENSE false
       #endif
       #ifndef Z2_HOLD_MULTIPLIER
         #define Z2_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
@@ -2233,6 +2251,9 @@
       #ifndef Z3_INTERPOLATE
         #define Z3_INTERPOLATE Z_INTERPOLATE
       #endif
+      #ifndef Z3_INTERNAL_RSENSE
+        #define Z3_INTERNAL_RSENSE false
+      #endif
       #ifndef Z3_HOLD_MULTIPLIER
         #define Z3_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
       #endif
@@ -2249,6 +2270,9 @@
       #endif
       #ifndef Z4_INTERPOLATE
         #define Z4_INTERPOLATE Z_INTERPOLATE
+      #endif
+      #ifndef Z4_INTERNAL_RSENSE
+        #define Z4_INTERNAL_RSENSE false
       #endif
       #ifndef Z4_HOLD_MULTIPLIER
         #define Z4_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
@@ -2272,6 +2296,9 @@
     #ifndef I_INTERPOLATE
       #define I_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef I_INTERNAL_RSENSE
+      #define I_INTERNAL_RSENSE false
+    #endif
     #ifndef I_HOLD_MULTIPLIER
       #define I_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2292,6 +2319,9 @@
     #endif
     #ifndef J_INTERPOLATE
       #define J_INTERPOLATE INTERPOLATE
+    #endif
+    #ifndef J_INTERNAL_RSENSE
+      #define J_INTERNAL_RSENSE false
     #endif
     #ifndef J_HOLD_MULTIPLIER
       #define J_HOLD_MULTIPLIER HOLD_MULTIPLIER
@@ -2314,6 +2344,9 @@
     #ifndef K_INTERPOLATE
       #define K_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef K_INTERNAL_RSENSE
+      #define K_INTERNAL_RSENSE false
+    #endif
     #ifndef K_HOLD_MULTIPLIER
       #define K_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2334,6 +2367,9 @@
     #endif
     #ifndef U_INTERPOLATE
       #define U_INTERPOLATE INTERPOLATE
+    #endif
+    #ifndef U_INTERNAL_RSENSE
+      #define U_INTERNAL_RSENSE false
     #endif
     #ifndef U_HOLD_MULTIPLIER
       #define U_HOLD_MULTIPLIER HOLD_MULTIPLIER
@@ -2356,6 +2392,9 @@
     #ifndef V_INTERPOLATE
       #define V_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef V_INTERNAL_RSENSE
+      #define V_INTERNAL_RSENSE false
+    #endif
     #ifndef V_HOLD_MULTIPLIER
       #define V_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2377,6 +2416,9 @@
     #ifndef W_INTERPOLATE
       #define W_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef W_INTERNAL_RSENSE
+      #define W_INTERNAL_RSENSE false
+    #endif
     #ifndef W_HOLD_MULTIPLIER
       #define W_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2392,6 +2434,9 @@
     #ifndef E0_INTERPOLATE
       #define E0_INTERPOLATE INTERPOLATE
     #endif
+    #ifndef E0_INTERNAL_RSENSE
+      #define E0_INTERNAL_RSENSE false
+    #endif
     #ifndef E0_HOLD_MULTIPLIER
       #define E0_HOLD_MULTIPLIER HOLD_MULTIPLIER
     #endif
@@ -2405,6 +2450,9 @@
     #endif
     #ifndef E1_INTERPOLATE
       #define E1_INTERPOLATE E0_INTERPOLATE
+    #endif
+    #ifndef E1_INTERNAL_RSENSE
+      #define E1_INTERNAL_RSENSE false
     #endif
     #ifndef E1_HOLD_MULTIPLIER
       #define E1_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
@@ -2420,6 +2468,9 @@
     #ifndef E2_INTERPOLATE
       #define E2_INTERPOLATE E0_INTERPOLATE
     #endif
+    #ifndef E2_INTERNAL_RSENSE
+      #define E2_INTERNAL_RSENSE false
+    #endif
     #ifndef E2_HOLD_MULTIPLIER
       #define E2_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
@@ -2433,6 +2484,9 @@
     #endif
     #ifndef E3_INTERPOLATE
       #define E3_INTERPOLATE E0_INTERPOLATE
+    #endif
+    #ifndef E3_INTERNAL_RSENSE
+      #define E3_INTERNAL_RSENSE false
     #endif
     #ifndef E3_HOLD_MULTIPLIER
       #define E3_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
@@ -2448,6 +2502,9 @@
     #ifndef E4_INTERPOLATE
       #define E4_INTERPOLATE E0_INTERPOLATE
     #endif
+    #ifndef E4_INTERNAL_RSENSE
+      #define E4_INTERNAL_RSENSE false
+    #endif
     #ifndef E4_HOLD_MULTIPLIER
       #define E4_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
@@ -2461,6 +2518,9 @@
     #endif
     #ifndef E5_INTERPOLATE
       #define E5_INTERPOLATE E0_INTERPOLATE
+    #endif
+    #ifndef E5_INTERNAL_RSENSE
+      #define E5_INTERNAL_RSENSE false
     #endif
     #ifndef E5_HOLD_MULTIPLIER
       #define E5_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
@@ -2476,6 +2536,9 @@
     #ifndef E6_INTERPOLATE
       #define E6_INTERPOLATE E0_INTERPOLATE
     #endif
+    #ifndef E6_INTERNAL_RSENSE
+      #define E6_INTERNAL_RSENSE false
+    #endif
     #ifndef E6_HOLD_MULTIPLIER
       #define E6_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
@@ -2489,6 +2552,9 @@
     #endif
     #ifndef E7_INTERPOLATE
       #define E7_INTERPOLATE E0_INTERPOLATE
+    #endif
+    #ifndef E7_INTERNAL_RSENSE
+      #define E7_INTERNAL_RSENSE false
     #endif
     #ifndef E7_HOLD_MULTIPLIER
       #define E7_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER

@@ -688,6 +688,7 @@ enum StealthIndex : uint8_t {
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
+    st.internal_Rsense(internalrsense);
     st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
     st.iholddelay(10);
@@ -728,7 +729,6 @@ enum StealthIndex : uint8_t {
     chopconf.hstrt = chop_init.hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
-    st.internal_Rsense(internalrsense);
 
     st.internal_Rsense(internalrsense);
     st.rms_current(mA, hold_multiplier);
