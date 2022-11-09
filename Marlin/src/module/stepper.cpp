@@ -1541,6 +1541,8 @@ void Stepper::isr() {
     nextMainISR -= interval;
 
     TERN_(INPUT_SHAPING, DelayTimeManager::decrement_delays(interval));
+    TERN_(INPUT_SHAPING, shaping_queue.decrement_peeks(interval));
+    TERN_(INPUT_SHAPING, shaping_dividend_queue.decrement_peeks(interval));
 
     #if ENABLED(LIN_ADVANCE)
       if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;

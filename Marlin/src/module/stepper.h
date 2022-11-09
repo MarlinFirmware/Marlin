@@ -358,34 +358,45 @@ constexpr ena_mask_t enable_overlap[] = {
   class DelayQueue : public DelayTimeManager {
     protected:
       shaping_time_t times[SIZE];
+      shaping_time_t peek_x_val = shaping_time_t(-1),
+                     peek_y_val = shaping_time_t(-1);
       uint16_t tail = 0 OPTARG(HAS_SHAPING_X, head_x = 0) OPTARG(HAS_SHAPING_Y, head_y = 0);
 
     public:
+      void decrement_peeks(const shaping_time_t interval) {
+        if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval;
+        if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval;
+      }
       void enqueue() {
+        TERN_(HAS_SHAPING_X, if (head_x == tail) peek_x_val = delay_x);
+        TERN_(HAS_SHAPING_Y, if (head_y == tail) peek_y_val = delay_y);
         times[tail] = now;
         if (++tail == SIZE) tail = 0;
         TERN_(HAS_SHAPING_X, if (delay_x == shaping_time_t(-1)) head_x = tail);
         TERN_(HAS_SHAPING_Y, if (delay_y == shaping_time_t(-1)) head_y = tail);
       }
       #ifdef HAS_SHAPING_X
-        shaping_time_t peek_x() {
-          if (head_x != tail) return times[head_x] + delay_x - now;
-          else return shaping_time_t(-1);
+        inline shaping_time_t peek_x() { return peek_x_val; }
+        inline void dequeue_x() {
+          if (++head_x == SIZE) head_x = 0;
+          peek_x_val = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
         }
-        void dequeue_x() { if (++head_x == SIZE) head_x = 0; }
-        bool empty_x() { return head_x == tail; }
-        uint16_t free_count_x() { return head_x > tail ? head_x - tail - 1 : head_x + SIZE - tail - 1; }
+        inline bool empty_x() { return head_x == tail; }
+        inline uint16_t free_count_x() { return head_x > tail ? head_x - tail - 1 : head_x + SIZE - tail - 1; }
       #endif
       #ifdef HAS_SHAPING_Y
-        shaping_time_t peek_y() {
-          if (head_y != tail) return times[head_y] + delay_y - now;
-          else return shaping_time_t(-1);
+        inline shaping_time_t peek_y() { return peek_y_val; }
+        inline void dequeue_y() {
+          if (++head_y == SIZE) head_y = 0;
+          peek_y_val = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
         }
-        void dequeue_y() { if (++head_y == SIZE) head_y = 0; }
-        bool empty_y() { return head_y == tail; }
-        uint16_t free_count_y() { return head_y > tail ? head_y - tail - 1 : head_y + SIZE - tail - 1; }
+        inline bool empty_y() { return head_y == tail; }
+        inline uint16_t free_count_y() { return head_y > tail ? head_y - tail - 1 : head_y + SIZE - tail - 1; }
       #endif
-      void purge() { auto temp = TERN_(HAS_SHAPING_X, head_x =) TERN_(HAS_SHAPING_Y, head_y =) tail; UNUSED(temp);}
+      void purge() {
+        const auto temp1 = TERN_(HAS_SHAPING_X, head_x =) TERN_(HAS_SHAPING_Y, head_y =) tail; UNUSED(temp1);
+        const auto temp2 = TERN_(HAS_SHAPING_X, peek_x_val =) TERN_(HAS_SHAPING_Y, peek_y_val =) shaping_time_t(-1); UNUSED(temp2);
+      }
   };
 
   class ParamDelayQueue : public DelayQueue<shaping_segments> {
