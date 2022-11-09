@@ -2847,6 +2847,7 @@
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
     //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
     //#define X_HOLD_MULTIPLIER 0.5    // Enable to override 'HOLD_MULTIPLIER' for the X axis
+    //#define X_INTERNAL_RSENSE true   // Enable to if your controller doesnt have external RSENSE. The value in RSENSE is ignored
   #endif
 
   #if AXIS_IS_TMC(X2)
@@ -2857,6 +2858,7 @@
     #define X2_CHAIN_POS     -1
     //#define X2_INTERPOLATE true
     //#define X2_HOLD_MULTIPLIER 0.5
+    //#define X2_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(Y)
@@ -2867,6 +2869,7 @@
     #define Y_CHAIN_POS      -1
     //#define Y_INTERPOLATE  true
     //#define Y_HOLD_MULTIPLIER 0.5
+    //#define Y_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(Y2)
@@ -2877,6 +2880,7 @@
     #define Y2_CHAIN_POS     -1
     //#define Y2_INTERPOLATE true
     //#define Y2_HOLD_MULTIPLIER 0.5
+    //#define Y2_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(Z)
@@ -2887,6 +2891,7 @@
     #define Z_CHAIN_POS      -1
     //#define Z_INTERPOLATE  true
     //#define Z_HOLD_MULTIPLIER 0.5
+    //#define Z_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(Z2)
@@ -2897,6 +2902,7 @@
     #define Z2_CHAIN_POS     -1
     //#define Z2_INTERPOLATE true
     //#define Z2_HOLD_MULTIPLIER 0.5
+    //#define Z2_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(Z3)
@@ -2907,6 +2913,7 @@
     #define Z3_CHAIN_POS     -1
     //#define Z3_INTERPOLATE true
     //#define Z3_HOLD_MULTIPLIER 0.5
+    //#define Z3_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(Z4)
@@ -2917,6 +2924,7 @@
     #define Z4_CHAIN_POS     -1
     //#define Z4_INTERPOLATE true
     //#define Z4_HOLD_MULTIPLIER 0.5
+    //#define Z4_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(I)
@@ -2927,6 +2935,7 @@
     #define I_CHAIN_POS     -1
     //#define I_INTERPOLATE  true
     //#define I_HOLD_MULTIPLIER 0.5
+    //#define I_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(J)
@@ -2937,6 +2946,7 @@
     #define J_CHAIN_POS     -1
     //#define J_INTERPOLATE  true
     //#define J_HOLD_MULTIPLIER 0.5
+    //#define J_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(K)
@@ -2947,6 +2957,7 @@
     #define K_CHAIN_POS     -1
     //#define K_INTERPOLATE  true
     //#define K_HOLD_MULTIPLIER 0.5
+    //#define K_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(U)
@@ -2957,6 +2968,7 @@
     #define U_CHAIN_POS     -1
     //#define U_INTERPOLATE  true
     //#define U_HOLD_MULTIPLIER 0.5
+    //#define U_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(V)
@@ -2967,6 +2979,7 @@
     #define V_CHAIN_POS     -1
     //#define V_INTERPOLATE  true
     //#define V_HOLD_MULTIPLIER 0.5
+    //#define V_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(W)
@@ -2977,6 +2990,7 @@
     #define W_CHAIN_POS     -1
     //#define W_INTERPOLATE  true
     //#define W_HOLD_MULTIPLIER 0.5
+    //#define W_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E0)
@@ -2986,6 +3000,7 @@
     #define E0_CHAIN_POS     -1
     //#define E0_INTERPOLATE true
     //#define E0_HOLD_MULTIPLIER 0.5
+    #define E0_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E1)
@@ -2995,6 +3010,7 @@
     #define E1_CHAIN_POS     -1
     //#define E1_INTERPOLATE true
     //#define E1_HOLD_MULTIPLIER 0.5
+    //#define E1_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E2)
@@ -3004,6 +3020,7 @@
     #define E2_CHAIN_POS     -1
     //#define E2_INTERPOLATE true
     //#define E2_HOLD_MULTIPLIER 0.5
+    //#define E2_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E3)
@@ -3013,6 +3030,7 @@
     #define E3_CHAIN_POS     -1
     //#define E3_INTERPOLATE true
     //#define E3_HOLD_MULTIPLIER 0.5
+    //#define E3_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E4)
@@ -3022,6 +3040,7 @@
     #define E4_CHAIN_POS     -1
     //#define E4_INTERPOLATE true
     //#define E4_HOLD_MULTIPLIER 0.5
+    //#define E4_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E5)
@@ -3031,6 +3050,7 @@
     #define E5_CHAIN_POS     -1
     //#define E5_INTERPOLATE true
     //#define E5_HOLD_MULTIPLIER 0.5
+    //#define E5_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E6)
@@ -3040,6 +3060,7 @@
     #define E6_CHAIN_POS     -1
     //#define E6_INTERPOLATE true
     //#define E6_HOLD_MULTIPLIER 0.5
+    //#define E6_INTERNAL_RSENSE true
   #endif
 
   #if AXIS_IS_TMC(E7)
@@ -3049,6 +3070,7 @@
     #define E7_CHAIN_POS     -1
     //#define E7_INTERPOLATE true
     //#define E7_HOLD_MULTIPLIER 0.5
+    //#define E7_INTERNAL_RSENSE true
   #endif
 
   // @section tmc/spi
