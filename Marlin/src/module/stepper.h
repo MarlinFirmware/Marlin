@@ -75,8 +75,8 @@
    */
   #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
-  // The base ISR takes 792 cycles
-  #define ISR_BASE_CYCLES  792UL
+  // The base ISR
+  #define ISR_BASE_CYCLES 1000UL
 
   // Linear advance base time is 64 cycles
   #if ENABLED(LIN_ADVANCE)
@@ -92,14 +92,18 @@
     #define ISR_S_CURVE_CYCLES 0UL
   #endif
 
+  // Input shaping base time
+  #if ENABLED(INPUT_SHAPING)
+    #define ISR_SHAPING_BASE_CYCLES 250UL
+  #else
+    #define ISR_SHAPING_BASE_CYCLES 0UL
+  #endif
+
   // Stepper Loop base cycles
   #define ISR_LOOP_BASE_CYCLES 4UL
 
-  // To start the step pulse, in the worst case takes
-  #define ISR_START_STEPPER_CYCLES 13UL
-
   // And each stepper (start + stop pulse) takes in worst case
-  #define ISR_STEPPER_CYCLES 16UL
+  #define ISR_STEPPER_CYCLES 100UL
 
 #else
   // Cycles to perform actions in START_TIMED_PULSE
@@ -122,11 +126,15 @@
     #define ISR_S_CURVE_CYCLES 0UL
   #endif
 
+  // Input shaping base time
+  #if ENABLED(INPUT_SHAPING)
+    #define ISR_SHAPING_BASE_CYCLES 250UL
+  #else
+    #define ISR_SHAPING_BASE_CYCLES 0UL
+  #endif
+
   // Stepper Loop base cycles
   #define ISR_LOOP_BASE_CYCLES 32UL
-
-  // To start the step pulse, in the worst case takes
-  #define ISR_START_STEPPER_CYCLES 57UL
 
   // And each stepper (start + stop pulse) takes in worst case
   #define ISR_STEPPER_CYCLES 88UL
@@ -202,11 +210,13 @@
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
 
-// The main loop can be called up to three times as often with input shaping
-#define INPUT_SHAPING_FACTOR (1 + TERN0(HAS_SHAPING_X, 1) + TERN0(HAS_SHAPING_Y, 1))
+#define HIGH_PULSE_CYCLES uint32_t(uint64_t(F_CPU) * (_MIN_PULSE_HIGH_NS) / 1000000000UL)
 
 // But the user could be enforcing a minimum time, so the loop time is
-#define ISR_LOOP_CYCLES ((ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES)) * INPUT_SHAPING_FACTOR)
+#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + HIGH_PULSE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
+
+// Model input shaping as an extra loop call
+#define ISR_SHAPING_LOOP_CYCLES (TERN0(INPUT_SHAPING, ISR_LOOP_BASE_CYCLES + HIGH_PULSE_CYCLES) + TERN0(HAS_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(HAS_SHAPING_Y, ISR_Y_STEPPER_CYCLES))
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
@@ -231,7 +241,7 @@
 #endif
 
 // Now estimate the total ISR execution time in cycles given a step per ISR multiplier
-#define ISR_EXECUTION_CYCLES(R) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + (ISR_LOOP_CYCLES) * (R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / (R))
+#define ISR_EXECUTION_CYCLES(R) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + ISR_SHAPING_BASE_CYCLES + (ISR_LOOP_CYCLES + ISR_SHAPING_LOOP_CYCLES) * (R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / (R))
 
 // The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
 #define MAX_STEP_ISR_FREQUENCY_128X ((F_CPU) / ISR_EXECUTION_CYCLES(128))
