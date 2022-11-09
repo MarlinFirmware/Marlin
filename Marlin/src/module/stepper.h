@@ -433,6 +433,7 @@ constexpr ena_mask_t enable_overlap[] = {
   struct ShapeParams {
     float frequency;
     float zeta;
+    bool enabled;
     uint8_t factor;
     int32_t dividend = 0UL;
     int32_t remainder = 0UL;
