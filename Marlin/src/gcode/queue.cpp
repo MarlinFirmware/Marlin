@@ -63,7 +63,7 @@ PGMSTR(G28_STR, "G28");
 GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 #if ENABLED(RESEND_HANDLER)
-  GCodeQueue::ResendCtrl GCodeQueue::resend_ctrl = { 0 };
+  GCodeQueue::ResendCtrl GCodeQueue::resend_ctrl = { 0 , 0 , RESEND_HANDLER_DROP_GCODE };
 #endif
 
 #if NO_TIMEOUTS > 0

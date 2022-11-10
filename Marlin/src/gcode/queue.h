@@ -105,9 +105,9 @@ public:
   */
   #if ENABLED(RESEND_HANDLER)
     struct ResendCtrl {
-      long last_error_N = 0; //Record the last requested resend line number
-      uint8_t ignore_resend_count = 0;
-      const uint8_t ignore_resend_max = RESEND_HANDLER_DROP_GCODE; //Number of resends requests deleted //LH this can be constant
+      long last_error_N;  //Record the last requested resend line number
+      uint8_t ignore_resend_count;
+      const uint8_t ignore_resend_max;  //Number of resends requests deleted //LH this can be constant
     };
 
     static ResendCtrl resend_ctrl; //resend ctrl variables
