@@ -466,6 +466,12 @@
 #define BOARD_BRICOLEMON_LITE_V1_0    6102  // Bricolemon Lite
 
 //
+// SAMD21 ARM Cortex M4
+//
+
+#define BOARD_MINITRONICS20           6103  // Minitronics v2.0
+
+//
 // Custom board
 //
 
