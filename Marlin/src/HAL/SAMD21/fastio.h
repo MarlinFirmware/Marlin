@@ -158,7 +158,7 @@
  * pins
  */
 
- // PORTA
+// PORTA
 #define DIO28_PIN   PIN_PA02    // A0
 #define DIO56_PIN   PIN_PA03    // A13
 #define DIO31_PIN   PIN_PA04    // A13

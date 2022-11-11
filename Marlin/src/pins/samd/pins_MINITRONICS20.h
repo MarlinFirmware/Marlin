@@ -99,7 +99,9 @@
 
 // Filament runout. You may choose to use this pin for some other purpose. It's a normal GPIO that can be configured as I/O.
 // For example, a switch to detect any kind of behavior, Power supply pin .... etc.
-//#define FIL_RUNOUT_PIN                      32
+#ifndef FIL_RUNOUT_PIN
+  //#define FIL_RUNOUT_PIN                    32
+#endif
 
 // This board have the option to use an extra TMC2209 stepper, one of the use could be as a second extruder.
 #if EXTRUDERS < 2
