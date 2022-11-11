@@ -26,37 +26,28 @@
  * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 
-#ifdef __SAMD21__
-
- /*
-  * AGCM4 Default SPI Pins
-  *
-  *         SS    SCK   MISO   MOSI
-  *       +-------------------------+
-  *  SPI  | 53    52     50     51  |
-  *  SPI1 | 83    81     80     82  |
-  *       +-------------------------+
-  * Any pin can be used for Chip Select (SD_SS_PIN)
-  */
-  #ifndef SD_SCK_PIN
-    #define SD_SCK_PIN    38
-  #endif
-  #ifndef SD_MISO_PIN
-    #define SD_MISO_PIN   36
-  #endif
-  #ifndef SD_MOSI_PIN
-    #define SD_MOSI_PIN   37
-  #endif
-  #ifndef SDSS
-    #define SDSS          18
-  #endif
-
-#else
-
-  #error "Unsupported board!"
-
+/**
+ * SAMD21 Default SPI Pins
+ *
+ *         SS    SCK   MISO   MOSI
+ *       +-------------------------+
+ *  SPI  | 53    52     50     51  |
+ *  SPI1 | 83    81     80     82  |
+ *       +-------------------------+
+ * Any pin can be used for Chip Select (SD_SS_PIN)
+ */
+#ifndef SD_SCK_PIN
+  #define SD_SCK_PIN    38
 #endif
-
+#ifndef SD_MISO_PIN
+  #define SD_MISO_PIN   36
+#endif
+#ifndef SD_MOSI_PIN
+  #define SD_MOSI_PIN   37
+#endif
+#ifndef SDSS
+  #define SDSS          18
+#endif
 
 #ifndef SD_SS_PIN
   #define SD_SS_PIN     SDSS

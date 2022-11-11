@@ -778,8 +778,7 @@
 //
 
 #elif MB(MINITRONICS20)
-  #include "samd/pins_MINITRONICS20.h"            // SAMD21                             env:SAMD21_minitronics20
-
+  #include "samd/pins_MINITRONICS20.h"          // SAMD21                                 env:SAMD21_minitronics20
 
 //
 // Custom board (with custom PIO env)

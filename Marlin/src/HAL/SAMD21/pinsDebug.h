@@ -59,7 +59,7 @@ void pwm_details(int32_t pin) {
 }
 
 /**
- * AGCM4 Board pin |  PORT  | Label
+ * SAMD21 Board pin|  PORT  | Label
  * ----------------+--------+-------
  *   0             |  PB25  | "RX0"
  *   1             |  PB24  | "TX0"

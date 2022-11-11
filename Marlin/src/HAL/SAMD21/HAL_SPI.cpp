@@ -54,9 +54,6 @@
 
 #else // !SOFTWARE_SPI
 
-    #define sdSPI SPI
-
-
   static SPISettings spiConfig;
 
   // ------------------------
@@ -80,11 +77,8 @@
       default:                  clock = 4000000; break; // Default from the SPI library
     }
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-    sdSPI.begin();
+    SPI.begin();
   }
-
-
-
 
   /**
    * @brief  Receives a single byte from the SPI port.
@@ -94,13 +88,11 @@
    * @details
    */
   uint8_t spiRec() {
-    sdSPI.beginTransaction(spiConfig);
-    uint8_t returnByte = sdSPI.transfer(0xFF);
-    sdSPI.endTransaction();
+    SPI.beginTransaction(spiConfig);
+    uint8_t returnByte = SPI.transfer(0xFF);
+    SPI.endTransaction();
     return returnByte;
   }
-
-
 
   /**
    * @brief  Receives a number of bytes from the SPI port to a buffer
@@ -110,13 +102,12 @@
    * @return Nothing
    */
   void spiRead(uint8_t *buf, uint16_t nbyte) {
-
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
 
-    sdSPI.beginTransaction(spiConfig);
-    sdSPI.transfer(buf, nbyte);
-    sdSPI.endTransaction();
+    SPI.beginTransaction(spiConfig);
+    SPI.transfer(buf, nbyte);
+    SPI.endTransaction();
 
   }
 
@@ -128,9 +119,9 @@
    * @details
    */
   void spiSend(uint8_t b) {
-    sdSPI.beginTransaction(spiConfig);
-    sdSPI.transfer(b);
-    sdSPI.endTransaction();
+    SPI.beginTransaction(spiConfig);
+    SPI.transfer(b);
+    SPI.endTransaction();
   }
 
   /**
@@ -142,15 +133,15 @@
    * @details Uses DMA
    */
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
-    sdSPI.beginTransaction(spiConfig);
-    sdSPI.transfer(token);
-    sdSPI.transfer((uint8_t*)buf, 512);
-    sdSPI.endTransaction();
+    SPI.beginTransaction(spiConfig);
+    SPI.transfer(token);
+    SPI.transfer((uint8_t*)buf, 512);
+    SPI.endTransaction();
   }
 
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     spiConfig = SPISettings(spiClock, (BitOrder)bitOrder, dataMode);
-    sdSPI.beginTransaction(spiConfig);
+    SPI.beginTransaction(spiConfig);
   }
 #endif // !SOFTWARE_SPI
 

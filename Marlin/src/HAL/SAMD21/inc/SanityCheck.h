@@ -29,7 +29,6 @@
  * Test SAMD21 specific configuration values for errors at compile-time.
  */
 
-
 #if SERVO_TC == MF_TIMER_RTC
   #error "Servos can't use RTC timer"
 #endif
@@ -47,5 +46,5 @@
 #endif
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on AGCM4."
+  #error "POSTMORTEM_DEBUGGING is not yet supported on SAMD21."
 #endif
