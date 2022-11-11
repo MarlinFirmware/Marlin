@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
-#pragma once
 
 /**
  * Fast IO functions for SAMD21
@@ -172,7 +172,7 @@
   #define DIO9_PIN   PIN_PA07    // A15
   #define DIO4_PIN   PIN_PA08    // A15
   #define DIO3_PIN   PIN_PA09    // A15
-  #define DIO1_PIN   PIN_PA10 
+  #define DIO1_PIN   PIN_PA10
   #define DIO0_PIN   PIN_PA11
   #define DIO18_PIN   PIN_PA12
   #define DIO52_PIN   PIN_PA13
@@ -217,4 +217,4 @@
 #define DIO53_PIN   PIN_PA21
 #define DIO54_PIN   PIN_PA06
 #define DIO55_PIN   PIN_PA07
-#endif // ADAFRUIT_GRAND_CENTRAL_M4
+#endif // __SAMD21__

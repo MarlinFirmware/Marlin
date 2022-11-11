@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
-#pragma once
 
 #include <stdint.h>
 
@@ -127,9 +127,9 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   // Should never be called with timer MF_TIMER_RTC
   Tc * const tc = timer_config[timer_num].pTc;
-  tc->COUNT32.READREQ.reg = TC_READREQ_RREQ; 
+  tc->COUNT32.READREQ.reg = TC_READREQ_RREQ;
    // Request a read synchronization
-SYNC (tc->COUNT32.STATUS.bit.SYNCBUSY);     
+SYNC (tc->COUNT32.STATUS.bit.SYNCBUSY);
   //SYNC(tc->COUNT32.STATUS.bit.SYNCBUSY );
   return tc->COUNT32.COUNT.reg;
 }
@@ -141,12 +141,12 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
 
-  
+
   if (timer_num == MF_TIMER_RTC) {
     Rtc * const rtc = timer_config[timer_num].pRtc;
     // Clear interrupt flag
     rtc->MODE0.INTFLAG.reg = RTC_MODE0_INTFLAG_CMP0| RTC_MODE0_INTFLAG_OVF;
-  
+
   }
   else if (timer_config[timer_num].type == TimerType::tcc){
     Tcc * const tc = timer_config[timer_num].pTcc;
@@ -158,7 +158,7 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
     // Clear interrupt flag
     tc->COUNT32.INTFLAG.bit.MC0 = 1;
   }
- 
+
 }
 
 #define HAL_timer_isr_epilogue(timer_num)

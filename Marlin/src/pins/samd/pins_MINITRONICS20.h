@@ -30,13 +30,16 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Minitronics V2.0" 
+  #define BOARD_INFO_NAME "Minitronics V2.0"
 #endif
 
 /**
  * NOTE: We need the Serial port on the -1 to make it work!!. Remember to change it on configuration.h #define SERIAL_PORT -1
  */
 
+/**
+ * EEPROM EMULATION: Works with some bugs already, but the board needs an I2C EEPROM memory soldered on.
+ */
 //#define FLASH_EEPROM_EMULATION
 //#define I2C_EEPROM                                // EEPROM on I2C-0
 #define MARLIN_EEPROM_SIZE               500 // 4000 bytes
@@ -184,7 +187,7 @@
   // LCD Display output pins
   //
 
-  
+
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS            18 // CS chip select /SS chip slave select

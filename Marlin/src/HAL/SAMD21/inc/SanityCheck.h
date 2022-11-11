@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,8 +21,8 @@
  */
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 
 /**
@@ -42,10 +42,10 @@
   #error "SDIO_SUPPORT is not supported on SAMD21."
 #endif
 
-#if ENABLED(FAST_PWM_FAN) 
+#if ENABLED(FAST_PWM_FAN)
   #error "Features requiring Hardware PWM (FAST_PWM_FAN) are not yet supported on SAMD21."
 #endif
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on Minitronics."
+  #error "POSTMORTEM_DEBUGGING is not yet supported on AGCM4."
 #endif
