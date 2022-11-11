@@ -2491,11 +2491,9 @@ bool Planner::_populate_block(
   #endif // XY_FREQUENCY_LIMIT
 
   #if ENABLED(INPUT_SHAPING)
-    float bottom_freq = float(0x7FFFFFFFL);
-    if (TERN0(HAS_SHAPING_X, stepper.get_shaping_frequency(X_AXIS)))
-      NOMORE(bottom_freq, stepper.get_shaping_frequency(X_AXIS));
-    if (TERN0(HAS_SHAPING_Y, stepper.get_shaping_frequency(Y_AXIS)))
-      NOMORE(bottom_freq, stepper.get_shaping_frequency(Y_AXIS));
+    float bottom_freq = float(0x7FFFFFFFL), t;
+    TERN_(HAS_SHAPING_X, if ((t = stepper.get_shaping_frequency(X_AXIS))) NOMORE(bottom_freq, t));
+    TERN_(HAS_SHAPING_Y, if ((t = stepper.get_shaping_frequency(Y_AXIS))) NOMORE(bottom_freq, t));
     const float max_factor = (bottom_freq * (float(shaping_dividends - 3) * 2.0f)) / block->nominal_rate;
     NOMORE(speed_factor, max_factor);
   #endif

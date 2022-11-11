@@ -370,11 +370,13 @@ constexpr ena_mask_t enable_overlap[] = {
       shaping_time_t times[SIZE];
       #if HAS_SHAPING_X
         shaping_time_t peek_x_val = shaping_time_t(-1);
+        uint16_t head_x = 0;
       #endif
       #if HAS_SHAPING_Y
         shaping_time_t peek_y_val = shaping_time_t(-1);
+        uint16_t head_y = 0;
       #endif
-      uint16_t tail = 0 OPTARG(HAS_SHAPING_X, head_x = 0) OPTARG(HAS_SHAPING_Y, head_y = 0);
+      uint16_t tail = 0;
 
     public:
       void decrement_peeks(const shaping_time_t interval) {
@@ -396,7 +398,7 @@ constexpr ena_mask_t enable_overlap[] = {
           peek_x_val = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
         }
         bool empty_x() { return head_x == tail; }
-        uint16_t free_count_x() { return head_x > tail ? head_x - tail - 1 : head_x + SIZE - tail - 1; }
+        uint16_t free_count_x() { return (head_x > tail ? 0 : SIZE) + (head_x - tail - 1); }
       #endif
       #if HAS_SHAPING_Y
         shaping_time_t peek_y() { return peek_y_val; }
@@ -405,11 +407,16 @@ constexpr ena_mask_t enable_overlap[] = {
           peek_y_val = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
         }
         bool empty_y() { return head_y == tail; }
-        uint16_t free_count_y() { return head_y > tail ? head_y - tail - 1 : head_y + SIZE - tail - 1; }
+        uint16_t free_count_y() { return (head_y > tail ? 0 : SIZE) + (head_y - tail - 1); }
       #endif
       void purge() {
-        const auto temp1 = TERN_(HAS_SHAPING_X, head_x =) TERN_(HAS_SHAPING_Y, head_y =) tail; UNUSED(temp1);
-        const auto temp2 = TERN_(HAS_SHAPING_X, peek_x_val =) TERN_(HAS_SHAPING_Y, peek_y_val =) shaping_time_t(-1); UNUSED(temp2);
+        const auto st = shaping_time_t(-1);
+        #if HAS_SHAPING_X
+          head_x = tail; peek_x_val = st;
+        #endif
+        #if HAS_SHAPING_Y
+          head_y = tail; peek_y_val = st;
+        #endif
       }
   };
 
