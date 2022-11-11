@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for Adafruit Grand Central M4 (ATMEL ARM Cortex-M4)
+# Build tests for SAMD21 (Minitronics 2.0)
 #
 
 # exit on first failure
@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_AGCM4_RAMPS_144 SERIAL_PORT -1 \
+opt_set MOTHERBOARD BOARD_MINITRONICS20 SERIAL_PORT -1 \
         TEMP_SENSOR_0 11 TEMP_SENSOR_BED 11 \
         X_DRIVER_TYPE TMC2209 Y_DRIVER_TYPE TMC2209 Z_DRIVER_TYPE TMC2209 Z2_DRIVER_TYPE TMC2209 E0_DRIVER_TYPE TMC2209 \
         RESTORE_LEVELING_AFTER_G28 false \
@@ -27,7 +27,7 @@ opt_enable ENDSTOP_INTERRUPTS_FEATURE S_CURVE_ACCELERATION BLTOUCH Z_MIN_PROBE_R
            MOVE_Z_WHEN_IDLE BABYSTEP_ZPROBE_OFFSET BABYSTEP_ZPROBE_GFX_OVERLAY \
            LIN_ADVANCE ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE MONITOR_DRIVER_STATUS SENSORLESS_HOMING \
            SQUARE_WAVE_STEPPING TMC_DEBUG EXPERIMENTAL_SCURVE
-exec_test $1 $2 "Grand Central M4 with assorted features" "$3"
+exec_test $1 $2 "Minitronics 2.0 with assorted features" "$3"
 
 # clean up
 restore_configs

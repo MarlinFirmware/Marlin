@@ -44,6 +44,7 @@ jobs:
         - teensy31
         - teensy35
         - teensy41
+        - SAMD21_minitronics20
         - SAMD51_grandcentral_m4
         - PANDA_PI_V29
 

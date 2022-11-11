@@ -774,7 +774,7 @@
   #include "samd/pins_BRICOLEMON_LITE_V1_0.h"   // SAMD51                                 env:SAMD51_grandcentral_m4
 
 //
-// ReprapWorld Minitronics (SAMD21 )
+// ReprapWorld Minitronics (SAMD21)
 //
 
 #elif MB(MINITRONICS20)
