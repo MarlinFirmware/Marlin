@@ -2465,35 +2465,35 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case JERK_X:
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkX, F("X Axis"));
-              Draw_Float(planner.max_jerk[X_AXIS], row, false, 10);
+              Draw_Float(planner.max_jerk.x, row, false, 10);
             }
             else
-              Modify_Value(planner.max_jerk[X_AXIS], 0, default_max_jerk[X_AXIS] * 2, 10);
+              Modify_Value(planner.max_jerk.x, 0, default_max_jerk[X_AXIS] * 2, 10);
             break;
           case JERK_Y:
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkY, F("Y Axis"));
-              Draw_Float(planner.max_jerk[Y_AXIS], row, false, 10);
+              Draw_Float(planner.max_jerk.y, row, false, 10);
             }
             else
-              Modify_Value(planner.max_jerk[Y_AXIS], 0, default_max_jerk[Y_AXIS] * 2, 10);
+              Modify_Value(planner.max_jerk.y, 0, default_max_jerk[Y_AXIS] * 2, 10);
             break;
           case JERK_Z:
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkZ, F("Z Axis"));
-              Draw_Float(planner.max_jerk[Z_AXIS], row, false, 10);
+              Draw_Float(planner.max_jerk.z, row, false, 10);
             }
             else
-              Modify_Value(planner.max_jerk[Z_AXIS], 0, default_max_jerk[Z_AXIS] * 2, 10);
+              Modify_Value(planner.max_jerk.z, 0, default_max_jerk[Z_AXIS] * 2, 10);
             break;
           #if HAS_HOTEND
             case JERK_E:
               if (draw) {
                 Draw_Menu_Item(row, ICON_MaxSpeedJerkE, F("Extruder"));
-                Draw_Float(planner.max_jerk[E_AXIS], row, false, 10);
+                Draw_Float(planner.max_jerk.e, row, false, 10);
               }
               else
-                Modify_Value(planner.max_jerk[E_AXIS], 0, default_max_jerk[E_AXIS] * 2, 10);
+                Modify_Value(planner.max_jerk.e, 0, default_max_jerk[E_AXIS] * 2, 10);
               break;
           #endif
         }
