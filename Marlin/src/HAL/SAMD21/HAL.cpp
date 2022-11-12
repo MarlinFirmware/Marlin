@@ -39,12 +39,8 @@
 #if USING_HW_SERIAL1
   DefaultSerial3 MSerial2(false, Serial2);
 #endif
-#if USING_HW_SERIAL2
-  DefaultSerial4 MSerial3(false, Serial3);
-#endif
-#if USING_HW_SERIAL3
-  DefaultSerial5 MSerial4(false, Serial4);
-#endif
+
+
 
 #define WDT_CONFIG_PER_7_Val 0x9u
 #define WDT_CONFIG_PER_Pos 0
