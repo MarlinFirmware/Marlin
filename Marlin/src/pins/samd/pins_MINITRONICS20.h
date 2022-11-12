@@ -100,7 +100,7 @@
 // Filament runout. You may choose to use this pin for some other purpose. It's a normal GPIO that can be configured as I/O.
 // For example, a switch to detect any kind of behavior, Power supply pin .... etc.
 #ifndef FIL_RUNOUT_PIN
-  //#define FIL_RUNOUT_PIN                    32
+  #define FIL_RUNOUT_PIN                      44
 #endif
 
 // This board have the option to use an extra TMC2209 stepper, one of the use could be as a second extruder.
@@ -212,9 +212,9 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       // TO TEST
-      #define LCD_PINS_RS            EXP3_04_PIN
-      #define LCD_PINS_ENABLE        EXP3_03_PIN
-      #define LCD_PINS_D4            EXP3_05_PIN
+      //#define LCD_PINS_RS            EXP3_04_PIN
+      //#define LCD_PINS_ENABLE        EXP3_03_PIN
+      //#define LCD_PINS_D4            EXP3_05_PIN
 
       #if !IS_NEWPANEL
         // TO TEST
@@ -278,7 +278,7 @@
 
     #if IS_RRD_SC
 
-      #define BEEPER_PIN             EXP1_01_PIN
+      //#define BEEPER_PIN             EXP1_01_PIN
 
       #if ENABLED(CR10_STOCKDISPLAY)
         // TO TEST
@@ -297,7 +297,7 @@
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
-      #define KILL_PIN               EXP2_10_PIN
+      //#define KILL_PIN               EXP2_10_PIN
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         //#define LCD_BACKLIGHT_PIN  EXP1_08_PIN  // TO TEST

@@ -184,6 +184,8 @@
 #define DIO42_PIN   PIN_PA24
 #define DIO43_PIN   PIN_PA25
 
+#define DIO40_PIN   PIN_PA27
+
 #define DIO26_PIN   PIN_PB00
 #define DIO27_PIN   PIN_PB01    // A0
 #define DIO33_PIN   PIN_PB02
@@ -196,19 +198,19 @@
 #define DIO30_PIN   PIN_PB09
 #define DIO37_PIN   PIN_PB10
 #define DIO38_PIN   PIN_PB11
-
+#define DIO36_PIN   PIN_PB12
 #define DIO19_PIN   PIN_PB13
 #define DIO20_PIN   PIN_PB14
 #define DIO21_PIN   PIN_PB15
 #define DIO22_PIN   PIN_PB16
 #define DIO23_PIN   PIN_PB17
 
+#define DIO44_PIN   PIN_PB22
+#define DIO45_PIN   PIN_PB23
 #define DIO24_PIN   PIN_PB30
 #define DIO25_PIN   PIN_PB31
-
-#define DIO34_PIN   PIN_PA22
-#define DIO35_PIN   PIN_PA23
 
 #define DIO53_PIN   PIN_PA21
 #define DIO54_PIN   PIN_PA06
 #define DIO55_PIN   PIN_PA07
+

@@ -47,7 +47,7 @@
 #define _GET_SAMD_PIN(P)      ((P) & 0x1F)
 
 // Get external interrupt line
-#define _SAMDPORTPIN_TO_EILINE(P,B)   ((P == 0 && WITHIN(B, 0, 31) && B != 8 && B != 26 && B != 28 && B != 29) ? (B) & 0xF    \
+#define _SAMDPORTPIN_TO_EILINE(P,B)   ((P == 0 && WITHIN(B, 0, 31) && B != 26 && B != 28 && B != 29) ? (B) & 0xF    \
                                        : (P == 1 && (WITHIN(B, 0, 25) || WITHIN(B, 30, 31))) ? (B) & 0xF                      \
                                        : (P == 1 && WITHIN(B, 26, 29)) ? 12 + (B) - 26                                        \
                                        : (P == 2 && (WITHIN(B, 0, 6) || WITHIN(B, 10, 31)) && B != 29) ? (B) & 0xF            \
