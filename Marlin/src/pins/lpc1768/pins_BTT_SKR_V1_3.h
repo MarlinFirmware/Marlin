@@ -323,6 +323,9 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_ENC                  EXP1_02_PIN
 
+    #define BEEPER_PIN               EXP1_01_PIN
+    #define SDCARD_CONNECTION            ONBOARD
+
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 

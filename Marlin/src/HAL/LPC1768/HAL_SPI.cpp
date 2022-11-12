@@ -318,8 +318,16 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Enable DMA
   GPDMA_ChannelCmd(0, ENABLE);
 
+  /*
+   * Observed behaviour on normal data transfer completion (SKR 1.3 board / LPC1768 MCU)
+   *   GPDMA_STAT_INTTC flag is SET
+   *   GPDMA_STAT_INTERR flag is NOT SET
+   *   GPDMA_STAT_RAWINTTC flag is NOT SET
+   *   GPDMA_STAT_RAWINTERR flag is SET
+   */
+
   // Wait for data transfer
-  while (!GPDMA_IntGetStatus(GPDMA_STAT_RAWINTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_RAWINTERR, 0)) { }
+  while (!GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_INTERR, 0)) {}
 
   // Clear err and int
   GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
@@ -331,6 +339,43 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   waitSpiTxEnd(_currentSetting->spi_d);
 
   SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, DISABLE);
+}
+
+void SPIClass::dmaSendAsync(void *buf, uint16_t length, bool minc) {
+  //TODO: LPC dma can only write 0xFFF bytes at once.
+  GPDMA_Channel_CFG_Type GPDMACfg;
+
+  /* Configure GPDMA channel 0 -------------------------------------------------------------*/
+  /* DMA Channel 0 */
+  GPDMACfg.ChannelNum = 0;
+  // Source memory
+  GPDMACfg.SrcMemAddr = (uint32_t)buf;
+  // Destination memory - Not used
+  GPDMACfg.DstMemAddr = 0;
+  // Transfer size
+  GPDMACfg.TransferSize = length;
+  // Transfer width
+  GPDMACfg.TransferWidth = (_currentSetting->dataSize == DATA_SIZE_16BIT) ? GPDMA_WIDTH_HALFWORD : GPDMA_WIDTH_BYTE;
+  // Transfer type
+  GPDMACfg.TransferType = GPDMA_TRANSFERTYPE_M2P;
+  // Source connection - unused
+  GPDMACfg.SrcConn = 0;
+  // Destination connection
+  GPDMACfg.DstConn = (_currentSetting->spi_d == LPC_SSP0) ? GPDMA_CONN_SSP0_Tx : GPDMA_CONN_SSP1_Tx;
+
+  GPDMACfg.DMALLI = 0;
+
+  // Enable dma on SPI
+  SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, ENABLE);
+
+  // Only increase memory if minc is true
+  GPDMACfg.MemoryIncrease = (minc ? GPDMA_DMACCxControl_SI : 0);
+
+  // Setup channel with given parameter
+  GPDMA_Setup(&GPDMACfg);
+
+  // Enable DMA
+  GPDMA_ChannelCmd(0, ENABLE);
 }
 
 uint16_t SPIClass::read() {
