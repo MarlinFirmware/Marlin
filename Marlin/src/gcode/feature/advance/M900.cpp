@@ -50,6 +50,7 @@ void GcodeSuite::M900() {
 
   #if EXTRUDERS < 2
     constexpr uint8_t tool_index = 0;
+    UNUSED(tool_index);
   #else
     const uint8_t tool_index = parser.intval('T', active_extruder);
     if (tool_index >= EXTRUDERS) {
