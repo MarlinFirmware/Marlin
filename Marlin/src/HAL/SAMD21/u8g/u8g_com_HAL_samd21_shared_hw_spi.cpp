@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,8 +21,8 @@
  */
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 
 /**
@@ -64,6 +64,7 @@
 #include "SPI.h"
 
 #include "../../shared/HAL_SPI.h"
+
 #ifndef LCD_SPI_SPEED
   #define LCD_SPI_SPEED SPI_QUARTER_SPEED
 #endif
@@ -77,8 +78,6 @@ void u8g_SetPILevel(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   if (u8g->pin_list[pin_index]!= U8G_PIN_NONE)
   digitalWrite(u8g->pin_list[pin_index],level);
 }
-
-
 
 uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
 
@@ -97,18 +96,16 @@ uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
 
       spiBegin();
       lcdSPIConfig = SPISettings(900000, MSBFIRST, SPI_MODE0);
-       u8g->pin_list[U8G_PI_A0_STATE] = 0;
+      u8g->pin_list[U8G_PI_A0_STATE] = 0;
       break;
 
     case U8G_COM_MSG_ADDRESS:             // define cmd (arg_val = 0) or data mode (arg_val = 1)
       u8g_SetPILevel(u8g, U8G_PI_A0, arg_val);
       u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
-      
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:         // arg_val == 1 means chip selected, but ST7920 is active high, so needs inverting
       u8g_SetPILevel(u8g, U8G_PI_CS, arg_val ? HIGH : LOW);
-  
       break;
 
     case U8G_COM_MSG_RESET:
@@ -116,58 +113,42 @@ uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
-     
       SPI.beginTransaction(lcdSPIConfig);
 
-      if ( u8g->pin_list[U8G_PI_A0_STATE] == 0 )
-      {
-        /* command */
-        SPI.transfer(0x0f8);u8g->pin_list[U8G_PI_A0_STATE] = 2;
+      if (u8g->pin_list[U8G_PI_A0_STATE] == 0) { // command
+        SPI.transfer(0x0f8); u8g->pin_list[U8G_PI_A0_STATE] = 2;
       }
-      else if (  u8g->pin_list[U8G_PI_A0_STATE]  == 1 )
-      {
-        /* data */
-        SPI.transfer(0x0fa);u8g->pin_list[U8G_PI_A0_STATE] = 2;
+      else if (u8g->pin_list[U8G_PI_A0_STATE] == 1) { // data
+        SPI.transfer(0x0fa); u8g->pin_list[U8G_PI_A0_STATE] = 2;
       }
 
       SPI.transfer(arg_val & 0x0f0);
       SPI.transfer(arg_val << 4);
       SPI.endTransaction();
-    
       break;
 
     case U8G_COM_MSG_WRITE_SEQ:
-  
       SPI.beginTransaction(lcdSPIConfig);
 
-      if ( u8g->pin_list[U8G_PI_A0_STATE] == 0 )
-      {
-        /* command */
-        SPI.transfer(0x0f8);u8g->pin_list[U8G_PI_A0_STATE] = 2;
+      if (u8g->pin_list[U8G_PI_A0_STATE] == 0 ) { // command
+        SPI.transfer(0x0f8); u8g->pin_list[U8G_PI_A0_STATE] = 2;
       }
-      else if (  u8g->pin_list[U8G_PI_A0_STATE]  == 1 )
-      {
-        /* data */
-        SPI.transfer(0x0fa);u8g->pin_list[U8G_PI_A0_STATE] = 2;
+      else if (u8g->pin_list[U8G_PI_A0_STATE] == 1) { // data
+        SPI.transfer(0x0fa); u8g->pin_list[U8G_PI_A0_STATE] = 2;
       }
- uint8_t *ptr = (uint8_t *) arg_ptr;
-       while( arg_val > 0 )
-        {
 
-	
+      uint8_t *ptr = (uint8_t*)arg_ptr;
+      while (arg_val > 0) {
         SPI.transfer((*ptr) & 0x0f0);
-          SPI.transfer((*ptr) << 4);
-      ptr++;
+        SPI.transfer((*ptr) << 4);
+        ptr++;
+        arg_val--;
+      }
 
-          arg_val--;
-        }
-    
       SPI.endTransaction();
-
       break;
   }
   return 1;
 }
 
-
-#endif 
+#endif // __SAMD21__

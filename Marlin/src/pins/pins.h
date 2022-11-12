@@ -774,12 +774,11 @@
   #include "samd/pins_BRICOLEMON_LITE_V1_0.h"   // SAMD51                                 env:SAMD51_grandcentral_m4
 
 //
-// ReprapWorld Minitronics (SAMD21 )
+// ReprapWorld Minitronics (SAMD21)
 //
 
 #elif MB(MINITRONICS20)
-  #include "samd/pins_MINITRONICS20.h"            // SAMD21                               env:SAMD21_minitronics20 
-
+  #include "samd/pins_MINITRONICS20.h"          // SAMD21                                 env:SAMD21_minitronics20
 
 //
 // Custom board (with custom PIO env)

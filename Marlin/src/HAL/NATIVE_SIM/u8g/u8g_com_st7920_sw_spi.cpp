@@ -168,4 +168,4 @@ uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
 #endif
 
 #endif // IS_U8GLIB_ST7920
-#endif // TARGET_LPC1768
+#endif // __PLAT_NATIVE_SIM__

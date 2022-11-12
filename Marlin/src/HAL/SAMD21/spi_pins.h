@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,44 +19,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
- */
 #pragma once
 
-#ifdef __SAMD21__
+/**
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
+ */
 
- /*
-  * AGCM4 Default SPI Pins
-  *
-  *         SS    SCK   MISO   MOSI
-  *       +-------------------------+
-  *  SPI  | 53    52     50     51  |
-  *  SPI1 | 83    81     80     82  |
-  *       +-------------------------+
-  * Any pin can be used for Chip Select (SD_SS_PIN)
-  */
-  #ifndef SD_SCK_PIN
-    #define SD_SCK_PIN    38
-  #endif
-  #ifndef SD_MISO_PIN
-    #define SD_MISO_PIN   36
-  #endif
-  #ifndef SD_MOSI_PIN
-    #define SD_MOSI_PIN   37
-  #endif
-  #ifndef SDSS
-    #define SDSS          18
-  #endif
-
-#else
-
-  #error "Unsupported board!"
-
-#endif //__SAMD21__
-
+/**
+ * SAMD21 Default SPI Pins
+ *
+ *         SS    SCK   MISO   MOSI
+ *       +-------------------------+
+ *  SPI  | 53    52     50     51  |
+ *  SPI1 | 83    81     80     82  |
+ *       +-------------------------+
+ * Any pin can be used for Chip Select (SD_SS_PIN)
+ */
+#ifndef SD_SCK_PIN
+  #define SD_SCK_PIN    38
+#endif
+#ifndef SD_MISO_PIN
+  #define SD_MISO_PIN   36
+#endif
+#ifndef SD_MOSI_PIN
+  #define SD_MOSI_PIN   37
+#endif
+#ifndef SDSS
+  #define SDSS          18
+#endif
 
 #ifndef SD_SS_PIN
   #define SD_SS_PIN     SDSS

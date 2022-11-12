@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
-#pragma once
 
 #define CPU_32_BIT
 
@@ -33,70 +33,51 @@
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 
+// ------------------------
+// Serial ports
+// ------------------------
+#include "../../core/serial_hook.h"
+typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
+extern DefaultSerial1 MSerialUSB;
 
-#ifdef __SAMD21__
-  
-  // ------------------------
-  // Serial ports
-  // ------------------------
- // #ifdef USBCON
-  
-    #include "../../core/serial_hook.h"
-    typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
-    extern DefaultSerial1 MSerialUSB;
-  //#endif
+// Serial ports
+//typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+//typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
+//typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
 
+#define __MSERIAL(X) MSerial##X
+#define _MSERIAL(X) __MSERIAL(X)
+#define MSERIAL(X) _MSERIAL(INCREMENT(X))
 
-  // Serial ports
-  //typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
-  //typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
-  //typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
+#if SERIAL_PORT == -1
+  #define MYSERIAL1 MSerialUSB
+#else
+  #error "SERIAL_PORT must be -1 (Native USB only)."
+#endif
 
-
-
-  #define __MSERIAL(X) MSerial##X
-  #define _MSERIAL(X) __MSERIAL(X)
-  #define MSERIAL(X) _MSERIAL(INCREMENT(X))
-
-  #if SERIAL_PORT == -1
-    #define MYSERIAL1 MSerialUSB
-  /*#elif WITHIN(SERIAL_PORT, 0, 3)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT)*/
+#ifdef SERIAL_PORT_2
+  #if SERIAL_PORT_2 == -1
+    #define MYSERIAL2 MSerialUSB
   #else
-    #error "SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
+    #error "SERIAL_PORT_2 must be -1 (Native USB only)."
   #endif
+#endif
 
-  #ifdef SERIAL_PORT_2
-    #if SERIAL_PORT_2 == -1
-      #define MYSERIAL2 MSerialUSB
-   /* #elif WITHIN(SERIAL_PORT_2, 0, 3)
-      #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)*/
-    #else
-      #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL MSerialUSB
+  #else
+    #error "MMU2_SERIAL_PORT must be -1 (Native USB only)."
   #endif
+#endif
 
-  #ifdef MMU2_SERIAL_PORT
-    #if MMU2_SERIAL_PORT == -1
-      #define MMU2_SERIAL MSerialUSB
-    /*#elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
-      #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)*/
-    #else
-      #error "MMU2_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL MSerialUSB
+  #else
+    #error "LCD_SERIAL_PORT must be -1 (Native USB only)."
   #endif
-
-  #ifdef LCD_SERIAL_PORT
-    #if LCD_SERIAL_PORT == -1
-      #define LCD_SERIAL MSerialUSB
-   /* #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
-      #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)*/
-    #else
-      #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
-    #endif
-  #endif
-
-#endif // ADAFRUIT_GRAND_CENTRAL_M4
+#endif
 
 typedef int8_t pin_t;
 
@@ -125,16 +106,12 @@ typedef Servo hal_servo_t;
 #define HAL_ADC_AIN_NUM_SENSORS 3
 #define HAL_ADC_AIN_LEN HAL_ADC_AIN_NUM_SENSORS-1
 
-
-
 //
 // Pin Mapping for M42, M43, M226
 //
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
-
-
 
 //
 // Tone

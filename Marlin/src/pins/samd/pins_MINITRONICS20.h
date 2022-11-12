@@ -25,22 +25,24 @@
  * ReprapWorld's Minitronics v2.0
  */
 
-#if NOT_TARGET(ARDUINO_SAMD_MINITRONICS20)
+#if NOT_TARGET(__SAMD21__)
   #error "Oops! Select 'Minitronics v2.0' in 'Tools > Board.'"
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Minitronics V2.0" 
+  #define BOARD_INFO_NAME "Minitronics V2.0"
 #endif
 
 /**
  * NOTE: We need the Serial port on the -1 to make it work!!. Remember to change it on configuration.h #define SERIAL_PORT -1
  */
 
+/**
+ * EEPROM EMULATION: Works with some bugs already, but the board needs an I2C EEPROM memory soldered on.
+ */
 //#define FLASH_EEPROM_EMULATION
-//#define I2C_EEPROM                                // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE               500 // 4000 bytes
-
+//#define I2C_EEPROM                              // EEPROM on I2C-0
+#define MARLIN_EEPROM_SIZE                   500  // 4000 bytes
 
 //This its another option to emulate an EEPROM, but its more efficient to dont loose the data the first One.
 //#define SDCARD_EEPROM_EMULATION
@@ -55,7 +57,7 @@
 //
 #define X_STOP_PIN                            54
 #define Y_STOP_PIN                            55
-#define Z_STOP_PIN                            4
+#define Z_STOP_PIN                             4
 
 /**
  * NOTE: Useful if extra TMC2209 are to be used as independent axes.
@@ -97,7 +99,9 @@
 
 // Filament runout. You may choose to use this pin for some other purpose. It's a normal GPIO that can be configured as I/O.
 // For example, a switch to detect any kind of behavior, Power supply pin .... etc.
-//#define FIL_RUNOUT_PIN                        32
+#ifndef FIL_RUNOUT_PIN
+  //#define FIL_RUNOUT_PIN                    32
+#endif
 
 // This board have the option to use an extra TMC2209 stepper, one of the use could be as a second extruder.
 #if EXTRUDERS < 2
@@ -125,16 +129,16 @@
 //
 
 // Temperature Sensors
-#define TEMP_0_PIN                             4 // T1
+#define TEMP_0_PIN                             4  // T1
 
 // You could use one of the ADC for a temp chamber if you don't use the second extruder, for example.
 #if TEMP_SENSOR_CHAMBER > 0
   #define TEMP_CHAMBER_PIN                     3
 #else
-  #define TEMP_1_PIN                           2 // T3
+  #define TEMP_1_PIN                           2  // T3
 #endif
 
-#define TEMP_BED_PIN                           3 // T2
+#define TEMP_BED_PIN                           3  // T2
 
 //
 // Heaters / Fans
@@ -142,11 +146,10 @@
 #define HEATER_0_PIN                          10
 #define HEATER_1_PIN                          11
 #define HEATER_BED_PIN                         6
-#define SPINDLE_LASER_PWM_PIN 6
+#define SPINDLE_LASER_PWM_PIN                  6
 
 // The board has 4 PWM fans, use and configure as desired
 #define FAN_PIN                               24
-
 
 //
 // LCD / Controller
@@ -184,17 +187,15 @@
   // LCD Display output pins
   //
 
-  
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-    #define LCD_PINS_RS            18 // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE        MOSI  // SID (MOSI)
-    #define LCD_PINS_D4            SCK  // SCK (CLK) clock
+    #define LCD_PINS_RS                       18  // CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE                 MOSI  // SID (MOSI)
+    #define LCD_PINS_D4                      SCK  // SCK (CLK) clock
 
-    #define BTN_ENC                  23
-    #define BTN_EN1                  27
-    #define BTN_EN2                  33
-
+    #define BTN_ENC                           23
+    #define BTN_EN1                           27
+    #define BTN_EN2                           33
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
@@ -301,7 +302,6 @@
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         //#define LCD_BACKLIGHT_PIN  EXP1_08_PIN  // TO TEST
       #endif
-
 
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
@@ -495,13 +495,9 @@
 // SD Support
 //
 
-
-
-
-
-#define SDSS                                2
+#define SDSS                                   2
 #undef SD_DETECT_PIN
-#define SD_DETECT_PIN                       22
+#define SD_DETECT_PIN                         22
 
 #if HAS_TMC_UART
 

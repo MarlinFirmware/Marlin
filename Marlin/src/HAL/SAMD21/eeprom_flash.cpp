@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,8 +21,8 @@
  */
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 #ifdef __SAMD21__
 
@@ -30,16 +30,12 @@
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
-
 #define TOTAL_FLASH_SIZE (MARLIN_EEPROM_SIZE+255)/256*256
 
 /* reserve flash memory */
 static const uint8_t flashdata[TOTAL_FLASH_SIZE]  __attribute__((__aligned__(256))) { }; \
 
-
-
 #include "../shared/eeprom_api.h"
-
 
 size_t PersistentStore::capacity() {
   return MARLIN_EEPROM_SIZE;
@@ -55,24 +51,19 @@ size_t PersistentStore::capacity() {
                                    : 32768;*/
 }
 
-
 uint32_t PAGE_SIZE;
 uint32_t ROW_SIZE;
 bool hasWritten = false;
 uint8_t * buffer;
 
-
-void _erase(const volatile void *flash_ptr)
-{
-
+void _erase(const volatile void *flash_ptr) {
   NVMCTRL->ADDR.reg = ((uint32_t)flash_ptr) / 2;
   NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
   while (!NVMCTRL->INTFLAG.bit.READY) { }
 
 }
 
-void erase(const volatile void *flash_ptr, uint32_t size)
-{
+void erase(const volatile void *flash_ptr, uint32_t size) {
   const uint8_t *ptr = (const uint8_t *)flash_ptr;
   while (size > ROW_SIZE) {
     _erase(ptr);
@@ -82,14 +73,10 @@ void erase(const volatile void *flash_ptr, uint32_t size)
   _erase(ptr);
 }
 
-
 bool PersistentStore::access_start() {
-  
-  
   /* clear page buffer*/
   NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
   while (NVMCTRL->INTFLAG.bit.READY == 0) { }
-
 
   PAGE_SIZE =  pow(2,3 + NVMCTRL->PARAM.bit.PSZ);
   ROW_SIZE= PAGE_SIZE * 4;
@@ -101,8 +88,6 @@ bool PersistentStore::access_start() {
 }
 
 bool PersistentStore::access_finish() {
-
-
   if (hasWritten) {
     erase(&flashdata[0], TOTAL_FLASH_SIZE);
 
@@ -114,14 +99,14 @@ bool PersistentStore::access_finish() {
     volatile uint32_t *dst_addr =  (volatile uint32_t *) &flashdata;
 
     uint32_t *pointer = (uint32_t *) buffer;
-    for(uint32_t i = 0; i < TOTAL_FLASH_SIZE; i+=4) {
+    for (uint32_t i = 0; i < TOTAL_FLASH_SIZE; i+=4) {
 
       *dst_addr = (uint32_t) *pointer;
       pointer++;
       dst_addr ++;
     }
 
-        // Execute "WP" Write Page
+    // Execute "WP" Write Page
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
     while (NVMCTRL->INTFLAG.bit.READY == 0) { }
 
@@ -132,10 +117,7 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-
   if (!hasWritten) {
-
-
     // init temp buffer
     buffer = (uint8_t *) malloc(MARLIN_EEPROM_SIZE);
     hasWritten=true;

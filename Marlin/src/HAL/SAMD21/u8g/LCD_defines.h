@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,25 +21,21 @@
  */
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 #pragma once
 
 /**
- * LPC1768 LCD-specific defines
+ * SAMD21 LCD-specific defines
  */
 
 // The following are optional depending on the platform.
 
 // definitions of HAL specific com and device drivers.
 uint8_t u8g_com_samd21_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
-
 uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
 
-
-
 // connect U8g com generic com names to the desired driver
-#define U8G_COM_HW_SPI u8g_com_samd21_st7920_hw_spi_fn  // use LPC1768 specific hardware SPI routine
-
+#define U8G_COM_HW_SPI u8g_com_samd21_st7920_hw_spi_fn  // use SAMD21 specific hardware SPI routine
 #define U8G_COM_ST7920_HW_SPI u8g_com_samd21_st7920_hw_spi_fn

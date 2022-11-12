@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,8 +21,8 @@
  */
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 #ifdef __SAMD21__
 
@@ -30,29 +30,25 @@
 
 #include <wiring_private.h>
 
-
- #if USING_HW_SERIALUSB
-    DefaultSerial1 MSerialUSB(false, SerialUSB);
-  #endif
-  #if USING_HW_SERIAL0
-    DefaultSerial2 MSerial1(false, Serial1);
-  #endif
-  #if USING_HW_SERIAL1
-    DefaultSerial3 MSerial2(false, Serial2);
-  #endif
-  #if USING_HW_SERIAL2
-    DefaultSerial4 MSerial3(false, Serial3);
-  #endif
-  #if USING_HW_SERIAL3
-    DefaultSerial5 MSerial4(false, Serial4);
-  #endif
+#if USING_HW_SERIALUSB
+  DefaultSerial1 MSerialUSB(false, SerialUSB);
+#endif
+#if USING_HW_SERIAL0
+  DefaultSerial2 MSerial1(false, Serial1);
+#endif
+#if USING_HW_SERIAL1
+  DefaultSerial3 MSerial2(false, Serial2);
+#endif
+#if USING_HW_SERIAL2
+  DefaultSerial4 MSerial3(false, Serial3);
+#endif
+#if USING_HW_SERIAL3
+  DefaultSerial5 MSerial4(false, Serial4);
+#endif
 
 #define WDT_CONFIG_PER_7_Val 0x9u
 #define WDT_CONFIG_PER_Pos 0
 #define WDT_CONFIG_PER_7 (WDT_CONFIG_PER_7_Val << WDT_CONFIG_PER_Pos)
-
-
-
 
 #if ENABLED(USE_WATCHDOG)
 
@@ -68,7 +64,7 @@
                         GCLK_GENCTRL_IDC |            // Set the duty cycle to 50/50 HIGH/LOW
                         GCLK_GENCTRL_GENEN |          // Enable GCLK2
                         GCLK_GENCTRL_SRC_OSCULP32K |  // Set the clock source to the ultra low power oscillator (OSCULP32K)
-                        GCLK_GENCTRL_ID(2);           // Select GCLK2         
+                        GCLK_GENCTRL_ID(2);           // Select GCLK2
     while (GCLK->STATUS.bit.SYNCBUSY);                // Wait for synchronization
 
     // Feed GCLK2 to WDT (Watchdog Timer)
@@ -86,7 +82,7 @@
   // Reset watchdog. MUST be called at least every 4 seconds after the
   // first watchdog_init or SAMD will go into emergency procedures.
   void MarlinHAL::watchdog_refresh() {
-    WDT->CLEAR.reg = WDT_CLEAR_CLEAR_KEY; 
+    WDT->CLEAR.reg = WDT_CLEAR_CLEAR_KEY;
     while (WDT->STATUS.bit.SYNCBUSY);
   }
 
@@ -96,8 +92,6 @@
 // Types
 // ------------------------
 
-
-
 // ------------------------
 // Private Variables
 // ------------------------
@@ -106,9 +100,7 @@
 // Private functions
 // ------------------------
 
-void MarlinHAL::dma_init() {
-
-}
+void MarlinHAL::dma_init() {}
 
 // ------------------------
 // Public functions
@@ -116,9 +108,6 @@ void MarlinHAL::dma_init() {
 
 // HAL initialization task
 void MarlinHAL::init() {
-
-
-
   TERN_(DMA_IS_REQUIRED, dma_init());
   #if ENABLED(SDSUPPORT)
     #if HAS_SD_DETECT && SD_CONNECTION_IS(ONBOARD)
@@ -126,8 +115,6 @@ void MarlinHAL::init() {
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
   #endif
-
-
 }
 
 #pragma push_macro("WDT")
@@ -142,7 +129,6 @@ void MarlinHAL::reboot() { NVIC_SystemReset(); }
 
 extern "C" {
   void * _sbrk(int incr);
-
   extern unsigned int __bss_end__; // end of bss section
 }
 
@@ -159,70 +145,57 @@ int freeMemory() {
 uint16_t MarlinHAL::adc_result;
 
 void MarlinHAL::adc_init() {
-  //#if ADC_IS_REQUIRED
+  /* thanks to https://www.eevblog.com/forum/microcontrollers/samd21g18-adc-with-resrdy-interrupts-only-reads-once-or-twice/ */
 
-    /* thanks to https://www.eevblog.com/forum/microcontrollers/samd21g18-adc-with-resrdy-interrupts-only-reads-once-or-twice/ */
+  ADC->CTRLA.bit.ENABLE = false;
+  while(ADC->STATUS.bit.SYNCBUSY);
 
-    ADC->CTRLA.bit.ENABLE = false;
-    while(ADC->STATUS.bit.SYNCBUSY); 
+  // load chip corrections
+  uint32_t bias = (*((uint32_t *) ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
+  uint32_t linearity = (*((uint32_t *) ADC_FUSES_LINEARITY_0_ADDR) & ADC_FUSES_LINEARITY_0_Msk) >> ADC_FUSES_LINEARITY_0_Pos;
+  linearity |= ((*((uint32_t *) ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
 
+  /* Wait for bus synchronization. */
+  while (ADC->STATUS.bit.SYNCBUSY) {};
 
-    // load chip corrections
-    uint32_t bias = (*((uint32_t *) ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
-    uint32_t linearity = (*((uint32_t *) ADC_FUSES_LINEARITY_0_ADDR) & ADC_FUSES_LINEARITY_0_Msk) >> ADC_FUSES_LINEARITY_0_Pos;
-    linearity |= ((*((uint32_t *) ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
-  
-    /* Wait for bus synchronization. */
-    while (ADC->STATUS.bit.SYNCBUSY) {};
+  ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
 
-    ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
-  
-    /* Wait for bus synchronization. */
-    while (ADC->STATUS.bit.SYNCBUSY) {};
-  
-    
-    ADC->CTRLA.bit.SWRST = true;
-    while(ADC->STATUS.bit.SYNCBUSY); 
+  /* Wait for bus synchronization. */
+  while (ADC->STATUS.bit.SYNCBUSY) {};
 
-    ADC->REFCTRL.reg = ADC_REFCTRL_REFSEL_INTVCC1;
-    ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_32| ADC_AVGCTRL_ADJRES(4);;
-  
- 
-    ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV128 |
-                   ADC_CTRLB_RESSEL_16BIT | 
-                   ADC_CTRLB_FREERUN;
-    while(ADC->STATUS.bit.SYNCBUSY); 
+  ADC->CTRLA.bit.SWRST = true;
+  while(ADC->STATUS.bit.SYNCBUSY);
 
-    ADC->SAMPCTRL.bit.SAMPLEN = 0x00;
-    while(ADC->STATUS.bit.SYNCBUSY); 
+  ADC->REFCTRL.reg = ADC_REFCTRL_REFSEL_INTVCC1;
+  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_32| ADC_AVGCTRL_ADJRES(4);;
 
 
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV128 |
+                 ADC_CTRLB_RESSEL_16BIT |
+                 ADC_CTRLB_FREERUN;
+  while(ADC->STATUS.bit.SYNCBUSY);
 
-    ADC->INPUTCTRL.reg =  ADC_INPUTCTRL_INPUTSCAN(HAL_ADC_AIN_LEN) // scan  (INPUTSCAN + NUM_EXTUDERS - 1) pins
-    | ADC_INPUTCTRL_GAIN_DIV2  |ADC_INPUTCTRL_MUXNEG_GND| HAL_ADC_AIN_START ;  /* set to first AIN */
+  ADC->SAMPCTRL.bit.SAMPLEN = 0x00;
+  while(ADC->STATUS.bit.SYNCBUSY);
 
-    while(ADC->STATUS.bit.SYNCBUSY);
+  ADC->INPUTCTRL.reg =  ADC_INPUTCTRL_INPUTSCAN(HAL_ADC_AIN_LEN) // scan  (INPUTSCAN + NUM_EXTUDERS - 1) pins
+  | ADC_INPUTCTRL_GAIN_DIV2  |ADC_INPUTCTRL_MUXNEG_GND| HAL_ADC_AIN_START ;  /* set to first AIN */
 
+  while(ADC->STATUS.bit.SYNCBUSY);
 
-    ADC->INTENSET.reg |= ADC_INTENSET_RESRDY; // enable Result Ready ADC interrupts
-    while (ADC->STATUS.bit.SYNCBUSY);
+  ADC->INTENSET.reg |= ADC_INTENSET_RESRDY; // enable Result Ready ADC interrupts
+  while (ADC->STATUS.bit.SYNCBUSY);
 
-    NVIC_EnableIRQ(ADC_IRQn); // enable ADC interrupts
+  NVIC_EnableIRQ(ADC_IRQn); // enable ADC interrupts
 
-    NVIC_SetPriority(ADC_IRQn, 3);
-   
-    ADC->CTRLA.bit.ENABLE = true;
+  NVIC_SetPriority(ADC_IRQn, 3);
 
-
-  //#endif // ADC_IS_REQUIRED
+  ADC->CTRLA.bit.ENABLE = true;
 }
 
 volatile uint32_t adc_results[HAL_ADC_AIN_NUM_SENSORS];
 
-
-
 void ADC_Handler() {
-
   while(ADC->STATUS.bit.SYNCBUSY == 1);
   int pos = ADC->INPUTCTRL.bit.INPUTOFFSET;
 
@@ -230,20 +203,13 @@ void ADC_Handler() {
   ADC->INTFLAG.reg = ADC_INTENSET_RESRDY; /* Clear the data ready flag. */
 }
 
-
-
-void MarlinHAL::adc_start(const pin_t pin) { 
-
+void MarlinHAL::adc_start(const pin_t pin) {
   /* due to the way INPUTOFFSET works, the last sensor is the first position in the array
     and we want the ADC_handler interrupt to be as simple possible, so we do the calculation here.
   */
   unsigned int pos = PIN_TO_INPUTCTRL(pin) - HAL_ADC_AIN_START + 1;
-  if (pos == HAL_ADC_AIN_NUM_SENSORS)
-    pos = 0;
- // #if ADC_IS_REQUIRED
-    adc_result = adc_results[pos];//16 bit resolution
-  //#endif
-
+  if (pos == HAL_ADC_AIN_NUM_SENSORS) pos = 0;
+  adc_result = adc_results[pos]; // 16-bit resolution
   //adc_result = 0xFFFF;
 }
 

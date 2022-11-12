@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,14 @@
  */
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
 
 /**
  * Low level pin manipulation routines - used by all the drivers.
  *
- * These are based on the LPC1768 pinMode, digitalRead & digitalWrite routines.
+ * These are based on the SAMD51 pinMode, digitalRead & digitalWrite routines.
  *
  * Couldn't just call exact copies because the overhead killed the LCD update speed
  * With an intermediate level the softspi was running in the 10-20kHz range which
@@ -36,7 +36,7 @@
  */
 
 #ifdef __SAMD21__
-#include <Arduino.h>
 
+#include <Arduino.h>
 
 #endif // __SAMD21__

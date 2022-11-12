@@ -452,7 +452,7 @@
       //#define SD_DETECT_PIN                 49
 
       //#ifndef KILL_PIN
-      //  #define KILL_PIN         41
+      //  #define KILL_PIN                    41
       //#endif
 
       #if ENABLED(MKS_MINI_12864)

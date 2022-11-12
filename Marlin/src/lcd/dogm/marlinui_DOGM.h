@@ -36,7 +36,7 @@
 
   // RepRapWorld Graphical LCD
 
-  
+
   #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
     #define U8G_PARAM LCD_PINS_RS

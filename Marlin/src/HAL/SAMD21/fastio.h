@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
-#pragma once
 
 /**
  * Fast IO functions for SAMD21
@@ -129,69 +129,64 @@
  * Added as necessary or if I feel like it- not a comprehensive list!
  */
 
-#ifdef __SAMD21__
+/*
+ * Some of these share the same source and so can't be used in the same time
+ */
+#define PWM_PIN(P)        (WITHIN(P, 2, 13) || WITHIN(P, 22, 23) || WITHIN(P, 44, 45) || P == 48)
 
-  /*
-   * Adafruit Grand Central M4 has a lot of PWMs the availables are listed here.
-   * Some of these share the same source and so can't be used in the same time
-   */
-  #define PWM_PIN(P)        (WITHIN(P, 2, 13) || WITHIN(P, 22, 23) || WITHIN(P, 44, 45) || P == 48)
+// Return fulfilled ADCx->INPUTCTRL.reg
+#define PIN_TO_INPUTCTRL(P)     (  (P == 0) ? ADC_INPUTCTRL_MUXPOS_PIN0   \
+                                 : ((P) == 1) ? ADC_INPUTCTRL_MUXPOS_PIN1   \
+                                 : ((P) == 2) ? ADC_INPUTCTRL_MUXPOS_PIN3   \
+                                 : ((P) == 3) ? ADC_INPUTCTRL_MUXPOS_PIN4   \
+                                 : ((P) == 4) ? ADC_INPUTCTRL_MUXPOS_PIN5   \
+                                 : ((P) == 5) ? ADC_INPUTCTRL_MUXPOS_PIN5   \
+                                 : ((P) == 6) ? ADC_INPUTCTRL_MUXPOS_PIN6   \
+                                 : ((P) == 7) ? ADC_INPUTCTRL_MUXPOS_PIN7   \
+                                 : ((P) == 8) ? ADC_INPUTCTRL_MUXPOS_PIN8   \
+                                 : ((P) == 9) ? ADC_INPUTCTRL_MUXPOS_PIN9   \
+                                 : ((P) == 10) ? ADC_INPUTCTRL_MUXPOS_PIN10 \
+                                 : ((P) == 11) ? ADC_INPUTCTRL_MUXPOS_PIN11 \
+                                 : ((P) == 12) ? ADC_INPUTCTRL_MUXPOS_PIN12 \
+                                 : ((P) == 13) ? ADC_INPUTCTRL_MUXPOS_PIN13 \
+                                 : ((P) == 14) ? ADC_INPUTCTRL_MUXPOS_PIN14 \
+                                 : ADC_INPUTCTRL_MUXPOS_PIN15)
 
-  // Return fulfilled ADCx->INPUTCTRL.reg
-  #define PIN_TO_INPUTCTRL(P)     (  (P == 0) ? ADC_INPUTCTRL_MUXPOS_PIN0   \
-                                   : ((P) == 1) ? ADC_INPUTCTRL_MUXPOS_PIN1   \
-                                   : ((P) == 2) ? ADC_INPUTCTRL_MUXPOS_PIN3   \
-                                   : ((P) == 3) ? ADC_INPUTCTRL_MUXPOS_PIN4   \
-                                   : ((P) == 4) ? ADC_INPUTCTRL_MUXPOS_PIN5   \
-                                   : ((P) == 5) ? ADC_INPUTCTRL_MUXPOS_PIN5   \
-                                   : ((P) == 6) ? ADC_INPUTCTRL_MUXPOS_PIN6   \
-                                   : ((P) == 7) ? ADC_INPUTCTRL_MUXPOS_PIN7   \
-                                   : ((P) == 8) ? ADC_INPUTCTRL_MUXPOS_PIN8   \
-                                   : ((P) == 9) ? ADC_INPUTCTRL_MUXPOS_PIN9   \
-                                   : ((P) == 10) ? ADC_INPUTCTRL_MUXPOS_PIN10 \
-                                   : ((P) == 11) ? ADC_INPUTCTRL_MUXPOS_PIN11 \
-                                   : ((P) == 12) ? ADC_INPUTCTRL_MUXPOS_PIN12 \
-                                   : ((P) == 13) ? ADC_INPUTCTRL_MUXPOS_PIN13 \
-                                   : ((P) == 14) ? ADC_INPUTCTRL_MUXPOS_PIN14 \
-                                   : ADC_INPUTCTRL_MUXPOS_PIN15)
+#define digitalPinToAnalogInput(P) (WITHIN(P, 67, 74) ? (P) - 67 : WITHIN(P, 54, 61) ? 8 + (P) - 54 : WITHIN(P, 12, 13) ? 16 + (P) - 12 : P == 9 ? 18 : -1)
 
+/**
+ * pins
+ */
 
+// PORTA
+#define DIO28_PIN   PIN_PA02    // A0
+#define DIO56_PIN   PIN_PA03    // A13
+#define DIO31_PIN   PIN_PA04    // A13
+#define DIO32_PIN   PIN_PA05    // A1
+#define DIO8_PIN    PIN_PA06    // A14
+#define DIO9_PIN    PIN_PA07    // A15
+#define DIO4_PIN    PIN_PA08    // A15
+#define DIO3_PIN    PIN_PA09    // A15
+#define DIO1_PIN    PIN_PA10
+#define DIO0_PIN    PIN_PA11
+#define DIO18_PIN   PIN_PA12
+#define DIO52_PIN   PIN_PA13
+#define DIO2_PIN    PIN_PA14
+#define DIO5_PIN    PIN_PA15
+#define DIO11_PIN   PIN_PA16
+#define DIO13_PIN   PIN_PA17
+#define DIO10_PIN   PIN_PA18
+#define DIO12_PIN   PIN_PA19
+#define DIO6_PIN    PIN_PA20
+#define DIO07_PIN   PIN_PA21
+#define DIO34_PIN   PIN_PA22
+#define DIO35_PIN   PIN_PA23
+#define DIO42_PIN   PIN_PA24
+#define DIO43_PIN   PIN_PA25
 
-  #define digitalPinToAnalogInput(P) (WITHIN(P, 67, 74) ? (P) - 67 : WITHIN(P, 54, 61) ? 8 + (P) - 54 : WITHIN(P, 12, 13) ? 16 + (P) - 12 : P == 9 ? 18 : -1)
-
-  /*
-   * pins
-   */
-
-   // PORTA
-  #define DIO28_PIN   PIN_PA02    // A0
-  #define DIO56_PIN   PIN_PA03    // A13
-  #define DIO31_PIN   PIN_PA04    // A13
-  #define DIO32_PIN   PIN_PA05    // A1
-  #define DIO8_PIN   PIN_PA06    // A14
-  #define DIO9_PIN   PIN_PA07    // A15
-  #define DIO4_PIN   PIN_PA08    // A15
-  #define DIO3_PIN   PIN_PA09    // A15
-  #define DIO1_PIN   PIN_PA10 
-  #define DIO0_PIN   PIN_PA11
-  #define DIO18_PIN   PIN_PA12
-  #define DIO52_PIN   PIN_PA13
-  #define DIO2_PIN   PIN_PA14
-  #define DIO5_PIN   PIN_PA15
-  #define DIO11_PIN   PIN_PA16
-  #define DIO13_PIN   PIN_PA17
-  #define DIO10_PIN   PIN_PA18
-  #define DIO12_PIN   PIN_PA19
-  #define DIO6_PIN   PIN_PA20
-  #define DIO07_PIN   PIN_PA21
-  #define DIO34_PIN   PIN_PA22
-  #define DIO35_PIN   PIN_PA23
-  #define DIO42_PIN   PIN_PA24
-  #define DIO43_PIN   PIN_PA25
-
-  #define DIO26_PIN   PIN_PB00  //
-  #define DIO27_PIN   PIN_PB01    // A0
-  #define DIO33_PIN   PIN_PB02
+#define DIO26_PIN   PIN_PB00
+#define DIO27_PIN   PIN_PB01    // A0
+#define DIO33_PIN   PIN_PB02
 #define DIO39_PIN   PIN_PB03
 #define DIO14_PIN   PIN_PB04
 #define DIO15_PIN   PIN_PB05
@@ -217,4 +212,3 @@
 #define DIO53_PIN   PIN_PA21
 #define DIO54_PIN   PIN_PA06
 #define DIO55_PIN   PIN_PA07
-#endif // ADAFRUIT_GRAND_CENTRAL_M4

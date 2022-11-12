@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * SAMD21 HAL developed by Bart Meijer (brupje) 
- * Based on the work of Giuliano Zaro (AKA GMagician)
+ * SAMD21 HAL developed by Bart Meijer (brupje)
+ * Based on SAMD51 HAL by Giuliano Zaro (AKA GMagician)
  */
-#pragma once
 
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
@@ -59,7 +59,7 @@ void pwm_details(int32_t pin) {
 }
 
 /**
- * AGCM4 Board pin |  PORT  | Label
+ * SAMD21 Board pin|  PORT  | Label
  * ----------------+--------+-------
  *   0             |  PB25  | "RX0"
  *   1             |  PB24  | "TX0"
