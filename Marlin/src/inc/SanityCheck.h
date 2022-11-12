@@ -4258,14 +4258,14 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 // Check requirements for Input Shaping
-#if ENABLED(INPUT_SHAPING) && defined(__AVR__)
-  #if HAS_SHAPING_X
+#if HAS_SHAPING && defined(__AVR__)
+  #if ENABLED(INPUT_SHAPING_X)
     #if F_CPU > 16000000
       static_assert((SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (20) for AVR 20MHz.");
     #else
       static_assert((SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (16) for AVR 16MHz.");
     #endif
-  #elif HAS_SHAPING_Y
+  #elif INPUT_SHAPING_Y
     #if F_CPU > 16000000
       static_assert((SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (20) for AVR 20MHz.");
     #else
@@ -4274,10 +4274,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
-#if ENABLED(INPUT_SHAPING)
-  #if ENABLED(DIRECT_STEPPING)
-    #error "INPUT_SHAPING cannot currently be used with DIRECT_STEPPING."
-  #endif
+#if BOTH(HAS_SHAPING, DIRECT_STEPPING)
+  #error "INPUT_SHAPING_[XY] cannot currently be used with DIRECT_STEPPING."
 #endif
 
 // Misc. Cleanup

@@ -1119,15 +1119,11 @@
 #endif
 
 // Input shaping
-#if ENABLED(INPUT_SHAPING)
-  #if !HAS_Y_AXIS
-    #undef SHAPING_FREQ_Y
-    #undef SHAPING_BUFFER_Y
-  #endif
-  #ifdef SHAPING_FREQ_X
-    #define HAS_SHAPING_X 1
-  #endif
-  #ifdef SHAPING_FREQ_Y
-    #define HAS_SHAPING_Y 1
-  #endif
+#if !HAS_Y_AXIS
+  #undef INPUT_SHAPING_Y
+  #undef SHAPING_FREQ_Y
+  #undef SHAPING_BUFFER_Y
+#endif
+#if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
+  #define HAS_SHAPING 1
 #endif

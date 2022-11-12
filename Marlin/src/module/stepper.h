@@ -93,7 +93,7 @@
   #endif
 
   // Input shaping base time
-  #if ENABLED(INPUT_SHAPING)
+  #if HAS_SHAPING
     #define ISR_SHAPING_BASE_CYCLES 250UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
@@ -127,7 +127,7 @@
   #endif
 
   // Input shaping base time
-  #if ENABLED(INPUT_SHAPING)
+  #if HAS_SHAPING
     #define ISR_SHAPING_BASE_CYCLES 250UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
@@ -216,7 +216,7 @@
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + HIGH_PULSE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
 
 // Model input shaping as an extra loop call
-#define ISR_SHAPING_LOOP_CYCLES (TERN0(INPUT_SHAPING, ISR_LOOP_BASE_CYCLES + HIGH_PULSE_CYCLES) + TERN0(HAS_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(HAS_SHAPING_Y, ISR_Y_STEPPER_CYCLES))
+#define ISR_SHAPING_LOOP_CYCLES (TERN0(HAS_SHAPING, ISR_LOOP_BASE_CYCLES + HIGH_PULSE_CYCLES) + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES))
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
@@ -325,7 +325,7 @@ constexpr ena_mask_t enable_overlap[] = {
 
 //static_assert(!any_enable_overlap(), "There is some overlap.");
 
-#if ENABLED(INPUT_SHAPING)
+#if HAS_SHAPING
 
   typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
 
@@ -344,23 +344,23 @@ constexpr ena_mask_t enable_overlap[] = {
                                       max_feedrate.v * steps_per_unit.v,
                                       max_feedrate.w * steps_per_unit.w
                                     ));
-  constexpr uint16_t shaping_dividends = max_steprate / _MIN(0x7FFFFFFFL OPTARG(HAS_SHAPING_X, SHAPING_FREQ_X) OPTARG(HAS_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
-  constexpr uint16_t shaping_segments = max_steprate / (MIN_STEPS_PER_SEGMENT) / _MIN(0x7FFFFFFFL OPTARG(HAS_SHAPING_X, SHAPING_FREQ_X) OPTARG(HAS_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
+  constexpr uint16_t shaping_dividends = max_steprate / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
+  constexpr uint16_t shaping_segments = max_steprate / (MIN_STEPS_PER_SEGMENT) / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
 
   class DelayTimeManager {
     private:
       static shaping_time_t now;
-      #ifdef HAS_SHAPING_X
+      #ifdef INPUT_SHAPING_X
         static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
       #endif
-      #ifdef HAS_SHAPING_Y
+      #ifdef INPUT_SHAPING_Y
         static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
       #endif
     public:
       static void decrement_delays(const shaping_time_t interval) { now += interval; }
       static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
-        TERN_(HAS_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
-        TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
+        TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
+        TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
       }
   };
 
@@ -368,11 +368,11 @@ constexpr ena_mask_t enable_overlap[] = {
   class DelayQueue : public DelayTimeManager {
     protected:
       shaping_time_t times[SIZE];
-      #if HAS_SHAPING_X
+      #if ENABLED(INPUT_SHAPING_X)
         shaping_time_t peek_x_val = shaping_time_t(-1);
         uint16_t head_x = 0;
       #endif
-      #if HAS_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         shaping_time_t peek_y_val = shaping_time_t(-1);
         uint16_t head_y = 0;
       #endif
@@ -380,18 +380,18 @@ constexpr ena_mask_t enable_overlap[] = {
 
     public:
       void decrement_peeks(const shaping_time_t interval) {
-        TERN_(HAS_SHAPING_X, if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval);
-        TERN_(HAS_SHAPING_Y, if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval);
+        TERN_(INPUT_SHAPING_X, if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval);
+        TERN_(INPUT_SHAPING_Y, if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval);
       }
       void enqueue() {
-        TERN_(HAS_SHAPING_X, if (head_x == tail) peek_x_val = delay_x);
-        TERN_(HAS_SHAPING_Y, if (head_y == tail) peek_y_val = delay_y);
+        TERN_(INPUT_SHAPING_X, if (head_x == tail) peek_x_val = delay_x);
+        TERN_(INPUT_SHAPING_Y, if (head_y == tail) peek_y_val = delay_y);
         times[tail] = now;
         if (++tail == SIZE) tail = 0;
-        TERN_(HAS_SHAPING_X, if (delay_x == shaping_time_t(-1)) head_x = tail);
-        TERN_(HAS_SHAPING_Y, if (delay_y == shaping_time_t(-1)) head_y = tail);
+        TERN_(INPUT_SHAPING_X, if (delay_x == shaping_time_t(-1)) head_x = tail);
+        TERN_(INPUT_SHAPING_Y, if (delay_y == shaping_time_t(-1)) head_y = tail);
       }
-      #if HAS_SHAPING_X
+      #if ENABLED(INPUT_SHAPING_X)
         shaping_time_t peek_x() { return peek_x_val; }
         void dequeue_x() {
           if (++head_x == SIZE) head_x = 0;
@@ -400,7 +400,7 @@ constexpr ena_mask_t enable_overlap[] = {
         bool empty_x() { return head_x == tail; }
         uint16_t free_count_x() { return (head_x > tail ? 0 : SIZE) + (head_x - tail - 1); }
       #endif
-      #if HAS_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         shaping_time_t peek_y() { return peek_y_val; }
         void dequeue_y() {
           if (++head_y == SIZE) head_y = 0;
@@ -411,10 +411,10 @@ constexpr ena_mask_t enable_overlap[] = {
       #endif
       void purge() {
         const auto st = shaping_time_t(-1);
-        #if HAS_SHAPING_X
+        #if ENABLED(INPUT_SHAPING_X)
           head_x = tail; peek_x_val = st;
         #endif
-        #if HAS_SHAPING_Y
+        #if ENABLED(INPUT_SHAPING_Y)
           head_y = tail; peek_y_val = st;
         #endif
       }
@@ -422,27 +422,27 @@ constexpr ena_mask_t enable_overlap[] = {
 
   class ParamDelayQueue : public DelayQueue<shaping_segments> {
     private:
-      #ifdef HAS_SHAPING_X
+      #ifdef INPUT_SHAPING_X
         int32_t params_x[shaping_segments];
       #endif
-      #ifdef HAS_SHAPING_Y
+      #ifdef INPUT_SHAPING_Y
         int32_t params_y[shaping_segments];
       #endif
 
     public:
       void enqueue(const int32_t param_x, const int32_t param_y) {
-        TERN(HAS_SHAPING_X, params_x[DelayQueue<shaping_segments>::tail] = param_x, UNUSED(param_x));
-        TERN(HAS_SHAPING_Y, params_y[DelayQueue<shaping_segments>::tail] = param_y, UNUSED(param_y));
+        TERN(INPUT_SHAPING_X, params_x[DelayQueue<shaping_segments>::tail] = param_x, UNUSED(param_x));
+        TERN(INPUT_SHAPING_Y, params_y[DelayQueue<shaping_segments>::tail] = param_y, UNUSED(param_y));
         DelayQueue<shaping_segments>::enqueue();
       }
-      #ifdef HAS_SHAPING_X
+      #ifdef INPUT_SHAPING_X
         const int32_t dequeue_x() {
           const int32_t result = params_x[DelayQueue<shaping_segments>::head_x];
           DelayQueue<shaping_segments>::dequeue_x();
           return result;
         }
       #endif
-      #ifdef HAS_SHAPING_Y
+      #ifdef INPUT_SHAPING_Y
         const int32_t dequeue_y() {
           const int32_t result = params_y[DelayQueue<shaping_segments>::head_y];
           DelayQueue<shaping_segments>::dequeue_y();
@@ -461,7 +461,7 @@ constexpr ena_mask_t enable_overlap[] = {
     int32_t last_block_end_pos = 0;
   };
 
-#endif // INPUT_SHAPING
+#endif // HAS_SHAPING
 
 //
 // Stepper class definition
@@ -567,13 +567,13 @@ class Stepper {
       static bool bezier_2nd_half; // If Bézier curve has been initialized or not
     #endif
 
-    #if ENABLED(INPUT_SHAPING)
+    #if HAS_SHAPING
       static ParamDelayQueue shaping_dividend_queue;
       static DelayQueue<shaping_dividends> shaping_queue;
-      #if HAS_SHAPING_X
+      #if ENABLED(INPUT_SHAPING_X)
         static ShapeParams shaping_x;
       #endif
-      #if HAS_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         static ShapeParams shaping_y;
       #endif
     #endif
@@ -637,7 +637,7 @@ class Stepper {
     // The stepper block processing ISR phase
     static uint32_t block_phase_isr();
 
-    #if ENABLED(INPUT_SHAPING)
+    #if HAS_SHAPING
       static void shaping_isr();
     #endif
 
@@ -660,13 +660,13 @@ class Stepper {
     // Check if the given block is busy or not - Must not be called from ISR contexts
     static bool is_block_busy(const block_t * const block);
 
-    #if ENABLED(INPUT_SHAPING)
+    #if HAS_SHAPING
       // Check whether the stepper is processing any input shaping echoes
       static bool input_shaping_busy() {
         const bool was_on = hal.isr_state();
         hal.isr_off();
 
-        const bool result = TERN0(HAS_SHAPING_X, !shaping_queue.empty_x()) || TERN0(HAS_SHAPING_Y, !shaping_queue.empty_y());
+        const bool result = TERN0(INPUT_SHAPING_X, !shaping_queue.empty_x()) || TERN0(INPUT_SHAPING_Y, !shaping_queue.empty_y());
 
         if (was_on) hal.isr_on();
 
@@ -808,7 +808,7 @@ class Stepper {
       set_directions();
     }
 
-    #if ENABLED(INPUT_SHAPING)
+    #if HAS_SHAPING
       static void set_shaping_damping_ratio(const AxisEnum axis, const float zeta);
       static float get_shaping_damping_ratio(const AxisEnum axis);
       static void set_shaping_frequency(const AxisEnum axis, const float freq);

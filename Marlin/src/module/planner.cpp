@@ -1727,7 +1727,7 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      || TERN0(INPUT_SHAPING, stepper.input_shaping_busy())
+      || TERN0(HAS_SHAPING, stepper.input_shaping_busy())
   );
 }
 
@@ -2490,10 +2490,10 @@ bool Planner::_populate_block(
 
   #endif // XY_FREQUENCY_LIMIT
 
-  #if ENABLED(INPUT_SHAPING)
+  #if HAS_SHAPING
     float bottom_freq = float(0x7FFFFFFFL), t;
-    TERN_(HAS_SHAPING_X, if ((t = stepper.get_shaping_frequency(X_AXIS))) NOMORE(bottom_freq, t));
-    TERN_(HAS_SHAPING_Y, if ((t = stepper.get_shaping_frequency(Y_AXIS))) NOMORE(bottom_freq, t));
+    TERN_(INPUT_SHAPING_X, if ((t = stepper.get_shaping_frequency(X_AXIS))) NOMORE(bottom_freq, t));
+    TERN_(INPUT_SHAPING_Y, if ((t = stepper.get_shaping_frequency(Y_AXIS))) NOMORE(bottom_freq, t));
     const float max_factor = (bottom_freq * (float(shaping_dividends - 3) * 2.0f)) / block->nominal_rate;
     NOMORE(speed_factor, max_factor);
   #endif
