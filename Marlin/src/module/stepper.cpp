@@ -2521,7 +2521,6 @@ uint32_t Stepper::block_phase_isr() {
         int32_t echo_x = 0;
         if (shaping_x.enabled) {
           const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
-          UNUSED(steps);
           shaping_x.last_block_end_pos += steps;
 
           // For input shaped axes, advance_divisor is replaced with 0x20000000
@@ -2561,7 +2560,6 @@ uint32_t Stepper::block_phase_isr() {
         int32_t echo_y = 0;
         if (shaping_y.enabled) {
           const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
-          UNUSED(steps);
           shaping_y.last_block_end_pos += steps;
           advance_dividend.y = ((steps << 29) + shaping_y.remainder) / step_event_count;
           LIMIT(advance_dividend.y, -0x20000000, 0x20000000);

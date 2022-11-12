@@ -350,10 +350,10 @@ constexpr ena_mask_t enable_overlap[] = {
   class DelayTimeManager {
     private:
       static shaping_time_t now;
-      #ifdef INPUT_SHAPING_X
+      #if ENABLED(INPUT_SHAPING_X)
         static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
       #endif
-      #ifdef INPUT_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
       #endif
     public:
@@ -364,7 +364,7 @@ constexpr ena_mask_t enable_overlap[] = {
       }
   };
 
-  template<int SIZE>
+  template<uint16_t SIZE>
   class DelayQueue : public DelayTimeManager {
     protected:
       shaping_time_t times[SIZE];
@@ -422,10 +422,10 @@ constexpr ena_mask_t enable_overlap[] = {
 
   class ParamDelayQueue : public DelayQueue<shaping_segments> {
     private:
-      #ifdef INPUT_SHAPING_X
+      #if ENABLED(INPUT_SHAPING_X)
         int32_t params_x[shaping_segments];
       #endif
-      #ifdef INPUT_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         int32_t params_y[shaping_segments];
       #endif
 
@@ -435,14 +435,14 @@ constexpr ena_mask_t enable_overlap[] = {
         TERN(INPUT_SHAPING_Y, params_y[DelayQueue<shaping_segments>::tail] = param_y, UNUSED(param_y));
         DelayQueue<shaping_segments>::enqueue();
       }
-      #ifdef INPUT_SHAPING_X
+      #if ENABLED(INPUT_SHAPING_X)
         const int32_t dequeue_x() {
           const int32_t result = params_x[DelayQueue<shaping_segments>::head_x];
           DelayQueue<shaping_segments>::dequeue_x();
           return result;
         }
       #endif
-      #ifdef INPUT_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         const int32_t dequeue_y() {
           const int32_t result = params_y[DelayQueue<shaping_segments>::head_y];
           DelayQueue<shaping_segments>::dequeue_y();

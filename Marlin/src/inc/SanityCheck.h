@@ -4265,7 +4265,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #else
       static_assert((SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (16) for AVR 16MHz.");
     #endif
-  #elif INPUT_SHAPING_Y
+  #elif ENABLED(INPUT_SHAPING_Y)
     #if F_CPU > 16000000
       static_assert((SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (20) for AVR 20MHz.");
     #else
