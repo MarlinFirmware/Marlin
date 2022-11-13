@@ -33,6 +33,18 @@
   #define BOARD_INFO_NAME "BTT EBB42 V1.1"
 #endif
 
+//
+// EEPROM
+//
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #ifndef FLASH_EEPROM_EMULATION
+    #define FLASH_EEPROM_EMULATION
+  #endif
+  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
+  #define EEPROM_START_ADDRESS      (0x8000000UL + FLASH_SIZE - (EEPROM_PAGE_SIZE))
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+#endif
+
 //#define USES_DIAG_JUMPERS
 
 // Ignore temp readings during development.
