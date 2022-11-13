@@ -76,19 +76,11 @@
   #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
   // The base ISR takes 792 cycles
-  #ifdef STM32G0B1xx
-    #define ISR_BASE_CYCLES  928UL
-  #else
-    #define ISR_BASE_CYCLES  792UL
-  #endif
+  #define ISR_BASE_CYCLES  792UL
 
   // Linear advance base time is 64 cycles
   #if ENABLED(LIN_ADVANCE)
-    #ifdef STM32G0B1xx
-      #define ISR_LA_BASE_CYCLES 200UL
-    #else
-      #define ISR_LA_BASE_CYCLES 64UL
-    #endif
+    #define ISR_LA_BASE_CYCLES 64UL
   #else
     #define ISR_LA_BASE_CYCLES 0UL
   #endif
@@ -96,7 +88,7 @@
   // S curve interpolation adds 40 cycles
   #if ENABLED(S_CURVE_ACCELERATION)
     #ifdef STM32G0B1xx
-      #define ISR_S_CURVE_CYCLES 544UL
+      #define ISR_S_CURVE_CYCLES 500UL
     #else
       #define ISR_S_CURVE_CYCLES 40UL
     #endif
