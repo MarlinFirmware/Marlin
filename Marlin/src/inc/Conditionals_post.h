@@ -926,55 +926,7 @@
         #define X2_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
       #elif X2_USE_ENDSTOP == _ZMAX_
         #define X2_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #else
-        #define X2_MAX_ENDSTOP_INVERTING false
       #endif
-    #endif
-    #if !defined(X2_MAX_PIN) && !defined(X2_STOP_PIN)
-      #if X2_USE_ENDSTOP == _XMIN_
-        #define X2_MAX_PIN X_MIN_PIN
-      #elif X2_USE_ENDSTOP == _XMAX_
-        #define X2_MAX_PIN X_MAX_PIN
-      #elif X2_USE_ENDSTOP == _XSTOP_
-        #define X2_MAX_PIN X_STOP_PIN
-      #elif X2_USE_ENDSTOP == _YMIN_
-        #define X2_MAX_PIN Y_MIN_PIN
-      #elif X2_USE_ENDSTOP == _YMAX_
-        #define X2_MAX_PIN Y_MAX_PIN
-      #elif X2_USE_ENDSTOP == _YSTOP_
-        #define X2_MAX_PIN Y_STOP_PIN
-      #elif X2_USE_ENDSTOP == _ZMIN_
-        #define X2_MAX_PIN Z_MIN_PIN
-      #elif X2_USE_ENDSTOP == _ZMAX_
-        #define X2_MAX_PIN Z_MAX_PIN
-      #elif X2_USE_ENDSTOP == _ZSTOP_
-        #define X2_MAX_PIN Z_STOP_PIN
-      #elif X2_USE_ENDSTOP == _XDIAG_
-        #define X2_MAX_PIN X_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _YDIAG_
-        #define X2_MAX_PIN Y_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _ZDIAG_
-        #define X2_MAX_PIN Z_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E0DIAG_
-        #define X2_MAX_PIN E0_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E1DIAG_
-        #define X2_MAX_PIN E1_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E2DIAG_
-        #define X2_MAX_PIN E2_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E3DIAG_
-        #define X2_MAX_PIN E3_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E4DIAG_
-        #define X2_MAX_PIN E4_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E5DIAG_
-        #define X2_MAX_PIN E5_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E6DIAG_
-        #define X2_MAX_PIN E6_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E7DIAG_
-        #define X2_MAX_PIN E7_DIAG_PIN
-      #endif
-    #endif
-    #ifndef X2_MIN_ENDSTOP_INVERTING
-      #define X2_MIN_ENDSTOP_INVERTING false
     #endif
   #else
     #ifndef X2_MIN_ENDSTOP_INVERTING
@@ -990,56 +942,14 @@
         #define X2_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
       #elif X2_USE_ENDSTOP == _ZMAX_
         #define X2_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #else
-        #define X2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(X2_MIN_PIN) && !defined(X2_STOP_PIN)
-      #if X2_USE_ENDSTOP == _XMIN_
-        #define X2_MIN_PIN X_MIN_PIN
-      #elif X2_USE_ENDSTOP == _XMAX_
-        #define X2_MIN_PIN X_MAX_PIN
-      #elif X2_USE_ENDSTOP == _XSTOP_
-        #define X2_MIN_PIN X_STOP_PIN
-      #elif X2_USE_ENDSTOP == _YMIN_
-        #define X2_MIN_PIN Y_MIN_PIN
-      #elif X2_USE_ENDSTOP == _YMAX_
-        #define X2_MIN_PIN Y_MAX_PIN
-      #elif X2_USE_ENDSTOP == _YSTOP_
-        #define X2_MIN_PIN Y_STOP_PIN
-      #elif X2_USE_ENDSTOP == _ZMIN_
-        #define X2_MIN_PIN Z_MIN_PIN
-      #elif X2_USE_ENDSTOP == _ZMAX_
-        #define X2_MIN_PIN Z_MAX_PIN
-      #elif X2_USE_ENDSTOP == _ZSTOP_
-        #define X2_MIN_PIN Z_STOP_PIN
-      #elif X2_USE_ENDSTOP == _XDIAG_
-        #define X2_MIN_PIN X_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _YDIAG_
-        #define X2_MIN_PIN Y_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _ZDIAG_
-        #define X2_MIN_PIN Z_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E0DIAG_
-        #define X2_MIN_PIN E0_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E1DIAG_
-        #define X2_MIN_PIN E1_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E2DIAG_
-        #define X2_MIN_PIN E2_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E3DIAG_
-        #define X2_MIN_PIN E3_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E4DIAG_
-        #define X2_MIN_PIN E4_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E5DIAG_
-        #define X2_MIN_PIN E5_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E6DIAG_
-        #define X2_MIN_PIN E6_DIAG_PIN
-      #elif X2_USE_ENDSTOP == _E7DIAG_
-        #define X2_MIN_PIN E7_DIAG_PIN
-      #endif
-    #endif
-    #ifndef X2_MAX_ENDSTOP_INVERTING
-      #define X2_MAX_ENDSTOP_INVERTING false
-    #endif
+  #endif
+  #ifndef X2_MAX_ENDSTOP_INVERTING
+    #define X2_MAX_ENDSTOP_INVERTING false
+  #endif
+  #ifndef X2_MIN_ENDSTOP_INVERTING
+    #define X2_MIN_ENDSTOP_INVERTING false
   #endif
 #endif
 
@@ -1061,55 +971,7 @@
         #define Y2_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
       #elif Y2_USE_ENDSTOP == _ZMAX_
         #define Y2_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #else
-        #define Y2_MAX_ENDSTOP_INVERTING false
       #endif
-    #endif
-    #if !defined(Y2_MAX_PIN) && !defined(Y2_STOP_PIN)
-      #if Y2_USE_ENDSTOP == _XMIN_
-        #define Y2_MAX_PIN X_MIN_PIN
-      #elif Y2_USE_ENDSTOP == _XMAX_
-        #define Y2_MAX_PIN X_MAX_PIN
-      #elif Y2_USE_ENDSTOP == _XSTOP_
-        #define Y2_MAX_PIN X_STOP_PIN
-      #elif Y2_USE_ENDSTOP == _YMIN_
-        #define Y2_MAX_PIN Y_MIN_PIN
-      #elif Y2_USE_ENDSTOP == _YMAX_
-        #define Y2_MAX_PIN Y_MAX_PIN
-      #elif Y2_USE_ENDSTOP == _YSTOP_
-        #define Y2_MAX_PIN Y_STOP_PIN
-      #elif Y2_USE_ENDSTOP == _ZMIN_
-        #define Y2_MAX_PIN Z_MIN_PIN
-      #elif Y2_USE_ENDSTOP == _ZMAX_
-        #define Y2_MAX_PIN Z_MAX_PIN
-      #elif Y2_USE_ENDSTOP == _ZSTOP_
-        #define Y2_MAX_PIN Z_STOP_PIN
-      #elif Y2_USE_ENDSTOP == _XDIAG_
-        #define Y2_MAX_PIN X_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _YDIAG_
-        #define Y2_MAX_PIN Y_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _ZDIAG_
-        #define Y2_MAX_PIN Z_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E0DIAG_
-        #define Y2_MAX_PIN E0_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E1DIAG_
-        #define Y2_MAX_PIN E1_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E2DIAG_
-        #define Y2_MAX_PIN E2_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E3DIAG_
-        #define Y2_MAX_PIN E3_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E4DIAG_
-        #define Y2_MAX_PIN E4_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E5DIAG_
-        #define Y2_MAX_PIN E5_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E6DIAG_
-        #define Y2_MAX_PIN E6_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E7DIAG_
-        #define Y2_MAX_PIN E7_DIAG_PIN
-      #endif
-    #endif
-    #ifndef Y2_MIN_ENDSTOP_INVERTING
-      #define Y2_MIN_ENDSTOP_INVERTING false
     #endif
   #else
     #ifndef Y2_MIN_ENDSTOP_INVERTING
@@ -1125,56 +987,14 @@
         #define Y2_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
       #elif Y2_USE_ENDSTOP == _ZMAX_
         #define Y2_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #else
-        #define Y2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
-    #if !defined(Y2_MIN_PIN) && !defined(Y2_STOP_PIN)
-      #if Y2_USE_ENDSTOP == _XMIN_
-        #define Y2_MIN_PIN X_MIN_PIN
-      #elif Y2_USE_ENDSTOP == _XMAX_
-        #define Y2_MIN_PIN X_MAX_PIN
-      #elif Y2_USE_ENDSTOP == _XSTOP_
-        #define Y2_MIN_PIN X_STOP_PIN
-      #elif Y2_USE_ENDSTOP == _YMIN_
-        #define Y2_MIN_PIN Y_MIN_PIN
-      #elif Y2_USE_ENDSTOP == _YMAX_
-        #define Y2_MIN_PIN Y_MAX_PIN
-      #elif Y2_USE_ENDSTOP == _YSTOP_
-        #define Y2_MIN_PIN Y_STOP_PIN
-      #elif Y2_USE_ENDSTOP == _ZMIN_
-        #define Y2_MIN_PIN Z_MIN_PIN
-      #elif Y2_USE_ENDSTOP == _ZMAX_
-        #define Y2_MIN_PIN Z_MAX_PIN
-      #elif Y2_USE_ENDSTOP == _ZSTOP_
-        #define Y2_MIN_PIN Z_STOP_PIN
-      #elif Y2_USE_ENDSTOP == _XDIAG_
-        #define Y2_MIN_PIN X_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _YDIAG_
-        #define Y2_MIN_PIN Y_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _ZDIAG_
-        #define Y2_MIN_PIN Z_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E0DIAG_
-        #define Y2_MIN_PIN E0_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E1DIAG_
-        #define Y2_MIN_PIN E1_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E2DIAG_
-        #define Y2_MIN_PIN E2_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E3DIAG_
-        #define Y2_MIN_PIN E3_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E4DIAG_
-        #define Y2_MIN_PIN E4_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E5DIAG_
-        #define Y2_MIN_PIN E5_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E6DIAG_
-        #define Y2_MIN_PIN E6_DIAG_PIN
-      #elif Y2_USE_ENDSTOP == _E7DIAG_
-        #define Y2_MIN_PIN E7_DIAG_PIN
-      #endif
-    #endif
-    #ifndef Y2_MAX_ENDSTOP_INVERTING
-      #define Y2_MAX_ENDSTOP_INVERTING false
-    #endif
+  #endif
+  #ifndef Y2_MAX_ENDSTOP_INVERTING
+    #define Y2_MAX_ENDSTOP_INVERTING false
+  #endif
+  #ifndef Y2_MIN_ENDSTOP_INVERTING
+    #define Y2_MIN_ENDSTOP_INVERTING false
   #endif
 #endif
 
@@ -1197,55 +1017,7 @@
         #define Z2_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
       #elif Z2_USE_ENDSTOP == _ZMAX_
         #define Z2_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #else
-        #define Z2_MAX_ENDSTOP_INVERTING false
       #endif
-    #endif
-    #if !defined(Z2_MAX_PIN) && !defined(Z2_STOP_PIN)
-      #if Z2_USE_ENDSTOP == _XMIN_
-        #define Z2_MAX_PIN X_MIN_PIN
-      #elif Z2_USE_ENDSTOP == _XMAX_
-        #define Z2_MAX_PIN X_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _XSTOP_
-        #define Z2_MAX_PIN X_STOP_PIN
-      #elif Z2_USE_ENDSTOP == _YMIN_
-        #define Z2_MAX_PIN Y_MIN_PIN
-      #elif Z2_USE_ENDSTOP == _YMAX_
-        #define Z2_MAX_PIN Y_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _YSTOP_
-        #define Z2_MAX_PIN Y_STOP_PIN
-      #elif Z2_USE_ENDSTOP == _ZMIN_
-        #define Z2_MAX_PIN Z_MIN_PIN
-      #elif Z2_USE_ENDSTOP == _ZMAX_
-        #define Z2_MAX_PIN Z_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _ZSTOP_
-        #define Z2_MAX_PIN Z_STOP_PIN
-      #elif Z2_USE_ENDSTOP == _XDIAG_
-        #define Z2_MAX_PIN X_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _YDIAG_
-        #define Z2_MAX_PIN Y_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _ZDIAG_
-        #define Z2_MAX_PIN Z_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E0DIAG_
-        #define Z2_MAX_PIN E0_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E1DIAG_
-        #define Z2_MAX_PIN E1_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E2DIAG_
-        #define Z2_MAX_PIN E2_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E3DIAG_
-        #define Z2_MAX_PIN E3_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E4DIAG_
-        #define Z2_MAX_PIN E4_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E5DIAG_
-        #define Z2_MAX_PIN E5_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E6DIAG_
-        #define Z2_MAX_PIN E6_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E7DIAG_
-        #define Z2_MAX_PIN E7_DIAG_PIN
-      #endif
-    #endif
-    #ifndef Z2_MIN_ENDSTOP_INVERTING
-      #define Z2_MIN_ENDSTOP_INVERTING false
     #endif
   #else
     #ifndef Z2_MIN_ENDSTOP_INVERTING
@@ -1261,56 +1033,14 @@
         #define Z2_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
       #elif Z2_USE_ENDSTOP == _ZMAX_
         #define Z2_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-      #else
-        #define Z2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
-    #ifndef Z2_MIN_PIN
-      #if Z2_USE_ENDSTOP == _XMIN_
-        #define Z2_MIN_PIN X_MIN_PIN
-      #elif Z2_USE_ENDSTOP == _XMAX_
-        #define Z2_MIN_PIN X_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _XSTOP_
-        #define Z2_MIN_PIN X_STOP_PIN
-      #elif Z2_USE_ENDSTOP == _YMIN_
-        #define Z2_MIN_PIN Y_MIN_PIN
-      #elif Z2_USE_ENDSTOP == _YMAX_
-        #define Z2_MIN_PIN Y_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _YSTOP_
-        #define Z2_MIN_PIN Y_STOP_PIN
-      #elif Z2_USE_ENDSTOP == _ZMIN_
-        #define Z2_MIN_PIN Z_MIN_PIN
-      #elif Z2_USE_ENDSTOP == _ZMAX_
-        #define Z2_MIN_PIN Z_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _ZSTOP_
-        #define Z2_MIN_PIN Z_STOP_PIN
-      #elif Z2_USE_ENDSTOP == _XDIAG_
-        #define Z2_MIN_PIN X_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _YDIAG_
-        #define Z2_MIN_PIN Y_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _ZDIAG_
-        #define Z2_MIN_PIN Z_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E0DIAG_
-        #define Z2_MIN_PIN E0_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E1DIAG_
-        #define Z2_MIN_PIN E1_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E2DIAG_
-        #define Z2_MIN_PIN E2_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E3DIAG_
-        #define Z2_MIN_PIN E3_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E4DIAG_
-        #define Z2_MIN_PIN E4_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E5DIAG_
-        #define Z2_MIN_PIN E5_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E6DIAG_
-        #define Z2_MIN_PIN E6_DIAG_PIN
-      #elif Z2_USE_ENDSTOP == _E7DIAG_
-        #define Z2_MIN_PIN E7_DIAG_PIN
-      #endif
-    #endif
-    #ifndef Z2_MAX_ENDSTOP_INVERTING
-      #define Z2_MAX_ENDSTOP_INVERTING false
-    #endif
+  #endif
+  #ifndef Z2_MAX_ENDSTOP_INVERTING
+    #define Z2_MAX_ENDSTOP_INVERTING false
+  #endif
+  #ifndef Z2_MIN_ENDSTOP_INVERTING
+    #define Z2_MIN_ENDSTOP_INVERTING false
   #endif
 
   #if NUM_Z_STEPPERS >= 3
@@ -1328,55 +1058,7 @@
           #define Z3_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
         #elif Z3_USE_ENDSTOP == _ZMAX_
           #define Z3_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-        #else
-          #define Z3_MAX_ENDSTOP_INVERTING false
         #endif
-      #endif
-      #ifndef Z3_MAX_PIN
-        #if Z3_USE_ENDSTOP == _XMIN_
-          #define Z3_MAX_PIN X_MIN_PIN
-        #elif Z3_USE_ENDSTOP == _XMAX_
-          #define Z3_MAX_PIN X_MAX_PIN
-        #elif Z3_USE_ENDSTOP == _XSTOP_
-          #define Z3_MAX_PIN X_STOP_PIN
-        #elif Z3_USE_ENDSTOP == _YMIN_
-          #define Z3_MAX_PIN Y_MIN_PIN
-        #elif Z3_USE_ENDSTOP == _YMAX_
-          #define Z3_MAX_PIN Y_MAX_PIN
-        #elif Z3_USE_ENDSTOP == _YSTOP_
-          #define Z3_MAX_PIN Y_STOP_PIN
-        #elif Z3_USE_ENDSTOP == _ZMIN_
-          #define Z3_MAX_PIN Z_MIN_PIN
-        #elif Z3_USE_ENDSTOP == _ZMAX_
-          #define Z3_MAX_PIN Z_MAX_PIN
-        #elif Z3_USE_ENDSTOP == _ZSTOP_
-          #define Z3_MAX_PIN Z_STOP_PIN
-        #elif Z3_USE_ENDSTOP == _XDIAG_
-          #define Z3_MAX_PIN X_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _YDIAG_
-          #define Z3_MAX_PIN Y_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _ZDIAG_
-          #define Z3_MAX_PIN Z_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E0DIAG_
-          #define Z3_MAX_PIN E0_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E1DIAG_
-          #define Z3_MAX_PIN E1_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E2DIAG_
-          #define Z3_MAX_PIN E2_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E3DIAG_
-          #define Z3_MAX_PIN E3_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E4DIAG_
-          #define Z3_MAX_PIN E4_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E5DIAG_
-          #define Z3_MAX_PIN E5_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E6DIAG_
-          #define Z3_MAX_PIN E6_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E7DIAG_
-          #define Z3_MAX_PIN E7_DIAG_PIN
-        #endif
-      #endif
-      #ifndef Z3_MIN_ENDSTOP_INVERTING
-        #define Z3_MIN_ENDSTOP_INVERTING false
       #endif
     #else
       #ifndef Z3_MIN_ENDSTOP_INVERTING
@@ -1392,56 +1074,14 @@
           #define Z3_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
         #elif Z3_USE_ENDSTOP == _ZMAX_
           #define Z3_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-        #else
-          #define Z3_MIN_ENDSTOP_INVERTING false
         #endif
       #endif
-      #ifndef Z3_MIN_PIN
-        #if Z3_USE_ENDSTOP == _XMIN_
-          #define Z3_MIN_PIN X_MIN_PIN
-        #elif Z3_USE_ENDSTOP == _XMAX_
-          #define Z3_MIN_PIN X_MAX_PIN
-        #elif Z3_USE_ENDSTOP == _XSTOP_
-          #define Z3_MIN_PIN X_STOP_PIN
-        #elif Z3_USE_ENDSTOP == _YMIN_
-          #define Z3_MIN_PIN Y_MIN_PIN
-        #elif Z3_USE_ENDSTOP == _YMAX_
-          #define Z3_MIN_PIN Y_MAX_PIN
-        #elif Z3_USE_ENDSTOP == _YSTOP_
-          #define Z3_MIN_PIN Y_STOP_PIN
-        #elif Z3_USE_ENDSTOP == _ZMIN_
-          #define Z3_MIN_PIN Z_MIN_PIN
-        #elif Z3_USE_ENDSTOP == _ZMAX_
-          #define Z3_MIN_PIN Z_MAX_PIN
-        #elif Z3_USE_ENDSTOP == _ZSTOP_
-          #define Z3_MIN_PIN Z_STOP_PIN
-        #elif Z3_USE_ENDSTOP == _XDIAG_
-          #define Z3_MIN_PIN X_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _YDIAG_
-          #define Z3_MIN_PIN Y_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _ZDIAG_
-          #define Z3_MIN_PIN Z_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E0DIAG_
-          #define Z3_MIN_PIN E0_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E1DIAG_
-          #define Z3_MIN_PIN E1_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E2DIAG_
-          #define Z3_MIN_PIN E2_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E3DIAG_
-          #define Z3_MIN_PIN E3_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E4DIAG_
-          #define Z3_MIN_PIN E4_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E5DIAG_
-          #define Z3_MIN_PIN E5_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E6DIAG_
-          #define Z3_MIN_PIN E6_DIAG_PIN
-        #elif Z3_USE_ENDSTOP == _E7DIAG_
-          #define Z3_MIN_PIN E7_DIAG_PIN
-        #endif
-      #endif
-      #ifndef Z3_MAX_ENDSTOP_INVERTING
-        #define Z3_MAX_ENDSTOP_INVERTING false
-      #endif
+    #endif
+    #ifndef Z3_MAX_ENDSTOP_INVERTING
+      #define Z3_MAX_ENDSTOP_INVERTING false
+    #endif
+    #ifndef Z3_MIN_ENDSTOP_INVERTING
+      #define Z3_MIN_ENDSTOP_INVERTING false
     #endif
   #endif
 
@@ -1460,55 +1100,7 @@
           #define Z4_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
         #elif Z4_USE_ENDSTOP == _ZMAX_
           #define Z4_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-        #else
-          #define Z4_MAX_ENDSTOP_INVERTING false
         #endif
-      #endif
-      #ifndef Z4_MAX_PIN
-        #if Z4_USE_ENDSTOP == _XMIN_
-          #define Z4_MAX_PIN X_MIN_PIN
-        #elif Z4_USE_ENDSTOP == _XMAX_
-          #define Z4_MAX_PIN X_MAX_PIN
-        #elif Z4_USE_ENDSTOP == _XSTOP_
-          #define Z4_MAX_PIN X_STOP_PIN
-        #elif Z4_USE_ENDSTOP == _YMIN_
-          #define Z4_MAX_PIN Y_MIN_PIN
-        #elif Z4_USE_ENDSTOP == _YMAX_
-          #define Z4_MAX_PIN Y_MAX_PIN
-        #elif Z4_USE_ENDSTOP == _YSTOP_
-          #define Z4_MAX_PIN Y_STOP_PIN
-        #elif Z4_USE_ENDSTOP == _ZMIN_
-          #define Z4_MAX_PIN Z_MIN_PIN
-        #elif Z4_USE_ENDSTOP == _ZMAX_
-          #define Z4_MAX_PIN Z_MAX_PIN
-        #elif Z4_USE_ENDSTOP == _ZSTOP_
-          #define Z4_MAX_PIN Z_STOP_PIN
-        #elif Z4_USE_ENDSTOP == _XDIAG_
-          #define Z4_MAX_PIN X_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _YDIAG_
-          #define Z4_MAX_PIN Y_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _ZDIAG_
-          #define Z4_MAX_PIN Z_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E0DIAG_
-          #define Z4_MAX_PIN E0_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E1DIAG_
-          #define Z4_MAX_PIN E1_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E2DIAG_
-          #define Z4_MAX_PIN E2_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E3DIAG_
-          #define Z4_MAX_PIN E3_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E4DIAG_
-          #define Z4_MAX_PIN E4_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E5DIAG_
-          #define Z4_MAX_PIN E5_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E6DIAG_
-          #define Z4_MAX_PIN E6_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E7DIAG_
-          #define Z4_MAX_PIN E7_DIAG_PIN
-        #endif
-      #endif
-      #ifndef Z4_MIN_ENDSTOP_INVERTING
-        #define Z4_MIN_ENDSTOP_INVERTING false
       #endif
     #else
       #ifndef Z4_MIN_ENDSTOP_INVERTING
@@ -1524,56 +1116,14 @@
           #define Z4_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
         #elif Z4_USE_ENDSTOP == _ZMAX_
           #define Z4_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-        #else
-          #define Z4_MIN_ENDSTOP_INVERTING false
         #endif
       #endif
-      #ifndef Z4_MIN_PIN
-        #if Z4_USE_ENDSTOP == _XMIN_
-          #define Z4_MIN_PIN X_MIN_PIN
-        #elif Z4_USE_ENDSTOP == _XMAX_
-          #define Z4_MIN_PIN X_MAX_PIN
-        #elif Z4_USE_ENDSTOP == _XSTOP_
-          #define Z4_MIN_PIN X_STOP_PIN
-        #elif Z4_USE_ENDSTOP == _YMIN_
-          #define Z4_MIN_PIN Y_MIN_PIN
-        #elif Z4_USE_ENDSTOP == _YMAX_
-          #define Z4_MIN_PIN Y_MAX_PIN
-        #elif Z4_USE_ENDSTOP == _YSTOP_
-          #define Z4_MIN_PIN Y_STOP_PIN
-        #elif Z4_USE_ENDSTOP == _ZMIN_
-          #define Z4_MIN_PIN Z_MIN_PIN
-        #elif Z4_USE_ENDSTOP == _ZMAX_
-          #define Z4_MIN_PIN Z_MAX_PIN
-        #elif Z4_USE_ENDSTOP == _ZSTOP_
-          #define Z4_MIN_PIN Z_STOP_PIN
-        #elif Z4_USE_ENDSTOP == _XDIAG_
-          #define Z4_MIN_PIN X_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _YDIAG_
-          #define Z4_MIN_PIN Y_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _ZDIAG_
-          #define Z4_MIN_PIN Z_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E0DIAG_
-          #define Z4_MIN_PIN E0_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E1DIAG_
-          #define Z4_MIN_PIN E1_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E2DIAG_
-          #define Z4_MIN_PIN E2_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E3DIAG_
-          #define Z4_MIN_PIN E3_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E4DIAG_
-          #define Z4_MIN_PIN E4_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E5DIAG_
-          #define Z4_MIN_PIN E5_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E6DIAG_
-          #define Z4_MIN_PIN E6_DIAG_PIN
-        #elif Z4_USE_ENDSTOP == _E7DIAG_
-          #define Z4_MIN_PIN E7_DIAG_PIN
-        #endif
-      #endif
-      #ifndef Z4_MAX_ENDSTOP_INVERTING
-        #define Z4_MAX_ENDSTOP_INVERTING false
-      #endif
+    #endif
+    #ifndef Z4_MAX_ENDSTOP_INVERTING
+      #define Z4_MAX_ENDSTOP_INVERTING false
+    #endif
+    #ifndef Z4_MIN_ENDSTOP_INVERTING
+      #define Z4_MIN_ENDSTOP_INVERTING false
     #endif
   #endif
 
