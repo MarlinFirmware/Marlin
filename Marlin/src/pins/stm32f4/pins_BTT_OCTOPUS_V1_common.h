@@ -429,6 +429,30 @@
     #define TFTGLCD_CS               EXP2_03_PIN
   #endif
 
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+  /**
+   *        ------                 ------            ---
+   *       | 1  2 |               | 1  2 |            1 |
+   *       | 3  4 |            RX | 3  4 | TX       | 2 | RX
+   *   ENT   5  6 | BEEP      ENT   5  6 | BEEP     | 3 | TX
+   *     B | 7  8 | A           B | 7  8 | A        | 4 | 
+   *   GND | 9 10 | VCC       GND | 9 10 | VCC        5 | 
+   *        ------                 ------            ---
+   *         EXP1                   DWIN             TFT
+   *
+   * DWIN pins are labeled as printed on DWIN PCB. GND, VCC, A, B, ENT & BEEP can be connected in the same
+   * orientation as the existing plug/DWIN to EXP1. TX/RX need to be connected to the TFT port, with TX->RX, RX->TX.
+   */
+
+  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+    #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_BTT_OCTOPUS_V1_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+  #endif
+
+  #define BEEPER_PIN                 EXP1_06_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_07_PIN
+  #define BTN_ENC                    EXP1_05_PIN
+
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
