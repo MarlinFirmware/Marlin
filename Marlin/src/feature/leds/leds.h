@@ -40,10 +40,8 @@
   #undef _NEOPIXEL_INCLUDE_
 #endif
 
-#if HAS_COLOR_LEDS
-  #if ENABLED(PCA9632)
-    #include "pca9632.h"
-  #endif
+#if ENABLED(PCA9632)
+  #include "pca9632.h"
 #endif
 
 /**
