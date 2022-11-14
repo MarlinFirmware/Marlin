@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,11 +21,11 @@
  */
 
 /** CAUTION **
- *This board definition is to facilitate support for a Filament Extrusion
- *devices, used to convert waste plastic into 3D printable filament. 
- *This board is NOT a general 3D printing controller,
- *it is NOT supported as a toolboard via CANBUS (as it was originally designed)
- *or any device that requires kinematics
+ * This board definition is to facilitate support for a Filament Extrusion
+ * devices, used to convert waste plastic into 3D printable filament.
+ * This board is NOT a general 3D printing controller,
+ * it is NOT supported as a toolboard via CANBUS (as it was originally designed)
+ * or any device that requires kinematics
  */
 #pragma once
 
@@ -37,11 +37,12 @@
 // EEPROM
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #undef NO_EEPROM_SELECTED
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
   #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS      (0x8000000UL + (FLASH_SIZE) - (EEPROM_PAGE_SIZE))
+  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #endif
 
@@ -145,13 +146,10 @@
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
-  #undef X_STOP_PIN //Reusing the 'endstop' pins for a rotary encoder
+  #undef X_STOP_PIN // Reusing the 'endstop' pins for a rotary encoder
   #undef Y_STOP_PIN
   #undef Z_STOP_PIN
-  #define X_STOP_PIN                        -1
-  #define Y_STOP_PIN                        -1
-  #define Z_STOP_PIN                        -1
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5
   #define BTN_ENC                           PB6
-#endif // HAS_WIRED_LCD
+#endif
