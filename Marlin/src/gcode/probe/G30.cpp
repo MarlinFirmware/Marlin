@@ -58,13 +58,10 @@ void GcodeSuite::G30() {
     tool_change(0);
   #endif
 
+  // Convert the given logical position to native position
   const xy_pos_t pos = {
-    parser.seenval('X')
-      ? parser.value_linear_units() TERN_(HAS_POSITION_SHIFT, - position_shift.x) TERN_(HAS_HOME_OFFSET, - home_offset.x)
-      : current_position.x,
-    parser.seenval('Y')
-      ? parser.value_linear_units() TERN_(HAS_POSITION_SHIFT, - position_shift.y) TERN_(HAS_HOME_OFFSET, - home_offset.y)
-      : current_position.y
+    parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
+    parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y
   };
 
   if (probe.can_reach(pos)) {
