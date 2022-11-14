@@ -40,6 +40,14 @@
   #undef _NEOPIXEL_INCLUDE_
 #endif
 
+#if ENABLED(BLINKM)
+  #include "blinkm.h"
+#endif
+
+#if ENABLED(PCA9533)
+  #include "pca9533.h"
+#endif
+
 #if ENABLED(PCA9632)
   #include "pca9632.h"
 #endif
