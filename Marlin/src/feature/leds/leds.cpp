@@ -30,14 +30,6 @@
 
 #include "leds.h"
 
-#if ENABLED(BLINKM)
-  #include "blinkm.h"
-#endif
-
-#if ENABLED(PCA9533)
-  #include "pca9533.h"
-#endif
-
 #if EITHER(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
   #include "../../feature/caselight.h"
 #endif
