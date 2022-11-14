@@ -44,7 +44,7 @@
 
 void GcodeSuite::M306() {
   if (parser.seen_test('T')) {
-    ui.set_status(GET_TEXT(MSG_MPC_AUTOTUNE));
+    ui.set_status(GET_TEXT_F(MSG_MPC_AUTOTUNE));
     thermalManager.MPC_autotune();
     ui.reset_status();
     return;
