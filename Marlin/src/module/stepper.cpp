@@ -1688,19 +1688,30 @@ void Stepper::pulse_phase_isr() {
       } \
     }while(0)
 
+    // Direction changes can happen with almost no time gap from a previous STEP pulse. Wait for
+    // the time given by MAXIMUM_STEPPER_RATE. Or, to work around the TMC2208 / TMC2225 over-current
+    // shutdown bug, wait for the time given by SHAPING_MAX_STEPRATE_JUMP_[XY].
+    #ifdef SHAPING_MAX_STEPRATE_JUMP_X
+      #define AWAIT_DIRCHANGE_X while (((STEPPER_TIMER_RATE) / (SHAPING_MAX_STEPRATE_JUMP_X)) > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) {}
+    #else
+      #define AWAIT_DIRCHANGE_X AWAIT_LOW_PULSE()
+    #endif
+    #ifdef SHAPING_MAX_STEPRATE_JUMP_Y
+      #define AWAIT_DIRCHANGE_Y while (((STEPPER_TIMER_RATE) / (SHAPING_MAX_STEPRATE_JUMP_Y)) > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) {}
+    #else
+      #define AWAIT_DIRCHANGE_Y AWAIT_LOW_PULSE()
+    #endif
+    #define _AWAIT_DIRCHANGE(AXIS) AWAIT_DIRCHANGE_##AXIS
+    #define AWAIT_DIRCHANGE(AXIS) _AWAIT_DIRCHANGE(AXIS)
+
     #define PULSE_PREP_SHAPING(AXIS, DIVIDEND) do{ \
       delta_error[_AXIS(AXIS)] += (DIVIDEND); \
-      if ((MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] < -0x30000000L) || (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] > 0x30000000L)) { \
+      if ((MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] < -0x10000000L) || (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] > 0x10000000L)) { \
+        { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_DIRCHANGE(AXIS); } \
         TBI(last_direction_bits, _AXIS(AXIS)); \
         DIR_WAIT_BEFORE(); \
         SET_STEP_DIR(AXIS); \
         DIR_WAIT_AFTER(); \
-        _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), 0); \
-        { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_HIGH_PULSE(); } \
-        _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), 0); \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-        delta_error[_AXIS(AXIS)] += MAXDIR(AXIS) ? -0x20000000L : 0x20000000L; \
-        { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
       } \
       step_needed[_AXIS(AXIS)] = (MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] >= 0x10000000L) || \
                                  (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] <= -0x10000000L); \

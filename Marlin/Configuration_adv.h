@@ -1083,10 +1083,12 @@
   #if ENABLED(INPUT_SHAPING_X)
     #define SHAPING_FREQ_X  40    // (Hz) The default dominant resonant frequency on the X axis.
     #define SHAPING_ZETA_X  0.3f  // Damping ratio of the X axis (range: 0.0 = no damping to 1.0 = critical damping).
+    //#define SHAPING_MAX_STEPRATE_JUMP_X 10000 // (Hz) Set with TMC2208 or TMC2225 to prevent triggering an over-current condition.
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
     #define SHAPING_FREQ_Y  40    // (Hz) The default dominant resonant frequency on the Y axis.
     #define SHAPING_ZETA_Y  0.3f  // Damping ratio of the Y axis (range: 0.0 = no damping to 1.0 = critical damping).
+    //#define SHAPING_MAX_STEPRATE_JUMP_Y 10000 // (Hz) Set with TMC2208 or TMC2225 to prevent triggering an over-current condition.
   #endif
   //#define SHAPING_MENU          // Add a menu to the LCD to set shaping parameters.
 #endif
