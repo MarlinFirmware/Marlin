@@ -261,7 +261,6 @@
 
      *
      * Needs custom cable.
-     * SPI port is just above EXP1.
      *
      *    BOARD EXP1 NEOPIXEL   <-->  LCD EXP1 NEOPIXEL
      *    BOARD EXP1 BTN_ENC    <-->  LCD EXP1 BTN_ENC
