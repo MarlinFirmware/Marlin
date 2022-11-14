@@ -51,33 +51,23 @@
  *   E   Engage the probe for each probe (default 1)
  *   C   Enable probe temperature compensation (0 or 1, default 1)
  */
-void GcodeSuite::G30()
-{
+void GcodeSuite::G30() {
+
   #if HAS_MULTI_HOTEND
     const uint8_t old_tool_index = active_extruder;
     tool_change(0);
   #endif
 
-  const xy_pos_t pos = {parser.seenval('X') ? parser.value_linear_units()
-                        #if HAS_POSITION_SHIFT
-                          - position_shift.x
-                        #endif
-                        #if HAS_HOME_OFFSET
-                          - home_offset.x
-                        #endif
-                        : current_position.x,
-                        parser.seenval('Y') ? parser.value_linear_units()
-                        #if HAS_POSITION_SHIFT
-                          - position_shift.y
-                        #endif
-                        #if HAS_HOME_OFFSET
-                          - home_offset.y
-                        #endif
-                        : current_position.y};
+  const xy_pos_t pos = {
+    parser.seenval('X')
+      ? parser.value_linear_units() TERN_(HAS_POSITION_SHIFT, - position_shift.x) TERN_(HAS_HOME_OFFSET, - home_offset.x)
+      : current_position.x,
+    parser.seenval('Y')
+      ? parser.value_linear_units() TERN_(HAS_POSITION_SHIFT, - position_shift.y) TERN_(HAS_HOME_OFFSET, - home_offset.y)
+      : current_position.y
+  };
 
-
-  if (probe.can_reach(pos))
-  {
+  if (probe.can_reach(pos)) {
     // Disable leveling so the planner won't mess with us
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
@@ -90,7 +80,7 @@ void GcodeSuite::G30()
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
     TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
-    const float measured_z = probe.probe_at_point(pos, raise_after, true, true);
+    const float measured_z = probe.probe_at_point(pos, raise_after, 1, true, true);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
       SERIAL_ECHOLNPGM("Bed X: ", pos.asLogical().x, " Y: ", pos.asLogical().y, " Z: ", measured_z);
@@ -112,13 +102,12 @@ void GcodeSuite::G30()
 
     report_current_position();
   }
-  #if ENABLED(DWIN_LCD_PROUI)
-    else
-    {
-        SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
-        LCD_MESSAGE(MSG_ZPROBE_OUT);
-    }
-  #endif
+  else {
+    #if ENABLED(DWIN_LCD_PROUI)
+      SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
+      LCD_MESSAGE(MSG_ZPROBE_OUT);
+    #endif
+  }
 
   // Restore the active tool
   TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index));
