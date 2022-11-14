@@ -423,6 +423,7 @@
         #define DOGLCD_A0            EXP1_07_PIN
         #define DOGLCD_SCK           EXP2_02_PIN
         #define DOGLCD_MOSI          EXP2_06_PIN
+        #define FORCE_SOFT_SPI
 
       #elif ENABLED(ENDER2_STOCKDISPLAY)
 
