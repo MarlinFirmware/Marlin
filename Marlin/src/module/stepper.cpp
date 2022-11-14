@@ -2485,21 +2485,18 @@ uint32_t Stepper::block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
+        oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
         while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
           max_rate <<= 1;                                   // Try to double the rate
           if (max_rate < MIN_STEP_ISR_FREQUENCY)            // Don't exceed the estimated ISR limit
-            ++oversampling;                                 // Increase the oversampling (used for left-shift)
+            ++oversampling_factor;                          // Increase the oversampling (used for left-shift)
         }
-        oversampling_factor = oversampling;                 // For all timer interval calculations
-      #else
-        constexpr uint8_t oversampling = 0;
       #endif
 
       // Based on the oversampling factor, do the calculations
-      step_event_count = current_block->step_event_count << oversampling;
+      step_event_count = current_block->step_event_count << oversampling_factor;
 
       // Initialize Bresenham delta errors to 1/2
       #if ENABLED(INPUT_SHAPING_X)
@@ -2578,8 +2575,8 @@ uint32_t Stepper::block_phase_isr() {
       step_events_completed = 0;
 
       // Compute the acceleration and deceleration points
-      accelerate_until = current_block->accelerate_until << oversampling;
-      decelerate_after = current_block->decelerate_after << oversampling;
+      accelerate_until = current_block->accelerate_until << oversampling_factor;
+      decelerate_after = current_block->decelerate_after << oversampling_factor;
 
       TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
@@ -2593,7 +2590,7 @@ uint32_t Stepper::block_phase_isr() {
         #endif
         if (current_block->la_advance_rate) {
           // apply LA scaling and discount the effect of frequency scaling
-          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling;
+          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
         }
       #endif
 
