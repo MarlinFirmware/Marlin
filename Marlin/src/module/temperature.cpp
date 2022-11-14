@@ -3076,8 +3076,13 @@ void Temperature::disable_all_heaters() {
       // Needed to return the correct temp when this is called between readings
       static raw_adc_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
-      #define THERMO_SEL(A,B,C) (hindex > 1 ? (C) : hindex == 1 ? (B) : (A))
-      #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; case 2: WRITE(TEMP_2_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
+      #if MAX_TC_COUNT > 2
+        #define THERMO_SEL(A,B,C) (hindex > 1 ? (C) : hindex == 1 ? (B) : (A))
+        #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; case 2: WRITE(TEMP_2_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
+      #elif MAX_TC_COUNT > 1
+        #define THERMO_SEL(A,B,C) ( hindex == 1 ? (B) : (A))
+        #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
+      #endif
     #else
       // When we have only 1 max tc, THERMO_SEL will pick the appropriate sensor
       // variable, and MAXTC_*() macros will be hardcoded to the correct CS pin.
