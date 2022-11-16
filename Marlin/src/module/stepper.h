@@ -342,7 +342,9 @@ constexpr ena_mask_t enable_overlap[] = {
                                       max_feedrate.u * steps_per_unit.u,
                                       max_feedrate.v * steps_per_unit.v,
                                       max_feedrate.w * steps_per_unit.w
-                                    ));
+                                     )
+                                     OPTARG(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY)
+                                 );
   constexpr uint16_t shaping_dividends = max_steprate / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
   constexpr uint16_t shaping_segments = max_steprate / (MIN_STEPS_PER_SEGMENT) / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
 
