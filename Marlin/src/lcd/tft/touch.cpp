@@ -83,7 +83,7 @@ void Touch::idle() {
 
   // Return if Touch::idle is called within the same millisecond
   const millis_t now = millis();
-  if (last_touch_ms == now) return;
+  if (last_touch_ms >= now) return;
   last_touch_ms = now;
 
   if (get_point(&_x, &_y)) {
@@ -301,6 +301,8 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
+      last_touch_ms = millis() + 100;
+      safe_delay(20);
     }
     next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
   }
