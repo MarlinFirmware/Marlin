@@ -221,7 +221,7 @@ bool PersistentStore::access_finish() {
 
       return success;
 
-    #else !FLASH_EEPROM_LEVELING
+    #else // !FLASH_EEPROM_LEVELING
 
       // The following was written for the STM32F4 but may work with other MCUs as well.
       // Most STM32F4 flash does not allow reading from flash during erase operations.
