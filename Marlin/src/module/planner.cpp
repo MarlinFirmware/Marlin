@@ -2494,7 +2494,14 @@ bool Planner::_populate_block(
     float bottom_freq = float(0x7FFFFFFFL), t;
     TERN_(INPUT_SHAPING_X, if ((t = stepper.get_shaping_frequency(X_AXIS))) NOMORE(bottom_freq, t));
     TERN_(INPUT_SHAPING_Y, if ((t = stepper.get_shaping_frequency(Y_AXIS))) NOMORE(bottom_freq, t));
-    const float max_factor = (bottom_freq * (float(shaping_dividends - 3) * 2.0f)) / block->nominal_rate;
+    const float max_echo_rate = bottom_freq * (float(shaping_echoes - 3) * 2.0f);
+    const float rate_sum = (TERN0(HAS_SHAPING_X, block->steps.x) + TERN0(HAS_SHAPING_Y, block->steps.y)) * inverse_secs;
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+      const float limiting_rate = rate_sum;
+    #else
+      const float limiting_rate = _MIN(float(block->nominal_rate), rate_sum);
+    #endif
+    const float max_factor = limiting_rate ? max_echo_rate / limiting_rate : 1.0f;
     NOMORE(speed_factor, max_factor);
   #endif
 
