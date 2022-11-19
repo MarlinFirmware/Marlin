@@ -146,7 +146,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
   if (parser.using_inch_units()) {
-    #ifndef SLIM_LCD_MENUS 
+    #ifndef SLIM_LCD_MENUS
       SUBMENU(MSG_MOVE_1IN, []{ _goto_manual_move(IN_TO_MM(1.000f)); });
       SUBMENU(MSG_MOVE_05IN, []{ _goto_manual_move(IN_TO_MM(0.500f)); });
     #endif
@@ -155,9 +155,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });
   }
   else {
-	  #ifndef SLIM_LCD_MENUS 
+    #ifndef SLIM_LCD_MENUS
       SUBMENU(MSG_MOVE_100MM, []{ _goto_manual_move(100); });
-	    SUBMENU(MSG_MOVE_50MM, []{ _goto_manual_move(50); });														  																  
+      SUBMENU(MSG_MOVE_50MM, []{ _goto_manual_move(50); });
     #endif
     SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
@@ -351,7 +351,7 @@ void menu_motion() {
   #endif
   #if ENABLED(PROBE_OFFSET_WIZARD)
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
-  #endif  							  												
+  #endif
   //
   // Probe Deploy/Stow
   //
