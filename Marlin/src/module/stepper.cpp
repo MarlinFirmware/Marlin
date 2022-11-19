@@ -1706,15 +1706,14 @@ void Stepper::pulse_phase_isr() {
 
     #define PULSE_PREP_SHAPING(AXIS, DIVIDEND) do{ \
       delta_error[_AXIS(AXIS)] += (DIVIDEND); \
-      if ((MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] < -0x10000000L) || (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] > 0x10000000L)) { \
+      if ((MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] <= -0x10000000L) || (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] >= 0x10000000L)) { \
         { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_DIRCHANGE(AXIS); } \
         TBI(last_direction_bits, _AXIS(AXIS)); \
         DIR_WAIT_BEFORE(); \
         SET_STEP_DIR(AXIS); \
         DIR_WAIT_AFTER(); \
       } \
-      step_needed[_AXIS(AXIS)] = (MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] >= 0x10000000L) || \
-                                 (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] <= -0x10000000L); \
+      step_needed[_AXIS(AXIS)] = delta_error[_AXIS(AXIS)] >= 0x10000000L || delta_error[_AXIS(AXIS)] <= -0x10000000L; \
       if (step_needed[_AXIS(AXIS)]) { \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
         delta_error[_AXIS(AXIS)] += MAXDIR(AXIS) ? -0x20000000L : 0x20000000L; \
