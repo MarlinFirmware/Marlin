@@ -76,7 +76,7 @@
   #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
 
   // The base ISR
-  #define ISR_BASE_CYCLES 1000UL
+  #define ISR_BASE_CYCLES 770UL
 
   // Linear advance base time is 64 cycles
   #if ENABLED(LIN_ADVANCE)
@@ -94,7 +94,7 @@
 
   // Input shaping base time
   #if HAS_SHAPING
-    #define ISR_SHAPING_BASE_CYCLES 250UL
+    #define ISR_SHAPING_BASE_CYCLES 220UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
   #endif
@@ -109,8 +109,8 @@
   // Cycles to perform actions in START_TIMED_PULSE
   #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
 
-  // The base ISR takes 752 cycles
-  #define ISR_BASE_CYCLES  752UL
+  // The base ISR
+  #define ISR_BASE_CYCLES  1000UL
 
   // Linear advance base time is 32 cycles
   #if ENABLED(LIN_ADVANCE)
@@ -128,7 +128,7 @@
 
   // Input shaping base time
   #if HAS_SHAPING
-    #define ISR_SHAPING_BASE_CYCLES 250UL
+    #define ISR_SHAPING_BASE_CYCLES 400UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
   #endif
@@ -378,11 +378,13 @@ constexpr ena_mask_t enable_overlap[] = {
         static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
         static shaping_time_t peek_x_val;
         static uint16_t head_x;
+        static uint16_t _free_count_x;
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
         static shaping_time_t peek_y_val;
         static uint16_t head_y;
+        static uint16_t _free_count_y;
       #endif
 
     public:
@@ -402,6 +404,8 @@ constexpr ena_mask_t enable_overlap[] = {
         TERN_(INPUT_SHAPING_X, echo_axes[tail].x = x_step ? (x_forward ? ECHO_FWD : ECHO_BWD) : ECHO_NONE);
         TERN_(INPUT_SHAPING_Y, echo_axes[tail].y = y_step ? (y_forward ? ECHO_FWD : ECHO_BWD) : ECHO_NONE);
         if (++tail == shaping_echoes) tail = 0;
+        TERN_(INPUT_SHAPING_X, _free_count_x--);
+        TERN_(INPUT_SHAPING_Y, _free_count_y--);
         TERN_(INPUT_SHAPING_X, if (echo_axes[head_x].x == ECHO_NONE) dequeue_x());
         TERN_(INPUT_SHAPING_Y, if (echo_axes[head_y].y == ECHO_NONE) dequeue_y());
       }
@@ -409,35 +413,37 @@ constexpr ena_mask_t enable_overlap[] = {
         static shaping_time_t peek_x() { return peek_x_val; }
         static bool dequeue_x() {
           bool forward = echo_axes[head_x].x == ECHO_FWD;
-          do
+          do {
+            _free_count_x++;
             if (++head_x == shaping_echoes) head_x = 0;
-          while (head_x != tail && echo_axes[head_x].x == ECHO_NONE);
+          } while (head_x != tail && echo_axes[head_x].x == ECHO_NONE);
           peek_x_val = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
           return forward;
         }
         static bool empty_x() { return head_x == tail; }
-        static uint16_t free_count_x() { return (head_x > tail ? 0 : shaping_echoes) + (head_x - tail - 1); }
+        static uint16_t free_count_x() { return _free_count_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t peek_y() { return peek_y_val; }
         static bool dequeue_y() {
           bool forward = echo_axes[head_y].y == ECHO_FWD;
-          do
+          do {
+            _free_count_y++;
             if (++head_y == shaping_echoes) head_y = 0;
-          while (head_y != tail && echo_axes[head_y].y == ECHO_NONE);
+          } while (head_y != tail && echo_axes[head_y].y == ECHO_NONE);
           peek_y_val = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
           return forward;
         }
         static bool empty_y() { return head_y == tail; }
-        static uint16_t free_count_y() { return (head_y > tail ? 0 : shaping_echoes) + (head_y - tail - 1); }
+        static uint16_t free_count_y() { return _free_count_y; }
       #endif
       static void purge() {
         const auto st = shaping_time_t(-1);
         #if ENABLED(INPUT_SHAPING_X)
-          head_x = tail; peek_x_val = st;
+          head_x = tail; _free_count_x = shaping_echoes - 1; peek_x_val = st;
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
-          head_y = tail; peek_y_val = st;
+          head_y = tail; _free_count_y = shaping_echoes - 1; peek_y_val = st;
         #endif
       }
   };

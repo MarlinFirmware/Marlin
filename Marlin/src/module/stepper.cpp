@@ -242,12 +242,14 @@ uint32_t Stepper::advance_divisor = 0,
     shaping_time_t  ShapingQueue::delay_x;
     shaping_time_t  ShapingQueue::peek_x_val = shaping_time_t(-1);
     uint16_t        ShapingQueue::head_x = 0;
+    uint16_t        ShapingQueue::_free_count_x = shaping_echoes - 1;
     ShapeParams     Stepper::shaping_x;
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
     shaping_time_t  ShapingQueue::delay_y;
     shaping_time_t  ShapingQueue::peek_y_val = shaping_time_t(-1);
     uint16_t        ShapingQueue::head_y = 0;
+    uint16_t        ShapingQueue::_free_count_y = shaping_echoes - 1;
     ShapeParams     Stepper::shaping_y;
   #endif
 #endif
