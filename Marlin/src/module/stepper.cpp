@@ -1485,14 +1485,6 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     hal.isr_on();
 
-    #if HAS_SHAPING
-      // Speed limiting should ensure the buffers never get full. But if somehow they do, stutter rather than overflow.
-      if (!nextMainISR) {
-        TERN_(INPUT_SHAPING_X, if (ShapingQueue::free_count_x() < steps_per_isr) NOLESS(nextMainISR, ShapingQueue::peek_x() + 1));
-        TERN_(INPUT_SHAPING_Y, if (ShapingQueue::free_count_y() < steps_per_isr) NOLESS(nextMainISR, ShapingQueue::peek_y() + 1));
-      }
-    #endif
-
     if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
 
     TERN_(HAS_SHAPING, shaping_isr());                  // Do Shaper stepping, if needed
@@ -1999,24 +1991,46 @@ void Stepper::pulse_phase_isr() {
 #if HAS_SHAPING
 
   void Stepper::shaping_isr() {
-    xy_bool_t step_needed{0};
+    // Work out the total movement to clear the echoes that are ready to process.
+    // If the buffers are too full and risk overflowing, also apply echoes early.
+    #if ENABLED(INPUT_SHAPING_X)
+      int16_t x_offset = 0;
+      uint16_t x_free_count = ShapingQueue::free_count_x();
+      while (!ShapingQueue::peek_x() || x_free_count < steps_per_isr) {
+        bool forward = ShapingQueue::dequeue_x();
+        x_free_count++;
+        x_offset += shaping_x.factor2 * (forward ? 1 : -1);
+      }
+    #endif
+    #if ENABLED(INPUT_SHAPING_Y)
+      int16_t y_offset = 0;
+      uint16_t y_free_count = ShapingQueue::free_count_y();
+      while (!ShapingQueue::peek_y() || y_free_count < steps_per_isr) {
+        bool forward = ShapingQueue::dequeue_y();
+        y_free_count++;
+        y_offset += shaping_y.factor2 * (forward ? 1 : -1);
+      }
+    #endif
 
-    step_needed[X_AXIS] = TERN0(INPUT_SHAPING_X, !ShapingQueue::peek_x());
-    step_needed[Y_AXIS] = TERN0(INPUT_SHAPING_Y, !ShapingQueue::peek_y());
+    if (x_offset || y_offset) while (true) {
+      xy_bool_t step_needed{0};
 
-    if (bool(step_needed)) while (true) {
       #if ENABLED(INPUT_SHAPING_X)
-        if (step_needed[X_AXIS]) {
-          bool forward = ShapingQueue::dequeue_x();
-          PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
+        if (x_offset) {
+          step_needed[X_AXIS] = true;
+          int16_t dividend = int16_t(shaping_x.factor2) * (x_offset > 0 ? 1 : -1);
+          x_offset -= dividend;
+          PULSE_PREP_SHAPING(X, shaping_x.delta_error, dividend);
           PULSE_START(X);
         }
       #endif
 
       #if ENABLED(INPUT_SHAPING_Y)
-        if (step_needed[Y_AXIS]) {
-          bool forward = ShapingQueue::dequeue_y();
-          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
+        if (y_offset) {
+          step_needed[Y_AXIS] = true;
+          int16_t dividend = int16_t(shaping_y.factor2) * (y_offset > 0 ? 1 : -1);
+          y_offset -= dividend;
+          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, dividend);
           PULSE_START(Y);
         }
       #endif
@@ -2037,10 +2051,7 @@ void Stepper::pulse_phase_isr() {
         #endif
       }
 
-      step_needed[X_AXIS] = TERN0(INPUT_SHAPING_X, !ShapingQueue::peek_x());
-      step_needed[Y_AXIS] = TERN0(INPUT_SHAPING_Y, !ShapingQueue::peek_y());
-
-      if (!bool(step_needed)) break;
+      if (!x_offset && !x_offset) break;
 
       START_TIMED_PULSE();
       AWAIT_LOW_PULSE();

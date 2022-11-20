@@ -1068,8 +1068,8 @@
  * DEFAULT_AXIS_STEPS_PER_UNIT and/or DEFAULT_MAX_FEEDRATE. Disabling
  * ADAPTIVE_STEP_SMOOTHING and reducing the step rate for non-shaped axes may
  * also reduce the buffer sizes. Runtime editing of max feedrate (M203) or
- * resonant frequency (M593) may result feedrate being capped to prevent
- * buffer overruns.
+ * resonant frequency (M593) may result in input shaping losing effectiveness
+ * during high speed movements to prevent buffer overruns.
  *
  * Tune with M593 D<factor> F<frequency>:
  *
