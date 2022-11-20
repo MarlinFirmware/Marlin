@@ -38,13 +38,6 @@
   #define HAS_SLOW_BUTTONS 1
 #endif
 
-#if HAS_ENCODER_WHEEL
-  #define ENCODER_PHASE_0 0
-  #define ENCODER_PHASE_1 2
-  #define ENCODER_PHASE_2 3
-  #define ENCODER_PHASE_3 1
-#endif
-
 #if EITHER(HAS_DIGITAL_BUTTONS, HAS_DWIN_E3V2)
   // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
   #define BLEN_A 0
@@ -191,19 +184,19 @@
   #define _BUTTON_PRESSED_UP false
 #endif
 #if BUTTON_EXISTS(DOWN)
-  #define _BUTTON_PRESSED_DWN _BUTTON_PRESSED(DOWN)
+  #define _BUTTON_PRESSED_DOWN _BUTTON_PRESSED(DOWN)
 #else
-  #define _BUTTON_PRESSED_DWN false
+  #define _BUTTON_PRESSED_DOWN false
 #endif
 #if BUTTON_EXISTS(LEFT)
-  #define _BUTTON_PRESSED_LFT _BUTTON_PRESSED(LEFT)
+  #define _BUTTON_PRESSED_LEFT _BUTTON_PRESSED(LEFT)
 #else
-  #define _BUTTON_PRESSED_LFT false
+  #define _BUTTON_PRESSED_LEFT false
 #endif
 #if BUTTON_EXISTS(RIGHT)
-  #define _BUTTON_PRESSED_RT _BUTTON_PRESSED(RIGHT)
+  #define _BUTTON_PRESSED_RIGHT _BUTTON_PRESSED(RIGHT)
 #else
-  #define _BUTTON_PRESSED_RT false
+  #define _BUTTON_PRESSED_RIGHT false
 #endif
 #if BUTTON_EXISTS(BACK)
   #define _BUTTON_PRESSED_BACK _BUTTON_PRESSED(BACK)
