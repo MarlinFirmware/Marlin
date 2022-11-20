@@ -233,15 +233,22 @@ uint32_t Stepper::advance_divisor = 0,
 #endif
 
 #if HAS_SHAPING
-  shaping_time_t  DelayTimeManager::now = 0;
-  DelayQueue      Stepper::shaping_queue;
+  shaping_time_t      ShapingQueue::now = 0;
+  shaping_time_t      ShapingQueue::times[shaping_echoes];
+  shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
+  uint16_t            ShapingQueue::tail = 0;
+
   #if ENABLED(INPUT_SHAPING_X)
-    shaping_time_t DelayTimeManager::delay_x;
-    ShapeParams Stepper::shaping_x;
+    shaping_time_t  ShapingQueue::delay_x;
+    shaping_time_t  ShapingQueue::peek_x_val = shaping_time_t(-1);
+    uint16_t        ShapingQueue::head_x = 0;
+    ShapeParams     Stepper::shaping_x;
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    shaping_time_t DelayTimeManager::delay_y;
-    ShapeParams Stepper::shaping_y;
+    shaping_time_t  ShapingQueue::delay_y;
+    shaping_time_t  ShapingQueue::peek_y_val = shaping_time_t(-1);
+    uint16_t        ShapingQueue::head_y = 0;
+    ShapeParams     Stepper::shaping_y;
   #endif
 #endif
 
@@ -1481,8 +1488,8 @@ void Stepper::isr() {
     #if HAS_SHAPING
       // Speed limiting should ensure the buffers never get full. But if somehow they do, stutter rather than overflow.
       if (!nextMainISR) {
-        TERN_(INPUT_SHAPING_X, if (shaping_queue.free_count_x() < steps_per_isr) NOLESS(nextMainISR, shaping_queue.peek_x() + 1));
-        TERN_(INPUT_SHAPING_Y, if (shaping_queue.free_count_y() < steps_per_isr) NOLESS(nextMainISR, shaping_queue.peek_y() + 1));
+        TERN_(INPUT_SHAPING_X, if (ShapingQueue::free_count_x() < steps_per_isr) NOLESS(nextMainISR, ShapingQueue::peek_x() + 1));
+        TERN_(INPUT_SHAPING_Y, if (ShapingQueue::free_count_y() < steps_per_isr) NOLESS(nextMainISR, ShapingQueue::peek_y() + 1));
       }
     #endif
 
@@ -1520,8 +1527,8 @@ void Stepper::isr() {
     const uint32_t interval = _MIN(
       uint32_t(HAL_TIMER_TYPE_MAX),                           // Come back in a very long time
       nextMainISR                                             // Time until the next Pulse / Block phase
-      OPTARG(INPUT_SHAPING_X, shaping_queue.peek_x())         // Time until next input shaping echo for X
-      OPTARG(INPUT_SHAPING_Y, shaping_queue.peek_y())         // Time until next input shaping echo for Y
+      OPTARG(INPUT_SHAPING_X, ShapingQueue::peek_x())         // Time until next input shaping echo for X
+      OPTARG(INPUT_SHAPING_Y, ShapingQueue::peek_y())         // Time until next input shaping echo for Y
       OPTARG(LIN_ADVANCE, nextAdvanceISR)                     // Come back early for Linear Advance?
       OPTARG(INTEGRATED_BABYSTEPPING, nextBabystepISR)        // Come back early for Babystepping?
     );
@@ -1536,8 +1543,7 @@ void Stepper::isr() {
     nextMainISR -= interval;
 
     #if HAS_SHAPING
-      DelayTimeManager::decrement_delays(interval);
-      shaping_queue.decrement_peeks(interval);
+      ShapingQueue::decrement_delays(interval);
     #endif
 
     #if ENABLED(LIN_ADVANCE)
@@ -1635,7 +1641,7 @@ void Stepper::pulse_phase_isr() {
     if (current_block) {
       discard_current_block();
       #if HAS_SHAPING
-        shaping_queue.purge();
+        ShapingQueue::purge();
         TERN_(INPUT_SHAPING_X, shaping_x.delta_error = 0);
         TERN_(INPUT_SHAPING_Y, shaping_y.delta_error = 0);
         TERN_(INPUT_SHAPING_X, shaping_x.last_block_end_pos = count_position.x);
@@ -1881,7 +1887,7 @@ void Stepper::pulse_phase_isr() {
         const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed[X_AXIS]),
                    y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed[Y_AXIS]);
         if (x_step || y_step)
-          shaping_queue.enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
+          ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
 
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
@@ -1995,13 +2001,13 @@ void Stepper::pulse_phase_isr() {
   void Stepper::shaping_isr() {
     xy_bool_t step_needed{0};
 
-    step_needed[X_AXIS] = TERN0(INPUT_SHAPING_X, !shaping_queue.peek_x());
-    step_needed[Y_AXIS] = TERN0(INPUT_SHAPING_Y, !shaping_queue.peek_y());
+    step_needed[X_AXIS] = TERN0(INPUT_SHAPING_X, !ShapingQueue::peek_x());
+    step_needed[Y_AXIS] = TERN0(INPUT_SHAPING_Y, !ShapingQueue::peek_y());
 
     if (bool(step_needed)) while (true) {
       #if ENABLED(INPUT_SHAPING_X)
         if (step_needed[X_AXIS]) {
-          bool forward = shaping_queue.dequeue_x();
+          bool forward = ShapingQueue::dequeue_x();
           PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
           PULSE_START(X);
         }
@@ -2009,7 +2015,7 @@ void Stepper::pulse_phase_isr() {
 
       #if ENABLED(INPUT_SHAPING_Y)
         if (step_needed[Y_AXIS]) {
-          bool forward = shaping_queue.dequeue_y();
+          bool forward = ShapingQueue::dequeue_y();
           PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
           PULSE_START(Y);
         }
@@ -2031,8 +2037,8 @@ void Stepper::pulse_phase_isr() {
         #endif
       }
 
-      step_needed[X_AXIS] = TERN0(INPUT_SHAPING_X, !shaping_queue.peek_x());
-      step_needed[Y_AXIS] = TERN0(INPUT_SHAPING_Y, !shaping_queue.peek_y());
+      step_needed[X_AXIS] = TERN0(INPUT_SHAPING_X, !ShapingQueue::peek_x());
+      step_needed[Y_AXIS] = TERN0(INPUT_SHAPING_Y, !ShapingQueue::peek_y());
 
       if (!bool(step_needed)) break;
 
@@ -2519,7 +2525,7 @@ uint32_t Stepper::block_phase_isr() {
           // be delayed and processed in PULSE_PREP_SHAPING. This will cause half a step
           // to be missed, which will need recovering and this can be done through shaping_x.remainder.
           shaping_x.forward = !TEST(current_block->direction_bits, X_AXIS);
-          if (!shaping_queue.empty_x()) SET_BIT_TO(current_block->direction_bits, X_AXIS, TEST(last_direction_bits, X_AXIS));
+          if (!ShapingQueue::empty_x()) SET_BIT_TO(current_block->direction_bits, X_AXIS, TEST(last_direction_bits, X_AXIS));
         }
       #endif
 
@@ -2529,7 +2535,7 @@ uint32_t Stepper::block_phase_isr() {
           const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
           shaping_y.last_block_end_pos += steps;
           shaping_y.forward = !TEST(current_block->direction_bits, Y_AXIS);
-          if (!shaping_queue.empty_y()) SET_BIT_TO(current_block->direction_bits, Y_AXIS, TEST(last_direction_bits, Y_AXIS));
+          if (!ShapingQueue::empty_y()) SET_BIT_TO(current_block->direction_bits, Y_AXIS, TEST(last_direction_bits, Y_AXIS));
         }
       #endif
 
@@ -3021,14 +3027,14 @@ void Stepper::init() {
 
     const shaping_time_t delay = freq ? float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq : shaping_time_t(-1);
     if (TERN0(INPUT_SHAPING_X, axis == X_AXIS)) {
-      DelayTimeManager::set_delay(X_AXIS, delay);
+      ShapingQueue::set_delay(X_AXIS, delay);
       TERN_(INPUT_SHAPING_X, shaping_x.frequency = freq);
       TERN_(INPUT_SHAPING_X, shaping_x.enabled = !!freq);
       TERN_(INPUT_SHAPING_X, shaping_x.delta_error = 0);
       TERN_(INPUT_SHAPING_X, shaping_x.last_block_end_pos = count_position.x);
     }
     if (TERN0(INPUT_SHAPING_Y, axis == Y_AXIS)) {
-      DelayTimeManager::set_delay(Y_AXIS, delay);
+      ShapingQueue::set_delay(Y_AXIS, delay);
       TERN_(INPUT_SHAPING_Y, shaping_y.frequency = freq);
       TERN_(INPUT_SHAPING_Y, shaping_y.enabled = !!freq);
       TERN_(INPUT_SHAPING_Y, shaping_y.delta_error = 0);

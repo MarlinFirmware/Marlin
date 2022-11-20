@@ -326,8 +326,6 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #if HAS_SHAPING
 
-  typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
-
   // These constexpr are used to calculate the shaping queue buffer sizes
   constexpr xyze_float_t max_feedrate = DEFAULT_MAX_FEEDRATE;
   constexpr xyze_float_t steps_per_unit = DEFAULT_AXIS_STEPS_PER_UNIT;
@@ -358,52 +356,46 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
   constexpr uint16_t shaping_echoes = max_step_rate / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
 
-  class DelayTimeManager {
-    protected:
-      static shaping_time_t now;
+  typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
+  enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
+  struct shaping_echo_axis_t {
+    #if ENABLED(INPUT_SHAPING_X)
+      shaping_echo_t x:2;
+    #endif
+    #if ENABLED(INPUT_SHAPING_Y)
+      shaping_echo_t y:2;
+    #endif
+  };
+
+  class ShapingQueue {
+    private:
+      static shaping_time_t       now;
+      static shaping_time_t       times[shaping_echoes];
+      static shaping_echo_axis_t  echo_axes[shaping_echoes];
+      static uint16_t             tail;
+
       #if ENABLED(INPUT_SHAPING_X)
         static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
+        static shaping_time_t peek_x_val;
+        static uint16_t head_x;
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
+        static shaping_time_t peek_y_val;
+        static uint16_t head_y;
       #endif
+
     public:
-      static void decrement_delays(const shaping_time_t interval) { now += interval; }
+      static void decrement_delays(const shaping_time_t interval) {
+        now += interval;
+        TERN_(INPUT_SHAPING_X, if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval);
+        TERN_(INPUT_SHAPING_Y, if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval);
+      }
       static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
         TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
         TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
       }
-  };
-
-  class DelayQueue : public DelayTimeManager {
-    protected:
-      shaping_time_t times[shaping_echoes];
-      enum echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
-      struct {
-        #if ENABLED(INPUT_SHAPING_X)
-          echo_t x:2;
-        #endif
-        #if ENABLED(INPUT_SHAPING_Y)
-          echo_t y:2;
-        #endif
-      } echo_axes[shaping_echoes];
-
-      #if ENABLED(INPUT_SHAPING_X)
-        shaping_time_t peek_x_val = shaping_time_t(-1);
-        uint16_t head_x = 0;
-      #endif
-      #if ENABLED(INPUT_SHAPING_Y)
-        shaping_time_t peek_y_val = shaping_time_t(-1);
-        uint16_t head_y = 0;
-      #endif
-      uint16_t tail = 0;
-
-    public:
-      void decrement_peeks(const shaping_time_t interval) {
-        TERN_(INPUT_SHAPING_X, if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval);
-        TERN_(INPUT_SHAPING_Y, if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval);
-      }
-      void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
+      static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
         TERN_(INPUT_SHAPING_X, if (head_x == tail && x_step) peek_x_val = delay_x);
         TERN_(INPUT_SHAPING_Y, if (head_y == tail && y_step) peek_y_val = delay_y);
         times[tail] = now;
@@ -414,8 +406,8 @@ constexpr ena_mask_t enable_overlap[] = {
         TERN_(INPUT_SHAPING_Y, if (echo_axes[head_y].y == ECHO_NONE) dequeue_y());
       }
       #if ENABLED(INPUT_SHAPING_X)
-        shaping_time_t peek_x() { return peek_x_val; }
-        bool dequeue_x() {
+        static shaping_time_t peek_x() { return peek_x_val; }
+        static bool dequeue_x() {
           bool forward = echo_axes[head_x].x == ECHO_FWD;
           do
             if (++head_x == shaping_echoes) head_x = 0;
@@ -423,12 +415,12 @@ constexpr ena_mask_t enable_overlap[] = {
           peek_x_val = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
           return forward;
         }
-        bool empty_x() { return head_x == tail; }
-        uint16_t free_count_x() { return (head_x > tail ? 0 : shaping_echoes) + (head_x - tail - 1); }
+        static bool empty_x() { return head_x == tail; }
+        static uint16_t free_count_x() { return (head_x > tail ? 0 : shaping_echoes) + (head_x - tail - 1); }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
-        shaping_time_t peek_y() { return peek_y_val; }
-        bool dequeue_y() {
+        static shaping_time_t peek_y() { return peek_y_val; }
+        static bool dequeue_y() {
           bool forward = echo_axes[head_y].y == ECHO_FWD;
           do
             if (++head_y == shaping_echoes) head_y = 0;
@@ -436,10 +428,10 @@ constexpr ena_mask_t enable_overlap[] = {
           peek_y_val = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
           return forward;
         }
-        bool empty_y() { return head_y == tail; }
-        uint16_t free_count_y() { return (head_y > tail ? 0 : shaping_echoes) + (head_y - tail - 1); }
+        static bool empty_y() { return head_y == tail; }
+        static uint16_t free_count_y() { return (head_y > tail ? 0 : shaping_echoes) + (head_y - tail - 1); }
       #endif
-      void purge() {
+      static void purge() {
         const auto st = shaping_time_t(-1);
         #if ENABLED(INPUT_SHAPING_X)
           head_x = tail; peek_x_val = st;
@@ -568,7 +560,6 @@ class Stepper {
     #endif
 
     #if HAS_SHAPING
-      static DelayQueue shaping_queue;
       #if ENABLED(INPUT_SHAPING_X)
         static ShapeParams shaping_x;
       #endif
@@ -665,7 +656,7 @@ class Stepper {
         const bool was_on = hal.isr_state();
         hal.isr_off();
 
-        const bool result = TERN0(INPUT_SHAPING_X, !shaping_queue.empty_x()) || TERN0(INPUT_SHAPING_Y, !shaping_queue.empty_y());
+        const bool result = TERN0(INPUT_SHAPING_X, !ShapingQueue::empty_x()) || TERN0(INPUT_SHAPING_Y, !ShapingQueue::empty_y());
 
         if (was_on) hal.isr_on();
 
