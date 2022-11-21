@@ -1,0 +1,55 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Made with Marlin Bitmap Converter
+ * https://marlinfw.org/tools/u8glib/converter.html
+ *
+ * This bitmap from 56x19 C/C++ data
+ */
+#pragma once
+
+#define CONFIG_EXAMPLES_DIR "Creality/CR-30 PrintMill"
+
+#define STATUS_SCREEN_X 64
+#define STATUS_LOGO_WIDTH 48
+
+const unsigned char status_logo_bmp[] PROGMEM = {
+  B00000000,B00000000,B00111001,B11000000,B00000000,B00000000,
+  B00000000,B00000000,B01000101,B00100000,B00000000,B00000000,
+  B00000000,B00000000,B00000101,B00010000,B00000000,B00000000,
+  B00000000,B00000000,B00000101,B00010000,B00000000,B00000000,
+  B00000000,B00000000,B00011001,B00010000,B00000000,B00000000,
+  B00000000,B00000000,B00000101,B00010000,B00000000,B00000000,
+  B00000000,B00000000,B00000101,B00010000,B00000000,B00000000,
+  B00000000,B00000000,B01000101,B00100000,B00000000,B00000000,
+  B00000000,B00000000,B00111001,B11000000,B00000000,B00000000,
+  B00111100,B00000000,B00000000,B00011000,B11001001,B10011000,
+  B00100010,B00000010,B00000000,B10011000,B11000000,B10001000,
+  B00100010,B00000000,B00000000,B10011000,B11000000,B10001000,
+  B00100010,B10110110,B01011001,B11010101,B01011000,B10001000,
+  B00111100,B11000010,B01100100,B10010101,B01001000,B10001000,
+  B00100000,B10000010,B01000100,B10010101,B01001000,B10001000,
+  B00100000,B10000010,B01000100,B10010010,B01001000,B10001000,
+  B00100000,B10000010,B01000100,B10010010,B01001000,B10001000,
+  B00100000,B10000111,B01000100,B01010010,B01011101,B11011100
+};
