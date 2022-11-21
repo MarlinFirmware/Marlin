@@ -146,11 +146,11 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
       LIMIT(res_pc_temp, 1U, maxtop);
 
       // Calculate frequencies of test prescaler and resolution values
-      const uint32_t f_diff      = _MAX(f, f_desired) - _MIN(f, f_desired),
-                     f_fast_temp = (F_CPU) / (p * (1 + res_fast_temp)),
-                     f_fast_diff = _MAX(f_fast_temp, f_desired) - _MIN(f_fast_temp, f_desired),
-                     f_pc_temp   = (F_CPU) / (2 * p * res_pc_temp),
-                     f_pc_diff   = _MAX(f_pc_temp, f_desired) - _MIN(f_pc_temp, f_desired);
+      const int f_diff = ABS(f - int(f_desired)),
+                f_fast_temp = (F_CPU) / (p * (1 + res_fast_temp)),
+                f_fast_diff = ABS(f_fast_temp - int(f_desired)),
+                f_pc_temp = (F_CPU) / (2 * p * res_pc_temp),
+                f_pc_diff = ABS(f_pc_temp - int(f_desired));
 
       if (f_fast_diff < f_diff && f_fast_diff <= f_pc_diff) { // FAST values are closest to desired f
         // Set the Wave Generation Mode to FAST PWM
