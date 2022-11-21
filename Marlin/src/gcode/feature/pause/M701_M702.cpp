@@ -102,7 +102,7 @@ void GcodeSuite::M701() {
 
   // Load filament
   #if HAS_PRUSA_MMU2
-    mmu2.load_filament_to_nozzle(target_extruder);
+    mmu2.load_to_nozzle(target_extruder);
   #else
     constexpr float     purge_length = ADVANCED_PAUSE_PURGE_LENGTH,
                     slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
