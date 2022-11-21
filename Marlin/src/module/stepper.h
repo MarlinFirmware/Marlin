@@ -94,7 +94,7 @@
 
   // Input shaping base time
   #if HAS_SHAPING
-    #define ISR_SHAPING_BASE_CYCLES 220UL
+    #define ISR_SHAPING_BASE_CYCLES 180UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
   #endif
@@ -128,7 +128,7 @@
 
   // Input shaping base time
   #if HAS_SHAPING
-    #define ISR_SHAPING_BASE_CYCLES 400UL
+    #define ISR_SHAPING_BASE_CYCLES 290UL
   #else
     #define ISR_SHAPING_BASE_CYCLES 0UL
   #endif
