@@ -1487,9 +1487,9 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     hal.isr_on();
 
-    if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
-
     TERN_(HAS_SHAPING, shaping_isr());                  // Do Shaper stepping, if needed
+
+    if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
 
     #if ENABLED(LIN_ADVANCE)
       if (!nextAdvanceISR) {                            // 0 = Do Linear Advance E Stepper pulses
