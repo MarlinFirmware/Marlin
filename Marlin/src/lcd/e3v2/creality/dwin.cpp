@@ -3395,11 +3395,11 @@ void Draw_Max_Accel_Menu() {
 
     Draw_Back_First();
     LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedJerkX + i);
-    Draw_Edit_Float3(1, planner.max_jerk[X_AXIS] * MINUNITMULT);
-    Draw_Edit_Float3(2, planner.max_jerk[Y_AXIS] * MINUNITMULT);
-    Draw_Edit_Float3(3, planner.max_jerk[Z_AXIS] * MINUNITMULT);
+    Draw_Edit_Float3(1, planner.max_jerk.x * MINUNITMULT);
+    Draw_Edit_Float3(2, planner.max_jerk.y * MINUNITMULT);
+    Draw_Edit_Float3(3, planner.max_jerk.z * MINUNITMULT);
     #if HAS_HOTEND
-      Draw_Edit_Float3(4, planner.max_jerk[E_AXIS] * MINUNITMULT);
+      Draw_Edit_Float3(4, planner.max_jerk.e * MINUNITMULT);
     #endif
   }
 #endif

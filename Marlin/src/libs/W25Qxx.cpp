@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_SPI_FLASH
+#if ENABLED(SPI_FLASH)
 
 #include "W25Qxx.h"
 
@@ -380,4 +380,4 @@ void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint
   SPI_FLASH_CS_H();
 }
 
-#endif // HAS_SPI_FLASH
+#endif // SPI_FLASH

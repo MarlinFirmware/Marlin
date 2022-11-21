@@ -438,7 +438,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_lchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
+    lcd_put_u8str(TERN0(HAS_Z_AXIS, axis == Z_AXIS) ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -500,7 +500,13 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  */
 void MarlinUI::draw_status_screen() {
   constexpr int xystorage = TERN(INCH_MODE_SUPPORT, 8, 5);
-  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)], ystring[xystorage], zstring[8];
+  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)];
+  #if HAS_Y_AXIS
+    static char ystring[xystorage];
+  #endif
+  #if HAS_Z_AXIS
+    static char zstring[8];
+  #endif
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
@@ -525,7 +531,9 @@ void MarlinUI::draw_status_screen() {
 
     const xyz_pos_t lpos = current_position.asLogical();
     const bool is_inch = parser.using_inch_units();
-    strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z));
+    #if HAS_Z_AXIS
+      strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z));
+    #endif
 
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -535,7 +543,7 @@ void MarlinUI::draw_status_screen() {
     }
     else {
       strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x));
-      strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y));
+      TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
     }
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -858,12 +866,14 @@ void MarlinUI::draw_status_screen() {
         }
         else {
           _draw_axis_value(X_AXIS, xstring, blink);
-          _draw_axis_value(Y_AXIS, ystring, blink);
+          TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
         }
 
       #endif
 
-      _draw_axis_value(Z_AXIS, zstring, blink);
+      #if HAS_Z_AXIS
+        _draw_axis_value(Z_AXIS, zstring, blink);
+      #endif
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
