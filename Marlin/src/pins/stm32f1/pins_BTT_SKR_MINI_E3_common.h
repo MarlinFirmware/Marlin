@@ -279,7 +279,7 @@
      *   EXP1-7 ----------- EXP1-5   RED
      *   EXP1-6 ----------- EXP2-8   EN1
      *   EXP1-5 ----------- n/c
-     *   EXP1-4 ----------- EXP2-3   RESET
+     *   EXP1-4 ----------- EXP1-6   RESET
      *   EXP1-3 ----------- EXP1-8   LCD_CS
      *   EXP1-2 ----------- EXP1-9   ENC
      *   EXP1-1 ----------- EXP1-7   LCD_A0
