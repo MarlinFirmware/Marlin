@@ -1679,33 +1679,35 @@ void Stepper::pulse_phase_isr() {
         delta_error[_AXIS(AXIS)] -= advance_divisor; \
     }while(0)
 
-    // Direction changes can happen with almost no time gap from a previous STEP pulse. Wait for
-    // the time given by MAXIMUM_STEPPER_RATE. Or, to work around the TMC2208 / TMC2225 over-current
-    // shutdown bug, wait for the time given by SHAPING_MAX_STEPRATE_JUMP_[XY].
-    #ifdef SHAPING_MAX_STEPRATE_JUMP_X
-      #define AWAIT_DIRCHANGE_X while (((STEPPER_TIMER_RATE) / (SHAPING_MAX_STEPRATE_JUMP_X)) > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) {}
+    // With input shaping, direction changes can happen with almost only
+    // AWAIT_LOW_PULSE() and  DIR_WAIT_BEFORE() between steps. To work around
+    // the TMC2208 / TMC2225 shutdown bug (#16076), add a half step hysteresis
+    // in each direction. This results in the position being off by half an
+    // average half step during travel but correct at the end of each segment.
+    #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
+      #define HYSTERESIS_X 64
     #else
-      #define AWAIT_DIRCHANGE_X AWAIT_LOW_PULSE()
+      #define HYSTERESIS_X 0
     #endif
-    #ifdef SHAPING_MAX_STEPRATE_JUMP_Y
-      #define AWAIT_DIRCHANGE_Y while (((STEPPER_TIMER_RATE) / (SHAPING_MAX_STEPRATE_JUMP_Y)) > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) {}
+    #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
+      #define HYSTERESIS_Y 64
     #else
-      #define AWAIT_DIRCHANGE_Y AWAIT_LOW_PULSE()
+      #define HYSTERESIS_Y 0
     #endif
-    #define _AWAIT_DIRCHANGE(AXIS) AWAIT_DIRCHANGE_##AXIS
-    #define AWAIT_DIRCHANGE(AXIS) _AWAIT_DIRCHANGE(AXIS)
+    #define _HYSTERESIS(AXIS) HYSTERESIS_##AXIS
+    #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
 
     #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
       if (step_needed[_AXIS(AXIS)]) { \
         DELTA_ERROR += (DIVIDEND); \
-        if ((MAXDIR(AXIS) && DELTA_ERROR <= -64) || (MINDIR(AXIS) && DELTA_ERROR >= 64)) { \
-          { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_DIRCHANGE(AXIS); } \
+        if ((MAXDIR(AXIS) && DELTA_ERROR <= -(64 + HYSTERESIS(AXIS))) || (MINDIR(AXIS) && DELTA_ERROR >= (64 + HYSTERESIS(AXIS)))) { \
+          { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
           TBI(last_direction_bits, _AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
           DIR_WAIT_AFTER(); \
         } \
-        step_needed[_AXIS(AXIS)] = DELTA_ERROR >= 64 || DELTA_ERROR <= -64; \
+        step_needed[_AXIS(AXIS)] = DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS)); \
         if (step_needed[_AXIS(AXIS)]) \
           DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
       } \
