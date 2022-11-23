@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V87"
+#define EEPROM_VERSION "V88"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -169,6 +169,10 @@
 #if ENABLED(DGUS_LCD_UI_MKS)
   #include "../lcd/extui/dgus/DGUSScreenHandler.h"
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
+#endif
+
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "../feature/hotend_idle.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -587,6 +591,16 @@ typedef struct SettingsDataStruct {
   #if HAS_SHAPING_Y
     float shaping_y_frequency, // M593 Y F
           shaping_y_zeta;      // M593 Y D
+  #endif
+
+  //
+  // HOTEND_IDLE_TIMEOUT Settings
+  //
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    uint16_t hotend_idle_timeout,
+             hotend_idle_trigger,
+             hotend_idle_nozzle_target,
+             hotend_idle_bed_target;
   #endif
 
 } SettingsData;
@@ -1616,7 +1630,7 @@ void MarlinSettings::postprocess() {
 
     //
     // Input Shaping
-    ///
+    //
     #if ENABLED(INPUT_SHAPING)
       #if HAS_SHAPING_X
         EEPROM_WRITE(stepper.get_shaping_frequency(X_AXIS));
@@ -1626,6 +1640,16 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(stepper.get_shaping_frequency(Y_AXIS));
         EEPROM_WRITE(stepper.get_shaping_damping_ratio(Y_AXIS));
       #endif
+    #endif
+
+    //
+    // HOTEND_IDLE_TIMEOUT
+    //
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      EEPROM_WRITE(hotend_idle.timeout);
+      EEPROM_WRITE(hotend_idle.trigger);
+      EEPROM_WRITE(hotend_idle.nozzle_target);
+      EEPROM_WRITE(hotend_idle.bed_target);
     #endif
 
     //
@@ -2618,6 +2642,16 @@ void MarlinSettings::postprocess() {
         stepper.set_shaping_frequency(Y_AXIS, _data[0]);
         stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
       }
+      #endif
+
+      //
+      // HOTEND_IDLE_TIMEOUT
+      //
+      #if ENABLED(HOTEND_IDLE_TIMEOUT)
+        EEPROM_READ(hotend_idle.timeout);
+        EEPROM_READ(hotend_idle.trigger);
+        EEPROM_READ(hotend_idle.nozzle_target);
+        EEPROM_READ(hotend_idle.bed_target);
       #endif
 
       //

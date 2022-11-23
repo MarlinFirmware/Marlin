@@ -55,6 +55,10 @@
   #include "../../libs/buzzer.h"
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "../../feature/hotend_idle.h"
+#endif
+
 #include "../../core/debug_out.h"
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
@@ -190,6 +194,22 @@ void menu_advanced_settings();
     #endif
     END_MENU();
   }
+#endif
+
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+
+  void menu_hotend_idle(){
+    START_MENU();
+    BACK_ITEM(MSG_BACK);
+
+    EDIT_ITEM(uint16_3, MSG_TIMEOUT, &hotend_idle.timeout, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_TEMPERATURE, &hotend_idle.trigger, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &hotend_idle.nozzle_target, 0, 999);
+    EDIT_ITEM(uint16_3, MSG_HOTEND_IDLE_BED_TARGET, &hotend_idle.bed_target, 0, 999);
+
+    END_MENU();
+  }
+
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -527,6 +547,10 @@ void menu_configuration() {
       SUBMENU(MSG_TOUCHMI_PROBE, menu_touchmi);
     #endif
   }
+
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    SUBMENU(MSG_HOTEND_IDLE_TIMEOUT, menu_hotend_idle);
+  #endif
 
   //
   // Set single nozzle filament retract and prime length

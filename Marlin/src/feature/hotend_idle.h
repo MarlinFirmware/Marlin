@@ -26,8 +26,8 @@
 class HotendIdleProtection {
 public:
   static void check();
+  static uint16_t timeout, trigger, nozzle_target, bed_target;
 private:
-  static constexpr millis_t hp_interval = SEC_TO_MS(HOTEND_IDLE_TIMEOUT_SEC);
   static millis_t next_protect_ms;
   static void check_hotends(const millis_t &ms);
   static void check_e_motion(const millis_t &ms);
