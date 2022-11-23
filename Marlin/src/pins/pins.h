@@ -195,6 +195,8 @@
   #include "ramps/pins_ORTUR_4.h"               // ATmega2560                             env:mega2560
 #elif MB(TENLOG_D3_HERO)
   #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
+#elif MB(TENLOG_MB1_V23)
+  #include "ramps/pins_TENLOG_MB1_V23.h"        // ATmega2560                             env:mega2560
 #elif MB(MKS_GEN_L_V21)
   #include "ramps/pins_MKS_GEN_L_V21.h"         // ATmega2560                             env:mega2560
 #elif MB(RAMPS_S_12_EEFB, RAMPS_S_12_EEEB, RAMPS_S_12_EFFB)
@@ -711,6 +713,8 @@
   #include "stm32f4/pins_FYSETC_SPIDER_KING407.h" // STM32F4                              env:FYSETC_SPIDER_KING407
 #elif MB(MKS_SKIPR_V1)
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"      // STM32F4                                env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
+#elif MB(TRONXY_V10)
+  #include "stm32f4/pins_TRONXY_V10.h"          // STM32F4                                env:STM32F446_tronxy
 
 //
 // ARM Cortex M7

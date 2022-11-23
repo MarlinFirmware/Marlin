@@ -933,6 +933,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
+      #if ENABLED(INPUT_SHAPING)
+        case 593: M593(); break;                                  // M593: Set Input Shaping parameters
+      #endif
+
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: M600(); break;                                  // M600: Pause for Filament Change
         case 603: M603(); break;                                  // M603: Configure Filament Change
@@ -1053,7 +1057,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
-      #if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+      #if ALL(SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif

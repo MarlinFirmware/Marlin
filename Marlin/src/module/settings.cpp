@@ -257,7 +257,7 @@ typedef struct SettingsDataStruct {
   // HAS_BED_PROBE
   //
 
-  xyz_pos_t probe_offset;
+  xyz_pos_t probe_offset;                               // M851 X Y Z
 
   //
   // ABL_PLANAR
@@ -319,7 +319,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Kinematic Settings
+  // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
   //
   #if IS_KINEMATIC
     float segments_per_second;                          // M665 S
@@ -330,7 +330,11 @@ typedef struct SettingsDataStruct {
             delta_diagonal_rod;                         // M665 L
       abc_float_t delta_tower_angle_trim,               // M665 X Y Z
                   delta_diagonal_rod_trim;              // M665 A B C
+    #elif ENABLED(POLARGRAPH)
+      xy_pos_t draw_area_min, draw_area_max;            // M665 L R T B
+      float polargraph_max_belt_len;                    // M665 H
     #endif
+
   #endif
 
   //
@@ -468,7 +472,7 @@ typedef struct SettingsDataStruct {
   //
   // SKEW_CORRECTION
   //
-  skew_factor_t planner_skew_factor;                    // M852 I J K  planner.skew_factor
+  skew_factor_t planner_skew_factor;                    // M852 I J K
 
   //
   // ADVANCED_PAUSE_FEATURE
@@ -571,6 +575,18 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(MPCTEMP)
     MPC_t mpc_constants[HOTENDS];                       // M306
+  #endif
+
+  //
+  // Input Shaping
+  //
+  #if HAS_SHAPING_X
+    float shaping_x_frequency, // M593 X F
+          shaping_x_zeta;      // M593 X D
+  #endif
+  #if HAS_SHAPING_Y
+    float shaping_y_frequency, // M593 Y F
+          shaping_y_zeta;      // M593 Y D
   #endif
 
 } SettingsData;
@@ -988,7 +1004,7 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // Kinematic Settings
+    // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
     //
     #if IS_KINEMATIC
     {
@@ -1001,6 +1017,11 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
         EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
+      #elif ENABLED(POLARGRAPH)
+        _FIELD_TEST(draw_area_min);
+        EEPROM_WRITE(draw_area_min);             // 2 floats
+        EEPROM_WRITE(draw_area_max);             // 2 floats
+        EEPROM_WRITE(polargraph_max_belt_len);   // 1 float
       #endif
     }
     #endif
@@ -1400,7 +1421,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(planner.extruder_advance_K);
       #else
         dummyf = 0;
-        for (uint8_t q = _MAX(EXTRUDERS, 1); q--;) EEPROM_WRITE(dummyf);
+        for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
 
@@ -1591,6 +1612,20 @@ void MarlinSettings::postprocess() {
     #if ENABLED(MPCTEMP)
       HOTEND_LOOP()
         EEPROM_WRITE(thermalManager.temp_hotend[e].constants);
+    #endif
+
+    //
+    // Input Shaping
+    ///
+    #if ENABLED(INPUT_SHAPING)
+      #if HAS_SHAPING_X
+        EEPROM_WRITE(stepper.get_shaping_frequency(X_AXIS));
+        EEPROM_WRITE(stepper.get_shaping_damping_ratio(X_AXIS));
+      #endif
+      #if HAS_SHAPING_Y
+        EEPROM_WRITE(stepper.get_shaping_frequency(Y_AXIS));
+        EEPROM_WRITE(stepper.get_shaping_damping_ratio(Y_AXIS));
+      #endif
     #endif
 
     //
@@ -1923,7 +1958,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // Kinematic Segments-per-second
+      // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
       //
       #if IS_KINEMATIC
       {
@@ -1936,6 +1971,11 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
           EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
+        #elif ENABLED(POLARGRAPH)
+          _FIELD_TEST(draw_area_min);
+          EEPROM_READ(draw_area_min);             // 2 floats
+          EEPROM_READ(draw_area_max);             // 2 floats
+          EEPROM_READ(polargraph_max_belt_len);   // 1 float
         #endif
       }
       #endif
@@ -2560,6 +2600,27 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Input Shaping
+      //
+      #if HAS_SHAPING_X
+      {
+        float _data[2];
+        EEPROM_READ(_data);
+        stepper.set_shaping_frequency(X_AXIS, _data[0]);
+        stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+      }
+      #endif
+
+      #if HAS_SHAPING_Y
+      {
+        float _data[2];
+        EEPROM_READ(_data);
+        stepper.set_shaping_frequency(Y_AXIS, _data[0]);
+        stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+      }
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2979,7 +3040,7 @@ void MarlinSettings::reset() {
   #endif
 
   //
-  // Kinematic settings
+  // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
   //
 
   #if IS_KINEMATIC
@@ -2996,6 +3057,10 @@ void MarlinSettings::reset() {
       delta_diagonal_rod = DELTA_DIAGONAL_ROD;
       delta_tower_angle_trim = dta;
       delta_diagonal_rod_trim = ddr;
+    #elif ENABLED(POLARGRAPH)
+      draw_area_min.set(X_MIN_POS, Y_MIN_POS);
+      draw_area_max.set(X_MAX_POS, Y_MAX_POS);
+      polargraph_max_belt_len = POLARGRAPH_MAX_BELT_LEN;
     #endif
   #endif
 
@@ -3325,6 +3390,20 @@ void MarlinSettings::reset() {
     }
   #endif
 
+  //
+  // Input Shaping
+  //
+  #if ENABLED(INPUT_SHAPING)
+    #if HAS_SHAPING_X
+      stepper.set_shaping_frequency(X_AXIS, SHAPING_FREQ_X);
+      stepper.set_shaping_damping_ratio(X_AXIS, SHAPING_ZETA_X);
+    #endif
+    #if HAS_SHAPING_Y
+      stepper.set_shaping_frequency(Y_AXIS, SHAPING_FREQ_Y);
+      stepper.set_shaping_damping_ratio(Y_AXIS, SHAPING_ZETA_Y);
+    #endif
+  #endif
+
   postprocess();
 
   #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
@@ -3492,9 +3571,7 @@ void MarlinSettings::reset() {
     //
     // LCD Preheat Settings
     //
-    #if HAS_PREHEAT
-      gcode.M145_report(forReplay);
-    #endif
+    TERN_(HAS_PREHEAT, gcode.M145_report(forReplay));
 
     //
     // PID
@@ -3573,6 +3650,11 @@ void MarlinSettings::reset() {
     // TMC stepping mode
     //
     TERN_(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
+
+    //
+    // Input Shaping
+    //
+    TERN_(INPUT_SHAPING, gcode.M593_report(forReplay));
 
     //
     // Linear Advance

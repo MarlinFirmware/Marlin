@@ -183,7 +183,7 @@
 //
 #if NO_EEPROM_SELECTED
   //#define SPI_EEPROM
-  //#define HAS_SPI_FLASH                      1  // need MARLIN_DEV_MODE for M993/M994 eeprom backup tests
+  //#define SPI_FLASH                             // need MARLIN_DEV_MODE for M993/M994 EEPROM backup tests
   #define FLASH_EEPROM_EMULATION
 #endif
 
@@ -196,7 +196,7 @@
   #define EEPROM_MOSI_PIN    BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE               0x1000U  // 4K (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64K for now...
-#elif HAS_SPI_FLASH
+#elif ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x40000U  // limit to 256K (M993 will reboot with 512)
   #define SPI_FLASH_CS_PIN                  PC5
   #define SPI_FLASH_MOSI_PIN                PA7
