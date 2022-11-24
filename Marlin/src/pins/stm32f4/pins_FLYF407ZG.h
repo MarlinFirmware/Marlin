@@ -238,13 +238,13 @@
 // Trinamic SPI
 //
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK               EXP2_02_PIN
+  #define TMC_SPI_SCK                EXP2_02_PIN
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO              EXP2_01_PIN
+  #define TMC_SPI_MISO               EXP2_01_PIN
 #endif
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI              EXP2_06_PIN
+  #define TMC_SPI_MOSI               EXP2_06_PIN
 #endif
 
 //

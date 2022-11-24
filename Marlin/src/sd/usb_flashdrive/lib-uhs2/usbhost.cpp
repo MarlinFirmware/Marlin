@@ -126,12 +126,12 @@ bool MAX3421e::start() {
   const uint8_t revision = regRd(rREVISION);
   if (revision == 0x00 || revision == 0xFF) {
     SERIAL_ECHOLNPGM("Revision register appears incorrect on MAX3421e initialization. Got ", revision);
-    goto fail;
+    return false;
   }
 
   if (!reset()) {
     SERIAL_ECHOLNPGM("OSCOKIRQ hasn't asserted in time");
-    goto fail;
+    return false;
   }
 
   // Delay a minimum of 1 second to ensure any capacitors are drained.
@@ -155,8 +155,6 @@ bool MAX3421e::start() {
   regWr(rPINCTL, bmFDUPSPI | bmINTLEVEL);
 
   return true;
-fail:
-  return false;
 }
 
 // Probe bus to determine device presence and speed. Switch host to this speed.

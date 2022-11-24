@@ -111,7 +111,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define IS_RX1(P) (P == P0_16)
   #define _IS_TX1_1 IS_TX1
   #define _IS_RX1_1 IS_RX1
-  #if IS_TX1(TMC_SW_SCK)
+  #if IS_TX1(TMC_SPI_SCK)
     #error "Serial port pins (1) conflict with other pins!"
   #elif HAS_ROTARY_ENCODER
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)

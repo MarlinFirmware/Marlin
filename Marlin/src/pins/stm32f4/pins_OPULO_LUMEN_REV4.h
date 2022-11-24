@@ -168,9 +168,9 @@
 #define MOSI_PIN                            PB5
 #define SCK_PIN                             PB3
 
-#define TMC_SPI_MISO                     MISO_PIN
-#define TMC_SPI_MOSI                     MOSI_PIN
-#define TMC_SPI_SCK                       SCK_PIN
+#define TMC_SPI_MISO                    MISO_PIN
+#define TMC_SPI_MOSI                    MOSI_PIN
+#define TMC_SPI_SCK                      SCK_PIN
 
 //
 // I2C

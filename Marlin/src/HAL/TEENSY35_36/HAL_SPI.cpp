@@ -47,7 +47,7 @@ void spiBegin() {
   SET_OUTPUT(SD_MOSI_PIN);
 }
 
-void spiInitEx(uint32_t clock, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+void spiInitEx(uint32_t clock, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
   // Ignore the SPI pin hints.
   _spi_clock = clock;
   _spi_bitOrder = MSBFIRST;
@@ -72,9 +72,7 @@ void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hi
   spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
 }
 
-void spiClose() {
-  SPI.end();
-}
+void spiClose() { SPI.end(); }
 
 void spiSetBitOrder(int bitOrder) {
   if (bitOrder == SPI_BITORDER_MSB) {

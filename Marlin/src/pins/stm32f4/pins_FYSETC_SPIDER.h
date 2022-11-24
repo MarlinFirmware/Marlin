@@ -105,13 +105,13 @@
 //
 #define TMC_USE_SW_SPI
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     PE14
+  #define TMC_SPI_MOSI                      PE14
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     PE13
+  #define TMC_SPI_MISO                      PE13
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      PE12
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 #if HOTENDS > 3 || E_STEPPERS > 3

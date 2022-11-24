@@ -34,11 +34,7 @@
 
 class TFT_SPI {
 
-  enum class eSPIMode
-  {
-    READ,
-    WRITE
-  };
+  enum class eSPIMode { READ, WRITE };
 
 private:
 
@@ -58,7 +54,7 @@ public:
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(eSPIMode spiMode = eSPIMode::WRITE);
+  static void DataTransferBegin(eSPIMode spiMode=eSPIMode::WRITE);
   static void DataTransferEnd();
 
   // Call DataTransferBegin for these two methods.

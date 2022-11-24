@@ -49,6 +49,8 @@ void spiBegin() {
   SET_OUTPUT(SD_MOSI_PIN);
 }
 
+void spiClose() { /* do nothing */ }
+
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
@@ -64,7 +66,7 @@ void spiBegin() {
    * Initialize hardware SPI
    * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
    */
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     // Ignore SPI pin hints.
 
     // See avr processor documentation
@@ -80,7 +82,7 @@ void spiBegin() {
     // DORD is set to 0 -> MSB transfer, else LSB
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
-    SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
+    SPSR = spiRate & 1 || spiRate == SPI_SPEED_6 ? 0 : _BV(SPI2X);
   }
 
   void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
@@ -133,7 +135,7 @@ void spiBegin() {
   /** SPI receive a byte */
   uint8_t spiRec(uint8_t txval) {
     SPDR = txval;
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
     return SPDR;
   }
 
@@ -162,18 +164,18 @@ void spiBegin() {
     if (nbyte-- == 0) return;
     SPDR = txval;
     for (uint16_t i = 0; i < nbyte; i++) {
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      while (!TEST(SPSR, SPIF)) { /* do nothing */ }
       buf[i] = SPDR;
       SPDR = txval;
     }
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
     buf[nbyte] = SPDR;
   }
 
   /** SPI send a byte */
   void spiSend(uint8_t b) {
     SPDR = b;
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
   }
 
   void spiSend16(uint16_t v) {
@@ -188,14 +190,15 @@ void spiBegin() {
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
     SPDR = token;
     for (uint16_t i = 0; i < 512; i += 2) {
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      while (!TEST(SPSR, SPIF)) { /* do nothing */ }
       SPDR = buf[i];
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      while (!TEST(SPSR, SPIF)) { /* do nothing */ }
       SPDR = buf[i + 1];
     }
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* do nothing */ }
   }
 
+  /** Begin SPI transaction */
   void spiWrite(const uint8_t *buf, uint16_t cnt) {
     for (uint16_t n = 0; n < cnt; n++)
       spiSend(buf[n]);
@@ -273,7 +276,6 @@ void spiBegin() {
   }
 #endif
 
-
 #else // SOFTWARE_SPI || FORCE_SOFT_SPI
 
   // ------------------------
@@ -285,7 +287,7 @@ void spiBegin() {
 
   static int _spi_bit_order = SPI_BITORDER_DEFAULT;
 
-  void spiInit(uint8_t, int, int, int, int) { /* do nothing */ }
+  void spiInit(uint8_t, const int/*=-1*/, const int/*=-1*/, const int/*=-1*/, const int/*=-1*/) { /* do nothing */ }
   void spiInitEx(uint32_t, int, int, int, int) { /* do nothing */ }
   void spiClose() { /* do nothing */ }
 

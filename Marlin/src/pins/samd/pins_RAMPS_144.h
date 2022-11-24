@@ -167,13 +167,13 @@
 // TMC SPI
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                       58  // Mega/Due:66 - AGCM4:58
+  #define TMC_SPI_MOSI                        58  // Mega/Due:66 - AGCM4:58
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                       44
+  #define TMC_SPI_MISO                        44
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                        56  // Mega/Due:64 - AGCM4:56
+  #define TMC_SPI_SCK                         56  // Mega/Due:64 - AGCM4:56
 #endif
 
 #if HAS_TMC_UART

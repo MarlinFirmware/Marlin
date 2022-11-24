@@ -69,7 +69,7 @@
   void spiBegin() {
   }
 
-  void spiInit(uint32_t clock, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+  void spiInitEx(uint32_t clock, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     _spi_clock = clock;
     _spi_bitOrder = MSBFIRST;
     _spi_clockMode = SPI_MODE0;
@@ -79,8 +79,8 @@
 
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     // Ignore all pin hints.
-    if (spiRate == SPI_SPEED_DEFAULT)
-      spiRate = SPI_HALF_SPEED;
+    if (spiRate == SPI_SPEED_DEFAULT) spiRate = SPI_HALF_SPEED;
+
     // Use datarates Marlin uses
     uint32_t clock;
     switch (spiRate) {
@@ -96,9 +96,7 @@
     spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
-  void spiClose() {
-    sdSPI.end();
-  }
+  void spiClose() { sdSPI.end(); }
 
   void spiSetBitOrder(int bitOrder) {
     if (bitOrder == SPI_BITORDER_MSB) {

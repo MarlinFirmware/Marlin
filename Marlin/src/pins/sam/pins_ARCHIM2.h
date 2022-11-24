@@ -149,13 +149,13 @@
 // Required for the Archim2 board.
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                       28  // PD3
+  #define TMC_SPI_MOSI                        28  // PD3
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                       26  // PD1
+  #define TMC_SPI_MISO                        26  // PD1
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                        27  // PD2
+  #define TMC_SPI_SCK                         27  // PD2
 #endif
 
 //

@@ -575,6 +575,29 @@ extern "C" {
 
     // See page 282 of the STM32F1xx manual (DMA1).
 
+#if 0
+    // @thinkyhead
+    #ifdef STM32F1xx
+      #define _DMATX_PREPARE(N1,N4,S,C1,C4) \
+        __HAL_RCC_DMA##N1##_CLK_ENABLE(); \
+        DMAtx.Instance = DMA##N1##_Channel##C1;
+    #elif defined(STM32F4xx)
+      #define _DMATX_PREPARE(N1,N4,S,C1,C4) \
+        __HAL_RCC_DMA##N4##_CLK_ENABLE(); \
+        DMAtx.Instance = DMA##N4##_Stream##S; \
+        DMAtx.Init.Channel = DMA_CHANNEL_##C4;
+    #else
+      #define _DMATX_PREPARE(...) NOOP
+    #endif
+    #define SPIX_PREPARE(I,N1,N4,S,C1,C4) \
+      if (SPIx.Instance == SPI##I) { \
+        __HAL_RCC_SPI##I##_CLK_ENABLE(); \
+        __HAL_RCC_SPI##I##_FORCE_RESET(); \
+        __HAL_RCC_SPI##I##_RELEASE_RESET(); \
+        _DMATX_PREPARE(N1,N4,S,C1,C4); \
+      }
+#endif
+
     #ifdef SPI1_BASE
       if (SPIhx.Instance == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
@@ -646,6 +669,24 @@ extern "C" {
   }
 
   static void _HAL_SPI_Dismantle(void) {
+#if 0
+    // @thinkyhead
+    #ifdef STM32F1xx
+      #define _DMATX_DISMANTLE(N1,N4) __HAL_RCC_DMA##N1##_CLK_DISABLE()
+    #elif defined(STM32F4xx)
+      #define _DMATX_DISMANTLE(N1,N4) __HAL_RCC_DMA##N4##_CLK_DISABLE()
+    #else
+      #define _DMATX_DISMANTLE(...) NOOP
+    #endif
+    #define SPIX_DISMANTLE(I,N1,N4) \
+      if (SPIx.Instance == SPI##I) { \
+        __HAL_RCC_SPI##I##_FORCE_RESET(); \
+        __HAL_RCC_SPI##I##_RELEASE_RESET(); \
+        __HAL_RCC_SPI##I##_CLK_DISABLE(); \
+        _DMATX_DISMANTLE(N1,N4); \
+      }
+#endif
+
     #ifdef SPI1_BASE
       if (SPIhx.Instance == SPI1) {
         __HAL_RCC_SPI1_FORCE_RESET();

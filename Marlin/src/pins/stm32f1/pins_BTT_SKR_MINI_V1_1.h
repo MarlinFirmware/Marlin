@@ -70,30 +70,30 @@
 
 // Shared with EXP2
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      PB3
+  #define TMC_SPI_SCK                       PB3
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     PB4
+  #define TMC_SPI_MISO                      PB4
 #endif
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     PB5
+  #define TMC_SPI_MOSI                      PB5
 #endif
 
 #if HAS_TMC_UART                                  // Shared with EXP1
-  #define X_SERIAL_TX_PIN                  PC10
-  #define X_SERIAL_RX_PIN       X_SERIAL_TX_PIN
+  #define X_SERIAL_TX_PIN                   PC10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
-  #define Y_SERIAL_TX_PIN                  PC11
-  #define Y_SERIAL_RX_PIN       Y_SERIAL_TX_PIN
+  #define Y_SERIAL_TX_PIN                   PC11
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN                  PC12
-  #define Z_SERIAL_RX_PIN       Z_SERIAL_TX_PIN
+  #define Z_SERIAL_TX_PIN                   PC12
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define E0_SERIAL_TX_PIN                 PC14
-  #define E0_SERIAL_RX_PIN     E0_SERIAL_TX_PIN
+  #define E0_SERIAL_TX_PIN                  PC14
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                   19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //

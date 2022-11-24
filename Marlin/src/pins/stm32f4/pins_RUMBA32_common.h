@@ -92,13 +92,13 @@
 #define E2_CS_PIN                           PD1
 
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                     PA7
+  #define TMC_SPI_MOSI                      PA7
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                     PA6
+  #define TMC_SPI_MISO                      PA6
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                      PA5
+  #define TMC_SPI_SCK                       PA5
 #endif
 
 //
