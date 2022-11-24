@@ -1,9 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #pragma once
 
-#include <SPI.h>
+#include "../../platforms.h"
 
-using MarlinSPI = SPIClass;
+void nvicBegin();
+void nvicResetVector();
+void nvicUpdateVector();
+void nvicSetIRQHandler(IRQn_Type irqn, void (*callback)());
+void nvicSetHandler(uint32_t idx, void (*callback)());
+void (*nvicGetHandler(uint32_t idx))(); // for exception_arm.cpp
+void nvicResetHandler(uint32_t idx);
+void nvicResetIRQHandler(IRQn_Type irqn);
+uint32_t nvicGetMaxHandlerCount();  // for exception_arm.cpp
+void nvicInstallRedirect();
+void nvicUninstallRedirect();

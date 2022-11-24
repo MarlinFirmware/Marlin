@@ -30,12 +30,11 @@ namespace FTDI {
 
   #ifndef CLCD_USE_SOFT_SPI
     #ifdef CLCD_SPI_BUS
-      SPIClass EVE_SPI(CLCD_SPI_BUS);
+      #error CLCD_SPI_BUS not implemented here (please map to pins instead and pass them to spiInitEx below).
     #endif
     #ifndef CLCD_HW_SPI_SPEED
       #define CLCD_HW_SPI_SPEED 8000000 >> SD_SPI_SPEED
     #endif
-    SPISettings SPI::spi_settings(CLCD_HW_SPI_SPEED, MSBFIRST, SPI_MODE0);
   #endif
 
   void SPI::spi_init() {
@@ -63,8 +62,6 @@ namespace FTDI {
       WRITE(CLCD_SOFT_SPI_SCLK, 0);
 
       SET_INPUT_PULLUP(CLCD_SOFT_SPI_MISO);
-    #else
-      SPI_OBJ.begin();
     #endif
   }
 
@@ -116,7 +113,7 @@ namespace FTDI {
   // CLCD SPI - Chip Select
   void SPI::spi_ftdi_select() {
     #ifndef CLCD_USE_SOFT_SPI
-      SPI_OBJ.beginTransaction(spi_settings);
+      spiInitEx(CLCD_HW_SPI_SPEED);   // TODO: can we define any pins here?
     #endif
     WRITE(CLCD_SPI_CS, 0);
     #ifdef CLCD_SPI_EXTRA_CS
@@ -132,7 +129,7 @@ namespace FTDI {
       WRITE(CLCD_SPI_EXTRA_CS, 1);
     #endif
     #ifndef CLCD_USE_SOFT_SPI
-      SPI_OBJ.endTransaction();
+      spiClose();
     #endif
   }
 
@@ -140,7 +137,7 @@ namespace FTDI {
   // Serial SPI Flash SPI - Chip Select
   void SPI::spi_flash_select() {
     #ifndef CLCD_USE_SOFT_SPI
-      SPI_OBJ.beginTransaction(spi_settings);
+      spiInitEx(CLCD_HW_SPI_SPEED);   // TODO: can we define any pins here?
     #endif
     WRITE(SPI_FLASH_SS, 0);
     delayMicroseconds(1);
@@ -150,7 +147,7 @@ namespace FTDI {
   void SPI::spi_flash_deselect() {
     WRITE(SPI_FLASH_SS, 1);
     #ifndef CLCD_USE_SOFT_SPI
-      SPI_OBJ.endTransaction();
+      spiClose();
     #endif
   }
   #endif

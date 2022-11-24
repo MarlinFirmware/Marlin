@@ -40,6 +40,8 @@
 #define BOARD_WEBSITE_URL    "https://github.com/makerbase-mks"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
+#define HALSPI_ESP32_STATIC_DMADESCS
+
 // MAX_EXPANDER_BITS is defined for MKS TinyBee in HAL/ESP32/inc/Conditionals_adv.h
 
 //
@@ -143,7 +145,7 @@
 #define EXP2_04_PIN                            5
 #define EXP2_05_PIN                           12
 #define EXP2_06_PIN                           23
-#define EXP2_07_PIN                           34
+#define EXP2_07_PIN                           34  // INPUT ONLY
 #define EXP2_08_PIN                           -1  // RESET
 
 //
@@ -158,39 +160,69 @@
 
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
-  #define LCD_BACKLIGHT_PIN                   -1
 
-  #if ENABLED(MKS_MINI_12864)
-    // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-    #define DOGLCD_CS                EXP1_06_PIN
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define LCD_RESET_PIN                     -1
-  #elif ENABLED(FYSETC_MINI_12864_2_1)
-    // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define LCD_RESET_PIN            EXP1_05_PIN
-    #define NEOPIXEL_PIN             EXP1_06_PIN
-    #if SD_CONNECTION_IS(ONBOARD)
-      #define FORCE_SOFT_SPI
-    #endif
-    #if BOTH(MKS_MINI_12864_V3, SDSUPPORT)
-      #define PAUSE_LCD_FOR_BUSY_SD
-    #endif
+  #if ENABLED(MKS_TS35_V2_0)
+    // The MKS TS35-R V2.0 is a SPI-bus driven screen whose logic signals
+    // range from 0 to 3.3V. Since on the TineBee the EXP1 pins are all
+    // powered up to 5V we cannot use the EXP1 port for logic signals.
+    // Thus we have to remap the pins onto the EXP1 connector, which is
+    // a hassle.
+
+    // DISPLAY PINS.
+    #define TFT_A0_PIN                EXP1_02_PIN
+    #define TFT_BACKLIGHT_PIN         EXP1_03_PIN
+    #define TFT_RESET_PIN             -1 // no space for this pin on this board
+
+    // SPI BUS PINS.
+    #define TFT_SCK_PIN               EXP2_02_PIN
+    #define TFT_MISO_PIN              -1 // has to be custom soldered to work!
+    #define TFT_MOSI_PIN              EXP2_06_PIN
+    #define TOUCH_SCK_PIN             TFT_SCK_PIN
+    #define TOUCH_MISO_PIN            EXP2_01_PIN
+    #define TOUCH_MOSI_PIN            TFT_MOSI_PIN
+
+    // SPI BUS CHIP-SELECT PINS.
+    #define TFT_CS_PIN                EXP2_04_PIN
+    #define TOUCH_CS_PIN              EXP2_05_PIN
+
+    #define TOUCH_INT_PIN             EXP2_03_PIN
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE           -1
+    #define LCD_PINS_RS               -1
   #else
-   #define LCD_PINS_D4               EXP1_05_PIN
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-      #define LCD_PINS_D5            EXP1_06_PIN
-      #define LCD_PINS_D6            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
+    #define LCD_BACKLIGHT_PIN         -1
+
+    #if ENABLED(MKS_MINI_12864)
+      // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
+      #define DOGLCD_CS                EXP1_06_PIN
+      #define DOGLCD_A0                EXP1_07_PIN
+      #define LCD_RESET_PIN                     -1
+    #elif ENABLED(FYSETC_MINI_12864_2_1)
+      // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
+      #define DOGLCD_CS                EXP1_03_PIN
+      #define DOGLCD_A0                EXP1_04_PIN
+      #define LCD_RESET_PIN            EXP1_05_PIN
+      #define NEOPIXEL_PIN             EXP1_06_PIN
+      #if SD_CONNECTION_IS(ONBOARD)
+        #define FORCE_SOFT_SPI
+      #endif
+      #if BOTH(MKS_MINI_12864_V3, SDSUPPORT)
+        #define PAUSE_LCD_FOR_BUSY_SD
+      #endif
+    #else
+    #define LCD_PINS_D4               EXP1_05_PIN
+      #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+        #define LCD_PINS_D5            EXP1_06_PIN
+        #define LCD_PINS_D6            EXP1_07_PIN
+        #define LCD_PINS_D7            EXP1_08_PIN
+      #endif
+      #define BOARD_ST7920_DELAY_1              96
+      #define BOARD_ST7920_DELAY_2              48
+      #define BOARD_ST7920_DELAY_3             600
     #endif
-    #define BOARD_ST7920_DELAY_1              96
-    #define BOARD_ST7920_DELAY_2              48
-    #define BOARD_ST7920_DELAY_3             600
   #endif
 #endif // HAS_WIRED_LCD

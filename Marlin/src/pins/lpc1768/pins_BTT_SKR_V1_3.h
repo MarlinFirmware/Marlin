@@ -321,9 +321,6 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_ENC                  EXP1_02_PIN
 
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
-
     #define TFT_BUFFER_SIZE                 2400
 
     #ifndef TFT_WIDTH

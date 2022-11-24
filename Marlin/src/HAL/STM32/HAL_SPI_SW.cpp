@@ -26,23 +26,19 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <SPI.h>
-
-// ------------------------
-// Public Variables
-// ------------------------
-
-static SPISettings spiConfig;
-
 // ------------------------
 // Public functions
 // ------------------------
 
 #if ENABLED(SOFTWARE_SPI)
 
+  #include <SPI.h>
+
   // ------------------------
   // Software SPI
   // ------------------------
+
+  // TODO: this software SPI is really bad... it tries to use SPI clock-mode 3 only...??????
 
   #include "../shared/Delay.h"
 
@@ -59,13 +55,15 @@ static SPISettings spiConfig;
   // Need to adjust this a little bit: on a 72MHz clock, we have 14ns/clock
   // and we'll use ~3 cycles to jump to the method and going back, so it'll take ~40ns from the given clock here
   #define CALLING_COST_NS  (3U * 1000000000U) / (F_CPU)
-  void (*delaySPIFunc)();
+  static void (*delaySPIFunc)();
   void delaySPI_125()  { DELAY_NS(125 - CALLING_COST_NS); }
   void delaySPI_250()  { DELAY_NS(250 - CALLING_COST_NS); }
   void delaySPI_500()  { DELAY_NS(500 - CALLING_COST_NS); }
   void delaySPI_1000() { DELAY_NS(1000 - CALLING_COST_NS); }
   void delaySPI_2000() { DELAY_NS(2000 - CALLING_COST_NS); }
   void delaySPI_4000() { DELAY_NS(4000 - CALLING_COST_NS); }
+
+  static int _spi_bit_order = SPI_BITORDER_DEFAULT;
 
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     // Use datarates Marlin uses
@@ -86,41 +84,101 @@ static SPISettings spiConfig;
     SPI.begin();
   }
 
+  void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Use datarates Marlin uses
+    uint8_t spiRate;
+    if (maxClockFreq >= 20000000) {
+      spiRate = SPI_FULL_SPEED;
+    }
+    else if (maxClockFreq >= 5000000) {
+      spiRate = SPI_HALF_SPEED;
+    }
+    else if (maxClockFreq >= 2500000) {
+      spiRate = SPI_QUARTER_SPEED;
+    }
+    else if (maxClockFreq >= 1250000) {
+      spiRate = SPI_EIGHTH_SPEED;
+    }
+    else if (maxClockFreq >= 625000) {
+      spiRate = SPI_SPEED_5;
+    }
+    else if (maxClockFreq >= 300000) {
+      spiRate = SPI_SPEED_6;
+    }
+    else
+      spiRate = SPI_SPEED_6;
+    
+    spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
+  }
+
   void spiClose() {
     SPI.end();
   }
 
-  // Begin SPI transaction, set clock, bit order, data mode
-  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) { /* do nothing */ }
+  void spiSetBitOrder(int bitOrder) {
+    _spi_bit_order = bitOrder;
+  }
+
+  void spiSetClockMode(int clockMode) {
+    if (clockMode != SPI_CLKMODE_3)
+      _spi_on_error();
+  }
 
   uint8_t HAL_SPI_STM32_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
-    for (uint8_t bits = 8; bits--;) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    uint8_t result = 0;
+    for (uint8_t bits = 0; bits < 8; bits++) {
+      int bitidx = ( msb ? 7-bits : bits );
       WRITE(SD_SCK_PIN, LOW);
-      WRITE(SD_MOSI_PIN, b & 0x80);
+      WRITE(SD_MOSI_PIN, (b & ( 1 << bitidx )) != 0);
 
       delaySPIFunc();
       WRITE(SD_SCK_PIN, HIGH);
       delaySPIFunc();
 
-      b <<= 1;        // little setup time
-      b |= (READ(SD_MISO_PIN) != 0);
+      result |= ( (READ(SD_MISO_PIN) != 0) << bitidx );
+    }
+    DELAY_NS(125);
+    return b;
+  }
+
+  uint16_t HAL_SPI_STM32_SpiTransfer_Mode_3_16bits(uint16_t v) { // using Mode 3
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    uint16_t result = 0;
+    for (uint8_t bits = 0; bits < 16; bits++) {
+      int bitidx = ( msb ? 15-bits : bits );
+      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SD_MOSI_PIN, (b & ( 1 << bitidx )) != 0);
+
+      delaySPIFunc();
+      WRITE(SD_SCK_PIN, HIGH);
+      delaySPIFunc();
+
+      result |= ( (READ(SD_MISO_PIN) != 0) << bitidx );
     }
     DELAY_NS(125);
     return b;
   }
 
   // Soft SPI receive byte
-  uint8_t spiRec() {
+  uint8_t spiRec(uint8_t txval) {
     hal.isr_off();                                                // No interrupts during byte receive
-    const uint8_t data = HAL_SPI_STM32_SpiTransfer_Mode_3(0xFF);
+    const uint8_t data = HAL_SPI_STM32_SpiTransfer_Mode_3(txval);
     hal.isr_on();                                                 // Enable interrupts
     return data;
   }
 
+  uint16_t spiRec16(uint16_t txval) {
+    hal.isr_off();
+    uint16_t data = HAL_SPI_STM32_SpiTransfer_Mode_3_16bits(txval);
+    hal.isr_on();
+    return data;
+  }
+
   // Soft SPI read data
-  void spiRead(uint8_t *buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     for (uint16_t i = 0; i < nbyte; i++)
-      buf[i] = spiRec();
+      buf[i] = spiRec(txval);
   }
 
   // Soft SPI send byte
@@ -130,6 +188,12 @@ static SPISettings spiConfig;
     hal.isr_on();                           // Enable interrupts
   }
 
+  void spiSend16(uint16_t data) {
+    hal.isr_off();
+    HAL_SPI_STM32_SpiTransfer_Mode_3_16bits(data);
+    hal.isr_on();
+  }
+
   // Soft SPI send block
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
     spiSend(token);
@@ -137,111 +201,26 @@ static SPISettings spiConfig;
       spiSend(buf[i]);
   }
 
-#else
-
-  // ------------------------
-  // Hardware SPI
-  // ------------------------
-
-  /**
-   * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
-   */
-
-  /**
-   * @brief  Begin SPI port setup
-   *
-   * @return Nothing
-   *
-   * @details Only configures SS pin since stm32duino creates and initialize the SPI object
-   */
-  void spiBegin() {
-    #if PIN_EXISTS(SD_SS)
-      OUT_WRITE(SD_SS_PIN, HIGH);
-    #endif
+  void spiWrite(const uint8_t *buf, uint16_t cnt) {
+    for (uint16_t n = 0; n < cnt; n++)
+      spiSend(buf[n]);
   }
 
-  // Configure SPI for specified SPI speed
-  void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-    // Ignore chip-select because the software manages it already.
-    
-    // Use datarates Marlin uses
-    uint32_t clock;
-    switch (spiRate) {
-      case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
-      case SPI_HALF_SPEED:    clock =  5000000; break;
-      case SPI_QUARTER_SPEED: clock =  2500000; break;
-      case SPI_EIGHTH_SPEED:  clock =  1250000; break;
-      case SPI_SPEED_5:       clock =   625000; break;
-      case SPI_SPEED_6:       clock =   300000; break;
-      default:
-        clock = 4000000; // Default from the SPI library
-    }
-    spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-
-    SPI.setMISO(SD_MISO_PIN);
-    SPI.setMOSI(SD_MOSI_PIN);
-    SPI.setSCLK(SD_SCK_PIN);
-
-    SPI.beginTransaction(spiConfig);
+  void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+    for (uint16_t n = 0; n < cnt; n++)
+      spiSend16(buf[n]);
   }
 
-  void spiClose() {
-    // Terminates SPI activity.
-    SPI.end();
+  void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+    for (uint16_t n = 0; n < repcnt; n++)
+      spiSend(val);
   }
 
-  /**
-   * @brief  Receives a single byte from the SPI port.
-   *
-   * @return Byte received
-   *
-   * @details
-   */
-  uint8_t spiRec() {
-    uint8_t returnByte = SPI.transfer(0xFF);
-    return returnByte;
+  void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+    for (uint16_t n = 0; n < repcnt; n++)
+      spiSend16(val);
   }
 
-  /**
-   * @brief  Receive a number of bytes from the SPI port to a buffer
-   *
-   * @param  buf   Pointer to starting address of buffer to write to.
-   * @param  nbyte Number of bytes to receive.
-   * @return Nothing
-   *
-   * @details Uses DMA
-   */
-  void spiRead(uint8_t *buf, uint16_t nbyte) {
-    if (nbyte == 0) return;
-    memset(buf, 0xFF, nbyte);
-    SPI.transfer(buf, nbyte);
-  }
+#endif
 
-  /**
-   * @brief  Send a single byte on SPI port
-   *
-   * @param  b Byte to send
-   *
-   * @details
-   */
-  void spiSend(uint8_t b) {
-    SPI.transfer(b);
-  }
-
-  /**
-   * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
-   *
-   * @param  buf   Pointer with buffer start address
-   * @return Nothing
-   *
-   * @details Use DMA
-   */
-  void spiSendBlock(uint8_t token, const uint8_t *buf) {
-    uint8_t rxBuf[512];
-    SPI.transfer(token);
-    SPI.transfer((uint8_t*)buf, &rxBuf, 512);
-  }
-
-#endif // SOFTWARE_SPI
-
-#endif // HAL_STM32
+#endif

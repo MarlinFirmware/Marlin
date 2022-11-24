@@ -77,29 +77,94 @@ void spiBegin() {
       , PRSPI
     );
 
+    // DORD is set to 0 -> MSB transfer, else LSB
+
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
+  }
+
+  void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Use datarates Marlin uses
+    uint8_t spiRate;
+    if (maxClockFreq >= 20000000) {
+      spiRate = SPI_FULL_SPEED;
+    }
+    else if (maxClockFreq >= 5000000) {
+      spiRate = SPI_HALF_SPEED;
+    }
+    else if (maxClockFreq >= 2500000) {
+      spiRate = SPI_QUARTER_SPEED;
+    }
+    else if (maxClockFreq >= 1250000) {
+      spiRate = SPI_EIGHTH_SPEED;
+    }
+    else if (maxClockFreq >= 625000) {
+      spiRate = SPI_SPEED_5;
+    }
+    else if (maxClockFreq >= 300000) {
+      spiRate = SPI_SPEED_6;
+    }
+    else
+      spiRate = SPI_SPEED_6;
+    
+    spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
   void spiClose() {
     // nop.
   }
 
+  void spiSetBitOrder(int bitOrder) {
+    if (bitOrder == SPI_BITORDER_MSB) {
+      SPCR &= ~_BV(DORD);
+    }
+    else if (bitOrder == SPI_BITORDER_LSB) {
+      SPCR |= _BV(DORD);
+    }
+  }
+
+  void spiSetClockMode(int clockMode) {
+    // TODO.
+    if (clockMode != SPI_CLKMODE_0) {
+      for (;;) {}
+    }
+  }
+
   /** SPI receive a byte */
-  uint8_t spiRec() {
-    SPDR = 0xFF;
+  uint8_t spiRec(uint8_t txval) {
+    SPDR = txval;
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     return SPDR;
   }
 
+  uint16_t spiRec16(uint16_t txval) {
+    bool msb = ( TEST(SPCR, DORD) == false );
+    uint8_t tx_first, tx_second;
+    if (msb) {
+      tx_first = ( txval >> 8 );
+      tx_second = ( txval & 0xFF );
+    }
+    else {
+      tx_first = ( txval & 0xFF );
+      tx_second = ( txval >> 8 );
+    }
+    SPDR = tx_first;
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    uint16_t val = ( msb ? ( (uint16_t)SPDR << 8 ) : ( SPDR ) );
+    SPDR = tx_second;
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    val |= ( msb ? ( SPDR ) : ( (uint16_t)SPDR << 8 ) );
+    return val;
+  }
+
   /** SPI read data  */
-  void spiRead(uint8_t *buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     if (nbyte-- == 0) return;
-    SPDR = 0xFF;
+    SPDR = txval;
     for (uint16_t i = 0; i < nbyte; i++) {
       while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
       buf[i] = SPDR;
-      SPDR = 0xFF;
+      SPDR = txval;
     }
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     buf[nbyte] = SPDR;
@@ -108,6 +173,14 @@ void spiBegin() {
   /** SPI send a byte */
   void spiSend(uint8_t b) {
     SPDR = b;
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+  }
+
+  void spiSend16(uint16_t v) {
+    bool msb = ( TEST(SPCR, DORD) == false );
+    SPDR = ( msb ? ( v >> 8 ) : ( v & 0xFF ) );
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    SPDR = ( msb ? ( v & 0xFF ) : ( v >> 8 ) );
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   }
 
@@ -123,8 +196,28 @@ void spiBegin() {
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   }
 
+  void spiWrite(const uint8_t *buf, uint16_t cnt) {
+    for (uint16_t n = 0; n < cnt; n++)
+      spiSend(buf[n]);
+  }
 
-  /** begin spi transaction */
+  void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+    for (uint16_t n = 0; n < cnt; n++)
+      spiSend16(buf[n]);
+  }
+
+  void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+    for (uint16_t n = 0; n < repcnt; n++)
+      spiSend(val);
+  }
+
+  void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+    for (uint16_t n = 0; n < repcnt; n++)
+      spiSend16(val);
+  }
+
+#if 0
+  /** begin spi transaction (TODO: merge ideas into spiInitEx) */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // Based on Arduino SPI library
     // Clock settings are defined as follows. Note that this shows SPI2X
@@ -178,6 +271,7 @@ void spiBegin() {
       (dataMode << CPHA) | ((clockDiv >> 1) << SPR0);
     SPSR = clockDiv | 0x01;
   }
+#endif
 
 
 #else // SOFTWARE_SPI || FORCE_SOFT_SPI
@@ -189,19 +283,36 @@ void spiBegin() {
   // nop to tune soft SPI timing
   #define nop asm volatile ("\tnop\n")
 
+  static int _spi_bit_order = SPI_BITORDER_DEFAULT;
+
   void spiInit(uint8_t, int, int, int, int) { /* do nothing */ }
+  void spiInitEx(uint32_t, int, int, int, int) { /* do nothing */ }
   void spiClose() { /* do nothing */ }
 
-  // Begin SPI transaction, set clock, bit order, data mode
-  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) { /* do nothing */ }
+  void spiSetBitOrder(int bitOrder) {
+    _spi_bit_order = bitOrder;
+  }
+
+  void spiSetClockMode(int clockMode) {
+    // TODO.
+    if (clockMode != SPI_CLKMODE_0) {
+      for (;;) {}
+    }
+  }
 
   // Soft SPI receive byte
-  uint8_t spiRec() {
+  uint8_t spiRec(uint8_t txval) {
+    if (txval != 0xFF) {
+      // TODO.
+      for (;;) {}
+    }
     uint8_t data = 0;
     // no interrupts during byte receive - about 8µs
     cli();
     // output pin high - like sending 0xFF
     WRITE(SD_MOSI_PIN, HIGH);
+
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
 
     LOOP_L_N(i, 8) {
       WRITE(SD_SCK_PIN, HIGH);
@@ -209,9 +320,42 @@ void spiBegin() {
       nop; // adjust so SCK is nice
       nop;
 
-      data <<= 1;
+      if (READ(SD_MISO_PIN))
+      {
+        int bitidx = ( msb ? 7-i : i );
+        data |= ( 1 << bitidx );
+      }
 
-      if (READ(SD_MISO_PIN)) data |= 1;
+      WRITE(SD_SCK_PIN, LOW);
+    }
+
+    sei();
+    return data;
+  }
+
+  uint16_t spiRec16(uint16_t txval) {
+    if (txval != 0xFFFF) {
+      // TODO.
+      for (;;) {}
+    }
+    uint16_t data = 0;
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    // no interrupts during byte receive - about 8µs
+    cli();
+    // output pin high - like sending 0xFF
+    WRITE(SD_MOSI_PIN, HIGH);
+
+    LOOP_L_N(i, 16) {
+      WRITE(SD_SCK_PIN, HIGH);
+
+      nop; // adjust so SCK is nice
+      nop;
+
+      if (READ(SD_MISO_PIN))
+      {
+        int bitidx = ( msb ? 15-i : i );
+        data |= ( 1 << bitidx );
+      }
 
       WRITE(SD_SCK_PIN, LOW);
     }
@@ -221,19 +365,41 @@ void spiBegin() {
   }
 
   // Soft SPI read data
-  void spiRead(uint8_t *buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     for (uint16_t i = 0; i < nbyte; i++)
-      buf[i] = spiRec();
+      buf[i] = spiRec(txval);
   }
 
   // Soft SPI send byte
   void spiSend(uint8_t data) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
     // no interrupts during byte send - about 8µs
     cli();
     LOOP_L_N(i, 8) {
+      int bitidx = ( msb ? 7-i : i );
       WRITE(SD_SCK_PIN, LOW);
-      WRITE(SD_MOSI_PIN, data & 0x80);
-      data <<= 1;
+      WRITE(SD_MOSI_PIN, ( data & ( 1 << bitidx )) != 0);
+      WRITE(SD_SCK_PIN, HIGH);
+    }
+
+    nop; // hold SCK high for a few ns
+    nop;
+    nop;
+    nop;
+
+    WRITE(SD_SCK_PIN, LOW);
+
+    sei();
+  }
+
+  void spiSend16(uint16_t v) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    // no interrupts during byte send - about 8µs
+    cli();
+    LOOP_L_N(i, 16) {
+      int bitidx = ( msb ? 15-i : i );
+      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SD_MOSI_PIN, ( data & ( 1 << bitidx )) != 0);
       WRITE(SD_SCK_PIN, HIGH);
     }
 
@@ -252,6 +418,26 @@ void spiBegin() {
     spiSend(token);
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);
+  }
+
+  void spiWrite(const uint8_t *buf, uint16_t cnt) {
+    for (uint16_t n = 0; n < cnt; n++)
+      spiSend(buf[n]);
+  }
+  
+  void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+    for (uint16_t n = 0; n < cnt; n++)
+      spiSend16(buf[n]);
+  }
+
+  void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+    for (uint16_t n = 0; n < repcnt; n++)
+      spiSend(val);
+  }
+
+  void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+    for (uint16_t n = 0; n < repcnt; n++)
+      spiSend16(val);
   }
 
 #endif // SOFTWARE_SPI || FORCE_SOFT_SPI

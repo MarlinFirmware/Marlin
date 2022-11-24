@@ -33,12 +33,44 @@
 #include "../stepper.h"
 
 #include <HardwareSerial.h>
-#include <SPI.h>
 
 enum StealthIndex : uint8_t {
   LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K, STEALTH_AXIS_U, STEALTH_AXIS_V, STEALTH_AXIS_W)
 };
 #define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE, ST##_HOLD_MULTIPLIER)
+
+#if !ENABLED(TMC_USE_SW_SPI)
+struct MarlinTMCSPIInterface : public TMCSPIInterface {
+  void begin(uint32_t maxClockFreq, int bitOrder, int clkMode) override {
+    int spi_bitOrder = ( bitOrder == TMCSPI_BITORDER_MSB ) ? SPI_BITORDER_MSB : SPI_BITORDER_LSB;
+    int spi_clkmode = SPI_CLKMODE_0;
+
+    if (clkMode == TMCSPI_CLKMODE_0)      spi_clkmode = SPI_CLKMODE_0;
+    else if (clkMode == TMCSPI_CLKMODE_1) spi_clkmode = SPI_CLKMODE_1;
+    else if (clkMode == TMCSPI_CLKMODE_2) spi_clkmode = SPI_CLKMODE_2;
+    else if (clkMode == TMCSPI_CLKMODE_3) spi_clkmode = SPI_CLKMODE_3;
+
+    #if !defined(TMC_SPI_MISO) || !defined(TMC_SPI_MOSI) || !defined(TMC_SPI_SCK)
+      // define in case the pins are unknown/not-definable/fixed.
+      spiInitEx(maxClockFreq);
+    #else
+      spiInitEx(maxClockFreq, TMC_SPI_SCK, TMC_SPI_MISO, TMC_SPI_MOSI);
+    #endif
+    spiSetBitOrder(spi_bitOrder);
+    spiSetClockMode(spi_clkmode);
+  }
+  void end() override {
+    spiClose();
+  }
+  uint8_t transfer(uint8_t txval) override {
+    return spiRec(txval);
+  }
+  void sendRepeat(uint8_t val, uint16_t repcnt) override {
+    spiWriteRepeat(val, repcnt);
+  }
+};
+static MarlinTMCSPIInterface _tmc_spiMan;
+#endif
 
 //   IC = TMC model number
 //   ST = Stepper object letter
@@ -48,12 +80,7 @@ enum StealthIndex : uint8_t {
 #if ENABLED(TMC_USE_SW_SPI)
   #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS, true)
 #else
-#if !defined(TMC_SPI_MISO) || !defined(TMC_SPI_MOSI) || !defined(TMC_SPI_SCK)
-  // define in case the pins are unknown/not-definable/fixed.
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
-#else
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS, false)
-#endif
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), &_tmc_spiMan, ST##_CHAIN_POS)
 #endif
 
 #if ENABLED(TMC_SERIAL_MULTIPLEXER)

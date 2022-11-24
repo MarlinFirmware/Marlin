@@ -263,6 +263,7 @@
    * Note: The cast is unnecessary, but without it, this file triggers a GCC 4.8.3-2014 bug.
    * Later GCC versions do not have this problem, but at this time (May 2018) Arduino still
    * uses that buggy and obsolete GCC version!!
+   * They are implemented to handle MSB transfers.
    */
   static pfnSpiTransfer spiTransferRx = (pfnSpiTransfer)spiTransferX;
   static pfnSpiTransfer spiTransferTx = (pfnSpiTransfer)spiTransferX;
@@ -423,21 +424,47 @@
     );
   }
 
+  static inline uint8_t _flip_bits_8(uint8_t v) {
+    uint8_t result = 0;
+    for (int n = 0; n < 8; n++)
+    {
+      result <<= 1;
+      bool bitval = ( v & ( 1 << n ) ) != 0;
+      result |= bitval;
+    }
+    return result;
+  }
+
+  static inline uint8_t _spiTransferRx_ordered(uint8_t txval)
+  {
+    return ( _spi_bit_order == SPI_BITORDER_MSB ? spiTransferRx(txval) : _flip_bits_8(spiTransferRx(_flip_bits_8(txval))) );
+  }
+
+  static inline void _spiTransferTx_ordered(uint8_t b) {
+    if ( _spi_bit_order == SPI_BITORDER_LSB )
+    {
+      b = _flip_bits_8(b);
+    }
+    (void)spiTransferTx(b);
+  }
+
   static void spiTxBlockX(const uint8_t *buf, uint32_t todo) {
     do {
-      (void)spiTransferTx(*buf++);
+      _spiTransferTx_ordered(*buf++);
     } while (--todo);
   }
 
   static void spiRxBlockX(uint8_t *buf, uint32_t todo) {
     do {
-      *buf++ = spiTransferRx(0xFF);
+      *buf++ = _spiTransferRx_ordered();
     } while (--todo);
   }
 
   // Pointers to generic functions for block transfers
   static pfnSpiTxBlock spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
   static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
+
+  static int _spi_bit_order = SPI_BITORDER_DEFAULT;
 
   #if MB(ALLIGATOR)
     #define _SS_WRITE(S) WRITE(SD_SS_PIN, S)
@@ -453,16 +480,50 @@
     SET_OUTPUT(SD_MOSI_PIN);
   }
 
-  uint8_t spiRec() {
+  void spiSetBitOrder(int bitOrder) {
+    _spi_bit_order = bitOrder;
+  }
+
+  void spiSetClockMode(int clockMode) {
+    if (clockMode != SPI_CLKMODE_0) {
+      // TODO.
+      for (;;) {}
+    }
+  }
+
+  uint8_t spiRec(uint8_t txval) {
     _SS_WRITE(LOW);
     WRITE(SD_MOSI_PIN, HIGH); // Output 1s 1
-    uint8_t b = spiTransferRx(0xFF);
+    uint8_t b = _spiTransferRx_ordered(txval);
     _SS_WRITE(HIGH);
     return b;
   }
 
-  void spiRead(uint8_t *buf, uint16_t nbyte) {
+  uint16_t spiRec16(uint16_t txval) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    uint8_t tx_first, tx_second;
+    if (msb) {
+      tx_first = ( txval >> 8 );
+      tx_second = ( txval & 0xFF );
+    }
+    else {
+      tx_first = ( txval & 0xFF );
+      tx_second = ( txval >> 8 );
+    }
+    _SS_WRITE(LOW);
+    WRITE(SD_MOSI_PIN, HIGH); // Output 1s 1
+    uint16_t v = ( msb ? ( (uint16_t)_spiTransferRx_ordered(tx_first) << 8 ) : _spiTransferRx_ordered(tx_first) );
+    v |= ( msb ? _spiTransferRx_ordered(tx_second) : ( (uint16_t)_spiTransferRx_ordered(tx_second) << 8 ) );
+    _SS_WRITE(HIGH);
+    return v;
+  }
+
+  void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     if (nbyte) {
+      if (txval != 0xFF) {
+        // TODO.
+        for (;;) {}
+      }
       _SS_WRITE(LOW);
       WRITE(SD_MOSI_PIN, HIGH); // Output 1s 1
       spiRxBlock(buf, nbyte);
@@ -472,14 +533,55 @@
 
   void spiSend(uint8_t b) {
     _SS_WRITE(LOW);
-    (void)spiTransferTx(b);
+    _spiTransferTx_ordered(b);
+    _SS_WRITE(HIGH);
+  }
+
+  static void _spiSend16Internal(uint16_t v, bool msb) {
+    _spiTransferTx_ordered(msb ? ( v >> 8 ) : ( v & 0xFF ));
+    _spiTransferTx_ordered(msb ? ( v & 0xFF ) : ( v >> 8 ));
+  }
+
+  void spiSend16(uint16_t v) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    _SS_WRITE(LOW);
+    _spiSend16Internal(v);
     _SS_WRITE(HIGH);
   }
 
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
     _SS_WRITE(LOW);
-    (void)spiTransferTx(token);
+    _spiTransferTx_ordered(token);
     spiTxBlock(buf, 512);
+    _SS_WRITE(HIGH);
+  }
+
+  void spiWrite(const uint8_t *buf, uint16_t cnt) {
+    _SS_WRITE(LOW);
+    spiTxBlock(buf, cnt);
+    _SS_WRITE(HIGH);
+  }
+
+  void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    _SS_WRITE(LOW);
+    for (uint16_t n = 0; n < cnt; n++)
+      _spiSend16Internal(buf[n], msb);
+    _SS_WRITE(HIGH);
+  }
+
+  void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+    _SS_WRITE(LOW);
+    for (uint16_t n = 0; n < repcnt; n++)
+      _spiTransferTx_ordered(val);
+    _SS_WRITE(HIGH);
+  }
+
+  void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    _SS_WRITE(LOW);
+    for (uint16_t n = 0; n < repcnt; n++)
+      _spiSend16Internal(val, msb);
     _SS_WRITE(HIGH);
   }
 
@@ -494,6 +596,8 @@
    *  6 :  125 - 156 kHz
    */
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Ignore pin hints... TODO?
+    
     switch (spiRate) {
       case 0:
         spiTransferTx = (pfnSpiTransfer)spiTransferTx0;
@@ -521,12 +625,34 @@
     WRITE(SD_SCK_PIN, LOW);
   }
 
-  void spiClose() {}
-
-  /** Begin SPI transaction, set clock, bit order, data mode */
-  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-    // TODO: to be implemented
+  void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    // Use datarates Marlin uses
+    uint8_t spiRate;
+    if (maxClockFreq >= 20000000) {
+      spiRate = SPI_FULL_SPEED;
+    }
+    else if (maxClockFreq >= 5000000) {
+      spiRate = SPI_HALF_SPEED;
+    }
+    else if (maxClockFreq >= 2500000) {
+      spiRate = SPI_QUARTER_SPEED;
+    }
+    else if (maxClockFreq >= 1250000) {
+      spiRate = SPI_EIGHTH_SPEED;
+    }
+    else if (maxClockFreq >= 625000) {
+      spiRate = SPI_SPEED_5;
+    }
+    else if (maxClockFreq >= 300000) {
+      spiRate = SPI_SPEED_6;
+    }
+    else
+      spiRate = SPI_SPEED_6;
+    
+    spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
+
+  void spiClose() {}
 
   #pragma GCC reset_options
 
@@ -545,25 +671,20 @@
     static bool _has_spi_pins = false;
     static int _spi_pin_cs; // all SPI pins are tied together (CS, MISO, MOSI, SCK)
 
+    static uint32_t _spi_clock;
+    static int _spi_bitOrder;
+    static int _spi_clockMode;
+
     // ------------------------
     // hardware SPI
     // https://github.com/arduino/ArduinoCore-sam/blob/master/libraries/SPI/src/SPI.h
     // ------------------------
     void spiBegin() {}
 
-    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-      // Use datarates Marlin uses
-      uint32_t clock;
-      switch (spiRate) {
-        case SPI_FULL_SPEED:      clock = 8000000; break;
-        case SPI_HALF_SPEED:      clock = 4000000; break;
-        case SPI_QUARTER_SPEED:   clock = 2000000; break;
-        case SPI_EIGHTH_SPEED:    clock = 1000000; break;
-        case SPI_SIXTEENTH_SPEED: clock =  500000; break;
-        case SPI_SPEED_5:         clock =  250000; break;
-        case SPI_SPEED_6:         clock =  125000; break;
-        default:                  clock = 4000000; break; // Default from the SPI library
-      }
+    void spiInitEx(uint32_t clock, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+      _spi_clock = clock;
+      _spi_bitOrder = MSBFIRST;
+      _spi_clockMode = SPI_MODE0;
       spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
       // We ignore all pins other than chip-select because they have to be tied together anyway.
       if (hint_cs != -1)
@@ -579,6 +700,22 @@
       }
     }
 
+    void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+      // Use datarates Marlin uses
+      uint32_t clock;
+      switch (spiRate) {
+        case SPI_FULL_SPEED:      clock = 8000000; break;
+        case SPI_HALF_SPEED:      clock = 4000000; break;
+        case SPI_QUARTER_SPEED:   clock = 2000000; break;
+        case SPI_EIGHTH_SPEED:    clock = 1000000; break;
+        case SPI_SIXTEENTH_SPEED: clock =  500000; break;
+        case SPI_SPEED_5:         clock =  250000; break;
+        case SPI_SPEED_6:         clock =  125000; break;
+        default:                  clock = 4000000; break; // Default from the SPI library
+      }
+      spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
+    }
+
     void spiClose() {
       if (_has_spi_pins)
         sdSPI.end(_spi_pin_cs);
@@ -588,12 +725,31 @@
       _spi_pin_cs = -1;
     }
 
-    uint8_t spiRec() {
+    void spiSetBitOrder(int bitOrder) {
+      _spi_bitOrder = (bitOrder == SPI_BITORDER_MSB) ? (MSBFIRST) : (LSBFIRST);
+      spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
+    }
+
+    void spiSetClockMode(int clockMode) {
+      if (clockMode == SPI_CLKMODE_0)
+        _spi_clockMode = SPI_MODE0;
+      else if (clockMode == SPI_CLKMODE_1)
+        _spi_clockMode = SPI_MODE1;
+      else if (clockMode == SPI_CLKMODE_2)
+        _spi_clockMode = SPI_MODE2;
+      else if (clockMode == SPI_CLKMODE_3)
+        _spi_clockMode = SPI_MODE3;
+      else return;
+
+      spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
+    }
+
+    uint8_t spiRec(uint8_t txval) {
       if (_has_spi_pins)
         sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
       else
         sdSPI.beginTransaction(spiConfig);
-      uint8_t returnByte = sdSPI.transfer(0xFF);
+      uint8_t returnByte = sdSPI.transfer(txval);
       if (_has_spi_pins)
         sdSPI.endTransaction(_spi_pin_cs);
       else
@@ -601,9 +757,22 @@
       return returnByte;
     }
 
-    void spiRead(uint8_t *buf, uint16_t nbyte) {
+    uint16_t spiRec16(uint16_t txval) {
+      if (_has_spi_pins)
+        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+      else
+        sdSPI.beginTransaction(spiConfig);
+      uint16_t returnVal = sdSPI.transfer16(txval);
+      if (_has_spi_pins)
+        sdSPI.endTransaction(_spi_pin_cs);
+      else
+        sdSPI.endTransaction();
+      return returnVal;
+    }
+
+    void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
       if (nbyte == 0) return;
-      memset(buf, 0xFF, nbyte);
+      memset(buf, txval, nbyte);
       if (_has_spi_pins == false)
       {
         sdSPI.beginTransaction(spiConfig);
@@ -632,6 +801,20 @@
       sdSPI.endTransaction();
     }
 
+    void spiSend16(uint16_t v) {
+      if (_has_spi_pins)
+      {
+        sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
+        sdSPI.transfer16(_spi_pin_cs, v);
+      }
+      else
+      {
+        sdSPI.beginTransaction(spiConfig);
+        sdSPI.transfer16(v);
+      }
+      sdSPI.endTransaction();
+    }
+
     // SD-card specific.
     void spiSendBlock(uint8_t token, const uint8_t *buf) {
       if (_has_spi_pins)
@@ -648,6 +831,27 @@
       }
       sdSPI.endTransaction();
     }
+
+    void spiWrite(const uint8_t *buf, uint16_t cnt) {
+      // TODO: really has to be improved.
+      for (uint16_t n = 0; n < cnt; n++)
+        spiSend(buf[n]);
+    }
+
+    void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+      for (uint16_t n = 0; n < cnt; n++)
+        spiSend16(buf[n]);
+    }
+
+    void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+      for (uint16_t n = 0; n < repcnt; n++)
+        spiSend(val);
+    }
+
+    void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+      for (uint16_t n = 0; n < repcnt; n++)
+        spiSend16(val);
+    }
   #endif
 
   #if MB(ALLIGATOR)
@@ -657,6 +861,8 @@
 
     // ------------------------
     // hardware SPI
+    // https://github.com/arduino/ArduinoCore-sam/blob/master/system/libsam/source/spi.c
+    // https://www.gadgetronicx.com/spi-protocol-tutorial-arm/
     // ------------------------
     static bool spiInitialized = false;
 
@@ -682,8 +888,37 @@
       SPI_ConfigureNPCS(SPI0, SPI_CHAN, SPI_CSR_NCPHA |
                         SPI_CSR_CSAAT | SPI_CSR_SCBR(spiDivider[spiRate]) |
                         SPI_CSR_DLYBCT(1));
+
+      SPI0->SPI_CR &= ~( 1 << 5 ); // MSB config
       SPI_Enable(SPI0);
       spiInitialized = true;
+    }
+
+    void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+      // Use datarates Marlin uses
+      uint8_t spiRate;
+      if (maxClockFreq >= 20000000) {
+        spiRate = SPI_FULL_SPEED;
+      }
+      else if (maxClockFreq >= 5000000) {
+        spiRate = SPI_HALF_SPEED;
+      }
+      else if (maxClockFreq >= 2500000) {
+        spiRate = SPI_QUARTER_SPEED;
+      }
+      else if (maxClockFreq >= 1250000) {
+        spiRate = SPI_EIGHTH_SPEED;
+      }
+      else if (maxClockFreq >= 625000) {
+        spiRate = SPI_SPEED_5;
+      }
+      else if (maxClockFreq >= 300000) {
+        spiRate = SPI_SPEED_6;
+      }
+      else
+        spiRate = SPI_SPEED_6;
+      
+      spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
     }
 
     void spiClose() {
@@ -737,10 +972,26 @@
       spiInit(1);
     }
 
+    void spiSetBitOrder(int bitOrder) {
+      if (bitOrder == SPI_BITORDER_MSB) {
+        SPI0->SPI_CR &= ~( 1 << 5 ); // 6th bit.
+      }
+      else if (bitOrder == SPI_BITORDER_LSB) {
+        SPI0->SPI_CR |= ( 1 << 5 );
+      }
+    }
+
+    void spiSetClockMode(int clockMode) {
+      if (clockMode != SPI_CLKMODE_0) {
+        // TODO.
+        for (;;) {}
+      }
+    }
+
     // Read single byte from SPI
-    uint8_t spiRec() {
+    uint8_t spiRec(uint8_t txval) {
       // write dummy byte with address and end transmission flag
-      SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
+      SPI0->SPI_TDR = txval | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
 
       WHILE_TX(0);
       WHILE_RX(0);
@@ -749,6 +1000,37 @@
       return SPI0->SPI_RDR;
     }
 
+    uint16_t spiRec16(uint16_t txval) {
+      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+
+      uint8_t tx_first, tx_second;
+      if (msb) {
+        tx_first = ( txval >> 8 );
+        tx_second = ( txval & 0xFF );
+      }
+      else {
+        tx_first = ( txval & 0xFF );
+        tx_second = ( txval >> 8 );
+      }
+
+      SPI0->SPI_TDR = tx_first | SPI_PCS(SPI_CHAN);
+
+      WHILE_TX(0);
+      WHILE_RX(0);
+
+      uint16_t v = ( msb ? ( (uint16_t)(SPI0->SPI_RDR&0xFF) << 8 ) : (SPI0->SPI_RDR&0xFF) );
+
+      SPI0->SPI_TDR = tx_second | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
+
+      WHILE_TX(0);
+      WHILE_RX(0);
+
+      v |= ( msb ? (SPI0->SPI_RDR&0xFF) : ( (uint16_t)(SPI0->SPI_RDR&0xFF) << 8 ) );
+
+      return v;
+    }
+
+#if 0
     uint8_t spiRec(uint32_t chan) {
 
       WHILE_TX(0);
@@ -760,14 +1042,15 @@
 
       return SPI0->SPI_RDR;
     }
+#endif
 
     // Read from SPI into buffer
-    void spiRead(uint8_t *buf, uint16_t nbyte) {
+    void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
       if (!nbyte) return;
       --nbyte;
       for (int i = 0; i < nbyte; i++) {
         //WHILE_TX(0);
-        SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN);
+        SPI0->SPI_TDR = txval | SPI_PCS(SPI_CHAN);
         WHILE_RX(0);
         buf[i] = SPI0->SPI_RDR;
         //DELAY_US(1U);
@@ -785,10 +1068,22 @@
       //DELAY_US(1U);
     }
 
-    void spiSend(const uint8_t *buf, size_t nbyte) {
+    void spiSend16(uint16_t v) {
+      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+      SPI0->SPI_TDR = (uint32_t)( msb ? (v&0xFF) : (v>>8) ) | SPI_PCS(SPI_CHAN);
+      WHILE_TX(0);
+      WHILE_RX(0);
+      SPI0->SPI_RDR;
+      SPI0->SPI_TDR = (uint32_t)( msb ? (v>>8) : (v&0xFF) ) | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
+      WHILE_TX(0);
+      WHILE_RX(0);
+      SPI0->SPI_RDR;
+    }
+
+    void spiWrite(const uint8_t *buf, uint16_t nbyte) {
       if (!nbyte) return;
       --nbyte;
-      for (size_t i = 0; i < nbyte; i++) {
+      for (uint16_t i = 0; i < nbyte; i++) {
         SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
         WHILE_TX(0);
         WHILE_RX(0);
@@ -798,6 +1093,22 @@
       spiSend(buf[nbyte]);
     }
 
+    void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+      for (uint16_t n = 0; n < cnt; n++)
+        spiSend16(buf[n]);
+    }
+
+    void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+      for (uint16_t n = 0; n < repcnt; n++)
+        spiSend(val);
+    }
+
+    void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+      for (uint16_t n = 0; n < repcnt; n++)
+        spiSend16(val);
+    }
+
+#if 0
     void spiSend(uint32_t chan, byte b) {
       WHILE_TX(0);
       // write byte with address and end transmission flag
@@ -817,6 +1128,7 @@
       }
       spiSend(chan, buf[nbyte]);
     }
+#endif
 
     // Write from buffer to SPI
     void spiSendBlock(uint8_t token, const uint8_t *buf) {
@@ -832,11 +1144,6 @@
         //DELAY_US(1U);
       }
       spiSend(buf[511]);
-    }
-
-    /** Begin SPI transaction, set clock, bit order, data mode */
-    void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-      // TODO: to be implemented
     }
 
   #else // U8G compatible hardware SPI
@@ -912,10 +1219,20 @@
     }
 
     void spiClose() {
-      // TODO?
+      // Disable the SPI.
+      SPI0->SPI_CR = SPI_CR_SPIDIS;
     }
 
     void spiBegin() { spiInit(SPI_SPEED_DEFAULT); }
+
+    void spiSetBitOrder(int bitOrder) {
+      if (bitOrder == SPI_BITORDER_MSB) {
+        SPI0->SPI_CR &= ~( 1 << 5 );
+      }
+      else if (bitOrder == SPI_BITORDER_LSB) {
+        SPI0->SPI_CR |= ( 1 << 5 );
+      }
+    }
 
     static uint8_t spiTransfer(uint8_t data) {
       WHILE_TX(0);
@@ -925,14 +1242,45 @@
       return SPI0->SPI_RDR;
     }
 
-    uint8_t spiRec() { return (uint8_t)spiTransfer(0xFF); }
+    uint8_t spiRec() {
+      return (uint8_t)spiTransfer(0xFF);
+    }
+
+    uint16_t spiRec16() {
+      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+      if ( msb )
+      {
+        return ( (uint16_t)spiRec() << 8 ) | ( (uint16_t)spiRec() );
+      }
+      else
+      {
+        return ( (uint16_t)spiRec() ) | ( (uint16_t)spiRec() << 8 );
+      }
+    }
 
     void spiRead(uint8_t *buf, uint16_t nbyte) {
       for (int i = 0; i < nbyte; i++)
         buf[i] = spiTransfer(0xFF);
     }
 
-    void spiSend(uint8_t data) { spiTransfer(data); }
+    void spiSend(uint8_t data)
+    {
+      spiTransfer(data);
+    }
+
+    void spiSend16(uint16_t data)
+    {
+      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+      if (msb) {
+        spiSend(data >> 8);
+        spiSend(data & 0xFF);
+        
+      }
+      else {
+        spiSend(data & 0xFF);
+        spiSend(data >> 8);
+      }
+    }
 
     void spiSend(const uint8_t *buf, size_t nbyte) {
       for (uint16_t i = 0; i < nbyte; i++)

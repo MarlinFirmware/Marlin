@@ -38,7 +38,7 @@
 #include "../../../MarlinCore.h"
 #include "../../../inc/MarlinConfig.h"
 
-#include HAL_PATH(../../../HAL, tft/xpt2046.h)
+#include "../../../HAL/shared/tft/xpt2046.h"
 #include "../../marlinui.h"
 XPT2046 touch;
 
@@ -62,8 +62,6 @@ XPT2046 touch;
 #if ENABLED(MKS_WIFI_MODULE)
   #include "wifi_module.h"
 #endif
-
-#include <SPI.h>
 
 #ifndef TFT_WIDTH
   #define TFT_WIDTH  480
@@ -118,8 +116,6 @@ void SysTick_Callback() {
 }
 
 void tft_lvgl_init() {
-
-  W25QXX.init(SPI_QUARTER_SPEED);
 
   gCfgItems_init();
   ui_cfg_init();
@@ -253,17 +249,14 @@ void tft_lvgl_init() {
 
 static lv_disp_drv_t* disp_drv_p;
 
-#if ENABLED(USE_SPI_DMA_TC)
+#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
   bool lcd_dma_trans_lock = false;
-#endif
 
-void dmc_tc_handler(struct __DMA_HandleTypeDef * hdma) {
-  #if ENABLED(USE_SPI_DMA_TC)
+  void async_dma_complete(void *ud) {
     lv_disp_flush_ready(disp_drv_p);
     lcd_dma_trans_lock = false;
-    TFT_SPI::Abort();
-  #endif
-}
+  }
+#endif
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
   uint16_t width = area->x2 - area->x1 + 1,
@@ -273,19 +266,16 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
-  #if ENABLED(USE_SPI_DMA_TC)
+  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
     lcd_dma_trans_lock = true;
-    SPI_TFT.tftio.WriteSequenceIT((uint16_t*)color_p, width * height);
-    TFT_SPI::DMAtx.XferCpltCallback = dmc_tc_handler;
+    SPI_TFT.tftio.WriteSequenceAsync((uint16_t*)color_p, width * height, async_dma_complete, nullptr);
   #else
     SPI_TFT.tftio.WriteSequence((uint16_t*)color_p, width * height);
     lv_disp_flush_ready(disp_drv_p); // Indicate you are ready with the flushing
   #endif
-
-  W25QXX.init(SPI_QUARTER_SPEED);
 }
 
-#if ENABLED(USE_SPI_DMA_TC)
+#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
   bool get_lcd_dma_lock() { return lcd_dma_trans_lock; }
 #endif
 
@@ -295,7 +285,6 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   height = y2 - y1 + 1;
   SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
   SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
-  W25QXX.init(SPI_QUARTER_SPEED);
 }
 
 #define TICK_CYCLE 1
@@ -382,6 +371,7 @@ lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * pa
 lv_fs_res_t spi_flash_close_cb (lv_fs_drv_t * drv, void * file_p) {
   lv_fs_res_t res = LV_FS_RES_OK;
   /* Add your code here */
+  W25QXX.close();
   pic_read_addr_offset = pic_read_base_addr;
   return res;
 }

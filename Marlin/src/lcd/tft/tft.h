@@ -65,10 +65,8 @@
   #endif
 #endif
 
-#if TFT_BUFFER_SIZE > 65535
-  // DMA Count parameter is uint16_t
-  #error "TFT_BUFFER_SIZE can not exceed 65535"
-#endif
+// DMA Count parameter is uint16_t
+static_assert(TFT_BUFFER_SIZE < (1<<(sizeof(uint16_t)*8)), "TFT_BUFFER_SIZE can not exceed 65535");
 
 class TFT {
   private:
@@ -89,6 +87,10 @@ class TFT {
     static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultiple(Data, Count); }
     static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); }
     static void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) { io.set_window(Xmin, Ymin, Xmax, Ymax); }
+
+    #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+      static void write_sequence_async(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr) { io.WriteSequenceAsync(Data, Count, completeCallback, ud); }
+    #endif
 
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.fill(x, y, width, height, color); }
     static void canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) { queue.canvas(x, y, width, height); }

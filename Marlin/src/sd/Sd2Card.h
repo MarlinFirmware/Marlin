@@ -39,10 +39,24 @@
 
 #include <stdint.h>
 
-uint16_t const SD_INIT_TIMEOUT  = 2000,  // (ms) Init timeout
-               SD_ERASE_TIMEOUT = 10000, // (ms) Erase timeout
-               SD_READ_TIMEOUT  = 300,   // (ms) Read timeout
-               SD_WRITE_TIMEOUT = 600;   // (ms) Write timeout
+#ifndef SD_DISABLE_TIMEOUTS
+#ifndef SD_INIT_TIMEOUT
+  // (ms) Init timeout
+  #define SD_INIT_TIMEOUT 2000
+#endif
+#ifndef SD_ERASE_TIMEOUT
+  // (ms) Erase timeout
+  #define SD_ERASE_TIMEOUT 10000
+#endif
+#ifndef SD_READ_TIMEOUT
+  // (ms) Read timeout
+  #define SD_READ_TIMEOUT 300
+#endif
+#ifndef SD_WRITE_TIMEOUT
+  // (ms) Write timeout
+  #define SD_WRITE_TIMEOUT 600
+#endif
+#endif //SD_DISABLE_TIMEOUTS
 
 // SD card errors
 typedef enum : uint8_t {
@@ -179,6 +193,7 @@ private:
           spiRate_,
           status_,
           type_;
+  bool chipSelected = false;
 
   // private functions
   inline uint8_t cardAcmd(const uint8_t cmd, const uint32_t arg) {

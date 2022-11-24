@@ -58,11 +58,23 @@
 
   static SPISettings spiConfig;
 
+  static uint32_t _spi_clock;
+  static int _spi_bitOrder;
+  static int _spi_clockMode;
+
   // ------------------------
   // Hardware SPI
   // https://github.com/arduino/ArduinoCore-samd/blob/master/libraries/SPI/SPI.h
   // ------------------------
   void spiBegin() {
+  }
+
+  void spiInit(uint32_t clock, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+    _spi_clock = clock;
+    _spi_bitOrder = MSBFIRST;
+    _spi_clockMode = SPI_MODE0;
+    spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+    sdSPI.begin();
   }
 
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
@@ -81,12 +93,37 @@
       case SPI_SPEED_6:         clock =  125000; break;
       default:                  clock = 4000000; break; // Default from the SPI library
     }
-    spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-    sdSPI.begin();
+    spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
   void spiClose() {
     sdSPI.end();
+  }
+
+  void spiSetBitOrder(int bitOrder) {
+    if (bitOrder == SPI_BITORDER_MSB) {
+      _spi_bitOrder = MSBFIRST;
+    }
+    else if (bitOrder == SPI_BITORDER_LSB) {
+      _spi_bitOrder = LSBFIRST;
+    }
+    else return;
+
+    spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
+  }
+
+  void spiSetClockMode(int clockMode) {
+    if (clockMode == SPI_CLKMODE_0)
+      _spi_clockMode = SPI_MODE0;
+    else if (clockMode == SPI_CLKMODE_1)
+      _spi_clockMode = SPI_MODE1;
+    else if (clockMode == SPI_CLKMODE_2)
+      _spi_clockMode = SPI_MODE2;
+    else if (clockMode == SPI_CLKMODE_3)
+      _spi_clockMode = SPI_MODE3;
+    else return;
+
+    spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
   }
 
   /**
@@ -96,12 +133,18 @@
    *
    * @details
    */
-  uint8_t spiRec() {
+  uint8_t spiRec(uint8_t txval) {
     sdSPI.beginTransaction(spiConfig);
-    uint8_t returnByte = sdSPI.transfer(0xFF);
+    uint8_t returnByte = sdSPI.transfer(txval);
     sdSPI.endTransaction();
     return returnByte;
   }
+
+  uint16_t spiRec16(uint16_t txval) {
+    sdSPI.beginTransaction(spiConfig);
+    uint16_t res = sdSPI.transfer16(txval);
+    sdSPI.endTransaction();
+    return res;
 
   /**
    * @brief  Receives a number of bytes from the SPI port to a buffer
@@ -110,9 +153,9 @@
    * @param  nbyte Number of bytes to receive.
    * @return Nothing
    */
-  void spiRead(uint8_t *buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     if (nbyte == 0) return;
-    memset(buf, 0xFF, nbyte);
+    memset(buf, txval, nbyte);
     sdSPI.beginTransaction(spiConfig);
     sdSPI.transfer(buf, nbyte);
     sdSPI.endTransaction();
@@ -131,6 +174,12 @@
     sdSPI.endTransaction();
   }
 
+  void spiSend16(uint16_t v) {
+    sdSPI.beginTransaction(spiConfig);
+    sdSPI.transfer16(v);
+    sdSPI.endTransaction();
+  }
+
   /**
    * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
    *
@@ -146,9 +195,32 @@
     sdSPI.endTransaction();
   }
 
-  void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-    spiConfig = SPISettings(spiClock, (BitOrder)bitOrder, dataMode);
+  void spiWrite(const uint8_t *buf, uint16_t cnt) {
     sdSPI.beginTransaction(spiConfig);
+    for (uint16_t n = 0; n < cnt; n++)
+      sdSPI.transfer(buf[n]);
+    sdSPI.endTransaction();
+  }
+
+  void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+    sdSPI.beginTransaction(spiConfig);
+    for (uint16_t n = 0; n < cnt; n++)
+      sdSPI.transfer16(buf[n]);
+    sdSPI.endTransaction();
+  }
+
+  void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+    sdSPI.beginTransaction(spiConfig);
+    for (uint16_t n = 0; n < repcnt; n++)
+      sdSPI.transfer(val);
+    sdSPI.endTransaction();
+  }
+
+  void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+    sdSPI.beginTransaction(spiConfig);
+    for (uint16_t n = 0; n < repcnt; n++)
+      sdSPI.transfer16(val);
+    sdSPI.endTransaction();
   }
 #endif // !SOFTWARE_SPI
 

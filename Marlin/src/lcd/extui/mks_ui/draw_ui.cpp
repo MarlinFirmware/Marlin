@@ -32,7 +32,7 @@
 
 #include "draw_ui.h"
 
-#include <SPI.h>
+#include "../../../HAL/shared/HAL_SPI.h"
 
 #include "../../../MarlinCore.h" // for marlin_state
 #include "../../../sd/cardreader.h"
@@ -243,6 +243,7 @@ void update_spi_flash() {
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
+  W25QXX.close();
 }
 
 void update_gcode_command(int addr, uint8_t *s) {
@@ -262,11 +263,13 @@ void update_gcode_command(int addr, uint8_t *s) {
     default: break;
   }
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
+  W25QXX.close();
 }
 
 void get_gcode_command(int addr, uint8_t *d) {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)d, addr, 100);
+  W25QXX.close();
 }
 
 lv_style_t tft_style_scr;
@@ -636,6 +639,7 @@ char *creat_title_text() {
         W25QXX.init(SPI_QUARTER_SPEED);
         if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
+        W25QXX.close();
       #endif
       row++;
       card.abortFilePrintNow();
@@ -678,11 +682,12 @@ char *creat_title_text() {
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
     int index;
     int y_off = 0;
-    W25QXX.init(SPI_QUARTER_SPEED);
     for (index = 0; index < 10; index++) { // 200*200
       #if HAS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
+          W25QXX.init(SPI_QUARTER_SPEED);
           flash_view_Read(bmp_public_buf, 8000); // 20k
+          W25QXX.close();
         }
         else {
           default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
@@ -696,7 +701,6 @@ char *creat_title_text() {
 
       y_off++;
     }
-    W25QXX.init(SPI_QUARTER_SPEED);
   }
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
@@ -1374,7 +1378,7 @@ void print_time_count() {
 
 void LV_TASK_HANDLER() {
 
-  if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
+  if (TERN1(HAL_SPI_SUPPORTS_ASYNC, !get_lcd_dma_lock()))
     lv_task_handler();
 
   #if BOTH(MKS_TEST, SDSUPPORT)

@@ -29,8 +29,6 @@
   #error "LTDC TFT is currently only supported on STM32H7 hardware."
 #endif
 
-#define DATASIZE_8BIT  SPI_DATASIZE_8BIT
-#define DATASIZE_16BIT SPI_DATASIZE_16BIT
 #define TFT_IO_DRIVER  TFT_LTDC
 
 #define TFT_DATASIZE DATASIZE_16BIT
@@ -57,8 +55,8 @@ class TFT_LTDC {
     static bool isBusy();
     static void Abort() { /*__HAL_DMA_DISABLE(&DMAtx);*/ }
 
-    static void DataTransferBegin(uint16_t DataWidth = TFT_DATASIZE) {}
-    static void DataTransferEnd() {};
+    static void DataTransferBegin() {}
+    static void DataTransferEnd() {}
 
     static void WriteData(uint16_t Data);
     static void WriteReg(uint16_t Reg);
@@ -68,7 +66,7 @@ class TFT_LTDC {
     static void WriteMultiple(uint16_t Color, uint32_t Count) {
       static uint16_t Data; Data = Color;
       while (Count > 0) {
-        TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
+        TransmitDMA(DMA_PINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
         Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
       }
     }

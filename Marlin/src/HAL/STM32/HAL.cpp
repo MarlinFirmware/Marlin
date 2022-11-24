@@ -48,6 +48,8 @@
   #include "usbd_cdc_if.h"
 #endif
 
+#include "../shared/ARM/HAL_NVIC.h"
+
 // ------------------------
 // Public Variables
 // ------------------------
@@ -64,6 +66,8 @@ uint16_t MarlinHAL::adc_result;
 
 // HAL initialization task
 void MarlinHAL::init() {
+  nvicBegin();
+
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.

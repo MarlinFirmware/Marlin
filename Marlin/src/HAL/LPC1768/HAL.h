@@ -236,13 +236,21 @@ public:
 
   // Called by Temperature::init for each sensor at startup
   static void adc_enable(const pin_t pin) {
+    // On some BTT SKR V1.4 boards the ADC peripheral could be faulty.
+    // Disable it by setting that macro in your Configuration.h
+#ifndef LPC_DISABLE_ADC
     FilteredADC::enable_channel(pin);
+#endif
   }
 
   // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static uint32_t adc_result;
   static void adc_start(const pin_t pin) {
+#ifndef LPC_DISABLE_ADC
     adc_result = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
+#else
+    adc_result = 0;
+#endif
   }
 
   // Is the ADC ready for reading?

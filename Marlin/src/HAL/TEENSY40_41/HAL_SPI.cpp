@@ -50,6 +50,10 @@ static SPISettings spiConfig;
 // Hardware SPI
 // ------------------------
 
+static uint32_t _spi_clock;
+static int _spi_bitOrder;
+static int _spi_clockMode;
+
 void spiBegin() {
   #if PIN_EXISTS(SD_SS)
     OUT_WRITE(SD_SS_PIN, HIGH);
@@ -59,9 +63,14 @@ void spiBegin() {
   //SET_OUTPUT(SD_MOSI_PIN);
 }
 
-void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
+void spiInitEx(uint32_t clock, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
   // Ignore the SPI pin hints.
+  _spi_clock = clock;
+  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+  SPI.begin();
+}
 
+void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
   // Use Marlin data-rates
   uint32_t clock;
   switch (spiRate) {
@@ -74,17 +83,42 @@ void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hi
   default:
     clock = 4000000; // Default from the SPI library
   }
-  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
-  SPI.begin();
+  spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
 }
 
 void spiClose() {
   SPI.end();
 }
 
-uint8_t spiRec() {
+void spiSetBitOrder(int bitOrder) {
+  if (bitOrder == SPI_BITORDER_MSB) {
+    _spi_bitOrder = MSBFIRST;
+  }
+  else if (bitOrder == SPI_BITORDER_LSB) {
+    _spi_bitOrder = LSBFIRST;
+  }
+  else return;
+
+  spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
+}
+
+void spiSetClockMode(int clockMode) {
+  if (clockMode == SPI_CLKMODE_0)
+    _spi_clockMode = SPI_MODE0;
+  else if (clockMode == SPI_CLKMODE_1)
+    _spi_clockMode = SPI_MODE1;
+  else if (clockMode == SPI_CLKMODE_2)
+    _spi_clockMode = SPI_MODE2;
+  else if (clockMode == SPI_CLKMODE_3)
+    _spi_clockMode = SPI_MODE3;
+  else return;
+
+  spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
+}
+
+uint8_t spiRec(uint8_t txval) {
   SPI.beginTransaction(spiConfig);
-  uint8_t returnByte = SPI.transfer(0xFF);
+  uint8_t returnByte = SPI.transfer(txval);
   SPI.endTransaction();
   return returnByte;
   //SPDR = 0xFF;
@@ -92,7 +126,15 @@ uint8_t spiRec() {
   //return SPDR;
 }
 
-void spiRead(uint8_t *buf, uint16_t nbyte) {
+uint16_t spiRec16(uint16_t txval) {
+  SPI.beginTransaction(spiConfig);
+  uint16_t res = SPI.transfer16(txval);
+  SPI.endTransaction();
+  return res;
+}
+
+void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
+  memset(buf, txval, nbyte);
   SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
@@ -115,8 +157,18 @@ void spiSend(uint8_t b) {
   //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
 
+void spiSend16(uint16_t v) {
+  SPI.beginTransaction(spiConfig);
+  SPI.transfer16(v);
+  SPI.endTransaction();
+}
+
 void spiSendBlock(uint8_t token, const uint8_t *buf) {
   SPI.beginTransaction(spiConfig);
+  SPI.transfer(token);
+  for (uint16_t n = 0; n < 512; n++)
+    SPI.transfer(buf[n]);
+#if 0
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {
     while (!TEST(SPSR, SPIF)) { /* nada */ };
@@ -125,13 +177,36 @@ void spiSendBlock(uint8_t token, const uint8_t *buf) {
     SPDR = buf[i + 1];
   }
   while (!TEST(SPSR, SPIF)) { /* nada */ };
+#endif
   SPI.endTransaction();
 }
 
-// Begin SPI transaction, set clock, bit order, data mode
-void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-  spiConfig = SPISettings(spiClock, bitOrder, dataMode);
+void spiWrite(const uint8_t *buf, uint16_t cnt) {
   SPI.beginTransaction(spiConfig);
+  for (uint16_t n = 0; n < cnt; n++)
+    SPI.transfer(buf[n]);
+  SPI.endTransaction();
+}
+
+void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+  SPI.beginTransaction(spiConfig);
+  for (uint16_t n = 0; n < cnt; n++)
+    SPI.transfer16(buf[n]);
+  SPI.endTransaction();
+}
+
+void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+  SPI.beginTransaction(spiConfig);
+  for (uint16_t n = 0; n < repcnt; n++)
+    SPI.transfer(val);
+  SPI.endTransaction();
+}
+
+void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+  SPI.beginTransaction(spiConfig);
+  for (uint16_t n = 0; n < repcnt; n++)
+    SPI.transfer16(val);
+  SPI.endTransaction();
 }
 
 #endif // SOFTWARE_SPI

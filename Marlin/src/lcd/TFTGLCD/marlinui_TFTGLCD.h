@@ -42,6 +42,9 @@
 // Create LCD class instance and chipset-specific information
 class TFTGLCD {
   private:
+#if ENABLED(TFTGLCD_PANEL_SPI)
+    void _spi_prepare(void);
+#endif
   public:
     TFTGLCD();
     void clear_buffer();

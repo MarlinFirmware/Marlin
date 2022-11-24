@@ -20,10 +20,6 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(TOUCH_BUTTONS_HW_SPI)
-  #include <SPI.h>
-#endif
-
 #ifndef TOUCH_MISO_PIN
   #define TOUCH_MISO_PIN SD_MISO_PIN
 #endif
@@ -64,16 +60,10 @@ private:
 
   static void DataTransferBegin();
   static void DataTransferEnd();
-  #if ENABLED(TOUCH_BUTTONS_HW_SPI)
-    static uint16_t HardwareIO(uint16_t data);
-  #endif
   static uint16_t SoftwareIO(uint16_t data);
   static uint16_t IO(uint16_t data = 0);
 
 public:
-  #if ENABLED(TOUCH_BUTTONS_HW_SPI)
-    static SPIClass SPIx;
-  #endif
 
   static void Init();
   static bool getRawPoint(int16_t *x, int16_t *y);

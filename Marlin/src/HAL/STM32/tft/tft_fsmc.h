@@ -38,8 +38,6 @@
   #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
 #endif
 
-#define DATASIZE_8BIT  SPI_DATASIZE_8BIT
-#define DATASIZE_16BIT SPI_DATASIZE_16BIT
 #define TFT_IO_DRIVER  TFT_FSMC
 
 #define TFT_DATASIZE TERN(TFT_INTERFACE_FSMC_8BIT, DATASIZE_8BIT, DATASIZE_16BIT)
@@ -67,7 +65,7 @@ class TFT_FSMC {
     static bool isBusy();
     static void Abort() { __HAL_DMA_DISABLE(&DMAtx); }
 
-    static void DataTransferBegin(uint16_t DataWidth = TFT_DATASIZE) {}
+    static void DataTransferBegin() {}
     static void DataTransferEnd() {};
 
     static void WriteData(uint16_t Data) { Transmit(tft_data_t(Data)); }
@@ -78,7 +76,7 @@ class TFT_FSMC {
     static void WriteMultiple(uint16_t Color, uint32_t Count) {
       static uint16_t Data; Data = Color;
       while (Count > 0) {
-        TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
+        TransmitDMA(DMA_PINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
         Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
       }
     }

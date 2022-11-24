@@ -24,7 +24,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
-  #include HAL_PATH(../../HAL, tft/tft_spi.h)
+  #include "../../HAL/shared/tft/tft_spi.h"
 #elif HAS_FSMC_TFT
   #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
 #elif HAS_LTDC_TFT
@@ -99,6 +99,9 @@
 #define ESC_END      0xFFFF, 0x7FFF
 #define ESC_FFFF     0xFFFF, 0xFFFF
 
+#define DATASIZE_8BIT 0
+#define DATASIZE_16BIT 2
+
 class TFT_IO {
 public:
   static TFT_IO_DRIVER io;
@@ -113,17 +116,22 @@ public:
   inline static void Abort() { io.Abort(); };
   inline static uint32_t GetID() { return io.GetID(); };
 
-  inline static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
+  inline static void DataTransferBegin() { io.DataTransferBegin(); }
   inline static void DataTransferEnd() { io.DataTransferEnd(); };
-  // inline static void DataTransferAbort() { io.DataTransferAbort(); };
 
-  inline static void WriteData(uint16_t Data) { io.WriteData(Data); };
+  inline static void WriteData(uint16_t Data) { io.WriteData(Data); }
+#if ENABLED(TFT_SUPPORTS_8BIT)
+  inline static void WriteData8(uint8_t Data) { io.WriteData8(Data); }
+#endif
   inline static void WriteReg(uint16_t Reg) { io.WriteReg(Reg); };
+#if ENABLED(TFT_SUPPORTS_8BIT)
+  inline static void WriteReg8(uint8_t Reg) { io.WriteReg8(Reg); }
+#endif
 
-  inline static void WriteSequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); };
+  inline static void WriteSequence(const uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); };
 
-  #if ENABLED(USE_SPI_DMA_TC)
-    inline static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { io.WriteSequenceIT(Data, Count); };
+  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+    inline static void WriteSequenceAsync(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr) { io.WriteSequenceAsync(Data, Count, completeCallback, ud); };
   #endif
 
   // static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }

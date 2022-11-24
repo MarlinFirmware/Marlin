@@ -36,6 +36,8 @@
 
 #include "../../sd/cardreader.h"
 
+#include "../shared/ARM/HAL_NVIC.h"
+
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 
 extern "C" {
@@ -49,6 +51,8 @@ void SysTick_Callback() { disk_timerproc(); }
 TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 void MarlinHAL::init() {
+
+  nvicBegin();
 
   // Init LEDs
   #if PIN_EXISTS(LED)

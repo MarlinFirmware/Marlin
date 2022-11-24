@@ -168,7 +168,7 @@
       MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
       // Color UI needs a control to detect a touch
       #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
-        touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+        touch.add_control(TouchControlType::CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
       #endif
     }
     if (ui.use_click()) {

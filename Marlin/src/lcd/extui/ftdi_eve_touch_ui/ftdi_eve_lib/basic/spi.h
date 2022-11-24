@@ -23,23 +23,12 @@
 #pragma once
 
 #ifndef CLCD_USE_SOFT_SPI
-  #include <SPI.h>
+  #include "../../../../../HAL/shared/HAL_SPI.h"
 #endif
 
 namespace FTDI {
 
-  #if !defined(CLCD_SPI_BUS) || defined(CLCD_USE_SOFT_SPI)
-    #define SPI_OBJ ::SPI
-  #else
-    extern SPIClass EVE_SPI;
-    #define SPI_OBJ EVE_SPI
-  #endif
-
   namespace SPI {
-    #ifndef CLCD_USE_SOFT_SPI
-      extern SPISettings spi_settings;
-    #endif
-
     uint8_t  _soft_spi_xfer (uint8_t val);
     void     _soft_spi_send (uint8_t val);
 
@@ -55,7 +44,7 @@ namespace FTDI {
       #ifdef CLCD_USE_SOFT_SPI
         return _soft_spi_xfer(0x00);
       #else
-        return SPI_OBJ.transfer(0x00);
+        return spiRec(0x00);
       #endif
     };
 
@@ -63,7 +52,7 @@ namespace FTDI {
       #ifdef CLCD_USE_SOFT_SPI
         _soft_spi_send(val);
       #else
-        SPI_OBJ.transfer(val);
+        spiSend(val);
       #endif
     };
 

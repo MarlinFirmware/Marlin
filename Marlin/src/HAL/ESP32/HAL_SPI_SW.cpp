@@ -1,9 +1,10 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +20,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifdef ARDUINO_ARCH_ESP32
 
-#include <SPI.h>
+#include "../../inc/MarlinConfig.h"
 
-using MarlinSPI = SPIClass;
+#include "../shared/HAL_SPI.h"
+
+#if ENABLED(SOFTWARE_SPI)
+
+  // ------------------------
+  // Software SPI
+  // ------------------------
+  #error "Software SPI not supported for ESP32. Use Hardware SPI."
+
+#endif
+
+#endif

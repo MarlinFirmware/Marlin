@@ -55,12 +55,28 @@
 #define SPI_SPEED_6         6   // Set SCK rate to 1/64 of max rate
 #define SPI_SPEED_DEFAULT   255 // Let the framework decide (usually recommended value)    
 
+// Transmission order for binary polynomes (8bit, 16bit).
+// This is significant because numbers are sent bit-by-bit.
+#define SPI_BITORDER_MSB        0   // most-significant bit first
+#define SPI_BITORDER_LSB        1   // least-significant bit first
+#define SPI_BITORDER_DEFAULT    SPI_BITORDER_MSB
+
+#define SPI_CLKMODE_0           0   // data latched on first edge, clock starts LOW
+#define SPI_CLKMODE_1           1   // data latched on the second edge, clock starts LOW
+#define SPI_CLKMODE_2           2   // data latched on the first edge, clock starts HIGH
+#define SPI_CLKMODE_3           3   // data latched on the second edge, clock starts HIGH
+#define SPI_CLKMODE_DEFAULT     SPI_CLKMODE_0
+
 //
 // Standard SPI functions
 //
 
-// Initialize SPI bus
+// Initialize SPI bus (global).
 void spiBegin();
+
+// Configure SPI based on maximum clock frequency/rate.
+// Pass 0 for maxClockFreq to get a recommended default.
+void spiInitEx(uint32_t maxClockFreq, int hint_sck = -1, int hint_miso = -1, int hint_mosi = -1, int hint_cs = -1);
 
 // Configure SPI for specified SPI speed
 void spiInit(uint8_t spiRate, int hint_sck = -1, int hint_miso = -1, int hint_mosi = -1, int hint_cs = -1);
@@ -68,31 +84,67 @@ void spiInit(uint8_t spiRate, int hint_sck = -1, int hint_miso = -1, int hint_mo
 // Terminates SPI connection.
 void spiClose();
 
-// Write single byte to SPI
+// Specifies the bit-order, either LSB or MSB.
+void spiSetBitOrder(int bitOrder);
+
+// Specifies the CLKMODE.
+void spiSetClockMode(int mode);
+
+// Write single byte to SPI.
+// The byte is sent in the requested bit-order.
 void spiSend(uint8_t b);
 
+// Write a 16bit number to SPI.
+// The number is sent in the requested bit-order.
+void spiSend16(uint16_t v);
+
 // Read single byte from SPI
-uint8_t spiRec();
+// The byte is received in the requested bit-order.
+uint8_t spiRec(uint8_t txval = 0xFF);
+
+// Read 16bit number from SPI.
+// The number is received in the requested bit-order.
+uint16_t spiRec16(uint16_t txval = 0xFFFF);
 
 // Read from SPI into buffer
-void spiRead(uint8_t *buf, uint16_t nbyte);
+// Each 8bit polynome is transmitted in the requested bit-order.
+// Do not be confused with treating the buffer as an array of bits:
+//  the whole array is not ordered but each invidual byte is.
+void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval = 0xFF);
 
 // Write token and then write from 512 byte buffer to SPI (for SD card)
+// Similar to writing each byte by itself.
 void spiSendBlock(uint8_t token, const uint8_t *buf);
 
-// Begin SPI transaction, set clock, bit order, data mode
-// DEPRECATED: use spiInit -> spiSend/spiRead -> spiClose instead
-//void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
+// Send a buffer of 8bit numbers, in the correct bit-order, through SPI.
+// Can be transmitted through DMA for optimal performance.
+void spiWrite(const uint8_t *buf, uint16_t nbyte);
 
-//
-// Extended SPI functions taking a channel number (Hardware SPI only)
-//
+// Send a buffer of 16bit numbers, in the correct bit-order, through SPI.
+// Similar to spiWrite but supports more data size.
+void spiWrite16(const uint16_t *buf, uint16_t nbyte);
 
-// Write single byte to specified SPI channel
-void spiSend(uint32_t chan, byte b);
+// Send a repetition of 8bit numbers.
+void spiWriteRepeat(uint8_t val, uint16_t repcnt);
 
-// Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t *buf, size_t n);
+// Send a repetition of 16bit numbers.
+void spiWriteRepeat16(uint16_t val, uint16_t repcnt);
 
-// Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan);
+#if (defined(ESP_PLATFORM) || defined(STM32F1xx) || defined(STM32F4xx) || defined(TARGET_LPC1768)) && !defined(SOFTWARE_SPI) && defined(USE_SPI_DMA_TC)
+
+#define HAL_SPI_SUPPORTS_ASYNC
+
+// Requests asynchronous SPI transfer to peripheral (DMA).
+void spiWriteAsync(const uint8_t *buf, uint16_t nbyte, void (*completeCallback)(void*) = nullptr, void *ud = nullptr);
+void spiWriteAsync16(const uint16_t *buf, uint16_t ndata, void (*completeCallback)(void*) = nullptr, void *ud = nullptr);
+
+// Aborts a running async SPI transfer.
+void spiAsyncAbort();
+
+// Waits for a running async SPI transfer.
+void spiAsyncJoin();
+
+// Returns true if the DMA transfer is still running.
+bool spiAsyncIsRunning();
+
+#endif // async support

@@ -109,10 +109,6 @@ Stepper stepper; // Singleton
   #include "../feature/dac/dac_dac084s085.h"
 #endif
 
-#if HAS_MOTOR_CURRENT_SPI
-  #include <SPI.h>
-#endif
-
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -3500,11 +3496,12 @@ void Stepper::report_positions() {
 
   // From Arduino DigitalPotControl example
   void Stepper::set_digipot_value_spi(const int16_t address, const int16_t value) {
+    spiInitEx(10000); // TODO: any SPI pins to select here?
     WRITE(DIGIPOTSS_PIN, LOW);  // Take the SS pin low to select the chip
-    SPI.transfer(address);      // Send the address and value via SPI
-    SPI.transfer(value);
+    spiSend(address);           // Send the address and value via SPI
+    spiSend(value);
     WRITE(DIGIPOTSS_PIN, HIGH); // Take the SS pin high to de-select the chip
-    //delay(10);
+    spiClose();
   }
 
 #endif // HAS_MOTOR_CURRENT_SPI
@@ -3606,7 +3603,6 @@ void Stepper::report_positions() {
 
       #if HAS_MOTOR_CURRENT_SPI
 
-        SPI.begin();
         SET_OUTPUT(DIGIPOTSS_PIN);
 
         LOOP_L_N(i, COUNT(motor_current_setting))

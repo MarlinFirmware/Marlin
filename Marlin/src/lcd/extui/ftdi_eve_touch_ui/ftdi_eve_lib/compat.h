@@ -32,7 +32,11 @@
   #include <Arduino.h>
 
   #ifndef CLCD_USE_SOFT_SPI
+#ifdef __MARLIN_FIRMWARE__
+    #include "../../../../HAL/shared/HAL_SPI.h"
+#else
     #include <SPI.h>
+#endif
   #endif
 
   namespace fast_io {

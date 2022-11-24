@@ -309,9 +309,6 @@
   #define LCD_BACKLIGHT_PIN          EXP1_03_PIN
   #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
-
   #ifndef TFT_WIDTH
     #define TFT_WIDTH                        480
   #endif

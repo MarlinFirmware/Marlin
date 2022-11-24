@@ -171,7 +171,7 @@ void xatc_wizard_homing_done() {
 
     // Color UI needs a control to detect a touch
     #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
-      touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+      touch.add_control(TouchControlType::CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     #endif
   }
 

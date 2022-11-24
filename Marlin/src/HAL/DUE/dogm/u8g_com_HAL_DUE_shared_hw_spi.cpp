@@ -97,10 +97,7 @@ uint8_t u8g_com_HAL_DUE_shared_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
 
       u8g_Delay(5);
 
-      spiBegin();
-      // the Arduino Core SPI library of the DUE only cares about the chip-select pin.
-      // TODO: can we hint all the pins?
-      spiInit(LCD_SPI_SPEED, -1, -1, -1, U8G_PI_CS);
+      spiInit(LCD_SPI_SPEED, U8G_PI_SCK, -1, U8G_PI_MOSI, U8G_PI_CS);
       break;
 
     case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */

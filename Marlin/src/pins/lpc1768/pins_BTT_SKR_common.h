@@ -35,6 +35,9 @@
   #endif
 #endif
 
+// BTT SKR V1.4 = 12MHz
+#define LPC_MAINOSCILLATOR_FREQ 12000000
+
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 

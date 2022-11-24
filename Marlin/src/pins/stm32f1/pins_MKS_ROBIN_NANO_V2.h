@@ -287,9 +287,6 @@
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
-
   #define LCD_USE_DMA_SPI
 
 #endif
@@ -329,9 +326,9 @@
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define PIN_SPI_SCK                   PA5
-      #define PIN_TFT_MISO                  PA6
-      #define PIN_TFT_MOSI                  PA7
+      #define TFTGLCD_SCK                   PA5
+      #define TFTGLCD_MISO                  PA6
+      #define TFTGLCD_MOSI                  PA7
       #define TFTGLCD_CS                    PE8
     #endif
 

@@ -34,7 +34,7 @@
   #include HAL_PATH(../../HAL, tft/gt911.h)
   #define TOUCH_DRIVER_CLASS GT911
 #elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #include "../../HAL/shared/tft/xpt2046.h"
   #define TOUCH_DRIVER_CLASS XPT2046
 #else
   #error "Unknown Touch Screen Type."
@@ -43,7 +43,7 @@
 // Menu Navigation
 extern int8_t encoderTopLine, encoderLine, screen_items;
 
-enum TouchControlType : uint16_t {
+enum class TouchControlType : uint16_t {
   NONE = 0x0000,
   CALIBRATE,
   MENU_SCREEN,
@@ -72,7 +72,7 @@ typedef void (*screenFunc_t)();
 
 void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
 inline void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, control_type, 0, image, is_enabled, color_enabled, color_disabled); }
-inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (intptr_t)screen, image, is_enabled, color_enabled, color_disabled); }
+inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, TouchControlType::MENU_SCREEN, (intptr_t)screen, image, is_enabled, color_enabled, color_disabled); }
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
@@ -116,8 +116,8 @@ class Touch {
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {
-      if (touch_control_type == CLICK) {
-        touch_control_type = NONE;
+      if (touch_control_type == TouchControlType::CLICK) {
+        touch_control_type = TouchControlType::NONE;
         return true;
       }
       return false;

@@ -42,7 +42,6 @@ void MAX3421e::ncs() { WRITE(USB_CS_PIN, HIGH); }
 
 // write single byte into MAX3421 register
 void MAX3421e::regWr(uint8_t reg, uint8_t data) {
-  spiBegin();
   spiInit(SD_SPI_SPEED);
   cs();
   spiSend(reg | 0x02);
@@ -54,7 +53,6 @@ void MAX3421e::regWr(uint8_t reg, uint8_t data) {
 // multiple-byte write
 // return a pointer to memory position after last written
 uint8_t* MAX3421e::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
-  spiBegin();
   spiInit(SD_SPI_SPEED);
   cs();
   spiSend(reg | 0x02);
@@ -75,7 +73,6 @@ void MAX3421e::gpioWr(uint8_t data) {
 
 // single host register read
 uint8_t MAX3421e::regRd(uint8_t reg) {
-  spiBegin();
   spiInit(SD_SPI_SPEED);
   cs();
   spiSend(reg);
@@ -88,7 +85,6 @@ uint8_t MAX3421e::regRd(uint8_t reg) {
 // multiple-byte register read
 // return a pointer to a memory position after last read
 uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
-  spiBegin();
   spiInit(SD_SPI_SPEED);
   cs();
   spiSend(reg);

@@ -32,8 +32,6 @@ W25QXXFlash W25QXX;
   #define NC -1
 #endif
 
-MarlinSPI W25QXXFlash::mySPI(SPI_FLASH_MOSI_PIN, SPI_FLASH_MISO_PIN, SPI_FLASH_SCK_PIN, NC);
-
 #define SPI_FLASH_CS_H() OUT_WRITE(SPI_FLASH_CS_PIN, HIGH)
 #define SPI_FLASH_CS_L() OUT_WRITE(SPI_FLASH_CS_PIN, LOW)
 
@@ -64,10 +62,13 @@ void W25QXXFlash::init(uint8_t spiRate) {
     default:                clock = SPI_CLOCK_DIV2;// Default from the SPI library
   }
 
-  mySPI.setClockDivider(clock);
-  mySPI.setBitOrder(MSBFIRST);
-  mySPI.setDataMode(SPI_MODE0);
-  mySPI.begin();
+  spiInitEx(clock, SPI_FLASH_MOSI_PIN, SPI_FLASH_MISO_PIN, SPI_FLASH_SCK_PIN, NC);
+  spiSetBitOrder(SPI_BITORDER_MSB);
+  spiSetClockMode(SPI_CLKMODE_0);
+}
+
+void W25QXXFlash::close() {
+  spiClose();
 }
 
 /**
@@ -76,12 +77,12 @@ void W25QXXFlash::init(uint8_t spiRate) {
  * @return Byte received
  */
 uint8_t W25QXXFlash::spi_flash_Rec() {
-  const uint8_t returnByte = mySPI.transfer(0xFF);
+  const uint8_t returnByte = spiRec(0xFF);
   return returnByte;
 }
 
 uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
-  const uint8_t returnByte = mySPI.transfer(data);
+  const uint8_t returnByte = spiRec(data);
   return returnByte;
 }
 
@@ -92,10 +93,10 @@ uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
  * @param  nbyte Number of bytes to receive.
  * @return Nothing
  *
- * @details Uses DMA
+ * @details Uses async (for example DMA)
  */
 void W25QXXFlash::spi_flash_Read(uint8_t *buf, uint16_t nbyte) {
-  mySPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
+  spiRead(buf, nbyte);
 }
 
 /**
@@ -105,7 +106,7 @@ void W25QXXFlash::spi_flash_Read(uint8_t *buf, uint16_t nbyte) {
  *
  * @details
  */
-void W25QXXFlash::spi_flash_Send(uint8_t b) { mySPI.transfer(b); }
+void W25QXXFlash::spi_flash_Send(uint8_t b) { spiSend(b); }
 
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
@@ -116,8 +117,7 @@ void W25QXXFlash::spi_flash_Send(uint8_t b) { mySPI.transfer(b); }
  * @details Use DMA
  */
 void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t *buf) {
-  mySPI.transfer(token);
-  mySPI.dmaSend(const_cast<uint8_t*>(buf), 512);
+  spiSendBlock(token, buf);
 }
 
 uint16_t W25QXXFlash::W25QXX_ReadID(void) {

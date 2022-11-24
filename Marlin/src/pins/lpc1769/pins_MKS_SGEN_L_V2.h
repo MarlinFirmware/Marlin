@@ -349,8 +349,10 @@
 
       #define TOUCH_INT_PIN          EXP1_06_PIN
       #define TOUCH_CS_PIN           EXP1_05_PIN
-      #define TOUCH_BUTTONS_HW_SPI
-      #define TOUCH_BUTTONS_HW_SPI_DEVICE      2
+      // TOUCH_BUTTONS_HW_SPI_DEVICE = 2
+      #define TOUCH_SCK_PIN            P0_7
+      #define TOUCH_MISO_PIN           P0_8
+      #define TOUCH_MOSI_PIN           P0_9
 
       // Disable any LCD related PINs config
       #define LCD_PINS_ENABLE              -1

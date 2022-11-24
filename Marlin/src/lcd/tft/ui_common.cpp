@@ -74,7 +74,7 @@ void menu_item(const uint8_t row, bool sel ) {
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   #if ENABLED(TOUCH_SCREEN)
-    const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
+    const TouchControlType tct = TERN(TouchControlType::SINGLE_TOUCH_NAVIGATION, true, sel) ? TouchControlType::MENU_CLICK : TouchControlType::MENU_ITEM;
     touch.add_control(tct, 0, TFT_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
   #endif
 }
@@ -227,7 +227,7 @@ void MarlinUI::clear_lcd() {
 
     calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
-    if (calibration_stage == CALIBRATION_NONE) {
+    if (calibration_stage == CALIBRATION_NONE || calibration_stage == CALIBRATION_TOP_LEFT) {
       defer_status_screen(true);
       clear_lcd();
       calibration_stage = touch_calibration.calibration_start();
@@ -258,13 +258,13 @@ void MarlinUI::clear_lcd() {
       tft.add_bar(0, 15, 31, 1, COLOR_TOUCH_CALIBRATION);
       tft.add_bar(15, 0, 1, 31, COLOR_TOUCH_CALIBRATION);
 
-      touch.add_control(CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 | uint32_t(y));
+      touch.add_control(TouchControlType::CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 | uint32_t(y));
     }
     else {
       tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED));
       defer_status_screen(false);
       touch_calibration.calibration_end();
-      touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+      touch.add_control(TouchControlType::BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     }
 
     tft.canvas(0, (TFT_HEIGHT - tft_string.font_height()) >> 1, TFT_WIDTH, tft_string.font_height());

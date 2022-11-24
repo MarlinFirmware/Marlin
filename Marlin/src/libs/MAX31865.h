@@ -45,7 +45,6 @@
 
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/Delay.h"
-#include HAL_PATH(../HAL, MarlinSPI.h)
 
 #define MAX31865_CONFIG_REG 0x00
 #define MAX31865_CONFIG_BIAS 0x80
@@ -90,8 +89,6 @@ typedef enum max31865_numwires {
 /* Interface class for the MAX31865 RTD Sensor reader */
 class MAX31865 {
 private:
-  static SPISettings spiConfig;
-
   TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
   uint16_t spiDelay;

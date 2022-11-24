@@ -52,6 +52,7 @@ void GcodeSuite::M993() {
     if (addr % (COUNT(buf) * 10) == 0) SERIAL_CHAR('.');
   }
   SERIAL_ECHOLNPGM(" done");
+  W25QXX.close();
 
   card.closefile();
 }
@@ -81,6 +82,7 @@ void GcodeSuite::M994() {
     if (addr % (COUNT(buf) * 10) == 0) SERIAL_CHAR('.');
   }
   SERIAL_ECHOLNPGM(" done");
+  W25QXX.close();
 
   card.closefile();
 }

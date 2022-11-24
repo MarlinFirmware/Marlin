@@ -47,7 +47,7 @@ millis_t Touch::last_touch_ms = 0,
          Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::touch_time;
-TouchControlType Touch::touch_control_type = NONE;
+TouchControlType Touch::touch_control_type = TouchControlType::NONE;
 #if HAS_TOUCH_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
 #endif
@@ -90,7 +90,7 @@ void Touch::idle() {
     #if HAS_RESUME_CONTINUE
       // UI is waiting for a click anywhere?
       if (wait_for_user) {
-        touch_control_type = CLICK;
+        touch_control_type = TouchControlType::CLICK;
         ui.lcd_clicked = true;
         if (ui.external_control) wait_for_user = false;
         return;
@@ -101,7 +101,7 @@ void Touch::idle() {
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(last_touch_ms, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == TouchControlType::NONE && ELAPSED(last_touch_ms, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
@@ -124,7 +124,7 @@ void Touch::idle() {
       }
       else {
         for (i = 0; i < controls_count; i++) {
-          if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
+          if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == TouchControlType::CALIBRATE, false))) {
             touch_control_type = controls[i].type;
             touch(&controls[i]);
             break;
@@ -142,7 +142,7 @@ void Touch::idle() {
     x = y = 0;
     current_control = nullptr;
     touch_time = 0;
-    touch_control_type = NONE;
+    touch_control_type = TouchControlType::NONE;
     time_to_hold = 0;
     repeat_delay = TOUCH_REPEAT_DELAY;
   }
@@ -151,38 +151,38 @@ void Touch::idle() {
 void Touch::touch(touch_control_t *control) {
   switch (control->type) {
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      case CALIBRATE:
+      case TouchControlType::CALIBRATE:
         if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
     #endif // TOUCH_SCREEN_CALIBRATION
 
-    case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
-    case BACK: ui.goto_previous_screen(); break;
-    case MENU_CLICK:
+    case TouchControlType::MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
+    case TouchControlType::BACK: ui.goto_previous_screen(); break;
+    case TouchControlType::MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       ui.lcd_clicked = true;
       break;
-    case CLICK: ui.lcd_clicked = true; break;
+    case TouchControlType::CLICK: ui.lcd_clicked = true; break;
     #if HAS_RESUME_CONTINUE
-      case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
+      case TouchControlType::RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
-    case CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
-    case CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
-    case MENU_ITEM: ui.encoderPosition = control->data; ui.refresh(); break;
-    case PAGE_UP:
+    case TouchControlType::CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
+    case TouchControlType::CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
+    case TouchControlType::MENU_ITEM: ui.encoderPosition = control->data; ui.refresh(); break;
+    case TouchControlType::PAGE_UP:
       encoderTopLine = encoderTopLine > LCD_HEIGHT ? encoderTopLine - LCD_HEIGHT : 0;
       ui.encoderPosition = ui.encoderPosition > LCD_HEIGHT ? ui.encoderPosition - LCD_HEIGHT : 0;
       ui.refresh();
       break;
-    case PAGE_DOWN:
+    case TouchControlType::PAGE_DOWN:
       encoderTopLine = (encoderTopLine + 2 * LCD_HEIGHT < screen_items) ? encoderTopLine + LCD_HEIGHT : screen_items - LCD_HEIGHT;
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < (uint32_t)screen_items ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
-    case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
-    case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
-    case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
-    case HEATER:
+    case TouchControlType::SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
+    case TouchControlType::INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
+    case TouchControlType::DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
+    case TouchControlType::HEATER:
       int8_t heater;
       heater = control->data;
       ui.clear_lcd();
@@ -213,18 +213,18 @@ void Touch::touch(touch_control_t *control) {
       #endif
 
       break;
-    case FAN:
+    case TouchControlType::FAN:
       ui.clear_lcd();
       static uint8_t fan, fan_speed;
       fan = 0;
       fan_speed = thermalManager.fan_speed[fan];
       MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); });
       break;
-    case FEEDRATE:
+    case TouchControlType::FEEDRATE:
       ui.clear_lcd();
       MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, 10, 999);
       break;
-    case FLOWRATE:
+    case TouchControlType::FLOWRATE:
       ui.clear_lcd();
       MenuItemBase::itemIndex = control->data;
       #if EXTRUDERS == 1
@@ -235,15 +235,15 @@ void Touch::touch(touch_control_t *control) {
       break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
+      case TouchControlType::UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
     #endif
 
-    case MOVE_AXIS:
+    case TouchControlType::MOVE_AXIS:
       ui.goto_screen((screenFunc_t)ui.move_axis_screen);
       break;
 
     // TODO: TOUCH could receive data to pass to the callback
-    case BUTTON: ((screenFunc_t)control->data)(); break;
+    case TouchControlType::BUTTON: ((screenFunc_t)control->data)(); break;
 
     default: break;
   }

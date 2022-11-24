@@ -256,6 +256,7 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
       return addr;
     }
   }
+  W25QXX.close();
   return addr;
 }
 
@@ -275,6 +276,7 @@ void spiFlashErase_PIC() {
     hal.watchdog_refresh();
     W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
   }
+  W25QXX.close();
 }
 
 #if HAS_SPI_FLASH_FONT
@@ -285,6 +287,7 @@ void spiFlashErase_PIC() {
       hal.watchdog_refresh();
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
     }
+    W25QXX.close();
   }
 #endif
 
@@ -479,6 +482,8 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
 
+    W25QXX.close();
+
     file.close();
 
     #if ENABLED(MARLIN_DEV_MODE)
@@ -584,6 +589,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
   #else
     W25QXX.init(SPI_QUARTER_SPEED);
     W25QXX.SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);
+    W25QXX.close();
   #endif
 }
 
@@ -591,6 +597,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
   void get_spi_flash_data(const char *rec_buf, int addr, int size) {
     W25QXX.init(SPI_QUARTER_SPEED);
     W25QXX.SPI_FLASH_BufferRead((uint8_t *)rec_buf, UNIGBK_FLASH_ADDR + addr, size);
+    W25QXX.close();
   }
 #endif
 
@@ -598,6 +605,7 @@ uint32_t logo_addroffset = 0;
 void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize) {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead(Logo_Rbuff, PIC_LOGO_ADDR + logo_addroffset, LogoReadsize);
+  W25QXX.close();
   logo_addroffset += LogoReadsize;
   if (logo_addroffset >= LOGO_MAX_SIZE_TFT35)
     logo_addroffset = 0;
@@ -607,6 +615,7 @@ uint32_t default_view_addroffset = 0;
 void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize) {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead(default_view_Rbuff, DEFAULT_VIEW_ADDR_TFT35 + default_view_addroffset, default_view_Readsize);
+  W25QXX.close();
   default_view_addroffset += default_view_Readsize;
   if (default_view_addroffset >= DEFAULT_VIEW_MAX_SIZE)
     default_view_addroffset = 0;
@@ -617,6 +626,7 @@ void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsi
   void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize) {
     W25QXX.init(SPI_QUARTER_SPEED);
     W25QXX.SPI_FLASH_BufferRead(flash_view_Rbuff, BAK_VIEW_ADDR_TFT35 + flash_view_addroffset, flash_view_Readsize);
+    W25QXX.close();
     flash_view_addroffset += flash_view_Readsize;
     if (flash_view_addroffset >= FLASH_VIEW_MAX_SIZE)
       flash_view_addroffset = 0;

@@ -151,6 +151,20 @@ if (lcd_id != 0xFFFFFFFF) return;
     #error "Unsupported TFT driver"
   #endif
 
+#if 0
+  static_assert((TFT_WIDTH * TFT_HEIGHT * 18) / 8 == 345600, "invalid tft dimensions");
+  io.DataTransferBegin();
+  io.WriteReg8(0x2C);
+  for (unsigned long n = 0; n < TFT_WIDTH * TFT_HEIGHT; n++)
+    io.WriteData(n/(TFT_WIDTH*6));
+  io.DataTransferEnd();
+
+  OUT_WRITE(EXP1_01_PIN, HIGH);
+  delay(1000);
+  OUT_WRITE(EXP1_01_PIN, LOW);
+  delay(5000);
+#endif
+
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     TERN(HAS_LCD_BRIGHTNESS, ui._set_brightness(), WRITE(TFT_BACKLIGHT_PIN, HIGH));
   #endif
@@ -166,7 +180,7 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
 
   switch (lcd_id) {
     case LTDC_RGB:
-      io.DataTransferBegin(DATASIZE_8BIT);
+      io.DataTransferBegin();
 
       io.WriteReg(0x01);
       io.WriteData(Xmin);
@@ -180,6 +194,7 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
 
       io.DataTransferEnd();
       break;
+#ifdef TFT_SUPPORTS_8BIT
     case ST7735:    // ST7735     160x128
     case ST7789:    // ST7789V    320x240
     case ST7796:    // ST7796     480x320
@@ -187,30 +202,31 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
     case ILI9488:   // ILI9488    480x320
     case SSD1963:   // SSD1963
     case ILI9488_ID1: // 0x8066 ILI9488    480x320
-      io.DataTransferBegin(DATASIZE_8BIT);
+      io.DataTransferBegin();
 
       // CASET: Column Address Set
-      io.WriteReg(ILI9341_CASET);
-      io.WriteData((Xmin >> 8) & 0xFF);
-      io.WriteData(Xmin & 0xFF);
-      io.WriteData((Xmax >> 8) & 0xFF);
-      io.WriteData(Xmax & 0xFF);
+      io.WriteReg8(ILI9341_CASET);
+      io.WriteData8((Xmin >> 8) & 0xFF);
+      io.WriteData8(Xmin & 0xFF);
+      io.WriteData8((Xmax >> 8) & 0xFF);
+      io.WriteData8(Xmax & 0xFF);
 
       // RASET: Row Address Set
-      io.WriteReg(ILI9341_PASET);
-      io.WriteData((Ymin >> 8) & 0xFF);
-      io.WriteData(Ymin & 0xFF);
-      io.WriteData((Ymax >> 8) & 0xFF);
-      io.WriteData(Ymax & 0xFF);
+      io.WriteReg8(ILI9341_PASET);
+      io.WriteData8((Ymin >> 8) & 0xFF);
+      io.WriteData8(Ymin & 0xFF);
+      io.WriteData8((Ymax >> 8) & 0xFF);
+      io.WriteData8(Ymax & 0xFF);
 
       // RAMWR: Memory Write
-      io.WriteReg(ILI9341_RAMWR);
+      io.WriteReg8(ILI9341_RAMWR);
 
       io.DataTransferEnd();
       break;
+#endif // TFT_SUPPORTS_8BIT
     case R61505:    // R61505U    320x240
     case ILI9328:   // ILI9328    320x240
-      io.DataTransferBegin(DATASIZE_16BIT);
+      io.DataTransferBegin();
 
       // Mind the mess: with landscape screen orientation 'Horizontal' is Y and 'Vertical' is X
       io.WriteReg(ILI9328_HASTART);
@@ -240,22 +256,46 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
   uint16_t dataWidth, data;
 
   dataWidth = *Sequence++;
-  io.DataTransferBegin(dataWidth);
+
+#if ENABLED(TFT_SUPPORTS_8BIT)
+  bool is_8bit = ( dataWidth == DATASIZE_8BIT );
+#endif // TFT_SUPPORTS_8BIT
+
+  io.DataTransferBegin();
 
   for (;;) {
     data = *Sequence++;
     if (data != 0xFFFF) {
-      io.WriteData(data);
+#if ENABLED(TFT_SUPPORTS_8BIT)
+      if (is_8bit)
+        io.WriteData8((uint8_t)data);
+      else
+#endif // TFT_SUPPORTS_8BIT
+        io.WriteData(data);
       continue;
     }
     data = *Sequence++;
     if (data == 0x7FFF) break;
     if (data == 0xFFFF)
-      io.WriteData(0xFFFF);
+    {
+#if ENABLED(TFT_SUPPORTS_8BIT)
+      if (is_8bit)
+        io.WriteData8(0xFF);
+      else
+#endif // TFT_SUPPORTS_8BIT
+        io.WriteData(0xFFFF);
+    }
     else if (data & 0x8000)
       delay(data & 0x7FFF);
     else if ((data & 0xFF00) == 0)
-      io.WriteReg(data);
+    {
+#if ENABLED(TFT_SUPPORTS_8BIT)
+      if (is_8bit)
+        io.WriteReg8((uint8_t)data);
+      else
+#endif // TFT_SUPPORTS_8BIT
+        io.WriteReg(data);
+    }
   }
 
   io.DataTransferEnd();

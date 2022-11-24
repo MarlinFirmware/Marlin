@@ -21,14 +21,6 @@
  */
 #pragma once
 
-#ifdef STM32F1xx
-  #include "stm32f1xx_hal.h"
-#elif defined(STM32F4xx)
-  #include "stm32f4xx_hal.h"
-#else
-  #error SPI TFT is currently only supported on STM32F1 and STM32F4 hardware.
-#endif
-
 #ifndef LCD_READ_ID
   #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
@@ -36,9 +28,9 @@
   #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
 #endif
 
-#define DATASIZE_8BIT  SPI_DATASIZE_8BIT
-#define DATASIZE_16BIT SPI_DATASIZE_16BIT
 #define TFT_IO_DRIVER  TFT_SPI
+
+#define TFT_SUPPORTS_8BIT
 
 class TFT_SPI {
 
@@ -49,55 +41,43 @@ class TFT_SPI {
   };
 
 private:
-  static SPI_HandleTypeDef SPIx;
-
 
   static uint32_t ReadID(uint16_t Reg);
   static void Transmit(uint16_t Data);
-  static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
-  #if ENABLED(USE_SPI_DMA_TC)
-    static void TransmitDMA_IT(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+  static void Transmit8(uint8_t Data);
+  static void TransmitDMA(const uint16_t *Data, uint16_t Count);
+  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+    static void _TXComplete(void *ud);
+    static void TransmitDMA_Async(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr);
   #endif
-
-  static void HALPrepare(eSPIMode spiMode);
-  static void HALDismantle(void);
-
-  static uint8_t _GetClockDivider( uint32_t spibasefreq, uint32_t speed );
-
-#if PIN_EXISTS(TFT_MISO)
-  static uint8_t clkdiv_read;
-#endif
-  static uint8_t clkdiv_write;
-
-  static bool active_transfer;
-  static bool active_dma;
+  static void TransmitRepeat(uint16_t val, uint16_t repcnt);
 
 public:
-  static DMA_HandleTypeDef DMAtx;
-
   static void Init();
   static uint32_t GetID();
   static bool isBusy();
   static void Abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT, eSPIMode spiMode = eSPIMode::WRITE);
+  static void DataTransferBegin(eSPIMode spiMode = eSPIMode::WRITE);
   static void DataTransferEnd();
-  static void DataTransferAbort();
 
+  // Call DataTransferBegin for these two methods.
   static void WriteData(uint16_t Data) { Transmit(Data); }
-  static void WriteReg(uint16_t Reg) { WRITE(TFT_A0_PIN, LOW); Transmit(Reg); WRITE(TFT_A0_PIN, HIGH); }
+  static void WriteData8(uint8_t Data) { Transmit8(Data); }
+  static void WriteReg(uint16_t Reg) { OUT_WRITE(TFT_A0_PIN, LOW); Transmit(Reg); OUT_WRITE(TFT_A0_PIN, HIGH); }
+  static void WriteReg8(uint8_t Reg) { OUT_WRITE(TFT_A0_PIN, LOW); Transmit8(Reg); OUT_WRITE(TFT_A0_PIN, HIGH); }
 
-  static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
+  // Do not call DataTransferBegin for the following methods.
+  static void WriteSequence(const uint16_t *Data, uint16_t Count) { TransmitDMA(Data, Count); }
 
-  #if ENABLED(USE_SPI_DMA_TC)
-    static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { TransmitDMA_IT(DMA_MINC_ENABLE, Data, Count); }
+  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+    static void WriteSequenceAsync(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr) { TransmitDMA_Async(Data, Count, completeCallback, ud); }
   #endif
 
-  static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  static void WriteMultiple(uint16_t Color, uint16_t Count) { TransmitRepeat(Color, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    static uint16_t Data; Data = Color;
     while (Count > 0) {
-      TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
+      TransmitRepeat(Color, Count > 0xFFFF ? 0xFFFF : Count);
       Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
     }
   }

@@ -164,6 +164,28 @@ struct __attribute__((packed)) ContextSavedFrame {
     }                                   \
 } while (0)
 
+static void _except_infobeep(uint32_t code) {
+#if ENABLED(BEEP_ON_SYSTEM_EXCEPTION) && PIN_EXISTS(BEEPER)
+  OUT_WRITE(BEEPER_PIN, HIGH);
+  delay(600);
+  OUT_WRITE(BEEPER_PIN, LOW);
+  delay(1000);
+  for (uint32_t n = 0; n < code; n++) {
+    OUT_WRITE(BEEPER_PIN, HIGH);
+    delay(250);
+    OUT_WRITE(BEEPER_PIN, LOW);
+    if (n < code-1)
+      delay(250);
+  }
+  if (code > 0)
+    delay(1000);
+  OUT_WRITE(BEEPER_PIN, HIGH);
+  delay(700);
+  OUT_WRITE(BEEPER_PIN, LOW);
+  delay(2000);
+#endif
+}
+
 // Resume from a fault (if possible) so we can still use interrupt based code for serial output
 // In that case, we will not jump back to the faulty code, but instead to a dumping code and then a
 // basic loop with watchdog calling or manual resetting
@@ -173,6 +195,8 @@ bool resume_from_fault() {
   static const char* causestr[] = { "Thread", "Rsvd", "NMI", "Hard", "Mem", "Bus", "Usage", "7", "8", "9", "10", "SVC", "Dbg", "13", "PendSV", "SysTk", "IRQ" };
   // Reinit the serial link (might only work if implemented in each of your boards)
   MinSerial::init();
+
+  _except_infobeep(lastCause);
 
   MinSerial::TX("\n\n## Software Fault detected ##\n");
   MinSerial::TX("Cause: "); MinSerial::TX(causestr[min(lastCause, (uint8_t)16)]); MinSerial::TX('\n');
@@ -192,6 +216,25 @@ bool resume_from_fault() {
 
   // Hard Fault Status Register
   MinSerial::TX("HFSR : "); MinSerial::TXHex(savedFrame.HFSR); MinSerial::TX('\n');
+  if (false)
+  {
+    struct hfsr_t {
+      uint32_t reserved1 : 1;
+      uint32_t VECTTBL : 1;
+      uint32_t reserved2 : 28;
+      uint32_t FORCED : 1;
+      uint32_t DEBUGEVT : 1;
+    };
+    union {
+      uint32_t HFSR_val;
+      hfsr_t HFSR;
+    };
+    HFSR_val = savedFrame.HFSR;
+
+    _except_infobeep(HFSR.VECTTBL);
+    _except_infobeep(HFSR.FORCED);
+    _except_infobeep(HFSR.DEBUGEVT);
+  }
 
   // Debug Fault Status Register
   MinSerial::TX("DFSR : "); MinSerial::TXHex(savedFrame.DFSR); MinSerial::TX('\n');
@@ -203,6 +246,85 @@ bool resume_from_fault() {
   // Check BFARVALID/MMARVALID to see if they are valid values
   // MemManage Fault Address Register
   MinSerial::TX("MMAR : "); MinSerial::TXHex(savedFrame.MMAR); MinSerial::TX('\n');
+
+  // Bus Fault Status Register
+  if (false)
+  {
+    struct bfsr_t {
+      uint8_t IBUSERR : 1;
+      uint8_t PRECISERR : 1;
+      uint8_t IMPRECISERR : 1;
+      uint8_t UNSTKERR : 1;
+      uint8_t STKERR : 1;
+      uint8_t LSPERR : 1;
+      uint8_t BFARVALID : 1;
+    };
+    union {
+      uint8_t BFSR_val;
+      bfsr_t BFSR;
+    };
+    BFSR_val = (savedFrame.CFSR >> 8) & 0xFF;
+
+    _except_infobeep(BFSR.IBUSERR);
+    _except_infobeep(BFSR.PRECISERR);
+    _except_infobeep(BFSR.IMPRECISERR);
+    _except_infobeep(BFSR.UNSTKERR);
+    _except_infobeep(BFSR.STKERR);
+    _except_infobeep(BFSR.LSPERR);
+    _except_infobeep(BFSR.BFARVALID);
+  }
+
+  // MemManage Fault Status Register
+  if (false)
+  {
+    struct mmfsr_t {
+      uint8_t IACCVIOL : 1;
+      uint8_t DACCVIOL : 1;
+      uint8_t reserved1 : 1;
+      uint8_t MUNSTKERR : 1;
+      uint8_t MSTKERR : 1;
+      uint8_t reserved2 : 1;
+      uint8_t MMARVALID : 1;
+    };
+    union {
+      uint8_t MMFSR_val;
+      mmfsr_t MMFSR;
+    };
+    MMFSR_val = (savedFrame.CFSR) & 0xFF;
+
+    _except_infobeep(MMFSR.IACCVIOL);
+    _except_infobeep(MMFSR.DACCVIOL);
+    _except_infobeep(MMFSR.MUNSTKERR);
+    _except_infobeep(MMFSR.MSTKERR);
+    _except_infobeep(MMFSR.MMARVALID);
+  }
+
+  // Usage Fault Status Register
+  if (false)
+  {
+    struct ufsr_t {
+      uint16_t UNDEFINSTR : 1;
+      uint16_t INVSTATE : 1;
+      uint16_t INVPC : 1;
+      uint16_t NOCP : 1;
+      uint16_t reserved1 : 4;
+      uint16_t UNALIGNED : 1;
+      uint16_t DIVBYZERO : 1;
+      uint16_t reserved2 : 6;
+    };
+    union {
+      uint16_t UFSR_val;
+      ufsr_t UFSR;
+    };
+    UFSR_val = (savedFrame.CFSR >> 16) & 0xFFFF;
+
+    _except_infobeep(UFSR.UNDEFINSTR);
+    _except_infobeep(UFSR.INVSTATE);
+    _except_infobeep(UFSR.INVPC);
+    _except_infobeep(UFSR.NOCP);
+    _except_infobeep(UFSR.UNALIGNED);
+    _except_infobeep(UFSR.DIVBYZERO);
+  }
 
   // Bus Fault Address Register
   MinSerial::TX("BFAR : "); MinSerial::TXHex(savedFrame.BFAR); MinSerial::TX('\n');
@@ -242,6 +364,17 @@ bool resume_from_fault() {
 extern "C"
 __attribute__((optimize("O0")))
 void CommonHandler_C(ContextStateFrame * frame, unsigned long lr, unsigned long cause) {
+
+#if ENABLED(BEEP_ON_SYSTEM_EXCEPTION)
+  OUT_WRITE(BEEPER_PIN, HIGH);
+  delay(200);
+  OUT_WRITE(BEEPER_PIN, LOW);
+  delay(200);
+  OUT_WRITE(BEEPER_PIN, HIGH);
+  delay(200);
+  OUT_WRITE(BEEPER_PIN, LOW);
+  delay(1000);
+#endif
 
   // If you are using it'll stop here
   HALT_IF_DEBUGGING();
@@ -294,6 +427,10 @@ void CommonHandler_C(ContextStateFrame * frame, unsigned long lr, unsigned long 
   resume_from_fault();
 }
 
+#if ENABLED(DYNAMIC_VECTORTABLE)
+#include "../ARM/HAL_NVIC.h"
+#endif
+
 void hook_cpu_exceptions() {
   #if ENABLED(DYNAMIC_VECTORTABLE)
     // On ARM 32bits CPU, the vector table is like this:
@@ -320,59 +457,28 @@ void hook_cpu_exceptions() {
     // So we'll simply mask the top 8 bits of the first handler as an hint of being in the flash or not -that's poor and will
     // probably break if the flash happens to be more than 128MB, but in this case, we are not magician, we need help from outside.
 
-    unsigned long *vecAddr = (unsigned long*)get_vtor();
-    SERIAL_ECHOPGM("Vector table addr: ");
-    SERIAL_PRINTLN(get_vtor(), PrintBase::Hex);
-
-    #ifdef VECTOR_TABLE_SIZE
-      uint32_t vec_size = VECTOR_TABLE_SIZE;
-      alignas(128) static unsigned long vectable[VECTOR_TABLE_SIZE] ;
-    #else
-      #ifndef IS_IN_FLASH
-        #define IS_IN_FLASH(X) (((unsigned long)X & 0xFF000000) == 0x08000000)
-      #endif
-
-      // When searching for the end of the vector table, this acts as a limit not to overcome
-      #ifndef VECTOR_TABLE_SENTINEL
-        #define VECTOR_TABLE_SENTINEL 80
-      #endif
-
-      // Find the vector table size
-      uint32_t vec_size = 1;
-      while (IS_IN_FLASH(vecAddr[vec_size]) && vec_size < VECTOR_TABLE_SENTINEL)
-        vec_size++;
-
-      // We failed to find a valid vector table size, let's abort hooking up
-      if (vec_size == VECTOR_TABLE_SENTINEL) return;
-      // Poor method that's wasting RAM here, but allocating with malloc and alignment would be worst
-      // 128 bytes alignment is required for writing the VTOR register
-      alignas(128) static unsigned long vectable[VECTOR_TABLE_SENTINEL];
-
-      SERIAL_ECHOPGM("Detected vector table size: ");
-      SERIAL_PRINTLN(vec_size, PrintBase::Hex);
-    #endif
-
-    uint32_t defaultFaultHandler = vecAddr[(unsigned)7];
-    // Copy the current vector table into the new table
+    // Undocumented!!! Use with caution!!! (peeking into reserved vector entries)
+    auto defaultFaultHandler = nvicGetHandler(7u);
+    // Replace all default handlers with our own handler.
+    uint32_t vec_size = nvicGetMaxHandlerCount();
     for (uint32_t i = 0; i < vec_size; i++) {
-      vectable[i] = vecAddr[i];
       // Replace all default handler by our own handler
-      if (vectable[i] == defaultFaultHandler)
-        vectable[i] = (unsigned long)&CommonHandler_ASM;
+      if (nvicGetHandler(i) == defaultFaultHandler)
+        nvicSetHandler(i, CommonHandler_ASM);
     }
 
     // Let's hook now with our functions
-    vectable[(unsigned long)hook_get_hardfault_vector_address(0)]  = (unsigned long)&CommonHandler_ASM;
-    vectable[(unsigned long)hook_get_memfault_vector_address(0)]   = (unsigned long)&CommonHandler_ASM;
-    vectable[(unsigned long)hook_get_busfault_vector_address(0)]   = (unsigned long)&CommonHandler_ASM;
-    vectable[(unsigned long)hook_get_usagefault_vector_address(0)] = (unsigned long)&CommonHandler_ASM;
+    nvicSetHandler((unsigned long)hook_get_hardfault_vector_address(0), CommonHandler_ASM);
+    nvicSetHandler((unsigned long)hook_get_memfault_vector_address(0), CommonHandler_ASM);
+    nvicSetHandler((unsigned long)hook_get_busfault_vector_address(0), CommonHandler_ASM);
+    nvicSetHandler((unsigned long)hook_get_usagefault_vector_address(0), CommonHandler_ASM);
 
     // Finally swap with our own vector table
     // This is supposed to be atomic, but let's do that with interrupt disabled
 
-    HW_REG(0xE000ED08) = (unsigned long)vectable | _BV32(29); // 29th bit is for telling the CPU the table is now in SRAM (should be present already)
+    nvicInstallRedirect();  // reference counted.
 
-    SERIAL_ECHOLNPGM("Installed fault handlers");
+    SERIAL_ECHOLNPGM("Dynamically installed fault handlers");
   #endif
 }
 

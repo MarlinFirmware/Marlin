@@ -170,7 +170,7 @@
   // To minimize pin usage use the same clock pin as the display/SD card reader. (May generate LCD noise.)
   #define TMC_SPI_SCK                 EXP2_02_PIN
   // If pin 2_06 is unused, it can be used for the clock to avoid the LCD noise.
-  //#define TMC_SW_SCK                     P2_06
+  //#define TMC_SPI_SCK                     P2_06
 
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
 

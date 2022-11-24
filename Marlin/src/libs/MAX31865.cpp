@@ -53,13 +53,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_MAX31865)
 #include "../core/debug_out.h"
 
-// The maximum speed the MAX31865 can do is 5 MHz
-SPISettings MAX31865::spiConfig = SPISettings(
-  TERN(TARGET_LPC1768, SPI_QUARTER_SPEED, TERN(ARDUINO_ARCH_STM32, SPI_CLOCK_DIV4, 500000)),
-  MSBFIRST,
-  SPI_MODE1 // CPOL0 CPHA1
-);
-
 #if DISABLED(LARGE_PINMAP)
 
   /**
@@ -150,7 +143,6 @@ void MAX31865::begin(max31865_numwires_t wires, const_float_t zero_res, const_fl
     softSpiInit(); // Define pin modes for Software SPI
   else {
     DEBUG_ECHOLNPGM("Init MAX31865 Hardware SPI");
-    SPI.begin();    // Start and configure hardware SPI
   }
 
   initFixedFlags(wires);
@@ -582,15 +574,20 @@ void MAX31865::spiBeginTransaction() {
   digitalWrite(cselPin, LOW);
   DELAY_NS_VAR(MAX31865_SPI_TIMING_TCC);
 
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.beginTransaction(spiConfig);
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+    // The maximum speed the MAX31865 can do is 5 MHz
+    spiInitEx(TERN(TARGET_LPC1768, SPI_QUARTER_SPEED, TERN(ARDUINO_ARCH_STM32, SPI_CLOCK_DIV4, 500000)));
+    spiSetBitOrder(SPI_BITORDER_MSB);
+    spiSetClockMode(SPI_CLKMODE_1);
+  }
   else
     digitalWrite(sclkPin, HIGH);
 }
 
 void MAX31865::spiEndTransaction() {
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.endTransaction();
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+    spiClose();
+  }
   else
     digitalWrite(sclkPin, LOW);
 
@@ -610,7 +607,7 @@ void MAX31865::spiEndTransaction() {
  */
 uint8_t MAX31865::spiTransfer(uint8_t x) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    return SPI.transfer(x);
+    return spiRec(x);
 
   uint8_t reply = 0;
   for (int i = 7; i >= 0; i--) {

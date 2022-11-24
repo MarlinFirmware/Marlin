@@ -390,34 +390,66 @@
     #define LCD_BACKLIGHT_PIN              -1
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
-    #define TFT_CS_PIN               EXP1_07_PIN
-    #define TFT_A0_PIN               EXP1_08_PIN
-    #define TFT_DC_PIN               EXP1_08_PIN
-    #define TFT_MISO_PIN             EXP2_01_PIN
-    #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
-    #define TFT_RESET_PIN            EXP1_04_PIN
+    #if ENABLED(MKS_TS35_V2_0)
+      // OPTIONAL CONTROLS BESIDE THE TOUCH SCREEN
+      // (the TS35-R V2.0 model does not have them)
+      #define BTN_ENC                EXP1_02_PIN
+      #define BTN_EN1                EXP2_03_PIN
+      #define BTN_EN2                EXP2_05_PIN
 
-    #define LCD_USE_DMA_SPI
+      // DISPLAY PINS.
+      #define TFT_A0_PIN             EXP1_08_PIN
+      #define TFT_BACKLIGHT_PIN      EXP1_03_PIN
+      #define TFT_RESET_PIN          EXP1_04_PIN
 
-    #define TOUCH_INT_PIN            EXP1_06_PIN
-    #define TOUCH_CS_PIN             EXP1_05_PIN
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+      // SPI BUS PINS.
+      #define TFT_SCK_PIN            EXP2_02_PIN
+      #define TFT_MISO_PIN           -1 // has to be custom soldered to work!
+      #define TFT_MOSI_PIN           EXP2_06_PIN
+      #define TOUCH_SCK_PIN          TFT_SCK_PIN
+      #define TOUCH_MISO_PIN         EXP2_01_PIN
+      #define TOUCH_MOSI_PIN         TFT_MOSI_PIN
 
-    // SPI 1
-    #define SD_SCK_PIN               EXP2_02_PIN
-    #define SD_MISO_PIN              EXP2_01_PIN
-    #define SD_MOSI_PIN              EXP2_06_PIN
+      // SPI BUS CHIP-SELECT PINS.
+      #define TFT_CS_PIN             EXP1_07_PIN
+      #define TOUCH_CS_PIN           EXP1_05_PIN
 
-    #define TFT_BUFFER_SIZE                 2400
+      #define TOUCH_INT_PIN          EXP1_06_PIN
+
+      // Disable any LCD related PINs config
+      #define LCD_PINS_ENABLE              -1
+      #define LCD_PINS_RS                  -1
+
+      #ifndef TFT_QUEUE_SIZE
+        #define TFT_QUEUE_SIZE              6144
+      #endif
+    #else
+      #define TFT_CS_PIN               EXP1_07_PIN
+      #define TFT_A0_PIN               EXP1_08_PIN
+      #define TFT_DC_PIN               EXP1_08_PIN
+      #define TFT_MISO_PIN             EXP2_01_PIN
+      #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
+      #define TFT_RESET_PIN            EXP1_04_PIN
+
+      #define LCD_USE_DMA_SPI
+
+      #define TOUCH_INT_PIN            EXP1_06_PIN
+      #define TOUCH_CS_PIN             EXP1_05_PIN
+      // TOUCH_BUTTONS_HW_SPI_DEVICE = 1
+      #define TOUCH_SCK_PIN            P0_15
+      #define TOUCH_MISO_PIN           P0_17
+      #define TOUCH_MOSI_PIN           P0_18
+    #endif
+
+    #ifndef TFT_BUFFER_SIZE
+      #define TFT_BUFFER_SIZE                 2400
+    #endif
 
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS             EXP2_03_PIN
     #endif
-
-    #define SD_DETECT_PIN            EXP2_07_PIN
 
   #else
 

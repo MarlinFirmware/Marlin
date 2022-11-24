@@ -30,8 +30,6 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#include <SPI.h>
-
 #include "draw_ui.h"
 
 TFT SPI_TFT;

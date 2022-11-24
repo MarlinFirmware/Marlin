@@ -1138,6 +1138,8 @@ void setup() {
     FASTIO_INIT();
   #endif
 
+  spiBegin();
+
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif

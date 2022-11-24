@@ -287,9 +287,6 @@
   #define TFT_RESET_PIN              EXP1_04_PIN
   #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
-
   #define LCD_USE_DMA_SPI
 
 #endif
@@ -329,9 +326,9 @@
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define PIN_SPI_SCK            EXP2_02_PIN
-      #define PIN_TFT_MISO           EXP2_01_PIN
-      #define PIN_TFT_MOSI           EXP2_06_PIN
+      #define TFTGLCD_SCK            EXP2_02_PIN
+      #define TFTGLCD_MISO           EXP2_01_PIN
+      #define TFTGLCD_MOSI           EXP2_06_PIN
       #define TFTGLCD_CS             EXP2_03_PIN
     #endif
 

@@ -243,8 +243,6 @@
   #define TFT_BUFFER_SIZE                  14400
 
   #if NEED_TOUCH_PINS
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
     #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
     #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
     #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO

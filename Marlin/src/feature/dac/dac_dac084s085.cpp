@@ -24,7 +24,7 @@ void dac084s085::begin() {
     SET_OUTPUT(DAC1_SYNC_PIN);
   #endif
   cshigh();
-  spiBegin();
+  spiInitEx(5000000);
 
   //init onboard DAC
   DELAY_US(2);
@@ -49,6 +49,8 @@ void dac084s085::begin() {
     spiSend(SPI_CHAN_DAC, externalDac_buf, COUNT(externalDac_buf));
     WRITE(DAC1_SYNC_PIN, HIGH);
   #endif
+
+  spiClose();
 
   return;
 }
