@@ -1652,7 +1652,7 @@ static void SPIInstallAsync(spi_dev_t& SPI, intr_handle_t& handleOut) {
     _spi_on_error(1);
 }
 
-static void SPIUninstallAsync(intr_handle_t handle) {
+static void __attribute__((unused)) SPIUninstallAsync(intr_handle_t handle) {
   // Unregister the ISR.
   esp_err_t err = esp_intr_free(handle);
 
