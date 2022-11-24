@@ -51,7 +51,7 @@
 
 #include "pinconfig.h"
 
-#include "HAL_NVIC.h"
+#include "../shared/ARM/HAL_NVIC.h"
 
   // ------------------------
   // Hardware SPI

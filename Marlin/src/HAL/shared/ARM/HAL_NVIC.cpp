@@ -28,11 +28,21 @@
     // See STM32F1xx reference manual page 204
     #define VECTOR_TABLE_SIZE 75
   #endif
+  #define IRQ_VECTOR_ALIGNMENT (1<<9)
   // Defined by GCC.
   // The vector is located in flash memory, thus there may be no memory bus for write access
   // wired into the CPU (hard fault at attempt).
   extern void (*const g_pfnVectors[VECTOR_TABLE_SIZE])();
-#define _NVIC_HAS_DEFAULT_VECTOR
+  #define _NVIC_HAS_DEFAULT_VECTOR
+#elif defined(STM32F4xx)
+  // There are a few less entries specifically for "STM32F405xx/07xx and STM32F415xx/17xx" but w/e.
+  #define VECTOR_TABLE_SIZE 107
+  #define IRQ_VECTOR_ALIGNMENT (1<<9)
+  // Defined by GCC.
+  // The vector is located in flash memory, thus there may be no memory bus for write access
+  // wired into the CPU (hard fault at attempt).
+  extern void (*const g_pfnVectors[VECTOR_TABLE_SIZE])();
+  #define _NVIC_HAS_DEFAULT_VECTOR
 #elif defined(TARGET_LPC1768)
   // See NXP UM10360 page 75ff
   #define VECTOR_TABLE_SIZE 51
