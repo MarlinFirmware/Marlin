@@ -40,6 +40,32 @@
 
   // TODO: this software SPI is really bad... it tries to use SPI clock-mode 3 only...??????
 
+  static void _spiOnError(unsigned int beep_code = 0) {
+    for (;;) {
+#if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(1000);
+      for (unsigned int n = 0; n < beep_code; n++) {
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(200);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(200);
+      }
+      delay(800);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(2000);
+#endif
+    }
+  }
+
   #include "../shared/Delay.h"
 
   void spiBegin(void) {
@@ -121,7 +147,7 @@
 
   void spiSetClockMode(int clockMode) {
     if (clockMode != SPI_CLKMODE_3)
-      _spi_on_error();
+      _spiOnError();
   }
 
   uint8_t HAL_SPI_STM32_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
@@ -139,7 +165,7 @@
       result |= ( (READ(SD_MISO_PIN) != 0) << bitidx );
     }
     DELAY_NS(125);
-    return b;
+    return result;
   }
 
   uint16_t HAL_SPI_STM32_SpiTransfer_Mode_3_16bits(uint16_t v) { // using Mode 3
@@ -148,7 +174,7 @@
     for (uint8_t bits = 0; bits < 16; bits++) {
       int bitidx = ( msb ? 15-bits : bits );
       WRITE(SD_SCK_PIN, LOW);
-      WRITE(SD_MOSI_PIN, (b & ( 1 << bitidx )) != 0);
+      WRITE(SD_MOSI_PIN, (v & ( 1 << bitidx )) != 0);
 
       delaySPIFunc();
       WRITE(SD_SCK_PIN, HIGH);
@@ -157,7 +183,7 @@
       result |= ( (READ(SD_MISO_PIN) != 0) << bitidx );
     }
     DELAY_NS(125);
-    return b;
+    return result;
   }
 
   // Soft SPI receive byte

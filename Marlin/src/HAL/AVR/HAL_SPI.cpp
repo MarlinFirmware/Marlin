@@ -49,8 +49,6 @@ void spiBegin() {
   SET_OUTPUT(SD_MOSI_PIN);
 }
 
-void spiClose() { /* do nothing */ }
-
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
@@ -112,9 +110,7 @@ void spiClose() { /* do nothing */ }
     spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
-  void spiClose() {
-    // nop.
-  }
+  void spiClose() { /* do nothing */ }
 
   void spiSetBitOrder(int bitOrder) {
     if (bitOrder == SPI_BITORDER_MSB) {
@@ -401,7 +397,7 @@ void spiClose() { /* do nothing */ }
     LOOP_L_N(i, 16) {
       int bitidx = ( msb ? 15-i : i );
       WRITE(SD_SCK_PIN, LOW);
-      WRITE(SD_MOSI_PIN, ( data & ( 1 << bitidx )) != 0);
+      WRITE(SD_MOSI_PIN, ( v & ( 1 << bitidx )) != 0);
       WRITE(SD_SCK_PIN, HIGH);
     }
 

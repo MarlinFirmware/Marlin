@@ -130,7 +130,7 @@ void spiWriteRepeat(uint8_t val, uint16_t repcnt);
 // Send a repetition of 16bit numbers.
 void spiWriteRepeat16(uint16_t val, uint16_t repcnt);
 
-#if (defined(ESP_PLATFORM) || defined(STM32F1xx) || defined(STM32F4xx) || defined(TARGET_LPC1768)) && !defined(SOFTWARE_SPI) && defined(USE_SPI_DMA_TC)
+#if (defined(ESP_PLATFORM) || defined(STM32F1xx) || defined(STM32F4xx) || defined(TARGET_LPC1768)) && !defined(SOFTWARE_SPI) && !defined(HALSPI_HW_GENERIC) && defined(USE_SPI_DMA_TC)
 
 #define HAL_SPI_SUPPORTS_ASYNC
 

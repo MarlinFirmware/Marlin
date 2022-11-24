@@ -39,7 +39,34 @@
    * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
    */
 
+  static void _spiOnError(unsigned int beep_code = 0) {
+    for (;;) {
+#if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(1000);
+      for (unsigned int n = 0; n < beep_code; n++) {
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(200);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(200);
+      }
+      delay(800);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(2000);
+#endif
+    }
+  }
+
   static SPISettings spiConfig;
+  static uint32_t _spi_clock;
 
   /**
    * @brief  Begin SPI port setup
@@ -160,7 +187,7 @@
   void spiWrite(const uint8_t *buf, uint16_t numbytes) {
     void *inout_buf = malloc(numbytes);
     if (inout_buf == nullptr)
-      _spi_on_error();
+      _spiOnError();
     memcpy(inout_buf, buf, numbytes);
     // Generic transfer, non-DMA.
     SPI.transfer(inout_buf, numbytes);
@@ -168,7 +195,7 @@
   }
 
   void spiWrite16(const uint16_t *buf, uint16_t numtx) {
-    for (uint32_t n = 0; n < numbytes; n++) {
+    for (uint32_t n = 0; n < numtx; n++) {
       SPI.transfer16(buf[n]);
     }
   }

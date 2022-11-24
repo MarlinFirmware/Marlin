@@ -88,7 +88,7 @@ static void _spi_on_error(uint32_t code = 0) {
   }
 }
 
-static void _spi_infobeep(uint32_t code) {
+static void __attribute__((unused)) _spi_infobeep(uint32_t code) {
 #if PIN_EXISTS(BEEPER)
   OUT_WRITE(BEEPER_PIN, HIGH);
   delay(500);
