@@ -526,7 +526,15 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
-
+/**
+ * @brief Draw current and target for a heater/cooler
+ * @details Print at the current LCD position the current/target for a single heater,
+ *          blinking the target temperature of an idle heater has timed out.
+ *
+ * @param heater_id The heater ID, such as 0, 1, ..., H_BED, H_CHAMBER, etc.
+ * @param prefix A char to draw in front (e.g., a thermometer or icon)
+ * @param blink Flag to show the blink state instead of the regular state
+ */
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
@@ -544,11 +552,8 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #else
-    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
-      lcd_put_lchar(' ');
-      if (t2 >= 10) lcd_put_lchar(' ');
-      if (t2 >= 100) lcd_put_lchar(' ');
-    }
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out)
+      lcd_put_u8str(F("   "));
     else
   #endif
       lcd_put_u8str(i16tostr3left(t2));
@@ -561,33 +566,35 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 }
 
 #if HAS_COOLER
-FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
-  const celsius_t t2 = thermalManager.degTargetCooler();
 
-  if (prefix >= 0) lcd_put_lchar(prefix);
+  FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
+    const celsius_t t2 = thermalManager.degTargetCooler();
 
-  lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
-  lcd_put_lchar('/');
+    if (prefix >= 0) lcd_put_lchar(prefix);
 
-  #if !HEATER_IDLE_HANDLER
-    UNUSED(blink);
-  #else
-    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+    lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
+    lcd_put_lchar('/');
+
+    #if !HEATER_IDLE_HANDLER
+      UNUSED(blink);
+    #else
+      if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+        lcd_put_lchar(' ');
+        if (t2 >= 10) lcd_put_lchar(' ');
+        if (t2 >= 100) lcd_put_lchar(' ');
+      }
+      else
+    #endif
+        lcd_put_u8str(i16tostr3left(t2));
+
+    if (prefix >= 0) {
+      lcd_put_lchar(LCD_STR_DEGREE[0]);
       lcd_put_lchar(' ');
-      if (t2 >= 10) lcd_put_lchar(' ');
-      if (t2 >= 100) lcd_put_lchar(' ');
+      if (t2 < 10) lcd_put_lchar(' ');
     }
-    else
-  #endif
-      lcd_put_u8str(i16tostr3left(t2));
-
-  if (prefix >= 0) {
-    lcd_put_lchar(LCD_STR_DEGREE[0]);
-    lcd_put_lchar(' ');
-    if (t2 < 10) lcd_put_lchar(' ');
   }
-}
-#endif
+
+#endif // HAS_COOLER
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
@@ -746,10 +753,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     lcd_put_u8str_max(status_message, LCD_WIDTH);
 
     // Fill the rest with spaces if there are missing spaces
-    while (slen < LCD_WIDTH) {
-      lcd_put_lchar(' ');
-      ++slen;
-    }
+    for (; slen < LCD_WIDTH; ++slen) lcd_put_lchar(' ');
   #endif
 }
 
