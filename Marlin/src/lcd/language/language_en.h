@@ -570,6 +570,7 @@ namespace Language_en {
   LSTR MSG_BLTOUCH_MODE_STORE_OD          = _UxGT("Set BLTouch to OD");
   LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Drain");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?");
+  LSTR MSG_BLTOUCH_VALIDATE_FAILED        = _UxGT("BLTouch validation failed!");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Init TouchMI");
   LSTR MSG_TOUCHMI_ZTEST                  = _UxGT("Z Offset Test");

@@ -905,6 +905,11 @@
    * Settings for all BLTouch and clone probes:
    */
 
+  // Safety: Check that the probe deployment can be detected before homing.
+  //         Cross-checks the endstop state when deployed/stowed and throws
+  //         an error if they don't differ. Requires Z_SAFE_HOMING.
+  //#define BLTOUCH_VALIDATE_ON_HOMING
+
   // Safety: The probe needs time to recognize the command.
   //         Minimum command delay (ms). Enable and increase if needed.
   //#define BLTOUCH_DELAY 500

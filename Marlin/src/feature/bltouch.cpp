@@ -193,4 +193,21 @@ void BLTouch::mode_conv_proc(const bool M5V) {
   od_5v_mode = M5V;
 }
 
+#if ENABLED(BLTOUCH_VALIDATE_ON_HOMING)
+  /**
+   * Validate that the BLTouch deploys/stows and reports its state correctly.
+   */
+  bool BLTouch::validate() {
+    bool start_status, deploy_status, stow_status;
+    _stow();
+    start_status = status();
+    _deploy();
+    deploy_status = status();
+    _stow();
+    stow_status = status();
+
+    return ((start_status == stow_status) && (deploy_status != stow_status));
+  }
+#endif
+
 #endif // BLTOUCH

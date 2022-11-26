@@ -144,8 +144,13 @@
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
-      do_blocking_move_to_xy(destination);
-      homeaxis(Z_AXIS);
+      if(TERN1(BLTOUCH_VALIDATE_ON_HOMING, bltouch.validate())) {
+        do_blocking_move_to_xy(destination);
+        homeaxis(Z_AXIS);
+      } else {
+        LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
+        SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
+      }
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);
