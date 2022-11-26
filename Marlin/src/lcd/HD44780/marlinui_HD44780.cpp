@@ -591,7 +591,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
-    lcd_put_u8str("~");
+    lcd_put_lchar('~');
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
     lcd_put_lchar('L');
   }
@@ -599,11 +599,11 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 
 #if ENABLED(I2C_AMMETER)
   FORCE_INLINE void _draw_ammeter_status() {
-    lcd_put_u8str(" ");
+    lcd_put_lchar(' ');
     ammeter.read();
     if (ammeter.current <= 0.999f) {
       lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));
-      lcd_put_u8str("mA");
+      lcd_put_u8str(F("mA"));
     }
     else {
       lcd_put_u8str(ftostr12ns(ammeter.current));
@@ -616,55 +616,35 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
 }
 
-#ifdef HAS_CUTTER
+#if HAS_CUTTER
+
   FORCE_INLINE void _draw_cutter_status() {
-    #if ENABLED(LASER_FEATURE)
-      lcd_put_u8str("Laser:");
-    #else
-      lcd_put_u8str("Cutter:");
-    #endif
+    lcd_put_u8str(TERN(LASER_FEATURE, GET_TEXT_F(MSG_LASER), GET_TEXT_F(MSG_CUTTER)));
+    lcd_put_u8str(F(": "));
 
-    lcd_put_u8str(" ");
-
-    #if CUTTER_UNIT_IS(PERCENT)
-      lcd_put_u8str(cutter_power2str(cutter.unitPower));
-      lcd_put_lchar('%');
-    #elif CUTTER_UNIT_IS(RPM)
+    #if CUTTER_UNIT_IS(RPM)
       lcd_put_u8str(ftostr61rj(float(cutter.unitPower) / 1000));
       lcd_put_lchar('K');
     #else
       lcd_put_u8str(cutter_power2str(cutter.unitPower));
+      #if CUTTER_UNIT_IS(PERCENT)
+        lcd_put_lchar('%');
+      #endif
     #endif
 
-    lcd_put_u8str(" ");
-
-    if (cutter.enabled()) {
-      lcd_put_u8str("On");
-    } else {
-      lcd_put_u8str("Off");
-    }
-
-    lcd_put_u8str(" ");
+    lcd_put_lchar(' ');
+    lcd_put_u8str(cutter.enabled() ? GET_TEXT_F(MSG_LCD_ON) : GET_TEXT_F(MSG_LCD_OFF));
+    lcd_put_lchar(' ');
 
     switch (cutter.cutter_mode) {
-      case CUTTER_MODE_STANDARD:
-        lcd_put_u8str("S");
-        break;
-
-      case CUTTER_MODE_CONTINUOUS:
-        lcd_put_u8str("C");
-        break;
-
-      case CUTTER_MODE_DYNAMIC:
-        lcd_put_u8str("D");
-        break;
-
-      case CUTTER_MODE_ERROR:
-        lcd_put_u8str("!");
-        break;
+      case CUTTER_MODE_STANDARD:   lcd_put_lchar('S'); break;
+      case CUTTER_MODE_CONTINUOUS: lcd_put_lchar('C'); break;
+      case CUTTER_MODE_DYNAMIC:    lcd_put_lchar('D'); break;
+      case CUTTER_MODE_ERROR:      lcd_put_lchar('!'); break;
     }
   }
-#endif
+
+#endif // HAS_CUTTER
 
 #if ENABLED(LCD_PROGRESS_BAR)
 
@@ -882,9 +862,15 @@ void MarlinUI::draw_status_screen() {
           lcd_moveto(8, 0);
           _draw_bed_status(blink);
         #endif
+
       #elif HAS_CUTTER
+
+        //
+        // Cutter Status
+        //
         lcd_moveto(0, 0);
         _draw_cutter_status();
+
       #endif
 
     #else // LCD_WIDTH >= 20
@@ -905,9 +891,15 @@ void MarlinUI::draw_status_screen() {
           lcd_moveto(10, 0);
           _draw_bed_status(blink);
         #endif
+
       #elif HAS_CUTTER
+
+        //
+        // Cutter Status
+        //
         lcd_moveto(0, 0);
         _draw_cutter_status();
+
       #endif
 
       TERN_(HAS_COOLER, _draw_cooler_status('*', blink));
