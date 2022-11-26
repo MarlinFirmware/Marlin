@@ -3044,11 +3044,7 @@ void MarlinSettings::reset() {
   //
 
   #if IS_KINEMATIC
-    segments_per_second = (
-      TERN_(DELTA, DELTA_SEGMENTS_PER_SECOND)
-      TERN_(IS_SCARA, SCARA_SEGMENTS_PER_SECOND)
-      TERN_(POLARGRAPH, POLAR_SEGMENTS_PER_SECOND)
-    );
+    segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     #if ENABLED(DELTA)
       const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
       delta_height = DELTA_HEIGHT;
