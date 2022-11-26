@@ -2167,7 +2167,7 @@ bool Planner::_populate_block(
               sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
             + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w)
-          );
+          )
         #elif ENABLED(FOAMCUTTER_XYUV)
           #if HAS_J_AXIS
             // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
