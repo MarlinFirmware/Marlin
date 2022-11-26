@@ -658,7 +658,7 @@ void MarlinSettings::postprocess() {
 
   #if LCD_BACKLIGHT_TIMEOUT_MINS
     ui.refresh_backlight_timeout();
-  #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
+  #elif HAS_DISPLAY_SLEEP
     ui.refresh_screen_timeout();
   #endif
 }
