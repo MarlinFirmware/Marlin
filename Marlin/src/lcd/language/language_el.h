@@ -99,6 +99,7 @@ namespace Language_el {
   LSTR MSG_MOVE_01MM                      = _UxGT("Μετακίνηση 0,1 μμ");
   LSTR MSG_MOVE_1MM                       = _UxGT("Μετακίνηση 1 μμ");
   LSTR MSG_MOVE_10MM                      = _UxGT("Μετακίνηση 10 μμ");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Μετακίνηση 50 μμ");
   LSTR MSG_MOVE_100MM                     = _UxGT("Μετακίνηση 100 μμ");
   LSTR MSG_SPEED                          = _UxGT("Ταχύτητα");
   LSTR MSG_BED_Z                          = _UxGT("Επ. Εκτύπωσης Z");
