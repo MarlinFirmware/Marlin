@@ -1062,9 +1062,9 @@
  *
  * Zero Vibration (ZV) Input Shaping for X and/or Y movements.
  *
- * This option uses a lot of SRAM for the step buffer, which is related
- * to the largest step rate possible for the shaped axes. If the build fails
- * due to low SRAM the buffer size may be reduced by setting smaller values for
+ * This option uses a lot of SRAM for the step buffer, which is related to the
+ * largest step rate possible for the shaped axes. If the build fails due to
+ * low SRAM the buffer size may be reduced by setting smaller values for
  * DEFAULT_AXIS_STEPS_PER_UNIT and/or DEFAULT_MAX_FEEDRATE. Disabling
  * ADAPTIVE_STEP_SMOOTHING and reducing the step rate for non-shaped axes may
  * also reduce the buffer sizes. Runtime editing of max feedrate (M203) or

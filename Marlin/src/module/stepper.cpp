@@ -1535,18 +1535,9 @@ void Stepper::isr() {
     //
 
     nextMainISR -= interval;
-
-    #if HAS_SHAPING
-      ShapingQueue::decrement_delays(interval);
-    #endif
-
-    #if ENABLED(LIN_ADVANCE)
-      if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
-    #endif
-
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
-      if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
-    #endif
+    TERN_(HAS_SHAPING, ShapingQueue::decrement_delays(interval));
+    TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
+    TERN_(INTEGRATED_BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
     /**
      * This needs to avoid a race-condition caused by interleaving
@@ -1636,10 +1627,14 @@ void Stepper::pulse_phase_isr() {
       discard_current_block();
       #if HAS_SHAPING
         ShapingQueue::purge();
-        TERN_(INPUT_SHAPING_X, shaping_x.delta_error = 0);
-        TERN_(INPUT_SHAPING_Y, shaping_y.delta_error = 0);
-        TERN_(INPUT_SHAPING_X, shaping_x.last_block_end_pos = count_position.x);
-        TERN_(INPUT_SHAPING_Y, shaping_y.last_block_end_pos = count_position.y);
+        #if ENABLED(INPUT_SHAPING_X)
+          shaping_x.delta_error = 0;
+          shaping_x.last_block_end_pos = count_position.x;
+        #endif
+        #if ENABLED(INPUT_SHAPING_Y)
+          shaping_y.delta_error = 0;
+          shaping_y.last_block_end_pos = count_position.y;
+        #endif
       #endif
     }
   }
@@ -2004,7 +1999,7 @@ void Stepper::pulse_phase_isr() {
     if (bool(step_needed)) while (true) {
       #if ENABLED(INPUT_SHAPING_X)
         if (step_needed[X_AXIS]) {
-          bool forward = ShapingQueue::dequeue_x();
+          const bool forward = ShapingQueue::dequeue_x();
           PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
           PULSE_START(X);
         }
@@ -2012,7 +2007,7 @@ void Stepper::pulse_phase_isr() {
 
       #if ENABLED(INPUT_SHAPING_Y)
         if (step_needed[Y_AXIS]) {
-          bool forward = ShapingQueue::dequeue_y();
+          const bool forward = ShapingQueue::dequeue_y();
           PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
           PULSE_START(Y);
         }
@@ -2034,8 +2029,8 @@ void Stepper::pulse_phase_isr() {
         #endif
       }
 
-		TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
-		TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
+      TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
+      TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
       if (!bool(step_needed)) break;
 
@@ -2982,6 +2977,7 @@ void Stepper::init() {
 }
 
 #if HAS_SHAPING
+
   /**
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
@@ -3023,20 +3019,24 @@ void Stepper::init() {
     hal.isr_off();
 
     const shaping_time_t delay = freq ? float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq : shaping_time_t(-1);
-    if (TERN0(INPUT_SHAPING_X, axis == X_AXIS)) {
-      ShapingQueue::set_delay(X_AXIS, delay);
-      TERN_(INPUT_SHAPING_X, shaping_x.frequency = freq);
-      TERN_(INPUT_SHAPING_X, shaping_x.enabled = !!freq);
-      TERN_(INPUT_SHAPING_X, shaping_x.delta_error = 0);
-      TERN_(INPUT_SHAPING_X, shaping_x.last_block_end_pos = count_position.x);
-    }
-    if (TERN0(INPUT_SHAPING_Y, axis == Y_AXIS)) {
-      ShapingQueue::set_delay(Y_AXIS, delay);
-      TERN_(INPUT_SHAPING_Y, shaping_y.frequency = freq);
-      TERN_(INPUT_SHAPING_Y, shaping_y.enabled = !!freq);
-      TERN_(INPUT_SHAPING_Y, shaping_y.delta_error = 0);
-      TERN_(INPUT_SHAPING_Y, shaping_y.last_block_end_pos = count_position.y);
-    }
+    #if ENABLED(INPUT_SHAPING_X)
+      if (axis == X_AXIS) {
+        ShapingQueue::set_delay(X_AXIS, delay);
+        shaping_x.frequency = freq;
+        shaping_x.enabled = !!freq;
+        shaping_x.delta_error = 0;
+        shaping_x.last_block_end_pos = count_position.x;
+      }
+    #endif
+    #if ENABLED(INPUT_SHAPING_Y)
+      if (axis == Y_AXIS) {
+        ShapingQueue::set_delay(Y_AXIS, delay);
+        shaping_y.frequency = freq;
+        shaping_y.enabled = !!freq;
+        shaping_y.delta_error = 0;
+        shaping_y.last_block_end_pos = count_position.y;
+      }
+    #endif
 
     if (was_on) hal.isr_on();
   }
@@ -3046,7 +3046,8 @@ void Stepper::init() {
     TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.frequency);
     return -1;
   }
-#endif
+
+#endif // HAS_SHAPING
 
 /**
  * Set the stepper positions directly in steps
@@ -3059,10 +3060,10 @@ void Stepper::init() {
  */
 void Stepper::_set_position(const abce_long_t &spos) {
   #if ENABLED(INPUT_SHAPING_X)
-    int32_t x_shaping_delta = count_position.x - shaping_x.last_block_end_pos;
+    const int32_t x_shaping_delta = count_position.x - shaping_x.last_block_end_pos;
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    int32_t y_shaping_delta = count_position.y - shaping_y.last_block_end_pos;
+    const int32_t y_shaping_delta = count_position.y - shaping_y.last_block_end_pos;
   #endif
 
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
@@ -3095,14 +3096,18 @@ void Stepper::_set_position(const abce_long_t &spos) {
     count_position = spos;
   #endif
 
-  if (TERN0(INPUT_SHAPING_X, shaping_x.enabled)) {
-    TERN_(INPUT_SHAPING_X, count_position.x += x_shaping_delta);
-    TERN_(INPUT_SHAPING_X, shaping_x.last_block_end_pos = spos.x);
-  }
-  if (TERN0(INPUT_SHAPING_Y, shaping_y.enabled)) {
-    TERN_(INPUT_SHAPING_Y, count_position.y += y_shaping_delta);
-    TERN_(INPUT_SHAPING_Y, shaping_y.last_block_end_pos = spos.y);
-  }
+  #if ENABLED(INPUT_SHAPING_X)
+    if (shaping_x.enabled) {
+      count_position.x += x_shaping_delta;
+      shaping_x.last_block_end_pos = spos.x;
+    }
+  #endif
+  #if ENABLED(INPUT_SHAPING_Y)
+    if (shaping_y.enabled) {
+      count_position.y += y_shaping_delta;
+      shaping_y.last_block_end_pos = spos.y;
+    }
+  #endif
 }
 
 /**
