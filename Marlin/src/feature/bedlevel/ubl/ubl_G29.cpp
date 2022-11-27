@@ -891,16 +891,28 @@ void set_message_with_feedback(FSTR_P const fstr) {
       NUM_AXIS_LIST(
         0.5f * (MESH_MAX_X - (MESH_MIN_X)),
         0.5f * (MESH_MAX_Y - (MESH_MIN_Y)),
-        MANUAL_PROBE_START_Z,
-        TERN0(SAFE_BED_LEVELING_START_I, SAFE_BED_LEVELING_START_I),
-        TERN0(SAFE_BED_LEVELING_START_J, SAFE_BED_LEVELING_START_J),
-        TERN0(SAFE_BED_LEVELING_START_K, SAFE_BED_LEVELING_START_K),
-        TERN0(SAFE_BED_LEVELING_START_U, SAFE_BED_LEVELING_START_U),
-        TERN0(SAFE_BED_LEVELING_START_V, SAFE_BED_LEVELING_START_V),
-        TERN0(SAFE_BED_LEVELING_START_W, SAFE_BED_LEVELING_START_W)
+        MANUAL_PROBE_START_Z
+        #ifdef SAFE_BED_LEVELING_START_I
+          , SAFE_BED_LEVELING_START_I
+        #endif
+        #ifdef SAFE_BED_LEVELING_START_J
+          , SAFE_BED_LEVELING_START_J
+        #endif
+        #ifdef SAFE_BED_LEVELING_START_K
+          , SAFE_BED_LEVELING_START_K
+        #endif
+        #ifdef SAFE_BED_LEVELING_START_U
+          , SAFE_BED_LEVELING_START_U
+        #endif
+        #ifdef SAFE_BED_LEVELING_START_V
+          , SAFE_BED_LEVELING_START_V
+        #endif
+        #ifdef SAFE_BED_LEVELING_START_W
+          , SAFE_BED_LEVELING_START_W
+        #endif
       )
+      //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f
     );
-      //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
     planner.synchronize();
 
     SERIAL_ECHOPGM("Place shim under nozzle");

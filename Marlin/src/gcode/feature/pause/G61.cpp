@@ -60,7 +60,7 @@ void GcodeSuite::G61() {
   // Apply any given feedrate over 0.0
   feedRate_t saved_feedrate = feedrate_mm_s;
   #if HAS_ROTATIONAL_AXES
-    feedRate_t saved_angular_feedrate = feedrate_deg_s;
+    const feedRate_t saved_angular_feedrate = feedrate_deg_s;
   #endif
   const float fr = parser.feedrateval('F');
   if (fr > 0.0f) {
