@@ -2104,6 +2104,27 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
 #endif
 
+// Check Safe Bed Leveling settings
+#if HAS_SAFE_BED_LEVELING
+  #if defined(SAFE_BED_LEVELING_START_Y) && !defined(SAFE_BED_LEVELING_START_X)
+    #error "SAFE_BED_LEVELING_START_Y requires SAFE_BED_LEVELING_START_X."
+  #elif defined(SAFE_BED_LEVELING_START_Z) && !defined(SAFE_BED_LEVELING_START_Y)
+    #error "SAFE_BED_LEVELING_START_Z requires SAFE_BED_LEVELING_START_Y."
+  #elif defined(SAFE_BED_LEVELING_START_I) && !defined(SAFE_BED_LEVELING_START_Z)
+    #error "SAFE_BED_LEVELING_START_I requires SAFE_BED_LEVELING_START_Z."
+  #elif defined(SAFE_BED_LEVELING_START_J) && !defined(SAFE_BED_LEVELING_START_I)
+    #error "SAFE_BED_LEVELING_START_J requires SAFE_BED_LEVELING_START_I."
+  #elif defined(SAFE_BED_LEVELING_START_K) && !defined(SAFE_BED_LEVELING_START_J)
+    #error "SAFE_BED_LEVELING_START_K requires SAFE_BED_LEVELING_START_J."
+  #elif defined(SAFE_BED_LEVELING_START_U) && !defined(SAFE_BED_LEVELING_START_K)
+    #error "SAFE_BED_LEVELING_START_U requires SAFE_BED_LEVELING_START_K."
+  #elif defined(SAFE_BED_LEVELING_START_V) && !defined(SAFE_BED_LEVELING_START_U)
+    #error "SAFE_BED_LEVELING_START_V requires SAFE_BED_LEVELING_START_U."
+  #elif defined(SAFE_BED_LEVELING_START_W) && !defined(SAFE_BED_LEVELING_START_V)
+    #error "SAFE_BED_LEVELING_START_W requires SAFE_BED_LEVELING_START_V."
+  #endif
+#endif
+
 /**
  * Make sure DISABLE_[XYZ] compatible with selected homing options
  */

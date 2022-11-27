@@ -453,9 +453,7 @@ G29_TYPE GcodeSuite::G29() {
     }
 
     // Position bed horizontally and Z probe vertically.
-    #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
-        || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
-        || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
+    #if HAS_SAFE_BED_LEVELING
       xyze_pos_t safe_position = current_position;
       #ifdef SAFE_BED_LEVELING_START_X
         safe_position.x = SAFE_BED_LEVELING_START_X;
@@ -486,7 +484,7 @@ G29_TYPE GcodeSuite::G29() {
       #endif
 
       do_blocking_move_to(safe_position);
-    #endif
+    #endif // HAS_SAFE_BED_LEVELING
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
