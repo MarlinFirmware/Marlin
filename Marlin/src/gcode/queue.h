@@ -102,15 +102,15 @@ public:
 
   /**
    * Resend handler to deal with Host>>Printer latency
-  */
+   */
   #if ENABLED(RESEND_HANDLER)
     struct ResendCtrl {
-      long last_error_N;  //Record the last requested resend line number
+      long last_error_N;                // Record the last requested resend line number
       uint8_t ignore_resend_count;
-      const uint8_t ignore_resend_max;  //Number of resends requests deleted //LH this can be constant
+      const uint8_t ignore_resend_max;  // Number of resends requests deleted //LH this can be constant
     };
 
-    static ResendCtrl resend_ctrl; //resend ctrl variables
+    static ResendCtrl resend_ctrl;      // Resend ctrl variables
 
     static void ln_num_error_notice(const serial_index_t serial_ind, const long host_gcode_N);
   #endif
