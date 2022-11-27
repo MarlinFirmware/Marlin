@@ -81,6 +81,7 @@ namespace Language_da {
   LSTR MSG_MOVE_01MM                      = _UxGT("Flyt 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Flyt 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Flyt 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Flyt 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Flyt 100mm");
   LSTR MSG_SPEED                          = _UxGT("Hastighed");
   LSTR MSG_BED_Z                          = _UxGT("Plade Z");
