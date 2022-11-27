@@ -2318,7 +2318,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED < 5
     #error "Thermistor 66 requires MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED ≥ 5."
   #elif MILLISECONDS_PREHEAT_TIME < 15000
-    #error "Thermistor 66 requires MILLISECONDS_PREHEAT_TIME ≥ 15000."
+    #error "Thermistor 66 requires MILLISECONDS_PREHEAT_TIME ≥ 15000, but 30000 or higher is recommended."
   #endif
   #undef _BAD_MINTEMP
 #endif
