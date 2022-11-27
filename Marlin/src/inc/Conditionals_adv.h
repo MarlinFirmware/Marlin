@@ -994,8 +994,8 @@
             #undef CALIBRATION_MEASURE_IMIN
             #undef CALIBRATION_MEASURE_IMAX
             #if NUM_AXES < 3
-              #undef Z_IDLE_HEIGHT
               #undef STEALTHCHOP_Z
+              #undef Z_IDLE_HEIGHT
               #undef Z_PROBE_SLED
               #undef Z_SAFE_HOMING
               #undef HOME_Z_FIRST
@@ -1005,6 +1005,7 @@
               #undef CNC_WORKSPACE_PLANES
               #if NUM_AXES < 2
                 #undef STEALTHCHOP_Y
+                #undef QUICK_HOME
               #endif
             #endif
           #endif

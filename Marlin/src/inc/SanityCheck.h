@@ -681,6 +681,17 @@
 constexpr float arm[] = AXIS_RELATIVE_MODES;
 static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
+// Consolidate TMC26X, validate migration (#24373)
+#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
+#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
+#if DO(ISMAX,||,ALL_AXIS_NAMES)
+  #error "*_MAX_CURRENT is now set with *_CURRENT."
+#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
+#endif
+#undef _ISMAX_1
+#undef _ISSNS_1
+
 /**
  * Probe temp compensation requirements
  */
