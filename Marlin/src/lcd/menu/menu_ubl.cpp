@@ -35,6 +35,9 @@
 #include "../../module/planner.h"
 #include "../../module/settings.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#if HAS_HOTEND
+  #include "../../module/temperature.h"
+#endif
 
 static int16_t ubl_storage_slot = 0,
                custom_hotend_temp = 150,
@@ -312,11 +315,7 @@ void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
   #if HAS_PREHEAT
-    #if HAS_HEATED_BED
-      #define PREHEAT_BED_GCODE(M) "M190I" STRINGIFY(M) "\n"
-    #else
-      #define PREHEAT_BED_GCODE(M) ""
-    #endif
+    #define PREHEAT_BED_GCODE(M) TERN(HAS_HEATED_BED, "M190I" STRINGIFY(M) "\n", "")
     #define BUILD_MESH_GCODE_ITEM(M) GCODES_ITEM_f(ui.get_preheat_label(M), MSG_UBL_BUILD_MESH_M, \
       F( \
         "G28\n" \
@@ -325,20 +324,8 @@ void _lcd_ubl_build_mesh() {
         "G29P1\n" \
         "M104S0\n" \
         "M140S0" \
-      ) )
-    BUILD_MESH_GCODE_ITEM(0);
-    #if PREHEAT_COUNT > 1
-      BUILD_MESH_GCODE_ITEM(1);
-      #if PREHEAT_COUNT > 2
-        BUILD_MESH_GCODE_ITEM(2);
-        #if PREHEAT_COUNT > 3
-          BUILD_MESH_GCODE_ITEM(3);
-          #if PREHEAT_COUNT > 4
-            BUILD_MESH_GCODE_ITEM(4);
-          #endif
-        #endif
-      #endif
-    #endif
+      ) );
+    REPEAT(PREHEAT_COUNT, BUILD_MESH_GCODE_ITEM)
   #endif // HAS_PREHEAT
 
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);

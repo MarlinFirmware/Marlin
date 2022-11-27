@@ -37,7 +37,7 @@
   #include "../MarlinCore.h"
 #endif
 
-float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SEGMENTS_PER_SECOND);
+float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
 #if EITHER(MORGAN_SCARA, MP_SCARA)
 

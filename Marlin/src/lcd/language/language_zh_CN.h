@@ -222,6 +222,7 @@ namespace Language_zh_CN {
   LSTR MSG_MOVE_X                         = _UxGT("移动X");     // "Move X"
   LSTR MSG_MOVE_Y                         = _UxGT("移动Y");     // "Move Y"
   LSTR MSG_MOVE_Z                         = _UxGT("移动Z");     // "Move Z"
+  LSTR MSG_MOVE_N                         = _UxGT("移动@");     // "Move @"
   LSTR MSG_MOVE_E                         = _UxGT("挤出机");     // "Extruder"
   LSTR MSG_MOVE_EN                        = _UxGT("挤出机 *");     // "Extruder"
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("热端太冷");
@@ -454,8 +455,6 @@ namespace Language_zh_CN {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("⊿校准中心");     // "Calibrate Center"
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("⊿设置");     // "Delta Settings"
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("⊿自动校准");     // "Auto Calibration"
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("设置⊿高度");     // "Set Delta Height"
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("探针Z偏移量");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("⊿斜柱");     // "Diag Rod"
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("⊿高度");     // "Height"
   LSTR MSG_DELTA_RADIUS                   = _UxGT("⊿半径");     // "Radius"

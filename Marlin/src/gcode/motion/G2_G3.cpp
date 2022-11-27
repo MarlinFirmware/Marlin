@@ -214,9 +214,12 @@ void plan_arc(
   const uint16_t segments = nominal_segment_mm > (MAX_ARC_SEGMENT_MM) ? CEIL(flat_mm / (MAX_ARC_SEGMENT_MM)) :
                             nominal_segment_mm < (MIN_ARC_SEGMENT_MM) ? _MAX(1, FLOOR(flat_mm / (MIN_ARC_SEGMENT_MM))) :
                             nominal_segments;
+  const float segment_mm = flat_mm / segments;
 
+  // Add hints to help optimize the move
+  PlannerHints hints;
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
+    hints.inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
   #endif
 
   /**
@@ -288,9 +291,20 @@ void plan_arc(
       int8_t arc_recalc_count = N_ARC_CORRECTION;
     #endif
 
+    // An arc can always complete within limits from a speed which...
+    // a) is <= any configured maximum speed,
+    // b) does not require centripetal force greater than any configured maximum acceleration,
+    // c) is <= nominal speed,
+    // d) allows the print head to stop in the remining length of the curve within all configured maximum accelerations.
+    // The last has to be calculated every time through the loop.
+    const float limiting_accel = _MIN(planner.settings.max_acceleration_mm_per_s2[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
+                limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
+                limiting_speed_sqr = _MIN(sq(limiting_speed), limiting_accel * radius, sq(scaled_fr_mm_s));
+    float arc_mm_remaining = flat_mm;
+
     for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
-      thermalManager.manage_heater();
+      thermalManager.task();
       const millis_t ms = millis();
       if (ELAPSED(ms, next_idle_ms)) {
         next_idle_ms = ms + 200UL;
@@ -315,7 +329,7 @@ void plan_arc(
         // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
         // To reduce stuttering, the sin and cos could be computed at different times.
         // For now, compute both at the same time.
-        const float cos_Ti = cos(i * theta_per_segment), sin_Ti = sin(i * theta_per_segment);
+        const float Ti = i * theta_per_segment, cos_Ti = cos(Ti), sin_Ti = sin(Ti);
         rvec.a = -offset[0] * cos_Ti + offset[1] * sin_Ti;
         rvec.b = -offset[0] * sin_Ti - offset[1] * cos_Ti;
       }
@@ -342,8 +356,14 @@ void plan_arc(
         planner.apply_leveling(raw);
       #endif
 
-      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)))
+      // calculate safe speed for stopping by the end of the arc
+      arc_mm_remaining -= segment_mm;
+      hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
+
+      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
         break;
+
+      hints.curve_radius = radius;
     }
   }
 
@@ -363,7 +383,9 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+  hints.curve_radius = 0;
+  hints.safe_exit_speed_sqr = 0.0f;
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     ARC_LIJKUVW_CODE(

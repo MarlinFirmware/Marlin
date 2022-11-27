@@ -628,12 +628,6 @@ namespace Language_ru {
   LSTR MSG_DELTA_CALIBRATE_CENTER           = _UxGT("Калибровать центр");
   LSTR MSG_DELTA_SETTINGS                   = _UxGT("Настройки Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE             = _UxGT("Авто калибровка");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE           = _UxGT("Высота Delta");
-  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
-    LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Зондировать Z-смещения");
-  #else
-    LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Зондир. Z-смещения");
-  #endif
   LSTR MSG_DELTA_DIAG_ROD                   = _UxGT("Стержень диаг.");
   LSTR MSG_DELTA_HEIGHT                     = _UxGT("Высота");
   LSTR MSG_DELTA_RADIUS                     = _UxGT("Радиус");

@@ -131,6 +131,13 @@ public:
   // Accessors
   static uint16_t pixels() { return adaneo1.numPixels() * TERN1(NEOPIXEL2_INSERIES, 2); }
 
+  static uint32_t pixel_color(const uint16_t n) {
+    #if ENABLED(NEOPIXEL2_INSERIES)
+      if (n >= NEOPIXEL_PIXELS) return adaneo2.getPixelColor(n - (NEOPIXEL_PIXELS));
+    #endif
+    return adaneo1.getPixelColor(n);
+  }
+
   static uint8_t brightness() { return adaneo1.getBrightness(); }
 
   static uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w)) {
@@ -174,6 +181,7 @@ extern Marlin_NeoPixel neo;
 
     // Accessors
     static uint16_t pixels() { return adaneo.numPixels();}
+    static uint32_t pixel_color(const uint16_t n) { return adaneo.getPixelColor(n); }
     static uint8_t brightness() { return adaneo.getBrightness(); }
     static uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w)) {
       return adaneo.Color(r, g, b OPTARG(HAS_WHITE_LED2, w));

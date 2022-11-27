@@ -57,19 +57,18 @@ void GcodeSuite::M301() {
 
   if (e < HOTENDS) { // catch bad input value
 
-    if (parser.seenval('P')) PID_PARAM(Kp, e) = parser.value_float();
-    if (parser.seenval('I')) PID_PARAM(Ki, e) = scalePID_i(parser.value_float());
-    if (parser.seenval('D')) PID_PARAM(Kd, e) = scalePID_d(parser.value_float());
+    if (parser.seenval('P')) SET_HOTEND_PID(Kp, e, parser.value_float());
+    if (parser.seenval('I')) SET_HOTEND_PID(Ki, e, parser.value_float());
+    if (parser.seenval('D')) SET_HOTEND_PID(Kd, e, parser.value_float());
 
     #if ENABLED(PID_EXTRUSION_SCALING)
-      if (parser.seenval('C')) PID_PARAM(Kc, e) = parser.value_float();
+      if (parser.seenval('C')) SET_HOTEND_PID(Kc, e, parser.value_float());
       if (parser.seenval('L')) thermalManager.lpq_len = parser.value_int();
-      NOMORE(thermalManager.lpq_len, LPQ_MAX_LEN);
-      NOLESS(thermalManager.lpq_len, 0);
+      LIMIT(thermalManager.lpq_len, 0, LPQ_MAX_LEN);
     #endif
 
     #if ENABLED(PID_FAN_SCALING)
-      if (parser.seenval('F')) PID_PARAM(Kf, e) = parser.value_float();
+      if (parser.seenval('F')) SET_HOTEND_PID(Kf, e, parser.value_float());
     #endif
 
     thermalManager.updatePID();
@@ -83,6 +82,7 @@ void GcodeSuite::M301_report(const bool forReplay/*=true*/ E_OPTARG(const int8_t
   IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr int8_t eindex = -1);
   HOTEND_LOOP() {
     if (e == eindex || eindex == -1) {
+      const hotend_pid_t &pid = thermalManager.temp_hotend[e].pid;
       report_echo_start(forReplay);
       SERIAL_ECHOPGM_P(
         #if ENABLED(PID_PARAMS_PER_HOTEND)
@@ -90,16 +90,14 @@ void GcodeSuite::M301_report(const bool forReplay/*=true*/ E_OPTARG(const int8_t
         #else
           PSTR("  M301 P")
         #endif
-        ,                          PID_PARAM(Kp, e)
-        , PSTR(" I"), unscalePID_i(PID_PARAM(Ki, e))
-        , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
+        , pid.p(), PSTR(" I"), pid.i(), PSTR(" D"), pid.d()
       );
       #if ENABLED(PID_EXTRUSION_SCALING)
-        SERIAL_ECHOPGM_P(SP_C_STR, PID_PARAM(Kc, e));
+        SERIAL_ECHOPGM_P(SP_C_STR, pid.c());
         if (e == 0) SERIAL_ECHOPGM(" L", thermalManager.lpq_len);
       #endif
       #if ENABLED(PID_FAN_SCALING)
-        SERIAL_ECHOPGM(" F", PID_PARAM(Kf, e));
+        SERIAL_ECHOPGM(" F", pid.f());
       #endif
       SERIAL_EOL();
     }

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(__has_include)
+#ifndef __has_include
   #define __has_include(...) 1
 #endif
 
@@ -338,6 +338,12 @@
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
 // Macros for initializing arrays
+#define LIST_26(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
+#define LIST_25(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y
+#define LIST_24(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X
+#define LIST_23(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W
+#define LIST_22(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V
+#define LIST_21(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U
 #define LIST_20(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T
 #define LIST_19(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S
 #define LIST_18(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
@@ -644,8 +650,8 @@
 #define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
 #define PROBE() ~, 1                    // Second item will be 1 if this is passed
 #define _NOT_0 PROBE()
-#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
-#define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
+#define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
 
 #define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
 #define _IF_ELSE(TF) _CAT(_IF_, TF)
@@ -658,7 +664,6 @@
 
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0
-
 
 // Simple Inline IF Macros, friendly to use in other macro definitions
 #define IF(O, A, B) ((O) ? (A) : (B))
@@ -731,3 +736,9 @@
 #define __MAPLIST() _MAPLIST
 
 #define MAPLIST(OP,V...) EVAL(_MAPLIST(OP,V))
+
+// Temperature Sensor Config
+#define TEMP_SENSOR(N) TEMP_SENSOR_##N
+#define _HAS_E_TEMP(N) || TEMP_SENSOR(N)
+#define HAS_E_TEMP_SENSOR (0 REPEAT(EXTRUDERS, _HAS_E_TEMP))
+#define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR(T) == -5 || TEMP_SENSOR(T) == -3 || TEMP_SENSOR(T) == -2)

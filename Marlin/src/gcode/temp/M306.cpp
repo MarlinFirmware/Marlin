@@ -25,6 +25,7 @@
 #if ENABLED(MPCTEMP)
 
 #include "../gcode.h"
+#include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 
 /**
@@ -42,7 +43,12 @@
  */
 
 void GcodeSuite::M306() {
-  if (parser.seen_test('T')) { thermalManager.MPC_autotune(); return; }
+  if (parser.seen_test('T')) {
+    LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+    thermalManager.MPC_autotune();
+    ui.reset_status();
+    return;
+  }
 
   if (parser.seen("ACFPRH")) {
     const heater_id_t hid = (heater_id_t)parser.intval('E', 0);

@@ -25,22 +25,17 @@
 #include "../sd/cardreader.h"
 #include "../module/motion.h"
 #include "../libs/buzzer.h"
-
 #include "buttons.h"
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
-  #define HAS_ENCODER_ACTION 1
-#endif
-
 #if E_MANUAL > 1
   #define MULTI_E_MANUAL 1
 #endif
 
-#if HAS_DISPLAY
+#if HAS_PRINT_PROGRESS
   #include "../module/printcounter.h"
 #endif
 
@@ -90,6 +85,7 @@ typedef bool (*statusResetFunc_t)();
 #endif // HAS_WIRED_LCD
 
 #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+  #define LCD_WITH_BLINK 1
   #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
 #endif
 
@@ -137,12 +133,16 @@ typedef bool (*statusResetFunc_t)();
       static xyze_pos_t all_axes_destination;
     #endif
   public:
+    static screenFunc_t screen_ptr;
     static float menu_scale;
     #if IS_KINEMATIC
       static float offset;
     #endif
+    #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+      static float e_origin;
+    #endif
     template <typename T>
-    void set_destination(const T& dest) {
+    static void set_destination(const T& dest) {
       #if IS_KINEMATIC
         // Moves are segmented, so the entire move is not submitted at once.
         // Using a separate variable prevents corrupting the in-progress move.
@@ -153,10 +153,10 @@ typedef bool (*statusResetFunc_t)();
         current_position.set(dest);
       #endif
     }
-    float axis_value(const AxisEnum axis) {
+    static float axis_value(const AxisEnum axis) {
       return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
     }
-    bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+    static bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
       #if IS_KINEMATIC
         float &valref = offset;
         const float rmin = min - current_position[axis], rmax = max - current_position[axis];
@@ -166,12 +166,7 @@ typedef bool (*statusResetFunc_t)();
       #endif
       valref += diff;
       const float pre = valref;
-      if (min != max) {
-        if (diff < 0)
-          NOLESS(valref, rmin);
-        else
-          NOMORE(valref, rmax);
-      }
+      if (min != max) { if (diff < 0) NOLESS(valref, rmin); else NOMORE(valref, rmax); }
       return pre != valref;
     }
     #if IS_KINEMATIC
@@ -182,6 +177,8 @@ typedef bool (*statusResetFunc_t)();
     static void task();
     static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
+
+  void lcd_move_axis(const AxisEnum);
 
 #endif
 
@@ -230,12 +227,12 @@ public:
     static constexpr bool sound_on = true;
   #endif
 
-  #if HAS_BUZZER
+  #if USE_MARLINUI_BUZZER
     static void buzz(const long duration, const uint16_t freq);
   #endif
 
-  FORCE_INLINE static void chirp() {
-    TERN_(HAS_CHIRP, TERN(HAS_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+  static void chirp() {
+    TERN_(HAS_CHIRP, TERN(USE_MARLINUI_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -273,20 +270,19 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if LCD_BACKLIGHT_TIMEOUT
-    #define LCD_BKL_TIMEOUT_MIN 1
-    #define LCD_BKL_TIMEOUT_MAX (60*60*18) // 18 hours max within uint16_t
-    static uint16_t lcd_backlight_timeout;
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
+    static constexpr uint8_t backlight_timeout_min = 0;
+    static constexpr uint8_t backlight_timeout_max = 99;
+    static uint8_t backlight_timeout_minutes;
     static millis_t backlight_off_ms;
     static void refresh_backlight_timeout();
   #elif HAS_DISPLAY_SLEEP
-    #define SLEEP_TIMEOUT_MIN 0
-    #define SLEEP_TIMEOUT_MAX 99
+    static constexpr uint8_t sleep_timeout_min = 0;
+    static constexpr uint8_t sleep_timeout_max = 99;
     static uint8_t sleep_timeout_minutes;
     static millis_t screen_timeout_millis;
     static void refresh_screen_timeout();
-    static void sleep_on();
-    static void sleep_off();
+    static void sleep_display(const bool sleep=true);
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
@@ -307,19 +303,19 @@ public:
       #define PROGRESS_SCALE 1U
       #define PROGRESS_MASK 0x7F
     #endif
-    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    #if ENABLED(SET_PROGRESS_PERCENT)
       static progress_t progress_override;
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
     #endif
-    #if ENABLED(SHOW_REMAINING_TIME)
+    #if EITHER(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
       static uint32_t _calculated_remaining_time() {
         const duration_t elapsed = print_job_timer.duration();
         const progress_t progress = _get_progress();
         return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
       }
-      #if ENABLED(USE_M73_REMAINING_TIME)
+      #if ENABLED(SET_REMAINING_TIME)
         static uint32_t remaining_time;
         FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
         FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ?: _calculated_remaining_time(); }
@@ -327,12 +323,32 @@ public:
       #else
         FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
       #endif
+      #if ENABLED(SET_INTERACTION_TIME)
+        static uint32_t interaction_time;
+        FORCE_INLINE static void set_interaction_time(const uint32_t r) { interaction_time = r; }
+        FORCE_INLINE static void reset_interaction_time() { set_interaction_time(0); }
+      #endif
     #endif
     static progress_t _get_progress();
     #if HAS_PRINT_PROGRESS_PERMYRIAD
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
+    #if LCD_WITH_BLINK
+      #if ENABLED(SHOW_PROGRESS_PERCENT)
+        static void drawPercent();
+      #endif
+      #if ENABLED(SHOW_ELAPSED_TIME)
+        static void drawElapsed();
+      #endif
+      #if ENABLED(SHOW_REMAINING_TIME)
+        static void drawRemain();
+      #endif
+      #if ENABLED(SHOW_INTERACTION_TIME)
+        static void drawInter();
+      #endif
+      static void rotate_progress();
+    #endif
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
@@ -394,7 +410,7 @@ public:
       static void poweroff();
     #endif
 
-    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+    #if LCD_WITH_BLINK
       static bool get_blink();
     #endif
 
@@ -458,7 +474,7 @@ public:
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_BUZZER
+      #if HAS_SOUND
         static void completion_feedback(const bool good=true);
       #else
         static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
@@ -502,7 +518,6 @@ public:
   #else // No LCD
 
     static void update() {}
-    static void return_to_status() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
@@ -530,7 +545,7 @@ public:
   #endif
 
   static void reset_status_timeout(const millis_t ms) {
-    TERN(SCREENS_CAN_TIME_OUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
+    TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }
 
   #if HAS_MARLINUI_MENU
@@ -553,6 +568,7 @@ public:
 
     // Manual Movement
     static ManualMove manual_move;
+    static bool can_show_slider() { return !external_control && currentScreen != manual_move.screen_ptr; }
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
@@ -580,11 +596,11 @@ public:
     #endif
 
     FORCE_INLINE static bool screen_is_sticky() {
-      return TERN1(SCREENS_CAN_TIME_OUT, defer_return_to_status);
+      return TERN1(HAS_SCREEN_TIMEOUT, defer_return_to_status);
     }
 
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      TERN(SCREENS_CAN_TIME_OUT, defer_return_to_status = defer, UNUSED(defer));
+      TERN(HAS_SCREEN_TIMEOUT, defer_return_to_status = defer, UNUSED(defer));
     }
 
     static void goto_previous_screen_no_defer() {
@@ -608,6 +624,8 @@ public:
     static void draw_select_screen_prompt(FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr);
 
   #else
+
+    static void return_to_status() {}
 
     static constexpr bool on_status_screen() { return true; }
 
@@ -695,11 +713,7 @@ public:
 
     static void update_buttons();
 
-    #if HAS_ENCODER_NOISE
-      #ifndef ENCODER_SAMPLES
-        #define ENCODER_SAMPLES 10
-      #endif
-
+    #if ENABLED(ENCODER_NOISE_FILTER)
       /**
        * Some printers may have issues with EMI noise especially using a motherboard with 3.3V logic levels
        * it may cause the logical LOW to float into the undefined region and register as a logical HIGH
@@ -764,7 +778,7 @@ public:
 
 private:
 
-  #if SCREENS_CAN_TIME_OUT
+  #if HAS_SCREEN_TIMEOUT
     static millis_t return_to_status_ms;
     static bool defer_return_to_status;
   #else

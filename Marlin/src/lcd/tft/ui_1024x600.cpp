@@ -394,8 +394,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
     }
   #endif
 
-  extern screenFunc_t _manual_move_func_ptr;
-  if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
+  if (ui.can_show_slider()) {
 
     #define SLIDER_LENGTH 600
     #define SLIDER_Y_POSITION 200
@@ -792,7 +791,7 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
   }
 #endif
 
-#if HAS_BED_PROBE
+#if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
   static void z_select() {
     motionAxisState.z_selection *= -1;
     quick_feedback();

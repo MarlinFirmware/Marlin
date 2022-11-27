@@ -234,7 +234,7 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 //  rlimit: To limit the drawn string length
 void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit/*=0xFFFF*/) {
-  #if DISABLED(DWIN_LCD_PROUI)
+  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
     DWIN_Draw_Rectangle(1, bColor, x, y, x + (fontWidth(size) * strlen_P(string)), y + fontHeight(size));
   #endif
   constexpr uint8_t widthAdjust = 0;
@@ -266,7 +266,9 @@ void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor,
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint32_t value) {
   size_t i = 0;
-  DWIN_Draw_Rectangle(1, bColor, x, y, x + fontWidth(size) * iNum + 1, y + fontHeight(size));
+  #if DISABLED(DWIN_CREALITY_LCD_JYERSUI)
+    DWIN_Draw_Rectangle(1, bColor, x, y, x + fontWidth(size) * iNum + 1, y + fontHeight(size));
+  #endif
   DWIN_Byte(i, 0x14);
   // Bit 7: bshow
   // Bit 6: 1 = signed; 0 = unsigned number;
@@ -314,7 +316,9 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
                           uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, int32_t value) {
   //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
-  DWIN_Draw_Rectangle(1, bColor, x, y, x + fontWidth(size) * (iNum+fNum+1), y + fontHeight(size));
+  #if DISABLED(DWIN_CREALITY_LCD_JYERSUI)
+    DWIN_Draw_Rectangle(1, bColor, x, y, x + fontWidth(size) * (iNum+fNum+1), y + fontHeight(size));
+  #endif
   DWIN_Byte(i, 0x14);
   DWIN_Byte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
   DWIN_Word(i, color);
