@@ -1342,7 +1342,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         if (UNEAR_ZERO(distance_sqr)) {
           // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
           cartes_move = false;
-          cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.w));
+          cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), sq(diff.u), + sq(diff.v), + sq(diff.w));
         }
       #endif
 
