@@ -28,25 +28,14 @@
 
 #if HAS_MARLINUI_MENU
 
-#ifndef SLIM_LCD_MENUS 
-  #if ENABLED(FORCE_50_100) || ((X_BED_SIZE) >= 1000 || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
-    #define LARGE_AREA_TEST true
-  #else
-    #define LARGE_AREA_TEST ((X_BED_SIZE) >= 1000 || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
-  #endif
-#else
+#if ENABLED(TRULY_LARGE_AREA)
+  #define LARGE_AREA_TEST true
+#elif ENABLED(SLIM_LCD_MENUS)
   #define LARGE_AREA_TEST false
-#endif
-/**
- * @brief just a test to see what areas are enabled for development purposes
- * will be removed in final please just ignore for now!
-#if LARGE_AREA_TEST
-  DOSTUFF
 #else
-  DONTDOSTUFF
+  #define LARGE_AREA_TEST ((X_BED_SIZE) >= 1000 || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
 #endif
-//end of my testing areas
-*/
+
 #include "menu_item.h"
 #include "menu_addon.h"
 
