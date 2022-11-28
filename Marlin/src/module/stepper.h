@@ -87,7 +87,11 @@
 
   // S curve interpolation adds 40 cycles
   #if ENABLED(S_CURVE_ACCELERATION)
-    #define ISR_S_CURVE_CYCLES 40UL
+    #ifdef STM32G0B1xx
+      #define ISR_S_CURVE_CYCLES 500UL
+    #else
+      #define ISR_S_CURVE_CYCLES 40UL
+    #endif
   #else
     #define ISR_S_CURVE_CYCLES 0UL
   #endif
