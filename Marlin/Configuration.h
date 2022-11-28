@@ -1699,16 +1699,6 @@
 #define X_BED_SIZE 200
 #define Y_BED_SIZE 200
 
-//#define FORCE_50_100 //add option for 50 and 100mm moves (.5, 1 inch)
-
-/** Added to get larger moves on typical 235x235x200+ machines
-// moving 10mm at a time for maintenance and calibration was not giving good results.
-//  SLIM_LCD_MENUS will disable 50 mm moves and above
-// x y or z limits of 1000 or greater will enable 50, 100, 250, 500 and 750mm moves
-//in mode will be .5, 1, 2.5, 5 and 7.5 inches 
-// 250 (2.5) and above under developement!!
-*/
-
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
@@ -2485,7 +2475,8 @@
  * just remove some extraneous menu items to recover space.
  */
 //#define NO_LCD_MENUS
-//#define SLIM_LCD_MENUS //  SLIM_LCD_MENUS will disable 50 mm moves and above
+//#define SLIM_LCD_MENUS
+//#define TRULY_LARGE_AREA  // Add 50/100mm moves to MarlinUI even with a smaller bed
 
 //
 // ENCODER SETTINGS
