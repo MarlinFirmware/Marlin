@@ -119,8 +119,6 @@
 #define STR_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define STR_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define STR_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
-#define STR_HOST_RESEND_1                   "Host sent incorrect line : "
-#define STR_HOST_RESEND_2                   "Line expected : "
 #define STR_FILE_PRINTED                    "Done printing file"
 #define STR_NO_MEDIA                        "No media"
 #define STR_BEGIN_FILE_LIST                 "Begin file list"

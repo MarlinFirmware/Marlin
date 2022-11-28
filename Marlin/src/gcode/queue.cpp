@@ -62,9 +62,6 @@ PGMSTR(G28_STR, "G28");
 
 GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
-#if ENABLED(RESEND_HANDLER)
-  GCodeQueue::ResendInfo GCodeQueue::resend_info = { 0, 0, RESEND_HANDLER_DROP_GCODE };
-#endif
 
 #if NO_TIMEOUTS > 0
   static millis_t last_command_time = 0;
@@ -283,25 +280,6 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_ECHOLNPGM(STR_OK);
 }
 
-/**
- * Notify host a resend has been skipped, with the offending and expected Line number
- * Or
- * send "ok" to keep comms alive
-*/
-#if ENABLED(RESEND_HANDLER)
-  void GCodeQueue::ln_num_error_notice(const serial_index_t serial_ind, const long host_gcode_N) { // ~8ms to send @500000 through ESP8266(ESP3D WIFI)>>Octoprint
-    #if HAS_MULTI_SERIAL
-      //if (!serial_ind.valid()) return;            // Optimization here, skip if the command came from SD or Flash Drive
-      PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
-    #endif
-    #if ENABLED(RESEND_HANDLER_NOTICE)              // Notify the host
-      SERIAL_ECHO_MSG(STR_HOST_RESEND_1, host_gcode_N);
-      SERIAL_ECHO_MSG(STR_HOST_RESEND_2, serial_state[serial_ind.index].last_N + 1);
-    #endif
-    SERIAL_ECHOLNPGM(STR_OK);                       // Send OK to satisfy the host
-  }
-#endif
-
 static bool serial_data_available(serial_index_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if ENABLED(RX_BUFFER_MONITOR) && RX_BUFFER_SIZE
@@ -489,38 +467,14 @@ void GCodeQueue::get_serial_commands() {
             if (n2pos) npos = n2pos;
           }
 
-          const long gcode_N = strtol(npos + 1, nullptr, 10); // Host sent G-code Line# from RX_buffer
+          const long gcode_N = strtol(npos + 1, nullptr, 10);
 
-          /**
-           * Resend Handler - Received line # != expected line number
-           *
-           *  - Clear RX_Buffer; resend request to host
-           *
-           * With RESEND_HANDLER:
-           *  - Ignore errors up to 'ignore_resend_max' times before sending the request
-           *
-           * When latency exists between Marlin and the Host, the ongoing G-code stream can cause
-           * issues on resend requests, such as stuttering layer shifting.
-           *
-           * ignore_resend_max should not exceed expected in-flight G-code + RX_Buffer. RX_Buffer is cleared in
-           * gcode_line_error, not ln_num_error_notice as next serial in buffer may be the required line.
-           */
+          // The line number must be in the correct sequence.
           if (gcode_N != serial.last_N + 1 && !M110) {
-            #if ENABLED(RESEND_HANDLER)
-              // On serial error try to keep other serial ports alive
-              const serial_index_t serial_ind = p;
-              if (resend_info.ignore_resend_count < resend_info.ignore_resend_max - 1) {  // Threshold eliminated resends
-                ln_num_error_notice(p, gcode_N);
-                if (resend_info.last_error_N != serial_state[serial_ind.index].last_N) {  // Is first error instance
-                  resend_info.last_error_N = serial_state[serial_ind.index].last_N;       // Set last ignored error line
-                  resend_info.ignore_resend_count = 0;  // Reset count for the new line
-                }
-                resend_info.ignore_resend_count += 1;   // Capture anything that doesn't fall in prev if_stmt. Nothing should miss
-                break;
-              }
-              resend_info.ignore_resend_count = 0;      // Reset counter
-            #endif
-            gcode_line_error(F(STR_ERR_LINE_NO), p);    // Send resend request
+            // A request-for-resend line was already in transit so we got two - oops!
+            if (WITHIN(gcode_N, serial.last_N - 1, serial.last_N)) continue;
+            // A corrupted line or too high, indicating a lost line
+            gcode_line_error(F(STR_ERR_LINE_NO), p);
             break;
           }
 
@@ -529,13 +483,11 @@ void GCodeQueue::get_serial_commands() {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
             if (strtol(apos + 1, nullptr, 10) != checksum) {
-              // In case of error on a serial port, don't prevent other serial port from making progress
               gcode_line_error(F(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
             }
           }
           else {
-            // In case of error on a serial port, don't prevent other serial port from making progress
             gcode_line_error(F(STR_ERR_NO_CHECKSUM), p);
             break;
           }

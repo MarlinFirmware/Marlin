@@ -101,21 +101,6 @@ public:
   };
 
   /**
-   * Resend handler to deal with Host>>Printer latency
-   */
-  #if ENABLED(RESEND_HANDLER)
-    struct ResendInfo {
-      long last_error_N;                // Record the last requested resend line number
-      uint8_t ignore_resend_count;      // Line error counter
-      const uint8_t ignore_resend_max;  // Number of resend requests thrown away (can be constant)
-    };
-
-    static ResendInfo resend_info;      // Resend info encapsulated
-
-    static void ln_num_error_notice(const serial_index_t serial_ind, const long host_gcode_N);
-  #endif
-
-  /**
    * The ring buffer of commands
    */
   static RingBuffer ring_buffer;
