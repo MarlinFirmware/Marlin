@@ -92,40 +92,49 @@ Marlin is constantly improving thanks to a huge number of contributors from all 
 Regular users can open and close their own issues, but only the administrators can do project-related things like add labels, merge changes, set milestones, and kick trolls. The current Marlin admin team consists of:
 
 <table align = center>
+<tr><td>Project Maintainer</td></tr>
 <tr><td>
- 
- 🇺🇸  **Scott Lahteine**    [💸 Donate](https://www.thinkyhead.com/donate-to-marlin)  
+
+ 🇺🇸  **Scott Lahteine**  
        [@thinkyhead](https://github.com/thinkyhead)  
-       *Maintainer*
-       
+       [<kbd>  Donate 💸  </kbd>](https://www.thinkyhead.com/donate-to-marlin)
+
+</td><td>
+
  🇺🇸  **Roxanne Neufeld**  
        [@Roxy-3D](https://github.com/Roxy-3D)  
        
- 🇺🇸  **Keith Bennett**    [💸 Donate](https://github.com/sponsors/thisiskeithb)  
-       [@thisiskeithb](https://github.com/thisiskeithb)
-       
- 🇳🇿  **Peter Ellens**    [💸 Donate](https://ko-fi.com/ellensp)  
-       [@ellensp](https://github.com/ellensp)
-       
+ 🇺🇸  **Keith Bennett**  
+       [@thisiskeithb](https://github.com/thisiskeithb)  
+       [<kbd>  Donate 💸  </kbd>](https://github.com/sponsors/thisiskeithb)
+ 
+ 🇺🇸  **Jason Smith**  
+       [@sjasonsmith](https://github.com/sjasonsmith)
+
+</td><td>
+
  🇧🇷  **Victor Oliveira**  
        [@rhapsodyv](https://github.com/rhapsodyv)
- 
- </td><td>
  
  🇬🇧  **Chris Pepper**  
        [@p3p](https://github.com/p3p)
        
- 🇺🇸  **Jason Smith**  
-       [@sjasonsmith](https://github.com/sjasonsmith)
-       
+🇳🇿  **Peter Ellens**  
+       [@ellensp](https://github.com/ellensp)  
+       [<kbd>  Donate 💸  </kbd>](https://ko-fi.com/ellensp)
+
+</td><td>
+
  🇺🇸  **Luu Lac**  
        [@shitcreek](https://github.com/shitcreek)
        
  🇺🇸  **Bob Kuhn**  
        [@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)
        
- 🇳🇱  **Erik van der Zalm**    [💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)  
-       [@ErikZalm](https://github.com/ErikZalm)
+ 🇳🇱  **Erik van der Zalm**  
+       [@ErikZalm](https://github.com/ErikZalm)  
+       [<kbd>  Donate 💸  </kbd>](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)  
+
 
 </td></tr>
 </table>
