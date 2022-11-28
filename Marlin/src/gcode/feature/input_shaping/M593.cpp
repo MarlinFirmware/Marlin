@@ -22,21 +22,21 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(INPUT_SHAPING)
+#if HAS_SHAPING
 
 #include "../../gcode.h"
 #include "../../../module/stepper.h"
 
 void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F("Input Shaping"));
-  #if HAS_SHAPING_X
+  #if ENABLED(INPUT_SHAPING_X)
     SERIAL_ECHOLNPGM("  M593 X"
       " F", stepper.get_shaping_frequency(X_AXIS),
       " D", stepper.get_shaping_damping_ratio(X_AXIS)
     );
   #endif
-  #if HAS_SHAPING_Y
-    TERN_(HAS_SHAPING_X, report_echo_start(forReplay));
+  #if ENABLED(INPUT_SHAPING_Y)
+    TERN_(INPUT_SHAPING_X, report_echo_start(forReplay));
     SERIAL_ECHOLNPGM("  M593 Y"
       " F", stepper.get_shaping_frequency(Y_AXIS),
       " D", stepper.get_shaping_damping_ratio(Y_AXIS)
@@ -55,10 +55,10 @@ void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M593() {
   if (!parser.seen_any()) return M593_report();
 
-  const bool seen_X = TERN0(HAS_SHAPING_X, parser.seen_test('X')),
-             seen_Y = TERN0(HAS_SHAPING_Y, parser.seen_test('Y')),
-             for_X = seen_X || TERN0(HAS_SHAPING_X, (!seen_X && !seen_Y)),
-             for_Y = seen_Y || TERN0(HAS_SHAPING_Y, (!seen_X && !seen_Y));
+  const bool seen_X = TERN0(INPUT_SHAPING_X, parser.seen_test('X')),
+             seen_Y = TERN0(INPUT_SHAPING_Y, parser.seen_test('Y')),
+             for_X = seen_X || TERN0(INPUT_SHAPING_X, (!seen_X && !seen_Y)),
+             for_Y = seen_Y || TERN0(INPUT_SHAPING_Y, (!seen_X && !seen_Y));
 
   if (parser.seen('D')) {
     const float zeta = parser.value_float();
@@ -72,12 +72,13 @@ void GcodeSuite::M593() {
 
   if (parser.seen('F')) {
     const float freq = parser.value_float();
-    if (freq > 0) {
+    constexpr float max_freq = float(uint32_t(STEPPER_TIMER_RATE) / 2) / shaping_time_t(-2);
+    if (freq == 0.0f || freq > max_freq) {
       if (for_X) stepper.set_shaping_frequency(X_AXIS, freq);
       if (for_Y) stepper.set_shaping_frequency(Y_AXIS, freq);
     }
     else
-      SERIAL_ECHO_MSG("?Frequency (F) must be greater than 0");
+      SERIAL_ECHOLNPGM("?Frequency (F) must be greater than ", max_freq, " or 0 to disable");
   }
 }
 
