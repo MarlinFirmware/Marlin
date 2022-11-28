@@ -91,16 +91,44 @@ Marlin is constantly improving thanks to a huge number of contributors from all 
 
 Regular users can open and close their own issues, but only the administrators can do project-related things like add labels, merge changes, set milestones, and kick trolls. The current Marlin admin team consists of:
 
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA - Project Maintainer &nbsp; [💸 Donate](https://www.thinkyhead.com/donate-to-marlin)
- - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
- - Keith Bennett [[@thisiskeithb](https://github.com/thisiskeithb)] - USA &nbsp; [💸 Donate](https://github.com/sponsors/thisiskeithb)
- - Peter Ellens [[@ellensp](https://github.com/ellensp)] - New Zealand  &nbsp; [💸 Donate](https://ko-fi.com/ellensp)
- - Victor Oliveira [[@rhapsodyv](https://github.com/rhapsodyv)] - Brazil
- - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
- - Jason Smith [[@sjasonsmith](https://github.com/sjasonsmith)] - USA
- - Luu Lac [[@shitcreek](https://github.com/shitcreek)] - USA
- - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+<table align = center>
+<tr><td>
+ 
+ 🇺🇸  **Scott Lahteine**    [💸 Donate](https://www.thinkyhead.com/donate-to-marlin)  
+       [@thinkyhead](https://github.com/thinkyhead)  
+       *Maintainer*
+       
+ 🇺🇸  **Roxanne Neufeld**  
+       [@Roxy-3D](https://github.com/Roxy-3D)  
+       
+ 🇺🇸  **Keith Bennett**    [💸 Donate](https://github.com/sponsors/thisiskeithb)  
+       [@thisiskeithb](https://github.com/thisiskeithb)
+       
+ 🇳🇿  **Peter Ellens**    [💸 Donate](https://ko-fi.com/ellensp)  
+       [@ellensp](https://github.com/ellensp)
+       
+ 🇧🇷  **Victor Oliveira**  
+       [@rhapsodyv](https://github.com/rhapsodyv)
+ 
+ </td><td>
+ 
+ 🇬🇧  **Chris Pepper**  
+       [@p3p](https://github.com/p3p)
+       
+ 🇺🇸  **Jason Smith**  
+       [@sjasonsmith](https://github.com/sjasonsmith)
+       
+ 🇺🇸  **Luu Lac**  
+       [@shitcreek](https://github.com/shitcreek)
+       
+ 🇺🇸  **Bob Kuhn**  
+       [@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)
+       
+ 🇳🇱  **Erik van der Zalm**    [💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)  
+       [@ErikZalm](https://github.com/ErikZalm)
+
+</td></tr>
+</table>
 
 ## License
 
