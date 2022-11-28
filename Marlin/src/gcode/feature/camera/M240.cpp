@@ -145,7 +145,7 @@ void GcodeSuite::M240() {
     feedRate_t fr_mm_s = parser.feedrateval('F');
     if (fr_mm_s) NOLESS(fr_mm_s, 10.0f);
     #if HAS_ROTATIONAL_AXES
-      const feedRate_t fr_deg_s = parser.linear_value_to_mm(fr_mm_s);
+      const feedRate_t fr_deg_s = LINEAR_UNIT(fr_mm_s);
     #endif
 
     constexpr xyz_pos_t photo_position = PHOTO_POSITION;
