@@ -63,7 +63,7 @@ PGMSTR(G28_STR, "G28");
 GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 #if ENABLED(RESEND_HANDLER)
-  GCodeQueue::ResendCtrl GCodeQueue::resend_ctrl = { 0, 0, RESEND_HANDLER_DROP_GCODE };
+  GCodeQueue::ResendInfo GCodeQueue::resend_info = { 0, 0, RESEND_HANDLER_DROP_GCODE };
 #endif
 
 #if NO_TIMEOUTS > 0
@@ -289,18 +289,16 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
  * send "ok" to keep comms alive
 */
 #if ENABLED(RESEND_HANDLER)
-  void GCodeQueue::ln_num_error_notice(const serial_index_t serial_ind, const long host_gcode_N) { //~8ms to send @500000 through ESP8266(ESP3D WIFI)>>Octoprint
+  void GCodeQueue::ln_num_error_notice(const serial_index_t serial_ind, const long host_gcode_N) { // ~8ms to send @500000 through ESP8266(ESP3D WIFI)>>Octoprint
     #if HAS_MULTI_SERIAL
-      if (!serial_ind.valid()) return;              // Optimization here, skip if the command came from SD or Flash Drive
+      //if (!serial_ind.valid()) return;            // Optimization here, skip if the command came from SD or Flash Drive
       PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
     #endif
-    #if ENABLED(RESEND_HANDLER_NOTICE)  //Notify Host of issue
-      serial_echo_start(); // { serial_print(F("Echo:")); }
-      SERIAL_ECHOLNPGM("Host sent incorrect line : ", host_gcode_N);
-      serial_echo_start(); // { serial_print(F("Echo:")); }
-      SERIAL_ECHOLNPGM("Line expected : ", serial_state[serial_ind.index].last_N + 1);
+    #if ENABLED(RESEND_HANDLER_NOTICE)              // Notify the host
+      SERIAL_ECHO_MSG(STR_HOST_RESEND_1, host_gcode_N);
+      SERIAL_ECHO_MSG(STR_HOST_RESEND_2, serial_state[serial_ind.index].last_N + 1);
     #endif
-    SERIAL_ECHOLNPGM(STR_OK); //Send Ok to continue action from Host
+    SERIAL_ECHOLNPGM(STR_OK);                       // Send OK to satisfy the host
   }
 #endif
 
@@ -496,35 +494,33 @@ void GCodeQueue::get_serial_commands() {
           /**
            * Resend Handler - Received line # != expected line number
            *
-           * Standard behaviour - Clear RX_Buffer; resend request to host
-           * Extended behaviour - Allow ignore_resend_max # of errors to be ignored.
-           * Required when latency present between Marlin>>Host allowing G-code in-flight to cause comms issue
-           * on resend requests, such as stuttering and print failure.
-           * Ignore_resend_max should not exceed expected in-flight G-code + RX_Buffer. RX_Buffer is cleared in
+           *  - Clear RX_Buffer; resend request to host
+           *
+           * With RESEND_HANDLER:
+           *  - Ignore errors up to 'ignore_resend_max' times before sending the request
+           *
+           * When latency exists between Marlin and the Host, the ongoing G-code stream can cause
+           * issues on resend requests, such as stuttering layer shifting.
+           *
+           * ignore_resend_max should not exceed expected in-flight G-code + RX_Buffer. RX_Buffer is cleared in
            * gcode_line_error, not ln_num_error_notice as next serial in buffer may be the required line.
            */
           if (gcode_N != serial.last_N + 1 && !M110) {
-            // In case of error on a serial port, don't prevent other serial port from making progress
             #if ENABLED(RESEND_HANDLER)
+              // On serial error try to keep other serial ports alive
               const serial_index_t serial_ind = p;
-
-              if ((resend_ctrl.ignore_resend_count < resend_ctrl.ignore_resend_max - 1)) {  // Threshold eliminated resends
-                if (serial_state[serial_ind.index].last_N != resend_ctrl.last_error_N) {    // Is first error instance
-                  ln_num_error_notice(p, gcode_N);
-                  resend_ctrl.last_error_N = serial_state[serial_ind.index].last_N;  // Set last ignored error line
-                  resend_ctrl.ignore_resend_count = 0;                               // Reset count as first instance
+              if (resend_info.ignore_resend_count < resend_info.ignore_resend_max - 1) {  // Threshold eliminated resends
+                ln_num_error_notice(p, gcode_N);
+                if (resend_info.last_error_N != serial_state[serial_ind.index].last_N) {  // Is first error instance
+                  resend_info.last_error_N = serial_state[serial_ind.index].last_N;       // Set last ignored error line
+                  resend_info.ignore_resend_count = 0;  // Reset count for the new line
                 }
-                else
-                  ln_num_error_notice(p, gcode_N);
-                resend_ctrl.ignore_resend_count += 1;       // Capture anything that doesn't fall in prev if_stmt. Nothing should miss
+                resend_info.ignore_resend_count += 1;   // Capture anything that doesn't fall in prev if_stmt. Nothing should miss
+                break;
               }
-              else {                                        // Exceeded maximum deleted requests or is a new resend request
-                resend_ctrl.ignore_resend_count = 0;        // Reset counter
-                gcode_line_error(F(STR_ERR_LINE_NO), p);    // Send resend request
-              }
-            #else
-              gcode_line_error(F(STR_ERR_LINE_NO), p);      // Send resend request
+              resend_info.ignore_resend_count = 0;      // Reset counter
             #endif
+            gcode_line_error(F(STR_ERR_LINE_NO), p);    // Send resend request
             break;
           }
 

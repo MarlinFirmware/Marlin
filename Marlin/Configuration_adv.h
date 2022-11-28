@@ -2416,7 +2416,7 @@
 //#define RESEND_HANDLER
 #if ENABLED(RESEND_HANDLER)
   #define RESEND_HANDLER_DROP_GCODE 1   // Number of G-code lines to drop before resend request sent to Host. Octprint>>ESP3D; Min 5
-  //#define RESEND_HANDLER_NOTICE       // Send additional details to host terminal
+  //#define RESEND_HANDLER_NOTICE       // Echo resend details to the host terminal
 #endif
 
 #if ENABLED(SDSUPPORT)
