@@ -144,13 +144,8 @@
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
-      if(TERN1(BLTOUCH_VALIDATE_ON_HOMING, bltouch.validate())) {
-        do_blocking_move_to_xy(destination);
-        homeaxis(Z_AXIS);
-      } else {
-        LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
-        SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
-      }
+      do_blocking_move_to_xy(destination);
+      homeaxis(Z_AXIS);
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);
@@ -483,12 +478,23 @@ void GcodeSuite::G28() {
             stepper.set_separate_multi_axis(false);
           #endif
 
-          #if ENABLED(Z_SAFE_HOMING)
-            if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
-          #else
-            homeaxis(Z_AXIS);
+          #if ENABLED(BLTOUCH_VALIDATE_ON_HOMING)
+            if(!bltouch.validate()) {
+              LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
+              SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
+            } else {
           #endif
-          probe.move_z_after_homing();
+
+            #if ENABLED(Z_SAFE_HOMING)
+              if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+            #else
+              homeaxis(Z_AXIS);
+            #endif
+            probe.move_z_after_homing();
+
+          #if ENABLED(BLTOUCH_VALIDATE_ON_HOMING)
+            }
+          #endif
         }
       #endif
 

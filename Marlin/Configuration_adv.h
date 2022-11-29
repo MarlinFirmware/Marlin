@@ -907,7 +907,7 @@
 
   // Safety: Check that the probe deployment can be detected before homing.
   //         Cross-checks the endstop state when deployed/stowed and throws
-  //         an error if they don't differ. Requires Z_SAFE_HOMING.
+  //         an error if they don't differ.
   //#define BLTOUCH_VALIDATE_ON_HOMING
 
   // Safety: The probe needs time to recognize the command.
