@@ -1,6 +1,6 @@
 
-<img height = 2000 width = 25% align = left  src = './Resources/Space.svg' >
-<img height = 2000 width = 25% align = right src = './Resources/Space.svg' >
+<img height = 2000 width = 20% align = left  src = './Resources/Space.svg' >
+<img height = 2000 width = 20% align = right src = './Resources/Space.svg' >
 
 <div align = center>
 
@@ -36,16 +36,20 @@ At the start of the PlatformIO build process, all active
 options from the configuration are stored into a JSON  
 file, this also includes some extra build information:
 
--   Version Info
--   Git Revision
--   Build Date
+<kbd>  Version Info  </kbd>  
+<kbd>  Git Revision  </kbd>  
+<kbd>  Build Date  </kbd>
 
 <br>
 
 The JSON file is then compressed into a ZIP archive,  
 serialized to a C array and stored in a C++ header.
 
+<br>
+
 `marlin_config.json`  🠖  `.pio/build/mc.zip`  🠖  `mc.h`
+
+<br>
 
 This header file is then included into the build itself.
 
@@ -82,6 +86,8 @@ into the printer while running the firmware.
     unzip mc.zip
     python buildroot/share/PlatformIO/scripts/mc-apply.py
     ```
+    
+    <br>
 
     This will attempt to update the configuration files  
     to match the settings used in the original build.
