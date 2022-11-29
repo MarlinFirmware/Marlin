@@ -656,7 +656,7 @@
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
 #elif MB(BTT_OCTOPUS_V1_1)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB env:BIGTREE_OCTOPUS_V1_F407 env:BIGTREE_OCTOPUS_V1_F407_USB
 #elif MB(BTT_OCTOPUS_PRO_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_PRO_V1_0.h" // STM32F4                               env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB env:BIGTREE_OCTOPUS_PRO_V1_F429 env:BIGTREE_OCTOPUS_PRO_V1_F429_USB
 #elif MB(LERDGE_K)
