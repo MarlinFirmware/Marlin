@@ -91,7 +91,7 @@ void MarlinHAL::init() {
 #if defined(BEEPER_PIN) || ENABLED(ATMEGA_NO_BEEPFIX)
   // Make sure no alternative is locked onto the BEEPER.
   // This fixes the issue where the ATmega is constantly beeping.
-  // Might destroy other peripherals using the pin; to circumvent that please undefine the BEEPER_PIN!
+  // Might destroy other peripherals using the pin; to circumvent that please undefine one of the above things!
   // The true culprit is the AVR ArduinoCore that enables peripherals redundantly.
   // (USART1 on the GeeeTech GT2560)
   _ATmega_savePinAlternate(BEEPER_PIN);
