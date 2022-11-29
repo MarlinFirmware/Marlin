@@ -334,7 +334,9 @@ constexpr ena_mask_t enable_overlap[] = {
   constexpr xyze_float_t max_feedrate = DEFAULT_MAX_FEEDRATE;
   constexpr xyze_float_t steps_per_unit = DEFAULT_AXIS_STEPS_PER_UNIT;
   // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
-  #ifdef __AVR__
+  #ifdef SHAPING_MAX_STEPRATE
+    constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
+  #elif defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
     constexpr float max_isr_rate = _MAX(
                                       LOGICAL_AXIS_LIST(
                                         max_feedrate.e * steps_per_unit.e,
@@ -358,7 +360,12 @@ constexpr ena_mask_t enable_overlap[] = {
     constexpr float max_step_rate = TERN0(INPUT_SHAPING_X, max_feedrate.x * steps_per_unit.x) +
                                     TERN0(INPUT_SHAPING_Y, max_feedrate.y * steps_per_unit.y);
   #endif
-  constexpr uint16_t shaping_echoes = max_step_rate / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
+  #ifdef SHAPING_MIN_FREQ
+    constexpr uint16_t shaping_min_freq = SHAPING_MIN_FREQ;
+  #else
+    constexpr uint16_t shaping_min_freq = _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y));
+  #endif
+  constexpr uint16_t shaping_echoes = max_step_rate / shaping_min_freq / 2 + 3;
 
   typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
