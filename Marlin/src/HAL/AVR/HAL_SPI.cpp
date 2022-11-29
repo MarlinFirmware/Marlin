@@ -33,6 +33,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#include "registers.h"
+
 void spiBegin() {
   #if PIN_EXISTS(SD_SS)
     // Do not init HIGH for boards with pin 4 used as Fans or Heaters or otherwise, not likely to have multiple SPI devices anyway.

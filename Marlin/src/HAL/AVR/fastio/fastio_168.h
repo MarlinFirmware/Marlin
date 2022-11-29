@@ -188,6 +188,8 @@
 #define DIO21_DDR   DDRC
 #define DIO21_PWM   nullptr
 
+#define DIO_NUM 22
+
 #undef PB0
 #define PB0_PIN     PINB0
 #define PB0_RPORT   PINB

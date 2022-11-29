@@ -279,6 +279,8 @@
 #define DIO31_DDR   DDRA
 #define DIO31_PWM   nullptr
 
+#define DIO_NUM 32
+
 #define AIO0_PIN    PINA0
 #define AIO0_RPORT  PINA
 #define AIO0_WPORT  PORTA

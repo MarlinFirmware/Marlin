@@ -380,6 +380,8 @@
 #define DIO47_PWM   0
 #define DIO47_DDR   DDRE
 
+#define DIO_NUM 48
+
 #define TEENSY_E2   46
 #define TEENSY_E3   47
 

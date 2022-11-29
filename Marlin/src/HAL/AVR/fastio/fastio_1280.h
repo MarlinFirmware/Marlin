@@ -586,6 +586,8 @@
 #define DIO85_DDR   DDRH
 #define DIO85_PWM   nullptr
 
+#define DIO_NUM 86
+
 #undef PA0
 #define PA0_PIN     PINA0
 #define PA0_RPORT   PINA

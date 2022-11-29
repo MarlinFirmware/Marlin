@@ -383,6 +383,8 @@
 #define DIO53_DDR   DDRF
 #define DIO53_PWM   nullptr
 
+#define DIO_NUM 54
+
 #undef PA0
 #define PA0_PIN     PINA0
 #define PA0_RPORT   PINA
