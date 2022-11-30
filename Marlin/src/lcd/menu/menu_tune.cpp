@@ -76,12 +76,12 @@
           #if ENABLED(TFT_COLOR_UI)
             lcd_moveto(4, 3);
             lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
-            lcd_put_lchar(':');
+            lcd_put_u8str(F(":"));
             lcd_moveto(10, 3);
           #else
             lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
             lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
-            lcd_put_lchar(':');
+            lcd_put_u8str(F(":"));
           #endif
           lcd_put_u8str(BABYSTEP_TO_STR(mps * babystep.axis_total[BS_TOTAL_IND(axis)]));
         }
