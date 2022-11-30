@@ -1182,9 +1182,17 @@ void CardReader::cdroot() {
 
             // Compare names from the array or just the two buffered names
             #if ENABLED(SDSORT_USES_RAM)
-              #define _SORT_CMP_NODIR() (strcasecmp(sortnames[o1], sortnames[o2]) > 0)
+              #if ENABLED(SDSORT_REVERSE)
+                #define _SORT_CMP_NODIR() (strcasecmp(sortnames[o1], sortnames[o2]) < 0)
+              #else
+                #define _SORT_CMP_NODIR() (strcasecmp(sortnames[o1], sortnames[o2]) > 0)
+              #endif
             #else
-              #define _SORT_CMP_NODIR() (strcasecmp(name1, name2) > 0)
+              #if ENABLED(SDSORT_REVERSE)
+                #define _SORT_CMP_NODIR() (strcasecmp(name1, name2) < 0)
+              #else
+                #define _SORT_CMP_NODIR() (strcasecmp(name1, name2) > 0)
+              #endif    
             #endif
 
             #if HAS_FOLDER_SORTING
