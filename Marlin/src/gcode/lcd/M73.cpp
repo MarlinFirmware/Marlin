@@ -78,19 +78,13 @@ void GcodeSuite::M73() {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM(" M73");
       #if ENABLED(SET_PROGRESS_PERCENT)
-        SERIAL_ECHOPGM(" Progress: ");
-        SERIAL_ECHO(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent()));
-        SERIAL_ECHOPGM("%;");
+        SERIAL_ECHOPGM(" Progress: ", TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent()), "%;");
       #endif
       #if ENABLED(SET_REMAINING_TIME)
-        SERIAL_ECHOPGM(" Time left: ");
-        SERIAL_ECHO(ui.remaining_time / 60);
-        SERIAL_ECHOPGM("m;");
+        SERIAL_ECHOPGM(" Time left: ", ui.remaining_time / 60, "m;");
       #endif
       #if ENABLED(SET_INTERACTION_TIME)
-        SERIAL_ECHOPGM(" Change: ");
-        SERIAL_ECHO(ui.interaction_time / 60);
-        SERIAL_ECHOPGM("m;");
+        SERIAL_ECHOPGM(" Change: ", ui.interaction_time / 60, "m;");
       #endif
       SERIAL_EOL();
     }
