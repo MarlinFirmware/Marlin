@@ -44,6 +44,10 @@
 // 8) copy the extension idea to _ATmega_restorePinAlternate and finish implementing it
 // You need to adjust the eATmegaPort enumeration aswell.
 
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
+#error Fatal error: __AVR_TRMn__ already defined! (n: 01|02|03|04)
+#endif
+
 #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega640__)
 // ATmega2560 technical reference manual date: 28th of November, 2022
 // ATmega640-1280-1281-2560-2561-Datasheet-DS40002211A.pdf
@@ -52,15 +56,20 @@
 // ATmega1284 technical reference manual date: 29th of November, 2022
 // ATmega164A_PA-324A_PA-644A_PA-1284_P_Data-Sheet-40002070B.pdf
 #define __AVR_TRM02__
+#elif defined(__AVR_ATmega48A__) || defined(__AVR_ATmega48PA__) || defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+// ATmega328 technical reference manual date: 29th of November, 2022
+// ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
+#define __AVR_TRM03__
+#elif defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__) || defined(__AVR_AT90USB647__)
+// AT90USB1287 technical reference manual ID: 7593D–AVR–07/06
+// Preliminary.
+#define __AVR_TRM04__
 #endif
 
 // As old as the ATmega series of CPU is, the worse the actual libraries making
 // use of the MCU likely are.
 
 // These registers as references do not take program space since they are purely references.
-
-// Adding 0x20 to the memory location of registers is a retarded idea.
-// See page 403 of ATmega2560 documentation, Note 4.
 
 struct _bit_reg_t {
   uint8_t val;
@@ -76,7 +85,7 @@ struct _bit_reg_t {
   }
 };
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 typedef _bit_reg_t PIN_reg_t;
 typedef _bit_reg_t DDR_reg_t;
@@ -119,7 +128,35 @@ struct PORTG_dev_t {
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM03__)
+
+struct _bitC_reg_t {
+  uint8_t val : 7;
+  uint8_t reserved1 : 1;
+  
+  bool getValue(uint8_t idx) {
+    return ( val & (1<<idx) );
+  }
+  void setValue(uint8_t idx, bool value) {
+    if (value)
+      val |= (1<<idx);
+    else
+      val &= ~(1<<idx);
+  }
+};
+typedef _bitC_reg_t PINC_reg_t;
+typedef _bitC_reg_t DDRC_reg_t;
+typedef _bitC_reg_t PORTC_reg_t;
+
+struct PORTC_dev_t {
+  PINC_reg_t _PIN;
+  DDRC_reg_t _DDR;
+  PORTC_reg_t _PORT;
+};
+
+#endif
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct TIFR0_reg_t {
   uint8_t _TOV0 : 1;
@@ -138,7 +175,7 @@ struct TIFR1_reg_t {
   uint8_t reserved1 : 1;
   uint8_t _ICF1 : 1;
   uint8_t reserved2 : 2;
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   uint8_t _TOV1 : 1;
   uint8_t _OCF1A : 1;
   uint8_t _OCF1B : 1;
@@ -156,6 +193,10 @@ struct TIFR2_reg_t {
   uint8_t reserved1 : 5;
 };
 static_assert(sizeof(TIFR2_reg_t) == 1, "invalid size of ATmega2560 TIFR2_reg_t");
+
+#endif
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
 
 struct TIFR3_reg_t {
 #ifdef __AVR_TRM01__
@@ -205,10 +246,10 @@ static_assert(sizeof(TIFR5_reg_t) == 1, "invalid size of ATmega2560 TIFR5_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct PCIFR_reg_t {
-#ifdef __AVR_TRM01__
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM03__)
   uint8_t _PCIF0 : 1;
   uint8_t _PCIF1 : 1;
   uint8_t _PCIF2 : 1;
@@ -225,7 +266,7 @@ static_assert(sizeof(PCIFR_reg_t) == 1, "invalid size of ATmega2560 PCIFR_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct EIFR_reg_t {
 #if defined(__AVR_TRM01__)
@@ -241,7 +282,11 @@ struct EIFR_reg_t {
   uint8_t _INTF0 : 1;
   uint8_t _INTF1 : 1;
   uint8_t _INTF2 : 1;
-  uint8_t reserved1 : 1;
+  uint8_t reserved1 : 5;
+#elif defined(__AVR_TRM03__)
+  uint8_t _INTF0 : 1;
+  uint8_t _INTF1 : 1;
+  uint8_t reserved1 : 6;
 #endif
 };
 static_assert(sizeof(EIFR_reg_t) == 1, "invalid size of ATmega2560 EIFR_reg_t");
@@ -261,13 +306,17 @@ struct EIMSK_reg_t {
   uint8_t _INT1 : 1;
   uint8_t _INT2 : 1;
   uint8_t reserved1 : 5;
+#elif defined(__AVR_TRM03__)
+  uint8_t _INT0 : 1;
+  uint8_t _INT1 : 1;
+  uint8_t reserved1 : 6;
 #endif
 };
 static_assert(sizeof(EIMSK_reg_t) == 1, "invalid size of ATmega2560 EIMSK_reg_t");
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct EECR_reg_t {
   uint8_t _EERE : 1;
@@ -281,8 +330,17 @@ struct EECR_reg_t {
 static_assert(sizeof(EECR_reg_t) == 1, "invalid size of ATmega2560 EECR_reg_t");
 
 struct EEAR_reg_t {
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   uint16_t _EEAR : 12;
   uint16_t reserved1 : 4;
+#elif defined(__AVR_TRM03__)
+#if defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__) || defined(__AVR_ATmega328P__)
+  uint16_t _EEAR : 16;
+#else
+  uint8_t _EEAR : 8;
+  uint8_t reserved1 : 8;
+#endif
+#endif
 };
 static_assert(sizeof(EEAR_reg_t) == 2, "invalid size of ATmega2560 EEAR_reg_t");
 
@@ -296,29 +354,7 @@ static_assert(sizeof(GTCCR_reg_t) == 1, "invalid size of ATmega2560 GTCCR_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
-
-struct TCCR0A_reg_t {
-  uint8_t _WGM00 : 1;
-  uint8_t _WGM01 : 1;
-  uint8_t reserved1 : 2;
-  uint8_t _COM0B : 2;
-  uint8_t _COM0A : 2;
-};
-static_assert(sizeof(TCCR0A_reg_t) == 1, "invalid size of ATmega2560 TCCR0A_reg_t");
-
-struct TCCR0B_reg_t {
-  uint8_t _CS0 : 3;
-  uint8_t _WGM02 : 1;
-  uint8_t reserved1 : 2;
-  uint8_t _FOC0B : 1;
-  uint8_t _FOC0A : 1;
-};
-static_assert(sizeof(TCCR0B_reg_t) == 1, "invalid size of ATmega2560 TCCR0B_reg_t");
-
-#endif
-
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct SPCR_reg_t {
   uint8_t _SPR : 2;
@@ -341,7 +377,7 @@ static_assert(sizeof(SPSR_reg_t) == 1, "invalid size of ATmega2560 SPSR_reg_t");
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct ACSR_reg_t {
   uint8_t _ACIS : 2;
@@ -356,7 +392,7 @@ static_assert(sizeof(ACSR_reg_t) == 1, "invalid size of ATmega2560 ACSR_reg_t");
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct SMCR_reg_t {
   uint8_t _SE : 1;
@@ -366,12 +402,20 @@ struct SMCR_reg_t {
 static_assert(sizeof(SMCR_reg_t) == 1, "invalid size of ATmega2560 SMCR_reg_t");
 
 struct MCUSR_reg_t {
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   uint8_t _PORF : 1;
   uint8_t _EXTRF : 1;
   uint8_t _BORF : 1;
   uint8_t _WDRF : 1;
   uint8_t _JTRF : 1;
   uint8_t reserved1 : 3;
+#elif defined(__AVR_TRM03__)
+  uint8_t _PORF : 1;
+  uint8_t _EXTRF : 1;
+  uint8_t _BORF : 1;
+  uint8_t _WDRF : 1;
+  uint8_t reserved1 : 4;
+#endif
 };
 static_assert(sizeof(MCUSR_reg_t) == 1, "invalid size of ATmega2560 MCUSR_reg_t");
 
@@ -391,11 +435,20 @@ struct MCUCR_reg_t {
   uint8_t _BODSE : 1;
   uint8_t _BODS : 1;
   uint8_t _JTD : 1;
+#elif defined(__AVR_TRM03__)
+  uint8_t _IVCE : 1;
+  uint8_t _IVSEL : 1;
+  uint8_t reserved1 : 2;
+  uint8_t _PUD : 1;
+  uint8_t _BODSE : 1;
+  uint8_t _BODS : 1;
+  uint8_t reserved2 : 1;
 #endif
 };
 static_assert(sizeof(MCUCR_reg_t) == 1, "invalid size of ATmega2560 MCUCR_reg_t");
 
 struct SPMCSR_reg_t {
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   uint8_t _SPMEN : 1;
   uint8_t _PGERS : 1;
   uint8_t _PGWRT : 1;
@@ -404,6 +457,27 @@ struct SPMCSR_reg_t {
   uint8_t _SIGRD : 1;
   uint8_t _RWWSB : 1;
   uint8_t _SPMIE : 1;
+#elif defined(__AVR_TRM03__)
+#if defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__) || defined(__AVR_ATmega328P__)
+  uint8_t _SPMEN : 1;
+  uint8_t _PGERS : 1;
+  uint8_t _PGWRT : 1;
+  uint8_t _BLBSET : 1;
+  uint8_t _RWWSRE : 1;
+  uint8_t _SIGRD : 1;
+  uint8_t _RWWSB : 1;
+  uint8_t _SPMIE : 1;
+#else
+  uint8_t _SPMEN : 1;
+  uint8_t _PGERS : 1;
+  uint8_t _PGWRT : 1;
+  uint8_t _BLBSET : 1;
+  uint8_t reserved1 : 1;
+  uint8_t _SIGRD : 1;
+  uint8_t reserved2 : 1;
+  uint8_t _SPMIE : 1;
+#endif
+#endif
 };
 static_assert(sizeof(SPMCSR_reg_t) == 1, "invalid size of ATmega2560 SPMCSR_reg_t");
 
@@ -429,7 +503,26 @@ static_assert(sizeof(EIND_reg_t) == 1, "invalid size of ATmega2560 EIND_reg_t");
 
 #endif
 
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
+
+struct SP_reg_t {
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+  uint16_t _SP;
+#elif defined(__AVR_TRM03__)
+#if defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__) || defined(__AVR_ATmega328P__)
+  uint16_t _SP : 11;
+  uint16_t reserved1 : 5;
+#else
+  uint16_t _SP : 10;
+  uint16_t reserved1 : 6;
+#endif
+#endif
+};
+static_assert(sizeof(SP_reg_t) == 2, "invalid size of ATmega2560 SP_reg_t");
+
+#endif
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct SREG_reg_t {
   uint8_t _C : 1;
@@ -464,7 +557,7 @@ static_assert(sizeof(CLKPR_reg_t) == 1, "invalid size of ATmega2560 CLKPR_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct PRR0_reg_t {
 #if defined(__AVR_TRM01__)
@@ -485,9 +578,22 @@ struct PRR0_reg_t {
   uint8_t _PRTIM0 : 1;
   uint8_t _PRTIM2 : 1;
   uint8_t _PRTWI : 1;
+#elif defined(__AVR_TRM03__)
+  uint8_t _PRADC : 1;
+  uint8_t _PRUSART0 : 1;
+  uint8_t _PRSPI : 1;
+  uint8_t _PRTIM1 : 1;
+  uint8_t reserved1 : 1;
+  uint8_t _PRTIM0 : 1;
+  uint8_t _PRTIM2 : 1;
+  uint8_t _PRTWI : 1;
 #endif
 };
 static_assert(sizeof(PRR0_reg_t) == 1, "invalid size of ATmega2560 PRR0_reg_t");
+
+#endif
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
 
 struct PRR1_reg_t {
 #if defined(__AVR_TRM01__)
@@ -507,10 +613,10 @@ static_assert(sizeof(PRR1_reg_t) == 1, "invalid size of ATmega2560 PRR1_reg_t");
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct PCICR_reg_t {
-#if defined(__AVR_TRM01__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM03__)
   uint8_t _PCIE0 : 1;
   uint8_t _PCIE1 : 1;
   uint8_t _PCIE2 : 1;
@@ -536,6 +642,10 @@ struct EICRA_reg_t {
   uint8_t _ISC1 : 2;
   uint8_t _ISC2 : 2;
   uint8_t reserved1 : 2;
+#elif defined(__AVR_TRM03__)
+  uint8_t _ISC0 : 2;
+  uint8_t _ISC1 : 2;
+  uint8_t reserved1 : 4;
 #endif
 };
 static_assert(sizeof(EICRA_reg_t) == 1, "invalid size of ATmega2560 EICRA_reg_t");
@@ -554,7 +664,26 @@ static_assert(sizeof(EICRB_reg_t) == 1, "invalid size of ATmega2560 EICRB_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM03__)
+
+struct _bitPCMSK1_reg_t {
+  uint8_t val : 7;
+  uint8_t reserved1 : 1;
+  
+  bool getValue(uint8_t idx) {
+    return ( val & (1<<idx) );
+  }
+  void setValue(uint8_t idx, bool value) {
+    if (value)
+      val |= (1<<idx);
+    else
+      val &= ~(1<<idx);
+  }
+};
+
+#endif
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct TIMSK0_reg_t {
 #if defined(__AVR_TRM01__)
@@ -565,7 +694,7 @@ struct TIMSK0_reg_t {
   uint8_t reserved1 : 1;
   uint8_t _ICIE0 : 1;
   uint8_t reserved2 : 2;
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   uint8_t _TOIE0 : 1;
   uint8_t _OCIE0A : 1;
   uint8_t _OCIE0B : 1;
@@ -583,7 +712,7 @@ struct TIMSK1_reg_t {
   uint8_t reserved1 : 1;
   uint8_t _ICIE1: 1;
   uint8_t reserved2 : 2;
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   uint8_t _TOIE1 : 1;
   uint8_t _OCIE1A : 1;
   uint8_t _OCIE1B : 1;
@@ -601,6 +730,10 @@ struct TIMSK2_reg_t {
   uint8_t reserved1 : 5;
 };
 static_assert(sizeof(TIMSK2_reg_t) == 1, "invalid size of ATmega2560 TIMSK2_reg_t");
+
+#endif
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
 
 struct TIMSK3_reg_t {
 #if defined(__AVR_TRM01__)
@@ -669,7 +802,7 @@ static_assert(sizeof(XMCRB_reg_t) == 1, "invalid size of ATmega2560 XMCRB_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct ADCSRA_reg_t {
   uint8_t _ADPS : 3;
@@ -688,7 +821,7 @@ struct ADCSRB_reg_t {
   uint8_t reserved1 : 2;
   uint8_t _ACME : 1;
   uint8_t reserved2 : 1;
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   uint8_t _ADTS : 3;
   uint8_t reserved1 : 3;
   uint8_t _ACME : 1;
@@ -698,6 +831,7 @@ struct ADCSRB_reg_t {
 static_assert(sizeof(ADCSRB_reg_t) == 1, "invalid size of ATmega2560 ADCSRB_reg_t");
 
 struct ADMUX_reg_t {
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   uint8_t _MUX0 : 1;
   uint8_t _MUX1 : 1;
   uint8_t _MUX2 : 1;
@@ -706,6 +840,16 @@ struct ADMUX_reg_t {
   uint8_t _ADLAR : 1;
   uint8_t _REFS0 : 1;
   uint8_t _REFS1 : 1;
+#elif defined(__AVR_TRM03__)
+  uint8_t _MUX0 : 1;
+  uint8_t _MUX1 : 1;
+  uint8_t _MUX2 : 1;
+  uint8_t _MUX3 : 1;
+  uint8_t reserved1 : 1;
+  uint8_t _ADLAR : 1;
+  uint8_t _REFS0 : 1;
+  uint8_t _REFS1 : 1;
+#endif
 };
 static_assert(sizeof(ADMUX_reg_t) == 1, "invalid size of ATmega2560 ADMUX_reg_t");
 
@@ -727,9 +871,10 @@ static_assert(sizeof(DIDR2_reg_t) == 1, "invalid size of ATmega2560 DIDR2_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct DIDR0_reg_t {
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   uint8_t _ADC0D : 1;
   uint8_t _ADC1D : 1;
   uint8_t _ADC2D : 1;
@@ -738,6 +883,15 @@ struct DIDR0_reg_t {
   uint8_t _ADC5D : 1;
   uint8_t _ADC6D : 1;
   uint8_t _ADC7D : 1;
+#elif defined(__AVR_TRM03__)
+  uint8_t _ADC0D : 1;
+  uint8_t _ADC1D : 1;
+  uint8_t _ADC2D : 1;
+  uint8_t _ADC3D : 1;
+  uint8_t _ADC4D : 1;
+  uint8_t _ADC5D : 1;
+  uint8_t reserved1 : 2;
+#endif
 };
 static_assert(sizeof(DIDR0_reg_t) == 1, "invalid size of ATmega2560 DIDR0_reg_t");
 
@@ -750,7 +904,7 @@ static_assert(sizeof(DIDR1_reg_t) == 1, "invalid size of ATmega2560 DIDR1_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct TCCRnA_reg_t {
 #if defined(__AVR_TRM01__)
@@ -759,7 +913,7 @@ struct TCCRnA_reg_t {
   uint8_t _COMnC : 2;
   uint8_t _COMnB : 2;
   uint8_t _COMnA : 2;
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   uint8_t _WGMn0 : 1;
   uint8_t _WGMn1 : 1;
   uint8_t reserved1 : 2;
@@ -785,7 +939,7 @@ struct TCCRnC_reg_t {
   uint8_t _FOCnC : 1;
   uint8_t _FOCnB : 1;
   uint8_t _FOCnA : 1;
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   uint8_t reserved1 : 6;
   uint8_t _FOCnB : 1;
   uint8_t _FOCnA : 1;
@@ -808,13 +962,13 @@ struct TIMER_dev_t {
 };
 #if defined(__AVR_TRM01__)
 static_assert(sizeof(TIMER_dev_t) == 14, "invalid size of ATmega2560 TIMER_dev_t");
-#elif defined(__AVR_TRM02__)
+#elif defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 static_assert(sizeof(TIMER_dev_t) == 12, "invalid size of ATmega1284 TIMER_dev_t");
 #endif
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct TCCRnA_8bit_reg_t {
   uint8_t _WGMn0 : 1;
@@ -845,7 +999,7 @@ static_assert(sizeof(TIMER_8bit_dev_t) == 5, "invalid size of ATmega2560 TIMER_8
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct ASSR_reg_t {
   uint8_t _TCR2BUB : 1;
@@ -861,7 +1015,7 @@ static_assert(sizeof(ASSR_reg_t) == 1, "invalid size of ATmega2560 ASSR_reg_t");
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct TWSR_reg_t {
   uint8_t _TWPS0 : 1;
@@ -901,7 +1055,7 @@ static_assert(sizeof(TWAMR_reg_t) == 1, "invalid size of ATmega2560 TWAMR_reg_t"
 
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 
 struct UBRRn_reg_t {
   uint16_t _UBRR : 12;
@@ -996,7 +1150,7 @@ static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
 static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
 static RAMPZ_reg_t& _RAMPZ = *(RAMPZ_reg_t*)0x5B;
 static EIND_reg_t& _EIND = *(EIND_reg_t*)0x5C;
-static uint16_t& _SP = *(uint16_t*)0x5D;
+static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
 static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
 static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
 static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
@@ -1070,7 +1224,7 @@ static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
 static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
 static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
 static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static uint16_t& _SP = *(uint16_t*)0x5D;
+static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
 static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
 static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
 static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
@@ -1095,15 +1249,73 @@ static DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
 static DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
 static TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x70;
 static TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
-static TIMER_8bit_dev_t& TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static TWBR_reg_t& _TWBR = *(TWBR_reg_t*)0xB8;
+static TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
+static ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
+static uint8_t& _TWBR = *(uint8_t*)0xB8;
 static TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
 static TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
 static uint8_t& _TWDR = *(uint8_t*)0xBB;
 static TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
 static TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static USART_dev_t& USART0 = *(USART0_dev_t*)0xC0;
-static USART_dev_t& USART1 = *(USART1_dev_t*)0xC8;
+static USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
+static USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
+
+#elif defined(__AVR_TRM03__)
+// page 621ff of ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
+static PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
+static PORTC_dev_t& _PORTC = *(PORTC_dev_t*)0x26;
+static PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
+static TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
+static TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
+static TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
+static PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
+static EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
+static EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
+static _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
+static EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
+static uint8_t& _EEDR = *(uint8_t*)0x40;
+static EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
+static GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
+static TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
+static _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
+static _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
+static SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
+static SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
+static ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
+static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
+static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
+static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
+static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
+static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
+static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
+static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
+static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
+static PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
+static uint8_t& _OSCCAL = *(uint8_t*)0x66;
+static PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
+static EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
+static _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
+static _bitPCMSK1_reg_t& _PCMSK1 = *(_bitPCMSK1_reg_t*)0x6C;
+static _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
+static TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
+static TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
+static TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
+static uint16_t& _ADC = *(uint16_t*)0x78;
+static ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
+static ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
+static ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
+static DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
+static DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
+static TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
+static TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
+static ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
+static uint8_t& _TWBR = *(uint8_t*)0xB8;
+static TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
+static TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
+static uint8_t& _TWDR = *(uint8_t*)0xBB;
+static TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
+static TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
+static USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
 #endif
 
 /*
@@ -1114,7 +1326,7 @@ inline void _ATmega_resetperipherals() {
   // Due to BOOTLOADER or other board inconsistencies we could get launched into Marlin FW
   // with configuration that does not match the reset state in the documentation. That is why
   // we should clean-reset the entire device.
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   SREG_reg_t __SREG;
   __SREG._C = false;
   __SREG._Z = false;
@@ -1132,12 +1344,12 @@ inline void _ATmega_resetperipherals() {
   _EIND._EIND0 = false;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _EEAR._EEAR = 0;
   _EEDR = 0;
 #endif
   
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   EECR_reg_t __EECR;
   __EECR._EERE = false;
   __EECR._EEPE = false;
@@ -1149,7 +1361,7 @@ inline void _ATmega_resetperipherals() {
   _EECR = __EECR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _GPIOR2.val = 0;
   _GPIOR1.val = 0;
   _GPIOR0.val = 0;
@@ -1170,7 +1382,7 @@ inline void _ATmega_resetperipherals() {
   _XMCRB = __XMCRB;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   SMCR_reg_t __SMCR;
   __SMCR._SE = false;
   __SMCR._SM = 0;
@@ -1178,9 +1390,9 @@ inline void _ATmega_resetperipherals() {
   _SMCR = __SMCR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   PRR0_reg_t __PRR0;
-#ifdef __AVR_TRM01
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM03__)
   __PRR0._PRADC = false;
   __PRR0._PRUSART0 = false;
   __PRR0._PRSPI = false;
@@ -1200,7 +1412,9 @@ inline void _ATmega_resetperipherals() {
   __PRR0._PRTWI = false;
 #endif
   _PRR0 = __PRR0;
+#endif
 
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   PRR1_reg_t __PRR1;
 #if defined(__AVR_TRM01__)
   __PRR1._PRUSART1 = false;
@@ -1217,7 +1431,7 @@ inline void _ATmega_resetperipherals() {
   _PRR1 = __PRR1;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   WDTCSR_reg_t __WDTCSR;
   __WDTCSR._WDP0 = 0;
   __WDTCSR._WDP1 = 0;
@@ -1230,11 +1444,11 @@ inline void _ATmega_resetperipherals() {
   _WDTCSR = __WDTCSR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _MCUCR._PUD = false;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   PORT_dev_t __PORT;
   __PORT._PIN.val = 0;
   __PORT._DDR.val = 0;
@@ -1243,8 +1457,10 @@ inline void _ATmega_resetperipherals() {
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   _PORTA = __PORT;
-  _PORTB = __PORT;
   _PORTC = __PORT;
+#endif
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
+  _PORTB = __PORT;
   _PORTD = __PORT;
 #endif
 #if defined(__AVR_TRM01__)
@@ -1255,10 +1471,23 @@ inline void _ATmega_resetperipherals() {
 #if defined(__AVR_TRM01__)
   PORTG_dev_t __PORTG;
   __PORTG._PIN.val = 0;
+  __PORTG._PIN.reserved1 = 0;
   __PORTG._DDR.val = 0;
+  __PORTG._DDR.reserved1 = 0;
   __PORTG._PORT.val = 0;
   __PORTG._PORT.reserved1 = 0;
   _PORTG = __PORTG;
+#endif
+
+#if defined(__AVR_TRM03__)
+  PORTC_dev_t __PORTC;
+  __PORTC._PIN.val = 0;
+  __PORTC._PIN.reserved1 = 0;
+  __PORTC._DDR.val = 0;
+  __PORTC._DDR.reserved1 = 0;
+  __PORTC._PORT.val = 0;
+  __PORTC._PORT.reserved1 = 0;
+  _PORTC = __PORTC;
 #endif
 
 #if defined(__AVR_TRM01__)
@@ -1268,7 +1497,7 @@ inline void _ATmega_resetperipherals() {
   _PORTL = __PORT;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   EICRA_reg_t __EICRA;
 #if defined(__AVR_TRM01__)
   __EICRA._ISC0 = 0;
@@ -1279,6 +1508,10 @@ inline void _ATmega_resetperipherals() {
   __EICRA._ISC0 = 0;
   __EICRA._ISC1 = 0;
   __EICRA._ISC2 = 0;
+  __EICRA.reserved1 = 0;
+#elif defined(__AVR_TRM03__)
+  __EICRA._ISC0 = 0;
+  __EICRA._ISC1 = 0;
   __EICRA.reserved1 = 0;
 #endif
   _EICRA = __EICRA;
@@ -1293,7 +1526,7 @@ inline void _ATmega_resetperipherals() {
   _EICRB = __EICRB;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   EIMSK_reg_t __EIMSK;
 #if defined(__AVR_TRM01__)
   __EIMSK._INT0 = false;
@@ -1309,11 +1542,15 @@ inline void _ATmega_resetperipherals() {
   __EIMSK._INT1 = false;
   __EIMSK._INT2 = false;
   __EIMSK.reserved1 = 0;
+#elif defined(__AVR_TRM03__)
+  __EIMSK._INT0 = false;
+  __EIMSK._INT1 = false;
+  __EIMSK.reserved1 = 0;
 #endif
   _EIMSK = __EIMSK;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   EIFR_reg_t __EIFR;
 #if defined(__AVR_TRM01__)
   __EIFR._INTF0 = false;
@@ -1329,13 +1566,17 @@ inline void _ATmega_resetperipherals() {
   __EIFR._INTF1 = false;
   __EIFR._INTF2 = false;
   __EIFR.reserved1 = 0;
+#elif defined(__AVR_TRM03__)
+  __EIFR._INTF0 = false;
+  __EIFR._INTF1 = false;
+  __EIFR.reserved1 = 0;
 #endif
   _EIFR = __EIFR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   PCICR_reg_t __PCICR;
-#if defined(__AVR_TRM01__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM03__)
   __PCICR._PCIE0 = false;
   __PCICR._PCIE1 = false;
   __PCICR._PCIE2 = false;
@@ -1350,9 +1591,9 @@ inline void _ATmega_resetperipherals() {
   _PCICR = __PCICR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   PCIFR_reg_t __PCIFR;
-#if defined(__AVR_TRM01__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM03__)
   __PCIFR._PCIF0 = false;
   __PCIFR._PCIF1 = false;
   __PCIFR._PCIF2 = false;
@@ -1367,7 +1608,7 @@ inline void _ATmega_resetperipherals() {
   _PCIFR = __PCIFR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _PCMSK2.val = 0;
   _PCMSK1.val = 0;
   _PCMSK0.val = 0;
@@ -1375,8 +1616,11 @@ inline void _ATmega_resetperipherals() {
 #if defined(__AVR_TRM02__)
   _PCMSK3.val = 0;
 #endif
+#if defined(__AVR_TRM03__)
+  _PCMSK1.reserved1 = 0;
+#endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   TIMER_8bit_dev_t __TIMER_8bit;
   __TIMER_8bit._TCCRnA._WGMn0 = 0;
   __TIMER_8bit._TCCRnA._WGMn1 = 0;
@@ -1394,7 +1638,7 @@ inline void _ATmega_resetperipherals() {
   TIMER0 = __TIMER_8bit;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   TIMSK0_reg_t __TIMSK0;
   __TIMSK0._TOIE0 = false;
   __TIMSK0._OCIE0A = false;
@@ -1410,7 +1654,7 @@ inline void _ATmega_resetperipherals() {
   _TIFR0 = __TIFR0;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   TIMER_dev_t TIMER;
   TIMER._TCCRnA._WGMn0 = 0;
   TIMER._TCCRnA._WGMn1 = 0;
@@ -1438,6 +1682,8 @@ inline void _ATmega_resetperipherals() {
 #endif
   TIMER._ICRn = 0;
   TIMER1 = TIMER;
+#endif
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   TIMER3 = TIMER;
 #endif
 #if defined(__AVR_TRM01__)
@@ -1445,7 +1691,7 @@ inline void _ATmega_resetperipherals() {
   TIMER5 = TIMER;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   TIMSK1_reg_t __TIMSK1;
   __TIMSK1._TOIE1 = false;
   __TIMSK1._OCIE1A = false;
@@ -1457,7 +1703,9 @@ inline void _ATmega_resetperipherals() {
   __TIMSK1._ICIE1 = false;
   __TIMSK1.reserved2 = 0;
   _TIMSK1 = __TIMSK1;
+#endif
 
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   TIMSK3_reg_t __TIMSK3;
   __TIMSK3._TOIE3 = false;
   __TIMSK3._OCIE3A = false;
@@ -1493,7 +1741,7 @@ inline void _ATmega_resetperipherals() {
   _TIMSK5 = __TIMSK5;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   TIFR1_reg_t __TIFR1;
   __TIFR1._TOV1 = false;
   __TIFR1._OCF1A = false;
@@ -1505,7 +1753,9 @@ inline void _ATmega_resetperipherals() {
   __TIFR1._ICF1 = false;
   __TIFR1.reserved2 = 0;
   _TIFR1 = __TIFR1;
+#endif
 
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   TIFR3_reg_t __TIFR3;
   __TIFR3._TOV3 = false;
   __TIFR3._OCF3A = false;
@@ -1541,11 +1791,11 @@ inline void _ATmega_resetperipherals() {
   _TIFR5 = __TIFR5;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _TIMER2 = __TIMER_8bit;
 #endif
 
-#if defined(__AV_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AV_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   ASSR_reg_t __ASSR;
   __ASSR._TCR2BUB = false;
   __ASSR._TCR2AUB = false;
@@ -1558,7 +1808,7 @@ inline void _ATmega_resetperipherals() {
   _ASSR = __ASSR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   TIMSK2_reg_t __TIMSK2;
   __TIMSK2._TOIE2 = false;
   __TIMSK2._OCIE2A = false;
@@ -1574,7 +1824,7 @@ inline void _ATmega_resetperipherals() {
   _TIFR2 = __TIFR2;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   SPCR_reg_t __SPCR;
   __SPCR._SPR = 0;
   __SPCR._CPHA = 0;
@@ -1593,7 +1843,7 @@ inline void _ATmega_resetperipherals() {
   _SPSR = __SPSR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   USART_dev_t USART;
   USART._UDRn = 0;
   USART._UCSRnA._MPCM = false;
@@ -1622,6 +1872,8 @@ inline void _ATmega_resetperipherals() {
   USART._UBRRn._UBRR = 0;
   USART._UBRRn.reserved1 = 0;
   USART0 = USART;
+#endif
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   USART1 = USART;
 #endif
 #if defined(__AVR_TRM01__)
@@ -1629,7 +1881,7 @@ inline void _ATmega_resetperipherals() {
   USART3 = USART;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _TWBR = 0;
 
   TWCR_reg_t __TWCR;
@@ -1667,7 +1919,7 @@ inline void _ATmega_resetperipherals() {
   _TWAMR = __TWAMR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   ADCSRB_reg_t __ADCSRB;
   __ADCSRB._ADTS = 0;
 #if defined(__AVR_TRM01__)
@@ -1689,7 +1941,7 @@ inline void _ATmega_resetperipherals() {
   _ACSR = __ACSR;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   DIDR1_reg_t __DIDR1;
   __DIDR1._AIN0D = false;
   __DIDR1._AIN1D = false;
@@ -1697,13 +1949,17 @@ inline void _ATmega_resetperipherals() {
   _DIDR1 = __DIDR1;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   ADMUX_reg_t __ADMUX;
   __ADMUX._MUX0 = 0;
   __ADMUX._MUX1 = 0;
   __ADMUX._MUX2 = 0;
   __ADMUX._MUX3 = 0;
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   __ADMUX._MUX4 = 0;
+#elif defined(__AVR_TRM03__)
+  __ADMUX.reserved1 = 0;
+#endif
   __ADMUX._ADLAR = 0;
   __ADMUX._REFS0 = 0;
   __ADMUX._REFS1 = 0;
@@ -1721,8 +1977,9 @@ inline void _ATmega_resetperipherals() {
   _ADC = 0;
 #endif
 
-#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   SPMCSR_reg_t __SPMCSR;
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   __SPMCSR._SPMEN = false;
   __SPMCSR._PGERS = false;
   __SPMCSR._PGWRT = false;
@@ -1731,6 +1988,27 @@ inline void _ATmega_resetperipherals() {
   __SPMCSR._SIGRD = false;
   __SPMCSR._RWWSB = false;
   __SPMCSR._SPMIE = false;
+#elif defined(__AVR_TRM03__)
+#if defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__) || defined(__AVR_ATmega328P__)
+  __SPMCSR._SPMEN = false;
+  __SPMCSR._PGERS = false;
+  __SPMCSR._PGWRT = false;
+  __SPMCSR._BLBSET = false;
+  __SPMCSR._RWWSRE = false;
+  __SPMCSR._SIGRD = false;
+  __SPMCSR._RWWSB = false;
+  __SPMCSR._SPMIE = false;
+#else
+  __SPMCSR._SPMEN = false;
+  __SPMCSR._PGERS = false;
+  __SPMCSR._PGWRT = false;
+  __SPMCSR._BLBSET = false;
+  __SPMCSR.reserved1 = false;
+  __SPMCSR._SIGRD = false;
+  __SPMCSR.reserved2 = false;
+  __SPMCSR._SPMIE = false;
+#endif
+#endif
   _SPMCSR = __SPMCSR;
 #endif
 }
@@ -1785,6 +2063,23 @@ struct pin_dev_state_t {
   uint8_t _USART1_TXEN : 1;
   uint8_t _USART1_RXEN : 1;
   uint8_t _USART0_TXEN : 1;
+#elif defined(__AVR_TRM03__)
+  uint8_t _AS2 : 1;
+  uint8_t _PCIE0 : 1;
+  uint8_t _PCIE1 : 1;
+  uint8_t _PCIE2 : 1;
+  uint8_t _SPE : 1;
+  uint8_t _COM2B : 2;
+  uint8_t _COM2A : 2;
+  uint8_t _COM1B : 2;
+  uint8_t _COM1A : 2;
+  uint8_t _COM0A : 2;
+  uint8_t _COM0B : 2;
+  uint8_t _TWEN : 1;
+  uint8_t _ADCnD : 1;
+  uint8_t _UMSEL : 2;
+  uint8_t _USART0_TXEN : 1;
+  uint8_t _USART0_RXEN : 1;
 #endif
 };
 
@@ -1795,6 +2090,8 @@ enum class eATmegaPort {
   PORT_A, PORT_B, PORT_C, PORT_D, PORT_E, PORT_F, PORT_G, PORT_H, PORT_J, PORT_K, PORT_L
 #elif defined(__AVR_TRM02__)
   PORT_A, PORT_B, PORT_C, PORT_D
+#elif defined(__AVR_TRM03__)
+  PORT_B, PORT_C, PORT_D
 #endif
 };
 
@@ -1805,6 +2102,8 @@ struct ATmegaPinInfo {
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
 #define _SPA_DIO_DDRA (eATmegaPort::PORT_A)
+#endif
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
 #define _SPA_DIO_DDRB (eATmegaPort::PORT_B)
 #define _SPA_DIO_DDRC (eATmegaPort::PORT_C)
 #define _SPA_DIO_DDRD (eATmegaPort::PORT_D)
@@ -1821,57 +2120,57 @@ struct ATmegaPinInfo {
 
 #define __SPA_IFPORT_STMT(dr) if (ddrp == &D##dr) port = _SPA_DIO_D##dr;
 
-#ifdef PORTA
+#ifdef _SPA_DIO_DDRA
 #define _SPA_IFPORT_PORTA __SPA_IFPORT_STMT(DRA)
 #else
 #define _SPA_IFPORT_PORTA
 #endif
-#ifdef PORTB
+#ifdef _SPA_DIO_DDRB
 #define _SPA_IFPORT_PORTB __SPA_IFPORT_STMT(DRB)
 #else
 #define _SPA_IFPORT_PORTB
 #endif
-#ifdef PORTC
+#ifdef _SPA_DIO_DDRC
 #define _SPA_IFPORT_PORTC __SPA_IFPORT_STMT(DRC)
 #else
 #define _SPA_IFPORT_PORTC
 #endif
-#ifdef PORTD
+#ifdef _SPA_DIO_DDRD
 #define _SPA_IFPORT_PORTD __SPA_IFPORT_STMT(DRD)
 #else
 #define _SPA_IFPORT_PORTD
 #endif
-#ifdef PORTE
+#ifdef _SPA_DIO_DDRE
 #define _SPA_IFPORT_PORTE __SPA_IFPORT_STMT(DRE)
 #else
 #define _SPA_IFPORT_PORTE
 #endif
-#ifdef PORTF
+#ifdef _SPA_DIO_DDRF
 #define _SPA_IFPORT_PORTF __SPA_IFPORT_STMT(DRF)
 #else
 #define _SPA_IFPORT_PORTF
 #endif
-#ifdef PORTG
+#ifdef _SPA_DIO_DDRG
 #define _SPA_IFPORT_PORTG __SPA_IFPORT_STMT(DRG)
 #else
 #define _SPA_IFPORT_PORTG
 #endif
-#ifdef PORTH
+#ifdef _SPA_DIO_DDRH
 #define _SPA_IFPORT_PORTH __SPA_IFPORT_STMT(DRH)
 #else
 #define _SPA_IFPORT_PORTH
 #endif
-#ifdef PORTJ
+#ifdef _SPA_DIO_DDRJ
 #define _SPA_IFPORT_PORTJ __SPA_IFPORT_STMT(DRJ)
 #else
 #define _SPA_IFPORT_PORTJ
 #endif
-#ifdef PORTK
+#ifdef _SPA_DIO_DDRK
 #define _SPA_IFPORT_PORTK __SPA_IFPORT_STMT(DRK)
 #else
 #define _SPA_IFPORT_PORTK
 #endif
-#ifdef PORTL
+#ifdef _SPA_DIO_DDRL
 #define _SPA_IFPORT_PORTL __SPA_IFPORT_STMT(DRL)
 #else
 #define _SPA_IFPORT_PORTL
@@ -2176,7 +2475,11 @@ inline ATmegaPinInfo _ATmega_getPinInfo(uint8_t pin) {
 #endif
 
   // Default.
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
   return { eATmegaPort::PORT_A, 0 };
+#elif defined(__AVR_TRM03__)
+  return { eATmegaPort::PORT_B, 0 };
+#endif
 }
 
 inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
@@ -2438,7 +2741,7 @@ inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
     state._AS2 = _ASSR._AS2;
     state._PCIE2 = _PCICR._PCIE2;
 
-    _ADDR._AS2 = false;
+    _ASSR._AS2 = false;
     _PCICR._PCIE2 = false;
   }
   else if (info.port == eATmegaPort::PORT_D) {
@@ -2457,14 +2760,14 @@ inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
       _TIMER2._TCCRnA._COMnB = 0;
     }
     else if (info.pinidx == 5) {
-      state._COM1A = _TIMER1._TCCRnA._COMnA;
+      state._COM1A = TIMER1._TCCRnA._COMnA;
 
-      _TIMER1._TCCRnA._COMnA = 0;
+      TIMER1._TCCRnA._COMnA = 0;
     }
     else if (info.pinidx == 4) {
-      state._COM1B = _TIMER1._TCCRnB._COMnB;
+      state._COM1B = TIMER1._TCCRnA._COMnB;
 
-      _TIMER1._TCCRnA._COMnB = 0;
+      TIMER1._TCCRnA._COMnB = 0;
     }
     else if (info.pinidx == 3) {
       state._USART1_TXEN = USART1._UCSRnB._TXEN;
@@ -2480,6 +2783,124 @@ inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
       state._USART0_TXEN = USART0._UCSRnB._TXEN;
 
       USART0._UCSRnB._TXEN = false;
+    }
+  }
+#elif defined(__AVR_TRM03__)
+  if (info.port == eATmegaPort::PORT_B) {
+    state._PCIE0 = _PCICR._PCIE0;
+
+    _PCICR._PCIE0 = false;
+
+    if (info.pinidx <= 7 && info.pinidx <= 6) {
+      state._AS2 = _ASSR._AS2;
+
+      _ASSR._AS2 = false;
+    }
+    else if (info.pinidx <= 5 && info.pinidx >= 2) {
+      state._SPE = _SPCR._SPE;
+
+      _SPCR._SPE = false;
+    }
+
+    if (info.pinidx == 3) {
+      state._COM2A = _TIMER2._TCCRnA._COMnA;
+
+      _TIMER2._TCCRnA._COMnA = 0;
+    }
+    else if (info.pinidx == 2) {
+      state._COM1B = TIMER1._TCCRnA._COMnB;
+
+      TIMER1._TCCRnA._COMnB = 0;
+    }
+    else if (info.pinidx == 1) {
+      state._COM1A = TIMER1._TCCRnA._COMnA;
+
+      TIMER1._TCCRnA._COMnA = 0;
+    }
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    state._PCIE1 = _PCICR._PCIE1;
+
+    _PCICR._PCIE1 = false;
+
+    if (info.pinidx <= 5 && info.pinidx >= 4) {
+      state._TWEN = _TWCR._TWEN;
+
+      _TWCR._TWEN = false;
+    }
+
+    if (info.pinidx == 5) {
+      state._ADCnD = _DIDR0._ADC5D;
+
+      _DIDR0._ADC5D = false;
+    }
+    else if (info.pinidx == 4) {
+      state._ADCnD = _DIDR0._ADC4D;
+
+      _DIDR0._ADC4D = false;
+    }
+    if (info.pinidx == 3) {
+      state._ADCnD = _DIDR0._ADC3D;
+
+      _DIDR0._ADC3D = false;
+    }
+    if (info.pinidx == 2) {
+      state._ADCnD = _DIDR0._ADC2D;
+
+      _DIDR0._ADC2D = false;
+    }
+    if (info.pinidx == 1) {
+      state._ADCnD = _DIDR0._ADC1D;
+
+      _DIDR0._ADC1D = false;
+    }
+    if (info.pinidx == 0) {
+      state._ADCnD = _DIDR0._ADC0D;
+
+      _DIDR0._ADC0D = false;
+    }
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    if (info.pinidx == 2) {
+      state._PCIE1 = _PCICR._PCIE1;
+
+      _PCICR._PCIE1 = false;
+    }
+    else {
+      state._PCIE2 = _PCICR._PCIE2;
+
+      _PCICR._PCIE2 = false;
+    }
+
+    if (info.pinidx == 6) {
+      state._COM0A = TIMER0._TCCRnA._COMnA;
+
+      TIMER0._TCCRnA._COMnA = 0;
+    }
+    else if (info.pinidx == 5) {
+      state._COM0B = TIMER0._TCCRnA._COMnB;
+
+      TIMER0._TCCRnA._COMnB = 0;
+    }
+    else if (info.pinidx == 4) {
+      state._UMSEL = USART0._UCSRnC._UMSEL;
+
+      USART0._UCSRnC._UMSEL = 0;
+    }
+    else if (info.pinidx == 3) {
+      state._COM2B = _TIMER2._TCCRnA._COMnB;
+
+      _TIMER2._TCCRnA._COMnB = 0;
+    }
+    else if (info.pinidx == 1) {
+      state._USART0_TXEN = USART0._UCSRnB._TXEN;
+
+      USART0._UCSRnB._TXEN = false;
+    }
+    else if (info.pinidx == 0) {
+      state._USART0_RXEN = USART0._UCSRnB._RXEN;
+
+      USART0._UCSRnB._RXEN = false;
     }
   }
 #endif
@@ -2649,7 +3070,7 @@ inline void _ATmega_restorePinAlternate(uint8_t pin, const pin_dev_state_t& stat
     }
   }
   else if (info.port == eATmegaPort::PORT_C) {
-    _ADDR._AS2 = state._AS2;
+    _ASSR._AS2 = state._AS2;
     _PCICR._PCIE2 = state._PCIE2;
   }
   else if (info.port == eATmegaPort::PORT_D) {
@@ -2662,10 +3083,10 @@ inline void _ATmega_restorePinAlternate(uint8_t pin, const pin_dev_state_t& stat
       _TIMER2._TCCRnA._COMnB = state._COM2B;
     }
     else if (info.pinidx == 5) {
-      _TIMER1._TCCRnA._COMnA = state._COM1A;
+      TIMER1._TCCRnA._COMnA = state._COM1A;
     }
     else if (info.pinidx == 4) {
-      _TIMER1._TCCRnA._COMnB = state._COM1B;
+      TIMER1._TCCRnA._COMnB = state._COM1B;
     }
     else if (info.pinidx == 3) {
       USART1._UCSRnB._TXEN = state._USART1_TXEN;
@@ -2675,6 +3096,80 @@ inline void _ATmega_restorePinAlternate(uint8_t pin, const pin_dev_state_t& stat
     }
     else if (info.pinidx == 1) {
       USART0._UCSRnB._TXEN = state._USART0_TXEN;
+    }
+  }
+#elif defined(__AVR_TRM03__)
+  if (info.port == eATmegaPort::PORT_B) {
+    _PCICR._PCIE0 = state._PCIE0;
+
+    if (info.pinidx <= 7 && info.pinidx <= 6) {
+      _ASSR._AS2 = state._AS2;
+    }
+    else if (info.pinidx <= 5 && info.pinidx >= 2) {
+      _SPCR._SPE = state._SPE;
+    }
+
+    if (info.pinidx == 3) {
+      _TIMER2._TCCRnA._COMnA = state._COM2A;
+    }
+    else if (info.pinidx == 2) {
+      TIMER1._TCCRnA._COMnB = state._COM1B;
+    }
+    else if (info.pinidx == 1) {
+      TIMER1._TCCRnA._COMnA = state._COM1A;
+    }
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PCICR._PCIE1 = state._PCIE1;
+
+    if (info.pinidx <= 5 && info.pinidx >= 4) {
+      _TWCR._TWEN = state._TWEN;
+    }
+
+    if (info.pinidx == 5) {
+      _DIDR0._ADC5D = state._ADCnD;
+    }
+    else if (info.pinidx == 4) {
+      _DIDR0._ADC4D = state._ADCnD;
+    }
+    if (info.pinidx == 3) {
+      _DIDR0._ADC3D = state._ADCnD;
+    }
+    if (info.pinidx == 2) {
+      _DIDR0._ADC2D = state._ADCnD;
+    }
+    if (info.pinidx == 1) {
+      _DIDR0._ADC1D = state._ADCnD;
+    }
+    if (info.pinidx == 0) {
+      _DIDR0._ADC0D = state._ADCnD;
+    }
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    if (info.pinidx == 2) {
+      _PCICR._PCIE1 = state._PCIE1;
+    }
+    else {
+      _PCICR._PCIE2 = state._PCIE2;
+    }
+
+    if (info.pinidx == 6) {
+      TIMER0._TCCRnA._COMnA = state._COM0A;
+    }
+    else if (info.pinidx == 5) {
+      TIMER0._TCCRnA._COMnB = state._COM0B;
+    }
+    else if (info.pinidx == 4) {
+      USART0._UCSRnC._UMSEL = state._UMSEL;
+    }
+    else if (info.pinidx == 3) {
+      _TIMER2._TCCRnA._COMnB = state._COM2B;
+    }
+    else if (info.pinidx == 1) {
+      USART0._UCSRnB._TXEN = state._USART0_TXEN;
+    }
+    else if (info.pinidx == 0) {
+      USART0._UCSRnB._RXEN = state._USART0_RXEN;
     }
   }
 #endif
