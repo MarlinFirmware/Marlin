@@ -75,6 +75,9 @@ enum menuID : uint8_t {
         ColorSettings,
       Advanced,
         ProbeMenu,
+      #if HAS_TRINAMIC_CONFIG
+        TMCMenu,
+      #endif
       Info,
     Leveling,
       LevelManual,
