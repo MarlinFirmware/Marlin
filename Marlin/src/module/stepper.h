@@ -331,28 +331,23 @@ constexpr ena_mask_t enable_overlap[] = {
 #if HAS_SHAPING
 
   // These constexpr are used to calculate the shaping queue buffer sizes
-  constexpr xyze_float_t max_feedrate = DEFAULT_MAX_FEEDRATE;
-  constexpr xyze_float_t steps_per_unit = DEFAULT_AXIS_STEPS_PER_UNIT;
-  // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
+  struct DistinctAxes{ float x, y, z, i, j, k, u, v, w, e0, e1, e2, e3, e4, e5, e6, e7; };
+  constexpr DistinctAxes max_feedrate = DEFAULT_MAX_FEEDRATE;
+  constexpr DistinctAxes steps_per_unit = DEFAULT_AXIS_STEPS_PER_UNIT;
+  constexpr float _max_feedrate[] = DEFAULT_MAX_FEEDRATE;
+  constexpr float _steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+
   #ifdef SHAPING_MAX_STEPRATE
     constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
+  // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
   #elif defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
-    constexpr float max_isr_rate = _MAX(
-                                      LOGICAL_AXIS_LIST(
-                                        max_feedrate.e * steps_per_unit.e,
-                                        max_feedrate.x * steps_per_unit.x,
-                                        max_feedrate.y * steps_per_unit.y,
-                                        max_feedrate.z * steps_per_unit.z,
-                                        max_feedrate.i * steps_per_unit.i,
-                                        max_feedrate.j * steps_per_unit.j,
-                                        max_feedrate.k * steps_per_unit.k,
-                                        max_feedrate.u * steps_per_unit.u,
-                                        max_feedrate.v * steps_per_unit.v,
-                                        max_feedrate.w * steps_per_unit.w
-                                      )
-                                      OPTARG(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY)
-                                    );
-    constexpr float max_step_rate = _MIN(max_isr_rate,
+    template<int INDEX = DISTINCT_AXES> constexpr float max_isr_rate() {
+      return _MAX(_max_feedrate[INDEX - 1] * _steps_per_unit[INDEX - 1], max_isr_rate<INDEX - 1>());
+    }
+    template<> constexpr float max_isr_rate<0>() {
+      return TERN0(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY);
+    }
+    constexpr float max_step_rate = _MIN(max_isr_rate(),
                                       TERN0(INPUT_SHAPING_X, max_feedrate.x * steps_per_unit.x) +
                                       TERN0(INPUT_SHAPING_Y, max_feedrate.y * steps_per_unit.y)
                                     );
