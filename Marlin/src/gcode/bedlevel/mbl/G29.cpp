@@ -240,10 +240,10 @@ void GcodeSuite::G29() {
         return echo_not_entered('Z');
       break;
 
-    #if ENABLED(ENABLE_MESH_Z_OFFSET)
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
       case MeshSetZOffset:
         if (parser.seenval('Z'))
-          bedlevel.z_offset = parser.value_linear_units();
+          bedlevel.z_offset_global = parser.value_linear_units();
         else
           return echo_not_entered('Z');
         break;

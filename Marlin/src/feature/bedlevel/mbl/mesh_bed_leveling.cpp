@@ -34,8 +34,8 @@
 
   mesh_bed_leveling bedlevel;
 
-  #if ENABLED(ENABLE_MESH_Z_OFFSET)
-    float mesh_bed_leveling::z_offset; // Initialized by settings.load()
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    float mesh_bed_leveling::z_offset_global; // Initialized by settings.load()
   #endif
 
   float mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
@@ -51,7 +51,7 @@
   }
 
   void mesh_bed_leveling::reset() {
-    TERN_(ENABLE_MESH_Z_OFFSET, z_offset = 0);
+    TERN_(GLOBAL_MESH_Z_OFFSET, z_offset_global = 0.0f);
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
       GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
@@ -127,8 +127,8 @@
 
   void mesh_bed_leveling::report_mesh() {
     #define STR_MESH_SIZE STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh."
-    #if ENABLED(ENABLE_MESH_Z_OFFSET)
-      SERIAL_ECHOPAIR_F(STR_MESH_SIZE " Z offset: ", z_offset, 5);
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      SERIAL_ECHOPAIR_F(STR_MESH_SIZE " Z offset: ", z_offset_global, 5);
       SERIAL_ECHOLNPGM("\nMeasured points:");
     #else
       SERIAL_ECHOLNPGM(STR_MESH_SIZE "\nMeasured points:");

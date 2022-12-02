@@ -241,9 +241,9 @@ typedef struct SettingsDataStruct {
   float runout_distance_mm;                             // M412 D
 
   //
-  // ENABLE_MESH_Z_OFFSET
+  // GLOBAL_MESH_Z_OFFSET
   //
-  float bedlevel_z_offset;                              // M423 Zn     bedlevel.z_offset
+  float bedlevel_z_offset;                              // M423 Zn     bedlevel.z_offset_global
                                                         // G29 S4 Zn   also for MESH_BED_LEVELING
 
   //
@@ -856,8 +856,8 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
-      const float uzo = TERN(ENABLE_MESH_Z_OFFSET, bedlevel.z_offset, 0.0f);
-      EEPROM_WRITE(uzo);
+      const float zog = TERN(GLOBAL_MESH_Z_OFFSET, bedlevel.z_offset_global, 0.0f);
+      EEPROM_WRITE(zog);
 
       const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, DEFAULT_LEVELING_FADE_HEIGHT);
       EEPROM_WRITE(zfh);
@@ -1809,7 +1809,7 @@ void MarlinSettings::postprocess() {
       // Global Leveling
       //
       EEPROM_READ(dummyf);
-      TERN_(ENABLE_MESH_Z_OFFSET, if (!validating) bedlevel.z_offset = dummyf);
+      TERN_(GLOBAL_MESH_Z_OFFSET, if (!validating) bedlevel.z_offset_global = dummyf);
 
       EEPROM_READ(dummyf);
       TERN_(ENABLE_LEVELING_FADE_HEIGHT, if (!validating) new_z_fade_height = dummyf);
@@ -3005,7 +3005,7 @@ void MarlinSettings::reset() {
   //
   // Global Leveling
   //
-  TERN_(ENABLE_MESH_Z_OFFSET, bedlevel.z_offset = 0.0);
+  TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.z_offset_global = 0.0f);
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = DEFAULT_LEVELING_FADE_HEIGHT);
   TERN_(HAS_LEVELING, reset_bed_level());
 
@@ -3505,10 +3505,10 @@ void MarlinSettings::reset() {
 
       gcode.M420_report(forReplay);
 
-      #if ENABLED(ENABLE_MESH_Z_OFFSET)
+      #if ENABLED(GLOBAL_MESH_Z_OFFSET)
         CONFIG_ECHO_HEADING("Mesh Z Offset:");
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR_F("  M423 Z", LINEAR_UNIT(bedlevel.z_offset), 3);
+        SERIAL_ECHOLNPAIR_F("  M423 Z", LINEAR_UNIT(bedlevel.z_offset_global), 3);
       #endif
 
       #if ENABLED(MESH_BED_LEVELING)

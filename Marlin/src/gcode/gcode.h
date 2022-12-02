@@ -241,7 +241,7 @@
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M423 - Set X-Axis Twist Compensation parameters. (Requires X_AXIS_TWIST_COMPENSATION)
- * M424 - Set the global Mesh Z Offset. (Requires ENABLE_MESH_Z_OFFSET)
+ * M424 - Set the global Mesh Z Offset. (Requires GLOBAL_MESH_Z_OFFSET)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
@@ -1025,7 +1025,7 @@ private:
     static void M423_report(const bool forReplay=true);
   #endif
 
-  #if ENABLED(ENABLE_MESH_Z_OFFSET)
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
     static void M424();
   #endif
 

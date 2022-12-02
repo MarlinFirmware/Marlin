@@ -65,8 +65,8 @@ void unified_bed_leveling::report_state() {
 
 int8_t unified_bed_leveling::storage_slot;
 
-#if ENABLED(ENABLE_MESH_Z_OFFSET)
-  float unified_bed_leveling::z_offset; // Initialized by settings.load()
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+  float unified_bed_leveling::z_offset_global; // Initialized by settings.load()
 #endif
 
 float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];

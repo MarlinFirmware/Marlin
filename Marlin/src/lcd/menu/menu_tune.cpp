@@ -128,8 +128,8 @@ void menu_tune() {
   //
   // Leveling Z-Offset
   //
-  #if BOTH(ENABLE_MESH_Z_OFFSET, LCD_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, -2, 2);
+  #if BOTH(GLOBAL_MESH_Z_OFFSET, LCD_BED_LEVELING)
+    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_offset_global, -2, 2);
   #endif
 
   //

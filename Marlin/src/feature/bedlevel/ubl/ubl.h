@@ -112,8 +112,8 @@ public:
 
   static int8_t storage_slot;
 
-  #if ENABLED(ENABLE_MESH_Z_OFFSET)
-    static float z_offset;
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    static float z_offset_global;
   #endif
   static bed_mesh_t z_values;
   #if ENABLED(OPTIMIZED_MESH_STORAGE)

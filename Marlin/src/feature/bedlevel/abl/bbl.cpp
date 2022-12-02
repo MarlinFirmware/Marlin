@@ -38,8 +38,8 @@
 LevelingBilinear bedlevel;
 
 // Initialized by settings.load()
-#if ENABLED(ENABLE_MESH_Z_OFFSET)
-  float LevelingBilinear::z_offset;
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+  float LevelingBilinear::z_offset_global;
 #endif
 xy_pos_t LevelingBilinear::grid_spacing,
          LevelingBilinear::grid_start;

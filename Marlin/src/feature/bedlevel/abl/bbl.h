@@ -25,8 +25,8 @@
 
 class LevelingBilinear {
 public:
-  #if ENABLED(ENABLE_MESH_Z_OFFSET)
-    static float z_offset;
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    static float z_offset_global;
   #endif
   static bed_mesh_t z_values;
   static xy_pos_t grid_spacing, grid_start;

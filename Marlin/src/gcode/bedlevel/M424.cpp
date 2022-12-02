@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ENABLE_MESH_Z_OFFSET)
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
 
 #include "../gcode.h"
 #include "../../module/planner.h"
@@ -36,17 +36,17 @@ void GcodeSuite::M424() {
   if (parser.seenval('Z')) {
     const float zval = parser.value_linear_units();
     if (WITHIN(zval, -2, 2)) {
-      if (zval != bedlevel.z_offset) {
+      if (zval != bedlevel.z_offset_global) {
         planner.synchronize();
-        bedlevel.z_offset = zval; // TODO: Handle the change in position when leveling is on
+        bedlevel.z_offset_global = zval; // TODO: Handle the change in position when leveling is on
       }
     }
     else
       SERIAL_ECHOLNPGM("?Z out of range (-2..2)");
   }
   else
-    SERIAL_ECHOLNPGM("Mesh Z Offset: ", bedlevel.z_offset);
+    SERIAL_ECHOLNPGM("Mesh Z Offset: ", bedlevel.z_offset_global);
 
 }
 
-#endif // ENABLE_MESH_Z_OFFSET
+#endif // GLOBAL_MESH_Z_OFFSET
