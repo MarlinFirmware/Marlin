@@ -35,6 +35,10 @@
   #include "../../libs/buzzer.h"
 #endif
 
+#if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+  #include "../../feature/babystep.h"
+#endif
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/probe.h"
 #endif
@@ -221,6 +225,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
 
+    TERN_(ENCODER_RATE_MULTIPLIER, enable_encoder_multiplier(false));
+
     set_selection(false);
   }
 }
@@ -290,14 +296,12 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  #include "../../feature/babystep.h"
-
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
     const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
     if (ui.encoderPosition) {
-      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
+      const int16_t babystep_increment = int16_t(ui.encoderPosition) * BABYSTEP_SIZE_Z;
       ui.encoderPosition = 0;
 
       const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
@@ -321,7 +325,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       if (do_probe) {
         MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
-        TERN_(BABYSTEP_ZPROBE_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
+        TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
@@ -333,45 +337,33 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #endif // BABYSTEP_ZPROBE_OFFSET
 
-#if ENABLED(BABYSTEP_MESH_Z_OFFSET)
-
-  #include "../../feature/babystep.h"
-  #include "../../module/motion.h"
+#if ENABLED(BABYSTEP_GLOBAL_Z)
 
   void lcd_babystep_mesh_zoffset() {
-    if (!babystep.can_babystep(Z_AXIS)) {
-      // TODO: Needs proper message
-      TERN_(HAS_DISPLAY, ui.set_status(GET_TEXT(MSG_HOME_FIRST)));
-      return ui.return_to_status();
-    }
-
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-    ui.defer_status_screen();
 
     if (ui.encoderPosition) {
-      int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
-
-      // For large probe offsets moving one step at a time is very slow
-      if (ui.encoderPosition > 2) babystep_increment *= 10;
-
-      const float difference_in_mm = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                  new_z_offset = home_offset[Z_AXIS] + difference_in_mm;
-
+      // Change the Z offset without babystepping, since planner.apply_leveling will use it.
+      const float new_z_offset = home_offset[Z_AXIS] + planner.steps_to_mm[Z_AXIS] * int16_t(ui.encoderPosition) * BABYSTEP_SIZE_Z;
+      set_home_offset(Z_AXIS, new_z_offset);
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-
-      //Use difference_in_mm instead of babystep_increment to cover cases where offset was changed by G-code since last UI update
-      babystep.add_mm(Z_AXIS, difference_in_mm);
-      set_home_offset(Z_AXIS, new_z_offset);
     }
 
     if (ui.should_draw()) {
       MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
-      TERN_(BABYSTEP_MESH_Z_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
+      TERN_(BABYSTEP_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
     }
   }
 
-#endif // BABYSTEP_MESH_Z_OFFSET
+  void goto_lcd_babystep_mesh_zoffset() {
+    ui.defer_status_screen();
+    _MENU_ITEM_MULTIPLIER_CHECK(true);
+    goto_screen(lcd_babystep_mesh_zoffset);
+  }
+
+#endif // BABYSTEP_GLOBAL_Z
+
 void _lcd_draw_homing() {
   if (ui.should_draw()) {
     constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;

@@ -3505,11 +3505,7 @@ void MarlinSettings::reset() {
 
       gcode.M420_report(forReplay);
 
-      #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-        CONFIG_ECHO_HEADING("Mesh Z Offset:");
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR_F("  M423 Z", LINEAR_UNIT(bedlevel.z_offset_global), 3);
-      #endif
+      TERN_(GLOBAL_MESH_Z_OFFSET, gcode.M424_report(forReplay))
 
       #if ENABLED(MESH_BED_LEVELING)
 

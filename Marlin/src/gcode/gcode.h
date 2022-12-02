@@ -1004,6 +1004,12 @@ private:
     static void M412_report(const bool forReplay=true);
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void M413();
+    static void M413_report(const bool forReplay=true);
+    static void M1000();
+  #endif
+
   #if HAS_MULTI_LANGUAGE
     static void M414();
     static void M414_report(const bool forReplay=true);
@@ -1027,6 +1033,7 @@ private:
 
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
     static void M424();
+    static void M424_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -1221,12 +1228,6 @@ private:
   #endif
 
   static void M999();
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    static void M413();
-    static void M413_report(const bool forReplay=true);
-    static void M1000();
-  #endif
 
   #if ENABLED(SDSUPPORT)
     static void M1001();

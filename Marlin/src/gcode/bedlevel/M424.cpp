@@ -29,7 +29,7 @@
 #include "../../feature/bedlevel/bedlevel.h"
 
 /**
- * M424: Set Z Mesh Offset
+ * M424: Set Global Mesh Z Offset
  */
 void GcodeSuite::M424() {
 
@@ -45,8 +45,12 @@ void GcodeSuite::M424() {
       SERIAL_ECHOLNPGM("?Z out of range (-2..2)");
   }
   else
-    SERIAL_ECHOLNPGM("Mesh Z Offset: ", bedlevel.z_offset_global);
+    SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET ": ", bedlevel.z_offset_global);
+}
 
+void GcodeSuite::M424_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, F(STR_MESH_Z_OFFSET));
+  SERIAL_ECHOLNPAIR_F("  M424 Z", LINEAR_UNIT(bedlevel.z_offset_global), 3);
 }
 
 #endif // GLOBAL_MESH_Z_OFFSET

@@ -909,8 +909,6 @@
     #define DELTA_CALIBRATION_DEFAULT_POINTS 4
   #endif
 
-  // NOTE: All values for DELTA_* values MUST be floating point, so always have a decimal point in them
-
   #if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
     // Step size for paper-test probing
     #define PROBE_MANUALLY_STEP 0.05      // (mm)

@@ -29,11 +29,7 @@
 #include "../../module/probe.h"
 #include "../../module/planner.h"
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-  #include "../../core/serial.h"
-#endif
-
-#if ENABLED(MESH_BED_LEVELING)
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -111,7 +107,7 @@ void GcodeSuite::M290() {
     #endif
 
     #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-      SERIAL_ECHOLNPGM("Mesh Z Offset", bedlevel.z_offset_global);
+      SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET, bedlevel.z_offset_global);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)

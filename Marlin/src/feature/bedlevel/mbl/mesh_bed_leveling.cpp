@@ -63,8 +63,8 @@ void mesh_bed_leveling::reset() {
     //float z_sum = 0.0f;
     GRID_LOOP(x, y) {
       const float z = z_values[x][y];
-      NO_LESS(z_high, z);
-      NO_MORE(z_low, z);
+      NOLESS(z_high, z);
+      NOMORE(z_low, z);
       //z_sum += z;
     }
     //const float z_mean = z_sum / GRID_MAX_POINTS;

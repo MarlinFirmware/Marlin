@@ -379,8 +379,8 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
     // Find the high/low values (and sum)
     GRID_LOOP(x, y) {
       const float z = isnan(z_values[x][y]) ? 0.0f : z_values[x][y];
-      NO_LESS(z_high, z);
-      NO_MORE(z_low, z);
+      NOLESS(z_high, z);
+      NOMORE(z_low, z);
       //z_sum += z;
     }
     //const float z_mean = z_sum / GRID_MAX_POINTS;   // Mean average gives more weight to the most common values

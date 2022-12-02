@@ -478,7 +478,7 @@ void menu_advanced_settings();
 void menu_configuration() {
   const bool busy = printer_busy();
 
-  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_MESH_Z_OFFSET)
+  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
     const bool can_babystep = babystep.can_babystep(Z_AXIS);
   #endif
 
@@ -510,8 +510,8 @@ void menu_configuration() {
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
-  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
-    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_mesh_zoffset);
+  #if ENABLED(BABYSTEP_GLOBAL_Z)
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, goto_lcd_babystep_mesh_zoffset);
   #endif
 
   //

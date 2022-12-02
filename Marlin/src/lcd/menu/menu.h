@@ -25,10 +25,6 @@
 #include "../../libs/numtostr.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_MESH_Z_GFX_OVERLAY)
-  #define SHOW_KNOB_GFX_OVERLAY 1
-#endif
-
 #include "limits.h"
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
@@ -246,8 +242,8 @@ void _lcd_draw_homing();
     void lcd_babystep_z();
   #endif
 
-  #if ENABLED(BABYSTEP_MESH_Z_OFFSET)
-    void lcd_babystep_mesh_zoffset();
+  #if ENABLED(BABYSTEP_GLOBAL_Z)
+    void goto_lcd_babystep_mesh_zoffset();
   #endif
 
   #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
@@ -255,9 +251,9 @@ void _lcd_draw_homing();
     #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
     #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
   #else
-    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
-    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
-    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
+    #define BABYSTEP_SIZE_X (BABYSTEP_MULTIPLICATOR_XY)
+    #define BABYSTEP_SIZE_Y (BABYSTEP_MULTIPLICATOR_XY)
+    #define BABYSTEP_SIZE_Z (BABYSTEP_MULTIPLICATOR_Z)
   #endif
 
 #endif

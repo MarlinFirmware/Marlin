@@ -314,6 +314,7 @@
 #define STR_LCD_BRIGHTNESS                  "LCD Brightness"
 #define STR_DISPLAY_SLEEP                   "Display Sleep"
 #define STR_UI_LANGUAGE                     "UI Language"
+#define STR_MESH_Z_OFFSET                   "Mesh Z Offset"
 #define STR_Z_PROBE_OFFSET                  "Z-Probe Offset"
 #define STR_TEMPERATURE_UNITS               "Temperature Units"
 #define STR_USER_THERMISTORS                "User thermistors"
