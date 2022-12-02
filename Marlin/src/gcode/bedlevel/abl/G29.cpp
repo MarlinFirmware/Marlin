@@ -932,7 +932,10 @@ G29_TYPE GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       // Auto Bed Leveling is complete! Enable if possible.
-      if (!abl.dryrun || abl.reenable) set_bed_leveling_enabled(true);
+      if (!abl.dryrun || abl.reenable) {
+        TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.center_global_z());
+        set_bed_leveling_enabled(true);
+      }
 
     #endif
 

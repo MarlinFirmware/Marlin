@@ -287,6 +287,7 @@ void LevelingBilinear::refresh_bed_level() {
 #endif
 
 // Get the Z adjustment for non-linear bed leveling
+// Only this portion is faded. The global Z offset is not.
 float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
 
   static float z1, d2, z3, d4, L, D;
@@ -369,6 +370,26 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
 
   return offset;
 }
+
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+
+  void LevelingBilinear::center_global_z() {
+    float z_low = 100.0f, z_high = -100.0f; // Impossible values to start
+    //float z_sum = 0.0f;
+    // Find the high/low values (and sum)
+    GRID_LOOP(x, y) {
+      const float z = isnan(z_values[x][y]) ? 0.0f : z_values[x][y];
+      NO_LESS(z_high, z);
+      NO_MORE(z_low, z);
+      //z_sum += z;
+    }
+    //const float z_mean = z_sum / GRID_MAX_POINTS;   // Mean average gives more weight to the most common values
+    z_offset_global = (z_low + z_high) * 0.5f;        // Average of high / low (may be disproportionately affected by outliers)
+    //z_offset_global = (z_offset_global + z_mean) * 0.5f;  // Center on the average of both
+    GRID_LOOP(x, y) if (!isnan(z_values[x][y])) z_values[x][y] -= z_offset_global;  // Subtract the global offset from the mesh
+  }
+
+#endif
 
 #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 

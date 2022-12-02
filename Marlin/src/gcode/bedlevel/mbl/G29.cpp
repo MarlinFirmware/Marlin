@@ -197,6 +197,8 @@ void GcodeSuite::G29() {
         OKAY_BUZZ();
 
         home_all_axes();
+
+        TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.center_global_z());
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)

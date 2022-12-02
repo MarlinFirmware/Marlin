@@ -75,7 +75,7 @@ private:
   #endif
 
   static bool G29_parse_parameters() __O0;
-  static void shift_mesh_height();
+  static void shift_mesh_height(const_float_t zoffs);
   static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) __O0;
   static void tilt_mesh_based_on_3pts(const_float_t z1, const_float_t z2, const_float_t z3);
   static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
