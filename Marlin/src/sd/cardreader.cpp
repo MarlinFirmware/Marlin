@@ -281,7 +281,6 @@ void CardReader::selectByName(MarlinFile dir, const char * const match) {
  * good addition.
  */
 void CardReader::printListing(MarlinFile parent, const char * const prepend, const uint8_t lsflags
-  OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
   const bool includeTime = TERN0(M20_TIMESTAMP_SUPPORT, TEST(lsflags, LS_TIMESTAMP));

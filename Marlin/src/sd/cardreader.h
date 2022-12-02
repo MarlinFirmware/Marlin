@@ -346,7 +346,6 @@ private:
   static void selectByName(MarlinFile dir, const char * const match);
   static void printListing(
     MarlinFile parent, const char * const prepend, const uint8_t lsflags
-    OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
 
