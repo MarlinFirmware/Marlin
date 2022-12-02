@@ -26,7 +26,6 @@
 
 #include "../bedlevel.h"
 #include "../../../module/planner.h"
-#include "../../../module/stepper.h"
 #include "../../../module/motion.h"
 
 #if ENABLED(DELTA)
@@ -337,9 +336,9 @@
   #if IS_SCARA
     #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
   #elif ENABLED(DELTA)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
   #elif ENABLED(POLARGRAPH)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
   #else // CARTESIAN
     #ifdef LEVELED_SEGMENT_LENGTH
       #define DELTA_SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
@@ -374,11 +373,12 @@
     #endif
 
     NOLESS(segments, 1U);                                                            // Must have at least one segment
-    const float inv_segments = 1.0f / segments,                                      // Reciprocal to save calculation
-                segment_xyz_mm = SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments;    // Length of each segment
+    const float inv_segments = 1.0f / segments;                                      // Reciprocal to save calculation
 
+    // Add hints to help optimize the move
+    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);             // Length of each segment
     #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float inv_duration = scaled_fr_mm_s / segment_xyz_mm;
+      hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
 
     xyze_float_t diff = total * inv_segments;
@@ -392,13 +392,9 @@
     if (!planner.leveling_active || !planner.leveling_active_at_z(destination.z)) {
       while (--segments) {
         raw += diff;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-        );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
       }
-      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-      );
+      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
       return false; // Did not set current from destination
     }
 
@@ -427,10 +423,12 @@
       LIMIT(icell.x, 0, GRID_MAX_CELLS_X);
       LIMIT(icell.y, 0, GRID_MAX_CELLS_Y);
 
-      float z_x0y0 = z_values[icell.x  ][icell.y  ],  // z at lower left corner
-            z_x1y0 = z_values[icell.x+1][icell.y  ],  // z at upper left corner
-            z_x0y1 = z_values[icell.x  ][icell.y+1],  // z at lower right corner
-            z_x1y1 = z_values[icell.x+1][icell.y+1];  // z at upper right corner
+      const int8_t ncellx = _MIN(icell.x+1, GRID_MAX_CELLS_X),
+                   ncelly = _MIN(icell.y+1, GRID_MAX_CELLS_Y);
+      float z_x0y0 = z_values[icell.x][icell.y],  // z at lower left corner
+            z_x1y0 = z_values[ncellx ][icell.y],  // z at upper left corner
+            z_x0y1 = z_values[icell.x][ncelly ],  // z at lower right corner
+            z_x1y1 = z_values[ncellx ][ncelly ];  // z at upper right corner
 
       if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
       if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
@@ -467,7 +465,7 @@
           TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
 
         const float oldz = raw.z; raw.z += z_cxcy;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration) );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
         raw.z = oldz;
 
         if (segments == 0)                        // done with last segment

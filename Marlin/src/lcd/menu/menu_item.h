@@ -27,7 +27,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-void lcd_move_z();
+#if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+  #include "../../module/planner.h"
+#endif
 
 ////////////////////////////////////////////
 ///////////// Base Menu Items //////////////
@@ -400,8 +402,13 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#define BACK_ITEM_F(FLABEL)                              MENU_ITEM_F(back, FLABEL)
-#define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
+#if DISABLED(DISABLE_ENCODER)
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+#else
+  #define BACK_ITEM_F(FLABEL) NOOP
+  #define BACK_ITEM(LABEL)    NOOP
+#endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
 #define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ACTION)
@@ -538,6 +545,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
   inline void on_fan_update() {
     thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+    TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
   }
 
   #if ENABLED(EXTRA_FAN_SPEED)

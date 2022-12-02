@@ -40,6 +40,18 @@
   #undef _NEOPIXEL_INCLUDE_
 #endif
 
+#if ENABLED(BLINKM)
+  #include "blinkm.h"
+#endif
+
+#if ENABLED(PCA9533)
+  #include "pca9533.h"
+#endif
+
+#if ENABLED(PCA9632)
+  #include "pca9632.h"
+#endif
+
 /**
  * LEDcolor type for use with leds.set_color
  */
@@ -107,6 +119,13 @@ typedef struct LEDColor {
 
 class LEDLights {
 public:
+  #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_IS_COLOR_LED)
+    static LEDColor color; // last non-off color
+    static bool lights_on; // the last set color was "on"
+  #else
+    static constexpr bool lights_on = true;
+  #endif
+
   LEDLights() {} // ctor
 
   static void setup(); // init()
@@ -142,15 +161,10 @@ public:
     static LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
   #endif
 
-  #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_IS_COLOR_LED)
-    static LEDColor color; // last non-off color
-    static bool lights_on; // the last set color was "on"
-  #endif
-
   #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
   #endif
-  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_USE_RGB_LED)
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_USE_RGB_LED) || LED_POWEROFF_TIMEOUT > 0
     static void update() { set_color(color); }
   #endif
 
