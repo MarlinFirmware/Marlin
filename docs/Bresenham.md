@@ -233,7 +233,7 @@ Error update equations:
   ε'[new] = ε' + 2.ΔY - 2.ΔX.r                  [7]
 ```
 
-This can be implemented in C as:
+This can be implemented in C++ as:
 
 ```cpp
   class OversampledBresenham {

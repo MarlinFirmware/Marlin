@@ -45,7 +45,7 @@ git clean -d -f
 
 opensite() {
   URL="$1"
-  OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
+  OPEN=$( which gnome-open xdg-open open | head -n1 )
   if [ -z "$OPEN" ]; then
     echo "Can't find a tool to open the URL:"
     echo $URL

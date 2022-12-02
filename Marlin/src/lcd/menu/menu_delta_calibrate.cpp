@@ -52,7 +52,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     ui.wait_for_move = false;
     ui.synchronize();
     ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / planner.settings.axis_steps_per_mm[0]); // Use first axis as for delta XYZ should always match
-    ui.goto_screen(lcd_move_z);
+    ui.goto_screen([]{ lcd_move_axis(Z_AXIS); });
   }
 }
 

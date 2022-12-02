@@ -307,133 +307,22 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1154)
 else ifeq ($(HARDWARE_MOTHERBOARD),1155)
 # Tenlog D3 Hero IDEX printer
 else ifeq ($(HARDWARE_MOTHERBOARD),1156)
-# Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
+# Tenlog D3,5,6 Pro IDEX printers
 else ifeq ($(HARDWARE_MOTHERBOARD),1157)
-# Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
+# Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
 else ifeq ($(HARDWARE_MOTHERBOARD),1158)
-# Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
+# Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
 else ifeq ($(HARDWARE_MOTHERBOARD),1159)
-# Longer LK1 PRO / Alfawise U20 Pro (PRO version)
+# Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
 else ifeq ($(HARDWARE_MOTHERBOARD),1160)
-# Longer LKx PRO / Alfawise Uxx Pro (PRO version)
+# Longer LK1 PRO / Alfawise U20 Pro (PRO version)
 else ifeq ($(HARDWARE_MOTHERBOARD),1161)
-
-
-# 3Drag Controller
-else ifeq ($(HARDWARE_MOTHERBOARD),1100)
-# Velleman K8200 Controller (derived from 3Drag Controller)
-else ifeq ($(HARDWARE_MOTHERBOARD),1101)
-# Velleman K8400 Controller (derived from 3Drag Controller)
-else ifeq ($(HARDWARE_MOTHERBOARD),1102)
-# Velleman K8600 Controller (Vertex Nano)
-else ifeq ($(HARDWARE_MOTHERBOARD),1103)
-# Velleman K8800 Controller (Vertex Delta)
-else ifeq ($(HARDWARE_MOTHERBOARD),1104)
-# 2PrintBeta BAM&DICE with STK drivers
-else ifeq ($(HARDWARE_MOTHERBOARD),1105)
-# 2PrintBeta BAM&DICE Due with STK drivers
-else ifeq ($(HARDWARE_MOTHERBOARD),1106)
-# MKS BASE v1.0
-else ifeq ($(HARDWARE_MOTHERBOARD),1107)
-# MKS v1.4 with A4982 stepper drivers
-else ifeq ($(HARDWARE_MOTHERBOARD),1108)
-# MKS v1.5 with Allegro A4982 stepper drivers
-else ifeq ($(HARDWARE_MOTHERBOARD),1109)
-# MKS v1.6 with Allegro A4982 stepper drivers
-else ifeq ($(HARDWARE_MOTHERBOARD),1110)
-# MKS BASE 1.0 with Heroic HR4982 stepper drivers
-else ifeq ($(HARDWARE_MOTHERBOARD),1111)
-# MKS GEN v1.3 or 1.4
-else ifeq ($(HARDWARE_MOTHERBOARD),1112)
-# MKS GEN L
-else ifeq ($(HARDWARE_MOTHERBOARD),1113)
-# zrib V2.0 control board (Chinese RAMPS replica)
-else ifeq ($(HARDWARE_MOTHERBOARD),1114)
-# BigTreeTech or BIQU KFB2.0
-else ifeq ($(HARDWARE_MOTHERBOARD),1115)
-# Felix 2.0+ Electronics Board (RAMPS like)
-else ifeq ($(HARDWARE_MOTHERBOARD),1116)
-# Invent-A-Part RigidBoard
-else ifeq ($(HARDWARE_MOTHERBOARD),1117)
-# Invent-A-Part RigidBoard V2
-else ifeq ($(HARDWARE_MOTHERBOARD),1118)
-# Sainsmart 2-in-1 board
-else ifeq ($(HARDWARE_MOTHERBOARD),1119)
-# Ultimaker
-else ifeq ($(HARDWARE_MOTHERBOARD),1120)
-# Ultimaker (Older electronics. Pre 1.5.4. This is rare)
-else ifeq ($(HARDWARE_MOTHERBOARD),1121)
-  MCU              ?= atmega1280
-  PROG_MCU         ?= m1280
-
-# Azteeg X3
-else ifeq ($(HARDWARE_MOTHERBOARD),1122)
-# Azteeg X3 Pro
-else ifeq ($(HARDWARE_MOTHERBOARD),1123)
-# Ultimainboard 2.x (Uses TEMP_SENSOR 20)
-else ifeq ($(HARDWARE_MOTHERBOARD),1124)
-# Rumba
-else ifeq ($(HARDWARE_MOTHERBOARD),1125)
-# Raise3D Rumba
-else ifeq ($(HARDWARE_MOTHERBOARD),1126)
-# Rapide Lite RL200 Rumba
-else ifeq ($(HARDWARE_MOTHERBOARD),1127)
-# Formbot T-Rex 2 Plus
-else ifeq ($(HARDWARE_MOTHERBOARD),1128)
-# Formbot T-Rex 3
-else ifeq ($(HARDWARE_MOTHERBOARD),1129)
-# Formbot Raptor
-else ifeq ($(HARDWARE_MOTHERBOARD),1130)
-# Formbot Raptor 2
-else ifeq ($(HARDWARE_MOTHERBOARD),1131)
-# bq ZUM Mega 3D
-else ifeq ($(HARDWARE_MOTHERBOARD),1132)
-# MakeBoard Mini v2.1.2 is a control board sold by MicroMake
-else ifeq ($(HARDWARE_MOTHERBOARD),1133)
-# TriGorilla Anycubic version 1.3 based on RAMPS EFB
-else ifeq ($(HARDWARE_MOTHERBOARD),1134)
-# TriGorilla Anycubic version 1.4 based on RAMPS EFB
-else ifeq ($(HARDWARE_MOTHERBOARD),1135)
-# TriGorilla Anycubic version 1.4 Rev 1.1
-else ifeq ($(HARDWARE_MOTHERBOARD),1136)
-# Creality: Ender-4, CR-8
-else ifeq ($(HARDWARE_MOTHERBOARD),1137)
-# Creality: CR10S, CR20, CR-X
-else ifeq ($(HARDWARE_MOTHERBOARD),1138)
-# Dagoma F5
-else ifeq ($(HARDWARE_MOTHERBOARD),1139)
-# FYSETC F6 1.3
-else ifeq ($(HARDWARE_MOTHERBOARD),1140)
-# FYSETC F6 1.5
-else ifeq ($(HARDWARE_MOTHERBOARD),1141)
-# Duplicator i3 Plus
-else ifeq ($(HARDWARE_MOTHERBOARD),1142)
-# VORON
-else ifeq ($(HARDWARE_MOTHERBOARD),1143)
-# TRONXY V3 1.0
-else ifeq ($(HARDWARE_MOTHERBOARD),1144)
-# Z-Bolt X Series
-else ifeq ($(HARDWARE_MOTHERBOARD),1145)
-# TT OSCAR
-else ifeq ($(HARDWARE_MOTHERBOARD),1146)
-# Overlord/Overlord Pro
-else ifeq ($(HARDWARE_MOTHERBOARD),1147)
-# ADIMLab Gantry v1
-else ifeq ($(HARDWARE_MOTHERBOARD),1148)
-# ADIMLab Gantry v2
-else ifeq ($(HARDWARE_MOTHERBOARD),1149)
-# BIQU Tango V1
-else ifeq ($(HARDWARE_MOTHERBOARD),1150)
-# MKS GEN L V2
-else ifeq ($(HARDWARE_MOTHERBOARD),1151)
-# MKS GEN L V2.1
-else ifeq ($(HARDWARE_MOTHERBOARD),1152)
-# Copymaster 3D
-else ifeq ($(HARDWARE_MOTHERBOARD),1153)
-# Ortur 4
-else ifeq ($(HARDWARE_MOTHERBOARD),1154)
-# Tenlog D3 Hero
-else ifeq ($(HARDWARE_MOTHERBOARD),1155)
+# Longer LKx PRO / Alfawise Uxx Pro (PRO version)
+else ifeq ($(HARDWARE_MOTHERBOARD),1162)
+# Zonestar zrib V5.3 (Chinese RAMPS replica)
+else ifeq ($(HARDWARE_MOTHERBOARD),1163)
+# Pxmalion Core I3
+else ifeq ($(HARDWARE_MOTHERBOARD),1164)
 
 #
 # RAMBo and derivatives

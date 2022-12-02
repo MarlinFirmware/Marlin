@@ -30,7 +30,7 @@
 
 #include "power.h"
 #include "../module/planner.h"
-#include "../module/stepper.h"
+#include "../module/stepper/indirection.h" // for restore_stepper_drivers
 #include "../module/temperature.h"
 #include "../MarlinCore.h"
 
@@ -46,6 +46,7 @@ Power powerManager;
 bool Power::psu_on;
 
 #if ENABLED(AUTO_POWER_CONTROL)
+  #include "../module/stepper.h"
   #include "../module/temperature.h"
 
   #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
