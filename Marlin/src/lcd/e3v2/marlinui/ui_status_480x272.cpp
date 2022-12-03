@@ -374,11 +374,11 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(DWIN_MARLINUI_PORTRAIT)
 
-    // Portrait mode only shows one value at a time, and will rotate if ROTATE_PROGRESS_DISPLAY
+    // Portrait mode only shows one value at a time, and will rotate if many are enabled
     dwin_string.set();
     char prefix = ' ';
     #if ENABLED(SHOW_REMAINING_TIME)
-      if (TERN1(ROTATE_PROGRESS_DISPLAY, blink) && print_job_timer.isRunning()) {
+      if (blink && print_job_timer.isRunning()) {
         time = get_remaining_time();
         prefix = 'R';
       }
@@ -447,7 +447,7 @@ void MarlinUI::draw_status_screen() {
       //if (pb_solid < old_solid)
         DWIN_Draw_Rectangle(1, Color_Bg_Black, pb_left + 1 + pb_solid, pb_top + 1, pb_right - 1, pb_bottom - 1); // Erase the rest
 
-      #if ENABLED(SHOW_SD_PERCENT)
+      #if ENABLED(SHOW_PROGRESS_PERCENT)
         dwin_string.set(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(progress), ui8tostr3rj(progress / (PROGRESS_SCALE))));
         dwin_string.add('%');
         DWIN_Draw_String(

@@ -36,7 +36,7 @@
  * If you don't have a chip programmer you can use a spare Arduino plus a few
  * electronic components to write the bootloader.
  *
- * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
+ * See https://www.instructables.com/Burn-Arduino-Bootloader-with-Arduino-MEGA/
  */
 
 /**
