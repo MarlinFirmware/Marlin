@@ -884,7 +884,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
 
-  use_probing_tool();
+  //use_probing_tool();
 
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(
@@ -909,7 +909,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   );
   if (!can_reach(npos, probe_relative)) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
-    use_probing_tool(false);
+//    use_probing_tool(false);
     return NAN;
   }
 
@@ -949,7 +949,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   }
   DEBUG_ECHOLNPGM("measured_z: ", measured_z);
 
-  use_probing_tool(false);
+//  use_probing_tool(false);
 
   return measured_z;
 }
