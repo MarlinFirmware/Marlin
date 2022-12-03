@@ -232,17 +232,25 @@ uint32_t Stepper::advance_divisor = 0,
            Stepper::la_advance_steps = 0;
 #endif
 
-#if ENABLED(INPUT_SHAPING)
-  shaping_time_t                DelayTimeManager::now = 0;
-  ParamDelayQueue               Stepper::shaping_dividend_queue;
-  DelayQueue<shaping_dividends> Stepper::shaping_queue;
-  #if HAS_SHAPING_X
-    shaping_time_t DelayTimeManager::delay_x;
-    ShapeParams Stepper::shaping_x;
+#if HAS_SHAPING
+  shaping_time_t      ShapingQueue::now = 0;
+  shaping_time_t      ShapingQueue::times[shaping_echoes];
+  shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
+  uint16_t            ShapingQueue::tail = 0;
+
+  #if ENABLED(INPUT_SHAPING_X)
+    shaping_time_t  ShapingQueue::delay_x;
+    shaping_time_t  ShapingQueue::peek_x_val = shaping_time_t(-1);
+    uint16_t        ShapingQueue::head_x = 0;
+    uint16_t        ShapingQueue::_free_count_x = shaping_echoes - 1;
+    ShapeParams     Stepper::shaping_x;
   #endif
-  #if HAS_SHAPING_Y
-    shaping_time_t DelayTimeManager::delay_y;
-    ShapeParams Stepper::shaping_y;
+  #if ENABLED(INPUT_SHAPING_Y)
+    shaping_time_t  ShapingQueue::delay_y;
+    shaping_time_t  ShapingQueue::peek_y_val = shaping_time_t(-1);
+    uint16_t        ShapingQueue::head_y = 0;
+    uint16_t        ShapingQueue::_free_count_y = shaping_echoes - 1;
+    ShapeParams     Stepper::shaping_y;
   #endif
 #endif
 
@@ -1479,19 +1487,9 @@ void Stepper::isr() {
     // Enable ISRs to reduce USART processing latency
     hal.isr_on();
 
-    #if ENABLED(INPUT_SHAPING)
-      // Speed limiting should ensure the buffers never get full. But if somehow they do, stutter rather than overflow.
-      if (!nextMainISR) {
-        TERN_(HAS_SHAPING_X, if (shaping_dividend_queue.free_count_x() == 0) nextMainISR = shaping_dividend_queue.peek_x() + 1);
-        TERN_(HAS_SHAPING_Y, if (shaping_dividend_queue.free_count_y() == 0) NOLESS(nextMainISR, shaping_dividend_queue.peek_y() + 1));
-        TERN_(HAS_SHAPING_X, if (shaping_queue.free_count_x() < steps_per_isr) NOLESS(nextMainISR, shaping_queue.peek_x() + 1));
-        TERN_(HAS_SHAPING_Y, if (shaping_queue.free_count_y() < steps_per_isr) NOLESS(nextMainISR, shaping_queue.peek_y() + 1));
-      }
-    #endif
+    TERN_(HAS_SHAPING, shaping_isr());                  // Do Shaper stepping, if needed
 
     if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
-
-    TERN_(INPUT_SHAPING, shaping_isr());                // Do Shaper stepping, if needed
 
     #if ENABLED(LIN_ADVANCE)
       if (!nextAdvanceISR) {                            // 0 = Do Linear Advance E Stepper pulses
@@ -1523,10 +1521,8 @@ void Stepper::isr() {
     const uint32_t interval = _MIN(
       uint32_t(HAL_TIMER_TYPE_MAX),                           // Come back in a very long time
       nextMainISR                                             // Time until the next Pulse / Block phase
-      OPTARG(HAS_SHAPING_X, shaping_dividend_queue.peek_x())  // Time until next input shaping dividend change for X
-      OPTARG(HAS_SHAPING_Y, shaping_dividend_queue.peek_y())  // Time until next input shaping dividend change for Y
-      OPTARG(HAS_SHAPING_X, shaping_queue.peek_x())           // Time until next input shaping echo for X
-      OPTARG(HAS_SHAPING_Y, shaping_queue.peek_y())           // Time until next input shaping echo for Y
+      OPTARG(INPUT_SHAPING_X, ShapingQueue::peek_x())         // Time until next input shaping echo for X
+      OPTARG(INPUT_SHAPING_Y, ShapingQueue::peek_y())         // Time until next input shaping echo for Y
       OPTARG(LIN_ADVANCE, nextAdvanceISR)                     // Come back early for Linear Advance?
       OPTARG(INTEGRATED_BABYSTEPPING, nextBabystepISR)        // Come back early for Babystepping?
     );
@@ -1539,16 +1535,9 @@ void Stepper::isr() {
     //
 
     nextMainISR -= interval;
-
-    TERN_(INPUT_SHAPING, DelayTimeManager::decrement_delays(interval));
-
-    #if ENABLED(LIN_ADVANCE)
-      if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
-    #endif
-
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
-      if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
-    #endif
+    TERN_(HAS_SHAPING, ShapingQueue::decrement_delays(interval));
+    TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
+    TERN_(INTEGRATED_BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
     /**
      * This needs to avoid a race-condition caused by interleaving
@@ -1636,11 +1625,16 @@ void Stepper::pulse_phase_isr() {
     abort_current_block = false;
     if (current_block) {
       discard_current_block();
-      #if ENABLED(INPUT_SHAPING)
-        shaping_dividend_queue.purge();
-        shaping_queue.purge();
-        TERN_(HAS_SHAPING_X, delta_error.x = 0);
-        TERN_(HAS_SHAPING_Y, delta_error.y = 0);
+      #if HAS_SHAPING
+        ShapingQueue::purge();
+        #if ENABLED(INPUT_SHAPING_X)
+          shaping_x.delta_error = 0;
+          shaping_x.last_block_end_pos = count_position.x;
+        #endif
+        #if ENABLED(INPUT_SHAPING_Y)
+          shaping_y.delta_error = 0;
+          shaping_y.last_block_end_pos = count_position.y;
+        #endif
       #endif
     }
   }
@@ -1676,31 +1670,48 @@ void Stepper::pulse_phase_isr() {
     #define PULSE_PREP(AXIS) do{ \
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
       step_needed[_AXIS(AXIS)] = (delta_error[_AXIS(AXIS)] >= 0); \
-      if (step_needed[_AXIS(AXIS)]) { \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+      if (step_needed[_AXIS(AXIS)]) \
         delta_error[_AXIS(AXIS)] -= advance_divisor; \
-      } \
     }while(0)
 
-    #define PULSE_PREP_SHAPING(AXIS, DIVIDEND) do{ \
-      delta_error[_AXIS(AXIS)] += (DIVIDEND); \
-      if ((MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] <= -0x30000000L) || (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] >= 0x30000000L)) { \
-        TBI(last_direction_bits, _AXIS(AXIS)); \
-        DIR_WAIT_BEFORE(); \
-        SET_STEP_DIR(AXIS); \
-        DIR_WAIT_AFTER(); \
-      } \
-      step_needed[_AXIS(AXIS)] = (MAXDIR(AXIS) && delta_error[_AXIS(AXIS)] >= 0x10000000L) || \
-                                 (MINDIR(AXIS) && delta_error[_AXIS(AXIS)] <= -0x10000000L); \
+    // With input shaping, direction changes can happen with almost only
+    // AWAIT_LOW_PULSE() and  DIR_WAIT_BEFORE() between steps. To work around
+    // the TMC2208 / TMC2225 shutdown bug (#16076), add a half step hysteresis
+    // in each direction. This results in the position being off by half an
+    // average half step during travel but correct at the end of each segment.
+    #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
+      #define HYSTERESIS_X 64
+    #else
+      #define HYSTERESIS_X 0
+    #endif
+    #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
+      #define HYSTERESIS_Y 64
+    #else
+      #define HYSTERESIS_Y 0
+    #endif
+    #define _HYSTERESIS(AXIS) HYSTERESIS_##AXIS
+    #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
+
+    #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
       if (step_needed[_AXIS(AXIS)]) { \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-        delta_error[_AXIS(AXIS)] += MAXDIR(AXIS) ? -0x20000000L : 0x20000000L; \
+        DELTA_ERROR += (DIVIDEND); \
+        if ((MAXDIR(AXIS) && DELTA_ERROR <= -(64 + HYSTERESIS(AXIS))) || (MINDIR(AXIS) && DELTA_ERROR >= (64 + HYSTERESIS(AXIS)))) { \
+          { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
+          TBI(last_direction_bits, _AXIS(AXIS)); \
+          DIR_WAIT_BEFORE(); \
+          SET_STEP_DIR(AXIS); \
+          DIR_WAIT_AFTER(); \
+        } \
+        step_needed[_AXIS(AXIS)] = DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS)); \
+        if (step_needed[_AXIS(AXIS)]) \
+          DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
       } \
     }while(0)
 
     // Start an active pulse if needed
     #define PULSE_START(AXIS) do{ \
       if (step_needed[_AXIS(AXIS)]) { \
+        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
         _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
@@ -1819,22 +1830,12 @@ void Stepper::pulse_phase_isr() {
     #endif // DIRECT_STEPPING
 
     if (!is_page) {
-      TERN_(INPUT_SHAPING, shaping_queue.enqueue());
-
       // Determine if pulses are needed
       #if HAS_X_STEP
-        #if HAS_SHAPING_X
-          PULSE_PREP_SHAPING(X, advance_dividend.x);
-        #else
-          PULSE_PREP(X);
-        #endif
+        PULSE_PREP(X);
       #endif
       #if HAS_Y_STEP
-        #if HAS_SHAPING_Y
-          PULSE_PREP_SHAPING(Y, advance_dividend.y);
-        #else
-          PULSE_PREP(Y);
-        #endif
+        PULSE_PREP(Y);
       #endif
       #if HAS_Z_STEP
         PULSE_PREP(Z);
@@ -1869,6 +1870,24 @@ void Stepper::pulse_phase_isr() {
             count_position.e -= count_direction.e;
             la_advance_steps--;
           }
+        #endif
+      #endif
+
+      #if HAS_SHAPING
+        // record an echo if a step is needed in the primary bresenham
+        const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed[X_AXIS]),
+                   y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed[Y_AXIS]);
+        if (x_step || y_step)
+          ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
+
+        // do the first part of the secondary bresenham
+        #if ENABLED(INPUT_SHAPING_X)
+          if (shaping_x.enabled)
+            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor1 * (shaping_x.forward ? 1 : -1));
+        #endif
+        #if ENABLED(INPUT_SHAPING_Y)
+          if (shaping_y.enabled)
+            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor1 * (shaping_y.forward ? 1 : -1));
         #endif
       #endif
     }
@@ -1910,7 +1929,10 @@ void Stepper::pulse_phase_isr() {
     #endif
 
     #if ENABLED(MIXING_EXTRUDER)
-      if (step_needed.e) E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+      if (step_needed.e) {
+        count_position[E_AXIS] += count_direction[E_AXIS];
+        E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+      }
     #elif HAS_E0_STEP
       PULSE_START(E);
     #endif
@@ -1965,55 +1987,59 @@ void Stepper::pulse_phase_isr() {
   } while (--events_to_do);
 }
 
-#if ENABLED(INPUT_SHAPING)
+#if HAS_SHAPING
 
   void Stepper::shaping_isr() {
-    xyze_bool_t step_needed{0};
+    xy_bool_t step_needed{0};
 
-    const bool shapex = TERN0(HAS_SHAPING_X, !shaping_queue.peek_x()),
-               shapey = TERN0(HAS_SHAPING_Y, !shaping_queue.peek_y());
+    // Clear the echoes that are ready to process. If the buffers are too full and risk overflo, also apply echoes early.
+    TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
+    TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
-    #if HAS_SHAPING_X
-      if (!shaping_dividend_queue.peek_x()) shaping_x.dividend = shaping_dividend_queue.dequeue_x();
-    #endif
-    #if HAS_SHAPING_Y
-      if (!shaping_dividend_queue.peek_y()) shaping_y.dividend = shaping_dividend_queue.dequeue_y();
-    #endif
+    if (bool(step_needed)) while (true) {
+      #if ENABLED(INPUT_SHAPING_X)
+        if (step_needed[X_AXIS]) {
+          const bool forward = ShapingQueue::dequeue_x();
+          PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
+          PULSE_START(X);
+        }
+      #endif
 
-    #if HAS_SHAPING_X
-      if (shapex) {
-        shaping_queue.dequeue_x();
-        PULSE_PREP_SHAPING(X, shaping_x.dividend);
-        PULSE_START(X);
+      #if ENABLED(INPUT_SHAPING_Y)
+        if (step_needed[Y_AXIS]) {
+          const bool forward = ShapingQueue::dequeue_y();
+          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
+          PULSE_START(Y);
+        }
+      #endif
+
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
+
+      USING_TIMED_PULSE();
+      if (bool(step_needed)) {
+        #if ISR_MULTI_STEPS
+          START_TIMED_PULSE();
+          AWAIT_HIGH_PULSE();
+        #endif
+        #if ENABLED(INPUT_SHAPING_X)
+          PULSE_STOP(X);
+        #endif
+        #if ENABLED(INPUT_SHAPING_Y)
+          PULSE_STOP(Y);
+        #endif
       }
-    #endif
 
-    #if HAS_SHAPING_Y
-      if (shapey) {
-        shaping_queue.dequeue_y();
-        PULSE_PREP_SHAPING(Y, shaping_y.dividend);
-        PULSE_START(Y);
-      }
-    #endif
+      TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
+      TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
-    TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
+      if (!bool(step_needed)) break;
 
-    if (shapex || shapey) {
-      #if ISR_MULTI_STEPS
-        USING_TIMED_PULSE();
-        START_TIMED_PULSE();
-        AWAIT_HIGH_PULSE();
-      #endif
-      #if HAS_SHAPING_X
-        if (shapex) PULSE_STOP(X);
-      #endif
-      #if HAS_SHAPING_Y
-        if (shapey) PULSE_STOP(Y);
-      #endif
+      START_TIMED_PULSE();
+      AWAIT_LOW_PULSE();
     }
   }
 
-#endif // INPUT_SHAPING
+#endif // HAS_SHAPING
 
 // Calculate timer interval, with all limits applied.
 uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
@@ -2462,79 +2488,55 @@ uint32_t Stepper::block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
+        oversampling_factor = 0;                            // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
         uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
         while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
           max_rate <<= 1;                                   // Try to double the rate
           if (max_rate < MIN_STEP_ISR_FREQUENCY)            // Don't exceed the estimated ISR limit
-            ++oversampling;                                 // Increase the oversampling (used for left-shift)
+            ++oversampling_factor;                          // Increase the oversampling (used for left-shift)
         }
-        oversampling_factor = oversampling;                 // For all timer interval calculations
-      #else
-        constexpr uint8_t oversampling = 0;
       #endif
 
       // Based on the oversampling factor, do the calculations
-      step_event_count = current_block->step_event_count << oversampling;
+      step_event_count = current_block->step_event_count << oversampling_factor;
 
       // Initialize Bresenham delta errors to 1/2
-      #if HAS_SHAPING_X
-        const int32_t old_delta_error_x = delta_error.x;
-      #endif
-      #if HAS_SHAPING_Y
-        const int32_t old_delta_error_y = delta_error.y;
-      #endif
       delta_error = TERN_(LIN_ADVANCE, la_delta_error =) -int32_t(step_event_count);
 
       // Calculate Bresenham dividends and divisors
       advance_dividend = (current_block->steps << 1).asLong();
       advance_divisor = step_event_count << 1;
 
-      // for input shaped axes, advance_divisor is replaced with 0x40000000
-      // and steps are repeated twice so dividends have to be scaled and halved
-      // and the dividend is directional, i.e. signed
-      TERN_(HAS_SHAPING_X, advance_dividend.x = (uint64_t(current_block->steps.x) << 29) / step_event_count);
-      TERN_(HAS_SHAPING_X, if (TEST(current_block->direction_bits, X_AXIS)) advance_dividend.x *= -1);
-      TERN_(HAS_SHAPING_X, if (!shaping_queue.empty_x()) SET_BIT_TO(current_block->direction_bits, X_AXIS, TEST(last_direction_bits, X_AXIS)));
-      TERN_(HAS_SHAPING_Y, advance_dividend.y = (uint64_t(current_block->steps.y) << 29) / step_event_count);
-      TERN_(HAS_SHAPING_Y, if (TEST(current_block->direction_bits, Y_AXIS)) advance_dividend.y *= -1);
-      TERN_(HAS_SHAPING_Y, if (!shaping_queue.empty_y()) SET_BIT_TO(current_block->direction_bits, Y_AXIS, TEST(last_direction_bits, Y_AXIS)));
+      #if ENABLED(INPUT_SHAPING_X)
+        if (shaping_x.enabled) {
+          const int64_t steps = TEST(current_block->direction_bits, X_AXIS) ? -int64_t(current_block->steps.x) : int64_t(current_block->steps.x);
+          shaping_x.last_block_end_pos += steps;
 
-      // The scaling operation above introduces rounding errors which must now be removed.
-      // For this segment, there will be step_event_count calls to the Bresenham logic and the same number of echoes.
-      // For each pair of calls to the Bresenham logic, delta_error will increase by advance_dividend modulo 0x20000000
-      // so (e.g. for x) delta_error.x will end up changing by (advance_dividend.x * step_event_count) % 0x20000000.
-      // For a divisor which is a power of 2, modulo is the same as as a bitmask, i.e.
-      // (advance_dividend.x * step_event_count) & 0x1FFFFFFF.
-      // This segment's final change in delta_error should actually be zero so we need to increase delta_error by
-      // 0 - ((advance_dividend.x * step_event_count) & 0x1FFFFFFF)
-      // And this needs to be adjusted to the range -0x10000000 to 0x10000000.
-      // Adding and subtracting 0x10000000 inside the outside the modulo achieves this.
-      TERN_(HAS_SHAPING_X, delta_error.x = old_delta_error_x + 0x10000000L - ((0x10000000L + advance_dividend.x * step_event_count) & 0x1FFFFFFFUL));
-      TERN_(HAS_SHAPING_Y, delta_error.y = old_delta_error_y + 0x10000000L - ((0x10000000L + advance_dividend.y * step_event_count) & 0x1FFFFFFFUL));
-
-      // when there is damping, the signal and its echo have different amplitudes
-      #if ENABLED(HAS_SHAPING_X)
-        const int32_t echo_x = shaping_x.factor * (advance_dividend.x >> 7);
-      #endif
-      #if ENABLED(HAS_SHAPING_Y)
-        const int32_t echo_y = shaping_y.factor * (advance_dividend.y >> 7);
+          // If there are any remaining echos unprocessed, then direction change must
+          // be delayed and processed in PULSE_PREP_SHAPING. This will cause half a step
+          // to be missed, which will need recovering and this can be done through shaping_x.remainder.
+          shaping_x.forward = !TEST(current_block->direction_bits, X_AXIS);
+          if (!ShapingQueue::empty_x()) SET_BIT_TO(current_block->direction_bits, X_AXIS, TEST(last_direction_bits, X_AXIS));
+        }
       #endif
 
-      // plan the change of values for advance_dividend for the input shaping echoes
-      TERN_(INPUT_SHAPING, shaping_dividend_queue.enqueue(TERN0(HAS_SHAPING_X, echo_x), TERN0(HAS_SHAPING_Y, echo_y)));
-
-      // apply the adjustment to the primary signal
-      TERN_(HAS_SHAPING_X, advance_dividend.x -= echo_x);
-      TERN_(HAS_SHAPING_Y, advance_dividend.y -= echo_y);
+      // Y follows the same logic as X (but the comments aren't repeated)
+      #if ENABLED(INPUT_SHAPING_Y)
+        if (shaping_y.enabled) {
+          const int64_t steps = TEST(current_block->direction_bits, Y_AXIS) ? -int64_t(current_block->steps.y) : int64_t(current_block->steps.y);
+          shaping_y.last_block_end_pos += steps;
+          shaping_y.forward = !TEST(current_block->direction_bits, Y_AXIS);
+          if (!ShapingQueue::empty_y()) SET_BIT_TO(current_block->direction_bits, Y_AXIS, TEST(last_direction_bits, Y_AXIS));
+        }
+      #endif
 
       // No step events completed so far
       step_events_completed = 0;
 
       // Compute the acceleration and deceleration points
-      accelerate_until = current_block->accelerate_until << oversampling;
-      decelerate_after = current_block->decelerate_after << oversampling;
+      accelerate_until = current_block->accelerate_until << oversampling_factor;
+      decelerate_after = current_block->decelerate_after << oversampling_factor;
 
       TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
@@ -2548,7 +2550,7 @@ uint32_t Stepper::block_phase_isr() {
         #endif
         if (current_block->la_advance_rate) {
           // apply LA scaling and discount the effect of frequency scaling
-          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling;
+          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
         }
       #endif
 
@@ -2974,7 +2976,8 @@ void Stepper::init() {
   #endif
 }
 
-#if ENABLED(INPUT_SHAPING)
+#if HAS_SHAPING
+
   /**
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
@@ -2983,41 +2986,68 @@ void Stepper::init() {
     // from the damping ratio, get a factor that can be applied to advance_dividend for fixed point maths
     // for ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * M_PI / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd order polynomial
-    float shaping_factor;
-    if (zeta <= 0.0f) shaping_factor = 64.0f;
-    else if (zeta >= 1.0f) shaping_factor = 0.0f;
+    float factor2;
+    if (zeta <= 0.0f) factor2 = 64.0f;
+    else if (zeta >= 1.0f) factor2 = 0.0f;
     else {
-      shaping_factor = 64.44056192 + -99.02008832 * zeta;
+      factor2 = 64.44056192 + -99.02008832 * zeta;
       const float zeta2 = zeta * zeta;
-      shaping_factor += -7.58095488 * zeta2;
+      factor2 += -7.58095488 * zeta2;
       const float zeta3 = zeta2 * zeta;
-      shaping_factor += 43.073216 * zeta3;
+      factor2 += 43.073216 * zeta3;
+      factor2 = floor(factor2);
     }
 
     const bool was_on = hal.isr_state();
     hal.isr_off();
-    TERN_(HAS_SHAPING_X, if (axis == X_AXIS) { shaping_x.factor = floor(shaping_factor); shaping_x.zeta = zeta; })
-    TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) { shaping_y.factor = floor(shaping_factor); shaping_y.zeta = zeta; })
+    TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) { shaping_x.factor2 = factor2; shaping_x.factor1 = 128 - factor2; shaping_x.zeta = zeta; })
+    TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) { shaping_y.factor2 = factor2; shaping_y.factor1 = 128 - factor2; shaping_y.zeta = zeta; })
     if (was_on) hal.isr_on();
   }
 
   float Stepper::get_shaping_damping_ratio(const AxisEnum axis) {
-    TERN_(HAS_SHAPING_X, if (axis == X_AXIS) return shaping_x.zeta);
-    TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.zeta);
+    TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) return shaping_x.zeta);
+    TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.zeta);
     return -1;
   }
 
   void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
-    TERN_(HAS_SHAPING_X, if (axis == X_AXIS) { DelayTimeManager::set_delay(axis, float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq); shaping_x.frequency = freq; })
-    TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) { DelayTimeManager::set_delay(axis, float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq); shaping_y.frequency = freq; })
+    // enabling or disabling shaping whilst moving can result in lost steps
+    Planner::synchronize();
+
+    const bool was_on = hal.isr_state();
+    hal.isr_off();
+
+    const shaping_time_t delay = freq ? float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq : shaping_time_t(-1);
+    #if ENABLED(INPUT_SHAPING_X)
+      if (axis == X_AXIS) {
+        ShapingQueue::set_delay(X_AXIS, delay);
+        shaping_x.frequency = freq;
+        shaping_x.enabled = !!freq;
+        shaping_x.delta_error = 0;
+        shaping_x.last_block_end_pos = count_position.x;
+      }
+    #endif
+    #if ENABLED(INPUT_SHAPING_Y)
+      if (axis == Y_AXIS) {
+        ShapingQueue::set_delay(Y_AXIS, delay);
+        shaping_y.frequency = freq;
+        shaping_y.enabled = !!freq;
+        shaping_y.delta_error = 0;
+        shaping_y.last_block_end_pos = count_position.y;
+      }
+    #endif
+
+    if (was_on) hal.isr_on();
   }
 
   float Stepper::get_shaping_frequency(const AxisEnum axis) {
-    TERN_(HAS_SHAPING_X, if (axis == X_AXIS) return shaping_x.frequency);
-    TERN_(HAS_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.frequency);
+    TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) return shaping_x.frequency);
+    TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.frequency);
     return -1;
   }
-#endif
+
+#endif // HAS_SHAPING
 
 /**
  * Set the stepper positions directly in steps
@@ -3029,6 +3059,13 @@ void Stepper::init() {
  * derive the current XYZE position later on.
  */
 void Stepper::_set_position(const abce_long_t &spos) {
+  #if ENABLED(INPUT_SHAPING_X)
+    const int32_t x_shaping_delta = count_position.x - shaping_x.last_block_end_pos;
+  #endif
+  #if ENABLED(INPUT_SHAPING_Y)
+    const int32_t y_shaping_delta = count_position.y - shaping_y.last_block_end_pos;
+  #endif
+
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
     #if CORE_IS_XY
       // corexy positioning
@@ -3057,6 +3094,19 @@ void Stepper::_set_position(const abce_long_t &spos) {
   #else
     // default non-h-bot planning
     count_position = spos;
+  #endif
+
+  #if ENABLED(INPUT_SHAPING_X)
+    if (shaping_x.enabled) {
+      count_position.x += x_shaping_delta;
+      shaping_x.last_block_end_pos = spos.x;
+    }
+  #endif
+  #if ENABLED(INPUT_SHAPING_Y)
+    if (shaping_y.enabled) {
+      count_position.y += y_shaping_delta;
+      shaping_y.last_block_end_pos = spos.y;
+    }
   #endif
 }
 
@@ -3097,6 +3147,8 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   #endif
 
   count_position[a] = v;
+  TERN_(INPUT_SHAPING_X, if (a == X_AXIS) shaping_x.last_block_end_pos = v);
+  TERN_(INPUT_SHAPING_Y, if (a == Y_AXIS) shaping_y.last_block_end_pos = v);
 
   #ifdef __AVR__
     // Reenable Stepper ISR

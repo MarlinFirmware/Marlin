@@ -45,15 +45,16 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
     return false;
   }
 
-  #if SCREENS_CAN_TIME_OUT
+  #if HAS_SCREEN_TIMEOUT
     if (EventLoop::get_pressed_tag() != 0) {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("buttonStyleCallback, resetting timeout");
+      #endif
       reset_menu_timeout();
     }
   #endif
 
-  if (buttonIsPressed(tag)) {
-    options = OPT_FLAT;
-  }
+  if (buttonIsPressed(tag)) options = OPT_FLAT;
 
   if (style & cmd.STYLE_DISABLED) {
     cmd.tag(0);
@@ -65,7 +66,10 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 }
 
 void BaseScreen::onIdle() {
-  #if SCREENS_CAN_TIME_OUT
+  #if HAS_SCREEN_TIMEOUT
+    if (EventLoop::get_pressed_tag() != 0)
+      reset_menu_timeout();
+
     if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
       reset_menu_timeout();
       #if ENABLED(TOUCH_UI_DEBUG)
@@ -77,10 +81,10 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  TERN_(SCREENS_CAN_TIME_OUT, last_interaction = millis());
+  TERN_(HAS_SCREEN_TIMEOUT, last_interaction = millis());
 }
 
-#if SCREENS_CAN_TIME_OUT
+#if HAS_SCREEN_TIMEOUT
   uint32_t BaseScreen::last_interaction;
 #endif
 
