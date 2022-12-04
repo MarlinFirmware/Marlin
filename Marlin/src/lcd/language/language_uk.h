@@ -337,7 +337,7 @@ namespace Language_uk {
   LSTR MSG_MOVE_E                           = _UxGT("Екструдер");
   LSTR MSG_MOVE_EN                          = _UxGT("Екструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло дуже холодне");
-  LSTR MSG_MOVE_N_MM                        = _UxGT("Рух %sмм");
+  LSTR MSG_MOVE_N_MM                        = _UxGT("Рух $мм");
   LSTR MSG_MOVE_01MM                        = _UxGT("Рух 0.1мм");
   LSTR MSG_MOVE_1MM                         = _UxGT("Рух 1мм");
   LSTR MSG_MOVE_10MM                        = _UxGT("Рух 10мм");
