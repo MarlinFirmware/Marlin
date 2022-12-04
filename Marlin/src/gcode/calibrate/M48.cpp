@@ -112,7 +112,7 @@ void GcodeSuite::M48() {
     set_bed_leveling_enabled(false);
   #endif
 
-  TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
+  TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true));
 
   // Work with reasonable feedrates
   remember_feedrate_scaling_off();
