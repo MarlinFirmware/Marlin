@@ -192,17 +192,18 @@
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
-#if ENABLED(SHOW_TEMPERATURE_ERROR_BELOW_ZERO)
-  if (temp < 0)
-    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, F("err"));
-  else
-#endif
-  {
-    const char *str = i16tostr3rj(temp);
-    const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
-    lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
-    lcd_put_lchar(LCD_STR_DEGREE[0]);
+  char *str;
+  uint8_t len;
+  if (temp > 0) {
+    str = i16tostr3rj(temp);
+    len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
   }
+  else {
+    str = "err";
+    len = 3;
+  }
+  lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
+  if (temp > 0) lcd_put_lchar(LCD_STR_DEGREE[0]);
 }
 
 #if DO_DRAW_FLOWMETER
