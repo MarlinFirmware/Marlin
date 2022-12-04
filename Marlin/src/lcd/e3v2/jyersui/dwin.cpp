@@ -2302,7 +2302,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1);
+              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, [](){planner.refresh_e_factor(0);});
             break;
         #endif
       }
@@ -3740,7 +3740,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1);
+              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, [](){planner.refresh_e_factor(0);});
             break;
           case TUNE_HOTEND:
             if (draw) {
@@ -4226,8 +4226,6 @@ void CrealityDWINClass::Value_Control() {
         case LevelManual: mesh_conf.manual_mesh_move(selection == LEVELING_M_OFFSET); break;
       #endif
     }
-    if (valuepointer == &planner.flow_percentage[0])
-      planner.refresh_e_factor(0);
     if (funcpointer) funcpointer();
     return;
   }
