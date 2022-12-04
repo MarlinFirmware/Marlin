@@ -453,7 +453,7 @@ void MarlinUI::draw_status_screen() {
         DWIN_Draw_String(
           false, font16x32, Percent_Color, Color_Bg_Black,
           pb_left + (pb_width - dwin_string.length * 16) / 2,
-          pb_top + (pb_height - 32) / 2,
+          pb_top + (pb_height - 32) / 2 - 1,
           S(dwin_string.string())
         );
       #endif
