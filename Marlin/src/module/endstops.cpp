@@ -682,7 +682,7 @@ void __O2 Endstops::report_states() {
         #undef _CASE_RUNOUT
       }
       const RunoutMode rm = runout.mode[i - 1];
-      const uint8_t state = runout.out_state(i - 1);
+      const uint8_t outval = runout.out_state(i - 1);
 
       #if DISABLED(SLIM_LCD_MENUS)
         SERIAL_ECHOPGM(STR_FILAMENT);
