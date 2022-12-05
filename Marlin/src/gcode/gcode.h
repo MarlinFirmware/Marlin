@@ -114,7 +114,7 @@
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
- * M73  - Set the progress percentage. (Requires LCD_SET_PROGRESS_MANUALLY)
+ * M73  - Set the progress percentage. (Requires SET_PROGRESS_MANUALLY)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
  * M77  - Stop the print job timer.
@@ -259,6 +259,7 @@
  * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M593 - Get or set input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
@@ -677,7 +678,7 @@ private:
     static void M48();
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  #if ENABLED(SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
 
@@ -1080,6 +1081,11 @@ private:
     static void M575();
   #endif
 
+  #if HAS_SHAPING
+    static void M593();
+    static void M593_report(const bool forReplay=true);
+  #endif
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     static void M600();
     static void M603();
@@ -1194,7 +1200,7 @@ private:
     static void M995();
   #endif
 
-  #if BOTH(HAS_SPI_FLASH, SDSUPPORT)
+  #if BOTH(SPI_FLASH, SDSUPPORT)
     static void M993();
     static void M994();
   #endif

@@ -76,12 +76,12 @@
           #if ENABLED(TFT_COLOR_UI)
             lcd_moveto(4, 3);
             lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
-            lcd_put_lchar(':');
+            lcd_put_u8str(F(":"));
             lcd_moveto(10, 3);
           #else
             lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
             lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
-            lcd_put_lchar(':');
+            lcd_put_u8str(F(":"));
           #endif
           lcd_put_u8str(BABYSTEP_TO_STR(mps * babystep.axis_total[BS_TOTAL_IND(axis)]));
         }
@@ -210,9 +210,9 @@ void menu_tune() {
   // Advance K:
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
-    #if EXTRUDERS == 1
+    #if DISTINCT_E < 2
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
-    #elif HAS_MULTI_EXTRUDER
+    #else
       EXTRUDER_LOOP()
         EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
     #endif
