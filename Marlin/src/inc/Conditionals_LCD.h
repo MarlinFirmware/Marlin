@@ -1020,8 +1020,11 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
-#define EXTRUDER_LOOP() for (int8_t e = 0; e < EXTRUDERS; e++)
-#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+#define _EXTRUDER_LOOP(E) for (int8_t E = 0; E < EXTRUDERS; E++)
+#define EXTRUDER_LOOP() _EXTRUDER_LOOP(e)
+#define _HOTEND_LOOP(H) for (int8_t H = 0; H < HOTENDS; H++)
+#define HOTEND_LOOP() _HOTEND_LOOP(e)
+
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
@@ -1204,45 +1207,61 @@
 #elif X_HOME_DIR < 0
   #define X_HOME_TO_MIN 1
 #endif
-#if Y_HOME_DIR > 0
-  #define Y_HOME_TO_MAX 1
-#elif Y_HOME_DIR < 0
-  #define Y_HOME_TO_MIN 1
+#if HAS_Y_AXIS
+  #if Y_HOME_DIR > 0
+    #define Y_HOME_TO_MAX 1
+  #elif Y_HOME_DIR < 0
+    #define Y_HOME_TO_MIN 1
+  #endif
 #endif
-#if Z_HOME_DIR > 0
-  #define Z_HOME_TO_MAX 1
-#elif Z_HOME_DIR < 0
-  #define Z_HOME_TO_MIN 1
+#if HAS_Z_AXIS
+  #if Z_HOME_DIR > 0
+    #define Z_HOME_TO_MAX 1
+  #elif Z_HOME_DIR < 0
+    #define Z_HOME_TO_MIN 1
+  #endif
 #endif
-#if I_HOME_DIR > 0
-  #define I_HOME_TO_MAX 1
-#elif I_HOME_DIR < 0
-  #define I_HOME_TO_MIN 1
+#if HAS_I_AXIS
+  #if I_HOME_DIR > 0
+    #define I_HOME_TO_MAX 1
+  #elif I_HOME_DIR < 0
+    #define I_HOME_TO_MIN 1
+  #endif
 #endif
-#if J_HOME_DIR > 0
-  #define J_HOME_TO_MAX 1
-#elif J_HOME_DIR < 0
-  #define J_HOME_TO_MIN 1
+#if HAS_J_AXIS
+  #if J_HOME_DIR > 0
+    #define J_HOME_TO_MAX 1
+  #elif J_HOME_DIR < 0
+    #define J_HOME_TO_MIN 1
+  #endif
 #endif
-#if K_HOME_DIR > 0
-  #define K_HOME_TO_MAX 1
-#elif K_HOME_DIR < 0
-  #define K_HOME_TO_MIN 1
+#if HAS_K_AXIS
+  #if K_HOME_DIR > 0
+    #define K_HOME_TO_MAX 1
+  #elif K_HOME_DIR < 0
+    #define K_HOME_TO_MIN 1
+  #endif
 #endif
-#if U_HOME_DIR > 0
-  #define U_HOME_TO_MAX 1
-#elif U_HOME_DIR < 0
-  #define U_HOME_TO_MIN 1
+#if HAS_U_AXIS
+  #if U_HOME_DIR > 0
+    #define U_HOME_TO_MAX 1
+  #elif U_HOME_DIR < 0
+    #define U_HOME_TO_MIN 1
+  #endif
 #endif
-#if V_HOME_DIR > 0
-  #define V_HOME_TO_MAX 1
-#elif V_HOME_DIR < 0
-  #define V_HOME_TO_MIN 1
+#if HAS_V_AXIS
+  #if V_HOME_DIR > 0
+    #define V_HOME_TO_MAX 1
+  #elif V_HOME_DIR < 0
+    #define V_HOME_TO_MIN 1
+  #endif
 #endif
-#if W_HOME_DIR > 0
-  #define W_HOME_TO_MAX 1
-#elif W_HOME_DIR < 0
-  #define W_HOME_TO_MIN 1
+#if HAS_W_AXIS
+  #if W_HOME_DIR > 0
+    #define W_HOME_TO_MAX 1
+  #elif W_HOME_DIR < 0
+    #define W_HOME_TO_MIN 1
+  #endif
 #endif
 
 /**
