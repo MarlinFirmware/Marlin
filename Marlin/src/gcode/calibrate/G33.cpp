@@ -74,7 +74,7 @@ void ac_home() {
 }
 
 void ac_setup(const bool reset_bed) {
-  probe.use_probing_tool();
+  TERN_(HAS_BED_PROBE, probe.use_probing_tool());
 
   planner.synchronize();
   remember_feedrate_scaling_off();
@@ -88,7 +88,7 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
   TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
   TERN_(HAS_BED_PROBE, probe.stow());
   restore_feedrate_and_scaling();
-  probe.use_probing_tool(false);
+  TERN_(HAS_BED_PROBE, probe.use_probing_tool(false));
 }
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {

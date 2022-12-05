@@ -103,7 +103,6 @@ void GcodeSuite::G29() {
       bedlevel.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        probe.use_probing_tool();
         if (parser.seen_test('N'))
           queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
@@ -203,7 +202,6 @@ void GcodeSuite::G29() {
 
         home_all_axes();
         set_bed_leveling_enabled(true);
-        probe.use_probing_tool(false);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position.z = 0;
