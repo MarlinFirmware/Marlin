@@ -48,7 +48,7 @@
 
 #define BOARD_INFO_NAME "LGT KIT V1.0"
 
-#define DEFAULT_MACHINE_NAME "LONGER 3D Printer"   // override by  CUSTOM_MACHINE_NAME if any
+#define DEFAULT_MACHINE_NAME "LONGER 3D Printer"
 
 //
 // Servos
@@ -63,7 +63,7 @@
 //
 // Limit Switches
 //
-#ifdef LONGER_LK5
+#if ENABLED(LONGER_LK5)
   #define X_MIN_PIN                            3
   #define X_MAX_PIN                            2
 #else
@@ -72,7 +72,7 @@
 
 #ifdef CHANGE_Y_LIMIT_PINS
   #define Y_STOP_PIN                          37
-#elif defined(LONGER_LK5)
+#elif ENABLED(LONGER_LK5)
   #define Y_STOP_PIN                          14
 #else
   #define Y_MIN_PIN                           14
@@ -133,18 +133,18 @@
 //    Aux-1 | D19 D18 GND 5V |    J21 | D4 D5 D6 GND |    J17 | D11 GND 24V |    J18 | D7 GND 5V |
 //          ------------------        ----------------        ---------------        -------------
 
-#if ENABLED(CR10_STOCKDISPLAY) && defined(LONGER_LK5)
-/**         back of CR10_STOCKDISPLAY
- *                  ------
- *             GND | 9 10 | 5V
- * LCD_PINS_RS D5  | 7  8 | D4  LCD_PINS_ENABLE
- *     BTN_EN2 D19 | 5  6   D6  LCD_PINS_D4
- *     BTN_EN1 D18 | 3  4 | GND
- *  BEEPER_PIN D11 | 1  2 | D15 BTN_ENC
- *                  ------
- *      Connected via provided custom cable to:
- *      Aux-1, J21, J17 and Y-Max.
- */
+#if BOTH(CR10_STOCKDISPLAY, LONGER_LK5)
+  /**           CR-10 Stock Display
+   *                  ------
+   *             GND | 9 10 | 5V
+   * LCD_PINS_RS D5  | 7  8 | D4  LCD_PINS_ENABLE
+   *     BTN_EN2 D19 | 5  6   D6  LCD_PINS_D4
+   *     BTN_EN1 D18 | 3  4 | GND
+   *  BEEPER_PIN D11 | 1  2 | D15 BTN_ENC
+   *                  ------
+   *      Connected via provided custom cable to:
+   *      Aux-1, J21, J17 and Y-Max.
+   */
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
   #undef LCD_PINS_D4
