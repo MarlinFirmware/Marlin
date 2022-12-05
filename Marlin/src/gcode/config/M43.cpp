@@ -198,10 +198,10 @@ inline void servo_probe_test() {
       uint8_t i = 0;
       SERIAL_ECHOLNPGM(". Deploy & stow 4 times");
       do {
-        MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
+        servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
         safe_delay(500);
         deploy_state = READ(PROBE_TEST_PIN);
-        MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
+        servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
         safe_delay(500);
         stow_state = READ(PROBE_TEST_PIN);
       } while (++i < 4);
@@ -226,7 +226,7 @@ inline void servo_probe_test() {
     }
 
     // Ask the user for a trigger event and measure the pulse width.
-    MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
+    servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
     safe_delay(500);
     SERIAL_ECHOLNPGM("** Please trigger probe within 30 sec **");
     uint16_t probe_counter = 0;
@@ -256,7 +256,7 @@ inline void servo_probe_test() {
         }
         else SERIAL_ECHOLNPGM("FAIL: Noise detected - please re-run test");
 
-        MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
+        servo[probe_index].move(servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
         return;
       }
     }
@@ -313,9 +313,16 @@ void GcodeSuite::M43() {
 
   // 'P' Get the range of pins to test or watch
   uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
-          last_pin = parser.seenval('P') ? first_pin : TERN(HAS_HIGH_ANALOG_PINS, NUM_DIGITAL_PINS, NUMBER_PINS_TOTAL) - 1;
+          last_pin = parser.seenval('L') ? PARSED_PIN_INDEX('L', 0) : parser.seenval('P') ? first_pin : (NUMBER_PINS_TOTAL) - 1;
 
-  if (first_pin > last_pin) return;
+  NOMORE(first_pin, (NUMBER_PINS_TOTAL) - 1);
+  NOMORE(last_pin, (NUMBER_PINS_TOTAL) - 1);
+
+  if (first_pin > last_pin) {
+    const uint8_t f = first_pin;
+    first_pin = last_pin;
+    last_pin = f;
+  }
 
   // 'I' to ignore protected pins
   const bool ignore_protection = parser.boolval('I');

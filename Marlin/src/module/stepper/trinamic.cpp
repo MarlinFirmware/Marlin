@@ -1023,17 +1023,13 @@ void reset_trinamic_drivers() {
 // 2. For each axis in use, static_assert using a constexpr function, which counts the
 //      number of matching/conflicting axis. If the value is not exactly 1, fail.
 
-#define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
-
 #if ANY_AXIS_HAS(HW_SERIAL)
   // Hardware serial names are compared as strings, since actually resolving them cannot occur in a constexpr.
   // Using a fixed-length character array for the port name allows this to be constexpr compatible.
   struct SanityHwSerialDetails { const char port[20]; uint32_t address; };
   #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)
-  #define TMC_HW_DETAIL(A) { TMC_HW_DETAIL_ARGS(A) },
-  constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = {
-    MAP(TMC_HW_DETAIL, ALL_AXIS_NAMES)
-  };
+  #define TMC_HW_DETAIL(A) { TMC_HW_DETAIL_ARGS(A) }
+  constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = { MAPLIST(TMC_HW_DETAIL, ALL_AXIS_NAMES) };
 
   // constexpr compatible string comparison
   constexpr bool str_eq_ce(const char * a, const char * b) {
@@ -1057,10 +1053,8 @@ void reset_trinamic_drivers() {
 #if ANY_AXIS_HAS(SW_SERIAL)
   struct SanitySwSerialDetails { int32_t txpin; int32_t rxpin; uint32_t address; };
   #define TMC_SW_DETAIL_ARGS(A) TERN(A##_HAS_SW_SERIAL, A##_SERIAL_TX_PIN, -1), TERN(A##_HAS_SW_SERIAL, A##_SERIAL_RX_PIN, -1), TERN0(A##_HAS_SW_SERIAL, A##_SLAVE_ADDRESS)
-  #define TMC_SW_DETAIL(A) TMC_SW_DETAIL_ARGS(A),
-  constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = {
-    MAP(TMC_SW_DETAIL, ALL_AXIS_NAMES)
-  };
+  #define TMC_SW_DETAIL(A) { TMC_SW_DETAIL_ARGS(A) }
+  constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = { MAPLIST(TMC_SW_DETAIL, ALL_AXIS_NAMES) };
 
   constexpr bool sc_sw_done(size_t start, size_t end) { return start == end; }
   constexpr bool sc_sw_skip(int32_t txpin) { return txpin < 0; }

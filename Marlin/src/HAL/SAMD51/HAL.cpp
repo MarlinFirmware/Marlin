@@ -1,8 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  */
 #ifdef __SAMD51__
 
@@ -598,7 +603,7 @@ void MarlinHAL::dma_init() {
 void MarlinHAL::init() {
   TERN_(DMA_IS_REQUIRED, dma_init());
   #if ENABLED(SDSUPPORT)
-    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
+    #if HAS_SD_DETECT && SD_CONNECTION_IS(ONBOARD)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up

@@ -29,6 +29,7 @@
 #include "cardreader.h"
 
 #include "../MarlinCore.h"
+#include "../libs/hex_print.h"
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -171,7 +172,7 @@ CardReader::CardReader() {
   workDirDepth = 0;
   ZERO(workDirParents);
 
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+  #if BOTH(SDSUPPORT, HAS_SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
@@ -197,7 +198,7 @@ char *createFilename(char * const buffer, const dir_t &p) {
 //
 // Return 'true' if the item is a folder, G-code file or Binary file
 //
-bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)) {
+bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)) {
   //uint8_t pn0 = p.name[0];
 
   #if DISABLED(CUSTOM_FIRMWARE_UPLOAD)
@@ -279,12 +280,17 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
  * this can blow up the stack, so a 'depth' parameter would be a
  * good addition.
  */
-void CardReader::printListing(
-  SdFile parent, const char * const prepend
-  OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)
-  OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+void CardReader::printListing(SdFile parent,  const char * const prepend, const uint8_t lsflags
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
+  const bool includeTime = TERN0(M20_TIMESTAMP_SUPPORT, TEST(lsflags, LS_TIMESTAMP));
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    const bool includeLong = TEST(lsflags, LS_LONG_FILENAME);
+  #endif
+  #if ENABLED(CUSTOM_FIRMWARE_UPLOAD)
+    const bool onlyBin = TEST(lsflags, LS_ONLY_BIN);
+  #endif
+  UNUSED(lsflags);
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
@@ -301,19 +307,17 @@ void CardReader::printListing(
       SdFile child; // child.close() in destructor
       if (child.open(&parent, dosFilename, O_READ)) {
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-          if (includeLongNames) {
-            size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
+          if (includeLong) {
+            const size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
             // Allocate enough stack space for the full long path including / separator
             char pathLong[lenPrependLong + strlen(longFilename) + 1];
             if (prependLong) { strcpy(pathLong, prependLong); pathLong[lenPrependLong - 1] = '/'; }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin), true, pathLong);
+            printListing(child, path, lsflags, pathLong);
+            continue;
           }
-          else
-            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin));
-        #else
-          printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin));
         #endif
+        printListing(child, path, lsflags);
       }
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
@@ -325,8 +329,18 @@ void CardReader::printListing(
       SERIAL_ECHO(createFilename(filename, p));
       SERIAL_CHAR(' ');
       SERIAL_ECHO(p.fileSize);
+      if (includeTime) {
+        SERIAL_CHAR(' ');
+        uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
+        if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
+          crmodDate = p.creationDate;
+          crmodTime = p.creationTime;
+        }
+        SERIAL_ECHOPGM("0x", hex_word(crmodDate));
+        print_hex_word(crmodTime);
+      }
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        if (includeLongNames) {
+        if (includeLong) {
           SERIAL_CHAR(' ');
           if (prependLong) { SERIAL_ECHO(prependLong); SERIAL_CHAR('/'); }
           SERIAL_ECHO(longFilename[0] ? longFilename : filename);
@@ -340,16 +354,10 @@ void CardReader::printListing(
 //
 // List all files on the SD card
 //
-void CardReader::ls(
-  TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)
-  #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
-    ,
-  #endif
-  TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
-) {
+void CardReader::ls(const uint8_t lsflags) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root, nullptr OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin) OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
+    printListing(root, nullptr, lsflags);
   }
 }
 
@@ -456,10 +464,11 @@ void CardReader::mount() {
 
   if (flag.mounted)
     cdroot();
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT) || PIN_EXISTS(SD_DETECT)
-    else if (marlin_state != MF_INITIALIZING)
-      LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
-  #endif
+  else {
+    #if EITHER(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
+      if (marlin_state != MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
+    #endif
+  }
 
   ui.refresh();
 }
@@ -494,37 +503,24 @@ void CardReader::manage_media() {
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
-    if (!isMounted()) {             // Not mounted?
-      stat = 0;
-      IF_DISABLED(SD_IGNORE_AT_STARTUP, prev_stat = 0);
-    }
+    if (!isMounted()) stat = 0;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
   }
   else {
-    #if PIN_EXISTS(SD_DETECT)
-      release();                    // Card is released
-    #endif
+    TERN_(HAS_SD_DETECT, release()); // Card is released
   }
 
   ui.media_changed(old_stat, stat); // Update the UI or flag an error
 
   if (!stat) return;                // Exit if no media is present
 
-  static bool did_first_insert = false;
-  if (did_first_insert) return;     // Did a media insert already happen?
-  did_first_insert = true;          // Definitely handling this media insert...
+  if (old_stat != 2) return;        // First mount?
 
   DEBUG_ECHOLNPGM("First mount.");
 
   // Load settings the first time media is inserted (not just during init)
   TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
-
-  #if HAS_USB_FLASH_DRIVE
-    const millis_t ms = millis();
-    DEBUG_ECHOLNPGM("USB mount waiting time = ", ms);
-    if (ms > 5000) return;          // Too late to be considered "already inserted"?
-  #endif
 
   bool do_auto = true; UNUSED(do_auto);
 
@@ -551,6 +547,7 @@ void CardReader::release() {
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
     nrFiles = 0;
   #endif
+  SERIAL_ECHO_MSG(STR_SD_CARD_RELEASED);
 }
 
 /**
@@ -646,7 +643,7 @@ void announceOpen(const uint8_t doing, const char * const path) {
 //   - 2 : Resuming from a sub-procedure
 //
 void CardReader::openFileRead(const char * const path, const uint8_t subcall_type/*=0*/) {
-  if (!isMounted()) return;
+  if (!isMounted()) return openFailed(path);
 
   switch (subcall_type) {
     case 0:      // Starting a new print. "Now fresh file: ..."
@@ -688,7 +685,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 
   SdFile *diveDir;
   const char * const fname = diveToFile(true, diveDir, path);
-  if (!fname) return;
+  if (!fname) return openFailed(path);
 
   if (file.open(diveDir, fname, O_READ)) {
     filesize = file.fileSize();
@@ -724,21 +721,20 @@ void CardReader::openFileWrite(const char * const path) {
 
   SdFile *diveDir;
   const char * const fname = diveToFile(false, diveDir, path);
-  if (!fname) return;
+  if (!fname) return openFailed(path);
 
-  #if ENABLED(SDCARD_READONLY)
-    openFailed(fname);
-  #else
+  #if DISABLED(SDCARD_READONLY)
     if (file.open(diveDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       flag.saving = true;
       selectFileByName(fname);
       TERN_(EMERGENCY_PARSER, emergency_parser.disable());
       echo_write_to_file(fname);
       ui.set_status(fname);
+      return;
     }
-    else
-      openFailed(fname);
   #endif
+
+  openFailed(fname);
 }
 
 //
@@ -793,7 +789,7 @@ void CardReader::removeFile(const char * const name) {
 }
 
 void CardReader::report_status() {
-  if (isPrinting()) {
+  if (isPrinting() || isPaused()) {
     SERIAL_ECHOPGM(STR_SD_PRINTING_BYTE, sdpos);
     SERIAL_CHAR('/');
     SERIAL_ECHOLN(filesize);

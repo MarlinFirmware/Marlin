@@ -332,10 +332,14 @@ void StatusScreen::draw_status_message(draw_mode_t what, const char *message) {
   }
 }
 
-void StatusScreen::setStatusMessage(FSTR_P message) {
-  char buff[strlen_P(FTOP(message)) + 1];
-  strcpy_P(buff, FTOP(message));
-  setStatusMessage((const char *) buff);
+void StatusScreen::setStatusMessage(FSTR_P fmsg) {
+  #ifdef __AVR__
+    char buff[strlen_P(FTOP(fmsg)) + 1];
+    strcpy_P(buff, FTOP(fmsg));
+    setStatusMessage((const char *)buff);
+  #else
+    setStatusMessage(FTOP(fmsg));
+  #endif
 }
 
 void StatusScreen::setStatusMessage(const char *message) {

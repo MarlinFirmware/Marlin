@@ -27,7 +27,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-void lcd_move_z();
+#if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+  #include "../../module/planner.h"
+#endif
 
 ////////////////////////////////////////////
 ///////////// Base Menu Items //////////////
@@ -357,7 +359,7 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                          \
 } while(0)
 
-#define STATIC_ITEM_N_F(FLABEL, N, V...) do{ \
+#define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (_menuLineNr == _thisItemNr) {          \
     MenuItemBase::init(N);                   \
     STATIC_ITEM_INNER_F(FLABEL, ##V);        \
@@ -380,7 +382,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
 #define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_F(GET_TEXT_F(LABEL), N, ##V)
+#define STATIC_ITEM_N(N, LABEL, V...)                STATIC_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 // Menu item with index and composed C-string substitution
 #define MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)   _MENU_ITEM_N_S_F(TYPE, N, S, false, FLABEL, ##V)
@@ -400,8 +402,13 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#define BACK_ITEM_F(FLABEL)                              MENU_ITEM_F(back, FLABEL)
-#define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
+#if DISABLED(DISABLE_ENCODER)
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+#else
+  #define BACK_ITEM_F(FLABEL) NOOP
+  #define BACK_ITEM(LABEL)    NOOP
+#endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
 #define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ACTION)
@@ -538,6 +545,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
   inline void on_fan_update() {
     thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+    TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
   }
 
   #if ENABLED(EXTRA_FAN_SPEED)

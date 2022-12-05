@@ -336,7 +336,7 @@ namespace Language_ru {
   LSTR MSG_MOVE_E                           = _UxGT("Экструдер");
   LSTR MSG_MOVE_EN                          = _UxGT("Экструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло не нагрето");
-  LSTR MSG_MOVE_N_MM                        = _UxGT("Движение %sмм");
+  LSTR MSG_MOVE_N_MM                        = _UxGT("Движение $мм");
   LSTR MSG_MOVE_01MM                        = _UxGT("Движение 0.1мм");
   LSTR MSG_MOVE_1MM                         = _UxGT("Движение 1мм");
   LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
@@ -628,12 +628,6 @@ namespace Language_ru {
   LSTR MSG_DELTA_CALIBRATE_CENTER           = _UxGT("Калибровать центр");
   LSTR MSG_DELTA_SETTINGS                   = _UxGT("Настройки Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE             = _UxGT("Авто калибровка");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE           = _UxGT("Высота Delta");
-  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
-    LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Зондировать Z-смещения");
-  #else
-    LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Зондир. Z-смещения");
-  #endif
   LSTR MSG_DELTA_DIAG_ROD                   = _UxGT("Стержень диаг.");
   LSTR MSG_DELTA_HEIGHT                     = _UxGT("Высота");
   LSTR MSG_DELTA_RADIUS                     = _UxGT("Радиус");

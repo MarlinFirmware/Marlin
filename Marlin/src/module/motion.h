@@ -549,63 +549,21 @@ void home_if_needed(const bool keeplev=false);
   #endif
 
   // Return true if the given point is within the printable area
-  inline bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0) {
-    #if ENABLED(DELTA)
-
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
-
-    #elif ENABLED(POLARGRAPH)
-
-      const float x1 = rx - (X_MIN_POS), x2 = (X_MAX_POS) - rx, y = ry - (Y_MAX_POS),
-                  a = HYPOT(x1, y), b = HYPOT(x2, y);
-      return a < (POLARGRAPH_MAX_BELT_LEN) + 1
-          && b < (POLARGRAPH_MAX_BELT_LEN) + 1
-          && (a + b) > _MIN(X_BED_SIZE, Y_BED_SIZE);
-
-    #elif ENABLED(AXEL_TPARA)
-
-      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
-      return (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-        #endif
-      );
-
-    #elif IS_SCARA
-
-      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-      return (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-        #endif
-      );
-
-    #endif
-  }
+  bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0);
 
   inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
     return position_is_reachable(pos.x, pos.y, inset);
   }
 
-#else // CARTESIAN
+#else
 
   // Return true if the given position is within the machine bounds.
-  inline bool position_is_reachable(const_float_t rx, const_float_t ry) {
-    if (!COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
-    #if ENABLED(DUAL_X_CARRIAGE)
-      if (active_extruder)
-        return COORDINATE_OKAY(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
-      else
-        return COORDINATE_OKAY(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
-    #else
-      return COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
-    #endif
+  bool position_is_reachable(const_float_t rx, const_float_t ry);
+  inline bool position_is_reachable(const xy_pos_t &pos) {
+    return position_is_reachable(pos.x, pos.y);
   }
-  inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
 
-#endif // CARTESIAN
+#endif
 
 /**
  * Duplication mode
