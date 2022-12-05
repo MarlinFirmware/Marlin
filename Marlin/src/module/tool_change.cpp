@@ -512,7 +512,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // TOOL_SENSOR
 
-#if ENABLED(SWITCHING_TOOLHEAD)
+#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES

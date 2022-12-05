@@ -634,6 +634,7 @@ class Temperature {
     #endif
 
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
+      #define MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
 

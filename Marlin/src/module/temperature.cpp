@@ -576,8 +576,7 @@ volatile bool Temperature::raw_temps_ready = false;
   temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5, sensor_heater_6, sensor_heater_7);
 #endif
 
-#if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
-  #define MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR 1
+#if MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
 #endif
 
@@ -1319,9 +1318,17 @@ void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_m
     const millis_t ms = millis();
     static millis_t expire_ms;
     switch (killed) {
-      case 0: expire_ms = ms + BOGUS_TEMPERATURE_GRACE_PERIOD; ++killed; break;
-      case 1: if (ELAPSED(ms, expire_ms)) ++killed; break;
-      case 2: loud_kill(lcd_msg, heater_id); ++killed; break;
+      case 0:
+        expire_ms = ms + BOGUS_TEMPERATURE_GRACE_PERIOD;
+        ++killed;
+        break;
+      case 1:
+        if (ELAPSED(ms, expire_ms)) ++killed;
+        break;
+      case 2:
+        loud_kill(lcd_msg, heater_id);
+        ++killed;
+        break;
     }
   #elif defined(BOGUS_TEMPERATURE_GRACE_PERIOD)
     UNUSED(killed);
@@ -1896,18 +1903,28 @@ void Temperature::task() {
 
   if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
 
+  if (!heating_enabled) return disable_all_heaters();
+
+  const millis_t ms = millis();
+
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_IS_MAX_TC(0)
-      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
-      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
+      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
+        max_temp_error(H_E0);
+      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
+        min_temp_error(H_E0);
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(1)
-      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
-      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
+      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
+        max_temp_error(H_E1);
+      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
+        min_temp_error(H_E1);
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(2)
-      if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) max_temp_error(H_E2);
-      if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) min_temp_error(H_E2);
+      if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
+        max_temp_error(H_E2);
+      if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
+        min_temp_error(H_E2);
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
       if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
@@ -1916,8 +1933,6 @@ void Temperature::task() {
   #else
     #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
   #endif
-
-  const millis_t ms = millis();
 
   // Handle Hotend Temp Errors, Heating Watch, etc.
   TERN_(HAS_HOTEND, manage_hotends(ms));
@@ -2418,7 +2433,12 @@ void Temperature::updateTemperaturesFromRawValues() {
       #endif
     };
 
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      const millis_t ms_since_tc = ms_since_tool_change();
+    #endif
+
     HOTEND_LOOP() {
+      if (TERN0(STM_HAS_MULTI_HOTEND, active_extruder != e)) continue; // Only act on the active tool in manual switching mode
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
       if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tc > 100) && ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))) {
