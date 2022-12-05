@@ -264,10 +264,12 @@ namespace Language_hu {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mozgás 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mozgás 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mozgás 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mozgás 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mozgás 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Mozgás 0.025mm");
   LSTR MSG_MOVE_001IN                     = _UxGT("Mozgás 0.254mm");
   LSTR MSG_MOVE_01IN                      = _UxGT("Mozgás 2.54mm");
+  LSTR MSG_MOVE_05IN                      = _UxGT("Mozgás 12.7mm");
   LSTR MSG_MOVE_1IN                       = _UxGT("Mozgáá 25.4mm");
   LSTR MSG_SPEED                          = _UxGT("Sebesség");
   LSTR MSG_BED_Z                          = _UxGT("Z ágy");
