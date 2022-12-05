@@ -57,6 +57,7 @@ bool leveling_is_valid() {
  *  Enable: Current position = "unleveled" physical position
  */
 void set_bed_leveling_enabled(const bool enable/*=true*/) {
+  DEBUG_SECTION(log_sble, "set_bed_leveling_enabled", DEBUGGING(LEVELING));
 
   const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || leveling_is_valid());
 
