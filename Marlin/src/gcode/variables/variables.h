@@ -20,7 +20,8 @@
  */
 
 /**
- * e_parser.cpp - Intercept special commands directly in the serial stream
+ * variables.h
+ * Copyright (c) 2022 Carlon LaMont
  */
 
 #include "../../inc/MarlinConfigPre.h"

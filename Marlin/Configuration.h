@@ -2405,20 +2405,15 @@
 #endif
 
 /**
- * Variable
+ * Variables
  *
- * Set a numerical values into L variables:
+ * Store values into variables with 'L' commands L100 - L115:
  *
- * The following L-codes can be used:
- *
- *  L100 - L115
- *
- * The L variable can take a S, Position (X,Y,Z) or any int8_t number
- * and store it within the L# pointer. Then be recalled in code for data
- * comparison and or value recalls.
+ * The L variable can take S, a position (X, Y, Z, etc.) or any int8_t number
+ * and store it into an L variable with index 0 - 15.
+ * These can be recalled in code for value comparison or usage.
  */
-#define Variable_Support
-
+#define VARIABLE_SUPPORT
 
 //=============================================================================
 //============================= LCD and SD support ============================

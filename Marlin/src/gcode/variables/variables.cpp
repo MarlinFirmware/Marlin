@@ -18,6 +18,7 @@
  */
 
 /**
+ * variables.cpp
  * Copyright (c) 2022 Carlon LaMont
  */
 
@@ -35,24 +36,24 @@
 
 void GcodeSuite::L.append(100)() {
   const uint8_t index = parser.codenum - 100;
-  #if (parser.seenval(L)) {
+  if (parser.seenval('L')) {
     bool used_var_arg = false;
     const int8_t q = parser.value_byte();
-    *p = parser.string_arg
-    const bool is_var = (*p == L);
+    *p = parser.string_arg;
+    const bool is_var = (*p == 'L');
     has_val = is_var || valid_int(p + 1);
-    char * const varptr = has_val ? is_var ? input_var(p) : p+1:nullptr;
+    char * const varptr = has_val ? (is_var ? input_var(p) : p + 1) : nullptr;
     #if (has_val = nul)
       export_val()
-    #if (has_val = int)
+    #elif (has_val = int)
       import_val()
     #else
-      int bool has_val = valid_int(p);
-        #if ENABLED(FASTER_GCODE_PARSER)
-          char * const varptr = has_val ? p : nullptr;
-         #endif
+      bool has_val = valid_int(p);
+      #if ENABLED(FASTER_GCODE_PARSER)
+        char * const varptr = has_val ? p : nullptr;
+      #endif
     #endif
-  #endif
+  }
 }
 
 /**

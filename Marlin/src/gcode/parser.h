@@ -238,17 +238,17 @@ public:
     FORCE_INLINE static char* unescape_string(char* &src) { return src; }
   #endif
 
-//  #if ENABLED(GCODE_MATHS_STRINGS)
-//  static char* math_string(char* &src);
-//  #else
-//  FORCE_INLINE static char* math_string(char* &src) { return src; }
-//  #endif
+  //#if ENABLED(GCODE_MATHS_STRINGS)
+  //  static char* math_string(char* &src);
+  //#else
+  //  FORCE_INLINE static char* math_string(char* &src) { return src; }
+  //#endif
 
-//  #if ENABLED(GCODE_LOGIC_STRINGS)
-//  static char* logic_string(char* &src);
-//  #else
-//  FORCE_INLINE static char* logic_string(char* &src) { return src; }
-//  #endif
+  //#if ENABLED(GCODE_LOGIC_STRINGS)
+  //  static char* logic_string(char* &src);
+  //#else
+  //  FORCE_INLINE static char* logic_string(char* &src) { return src; }
+  //#endif
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
@@ -273,23 +273,21 @@ public:
 
   // Float removes 'E' to prevent scientific notation interpretation
   static float value_float() {
-
-        if (!value_ptr) return 0;
-      char *e = value_ptr;
-      for (;;) {
-        const char c = *e;
-        if (c == '\0' || c == ' ') break;
-          if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
-          *e = '\0';
-          const float ret = strtof(value_ptr, nullptr);
-          *e = c;
-          return ret;
-        }
-        ++e;
+    if (!value_ptr) return 0;
+    char *e = value_ptr;
+    for (;;) {
+      const char c = *e;
+      if (c == '\0' || c == ' ') break;
+      if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
+        *e = '\0';
+        const float ret = strtof(value_ptr, nullptr);
+        *e = c;
+        return ret;
       }
-      return strtof(value_ptr, nullptr);
+      ++e;
     }
-
+    return strtof(value_ptr, nullptr);
+  }
 
   // Code value as a long or ulong
   static int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }

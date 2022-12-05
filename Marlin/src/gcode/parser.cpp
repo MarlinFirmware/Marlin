@@ -41,7 +41,6 @@ bool GCodeParser::volumetric_enabled;
   TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
-
 char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
      *GCodeParser::value_ptr;
@@ -127,7 +126,6 @@ void GCodeParser::reset() {
 //
 //#endif
 
-
 //Enable Math Functions and assigning values to variables in GCode
 //#if ENABLED(GCODE_MATH_STRINGS)
 //
@@ -169,7 +167,6 @@ void GCodeParser::reset() {
 //  }
 //
 //#endif
-
 
 /**
  * Populate the command line state (command_letter, codenum, subcode, and string_arg)
@@ -238,7 +235,9 @@ void GCodeParser::parse(char *p) {
    * With Motion Modes enabled any axis letter can come first.
    */
   switch (letter) {
-    case 'G': case 'M': case 'T': case 'L': TERN_(MARLIN_DEV_MODE, case 'D':) {
+    TERN_(MARLIN_DEV_MODE, case 'D':)
+    TERN_(VARIABLE_SUPPORT, case 'L':)
+    case 'G': case 'M': case 'T': {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -341,13 +340,13 @@ void GCodeParser::parse(char *p) {
     default: break;
   }
 
-  // Only use string_arg for these L variables
-  if (letter == 'L') switch (codenum) {
-    TERN_(VARIABLE_SUPPORT, case 100 ... 115:)
-      var_arg = input_var(p);
-      return;
-    default: break;
-  }
+  #if ENABLED(VARIABLE_SUPPORT)
+    // Only use string_arg for these L variables
+    if (letter == 'L') switch (codenum) {
+      case 100 ... 115: var_arg = input_var(p); return;
+      default: break;
+    }
+  #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;
@@ -407,25 +406,28 @@ void GCodeParser::parse(char *p) {
 
       while (*p == ' ') p++;                    // Skip spaces between parameters & values
 
+      bool has_val = false;
+
       #if ENABLED(GCODE_QUOTED_STRINGS)
-        const bool is_str = (*p == '"'), has_val = is_str || valid_float(p);
+        const bool is_str = (*p == '"');
+        has_val = is_str || valid_float(p);
         char * const valptr = has_val ? is_str ? unescape_string(p) : p : nullptr;
       #else
-        const bool has_val = valid_float(p);
-          #if ENABLED(FASTER_GCODE_PARSER)
-            char * const valptr = has_val ? p : nullptr;
-          #endif
+        has_val = valid_float(p);
+        #if ENABLED(FASTER_GCODE_PARSER)
+          char * const valptr = has_val ? p : nullptr;
+        #endif
       #endif
 
-
       #if ENABLED(VARIABLE_SUPPORT)
-        const bool is_var = (*p == 'L'), has_val = is_int || valid_float(p + 1);
-        char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
+        const bool is_var = (*p == 'L');
+        has_val = is_int || valid_float(p + 1);
+        char * const varptr = has_val ? is_var ? input_var(p) : p + 1 : nullptr;
       #else
-        const bool has_val = valid_float(p);
-          #if ENABLED(FASTER_GCODE_PARSER)
-            char * const varptr = has_val ? p : nullptr;
-          #endif
+        has_val = valid_float(p);
+        #if ENABLED(FASTER_GCODE_PARSER)
+          char * const varptr = has_val ? p : nullptr;
+        #endif
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
