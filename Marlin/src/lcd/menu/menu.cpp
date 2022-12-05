@@ -352,14 +352,14 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
     if (ui.should_draw()) {
       MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
-      TERN_(BABYSTEP_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
+      TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay_gfx(home_offset[Z_AXIS]));
     }
   }
 
   void goto_lcd_babystep_mesh_zoffset() {
     ui.defer_status_screen();
-    _MENU_ITEM_MULTIPLIER_CHECK(true);
-    goto_screen(lcd_babystep_mesh_zoffset);
+    TERN_(ENCODER_RATE_MULTIPLIER, enable_encoder_multiplier(true));
+    ui.goto_screen(lcd_babystep_mesh_zoffset);
   }
 
 #endif // BABYSTEP_GLOBAL_Z
