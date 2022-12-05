@@ -192,7 +192,7 @@
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
-  char *str;
+  const char *str;
   uint8_t len;
   if (temp > 0) {
     str = i16tostr3rj(temp);
