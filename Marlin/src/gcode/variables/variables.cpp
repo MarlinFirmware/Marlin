@@ -2,8 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2022 Carlon LaMont
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,6 +17,9 @@
  *
  */
 
+/**
+ * Copyright (c) 2022 Carlon LaMont
+ */
 
 #include "../../inc/MarlinConfig.h"
 
@@ -28,10 +29,8 @@
 #include "../queue.h"
 #include "../parser.h"
 
-
 /**
  * Get the variable target data from the L parameter
- * 
  */
 
 void GcodeSuite::L.append(100)() {
@@ -41,20 +40,21 @@ void GcodeSuite::L.append(100)() {
     const int8_t q = parser.value_byte();
     *p = parser.string_arg
     const bool is_var = (*p == L);
-    has_val = is_var || valid_int(p + 1); 
+    has_val = is_var || valid_int(p + 1);
     char * const varptr = has_val ? is_var ? input_var(p) : p+1:nullptr;
     #if (has_val = nul)
       export_val()
     #if (has_val = int)
-      import_val()    
+      import_val()
     #else
-		  int bool has_val = valid_int(p);
-			  #if ENABLED(FASTER_GCODE_PARSER)
-				  char * const varptr = has_val ? p : nullptr;
-	       #endif
+      int bool has_val = valid_int(p);
+        #if ENABLED(FASTER_GCODE_PARSER)
+          char * const varptr = has_val ? p : nullptr;
+         #endif
     #endif
   #endif
 }
+
 /**
  * M810_819: Set/execute a G-code macro.
  *
@@ -65,11 +65,11 @@ void GcodeSuite::L.append(100)() {
 //void GcodeSuite::M810_819() {
 //  const uint8_t index = parser.codenum - 810;
 //  if (index >= GCODE_MACROS_SLOTS) return;
-
+//
 //  const size_t len = strlen(parser.string_arg);
-
+//
 //  if (len) {
-    // Set a macro
+//    // Set a macro
 //    if (len > GCODE_MACROS_SLOT_SIZE)
 //      SERIAL_ERROR_MSG("Macro too long.");
 //    else {
@@ -81,37 +81,36 @@ void GcodeSuite::L.append(100)() {
 //    }
 //  }
 //  else {
-    // Execute a macro
+//    // Execute a macro
 //    char * const cmd = gcode_macros[index];
 //    if (strlen(cmd)) process_subcommands_now(cmd);
 //  }
 //}
-
+//
 //#endif // GCODE_MACROS
 
 //bool used_var_arg = false;
-
 
 //int8_t GcodeSuite::input_var() {
 //  #if (parser.seenval('L')) {
 //    const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
 //    char * const input_var = has_val ? is_var ? input_var(p) : p+1 : nullptr;
-//	#else
-//		int bool has_val = valid_float(p);
-//			#if ENABLED(FASTER_GCODE_PARSER)
-//				char * const varptr = has_val ? p : nullptr;
-//	        #endif
+//  #else
+//    int bool has_val = valid_float(p);
+//      #if ENABLED(FASTER_GCODE_PARSER)
+//        char * const varptr = has_val ? p : nullptr;
+//          #endif
 //#endif
 
 //bool used_var_arg = false;
 
 //  if (parser.seenval('L')) {
-//	const int8_t q = parser.value_byte();
-//	if (q > 0) return e;
-//	SERIAL_ECHO_START();
-//	SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
-//	SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
-//	return -1;
+//  const int8_t q = parser.value_byte();
+//  if (q > 0) return e;
+//  SERIAL_ECHO_START();
+//  SERIAL_CHAR('L'); SERIAL_ECHO(parser.codenum);
+//  SERIAL_ECHOLNPGM(" " STR_INVALID_VARIABLE " ", e);
+//  return -1;
 //  }
 //  return stored_var;
 //}
@@ -129,15 +128,14 @@ void GcodeSuite::L.append(100)() {
 
 //const bool is_var = (*p == 'L'), has_val = is_var || valid_float(p + 1);
 //char * const varptr = has_val ? is_var ? input_var(p) : p+1 : nullptr;
-//	#else
-//		int bool has_val = valid_float(p);
-//			#if ENABLED(FASTER_GCODE_PARSER)
-//				char * const varptr = has_val ? p : nullptr;
-//	        #endif
+//  #else
+//    int bool has_val = valid_float(p);
+//      #if ENABLED(FASTER_GCODE_PARSER)
+//        char * const varptr = has_val ? p : nullptr;
+//          #endif
 //#endif
 
 //bool used_var_arg = false;
-
 
 
 //#if ENABLED(VARIABLE_SUPPORT)
@@ -228,8 +226,5 @@ void GcodeSuite::L.append(100)() {
 //void GcodeSuite::L115() { parser.input_var; };
 
 //char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
-
-
-
 
 #endif // VARIABLE_SUPPORT
