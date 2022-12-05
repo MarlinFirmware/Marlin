@@ -4,7 +4,7 @@
 #include "../../../feature/rs485.h"
 #include "../../gcode.h"
 
-#define RS485_SEND_BUFFER_SIZE 32
+#define RS485_SEND_BUFFER_SIZE 4
 
 void GcodeSuite::M485() {
   bus.setReadBackDelay(10);
@@ -46,17 +46,33 @@ void GcodeSuite::M485() {
   }
 
   packetizer.setMaxReadTimeout(100);
-  if(packetizer.hasPacket()) {
-    SERIAL_ECHO("rs485-reply: ");
-    for(size_t i=0; i<packetizer.packetLength(); i++) {
-      uint8_t data = buffer[i];
+  
+  for(uint8_t attempt = 0; attempt < 20; attempt++) {
+    SERIAL_ECHO("Attempt ");
+    SERIAL_PRINT(attempt, PrintBase::Dec);
+    SERIAL_ECHO(" (");
+    SERIAL_PRINT(bus.available(), PrintBase::Dec);
+    SERIAL_ECHO(") bytes: ");
+    for(size_t i=0; i<bus.available(); i++) {
+      uint8_t data = bus[i];
       SERIAL_ECHO((data < 0x10) ? "0" : "");
 
       SERIAL_PRINT(data, PrintBase::Hex);
     }
     SERIAL_ECHOLN("");
-  } else {
-    SERIAL_ECHOLN("rs485-reply: TIMEOUT");
+
+    if(packetizer.hasPacket()) {
+      SERIAL_ECHO("rs485-reply: ");
+      for(size_t i=0; i<packetizer.packetLength(); i++) {
+        uint8_t data = bus[i];
+        SERIAL_ECHO((data < 0x10) ? "0" : "");
+
+        SERIAL_PRINT(data, PrintBase::Hex);
+      }
+      SERIAL_ECHOLN("");
+    } else {
+      SERIAL_ECHOLN("rs485-reply: TIMEOUT");
+    }
   }
 }
 
