@@ -173,7 +173,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #endif
 
-#if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM) && ENABLED(HAS_U8GLIB_I2C_OLED)
+#if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
   #include "Wire.h"
 #endif
 
@@ -269,10 +269,10 @@ void MarlinUI::init() {
     slow_buttons = 0;
   #endif
 
-  #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM) && ENABLED(HAS_U8GLIB_I2C_OLED)
+  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
     Wire.setSDA(pin_t(I2C_SDA_PIN));
     Wire.setSCL(pin_t(I2C_SCL_PIN));
-    Wire.begin();   //init I2C
+    Wire.begin();   // Init I2C
   #endif
 
   update_buttons();
