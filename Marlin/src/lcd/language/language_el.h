@@ -95,7 +95,7 @@ namespace Language_el {
   LSTR MSG_MOVE_N                         = _UxGT("Μετακίνηση @");
   LSTR MSG_MOVE_E                         = _UxGT("Εξωθητής");
   LSTR MSG_MOVE_EN                        = _UxGT("Εξωθητής *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Μετακίνηση %s μμ");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Μετακίνηση $μμ");
   LSTR MSG_MOVE_01MM                      = _UxGT("Μετακίνηση 0,1 μμ");
   LSTR MSG_MOVE_1MM                       = _UxGT("Μετακίνηση 1 μμ");
   LSTR MSG_MOVE_10MM                      = _UxGT("Μετακίνηση 10 μμ");
