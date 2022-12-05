@@ -58,16 +58,13 @@ void GcodeSuite::G30() {
     tool_change(0);
   #endif
 
-  const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
-                         parser.linearval('Y', current_position.y + probe.offset_xy.y) };
+  // Convert the given logical position to native position
+  const xy_pos_t pos = {
+    parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
+    parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y
+  };
 
-  if (!probe.can_reach(pos)) {
-    #if ENABLED(DWIN_LCD_PROUI)
-      SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
-      LCD_MESSAGE(MSG_ZPROBE_OUT);
-    #endif
-  }
-  else {
+  if (probe.can_reach(pos)) {
     // Disable leveling so the planner won't mess with us
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
@@ -83,7 +80,7 @@ void GcodeSuite::G30() {
     const float measured_z = probe.probe_at_point(pos, raise_after, 1);
     TERN_(HAS_PTC, ptc.set_enabled(true));
     if (!isnan(measured_z)) {
-      SERIAL_ECHOLNPGM("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
+      SERIAL_ECHOLNPGM("Bed X: ", pos.asLogical().x, " Y: ", pos.asLogical().y, " Z: ", measured_z);
       #if EITHER(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
         char msg[31], str_1[6], str_2[6], str_3[6];
         sprintf_P(msg, PSTR("X:%s, Y:%s, Z:%s"),
@@ -101,6 +98,12 @@ void GcodeSuite::G30() {
       probe.move_z_after_probing();
 
     report_current_position();
+  }
+  else {
+    #if ENABLED(DWIN_LCD_PROUI)
+      SERIAL_ECHOLNF(GET_EN_TEXT_F(MSG_ZPROBE_OUT));
+      LCD_MESSAGE(MSG_ZPROBE_OUT);
+    #endif
   }
 
   // Restore the active tool

@@ -1724,6 +1724,13 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
   return result * mm_per_step[axis];
 }
 
+bool Planner::busy() {
+  return (has_blocks_queued() || cleaning_buffer_counter
+      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
+      || TERN0(HAS_SHAPING, stepper.input_shaping_busy())
+  );
+}
+
 void Planner::finish_and_disable() {
   while (has_blocks_queued() || cleaning_buffer_counter) idle();
   stepper.disable_all_steppers();
@@ -2167,7 +2174,7 @@ bool Planner::_populate_block(
               sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
             + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w)
-          );
+          )
         #elif ENABLED(FOAMCUTTER_XYUV)
           #if HAS_J_AXIS
             // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
@@ -2482,14 +2489,6 @@ bool Planner::_populate_block(
     }
 
   #endif // XY_FREQUENCY_LIMIT
-
-  #if ENABLED(INPUT_SHAPING)
-    const float top_freq = _MIN(float(0x7FFFFFFFL)
-                                OPTARG(HAS_SHAPING_X, stepper.get_shaping_frequency(X_AXIS))
-                                OPTARG(HAS_SHAPING_Y, stepper.get_shaping_frequency(Y_AXIS))),
-                max_factor = (top_freq * float(shaping_dividends - 3) * 2.0f) / block->nominal_rate;
-    NOMORE(speed_factor, max_factor);
-  #endif
 
   // Correct the speed
   if (speed_factor < 1.0f) {
