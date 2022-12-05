@@ -113,14 +113,14 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
   #endif
 }
 
-bool TFT_SPI::isBusy() { 
+bool TFT_SPI::isBusy() {
   #define __IS_DMA_CONFIGURED(__DMAx__, __CHx__)   (dma_channel_regs(__DMAx__, __CHx__)->CPAR != 0)
 
   if (!__IS_DMA_CONFIGURED(DMAx, DMA_CHx)) return false;
 
   if (dma_get_isr_bits(DMAx, DMA_CHx) & DMA_ISR_TEIF) {
     // You should not be here - DMA transfer error flag is set
-    // Abort DMA transfer and release SPI    
+    // Abort DMA transfer and release SPI
   }
   else {
     // Check if DMA transfer completed flag is set
@@ -154,9 +154,7 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   DataTransferBegin();
   SPIx.dmaSendAsync(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
 
-  #ifdef TFT_SHARED_SPI
-    while(isBusy()) {}
-  #endif
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
 }
 
 void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {

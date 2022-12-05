@@ -25,26 +25,8 @@
 
 #include <SPI.h>
 
-#ifdef TFT_SPI_DEVICE
-  #undef TFT_SPI_DEVICE
-#endif
+#undef TFT_SPI_DEVICE
 
-#if BOARD_NR_SPI >= 1
-  #if (TFT_SCK_PIN == BOARD_SPI1_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI1_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI1_MISO_PIN)
-    #define TFT_SPI_DEVICE  1
-    #define SPIdev          SPI1
-    #define DMAx            DMA1
-    #define DMA_CHx         DMA_CH3
-  #endif
-#endif
-#if BOARD_NR_SPI >= 2
-  #if (TFT_SCK_PIN == BOARD_SPI2_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI2_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI2_MISO_PIN)
-    #define TFT_SPI_DEVICE  2
-    #define SPIdev          SPI2
-    #define DMAx            DMA1
-    #define DMA_CHx         DMA_CH5
-  #endif
-#endif
 #if BOARD_NR_SPI >= 3
   #if (TFT_SCK_PIN == BOARD_SPI3_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI3_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI3_MISO_PIN)
     #define TFT_SPI_DEVICE  3
@@ -52,10 +34,22 @@
     #define DMAx            DMA2
     #define DMA_CHx         DMA_CH2
   #endif
-#endif
-
-#ifndef TFT_SPI_DEVICE
-  #error Invalid TFT SPI configuration
+#elif BOARD_NR_SPI >= 2
+  #if (TFT_SCK_PIN == BOARD_SPI2_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI2_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI2_MISO_PIN)
+    #define TFT_SPI_DEVICE  2
+    #define SPIdev          SPI2
+    #define DMAx            DMA1
+    #define DMA_CHx         DMA_CH5
+  #endif
+#elif BOARD_NR_SPI >= 1
+  #if (TFT_SCK_PIN == BOARD_SPI1_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI1_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI1_MISO_PIN)
+    #define TFT_SPI_DEVICE  1
+    #define SPIdev          SPI1
+    #define DMAx            DMA1
+    #define DMA_CHx         DMA_CH3
+  #endif
+#else
+  #error "Invalid TFT SPI configuration."
 #endif
 
 #ifndef LCD_READ_ID

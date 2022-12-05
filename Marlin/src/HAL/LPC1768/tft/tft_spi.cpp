@@ -125,7 +125,7 @@ void TFT_SPI::Abort() {
   LPC_GPDMACH0->DMACCDestAddr = 0U;
 
   DataTransferEnd();
-  }
+}
 
 void TFT_SPI::Transmit(uint16_t Data) { SPIx.transfer(Data); }
 
@@ -139,9 +139,7 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   DataTransferBegin(DATASIZE_16BIT);
   SPIx.dmaSendAsync(Data, Count, MemoryIncrease);
 
-  #ifdef TFT_SHARED_SPI
-    while(isBusy()) {}
-  #endif
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
 }
 
 #endif // HAS_SPI_TFT

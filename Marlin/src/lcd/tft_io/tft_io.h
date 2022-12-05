@@ -30,11 +30,11 @@
 #elif HAS_LTDC_TFT
   #include HAL_PATH(../../HAL, tft/tft_ltdc.h)
 #else
-  #error "TFT IO only supports SPI, FSMC or LTDC interface"
+  #error "TFT IO only supports SPI, FSMC or LTDC interface."
 #endif
 
 #ifndef DMA_MAX_SIZE
-  #error MAX_DMA_SIZE is not configured for this platform
+  #error "MAX_DMA_SIZE is not configured for this platform."
 #endif
 
 #define TFT_EXCHANGE_XY _BV32(1)
