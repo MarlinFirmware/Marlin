@@ -309,9 +309,9 @@ typedef abce_float_t abce_pos_t;
 void toLogical(xy_pos_t &raw);
 void toLogical(xyz_pos_t &raw);
 void toLogical(xyze_pos_t &raw);
-void toNative(xy_pos_t &raw);
-void toNative(xyz_pos_t &raw);
-void toNative(xyze_pos_t &raw);
+void toNative(xy_pos_t &lpos);
+void toNative(xyz_pos_t &lpos);
+void toNative(xyze_pos_t &lpos);
 
 //
 // Paired XY coordinates, counters, flags, etc.
