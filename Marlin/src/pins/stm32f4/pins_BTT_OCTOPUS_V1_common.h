@@ -435,8 +435,8 @@
    *       | 1  2 |               | 1  2 |            1 |
    *       | 3  4 |            RX | 3  4 | TX       | 2 | RX
    *   ENT   5  6 | BEEP      ENT   5  6 | BEEP     | 3 | TX
-   *     B | 7  8 | A           B | 7  8 | A        | 4 | 
-   *   GND | 9 10 | VCC       GND | 9 10 | VCC        5 | 
+   *     B | 7  8 | A           B | 7  8 | A        | 4 |
+   *   GND | 9 10 | VCC       GND | 9 10 | VCC        5 |
    *        ------                 ------            ---
    *         EXP1                   DWIN             TFT
    *
