@@ -260,7 +260,7 @@ bool unified_bed_leveling::sanity_check() {
    */
   void GcodeSuite::M1004() {
 
-    #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
+    #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
     #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R")
 
     #if HAS_HOTEND
@@ -280,7 +280,7 @@ bool unified_bed_leveling::sanity_check() {
     #endif
 
     process_subcommands_now(FPSTR(G28_STR));      // Home
-    process_subcommands_now(F(ALIGN_GCODE "\n"    // Align multi z axis if available
+    process_subcommands_now(F(ALIGN_GCODE         // Align multi z axis if available
                               PROBE_GCODE "\n"    // Build mesh with available hardware
                               "G29P3\nG29P3"));   // Ensure mesh is complete by running smart fill twice
 

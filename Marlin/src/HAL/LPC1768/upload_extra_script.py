@@ -73,7 +73,7 @@ if pioutil.is_pio_build():
                 #
                 import getpass
                 user = getpass.getuser()
-                mpath = Path('media', user)
+                mpath = Path('/media', user)
                 drives = [ x for x in mpath.iterdir() if x.is_dir() ]
                 if target_drive in drives:  # If target drive is found, use it.
                     target_drive_found = True

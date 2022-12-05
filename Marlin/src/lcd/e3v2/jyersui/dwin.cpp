@@ -733,7 +733,7 @@ void CrealityDWINClass::Draw_Print_Screen() {
   Update_Status_Bar(true);
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
-  TERN_(USE_M73_REMAINING_TIME, Draw_Print_ProgressRemain());
+  TERN_(SET_REMAINING_TIME, Draw_Print_ProgressRemain());
   Draw_Print_Filename(true);
 }
 
@@ -759,7 +759,7 @@ void CrealityDWINClass::Draw_Print_ProgressBar() {
   DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.progress_percent, Percent_Color), Color_Bg_Black, 133, 133, F("%"));
 }
 
-#if ENABLED(USE_M73_REMAINING_TIME)
+#if ENABLED(SET_REMAINING_TIME)
 
   void CrealityDWINClass::Draw_Print_ProgressRemain() {
     uint16_t remainingtime = ui.get_remaining_time();
@@ -2465,35 +2465,35 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case JERK_X:
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkX, F("X Axis"));
-              Draw_Float(planner.max_jerk[X_AXIS], row, false, 10);
+              Draw_Float(planner.max_jerk.x, row, false, 10);
             }
             else
-              Modify_Value(planner.max_jerk[X_AXIS], 0, default_max_jerk[X_AXIS] * 2, 10);
+              Modify_Value(planner.max_jerk.x, 0, default_max_jerk[X_AXIS] * 2, 10);
             break;
           case JERK_Y:
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkY, F("Y Axis"));
-              Draw_Float(planner.max_jerk[Y_AXIS], row, false, 10);
+              Draw_Float(planner.max_jerk.y, row, false, 10);
             }
             else
-              Modify_Value(planner.max_jerk[Y_AXIS], 0, default_max_jerk[Y_AXIS] * 2, 10);
+              Modify_Value(planner.max_jerk.y, 0, default_max_jerk[Y_AXIS] * 2, 10);
             break;
           case JERK_Z:
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkZ, F("Z Axis"));
-              Draw_Float(planner.max_jerk[Z_AXIS], row, false, 10);
+              Draw_Float(planner.max_jerk.z, row, false, 10);
             }
             else
-              Modify_Value(planner.max_jerk[Z_AXIS], 0, default_max_jerk[Z_AXIS] * 2, 10);
+              Modify_Value(planner.max_jerk.z, 0, default_max_jerk[Z_AXIS] * 2, 10);
             break;
           #if HAS_HOTEND
             case JERK_E:
               if (draw) {
                 Draw_Menu_Item(row, ICON_MaxSpeedJerkE, F("Extruder"));
-                Draw_Float(planner.max_jerk[E_AXIS], row, false, 10);
+                Draw_Float(planner.max_jerk.e, row, false, 10);
               }
               else
-                Modify_Value(planner.max_jerk[E_AXIS], 0, default_max_jerk[E_AXIS] * 2, 10);
+                Modify_Value(planner.max_jerk.e, 0, default_max_jerk[E_AXIS] * 2, 10);
               break;
           #endif
         }
@@ -2772,7 +2772,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if ENABLED(LIN_ADVANCE)
           case ADVANCED_LA:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxAccelerated, F("Lin Advance Kp"));
+              Draw_Menu_Item(row, ICON_MaxAccelerated, F("Lin Advance K"));
               Draw_Float(planner.extruder_advance_K[0], row, false, 100);
             }
             else
@@ -4565,8 +4565,8 @@ void CrealityDWINClass::Start_Print(bool sd) {
     }
     else
       strcpy_P(filename, PSTR("Host Print"));
-    TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
-    TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
+    TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
+    TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
     Draw_Print_Screen();
   }
 }
@@ -4575,8 +4575,8 @@ void CrealityDWINClass::Stop_Print() {
   printing = false;
   sdprint = false;
   thermalManager.cooldown();
-  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(100 * (PROGRESS_SCALE)));
-  TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
+  TERN_(SET_PROGRESS_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
+  TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
   Draw_Print_confirm();
 }
 
@@ -4653,7 +4653,7 @@ void CrealityDWINClass::Screen_Update() {
     if (process == Print) {
       Draw_Print_ProgressBar();
       Draw_Print_ProgressElapsed();
-      TERN_(USE_M73_REMAINING_TIME, Draw_Print_ProgressRemain());
+      TERN_(SET_REMAINING_TIME, Draw_Print_ProgressRemain());
     }
   }
 
