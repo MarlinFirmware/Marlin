@@ -301,6 +301,7 @@ namespace Language_de {
   LSTR MSG_MOVE_01MM                      = _UxGT("  0,1  mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("  1,0  mm");
   LSTR MSG_MOVE_10MM                      = _UxGT(" 10,0  mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT(" 50,0  mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("100,0  mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("0.001 in");
   LSTR MSG_MOVE_001IN                     = _UxGT("0.010 in");

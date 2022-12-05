@@ -313,10 +313,12 @@ namespace Language_it {
   LSTR MSG_MOVE_01MM                      = _UxGT("Muovi di 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Muovi di 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Muovi di 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Muovi di 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Muovi di 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Muovi di 0.001\"");
   LSTR MSG_MOVE_001IN                     = _UxGT("Muovi di 0.01\"");
   LSTR MSG_MOVE_01IN                      = _UxGT("Muovi di 0.1\"");
+  LSTR MSG_MOVE_05IN                      = _UxGT("Muovi di 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Muovi di 1\"");
   LSTR MSG_SPEED                          = _UxGT("Velocità");
   LSTR MSG_BED_Z                          = _UxGT("Piatto Z");
