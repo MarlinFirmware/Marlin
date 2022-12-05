@@ -36,6 +36,8 @@ struct IF { typedef R type; };
 template <class L, class R>
 struct IF<true, L, R> { typedef L type; };
 
+#define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
+
 #define NUM_AXIS_GANG(V...) GANG_N(NUM_AXES, V)
 #define NUM_AXIS_CODE(V...) CODE_N(NUM_AXES, V)
 #define NUM_AXIS_LIST(V...) LIST_N(NUM_AXES, V)
@@ -307,9 +309,9 @@ typedef abce_float_t abce_pos_t;
 void toLogical(xy_pos_t &raw);
 void toLogical(xyz_pos_t &raw);
 void toLogical(xyze_pos_t &raw);
-void toNative(xy_pos_t &raw);
-void toNative(xyz_pos_t &raw);
-void toNative(xyze_pos_t &raw);
+void toNative(xy_pos_t &lpos);
+void toNative(xyz_pos_t &lpos);
+void toNative(xyze_pos_t &lpos);
 
 //
 // Paired XY coordinates, counters, flags, etc.

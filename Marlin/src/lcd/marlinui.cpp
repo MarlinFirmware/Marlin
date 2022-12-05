@@ -196,12 +196,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::screen_timeout_millis = 0;
-  #if DISABLED(TFT_COLOR_UI)
-    void MarlinUI::refresh_screen_timeout() {
-      screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-      sleep_display(false);
-    }
+  void MarlinUI::refresh_screen_timeout() {
+    screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
+    sleep_display(false);
+  }
+
+  #if !HAS_TOUCH_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
+    void MarlinUI::sleep_display(const bool sleep) {} // if unimplemented
   #endif
+
 #endif
 
 void MarlinUI::init() {
@@ -731,6 +734,11 @@ void MarlinUI::init() {
     void MarlinUI::wakeup_screen() {
       TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
     }
+    #if HAS_DISPLAY_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
+      void MarlinUI::sleep_display(const bool sleep) {
+        if (!sleep) wakeup_screen(); // relay extra wake up events
+      }
+    #endif
   #endif
 
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
@@ -1071,7 +1079,7 @@ void MarlinUI::init() {
 
           #if LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
-          #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
+          #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
           #endif
 
@@ -1184,9 +1192,9 @@ void MarlinUI::init() {
           WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           backlight_off_ms = 0;
         }
-      #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
+      #elif HAS_DISPLAY_SLEEP
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
-          sleep_display(true);
+          sleep_display();
       #endif
 
       // Change state of drawing flag between screen updates

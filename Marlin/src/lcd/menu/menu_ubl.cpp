@@ -35,6 +35,9 @@
 #include "../../module/planner.h"
 #include "../../module/settings.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#if HAS_HOTEND
+  #include "../../module/temperature.h"
+#endif
 
 static int16_t ubl_storage_slot = 0,
                custom_hotend_temp = 150,
