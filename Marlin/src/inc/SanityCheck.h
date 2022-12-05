@@ -654,6 +654,8 @@
   #error "SHOW_SD_PERCENT is now SHOW_PROGRESS_PERCENT."
 #elif defined(EXTRA_LIN_ADVANCE_K)
   #error "EXTRA_LIN_ADVANCE_K is now ADVANCE_K_EXTRA."
+#elif defined(POLAR_SEGMENTS_PER_SECOND) || defined(DELTA_SEGMENTS_PER_SECOND)  || defined(SCARA_SEGMENTS_PER_SECOND) || defined(TPARA_SEGMENTS_PER_SECOND)
+  #error "(POLAR|DELTA|SCARA|TPARA)_SEGMENTS_PER_SECOND is now DEFAULT_SEGMENTS_PER_SECOND."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -678,6 +680,17 @@
 // Check AXIS_RELATIVE_MODES
 constexpr float arm[] = AXIS_RELATIVE_MODES;
 static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
+
+// Consolidate TMC26X, validate migration (#24373)
+#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
+#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
+#if DO(ISMAX,||,ALL_AXIS_NAMES)
+  #error "*_MAX_CURRENT is now set with *_CURRENT."
+#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
+#endif
+#undef _ISMAX_1
+#undef _ISSNS_1
 
 /**
  * Probe temp compensation requirements
@@ -1340,7 +1353,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(LIN_ADVANCE)
   #if DISTINCT_E > 1
     constexpr float lak[] = ADVANCE_K;
-    static_assert(COUNT(lak) < DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
+    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
     #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
     REPEAT(DISTINCT_E, _LIN_ASSERT)
     #undef _LIN_ASSERT
@@ -1644,8 +1657,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Delta requirements
  */
 #if ENABLED(DELTA)
-  #if NONE(USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
-    #error "You probably want to use Max Endstops for DELTA!"
+  #if ANY(X_HOME_TO_MIN, Y_HOME_TO_MIN, Z_HOME_TO_MIN)
+    #error "DELTA kinematics require homing "XYZ" axes to MAX. Set [XYZ]_HOME_DIR to 1."
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
   #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || HAS_MARLINUI_MENU)
@@ -2317,8 +2330,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
   #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED < 5
     #error "Thermistor 66 requires MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED ≥ 5."
-  #elif MILLISECONDS_PREHEAT_TIME < 30000
-    #error "Thermistor 66 requires MILLISECONDS_PREHEAT_TIME ≥ 30000."
+  #elif MILLISECONDS_PREHEAT_TIME < 15000
+    #error "Thermistor 66 requires MILLISECONDS_PREHEAT_TIME ≥ 15000, but 30000 or higher is recommended."
   #endif
   #undef _BAD_MINTEMP
 #endif
@@ -4258,14 +4271,14 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 // Check requirements for Input Shaping
-#if ENABLED(INPUT_SHAPING) && defined(__AVR__)
-  #if HAS_SHAPING_X
+#if HAS_SHAPING && defined(__AVR__)
+  #if ENABLED(INPUT_SHAPING_X)
     #if F_CPU > 16000000
       static_assert((SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (20) for AVR 20MHz.");
     #else
       static_assert((SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (16) for AVR 16MHz.");
     #endif
-  #elif HAS_SHAPING_Y
+  #elif ENABLED(INPUT_SHAPING_Y)
     #if F_CPU > 16000000
       static_assert((SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (20) for AVR 20MHz.");
     #else
@@ -4274,12 +4287,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
-#if ENABLED(INPUT_SHAPING)
-  #if ENABLED(DIRECT_STEPPING)
-    #error "INPUT_SHAPING cannot currently be used with DIRECT_STEPPING."
-  #elif ENABLED(LASER_FEATURE)
-    #error "INPUT_SHAPING cannot currently be used with LASER_FEATURE."
-  #endif
+#if BOTH(HAS_SHAPING, DIRECT_STEPPING)
+  #error "INPUT_SHAPING_[XY] cannot currently be used with DIRECT_STEPPING."
 #endif
 
 // Misc. Cleanup
