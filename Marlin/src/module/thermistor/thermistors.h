@@ -30,19 +30,17 @@
 #else
   #define OVERSAMPLENR 16
 #endif
-#define MAX_RAW_THERMISTOR_VALUE (HAL_ADC_RANGE * (OVERSAMPLENR) - 1)
 
-// Currently Marlin stores all oversampled ADC values as int16_t, make sure the HAL settings do not overflow 15bit
-#if MAX_RAW_THERMISTOR_VALUE > ((1 << 15) - 1)
-  #error "MAX_RAW_THERMISTOR_VALUE is too large for int16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
+// Currently Marlin stores all oversampled ADC values as uint16_t, make sure the HAL settings do not overflow 16 bit
+#if (HAL_ADC_RANGE) * (OVERSAMPLENR) > 1 << 16
+  #error "MAX_RAW_THERMISTOR_VALUE is too large for uint16_t. Reduce OVERSAMPLENR or HAL_ADC_RESOLUTION."
 #endif
+#define MAX_RAW_THERMISTOR_VALUE (uint16_t(HAL_ADC_RANGE) * (OVERSAMPLENR) - 1)
 
-#define OV_SCALE(N) (N)
-#define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
+#define OV_SCALE(N) float(N)
+#define OV(N) raw_adc_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-#define ANY_THERMISTOR_IS(n) (THERMISTOR_HEATER_0 == n || THERMISTOR_HEATER_1 == n || THERMISTOR_HEATER_2 == n || THERMISTOR_HEATER_3 == n || THERMISTOR_HEATER_4 == n || THERMISTOR_HEATER_5 == n || THERMISTOR_HEATER_6 == n || THERMISTOR_HEATER_7 == n || THERMISTORBED == n || THERMISTORCHAMBER == n || THERMISTORPROBE == n)
-
-typedef struct { int16_t value, celsius; } temp_entry_t;
+typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
 //
@@ -75,6 +73,15 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(502) // Unknown thermistor used by the Zonestar Průša P802M hot bed
   #include "thermistor_502.h"
 #endif
+#if ANY_THERMISTOR_IS(503) // Zonestar (Z8XM2) Heated Bed thermistor
+  #include "thermistor_503.h"
+#endif
+#if ANY_THERMISTOR_IS(504) // Zonestar (P802QR2 Hot End) thermistors
+  #include "thermistor_504.h"
+#endif
+#if ANY_THERMISTOR_IS(505) // Zonestar (P802QR2 Bed) thermistor
+  #include "thermistor_505.h"
+#endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
   #include "thermistor_512.h"
 #endif
@@ -104,6 +111,9 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #endif
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
   #include "thermistor_15.h"
+#endif
+#if ANY_THERMISTOR_IS(17) // Dagoma NTC 100k white thermistor
+  #include "thermistor_17.h"
 #endif
 #if ANY_THERMISTOR_IS(18) // ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327
   #include "thermistor_18.h"
@@ -144,6 +154,9 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(67) // R25 = 500 KOhm, beta25 = 3800 K, 4.7 kOhm pull-up, SliceEngineering 450 °C Thermistor
   #include "thermistor_67.h"
 #endif
+#if ANY_THERMISTOR_IS(68) // PT-100 with Dyze amplifier board
+  #include "thermistor_68.h"
+#endif
 #if ANY_THERMISTOR_IS(12) // beta25 = 4700 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Personal calibration for Makibox hot bed"
   #include "thermistor_12.h"
 #endif
@@ -183,6 +196,9 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(1047) // Pt1000 with 4k7 pullup
   #include "thermistor_1047.h"
 #endif
+#if ANY_THERMISTOR_IS(2000) // "Ultimachine Rambo TDK NTCG104LH104KT1 NTC100K motherboard Thermistor" https://product.tdk.com/en/search/sensor/ntc/chip-ntc-thermistor/info?part_no=NTCG104LH104KT1
+  #include "thermistor_2000.h"
+#endif
 #if ANY_THERMISTOR_IS(998) // User-defined table 1
   #include "thermistor_998.h"
 #endif
@@ -190,310 +206,341 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
   #include "thermistor_999.h"
 #endif
 #if ANY_THERMISTOR_IS(1000) // Custom
-  const temp_entry_t temptable_1000[] PROGMEM = { { 0, 0 } };
+  constexpr temp_entry_t temptable_1000[] PROGMEM = { { 0, 0 } };
 #endif
 
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
 
-
-#if THERMISTOR_HEATER_0
-  #define HEATER_0_TEMPTABLE TT_NAME(THERMISTOR_HEATER_0)
-  #define HEATER_0_TEMPTABLE_LEN COUNT(HEATER_0_TEMPTABLE)
-#elif defined(HEATER_0_USES_THERMISTOR)
-  #error "No heater 0 thermistor table specified"
+#if TEMP_SENSOR_0 > 0
+  #define TEMPTABLE_0 TT_NAME(TEMP_SENSOR_0)
+  #define TEMPTABLE_0_LEN COUNT(TEMPTABLE_0)
 #else
-  #define HEATER_0_TEMPTABLE nullptr
-  #define HEATER_0_TEMPTABLE_LEN 0
+  #define TEMPTABLE_0 nullptr
+  #define TEMPTABLE_0_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_1
-  #define HEATER_1_TEMPTABLE TT_NAME(THERMISTOR_HEATER_1)
-  #define HEATER_1_TEMPTABLE_LEN COUNT(HEATER_1_TEMPTABLE)
-#elif defined(HEATER_1_USES_THERMISTOR)
-  #error "No heater 1 thermistor table specified"
+#if TEMP_SENSOR_1 > 0
+  #define TEMPTABLE_1 TT_NAME(TEMP_SENSOR_1)
+  #define TEMPTABLE_1_LEN COUNT(TEMPTABLE_1)
 #else
-  #define HEATER_1_TEMPTABLE nullptr
-  #define HEATER_1_TEMPTABLE_LEN 0
+  #define TEMPTABLE_1 nullptr
+  #define TEMPTABLE_1_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_2
-  #define HEATER_2_TEMPTABLE TT_NAME(THERMISTOR_HEATER_2)
-  #define HEATER_2_TEMPTABLE_LEN COUNT(HEATER_2_TEMPTABLE)
-#elif defined(HEATER_2_USES_THERMISTOR)
-  #error "No heater 2 thermistor table specified"
+#if TEMP_SENSOR_2 > 0
+  #define TEMPTABLE_2 TT_NAME(TEMP_SENSOR_2)
+  #define TEMPTABLE_2_LEN COUNT(TEMPTABLE_2)
 #else
-  #define HEATER_2_TEMPTABLE nullptr
-  #define HEATER_2_TEMPTABLE_LEN 0
+  #define TEMPTABLE_2 nullptr
+  #define TEMPTABLE_2_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_3
-  #define HEATER_3_TEMPTABLE TT_NAME(THERMISTOR_HEATER_3)
-  #define HEATER_3_TEMPTABLE_LEN COUNT(HEATER_3_TEMPTABLE)
-#elif defined(HEATER_3_USES_THERMISTOR)
-  #error "No heater 3 thermistor table specified"
+#if TEMP_SENSOR_3 > 0
+  #define TEMPTABLE_3 TT_NAME(TEMP_SENSOR_3)
+  #define TEMPTABLE_3_LEN COUNT(TEMPTABLE_3)
 #else
-  #define HEATER_3_TEMPTABLE nullptr
-  #define HEATER_3_TEMPTABLE_LEN 0
+  #define TEMPTABLE_3 nullptr
+  #define TEMPTABLE_3_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_4
-  #define HEATER_4_TEMPTABLE TT_NAME(THERMISTOR_HEATER_4)
-  #define HEATER_4_TEMPTABLE_LEN COUNT(HEATER_4_TEMPTABLE)
-#elif defined(HEATER_4_USES_THERMISTOR)
-  #error "No heater 4 thermistor table specified"
+#if TEMP_SENSOR_4 > 0
+  #define TEMPTABLE_4 TT_NAME(TEMP_SENSOR_4)
+  #define TEMPTABLE_4_LEN COUNT(TEMPTABLE_4)
 #else
-  #define HEATER_4_TEMPTABLE nullptr
-  #define HEATER_4_TEMPTABLE_LEN 0
+  #define TEMPTABLE_4 nullptr
+  #define TEMPTABLE_4_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_5
-  #define HEATER_5_TEMPTABLE TT_NAME(THERMISTOR_HEATER_5)
-  #define HEATER_5_TEMPTABLE_LEN COUNT(HEATER_5_TEMPTABLE)
-#elif defined(HEATER_5_USES_THERMISTOR)
-  #error "No heater 5 thermistor table specified"
+#if TEMP_SENSOR_5 > 0
+  #define TEMPTABLE_5 TT_NAME(TEMP_SENSOR_5)
+  #define TEMPTABLE_5_LEN COUNT(TEMPTABLE_5)
 #else
-  #define HEATER_5_TEMPTABLE nullptr
-  #define HEATER_5_TEMPTABLE_LEN 0
+  #define TEMPTABLE_5 nullptr
+  #define TEMPTABLE_5_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_6
-  #define HEATER_6_TEMPTABLE TT_NAME(THERMISTOR_HEATER_6)
-  #define HEATER_6_TEMPTABLE_LEN COUNT(HEATER_6_TEMPTABLE)
-#elif defined(HEATER_6_USES_THERMISTOR)
-  #error "No heater 6 thermistor table specified"
+#if TEMP_SENSOR_6 > 0
+  #define TEMPTABLE_6 TT_NAME(TEMP_SENSOR_6)
+  #define TEMPTABLE_6_LEN COUNT(TEMPTABLE_6)
 #else
-  #define HEATER_6_TEMPTABLE nullptr
-  #define HEATER_6_TEMPTABLE_LEN 0
+  #define TEMPTABLE_6 nullptr
+  #define TEMPTABLE_6_LEN 0
 #endif
 
-#if THERMISTOR_HEATER_7
-  #define HEATER_7_TEMPTABLE TT_NAME(THERMISTOR_HEATER_7)
-  #define HEATER_7_TEMPTABLE_LEN COUNT(HEATER_7_TEMPTABLE)
-#elif defined(HEATER_7_USES_THERMISTOR)
-  #error "No heater 7 thermistor table specified"
+#if TEMP_SENSOR_7 > 0
+  #define TEMPTABLE_7 TT_NAME(TEMP_SENSOR_7)
+  #define TEMPTABLE_7_LEN COUNT(TEMPTABLE_7)
 #else
-  #define HEATER_7_TEMPTABLE nullptr
-  #define HEATER_7_TEMPTABLE_LEN 0
+  #define TEMPTABLE_7 nullptr
+  #define TEMPTABLE_7_LEN 0
 #endif
 
-#ifdef THERMISTORBED
-  #define BED_TEMPTABLE TT_NAME(THERMISTORBED)
-  #define BED_TEMPTABLE_LEN COUNT(BED_TEMPTABLE)
-#elif defined(HEATER_BED_USES_THERMISTOR)
-  #error "No bed thermistor table specified"
+#if TEMP_SENSOR_BED > 0
+  #define TEMPTABLE_BED TT_NAME(TEMP_SENSOR_BED)
+  #define TEMPTABLE_BED_LEN COUNT(TEMPTABLE_BED)
 #else
-  #define BED_TEMPTABLE_LEN 0
+  #define TEMPTABLE_BED_LEN 0
 #endif
 
-#ifdef THERMISTORCHAMBER
-  #define CHAMBER_TEMPTABLE TT_NAME(THERMISTORCHAMBER)
-  #define CHAMBER_TEMPTABLE_LEN COUNT(CHAMBER_TEMPTABLE)
-#elif defined(HEATER_CHAMBER_USES_THERMISTOR)
-  #error "No chamber thermistor table specified"
+#if TEMP_SENSOR_CHAMBER > 0
+  #define TEMPTABLE_CHAMBER TT_NAME(TEMP_SENSOR_CHAMBER)
+  #define TEMPTABLE_CHAMBER_LEN COUNT(TEMPTABLE_CHAMBER)
 #else
-  #define CHAMBER_TEMPTABLE_LEN 0
+  #define TEMPTABLE_CHAMBER_LEN 0
 #endif
 
-#ifdef THERMISTORPROBE
-  #define PROBE_TEMPTABLE TT_NAME(THERMISTORPROBE)
-  #define PROBE_TEMPTABLE_LEN COUNT(PROBE_TEMPTABLE)
-#elif defined(HEATER_PROBE_USES_THERMISTOR)
-  #error "No probe thermistor table specified"
+#if TEMP_SENSOR_PROBE > 0
+  #define TEMPTABLE_PROBE TT_NAME(TEMP_SENSOR_PROBE)
+  #define TEMPTABLE_PROBE_LEN COUNT(TEMPTABLE_PROBE)
 #else
-  #define PROBE_TEMPTABLE_LEN 0
+  #define TEMPTABLE_PROBE_LEN 0
+#endif
+
+#if TEMP_SENSOR_COOLER > 0
+  #define TEMPTABLE_COOLER TT_NAME(TEMP_SENSOR_COOLER)
+  #define TEMPTABLE_COOLER_LEN COUNT(TEMPTABLE_COOLER)
+#else
+  #define TEMPTABLE_COOLER_LEN 0
+#endif
+
+#if TEMP_SENSOR_BOARD > 0
+  #define TEMPTABLE_BOARD TT_NAME(TEMP_SENSOR_BOARD)
+  #define TEMPTABLE_BOARD_LEN COUNT(TEMPTABLE_BOARD)
+#else
+  #define TEMPTABLE_BOARD_LEN 0
+#endif
+
+#if TEMP_SENSOR_REDUNDANT > 0
+  #define TEMPTABLE_REDUNDANT TT_NAME(TEMP_SENSOR_REDUNDANT)
+  #define TEMPTABLE_REDUNDANT_LEN COUNT(TEMPTABLE_REDUNDANT)
+#else
+  #define TEMPTABLE_REDUNDANT_LEN 0
 #endif
 
 // The SCAN_THERMISTOR_TABLE macro needs alteration?
-static_assert(
-     HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256
-  && HEATER_2_TEMPTABLE_LEN < 256 && HEATER_3_TEMPTABLE_LEN < 256
-  && HEATER_4_TEMPTABLE_LEN < 256 && HEATER_5_TEMPTABLE_LEN < 256
-  && HEATER_6_TEMPTABLE_LEN < 256 && HEATER_7_TEMPTABLE_LEN < 256
-  &&      BED_TEMPTABLE_LEN < 256 &&  CHAMBER_TEMPTABLE_LEN < 256
-  &&    PROBE_TEMPTABLE_LEN < 256,
-  "Temperature conversion tables over 255 entries need special consideration."
+static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_2_LEN || 255 > TEMPTABLE_3_LEN
+           || 255 > TEMPTABLE_4_LEN || 255 > TEMPTABLE_5_LEN || 255 > TEMPTABLE_6_LEN || 255 > TEMPTABLE_7_LEN
+           || 255 > TEMPTABLE_BED_LEN
+           || 255 > TEMPTABLE_CHAMBER_LEN
+           || 255 > TEMPTABLE_PROBE_LEN
+           || 255 > TEMPTABLE_COOLER_LEN
+           || 255 > TEMPTABLE_BOARD_LEN
+           || 255 > TEMPTABLE_REDUNDANT_LEN
+  , "Temperature conversion tables over 255 entries need special consideration."
 );
 
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
 
-#define _TT_REV(N) REVERSE_TEMP_SENSOR_RANGE_##N
-#define TT_REV(N) _TT_REV(N)
+#define _TT_REV(N)    REVERSE_TEMP_SENSOR_RANGE_##N
+#define TT_REV(N)     TERN0(TEMP_SENSOR_##N##_IS_THERMISTOR, DEFER4(_TT_REV)(TEMP_SENSOR_##N))
+#define _TT_REVRAW(N) !TEMP_SENSOR_##N##_IS_THERMISTOR
+#define TT_REVRAW(N)  (TT_REV(N) || _TT_REVRAW(N))
 
-#ifdef HEATER_0_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_0)
-    #define HEATER_0_SENSOR_MINTEMP_IND 0
-    #define HEATER_0_SENSOR_MAXTEMP_IND HEATER_0_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_0
+  #if TT_REV(0)
+    #define TEMP_SENSOR_0_MINTEMP_IND 0
+    #define TEMP_SENSOR_0_MAXTEMP_IND TEMPTABLE_0_LEN - 1
   #else
-    #define HEATER_0_SENSOR_MINTEMP_IND HEATER_0_TEMPTABLE_LEN - 1
-    #define HEATER_0_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_0_MINTEMP_IND TEMPTABLE_0_LEN - 1
+    #define TEMP_SENSOR_0_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_1_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_1)
-    #define HEATER_1_SENSOR_MINTEMP_IND 0
-    #define HEATER_1_SENSOR_MAXTEMP_IND HEATER_1_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_1
+  #if TT_REV(1)
+    #define TEMP_SENSOR_1_MINTEMP_IND 0
+    #define TEMP_SENSOR_1_MAXTEMP_IND TEMPTABLE_1_LEN - 1
   #else
-    #define HEATER_1_SENSOR_MINTEMP_IND HEATER_1_TEMPTABLE_LEN - 1
-    #define HEATER_1_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_1_MINTEMP_IND TEMPTABLE_1_LEN - 1
+    #define TEMP_SENSOR_1_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_2_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_2)
-    #define HEATER_2_SENSOR_MINTEMP_IND 0
-    #define HEATER_2_SENSOR_MAXTEMP_IND HEATER_2_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_2
+  #if TT_REV(2)
+    #define TEMP_SENSOR_2_MINTEMP_IND 0
+    #define TEMP_SENSOR_2_MAXTEMP_IND TEMPTABLE_2_LEN - 1
   #else
-    #define HEATER_2_SENSOR_MINTEMP_IND HEATER_2_TEMPTABLE_LEN - 1
-    #define HEATER_2_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_2_MINTEMP_IND TEMPTABLE_2_LEN - 1
+    #define TEMP_SENSOR_2_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_3_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_3)
-    #define HEATER_3_SENSOR_MINTEMP_IND 0
-    #define HEATER_3_SENSOR_MAXTEMP_IND HEATER_3_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_3
+  #if TT_REV(3)
+    #define TEMP_SENSOR_3_MINTEMP_IND 0
+    #define TEMP_SENSOR_3_MAXTEMP_IND TEMPTABLE_3_LEN - 1
   #else
-    #define HEATER_3_SENSOR_MINTEMP_IND HEATER_3_TEMPTABLE_LEN - 1
-    #define HEATER_3_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_3_MINTEMP_IND TEMPTABLE_3_LEN - 1
+    #define TEMP_SENSOR_3_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_4_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_4)
-    #define HEATER_4_SENSOR_MINTEMP_IND 0
-    #define HEATER_4_SENSOR_MAXTEMP_IND HEATER_4_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_4
+  #if TT_REV(4)
+    #define TEMP_SENSOR_4_MINTEMP_IND 0
+    #define TEMP_SENSOR_4_MAXTEMP_IND TEMPTABLE_4_LEN - 1
   #else
-    #define HEATER_4_SENSOR_MINTEMP_IND HEATER_4_TEMPTABLE_LEN - 1
-    #define HEATER_4_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_4_MINTEMP_IND TEMPTABLE_4_LEN - 1
+    #define TEMP_SENSOR_4_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_5_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_5)
-    #define HEATER_5_SENSOR_MINTEMP_IND 0
-    #define HEATER_5_SENSOR_MAXTEMP_IND HEATER_5_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_5
+  #if TT_REV(5)
+    #define TEMP_SENSOR_5_MINTEMP_IND 0
+    #define TEMP_SENSOR_5_MAXTEMP_IND TEMPTABLE_5_LEN - 1
   #else
-    #define HEATER_5_SENSOR_MINTEMP_IND HEATER_5_TEMPTABLE_LEN - 1
-    #define HEATER_5_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_5_MINTEMP_IND TEMPTABLE_5_LEN - 1
+    #define TEMP_SENSOR_5_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_6_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_6)
-    #define HEATER_6_SENSOR_MINTEMP_IND 0
-    #define HEATER_6_SENSOR_MAXTEMP_IND HEATER_6_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_6
+  #if TT_REV(6)
+    #define TEMP_SENSOR_6_MINTEMP_IND 0
+    #define TEMP_SENSOR_6_MAXTEMP_IND TEMPTABLE_6_LEN - 1
   #else
-    #define HEATER_6_SENSOR_MINTEMP_IND HEATER_6_TEMPTABLE_LEN - 1
-    #define HEATER_6_SENSOR_MAXTEMP_IND 0
+    #define TEMP_SENSOR_6_MINTEMP_IND TEMPTABLE_6_LEN - 1
+    #define TEMP_SENSOR_6_MAXTEMP_IND 0
   #endif
 #endif
-#ifdef HEATER_7_TEMPTABLE
-  #if TT_REV(THERMISTOR_HEATER_7)
-    #define HEATER_7_SENSOR_MINTEMP_IND 0
-    #define HEATER_7_SENSOR_MAXTEMP_IND HEATER_7_TEMPTABLE_LEN - 1
+#ifdef TEMPTABLE_7
+  #if TT_REV(7)
+    #define TEMP_SENSOR_7_MINTEMP_IND 0
+    #define TEMP_SENSOR_7_MAXTEMP_IND TEMPTABLE_7_LEN - 1
   #else
-    #define HEATER_7_SENSOR_MINTEMP_IND HEATER_7_TEMPTABLE_LEN - 1
-    #define HEATER_7_SENSOR_MAXTEMP_IND 0
-  #endif
-#endif
-
-#ifndef HEATER_0_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_0) || !defined(HEATER_0_USES_THERMISTOR)
-    #define HEATER_0_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_0_RAW_LO_TEMP 0
-  #else
-    #define HEATER_0_RAW_HI_TEMP 0
-    #define HEATER_0_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_1_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_1) || !defined(HEATER_1_USES_THERMISTOR)
-    #define HEATER_1_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_1_RAW_LO_TEMP 0
-  #else
-    #define HEATER_1_RAW_HI_TEMP 0
-    #define HEATER_1_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_2_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_2) || !defined(HEATER_2_USES_THERMISTOR)
-    #define HEATER_2_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_2_RAW_LO_TEMP 0
-  #else
-    #define HEATER_2_RAW_HI_TEMP 0
-    #define HEATER_2_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_3_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_3) || !defined(HEATER_3_USES_THERMISTOR)
-    #define HEATER_3_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_3_RAW_LO_TEMP 0
-  #else
-    #define HEATER_3_RAW_HI_TEMP 0
-    #define HEATER_3_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_4_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_4) || !defined(HEATER_4_USES_THERMISTOR)
-    #define HEATER_4_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_4_RAW_LO_TEMP 0
-  #else
-    #define HEATER_4_RAW_HI_TEMP 0
-    #define HEATER_4_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_5_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_5) || !defined(HEATER_5_USES_THERMISTOR)
-    #define HEATER_5_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_5_RAW_LO_TEMP 0
-  #else
-    #define HEATER_5_RAW_HI_TEMP 0
-    #define HEATER_5_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_6_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_6) || !defined(HEATER_6_USES_THERMISTOR)
-    #define HEATER_6_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_6_RAW_LO_TEMP 0
-  #else
-    #define HEATER_6_RAW_HI_TEMP 0
-    #define HEATER_6_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_7_RAW_HI_TEMP
-  #if TT_REV(THERMISTOR_HEATER_7) || !defined(HEATER_7_USES_THERMISTOR)
-    #define HEATER_7_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_7_RAW_LO_TEMP 0
-  #else
-    #define HEATER_7_RAW_HI_TEMP 0
-    #define HEATER_7_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_BED_RAW_HI_TEMP
-  #if TT_REV(THERMISTORBED) || !defined(HEATER_BED_USES_THERMISTOR)
-    #define HEATER_BED_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_BED_RAW_LO_TEMP 0
-  #else
-    #define HEATER_BED_RAW_HI_TEMP 0
-    #define HEATER_BED_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_CHAMBER_RAW_HI_TEMP
-  #if TT_REV(THERMISTORCHAMBER) || !defined(HEATER_CHAMBER_USES_THERMISTOR)
-    #define HEATER_CHAMBER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_CHAMBER_RAW_LO_TEMP 0
-  #else
-    #define HEATER_CHAMBER_RAW_HI_TEMP 0
-    #define HEATER_CHAMBER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
-  #endif
-#endif
-#ifndef HEATER_PROBE_RAW_HI_TEMP
-  #if TT_REV(THERMISTORPROBE) || !defined(HEATER_PROBE_USES_THERMISTOR)
-    #define HEATER_PROBE_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
-    #define HEATER_PROBE_RAW_LO_TEMP 0
-  #else
-    #define HEATER_PROBE_RAW_HI_TEMP 0
-    #define HEATER_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_7_MINTEMP_IND TEMPTABLE_7_LEN - 1
+    #define TEMP_SENSOR_7_MAXTEMP_IND 0
   #endif
 #endif
 
+#ifndef TEMP_SENSOR_0_RAW_HI_TEMP
+  #if TT_REVRAW(0)
+    #define TEMP_SENSOR_0_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_0_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_0_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_0_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_1_RAW_HI_TEMP
+  #if TT_REVRAW(1)
+    #define TEMP_SENSOR_1_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_1_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_1_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_1_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_2_RAW_HI_TEMP
+  #if TT_REVRAW(2)
+    #define TEMP_SENSOR_2_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_2_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_2_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_2_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_3_RAW_HI_TEMP
+  #if TT_REVRAW(3)
+    #define TEMP_SENSOR_3_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_3_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_3_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_3_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_4_RAW_HI_TEMP
+  #if TT_REVRAW(4)
+    #define TEMP_SENSOR_4_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_4_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_4_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_4_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_5_RAW_HI_TEMP
+  #if TT_REVRAW(5)
+    #define TEMP_SENSOR_5_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_5_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_5_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_5_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_6_RAW_HI_TEMP
+  #if TT_REVRAW(6)
+    #define TEMP_SENSOR_6_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_6_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_6_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_6_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_7_RAW_HI_TEMP
+  #if TT_REVRAW(7)
+    #define TEMP_SENSOR_7_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_7_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_7_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_7_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_BED_RAW_HI_TEMP
+  #if TT_REVRAW(BED)
+    #define TEMP_SENSOR_BED_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_BED_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_BED_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_BED_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_CHAMBER_RAW_HI_TEMP
+  #if TT_REVRAW(CHAMBER)
+    #define TEMP_SENSOR_CHAMBER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_CHAMBER_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_CHAMBER_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_CHAMBER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_COOLER_RAW_HI_TEMP
+  #if TT_REVRAW(COOLER)
+    #define TEMP_SENSOR_COOLER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_COOLER_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_COOLER_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_COOLER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_PROBE_RAW_HI_TEMP
+  #if TT_REVRAW(PROBE)
+    #define TEMP_SENSOR_PROBE_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_PROBE_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_PROBE_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_BOARD_RAW_HI_TEMP
+  #if TT_REVRAW(BOARD)
+    #define TEMP_SENSOR_BOARD_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_BOARD_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_BOARD_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_BOARD_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP
+  #if TT_REVRAW(REDUNDANT)
+    #define TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_REDUNDANT_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_REDUNDANT_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+
+#undef __TT_REV
 #undef _TT_REV
 #undef TT_REV
+#undef _TT_REVRAW
+#undef TT_REVRAW

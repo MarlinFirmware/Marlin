@@ -21,13 +21,15 @@
  */
 #pragma once
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+/**
+ * GMARSH X6 Rev.1 pin assignments
+ */
+
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "GMARSH X6 REV1"
 
-// Ignore temp readings during develpment.
+// Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
@@ -84,17 +86,22 @@
 //
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                  P1_00
-  #define X_SERIAL_RX_PIN                  P1_00
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
+
   #define Y_SERIAL_TX_PIN                  P1_09
-  #define Y_SERIAL_RX_PIN                  P1_09
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
+
   #define Z_SERIAL_TX_PIN                  P1_16
-  #define Z_SERIAL_RX_PIN                  P1_16
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
+
   #define E0_SERIAL_TX_PIN                 P0_04
-  #define E0_SERIAL_RX_PIN                 P0_04
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
+
   #define E1_SERIAL_TX_PIN                 P2_02
-  #define E1_SERIAL_RX_PIN                 P2_02
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+
   #define E2_SERIAL_TX_PIN                 P2_06
-  #define E2_SERIAL_RX_PIN                 P2_06
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -121,11 +128,12 @@
 // Misc. Functions
 //
 #define LED_PIN                            P1_31
+#define POWER_MONITOR_VOLTAGE_PIN       P0_25_A2
 
 //
 // LCD
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define BEEPER_PIN                       P0_19
   #define BTN_EN1                          P1_23
   #define BTN_EN2                          P1_24
@@ -136,6 +144,11 @@
   #define LCD_PINS_D5                      P0_22
   #define LCD_PINS_D6                      P1_29
   #define LCD_PINS_D7                      P1_28
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
 #endif
 
 //
@@ -146,18 +159,16 @@
   #define SDCARD_CONNECTION                  LCD
 #endif
 
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15
-  #define MISO_PIN                         P0_17
-  #define MOSI_PIN                         P0_18
-  #define SS_PIN                           P0_16
+  #define SD_SCK_PIN                       P0_15
+  #define SD_MISO_PIN                      P0_17
+  #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                        P0_16
+  #define SD_DETECT_PIN                    P1_22
 #elif SD_CONNECTION_IS(ONBOARD)
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN                    P0_27
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #endif

@@ -65,4 +65,5 @@ class libServo: public Servo {
   }
 };
 
-#define HAL_SERVO_LIB libServo
+class libServo;
+typedef libServo hal_servo_t;

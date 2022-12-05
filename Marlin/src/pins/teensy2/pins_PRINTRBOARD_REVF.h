@@ -63,9 +63,7 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#if NOT_TARGET(__AVR_AT90USB1286__)
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #if !defined(__MARLIN_DEPS__) && !defined(USBCON)
   #error "USBCON should be defined by the platform for this board."
@@ -143,7 +141,7 @@
 #endif // NO_EXTRUDRBOARD
 
 // Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
-#define HAS_MOTOR_CURRENT_DAC
+#define HAS_MOTOR_CURRENT_DAC 1
 
 // Set default drive strength percents if not already defined - X, Y, Z, E axis
 #ifndef DAC_MOTOR_CURRENT_DEFAULT
@@ -209,12 +207,11 @@
   #define LCD_PINS_D6                          5  // D5       JP11-6
   #define LCD_PINS_D7                          4  // D4       JP11-5
 
-  #if ANY(VIKI2, miniVIKI)
+  #if EITHER(VIKI2, miniVIKI)
 
     #define BEEPER_PIN                         8  // E0       JP11-10
     #define DOGLCD_A0                         40  // F2       JP2-2
     #define DOGLCD_CS                         41  // F3       JP2-4
-    #define LCD_SCREEN_ROT_180
 
     #define BTN_EN1                            2  // D2 TX1   JP2-5
     #define BTN_EN2                            3  // D3 RX1   JP2-7
@@ -224,6 +221,8 @@
 
     #define STAT_LED_RED_PIN                  12  // C2       JP11-14
     #define STAT_LED_BLUE_PIN                 10  // C0       JP11-12
+
+    #define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #elif ENABLED(MINIPANEL)
 
@@ -247,9 +246,9 @@
     //#define MISO                            23  //         13               B3                ICSP-06             EXP2-05
 
     // Alter timing for graphical display
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(313)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(313)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(313)
+    #define BOARD_ST7920_DELAY_1           313
+    #define BOARD_ST7920_DELAY_2           313
+    #define BOARD_ST7920_DELAY_3           313
 
   #else
 

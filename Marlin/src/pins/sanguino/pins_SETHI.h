@@ -49,9 +49,8 @@
  * Once installed select the Sanguino board and then select the CPU.
  */
 
-#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega644__, __AVR_ATmega1284P__)
-  #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644', 'ATmega644P', or 'ATmega1284P' in 'Tools > Processor.'"
-#endif
+#define ALLOW_MEGA644
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Sethi 3D_1"
 

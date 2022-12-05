@@ -26,8 +26,11 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
-#include "../../module/stepper.h"
 #include "../../module/endstops.h"
+
+#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_TRINAMIC_CONFIG)
+  #include "../../module/stepper.h"
+#endif
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -39,14 +42,15 @@
 void GcodeSuite::G34() {
 
   // Home before the alignment procedure
-  if (!all_axes_known()) home_all_axes();
+  home_if_needed();
+
+  TERN_(HAS_LEVELING, TEMPORARY_BED_LEVELING_STATE(false));
 
   SET_SOFT_ENDSTOP_LOOSE(true);
-  TEMPORARY_BED_LEVELING_STATE(false);
   TemporaryGlobalEndstopsState unlock_z(false);
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_PRE
-    gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_PRE));
+    process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_PRE));
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sub Commands Processed");
   #endif
 
@@ -63,7 +67,7 @@ void GcodeSuite::G34() {
 
   // Move Z to pounce position
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting Z Pounce");
-  do_blocking_move_to_z(zpounce, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+  do_blocking_move_to_z(zpounce, homing_feedrate(Z_AXIS));
 
   // Store current motor settings, then apply reduced value
 
@@ -78,19 +82,19 @@ void GcodeSuite::G34() {
     stepper.set_digipot_current(Z_AXIS, target_current);
   #elif HAS_MOTOR_CURRENT_PWM
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    const uint32_t previous_current = stepper.motor_current_setting[Z_AXIS];
+    const uint32_t previous_current = stepper.motor_current_setting[1]; // Z
     stepper.set_digipot_current(1, target_current);
   #elif HAS_MOTOR_CURRENT_DAC
     const float target_current = parser.floatval('S', GANTRY_CALIBRATION_CURRENT);
     const float previous_current = dac_amps(Z_AXIS, target_current);
     stepper_dac.set_current_value(Z_AXIS, target_current);
-  #elif ENABLED(HAS_MOTOR_CURRENT_I2C)
+  #elif HAS_MOTOR_CURRENT_I2C
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
     previous_current = dac_amps(Z_AXIS);
     digipot_i2c.set_current(Z_AXIS, target_current)
   #elif HAS_TRINAMIC_CONFIG
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    static uint16_t previous_current_arr[NUM_Z_STEPPER_DRIVERS];
+    static uint16_t previous_current_arr[NUM_Z_STEPPERS];
     #if AXIS_IS_TMC(Z)
       previous_current_arr[0] = stepperZ.getMilliamps();
       stepperZ.rms_current(target_current);
@@ -113,10 +117,6 @@ void GcodeSuite::G34() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Final Z Move");
   do_blocking_move_to_z(zgrind, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
-  // Back off end plate, back to normal motion range
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
-  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
-
   #if _REDUCE_CURRENT
     // Reset current to original values
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
@@ -128,7 +128,7 @@ void GcodeSuite::G34() {
     stepper.set_digipot_current(1, previous_current);
   #elif HAS_MOTOR_CURRENT_DAC
     stepper_dac.set_current_value(Z_AXIS, previous_current);
-  #elif ENABLED(HAS_MOTOR_CURRENT_I2C)
+  #elif HAS_MOTOR_CURRENT_I2C
     digipot_i2c.set_current(Z_AXIS, previous_current)
   #elif HAS_TRINAMIC_CONFIG
     #if AXIS_IS_TMC(Z)
@@ -145,9 +145,13 @@ void GcodeSuite::G34() {
     #endif
   #endif
 
+  // Back off end plate, back to normal motion range
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
+  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
+
   #ifdef GANTRY_CALIBRATION_COMMANDS_POST
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Running Post Commands");
-    gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_POST));
+    process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_POST));
   #endif
 
   SET_SOFT_ENDSTOP_LOOSE(false);

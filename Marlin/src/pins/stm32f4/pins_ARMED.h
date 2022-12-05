@@ -19,15 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-//  https://github.com/ktand/Armed
-
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Arm'ed supports up to 2 hotends / E-steppers."
+// https://github.com/ktand/Armed
+
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Arm'ed supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef ARMED_V1_0
@@ -38,8 +37,10 @@
 #define BOARD_INFO_NAME      "Arm'ed"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+#endif
 
 //
 // Limit Switches
@@ -148,7 +149,7 @@
 
 #if ENABLED(FYSETC_MINI_12864)
   //
-  // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+  // See https://wiki.fysetc.com/Mini12864_Panel/
   //
   #define DOGLCD_A0                         PE9
   #define DOGLCD_CS                         PE8
@@ -204,9 +205,6 @@
 
 #if HAS_TMC_UART
   // TMC2208/TMC2209 stepper drivers
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN               EXT0_PIN
   #define X_SERIAL_RX_PIN               EXT0_PIN
 

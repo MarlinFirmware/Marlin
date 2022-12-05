@@ -31,7 +31,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS GEN 1.3/1.4 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS GEN 1.3/1.4 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS GEN >= v1.3"
@@ -54,10 +54,13 @@
 
 #include "pins_RAMPS.h"
 
+#undef EXP2_08_PIN
+#define EXP2_08_PIN                           -1  // RESET
+
 //
 // LCD / Controller
 //
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...
    *
@@ -81,19 +84,21 @@
    *
    * This configuration uses the following arrangement:
    *
-   * EXP1 D37 = EN2   D35 = EN1     EXP2 D50 = MISO  D52 = SCK
-   *      D17 = BLUE  D16 = RED          D31 = ENC   D53 = SDCS
-   *      D23 = KILL  D25 = BUZZ         D33 = ---   D51 = MOSI
-   *      D27 = A0    D29 = LCS          D49 = SDCD  RST = ---
-   *      GND = GND   5V  = 5V           GND = ---   D41 = ---
+   *             ------                       ------
+   *       ENCB | 1  2 |  ENCA          MISO | 1  2 | SCK
+   *   BLUE_LED | 3  4 |  RED_LED     ENCBTN | 3  4 | SDCS
+   *       KILL   5  6 |  BEEPER               5  6 | MOSI
+   *         A0 | 7  8 |  LCD_CS        SDCD | 7  8 |
+   *        GND | 9 10 | 5V              GND | 9 10 | --
+   *             ------                       ------
+   *              EXP1                         EXP2
    */
-
+  #undef SD_DETECT_PIN
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC
   #undef DOGLCD_A0
   #undef DOGLCD_CS
-  #undef SD_DETECT_PIN
   #undef BEEPER_PIN
   #undef KILL_PIN
   #undef STAT_LED_RED_PIN
@@ -102,46 +107,24 @@
   //
   // VIKI2 12-wire lead
   //
+  #define SD_DETECT_PIN              EXP2_07_PIN  // SDCD     orange/white
+  #define BTN_EN1                    EXP1_02_PIN  // ENCA     white
+  #define BTN_EN2                    EXP1_01_PIN  // ENCB     green
+  #define BTN_ENC                    EXP2_03_PIN  // ENCBTN   purple
+  #define DOGLCD_A0                  EXP1_07_PIN  // A0       brown
+  #define DOGLCD_CS                  EXP1_08_PIN  // LCS      green/white
 
-  // orange/white          SDCD
-  #define SD_DETECT_PIN                       49
+  // EXP2_01_PIN  gray   MISO
+  // EXP2_06_PIN  yellow MOSI
+  // EXP2_02_PIN  orange SCK
 
-  // white                 ENCA
-  #define BTN_EN1                             35
-
-  // green                 ENCB
-  #define BTN_EN2                             37
-
-  // purple                ENCBTN
-  #define BTN_ENC                             31
-
-  // brown                 A0
-  #define DOGLCD_A0                           27
-
-  // green/white           LCS
-  #define DOGLCD_CS                           29
-
-                        // 50    gray   MISO
-                        // 51    yellow MOSI
-                        // 52    orange SCK
-
-  // blue                  SDCS
-  //#define SDSS                              53
+  //#define SDSS                     EXP2_04_PIN  // SDCS     blue
 
   //
   // VIKI2 4-wire lead
   //
-
-  // blue                  BTN
-  #define KILL_PIN                            23
-
-  // green                 BUZZER
-  #define BEEPER_PIN                          25
-
-  // yellow                RED-LED
-  #define STAT_LED_RED_PIN                    16
-
-  // white                 BLUE-LED
-  #define STAT_LED_BLUE_PIN                   17
-
+  #define KILL_PIN                   EXP1_05_PIN  // BTN      blue
+  #define BEEPER_PIN                 EXP1_06_PIN  // BUZZER   green
+  #define STAT_LED_RED_PIN           EXP1_04_PIN  // RED-LED  yellow
+  #define STAT_LED_BLUE_PIN          EXP1_03_PIN  // BLUE-LED white
 #endif

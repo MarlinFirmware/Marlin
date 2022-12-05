@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 
 /**
  * M400: Finish all moves

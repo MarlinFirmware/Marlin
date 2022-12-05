@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../libs/numtostr.h"
 #include "../../inc/MarlinConfig.h"
 
@@ -30,7 +30,6 @@
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
-bool printer_busy();
 
 typedef void (*selectFunc_t)();
 
@@ -38,10 +37,6 @@ typedef void (*selectFunc_t)();
 #define SS_CENTER  0x01
 #define SS_INVERT  0x02
 #define SS_DEFAULT SS_CENTER
-
-#if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-  void _lcd_zoffset_overlay_gfx(const float zvalue);
-#endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
   #define BABYSTEP_TO_STR(N) ftostr43sign(N)
@@ -58,71 +53,79 @@ class MenuItemBase {
     // Index to interject in the item label and/or for use by its action.
     static int8_t itemIndex;
 
-    // An optional pointer for use in display or by the action
-    static PGM_P itemString;
+    // Optional pointers for use in display or by the action
+    static FSTR_P itemStringF;
+    static const char* itemStringC;
 
-    // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const int8_t ind=0, PGM_P const pstr=nullptr) { itemIndex = ind; itemString = pstr; }
+    // Store an index and string for later substitution
+    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
+    FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
 
+    // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
-    static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
+    // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
+    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char);
 
     // Draw an item either selected ('>') or not (space) with post_char
-    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char post_char) {
-      _draw(sel, row, pstr, '>', post_char);
+    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char) {
+      _draw(sel, row, fstr, '>', post_char);
     }
 };
 
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)
 class MenuItem_back : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr) {
-      _draw(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr) {
+      _draw(sel, row, fstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
     }
     // Back Item action goes back one step in history
-    FORCE_INLINE static void action(PGM_P const=nullptr) { ui.go_back(); }
+    FORCE_INLINE static void action(FSTR_P const=nullptr) { ui.go_back(); }
 };
 
 // CONFIRM_ITEM(LABEL,Y,N,FY,FN,...),
 // YESNO_ITEM(LABEL,FY,FN,...)
 class MenuItem_confirm : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, ...) {
+      _draw(sel, row, ftpl, '>', LCD_STR_ARROW_RIGHT[0]);
     }
     // Implemented for HD44780 and DOGM
     // Draw the prompt, buttons, and state
     static void draw_select_screen(
-      PGM_P const yes,            // Right option label
-      PGM_P const no,             // Left option label
+      FSTR_P const yes,           // Right option label
+      FSTR_P const no,            // Left option label
       const bool yesno,           // Is "yes" selected?
-      PGM_P const pref,           // Prompt prefix
+      FSTR_P const pref,          // Prompt prefix
       const char * const string,  // Prompt runtime string
-      PGM_P const suff            // Prompt suffix
+      FSTR_P const suff           // Prompt suffix
     );
     static void select_screen(
-      PGM_P const yes, PGM_P const no,
+      FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr
+      FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr
     );
-    static inline void select_screen(
-      PGM_P const yes, PGM_P const no,
+    static void select_screen(
+      FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      PGM_P const pref, const progmem_str string, PGM_P const suff=nullptr
+      FSTR_P const pref, FSTR_P const fstr, FSTR_P const suff=nullptr
     ) {
-      char str[strlen_P((PGM_P)string) + 1];
-      strcpy_P(str, (PGM_P)string);
-      select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+      #ifdef __AVR__
+        char str[strlen_P(FTOP(fstr)) + 1];
+        strcpy_P(str, FTOP(fstr));
+        select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+      #else
+        select_screen(yes, no, yesFunc, noFunc, pref, FTOP(fstr), suff);
+      #endif
     }
     // Shortcut for prompt with "NO"/ "YES" labels
-    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr) {
-      select_screen(GET_TEXT(MSG_YES), GET_TEXT(MSG_NO), yesFunc, noFunc, pref, string, suff);
+    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr) {
+      select_screen(GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO), yesFunc, noFunc, pref, string, suff);
     }
 };
 
@@ -132,14 +135,15 @@ class MenuItem_confirm : public MenuItemBase {
 
 // The Menu Edit shadow value
 typedef union {
-  bool     state;
-  float    decimal;
-  int8_t   int8;
-  int16_t  int16;
-  int32_t  int32;
-  uint8_t  uint8;
-  uint16_t uint16;
-  uint32_t uint32;
+  bool      state;
+  float     decimal;
+  int8_t    int8;
+  int16_t   int16;
+  int32_t   int32;
+  uint8_t   uint8;
+  uint16_t  uint16;
+  uint32_t  uint32;
+  celsius_t celsius;
 } chimera_t;
 extern chimera_t editable;
 
@@ -150,7 +154,7 @@ class MenuEditItemBase : public MenuItemBase {
     // The action() method acts like the instantiator. The entire lifespan
     // of a menu item is within its declaration, so all these values decompose
     // into behavior and unused items get optimized out.
-    static PGM_P editLabel;
+    static FSTR_P editLabel;
     static void *editValue;
     static int32_t minEditValue, maxEditValue;  // Encoder value range
     static screenFunc_t callbackFunc;
@@ -159,7 +163,7 @@ class MenuEditItemBase : public MenuItemBase {
     typedef const char* (*strfunc_t)(const int32_t);
     typedef void (*loadfunc_t)(void *, const int32_t);
     static void goto_edit_screen(
-      PGM_P const el,         // Edit label
+      FSTR_P const el,        // Edit label
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
@@ -170,16 +174,20 @@ class MenuEditItemBase : public MenuItemBase {
     );
     static void edit_screen(strfunc_t, loadfunc_t); // Edit value handler
   public:
-    // Implemented for HD44780 and DOGM
+    // Implementation-specific:
     // Draw the current item at specified row with edit data
-    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm=false);
+    static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm=false);
 
-    // Implemented for HD44780 and DOGM
+    static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, FSTR_P const fstr) {
+      draw(sel, row, ftpl, FTOP(fstr), true);
+    }
+
+    // Implementation-specific:
     // This low-level method is good to draw from anywhere
-    static void draw_edit_screen(PGM_P const pstr, const char* const value);
+    static void draw_edit_screen(FSTR_P const fstr, const char * const value);
 
     // This method is for the current menu item
-    static inline void draw_edit_screen(const char* const value) { draw_edit_screen(editLabel, value); }
+    static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
 #if ENABLED(SDSUPPORT)
@@ -187,7 +195,7 @@ class MenuEditItemBase : public MenuItemBase {
   class MenuItem_sdbase {
     public:
       // Implemented for HD44780 and DOGM
-      static void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
+      static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard, const bool isDir);
   };
 #endif
 
@@ -206,21 +214,21 @@ void menu_move();
 //////// Menu Item Helper Functions ////////
 ////////////////////////////////////////////
 
-void lcd_move_z();
 void _lcd_draw_homing();
 
-#define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LEVEL_BED_CORNERS)
+#define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LCD_BED_TRAMMING)
 
 #if HAS_LINE_TO_Z
-  void line_to_z(const float &z);
-#endif
-
-#if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-  void _lcd_zoffset_overlay_gfx(const float zvalue);
+  void line_to_z(const_float_t z);
 #endif
 
 #if ENABLED(PROBE_OFFSET_WIZARD)
   void goto_probe_offset_wizard();
+#endif
+
+#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  void xatc_wizard_continue();
+  void menu_advanced_settings();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
@@ -248,4 +256,17 @@ void _lcd_draw_homing();
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   void touch_screen_calibration();
+#endif
+
+extern uint8_t screen_history_depth;
+inline void clear_menu_history() { screen_history_depth = 0; }
+
+#define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }
+
+#if HAS_LEVELING && ANY(LCD_BED_TRAMMING, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+  extern bool leveling_was_active;
+#endif
+
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
+  extern uint8_t manual_probe_index;
 #endif

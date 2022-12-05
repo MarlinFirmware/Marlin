@@ -32,8 +32,8 @@
   #define SRAM_EEPROM_EMULATION                   // Emulate the EEPROM using Backup SRAM
 #endif
 
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "RemRam supports only one hotend / E-stepper."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "RemRam only supports 1 hotend / E stepper."
 #endif
 
 //
@@ -44,14 +44,13 @@
   #define X_MAX_PIN                           59
   #define Y_MIN_PIN                           60
   #define Y_MAX_PIN                           61
-  #define Z_MIN_PIN                           62
   #define Z_MAX_PIN                           63
 #else
   #define X_STOP_PIN                          36
   #define Y_STOP_PIN                          39
-  #define Z_MIN_PIN                           62
   #define Z_MAX_PIN                           42
 #endif
+#define Z_MIN_PIN                             62
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -134,4 +133,4 @@
 // Timers
 //
 
-#define STEP_TIMER                             2
+#define STEP_TIMER  2

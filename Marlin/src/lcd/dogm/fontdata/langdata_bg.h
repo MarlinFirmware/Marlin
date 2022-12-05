@@ -3,7 +3,9 @@
  * Contents will be REPLACED by future processing!
  * Use genallfont.sh to generate font data for updated languages.
  */
-#include <U8glib.h>
+#pragma once
+
+#include "langdata.h"
 
 const u8g_fntpgm_uint8_t fontpage_8_144_149[96] U8G_FONT_SECTION("fontpage_8_144_149") = {
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x90,0x95,0x00,0x07,0xFF,0x00,
@@ -64,14 +66,13 @@ const u8g_fntpgm_uint8_t fontpage_8_206_207[39] U8G_FONT_SECTION("fontpage_8_206
   0x00,0x05,0x05,0x05,0x06,0x00,0x00,0x90,0xA8,0xE8,0xA8,0x90,0x04,0x05,0x05,0x06,
   0x01,0x00,0x70,0x90,0x70,0x50,0x90};
 
-#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
-static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(8, 144, 149, fontpage_8_144_149), // 'А' -- 'Е'
-    FONTDATA_ITEM(8, 151, 152, fontpage_8_151_152), // 'З' -- 'И'
-    FONTDATA_ITEM(8, 154, 164, fontpage_8_154_164), // 'К' -- 'Ф'
-    FONTDATA_ITEM(8, 166, 166, fontpage_8_166_166), // 'Ц' -- 'Ц'
-    FONTDATA_ITEM(8, 175, 195, fontpage_8_175_195), // 'Я' -- 'у'
-    FONTDATA_ITEM(8, 197, 200, fontpage_8_197_200), // 'х' -- 'ш'
-    FONTDATA_ITEM(8, 202, 202, fontpage_8_202_202), // 'ъ' -- 'ъ'
-    FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207), // 'ю' -- 'я'
+static const uxg_fontinfo_t g_fontinfo_bg[] PROGMEM = {
+  FONTDATA_ITEM(8, 144, 149, fontpage_8_144_149), // 'А' -- 'Е'
+  FONTDATA_ITEM(8, 151, 152, fontpage_8_151_152), // 'З' -- 'И'
+  FONTDATA_ITEM(8, 154, 164, fontpage_8_154_164), // 'К' -- 'Ф'
+  FONTDATA_ITEM(8, 166, 166, fontpage_8_166_166), // 'Ц' -- 'Ц'
+  FONTDATA_ITEM(8, 175, 195, fontpage_8_175_195), // 'Я' -- 'у'
+  FONTDATA_ITEM(8, 197, 200, fontpage_8_197_200), // 'х' -- 'ш'
+  FONTDATA_ITEM(8, 202, 202, fontpage_8_202_202), // 'ъ' -- 'ъ'
+  FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207), // 'ю' -- 'я'
 };

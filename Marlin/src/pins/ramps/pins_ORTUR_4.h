@@ -45,7 +45,14 @@
 //
 // Steppers
 //
+#define E0_STEP_PIN                           36
+#define E0_DIR_PIN                            34
+#define E0_ENABLE_PIN                         30
 #define E0_CS_PIN                             44
+
+#define E1_STEP_PIN                           26
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         24
 #define E1_CS_PIN                             42
 
 //
@@ -54,44 +61,26 @@
 #define TEMP_0_PIN                            15  // Analog Input
 #define TEMP_1_PIN                            13  // Analog Input
 
-//
-// Software serial
-//
-#define X_SERIAL_TX_PIN                       59
-#define X_SERIAL_RX_PIN                       63
+#if HAS_TMC_UART
+  #define X_SERIAL_TX_PIN                     59
+  #define X_SERIAL_RX_PIN                     63
 
-#define Y_SERIAL_TX_PIN                       64
-#define Y_SERIAL_RX_PIN                       40
+  #define Y_SERIAL_TX_PIN                     64
+  #define Y_SERIAL_RX_PIN                     40
 
-#define Z_SERIAL_TX_PIN                       44
-#define Z_SERIAL_RX_PIN                       42
+  #define Z_SERIAL_TX_PIN                     44
+  #define Z_SERIAL_RX_PIN                     42
 
-#define E0_SERIAL_TX_PIN                      66
-#define E0_SERIAL_RX_PIN                      65
+  #define E0_SERIAL_TX_PIN                    66
+  #define E0_SERIAL_RX_PIN                    65
+#endif
 
 #include "pins_RAMPS.h"
 
 //
-// Steppers
-//
-#undef E0_STEP_PIN
-#undef E0_DIR_PIN
-#undef E0_ENABLE_PIN
-#define E0_STEP_PIN                           36
-#define E0_DIR_PIN                            34
-#define E0_ENABLE_PIN                         30
-
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         24
-
-//
 // LCD / Controller
 //
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#if IS_RRD_FG_SC
   #undef BEEPER_PIN
   #define BEEPER_PIN                          35
 

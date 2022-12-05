@@ -27,7 +27,7 @@
 // Utility functions to create and print hex strings as nybble, byte, and word.
 //
 
-FORCE_INLINE char hex_nybble(const uint8_t n) {
+constexpr char hex_nybble(const uint8_t n) {
   return (n & 0xF) + ((n & 0xF) < 10 ? '0' : 'A' - 10);
 }
 char* hex_byte(const uint8_t b);

@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 
-#include "../../../MarlinCore.h" // for i2c
+#include "../../../feature/twibus.h"
 
 /**
  * M260: Send data to a I2C slave device
@@ -45,10 +45,10 @@
  */
 void GcodeSuite::M260() {
   // Set the target address
-  if (parser.seen('A')) i2c.address(parser.value_byte());
+  if (parser.seenval('A')) i2c.address(parser.value_byte());
 
   // Add a new byte to the buffer
-  if (parser.seen('B')) i2c.addbyte(parser.value_byte());
+  if (parser.seenval('B')) i2c.addbyte(parser.value_byte());
 
   // Flush the buffer to the bus
   if (parser.seen('S')) i2c.send();
@@ -60,15 +60,16 @@ void GcodeSuite::M260() {
 /**
  * M261: Request X bytes from I2C slave device
  *
- * Usage: M261 A<slave device address base 10> B<number of bytes>
+ * Usage: M261 A<slave device address base 10> B<number of bytes> S<style>
  */
 void GcodeSuite::M261() {
-  if (parser.seen('A')) i2c.address(parser.value_byte());
+  if (parser.seenval('A')) i2c.address(parser.value_byte());
 
-  uint8_t bytes = parser.byteval('B', 1);
+  const uint8_t bytes = parser.byteval('B', 1),   // Bytes to request
+                style = parser.byteval('S');      // Serial output style (ASCII, HEX etc)
 
   if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE)
-    i2c.relay(bytes);
+    i2c.relay(bytes, style);
   else
     SERIAL_ERROR_MSG("Bad i2c request");
 }

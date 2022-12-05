@@ -248,7 +248,7 @@ e-mail   :  support@circuitsathome.com
 #define                      UHS_HOST_TRANSFER_MAX_MS 10000 // USB transfer timeout in ms, per section 9.2.6.1 of USB 2.0 spec
 #define               UHS_HOST_TRANSFER_RETRY_MAXIMUM 3     // 3 retry limit for a transfer
 #define                    UHS_HOST_DEBOUNCE_DELAY_MS 500   // settle delay in milliseconds
-#define                        UHS_HUB_RESET_DELAY_MS 20    // hub port reset delay, 10ms recomended, but can be up to 20ms
+#define                        UHS_HUB_RESET_DELAY_MS 20    // hub port reset delay, 10ms recommended, but can be up to 20ms
 
 //
 // We only provide the minimum needed information for enumeration.

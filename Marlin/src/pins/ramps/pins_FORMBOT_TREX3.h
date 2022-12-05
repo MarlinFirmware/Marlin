@@ -25,10 +25,11 @@
  * Formbot pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Formbot supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Formbot supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "Formbot"
@@ -99,9 +100,15 @@
   #define E1_CS_PIN                           44
 #endif
 
-#define E2_STEP_PIN                           42
-#define E2_DIR_PIN                            43
-#define E2_ENABLE_PIN                         44
+#if HAS_X2_STEPPER
+  #define X2_STEP_PIN                         42
+  #define X2_DIR_PIN                          43
+  #define X2_ENABLE_PIN                       44
+#else
+  #define E2_STEP_PIN                         42
+  #define E2_DIR_PIN                          43
+  #define E2_ENABLE_PIN                       44
+#endif
 
 //
 // Temperature Sensors
@@ -110,11 +117,11 @@
 #define TEMP_1_PIN                            15  // Analog Input
 #define TEMP_BED_PIN                          14  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
+  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
+  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -127,7 +134,6 @@
 #define FAN_PIN                                9
 #define FAN1_PIN                              12
 
-#define NUM_RUNOUT_SENSORS                     2
 #define FIL_RUNOUT_PIN                        22
 #define FIL_RUNOUT2_PIN                       21
 
@@ -155,7 +161,7 @@
 //
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define LCD_PINS_RS                         16
   #define LCD_PINS_ENABLE                     17
   #define LCD_PINS_D4                         23
@@ -172,4 +178,10 @@
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                        37
   #endif
+#endif
+
+#if HAS_MARLINUI_U8GLIB
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif

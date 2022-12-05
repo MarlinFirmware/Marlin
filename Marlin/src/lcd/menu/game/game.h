@@ -22,13 +22,13 @@
 #pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
-#include "../../dogm/ultralcd_DOGM.h"
+#include "../../dogm/marlinui_DOGM.h"
 #include "../../lcdprint.h"
-#include "../../ultralcd.h"
+#include "../../marlinui.h"
 
 //#define MUTE_GAMES
 
-#if ENABLED(MUTE_GAMES) || !HAS_BUZZER
+#if ENABLED(MUTE_GAMES) || !HAS_SOUND
   #define _BUZZ(D,F) NOOP
 #else
   #define _BUZZ(D,F) BUZZ(D,F)
@@ -53,10 +53,18 @@
 
 // Pool game data to save SRAM
 union MarlinGameData {
-  TERN_(MARLIN_BRICKOUT, brickout_data_t brickout);
-  TERN_(MARLIN_INVADERS, invaders_data_t invaders);
-  TERN_(MARLIN_SNAKE, snake_data_t snake);
-  TERN_(MARLIN_MAZE, maze_data_t maze);
+  #if ENABLED(MARLIN_BRICKOUT)
+    brickout_data_t brickout;
+  #endif
+  #if ENABLED(MARLIN_INVADERS)
+    invaders_data_t invaders;
+  #endif
+  #if ENABLED(MARLIN_SNAKE)
+    snake_data_t snake;
+  #endif
+  #if ENABLED(MARLIN_MAZE)
+    maze_data_t maze;
+  #endif
 };
 
 extern MarlinGameData marlin_game_data;

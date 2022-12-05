@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, PASSWORD_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, PASSWORD_FEATURE)
 
 #include "../../feature/password/password.h"
 
@@ -44,21 +44,27 @@ static uint8_t digit_no;
 // Screen for both editing and setting the password
 //
 void Password::menu_password_entry() {
+  ui.defer_status_screen(!did_first_run); // No timeout to status before first auth
+
   START_MENU();
 
   // "Login" or "New Code"
-  STATIC_ITEM_P(authenticating ? GET_TEXT(MSG_LOGIN_REQUIRED) : GET_TEXT(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
+  STATIC_ITEM_F(authenticating ? GET_TEXT_F(MSG_LOGIN_REQUIRED) : GET_TEXT_F(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(PSTR(""), SS_CENTER|SS_INVERT, string);
+  STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, string);
+
+  #if HAS_MARLINUI_U8GLIB
+    STATIC_ITEM_F(FPSTR(NUL_STR), SS_CENTER, "");
+  #endif
 
   // Make the digit edit item look like a sub-menu
-  PGM_P const label = GET_TEXT(MSG_ENTER_DIGIT);
-  EDIT_ITEM_P(uint8, label, &editable.uint8, 0, 9, digit_entered);
-  MENU_ITEM_ADDON_START(utf8_strlen_P(label) + 1);
-    lcd_put_wchar(' ');
-    lcd_put_wchar('1' + digit_no);
-    SETCURSOR_X(LCD_WIDTH - 1);
-    lcd_put_wchar('>');
+  FSTR_P const label = GET_TEXT_F(MSG_ENTER_DIGIT);
+  EDIT_ITEM_F(uint8, label, &editable.uint8, 0, 9, digit_entered);
+  MENU_ITEM_ADDON_START(utf8_strlen(label) + 1);
+    lcd_put_lchar(' ');
+    lcd_put_lchar('1' + digit_no);
+    SETCURSOR_X(LCD_WIDTH - 2);
+    lcd_put_lchar('>');
   MENU_ITEM_ADDON_END();
 
   ACTION_ITEM(MSG_START_OVER, start_over);
@@ -104,7 +110,7 @@ void Password::screen_password_entry() {
   value_entry = 0;
   digit_no = 0;
   editable.uint8 = 0;
-  memset(string, '-', PASSWORD_LENGTH);
+  memset(string, '_', PASSWORD_LENGTH);
   string[PASSWORD_LENGTH] = '\0';
   menu_password_entry();
 }
@@ -120,7 +126,6 @@ void Password::authenticate_user(const screenFunc_t in_succ_scr, const screenFun
   if (is_set) {
     authenticating = true;
     ui.goto_screen(screen_password_entry);
-    ui.defer_status_screen();
     ui.update();
   }
   else {
@@ -152,19 +157,17 @@ void Password::menu_password_report() {
   END_SCREEN();
 }
 
-void Password::set_password_done() {
-  is_set = true;
+void Password::set_password_done(const bool with_set/*=true*/) {
+  is_set = with_set;
   value = value_entry;
   ui.completion_feedback(true);
   ui.goto_screen(menu_password_report);
 }
 
 void Password::remove_password() {
-  is_set = false;
   string[0] = '0';
   string[1] = '\0';
-  ui.completion_feedback(true);
-  ui.goto_screen(menu_password_report);
+  set_password_done(false);
 }
 
 //
@@ -174,11 +177,11 @@ void Password::menu_password() {
   START_MENU();
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
   SUBMENU(MSG_CHANGE_PASSWORD, screen_set_password);
-  ACTION_ITEM(MSG_REMOVE_PASSWORD, []{ ui.save_previous_screen(); remove_password(); } );
+  ACTION_ITEM(MSG_REMOVE_PASSWORD, []{ ui.push_current_screen(); remove_password(); } );
   #if ENABLED(EEPROM_SETTINGS)
     ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
   #endif
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && PASSWORD_FEATURE
+#endif // HAS_MARLINUI_MENU && PASSWORD_FEATURE

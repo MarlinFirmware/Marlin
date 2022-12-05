@@ -47,11 +47,20 @@ void GcodeSuite::G60() {
   SBI(saved_slots[slot >> 3], slot & 0x07);
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
+  {
     const xyze_pos_t &pos = stored_position[slot];
-    DEBUG_ECHOPAIR_F(STR_SAVED_POS " S", slot);
-    DEBUG_ECHOPAIR_F(" : X", pos.x);
-    DEBUG_ECHOPAIR_F_P(SP_Y_STR, pos.y);
-    DEBUG_ECHOLNPAIR_F_P(SP_Z_STR, pos.z);
+    DEBUG_ECHOPGM(STR_SAVED_POS " S", slot, " :");
+    DEBUG_ECHOLNPGM_P(
+      LIST_N(DOUBLE(NUM_AXES),
+        SP_X_LBL, pos.x, SP_Y_LBL, pos.y, SP_Z_LBL, pos.z,
+        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+      )
+      #if HAS_EXTRUDERS
+        , SP_E_LBL, pos.e
+      #endif
+    );
+  }
   #endif
 }
 

@@ -24,6 +24,10 @@
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 
+#if AXIS_COLLISION('I') || AXIS_COLLISION('J')
+  #error "G5 parameter 'I' or 'J' collision with axis name."
+#endif
+
 #include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
 

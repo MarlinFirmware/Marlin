@@ -29,42 +29,13 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if MB(MKS_SBASE)
+#if ENABLED(DIGIPOT_MCP4451) && MB(MKS_SBASE)
 
 #ifdef __cplusplus
   extern "C" {
 #endif
 
 #include "digipot_mcp4451_I2C_routines.h"
-
-// These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
-// to the lpc17xx_i2c.c routines so had to copy them into this file & rename them.
-
-static uint32_t _I2C_Start(LPC_I2C_TypeDef *I2Cx) {
-  // Reset STA, STO, SI
-  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC|I2C_I2CONCLR_STOC|I2C_I2CONCLR_STAC;
-
-  // Enter to Master Transmitter mode
-  I2Cx->I2CONSET = I2C_I2CONSET_STA;
-
-  // Wait for complete
-  while (!(I2Cx->I2CONSET & I2C_I2CONSET_SI));
-  I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
-  return (I2Cx->I2STAT & I2C_STAT_CODE_BITMASK);
-}
-
-static void _I2C_Stop(LPC_I2C_TypeDef *I2Cx) {
-  // Make sure start bit is not active
-  if (I2Cx->I2CONSET & I2C_I2CONSET_STA)
-    I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
-
-  I2Cx->I2CONSET = I2C_I2CONSET_STO|I2C_I2CONSET_AA;
-  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
-}
-
-I2C_M_SETUP_Type transferMCfg;
-
-#define I2C_status (LPC_I2C1->I2STAT & I2C_STAT_CODE_BITMASK)
 
 uint8_t digipot_mcp4451_start(uint8_t sla) {  // send slave address and write bit
   // Sometimes TX data ACK or NAK status is returned.  That mean the start state didn't
@@ -102,5 +73,5 @@ uint8_t digipot_mcp4451_send_byte(uint8_t data) {
   }
 #endif
 
-#endif // MB(MKS_SBASE)
+#endif // DIGIPOT_MCP4451 && MKS_SBASE
 #endif // TARGET_LPC1768

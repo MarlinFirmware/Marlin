@@ -21,26 +21,25 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "3D Printer"
 
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
 #define BOARD_WEBSITE_URL "fysetc.com"
-// https://github.com/FYSETC/Cheetah
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
+#define BOARD_NO_NATIVE_USB
+#define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 //
@@ -79,10 +78,26 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#define X_HARDWARE_SERIAL  MSerial2
-#define Y_HARDWARE_SERIAL  MSerial2
-#define Z_HARDWARE_SERIAL  MSerial2
-#define E0_HARDWARE_SERIAL MSerial2
+#if HAS_TMC_UART
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  1
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  2
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 3
+  #endif
+#endif
 
 //
 // Heaters / Fans
@@ -115,62 +130,70 @@
   #define RGB_LED_B_PIN                     PB6
 #endif
 
-/*
-* EXP1 pinout for the LCD according to Fysetcs schematic for the Cheetah board
-*                 _____
-*  (Beeper) PC9  | 1 2 | PC12 (BTN_ENC)
-* (BTN_EN2) PC11 | 3 4 | PB14 (LCD_RS / MISO)
-* (BTN_EN1) PC10   5 6 | PB13 (SCK)
-*  (LCD_EN) PB12 | 7 8 | PB15 (MOSI)
-*            GND | 9 10| 5V
-*                 -----
-*                 EXP1
-* Note: The pin-numbers match the connector correctly and are not in reverse order like on the Ender-3 board.
-* Note: Functionally the pins are assigned in the same order as on the Ender-3 board.
-* Note: Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
-*/
+/**
+ * EXP1 pinout for the LCD according to FYSETC's Cheetah board schematic
+ *                 ------
+ * (BEEPER)  PC9  | 1  2 | PC12 (BTN_ENC)
+ * (BTN_EN2) PC11 | 3  4 | PB14 (LCD_RS / MISO)
+ * (BTN_EN1) PC10   5  6 | PB13 (SCK)
+ * (LCD_EN)  PB12 | 7  8 | PB15 (MOSI)
+ *            GND | 9 10 | 5V
+ *                 ------
+ *                  EXP1
+ *
+ * Notes:
+ *  - The pin-numbers match the connector correctly and are not in reverse order like on the Ender-3 board.
+ *  - Functionally the pins are assigned in the same order as on the Ender-3 board.
+ *  - Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
+ */
+#define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PC12
+#define EXP1_03_PIN                         PC11
+#define EXP1_04_PIN                         PB14
+#define EXP1_05_PIN                         PC10
+#define EXP1_06_PIN                         PB13
+#define EXP1_07_PIN                         PB12
+#define EXP1_08_PIN                         PB15
 
 #if HAS_WIRED_LCD
-  #define BEEPER_PIN                        PC9
+  #define BEEPER_PIN                 EXP1_01_PIN
 
   #if HAS_MARLINUI_U8GLIB
-    #define DOGLCD_A0                       PB14
-    #define DOGLCD_CS                       PB12
-    #define DOGLCD_SCK                      PB13
-    #define DOGLCD_MOSI                     PB15
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    #define DOGLCD_A0                EXP1_04_PIN
+    #define DOGLCD_CS                EXP1_07_PIN
+    #define DOGLCD_SCK               EXP1_06_PIN
+    #define DOGLCD_MOSI              EXP1_08_PIN
 
     #if EITHER(FYSETC_MINI_12864, U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif
 
-  #define LCD_PINS_RS                       PB12  // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4                       PB13  // SCLK
-  #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
+  #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
+  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
 
   //#define LCD_CONTRAST_INIT                190
 
-  #if ENABLED(NEWPANEL)
-    #define BTN_EN1                         PC10
-    #define BTN_EN2                         PC11
-    #define BTN_ENC                         PC12
+  #if IS_NEWPANEL
+    #define BTN_EN1                  EXP1_05_PIN
+    #define BTN_EN2                  EXP1_03_PIN
+    #define BTN_ENC                  EXP1_02_PIN
   #endif
 #endif
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
-  #define BEEPER_PIN                        PC9
-  #define CLCD_MOD_RESET                    PC11
-  #define CLCD_SPI_CS                       PB12
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define CLCD_MOD_RESET             EXP1_03_PIN
+  #define CLCD_SPI_CS                EXP1_07_PIN
 
   //#define CLCD_USE_SOFT_SPI                     // the Cheetah can use hardware-SPI so we do not really need this
 
   #if ENABLED(CLCD_USE_SOFT_SPI)
-    #define CLCD_SOFT_SPI_MOSI              PB15
-    #define CLCD_SOFT_SPI_MISO              PB14
-    #define CLCD_SOFT_SPI_SCLK              PB13
+    #define CLCD_SOFT_SPI_MOSI       EXP1_08_PIN
+    #define CLCD_SOFT_SPI_MISO       EXP1_04_PIN
+    #define CLCD_SOFT_SPI_SCLK       EXP1_06_PIN
   #else
     #define CLCD_SPI_BUS                       2
   #endif

@@ -21,24 +21,41 @@
  */
 #pragma once
 
-#define CPU_32_BIT
+#include "../../inc/MarlinConfigPre.h"
 
-#define F_CPU 100000000
-#define SystemCoreClock F_CPU
 #include <iostream>
 #include <stdint.h>
 #include <stdarg.h>
-
 #undef min
 #undef max
-
 #include <algorithm>
 
-void _printf (const  char *format, ...);
+#include "hardware/Clock.h"
+#include "../shared/Marduino.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
+#include "fastio.h"
+#include "serial.h"
+
+// ------------------------
+// Defines
+// ------------------------
+
+#define CPU_32_BIT
+#define SHARED_SERVOS HAS_SERVOS  // Use shared/servos.cpp
+
+#define F_CPU 100000000UL
+#define SystemCoreClock F_CPU
+
+#define DELAY_CYCLES(x) Clock::delayCycles(x)
+
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
+
+void _printf(const  char *format, ...);
 void _putc(uint8_t c);
 uint8_t _getc();
-
-//extern "C" volatile uint32_t _millis;
 
 //arduino: Print.h
 #define DEC 10
@@ -49,66 +66,100 @@ uint8_t _getc();
 #define B01 1
 #define B10 2
 
-#include "hardware/Clock.h"
+// ------------------------
+// Serial ports
+// ------------------------
 
-#include "../shared/Marduino.h"
-#include "../shared/math_32bit.h"
-#include "../shared/HAL_SPI.h"
-#include "fastio.h"
-#include "watchdog.h"
-#include "serial.h"
-
-#define SHARED_SERVOS HAS_SERVOS
-
-extern HalSerial usb_serial;
-#define MYSERIAL0 usb_serial
-
-#define ST7920_DELAY_1 DELAY_NS(600)
-#define ST7920_DELAY_2 DELAY_NS(750)
-#define ST7920_DELAY_3 DELAY_NS(750)
+extern MSerialT usb_serial;
+#define MYSERIAL1 usb_serial
 
 //
 // Interrupts
 //
 #define CRITICAL_SECTION_START()
 #define CRITICAL_SECTION_END()
-#define ISRS_ENABLED()
-#define ENABLE_ISRS()
-#define DISABLE_ISRS()
-
-inline void HAL_init() {}
-
-// Utility functions
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-int freeMemory();
-#pragma GCC diagnostic pop
 
 // ADC
 #define HAL_ADC_VREF           5.0
 #define HAL_ADC_RESOLUTION    10
-#define HAL_ANALOG_SELECT(ch) HAL_adc_enable_channel(ch)
-#define HAL_START_ADC(ch)     HAL_adc_start_conversion(ch)
-#define HAL_READ_ADC()        HAL_adc_get_result()
-#define HAL_ADC_READY()       true
 
-void HAL_adc_init();
-void HAL_adc_enable_channel(const uint8_t ch);
-void HAL_adc_start_conversion(const uint8_t ch);
-uint16_t HAL_adc_get_result();
+// ------------------------
+// Class Utilities
+// ------------------------
 
-// Reset source
-inline void HAL_clear_reset_source(void) {}
-inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
-
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
-
-/* ---------------- Delay in cycles */
-FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {
-  Clock::delayCycles(x);
-}
-
-// Add strcmp_P if missing
-#ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
+
+int freeMemory();
+
+#pragma GCC diagnostic pop
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  // Watchdog
+  static void watchdog_init() {}
+  static void watchdog_refresh() {}
+
+  static void init() {}        // Called early in setup()
+  static void init_board() {}  // Called less early in setup()
+  static void reboot();        // Reset the application state and GPIO
+
+  // Interrupts
+  static bool isr_state() { return true; }
+  static void isr_on()  {}
+  static void isr_off() {}
+
+  static void delay_ms(const int ms) { _delay_ms(ms); }
+
+  // Tasks, called from idle()
+  static void idletask() {}
+
+  // Reset
+  static constexpr uint8_t reset_reason = RST_POWER_ON;
+  static uint8_t get_reset_source() { return reset_reason; }
+  static void clear_reset_source() {}
+
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  static uint8_t active_ch;
+
+  // Called by Temperature::init once at startup
+  static void adc_init() {}
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const uint8_t) {}
+
+  // Begin ADC sampling on the given channel
+  static void adc_start(const uint8_t ch) { active_ch = ch; }
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return true; }
+
+  // The current value of the ADC register
+  static uint16_t adc_value();
+
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * No option to change the resolution or invert the duty cycle.
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
+    analogWrite(pin, v);
+  }
+
+  static void set_pwm_frequency(const pin_t, int) {}
+};

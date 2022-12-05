@@ -25,10 +25,11 @@
  * AZTEEG_X3 Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Azteeg X3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Azteeg X3 supports up to 2 hotends / E steppers."
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
@@ -42,7 +43,7 @@
 #define SERVO0_PIN                            44  // SERVO1 port
 #define SERVO1_PIN                            55  // SERVO2 port
 
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
 
 //
 // LCD / Controller
@@ -50,7 +51,7 @@
 #undef STAT_LED_RED_PIN
 #undef STAT_LED_BLUE_PIN
 
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
 
   #undef DOGLCD_A0
   #undef DOGLCD_CS
@@ -72,7 +73,7 @@
 //
 // Misc
 //
-#if ENABLED(CASE_LIGHT_ENABLE) && PIN_EXISTS(CASE_LIGHT, STAT_LED_RED) && STAT_LED_RED_PIN == CASE_LIGHT_PIN
+#if ENABLED(CASE_LIGHT_ENABLE) && PINS_EXIST(CASE_LIGHT, STAT_LED_RED) && STAT_LED_RED_PIN == CASE_LIGHT_PIN
   #undef STAT_LED_RED_PIN
 #endif
 

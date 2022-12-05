@@ -25,11 +25,11 @@
  * Dreammaker Overlord v1.1 pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Overlord Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Overlord supports up to 2 hotends / E steppers."
 #endif
+
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME         "OVERLORD"
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
@@ -49,7 +49,7 @@
   #define Z_MIN_PROBE_PIN                     46  // JP4, Tfeed1
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                      44  // JP3, Tfeed2
 #endif
 
@@ -119,7 +119,7 @@
 //
 // LCD / Controller
 //
-#if HAS_MARLINUI_U8GLIB
+#if HAS_WIRED_LCD
   // OVERLORD OLED pins
   #define LCD_PINS_RS                         20
   #define LCD_PINS_D5                         21
@@ -132,7 +132,7 @@
   #endif
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_ENC                             16  // Enter Pin
   #define BTN_UP                              19  // Button UP Pin
   #define BTN_DWN                             17  // Button DOWN Pin

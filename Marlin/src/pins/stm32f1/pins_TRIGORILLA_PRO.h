@@ -22,41 +22,60 @@
 #pragma once
 
 /**
- * ANYCUBIC Trigorilla Pro (STM32F130ZET6) board pin assignments.
+ * ANYCUBIC Trigorilla Pro (STM32F103ZET6) board pin assignments.
  * It is the same used by the Tronxy X5SA thanks to ftoz1 for sharing it
  * https://github.com/MarlinFirmware/Marlin/issues/14655
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Trigorilla Pro supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Trigorilla Pro"
+
+#define BOARD_NO_NATIVE_USB
+
 #define DISABLE_JTAG
+
+//#define SWAPPED_Z_PLUGS
 
 //
 // EEPROM
 //
-#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 #if ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
-  #define EEPROM_PAGE_SIZE     (0x800U)     // 2KB, but will use 2x more (4KB)
+  #define EEPROM_PAGE_SIZE     (0x800U)     // 2K, but will use 2x more (4K)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE   (0x800U) // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE   (0x800U) // On SD, Limit to 2K, require this amount of RAM
 #endif
 
 //
 // Limit Switches
 //
-#define X_MAX_PIN                           PG10
-#define Y_MAX_PIN                           PA12
-#define Z_MAX_PIN                           PA14
-#define Z_MIN_PIN                           PA13
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#ifndef Z_MIN_PIN
+  #ifdef SWAPPED_Z_PLUGS
+    #define Z_MIN_PIN                       PA14
+  #else
+    #define Z_MIN_PIN                       PA13
+  #endif
+#endif
+#ifndef Z_MAX_PIN
+  #ifdef SWAPPED_Z_PLUGS
+    #define Z_MAX_PIN                       PA13
+  #else
+    #define Z_MAX_PIN                       PA14
+  #endif
+#endif
 
 //
 // Steppers
@@ -109,22 +128,29 @@
 //#define POWER_LOSS_PIN                    PG2   // PG4 PW_DET
 #define FIL_RUNOUT_PIN                      PA15  // MT_DET
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers
- * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
- * ILI9488 is not supported.
- * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported.
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
   #define TFT_RESET_PIN                     PF11
   #define TFT_BACKLIGHT_PIN                 PD13
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
@@ -137,31 +163,18 @@
 #endif
 
 // XPT2046 Touch Screen calibration
-#if ENABLED(TFT_COLOR_UI) || ENABLED(TFT_LVGL_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -17181
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X           -17181
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          11434
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            11434
   #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 501
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   501
   #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                  -9
-  #endif
-#elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -12316
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           8981
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 340
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -20
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                    -9
   #endif
 #endif
 
@@ -173,21 +186,23 @@
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 #if ENABLED(SDIO_SUPPORT)
-  #define SCK_PIN                           PB13  // SPI2 ok
-  #define MISO_PIN                          PB14  // SPI2 ok
-  #define MOSI_PIN                          PB15  // SPI2 ok
-  #define SS_PIN                            PC11  // PB12 is X- ok
+  #define SD_SCK_PIN                        PB13  // SPI2 ok
+  #define SD_MISO_PIN                       PB14  // SPI2 ok
+  #define SD_MOSI_PIN                       PB15  // SPI2 ok
+  #define SD_SS_PIN                         PC11  // PB12 is X- ok
   #define SD_DETECT_PIN                     -1    // SD_CD ok
 #else
   // SD as custom software SPI (SDIO pins)
-  #define SCK_PIN                           PC12
-  #define MISO_PIN                          PC8
-  #define MOSI_PIN                          PD2
-  #define SS_PIN                            -1
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         -1
   #define ONBOARD_SD_CS_PIN                 PC11
   #define SDSS                              PD2
   #define SD_DETECT_PIN                     -1
 #endif
+
+#undef SWAPPED_Z_PLUGS

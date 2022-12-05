@@ -26,18 +26,23 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if HAS_MARLINUI_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
 #include "menu_item.h"
 #include "../../module/delta.h"
 #include "../../module/motion.h"
+#include "../../module/planner.h"
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extui/ui_api.h"
+  #include "../extui/ui_api.h"
+#endif
+
+#if HAS_PROBE_XY_OFFSET
+  #include "../../module/probe.h"
 #endif
 
 void _man_probe_pt(const xy_pos_t &xy) {
@@ -46,25 +51,26 @@ void _man_probe_pt(const xy_pos_t &xy) {
     do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
     ui.wait_for_move = false;
     ui.synchronize();
-    ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
-    ui.goto_screen(lcd_move_z);
+    ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / planner.settings.axis_steps_per_mm[0]); // Use first axis as for delta XYZ should always match
+    ui.goto_screen([]{ lcd_move_axis(Z_AXIS); });
   }
 }
 
 #if ENABLED(DELTA_AUTO_CALIBRATION)
 
-  #include "../../gcode/gcode.h"
-
+  #if HAS_RESUME_CONTINUE
+    #include "../../MarlinCore.h" // for wait_for_user_response()
+  #endif
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    #include "../../feature/host_actions.h" // for host_prompt_do
+    #include "../../feature/host_actions.h" // for hostui.prompt_do
   #endif
 
   float lcd_probe_pt(const xy_pos_t &xy) {
     _man_probe_pt(xy);
     ui.defer_status_screen();
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), CONTINUE_STR));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress")));
-    wait_for_user_response();
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Delta Calibration in progress"), FPSTR(CONTINUE_STR)));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Delta Calibration in progress")));
+    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
     ui.goto_previous_screen_no_defer();
     return current_position.z;
   }
@@ -85,9 +91,12 @@ void _man_probe_pt(const xy_pos_t &xy) {
     ui.goto_screen(_lcd_calibrate_homing);
   }
 
-  void _goto_tower_a(const float &a) {
+  void _goto_tower_a(const_float_t a) {
+    float dcr = DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;
+    TERN_(HAS_PROBE_XY_OFFSET, dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y));
+    TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
-    _man_probe_pt(tower_vec * delta_calibration_radius());
+    _man_probe_pt(tower_vec * dcr);
   }
   void _goto_tower_x() { _goto_tower_a(210); }
   void _goto_tower_y() { _goto_tower_a(330); }
@@ -104,12 +113,12 @@ void lcd_delta_settings() {
   START_MENU();
   BACK_ITEM(MSG_DELTA_CALIBRATE);
   EDIT_ITEM(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
-  #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_endstop_adj.N, -5, 5, _recalc_delta_settings)
+  #define EDIT_ENDSTOP_ADJ(LABEL,N) EDIT_ITEM_F(float43, F(LABEL), &delta_endstop_adj.N, -5, 0, _recalc_delta_settings)
   EDIT_ENDSTOP_ADJ("Ex", a);
   EDIT_ENDSTOP_ADJ("Ey", b);
   EDIT_ENDSTOP_ADJ("Ez", c);
   EDIT_ITEM(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
-  #define EDIT_ANGLE_TRIM(LABEL,N) EDIT_ITEM_P(float43, PSTR(LABEL), &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
+  #define EDIT_ANGLE_TRIM(LABEL,N) EDIT_ITEM_F(float43, F(LABEL), &delta_tower_angle_trim.N, -5, 5, _recalc_delta_settings)
   EDIT_ANGLE_TRIM("Tx", a);
   EDIT_ANGLE_TRIM("Ty", b);
   EDIT_ANGLE_TRIM("Tz", c);
@@ -118,13 +127,15 @@ void lcd_delta_settings() {
 }
 
 void menu_delta_calibrate() {
-  TERN_(DELTA_CALIBRATION_MENU, const bool all_homed = all_axes_homed()); // Acquire ahead of loop
+  #if ENABLED(DELTA_CALIBRATION_MENU)
+    const bool all_homed = all_axes_homed();  // Acquire ahead of loop
+  #endif
 
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
-    GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
+    GCODES_ITEM(MSG_DELTA_AUTO_CALIBRATE, F("G33"));
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
       ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
@@ -146,4 +157,4 @@ void menu_delta_calibrate() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && (DELTA_CALIBRATION_MENU || DELTA_AUTO_CALIBRATION)
+#endif // HAS_MARLINUI_MENU && (DELTA_CALIBRATION_MENU || DELTA_AUTO_CALIBRATION)

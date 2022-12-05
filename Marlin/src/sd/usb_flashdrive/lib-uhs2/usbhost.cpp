@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 /* What follows is a modified version of the MAX3421e originally defined in
@@ -27,19 +27,18 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT) && DISABLED(USE_UHS3_USB)
 
+#if !PINS_EXIST(USB_CS, USB_INTR)
+  #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN to be defined."
+#endif
+
 #include "Usb.h"
 #include "usbhost.h"
 
 uint8_t MAX3421e::vbusState = 0;
 
 // constructor
-void MAX3421e::cs() {
-  WRITE(USB_CS_PIN,0);
-}
-
-void MAX3421e::ncs() {
-  WRITE(USB_CS_PIN,1);
-}
+void MAX3421e::cs()  { WRITE(USB_CS_PIN, LOW); }
+void MAX3421e::ncs() { WRITE(USB_CS_PIN, HIGH); }
 
 // write single byte into MAX3421 register
 void MAX3421e::regWr(uint8_t reg, uint8_t data) {
@@ -47,11 +46,11 @@ void MAX3421e::regWr(uint8_t reg, uint8_t data) {
   spiSend(reg | 0x02);
   spiSend(data);
   ncs();
-};
+}
 
 // multiple-byte write
 // return a pointer to memory position after last written
-uint8_t* MAX3421e::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* MAX3421e::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
   cs();
   spiSend(reg | 0x02);
   while (nbytes--) spiSend(*data_p++);
@@ -76,18 +75,18 @@ uint8_t MAX3421e::regRd(uint8_t reg) {
   ncs();
   return rv;
 }
-// multiple-byte register read
 
+// multiple-byte register read
 // return a pointer to a memory position after last read
-uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
   cs();
   spiSend(reg);
   while (nbytes--) *data_p++ = spiRec();
   ncs();
   return data_p;
 }
-// GPIO read. See gpioWr for explanation
 
+// GPIO read. See gpioWr for explanation
 // GPIN pins are in high nybbles of IOPINS1, IOPINS2
 uint8_t MAX3421e::gpioRd() {
   return (regRd(rIOPINS2) & 0xF0) | // pins 4-7, clean lower nybble
@@ -114,20 +113,14 @@ bool MAX3421e::start() {
   ncs();
   spiBegin();
 
-  spiInit(
-    #ifdef SPI_SPEED
-      SPI_SPEED
-    #else
-      SPI_FULL_SPEED
-    #endif
-  );
+  spiInit(SD_SPI_SPEED);
 
   // MAX3421e - full-duplex, level interrupt, vbus off.
   regWr(rPINCTL, (bmFDUPSPI | bmINTLEVEL | GPX_VBDET));
 
   const uint8_t revision = regRd(rREVISION);
   if (revision == 0x00 || revision == 0xFF) {
-    SERIAL_ECHOLNPAIR("Revision register appears incorrect on MAX3421e initialization. Got ", revision);
+    SERIAL_ECHOLNPGM("Revision register appears incorrect on MAX3421e initialization. Got ", revision);
     return false;
   }
 

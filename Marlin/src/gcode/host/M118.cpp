@@ -52,22 +52,9 @@ void GcodeSuite::M118() {
     while (*p == ' ') ++p;
   }
 
-  #if HAS_MULTI_SERIAL
-    const int8_t old_serial = serial_port_index;
-    if (WITHIN(port, 0, NUM_SERIAL))
-      serial_port_index = (
-        port == 0 ? SERIAL_BOTH
-        : port == 1 ? SERIAL_PORT
-        #ifdef SERIAL_PORT_2
-          : port == 2 ? SERIAL_PORT_2
-        #endif
-        : SERIAL_PORT
-      );
-  #endif
+  PORT_REDIRECT(WITHIN(port, 0, NUM_SERIAL) ? (port ? SERIAL_PORTMASK(port - 1) : SerialMask::All) : multiSerial.portMask);
 
   if (hasE) SERIAL_ECHO_START();
-  if (hasA) SERIAL_ECHOPGM("// ");
+  if (hasA) SERIAL_ECHOPGM("//");
   SERIAL_ECHOLN(p);
-
-  TERN_(HAS_MULTI_SERIAL, serial_port_index = old_serial);
 }

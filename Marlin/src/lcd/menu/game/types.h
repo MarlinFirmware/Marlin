@@ -27,7 +27,7 @@ typedef struct { int8_t x, y; } pos_t;
 
 // Simple 8:8 fixed-point
 typedef int16_t fixed_t;
-#define FTOP(F) fixed_t((F)*256.0f)
+#define FTOF(F) fixed_t((F)*256.0f)
 #define PTOF(P) (float(P)*(1.0f/256.0f))
 #define BTOF(X) (fixed_t(X)<<8)
 #define FTOB(X) int8_t(fixed_t(X)>>8)

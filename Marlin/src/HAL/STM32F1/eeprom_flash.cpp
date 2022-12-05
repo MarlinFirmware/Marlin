@@ -48,8 +48,8 @@ static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 
 bool PersistentStore::access_start() {
-  const uint32_t* source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
-  uint32_t* destination = reinterpret_cast<uint32_t*>(ram_eeprom);
+  const uint32_t *source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
+  uint32_t *destination = reinterpret_cast<uint32_t*>(ram_eeprom);
 
   static_assert(0 == (MARLIN_EEPROM_SIZE) % 4, "MARLIN_EEPROM_SIZE is corrupted. (Must be a multiple of 4.)"); // Ensure copying as uint32_t is safe
   constexpr size_t eeprom_size_u32 = (MARLIN_EEPROM_SIZE) / 4;
@@ -101,7 +101,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
   if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
   crc16(crc, buff, size);

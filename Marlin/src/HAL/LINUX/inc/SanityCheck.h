@@ -26,7 +26,7 @@
  */
 
 // Emulating RAMPS
-#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
+#if ENABLED(SPINDLE_LASER_USE_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
   #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 #endif
 
@@ -35,5 +35,9 @@
 #endif
 
 #if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on this platform."
+  #error "TMC220x Software Serial is not supported on LINUX."
+#endif
+
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
 #endif

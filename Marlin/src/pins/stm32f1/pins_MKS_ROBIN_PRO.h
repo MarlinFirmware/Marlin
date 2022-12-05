@@ -25,13 +25,15 @@
  * MKS Robin pro (STM32F103ZET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "MKS Robin pro supports up to 3 hotends / E-steppers. Comment out this line to continue."
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "MKS Robin pro supports up to 3 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin pro"
+
+#define BOARD_NO_NATIVE_USB
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -41,13 +43,12 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE                           2
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 //
 // Servos
 //
-#define SERVO0_PIN                          PA8   // BLTOUCH
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -132,9 +133,6 @@
   //#define E1_HARDWARE_SERIAL MSerial1
   //#define E2_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PF7
   #define X_SERIAL_RX_PIN                   PF8
 
@@ -174,14 +172,31 @@
 /**
  * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
  */
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PF11  // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
 #define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
-//#define FIL_RUNOUT_PIN                    PE6   // MT_DET2
-//#define FIL_RUNOUT_PIN                    PG14  // MT_DET3
+#define FIL_RUNOUT2_PIN                     PE6   // MT_DET2
+#define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
+
+//
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #if ENABLED(PSU_CONTROL)
+      #error "PSU_CONTROL is incompatible with MKS_PWC plus TFT_LVGL_UI."
+    #endif
+    #undef MKS_PWC
+    #define SUICIDE_PIN                     PG11
+    #define SUICIDE_PIN_STATE               LOW
+  #else
+    #define PS_ON_PIN                       PG11  // PW_OFF
+  #endif
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    HIGH
+#endif
 
 //
 // SD Card
@@ -191,12 +206,11 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define ENABLE_SPI2
   #define SD_DETECT_PIN                     PG3
-  #define SCK_PIN                           PB13
-  #define MISO_PIN                          PB14
-  #define MOSI_PIN                          PB15
-  #define SS_PIN                            PG6
+  #define SD_SCK_PIN                        PB13
+  #define SD_MISO_PIN                       PB14
+  #define SD_MOSI_PIN                       PB15
+  #define SD_SS_PIN                         PG6
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
   #define SD_DETECT_PIN                     PD12
@@ -205,20 +219,38 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- */
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+//
+// TFT with FSMC interface
+//
+#if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers.
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   */
+  #define TFT_RESET_PIN            LCD_RESET_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
-  #define LCD_RESET_PIN                     PF6
+  #define LCD_RESET_PIN                     PC6
   #define LCD_BACKLIGHT_PIN                 PD13
 
+  #define TFT_BUFFER_SIZE                  14400
+
   #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PA7
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
+    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
+    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
+    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
+    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #else
     #define BEEPER_PIN                      PC5
     #define BTN_ENC                         PG2
@@ -254,22 +286,33 @@
   #else                                           // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
     #define LCD_PINS_D4                     PF14
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PF15
       #define LCD_PINS_D6                   PF12
       #define LCD_PINS_D7                   PF13
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
 #endif
 
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+
+#define HAS_SPI_FLASH                          1
+#if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
+  #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

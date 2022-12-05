@@ -28,9 +28,15 @@
 
 BLTouch bltouch;
 
-bool BLTouch::last_written_mode; // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+bool BLTouch::od_5v_mode;         // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+#ifdef BLTOUCH_HS_MODE
+  bool BLTouch::high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+#else
+  constexpr bool BLTouch::high_speed_mode;
+#endif
 
 #include "../module/servo.h"
+#include "../module/probe.h"
 
 void stop();
 
@@ -38,8 +44,8 @@ void stop();
 #include "../core/debug_out.h"
 
 bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
-  if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
-  MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
+  if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch Command :", cmd);
+  servo[Z_PROBE_SERVO_NR].move(cmd);
   safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
   return triggered();
 }
@@ -62,18 +68,17 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
 
   #else
 
-    if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOLNPAIR("last_written_mode - ", (int)last_written_mode);
-      DEBUG_ECHOLNPGM("config mode - "
-        #if ENABLED(BLTOUCH_SET_5V_MODE)
-          "BLTOUCH_SET_5V_MODE"
-        #else
-          "OD"
-        #endif
-      );
-    }
+    #ifdef DEBUG_OUT
+      if (DEBUGGING(LEVELING)) {
+        PGMSTR(mode0, "OD");
+        PGMSTR(mode1, "5V");
+        DEBUG_ECHOPGM("BLTouch Mode: ");
+        DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
+        DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
+      }
+    #endif
 
-    const bool should_set = last_written_mode != ENABLED(BLTOUCH_SET_5V_MODE);
+    const bool should_set = od_5v_mode != ENABLED(BLTOUCH_SET_5V_MODE);
 
   #endif
 
@@ -90,15 +95,7 @@ void BLTouch::clear() {
   _stow();     // STOW to be ready for meaningful work. Could fail, don't care
 }
 
-bool BLTouch::triggered() {
-  return (
-    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING
-    #else
-      READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING
-    #endif
-  );
-}
+bool BLTouch::triggered() { return PROBE_TRIGGERED(); }
 
 bool BLTouch::deploy_proc() {
   // Do a DEPLOY
@@ -114,11 +111,8 @@ bool BLTouch::deploy_proc() {
     // Last attempt to DEPLOY
     if (_deploy_query_alarm()) {
       // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Recovery Failed");
-
-      SERIAL_ERROR_MSG(STR_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
-      stop();                              // but it's not too bad, no need to kill, allow restart
-
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Deploy Failed");
+      probe.probe_error_stop();            // Something is wrong, needs action, but not too bad, allow restart
       return true;                         // Tell our caller we goofed in case he cares to know
     }
   }
@@ -156,12 +150,8 @@ bool BLTouch::stow_proc() {
                                            // But one more STOW will catch that
     // Last attempt to STOW
     if (_stow_query_alarm()) {             // so if there is now STILL an ALARM condition:
-
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Recovery Failed");
-
-      SERIAL_ERROR_MSG(STR_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
-      stop();                              // but it's not too bad, no need to kill, allow restart
-
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Stow Failed");
+      probe.probe_error_stop();            // Something is wrong, needs action, but not too bad, allow restart
       return true;                         // Tell our caller we goofed in case he cares to know
     }
   }
@@ -182,7 +172,7 @@ bool BLTouch::status_proc() {
   _set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
   const bool tr = triggered(); // If triggered in SW mode, the pin is up, it is STOWED
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch is ", (int)tr);
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch is ", tr);
 
   if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
@@ -194,13 +184,13 @@ void BLTouch::mode_conv_proc(const bool M5V) {
    * BLTOUCH V3.0: This will set the mode (twice) and sadly, a STOW is needed at the end, because of the deploy
    * BLTOUCH V3.1: This will set the mode and store it in the eeprom. The STOW is not needed but does not hurt
    */
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch Set Mode - ", (int)M5V);
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Set Mode - ", M5V);
   _deploy();
   if (M5V) _set_5V_mode(); else _set_OD_mode();
   _mode_store();
   if (M5V) _set_5V_mode(); else _set_OD_mode();
   _stow();
-  last_written_mode = M5V;
+  od_5v_mode = M5V;
 }
 
 #endif // BLTOUCH

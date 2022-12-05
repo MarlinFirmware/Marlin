@@ -34,21 +34,21 @@
 #include "../../inc/MarlinConfig.h"
 
 void spiBegin() {
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
-
-  #if DISABLED(SOFTWARE_SPI)
-    // SS must be in output mode even it is not chip select
-    //SET_OUTPUT(SS_PIN);
-    // set SS high - may be chip select for another SPI device
-    //#if SET_SPI_SS_HIGH
-      //WRITE(SS_PIN, HIGH);
-    //#endif
-    // set a default rate
-    spiInit(1);
+  #if PIN_EXISTS(SD_SS)
+    // Do not init HIGH for boards with pin 4 used as Fans or Heaters or otherwise, not likely to have multiple SPI devices anyway.
+    #if defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
+      // SS must be in output mode even it is not chip select
+      SET_OUTPUT(SD_SS_PIN);
+    #else
+      // set SS high - may be chip select for another SPI device
+      OUT_WRITE(SD_SS_PIN, HIGH);
+    #endif
   #endif
+  SET_OUTPUT(SD_SCK_PIN);
+  SET_INPUT(SD_MISO_PIN);
+  SET_OUTPUT(SD_MOSI_PIN);
+
+  IF_DISABLED(SOFTWARE_SPI, spiInit(SPI_HALF_SPEED));
 }
 
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
@@ -74,7 +74,8 @@ void spiBegin() {
       #elif defined(PRR0)
         PRR0
       #endif
-        , PRSPI);
+      , PRSPI
+    );
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
@@ -88,7 +89,7 @@ void spiBegin() {
   }
 
   /** SPI read data  */
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     if (nbyte-- == 0) return;
     SPDR = 0xFF;
     for (uint16_t i = 0; i < nbyte; i++) {
@@ -107,7 +108,7 @@ void spiBegin() {
   }
 
   /** SPI send block  */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     SPDR = token;
     for (uint16_t i = 0; i < 512; i += 2) {
       while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
@@ -195,19 +196,19 @@ void spiBegin() {
     // no interrupts during byte receive - about 8µs
     cli();
     // output pin high - like sending 0xFF
-    WRITE(MOSI_PIN, HIGH);
+    WRITE(SD_MOSI_PIN, HIGH);
 
     LOOP_L_N(i, 8) {
-      WRITE(SCK_PIN, HIGH);
+      WRITE(SD_SCK_PIN, HIGH);
 
       nop; // adjust so SCK is nice
       nop;
 
       data <<= 1;
 
-      if (READ(MISO_PIN)) data |= 1;
+      if (READ(SD_MISO_PIN)) data |= 1;
 
-      WRITE(SCK_PIN, LOW);
+      WRITE(SD_SCK_PIN, LOW);
     }
 
     sei();
@@ -215,7 +216,7 @@ void spiBegin() {
   }
 
   // Soft SPI read data
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       buf[i] = spiRec();
   }
@@ -225,10 +226,10 @@ void spiBegin() {
     // no interrupts during byte send - about 8µs
     cli();
     LOOP_L_N(i, 8) {
-      WRITE(SCK_PIN, LOW);
-      WRITE(MOSI_PIN, data & 0x80);
+      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SD_MOSI_PIN, data & 0x80);
       data <<= 1;
-      WRITE(SCK_PIN, HIGH);
+      WRITE(SD_SCK_PIN, HIGH);
     }
 
     nop; // hold SCK high for a few ns
@@ -236,13 +237,13 @@ void spiBegin() {
     nop;
     nop;
 
-    WRITE(SCK_PIN, LOW);
+    WRITE(SD_SCK_PIN, LOW);
 
     sei();
   }
 
   // Soft SPI send block
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     spiSend(token);
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);

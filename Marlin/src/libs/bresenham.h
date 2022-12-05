@@ -30,7 +30,7 @@
  */
 
 #define FORCE_INLINE  __attribute__((always_inline)) inline
-#define _O3           __attribute__((optimize("O3")))
+#define __O3          __attribute__((optimize("O3")))
 
 template <uint8_t uid, uint8_t size>
 struct BresenhamCfg { static constexpr uint8_t UID = uid, SIZE = size; };
@@ -114,17 +114,17 @@ public:
     if (tick1(index)) { value[index] += dir[index]; back(index); }
   }
 
-  FORCE_INLINE static void tick1() _O3 { for (uint8_t i = 0; i < Cfg::SIZE; i++) (void)tick1(i); }
+  FORCE_INLINE static void tick1() __O3 { for (uint8_t i = 0; i < Cfg::SIZE; i++) (void)tick1(i); }
 
-  FORCE_INLINE static void tick() _O3 { for (uint8_t i = 0; i < Cfg::SIZE; i++) (void)tick(i); }
+  FORCE_INLINE static void tick() __O3 { for (uint8_t i = 0; i < Cfg::SIZE; i++) (void)tick(i); }
 
   static void report(const uint8_t index) {
     if (index < Cfg::SIZE) {
-      SERIAL_ECHOPAIR("bresenham ", int(index), " : (", dividend[index], "/", divisor, ") ");
+      SERIAL_ECHOPGM("bresenham ", index, " : (", dividend[index], "/", divisor, ") ");
       if (counter[index] >= 0) SERIAL_CHAR(' ');
       if (labs(counter[index]) < 100) { SERIAL_CHAR(' '); if (labs(counter[index]) < 10) SERIAL_CHAR(' '); }
       SERIAL_ECHO(counter[index]);
-      SERIAL_ECHOLNPAIR(" ... ", value[index]);
+      SERIAL_ECHOLNPGM(" ... ", value[index]);
     }
   }
 

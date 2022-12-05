@@ -41,11 +41,11 @@
 
 static timg_dev_t *TG[2] = {&TIMERG0, &TIMERG1};
 
-const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
+const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
   { TIMER_GROUP_0, TIMER_0, STEPPER_TIMER_PRESCALE, stepTC_Handler }, // 0 - Stepper
   { TIMER_GROUP_0, TIMER_1,    TEMP_TIMER_PRESCALE, tempTC_Handler }, // 1 - Temperature
   { TIMER_GROUP_1, TIMER_0,     PWM_TIMER_PRESCALE, pwmTC_Handler  }, // 2 - PWM
-  { TIMER_GROUP_1, TIMER_1,                      1, nullptr }, // 3
+  { TIMER_GROUP_1, TIMER_1,    TONE_TIMER_PRESCALE, toneTC_Handler }, // 3 - Tone
 };
 
 // ------------------------
@@ -53,7 +53,7 @@ const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
 // ------------------------
 
 void IRAM_ATTR timer_isr(void *para) {
-  const tTimerConfig& timer = TimerConfig[(int)para];
+  const tTimerConfig& timer = timer_config[(int)para];
 
   // Retrieve the interrupt status and the counter value
   // from the timer that reported the interrupt
@@ -81,8 +81,8 @@ void IRAM_ATTR timer_isr(void *para) {
  * @param timer_num timer number to initialize
  * @param frequency frequency of the timer
  */
-void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
-  const tTimerConfig timer = TimerConfig[timer_num];
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
+  const tTimerConfig timer = timer_config[timer_num];
 
   timer_config_t config;
   config.divider     = timer.divider;
@@ -115,7 +115,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
  * @param count     threshold at which the interrupt is triggered
  */
 void HAL_timer_set_compare(const uint8_t timer_num, hal_timer_t count) {
-  const tTimerConfig timer = TimerConfig[timer_num];
+  const tTimerConfig timer = timer_config[timer_num];
   timer_set_alarm_value(timer.group, timer.idx, count);
 }
 
@@ -125,7 +125,7 @@ void HAL_timer_set_compare(const uint8_t timer_num, hal_timer_t count) {
  * @return           the timer current threshold for the alarm to be triggered
  */
 hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
-  const tTimerConfig timer = TimerConfig[timer_num];
+  const tTimerConfig timer = timer_config[timer_num];
 
   uint64_t alarm_value;
   timer_get_alarm_value(timer.group, timer.idx, &alarm_value);
@@ -139,7 +139,7 @@ hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
  * @return           the current counter of the alarm
  */
 hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
-  const tTimerConfig timer = TimerConfig[timer_num];
+  const tTimerConfig timer = timer_config[timer_num];
   uint64_t counter_value;
   timer_get_counter_value(timer.group, timer.idx, &counter_value);
   return counter_value;
@@ -150,7 +150,7 @@ hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
  * @param timer_num timer number to enable interrupts on
  */
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  //const tTimerConfig timer = TimerConfig[timer_num];
+  //const tTimerConfig timer = timer_config[timer_num];
   //timer_enable_intr(timer.group, timer.idx);
 }
 
@@ -159,12 +159,12 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num) {
  * @param timer_num timer number to disable interrupts on
  */
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  //const tTimerConfig timer = TimerConfig[timer_num];
+  //const tTimerConfig timer = timer_config[timer_num];
   //timer_disable_intr(timer.group, timer.idx);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  const tTimerConfig timer = TimerConfig[timer_num];
+  const tTimerConfig timer = timer_config[timer_num];
   return TG[timer.group]->int_ena.val | BIT(timer_num);
 }
 

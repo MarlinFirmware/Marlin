@@ -25,7 +25,7 @@
  * Emulate EEPROM storage using Flash Memory
  *
  * Use a single 32K flash sector to store EEPROM data. To reduce the
- * number of erase operations a simple "levelling" scheme is used that
+ * number of erase operations a simple "leveling" scheme is used that
  * maintains a number of EEPROM "slots" within the larger flash sector.
  * Each slot is used in turn and the entire sector is only erased when all
  * slots have been used.
@@ -119,7 +119,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
   if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
   crc16(crc, buff, size);

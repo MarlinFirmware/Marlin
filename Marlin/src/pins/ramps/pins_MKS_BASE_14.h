@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS BASE 1.4 only supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS BASE 1.4 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.4"
@@ -58,7 +58,7 @@
   #define CASE_LIGHT_PIN                      11  // PB5 ** Pin24 ** PWM11
 #endif
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /*
   Available connectors on MKS BASE v1.4

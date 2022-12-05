@@ -325,7 +325,7 @@ static void udd_sleep_mode(bool b_idle)
 /**
  * \name Control endpoint low level management routine.
  *
- * This function performs control endpoint mangement.
+ * This function performs control endpoint management.
  * It handle the SETUP/DATA/HANDSHAKE phases of a control transaction.
  */
 //@{
@@ -397,9 +397,9 @@ static void udd_ctrl_endofrequest(void);
 /**
  * \brief Main interrupt routine for control endpoint
  *
- * This switchs control endpoint events to correct sub function.
+ * This switches control endpoint events to correct sub function.
  *
- * \return \c 1 if an event about control endpoint is occured, otherwise \c 0.
+ * \return \c 1 if an event about control endpoint is occurred, otherwise \c 0.
  */
 static bool udd_ctrl_interrupt(void);
 
@@ -410,7 +410,7 @@ static bool udd_ctrl_interrupt(void);
  * \name Management of bulk/interrupt/isochronous endpoints
  *
  * The UDD manages the data transfer on endpoints:
- * - Start data tranfer on endpoint with USB Device DMA
+ * - Start data transfer on endpoint with USB Device DMA
  * - Send a ZLP packet if requested
  * - Call callback registered to signal end of transfer
  * The transfer abort and stall feature are supported.
@@ -431,7 +431,7 @@ typedef struct {
 	uint8_t *buf;
 	//! Size of buffer to send or fill
 	iram_size_t buf_size;
-	//!< Size of data transfered
+	//!< Size of data transferred
 	iram_size_t buf_cnt;
 	//!< Size of data loaded (or prepared for DMA) last time
 	iram_size_t buf_load;
@@ -486,7 +486,7 @@ static void udd_ep_finish_job(udd_ep_job_t * ptr_job, bool b_abort, uint8_t ep_n
 
 #ifdef UDD_EP_DMA_SUPPORTED
 	/**
-	 * \brief Start the next transfer if necessary or complet the job associated.
+	 * \brief Start the next transfer if necessary or complete the job associated.
 	 *
 	 * \param ep endpoint number without direction flag
 	 */
@@ -496,9 +496,9 @@ static void udd_ep_finish_job(udd_ep_job_t * ptr_job, bool b_abort, uint8_t ep_n
 /**
  * \brief Main interrupt routine for bulk/interrupt/isochronous endpoints
  *
- * This switchs endpoint events to correct sub function.
+ * This switches endpoint events to correct sub function.
  *
- * \return \c 1 if an event about bulk/interrupt/isochronous endpoints has occured, otherwise \c 0.
+ * \return \c 1 if an event about bulk/interrupt/isochronous endpoints has occurred, otherwise \c 0.
  */
 static bool udd_ep_interrupt(void);
 
@@ -520,7 +520,7 @@ static bool udd_ep_interrupt(void);
  *
  * Note:
  * Here, the global interrupt mask is not clear when an USB interrupt is enabled
- * because this one can not be occured during the USB ISR (=during INTX is masked).
+ * because this one can not be occurred during the USB ISR (=during INTX is masked).
  * See Technical reference $3.8.3 Masking interrupt requests in peripheral modules.
  */
 #ifdef UHD_ENABLE
@@ -787,7 +787,7 @@ void udd_attach(void)
 	udd_sleep_mode(true);
 	otg_unfreeze_clock();
 
-	// This section of clock check can be improved with a chek of
+	// This section of clock check can be improved with a check of
 	// USB clock source via sysclk()
 	// Check USB clock because the source can be a PLL
 	while (!Is_otg_clock_usable());
@@ -803,7 +803,7 @@ void udd_attach(void)
 #ifdef USB_DEVICE_HS_SUPPORT
 	udd_enable_msof_interrupt();
 #endif
-	// Reset following interupts flag
+	// Reset following interrupts flag
 	udd_ack_reset();
 	udd_ack_sof();
 	udd_ack_msof();
@@ -902,7 +902,7 @@ bool udd_ep_alloc(udd_ep_id_t ep, uint8_t bmAttributes,
 	}
 	dbg_print("alloc(%x, %d) ", ep, MaxEndpointSize);
 
-	// Bank choise
+	// Bank choice
 	switch (bmAttributes & USB_EP_TYPE_MASK) {
 	case USB_EP_TYPE_ISOCHRONOUS:
 		nb_bank = UDD_ISOCHRONOUS_NB_BANK(ep);
@@ -1228,7 +1228,7 @@ bool udd_ep_wait_stall_clear(udd_ep_id_t ep,
 
 	if (Is_udd_endpoint_stall_requested(ep)
 			|| ptr_job->stall_requested) {
-		// Endpoint halted then registes the callback
+		// Endpoint halted then registers the callback
 		ptr_job->busy = true;
 		ptr_job->call_nohalt = callback;
 	} else {
@@ -1386,7 +1386,7 @@ static void udd_ctrl_setup_received(void)
 
 	// Decode setup request
 	if (udc_process_setup() == false) {
-		// Setup request unknow then stall it
+		// Setup request unknown then stall it
 		udd_ctrl_stall_data();
 		udd_ack_setup_received(0);
 		return;
@@ -1447,7 +1447,7 @@ static void udd_ctrl_in_sent(void)
 		udd_ctrl_prev_payload_buf_cnt += udd_ctrl_payload_buf_cnt;
 		if ((udd_g_ctrlreq.req.wLength == udd_ctrl_prev_payload_buf_cnt)
 					|| b_shortpacket) {
-			// All data requested are transfered or a short packet has been sent
+			// All data requested are transferred or a short packet has been sent
 			// then it is the end of data phase.
 			// Generate an OUT ZLP for handshake phase.
 			udd_ctrl_send_zlp_out();
@@ -1516,7 +1516,7 @@ static void udd_ctrl_out_received(void)
 			// End of SETUP request:
 			// - Data IN Phase aborted,
 			// - or last Data IN Phase hidden by ZLP OUT sending quiclky,
-			// - or ZLP OUT received normaly.
+			// - or ZLP OUT received normally.
 			udd_ctrl_endofrequest();
 		} else {
 			// Protocol error during SETUP request
@@ -1544,7 +1544,7 @@ static void udd_ctrl_out_received(void)
 					(udd_ctrl_prev_payload_buf_cnt +
 							udd_ctrl_payload_buf_cnt))) {
 		// End of reception because it is a short packet
-		// Before send ZLP, call intermediat calback
+		// Before send ZLP, call intermediate callback
 		// in case of data receiv generate a stall
 		udd_g_ctrlreq.payload_size = udd_ctrl_payload_buf_cnt;
 		if (NULL != udd_g_ctrlreq.over_under_run) {
@@ -1565,7 +1565,7 @@ static void udd_ctrl_out_received(void)
 	if (udd_g_ctrlreq.payload_size == udd_ctrl_payload_buf_cnt) {
 		// Overrun then request a new payload buffer
 		if (!udd_g_ctrlreq.over_under_run) {
-			// No callback availabled to request a new payload buffer
+			// No callback available to request a new payload buffer
 			udd_ctrl_stall_data();
 			// Ack reception of OUT to replace NAK by a STALL
 			udd_ack_out_received(0);
@@ -1805,7 +1805,7 @@ static void udd_ep_trans_done(udd_ep_id_t ep)
 			// transfer size of UDD_ENDPOINT_MAX_TRANS Bytes
 			next_trans = UDD_ENDPOINT_MAX_TRANS;
 
-			// Set 0 to tranfer the maximum
+			// Set 0 to transfer the maximum
 			udd_dma_ctrl = UOTGHS_DEVDMACONTROL_BUFF_LENGTH(0);
 		} else {
 			udd_dma_ctrl = UOTGHS_DEVDMACONTROL_BUFF_LENGTH(next_trans);
@@ -1850,7 +1850,7 @@ static void udd_ep_trans_done(udd_ep_id_t ep)
 		}
 		cpu_irq_restore(flags);
 
-		// Here a ZLP has been recieved
+		// Here a ZLP has been received
 		// and the DMA transfer must be not started.
 		// It is the end of transfer
 		ptr_job->buf_size = ptr_job->buf_cnt;
@@ -1991,13 +1991,13 @@ static bool udd_ep_interrupt(void)
 			}
 			dbg_print("dma%x: ", ep);
 			udd_disable_endpoint_dma_interrupt(ep);
-			// Save number of data no transfered
+			// Save number of data no transferred
 			nb_remaining = (udd_endpoint_dma_get_status(ep) &
 					UOTGHS_DEVDMASTATUS_BUFF_COUNT_Msk)
 					>> UOTGHS_DEVDMASTATUS_BUFF_COUNT_Pos;
 			if (nb_remaining) {
 				// Transfer no complete (short packet or ZLP) then:
-				// Update number of data transfered
+				// Update number of data transferred
 				ptr_job->buf_cnt -= nb_remaining;
 				// Set transfer complete to stop the transfer
 				ptr_job->buf_size = ptr_job->buf_cnt;
@@ -2056,7 +2056,7 @@ static bool udd_ep_interrupt(void)
 				udd_disable_endpoint_interrupt(ep);
 
 				Assert(ptr_job->stall_requested);
-				// A stall has been requested during backgound transfer
+				// A stall has been requested during background transfer
 				ptr_job->stall_requested = false;
 				udd_disable_endpoint_bank_autoswitch(ep);
 				udd_enable_stall_handshake(ep);

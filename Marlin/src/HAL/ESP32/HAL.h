@@ -32,7 +32,6 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
 #include "i2s.h"
 
 #if ENABLED(WIFISUPPORT)
@@ -49,87 +48,68 @@
 // Defines
 // ------------------------
 
-extern portMUX_TYPE spinlock;
-
-#define MYSERIAL0 flushableSerial
+#define MYSERIAL1 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    #define MYSERIAL1 Serial2Socket
+    typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
+    extern DefaultSerial1 MSerial0;
+    #define MYSERIAL2 MSerial0
   #else
-    #define MYSERIAL1 webSocketSerial
+    #define MYSERIAL2 webSocketSerial
   #endif
 #endif
 
-#define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
-#define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&spinlock)
-#define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
-#define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
-#define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
+#define CRITICAL_SECTION_START() portENTER_CRITICAL(&hal.spinlock)
+#define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&hal.spinlock)
 
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#define PWM_FREQUENCY  1000u   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
+#define PWM_RESOLUTION   10u   // Default PWM bit resolution
+#define CHANNEL_MAX_NUM  15u   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
+#define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
+#ifndef MAX_EXPANDER_BITS
+  #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
+#endif
 
 // ------------------------
 // Types
 // ------------------------
 
+typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 typedef int16_t pin_t;
 
-#define HAL_SERVO_LIB Servo
+typedef struct pwm_pin {
+  uint32_t pwm_cycle_ticks = 1000000UL / (PWM_FREQUENCY) / 4; // # ticks per pwm cycle
+  uint32_t pwm_tick_count = 0;  // current tick count
+  uint32_t pwm_duty_ticks = 0;  // # of ticks for current duty cycle
+} pwm_pin_t;
 
-// ------------------------
-// Public Variables
-// ------------------------
-
-/** result of last ADC conversion */
-extern uint16_t HAL_adc_result;
+class Servo;
+typedef Servo hal_servo_t;
 
 // ------------------------
 // Public functions
 // ------------------------
 
-// clear reset reason
-void HAL_clear_reset_source();
+//
+// Tone
+//
+void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
+void noTone(const pin_t _pin);
+int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res);
+void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq=PWM_FREQUENCY, const uint16_t res=8);
 
-// reset reason
-uint8_t HAL_get_reset_source();
-
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
-
-void _delay_ms(int delay);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-int freeMemory();
-#pragma GCC diagnostic pop
-
-void analogWrite(pin_t pin, int value);
-
-// ADC
-#define HAL_ANALOG_SELECT(pin)
-
-void HAL_adc_init();
-
-#define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC()      HAL_adc_result
-#define HAL_ADC_READY()     true
-
-void HAL_adc_start_conversion(const uint8_t adc_pin);
-
+//
+// Pin Mapping for M42, M43, M226
+//
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-// Enable hooks into idle and setup for HAL
-#define HAL_IDLETASK 1
-#define BOARD_INIT() HAL_init_board();
-void HAL_idletask();
-void HAL_init();
-void HAL_init_board();
+#if ENABLED(USE_ESP32_EXIO)
+  void Write_EXIO(uint8_t IO, uint8_t v);
+#endif
 
 //
 // Delay in cycles (used by DELAY_NS / DELAY_US)
@@ -171,3 +151,96 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
   }
 
 }
+
+// ------------------------
+// Class Utilities
+// ------------------------
+
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+int freeMemory();
+
+#pragma GCC diagnostic pop
+
+void _delay_ms(const int ms);
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+#define HAL_ADC_VREF         3.3
+#define HAL_ADC_RESOLUTION  10
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+
+  static void init() {}        // Called early in setup()
+  static void init_board();    // Called less early in setup()
+  static void reboot();        // Restart the firmware
+
+  // Interrupts
+  static portMUX_TYPE spinlock;
+  static bool isr_state() { return spinlock.owner == portMUX_FREE_VAL; }
+  static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
+  static void isr_off() { portENTER_CRITICAL(&spinlock); }
+
+  static void delay_ms(const int ms) { _delay_ms(ms); }
+
+  // Tasks, called from idle()
+  static void idletask();
+
+  // Reset
+  static uint8_t get_reset_source();
+  static void clear_reset_source() {}
+
+  // Free SRAM
+  static int freeMemory();
+
+  static pwm_pin_t pwm_pin_data[MAX_EXPANDER_BITS];
+
+  //
+  // ADC Methods
+  //
+
+  static uint16_t adc_result;
+
+  // Called by Temperature::init once at startup
+  static void adc_init();
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const pin_t pin) {}
+
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
+  static void adc_start(const pin_t pin);
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return true; }
+
+  // The current value of the ADC register
+  static uint16_t adc_value() { return adc_result; }
+
+  /**
+   * If not already allocated, allocate a hardware PWM channel
+   * to the pin and set the duty cycle..
+   * Optionally invert the duty cycle [default = false]
+   * Optionally change the scale of the provided value to enable finer PWM duty control [default = 255]
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+  /**
+   * Allocate and set the frequency of a hardware PWM pin
+   * Returns -1 if no pin available.
+   */
+  static int8_t set_pwm_frequency(const pin_t pin, const uint32_t f_desired);
+
+};

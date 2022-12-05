@@ -29,9 +29,7 @@
  * printer models. As such this file is currently specific to the Xeed.
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Leapfrog Xeed 2015"
 
@@ -86,7 +84,7 @@
 #define E1_ENABLE_PIN                         33
 
 //
-// Filament runout
+// Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                        42  // ROT2 Connector
 #define FIL_RUNOUT2_PIN                       44  // ROT1 Connector

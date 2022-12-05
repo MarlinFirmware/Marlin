@@ -22,10 +22,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
+
+#if HAS_HOTEND
+  #include "../../module/temperature.h"
+#endif
 
 /**
  * M145: Set the heatup state for a material in the LCD menu
@@ -43,7 +47,7 @@ void GcodeSuite::M145() {
     preheat_t &mat = ui.material_preset[material];
     #if HAS_HOTEND
       if (parser.seenval('H'))
-        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
+        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
     #endif
     #if HAS_HEATED_BED
       if (parser.seenval('B'))
@@ -56,4 +60,23 @@ void GcodeSuite::M145() {
   }
 }
 
-#endif // PREHEAT_COUNT
+void GcodeSuite::M145_report(const bool forReplay/*=true*/) {
+  report_heading(forReplay, F(STR_MATERIAL_HEATUP));
+  LOOP_L_N(i, PREHEAT_COUNT) {
+    report_echo_start(forReplay);
+    SERIAL_ECHOLNPGM_P(
+      PSTR("  M145 S"), i
+      #if HAS_HOTEND
+        , PSTR(" H"), parser.to_temp_units(ui.material_preset[i].hotend_temp)
+      #endif
+      #if HAS_HEATED_BED
+        , SP_B_STR, parser.to_temp_units(ui.material_preset[i].bed_temp)
+      #endif
+      #if HAS_FAN
+        , PSTR(" F"), ui.material_preset[i].fan_speed
+      #endif
+    );
+  }
+}
+
+#endif // HAS_PREHEAT

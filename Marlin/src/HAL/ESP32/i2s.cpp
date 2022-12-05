@@ -23,6 +23,8 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#if DISABLED(USE_ESP32_EXIO)
+
 #include "i2s.h"
 
 #include "../shared/Marduino.h"
@@ -62,12 +64,9 @@ uint32_t i2s_port_data = 0;
 #define I2S_EXIT_CRITICAL()   portEXIT_CRITICAL(&i2s_spinlock[i2s_num])
 
 static inline void gpio_matrix_out_check(uint32_t gpio, uint32_t signal_idx, bool out_inv, bool oen_inv) {
-  //if pin = -1, do not need to configure
-  if (gpio != -1) {
-    PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[gpio], PIN_FUNC_GPIO);
-    gpio_set_direction((gpio_num_t)gpio, (gpio_mode_t)GPIO_MODE_DEF_OUTPUT);
-    gpio_matrix_out(gpio, signal_idx, out_inv, oen_inv);
-  }
+  PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[gpio], PIN_FUNC_GPIO);
+  gpio_set_direction((gpio_num_t)gpio, (gpio_mode_t)GPIO_MODE_DEF_OUTPUT);
+  gpio_matrix_out(gpio, signal_idx, out_inv, oen_inv);
 }
 
 static esp_err_t i2s_reset_fifo(i2s_port_t i2s_num) {
@@ -139,7 +138,7 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
   I2S0.int_clr.val = I2S0.int_st.val; //clear pending interrupt
 }
 
-void stepperTask(void* parameter) {
+void stepperTask(void *parameter) {
   uint32_t remaining = 0;
 
   while (1) {
@@ -184,7 +183,7 @@ int i2s_init() {
 
   // Allocate the array of pointers to the buffers
   dma.buffers = (uint32_t **)malloc(sizeof(uint32_t*) * DMA_BUF_COUNT);
-  if (dma.buffers == nullptr) return -1;
+  if (!dma.buffers) return -1;
 
   // Allocate each buffer that can be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
@@ -194,7 +193,7 @@ int i2s_init() {
 
   // Allocate the array of DMA descriptors
   dma.desc = (lldesc_t**) malloc(sizeof(lldesc_t*) * DMA_BUF_COUNT);
-  if (dma.desc == nullptr) return -1;
+  if (!dma.desc) return -1;
 
   // Allocate each DMA descriptor that will be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
@@ -254,13 +253,7 @@ int i2s_init() {
 
   I2S0.fifo_conf.dscr_en = 0;
 
-  I2S0.conf_chan.tx_chan_mod = (
-    #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
-      4
-    #else
-      0
-    #endif
-  );
+  I2S0.conf_chan.tx_chan_mod = TERN(I2S_STEPPER_SPLIT_STREAM, 4, 0);
   I2S0.fifo_conf.tx_fifo_mod = 0;
   I2S0.conf.tx_mono = 0;
 
@@ -311,9 +304,16 @@ int i2s_init() {
   xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
 
   // Route the i2s pins to the appropriate GPIO
-  gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
-  gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
-  gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
+  // If a pin is not defined, no need to configure
+  #if defined(I2S_DATA) && I2S_DATA >= 0
+    gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
+  #endif
+  #if defined(I2S_BCK) && I2S_BCK >= 0
+    gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
+  #endif
+  #if defined(I2S_WS) && I2S_WS >= 0
+    gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
+  #endif
 
   // Start the I2S peripheral
   return i2s_start(I2S_NUM_0);
@@ -337,7 +337,28 @@ uint8_t i2s_state(uint8_t pin) {
 }
 
 void i2s_push_sample() {
+  // Every 4µs (when space in DMA buffer) toggle each expander PWM output using
+  // the current duty cycle/frequency so they sync with any steps (once
+  // through the DMA/FIFO buffers).  PWM signal inversion handled by other functions
+  LOOP_L_N(p, MAX_EXPANDER_BITS) {
+    if (hal.pwm_pin_data[p].pwm_duty_ticks > 0) { // pin has active pwm?
+      if (hal.pwm_pin_data[p].pwm_tick_count == 0) {
+        if (TEST32(i2s_port_data, p)) {  // hi->lo
+          CBI32(i2s_port_data, p);
+          hal.pwm_pin_data[p].pwm_tick_count = hal.pwm_pin_data[p].pwm_cycle_ticks - hal.pwm_pin_data[p].pwm_duty_ticks;
+        }
+        else { // lo->hi
+          SBI32(i2s_port_data, p);
+          hal.pwm_pin_data[p].pwm_tick_count = hal.pwm_pin_data[p].pwm_duty_ticks;
+        }
+      }
+      else
+        hal.pwm_pin_data[p].pwm_tick_count--;
+    }
+  }
+
   dma.current[dma.rw_pos++] = i2s_port_data;
 }
 
+#endif // !USE_ESP32_EXIO
 #endif // ARDUINO_ARCH_ESP32

@@ -89,7 +89,7 @@ heatshrink_decoder *heatshrink_decoder_alloc(uint16_t input_buffer_size, uint8_t
   size_t buffers_sz = (1 << window_sz2) + input_buffer_size;
   size_t sz = sizeof(heatshrink_decoder) + buffers_sz;
   heatshrink_decoder *hsd = HEATSHRINK_MALLOC(sz);
-  if (hsd == nullptr) return nullptr;
+  if (!hsd) return nullptr;
   hsd->input_buffer_size = input_buffer_size;
   hsd->window_sz2 = window_sz2;
   hsd->lookahead_sz2 = lookahead_sz2;
@@ -124,7 +124,7 @@ void heatshrink_decoder_reset(heatshrink_decoder *hsd) {
 /* Copy SIZE bytes into the decoder's input buffer, if it will fit. */
 HSD_sink_res heatshrink_decoder_sink(heatshrink_decoder *hsd,
   uint8_t *in_buf, size_t size, size_t *input_size) {
-  if (hsd == nullptr || in_buf == nullptr || input_size == nullptr)
+  if (!hsd || !in_buf || !input_size)
     return HSDR_SINK_ERROR_NULL;
 
   size_t rem = HEATSHRINK_DECODER_INPUT_BUFFER_SIZE(hsd) - hsd->input_size;
@@ -160,7 +160,7 @@ static HSD_state st_backref_count_lsb(heatshrink_decoder *hsd);
 static HSD_state st_yield_backref(heatshrink_decoder *hsd, output_info *oi);
 
 HSD_poll_res heatshrink_decoder_poll(heatshrink_decoder *hsd, uint8_t *out_buf, size_t out_buf_size, size_t *output_size) {
-  if (hsd == nullptr || out_buf == nullptr || output_size == nullptr)
+  if (!hsd || !out_buf || !output_size)
     return HSDR_POLL_ERROR_NULL;
 
   *output_size = 0;
@@ -351,7 +351,7 @@ static uint16_t get_bits(heatshrink_decoder *hsd, uint8_t count) {
 }
 
 HSD_finish_res heatshrink_decoder_finish(heatshrink_decoder *hsd) {
-  if (hsd == nullptr) { return HSDR_FINISH_ERROR_NULL; }
+  if (!hsd) return HSDR_FINISH_ERROR_NULL;
   switch (hsd->state) {
     case HSDS_TAG_BIT:
       return hsd->input_size == 0 ? HSDR_FINISH_DONE : HSDR_FINISH_MORE;

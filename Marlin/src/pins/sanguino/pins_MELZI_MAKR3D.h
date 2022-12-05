@@ -26,4 +26,4 @@
  */
 
 #define BOARD_INFO_NAME "Melzi (ATmega1284)"
-#include "pins_MELZI.h"
+#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11

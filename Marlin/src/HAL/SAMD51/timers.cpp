@@ -31,13 +31,13 @@
 // Local defines
 // --------------------------------------------------------------------------
 
-#define NUM_HARDWARE_TIMERS 8
+#define NUM_HARDWARE_TIMERS 9
 
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
 
-const tTimerConfig TimerConfig[NUM_HARDWARE_TIMERS+1] = {
+const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
   { {.pTc=TC0},  TC0_IRQn, TC_PRIORITY(0) },  // 0 - stepper (assigned priority 2)
   { {.pTc=TC1},  TC1_IRQn, TC_PRIORITY(1) },  // 1 - stepper (needed by 32 bit timers)
   { {.pTc=TC2},  TC2_IRQn, 5              },  // 2 - tone (reserved by framework and fixed assigned priority 5)
@@ -67,19 +67,19 @@ FORCE_INLINE void Disable_Irq(IRQn_Type irq) {
 // --------------------------------------------------------------------------
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  IRQn_Type irq = timer_config[timer_num].IRQ_Id;
 
   // Disable interrupt, just in case it was already enabled
   Disable_Irq(irq);
 
-  if (timer_num == RTC_TIMER_NUM) {
-    Rtc * const rtc = TimerConfig[timer_num].pRtc;
+  if (timer_num == MF_TIMER_RTC) {
+    Rtc * const rtc = timer_config[timer_num].pRtc;
 
     // Disable timer interrupt
     rtc->MODE0.INTENCLR.reg = RTC_MODE0_INTENCLR_CMP0;
 
     // RTC clock setup
-    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_XOSC32K;  // External 32.768KHz oscillator
+    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_XOSC32K;  // External 32.768kHz oscillator
 
     // Stop timer, just in case, to be able to reconfigure it
     rtc->MODE0.CTRLA.bit.ENABLE = false;
@@ -101,13 +101,13 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     SYNC(rtc->MODE0.SYNCBUSY.bit.ENABLE);
   }
   else {
-    Tc * const tc = TimerConfig[timer_num].pTc;
+    Tc * const tc = timer_config[timer_num].pTc;
 
     // Disable timer interrupt
     tc->COUNT32.INTENCLR.reg = TC_INTENCLR_OVF; // disable overflow interrupt
 
     // TCn clock setup
-    const uint8_t clockID = GCLK_CLKCTRL_IDs[TCC_INST_NUM + timer_num];   // TC clock are preceeded by TCC ones
+    const uint8_t clockID = GCLK_CLKCTRL_IDs[TCC_INST_NUM + timer_num];   // TC clock are preceded by TCC ones
     GCLK->PCHCTRL[clockID].bit.CHEN = false;
     SYNC(GCLK->PCHCTRL[clockID].bit.CHEN);
     GCLK->PCHCTRL[clockID].reg = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN;   // 120MHz startup code programmed
@@ -141,27 +141,27 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   }
 
   // Finally, enable IRQ
-  NVIC_SetPriority(irq, TimerConfig[timer_num].priority);
+  NVIC_SetPriority(irq, timer_config[timer_num].priority);
   NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   Disable_Irq(irq);
 }
 
 // missing from CMSIS: Check if interrupt is enabled or not
 static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
-  return (NVIC->ISER[(uint32_t)(IRQn) >> 5] & (1 << ((uint32_t)(IRQn) & 0x1F))) != 0;
+  return TEST(NVIC->ISER[uint32_t(IRQn) >> 5], uint32_t(IRQn) & 0x1F);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   return NVIC_GetEnabledIRQ(irq);
 }
 

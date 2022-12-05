@@ -21,17 +21,18 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "STM32F4 supports up to 2 hotends / E-steppers."
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "STM32F4 VAkE supports up to 2 hotends / E steppers."
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
 #define BOARD_INFO_NAME      "STM32F4 VAkE"
 
 //#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K
 
 //
 // Servos
@@ -99,16 +100,16 @@
   #define E1_CS_PIN                         PB0
 #endif
 
-#define SCK_PIN                             PE12  // PA5   // SPI1 for SD card
-#define MISO_PIN                            PE13  // PA6
-#define MOSI_PIN                            PE14  // PA7
+#define SD_SCK_PIN                          PE12  // PA5   // SPI1 for SD card
+#define SD_MISO_PIN                         PE13  // PA6
+#define SD_MOSI_PIN                         PE14  // PA7
 
 // added for SD card : optional or not ???
 //#define SD_CHIP_SELECT_PIN                SDSS  // The default chip select pin for the SD card is SS.
 // The following three pins must not be redefined for hardware SPI.
-//#define SPI_MOSI_PIN                  MOSI_PIN  // SPI Master Out Slave In pin
-//#define SPI_MISO_PIN                  MISO_PIN  // SPI Master In Slave Out pin
-//#define SPI_SCK_PIN                    SCK_PIN  // SPI Clock pin
+//#define SPI_MOSI_PIN               SD_MOSI_PIN  // SPI Master Out Slave In pin
+//#define SPI_MISO_PIN               SD_MISO_PIN  // SPI Master In Slave Out pin
+//#define SPI_SCK_PIN                 SD_SCK_PIN  // SPI Clock pin
 
 //
 // Temperature Sensors (Analog inputs)
@@ -149,8 +150,10 @@
 //
 // Průša i3 MK2 Multi Material Multiplexer Support
 //
-//#define E_MUX0_PIN                        PG3
-//#define E_MUX1_PIN                        PG4
+#if HAS_PRUSA_MMU1
+  //#define E_MUX0_PIN                      PG3
+  //#define E_MUX1_PIN                      PG4
+#endif
 
 #define LED_PIN                             PB14  // Alive
 #define PS_ON_PIN                           PE0
@@ -158,38 +161,66 @@
 #define POWER_LOSS_PIN                      PA4   // ?? Power loss / nAC_FAULT
 
 #if ENABLED(SDSUPPORT)
-  #define SD_DETECT_PIN                     PB7
-  #define SS_PIN                           PB_15  // USD_CS -> CS for onboard SD
+  #define SD_DETECT_PIN              EXP2_07_PIN
+  #define SD_SS_PIN                         PB15  // USD_CS -> CS for onboard SD
 #endif
+
+/**
+ *        ------                  ------
+ *   PC9 | 1  2 | PB12         ? | 1  2 | ?
+ *   PD7 | 3  4 | PC12       PD6 | 3  4 | ?
+ *   PD1 | 5  6   PD2        PD0 | 5  6   ?
+ *   PD3 | 7  8 | PD4        PB7 | 7  8 | RESET
+ *   GND | 9 10 | 5V         GND | 9 10 | 3.3V
+ *        ------                  ------
+ *         EXP1                    EXP2
+ */
+#define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PB12
+#define EXP1_03_PIN                         PD7
+#define EXP1_04_PIN                         PC12
+#define EXP1_05_PIN                         PD1
+#define EXP1_06_PIN                         PD2
+#define EXP1_07_PIN                         PD3
+#define EXP1_08_PIN                         PD4
+
+//#define EXP2_01_PIN                       ?
+//#define EXP2_02_PIN                       ?
+#define EXP2_03_PIN                         PD6
+//#define EXP2_04_PIN                       ?
+#define EXP2_05_PIN                         PD0
+//#define EXP2_06_PIN                       ?
+#define EXP2_07_PIN                         PB7
+#define EXP2_08_PIN                         -1
 
 //
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
+
   #if ENABLED(SDSUPPORT)
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
-  #define BEEPER_PIN                        PC9
-  #define LCD_PINS_RS                       PC12
-  #define LCD_PINS_ENABLE                   PD7
-  #define LCD_PINS_D4                       PD1
-  #define LCD_PINS_D5                       PD2
-  #define LCD_PINS_D6                       PD3
-  #define LCD_PINS_D7                       PD4
-  #define BTN_EN1                           PD6
-  #define BTN_EN2                           PD0
-  #define BTN_ENC                           PB12
+
+  #define BEEPER_PIN                 EXP1_01_PIN
+
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+
+  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
+
 #endif
 
-//
-// ST7920 Delays
-//
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
-#endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               715
 #endif

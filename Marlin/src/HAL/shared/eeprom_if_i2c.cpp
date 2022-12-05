@@ -30,9 +30,21 @@
 #if ENABLED(I2C_EEPROM)
 
 #include "eeprom_if.h"
-#include <Wire.h>
 
-void eeprom_init() { Wire.begin(); }
+#if ENABLED(SOFT_I2C_EEPROM)
+  #include <SlowSoftWire.h>
+  SlowSoftWire Wire = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
+#else
+  #include <Wire.h>
+#endif
+
+void eeprom_init() {
+  Wire.begin(
+    #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+      uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN)
+    #endif
+  );
+}
 
 #if ENABLED(USE_SHARED_EEPROM)
 
@@ -49,12 +61,28 @@ static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRE
 // Public functions
 // ------------------------
 
-void eeprom_write_byte(uint8_t *pos, unsigned char value) {
-  const unsigned eeprom_address = (unsigned)pos;
+#define SMALL_EEPROM (MARLIN_EEPROM_SIZE <= 2048)
 
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // MSB
-  Wire.write(int(eeprom_address & 0xFF)); // LSB
+// Combine Address high bits into the device address on <=16Kbit (2K) and >512Kbit (64K) EEPROMs.
+// Note: MARLIN_EEPROM_SIZE is specified in bytes, whereas EEPROM model numbers refer to bits.
+//       e.g., The "16" in BL24C16 indicates a 16Kbit (2KB) size.
+static uint8_t _eeprom_calc_device_address(uint8_t * const pos) {
+  const unsigned eeprom_address = (unsigned)pos;
+  return (SMALL_EEPROM || MARLIN_EEPROM_SIZE > 65536)
+    ? uint8_t(eeprom_device_address | ((eeprom_address >> (SMALL_EEPROM ? 8 : 16)) & 0x07))
+    : eeprom_device_address;
+}
+
+static void _eeprom_begin(uint8_t * const pos) {
+  const unsigned eeprom_address = (unsigned)pos;
+  Wire.beginTransmission(_eeprom_calc_device_address(pos));
+  if (!SMALL_EEPROM)
+    Wire.write(uint8_t((eeprom_address >> 8) & 0xFF));  // Address High, if needed
+  Wire.write(uint8_t(eeprom_address & 0xFF));           // Address Low
+}
+
+void eeprom_write_byte(uint8_t *pos, uint8_t value) {
+  _eeprom_begin(pos);
   Wire.write(value);
   Wire.endTransmission();
 
@@ -64,13 +92,9 @@ void eeprom_write_byte(uint8_t *pos, unsigned char value) {
 }
 
 uint8_t eeprom_read_byte(uint8_t *pos) {
-  const unsigned eeprom_address = (unsigned)pos;
-
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // MSB
-  Wire.write(int(eeprom_address & 0xFF)); // LSB
+  _eeprom_begin(pos);
   Wire.endTransmission();
-  Wire.requestFrom(eeprom_device_address, (byte)1);
+  Wire.requestFrom(_eeprom_calc_device_address(pos), (byte)1);
   return Wire.available() ? Wire.read() : 0xFF;
 }
 

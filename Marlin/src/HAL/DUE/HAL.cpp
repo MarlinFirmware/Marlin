@@ -25,7 +25,7 @@
 #ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
-#include "HAL.h"
+#include "../../MarlinCore.h"
 
 #include <Wire.h>
 #include "usb/usb_task.h"
@@ -34,36 +34,33 @@
 // Public Variables
 // ------------------------
 
-uint16_t HAL_adc_result;
+uint16_t MarlinHAL::adc_result;
 
 // ------------------------
 // Public functions
 // ------------------------
 
-// HAL initialization task
-void HAL_init() {
-  // Initialize the USB stack
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  extern void install_min_serial();
+#endif
+
+void MarlinHAL::init() {
   #if ENABLED(SDSUPPORT)
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
   #endif
-  usb_task_init();
+  usb_task_init();          // Initialize the USB stack
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
-// HAL idle task
-void HAL_idletask() {
-  // Perform USB stack housekeeping
-  usb_task_idle();
+void MarlinHAL::init_board() {
+  #ifdef BOARD_INIT
+    BOARD_INIT();
+  #endif
 }
 
-// Disable interrupts
-void cli() { noInterrupts(); }
+void MarlinHAL::idletask() { usb_task_idle(); } // Perform USB stack housekeeping
 
-// Enable interrupts
-void sei() { interrupts(); }
-
-void HAL_clear_reset_source() { }
-
-uint8_t HAL_get_reset_source() {
+uint8_t MarlinHAL::get_reset_source() {
   switch ((RSTC->RSTC_SR >> 8) & 0x07) {
     case 0: return RST_POWER_ON;
     case 1: return RST_BACKUP;
@@ -74,10 +71,104 @@ uint8_t HAL_get_reset_source() {
   }
 }
 
-void _delay_ms(const int delay_ms) {
-  // Todo: port for Due?
-  delay(delay_ms);
+void MarlinHAL::reboot() { rstc_start_software_reset(RSTC); }
+
+// ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  // Initialize watchdog - On SAM3X, Watchdog was already configured
+  //  and enabled or disabled at startup, so no need to reconfigure it
+  //  here.
+  void MarlinHAL::watchdog_init() { WDT_Restart(WDT); } // Reset watchdog to start clean
+
+  // Reset watchdog. MUST be called at least every 4 seconds after the
+  // first watchdog_init or AVR will go into emergency procedures.
+  void MarlinHAL::watchdog_refresh() { watchdogReset(); }
+
+#endif
+
+// Override Arduino runtime to either config or disable the watchdog
+//
+// We need to configure the watchdog as soon as possible in the boot
+// process, because watchdog initialization at hardware reset on SAM3X8E
+// is unreliable, and there is risk of unintended resets if we delay
+// that initialization to a later time.
+void watchdogSetup() {
+
+  #if ENABLED(USE_WATCHDOG)
+
+    // 4 seconds timeout
+    uint32_t timeout = TERN(WATCHDOG_DURATION_8S, 8000, 4000);
+
+    // Calculate timeout value in WDT counter ticks: This assumes
+    // the slow clock is running at 32.768 kHz watchdog
+    // frequency is therefore 32768 / 128 = 256 Hz
+    timeout = (timeout << 8) / 1000;
+    if (timeout == 0)
+      timeout = 1;
+    else if (timeout > 0xFFF)
+      timeout = 0xFFF;
+
+    // We want to enable the watchdog with the specified timeout
+    uint32_t value =
+      WDT_MR_WDV(timeout) |               // With the specified timeout
+      WDT_MR_WDD(timeout) |               // and no invalid write window
+    #if !(SAMV70 || SAMV71 || SAME70 || SAMS70)
+      WDT_MR_WDRPROC   |                  // WDT fault resets processor only - We want
+                                          // to keep PIO controller state
+    #endif
+      WDT_MR_WDDBGHLT  |                  // WDT stops in debug state.
+      WDT_MR_WDIDLEHLT;                   // WDT stops in idle state.
+
+    #if ENABLED(WATCHDOG_RESET_MANUAL)
+      // We enable the watchdog timer, but only for the interrupt.
+
+      // Configure WDT to only trigger an interrupt
+      value |= WDT_MR_WDFIEN;             // Enable WDT fault interrupt.
+
+      // Disable WDT interrupt (just in case, to avoid triggering it!)
+      NVIC_DisableIRQ(WDT_IRQn);
+
+      // We NEED memory barriers to ensure Interrupts are actually disabled!
+      // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+      __DSB();
+      __ISB();
+
+      // Initialize WDT with the given parameters
+      WDT_Enable(WDT, value);
+
+      // Configure and enable WDT interrupt.
+      NVIC_ClearPendingIRQ(WDT_IRQn);
+      NVIC_SetPriority(WDT_IRQn, 0); // Use highest priority, so we detect all kinds of lockups
+      NVIC_EnableIRQ(WDT_IRQn);
+
+    #else
+
+      // a WDT fault triggers a reset
+      value |= WDT_MR_WDRSTEN;
+
+      // Initialize WDT with the given parameters
+      WDT_Enable(WDT, value);
+
+    #endif
+
+    // Reset the watchdog
+    WDT_Restart(WDT);
+
+  #else
+
+    // Make sure to completely disable the Watchdog
+    WDT_Disable(WDT);
+
+  #endif
 }
+
+// ------------------------
+// Free Memory Accessor
+// ------------------------
 
 extern "C" {
   extern unsigned int _ebss; // end of bss section
@@ -90,16 +181,21 @@ int freeMemory() {
 }
 
 // ------------------------
-// ADC
+// Serial Ports
 // ------------------------
 
-void HAL_adc_start_conversion(const uint8_t ch) {
-  HAL_adc_result = analogRead(ch);
-}
-
-uint16_t HAL_adc_get_result() {
-  // nop
-  return HAL_adc_result;
-}
+// Forward the default serial ports
+#if USING_HW_SERIAL0
+  DefaultSerial1 MSerial0(false, Serial);
+#endif
+#if USING_HW_SERIAL1
+  DefaultSerial2 MSerial1(false, Serial1);
+#endif
+#if USING_HW_SERIAL2
+  DefaultSerial3 MSerial2(false, Serial2);
+#endif
+#if USING_HW_SERIAL3
+  DefaultSerial4 MSerial3(false, Serial3);
+#endif
 
 #endif // ARDUINO_ARCH_SAM

@@ -25,8 +25,6 @@
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
 
-#include "../../module/stepper.h"
-
 //#define DEBUG_M53
 
 /**
@@ -39,7 +37,7 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   xyz_float_t new_offset{0};
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
     new_offset = coordinate_system[_new];
-  LOOP_XYZ(i) {
+  LOOP_NUM_AXES(i) {
     if (position_shift[i] != new_offset[i]) {
       position_shift[i] = new_offset[i];
       update_workspace_offset((AxisEnum)i);
@@ -69,7 +67,7 @@ void GcodeSuite::G53() {
     process_parsed_command(); // ...process the chained command
     select_coordinate_system(old_system);
     #ifdef DEBUG_M53
-      SERIAL_ECHOLNPAIR("Go back to workspace ", old_system);
+      SERIAL_ECHOLNPGM("Go back to workspace ", old_system);
       report_current_position();
     #endif
   }
@@ -87,7 +85,7 @@ void GcodeSuite::G53() {
 void G54_59(uint8_t subcode=0) {
   const int8_t _space = parser.codenum - 54 + subcode;
   if (gcode.select_coordinate_system(_space)) {
-    SERIAL_ECHOLNPAIR("Select workspace ", _space);
+    SERIAL_ECHOLNPGM("Select workspace ", _space);
     report_current_position();
   }
 }

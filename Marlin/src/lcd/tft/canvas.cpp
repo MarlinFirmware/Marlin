@@ -50,7 +50,7 @@ bool CANVAS::ToScreen() {
 }
 
 void CANVAS::SetBackground(uint16_t color) {
-  /* TODO: test and optimize perfomance */
+  /* TODO: test and optimize performance */
   /*
   uint32_t count = (endLine - startLine) * width;
   uint16_t *pixel = buffer;
@@ -79,7 +79,7 @@ void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, ui
 
 void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) {
   uint16_t *data = (uint16_t *)Images[image].data;
-  if (data == NULL) return;
+  if (!data) return;
 
   uint16_t image_width = Images[image].width,
            image_height = Images[image].height;
@@ -95,7 +95,7 @@ void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
     if (line >= startLine && line < endLine) {
       uint16_t *pixel = buffer + x + (line - startLine) * width;
       for (int16_t j = 0; j < image_width; j++) {
-        if ((x + j >= 0) && (x + j < width)) *pixel = *data;
+        if ((x + j >= 0) && (x + j < width)) *pixel = ENDIAN_COLOR(*data);
         pixel++;
         data++;
       }

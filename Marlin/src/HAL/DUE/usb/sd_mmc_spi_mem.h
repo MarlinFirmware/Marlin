@@ -74,7 +74,7 @@
 #define   SD_MMC_REMOVING      2
 
 
-//---- CONTROL FONCTIONS ----
+//---- CONTROL FUNCTIONS ----
 //!
 //! @brief This function initializes the hw/sw resources required to drive the SD_MMC_SPI.
 //!/
@@ -134,7 +134,7 @@ extern bool           sd_mmc_spi_wr_protect(void);
 extern bool           sd_mmc_spi_removal(void);
 
 
-//---- ACCESS DATA FONCTIONS ----
+//---- ACCESS DATA FUNCTIONS ----
 
 #if ACCESS_USB == true
 // Standard functions for open in read/write mode the device

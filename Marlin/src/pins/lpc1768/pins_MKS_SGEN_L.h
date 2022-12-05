@@ -22,15 +22,15 @@
 #pragma once
 
 /**
- * MKS SGEN-L pin assignments
+ * Makerbase MKS SGEN-L pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGen-L"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
+
+#define USES_DIAG_JUMPERS
 
 //
 // Servos
@@ -52,7 +52,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                      P1_28  // X+
   #else
     #define X_MIN_PIN                      P1_28  // X+
@@ -64,7 +64,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                      P1_26  // Y+
   #else
     #define Y_MIN_PIN                      P1_26  // Y+
@@ -76,7 +76,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                      P1_24  // Z+
   #else
     #define Z_MIN_PIN                      P1_24  // Z+
@@ -165,10 +165,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                  P1_04
   #define X_SERIAL_RX_PIN                  P1_01
 
@@ -189,7 +185,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -204,7 +200,7 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                       P2_06
   #endif
@@ -218,6 +214,15 @@
 #endif
 
 //
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P2_00  // SERVO1
+  #define KILL_PIN                         P1_24  // Z+
+  #define KILL_PIN_STATE                    HIGH
+#endif
+
+//
 // Misc. Functions
 //
 #define LED_PIN                            P1_18  // Used as a status indicator
@@ -225,29 +230,94 @@
 #define LED3_PIN                           P1_20
 #define LED4_PIN                           P1_21
 
-/**
- *                _____                                            _____
- * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
- * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
- * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)           (BTN_EN2)   3.26 | · · | 0.9  (SD_MOSI)
- * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
- *           GND | · · | 5V                                   GND | · · | NC
- *                -----                                            -----
- *                EXP1                                             EXP2
+/**               ------                                        ------
+ * (BEEPER) 1.31 | 1  2 | 1.30 (BTN_ENC)      (MISO)       0.8 | 1  2 | 0.7  (SD_SCK)
+ * (LCD_EN) 0.18 | 3  4 | 0.16 (LCD_RS)       (BTN_EN1)   3.25 | 3  4 | 0.28 (SD_CS2)
+ * (LCD_D4) 0.15   5  6 | 0.17 (LCD_D5)       (BTN_EN2)   3.26   5  6 | 0.9  (SD_MOSI)
+ * (LCD_D6)  1.0 | 7  8 | 1.22 (LCD_D7)       (SD_DETECT) 0.27 | 7  8 | RESET
+ *           GND | 9 10 | 5V                               GND | 9 10 | --
+ *                ------                                        ------
+ *                 EXP1                                          EXP2
  */
+#define EXP1_01_PIN                        P1_31
+#define EXP1_02_PIN                        P1_30
+#define EXP1_03_PIN                        P0_18
+#define EXP1_04_PIN                        P0_16
+#define EXP1_05_PIN                        P0_15
+#define EXP1_06_PIN                        P0_17
+#define EXP1_07_PIN                        P1_00
+#define EXP1_08_PIN                        P1_22
+
+#define EXP2_01_PIN                        P0_08
+#define EXP2_02_PIN                        P0_07
+#define EXP2_03_PIN                        P3_25
+#define EXP2_04_PIN                        P0_28
+#define EXP2_05_PIN                        P3_26
+#define EXP2_06_PIN                        P0_09
+#define EXP2_07_PIN                        P0_27
+#define EXP2_08_PIN                        -1     // RESET
+
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN              EXP2_07_PIN
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #if SD_CONNECTION_IS(ONBOARD)
+    #define ONBOARD_SD_CS_PIN              P0_06  // Chip select for "System" SD card
+    #define SD_SS_PIN          ONBOARD_SD_CS_PIN
+  #else
+    #define SD_SS_PIN                EXP2_04_PIN
+  #endif
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
+#endif
+
 #if HAS_WIRED_LCD
 
-  #define BEEPER_PIN                       P1_31
-  #define BTN_ENC                          P1_30
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS                    P1_00
+    #define LCD_PINS_RS              EXP1_07_PIN
 
-    #define BTN_EN1                        P0_18
-    #define BTN_EN2                        P0_15
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE                P1_22
-    #define LCD_PINS_D4                    P0_17
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
+
+  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+    #define TFT_CS_PIN               EXP1_07_PIN
+    #define TFT_A0_PIN               EXP1_08_PIN
+    #define TFT_DC_PIN               EXP1_08_PIN
+    #define TFT_MISO_PIN             EXP2_01_PIN
+    #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
+    #define TFT_RESET_PIN            EXP1_04_PIN
+
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_INT_PIN            EXP1_06_PIN
+    #define TOUCH_CS_PIN             EXP1_05_PIN
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_RS                    -1
+
+    #ifndef TFT_BUFFER_SIZE
+      #define TFT_BUFFER_SIZE               1200
+    #endif
+    #ifndef TFT_QUEUE_SIZE
+      #define TFT_QUEUE_SIZE                6144
+    #endif
+
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
 
   #elif IS_TFTGLCD_PANEL
 
@@ -255,74 +325,79 @@
     #undef BTN_ENC
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS                   P3_25
+      #define TFTGLCD_CS             EXP2_03_PIN
     #endif
 
   #else
 
-    #define BTN_EN1                        P3_25
-    #define BTN_EN2                        P3_26
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_SDSS                       P0_28
+    #define LCD_SDSS                 EXP2_04_PIN
 
     #if ENABLED(MKS_12864OLED_SSD1306)
 
-      #define LCD_PINS_DC                  P0_17
-      #define DOGLCD_CS                    P0_16
+      #define LCD_PINS_DC            EXP1_06_PIN
+      #define DOGLCD_CS              EXP1_04_PIN
       #define DOGLCD_A0              LCD_PINS_DC
-      #define DOGLCD_SCK                   P0_15
-      #define DOGLCD_MOSI                  P0_18
+      #define DOGLCD_SCK             EXP1_05_PIN
+      #define DOGLCD_MOSI            EXP1_03_PIN
 
-      #define LCD_PINS_RS                  P1_00
-      #define LCD_PINS_D7                  P1_22
+      #define LCD_PINS_RS            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
       #define KILL_PIN                     -1     // NC
 
     #else                                         // !MKS_12864OLED_SSD1306
 
-      #define LCD_PINS_RS                  P0_16
+      #define LCD_PINS_RS            EXP1_04_PIN
 
-      #define LCD_PINS_ENABLE              P0_18
-      #define LCD_PINS_D4                  P0_15
+      #define LCD_PINS_ENABLE        EXP1_03_PIN
+      #define LCD_PINS_D4            EXP1_05_PIN
 
       #if ENABLED(FYSETC_MINI_12864)
 
-        #define DOGLCD_CS                  P0_18
-        #define DOGLCD_A0                  P0_16
-        #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P0_09
+        #define DOGLCD_CS            EXP1_03_PIN
+        #define DOGLCD_A0            EXP1_04_PIN
+        #define DOGLCD_SCK           EXP2_02_PIN
+        #define DOGLCD_MOSI          EXP2_06_PIN
 
         #define LCD_BACKLIGHT_PIN          -1
 
         #define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-        #define LCD_RESET_PIN              P0_15  // Must be high or open for LCD to operate normally.
+        #define LCD_RESET_PIN        EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
         #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
-            #define RGB_LED_R_PIN          P0_17
+            #define RGB_LED_R_PIN    EXP1_06_PIN
           #endif
           #ifndef RGB_LED_G_PIN
-            #define RGB_LED_G_PIN          P1_00
+            #define RGB_LED_G_PIN    EXP1_07_PIN
           #endif
           #ifndef RGB_LED_B_PIN
-            #define RGB_LED_B_PIN          P1_22
+            #define RGB_LED_B_PIN    EXP1_08_PIN
           #endif
         #elif ENABLED(FYSETC_MINI_12864_2_1)
-          #define NEOPIXEL_PIN             P0_17
+          #define NEOPIXEL_PIN       EXP1_06_PIN
         #endif
 
       #else                                       // !FYSETC_MINI_12864
 
         #if ENABLED(MKS_MINI_12864)
-          #define DOGLCD_CS                P0_17
-          #define DOGLCD_A0                P1_00
+          #define DOGLCD_CS          EXP1_06_PIN
+          #define DOGLCD_A0          EXP1_07_PIN
         #endif
 
-        #if ENABLED(ULTIPANEL)
-          #define LCD_PINS_D5              P0_17
-          #define LCD_PINS_D6              P1_00
-          #define LCD_PINS_D7              P1_22
+        #if IS_ULTIPANEL
+          #define LCD_PINS_D5        EXP1_06_PIN
+          #define LCD_PINS_D6        EXP1_07_PIN
+          #define LCD_PINS_D7        EXP1_08_PIN
+
+          #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+            #define BTN_ENC_EN       LCD_PINS_D7  // Detect the presence of the encoder
+          #endif
+
         #endif
 
       #endif // !FYSETC_MINI_12864
@@ -333,29 +408,9 @@
 
 #endif // HAS_WIRED_LCD
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
-#if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
-  #define SD_DETECT_PIN                    P0_27
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #if SD_CONNECTION_IS(ONBOARD)
-    #define SS_PIN             ONBOARD_SD_CS_PIN
-  #else
-    #define SS_PIN                         P0_28
-  #endif
-#elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
-#endif
-
 //
 // Other Pins
 //
 //#define PIN_P0_02                        P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 //#define PIN_P0_03                        P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-//#define PS_ON_PIN                        P1_23  // SERVO P1.23
+//#define PS_ON_PIN                        P1_23  // SERVO0 P1.23

@@ -27,10 +27,11 @@
  * Shield - https://github.com/jmz52/Hardware
  */
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Black STM32F4VET6 supports up to 2 hotends / E-steppers."
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Black STM32F4VET6 supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -41,7 +42,7 @@
 
 //#define I2C_EEPROM
 #define SRAM_EEPROM_EMULATION
-#define MARLIN_EEPROM_SIZE                0x2000  // 8KB
+#define MARLIN_EEPROM_SIZE                0x2000  // 8K
 
 //
 // Servos
@@ -132,28 +133,24 @@
 #define DOGLCD_CS                    LCD_PINS_D5
 #define DOGLCD_A0                    LCD_PINS_D6
 
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #define BTN_ENC_EN                 LCD_PINS_D7  // Detect the presence of the encoder
+#endif
+
 //
 // Onboard SD support
 //
-#define SDIO_D0_PIN                         PC8
-#define SDIO_D1_PIN                         PC9
-#define SDIO_D2_PIN                         PC10
-#define SDIO_D3_PIN                         PC11
-#define SDIO_CK_PIN                         PC12
-#define SDIO_CMD_PIN                        PD2
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
-
-  #ifndef SDIO_SUPPORT
+  #if DISABLED(SDIO_SUPPORT)
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
-    #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SDSS                            PC11
+    #define SD_SCK_PIN                      PC12
+    #define SD_MISO_PIN                     PC8
+    #define SD_MOSI_PIN                     PD2
   #endif
 #endif

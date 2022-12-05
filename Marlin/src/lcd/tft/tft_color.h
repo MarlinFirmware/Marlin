@@ -30,7 +30,8 @@
 #define COLOR(color)          RGB(((color >> 16) & 0xFF), ((color >> 8) & 0xFF), (color & 0xFF))
 #define HALF(color)           RGB(RED(color) >> 1, GREEN(color) >> 1, BLUE(color) >> 1)
 
-// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
 
 #define COLOR_BLACK           0x0000  // #000000
 #define COLOR_WHITE           0xFFFF  // #FFFFFF
@@ -38,7 +39,7 @@
 #define COLOR_GREY            0x7BEF  // #808080
 #define COLOR_DARKGREY        0x4208  // #404040
 #define COLOR_DARKGREY2       0x39E7  // #303030
-#define COLOR_DARK            0x0003  // Some dark color
+#define COLOR_DARK            0x0003  // #000019
 
 #define COLOR_RED             0xF800  // #FF0000
 #define COLOR_SCARLET         0xF904  // #FF2020
@@ -51,7 +52,7 @@
 #define COLOR_CYAN            0x07FF  // #00FFFF
 #define COLOR_AQUA            0x07FF  // #00FFFF
 #define COLOR_DODGER_BLUE     0x041F  // #0080FF
-#define COLOR_VIVID_VIOLET    0x7933 // #772399
+#define COLOR_VIVID_VIOLET    0x7933  // #772399
 
 #define COLOR_DARK_PURPLE     0x9930  // #992380
 
@@ -73,10 +74,10 @@
   #define COLOR_BACKGROUND    0x20AC  // #1E156E
 #endif
 #ifndef COLOR_SELECTION_BG
-  #define COLOR_SELECTION_BG    0x9930  // #992380
+  #define COLOR_SELECTION_BG  0x9930  // #992380
 #endif
 #ifndef COLOR_WEBSITE_URL
-  #define COLOR_WEBSITE_URL     0x03B7
+  #define COLOR_WEBSITE_URL   0x03B7  // #0075BD
 #endif
 
 #ifndef COLOR_INACTIVE
@@ -93,6 +94,9 @@
 #endif
 #ifndef COLOR_CHAMBER
   #define COLOR_CHAMBER           COLOR_DARK_ORANGE
+#endif
+#ifndef COLOR_COOLER
+  #define COLOR_COOLER            COLOR_DARK_ORANGE
 #endif
 #ifndef COLOR_FAN
   #define COLOR_FAN               COLOR_AQUA

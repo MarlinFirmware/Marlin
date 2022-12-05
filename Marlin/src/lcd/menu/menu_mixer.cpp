@@ -26,12 +26,16 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, MIXING_EXTRUDER)
+#if BOTH(HAS_MARLINUI_MENU, MIXING_EXTRUDER)
 
 #include "menu_item.h"
 #include "menu_addon.h"
 
 #include "../../feature/mixing.h"
+
+#if HAS_GRAPHICAL_TFT
+  #include "../tft/tft.h"
+#endif
 
 #define CHANNEL_MIX_EDITING !HAS_DUAL_MIXING
 
@@ -53,7 +57,7 @@
     if (ui.should_draw()) {
       char tmp[16];
       SETCURSOR(1, (LCD_HEIGHT - 1) / 2);
-      lcd_put_u8str_P(isend ? GET_TEXT(MSG_END_Z) : GET_TEXT(MSG_START_Z));
+      lcd_put_u8str(isend ? GET_TEXT_F(MSG_END_Z) : GET_TEXT_F(MSG_START_Z));
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(zvar), int(zvar * 10) % 10);
       SETCURSOR_RJ(9, (LCD_HEIGHT - 1) / 2);
       lcd_put_u8str(tmp);
@@ -66,6 +70,9 @@
         mixer.gradient.end_z = zvar;
       mixer.refresh_gradient();
       ui.goto_previous_screen();
+    }
+    else {
+      TERN_(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
     }
   }
 
@@ -82,15 +89,15 @@
 
     char tmp[18];
 
-    PGM_P const slabel = GET_TEXT(MSG_START_Z);
-    SUBMENU_P(slabel, []{ _lcd_mixer_gradient_z_edit(false); });
+    FSTR_P const slabel = GET_TEXT_F(MSG_START_Z);
+    SUBMENU_F(slabel, []{ _lcd_mixer_gradient_z_edit(false); });
     MENU_ITEM_ADDON_START_RJ(11);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
       lcd_put_u8str(tmp);
     MENU_ITEM_ADDON_END();
 
-    PGM_P const elabel = GET_TEXT(MSG_END_Z);
-    SUBMENU_P(elabel, []{ _lcd_mixer_gradient_z_edit(true); });
+    FSTR_P const elabel = GET_TEXT_F(MSG_END_Z);
+    SUBMENU_F(elabel, []{ _lcd_mixer_gradient_z_edit(true); });
     MENU_ITEM_ADDON_START_RJ(11);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
       lcd_put_u8str(tmp);
@@ -107,7 +114,7 @@ static uint8_t v_index;
   void _lcd_draw_mix(const uint8_t y) {
     char tmp[20]; // "100%_100%"
     sprintf_P(tmp, PSTR("%3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
-    SETCURSOR(2, y); lcd_put_u8str_P(GET_TEXT(MSG_MIX));
+    SETCURSOR(2, y); lcd_put_u8str(GET_TEXT_F(MSG_MIX));
     SETCURSOR_RJ(10, y); lcd_put_u8str(tmp);
   }
 #endif
@@ -154,6 +161,8 @@ void lcd_mixer_mix_edit() {
       mixer.update_vtool_from_mix();
       ui.goto_previous_screen();
     }
+
+    TERN_(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
 
   #else
 
@@ -244,11 +253,11 @@ void menu_mixer() {
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
     []{
       mixer.reset_vtools();
-      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
+      LCD_MESSAGE(MSG_VTOOLS_RESET);
       ui.return_to_status();
     },
     nullptr,
-    GET_TEXT(MSG_RESET_VTOOLS), (const char *)nullptr, PSTR("?")
+    GET_TEXT_F(MSG_RESET_VTOOLS), (const char *)nullptr, F("?")
   );
 
   #if ENABLED(GRADIENT_MIX)
@@ -266,4 +275,4 @@ void menu_mixer() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && MIXING_EXTRUDER
+#endif // HAS_MARLINUI_MENU && MIXING_EXTRUDER

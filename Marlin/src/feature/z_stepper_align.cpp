@@ -33,51 +33,35 @@
 
 ZStepperAlign z_stepper_align;
 
-xy_pos_t ZStepperAlign::xy[NUM_Z_STEPPER_DRIVERS];
+xy_pos_t ZStepperAlign::xy[NUM_Z_STEPPERS];
 
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  xy_pos_t ZStepperAlign::stepper_xy[NUM_Z_STEPPER_DRIVERS];
+#if HAS_Z_STEPPER_ALIGN_STEPPER_XY
+  xy_pos_t ZStepperAlign::stepper_xy[NUM_Z_STEPPERS];
 #endif
 
 void ZStepperAlign::reset_to_default() {
   #ifdef Z_STEPPER_ALIGN_XY
 
     constexpr xy_pos_t xy_init[] = Z_STEPPER_ALIGN_XY;
-    static_assert(COUNT(xy_init) == NUM_Z_STEPPER_DRIVERS,
+    static_assert(COUNT(xy_init) == NUM_Z_STEPPERS,
       "Z_STEPPER_ALIGN_XY requires "
-      #if NUM_Z_STEPPER_DRIVERS == 4
+      #if NUM_Z_STEPPERS == 4
         "four {X,Y} entries (Z, Z2, Z3, and Z4)."
-      #elif NUM_Z_STEPPER_DRIVERS == 3
+      #elif NUM_Z_STEPPERS == 3
         "three {X,Y} entries (Z, Z2, and Z3)."
       #else
         "two {X,Y} entries (Z and Z2)."
       #endif
     );
 
-    constexpr xyz_pos_t dpo = NOZZLE_TO_PROBE_OFFSET;
+    #define VALIDATE_ALIGN_POINT(N) static_assert(N >= NUM_Z_STEPPERS || Probe::build_time::can_reach(xy_init[N]), \
+      "Z_STEPPER_ALIGN_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
+    VALIDATE_ALIGN_POINT(0); VALIDATE_ALIGN_POINT(1); VALIDATE_ALIGN_POINT(2); VALIDATE_ALIGN_POINT(3);
 
-    #define LTEST(N) (xy_init[N].x >= _MAX(X_MIN_BED + PROBING_MARGIN_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
-    #define RTEST(N) (xy_init[N].x <= _MIN(X_MAX_BED - PROBING_MARGIN_RIGHT, X_MAX_POS + dpo.x) + 0.00001f)
-    #define FTEST(N) (xy_init[N].y >= _MAX(Y_MIN_BED + PROBING_MARGIN_FRONT, Y_MIN_POS + dpo.y) - 0.00001f)
-    #define BTEST(N) (xy_init[N].y <= _MIN(Y_MAX_BED - PROBING_MARGIN_BACK,  Y_MAX_POS + dpo.y) + 0.00001f)
-
-    static_assert(LTEST(0) && RTEST(0), "The 1st Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-    static_assert(FTEST(0) && BTEST(0), "The 1st Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-    static_assert(LTEST(1) && RTEST(1), "The 2nd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-    static_assert(FTEST(1) && BTEST(1), "The 2nd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-    #if NUM_Z_STEPPER_DRIVERS >= 3
-      static_assert(LTEST(2) && RTEST(2), "The 3rd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-      static_assert(FTEST(2) && BTEST(2), "The 3rd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-      #if NUM_Z_STEPPER_DRIVERS >= 4
-        static_assert(LTEST(3) && RTEST(3), "The 4th Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-        static_assert(FTEST(3) && BTEST(3), "The 4th Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-      #endif
-    #endif
-
-  #else // !defined(Z_STEPPER_ALIGN_XY)
+  #else // !Z_STEPPER_ALIGN_XY
 
     const xy_pos_t xy_init[] = {
-      #if NUM_Z_STEPPER_DRIVERS >= 3  // First probe point...
+      #if NUM_Z_STEPPERS >= 3  // First probe point...
         #if !Z_STEPPERS_ORIENTATION
           { probe.min_x(), probe.min_y() }, // SW
         #elif Z_STEPPERS_ORIENTATION == 1
@@ -89,7 +73,7 @@ void ZStepperAlign::reset_to_default() {
         #else
           #error "Z_STEPPERS_ORIENTATION must be from 0 to 3 (first point SW, NW, NE, SE)."
         #endif
-        #if NUM_Z_STEPPER_DRIVERS == 4    // 3 more points...
+        #if NUM_Z_STEPPERS == 4    // 3 more points...
           #if !Z_STEPPERS_ORIENTATION
             { probe.min_x(), probe.max_y() }, { probe.max_x(), probe.max_y() }, { probe.max_x(), probe.min_y() }  // SW
           #elif Z_STEPPERS_ORIENTATION == 1
@@ -115,18 +99,18 @@ void ZStepperAlign::reset_to_default() {
       #endif
     };
 
-  #endif // !defined(Z_STEPPER_ALIGN_XY)
+  #endif // !Z_STEPPER_ALIGN_XY
 
   COPY(xy, xy_init);
 
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
     constexpr xy_pos_t stepper_xy_init[] = Z_STEPPER_ALIGN_STEPPER_XY;
     static_assert(
-      COUNT(stepper_xy_init) == NUM_Z_STEPPER_DRIVERS,
+      COUNT(stepper_xy_init) == NUM_Z_STEPPERS,
       "Z_STEPPER_ALIGN_STEPPER_XY requires "
-      #if NUM_Z_STEPPER_DRIVERS == 4
+      #if NUM_Z_STEPPERS == 4
         "four {X,Y} entries (Z, Z2, Z3, and Z4)."
-      #elif NUM_Z_STEPPER_DRIVERS == 3
+      #elif NUM_Z_STEPPERS == 3
         "three {X,Y} entries (Z, Z2, and Z3)."
       #endif
     );

@@ -1,0 +1,4 @@
+{
+	"folders": [ { "path": "../../.." } ],
+	"extensions": { "recommendations": [ "marlinfirmware.auto-build" ] }
+}

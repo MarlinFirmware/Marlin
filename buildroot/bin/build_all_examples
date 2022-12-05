@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+#
+# Usage:
+#
+#  build_all_examples [-b|--branch=<branch>] - Branch to fetch from Configurations repo
+#                     [-c|--continue]        - Continue the paused build
+#                     [-d|--debug]           - Print extra debug output
+#                     [-i|--ini]             - Archive ini/json/yml files in the temp config folder
+#                     [-l|--limit=#]         - Limit the number of builds in this run
+#                     [-n|--nobuild]         - Don't actually build anything.
+#                     [-r|--resume=<path>]   - Start at some config in the filesystem order
+#                     [-s|--skip]            - Do the thing
+#
+# build_all_examples [...] branch [resume-from]
+#
+
+. mfutil
+
+GITREPO=https://github.com/MarlinFirmware/Configurations.git
+STAT_FILE=./.pio/.buildall
+
+usage() { echo "
+Usage: $SELF [-b|--branch=<branch>] [-d|--debug] [-i|--ini] [-r|--resume=<path>]
+       $SELF [-b|--branch=<branch>] [-d|--debug] [-i|--ini] [-c|--continue]
+       $SELF [-b|--branch=<branch>] [-d|--debug] [-i|--ini] [-s|--skip]
+       $SELF [-b|--branch=<branch>] [-d|--debug] [-n|--nobuild]
+       $SELF [...] branch [resume-point]
+"
+}
+
+# Assume the most recent configs
+BRANCH=import-2.1.x
+unset FIRST_CONF
+EXIT_USAGE=
+LIMIT=1000
+
+while getopts 'b:cdhil:nqr:sv-:' OFLAG; do
+  case "${OFLAG}" in
+    b) BRANCH=$OPTARG       ; bugout "Branch: $BRANCH" ;;
+    r) FIRST_CONF="$OPTARG" ; bugout "Resume: $FIRST_CONF" ;;
+    c) CONTINUE=1           ; bugout "Continue" ;;
+    s) CONTSKIP=1           ; bugout "Continue, skipping" ;;
+    i) COPY_INI=1           ; bugout "Archive INI/JSON/YML files" ;;
+    h) EXIT_USAGE=1 ; break ;;
+    l) LIMIT=$OPTARG        ; bugout "Limit to $LIMIT build(s)" ;;
+  d|v) DEBUG=1              ; bugout "Debug ON" ;;
+    n) DRYRUN=1             ; bugout "Dry Run" ;;
+    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+       case "$ONAM" in
+       branch) BRANCH=$OVAL       ; bugout "Branch: $BRANCH" ;;
+       resume) FIRST_CONF="$OVAL" ; bugout "Resume: $FIRST_CONF" ;;
+     continue) CONTINUE=1   ; bugout "Continue" ;;
+         skip) CONTSKIP=2   ; bugout "Continue, skipping" ;;
+        limit) LIMIT=$OVAL  ; bugout "Limit to $LIMIT build(s)" ;;
+          ini) COPY_INI=1   ; bugout "Archive INI/JSON/YML files" ;;
+         help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
+        debug) DEBUG=1      ; bugout "Debug ON" ;;
+      nobuild) DRYRUN=1     ; bugout "Dry Run" ;;
+            *) EXIT_USAGE=2 ; echo "$SELF: unrecognized option \`--$ONAM'" ; break ;;
+       esac
+       ;;
+    *) EXIT_USAGE=2 ; break ;;
+  esac
+done
+
+# Extra arguments count as BRANCH, FIRST_CONF
+shift $((OPTIND - 1))
+[[ $# > 0 ]] && { BRANCH=$1 ; shift 1 ; bugout "BRANCH=$BRANCH" ; }
+[[ $# > 0 ]] && { FIRST_CONF=$1 ; shift 1 ; bugout "FIRST_CONF=$FIRST_CONF" ; }
+[[ $# > 0 ]] && { EXIT_USAGE=2 ; echo "too many arguments" ; }
+
+((EXIT_USAGE)) && { usage ; let EXIT_USAGE-- ; exit $EXIT_USAGE ; }
+
+echo "This script downloads each Configuration and attempts to build it."
+echo "On failure the last-built configs will be left in your working copy."
+echo "Restore your configs with 'git checkout -f' or 'git reset --hard HEAD'."
+
+if [[ -f "$STAT_FILE" ]]; then
+  IFS='*' read BRANCH FIRST_CONF <"$STAT_FILE"
+fi
+
+# If -c is given start from the last attempted build
+if ((CONTINUE)); then
+  if [[ -z $BRANCH || -z $FIRST_CONF ]]; then
+    echo "Nothing to continue"
+    exit
+  fi
+elif ((CONTSKIP)); then
+  if [[ -n $BRANCH && -n $FIRST_CONF ]]; then
+    SKIP_CONF=1
+  else
+    echo "Nothing to skip"
+    exit
+  fi
+fi
+
+# Check if the current repository has unmerged changes
+if [[ $SKIP_CONF ]]; then
+  echo "Skipping $FIRST_CONF"
+elif [[ $FIRST_CONF ]]; then
+  echo "Resuming from $FIRST_CONF"
+else
+  git diff --quiet || { echo "The working copy is modified. Commit or stash changes before proceeding."; exit ; }
+fi
+
+# Create a temporary folder inside .pio
+TMP=./.pio/build-$BRANCH
+[[ -d "$TMP" ]] || mkdir -p $TMP
+
+# Download Configurations into the temporary folder
+if [[ ! -e "$TMP/README.md" ]]; then
+  echo "Fetching Configurations from GitHub to $TMP"
+  git clone --depth=1 --single-branch --branch "$BRANCH" $GITREPO "$TMP" || { echo "Failed to clone the configuration repository"; exit ; }
+else
+  echo "Using cached Configurations at $TMP"
+fi
+
+echo -e "Start build...\n====================="
+shopt -s nullglob
+IFS='
+'
+CONF_TREE=$( ls -d "$TMP"/config/examples/*/ "$TMP"/config/examples/*/*/ "$TMP"/config/examples/*/*/*/ "$TMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
+for CONF in $CONF_TREE ; do
+
+  # Get a config's directory name
+  DIR=$( echo $CONF | sed "s|$TMP/config/examples/||" )
+
+  # If looking for a config, skip others
+  [[ $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
+  # Once found, stop looking
+  unset FIRST_CONF
+
+  # If skipping, don't build the found one
+  [[ $SKIP_CONF ]] && { unset SKIP_CONF ; continue ; }
+
+  # ...if skipping, don't build this one
+  compgen -G "${CONF}Con*.h" > /dev/null || continue
+
+  # Build or print build command for --nobuild
+  if [[ $DRYRUN ]]; then
+    echo -e "\033[0;32m[DRYRUN] build_example internal \"$TMP\" \"$DIR\"\033[0m"
+  else
+    # Remember where we are in case of failure
+    echo "${BRANCH}*${DIR}" >"$STAT_FILE"
+    # Build folder is unknown so delete all report files
+    if [[ $COPY_INI ]]; then
+      IFIND='find ./.pio/build/ -name "config.ini" -o -name "schema.json" -o -name "schema.yml"'
+      $IFIND -exec rm "{}" \;
+    fi
+    ((DEBUG)) && echo "\"$HERE/build_example\" internal \"$TMP\" \"$DIR\""
+    "$HERE/build_example" internal "$TMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
+    # Build folder is unknown so copy all report files
+    [[ $COPY_INI ]] && $IFIND -exec cp "{}" "$CONF" \;
+  fi
+
+  ((--LIMIT)) || { echo "Limit reached" ; PAUSE=1 ; break ; }
+
+done
+
+# Delete the build state if not paused early
+[[ $PAUSE ]] || rm "$STAT_FILE"
+
+# Delete the temp folder if not preserving generated INI files
+if [[ -e "$TMP/config/examples" ]]; then
+  if [[ $COPY_INI ]]; then
+    OPEN=$( which gnome-open xdg-open open | head -n1 )
+    $OPEN "$TMP"
+  elif [[ ! $PAUSE ]]; then
+    rm -rf "$TMP"
+  fi
+fi

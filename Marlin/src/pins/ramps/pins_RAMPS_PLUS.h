@@ -23,10 +23,6 @@
 
 /**
  * Arduino Mega with RAMPS v1.4Plus, also known as 3DYMY version, pin assignments
- * The differences to the RAMPS v1.4 are:
- *  - Swap heater E0 with E1
- *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
- *  - Change pins 16->42, 17->44 and 29->53 used for display.
  *
  * Applies to the following boards:
  *
@@ -35,51 +31,64 @@
  *  RAMPS_PLUS_EFF (Extruder, Fan, Fan)
  *  RAMPS_PLUS_EEF (Extruder, Extruder, Fan)
  *  RAMPS_PLUS_SF  (Spindle, Controller Fan)
+ *
+ * Differences from RAMPS v1.4:
+ *  - Swap heater E0 with E1
+ *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
+ *  - Change EXP1/2 pins
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
- #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RAMPS 1.4 Plus"
 
-#define RAMPS_D8_PIN                          10
-#define RAMPS_D10_PIN                          8
-
-#include "pins_RAMPS.h"
+#define MOSFET_A_PIN                           8
+#define MOSFET_C_PIN                          10
 
 //
-// Steppers - Swap E0 / E1 on 3DYMY
+// Steppers
 //
-#undef E0_STEP_PIN
-#undef E0_DIR_PIN
-#undef E0_ENABLE_PIN
+#define X_CS_PIN                              -1
+#define Y_CS_PIN                              -1
+#define Z_CS_PIN                              -1
 
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-
+// Swap E0 / E1 on 3DYMY
 #define E0_STEP_PIN                           36
 #define E0_DIR_PIN                            34
 #define E0_ENABLE_PIN                         30
+#define E0_CS_PIN                             -1
 
 #define E1_STEP_PIN                           26
 #define E1_DIR_PIN                            28
 #define E1_ENABLE_PIN                         24
+#define E1_CS_PIN                             -1
 
-#undef X_CS_PIN
-#undef Y_CS_PIN
-#undef Z_CS_PIN
-#undef E0_CS_PIN
-#undef E1_CS_PIN
+/**             3DYMY Expansion Headers
+ *         ------                     ------
+ *     37 | 1  2 | 35      (MISO) 50 | 1  2 | 52 (SCK)
+ *     31 | 3  4 | 41             29 | 3  4 | 53
+ *     33   5  6 | 23             25   5  6 | 51 (MOSI)
+ *     42 | 7  8 | 44             49 | 7  8 | 27
+ *    GND | 9 10 | 5V            GND | 9 10 | --
+ *         ------                     ------
+ *          EXP1                       EXP2
+ */
+#define EXP1_01_PIN                           37
+#define EXP1_02_PIN                           35
+#define EXP1_03_PIN                           31
+#define EXP1_04_PIN                           41
+#define EXP1_05_PIN                           33
+#define EXP1_06_PIN                           23
+#define EXP1_07_PIN                           42
+#define EXP1_08_PIN                           44
 
-#if ENABLED(ULTRA_LCD) && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(NEWPANEL, PANEL_ONE)
-  #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
-    #undef LCD_PINS_RS
-    #define LCD_PINS_RS                       42  // 3DYMY boards pin 16 -> 42
-    #undef LCD_PINS_ENABLE
-    #define LCD_PINS_ENABLE                   44  // 3DYMY boards pin 17 -> 44
-  #endif
-  #undef LCD_PINS_D7
-  #define LCD_PINS_D7                         53  // 3DYMY boards pin 29 -> 53
-#endif
+#define EXP2_01_PIN                           50
+#define EXP2_02_PIN                           52
+#define EXP2_03_PIN                           29
+#define EXP2_04_PIN                           53
+#define EXP2_05_PIN                           25
+#define EXP2_06_PIN                           51
+#define EXP2_07_PIN                           49
+#define EXP2_08_PIN                           27
+
+#include "pins_RAMPS.h"

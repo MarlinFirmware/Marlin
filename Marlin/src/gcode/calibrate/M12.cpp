@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)

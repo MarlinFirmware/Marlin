@@ -128,24 +128,21 @@ static UnwResult UnwTabStateInit(const UnwindCallbacks *cb, UnwTabState *ucb, ui
  * Execute unwinding instructions
  */
 static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabState *ucb) {
-
   int instruction;
-  uint32_t mask;
-  uint32_t reg;
-  uint32_t vsp;
+  uint32_t mask, reg, vsp;
 
   /* Consume all instruction byte */
   while ((instruction = UnwTabGetNextInstruction(cb, ucb)) != -1) {
 
     if ((instruction & 0xC0) == 0x00) { // ARM_EXIDX_CMD_DATA_POP
-      /* vsp = vsp + (xxxxxx << 2) + 4 */
+      /* vsp += (xxxxxx << 2) + 4 */
       ucb->vrs[13] += ((instruction & 0x3F) << 2) + 4;
-    } else
-    if ((instruction & 0xC0) == 0x40) { // ARM_EXIDX_CMD_DATA_PUSH
-      /* vsp = vsp - (xxxxxx << 2) - 4 */
+    }
+    else if ((instruction & 0xC0) == 0x40) { // ARM_EXIDX_CMD_DATA_PUSH
+      /* vsp -= (xxxxxx << 2) - 4 */
       ucb->vrs[13] -= ((instruction & 0x3F) << 2) - 4;
-    } else
-    if ((instruction & 0xF0) == 0x80) {
+    }
+    else if ((instruction & 0xF0) == 0x80) {
       /* pop under mask {r15-r12},{r11-r4} or refuse to unwind */
       instruction = instruction << 8 | UnwTabGetNextInstruction(cb, ucb);
 
@@ -171,17 +168,17 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       }
 
       /* Patch up the vrs sp if it was in the mask */
-      if ((instruction & (1 << (13 - 4))) != 0)
+      if (instruction & (1 << (13 - 4)))
         ucb->vrs[13] = vsp;
-
-    } else
-    if ((instruction & 0xF0) == 0x90 && // ARM_EXIDX_CMD_REG_TO_SP
-        instruction != 0x9D &&
-        instruction != 0x9F) {
+    }
+    else if ((instruction & 0xF0) == 0x90 // ARM_EXIDX_CMD_REG_TO_SP
+           && instruction != 0x9D
+           && instruction != 0x9F
+    ) {
       /* vsp = r[nnnn] */
       ucb->vrs[13] = ucb->vrs[instruction & 0x0F];
-    } else
-    if ((instruction & 0xF0) == 0xA0) { // ARM_EXIDX_CMD_REG_POP
+    }
+    else if ((instruction & 0xF0) == 0xA0) { // ARM_EXIDX_CMD_REG_POP
       /* pop r4-r[4+nnn] or pop r4-r[4+nnn], r14*/
       vsp = ucb->vrs[13];
 
@@ -204,8 +201,8 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
 
       ucb->vrs[13] = vsp;
 
-    } else
-    if (instruction == 0xB0) { // ARM_EXIDX_CMD_FINISH
+    }
+    else if (instruction == 0xB0) { // ARM_EXIDX_CMD_FINISH
       /* finished */
       if (ucb->vrs[15] == 0)
         ucb->vrs[15] = ucb->vrs[14];
@@ -213,8 +210,8 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       /* All done unwinding */
       return UNWIND_SUCCESS;
 
-    } else
-    if (instruction == 0xB1) { // ARM_EXIDX_CMD_REG_POP
+    }
+    else if (instruction == 0xB1) { // ARM_EXIDX_CMD_REG_POP
       /* pop register under mask {r3,r2,r1,r0} */
       vsp = ucb->vrs[13];
       mask = UnwTabGetNextInstruction(cb, ucb);
@@ -234,16 +231,15 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       }
       ucb->vrs[13] = (uint32_t)vsp;
 
-    } else
-    if (instruction == 0xB2) { // ARM_EXIDX_CMD_DATA_POP
+    }
+    else if (instruction == 0xB2) { // ARM_EXIDX_CMD_DATA_POP
       /* vps = vsp + 0x204 + (uleb128 << 2) */
       ucb->vrs[13] += 0x204 + (UnwTabGetNextInstruction(cb, ucb) << 2);
-
-    } else
-    if (instruction == 0xB3 || // ARM_EXIDX_CMD_VFP_POP
-      instruction == 0xC8 ||
-      instruction == 0xC9) {
-
+    }
+    else if (instruction == 0xB3 // ARM_EXIDX_CMD_VFP_POP
+          || instruction == 0xC8
+          || instruction == 0xC9
+    ) {
       /* pop VFP double-precision registers */
       vsp = ucb->vrs[13];
 
@@ -266,27 +262,20 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       }
 
       ucb->vrs[13] = vsp;
-
-    } else
-    if ((instruction & 0xF8) == 0xB8 ||
-        (instruction & 0xF8) == 0xD0) {
-
+    }
+    else if ((instruction & 0xF8) == 0xB8 || (instruction & 0xF8) == 0xD0) {
       /* Pop VFP double precision registers D[8]-D[8+nnn] */
       ucb->vrs[14] = 0x80 | (instruction & 0x07);
-
-      if ((instruction & 0xF8) == 0xD0) {
+      if ((instruction & 0xF8) == 0xD0)
         ucb->vrs[14] = 1 << 17;
-      }
-
-    } else
+    }
+    else
       return UNWIND_UNSUPPORTED_DWARF_INSTR;
   }
-
   return UNWIND_SUCCESS;
 }
 
 static inline __attribute__((always_inline)) uint32_t read_psp() {
-
   /* Read the current PSP and return its value as a pointer */
   uint32_t psp;
 

@@ -31,6 +31,17 @@
 typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
 
+/**
+ * For a light i2c protocol that runs on two boards running Marlin see:
+ * See https://github.com/MarlinFirmware/Marlin/issues/4776#issuecomment-246262879
+ */
+#if I2C_SLAVE_ADDRESS > 0
+
+  void i2c_on_receive(int bytes); // Demo i2c onReceive handler
+  void i2c_on_request();          // Demo i2c onRequest handler
+
+#endif
+
 #define TWIBUS_BUFFER_SIZE 32
 
 /**
@@ -131,7 +142,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    static void echoprefix(uint8_t bytes, const char prefix[], uint8_t adr);
+    static void echoprefix(uint8_t bytes, FSTR_P const prefix, uint8_t adr);
 
     /**
      * @brief Echo data on the bus to serial
@@ -139,8 +150,9 @@ class TWIBus {
      *          to serial in a parser-friendly format.
      *
      * @param bytes the number of bytes to request
+     * @param style Output format for the bytes, 0 = Raw byte [default], 1 = Hex characters, 2 = uint16_t
      */
-    static void echodata(uint8_t bytes, const char prefix[], uint8_t adr);
+    static void echodata(uint8_t bytes, FSTR_P const prefix, uint8_t adr, const uint8_t style=0);
 
     /**
      * @brief Echo data in the buffer to serial
@@ -149,7 +161,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    void echobuffer(const char prefix[], uint8_t adr);
+    void echobuffer(FSTR_P const prefix, uint8_t adr);
 
     /**
      * @brief Request data from the slave device and wait.
@@ -181,10 +193,11 @@ class TWIBus {
      * @brief Request data from the slave device, echo to serial.
      * @details Request a number of bytes from a slave device and output
      *          the returned data to serial in a parser-friendly format.
+     * @style Output format for the bytes, 0 = raw byte [default], 1 = Hex characters, 2 = uint16_t
      *
      * @param bytes the number of bytes to request
      */
-    void relay(const uint8_t bytes);
+    void relay(const uint8_t bytes, const uint8_t style=0);
 
     #if I2C_SLAVE_ADDRESS > 0
 
@@ -226,15 +239,16 @@ class TWIBus {
        * @brief Prints a debug message
        * @details Prints a simple debug message "TWIBus::function: value"
        */
-      static void prefix(const char func[]);
-      static void debug(const char func[], uint32_t adr);
-      static void debug(const char func[], char c);
-      static void debug(const char func[], char adr[]);
-      static inline void debug(const char func[], uint8_t v) { debug(func, (uint32_t)v); }
+      static void prefix(FSTR_P const func);
+      static void debug(FSTR_P const func, uint32_t adr);
+      static void debug(FSTR_P const func, char c);
+      static void debug(FSTR_P const func, char adr[]);
     #else
-      static inline void debug(const char[], uint32_t) {}
-      static inline void debug(const char[], char) {}
-      static inline void debug(const char[], char[]) {}
-      static inline void debug(const char[], uint8_t) {}
+      static void debug(FSTR_P const, uint32_t) {}
+      static void debug(FSTR_P const, char) {}
+      static void debug(FSTR_P const, char[]) {}
     #endif
+    static void debug(FSTR_P const func, uint8_t v) { debug(func, (uint32_t)v); }
 };
+
+extern TWIBus i2c;

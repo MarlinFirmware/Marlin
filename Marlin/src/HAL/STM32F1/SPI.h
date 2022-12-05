@@ -138,8 +138,8 @@ private:
   spi_dev *spi_d;
   dma_channel spiRxDmaChannel, spiTxDmaChannel;
   dma_dev* spiDmaDev;
-  void (*receiveCallback)() = NULL;
-  void (*transmitCallback)() = NULL;
+  void (*receiveCallback)() = nullptr;
+  void (*transmitCallback)() = nullptr;
 
   friend class SPIClass;
 };
@@ -162,6 +162,11 @@ public:
    * @param spiPortNumber Number of the SPI port to manage.
    */
   SPIClass(uint32_t spiPortNumber);
+
+  /**
+   * Init using pins
+   */
+  SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel=-1);
 
   /**
    * @brief Equivalent to begin(SPI_1_125MHZ, MSBFIRST, 0).
@@ -408,13 +413,5 @@ private:
   BitOrder bitOrder;
   */
 };
-
-/**
- * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.
- */
-static inline void waitSpiTxEnd(spi_dev *spi_d) {
-  while (spi_is_tx_empty(spi_d) == 0) { /* nada */ } // wait until TXE=1
-  while (spi_is_busy(spi_d) != 0) { /* nada */ }     // wait until BSY=0
-}
 
 extern SPIClass SPI;

@@ -37,14 +37,17 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/LPC1768/NAME)
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32F1/NAME)
-#elif defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
-  #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32_F4_F7/NAME)
 #elif defined(ARDUINO_ARCH_STM32)
+  #ifndef HAL_STM32
+    #define HAL_STM32
+  #endif
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32/NAME)
 #elif defined(ARDUINO_ARCH_ESP32)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/ESP32/NAME)
 #elif defined(__PLAT_LINUX__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/LINUX/NAME)
+#elif defined(__PLAT_NATIVE_SIM__)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/NATIVE_SIM/NAME)
 #elif defined(__SAMD51__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/SAMD51/NAME)
 #else

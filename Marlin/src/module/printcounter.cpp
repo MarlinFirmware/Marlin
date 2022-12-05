@@ -37,8 +37,12 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #include "../MarlinCore.h"
 #include "../HAL/shared/eeprom_api.h"
 
-#if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
+#if HAS_SOUND && SERVICE_WARNING_BUZZES > 0
   #include "../libs/buzzer.h"
+#endif
+
+#if PRINTCOUNTER_SYNC
+  #include "../module/planner.h"
 #endif
 
 // Service intervals
@@ -76,30 +80,36 @@ millis_t PrintCounter::deltaDuration() {
   return lastDuration - tmp;
 }
 
-void PrintCounter::incFilamentUsed(float const &amount) {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
+#if HAS_EXTRUDERS
+  void PrintCounter::incFilamentUsed(float const &amount) {
+    TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
 
-  // Refuses to update data if object is not loaded
-  if (!isLoaded()) return;
+    // Refuses to update data if object is not loaded
+    if (!isLoaded()) return;
 
-  data.filamentUsed += amount; // mm
-}
+    data.filamentUsed += amount; // mm
+  }
+#endif
 
 void PrintCounter::initStats() {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
 
   loaded = true;
-  data = { 0, 0, 0, 0, 0.0
-    #if HAS_SERVICE_INTERVALS
-      #if SERVICE_INTERVAL_1 > 0
-        , SERVICE_INTERVAL_SEC_1
-      #endif
-      #if SERVICE_INTERVAL_2 > 0
-        , SERVICE_INTERVAL_SEC_2
-      #endif
-      #if SERVICE_INTERVAL_3 > 0
-        , SERVICE_INTERVAL_SEC_3
-      #endif
+
+  data = {
+      .totalPrints = 0
+    , .finishedPrints = 0
+    , .printTime = 0
+    , .longestPrint = 0
+    OPTARG(HAS_EXTRUDERS, .filamentUsed = 0.0)
+    #if SERVICE_INTERVAL_1 > 0
+      , .nextService1 = SERVICE_INTERVAL_SEC_1
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      , .nextService2 = SERVICE_INTERVAL_SEC_2
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      , .nextService3 = SERVICE_INTERVAL_SEC_3
     #endif
   };
 
@@ -114,7 +124,7 @@ void PrintCounter::initStats() {
   inline bool _service_warn(const char * const msg) {
     _print_divider();
     SERIAL_ECHO_START();
-    serialprintPGM(msg);
+    SERIAL_ECHOPGM_P(msg);
     SERIAL_ECHOLNPGM("!");
     _print_divider();
     return true;
@@ -146,8 +156,8 @@ void PrintCounter::loadStats() {
     #if SERVICE_INTERVAL_3 > 0
       if (data.nextService3 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_3));
     #endif
-    #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
-      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) BUZZ(200, 404);
+    #if HAS_SOUND && SERVICE_WARNING_BUZZES > 0
+      if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) { BUZZ(200, 404); BUZZ(10, 0); }
     #else
       UNUSED(doBuzz);
     #endif
@@ -160,27 +170,29 @@ void PrintCounter::saveStats() {
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
+  TERN_(PRINTCOUNTER_SYNC, planner.synchronize());
+
   // Saves the struct to EEPROM
   persistentStore.access_start();
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(true));
+  TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(true));
 }
 
 #if HAS_SERVICE_INTERVALS
   inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
     SERIAL_ECHOPGM(STR_STATS);
-    serialprintPGM(msg);
-    SERIAL_ECHOLNPAIR(" in ", duration_t(when).toString(buffer));
+    SERIAL_ECHOPGM_P(msg);
+    SERIAL_ECHOLNPGM(" in ", duration_t(when).toString(buffer));
   }
 #endif
 
 void PrintCounter::showStats() {
-  char buffer[21];
+  char buffer[22];
 
   SERIAL_ECHOPGM(STR_STATS);
-  SERIAL_ECHOLNPAIR(
+  SERIAL_ECHOLNPGM(
     "Prints: ", data.totalPrints,
     ", Finished: ", data.finishedPrints,
     ", Failed: ", data.totalPrints - data.finishedPrints
@@ -190,22 +202,25 @@ void PrintCounter::showStats() {
   SERIAL_ECHOPGM(STR_STATS);
   duration_t elapsed = data.printTime;
   elapsed.toString(buffer);
-  SERIAL_ECHOPAIR("Total time: ", buffer);
+  SERIAL_ECHOPGM("Total time: ", buffer);
   #if ENABLED(DEBUG_PRINTCOUNTER)
-    SERIAL_ECHOPAIR(" (", data.printTime);
+    SERIAL_ECHOPGM(" (", data.printTime);
     SERIAL_CHAR(')');
   #endif
 
   elapsed = data.longestPrint;
   elapsed.toString(buffer);
-  SERIAL_ECHOPAIR(", Longest job: ", buffer);
+  SERIAL_ECHOPGM(", Longest job: ", buffer);
   #if ENABLED(DEBUG_PRINTCOUNTER)
-    SERIAL_ECHOPAIR(" (", data.longestPrint);
+    SERIAL_ECHOPGM(" (", data.longestPrint);
     SERIAL_CHAR(')');
   #endif
 
-  SERIAL_ECHOPAIR("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
-  SERIAL_CHAR('m');
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOPGM("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
+    SERIAL_CHAR('m');
+  #endif
+
   SERIAL_EOL();
 
   #if SERVICE_INTERVAL_1 > 0
@@ -224,9 +239,12 @@ void PrintCounter::tick() {
 
   millis_t now = millis();
 
-  static uint32_t update_next; // = 0
+  static millis_t update_next; // = 0
   if (ELAPSED(now, update_next)) {
+    update_next = now + updateInterval;
+
     TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
+
     millis_t delta = deltaDuration();
     data.printTime += delta;
 
@@ -239,15 +257,15 @@ void PrintCounter::tick() {
     #if SERVICE_INTERVAL_3 > 0
       data.nextService3 -= _MIN(delta, data.nextService3);
     #endif
-
-    update_next = now + updateInterval * 1000;
   }
 
-  static uint32_t eeprom_next; // = 0
-  if (ELAPSED(now, eeprom_next)) {
-    eeprom_next = now + saveInterval * 1000;
-    saveStats();
-  }
+  #if PRINTCOUNTER_SAVE_INTERVAL > 0
+    static millis_t eeprom_next; // = 0
+    if (ELAPSED(now, eeprom_next)) {
+      eeprom_next = now + saveInterval;
+      saveStats();
+    }
+  #endif
 }
 
 // @Override
@@ -267,21 +285,20 @@ bool PrintCounter::start() {
   return false;
 }
 
-// @Override
-bool PrintCounter::stop() {
+bool PrintCounter::_stop(const bool completed) {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
 
-  if (super::stop()) {
-    data.finishedPrints++;
+  const bool did_stop = super::stop();
+  if (did_stop) {
     data.printTime += deltaDuration();
-
-    if (duration() > data.longestPrint)
-      data.longestPrint = duration();
-
-    saveStats();
-    return true;
+    if (completed) {
+      data.finishedPrints++;
+      if (duration() > data.longestPrint)
+        data.longestPrint = duration();
+    }
   }
-  else return false;
+  saveStats();
+  return did_stop;
 }
 
 // @Override
@@ -310,6 +327,7 @@ void PrintCounter::reset() {
   }
 
   bool PrintCounter::needsService(const int index) {
+    if (!loaded) loadStats();
     switch (index) {
       #if SERVICE_INTERVAL_1 > 0
         case 1: return data.nextService1 == 0;
@@ -331,7 +349,7 @@ void PrintCounter::reset() {
   void PrintCounter::debug(const char func[]) {
     if (DEBUGGING(INFO)) {
       SERIAL_ECHOPGM("PrintCounter::");
-      serialprintPGM(func);
+      SERIAL_ECHOPGM_P(func);
       SERIAL_ECHOLNPGM("()");
     }
   }

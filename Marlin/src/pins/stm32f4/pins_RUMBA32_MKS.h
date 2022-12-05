@@ -37,7 +37,7 @@
 
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -45,8 +45,6 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #endif
-
-#define ENABLE_SPI1
 
 #include "pins_RUMBA32_common.h"
 
@@ -69,9 +67,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PA3
   #define X_SERIAL_RX_PIN                   PC14
 

@@ -1,46 +1,47 @@
-import os,sys
-Import("env")
+#
+# lerdge.py
+# Customizations for Lerdge build environments:
+#   env:LERDGEX  env:LERDGEX_usb_flash_drive
+#   env:LERDGES  env:LERDGES_usb_flash_drive
+#   env:LERDGEK  env:LERDGEK_usb_flash_drive
+#
+import pioutil
+if pioutil.is_pio_build():
+    import os,marlin
 
-from SCons.Script import DefaultEnvironment
-board = DefaultEnvironment().BoardConfig()
+    board = marlin.env.BoardConfig()
 
-custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/lerdge.ld")
-for i, flag in enumerate(env["LINKFLAGS"]):
-    if "-Wl,-T" in flag:
-        env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
-    elif flag == "-T":
-        env["LINKFLAGS"][i + 1] = custom_ld_script
+    def encryptByte(byte):
+        byte = 0xFF & ((byte << 6) | (byte >> 2))
+        i = 0x58 + byte
+        j = 0x05 + byte + (i >> 8)
+        byte = (0xF8 & i) | (0x07 & j)
+        return byte
 
-def encryptByte(byte):
-    byte = 0xFF & ((byte << 6) | (byte >> 2))
-    i = 0x58 + byte
-    j = 0x05 + byte + (i >> 8)
-    byte = (0xF8 & i) | (0x07 & j)
-    return byte
+    def encrypt_file(input, output_file, file_length):
+        input_file = bytearray(input.read())
+        for i in range(len(input_file)):
+            input_file[i] = encryptByte(input_file[i])
+        output_file.write(input_file)
 
-def encrypt_file(input, output_file, file_length):
-    input_file = bytearray(input.read())
-    for i in range(len(input_file)):
-        result = encryptByte(input_file[i])
-        input_file[i] = result
+    # Encrypt ${PROGNAME}.bin and save it with the name given in build.crypt_lerdge
+    def encrypt(source, target, env):
+        fwpath = target[0].path
+        enname = board.get("build.crypt_lerdge")
+        print("Encrypting %s to %s" % (fwpath, enname))
+        fwfile = open(fwpath, "rb")
+        enfile = open(target[0].dir.path + "/" + enname, "wb")
+        length = os.path.getsize(fwpath)
 
-    output_file.write(input_file)
-    return
+        encrypt_file(fwfile, enfile, length)
 
-# Encrypt ${PROGNAME}.bin and save it as build.firmware
-def encrypt(source, target, env):
-    print("Encrypting to:", board.get("build.firmware"))
-    firmware = open(target[0].path, "rb")
-    result = open(target[0].dir.path + "/" + board.get("build.firmware"), "wb")
-    length = os.path.getsize(target[0].path)
+        fwfile.close()
+        enfile.close()
+        os.remove(fwpath)
 
-    encrypt_file(firmware, result, length)
-
-    firmware.close()
-    result.close()
-
-if 'firmware' in board.get("build").keys():
-  env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
-else:
-  print("You need to define output file via board_build.firmware = 'filename' parameter")
-  exit(1);
+    if 'crypt_lerdge' in board.get("build").keys():
+        if board.get("build.crypt_lerdge") != "":
+            marlin.add_post_action(encrypt)
+    else:
+        print("LERDGE builds require output file via board_build.crypt_lerdge = 'filename' parameter")
+        exit(1)

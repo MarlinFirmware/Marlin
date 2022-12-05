@@ -25,11 +25,7 @@
 // Based on https://github.com/niteris/ArduinoSoftSpi
 //
 
-#include "../HAL/shared/Marduino.h"
-
-#ifndef FORCE_INLINE
-  #define FORCE_INLINE inline __attribute__((always_inline))
-#endif
+#include "../HAL/shared/Marduino.h" // CORE_TEENSY
 
 #define nop __asm__ volatile ("nop") // NOP for timing
 
@@ -715,7 +711,7 @@ class SoftSPI {
 
   FORCE_INLINE bool MODE_CPHA(uint8_t mode) { return bool(mode & 1); }
   FORCE_INLINE bool MODE_CPOL(uint8_t mode) { return bool(mode & 2); }
-  FORCE_INLINE void receiveBit(uint8_t bit, uint8_t* data) {
+  FORCE_INLINE void receiveBit(uint8_t bit, uint8_t *data) {
     if (MODE_CPHA(Mode)) fastDigitalWrite(SckPin, !MODE_CPOL(Mode));
     nop;
     nop;
@@ -734,7 +730,7 @@ class SoftSPI {
     if (!MODE_CPHA(Mode)) fastDigitalWrite(SckPin, MODE_CPOL(Mode));
   }
 
-  FORCE_INLINE void transferBit(uint8_t bit, uint8_t* rxData, uint8_t txData) {
+  FORCE_INLINE void transferBit(uint8_t bit, uint8_t *rxData, uint8_t txData) {
     if (MODE_CPHA(Mode)) fastDigitalWrite(SckPin, !MODE_CPOL(Mode));
     fastDigitalWrite(MosiPin, txData & _BV(bit));
     fastDigitalWrite(SckPin,

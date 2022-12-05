@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,21 +21,31 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "LERDGE K supports up to 2 hotends / E-steppers."
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "LERDGE K supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge K"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define I2C_EEPROM
+// EEPROM
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PG14
+  #define I2C_SDA_PIN                       PG13
+  #define MARLIN_EEPROM_SIZE             0x10000
+#endif
+
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
 //
-//#define SERVO0_PIN                        PB11
+#define SERVO0_PIN                          PB11
 
 //
 // Limit Switches
@@ -61,36 +74,93 @@
 #define X_DIR_PIN                           PB10
 #define X_ENABLE_PIN                        PG0
 //#ifndef X_CS_PIN
-//  #define X_CS_PIN                        PE0
+//  #define X_CS_PIN                        PB2
 //#endif
 
 #define Y_STEP_PIN                          PF14
 #define Y_DIR_PIN                           PF15
 #define Y_ENABLE_PIN                        PF13
 //#ifndef Y_CS_PIN
-//  #define Y_CS_PIN                        PE1
+//  #define Y_CS_PIN                        PE2
 //#endif
 
 #define Z_STEP_PIN                          PF11
 #define Z_DIR_PIN                           PF12
 #define Z_ENABLE_PIN                        PC5
 //#ifndef Z_CS_PIN
-//  #define Z_CS_PIN                        PE2
+//  #define Z_CS_PIN                        PE3
 //#endif
 
 #define E0_STEP_PIN                         PC14
 #define E0_DIR_PIN                          PC13
 #define E0_ENABLE_PIN                       PC15
 //#ifndef E0_CS_PIN
-//  #define E0_CS_PIN                       PE3
+//  #define E0_CS_PIN                       PE4
 //#endif
 
 #define E1_STEP_PIN                         PF1
 #define E1_DIR_PIN                          PF0
 #define E1_ENABLE_PIN                       PF2
 //#ifndef E1_CS_PIN
-//  #define E1_CS_PIN                       PE4
+//  #define E1_CS_PIN                       PE1
 //#endif
+
+//#define Z2_STEP_PIN                       PF4
+//#define Z2_DIR_PIN                        PF3
+//#define Z2_ENABLE_PIN                     PF5
+//#define Z2_STOP_PIN                       PG2
+//#ifndef Z2_CS_PIN
+//  #define Z2_CS_PIN                       PE0
+//#endif
+
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   */
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN                 PB2
+  #endif
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+  #endif
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PE2
+  #endif
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+  #endif
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PE3
+  #endif
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+  #endif
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PE4
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
+  #endif
+  #ifndef E1_SERIAL_TX_PIN
+    #define E1_SERIAL_TX_PIN                PE1
+  #endif
+  #ifndef E1_SERIAL_RX_PIN
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
+  #endif
+  // Ex-motor can be any... X2/Y2/Z2 or E2
+  #ifndef EX_SERIAL_TX_PIN
+    #define EX_SERIAL_TX_PIN                PE0
+  #endif
+  #ifndef EX_SERIAL_RX_PIN
+    #define EX_SERIAL_RX_PIN    EX_SERIAL_TX_PIN
+  #endif
+  //#define Z2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
+  //#define Z2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
+  //#define E2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
+  //#define E2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors
@@ -115,24 +185,30 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PF7
 #endif
+
 #define FAN1_PIN                            PF6
-#define FAN2_PIN                            PF8
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PF6
+  #define E0_AUTO_FAN_PIN                   PB1
 #endif
+
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                   PB0
+#endif
+
+#define CONTROLLER_FAN_PIN                  PF8
 
 //
 // LED / Lighting
 //
-//#define CASE_LIGHT_PIN_CI                 -1
-//#define CASE_LIGHT_PIN_DO                 -1
+#define LED_PIN                             PA15  // Status LED
+//#define CASE_LIGHT_PIN                    PB6   // LED Ribbon Connector (PWM TIM4_CH1)
 //#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN                     PB7
+  #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN                     PB8
+  #define RGB_LED_G_PIN                     PB7
 #endif
 #ifndef RGB_LED_B_PIN
   #define RGB_LED_B_PIN                     PB9
@@ -142,39 +218,55 @@
 // SD support
 //
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4800000
+#define SD_DETECT_PIN                       PA8
+#if DISABLED(SDIO_SUPPORT)
+  #define SOFTWARE_SPI
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         PC11
+  #define SDSS                              PC11
+#endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                PC11
-#define LED_PIN                             PA15  // Alive
-#define PS_ON_PIN                           -1
+#define PS_ON_PIN                           PA4
 #define KILL_PIN                            -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
-#define SCK_PIN                             PC12
-#define MISO_PIN                            PC8
-#define MOSI_PIN                            PD2
-#define SS_PIN                              PC11
-
-#define SD_DETECT_PIN                       PA8
-#define BEEPER_PIN                          PC7
-
 //
-// LCD / Controller
+// TFT with FSMC interface
 //
+#if HAS_FSMC_TFT
+  #ifndef TFT_DRIVER
+    #define TFT_DRIVER                    ST7796
+  #endif
+  #define ST7796S_INVERTED
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD11
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
 
-#define TOUCH_CS_PIN                        PG15
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
-#define BTN_EN1                             PG10
-#define BTN_EN2                             PG11
-#define BTN_ENC                             PG9
+  #define TOUCH_CS_PIN                      PG15
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+  #define TOUCH_INT_PIN                     PG12
+#endif
+
+#if IS_NEWPANEL
+  #define BEEPER_PIN                        PC7
+  #define BTN_EN1                           PG11
+  #define BTN_EN2                           PG10
+  #define BTN_ENC                           PG9
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #endif
+#endif

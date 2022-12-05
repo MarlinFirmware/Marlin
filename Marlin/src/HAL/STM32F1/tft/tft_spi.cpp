@@ -26,36 +26,20 @@
 
 #include "tft_spi.h"
 
-// TFT_SPI tft;
-
 SPIClass TFT_SPI::SPIx(1);
-
-#define TFT_CS_H  OUT_WRITE(TFT_CS_PIN, HIGH)
-#define TFT_CS_L  OUT_WRITE(TFT_CS_PIN, LOW)
-
-#define TFT_DC_H  OUT_WRITE(TFT_DC_PIN, HIGH)
-#define TFT_DC_L  OUT_WRITE(TFT_DC_PIN, LOW)
-
-#define TFT_RST_H OUT_WRITE(TFT_RST_PIN, HIGH)
-#define TFT_RST_L OUT_WRITE(TFT_RST_PIN, LOW)
-
-#define TFT_BLK_H OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH)
-#define TFT_BLK_L OUT_WRITE(TFT_BACKLIGHT_PIN, LOW)
 
 void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
-    // OUT_WRITE(TFT_RESET_PIN, HIGH);
-    TFT_RST_H;
+    OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(100);
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
-    // OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
-    TFT_BLK_H;
+    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
   #endif
 
-  TFT_DC_H;
-  TFT_CS_H;
+  OUT_WRITE(TFT_DC_PIN, HIGH);
+  OUT_WRITE(TFT_CS_PIN, HIGH);
 
   /**
    * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
@@ -87,15 +71,23 @@ void TFT_SPI::Init() {
 void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
   SPIx.setDataSize(DataSize);
   SPIx.begin();
-  TFT_CS_L;
+  OUT_WRITE(TFT_CS_PIN, LOW);
 }
+
+#ifdef TFT_DEFAULT_DRIVER
+  #include "../../../lcd/tft_io/tft_ids.h"
+#endif
 
 uint32_t TFT_SPI::GetID() {
   uint32_t id;
   id = ReadID(LCD_READ_ID);
-
-  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
     id = ReadID(LCD_READ_ID4);
+    #ifdef TFT_DEFAULT_DRIVER
+      if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+        id = TFT_DEFAULT_DRIVER;
+    #endif
+   }
   return id;
 }
 
@@ -121,28 +113,16 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
   #endif
 }
 
-bool TFT_SPI::isBusy() {
-  return false;
-}
+bool TFT_SPI::isBusy() { return false; }
 
-void TFT_SPI::Abort() {
-  DataTransferEnd();
-}
+void TFT_SPI::Abort() { DataTransferEnd(); }
 
-void TFT_SPI::Transmit(uint16_t Data) {
-  SPIx.send(Data);
-}
+void TFT_SPI::Transmit(uint16_t Data) { SPIx.send(Data); }
 
 void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DataTransferBegin();
-  TFT_DC_H;
-  if (MemoryIncrease == DMA_MINC_ENABLE) {
-    SPIx.dmaSend(Data, Count, true);
-  }
-  else {
-    SPIx.dmaSend(Data, Count, false);
-  }
-
+  OUT_WRITE(TFT_DC_PIN, HIGH);
+  SPIx.dmaSend(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
   DataTransferEnd();
 }
 

@@ -25,28 +25,20 @@
 #include "../../module/temperature.h"
 #include "../../module/planner.h"       // for planner.finish_and_disable
 #include "../../module/printcounter.h"  // for print_job_timer.stop
-#include "../../lcd/ultralcd.h"         // for LCD_MESSAGEPGM_P
+#include "../../lcd/marlinui.h"         // for LCD_MESSAGE_F
 
 #include "../../inc/MarlinConfig.h"
+
+#if ENABLED(PSU_CONTROL)
+  #include "../queue.h"
+  #include "../../feature/power.h"
+#endif
 
 #if HAS_SUICIDE
   #include "../../MarlinCore.h"
 #endif
 
 #if ENABLED(PSU_CONTROL)
-
-  #if ENABLED(AUTO_POWER_CONTROL)
-    #include "../../feature/power.h"
-  #else
-    void restore_stepper_drivers();
-  #endif
-
-  // Could be moved to a feature, but this is all the data
-  bool powersupply_on;
-
-  #if HAS_TRINAMIC_CONFIG
-    #include "../../feature/tmc_util.h"
-  #endif
 
   /**
    * M80   : Turn on the Power Supply
@@ -56,11 +48,11 @@
 
     // S: Report the current power supply state and exit
     if (parser.seen('S')) {
-      serialprintPGM(powersupply_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
+      SERIAL_ECHOF(powerManager.psu_on ? F("PS:1\n") : F("PS:0\n"));
       return;
     }
 
-    PSU_ON();
+    powerManager.power_on();
 
     /**
      * If you have a switch on suicide pin, this is useful
@@ -68,16 +60,10 @@
      * a print without suicide...
      */
     #if HAS_SUICIDE
-      OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+      OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
     #endif
 
-    #if DISABLED(AUTO_POWER_CONTROL)
-      safe_delay(PSU_POWERUP_DELAY);
-      restore_stepper_drivers();
-      TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
-    #endif
-
-    TERN_(HAS_LCD_MENU, ui.reset_status());
+    TERN_(HAS_MARLINUI_MENU, ui.reset_status());
   }
 
 #endif // PSU_CONTROL
@@ -88,25 +74,47 @@
  *      This code should ALWAYS be available for FULL SHUTDOWN!
  */
 void GcodeSuite::M81() {
-  thermalManager.disable_all_heaters();
-  print_job_timer.stop();
   planner.finish_and_disable();
+  thermalManager.cooldown();
 
-  #if HAS_FAN
-    thermalManager.zero_fan_speeds();
-    #if ENABLED(PROBING_FANS_OFF)
-      thermalManager.fans_paused = false;
-      ZERO(thermalManager.saved_fan_speed);
-    #endif
+  print_job_timer.stop();
+
+  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
+    thermalManager.fans_paused = false;
+    ZERO(thermalManager.saved_fan_speed);
   #endif
 
   safe_delay(1000); // Wait 1 second before switching off
 
+  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
+
+  bool delayed_power_off = false;
+
+  #if ENABLED(POWER_OFF_TIMER)
+    if (parser.seenval('D')) {
+      uint16_t delay = parser.value_ushort();
+      if (delay > 1) { // skip already observed 1s delay
+        delayed_power_off = true;
+        powerManager.setPowerOffTimer(SEC_TO_MS(delay - 1));
+      }
+    }
+  #endif
+
+  #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+    if (parser.boolval('S')) {
+      delayed_power_off = true;
+      powerManager.setPowerOffOnCooldown(true);
+    }
+  #endif
+
+  if (delayed_power_off) {
+    SERIAL_ECHOLNPGM(STR_DELAYED_POWEROFF);
+    return;
+  }
+
   #if HAS_SUICIDE
     suicide();
   #elif ENABLED(PSU_CONTROL)
-    PSU_OFF();
+    powerManager.power_off_soon();
   #endif
-
-  LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
 }

@@ -34,7 +34,7 @@ millis_t Stopwatch::startTimestamp;
 millis_t Stopwatch::stopTimestamp;
 
 bool Stopwatch::stop() {
-  Stopwatch::debug(PSTR("stop"));
+  debug(F("stop"));
 
   if (isRunning() || isPaused()) {
     TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
@@ -46,7 +46,7 @@ bool Stopwatch::stop() {
 }
 
 bool Stopwatch::pause() {
-  Stopwatch::debug(PSTR("pause"));
+  debug(F("pause"));
 
   if (isRunning()) {
     TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerPaused());
@@ -58,7 +58,7 @@ bool Stopwatch::pause() {
 }
 
 bool Stopwatch::start() {
-  Stopwatch::debug(PSTR("start"));
+  debug(F("start"));
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStarted());
 
@@ -74,14 +74,14 @@ bool Stopwatch::start() {
 }
 
 void Stopwatch::resume(const millis_t with_time) {
-  Stopwatch::debug(PSTR("resume"));
+  debug(F("resume"));
 
   reset();
   if ((accumulator = with_time)) state = RUNNING;
 }
 
 void Stopwatch::reset() {
-  Stopwatch::debug(PSTR("reset"));
+  debug(F("reset"));
 
   state = STOPPED;
   startTimestamp = 0;
@@ -95,12 +95,8 @@ millis_t Stopwatch::duration() {
 
 #if ENABLED(DEBUG_STOPWATCH)
 
-  void Stopwatch::debug(const char func[]) {
-    if (DEBUGGING(INFO)) {
-      SERIAL_ECHOPGM("Stopwatch::");
-      serialprintPGM(func);
-      SERIAL_ECHOLNPGM("()");
-    }
+  void Stopwatch::debug(FSTR_P const func) {
+    if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::", func, "()");
   }
 
 #endif

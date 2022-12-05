@@ -55,3 +55,5 @@
   #include "../core/serial.h"
 
 #endif
+
+#include "../core/multi_language.h"

@@ -4,7 +4,7 @@
 #pragma once
 
 #define HEATSHRINK_AUTHOR "Scott Vokes <vokes.s@gmail.com>"
-#define HEATSHRINK_URL "https://github.com/atomicobject/heatshrink"
+#define HEATSHRINK_URL "github.com/atomicobject/heatshrink"
 
 /* Version 0.4.1 */
 #define HEATSHRINK_VERSION_MAJOR 0

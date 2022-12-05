@@ -33,38 +33,18 @@
   #include "../../module/tool_change.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
-constexpr xy_pos_t screws_tilt_adjust_pos[] = TRAMMING_POINT_XY;
+//
+// Define tramming point names.
+//
 
-static PGMSTR(point_name_1, TRAMMING_POINT_NAME_1);
-static PGMSTR(point_name_2, TRAMMING_POINT_NAME_2);
-static PGMSTR(point_name_3, TRAMMING_POINT_NAME_3);
-#ifdef TRAMMING_POINT_NAME_4
-  static PGMSTR(point_name_4, TRAMMING_POINT_NAME_4);
-  #ifdef TRAMMING_POINT_NAME_5
-    static PGMSTR(point_name_5, TRAMMING_POINT_NAME_5);
-  #endif
-#endif
-
-static PGM_P const tramming_point_name[] PROGMEM = {
-  point_name_1, point_name_2, point_name_3
-  #ifdef TRAMMING_POINT_NAME_4
-    , point_name_4
-    #ifdef TRAMMING_POINT_NAME_5
-      , point_name_5
-    #endif
-  #endif
-};
-
-#define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
-
-#if !WITHIN(TRAMMING_SCREW_THREAD, 30, 51) || TRAMMING_SCREW_THREAD % 10 > 1
-  #error "TRAMMING_SCREW_THREAD must be equal to 30, 31, 40, 41, 50, or 51."
-#endif
-
-static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY positions.");
+#include "../../feature/tramming.h"
 
 /**
  * G35: Read bed corners to help adjust bed screws
@@ -96,7 +76,9 @@ void GcodeSuite::G35() {
 
   // Disable the leveling matrix before auto-aligning
   #if HAS_LEVELING
-    TERN_(RESTORE_LEVELING_AFTER_G35, const bool leveling_was_active = planner.leveling_active);
+    #if ENABLED(RESTORE_LEVELING_AFTER_G35)
+      const bool leveling_was_active = planner.leveling_active;
+    #endif
     set_bed_leveling_enabled(false);
   #endif
 
@@ -110,12 +92,11 @@ void GcodeSuite::G35() {
     tool_change(0, true);
   #endif
 
-  #if HAS_DUPLICATION_MODE
-    extruder_duplication_enabled = false;
-  #endif
+  // Disable duplication mode on homing
+  TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
-  // Home all before this procedure
-  home_all_axes();
+  // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
+  if (!all_axes_trusted()) process_subcommands_now(F("G28Z"));
 
   bool err_break = false;
 
@@ -125,20 +106,25 @@ void GcodeSuite::G35() {
     // In BLTOUCH HS mode, the probe travels in a deployed state.
     // Users of G35 might have a badly misaligned bed, so raise Z by the
     // length of the deployed pin (BLTOUCH stroke < 7mm)
-    current_position.z = (Z_CLEARANCE_BETWEEN_PROBES) + (7 * ENABLED(BLTOUCH_HS_MODE));
 
-    const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
+    // Unsure if this is even required. The probe seems to lift correctly after probe done.
+    do_blocking_move_to_z(SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance()));
+    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOPAIR("G35 failed at point ", int(i), " (", tramming_point_name[i], ")");
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y);
+      SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
+      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_CHAR(')');
+      SERIAL_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
       err_break = true;
       break;
     }
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPAIR("Probing point ", int(i), " (", tramming_point_name[i], ")");
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y, SP_Z_STR, z_probed_height);
+      DEBUG_ECHOPGM("Probing point ", i + 1, " (");
+      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
+      DEBUG_CHAR(')');
+      DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }
 
     z_measured[i] = z_probed_height;
@@ -150,17 +136,17 @@ void GcodeSuite::G35() {
     // Calculate adjusts
     LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
       const float diff = z_measured[0] - z_measured[i],
-                  adjust = abs(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
+                  adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
 
       const int full_turns = trunc(adjust);
       const float decimal_part = adjust - float(full_turns);
       const int minutes = trunc(decimal_part * 60.0f);
 
-      SERIAL_ECHOPAIR("Turn ", tramming_point_name[i],
-             " ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW",
-             " by ", abs(full_turns), " turns");
-      if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
-      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPAIR(" (", -diff, "mm)");
+      SERIAL_ECHOPGM("Turn ");
+      SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      if (minutes) SERIAL_ECHOPGM(" and ", ABS(minutes), " minutes");
+      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPGM(" (", -diff, "mm)");
       SERIAL_EOL();
     }
   }
@@ -169,7 +155,7 @@ void GcodeSuite::G35() {
 
   // Restore the active tool after homing
   #if HAS_MULTI_HOTEND
-    tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
+    if (old_tool_index != 0) tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
   #endif
 
   #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
@@ -180,11 +166,10 @@ void GcodeSuite::G35() {
   // the probe deployed if it was successful.
   probe.stow();
 
+  move_to_tramming_wait_pos();
+
   // After this operation the Z position needs correction
   set_axis_never_homed(Z_AXIS);
-
-  // Home Z after the alignment procedure
-  process_subcommands_now_P(PSTR("G28Z"));
 }
 
 #endif // ASSISTED_TRAMMING

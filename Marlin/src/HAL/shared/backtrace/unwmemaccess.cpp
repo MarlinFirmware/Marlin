@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liability for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Utility functions to access memory
  **************************************************************************/
@@ -41,27 +41,16 @@
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00080000
 
-#elif 0
-
-  // For STM32F103CBT6
-  //  SRAM  (0x20000000 - 0x20005000) (20kb)
-  //  FLASH (0x00000000 - 0x00020000) (128kb)
-  //
-  #define START_SRAM_ADDR   0x20000000
-  #define END_SRAM_ADDR     0x20005000
-  #define START_FLASH_ADDR  0x00000000
-  #define END_FLASH_ADDR    0x00020000
-
-#elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx)
+#elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx) || defined(STM32G0xx)
 
   // For STM32F103ZET6/STM32F103VET6/STM32F0xx
   //  SRAM  (0x20000000 - 0x20010000) (64kb)
-  //  FLASH (0x00000000 - 0x00080000) (512kb)
+  //  FLASH (0x08000000 - 0x08080000) (512kb)
   //
   #define START_SRAM_ADDR   0x20000000
   #define END_SRAM_ADDR     0x20010000
-  #define START_FLASH_ADDR  0x00000000
-  #define END_FLASH_ADDR    0x00080000
+  #define START_FLASH_ADDR  0x08000000
+  #define END_FLASH_ADDR    0x08080000
 
 #elif defined(STM32F4) || defined(STM32F4xx)
 
@@ -73,17 +62,6 @@
   #define END_SRAM_ADDR     0x20030000
   #define START_FLASH_ADDR  0x08000000
   #define END_FLASH_ADDR    0x08080000
-
-#elif MB(THE_BORG)
-
-  // For STM32F765 in BORG
-  //  SRAM  (0x20000000 - 0x20080000) (512kb)
-  //  FLASH (0x08000000 - 0x08100000) (1024kb)
-  //
-  #define START_SRAM_ADDR   0x20000000
-  #define END_SRAM_ADDR     0x20080000
-  #define START_FLASH_ADDR  0x08000000
-  #define END_FLASH_ADDR    0x08100000
 
 #elif MB(REMRAM_V1, NUCLEO_F767ZI)
 
@@ -153,20 +131,57 @@
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00100000
 
+#else
+  // Generic ARM code, that's testing if an access to the given address would cause a fault or not
+  // It can't guarantee an address is in RAM or Flash only, but we usually don't care
+
+  #define NVIC_FAULT_STAT         0xE000ED28  // Configurable Fault Status Reg.
+  #define NVIC_CFG_CTRL           0xE000ED14  // Configuration Control Register
+  #define NVIC_FAULT_STAT_BFARV   0x00008000  // BFAR is valid
+  #define NVIC_CFG_CTRL_BFHFNMIGN 0x00000100  // Ignore bus fault in NMI/fault
+  #define HW_REG(X)  (*((volatile unsigned long *)(X)))
+
+  static bool validate_addr(uint32_t read_address) {
+    bool     works = true;
+    uint32_t intDisabled = 0;
+    // Read current interrupt state
+    __asm__ __volatile__ ("MRS %[result], PRIMASK\n\t" : [result]"=r"(intDisabled) :: ); // 0 is int enabled, 1 for disabled
+
+    // Clear bus fault indicator first (write 1 to clear)
+    HW_REG(NVIC_FAULT_STAT) |= NVIC_FAULT_STAT_BFARV;
+    // Ignore bus fault interrupt
+    HW_REG(NVIC_CFG_CTRL) |= NVIC_CFG_CTRL_BFHFNMIGN;
+    // Disable interrupts if not disabled previously
+    if (!intDisabled) __asm__ __volatile__ ("CPSID f");
+    // Probe address
+    *(volatile uint32_t*)read_address;
+    // Check if a fault happened
+    if ((HW_REG(NVIC_FAULT_STAT) & NVIC_FAULT_STAT_BFARV) != 0)
+      works = false;
+    // Enable interrupts again if previously disabled
+    if (!intDisabled) __asm__ __volatile__ ("CPSIE f");
+    // Enable fault interrupt flag
+    HW_REG(NVIC_CFG_CTRL) &= ~NVIC_CFG_CTRL_BFHFNMIGN;
+
+    return works;
+  }
+
 #endif
 
-static bool validate_addr(uint32_t addr) {
+#ifdef START_SRAM_ADDR
+  static bool validate_addr(uint32_t addr) {
 
-  // Address must be in SRAM range
-  if (addr >= START_SRAM_ADDR && addr < END_SRAM_ADDR)
-    return true;
+    // Address must be in SRAM range
+    if (addr >= START_SRAM_ADDR && addr < END_SRAM_ADDR)
+      return true;
 
-  // Or in FLASH range
-  if (addr >= START_FLASH_ADDR && addr < END_FLASH_ADDR)
-    return true;
+    // Or in FLASH range
+    if (addr >= START_FLASH_ADDR && addr < END_FLASH_ADDR)
+      return true;
 
-  return false;
-}
+    return false;
+  }
+#endif
 
 bool UnwReadW(const uint32_t a, uint32_t *v) {
   if (!validate_addr(a))

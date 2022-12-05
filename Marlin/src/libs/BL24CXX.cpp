@@ -1,7 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +30,12 @@
  */
 
 #include "BL24CXX.h"
-#include <libmaple/gpio.h>
+#ifdef __STM32F1__
+  #include <libmaple/gpio.h>
+#else
+  #include "../HAL/shared/Delay.h"
+  #define delay_us(n) DELAY_US(n)
+#endif
 
 #ifndef EEPROM_WRITE_DELAY
   #define EEPROM_WRITE_DELAY    10
@@ -38,15 +45,20 @@
 #endif
 
 // IO direction setting
-#define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
-#define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
+#ifdef __STM32F1__
+  #define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
+  #define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
+#elif defined(STM32F1) || defined(STM32F4)
+  #define SDA_IN()  SET_INPUT(IIC_EEPROM_SDA)
+  #define SDA_OUT() SET_OUTPUT(IIC_EEPROM_SDA)
+#endif
 
 // IO ops
-#define IIC_SCL_0()   WRITE(IIC_EEPROM_SCL, LOW)
-#define IIC_SCL_1()   WRITE(IIC_EEPROM_SCL, HIGH)
-#define IIC_SDA_0()   WRITE(IIC_EEPROM_SDA, LOW)
-#define IIC_SDA_1()   WRITE(IIC_EEPROM_SDA, HIGH)
-#define READ_SDA()    READ(IIC_EEPROM_SDA)
+#define IIC_SCL_0() WRITE(IIC_EEPROM_SCL, LOW)
+#define IIC_SCL_1() WRITE(IIC_EEPROM_SCL, HIGH)
+#define IIC_SDA_0() WRITE(IIC_EEPROM_SDA, LOW)
+#define IIC_SDA_1() WRITE(IIC_EEPROM_SDA, HIGH)
+#define READ_SDA()  READ(IIC_EEPROM_SDA)
 
 //
 // Simple IIC interface via libmaple

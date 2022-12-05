@@ -47,7 +47,7 @@ FORCE_INLINE static void __DSB() {
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
-    case 0:
+    case MF_TIMER_STEP:
       FTM0_MODE = FTM_MODE_WPDIS | FTM_MODE_FTMEN;
       FTM0_SC = 0x00; // Set this to zero before changing the modulus
       FTM0_CNT = 0x0000; // Reset the count to zero
@@ -56,7 +56,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       FTM0_SC = (FTM_SC_CLKS(0b1) & FTM_SC_CLKS_MASK) | (FTM_SC_PS(FTM0_TIMER_PRESCALE_BITS) & FTM_SC_PS_MASK); // Bus clock 60MHz divided by prescaler 8
       FTM0_C0SC = FTM_CSC_CHIE | FTM_CSC_MSA | FTM_CSC_ELSA;
       break;
-    case 1:
+    case MF_TIMER_TEMP:
       FTM1_MODE = FTM_MODE_WPDIS | FTM_MODE_FTMEN; // Disable write protection, Enable FTM1
       FTM1_SC = 0x00; // Set this to zero before changing the modulus
       FTM1_CNT = 0x0000; // Reset the count to zero
@@ -70,15 +70,15 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: NVIC_ENABLE_IRQ(IRQ_FTM0); break;
-    case 1: NVIC_ENABLE_IRQ(IRQ_FTM1); break;
+    case MF_TIMER_STEP: NVIC_ENABLE_IRQ(IRQ_FTM0); break;
+    case MF_TIMER_TEMP: NVIC_ENABLE_IRQ(IRQ_FTM1); break;
   }
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: NVIC_DISABLE_IRQ(IRQ_FTM0); break;
-    case 1: NVIC_DISABLE_IRQ(IRQ_FTM1); break;
+    case MF_TIMER_STEP: NVIC_DISABLE_IRQ(IRQ_FTM0); break;
+    case MF_TIMER_TEMP: NVIC_DISABLE_IRQ(IRQ_FTM1); break;
   }
 
   // We NEED memory barriers to ensure Interrupts are actually disabled!
@@ -89,20 +89,20 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return NVIC_IS_ENABLED(IRQ_FTM0);
-    case 1: return NVIC_IS_ENABLED(IRQ_FTM1);
+    case MF_TIMER_STEP: return NVIC_IS_ENABLED(IRQ_FTM0);
+    case MF_TIMER_TEMP: return NVIC_IS_ENABLED(IRQ_FTM1);
   }
   return false;
 }
 
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0:
+    case MF_TIMER_STEP:
       FTM0_CNT = 0x0000;
       FTM0_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag
       FTM0_C0SC &= ~FTM_CSC_CHF; // Clear FTM Channel Compare flag
       break;
-    case 1:
+    case MF_TIMER_TEMP:
       FTM1_CNT = 0x0000;
       FTM1_SC &= ~FTM_SC_TOF; // Clear FTM Overflow flag
       FTM1_C0SC &= ~FTM_CSC_CHF; // Clear FTM Channel Compare flag

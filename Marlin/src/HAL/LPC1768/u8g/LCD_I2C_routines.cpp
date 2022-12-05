@@ -36,40 +36,7 @@ extern int millis();
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-// These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
-// to the lpc17xx_i2c.c routines so had to copy them into this file & rename them.
-
-static uint32_t _I2C_Start(LPC_I2C_TypeDef *I2Cx) {
-  // Reset STA, STO, SI
-  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC|I2C_I2CONCLR_STOC|I2C_I2CONCLR_STAC;
-
-  // Enter to Master Transmitter mode
-  I2Cx->I2CONSET = I2C_I2CONSET_STA;
-
-  // Wait for complete
-  while (!(I2Cx->I2CONSET & I2C_I2CONSET_SI));
-  I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
-  return (I2Cx->I2STAT & I2C_STAT_CODE_BITMASK);
-}
-
-static void _I2C_Stop (LPC_I2C_TypeDef *I2Cx) {
-  /* Make sure start bit is not active */
-  if (I2Cx->I2CONSET & I2C_I2CONSET_STA)
-    I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
-
-  I2Cx->I2CONSET = I2C_I2CONSET_STO|I2C_I2CONSET_AA;
-  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-#define I2CDEV_S_ADDR   0x78  // from SSD1306  //actual address is 0x3C - shift left 1 with LSB set to 0 to indicate write
-
-#define BUFFER_SIZE                     0x1  // only do single byte transfers with LCDs
-
-I2C_M_SETUP_Type transferMCfg;
-
-#define I2C_status (LPC_I2C1->I2STAT & I2C_STAT_CODE_BITMASK)
+#define I2CDEV_S_ADDR   0x78  // From SSD1306 (actual address is 0x3C - shift left 1 with LSB set to 0 to indicate write)
 
 // Send slave address and write bit
 uint8_t u8g_i2c_start(const uint8_t sla) {
@@ -114,7 +81,6 @@ uint8_t u8g_i2c_send_byte(uint8_t data) {
 
 void u8g_i2c_stop() {
 }
-
 
 #ifdef __cplusplus
   }

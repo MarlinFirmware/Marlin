@@ -106,7 +106,7 @@ extern "C" {
  */
 //@{
 #  if UDI_CDC_PORT_NB > 2
-#    error USBB, UDP, UDPHS and UOTGHS interfaces have not enought endpoints.
+#    error USBB, UDP, UDPHS and UOTGHS interfaces have not enough endpoints.
 #  endif
 #define  UDI_CDC_DATA_EP_IN_0          (1 | USB_EP_DIR_IN)  // TX
 #define  UDI_CDC_DATA_EP_OUT_0         (2 | USB_EP_DIR_OUT) // RX

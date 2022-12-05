@@ -25,17 +25,17 @@
  * Common pin assignments for all RUMBA32 boards
  */
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA32 boards support up to 3 hotends / E-steppers."
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "RUMBA32 boards support up to 3 hotends / E steppers."
 #endif
 
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 // Use soft PWM for fans - PWM is not working properly when paired with STM32 Arduino Core v1.7.0
 // This can be removed when Core version is updated and PWM behaviour is fixed.
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Configure Timers
@@ -47,7 +47,6 @@
 
 #define STEP_TIMER 10
 #define TEMP_TIMER 14
-#define HAL_TIMER_RATE                     F_CPU
 
 //
 // Limit Switches
@@ -127,15 +126,14 @@
 //
 // SPI
 //
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
 
 //
 // Misc. Functions
 //
 #define LED_PIN                             PB14
-#define BTN_PIN                             PC10
 #define PS_ON_PIN                           PE11
 #define KILL_PIN                            PC5
 
@@ -161,23 +159,21 @@
     #define DOGLCD_A0                       PE14
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if IS_ULTIPANEL
     #define LCD_PINS_D5                     PE13
     #define LCD_PINS_D6                     PE14
     #define LCD_PINS_D7                     PE15
-  #endif
 
-  // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
     #endif
   #endif
 
+#endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               640
 #endif

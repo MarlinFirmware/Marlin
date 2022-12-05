@@ -21,8 +21,8 @@
  */
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
-#include "../../lcd/ultralcd.h"
+#include "../../module/planner.h"
+#include "../../lcd/marlinui.h"
 
 /**
  * G4: Dwell S<seconds> or P<milliseconds>
@@ -38,7 +38,7 @@ void GcodeSuite::G4() {
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
   #endif
 
-  if (!ui.has_status()) LCD_MESSAGEPGM(MSG_DWELL);
+  if (!ui.has_status()) LCD_MESSAGE(MSG_DWELL);
 
   dwell(dwell_ms);
 }

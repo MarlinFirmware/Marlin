@@ -31,9 +31,7 @@ void cli() { } // Disable
 void sei() { } // Enable
 
 // Time functions
-void _delay_ms(const int delay_ms) {
-  delay(delay_ms);
-}
+void _delay_ms(const int ms) { delay(ms); }
 
 uint32_t millis() {
   return (uint32_t)Clock::millis();

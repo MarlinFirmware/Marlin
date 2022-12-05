@@ -32,7 +32,6 @@
 
 #include "../inc/MarlinConfig.h"  // for pins
 #include "../module/planner.h"
-#include "../module/temperature.h"
 
 Joystick joystick;
 
@@ -69,13 +68,13 @@ Joystick joystick;
   void Joystick::report() {
     SERIAL_ECHOPGM("Joystick");
     #if HAS_JOY_ADC_X
-      SERIAL_ECHOPAIR_P(SP_X_STR, JOY_X(x.raw));
+      SERIAL_ECHOPGM_P(SP_X_STR, JOY_X(x.getraw()));
     #endif
     #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPAIR_P(SP_Y_STR, JOY_Y(y.raw));
+      SERIAL_ECHOPGM_P(SP_Y_STR, JOY_Y(y.getraw()));
     #endif
     #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPAIR_P(SP_Z_STR, JOY_Z(z.raw));
+      SERIAL_ECHOPGM_P(SP_Z_STR, JOY_Z(z.getraw()));
     #endif
     #if HAS_JOY_ADC_EN
       SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
@@ -92,29 +91,29 @@ Joystick joystick;
       if (READ(JOY_EN_PIN)) return;
     #endif
 
-    auto _normalize_joy = [](float &axis_jog, const int16_t raw, const int16_t (&joy_limits)[4]) {
+    auto _normalize_joy = [](float &axis_jog, const raw_adc_t raw, const raw_adc_t (&joy_limits)[4]) {
       if (WITHIN(raw, joy_limits[0], joy_limits[3])) {
         // within limits, check deadzone
         if (raw > joy_limits[2])
           axis_jog = (raw - joy_limits[2]) / float(joy_limits[3] - joy_limits[2]);
         else if (raw < joy_limits[1])
-          axis_jog = (raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
+          axis_jog = int16_t(raw - joy_limits[1]) / float(joy_limits[1] - joy_limits[0]);  // negative value
         // Map normal to jog value via quadratic relationship
         axis_jog = SIGN(axis_jog) * sq(axis_jog);
       }
     };
 
     #if HAS_JOY_ADC_X
-      static constexpr int16_t joy_x_limits[4] = JOY_X_LIMITS;
-      _normalize_joy(norm_jog.x, JOY_X(x.raw), joy_x_limits);
+      static constexpr raw_adc_t joy_x_limits[4] = JOY_X_LIMITS;
+      _normalize_joy(norm_jog.x, JOY_X(x.getraw()), joy_x_limits);
     #endif
     #if HAS_JOY_ADC_Y
-      static constexpr int16_t joy_y_limits[4] = JOY_Y_LIMITS;
-      _normalize_joy(norm_jog.y, JOY_Y(y.raw), joy_y_limits);
+      static constexpr raw_adc_t joy_y_limits[4] = JOY_Y_LIMITS;
+      _normalize_joy(norm_jog.y, JOY_Y(y.getraw()), joy_y_limits);
     #endif
     #if HAS_JOY_ADC_Z
-      static constexpr int16_t joy_z_limits[4] = JOY_Z_LIMITS;
-      _normalize_joy(norm_jog.z, JOY_Z(z.raw), joy_z_limits);
+      static constexpr raw_adc_t joy_z_limits[4] = JOY_Z_LIMITS;
+      _normalize_joy(norm_jog.z, JOY_Z(z.getraw()), joy_z_limits);
     #endif
   }
 
@@ -126,6 +125,11 @@ Joystick joystick;
     // Recursion barrier
     static bool injecting_now; // = false;
     if (injecting_now) return;
+
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (TERN0(HAS_JOY_ADC_X, axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, axis_should_home(Z_AXIS)))
+        return;
+    #endif
 
     static constexpr int QUEUE_DEPTH = 5;                                // Insert up to this many movements
     static constexpr float target_lag = 0.25f,                           // Aim for 1/4 second lag
@@ -159,13 +163,8 @@ Joystick joystick;
     // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
     xyz_float_t move_dist{0};
     float hypot2 = 0;
-    LOOP_XYZ(i) if (norm_jog[i]) {
-      move_dist[i] = seg_time * norm_jog[i] *
-        #if ENABLED(EXTENSIBLE_UI)
-          manual_feedrate_mm_s[i];
-        #else
-          planner.settings.max_feedrate_mm_s[i];
-        #endif
+    LOOP_NUM_AXES(i) if (norm_jog[i]) {
+      move_dist[i] = seg_time * norm_jog[i] * TERN(EXTENSIBLE_UI, manual_feedrate_mm_s, planner.settings.max_feedrate_mm_s)[i];
       hypot2 += sq(move_dist[i]);
     }
 
@@ -173,8 +172,9 @@ Joystick joystick;
       current_position += move_dist;
       apply_motion_limits(current_position);
       const float length = sqrt(hypot2);
+      PlannerHints hints(length);
       injecting_now = true;
-      planner.buffer_line(current_position, length / seg_time, active_extruder, length);
+      planner.buffer_line(current_position, length / seg_time, active_extruder, hints);
       injecting_now = false;
     }
   }

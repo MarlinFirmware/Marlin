@@ -34,7 +34,8 @@
 
 #include "../module/temperature.h"
 #include "../module/motion.h"
-#include "../lcd/ultralcd.h"
+#include "../module/planner.h"
+#include "../lcd/marlinui.h"
 
 extern HotendIdleProtection hotend_idle;
 
@@ -43,7 +44,8 @@ millis_t HotendIdleProtection::next_protect_ms = 0;
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
   bool do_prot = false;
   HOTEND_LOOP() {
-    if (thermalManager.degHotend(e) >= HOTEND_IDLE_MIN_TRIGGER) {
+    const bool busy = (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || planner.has_blocks_queued());
+    if (thermalManager.degHotend(e) >= (HOTEND_IDLE_MIN_TRIGGER) && !busy) {
       do_prot = true; break;
     }
   }
@@ -75,7 +77,7 @@ void HotendIdleProtection::check() {
 void HotendIdleProtection::timed_out() {
   next_protect_ms = 0;
   SERIAL_ECHOLNPGM("Hotend Idle Timeout");
-  LCD_MESSAGEPGM(MSG_HOTEND_IDLE_TIMEOUT);
+  LCD_MESSAGE(MSG_HOTEND_IDLE_TIMEOUT);
   HOTEND_LOOP() {
     if ((HOTEND_IDLE_NOZZLE_TARGET) < thermalManager.degTargetHotend(e))
       thermalManager.setTargetHotend(HOTEND_IDLE_NOZZLE_TARGET, e);

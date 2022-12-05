@@ -22,16 +22,18 @@
 #pragma once
 
 /**
- * MKS Robin mini (STM32F130VET6) board pin assignments
+ * MKS Robin mini (STM32F103VET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "MKS Robin mini only supports 1 hotend / E-stepper. Comment out this line to continue."
+#include "env_validate.h"
+
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "MKS Robin mini only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin Mini"
+
+#define BOARD_NO_NATIVE_USB
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -43,12 +45,19 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE              (0x800U)  // 2KB
+  #define EEPROM_PAGE_SIZE              (0x800U)  // 2K
   #define EEPROM_START_ADDRESS      (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
+
+//
+// Servos
+//
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#endif
 
 //
 // Limit Switches
@@ -89,6 +98,7 @@
 #ifndef DEFAULT_PWM_MOTOR_CURRENT
   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
 #endif
+
 //
 // Temperature Sensors
 //
@@ -109,10 +119,10 @@
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PA3   // PW_OFF
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
-
-#define MT_DET_1_PIN                        PA4
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 #define WIFI_IO0_PIN                        PC13
 
@@ -139,25 +149,12 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if ENABLED(TOUCH_SCREEN)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12033
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -9047
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -30
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 254
-  #endif
-#endif
-
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-
+#if EITHER(HAS_FSMC_GRAPHICAL_TFT, TFT_320x240)
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
@@ -165,46 +162,45 @@
 
   #define LCD_RESET_PIN                     PC6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PD13
+#endif
 
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PC2   // SPI2_NSS
-    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
-  #endif
-
-#elif ENABLED(TFT_320x240)                        //TFT32/28
-
-  #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
+#if BOTH(NEED_TOUCH_PINS, HAS_FSMC_GRAPHICAL_TFT) || ENABLED(TFT_320x240)
   #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+#endif
 
+#if ENABLED(TFT_320x240)                          // TFT32/28
   #define TFT_DRIVER                     ILI9341
   #define TFT_BUFFER_SIZE                  14400
-
+  #define ILI9341_COLOR_RGB
   // YV for normal screen mounting
   #define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
   // XV for 180° rotated screen mounting
   //#define ILI9341_ORIENTATION  ILI9341_MADCTL_MX | ILI9341_MADCTL_MV
+#endif
 
-  #define ILI9341_COLOR_RGB
+#if ENABLED(TOUCH_SCREEN)
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X            12033
+  #endif
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            -9047
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   -30
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                   254
+  #endif
 #endif
 
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12  // Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
