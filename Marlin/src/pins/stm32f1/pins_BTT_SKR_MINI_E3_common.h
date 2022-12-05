@@ -100,38 +100,31 @@
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
 
-#ifdef SKR_MINI_E3_V2
-  #define FAN_PIN                           PC6
-#else
+#ifndef FAN_PIN
   #define FAN_PIN                           PA8   // "FAN0"
 #endif
 
 //
 // USB connect control
 //
-#ifdef SKR_MINI_E3_V2
-  #define USB_CONNECT_PIN                   PA14
-#else
+#ifndef USB_CONNECT_PIN
   #define USB_CONNECT_PIN                   PC13
 #endif
 
 #define USB_CONNECT_INVERTING              false
 
 /**
- *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
- *                ------                                    ------
- * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)    (BEEPER)  PB5  | 1  2 | PA15 (BTN_ENC)
- * (BTN_EN1) PA9  | 3  4 | RESET            (BTN_EN1) PA9  | 3  4 | RESET
- * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)    (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
- * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)    (LCD_RS)  PB8  | 7  8 | PB15 (LCD_EN)
- *            GND | 9 10 | 5V                          GND | 9 10 | 5V
- *                ------                                    ------
- *                 EXP1                                      EXP1
+ *        SKR Mini E3 V1.0, V1.2
+ *                ------
+ * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
+ *            GND | 9 10 | 5V
+ *                ------
+ *                 EXP1
  */
-#ifdef SKR_MINI_E3_V2
-  #define EXP1_02_PIN                       PA15
-  #define EXP1_08_PIN                       PB15
-#else
+#ifndef EXP1_02_PIN
   #define EXP1_02_PIN                       PB6
   #define EXP1_08_PIN                       PB7
 #endif
@@ -269,8 +262,8 @@
      *
      *            ---                   ------
      *       RST | 1 |          (MISO) |10  9 | SCK
-     * (RX2) PA2 | 2 |         BTN_EN1 | 8  7 | (SS)
-     * (TX2) PA3 | 3 |         BTN_EN2 | 6  5 | MOSI
+     * (RX2) PA3 | 2 |         BTN_EN1 | 8  7 | (SS)
+     * (TX2) PA2 | 3 |         BTN_EN2 | 6  5 | MOSI
      *       GND | 4 |            (CD) | 4  3 | (RST)
      *        5V | 5 |           (GND) | 2  1 | (KILL)
      *            ---                   ------
@@ -285,24 +278,21 @@
      *   EXP1-8 ----------- EXP2-6   EN2
      *   EXP1-7 ----------- EXP1-5   RED
      *   EXP1-6 ----------- EXP2-8   EN1
-     *   EXP1-5 ----------- EXP1-6   LCD_RST
-     *   EXP1-4 ----------- n/c
+     *   EXP1-5 ----------- n/c
+     *   EXP1-4 ----------- EXP1-6   RESET
      *   EXP1-3 ----------- EXP1-8   LCD_CS
      *   EXP1-2 ----------- EXP1-9   ENC
      *   EXP1-1 ----------- EXP1-7   LCD_A0
      *
-     *    TFT-2 ----------- EXP2-9   SCK
-     *    TFT-3 ----------- EXP2-5   MOSI
+     *    TFT-2 ----------- EXP2-5   SCK
+     *    TFT-3 ----------- EXP2-9   MOSI
      *
      * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
      */
 
-    #define LCD_PINS_RS              EXP1_03_PIN    // CS
-    #define LCD_PINS_ENABLE                 PA3     // MOSI
     #define LCD_BACKLIGHT_PIN               -1
     #define NEOPIXEL_PIN             EXP1_07_PIN
-    #define LCD_CONTRAST                    255
-    #define LCD_RESET_PIN            EXP1_05_PIN
+    #define LCD_CONTRAST                     255
 
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_01_PIN
