@@ -173,14 +173,14 @@
    *   GND | 9 10 | 5V
    *        ------
    */
-  #define EXP3_01_PIN                     PC6
-  #define EXP3_02_PIN                     PB2
-  #define EXP3_03_PIN                     PB10
-  #define EXP3_04_PIN                     PB11
-  #define EXP3_05_PIN                     PB14
-  #define EXP3_06_PIN                     PB13
-  #define EXP3_07_PIN                     PB12
-  #define EXP3_08_PIN                     PB15
+  #define EXP3_01_PIN                       PC6
+  #define EXP3_02_PIN                       PB2
+  #define EXP3_03_PIN                       PB10
+  #define EXP3_04_PIN                       PB11
+  #define EXP3_05_PIN                       PB14
+  #define EXP3_06_PIN                       PB13
+  #define EXP3_07_PIN                       PB12
+  #define EXP3_08_PIN                       PB15
 
 #elif EITHER(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
 
@@ -194,14 +194,14 @@
    *   GND | 9 10 | 5V
    *        ------
    */
-  #define EXP3_01_PIN                     -1
-  #define EXP3_02_PIN                     PC5
-  #define EXP3_03_PIN                     PB10
-  #define EXP3_04_PIN                     -1
-  #define EXP3_05_PIN                     PA6
-  #define EXP3_06_PIN                     PA5
-  #define EXP3_07_PIN                     PA4
-  #define EXP3_08_PIN                     PA7
+  #define EXP3_01_PIN                       -1
+  #define EXP3_02_PIN                       PC5
+  #define EXP3_03_PIN                       PB10
+  #define EXP3_04_PIN                       -1
+  #define EXP3_05_PIN                       PA6
+  #define EXP3_06_PIN                       PA5
+  #define EXP3_07_PIN                       PA4
+  #define EXP3_08_PIN                       PA7
 
 #elif EITHER(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
@@ -283,3 +283,26 @@
   #define NEOPIXEL_PIN                      PA13
 
 #endif
+
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+
+// Hardware UART pins
+#define UART1_TX_PIN                        PA9   // default uses CH340 RX
+#define UART1_RX_PIN                        PA10  // default uses CH340 TX
+#define UART2_TX_PIN                        PA2   // default uses HEATER_BED_PIN
+#define UART2_RX_PIN                        PA3   // not connected
+#define UART3_TX_PIN                        PB10  // default uses LCD connector
+#define UART3_RX_PIN                        PB11  // default uses LCD connector
+#define UART4_TX_PIN                        PC10  // default uses sdcard SDIO_D2
+#define UART4_RX_PIN                        PC11  // default uses sdcard SDIO_D3
+#define UART5_TX_PIN                        PC12  // default uses sdcard SDIO_CK
+#define UART5_RX_PIN                        PD2   // default uses sdcard SDIO_CMD
+
+// SDIO pins
+#define SDIO_D0_PIN                         PC8
+#define SDIO_D1_PIN                         PC9
+#define SDIO_D2_PIN                         PC10
+#define SDIO_D3_PIN                         PC11
+#define SDIO_CK_PIN                         PC12
+#define SDIO_CMD_PIN                        PD2
