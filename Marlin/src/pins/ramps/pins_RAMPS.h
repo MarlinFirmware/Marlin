@@ -955,5 +955,3 @@
   #define CLCD_SPI_CS                EXP2_03_PIN
 
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
-
-#undef LCD_DEFINED

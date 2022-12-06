@@ -26,7 +26,9 @@
  * V2 and V3 Boards only differ in USB controller, nothing affecting the pins.
  */
 
-#include "pins_MKS_GEN_13.h" // ... RAMPS
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN                        11  // Analog Input
+#endif
 
 //
 // Auto fans
@@ -44,27 +46,7 @@
   #define E3_AUTO_FAN_PIN                      6
 #endif
 
-#ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN                        11  // Analog Input
-#endif
-
 #if ENABLED(ZONESTAR_LCD)
-  #undef LCD_PINS_RS
-  #undef LCD_PINS_ENABLE
-  #undef LCD_PINS_D4
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
-  #undef ADC_KEYPAD_PIN
-  #undef BEEPER_PIN
-
-  #undef SHIFT_OUT_PIN
-  #undef SHIFT_CLK_PIN
-  #undef SHIFT_LD_PIN
-  #undef BTN_EN1
-  #undef BTN_EN2
-  #undef BTN_ENC
-
   #define LCD_PINS_RS                         16
   #define LCD_PINS_ENABLE                     17
   #define LCD_PINS_D4                         23
@@ -73,4 +55,8 @@
   #define LCD_PINS_D7                         29
   #define ADC_KEYPAD_PIN                      10  // Analog Input
   #define BEEPER_PIN                          37
+
+  #define LCD_PINS_DEFINED
 #endif
+
+#include "pins_MKS_GEN_13.h" // ... RAMPS
