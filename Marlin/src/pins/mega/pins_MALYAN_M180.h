@@ -24,6 +24,8 @@
 /**
  * Malyan M180 pin assignments
  * Contributed by Timo Birnschein (timo.birnschein@microforge.de)
+ * @Timo: sind diese Pin Definitionen immernoch korrekt? (Antwort an turningtides@outlook.de bitte)
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -32,9 +34,9 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            48
-#define Y_STOP_PIN                            46
-#define Z_STOP_PIN                            42
+#define X_STOP_PIN                            PinL1
+#define Y_STOP_PIN                            PinL3
+#define Z_STOP_PIN                            PinL7
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -46,40 +48,40 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                            55
-#define X_DIR_PIN                             54
-#define X_ENABLE_PIN                          56
+#define X_STEP_PIN                            PinF1
+#define X_DIR_PIN                             PinF0
+#define X_ENABLE_PIN                          PinF2
 
-#define Y_STEP_PIN                            59
-#define Y_DIR_PIN                             58
-#define Y_ENABLE_PIN                          60
+#define Y_STEP_PIN                            PinF5
+#define Y_DIR_PIN                             PinF4
+#define Y_ENABLE_PIN                          PinF6
 
-#define Z_STEP_PIN                            63
-#define Z_DIR_PIN                             62
-#define Z_ENABLE_PIN                          64
+#define Z_STEP_PIN                            PinK1
+#define Z_DIR_PIN                             PinK0
+#define Z_ENABLE_PIN                          PinK2
 
-#define E0_STEP_PIN                           25
-#define E0_DIR_PIN                            24
-#define E0_ENABLE_PIN                         26
+#define E0_STEP_PIN                           PinA3
+#define E0_DIR_PIN                            PinA2
+#define E0_ENABLE_PIN                         PinA4
 
-#define E1_STEP_PIN                           29
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         39
+#define E1_STEP_PIN                           PinA7
+#define E1_DIR_PIN                            PinA6
+#define E1_ENABLE_PIN                         PinG2
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                          15  // Analog Input
+#define TEMP_BED_PIN                          PinJ0  // Analog Input
 
 // Extruder thermocouples 0 and 1 are read out by two separate ICs using
 // SPI for MAX Thermocouple
 // Uses a separate SPI bus
-#define TEMP_0_CS_PIN                          5  // E3 - CS0
-#define TEMP_0_SCK_PIN                        78  // E2 - SCK
-#define TEMP_0_MISO_PIN                        3  // E5 - MISO
+#define TEMP_0_CS_PIN                         PinE3  // E3 - CS0
+#define TEMP_0_SCK_PIN                        PinE2  // E2 - SCK
+#define TEMP_0_MISO_PIN                       PinE5  // E5 - MISO
 //#define TEMP_0_MOSI_PIN                    ...  // For MAX31865
 
-#define TEMP_1_CS_PIN                          2  // E4 - CS1
+#define TEMP_1_CS_PIN                         PinE4  // E4 - CS1
 #define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
 #define TEMP_1_MISO_PIN          TEMP_0_MISO_PIN
 //#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
@@ -87,14 +89,14 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           6
-#define HEATER_1_PIN                          11
-#define HEATER_BED_PIN                        45
+#define HEATER_0_PIN                          PinH3
+#define HEATER_1_PIN                          PinB5
+#define HEATER_BED_PIN                        PinL4
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              7  // M106 Sxxx command supported and tested. M107 as well.
+  #define FAN_PIN                             PinH4  // M106 Sxxx command supported and tested. M107 as well.
 #endif
 
 #ifndef FAN_PIN1
-  #define FAN_PIN1                            12  // Currently Unsupported by Marlin
+  #define FAN_PIN1                            PinB6  // Currently Unsupported by Marlin
 #endif

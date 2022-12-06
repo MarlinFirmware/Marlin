@@ -23,6 +23,7 @@
 
 /**
  * Intamsys Funmat HT V4.0 Mainboard
+ * ATmega2560
  * 4988 Drivers Tested
  * 2208 version exists and may or may not work
  */
@@ -34,49 +35,49 @@
 //
 // Servos
 //
-#define SERVO0_PIN                            12  // Uses High Temp Present Jumper Pin
+#define SERVO0_PIN                            PinB6  // Uses High Temp Present Jumper Pin
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            22
-#define Y_STOP_PIN                            26
-#define Z_MIN_PIN                             29
-#define Z_MAX_PIN                             69
+#define X_STOP_PIN                            PinA0
+#define Y_STOP_PIN                            PinA4
+#define Z_MIN_PIN                             PinA7
+#define Z_MAX_PIN                             PinK7
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     69
+  #define Z_MIN_PROBE_PIN                     PinK7
 #endif
 
-#define FIL_RUNOUT_PIN                        10
+#define FIL_RUNOUT_PIN                        PinB4
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            25
-#define X_DIR_PIN                             23
-#define X_ENABLE_PIN                          27  // 44
+#define X_STEP_PIN                            PinA3
+#define X_DIR_PIN                             PinA1
+#define X_ENABLE_PIN                          PinA5  // 44
 
-#define Y_STEP_PIN                            32  // 33
-#define Y_DIR_PIN                             33  // 31, 32
-#define Y_ENABLE_PIN                          31  // 32
+#define Y_STEP_PIN                            PinC5  // 33
+#define Y_DIR_PIN                             PinC4  // 31, 32
+#define Y_ENABLE_PIN                          PinC6  // 32
 
-#define Z_STEP_PIN                            35  // 35
-#define Z_DIR_PIN                             36
-#define Z_ENABLE_PIN                          34  // 34
+#define Z_STEP_PIN                            PinC2  // 35
+#define Z_DIR_PIN                             PinC1
+#define Z_ENABLE_PIN                          PinC3  // 34
 
-#define E0_STEP_PIN                           42
-#define E0_DIR_PIN                            43
-#define E0_ENABLE_PIN                         37
+#define E0_STEP_PIN                           PinL7
+#define E0_DIR_PIN                            PinL6
+#define E0_ENABLE_PIN                         PinC0
 
-#define E1_STEP_PIN                           49
-#define E1_DIR_PIN                            47
-#define E1_ENABLE_PIN                         48
+#define E1_STEP_PIN                           PinL0
+#define E1_DIR_PIN                            PinL2
+#define E1_ENABLE_PIN                         PinL1
 
-#define MOTOR_CURRENT_PWM_X_PIN               11
-#define MOTOR_CURRENT_PWM_Y_PIN               44
-#define MOTOR_CURRENT_PWM_Z_PIN               45
-#define MOTOR_CURRENT_PWM_E_PIN               46
+#define MOTOR_CURRENT_PWM_X_PIN               PinB5
+#define MOTOR_CURRENT_PWM_Y_PIN               PinL5
+#define MOTOR_CURRENT_PWM_Z_PIN               PinL4
+#define MOTOR_CURRENT_PWM_E_PIN               PinL3
 
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
@@ -87,49 +88,49 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             8  // Analog Input D62
-#define TEMP_BED_PIN                          10  // Analog Input D64
+#define TEMP_0_PIN                            PinH5  // Analog Input D62
+#define TEMP_BED_PIN                          PinB4  // Analog Input D64
 
-#define TEMP_CHAMBER_PIN                       9  // Analog Input D63
+#define TEMP_CHAMBER_PIN                      PinH6  // Analog Input D63
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           2  // PWM
-#define HEATER_BED_PIN                         4  // PWM
-#define HEATER_CHAMBER_PIN                     3  // PWM
-#define FAN_PIN                                7  // PWM
+#define HEATER_0_PIN                          PinE4  // PWM
+#define HEATER_BED_PIN                        PinG5  // PWM
+#define HEATER_CHAMBER_PIN                    PinE5  // PWM
+#define FAN_PIN                               PinH4  // PWM
 
 //
 // Misc. Functions
 //
-#define SDSS                                  53
-#define SD_DETECT_PIN                         39
+#define SDSS                                  PinB0
+#define SD_DETECT_PIN                         PinG2
 
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN                       8
+  #define CASE_LIGHT_PIN                      PinH5
 #endif
 
 #if ENABLED(PSU_CONTROL)
-  #define PS_ON_PIN                           38  // UPS Module
+  #define PS_ON_PIN                           PinD7  // UPS Module
 #endif
 
 //
 // LCD Controller
 //
 
-#define BEEPER_PIN                            18
+#define BEEPER_PIN                            PinD3
 
 #if HAS_WIRED_LCD
-  #define LCD_PINS_RS                         20
-  #define LCD_PINS_ENABLE                     30
-  #define LCD_PINS_D4                         14
-  #define LCD_PINS_D5                         21
-  #define LCD_PINS_D6                          5
-  #define LCD_PINS_D7                          6
-  #define BTN_EN1                             40
-  #define BTN_EN2                             41
-  #define BTN_ENC                             19
+  #define LCD_PINS_RS                         PinD1
+  #define LCD_PINS_ENABLE                     PinC7
+  #define LCD_PINS_D4                         PinJ1
+  #define LCD_PINS_D5                         PinD0
+  #define LCD_PINS_D6                         PinE3
+  #define LCD_PINS_D7                         PinH3
+  #define BTN_EN1                             PinG1
+  #define BTN_EN2                             PinG0
+  #define BTN_ENC                             PinD2
 #endif
 
 ///////////////////// SPARE HEADERS //////////////

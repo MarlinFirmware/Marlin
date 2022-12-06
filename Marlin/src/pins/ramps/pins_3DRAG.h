@@ -23,6 +23,7 @@
 
 /**
  * 3DRAG (and K8200 / K8400) Arduino Mega with RAMPS v1.4 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #ifndef BOARD_INFO_NAME
@@ -40,17 +41,17 @@
 //
 // Limit Switches
 //
-#define Z_STOP_PIN                            18
+#define Z_STOP_PIN                            PinD3
 
 //
 // Steppers
 //
 #if HAS_CUTTER
-  #define Z_DIR_PIN                           28
-  #define Z_ENABLE_PIN                        24
-  #define Z_STEP_PIN                          26
+  #define Z_DIR_PIN                           PinA6
+  #define Z_ENABLE_PIN                        PinA2
+  #define Z_STEP_PIN                          PinA4
 #else
-  #define Z_ENABLE_PIN                        63
+  #define Z_ENABLE_PIN                        PinK1
 #endif
 
 #if HAS_CUTTER && !HAS_EXTRUDERS
@@ -62,14 +63,14 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                           8
-#define MOSFET_C_PIN                           9
-#define MOSFET_D_PIN                          12
+#define MOSFET_B_PIN                          PinH5
+#define MOSFET_C_PIN                          PinH6
+#define MOSFET_D_PIN                          PinB6
 
 //
 // Misc. Functions
 //
-#define SDSS                                  25
+#define SDSS                                  PinA3
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
@@ -108,16 +109,16 @@
  */
 #if HAS_CUTTER
   #if !HAS_EXTRUDERS
-    #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
-    #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
-    #define SPINDLE_DIR_PIN                   48
+    #define SPINDLE_LASER_PWM_PIN             PinL3  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             PinK0  // Pullup!
+    #define SPINDLE_DIR_PIN                   PinL1
   #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
-    #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
-    #define SPINDLE_DIR_PIN                   17
+    #define SPINDLE_LASER_ENA_PIN             PinH1  // Pullup or pulldown!
+    #define SPINDLE_DIR_PIN                   PinH0
     #if !NUM_SERVOS                               // Use servo connector if possible
-      #define SPINDLE_LASER_PWM_PIN            6  // Hardware PWM
+      #define SPINDLE_LASER_PWM_PIN           PinH3  // Hardware PWM
     #elif HAS_FREE_AUX2_PINS
-      #define SPINDLE_LASER_PWM_PIN           44  // Hardware PWM
+      #define SPINDLE_LASER_PWM_PIN           PinL5  // Hardware PWM
     #endif
   #endif
 #endif
@@ -127,10 +128,10 @@
 //
 // Heaters / Fans
 //
-#define HEATER_2_PIN                           6
+#define HEATER_2_PIN                          PinH3
 
 #undef SD_DETECT_PIN
-#define SD_DETECT_PIN                         53
+#define SD_DETECT_PIN                         PinB0
 
 //
 // LCD / Controller
@@ -145,24 +146,24 @@
   #undef LCD_PINS_D5
   #undef LCD_PINS_D6
   #undef LCD_PINS_D7
-  #define LCD_PINS_RS                         27
-  #define LCD_PINS_ENABLE                     29
-  #define LCD_PINS_D4                         37
-  #define LCD_PINS_D5                         35
-  #define LCD_PINS_D6                         33
-  #define LCD_PINS_D7                         31
+  #define LCD_PINS_RS                         PinA5
+  #define LCD_PINS_ENABLE                     PinA7
+  #define LCD_PINS_D4                         PinC0
+  #define LCD_PINS_D5                         PinC2
+  #define LCD_PINS_D6                         PinC4
+  #define LCD_PINS_D7                         PinC6
 
   // Buttons
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC
-  #define BTN_EN1                             16
-  #define BTN_EN2                             17
-  #define BTN_ENC                             23
+  #define BTN_EN1                             PinH1
+  #define BTN_EN2                             PinH0
+  #define BTN_ENC                             PinA1
 
 #else
 
-  #define BEEPER_PIN                          33
+  #define BEEPER_PIN                          PinC4
 
 #endif // HAS_WIRED_LCD && IS_NEWPANEL
 

@@ -1638,6 +1638,10 @@ static void DMAProgramSSPChain(volatile ssp_dev_t& SSP, dma_process_t& proc) {
     }
   }
 
+  void spiEstablish() {
+    _maybe_start_transaction();
+  }
+
   // Internal.
   inline void _spiSetFrameSize(uint8_t fsize) {
     if (_ssp_framesize != fsize) {

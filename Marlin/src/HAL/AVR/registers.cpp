@@ -30,8 +30,10 @@
 // we want to off-load the function definitions that define static memory into this solitary compilation unit.
 // This way the ROM is NOT bloated (who knows if the compiler is optimizing same-content constant objects into one?)
 
-ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
-  ATmegaPinInfo info = _ATmega_getPinInfo(pin);
+ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
+  if (pin < 0) return {};
+
+  ATmegaPinInfo info = _ATmega_getPinInfo((unsigned int)pin);
 
 #if defined(__AVR_TRM01__)
   if (info.port == eATmegaPort::PORT_A) {
@@ -70,19 +72,19 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
   }
   else if (info.port == eATmegaPort::PORT_B) {
     if (info.pinidx == 7) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC0A, eATmegaPinFunc::OC1C, eATmegaPinFunc::PCI7 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC0A, eATmegaPinFunc::TOC1C, eATmegaPinFunc::PCI7 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1B, eATmegaPinFunc::PCI6 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1B, eATmegaPinFunc::PCI6 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1A, eATmegaPinFunc::PCI5 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1A, eATmegaPinFunc::PCI5 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC2A, eATmegaPinFunc::PCI4 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC2A, eATmegaPinFunc::PCI4 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
@@ -180,15 +182,15 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT5, eATmegaPinFunc::OC3C };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT5, eATmegaPinFunc::TOC3C };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT4, eATmegaPinFunc::OC3B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT4, eATmegaPinFunc::TOC3B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN1, eATmegaPinFunc::OC3A };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN1, eATmegaPinFunc::TOC3A };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
@@ -240,7 +242,7 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
   }
   else if (info.port == eATmegaPort::PORT_G) {
     if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC0B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC0B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
@@ -270,19 +272,19 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC2B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC2B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC4C };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC4C };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC4B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC4B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC4A };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC4A };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
@@ -364,15 +366,15 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
   }
   else if (info.port == eATmegaPort::PORT_L) {
     if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC5C };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC5C };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC5B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC5B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC5A };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC5A };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
@@ -425,11 +427,11 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
   }
   else if (info.port == eATmegaPort::PORT_B) {
     if (info.pinidx == 7) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::OC3B, eATmegaPinFunc::PCI15 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::TOC3B, eATmegaPinFunc::PCI15 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::OC3A, eATmegaPinFunc::PCI14 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::TOC3A, eATmegaPinFunc::PCI14 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
@@ -437,11 +439,11 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_CS, eATmegaPinFunc::OC0B, eATmegaPinFunc::PCI12 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_CS, eATmegaPinFunc::TOC0B, eATmegaPinFunc::PCI12 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN1, eATmegaPinFunc::OC0A, eATmegaPinFunc::PCI11 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN1, eATmegaPinFunc::TOC0A, eATmegaPinFunc::PCI11 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
@@ -493,19 +495,19 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
   }
   else if (info.port == eATmegaPort::PORT_D) {
     if (info.pinidx == 7) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC2A, eATmegaPinFunc::PCI31 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC2A, eATmegaPinFunc::PCI31 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ICP, eATmegaPinFunc::OC2B, eATmegaPinFunc::PCI30 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ICP, eATmegaPinFunc::TOC2B, eATmegaPinFunc::PCI30 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1A, eATmegaPinFunc::PCI29 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1A, eATmegaPinFunc::PCI29 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1B, eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::PCI28 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1B, eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::PCI28 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
@@ -544,15 +546,15 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::OC2A, eATmegaPinFunc::PCI3 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::TOC2A, eATmegaPinFunc::PCI3 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_CS, eATmegaPinFunc::OC1B, eATmegaPinFunc::PCI2 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_CS, eATmegaPinFunc::TOC1B, eATmegaPinFunc::PCI2 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 1) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1A, eATmegaPinFunc::PCI1 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1A, eATmegaPinFunc::PCI1 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 0) {
@@ -596,11 +598,11 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN0, eATmegaPinFunc::OC0A, eATmegaPinFunc::PCI22 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN0, eATmegaPinFunc::TOC0A, eATmegaPinFunc::PCI22 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ECI, eATmegaPinFunc::OC0B, eATmegaPinFunc::PCI21 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ECI, eATmegaPinFunc::TOC0B, eATmegaPinFunc::PCI21 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
@@ -608,7 +610,7 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT1, eATmegaPinFunc::OC2B, eATmegaPinFunc::PCI19 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT1, eATmegaPinFunc::TOC2B, eATmegaPinFunc::PCI19 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
@@ -661,19 +663,19 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
   }
   else if (info.port == eATmegaPort::PORT_B) {
     if (info.pinidx == 7) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC0A, eATmegaPinFunc::OC1C, eATmegaPinFunc::PCI7 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC0A, eATmegaPinFunc::TOC1C, eATmegaPinFunc::PCI7 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1B, eATmegaPinFunc::PCI6 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1B, eATmegaPinFunc::PCI6 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC1A, eATmegaPinFunc::PCI5 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1A, eATmegaPinFunc::PCI5 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::OC2A, eATmegaPinFunc::PCI4 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC2A, eATmegaPinFunc::PCI4 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
@@ -699,15 +701,15 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD14, eATmegaPinFunc::OC3A };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD14, eATmegaPinFunc::TOC3A };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD13, eATmegaPinFunc::OC3B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD13, eATmegaPinFunc::TOC3B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD12, eATmegaPinFunc::OC3C };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD12, eATmegaPinFunc::TOC3C };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
@@ -753,11 +755,11 @@ ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin) {
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 1) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT1, eATmegaPinFunc::TWI_SDA, eATmegaPinFunc::OC2B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT1, eATmegaPinFunc::TWI_SDA, eATmegaPinFunc::TOC2B };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 0) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT0, eATmegaPinFunc::TWI_CLK, eATmegaPinFunc::OC0B };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT0, eATmegaPinFunc::TWI_CLK, eATmegaPinFunc::TOC0B };
       return { funcs, countof(funcs) };
     }
   }

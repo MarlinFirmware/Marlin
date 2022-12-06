@@ -101,6 +101,8 @@ void spiSetClockMode(int clockMode) {
   spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
 }
 
+void spiEstablish() { /* do nothing */ }
+
 // SPI receive a byte
 uint8_t spiRec(uint8_t txval) {
   SPI.beginTransaction(spiConfig);

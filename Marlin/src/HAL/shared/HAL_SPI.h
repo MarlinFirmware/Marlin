@@ -90,6 +90,12 @@ void spiSetBitOrder(int bitOrder);
 // Specifies the CLKMODE.
 void spiSetClockMode(int mode);
 
+// Forces the initialization of the SPI transfer (setting SCK, etc).
+// Needed when certain machines have no chip-select pin but require signal stabilization before init
+// (AVR flashing, etc).
+// Done implicitly by SPI transaction functions (spiSend, spiRec, etc).
+void spiEstablish();
+
 // Write single byte to SPI.
 // The byte is sent in the requested bit-order.
 void spiSend(uint8_t b);

@@ -144,6 +144,10 @@
     }
   }
 
+  void spiEstablish() {
+    _maybe_start_transaction();
+  }
+
   uint8_t spiRec(uint8_t txval) { return (_spi_bit_order == SPI_BITORDER_MSB) ? spiTransfer(txval) : _flip_bits_8(spiTransfer(_flip_bits_8(txval))); }
   
   uint16_t spiRec16(uint16_t txval) {

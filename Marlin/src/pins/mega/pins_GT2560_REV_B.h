@@ -23,6 +23,7 @@
 
 /**
  * Geeetech GT2560 Rev B Pins
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "GT2560 Rev B"

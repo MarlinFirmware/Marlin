@@ -23,6 +23,7 @@
 
 /**
  * CartesioV11 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #define ALLOW_MEGA1280
@@ -33,71 +34,71 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            43
-#define Y_STOP_PIN                            45
-#define Z_STOP_PIN                            42
+#define X_STOP_PIN                            PinL6
+#define Y_STOP_PIN                            PinL4
+#define Z_STOP_PIN                            PinL7
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            34
-#define X_DIR_PIN                             36
-#define X_ENABLE_PIN                          35
+#define X_STEP_PIN                            PinC3
+#define X_DIR_PIN                             PinC1
+#define X_ENABLE_PIN                          PinC2
 
-#define Y_STEP_PIN                            37
-#define Y_DIR_PIN                             39
-#define Y_ENABLE_PIN                          38
+#define Y_STEP_PIN                            PinC0
+#define Y_DIR_PIN                             PinG2
+#define Y_ENABLE_PIN                          PinD7
 
-#define Z_STEP_PIN                            40
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          41
+#define Z_STEP_PIN                            PinG1
+#define Z_DIR_PIN                             PinL1
+#define Z_ENABLE_PIN                          PinG0
 
-#define E0_STEP_PIN                           29
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                          3
+#define E0_STEP_PIN                           PinA7
+#define E0_DIR_PIN                            PinA6
+#define E0_ENABLE_PIN                         PinE5
 
-#define E1_STEP_PIN                           61
-#define E1_DIR_PIN                            62
-#define E1_ENABLE_PIN                         60
+#define E1_STEP_PIN                           PinF7
+#define E1_DIR_PIN                            PinK0
+#define E1_ENABLE_PIN                         PinF6
 
-#define E2_STEP_PIN                           15
-#define E2_DIR_PIN                            14
-#define E2_ENABLE_PIN                         16
+#define E2_STEP_PIN                           PinJ0
+#define E2_DIR_PIN                            PinJ1
+#define E2_ENABLE_PIN                         PinH1
 
-#define E3_STEP_PIN                           44
-#define E3_DIR_PIN                            49
-#define E3_ENABLE_PIN                         47
+#define E3_STEP_PIN                           PinL5
+#define E3_DIR_PIN                            PinL0
+#define E3_ENABLE_PIN                         PinL2
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input
-#define TEMP_1_PIN                             3  // Analog Input.  3 for tool2 -> 2 for chambertemp
-#define TEMP_2_PIN                             2  // Analog Input.  9 for tool3 -> 2 for chambertemp
-#define TEMP_3_PIN                            11  // Analog Input. 11 for tool4 -> 2 for chambertemp
-#define TEMP_BED_PIN                           1  // Analog Input
+#define TEMP_0_PIN                            PinE0  // Analog Input
+#define TEMP_1_PIN                            PinE5  // Analog Input.  3 for tool2 -> 2 for chambertemp
+#define TEMP_2_PIN                            PinE4  // Analog Input.  9 for tool3 -> 2 for chambertemp
+#define TEMP_3_PIN                            PinB5  // Analog Input. 11 for tool4 -> 2 for chambertemp
+#define TEMP_BED_PIN                          PinE1  // Analog Input
 
 #ifndef TEMP_CHAMBER_PIN
-  //#define TEMP_CHAMBER_PIN                   2  // Analog Input
+  //#define TEMP_CHAMBER_PIN                  PinE4  // Analog Input
 #endif
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           5
-#define HEATER_1_PIN                          58
-#define HEATER_2_PIN                          64
-#define HEATER_3_PIN                          46
-#define HEATER_BED_PIN                         2
+#define HEATER_0_PIN                          PinE3
+#define HEATER_1_PIN                          PinF4
+#define HEATER_2_PIN                          PinK2
+#define HEATER_3_PIN                          PinL3
+#define HEATER_BED_PIN                        PinE4
 
 #ifndef FAN_PIN
-  //#define FAN_PIN                            7  // common PWM pin for all tools
+  //#define FAN_PIN                           PinH4  // common PWM pin for all tools
 #endif
 
 //
 // Auto fans
 //
-#define AUTO_FAN_PIN                           7
+#define AUTO_FAN_PIN                          PinH4
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
@@ -114,49 +115,49 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
-#define SD_DETECT_PIN                         13
+#define SDSS                                  PinB0
+#define SD_DETECT_PIN                         PinB7
 
 // Tools
 
-//#define TOOL_0_PIN                           4
-//#define TOOL_1_PIN                          59
-//#define TOOL_2_PIN                           8
-//#define TOOL_3_PIN                          30
-//#define TOOL_PWM_PIN                         7  // common PWM pin for all tools
+//#define TOOL_0_PIN                          PinG5
+//#define TOOL_1_PIN                          PinF5
+//#define TOOL_2_PIN                          PinH5
+//#define TOOL_3_PIN                          PinC7
+//#define TOOL_PWM_PIN                        PinH4  // common PWM pin for all tools
 
 // Common I/O
 
 //#define FIL_RUNOUT_PIN                      -1
-//#define PWM_1_PIN                           11
-//#define PWM_2_PIN                           10
-//#define SPARE_IO                            12
+//#define PWM_1_PIN                           PinB5
+//#define PWM_2_PIN                           PinB4
+//#define SPARE_IO                            PinB6
 
 //
 // LCD / Controller
 //
 #if HAS_WIRED_LCD
-  #define BEEPER_PIN                           6
+  #define BEEPER_PIN                          PinH3
 
-  #define BTN_EN1                             23
-  #define BTN_EN2                             25
-  #define BTN_ENC                             27
+  #define BTN_EN1                             PinA1
+  #define BTN_EN2                             PinA3
+  #define BTN_ENC                             PinA5
 
   #if HAS_MARLINUI_U8GLIB
-    #define DOGLCD_A0                         26
-    #define DOGLCD_CS                         24
+    #define DOGLCD_A0                         PinA4
+    #define DOGLCD_CS                         PinA2
     #define DOGLCD_MOSI                       -1  // Prevent auto-define by Conditionals_post.h
     #define DOGLCD_SCK                        -1
   #endif
 #endif
 
 // Hardware buttons for manual movement of XYZ
-#define SHIFT_OUT_PIN                         19
-#define SHIFT_LD_PIN                          18
-#define SHIFT_CLK_PIN                         17
+#define SHIFT_OUT_PIN                         PinD2
+#define SHIFT_LD_PIN                          PinD3
+#define SHIFT_CLK_PIN                         PinH0
 
-//#define UI1                                 31
-//#define UI2                                 22
+//#define UI1                                 PinC6
+//#define UI2                                 PinA0
 
 #define STAT_LED_BLUE_PIN                     -1
-#define STAT_LED_RED_PIN                      31
+#define STAT_LED_RED_PIN                      PinC6

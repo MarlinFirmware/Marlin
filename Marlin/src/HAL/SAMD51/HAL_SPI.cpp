@@ -129,6 +129,8 @@
     spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
   }
 
+  void spiEstablish() { /* do nothing */ }
+
   /**
    * @brief  Receives a single byte from the SPI port.
    *

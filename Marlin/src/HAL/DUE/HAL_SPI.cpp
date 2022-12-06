@@ -491,6 +491,8 @@
     }
   }
 
+  void spiEstablish() { /* do nothing */ }
+
   uint8_t spiRec(uint8_t txval) {
     _SS_WRITE(LOW);
     WRITE(SD_MOSI_PIN, HIGH); // Output 1s 1
@@ -748,6 +750,8 @@
       spiConfig = SPISettings(_spi_clock, _spi_bitOrder, _spi_clockMode);
     }
 
+    void spiEstablish() { /* do nothing */ }
+
     uint8_t spiRec(uint8_t txval) {
       if (_has_spi_pins)
         SPI.beginTransaction(_spi_pin_cs, spiConfig);
@@ -985,6 +989,8 @@
         for (;;) {}
       }
     }
+
+    void spiEstablish() { /* do nothing */ }
 
     // Read single byte from SPI
     uint8_t spiRec(uint8_t txval) {
@@ -1230,6 +1236,8 @@
         SPI0->SPI_CR |= ( 1 << 5 );
       }
     }
+
+    void spiEstablish() { /* do nothing */ }
 
     static uint8_t spiTransfer(uint8_t data) {
       WHILE_TX(0);

@@ -989,6 +989,10 @@ extern "C" {
     }
   }
 
+  void spiEstablish() {
+    _HAL_SPI_UpdateTransaction(SPI_DATASIZE_8BIT);
+  }
+
 #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
   static void _DMA_Interrupt( void )
   {

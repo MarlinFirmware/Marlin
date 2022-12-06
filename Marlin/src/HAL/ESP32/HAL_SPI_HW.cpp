@@ -88,6 +88,52 @@ static void _spi_on_error(uint32_t code = 0) {
   }
 }
 
+#ifndef HALSPI_LOOPBEEP_TIMEOUT
+#define HALSPI_LOOPBEEP_TIMEOUT 3000
+#endif
+
+struct spi_monitored_loop
+{
+private:
+#if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+  uint32_t _start_millis;
+#endif
+public:
+  inline spi_monitored_loop() {
+#if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+    _start_millis = millis();
+#endif
+  }
+  inline void update(unsigned int beep_code) {
+#if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+    if ((millis() - _start_millis) <= HALSPI_LOOPBEEP_TIMEOUT) return;
+    OUT_WRITE(BEEPER_PIN, HIGH);
+    delay(500);
+    OUT_WRITE(BEEPER_PIN, LOW);
+    delay(200);
+    OUT_WRITE(BEEPER_PIN, HIGH);
+    delay(200);
+    OUT_WRITE(BEEPER_PIN, LOW);
+    delay(200);
+    OUT_WRITE(BEEPER_PIN, HIGH);
+    delay(200);
+    OUT_WRITE(BEEPER_PIN, LOW);
+    delay(1000);
+    for (unsigned int n = 0; n < beep_code; n++) {
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(200);
+    }
+    delay(800);
+    OUT_WRITE(BEEPER_PIN, HIGH);
+    delay(1000);
+    OUT_WRITE(BEEPER_PIN, LOW);
+    delay(2000);
+#endif
+  }
+};
+
 static void __attribute__((unused)) _spi_infobeep(uint32_t code) {
 #if PIN_EXISTS(BEEPER)
   OUT_WRITE(BEEPER_PIN, HIGH);
@@ -1239,8 +1285,10 @@ static void SPITransaction(spi_dev_t& SPI, uint32_t txcount) {
 
   SPI.SPI_CMD_REG.SPI_USR = true;
 
+  spi_monitored_loop usrw;
   while (SPI.SPI_CMD_REG.SPI_USR) {
     /* wait until transfer has finished */
+    usrw.update(1);
   }
 }
 
@@ -1672,7 +1720,8 @@ static void SPIAsyncInitialize() {
 static void SPIStartRawAsync(spi_dev_t& SPI, const void *buf, uint32_t txlen, uint8_t txunitsize, void (*completeCallback)(void*), void *ud) {
   volatile spi_async_process_t& proc = _current_spi_proc;
 
-  while (proc.is_active) { /* wait for any async process to conclude before we start another */ }
+  spi_monitored_loop asyncw;
+  while (proc.is_active) { asyncw.update(2); /* wait for any async process to conclude before we start another */ }
 
   cli();
 
@@ -1762,6 +1811,7 @@ inline void DMAInitializeMachine() {
     if (DMAIsValidDescriptor(&desc) == false) {
       _spi_on_error(3);
     }
+    desc.owner = SPIDMA_OWNER_CPU;
   }
 #else
   void *dmabuf = heap_caps_malloc( sizeof(dma_descriptor_t)*HALSPI_ESP32_DMADESC_COUNT, MALLOC_CAP_DMA );
@@ -1771,6 +1821,11 @@ inline void DMAInitializeMachine() {
   _usable_dma_descs_count = HALSPI_ESP32_DMADESC_COUNT;
   if (DMAIsValidDescriptor(_usable_dma_descs_dynamic) == false)
     _spi_on_error(3);
+  for (uint32_t n = 0; n < _usable_dma_descs_count; n++) {
+    dma_descriptor_t& desc = _usable_dma_descs_dynamic[n];
+
+    desc.owner = SPIDMA_OWNER_CPU;
+  }
 #endif
 }
 
@@ -1963,17 +2018,24 @@ static void DMASendBlocking(spi_dev_t& SPI, const void *buf, size_t bufsize, siz
     // Generate a transfer chain.
     dma_descriptor_t *chain = DMAGenerateAcquireChain(proc);
 
+    if (chain == nullptr)
+      _spi_on_error(14);
+
     // Configure the transfer.
     SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR = ((uint32_t)chain - ESP32_DMA_BASE);
     SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_START = true;
 
     // Kick it off.
     SPI.SPI_CMD_REG.SPI_USR = true;
+
+    spi_monitored_loop usrw;
     while (SPI.SPI_CMD_REG.SPI_USR) {
       /* wait until DMA transfer has finished */
-      _spi_infobeep(3);
+      usrw.update(3);
     }
   }
+
+  _spi_infobeep(4);
 
   proc.is_active = false;
 
@@ -1986,7 +2048,8 @@ static void DMASendBlocking(spi_dev_t& SPI, const void *buf, size_t bufsize, siz
 
 static void _spiAsyncBarrier() {
 #ifdef HAL_SPI_SUPPORTS_ASYNC
-  while (MarlinESP32::_current_spi_proc.is_active) { /* wait until any async-SPI process has finished */ }
+  spi_monitored_loop asyncw;
+  while (MarlinESP32::_current_spi_proc.is_active) { asyncw.update(4); /* wait until any async-SPI process has finished */ }
 #endif
 }
 
@@ -2050,7 +2113,8 @@ void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi
 #endif
 
 #ifdef HAL_SPI_SUPPORTS_ASYNC
-  while (_spi_is_active) { /* wait until any other transaction has finished */ }
+  spi_monitored_loop actw;
+  while (_spi_is_active) { actw.update(5); /* wait until any other transaction has finished */ }
 #else
   if (_spi_is_active)
     _spi_on_error(6);
@@ -2203,6 +2267,10 @@ void spiSetClockMode(int mode) {
   MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   MarlinESP32::SPIConfigureClock(SPI, mode, _spi_gpiomap.datasig_is_direct_iomux, _spi_clkcnt);
+}
+
+void spiEstablish() {
+  _maybe_start_transaction();
 }
 
 void spiSend(uint8_t txval) {

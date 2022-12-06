@@ -210,6 +210,10 @@ void spiSetClockMode(int mode) {
   }
 }
 
+void spiEstablish() {
+  _maybe_start_transaction();
+}
+
 uint8_t spiRec(uint8_t txval) {
   _maybe_start_transaction();
   uint8_t returnByte = SPI.transfer(txval);

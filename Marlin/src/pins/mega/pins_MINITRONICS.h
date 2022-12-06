@@ -23,6 +23,7 @@
 
 /**
  * Minitronics v1.0/1.1 pin assignments
+ * ATmega1281
  */
 
 /**
@@ -41,59 +42,59 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                              5
-#define X_MAX_PIN                              2
-#define Y_MIN_PIN                              2
-#define Y_MAX_PIN                             15
-#define Z_MIN_PIN                              6
+#define X_MIN_PIN                             PinE3
+#define X_MAX_PIN                             PinE4
+#define Y_MIN_PIN                             PinE4
+#define Y_MAX_PIN                             PinE7
+#define Z_MIN_PIN                             PinB4
 #define Z_MAX_PIN                             -1
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            48
-#define X_DIR_PIN                             47
-#define X_ENABLE_PIN                          49
+#define X_STEP_PIN                            PinF2
+#define X_DIR_PIN                             PinF1
+#define X_ENABLE_PIN                          PinF3
 
-#define Y_STEP_PIN                            39  // A6
-#define Y_DIR_PIN                             40  // A0
-#define Y_ENABLE_PIN                          38
+#define Y_STEP_PIN                            PinA1  // A6
+#define Y_DIR_PIN                             PinA2  // A0
+#define Y_ENABLE_PIN                          PinA0
 
-#define Z_STEP_PIN                            42  // A2
-#define Z_DIR_PIN                             43  // A6
-#define Z_ENABLE_PIN                          41  // A1
+#define Z_STEP_PIN                            PinA4  // A2
+#define Z_DIR_PIN                             PinA5  // A6
+#define Z_ENABLE_PIN                          PinA3  // A1
 
-#define E0_STEP_PIN                           45
-#define E0_DIR_PIN                            44
-#define E0_ENABLE_PIN                         27
+#define E0_STEP_PIN                           PinA7
+#define E0_DIR_PIN                            PinA6
+#define E0_ENABLE_PIN                         PinG2
 
-#define E1_STEP_PIN                           36
-#define E1_DIR_PIN                            35
-#define E1_ENABLE_PIN                         37
+#define E1_STEP_PIN                           PinC6
+#define E1_DIR_PIN                            PinC5
+#define E1_ENABLE_PIN                         PinC7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             7  // Analog Input
-#define TEMP_1_PIN                             6  // Analog Input
-#define TEMP_BED_PIN                           6  // Analog Input
+#define TEMP_0_PIN                            PinB5  // Analog Input
+#define TEMP_1_PIN                            PinB4  // Analog Input
+#define TEMP_BED_PIN                          PinB4  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           7  // EXTRUDER 1
-#define HEATER_1_PIN                           8  // EXTRUDER 2
-#define HEATER_BED_PIN                         3  // BED
+#define HEATER_0_PIN                          PinB5  // EXTRUDER 1
+#define HEATER_1_PIN                          PinB6  // EXTRUDER 2
+#define HEATER_BED_PIN                        PinE5  // BED
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              9
+  #define FAN_PIN                             PinB7
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                  16
-#define LED_PIN                               46
+#define SDSS                                  PinB0
+#define LED_PIN                               PinF0
 
 //
 // LCD / Controller
@@ -102,15 +103,15 @@
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-  #define LCD_PINS_RS                         15  // CS chip select /SS chip slave select
-  #define LCD_PINS_ENABLE                     11  // SID (MOSI)
-  #define LCD_PINS_D4                         10  // SCK (CLK) clock
+  #define LCD_PINS_RS                         PinE7  // CS chip select /SS chip slave select
+  #define LCD_PINS_ENABLE                     PinB2  // SID (MOSI)
+  #define LCD_PINS_D4                         PinB1  // SCK (CLK) clock
 
-  #define BTN_EN1                             18
-  #define BTN_EN2                             17
-  #define BTN_ENC                             25
+  #define BTN_EN1                             PinD1
+  #define BTN_EN2                             PinD0
+  #define BTN_ENC                             PinG0
 
-  #define SD_DETECT_PIN                       30
+  #define SD_DETECT_PIN                       PinC0
 
 #else
 
@@ -133,10 +134,10 @@
   #undef TEMP_BED_PIN                             // need to free up some pins but also need to
   #undef TEMP_0_PIN                               // re-assign them (to unused pins) because Marlin
   #undef TEMP_1_PIN                               // requires the presence of certain pins or else it
-  #define HEATER_BED_PIN                       4  // won't compile
-  #define TEMP_BED_PIN                        50
-  #define TEMP_0_PIN                          51
-  #define SPINDLE_LASER_ENA_PIN               52  // using A6 because it already has a pullup
-  #define SPINDLE_LASER_PWM_PIN                3  // WARNING - LED & resistor pull up to +12/+24V stepper voltage
-  #define SPINDLE_DIR_PIN                     53
+  #define HEATER_BED_PIN                      PinG5  // won't compile
+  #define TEMP_BED_PIN                        PinF4
+  #define TEMP_0_PIN                          PinF5
+  #define SPINDLE_LASER_ENA_PIN               PinF6  // using A6 because it already has a pullup
+  #define SPINDLE_LASER_PWM_PIN               PinE5  // WARNING - LED & resistor pull up to +12/+24V stepper voltage
+  #define SPINDLE_DIR_PIN                     PinF7
 #endif

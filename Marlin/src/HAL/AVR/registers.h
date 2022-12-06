@@ -1526,23 +1526,27 @@ static_assert(sizeof(PLLCSR_reg_t) == 1, "invalid size of ATUSB90 PLLCSR_reg_t")
   REGISTER MEMORY MAP
 */
 
+#define __AVR_DEFREG(tn,n,a) static tn& n = *(tn*)a
+#define _AVR_DEFREG(n,a) __AVR_DEFREG(n##_reg_t, _##n, a)
+
 #if defined(__AVR_TRM01__)
 // page 399ff of ATmega640-1280-1281-2560-2561-Datasheet-DS40002211A.pdf
-static PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
-static PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
-static PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static PORT_dev_t& _PORTE = *(PORT_dev_t*)0x2C;
-static PORT_dev_t& _PORTF = *(PORT_dev_t*)0x2F;
-static PORTG_dev_t& _PORTG = *(PORTG_dev_t*)0x32;
-static PORT_dev_t& _PORTH = *(PORT_dev_t*)0x100;
-static PORT_dev_t& _PORTJ = *(PORT_dev_t*)0x103;
-static PORT_dev_t& _PORTK = *(PORT_dev_t*)0x106;
-static PORT_dev_t& _PORTL = *(PORT_dev_t*)0x109;
-static TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
+
+__AVR_DEFREG(PORT_dev_t, _PORTA, 0x20);
+__AVR_DEFREG(PORT_dev_t, _PORTB, 0x23);
+__AVR_DEFREG(PORT_dev_t, _PORTC, 0x26);
+__AVR_DEFREG(PORT_dev_t, _PORTD, 0x29);
+__AVR_DEFREG(PORT_dev_t, _PORTE, 0x2C);
+__AVR_DEFREG(PORT_dev_t, _PORTF, 0x2F);
+__AVR_DEFREG(PORTG_dev_t, _PORTG, 0x32);
+__AVR_DEFREG(PORT_dev_t, _PORTH, 0x100);
+__AVR_DEFREG(PORT_dev_t, _PORTJ, 0x103);
+__AVR_DEFREG(PORT_dev_t, _PORTK, 0x106);
+__AVR_DEFREG(PORT_dev_t, _PORTL, 0x109);
+__AVR_DEFREG(TIFR0_reg_t, _TIFR0, 0x35);
+__AVR_DEFREG(TIFR1_reg_t, _TIFR1, 0x36);
+__AVR_DEFREG(TIFR2_reg_t, _TIFR2, 0x37);
+__AVR_DEFREG(TIFR3_reg_t, _TIFR3, 0x38);
 static TIFR4_reg_t& _TIFR4 = *(TIFR4_reg_t*)0x39;
 static TIFR5_reg_t& _TIFR5 = *(TIFR5_reg_t*)0x3A;
 static PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
@@ -1698,6 +1702,7 @@ static _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
 static _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
 static SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
 static SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
+static uint8_t& _SPDR = *(uint8_t*)0x4E;
 static ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
 static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
 static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
@@ -1803,7 +1808,6 @@ static UPINTX_reg_t& _UPINTX = *(UPINTX_reg_t*)0xA6;
 static UPNUM_reg_t& _UPNUM = *(UPNUM_reg_t*)0xA7;
 static UPRST_reg_t& _UPRST = *(UPRST_reg_t*)0xA8;
 static UPCONX_reg_t& _UPCONX = *(UPCONX_reg_t*)0xA9;
-#define _AVR_DEFREG(n,a) static n##_reg_t& _##n = *(n##_reg_t*)a
 _AVR_DEFREG(UPCFG0X, 0xAA);
 _AVR_DEFREG(UPCFG1X, 0xAB);
 _AVR_DEFREG(UPSTAX, 0xAC);
@@ -3984,7 +3988,7 @@ enum class eATmegaPinFunc {
   EXTMEM_AD15, EXTMEM_AD14, EXTMEM_AD13, EXTMEM_AD12, EXTMEM_AD11, EXTMEM_AD10, EXTMEM_AD9, EXTMEM_AD8,
   EXTMEM_AD7, EXTMEM_AD6, EXTMEM_AD5, EXTMEM_AD4, EXTMEM_AD3, EXTMEM_AD2, EXTMEM_AD1, EXTMEM_AD0,
   EXTMEM_ALE, EXTMEM_RD, EXTMEM_WR,
-  OC0A, OC0B, OC1A, OC1B, OC1C, OC2A, OC2B, OC3C, OC3B, OC3A, OC4C, OC4B, OC4A, OC5C, OC5B, OC5A,
+  TOC0A, TOC0B, TOC1A, TOC1B, TOC1C, TOC2A, TOC2B, TOC3C, TOC3B, TOC3A, TOC4C, TOC4B, TOC4A, TOC5C, TOC5B, TOC5A,
   EINT7, EINT6, EINT5, EINT4, EINT3, EINT2, EINT1, EINT0,
   PCI0, PCI1, PCI2, PCI3, PCI4, PCI5, PCI6, PCI7, PCI8,
   PCI9, PCI10, PCI11, PCI12, PCI13, PCI14, PCI15,
@@ -4010,7 +4014,7 @@ enum class eATmegaPinFunc {
   TIMER3_ICP,
   TIMER3_ECI, TIMER1_ECI, TIMER0_ECI,
   TIMER1_ICP,
-  OC3B, OC3A, OC2A, OC2B, OC1A, OC1B, OC0B, OC0A,
+  TOC3B, TOC3A, TOC2A, TOC2B, TOC1A, TOC1B, TOC0B, TOC0A,
   AIN1, AIN0,
   USART0_CLK, USART1_CLK,
   USART0_TXD, USART0_RXD, USART1_TXD, USART1_RXD,
@@ -4022,7 +4026,7 @@ enum class eATmegaPinFunc {
   XTAL2, XTAL1,
   TOSC2, TOSC1,
   SPI_SCK, SPI_MISO, SPI_MOSI, SPI_CS,
-  OC2B, OC2A, OC1B, OC1A, OC0A, OC0B,
+  TOC2B, TOC2A, TOC1B, TOC1A, TOC0A, TOC0B,
   TIMER1_ICP,
   TIMER1_ECI, TIMER0_ECI,
   TWI_CLK, TWI_SDA,
@@ -4038,7 +4042,7 @@ enum class eATmegaPinFunc {
   EXTMEM_AD15, EXTMEM_AD14, EXTMEM_AD13, EXTMEM_AD12, EXTMEM_AD11, EXTMEM_AD10, EXTMEM_AD9, EXTMEM_AD8,
   EXTMEM_AD7, EXTMEM_AD6, EXTMEM_AD5, EXTMEM_AD4, EXTMEM_AD3, EXTMEM_AD2, EXTMEM_AD1, EXTMEM_AD0,
   EXTMEM_ALE, EXTMEM_RD, EXTMEM_WR,
-  OC0B, OC0A, OC1C, OC1B, OC1A, OC2B, OC2A, OC3A, OC3B, OC3C,
+  TOC0B, TOC0A, TOC1C, TOC1B, TOC1A, TOC2B, TOC2A, TOC3A, TOC3B, TOC3C,
   CLK0, PDO, PDI,
   SPI_MISO, SPI_MOSI, SPI_SCK, SPI_CS,
   TIMER3_ICP, TIMER1_ICP,
@@ -4061,6 +4065,454 @@ struct ATmegaPinFunctions {
 
   const eATmegaPinFunc *funcs = nullptr;
   uint8_t cnt = 0;
+
+  inline bool hasFunc(eATmegaPinFunc query) const {
+    for (uint8_t n = 0; n < this->cnt; n++) {
+      eATmegaPinFunc func = this->funcs[n];
+
+      if (func == query)
+        return true;
+    }
+    return false;
+  }
 };
 
-ATmegaPinFunctions _ATmega_getPinFunctions(uint8_t pin);
+ATmegaPinFunctions _ATmega_getPinFunctions(int pin);
+
+#ifndef LOW
+#define LOW 0
+#endif
+#ifndef HIGH
+#define HIGH 1
+#endif
+
+inline void _ATmega_digitalWrite(int pin, int state) {
+  if (pin < 0) return;
+
+  ATmegaPinInfo info = _ATmega_getPinInfo((unsigned int)pin);
+
+#if defined(__AVR_TRM01__)
+  if (info.port == eATmegaPort::PORT_A) {
+    _PORTA._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PORTC._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_E) {
+    _PORTE._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_F) {
+    _PORTF._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_G) {
+    _PORTG._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_H) {
+    _PORTH._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_J) {
+    _PORTJ._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_K) {
+    _PORTK._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_L) {
+    _PORTL._PORT.setValue(info.pinidx, state == HIGH);
+  }
+#elif defined(__AVR_TRM02__)
+  if (info.port == eATmegaPort::PORT_A) {
+    _PORTA._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PORTC._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._PORT.setValue(info.pinidx, state == HIGH);
+  }
+#elif defined(__AVR_TRM03__)
+  if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPOrt::PORT_C) {
+    _PORTC._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._PORT.setValue(info.pinidx, state == HIGH);
+  }
+#elif defined(__AVR_TRM04__)
+  if (info.port == eATmegaPort::PORT_A) {
+    _PORTA._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PORTC._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_E) {
+    _PORTE._PORT.setValue(info.pinidx, state == HIGH);
+  }
+  else if (info.port == eATmegaPort::PORT_F) {
+    _PORTF._PORT.setValue(info.pinidx, state == HIGH);
+  }
+#endif
+}
+
+inline int _ATmega_digitalRead(int pin) {
+  int value = LOW;
+
+  if (pin < 0) return value;
+
+  ATmegaPinInfo info = _ATmega_getPinInfo((unsigned int)pin);
+
+#if defined(__AVR_TRM01__)
+  if (info.port == eATmegaPort::PORT_A) {
+    value = _PORTA._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    value = _PORTB._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    value = _PORTC._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    value = _PORTD._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_E) {
+    value = _PORTE._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_F) {
+    value = _PORTF._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_G) {
+    value = _PORTG._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_H) {
+    value = _PORTH._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_J) {
+    value = _PORTJ._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_K) {
+    value = _PORTK._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_L) {
+    value = _PORTL._PIN.getValue(info.pinidx);
+  }
+#elif defined(__AVR_TRM02__)
+  if (info.port == eATmegaPort::PORT_A) {
+    value = _PORTA._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    value = _PORTB._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    value = _PORTC._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    value = _PORTD._PIN.getValue(info.pinidx);
+  }
+#elif defined(__AVR_TRM03__)
+  if (info.port == eATmegaPort::PORT_B) {
+    value = _PORTB._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPOrt::PORT_C) {
+    value = _PORTC._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    value = _PORTD._PIN.getValue(info.pinidx);
+  }
+#elif defined(__AVR_TRM04__)
+  if (info.port == eATmegaPort::PORT_A) {
+    value = _PORTA._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    value = _PORTB._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    value = _PORTC._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    value = _PORTD._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_E) {
+    value = _PORTE._PIN.getValue(info.pinidx);
+  }
+  else if (info.port == eATmegaPort::PORT_F) {
+    value = _PORTF._PIN.getValue(info.pinidx);
+  }
+#endif
+
+  return value;
+}
+
+#ifndef OUTPUT
+#define OUTPUT 1
+#endif
+#ifndef INPUT
+#define INPUT 0
+#endif
+
+inline void _ATmega_pinMode(int pin, int mode) {
+  if (pin < 0) return;
+
+  ATmegaPinInfo info = _ATmega_getPinInfo((unsigned int)pin);
+
+#if defined(__AVR_TRM01__)
+  if (info.port == eATmegaPort::PORT_A) {
+    _PORTA._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PORTC._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_E) {
+    _PORTE._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_F) {
+    _PORTF._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_G) {
+    _PORTG._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_H) {
+    _PORTH._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_J) {
+    _PORTJ._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_K) {
+    _PORTK._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_L) {
+    _PORTL._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+#elif defined(__AVR_TRM02__)
+  if (info.port == eATmegaPort::PORT_A) {
+    _PORTA._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PORTC._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+#elif defined(__AVR_TRM03__)
+  if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPOrt::PORT_C) {
+    _PORTC._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+#elif defined(__AVR_TRM04__)
+  if (info.port == eATmegaPort::PORT_A) {
+    _PORTA._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_B) {
+    _PORTB._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_C) {
+    _PORTC._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_D) {
+    _PORTD._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_E) {
+    _PORTE._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+  else if (info.port == eATmegaPort::PORT_F) {
+    _PORTF._DDR.setValue(info.pinidx, mode == OUTPUT);
+  }
+#endif
+}
+
+#if defined(__AVR_TRM01__) || defined(__AVR_TRM02__)
+struct _ATmega_efuse {
+  uint8_t _BODLEVEL : 3;
+  uint8_t reserved1 : 5;
+};
+
+struct _ATmega_hfuse {
+  uint8_t _BOOTRST : 1;
+  uint8_t _BOOTSZ : 2;
+  uint8_t _EESAVE : 1;
+  uint8_t _WDTON : 1;
+  uint8_t _SPIEN : 1;
+  uint8_t _JTAGEN : 1;
+  uint8_t _OCDEN : 1;
+};
+
+struct _ATmega_lfuse {
+  uint8_t _CKSEL : 4;
+  uint8_t _SUT0 : 1;
+  uint8_t _SUT1 : 1;
+  uint8_t _CKOUT : 1;
+  uint8_t _CKDIV8 : 1;
+};
+
+#ifndef AVR_LFUSE_VALUE
+#define AVR_LFUSE_VALUE 0xFF
+#endif
+#ifndef AVR_HFUSE_VALUE
+#define AVR_HFUSE_VALUE 0x99
+#endif
+#ifndef AVR_LFUSE_VALUE
+#define AVR_LFUSE_VALUE 0x62
+#endif
+
+#elif defined(__AVR_TRM03__)
+#if defined(__AVR_ATmega48A__) || defined(__AVR_ATmega48PA__)
+struct _ATmega_efuse {
+  uint8_t _SELFPRGEN : 1;
+  uint8_t reserved1 : 7;
+};
+
+#ifndef AVR_EFUSE_VALUE
+#define AVR_EFUSE_VALUE 0xFF
+#endif
+
+#elif defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__)
+struct _ATmega_efuse {
+  uint8_t _BOOTRST : 1;
+  uint8_t _BOOTSZ : 2;
+  uint8_t reserved1 : 5;
+};
+
+#ifndef AVR_EFUSE_VALUE
+#define AVR_EFUSE_VALUE 0xF9
+#endif
+
+#elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+struct _ATmega_efuse {
+  uint8_t _BODLEVEL : 3;
+  uint8_t reserved1 : 5;
+};
+
+#ifndef AVR_EFUSE_VALUE
+#define AVR_EFUSE_VALUE 0xFF
+#endif
+
+#endif
+
+#if defined(__AVR_ATmega48A__) || defined(__AVR_ATmega48PA__) || defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__)
+struct _ATmega_hfuse {
+  uint8_t _BODLEVEL : 3;
+  uint8_t _EESAVE : 1;
+  uint8_t _WDTON : 1;
+  uint8_t _SPIEN : 1;
+  uint8_t _DWEN : 1;
+  uint8_t _RSTDISBL : 1;
+};
+
+#ifndef AVR_HFUSE_VALUE
+#define AVR_HFUSE_VALUE 0xCF
+#endif
+
+#elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+struct _ATmega_hfuse {
+  uint8_t _BOOTRST : 1;
+  uint8_t _BOOTSZ : 2;
+  uint8_t _EESAVE : 1;
+  uint8_t _WDTON : 1;
+  uint8_t _SPIEN : 1;
+  uint8_t _DWEN : 1;
+  uint8_t _RSTDISBL : 1;
+};
+
+#ifndef AVR_HFUSE_VALUE
+#define AVR_HFUSE_VALUE 0xC9
+#endif
+
+#endif
+
+struct _ATmega_lfuse {
+  uint8_t _CKSEL : 4;
+  uint8_t _SUT0 : 1;
+  uint8_t _SUT1 : 1;
+  uint8_t _CKOUT : 1;
+  uint8_t _CKDIV8 : 1;
+};
+
+#ifndef AVR_LFUSE_VALUE
+#define AVR_LFUSE_VALUE 0xC9
+#endif
+
+#elif defined(__AVR_TRM04__)
+struct _ATmega_efuse {
+  uint8_t _BODLEVEL : 3;
+  uint8_t _HWBE : 1;
+  uint8_t reserved1 : 4;
+};
+
+struct _ATmega_hfuse {
+  uint8_t _BOOTRST : 1;
+  uint8_t _BOOTSZ : 2;
+  uint8_t _EESAVE : 1;
+  uint8_t _WDTON : 1;
+  uint8_t _SPIEN : 1;
+  uint8_t _JTAGEN : 1;
+  uint8_t _OCDEN : 1;
+};
+
+struct _ATmega_lfuse {
+  uint8_t _CKSEL : 4;
+  uint8_t _SUT0 : 1;
+  uint8_t _SUT1 : 1;
+  uint8_t _CKOUT : 1;
+  uint8_t _CKDIV8 : 1;
+};
+
+// Default values if not already defined.
+#ifndef AVR_EFUSE_VALUE
+#define AVR_EFUSE_VALUE 0xF3
+#endif
+#ifndef AVR_HFUSE_VALUE
+#define AVR_HFUSE_VALUE 0x99
+#endif
+#ifndef AVR_LFUSE_VALUE
+#define AVR_LFUSE_VALUE 0x62
+#endif
+
+#endif
+
+struct ATmega_efuse : public _ATmega_efuse {
+  inline ATmega_efuse(uint8_t val = 0) {
+    *(uint8_t*)this = val;
+  }
+  inline ATmega_efuse(const ATmega_efuse&) = default;
+};
+struct ATmega_hfuse : public _ATmega_hfuse {
+  inline ATmega_hfuse(uint8_t val = 0) {
+    *(uint8_t*)this = val;
+  }
+  inline ATmega_hfuse(const ATmega_hfuse&) = default;
+};
+struct ATmega_lfuse : public _ATmega_lfuse {
+  inline ATmega_lfuse(uint8_t val = 0) {
+    *(uint8_t*)this = val;
+  }
+  inline ATmega_lfuse(const ATmega_lfuse&) = default;
+};

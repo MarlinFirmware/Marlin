@@ -138,6 +138,8 @@
       SPI.setDataMode(SPI_MODE3);
   }
 
+  void spiEstablish() { /* do nothing */ }
+
   /**
    * @brief  Receives a single byte from the SPI port.
    *

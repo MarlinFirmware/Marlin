@@ -23,6 +23,7 @@
 
 /**
  * Elefu RA Board Pin Assignments
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -32,96 +33,96 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             35
-#define X_MAX_PIN                             34
-#define Y_MIN_PIN                             33
-#define Y_MAX_PIN                             32
-#define Z_MIN_PIN                             31
-#define Z_MAX_PIN                             30
+#define X_MIN_PIN                             PinC2
+#define X_MAX_PIN                             PinC3
+#define Y_MIN_PIN                             PinC4
+#define Y_MAX_PIN                             PinC5
+#define Z_MIN_PIN                             PinC6
+#define Z_MAX_PIN                             PinC7
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     30
+  #define Z_MIN_PROBE_PIN                     PinC7
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            49
-#define X_DIR_PIN                             13
-#define X_ENABLE_PIN                          48
+#define X_STEP_PIN                            PinL0
+#define X_DIR_PIN                             PinB7
+#define X_ENABLE_PIN                          PinL1
 
-#define Y_STEP_PIN                            11
-#define Y_DIR_PIN                              9
-#define Y_ENABLE_PIN                          12
+#define Y_STEP_PIN                            PinB5
+#define Y_DIR_PIN                             PinH6
+#define Y_ENABLE_PIN                          PinB6
 
-#define Z_STEP_PIN                             7
-#define Z_DIR_PIN                              6
-#define Z_ENABLE_PIN                           8
+#define Z_STEP_PIN                            PinH4
+#define Z_DIR_PIN                             PinH3
+#define Z_ENABLE_PIN                          PinH5
 
-#define E0_STEP_PIN                           40
-#define E0_DIR_PIN                            41
-#define E0_ENABLE_PIN                         37
+#define E0_STEP_PIN                           PinG1
+#define E0_DIR_PIN                            PinG0
+#define E0_ENABLE_PIN                         PinC0
 
-#define E1_STEP_PIN                           18
-#define E1_DIR_PIN                            19
-#define E1_ENABLE_PIN                         38
+#define E1_STEP_PIN                           PinD3
+#define E1_DIR_PIN                            PinD2
+#define E1_ENABLE_PIN                         PinD7
 
-#define E2_STEP_PIN                           43
-#define E2_DIR_PIN                            47
-#define E2_ENABLE_PIN                         42
+#define E2_STEP_PIN                           PinL6
+#define E2_DIR_PIN                            PinL2
+#define E2_ENABLE_PIN                         PinL7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             3  // Analog Input
-#define TEMP_1_PIN                             2  // Analog Input
-#define TEMP_2_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           0  // Analog Input
+#define TEMP_0_PIN                            PinE5  // Analog Input
+#define TEMP_1_PIN                            PinE4  // Analog Input
+#define TEMP_2_PIN                            PinE1  // Analog Input
+#define TEMP_BED_PIN                          PinE0  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          45  // 12V PWM1
-#define HEATER_1_PIN                          46  // 12V PWM2
-#define HEATER_2_PIN                          17  // 12V PWM3
-#define HEATER_BED_PIN                        44  // DOUBLE 12V PWM
+#define HEATER_0_PIN                          PinL4  // 12V PWM1
+#define HEATER_1_PIN                          PinL3  // 12V PWM2
+#define HEATER_2_PIN                          PinH0  // 12V PWM3
+#define HEATER_BED_PIN                        PinL5  // DOUBLE 12V PWM
 
 #ifndef FAN_PIN
-  #define FAN_PIN                             16  // 5V PWM
+  #define FAN_PIN                             PinH1  // 5V PWM
 #endif
 
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                             10  // Set to -1 if using a manual switch on the PWRSW Connector
-#define SLEEP_WAKE_PIN                        26  // This feature still needs work
-#define PHOTOGRAPH_PIN                        29
+#define PS_ON_PIN                             PinB4  // Set to -1 if using a manual switch on the PWRSW Connector
+#define SLEEP_WAKE_PIN                        PinA4  // This feature still needs work
+#define PHOTOGRAPH_PIN                        PinA7
 
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                            36
+#define BEEPER_PIN                            PinC1
 
 #if ENABLED(RA_CONTROL_PANEL)
 
-  #define SDSS                                53
-  #define SD_DETECT_PIN                       28
+  #define SDSS                                PinB0
+  #define SD_DETECT_PIN                       PinA6
 
-  #define BTN_EN1                             14
-  #define BTN_EN2                             39
-  #define BTN_ENC                             15
+  #define BTN_EN1                             PinJ1
+  #define BTN_EN2                             PinG2
+  #define BTN_ENC                             PinJ0
 
 #endif // RA_CONTROL_PANEL
 
 #if ENABLED(RA_DISCO)
   // variables for which pins the TLC5947 is using
-  #define TLC_CLOCK_PIN                       25
-  #define TLC_BLANK_PIN                       23
-  #define TLC_XLAT_PIN                        22
-  #define TLC_DATA_PIN                        24
+  #define TLC_CLOCK_PIN                       PinA3
+  #define TLC_BLANK_PIN                       PinA1
+  #define TLC_XLAT_PIN                        PinA0
+  #define TLC_DATA_PIN                        PinA2
 
   // We also need to define pin to port number mapping for the 2560 to match the pins listed above.
   // If you change the TLC pins, update this as well per the 2560 datasheet! This currently only works with the RA Board.

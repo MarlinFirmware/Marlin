@@ -23,6 +23,7 @@
 
 /**
  * Protoneer v3.00 pin assignments
+ * ATmega2560
  *
  * This CNC shield has an UNO pinout and fits all Arduino-compatibles.
  *
@@ -38,40 +39,40 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             9
-#define Y_STOP_PIN                            10
-#define Z_STOP_PIN                            11
+#define X_STOP_PIN                            PinH6
+#define Y_STOP_PIN                            PinB4
+#define Z_STOP_PIN                            PinB5
 
 //
 // Steppers
 //
-#define X_STEP_PIN                             2
-#define X_DIR_PIN                              5
-#define X_ENABLE_PIN                           8  // Shared enable pin
+#define X_STEP_PIN                            PinE4
+#define X_DIR_PIN                             PinE3
+#define X_ENABLE_PIN                          PinH5  // Shared enable pin
 
-#define Y_STEP_PIN                             3
-#define Y_DIR_PIN                              6
+#define Y_STEP_PIN                            PinE5
+#define Y_DIR_PIN                             PinH3
 #define Y_ENABLE_PIN                 X_ENABLE_PIN
 
-#define Z_STEP_PIN                             4
-#define Z_DIR_PIN                              7
+#define Z_STEP_PIN                            PinG5
+#define Z_DIR_PIN                             PinH4
 #define Z_ENABLE_PIN                 X_ENABLE_PIN
 
 // Designated with letter "A" on BOARD
-#define E0_STEP_PIN                           12
-#define E0_DIR_PIN                            13
+#define E0_STEP_PIN                           PinB6
+#define E0_DIR_PIN                            PinB7
 #define E0_ENABLE_PIN                X_ENABLE_PIN
 
 //
 // Temperature sensors - These could be any analog output not hidden by board
 //
-#define TEMP_0_PIN                             8  // Analog Input
-//#define TEMP_1_PIN                           9  // Analog Input
-//#define TEMP_BED_PIN                        10  // Analog Input
+#define TEMP_0_PIN                            PinH5  // Analog Input
+//#define TEMP_1_PIN                          PinH6  // Analog Input
+//#define TEMP_BED_PIN                        PinB4  // Analog Input
 
 //
 // Heaters / Fans - These could be any digital input not hidden by board
 //
-//#define HEATER_0_PIN                        22  // EXTRUDER 1
-//#define HEATER_1_PIN                        23  // EXTRUDER 2
-//#define HEATER_BED_PIN                      24
+//#define HEATER_0_PIN                        PinA0  // EXTRUDER 1
+//#define HEATER_1_PIN                        PinA1  // EXTRUDER 2
+//#define HEATER_BED_PIN                      PinA2

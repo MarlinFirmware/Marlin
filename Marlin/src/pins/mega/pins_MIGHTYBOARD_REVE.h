@@ -43,63 +43,65 @@
 #define BOARD_INFO_NAME      "Mightyboard"
 #define DEFAULT_MACHINE_NAME "MB Replicator"
 
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //
-#define SERVO0_PIN                            36  // C1 (1280-EX1)
-#define SERVO1_PIN                            37  // C0 (1280-EX2)
-#define SERVO2_PIN                            40  // G1 (1280-EX3)
-#define SERVO3_PIN                            41  // G0 (1280-EX4)
+#define SERVO0_PIN                            PinC1  // C1 (1280-EX1)
+#define SERVO1_PIN                            PinC0  // C0 (1280-EX2)
+#define SERVO2_PIN                            PinG1  // G1 (1280-EX3)
+#define SERVO3_PIN                            PinG0  // G0 (1280-EX4)
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             49  // L0
-#define X_MAX_PIN                             48  // L1
-#define Y_MIN_PIN                             47  // L2
-#define Y_MAX_PIN                             46  // L3
-#define Z_MIN_PIN                             43  // L6
-#define Z_MAX_PIN                             42  // L7
+#define X_MIN_PIN                             PinL0  // L0
+#define X_MAX_PIN                             PinL1  // L1
+#define Y_MIN_PIN                             PinL2  // L2
+#define Y_MAX_PIN                             PinL3  // L3
+#define Z_MIN_PIN                             PinL6  // L6
+#define Z_MAX_PIN                             PinL7  // L7
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     42
+  #define Z_MIN_PROBE_PIN                     PinL7
 #endif
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      49
+  #define FIL_RUNOUT_PIN                      PinL0
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                     47
+  #define FIL_RUNOUT2_PIN                     PinL2
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            55  // F1
-#define X_DIR_PIN                             54  // F0
-#define X_ENABLE_PIN                          56  // F2
+#define X_STEP_PIN                            PinF1  // F1
+#define X_DIR_PIN                             PinF0  // F0
+#define X_ENABLE_PIN                          PinF2  // F2
 
-#define Y_STEP_PIN                            59  // F5
-#define Y_DIR_PIN                             58  // F4
-#define Y_ENABLE_PIN                          60  // F6
+#define Y_STEP_PIN                            PinF5  // F5
+#define Y_DIR_PIN                             PinF4  // F4
+#define Y_ENABLE_PIN                          PinF6  // F6
 
-#define Z_STEP_PIN                            63  // K1
-#define Z_DIR_PIN                             62  // K0
-#define Z_ENABLE_PIN                          64  // K2
+#define Z_STEP_PIN                            PinK1  // K1
+#define Z_DIR_PIN                             PinK0  // K0
+#define Z_ENABLE_PIN                          PinK2  // K2
 
-#define E0_STEP_PIN                           25  // A3
-#define E0_DIR_PIN                            24  // A2
-#define E0_ENABLE_PIN                         26  // A4
+#define E0_STEP_PIN                           PinA3  // A3
+#define E0_DIR_PIN                            PinA2  // A2
+#define E0_ENABLE_PIN                         PinA4  // A4
 
-#define E1_STEP_PIN                           29  // A7
-#define E1_DIR_PIN                            28  // A6
-#define E1_ENABLE_PIN                         39  // G2
+#define E1_STEP_PIN                           PinA7  // A7
+#define E1_DIR_PIN                            PinA6  // A6
+#define E1_ENABLE_PIN                         PinG2  // G2
 
 //
 // I2C Digipots - MCP4018
@@ -107,12 +109,12 @@
 // Set from 0 - 127 with stop bit.
 // (Ex. 3F << 1 | 1)
 //
-#define DIGIPOTS_I2C_SCL                      76  // J5
-#define DIGIPOTS_I2C_SDA_X                    57  // F3
-#define DIGIPOTS_I2C_SDA_Y                    61  // F7
-#define DIGIPOTS_I2C_SDA_Z                    65  // K3
-#define DIGIPOTS_I2C_SDA_E0                   27  // A5
-#define DIGIPOTS_I2C_SDA_E1                   77  // J6
+#define DIGIPOTS_I2C_SCL                      PinJ5  // J5
+#define DIGIPOTS_I2C_SDA_X                    PinF3  // F3
+#define DIGIPOTS_I2C_SDA_Y                    PinF7  // F7
+#define DIGIPOTS_I2C_SDA_Z                    PinK3  // K3
+#define DIGIPOTS_I2C_SDA_E0                   PinA5  // A5
+#define DIGIPOTS_I2C_SDA_E1                   PinJ6  // J6
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
   #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
@@ -123,7 +125,7 @@
 // Temperature Sensors
 //
 // K7 - 69 / ADC15 - 15
-#define TEMP_BED_PIN                          15
+#define TEMP_BED_PIN                          PinJ0
 
 // SPI for MAX Thermocouple
 // Uses a separate SPI bus
@@ -133,12 +135,12 @@
 //  2 E4 CS2
 // 78 E2 SCK
 //
-#define TEMP_0_CS_PIN                          5  // E3
-#define TEMP_0_SCK_PIN                        78  // E2
-#define TEMP_0_MISO_PIN                        3  // E5
+#define TEMP_0_CS_PIN                         PinE3  // E3
+#define TEMP_0_SCK_PIN                        PinE2  // E2
+#define TEMP_0_MISO_PIN                       PinE5  // E5
 //#define TEMP_0_MOSI_PIN                    ...  // For MAX31865
 
-#define TEMP_1_CS_PIN                          2  // E4
+#define TEMP_1_CS_PIN                         PinE4  // E4
 #define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
 #define TEMP_1_MISO_PIN          TEMP_0_MISO_PIN
 //#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
@@ -147,12 +149,12 @@
 // FET Pin Mapping - FET 1 is closest to the input power connector
 //
 
-#define MOSFET_1_PIN                           6  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
-#define MOSFET_2_PIN                           7  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
-#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB5 #24 -> Logical 11
-#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB6 #25 -> Logical 12
-#define MOSFET_5_PIN                          45  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
-#define MOSFET_6_PIN                          44  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
+#define MOSFET_1_PIN                          PinH3  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
+#define MOSFET_2_PIN                          PinH4  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
+#define MOSFET_3_PIN                          PinB5  // Plug EX2 1-2 -> PB5 #24 -> Logical 11
+#define MOSFET_4_PIN                          PinB6  // Plug EX2 3-4 -> PB6 #25 -> Logical 12
+#define MOSFET_5_PIN                          PinL4  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
+#define MOSFET_6_PIN                          PinL5  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
 
 //
 // Heaters / Fans (24V)
@@ -182,10 +184,10 @@
 //
 // Misc. Functions
 //
-#define LED_PIN                               13  // B7
-#define CUTOFF_RESET_PIN                      16  // H1
-#define CUTOFF_TEST_PIN                       17  // H0
-#define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
+#define LED_PIN                               PinB7  // B7
+#define CUTOFF_RESET_PIN                      PinH1  // H1
+#define CUTOFF_TEST_PIN                       PinH0  // H0
+#define CUTOFF_SR_CHECK_PIN                   PinG4  // G4 (TOSC1)
 
 //
 // LCD / Controller
@@ -194,56 +196,64 @@
 
   #if IS_RRD_FG_SC
 
-    #define LCD_PINS_RS                       33  // C4: LCD-STROBE
-    #define LCD_PINS_ENABLE                   72  // J2: LEFT
-    #define LCD_PINS_D4                       35  // C2: LCD-CLK
-    #define LCD_PINS_D5                       32  // C5: RLED
-    #define LCD_PINS_D6                       34  // C3: LCD-DATA
-    #define LCD_PINS_D7                       31  // C6: GLED
+    #define LCD_PINS_RS                       PinC4  // C4: LCD-STROBE
+    #define LCD_PINS_ENABLE                   PinJ2  // J2: LEFT
+    #define LCD_PINS_D4                       PinC2  // C2: LCD-CLK
+    #define LCD_PINS_D5                       PinC5  // C5: RLED
+    #define LCD_PINS_D6                       PinC3  // C3: LCD-DATA
+    #define LCD_PINS_D7                       PinC6  // C6: GLED
 
-    #define BTN_EN2                           75  // J4, UP
-    #define BTN_EN1                           73  // J3, DOWN
+    #define BTN_EN2                           PinJ4  // J4, UP
+    #define BTN_EN1                           PinJ3  // J3, DOWN
     // STOP button connected as KILL_PIN
-    #define KILL_PIN                          14  // J1, RIGHT (not connected)
+    #define KILL_PIN                          PinJ1  // J1, RIGHT (not connected)
 
-    #define BEEPER_PIN                         8  // H5, SD_WP
+    #ifndef FORCE_ONBOARD_BEEPER
+      #define BEEPER_PIN                      PinH5  // H5, SD_WP
+    #endif
 
     // Onboard leds
     #define STAT_LED_RED_PIN          SERVO0_PIN  // C1 (1280-EX1, DEBUG2)
     #define STAT_LED_BLUE_PIN         SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
 
+  #elif ENABLED(MKS_TS35_V2_0)
+
+    
+
   #else
     // Replicator uses a 3-wire SR controller with HD44780
-    #define SR_DATA_PIN                       34  // C3
-    #define SR_CLK_PIN                        35  // C2
-    #define SR_STROBE_PIN                     33  // C4
+    #define SR_DATA_PIN                       PinC3  // C3
+    #define SR_CLK_PIN                        PinC2  // C2
+    #define SR_STROBE_PIN                     PinC4  // C4
 
-    #define BTN_UP                            75  // J4
-    #define BTN_DOWN                          73  // J3
-    #define BTN_LEFT                          72  // J2
-    #define BTN_RIGHT                         14  // J1
+    #define BTN_UP                            PinJ4  // J4
+    #define BTN_DOWN                          PinJ3  // J3
+    #define BTN_LEFT                          PinJ2  // J2
+    #define BTN_RIGHT                         PinJ1  // J1
 
     // Disable encoder
     #undef BTN_EN1
     #undef BTN_EN2
 
-    #define BEEPER_PIN                         4  // G5
-
-    #define STAT_LED_RED_PIN                  32  // C5
-    #define STAT_LED_BLUE_PIN                 31  // C6 (Actually green)
+    #define STAT_LED_RED_PIN                  PinC5  // C5
+    #define STAT_LED_BLUE_PIN                 PinC6  // C6 (Actually green)
 
   #endif
 
-  #define BTN_CENTER                          15  // J0
+  #define BTN_CENTER                          PinJ0  // J0
   #define BTN_ENC                     BTN_CENTER
 
 #endif // HAS_WIRED_LCD
 
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                         PinG5  // G5
+#endif
+
 //
 // SD Card
 //
-#define SDSS                                  53  // B0
-#define SD_DETECT_PIN                          9  // H6
+#define SDSS                                  PinB0  // B0
+#define SD_DETECT_PIN                         PinH6  // H6
 
 #if HAS_TMC_UART
   /**
@@ -259,19 +269,19 @@
    * Software serial
    */
 
-  #define X_SERIAL_TX_PIN                     16
-  #define X_SERIAL_RX_PIN                     17
+  #define X_SERIAL_TX_PIN                     PinH1
+  #define X_SERIAL_RX_PIN                     PinH0
 
-  #define Y_SERIAL_TX_PIN                     18
-  #define Y_SERIAL_RX_PIN                     19
+  #define Y_SERIAL_TX_PIN                     PinD3
+  #define Y_SERIAL_RX_PIN                     PinD2
 
-  #define Z_SERIAL_TX_PIN                     41
-  #define Z_SERIAL_RX_PIN                     66
+  #define Z_SERIAL_TX_PIN                     PinG0
+  #define Z_SERIAL_RX_PIN                     PinK4
 
-  #define E0_SERIAL_TX_PIN                    40
-  #define E0_SERIAL_RX_PIN                    67
+  #define E0_SERIAL_TX_PIN                    PinG1
+  #define E0_SERIAL_RX_PIN                    PinK5
 
-  #define E1_SERIAL_TX_PIN                    37
-  #define E1_SERIAL_RX_PIN                    68
+  #define E1_SERIAL_TX_PIN                    PinC0
+  #define E1_SERIAL_RX_PIN                    PinK6
 
 #endif
