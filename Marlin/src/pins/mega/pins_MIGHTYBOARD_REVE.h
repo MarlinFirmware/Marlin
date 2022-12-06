@@ -216,10 +216,6 @@
     #define STAT_LED_RED_PIN          SERVO0_PIN  // C1 (1280-EX1, DEBUG2)
     #define STAT_LED_BLUE_PIN         SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
 
-  #elif ENABLED(MKS_TS35_V2_0)
-
-    
-
   #else
     // Replicator uses a 3-wire SR controller with HD44780
     #define SR_DATA_PIN                       PinC3  // C3

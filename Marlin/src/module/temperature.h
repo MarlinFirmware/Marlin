@@ -1134,9 +1134,9 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
-    static void min_temp_error(const heater_id_t e);
-    static void max_temp_error(const heater_id_t e);
+    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg, const celsius_float_t deg);
+    static void min_temp_error(const heater_id_t e, const celsius_float_t deg);
+    static void max_temp_error(const heater_id_t e, const celsius_float_t deg);
 
     #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
 
