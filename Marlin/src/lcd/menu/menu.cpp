@@ -358,7 +358,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
   void goto_lcd_babystep_mesh_zoffset() {
     ui.defer_status_screen();
-    TERN_(ENCODER_RATE_MULTIPLIER, enable_encoder_multiplier(true));
+    TERN_(ENCODER_RATE_MULTIPLIER, ui.enable_encoder_multiplier(true));
     ui.goto_screen(lcd_babystep_mesh_zoffset);
   }
 
