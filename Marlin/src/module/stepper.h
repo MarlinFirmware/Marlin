@@ -333,15 +333,11 @@ constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
 
 #if HAS_SHAPING
 
-  // constexpr for calculating the shaping queue buffer sizes
-  constexpr xyze_float_t DMF = DEFAULT_MAX_FEEDRATE,
-                         SPU = DEFAULT_AXIS_STEPS_PER_UNIT;
-
   #ifdef SHAPING_MAX_STEPRATE
     constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
   #else
-    constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, DMF.x * SPU.x) +
-                                      TERN0(INPUT_SHAPING_Y, DMF.y * SPU.y);
+    constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _DMF[X_AXIS] * _DASU[X_AXIS]) +
+                                      TERN0(INPUT_SHAPING_Y, _DMF[Y_AXIS] * _DASU[Y_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
       template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
