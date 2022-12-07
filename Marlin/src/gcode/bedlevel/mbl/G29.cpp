@@ -198,7 +198,7 @@ void GcodeSuite::G29() {
 
         home_all_axes();
 
-        TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.center_global_z());
+        TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.center_z_base_offset());
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
@@ -245,7 +245,7 @@ void GcodeSuite::G29() {
     #if ENABLED(GLOBAL_MESH_Z_OFFSET)
       case MeshSetZOffset:
         if (parser.seenval('Z'))
-          bedlevel.z_offset_global = parser.value_linear_units();
+          bedlevel.z_base_offset = parser.value_linear_units();
         else
           return echo_not_entered('Z');
         break;

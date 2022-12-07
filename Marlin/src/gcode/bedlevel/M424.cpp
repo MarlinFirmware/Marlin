@@ -36,21 +36,21 @@ void GcodeSuite::M424() {
   if (parser.seenval('Z')) {
     const float zval = parser.value_linear_units();
     if (WITHIN(zval, -2, 2)) {
-      if (zval != bedlevel.z_offset_global) {
+      if (zval != bedlevel.z_base_offset) {
         planner.synchronize();
-        bedlevel.z_offset_global = zval; // TODO: Handle the change in position when leveling is on
+        bedlevel.z_base_offset = zval; // TODO: Handle the change in position when leveling is on
       }
     }
     else
       SERIAL_ECHOLNPGM("?Z out of range (-2..2)");
   }
   else
-    SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET ": ", bedlevel.z_offset_global);
+    SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET ": ", bedlevel.z_base_offset);
 }
 
 void GcodeSuite::M424_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MESH_Z_OFFSET));
-  SERIAL_ECHOLNPAIR_F("  M424 Z", LINEAR_UNIT(bedlevel.z_offset_global), 3);
+  SERIAL_ECHOLNPAIR_F("  M424 Z", LINEAR_UNIT(bedlevel.z_base_offset), 3);
 }
 
 #endif // GLOBAL_MESH_Z_OFFSET

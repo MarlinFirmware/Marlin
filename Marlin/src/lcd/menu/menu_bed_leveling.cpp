@@ -280,7 +280,7 @@ void menu_bed_leveling() {
   // Leveling Z-Offset
   //
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_offset_global, -2, 2);
+    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_base_offset, -2, 2);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)

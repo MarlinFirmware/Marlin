@@ -35,7 +35,7 @@
 mesh_bed_leveling bedlevel;
 
 #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-  float mesh_bed_leveling::z_offset_global; // Initialized by settings.load()
+  float mesh_bed_leveling::z_base_offset; // Initialized by settings.load()
 #endif
 
 float mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
@@ -49,7 +49,7 @@ mesh_bed_leveling::mesh_bed_leveling() {
 }
 
 void mesh_bed_leveling::reset() {
-  TERN_(GLOBAL_MESH_Z_OFFSET, z_offset_global = 0.0f);
+  TERN_(GLOBAL_MESH_Z_OFFSET, z_base_offset = 0.0f);
   ZERO(z_values);
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
@@ -58,7 +58,7 @@ void mesh_bed_leveling::reset() {
 
 #if ENABLED(GLOBAL_MESH_Z_OFFSET)
 
-  void mesh_bed_leveling::center_global_z() {
+  void mesh_bed_leveling::center_z_base_offset() {
     float z_low = 100.0f, z_high = -100.0f;
     //float z_sum = 0.0f;
     GRID_LOOP(x, y) {
@@ -68,9 +68,9 @@ void mesh_bed_leveling::reset() {
       //z_sum += z;
     }
     //const float z_mean = z_sum / GRID_MAX_POINTS;
-    z_offset_global = (z_low + z_high) * 0.5f;
-    //z_offset_global = (z_offset_global + z_mean) * 0.5f;
-    GRID_LOOP(x, y) z_values[x][y] -= z_offset_global;
+    z_base_offset = (z_low + z_high) * 0.5f;
+    //z_base_offset = (z_base_offset + z_mean) * 0.5f;
+    GRID_LOOP(x, y) z_values[x][y] -= z_base_offset;
   }
 
 #endif
@@ -145,7 +145,7 @@ void mesh_bed_leveling::reset() {
 void mesh_bed_leveling::report_mesh() {
   #define STR_MESH_SIZE STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh."
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    SERIAL_ECHOPAIR_F(STR_MESH_SIZE " Z offset: ", z_offset_global, 5);
+    SERIAL_ECHOPAIR_F(STR_MESH_SIZE " Z offset: ", z_base_offset, 5);
     SERIAL_ECHOLNPGM("\nMeasured points:");
   #else
     SERIAL_ECHOLNPGM(STR_MESH_SIZE "\nMeasured points:");
