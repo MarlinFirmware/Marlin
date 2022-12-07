@@ -88,6 +88,11 @@
     #ifndef FIL_RUNOUT_PIN
       #define FIL_RUNOUT_PIN                  33
     #endif
+    #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
+  #else
+    #ifndef FIL_RUNOUT_PIN
+      #define FIL_RUNOUT_PIN                  19
+    #endif
   #endif
 
   #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_TRIGORILLA_Z_MOTOR_PINS)
@@ -102,17 +107,8 @@
     #define Z2_DIR_PIN                        48
     #define Z2_ENABLE_PIN                     62
     #define Z2_CS_PIN                         40
-
-  #endif
-
-    #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
-  #else
-    #ifndef FIL_RUNOUT_PIN
-      #define FIL_RUNOUT_PIN                  19
-    #endif
   #endif
 #endif
-
 #if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #define BEEPER_PIN                          31
   #define SD_DETECT_PIN                       49
