@@ -326,6 +326,9 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 };
 
+constexpr float     _DASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
+
 //static_assert(!any_enable_overlap(), "There is some overlap.");
 
 #if HAS_SHAPING
@@ -342,8 +345,6 @@ constexpr ena_mask_t enable_overlap[] = {
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
       template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
-        constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
-        constexpr float _DASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
         return _MAX(_DMF[INDEX - 1] * _DASU[INDEX - 1], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
