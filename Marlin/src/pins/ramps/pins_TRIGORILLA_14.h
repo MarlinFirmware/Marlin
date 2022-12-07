@@ -88,8 +88,11 @@
     #ifndef FIL_RUNOUT_PIN
       #define FIL_RUNOUT_PIN                  33
     #endif
+  #endif
 
+  #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_TRIGORILLA_Z_MOTOR_PINS)
     // Chiron swaps the Z stepper connections
+    // as do some Anycubic i3 MEGAs
     #define Z_STEP_PIN                        36
     #define Z_DIR_PIN                         34
     #define Z_ENABLE_PIN                      30
@@ -99,6 +102,8 @@
     #define Z2_DIR_PIN                        48
     #define Z2_ENABLE_PIN                     62
     #define Z2_CS_PIN                         40
+
+  #endif
 
     #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
   #else
