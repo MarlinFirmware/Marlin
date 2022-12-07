@@ -589,7 +589,11 @@ public:
 
     static void return_to_status();
     static bool on_status_screen() { return currentScreen == status_screen; }
-    FORCE_INLINE static void run_current_screen() { (*currentScreen)(); }
+    FORCE_INLINE static void run_current_screen() {
+      if (currentScreen) {
+        (*currentScreen)();
+      }
+    }
 
     #if ENABLED(LIGHTWEIGHT_UI)
       static void lcd_in_status(const bool inStatus);

@@ -644,14 +644,20 @@ void MarlinUI::init() {
 
     #endif // BASIC_PROGRESS_BAR
 
-    bool did_expire = status_reset_callback && (*status_reset_callback)();
+    bool did_expire = false;
+
+    if (status_reset_callback) {
+      did_expire = (*status_reset_callback)();
+    }
 
     #if HAS_STATUS_MESSAGE_TIMEOUT
-      #ifndef GOT_MS
-        #define GOT_MS
-        const millis_t ms = millis();
-      #endif
-      did_expire |= status_message_expire_ms && ELAPSED(ms, status_message_expire_ms);
+      if (did_expire == false) {
+        #ifndef GOT_MS
+          #define GOT_MS
+          const millis_t ms = millis();
+        #endif
+        did_expire |= status_message_expire_ms && ELAPSED(ms, status_message_expire_ms);
+      }
     #endif
 
     if (did_expire) reset_status();
@@ -1743,12 +1749,15 @@ void MarlinUI::init() {
         OPTITEM(SHOW_REMAINING_TIME, drawRemain)
         OPTITEM(SHOW_INTERACTION_TIME, drawInter)
       };
-      static bool prev_blink;
-      static uint8_t i;
-      if (prev_blink != get_blink()) {
-        prev_blink = get_blink();
-        if (++i >= COUNT(progFunc)) i = 0;
-        (*progFunc[i])();
+      if constexpr (COUNT(progFunc) > 0) {
+        static bool prev_blink;
+        static uint8_t i;
+        if (prev_blink != get_blink()) {
+          prev_blink = get_blink();
+          i++;
+          if (i >= COUNT(progFunc)) i = 0;
+          (*progFunc[i])();
+        }
       }
     }
   #endif
