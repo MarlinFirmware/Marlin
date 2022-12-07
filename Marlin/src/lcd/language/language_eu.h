@@ -56,7 +56,6 @@ namespace Language_eu {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Berdintzea eginda");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Etxe. offset eza.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsetak ezarrita");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Hasiera ipini");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Berotu ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
@@ -137,12 +136,14 @@ namespace Language_eu {
   LSTR MSG_MOVE_X                         = _UxGT("Mugitu X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mugitu Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mugitu Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mugitu @");
   LSTR MSG_MOVE_E                         = _UxGT("Estrusorea");
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mugitu 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mugitu 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mugitu 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mugitu 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mugitu 100mm");
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
   LSTR MSG_BED_Z                          = _UxGT("Z Ohea");
@@ -167,9 +168,7 @@ namespace Language_eu {
   LSTR MSG_VA_JERK                        = _UxGT("V") STR_A _UxGT("-astindua");
   LSTR MSG_VB_JERK                        = _UxGT("V") STR_B _UxGT("-astindua");
   LSTR MSG_VC_JERK                        = _UxGT("V") STR_C _UxGT("-astindua");
-  LSTR MSG_VI_JERK                        = _UxGT("V") STR_I _UxGT("-astindua");
-  LSTR MSG_VJ_JERK                        = _UxGT("V") STR_J _UxGT("-astindua");
-  LSTR MSG_VK_JERK                        = _UxGT("V") STR_K _UxGT("-astindua");
+  LSTR MSG_VN_JERK                        = _UxGT("V@-astindua");
   LSTR MSG_VE_JERK                        = _UxGT("Ve-astindua");
   LSTR MSG_VTRAV_MIN                      = _UxGT("VBidaia min");
   LSTR MSG_A_RETRACT                      = _UxGT("A-retrakt");
@@ -178,9 +177,7 @@ namespace Language_eu {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" pausoak/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" pausoak/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" pausoak/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" pausoak/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" pausoak/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" pausoak/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ pausoak/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E pausoak/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* pausoak/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Tenperatura");
@@ -244,6 +241,7 @@ namespace Language_eu {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikro-urratsa X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikro-urratsa Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Mikro-urratsa Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Mikro-urratsa @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop deusezta.");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Err: Beroketa");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: Tenperatura");
@@ -261,7 +259,6 @@ namespace Language_eu {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibratu Zentrua");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta ezarpenak");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Kalibraketa");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Delta Alt. Ezar.");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonala");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altuera");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Erradioa");
@@ -297,13 +294,7 @@ namespace Language_eu {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Tenp. Maximoa");
   LSTR MSG_INFO_PSU                       = _UxGT("Elikadura-iturria");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Driver-aren potentzia");
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Driver %");
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Driver %");
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driver %");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Idatzi DAC EEPROM");
   LSTR MSG_FILAMENT_CHANGE_HEADER_PAUSE   = _UxGT("HARIZPIA ALDATU");
   LSTR MSG_FILAMENT_CHANGE_HEADER_LOAD    = _UxGT("HARIZPIA KARGATU");

@@ -64,11 +64,11 @@ enum EndstopEnum : char {
   #if ENABLED(Z_MULTI_ENDSTOPS)
     _ES_ITEM(HAS_Z_MIN, Z2_MIN)
     _ES_ITEM(HAS_Z_MAX, Z2_MAX)
-    #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if NUM_Z_STEPPERS >= 3
       _ES_ITEM(HAS_Z_MIN, Z3_MIN)
       _ES_ITEM(HAS_Z_MAX, Z3_MAX)
     #endif
-    #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if NUM_Z_STEPPERS >= 4
       _ES_ITEM(HAS_Z_MIN, Z4_MIN)
       _ES_ITEM(HAS_Z_MAX, Z4_MAX)
     #endif
@@ -120,10 +120,10 @@ class Endstops {
     #if ENABLED(Z_MULTI_ENDSTOPS)
       static float z2_endstop_adj;
     #endif
-    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3
       static float z3_endstop_adj;
     #endif
-    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4
       static float z4_endstop_adj;
     #endif
 
@@ -165,6 +165,11 @@ class Endstops {
      * Called from ISR contexts.
      */
     static void update();
+
+    #if ENABLED(BD_SENSOR)
+      static bool bdp_state;
+      static void bdp_state_update(const bool z_state) { bdp_state = z_state; }
+    #endif
 
     /**
      * Get Endstop hit state.
@@ -246,6 +251,11 @@ class Endstops {
       static tmc_spi_homing_t tmc_spi_homing;
       static void clear_endstop_state();
       static bool tmc_spi_homing_check();
+    #endif
+  public:
+    // Basic functions for Sensorless Homing
+    #if USE_SENSORLESS
+      static void set_homing_current(const bool onoff);
     #endif
 };
 

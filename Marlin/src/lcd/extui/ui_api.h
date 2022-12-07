@@ -164,6 +164,9 @@ namespace ExtUI {
   #if ENABLED(SHOW_REMAINING_TIME)
     inline uint32_t getProgress_seconds_remaining() { return ui.get_remaining_time(); }
   #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    inline uint32_t getInteraction_seconds_remaining() { return ui.interaction_time; }
+  #endif
 
   #if HAS_LEVELING
     bool getLevelingActive();
@@ -324,18 +327,18 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(PIDTEMP)
-    float getPIDValues_Kp(const extruder_t);
-    float getPIDValues_Ki(const extruder_t);
-    float getPIDValues_Kd(const extruder_t);
-    void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
+    float getPID_Kp(const extruder_t);
+    float getPID_Ki(const extruder_t);
+    float getPID_Kd(const extruder_t);
+    void setPID(const_float_t, const_float_t , const_float_t , extruder_t);
     void startPIDTune(const celsius_t, extruder_t);
   #endif
 
   #if ENABLED(PIDTEMPBED)
-    float getBedPIDValues_Kp();
-    float getBedPIDValues_Ki();
-    float getBedPIDValues_Kd();
-    void setBedPIDValues(const_float_t, const_float_t , const_float_t);
+    float getBedPID_Kp();
+    float getBedPID_Ki();
+    float getBedPID_Kd();
+    void setBedPID(const_float_t, const_float_t , const_float_t);
     void startBedPIDTune(const celsius_t);
   #endif
 

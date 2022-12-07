@@ -44,7 +44,6 @@ namespace Language_bg {
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Изкл. двигатели");
   LSTR MSG_AUTO_HOME                      = _UxGT("Паркиране");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Задай Начало");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Изходна точка");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Подгряване ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
@@ -73,12 +72,14 @@ namespace Language_bg {
   LSTR MSG_MOVE_X                         = _UxGT("Движение по X");
   LSTR MSG_MOVE_Y                         = _UxGT("Движение по Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Движение по Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Движение по @");
   LSTR MSG_MOVE_E                         = _UxGT("Екструдер");
   LSTR MSG_MOVE_EN                        = _UxGT("Екструдер *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Премести с %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Премести с $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Премести с 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Премести с 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Премести с 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Премести с 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Премести с 100mm");
   LSTR MSG_SPEED                          = _UxGT("Скорост");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");
@@ -102,9 +103,7 @@ namespace Language_bg {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" стъпки/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" стъпки/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" стъпки/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" стъпки/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" стъпки/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" стъпки/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ стъпки/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E стъпки/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* стъпки/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Температура");
@@ -149,6 +148,7 @@ namespace Language_bg {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Министъпка X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Министъпка Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Министъпка Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Министъпка @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Стоп Кр.Изключватели");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Делта Калибровка");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Калибровка X");

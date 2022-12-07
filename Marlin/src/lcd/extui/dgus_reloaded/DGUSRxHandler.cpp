@@ -47,9 +47,7 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_SD) {
     #if ENABLED(SDSUPPORT)
-      #if !PIN_EXISTS(SD_DETECT)
-        card.mount();
-      #endif
+      IF_DISABLED(HAS_SD_DETECT, card.mount());
 
       if (!ExtUI::isMediaInserted()) {
         dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
@@ -217,7 +215,7 @@ void DGUSRxHandler::PrintResume(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::Feedrate(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  const int16_t feedrate = Swap16(*(int16_t*)data_ptr);
+  const int16_t feedrate = BE16_P(data_ptr);
 
   ExtUI::setFeedrate_percent(feedrate);
 
@@ -225,7 +223,7 @@ void DGUSRxHandler::Feedrate(DGUS_VP &vp, void *data_ptr) {
 }
 
 void DGUSRxHandler::Flowrate(DGUS_VP &vp, void *data_ptr) {
-  const int16_t flowrate = Swap16(*(int16_t*)data_ptr);
+  const int16_t flowrate = BE16_P(data_ptr);
 
   switch (vp.addr) {
     default: return;
@@ -248,7 +246,7 @@ void DGUSRxHandler::Flowrate(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::BabystepSet(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  const int16_t data = Swap16(*(int16_t*)data_ptr);
+  const int16_t data = BE16_P(data_ptr);
   const float offset = dgus_display.FromFixedPoint<int16_t, float, 2>(data);
 
   const int16_t steps = ExtUI::mmToWholeSteps(offset - ExtUI::getZOffset_mm(), ExtUI::Z);
@@ -317,7 +315,7 @@ void DGUSRxHandler::TempPreset(DGUS_VP &vp, void *data_ptr) {
 }
 
 void DGUSRxHandler::TempTarget(DGUS_VP &vp, void *data_ptr) {
-  const int16_t temp = Swap16(*(int16_t*)data_ptr);
+  const int16_t temp = BE16_P(data_ptr);
 
   switch (vp.addr) {
     default: return;
@@ -340,7 +338,7 @@ void DGUSRxHandler::TempTarget(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::TempCool(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  const DGUS_Data::Heater heater = (DGUS_Data::Heater)Swap16(*(uint16_t*)data_ptr);
+  const DGUS_Data::Heater heater = (DGUS_Data::Heater)BE16_P(data_ptr);
 
   switch (heater) {
     default: return;
@@ -399,7 +397,7 @@ void DGUSRxHandler::ZOffset(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  const int16_t data = Swap16(*(int16_t*)data_ptr);
+  const int16_t data = BE16_P(data_ptr);
   const float offset = dgus_display.FromFixedPoint<int16_t, float, 2>(data);
 
   const int16_t steps = ExtUI::mmToWholeSteps(offset - ExtUI::getZOffset_mm(), ExtUI::Z);
@@ -466,7 +464,7 @@ void DGUSRxHandler::MoveToPoint(DGUS_VP &vp, void *data_ptr) {
   }
 
   const uint8_t point = ((uint8_t*)data_ptr)[1];
-  constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
+  constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   float x, y;
 
   switch (point) {
@@ -493,12 +491,12 @@ void DGUSRxHandler::MoveToPoint(DGUS_VP &vp, void *data_ptr) {
       break;
   }
 
-  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < Z_MIN_POS + LEVEL_CORNERS_Z_HOP) {
-    ExtUI::setAxisPosition_mm(Z_MIN_POS + LEVEL_CORNERS_Z_HOP, ExtUI::Z);
+  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < Z_MIN_POS + BED_TRAMMING_Z_HOP) {
+    ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_Z_HOP, ExtUI::Z);
   }
   ExtUI::setAxisPosition_mm(x, ExtUI::X);
   ExtUI::setAxisPosition_mm(y, ExtUI::Y);
-  ExtUI::setAxisPosition_mm(Z_MIN_POS + LEVEL_CORNERS_HEIGHT, ExtUI::Z);
+  ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_HEIGHT, ExtUI::Z);
 }
 
 void DGUSRxHandler::Probe(DGUS_VP &vp, void *data_ptr) {
@@ -548,7 +546,7 @@ void DGUSRxHandler::DisableABL(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  const DGUS_Data::Extruder extruder = (DGUS_Data::Extruder)Swap16(*(uint16_t*)data_ptr);
+  const DGUS_Data::Extruder extruder = (DGUS_Data::Extruder)BE16_P(data_ptr);
 
   switch (extruder) {
     default: return;
@@ -565,7 +563,7 @@ void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::FilamentLength(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  const uint16_t length = Swap16(*(uint16_t*)data_ptr);
+  const uint16_t length = BE16_P(data_ptr);
 
   dgus_screen_handler.filament_length = constrain(length, 0, EXTRUDE_MAXLENGTH);
 
@@ -646,7 +644,7 @@ void DGUSRxHandler::Home(DGUS_VP &vp, void *data_ptr) {
 }
 
 void DGUSRxHandler::Move(DGUS_VP &vp, void *data_ptr) {
-  const int16_t data = Swap16(*(int16_t*)data_ptr);
+  const int16_t data = BE16_P(data_ptr);
   const float position = dgus_display.FromFixedPoint<int16_t, float, 1>(data);
   ExtUI::axis_t axis;
 
@@ -818,7 +816,7 @@ void DGUSRxHandler::SettingsExtra(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::PIDSelect(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  const DGUS_Data::Heater heater = (DGUS_Data::Heater)Swap16(*(uint16_t*)data_ptr);
+  const DGUS_Data::Heater heater = (DGUS_Data::Heater)BE16_P(data_ptr);
 
   switch (heater) {
     default: return;
@@ -848,7 +846,7 @@ void DGUSRxHandler::PIDSetTemp(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  uint16_t temp = Swap16(*(uint16_t*)data_ptr);
+  uint16_t temp = BE16_P(data_ptr);
 
   switch (dgus_screen_handler.pid_heater) {
     default: return;

@@ -52,7 +52,6 @@ namespace Language_pt {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Pronto !");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Definir desvio");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets aplicados");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Definir origem");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
@@ -79,9 +78,10 @@ namespace Language_pt {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
@@ -105,9 +105,7 @@ namespace Language_pt {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" passo/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" passo/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" passo/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" passo/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" passo/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" passo/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ passo/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E passo/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* passo/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");

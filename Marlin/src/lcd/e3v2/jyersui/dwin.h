@@ -43,7 +43,7 @@ enum processID : uint8_t {
 enum PopupID : uint8_t {
   Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, MeshSlot,
   Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming, ManualProbing,
-  FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete
+  FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete, Custom
 };
 
 enum menuID : uint8_t {
@@ -55,6 +55,7 @@ enum menuID : uint8_t {
       ZOffset,
       Preheat,
       ChangeFilament,
+      MenuCustom,
     Control,
       TempMenu,
         PID,
@@ -187,7 +188,7 @@ public:
   static void Draw_Print_Screen();
   static void Draw_Print_Filename(const bool reset=false);
   static void Draw_Print_ProgressBar();
-  #if ENABLED(USE_M73_REMAINING_TIME)
+  #if ENABLED(SET_REMAINING_TIME)
     static void Draw_Print_ProgressRemain();
   #endif
   static void Draw_Print_ProgressElapsed();

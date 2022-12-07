@@ -1,8 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
  */
 #ifdef __SAMD51__
 
@@ -202,6 +207,40 @@ enum ADCIndex {
   #endif
   ADC_COUNT
 };
+
+#if ENABLED(USE_WATCHDOG)
+
+  #define WDT_TIMEOUT_REG TERN(WATCHDOG_DURATION_8S, WDT_CONFIG_PER_CYC8192, WDT_CONFIG_PER_CYC4096) // 4 or 8 second timeout
+
+  void MarlinHAL::watchdog_init() {
+    // The low-power oscillator used by the WDT runs at 32,768 Hz with
+    // a 1:32 prescale, thus 1024 Hz, though probably not super precise.
+
+    // Setup WDT clocks
+    MCLK->APBAMASK.bit.OSC32KCTRL_ = true;
+    MCLK->APBAMASK.bit.WDT_ = true;
+    OSC32KCTRL->OSCULP32K.bit.EN1K = true;  // Enable out 1K (this is what WDT uses)
+
+    WDT->CTRLA.bit.ENABLE = false;          // Disable watchdog for config
+    SYNC(WDT->SYNCBUSY.bit.ENABLE);
+
+    WDT->INTENCLR.reg = WDT_INTENCLR_EW;    // Disable early warning interrupt
+    WDT->CONFIG.reg = WDT_TIMEOUT_REG;      // Set a 4s or 8s period for chip reset
+
+    hal.watchdog_refresh();
+
+    WDT->CTRLA.reg = WDT_CTRLA_ENABLE;      // Start watchdog now in normal mode
+    SYNC(WDT->SYNCBUSY.bit.ENABLE);
+  }
+
+  // Reset watchdog. MUST be called at least every 4 seconds after the
+  // first watchdog_init or SAMD will go into emergency procedures.
+  void MarlinHAL::watchdog_refresh() {
+    SYNC(WDT->SYNCBUSY.bit.CLEAR);        // Test first if previous is 'ongoing' to save time waiting for command execution
+    WDT->CLEAR.reg = WDT_CLEAR_CLEAR_KEY;
+  }
+
+#endif
 
 // ------------------------
 // Types
@@ -564,7 +603,7 @@ void MarlinHAL::dma_init() {
 void MarlinHAL::init() {
   TERN_(DMA_IS_REQUIRED, dma_init());
   #if ENABLED(SDSUPPORT)
-    #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
+    #if HAS_SD_DETECT && SD_CONNECTION_IS(ONBOARD)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
     #endif
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up

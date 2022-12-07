@@ -43,7 +43,6 @@ namespace Language_fi {
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Automaatti");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Aseta origo");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
@@ -70,12 +69,14 @@ namespace Language_fi {
   LSTR MSG_MOVE_X                         = _UxGT("Liikuta X");
   LSTR MSG_MOVE_Y                         = _UxGT("Liikuta Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Liikuta Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Liikuta @");
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Liikuta %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Liikuta $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Liikuta 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Liikuta 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Liikuta 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Liikuta 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Liikuta 100mm");
   LSTR MSG_SPEED                          = _UxGT("Nopeus");
   LSTR MSG_NOZZLE                         = _UxGT("Suutin");

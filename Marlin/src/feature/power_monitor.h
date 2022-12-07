@@ -32,7 +32,7 @@ struct pm_lpf_t {
   uint32_t filter_buf;
   float value;
   void add_sample(const uint16_t sample) {
-    filter_buf = filter_buf - (filter_buf >> K_VALUE) + (uint32_t(sample) << K_SCALE);
+    filter_buf += (uint32_t(sample) << K_SCALE) - (filter_buf >> K_VALUE);
   }
   void capture() {
     value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE))));

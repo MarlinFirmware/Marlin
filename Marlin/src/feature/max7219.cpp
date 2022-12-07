@@ -44,7 +44,6 @@
 #include "max7219.h"
 
 #include "../module/planner.h"
-#include "../module/stepper.h"
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
@@ -52,6 +51,7 @@
   #define HAS_SIDE_BY_SIDE 1
 #endif
 
+#define _ROT ((MAX7219_ROTATE + 360) % 360)
 #if _ROT == 0 || _ROT == 180
   #define MAX7219_X_LEDS TERN(HAS_SIDE_BY_SIDE, 8, MAX7219_LINES)
   #define MAX7219_Y_LEDS TERN(HAS_SIDE_BY_SIDE, MAX7219_LINES, 8)
@@ -62,6 +62,15 @@
   #error "MAX7219_ROTATE must be a multiple of +/- 90°."
 #endif
 
+#ifdef MAX7219_DEBUG_PROFILE
+  CodeProfiler::Mode CodeProfiler::mode = ACCUMULATE_AVERAGE;
+  uint8_t CodeProfiler::instance_count = 0;
+  uint32_t CodeProfiler::last_calc_time = micros();
+  uint8_t CodeProfiler::time_fraction = 0;
+  uint32_t CodeProfiler::total_time = 0;
+  uint16_t CodeProfiler::call_count = 0;
+#endif
+
 Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
@@ -69,7 +78,7 @@ uint8_t Max7219::suspended; // = 0;
 
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
 
-#if _ROT == 0 || _ROT == 270
+#if (_ROT == 0 || _ROT == 270) == DISABLED(MAX7219_REVERSE_EACH)
   #define _LED_BIT(Q)   (7 - ((Q) & 0x7))
 #else
   #define _LED_BIT(Q)   ((Q) & 0x7)
@@ -266,26 +275,27 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
 #endif // MAX7219_NUMERIC
 
 // Modify a single LED bit and send the changed line
-void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on) {
+void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_set"), x, y);
   if (BIT_7219(x, y) == on) return;
   XOR_7219(x, y);
   refresh_unit_line(LED_IND(x, y));
+  if (rcm != nullptr) *rcm |= _BV(LED_IND(x, y) & 0x07);
 }
 
-void Max7219::led_on(const uint8_t x, const uint8_t y) {
+void Max7219::led_on(const uint8_t x, const uint8_t y, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_on"), x, y);
-  led_set(x, y, true);
+  led_set(x, y, true, rcm);
 }
 
-void Max7219::led_off(const uint8_t x, const uint8_t y) {
+void Max7219::led_off(const uint8_t x, const uint8_t y, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_off"), x, y);
-  led_set(x, y, false);
+  led_set(x, y, false, rcm);
 }
 
-void Max7219::led_toggle(const uint8_t x, const uint8_t y) {
+void Max7219::led_toggle(const uint8_t x, const uint8_t y, uint8_t * const rcm/*=nullptr*/) {
   if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_toggle"), x, y);
-  led_set(x, y, !BIT_7219(x, y));
+  led_set(x, y, !BIT_7219(x, y), rcm);
 }
 
 void Max7219::send_row(const uint8_t row) {
@@ -448,7 +458,7 @@ void Max7219::register_setup() {
   pulse_load();                               // Tell the chips to load the clocked out data
 }
 
-#ifdef MAX7219_INIT_TEST
+#if MAX7219_INIT_TEST
 
   uint8_t test_mode = 0;
   millis_t next_patt_ms;
@@ -536,13 +546,9 @@ void Max7219::init() {
 
   register_setup();
 
-  LOOP_LE_N(i, 7) {  // Empty registers to turn all LEDs off
-    led_line[i] = 0x00;
-    send(max7219_reg_digit0 + i, 0);
-    pulse_load();                     // Tell the chips to load the clocked out data
-  }
+  clear();
 
-  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST
     start_test_pattern();
   #endif
 }
@@ -554,41 +560,55 @@ void Max7219::init() {
  */
 
 // Apply changes to update a marker
-void Max7219::mark16(const uint8_t pos, const uint8_t v1, const uint8_t v2) {
+void Max7219::mark16(const uint8_t pos, const uint8_t v1, const uint8_t v2, uint8_t * const rcm/*=nullptr*/) {
   #if MAX7219_X_LEDS > 8    // At least 16 LEDs on the X-Axis. Use single line.
-    led_off(v1 & 0xF, pos);
-     led_on(v2 & 0xF, pos);
+    led_off(v1 & 0xF, pos, rcm);
+     led_on(v2 & 0xF, pos, rcm);
   #elif MAX7219_Y_LEDS > 8  // At least 16 LEDs on the Y-Axis. Use a single column.
-    led_off(pos, v1 & 0xF);
-     led_on(pos, v2 & 0xF);
+    led_off(pos, v1 & 0xF, rcm);
+     led_on(pos, v2 & 0xF, rcm);
   #else                     // Single 8x8 LED matrix. Use two lines to get 16 LEDs.
-    led_off(v1 & 0x7, pos + (v1 >= 8));
-     led_on(v2 & 0x7, pos + (v2 >= 8));
+    led_off(v1 & 0x7, pos + (v1 >= 8), rcm);
+     led_on(v2 & 0x7, pos + (v2 >= 8), rcm);
   #endif
 }
 
 // Apply changes to update a tail-to-head range
-void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh) {
+void Max7219::range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh,
+  const uint8_t nh, uint8_t * const rcm/*=nullptr*/) {
   #if MAX7219_X_LEDS > 8    // At least 16 LEDs on the X-Axis. Use single line.
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      led_off(n & 0xF, y);
+      led_off(n & 0xF, y, rcm);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       led_on(n & 0xF, y);
+       led_on(n & 0xF, y, rcm);
   #elif MAX7219_Y_LEDS > 8  // At least 16 LEDs on the Y-Axis. Use a single column.
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      led_off(y, n & 0xF);
+      led_off(y, n & 0xF, rcm);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       led_on(y, n & 0xF);
+       led_on(y, n & 0xF, rcm);
   #else                     // Single 8x8 LED matrix. Use two lines to get 16 LEDs.
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      led_off(n & 0x7, y + (n >= 8));
+      led_off(n & 0x7, y + (n >= 8), rcm);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       led_on(n & 0x7, y + (n >= 8));
+       led_on(n & 0x7, y + (n >= 8), rcm);
   #endif
 }
 
 // Apply changes to update a quantity
-void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv) {
+void Max7219::quantity(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
+  for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
+    led_set(
+      #if MAX7219_X_LEDS >= MAX7219_Y_LEDS
+        i, pos  // Single matrix or multiple matrices in Landscape
+      #else
+        pos, i  // Multiple matrices in Portrait
+      #endif
+      , nv >= ov
+      , rcm
+    );
+}
+
+void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, uint8_t * const rcm/*=nullptr*/) {
   for (uint8_t i = _MIN(nv, ov); i < _MAX(nv, ov); i++)
     led_set(
       #if MAX7219_X_LEDS > 8    // At least 16 LEDs on the X-Axis. Use single line.
@@ -599,6 +619,7 @@ void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv) 
         i >> 1, pos + (i & 1)
       #endif
       , nv >= ov
+      , rcm
     );
 }
 
@@ -636,16 +657,20 @@ void Max7219::idle_tasks() {
     register_setup();
   }
 
-  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST
     if (test_mode) {
       run_test_pattern();
       return;
     }
   #endif
 
+  // suspend updates and record which lines have changed for batching later
+  suspended++;
+  uint8_t row_change_mask = 0x00;
+
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     if (do_blink) {
-      led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1);
+      led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1, &row_change_mask);
       next_blink = ms + 1000;
     }
   #endif
@@ -655,7 +680,7 @@ void Max7219::idle_tasks() {
     static int16_t last_head_cnt = 0xF, last_tail_cnt = 0xF;
 
     if (last_head_cnt != head || last_tail_cnt != tail) {
-      range16(MAX7219_DEBUG_PLANNER_HEAD, last_tail_cnt, tail, last_head_cnt, head);
+      range16(MAX7219_DEBUG_PLANNER_HEAD, last_tail_cnt, tail, last_head_cnt, head, &row_change_mask);
       last_head_cnt = head;
       last_tail_cnt = tail;
     }
@@ -665,7 +690,7 @@ void Max7219::idle_tasks() {
     #ifdef MAX7219_DEBUG_PLANNER_HEAD
       static int16_t last_head_cnt = 0x1;
       if (last_head_cnt != head) {
-        mark16(MAX7219_DEBUG_PLANNER_HEAD, last_head_cnt, head);
+        mark16(MAX7219_DEBUG_PLANNER_HEAD, last_head_cnt, head, &row_change_mask);
         last_head_cnt = head;
       }
     #endif
@@ -673,7 +698,7 @@ void Max7219::idle_tasks() {
     #ifdef MAX7219_DEBUG_PLANNER_TAIL
       static int16_t last_tail_cnt = 0x1;
       if (last_tail_cnt != tail) {
-        mark16(MAX7219_DEBUG_PLANNER_TAIL, last_tail_cnt, tail);
+        mark16(MAX7219_DEBUG_PLANNER_TAIL, last_tail_cnt, tail, &row_change_mask);
         last_tail_cnt = tail;
       }
     #endif
@@ -684,10 +709,25 @@ void Max7219::idle_tasks() {
     static int16_t last_depth = 0;
     const int16_t current_depth = (head - tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1) & 0xF;
     if (current_depth != last_depth) {
-      quantity16(MAX7219_DEBUG_PLANNER_QUEUE, last_depth, current_depth);
+      quantity16(MAX7219_DEBUG_PLANNER_QUEUE, last_depth, current_depth, &row_change_mask);
       last_depth = current_depth;
     }
   #endif
+
+  #ifdef MAX7219_DEBUG_PROFILE
+    static uint8_t last_time_fraction = 0;
+    const uint8_t current_time_fraction = (uint16_t(CodeProfiler::get_time_fraction()) * MAX7219_NUMBER_UNITS + 8) / 16;
+    if (current_time_fraction != last_time_fraction) {
+      quantity(MAX7219_DEBUG_PROFILE, last_time_fraction, current_time_fraction, &row_change_mask);
+      last_time_fraction = current_time_fraction;
+    }
+  #endif
+
+  // batch line updates
+  suspended--;
+  if (!suspended)
+    LOOP_L_N(i, 8) if (row_change_mask & _BV(i))
+      refresh_line(i);
 
   // After resume() automatically do a refresh()
   if (suspended == 0x80) {

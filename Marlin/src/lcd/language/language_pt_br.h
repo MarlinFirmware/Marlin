@@ -67,7 +67,6 @@ namespace Language_pt_br {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Suavizar altura");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Compensar origem");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Alteração aplicada");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Ajustar Origem");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
@@ -210,10 +209,11 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Extrus. mto fria");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
@@ -243,12 +243,10 @@ namespace Language_pt_br {
   LSTR MSG_VA_JERK                        = _UxGT("arrancada V") STR_A;
   LSTR MSG_VB_JERK                        = _UxGT("arrancada V") STR_B;
   LSTR MSG_VC_JERK                        = _UxGT("arrancada V") STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("arrancada V") STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("arrancada V") STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("arrancada V") STR_K;
+  LSTR MSG_VN_JERK                        = _UxGT("arrancada V@");
   LSTR MSG_VE_JERK                        = _UxGT("arrancada VE");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Desv. Junção");
-  LSTR MSG_VELOCITY                       = _UxGT("Velocidade");
+  LSTR MSG_MAX_SPEED                      = _UxGT("Velocidade");
   LSTR MSG_VTRAV_MIN                      = _UxGT("VDeslocamento min");
   LSTR MSG_ACCELERATION                   = _UxGT("Aceleração");
   LSTR MSG_A_RETRACT                      = _UxGT("Retrair A");
@@ -257,9 +255,7 @@ namespace Language_pt_br {
   LSTR MSG_A_STEPS                        = _UxGT("Passo ") STR_A _UxGT("/mm");
   LSTR MSG_B_STEPS                        = _UxGT("Passo ") STR_B _UxGT("/mm");
   LSTR MSG_C_STEPS                        = _UxGT("Passo ") STR_C _UxGT("/mm");
-  LSTR MSG_I_STEPS                        = _UxGT("Passo ") STR_I _UxGT("/mm");
-  LSTR MSG_J_STEPS                        = _UxGT("Passo ") STR_J _UxGT("/mm");
-  LSTR MSG_K_STEPS                        = _UxGT("Passo ") STR_K _UxGT("/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("Passo @/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("*/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
@@ -353,6 +349,7 @@ namespace Language_pt_br {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Passinho X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Passinho Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Passinho Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Passinho @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Abortar Fim de Curso");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Aquecimento falhou");
@@ -377,8 +374,6 @@ namespace Language_pt_br {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Configuração Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto-Calibração");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Calibrar Altura");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Desloc. Sonda Z");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Haste Diagonal");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Raio");

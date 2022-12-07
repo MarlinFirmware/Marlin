@@ -55,7 +55,6 @@ namespace Language_an {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Nivelacion feita!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Achustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicau");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Establir orichen");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Precalentar ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
@@ -84,12 +83,14 @@ namespace Language_an {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover %smm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidat");
   LSTR MSG_BED_Z                          = _UxGT("Base Z");
@@ -110,10 +111,8 @@ namespace Language_an {
   LSTR MSG_AMAX_A                         = _UxGT("Acel. max ") STR_A;
   LSTR MSG_AMAX_B                         = _UxGT("Acel. max ") STR_B;
   LSTR MSG_AMAX_C                         = _UxGT("Acel. max ") STR_C;
-  LSTR MSG_AMAX_I                         = _UxGT("Acel. max ") STR_I;
-  LSTR MSG_AMAX_J                         = _UxGT("Acel. max ") STR_J;
-  LSTR MSG_AMAX_K                         = _UxGT("Acel. max ") STR_K;
-  LSTR MSG_AMAX_E                         = _UxGT("Acel. max ") STR_E;
+  LSTR MSG_AMAX_N                         = _UxGT("Acel. max @");
+  LSTR MSG_AMAX_E                         = _UxGT("Acel. max E");
   LSTR MSG_AMAX_EN                        = _UxGT("Acel. max *");
   LSTR MSG_A_RETRACT                      = _UxGT("Acel. retrac.");
   LSTR MSG_A_TRAVEL                       = _UxGT("Acel. Viaje");
@@ -121,9 +120,7 @@ namespace Language_an {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" trangos/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" trangos/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" trangos/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" trangos/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" trangos/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" trangos/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ trangos/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E trangos/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* trangos/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
@@ -169,6 +166,7 @@ namespace Language_an {
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropaso X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropaso Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Micropaso Z");
+  LSTR MSG_BABYSTEP_N                     = _UxGT("Micropaso @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancelado - Endstop");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Error: en calentar");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Error: temperatura");

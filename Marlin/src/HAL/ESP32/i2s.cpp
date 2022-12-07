@@ -139,22 +139,40 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
 }
 
 void stepperTask(void *parameter) {
-  uint32_t remaining = 0;
+  uint32_t nextMainISR = 0;
+  #if ENABLED(LIN_ADVANCE)
+    uint32_t nextAdvanceISR = Stepper::LA_ADV_NEVER;
+  #endif
 
-  while (1) {
+  for (;;) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
     while (dma.rw_pos < DMA_SAMPLE_COUNT) {
       // Fill with the port data post pulse_phase until the next step
-      if (remaining) {
+      if (nextMainISR && TERN1(LIN_ADVANCE, nextAdvanceISR))
         i2s_push_sample();
-        remaining--;
-      }
-      else {
+
+      // i2s_push_sample() is also called from Stepper::pulse_phase_isr() and Stepper::advance_isr()
+      // in a rare case where both are called, we need to double decrement the counters
+      const uint8_t push_count = 1 + (!nextMainISR && TERN0(LIN_ADVANCE, !nextAdvanceISR));
+
+      #if ENABLED(LIN_ADVANCE)
+        if (!nextAdvanceISR) {
+          Stepper::advance_isr();
+          nextAdvanceISR = Stepper::la_interval;
+        }
+        else if (nextAdvanceISR == Stepper::LA_ADV_NEVER)
+          nextAdvanceISR = Stepper::la_interval;
+      #endif
+
+      if (!nextMainISR) {
         Stepper::pulse_phase_isr();
-        remaining = Stepper::block_phase_isr();
+        nextMainISR = Stepper::block_phase_isr();
       }
+
+      nextMainISR -= push_count;
+      TERN_(LIN_ADVANCE, nextAdvanceISR -= push_count);
     }
   }
 }
@@ -337,6 +355,26 @@ uint8_t i2s_state(uint8_t pin) {
 }
 
 void i2s_push_sample() {
+  // Every 4µs (when space in DMA buffer) toggle each expander PWM output using
+  // the current duty cycle/frequency so they sync with any steps (once
+  // through the DMA/FIFO buffers).  PWM signal inversion handled by other functions
+  LOOP_L_N(p, MAX_EXPANDER_BITS) {
+    if (hal.pwm_pin_data[p].pwm_duty_ticks > 0) { // pin has active pwm?
+      if (hal.pwm_pin_data[p].pwm_tick_count == 0) {
+        if (TEST32(i2s_port_data, p)) {  // hi->lo
+          CBI32(i2s_port_data, p);
+          hal.pwm_pin_data[p].pwm_tick_count = hal.pwm_pin_data[p].pwm_cycle_ticks - hal.pwm_pin_data[p].pwm_duty_ticks;
+        }
+        else { // lo->hi
+          SBI32(i2s_port_data, p);
+          hal.pwm_pin_data[p].pwm_tick_count = hal.pwm_pin_data[p].pwm_duty_ticks;
+        }
+      }
+      else
+        hal.pwm_pin_data[p].pwm_tick_count--;
+    }
+  }
+
   dma.current[dma.rw_pos++] = i2s_port_data;
 }
 

@@ -26,7 +26,6 @@
 
 #include "../bedlevel.h"
 #include "../../../module/planner.h"
-#include "../../../module/stepper.h"
 #include "../../../module/motion.h"
 
 #if ENABLED(DELTA)
@@ -36,7 +35,17 @@
 #include "../../../MarlinCore.h"
 #include <math.h>
 
+//#define DEBUG_UBL_MOTION
+#define DEBUG_OUT ENABLED(DEBUG_UBL_MOTION)
+#include "../../../core/debug_out.h"
+
 #if !UBL_SEGMENTED
+
+  // TODO: The first and last parts of a move might result in very short segment(s)
+  //       after getting split on the cell boundary, so moves like that should not
+  //       get split. This will be most common for moves that start/end near the
+  //       corners of cells. To fix the issue, simply check if the start/end of the line
+  //       is very close to a cell boundary in advance and don't split the line there.
 
   void unified_bed_leveling::line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t extruder) {
     /**
@@ -76,8 +85,8 @@
       #endif
 
       // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
-      const float xratio = (end.x - mesh_index_to_xpos(iend.x)) * RECIPROCAL(MESH_X_DIST),
-                  yratio = (end.y - mesh_index_to_ypos(iend.y)) * RECIPROCAL(MESH_Y_DIST),
+      const float xratio = (end.x - get_mesh_x(iend.x)) * RECIPROCAL(MESH_X_DIST),
+                  yratio = (end.y - get_mesh_y(iend.y)) * RECIPROCAL(MESH_Y_DIST),
                   z1 = z_values[iend.x][iend.y    ] + xratio * (z_values[iend.x + 1][iend.y    ] - z_values[iend.x][iend.y    ]),
                   z2 = z_values[iend.x][iend.y + 1] + xratio * (z_values[iend.x + 1][iend.y + 1] - z_values[iend.x][iend.y + 1]);
 
@@ -139,7 +148,7 @@
       icell.y += ineg.y;      // Line going down? Just go to the bottom.
       while (icell.y != iend.y + ineg.y) {
         icell.y += iadd.y;
-        const float next_mesh_line_y = mesh_index_to_ypos(icell.y);
+        const float next_mesh_line_y = get_mesh_y(icell.y);
 
         /**
          * Skip the calculations for an infinite slope.
@@ -155,7 +164,7 @@
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
-        dest.y = mesh_index_to_ypos(icell.y);
+        dest.y = get_mesh_y(icell.y);
 
         /**
          * Without this check, it's possible to generate a zero length move, as in the case where
@@ -176,7 +185,9 @@
           dest.z += z0;
           planner.buffer_segment(dest, scaled_fr_mm_s, extruder);
 
-        } //else printf("FIRST MOVE PRUNED  ");
+        }
+        else
+          DEBUG_ECHOLNPGM("[ubl] skip Y segment");
       }
 
       // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
@@ -196,7 +207,7 @@
 
       while (icell.x != iend.x + ineg.x) {
         icell.x += iadd.x;
-        dest.x = mesh_index_to_xpos(icell.x);
+        dest.x = get_mesh_x(icell.x);
         dest.y = ratio * dest.x + c;    // Calculate Y at the next X mesh line
 
         float z0 = z_correction_for_y_on_vertical_mesh_line(dest.y, icell.x, icell.y)
@@ -225,7 +236,9 @@
           dest.z += z0;
           if (!planner.buffer_segment(dest, scaled_fr_mm_s, extruder)) break;
 
-        } //else printf("FIRST MOVE PRUNED  ");
+        }
+        else
+          DEBUG_ECHOLNPGM("[ubl] skip Y segment");
       }
 
       if (xy_pos_t(current_position) != xy_pos_t(end))
@@ -245,8 +258,8 @@
 
     while (cnt) {
 
-      const float next_mesh_line_x = mesh_index_to_xpos(icell.x + iadd.x),
-                  next_mesh_line_y = mesh_index_to_ypos(icell.y + iadd.y);
+      const float next_mesh_line_x = get_mesh_x(icell.x + iadd.x),
+                  next_mesh_line_y = get_mesh_y(icell.y + iadd.y);
 
       dest.y = ratio * next_mesh_line_x + c;    // Calculate Y at the next X mesh line
       dest.x = (next_mesh_line_y - c) / ratio;  // Calculate X at the next Y mesh line
@@ -323,9 +336,9 @@
   #if IS_SCARA
     #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
   #elif ENABLED(DELTA)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
   #elif ENABLED(POLARGRAPH)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
   #else // CARTESIAN
     #ifdef LEVELED_SEGMENT_LENGTH
       #define DELTA_SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
@@ -340,7 +353,7 @@
    * Returns true if did NOT move, false if moved (requires current_position update).
    */
 
-  bool _O2 unified_bed_leveling::line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s) {
+  bool __O2 unified_bed_leveling::line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s) {
 
     if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
       return true;                            // did not move, so current_position still accurate
@@ -360,11 +373,12 @@
     #endif
 
     NOLESS(segments, 1U);                                                            // Must have at least one segment
-    const float inv_segments = 1.0f / segments,                                      // Reciprocal to save calculation
-                segment_xyz_mm = SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments;    // Length of each segment
+    const float inv_segments = 1.0f / segments;                                      // Reciprocal to save calculation
 
+    // Add hints to help optimize the move
+    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);             // Length of each segment
     #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float inv_duration = scaled_fr_mm_s / segment_xyz_mm;
+      hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
 
     xyze_float_t diff = total * inv_segments;
@@ -378,13 +392,9 @@
     if (!planner.leveling_active || !planner.leveling_active_at_z(destination.z)) {
       while (--segments) {
         raw += diff;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-        );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
       }
-      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-      );
+      planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
       return false; // Did not set current from destination
     }
 
@@ -413,17 +423,19 @@
       LIMIT(icell.x, 0, GRID_MAX_CELLS_X);
       LIMIT(icell.y, 0, GRID_MAX_CELLS_Y);
 
-      float z_x0y0 = z_values[icell.x  ][icell.y  ],  // z at lower left corner
-            z_x1y0 = z_values[icell.x+1][icell.y  ],  // z at upper left corner
-            z_x0y1 = z_values[icell.x  ][icell.y+1],  // z at lower right corner
-            z_x1y1 = z_values[icell.x+1][icell.y+1];  // z at upper right corner
+      const int8_t ncellx = _MIN(icell.x+1, GRID_MAX_CELLS_X),
+                   ncelly = _MIN(icell.y+1, GRID_MAX_CELLS_Y);
+      float z_x0y0 = z_values[icell.x][icell.y],  // z at lower left corner
+            z_x1y0 = z_values[ncellx ][icell.y],  // z at upper left corner
+            z_x0y1 = z_values[icell.x][ncelly ],  // z at lower right corner
+            z_x1y1 = z_values[ncellx ][ncelly ];  // z at upper right corner
 
       if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
       if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
       if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
       if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
 
-      const xy_pos_t pos = { mesh_index_to_xpos(icell.x), mesh_index_to_ypos(icell.y) };
+      const xy_pos_t pos = { get_mesh_x(icell.x), get_mesh_y(icell.y) };
       xy_pos_t cell = raw - pos;
 
       const float z_xmy0 = (z_x1y0 - z_x0y0) * RECIPROCAL(MESH_X_DIST),   // z slope per x along y0 (lower left to lower right)
@@ -450,13 +462,10 @@
         if (--segments == 0) raw = destination;     // if this is last segment, use destination for exact
 
         const float z_cxcy = (z_cxy0 + z_cxym * cell.y) // interpolated mesh z height along cell.x at cell.y
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            * fade_scaling_factor                   // apply fade factor to interpolated mesh height
-          #endif
-        ;
+          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
 
         const float oldz = raw.z; raw.z += z_cxcy;
-        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration) );
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
         raw.z = oldz;
 
         if (segments == 0)                        // done with last segment

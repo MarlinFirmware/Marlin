@@ -36,7 +36,7 @@
 #include "../../marlinui.h"
 #include "../../../HAL/shared/Delay.h"
 
-#if HAS_BUZZER
+#if HAS_SOUND
   #include "../../../libs/buzzer.h"
 #endif
 
@@ -50,13 +50,7 @@ ENCODER_Rate EncoderRate;
 
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
-  #if PIN_EXISTS(BEEPER)
-    if (ui.buzzer_enabled) {
-      WRITE(BEEPER_PIN, HIGH);
-      delay(10);
-      WRITE(BEEPER_PIN, LOW);
-    }
-  #endif
+  TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
 }
 
 // Encoder initialization
@@ -70,7 +64,7 @@ void Encoder_Configuration() {
   #if BUTTON_EXISTS(ENC)
     SET_INPUT_PULLUP(BTN_ENC);
   #endif
-  #if PIN_EXISTS(BEEPER)
+  #if HAS_BEEPER
     SET_OUTPUT(BEEPER_PIN);     // TODO: Use buzzer.h which already inits this
   #endif
 }
@@ -102,21 +96,21 @@ EncoderState Encoder_ReceiveAnalyze() {
   }
   if (newbutton != lastEncoderBits) {
     switch (newbutton) {
-      case ENCODER_PHASE_0:
-             if (lastEncoderBits == ENCODER_PHASE_3) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_1) temp_diff--;
+      case 0:
+             if (lastEncoderBits == 1) temp_diff++;
+        else if (lastEncoderBits == 2) temp_diff--;
         break;
-      case ENCODER_PHASE_1:
-             if (lastEncoderBits == ENCODER_PHASE_0) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_2) temp_diff--;
+      case 2:
+             if (lastEncoderBits == 0) temp_diff++;
+        else if (lastEncoderBits == 3) temp_diff--;
         break;
-      case ENCODER_PHASE_2:
-             if (lastEncoderBits == ENCODER_PHASE_1) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_3) temp_diff--;
+      case 3:
+             if (lastEncoderBits == 2) temp_diff++;
+        else if (lastEncoderBits == 1) temp_diff--;
         break;
-      case ENCODER_PHASE_3:
-             if (lastEncoderBits == ENCODER_PHASE_2) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_0) temp_diff--;
+      case 1:
+             if (lastEncoderBits == 3) temp_diff++;
+        else if (lastEncoderBits == 0) temp_diff--;
         break;
     }
     lastEncoderBits = newbutton;

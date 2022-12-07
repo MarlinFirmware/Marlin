@@ -65,7 +65,6 @@ namespace Language_zh_TW {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("淡出高度");     // "Fade Height"
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("設置原點偏移");     // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已啟用");     // "Offsets applied"
-  LSTR MSG_SET_ORIGIN                     = _UxGT("設置原點");     // "Set origin"
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("預熱 ") PREHEAT_1_LABEL;     // "Preheat PREHEAT_1_LABEL"
     LSTR MSG_PREHEAT_1_H                  = _UxGT("預熱 ") PREHEAT_1_LABEL " ~";     // "Preheat PREHEAT_1_LABEL"
@@ -219,13 +218,15 @@ namespace Language_zh_TW {
   LSTR MSG_MOVE_X                         = _UxGT("移動X");     // "Move X"
   LSTR MSG_MOVE_Y                         = _UxGT("移動Y");     // "Move Y"
   LSTR MSG_MOVE_Z                         = _UxGT("移動Z");     // "Move Z"
+  LSTR MSG_MOVE_N                         = _UxGT("移動Q");     // "Move @"
   LSTR MSG_MOVE_E                         = _UxGT("擠出機");     // "Extruder"
   LSTR MSG_MOVE_EN                        = _UxGT("擠出機 *");       // "Extruder *"
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("噴嘴溫度不夠");   // "Hotend too cold"
-  LSTR MSG_MOVE_N_MM                      = _UxGT("移動 %s mm");     // "Move 0.025mm"
+  LSTR MSG_MOVE_N_MM                      = _UxGT("移動 $ mm");      // "Move 0.025mm"
   LSTR MSG_MOVE_01MM                      = _UxGT("移動 0.1 mm");    // "Move 0.1mm"
   LSTR MSG_MOVE_1MM                       = _UxGT("移動 1 mm");      // "Move 1mm"
   LSTR MSG_MOVE_10MM                      = _UxGT("移動 10 mm");     // "Move 10mm"
+  LSTR MSG_MOVE_50MM                      = _UxGT("移動 50 mm");     // "Move 50mm"
   LSTR MSG_MOVE_100MM                     = _UxGT("移動 100 mm");    // "Move 100mm"
   LSTR MSG_SPEED                          = _UxGT("速率");     // "Speed"
   LSTR MSG_BED_Z                          = _UxGT("熱床Z");     // "Bed Z"
@@ -255,19 +256,15 @@ namespace Language_zh_TW {
   LSTR MSG_VA_JERK                        = _UxGT("軸抖動速率") STR_A;     // "Va-jerk"
   LSTR MSG_VB_JERK                        = _UxGT("軸抖動速率") STR_B;
   LSTR MSG_VC_JERK                        = _UxGT("軸抖動速率") STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("軸抖動速率") STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("軸抖動速率") STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("軸抖動速率") STR_K;
+  LSTR MSG_VN_JERK                        = _UxGT("軸抖動速率@");
   LSTR MSG_VE_JERK                        = _UxGT("擠出機抖動速率");
 
-  LSTR MSG_VELOCITY                       = _UxGT("速度");     // "Velocity"
+  LSTR MSG_MAX_SPEED                      = _UxGT("速度");     // "Velocity"
   LSTR MSG_VMAX_A                         = _UxGT("最大進料速率") STR_A;     // "Vmax " max_feedrate_mm_s
   LSTR MSG_VMAX_B                         = _UxGT("最大進料速率") STR_B;
   LSTR MSG_VMAX_C                         = _UxGT("最大進料速率") STR_C;
-  LSTR MSG_VMAX_I                         = _UxGT("最大進料速率") STR_I;
-  LSTR MSG_VMAX_J                         = _UxGT("最大進料速率") STR_J;
-  LSTR MSG_VMAX_K                         = _UxGT("最大進料速率") STR_K;
-  LSTR MSG_VMAX_E                         = _UxGT("最大進料速率") STR_E;
+  LSTR MSG_VMAX_N                         = _UxGT("最大進料速率@");
+  LSTR MSG_VMAX_E                         = _UxGT("最大進料速率E");
   LSTR MSG_VMAX_EN                        = _UxGT("最大進料速率 *");     // "Vmax " max_feedrate_mm_s
   LSTR MSG_VMIN                           = _UxGT("最小進料速率");     // "Vmin"  min_feedrate_mm_s
   LSTR MSG_VTRAV_MIN                      = _UxGT("最小移動速率");     // "VTrav min" min_travel_feedrate_mm_s, (target) speed of the move
@@ -275,10 +272,8 @@ namespace Language_zh_TW {
   LSTR MSG_AMAX_A                         = _UxGT("最大列印加速度") STR_A;     // "Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
   LSTR MSG_AMAX_B                         = _UxGT("最大列印加速度") STR_B;
   LSTR MSG_AMAX_C                         = _UxGT("最大列印加速度") STR_C;
-  LSTR MSG_AMAX_I                         = _UxGT("最大列印加速度") STR_I;
-  LSTR MSG_AMAX_J                         = _UxGT("最大列印加速度") STR_J;
-  LSTR MSG_AMAX_K                         = _UxGT("最大列印加速度") STR_K;
-  LSTR MSG_AMAX_E                         = _UxGT("最大列印加速度") STR_E;
+  LSTR MSG_AMAX_N                         = _UxGT("最大列印加速度@");
+  LSTR MSG_AMAX_E                         = _UxGT("最大列印加速度E");
   LSTR MSG_AMAX_EN                        = _UxGT("最大列印加速度 *");     // "Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
   LSTR MSG_A_RETRACT                      = _UxGT("回縮加速度");     // "A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
   LSTR MSG_A_TRAVEL                       = _UxGT("非列印移動加速度");     // "A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
@@ -286,9 +281,7 @@ namespace Language_zh_TW {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" 軸步數/mm");     // "Asteps/mm" axis_steps_per_mm, axis steps-per-unit G92
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" 軸步數/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" 軸步數/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" 軸步數/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" 軸步數/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" 軸步數/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ 軸步數/mm");
   LSTR MSG_E_STEPS                        = _UxGT("擠出機步數/mm");     // "Esteps/mm"
   LSTR MSG_EN_STEPS                       = _UxGT("擠出機~步數/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("溫度");     // "Temperature"
@@ -412,8 +405,6 @@ namespace Language_zh_TW {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("⊿校準中心");     // "Calibrate Center"
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("⊿設置");     // "Delta Settings"
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("⊿自動校準");     // "Auto Calibration"
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("設置⊿高度");     // "Set Delta Height"
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Z偏移");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("⊿斜柱");     // "Diag Rod"
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("⊿高度");     // "Height"
   LSTR MSG_DELTA_RADIUS                   = _UxGT("⊿半徑");     // "Radius"
@@ -455,13 +446,7 @@ namespace Language_zh_TW {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("最高溫度");     // "Max Temp"
   LSTR MSG_INFO_PSU                       = _UxGT("電源供應");     // "Power Supply"
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("驅動力度");     // "Drive Strength"
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" 驅動 %");    // X Driver %
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" 驅動 %");    // Y Driver %
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" 驅動 %");    // Z Driver %
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" 驅動 %");    // I Driver %
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" 驅動 %");    // J Driver %
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" 驅動 %");    // K Driver %
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E 驅動 %");    //E Driver %
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ 驅動 %");    //E Driver %
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC連接錯誤");   // "TMC CONNECTION ERROR"
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("保存驅動設置");     // "DAC EEPROM Write"
   LSTR MSG_FILAMENT_CHANGE_HEADER         = _UxGT("更換絲料");   // "FILAMENT CHANGE"
