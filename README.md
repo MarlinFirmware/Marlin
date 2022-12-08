@@ -95,42 +95,42 @@ Regular users can open and close their own issues, but only the administrators c
 <tr><td>Project Maintainer</td></tr>
 <tr><td>
 
- 🇺🇸  **Scott Lahteine**  
-       [@thinkyhead](https://github.com/thinkyhead)  
+ 🇺🇸  **Scott Lahteine**
+       [@thinkyhead](https://github.com/thinkyhead)
        [<kbd>  Donate 💸  </kbd>](https://www.thinkyhead.com/donate-to-marlin)
 
 </td><td>
 
- 🇺🇸  **Roxanne Neufeld**  
-       [@Roxy-3D](https://github.com/Roxy-3D)  
-       
- 🇺🇸  **Keith Bennett**  
-       [@thisiskeithb](https://github.com/thisiskeithb)  
+ 🇺🇸  **Roxanne Neufeld**
+       [@Roxy-3D](https://github.com/Roxy-3D)
+
+ 🇺🇸  **Keith Bennett**
+       [@thisiskeithb](https://github.com/thisiskeithb)
        [<kbd>  Donate 💸  </kbd>](https://github.com/sponsors/thisiskeithb)
- 
- 🇺🇸  **Jason Smith**  
+
+ 🇺🇸  **Jason Smith**
        [@sjasonsmith](https://github.com/sjasonsmith)
 
 </td><td>
 
- 🇧🇷  **Victor Oliveira**  
+ 🇧🇷  **Victor Oliveira**
        [@rhapsodyv](https://github.com/rhapsodyv)
- 
- 🇬🇧  **Chris Pepper**  
+
+ 🇬🇧  **Chris Pepper**
        [@p3p](https://github.com/p3p)
-       
-🇳🇿  **Peter Ellens**  
-       [@ellensp](https://github.com/ellensp)  
+
+🇳🇿  **Peter Ellens**
+       [@ellensp](https://github.com/ellensp)
        [<kbd>  Donate 💸  </kbd>](https://ko-fi.com/ellensp)
 
 </td><td>
 
- 🇺🇸  **Bob Kuhn**  
+ 🇺🇸  **Bob Kuhn**
        [@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)
-       
- 🇳🇱  **Erik van der Zalm**  
-       [@ErikZalm](https://github.com/ErikZalm)  
-       [<kbd>  Donate 💸  </kbd>](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)  
+
+ 🇳🇱  **Erik van der Zalm**
+       [@ErikZalm](https://github.com/ErikZalm)
+       [<kbd>  Donate 💸  </kbd>](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 </td></tr>
 </table>
