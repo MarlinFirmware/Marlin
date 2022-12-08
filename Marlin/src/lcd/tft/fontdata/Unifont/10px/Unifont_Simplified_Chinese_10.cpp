@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Simplified Chinese 16pt, capital 'A' heigth: 10px, width: 100%, range: 0x201c-0xff1a, glyphs: 373
@@ -772,3 +776,5 @@ extern const uint8_t Unifont_Simplified_Chinese_10[14547] = {
   // 0xff1a  ：
   26,255,4,7,7,16,6,1,240,240,0,0,0,240,240,
 };
+
+#endif // HAS_GRAPHICAL_TFT

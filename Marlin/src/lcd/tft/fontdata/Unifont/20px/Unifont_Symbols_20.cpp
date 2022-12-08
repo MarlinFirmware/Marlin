@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Symbols 32pt, capital 'A' heigth: 20px, width: 100%
@@ -32,3 +36,5 @@ extern const uint8_t Unifont_Symbols_20[90] = {
   // 0x0a - replacement for 0x2026 used in Greek languange files  …
   14,4,8,16,2,0,195,12,195,12,195,12,195,12,
 };
+
+#endif // HAS_GRAPHICAL_TFT

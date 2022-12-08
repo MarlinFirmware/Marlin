@@ -20,9 +20,13 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Korean 26pt, capital 'A' heigth: 19px, width: 100%, range: 0xac70-0xd788, glyphs: 110
+// NotoSans Medium Korean 26pt, capital 'A' heigth: 19px, width: 100%, range: 0xac70-0xd788, glyphs: 110
 extern const uint8_t NotoSans_Medium_Korean_19[15510] = {
   162,19,112,172,136,215,25,249, // unifont_t
   // 0xac70  거
@@ -246,3 +250,5 @@ extern const uint8_t NotoSans_Medium_Korean_19[15510] = {
   // 0xd788  히
   136,215,19,25,125,24,2,253,0,21,0,0,248,0,47,0,0,248,0,47,0,0,248,0,47,64,0,248,255,255,255,240,248,255,255,255,240,248,0,0,0,0,248,0,0,0,0,248,0,191,224,0,248,7,255,252,0,248,15,208,127,0,248,47,0,31,64,248,62,0,15,128,248,62,0,15,128,248,62,0,15,128,248,47,0,47,64,248,15,229,190,0,248,7,255,252,0,248,0,191,144,0,248,0,0,0,0,248,0,0,0,0,248,0,0,0,0,248,0,0,0,0,248,0,0,0,0,248,0,0,0,0,80,
 };
+
+#endif // HAS_GRAPHICAL_TFT

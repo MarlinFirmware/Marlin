@@ -20,9 +20,13 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Katakana 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x30a0-0x8868, glyphs: 103
+// NotoSans Medium Katakana 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x30a0-0x8868, glyphs: 103
 extern const uint8_t NotoSans_Medium_Katakana_14[7913] = {
   162,14,160,48,104,136,18,251, // unifont_t
   // 0x30a0  ゠
@@ -232,3 +236,5 @@ extern const uint8_t NotoSans_Medium_Katakana_14[7913] = {
   // 0x8868  表
   104,136,17,19,95,19,1,254,0,1,128,0,0,0,1,208,0,0,63,255,255,255,0,42,170,234,170,0,0,1,208,0,0,15,255,255,253,0,5,86,229,84,0,0,1,208,0,0,255,255,255,255,128,106,175,250,170,64,0,126,56,10,0,2,244,44,47,0,127,240,31,248,0,249,240,11,192,0,0,240,3,208,0,0,241,181,244,0,1,255,244,127,64,31,249,0,15,192,9,0,0,1,64,
 };
+
+#endif // HAS_GRAPHICAL_TFT

@@ -20,9 +20,13 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Vietnamese 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
+// NotoSans Medium Vietnamese 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
 extern const uint8_t NotoSans_Medium_Vietnamese_14[6582] = {
   162,14,2,1,249,30,18,251, // unifont_t
   // 0x0102  Ă
@@ -240,3 +244,5 @@ extern const uint8_t NotoSans_Medium_Vietnamese_14[6582] = {
   // 0x1ef9  ỹ
   249,30,10,19,57,10,0,251,11,211,64,29,255,0,20,4,0,0,0,0,180,1,224,124,3,208,60,3,192,30,7,128,15,15,0,11,79,0,7,157,0,3,252,0,1,248,0,0,244,0,0,240,0,1,224,0,7,192,0,191,64,0,100,0,0,
 };
+
+#endif // HAS_GRAPHICAL_TFT

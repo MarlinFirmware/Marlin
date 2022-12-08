@@ -20,9 +20,13 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Greek 26pt, capital 'A' heigth: 19px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
+// NotoSans Medium Greek 26pt, capital 'A' heigth: 19px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
 extern const uint8_t NotoSans_Medium_Greek_19[5416] = {
   130,19,134,3,206,3,25,249, // unifont_t
   // 0x0386  Ά
@@ -172,3 +176,5 @@ extern const uint8_t NotoSans_Medium_Greek_19[5416] = {
   // 0x03ce  ώ
   19,21,105,21,1,255,0,0,15,192,0,0,0,31,128,0,0,0,47,0,0,0,0,61,0,0,0,0,16,0,0,0,0,0,0,0,7,208,0,15,128,15,128,0,7,208,47,0,0,3,240,63,0,0,1,240,62,0,20,0,244,125,0,188,0,248,125,0,188,0,248,125,0,188,0,248,125,0,188,0,248,62,0,188,0,244,63,0,253,2,240,31,130,239,7,240,15,255,207,255,192,2,255,67,255,0,0,0,0,0,0,
 };
+
+#endif // HAS_GRAPHICAL_TFT

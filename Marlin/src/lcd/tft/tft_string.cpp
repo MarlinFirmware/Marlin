@@ -84,23 +84,31 @@ void TFT_String::add_glyphs(const uint8_t *font) {
   if (fontStartEncoding >= 0x0100) {
     font_header_extra = (unifont_t *)font;
     if (((*font) & 0xF0) == FONT_MARLIN_GLYPHS ) {  // FONT_MARLIN_GLYPHS
-      for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++)
+     for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++) {
+        if (unicode == fontStartEncoding + MAX_EXTRA_GLYPHS) {
+          DEBUG_ECHOLNPGM("Too many glyphs. Increase MAX_EXTRA_GLYPHS to ", fontEndEncoding - fontStartEncoding + 1);
+          break;
+        }
         if (*pointer != NO_GLYPH) {
           glyphs_extra[unicode - fontStartEncoding] = pointer;
           pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
         }
         else
           pointer++;
+     }
     }
     else {  // FONT_MARLIN_HIEROGLYPHS
       for (uint16_t i = 0;; i++) {
+        if (i == MAX_EXTRA_GLYPHS) {
+          DEBUG_ECHOLN("Too many glyphs. Increase MAX_EXTRA_GLYPHS");
+          break;
+        }
         glyphs_extra[i] = pointer;
         unicode = *(uint16_t *) pointer;
         pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.DataSize;
-        if (unicode == fontEndEncoding) {
-          extra_count = i + 1;
+        extra_count = i + 1;
+        if (unicode == fontEndEncoding)
           break;
-        }
       }
     }
   }

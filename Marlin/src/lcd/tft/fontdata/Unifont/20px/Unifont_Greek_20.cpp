@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Greek 32pt, capital 'A' heigth: 20px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
@@ -172,3 +176,5 @@ extern const uint8_t Unifont_Greek_20[3014] = {
   // 0x03ce  ώ
   14,26,52,16,2,0,0,192,0,192,3,0,3,0,12,0,12,0,0,0,0,0,0,0,0,0,48,48,48,48,192,12,192,12,192,12,192,12,195,12,195,12,195,12,195,12,195,12,195,12,195,12,195,12,60,240,60,240,
 };
+
+#endif // HAS_GRAPHICAL_TFT

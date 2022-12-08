@@ -20,9 +20,13 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Symbols 19pt, capital 'A' heigth: 14px, width: 100%
+// NotoSans Medium Symbols 19pt, capital 'A' heigth: 14px, width: 100%
 extern const uint8_t NotoSans_Medium_Symbols_14[131] = {
   130,14,8,0,10,0,18,251, // unifont_t
   // 0x08 - LCD_STR_THERMOMETER a.k.a 0x1f321  🌡
@@ -32,3 +36,5 @@ extern const uint8_t NotoSans_Medium_Symbols_14[131] = {
   // 0x0a - replacement for 0x2026 used in Greek languange files  …
   13,4,16,15,1,255,16,4,1,0,188,47,7,192,184,31,7,192,0,0,0,0,
 };
+
+#endif // HAS_GRAPHICAL_TFT

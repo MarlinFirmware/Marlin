@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Katakana 16pt, capital 'A' heigth: 10px, width: 100%, range: 0x30a0-0x8868, glyphs: 103
@@ -232,3 +236,5 @@ extern const uint8_t Unifont_Katakana_10[3067] = {
   // 0x8868  表
   104,136,15,16,32,16,0,254,1,0,1,0,127,252,1,0,1,0,63,248,1,0,1,0,255,254,5,0,8,136,24,80,40,32,201,24,10,6,12,0,
 };
+
+#endif // HAS_GRAPHICAL_TFT

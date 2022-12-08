@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Vietnamese 32pt, capital 'A' heigth: 20px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
@@ -240,3 +244,5 @@ extern const uint8_t Unifont_Vietnamese_20[6262] = {
   // 0x1ef9  ỹ
   249,30,12,28,56,16,2,252,60,48,60,48,195,192,195,192,0,0,0,0,0,0,0,0,192,48,192,48,192,48,192,48,192,48,192,48,192,48,192,48,192,48,192,48,48,240,48,240,15,48,15,48,0,48,0,48,0,48,0,48,63,192,63,192,
 };
+
+#endif // HAS_GRAPHICAL_TFT

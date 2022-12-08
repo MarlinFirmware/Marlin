@@ -20,10 +20,14 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Cyrilic 26pt, capital 'A' heigth: 19px, width: 100%, range: 0x0401-0x0491, glyphs: 74
-extern const uint8_t NotoSans_Medium_Cyrilic_19[6037] = {
+// NotoSans Medium Cyrillic 26pt, capital 'A' heigth: 19px, width: 100%, range: 0x0401-0x0491, glyphs: 74
+extern const uint8_t NotoSans_Medium_Cyrillic_19[6037] = {
   130,19,1,4,145,4,25,249, // unifont_t
   // 0x0401  Ё
   11,24,72,14,2,0,11,131,208,15,195,224,6,1,128,0,0,0,0,0,0,106,170,168,191,255,252,191,255,252,189,0,0,189,0,0,189,0,0,189,0,0,189,0,0,191,255,244,191,255,244,190,170,160,189,0,0,189,0,0,189,0,0,189,0,0,189,0,0,190,85,84,191,255,252,191,255,252,
@@ -316,3 +320,5 @@ extern const uint8_t NotoSans_Medium_Cyrilic_19[6037] = {
   // 0x0491  ґ
   9,18,54,12,2,0,0,7,192,0,7,192,0,7,192,0,7,192,255,255,192,255,255,192,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,252,0,0,
 };
+
+#endif // HAS_GRAPHICAL_TFT

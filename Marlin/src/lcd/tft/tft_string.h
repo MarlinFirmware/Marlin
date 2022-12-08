@@ -25,14 +25,6 @@
 
 #include "../fontutils.h"
 
-#ifndef TFT_FONT
-  #define TFT_FONT NOTOSANS
-#endif
-
-#define NOTOSANS      1
-#define UNIFONT       2
-#define HELVETICA     3
-
 #define NO_GLYPH          0xFF
 
 /*
@@ -59,12 +51,95 @@
 #define FONT_MARLIN_HIEROGLYPHS_2BPP 0xA2
 #define FONT_MARLIN_HIEROGLYPHS_4BPP 0xA4
 
-#if LCD_LANGUAGE == zh_CN
-  #define MAX_EXTRA_GLYPHS           373
-#elif LCD_LANGUAGE == zh_TW
-  #define MAX_EXTRA_GLYPHS           307
-#else
-  #define MAX_EXTRA_GLYPHS           144
+#define _LATIN_EXTENDED_A     1
+#define _CYRILLIC             2
+#define _GREEK                3
+#define _KATAKANA             4
+#define _KOREAN               5
+#define _VIETNAMESE           6
+#define _SIMPLIFIED_CHINESE   7
+#define _TRADITIONAL_CHINESE  8
+
+#define cz      _LATIN_EXTENDED_A
+#define hr      _LATIN_EXTENDED_A
+#define pl      _LATIN_EXTENDED_A
+#define sk      _LATIN_EXTENDED_A
+#define tr      _LATIN_EXTENDED_A
+#define bg      _CYRILLIC
+#define ru      _CYRILLIC
+#define uk      _CYRILLIC
+#define el      _GREEK
+#define el_CY   _GREEK
+#define jp_kana _KATAKANA
+#define ko_KR   _KOREAN
+#define vi      _VIETNAMESE
+#define zh_CN   _SIMPLIFIED_CHINESE
+#define zh_TW   _TRADITIONAL_CHINESE
+
+#if LCD_LANGUAGE == _LATIN_EXTENDED_A
+  #define FONT_EXTRA    Latin_Extended_A
+  #define MAX_EXTRA_GLYPHS  128
+#elif LCD_LANGUAGE == _CYRILLIC
+  #define FONT_EXTRA        Cyrillic
+  #define MAX_EXTRA_GLYPHS  145
+#elif LCD_LANGUAGE == _GREEK
+  #define FONT_EXTRA        Greek
+  #define MAX_EXTRA_GLYPHS  73
+#elif LCD_LANGUAGE == _KATAKANA
+  #define FONT_EXTRA        Katakana
+  #define MAX_EXTRA_GLYPHS  102
+#elif LCD_LANGUAGE == _KOREAN
+  #define FONT_EXTRA        Korean
+  #define MAX_EXTRA_GLYPHS  110
+#elif LCD_LANGUAGE == _VIETNAMESE
+  #define FONT_EXTRA        Vietnamese
+  #define MAX_EXTRA_GLYPHS  107
+#elif LCD_LANGUAGE == _SIMPLIFIED_CHINESE
+  #define FONT_EXTRA        Simplified_Chinese
+  #define MAX_EXTRA_GLYPHS  373
+#elif LCD_LANGUAGE == _TRADITIONAL_CHINESE
+  #define FONT_EXTRA        Traditional_Chinese
+  #define MAX_EXTRA_GLYPHS  307
+#else // Basin Latin (0x0020 - 0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only
+  #define MAX_EXTRA_GLYPHS  0
+#endif
+
+#undef cz
+#undef hr
+#undef pl
+#undef sk
+#undef tr
+#undef bg
+#undef ru
+#undef uk
+#undef el
+#undef el_CY
+#undef jp_kana
+#undef ko_KR
+#undef vi
+#undef zh_CN
+#undef zh_TW
+
+
+#define NOTOSANS      1
+#define UNIFONT       2
+#define HELVETICA     3
+
+#ifndef TFT_FONT
+  #define TFT_FONT NOTOSANS
+#endif
+
+#if TFT_FONT == NOTOSANS
+  #define FONT_FAMILY         NotoSans_Medium
+#elif TFT_FONT == UNIFONT
+  #define FONT_FAMILY         Unifont
+#elif TFT_FONT == HELVETICA
+  #define FONT_FAMILY         Helvetica
+  #ifdef FONT_EXTRA
+    #error "Helvetica font does not have symbols required for selected LCD_LANGUAGE."
+  #endif
+#else  
+  #error "Invalid TFT_FONT value."
 #endif
 
 // TFT font with unicode support

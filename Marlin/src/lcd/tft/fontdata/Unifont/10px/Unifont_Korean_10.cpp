@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Korean 16pt, capital 'A' heigth: 10px, width: 100%, range: 0xac70-0xd788, glyphs: 110
@@ -246,3 +250,5 @@ extern const uint8_t Unifont_Korean_10[3786] = {
   // 0xd788  히
   136,215,11,13,26,16,2,255,16,32,16,32,254,32,56,32,68,32,130,32,130,32,130,32,68,32,56,32,0,32,0,32,0,32,
 };
+
+#endif // HAS_GRAPHICAL_TFT

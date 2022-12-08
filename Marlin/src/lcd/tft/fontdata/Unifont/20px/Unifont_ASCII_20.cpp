@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont ASCII 32pt, capital 'A' heigth: 20px, width: 100%, range: 0x0020-0x007e
@@ -216,3 +220,5 @@ extern const uint8_t Unifont_ASCII_20[3770] = {
   // 0x007e  ~
   14,6,12,16,2,16,60,12,60,12,195,12,195,12,192,240,192,240,
 };
+
+#endif // HAS_GRAPHICAL_TFT

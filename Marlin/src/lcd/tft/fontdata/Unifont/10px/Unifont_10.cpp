@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont 16pt, capital 'A' heigth: 10px, width: 100%, range: 0x0020-0x00ff
@@ -215,7 +219,7 @@ extern const uint8_t Unifont_10[3107] = {
   4,13,13,8,2,254,192,32,32,64,64,32,16,32,64,64,32,32,192,
   // 0x007e  ~
   7,3,3,8,1,8,98,146,140,
-  // 0x007f - 0x009a  Control Characters
+  // 0x007f - 0x009f  Control Characters
   255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
   // 0x00a0 " "
   0,0,0,8,0,0,
@@ -410,3 +414,5 @@ extern const uint8_t Unifont_10[3107] = {
   // 0x00ff  Ã¿
   6,14,14,8,1,254,72,72,0,0,132,132,132,132,132,76,52,4,4,120,
 };
+
+#endif // HAS_GRAPHICAL_TFT

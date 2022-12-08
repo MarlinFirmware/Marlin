@@ -20,9 +20,13 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
-// NotoSans_Medium Traditional Chinese 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x22bf-0xff1a, glyphs: 307
+// NotoSans Medium Traditional Chinese 19pt, capital 'A' heigth: 14px, width: 100%, range: 0x22bf-0xff1a, glyphs: 307
 extern const uint8_t NotoSans_Medium_Traditional_Chinese_14[30758] = {
   162,14,191,34,26,255,18,251, // unifont_t
   // 0x22bf  ⊿
@@ -640,3 +644,5 @@ extern const uint8_t NotoSans_Medium_Traditional_Chinese_14[30758] = {
   // 0xff1a  ：
   26,255,3,13,13,19,8,1,116,252,184,0,0,0,0,0,0,0,184,252,180,
 };
+
+#endif // HAS_GRAPHICAL_TFT

@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include <stdint.h>
 
 // Unifont Greek 16pt, capital 'A' heigth: 10px, width: 100%, range: 0x0386-0x03ce, glyphs: 63
@@ -172,3 +176,5 @@ extern const uint8_t Unifont_Greek_10[1061] = {
   // 0x03ce  ώ
   7,13,13,8,1,0,8,16,32,0,0,68,130,130,146,146,146,146,108,
 };
+
+#endif // HAS_GRAPHICAL_TFT
