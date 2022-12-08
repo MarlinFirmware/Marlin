@@ -285,7 +285,6 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   spiInit(spiRate_, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN, -1);
 
   // Must supply min of 74 clock cycles with CS high.
-  // TODO: can we just use spiWriteRepeat???
   spiWriteRepeat(0xFF, 10);
 
   hal.watchdog_refresh(); // In case init takes too long

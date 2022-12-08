@@ -24,6 +24,10 @@
 
 #include <stdint.h>
 
+// This volatile-nonsense has to be done due to the C++ platform language specialization that specifies, for it's own compiler ideology,
+// that memory writes and reads can be optimized across easily-reachable code spaces. This is in contrast to MSVC which specifies that
+// memory writes and reads are holy.
+
 // OVERVIEW OF PREPROCESSOR DEFINITIONS:
 // __AVR_ATmega2560__
 // __AVR_ATmega1284P__
@@ -79,10 +83,10 @@
 struct _bit_reg_t {
   uint8_t val;
 
-  bool getValue(uint8_t idx) {
+  bool getValue(uint8_t idx) const volatile {
     return ( val & (1<<idx) );
   }
-  void setValue(uint8_t idx, bool value) {
+  void setValue(uint8_t idx, bool value) volatile {
     if (value)
       val |= (1<<idx);
     else
@@ -111,10 +115,10 @@ struct _bitG_reg_t {
   uint8_t val : 6;
   uint8_t reserved1 : 2;
   
-  bool getValue(uint8_t idx) {
+  bool getValue(uint8_t idx) const volatile {
     return ( val & (1<<idx) );
   }
-  void setValue(uint8_t idx, bool value) {
+  void setValue(uint8_t idx, bool value) volatile {
     if (value)
       val |= (1<<idx);
     else
@@ -139,10 +143,10 @@ struct _bitC_reg_t {
   uint8_t val : 7;
   uint8_t reserved1 : 1;
   
-  bool getValue(uint8_t idx) {
+  bool getValue(uint8_t idx) const volatile {
     return ( val & (1<<idx) );
   }
-  void setValue(uint8_t idx, bool value) {
+  void setValue(uint8_t idx, bool value) volatile {
     if (value)
       val |= (1<<idx);
     else
@@ -1526,7 +1530,7 @@ static_assert(sizeof(PLLCSR_reg_t) == 1, "invalid size of ATUSB90 PLLCSR_reg_t")
   REGISTER MEMORY MAP
 */
 
-#define __AVR_DEFREG(tn,n,a) static tn& n = *(tn*)a
+#define __AVR_DEFREG(tn,n,a) static volatile tn& n = *(tn*)a
 #define _AVR_DEFREG(n,a) __AVR_DEFREG(n##_reg_t, _##n, a)
 
 #if defined(__AVR_TRM01__)
@@ -1547,282 +1551,282 @@ __AVR_DEFREG(TIFR0_reg_t, _TIFR0, 0x35);
 __AVR_DEFREG(TIFR1_reg_t, _TIFR1, 0x36);
 __AVR_DEFREG(TIFR2_reg_t, _TIFR2, 0x37);
 __AVR_DEFREG(TIFR3_reg_t, _TIFR3, 0x38);
-static TIFR4_reg_t& _TIFR4 = *(TIFR4_reg_t*)0x39;
-static TIFR5_reg_t& _TIFR5 = *(TIFR5_reg_t*)0x3A;
-static PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static uint8_t& _EEDR = *(uint8_t*)0x40;
-static EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static uint8_t& _SPDR = *(uint8_t*)0x4E;
-static ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static _bit_reg_t& _OCDR = *(_bit_reg_t*)0x51;
-static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static RAMPZ_reg_t& _RAMPZ = *(RAMPZ_reg_t*)0x5B;
-static EIND_reg_t& _EIND = *(EIND_reg_t*)0x5C;
-static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
-static uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static EICRB_reg_t& _EICRB = *(EICRB_reg_t*)0x6A;
-static _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static _bit_reg_t& _PCMSK1 = *(_bit_reg_t*)0x6C;
-static _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
-static TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
-static TIMSK4_reg_t& _TIMSK4 = *(TIMSK4_reg_t*)0x72;
-static TIMSK5_reg_t& _TIMSK5 = *(TIMSK5_reg_t*)0x73;
-static XMCRA_reg_t& _XMCRA = *(XMCRA_reg_t*)0x74;
-static XMCRB_reg_t& _XMCRB = *(XMCRB_reg_t*)0x75;
-static uint16_t& _ADC = *(uint16_t*)0x78;
-static ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static DIDR2_reg_t& _DIDR2 = *(DIDR2_reg_t*)0x7D;
-static DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
-static TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
-static TIMER_dev_t& TIMER4 = *(TIMER_dev_t*)0xA0;
-static TIMER_dev_t& TIMER5 = *(TIMER_dev_t*)0x120;
-static TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static uint8_t& _TWBR = *(uint8_t*)0xB8;
-static TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static uint8_t& _TWDR = *(uint8_t*)0xBB;
-static TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
-static USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
-static USART_dev_t& USART2 = *(USART_dev_t*)0xD0;
-static USART_dev_t& USART3 = *(USART_dev_t*)0x130;
+__AVR_DEFREG(TIFR4_reg_t, _TIFR4, 0x39);
+__AVR_DEFREG(TIFR5_reg_t, _TIFR5, 0x3A);
+__AVR_DEFREG(PCIFR_reg_t, _PCIFR, 0x3B);
+__AVR_DEFREG(EIFR_reg_t, _EIFR, 0x3C);
+__AVR_DEFREG(EIMSK_reg_t, _EIMSK, 0x3D);
+__AVR_DEFREG(_bit_reg_t, _GPIOR0, 0x3E);
+__AVR_DEFREG(EECR_reg_t, _EECR, 0x3F);
+__AVR_DEFREG(uint8_t, _EEDR, 0x40);
+__AVR_DEFREG(EEAR_reg_t, _EEAR, 0x41);
+__AVR_DEFREG(GTCCR_reg_t, _GTCCR, 0x43);
+__AVR_DEFREG(TIMER_8bit_dev_t, TIMER0, 0x44);
+__AVR_DEFREG(_bit_reg_t, _GPIOR1, 0x4A);
+__AVR_DEFREG(_bit_reg_t, _GPIOR2, 0x4B);
+__AVR_DEFREG(SPCR_reg_t, _SPCR, 0x4C);
+__AVR_DEFREG(SPSR_reg_t, _SPSR, 0x4D);
+__AVR_DEFREG(uint8_t, _SPDR, 0x4E);
+__AVR_DEFREG(ACSR_reg_t, _ACSR, 0x50);
+__AVR_DEFREG(_bit_reg_t, _OCDR, 0x51);
+__AVR_DEFREG(SMCR_reg_t, _SMCR, 0x53);
+__AVR_DEFREG(MCUSR_reg_t, _MCUSR, 0x54);
+__AVR_DEFREG(MCUCR_reg_t, _MCUCR, 0x55);
+__AVR_DEFREG(SPMCSR_reg_t, _SPMCSR, 0x57);
+__AVR_DEFREG(RAMPZ_reg_t, _RAMPZ, 0x5B);
+__AVR_DEFREG(EIND_reg_t, _EIND, 0x5C);
+__AVR_DEFREG(SP_reg_t, _SP, 0x5D);
+__AVR_DEFREG(SREG_reg_t, _SREG, 0x5F);
+__AVR_DEFREG(WDTCSR_reg_t, _WDTCSR, 0x60);
+__AVR_DEFREG(CLKPR_reg_t, _CLKPR, 0x61);
+__AVR_DEFREG(PRR0_reg_t, _PRR0, 0x64);
+__AVR_DEFREG(PRR1_reg_t, _PRR1, 0x65);
+__AVR_DEFREG(uint8_t, _OSCCAL, 0x66);
+__AVR_DEFREG(PCICR_reg_t, _PCICR, 0x68);
+__AVR_DEFREG(EICRA_reg_t, _EICRA, 0x69);
+__AVR_DEFREG(EICRB_reg_t, _EICRB, 0x6A);
+__AVR_DEFREG(_bit_reg_t, _PCMSK0, 0x6B);
+__AVR_DEFREG(_bit_reg_t, _PCMSK1, 0x6C);
+__AVR_DEFREG(_bit_reg_t, _PCMSK2, 0x6D);
+__AVR_DEFREG(TIMSK0_reg_t, _TIMSK0, 0x6E);
+__AVR_DEFREG(TIMSK1_reg_t, _TIMSK1, 0x6F);
+__AVR_DEFREG(TIMSK2_reg_t, _TIMSK2, 0x70);
+__AVR_DEFREG(TIMSK3_reg_t, _TIMSK3, 0x71);
+__AVR_DEFREG(TIMSK4_reg_t, _TIMSK4, 0x72);
+__AVR_DEFREG(TIMSK5_reg_t, _TIMSK5, 0x73);
+__AVR_DEFREG(XMCRA_reg_t, _XMCRA, 0x74);
+__AVR_DEFREG(XMCRB_reg_t, _XMCRB, 0x75);
+__AVR_DEFREG(uint16_t, _ADC, 0x78);
+__AVR_DEFREG(ADCSRA_reg_t, _ADCSRA, 0x7A);
+__AVR_DEFREG(ADCSRB_reg_t, _ADCSRB, 0x7B);
+__AVR_DEFREG(ADMUX_reg_t, _ADMUX, 0x7C);
+__AVR_DEFREG(DIDR2_reg_t, _DIDR2, 0x7D);
+__AVR_DEFREG(DIDR0_reg_t, _DIDR0, 0x7E);
+__AVR_DEFREG(DIDR1_reg_t, _DIDR1, 0x7F);
+__AVR_DEFREG(TIMER_dev_t, TIMER1, 0x80);
+__AVR_DEFREG(TIMER_dev_t, TIMER3, 0x90);
+__AVR_DEFREG(TIMER_dev_t, TIMER4, 0xA0);
+__AVR_DEFREG(TIMER_dev_t, TIMER5, 0x120);
+__AVR_DEFREG(TIMER_8bit_dev_t, _TIMER2, 0xB0);
+__AVR_DEFREG(ASSR_reg_t, _ASSR, 0xB6);
+__AVR_DEFREG(uint8_t, _TWBR, 0xB8);
+__AVR_DEFREG(TWSR_reg_t, _TWSR, 0xB9);
+__AVR_DEFREG(TWAR_reg_t, _TWAR, 0xBA);
+__AVR_DEFREG(uint8_t, _TWDR, 0xBB);
+__AVR_DEFREG(TWCR_reg_t, _TWCR, 0xBC);
+__AVR_DEFREG(TWAMR_reg_t, _TWAMR, 0xBD);
+__AVR_DEFREG(USART_dev_t, USART0, 0xC0);
+__AVR_DEFREG(USART_dev_t, USART1, 0xC8);
+__AVR_DEFREG(USART_dev_t, USART2, 0xD0);
+__AVR_DEFREG(USART_dev_t, USART3, 0x130);
 
 #elif defined(__AVR_TRM02__)
 // page 637ff of ATmega164A_PA-324A_PA-644A_PA-1284_P_Data-Sheet-40002070B.pdf
-static PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
-static PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
-static PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
-static PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static uint8_t& _EEDR = *(uint8_t*)0x40;
-static EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static uint8_t& _SPDR = *(uint8_t*)0x4E;
-static ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
-static uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static _bit_reg_t& _PCMSK1 = *(_bit_reg_t*)0x6C;
-static _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
-static TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
-static _bit_reg_t& _PCMSK3 = *(_bit_reg_t*)0x73;
-static uint16_t& _ADC = *(uint16_t*)0x78;
-static ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x70;
-static TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
-static TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static uint8_t& _TWBR = *(uint8_t*)0xB8;
-static TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static uint8_t& _TWDR = *(uint8_t*)0xBB;
-static TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
-static USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
+static volatile PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
+static volatile PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
+static volatile PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
+static volatile PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
+static volatile TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
+static volatile TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
+static volatile TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
+static volatile TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
+static volatile PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
+static volatile EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
+static volatile EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
+static volatile _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
+static volatile EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
+static volatile uint8_t& _EEDR = *(uint8_t*)0x40;
+static volatile EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
+static volatile GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
+static volatile TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
+static volatile _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
+static volatile _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
+static volatile SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
+static volatile SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
+static volatile uint8_t& _SPDR = *(uint8_t*)0x4E;
+static volatile ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
+static volatile SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
+static volatile MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
+static volatile MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
+static volatile SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
+static volatile SP_reg_t& _SP = *(SP_reg_t*)0x5D;
+static volatile SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
+static volatile WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
+static volatile CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
+static volatile PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
+static volatile PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
+static volatile uint8_t& _OSCCAL = *(uint8_t*)0x66;
+static volatile PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
+static volatile EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
+static volatile _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
+static volatile _bit_reg_t& _PCMSK1 = *(_bit_reg_t*)0x6C;
+static volatile _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
+static volatile TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
+static volatile TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
+static volatile TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
+static volatile TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
+static volatile _bit_reg_t& _PCMSK3 = *(_bit_reg_t*)0x73;
+static volatile uint16_t& _ADC = *(uint16_t*)0x78;
+static volatile ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
+static volatile ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
+static volatile ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
+static volatile DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
+static volatile DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
+static volatile TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x70;
+static volatile TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
+static volatile TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
+static volatile ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
+static volatile uint8_t& _TWBR = *(uint8_t*)0xB8;
+static volatile TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
+static volatile TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
+static volatile uint8_t& _TWDR = *(uint8_t*)0xBB;
+static volatile TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
+static volatile TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
+static volatile USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
+static volatile USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
 
 #elif defined(__AVR_TRM03__)
 // page 621ff of ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
-static PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static PORTC_dev_t& _PORTC = *(PORTC_dev_t*)0x26;
-static PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static uint8_t& _EEDR = *(uint8_t*)0x40;
-static EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static uint8_t& _SPDR = *(uint8_t*)0x4E;
-static ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static _bitPCMSK1_reg_t& _PCMSK1 = *(_bitPCMSK1_reg_t*)0x6C;
-static _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
-static TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static uint16_t& _ADC = *(uint16_t*)0x78;
-static ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
-static TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static uint8_t& _TWBR = *(uint8_t*)0xB8;
-static TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static uint8_t& _TWDR = *(uint8_t*)0xBB;
-static TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
+static volatile PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
+static volatile PORTC_dev_t& _PORTC = *(PORTC_dev_t*)0x26;
+static volatile PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
+static volatile TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
+static volatile TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
+static volatile TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
+static volatile PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
+static volatile EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
+static volatile EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
+static volatile _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
+static volatile EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
+static volatile uint8_t& _EEDR = *(uint8_t*)0x40;
+static volatile EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
+static volatile GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
+static volatile TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
+static volatile _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
+static volatile _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
+static volatile SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
+static volatile SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
+static volatile uint8_t& _SPDR = *(uint8_t*)0x4E;
+static volatile ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
+static volatile SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
+static volatile MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
+static volatile MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
+static volatile SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
+static volatile SP_reg_t& _SP = *(SP_reg_t*)0x5D;
+static volatile SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
+static volatile WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
+static volatile CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
+static volatile PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
+static volatile uint8_t& _OSCCAL = *(uint8_t*)0x66;
+static volatile PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
+static volatile EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
+static volatile _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
+static volatile _bitPCMSK1_reg_t& _PCMSK1 = *(_bitPCMSK1_reg_t*)0x6C;
+static volatile _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
+static volatile TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
+static volatile TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
+static volatile TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
+static volatile uint16_t& _ADC = *(uint16_t*)0x78;
+static volatile ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
+static volatile ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
+static volatile ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
+static volatile DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
+static volatile DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
+static volatile TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
+static volatile TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
+static volatile ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
+static volatile uint8_t& _TWBR = *(uint8_t*)0xB8;
+static volatile TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
+static volatile TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
+static volatile uint8_t& _TWDR = *(uint8_t*)0xBB;
+static volatile TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
+static volatile TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
+static volatile USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
 
 #elif defined(__AVR_TRM04__)
-static PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
-static PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
-static PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static PORT_dev_t& _PORTE = *(PORT_dev_t*)0x2C;
-static PORT_dev_t& _PORTF = *(PORT_dev_t*)0x2F;
-static TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
-static PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static uint8_t& _EEDR = *(uint8_t*)0x40;
-static EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static PLLCSR_reg_t& _PLLCSR = *(PLLCSR_reg_t*)0x49;
-static _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static uint8_t& _SPDR = *(uint8_t*)0x4E;
-static ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static uint8_t& _OCDR = *(uint8_t*)0x51;
-static SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static RAMPZ_reg_t& _RAMPZ = *(RAMPZ_reg_t*)0x5B;
-static SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
-static uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static EICRB_reg_t& _EICRB = *(EICRB_reg_t*)0x6A;
-static _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
-static XMCRA_reg_t& _XMCRA = *(XMCRA_reg_t*)0x74;
-static XMCRB_reg_t& _XMCRB = *(XMCRB_reg_t*)0x75;
-static uint16_t& _ADC = *(uint16_t*)0x78;
-static ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
-static TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
-static UHCON_reg_t& _UHCON = *(UHCON_reg_t*)0x9E;
-static UHINT_reg_t& _UHINT = *(UHINT_reg_t*)0x9F;
-static UHIEN_reg_t& _UHIEN = *(UHIEN_reg_t*)0xA0;
-static UHADDR_reg_t& _UHADDR = *(UHADDR_reg_t*)0xA1;
-static UHFNUM_reg_t& _UHFNUM = *(UHFNUM_reg_t*)0xA2;
-static uint8_t& _UHFLEN = *(uint8_t*)0xA4;
-static uint8_t& _UPINRQX = *(uint8_t*)0xA5;
-static UPINTX_reg_t& _UPINTX = *(UPINTX_reg_t*)0xA6;
-static UPNUM_reg_t& _UPNUM = *(UPNUM_reg_t*)0xA7;
-static UPRST_reg_t& _UPRST = *(UPRST_reg_t*)0xA8;
-static UPCONX_reg_t& _UPCONX = *(UPCONX_reg_t*)0xA9;
+static volatile PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
+static volatile PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
+static volatile PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
+static volatile PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
+static volatile PORT_dev_t& _PORTE = *(PORT_dev_t*)0x2C;
+static volatile PORT_dev_t& _PORTF = *(PORT_dev_t*)0x2F;
+static volatile TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
+static volatile TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
+static volatile TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
+static volatile TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
+static volatile PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
+static volatile EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
+static volatile EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
+static volatile _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
+static volatile EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
+static volatile uint8_t& _EEDR = *(uint8_t*)0x40;
+static volatile EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
+static volatile GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
+static volatile TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
+static volatile PLLCSR_reg_t& _PLLCSR = *(PLLCSR_reg_t*)0x49;
+static volatile _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
+static volatile _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
+static volatile SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
+static volatile SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
+static volatile uint8_t& _SPDR = *(uint8_t*)0x4E;
+static volatile ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
+static volatile uint8_t& _OCDR = *(uint8_t*)0x51;
+static volatile SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
+static volatile MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
+static volatile MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
+static volatile SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
+static volatile RAMPZ_reg_t& _RAMPZ = *(RAMPZ_reg_t*)0x5B;
+static volatile SP_reg_t& _SP = *(SP_reg_t*)0x5D;
+static volatile SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
+static volatile WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
+static volatile CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
+static volatile PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
+static volatile PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
+static volatile uint8_t& _OSCCAL = *(uint8_t*)0x66;
+static volatile PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
+static volatile EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
+static volatile EICRB_reg_t& _EICRB = *(EICRB_reg_t*)0x6A;
+static volatile _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
+static volatile TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
+static volatile TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
+static volatile TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
+static volatile TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
+static volatile XMCRA_reg_t& _XMCRA = *(XMCRA_reg_t*)0x74;
+static volatile XMCRB_reg_t& _XMCRB = *(XMCRB_reg_t*)0x75;
+static volatile uint16_t& _ADC = *(uint16_t*)0x78;
+static volatile ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
+static volatile ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
+static volatile ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
+static volatile DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
+static volatile DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
+static volatile TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
+static volatile TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
+static volatile UHCON_reg_t& _UHCON = *(UHCON_reg_t*)0x9E;
+static volatile UHINT_reg_t& _UHINT = *(UHINT_reg_t*)0x9F;
+static volatile UHIEN_reg_t& _UHIEN = *(UHIEN_reg_t*)0xA0;
+static volatile UHADDR_reg_t& _UHADDR = *(UHADDR_reg_t*)0xA1;
+static volatile UHFNUM_reg_t& _UHFNUM = *(UHFNUM_reg_t*)0xA2;
+static volatile uint8_t& _UHFLEN = *(uint8_t*)0xA4;
+static volatile uint8_t& _UPINRQX = *(uint8_t*)0xA5;
+static volatile UPINTX_reg_t& _UPINTX = *(UPINTX_reg_t*)0xA6;
+static volatile UPNUM_reg_t& _UPNUM = *(UPNUM_reg_t*)0xA7;
+static volatile UPRST_reg_t& _UPRST = *(UPRST_reg_t*)0xA8;
+static volatile UPCONX_reg_t& _UPCONX = *(UPCONX_reg_t*)0xA9;
 _AVR_DEFREG(UPCFG0X, 0xAA);
 _AVR_DEFREG(UPCFG1X, 0xAB);
 _AVR_DEFREG(UPSTAX, 0xAC);
-static uint8_t& _UPCFG2X = *(uint8_t*)0xAD;
+static volatile uint8_t& _UPCFG2X = *(uint8_t*)0xAD;
 _AVR_DEFREG(UPIENX, 0xAE);
-static uint8_t& _UPDATX = *(uint8_t*)0xAF;
-static TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static uint8_t& _TWBR = *(uint8_t*)0xB8;
-static TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static uint8_t& _TWDR = *(uint8_t*)0xBB;
-static TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
+static volatile uint8_t& _UPDATX = *(uint8_t*)0xAF;
+static volatile TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
+static volatile ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
+static volatile uint8_t& _TWBR = *(uint8_t*)0xB8;
+static volatile TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
+static volatile TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
+static volatile uint8_t& _TWDR = *(uint8_t*)0xBB;
+static volatile TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
+static volatile TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
+static volatile USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
 _AVR_DEFREG(UHWCON, 0xD7);
 _AVR_DEFREG(USBCON, 0xD8);
 _AVR_DEFREG(USBSTA, 0xD9);
@@ -1859,8 +1863,24 @@ _AVR_DEFREG(OTGTCON, 0xF9);
 /*
   HELPER FUNCTIONS
 */
+namespace AVRHelpers {
+
+template <typename T>
+struct no_volatile {
+  typedef T type;
+};
+
+template <typename T>
+struct no_volatile <volatile T> : public no_volatile <T> {};
+
+template <typename memRegType>
+inline typename no_volatile <memRegType>::type& dwrite( memRegType& V ) { return (typename no_volatile <memRegType>::type&)V; }
+
+} // namespace AVRHelpers
 
 inline void _ATmega_resetperipherals() {
+  using namespace AVRHelpers;
+
   // Due to BOOTLOADER or other board inconsistencies we could get launched into Marlin FW
   // with configuration that does not match the reset state in the documentation. That is why
   // we should clean-reset the entire device.
@@ -1874,7 +1894,7 @@ inline void _ATmega_resetperipherals() {
   __SREG._H = false;
   __SREG._T = false;
   __SREG._I = false;
-  _SREG = __SREG;
+  dwrite(_SREG) = __SREG;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
@@ -1886,7 +1906,7 @@ inline void _ATmega_resetperipherals() {
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
   _EEAR._EEAR = 0;
-  _EEDR = 0;
+  dwrite(_EEDR) = 0;
 #endif
   
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1898,7 +1918,7 @@ inline void _ATmega_resetperipherals() {
   __EECR._EEPM0 = 0;
   __EECR._EEPM1 = 0;
   __EECR.reserved1 = 0;
-  _EECR = __EECR;
+  dwrite(_EECR) = __EECR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1913,13 +1933,13 @@ inline void _ATmega_resetperipherals() {
   __XMCRA._SRW1 = 0;
   __XMCRA._SRL = 0;
   __XMCRA._SRE = 0;
-  _XMCRA = __XMCRA;
+  dwrite(_XMCRA) = __XMCRA;
 
   XMCRB_reg_t __XMCRB;
   __XMCRB._XMM = 0;
   __XMCRB.reserved1 = 0;
   __XMCRB._XMBK = false;
-  _XMCRB = __XMCRB;
+  dwrite(_XMCRB) = __XMCRB;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1927,7 +1947,7 @@ inline void _ATmega_resetperipherals() {
   __SMCR._SE = false;
   __SMCR._SM = 0;
   __SMCR.reserved1 = 0;
-  _SMCR = __SMCR;
+  dwrite(_SMCR) = __SMCR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1960,7 +1980,7 @@ inline void _ATmega_resetperipherals() {
   __PRR0._PRTIM2 = false;
   __PRR0._PRTWI = false;
 #endif
-  _PRR0 = __PRR0;
+  dwrite(_PRR0) = __PRR0;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
@@ -1980,7 +2000,7 @@ inline void _ATmega_resetperipherals() {
   __PRR1._PRUSART1 = false;
   __PRR1.reserved1 = 0;
 #endif
-  _PRR1 = __PRR1;
+  dwrite(_PRR1) = __PRR1;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1993,7 +2013,7 @@ inline void _ATmega_resetperipherals() {
   __WDTCSR._WDP3 = 0;
   __WDTCSR._WDIE = false;
   __WDTCSR._WDIF = false;
-  _WDTCSR = __WDTCSR;
+  dwrite(_WDTCSR) = __WDTCSR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2008,16 +2028,16 @@ inline void _ATmega_resetperipherals() {
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
-  _PORTA = __PORT;
-  _PORTC = __PORT;
+  dwrite(_PORTA) = __PORT;
+  dwrite(_PORTC) = __PORT;
 #endif
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
-  _PORTB = __PORT;
-  _PORTD = __PORT;
+  dwrite(_PORTB) = __PORT;
+  dwrite(_PORTD) = __PORT;
 #endif
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
-  _PORTE = __PORT;
-  _PORTF = __PORT;
+  dwrite(_PORTE) = __PORT;
+  dwrite(_PORTF) = __PORT;
 #endif
 
 #if defined(__AVR_TRM01__)
@@ -2028,7 +2048,7 @@ inline void _ATmega_resetperipherals() {
   __PORTG._DDR.reserved1 = 0;
   __PORTG._PORT.val = 0;
   __PORTG._PORT.reserved1 = 0;
-  _PORTG = __PORTG;
+  dwrite(_PORTG) = __PORTG;
 #endif
 
 #if defined(__AVR_TRM03__)
@@ -2039,14 +2059,14 @@ inline void _ATmega_resetperipherals() {
   __PORTC._DDR.reserved1 = 0;
   __PORTC._PORT.val = 0;
   __PORTC._PORT.reserved1 = 0;
-  _PORTC = __PORTC;
+  dwrite(_PORTC) = __PORTC;
 #endif
 
 #if defined(__AVR_TRM01__)
-  _PORTH = __PORT;
-  _PORTJ = __PORT;
-  _PORTK = __PORT;
-  _PORTL = __PORT;
+  dwrite(_PORTH) = __PORT;
+  dwrite(_PORTJ) = __PORT;
+  dwrite(_PORTK) = __PORT;
+  dwrite(_PORTL) = __PORT;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2066,7 +2086,7 @@ inline void _ATmega_resetperipherals() {
   __EICRA._ISC1 = 0;
   __EICRA.reserved1 = 0;
 #endif
-  _EICRA = __EICRA;
+  dwrite(_EICRA) = __EICRA;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
@@ -2075,7 +2095,7 @@ inline void _ATmega_resetperipherals() {
   __EICRB._ISC5 = 0;
   __EICRB._ISC6 = 0;
   __EICRB._ISC7 = 0;
-  _EICRB = __EICRB;
+  dwrite(_EICRB) = __EICRB;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2099,7 +2119,7 @@ inline void _ATmega_resetperipherals() {
   __EIMSK._INT1 = false;
   __EIMSK.reserved1 = 0;
 #endif
-  _EIMSK = __EIMSK;
+  dwrite(_EIMSK) = __EIMSK;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2123,7 +2143,7 @@ inline void _ATmega_resetperipherals() {
   __EIFR._INTF1 = false;
   __EIFR.reserved1 = 0;
 #endif
-  _EIFR = __EIFR;
+  dwrite(_EIFR) = __EIFR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2143,7 +2163,7 @@ inline void _ATmega_resetperipherals() {
   __PCICR._PCIE0 = false;
   __PCICR.reserved1 = 0;
 #endif
-  _PCICR = __PCICR;
+  dwrite(_PCICR) = __PCICR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2163,7 +2183,7 @@ inline void _ATmega_resetperipherals() {
   __PCIFR._PCIF0 = false;
   __PCIFR.reserved1 = 0;
 #endif
-  _PCIFR = __PCIFR;
+  dwrite(_PCIFR) = __PCIFR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2195,7 +2215,7 @@ inline void _ATmega_resetperipherals() {
   __TIMER_8bit._TCNTn = 0;
   __TIMER_8bit._OCRnA = 0;
   __TIMER_8bit._OCRnB = 0;
-  TIMER0 = __TIMER_8bit;
+  dwrite(TIMER0) = __TIMER_8bit;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2204,14 +2224,14 @@ inline void _ATmega_resetperipherals() {
   __TIMSK0._OCIE0A = false;
   __TIMSK0._OCIE0B = false;
   __TIMSK0.reserved1 = 0;
-  _TIMSK0 = __TIMSK0;
+  dwrite(_TIMSK0) = __TIMSK0;
 
   TIFR0_reg_t __TIFR0;
   __TIFR0._TOV0 = false;
   __TIFR0._OCF0A = false;
   __TIFR0._OCF0B = false;
   __TIFR0.reserved1 = 0;
-  _TIFR0 = __TIFR0;
+  dwrite(_TIFR0) = __TIFR0;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2241,14 +2261,14 @@ inline void _ATmega_resetperipherals() {
   TIMER._OCRnC = 0;
 #endif
   TIMER._ICRn = 0;
-  TIMER1 = TIMER;
+  dwrite(TIMER1) = TIMER;
 #endif
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
-  TIMER3 = TIMER;
+  dwrite(TIMER3) = TIMER;
 #endif
 #if defined(__AVR_TRM01__)
-  TIMER4 = TIMER;
-  TIMER5 = TIMER;
+  dwrite(TIMER4) = TIMER;
+  dwrite(TIMER5) = TIMER;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2262,7 +2282,7 @@ inline void _ATmega_resetperipherals() {
   __TIMSK1.reserved1 = 0;
   __TIMSK1._ICIE1 = false;
   __TIMSK1.reserved2 = 0;
-  _TIMSK1 = __TIMSK1;
+  dwrite(_TIMSK1) = __TIMSK1;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
@@ -2276,7 +2296,7 @@ inline void _ATmega_resetperipherals() {
   __TIMSK3.reserved1 = 0;
   __TIMSK3._ICIE3 = false;
   __TIMSK3.reserved2 = 0;
-  _TIMSK3 = __TIMSK3;
+  dwrite(_TIMSK3) = __TIMSK3;
 #endif
 
 #if defined(__AVR_TRM01__)
@@ -2288,7 +2308,7 @@ inline void _ATmega_resetperipherals() {
   __TIMSK4.reserved1 = false;
   __TIMSK4._ICIE4 = false;
   __TIMSK4.reserved2 = false;
-  _TIMSK4 = __TIMSK4;
+  dwrite(_TIMSK4) = __TIMSK4;
 
   TIMSK5_reg_t __TIMSK5;
   __TIMSK5._TOIE5 = false;
@@ -2298,7 +2318,7 @@ inline void _ATmega_resetperipherals() {
   __TIMSK5.reserved1 = 0;
   __TIMSK5._ICIE5 = false;
   __TIMSK5.reserved2 = 0;
-  _TIMSK5 = __TIMSK5;
+  dwrite(_TIMSK5) = __TIMSK5;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2312,7 +2332,7 @@ inline void _ATmega_resetperipherals() {
   __TIFR1.reserved1 = 0;
   __TIFR1._ICF1 = false;
   __TIFR1.reserved2 = 0;
-  _TIFR1 = __TIFR1;
+  dwrite(_TIFR1) = __TIFR1;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
@@ -2326,7 +2346,7 @@ inline void _ATmega_resetperipherals() {
   __TIFR3.reserved1 = 0;
   __TIFR3._ICF3 = false;
   __TIFR3.reserved2 = 0;
-  _TIFR3 = __TIFR3;
+  dwrite(_TIFR3) = __TIFR3;
 #endif
 
 #if defined(__AVR_TRM01__)
@@ -2338,7 +2358,7 @@ inline void _ATmega_resetperipherals() {
   __TIFR4.reserved1 = 0;
   __TIFR4._ICF4 = false;
   __TIFR4.reserved2 = 0;
-  _TIFR4 = __TIFR4;
+  dwrite(_TIFR4) = __TIFR4;
 
   TIFR5_reg_t __TIFR5;
   __TIFR5._TOV5 = false;
@@ -2348,11 +2368,11 @@ inline void _ATmega_resetperipherals() {
   __TIFR5.reserved1 = 0;
   __TIFR5._ICF5 = false;
   __TIFR5.reserved2 = 0;
-  _TIFR5 = __TIFR5;
+  dwrite(_TIFR5) = __TIFR5;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
-  _TIMER2 = __TIMER_8bit;
+  dwrite(_TIMER2) = __TIMER_8bit;
 #endif
 
 #if defined(__AV_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2365,7 +2385,7 @@ inline void _ATmega_resetperipherals() {
   __ASSR._AS2 = false;
   __ASSR._EXCLK = false;
   __ASSR.reserved1 = 0;
-  _ASSR = __ASSR;
+  dwrite(_ASSR) = __ASSR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2374,14 +2394,14 @@ inline void _ATmega_resetperipherals() {
   __TIMSK2._OCIE2A = false;
   __TIMSK2._OCIE2B = false;
   __TIMSK2.reserved1 = 0;
-  _TIMSK2 = __TIMSK2;
+  dwrite(_TIMSK2) = __TIMSK2;
 
   TIFR2_reg_t __TIFR2;
   __TIFR2._TOV2 = false;
   __TIFR2._OCF2A = false;
   __TIFR2._OCF2B = false;
   __TIFR2.reserved1 = 0;
-  _TIFR2 = __TIFR2;
+  dwrite(_TIFR2) = __TIFR2;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2393,14 +2413,14 @@ inline void _ATmega_resetperipherals() {
   __SPCR._DORD = 0;
   __SPCR._SPE = false;
   __SPCR._SPIE = false;
-  _SPCR = __SPCR;
+  dwrite(_SPCR) = __SPCR;
 
   SPSR_reg_t __SPSR;
   __SPSR._SPI2X = false;
   __SPSR.reserved1 = 0;
   __SPSR._WCOL = false;
   __SPSR._SPIF = false;
-  _SPSR = __SPSR;
+  dwrite(_SPSR) = __SPSR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2433,18 +2453,18 @@ inline void _ATmega_resetperipherals() {
   USART._UBRRn.reserved1 = 0;
 #endif
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
-  USART0 = USART;
+  dwrite(USART0) = USART;
 #endif
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
-  USART1 = USART;
+  dwrite(USART1) = USART;
 #endif
 #if defined(__AVR_TRM01__)
-  USART2 = USART;
-  USART3 = USART;
+  dwrite(USART2) = USART;
+  dwrite(USART3) = USART;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
-  _TWBR = 0;
+  dwrite(_TWBR) = 0;
 
   TWCR_reg_t __TWCR;
   __TWCR._TWIE = false;
@@ -2455,7 +2475,7 @@ inline void _ATmega_resetperipherals() {
   __TWCR._TWSTA = false;
   __TWCR._TWEA = false;
   __TWCR._TWINT = false;
-  _TWCR = __TWCR;
+  dwrite(_TWCR) = __TWCR;
 
   TWSR_reg_t __TWSR;
   __TWSR._TWPS0 = false;
@@ -2466,19 +2486,19 @@ inline void _ATmega_resetperipherals() {
   __TWSR._TWS5 = 1;
   __TWSR._TWS6 = 1;
   __TWSR._TWS7 = 1;
-  _TWSR = __TWSR;
+  dwrite(_TWSR) = __TWSR;
 
-  _TWDR = 0xFF;
+  dwrite(_TWDR) = 0xFF;
 
   TWAR_reg_t __TWAR;
   __TWAR._TWGCE = false;
   __TWAR._TWA = 0x7F;
-  _TWAR = __TWAR;
+  dwrite(_TWAR) = __TWAR;
 
   TWAMR_reg_t __TWAMR;
   __TWAMR.reserved1 = false;
   __TWAMR._TWAM = 0;
-  _TWAMR = __TWAMR;
+  dwrite(_TWAMR) = __TWAMR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2490,7 +2510,7 @@ inline void _ATmega_resetperipherals() {
   __ADCSRB.reserved1 = 0;
   __ADCSRB._ACME = false;
   __ADCSRB.reserved2 = 0;
-  _ADCSRB = __ADCSRB;
+  dwrite(_ADCSRB) = __ADCSRB;
 
   ACSR_reg_t __ACSR;
   __ACSR._ACIS = 0;
@@ -2500,7 +2520,7 @@ inline void _ATmega_resetperipherals() {
   __ACSR._ACO = false;
   __ACSR._ACBG = false;
   __ACSR._ACD = false;
-  _ACSR = __ACSR;
+  dwrite(_ACSR) = __ACSR;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2508,7 +2528,7 @@ inline void _ATmega_resetperipherals() {
   __DIDR1._AIN0D = false;
   __DIDR1._AIN1D = false;
   __DIDR1.reserved1 = false;
-  _DIDR1 = __DIDR1;
+  dwrite(_DIDR1) = __DIDR1;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2525,7 +2545,7 @@ inline void _ATmega_resetperipherals() {
   __ADMUX._ADLAR = 0;
   __ADMUX._REFS0 = 0;
   __ADMUX._REFS1 = 0;
-  _ADMUX = __ADMUX;
+  dwrite(_ADMUX) = __ADMUX;
 
   ADCSRA_reg_t __ADCSRA;
   __ADCSRA._ADPS = 0;
@@ -2534,9 +2554,9 @@ inline void _ATmega_resetperipherals() {
   __ADCSRA._ADATE = false;
   __ADCSRA._ADSC = false;
   __ADCSRA._ADEN = false;
-  _ADCSRA = __ADCSRA;
+  dwrite(_ADCSRA) = __ADCSRA;
 
-  _ADC = 0;
+  dwrite(_ADC) = 0;
 #endif
 
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2571,7 +2591,7 @@ inline void _ATmega_resetperipherals() {
   __SPMCSR._SPMIE = false;
 #endif
 #endif
-  _SPMCSR = __SPMCSR;
+  dwrite(_SPMCSR) = __SPMCSR;
 #endif
 
   // TODO: add the __AVR_TRM04__ initializations, if required (mostly USB related)
@@ -3069,6 +3089,10 @@ inline ATmegaPinInfo _ATmega_getPinInfo(uint8_t pin) {
 
 inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
   ATmegaPinInfo info = _ATmega_getPinInfo(pin);
+
+  // TODO: the manual states that registers of power-reduced peripherals cannot be read or written, and that
+  // the resources (GPIO pins) remain occupied during power-reduction. This is a serious problem and we should
+  // add power-reduction awareness to this logic!
 
   pin_dev_state_t state;
 
@@ -4373,14 +4397,14 @@ struct _ATmega_lfuse {
   uint8_t _CKDIV8 : 1;
 };
 
-#ifndef AVR_LFUSE_VALUE
-#define AVR_LFUSE_VALUE 0xFF
+#ifndef AVR_DEFAULT_LFUSE_VALUE
+#define AVR_DEFAULT_LFUSE_VALUE 0xFF
 #endif
-#ifndef AVR_HFUSE_VALUE
-#define AVR_HFUSE_VALUE 0x99
+#ifndef AVR_DEFAULT_HFUSE_VALUE
+#define AVR_DEFAULT_HFUSE_VALUE 0x99
 #endif
-#ifndef AVR_LFUSE_VALUE
-#define AVR_LFUSE_VALUE 0x62
+#ifndef AVR_DEFAULT_LFUSE_VALUE
+#define AVR_DEFAULT_LFUSE_VALUE 0x62
 #endif
 
 #elif defined(__AVR_TRM03__)
@@ -4390,8 +4414,8 @@ struct _ATmega_efuse {
   uint8_t reserved1 : 7;
 };
 
-#ifndef AVR_EFUSE_VALUE
-#define AVR_EFUSE_VALUE 0xFF
+#ifndef AVR_DEFAULT_EFUSE_VALUE
+#define AVR_DEFAULT_EFUSE_VALUE 0xFF
 #endif
 
 #elif defined(__AVR_ATmega88A__) || defined(__AVR_ATmega88PA__) || defined(__AVR_ATmega168A__) || defined(__AVR_ATmega168PA__)
@@ -4401,8 +4425,8 @@ struct _ATmega_efuse {
   uint8_t reserved1 : 5;
 };
 
-#ifndef AVR_EFUSE_VALUE
-#define AVR_EFUSE_VALUE 0xF9
+#ifndef AVR_DEFAULT_EFUSE_VALUE
+#define AVR_DEFAULT_EFUSE_VALUE 0xF9
 #endif
 
 #elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
@@ -4411,8 +4435,8 @@ struct _ATmega_efuse {
   uint8_t reserved1 : 5;
 };
 
-#ifndef AVR_EFUSE_VALUE
-#define AVR_EFUSE_VALUE 0xFF
+#ifndef AVR_DEFAULT_EFUSE_VALUE
+#define AVR_DEFAULT_EFUSE_VALUE 0xFF
 #endif
 
 #endif
@@ -4427,8 +4451,8 @@ struct _ATmega_hfuse {
   uint8_t _RSTDISBL : 1;
 };
 
-#ifndef AVR_HFUSE_VALUE
-#define AVR_HFUSE_VALUE 0xCF
+#ifndef AVR_DEFAULT_HFUSE_VALUE
+#define AVR_DEFAULT_HFUSE_VALUE 0xCF
 #endif
 
 #elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
@@ -4442,8 +4466,8 @@ struct _ATmega_hfuse {
   uint8_t _RSTDISBL : 1;
 };
 
-#ifndef AVR_HFUSE_VALUE
-#define AVR_HFUSE_VALUE 0xC9
+#ifndef AVR_DEFAULT_HFUSE_VALUE
+#define AVR_DEFAULT_HFUSE_VALUE 0xC9
 #endif
 
 #endif
@@ -4456,8 +4480,8 @@ struct _ATmega_lfuse {
   uint8_t _CKDIV8 : 1;
 };
 
-#ifndef AVR_LFUSE_VALUE
-#define AVR_LFUSE_VALUE 0xC9
+#ifndef AVR_DEFAULT_LFUSE_VALUE
+#define AVR_DEFAULT_LFUSE_VALUE 0xC9
 #endif
 
 #elif defined(__AVR_TRM04__)
@@ -4486,14 +4510,14 @@ struct _ATmega_lfuse {
 };
 
 // Default values if not already defined.
-#ifndef AVR_EFUSE_VALUE
-#define AVR_EFUSE_VALUE 0xF3
+#ifndef AVR_DEFAULT_EFUSE_VALUE
+#define AVR_DEFAULT_EFUSE_VALUE 0xF3
 #endif
-#ifndef AVR_HFUSE_VALUE
-#define AVR_HFUSE_VALUE 0x99
+#ifndef AVR_DEFAULT_HFUSE_VALUE
+#define AVR_DEFAULT_HFUSE_VALUE 0x99
 #endif
-#ifndef AVR_LFUSE_VALUE
-#define AVR_LFUSE_VALUE 0x62
+#ifndef AVR_DEFAULT_LFUSE_VALUE
+#define AVR_DEFAULT_LFUSE_VALUE 0x62
 #endif
 
 #endif

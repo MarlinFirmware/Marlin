@@ -91,9 +91,6 @@
         OUT_WRITE(SD_SS_PIN, HIGH);
       #endif
     #endif
-    // This could still be required because the specification says that the DDR of those pins is "User Defined".
-    SET_OUTPUT(SD_SCK_PIN);
-    SET_OUTPUT(SD_MOSI_PIN);
   }
 
   void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
@@ -160,9 +157,7 @@
 
   void spiSetClockMode(int clockMode) {
     // TODO.
-    if (clockMode != SPI_CLKMODE_0) {
-      for (;;) {}
-    }
+    _spi_on_error(3);
   }
 
   void spiEstablish() { /* do nothing */ }
@@ -170,8 +165,7 @@
   // Soft SPI receive byte
   uint8_t spiRec(uint8_t txval) {
     if (txval != 0xFF) {
-      // TODO.
-      for (;;) {}
+      _spi_on_error(4);
     }
     uint8_t data = 0;
     // no interrupts during byte receive - about 8µs
@@ -202,8 +196,7 @@
 
   uint16_t spiRec16(uint16_t txval) {
     if (txval != 0xFFFF) {
-      // TODO.
-      for (;;) {}
+      _spi_on_error(4);
     }
     uint16_t data = 0;
     bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );

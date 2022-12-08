@@ -21,8 +21,12 @@
  */
 
 /**
- * Adapted from Arduino Sd2Card Library
- * Copyright (c) 2009 by William Greiman
+ * AVR HAL SPI implementation made by Martin Turski, company owner of EirDev
+ * This implementation was specifically made for the Marlin FW.
+ * For inquiries please contact turningtides@outlook.de
+ * If there is any issue with this implementation, please open an inquiry on GitHub
+ * and include the link in the mail. Otherwise your mail may get ignored.
+ * Made to improve the reliability and future-proof Marlin.
  */
 
 /**
@@ -33,9 +37,11 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI, HALSPI_HW_GENERIC)
+
 #include "registers.h"
 
-#if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
+#include <avr/boot.h>
 
 #ifndef AVR_CHIPOSCILLATOR_FREQ
 #error Missing AVR crystal oscillator frequency! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)
@@ -76,10 +82,60 @@
     }
   }
 
+  #ifndef HALSPI_LOOPBEEP_TIMEOUT
+    #define HALSPI_LOOPBEEP_TIMEOUT 3000
+  #endif
+
+  struct spi_monitored_loop
+  {
+  private:
+  #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+    uint32_t _start_millis;
+  #endif
+  public:
+    inline spi_monitored_loop() {
+  #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+      _start_millis = millis();
+  #endif
+    }
+    inline void update(unsigned int beep_code) {
+  #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+      if ((millis() - _start_millis) <= HALSPI_LOOPBEEP_TIMEOUT) return;
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(1000);
+      for (unsigned int n = 0; n < beep_code; n++) {
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(200);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(200);
+      }
+      delay(800);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(2000);
+  #endif
+    }
+  };
+
   static bool _spi_is_running = false;
   static int _spi_cs_pin;
   static bool _spi_transaction_is_active;
   static bool _spi_dirty_tx;
+
+#if defined(GET_LOW_FUSE_BITS)
+  static uint8_t _spi_lfuse;
+#endif
 
   void spiBegin() {
     #if PIN_EXISTS(SD_SS)
@@ -93,17 +149,32 @@
       #endif
     #endif
     // This could still be required because the specification says that the DDR of those pins is "User Defined".
+    // (we only support master SPI)
     SET_OUTPUT(SD_SCK_PIN);
+    SET_INPUT(SD_MISO_PIN);
     SET_OUTPUT(SD_MOSI_PIN);
 
+  #if defined(GET_LOW_FUSE_BITS)
+    cli();
+    _spi_lfuse = boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS);
+    sei();
+  #endif
+
     // By default we disable the SPI peripheral.
+    _PRR0._PRSPI = false;
+    _SPCR._SPE = false;
     _PRR0._PRSPI = true;
   }
 
   // Returns the clock frequency as output by the System Clock Prescaler.
   inline uint32_t _GetSystemClockFrequency() {
     // See which clock is selected.
-    const ATmega_lfuse lfuse = AVR_LFUSE_VALUE;
+    const ATmega_lfuse lfuse =
+#ifndef GET_LOW_FUSE_BITS
+      AVR_DEFAULT_LFUSE_VALUE;
+#else
+      _spi_lfuse;
+#endif
 
     uint32_t baseclk;
 
@@ -132,7 +203,9 @@
     return ( baseclk >> clkps_po2 );
   }
 
-  inline void _spiConfigBitOrder(SPCR_reg_t& __SPCR, int mode) {
+  // We could improve these definitions if we had C++20.
+  template <typename regType> // SPCR_reg_t
+  inline void _spiConfigBitOrder(regType& __SPCR, int mode) {
     if (mode == SPI_BITORDER_LSB) {
       __SPCR._DORD = 1;
     }
@@ -141,7 +214,8 @@
     }
   }
 
-  inline void _spiConfigClockMode(SPCR_reg_t& __SPCR, int mode) {
+  template <typename regType> // SPCR_reg_t
+  inline void _spiConfigClockMode(regType& __SPCR, int mode) {
     if (mode == SPI_CLKMODE_0) {
       __SPCR._CPOL = 0;
       __SPCR._CPHA = 0;
@@ -160,6 +234,71 @@
     }
   }
 
+#ifndef HALSPI_AVR_NO_SLEEP
+
+  static volatile bool _spi_txcomplete = true;
+
+  inline void _spi_enter_wait() {
+    cli();
+
+    SMCR_reg_t __SMCR;
+    __SMCR._SE = true;
+    __SMCR._SM = 0; // IDLE
+    __SMCR.reserved1 = 0;
+    AVRHelpers::dwrite(_SMCR) = __SMCR;
+
+    // Enable the SPI interrupt.
+    _SPCR._SPIE = true;
+    _spi_txcomplete = false;
+
+    sei();
+  }
+
+  inline void _spi_leave_wait() {
+    SMCR_reg_t __SMCR;
+    __SMCR._SE = false;
+    __SMCR._SM = 0;
+    __SMCR.reserved1 = 0;
+    AVRHelpers::dwrite(_SMCR) = __SMCR;
+
+    // Disable the SPI interrupt.
+    _SPCR._SPIE = false;
+    _spi_txcomplete = true;
+  }
+
+#include <avr/interrupt.h>
+
+  ISR(SPI_STC_vect) {
+    // Make sure that a SLEEP instruction right after this interrupt call does not halt the processor.
+    // This is sort of like an event variable in Win32 or a futex in Linux.
+    _spi_leave_wait();
+  }
+#endif
+
+  inline void _spi_waitForInterrupt() {
+#ifndef HALSPI_AVR_NO_SLEEP
+    // This function is meant to sleep until the AVR SPI peripheral triggers the SPIF interrupt.
+    __asm__ __volatile__(
+      A("SLEEP")
+    );
+#endif
+  }
+
+  inline bool _spi_hasTransferCompleted() {
+#ifdef HALSPI_AVR_NO_SLEEP
+    return _SPSR._SPIF;
+#else
+    return _spi_txcomplete;
+#endif
+  }
+
+  inline void _spi_push(uint8_t b) {
+#ifndef HALSPI_AVR_NO_SLEEP
+    _spi_enter_wait();
+#endif
+    _SPDR = b;
+  }
+
   /**
    * Initialize hardware SPI transaction
    */
@@ -168,15 +307,10 @@
       _spi_on_error(1);
 
     // In hardware SPI mode we can only use the pre-determined SPI pins for MISO, MOSI and SCK, thus ignore the first three pin hints.
-    // But for the chip-select pin, we either have to go HW mode if it is the peripheral SPI pin or we can go SW if it is a GPIO.
-    if ( _ATmega_getPinFunctions(hint_cs).hasFunc(eATmegaPinFunc::SPI_CS) ) {
-      // HW SPI_CS
-      _spi_cs_pin = -1;
-    }
-    else {
-      // SW SPI_CS
-      _spi_cs_pin = hint_cs;
-    }
+    // We only support master SPI for now.
+    // For this we have to configure the chip-select (~SS) pin as output.
+    // This way it cannot be driven low by external peripherals., thus keeping our master state.
+    _spi_cs_pin = hint_cs;
 
     // Clear the power-reduction.
     _PRR0._PRSPI = false;
@@ -186,7 +320,7 @@
 
     SPCR_reg_t __SPCR;
     __SPCR._SPIE = false;
-    __SPCR._SPE = true;
+    __SPCR._SPE = false;
     _spiConfigBitOrder(__SPCR, SPI_BITORDER_DEFAULT);
     __SPCR._MSTR = true;
     _spiConfigClockMode(__SPCR, SPI_CLKMODE_DEFAULT);
@@ -222,7 +356,7 @@
     }
 
     // Write initial configuration.
-    _SPCR = __SPCR;
+    AVRHelpers::dwrite(_SPCR) = __SPCR;
 
     _spi_is_running = true;
     _spi_transaction_is_active = false;
@@ -232,8 +366,12 @@
   static void _maybe_start_transaction() {
     if (_spi_transaction_is_active) return;
 
-    if (_spi_cs_pin >= 0)
+    _SPCR._SPE = true;
+
+    if (_spi_cs_pin >= 0) {
+      _ATmega_pinMode(_spi_cs_pin, OUTPUT);
       _ATmega_digitalWrite(_spi_cs_pin, LOW);
+    }
 
     _spi_transaction_is_active = true;
   }
@@ -254,10 +392,16 @@
     spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
+  inline void _spi_safety_delay() {
+    //asm("nop"); // enable this if you encounter any delay troubles.
+  }
+
   inline void _spi_finish_tx() {
     if (_spi_dirty_tx == false) return;
 
-    while (_SPSR._SPIF == false) { /* do nothing */ }
+    _spi_safety_delay();
+    spi_monitored_loop txew;
+    while (_spi_hasTransferCompleted() == false) { txew.update(1); _spi_waitForInterrupt(); }
 
     _spi_dirty_tx = false;
   }
@@ -266,12 +410,14 @@
     if (_spi_is_running == false)
       _spi_on_error(2);
 
-    _spi_finish_tx();
-
     if (_spi_transaction_is_active) {
+      _spi_finish_tx();
+
       if (_spi_cs_pin >= 0)
         _ATmega_digitalWrite(_spi_cs_pin, HIGH);
-      
+
+      _SPCR._SPE = false;
+
       _spi_transaction_is_active = false;
     }
 
@@ -282,23 +428,29 @@
   }
 
   void spiSetBitOrder(int bitOrder) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _spiConfigBitOrder(_SPCR, bitOrder);
   }
 
   void spiSetClockMode(int clockMode) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _spiConfigClockMode(_SPCR, clockMode);
   }
 
   void spiEstablish() {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
   }
 
   /** SPI receive a byte */
   uint8_t spiRec(uint8_t txval) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     _spi_finish_tx();
-    _SPDR = txval;
-    while (_SPSR._SPIF == false) { /* wait until data has been received */ }
+    _spi_push(txval);
+    _spi_safety_delay();
+    spi_monitored_loop rxew;
+    while (_spi_hasTransferCompleted() == false) { rxew.update(2); _spi_waitForInterrupt(); }
     return _SPDR;
   }
 
@@ -323,49 +475,55 @@
   }
 
   uint16_t spiRec16(uint16_t txval) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     bool msb = ( _SPCR._DORD == 0 );
     uint8_t tx_first, tx_second;
     _split_txbytes(txval, tx_first, tx_second, msb);
     _spi_finish_tx();
-    _SPDR = tx_first;
-    while (_SPSR._SPIF == false) { /* Intentionally left empty */ }
+    _spi_push(tx_first);
+    _spi_safety_delay();
+    spi_monitored_loop rxe1w;
+    while (_spi_hasTransferCompleted() == false) { rxe1w.update(3); _spi_waitForInterrupt(); }
     uint8_t rx_first = _SPDR;
-    _SPDR = tx_second;
-    while (_SPSR._SPIF == false) { /* Intentionally left empty */ }
+    _spi_push(tx_second);
+    _spi_safety_delay();
+    spi_monitored_loop rxe2w;
+    while (_spi_hasTransferCompleted() == false) { rxe2w.update(4); _spi_waitForInterrupt(); }
     uint8_t rx_second = _SPDR;
     return _fuse_txbytes(rx_first, rx_second, msb);
   }
 
   /** SPI read data  */
   void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
+    if (_spi_is_running == false) _spi_on_error(4);
     if (nbyte == 0) return;
     _maybe_start_transaction();
-    nbyte--;
     _spi_finish_tx();
-    _SPDR = txval;
     for (uint16_t i = 0; i < nbyte; i++) {
-      while (_SPSR._SPIF == false) { /* do nothing */ }
+      _spi_push(txval);
+      _spi_safety_delay();
+      spi_monitored_loop rxew;
+      while (_spi_hasTransferCompleted() == false) { rxew.update(5); _spi_waitForInterrupt(); }
       buf[i] = _SPDR;
-      _SPDR = txval;
     }
-    while (_SPSR._SPIF == false) { /* do nothing */ }
-    buf[nbyte] = _SPDR;
   }
 
   inline void _spiSendByte(uint8_t byte) {
     _spi_finish_tx();
-    _SPDR = byte;
+    _spi_push(byte);
     _spi_dirty_tx = true;
   }
 
   /** SPI send a byte */
   void spiSend(uint8_t b) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     _spiSendByte(b);
   }
 
   void spiSend16(uint16_t v) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     bool msb = ( _SPCR._DORD == 0 );
     uint8_t tx_first, tx_second;
@@ -376,6 +534,7 @@
 
   /** SPI send block  */
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     _spiSendByte(token);
     for (uint16_t i = 0; i < 512; i++) {
@@ -385,12 +544,14 @@
 
   /** Begin SPI transaction */
   void spiWrite(const uint8_t *buf, uint16_t cnt) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     for (uint16_t n = 0; n < cnt; n++)
-      _spiSendByte(n);
+      _spiSendByte(buf[n]);
   }
 
   void spiWrite16(const uint16_t *buf, uint16_t cnt) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     bool msb = ( _SPCR._DORD == 0 );
     for (uint16_t n = 0; n < cnt; n++) {
@@ -402,12 +563,14 @@
   }
 
   void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     for (uint16_t n = 0; n < repcnt; n++)
       _spiSendByte(val);
   }
 
   void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+    if (_spi_is_running == false) _spi_on_error(4);
     _maybe_start_transaction();
     bool msb = ( _SPCR._DORD == 0 );
     uint8_t tx_first, tx_second;
