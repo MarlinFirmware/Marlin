@@ -76,51 +76,51 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            25  // B5
-#define Y_STOP_PIN                            26  // B6
-//#define Z_STOP_PIN                          27  // B7
-#define Z_STOP_PIN                            36  // E4 For inductive sensor.
-//#define E_STOP_PIN                          36  // E4
+#define X_STOP_PIN                            PinB5  // B5
+#define Y_STOP_PIN                            PinB6  // B6
+//#define Z_STOP_PIN                          PinB7  // B7
+#define Z_STOP_PIN                            PinE4  // E4 For inductive sensor.
+//#define E_STOP_PIN                          PinE4  // E4
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            28  // A0
-#define X_DIR_PIN                             29  // A1
-#define X_ENABLE_PIN                          19  // E7
+#define X_STEP_PIN                            PinA0  // A0
+#define X_DIR_PIN                             PinA1  // A1
+#define X_ENABLE_PIN                          PinE7  // E7
 
-#define Y_STEP_PIN                            30  // A2
-#define Y_DIR_PIN                             31  // A3
-#define Y_ENABLE_PIN                          18  // E6
+#define Y_STEP_PIN                            PinA2  // A2
+#define Y_DIR_PIN                             PinA3  // A3
+#define Y_ENABLE_PIN                          PinE6  // E6
 
-#define Z_STEP_PIN                            32  // A4
-#define Z_DIR_PIN                             33  // A5
-#define Z_ENABLE_PIN                          17  // C7
+#define Z_STEP_PIN                            PinA4  // A4
+#define Z_DIR_PIN                             PinA5  // A5
+#define Z_ENABLE_PIN                          PinC7  // C7
 
-#define E0_STEP_PIN                           34  // A6
-#define E0_DIR_PIN                            35  // A7
-#define E0_ENABLE_PIN                         13  // C3
+#define E0_STEP_PIN                           PinA6  // A6
+#define E0_DIR_PIN                            PinA7  // A7
+#define E0_ENABLE_PIN                         PinC3  // C3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             7  // F7  Analog Input (Extruder)
-#define TEMP_BED_PIN                           6  // F6  Analog Input (Bed)
+#define TEMP_0_PIN                            PinD7  // F7  Analog Input (Extruder)
+#define TEMP_BED_PIN                          PinD6  // F6  Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          15  // C5 PWM3B - Extruder
-#define HEATER_BED_PIN                        14  // C4 PWM3C - Bed
+#define HEATER_0_PIN                          PinC5  // C5 PWM3B - Extruder
+#define HEATER_BED_PIN                        PinC4  // C4 PWM3C - Bed
 
 #ifndef FAN_PIN
-  #define FAN_PIN                             16  // C6 PWM3A
+  #define FAN_PIN                             PinC6  // C6 PWM3A
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                  20  // B0
+#define SDSS                                  PinB0  // B0
 
 // Extension header pin mapping
 // ----------------------------
@@ -131,11 +131,11 @@
 //  PWM-D24         A4 (An), IO
 //  5V              GND
 //  12V             GND
-#define EXT_AUX_SCL_D0                         0  // D0  PWM0B
-#define EXT_AUX_SDA_D1                         1  // D1
-#define EXT_AUX_RX1_D2                         2  // D2
-#define EXT_AUX_TX1_D3                         3  // D3
-#define EXT_AUX_PWM_D24                       24  // B4  PWM2A
+#define EXT_AUX_SCL_D0                        PinD0  // D0  PWM0B
+#define EXT_AUX_SDA_D1                        PinD1  // D1
+#define EXT_AUX_RX1_D2                        PinD2  // D2
+#define EXT_AUX_TX1_D3                        PinD3  // D3
+#define EXT_AUX_PWM_D24                       PinB4  // B4  PWM2A
 #define EXT_AUX_A0                             0  // F0  Analog Input
 #define EXT_AUX_A0_IO                         38  // F0  Digital IO
 #define EXT_AUX_A1                             1  // F1  Analog Input
@@ -174,10 +174,10 @@
   //
   // M3/M4/M5 - Spindle/Laser Control
   //
-  #define SPINDLE_LASER_PWM_PIN               24  // B4  PWM2A
-  #define SPINDLE_LASER_ENA_PIN               39  // F1  Pin should have a pullup!
-  #define SPINDLE_DIR_PIN                     40  // F2
+  #define SPINDLE_LASER_PWM_PIN               PinB4  // B4  PWM2A
+  #define SPINDLE_LASER_ENA_PIN               PinF1  // F1  Pin should have a pullup!
+  #define SPINDLE_DIR_PIN                     PinF2  // F2
 
-  #define CASE_LIGHT_PIN                       0  // D0  PWM0B
+  #define CASE_LIGHT_PIN                      PinD0  // D0  PWM0B
 
 #endif

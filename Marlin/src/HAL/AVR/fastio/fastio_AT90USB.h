@@ -103,7 +103,7 @@
 #define DIO8_WPORT  PORTE
 #define DIO8_PWM    0
 #define DIO8_DDR    DDRE
-#define PinD0       8
+#define PinE0       8
 
 #define DIO9_PIN    PINE1
 #define DIO9_RPORT  PINE
@@ -386,54 +386,6 @@
 #define TEENSY_E3   47
 
 //-- end not supported by Teensyduino
-
-#define AIO0_PIN    PINF0
-#define AIO0_RPORT  PINF
-#define AIO0_WPORT  PORTF
-#define AIO0_PWM    0
-#define AIO0_DDR    DDRF
-
-#define AIO1_PIN    PINF1
-#define AIO1_RPORT  PINF
-#define AIO1_WPORT  PORTF
-#define AIO1_PWM    0
-#define AIO1_DDR    DDRF
-
-#define AIO2_PIN    PINF2
-#define AIO2_RPORT  PINF
-#define AIO2_WPORT  PORTF
-#define AIO2_PWM    0
-#define AIO2_DDR    DDRF
-
-#define AIO3_PIN    PINF3
-#define AIO3_RPORT  PINF
-#define AIO3_WPORT  PORTF
-#define AIO3_PWM    0
-#define AIO3_DDR    DDRF
-
-#define AIO4_PIN    PINF4
-#define AIO4_RPORT  PINF
-#define AIO4_WPORT  PORTF
-#define AIO4_PWM    0
-#define AIO4_DDR    DDRF
-
-#define AIO5_PIN    PINF5
-#define AIO5_RPORT  PINF
-#define AIO5_WPORT  PORTF
-#define AIO5_PWM    0
-#define AIO5_DDR    DDRF
-
-#define AIO6_PIN    PINF6
-#define AIO6_RPORT  PINF
-#define AIO6_WPORT  PORTF
-#define AIO6_PWM    0
-#define AIO6_DDR    DDRF
-
-#define AIO7_PIN    PINF7
-#define AIO7_RPORT  PINF
-#define AIO7_WPORT  PORTF
-#define AIO7_PWM    0
-#define AIO7_DDR    DDRF
 
 /**
  * Some of the pin mapping functions of the Teensduino extension to the Arduino IDE
