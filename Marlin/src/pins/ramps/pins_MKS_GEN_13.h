@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.4 adjusted pin assignments
+ * ATmega2560, ATmega1280
  *
  *  MKS GEN v1.3  (Extruder, Fan, Bed)
  *  MKS GEN v1.3  (Extruder, Extruder, Fan, Bed)
@@ -40,7 +41,7 @@
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN                           7
+#define MOSFET_D_PIN                          PinH4
 
 //
 // PSU / SERVO
@@ -49,7 +50,7 @@
 //
 #if ENABLED(PSU_CONTROL)
   #define SERVO3_PIN                          -1
-  #define PS_ON_PIN                            4
+  #define PS_ON_PIN                           PinG5
 #endif
 
 #include "pins_RAMPS.h"

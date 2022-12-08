@@ -23,6 +23,7 @@
 
 /**
  * Longer3D LK1/LK4/LK5 Pro board pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -52,7 +53,7 @@
 // Servos
 //
 #if !MB(LONGER3D_LK1_PRO)
-  #define SERVO0_PIN                           7
+  #define SERVO0_PIN                          PinH4
 #endif
 #define SERVO1_PIN -1
 #define SERVO2_PIN -1
@@ -61,25 +62,25 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             3
+#define X_STOP_PIN                            PinE5
 
 #ifdef CHANGE_Y_LIMIT_PINS
-  #define Y_STOP_PIN                          37
+  #define Y_STOP_PIN                          PinC0
 #else
-  #define Y_MIN_PIN                           14
-  #define Y_MAX_PIN                           15
+  #define Y_MIN_PIN                           PinJ1
+  #define Y_MAX_PIN                           PinJ0
 #endif
 
 #if !MB(LONGER3D_LK1_PRO)
   #ifdef CHANGE_Y_LIMIT_PINS
-    #define Z_STOP_PIN                        35
+    #define Z_STOP_PIN                        PinC2
   #else
-    #define Z_MIN_PIN                         35
-    #define Z_MAX_PIN                         37
+    #define Z_MIN_PIN                         PinC2
+    #define Z_MAX_PIN                         PinC0
   #endif
 #else
-  #define Z_MIN_PIN                           11
-  #define Z_MAX_PIN                           37
+  #define Z_MIN_PIN                           PinB5
+  #define Z_MAX_PIN                           PinC0
 #endif
 
 #undef CHANGE_Y_LIMIT_PINS
@@ -112,8 +113,8 @@
 //
 // Misc. Functions
 //
-#define SD_DETECT_PIN                         49
-#define FIL_RUNOUT_PIN                         2
+#define SD_DETECT_PIN                         PinL0
+#define FIL_RUNOUT_PIN                        PinE4
 
 //
 // Other RAMPS 1.3 pins

@@ -23,6 +23,7 @@
 
 /**
  * VERTEX NANO Arduino Mega with RAMPS EFB v1.4 pin assignments.
+ * ATmega2560, ATmega1280
  */
 
 #if HAS_MULTI_HOTEND
@@ -35,26 +36,26 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                              3
-#define Y_MAX_PIN                             14
-#define Z_MAX_PIN                             18
+#define X_MIN_PIN                             PinE5
+#define Y_MAX_PIN                             PinJ1
+#define Z_MAX_PIN                             PinD3
 #define Z_MIN_PIN                             -1
 
 //
 // Steppers
 //
-#define Z_ENABLE_PIN                          63
+#define Z_ENABLE_PIN                          PinK1
 
 //
 // Heaters / Fans
 //
-#define FAN_PIN                                8
+#define FAN_PIN                               PinH5
 
 //
 // Misc. Functions
 //
-#define SDSS                                  25
-#define CASE_LIGHT_PIN                         7
+#define SDSS                                  PinA3
+#define CASE_LIGHT_PIN                        PinH4
 
 //
 // Other RAMPS pins
@@ -78,23 +79,23 @@
   #undef LCD_PINS_D5
   #undef LCD_PINS_D6
   #undef LCD_PINS_D7
-  #define LCD_PINS_RS                         27
-  #define LCD_PINS_ENABLE                     29
-  #define LCD_PINS_D4                         37
-  #define LCD_PINS_D5                         35
-  #define LCD_PINS_D6                         33
-  #define LCD_PINS_D7                         31
+  #define LCD_PINS_RS                         PinA5
+  #define LCD_PINS_ENABLE                     PinA7
+  #define LCD_PINS_D4                         PinC0
+  #define LCD_PINS_D5                         PinC2
+  #define LCD_PINS_D6                         PinC4
+  #define LCD_PINS_D7                         PinC6
 
   // Buttons
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC
-  #define BTN_EN1                             17
-  #define BTN_EN2                             16
-  #define BTN_ENC                             23
+  #define BTN_EN1                             PinH0
+  #define BTN_EN2                             PinH1
+  #define BTN_ENC                             PinA1
 
 #else
 
-  #define BEEPER_PIN                          33
+  #define BEEPER_PIN                          PinC4
 
 #endif

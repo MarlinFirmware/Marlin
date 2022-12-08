@@ -23,6 +23,7 @@
 
 /**
  * RIGIDBOARD V2 Arduino Mega with RAMPS v1.4 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #define BOARD_INFO_NAME "RigidBoard V2"
@@ -44,7 +45,7 @@
 #define DAC_STEPPER_MAX                     4096  // was 5000 but max allowable value is actually 4096
 #define DAC_STEPPER_VREF                      1   // internal Vref, gain 2x = 4.096V
 #define DAC_STEPPER_GAIN                      1   // value of 1 here sets gain of 2
-#define DAC_DISABLE_PIN                      42   // set low to enable DAC
+#define DAC_DISABLE_PIN                     PinL7   // set low to enable DAC
 #define DAC_OR_ADDRESS 0x01
 
 #ifndef DAC_MOTOR_CURRENT_DEFAULT

@@ -23,6 +23,7 @@
 
 /**
  * Ortur 4 Arduino Mega based on RAMPS v1.4 pin assignments
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "Ortur 4.3"
@@ -31,48 +32,48 @@
 //
 // Servos
 //
-#define SERVO0_PIN                            29
+#define SERVO0_PIN                            PinA7
 
 //
 // Limit Switches
 //
-#define X_MAX_PIN                             18
-#define Z_MIN_PIN                             63
+#define X_MAX_PIN                             PinD3
+#define Z_MIN_PIN                             PinK1
 
-#define Z_MIN_PROBE_PIN                        2
-#define FIL_RUNOUT_PIN                        59
+#define Z_MIN_PROBE_PIN                       PinE4
+#define FIL_RUNOUT_PIN                        PinF5
 
 //
 // Steppers
 //
-#define E0_STEP_PIN                           36
-#define E0_DIR_PIN                            34
-#define E0_ENABLE_PIN                         30
-#define E0_CS_PIN                             44
+#define E0_STEP_PIN                           PinC1
+#define E0_DIR_PIN                            PinC3
+#define E0_ENABLE_PIN                         PinC7
+#define E0_CS_PIN                             PinL5
 
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         24
-#define E1_CS_PIN                             42
+#define E1_STEP_PIN                           PinA4
+#define E1_DIR_PIN                            PinA6
+#define E1_ENABLE_PIN                         PinA2
+#define E1_CS_PIN                             PinL7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            15  // Analog Input
-#define TEMP_1_PIN                            13  // Analog Input
+#define TEMP_0_PIN                            PinJ0  // Analog Input
+#define TEMP_1_PIN                            PinB7  // Analog Input
 
 #if HAS_TMC_UART
-  #define X_SERIAL_TX_PIN                     59
-  #define X_SERIAL_RX_PIN                     63
+  #define X_SERIAL_TX_PIN                     PinF5
+  #define X_SERIAL_RX_PIN                     PinK1
 
-  #define Y_SERIAL_TX_PIN                     64
-  #define Y_SERIAL_RX_PIN                     40
+  #define Y_SERIAL_TX_PIN                     PinK2
+  #define Y_SERIAL_RX_PIN                     PinG1
 
-  #define Z_SERIAL_TX_PIN                     44
-  #define Z_SERIAL_RX_PIN                     42
+  #define Z_SERIAL_TX_PIN                     PinL5
+  #define Z_SERIAL_RX_PIN                     PinL7
 
-  #define E0_SERIAL_TX_PIN                    66
-  #define E0_SERIAL_RX_PIN                    65
+  #define E0_SERIAL_TX_PIN                    PinK4
+  #define E0_SERIAL_RX_PIN                    PinK3
 #endif
 
 #include "pins_RAMPS.h"
@@ -82,24 +83,24 @@
 //
 #if IS_RRD_FG_SC
   #undef BEEPER_PIN
-  #define BEEPER_PIN                          35
+  #define BEEPER_PIN                          PinC2
 
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
   #undef LCD_PINS_D4
-  #define LCD_PINS_RS                         27
-  #define LCD_PINS_ENABLE                     23
-  #define LCD_PINS_D4                         37
+  #define LCD_PINS_RS                         PinA5
+  #define LCD_PINS_ENABLE                     PinA1
+  #define LCD_PINS_D4                         PinC0
 
   #undef LCD_SDSS
   #undef SD_DETECT_PIN
-  #define LCD_SDSS                            53
-  #define SD_DETECT_PIN                       49
+  #define LCD_SDSS                            PinB0
+  #define SD_DETECT_PIN                       PinL0
 
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC
-  #define BTN_EN1                             29
-  #define BTN_EN2                             25
-  #define BTN_ENC                             16
+  #define BTN_EN1                             PinA7
+  #define BTN_EN2                             PinA3
+  #define BTN_ENC                             PinH1
 #endif

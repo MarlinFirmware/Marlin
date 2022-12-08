@@ -23,6 +23,7 @@
 
 /**
  * KFB 2.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -35,6 +36,6 @@
 // Heaters / Fans
 //
 // Power outputs BEEF or BEFF
-#define MOSFET_D_PIN        7
+#define MOSFET_D_PIN        PinH4
 
 #include "pins_RAMPS.h"

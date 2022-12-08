@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.4Plus, also known as 3DYMY version, pin assignments
+ * ATmega2560, ATmega1280
  *
  * Applies to the following boards:
  *
@@ -42,8 +43,8 @@
 
 #define BOARD_INFO_NAME "RAMPS 1.4 Plus"
 
-#define MOSFET_A_PIN                           8
-#define MOSFET_C_PIN                          10
+#define MOSFET_A_PIN                          PinH5
+#define MOSFET_C_PIN                          PinB4
 
 //
 // Steppers
@@ -53,14 +54,14 @@
 #define Z_CS_PIN                              -1
 
 // Swap E0 / E1 on 3DYMY
-#define E0_STEP_PIN                           36
-#define E0_DIR_PIN                            34
-#define E0_ENABLE_PIN                         30
+#define E0_STEP_PIN                           PinC1
+#define E0_DIR_PIN                            PinC3
+#define E0_ENABLE_PIN                         PinC7
 #define E0_CS_PIN                             -1
 
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         24
+#define E1_STEP_PIN                           PinA4
+#define E1_DIR_PIN                            PinA6
+#define E1_ENABLE_PIN                         PinA2
 #define E1_CS_PIN                             -1
 
 /**             3DYMY Expansion Headers
@@ -73,22 +74,22 @@
  *         ------                     ------
  *          EXP1                       EXP2
  */
-#define EXP1_01_PIN                           37
-#define EXP1_02_PIN                           35
-#define EXP1_03_PIN                           31
-#define EXP1_04_PIN                           41
-#define EXP1_05_PIN                           33
-#define EXP1_06_PIN                           23
-#define EXP1_07_PIN                           42
-#define EXP1_08_PIN                           44
+#define EXP1_01_PIN                           PinC0
+#define EXP1_02_PIN                           PinC2
+#define EXP1_03_PIN                           PinC6
+#define EXP1_04_PIN                           PinG0
+#define EXP1_05_PIN                           PinC4
+#define EXP1_06_PIN                           PinA1
+#define EXP1_07_PIN                           PinL7
+#define EXP1_08_PIN                           PinL5
 
-#define EXP2_01_PIN                           50
-#define EXP2_02_PIN                           52
-#define EXP2_03_PIN                           29
-#define EXP2_04_PIN                           53
-#define EXP2_05_PIN                           25
-#define EXP2_06_PIN                           51
-#define EXP2_07_PIN                           49
-#define EXP2_08_PIN                           27
+#define EXP2_01_PIN                           PinB3
+#define EXP2_02_PIN                           PinB1
+#define EXP2_03_PIN                           PinA7
+#define EXP2_04_PIN                           PinB0
+#define EXP2_05_PIN                           PinA3
+#define EXP2_06_PIN                           PinB2
+#define EXP2_07_PIN                           PinL0
+#define EXP2_08_PIN                           PinA5
 
 #include "pins_RAMPS.h"

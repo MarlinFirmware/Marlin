@@ -24,6 +24,7 @@
 /**
  * Rapide Lite 200 v1 (RUMBA clone) pin assignments. Has slightly different assignment for
  * extruder motors due to dual Z motors. Pinout therefore based on pins_RUMBA.h.
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "RL200"
@@ -37,16 +38,16 @@
   #error "You must set ([XYZ]|Z2|E0)_DRIVER_TYPE to DRV8825 in Configuration.h for RL200."
 #endif
 
-#define E0_STEP_PIN                           26  // (RUMBA E1 pins)
-#define E0_DIR_PIN                            25
-#define E0_ENABLE_PIN                         27
+#define E0_STEP_PIN                           PinA4  // (RUMBA E1 pins)
+#define E0_DIR_PIN                            PinA3
+#define E0_ENABLE_PIN                         PinA5
 
-#define E1_STEP_PIN                           29  // (RUMBA E2 pins)
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         39
+#define E1_STEP_PIN                           PinA7  // (RUMBA E2 pins)
+#define E1_DIR_PIN                            PinA6
+#define E1_ENABLE_PIN                         PinG2
 
-#define Z2_STEP_PIN                           23  // (RUMBA E0 pins)
-#define Z2_DIR_PIN                            22
-#define Z2_ENABLE_PIN                         24
+#define Z2_STEP_PIN                           PinA1  // (RUMBA E0 pins)
+#define Z2_DIR_PIN                            PinA0
+#define Z2_ENABLE_PIN                         PinA2
 
 #include "pins_RUMBA.h"
