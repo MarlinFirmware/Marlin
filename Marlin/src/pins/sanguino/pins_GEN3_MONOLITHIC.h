@@ -52,47 +52,47 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Gen3 Monolithic"
-#define DEBUG_PIN                              0
+#define DEBUG_PIN                             PinB0
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            20
-#define Y_STOP_PIN                            25
-#define Z_STOP_PIN                            30
+#define X_STOP_PIN                            PinC4
+#define Y_STOP_PIN                            PinA6
+#define Z_STOP_PIN                            PinA1
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            15
-#define X_DIR_PIN                             18
-#define X_ENABLE_PIN                          24  // actually uses Y_enable_pin
+#define X_STEP_PIN                            PinD7
+#define X_DIR_PIN                             PinC2
+#define X_ENABLE_PIN                          PinA7  // actually uses Y_enable_pin
 
-#define Y_STEP_PIN                            23
-#define Y_DIR_PIN                             22
-#define Y_ENABLE_PIN                          24  // shared with X_enable_pin
+#define Y_STEP_PIN                            PinC7
+#define Y_DIR_PIN                             PinC6
+#define Y_ENABLE_PIN                          PinA7  // shared with X_enable_pin
 
-#define Z_STEP_PIN                            27
-#define Z_DIR_PIN                             28
-#define Z_ENABLE_PIN                          29
+#define Z_STEP_PIN                            PinA4
+#define Z_DIR_PIN                             PinA3
+#define Z_ENABLE_PIN                          PinA2
 
-#define E0_STEP_PIN                           12
-#define E0_DIR_PIN                            17
-#define E0_ENABLE_PIN                          3
+#define E0_STEP_PIN                           PinD4
+#define E0_DIR_PIN                            PinC1
+#define E0_ENABLE_PIN                         PinB3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input
+#define TEMP_0_PIN                            PinB0  // Analog Input
 
 //
 // Heaters
 //
-#define HEATER_0_PIN                          16
+#define HEATER_0_PIN                          PinC0
 
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                             14  // Alex, does this work on the card?
+#define PS_ON_PIN                             PinD6  // Alex, does this work on the card?
 
 // Alex extras from Gen3+

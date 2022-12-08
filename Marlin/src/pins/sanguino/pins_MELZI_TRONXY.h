@@ -23,6 +23,7 @@
 
 /**
  * Melzi pin assignments
+ * ATmega644P, ATmega1284P
  */
 
 #define BOARD_INFO_NAME "Melzi (Tronxy)"
@@ -48,13 +49,13 @@
 #undef BTN_ENC
 #undef LCD_SDSS
 
-#define Z_ENABLE_PIN                          14
-#define LCD_PINS_RS                           30
-#define LCD_PINS_ENABLE                       28
-#define LCD_PINS_D4                           16
-#define LCD_PINS_D5                           17
-#define LCD_PINS_D6                           27
-#define LCD_PINS_D7                           29
-#define BTN_EN1                               10
-#define BTN_EN2                               11
-#define BTN_ENC                               26
+#define Z_ENABLE_PIN                          PinD6
+#define LCD_PINS_RS                           PinA1
+#define LCD_PINS_ENABLE                       PinA3
+#define LCD_PINS_D4                           PinC0
+#define LCD_PINS_D5                           PinC1
+#define LCD_PINS_D6                           PinA4
+#define LCD_PINS_D7                           PinA2
+#define BTN_EN1                               PinD2
+#define BTN_EN2                               PinD3
+#define BTN_ENC                               PinA5
