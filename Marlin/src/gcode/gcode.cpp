@@ -53,7 +53,7 @@ GcodeSuite gcode;
   #include "../feature/cancel_object.h"
 #endif
 
-#if ENABLED(LASER_MOVE_POWER)
+#if ENABLED(LASER_FEATURE)
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -210,8 +210,11 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  if (parser.floatval('F') > 0)
+  if (parser.floatval('F') > 0) {
     feedrate_mm_s = parser.value_feedrate();
+    // Update the cutter feed rate for use by M4 I set inline moves.
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = MMS_TO_MMM(feedrate_mm_s));
+  }
 
   #if BOTH(PRINTCOUNTER, HAS_EXTRUDERS)
     if (!DEBUGGING(DRYRUN) && !skip_move)
@@ -223,15 +226,29 @@ void GcodeSuite::get_destination_from_command() {
     M165();
   #endif
 
-  #if ENABLED(LASER_MOVE_POWER)
-    // Set the laser power in the planner to configure this move
-    if (parser.seen('S')) {
-      const float spwr = parser.value_float();
-      cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
+  #if ENABLED(LASER_FEATURE)
+    if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+      // Set the cutter power in the planner to configure this move
+      cutter.last_feedrate_mm_m = 0;
+      if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
+        planner.laser_inline.status.isPowered = true;
+        if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
+        if (parser.seenval('S')) {
+          const float v = parser.value_float(),
+                      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
+          cutter.menuPower = cutter.unitPower = u;
+          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
+        }
+      }
+      else if (parser.codenum == 0) {
+        // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
+        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
+        cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
+      }
     }
-    else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
-      cutter.set_inline_enabled(false);
-  #endif
+    else if (parser.codenum == 0)
+      cutter.apply_power(0);
+  #endif // LASER_FEATURE
 }
 
 /**
@@ -544,8 +561,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        case 73: M73(); break;                                    // M73: Set progress percentage (for display on LCD)
+      #if ENABLED(SET_PROGRESS_MANUALLY)
+        case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
 
       case 75: M75(); break;                                      // M75: Start print timer
@@ -558,6 +575,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100: M100(); break;                                  // M100: Free Memory Report
+      #endif
+
+      #if ENABLED(BD_SENSOR)
+        case 102: M102(); break;                                  // M102: Configure Bed Distance Sensor
       #endif
 
       #if HAS_EXTRUDERS
@@ -579,7 +600,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 108: M108(); break;                                  // M108: Cancel Waiting
         case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)                     // M876: Handle Host prompt responses
+        #if ENABLED(HOST_PROMPT_SUPPORT)
+          case 876: M876(); break;                                // M876: Handle Host prompt responses
+        #endif
       #else
         case 108: case 112: case 410:
         TERN_(HOST_PROMPT_SUPPORT, case 876:)
@@ -748,7 +771,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 290: M290(); break;                                  // M290: Babystepping
       #endif
 
-      #if HAS_BUZZER
+      #if HAS_SOUND
         case 300: M300(); break;                                  // M300: Play beep tone
       #endif
 
@@ -770,6 +793,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_LCD_CONTRAST
         case 250: M250(); break;                                  // M250: Set LCD contrast
+      #endif
+
+      #if HAS_GCODE_M255
+        case 255: M255(); break;                                  // M255: Set LCD Sleep/Backlight Timeout (Minutes)
       #endif
 
       #if HAS_LCD_BRIGHTNESS
@@ -906,6 +933,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
+      #if HAS_SHAPING
+        case 593: M593(); break;                                  // M593: Set Input Shaping parameters
+      #endif
+
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: M600(); break;                                  // M600: Pause for Filament Change
         case 603: M603(); break;                                  // M603: Configure Filament Change
@@ -916,7 +947,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if IS_KINEMATIC
-        case 665: M665(); break;                                  // M665: Set Delta/SCARA parameters
+        case 665: M665(); break;                                  // M665: Set Kinematics parameters
       #endif
 
       #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
@@ -988,14 +1019,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 919: M919(); break;                                  // M919: Set stepper Chopper Times
       #endif
 
-      #if HAS_L64XX
-        case 122: M122(); break;                                   // M122: Report status
-        case 906: M906(); break;                                   // M906: Set or get motor drive level
-        case 916: M916(); break;                                   // M916: L6470 tuning: Increase drive level until thermal warning
-        case 917: M917(); break;                                   // M917: L6470 tuning: Find minimum current thresholds
-        case 918: M918(); break;                                   // M918: L6470 tuning: Increase speed until max or error
-      #endif
-
       #if HAS_MICROSTEPS
         case 350: M350(); break;                                  // M350: Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
         case 351: M351(); break;                                  // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
@@ -1034,7 +1057,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
-      #if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+      #if ALL(SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
         case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
         case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif

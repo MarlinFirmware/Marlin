@@ -46,6 +46,12 @@
   #define SENDLINE_DBG_PGM_VAL(x,y,z) sendLine_P(PSTR(x))
 #endif
 
+// Append ".gcode" to filename, if requested. Used for some DGUS-clone displays with built-in filter.
+// Filenames are limited to 26 characters, so the actual name for the FILENAME can be 20 characters at most.
+// If a longer string is desired without "extension, use the ALTNAME macro to provide a (longer) alternative.
+#define SPECIAL_MENU_FILENAME(A) A TERN_(ANYCUBIC_LCD_GCODE_EXT, ".gcode")
+#define SPECIAL_MENU_ALTNAME(A, B) TERN(ANYCUBIC_LCD_GCODE_EXT, A ".gcode", B)
+
 AnycubicTFTClass AnycubicTFT;
 
 char AnycubicTFTClass::TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
@@ -383,8 +389,8 @@ void AnycubicTFTClass::RenderCurrentFileList() {
     if (!isMediaInserted() && !SpecialMenu) {
       SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to render Current File List... J02");
 
-      SENDLINE_PGM("<Special_Menu>");
-      SENDLINE_PGM("<Special_Menu>");
+      SENDLINE_PGM("<SPECI~1.GCO");
+      SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Special Menu>"));
     }
     else {
       if (CodeSeen('S'))
@@ -403,58 +409,58 @@ void AnycubicTFTClass::RenderSpecialMenu(uint16_t selectedNumber) {
   switch (selectedNumber) {
     #if ENABLED(PROBE_MANUALLY)
       case 0: // First Page
-        SENDLINE_PGM("<01ZUp0.1>");
-        SENDLINE_PGM("<Z Up 0.1>");
-        SENDLINE_PGM("<02ZUp0.02>");
-        SENDLINE_PGM("<Z Up 0.02>");
-        SENDLINE_PGM("<03ZDn0.02>");
-        SENDLINE_PGM("<Z Down 0.02>");
-        SENDLINE_PGM("<04ZDn0.1>");
-        SENDLINE_PGM("<Z Down 0.1>");
+        SENDLINE_PGM("<01ZUP~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Z Up 0.1>"));
+        SENDLINE_PGM("<02ZUP~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Z Up 0.02>"));
+        SENDLINE_PGM("<03ZDO~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Z Down 0.02>"));
+        SENDLINE_PGM("<04ZDO~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Z Down 0.1>"));
         break;
 
       case 4: // Second Page
-        SENDLINE_PGM("<05PrehtBed>");
-        SENDLINE_PGM("<Preheat bed>");
-        SENDLINE_PGM("<06SMeshLvl>");
-        SENDLINE_PGM("<Start Mesh Leveling>");
-        SENDLINE_PGM("<07MeshNPnt>");
-        SENDLINE_PGM("<Next Mesh Point>");
-        SENDLINE_PGM("<08HtEndPID>");
-        SENDLINE_PGM("<Auto Tune Hotend PID>");
+        SENDLINE_PGM("<05PRE~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Preheat Bed>"));
+        SENDLINE_PGM("<06MES~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_ALTNAME("<Mesh Leveling>", "<Start Mesh Leveling>"));
+        SENDLINE_PGM("<07NEX~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Next Mesh Point>"));
+        SENDLINE_PGM("<08PID~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<PID Tune Hotend>"));
         break;
 
       case 8: // Third Page
-        SENDLINE_PGM("<09HtBedPID>");
-        SENDLINE_PGM("<Auto Tune Hotbed PID>");
-        SENDLINE_PGM("<10FWDeflts>");
-        SENDLINE_PGM("<Load FW Defaults>");
-        SENDLINE_PGM("<11SvEEPROM>");
-        SENDLINE_PGM("<Save EEPROM>");
-        SENDLINE_PGM("<Exit>");
-        SENDLINE_PGM("<Exit>");
+        SENDLINE_PGM("<09PID~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<PID Tune Hotbed>"));
+        SENDLINE_PGM("<10FWD~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Load FW Defaults>"));
+        SENDLINE_PGM("<11SAV~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Save EEPROM>"));
+        SENDLINE_PGM("<EXIT_~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Exit>"));
         break;
     #else
       case 0: // First Page
-        SENDLINE_PGM("<01PrehtBed>");
-        SENDLINE_PGM("<Preheat bed>");
-        SENDLINE_PGM("<02ABL>");
-        SENDLINE_PGM("<Auto Bed Leveling>");
-        SENDLINE_PGM("<03HtEndPID>");
-        SENDLINE_PGM("<Auto Tune Hotend PID>");
-        SENDLINE_PGM("<04HtBedPID>");
-        SENDLINE_PGM("<Auto Tune Hotbed PID>");
+        SENDLINE_PGM("<01PRE~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Preheat Bed>"));
+        SENDLINE_PGM("<02ABL~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Auto Bed Leveling>"));
+        SENDLINE_PGM("<03PID~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_ALTNAME("<PID Tune Hotend>", "<Auto Tune Hotend PID>"));
+        SENDLINE_PGM("<04PID~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_ALTNAME("<PID Tune Hotbed>", "<Auto Tune Hotbed PID>"));
         break;
 
       case 4: // Second Page
-        SENDLINE_PGM("<05FWDeflts>");
-        SENDLINE_PGM("<Load FW Defaults>");
-        SENDLINE_PGM("<06SvEEPROM>");
-        SENDLINE_PGM("<Save EEPROM>");
-        SENDLINE_PGM("<07SendM108>");
-        SENDLINE_PGM("<Send User Confirmation>");
-        SENDLINE_PGM("<Exit>");
-        SENDLINE_PGM("<Exit>");
+        SENDLINE_PGM("<05FWD~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Load FW Defaults>"));
+        SENDLINE_PGM("<06SAV~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Save EEPROM>"));
+        SENDLINE_PGM("<06SEN~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_ALTNAME("<User Confirmation>", "<Send User Confirmation>"));
+        SENDLINE_PGM("<EXIT_~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Exit>"));
         break;
 
         #endif // PROBE_MANUALLY
@@ -478,8 +484,8 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
   for (cnt = selectedNumber; cnt <= max_files; cnt++) {
     if (cnt == 0) { // Special Entry
       if (currentFileList.isAtRootDir()) {
-        SENDLINE_PGM("<specialmnu>");
-        SENDLINE_PGM("<Special Menu>");
+        SENDLINE_PGM("<SPECI~1.GCO");
+        SENDLINE_PGM(SPECIAL_MENU_FILENAME("<Special Menu>"));
       }
       else {
         SENDLINE_PGM("/..");

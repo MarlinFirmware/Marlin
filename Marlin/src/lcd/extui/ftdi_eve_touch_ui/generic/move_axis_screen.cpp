@@ -113,7 +113,7 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
 
 void BaseMoveAxisScreen::raiseZtoTop() {
   constexpr xyze_feedrate_t homing_feedrate = HOMING_FEEDRATE_MM_M;
-  setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate[Z_AXIS]);
+  setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate.z);
 }
 
 float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {

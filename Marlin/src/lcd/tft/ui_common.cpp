@@ -96,7 +96,7 @@ void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
   lcd_gotopixel(int(col) * (TFT_COL_WIDTH), int(row) * MENU_LINE_HEIGHT);
 }
 
-int lcd_put_wchar_max(const wchar_t c, const pixel_len_t max_length) {
+int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
   if (max_length < 1) return 0;
   tft_string.set(c);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);

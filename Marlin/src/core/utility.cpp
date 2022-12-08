@@ -29,10 +29,10 @@ void safe_delay(millis_t ms) {
   while (ms > 50) {
     ms -= 50;
     delay(50);
-    thermalManager.manage_heater();
+    thermalManager.task();
   }
   delay(ms);
-  thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
+  thermalManager.task(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
 // A delay to provide brittle hosts time to receive bytes
@@ -51,7 +51,7 @@ void safe_delay(millis_t ms) {
 
   #include "../module/probe.h"
   #include "../module/motion.h"
-  #include "../module/stepper.h"
+  #include "../module/planner.h"
   #include "../libs/numtostr.h"
   #include "../feature/bedlevel/bedlevel.h"
 
@@ -70,6 +70,7 @@ void safe_delay(millis_t ms) {
       TERN_(NOZZLE_AS_PROBE, "NOZZLE_AS_PROBE")
       TERN_(FIX_MOUNTED_PROBE, "FIX_MOUNTED_PROBE")
       TERN_(HAS_Z_SERVO_PROBE, TERN(BLTOUCH, "BLTOUCH", "SERVO PROBE"))
+      TERN_(BD_SENSOR, "BD_SENSOR")
       TERN_(TOUCH_MI_PROBE, "TOUCH_MI_PROBE")
       TERN_(Z_PROBE_SLED, "Z_PROBE_SLED")
       TERN_(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY")

@@ -110,53 +110,15 @@ if [[ $ACTION == "init" ]]; then
   ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Commit for comparison" >/dev/null
 
   # Init Cartesian/SCARA/TPARA configurations to default
-  echo "- Initializing Cartesian/SCARA/TPARA configs to default state..."
+  echo "- Initializing configs to default state..."
 
-  find "$CEXA" -name $BC ! -path */delta/* -print0 \
+  find "$CEXA" -name $BC -print0 \
     | while read -d $'\0' F ; do cp "$CDEF/$BC" "$F" ; done
-  find "$CEXA" -name $AC ! -path */delta/* -print0 \
+  find "$CEXA" -name $AC -print0 \
     | while read -d $'\0' F ; do cp "$CDEF/$AC" "$F" ; done
 
   # DEBUG: Commit the reset for review
-  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset Cartesian/SCARA/TPARA configs..." >/dev/null
-
-  # Create base Delta configurations
-  cp "$CDEF"/* "$CEXA/delta/generic"
-
-  # DEBUG: Commit the reset for review
-  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset Generic Delta..." >/dev/null
-
-  cp -R "$TEMP/$CEXA/delta/generic"/Conf* "$CEXA/delta/generic"
-
-  # DEBUG: Commit Generic Delta changes for review
-  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Apply Generic Delta..." >/dev/null
-
-  # Reset all Delta configs to the generic version
-  find "$CEXA/delta" -name $BC ! -path */generic/* -print0 \
-    | while read -d $'\0' F ; do cp "$CEXA/delta/generic/$BC" "$F" ; done
-  find "$CEXA/delta" -name $AC ! -path */generic/* -print0 \
-    | while read -d $'\0' F ; do cp "$CEXA/delta/generic/$AC" "$F" ; done
-
-  # DEBUG: Commit the Delta reset for review
-  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset Delta configs..." >/dev/null
-
-  # Reset all SCARA configs to the default cartesian
-  find "$CEXA/SCARA" -name $BC \
-    | while read -d $'\0' F ; do cp "$CDEF/$BC" "$F" ; done
-  find "$CEXA/SCARA" -name $AC \
-    | while read -d $'\0' F ; do cp "$CDEF/$AC" "$F" ; done
-
-  # DEBUG: Commit the SCARA reset for review
-  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset SCARA..." >/dev/null
-
-  # Reset all TPARA configs to the default cartesian
-  find "$CEXA/TPARA" -name $BC \
-    | while read -d $'\0' F ; do cp "$CDEF/$BC" "$F" ; done
-  find "$CEXA/TPARA" -name $AC \
-    | while read -d $'\0' F ; do cp "$CDEF/$AC" "$F" ; done
-
-  # DEBUG: Commit the TPARA reset for review
-  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset TPARA..." >/dev/null
+  ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset configs..." >/dev/null
 
   # Update the %VERSION% in the README.md file
   VERS=$( echo $EXPORT | $SED 's/release-//' )

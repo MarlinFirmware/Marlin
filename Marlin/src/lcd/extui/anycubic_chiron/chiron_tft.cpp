@@ -72,17 +72,6 @@ void ChironTFT::Startup() {
   live_Zoffset      = 0.0;
   file_menu         = AC_menu_file;
 
-  // Setup pins for powerloss detection
-  // Two IO pins are connected on the Trigorilla Board
-  // On a power interruption the OUTAGECON_PIN goes low.
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    OUT_WRITE(OUTAGECON_PIN, HIGH);
-  #endif
-
-  // Filament runout is handled by Marlin settings in Configuration.h
-  // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
-  // opt_enable FIL_RUNOUT_PULLUP
   TFTSer.begin(115200);
 
   // Wait for the TFT panel to initialize and finish the animation

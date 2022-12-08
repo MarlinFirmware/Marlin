@@ -107,7 +107,7 @@
 // Display
 //
 
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
   #define BEEPER_PIN                       P1_31
   #define DOGLCD_A0                        P2_06
   #define DOGLCD_CS                        P0_16

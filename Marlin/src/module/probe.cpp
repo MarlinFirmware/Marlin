@@ -44,11 +44,20 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(BD_SENSOR)
+  #include "../feature/bedlevel/bdl/bdl.h"
+#endif
+
 #if ENABLED(DELTA)
   #include "delta.h"
 #endif
 
-#if ANY(HAS_QUIET_PROBING, USE_SENSORLESS)
+#if ENABLED(SENSORLESS_PROBING)
+  abc_float_t offset_sensorless_adj{0};
+  float largest_sensorless_adj = 0;
+#endif
+
+#if EITHER(HAS_QUIET_PROBING, USE_SENSORLESS)
   #include "stepper/indirection.h"
   #if BOTH(HAS_QUIET_PROBING, PROBING_ESTEPPERS_OFF)
     #include "stepper.h"
@@ -259,7 +268,57 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #endif
   }
 
-#endif // Z_PROBE_ALLEN_KEY
+#elif ENABLED(MAG_MOUNTED_PROBE)
+
+  typedef struct { float fr_mm_min; xyz_pos_t where; } mag_probe_move_t;
+
+  inline void run_deploy_moves_script() {
+    #ifdef MAG_MOUNTED_DEPLOY_1
+      constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
+      do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_2
+      constexpr mag_probe_move_t deploy_2 = MAG_MOUNTED_DEPLOY_2;
+      do_blocking_move_to(deploy_2.where, MMM_TO_MMS(deploy_2.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_3
+      constexpr mag_probe_move_t deploy_3 = MAG_MOUNTED_DEPLOY_3;
+      do_blocking_move_to(deploy_3.where, MMM_TO_MMS(deploy_3.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_4
+      constexpr mag_probe_move_t deploy_4 = MAG_MOUNTED_DEPLOY_4;
+      do_blocking_move_to(deploy_4.where, MMM_TO_MMS(deploy_4.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_DEPLOY_5
+      constexpr mag_probe_move_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
+      do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
+    #endif
+  }
+
+  inline void run_stow_moves_script() {
+    #ifdef MAG_MOUNTED_STOW_1
+      constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
+      do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_2
+      constexpr mag_probe_move_t stow_2 = MAG_MOUNTED_STOW_2;
+      do_blocking_move_to(stow_2.where, MMM_TO_MMS(stow_2.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_3
+      constexpr mag_probe_move_t stow_3 = MAG_MOUNTED_STOW_3;
+      do_blocking_move_to(stow_3.where, MMM_TO_MMS(stow_3.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_4
+      constexpr mag_probe_move_t stow_4 = MAG_MOUNTED_STOW_4;
+      do_blocking_move_to(stow_4.where, MMM_TO_MMS(stow_4.fr_mm_min));
+    #endif
+    #ifdef MAG_MOUNTED_STOW_5
+      constexpr mag_probe_move_t stow_5 = MAG_MOUNTED_STOW_5;
+      do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
+    #endif
+  }
+
+#endif // MAG_MOUNTED_PROBE
 
 #if HAS_QUIET_PROBING
 
@@ -345,7 +404,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     servo[Z_PROBE_SERVO_NR].move(servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
-  #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
+  #elif ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
 
     deploy ? run_deploy_moves_script() : run_stow_moves_script();
 
@@ -823,6 +882,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
+  #if ENABLED(BD_SENSOR)
+    return current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
+  #endif
+
   float measured_z = NAN;
   if (!deploy()) {
     measured_z = run_z_probe(sanity_check) + offset.z;
@@ -867,76 +930,38 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-#if USE_SENSORLESS
-
-  sensorless_t stealth_states { false };
-
-  /**
-   * Disable stealthChop if used. Enable diag1 pin on driver.
-   */
-  void Probe::enable_stallguard_diag1() {
-    #if ENABLED(SENSORLESS_PROBING)
-      #if HAS_DELTA_SENSORLESS_PROBING
-        stealth_states.x = tmc_enable_stallguard(stepperX);
-        stealth_states.y = tmc_enable_stallguard(stepperY);
-      #endif
-      stealth_states.z = tmc_enable_stallguard(stepperZ);
-      endstops.enable(true);
-    #endif
-  }
-
-  /**
-   * Re-enable stealthChop if used. Disable diag1 pin on driver.
-   */
-  void Probe::disable_stallguard_diag1() {
-    #if ENABLED(SENSORLESS_PROBING)
-      endstops.not_homing();
-      #if HAS_DELTA_SENSORLESS_PROBING
-        tmc_disable_stallguard(stepperX, stealth_states.x);
-        tmc_disable_stallguard(stepperY, stealth_states.y);
-      #endif
-      tmc_disable_stallguard(stepperZ, stealth_states.z);
-    #endif
-  }
+#if HAS_DELTA_SENSORLESS_PROBING
 
   /**
    * Set the sensorless Z offset
    */
   void Probe::set_offset_sensorless_adj(const_float_t sz) {
-    #if ENABLED(SENSORLESS_PROBING)
-      DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
-      #if HAS_DELTA_SENSORLESS_PROBING
-        if (test_sensitivity.x) offset_sensorless_adj.a = sz;
-        if (test_sensitivity.y) offset_sensorless_adj.b = sz;
-      #endif
-      if (test_sensitivity.z) offset_sensorless_adj.c = sz;
-    #endif
+    DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
+    if (test_sensitivity.x) offset_sensorless_adj.a = sz;
+    if (test_sensitivity.y) offset_sensorless_adj.b = sz;
+    if (test_sensitivity.z) offset_sensorless_adj.c = sz;
   }
 
   /**
    * Refresh largest_sensorless_adj based on triggered endstops
    */
   void Probe::refresh_largest_sensorless_adj() {
-    #if ENABLED(SENSORLESS_PROBING)
-      DEBUG_SECTION(rso, "Probe::refresh_largest_sensorless_adj", true);
-      largest_sensorless_adj = -3;                                             // A reference away from any real probe height
-      #if HAS_DELTA_SENSORLESS_PROBING
-        if (TEST(endstops.state(), X_MAX)) {
-          NOLESS(largest_sensorless_adj, offset_sensorless_adj.a);
-          DEBUG_ECHOLNPGM("Endstop_X: ", largest_sensorless_adj, " TowerX");
-        }
-        if (TEST(endstops.state(), Y_MAX)) {
-          NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
-          DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
-        }
-      #endif
-      if (TEST(endstops.state(), Z_MAX)) {
-        NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
-        DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
-      }
-    #endif
+    DEBUG_SECTION(rso, "Probe::refresh_largest_sensorless_adj", true);
+    largest_sensorless_adj = -3;  // A reference away from any real probe height
+    if (TEST(endstops.state(), X_MAX)) {
+      NOLESS(largest_sensorless_adj, offset_sensorless_adj.a);
+      DEBUG_ECHOLNPGM("Endstop_X: ", largest_sensorless_adj, " TowerX");
+    }
+    if (TEST(endstops.state(), Y_MAX)) {
+      NOLESS(largest_sensorless_adj, offset_sensorless_adj.b);
+      DEBUG_ECHOLNPGM("Endstop_Y: ", largest_sensorless_adj, " TowerY");
+    }
+    if (TEST(endstops.state(), Z_MAX)) {
+      NOLESS(largest_sensorless_adj, offset_sensorless_adj.c);
+      DEBUG_ECHOLNPGM("Endstop_Z: ", largest_sensorless_adj, " TowerZ");
+    }
   }
 
-#endif // SENSORLESS_PROBING || SENSORLESS_HOMING
+#endif
 
 #endif // HAS_BED_PROBE

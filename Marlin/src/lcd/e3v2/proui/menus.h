@@ -23,8 +23,8 @@
 /**
  * Menu functions for ProUI
  * Author: Miguel A. Risco-Castillo
- * Version: 1.4.1
- * Date: 2022/04/14
+ * Version: 1.5.1
+ * Date: 2022/05/23
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -168,7 +168,7 @@ bool SetMenu(MenuClass* &menu, FSTR_P title, int8_t totalitems);
 void UpdateMenu(MenuClass* &menu);
 
 //Redraw the current Menu if it is valid
-void ReDrawMenu();
+void ReDrawMenu(const bool force=false);
 
 // Clear MenuItems array and free MenuItems elements
 void MenuItemsClear();

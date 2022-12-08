@@ -135,7 +135,7 @@
 #if IS_NEWPANEL
   #define BTN_ENC                             16  // Enter Pin
   #define BTN_UP                              19  // Button UP Pin
-  #define BTN_DWN                             17  // Button DOWN Pin
+  #define BTN_DOWN                            17  // Button DOWN Pin
 #endif
 
 // Additional connectors/pins on the Overlord V1.X board

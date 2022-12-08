@@ -77,8 +77,12 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PA5
-#define Y_STOP_PIN                          PA6
+#ifndef X_STOP_PIN
+  #define X_STOP_PIN                        PA5
+#endif
+#ifndef Y_STOP_PIN
+  #define Y_STOP_PIN                        PA6
+#endif
 #ifndef Z_STOP_PIN
   #define Z_STOP_PIN                        PA7
 #endif
@@ -153,61 +157,152 @@
 // SD Card
 //
 #define SD_DETECT_PIN                       PC7
-#define SDCARD_CONNECTION                ONBOARD
+#define SDCARD_CONNECTION ONBOARD
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
+#if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+
+  /**
+   *    RET6 12864 LCD
+   *        ------
+   *  PC6  | 1  2 | PB2
+   *  PB10 | 3  4 | PB11
+   *  PB14   5  6 | PB13
+   *  PB12 | 7  8 | PB15
+   *   GND | 9 10 | 5V
+   *        ------
+   */
+  #define EXP3_01_PIN                       PC6
+  #define EXP3_02_PIN                       PB2
+  #define EXP3_03_PIN                       PB10
+  #define EXP3_04_PIN                       PB11
+  #define EXP3_05_PIN                       PB14
+  #define EXP3_06_PIN                       PB13
+  #define EXP3_07_PIN                       PB12
+  #define EXP3_08_PIN                       PB15
+
+#elif EITHER(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
+
+  /**
+   *    VET6 12864 LCD
+   *        ------
+   *  ?    | 1  2 | PC5
+   *  PB10 | 3  4 | ?
+   *  PA6    5  6 | PA5
+   *  PA4  | 7  8 | PA7
+   *   GND | 9 10 | 5V
+   *        ------
+   */
+  #define EXP3_01_PIN                       -1
+  #define EXP3_02_PIN                       PC5
+  #define EXP3_03_PIN                       PB10
+  #define EXP3_04_PIN                       -1
+  #define EXP3_05_PIN                       PA6
+  #define EXP3_06_PIN                       PA5
+  #define EXP3_07_PIN                       PA4
+  #define EXP3_08_PIN                       PA7
+
+#elif EITHER(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
+  #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
+#endif
+
 #if ENABLED(CR10_STOCKDISPLAY)
 
-  #if ENABLED(RET6_12864_LCD)
+  #define LCD_PINS_RS                EXP3_07_PIN
+  #define LCD_PINS_ENABLE            EXP3_08_PIN
+  #define LCD_PINS_D4                EXP3_06_PIN
 
-    // RET6 12864 LCD
-    #define LCD_PINS_RS                     PB12
-    #define LCD_PINS_ENABLE                 PB15
-    #define LCD_PINS_D4                     PB13
+  #define BTN_ENC                    EXP3_02_PIN
+  #define BTN_EN1                    EXP3_03_PIN
+  #define BTN_EN2                    EXP3_05_PIN
 
-    #define BTN_ENC                         PB2
-    #define BTN_EN1                         PB10
-    #define BTN_EN2                         PB14
-
-    #ifndef HAS_PIN_27_BOARD
-      #define BEEPER_PIN                    PC6
-    #endif
-
-  #elif ENABLED(VET6_12864_LCD)
-
-    // VET6 12864 LCD
-    #define LCD_PINS_RS                     PA4
-    #define LCD_PINS_ENABLE                 PA7
-    #define LCD_PINS_D4                     PA5
-
-    #define BTN_ENC                         PC5
-    #define BTN_EN1                         PB10
-    #define BTN_EN2                         PA6
-
-  #else
-    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
+  #ifndef HAS_PIN_27_BOARD
+    #define BEEPER_PIN               EXP3_01_PIN
   #endif
 
-#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+#elif ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI, DWIN_VET6_CREALITY_LCD)
 
-  // RET6 DWIN ENCODER LCD
-  #define BTN_ENC                           PB14
-  #define BTN_EN1                           PB15
-  #define BTN_EN2                           PB12
+  #define BTN_ENC                    EXP3_05_PIN
+  #define BTN_EN1                    EXP3_08_PIN
+  #define BTN_EN2                    EXP3_07_PIN
 
-  //#define LCD_LED_PIN                     PB2
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN                      PB13
+    #define BEEPER_PIN               EXP3_06_PIN
   #endif
 
-#elif ENABLED(DWIN_VET6_CREALITY_LCD)
+#elif ENABLED(FYSETC_MINI_12864_2_1)
 
-  // VET6 DWIN ENCODER LCD
-  #define BTN_ENC                           PA6
-  #define BTN_EN1                           PA7
-  #define BTN_EN2                           PA4
+  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+    #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_CREALITY_V4.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning."
+  #endif
 
-  #define BEEPER_PIN                        PA5
+  #if SD_CONNECTION_IS(LCD)
+    #error "The LCD SD Card is not connected with this configuration."
+  #endif
+
+  /**
+   *
+   *                 Board (RET6 12864 LCD)              Display
+   *                 ------                               ------
+   *  (EN1)    PC6  | 1  2 | PB2  (BTN_ENC)           5V |10  9 | GND
+   *  (LCD_CS) PB10 | 3  4 | PB11 (LCD RESET)         -- | 8  7 | --
+   *  (LCD_A0) PB14   5  6 | PB13 (EN2)           (DIN)  | 6  5   (LCD RESET)
+   *  (LCD_SCK)PB12 | 7  8 | PB15 (MOSI)        (LCD_A0) | 4  3 | (LCD_CS)
+   *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
+   *                 ------                               ------
+   *                  EXP1                                 EXP1
+   *
+   *                                                      ------
+   *                -----                             -- |10  9 | --
+   *                | 1 | VCC                    (RESET) | 8  7 | --
+   *                | 2 | PA13 (DIN)             (MOSI)  | 6  5   (EN2)
+   *                | 3 | PA14                        -- | 4  3 | (EN1)
+   *                | 4 | GND                   (LCD_SCK)| 2  1 | --
+   *                -----                                 ------
+   *              Debug port                               EXP2
+   *
+   * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
+   * Debug port is just above EXP1. You need to add pins.
+   *
+   */
+
+  #define BTN_ENC                    EXP3_02_PIN
+  #define BTN_EN1                    EXP3_01_PIN
+  #define BTN_EN2                    EXP3_06_PIN
+  #define BEEPER_PIN                        -1
+
+  #define DOGLCD_CS                  EXP3_03_PIN
+  #define DOGLCD_A0                  EXP3_05_PIN
+  #define DOGLCD_SCK                 EXP3_07_PIN
+  #define DOGLCD_MOSI                EXP3_08_PIN
+  #define LCD_RESET_PIN              EXP3_04_PIN
+
+  #define FORCE_SOFT_SPI
+  #define LCD_BACKLIGHT_PIN                 -1
+  #define NEOPIXEL_PIN                      PA13
 
 #endif
+
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+
+// Hardware UART pins
+#define UART1_TX_PIN                        PA9   // default uses CH340 RX
+#define UART1_RX_PIN                        PA10  // default uses CH340 TX
+#define UART2_TX_PIN                        PA2   // default uses HEATER_BED_PIN
+#define UART2_RX_PIN                        PA3   // not connected
+#define UART3_TX_PIN                        PB10  // default uses LCD connector
+#define UART3_RX_PIN                        PB11  // default uses LCD connector
+#define UART4_TX_PIN                        PC10  // default uses sdcard SDIO_D2
+#define UART4_RX_PIN                        PC11  // default uses sdcard SDIO_D3
+#define UART5_TX_PIN                        PC12  // default uses sdcard SDIO_CK
+#define UART5_RX_PIN                        PD2   // default uses sdcard SDIO_CMD
+
+// SDIO pins
+#define SDIO_D0_PIN                         PC8
+#define SDIO_D1_PIN                         PC9
+#define SDIO_D2_PIN                         PC10
+#define SDIO_D3_PIN                         PC11
+#define SDIO_CK_PIN                         PC12
+#define SDIO_CMD_PIN                        PD2

@@ -51,7 +51,7 @@
 #undef STAT_LED_RED_PIN
 #undef STAT_LED_BLUE_PIN
 
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
 
   #undef DOGLCD_A0
   #undef DOGLCD_CS

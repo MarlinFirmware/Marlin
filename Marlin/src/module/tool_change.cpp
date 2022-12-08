@@ -115,7 +115,8 @@
 
   void move_extruder_servo(const uint8_t e) {
     planner.synchronize();
-    if ((EXTRUDERS & 1) && e < EXTRUDERS - 1) {
+    constexpr bool evenExtruders = !(EXTRUDERS & 1);
+    if (evenExtruders || e < EXTRUDERS - 1) {
       servo[_SERVO_NR(e)].move(servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
@@ -132,7 +133,7 @@
       constexpr int16_t sns_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
       planner.synchronize();
       servo[sns_index[e]].move(sns_angles[angle_index]);
-      safe_delay(500);
+      safe_delay(SWITCHING_NOZZLE_SERVO_DWELL);
     }
 
     void lower_nozzle(const uint8_t e) { _move_nozzle_servo(e, 0); }
@@ -143,7 +144,7 @@
     void move_nozzle_servo(const uint8_t angle_index) {
       planner.synchronize();
       servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][angle_index]);
-      safe_delay(500);
+      safe_delay(SWITCHING_NOZZLE_SERVO_DWELL);
     }
 
   #endif
@@ -440,6 +441,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
   }
 
+
+#endif // TOOL_SENSOR
+
+#if ENABLED(SWITCHING_TOOLHEAD)
+
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
@@ -451,8 +457,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #error "No toolhead locking mechanism configured."
     #endif
   }
-
-  #include <bitset>
 
   void swt_init() {
     switching_toolhead_lock(true);
@@ -493,10 +497,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       LCD_MESSAGE_F("TC Success");
     #endif // TOOL_SENSOR
   }
-
-#endif // TOOL_SENSOR
-
-#if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
@@ -918,7 +918,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = FAN_OFF_PWM;
     #endif
   }
 
@@ -940,13 +940,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Cutting recovery -- Recover from cutting retraction that occurs at the end of nozzle priming
    *
    * If the active_extruder is up to temp (!too_cold):
-   *  Extrude filament distance = toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT
+   *  Extrude filament distance = toolchange_settings.extra_resume + toolchange_settings.wipe_retract
    *  current_position.e = e;
    *  sync_plan_position_e();
    */
   void extruder_cutting_recover(const_float_t e) {
     if (!too_cold(active_extruder)) {
-      const float dist = toolchange_settings.extra_resume + (TOOLCHANGE_FS_WIPE_RETRACT);
+      const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
       FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
       unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
       planner.synchronize();
@@ -973,17 +973,17 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
 
     #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
-    /*
-     * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
-     */
-    static Flags<EXTRUDERS> extruder_did_first_prime;  // Extruders first priming status
-    if (!extruder_did_first_prime[active_extruder]) {
-      extruder_did_first_prime.set(active_extruder);   // Log first prime complete
-      // new nozzle - prime at user-specified speed.
-      FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
-      fr = toolchange_settings.prime_speed;
-      unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
-    }
+      /**
+       * Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
+       */
+      static Flags<EXTRUDERS> extruder_did_first_prime;  // Extruders first priming status
+      if (!extruder_did_first_prime[active_extruder]) {
+        extruder_did_first_prime.set(active_extruder);   // Log first prime complete
+        // new nozzle - prime at user-specified speed.
+        FS_DEBUG("First time priming T", active_extruder, ", reducing speed from ", MMM_TO_MMS(fr), " to ",  MMM_TO_MMS(toolchange_settings.prime_speed), "mm/s");
+        fr = toolchange_settings.prime_speed;
+        unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
+      }
     #endif
 
     //Calculate and perform the priming distance
@@ -1011,8 +1011,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
-      FS_DEBUG("Performing Cutting Retraction | Distance: ", -(TOOLCHANGE_FS_WIPE_RETRACT), " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
-      unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
+      FS_DEBUG("Performing Cutting Retraction | Distance: ", -toolchange_settings.wipe_retract, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
+      unscaled_e_move(-toolchange_settings.wipe_retract, MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
 
     // Cool down with fan
@@ -1157,8 +1157,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if HAS_LEVELING
-      // Set current position to the physical position
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // Workaround for UBL mesh boundary, possibly?
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 

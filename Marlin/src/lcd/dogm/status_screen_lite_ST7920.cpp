@@ -40,11 +40,37 @@
 // Lightweight Status Screen for Graphical Display
 //
 
+/** One hotend layout
+ *  ------------------
+ *  |⟱ xxx➜xxx° ✱xxx%
+ *  |＿ xxx➜xxx° Fxxx%
+ *  ||||||||||R•xxx:xx
+ *  |  status string
+ *  ------------------
+ *
+ *  hotend temp | fan speed
+ *  bed temp    | feedrate
+ *  progress bar| progress time
+ *       status string
+ *
+ * ****************************
+ *  Two hotends layout
+ *  ------------------
+ *  |⟱ xxx➜xxx° ✱xxx%
+ *  |⟱ xxx➜xxx°|||||||
+ *  |＿ xxx➜xxx°Rxxx:xx
+ *  |  status string
+ *  ------------------
+ *
+ *  hotend temp | fan speed
+ *  hotend temp | progress bar
+ *  bed temp    | progress time
+ *       status string
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(LIGHTWEIGHT_UI)
-
-#include "status_screen_lite_ST7920.h"
 
 #include "../marlinui.h"
 #include "../fontutils.h"
@@ -53,12 +79,13 @@
 #include "../../module/motion.h"
 #include "../../module/printcounter.h"
 #include "../../module/temperature.h"
+#include "../../libs/numtostr.h"
 
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
 #endif
 
-#if ENABLED(LCD_SHOW_E_TOTAL)
+#if ENABLED(LCD_SHOW_E_TOTAL) || HAS_PRINT_PROGRESS
   #include "../../MarlinCore.h" // for printingIsActive
 #endif
 
@@ -71,6 +98,9 @@
 #define DDRAM_LINE_2   0x10
 #define DDRAM_LINE_3   0x08
 #define DDRAM_LINE_4   0x18
+
+#include "status_screen_lite_ST7920.h"
+extern ST7920_Lite_Status_Screen lightUI;
 
 ST7920_Lite_Status_Screen::st7920_state_t ST7920_Lite_Status_Screen::current_bits;
 
@@ -442,72 +472,6 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
   draw_fan_icon(false);
 }
 
-/**
- * Although this is undocumented, the ST7920 allows the character
- * data buffer (DDRAM) to be used in conjunction with the graphics
- * bitmap buffer (CGRAM). The contents of the graphics buffer is
- * XORed with the data from the character generator. This allows
- * us to make the progress bar out of graphical data (the bar) and
- * text data (the percentage).
- */
-void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
-  #if HOTENDS == 1
-    // If we have only one extruder, draw a long progress bar on the third line
-    constexpr uint8_t top     = 1,         // Top in pixels
-                      bottom  = 13,        // Bottom in pixels
-                      left    = 12,        // Left edge, in 16-bit words
-                      width   = 4;         // Width of progress bar, in 16-bit words
-  #else
-    constexpr uint8_t top     = 16 + 1,
-                      bottom  = 16 + 13,
-                      left    = 5,
-                      width   = 3;
-  #endif
-  const uint8_t char_pcnt  = 100 / width; // How many percent does each 16-bit word represent?
-
-  // Draw the progress bar as a bitmap in CGRAM
-  LOOP_S_LE_N(y, top, bottom) {
-    set_gdram_address(left, y);
-    begin_data();
-    LOOP_L_N(x, width) {
-      uint16_t gfx_word = 0x0000;
-      if ((x + 1) * char_pcnt <= value)
-        gfx_word = 0xFFFF;                                              // Draw completely filled bytes
-      else if ((x * char_pcnt) < value)
-        gfx_word = int(0x8000) >> (value % char_pcnt) * 16 / char_pcnt; // Draw partially filled bytes
-
-      // Draw the frame around the progress bar
-      if (y == top || y == bottom)
-        gfx_word = 0xFFFF;        // Draw top/bottom border
-      else if (x == width - 1)
-        gfx_word |= 0x0001;       // Draw right border
-      else if (x == 0)
-        gfx_word |= 0x8000;       // Draw left border
-      write_word(gfx_word);
-    }
-  }
-
-  // Draw the percentage as text in DDRAM
-  #if HOTENDS == 1
-    set_ddram_address(DDRAM_LINE_3 + 4);
-    begin_data();
-    write_byte(' ');
-  #else
-    set_ddram_address(DDRAM_LINE_2 + left);
-    begin_data();
-  #endif
-
-  // Draw centered
-  if (value > 9) {
-    write_number(value, 4);
-    write_str(F("% "));
-  }
-  else {
-    write_number(value, 3);
-    write_str(F("%  "));
-  }
-}
-
 void ST7920_Lite_Status_Screen::draw_fan_icon(const bool whichIcon) {
   set_ddram_address(DDRAM_LINE_1 + 5);
   begin_data();
@@ -592,22 +556,8 @@ void ST7920_Lite_Status_Screen::draw_fan_speed(const uint8_t value) {
   write_byte('%');
 }
 
-void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed, char suffix) {
-  #if HOTENDS == 1
-    set_ddram_address(DDRAM_LINE_3);
-  #else
-    set_ddram_address(DDRAM_LINE_3 + 5);
-  #endif
-  char str[7];
-  int str_length = elapsed.toDigital(str);
-  str[str_length++] = suffix;
-  begin_data();
-  write_str(str, str_length);
-}
-
 void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint16_t percentage) {
-  // We only have enough room for the feedrate when
-  // we have one extruder
+  // We only have enough room for the feedrate when we have one extruder
   #if HOTENDS == 1
     set_ddram_address(DDRAM_LINE_2 + 6);
     begin_data();
@@ -631,11 +581,9 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
       write_str(str);
       while (slen < TEXT_MODE_LCD_WIDTH) { write_byte(' '); ++slen; }
     }
-    else {
-      // String is larger than the available space in screen.
+    else {  // String is larger than the available space in ST7920_Lite_Status_Screen::
 
-      // Get a pointer to the next valid UTF8 character
-      // and the string remaining length
+      // Get a pointer to the next valid UTF8 character and the string remaining length
       uint8_t rlen;
       const char *stat = ui.status_and_len(rlen);
       write_str(stat, TEXT_MODE_LCD_WIDTH);
@@ -643,12 +591,12 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
       // If the remaining string doesn't completely fill the screen
       if (rlen < TEXT_MODE_LCD_WIDTH) {
         uint8_t chars = TEXT_MODE_LCD_WIDTH - rlen; // Amount of space left in characters
-        write_byte(' ');                        // Always at 1+ spaces left, draw a space
-        if (--chars) {                          // Draw a second space if there's room
+        write_byte(' ');                            // Always at 1+ spaces left, draw a space
+        if (--chars) {                              // Draw a second space if there's room
           write_byte(' ');
-          if (--chars) {                        // Draw a third space if there's room
+          if (--chars) {                            // Draw a third space if there's room
             write_byte(' ');
-            if (--chars) write_str(str, chars); // Print a second copy of the message
+            if (--chars) write_str(str, chars);     // Print a second copy of the message
           }
         }
       }
@@ -715,11 +663,155 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   return true;
 }
 
+// Process progress strings
+#if HAS_PRINT_PROGRESS
+  static char screenstr[8];
+
+  char * ST7920_Lite_Status_Screen::prepare_time_string(const duration_t &time, char prefix) {
+    static char str[6];
+    memset(&screenstr, 0x20, 8); // fill with spaces to avoid artifacts, not doing right-justification to save cycles
+    screenstr[0] = prefix;
+    TERN_(HOTENDS == 1, screenstr[1] = 0x07;)  // add bullet • separator when there is space
+    int str_length = time.toDigital(str);
+    memcpy(&screenstr[TERN(HOTENDS == 1, 2, 1)], str, str_length); //memcpy because we can't have terminator
+    return screenstr;
+  }
+
+  void ST7920_Lite_Status_Screen::draw_progress_string(uint8_t addr, const char *str) {
+    set_ddram_address(addr);
+    begin_data();
+    write_str(str, TERN(HOTENDS == 1, 8, 6));
+  }
+
+  #define PPOS (DDRAM_LINE_3 + TERN(HOTENDS == 1, 4, 5)) // progress string position, in 16-bit words
+
+  #if ENABLED(SHOW_PROGRESS_PERCENT)
+    void MarlinUI::drawPercent() { lightUI.drawPercent(); }
+    void ST7920_Lite_Status_Screen::drawPercent() {
+      #define LSHIFT TERN(HOTENDS == 1, 0, 1)
+      const uint8_t progress = ui.get_progress_percent();
+      memset(&screenstr, 0x20, 8); // fill with spaces to avoid artifacts
+      if (progress){
+        memcpy(&screenstr[2 - LSHIFT], \
+                  TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)), \
+                  TERN(PRINT_PROGRESS_SHOW_DECIMALS, 4, 3));
+        screenstr[(TERN(PRINT_PROGRESS_SHOW_DECIMALS, 6, 5) - LSHIFT)] = '%';
+        draw_progress_string(PPOS, screenstr);
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_REMAINING_TIME)
+    void MarlinUI::drawRemain() { lightUI.drawRemain(); }
+    void ST7920_Lite_Status_Screen::drawRemain() {
+      const duration_t remaint = TERN0(SET_REMAINING_TIME, ui.get_remaining_time());
+      if (printJobOngoing() && remaint.value) {
+        draw_progress_string( PPOS, prepare_time_string(remaint, 'R'));
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    void MarlinUI::drawInter() { lightUI.drawInter(); }
+    void ST7920_Lite_Status_Screen::drawInter() {
+      const duration_t interactt = ui.interaction_time;
+      if (printingIsActive() && interactt.value) {
+        draw_progress_string( PPOS, prepare_time_string(interactt, 'C'));
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_ELAPSED_TIME)
+    void MarlinUI::drawElapsed() { lightUI.drawElapsed(); }
+    void ST7920_Lite_Status_Screen::drawElapsed() {
+      if (printJobOngoing()) {
+        const duration_t elapsedt = print_job_timer.duration();
+        draw_progress_string( PPOS, prepare_time_string(elapsedt, 'E'));
+      }
+    }
+  #endif
+
+  /**
+   * Although this is undocumented, the ST7920 allows the character
+   * data buffer (DDRAM) to be used in conjunction with the graphics
+   * bitmap buffer (CGRAM). The contents of the graphics buffer is
+   * XORed with the data from the character generator. This allows
+   * us to make the progress bar out of graphical data (the bar) and
+   * text data (the percentage).
+   */
+  void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
+    #if HOTENDS == 1
+      // If we have only one extruder, draw a long progress bar on the third line
+      constexpr uint8_t top     = 1,         // Top in pixels
+                        bottom  = 13,        // Bottom in pixels
+                        left    = 8,         // Left edge, in 16-bit words
+                        width   = 4;         // Width of progress bar, in 16-bit words
+    #else
+      constexpr uint8_t top     = 16 + 1,
+                        bottom  = 16 + 13,
+                        left    = 5,
+                        width   = 3;
+    #endif
+    const uint8_t char_pcnt  = 100 / width; // How many percent does each 16-bit word represent?
+
+    // Draw the progress bar as a bitmap in CGRAM
+    // This drawing is a mess and only produce readable result around 25% steps
+    // i.e. 74-76% look fine [||||||||||||||||||||||||        ], but 73% look like this: [||||||||||||||||       |        ]
+    // meaning partially filled bytes produce only single vertical line, and i bet they're not supposed to!
+    LOOP_S_LE_N(y, top, bottom) {
+      set_gdram_address(left, y);
+      begin_data();
+      LOOP_L_N(x, width) {
+        uint16_t gfx_word = 0x0000;
+        if ((x + 1) * char_pcnt <= value)
+          gfx_word = 0xFFFF;                                              // Draw completely filled bytes
+        else if ((x * char_pcnt) < value)
+          gfx_word = int16_t(0x8000) >> (value % char_pcnt) * 16 / char_pcnt; // Draw partially filled bytes
+
+        // Draw the frame around the progress bar
+        if (y == top || y == bottom)
+          gfx_word = 0xFFFF;        // Draw top/bottom border
+        else if (x == width - 1)
+          gfx_word |= 0x0001;       // Draw right border
+        else if (x == 0)
+          gfx_word |= 0x8000;       // Draw left border
+        write_word(gfx_word);
+      }
+    }
+
+    // // Draw the percentage as text in DDRAM
+    // #if HOTENDS == 1
+    //   set_ddram_address(DDRAM_LINE_3 + 4);
+    //   begin_data();
+    //   write_byte(' ');
+    // #else
+    //   set_ddram_address(DDRAM_LINE_2 + left);
+    //   begin_data();
+    // #endif
+
+    // // Draw centered
+    // if (value > 9)
+    //   write_number(value, 4);
+    // else
+    //   write_number(value, 3);
+    // write_str(F("%  "));
+  }
+
+  void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
+
+    // Since the progress bar involves writing
+    // quite a few bytes to GDRAM, only do this
+    // when an update is actually necessary.
+
+    const uint8_t progress = ui.get_progress_percent();
+    static uint8_t last_progress = 0;
+    if (forceUpdate || last_progress != progress/2) {
+      last_progress = progress/2;     // Because progress bar turns out only 62||46px wide, we only need to redraw it every 2%
+      draw_progress_bar(progress);
+    }
+  }
+#endif // HAS_PRINT_PROGRESS
+
 void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
     const bool       blink              = ui.get_blink();
-    const duration_t elapsed            = print_job_timer.duration();
-    duration_t       remaining          = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
     const uint16_t   feedrate_perc      = feedrate_percentage;
     const celsius_t  extruder_1_temp    = thermalManager.wholeDegHotend(0),
                      extruder_1_target  = thermalManager.degTargetHotend(0);
@@ -736,30 +828,20 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     TERN_(HAS_MULTI_HOTEND, draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate));
     TERN_(HAS_HEATED_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
 
+    // Update the fan and bed animations
     uint8_t spd = thermalManager.fan_speed[0];
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink && thermalManager.fan_speed_scaler[0] < 128)
         spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
     draw_fan_speed(thermalManager.pwmToPercent(spd));
-
-    // Draw elapsed/remaining time
-    const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);
-    if (show_remaining && !remaining.second()) {
-      const auto progress = ui.get_progress_percent();
-      if (progress)
-        remaining = elapsed.second() * (100 - progress) / progress;
-    }
-    if (show_remaining && remaining.second())
-      draw_print_time(remaining, 'R');
-    else
-      draw_print_time(elapsed);
+    if (spd) draw_fan_icon(blink);
+    TERN_(HAS_HEATED_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
 
     draw_feedrate_percentage(feedrate_perc);
 
-    // Update the fan and bed animations
-    if (spd) draw_fan_icon(blink);
-    TERN_(HAS_HEATED_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
+    // Update and draw progress strings
+    TERN_(HAS_PRINT_PROGRESS, ui.rotate_progress());
   }
 }
 
@@ -839,27 +921,6 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
   #endif
 }
 
-void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
-  #if EITHER(LCD_SET_PROGRESS_MANUALLY, SDSUPPORT)
-
-    // Since the progress bar involves writing
-    // quite a few bytes to GDRAM, only do this
-    // when an update is actually necessary.
-
-    static uint8_t last_progress = 0;
-    const uint8_t progress = ui.get_progress_percent();
-    if (forceUpdate || last_progress != progress) {
-      last_progress = progress;
-      draw_progress_bar(progress);
-    }
-
-  #else
-
-    UNUSED(forceUpdate);
-
-  #endif
-}
-
 void ST7920_Lite_Status_Screen::update(const bool forceUpdate) {
   cs();
   update_indicators(forceUpdate);
@@ -902,7 +963,7 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
 }
 
 void MarlinUI::draw_status_screen() {
-  ST7920_Lite_Status_Screen::update(false);
+  lightUI.update(false);
 }
 
 // This method is called before each screen update and
@@ -912,9 +973,9 @@ void MarlinUI::lcd_in_status(const bool inStatus) {
   static bool lastInStatus = false;
   if (lastInStatus == inStatus) return;
   if ((lastInStatus = inStatus))
-    ST7920_Lite_Status_Screen::on_entry();
+    lightUI.on_entry();
   else
-    ST7920_Lite_Status_Screen::on_exit();
+    lightUI.on_exit();
 }
 
 #endif // LIGHTWEIGHT_UI

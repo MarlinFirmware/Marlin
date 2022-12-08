@@ -37,7 +37,10 @@ namespace Language_de {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" bereit");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEIN");
+  LSTR MSG_HIGH                           = _UxGT("HOCH");
+  LSTR MSG_LOW                            = _UxGT("RUNTER");
   LSTR MSG_BACK                           = _UxGT("Zurück");
+  LSTR MSG_ERROR                          = _UxGT("Fehler");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abbruch...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Medium erkannt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Medium entfernt");
@@ -51,6 +54,8 @@ namespace Language_de {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
   LSTR MSG_MAIN                           = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
+  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Toolbar Einstellung");
+  LSTR MSG_OPTION_DISABLED                = _UxGT("Option Deaktiviert");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
@@ -64,6 +69,7 @@ namespace Language_de {
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Fila. Einstellungen");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Management");
+  LSTR MSG_MANUAL_LEVELING                = _UxGT("Manuell Nivellierung");
   LSTR MSG_LEVBED_FL                      = _UxGT("Vorne Links");
   LSTR MSG_LEVBED_FR                      = _UxGT("Vorne Rechts");
   LSTR MSG_LEVBED_C                       = _UxGT("Mitte");
@@ -96,7 +102,14 @@ namespace Language_de {
     LSTR MSG_PREHEAT_1_ALL                = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
     LSTR MSG_PREHEAT_1_BEDONLY            = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
     LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" Einstellungen");
-
+    #ifdef PREHEAT_2_LABEL
+      LSTR MSG_PREHEAT_2                  = PREHEAT_2_LABEL _UxGT(" Vorwärmen");
+      LSTR MSG_PREHEAT_2_SETTINGS         = PREHEAT_2_LABEL _UxGT(" Vorwärmen Konf");
+    #endif
+    #ifdef PREHEAT_3_LABEL
+      LSTR MSG_PREHEAT_3                  = PREHEAT_3_LABEL _UxGT(" Vorwärmen");
+      LSTR MSG_PREHEAT_3_SETTINGS         = PREHEAT_3_LABEL _UxGT(" Vorwärmen Konf");
+    #endif
     LSTR MSG_PREHEAT_M                    = _UxGT("$ Vorwärmen");
     LSTR MSG_PREHEAT_M_H                  = _UxGT("$ Vorwärmen") " ~";
     LSTR MSG_PREHEAT_M_END                = _UxGT("$ Extr. Vorwärmen");
@@ -143,10 +156,19 @@ namespace Language_de {
   LSTR MSG_MESH_VIEW                      = _UxGT("Netz ansehen");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Netzbearb. angeh.");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("Kein gültiges Netz");
+  LSTR MSG_ACTIVATE_MESH                  = _UxGT("Nivellierung aktiv.");
   LSTR MSG_PROBING_POINT                  = _UxGT("Messpunkt");
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
+  LSTR MSG_MESH_INSET                     = _UxGT("Mesh-Einsatz");
+  LSTR MSG_MESH_MIN_X                     = _UxGT("Mesh X Minimum");
+  LSTR MSG_MESH_MAX_X                     = _UxGT("Mesh X Maximum");
+  LSTR MSG_MESH_MIN_Y                     = _UxGT("Mesh Y Minimum");
+  LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y Maximum");
+  LSTR MSG_MESH_AMAX                      = _UxGT("Bereich maximieren");
+  LSTR MSG_MESH_CENTER                    = _UxGT("Center Area");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Z-Wert");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh abgebrochen");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Benutzer-Menü");
   LSTR MSG_M48_TEST                       = _UxGT("M48 Sondentest");
   LSTR MSG_M48_POINT                      = _UxGT("M48 Punkt");
@@ -165,6 +187,9 @@ namespace Language_de {
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Berührungspunkt");
+  LSTR MSG_UBL_TILT_MESH                  = _UxGT("Tilt Mesh");
+  LSTR MSG_UBL_TILTING_GRID               = _UxGT("Tilting Grid Size");
+  LSTR MSG_UBL_MESH_TILTED                = _UxGT("Mesh Tilted");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Netz manuell erst.");
   LSTR MSG_UBL_MESH_WIZARD                = _UxGT("UBL Netz Assistent");
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Unterlegen & messen");
@@ -183,14 +208,12 @@ namespace Language_de {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Bearbeitung beendet");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Eigenes Netz erst.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Netz erstellen");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("$ Netz erstellen");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("$ Netz validieren");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("$ Netz erstellen");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Netz erstellen kalt");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Netzhöhe einst.");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Höhe");
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Netz validieren");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("$ Netz validieren");
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Eig. Netz validieren");
   LSTR MSG_G26_HEATING_BED                = _UxGT("G26 heizt Bett");
   LSTR MSG_G26_HEATING_NOZZLE             = _UxGT("G26 Düse aufheizen");
@@ -215,6 +238,8 @@ namespace Language_de {
   LSTR MSG_UBL_MANUAL_FILLIN              = _UxGT("Manuelles Füllen");
   LSTR MSG_UBL_SMART_FILLIN               = _UxGT("Cleveres Füllen");
   LSTR MSG_UBL_FILLIN_MESH                = _UxGT("Netz Füllen");
+  LSTR MSG_UBL_MESH_FILLED                = _UxGT("Fehlende Punkte erg.");
+  LSTR MSG_UBL_MESH_INVALID               = _UxGT("Ungültiges Netz");
   LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Alles annullieren");
   LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Nächstlieg. ann.");
   LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Feineinst. Alles");
@@ -223,6 +248,7 @@ namespace Language_de {
   LSTR MSG_UBL_STORAGE_SLOT               = _UxGT("Speicherort");
   LSTR MSG_UBL_LOAD_MESH                  = _UxGT("Bettnetz laden");
   LSTR MSG_UBL_SAVE_MESH                  = _UxGT("Bettnetz speichern");
+  LSTR MSG_UBL_INVALID_SLOT               = _UxGT("Wähle einen Mesh-Slot");
   LSTR MSG_MESH_LOADED                    = _UxGT("Netz %i geladen");
   LSTR MSG_MESH_SAVED                     = _UxGT("Netz %i gespeichert");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("Kein Speicher");
@@ -231,12 +257,12 @@ namespace Language_de {
   LSTR MSG_UBL_Z_OFFSET                   = _UxGT("Z-Versatz: ");
   LSTR MSG_UBL_Z_OFFSET_STOPPED           = _UxGT("Z-Versatz angehalten");
   LSTR MSG_UBL_STEP_BY_STEP_MENU          = _UxGT("Schrittweises UBL");
-  LSTR MSG_UBL_1_BUILD_COLD_MESH          = _UxGT("1.Netz erstellen kalt");
-  LSTR MSG_UBL_2_SMART_FILLIN             = _UxGT("2.Cleveres Füllen");
+  LSTR MSG_UBL_1_BUILD_COLD_MESH          = _UxGT("1.Netz kalt erstellen");
+  LSTR MSG_UBL_2_SMART_FILLIN             = _UxGT("2.Intelligent Füllen");
   LSTR MSG_UBL_3_VALIDATE_MESH_MENU       = _UxGT("3.Netz validieren");
-  LSTR MSG_UBL_4_FINE_TUNE_ALL            = _UxGT("4.Feineinst. Alles");
+  LSTR MSG_UBL_4_FINE_TUNE_ALL            = _UxGT("4.Alles Feineinst.");
   LSTR MSG_UBL_5_VALIDATE_MESH_MENU       = _UxGT("5.Netz validieren");
-  LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6.Feineinst. Alles");
+  LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6.Alles Feineinst.");
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Bettnetz speichern");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Licht-Steuerung");
@@ -275,6 +301,7 @@ namespace Language_de {
   LSTR MSG_MOVE_01MM                      = _UxGT("  0,1  mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("  1,0  mm");
   LSTR MSG_MOVE_10MM                      = _UxGT(" 10,0  mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT(" 50,0  mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("100,0  mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("0.001 in");
   LSTR MSG_MOVE_001IN                     = _UxGT("0.010 in");
@@ -315,7 +342,11 @@ namespace Language_de {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Zyklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID Tuning fertig");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge.! Falscher Extruder");
+  LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("PID Autotune fehlge.!");
+  LSTR MSG_BAD_EXTRUDER_NUM               = _UxGT("ungültiger Extruder.");
+  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperatur zu hoch.");
+  LSTR MSG_TIMEOUT                        = _UxGT("Timeout.");
+  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge.! Ungültiger Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("teste Wärmeverlust");
@@ -334,14 +365,14 @@ namespace Language_de {
   LSTR MSG_VB_JERK                        = _UxGT("Max ") STR_B _UxGT(" Jerk");
   LSTR MSG_VC_JERK                        = _UxGT("Max ") STR_C _UxGT(" Jerk");
   LSTR MSG_VN_JERK                        = _UxGT("Max @ Jerk");
-  LSTR MSG_VE_JERK                        = _UxGT("Max E Jerk");
+  LSTR MSG_VE_JERK                        = _UxGT("Max ") STR_E _UxGT(" Jerk");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Junction Dev");
   LSTR MSG_MAX_SPEED                      = _UxGT("Max Geschw. (mm/s)");
   LSTR MSG_VMAX_A                         = _UxGT("V max ") STR_A;
   LSTR MSG_VMAX_B                         = _UxGT("V max ") STR_B;
   LSTR MSG_VMAX_C                         = _UxGT("V max ") STR_C;
   LSTR MSG_VMAX_N                         = _UxGT("V max @");
-  LSTR MSG_VMAX_E                         = _UxGT("V max E");
+  LSTR MSG_VMAX_E                         = _UxGT("V max ") STR_E;
   LSTR MSG_VMAX_EN                        = _UxGT("V max *");
   LSTR MSG_VMIN                           = _UxGT("V min ");
   LSTR MSG_VTRAV_MIN                      = _UxGT("V min Leerfahrt");
@@ -350,7 +381,7 @@ namespace Language_de {
   LSTR MSG_AMAX_B                         = _UxGT("A max ") STR_B;
   LSTR MSG_AMAX_C                         = _UxGT("A max ") STR_C;
   LSTR MSG_AMAX_N                         = _UxGT("A max @");
-  LSTR MSG_AMAX_E                         = _UxGT("A max E");
+  LSTR MSG_AMAX_E                         = _UxGT("A max ") STR_E;
   LSTR MSG_AMAX_EN                        = _UxGT("A max *");
   LSTR MSG_A_RETRACT                      = _UxGT("A Einzug");
   LSTR MSG_A_TRAVEL                       = _UxGT("A Leerfahrt");
@@ -377,7 +408,7 @@ namespace Language_de {
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Vorschubfaktor *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD-Kontrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD-Helligkeit");
-  LSTR MSG_LCD_TIMEOUT_SEC                = _UxGT("LCD-Ruhezustand (s)");
+  LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("LCD ausschalten");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Konfig. speichern");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Konfig. laden");
@@ -391,6 +422,10 @@ namespace Language_de {
   LSTR MSG_RESET_PRINTER                  = _UxGT("Drucker neustarten");
   LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Aktualisieren");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Info");
+  LSTR MSG_INFO_MACHINENAME               = _UxGT("Machine Name");
+  LSTR MSG_INFO_SIZE                      = _UxGT("Größe");
+  LSTR MSG_INFO_FWVERSION                 = _UxGT("Firmware Version");
+  LSTR MSG_INFO_BUILD                     = _UxGT("Build Datum");
   LSTR MSG_PREPARE                        = _UxGT("Vorbereitung");
   LSTR MSG_TUNE                           = _UxGT("Justierung");
   LSTR MSG_POWER_MONITOR                  = _UxGT("Power Monitor");
@@ -417,6 +452,7 @@ namespace Language_de {
   LSTR MSG_BUTTON_RESUME                  = _UxGT("Fortsetzen");
   LSTR MSG_BUTTON_ADVANCED                = _UxGT("Erweitert");
   LSTR MSG_BUTTON_SAVE                    = _UxGT("Speichern");
+  LSTR MSG_BUTTON_PURGE                   = _UxGT("Reinigen");
   LSTR MSG_PAUSING                        = _UxGT("Pause...");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("SD-Druck pausieren");
   LSTR MSG_ADVANCED_PAUSE                 = _UxGT("Erweiterte Pause");
@@ -439,9 +475,12 @@ namespace Language_de {
   LSTR MSG_REMAINING_TIME                 = _UxGT("Verbleiben");
   LSTR MSG_PRINT_ABORTED                  = _UxGT("Druck abgebrochen");
   LSTR MSG_PRINT_DONE                     = _UxGT("Druck fertig");
+  LSTR MSG_PRINTER_KILLED                 = _UxGT("Drucker killed!");
+  LSTR MSG_TURN_OFF                       = _UxGT("Drucker ausschalten");
   LSTR MSG_NO_MOVE                        = _UxGT("Motoren angeschaltet");
   LSTR MSG_KILLED                         = _UxGT("ABGEBROCHEN");
   LSTR MSG_STOPPED                        = _UxGT("ANGEHALTEN");
+  LSTR MSG_FWRETRACT                      = _UxGT("Firmware Retract");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Einzug mm");
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Wechs. Einzug mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("V Einzug");
@@ -507,6 +546,9 @@ namespace Language_de {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sondenversatz X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sondenversatz Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Sondenversatz Z");
+  LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Sondenrand");
+  LSTR MSG_Z_FEED_RATE                    = _UxGT("Z-Vorschub");
+  LSTR MSG_ENABLE_HS_MODE                 = _UxGT("HS-Modus aktivieren");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Bewege Düse zum Bett");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
@@ -570,33 +612,37 @@ namespace Language_de {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Helligkeit");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Falscher Drucker");
 
+  LSTR MSG_COLORS_GET                     = _UxGT("Farbe");
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Farben auswählen");
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farben verwenden");
+  LSTR MSG_COLORS_RED                     = _UxGT("Rot");
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Grün");
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Blau");
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Weiß");
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Sprache");
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Ton aktivieren");
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Bildschirm sperren");
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Drucker ist gesperrt,");
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scrollen zum Entsper.");
+
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");
-    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten. ");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hot-End vorheizen.");
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten.");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hotend vorheizen.");
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette Drucke");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte Druckzeit");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste Druckzeit");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Gesamt Extrudiert");
-    LSTR MSG_COLORS_GET                   = _UxGT("Farbe");
-    LSTR MSG_COLORS_SELECT                = _UxGT("Farben auswählen");
-    LSTR MSG_COLORS_APPLIED               = _UxGT("Farben verwenden");
-    LSTR MSG_COLORS_RED                   = _UxGT("Rot");
-    LSTR MSG_COLORS_GREEN                 = _UxGT("Grün");
-    LSTR MSG_COLORS_BLUE                  = _UxGT("Blau");
-    LSTR MSG_COLORS_WHITE                 = _UxGT("Weiß");
-    LSTR MSG_UI_LANGUAGE                  = _UxGT("UI Sprache");
-    LSTR MSG_SOUND_ENABLE                 = _UxGT("Ton aktivieren");
-    LSTR MSG_LOCKSCREEN                   = _UxGT("Bildschirm sperren");
   #else
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Auf Neustart warten");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte vorheizen");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Drucke");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrud.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte vorheizen");
   #endif
 
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
@@ -613,10 +659,14 @@ namespace Language_de {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("FORTS. OPTIONEN:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Mehr entladen");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Druck weiter");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Löschen o. fortfah.?");
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Düse: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout-Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout-Weg mm");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Runout aktivieren");
+  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Runout aktiv");
+  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert Extruder");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");
   LSTR MSG_FANCHECK                       = _UxGT("Lüftergeschw. prüfen");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing gescheitert");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing gescheitert");
@@ -660,6 +710,7 @@ namespace Language_de {
   LSTR MSG_VTOOLS_RESET                   = _UxGT("V-Tools ist resetet");
   LSTR MSG_START_Z                        = _UxGT("Z Start:");
   LSTR MSG_END_Z                          = _UxGT("Z Ende:");
+
   LSTR MSG_GAMES                          = _UxGT("Spiele");
   LSTR MSG_BRICKOUT                       = _UxGT("Brickout");
   LSTR MSG_INVADERS                       = _UxGT("Invaders");
@@ -683,6 +734,7 @@ namespace Language_de {
   //
   // Die Filament-Change-Bildschirme können bis zu 3 Zeilen auf einem 4-Zeilen-Display anzeigen
   //                                       ...oder 2 Zeilen auf einem 3-Zeilen-Display.
+
   #if LCD_HEIGHT >= 4
     LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Knopf drücken um", "Druck fortzusetzen"));
     LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_2_LINE("Druck ist", "pausiert..."));
@@ -720,10 +772,11 @@ namespace Language_de {
   LSTR MSG_BACKLASH                       = _UxGT("Spiel");
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Korrektur");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Glätten");
+
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("X Achse leveln");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto. Kalibiren");
   #if ENABLED(TOUCH_UI_FTDI_EVE)
-    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Idle Timeout, Temperatur fällt. Drücke Okay, um erneut aufzuheizen und fortzufahren.");
+    LSTR MSG_HEATER_TIMEOUT               = _UxGT("Idle Timeout, Temperatur gefallen. Drücke Okay, um erneut aufzuheizen und fortzufahren.");
   #else
     LSTR MSG_HEATER_TIMEOUT               = _UxGT("Heizungs Timeout");
   #endif

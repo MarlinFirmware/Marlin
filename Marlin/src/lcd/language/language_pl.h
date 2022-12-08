@@ -235,6 +235,7 @@ namespace Language_pl {
   LSTR MSG_MOVE_X                         = _UxGT("Przesuń w X");
   LSTR MSG_MOVE_Y                         = _UxGT("Przesuń w Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Przesuń w Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Przesuń w @");
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruzja (os E)");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruzja (os E) *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Dysza za zimna");

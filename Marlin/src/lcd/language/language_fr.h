@@ -238,10 +238,12 @@ namespace Language_fr {
   LSTR MSG_MOVE_01MM                      = _UxGT("Déplacer 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Déplacer 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Déplacer 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Déplacer 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Déplacer 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Déplacer 0.001\"");
   LSTR MSG_MOVE_001IN                     = _UxGT("Déplacer 0.01\"");
   LSTR MSG_MOVE_01IN                      = _UxGT("Déplacer 0.1\"");
+  LSTR MSG_MOVE_05IN                      = _UxGT("Déplacer 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Déplacer 1\"");
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
   LSTR MSG_BED_Z                          = _UxGT("Lit Z");
@@ -321,7 +323,7 @@ namespace Language_fr {
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Avance K *");
   LSTR MSG_BRIGHTNESS                     = _UxGT("Luminosité LCD");
   LSTR MSG_CONTRAST                       = _UxGT("Contraste LCD");
-  LSTR MSG_LCD_TIMEOUT_SEC                = _UxGT("Veille LCD (s)");
+  LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("Veille LCD (m)");
   LSTR MSG_BRIGHTNESS_OFF                 = _UxGT("Éteindre l'écran LCD");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Enregistrer config.");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Charger config.");
@@ -376,6 +378,7 @@ namespace Language_fr {
   LSTR MSG_TOOL_CHANGE                    = _UxGT("Changement outil");
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Vitesse primaire");
+  LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Purge Retract");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract°");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Garer Extrudeur");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Vitesse reprise");

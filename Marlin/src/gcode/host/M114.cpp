@@ -28,12 +28,6 @@
 
 #if ENABLED(M114_DETAIL)
 
-  #if HAS_L64XX
-    #include "../../libs/L64XX/L64XX_Marlin.h"
-    #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
-    #include "../../core/debug_out.h"
-  #endif
-
   void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=LOGICAL_AXES, const uint8_t precision=3) {
     char str[12];
     LOOP_L_N(a, n) {
@@ -83,89 +77,6 @@
     #endif
 
     planner.synchronize();
-
-    #if HAS_L64XX
-      char temp_buf[80];
-      int32_t temp;
-      //#define ABS_POS_SIGN_MASK 0b1111 1111 1110 0000 0000 0000 0000 0000
-      #define ABS_POS_SIGN_MASK 0b11111111111000000000000000000000
-      #define REPORT_ABSOLUTE_POS(Q) do{                            \
-          L64xxManager.say_axis(Q, false);                          \
-          temp = L6470_GETPARAM(L6470_ABS_POS,Q);                   \
-          if (temp & ABS_POS_SIGN_MASK) temp |= ABS_POS_SIGN_MASK;  \
-          sprintf_P(temp_buf, PSTR(":%8ld   "), temp);              \
-          DEBUG_ECHO(temp_buf);                                     \
-        }while(0)
-
-      DEBUG_ECHOPGM("\nL6470:");
-      #if AXIS_IS_L64XX(X)
-        REPORT_ABSOLUTE_POS(X);
-      #endif
-      #if AXIS_IS_L64XX(X2)
-        REPORT_ABSOLUTE_POS(X2);
-      #endif
-      #if AXIS_IS_L64XX(Y)
-        REPORT_ABSOLUTE_POS(Y);
-      #endif
-      #if AXIS_IS_L64XX(Y2)
-        REPORT_ABSOLUTE_POS(Y2);
-      #endif
-      #if AXIS_IS_L64XX(Z)
-        REPORT_ABSOLUTE_POS(Z);
-      #endif
-      #if AXIS_IS_L64XX(Z2)
-        REPORT_ABSOLUTE_POS(Z2);
-      #endif
-      #if AXIS_IS_L64XX(Z3)
-        REPORT_ABSOLUTE_POS(Z3);
-      #endif
-      #if AXIS_IS_L64XX(Z4)
-        REPORT_ABSOLUTE_POS(Z4);
-      #endif
-      #if AXIS_IS_L64XX(I)
-        REPORT_ABSOLUTE_POS(I);
-      #endif
-      #if AXIS_IS_L64XX(J)
-        REPORT_ABSOLUTE_POS(J);
-      #endif
-      #if AXIS_IS_L64XX(K)
-        REPORT_ABSOLUTE_POS(K);
-      #endif
-      #if AXIS_IS_L64XX(U)
-        REPORT_ABSOLUTE_POS(U);
-      #endif
-      #if AXIS_IS_L64XX(V)
-        REPORT_ABSOLUTE_POS(V);
-      #endif
-      #if AXIS_IS_L64XX(W)
-        REPORT_ABSOLUTE_POS(W);
-      #endif
-      #if AXIS_IS_L64XX(E0)
-        REPORT_ABSOLUTE_POS(E0);
-      #endif
-      #if AXIS_IS_L64XX(E1)
-        REPORT_ABSOLUTE_POS(E1);
-      #endif
-      #if AXIS_IS_L64XX(E2)
-        REPORT_ABSOLUTE_POS(E2);
-      #endif
-      #if AXIS_IS_L64XX(E3)
-        REPORT_ABSOLUTE_POS(E3);
-      #endif
-      #if AXIS_IS_L64XX(E4)
-        REPORT_ABSOLUTE_POS(E4);
-      #endif
-      #if AXIS_IS_L64XX(E5)
-        REPORT_ABSOLUTE_POS(E5);
-      #endif
-      #if AXIS_IS_L64XX(E6)
-        REPORT_ABSOLUTE_POS(E6);
-      #endif
-      #if AXIS_IS_L64XX(E7)
-        REPORT_ABSOLUTE_POS(E7);
-      #endif
-      SERIAL_EOL();
-    #endif // HAS_L64XX
 
     SERIAL_ECHOPGM("Stepper:");
     LOOP_LOGICAL_AXES(i) {

@@ -232,6 +232,7 @@ namespace Language_cz {
   LSTR MSG_MOVE_X                         = _UxGT("Posunout X");
   LSTR MSG_MOVE_Y                         = _UxGT("Posunout Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Posunout Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Posunout @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrudér");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrudér *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
@@ -239,6 +240,7 @@ namespace Language_cz {
   LSTR MSG_MOVE_01MM                      = _UxGT("Posunout o 0,1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Posunout o 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Posunout o 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Posunout o 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Posunout o 100mm");
   LSTR MSG_SPEED                          = _UxGT("Rychlost");
   LSTR MSG_BED_Z                          = _UxGT("Výška podl.");

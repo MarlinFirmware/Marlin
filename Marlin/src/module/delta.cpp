@@ -60,10 +60,6 @@ xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
 abc_float_t delta_diagonal_rod_trim;
-#if HAS_DELTA_SENSORLESS_PROBING
-  abc_float_t offset_sensorless_adj{0};
-  float largest_sensorless_adj = 0;
-#endif
 
 float delta_safe_distance_from_top();
 

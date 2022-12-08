@@ -396,8 +396,8 @@
 
   #define SD_DETECT_PIN                       41
 
-  #define HAS_SPI_FLASH                        1
-  #if HAS_SPI_FLASH
+  #define SPI_FLASH
+  #if ENABLED(SPI_FLASH)
     #define SPI_DEVICE                         1
     #define SPI_FLASH_SIZE             0x1000000  // 16MB
     #define SPI_FLASH_CS_PIN                  31
@@ -443,6 +443,19 @@
       #endif
       #ifndef TOUCH_CALIBRATION_Y
         #define TOUCH_CALIBRATION_Y        20415
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                 2
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                 1
+      #endif
+    #elif ENABLED(TFT_RES_1024x600)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        65533
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        38399
       #endif
       #ifndef TOUCH_OFFSET_X
         #define TOUCH_OFFSET_X                 2
@@ -582,7 +595,7 @@
       #define LCD_SDSS                      SDSS
       #define SD_DETECT_PIN                   49
 
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       #define DOGLCD_CS                       45
       #define DOGLCD_A0                       44

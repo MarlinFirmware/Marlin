@@ -44,6 +44,9 @@
 
 // I2C MCP3426 (16-Bit, 240SPS, dual-channel ADC)
 #define HAS_MCP3426_ADC
+#ifdef STM32F4
+  #define HAS_STM32_UID
+#endif
 
 //
 // Servos
