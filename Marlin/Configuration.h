@@ -3132,6 +3132,17 @@
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
 
+#if ENABLED(TFT_COLOR_UI)
+  /**
+   * TFT Font for in Color_UI. Set to one of the following values:
+   * 
+   * NOTOSANS  - default font with antialiasing. Supports Latin Extended and non-Latin characters.
+   * UNIFONT   - lightweight font without antialiasing. Supports Latin Extended and non-Latin characters.
+   * HELVETICA - lightweight font without antialiasing. Supports Basic Latin (0x0020-0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only.
+   */
+  #define TFT_FONT  NOTOSANS
+#endif
+
 #if ENABLED(TFT_LVGL_UI)
   //#define MKS_WIFI_MODULE  // MKS WiFi module
 #endif
