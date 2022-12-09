@@ -198,6 +198,7 @@ namespace Language_vi {
   LSTR MSG_MOVE_X                         = _UxGT("Di chuyển X");                          // Move X
   LSTR MSG_MOVE_Y                         = _UxGT("Di chuyển Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Di chuyển Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Di chuyển @");
   LSTR MSG_MOVE_E                         = _UxGT("Máy đùn");                              // Extruder
   LSTR MSG_MOVE_EN                        = _UxGT("Máy đùn *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Đầu nóng quá lạnh");                    // Hotend too cold

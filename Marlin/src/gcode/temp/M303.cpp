@@ -48,7 +48,7 @@
 
 void GcodeSuite::M303() {
 
-  #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+  #if HAS_PID_DEBUG
     if (parser.seen_test('D')) {
       thermalManager.pid_debug_flag ^= true;
       SERIAL_ECHO_START();

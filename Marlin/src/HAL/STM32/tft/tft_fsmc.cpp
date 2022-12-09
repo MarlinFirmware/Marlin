@@ -147,7 +147,7 @@ uint32_t TFT_FSMC::ReadID(tft_data_t Reg) {
 }
 
 bool TFT_FSMC::isBusy() {
-  #if defined(STM32F1xx)
+  #ifdef STM32F1xx
     volatile bool dmaEnabled = (DMAtx.Instance->CCR & DMA_CCR_EN) != RESET;
   #elif defined(STM32F4xx)
     volatile bool dmaEnabled = DMAtx.Instance->CR & DMA_SxCR_EN;

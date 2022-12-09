@@ -225,6 +225,7 @@ namespace Language_tr {
   LSTR MSG_MOVE_X                         = _UxGT("X Hareketi");
   LSTR MSG_MOVE_Y                         = _UxGT("Y Hareketi");
   LSTR MSG_MOVE_Z                         = _UxGT("Z Hareketi");
+  LSTR MSG_MOVE_N                         = _UxGT("@ Hareketi");
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Nozul Çok Soğuk");

@@ -72,12 +72,14 @@ namespace Language_bg {
   LSTR MSG_MOVE_X                         = _UxGT("Движение по X");
   LSTR MSG_MOVE_Y                         = _UxGT("Движение по Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Движение по Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Движение по @");
   LSTR MSG_MOVE_E                         = _UxGT("Екструдер");
   LSTR MSG_MOVE_EN                        = _UxGT("Екструдер *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Премести с $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Премести с 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Премести с 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Премести с 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Премести с 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Премести с 100mm");
   LSTR MSG_SPEED                          = _UxGT("Скорост");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");

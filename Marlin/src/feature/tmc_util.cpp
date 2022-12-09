@@ -33,15 +33,10 @@
 #include "../gcode/gcode.h"
 
 #if ENABLED(TMC_DEBUG)
-  #include "../module/planner.h"
   #include "../libs/hex_print.h"
   #if ENABLED(MONITOR_DRIVER_STATUS)
     static uint16_t report_tmc_status_interval; // = 0
   #endif
-#endif
-
-#if HAS_MARLINUI_MENU
-  #include "../module/stepper.h"
 #endif
 
 /**

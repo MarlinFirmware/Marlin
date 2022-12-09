@@ -44,7 +44,6 @@
 #include "max7219.h"
 
 #include "../module/planner.h"
-#include "../module/stepper.h"
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 

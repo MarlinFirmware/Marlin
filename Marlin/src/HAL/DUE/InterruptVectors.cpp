@@ -41,7 +41,7 @@
    practice, we need alignment to 256 bytes to make this work in all
    cases */
 __attribute__ ((aligned(256)))
-static DeviceVectors ram_tab = { nullptr };
+static DeviceVectors ram_tab[61] = { nullptr };
 
 /**
  * This function checks if the exception/interrupt table is already in SRAM or not.

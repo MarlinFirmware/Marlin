@@ -22,11 +22,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if ENABLED(SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
+#include "../../libs/numtostr.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
   #include "../../lcd/e3v2/proui/dwin.h"
@@ -36,7 +37,15 @@
  * M73: Set percentage complete (for display on LCD)
  *
  * Example:
- *   M73 P25 ; Set progress to 25%
+ *   M73 P25.63 ; Set progress to 25.63%
+ *   M73 R456   ; Set remaining time to 456 minutes
+ *   M73 C12    ; Set next interaction countdown to 12 minutes
+ *   M73        ; Report current values
+ *
+ * M73 Progress: ---%; Time left: -----m; Change: -----m;
+ *
+ * When PRINT_PROGRESS_SHOW_DECIMALS is enabled - reports percent with 100% / 23.4% / 3.45% format
+ *
  */
 void GcodeSuite::M73() {
 
@@ -46,17 +55,40 @@ void GcodeSuite::M73() {
 
   #else
 
-    if (parser.seenval('P'))
-      ui.set_progress((PROGRESS_SCALE) > 1
-        ? parser.value_float() * (PROGRESS_SCALE)
-        : parser.value_byte()
-      );
+    #if ENABLED(SET_PROGRESS_PERCENT)
+      if (parser.seenval('P'))
+        ui.set_progress((PROGRESS_SCALE) > 1
+          ? parser.value_float() * (PROGRESS_SCALE)
+          : parser.value_byte()
+        );
+    #endif
 
-    #if ENABLED(USE_M73_REMAINING_TIME)
+    #if ENABLED(SET_REMAINING_TIME)
       if (parser.seenval('R')) ui.set_remaining_time(60 * parser.value_ulong());
     #endif
 
+    #if ENABLED(SET_INTERACTION_TIME)
+      if (parser.seenval('C')) ui.set_interaction_time(60 * parser.value_ulong());
+    #endif
+
+  #endif
+
+  #if ENABLED(M73_REPORT)
+    if (TERN1(M73_REPORT_SD_ONLY, IS_SD_PRINTING())) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM(" M73");
+      #if ENABLED(SET_PROGRESS_PERCENT)
+        SERIAL_ECHOPGM(" Progress: ", TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui.get_progress_percent()), "%;");
+      #endif
+      #if ENABLED(SET_REMAINING_TIME)
+        SERIAL_ECHOPGM(" Time left: ", ui.remaining_time / 60, "m;");
+      #endif
+      #if ENABLED(SET_INTERACTION_TIME)
+        SERIAL_ECHOPGM(" Change: ", ui.interaction_time / 60, "m;");
+      #endif
+      SERIAL_EOL();
+    }
   #endif
 }
 
-#endif // LCD_SET_PROGRESS_MANUALLY
+#endif // SET_PROGRESS_MANUALLY
