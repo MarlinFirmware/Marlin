@@ -326,49 +326,43 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 };
 
+constexpr float     _DASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
+
 //static_assert(!any_enable_overlap(), "There is some overlap.");
 
 #if HAS_SHAPING
 
-  // These constexpr are used to calculate the shaping queue buffer sizes
-  constexpr xyze_float_t max_feedrate = DEFAULT_MAX_FEEDRATE;
-  constexpr xyze_float_t steps_per_unit = DEFAULT_AXIS_STEPS_PER_UNIT;
-  // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
-  #ifdef __AVR__
-    constexpr float max_isr_rate = _MAX(
-                                      LOGICAL_AXIS_LIST(
-                                        max_feedrate.e * steps_per_unit.e,
-                                        max_feedrate.x * steps_per_unit.x,
-                                        max_feedrate.y * steps_per_unit.y,
-                                        max_feedrate.z * steps_per_unit.z,
-                                        max_feedrate.i * steps_per_unit.i,
-                                        max_feedrate.j * steps_per_unit.j,
-                                        max_feedrate.k * steps_per_unit.k,
-                                        max_feedrate.u * steps_per_unit.u,
-                                        max_feedrate.v * steps_per_unit.v,
-                                        max_feedrate.w * steps_per_unit.w
-                                      )
-                                      OPTARG(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY)
-                                    );
-    constexpr float max_step_rate = _MIN(max_isr_rate,
-                                      TERN0(INPUT_SHAPING_X, max_feedrate.x * steps_per_unit.x) +
-                                      TERN0(INPUT_SHAPING_Y, max_feedrate.y * steps_per_unit.y)
-                                    );
+  #ifdef SHAPING_MAX_STEPRATE
+    constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
   #else
-    constexpr float max_step_rate = TERN0(INPUT_SHAPING_X, max_feedrate.x * steps_per_unit.x) +
-                                    TERN0(INPUT_SHAPING_Y, max_feedrate.y * steps_per_unit.y);
+    constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _DMF[X_AXIS] * _DASU[X_AXIS]) +
+                                      TERN0(INPUT_SHAPING_Y, _DMF[Y_AXIS] * _DASU[Y_AXIS]);
+    #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
+      // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
+      template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
+        return _MAX(_DMF[INDEX - 1] * _DASU[INDEX - 1], max_isr_rate<INDEX - 1>());
+      }
+      template<> constexpr float max_isr_rate<0>() {
+        return TERN0(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY);
+      }
+      constexpr float max_step_rate = _MIN(max_isr_rate(), max_shaped_rate);
+    #else
+      constexpr float max_step_rate = max_shaped_rate;
+    #endif
   #endif
-  constexpr uint16_t shaping_echoes = max_step_rate / _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y)) / 2 + 3;
+
+  #ifndef SHAPING_MIN_FREQ
+    #define SHAPING_MIN_FREQ _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
+  #endif
+  constexpr uint16_t shaping_min_freq = SHAPING_MIN_FREQ,
+                     shaping_echoes = max_step_rate / shaping_min_freq / 2 + 3;
 
   typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
   struct shaping_echo_axis_t {
-    #if ENABLED(INPUT_SHAPING_X)
-      shaping_echo_t x:2;
-    #endif
-    #if ENABLED(INPUT_SHAPING_Y)
-      shaping_echo_t y:2;
-    #endif
+    TERN_(INPUT_SHAPING_X, shaping_echo_t x:2);
+    TERN_(INPUT_SHAPING_Y, shaping_echo_t y:2);
   };
 
   class ShapingQueue {
