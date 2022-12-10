@@ -114,7 +114,7 @@ static_assert(sizeof(PORT_dev_t) == 3, "invalid size of ATmega2560 GPIO_dev_t");
 struct _bitG_reg_t {
   uint8_t val : 6;
   uint8_t reserved1 : 2;
-  
+
   bool getValue(uint8_t idx) const volatile {
     return ( val & (1<<idx) );
   }
@@ -142,7 +142,7 @@ struct PORTG_dev_t {
 struct _bitC_reg_t {
   uint8_t val : 7;
   uint8_t reserved1 : 1;
-  
+
   bool getValue(uint8_t idx) const volatile {
     return ( val & (1<<idx) );
   }
@@ -699,7 +699,7 @@ static_assert(sizeof(EICRB_reg_t) == 1, "invalid size of ATmega2560 EICRB_reg_t"
 struct _bitPCMSK1_reg_t {
   uint8_t val : 7;
   uint8_t reserved1 : 1;
-  
+
   bool getValue(uint8_t idx) {
     return ( val & (1<<idx) );
   }
@@ -856,7 +856,7 @@ struct ADCSRB_reg_t {
   uint8_t reserved1 : 3;
   uint8_t _ACME : 1;
   uint8_t reserved2 : 1;
-#endif  
+#endif
 };
 static_assert(sizeof(ADCSRB_reg_t) == 1, "invalid size of ATmega2560 ADCSRB_reg_t");
 
@@ -1090,7 +1090,7 @@ static_assert(sizeof(TWAMR_reg_t) == 1, "invalid size of ATmega2560 TWAMR_reg_t"
 struct UBRRn_reg_t {
   uint16_t _UBRR : 12;
   uint16_t reserved1 : 4;
-}; 
+};
 static_assert(sizeof(UBRRn_reg_t) == 2, "invalid size of ATmega2560 UBRRn_reg_t)");
 
 struct UCSRnC_reg_t {
@@ -1099,7 +1099,7 @@ struct UCSRnC_reg_t {
   uint8_t _UCSZn1 : 1;
   uint8_t _USBS : 1;
   uint8_t _UPM : 2;
-  uint8_t _UMSEL : 2; 
+  uint8_t _UMSEL : 2;
 };
 static_assert(sizeof(UCSRnC_reg_t) == 1, "invalid size of ATmega2560 UCSRnC_reg_t");
 
@@ -1908,7 +1908,7 @@ inline void _ATmega_resetperipherals() {
   _EEAR._EEAR = 0;
   dwrite(_EEDR) = 0;
 #endif
-  
+
 #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
   EECR_reg_t __EECR;
   __EECR._EERE = false;
@@ -2313,7 +2313,7 @@ inline void _ATmega_resetperipherals() {
   TIMSK5_reg_t __TIMSK5;
   __TIMSK5._TOIE5 = false;
   __TIMSK5._OCIE5A = false;
-  __TIMSK5._OCIE5B = false; 
+  __TIMSK5._OCIE5B = false;
   __TIMSK5._OCIE5C = false;
   __TIMSK5.reserved1 = 0;
   __TIMSK5._ICIE5 = false;

@@ -100,7 +100,7 @@
   // Configure SPI for specified SPI speed
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     // Ignore chip-select because the software manages it already.
-    
+
     // Use datarates Marlin uses
     uint32_t clock;
     switch (spiRate) {

@@ -68,7 +68,7 @@
 #define E1_STEP_PIN                           PinA7
 #define E1_DIR_PIN                            PinG2
 #define E1_ENABLE_PIN                         PinA6
- 
+
 #define E2_STEP_PIN                           PinA1  // ? schematic says 24 (this comment is a sign of confusion by maintainers about the internal schematic numbering VS the internal numbering of AVR Marlin FW which should not matter!)
 #define E2_DIR_PIN                            PinA2  // ? schematic says 23
 #define E2_ENABLE_PIN                         PinA0
