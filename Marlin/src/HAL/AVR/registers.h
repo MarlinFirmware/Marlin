@@ -1622,211 +1622,211 @@ __AVR_DEFREG(USART_dev_t, USART3, 0x130);
 
 #elif defined(__AVR_TRM02__)
 // page 637ff of ATmega164A_PA-324A_PA-644A_PA-1284_P_Data-Sheet-40002070B.pdf
-static volatile PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
-static volatile PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static volatile PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
-static volatile PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static volatile TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static volatile TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static volatile TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static volatile TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
-static volatile PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static volatile EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static volatile EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static volatile _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static volatile EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static volatile uint8_t& _EEDR = *(uint8_t*)0x40;
-static volatile EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static volatile GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static volatile TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static volatile _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static volatile _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static volatile SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static volatile SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static volatile uint8_t& _SPDR = *(uint8_t*)0x4E;
-static volatile ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static volatile SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static volatile MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static volatile MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static volatile SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static volatile SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static volatile SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static volatile WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static volatile CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static volatile PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static volatile PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
-static volatile uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static volatile PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static volatile EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static volatile _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static volatile _bit_reg_t& _PCMSK1 = *(_bit_reg_t*)0x6C;
-static volatile _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
-static volatile TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static volatile TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static volatile TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static volatile TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
-static volatile _bit_reg_t& _PCMSK3 = *(_bit_reg_t*)0x73;
-static volatile uint16_t& _ADC = *(uint16_t*)0x78;
-static volatile ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static volatile ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static volatile ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static volatile DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static volatile DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static volatile TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x70;
-static volatile TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
-static volatile TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static volatile ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static volatile uint8_t& _TWBR = *(uint8_t*)0xB8;
-static volatile TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static volatile TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static volatile uint8_t& _TWDR = *(uint8_t*)0xBB;
-static volatile TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static volatile TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static volatile USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
-static volatile USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
+__AVR_DEFREG(PORT_dev_t, _PORTA, 0x20);
+__AVR_DEFREG(PORT_dev_t, _PORTB, 0x23);
+__AVR_DEFREG(PORT_dev_t, _PORTC, 0x26);
+__AVR_DEFREG(PORT_dev_t, _PORTD, 0x29);
+__AVR_DEFREG(TIFR0_reg_t, _TIFR0, 0x35);
+__AVR_DEFREG(TIFR1_reg_t, _TIFR1, 0x36);
+__AVR_DEFREG(TIFR2_reg_t, _TIFR2, 0x37);
+__AVR_DEFREG(TIFR3_reg_t, _TIFR3, 0x38);
+__AVR_DEFREG(PCIFR_reg_t, _PCIFR, 0x3B);
+__AVR_DEFREG(EIFR_reg_t, _EIFR, 0x3C);
+__AVR_DEFREG(EIMSK_reg_t, _EIMSK, 0x3D);
+__AVR_DEFREG(_bit_reg_t, _GPIOR0, 0x3E);
+__AVR_DEFREG(EECR_reg_t, _EECR, 0x3F);
+__AVR_DEFREG(uint8_t, _EEDR, 0x40);
+__AVR_DEFREG(EEAR_reg_t, _EEAR, 0x41);
+__AVR_DEFREG(GTCCR_reg_t, _GTCCR, 0x43);
+__AVR_DEFREG(TIMER_8bit_dev_t, TIMER0, 0x44);
+__AVR_DEFREG(_bit_reg_t, _GPIOR1, 0x4A);
+__AVR_DEFREG(_bit_reg_t, _GPIOR2, 0x4B);
+__AVR_DEFREG(SPCR_reg_t, _SPCR, 0x4C);
+__AVR_DEFREG(SPSR_reg_t, _SPSR, 0x4D);
+__AVR_DEFREG(uint8_t, _SPDR, 0x4E);
+__AVR_DEFREG(ACSR_reg_t, _ACSR, 0x50);
+__AVR_DEFREG(SMCR_reg_t, _SMCR, 0x53);
+__AVR_DEFREG(MCUSR_reg_t, _MSUSR, 0x54);
+__AVR_DEFREG(MCUCR_reg_t, _MCUCR, 0x55);
+__AVR_DEFREG(SPMCSR_reg_t, _SPMCSR, 0x57);
+__AVR_DEFREG(SP_reg_t, _SP, 0x5D);
+__AVR_DEFREG(SREG_reg_t, _SREG, 0x5F);
+__AVR_DEFREG(WDTCSR_reg_t, _WDTCSR, 0x60);
+__AVR_DEFREG(CLKPR_reg_t, _CLKPR, 0x61);
+__AVR_DEFREG(PRR0_reg_t, _PRR0, 0x64);
+__AVR_DEFREG(PRR1_reg_t, _PRR1, 0x65);
+__AVR_DEFREG(uint8_t, _OSCCAL, 0x66);
+__AVR_DEFREG(PCICR_reg_t, _PCICR, 0x68);
+__AVR_DEFREG(EICRA_reg_t, _EICRA, 0x69);
+__AVR_DEFREG(_bit_reg_t, _PCMSK0, 0x6B);
+__AVR_DEFREG(_bit_reg_t, _PCMSK1, 0x6C);
+__AVR_DEFREG(_bit_reg_t, _PCMSK2, 0x6D);
+__AVR_DEFREG(TIMSK0_reg_t, _TIMSK0, 0x6E);
+__AVR_DEFREG(TIMSK1_reg_t, _TIMSK1, 0x6F);
+__AVR_DEFREG(TIMSK2_reg_t, _TIMSK2, 0x70);
+__AVR_DEFREG(TIMSK3_reg_t, _TIMSK3, 0x71);
+__AVR_DEFREG(_bit_reg_t, _PCMSK3, 0x73);
+__AVR_DEFREG(uint16_t, _ADC, 0x78);
+__AVR_DEFREG(ADCSRA_reg_t, _ADCSRA, 0x7A);
+__AVR_DEFREG(ADCSRB_reg_t, _ADCSRB, 0x7B);
+__AVR_DEFREG(ADMUX_reg_t, _ADMUX, 0x7C);
+__AVR_DEFREG(DIDR0_reg_t, _DIDR0, 0x7E);
+__AVR_DEFREG(DIDR1_reg_t, _DIDR1, 0x7F);
+__AVR_DEFREG(TIMER_dev_t, TIMER1, 0x80);
+__AVR_DEFREG(TIMER_dev_t, TIMER3, 0x90);
+__AVR_DEFREG(TIMER_8bit_dev_t, _TIMER2, 0xB0);
+__AVR_DEFREG(ASSR_reg_t, _ASSR, 0xB6);
+__AVR_DEFREG(uint8_t, _TWBR, 0xB8);
+__AVR_DEFREG(TWSR_reg_t, _TWSR, 0xB9);
+__AVR_DEFREG(TWAR_reg_t, _TWAR, 0xBA);
+__AVR_DEFREG(uint8_t, _TWDR, 0xBB);
+__AVR_DEFREG(TWCR_reg_t, _TWCR, 0xBC);
+__AVR_DEFREG(TWAMR_reg_t, _TWAMR, 0xBD);
+__AVR_DEFREG(USART_dev_t, USART0, 0xC0);
+__AVR_DEFREG(USART_dev_t, USART1, 0xC8);
 
 #elif defined(__AVR_TRM03__)
 // page 621ff of ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
-static volatile PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static volatile PORTC_dev_t& _PORTC = *(PORTC_dev_t*)0x26;
-static volatile PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static volatile TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static volatile TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static volatile TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static volatile PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static volatile EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static volatile EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static volatile _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static volatile EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static volatile uint8_t& _EEDR = *(uint8_t*)0x40;
-static volatile EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static volatile GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static volatile TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static volatile _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static volatile _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static volatile SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static volatile SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static volatile uint8_t& _SPDR = *(uint8_t*)0x4E;
-static volatile ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static volatile SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static volatile MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static volatile MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static volatile SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static volatile SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static volatile SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static volatile WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static volatile CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static volatile PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static volatile uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static volatile PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static volatile EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static volatile _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static volatile _bitPCMSK1_reg_t& _PCMSK1 = *(_bitPCMSK1_reg_t*)0x6C;
-static volatile _bit_reg_t& _PCMSK2 = *(_bit_reg_t*)0x6D;
-static volatile TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static volatile TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static volatile TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static volatile uint16_t& _ADC = *(uint16_t*)0x78;
-static volatile ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static volatile ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static volatile ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static volatile DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static volatile DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static volatile TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
-static volatile TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static volatile ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static volatile uint8_t& _TWBR = *(uint8_t*)0xB8;
-static volatile TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static volatile TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static volatile uint8_t& _TWDR = *(uint8_t*)0xBB;
-static volatile TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static volatile TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static volatile USART_dev_t& USART0 = *(USART_dev_t*)0xC0;
+__AVR_DEFREG(PORT_dev_t, _PORTB, 0x23);
+__AVR_DEFREG(PORTC_dev_t, _PORTC, 0x26);
+__AVR_DEFREG(PORT_dev_t, _PORTD, 0x29);
+__AVR_DEFREG(TIFR0_reg_t, _TIFR0, 0x35);
+__AVR_DEFREG(TIFR1_reg_t, _TIFR1, 0x36);
+__AVR_DEFREG(TIFR2_reg_t, _TIFR2, 0x37);
+__AVR_DEFREG(PCIFR_reg_t, _PCIFR, 0x3B);
+__AVR_DEFREG(EIFR_reg_t, _EIFR, 0x3C);
+__AVR_DEFREG(EIMSK_reg_t, _EIMSK, 0x3D);
+__AVR_DEFREG(_bit_reg_t, _GPIOR0, 0x3E);
+__AVR_DEFREG(EECR_reg_t, _EECR, 0x3F);
+__AVR_DEFREG(uint8_t, _EEDR, 0x40);
+__AVR_DEFREG(EEAR_reg_t, _EEAR, 0x41);
+__AVR_DEFREG(GTCCR_reg_t, _GTCCR, 0x43);
+__AVR_DEFREG(TIMER_8bit_dev_t, TIMER0, 0x44);
+__AVR_DEFREG(_bit_reg_t, _GPIOR1, 0x4A);
+__AVR_DEFREG(_bit_reg_t, _GPIOR2, 0x4B);
+__AVR_DEFREG(SPCR_reg_t, _SPCR, 0x4C);
+__AVR_DEFREG(SPSR_reg_t, _SPSR, 0x4D);
+__AVR_DEFREG(uint8_t, _SPDR, 0x4E);
+__AVR_DEFREG(ACSR_reg_t, _ACSR, 0x50);
+__AVR_DEFREG(SMCR_reg_t, _SMCR, 0x53);
+__AVR_DEFREG(MCUSR_reg_t, _MSUCR, 0x54);
+__AVR_DEFREG(MCUCR_reg_t, _MCUCR, 0x55);
+__AVR_DEFREG(SPMCSR_reg_t, _SPMCSR, 0x57);
+__AVR_DEFREG(SP_reg_t, _SP, 0x5D);
+__AVR_DEFREG(SREG_reg_t, _SREG, 0x5F);
+__AVR_DEFREG(WDTCSR_reg_t, _WDTCSR, 0x60);
+__AVR_DEFREG(CLKPR_reg_t, _CLKPR, 0x61);
+__AVR_DEFREG(PRR0_reg_t, _PRR0, 0x64);
+__AVR_DEFREG(uint8_t, _OSCCAL, 0x66);
+__AVR_DEFREG(PCICR_reg_t, _PCICR, 0x68);
+__AVR_DEFREG(EICRA_reg_t, _EICRA, 0x69);
+__AVR_DEFREG(_bit_reg_t, _PCMSK0, 0x6B);
+__AVR_DEFREG(_bitPCMSK1_reg_t, _PCMSK1, 0x6C);
+__AVR_DEFREG(_bit_reg_t, _PCMSK2, 0x6D);
+__AVR_DEFREG(TIMSK0_reg_t, _TIMSK0, 0x6E);
+__AVR_DEFREG(TIMSK1_reg_t, _TIMSK1, 0x6F);
+__AVR_DEFREG(TIMSK2_reg_t, _TIMSK2, 0x70);
+__AVR_DEFREG(uint16_t, _ADC, 0x78);
+__AVR_DEFREG(ADCSRA_reg_t, _ADCSRA, 0x7A);
+__AVR_DEFREG(ADCSRB_reg_t, _ADCSRB, 0x7B);
+__AVR_DEFREG(ADMUX_reg_t, _ADMUX, 0x7C);
+__AVR_DEFREG(DIDR0_reg_t, _DIDR0, 0x7E);
+__AVR_DEFREG(DIDR1_reg_t, _DIDR1, 0x7F);
+__AVR_DEFREG(TIMER_dev_t, TIMER1, 0x80);
+__AVR_DEFREG(TIMER_8bit_dev_t, _TIMER2, 0xB0);
+__AVR_DEFREG(ASSR_reg_t, _ASSR, 0xB6);
+__AVR_DEFREG(uint8_t, _TWBR, 0xB8);
+__AVR_DEFREG(TWSR_reg_t, _TWSR, 0xB9);
+__AVR_DEFREG(TWAR_reg_t, _TWAR, 0xBA);
+__AVR_DEFREG(uint8_t, _TWDR, 0xBB);
+__AVR_DEFREG(TWCR_reg_t, _TWCR, 0xBC);
+__AVR_DEFREG(TWAMR_reg_t, _TWAMR, 0xBD);
+__AVR_DEFREG(USART_dev_t, USART0, 0xC0);
 
 #elif defined(__AVR_TRM04__)
-static volatile PORT_dev_t& _PORTA = *(PORT_dev_t*)0x20;
-static volatile PORT_dev_t& _PORTB = *(PORT_dev_t*)0x23;
-static volatile PORT_dev_t& _PORTC = *(PORT_dev_t*)0x26;
-static volatile PORT_dev_t& _PORTD = *(PORT_dev_t*)0x29;
-static volatile PORT_dev_t& _PORTE = *(PORT_dev_t*)0x2C;
-static volatile PORT_dev_t& _PORTF = *(PORT_dev_t*)0x2F;
-static volatile TIFR0_reg_t& _TIFR0 = *(TIFR0_reg_t*)0x35;
-static volatile TIFR1_reg_t& _TIFR1 = *(TIFR1_reg_t*)0x36;
-static volatile TIFR2_reg_t& _TIFR2 = *(TIFR2_reg_t*)0x37;
-static volatile TIFR3_reg_t& _TIFR3 = *(TIFR3_reg_t*)0x38;
-static volatile PCIFR_reg_t& _PCIFR = *(PCIFR_reg_t*)0x3B;
-static volatile EIFR_reg_t& _EIFR = *(EIFR_reg_t*)0x3C;
-static volatile EIMSK_reg_t& _EIMSK = *(EIMSK_reg_t*)0x3D;
-static volatile _bit_reg_t& _GPIOR0 = *(_bit_reg_t*)0x3E;
-static volatile EECR_reg_t& _EECR = *(EECR_reg_t*)0x3F;
-static volatile uint8_t& _EEDR = *(uint8_t*)0x40;
-static volatile EEAR_reg_t& _EEAR = *(EEAR_reg_t*)0x41;
-static volatile GTCCR_reg_t& _GTCCR = *(GTCCR_reg_t*)0x43;
-static volatile TIMER_8bit_dev_t& TIMER0 = *(TIMER_8bit_dev_t*)0x44;
-static volatile PLLCSR_reg_t& _PLLCSR = *(PLLCSR_reg_t*)0x49;
-static volatile _bit_reg_t& _GPIOR1 = *(_bit_reg_t*)0x4A;
-static volatile _bit_reg_t& _GPIOR2 = *(_bit_reg_t*)0x4B;
-static volatile SPCR_reg_t& _SPCR = *(SPCR_reg_t*)0x4C;
-static volatile SPSR_reg_t& _SPSR = *(SPSR_reg_t*)0x4D;
-static volatile uint8_t& _SPDR = *(uint8_t*)0x4E;
-static volatile ACSR_reg_t& _ACSR = *(ACSR_reg_t*)0x50;
-static volatile uint8_t& _OCDR = *(uint8_t*)0x51;
-static volatile SMCR_reg_t& _SMCR = *(SMCR_reg_t*)0x53;
-static volatile MCUSR_reg_t& _MCUSR = *(MCUSR_reg_t*)0x54;
-static volatile MCUCR_reg_t& _MCUCR = *(MCUCR_reg_t*)0x55;
-static volatile SPMCSR_reg_t& _SPMCSR = *(SPMCSR_reg_t*)0x57;
-static volatile RAMPZ_reg_t& _RAMPZ = *(RAMPZ_reg_t*)0x5B;
-static volatile SP_reg_t& _SP = *(SP_reg_t*)0x5D;
-static volatile SREG_reg_t& _SREG = *(SREG_reg_t*)0x5F;
-static volatile WDTCSR_reg_t& _WDTCSR = *(WDTCSR_reg_t*)0x60;
-static volatile CLKPR_reg_t& _CLKPR = *(CLKPR_reg_t*)0x61;
-static volatile PRR0_reg_t& _PRR0 = *(PRR0_reg_t*)0x64;
-static volatile PRR1_reg_t& _PRR1 = *(PRR1_reg_t*)0x65;
-static volatile uint8_t& _OSCCAL = *(uint8_t*)0x66;
-static volatile PCICR_reg_t& _PCICR = *(PCICR_reg_t*)0x68;
-static volatile EICRA_reg_t& _EICRA = *(EICRA_reg_t*)0x69;
-static volatile EICRB_reg_t& _EICRB = *(EICRB_reg_t*)0x6A;
-static volatile _bit_reg_t& _PCMSK0 = *(_bit_reg_t*)0x6B;
-static volatile TIMSK0_reg_t& _TIMSK0 = *(TIMSK0_reg_t*)0x6E;
-static volatile TIMSK1_reg_t& _TIMSK1 = *(TIMSK1_reg_t*)0x6F;
-static volatile TIMSK2_reg_t& _TIMSK2 = *(TIMSK2_reg_t*)0x70;
-static volatile TIMSK3_reg_t& _TIMSK3 = *(TIMSK3_reg_t*)0x71;
-static volatile XMCRA_reg_t& _XMCRA = *(XMCRA_reg_t*)0x74;
-static volatile XMCRB_reg_t& _XMCRB = *(XMCRB_reg_t*)0x75;
-static volatile uint16_t& _ADC = *(uint16_t*)0x78;
-static volatile ADCSRA_reg_t& _ADCSRA = *(ADCSRA_reg_t*)0x7A;
-static volatile ADCSRB_reg_t& _ADCSRB = *(ADCSRB_reg_t*)0x7B;
-static volatile ADMUX_reg_t& _ADMUX = *(ADMUX_reg_t*)0x7C;
-static volatile DIDR0_reg_t& _DIDR0 = *(DIDR0_reg_t*)0x7E;
-static volatile DIDR1_reg_t& _DIDR1 = *(DIDR1_reg_t*)0x7F;
-static volatile TIMER_dev_t& TIMER1 = *(TIMER_dev_t*)0x80;
-static volatile TIMER_dev_t& TIMER3 = *(TIMER_dev_t*)0x90;
-static volatile UHCON_reg_t& _UHCON = *(UHCON_reg_t*)0x9E;
-static volatile UHINT_reg_t& _UHINT = *(UHINT_reg_t*)0x9F;
-static volatile UHIEN_reg_t& _UHIEN = *(UHIEN_reg_t*)0xA0;
-static volatile UHADDR_reg_t& _UHADDR = *(UHADDR_reg_t*)0xA1;
-static volatile UHFNUM_reg_t& _UHFNUM = *(UHFNUM_reg_t*)0xA2;
-static volatile uint8_t& _UHFLEN = *(uint8_t*)0xA4;
-static volatile uint8_t& _UPINRQX = *(uint8_t*)0xA5;
-static volatile UPINTX_reg_t& _UPINTX = *(UPINTX_reg_t*)0xA6;
-static volatile UPNUM_reg_t& _UPNUM = *(UPNUM_reg_t*)0xA7;
-static volatile UPRST_reg_t& _UPRST = *(UPRST_reg_t*)0xA8;
-static volatile UPCONX_reg_t& _UPCONX = *(UPCONX_reg_t*)0xA9;
+__AVR_DEFREG(PORT_dev_t, _PORTA, 0x20);
+__AVR_DEFREG(PORT_dev_t, _PORTB, 0x23);
+__AVR_DEFREG(PORT_dev_t, _PORTC, 0x26);
+__AVR_DEFREG(PORT_dev_t, _PORTD, 0x29);
+__AVR_DEFREG(PORT_dev_t, _PORTE, 0x2C);
+__AVR_DEFREG(PORT_dev_t, _PORTF, 0x2F);
+__AVR_DEFREG(TIFR0_reg_t, _TIFR0, 0x35);
+__AVR_DEFREG(TIFR1_reg_t, _TIFR1, 0x36);
+__AVR_DEFREG(TIFR2_reg_t, _TIFR2, 0x37);
+__AVR_DEFREG(TIFR3_reg_t, _TIFR3, 0x38);
+__AVR_DEFREG(PCIFR_reg_t, _PCIFR, 0x3B);
+__AVR_DEFREG(EIFR_reg_t, _EIFR, 0x3C);
+__AVR_DEFREG(EIMSK_reg_t, _EIMSK, 0x3D);
+__AVR_DEFREG(_bit_reg_t, _GPIOR0, 0x3E);
+__AVR_DEFREG(EECR_reg_t, _EECR, 0x3F);
+__AVR_DEFREG(uint8_t, _EEDR, 0x40);
+__AVR_DEFREG(EEAR_reg_t, _EEAR, 0x41);
+__AVR_DEFREG(GTCCR_reg_t, _GTCCR, 0x43);
+__AVR_DEFREG(TIMER_8bit_dev_t, TIMER0, 0x44);
+__AVR_DEFREG(PLLCSR_reg_t, _PLLCSR, 0x49);
+__AVR_DEFREG(_bit_reg_t, _GPIOR1, 0x4A);
+__AVR_DEFREG(_bit_reg_t, _GPIOR2, 0x4B);
+__AVR_DEFREG(SPCR_reg_t, _SPCR, 0x4C);
+__AVR_DEFREG(SPSR_reg_t, _SPSR, 0x4D);
+__AVR_DEFREG(uint8_t, _SPDR, 0x4E);
+__AVR_DEFREG(ACSR_reg_t, _ACSR, 0x50);
+__AVR_DEFREG(uint8_t, _OCDR, 0x51);
+__AVR_DEFREG(SMCR_reg_t, _SMCR, 0x53);
+__AVR_DEFREG(MCUSR_reg_t, _MCUSR, 0x54);
+__AVR_DEFREG(MCUCR_reg_t, _MCUCR, 0x55);
+__AVR_DEFREG(SPMCSR_reg_t, _SPMCSR, 0x57);
+__AVR_DEFREG(RAMPZ_reg_t, _RAMPZ, 0x5B);
+__AVR_DEFREG(SP_reg_t, _SP, 0x5D);
+__AVR_DEFREG(SREG_reg_t, _SREG, 0x5F);
+__AVR_DEFREG(WDTCSR_reg_t, _WDTCSR, 0x60);
+__AVR_DEFREG(CLKPR_reg_t, _CLKPR, 0x61);
+__AVR_DEFREG(PRR0_reg_t, _PRR0, 0x64);
+__AVR_DEFREG(PRR1_reg_t, _PRR1, 0x65);
+__AVR_DEFREG(uint8_t, _OSCCAL, 0x66);
+__AVR_DEFREG(PCICR_reg_t, _PCICR, 0x68);
+__AVR_DEFREG(EICRA_reg_t, _EICRA, 0x69);
+__AVR_DEFREG(EICRB_reg_t, _EICRB, 0x6A);
+__AVR_DEFREG(_bit_reg_t, _PCMSK0, 0x6B);
+__AVR_DEFREG(TIMSK0_reg_t, _TIMSK0, 0x6E);
+__AVR_DEFREG(TIMSK1_reg_t, _TIMSK1, 0x6F);
+__AVR_DEFREG(TIMSK2_reg_t, _TIMSK2, 0x70);
+__AVR_DEFREG(TIMSK3_reg_t, _TIMSK3, 0x71);
+__AVR_DEFREG(XMCRA_reg_t, _XMCRA, 0x74);
+__AVR_DEFREG(XMCRB_reg_t, _XMCRB, 0x75);
+__AVR_DEFREG(uint16_t, _ADC, 0x78);
+__AVR_DEFREG(ADCSRA_reg_t, _ADCSRA, 0x7A);
+__AVR_DEFREG(ADCSRB_reg_t, _ADCSRB, 0x7B);
+__AVR_DEFREG(ADMUX_reg_t, _ADMUX, 0x7C);
+__AVR_DEFREG(DIDR0_reg_t, _DIDR0, 0x7E);
+__AVR_DEFREG(DIDR1_reg_t, _DIDR1, 0x7F);
+__AVR_DEFREG(TIMER_dev_t, TIMER1, 0x80);
+__AVR_DEFREG(TIMER_dev_t, TIMER3, 0x90);
+__AVR_DEFREG(UHCON_reg_t, _UHCON, 0x9E);
+__AVR_DEFREG(UHINT_reg_t, _UHINT, 0x9F);
+__AVR_DEFREG(UHIEN_reg_t, _UHIEN, 0xA0);
+__AVR_DEFREG(UHADDR_reg_t, _UHADDR, 0xA1);
+__AVR_DEFREG(UHFNUM_reg_t, _UHFNUM, 0xA2);
+__AVR_DEFREG(uint8_t, _UHFLEN, 0xA4);
+__AVR_DEFREG(uint8_t, _UPINRQX, 0xA5);
+__AVR_DEFREG(UPINTX_reg_t, _UPINTX, 0xA6);
+__AVR_DEFREG(UPNUM_reg_t, _UPNUM, 0xA7);
+__AVR_DEFREG(UPRST_reg_t, _UPRST, 0xA8);
+__AVR_DEFREG(UPCONX_reg_t, _UPCONX, 0xA9);
 _AVR_DEFREG(UPCFG0X, 0xAA);
 _AVR_DEFREG(UPCFG1X, 0xAB);
 _AVR_DEFREG(UPSTAX, 0xAC);
-static volatile uint8_t& _UPCFG2X = *(uint8_t*)0xAD;
+__AVR_DEFREG(uint8_t, _UPCFG2X, 0xAD);
 _AVR_DEFREG(UPIENX, 0xAE);
-static volatile uint8_t& _UPDATX = *(uint8_t*)0xAF;
-static volatile TIMER_8bit_dev_t& _TIMER2 = *(TIMER_8bit_dev_t*)0xB0;
-static volatile ASSR_reg_t& _ASSR = *(ASSR_reg_t*)0xB6;
-static volatile uint8_t& _TWBR = *(uint8_t*)0xB8;
-static volatile TWSR_reg_t& _TWSR = *(TWSR_reg_t*)0xB9;
-static volatile TWAR_reg_t& _TWAR = *(TWAR_reg_t*)0xBA;
-static volatile uint8_t& _TWDR = *(uint8_t*)0xBB;
-static volatile TWCR_reg_t& _TWCR = *(TWCR_reg_t*)0xBC;
-static volatile TWAMR_reg_t& _TWAMR = *(TWAMR_reg_t*)0xBD;
-static volatile USART_dev_t& USART1 = *(USART_dev_t*)0xC8;
+__AVR_DEFREG(uint8_t, _UPDATX, 0xAF);
+__AVR_DEFREG(TIMER_8bit_dev_t, _TIMER2, 0xB0);
+__AVR_DEFREG(ASSR_reg_t, _ASSR, 0xB6);
+__AVR_DEFREG(uint8_t, _TWBR, 0xB8);
+__AVR_DEFREG(TWSR_reg_t, _TWSR, 0xB9);
+__AVR_DEFREG(TWAR_reg_t, _TWAR, 0xBA);
+__AVR_DEFREG(uint8_t, _TWDR, 0xBB);
+__AVR_DEFREG(TWCR_reg_t, _TWCR, 0xBC);
+__AVR_DEFREG(TWAMR_reg_t, _TWAMR, 0xBD);
+__AVR_DEFREG(USART_dev_t, USART1, 0xC8);
 _AVR_DEFREG(UHWCON, 0xD7);
 _AVR_DEFREG(USBCON, 0xD8);
 _AVR_DEFREG(USBSTA, 0xD9);
@@ -1851,12 +1851,12 @@ _AVR_DEFREG(UECFG1X, 0xED);
 _AVR_DEFREG(UESTA0X, 0xEE);
 _AVR_DEFREG(UESTA1X, 0xEF);
 _AVR_DEFREG(UEIENX, 0xF0);
-static uint8_t& _UEDATX = *(uint8_t*)0xF1;
+__AVR_DEFREG(uint8_t, _UEDATx, 0xF1);
 _AVR_DEFREG(UEBCX, 0xF2);
 _AVR_DEFREG(UEINT, 0xF4);
 _AVR_DEFREG(UPERRX, 0xF5);
 _AVR_DEFREG(UPBCX, 0xF6);
-static uint8_t& _UPINT = *(uint8_t*)0xF8;
+__AVR_DEFREG(uint8_t, _UPINT, 0xF8);
 _AVR_DEFREG(OTGTCON, 0xF9);
 #endif
 
@@ -2606,6 +2606,7 @@ struct pin_dev_state_t {
   uint8_t _COM1C : 2;
   uint8_t _COM2A : 2;
   uint8_t _COM2B : 2;
+  uint8_t _COM3A : 2;
   uint8_t _COM3B : 2;
   uint8_t _COM3C : 2;
   uint8_t _COM4A : 2;
@@ -2633,7 +2634,14 @@ struct pin_dev_state_t {
   uint8_t _PCIE1 : 1;
   uint8_t _PCIE2 : 1;
   uint8_t _PCIE3 : 1;
-  uint8_t _ADCnD : 1;
+  uint8_t _ADC7D : 1;
+  uint8_t _ADC6D : 1;
+  uint8_t _ADC5D : 1;
+  uint8_t _ADC4D : 1;
+  uint8_t _ADC3D : 1;
+  uint8_t _ADC2D : 1;
+  uint8_t _ADC1D : 1;
+  uint8_t _ADC0D : 1;
   uint8_t _SPE : 1;
   uint8_t _COM0A : 2;
   uint8_t _COM0B : 2;
@@ -2647,6 +2655,7 @@ struct pin_dev_state_t {
   uint8_t _USART1_TXEN : 1;
   uint8_t _USART1_RXEN : 1;
   uint8_t _USART0_TXEN : 1;
+  uint8_t _USART0_RXEN : 1;
 #elif defined(__AVR_TRM03__)
   uint8_t _AS2 : 1;
   uint8_t _PCIE0 : 1;
@@ -2660,7 +2669,14 @@ struct pin_dev_state_t {
   uint8_t _COM0A : 2;
   uint8_t _COM0B : 2;
   uint8_t _TWEN : 1;
-  uint8_t _ADCnD : 1;
+  uint8_t _ADC7D : 1;
+  uint8_t _ADC6D : 1;
+  uint8_t _ADC5D : 1;
+  uint8_t _ADC4D : 1;
+  uint8_t _ADC3D : 1;
+  uint8_t _ADC2D : 1;
+  uint8_t _ADC1D : 1;
+  uint8_t _ADC0D : 1;
   uint8_t _UMSEL : 2;
   uint8_t _USART0_TXEN : 1;
   uint8_t _USART0_RXEN : 1;
@@ -2677,7 +2693,14 @@ struct pin_dev_state_t {
   uint8_t _USART1_RXEN : 1;
   uint8_t _USART1_TXEN : 1;
   uint8_t _TWEN : 1;
-  uint8_t _INTn : 1;
+  uint8_t _INT7 : 1;
+  uint8_t _INT6 : 1;
+  uint8_t _INT5 : 1;
+  uint8_t _INT4 : 1;
+  uint8_t _INT3 : 1;
+  uint8_t _INT2 : 1;
+  uint8_t _INT1 : 1;
+  uint8_t _INT0;
   uint8_t _UVCONE : 1;
   uint8_t _UIDE : 1;
   //uint8_t _JTAGEN : 1;
@@ -3087,935 +3110,29 @@ inline ATmegaPinInfo _ATmega_getPinInfo(uint8_t pin) {
 #endif
 }
 
-inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
-  ATmegaPinInfo info = _ATmega_getPinInfo(pin);
-
-  // TODO: the manual states that registers of power-reduced peripherals cannot be read or written, and that
-  // the resources (GPIO pins) remain occupied during power-reduction. This is a serious problem and we should
-  // add power-reduction awareness to this logic!
-
-  pin_dev_state_t state;
-
+enum class eATmegaPeripheral {
+  UNDEFINED,
 #if defined(__AVR_TRM01__)
-  // See page 75ff of ATmega2560 technical reference manual.
-  if (info.port == eATmegaPort::PORT_A) {
-    state._SRE = _XMCRA._SRE;
-
-    _XMCRA._SRE = false;
-  }
-  else if (info.port == eATmegaPort::PORT_B) {
-    state._PCIE0 = _PCICR._PCIE0;
-
-    _PCICR._PCIE0 = false;
-
-    if (info.pinidx == 7) {
-      state._COM1C = TIMER1._TCCRnA._COMnC;
-
-      TIMER1._TCCRnA._COMnC = 0;
-    }
-    else if (info.pinidx == 6) {
-      state._COM1B = TIMER1._TCCRnA._COMnB;
-
-      TIMER1._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 5) {
-      state._COM1A = TIMER1._TCCRnA._COMnA;
-
-      TIMER1._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 4) {
-      state._COM2A = _TIMER2._TCCRnA._COMnA;
-
-      _TIMER2._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx <= 3) {
-      state._SPE = _SPCR._SPE;
-
-      _SPCR._SPE = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    state._SRE = _XMCRA._SRE;
-
-    _XMCRA._SRE = false;
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    if (info.pinidx == 5 || info.pinidx == 3) {
-      state._USART1_TXEN = USART1._UCSRnB._TXEN;
-
-      USART1._UCSRnB._TXEN = false;
-    }
-    if (info.pinidx == 5 || info.pinidx == 2) {
-      state._USART1_RXEN = USART1._UCSRnB._RXEN;
-
-      USART1._UCSRnB._RXEN = false;
-    }
-    if (info.pinidx <= 3) {
-      state._PCIE0 = _PCICR._PCIE0;
-
-      _PCICR._PCIE0 = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_E) {
-    if (info.pinidx >= 4 && info.pinidx <= 7) {
-      state._PCIE0 = _PCICR._PCIE0;
-
-      _PCICR._PCIE0 = false;
-    }
-    if (info.pinidx == 5) {
-      state._COM3C = TIMER3._TCCRnA._COMnC;
-
-      TIMER3._TCCRnA._COMnC = 0;
-    }
-    if (info.pinidx == 4 || info.pinidx == 3) {
-      state._COM3B = TIMER3._TCCRnA._COMnB;
-
-      TIMER3._TCCRnA._COMnB = 0;
-    }
-    if (info.pinidx == 2 || info.pinidx == 0) {
-      state._USART0_RXEN = USART0._UCSRnB._RXEN;
-
-      USART0._UCSRnB._RXEN = false;
-    }
-    if (info.pinidx == 2 || info.pinidx == 1) {
-      state._USART0_TXEN = USART0._UCSRnB._TXEN;
-
-      USART0._UCSRnB._TXEN = false;
-    }
-    if (info.pinidx == 0) {
-      state._PCIE1 = _PCICR._PCIE1;
-
-      _PCICR._PCIE1 = false;
-    }
-  }
-  // Port F ignored.
-  else if (info.port == eATmegaPort::PORT_G) {
-    if (info.pinidx == 5) {
-      state._COM0B = TIMER0._TCCRnA._COMnB;
-
-      TIMER0._TCCRnA._COMnB = 0;
-    }
-    if (info.pinidx == 4 || info.pinidx == 3) {
-      state._AS2 = _ASSR._AS2;
-
-      _ASSR._AS2 = false;
-    }
-    if (info.pinidx <= 2) {
-      state._SRE = _XMCRA._SRE;
-
-      _XMCRA._SRE = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_H) {
-    if (info.pinidx == 6) {
-      state._COM2B = _TIMER2._TCCRnA._COMnB;
-
-      _TIMER2._TCCRnA._COMnB = 0;
-    }
-    if (info.pinidx == 5) {
-      state._COM4C = TIMER4._TCCRnA._COMnC;
-
-      TIMER4._TCCRnA._COMnC = 0;
-    }
-    if (info.pinidx == 4) {
-      state._COM4B = TIMER4._TCCRnA._COMnB;
-
-      TIMER4._TCCRnA._COMnB = 0;
-    }
-    if (info.pinidx == 3) {
-      state._COM4A = TIMER4._TCCRnA._COMnA;
-
-      TIMER4._TCCRnA._COMnA = 0;
-    }
-    if (info.pinidx == 2 || info.pinidx == 0) {
-      state._USART2_RXEN = USART2._UCSRnB._RXEN;
-
-      USART2._UCSRnB._RXEN = false;
-    }
-    if (info.pinidx == 2 || info.pinidx == 1) {
-      state._USART2_TXEN = USART2._UCSRnB._TXEN;
-
-      USART2._UCSRnB._TXEN = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_J) {
-    if (info.pinidx <= 6) {
-      state._PCIE1 = _PCICR._PCIE1;
-
-      _PCICR._PCIE1 = false;
-    }
-    if (info.pinidx == 2 || info.pinidx == 0) {
-      state._USART3_RXEN = USART3._UCSRnB._RXEN;
-
-      USART3._UCSRnB._RXEN = false;
-    }
-    if (info.pinidx == 2 || info.pinidx == 1) {
-      state._USART3_TXEN = USART3._UCSRnB._TXEN;
-
-      USART3._UCSRnB._TXEN = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_K) {
-    state._PCIE2 = _PCICR._PCIE2;
-
-    _PCICR._PCIE2 = false;
-  }
-  else if (info.port == eATmegaPort::PORT_L) {
-    if (info.pinidx == 5) {
-      state._COM5C = TIMER5._TCCRnA._COMnC;
-
-      TIMER5._TCCRnA._COMnC = 0;
-    }
-    if (info.pinidx == 4) {
-      state._COM5B = TIMER5._TCCRnA._COMnB;
-
-      TIMER5._TCCRnA._COMnB = 0;
-    }
-    if (info.pinidx == 3) {
-      state._COM5A = TIMER5._TCCRnA._COMnA;
-
-      TIMER5._TCCRnA._COMnA = 0;
-    }
-  }
+  PADC, PUSART0, PSPI, PTIM1, PTIM0, PTIM2, PTWI, PUSART1, PUSART2, PUSART3, PTIM3, PTIM4, PTIM5
 #elif defined(__AVR_TRM02__)
-  if (info.port == eATmegaPort::PORT_A) {
-    state._PCIE0 = _PCICR._PCIE0;
-
-    _PCICR._PCIE0 = false;
-
-    if (info.pinidx == 7) {
-      state._ADCnD = _DIDR0._ADC7D;
-
-      _DIDR0._ADC7D = false;
-    }
-    else if (info.pinidx == 6) {
-      state._ADCnD = _DIDR0._ADC6D;
-
-      _DIDR0._ADC6D = false;
-    }
-    else if (info.pinidx == 5) {
-      state._ADCnD = _DIDR0._ADC5D;
-
-      _DIDR0._ADC5D = false;
-    }
-    else if (info.pinidx == 4) {
-      state._ADCnD = _DIDR0._ADC4D;
-
-      _DIDR0._ADC4D = false;
-    }
-    else if (info.pinidx == 3) {
-      state._ADCnD = _DIDR0._ADC3D;
-
-      _DIDR0._ADC3D = false;
-    }
-    else if (info.pinidx == 2) {
-      state._ADCnD = _DIDR0._ADC2D;
-
-      _DIDR0._ADC2D = false;
-    }
-    else if (info.pinidx == 1) {
-      state._ADCnD = _DIDR0._ADC1D;
-
-      _DIDR0._ADC1D = false;
-    }
-    else if (info.pinidx == 0) {
-      state._ADCnD = _DIDR0._ADC0D;
-
-      _DIDR0._ADC0D = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_B) {
-    state._PCIE1 = _PCICR._PCIE1;
-
-    _PCICR._PCIE1 = false;
-
-    if (info.pinidx <= 7 && info.pinidx >= 4) {
-      state._SPE = _SPCR._SPE;
-
-      _SPCR._SPE = false;
-    }
-    
-    if (info.pinidx == 4) {
-      state._COM0A = TIMER0._TCCRnA._COMnA;
-
-      TIMER0._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 5) {
-      state._COM0B = TIMER0._TCCRnA._COMnB;
-
-      TIMER0._TCCRnA._COMnB = 0;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    state._AS2 = _ASSR._AS2;
-    state._PCIE2 = _PCICR._PCIE2;
-
-    _ASSR._AS2 = false;
-    _PCICR._PCIE2 = false;
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    state._PCIE3 = _PCICR._PCIE3;
-
-    _PCICR._PCIE3 = false;
-
-    if (info.pinidx == 7) {
-      state._COM2A = _TIMER2._TCCRnA._COMnA;
-
-      _TIMER2._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 6) {
-      state._COM2B = _TIMER2._TCCRnA._COMnB;
-
-      _TIMER2._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 5) {
-      state._COM1A = TIMER1._TCCRnA._COMnA;
-
-      TIMER1._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 4) {
-      state._COM1B = TIMER1._TCCRnA._COMnB;
-
-      TIMER1._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 3) {
-      state._USART1_TXEN = USART1._UCSRnB._TXEN;
-
-      USART1._UCSRnB._TXEN = false;
-    }
-    else if (info.pinidx == 2 || info.pinidx == 0) {
-      state._USART1_RXEN = USART1._UCSRnB._RXEN;
-
-      USART1._UCSRnB._RXEN = false;
-    }
-    else if (info.pinidx == 1) {
-      state._USART0_TXEN = USART0._UCSRnB._TXEN;
-
-      USART0._UCSRnB._TXEN = false;
-    }
-  }
+  PADC, PUSART0, PSPI, PTIM1, PUSART1, PTIM0, PTIM2, PTWI, PTIM3
 #elif defined(__AVR_TRM03__)
-  if (info.port == eATmegaPort::PORT_B) {
-    state._PCIE0 = _PCICR._PCIE0;
-
-    _PCICR._PCIE0 = false;
-
-    if (info.pinidx <= 7 && info.pinidx <= 6) {
-      state._AS2 = _ASSR._AS2;
-
-      _ASSR._AS2 = false;
-    }
-    else if (info.pinidx <= 5 && info.pinidx >= 2) {
-      state._SPE = _SPCR._SPE;
-
-      _SPCR._SPE = false;
-    }
-
-    if (info.pinidx == 3) {
-      state._COM2A = _TIMER2._TCCRnA._COMnA;
-
-      _TIMER2._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 2) {
-      state._COM1B = TIMER1._TCCRnA._COMnB;
-
-      TIMER1._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 1) {
-      state._COM1A = TIMER1._TCCRnA._COMnA;
-
-      TIMER1._TCCRnA._COMnA = 0;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    state._PCIE1 = _PCICR._PCIE1;
-
-    _PCICR._PCIE1 = false;
-
-    if (info.pinidx <= 5 && info.pinidx >= 4) {
-      state._TWEN = _TWCR._TWEN;
-
-      _TWCR._TWEN = false;
-    }
-
-    if (info.pinidx == 5) {
-      state._ADCnD = _DIDR0._ADC5D;
-
-      _DIDR0._ADC5D = false;
-    }
-    else if (info.pinidx == 4) {
-      state._ADCnD = _DIDR0._ADC4D;
-
-      _DIDR0._ADC4D = false;
-    }
-    if (info.pinidx == 3) {
-      state._ADCnD = _DIDR0._ADC3D;
-
-      _DIDR0._ADC3D = false;
-    }
-    if (info.pinidx == 2) {
-      state._ADCnD = _DIDR0._ADC2D;
-
-      _DIDR0._ADC2D = false;
-    }
-    if (info.pinidx == 1) {
-      state._ADCnD = _DIDR0._ADC1D;
-
-      _DIDR0._ADC1D = false;
-    }
-    if (info.pinidx == 0) {
-      state._ADCnD = _DIDR0._ADC0D;
-
-      _DIDR0._ADC0D = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    if (info.pinidx == 2) {
-      state._PCIE1 = _PCICR._PCIE1;
-
-      _PCICR._PCIE1 = false;
-    }
-    else {
-      state._PCIE2 = _PCICR._PCIE2;
-
-      _PCICR._PCIE2 = false;
-    }
-
-    if (info.pinidx == 6) {
-      state._COM0A = TIMER0._TCCRnA._COMnA;
-
-      TIMER0._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 5) {
-      state._COM0B = TIMER0._TCCRnA._COMnB;
-
-      TIMER0._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 4) {
-      state._UMSEL = USART0._UCSRnC._UMSEL;
-
-      USART0._UCSRnC._UMSEL = 0;
-    }
-    else if (info.pinidx == 3) {
-      state._COM2B = _TIMER2._TCCRnA._COMnB;
-
-      _TIMER2._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 1) {
-      state._USART0_TXEN = USART0._UCSRnB._TXEN;
-
-      USART0._UCSRnB._TXEN = false;
-    }
-    else if (info.pinidx == 0) {
-      state._USART0_RXEN = USART0._UCSRnB._RXEN;
-
-      USART0._UCSRnB._RXEN = false;
-    }
-  }
+  PADC, PUSART0, PSPI, PTIM1, PTIM0, PTIM2, PTWI
 #elif defined(__AVR_TRM04__)
-  if (info.port == eATmegaPort::PORT_A) {
-    state._SRE = _XMCRA._SRE;
-
-    _XMCRA._SRE = false;
-  }
-  else if (info.port == eATmegaPort::PORT_B) {
-    if (info.pinidx == 7) {
-      state._COM1C = TIMER1._TCCRnA._COMnC;
-
-      TIMER1._TCCRnA._COMnC = 0;
-    }
-    else if (info.pinidx == 6) {
-      state._COM1B = TIMER1._TCCRnA._COMnB;
-
-      TIMER1._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 5) {
-      state._COM1A = TIMER1._TCCRnA._COMnA;
-
-      TIMER1._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx == 4) {
-      state._COM2A = _TIMER2._TCCRnA._COMnA;
-
-      _TIMER2._TCCRnA._COMnA = 0;
-    }
-    else if (info.pinidx <= 3) {
-      state._SPE = _SPCR._SPE;
-
-      _SPCR._SPE = false;
-    }
-
-    state._PCIE0 = _PCICR._PCIE0;
-
-    _PCICR._PCIE0 = false;
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    state._SRE = _XMCRA._SRE;
-
-    _XMCRA._SRE = false;
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    if (info.pinidx == 5) {
-      state._USART1_RXEN = USART1._UCSRnB._RXEN;
-      state._USART1_TXEN = USART1._UCSRnB._TXEN;
-
-      USART1._UCSRnB._RXEN = false;
-      USART1._UCSRnB._TXEN = false;
-    }
-    else if (info.pinidx == 3) {
-      state._USART1_TXEN = USART1._UCSRnB._TXEN;
-
-      USART1._UCSRnB._TXEN = false;
-    }
-    else if (info.pinidx == 2) {
-      state._USART1_RXEN = USART1._UCSRnB._RXEN;
-
-      USART1._UCSRnB._RXEN = false;
-    }
-    else if (info.pinidx <= 1) {
-      state._TWEN = _TWCR._TWEN;
-
-      _TWCR._TWEN = false;
-    }
-
-    if (info.pinidx == 1) {
-      state._COM2B = _TIMER2._TCCRnA._COMnB;
-
-      _TIMER2._TCCRnA._COMnB = 0;
-    }
-    else if (info.pinidx == 0) {
-      state._COM0B = TIMER0._TCCRnA._COMnB;
-
-      TIMER0._TCCRnA._COMnB = 0;
-    }
-
-    if (info.pinidx == 3) {
-      state._INTn = _EIMSK._INT3;
-
-      _EIMSK._INT3 = false;
-    }
-    else if (info.pinidx == 2) {
-      state._INTn = _EIMSK._INT2;
-
-      _EIMSK._INT2 = false;
-    }
-    else if (info.pinidx == 1) {
-      state._INTn = _EIMSK._INT1;
-
-      _EIMSK._INT1 = false;
-    }
-    else if (info.pinidx == 0) {
-      state._INTn = _EIMSK._INT0;
-
-      _EIMSK._INT0 = false;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_E) {
-    if (info.pinidx == 7) {
-      state._UVCONE = _UHWCON._UVCONE;
-
-      _UHWCON._UVCONE = false;
-    }
-    else if (info.pinidx == 3) {
-      state._UIDE = _UHWCON._UIDE;
-
-      _UHWCON._UIDE = false;
-    }
-    else if (info.pinidx <= 2) {
-      state._SRE = _XMCRA._SRE;
-
-      _XMCRA._SRE = false;
-    }
-
-    if (info.pinidx == 7) {
-      state._INTn = _EIMSK._INT7;
-
-      _EIMSK._INT7 = false;
-    }
-    else if (info.pinidx == 6) {
-      state._INTn = _EIMSK._INT6;
-
-      _EIMSK._INT6 = false;
-    }
-    else if (info.pinidx == 5) {
-      state._INTn = _EIMSK._INT5;
-
-      _EIMSK._INT5 = false;
-    }
-    else if (info.pinidx == 4) {
-      state._INTn = _EIMSK._INT4;
-
-      _EIMSK._INT4 = false;
-    }
-  }
-  // Ignore port F.
+  PADC, PSPI, PTIM1, PTIM0, PTIM2, PTWI, PUSART1, PTIM3, PUSB
 #endif
+  , NUM_PERIPHERALS
+};
 
-  return state;
-}
-
-inline void _ATmega_restorePinAlternate(uint8_t pin, const pin_dev_state_t& state) {
-  ATmegaPinInfo info = _ATmega_getPinInfo(pin);
-
-#if defined(__AVR_TRM01__)
-  // See page 75ff of ATmega2560 technical reference manual.
-  if (info.port == eATmegaPort::PORT_A) {
-    _XMCRA._SRE = state._SRE;
-  }
-  else if (info.port == eATmegaPort::PORT_B) {
-    _PCICR._PCIE0 = state._PCIE0;
-
-    if (info.pinidx == 7) {
-      TIMER1._TCCRnA._COMnC = state._COM1C;
-    }
-    else if (info.pinidx == 6) {
-      TIMER1._TCCRnA._COMnB = state._COM1B;
-    }
-    else if (info.pinidx == 5) {
-      TIMER1._TCCRnA._COMnA = state._COM1A;
-    }
-    else if (info.pinidx == 4) {
-      _TIMER2._TCCRnA._COMnA = state._COM2A;
-    }
-    else if (info.pinidx <= 3) {
-      _SPCR._SPE = state._SPE;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    _XMCRA._SRE = state._SRE;
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    if (info.pinidx == 5 || info.pinidx == 3) {
-      USART1._UCSRnB._TXEN = state._USART1_TXEN;
-    }
-    if (info.pinidx == 5 || info.pinidx == 2) {
-      USART1._UCSRnB._RXEN = state._USART1_RXEN;
-    }
-    if (info.pinidx <= 3) {
-      _PCICR._PCIE0 = state._PCIE0;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_E) {
-    if (info.pinidx >= 4 && info.pinidx <= 7) {
-      _PCICR._PCIE0 = state._PCIE0;
-    }
-    if (info.pinidx == 5) {
-      TIMER3._TCCRnA._COMnC = state._COM3C;
-    }
-    if (info.pinidx == 4 || info.pinidx == 3) {
-      TIMER3._TCCRnA._COMnB = state._COM3B;
-    }
-    if (info.pinidx == 2 || info.pinidx == 0) {
-      USART0._UCSRnB._RXEN = state._USART0_RXEN;
-    }
-    if (info.pinidx == 2 || info.pinidx == 1) {
-      USART0._UCSRnB._TXEN = state._USART0_TXEN;
-    }
-    if (info.pinidx == 0) {
-      _PCICR._PCIE1 = state._PCIE1;
-    }
-  }
-  // Port F ignored.
-  else if (info.port == eATmegaPort::PORT_G) {
-    if (info.pinidx == 5) {
-      TIMER0._TCCRnA._COMnB = state._COM0B;
-    }
-    if (info.pinidx == 4 || info.pinidx == 3) {
-      _ASSR._AS2 = state._AS2;
-    }
-    if (info.pinidx <= 2) {
-      _XMCRA._SRE = state._SRE;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_H) {
-    if (info.pinidx == 6) {
-      _TIMER2._TCCRnA._COMnB = state._COM2B;
-    }
-    if (info.pinidx == 5) {
-      TIMER4._TCCRnA._COMnC = state._COM4C;
-    }
-    if (info.pinidx == 4) {
-      TIMER4._TCCRnA._COMnB = state._COM4B;
-    }
-    if (info.pinidx == 3) {
-      TIMER4._TCCRnA._COMnA = state._COM4A;
-    }
-    if (info.pinidx == 2 || info.pinidx == 0) {
-      USART2._UCSRnB._RXEN = state._USART2_RXEN;
-    }
-    if (info.pinidx == 2 || info.pinidx == 1) {
-      USART2._UCSRnB._TXEN = state._USART2_TXEN;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_J) {
-    if (info.pinidx <= 6) {
-      _PCICR._PCIE1 = state._PCIE1;
-    }
-    if (info.pinidx == 2 || info.pinidx == 0) {
-      USART3._UCSRnB._RXEN = state._USART3_RXEN;
-    }
-    if (info.pinidx == 2 || info.pinidx == 1) {
-      USART3._UCSRnB._TXEN = state._USART3_TXEN;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_K) {
-    _PCICR._PCIE2 = state._PCIE2;
-  }
-  else if (info.port == eATmegaPort::PORT_L) {
-    if (info.pinidx == 5) {
-      TIMER5._TCCRnA._COMnC = state._COM5C;
-    }
-    if (info.pinidx == 4) {
-      TIMER5._TCCRnA._COMnB = state._COM5B;
-    }
-    if (info.pinidx == 3) {
-      TIMER5._TCCRnA._COMnA = state._COM5A;
-    }
-  }
-#elif defined(__AVR_TRM02__)
-  if (info.port == eATmegaPort::PORT_A) {
-    _PCICR._PCIE0 = state._PCIE0;
-
-    if (info.pinidx == 7) {
-      _DIDR0._ADC7D = state._ADCnD;
-    }
-    else if (info.pinidx == 6) {
-      _DIDR0._ADC6D = state._ADCnD;
-    }
-    else if (info.pinidx == 5) {
-      _DIDR0._ADC5D = state._ADCnD;
-    }
-    else if (info.pinidx == 4) {
-      _DIDR0._ADC4D = state._ADCnD;
-    }
-    else if (info.pinidx == 3) {
-      _DIDR0._ADC3D = state._ADCnD;
-    }
-    else if (info.pinidx == 2) {
-      _DIDR0._ADC2D = state._ADCnD;
-    }
-    else if (info.pinidx == 1) {
-      _DIDR0._ADC1D = state._ADCnD;
-    }
-    else if (info.pinidx == 0) {
-      _DIDR0._ADC0D = state._ADCnD;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_B) {
-    _PCICR._PCIE1 = state._PCIE1;
-
-    if (info.pinidx <= 7 && info.pinidx >= 4) {
-      _SPCR._SPE = state._SPE;
-    }
-    
-    if (info.pinidx == 4) {
-      TIMER0._TCCRnA._COMnA = state._COM0A;
-    }
-    else if (info.pinidx == 5) {
-      TIMER0._TCCRnA._COMnB = state._COM0B;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    _ASSR._AS2 = state._AS2;
-    _PCICR._PCIE2 = state._PCIE2;
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    _PCICR._PCIE3 = state._PCIE3;
-
-    if (info.pinidx == 7) {
-      _TIMER2._TCCRnA._COMnA = state._COM2A;
-    }
-    else if (info.pinidx == 6) {
-      _TIMER2._TCCRnA._COMnB = state._COM2B;
-    }
-    else if (info.pinidx == 5) {
-      TIMER1._TCCRnA._COMnA = state._COM1A;
-    }
-    else if (info.pinidx == 4) {
-      TIMER1._TCCRnA._COMnB = state._COM1B;
-    }
-    else if (info.pinidx == 3) {
-      USART1._UCSRnB._TXEN = state._USART1_TXEN;
-    }
-    else if (info.pinidx == 2 || info.pinidx == 0) {
-      USART1._UCSRnB._RXEN = state._USART1_RXEN;
-    }
-    else if (info.pinidx == 1) {
-      USART0._UCSRnB._TXEN = state._USART0_TXEN;
-    }
-  }
-#elif defined(__AVR_TRM03__)
-  if (info.port == eATmegaPort::PORT_B) {
-    _PCICR._PCIE0 = state._PCIE0;
-
-    if (info.pinidx <= 7 && info.pinidx <= 6) {
-      _ASSR._AS2 = state._AS2;
-    }
-    else if (info.pinidx <= 5 && info.pinidx >= 2) {
-      _SPCR._SPE = state._SPE;
-    }
-
-    if (info.pinidx == 3) {
-      _TIMER2._TCCRnA._COMnA = state._COM2A;
-    }
-    else if (info.pinidx == 2) {
-      TIMER1._TCCRnA._COMnB = state._COM1B;
-    }
-    else if (info.pinidx == 1) {
-      TIMER1._TCCRnA._COMnA = state._COM1A;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    _PCICR._PCIE1 = state._PCIE1;
-
-    if (info.pinidx <= 5 && info.pinidx >= 4) {
-      _TWCR._TWEN = state._TWEN;
-    }
-
-    if (info.pinidx == 5) {
-      _DIDR0._ADC5D = state._ADCnD;
-    }
-    else if (info.pinidx == 4) {
-      _DIDR0._ADC4D = state._ADCnD;
-    }
-    if (info.pinidx == 3) {
-      _DIDR0._ADC3D = state._ADCnD;
-    }
-    if (info.pinidx == 2) {
-      _DIDR0._ADC2D = state._ADCnD;
-    }
-    if (info.pinidx == 1) {
-      _DIDR0._ADC1D = state._ADCnD;
-    }
-    if (info.pinidx == 0) {
-      _DIDR0._ADC0D = state._ADCnD;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    if (info.pinidx == 2) {
-      _PCICR._PCIE1 = state._PCIE1;
-    }
-    else {
-      _PCICR._PCIE2 = state._PCIE2;
-    }
-
-    if (info.pinidx == 6) {
-      TIMER0._TCCRnA._COMnA = state._COM0A;
-    }
-    else if (info.pinidx == 5) {
-      TIMER0._TCCRnA._COMnB = state._COM0B;
-    }
-    else if (info.pinidx == 4) {
-      USART0._UCSRnC._UMSEL = state._UMSEL;
-    }
-    else if (info.pinidx == 3) {
-      _TIMER2._TCCRnA._COMnB = state._COM2B;
-    }
-    else if (info.pinidx == 1) {
-      USART0._UCSRnB._TXEN = state._USART0_TXEN;
-    }
-    else if (info.pinidx == 0) {
-      USART0._UCSRnB._RXEN = state._USART0_RXEN;
-    }
-  }
-#elif defined(__AVR_TRM04__)
-  if (info.port == eATmegaPort::PORT_A) {
-    _XMCRA._SRE = state._SRE;
-  }
-  else if (info.port == eATmegaPort::PORT_B) {
-    if (info.pinidx == 7) {
-      TIMER1._TCCRnA._COMnC = state._COM1C;
-    }
-    else if (info.pinidx == 6) {
-      TIMER1._TCCRnA._COMnB = state._COM1B;
-    }
-    else if (info.pinidx == 5) {
-      TIMER1._TCCRnA._COMnA = state._COM1A;
-    }
-    else if (info.pinidx == 4) {
-      _TIMER2._TCCRnA._COMnA = state._COM2A;
-    }
-    else if (info.pinidx <= 3) {
-      _SPCR._SPE = state._SPE;
-    }
-
-    _PCICR._PCIE0 = state._PCIE0;
-  }
-  else if (info.port == eATmegaPort::PORT_C) {
-    _XMCRA._SRE = state._SRE;
-  }
-  else if (info.port == eATmegaPort::PORT_D) {
-    if (info.pinidx == 5) {
-      USART1._UCSRnB._RXEN = state._USART1_RXEN;
-      USART1._UCSRnB._TXEN = state._USART1_TXEN;
-    }
-    else if (info.pinidx == 3) {
-      USART1._UCSRnB._TXEN = state._USART1_TXEN;
-    }
-    else if (info.pinidx == 2) {
-      USART1._UCSRnB._RXEN = state._USART1_RXEN;
-    }
-    else if (info.pinidx <= 1) {
-      _TWCR._TWEN = state._TWEN;
-    }
-
-    if (info.pinidx == 1) {
-      _TIMER2._TCCRnA._COMnB = state._COM2B;
-    }
-    else if (info.pinidx == 0) {
-      TIMER0._TCCRnA._COMnB = state._COM0B;
-    }
-
-    if (info.pinidx == 3) {
-      _EIMSK._INT3 = state._INTn;
-    }
-    else if (info.pinidx == 2) {
-      _EIMSK._INT2 = state._INTn;
-    }
-    else if (info.pinidx == 1) {
-      _EIMSK._INT1 = state._INTn;
-    }
-    else if (info.pinidx == 0) {
-      _EIMSK._INT0 = state._INTn;
-    }
-  }
-  else if (info.port == eATmegaPort::PORT_E) {
-    if (info.pinidx == 7) {
-      _UHWCON._UVCONE = state._UVCONE;
-    }
-    else if (info.pinidx == 3) {
-      _UHWCON._UIDE = state._UIDE;
-    }
-    else if (info.pinidx <= 2) {
-      _XMCRA._SRE = state._SRE;
-    }
-
-    if (info.pinidx == 7) {
-      _EIMSK._INT7 = state._INTn;
-    }
-    else if (info.pinidx == 6) {
-      _EIMSK._INT6 = state._INTn;
-    }
-    else if (info.pinidx == 5) {
-      _EIMSK._INT5 = state._INTn;
-    }
-    else if (info.pinidx == 4) {
-      _EIMSK._INT4 = state._INTn;
-    }
-  }
-  // Ignore port F.
-#endif
-}
-
-enum class eATmegaPinFunc {
+enum class eATmegaPinFunc : uint8_t {
 #if defined(__AVR_TRM01__)
   EXTMEM_AD15, EXTMEM_AD14, EXTMEM_AD13, EXTMEM_AD12, EXTMEM_AD11, EXTMEM_AD10, EXTMEM_AD9, EXTMEM_AD8,
   EXTMEM_AD7, EXTMEM_AD6, EXTMEM_AD5, EXTMEM_AD4, EXTMEM_AD3, EXTMEM_AD2, EXTMEM_AD1, EXTMEM_AD0,
   EXTMEM_ALE, EXTMEM_RD, EXTMEM_WR,
   TOC0A, TOC0B, TOC1A, TOC1B, TOC1C, TOC2A, TOC2B, TOC3C, TOC3B, TOC3A, TOC4C, TOC4B, TOC4A, TOC5C, TOC5B, TOC5A,
   EINT7, EINT6, EINT5, EINT4, EINT3, EINT2, EINT1, EINT0,
-  PCI0, PCI1, PCI2, PCI3, PCI4, PCI5, PCI6, PCI7, PCI8,
-  PCI9, PCI10, PCI11, PCI12, PCI13, PCI14, PCI15,
+  PCI0, PCI1, PCI2, PCI3, PCI4, PCI5, PCI6, PCI7,
+  PCI8, PCI9, PCI10, PCI11, PCI12, PCI13, PCI14, PCI15,
   PCI16, PCI17, PCI18, PCI19, PCI20, PCI21, PCI22, PCI23,
   SPI_MISO, SPI_MOSI, SPI_SCK, SPI_CS,
   TOSC1, TOSC2,
@@ -4034,6 +3151,7 @@ enum class eATmegaPinFunc {
   PCI31, PCI30, PCI29, PCI28, PCI27, PCI26, PCI25, PCI24,
   PCI23, PCI22, PCI21, PCI20, PCI19, PCI18, PCI17, PCI16,
   PCI15, PCI14, PCI13, PCI12, PCI11, PCI10, PCI9, PCI8,
+  PCI7, PCI6, PCI5, PCI4, PCI3, PCI2, PCI1, PCI0,
   EINT2, EINT1, EINT0,
   TIMER3_ICP,
   TIMER3_ECI, TIMER1_ECI, TIMER0_ECI,
@@ -4080,7 +3198,12 @@ enum class eATmegaPinFunc {
   UID, UVCON,
   ADC7, ADC6, ADC5, ADC4, ADC3, ADC2, ADC1, ADC0
 #endif
+  , NUM_FUNCS
 };
+
+#ifndef countof
+#define countof(x) (sizeof(x) / sizeof(*x))
+#endif
 
 struct ATmegaPinFunctions {
   inline ATmegaPinFunctions(const eATmegaPinFunc *funcs, uint8_t cnt) noexcept : funcs(funcs), cnt(cnt) {}
@@ -4099,9 +3222,1176 @@ struct ATmegaPinFunctions {
     }
     return false;
   }
+
+  template <typename callbackType>
+  inline void iterate(callbackType&& cb) const {
+    for (uint8_t n = 0; n < this->cnt; n++) {
+      eATmegaPinFunc func = this->funcs[n];
+
+      cb(func);
+    }
+  }
 };
 
 ATmegaPinFunctions _ATmega_getPinFunctions(int pin);
+
+struct ATmegaPinFuncSet {
+  inline ATmegaPinFuncSet() noexcept {
+    for (bool& f : this->funcs)
+      f = false;
+  }
+  template <typename... funcItemType>
+  inline ATmegaPinFuncSet(eATmegaPinFunc func, funcItemType&&... items) noexcept : ATmegaPinFuncSet() {
+    add(func, ((funcItemType&&)items)...);
+  }
+  template <typename... funcItemType>
+  inline ATmegaPinFuncSet(int pin, funcItemType&&... items) noexcept : ATmegaPinFuncSet() {
+    addFromPin(pin, ((funcItemType&&)items)...);
+  }
+  inline ATmegaPinFuncSet(const ATmegaPinFuncSet&) = default;
+
+  inline void add(eATmegaPinFunc value) noexcept {
+    this->funcs[(uint8_t)value] = true;
+  }
+  template <typename... funcItemType>
+  inline void add(eATmegaPinFunc value, funcItemType&&... items) {
+    add(value);
+    add(((eATmegaPinFunc&&)items)...);
+  }
+
+  inline void addFromPin(int pin) noexcept {
+    ATmegaPinFunctions funcs = _ATmega_getPinFunctions(pin);
+
+    funcs.iterate(
+      [this]( eATmegaPinFunc func ) noexcept {
+        this->add(func);
+      }
+    );
+  }
+  template <typename... itemType>
+  inline void addFromPin(int pin, itemType&&... items) noexcept {
+    addFromPin(pin);
+    addFromPin(((itemType&&)items)...);
+  }
+
+  inline bool hasFunc(eATmegaPinFunc value) const noexcept {
+    return this->funcs[(uint8_t)value];
+  }
+
+  inline bool hasAnyFunc() const noexcept {
+    return false;
+  }
+  template <typename funcItem, typename... otherFuncItem>
+  inline bool hasAnyFunc(funcItem&& item, otherFuncItem&&... funcs) const noexcept {
+    return hasFunc(item) || hasAnyFunc(((otherFuncItem&&)funcs)...);
+  }
+
+  template <typename callbackType>
+  inline void iterate(callbackType&& cb) const {
+    for (uint8_t n = 1; n < countof(this->funcs); n++) {
+      const bool& f = this->funcs[n];
+      if (f) {
+        cb((eATmegaPinFunc)n);
+      }
+    }
+  }
+
+private:
+  bool funcs[(uint8_t)eATmegaPinFunc::NUM_FUNCS];
+};
+
+inline void _ATmega_setPeripheralPower(eATmegaPeripheral peri, bool fullPower) {
+  bool reducePower = (fullPower == false);
+  switch(peri) {
+#if defined(__AVR_TRM01__)
+  case eATmegaPeripheral::PADC: _PRR0._PRADC = reducePower; break;
+  case eATmegaPeripheral::PUSART0: _PRR0._PRUSART0 = reducePower; break;
+  case eATmegaPeripheral::PSPI: _PRR0._PRSPI = reducePower; break;
+  case eATmegaPeripheral::PTIM1: _PRR0._PRTIM1 = reducePower; break;
+  case eATmegaPeripheral::PTIM0: _PRR0._PRTIM0 = reducePower; break;
+  case eATmegaPeripheral::PTIM2: _PRR0._PRTIM2 = reducePower; break;
+  case eATmegaPeripheral::PTWI: _PRR0._PRTWI = reducePower; break;
+  case eATmegaPeripheral::PUSART1: _PRR1._PRUSART1 = reducePower; break;
+  case eATmegaPeripheral::PUSART2: _PRR1._PRUSART2 = reducePower; break;
+  case eATmegaPeripheral::PUSART3: _PRR1._PRUSART3 = reducePower; break;
+  case eATmegaPeripheral::PTIM3: _PRR1._PRTIM3 = reducePower; break;
+  case eATmegaPeripheral::PTIM4: _PRR1._PRTIM4 = reducePower; break;
+  case eATmegaPeripheral::PTIM5: _PRR1._PRTIM5 = reducePower; break;
+#elif defined(__AVR_TRM02__)
+  case eATmegaPeripheral::PADC: _PRR0._PRADC = reducePower; break;
+  case eATmegaPeripheral::PUSART0: _PRR0._PRUSART0 = reducePower; break;
+  case eATmegaPeripheral::PSPI: _PRR0._PRSPI = reducePower; break;
+  case eATmegaPeripheral::PTIM1: _PRR0._PRTIM1 = reducePower; break;
+  case eATmegaPeripheral::PUSART1: _PRR0._PRUSART1 = reducePower; break;
+  case eATmegaPeripheral::PTIM0: _PRR0._PRTIM0 = reducePower; break;
+  case eATmegaPeripheral::PTIM2: _PRR0._PRTIM2 = reducePower; break;
+  case eATmegaPeripheral::PTWI: _PRR0._PRTWI = reducePower; break;
+  case eATmegaPeripheral::PTIM3: _PRR1._PRTIM3 = reducePower; break;
+#elif defined(__AVR_TRM03__)
+  case eATmegaPeripheral::PADC: _PRR0._PRADC = reducePower; break;
+  case eATmegaPeripheral::PUSART0: _PRR0._PRUSART0 = reducePower; break;
+  case eATmegaPeripheral::PSPI: _PRR0._PRSPI = reducePower; break;
+  case eATmegaPeripheral::PTIM1: _PRR0._PRTIM1 = reducePower; break;
+  case eATmegaPeripheral::PTIM0: _PRR0._PRTIM0 = reducePower; break;
+  case eATmegaPeripheral::PTIM2: _PRR0._PRTIM2 = reducePower; break;
+  case eATmegaPeripheral::PTWI: _PRR0._PRTWI = reducePower; break;
+#elif defined(__AVR_TRM04__)
+  case eATmegaPeripheral::PADC: _PRR0._PRADC = reducePower; break;
+  case eATmegaPeripheral::PSPI: _PRR0._PRSPI = reducePower; break;
+  case eATmegaPeripheral::PTIM1: _PRR0._PRTIM1 = reducePower; break;
+  case eATmegaPeripheral::PTIM0: _PRR0._PRTIM0 = reducePower; break;
+  case eATmegaPeripheral::PTIM2: _PRR0._PRTIM2 = reducePower; break;
+  case eATmegaPeripheral::PTWI: _PRR0._PRTWI = reducePower; break;
+  case eATmegaPeripheral::PUSART1: _PRR1._PRUSART1 = reducePower; break;
+  case eATmegaPeripheral::PTIM3: _PRR1._PRTIM3 = reducePower; break;
+  case eATmegaPeripheral::PUSB: _PRR1._PRUSB = reducePower; break;
+#endif
+  case eATmegaPeripheral::UNDEFINED: case eATmegaPeripheral::NUM_PERIPHERALS: break;
+  }
+}
+
+inline bool _ATmega_getPeripheralPower(eATmegaPeripheral peri) {
+  switch(peri) {
+#if defined(__AVR_TRM01__)
+  case eATmegaPeripheral::PADC: return _PRR0._PRADC == false;
+  case eATmegaPeripheral::PUSART0: return _PRR0._PRUSART0 == false;
+  case eATmegaPeripheral::PSPI: return _PRR0._PRSPI == false;
+  case eATmegaPeripheral::PTIM1: return _PRR0._PRTIM1 == false;
+  case eATmegaPeripheral::PTIM0: return _PRR0._PRTIM0 == false;
+  case eATmegaPeripheral::PTIM2: return _PRR0._PRTIM2 == false;
+  case eATmegaPeripheral::PTWI: return _PRR0._PRTWI == false;
+  case eATmegaPeripheral::PUSART1: return _PRR1._PRUSART1 == false;
+  case eATmegaPeripheral::PUSART2: return _PRR1._PRUSART2 == false;
+  case eATmegaPeripheral::PUSART3: return _PRR1._PRUSART3 == false;
+  case eATmegaPeripheral::PTIM3: return _PRR1._PRTIM3 == false;
+  case eATmegaPeripheral::PTIM4: return _PRR1._PRTIM4 == false;
+  case eATmegaPeripheral::PTIM5: return _PRR1._PRTIM5 == false;
+#elif defined(__AVR_TRM02__)
+  case eATmegaPeripheral::PADC: return _PRR0._PRADC == false;
+  case eATmegaPeripheral::PUSART0: return _PRR0._PRUSART0 == false;
+  case eATmegaPeripheral::PSPI: return _PRR0._PRSPI == false;
+  case eATmegaPeripheral::PTIM1: return _PRR0._PRTIM1 == false;
+  case eATmegaPeripheral::PUSART1: return _PRR0._PRUSART1 == false;
+  case eATmegaPeripheral::PTIM0: return _PRR0._PRTIM0 == false;
+  case eATmegaPeripheral::PTIM2: return _PRR0._PRTIM2 == false;
+  case eATmegaPeripheral::PTWI: return _PRR0._PRTWI == false;
+  case eATmegaPeripheral::PTIM3: return _PRR1._PRTIM3 == false;
+#elif defined(__AVR_TRM03__)
+  case eATmegaPeripheral::PADC: return _PRR0._PRADC == false;
+  case eATmegaPeripheral::PUSART0: return _PRR0._PRUSART0 == false;
+  case eATmegaPeripheral::PSPI: return _PRR0._PRSPI == false;
+  case eATmegaPeripheral::PTIM1: return _PRR0._PRTIM1 == false;
+  case eATmegaPeripheral::PTIM0: return _PRR0._PRTIM0 == false;
+  case eATmegaPeripheral::PTIM2: return _PRR0._PRTIM2 == false;
+  case eATmegaPeripheral::PTWI: return _PRR0._PRTWI == false;
+#elif defined(__AVR_TRM04__)
+  case eATmegaPeripheral::PADC: return _PRR0._PRADC == false;
+  case eATmegaPeripheral::PSPI: return _PRR0._PRSPI == false;
+  case eATmegaPeripheral::PTIM1: return _PRR0._PRTIM1 == false;
+  case eATmegaPeripheral::PTIM0: return _PRR0._PRTIM0 == false;
+  case eATmegaPeripheral::PTIM2: return _PRR0._PRTIM2 == false;
+  case eATmegaPeripheral::PTWI: return _PRR0._PRTWI == false;
+  case eATmegaPeripheral::PUSART1: return _PRR1._PRUSART1 == false;
+  case eATmegaPeripheral::PTIM3: return _PRR1._PRTIM3 == false;
+  case eATmegaPeripheral::PUSB: return _PRR1._PRUSB == false;
+#endif
+  case eATmegaPeripheral::UNDEFINED: case eATmegaPeripheral::NUM_PERIPHERALS: break;
+  }
+  return false;
+}
+
+inline eATmegaPeripheral _ATmega_getPeripheralForFunc( eATmegaPinFunc func ) {
+  // In C++20 there is the "using-enum" statement. I wish we had C++20 over here...
+  //using enum eATmegaPinFunc
+  switch(func) {
+#if defined(__AVR_TRM01__)
+  case eATmegaPinFunc::TOC0A: case eATmegaPinFunc::TOC0B: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::TOC1A: case eATmegaPinFunc::TOC1B: case eATmegaPinFunc::TOC1C: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TOC2A: case eATmegaPinFunc::TOC2B: return eATmegaPeripheral::PTIM2;
+  case eATmegaPinFunc::TOC3A: case eATmegaPinFunc::TOC3B: case eATmegaPinFunc::TOC3C: return eATmegaPeripheral::PTIM3;
+  case eATmegaPinFunc::TOC4A: case eATmegaPinFunc::TOC4B: case eATmegaPinFunc::TOC4C: return eATmegaPeripheral::PTIM4;
+  case eATmegaPinFunc::TOC5A: case eATmegaPinFunc::TOC5B: case eATmegaPinFunc::TOC5C: return eATmegaPeripheral::PTIM5;
+  case eATmegaPinFunc::SPI_MISO: case eATmegaPinFunc::SPI_MOSI: case eATmegaPinFunc::SPI_SCK: case eATmegaPinFunc::SPI_CS: return eATmegaPeripheral::PSPI;
+  case eATmegaPinFunc::TIMER0_CLKI: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::TIMER1_CLKI: case eATmegaPinFunc::TIMER1_ICP: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TIMER3_CLKI: case eATmegaPinFunc::TIMER3_ICP: return eATmegaPeripheral::PTIM3;
+  case eATmegaPinFunc::TIMER4_CLKI: case eATmegaPinFunc::TIMER4_ICP: return eATmegaPeripheral::PTIM4;
+  case eATmegaPinFunc::TIMER5_CLKI: case eATmegaPinFunc::TIMER5_ICP: return eATmegaPeripheral::PTIM5;
+  case eATmegaPinFunc::USART0_CLK: case eATmegaPinFunc::USART0_TXD: case eATmegaPinFunc::USART0_RXD: return eATmegaPeripheral::PUSART0;
+  case eATmegaPinFunc::USART1_CLK: case eATmegaPinFunc::USART1_TXD: case eATmegaPinFunc::USART1_RXD: return eATmegaPeripheral::PUSART1;
+  case eATmegaPinFunc::USART2_CLK: case eATmegaPinFunc::USART2_TXD: case eATmegaPinFunc::USART2_RXD: return eATmegaPeripheral::PUSART2;
+  case eATmegaPinFunc::USART3_CLK: case eATmegaPinFunc::USART3_TXD: case eATmegaPinFunc::USART3_RXD: return eATmegaPeripheral::PUSART3;
+  case eATmegaPinFunc::TWI_SDA: case eATmegaPinFunc::TWI_CLK: return eATmegaPeripheral::PTWI;
+  case eATmegaPinFunc::ADC15: case eATmegaPinFunc::ADC14: case eATmegaPinFunc::ADC13: case eATmegaPinFunc::ADC12: case eATmegaPinFunc::ADC11: case eATmegaPinFunc::ADC10: case eATmegaPinFunc::ADC9: case eATmegaPinFunc::ADC8:
+  case eATmegaPinFunc::ADC7: case eATmegaPinFunc::ADC6: case eATmegaPinFunc::ADC5: case eATmegaPinFunc::ADC4: case eATmegaPinFunc::ADC3: case eATmegaPinFunc::ADC2: case eATmegaPinFunc::ADC1: case eATmegaPinFunc::ADC0:
+    return eATmegaPeripheral::PADC;
+#elif defined(__AVR_TRM02__)
+  case eATmegaPinFunc::ADC7: case eATmegaPinFunc::ADC6: case eATmegaPinFunc::ADC5: case eATmegaPinFunc::ADC4: case eATmegaPinFunc::ADC3: case eATmegaPinFunc::ADC2: case eATmegaPinFunc::ADC1: case eATmegaPinFunc::ADC0:
+    return eATmegaPeripheral::PADC;
+  case eATmegaPinFunc::SPI_SCK: case eATmegaPinFunc::SPI_MISO: case eATmegaPinFunc::SPI_MOSI: case eATmegaPinFunc::SPI_CS: return eATmegaPeripheral::PSPI;
+  case eATmegaPinFunc::TIMER3_ICP: case eATmegaPinFunc::TIMER3_ECI: return eATmegaPeripheral::PTIM3;
+  case eATmegaPinFunc::TIMER1_ECI: case eATmegaPinFunc::TIMER1_ICP: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TIMER0_ECI: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::TOC3B: case eATmegaPinFunc::TOC3A: return eATmegaPeripheral::PTIM3;
+  case eATmegaPinFunc::TOC2A: case eATmegaPinFunc::TOC2B: return eATmegaPeripheral::PTIM2;
+  case eATmegaPinFunc::TOC1A: case eATmegaPinFunc::TOC1B: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TOC0B: case eATmegaPinFunc::TOC0A: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::USART0_CLK: case eATmegaPinFunc::USART0_TXD: case eATmegaPinFunc::USART0_RXD: return eATmegaPeripheral::PUSART0;
+  case eATmegaPinFunc::USART1_CLK: case eATmegaPinFunc::USART1_TXD: case eATmegaPinFunc::USART1_RXD: return eATmegaPeripheral::PUSART1;
+  case eATmegaPinFunc::TWI_SDA: case eATmegaPinFunc::TWI_CLK: return eATmegaPeripheral::PTWI;
+#elif defined(__AVR_TRM03__)
+  case eATmegaPinFunc::ADC5: case eATmegaPinFunc::ADC4: case eATmegaPinFunc::ADC3: case eATmegaPinFunc::ADC2: case eATmegaPinFunc::ADC1: case eATmegaPinFunc::ADC0:
+    return eATmegaPeripheral::PADC;
+  case eATmegaPinFunc::SPI_SCK: case eATmegaPinFunc::SPI_MISO: case eATmegaPinFunc::SPI_MOSI: case eATmegaPinFunc::SPI_CS: return eATmegaPeripheral::PSPI;
+  case eATmegaPinFunc::TOC2B: case eATmegaPinFunc::TOC2A: return eATmegaPeripheral::PTIM2;
+  case eATmegaPinFunc::TOC1B: case eATmegaPinFunc::TOC1A: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TOC0A: case eATmegaPinFunc::TOC0B: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::TIMER1_ICP: case eATmegaPinFunc::TIMER1_ECI: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TIMER0_ECI: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::TWI_CLK: case eATmegaPinFunc::TWI_SDA: return eATmegaPeripheral::PTWI;
+  case eATmegaPinFunc::USART_CLK: case eATmegaPinFunc::USART_TXD: case eATmegaPinFunc::USART_RXD: return eATmegaPeripheral::PUSART0;
+#elif defined(__AVR_TRM04__)
+  case eATmegaPinFunc::TOC0B: case eATmegaPinFunc::TOC0A: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::TOC1C: case eATmegaPinFunc::TOC1B: case eATmegaPinFunc::TOC1A: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TOC2B: case eATmegaPinFunc::TOC2A: return eATmegaPeripheral::PTIM2;
+  case eATmegaPinFunc::TOC3A: case eATmegaPinFunc::TOC3B: case eATmegaPinFunc::TOC3C: return eATmegaPeripheral::PTIM3;
+  case eATmegaPinFunc::SPI_MISO: case eATmegaPinFunc::SPI_MOSI: case eATmegaPinFunc::SPI_SCK: case eATmegaPinFunc::SPI_CS: return eATmegaPeripheral::PSPI;
+  case eATmegaPinFunc::TIMER3_ICP: case eATmegaPinFunc::TIMER3_CLKI: return eATmegaPeripheral::PTIM3;
+  case eATmegaPinFunc::TIMER1_ICP: case eATmegaPinFunc::TIMER1_CLKI: return eATmegaPeripheral::PTIM1;
+  case eATmegaPinFunc::TIMER0_CLKI: return eATmegaPeripheral::PTIM0;
+  case eATmegaPinFunc::USART1_CLK: case eATmegaPinFunc::USART1_TXD: case eATmegaPinFunc::USART1_RXD: return eATmegaPeripheral::PUSART1;
+  case eATmegaPinFunc::TWI_SDA: case eATmegaPinFunc::TWI_CLK: return eATmegaPeripheral::PTWI;
+  case eATmegaPinFunc::UID: case eATmegaPinFunc::UVCON: return eATmegaPeripheral::PUSB;
+  case eATmegaPinFunc::ADC7: case eATmegaPinFunc::ADC6: case eATmegaPinFunc::ADC5: case eATmegaPinFunc::ADC4: case eATmegaPinFunc::ADC3: case eATmegaPinFunc::ADC2: case eATmegaPinFunc::ADC1: case eATmegaPinFunc::ADC0:
+    return eATmegaPeripheral::PADC;
+#endif
+  // There are quite some pin functions that have no peripheral assignment, and that is OK!
+  default: break;
+  }
+  return eATmegaPeripheral::UNDEFINED;
+}
+
+struct ATmegaPeripheralSet {
+  inline ATmegaPeripheralSet() noexcept {
+    for (bool& f : this->funcs)
+      f = false;
+  }
+  template <typename... funcItemType>
+  inline ATmegaPeripheralSet(funcItemType&&... items) noexcept : ATmegaPinFuncSet() {
+    add(((eATmegaPinFunc&&)items)...);
+  }
+  inline ATmegaPeripheralSet(const ATmegaPeripheralSet&) = default;
+
+  inline void add(eATmegaPeripheral value) noexcept {
+    this->funcs[(uint8_t)value] = true;
+  }
+  template <typename... funcItemType>
+  inline void add(eATmegaPeripheral value, funcItemType&&... items) noexcept {
+    add(value);
+    add(((funcItemType&&)items)...);
+  }
+
+  inline bool hasItem(eATmegaPeripheral value) const noexcept {
+    return this->funcs[(uint8_t)value];
+  }
+  template <typename... otherFuncItem>
+  inline bool hasItem(eATmegaPeripheral&& item, otherFuncItem&&... funcs) const noexcept {
+    return hasItem(item) || hasItem(((otherFuncItem&&)funcs)...);
+  }
+
+  template <typename callbackType>
+  inline void iterate(callbackType&& cb) const {
+    for (uint8_t n = 1; n < countof(funcs); n++) {
+      const bool& f = this->funcs[n];
+      if (f) {
+        cb( (eATmegaPeripheral)n );
+      }
+    }
+  }
+
+  inline void fromPinFuncs(const ATmegaPinFuncSet& funcSet) {
+    funcSet.iterate(
+      [this]( eATmegaPinFunc func ) noexcept {
+        this->add( _ATmega_getPeripheralForFunc(func) );
+      }
+    );
+  }
+
+private:
+  bool funcs[(uint8_t)eATmegaPeripheral::NUM_PERIPHERALS];
+};
+
+struct ATmegaPeripheralPowerGate {
+  inline ATmegaPeripheralPowerGate(ATmegaPeripheralSet& periSet) noexcept : periSet(periSet) {
+    periSet.iterate(
+      [this]( eATmegaPeripheral peri ) noexcept {
+        this->states[(uint8_t)peri] = _ATmega_getPeripheralPower(peri);
+        _ATmega_setPeripheralPower(peri, true);
+      }
+    );
+  }
+  inline ATmegaPeripheralPowerGate(const ATmegaPeripheralPowerGate&) = delete;
+
+  inline ~ATmegaPeripheralPowerGate() {
+    periSet.iterate(
+      [this]( eATmegaPeripheral peri ) noexcept {
+        _ATmega_setPeripheralPower(peri, this->states[(uint8_t)peri]);
+      }
+    );
+  }
+
+  inline ATmegaPeripheralPowerGate& operator = (const ATmegaPeripheralPowerGate&) = delete;
+
+private:
+  ATmegaPeripheralSet& periSet;
+  bool states[(uint8_t)eATmegaPeripheral::NUM_PERIPHERALS];
+};
+
+inline pin_dev_state_t _ATmega_savePinAlternates(const ATmegaPinFuncSet& funcSet) {
+  // TODO: the manual states that registers of power-reduced peripherals cannot be read or written, and that
+  // the resources (GPIO pins) remain occupied during power-reduction. This is a serious problem and we should
+  // add power-reduction awareness to this logic!
+
+  pin_dev_state_t state;
+
+  ATmegaPeripheralSet periSet;
+  periSet.fromPinFuncs(funcSet);
+
+  ATmegaPeripheralPowerGate pgate(periSet);
+
+#if defined(__AVR_TRM01__)
+  // See page 75ff of ATmega2560 technical reference manual.
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::EXTMEM_AD15, eATmegaPinFunc::EXTMEM_AD14, eATmegaPinFunc::EXTMEM_AD13, eATmegaPinFunc::EXTMEM_AD12, eATmegaPinFunc::EXTMEM_AD11, eATmegaPinFunc::EXTMEM_AD10, eATmegaPinFunc::EXTMEM_AD9, eATmegaPinFunc::EXTMEM_AD8,
+    eATmegaPinFunc::EXTMEM_AD7, eATmegaPinFunc::EXTMEM_AD6, eATmegaPinFunc::EXTMEM_AD5, eATmegaPinFunc::EXTMEM_AD4, eATmegaPinFunc::EXTMEM_AD3, eATmegaPinFunc::EXTMEM_AD2, eATmegaPinFunc::EXTMEM_AD1, eATmegaPinFunc::EXTMEM_AD0,
+    eATmegaPinFunc::EXTMEM_ALE, eATmegaPinFunc::EXTMEM_RD, eATmegaPinFunc::EXTMEM_WR
+  )) {
+    state._SRE = _XMCRA._SRE;
+
+    _XMCRA._SRE = false;
+  }
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::PCI0, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI7
+  )) {
+    state._PCIE0 = _PCICR._PCIE0;
+
+    _PCICR._PCIE0 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1C)) {
+    state._COM1C = TIMER1._TCCRnA._COMnC;
+
+    TIMER1._TCCRnA._COMnC = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    state._COM1B = TIMER1._TCCRnA._COMnB;
+
+    TIMER1._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    state._COM1A = TIMER1._TCCRnA._COMnA;
+
+    TIMER1._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    state._COM2A = _TIMER2._TCCRnA._COMnA;
+
+    _TIMER2._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_TXD, eATmegaPinFunc::USART1_CLK)) {
+    state._USART1_TXEN = USART1._UCSRnB._TXEN;
+
+    USART1._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_RXD, eATmegaPinFunc::USART1_CLK)) {
+    state._USART1_RXEN = USART1._UCSRnB._RXEN;
+
+    USART1._UCSRnB._RXEN = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC3C)) {
+    state._COM3C = TIMER3._TCCRnA._COMnC;
+
+    TIMER3._TCCRnA._COMnC = 0;
+  }
+  // There is an error in the technical reference manual signal mapping table
+  // of ATmega2560 where is says that pin 3 is mapped to OC3B, but the list
+  // says OC3A.
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC3B)) {
+    state._COM3B = TIMER3._TCCRnA._COMnB;
+
+    TIMER3._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC3A)) {
+    state._COM3A = TIMER3._TCCRnA._COMnA;
+
+    TIMER3._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART0_RXD, eATmegaPinFunc::USART0_CLK)) {
+    state._USART0_RXEN = USART0._UCSRnB._RXEN;
+
+    USART0._UCSRnB._RXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART0_TXD, eATmegaPinFunc::USART0_CLK)) {
+    state._USART0_TXEN = USART0._UCSRnB._TXEN;
+
+    USART0._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI15, eATmegaPinFunc::PCI14, eATmegaPinFunc::PCI13, eATmegaPinFunc::PCI12, eATmegaPinFunc::PCI11, eATmegaPinFunc::PCI10, eATmegaPinFunc::PCI9, eATmegaPinFunc::PCI8)) {
+    state._PCIE1 = _PCICR._PCIE1;
+
+    _PCICR._PCIE1 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOC0B)) {
+    state._COM0B = TIMER0._TCCRnA._COMnB;
+
+    TIMER0._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOSC1, eATmegaPinFunc::TOSC2)) {
+    state._AS2 = _ASSR._AS2;
+
+    _ASSR._AS2 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    state._COM2B = _TIMER2._TCCRnA._COMnB;
+
+    _TIMER2._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC4C)) {
+    state._COM4C = TIMER4._TCCRnA._COMnC;
+
+    TIMER4._TCCRnA._COMnC = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC4B)) {
+    state._COM4B = TIMER4._TCCRnA._COMnB;
+
+    TIMER4._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC4A)) {
+    state._COM4A = TIMER4._TCCRnA._COMnA;
+
+    TIMER4._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART2_RXD, eATmegaPinFunc::USART2_CLK)) {
+    state._USART2_RXEN = USART2._UCSRnB._RXEN;
+
+    USART2._UCSRnB._RXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART2_TXD, eATmegaPinFunc::USART2_CLK)) {
+    state._USART2_TXEN = USART2._UCSRnB._TXEN;
+
+    USART2._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART3_TXD, eATmegaPinFunc::USART3_CLK)) {
+    state._USART3_RXEN = USART3._UCSRnB._RXEN;
+
+    USART3._UCSRnB._RXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART3_TXD, eATmegaPinFunc::USART3_CLK)) {
+    state._USART3_TXEN = USART3._UCSRnB._TXEN;
+
+    USART3._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::PCI23, eATmegaPinFunc::PCI22, eATmegaPinFunc::PCI21, eATmegaPinFunc::PCI20, eATmegaPinFunc::PCI19, eATmegaPinFunc::PCI18, eATmegaPinFunc::PCI17, eATmegaPinFunc::PCI16
+  )) {
+    state._PCIE2 = _PCICR._PCIE2;
+
+    _PCICR._PCIE2 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC5C)) {
+    state._COM5C = TIMER5._TCCRnA._COMnC;
+
+    TIMER5._TCCRnA._COMnC = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC5B)) {
+    state._COM5B = TIMER5._TCCRnA._COMnB;
+
+    TIMER5._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC5A)) {
+    state._COM5A = TIMER5._TCCRnA._COMnA;
+
+    TIMER5._TCCRnA._COMnA = 0;
+  }
+#elif defined(__AVR_TRM02__)
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI7, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI0)) {
+    state._PCIE0 = _PCICR._PCIE0;
+
+    _PCICR._PCIE0 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC7)) {
+    state._ADC7D = _DIDR0._ADC7D;
+
+    _DIDR0._ADC7D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC6)) {
+    state._ADC6D = _DIDR0._ADC6D;
+
+    _DIDR0._ADC6D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC5)) {
+    state._ADC5D = _DIDR0._ADC5D;
+
+    _DIDR0._ADC5D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC4)) {
+    state._ADC4D = _DIDR0._ADC4D;
+
+    _DIDR0._ADC4D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC3)) {
+    state._ADC3D = _DIDR0._ADC3D;
+
+    _DIDR0._ADC3D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC2)) {
+    state._ADC2D = _DIDR0._ADC2D;
+
+    _DIDR0._ADC2D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC1)) {
+    state._ADC1D = _DIDR0._ADC1D;
+
+    _DIDR0._ADC1D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC0)) {
+    state._ADC0D = _DIDR0._ADC0D;
+
+    _DIDR0._ADC0D = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI15, eATmegaPinFunc::PCI14, eATmegaPinFunc::PCI13, eATmegaPinFunc::PCI12, eATmegaPinFunc::PCI11, eATmegaPinFunc::PCI10, eATmegaPinFunc::PCI9, eATmegaPinFunc::PCI8)) {
+    state._PCIE1 = _PCICR._PCIE1;
+
+    _PCICR._PCIE1 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::SPI_CS)) {
+    state._SPE = _SPCR._SPE;
+
+    _SPCR._SPE = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0A)) {
+    state._COM0A = TIMER0._TCCRnA._COMnA;
+
+    TIMER0._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0B)) {
+    state._COM0B = TIMER0._TCCRnA._COMnB;
+
+    TIMER0._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOSC1, eATmegaPinFunc::TOSC2)) {
+    state._AS2 = _ASSR._AS2;
+
+    _ASSR._AS2 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI23, eATmegaPinFunc::PCI22, eATmegaPinFunc::PCI21, eATmegaPinFunc::PCI20, eATmegaPinFunc::PCI19, eATmegaPinFunc::PCI18, eATmegaPinFunc::PCI17, eATmegaPinFunc::PCI16)) {
+    state._PCIE2 = _PCICR._PCIE2;
+
+    _PCICR._PCIE2 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI31, eATmegaPinFunc::PCI30, eATmegaPinFunc::PCI29, eATmegaPinFunc::PCI28, eATmegaPinFunc::PCI27, eATmegaPinFunc::PCI26, eATmegaPinFunc::PCI25, eATmegaPinFunc::PCI24)) {
+    state._PCIE3 = _PCICR._PCIE3;
+
+    _PCICR._PCIE3 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    state._COM2A = _TIMER2._TCCRnA._COMnA;
+
+    _TIMER2._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    state._COM2B = _TIMER2._TCCRnA._COMnB;
+
+    _TIMER2._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    state._COM1A = TIMER1._TCCRnA._COMnA;
+
+    TIMER1._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    state._COM1B = TIMER1._TCCRnA._COMnB;
+
+    TIMER1._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART1_TXD)) {
+    state._USART1_TXEN = USART1._UCSRnB._TXEN;
+
+    USART1._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART1_RXD)) {
+    state._USART1_RXEN = USART1._UCSRnB._RXEN;
+
+    USART1._UCSRnB._RXEN = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART0_TXD)) {
+    state._USART0_TXEN = USART0._UCSRnB._TXEN;
+
+    USART0._UCSRnB._TXEN = false;
+  }
+  // There is a bug in the ATmega164A technical reference manual where
+  // it says that pin 0 is mapped to USART1 RXD in the signal mapping table
+  // but the associated list says USART0 RXD.
+  if (funcSet.hasFunc(eATmegaPinFunc::USART0_RXD)) {
+    state._USART0_RXEN = USART0._UCSRnB._RXEN;
+
+    USART0._UCSRnB._RXEN = false;
+  }
+#elif defined(__AVR_TRM03__)
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI7, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI0)) {
+    state._PCIE0 = _PCICR._PCIE0;
+
+    _PCICR._PCIE0 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOSC1, eATmegaPinFunc::TOSC2)) {
+    state._AS2 = _ASSR._AS2;
+
+    _ASSR._AS2 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::SPI_CS)) {
+    state._SPE = _SPCR._SPE;
+
+    _SPCR._SPE = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    state._COM2A = _TIMER2._TCCRnA._COMnA;
+
+    _TIMER2._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    state._COM1B = TIMER1._TCCRnA._COMnB;
+
+    TIMER1._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    state._COM1A = TIMER1._TCCRnA._COMnA;
+
+    TIMER1._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI14, eATmegaPinFunc::PCI13, eATmegaPinFunc::PCI12, eATmegaPinFunc::PCI11, eATmegaPinFunc::PCI10, eATmegaPinFunc::PCI9, eATmegaPinFunc::PCI8)) {
+    state._PCIE1 = _PCICR._PCIE1;
+
+    _PCICR._PCIE1 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TWI_CLK, eATmegaPinFunc::TWI_SDA)) {
+    state._TWEN = _TWCR._TWEN;
+
+    _TWCR._TWEN = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC5)) {
+    state._ADC5D = _DIDR0._ADC5D;
+
+    _DIDR0._ADC5D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC4)) {
+    state._ADC4D = _DIDR0._ADC4D;
+
+    _DIDR0._ADC4D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC3)) {
+    state._ADC3D = _DIDR0._ADC3D;
+
+    _DIDR0._ADC3D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC2)) {
+    state._ADC2D = _DIDR0._ADC2D;
+
+    _DIDR0._ADC2D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC1)) {
+    state._ADC1D = _DIDR0._ADC1D;
+
+    _DIDR0._ADC1D = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC0)) {
+    state._ADC0D = _DIDR0._ADC0D;
+
+    _DIDR0._ADC0D = false;
+  }
+  // There is a bug in the ATmega48A technical reference manual where pin 2
+  // is said to be mapped to PCIE1 but logically it should be PCIE2 instead.
+  // The real mapping can be read in the documentation of the PCICR register.
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI23, eATmegaPinFunc::PCI22, eATmegaPinFunc::PCI21, eATmegaPinFunc::PCI20, eATmegaPinFunc::PCI19, eATmegaPinFunc::PCI18, eATmegaPinFunc::PCI17, eATmegaPinFunc::PCI16)) {
+    state._PCIE2 = _PCICR._PCIE2;
+
+    _PCICR._PCIE2 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0A)) {
+    state._COM0A = TIMER0._TCCRnA._COMnA;
+
+    TIMER0._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0B)) {
+    state._COM0B = TIMER0._TCCRnA._COMnB;
+
+    TIMER0._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART_CLK)) {
+    state._UMSEL = USART0._UCSRnC._UMSEL;
+
+    USART0._UCSRnC._UMSEL = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    state._COM2B = _TIMER2._TCCRnA._COMnB;
+
+    _TIMER2._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART_TXD)) {
+    state._USART0_TXEN = USART0._UCSRnB._TXEN;
+
+    USART0._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART_RXD)) {
+    state._USART0_RXEN = USART0._UCSRnB._RXEN;
+
+    USART0._UCSRnB._RXEN = false;
+  }
+#elif defined(__AVR_TRM04__)
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::EXTMEM_AD15, eATmegaPinFunc::EXTMEM_AD14, eATmegaPinFunc::EXTMEM_AD13, eATmegaPinFunc::EXTMEM_AD12, eATmegaPinFunc::EXTMEM_AD11, eATmegaPinFunc::EXTMEM_AD10, eATmegaPinFunc::EXTMEM_AD9, eATmegaPinFunc::EXTMEM_AD8,
+    eATmegaPinFunc::EXTMEM_AD7, eATmegaPinFunc::EXTMEM_AD6, eATmegaPinFunc::EXTMEM_AD5, eATmegaPinFunc::EXTMEM_AD4, eATmegaPinFunc::EXTMEM_AD3, eATmegaPinFunc::EXTMEM_AD2, eATmegaPinFunc::EXTMEM_AD1, eATmegaPinFunc::EXTMEM_AD0,
+    eATmegaPinFunc::EXTMEM_ALE, eATmegaPinFunc::EXTMEM_RD, eATmegaPinFunc::EXTMEM_WR
+  )) {
+    state._SRE = _XMCRA._SRE;
+
+    _XMCRA._SRE = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1C)) {
+    state._COM1C = TIMER1._TCCRnA._COMnC;
+
+    TIMER1._TCCRnA._COMnC = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    state._COM1B = TIMER1._TCCRnA._COMnB;
+
+    TIMER1._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    state._COM1A = TIMER1._TCCRnA._COMnA;
+
+    TIMER1._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    state._COM2A = _TIMER2._TCCRnA._COMnA;
+
+    _TIMER2._TCCRnA._COMnA = 0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::SPI_CS)) {
+    state._SPE = _SPCR._SPE;
+
+    _SPCR._SPE = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI7, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI0)) {
+    state._PCIE0 = _PCICR._PCIE0;
+
+    _PCICR._PCIE0 = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::USART1_TXD)) {
+    state._USART1_TXEN = USART1._UCSRnB._TXEN;
+
+    USART1._UCSRnB._TXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::USART1_RXD)) {
+    state._USART1_RXEN = USART1._UCSRnB._RXEN;
+
+    USART1._UCSRnB._RXEN = false;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TWI_SDA, eATmegaPinFunc::TWI_CLK)) {
+    state._TWEN = _TWCR._TWEN;
+
+    _TWCR._TWEN = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    state._COM2B = _TIMER2._TCCRnA._COMnB;
+
+    _TIMER2._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0B)) {
+    state._COM0B = TIMER0._TCCRnA._COMnB;
+
+    TIMER0._TCCRnA._COMnB = 0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT3)) {
+    state._INT3 = _EIMSK._INT3;
+
+    _EIMSK._INT3 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT2)) {
+    state._INT2 = _EIMSK._INT2;
+
+    _EIMSK._INT2 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT1)) {
+    state._INT1 = _EIMSK._INT1;
+
+    _EIMSK._INT1 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT0)) {
+    state._INT0 = _EIMSK._INT0;
+
+    _EIMSK._INT0 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::UVCON)) {
+    state._UVCONE = _UHWCON._UVCONE;
+
+    _UHWCON._UVCONE = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::UID)) {
+    state._UIDE = _UHWCON._UIDE;
+
+    _UHWCON._UIDE = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT7)) {
+    state._INT7 = _EIMSK._INT7;
+
+    _EIMSK._INT7 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT6)) {
+    state._INT6 = _EIMSK._INT6;
+
+    _EIMSK._INT6 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT5)) {
+    state._INT5 = _EIMSK._INT5;
+
+    _EIMSK._INT5 = false;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT4)) {
+    state._INT4 = _EIMSK._INT4;
+
+    _EIMSK._INT4 = false;
+  }
+#endif
+
+  return state;
+}
+
+inline void _ATmega_restorePinAlternates(const ATmegaPinFuncSet& funcSet, const pin_dev_state_t& state) {
+  ATmegaPeripheralSet periSet;
+  periSet.fromPinFuncs(funcSet);
+
+  ATmegaPeripheralPowerGate pgate(periSet);
+
+#if defined(__AVR_TRM01__)
+  // See page 75ff of ATmega2560 technical reference manual.
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::EXTMEM_AD15, eATmegaPinFunc::EXTMEM_AD14, eATmegaPinFunc::EXTMEM_AD13, eATmegaPinFunc::EXTMEM_AD12, eATmegaPinFunc::EXTMEM_AD11, eATmegaPinFunc::EXTMEM_AD10, eATmegaPinFunc::EXTMEM_AD9, eATmegaPinFunc::EXTMEM_AD8,
+    eATmegaPinFunc::EXTMEM_AD7, eATmegaPinFunc::EXTMEM_AD6, eATmegaPinFunc::EXTMEM_AD5, eATmegaPinFunc::EXTMEM_AD4, eATmegaPinFunc::EXTMEM_AD3, eATmegaPinFunc::EXTMEM_AD2, eATmegaPinFunc::EXTMEM_AD1, eATmegaPinFunc::EXTMEM_AD0,
+    eATmegaPinFunc::EXTMEM_ALE, eATmegaPinFunc::EXTMEM_RD, eATmegaPinFunc::EXTMEM_WR
+  )) {
+    _XMCRA._SRE = state._SRE;
+  }
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::PCI0, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI7
+  )) {
+    _PCICR._PCIE0 = state._PCIE0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1C)) {
+    TIMER1._TCCRnA._COMnC = state._COM1C;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    TIMER1._TCCRnA._COMnB = state._COM1B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    TIMER1._TCCRnA._COMnA = state._COM1A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    _TIMER2._TCCRnA._COMnA = state._COM2A;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_TXD, eATmegaPinFunc::USART1_CLK)) {
+    USART1._UCSRnB._TXEN = state._USART1_TXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_RXD, eATmegaPinFunc::USART1_CLK)) {
+    USART1._UCSRnB._RXEN = state._USART1_RXEN;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC3C)) {
+    TIMER3._TCCRnA._COMnC = state._COM3C;
+  }
+  // There is an error in the technical reference manual signal mapping table
+  // of ATmega2560 where is says that pin 3 is mapped to OC3B, but the list
+  // says OC3A.
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC3B)) {
+    TIMER3._TCCRnA._COMnB = state._COM3B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC3A)) {
+    TIMER3._TCCRnA._COMnA = state._COM3A;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART0_RXD, eATmegaPinFunc::USART0_CLK)) {
+    USART0._UCSRnB._RXEN = state._USART0_RXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART0_TXD, eATmegaPinFunc::USART0_CLK)) {
+    USART0._UCSRnB._TXEN = state._USART0_TXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI15, eATmegaPinFunc::PCI14, eATmegaPinFunc::PCI13, eATmegaPinFunc::PCI12, eATmegaPinFunc::PCI11, eATmegaPinFunc::PCI10, eATmegaPinFunc::PCI9, eATmegaPinFunc::PCI8)) {
+    _PCICR._PCIE1 = state._PCIE1;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOC0B)) {
+    TIMER0._TCCRnA._COMnB = state._COM0B;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOSC1, eATmegaPinFunc::TOSC2)) {
+    _ASSR._AS2 = state._AS2;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    _TIMER2._TCCRnA._COMnB = state._COM2B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC4C)) {
+    TIMER4._TCCRnA._COMnC = state._COM4C;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC4B)) {
+    TIMER4._TCCRnA._COMnB = state._COM4B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC4A)) {
+    TIMER4._TCCRnA._COMnA = state._COM4A;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART2_RXD, eATmegaPinFunc::USART2_CLK)) {
+    USART2._UCSRnB._RXEN = state._USART2_RXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART2_TXD, eATmegaPinFunc::USART2_CLK)) {
+    USART2._UCSRnB._TXEN = state._USART2_TXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART3_TXD, eATmegaPinFunc::USART3_CLK)) {
+    USART3._UCSRnB._RXEN = state._USART3_RXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART3_TXD, eATmegaPinFunc::USART3_CLK)) {
+    USART3._UCSRnB._TXEN = state._USART3_TXEN;
+  }
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::PCI23, eATmegaPinFunc::PCI22, eATmegaPinFunc::PCI21, eATmegaPinFunc::PCI20, eATmegaPinFunc::PCI19, eATmegaPinFunc::PCI18, eATmegaPinFunc::PCI17, eATmegaPinFunc::PCI16
+  )) {
+    _PCICR._PCIE2 = state._PCIE2;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC5C)) {
+    TIMER5._TCCRnA._COMnC = state._COM5C;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC5B)) {
+    TIMER5._TCCRnA._COMnB = state._COM5B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC5A)) {
+    TIMER5._TCCRnA._COMnA = state._COM5A;
+  }
+#elif defined(__AVR_TRM02__)
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI7, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI0)) {
+    _PCICR._PCIE0 = state._PCIE0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC7)) {
+    _DIDR0._ADC7D = state._ADC7D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC6)) {
+    _DIDR0._ADC6D = state._ADC6D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC5)) {
+    _DIDR0._ADC5D = state._ADC5D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC4)) {
+    _DIDR0._ADC4D = state._ADC4D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC3)) {
+    _DIDR0._ADC3D = state._ADC3D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC2)) {
+    _DIDR0._ADC2D = state._ADC2D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC1)) {
+    _DIDR0._ADC1D = state._ADC1D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC0)) {
+    _DIDR0._ADC0D = state._ADC0D;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI15, eATmegaPinFunc::PCI14, eATmegaPinFunc::PCI13, eATmegaPinFunc::PCI12, eATmegaPinFunc::PCI11, eATmegaPinFunc::PCI10, eATmegaPinFunc::PCI9, eATmegaPinFunc::PCI8)) {
+    _PCICR._PCIE1 = state._PCIE1;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::SPI_CS)) {
+    _SPCR._SPE = state._SPE;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0A)) {
+    TIMER0._TCCRnA._COMnA = state._COM0A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0B)) {
+    TIMER0._TCCRnA._COMnB = state._COM0B;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOSC1, eATmegaPinFunc::TOSC2)) {
+    _ASSR._AS2 = state._AS2;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI23, eATmegaPinFunc::PCI22, eATmegaPinFunc::PCI21, eATmegaPinFunc::PCI20, eATmegaPinFunc::PCI19, eATmegaPinFunc::PCI18, eATmegaPinFunc::PCI17, eATmegaPinFunc::PCI16)) {
+    _PCICR._PCIE2 = state._PCIE2;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI31, eATmegaPinFunc::PCI30, eATmegaPinFunc::PCI29, eATmegaPinFunc::PCI28, eATmegaPinFunc::PCI27, eATmegaPinFunc::PCI26, eATmegaPinFunc::PCI25, eATmegaPinFunc::PCI24)) {
+    _PCICR._PCIE3 = state._PCIE3;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    _TIMER2._TCCRnA._COMnA = state._COM2A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    _TIMER2._TCCRnA._COMnB = state._COM2B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    TIMER1._TCCRnA._COMnA = state._COM1A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    TIMER1._TCCRnA._COMnB = state._COM1B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART1_TXD)) {
+    USART1._UCSRnB._TXEN = state._USART1_TXEN;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART1_RXD)) {
+    USART1._UCSRnB._RXEN = state._USART1_RXEN;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART0_TXD)) {
+    USART0._UCSRnB._TXEN = state._USART0_TXEN;
+  }
+  // There is a bug in the ATmega164A technical reference manual where
+  // it says that pin 0 is mapped to USART1 RXD in the signal mapping table
+  // but the associated list says USART0 RXD.
+  if (funcSet.hasFunc(eATmegaPinFunc::USART0_RXD)) {
+    USART0._UCSRnB._RXEN = state._USART0_RXEN;
+  }
+#elif defined(__AVR_TRM03__)
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI7, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI0)) {
+    _PCICR._PCIE0 = state._PCIE0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TOSC1, eATmegaPinFunc::TOSC2)) {
+    _ASSR._AS2 = state._AS2;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::SPI_CS)) {
+    _SPCR._SPE = state._SPE;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    _TIMER2._TCCRnA._COMnA = state._COM2A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    TIMER1._TCCRnA._COMnB = state._COM1B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    TIMER1._TCCRnA._COMnA = state._COM1A;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI14, eATmegaPinFunc::PCI13, eATmegaPinFunc::PCI12, eATmegaPinFunc::PCI11, eATmegaPinFunc::PCI10, eATmegaPinFunc::PCI9, eATmegaPinFunc::PCI8)) {
+    _PCICR._PCIE1 = state._PCIE1;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TWI_CLK, eATmegaPinFunc::TWI_SDA)) {
+    _TWCR._TWEN = state._TWEN;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC5)) {
+    _DIDR0._ADC5D = state._ADC5D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC4)) {
+    _DIDR0._ADC4D = state._ADC4D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC3)) {
+    _DIDR0._ADC3D = state._ADC3D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC2)) {
+    _DIDR0._ADC2D = state._ADC2D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC1)) {
+    _DIDR0._ADC1D = state._ADC1D;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::ADC0)) {
+    _DIDR0._ADC0D = state._ADC0D;
+  }
+  // There is a bug in the ATmega48A technical reference manual where pin 2
+  // is said to be mapped to PCIE1 but logically it should be PCIE2 instead.
+  // The real mapping can be read in the documentation of the PCICR register.
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI23, eATmegaPinFunc::PCI22, eATmegaPinFunc::PCI21, eATmegaPinFunc::PCI20, eATmegaPinFunc::PCI19, eATmegaPinFunc::PCI18, eATmegaPinFunc::PCI17, eATmegaPinFunc::PCI16)) {
+    _PCICR._PCIE2 = state._PCIE2;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0A)) {
+    TIMER0._TCCRnA._COMnA = state._COM0A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0B)) {
+    TIMER0._TCCRnA._COMnB = state._COM0B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART_CLK)) {
+    USART0._UCSRnC._UMSEL = state._UMSEL;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    _TIMER2._TCCRnA._COMnB = state._COM2B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART_TXD)) {
+    USART0._UCSRnB._TXEN = state._USART0_TXEN;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::USART_RXD)) {
+    USART0._UCSRnB._RXEN = state._USART0_RXEN;
+  }
+#elif defined(__AVR_TRM04__)
+  if (funcSet.hasAnyFunc(
+    eATmegaPinFunc::EXTMEM_AD15, eATmegaPinFunc::EXTMEM_AD14, eATmegaPinFunc::EXTMEM_AD13, eATmegaPinFunc::EXTMEM_AD12, eATmegaPinFunc::EXTMEM_AD11, eATmegaPinFunc::EXTMEM_AD10, eATmegaPinFunc::EXTMEM_AD9, eATmegaPinFunc::EXTMEM_AD8,
+    eATmegaPinFunc::EXTMEM_AD7, eATmegaPinFunc::EXTMEM_AD6, eATmegaPinFunc::EXTMEM_AD5, eATmegaPinFunc::EXTMEM_AD4, eATmegaPinFunc::EXTMEM_AD3, eATmegaPinFunc::EXTMEM_AD2, eATmegaPinFunc::EXTMEM_AD1, eATmegaPinFunc::EXTMEM_AD0,
+    eATmegaPinFunc::EXTMEM_ALE, eATmegaPinFunc::EXTMEM_RD, eATmegaPinFunc::EXTMEM_WR
+  )) {
+    _XMCRA._SRE = state._SRE;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1C)) {
+    TIMER1._TCCRnA._COMnC = state._COM1C;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1B)) {
+    TIMER1._TCCRnA._COMnB = state._COM1B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC1A)) {
+    TIMER1._TCCRnA._COMnA = state._COM1A;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2A)) {
+    _TIMER2._TCCRnA._COMnA = state._COM2A;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::SPI_CS)) {
+    _SPCR._SPE = state._SPE;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::PCI7, eATmegaPinFunc::PCI6, eATmegaPinFunc::PCI5, eATmegaPinFunc::PCI4, eATmegaPinFunc::PCI3, eATmegaPinFunc::PCI2, eATmegaPinFunc::PCI1, eATmegaPinFunc::PCI0)) {
+    _PCICR._PCIE0 = state._PCIE0;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::USART1_TXD)) {
+    USART1._UCSRnB._TXEN = state._USART1_TXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::USART1_RXD)) {
+    USART1._UCSRnB._RXEN = state._USART1_RXEN;
+  }
+  if (funcSet.hasAnyFunc(eATmegaPinFunc::TWI_SDA, eATmegaPinFunc::TWI_CLK)) {
+    _TWCR._TWEN = state._TWEN;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC2B)) {
+    _TIMER2._TCCRnA._COMnB = state._COM2B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::TOC0B)) {
+    TIMER0._TCCRnA._COMnB = state._COM0B;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT3)) {
+    _EIMSK._INT3 = state._INT3;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT2)) {
+    _EIMSK._INT2 = state._INT2;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT1)) {
+    _EIMSK._INT1 = state._INT1;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT0)) {
+    _EIMSK._INT0 = state._INT0;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::UVCON)) {
+    _UHWCON._UVCONE = state._UVCONE;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::UID)) {
+    _UHWCON._UIDE = state._UIDE;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT7)) {
+    _EIMSK._INT7 = state._INT7;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT6)) {
+    _EIMSK._INT6 = state._INT6;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT5)) {
+    _EIMSK._INT5 = state._INT5;
+  }
+  if (funcSet.hasFunc(eATmegaPinFunc::EINT4)) {
+    _EIMSK._INT4 = state._INT4;
+  }
+#endif
+}
+
+inline pin_dev_state_t _ATmega_savePinAlternate(uint8_t pin) {
+  return _ATmega_savePinAlternates({pin});
+}
+
+inline void _ATmega_restorePinAlternate(uint8_t pin, const pin_dev_state_t& state) {
+  _ATmega_restorePinAlternate({pin}, state);
+}
 
 #ifndef LOW
 #define LOW 0
@@ -4166,7 +4456,7 @@ inline void _ATmega_digitalWrite(int pin, int state) {
   if (info.port == eATmegaPort::PORT_B) {
     _PORTB._PORT.setValue(info.pinidx, state == HIGH);
   }
-  else if (info.port == eATmegaPOrt::PORT_C) {
+  else if (info.port == eATmegaPort::PORT_C) {
     _PORTC._PORT.setValue(info.pinidx, state == HIGH);
   }
   else if (info.port == eATmegaPort::PORT_D) {
@@ -4252,7 +4542,7 @@ inline int _ATmega_digitalRead(int pin) {
   if (info.port == eATmegaPort::PORT_B) {
     value = _PORTB._PIN.getValue(info.pinidx);
   }
-  else if (info.port == eATmegaPOrt::PORT_C) {
+  else if (info.port == eATmegaPort::PORT_C) {
     value = _PORTC._PIN.getValue(info.pinidx);
   }
   else if (info.port == eATmegaPort::PORT_D) {
@@ -4345,7 +4635,7 @@ inline void _ATmega_pinMode(int pin, int mode) {
   if (info.port == eATmegaPort::PORT_B) {
     _PORTB._DDR.setValue(info.pinidx, mode == OUTPUT);
   }
-  else if (info.port == eATmegaPOrt::PORT_C) {
+  else if (info.port == eATmegaPort::PORT_C) {
     _PORTC._DDR.setValue(info.pinidx, mode == OUTPUT);
   }
   else if (info.port == eATmegaPort::PORT_D) {
@@ -4429,7 +4719,7 @@ struct _ATmega_efuse {
 #define AVR_DEFAULT_EFUSE_VALUE 0xF9
 #endif
 
-#elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+#else //if defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 struct _ATmega_efuse {
   uint8_t _BODLEVEL : 3;
   uint8_t reserved1 : 5;
@@ -4455,7 +4745,7 @@ struct _ATmega_hfuse {
 #define AVR_DEFAULT_HFUSE_VALUE 0xCF
 #endif
 
-#elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+#else // defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 struct _ATmega_hfuse {
   uint8_t _BOOTRST : 1;
   uint8_t _BOOTSZ : 2;

@@ -22,10 +22,6 @@
 
 #include "registers.h"
 
-#ifndef countof
-#define countof(o) ((sizeof(o))/(sizeof(*o)))
-#endif
-
 // Since the compiler could be creating multiple copies of function code-graphs for each header inline-inclusion,
 // we want to off-load the function definitions that define static memory into this solitary compilation unit.
 // This way the ROM is NOT bloated (who knows if the compiler is optimizing same-content constant objects into one?)
@@ -393,35 +389,35 @@ ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
 #elif defined(__AVR_TRM02__)
   if (info.port == eATmegaPort::PORT_A) {
     if (info.pinidx == 7) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC7 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI7, eATmegaPinFunc::ADC7 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 6) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC6 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI6, eATmegaPinFunc::ADC6 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 5) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC5 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI5, eATmegaPinFunc::ADC5 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 4) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC4 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI4, eATmegaPinFunc::ADC4 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 3) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC3 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI3, eATmegaPinFunc::ADC3 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 2) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC2 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI2, eATmegaPinFunc::ADC2 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 1) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC1 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI1, eATmegaPinFunc::ADC1 };
       return { funcs, countof(funcs) };
     }
     else if (info.pinidx == 0) {
-      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC0 };
+      static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI0, eATmegaPinFunc::ADC0 };
       return { funcs, countof(funcs) };
     }
   }

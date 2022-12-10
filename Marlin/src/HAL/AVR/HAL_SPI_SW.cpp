@@ -75,7 +75,7 @@
     }
   }
 
-  static pin_dev_state_t _spi_sck_devstate, _spi_miso_devstate, _spi_mosi_devstate, _spi_cs_devstate;
+  static pin_dev_state_t _spi_pin_devstate;
   static int _spi_sck_pin, _spi_miso_pin, _spi_mosi_pin, _spi_cs_pin;
   static int _spi_bit_order = SPI_BITORDER_DEFAULT;
   static bool _spi_is_running = false;
@@ -104,14 +104,7 @@
     int use_pin_mosi = (hint_mosi >= 0) ? hint_mosi : SD_MOSI_PIN;
     int use_pin_cs = (hint_cs >= 0) ? hint_cs : SD_SS_PIN;
 
-    if (use_pin_sck >= 0)
-      _spi_sck_devstate = _ATmega_savePinAlternate((unsigned int)use_pin_sck);
-    if (use_pin_miso >= 0)
-      _spi_miso_devstate = _ATmega_savePinAlternate((unsigned int)use_pin_miso);
-    if (use_pin_mosi >= 0)
-      _spi_mosi_devstate = _ATmega_savePinAlternate((unsigned int)use_pin_mosi);
-    if (use_pin_cs >= 0)
-      _spi_cs_devstate = _ATmega_savePinAlternate((unsigned int)use_pin_cs);
+    _spi_pin_devstate = _ATmega_savePinAlternates({use_pin_sck, use_pin_miso, use_pin_mosi, use_pin_cs});
 
     _spi_sck_pin = use_pin_sck;
     _spi_miso_pin = use_pin_miso;
@@ -138,15 +131,7 @@
       _ATmega_digitalWrite(_spi_cs_pin, HIGH);
 
     // Restore pin device states.
-    // Has to be done in reverse order.
-    if (_spi_cs_pin >= 0)
-      _ATmega_restorePinAlternate(_spi_cs_pin, _spi_cs_devstate);
-    if (_spi_mosi_pin >= 0)
-      _ATmega_restorePinAlternate(_spi_mosi_pin, _spi_mosi_devstate);
-    if (_spi_miso_pin >= 0)
-      _ATmega_restorePinAlternate(_spi_miso_pin, _spi_miso_devstate);
-    if (_spi_sck_pin >= 0)
-      _ATmega_restorePinAlternate(_spi_sck_pin, _spi_sck_devstate);
+    _ATmega_restorePinAlternates({_spi_cs_pin, _spi_mosi_pin, _spi_miso_pin, _spi_sck_pin}, _spi_pin_devstate);
 
     _spi_is_running = false;
   }
