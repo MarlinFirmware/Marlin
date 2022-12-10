@@ -39,90 +39,90 @@
 //
 // Servos
 //
-#define SERVO0_PIN                            PinB5
-#define SERVO1_PIN                            PinH3
+#define SERVO0_PIN                         PinB5
+#define SERVO1_PIN                         PinH3
 #define SERVO2_PIN                            -1  // Original pin 5 used for hotend fans
-#define SERVO3_PIN                            PinG5
+#define SERVO3_PIN                         PinG5
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             PinE5
-#define X_MAX_PIN                             PinE4
-#define Y_MIN_PIN                             PinJ1
-//#define Y_MAX_PIN                           PinJ0  // Connected to "DJ" plug on extruder heads
-#define Z_MIN_PIN                             PinD3
-#define Z_MAX_PIN                             PinD2
+#define X_MIN_PIN                          PinE5
+#define X_MAX_PIN                          PinE4
+#define Y_MIN_PIN                          PinJ1
+//#define Y_MAX_PIN                        PinJ0  // Connected to "DJ" plug on extruder heads
+#define Z_MIN_PIN                          PinD3
+#define Z_MAX_PIN                          PinD2
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     PinJ0  // Ramps is normally 32
+  #define Z_MIN_PROBE_PIN                  PinJ0  // Ramps is normally 32
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            PinF0
-#define X_DIR_PIN                             PinF1
-#define X_ENABLE_PIN                          PinD7
+#define X_STEP_PIN                         PinF0
+#define X_DIR_PIN                          PinF1
+#define X_ENABLE_PIN                       PinD7
 //#ifndef X_CS_PIN
-  //#define X_CS_PIN                          PinB0
+  //#define X_CS_PIN                       PinB0
 //#endif
 
-#define X2_STEP_PIN                           PinC1
-#define X2_DIR_PIN                            PinC3
-#define X2_ENABLE_PIN                         PinC7
+#define X2_STEP_PIN                        PinC1
+#define X2_DIR_PIN                         PinC3
+#define X2_ENABLE_PIN                      PinC7
 //#ifndef X2_CS_PIN
-  //#define X2_CS_PIN                         PinB0
+  //#define X2_CS_PIN                      PinB0
 //#endif
 
-#define Y_STEP_PIN                            PinF6
-#define Y_DIR_PIN                             PinF7
-#define Y_ENABLE_PIN                          PinF2
+#define Y_STEP_PIN                         PinF6
+#define Y_DIR_PIN                          PinF7
+#define Y_ENABLE_PIN                       PinF2
 //#ifndef Y_CS_PIN
- //#define Y_CS_PIN                           PinL0
+ //#define Y_CS_PIN                        PinL0
 //#endif
 
-#define Z_STEP_PIN                            PinL3
-#define Z_DIR_PIN                             PinL1
-#define Z_ENABLE_PIN                          PinK0
+#define Z_STEP_PIN                         PinL3
+#define Z_DIR_PIN                          PinL1
+#define Z_ENABLE_PIN                       PinK0
 //#ifndef Z_CS_PIN
- //#define Z_CS_PIN                           PinG1
+ //#define Z_CS_PIN                        PinG1
 //#endif
 
-#define Z2_STEP_PIN                           PinK3
-#define Z2_DIR_PIN                            PinK4
-#define Z2_ENABLE_PIN                         PinK2
+#define Z2_STEP_PIN                        PinK3
+#define Z2_DIR_PIN                         PinK4
+#define Z2_ENABLE_PIN                      PinK2
 //#ifndef Z2_CS_PIN
- //#define Z2_CS_PIN                          PinG1
+ //#define Z2_CS_PIN                       PinG1
 //#endif
 
-#define E0_STEP_PIN                           PinA4
-#define E0_DIR_PIN                            PinA6
-#define E0_ENABLE_PIN                         PinA2
+#define E0_STEP_PIN                        PinA4
+#define E0_DIR_PIN                         PinA6
+#define E0_ENABLE_PIN                      PinA2
 //#ifndef E0_CS_PIN
   //define E0_CS_PIN                          PinL7
 //#endif
 
-#define E1_STEP_PIN                           PinF3
-#define E1_DIR_PIN                            PinF4
-#define E1_ENABLE_PIN                         PinF5
+#define E1_STEP_PIN                        PinF3
+#define E1_DIR_PIN                         PinF4
+#define E1_ENABLE_PIN                      PinF5
 //#ifndef E1_CS_PIN
   //define E1_CS_PIN                          PinL5
 //#endif
 
-//#define E2_STEP_PIN                         PinL7
-//#define E2_DIR_PIN                          PinL6
-//#define E2_ENABLE_PIN                       PinL5
+//#define E2_STEP_PIN                      PinL7
+//#define E2_DIR_PIN                       PinL6
+//#define E2_ENABLE_PIN                    PinL5
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            PinB7  // Analog Input
-#define TEMP_1_PIN                            PinJ0  // Analog Input
-#define TEMP_BED_PIN                          PinJ1  // Analog Input
+#define TEMP_0_PIN                         PinB7  // Analog Input
+#define TEMP_1_PIN                         PinJ0  // Analog Input
+#define TEMP_BED_PIN                       PinJ1  // Analog Input
 
 // SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
@@ -134,33 +134,33 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          PinB4
-#define HEATER_1_PIN                          PinB5
-#define HEATER_BED_PIN                        PinH5
+#define HEATER_0_PIN                       PinB4
+#define HEATER_1_PIN                       PinB5
+#define HEATER_BED_PIN                     PinH5
 
-#define FAN_PIN                               PinH6
-#define FAN1_PIN                              PinE3  // Normally this would be a servo pin
+#define FAN_PIN                            PinH6
+#define FAN1_PIN                           PinE3  // Normally this would be a servo pin
 
 // XXX Runout support unknown?
 //#define NUM_RUNOUT_SENSORS                   0
-//#define FIL_RUNOUT_PIN                      PinA0
-//#define FIL_RUNOUT2_PIN                     PinD0
+//#define FIL_RUNOUT_PIN                   PinA0
+//#define FIL_RUNOUT2_PIN                  PinD0
 
 //
 // Misc. Functions
 //
-//#define PS_ON_PIN                           PinG1  // The M80/M81 PSU pin for boards v2.1-2.3
-//#define CASE_LIGHT_PIN                      PinE3
-#define SDSS                                  PinB0
+//#define PS_ON_PIN                        PinG1  // The M80/M81 PSU pin for boards v2.1-2.3
+//#define CASE_LIGHT_PIN                   PinE3
+#define SDSS                               PinB0
 //#ifndef LED_PIN
-  //#define LED_PIN                           PinB7
+  //#define LED_PIN                        PinB7
 //#endif
 
 //#define SPINDLE_LASER_PWM_PIN               -1  // Hardware PWM
-//#define SPINDLE_LASER_ENA_PIN               PinG5  // Pullup!
+//#define SPINDLE_LASER_ENA_PIN            PinG5  // Pullup!
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-//#define FILWIDTH_PIN                        PinE3  // Analog Input
+//#define FILWIDTH_PIN                     PinE3  // Analog Input
 
 //
 // LCD / Controller
@@ -174,12 +174,12 @@
 #define LCD_PINS_D5                           -1
 #define LCD_PINS_D6                           -1
 #define LCD_PINS_D7                           -1
-//#define BTN_EN1                             PinC6
-//#define BTN_EN2                             PinC4
-//#define BTN_ENC                             PinC2
-#define SD_DETECT_PIN                         PinL0
+//#define BTN_EN1                          PinC6
+//#define BTN_EN2                          PinC4
+//#define BTN_ENC                          PinC2
+#define SD_DETECT_PIN                      PinL0
 //#ifndef KILL_PIN
-  //#define KILL_PIN                          PinG0
+  //#define KILL_PIN                       PinG0
 //#endif
 //#ifndef BEEPER_PIN
 #define BEEPER_PIN                            -1

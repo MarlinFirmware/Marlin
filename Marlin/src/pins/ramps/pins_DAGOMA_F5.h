@@ -32,13 +32,13 @@
 //
 // Endstops
 //
-#define X_STOP_PIN                            PinE4
-#define Y_STOP_PIN                            PinE5
-#define Z_STOP_PIN                            PinJ0
+#define X_STOP_PIN                         PinE4
+#define Y_STOP_PIN                         PinE5
+#define Z_STOP_PIN                         PinJ0
 
-#define FIL_RUNOUT_PIN                        PinG2
+#define FIL_RUNOUT_PIN                     PinG2
 #if EXTRUDERS > 1
-  #define FIL_RUNOUT2_PIN                     PinJ1
+  #define FIL_RUNOUT2_PIN                  PinJ1
 #endif
 
 // Alter timing for graphical display

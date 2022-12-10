@@ -84,28 +84,28 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            PinB0
-#define Y_STOP_PIN                            PinB1
-#define Z_STOP_PIN                            PinB2
+#define X_STOP_PIN                         PinB0
+#define Y_STOP_PIN                         PinB1
+#define Z_STOP_PIN                         PinB2
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            PinA5
-#define X_DIR_PIN                             PinA6
-#define X_ENABLE_PIN                          PinD2
+#define X_STEP_PIN                         PinA5
+#define X_DIR_PIN                          PinA6
+#define X_ENABLE_PIN                       PinD2
 
-#define Y_STEP_PIN                            PinA3
-#define Y_DIR_PIN                             PinA4
-#define Y_ENABLE_PIN                          PinD2
+#define Y_STEP_PIN                         PinA3
+#define Y_DIR_PIN                          PinA4
+#define Y_ENABLE_PIN                       PinD2
 
-#define Z_STEP_PIN                            PinC7
-#define Z_DIR_PIN                             PinC6
-#define Z_ENABLE_PIN                          PinD2
+#define Z_STEP_PIN                         PinC7
+#define Z_DIR_PIN                          PinC6
+#define Z_ENABLE_PIN                       PinD2
 
-#define E0_STEP_PIN                           PinA7
-#define E0_DIR_PIN                            PinC5
-#define E0_ENABLE_PIN                         PinD2
+#define E0_STEP_PIN                        PinA7
+#define E0_DIR_PIN                         PinC5
+#define E0_ENABLE_PIN                      PinD2
 
 #define E1_STEP_PIN                           -1  // 21
 #define E1_DIR_PIN                            -1  // 20
@@ -118,32 +118,32 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            PinB0  // Analog Input
-#define TEMP_1_PIN                            PinB1  // Analog Input
-#define TEMP_BED_PIN                          PinB2  // Analog Input (1,2 or I2C)
+#define TEMP_0_PIN                         PinB0  // Analog Input
+#define TEMP_1_PIN                         PinB1  // Analog Input
+#define TEMP_BED_PIN                       PinB2  // Analog Input (1,2 or I2C)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          PinB3  // DONE PWM on RIGHT connector
-#define HEATER_BED_PIN                        PinB4
+#define HEATER_0_PIN                       PinB3  // DONE PWM on RIGHT connector
+#define HEATER_BED_PIN                     PinB4
 
 #ifndef FAN_PIN
-  #define FAN_PIN                             PinD6  // PWM on MIDDLE connector
+  #define FAN_PIN                          PinD6  // PWM on MIDDLE connector
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                  PinD3
+#define SDSS                               PinD3
 
-#define I2C_SCL_PIN                           PinC0
-#define I2C_SDA_PIN                           PinC1
+#define I2C_SCL_PIN                        PinC0
+#define I2C_SDA_PIN                        PinC1
 
 // future proofing
-#define __FS                                  PinC4
-#define __FD                                  PinC3
-#define __GS                                  PinC2
-#define __GD                                  PinD5
+#define __FS                               PinC4
+#define __FD                               PinC3
+#define __GS                               PinC2
+#define __GD                               PinD5
 
-#define UNUSED_PWM                            PinD6  // PWM on LEFT connector
+#define UNUSED_PWM                         PinD6  // PWM on LEFT connector

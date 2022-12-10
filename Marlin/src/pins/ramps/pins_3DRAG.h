@@ -41,17 +41,17 @@
 //
 // Limit Switches
 //
-#define Z_STOP_PIN                            PinD3
+#define Z_STOP_PIN                         PinD3
 
 //
 // Steppers
 //
 #if HAS_CUTTER
-  #define Z_DIR_PIN                           PinA6
-  #define Z_ENABLE_PIN                        PinA2
-  #define Z_STEP_PIN                          PinA4
+  #define Z_DIR_PIN                        PinA6
+  #define Z_ENABLE_PIN                     PinA2
+  #define Z_STEP_PIN                       PinA4
 #else
-  #define Z_ENABLE_PIN                        PinK1
+  #define Z_ENABLE_PIN                     PinK1
 #endif
 
 #if HAS_CUTTER && !HAS_EXTRUDERS
@@ -63,16 +63,16 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                          PinH5
-#define MOSFET_C_PIN                          PinH6
-#define MOSFET_D_PIN                          PinB6
+#define MOSFET_B_PIN                       PinH5
+#define MOSFET_C_PIN                       PinH6
+#define MOSFET_D_PIN                       PinB6
 
-#define HEATER_2_PIN                          PinH3
+#define HEATER_2_PIN                       PinH3
 
 //
 // Misc. Functions
 //
-#define SDSS                                  PinA3
+#define SDSS                               PinA3
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
@@ -111,16 +111,16 @@
  */
 #if HAS_CUTTER
   #if !HAS_EXTRUDERS
-    #define SPINDLE_LASER_PWM_PIN             PinL3  // Hardware PWM
-    #define SPINDLE_LASER_ENA_PIN             PinK0  // Pullup!
-    #define SPINDLE_DIR_PIN                   PinL1
-  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
-    #define SPINDLE_LASER_ENA_PIN             PinH1  // Pullup or pulldown!
-    #define SPINDLE_DIR_PIN                   PinH0
+    #define SPINDLE_LASER_PWM_PIN          PinL3  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN          PinK0  // Pullup!
+    #define SPINDLE_DIR_PIN                PinL1
+  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)         // Use expansion header if no LCD in use
+    #define SPINDLE_LASER_ENA_PIN          PinH1  // Pullup or pulldown!
+    #define SPINDLE_DIR_PIN                PinH0
     #if !NUM_SERVOS                               // Use servo connector if possible
-      #define SPINDLE_LASER_PWM_PIN           PinH3  // Hardware PWM
+      #define SPINDLE_LASER_PWM_PIN        PinH3  // Hardware PWM
     #elif HAS_FREE_AUX2_PINS
-      #define SPINDLE_LASER_PWM_PIN           PinL5  // Hardware PWM
+      #define SPINDLE_LASER_PWM_PIN        PinL5  // Hardware PWM
     #endif
   #endif
 #endif
@@ -132,23 +132,23 @@
   #undef BEEPER_PIN
 
   // TODO: Remap EXP1/2 based on adapter
-  #define LCD_PINS_RS                         PinA5
-  #define LCD_PINS_ENABLE                     PinA7
-  #define LCD_PINS_D4                         PinC0
-  #define LCD_PINS_D5                         PinC2
-  #define LCD_PINS_D6                         PinC4
-  #define LCD_PINS_D7                         PinC6
+  #define LCD_PINS_RS                      PinA5
+  #define LCD_PINS_ENABLE                  PinA7
+  #define LCD_PINS_D4                      PinC0
+  #define LCD_PINS_D5                      PinC2
+  #define LCD_PINS_D6                      PinC4
+  #define LCD_PINS_D7                      PinC6
 
   // Buttons
-  #define BTN_EN1                             PinH1
-  #define BTN_EN2                             PinH0
-  #define BTN_ENC                             PinA1
+  #define BTN_EN1                          PinH1
+  #define BTN_EN2                          PinH0
+  #define BTN_ENC                          PinA1
 
   #define LCD_PINS_DEFINED
 
 #else
 
-  #define BEEPER_PIN                          PinC4
+  #define BEEPER_PIN                       PinC4
 
 #endif // HAS_WIRED_LCD && IS_NEWPANEL
 
@@ -158,6 +158,6 @@
   #define BOARD_ST7920_DELAY_3                 0
 #endif
 
-#define SD_DETECT_PIN                         PinB0
+#define SD_DETECT_PIN                      PinB0
 
 #include "pins_RAMPS.h"

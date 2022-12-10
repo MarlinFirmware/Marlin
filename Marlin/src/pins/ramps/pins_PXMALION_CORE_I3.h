@@ -34,7 +34,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                            PinB2
+#define SERVO0_PIN                         PinB2
 #define SERVO1_PIN                            -1
 #define SERVO2_PIN                            -1
 #define SERVO3_PIN                            -1
@@ -42,10 +42,10 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            PinE5
-#define Y_STOP_PIN                            PinE4
-#define Z_MIN_PIN                             PinD2
-#define Z_MAX_PIN                             PinD3
+#define X_STOP_PIN                         PinE5
+#define Y_STOP_PIN                         PinE4
+#define Z_MIN_PIN                          PinD2
+#define Z_MAX_PIN                          PinD3
 
 // TODO: Filament Runout Sensor
 #ifndef FIL_RUNOUT_PIN
@@ -66,13 +66,13 @@
 //
 #define FET_ORDER_EFB
 #ifndef MOSFET_A_PIN
-  #define MOSFET_A_PIN                        PinH5
+  #define MOSFET_A_PIN                     PinH5
 #endif
 #ifndef MOSFET_B_PIN
-  #define MOSFET_B_PIN                        PinH4
+  #define MOSFET_B_PIN                     PinH4
 #endif
 #ifndef MOSFET_C_PIN
-  #define MOSFET_C_PIN                        PinH6
+  #define MOSFET_C_PIN                     PinH6
 #endif
 
 //
@@ -82,6 +82,6 @@
   #define FILWIDTH_PIN                        -1  // Analog Input
 #endif
 
-#define PS_ON_PIN                             PinB5
+#define PS_ON_PIN                          PinB5
 
 #include "pins_RAMPS.h"
