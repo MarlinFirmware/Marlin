@@ -27,4 +27,8 @@
 
 #define BOARD_INFO_NAME "STB V1.1"
 
+#ifndef FAN_PIN
+  #define FAN_PIN                              4  // Works for Panelolu2 too
+#endif
+
 #include "pins_SANGUINOLOLU_12.h" // ... SANGUINOLOLU_11
