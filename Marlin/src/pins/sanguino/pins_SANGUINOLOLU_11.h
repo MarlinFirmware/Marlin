@@ -90,30 +90,18 @@
 //
 #define HEATER_0_PIN                          PinD5  // (extruder)
 
-#if ENABLED(SANGUINOLOLU_V_1_2)
+#ifndef FAN_PIN
+  #define FAN_PIN                             PinB4  // Works for Panelolu2 too
+#endif
 
-  #define HEATER_BED_PIN                      PinD4  // (bed)
-  #define X_ENABLE_PIN                        PinD6
-  #define Y_ENABLE_PIN                        PinD6
-  #define Z_ENABLE_PIN                        PinA5
-  #define E0_ENABLE_PIN                       PinD6
-
-  #if !defined(FAN_PIN) && ENABLED(LCD_I2C_PANELOLU2)
-    #define FAN_PIN                           PinB4  // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
-  #endif
-
-#else
-
+#if DISABLED(SANGUINOLOLU_V_1_2)
   #define HEATER_BED_PIN                      PinD6  // (bed)
   #define X_ENABLE_PIN                        PinB4
   #define Y_ENABLE_PIN                        PinB4
-  #define Z_ENABLE_PIN                        PinB4
+  #ifndef Z_ENABLE_PIN
+    #define Z_ENABLE_PIN                      PinB4
+  #endif
   #define E0_ENABLE_PIN                       PinB4
-
-#endif
-
-#if !defined(FAN_PIN) && (MB(AZTEEG_X1, STB_11) || IS_MELZI)
-  #define FAN_PIN                             PinB4  // Works for Panelolu2 too
 #endif
 
 //
@@ -151,7 +139,7 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD
+#if HAS_WIRED_LCD && DISABLED(LCD_PINS_DEFINED)
 
   #define SD_DETECT_PIN                       -1
 
@@ -245,7 +233,9 @@
 
     #if IS_MELZI
       #define BTN_ENC                         PinA2
-      #define LCD_SDSS                        PinA1  // Panelolu2 SD card reader rather than the Melzi
+      #ifndef LCD_SDSS
+        #define LCD_SDSS                      PinA1  // Panelolu2 SD card reader rather than the Melzi
+      #endif
     #else
       #define BTN_ENC                         PinA1
     #endif
@@ -253,7 +243,9 @@
   #else                                           // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 
     #define BTN_ENC                           PinC0
-    #define LCD_SDSS                          PinA3  // Smart Controller SD card reader rather than the Melzi
+    #ifndef LCD_SDSS
+      #define LCD_SDSS                          PinA3  // Smart Controller SD card reader rather than the Melzi
+    #endif
 
   #endif
 

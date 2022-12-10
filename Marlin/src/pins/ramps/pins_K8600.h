@@ -38,8 +38,7 @@
 //
 #define X_MIN_PIN                             PinE5
 #define Y_MAX_PIN                             PinJ1
-#define Z_MAX_PIN                             PinD3
-#define Z_MIN_PIN                             -1
+#define Z_STOP_PIN                            PinD3
 
 //
 // Steppers
@@ -49,6 +48,7 @@
 //
 // Heaters / Fans
 //
+#define HEATER_BED_PIN                        -1
 #define FAN_PIN                               PinH5
 
 //
@@ -58,27 +58,10 @@
 #define CASE_LIGHT_PIN                        PinH4
 
 //
-// Other RAMPS pins
-//
-#include "pins_RAMPS.h"
-
-//
-// Heaters / Fans
-//
-#undef HEATER_BED_PIN
-
-//
 // LCD / Controller
 //
 #if HAS_WIRED_LCD && IS_NEWPANEL
-  #undef BEEPER_PIN
 
-  #undef LCD_PINS_RS
-  #undef LCD_PINS_ENABLE
-  #undef LCD_PINS_D4
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
   #define LCD_PINS_RS                         PinA5
   #define LCD_PINS_ENABLE                     PinA7
   #define LCD_PINS_D4                         PinC0
@@ -87,15 +70,19 @@
   #define LCD_PINS_D7                         PinC6
 
   // Buttons
-  #undef BTN_EN1
-  #undef BTN_EN2
-  #undef BTN_ENC
   #define BTN_EN1                             PinH0
   #define BTN_EN2                             PinH1
   #define BTN_ENC                             PinA1
+
+  #define LCD_PINS_DEFINED
 
 #else
 
   #define BEEPER_PIN                          PinC4
 
 #endif
+
+//
+// Other RAMPS pins
+//
+#include "pins_RAMPS.h"

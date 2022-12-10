@@ -76,31 +76,25 @@
   #define E0_SERIAL_RX_PIN                    PinK3
 #endif
 
-#include "pins_RAMPS.h"
-
 //
 // LCD / Controller
 //
 #if IS_RRD_FG_SC
-  #undef BEEPER_PIN
   #define BEEPER_PIN                          PinC2
 
-  #undef LCD_PINS_RS
-  #undef LCD_PINS_ENABLE
-  #undef LCD_PINS_D4
   #define LCD_PINS_RS                         PinA5
   #define LCD_PINS_ENABLE                     PinA1
   #define LCD_PINS_D4                         PinC0
 
-  #undef LCD_SDSS
-  #undef SD_DETECT_PIN
   #define LCD_SDSS                            PinB0
   #define SD_DETECT_PIN                       PinL0
 
-  #undef BTN_EN1
-  #undef BTN_EN2
-  #undef BTN_ENC
   #define BTN_EN1                             PinA7
   #define BTN_EN2                             PinA3
   #define BTN_ENC                             PinH1
+
+  #define LCD_PINS_DEFINED
+
 #endif
+
+#include "pins_RAMPS.h"
