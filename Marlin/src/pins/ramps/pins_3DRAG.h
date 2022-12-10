@@ -67,6 +67,8 @@
 #define MOSFET_C_PIN                          PinH6
 #define MOSFET_D_PIN                          PinB6
 
+#define HEATER_2_PIN                          PinH3
+
 //
 // Misc. Functions
 //
@@ -123,16 +125,6 @@
   #endif
 #endif
 
-#include "pins_RAMPS.h"
-
-//
-// Heaters / Fans
-//
-#define HEATER_2_PIN                          PinH3
-
-#undef SD_DETECT_PIN
-#define SD_DETECT_PIN                         PinB0
-
 //
 // LCD / Controller
 //
@@ -140,12 +132,6 @@
   #undef BEEPER_PIN
 
   // TODO: Remap EXP1/2 based on adapter
-  #undef LCD_PINS_RS
-  #undef LCD_PINS_ENABLE
-  #undef LCD_PINS_D4
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
   #define LCD_PINS_RS                         PinA5
   #define LCD_PINS_ENABLE                     PinA7
   #define LCD_PINS_D4                         PinC0
@@ -154,12 +140,11 @@
   #define LCD_PINS_D7                         PinC6
 
   // Buttons
-  #undef BTN_EN1
-  #undef BTN_EN2
-  #undef BTN_ENC
   #define BTN_EN1                             PinH1
   #define BTN_EN2                             PinH0
   #define BTN_ENC                             PinA1
+
+  #define LCD_PINS_DEFINED
 
 #else
 
@@ -172,3 +157,7 @@
   #define BOARD_ST7920_DELAY_2               188
   #define BOARD_ST7920_DELAY_3                 0
 #endif
+
+#define SD_DETECT_PIN                         PinB0
+
+#include "pins_RAMPS.h"

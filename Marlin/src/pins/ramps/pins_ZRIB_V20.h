@@ -27,7 +27,9 @@
  * ATmega2560, ATmega1280
  */
 
-#include "pins_MKS_GEN_13.h" // ... RAMPS
+#ifndef FILWIDTH_PIN
+  #define FILWIDTH_PIN                        PinB5  // Analog Input
+#endif
 
 //
 // Auto fans
@@ -45,27 +47,7 @@
   #define E3_AUTO_FAN_PIN                     PinH3
 #endif
 
-#ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN                        PinB5  // Analog Input
-#endif
-
 #if ENABLED(ZONESTAR_LCD)
-  #undef LCD_PINS_RS
-  #undef LCD_PINS_ENABLE
-  #undef LCD_PINS_D4
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
-  #undef ADC_KEYPAD_PIN
-  #undef BEEPER_PIN
-
-  #undef SHIFT_OUT_PIN
-  #undef SHIFT_CLK_PIN
-  #undef SHIFT_LD_PIN
-  #undef BTN_EN1
-  #undef BTN_EN2
-  #undef BTN_ENC
-
   #define LCD_PINS_RS                         PinH1
   #define LCD_PINS_ENABLE                     PinH0
   #define LCD_PINS_D4                         PinA1
@@ -74,4 +56,8 @@
   #define LCD_PINS_D7                         PinA7
   #define ADC_KEYPAD_PIN                      PinB4  // Analog Input
   #define BEEPER_PIN                          PinC0
+
+  #define LCD_PINS_DEFINED
 #endif
+
+#include "pins_MKS_GEN_13.h" // ... RAMPS

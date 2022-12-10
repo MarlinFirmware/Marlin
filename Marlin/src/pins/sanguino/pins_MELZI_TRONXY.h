@@ -28,6 +28,24 @@
 
 #define BOARD_INFO_NAME "Melzi (Tronxy)"
 
+#define Z_ENABLE_PIN                          PinD6
+
+#define LCD_SDSS                              -1
+
+#if ENABLED(CR10_STOCKDISPLAY)
+  #define LCD_PINS_RS                         PinA1
+  #define LCD_PINS_ENABLE                     PinA3
+  #define LCD_PINS_D4                         PinC0
+  #define LCD_PINS_D5                         PinC1
+  #define LCD_PINS_D6                         PinA4
+  #define LCD_PINS_D7                         PinA2
+  #define BTN_EN1                             PinD2
+  #define BTN_EN2                             PinD3
+  #define BTN_ENC                             PinA5
+
+  #define LCD_PINS_DEFINED
+#endif
+
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
@@ -36,26 +54,3 @@
 #endif
 
 #include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
-
-#undef Z_ENABLE_PIN
-#undef LCD_PINS_RS
-#undef LCD_PINS_ENABLE
-#undef LCD_PINS_D4
-#undef LCD_PINS_D5
-#undef LCD_PINS_D6
-#undef LCD_PINS_D7
-#undef BTN_EN1
-#undef BTN_EN2
-#undef BTN_ENC
-#undef LCD_SDSS
-
-#define Z_ENABLE_PIN                          PinD6
-#define LCD_PINS_RS                           PinA1
-#define LCD_PINS_ENABLE                       PinA3
-#define LCD_PINS_D4                           PinC0
-#define LCD_PINS_D5                           PinC1
-#define LCD_PINS_D6                           PinA4
-#define LCD_PINS_D7                           PinA2
-#define BTN_EN1                               PinD2
-#define BTN_EN2                               PinD3
-#define BTN_ENC                               PinA5

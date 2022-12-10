@@ -587,7 +587,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_WIRED_LCD
+#if HAS_WIRED_LCD && DISABLED(LCD_PINS_DEFINED)
 
   //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
@@ -717,7 +717,9 @@
       #define BTN_EN1                AUX2_05_PIN
       #define BTN_EN2                AUX2_03_PIN
       #define BTN_ENC                AUX2_04_PIN
-      #define SD_DETECT_PIN          AUX2_08_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        AUX2_08_PIN
+      #endif
 
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
@@ -734,7 +736,9 @@
       #define BTN_ENC                         -1
 
       #define LCD_SDSS                      SDSS
-      #define SD_DETECT_PIN          EXP2_07_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_07_PIN
+      #endif
 
     #elif EITHER(VIKI2, miniVIKI)
 
@@ -750,7 +754,9 @@
       #define BTN_EN2                          7
       #define BTN_ENC                AUX4_08_PIN
 
-      #define SD_DETECT_PIN                   -1  // Pin 49 for display SD interface, 72 for easy adapter board
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN                 -1  // Pin 49 for display SD interface, 72 for easy adapter board
+      #endif
       #define KILL_PIN               EXP2_03_PIN
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -766,7 +772,9 @@
       #define BTN_ENC                EXP2_03_PIN
 
       #define LCD_SDSS                      SDSS
-      #define SD_DETECT_PIN          EXP2_07_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_07_PIN
+      #endif
       #define KILL_PIN               EXP2_08_PIN
 
     #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
@@ -835,7 +843,9 @@
       #define BTN_EN2                AUX2_04_PIN
       #define BTN_ENC                AUX2_03_PIN
 
-      #define SD_DETECT_PIN          AUX3_02_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        AUX3_02_PIN
+      #endif
       #define KILL_PIN               AUX2_05_PIN
 
     #elif ENABLED(ZONESTAR_LCD)
@@ -850,7 +860,9 @@
 
       #define BEEPER_PIN             EXP1_01_PIN
 
-      #define SD_DETECT_PIN          EXP2_07_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_07_PIN
+      #endif
       #define KILL_PIN               EXP2_08_PIN
 
       #define BTN_EN1                EXP2_05_PIN
@@ -859,7 +871,9 @@
 
     #elif IS_TFTGLCD_PANEL
 
-      #define SD_DETECT_PIN          EXP2_07_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_07_PIN
+      #endif
 
     #else
 
@@ -878,7 +892,7 @@
     #endif
   #endif // IS_NEWPANEL
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_WIRED_LCD && !LCD_PINS_DEFINED
 
 #if IS_RRW_KEYPAD && !HAS_ADC_BUTTONS
   #define SHIFT_OUT_PIN              AUX2_06_PIN
@@ -935,7 +949,9 @@
 
   #define BEEPER_PIN                 EXP1_01_PIN
 
-  #define SD_DETECT_PIN              EXP2_07_PIN
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
+  #endif
 
   #define CLCD_MOD_RESET             EXP2_05_PIN
   #define CLCD_SPI_CS                EXP2_03_PIN
