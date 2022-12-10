@@ -74,6 +74,10 @@
   void spiBegin() {
   }
 
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
+  }
+
   void spiInitEx(uint32_t clock, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     _spi_clock = clock;
     _spi_bitOrder = MSBFIRST;

@@ -344,8 +344,7 @@ void MarlinUI::init_lcd() {
   t = 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // SPI speed must be less 10MHz
-    SET_OUTPUT(TFTGLCD_CS);
-    WRITE(TFTGLCD_CS, HIGH);
+    spiSetupChipSelect(TFTGLCD_CS);
     _spi_prepare();
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(GET_LCD_ROW);

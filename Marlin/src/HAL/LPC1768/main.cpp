@@ -97,11 +97,11 @@ void MarlinHAL::init() {
   //_DBG("\n\nDebug running\n");
   // Initialize the SD card chip select pins as soon as possible
   #if PIN_EXISTS(SD_SS)
-    OUT_WRITE(SD_SS_PIN, HIGH);
+    spiSetupChipSelect(SD_SS_PIN);
   #endif
 
   #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SD_SS_PIN
-    OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
+    spiSetupChipSelect(ONBOARD_SD_CS_PIN);
   #endif
 
   #ifdef LPC1768_ENABLE_CLKOUT_12M

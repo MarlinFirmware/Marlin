@@ -1476,6 +1476,10 @@ static void DMAProgramSSPChain(volatile ssp_dev_t& SSP, dma_process_t& proc) {
     MarlinLPC::PCONP.PCGPDMA = false;
   }
 
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
+  }
+
   static void _spiConfigClock(volatile MarlinLPC::ssp_dev_t& SSP, int clockMode) {
     if (clockMode == SPI_CLKMODE_0) {
       SSP.CR0.CPOL = false;

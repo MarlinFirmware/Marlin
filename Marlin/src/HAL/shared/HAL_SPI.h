@@ -74,6 +74,12 @@
 // Initialize SPI bus (global).
 void spiBegin();
 
+// Configures the SPI chip-select pin for valid operation.
+// It performs platform-dependant configurations for stability.
+// Common feature is that the pin is set to HIGH while not being used.
+// On the AVR, for example, it attempts to avoid the peripheral pin assignment conflict.
+void spiSetupChipSelect(int pin);
+
 // Configure SPI based on maximum clock frequency/rate.
 // Pass 0 for maxClockFreq to get a recommended default.
 void spiInitEx(uint32_t maxClockFreq, int hint_sck = -1, int hint_miso = -1, int hint_mosi = -1, int hint_cs = -1);

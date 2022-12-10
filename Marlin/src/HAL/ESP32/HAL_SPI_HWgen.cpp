@@ -97,6 +97,10 @@ void spiBegin() {
   #endif
 }
 
+void spiSetupChipSelect(int pin) {
+  OUT_WRITE(pin, HIGH);
+}
+
 void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
   if (hint_sck != -1) {
     SET_OUTPUT(hint_sck);

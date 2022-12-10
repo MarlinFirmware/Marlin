@@ -63,6 +63,10 @@
   void spiBegin() {
     //swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
+  
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
+  }
 
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     int use_sck = ( ( hint_sck >= 0 ) ? hint_sck : SD_SCK_PIN );

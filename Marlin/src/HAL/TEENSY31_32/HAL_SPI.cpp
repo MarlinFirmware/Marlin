@@ -48,6 +48,10 @@ void spiBegin() {
   SET_OUTPUT(SD_MOSI_PIN);
 }
 
+void spiSetupChipSelect(int pin) {
+  OUT_WRITE(pin, HIGH);
+}
+
 // Configure SPI for specified SPI speed
 void spiInitEx(uint32_t clock, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
   // Ignore the pin hints, there is nothing we can do (see arduino core).

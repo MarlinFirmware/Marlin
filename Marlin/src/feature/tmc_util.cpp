@@ -1321,7 +1321,7 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
 #endif // HAS_TRINAMIC_CONFIG
 
 #if HAS_TMC_SPI
-  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+  #define SET_CS_PIN(st) spiSetupChipSelect(st##_CS_PIN)
   void tmc_init_cs_pins() {
     #if AXIS_HAS_SPI(X)
       SET_CS_PIN(X);

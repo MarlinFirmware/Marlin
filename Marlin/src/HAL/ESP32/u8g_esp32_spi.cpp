@@ -64,15 +64,13 @@ uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
 
   switch (msg) {
     case U8G_COM_MSG_STOP:
-      spiClose();
       break;
 
     case U8G_COM_MSG_INIT:
-      OUT_WRITE(DOGLCD_CS, HIGH);
+      spiSetupChipSelect(DOGLCD_CS);
       OUT_WRITE(DOGLCD_A0, HIGH);
       OUT_WRITE(LCD_RESET_PIN, HIGH);
       u8g_Delay(5);
-      spiInit(LCD_SPI_SPEED, DOGLCD_SCK, DOGLCD_MISO, DOGLCD_MOSI, DOGLCD_CS);
       break;
 
     case U8G_COM_MSG_ADDRESS:           /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
@@ -80,7 +78,10 @@ uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:       /* arg_val == 0 means HIGH level of U8G_PI_CS */
-      WRITE(DOGLCD_CS, arg_val ? LOW : HIGH);
+      if (arg_val != 0)
+        spiInit(LCD_SPI_SPEED, DOGLCD_SCK, DOGLCD_MISO, DOGLCD_MOSI, DOGLCD_CS);
+      else
+        spiClose();
       break;
 
     case U8G_COM_MSG_RESET:

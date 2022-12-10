@@ -81,6 +81,10 @@
     #endif
   }
 
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
+  }
+
   void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     _spi_clock = maxClockFreq;
     spiConfig = SPISettings(maxClockFreq, MSBFIRST, SPI_MODE0);

@@ -3222,6 +3222,10 @@ struct ATmegaPinFunctions {
     }
     return false;
   }
+  template <typename... otherItemType>
+  inline bool hasFunc(eATmegaPinFunc func, otherItemType&&... items) const {
+    return hasFunc(func) || hasFunc(((otherItemType&&)items)...);
+  }
 
   template <typename callbackType>
   inline void iterate(callbackType&& cb) const {

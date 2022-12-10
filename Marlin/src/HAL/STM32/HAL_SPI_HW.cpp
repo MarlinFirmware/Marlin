@@ -561,6 +561,10 @@ extern "C" {
     #endif
   }
 
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
+  }
+
   static void _HAL_SPI_Prepare(void) {
     auto name_sck_pin = digitalPinToPinName(_spi_pin_sck);
 

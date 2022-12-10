@@ -480,6 +480,10 @@
     SET_OUTPUT(SD_MOSI_PIN);
   }
 
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
+  }
+
   void spiSetBitOrder(int bitOrder) {
     _spi_bit_order = bitOrder;
   }
@@ -688,6 +692,10 @@
     // https://github.com/arduino/ArduinoCore-sam/blob/master/libraries/SPI/src/SPI.h
     // ------------------------
     void spiBegin() {}
+    
+    void spiSetupChipSelect(int pin) {
+      OUT_WRITE(pin, HIGH);
+    }
 
     void spiInitEx(uint32_t clock, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
       _spi_clock = clock;
@@ -974,6 +982,10 @@
       spiInit(1);
     }
 
+    void spiSetupChipSelect(int pin) {
+      OUT_WRITE(pin, HIGH);
+    }
+
     void spiSetBitOrder(int bitOrder) {
       if (bitOrder == SPI_BITORDER_MSB) {
         SPI0->SPI_CR &= ~( 1 << 5 ); // 6th bit.
@@ -1227,6 +1239,10 @@
     }
 
     void spiBegin() { spiInit(SPI_SPEED_DEFAULT); }
+
+    void spiSetupChipSelect(int pin) {
+      OUT_WRITE(pin, HIGH);
+    }
 
     void spiSetBitOrder(int bitOrder) {
       if (bitOrder == SPI_BITORDER_MSB) {

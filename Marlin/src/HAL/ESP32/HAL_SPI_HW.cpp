@@ -2106,6 +2106,10 @@ void spiBegin() {
   MarlinESP32::SPIResetBus(MarlinESP32::SPI3);
 }
 
+void spiSetupChipSelect(int pin) {
+  OUT_WRITE(pin, HIGH);
+}
+
 void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
 #ifdef HALSPI_DEBUG
   if (_spi_core_id != xPortGetCoreID())

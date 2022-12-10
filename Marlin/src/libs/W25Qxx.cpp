@@ -39,7 +39,7 @@ bool flash_dma_mode = true;
 
 void W25QXXFlash::init(uint8_t spiRate) {
 
-  OUT_WRITE(SPI_FLASH_CS_PIN, HIGH);
+  spiSetupChipSelect(SPI_FLASH_CS_PIN);
 
   /**
    * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz

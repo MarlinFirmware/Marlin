@@ -90,10 +90,10 @@ void dac084s085::cshigh() {
   #if HAS_MULTI_EXTRUDER
     WRITE(DAC1_SYNC_PIN, HIGH);
   #endif
-  WRITE(SPI_EEPROM1_CS_PIN, HIGH);
-  WRITE(SPI_EEPROM2_CS_PIN, HIGH);
-  WRITE(SPI_FLASH_CS_PIN, HIGH);
-  WRITE(SD_SS_PIN, HIGH);
+  spiSetupChipSelect(SPI_EEPROM1_CS_PIN);
+  spiSetupChipSelect(SPI_EEPROM2_CS_PIN);
+  spiSetupChipSelect(SPI_FLASH_CS_PIN);
+  spiSetupChipSelect(SD_SS_PIN);
 }
 
 #endif // MB(ALLIGATOR)

@@ -116,9 +116,8 @@ bool MAX3421e::reset() {
 bool MAX3421e::start() {
   // Initialize pins and SPI bus
 
-  SET_OUTPUT(USB_CS_PIN);
+  spiSetupChipSelect(USB_CS_PIN);
   SET_INPUT_PULLUP(USB_INTR_PIN);
-  ncs();
 
   // MAX3421e - full-duplex, level interrupt, vbus off.
   regWr(rPINCTL, (bmFDUPSPI | bmINTLEVEL | GPX_VBDET));

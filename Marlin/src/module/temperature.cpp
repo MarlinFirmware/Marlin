@@ -2515,13 +2515,13 @@ void Temperature::init() {
 
   // Init (and disable) SPI thermocouples
   #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && PIN_EXISTS(TEMP_0_CS)
-    OUT_WRITE(TEMP_0_CS_PIN, HIGH);
+    spiSetupChipSelect(TEMP_0_CS_PIN);
   #endif
   #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && PIN_EXISTS(TEMP_1_CS)
-    OUT_WRITE(TEMP_1_CS_PIN, HIGH);
+    spiSetupChipSelect(TEMP_1_CS_PIN);
   #endif
   #if TEMP_SENSOR_IS_ANY_MAX_TC(2) && PIN_EXISTS(TEMP_2_CS)
-    OUT_WRITE(TEMP_2_CS_PIN, HIGH);
+    spiSetupChipSelect(TEMP_2_CS_PIN);
   #endif
 
   // Setup objects for library-based polling of MAX TCs

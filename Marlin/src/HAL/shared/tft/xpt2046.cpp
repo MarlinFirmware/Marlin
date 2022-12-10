@@ -34,32 +34,7 @@
 #endif
 
 void XPT2046::Init() {
-  OUT_WRITE(TOUCH_CS_PIN, HIGH);
-
-#if 0
-  // DEBUG PIN.
-  while (true) {
-    OUT_WRITE(EXP1_01_PIN, HIGH);
-    delay(1000);
-    OUT_WRITE(EXP1_01_PIN, LOW);
-    
-    // HIGH
-    OUT_WRITE(TOUCH_CS_PIN, HIGH);
-    delay(10000);
-
-    OUT_WRITE(EXP1_01_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(EXP1_01_PIN, LOW);
-    delay(500);
-    OUT_WRITE(EXP1_01_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(EXP1_01_PIN, LOW);
-
-    // LOW
-    OUT_WRITE(TOUCH_CS_PIN, LOW);
-    delay(10000);
-  }
-#endif
+  spiSetupChipSelect(TOUCH_CS_PIN);
 
   #if PIN_EXISTS(TOUCH_INT)
     // Optional Pendrive interrupt pin

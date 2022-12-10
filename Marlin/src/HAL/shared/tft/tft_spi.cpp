@@ -41,7 +41,7 @@
 void TFT_SPI::Init() {
 
   OUT_WRITE(TFT_A0_PIN, HIGH);
-  OUT_WRITE(TFT_CS_PIN, HIGH);
+  spiSetupChipSelect(TFT_CS_PIN);
 }
 
 void TFT_SPI::DataTransferBegin(eSPIMode spiMode) {

@@ -1230,10 +1230,10 @@ void setup() {
 
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_IS_MAX_TC(0) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E0))
-    OUT_WRITE(TEMP_0_CS_PIN, HIGH);  // Disable
+    spiSetupChipSelect(TEMP_0_CS_PIN);  // Disable
   #endif
   #if TEMP_SENSOR_IS_MAX_TC(1) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1))
-    OUT_WRITE(TEMP_1_CS_PIN, HIGH);
+    spiSetupChipSelect(TEMP_1_CS_PIN);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)

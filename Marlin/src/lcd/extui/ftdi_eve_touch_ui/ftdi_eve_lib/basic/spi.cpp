@@ -42,11 +42,11 @@ namespace FTDI {
     WRITE(CLCD_MOD_RESET, 0); // start with module in power-down
 
     SET_OUTPUT(CLCD_SPI_CS);
-    WRITE(CLCD_SPI_CS, 1);
+    spiSetupChipSelect(CLCD_SPI_CS);
 
     #ifdef CLCD_SPI_EXTRA_CS
       SET_OUTPUT(CLCD_SPI_EXTRA_CS);
-      WRITE(CLCD_SPI_EXTRA_CS, 1);
+      spiSetupChipSelect(CLCD_SPI_EXTRA_CS);
     #endif
 
     #ifdef SPI_FLASH_SS
