@@ -47,10 +47,10 @@
 // For the stock CR-10 enable CR10_STOCKDISPLAY in Configuration.h
 //
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define LCD_SDSS                              PinA0  // Smart Controller SD card reader (rather than the Melzi)
-  #define LCD_PINS_RS                           PinA3  // ST9720 CS
-  #define LCD_PINS_ENABLE                       PinC1  // ST9720 DAT
-  #define LCD_PINS_D4                           PinA1  // ST9720 CLK
+  #define LCD_SDSS                            PinA0  // Smart Controller SD card reader (rather than the Melzi)
+  #define LCD_PINS_RS                         PinA3  // ST9720 CS
+  #define LCD_PINS_ENABLE                     PinC1  // ST9720 DAT
+  #define LCD_PINS_D4                         PinA1  // ST9720 CLK
 
   #define LCD_PINS_DEFINED
 #endif

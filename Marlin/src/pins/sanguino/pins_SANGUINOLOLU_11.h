@@ -244,7 +244,7 @@
 
     #define BTN_ENC                           PinC0
     #ifndef LCD_SDSS
-      #define LCD_SDSS                          PinA3  // Smart Controller SD card reader rather than the Melzi
+      #define LCD_SDSS                        PinA3  // Smart Controller SD card reader rather than the Melzi
     #endif
 
   #endif

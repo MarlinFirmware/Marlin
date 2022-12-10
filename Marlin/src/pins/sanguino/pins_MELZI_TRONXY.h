@@ -33,15 +33,15 @@
 #define LCD_SDSS                              -1
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define LCD_PINS_RS                           PinA1
-  #define LCD_PINS_ENABLE                       PinA3
-  #define LCD_PINS_D4                           PinC0
-  #define LCD_PINS_D5                           PinC1
-  #define LCD_PINS_D6                           PinA4
-  #define LCD_PINS_D7                           PinA2
-  #define BTN_EN1                               PinD2
-  #define BTN_EN2                               PinD3
-  #define BTN_ENC                               PinA5
+  #define LCD_PINS_RS                         PinA1
+  #define LCD_PINS_ENABLE                     PinA3
+  #define LCD_PINS_D4                         PinC0
+  #define LCD_PINS_D5                         PinC1
+  #define LCD_PINS_D6                         PinA4
+  #define LCD_PINS_D7                         PinA2
+  #define BTN_EN1                             PinD2
+  #define BTN_EN2                             PinD3
+  #define BTN_ENC                             PinA5
 
   #define LCD_PINS_DEFINED
 #endif

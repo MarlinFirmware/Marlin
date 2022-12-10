@@ -133,7 +133,7 @@
     }
     else
       spiRate = SPI_SPEED_6;
-    
+
     spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 

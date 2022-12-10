@@ -38,20 +38,20 @@
  * active. If any of these pins are shared then the software SPI must be used.
  */
 
-/*
-  HAL SPI implementation by Martin Turski, company owner of EirDev
-  Inclusion date: 24th of November, 2022
-  Contact mail: turningtides@outlook.de
-  ---
-
-  Contact Martin if there is any grave SPI design or functionality issue.
-  Include a link to the Marlin FW GitHub issue post. Otherwise the mail
-  may be ignored. This implementation has been created specifically for the
-  Marlin FW. It was made with performance and simplicity-of-maintenance in
-  mind, while keeping all the SPI requirements in check.
-
-  Original pull request: https://github.com/MarlinFirmware/Marlin/pull/24911
-*/
+/**
+ *  HAL SPI implementation by Martin Turski, company owner of EirDev
+ *  Inclusion date: 24th of November, 2022
+ *  Contact mail: turningtides@outlook.de
+ *  ---
+ *
+ *  Contact Martin if there is any grave SPI design or functionality issue.
+ *  Include a link to the Marlin FW GitHub issue post. Otherwise the mail
+ *  may be ignored. This implementation has been created specifically for the
+ *  Marlin FW. It was made with performance and simplicity-of-maintenance in
+ *  mind, while keeping all the SPI requirements in check.
+ *
+ *  Original pull request: https://github.com/MarlinFirmware/Marlin/pull/24911
+ */
 
 // Actually: LPC176x/LPC175x
 #ifdef TARGET_LPC1768
@@ -61,38 +61,29 @@
 #include "../shared/HAL_SPI.h"
 #include "../shared/ARM/HAL_NVIC.h"
 
-#if !ENABLED(SOFTWARE_SPI)
+#if DISABLED(SOFTWARE_SPI)
 
-#ifndef LPC_MAINOSCILLATOR_FREQ
-#error Missing LPC176X/LPC175X main oscillator frequency (LPC_MAINOSCILLATOR_FREQ)! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)
-#endif
+  #ifndef LPC_MAINOSCILLATOR_FREQ
+    #error "Missing LPC176X/LPC175X main oscillator frequency (LPC_MAINOSCILLATOR_FREQ)! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)"
+  #endif
 
-static void _spi_on_error(uint32_t code = 0) {
+static void _spi_on_error(const uint32_t code=0) {
   for (;;) {
-#if ENABLED(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(1000);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(1000);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    if (code > 0)
-      delay(500);
-    for (uint32_t n = 0; n < code; n++) {
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(250);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      if (n < code-1)
+    #if ENABLED(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(1000);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);  if (code > 0) delay(500);
+      for (uint32_t n = 0; n < code; n++) {
+        OUT_WRITE(BEEPER_PIN, HIGH);
         delay(250);
-    }
-    if (code > 0)
-      delay(800);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(1000);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(2000);
-#endif
+        OUT_WRITE(BEEPER_PIN, LOW);
+        if (n < code - 1) delay(250);
+      }
+      if (code > 0) delay(800);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(2000);
+    #endif
   }
 }
 
@@ -387,7 +378,7 @@ static pinmode9_reg_t& PINMODE9 = *(pinmode9_reg_t*)0x4002C064;
 
 struct fioXdir_reg_t {
   uint32_t val;
-  
+
   inline void set(uint8_t reg, uint8_t val) {
     if (val == LPC_GPIODIR_INPUT)
       val &= ~(1<<reg);
@@ -1582,7 +1573,7 @@ static void DMAProgramSSPChain(volatile ssp_dev_t& SSP, dma_process_t& proc) {
       _ssp_transaction_is_running = true;
     }
   }
-  
+
   void spiClose() {
     if (_ssp_is_active == false)
       _spi_on_error(2);
@@ -1974,7 +1965,7 @@ inline void _dmaSendBlocking(const numberType *buf, uint32_t cnt) {
 
     DMACC.SrcAddr = (uint32_t)( buf + curoff );
     DMACC.Control = Control;
-    
+
     curoff += takecnt;
 
     // Kick off the DMA.
@@ -2030,7 +2021,7 @@ static void _dmaSendRepeatBlocking(numberType val, uint32_t repcnt) {
     Control.I = false;
 
     DMACC.Control = Control;
-    
+
     curoff += takecnt;
 
     // Kick off the DMA.
@@ -2183,7 +2174,7 @@ static void _dmacAdvance(MarlinLPC::dma_process_t& proc) {
     // Disable the terminal count interrupt.
     DMACC.Control.I = false;
     DMACC.Config.ITC = false;
-    
+
     _dmaUninstallInterrupt();
     _dmaEnd();
 
@@ -2388,7 +2379,7 @@ inline void _dmaSendAsync(const numberType *buf, uint32_t cnt, void (*completeCa
           proc.completeCallback = nullptr;
           proc.complete_ud = nullptr;
           proc.is_active = false;
-        
+
           // Call any completion routine.
           if (completeCallback) {
             completeCallback(complete_ud);
@@ -2574,4 +2565,4 @@ inline void _dmaSendAsync(const numberType *buf, uint32_t cnt, void (*completeCa
 
 #endif
 
-#endif
+#endif // TARGET_LPC1768

@@ -932,7 +932,7 @@ extern "C" {
       if (SPIhx.Init.FirstBit == SPI_FIRSTBIT_LSB) return;
       SPIhx.Init.FirstBit = SPI_FIRSTBIT_LSB;
     }
-  
+
     // If the SPI is already enabled, then update it.
     // When the SPI is initialized, the chip-select must be high aswell.
     if (_spi_is_initialized)

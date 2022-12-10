@@ -71,7 +71,7 @@
   #define X_MIN_PIN                           PinE5
   #define X_MAX_PIN                           PinE4
 #else
-  #define X_STOP_PIN                          PinE3
+  #define X_STOP_PIN                          PinE5
 #endif
 
 #if !ANY_PIN(Y_MIN, Y_MAX, Y_STOP)

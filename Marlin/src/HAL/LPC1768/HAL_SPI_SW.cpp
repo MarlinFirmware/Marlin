@@ -63,7 +63,7 @@
   void spiBegin() {
     //swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
-  
+
   void spiSetupChipSelect(int pin) {
     OUT_WRITE(pin, HIGH);
   }
@@ -106,7 +106,7 @@
     }
     else
       spiRate = SPI_SPEED_6;
-    
+
     spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
@@ -153,7 +153,7 @@
   }
 
   uint8_t spiRec(uint8_t txval) { return (_spi_bit_order == SPI_BITORDER_MSB) ? spiTransfer(txval) : _flip_bits_8(spiTransfer(_flip_bits_8(txval))); }
-  
+
   uint16_t spiRec16(uint16_t txval) {
     bool msb = (_spi_bit_order == SPI_BITORDER_MSB);
     uint8_t tx_first, tx_second;
@@ -214,7 +214,7 @@
     for (uint16_t n = 0; n < repcnt; n++)
       spiSend16(val);
   }
-  
+
 #endif
 
 #endif // TARGET_LPC1768

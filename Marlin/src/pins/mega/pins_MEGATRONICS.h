@@ -55,7 +55,7 @@
 
 #define Y_STEP_PIN                            PinF6  // A6 (TODO: wtf? pin assignment? ff.)
 #define Y_DIR_PIN                             PinF7  // A7
-#define Y_ENABLE_PIN                          
+#define Y_ENABLE_PIN
 
 #define Z_STEP_PIN                            PinF0  // A0
 #define Z_DIR_PIN                             PinF1  // A1

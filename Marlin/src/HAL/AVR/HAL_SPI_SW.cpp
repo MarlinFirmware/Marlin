@@ -46,32 +46,22 @@
 
   static void _spi_on_error(int code) {
     for (;;) {
-#if ENABLED(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(400);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(400);
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(400);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(400);
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(1000);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(1000);
-      for (int n = 0; n < code; n++) {
-        OUT_WRITE(BEEPER_PIN, HIGH);
-        delay(500);
-        OUT_WRITE(BEEPER_PIN, LOW);
-        if (n < code-1)
-          delay(500);
-      }
-      delay(1000);
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(800);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(2000);
-#endif
+      #if ENABLED(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+        OUT_WRITE(BEEPER_PIN, HIGH); delay(400);
+        OUT_WRITE(BEEPER_PIN, LOW);  delay(400);
+        OUT_WRITE(BEEPER_PIN, HIGH); delay(400);
+        OUT_WRITE(BEEPER_PIN, LOW);  delay(400);
+        OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+        OUT_WRITE(BEEPER_PIN, LOW);  delay(1000);
+        for (int n = 0; n < code; n++) {
+          OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+          OUT_WRITE(BEEPER_PIN, LOW);
+          if (n < code - 1) delay(500);
+        }
+        delay(1000);
+        OUT_WRITE(BEEPER_PIN, HIGH); delay(800);
+        OUT_WRITE(BEEPER_PIN, LOW);  delay(2000);
+      #endif
     }
   }
 
@@ -120,9 +110,11 @@
 
     _spi_is_running = true;
   }
+
   void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     spiInit(0, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
+
   void spiClose() {
     if (_spi_is_running == false)
       _spi_on_error(2);
@@ -149,9 +141,8 @@
 
   // Soft SPI receive byte
   uint8_t spiRec(uint8_t txval) {
-    if (txval != 0xFF) {
-      _spi_on_error(4);
-    }
+    if (txval != 0xFF) _spi_on_error(4);
+
     uint8_t data = 0;
     // no interrupts during byte receive - about 8µs
     cli();
@@ -166,8 +157,7 @@
       nop; // adjust so SCK is nice
       nop;
 
-      if (_ATmega_digitalRead(_spi_miso_pin) == HIGH)
-      {
+      if (_ATmega_digitalRead(_spi_miso_pin) == HIGH) {
         int bitidx = ( msb ? 7-i : i );
         data |= ( 1 << bitidx );
       }
@@ -180,9 +170,8 @@
   }
 
   uint16_t spiRec16(uint16_t txval) {
-    if (txval != 0xFFFF) {
-      _spi_on_error(4);
-    }
+    if (txval != 0xFFFF) _spi_on_error(4);
+
     uint16_t data = 0;
     bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
     // no interrupts during byte receive - about 8µs
@@ -196,8 +185,7 @@
       nop; // adjust so SCK is nice
       nop;
 
-      if (_ATmega_digitalRead(_spi_miso_pin) == HIGH)
-      {
+      if (_ATmega_digitalRead(_spi_miso_pin) == HIGH) {
         int bitidx = ( msb ? 15-i : i );
         data |= ( 1 << bitidx );
       }
@@ -238,11 +226,11 @@
   }
 
   void spiSend16(uint16_t v) {
-    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    const bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
     // no interrupts during byte send - about 8µs
     cli();
     LOOP_L_N(i, 16) {
-      int bitidx = ( msb ? 15-i : i );
+      const int bitidx = msb ? 15 - i : i;
       _ATmega_digitalWrite(_spi_sck_pin, LOW);
       _ATmega_digitalWrite(_spi_mosi_pin, ( v & ( 1 << bitidx )) != 0);
       _ATmega_digitalWrite(_spi_sck_pin, HIGH);
@@ -269,7 +257,7 @@
     for (uint16_t n = 0; n < cnt; n++)
       spiSend(buf[n]);
   }
-  
+
   void spiWrite16(const uint16_t *buf, uint16_t cnt) {
     for (uint16_t n = 0; n < cnt; n++)
       spiSend16(buf[n]);

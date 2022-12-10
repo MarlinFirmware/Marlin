@@ -223,7 +223,7 @@
       (void)SPI.transfer(val);
     }
   }
-  
+
   void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
     _maybe_start_transaction();
     for (uint16_t n = 0; n < repcnt; n++) {

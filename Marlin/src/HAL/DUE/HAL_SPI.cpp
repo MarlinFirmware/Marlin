@@ -603,7 +603,7 @@
    */
   void spiInit(uint8_t spiRate, const int hint_sck/*=-1*/, const int hint_miso/*=-1*/, const int hint_mosi/*=-1*/, const int hint_cs/*=-1*/) {
     // Ignore pin hints... TODO?
-    
+
     switch (spiRate) {
       case 0:
         spiTransferTx = (pfnSpiTransfer)spiTransferTx0;
@@ -654,7 +654,7 @@
     }
     else
       spiRate = SPI_SPEED_6;
-    
+
     spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
 
@@ -692,7 +692,7 @@
     // https://github.com/arduino/ArduinoCore-sam/blob/master/libraries/SPI/src/SPI.h
     // ------------------------
     void spiBegin() {}
-    
+
     void spiSetupChipSelect(int pin) {
       OUT_WRITE(pin, HIGH);
     }
@@ -927,7 +927,7 @@
       }
       else
         spiRate = SPI_SPEED_6;
-      
+
       spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
     }
 
@@ -1304,7 +1304,7 @@
       if (msb) {
         spiSend(data >> 8);
         spiSend(data & 0xFF);
-        
+
       }
       else {
         spiSend(data & 0xFF);

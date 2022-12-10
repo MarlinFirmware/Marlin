@@ -137,7 +137,7 @@ void nvicUpdateVector() {
 void nvicSetHandler(uint32_t idx, void (*callback)()) {
     if (idx >= VECTOR_TABLE_SIZE)
         _NVIC_OnError();
-    
+
     _isrv_redirect[idx] = callback;
     __DSB();    // handle CPU pipeline caching inconsistencies (non instruction encoding)
 }
@@ -149,7 +149,7 @@ void nvicSetIRQHandler(IRQn_Type irqn, void (*callback)()) {
 void (*nvicGetHandler(uint32_t idx))() {
     if (idx >= VECTOR_TABLE_SIZE)
         _NVIC_OnError();
-    
+
     return _isrv_redirect[idx];
 }
 

@@ -53,38 +53,26 @@
 // tested using MKS TinyBee V1.0 (ESP32-WROOM-32U)
 // ------------------------
 
-static void _spi_on_error(uint32_t code = 0) {
+static void _spi_on_error(const uint32_t code=0) {
   for (;;) {
-#if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay((code > 0) ? 800 : 150);
-    for (uint32_t n = 0; n < code; n++) {
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(250);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      if (n < code - 1)
-        delay(250);
-    }
-    delay(3000);
-#endif
+    #if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(500);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(500);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(150);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(150);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(150);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(150);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(150);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(code ? 800 : 150);
+      for (uint32_t n = 0; n < code; n++) {
+        OUT_WRITE(BEEPER_PIN, HIGH); delay(250);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        if (n < code - 1) delay(250);
+      }
+      delay(3000);
+    #endif
   }
 }
 
@@ -92,65 +80,48 @@ static void _spi_on_error(uint32_t code = 0) {
 #define HALSPI_LOOPBEEP_TIMEOUT 3000
 #endif
 
-struct spi_monitored_loop
-{
+struct spi_monitored_loop {
 private:
-#if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
-  uint32_t _start_millis;
-#endif
+  #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+    uint32_t _start_millis;
+  #endif
 public:
   inline spi_monitored_loop() {
-#if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
-    _start_millis = millis();
-#endif
+    #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+      _start_millis = millis();
+    #endif
   }
   inline void update(unsigned int beep_code) {
-#if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
-    if ((millis() - _start_millis) <= HALSPI_LOOPBEEP_TIMEOUT) return;
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(200);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(200);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(200);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(200);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(1000);
-    for (unsigned int n = 0; n < beep_code; n++) {
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(200);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(200);
-    }
-    delay(800);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(1000);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(2000);
-#endif
+    #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
+      if ((millis() - _start_millis) <= HALSPI_LOOPBEEP_TIMEOUT) return;
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(200);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(200);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(1000);
+      for (unsigned int n = 0; n < beep_code; n++) {
+        OUT_WRITE(BEEPER_PIN, HIGH); delay(200);
+        OUT_WRITE(BEEPER_PIN, LOW);  delay(200);
+      }
+      delay(800);
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(2000);
+    #endif
   }
 };
 
 static void __attribute__((unused)) _spi_infobeep(uint32_t code) {
 #if PIN_EXISTS(BEEPER)
-  OUT_WRITE(BEEPER_PIN, HIGH);
-  delay(500);
-  OUT_WRITE(BEEPER_PIN, LOW);
-  delay(500);
+  OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+  OUT_WRITE(BEEPER_PIN, LOW);  delay(500);
   for (uint32_t n = 0; n < code; n++) {
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(200);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(200);
+    OUT_WRITE(BEEPER_PIN, HIGH); delay(200);
+    OUT_WRITE(BEEPER_PIN, LOW);  delay(200);
   }
   delay(300);
-  OUT_WRITE(BEEPER_PIN, HIGH);
-  delay(400);
-  OUT_WRITE(BEEPER_PIN, LOW);
-  delay(1000);
+  OUT_WRITE(BEEPER_PIN, HIGH); delay(400);
+  OUT_WRITE(BEEPER_PIN, LOW);  delay(1000);
 #endif
 }
 
@@ -244,7 +215,7 @@ struct spi_user1_reg_t {
 static_assert(sizeof(spi_user1_reg_t) == 4, "invalid size for ESP32 spi_user1_reg_t");
 
 struct spi_user2_reg_t {
-  uint32_t SPI_USR_COMMAND_VALUE : 16;  
+  uint32_t SPI_USR_COMMAND_VALUE : 16;
   uint32_t reserved1 : 12;
   uint32_t SPI_USR_COMMAND_BITLEN : 4;
 };
@@ -1217,7 +1188,7 @@ inline void SPIWriteDataToTransferEx(
       byteval,
       true
     );
-    
+
     total_bytes_written++;
   }
 
@@ -1267,7 +1238,7 @@ inline void SPIReadDataFromTransfer(
 
     total_bytes_read++;
   }
-  
+
   cntReadBytes_out = total_bytes_read;
 }
 
@@ -1969,7 +1940,7 @@ static dma_descriptor_t* DMAGenerateAcquireChain(dma_process_t& proc) {
 
     // Advance the process.
     proc.curoff += txcount;
-    
+
     // Give ownership of the descriptor to the DMA controller.
     // (this decision turns valid as soon as the DMAC is kicked-off!)
     freedesc->owner = SPIDMA_OWNER_DMAC;
@@ -2281,7 +2252,7 @@ void spiSend(uint8_t txval) {
   MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
-  
+
   _spiAsyncBarrier();
 
   _maybe_start_transaction();
@@ -2499,7 +2470,7 @@ void spiWrite(const uint8_t *buf, uint16_t cnt) {
 
 void spiWrite16(const uint16_t *buf, uint16_t cnt) {
   if (cnt == 0) return;
-  
+
   MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
@@ -2596,7 +2567,7 @@ void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
   while (txprog < repcnt_bytes) {
     uint16_t actualWriteCount;
     _spiWriteRepeatToBufferEx(SPI, val, repcnt_bytes - txprog, actualWriteCount, spi_writebuf_size, notrevbits, start_num_idx);
-    
+
     MarlinESP32::SPITransaction(SPI, actualWriteCount);
 
     txprog += actualWriteCount;

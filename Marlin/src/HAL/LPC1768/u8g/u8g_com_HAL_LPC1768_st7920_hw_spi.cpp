@@ -84,7 +84,7 @@ uint8_t u8g_com_HAL_LPC1768_ST7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t ar
       u8g_SetPIOutput(u8g, U8G_PI_CS);
       u8g_Delay(5);
       // ST7920 max speed is about 1.1 MHz
-      spiInitEx(1100000, U8G_PI_SCK, -1, U8G_PI_MOSI, U8G_PI_CS);            
+      spiInitEx(1100000, U8G_PI_SCK, -1, U8G_PI_MOSI, U8G_PI_CS);
       u8g->pin_list[U8G_PI_A0_STATE] = 0;   // initial RS state: command mode
       break;
 
