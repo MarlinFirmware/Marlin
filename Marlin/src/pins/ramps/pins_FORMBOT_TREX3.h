@@ -23,6 +23,7 @@
 
 /**
  * Formbot pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -38,7 +39,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                            11
+#define SERVO0_PIN                         PinB5
 #define SERVO1_PIN                            -1  // was 6
 #define SERVO2_PIN                            -1
 #define SERVO3_PIN                            -1
@@ -46,115 +47,115 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                              3
+#define X_MIN_PIN                          PinE5
 #ifndef X_MAX_PIN
-  #define X_MAX_PIN                            2
+  #define X_MAX_PIN                        PinE4
 #endif
-#define Y_MIN_PIN                             14
-#define Y_MAX_PIN                             15
-#define Z_MIN_PIN                             18
-#define Z_MAX_PIN                             19
+#define Y_MIN_PIN                          PinJ1
+#define Y_MAX_PIN                          PinJ0
+#define Z_MIN_PIN                          PinD3
+#define Z_MAX_PIN                          PinD2
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     32
+  #define Z_MIN_PROBE_PIN                  PinC5
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            54
-#define X_DIR_PIN                             55
-#define X_ENABLE_PIN                          38
+#define X_STEP_PIN                         PinF0
+#define X_DIR_PIN                          PinF1
+#define X_ENABLE_PIN                       PinD7
 #ifndef X_CS_PIN
-  #define X_CS_PIN                            53
+  #define X_CS_PIN                         PinB0
 #endif
 
-#define Y_STEP_PIN                            60
-#define Y_DIR_PIN                             61
-#define Y_ENABLE_PIN                          56
+#define Y_STEP_PIN                         PinF6
+#define Y_DIR_PIN                          PinF7
+#define Y_ENABLE_PIN                       PinF2
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                            49
+  #define Y_CS_PIN                         PinL0
 #endif
 
-#define Z_STEP_PIN                            46
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          62
+#define Z_STEP_PIN                         PinL3
+#define Z_DIR_PIN                          PinL1
+#define Z_ENABLE_PIN                       PinK0
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                            40
+  #define Z_CS_PIN                         PinG1
 #endif
 
-#define E0_STEP_PIN                           26
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                         24
+#define E0_STEP_PIN                        PinA4
+#define E0_DIR_PIN                         PinA6
+#define E0_ENABLE_PIN                      PinA2
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                           42
+  #define E0_CS_PIN                        PinL7
 #endif
 
-#define E1_STEP_PIN                           36
-#define E1_DIR_PIN                            34
-#define E1_ENABLE_PIN                         30
+#define E1_STEP_PIN                        PinC1
+#define E1_DIR_PIN                         PinC3
+#define E1_ENABLE_PIN                      PinC7
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                           44
+  #define E1_CS_PIN                        PinL5
 #endif
 
 #if HAS_X2_STEPPER
-  #define X2_STEP_PIN                         42
-  #define X2_DIR_PIN                          43
-  #define X2_ENABLE_PIN                       44
+  #define X2_STEP_PIN                      PinL7
+  #define X2_DIR_PIN                       PinL6
+  #define X2_ENABLE_PIN                    PinL5
 #else
-  #define E2_STEP_PIN                         42
-  #define E2_DIR_PIN                          43
-  #define E2_ENABLE_PIN                       44
+  #define E2_STEP_PIN                      PinL7
+  #define E2_DIR_PIN                       PinL6
+  #define E2_ENABLE_PIN                    PinL5
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            13  // Analog Input
-#define TEMP_1_PIN                            15  // Analog Input
-#define TEMP_BED_PIN                          14  // Analog Input
+#define TEMP_0_PIN                         PinB7  // Analog Input
+#define TEMP_1_PIN                         PinJ0  // Analog Input
+#define TEMP_BED_PIN                       PinJ1  // Analog Input
 
 // SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
+  #define TEMP_0_CS_PIN                    PinK4  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
+  #define TEMP_0_CS_PIN                    PinK4  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          10
-#define HEATER_1_PIN                           7
-#define HEATER_BED_PIN                         8
+#define HEATER_0_PIN                       PinB4
+#define HEATER_1_PIN                       PinH4
+#define HEATER_BED_PIN                     PinH5
 
-#define FAN_PIN                                9
-#define FAN1_PIN                              12
+#define FAN_PIN                            PinH6
+#define FAN1_PIN                           PinB6
 
-#define FIL_RUNOUT_PIN                        22
-#define FIL_RUNOUT2_PIN                       21
+#define FIL_RUNOUT_PIN                     PinA0
+#define FIL_RUNOUT2_PIN                    PinD0
 
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SDSS                               PinB0
 
 #ifndef LED_PIN
-  #define LED_PIN                             13
+  #define LED_PIN                          PinB7
 #endif
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       5
+  #define CASE_LIGHT_PIN                   PinE3
 #endif
 
 #define SPINDLE_LASER_PWM_PIN                 -1  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                  4  // Pullup!
+#define SPINDLE_LASER_ENA_PIN              PinG5  // Pullup!
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-#define FILWIDTH_PIN                           5  // Analog Input
+#define FILWIDTH_PIN                       PinE3  // Analog Input
 
 //
 // LCD / Controller
@@ -162,21 +163,21 @@
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
 #if IS_RRD_SC
-  #define LCD_PINS_RS                         16
-  #define LCD_PINS_ENABLE                     17
-  #define LCD_PINS_D4                         23
-  #define LCD_PINS_D5                         25
-  #define LCD_PINS_D6                         27
-  #define LCD_PINS_D7                         29
-  #define BTN_EN1                             31
-  #define BTN_EN2                             33
-  #define BTN_ENC                             35
-  #define SD_DETECT_PIN                       49
+  #define LCD_PINS_RS                      PinH1
+  #define LCD_PINS_ENABLE                  PinH0
+  #define LCD_PINS_D4                      PinA1
+  #define LCD_PINS_D5                      PinA3
+  #define LCD_PINS_D6                      PinA5
+  #define LCD_PINS_D7                      PinA7
+  #define BTN_EN1                          PinC6
+  #define BTN_EN2                          PinC4
+  #define BTN_ENC                          PinC2
+  #define SD_DETECT_PIN                    PinL0
   #ifndef KILL_PIN
-    #define KILL_PIN                          41
+    #define KILL_PIN                       PinG0
   #endif
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN                        37
+    #define BEEPER_PIN                     PinC0
   #endif
 #endif
 

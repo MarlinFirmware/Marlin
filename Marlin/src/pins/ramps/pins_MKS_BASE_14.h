@@ -23,6 +23,7 @@
 
 /**
  * MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -35,27 +36,27 @@
 //
 // Heaters / Fans
 //
-#define FAN_PIN                                9  // PH6 ** Pin18 ** PWM9
+#define FAN_PIN                               PinH6  // PH6 ** Pin18 ** PWM9
 
 // Other Mods
 
-#define SERVO3_PIN                            12  // PB6 ** Pin25 ** D12
-#define PS_ON_PIN                              2  // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
-#define FILWIDTH_PIN                          15  // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
-#define FIL_RUNOUT_PIN                        19  // Z+ // PD2 ** Pin45 ** USART1_RX
+#define SERVO3_PIN                            PinB6  // PB6 ** Pin25 ** D12
+#define PS_ON_PIN                             PinE4  // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
+#define FILWIDTH_PIN                          PinJ0  // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
+#define FIL_RUNOUT_PIN                        PinD2  // Z+ // PD2 ** Pin45 ** USART1_RX
 
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN                       50
+  #define RGB_LED_R_PIN                       PinB3
 #endif
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_G_PIN                       51
+  #define RGB_LED_G_PIN                       PinB2
 #endif
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_B_PIN                       52
+  #define RGB_LED_B_PIN                       PinB1
 #endif
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                      11  // PB5 ** Pin24 ** PWM11
+  #define CASE_LIGHT_PIN                      PinB5  // PB5 ** Pin24 ** PWM11
 #endif
 
 #include "pins_MKS_BASE_common.h" // ... RAMPS

@@ -119,7 +119,6 @@
    * If undefined software serial is used according to the pins below
    */
 
-
   // P2_08 E1-Step
   // P2_13 E1-Dir
 

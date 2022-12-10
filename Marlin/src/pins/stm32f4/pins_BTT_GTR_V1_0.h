@@ -304,9 +304,9 @@
 //#define TEMP_0_MOSI_PIN                   ...   // For MAX31865
 
 #define TEMP_1_CS_PIN                       PH2   // M5 K-TEMP
-#define TEMP_1_SCK_PIN           TEMP_0_SCK_PIN
-#define TEMP_1_MISO_PIN         TEMP_0_MISO_PIN
-//#define TEMP_1_MOSI_PIN       TEMP_0_MOSI_PIN
+#define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN          TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
 
 //
 // Heaters / Fans

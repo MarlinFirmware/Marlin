@@ -24,6 +24,7 @@
 /**
  * K8200 Arduino Mega with RAMPS v1.3 pin assignments
  * Identical to 3DRAG
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME         "Velleman K8200"

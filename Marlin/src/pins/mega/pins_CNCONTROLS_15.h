@@ -23,6 +23,7 @@
 
 /**
  * CNControls V15 for HMS434 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #define ALLOW_MEGA1280
@@ -33,65 +34,65 @@
 //
 // Servos
 //
-#define SERVO0_PIN                             6
+#define SERVO0_PIN                            PinH3
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            34
-#define Y_STOP_PIN                            39
-#define Z_STOP_PIN                            62
+#define X_STOP_PIN                            PinC3
+#define Y_STOP_PIN                            PinG2
+#define Z_STOP_PIN                            PinK0
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     49
+  #define Z_MIN_PROBE_PIN                     PinL0
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            14
-#define X_DIR_PIN                             25
-#define X_ENABLE_PIN                          26
+#define X_STEP_PIN                            PinJ1
+#define X_DIR_PIN                             PinA3
+#define X_ENABLE_PIN                          PinA4
 
-#define Y_STEP_PIN                            11
-#define Y_DIR_PIN                             12
-#define Y_ENABLE_PIN                          15
+#define Y_STEP_PIN                            PinB5
+#define Y_DIR_PIN                             PinB6
+#define Y_ENABLE_PIN                          PinJ0
 
-#define Z_STEP_PIN                            24
-#define Z_DIR_PIN                             27
-#define Z_ENABLE_PIN                          28
+#define Z_STEP_PIN                            PinA2
+#define Z_DIR_PIN                             PinA5
+#define Z_ENABLE_PIN                          PinA6
 
-#define E0_STEP_PIN                           64
-#define E0_DIR_PIN                            65
-#define E0_ENABLE_PIN                         63
+#define E0_STEP_PIN                           PinK2
+#define E0_DIR_PIN                            PinK3
+#define E0_ENABLE_PIN                         PinK1
 
 //
 // Temperature Sensors
 // Analog Inputs
 //
-#define TEMP_0_PIN                             2  // Analog Input
-#define TEMP_BED_PIN                           4  // Analog Input
+#define TEMP_0_PIN                            PinE4  // Analog Input
+#define TEMP_BED_PIN                          PinG5  // Analog Input
 
 #ifndef TEMP_CHAMBER_PIN
-  #define TEMP_CHAMBER_PIN                     5  // Analog Input
+  #define TEMP_CHAMBER_PIN                    PinE3  // Analog Input
 #endif
 
 //
 // Heaters
 //
-#define HEATER_0_PIN                           4
-#define HEATER_BED_PIN                        32
-#define HEATER_CHAMBER_PIN                    33
+#define HEATER_0_PIN                          PinG5
+#define HEATER_BED_PIN                        PinC5
+#define HEATER_CHAMBER_PIN                    PinC4
 
 //
 // Fans
 //
-#define FAN_PIN                                8
+#define FAN_PIN                               PinH5
 
 //
 // Auto fans
 //
-#define AUTO_FAN_PIN                          30
+#define AUTO_FAN_PIN                          PinC7
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
@@ -105,22 +106,22 @@
   #define E3_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
 #ifndef CHAMBER_AUTO_FAN_PIN
-  //#define CHAMBER_AUTO_FAN_PIN              10
+  //#define CHAMBER_AUTO_FAN_PIN              PinB4
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                  53
-#define SD_DETECT_PIN                         40
+#define SDSS                                  PinB0
+#define SD_DETECT_PIN                         PinG1
 
 // Common I/O
 
-#define FIL_RUNOUT_PIN                         9
-//#define FIL_RUNOUT_PIN                      29  // encoder sensor
-//#define PWM_1_PIN                           12
-//#define PWM_2_PIN                           13
-//#define SPARE_IO                            17
-#define BEEPER_PIN                            13
+#define FIL_RUNOUT_PIN                        PinH6
+//#define FIL_RUNOUT_PIN                      PinA7  // encoder sensor
+//#define PWM_1_PIN                           PinB6
+//#define PWM_2_PIN                           PinB7
+//#define SPARE_IO                            PinH0
+#define BEEPER_PIN                            PinB7
 #define STAT_LED_BLUE_PIN                     -1
-#define STAT_LED_RED_PIN                      10  // 31
+#define STAT_LED_RED_PIN                      PinB4  // 31

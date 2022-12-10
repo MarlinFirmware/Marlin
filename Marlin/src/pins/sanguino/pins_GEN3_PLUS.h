@@ -56,43 +56,43 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            20
-#define Y_STOP_PIN                            25
-#define Z_STOP_PIN                            30
+#define X_STOP_PIN                            PinC4
+#define Y_STOP_PIN                            PinA6
+#define Z_STOP_PIN                            PinA1
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            15
-#define X_DIR_PIN                             18
-#define X_ENABLE_PIN                          19
+#define X_STEP_PIN                            PinD7
+#define X_DIR_PIN                             PinC2
+#define X_ENABLE_PIN                          PinC3
 
-#define Y_STEP_PIN                            23
-#define Y_DIR_PIN                             22
-#define Y_ENABLE_PIN                          24
+#define Y_STEP_PIN                            PinC7
+#define Y_DIR_PIN                             PinC6
+#define Y_ENABLE_PIN                          PinA7
 
-#define Z_STEP_PIN                            27
-#define Z_DIR_PIN                             28
-#define Z_ENABLE_PIN                          29
+#define Z_STEP_PIN                            PinA4
+#define Z_DIR_PIN                             PinA3
+#define Z_ENABLE_PIN                          PinA2
 
-#define E0_STEP_PIN                           17
-#define E0_DIR_PIN                            21
-#define E0_ENABLE_PIN                         13
+#define E0_STEP_PIN                           PinC1
+#define E0_DIR_PIN                            PinC5
+#define E0_ENABLE_PIN                         PinD5
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input (pin 33 extruder)
-#define TEMP_BED_PIN                           5  // Analog Input (pin 34 bed)
+#define TEMP_0_PIN                            PinB0  // Analog Input (pin 33 extruder)
+#define TEMP_BED_PIN                          PinB5  // Analog Input (pin 34 bed)
 
 //
 // Heaters
 //
-#define HEATER_0_PIN                          12
-#define HEATER_BED_PIN                        16
+#define HEATER_0_PIN                          PinD4
+#define HEATER_BED_PIN                        PinC0
 
 //
 // Misc. Functions
 //
-#define SDSS                                   4
-#define PS_ON_PIN                             14
+#define SDSS                                  PinB4
+#define PS_ON_PIN                             PinD6

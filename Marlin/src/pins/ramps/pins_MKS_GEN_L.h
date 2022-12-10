@@ -23,6 +23,8 @@
 
 /**
  * MKS GEN L – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ * ATmega2560, ATmega1280
+ * https://github.com/makerbase-mks/MKS-GEN_L/blob/master/hardware/MKS%20Gen_L%20V1.0_008/MKS%20Gen_L%20V1.0_008%20SCH.pdf
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -31,16 +33,18 @@
 
 #define BOARD_INFO_NAME "MKS GEN L"
 
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN 7
+#define MOSFET_D_PIN PinH4
 
 // Hotend, Hotend, Bed + Fan on D9
 #if FET_ORDER_EEB
-  #define MOSFET_B_PIN 7
-  #define FAN_PIN 9
+  #define MOSFET_B_PIN PinH4
+  #define FAN_PIN PinH6
 #endif
 
 //
@@ -49,11 +53,11 @@
 //
 
 #ifndef X_CS_PIN
-  #define X_CS_PIN 59
+  #define X_CS_PIN PinF5
 #endif
 
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN 63
+  #define Y_CS_PIN PinK1
 #endif
 
 #include "pins_RAMPS.h"

@@ -23,6 +23,7 @@
 
 //
 // FYSETC F6 1.3 (and 1.4) pin assignments
+// ATmega2560
 //
 
 #if NOT_TARGET(__AVR_ATmega2560__)
@@ -33,27 +34,27 @@
   #define BOARD_INFO_NAME "FYSETC F6 1.3"
 #endif
 
-#define RESET_PIN                             30
-#define SPI_FLASH_CS_PIN                      83
+#define RESET_PIN                          PinC7
+#define SPI_FLASH_CS_PIN                   PinD6
 
 //
 // Servos
 //
-#define SERVO0_PIN                            13
-#define SERVO1_PIN                            11  // (PS_ON_PIN)
-#define SERVO2_PIN                            10  // (FIL_RUNOUT_PIN)
-#define SERVO3_PIN                             4  // (RGB_LED_G_PIN)
+#define SERVO0_PIN                         PinB7
+#define SERVO1_PIN                         PinB5  // (PS_ON_PIN)
+#define SERVO2_PIN                         PinB4  // (FIL_RUNOUT_PIN)
+#define SERVO3_PIN                         PinG5  // (RGB_LED_G_PIN)
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             63
-#define X_MAX_PIN                             64
-#define Y_MIN_PIN                             14
-#define Y_MAX_PIN                             15
-#define Z_MIN_PIN                             12
+#define X_MIN_PIN                          PinK1
+#define X_MAX_PIN                          PinK2
+#define Y_MIN_PIN                          PinJ1
+#define Y_MAX_PIN                          PinJ0
+#define Z_MIN_PIN                          PinB6
 #ifndef Z_MAX_PIN
-  #define Z_MAX_PIN                            9
+  #define Z_MAX_PIN                        PinH6
 #endif
 
 #ifndef FIL_RUNOUT_PIN
@@ -64,52 +65,52 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                      9  // Servos pin
+  #define Z_MIN_PROBE_PIN                  PinH6  // Servos pin
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            54
-#define X_DIR_PIN                             55
-#define X_ENABLE_PIN                          38
+#define X_STEP_PIN                         PinF0
+#define X_DIR_PIN                          PinF1
+#define X_ENABLE_PIN                       PinD7
 #ifndef X_CS_PIN
-  #define X_CS_PIN                            70
+  #define X_CS_PIN                         PinG4
 #endif
 
-#define Y_STEP_PIN                            60
-#define Y_DIR_PIN                             61
-#define Y_ENABLE_PIN                          56
+#define Y_STEP_PIN                         PinF6
+#define Y_DIR_PIN                          PinF7
+#define Y_ENABLE_PIN                       PinF2
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                            39
+  #define Y_CS_PIN                         PinG2
 #endif
 
-#define Z_STEP_PIN                            43
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          58
+#define Z_STEP_PIN                         PinL6
+#define Z_DIR_PIN                          PinL1
+#define Z_ENABLE_PIN                       PinF4
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                            74
+  #define Z_CS_PIN                         PinJ7
 #endif
 
-#define E0_STEP_PIN                           26
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                         24
+#define E0_STEP_PIN                        PinA4
+#define E0_DIR_PIN                         PinA6
+#define E0_ENABLE_PIN                      PinA2
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                           47
+  #define E0_CS_PIN                        PinL2
 #endif
 
-#define E1_STEP_PIN                           36
-#define E1_DIR_PIN                            34
-#define E1_ENABLE_PIN                         30
+#define E1_STEP_PIN                        PinC1
+#define E1_DIR_PIN                         PinC3
+#define E1_ENABLE_PIN                      PinC7
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                           32
+  #define E1_CS_PIN                        PinC5
 #endif
 
-#define E2_STEP_PIN                           59
-#define E2_DIR_PIN                            57
-#define E2_ENABLE_PIN                         40
+#define E2_STEP_PIN                        PinF5
+#define E2_DIR_PIN                         PinF3
+#define E2_ENABLE_PIN                      PinG1
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN                           42
+  #define E2_CS_PIN                        PinL7
 #endif
 
 //
@@ -125,37 +126,37 @@
    * At the moment, F6 rx pins are not pc interrupt pins
    */
   #ifndef X_SERIAL_TX_PIN
-    #define X_SERIAL_TX_PIN                   72
+    #define X_SERIAL_TX_PIN                PinJ2
   #endif
   #ifndef X_SERIAL_RX_PIN
     #define X_SERIAL_RX_PIN                   -1  // 71
   #endif
   #ifndef Y_SERIAL_TX_PIN
-    #define Y_SERIAL_TX_PIN                   75
+    #define Y_SERIAL_TX_PIN                PinJ4
   #endif
   #ifndef Y_SERIAL_RX_PIN
     #define Y_SERIAL_RX_PIN                   -1  // 73
   #endif
   #ifndef Z_SERIAL_TX_PIN
-    #define Z_SERIAL_TX_PIN                   79
+    #define Z_SERIAL_TX_PIN                PinE6
   #endif
   #ifndef Z_SERIAL_RX_PIN
     #define Z_SERIAL_RX_PIN                   -1  // 78
   #endif
   #ifndef E0_SERIAL_TX_PIN
-    #define E0_SERIAL_TX_PIN                  77
+    #define E0_SERIAL_TX_PIN               PinJ6
   #endif
   #ifndef E0_SERIAL_RX_PIN
     #define E0_SERIAL_RX_PIN                  -1  // 76
   #endif
   #ifndef E1_SERIAL_TX_PIN
-    #define E1_SERIAL_TX_PIN                  81
+    #define E1_SERIAL_TX_PIN               PinD4
   #endif
   #ifndef E1_SERIAL_RX_PIN
     #define E1_SERIAL_RX_PIN                  -1  // 80
   #endif
   #ifndef E2_SERIAL_TX_PIN
-    #define E2_SERIAL_TX_PIN                  82
+    #define E2_SERIAL_TX_PIN               PinD5
   #endif
   #ifndef E2_SERIAL_RX_PIN
     #define E2_SERIAL_RX_PIN                  -1  // 22
@@ -165,33 +166,33 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            12  // Analog Input
-#define TEMP_1_PIN                            13  // Analog Input
-#define TEMP_2_PIN                            14  // Analog Input
-#define TEMP_BED_PIN                          15  // Analog Input
+#define TEMP_0_PIN                         PinB6  // Analog Input
+#define TEMP_1_PIN                         PinB7  // Analog Input
+#define TEMP_2_PIN                         PinJ1  // Analog Input
+#define TEMP_BED_PIN                       PinJ0  // Analog Input
 
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN                         9  // Analog Input on X+ endstop
+  #define FILWIDTH_PIN                     PinH6  // Analog Input on X+ endstop
 #endif
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           5
-#define HEATER_1_PIN                           6
-#define HEATER_2_PIN                           7
-#define HEATER_BED_PIN                         8
+#define HEATER_0_PIN                       PinE3
+#define HEATER_1_PIN                       PinH3
+#define HEATER_2_PIN                       PinH4
+#define HEATER_BED_PIN                     PinH5
 
-#define FAN_PIN                               44
-#define FAN1_PIN                              45
-#define FAN2_PIN                              46
+#define FAN_PIN                            PinL5
+#define FAN1_PIN                           PinL4
+#define FAN2_PIN                           PinL3
 
 //
 // Misc. Functions
 //
-#define SDSS                                  53
-#define LED_PIN                               13
-#define KILL_PIN                              41
+#define SDSS                               PinB0
+#define LED_PIN                            PinB7
+#define KILL_PIN                           PinG0
 
 #ifndef PS_ON_PIN
   #define PS_ON_PIN                   SERVO1_PIN
@@ -211,36 +212,36 @@
 //
 // LCDs and Controllers
 //
-#define SD_DETECT_PIN                         49
+#define SD_DETECT_PIN                      PinL0
 
 #if ENABLED(FYSETC_242_OLED_12864)
-  #define BTN_EN1                             37
-  #define BTN_EN2                             29
-  #define BTN_ENC                             35
-  #define BEEPER_PIN                          31
+  #define BTN_EN1                          PinC0
+  #define BTN_EN2                          PinA7
+  #define BTN_ENC                          PinC2
+  #define BEEPER_PIN                       PinC6
 
-  #define LCD_PINS_DC                         25
-  #define LCD_PINS_RS                         33
-  #define DOGLCD_CS                           16
-  #define DOGLCD_MOSI                         23
-  #define DOGLCD_SCK                          17
+  #define LCD_PINS_DC                      PinA3
+  #define LCD_PINS_RS                      PinC4
+  #define DOGLCD_CS                        PinH1
+  #define DOGLCD_MOSI                      PinA1
+  #define DOGLCD_SCK                       PinH0
   #define DOGLCD_A0                  LCD_PINS_DC
 
   #undef KILL_PIN
-  #define NEOPIXEL_PIN                        27
+  #define NEOPIXEL_PIN                     PinA5
 
 #else
-  #define BEEPER_PIN                          37
+  #define BEEPER_PIN                       PinC0
 
   #if ENABLED(FYSETC_MINI_12864)
     //
     // See https://wiki.fysetc.com/Mini12864_Panel/
     //
-    #define DOGLCD_A0                         16
-    #define DOGLCD_CS                         17
+    #define DOGLCD_A0                      PinH1
+    #define DOGLCD_CS                      PinH0
 
     #if ENABLED(FYSETC_GENERIC_12864_1_1)
-      #define LCD_BACKLIGHT_PIN               27
+      #define LCD_BACKLIGHT_PIN            PinA5
     #endif
 
     #define LCD_RESET_PIN                     23  // Must be high or open for LCD to operate normally.
@@ -248,30 +249,30 @@
 
     #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN                 25
+        #define RGB_LED_R_PIN              PinA3
       #endif
       #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN                 27
+        #define RGB_LED_G_PIN              PinA5
       #endif
       #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN                 29
+        #define RGB_LED_B_PIN              PinA7
       #endif
     #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN                    25
+      #define NEOPIXEL_PIN                 PinA3
     #endif
 
   #elif HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
 
-    #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                   17
-    #define LCD_PINS_D4                       23
-    #define LCD_PINS_D5                       25
-    #define LCD_PINS_D6                       27
-    #define LCD_PINS_D7                       29
+    #define LCD_PINS_RS                    PinH1
+    #define LCD_PINS_ENABLE                PinH0
+    #define LCD_PINS_D4                    PinA1
+    #define LCD_PINS_D5                    PinA3
+    #define LCD_PINS_D6                    PinA5
+    #define LCD_PINS_D7                    PinA7
 
     #if ENABLED(MKS_MINI_12864)
-      #define DOGLCD_CS                       25
-      #define DOGLCD_A0                       27
+      #define DOGLCD_CS                    PinA3
+      #define DOGLCD_A0                    PinA5
     #endif
 
     #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
@@ -281,20 +282,20 @@
   #endif
 
   #if IS_NEWPANEL
-    #define BTN_EN1                           31
-    #define BTN_EN2                           33
-    #define BTN_ENC                           35
+    #define BTN_EN1                        PinC6
+    #define BTN_EN2                        PinC4
+    #define BTN_ENC                        PinC2
   #endif
 #endif
 
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN                        3
+  #define RGB_LED_R_PIN                    PinE5
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN                        4
+  #define RGB_LED_G_PIN                    PinG5
 #endif
 #ifndef RGB_LED_B_PIN
-  #define RGB_LED_B_PIN                        9
+  #define RGB_LED_B_PIN                    PinH6
 #endif
 #ifndef RGB_LED_W_PIN
   #define RGB_LED_W_PIN                       -1

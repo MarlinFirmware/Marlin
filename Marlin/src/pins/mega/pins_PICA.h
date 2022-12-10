@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with PICA pin assignments
+ * ATmega2560
  *
  * PICA is Power, Interface, and Control Adapter and is open source hardware.
  * See https://github.com/mjrice/PICA for schematics etc.
@@ -48,68 +49,68 @@
 //
 // Servos
 //
-#define SERVO0_PIN                             3
-#define SERVO1_PIN                             4
-#define SERVO2_PIN                             5
+#define SERVO0_PIN                            PinE5
+#define SERVO1_PIN                            PinG5
+#define SERVO2_PIN                            PinE3
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             14
-#define X_MAX_PIN                             15
-#define Y_MIN_PIN                             16
-#define Y_MAX_PIN                             17
-#define Z_MIN_PIN                             23
-#define Z_MAX_PIN                             22
+#define X_MIN_PIN                             PinJ1
+#define X_MAX_PIN                             PinJ0
+#define Y_MIN_PIN                             PinH1
+#define Y_MAX_PIN                             PinH0
+#define Z_MIN_PIN                             PinA1
+#define Z_MAX_PIN                             PinA0
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            55
-#define X_DIR_PIN                             54
-#define X_ENABLE_PIN                          60
+#define X_STEP_PIN                            PinF1
+#define X_DIR_PIN                             PinF0
+#define X_ENABLE_PIN                          PinF6
 
-#define Y_STEP_PIN                            57
-#define Y_DIR_PIN                             56
-#define Y_ENABLE_PIN                          61
+#define Y_STEP_PIN                            PinF3
+#define Y_DIR_PIN                             PinF2
+#define Y_ENABLE_PIN                          PinF7
 
-#define Z_STEP_PIN                            59
-#define Z_DIR_PIN                             58
-#define Z_ENABLE_PIN                          62
+#define Z_STEP_PIN                            PinF5
+#define Z_DIR_PIN                             PinF4
+#define Z_ENABLE_PIN                          PinK0
 
-#define E0_STEP_PIN                           67
-#define E0_DIR_PIN                            24
-#define E0_ENABLE_PIN                         26
+#define E0_STEP_PIN                           PinK5
+#define E0_DIR_PIN                            PinA2
+#define E0_ENABLE_PIN                         PinA4
 
-#define E1_STEP_PIN                           68
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         27
+#define E1_STEP_PIN                           PinK6
+#define E1_DIR_PIN                            PinA6
+#define E1_ENABLE_PIN                         PinA5
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             9  // Analog Input
-#define TEMP_1_PIN                            10
-#define TEMP_BED_PIN                          10
-#define TEMP_2_PIN                            11
-#define TEMP_3_PIN                            12
+#define TEMP_0_PIN                            PinH6  // Analog Input
+#define TEMP_1_PIN                            PinB4
+#define TEMP_BED_PIN                          PinB4
+#define TEMP_2_PIN                            PinB5
+#define TEMP_3_PIN                            PinB6
 
 //
 // Heaters / Fans
 //
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                        10  // E0
+  #define HEATER_0_PIN                        PinB4  // E0
 #endif
 #ifndef HEATER_1_PIN
-  #define HEATER_1_PIN                         2  // E1
+  #define HEATER_1_PIN                        PinE4  // E1
 #endif
-#define HEATER_BED_PIN                         8  // HEAT-BED
+#define HEATER_BED_PIN                        PinH5  // HEAT-BED
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              9
+  #define FAN_PIN                             PinH6
 #endif
 #ifndef FAN_2_PIN
-  #define FAN_2_PIN                            7
+  #define FAN_2_PIN                           PinH4
 #endif
 
 #define SDPOWER_PIN                           -1
@@ -117,37 +118,37 @@
 #define PS_ON_PIN                             -1
 #define KILL_PIN                              -1
 
-#define SSR_PIN                                6
+#define SSR_PIN                               PinH3
 
 // SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
+  #define TEMP_0_CS_PIN                       PinK4  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
+  #define TEMP_0_CS_PIN                       PinK4  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
 // SD Support
 //
-#define SD_DETECT_PIN                         49
-#define SDSS                                  53
+#define SD_DETECT_PIN                         PinL0
+#define SDSS                                  PinB0
 
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                            29
+#define BEEPER_PIN                            PinA7
 
 #if HAS_WIRED_LCD
-  #define LCD_PINS_RS                         33
-  #define LCD_PINS_ENABLE                     30
-  #define LCD_PINS_D4                         35
-  #define LCD_PINS_D5                         32
-  #define LCD_PINS_D6                         37
-  #define LCD_PINS_D7                         36
+  #define LCD_PINS_RS                         PinC4
+  #define LCD_PINS_ENABLE                     PinC7
+  #define LCD_PINS_D4                         PinC2
+  #define LCD_PINS_D5                         PinC5
+  #define LCD_PINS_D6                         PinC0
+  #define LCD_PINS_D7                         PinC1
 
-  #define BTN_EN1                             47
-  #define BTN_EN2                             48
-  #define BTN_ENC                             31
+  #define BTN_EN1                             PinL2
+  #define BTN_EN2                             PinL1
+  #define BTN_ENC                             PinC6
 
-  #define LCD_SDSS                            53
+  #define LCD_SDSS                            PinB0
 #endif

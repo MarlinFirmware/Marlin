@@ -23,6 +23,7 @@
 
 /**
  * Melzi (Creality) pin assignments
+ * ATmega1284P
  *
  * The Creality board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
@@ -46,10 +47,10 @@
 // For the stock CR-10 enable CR10_STOCKDISPLAY in Configuration.h
 //
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define LCD_SDSS                            31  // Smart Controller SD card reader (rather than the Melzi)
-  #define LCD_PINS_RS                         28  // ST9720 CS
-  #define LCD_PINS_ENABLE                     17  // ST9720 DAT
-  #define LCD_PINS_D4                         30  // ST9720 CLK
+  #define LCD_SDSS                            PinA0  // Smart Controller SD card reader (rather than the Melzi)
+  #define LCD_PINS_RS                         PinA3  // ST9720 CS
+  #define LCD_PINS_ENABLE                     PinC1  // ST9720 DAT
+  #define LCD_PINS_D4                         PinA1  // ST9720 CLK
 
   #define LCD_PINS_DEFINED
 #endif
@@ -58,14 +59,14 @@
 
 #if ENABLED(BLTOUCH)
   #ifndef SERVO0_PIN
-    #define SERVO0_PIN                        27
+    #define SERVO0_PIN                        PinA4
   #endif
   #if SERVO0_PIN == BEEPER_PIN
     #undef BEEPER_PIN
   #endif
 #elif HAS_FILAMENT_SENSOR
   #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN                    27
+    #define FIL_RUNOUT_PIN                    PinA4
   #endif
   #if FIL_RUNOUT_PIN == BEEPER_PIN
     #undef BEEPER_PIN

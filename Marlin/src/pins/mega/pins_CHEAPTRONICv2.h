@@ -25,6 +25,7 @@
  * Cheaptronic v2.0 pin assignments
  * Built and sold by Michal Dyntar - RRO
  *          www.reprapobchod.cz
+ * ATmega2560
  */
 
 #include "env_validate.h"
@@ -34,88 +35,88 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             30
-#define X_MAX_PIN                             31
-#define Y_MIN_PIN                             32
-#define Y_MAX_PIN                             33
-#define Z_MIN_PIN                             34
-#define Z_MAX_PIN                             35
+#define X_MIN_PIN                             PinC7
+#define X_MAX_PIN                             PinC6
+#define Y_MIN_PIN                             PinC5
+#define Y_MAX_PIN                             PinC4
+#define Z_MIN_PIN                             PinC3
+#define Z_MAX_PIN                             PinC2
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            17
-#define X_DIR_PIN                             16
-#define X_ENABLE_PIN                          48
+#define X_STEP_PIN                            PinH0
+#define X_DIR_PIN                             PinH1
+#define X_ENABLE_PIN                          PinL1
 
-#define Y_STEP_PIN                            54
-#define Y_DIR_PIN                             47
-#define Y_ENABLE_PIN                          55
+#define Y_STEP_PIN                            PinF0
+#define Y_DIR_PIN                             PinL2
+#define Y_ENABLE_PIN                          PinF1
 
-#define Z_STEP_PIN                            57
-#define Z_DIR_PIN                             56
-#define Z_ENABLE_PIN                          62
+#define Z_STEP_PIN                            PinF3
+#define Z_DIR_PIN                             PinF2
+#define Z_ENABLE_PIN                          PinK0
 
-#define E0_STEP_PIN                           23
-#define E0_DIR_PIN                            22
-#define E0_ENABLE_PIN                         24
+#define E0_STEP_PIN                           PinA1
+#define E0_DIR_PIN                            PinA0
+#define E0_ENABLE_PIN                         PinA2
 
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            25
-#define E1_ENABLE_PIN                         27
+#define E1_STEP_PIN                           PinA4
+#define E1_DIR_PIN                            PinA3
+#define E1_ENABLE_PIN                         PinA5
 
-#define E2_STEP_PIN                           29
-#define E2_DIR_PIN                            28
-#define E2_ENABLE_PIN                         39
+#define E2_STEP_PIN                           PinA7
+#define E2_DIR_PIN                            PinA6
+#define E2_ENABLE_PIN                         PinG2
 
 //
 // Temperature sensors
 //
-#define TEMP_0_PIN                            15
-#define TEMP_1_PIN                            13
-#define TEMP_2_PIN                            14
-#define TEMP_3_PIN                            11  // should be used for chamber temperature control
-#define TEMP_BED_PIN                          12
+#define TEMP_0_PIN                            PinJ0
+#define TEMP_1_PIN                            PinB7
+#define TEMP_2_PIN                            PinJ1
+#define TEMP_3_PIN                            PinB5  // should be used for chamber temperature control
+#define TEMP_BED_PIN                          PinB6
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           6
-#define HEATER_1_PIN                           7
-#define HEATER_2_PIN                           8
-#define HEATER_BED_PIN                         9
+#define HEATER_0_PIN                          PinH3
+#define HEATER_1_PIN                          PinH4
+#define HEATER_2_PIN                          PinH5
+#define HEATER_BED_PIN                        PinH6
 #ifndef FAN_PIN
-  #define FAN_PIN                              3
+  #define FAN_PIN                             PinE5
 #endif
-#define FAN2_PIN                              58  // additional fan or light control output
+#define FAN2_PIN                              PinF4  // additional fan or light control output
 
 //
 // Other board specific pins
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      37  // board input labeled as F-DET
+  #define FIL_RUNOUT_PIN                      PinC0  // board input labeled as F-DET
 #endif
-#define Z_MIN_PROBE_PIN                       36  // additional external board input labeled as E-SENS (should be used for Z-probe)
-#define LED_PIN                               13
-#define SPINDLE_ENABLE_PIN                     4  // additional PWM pin 1 at JP1 connector - should be used for laser control too
-#define EXT_2                                  5  // additional PWM pin 2 at JP1 connector
-#define EXT_3                                  2  // additional PWM pin 3 at JP1 connector
-#define PS_ON_PIN                             45
-#define KILL_PIN                              46
+#define Z_MIN_PROBE_PIN                       PinC1  // additional external board input labeled as E-SENS (should be used for Z-probe)
+#define LED_PIN                               PinB7
+#define SPINDLE_ENABLE_PIN                    PinG5  // additional PWM pin 1 at JP1 connector - should be used for laser control too
+#define EXT_2                                 PinE3  // additional PWM pin 2 at JP1 connector
+#define EXT_3                                 PinE4  // additional PWM pin 3 at JP1 connector
+#define PS_ON_PIN                             PinL4
+#define KILL_PIN                              PinL3
 
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN                        11  // shared with TEMP_3 analog input
+  #define FILWIDTH_PIN                        PinB5  // shared with TEMP_3 analog input
 #endif
 
 //
 // LCD / Controller
 //
-#define LCD_PINS_RS                           19
-#define LCD_PINS_ENABLE                       42
-#define LCD_PINS_D4                           18
-#define LCD_PINS_D5                           38
-#define LCD_PINS_D6                           41
-#define LCD_PINS_D7                           40
+#define LCD_PINS_RS                           PinD2
+#define LCD_PINS_ENABLE                       PinL7
+#define LCD_PINS_D4                           PinD3
+#define LCD_PINS_D5                           PinD7
+#define LCD_PINS_D6                           PinG0
+#define LCD_PINS_D7                           PinG1
 
 #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define BTN_ENC_EN                 LCD_PINS_D7  // Detect the presence of the encoder
@@ -124,15 +125,15 @@
 //
 // Beeper, SD Card, Encoder
 //
-#define BEEPER_PIN                            44
+#define BEEPER_PIN                            PinL5
 
 #if ENABLED(SDSUPPORT)
-  #define SDSS                                53
-  #define SD_DETECT_PIN                       49
+  #define SDSS                                PinB0
+  #define SD_DETECT_PIN                       PinL0
 #endif
 
 #if IS_NEWPANEL
-  #define BTN_EN1                             11
-  #define BTN_EN2                             12
-  #define BTN_ENC                             43
+  #define BTN_EN1                             PinB5
+  #define BTN_EN2                             PinB6
+  #define BTN_ENC                             PinL6
 #endif

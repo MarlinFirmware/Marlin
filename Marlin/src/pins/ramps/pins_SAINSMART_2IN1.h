@@ -23,6 +23,7 @@
 
 /**
  * Sainsmart 2-in-1 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -34,9 +35,9 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_A_PIN                           9  // E
-#define MOSFET_B_PIN                           7  // F PART FAN in front of board next to Extruder heat
-     // MOSFET_C_PIN                           8  // B
-#define MOSFET_D_PIN                          10  // F / E
+#define MOSFET_A_PIN                          PinH6  // E
+#define MOSFET_B_PIN                          PinH4  // F PART FAN in front of board next to Extruder heat
+     // MOSFET_C_PIN                          PinH5  // B
+#define MOSFET_D_PIN                          PinB4  // F / E
 
 #include "pins_RAMPS.h"

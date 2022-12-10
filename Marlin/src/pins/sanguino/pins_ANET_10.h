@@ -111,49 +111,49 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            18
-#define Y_STOP_PIN                            19
-#define Z_STOP_PIN                            20
+#define X_STOP_PIN                         PinC2
+#define Y_STOP_PIN                         PinC3
+#define Z_STOP_PIN                         PinC4
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            15
-#define X_DIR_PIN                             21
-#define X_ENABLE_PIN                          14
+#define X_STEP_PIN                         PinD7
+#define X_DIR_PIN                          PinC5
+#define X_ENABLE_PIN                       PinD6
 
-#define Y_STEP_PIN                            22
-#define Y_DIR_PIN                             23
-#define Y_ENABLE_PIN                          14
+#define Y_STEP_PIN                         PinC6
+#define Y_DIR_PIN                          PinC7
+#define Y_ENABLE_PIN                       PinD6
 
-#define Z_STEP_PIN                             3
-#define Z_DIR_PIN                              2
-#define Z_ENABLE_PIN                          26
+#define Z_STEP_PIN                         PinB3
+#define Z_DIR_PIN                          PinB2
+#define Z_ENABLE_PIN                       PinA5
 
-#define E0_STEP_PIN                            1
-#define E0_DIR_PIN                             0
-#define E0_ENABLE_PIN                         14
+#define E0_STEP_PIN                        PinB1
+#define E0_DIR_PIN                         PinB0
+#define E0_ENABLE_PIN                      PinD6
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             7  // Analog Input (pin 33 extruder)
-#define TEMP_BED_PIN                           6  // Analog Input (pin 34 bed)
+#define TEMP_0_PIN                         PinB7  // Analog Input (pin 33 extruder)
+#define TEMP_BED_PIN                       PinB6  // Analog Input (pin 34 bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          13  // (extruder)
-#define HEATER_BED_PIN                        12  // (bed)
+#define HEATER_0_PIN                       PinD5  // (extruder)
+#define HEATER_BED_PIN                     PinD4  // (bed)
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              4
+  #define FAN_PIN                          PinB4
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                  31
+#define SDSS                               PinA0
 #define LED_PIN                               -1
 
 /**
@@ -167,18 +167,18 @@
 
 #if HAS_WIRED_LCD
 
-  #define LCD_SDSS                            28
+  #define LCD_SDSS                         PinA3
 
   #if HAS_ADC_BUTTONS
 
-    #define SERVO0_PIN                        27  // free for BLTouch/3D-Touch
-    #define LCD_PINS_RS                       28
-    #define LCD_PINS_ENABLE                   29
-    #define LCD_PINS_D4                       10
-    #define LCD_PINS_D5                       11
-    #define LCD_PINS_D6                       16
-    #define LCD_PINS_D7                       17
-    #define ADC_KEYPAD_PIN                     1
+    #define SERVO0_PIN                     PinA4  // free for BLTouch/3D-Touch
+    #define LCD_PINS_RS                    PinA3
+    #define LCD_PINS_ENABLE                PinA2
+    #define LCD_PINS_D4                    PinD2
+    #define LCD_PINS_D5                    PinD3
+    #define LCD_PINS_D6                    PinC0
+    #define LCD_PINS_D7                    PinC1
+    #define ADC_KEYPAD_PIN                 PinB1
 
   #elif IS_RRD_FG_SC
 
@@ -187,26 +187,26 @@
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
 
     #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
-      #define SERVO0_PIN                      30
-      #define BEEPER_PIN                      27
-      #define LCD_PINS_RS                     29
-      #define LCD_PINS_ENABLE                 16
-      #define LCD_PINS_D4                     11
-      #define BTN_EN1                         28
-      #define BTN_EN2                         10
-      #define BTN_ENC                         17
+      #define SERVO0_PIN                   PinA1
+      #define BEEPER_PIN                   PinA4
+      #define LCD_PINS_RS                  PinA2
+      #define LCD_PINS_ENABLE              PinC0
+      #define LCD_PINS_D4                  PinD3
+      #define BTN_EN1                      PinA3
+      #define BTN_EN2                      PinD2
+      #define BTN_ENC                      PinC1
       #define BOARD_ST7920_DELAY_1           250
       #define BOARD_ST7920_DELAY_2           250
       #define BOARD_ST7920_DELAY_3           250
     #else
-      #define SERVO0_PIN                      29  // free for BLTouch/3D-Touch
-      #define BEEPER_PIN                      17
-      #define LCD_PINS_RS                     27
-      #define LCD_PINS_ENABLE                 28
-      #define LCD_PINS_D4                     30
-      #define BTN_EN1                         11
-      #define BTN_EN2                         10
-      #define BTN_ENC                         16
+      #define SERVO0_PIN                   PinA2  // free for BLTouch/3D-Touch
+      #define BEEPER_PIN                   PinC1
+      #define LCD_PINS_RS                  PinA4
+      #define LCD_PINS_ENABLE              PinA3
+      #define LCD_PINS_D4                  PinA1
+      #define BTN_EN1                      PinD3
+      #define BTN_EN2                      PinD2
+      #define BTN_ENC                      PinC0
       #define BOARD_ST7920_DELAY_1           125
       #define BOARD_ST7920_DELAY_2            63
       #define BOARD_ST7920_DELAY_3           125
@@ -215,7 +215,7 @@
   #endif
 
 #else
-  #define SERVO0_PIN                          27
+  #define SERVO0_PIN                       PinA4
 #endif
 
 #ifndef FIL_RUNOUT_PIN

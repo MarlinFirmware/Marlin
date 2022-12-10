@@ -23,6 +23,7 @@
 
 /**
  * BAM&DICE Due (Arduino Mega) pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -34,14 +35,14 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN                 66  // Pullup or pulldown!
-#define SPINDLE_DIR_PIN                       67
-#define SPINDLE_LASER_PWM_PIN                 44  // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN                 PinK4  // Pullup or pulldown!
+#define SPINDLE_DIR_PIN                       PinK5
+#define SPINDLE_LASER_PWM_PIN                 PinL5  // Hardware PWM
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             9  // Analog Input
-#define TEMP_1_PIN                            11  // Analog Input
+#define TEMP_0_PIN                            PinH6  // Analog Input
+#define TEMP_1_PIN                            PinB5  // Analog Input
 
 #include "pins_RAMPS.h"
