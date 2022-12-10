@@ -132,16 +132,17 @@
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
-#if ENABLED(TMC_USE_SW_SPI)
-  #if !defined(TMC_SPI_MOSI) || TMC_SPI_MOSI == -1
-    #define TMC_SPI_MOSI                    PE14
-  #endif
-  #if !defined(TMC_SPI_MISO) || TMC_SPI_MISO == -1
-    #define TMC_SPI_MISO                    PE13
-  #endif
-  #if !defined(TMC_SPI_SCK) || TMC_SPI_SCK == -1
-    #define TMC_SPI_SCK                     PE12
-  #endif
+#if !defined(TMC_SPI_MOSI) || TMC_SPI_MOSI == -1
+  #undef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PE14
+#endif
+#if !defined(TMC_SPI_MISO) || TMC_SPI_MISO == -1
+  #undef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PE13
+#endif
+#if !defined(TMC_SPI_SCK) || TMC_SPI_SCK == -1
+  #undef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PE12
 #endif
 
 #if HAS_TMC_UART
