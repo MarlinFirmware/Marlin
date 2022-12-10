@@ -596,23 +596,58 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 #endif // HAS_CUTTER
 
-#if HAS_PRINT_PROGRESS
 
-  FORCE_INLINE void _draw_print_progress() {
-    if (!PanelDetected) return;
-    const uint8_t progress = ui._get_progress();
-    #if ENABLED(SDSUPPORT)
-      lcd_put_u8str(F("SD"));
-    #elif ENABLED(SET_PROGRESS_PERCENT)
-      lcd_put_u8str(F("P:"));
-    #endif
-    if (progress)
-      lcd.print(ui8tostr3rj(progress));
-    else
-      lcd_put_u8str(F("---"));
-    lcd.write('%');
-  }
+#if HAS_PRINT_PROGRESS   // UNTESTED!!!
+  #define TPOFFSET (LCD_WIDTH - 1)
+  static uint8_t timepos = TPOFFSET - 6;
 
+  #if ENABLED(SHOW_PROGRESS_PERCENT)
+    void MarlinUI::drawPercent() {
+      const uint8_t progress = ui.get_progress_percent();
+      if (progress) {
+        lcd_moveto(0, 2);
+        lcd_put_u8str(F(TERN(IS_SD_PRINTING, "SD", "P:")));
+        lcd.print(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)));
+        lcd.write('%');
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_REMAINING_TIME)
+    void MarlinUI::drawRemain() {
+      if (printJobOngoing()) {
+        const duration_t remaint = ui.get_remaining_time();
+        char buffer[10];
+        timepos = TPOFFSET - remaint.toDigital(buffer);
+        lcd_moveto(timepos, 1);
+        lcd.write('R');
+        lcd.print(buffer);
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    void MarlinUI::drawInter() {
+      const duration_t interactt = ui.interaction_time;
+      if (printingIsActive() && interactt.value) {
+        char buffer[10];
+        timepos = TPOFFSET - interactt.toDigital(buffer);
+        lcd_moveto(timepos, 1);
+        lcd.write('C');
+        lcd.print(buffer);
+      }
+    }
+  #endif
+  #if ENABLED(SHOW_ELAPSED_TIME)
+    void MarlinUI::drawElapsed() {
+      if (printJobOngoing()) {
+        const duration_t elapsedt = print_job_timer.duration();
+        char buffer[10];
+        timepos = TPOFFSET - elapsedt.toDigital(buffer);
+        lcd_moveto(timepos, 1);
+        lcd.write('E');
+        lcd.print(buffer);
+      }
+    }
+  #endif
 #endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(LCD_PROGRESS_BAR)
@@ -796,23 +831,12 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   //
-  // Line 2 - feedrate, , time
+  // Line 2 - feedrate, progress %, progress time
   //
 
   lcd_moveto(0, 1);
   lcd_put_u8str(F("FR")); lcd.print(i16tostr3rj(feedrate_percentage)); lcd.write('%');
-
-  #if BOTH(SDSUPPORT, HAS_PRINT_PROGRESS)
-    lcd_moveto(LCD_WIDTH / 2 - 3, 1);
-    _draw_print_progress();
-  #endif
-
-  char buffer[10];
-  duration_t elapsed = print_job_timer.duration();
-  uint8_t len = elapsed.toDigital(buffer);
-
-  lcd_moveto((LCD_WIDTH - 1) - len, 1);
-  lcd.write(LCD_STR_CLOCK[0]); lcd.print(buffer);
+  ui.rotate_progress();   // UNTESTED!!!
 
   //
   // Line 3 - progressbar
