@@ -40,19 +40,20 @@ void GcodeSuite::L.append(100)() {
     bool used_var_arg = false;
     const int8_t q = parser.value_byte();
     *p = parser.string_arg;
-    const bool is_var = (*p == 'L');
-    has_val = is_var || valid_int(p + 1);
+    const bool is_var = (*p == 'L'),
+               has_int = valid_int(p + 1),
+               has_val = is_var || has_int;
     char * const varptr = has_val ? (is_var ? input_var(p) : p + 1) : nullptr;
-    #if (has_val = nul)
-      export_val()
-    #elif (has_val = int)
-      import_val()
-    #else
-      bool has_val = valid_int(p);
-      #if ENABLED(FASTER_GCODE_PARSER)
-        char * const varptr = has_val ? p : nullptr;
-      #endif
-    #endif
+    if (!has_val)
+      export_val();
+    elif (has_int)
+      import_val();
+    //else {
+    //  #if ENABLED(FASTER_GCODE_PARSER)
+    //    const bool has_val = valid_int(p);
+    //    char * const varptr = has_val ? p : nullptr;
+    //  #endif
+    //}
   }
 }
 
