@@ -1060,14 +1060,6 @@
   #define DO_SWITCH_EXTRUDER 1
 #endif
 
-// Probing tool change
-#if !HAS_MULTI_EXTRUDER
-  #undef PROBING_TOOL
-#endif
-#ifdef PROBING_TOOL
-  #define DO_TOOLCHANGE_FOR_PROBING 1
-#endif
-
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
@@ -1113,6 +1105,14 @@
 #endif
 #if ANY(HAS_STOWABLE_PROBE, HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, BD_SENSOR, NOZZLE_AS_PROBE)
   #define HAS_BED_PROBE 1
+#endif
+
+// Probing tool change
+#if !HAS_MULTI_EXTRUDER
+  #undef PROBING_TOOL
+#endif
+#if HAS_BED_PROBE && defined(PROBING_TOOL)
+  #define DO_TOOLCHANGE_FOR_PROBING 1
 #endif
 
 /**
