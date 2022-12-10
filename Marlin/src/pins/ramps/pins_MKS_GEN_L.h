@@ -24,6 +24,7 @@
 /**
  * MKS GEN L – Arduino Mega2560 with RAMPS v1.4 pin assignments
  * ATmega2560, ATmega1280
+ * https://github.com/makerbase-mks/MKS-GEN_L/blob/master/hardware/MKS%20Gen_L%20V1.0_008/MKS%20Gen_L%20V1.0_008%20SCH.pdf
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -31,6 +32,8 @@
 #endif
 
 #define BOARD_INFO_NAME "MKS GEN L"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Heaters / Fans

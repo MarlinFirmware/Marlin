@@ -44,7 +44,7 @@
 #include <avr/boot.h>
 
 #ifndef AVR_CHIPOSCILLATOR_FREQ
-#error Missing AVR crystal oscillator frequency! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)
+#error Missing AVR crystal oscillator frequency (AVR_CHIPOSCILLATOR_FREQ)! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)
 #endif
 
   // ------------------------

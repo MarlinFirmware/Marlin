@@ -64,7 +64,7 @@
 #if !ENABLED(SOFTWARE_SPI)
 
 #ifndef LPC_MAINOSCILLATOR_FREQ
-#error Missing LPC176X/LPC175X main oscillator frequency! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)
+#error Missing LPC176X/LPC175X main oscillator frequency (LPC_MAINOSCILLATOR_FREQ)! Consult manufacturer schematics for further details (XTAL1/XTAL2 pins as guidance)
 #endif
 
 static void _spi_on_error(uint32_t code = 0) {

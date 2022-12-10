@@ -31,40 +31,6 @@
 
 #include "../fastio.h"
 
-// change for your board
-#define DEBUG_LED   DIO21
-
-// UART
-#define RXD         DIO0
-#define TXD         DIO1
-
-// SPI
-#define SCK         DIO52
-#define MISO        DIO50
-#define MOSI        DIO51
-#define SS          DIO53
-
-// TWI (I2C)
-#define SCL         DIO21
-#define SDA         DIO20
-
-// Timers and PWM
-#define OC0A        DIO13
-#define OC0B        DIO4
-#define OC1A        DIO11
-#define OC1B        DIO12
-#define OC2A        DIO10
-#define OC2B        DIO9
-#define OC3A        DIO5
-#define OC3B        DIO2
-#define OC3C        DIO3
-#define OC4A        DIO6
-#define OC4B        DIO7
-#define OC4C        DIO8
-#define OC5A        DIO46
-#define OC5B        DIO45
-#define OC5C        DIO44
-
 // Digital I/O
 
 #define DIO0_PIN    PINE0
@@ -670,3 +636,52 @@
 #define PinH7       85
 
 #define DIO_NUM 86
+
+// change for your board
+// NOTE: these may actually be used by external libraries such as LiquidCrystal_AIP31068
+#ifndef DEBUG_LED
+  #define DEBUG_LED   PinD0
+#endif
+
+// UART
+#ifndef RXD
+  #define RXD         PinE0
+#endif
+#ifndef TXD
+  #define TXD         PinE1
+#endif
+
+// SPI
+#ifndef SCK
+  #define SCK         PinB1
+#endif
+#ifndef MISO
+  #define MISO        PinB3
+#endif
+#ifndef MOSI
+  #define MOSI        PinB2
+#endif
+#ifndef SS
+  #define SS          PinB0
+#endif
+
+// TWI (I2C)
+#define SCL         PinD0
+#define SDA         PinD1
+
+// Timers and PWM
+#define OC0A        PinB7
+#define OC0B        PinG5
+#define OC1A        PinB5
+#define OC1B        PinB6
+#define OC2A        PinB4
+#define OC2B        PinH6
+#define OC3A        PinE3
+#define OC3B        PinE4
+#define OC3C        PinE5
+#define OC4A        PinH3
+#define OC4B        PinH4
+#define OC4C        PinH5
+#define OC5A        PinL3
+#define OC5B        PinL4
+#define OC5C        PinL5

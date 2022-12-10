@@ -50,6 +50,9 @@
   #error "No pins defined for RAMPS with AZSMZ_12864."
 #endif
 
+// https://www.arduino.cc/en/uploads/Main/arduino-mega2560-schematic.pdf
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 #include "env_validate.h"
 
 // Custom flags and defines for the build

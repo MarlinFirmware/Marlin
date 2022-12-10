@@ -102,9 +102,9 @@
     int use_pin_sck = (hint_sck >= 0) ? hint_sck : SD_SCK_PIN;
     int use_pin_miso = (hint_miso >= 0) ? hint_miso : SD_MISO_PIN;
     int use_pin_mosi = (hint_mosi >= 0) ? hint_mosi : SD_MOSI_PIN;
-    int use_pin_cs = (hint_cs >= 0) ? hint_cs : SD_SS_PIN;
+    int use_pin_cs = (hint_cs >= 0) ? hint_cs : SD_SS_PIN;  // the chip-select should be initialized using spiSetupChipSelect! (much prior to usage)
 
-    _spi_pin_devstate = _ATmega_savePinAlternates({use_pin_sck, use_pin_miso, use_pin_mosi, use_pin_cs});
+    _spi_pin_devstate = _ATmega_savePinAlternates({use_pin_sck, use_pin_miso, use_pin_mosi});
 
     _spi_sck_pin = use_pin_sck;
     _spi_miso_pin = use_pin_miso;
@@ -131,7 +131,7 @@
       _ATmega_digitalWrite(_spi_cs_pin, HIGH);
 
     // Restore pin device states.
-    _ATmega_restorePinAlternates({_spi_cs_pin, _spi_mosi_pin, _spi_miso_pin, _spi_sck_pin}, _spi_pin_devstate);
+    _ATmega_restorePinAlternates({_spi_mosi_pin, _spi_miso_pin, _spi_sck_pin}, _spi_pin_devstate);
 
     _spi_is_running = false;
   }
