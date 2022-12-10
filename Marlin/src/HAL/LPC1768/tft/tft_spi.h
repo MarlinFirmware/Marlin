@@ -27,15 +27,17 @@
 #include <lpc17xx_ssp.h>
 // #include <lpc17xx_gpdma.h>
 
-#if (TFT_SCK_PIN == BOARD_SPI1_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI1_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI1_MISO_PIN)
+#define IS_SPI(N) (BOARD_NR_SPI >= N && (TFT_SCK_PIN == BOARD_SPI##N##_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI##N##_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI##N##_MISO_PIN))
+#if IS_SPI(1)
   #define TFT_SPI_DEVICE  1
   #define LPC_SSPx  LPC_SSP0
-#elif (TFT_SCK_PIN == BOARD_SPI2_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI2_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI2_MISO_PIN)
+#elif IS_SPI(2)
   #define TFT_SPI_DEVICE  2
   #define LPC_SSPx  LPC_SSP1
 #else
-  #error Invalid TFT SPI configuration
+  #error "Invalid TFT SPI configuration."
 #endif
+#undef IS_SPI
 
 #ifndef LCD_READ_ID
   #define LCD_READ_ID  0x04   // Read display identification information (0xD3 on ILI9341)
