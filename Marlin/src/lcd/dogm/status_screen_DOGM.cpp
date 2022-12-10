@@ -697,7 +697,6 @@ void MarlinUI::draw_status_screen() {
     #if DO_DRAW_HOTENDS
       LOOP_L_N(e, MAX_HOTEND_DRAW) {
         if (TERN0(MANUAL_SWITCHING_TOOLHEAD, e != active_extruder)) continue;
-        if (e > MAX_HOTEND_DRAW) break;
         _draw_hotend_status((heater_id_t)e, blink);
       }
     #endif
