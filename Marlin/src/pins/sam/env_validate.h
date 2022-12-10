@@ -21,6 +21,11 @@
  */
 #pragma once
 
+// Why ATmega2560? The ATsam board are based on ARM Cortex microprocessors which is
+// an entirely different architecture than 8bit AVR MCUs. This file is in practice only
+// allowing SAM MCU boards anyway. So the ATmega MCU support can be cut out of here, in favor
+// of own board pin header definitions in the ramps folder!
+
 #if BOTH(ALLOW_MEGA1280, ALLOW_MEGA2560) && NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
 #elif ENABLED(ALLOW_MEGA2560) && NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)

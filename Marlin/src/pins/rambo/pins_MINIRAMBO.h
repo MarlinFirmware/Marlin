@@ -36,52 +36,52 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             12
-#define X_MAX_PIN                             30
-#define Y_MIN_PIN                             11
-#define Y_MAX_PIN                             24
-#define Z_MIN_PIN                             10
-#define Z_MAX_PIN                             23
+#define X_MIN_PIN                             PinB6
+#define X_MAX_PIN                             PinC7
+#define Y_MIN_PIN                             PinB5
+#define Y_MAX_PIN                             PinA2
+#define Z_MIN_PIN                             PinB4
+#define Z_MAX_PIN                             PinA1
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     23
+  #define Z_MIN_PROBE_PIN                     PinA1
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            37
-#define X_DIR_PIN                             48
-#define X_ENABLE_PIN                          29
+#define X_STEP_PIN                            PinC0
+#define X_DIR_PIN                             PinL1
+#define X_ENABLE_PIN                          PinA7
 
-#define Y_STEP_PIN                            36
-#define Y_DIR_PIN                             49
-#define Y_ENABLE_PIN                          28
+#define Y_STEP_PIN                            PinC1
+#define Y_DIR_PIN                             PinL0
+#define Y_ENABLE_PIN                          PinA6
 
-#define Z_STEP_PIN                            35
-#define Z_DIR_PIN                             47
-#define Z_ENABLE_PIN                          27
+#define Z_STEP_PIN                            PinC2
+#define Z_DIR_PIN                             PinL2
+#define Z_ENABLE_PIN                          PinA5
 
-#define E0_STEP_PIN                           34
-#define E0_DIR_PIN                            43
-#define E0_ENABLE_PIN                         26
+#define E0_STEP_PIN                           PinC3
+#define E0_DIR_PIN                            PinL6
+#define E0_ENABLE_PIN                         PinA4
 
 // Microstepping pins
-#define X_MS1_PIN                             40
-#define X_MS2_PIN                             41
-#define Y_MS1_PIN                             69
-#define Y_MS2_PIN                             39
-#define Z_MS1_PIN                             68
-#define Z_MS2_PIN                             67
-#define E0_MS1_PIN                            65
-#define E0_MS2_PIN                            66
+#define X_MS1_PIN                             PinG1
+#define X_MS2_PIN                             PinG0
+#define Y_MS1_PIN                             PinK7
+#define Y_MS2_PIN                             PinG2
+#define Z_MS1_PIN                             PinK6
+#define Z_MS2_PIN                             PinK5
+#define E0_MS1_PIN                            PinK3
+#define E0_MS2_PIN                            PinK4
 
-#define MOTOR_CURRENT_PWM_XY_PIN              46
-#define MOTOR_CURRENT_PWM_Z_PIN               45
-#define MOTOR_CURRENT_PWM_E_PIN               44
+#define MOTOR_CURRENT_PWM_XY_PIN              PinL3
+#define MOTOR_CURRENT_PWM_Z_PIN               PinL4
+#define MOTOR_CURRENT_PWM_E_PIN               PinL5
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
   #define MOTOR_CURRENT_PWM_RANGE            2000
@@ -91,50 +91,50 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input
-#define TEMP_1_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_0_PIN                            PinE0  // Analog Input
+#define TEMP_1_PIN                            PinE1  // Analog Input
+#define TEMP_BED_PIN                          PinE4  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           3
-#define HEATER_1_PIN                           7
+#define HEATER_0_PIN                          PinE5
+#define HEATER_1_PIN                          PinH4
 #if !MB(MINIRAMBO_10A)
-  #define HEATER_2_PIN                         6
+  #define HEATER_2_PIN                        PinH3
 #endif
-#define HEATER_BED_PIN                         4
+#define HEATER_BED_PIN                        PinG5
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              8
+  #define FAN_PIN                             PinH5
 #endif
-#define FAN1_PIN                               6
+#define FAN1_PIN                              PinH3
 
 //
 // Misc. Functions
 //
-#define SDSS                                  53
-#define LED_PIN                               13
+#define SDSS                                  PinB0
+#define LED_PIN                               PinB7
 #if !MB(MINIRAMBO_10A)
-  #define CASE_LIGHT_PIN                       9
+  #define CASE_LIGHT_PIN                      PinH6
 #endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
 // use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
-#define SPINDLE_DIR_PIN                       19
+#define SPINDLE_LASER_PWM_PIN                 PinH6  // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN                 PinD3  // Pullup!
+#define SPINDLE_DIR_PIN                       PinD2
 
 //
 // Průša i3 MK2 Multiplexer Support
 //
 #if HAS_PRUSA_MMU1
-  #define E_MUX0_PIN                          17
-  #define E_MUX1_PIN                          16
+  #define E_MUX0_PIN                          PinH0
+  #define E_MUX1_PIN                          PinH1
   #if !MB(MINIRAMBO_10A)
-    #define E_MUX2_PIN                        78  // 84 in MK2 Firmware, with BEEPER as 78
+    #define E_MUX2_PIN                        PinE2  // 84 in MK2 Firmware, with BEEPER as 78
   #endif
 #endif
 
@@ -144,46 +144,46 @@
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #if !MB(MINIRAMBO_10A)
-    #define KILL_PIN                          32
+    #define KILL_PIN                          PinC5
   #endif
 
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #if MB(MINIRAMBO_10A)
 
-      #define BEEPER_PIN                      78
+      #define BEEPER_PIN                      PinE2
 
-      #define BTN_EN1                         80
-      #define BTN_EN2                         73
-      #define BTN_ENC                         21
+      #define BTN_EN1                         PinE7
+      #define BTN_EN2                         PinJ3
+      #define BTN_ENC                         PinD0
 
-      #define LCD_PINS_RS                     38
-      #define LCD_PINS_ENABLE                  5
-      #define LCD_PINS_D4                     14
-      #define LCD_PINS_D5                     15
-      #define LCD_PINS_D6                     32
-      #define LCD_PINS_D7                     31
+      #define LCD_PINS_RS                     PinD7
+      #define LCD_PINS_ENABLE                 PinE3
+      #define LCD_PINS_D4                     PinJ1
+      #define LCD_PINS_D5                     PinJ0
+      #define LCD_PINS_D6                     PinC5
+      #define LCD_PINS_D7                     PinC6
 
-      #define SD_DETECT_PIN                   72
+      #define SD_DETECT_PIN                   PinJ2
 
     #else                                         // !MINIRAMBO_10A
 
       // AUX-4
-      #define BEEPER_PIN                      84
+      #define BEEPER_PIN                      PinH2
 
       // AUX-2
-      #define BTN_EN1                         14
-      #define BTN_EN2                         72
-      #define BTN_ENC                          9
+      #define BTN_EN1                         PinJ1
+      #define BTN_EN2                         PinJ2
+      #define BTN_ENC                         PinH6
 
-      #define LCD_PINS_RS                     82
-      #define LCD_PINS_ENABLE                 18
-      #define LCD_PINS_D4                     19
-      #define LCD_PINS_D5                     70
-      #define LCD_PINS_D6                     85
-      #define LCD_PINS_D7                     71
+      #define LCD_PINS_RS                     PinD5
+      #define LCD_PINS_ENABLE                 PinD3
+      #define LCD_PINS_D4                     PinD2
+      #define LCD_PINS_D5                     PinG4
+      #define LCD_PINS_D6                     PinH7
+      #define LCD_PINS_D7                     PinG3
 
-      #define SD_DETECT_PIN                   15
+      #define SD_DETECT_PIN                   PinJ0
 
     #endif // !MINIRAMBO_10A
 
