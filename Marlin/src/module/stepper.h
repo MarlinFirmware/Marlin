@@ -351,24 +351,18 @@ constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
       constexpr float max_step_rate = max_shaped_rate;
     #endif
   #endif
-  constexpr uint16_t shaping_min_freq = (
-    #ifdef SHAPING_MIN_FREQ
-      SHAPING_MIN_FREQ
-    #else
-      _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
-    #endif
-  );
-  constexpr uint16_t shaping_echoes = max_step_rate / shaping_min_freq / 2 + 3;
+
+  #ifndef SHAPING_MIN_FREQ
+    #define SHAPING_MIN_FREQ _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
+  #endif
+  constexpr uint16_t shaping_min_freq = SHAPING_MIN_FREQ,
+                     shaping_echoes = max_step_rate / shaping_min_freq / 2 + 3;
 
   typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
   struct shaping_echo_axis_t {
-    #if ENABLED(INPUT_SHAPING_X)
-      shaping_echo_t x:2;
-    #endif
-    #if ENABLED(INPUT_SHAPING_Y)
-      shaping_echo_t y:2;
-    #endif
+    TERN_(INPUT_SHAPING_X, shaping_echo_t x:2);
+    TERN_(INPUT_SHAPING_Y, shaping_echo_t y:2);
   };
 
   class ShapingQueue {
