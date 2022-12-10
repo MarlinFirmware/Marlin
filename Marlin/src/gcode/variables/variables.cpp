@@ -34,16 +34,16 @@
  * Get the variable target data from the L parameter
  */
 
-void GcodeSuite::L.append(100)() {
+void CNCVariables::append() {
   const uint8_t index = parser.codenum - 100;
   if (parser.seenval('L')) {
     bool used_var_arg = false;
     const int8_t q = parser.value_byte();
-    *p = parser.string_arg;
-    const bool is_var = (*p == 'L'),
+    char * const p = parser.string_arg;
+    const bool is_var = (parser.string_arg[0] == 'L'),
                has_int = valid_int(p + 1),
                has_val = is_var || has_int;
-    char * const varptr = has_val ? (is_var ? input_var(p) : p + 1) : nullptr;
+    char * const varptr = has_val ? (is_var ? input_var(parser.string_arg) : parser.string_arg + 1) : nullptr;
     if (!has_val)
       export_val();
     elif (has_int)

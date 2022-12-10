@@ -26,39 +26,34 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(Variable_Support)
+class CNCVariables {
+public:
+  //char[] letter = { '#' }
+  //string L = new_string(letter)
 
-#include "../gcode.h"
-#include "../queue.h"
-#include "../parser.h"
+  static void var_from_command(const int8_t dval=0);
+  static uint8_t StoredVar();
+  static void input_var();
+  static void export_var();
+  static void has_val();
+  static bool is_var();
+  static bool used_var_arg();
+  static void var_arg();
 
-static void var_from_command(const int8_t dval=0);
-static uint8_t StoredVar();
-static void input_var();
-static void export_var();
-static void has_val();
-static bool is_var();
-static bool used_var_arg();
-static void var_arg();
-char[] letter = {'#'}
-string L = new_string(letter)
-
-
-static void L.append(100)();
-static void L101();
-static void L102();
-static void L103();
-static void L104();
-static void L105();
-static void L106();
-static void L107();
-static void L108();
-static void L109();
-static void L110();
-static void L111();
-static void L112();
-static void L113();
-static void L114();
-static void L115();
-
-#endif
+  static void L.append(100)();
+  static void L101();
+  static void L102();
+  static void L103();
+  static void L104();
+  static void L105();
+  static void L106();
+  static void L107();
+  static void L108();
+  static void L109();
+  static void L110();
+  static void L111();
+  static void L112();
+  static void L113();
+  static void L114();
+  static void L115();
+}
