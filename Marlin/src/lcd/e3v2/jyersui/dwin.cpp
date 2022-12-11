@@ -2302,7 +2302,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, [](){planner.refresh_e_factor(0);});
+              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
         #endif
       }
@@ -2954,7 +2954,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Float(stepper_current_x, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_x, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, [](){stepperX.rms_current(stepper_current_x);});
+                Modify_Value(stepper_current_x, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperX.rms_current(stepper_current_x); });
               }
               break;
           #endif
@@ -2970,7 +2970,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Float(stepper_current_y, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_y, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, [](){stepperY.rms_current(stepper_current_y);});
+                Modify_Value(stepper_current_y, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperY.rms_current(stepper_current_y); });
               }
               break;
           #endif
@@ -2986,7 +2986,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Float(stepper_current_z, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_z, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, [](){stepperZ.rms_current(stepper_current_z);});
+                Modify_Value(stepper_current_z, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperZ.rms_current(stepper_current_z); });
               }
               break;
           #endif
@@ -3002,7 +3002,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Float(stepper_current_e, row, false, 1);
               }
               else {
-                Modify_Value(stepper_current_e, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, [](){stepperE0.rms_current(stepper_current_e);});
+                Modify_Value(stepper_current_e, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperE0.rms_current(stepper_current_e); });
               }
               break;
           #endif
@@ -3740,7 +3740,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, [](){planner.refresh_e_factor(0);});
+              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
           case TUNE_HOTEND:
             if (draw) {
@@ -3982,10 +3982,10 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     case Visual:            return F("Visual Settings");
     case Advanced:          return F("Advanced Settings");
     #if HAS_BED_PROBE
-      case ProbeMenu:       return F("Probe Menu");
+      case ProbeMenu:       return F("Bed Probe");
     #endif
     #if HAS_TRINAMIC_CONFIG
-      case TMCMenu:         return F("Trinamic Menu");
+      case TMCMenu:         return F("TMC Drivers");
     #endif
     case ColorSettings:     return F("UI Color Settings");
     case Info:              return F("Info");
