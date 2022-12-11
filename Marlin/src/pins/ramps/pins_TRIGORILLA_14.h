@@ -95,9 +95,8 @@
     #endif
   #endif
 
-  #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_TRIGORILLA_Z_MOTOR_PINS)
-    // Chiron swaps the Z stepper connections
-    // as do some Anycubic i3 MEGAs
+  #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
+    // Chiron and some Anycubic i3 MEGAs swap Z steppers
     #define Z_STEP_PIN                        36
     #define Z_DIR_PIN                         34
     #define Z_ENABLE_PIN                      30
@@ -109,6 +108,7 @@
     #define Z2_CS_PIN                         40
   #endif
 #endif
+
 #if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #define BEEPER_PIN                          31
   #define SD_DETECT_PIN                       49
