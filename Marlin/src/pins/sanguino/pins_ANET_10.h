@@ -23,6 +23,8 @@
 
 /**
  * Anet V1.0 board pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Anet%20V1.0/ANET3D_Board_Schematic.pdf
+ * Origin: https://github.com/ralf-e/ANET-3D-Board-V1.0/blob/master/ANET3D_Board_Schematic.pdf
  */
 
 /**
@@ -107,6 +109,8 @@
 #endif
 
 #define BOARD_INFO_NAME "Anet 1.0"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

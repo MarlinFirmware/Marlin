@@ -23,6 +23,8 @@
 
 /**
  * eMotion-Tech eMotronic pin assignments
+ * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/eMotion-Tech%20eMotronic/eMotronic_brd_sources_1.0.4/eMotronic_sch.pdf
+ * Origin: https://data.emotion-tech.com/ftp/Datasheets_et_sources/Sources/eMotronic_brd_sources_1.0.4.zip
  *
  * Board pins<->features assignments are based on the
  * Micro-Delta Rework printer default connections.
@@ -32,6 +34,8 @@
 
 #define BOARD_INFO_NAME   "eMotronic"
 #define BOARD_WEBSITE_URL "www.reprap-france.com/article/lemotronic-quesaco"
+
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Limit Switches

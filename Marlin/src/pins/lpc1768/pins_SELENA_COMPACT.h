@@ -23,12 +23,18 @@
 
 /**
  * Selena Compact pin assignments
+ * Pinout: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Selena%20Compact/Compact%20Pinout.pdf
+ * Origin: https://github.com/f61/Selena/blob/master/Compact%20Pinout.pdf
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "Selena Compact"
-#define BOARD_WEBSITE_URL "github.com/Ales2-k/Selena"
+#define BOARD_WEBSITE_URL "https://github.com/f61/Selena"
+// We are very lucky that somebody forked the repository! The Alex one is gone.
+
+// Just a wild guess because no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Servos

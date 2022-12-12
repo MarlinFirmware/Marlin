@@ -23,6 +23,7 @@
 
 /**
  * Gen3 Monolithic Electronics pin assignments
+ * https://reprap.org/wiki/Generation_3_Electronics
  */
 
 /**
@@ -53,6 +54,9 @@
 
 #define BOARD_INFO_NAME "Gen3 Monolithic"
 #define DEBUG_PIN                             PinB0
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

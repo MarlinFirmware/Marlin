@@ -25,9 +25,12 @@
  * Rambo pin assignments MODIFIED FOR Scoovo X9H
  ************************************************/
 
-#include "env_target.h"
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Scoovo X9H"
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos

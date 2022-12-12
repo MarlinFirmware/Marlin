@@ -109,7 +109,11 @@
 
 #include "env_validate.h"
 
+// https://reprap.org/wiki/Teensy_Breadboard
 #define BOARD_INFO_NAME "Teensy++2.0"
+
+// Just a guess.
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

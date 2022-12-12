@@ -30,7 +30,7 @@
   #error "K8600 only supports 1 hotend / E stepper."
 #endif
 
-#define BOARD_INFO_NAME      "K8600"
+#define BOARD_INFO_NAME      "Velleman K8600"
 #define DEFAULT_MACHINE_NAME "Vertex Nano"
 
 //

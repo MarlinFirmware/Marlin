@@ -35,6 +35,9 @@
 
 #define BOARD_INFO_NAME "Z-Bolt X Series"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //

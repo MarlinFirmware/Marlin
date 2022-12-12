@@ -23,6 +23,8 @@
 
 /**
  * Melzi (Creality) pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi%20(Creality)/CR-10%20Schematic.pdf
+ * Origin: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
  * ATmega1284P
  *
  * The Creality board needs a bootloader installed before Marlin can be uploaded.
@@ -35,6 +37,8 @@
  */
 
 #define BOARD_INFO_NAME "Melzi (Creality)"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920

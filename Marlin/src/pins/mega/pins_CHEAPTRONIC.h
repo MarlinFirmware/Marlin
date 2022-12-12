@@ -29,6 +29,10 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Cheaptronic v1.0"
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

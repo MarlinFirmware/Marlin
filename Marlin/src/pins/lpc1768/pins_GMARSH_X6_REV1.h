@@ -23,11 +23,15 @@
 
 /**
  * GMARSH X6 Rev.1 pin assignments
+ * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/GMARSH%20X6%20Rev.1/armprinter_2208_1heater.pdf
+ * Origin: https://github.com/gmarsh/gmarsh_x6/blob/master/armprinter_2208_1heater.pdf
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "GMARSH X6 REV1"
+
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000

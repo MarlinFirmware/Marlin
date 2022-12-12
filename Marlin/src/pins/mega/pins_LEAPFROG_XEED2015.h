@@ -34,6 +34,9 @@
 
 #define BOARD_INFO_NAME "Leapfrog Xeed 2015"
 
+// Just a wild guess because no schematic!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

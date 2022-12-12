@@ -23,6 +23,8 @@
 
 /**
  * Makerbase MKS SBASE pin assignments
+ * Schematic (V1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
+ * Origin (V1.3): http://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -33,6 +35,9 @@
 #ifndef BOARD_WEBSITE_URL
   #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SBASE"
 #endif
+
+// Just a wild guess because schematics do not say!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 #define LED_PIN                            P1_18  // Used as a status indicator
 #define LED2_PIN                           P1_19

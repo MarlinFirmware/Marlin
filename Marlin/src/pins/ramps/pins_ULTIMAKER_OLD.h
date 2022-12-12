@@ -23,6 +23,8 @@
 
 /**
  * Ultimaker pin assignments (Old electronics)
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%201.0/ultipanel%20rev1.1.sch.pdf
+ * Origin: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Ultimaker%201.0/ultipanel%20rev1.1.sch.pdf
  * ATmega2560, ATmega1280
  */
 
@@ -74,6 +76,9 @@
 #endif
 #define DEFAULT_MACHINE_NAME    "Ultimaker"
 #define DEFAULT_SOURCE_CODE_URL "github.com/Ultimaker/Marlin"
+
+// Arduino Mega.
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

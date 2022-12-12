@@ -23,11 +23,16 @@
 
 /**
  * Azteeg X5 MINI WIFI pin assignments
+ * Wiring diagram: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI%20WIFI/x5mini_wifi_wiring.pdf
+ * Origin: http://files.panucatt.com/datasheets/x5mini_wifi_wiring.pdf
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Azteeg X5 MINI WIFI"
+
+// Just a wild guess because no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // DIGIPOT slave addresses

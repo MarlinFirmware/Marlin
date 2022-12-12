@@ -31,6 +31,10 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Malyan M180 v.2"
+
+// Just a wild guess because no schematic!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

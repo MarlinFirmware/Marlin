@@ -23,6 +23,8 @@
 
 /**
  * Gen6 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen6/GEN6_Mendel_Circuit.pdf
+ * Origin: https://reprap.org/mediawiki/images/0/0f/GEN6_Mendel_Circuit.pdf
  */
 
  /**
@@ -55,6 +57,10 @@
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Gen6"
+#endif
+
+#ifndef AVR_CHIPOSCILLATOR_FREQ
+  #define AVR_CHIPOSCILLATOR_FREQ 16000000
 #endif
 
 //

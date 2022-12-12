@@ -23,6 +23,8 @@
 
 /**
  * CartesioV12 pin assignments
+ * Comes with an Arduino Mega, see
+ * https://web.archive.org/web/20171024190029/http://mauk.cc/mediawiki/index.php/Electronical_assembly
  * ATmega2560, ATmega1280
  */
 
@@ -30,6 +32,8 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "CN Controls V12"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

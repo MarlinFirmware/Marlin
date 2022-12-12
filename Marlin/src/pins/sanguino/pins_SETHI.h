@@ -58,6 +58,9 @@
   #define GEN7_VERSION                        PinD4  // v1.x
 #endif
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

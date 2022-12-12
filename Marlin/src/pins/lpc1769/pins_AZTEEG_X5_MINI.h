@@ -23,6 +23,10 @@
 
 /**
  * Azteeg X5 MINI pin assignments
+ * Schematic (V1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V1/X5%20Mini%20PUB%20v1.0.pdf
+ * Schematic (V2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V2/X5%20Mini%20V2%20SCH%20Pub.pdf
+ * Schematic (V3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V3/X5%20Mini%20V3%20SCH%20Pub.pdf
+ * Origin: http://files.panucatt.com/datasheets/x5mini_design_files.zip
  */
 #include "env_validate.h"
 
@@ -30,6 +34,10 @@
   #define BOARD_INFO_NAME "Azteeg X5 MINI"
 #endif
 #define BOARD_WEBSITE_URL "tiny.cc/x5_mini"
+// https://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm
+
+// ECS-120-20-46X
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // LED

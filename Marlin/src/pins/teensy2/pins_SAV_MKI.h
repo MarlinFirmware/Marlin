@@ -25,6 +25,9 @@
  *  Rev B  2 JUN 2017
  *
  *  Converted to Arduino pin numbering
+ * 
+ *  Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/SAV%20MkI/SAV_MK-I.pdf
+ *  Origin: https://reprap.org/mediawiki/images/3/3c/SAV_MK-I.pdf
  */
 
 /**
@@ -67,6 +70,9 @@
 #define BOARD_INFO_NAME         "SAV MkI"
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
 #define DEFAULT_SOURCE_CODE_URL "tinyurl.com/onru38b"
+
+// Just a wild guess because schematic does not say!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos

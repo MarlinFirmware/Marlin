@@ -23,12 +23,17 @@
 
 /**
  * Makerbase MKS SGEN-L pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS_GEN_L_V1_0/MKS%20Gen_L%20V1.0_008%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/SGEN_L/blob/master/Hardware/MKS%20SGEN_L%20V1.0_001/MKS%20SGEN_L%20V1.0_001%20SCH.pdf
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGen-L"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
+
+// Just a wild guess because schematics do not say!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 #define USES_DIAG_JUMPERS
 

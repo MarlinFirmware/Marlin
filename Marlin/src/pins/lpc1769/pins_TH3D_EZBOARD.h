@@ -32,6 +32,9 @@
 #define BOARD_INFO_NAME   "TH3D EZBoard"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
 
+// Just a wild guess because no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
+
 //
 // Servos
 //

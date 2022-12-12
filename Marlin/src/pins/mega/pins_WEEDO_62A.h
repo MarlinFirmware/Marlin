@@ -34,6 +34,8 @@
   #define BOARD_INFO_NAME "WEEDO 62A"
 #endif
 
+// Just a wild guess because no schematics!
+
 //
 // Limit Switches
 //

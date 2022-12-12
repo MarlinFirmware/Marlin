@@ -23,12 +23,18 @@
 
 /**
  * MegaTronics pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MegaTronics/Megatronics_1_0_sch.pdf
+ * Origin: https://reprap.org/mediawiki/images/a/a3/Megatronics_1_0_sch.pdf
  * ATmega2560
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Megatronics"
+
+// Just a wild guess because schematic does not say!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

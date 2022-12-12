@@ -23,9 +23,13 @@
 
 /**
  * Melzi V2.0 as found at https://www.reprap.org/wiki/Melzi
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi%20V2/Melzi-circuit.png
+ * Origin: https://www.reprap.org/mediawiki/images/7/7d/Melzi-circuit.png
  */
 
 #define BOARD_INFO_NAME "Melzi V2"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920

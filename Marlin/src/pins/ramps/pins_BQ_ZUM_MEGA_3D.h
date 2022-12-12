@@ -23,6 +23,8 @@
 
 /**
  * bq ZUM Mega 3D board definition
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/bq%20ZUM%20Mega%203D/Zum%20Mega%203D.PDF
+ * Origin: https://github.com/bq/zum/blob/master/zum-mega3d/Zum%20Mega%203D.PDF
  * ATmega2560
  */
 
@@ -30,6 +32,8 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "ZUM Mega 3D"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

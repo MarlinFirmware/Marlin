@@ -23,6 +23,8 @@
 
 /**
  * Dreammaker Overlord v1.1 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Dreammaker%20Overlord%20v1.1/Schematic.pdf
+ * Origin: https://github.com/jdpiercy/Overlord-Pro/blob/master/Motherboard/Schematic.pdf
  * ATmega2560
  */
 
@@ -34,6 +36,8 @@
 
 #define BOARD_INFO_NAME         "OVERLORD"
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches

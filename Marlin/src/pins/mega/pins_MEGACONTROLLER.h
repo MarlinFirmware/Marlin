@@ -23,6 +23,8 @@
 
 /**
  * Mega controller pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mega%20Controller/Mega_controller.pdf
+ * Origin: https://reprap.org/mediawiki/images/b/ba/Mega_controller.pdf
  * ATmega2560
  */
 
@@ -33,6 +35,8 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Mega Controller"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos

@@ -23,11 +23,18 @@
 
 /**
  * BIQU BQ111-A4 pin assignments
+ *
+ * Applies to the following boards:
+ *
+ *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "BIQU BQ111-A4"
+
+// Just a wild guess because no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Limit Switches

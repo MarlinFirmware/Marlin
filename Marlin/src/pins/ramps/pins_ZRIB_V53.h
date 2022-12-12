@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ZONESTAR ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
  * ATmega2560, ATmega1280
  */
 
@@ -35,6 +35,9 @@
 #endif
 
 #define BOARD_INFO_NAME "ZRIB V5.3"
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // PIN 12 Connector

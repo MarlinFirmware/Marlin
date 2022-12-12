@@ -31,6 +31,9 @@
 #define DEFAULT_MACHINE_NAME "ADIMLab Gantry v2"
 #define BOARD_INFO_NAME      "HJC2560-C"
 
+// Just a wild guess because no schematic!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //

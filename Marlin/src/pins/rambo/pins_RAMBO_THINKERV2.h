@@ -27,6 +27,9 @@
 
 #define BOARD_INFO_NAME "Rambo ThinkerV2"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 #define SERVO0_PIN                            PinG5  // Motor header MX1
 #define SERVO2_PIN                            -1  // Motor header MX3
 

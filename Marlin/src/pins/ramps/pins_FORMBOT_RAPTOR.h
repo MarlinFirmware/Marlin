@@ -40,6 +40,9 @@
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //

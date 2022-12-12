@@ -39,12 +39,18 @@
 
 /**
  * Rambo pin assignments
+ * Schematic (1.1b): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMBo/Rambo1-1-schematic.png
+ * Origin (1.1b): https://www.reprap.org/wiki/File:Rambo1-1-schematic.png
  */
 
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Rambo"
+#endif
+
+#ifndef AVR_CHIPOSCILLATOR_FREQ
+  #define AVR_CHIPOSCILLATOR_FREQ 16000000
 #endif
 
 //

@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Formbot pin assignments
+ * Formbot T-Rex 3 pin assignments
  * ATmega2560
  */
 
@@ -33,8 +33,11 @@
   #error "Formbot supports up to 2 hotends / E steppers."
 #endif
 
-#define BOARD_INFO_NAME      "Formbot"
+#define BOARD_INFO_NAME      "Formbot T-Rex 3"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos

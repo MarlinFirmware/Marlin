@@ -31,6 +31,9 @@
 
 #define BOARD_INFO_NAME "Duplicator i3 Plus"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

@@ -32,6 +32,9 @@
 
 #define BOARD_INFO_NAME "Intamsys 4.0"
 
+// Just a wild guess because no schematic!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //

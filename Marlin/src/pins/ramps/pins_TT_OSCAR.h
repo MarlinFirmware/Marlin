@@ -26,11 +26,14 @@
 #include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
-  #error "TTOSCAR supports up to 5 hotends / E steppers."
+  #error "TT OSCAR supports up to 5 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "TT OSCAR"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos

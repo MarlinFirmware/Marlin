@@ -23,11 +23,15 @@
 
 /**
  * Cohesion3D ReMix pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Cohesion3D%20ReMix/C3D%20ReMix%20rev2.svg
+ * Origin: https://github.com/Cohesion3D/Cohesion3D-ReMix/blob/master/C3D%20ReMix%20rev2.sch
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Cohesion3D ReMix"
+
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Servos

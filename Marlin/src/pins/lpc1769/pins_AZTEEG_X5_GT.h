@@ -23,12 +23,17 @@
 
 /**
  * Azteeg X5 GT pin assignments
+ * Wiring diagram: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20GT/X5%20GT%20Wiring%20Diagram.pdf
+ * Origin: https://panucattdevices.freshdesk.com/support/solutions/articles/1000244740-support-files
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "Azteeg X5 GT"
 #define BOARD_WEBSITE_URL "tinyurl.com/yx8tdqa3"
+
+// Just a wild guess because no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Servos

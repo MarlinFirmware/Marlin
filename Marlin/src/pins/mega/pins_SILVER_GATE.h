@@ -29,6 +29,9 @@
 
 #define BOARD_INFO_NAME "Silver Gate"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 #define X_STEP_PIN                            PinA5
 #define X_DIR_PIN                             PinA6
 #define X_ENABLE_PIN                          PinA4

@@ -23,6 +23,8 @@
 
 /**
  * RUMBA pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/RUMBA/RRD-RUMBA_SCHEMATICS.png
+ * Origin: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
  * ATmega2560
  */
 
@@ -38,6 +40,10 @@
 #endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#endif
+
+#ifndef AVR_CHIPOSCILLATOR_FREQ
+  #define AVR_CHIPOSCILLATOR_FREQ 16000000
 #endif
 
 //

@@ -23,6 +23,8 @@
 
 /**
  * BAM&DICE Due (Arduino Mega) pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BAM&DICE%20Due/2PRINTBETA-BAM&DICE-DUE-V1.1-sch.pdf
+ * Origin: http://www.2printbeta.de/download/2PRINTBETA-BAM&DICE-DUE-V1.1-sch.pdf
  * ATmega2560, ATmega1280
  */
 
@@ -31,6 +33,9 @@
 #endif
 
 #define BOARD_INFO_NAME "2PrintBeta Due"
+
+// Arduino Mega.
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // M3/M4/M5 - Spindle/Laser Control

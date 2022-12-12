@@ -32,6 +32,9 @@
 
 #define BOARD_INFO_NAME "KFB 2.0"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Heaters / Fans
 //

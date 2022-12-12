@@ -30,7 +30,7 @@
   #error "Sainsmart 2-in-1 supports up to 2 hotends / E steppers."
 #endif
 
-#define BOARD_INFO_NAME "Sainsmart"
+#define BOARD_INFO_NAME "Sainsmart 2-in-1"
 
 //
 // Heaters / Fans

@@ -31,6 +31,9 @@
 
 #define BOARD_INFO_NAME "Leapfrog"
 
+// Just a wild guess because no schematic!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

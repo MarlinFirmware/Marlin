@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Tenlog pin assignments
+ * Tenlog D3 Hero pin assignments
  * ATmega2560
  */
 
@@ -35,6 +35,9 @@
 
 #define BOARD_INFO_NAME      "Tenlog D3 Hero"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos

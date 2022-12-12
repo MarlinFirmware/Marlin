@@ -23,11 +23,16 @@
 
 /**
  * Cohesion3D Mini pin assignments
+ * Pinout: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Cohesion3D%20Mini/c3d-pinout.jpg
+ * Origin: https://lasergods.com/cohesion3d-mini-pinout-diagram/
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Cohesion3D Mini"
+
+// Just a wild guess due to no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Servos

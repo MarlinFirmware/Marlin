@@ -23,6 +23,8 @@
 
 /**
  * Re-ARM with RAMPS v1.4 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Re-ARM%20RAMPS%201.4/Re_ARM_Schematic.pdf
+ * Origin: https://reprap.org/mediawiki/images/f/fa/Re_ARM_Schematic.pdf
  *
  * Applies to the following boards:
  *
@@ -38,6 +40,9 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Re-ARM RAMPS 1.4"
+
+// ECS-120-20-46X
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 //
 // Servos

@@ -58,6 +58,9 @@
 
 #define BOARD_INFO_NAME "Gen7 Custom"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

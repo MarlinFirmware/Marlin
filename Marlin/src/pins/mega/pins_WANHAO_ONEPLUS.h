@@ -32,6 +32,9 @@
 #define DEFAULT_MACHINE_NAME "i3 Mini"
 #define BOARD_WEBSITE_URL    "tinyurl.com/yyxw7se7"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //

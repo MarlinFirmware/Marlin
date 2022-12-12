@@ -40,6 +40,9 @@
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
 #define DEFAULT_SOURCE_CODE_URL "github.com/Ultimaker/Marlin"
 
+// Just a guess?
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //

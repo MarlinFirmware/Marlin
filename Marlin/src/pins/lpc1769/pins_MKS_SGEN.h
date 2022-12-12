@@ -23,6 +23,8 @@
 
 /**
  * MKS SGen pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SGEN/MKS%20SGEN%20V1.0_001%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/MKS-SGen/blob/master/Hardware/MKS%20SGEN%20V1.0_001/MKS%20SGEN%20V1.0_001%20SCH.pdf
  *
  * Pins diagram:
  * https://github.com/makerbase-mks/MKS-SGen/blob/master/Hardware/MKS%20SGEN%20V1.0_001/MKS%20SGEN%20V1.0_001%20PIN.pdf
@@ -30,6 +32,9 @@
 
 #define BOARD_INFO_NAME   "MKS SGen"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN"
+
+// Just a wild guess because schematic does not say!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
 
 #define REQUIRE_LPC1769
 #include "../lpc1768/pins_MKS_SBASE.h"

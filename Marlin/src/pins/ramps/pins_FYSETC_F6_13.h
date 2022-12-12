@@ -23,6 +23,8 @@
 
 //
 // FYSETC F6 1.3 (and 1.4) pin assignments
+// Schematic (1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/FYSETC%20F6%201.3/F6_V13.pdf
+// Origin: https://github.com/FYSETC/FYSETC-F6/blob/master/Hardware/V1.3/F6_V13.pdf
 // ATmega2560
 //
 
@@ -33,6 +35,8 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "FYSETC F6 1.3"
 #endif
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 #define RESET_PIN                             PinC7
 #define SPI_FLASH_CS_PIN                      PinD6

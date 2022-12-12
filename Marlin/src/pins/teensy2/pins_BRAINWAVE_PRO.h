@@ -26,6 +26,8 @@
  *
  * Requires hardware bundle for Arduino:
  * https://github.com/unrepentantgeek/brainwave-arduino
+ * 
+ * Not to be confused with the regular Brainwave controller (https://www.reprap.org/wiki/Brainwave)
  */
 
 /**
@@ -78,6 +80,9 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "Brainwave Pro"
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches
