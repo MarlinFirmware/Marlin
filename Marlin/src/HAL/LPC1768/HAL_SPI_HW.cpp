@@ -1359,7 +1359,7 @@
         uint32_t _start_millis;
       #endif
     public:
-      void spi_monitored_loop() {
+      inline spi_monitored_loop() {
         #if defined(HALSPI_DO_LOOPBEEPS) && PIN_EXISTS(BEEPER)
           _start_millis = millis();
         #endif
@@ -1616,7 +1616,7 @@
       bool revbytes = (_ssp_bitOrder == SPI_BITORDER_MSB);
 
       for (uint32_t n = 0; n < num_bytes; n++) {
-        uint32_t = revbytes ? (num_bytes - 1) - n : 0;
+        uint32_t byte_idx = revbytes ? (num_bytes - 1) - n : 0;
         uint32_t bitidx = byte_idx * 8;
 
         spi_monitored_loop tnfw;
@@ -1631,7 +1631,7 @@
     }
     else if (_ssp_framesize == 2) {
       spi_monitored_loop tnfw;
-      while (!SSP.SR.TNF) { tnfw.update(3); /* wait for space om´n the TX FIFO */ }
+      while (!SSP.SR.TNF) { tnfw.update(3); /* wait for space on the TX FIFO */ }
 
       if (revbits) val = _flip_bits(val);
 

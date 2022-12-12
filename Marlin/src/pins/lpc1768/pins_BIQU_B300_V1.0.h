@@ -31,6 +31,9 @@
   #define BOARD_INFO_NAME "BIQU Thunder B300 V1.0"
 #endif
 
+// Just a wild guess because no schematics!
+#define LPC_MAINOSCILLATOR_FREQ 12000000
+
 //
 // Limit Switches
 //
