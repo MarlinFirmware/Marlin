@@ -344,7 +344,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
     if (ui.encoderPosition) {
       // Change the Z offset without babystepping, since planner.apply_leveling will use it.
-      const float new_z_offset = home_offset[Z_AXIS] + planner.steps_to_mm[Z_AXIS] * int16_t(ui.encoderPosition) * BABYSTEP_SIZE_Z;
+      const float new_z_offset = home_offset[Z_AXIS] + planner.mm_per_step[Z_AXIS] * int16_t(ui.encoderPosition) * BABYSTEP_SIZE_Z;
       set_home_offset(Z_AXIS, new_z_offset);
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
