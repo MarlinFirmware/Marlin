@@ -352,7 +352,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
     if (ui.should_draw()) {
       MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
-      TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay_gfx(home_offset[Z_AXIS]));
+      TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(home_offset[Z_AXIS]));
     }
   }
 
