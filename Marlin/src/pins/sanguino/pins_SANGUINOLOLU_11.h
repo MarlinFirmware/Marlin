@@ -74,48 +74,48 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            PinC2
-#define Y_STOP_PIN                            PinC3
-#define Z_STOP_PIN                            PinC4
+#define X_STOP_PIN                         PinC2
+#define Y_STOP_PIN                         PinC3
+#define Z_STOP_PIN                         PinC4
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            PinD7
-#define X_DIR_PIN                             PinC5
+#define X_STEP_PIN                         PinD7
+#define X_DIR_PIN                          PinC5
 
-#define Y_STEP_PIN                            PinC6
-#define Y_DIR_PIN                             PinC7
+#define Y_STEP_PIN                         PinC6
+#define Y_DIR_PIN                          PinC7
 
-#define Z_STEP_PIN                            PinB3
-#define Z_DIR_PIN                             PinB2
+#define Z_STEP_PIN                         PinB3
+#define Z_DIR_PIN                          PinB2
 
-#define E0_STEP_PIN                           PinB1
-#define E0_DIR_PIN                            PinB0
+#define E0_STEP_PIN                        PinB1
+#define E0_DIR_PIN                         PinB0
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            PinB7  // Analog Input (pin 33 extruder)
-#define TEMP_BED_PIN                          PinB6  // Analog Input (pin 34 bed)
+#define TEMP_0_PIN                         PinB7  // Analog Input (pin 33 extruder)
+#define TEMP_BED_PIN                       PinB6  // Analog Input (pin 34 bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          PinD5  // (extruder)
+#define HEATER_0_PIN                       PinD5  // (extruder)
 
 #ifndef FAN_PIN
-  #define FAN_PIN                             PinB4  // Works for Panelolu2 too
+  #define FAN_PIN                          PinB4  // Works for Panelolu2 too
 #endif
 
 #if DISABLED(SANGUINOLOLU_V_1_2)
-  #define HEATER_BED_PIN                      PinD6  // (bed)
-  #define X_ENABLE_PIN                        PinB4
-  #define Y_ENABLE_PIN                        PinB4
+  #define HEATER_BED_PIN                   PinD6  // (bed)
+  #define X_ENABLE_PIN                     PinB4
+  #define Y_ENABLE_PIN                     PinB4
   #ifndef Z_ENABLE_PIN
-    #define Z_ENABLE_PIN                      PinB4
+    #define Z_ENABLE_PIN                   PinB4
   #endif
-  #define E0_ENABLE_PIN                       PinB4
+  #define E0_ENABLE_PIN                    PinB4
 #endif
 
 //
@@ -128,17 +128,17 @@
  * If you encounter issues with these pins, upgrade your
  * Sanguino libraries! See #368.
  */
-//#define SDSS                                PinA7
-#define SDSS                                  PinA0
+//#define SDSS                             PinA7
+#define SDSS                               PinA0
 
 #if IS_MELZI
-  #define LED_PIN                             PinA4
+  #define LED_PIN                          PinA4
 #elif MB(STB_11)
-  #define LCD_BACKLIGHT_PIN                   PinC1  // LCD backlight LED
+  #define LCD_BACKLIGHT_PIN                PinC1  // LCD backlight LED
 #endif
 
-#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
-  #define CASE_LIGHT_PIN                      PinB4  // Hardware PWM  - see if IO Header is available
+#if !HAS_CUTTER && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)// try to use IO Header
+  #define CASE_LIGHT_PIN                   PinB4  // Hardware PWM  - see if IO Header is available
 #endif
 
 /**
@@ -161,49 +161,49 @@
 
     #if ENABLED(LCD_FOR_MELZI)
 
-      #define LCD_PINS_RS                     PinC1
-      #define LCD_PINS_ENABLE                 PinC0
-      #define LCD_PINS_D4                     PinD3
-      #define KILL_PIN                        PinD2
-      #define BEEPER_PIN                      PinA4
+      #define LCD_PINS_RS                  PinC1
+      #define LCD_PINS_ENABLE              PinC0
+      #define LCD_PINS_D4                  PinD3
+      #define KILL_PIN                     PinD2
+      #define BEEPER_PIN                   PinA4
 
-    #elif IS_U8GLIB_ST7920                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+    #elif IS_U8GLIB_ST7920                        // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
       #if IS_MELZI
-        #define LCD_PINS_RS                   PinA1  // CS chip select /SS chip slave select
-        #define LCD_PINS_ENABLE               PinA2  // SID (MOSI)
-        #define LCD_PINS_D4                   PinC1  // SCK (CLK) clock
+        #define LCD_PINS_RS                PinA1  // CS chip select /SS chip slave select
+        #define LCD_PINS_ENABLE            PinA2  // SID (MOSI)
+        #define LCD_PINS_D4                PinC1  // SCK (CLK) clock
         // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with
         // Marlin so this can be used for BEEPER_PIN. You can use this pin
         // with M42 instead of BEEPER_PIN.
-        #define BEEPER_PIN                    PinA4
+        #define BEEPER_PIN                 PinA4
       #else                                       // Sanguinololu >=1.3
-        #define LCD_PINS_RS                   PinB4
-        #define LCD_PINS_ENABLE               PinC1
-        #define LCD_PINS_D4                   PinA1
-        #define LCD_PINS_D5                   PinA2
-        #define LCD_PINS_D6                   PinA3
-        #define LCD_PINS_D7                   PinA4
+        #define LCD_PINS_RS                PinB4
+        #define LCD_PINS_ENABLE            PinC1
+        #define LCD_PINS_D4                PinA1
+        #define LCD_PINS_D5                PinA2
+        #define LCD_PINS_D6                PinA3
+        #define LCD_PINS_D7                PinA4
       #endif
 
     #else
 
-      #define DOGLCD_A0                       PinA1
+      #define DOGLCD_A0                    PinA1
 
       #if ENABLED(MAKRPANEL)
 
-        #define BEEPER_PIN                    PinA2
-        #define DOGLCD_CS                     PinC1
-        #define LCD_BACKLIGHT_PIN             PinA3  // PA3
+        #define BEEPER_PIN                 PinA2
+        #define DOGLCD_CS                  PinC1
+        #define LCD_BACKLIGHT_PIN          PinA3  // PA3
 
       #elif IS_MELZI
 
-        #define BEEPER_PIN                    PinA4
-        #define DOGLCD_CS                     PinA3
+        #define BEEPER_PIN                 PinA4
+        #define DOGLCD_CS                  PinA3
 
       #else                                       // !MAKRPANEL
 
-        #define DOGLCD_CS                     PinA2
+        #define DOGLCD_CS                  PinA2
 
       #endif
 
@@ -213,59 +213,59 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // For the Tronxy Melzi boards
 
-    #define LCD_PINS_RS                       PinA3
-    #define LCD_PINS_ENABLE                   PinA2
-    #define LCD_PINS_D4                       PinD2
-    #define LCD_PINS_D5                       PinD3
-    #define LCD_PINS_D6                       PinC0
-    #define LCD_PINS_D7                       PinC1
+    #define LCD_PINS_RS                    PinA3
+    #define LCD_PINS_ENABLE                PinA2
+    #define LCD_PINS_D4                    PinD2
+    #define LCD_PINS_D5                    PinD3
+    #define LCD_PINS_D6                    PinC0
+    #define LCD_PINS_D7                    PinC1
 
   #else
 
-    #define LCD_PINS_RS                       PinB4
-    #define LCD_PINS_ENABLE                   PinC1
-    #define LCD_PINS_D4                       PinA1
-    #define LCD_PINS_D5                       PinA2
-    #define LCD_PINS_D6                       PinA3
-    #define LCD_PINS_D7                       PinA4
+    #define LCD_PINS_RS                    PinB4
+    #define LCD_PINS_ENABLE                PinC1
+    #define LCD_PINS_D4                    PinA1
+    #define LCD_PINS_D5                    PinA2
+    #define LCD_PINS_D6                    PinA3
+    #define LCD_PINS_D7                    PinA4
 
   #endif
 
   #if ENABLED(LCD_FOR_MELZI)
 
-    #define BTN_ENC                           PinA3
-    #define BTN_EN1                           PinA2
-    #define BTN_EN2                           PinA1
+    #define BTN_ENC                        PinA3
+    #define BTN_EN1                        PinA2
+    #define BTN_EN2                        PinA1
 
   #elif ENABLED(ZONESTAR_LCD)                     // For the Tronxy Melzi boards
 
-    #define ADC_KEYPAD_PIN                    PinB1
+    #define ADC_KEYPAD_PIN                 PinB1
     #define BTN_EN1                           -1
     #define BTN_EN2                           -1
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 
     #if IS_MELZI
-      #define BTN_ENC                         PinA2
+      #define BTN_ENC                      PinA2
       #ifndef LCD_SDSS
-        #define LCD_SDSS                      PinA1  // Panelolu2 SD card reader rather than the Melzi
+        #define LCD_SDSS                   PinA1  // Panelolu2 SD card reader rather than the Melzi
       #endif
     #else
-      #define BTN_ENC                         PinA1
+      #define BTN_ENC                      PinA1
     #endif
 
   #else                                           // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 
-    #define BTN_ENC                           PinC0
+    #define BTN_ENC                        PinC0
     #ifndef LCD_SDSS
-      #define LCD_SDSS                        PinA3  // Smart Controller SD card reader rather than the Melzi
+      #define LCD_SDSS                     PinA3  // Smart Controller SD card reader rather than the Melzi
     #endif
 
   #endif
 
   #if IS_NEWPANEL && !defined(BTN_EN1)
-    #define BTN_EN1                           PinD3
-    #define BTN_EN2                           PinD2
+    #define BTN_EN1                        PinD3
+    #define BTN_EN2                        PinD2
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -274,11 +274,11 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL) // try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)// try to use IO Header
 
-    #define SPINDLE_LASER_ENA_PIN             PinD2  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN             PinB4  // Hardware PWM
-    #define SPINDLE_DIR_PIN                   PinD3
+    #define SPINDLE_LASER_ENA_PIN          PinD2  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN          PinB4  // Hardware PWM
+    #define SPINDLE_DIR_PIN                PinD3
 
   #elif !MB(MELZI)                                // use X stepper motor socket
 
@@ -312,11 +312,11 @@
     #undef X_DIR_PIN
     #undef X_ENABLE_PIN
     #undef X_STEP_PIN
-    #define X_DIR_PIN                         PinB0
-    #define X_ENABLE_PIN                      PinD6
-    #define X_STEP_PIN                        PinB1
-    #define SPINDLE_LASER_PWM_PIN             PinD7  // Hardware PWM
-    #define SPINDLE_LASER_ENA_PIN             PinC5  // Pullup!
+    #define X_DIR_PIN                      PinB0
+    #define X_ENABLE_PIN                   PinD6
+    #define X_STEP_PIN                     PinB1
+    #define SPINDLE_LASER_PWM_PIN          PinD7  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN          PinC5  // Pullup!
     #define SPINDLE_DIR_PIN                   -1  // No pin available on the socket for the direction pin
   #endif
 #endif

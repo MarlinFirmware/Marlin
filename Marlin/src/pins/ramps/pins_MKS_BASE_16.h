@@ -38,7 +38,7 @@
 //
 // Servos
 //
-#define SERVO1_PIN                            PinB6  // Digital 12 / Pin 25
+#define SERVO1_PIN                         PinB6  // Digital 12 / Pin 25
 
 //
 // Omitted RAMPS pins

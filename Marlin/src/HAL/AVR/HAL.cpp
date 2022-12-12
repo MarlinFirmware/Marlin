@@ -64,10 +64,7 @@ void save_reset_reason() {
 #include "registers.h"
 
 MarlinHAL::MarlinHAL() {
-#if ENABLED(HAL_AVR_DIRTY_INIT)
-  // Clean-wipe the device state.
-  _ATmega_resetperipherals();
-#endif
+  TERN_(HAL_AVR_DIRTY_INIT, _ATmega_resetperipherals()); // Clean-wipe the device state.
 }
 
 void MarlinHAL::init() {
@@ -88,26 +85,24 @@ void MarlinHAL::init() {
 
   init_pwm_timers();   // Init user timers to default frequency - 1000HZ
 
-#if defined(BEEPER_PIN) || ENABLED(ATMEGA_NO_BEEPFIX)
-  // Make sure no alternative is locked onto the BEEPER.
-  // This fixes the issue where the ATmega is constantly beeping.
-  // Might destroy other peripherals using the pin; to circumvent that please undefine one of the above things!
-  // The true culprit is the AVR ArduinoCore that enables peripherals redundantly.
-  // (USART1 on the GeeeTech GT2560)
-  _ATmega_savePinAlternate(BEEPER_PIN);
+  #if defined(BEEPER_PIN) || ENABLED(ATMEGA_NO_BEEPFIX)
+    // Make sure no alternative is locked onto the BEEPER.
+    // This fixes the issue where the ATmega is constantly beeping.
+    // Might destroy other peripherals using the pin; to circumvent that please undefine one of the above things!
+    // The true culprit is the AVR ArduinoCore that enables peripherals redundantly.
+    // (USART1 on the GeeeTech GT2560)
+    _ATmega_savePinAlternate(BEEPER_PIN);
 
-  OUT_WRITE(BEEPER_PIN, LOW);
-#endif
-
-  // EXAMPLE: beep loop using proper pin state.
-#if defined(BEEPER_PIN) && 0
-  while (true) {
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(1000);
     OUT_WRITE(BEEPER_PIN, LOW);
-    delay(2000);
-  }
-#endif
+  #endif
+
+    // EXAMPLE: beep loop using proper pin state.
+  #if 0 && defined(BEEPER_PIN)
+    while (true) {
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+      OUT_WRITE(BEEPER_PIN, LOW);  delay(2000);
+    }
+  #endif
 }
 
 void MarlinHAL::reboot() {
