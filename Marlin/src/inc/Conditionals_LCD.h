@@ -1068,32 +1068,6 @@
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
   #endif
-  #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
-    #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
-  #endif
-
-  // Always disable probe pin inverting for BLTouch
-  #if !MB(K8400)
-    #if Z_MIN_PROBE_ENDSTOP_INVERTING
-      #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
-    #endif
-  #else // Special case for BOARD_K8400
-    #if !Z_MIN_PROBE_ENDSTOP_INVERTING
-      #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to true. Please update your Configuration.h file."
-    #endif
-  #endif
-
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #if !MB(K8400)
-      #if Z_MIN_ENDSTOP_INVERTING
-        #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
-      #endif
-    #else // Special case for BOARD_K8400, Endstops are electronically inverted
-      #if !Z_MIN_ENDSTOP_INVERTING
-        #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to true. Please update your Configuration.h file."
-      #endif
-    #endif
-  #endif
 #endif
 
 /**
