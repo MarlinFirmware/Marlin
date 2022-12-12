@@ -90,6 +90,7 @@ namespace Language_ca {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mou 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mou 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mou 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mou 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mou 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocitat");
   LSTR MSG_BED_Z                          = _UxGT("Llit Z");

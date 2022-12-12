@@ -930,11 +930,7 @@ class Planner {
     static float triggered_position_mm(const AxisEnum axis);
 
     // Blocks are queued, or we're running out moves, or the closed loop controller is waiting
-    static bool busy() {
-      return (has_blocks_queued() || cleaning_buffer_counter
-          || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      );
-    }
+    static bool busy();
 
     // Block until all buffered steps are executed / cleaned
     static void synchronize();

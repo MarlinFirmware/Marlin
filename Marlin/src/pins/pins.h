@@ -234,7 +234,7 @@
 #elif MB(CNCONTROLS_15)
   #include "mega/pins_CNCONTROLS_15.h"          // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
 #elif MB(MIGHTYBOARD_REVE)
-  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega2560, ATmega1280                 env:mega2560ext env:mega1280 env:MightyBoard1280 env:MightyBoard2560
+  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega2560, ATmega1280                 env:mega2560ext env:MightyBoard1280 env:MightyBoard2560
 #elif MB(CHEAPTRONIC)
   #include "mega/pins_CHEAPTRONIC.h"            // ATmega2560                             env:mega2560
 #elif MB(CHEAPTRONIC_V2)
@@ -516,7 +516,7 @@
 #elif MB(MKS_ROBIN_NANO)
   #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano_v1v2_maple env:mks_robin_nano_v1v2_usbmod
 #elif MB(MKS_ROBIN_NANO_V2)
-  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano3_v1v2_maple
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano_v1v2_maple
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite env:mks_robin_lite_maple
 #elif MB(MKS_ROBIN_LITE3)
@@ -772,6 +772,13 @@
   #include "samd/pins_BRICOLEMON_V1_0.h"        // SAMD51                                 env:SAMD51_grandcentral_m4
 #elif MB(BRICOLEMON_LITE_V1_0)
   #include "samd/pins_BRICOLEMON_LITE_V1_0.h"   // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
+// ReprapWorld Minitronics (SAMD21)
+//
+
+#elif MB(MINITRONICS20)
+  #include "samd/pins_MINITRONICS20.h"          // SAMD21                                 env:SAMD21_minitronics20
 
 //
 // Custom board (with custom PIO env)
