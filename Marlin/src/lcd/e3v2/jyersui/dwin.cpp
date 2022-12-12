@@ -80,6 +80,13 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if HAS_TRINAMIC_CONFIG
+  #include "../../../module/stepper/trinamic.h"
+
+  #define TMC_MIN_CURRENT 400
+  #define TMC_MAX_CURRENT 1500
+#endif
+
 #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 
 #define DWIN_FONT_MENU font8x16
@@ -2295,7 +2302,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1);
+              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
         #endif
       }
@@ -2720,7 +2727,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_BACK 0
       #define ADVANCED_BEEPER (ADVANCED_BACK + ENABLED(SOUND_MENU_ITEM))
       #define ADVANCED_PROBE (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
-      #define ADVANCED_CORNER (ADVANCED_PROBE + 1)
+      #define ADVANCED_TMC (ADVANCED_PROBE + ENABLED(HAS_TRINAMIC_CONFIG))
+      #define ADVANCED_CORNER (ADVANCED_TMC + 1)
       #define ADVANCED_LA (ADVANCED_CORNER + ENABLED(LIN_ADVANCE))
       #define ADVANCED_LOAD (ADVANCED_LA + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
@@ -2757,6 +2765,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_StepX, F("Probe"), nullptr, true);
             else
               Draw_Menu(ProbeMenu);
+            break;
+        #endif
+
+        #if HAS_TRINAMIC_CONFIG
+          case ADVANCED_TMC:
+            if (draw)
+              Draw_Menu_Item(row, ICON_Motion, F("TMC Drivers"), nullptr, true);
+            else
+              Draw_Menu(TMCMenu);
             break;
         #endif
 
@@ -2905,7 +2922,93 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               break;
         }
         break;
-    #endif
+    #endif  // HAS_PROBE_MENU
+
+    #if HAS_TRINAMIC_CONFIG
+      case TMCMenu:
+
+        #define TMC_BACK 0
+        #define TMC_STEPPER_CURRENT_X (TMC_BACK + AXIS_IS_TMC(X))
+        #define TMC_STEPPER_CURRENT_Y (TMC_STEPPER_CURRENT_X + AXIS_IS_TMC(Y))
+        #define TMC_STEPPER_CURRENT_Z (TMC_STEPPER_CURRENT_Y + AXIS_IS_TMC(Z))
+        #define TMC_STEPPER_CURRENT_E (TMC_STEPPER_CURRENT_Z + AXIS_IS_TMC(E0))
+        #define TMC_TOTAL TMC_STEPPER_CURRENT_E
+
+        switch (item) {
+
+          case TMC_BACK:
+            if (draw)
+              Draw_Menu_Item(row, ICON_Back, F("Back"));
+            else
+              Draw_Menu(Advanced, ADVANCED_TMC);
+            break;
+
+          #if AXIS_IS_TMC(X)
+            case TMC_STEPPER_CURRENT_X:
+
+              static float stepper_current_x;
+
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepX, F("Stepper X current"));
+                stepper_current_x = stepperX.getMilliamps();
+                Draw_Float(stepper_current_x, row, false, 1);
+              }
+              else {
+                Modify_Value(stepper_current_x, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperX.rms_current(stepper_current_x); });
+              }
+              break;
+          #endif
+
+          #if AXIS_IS_TMC(Y)
+            case TMC_STEPPER_CURRENT_Y:
+
+              static float stepper_current_y;
+
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepY, F("Stepper Y current"));
+                stepper_current_y = stepperY.getMilliamps();
+                Draw_Float(stepper_current_y, row, false, 1);
+              }
+              else {
+                Modify_Value(stepper_current_y, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperY.rms_current(stepper_current_y); });
+              }
+              break;
+          #endif
+
+          #if AXIS_IS_TMC(Z)
+            case TMC_STEPPER_CURRENT_Z:
+
+              static float stepper_current_z;
+
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepZ, F("Stepper Z current"));
+                stepper_current_z = stepperZ.getMilliamps();
+                Draw_Float(stepper_current_z, row, false, 1);
+              }
+              else {
+                Modify_Value(stepper_current_z, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperZ.rms_current(stepper_current_z); });
+              }
+              break;
+          #endif
+
+          #if AXIS_IS_TMC(E0)
+            case TMC_STEPPER_CURRENT_E:
+
+              static float stepper_current_e;
+
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepE, F("Stepper E current"));
+                stepper_current_e = stepperE0.getMilliamps();
+                Draw_Float(stepper_current_e, row, false, 1);
+              }
+              else {
+                Modify_Value(stepper_current_e, TMC_MIN_CURRENT, TMC_MAX_CURRENT, 1, []{ stepperE0.rms_current(stepper_current_e); });
+              }
+              break;
+          #endif
+        };
+        break;
+    #endif // HAS_TRINAMIC_CONFIG
 
     case InfoMain:
     case Info:
@@ -3637,7 +3740,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.flow_percentage[0], row, false, 1);
             }
             else
-              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1);
+              Modify_Value(planner.flow_percentage[0], MIN_FLOW_RATE, MAX_FLOW_RATE, 1, []{ planner.refresh_e_factor(0); });
             break;
           case TUNE_HOTEND:
             if (draw) {
@@ -3879,7 +3982,10 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     case Visual:            return F("Visual Settings");
     case Advanced:          return F("Advanced Settings");
     #if HAS_BED_PROBE
-      case ProbeMenu:       return F("Probe Menu");
+      case ProbeMenu:       return F("Bed Probe");
+    #endif
+    #if HAS_TRINAMIC_CONFIG
+      case TMCMenu:         return F("TMC Drivers");
     #endif
     case ColorSettings:     return F("UI Color Settings");
     case Info:              return F("Info");
@@ -3948,6 +4054,9 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     case Advanced:          return ADVANCED_TOTAL;
     #if HAS_BED_PROBE
       case ProbeMenu:       return PROBE_TOTAL;
+    #endif
+    #if HAS_TRINAMIC_CONFIG
+      case TMCMenu:         return TMC_TOTAL;
     #endif
     case Info:              return INFO_TOTAL;
     case InfoMain:          return INFO_TOTAL;
@@ -4117,8 +4226,6 @@ void CrealityDWINClass::Value_Control() {
         case LevelManual: mesh_conf.manual_mesh_move(selection == LEVELING_M_OFFSET); break;
       #endif
     }
-    if (valuepointer == &planner.flow_percentage[0])
-      planner.refresh_e_factor(0);
     if (funcpointer) funcpointer();
     return;
   }
