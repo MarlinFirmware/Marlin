@@ -241,10 +241,11 @@ void GcodeSuite::M115() {
                   ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
             ),
             LIST_N(DOUBLE(NUM_AXES),
-              "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
+              "},max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
                   ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
                   ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
             ),
+            "}"
           "},"
           "work:{"
             LIST_N(DOUBLE(NUM_AXES),
@@ -253,12 +254,13 @@ void GcodeSuite::M115() {
                   ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
             ),
             LIST_N(DOUBLE(NUM_AXES),
-              "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
+              "},max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
                   ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
                   ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w
             ),
           "}"
         "}"
+      "}"
       );
     #endif
 
