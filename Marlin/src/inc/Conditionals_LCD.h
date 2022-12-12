@@ -1077,7 +1077,7 @@
     #if Z_MIN_PROBE_ENDSTOP_INVERTING
       #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
     #endif
-  #elif // Special case for BOARD_K8400
+  #else // Special case for BOARD_K8400
     #if !Z_MIN_PROBE_ENDSTOP_INVERTING
       #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to true. Please update your Configuration.h file."
     #endif
