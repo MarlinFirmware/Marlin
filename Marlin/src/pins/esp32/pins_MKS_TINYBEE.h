@@ -160,9 +160,6 @@
 
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
 
   #if ENABLED(MKS_TS35_V2_0)
     // The MKS TS35-R V2.0 is a SPI-bus driven screen whose logic signals
@@ -170,6 +167,12 @@
     // powered up to 5V we cannot use the EXP1 port for logic signals.
     // Thus we have to remap the pins onto the EXP1 connector, which is
     // a hassle.
+    // HOW TO WIRE:
+    // https://green-candy.osdn.jp/external/MarlinFW/support/MKS%20TinyBee/MKS%20TS35-R%20V2.0%20Wiring/wiring_howto.png
+
+    #define BTN_ENC                   -1
+    #define BTN_EN1                   -1
+    #define BTN_EN2                   -1
 
     // DISPLAY PINS.
     #define TFT_A0_PIN                EXP1_02_PIN
@@ -185,16 +188,19 @@
     #define TOUCH_MOSI_PIN            TFT_MOSI_PIN
 
     // SPI BUS CHIP-SELECT PINS.
-    #define TFT_CS_PIN                EXP2_04_PIN
+    #define TFT_CS_PIN                EXP2_03_PIN
     #define TOUCH_CS_PIN              EXP2_05_PIN
 
-    #define TOUCH_INT_PIN             EXP2_03_PIN
+    #define TOUCH_INT_PIN             -1 //sacrificed for CS
 
     // Disable any LCD related PINs config
     #define LCD_PINS_ENABLE           -1
     #define LCD_PINS_RS               -1
   #else
     #define LCD_BACKLIGHT_PIN         -1
+    #define BTN_ENC                    EXP1_02_PIN
+    #define BTN_EN1                    EXP2_03_PIN
+    #define BTN_EN2                    EXP2_05_PIN
 
     #if ENABLED(MKS_MINI_12864)
       // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
