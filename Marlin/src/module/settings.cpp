@@ -244,6 +244,15 @@ typedef struct SettingsDataStruct {
   float planner_z_fade_height;                          // M420 Zn  planner.z_fade_height
 
   //
+  // AUTOTEMP
+  //
+  #if ENABLED(AUTOTEMP)
+    celsius_t planner_autotemp_max, planner_autotemp_min;
+    float planner_autotemp_factor;
+    bool planner_autotemp_enabled;
+  #endif
+
+  //
   // MESH_BED_LEVELING
   //
   float mbl_z_offset;                                   // bedlevel.z_offset
@@ -852,6 +861,20 @@ void MarlinSettings::postprocess() {
       const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, (DEFAULT_LEVELING_FADE_HEIGHT));
       EEPROM_WRITE(zfh);
     }
+
+    //
+    // AUTOTEMP
+    //
+    #if ENABLED(AUTOTEMP)
+      _FIELD_TEST(planner_autotemp_max);
+      EEPROM_WRITE(planner.autotemp_max);
+      _FIELD_TEST(planner_autotemp_min);
+      EEPROM_WRITE(planner.autotemp_min);
+      _FIELD_TEST(planner_autotemp_factor);
+      EEPROM_WRITE(planner.autotemp_factor);
+      _FIELD_TEST(planner_autotemp_enabled);
+      EEPROM_WRITE(planner.autotemp_enabled);
+    #endif
 
     //
     // Mesh Bed Leveling
@@ -1800,6 +1823,16 @@ void MarlinSettings::postprocess() {
       // Global Leveling
       //
       EEPROM_READ(TERN(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height, dummyf));
+
+      //
+      // AUTOTEMP
+      //
+      #if ENABLED(AUTOTEMP)
+        EEPROM_READ(planner.autotemp_max);
+        EEPROM_READ(planner.autotemp_min);
+        EEPROM_READ(planner.autotemp_factor);
+        EEPROM_READ(planner.autotemp_enabled);
+      #endif
 
       //
       // Mesh (Manual) Bed Leveling
@@ -2996,6 +3029,16 @@ void MarlinSettings::reset() {
   //
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
   TERN_(HAS_LEVELING, reset_bed_level());
+
+  //
+  // AUTOTEMP
+  //
+  #if ENABLED(AUTOTEMP)
+    planner.autotemp_max = (AUTOTEMP_MAX);
+    planner.autotemp_min = (AUTOTEMP_MIN);
+    planner.autotemp_factor = (AUTOTEMP_FACTOR);
+    planner.autotemp_enabled = (AUTOTEMP_ENABLED);
+  #endif
 
   //
   // X Axis Twist Compensation
