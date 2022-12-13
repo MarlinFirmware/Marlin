@@ -1708,16 +1708,16 @@
 // @section geometry
 
 #define X_AXIS_SIZE 221
-#define Y_AXIS_SIZE 248
+#define Y_AXIS_SIZE 249
 #define Z_AXIS_SIZE 229
 
 // The size of the printable area
-#define X_BED_SIZE 210
-#define Y_BED_SIZE 210
+#define X_BED_SIZE 214
+#define Y_BED_SIZE 214
 
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS -5
-#define Y_MIN_POS -24
+#define Y_MIN_POS -25
 #define Z_MIN_POS 0
 #define X_MAX_POS (X_AXIS_SIZE+X_MIN_POS)
 #define Y_MAX_POS (Y_AXIS_SIZE+Y_MIN_POS)
