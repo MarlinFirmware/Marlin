@@ -1708,7 +1708,7 @@
 // @section geometry
 
 #define X_AXIS_SIZE 221
-#define Y_AXIS_SIZE 240
+#define Y_AXIS_SIZE 248
 #define Z_AXIS_SIZE 229
 
 // The size of the printable area
