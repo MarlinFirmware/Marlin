@@ -3352,3 +3352,19 @@
     FIL_RUNOUT5_PULLDOWN, FIL_RUNOUT6_PULLDOWN, FIL_RUNOUT7_PULLDOWN, FIL_RUNOUT8_PULLDOWN)
   #define USING_PULLDOWNS 1
 #endif
+
+// Set AUTOTEMP defaults
+#if ENABLED(AUTOTEMP)
+  #ifndef AUTOTEMP_MAX
+    #define AUTOTEMP_MAX        250
+  #endif
+  #ifndef AUTOTEMP_MIN
+      #define AUTOTEMP_MIN      210
+  #endif
+  #ifndef AUTOTEMP_FACTOR
+      #define AUTOTEMP_FACTOR   0.1f
+  #endif
+  #ifndef AUTOTEMP_ENABLED
+      #define AUTOTEMP_ENABLED  false
+  #endif
+#endif
