@@ -140,17 +140,27 @@
         OUT_WRITE(BEEPER_PIN, LOW);
         delay(500);
         OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(200);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(200);
+        OUT_WRITE(BEEPER_PIN, HIGH);
         delay(300);
         OUT_WRITE(BEEPER_PIN, LOW);
-        delay(1500);
+        delay(300);
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(200);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(500);
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(1000);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(2000);
 #endif
       }
     }
   }
 
-  void spiEstablish() {
-    _maybe_start_transaction();
-  }
+  void spiEstablish() { /* do nothing */ }
 
   uint8_t spiRec(uint8_t txval) { return (_spi_bit_order == SPI_BITORDER_MSB) ? spiTransfer(txval) : _flip_bits_8(spiTransfer(_flip_bits_8(txval))); }
 

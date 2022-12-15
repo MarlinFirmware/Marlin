@@ -32,7 +32,7 @@
   // Defined by GCC.
   // The vector is located in flash memory, thus there may be no memory bus for write access
   // wired into the CPU (hard fault at attempt).
-  extern void (*const g_pfnVectors[VECTOR_TABLE_SIZE])();
+  extern void (*volatile const g_pfnVectors[VECTOR_TABLE_SIZE])();
   #define _NVIC_HAS_DEFAULT_VECTOR
 #elif defined(STM32F4xx)
   // There are a few less entries specifically for "STM32F405xx/07xx and STM32F415xx/17xx" but w/e.
@@ -41,7 +41,7 @@
   // Defined by GCC.
   // The vector is located in flash memory, thus there may be no memory bus for write access
   // wired into the CPU (hard fault at attempt).
-  extern void (*const g_pfnVectors[VECTOR_TABLE_SIZE])();
+  extern void (*volatile const g_pfnVectors[VECTOR_TABLE_SIZE])();
   #define _NVIC_HAS_DEFAULT_VECTOR
 #elif defined(TARGET_LPC1768)
   // See NXP UM10360 page 75ff
@@ -53,7 +53,7 @@
 #define IRQ_START_IDX 16
 
 // The interrupt table used by installment.
-alignas(IRQ_VECTOR_ALIGNMENT) static void (*_isrv_redirect[VECTOR_TABLE_SIZE])();
+alignas(IRQ_VECTOR_ALIGNMENT) static void (*volatile _isrv_redirect[VECTOR_TABLE_SIZE])();
 
 // From the ARM Cortex M3 reference manual.
 struct vtor_reg_t {
@@ -63,7 +63,7 @@ struct vtor_reg_t {
 };
 
 // For debugging ;)
-static bool _NVIC_IsVectorInCorrectAddressSpace(const void *vectaddr) {
+static bool _NVIC_IsVectorInCorrectAddressSpace(const volatile void *vectaddr) {
     uint32_t valaddr = (uint32_t)vectaddr;
     return (valaddr >= (1<<9) && valaddr < (1<<30));
 }
@@ -91,19 +91,19 @@ static void _NVIC_OnError() {
     }
 }
 
-static vtor_reg_t& _SCB_VTOR = *(vtor_reg_t*)0xE000ED08;
+static volatile vtor_reg_t& _SCB_VTOR = *(vtor_reg_t*)0xE000ED08;
 
 static unsigned int _vtor_refcount = 0;
 
-static void (*const* _NVIC_GetCurrentVector())() {
+static void (*const volatile* _NVIC_GetCurrentVector())() {
     return (void (*const*)())( _SCB_VTOR.TBLOFF << 9 );
 }
 
 #ifndef _NVIC_HAS_DEFAULT_VECTOR
-static void (*const*_nvic_default_vector)() = nullptr;
+static void (*const volatile*_nvic_default_vector)() = nullptr;
 #endif
 
-static void (*const*_NVIC_GetDefaultVector())() {
+static void (*const volatile*_NVIC_GetDefaultVector())() {
 #ifdef STM32F1xx
     return g_pfnVectors;
 #else
@@ -112,7 +112,7 @@ static void (*const*_NVIC_GetDefaultVector())() {
 }
 
 static void _nvicFetchVectorEntriesFromDefault() {
-    memcpy(_isrv_redirect, _NVIC_GetDefaultVector(), sizeof(void*)*VECTOR_TABLE_SIZE);
+    memcpy((void*)_isrv_redirect, (const void*)_NVIC_GetDefaultVector(), sizeof(void*)*VECTOR_TABLE_SIZE);
 }
 
 void nvicBegin() {
@@ -130,7 +130,7 @@ void nvicResetVector() {
 
 void nvicUpdateVector() {
     if (_vtor_refcount == 0) {
-        memcpy(_isrv_redirect, (const void*)_NVIC_GetCurrentVector(), sizeof(_isrv_redirect));
+        memcpy((void*)_isrv_redirect, (const void*)_NVIC_GetCurrentVector(), sizeof(_isrv_redirect));
     }
 }
 
@@ -140,6 +140,7 @@ void nvicSetHandler(uint32_t idx, void (*callback)()) {
 
     _isrv_redirect[idx] = callback;
     __DSB();    // handle CPU pipeline caching inconsistencies (non instruction encoding)
+    __ISB();
 }
 
 void nvicSetIRQHandler(IRQn_Type irqn, void (*callback)()) {
@@ -174,6 +175,7 @@ void nvicInstallRedirect() {
     {
         _SCB_VTOR.TBLOFF = ( (uint32_t)&_isrv_redirect[0] >> 9 );
         __DSB();    // handle CPU pipeline caching inconsistencies (non instruction encoding)
+        __ISB();
     }
 }
 
@@ -182,6 +184,7 @@ void nvicUninstallRedirect() {
     {
         _SCB_VTOR.TBLOFF = ( (uint32_t)_NVIC_GetDefaultVector() >> 9 );
         __DSB();    // handle CPU pipeline caching inconsistencies (non instruction encoding)
+        __ISB();
     }
     _vtor_refcount--;
 }

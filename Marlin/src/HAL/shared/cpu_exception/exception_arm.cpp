@@ -457,6 +457,11 @@ void hook_cpu_exceptions() {
     // So we'll simply mask the top 8 bits of the first handler as an hint of being in the flash or not -that's poor and will
     // probably break if the flash happens to be more than 128MB, but in this case, we are not magician, we need help from outside.
 
+#if !defined(TARGET_LPC1768)
+    // On LPC176x/LPC175x the entry indexed 7 is the checksum of the first entries 0..6, thus
+    // we cannot use it to peek for any default handler.
+    // See page 627 of UM10360.
+
     // Undocumented!!! Use with caution!!! (peeking into reserved vector entries)
     auto defaultFaultHandler = nvicGetHandler(7u);
     // Replace all default handlers with our own handler.
@@ -466,6 +471,7 @@ void hook_cpu_exceptions() {
       if (nvicGetHandler(i) == defaultFaultHandler)
         nvicSetHandler(i, CommonHandler_ASM);
     }
+#endif
 
     // Let's hook now with our functions
     nvicSetHandler((unsigned long)hook_get_hardfault_vector_address(0), CommonHandler_ASM);

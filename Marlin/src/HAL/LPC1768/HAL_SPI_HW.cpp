@@ -101,7 +101,7 @@
         if (n < code-1)
           delay(200);
       }
-      delay(500);
+      delay(1000);
       OUT_WRITE(BEEPER_PIN, HIGH);
       delay(400);
       OUT_WRITE(BEEPER_PIN, LOW);
@@ -114,7 +114,27 @@
     return ( a < b ? a : b );
   }
 
+  namespace LPCHelpers {
+
+    // Helper.
+    template <typename T>
+    struct no_volatile {
+      typedef T type;
+    };
+    template <typename T>
+    struct no_volatile <volatile T> : public no_volatile <T> {};
+
+    template <typename T>
+    inline typename no_volatile <T>::type& dwrite(T& v) { return (typename no_volatile <T>::type&)v; }
+
+    template <typename T>
+    inline void dwrite( volatile T& v, T& a ) { (T&)v = a; }
+
+  } // namespace LPCHelpers
+
   namespace MarlinLPC {
+
+    #define __LPC_DEFREG(tn, n, l) static volatile tn& n = *(tn*)l
 
     // NXP UM10360 date: 20th of November, 2022
 
@@ -347,25 +367,25 @@
     };
     static_assert(sizeof(pinmode9_reg_t) == 4, "invalid size of pinmode9_reg_t");
 
-    static pinsel0_reg_t &PINSEL0 = *(pinsel0_reg_t*)0x4002C000;
-    static pinsel1_reg_t &PINSEL1 = *(pinsel1_reg_t*)0x4002C004;
-    static pinsel2_reg_t &PINSEL2 = *(pinsel2_reg_t*)0x4002C008;
-    static pinsel3_reg_t &PINSEL3 = *(pinsel3_reg_t*)0x4002C00C;
-    static pinsel4_reg_t &PINSEL4 = *(pinsel4_reg_t*)0x4002C010;
-    static pinsel7_reg_t &PINSEL7 = *(pinsel7_reg_t*)0x4002C01C;
-    //static pinsel8_reg_t &PINSEL8 = *(pinsel8_reg_t*)0x4002C020;
-    static pinsel9_reg_t &PINSEL9 = *(pinsel9_reg_t*)0x4002C024;
-    static pinsel10_reg_t &PINSEL10 = *(pinsel10_reg_t*)0x4002C028;
+    __LPC_DEFREG(pinsel0_reg_t, PINSEL0, 0x4002C000);
+    __LPC_DEFREG(pinsel1_reg_t, PINSEL1, 0x4002C004);
+    __LPC_DEFREG(pinsel2_reg_t, PINSEL2, 0x4002C008);
+    __LPC_DEFREG(pinsel3_reg_t, PINSEL3, 0x4002C00C);
+    __LPC_DEFREG(pinsel4_reg_t, PINSEL4, 0x4002C010);
+    __LPC_DEFREG(pinsel7_reg_t, PINSEL7, 0x4002C01C);
+    //__LPC_DEFREG(pinsel8_reg_t, PINSEL8, 0x4002C020);
+    __LPC_DEFREG(pinsel9_reg_t, PINSEL9, 0x4002C024);
+    __LPC_DEFREG(pinsel10_reg_t, PINSEL10, 0x4002C028);
 
-    static pinmode0_reg_t &PINMODE0 = *(pinmode0_reg_t*)0x4002C040;
-    static pinmode1_reg_t &PINMODE1 = *(pinmode1_reg_t*)0x4002C044;
-    static pinmode2_reg_t &PINMODE2 = *(pinmode2_reg_t*)0x4002C048;
-    static pinmode3_reg_t &PINMODE3 = *(pinmode3_reg_t*)0x4002C04C;
-    static pinmode4_reg_t &PINMODE4 = *(pinmode4_reg_t*)0x4002C050;
-    //static pinmode5_reg_t &PINMODE5 = *(pinmode5_reg_t*)0x4002C054;
-    //static pinmode6_reg_t &PINMODE6 = *(pinmode6_reg_t*)0x4002C058;
-    static pinmode7_reg_t &PINMODE7 = *(pinmode7_reg_t*)0x4002C05C;
-    static pinmode9_reg_t &PINMODE9 = *(pinmode9_reg_t*)0x4002C064;
+    __LPC_DEFREG(pinmode0_reg_t, PINMODE0, 0x4002C040);
+    __LPC_DEFREG(pinmode1_reg_t, PINMODE1, 0x4002C044);
+    __LPC_DEFREG(pinmode2_reg_t, PINMODE2, 0x4002C048);
+    __LPC_DEFREG(pinmode3_reg_t, PINMODE3, 0x4002C04C);
+    __LPC_DEFREG(pinmode4_reg_t, PINMODE4, 0x4002C050);
+    //__LPC_DEFREG(pinmode5_reg_t, PINMODE5, 0x4002C054);
+    //__LPC_DEFREG(pinmode6_reg_t, PINMODE6, 0x4002C058);
+    __LPC_DEFREG(pinmode7_reg_t, PINMODE7, 0x4002C05C);
+    __LPC_DEFREG(pinmode9_reg_t, PINMODE9, 0x4002C064);
 
     // Left out OD and I2C-specific.
     // UM10360 page 103: I am only taking the pin descriptions for LPC176x
@@ -419,23 +439,23 @@
       }
     };
 
-    static fioXdir_reg_t &FIO0DIR = *(fioXdir_reg_t*)0x2009C000;
-    static fioXdir_reg_t &FIO1DIR = *(fioXdir_reg_t*)0x2009C020;
-    static fioXdir_reg_t &FIO2DIR = *(fioXdir_reg_t*)0x2009C040;
-    static fioXdir_reg_t &FIO3DIR = *(fioXdir_reg_t*)0x2009C060;
-    static fioXdir_reg_t &FIO4DIR = *(fioXdir_reg_t*)0x2009C080;
+    __LPC_DEFREG(fioXdir_reg_t, FIO0DIR, 0x2009C000);
+    __LPC_DEFREG(fioXdir_reg_t, FIO1DIR, 0x2009C020);
+    __LPC_DEFREG(fioXdir_reg_t, FIO2DIR, 0x2009C040);
+    __LPC_DEFREG(fioXdir_reg_t, FIO3DIR, 0x2009C060);
+    __LPC_DEFREG(fioXdir_reg_t, FIO4DIR, 0x2009C080);
 
-    static fioXmask_reg_t &FIO0MASK = *(fioXmask_reg_t*)0x2009C010;
-    static fioXmask_reg_t &FIO1MASK = *(fioXmask_reg_t*)0x2009C030;
-    static fioXmask_reg_t &FIO2MASK = *(fioXmask_reg_t*)0x2009C050;
-    static fioXmask_reg_t &FIO3MASK = *(fioXmask_reg_t*)0x2009C070;
-    static fioXmask_reg_t &FIO4MASK = *(fioXmask_reg_t*)0x2009C090;
+    __LPC_DEFREG(fioXmask_reg_t, FIO0MASK, 0x2009C010);
+    __LPC_DEFREG(fioXmask_reg_t, FIO1MASK, 0x2009C030);
+    __LPC_DEFREG(fioXmask_reg_t, FIO2MASK, 0x2009C050);
+    __LPC_DEFREG(fioXmask_reg_t, FIO3MASK, 0x2009C070);
+    __LPC_DEFREG(fioXmask_reg_t, FIO4MASK, 0x2009C090);
 
-    static fioXpin_reg_t &FIO0PIN = *(fioXpin_reg_t*)0x2009C014;
-    static fioXpin_reg_t &FIO1PIN = *(fioXpin_reg_t*)0x2009C034;
-    static fioXpin_reg_t &FIO2PIN = *(fioXpin_reg_t*)0x2009C054;
-    static fioXpin_reg_t &FIO3PIN = *(fioXpin_reg_t*)0x2009C074;
-    static fioXpin_reg_t &FIO4PIN = *(fioXpin_reg_t*)0x2009C094;
+    __LPC_DEFREG(fioXpin_reg_t, FIO0PIN, 0x2009C014);
+    __LPC_DEFREG(fioXpin_reg_t, FIO1PIN, 0x2009C034);
+    __LPC_DEFREG(fioXpin_reg_t, FIO2PIN, 0x2009C054);
+    __LPC_DEFREG(fioXpin_reg_t, FIO3PIN, 0x2009C074);
+    __LPC_DEFREG(fioXpin_reg_t, FIO4PIN, 0x2009C094);
 
     #endif
 
@@ -677,7 +697,7 @@
     };
     static_assert(sizeof(scs_reg_t) == 4, "invalid size of LPC scs_reg_t");
 
-    static scs_reg_t &SCS = *(scs_reg_t*)0x400FC1A0;
+    __LPC_DEFREG(scs_reg_t, SCS, 0x400FC1A0);
 
     #define LPC_CLKSRC_IRC 0      // 4MHz
     #define LPC_CLKSRC_MAINOSC 1  // depending on OSCRANGE
@@ -689,7 +709,7 @@
     };
     static_assert(sizeof(clksrcsel_reg_t) == 4, "invalid size of LPC clksrcsel_reg_t");
 
-    static clksrcsel_reg_t &CLKSRCSEL = *(clksrcsel_reg_t*)0x400FC10C;
+    __LPC_DEFREG(clksrcsel_reg_t, CLKSRCSEL, 0x400FC10C);
 
     struct pll0stat_reg_t {
       uint32_t MSEL0 : 15;      // M - 1
@@ -702,7 +722,7 @@
     };
     static_assert(sizeof(pll0stat_reg_t) == 4, "invalid size of LPC pll0stat_reg_t");
 
-    static pll0stat_reg_t &PLL0STAT = *(pll0stat_reg_t*)0x400FC088;
+    __LPC_DEFREG(pll0stat_reg_t, PLL0STAT, 0x400FC088);
 
     struct cclkcfg_reg_t {
       uint32_t CCLKSEL : 8;
@@ -710,7 +730,7 @@
     };
     static_assert(sizeof(cclkcfg_reg_t) == 4, "invalid size of LPC cclkcfg_reg_t");
 
-    static cclkcfg_reg_t &CCLKCFG = *(cclkcfg_reg_t*)0x400FC104;
+    __LPC_DEFREG(cclkcfg_reg_t, CCLKCFG, 0x400FC104);
 
     #define LPC_PCLKSEL_QUARTER 0
     #define LPC_PCLKSEL_ONE 1
@@ -737,7 +757,7 @@
     };
     static_assert(sizeof(pclksel0_reg_t) == 4, "invalid size of LPC pclksel0_reg_t");
 
-    static pclksel0_reg_t &PCLKSEL0 = *(pclksel0_reg_t*)0x400FC1A8;
+    __LPC_DEFREG(pclksel0_reg_t, PCLKSEL0, 0x400FC1A8);
 
     struct pclksel1_reg_t {
       uint32_t PCLK_QEI : 2;
@@ -759,7 +779,7 @@
     };
     static_assert(sizeof(pclksel1_reg_t) == 4, "invalid size of LPC pclksel1_reg_t");
 
-    static pclksel1_reg_t &PCLKSEL1 = *(pclksel1_reg_t*)0x400FC1AC;
+    __LPC_DEFREG(pclksel1_reg_t, PCLKSEL1, 0x400FC1AC);
 
     // Enables or disables peripherals (power control for peripherals).
     struct pconp_reg_t {
@@ -798,7 +818,7 @@
     };
     static_assert(sizeof(pconp_reg_t) == 4, "invalid size of LPC pconp_reg_t");
 
-    static pconp_reg_t &PCONP = *(pconp_reg_t*)0x400FC0C4;
+    __LPC_DEFREG(pconp_reg_t, PCONP, 0x400FC0C4);
 
     static uint32_t GetCPUClockFrequency() {
       if (!PLL0STAT.PLLE0_STAT || !PLL0STAT.PLLC0_STAT) {
@@ -1003,8 +1023,8 @@
     };
     static_assert(sizeof(ssp_dev_t) == 40, "invalid size of LPC ssp_dev_t");
 
-    static volatile ssp_dev_t &SSP0 = *(volatile ssp_dev_t*)0x40088000;
-    static volatile ssp_dev_t &SSP1 = *(volatile ssp_dev_t*)0x40030000;
+    __LPC_DEFREG(ssp_dev_t, SSP0, 0x40088000);
+    __LPC_DEFREG(ssp_dev_t, SSP1, 0x40030000);
 
     inline volatile ssp_dev_t &SPIGetBusFromIndex(uint8_t idx) {
       if (idx == 0) return SSP0;
@@ -1026,7 +1046,7 @@
       };
       static_assert(sizeof(DMACIntStat_reg_t) == 4, "invalid size of LPC DMACIntStat_reg_t");
 
-      static DMACIntStat_reg_t &DMACIntStat = *(DMACIntStat_reg_t*)0x50004000;
+      __LPC_DEFREG(DMACIntStat_reg_t, DMACIntStat, 0x50004000);
 
       struct DMACIntTCStat_reg_t {
         uint32_t IntTCStat : 8;
@@ -1034,15 +1054,15 @@
       };
       static_assert(sizeof(DMACIntTCStat_reg_t) == 4, "invalid size of LPC DMACIntTCStat_reg_t");
 
-      static DMACIntTCStat_reg_t &DMACIntTCStat = *(DMACIntTCStat_reg_t*)0x50004004;
+      __LPC_DEFREG(DMACIntTCStat_reg_t, DMACIntTCStat, 0x50004004);
 
       struct DMACIntTCClear_reg_t {
         uint32_t IntTCClear : 8;
         uint32_t reserved1 : 24;
       };
-      static_assert(sizeof(DMACIntTCClear_reg_t) == 4, "invalid size of LPC DMAIntTCClear_reg_t");
+      static_assert(sizeof(DMACIntTCClear_reg_t) == 4, "invalid size of LPC DMACIntTCClear_reg_t");
 
-      static DMACIntTCClear_reg_t &DMACIntTCClear = *(DMACIntTCClear_reg_t*)0x50004008;
+      __LPC_DEFREG(DMACIntTCClear_reg_t, DMACIntTCClear, 0x50004008);
 
       struct DMACIntErrStat_reg_t {
         uint32_t IntErrStat : 8;
@@ -1050,7 +1070,7 @@
       };
       static_assert(sizeof(DMACIntErrStat_reg_t) == 4, "invalid size of LPC DMACIntErrStat_reg_t");
 
-      static DMACIntErrStat_reg_t &DMACIntErrStat = *(DMACIntErrStat_reg_t*)0x5000400C;
+      __LPC_DEFREG(DMACIntErrStat_reg_t, DMACIntErrStat, 0x5000400C);
 
       struct DMACIntErrClr_reg_t {
         uint32_t IntErrClr : 8;
@@ -1058,7 +1078,7 @@
       };
       static_assert(sizeof(DMACIntErrClr_reg_t) == 4, "invalid size of LPC DMACIntErrClr_reg_t");
 
-      static DMACIntErrClr_reg_t &DMACIntErrClr = *(DMACIntErrClr_reg_t*)0x50004010;
+      __LPC_DEFREG(DMACIntErrClr_reg_t, DMACIntErrClr, 0x50004010);
 
       struct DMACRawIntTCStat_reg_t {
         uint32_t RawIntTCStat : 8;
@@ -1066,7 +1086,7 @@
       };
       static_assert(sizeof(DMACRawIntTCStat_reg_t) == 4, "invalid size of LPC DMACRawIntTCStat_reg_t");
 
-      static DMACRawIntTCStat_reg_t &DMACRawIntTCStat = *(DMACRawIntTCStat_reg_t*)0x50004014;
+      __LPC_DEFREG(DMACRawIntTCStat_reg_t, DMACRawIntTCStat, 0x50004014);
 
       struct DMACRawIntErrStat_reg_t {
         uint32_t RawIntErrStat : 8;
@@ -1074,7 +1094,7 @@
       };
       static_assert(sizeof(DMACRawIntErrStat_reg_t) == 4, "invalid size of LPC DMACRawIntErrStat_reg_t");
 
-      static DMACRawIntErrStat_reg_t &DMACRawIntErrStat = *(DMACRawIntErrStat_reg_t*)0x50004018;
+      __LPC_DEFREG(DMACRawIntErrStat_reg_t, DMACRawIntErrStat, 0x50004018);
 
       struct DMACEnbldChns_reg_t {
         uint32_t EnabledChannels : 8;
@@ -1082,7 +1102,7 @@
       };
       static_assert(sizeof(DMACEnbldChns_reg_t) == 4, "invalid size of LPC DMACEnbldChns_reg_t");
 
-      static DMACEnbldChns_reg_t &DMACEnbldChns = *(DMACEnbldChns_reg_t*)0x5000401C;
+      __LPC_DEFREG(DMACEnbldChns_reg_t, DMACEnbldChns, 0x5000401C);
 
       struct DMACSoftBReq_reg_t {
         uint32_t SoftBReq : 16;
@@ -1090,7 +1110,7 @@
       };
       static_assert(sizeof(DMACSoftBReq_reg_t) == 4, "invalid size of LPC DMACSoftBReq_reg_t");
 
-      static DMACSoftBReq_reg_t &DMACSoftBReq = *(DMACSoftBReq_reg_t*)0x50004020;
+      __LPC_DEFREG(DMACSoftBReq_reg_t, DMACSoftBReq, 0x50004020);
 
       struct DMACSoftSReq_reg_t {
         uint32_t SoftSReq : 16;
@@ -1098,7 +1118,7 @@
       };
       static_assert(sizeof(DMACSoftSReq_reg_t) == 4, "invalid size of LPC DMACSoftSReq_reg_t");
 
-      static DMACSoftSReq_reg_t &DMACSoftSReq = *(DMACSoftSReq_reg_t*)0x50004024;
+      __LPC_DEFREG(DMACSoftSReq_reg_t, DMACSoftSReq, 0x50004024);
 
       struct DMACSoftLBReq_reg_t {
         uint32_t SoftLBReq : 16;
@@ -1106,7 +1126,7 @@
       };
       static_assert(sizeof(DMACSoftLBReq_reg_t) == 4, "invalid size of LPC DMACSoftLBReq_reg_t");
 
-      static DMACSoftLBReq_reg_t &DMACSoftLBReq = *(DMACSoftLBReq_reg_t*)0x50004028;
+      __LPC_DEFREG(DMACSoftLBReq_reg_t, DMACSoftLBReq, 0x50004028);
 
       struct DMACSoftLSReq_reg_t {
         uint32_t SoftLSReq : 16;
@@ -1114,7 +1134,7 @@
       };
       static_assert(sizeof(DMACSoftLSReq_reg_t) == 4, "invalid size of LPC DMACSoftLSReq_reg_t");
 
-      static DMACSoftLSReq_reg_t &DMACSoftLSReq = *(DMACSoftLSReq_reg_t*)0x5000402C;
+      __LPC_DEFREG(DMACSoftLSReq_reg_t, DMACSoftLSReq, 0x5000402C);
 
       struct DMACConfig_reg_t {
         uint32_t E : 1;
@@ -1123,7 +1143,7 @@
       };
       static_assert(sizeof(DMACConfig_reg_t) == 4, "invalid size of LPC DMACConfig_reg_t");
 
-      static DMACConfig_reg_t &DMACConfig = *(DMACConfig_reg_t*)0x50004030;
+      __LPC_DEFREG(DMACConfig_reg_t, DMACConfig, 0x50004030);
 
       struct DMACSync_reg_t {
         uint32_t DMACSync : 16;
@@ -1131,7 +1151,7 @@
       };
       static_assert(sizeof(DMACSync_reg_t) == 4, "invalid size of LPC DMACSync_reg_t");
 
-      static DMACSync_reg_t &DMACSync = *(DMACSync_reg_t*)0x50004034;
+      __LPC_DEFREG(DMACSync_reg_t, DMACSync, 0x50004034);
 
       struct DMAReqSel_reg_t {
         uint32_t DMASEL08 : 1;
@@ -1146,7 +1166,7 @@
       };
       static_assert(sizeof(DMAReqSel_reg_t) == 4, "invalid size of LPC DMAReqSel_reg_t");
 
-      static DMAReqSel_reg_t &DMAReqSel = *(DMAReqSel_reg_t*)0x400FC1C4;
+      __LPC_DEFREG(DMAReqSel_reg_t, DMAReqSel, 0x400FC1C4);
 
       struct DMACCxLLI_reg_t {
         uint32_t reserved1 : 2;
@@ -1193,16 +1213,16 @@
       };
       static_assert(sizeof(DMACChannel_dev_t) == 20, "invalid size of LPC DMACChannel_dev_t");
 
-      static DMACChannel_dev_t &DMACC0 = *(DMACChannel_dev_t*)0x50004100;
-      static DMACChannel_dev_t &DMACC1 = *(DMACChannel_dev_t*)0x50004120;
-      static DMACChannel_dev_t &DMACC2 = *(DMACChannel_dev_t*)0x50004140;
-      static DMACChannel_dev_t &DMACC3 = *(DMACChannel_dev_t*)0x50004160;
-      static DMACChannel_dev_t &DMACC4 = *(DMACChannel_dev_t*)0x50004180;
-      static DMACChannel_dev_t &DMACC5 = *(DMACChannel_dev_t*)0x500041A0;
-      static DMACChannel_dev_t &DMACC6 = *(DMACChannel_dev_t*)0x500041C0;
-      static DMACChannel_dev_t &DMACC7 = *(DMACChannel_dev_t*)0x500041E0;
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC0, 0x50004100);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC1, 0x50004120);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC2, 0x50004140);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC3, 0x50004160);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC4, 0x50004180);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC5, 0x500041A0);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC6, 0x500041C0);
+      __LPC_DEFREG(DMACChannel_dev_t, DMACC7, 0x500041E0);
 
-      static DMACChannel_dev_t& DMAGetChannel(const uint32_t idx) {
+      static volatile DMACChannel_dev_t& DMAGetChannel(const uint32_t idx) {
         switch (idx) {
           case 0: return DMACC0;
           case 1: return DMACC1;
@@ -1233,7 +1253,7 @@
         struct DMACCxLLI_desc_t {
           uint32_t SrcAddr;
           uint32_t DestAddr;
-          DMACCxLLI_desc_t *Next;
+          volatile DMACCxLLI_desc_t *Next;
           DMACCxControl_reg_t Control;
         };
         static_assert(sizeof(DMACCxLLI_desc_t) == 16, "invalid size of LPC DMACCxLLI_desc_t");
@@ -1247,31 +1267,34 @@
           #define HALSPI_LPC_STATIC_DMADESCS 3
         #endif
 
-        static DMACCxLLI_desc_user_t _available_dma_descs[HALSPI_LPC_STATIC_DMADESCS];
+        static volatile DMACCxLLI_desc_user_t _available_dma_descs[HALSPI_LPC_STATIC_DMADESCS];
 
-        static DMACCxLLI_desc_user_t* DMAFindFreeChainLLI() {
+        static volatile DMACCxLLI_desc_user_t* DMAFindFreeChainLLI() {
           for (auto &item : _available_dma_descs)
             if (item.available) return &item;
           return nullptr;
         }
 
         struct dma_process_t {
-          DMACChannel_dev_t *current_DMACC;
+          volatile DMACChannel_dev_t *current_DMACC;
           const void *current_buffer;
           size_t curoff;
           size_t txlen;
           uint8_t txunitsize;
           void (*completeCallback)(void*);
           void *complete_ud;
-          DMACCxLLI_desc_user_t *last_chain;
+          volatile DMACCxLLI_desc_user_t *last_chain;
           bool is_active = false;
         };
 
-        static dma_process_t _dma_async_proc;
+        static volatile dma_process_t _dma_async_proc;
 
-        static void DMAProgramSSPChain(volatile ssp_dev_t &SSP, dma_process_t &proc) {
-          DMACCxLLI_desc_user_t *first = nullptr;
-          DMACCxLLI_desc_user_t *last = nullptr;
+        static void DMAProgramSSPChain(volatile ssp_dev_t &SSP, volatile dma_process_t &proc) {
+          // Martin says: Don't mess with this function, or else the compiler might generate wrong code. ;)
+          // The fight of priorities! Volatile versus whatever! The climax of the century!
+          // Don't worry! You will lose sleep when fighting compiler bugs! Promised!
+          volatile DMACCxLLI_desc_user_t *first = nullptr;
+          volatile DMACCxLLI_desc_user_t *last = nullptr;
 
           uint32_t txwidth = 0;
 
@@ -1281,21 +1304,24 @@
           else _spi_on_error(4);
 
           DMACCxControl_reg_t Control;
-          Control.SBSize = 0;
-          Control.DBSize = 0;
+          Control.SBSize = 1; // 4 bytes
+          Control.DBSize = 1; // 4 bytes
           Control.SWidth = txwidth;
           Control.DWidth = txwidth;
+          Control.reserved1 = 0;
           Control.SI = true;
           Control.DI = false;
-          Control.Prot1 = 1;
+          Control.Prot1 = 0;
           Control.Prot2 = 0;
-          Control.Prot3 = 1;
+          Control.Prot3 = 0;
           Control.I = false;
 
           bool init_ch_prog = false;
 
           auto &DMACC = *proc.current_DMACC;
           DMACC.Config.ITC = true;
+
+          DMACCxControl_reg_t ChannelControl;
 
           while (proc.curoff < proc.txlen) {
             size_t left = (proc.txlen - proc.curoff);
@@ -1311,7 +1337,7 @@
               DMACC.SrcAddr = SrcAddr;
               DMACC.DestAddr = DestAddr;
               DMACC.LLI.LLI = 0;
-              DMACC.Control = Control;
+              ChannelControl = Control;
               init_ch_prog = true;
             }
             else {
@@ -1321,8 +1347,7 @@
 
               freelli->SrcAddr = SrcAddr;
               freelli->DestAddr = DestAddr;
-              freelli->Next = nullptr;
-              freelli->Control = Control;
+              LPCHelpers::dwrite(freelli->Control, Control);
               freelli->available = false;
 
               if (first == nullptr) {
@@ -1337,8 +1362,13 @@
             proc.curoff += takecnt;
           }
 
-          if (last) last->Control.I = true;
-          else DMACC.Control.I = true;
+          if (last) {
+            last->Control.I = true;
+            last->Next = nullptr;
+          }
+          else ChannelControl.I = true;
+
+          LPCHelpers::dwrite(DMACC.Control) = ChannelControl;
 
           proc.last_chain = first;
         }
@@ -1412,9 +1442,11 @@
 
   static void _spiAsyncBarrier() {
     #ifdef HAL_SPI_SUPPORTS_ASYNC
-      while (_ssp_async_proc.is_active) { /* wait for any async SPI TX to finish */ }
+      spi_monitored_loop asyncspiw;
+      while (_ssp_async_proc.is_active) { asyncspiw.update(10); /* wait for any async SPI TX to finish */ }
       #ifndef HALSPI_DISABLE_DMA
-        while (MarlinLPC::_dma_async_proc.is_active) { /* wait for any async DMA TX to finish */ }
+        spi_monitored_loop asyncdmaw;
+        while (MarlinLPC::_dma_async_proc.is_active) { asyncdmaw.update(11); /* wait for any async DMA TX to finish */ }
       #endif
     #endif
   }
@@ -1457,7 +1489,8 @@
 
   void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     #ifdef HAL_SPI_SUPPORTS_ASYNC
-      while (_ssp_is_active) { /* wait for any other SPI activity to finish */ }
+      spi_monitored_loop initw;
+      while (_ssp_is_active) { initw.update(13); /* wait for any other SPI activity to finish */ }
     #else
       if (_ssp_is_active) _spi_on_error(1);
     #endif
@@ -1611,12 +1644,12 @@
     bool revbits = (_ssp_bitOrder == SPI_BITORDER_LSB);
     if (_ssp_framesize == 1) {
       // Push it byte-by-byte (DSS = 7).
-      uint32_t num_bytes = sizeof(numberType);
+      const uint32_t num_bytes = sizeof(numberType);
 
       bool revbytes = (_ssp_bitOrder == SPI_BITORDER_MSB);
 
       for (uint32_t n = 0; n < num_bytes; n++) {
-        uint32_t byte_idx = revbytes ? (num_bytes - 1) - n : 0;
+        uint32_t byte_idx = revbytes ? (num_bytes - 1) - n : n;
         uint32_t bitidx = byte_idx * 8;
 
         spi_monitored_loop tnfw;
@@ -1693,16 +1726,16 @@
   template <typename numberType>
   inline numberType _spi_fetch_from_queue(volatile MarlinLPC::ssp_dev_t &SSP) {
     numberType result = 0;
-    bool revbits = (_ssp_bitOrder == SPI_BITORDER_MSB);
+    bool revbits = (_ssp_bitOrder == SPI_BITORDER_LSB);
 
     if (_ssp_framesize == 1) {
       // Fetch it byte-by-byte (DSS = 7).
-      uint32_t num_bytes = sizeof(numberType);
+      const uint32_t num_bytes = sizeof(numberType);
 
-      bool revbytes = (_ssp_bitOrder == SPI_BITORDER_LSB);
+      bool revbytes = (_ssp_bitOrder == SPI_BITORDER_MSB);
 
       for (uint32_t n = 0; n < num_bytes; n++) {
-        uint32_t byte_idx = revbytes ? (num_bytes - 1) - n : 0;
+        uint32_t byte_idx = revbytes ? (num_bytes - 1) - n : n;
         uint32_t bitidx = byte_idx * 8;
 
         spi_monitored_loop rnew;
@@ -1821,11 +1854,11 @@
       MarlinLPC::PCONP.PCGPDMA = false;
     }
 
-    static void _dmacInitSSP(MarlinLPC::DMACChannel_dev_t &DMACC, uint8_t sspBusIdx) {
+    static void _dmacInitSSP(volatile MarlinLPC::DMACChannel_dev_t &DMACC, uint8_t sspBusIdx) {
       if (sspBusIdx == 0)
-        DMACC.Config.DestPeripheral = 0;
+        DMACC.Config.DestPeripheral = 0;  // SSP0 TX
       else if (sspBusIdx == 1)
-        DMACC.Config.DestPeripheral = 2;
+        DMACC.Config.DestPeripheral = 2;  // SSP1 TX
       DMACC.Config.TransferType = 1; // memory to peripheral
       DMACC.Config.IE = false;
       DMACC.Config.ITC = false;
@@ -1849,7 +1882,11 @@
       DMACC.LLI.LLI = 0;
       _dmacInitSSP(DMACC, _ssp_gpioMap.sspBusIdx);
 
-      size_t curoff = 0;
+      // Enable DMA on the SSP.
+      SSP.DMACR.TXDMAE = true;
+      SSP.DMACR.RXDMAE = false;
+
+      uint32_t curoff = 0;
 
       while (curoff < cnt) {
         uint32_t left = (cnt - curoff);
@@ -1857,27 +1894,31 @@
 
         MarlinLPC::DMACCxControl_reg_t Control;
         Control.TransferSize = takecnt;
-        Control.SBSize = 0;
-        Control.DBSize = 0;
+        Control.SBSize = 1; // 4 bytes
+        Control.DBSize = 1; // 4 bytes
         Control.SWidth = txwidth;
         Control.DWidth = txwidth;
         Control.reserved1 = 0;
         Control.SI = true;
         Control.DI = false;
-        Control.Prot1 = 1;
+        Control.Prot1 = 0;
         Control.Prot2 = 0;
         Control.Prot3 = 0;
         Control.I = false;
 
         DMACC.SrcAddr = (uint32_t)( buf + curoff );
-        DMACC.Control = Control;
+        LPCHelpers::dwrite(DMACC.Control) = Control;
 
         curoff += takecnt;
 
         // Kick off the DMA.
         DMACC.Config.E = true;
-        while (DMACC.Config.E) { /* wait for the DMA TX to finish */ }
+        spi_monitored_loop syncdmaw;
+        while (DMACC.Config.E) { syncdmaw.update(11); /* wait for the DMA TX to finish */ }
       }
+
+      // Disable DMA on the SSP.
+      SSP.DMACR.TXDMAE = false;
 
       _ssp_dirty_rxbuffer = true;
     }
@@ -1899,6 +1940,10 @@
       DMACC.LLI.LLI = 0;
       _dmacInitSSP(DMACC, _ssp_gpioMap.sspBusIdx);
 
+      // Enable DMA on the SSP.
+      SSP.DMACR.TXDMAE = true;
+      SSP.DMACR.RXDMAE = false;
+
       size_t curoff = 0;
 
       while (curoff < repcnt) {
@@ -1907,26 +1952,30 @@
 
         MarlinLPC::DMACCxControl_reg_t Control;
         Control.TransferSize = takecnt;
-        Control.SBSize = 0;
-        Control.DBSize = 0;
+        Control.SBSize = 1; // 4 bytes
+        Control.DBSize = 1; // 4 bytes
         Control.SWidth = txwidth;
         Control.DWidth = txwidth;
         Control.reserved1 = 0;
         Control.SI = false;
         Control.DI = false;
-        Control.Prot1 = 1;
+        Control.Prot1 = 0;
         Control.Prot2 = 0;
         Control.Prot3 = 0;
         Control.I = false;
 
-        DMACC.Control = Control;
+        LPCHelpers::dwrite(DMACC.Control) = Control;
 
         curoff += takecnt;
 
         // Kick off the DMA.
         DMACC.Config.E = true;
-        while (DMACC.Config.E) { /* wait for the DMA TX to finish */ }
+        spi_monitored_loop syncdmaw;
+        while (DMACC.Config.E) { syncdmaw.update(12); /* wait for the DMA TX to finish */ }
       }
+
+      // Disable DMA on the SSP.
+      SSP.DMACR.TXDMAE = false;
 
       _ssp_dirty_rxbuffer = true;
     }
@@ -2047,21 +2096,26 @@
 
       static void _dmaUninstallInterrupt();
 
-      static void _dmacAdvance(MarlinLPC::dma_process_t &proc) {
+      static void _dmacAdvance(volatile MarlinLPC::dma_process_t &proc) {
         // If there is any last chain that was used then clear it.
         if (auto *last_chain = proc.last_chain) {
-          MarlinLPC::DMACCxLLI_desc_user_t *iter = last_chain;
+          volatile MarlinLPC::DMACCxLLI_desc_user_t *iter = last_chain;
 
           while (iter) {
             iter->available = true;
-            iter = (MarlinLPC::DMACCxLLI_desc_user_t*)iter->Next;
+            iter = (volatile MarlinLPC::DMACCxLLI_desc_user_t*)iter->Next;
           }
           proc.last_chain = nullptr;
         }
 
         auto &DMACC = *proc.current_DMACC;
 
+        auto &SSP = MarlinLPC::SPIGetBusFromIndex(_ssp_gpioMap.sspBusIdx);
+
         if (proc.curoff == proc.txlen) {
+          // Disable the SSP DMA TX.
+          SSP.DMACR.TXDMAE = false;
+
           // Disable the terminal count interrupt.
           DMACC.Control.I = false;
           DMACC.Config.ITC = false;
@@ -2082,13 +2136,13 @@
           proc.complete_ud = nullptr;
           proc.is_active = false;
 
+          _ssp_dirty_rxbuffer = true;
+
           if (completeCallback) {
             completeCallback(complete_ud);
           }
           return;
         }
-
-        auto &SSP = MarlinLPC::SPIGetBusFromIndex(_ssp_gpioMap.sspBusIdx);
 
         MarlinLPC::DMAProgramSSPChain(SSP, proc);
 
@@ -2096,7 +2150,7 @@
         DMACC.Config.E = true;
       }
 
-      static void _dma_interrupt() {
+      static void __attribute__((interrupt)) _dma_interrupt() {
         for (uint8_t n = 0; n < 8; n++) {
           uint32_t chmask = (1<<n);
 
@@ -2112,7 +2166,8 @@
               auto &proc = MarlinLPC::_dma_async_proc;
 
               // Wait till the DMA channel has disabled itself.
-              while (DMACC.Config.E) { /* wait */ }
+              spi_monitored_loop enw;
+              while (DMACC.Config.E) { enw.update(8); /* wait */ }
 
               if (proc.is_active && proc.current_DMACC == &DMACC) {
                 // Try to advance the TX process.
@@ -2126,8 +2181,9 @@
       static void _dmaInstallInterrupt() {
         nvicSetIRQHandler((IRQn_Type)26, _dma_interrupt);
         nvicInstallRedirect();
+        NVIC_ClearPendingIRQ((IRQn_Type)26);
         NVIC_EnableIRQ((IRQn_Type)26);
-        NVIC_SetPriority((IRQn_Type)26, 5);
+        NVIC_SetPriority((IRQn_Type)26, 0);
       }
 
       static void _dmaUninstallInterrupt() {
@@ -2149,12 +2205,18 @@
         proc.txunitsize = sizeof(numberType);
         proc.completeCallback = completeCallback;
         proc.complete_ud = ud;
+        proc.last_chain = nullptr;
         proc.is_active = true;
 
+        auto &SSP = MarlinLPC::SPIGetBusFromIndex(_ssp_gpioMap.sspBusIdx);
+
         _dmaStart();
-        MarlinLPC::DMACIntTCClear.IntTCClear |= (1<<0);
+        MarlinLPC::DMACIntTCClear.IntTCClear |= (1<<0); // clear pending interrupts.
         _dmaInstallInterrupt();
         _dmacInitSSP(DMACC, _ssp_gpioMap.sspBusIdx);
+        // Enable the TX DMA on the SSP side.
+        SSP.DMACR.TXDMAE = true;
+        SSP.DMACR.RXDMAE = false;
         _dmacAdvance(proc);
       }
 
@@ -2286,10 +2348,10 @@
       }
     }
 
-    static void _spi_interrupt_sspbus0() {
+    static void __attribute__((interrupt)) _spi_interrupt_sspbus0() {
       _spi_interrupt <0> ();
     }
-    static void _spi_interrupt_sspbus1() {
+    static void __attribute__((interrupt)) _spi_interrupt_sspbus1() {
       _spi_interrupt <1> ();
     }
 
@@ -2423,7 +2485,8 @@
             auto &DMACC = *proc.current_DMACC;
 
             DMACC.Config.H = true;
-            while (DMACC.Config.A) { /* wait until the DMA channel has no more data to process */ }
+            spi_monitored_loop abw;
+            while (DMACC.Config.A) { abw.update(9); /* wait until the DMA channel has no more data to process */ }
             DMACC.Config.E = false;
 
             DMACC.Config.ITC = false;
