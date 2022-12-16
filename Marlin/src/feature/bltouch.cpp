@@ -196,15 +196,13 @@ void BLTouch::mode_conv_proc(const bool M5V) {
    * Validate that the BLTouch deploys/stows and reports its state correctly.
    */
   bool BLTouch::validate() {
-    bool start_status, deploy_status, stow_status;
     _stow();
-    start_status = status();
+    const bool start_status = status();
     _deploy();
-    deploy_status = status();
+    const bool deploy_status = status();
     _stow();
-    stow_status = status();
-
-    return ((start_status == stow_status) && (deploy_status != stow_status));
+    const bool stow_status = status();
+    return start_status == stow_status && deploy_status != stow_status;
   }
 #endif
 

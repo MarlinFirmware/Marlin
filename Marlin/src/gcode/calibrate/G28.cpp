@@ -370,7 +370,7 @@ void GcodeSuite::G28() {
 
     home_TPARA();
 
-  #else
+  #else // !DELTA && !AXEL_TPARA
 
     #define _UNSAFE(A) (homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
 
@@ -467,36 +467,35 @@ void GcodeSuite::G28() {
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
     #if ENABLED(FOAMCUTTER_XYUV)
-      // skip homing of unused Z axis for foamcutters
-      if (doZ) set_axis_is_at_home(Z_AXIS);
+
+      if (doZ) set_axis_is_at_home(Z_AXIS); // Skip unused Z axis homing for foamcutters
+
     #else
+
       // Home Z last if homing towards the bed
       #if HAS_Z_AXIS && DISABLED(HOME_Z_FIRST)
+
         if (doZ) {
           #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
             stepper.set_all_z_lock(false);
             stepper.set_separate_multi_axis(false);
           #endif
 
-          #if ENABLED(BLTOUCH_VALIDATE_ON_HOMING)
-            if(!bltouch.validate()) {
-              LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
-              SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
-            } else {
-          #endif
-
+          if (TERN1(BLTOUCH_VALIDATE_ON_HOMING, bltouch.validate())) {
             #if ENABLED(Z_SAFE_HOMING)
               if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
             #else
               homeaxis(Z_AXIS);
             #endif
             probe.move_z_after_homing();
-
-          #if ENABLED(BLTOUCH_VALIDATE_ON_HOMING)
-            }
-          #endif
+          }
+          else {
+            LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
+            SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
+          }
         }
-      #endif
+
+      #endif // HAS_Z_AXIS && !HOME_Z_FIRST
 
       SECONDARY_AXIS_CODE(
         if (doI) homeaxis(I_AXIS),
@@ -506,11 +505,12 @@ void GcodeSuite::G28() {
         if (doV) homeaxis(V_AXIS),
         if (doW) homeaxis(W_AXIS)
       );
-    #endif
+
+    #endif // !FOAMCUTTER_XYUV
 
     sync_plan_position();
 
-  #endif
+  #endif // !DELTA && !AXEL_TPARA
 
   /**
    * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.
