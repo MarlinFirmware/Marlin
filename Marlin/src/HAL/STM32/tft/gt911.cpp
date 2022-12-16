@@ -150,9 +150,9 @@ void GT911::read_reg(uint16_t reg, uint8_t reg_len, uint8_t* r_data, uint8_t r_l
   sw_iic.start();
   sw_iic.send_byte(gt911_slave_address + 1);  // Set read mode
 
-  LOOP_L_N(i, r_len) {
+  LOOP_L_N(i, r_len)
     r_data[i] = sw_iic.read_byte(1);  // Read data from reg
-  }
+
   sw_iic.stop();
 }
 

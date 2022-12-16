@@ -1777,7 +1777,29 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
     #endif
-  #endif
+
+    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+      #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
+    #endif
+
+    #if HAS_INVERTED_PROBE
+      #if !Z_MIN_PROBE_ENDSTOP_INVERTING
+        #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to true."
+      #endif
+    #elif Z_MIN_PROBE_ENDSTOP_INVERTING
+      #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false."
+    #endif
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #if HAS_INVERTED_PROBE
+        #if !Z_MIN_ENDSTOP_INVERTING
+          #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to true."
+        #endif
+      #elif Z_MIN_ENDSTOP_INVERTING
+        #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false."
+      #endif
+    #endif
+
+  #endif // BLTOUCH
 
   #if ENABLED(RACK_AND_PINION_PROBE) && !(defined(Z_PROBE_DEPLOY_X) && defined(Z_PROBE_RETRACT_X))
     #error "RACK_AND_PINION_PROBE requires Z_PROBE_DEPLOY_X and Z_PROBE_RETRACT_X."
@@ -1795,14 +1817,28 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TOUCH_MI_PROBE requires Z_AFTER_PROBING to be disabled."
     #elif Z_HOMING_HEIGHT < 10
       #error "TOUCH_MI_PROBE requires Z_HOMING_HEIGHT >= 10."
-    #elif Z_MIN_PROBE_ENDSTOP_INVERTING
-      #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING to be set to false."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
       #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
     #elif !HAS_RESUME_CONTINUE
       #error "TOUCH_MI_PROBE currently requires an LCD controller or EMERGENCY_PARSER."
     #endif
-  #endif
+    #if HAS_INVERTED_PROBE
+      #if !Z_MIN_PROBE_ENDSTOP_INVERTING
+        #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING set to true."
+      #endif
+    #elif Z_MIN_PROBE_ENDSTOP_INVERTING
+      #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false."
+    #endif
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #if HAS_INVERTED_PROBE
+        #if !Z_MIN_ENDSTOP_INVERTING
+          #error "TOUCH_MI_PROBE requires Z_MIN_ENDSTOP_INVERTING set to true."
+        #endif
+      #elif Z_MIN_ENDSTOP_INVERTING
+        #error "TOUCH_MI_PROBE requires Z_MIN_ENDSTOP_INVERTING set to false."
+      #endif
+    #endif
+  #endif // TOUCH_MI_PROBE
 
   /**
    * Mag mounted probe requirements

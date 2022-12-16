@@ -326,9 +326,6 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 };
 
-constexpr float     _DASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
-constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
-
 //static_assert(!any_enable_overlap(), "There is some overlap.");
 
 #if HAS_SHAPING
@@ -336,12 +333,14 @@ constexpr feedRate_t _DMF[] = DEFAULT_MAX_FEEDRATE;
   #ifdef SHAPING_MAX_STEPRATE
     constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
   #else
-    constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _DMF[X_AXIS] * _DASU[X_AXIS]) +
-                                      TERN0(INPUT_SHAPING_Y, _DMF[Y_AXIS] * _DASU[Y_AXIS]);
+    constexpr float     _ISDASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+    constexpr feedRate_t _ISDMF[] = DEFAULT_MAX_FEEDRATE;
+    constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _ISDMF[X_AXIS] * _ISDASU[X_AXIS]) +
+                                      TERN0(INPUT_SHAPING_Y, _ISDMF[Y_AXIS] * _ISDASU[Y_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
       template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
-        return _MAX(_DMF[INDEX - 1] * _DASU[INDEX - 1], max_isr_rate<INDEX - 1>());
+        return _MAX(_ISDMF[INDEX - 1] * _ISDASU[INDEX - 1], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
         return TERN0(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY);
