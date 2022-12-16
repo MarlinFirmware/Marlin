@@ -161,10 +161,7 @@ struct duration_t {
     if (with_days) {
       const uint16_t d = this->day();
       sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);  // 1d 23:45
-      if (d > 999) return 11;
-      else if (d > 99) return 10;
-      else if (d > 9) return 9;
-      else return 8;
+      return strlen_P(buffer);
     }
     else if (!h) {
       const uint16_t s = uint16_t(this->second() % 60UL);
