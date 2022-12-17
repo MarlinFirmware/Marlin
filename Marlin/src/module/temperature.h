@@ -169,8 +169,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   struct PID_t{
   protected:
     bool pid_reset = true;
-    float temp_iState = 0.0f;
-    float temp_dState = 0.0f;
+    float temp_iState = 0.0f, temp_dState = 0.0f;
     float work_p = 0, work_i = 0, work_d = 0;
 
   public:
@@ -192,25 +191,14 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     void set_Kf(float) {}
     int low() const { return MIN_POW; }
     int high() const { return MAX_POW; }
-    void reset() {
-      pid_reset = true;
-    }
+    void reset() { pid_reset = true; }
     void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); set_Kc(c); set_Kf(f); }
     void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
     void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
 
-    float get_fan_scale_output(const uint8_t fan_speed) {
-      UNUSED(fan_speed);
-      return 0;
-    }
+    float get_fan_scale_output(const uint8_t) { return 0; }
 
-    float get_extrusion_scale_output(const bool is_active, const long e_position, const float e_mm_per_step, const int16_t lpq_len) {
-      UNUSED(is_active);
-      UNUSED(e_position);
-      UNUSED(e_mm_per_step);
-      UNUSED(lpq_len);
-      return 0;
-    }
+    float get_extrusion_scale_output(const bool, const int32_t, const float, const int16_t) { return 0; }
 
     float get_pid_output(const float target, const float current) {
       const float pid_error = target - current;
@@ -274,29 +262,24 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       base::reset();
       prev_e_pos = 0;
       lpq_ptr = 0;
-      LOOP_L_N(i, LPQ_ARR_SZ) {
-        lpq[i] = 0;
-      }
+      LOOP_L_N(i, LPQ_ARR_SZ) lpq[i] = 0;
     }
 
-    float get_extrusion_scale_output(const bool is_active, const long e_position, const float e_mm_per_step, const int16_t lpq_len) {
+    float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
       work_c = 0;
-      if (!is_active) {
-        return work_c; // 0
-      }
+      if (!is_active) return work_c;
 
       if (e_position > prev_e_pos) {
         lpq[lpq_ptr] = e_position - prev_e_pos;
         prev_e_pos = e_position;
       }
-      else {
+      else
         lpq[lpq_ptr] = 0;
-      }
 
       ++lpq_ptr;
-      if (lpq_ptr >= LPQ_ARR_SZ || lpq_ptr >= lpq_len) {
+
+      if (lpq_ptr >= LPQ_ARR_SZ || lpq_ptr >= lpq_len)
         lpq_ptr = 0;
-      }
 
       work_c = (lpq[lpq_ptr] * e_mm_per_step) * Kc;
 
@@ -331,9 +314,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
     float get_fan_scale_output(const uint8_t fan_speed) {
       work_f = 0;
-      if (fan_speed > SCALE_MIN_SPEED) {
+      if (fan_speed > SCALE_MIN_SPEED)
         work_f = Kf + (SCALE_LIN_FACTOR) * fan_speed;
-      }
+
       return work_f;
     }
   };
@@ -363,18 +346,13 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
     void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
 
-    void reset() {
-      cPID::reset();
-    }
+    void reset() { cPID::reset(); }
 
     float get_fan_scale_output(const uint8_t fan_speed) {
-      work_f = 0;
-      if (fan_speed > SCALE_MIN_SPEED) {
-        work_f = Kf + (SCALE_LIN_FACTOR) * fan_speed;
-      }
+      work_f = fan_speed > (SCALE_MIN_SPEED) ? Kf + (SCALE_LIN_FACTOR) * fan_speed : 0;
       return work_f;
     }
-    float get_extrusion_scale_output(const bool is_active, const long e_position, const float e_mm_per_step, const int16_t lpq_len) {
+    float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
       return cPID::get_extrusion_scale_output(is_active, e_position, e_mm_per_step, lpq_len);
     }
   };
@@ -1174,9 +1152,7 @@ class Temperature {
 
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
-        static void updatePID() {
-          HOTEND_LOOP() temp_hotend[e].pid.reset();
-        }
+        static void updatePID() { HOTEND_LOOP() temp_hotend[e].pid.reset(); }
         static void setPID(const uint8_t hotend, const_float_t p, const_float_t i, const_float_t d) {
           #if ENABLED(PID_PARAMS_PER_HOTEND)
             temp_hotend[hotend].pid.set(p, i, d);

@@ -1341,21 +1341,27 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     PIDRunner(TT &t) : tempinfo(t) { }
 
-    float get_pid_output(int extr=0) {
+    float get_pid_output(const uint8_t extr=0) {
       #if ENABLED(PID_OPENLOOP)
 
         return constrain(tempinfo.target, 0, MAX_POW);
 
       #else // !PID_OPENLOOP
+
         float out = tempinfo.pid.get_pid_output(tempinfo.target, tempinfo.celsius);
+
         #if ENABLED(PID_FAN_SCALING)
           out += tempinfo.pid.get_fan_scale_output(thermalManager.fan_speed[extr]);
         #endif
+
         #if ENABLED(PID_EXTRUSION_SCALING)
           out += tempinfo.pid.get_extrusion_scale_output(
-            extr == active_extruder, stepper.position(E_AXIS), planner.mm_per_step[E_AXIS], thermalManager.lpq_len);
+            extr == active_extruder, stepper.position(E_AXIS), planner.mm_per_step[E_AXIS], thermalManager.lpq_len
+          );
         #endif
+
         return constrain(out, tempinfo.pid.low(), tempinfo.pid.high());
+
       #endif // !PID_OPENLOOP
     }
 
@@ -1394,7 +1400,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         REPEAT(HOTENDS, _HOTENDPID)
       };
 
-      const float pid_output = is_idling ? 0 : hotend_pid[ee].get_pid_output(HOTEND_INDEX);
+      const float pid_output = is_idling ? 0 : hotend_pid[ee].get_pid_output(ee);
 
       #if ENABLED(PID_DEBUG)
         if (ee == active_extruder)
