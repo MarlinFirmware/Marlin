@@ -868,11 +868,8 @@ void MarlinSettings::postprocess() {
     #if ENABLED(AUTOTEMP)
       _FIELD_TEST(planner_autotemp_max);
       EEPROM_WRITE(planner.autotemp_max);
-      _FIELD_TEST(planner_autotemp_min);
       EEPROM_WRITE(planner.autotemp_min);
-      _FIELD_TEST(planner_autotemp_factor);
       EEPROM_WRITE(planner.autotemp_factor);
-      _FIELD_TEST(planner_autotemp_enabled);
       EEPROM_WRITE(planner.autotemp_enabled);
     #endif
 
@@ -3034,10 +3031,10 @@ void MarlinSettings::reset() {
   // AUTOTEMP
   //
   #if ENABLED(AUTOTEMP)
-    planner.autotemp_max = (AUTOTEMP_MAX);
-    planner.autotemp_min = (AUTOTEMP_MIN);
-    planner.autotemp_factor = (AUTOTEMP_FACTOR);
-    planner.autotemp_enabled = (AUTOTEMP_ENABLED);
+    planner.autotemp_max = AUTOTEMP_MAX;
+    planner.autotemp_min = AUTOTEMP_MIN;
+    planner.autotemp_factor = AUTOTEMP_FACTOR;
+    planner.autotemp_enabled = AUTOTEMP_ENABLED;
   #endif
 
   //
