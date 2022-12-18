@@ -156,6 +156,14 @@ typedef struct {
 
 } block_flags_t;
 
+#if ENABLED(AUTOTEMP)
+  typedef struct {
+    celsius_t min, max;
+    float factor;
+    bool enabled;
+  } autotemp_t;
+#endif
+
 #if ENABLED(LASER_FEATURE)
 
   typedef struct {
@@ -972,9 +980,7 @@ class Planner {
     #endif
 
     #if ENABLED(AUTOTEMP)
-      static celsius_t autotemp_min, autotemp_max;
-      static float autotemp_factor;
-      static bool autotemp_enabled;
+      static autotemp_t autotemp;
       static void autotemp_update();
       static void autotemp_M104_M109();
       static void autotemp_task();

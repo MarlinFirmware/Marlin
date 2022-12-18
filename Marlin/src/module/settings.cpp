@@ -866,9 +866,9 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(AUTOTEMP)
       _FIELD_TEST(planner_autotemp_max);
-      EEPROM_WRITE(planner.autotemp_max);
-      EEPROM_WRITE(planner.autotemp_min);
-      EEPROM_WRITE(planner.autotemp_factor);
+      EEPROM_WRITE(planner.autotemp.max);
+      EEPROM_WRITE(planner.autotemp.min);
+      EEPROM_WRITE(planner.autotemp.factor);
     #endif
 
     //
@@ -1823,9 +1823,9 @@ void MarlinSettings::postprocess() {
       // AUTOTEMP
       //
       #if ENABLED(AUTOTEMP)
-        EEPROM_READ(planner.autotemp_max);
-        EEPROM_READ(planner.autotemp_min);
-        EEPROM_READ(planner.autotemp_factor);
+        EEPROM_READ(planner.autotemp.max);
+        EEPROM_READ(planner.autotemp.min);
+        EEPROM_READ(planner.autotemp.factor);
       #endif
 
       //
@@ -3028,9 +3028,9 @@ void MarlinSettings::reset() {
   // AUTOTEMP
   //
   #if ENABLED(AUTOTEMP)
-    planner.autotemp_max = AUTOTEMP_MAX;
-    planner.autotemp_min = AUTOTEMP_MIN;
-    planner.autotemp_factor = AUTOTEMP_FACTOR;
+    planner.autotemp.max = AUTOTEMP_MAX;
+    planner.autotemp.min = AUTOTEMP_MIN;
+    planner.autotemp.factor = AUTOTEMP_FACTOR;
   #endif
 
   //
