@@ -453,7 +453,6 @@
   #define AUTOTEMP_MIN          210
   #define AUTOTEMP_MAX          250
   #define AUTOTEMP_FACTOR       0.1f
-  #define AUTOTEMP_ENABLED      false
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)

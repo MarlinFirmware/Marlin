@@ -204,7 +204,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
   celsius_t Planner::autotemp_min = AUTOTEMP_MIN,
             Planner::autotemp_max = AUTOTEMP_MAX;
   float Planner::autotemp_factor  = AUTOTEMP_FACTOR;
-  bool Planner::autotemp_enabled  = AUTOTEMP_ENABLED;
+  bool Planner::autotemp_enabled  = false;
 #endif
 
 // private:

@@ -249,7 +249,6 @@ typedef struct SettingsDataStruct {
   #if ENABLED(AUTOTEMP)
     celsius_t planner_autotemp_max, planner_autotemp_min;
     float planner_autotemp_factor;
-    bool planner_autotemp_enabled;
   #endif
 
   //
@@ -870,7 +869,6 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(planner.autotemp_max);
       EEPROM_WRITE(planner.autotemp_min);
       EEPROM_WRITE(planner.autotemp_factor);
-      EEPROM_WRITE(planner.autotemp_enabled);
     #endif
 
     //
@@ -1828,7 +1826,6 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.autotemp_max);
         EEPROM_READ(planner.autotemp_min);
         EEPROM_READ(planner.autotemp_factor);
-        EEPROM_READ(planner.autotemp_enabled);
       #endif
 
       //
@@ -3034,7 +3031,6 @@ void MarlinSettings::reset() {
     planner.autotemp_max = AUTOTEMP_MAX;
     planner.autotemp_min = AUTOTEMP_MIN;
     planner.autotemp_factor = AUTOTEMP_FACTOR;
-    planner.autotemp_enabled = AUTOTEMP_ENABLED;
   #endif
 
   //

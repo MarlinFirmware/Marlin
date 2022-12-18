@@ -1559,8 +1559,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "AUTOTEMP requires AUTOTEMP_MAX."
   #elif !defined(AUTOTEMP_FACTOR)
     #error "AUTOTEMP requires AUTOTEMP_FACTOR."
-  #elif !defined(AUTOTEMP_ENABLED)
-    #error "AUTOTEMP requires AUTOTEMP_ENABLED."
   #elif AUTOTEMP_MAX < AUTOTEMP_MIN
     #error "AUTOTEMP_MAX must be greater than or equal to AUTOTEMP_MIN."
   #endif
