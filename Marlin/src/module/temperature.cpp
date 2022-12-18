@@ -534,10 +534,6 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 volatile bool Temperature::raw_temps_ready = false;
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  int32_t Temperature::pes_e_position, Temperature::lpq[LPQ_MAX_LEN];
-  lpq_ptr_t Temperature::lpq_ptr = 0;
-#endif
 
 #if ENABLED(MPCTEMP)
   int32_t Temperature::mpc_e_position; // = 0
@@ -1338,50 +1334,33 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
 #if HAS_PID_HEATING
 
-  template<typename TT, int MIN_POW, int MAX_POW>
+  template<typename TT>
   class PIDRunner {
   public:
     TT &tempinfo;
-    __typeof__(TT::pid) work_pid{0};
-    float temp_iState = 0, temp_dState = 0;
-    bool pid_reset = true;
 
     PIDRunner(TT &t) : tempinfo(t) { }
 
-    float get_pid_output() {
-
+    float get_pid_output(const uint8_t extr=0) {
       #if ENABLED(PID_OPENLOOP)
 
         return constrain(tempinfo.target, 0, MAX_POW);
 
       #else // !PID_OPENLOOP
 
-        const float pid_error = tempinfo.target - tempinfo.celsius;
-        if (!tempinfo.target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
-          pid_reset = true;
-          return 0;
-        }
-        else if (pid_error > PID_FUNCTIONAL_RANGE) {
-          pid_reset = true;
-          return MAX_POW;
-        }
+        float out = tempinfo.pid.get_pid_output(tempinfo.target, tempinfo.celsius);
 
-        if (pid_reset) {
-          pid_reset = false;
-          temp_iState = 0.0;
-          work_pid.Kd = 0.0;
-        }
+        #if ENABLED(PID_FAN_SCALING)
+          out += tempinfo.pid.get_fan_scale_output(thermalManager.fan_speed[extr]);
+        #endif
 
-        const float max_power_over_i_gain = float(MAX_POW) / tempinfo.pid.Ki - float(MIN_POW);
-        temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
+        #if ENABLED(PID_EXTRUSION_SCALING)
+          out += tempinfo.pid.get_extrusion_scale_output(
+            extr == active_extruder, stepper.position(E_AXIS), planner.mm_per_step[E_AXIS], thermalManager.lpq_len
+          );
+        #endif
 
-        work_pid.Kp = tempinfo.pid.Kp * pid_error;
-        work_pid.Ki = tempinfo.pid.Ki * temp_iState;
-        work_pid.Kd = work_pid.Kd + PID_K2 * (tempinfo.pid.Kd * (temp_dState - tempinfo.celsius) - work_pid.Kd);
-
-        temp_dState = tempinfo.celsius;
-
-        return constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + float(MIN_POW), 0, MAX_POW);
+        return constrain(out, tempinfo.pid.low(), tempinfo.pid.high());
 
       #endif // !PID_OPENLOOP
     }
@@ -1395,7 +1374,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
           STR_PID_DEBUG_INPUT, c,
           STR_PID_DEBUG_OUTPUT, pid_out
           #if DISABLED(PID_OPENLOOP)
-            , " pTerm ", work_pid.Kp, " iTerm ", work_pid.Ki, " dTerm ", work_pid.Kd
+            , " pTerm ", tempinfo.pid.pTerm(), " iTerm ", tempinfo.pid.iTerm(), " dTerm ", tempinfo.pid.dTerm()
+            , " cTerm ", tempinfo.pid.cTerm(), " fTerm ", tempinfo.pid.fTerm()
           #endif
         );
       }
@@ -1413,14 +1393,14 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     #if ENABLED(PIDTEMP)
 
-      typedef PIDRunner<hotend_info_t, 0, PID_MAX> PIDRunnerHotend;
+      typedef PIDRunner<hotend_info_t> PIDRunnerHotend;
 
       static PIDRunnerHotend hotend_pid[HOTENDS] = {
         #define _HOTENDPID(E) temp_hotend[E],
         REPEAT(HOTENDS, _HOTENDPID)
       };
 
-      const float pid_output = is_idling ? 0 : hotend_pid[ee].get_pid_output();
+      const float pid_output = is_idling ? 0 : hotend_pid[ee].get_pid_output(ee);
 
       #if ENABLED(PID_DEBUG)
         if (ee == active_extruder)
@@ -1521,7 +1501,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 #if ENABLED(PIDTEMPBED)
 
   float Temperature::get_pid_output_bed() {
-    static PIDRunner<bed_info_t, MIN_BED_POWER, MAX_BED_POWER> bed_pid(temp_bed);
+    static PIDRunner<bed_info_t> bed_pid(temp_bed);
     const float pid_output = bed_pid.get_pid_output();
     TERN_(PID_BED_DEBUG, bed_pid.debug(temp_bed.celsius, pid_output, F("(Bed)")));
     return pid_output;
@@ -1532,7 +1512,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 #if ENABLED(PIDTEMPCHAMBER)
 
   float Temperature::get_pid_output_chamber() {
-    static PIDRunner<chamber_info_t, MIN_CHAMBER_POWER, MAX_CHAMBER_POWER> chamber_pid(temp_chamber);
+    static PIDRunner<chamber_info_t> chamber_pid(temp_chamber);
     const float pid_output = chamber_pid.get_pid_output();
     TERN_(PID_CHAMBER_DEBUG, chamber_pid.debug(temp_chamber.celsius, pid_output, F("(Chamber)")));
     return pid_output;
@@ -2471,9 +2451,6 @@ void Temperature::init() {
 
   TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
 
-  #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
-    pes_e_position = 0;
-  #endif
 
   // Init (and disable) SPI thermocouples
   #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && PIN_EXISTS(TEMP_0_CS)
