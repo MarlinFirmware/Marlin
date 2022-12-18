@@ -201,8 +201,8 @@ float Planner::mm_per_step[DISTINCT_AXES];      // (mm) Millimeters per step
 skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(AUTOTEMP)
-  celsius_t Planner::autotemp_max = AUTOTEMP_MAX,
-            Planner::autotemp_min = AUTOTEMP_MIN;
+  celsius_t Planner::autotemp_min = AUTOTEMP_MIN,
+            Planner::autotemp_max = AUTOTEMP_MAX;
   float Planner::autotemp_factor  = AUTOTEMP_FACTOR;
   bool Planner::autotemp_enabled  = AUTOTEMP_ENABLED;
 #endif
