@@ -508,7 +508,7 @@ void MarlinUI::draw_status_screen() {
 
   const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
-  static u8g_uint_t progress_bar_solid_width = 0;
+  //static u8g_uint_t progress_bar_solid_width = 0;
 
   // At the first page, generate new display values
   if (first_page) {
