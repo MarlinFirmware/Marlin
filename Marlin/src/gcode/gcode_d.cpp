@@ -156,12 +156,16 @@ void GcodeSuite::D(const int16_t dcode) {
     } break;
 
     case 5: { // D5 Read / Write onboard Flash
-      #define FLASH_SIZE 1024
+      #ifdef MARLIN_EEPROM_SIZE
+        #define ONBOARD_FLASH_SIZE MARLIN_EEPROM_SIZE
+      #else
+        #define ONBOARD_FLASH_SIZE 1024 // 0x400
+      #endif
       uint8_t *pointer = parser.hex_adr_val('A');
       uint16_t len = parser.ushortval('C', 1);
       uintptr_t addr = (uintptr_t)pointer;
-      NOMORE(addr, size_t(FLASH_SIZE - 1));
-      NOMORE(len, FLASH_SIZE - addr);
+      NOMORE(addr, size_t(ONBOARD_FLASH_SIZE - 1));
+      NOMORE(len, ONBOARD_FLASH_SIZE - addr);
       if (parser.seenval('X')) {
         // TODO: Write the hex bytes after the X
         //while (len--) {}
