@@ -2,7 +2,7 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F4 -DSTM32F401xx",
+    "extra_flags": "-DSTM32F401xE -DSTM32F401xx",
     "f_cpu": "84000000L",
     "hwids": [
       [
@@ -47,7 +47,6 @@
   ],
   "name": "STM32F401CD (96k RAM. 384k Flash)",
   "upload": {
-    "disable_flushing": false,
     "maximum_ram_size": 98304,
     "maximum_size": 393216,
     "protocol": "stlink",
@@ -55,10 +54,7 @@
       "stlink",
       "dfu",
       "jlink"
-    ],
-    "require_upload_port": true,
-    "use_1200bps_touch": false,
-    "wait_for_upload_port": false
+    ]
   },
   "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f401cd.html",
   "vendor": "Generic"

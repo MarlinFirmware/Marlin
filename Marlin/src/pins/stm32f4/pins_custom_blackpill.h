@@ -66,13 +66,13 @@
 // Heaters / Fans
 //
 #define HEATER_BED_PIN                      PA7   // HOT BED
-#define FAN1_PIN                            PC0   // extruder fan
+#define FAN1_PIN                            PC_0   // extruder fan
 #define HEATER_0_PIN                        PA1   // HEATER1
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC5   // TH1
+#define TEMP_0_PIN                          PC_5   // TH1
 #define TEMP_BED_PIN                        PC4   // TB1
 
 
@@ -93,9 +93,9 @@
 // Steppers
 //
 
-#define X_STEP_PIN                        PC2
+#define X_STEP_PIN                        PC_2
 #define X_DIR_PIN                         PB9
-#define X_ENABLE_PIN                      PC3   // Shared
+#define X_ENABLE_PIN                      PC_3   // Shared
 
 #define Y_STEP_PIN                        PB8
 #define Y_DIR_PIN                         PB7
