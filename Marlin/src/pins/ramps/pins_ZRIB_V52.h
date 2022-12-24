@@ -47,6 +47,16 @@
 #define E2_DIR_PIN                             5
 #define E2_ENABLE_PIN                         22
 
+//
+// Servos / XS3 Connector
+//
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                          65  // PWM
+#endif
+#ifndef SERVO1_PIN
+  #define SERVO1_PIN                          66  // PWM
+#endif
+
 #include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /**
@@ -78,18 +88,11 @@
  *  |  GND   |
  *  ==========
  *
- * XS3 Connector
+ * Servos / XS3 Connector
  *  =================
  *  | 65 | GND | 5V |      (65)  PK3 ** Pin86 ** A11
  *  |----|-----|----|
  *  | 66 | GND | 5V |      (66)  PK4 ** Pin85 ** A12
- *  =================
- *
- * Servos Connector
- *  =================
- *  | 11 | GND | 5V |      (11)  PB5 ** Pin24 ** PWM11
- *  |----|-----|----|
- *  | 12 | GND | 5V |      (12)  PB6 ** Pin25 ** PWM12
  *  =================
  *
  * ICSP

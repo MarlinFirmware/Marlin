@@ -341,7 +341,6 @@ void report_current_position_projected() {
       can_reach = (
            a < polargraph_max_belt_len + 1
         && b < polargraph_max_belt_len + 1
-        && (a + b) > _MIN(draw_area_size.x, draw_area_size.y)
       );
 
     #endif
@@ -562,7 +561,8 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const float), const_feedRate_t fr_mm_s/*=
     const feedRate_t w_feedrate = fr_mm_s ?: homing_feedrate(W_AXIS)
   );
 
-  #if IS_KINEMATIC
+  #if IS_KINEMATIC && DISABLED(POLARGRAPH)
+    // kinematic machines are expected to home to a point 1.5x their range? never reachable.
     if (!position_is_reachable(x, y)) return;
     destination = current_position;          // sync destination at the start
   #endif
@@ -919,11 +919,16 @@ void restore_feedrate_and_scaling() {
         constexpr xy_pos_t offs{0};
       #endif
 
-      if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
-        const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
-        if (dist_2 > delta_max_radius_2)
-          target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
-      }
+      #if ENABLED(POLARGRAPH)
+        LIMIT(target.x, draw_area_min.x, draw_area_max.x);
+        LIMIT(target.y, draw_area_min.y, draw_area_max.y);
+      #else
+        if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
+          const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+          if (dist_2 > delta_max_radius_2)
+            target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
+        }
+      #endif
 
     #else
 

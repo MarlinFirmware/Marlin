@@ -42,7 +42,7 @@ void Repeat::add_marker(const uint32_t sdpos, const uint16_t count) {
     SERIAL_ECHO_MSG("!Too many markers.");
   else {
     marker[index].sdpos = sdpos;
-    marker[index].counter = count ?: -1;
+    marker[index].counter = count ? count - 1 : -1;
     index++;
     DEBUG_ECHOLNPGM("Add Marker ", index, " at ", sdpos, " (", count, ")");
   }
