@@ -164,6 +164,9 @@ namespace ExtUI {
   #if ENABLED(SHOW_REMAINING_TIME)
     inline uint32_t getProgress_seconds_remaining() { return ui.get_remaining_time(); }
   #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    inline uint32_t getInteraction_seconds_remaining() { return ui.interaction_time; }
+  #endif
 
   #if HAS_LEVELING
     bool getLevelingActive();

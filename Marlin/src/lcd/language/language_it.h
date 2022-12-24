@@ -178,7 +178,7 @@ namespace Language_it {
   LSTR MSG_MESH_AMAX                      = _UxGT("Massimizza area");
   LSTR MSG_MESH_CENTER                    = _UxGT("Area centrale");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Valore di Z");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellato");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellata");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Comandi personaliz.");
   LSTR MSG_M48_TEST                       = _UxGT("Test sonda M48");
   LSTR MSG_M48_POINT                      = _UxGT("Punto M48");
@@ -251,6 +251,7 @@ namespace Language_it {
   LSTR MSG_UBL_SMART_FILLIN               = _UxGT("Riempimento Smart");
   LSTR MSG_UBL_FILLIN_MESH                = _UxGT("Riempimento Mesh");
   LSTR MSG_UBL_MESH_FILLED                = _UxGT("Pts mancanti riempiti");
+  LSTR MSG_UBL_MESH_INVALID               = _UxGT("Mesh non valida");
   LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Invalida Tutto");
   LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Invalid.Punto Vicino");
   LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Ritocca Tutto");
@@ -312,10 +313,12 @@ namespace Language_it {
   LSTR MSG_MOVE_01MM                      = _UxGT("Muovi di 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Muovi di 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Muovi di 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Muovi di 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Muovi di 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Muovi di 0.001\"");
   LSTR MSG_MOVE_001IN                     = _UxGT("Muovi di 0.01\"");
   LSTR MSG_MOVE_01IN                      = _UxGT("Muovi di 0.1\"");
+  LSTR MSG_MOVE_05IN                      = _UxGT("Muovi di 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Muovi di 1\"");
   LSTR MSG_SPEED                          = _UxGT("Velocità");
   LSTR MSG_BED_Z                          = _UxGT("Piatto Z");
@@ -395,6 +398,11 @@ namespace Language_it {
   LSTR MSG_AMAX_EN                        = _UxGT("Acc.Massima *");
   LSTR MSG_A_RETRACT                      = _UxGT("A-Ritrazione");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-Spostamento");
+  LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
+  LSTR MSG_SHAPING_X_FREQ                 = _UxGT("Frequenza ") STR_X;
+  LSTR MSG_SHAPING_Y_FREQ                 = _UxGT("Frequenza ") STR_Y;
+  LSTR MSG_SHAPING_X_ZETA                 = _UxGT("Smorzamento ") STR_X;
+  LSTR MSG_SHAPING_Y_ZETA                 = _UxGT("Smorzamento ") STR_Y;
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("Frequenza max");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Feed min");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Passi/mm");
@@ -414,6 +422,12 @@ namespace Language_it {
   LSTR MSG_FILAMENT_DIAM_E                = _UxGT("Diam. filo *");
   LSTR MSG_FILAMENT_UNLOAD                = _UxGT("Rimuovi mm");
   LSTR MSG_FILAMENT_LOAD                  = _UxGT("Carica mm");
+  LSTR MSG_SEGMENTS_PER_SECOND            = _UxGT("Segmenti/Sec");
+  LSTR MSG_DRAW_MIN_X                     = _UxGT("Min X area disegno");
+  LSTR MSG_DRAW_MAX_X                     = _UxGT("Max X area disegno");
+  LSTR MSG_DRAW_MIN_Y                     = _UxGT("Min Y area disegno");
+  LSTR MSG_DRAW_MAX_Y                     = _UxGT("Max Y area disegno");
+  LSTR MSG_MAX_BELT_LEN                   = _UxGT("Lungh.max cinghia");
   LSTR MSG_ADVANCE_K                      = _UxGT("K Avanzamento");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("K Avanzamento *");
   LSTR MSG_CONTRAST                       = _UxGT("Contrasto LCD");
@@ -506,9 +520,10 @@ namespace Language_it {
   LSTR MSG_TOOL_CHANGE                    = _UxGT("Cambio utensile");
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Risalita Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Velocità innesco");
+  LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Ritrazione pulizia");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Velocità ritrazione");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Parcheggia testa");
-  LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Recover Speed");
+  LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Veloc. di recupero");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Velocità ventola");
   LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Tempo ventola");
   LSTR MSG_TOOL_MIGRATION_ON              = _UxGT("Auto ON");

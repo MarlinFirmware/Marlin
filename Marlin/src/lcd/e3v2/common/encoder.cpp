@@ -96,21 +96,21 @@ EncoderState Encoder_ReceiveAnalyze() {
   }
   if (newbutton != lastEncoderBits) {
     switch (newbutton) {
-      case ENCODER_PHASE_0:
-             if (lastEncoderBits == ENCODER_PHASE_3) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_1) temp_diff--;
+      case 0:
+             if (lastEncoderBits == 1) temp_diff++;
+        else if (lastEncoderBits == 2) temp_diff--;
         break;
-      case ENCODER_PHASE_1:
-             if (lastEncoderBits == ENCODER_PHASE_0) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_2) temp_diff--;
+      case 2:
+             if (lastEncoderBits == 0) temp_diff++;
+        else if (lastEncoderBits == 3) temp_diff--;
         break;
-      case ENCODER_PHASE_2:
-             if (lastEncoderBits == ENCODER_PHASE_1) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_3) temp_diff--;
+      case 3:
+             if (lastEncoderBits == 2) temp_diff++;
+        else if (lastEncoderBits == 1) temp_diff--;
         break;
-      case ENCODER_PHASE_3:
-             if (lastEncoderBits == ENCODER_PHASE_2) temp_diff++;
-        else if (lastEncoderBits == ENCODER_PHASE_0) temp_diff--;
+      case 1:
+             if (lastEncoderBits == 3) temp_diff++;
+        else if (lastEncoderBits == 0) temp_diff--;
         break;
     }
     lastEncoderBits = newbutton;

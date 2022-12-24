@@ -143,6 +143,7 @@ namespace Language_eu {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mugitu 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mugitu 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mugitu 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mugitu 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mugitu 100mm");
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
   LSTR MSG_BED_Z                          = _UxGT("Z Ohea");
