@@ -4298,6 +4298,23 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
+/**
+ * Require certain features for DGUS_LCD_UI_IA_CREALITY.
+ */
+#if ENABLED(DGUS_LCD_UI_IA_CREALITY)
+  #if DISABLED(ADVANCED_PAUSE_FEATURE)
+    #error "DGUS_LCD_UI_IA_CREALITY requires ADVANCED_PAUSE_FEATURE."
+  #elif DISABLED(LCD_BED_TRAMMING)
+    #error "DGUS_LCD_UI_IA_CREALITY requires LCD_BED_TRAMMING."
+  #elif DISABLED(CLASSIC_JERK)
+    #error "DGUS_LCD_UI_IA_CREALITY requires CLASSIC_JERK."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI_IA_CREALITY requires BABYSTEPPING."
+  #elif NONE(AUTO_BED_LEVELING_BILINEAR,AUTO_BED_LEVELING_UBL,MESH_BED_LEVELING)
+    #error "DGUS_LCD_UI_IA_CREALITY requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL or MESH_BED_LEVELING)."
+  #endif
+#endif
+
 // JTAG support in the HAL
 #if ENABLED(DISABLE_DEBUG) && !defined(JTAGSWD_DISABLE)
   #error "DISABLE_DEBUG is not supported for the selected MCU/Board."
