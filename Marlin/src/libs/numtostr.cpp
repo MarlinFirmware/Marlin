@@ -25,7 +25,7 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
-char conv[8] = { 0 };
+char conv[9] = { 0 };
 
 #define DIGIT(n) ('0' + (n))
 #define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
@@ -381,6 +381,20 @@ const char* ftostr61rj(const_float_t f) {
   conv[4] = DIGIMOD(i, 10);
   conv[5] = '.';
   conv[6] = DIGIMOD(i, 1);
+  return conv;
+}
+
+// Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
+const char* ftostr72rj(const_float_t f) {
+  const long i = UINTFLOAT(f, 2);
+  conv[0] = RJDIGIT(i, 1000000);
+  conv[1] = RJDIGIT(i, 100000);
+  conv[2] = RJDIGIT(i, 10000);
+  conv[3] = RJDIGIT(i, 1000);
+  conv[4] = RJDIGIT(i, 100);
+  conv[5] = '.';
+  conv[6] = DIGIMOD(i, 10);
+  conv[7] = DIGIMOD(i, 1);
   return conv;
 }
 
