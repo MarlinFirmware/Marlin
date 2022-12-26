@@ -391,7 +391,7 @@ const char* ftostr72rj(const_float_t f) {
   conv[1] = RJDIGIT(i, 100000);
   conv[2] = RJDIGIT(i, 10000);
   conv[3] = RJDIGIT(i, 1000);
-  conv[4] = RJDIGIT(i, 100);
+  conv[4] = DIGIMOD(i, 100);
   conv[5] = '.';
   conv[6] = DIGIMOD(i, 10);
   conv[7] = DIGIMOD(i, 1);
