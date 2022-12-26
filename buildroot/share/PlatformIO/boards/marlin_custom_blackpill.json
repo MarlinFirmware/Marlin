@@ -2,7 +2,7 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F401xE -DSTM32F401xx",
+    "extra_flags": "-DSTM32F401xC -DSTM32F401xx",
     "f_cpu": "84000000L",
     "hwids": [
       [
@@ -21,25 +21,7 @@
   "debug": {
     "jlink_device": "STM32F401CD",
     "openocd_target": "stm32f4x",
-    "svd_path": "STM32F40x.svd",
-    "tools": {
-      "stlink": {
-        "server": {
-          "arguments": [
-            "-f",
-            "scripts/interface/stlink.cfg",
-            "-c",
-            "transport select hla_swd",
-            "-f",
-            "scripts/target/stm32f4x.cfg",
-            "-c",
-            "reset_config none"
-          ],
-          "executable": "bin/openocd",
-          "package": "tool-openocd"
-        }
-      }
-    }
+    "svd_path": "STM32F40x.svd"
   },
   "frameworks": [
     "arduino",
