@@ -4048,7 +4048,7 @@
  * This feature allows you to use [[WaitForDoneMessage]] instead of M400 commands.
  * @section nanodlp
  */
-#define NANODLP_Z_SYNC
+//#define NANODLP_Z_SYNC
 #if ENABLED(NANODLP_Z_SYNC)
   //#define NANODLP_ALL_AXIS  // Send a "Z_move_comp" report for any axis move (not just Z).
 #endif
