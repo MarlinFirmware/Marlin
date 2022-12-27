@@ -26,6 +26,8 @@
  */
 
 #include "../../inc/MarlinConfig.h"
+//TWINKIEXLII  fix for no EEPROM save 
+#include "../../libs/W25Qxx.h" //TWINKIEXLII
 
 #if ENABLED(SPI_EEPROM)
 
