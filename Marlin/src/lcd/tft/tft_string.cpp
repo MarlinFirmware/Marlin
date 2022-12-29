@@ -34,9 +34,11 @@
 
 glyph_t *TFT_String::glyphs[256];
 unifont_t *TFT_String::font_header;
-uint8_t *TFT_String::glyphs_extra[MAX_EXTRA_GLYPHS];
-unifont_t *TFT_String::font_header_extra;
-uint16_t TFT_String::extra_count;
+#if EXTRA_GLYPHS
+  uint8_t *TFT_String::glyphs_extra[EXTRA_GLYPHS];
+  unifont_t *TFT_String::font_header_extra;
+  uint16_t TFT_String::extra_count;
+#endif
 
 
 uint16_t TFT_String::data[];
@@ -45,12 +47,16 @@ uint8_t TFT_String::length;
 
 void TFT_String::set_font(const uint8_t *font) {
   font_header = (unifont_t *)font;
-  font_header_extra = nullptr;
-  extra_count = 0;
   uint16_t glyph;
 
   for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
-  for (glyph = 0; glyph < MAX_EXTRA_GLYPHS; glyph++) glyphs_extra[glyph] = nullptr;
+
+  #if EXTRA_GLYPHS
+    font_header_extra = nullptr;
+    extra_count = 0;
+
+    for (glyph = 0; glyph < EXTRA_GLYPHS; glyph++) glyphs_extra[glyph] = nullptr;
+  #endif
 
   DEBUG_ECHOLNPGM("Format: ",            ((unifont_t *)font_header)->Format);
   DEBUG_ECHOLNPGM("CapitalAHeight: ",    ((unifont_t *)font_header)->CapitalAHeight);
@@ -81,81 +87,85 @@ void TFT_String::add_glyphs(const uint8_t *font) {
     }
   }
 
-  if (fontStartEncoding >= 0x0100) {
-    font_header_extra = (unifont_t *)font;
-    if (((*font) & 0xF0) == FONT_MARLIN_GLYPHS ) {  // FONT_MARLIN_GLYPHS
-     for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++) {
-        if (unicode == fontStartEncoding + MAX_EXTRA_GLYPHS) {
-          DEBUG_ECHOLNPGM("Too many glyphs. Increase MAX_EXTRA_GLYPHS to ", fontEndEncoding - fontStartEncoding + 1);
-          break;
+  #if EXTRA_GLYPHS
+    if (fontStartEncoding >= 0x0100) {
+      font_header_extra = (unifont_t *)font;
+      if (((*font) & 0xF0) == FONT_MARLIN_GLYPHS ) {  // FONT_MARLIN_GLYPHS
+        for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++) {
+            if (unicode == fontStartEncoding + EXTRA_GLYPHS) {
+              DEBUG_ECHOLNPGM("Too many glyphs. Increase EXTRA_GLYPHS to ", fontEndEncoding - fontStartEncoding + 1);
+              break;
+            }
+            if (*pointer != NO_GLYPH) {
+              glyphs_extra[unicode - fontStartEncoding] = pointer;
+              pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
+            }
+            else
+              pointer++;
         }
-        if (*pointer != NO_GLYPH) {
-          glyphs_extra[unicode - fontStartEncoding] = pointer;
-          pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
+      }
+      else {  // FONT_MARLIN_HIEROGLYPHS
+        for (uint16_t i = 0;; i++) {
+          if (i == EXTRA_GLYPHS) {
+            DEBUG_ECHOLN("Too many glyphs. Increase EXTRA_GLYPHS");
+            break;
+          }
+          glyphs_extra[i] = pointer;
+          unicode = *(uint16_t *) pointer;
+          pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.DataSize;
+          extra_count = i + 1;
+          if (unicode == fontEndEncoding)
+            break;
         }
-        else
-          pointer++;
-     }
-    }
-    else {  // FONT_MARLIN_HIEROGLYPHS
-      for (uint16_t i = 0;; i++) {
-        if (i == MAX_EXTRA_GLYPHS) {
-          DEBUG_ECHOLN("Too many glyphs. Increase MAX_EXTRA_GLYPHS");
-          break;
-        }
-        glyphs_extra[i] = pointer;
-        unicode = *(uint16_t *) pointer;
-        pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.DataSize;
-        extra_count = i + 1;
-        if (unicode == fontEndEncoding)
-          break;
       }
     }
-  }
+  #endif
 }
 
 glyph_t *TFT_String::glyph(uint16_t character) {
   if (character == 0x2026) character = 0x0a;  /* character 0x2026 "…" is remaped to 0x0a and should be part of symbols font */
   if (character < 0x00ff) return glyphs[character] ?: glyphs['?'];    /* Use '?' for unknown glyphs */
 
-  if (font_header_extra == nullptr || character < font_header_extra->FontStartEncoding || character > font_header_extra->FontEndEncoding) return glyphs['?'];
+  #if EXTRA_GLYPHS
+    if (font_header_extra == nullptr || character < font_header_extra->FontStartEncoding || character > font_header_extra->FontEndEncoding) return glyphs['?'];
 
-  if ((font_header_extra->Format & 0xF0) == FONT_MARLIN_GLYPHS) {
-    if (glyphs_extra[character - font_header_extra->FontStartEncoding])
-      return (glyph_t *)glyphs_extra[character - font_header_extra->FontStartEncoding];
-  }
-  else {
-    #if false
-      // Slow search method that that does not care if glyphs are ordered by unicode
-      for(uint16_t i = 0; i < extra_count; i++) {
-        if (character == ((uniglyph_t *)glyphs_extra[i])->unicode)
-          return &(((uniglyph_t *)glyphs_extra[i])->glyph);
-      }
-    #else
-      // Fast search method that REQUIRES glyphs to be ordered by unicode
-      uint16_t min = 0, max = extra_count-1, next = extra_count/2;
-      /*
-      * while() condition check has to be at the end of the loop to support fonts with single glyph
-      * Technically it is not a error and it causes no harm, so let it be
-      */
-      do {
-        uint16_t unicode = ((uniglyph_t *)glyphs_extra[next])->unicode;
-        if (character == unicode)
-          return &(((uniglyph_t *)glyphs_extra[next])->glyph);
+    if ((font_header_extra->Format & 0xF0) == FONT_MARLIN_GLYPHS) {
+      if (glyphs_extra[character - font_header_extra->FontStartEncoding])
+        return (glyph_t *)glyphs_extra[character - font_header_extra->FontStartEncoding];
+    }
+    else {
+      #if false
+        // Slow search method that that does not care if glyphs are ordered by unicode
+        for(uint16_t i = 0; i < extra_count; i++) {
+          if (character == ((uniglyph_t *)glyphs_extra[i])->unicode)
+            return &(((uniglyph_t *)glyphs_extra[i])->glyph);
+        }
+      #else
+        // Fast search method that REQUIRES glyphs to be ordered by unicode
+        uint16_t min = 0, max = extra_count-1, next = extra_count/2;
+        /*
+        * while() condition check has to be at the end of the loop to support fonts with single glyph
+        * Technically it is not a error and it causes no harm, so let it be
+        */
+        do {
+          uint16_t unicode = ((uniglyph_t *)glyphs_extra[next])->unicode;
+          if (character == unicode)
+            return &(((uniglyph_t *)glyphs_extra[next])->glyph);
 
-        if (character > unicode) {
-          if (next == min)
-            break;
-          min = next;
-          next = (min + max + 1) / 2;
-        }
-        else {
-          max = next;
-          next = (min + max) / 2;
-        }
-      } while (min < max);
-    #endif
-  }
+          if (character > unicode) {
+            if (next == min)
+              break;
+            min = next;
+            next = (min + max + 1) / 2;
+          }
+          else {
+            max = next;
+            next = (min + max) / 2;
+          }
+        } while (min < max);
+      #endif
+    }
+  #endif
 
   return glyphs['?'];
 }

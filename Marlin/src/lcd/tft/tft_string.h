@@ -78,30 +78,30 @@
 
 #if LCD_LANGUAGE == _LATIN_EXTENDED_A
   #define FONT_EXTRA    Latin_Extended_A
-  #define MAX_EXTRA_GLYPHS  128
+  #define EXTRA_GLYPHS  128
 #elif LCD_LANGUAGE == _CYRILLIC
   #define FONT_EXTRA        Cyrillic
-  #define MAX_EXTRA_GLYPHS  145
+  #define EXTRA_GLYPHS  145
 #elif LCD_LANGUAGE == _GREEK
   #define FONT_EXTRA        Greek
-  #define MAX_EXTRA_GLYPHS  73
+  #define EXTRA_GLYPHS  73
 #elif LCD_LANGUAGE == _KATAKANA
   #define FONT_EXTRA        Katakana
-  #define MAX_EXTRA_GLYPHS  102
+  #define EXTRA_GLYPHS  102
 #elif LCD_LANGUAGE == _KOREAN
   #define FONT_EXTRA        Korean
-  #define MAX_EXTRA_GLYPHS  110
+  #define EXTRA_GLYPHS  110
 #elif LCD_LANGUAGE == _VIETNAMESE
   #define FONT_EXTRA        Vietnamese
-  #define MAX_EXTRA_GLYPHS  107
+  #define EXTRA_GLYPHS  107
 #elif LCD_LANGUAGE == _SIMPLIFIED_CHINESE
   #define FONT_EXTRA        Simplified_Chinese
-  #define MAX_EXTRA_GLYPHS  373
+  #define EXTRA_GLYPHS  373
 #elif LCD_LANGUAGE == _TRADITIONAL_CHINESE
   #define FONT_EXTRA        Traditional_Chinese
-  #define MAX_EXTRA_GLYPHS  307
+  #define EXTRA_GLYPHS  307
 #else // Basin Latin (0x0020 - 0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only
-  #define MAX_EXTRA_GLYPHS  0
+  #define EXTRA_GLYPHS  0
 #endif
 
 #undef cz
@@ -174,9 +174,11 @@ class TFT_String {
   private:
     static glyph_t *glyphs[256];
     static unifont_t *font_header;
-    static uint8_t *glyphs_extra[MAX_EXTRA_GLYPHS];
-    static unifont_t *font_header_extra;
-    static uint16_t extra_count;
+    #if EXTRA_GLYPHS
+      static uint8_t *glyphs_extra[EXTRA_GLYPHS];
+      static unifont_t *font_header_extra;
+      static uint16_t extra_count;
+    #endif
 
     static uint16_t data[MAX_STRING_LENGTH + 1];
     static uint16_t span;   // in pixels
