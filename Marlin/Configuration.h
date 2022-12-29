@@ -3247,7 +3247,7 @@
 //#define BLINKM
 
 // Support for PCA9632 PWM LED driver
-#define PCA9632
+//#define PCA9632
 
 // Support for PCA9533 PWM LED driver
 //#define PCA9533
