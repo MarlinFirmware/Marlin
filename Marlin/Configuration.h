@@ -3289,7 +3289,7 @@
 
   #define RGB_STARTUP_TEST              // For PWM pins, fade between all colors
     #if ENABLED(RGB_STARTUP_TEST)
-      #define RGB_STARTUP_TEST_INNER_MS 1  // (ms) Reduce or increase fading speed
+      #define RGB_STARTUP_TEST_INNER_MS 10  // (ms) Reduce or increase fading speed
     #endif
 #endif
 
