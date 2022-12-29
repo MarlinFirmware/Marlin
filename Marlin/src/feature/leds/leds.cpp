@@ -95,9 +95,7 @@ void LEDLights::setup() {
         delay(500);
       }
     #endif // RGB_STARTUP_TEST
-  #endif
-
-  #if ENABLED(PCA9632, RGB_STARTUP_TEST)
+  #elif ENABLED(PCA9632, RGB_STARTUP_TEST) //PCA9632 RGB_STARTUP_TEST
     int8_t led_pin_count = 3;
     #if ENABLED(HAS_WHITE_LED) 
       led_pin_count++;
