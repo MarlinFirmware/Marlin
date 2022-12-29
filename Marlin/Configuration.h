@@ -3247,7 +3247,7 @@
 //#define BLINKM
 
 // Support for PCA9632 PWM LED driver
-//#define PCA9632
+#define PCA9632
 
 // Support for PCA9533 PWM LED driver
 //#define PCA9533
@@ -3289,7 +3289,7 @@
 
   #define RGB_STARTUP_TEST              // For PWM pins, fade between all colors
     #if ENABLED(RGB_STARTUP_TEST)
-      #define RGB_STARTUP_TEST_INNER_MS 1  // (ms) Reduce or increase fading speed
+      #define RGB_STARTUP_TEST_INNER_MS 10  // (ms) Reduce or increase fading speed
     #endif
 #endif
 
