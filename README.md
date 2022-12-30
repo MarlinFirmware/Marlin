@@ -21,39 +21,17 @@ Marlin 2.1 continues to support both 32-bit ARM and 8-bit AVR boards while addin
 
 Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
 
-## Steinerbrd: Steps before flashing new firmware
-1. Saubere Verkabelung aller JST-XH Stecker
-2. Sensorless homing nochmal ausprobieren
-    1. Wenn X/Y Endstop verkabelt -> Jumper weg
-    2. Extruder-Jumper setzen (hier hamma keinen Endstop) TODO Sensitivity einstellen?
-3. Kapazitiven Sensor anbauen: 
-    1. Die Halterung für den kapazitiven Sensor drucken -> done
-    2. Pullup ca. 10kOhm; hier müssma unbedingt die 1N4148 Diode (oder 2 in Serie, zur Sicherheit) in Sperr-Richtung gegen den Signal-Ausgang des Sensors anbringen!! Mehrfach prüfen!!
-    3. Danach in configuration.h NOZZLE_TO_PROBE_OFFSET einstellen, siehe [M851](https://marlinfw.org/docs/gcode/M851.html)
-    4. Sensor an 12V Spannung anstecken, am besten bei VIN (12V nach der Sicherung) -> nachmessen!
 
 ## Steinerbrd: Next Level
-1. TFT Mount drucken? z.B [des](https://www.thingiverse.com/thing:3954074)
-1. Board-Luefter
-2. Neopixel LEDs: hier die Zwischenbeschaltung 5VDC Board <-> Neopixel durchdenken (Inrush-Current!)
-3. V6 Metall Druckkopf mit Bowden-Extruder
-
-## Steinerbrd: Uebernaechstes Level: Rahmenupgrade
-[Sachen zu drucken](https://www.thingiverse.com/thing:2263216)
+1. TFT Mount drucken? z.B [des](https://www.thingiverse.com/thing:3954074) :heavy_check_mark:
+1. Board-Luefter -> brauch ma des?
+2. Neopixel LEDs: hier die Zwischenbeschaltung 5VDC Board <-> Neopixel durchdenken (Inrush-Current!) -> für Timelapse Videos ist eine Beleuchtung sinnvoll!
+3. V6 Metall Druckkopf mit Bowden-Extruder :heavy_check_mark:
 
 
-Sachen zu kaufen:
-Groesse des neuen Druckers bzw. Bettsize muss noch geklaert werden!!!
-1. Item-Rahmen
-2. Pulleys mit Lager (2 Stk.)
-3. Pulleys fuer Schrittmotoren (2 Stk.)
-4. Zahnriemen (Meterware)
-5. Linearlager (X-Achse: 4, Y-Achse: 4, Z-Achse: 2 ==> wenn alle lager ersetzt werden sollen)
-6. Linearfuehrungen (X-Achse: 2, Y-Achse: 2, Z-Achse: 2 ==> y Linearfuerhungen koennen evtl. behalten werden)
-7. Z Axis Coupling (2 Stk.)
-8. Teil, das unter das Bett kommt (==> damit mit der neuen y-Motorhalterung keine Kollision auftritt)
+Rahmenupgrade! [Sachen zu drucken](https://www.thingiverse.com/thing:2263216) :heavy_check_mark:
 
-
+Im Profiles Ordner sind Cura Profile, die die besten bekannten Einstellungen pro Filamentspule beinhalten. Optimierung erwünscht!
 
 Before building Marlin you'll need to configure it for your specific hardware. Your vendor should have already provided source code with configurations for the installed firmware, but if you ever decide to upgrade you'll need updated configuration files. Marlin users have contributed dozens of tested example configurations to get you started. Visit the [MarlinFirmware/Configurations](https://github.com/MarlinFirmware/Configurations) repository to find the right configuration for your hardware.
 
