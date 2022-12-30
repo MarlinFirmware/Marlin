@@ -249,7 +249,17 @@ void menu_main() {
       #define MEDIA_MENU_AT_TOP
     #endif
 
-    auto sdcard_menu_items = [&]{
+    // Note: Due to how the menu system is implemented, conditionally rendering
+    // menu options via functions that capture the current menu state closure will
+    // result in visual glitches when entering said menus.
+    // That is, menu items should not be rendered using [&]{} functions nor using
+    // myFunction([custom variables], int8_t& _lcdLineNr [... references to rest of menu system state])
+    // In order to support MEDIA_MENU_AT_TOP and not duplicate the sdcard menu options code,
+    // goto statements have been used
+
+    // Declare label for sdcard menu items and skip over its code
+    goto after_sdcard_items_decl;
+    render_sdcard_items:
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
       #endif
@@ -278,8 +288,14 @@ void menu_main() {
           GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));          // M21 Attach Media
         #endif
       }
-    };
-
+      #if ENABLED(MEDIA_MENU_AT_TOP)
+        // Return to top sd menu items caller
+        goto after_sdcard_items_top;
+      #else
+        // Return to normally-positioned sd menu items caller
+        goto after_sdcard_items;
+      #endif
+    after_sdcard_items_decl:
   #endif
 
   if (busy) {
@@ -310,7 +326,9 @@ void menu_main() {
   else {
 
     #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
-      sdcard_menu_items();
+      // Render sdcard menu items; will return at label
+      goto render_sdcard_items;
+      after_sdcard_items_top:
     #endif
 
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
@@ -390,7 +408,9 @@ void menu_main() {
   #endif
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
-    sdcard_menu_items();
+    // Render sdcard menu items; will return at label
+    goto render_sdcard_items;
+    after_sdcard_items:
   #endif
 
   #if HAS_SERVICE_INTERVALS
