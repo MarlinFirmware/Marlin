@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 #pragma once
 
 /* ****************************************
- * lcd/extui/lib/Creality/FileNavigator.h
+ * lcd/extui/ia_creality/FileNavigator.h
  * ****************************************
  * Extensible_UI implementation for Creality DWIN
  * 10SPro, Max, CRX and others
@@ -30,24 +30,24 @@
  * Written by Insanity Automation
  * ***************************************/
 
+#include "creality_extui.h"
 #include "../ui_api.h"
-#include "Creality_DWIN.h"
 
-#define MAX_FOLDER_DEPTH                4    // Limit folder depth TFT has a limit for the file path
-#define MAX_CMND_LEN                   16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command
-#define MAX_PATH_LEN                   16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path
-#define DISPLAY_FILES                   4
+#define MAX_FOLDER_DEPTH   4    // Limit folder depth TFT has a limit for the file path
+#define MAX_CMND_LEN      16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command
+#define MAX_PATH_LEN      16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path
+#define DISPLAY_FILES      4
 
 using namespace ExtUI;
 
 class FileNavigator {
   public:
     FileNavigator();
-    static void  reset();
-    static void  getFiles(uint16_t);
-    static void  upDIR();
-    static void  changeDIR(char *);
-    static void  refresh();
+    static void reset();
+    static void getFiles(uint16_t);
+    static void upDIR();
+    static void changeDIR(char *);
+    static void refresh();
     static char* getCurrentFolderName();
     static uint8_t  folderdepth;
     static uint16_t currentindex;

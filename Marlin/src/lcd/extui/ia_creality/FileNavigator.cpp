@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 
 /* ****************************************
- * lcd/extui/lib/Creality/FileNavigator.cpp
+ * lcd/extui/ia_creality/FileNavigator.cpp
  * ****************************************
  * Extensible_UI implementation for Creality DWIN
  * 10SPro, Max, CR10V2
@@ -30,13 +30,14 @@
  * ***************************************/
 
 #include "../../../inc/MarlinConfigPre.h"
+
 #if ENABLED(DGUS_LCD_UI_IA_CREALITY)
 
 #include "FileNavigator.h"
 
 using namespace ExtUI;
 
-#define DEBUG_OUT NEXDEBUGLEVEL
+#define DEBUG_OUT ENABLED(DEBUG_DWIN)
 #include "../../../core/debug_out.h"
 
 FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
@@ -60,7 +61,6 @@ void FileNavigator::reset() {
 }
 
 void FileNavigator::refresh() { filelist.refresh(); }
-
 
 bool FileNavigator::getIndexisDir(uint16_t index){
   filelist.seek(index);
@@ -95,21 +95,18 @@ void FileNavigator::getFiles(uint16_t index) {
 
 
   // Clear currently drawn screen
-  for (int i = 0; i < DISPLAY_FILES; i++)
-  {
+  for (int i = 0; i < DISPLAY_FILES; i++) {
     for (int j = 0; j < 20; j++)
       rtscheck.RTS_SndData(0, SDFILE_ADDR + (i * 20) + j);
   }
 
-  for (int j = 0; j < 10; j++)
-  {
-    rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
-    rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
+  for (int j = 0; j < 10; j++) {
+    rtscheck.RTS_SndData(0, Printfilename + j);  // clear screen.
+    rtscheck.RTS_SndData(0, Choosefilename + j); // clear filename
   }
   for (int j = 0; j < 8; j++)
     rtscheck.RTS_SndData(0, FilenameCount + j);
-  for (int j = 1; j <= DISPLAY_FILES; j++)
-  {
+  for (int j = 1; j <= DISPLAY_FILES; j++) {
     rtscheck.RTS_SndData(10, FilenameIcon + j);
     rtscheck.RTS_SndData(10, FilenameIcon1 + j);
   }
@@ -121,14 +118,13 @@ void FileNavigator::getFiles(uint16_t index) {
     rtscheck.RTS_SndData("Up Directory", SDFILE_ADDR);
     fcnt++;
   }
-  else if(currentindex == DISPLAY_FILES && folderdepth > 0)
+  else if (currentindex == DISPLAY_FILES && folderdepth > 0)
     currentindex--;
 
   for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
     if (filelist.seek(seek)) {
       const int filelen = strlen(filelist.filename());
-      if(filelen > 20)
-      {
+      if (filelen > 20) {
         char *buf = (char *)filelist.filename();
         //char buf[filelen];
         //strcpy(&buf[filelen], filelist.filename());
@@ -138,13 +134,11 @@ void FileNavigator::getFiles(uint16_t index) {
       else
         rtscheck.RTS_SndData(filelist.filename(), (SDFILE_ADDR + (fcnt * 20)));
 
-      if (filelist.isDir())
-      {
+      if (filelist.isDir()) {
         rtscheck.RTS_SndData((uint8_t)4, FilenameIcon + (fcnt+1));
         rtscheck.RTS_SndData((unsigned long)0x041F, (FilenameNature + ((1+fcnt) * 16))); // Change BG of selected line to Blue
       }
-      else
-      {
+      else {
         rtscheck.RTS_SndData((uint8_t)0, FilenameIcon + (fcnt+1));
         rtscheck.RTS_SndData((unsigned long)0xFFFF, (FilenameNature + ((1+fcnt) * 16))); // white
       }
@@ -185,4 +179,5 @@ void FileNavigator::upDIR() {
 }
 
 char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
+
 #endif // DGUS_LCD_UI_IA_CREALITY
