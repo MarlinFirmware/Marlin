@@ -233,7 +233,7 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *
   end_of_queue += sizeof(parametersCanvasText_t);
 
   uint16_t *character = (uint16_t *)end_of_queue;
-  
+
   lchar_t wc;
   for (;;) {
     pointer = get_utf8_value_cb(pointer, read_byte_ram, wc);

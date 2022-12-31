@@ -41,7 +41,7 @@
  * TFT fonts with optional antialiasing. Fonts use unifont_t font header and uniglyph_t glyphs headers.
  * Each glyph is prepended with its unicode.
  * Designed to be used for Japanese, Korean, Simplified Chinese and Traditional Chinese glyphs.
- * 
+ *
  * IMPORTANT NOTES:
  *   - glyphs fast search method REQUIRES glyphs to be ordered by unicode
  *   - last glyph's code MUST be FontEndEncoding
@@ -120,7 +120,6 @@
 #undef zh_CN
 #undef zh_TW
 
-
 #define NOTOSANS      1
 #define UNIFONT       2
 #define HELVETICA     3
@@ -138,7 +137,7 @@
   #ifdef FONT_EXTRA
     #error "Helvetica font does not have symbols required for selected LCD_LANGUAGE."
   #endif
-#else  
+#else
   #error "Invalid TFT_FONT value."
 #endif
 
@@ -162,7 +161,7 @@ typedef struct __attribute__((__packed__)) {
    int8_t BBXOffsetY;
 } glyph_t;
 
-// unicode-prepended TFT glyphs 
+// unicode-prepended TFT glyphs
 typedef struct __attribute__((__packed__)) {
   uint16_t unicode;
    glyph_t glyph;
