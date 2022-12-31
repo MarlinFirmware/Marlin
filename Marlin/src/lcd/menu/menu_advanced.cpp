@@ -695,7 +695,7 @@ void menu_advanced_settings() {
 
     // M593 - Acceleration items
     #if ENABLED(SHAPING_MENU)
-      SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
+      if (!is_busy) SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
     #endif
 
     #if HAS_CLASSIC_JERK
