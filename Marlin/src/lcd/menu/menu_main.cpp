@@ -233,6 +233,10 @@ void menu_configuration();
 #endif
 
 void menu_main() {
+  #if ENABLED(SDSUPPORT) && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+    #define MEDIA_MENU_AT_TOP
+  #endif
+
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isMounted()
@@ -243,23 +247,34 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  #if ENABLED(SDSUPPORT)
-
-    #if !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
-      #define MEDIA_MENU_AT_TOP
+  if (busy) {
+    #if MACHINE_CAN_PAUSE
+      ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
+    #endif
+    #if MACHINE_CAN_STOP
+      SUBMENU(MSG_STOP_PRINT, []{
+        MenuItem_confirm::select_screen(
+          GET_TEXT_F(MSG_BUTTON_STOP), GET_TEXT_F(MSG_BACK),
+          ui.abort_print, nullptr,
+          GET_TEXT_F(MSG_STOP_PRINT), (const char *)nullptr, F("?")
+        );
+      });
     #endif
 
-    // Note: Due to how the menu system is implemented, conditionally rendering
-    // menu options via functions that capture the current menu state closure will
-    // result in visual glitches when entering said menus.
-    // That is, menu items should not be rendered using [&]{} functions nor using
-    // myFunction([custom variables], int8_t& _lcdLineNr [... references to rest of menu system state])
-    // In order to support MEDIA_MENU_AT_TOP and not duplicate the sdcard menu options code,
-    // goto statements have been used
+    #if ENABLED(GCODE_REPEAT_MARKERS)
+      if (repeat.is_active())
+        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
+    #endif
 
-    // Declare label for sdcard menu items and skip over its code
-    goto after_sdcard_items_decl;
-    render_sdcard_items:
+    SUBMENU(MSG_TUNE, menu_tune);
+
+    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
+      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+    #endif
+  }
+  else {
+    #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
+      // Render sdcard menu items; will return at label
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
       #endif
@@ -288,47 +303,6 @@ void menu_main() {
           GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));          // M21 Attach Media
         #endif
       }
-      #if ENABLED(MEDIA_MENU_AT_TOP)
-        // Return to top sd menu items caller
-        goto after_sdcard_items_top;
-      #else
-        // Return to normally-positioned sd menu items caller
-        goto after_sdcard_items;
-      #endif
-    after_sdcard_items_decl:
-  #endif
-
-  if (busy) {
-    #if MACHINE_CAN_PAUSE
-      ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
-    #endif
-    #if MACHINE_CAN_STOP
-      SUBMENU(MSG_STOP_PRINT, []{
-        MenuItem_confirm::select_screen(
-          GET_TEXT_F(MSG_BUTTON_STOP), GET_TEXT_F(MSG_BACK),
-          ui.abort_print, nullptr,
-          GET_TEXT_F(MSG_STOP_PRINT), (const char *)nullptr, F("?")
-        );
-      });
-    #endif
-
-    #if ENABLED(GCODE_REPEAT_MARKERS)
-      if (repeat.is_active())
-        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
-    #endif
-
-    SUBMENU(MSG_TUNE, menu_tune);
-
-    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
-      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
-    #endif
-  }
-  else {
-
-    #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
-      // Render sdcard menu items; will return at label
-      goto render_sdcard_items;
-      after_sdcard_items_top:
     #endif
 
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
@@ -409,8 +383,34 @@ void menu_main() {
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
     // Render sdcard menu items; will return at label
-    goto render_sdcard_items;
-    after_sdcard_items:
+    #if ENABLED(MENU_ADDAUTOSTART)
+      ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+    #endif
+
+    if (card_detected) {
+      if (!card_open) {
+        #if HAS_SD_DETECT
+          GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21"));        // M21 Change Media
+        #else                                             // - or -
+          ACTION_ITEM(MSG_RELEASE_MEDIA, []{              // M22 Release Media
+            queue.inject(F("M22"));
+            #if ENABLED(TFT_COLOR_UI)
+              // Menu display issue on item removal with multi language selection menu
+              if (encoderTopLine > 0) encoderTopLine--;
+              ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+            #endif
+          });
+        #endif
+        SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);      // Media Menu (or Password First)
+      }
+    }
+    else {
+      #if HAS_SD_DETECT
+        ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
+      #else
+        GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));          // M21 Attach Media
+      #endif
+    }
   #endif
 
   #if HAS_SERVICE_INTERVALS
