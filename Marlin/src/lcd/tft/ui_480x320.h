@@ -36,24 +36,26 @@
 #define MENU_ITEM_ICON_SPACE  42
 
 #if HAS_UI_480x320
-  #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
-    #define FONT_SIZE           19
-  #elif TFT_FONT == UNIFONT
-    #define FONT_SIZE           20
-  #endif
 
   #define MENU_ITEM_HEIGHT    43
   #define FONT_LINE_HEIGHT    34
+
+  #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
+    #define FONT_SIZE         19
+  #elif TFT_FONT == UNIFONT
+    #define FONT_SIZE         20
+  #endif
+
 #elif HAS_UI_480x272
   #if TFT_FONT == NOTOSANS
-    #define FONT_SIZE           16
-    #define FONT_LINE_HEIGHT    26
+    #define FONT_SIZE         16
+    #define FONT_LINE_HEIGHT  26
   #elif TFT_FONT == UNIFONT
-    #define FONT_SIZE           10
-    #define FONT_LINE_HEIGHT    24
+    #define FONT_SIZE         10
+    #define FONT_LINE_HEIGHT  24
   #elif TFT_FONT == HELVETICA
-    #define FONT_SIZE           14
-    #define FONT_LINE_HEIGHT    24
+    #define FONT_SIZE         14
+    #define FONT_LINE_HEIGHT  24
   #endif
 
   #define MENU_ITEM_HEIGHT    36

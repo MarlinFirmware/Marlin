@@ -107,7 +107,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
       else {  // FONT_MARLIN_HIEROGLYPHS
         for (uint16_t i = 0;; i++) {
           if (i == EXTRA_GLYPHS) {
-            DEBUG_ECHOLN("Too many glyphs. Increase EXTRA_GLYPHS");
+            DEBUG_ECHOLNPGM("Too many glyphs. Increase EXTRA_GLYPHS");
             break;
           }
           glyphs_extra[i] = pointer;
@@ -134,27 +134,26 @@ glyph_t *TFT_String::glyph(uint16_t character) {
         return (glyph_t *)glyphs_extra[character - font_header_extra->FontStartEncoding];
     }
     else {
-      #if false
+      #if 0
         // Slow search method that that does not care if glyphs are ordered by unicode
-        for(uint16_t i = 0; i < extra_count; i++) {
+        for (uint16_t i = 0; i < extra_count; i++) {
           if (character == ((uniglyph_t *)glyphs_extra[i])->unicode)
             return &(((uniglyph_t *)glyphs_extra[i])->glyph);
         }
       #else
         // Fast search method that REQUIRES glyphs to be ordered by unicode
         uint16_t min = 0, max = extra_count-1, next = extra_count/2;
-        /*
-        * while() condition check has to be at the end of the loop to support fonts with single glyph
-        * Technically it is not a error and it causes no harm, so let it be
-        */
+        /**
+         * while() condition check has to be at the end of the loop to support fonts with single glyph
+         * Technically it is not a error and it causes no harm, so let it be
+         */
         do {
           uint16_t unicode = ((uniglyph_t *)glyphs_extra[next])->unicode;
           if (character == unicode)
             return &(((uniglyph_t *)glyphs_extra[next])->glyph);
 
           if (character > unicode) {
-            if (next == min)
-              break;
+            if (next == min) break;
             min = next;
             next = (min + max + 1) / 2;
           }
@@ -190,7 +189,7 @@ void TFT_String::add(const char *tpl, const int8_t index, const char *cstr/*=nul
 
   while (*tpl) {
     tpl = get_utf8_value_cb(tpl, read_byte_ram, wc);
-    const uint16_t ch = (uint16_t) wc;
+    const uint16_t ch = uint16_t(wc);
 
     if (ch == '=' || ch == '~' || ch == '*') {
       if (index >= 0) {
@@ -218,7 +217,7 @@ void TFT_String::add(const char *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
   lchar_t wc;
   while (*cstr && max_len) {
     cstr = get_utf8_value_cb(cstr, read_byte_ram, wc);
-    const uint16_t ch = (uint16_t) wc;
+    const uint16_t ch = uint16_t(wc);
     add_character(ch);
     max_len--;
   }

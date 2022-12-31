@@ -237,8 +237,8 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *
   lchar_t wc;
   for (;;) {
     pointer = get_utf8_value_cb(pointer, read_byte_ram, wc);
-    *character++ = (uint16_t) wc;
-    if ((uint16_t) wc == 0) break;
+    *character++ = uint16_t(wc);
+    if (uint16_t(wc) == 0) break;
     parameters->stringLength++;
   }
   end_of_queue = (uint8_t*)character;

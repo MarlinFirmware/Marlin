@@ -38,10 +38,10 @@
 #define MENU_ITEM_HEIGHT      32
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
-  #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
-    #define FONT_SIZE           14
-  #elif TFT_FONT == UNIFONT
-    #define FONT_SIZE           10
-  #endif
+#if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
+  #define FONT_SIZE           14
+#elif TFT_FONT == UNIFONT
+  #define FONT_SIZE           10
+#endif
 
 #include "tft_font.h"

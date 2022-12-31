@@ -3134,11 +3134,11 @@
 
 #if ENABLED(TFT_COLOR_UI)
   /**
-   * TFT Font for in Color_UI. Set to one of the following values:
+   * TFT Font for Color_UI. Choose one of the following:
    *
-   * NOTOSANS  - default font with antialiasing. Supports Latin Extended and non-Latin characters.
-   * UNIFONT   - lightweight font without antialiasing. Supports Latin Extended and non-Latin characters.
-   * HELVETICA - lightweight font without antialiasing. Supports Basic Latin (0x0020-0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only.
+   * NOTOSANS  - Default font with antialiasing. Supports Latin Extended and non-Latin characters.
+   * UNIFONT   - Lightweight font, no antialiasing. Supports Latin Extended and non-Latin characters.
+   * HELVETICA - Lightweight font, no antialiasing. Supports Basic Latin (0x0020-0x007F) and Latin-1 Supplement (0x0080-0x00FF) characters only.
    */
   #define TFT_FONT  NOTOSANS
 

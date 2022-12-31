@@ -77,7 +77,7 @@ void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, u
   for (uint16_t i = 0 ; *(string + i) ; i++) {
     glyph_t *glyph = Glyph(string + i);
     if (stringWidth + glyph->BBXWidth > maxWidth) break;
-    switch(GetFontType()) {
+    switch (GetFontType()) {
       case FONT_MARLIN_GLYPHS_1BPP:
         AddImage(x + stringWidth + glyph->BBXOffsetX, y + GetFontAscent() - glyph->BBXHeight - glyph->BBXOffsetY, glyph->BBXWidth, glyph->BBXHeight, GREYSCALE1, ((uint8_t *)glyph) + sizeof(glyph_t), &color);
         break;
