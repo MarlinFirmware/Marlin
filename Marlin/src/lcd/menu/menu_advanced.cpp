@@ -295,10 +295,9 @@ void menu_backlash();
     // Autotemp, Min, Max, Fact
     //
     #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND)
-      EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp_min, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp_max, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
+      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp.min, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp.max, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp.factor, 0, 10);
     #endif
 
     //
@@ -695,7 +694,7 @@ void menu_advanced_settings() {
 
     // M593 - Acceleration items
     #if ENABLED(SHAPING_MENU)
-      SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
+      if (!is_busy) SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
     #endif
 
     #if HAS_CLASSIC_JERK
