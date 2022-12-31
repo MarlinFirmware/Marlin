@@ -148,7 +148,7 @@ void stepperTask(void *parameter) {
     xQueueReceive(dma.queue, &dma.current, portMAX_DELAY);
     dma.rw_pos = 0;
 
-     while (dma.rw_pos < DMA_SAMPLE_COUNT) {
+    while (dma.rw_pos < DMA_SAMPLE_COUNT) {
       if (!nextMainISR) {
         Stepper::pulse_phase_isr();
         nextMainISR = Stepper::block_phase_isr();
@@ -159,16 +159,16 @@ void stepperTask(void *parameter) {
           nextAdvanceISR = Stepper::la_interval;
         }
       #endif
-      else 
+      else
         i2s_push_sample();
 
       nextMainISR--;
 
       #if ENABLED(LIN_ADVANCE)
-        if (nextAdvanceISR == Stepper::LA_ADV_NEVER) 
+        if (nextAdvanceISR == Stepper::LA_ADV_NEVER)
           nextAdvanceISR = Stepper::la_interval;
-    
-        if (nextAdvanceISR && nextAdvanceISR != Stepper::LA_ADV_NEVER) 
+
+        if (nextAdvanceISR && nextAdvanceISR != Stepper::LA_ADV_NEVER)
           nextAdvanceISR--;
       #endif
     }
