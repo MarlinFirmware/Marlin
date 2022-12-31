@@ -274,6 +274,7 @@ void menu_main() {
   }
   else {
     #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
+      // BEGIN MEDIA MENU
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
       #endif
@@ -302,6 +303,7 @@ void menu_main() {
           GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));          // M21 Attach Media
         #endif
       }
+      // END MEDIA MENU
     #endif
 
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
@@ -381,6 +383,7 @@ void menu_main() {
   #endif
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
+    // BEGIN MEDIA MENU
     #if ENABLED(MENU_ADDAUTOSTART)
       ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
     #endif
@@ -409,6 +412,7 @@ void menu_main() {
         GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));          // M21 Attach Media
       #endif
     }
+    // END MEDIA MENU
   #endif
 
   #if HAS_SERVICE_INTERVALS
