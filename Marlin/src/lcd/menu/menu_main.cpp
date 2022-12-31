@@ -233,10 +233,6 @@ void menu_configuration();
 #endif
 
 void menu_main() {
-  #if ENABLED(SDSUPPORT) && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
-    #define MEDIA_MENU_AT_TOP
-  #endif
-
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
       , card_detected = card.isMounted()
@@ -246,6 +242,12 @@ void menu_main() {
 
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
+
+  #if ENABLED(SDSUPPORT)
+    #if !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+      #define MEDIA_MENU_AT_TOP
+    #endif
+  #endif
 
   if (busy) {
     #if MACHINE_CAN_PAUSE
