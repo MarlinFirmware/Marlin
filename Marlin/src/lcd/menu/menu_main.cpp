@@ -274,7 +274,6 @@ void menu_main() {
   }
   else {
     #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
-      // Render sdcard menu items; will return at label
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
       #endif
@@ -382,7 +381,6 @@ void menu_main() {
   #endif
 
   #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
-    // Render sdcard menu items; will return at label
     #if ENABLED(MENU_ADDAUTOSTART)
       ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
     #endif
