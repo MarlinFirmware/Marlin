@@ -3278,19 +3278,18 @@
 // LED Type. Enable only one of the following two options:
 //#define RGB_LED
 //#define RGBW_LED
+#if EITHER(RGB_LED, RGBW_LED)
+  //#define RGB_LED_R_PIN 34
+  //#define RGB_LED_G_PIN 43
+  //#define RGB_LED_B_PIN 35
+  //#define RGB_LED_W_PIN -1
+#endif
 
 #if ANY(RGB_LED, RGBW_LED, PCA9632)
-  #if EITHER(RGB_LED, RGBW_LED)
-    //#define RGB_LED_R_PIN 34
-    //#define RGB_LED_G_PIN 43
-    //#define RGB_LED_B_PIN 35
-    //#define RGB_LED_W_PIN -1
+  #define RGB_STARTUP_TEST                // For PWM pins, fade between all colors
+  #if ENABLED(RGB_STARTUP_TEST)
+    #define RGB_STARTUP_TEST_INNER_MS 10  // (ms) Reduce or increase fading speed
   #endif
-
-  #define RGB_STARTUP_TEST              // For PWM pins, fade between all colors
-    #if ENABLED(RGB_STARTUP_TEST)
-      #define RGB_STARTUP_TEST_INNER_MS 10  // (ms) Reduce or increase fading speed
-    #endif
 #endif
 
 // Support for Adafruit NeoPixel LED driver
