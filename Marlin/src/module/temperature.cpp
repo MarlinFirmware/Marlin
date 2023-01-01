@@ -2930,7 +2930,7 @@ void Temperature::init() {
 void Temperature::disable_all_heaters() {
 
   // Disable autotemp, unpause and reset everything
-  TERN_(AUTOTEMP, planner.autotemp_enabled = false);
+  TERN_(AUTOTEMP, planner.autotemp.enabled = false);
   TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
@@ -4005,7 +4005,7 @@ void Temperature::isr() {
       OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
       #if ENABLED(AUTOTEMP)
-        REMEMBER(1, planner.autotemp_enabled, false);
+        REMEMBER(1, planner.autotemp.enabled, false);
       #endif
 
       #if TEMP_RESIDENCY_TIME > 0
