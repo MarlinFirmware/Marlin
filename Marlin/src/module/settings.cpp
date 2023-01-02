@@ -2527,7 +2527,7 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // Creality DWIN User Data
+      // DWIN User Data
       //
       #if ENABLED(DWIN_LCD_PROUI)
       {

@@ -19,27 +19,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
+ 
 /**
  * Bed Level Tools for Pro UI
  * Extended by: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 2.0.0
- * Date: 2022/05/23
- *
+ * Version: 2.1.0
+ * Date: 2022/08/27
+ * 
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 #include "../../../inc/MarlinConfigPre.h"
-#include "bedlevel_tools.h"
 
 #if BOTH(DWIN_LCD_PROUI, HAS_LEVELING)
 
 #include "../../marlinui.h"
 #include "../../../core/types.h"
-#include "dwin.h"
-#include "dwinui.h"
-#include "dwin_popup.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 #include "../../../module/probe.h"
 #include "../../../gcode/gcode.h"
@@ -48,9 +58,14 @@
 #include "../../../libs/least_squares_fit.h"
 #include "../../../libs/vector_3.h"
 
+#include "dwin.h"
+#include "dwinui.h"
+#include "dwin_popup.h"
+#include "bedlevel_tools.h"
+
 BedLevelToolsClass BedLevelTools;
 
-#if USE_UBL_VIEWER
+#if ENABLED(USE_UBL_VIEWER)
   bool BedLevelToolsClass::viewer_asymmetric_range = false;
   bool BedLevelToolsClass::viewer_print_value = false;
 #endif
@@ -166,7 +181,9 @@ void BedLevelToolsClass::MoveToZ() {
   BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, true);
 }
 void BedLevelToolsClass::ProbeXY() {
-  sprintf_P(cmd, PSTR("G30X%sY%s"),
+  const uint16_t Clear = Z_CLEARANCE_DEPLOY_PROBE;
+  sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
+    Clear,
     dtostrf(bedlevel.get_mesh_x(BedLevelTools.mesh_x), 1, 2, str_1),
     dtostrf(bedlevel.get_mesh_y(BedLevelTools.mesh_y), 1, 2, str_2)
   );
@@ -199,11 +216,10 @@ bool BedLevelToolsClass::meshvalidate() {
     if (bedlevel.z_values[x][y] < min) min = bedlevel.z_values[x][y];
     if (bedlevel.z_values[x][y] > max) max = bedlevel.z_values[x][y];
   }
-  return WITHIN(max, MESH_Z_OFFSET_MIN, MESH_Z_OFFSET_MAX);
+  return (max <= UBL_Z_OFFSET_MAX) && (min >= UBL_Z_OFFSET_MIN);
 }
 
-#if USE_UBL_VIEWER
-
+#if ENABLED(USE_UBL_VIEWER)
   void BedLevelToolsClass::Draw_Bed_Mesh(int16_t selected /*= -1*/, uint8_t gridline_width /*= 1*/, uint16_t padding_x /*= 8*/, uint16_t padding_y_top /*= 40 + 53 - 7*/) {
     drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
@@ -280,7 +296,6 @@ bool BedLevelToolsClass::meshvalidate() {
     ui.set_status(msg);
     drawing_mesh = false;
   }
-
 #endif // USE_UBL_VIEWER
 
 #endif // DWIN_LCD_PROUI && HAS_LEVELING

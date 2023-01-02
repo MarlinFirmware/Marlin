@@ -23,17 +23,13 @@
 /**
  * DWIN Endstops diagnostic page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.2.2
- * Date: 2022/02/24
+ * Version: 1.3.3
+ * Date: 2022/10/07
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-
-#include "dwin_defines.h"
-
-#if HAS_ESDIAG
+#if BOTH(DWIN_LCD_PROUI, HAS_ESDIAG)
 
 #include "endstop_diag.h"
 
@@ -109,5 +105,4 @@ void ESDiagClass::Update() {
   DWIN_UpdateLCD();
 }
 
-#endif // HAS_ESDIAG
-#endif // DWIN_LCD_PROUI
+#endif // DWIN_LCD_PROUI && HAS_ESDIAG
