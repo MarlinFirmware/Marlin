@@ -1417,6 +1417,9 @@
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
 
+  // Add 50/100mm moves to MarlinUI even with a smaller bed
+  //#define LARGE_MOVE_ITEMS
+
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM
 
