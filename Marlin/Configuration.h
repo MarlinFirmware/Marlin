@@ -2478,7 +2478,7 @@
  */
 //#define NO_LCD_MENUS
 //#define SLIM_LCD_MENUS
-//#define TRULY_LARGE_AREA  // Add 50/100mm moves to MarlinUI even with a smaller bed
+//#define LARGE_MOVE_ITEMS  // Add 50/100mm moves to MarlinUI even with a smaller bed
 
 //
 // ENCODER SETTINGS
