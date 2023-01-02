@@ -51,6 +51,11 @@
   #define LCD_PINS_ENABLE                     17  // ST9720 DAT
   #define LCD_PINS_D4                         30  // ST9720 CLK
 
+  #define BTN_ENC                             16
+  #define BTN_EN1                             11
+  #define BTN_EN2                             10
+  #define BEEPER_PIN                          27
+
   #define LCD_PINS_DEFINED
 #endif
 

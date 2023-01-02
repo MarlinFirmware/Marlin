@@ -712,7 +712,7 @@
 #endif
 
 #if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if PRINTCOUNTER_SYNC
@@ -775,6 +775,13 @@
  */
 #if MB(BTT_BTT002_V1_0, EINSY_RAMBO) && DISABLED(NO_MK3_FAN_PINS_WARNING)
   #warning "Define MK3_FAN_PINS to swap hotend and part cooling fan pins. (Define NO_MK3_FAN_PINS_WARNING to suppress this warning.)"
+#endif
+
+/**
+ * Endstop Interrupts is Indicated
+ */
+#if DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  #warning "ENDSTOP_INTERRUPTS_FEATURE should be enabled for production use if possible!"
 #endif
 
 /**

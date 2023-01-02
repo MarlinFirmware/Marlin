@@ -10,8 +10,7 @@ set -e
 # Build with the default configurations
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_FYSETC_F6_13 LCD_SERIAL_PORT 1
-opt_enable DGUS_LCD_UI_FYSETC
+opt_set MOTHERBOARD BOARD_FYSETC_F6_13 LCD_SERIAL_PORT 1 DGUS_LCD_UI FYSETC
 exec_test $1 $2 "FYSETC F6 1.3 with DGUS" "$3"
 
 #

@@ -36,6 +36,21 @@
   #define FYSETC_MINI_12864_2_1
 #endif
 
+// Updated DGUS_UI shorthand single option can be used, or old settings, for now
+#if DGUS_UI_IS(ORIGIN)
+  #define DGUS_LCD_UI_ORIGIN
+#elif DGUS_UI_IS(FYSETC)
+  #define DGUS_LCD_UI_FYSETC
+#elif DGUS_UI_IS(HIPRECY)
+  #define DGUS_LCD_UI_HIPRECY
+#elif DGUS_UI_IS(MKS)
+  #define DGUS_LCD_UI_MKS
+#elif DGUS_UI_IS(RELOADED)
+  #define DGUS_LCD_UI_RELOADED
+#elif DGUS_UI_IS(IA_CREALITY)
+  #define DGUS_LCD_UI_IA_CREALITY
+#endif
+
 /**
  * General Flags that may be set below by specific LCDs
  *
@@ -137,6 +152,7 @@
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_ULTIPANEL 1
+  #define ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -461,12 +477,11 @@
 #endif
 
 // Aliases for LCD features
-#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS)
-  #define HAS_DGUS_LCD_CLASSIC 1
-#endif
-
-#if EITHER(HAS_DGUS_LCD_CLASSIC, DGUS_LCD_UI_RELOADED)
+#if !DGUS_UI_IS(NONE)
   #define HAS_DGUS_LCD 1
+  #if DGUS_UI_IS(ORIGIN, FYSETC, HIPRECY, MKS)
+    #define HAS_DGUS_LCD_CLASSIC 1
+  #endif
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
@@ -1068,20 +1083,6 @@
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
   #endif
-  #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
-    #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
-  #endif
-
-  // Always disable probe pin inverting for BLTouch
-  #if Z_MIN_PROBE_ENDSTOP_INVERTING
-    #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
-  #endif
-
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #if Z_MIN_ENDSTOP_INVERTING
-      #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
-    #endif
-  #endif
 #endif
 
 /**
@@ -1100,10 +1101,10 @@
 /**
  * Set flags for any form of bed probe
  */
-#if ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, SOLENOID_PROBE, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
+#if ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, HAS_Z_SERVO_PROBE, SOLENOID_PROBE, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
   #define HAS_STOWABLE_PROBE 1
 #endif
-#if ANY(HAS_STOWABLE_PROBE, HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, BD_SENSOR, NOZZLE_AS_PROBE)
+#if ANY(HAS_STOWABLE_PROBE, FIX_MOUNTED_PROBE, BD_SENSOR, NOZZLE_AS_PROBE)
   #define HAS_BED_PROBE 1
 #endif
 
