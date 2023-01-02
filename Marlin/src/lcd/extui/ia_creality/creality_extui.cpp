@@ -1654,8 +1654,14 @@ namespace ExtUI {
           }
           else if (ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION) {
             #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-              if (getFilamentRunoutState() && getFilamentRunoutEnabled(getActiveTool())) {
-                ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
+              #if NUM_RUNOUT_SENSORS > 1
+                // Incomplete code
+                if (getFilamentRunoutState() && getFilamentRunoutEnabled(getActiveTool())) {
+                  ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
+              #else
+                if (getFilamentRunoutState() && getFilamentRunoutEnabled()) {
+                  ExtUI::setFilamentRunoutEnabled(false);
+              #endif
               }
               else {
                 setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
@@ -2214,7 +2220,7 @@ namespace ExtUI {
         for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
           const bool zig = (outer & 1); // != ((PR_OUTER_END) & 1);
           const xy_uint8_t point = { zig ? (GRID_MAX_POINTS_X - 1) - inner : inner, outer };
-          if (x_Point == xpos && outer == ypos)
+          if (point.x == xpos && outer == ypos)
             rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
           ++abl_probe_index;
         }
