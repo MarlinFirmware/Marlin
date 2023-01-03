@@ -49,8 +49,8 @@ void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
  *  D<factor>    Set the zeta/damping factor. If axes (X, Y, etc.) are not specified, set for all axes.
  *  F<frequency> Set the frequency. If axes (X, Y, etc.) are not specified, set for all axes.
  *  T[map]       Input Shaping type, 0:ZV, 1:EI, 2:2H EI (not implemented yet)
- *  X<1>         Set the given parameters only for the X axis.
- *  Y<1>         Set the given parameters only for the Y axis.
+ *  X            Set the given parameters only for the X axis.
+ *  Y            Set the given parameters only for the Y axis.
  */
 void GcodeSuite::M593() {
   if (!parser.seen_any()) return M593_report();
