@@ -91,12 +91,7 @@ namespace ExtUI {
     rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
     memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
 
-    #if ENABLED(DWINOS_4)
-      #define DWIN_BOOTUP_DELAY 1500
-    #else
-      #define DWIN_BOOTUP_DELAY 500
-    #endif
-    delay_ms(DWIN_BOOTUP_DELAY); // Delay to allow screen startup
+    delay_ms(TERN(DWINOS_4, 1500, 500)); // Delay to allow screen startup
     SetTouchScreenConfiguration();
     rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
     delay_ms(400); // Delay to allow screen to configure
@@ -1652,30 +1647,27 @@ namespace ExtUI {
             // PrinterStatusKey[1] = 3;
             // pause_resume_selected = true;
           }
-          else if (ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION) {
+          else {
             #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-              #if NUM_RUNOUT_SENSORS > 1
-                // Incomplete code
-                if (getFilamentRunoutState() && getFilamentRunoutEnabled(getActiveTool())) {
-                  ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
-              #else
-                if (getFilamentRunoutState() && getFilamentRunoutEnabled()) {
-                  ExtUI::setFilamentRunoutEnabled(false);
-              #endif
+              bool runouton = false;
+              if (getFilamentRunoutState()) {
+                #if NUM_RUNOUT_SENSORS > 1
+                  if ((runouton = getFilamentRunoutEnabled(getActiveTool())))
+                    ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
+                #else
+                  if ((runouton = getFilamentRunoutEnabled()))
+                    ExtUI::setFilamentRunoutEnabled(false);
+                #endif
               }
-              else {
-                setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
-                setUserConfirmed();
-                PrinterStatusKey[1]   = 3;
-                pause_resume_selected = true;
-              }
-
             #else
+              constexpr bool runouton = false;
+            #endif
+            if (!runouton) {
               setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
               setUserConfirmed();
-              PrinterStatusKey[1]   = 3;
+              PrinterStatusKey[1] = 3;
               pause_resume_selected = true;
-            #endif
+            }
           }
         }
         else if (recdat.data[0] == 0) { // Filamet is out, Cancel Selected
@@ -1687,14 +1679,15 @@ namespace ExtUI {
         }
         break;
 
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          case PwrOffNoF:
-            if (recdat.data[0] == 1) // Yes:continue to print the 3Dmode during power-off.
-              injectCommands(F("M1000"));
-            else if (recdat.data[0] == 2) // No
-              injectCommands(F("M1000C"));
-            break;
-        #endif
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        case PwrOffNoF:
+          if (recdat.data[0] == 1) // Yes: continue to print the 3Dmode during power-off.
+            injectCommands(F("M1000"));
+          else if (recdat.data[0] == 2) // No
+            injectCommands(F("M1000C"));
+          break;
+      #endif
+
       case Volume:
         if (recdat.data[0] < 0)
           Settings.display_volume = 0;
@@ -1858,8 +1851,7 @@ namespace ExtUI {
         break;
       }
 
-      case AutolevelVal:
-      {
+      case AutolevelVal: {
         uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2;
         uint8_t yPnt      = floor(meshPoint / GRID_MAX_POINTS_X);
         uint8_t xPnt;
@@ -1898,7 +1890,7 @@ namespace ExtUI {
 
   void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar=' ') {
     const char* myvalues = static_cast<const char*>(values);
-    bool strend          = !myvalues;
+    bool strend = !myvalues;
     DWIN_SERIAL.write(FHONE);
     DWIN_SERIAL.write(FHTWO);
     DWIN_SERIAL.write(valueslen + 3);
@@ -1910,7 +1902,7 @@ namespace ExtUI {
       if (!strend) x = *myvalues++;
       if ((isstr && !x) || strend) {
         strend = true;
-        x      = fillChar;
+        x = fillChar;
       }
       DWIN_SERIAL.write(x);
     }
@@ -1921,29 +1913,19 @@ namespace ExtUI {
     LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
     LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
+    unsigned char cfg_bits = 0x0
+                           | _BV(7)   // 7: Enable Control ... TERN0(DWINOS_4, _BV(7))
+                           | _BV(5)   // 5: load 22 touch file
+                           | _BV(4)   // 4: auto-upload should always be enabled
+                           | (Settings.display_sound         ? _BV(3) : 0)  // 3: audio
+                           | (Settings.display_standby       ? _BV(2) : 0)  // 2: backlight on standby
+                           | (Settings.screen_rotation == 10 ? _BV(1) : 0)  // 1 & 0: Inversion
+                           #if EITHER(MachineCR10Smart, MachineCR10SmartPro)
+                             | _BV(0) // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+                           #endif
+                           ;
 
-    unsigned char cfg_bits = 0x0;
-    // #if ENABLED(DWINOS_4)
-    cfg_bits |= 1UL << 7; // 7: Enable Control
-    // #endif
-    cfg_bits |= 1UL << 5; // 5: load 22 touch file
-    cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
-    if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
-    if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
-    if (Settings.screen_rotation == 10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
-    #if ANY(MachineCR10Smart, MachineCR10SmartPro )
-      cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
-    #endif
-
-
-
-    const unsigned char config_set[] = {
-      #if ENABLED(DWINOS_4)
-        0x5A, 0x00, (unsigned char)(cfg_bits >> 8U), (unsigned char)(cfg_bits & 0xFFU)
-      #else
-        0x5A, 0x00, 0xFF, cfg_bits
-      #endif
-    };
+    const unsigned char config_set[] = { 0x5A, 0x00, TERN(DWINOS_4, 0x00, 0xFF), cfg_bits };
     WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
     // Standby brightness (LED_Config)
