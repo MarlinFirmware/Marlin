@@ -1620,7 +1620,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             // Check if temperature is within the correct band
             if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
               #if ENABLED(BED_LIMIT_SWITCHING)
-                if (temp_bed.is_above_target(BED_HYSTERESIS))
+                if (temp_bed.is_above_target((BED_HYSTERESIS) - 1))
                   temp_bed.soft_pwm_amount = 0;
                 else if (temp_bed.is_below_target((BED_HYSTERESIS) - 1))
                   temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
@@ -1696,7 +1696,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
           #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5
           #endif
-          if (!flag_chamber_excess_heat && temp_chamber.is_above_target(HIGH_EXCESS_HEAT_LIMIT)) {
+          if (!flag_chamber_excess_heat && temp_chamber.is_above_target((HIGH_EXCESS_HEAT_LIMIT) - 1)) {
             // Open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds if the
             // temperature didn't drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             if (next_cool_check_ms_2 == 0 || ELAPSED(ms, next_cool_check_ms_2)) {
@@ -1710,7 +1710,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
             next_cool_check_ms_2 = 0;
             old_temp = 9999;
           }
-          if (flag_chamber_excess_heat && temp_chamber.is_above_target(LOW_EXCESS_HEAT_LIMIT))
+          if (flag_chamber_excess_heat && temp_chamber.is_above_target((LOW_EXCESS_HEAT_LIMIT) - 1))
             flag_chamber_excess_heat = false;
         #endif
       }
@@ -1742,7 +1742,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
           }
           else {
             #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-              if (temp_chamber.is_above_target(TEMP_CHAMBER_HYSTERESIS))
+              if (temp_chamber.is_above_target((TEMP_CHAMBER_HYSTERESIS) - 1))
                 temp_chamber.soft_pwm_amount = 0;
               else if (temp_chamber.is_below_target((TEMP_CHAMBER_HYSTERESIS) - 1))
                 temp_chamber.soft_pwm_amount = (MAX_CHAMBER_POWER) >> 1;
@@ -1796,20 +1796,18 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
       if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
       if (ELAPSED(ms, next_cooler_check_ms)) {
         next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
-        if (temp_cooler.is_above_target()) {
-          temp_cooler.soft_pwm_amount = temp_cooler.is_above_target() ? MAX_COOLER_POWER : 0;
-          flag_cooler_state = temp_cooler.soft_pwm_amount > 0 ? true : false; // used to allow M106 fan control when cooler is disabled
+        if (temp_cooler.is_above_target()) { // too warm?
+          temp_cooler.soft_pwm_amount = MAX_COOLER_POWER;
           #if ENABLED(COOLER_FAN)
-            int16_t fan_cooler_pwm = (COOLER_FAN_BASE) + (COOLER_FAN_FACTOR) * ABS(temp_cooler.celsius - temp_cooler.target);
-            NOMORE(fan_cooler_pwm, 255);
-            set_fan_speed(COOLER_FAN_INDEX, fan_cooler_pwm); // Set cooler fan pwm
+            const int16_t fan_cooler_pwm = (COOLER_FAN_BASE) + (COOLER_FAN_FACTOR) * ABS(temp_cooler.celsius - temp_cooler.target);
+            set_fan_speed(COOLER_FAN_INDEX, _MIN(fan_cooler_pwm, 255)); // Set cooler fan pwm
             cooler_fan_flush_ms = ms + 5000;
           #endif
         }
         else {
           temp_cooler.soft_pwm_amount = 0;
           #if ENABLED(COOLER_FAN)
-            set_fan_speed(COOLER_FAN_INDEX, temp_cooler.is_above_target(2) ? COOLER_FAN_BASE : 0);
+            set_fan_speed(COOLER_FAN_INDEX, temp_cooler.is_above_target(-2) ? COOLER_FAN_BASE : 0);
           #endif
           WRITE_HEATER_COOLER(LOW);
         }
