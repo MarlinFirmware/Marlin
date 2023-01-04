@@ -1241,21 +1241,31 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * A Dual Nozzle carriage with switching servo
  */
-#if ENABLED(SWITCHING_NOZZLE)
+#if BOTH(SWITCHING_NOZZLE, MECHANICAL_SWITCHING_NOZZLE)
+  #error "Enable only one of SWITCHING_NOZZLE or MECHANICAL_SWITCHING_NOZZLE."
+#elif HAS_SWITCHING_NOZZLE
   #if ENABLED(DUAL_X_CARRIAGE)
-    #error "SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
+    #error "SWITCHING_NOZZLE(_MECHANICAL) and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
-    #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
+    #error "SWITCHING_NOZZLE(_MECHANICAL) and SINGLENOZZLE are incompatible."
   #elif HAS_PRUSA_MMU2
-    #error "SWITCHING_NOZZLE and PRUSA_MMU2(S) are incompatible."
+    #error "SWITCHING_NOZZLE(_MECHANICAL) and PRUSA_MMU2(S) are incompatible."
   #elif EXTRUDERS != 2
-    #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
-  #elif NUM_SERVOS < 1
-    #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+    #error "SWITCHING_NOZZLE(_MECHANICAL) requires exactly 2 EXTRUDERS."
   #endif
 
+  #if ENABLED(MECHANICAL_SWITCHING_NOZZLE)
+    #ifndef EVENT_GCODE_TOOLCHANGE_T0
+      #error "MECHANICAL_SWITCHING_NOZZLE requires EVENT_GCODE_TOOLCHANGE_T0."
+    #endif
+    #ifndef EVENT_GCODE_TOOLCHANGE_T1
+      #error "MECHANICAL_SWITCHING_NOZZLE requires EVENT_GCODE_TOOLCHANGE_T1."
+    #endif
+  #else
   #ifndef SWITCHING_NOZZLE_SERVO_NR
     #error "SWITCHING_NOZZLE requires SWITCHING_NOZZLE_SERVO_NR."
+    #elif NUM_SERVOS < 1
+      #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
   #elif SWITCHING_NOZZLE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
     #error "SERVO0_PIN must be defined for your SWITCHING_NOZZLE."
   #elif SWITCHING_NOZZLE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
@@ -1280,11 +1290,25 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #endif
   #endif
 #endif
+#endif
 
 /**
  * Single Stepper Dual Extruder with switching servo
  */
-#if ENABLED(SWITCHING_EXTRUDER)
+#if BOTH(SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_EXTRUDER)
+  #error "Enable only one of SWITCHING_EXTRUDER or MECHANICAL_SWITCHING_EXTRUDER."
+#elif HAS_SWITCHING_EXTRUDER
+  #if EXTRUDERS < 2
+    #error "SWITCHING_EXTRUDER(_MECHANICAL) requires EXTRUDERS >= 2."
+  #endif
+  #if ENABLED(MECHANICAL_SWITCHING_EXTRUDER)
+    #ifndef EVENT_GCODE_TOOLCHANGE_T0
+      #error "MECHANICAL_SWITCHING_EXTRUDER requires EVENT_GCODE_TOOLCHANGE_T0."
+    #endif
+    #ifndef EVENT_GCODE_TOOLCHANGE_T1
+      #error "MECHANICAL_SWITCHING_EXTRUDER requires EVENT_GCODE_TOOLCHANGE_T1."
+    #endif
+  #else
   #if NUM_SERVOS < 1
     #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
   #elif SWITCHING_EXTRUDER_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
@@ -1312,6 +1336,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #endif
   #endif
 #endif
+#endif
 
 /**
  * Mixing Extruder requirements
@@ -1323,8 +1348,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
   #elif ENABLED(FILAMENT_WIDTH_SENSOR)
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_WIDTH_SENSOR. Comment out this line to use it anyway."
-  #elif ENABLED(SWITCHING_EXTRUDER)
-    #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
+  #elif HAS_SWITCHING_EXTRUDER
+    #error "MIXING_EXTRUDER is not compatible with SWITCHING_EXTRUDER(_MECHANICAL)."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
   #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
@@ -1342,8 +1367,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "E_DUAL_STEPPER_DRIVERS can only be used with EXTRUDERS set to 1."
   #elif ENABLED(MIXING_EXTRUDER)
     #error "E_DUAL_STEPPER_DRIVERS is incompatible with MIXING_EXTRUDER."
-  #elif ENABLED(SWITCHING_EXTRUDER)
-    #error "E_DUAL_STEPPER_DRIVERS is incompatible with SWITCHING_EXTRUDER."
+  #elif HAS_SWITCHING_EXTRUDER
+    #error "E_DUAL_STEPPER_DRIVERS is incompatible with SWITCHING_EXTRUDER(_MECHANICAL)."
   #endif
 #endif
 
@@ -2665,8 +2690,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with DUAL_X_CARRIAGE."
   #elif ENABLED(MIXING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with MIXING_EXTRUDER."
-  #elif ENABLED(SWITCHING_EXTRUDER)
-    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SWITCHING_EXTRUDER."
+  #elif HAS_SWITCHING_EXTRUDER
+    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SWITCHING_EXTRUDER(_MECHANICAL)."
   #elif HOTENDS < 2
     #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
   #endif

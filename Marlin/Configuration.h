@@ -260,6 +260,9 @@
  */
 //#define MMU_MODEL PRUSA_MMU2
 
+// Switch extruders by bumping toolhead, requires EVENT_GCODE_TOOLCHANGE_#
+//#define MECHANICAL_SWITCHING_EXTRUDER
+
 // A dual extruder that uses a single stepper motor
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
@@ -270,7 +273,10 @@
   #endif
 #endif
 
-// A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles
+// Switch nozzles by bumping toolhead, requires EVENT_GCODE_TOOLCHANGE_#
+#define MECHANICAL_SWITCHING_NOZZLE
+
+// A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles, can be combined with SWITCHING_EXTRUDER
 //#define SWITCHING_NOZZLE
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
