@@ -1318,14 +1318,14 @@ void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_m
   #endif
 }
 
-void Temperature::max_temp_error(const heater_id_t heater_id) {
+void Temperature::maxtemp_error(const heater_id_t heater_id) {
   #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(1);
   #endif
   _temp_error(heater_id, F(STR_T_MAXTEMP), GET_TEXT_F(MSG_ERR_MAXTEMP));
 }
 
-void Temperature::min_temp_error(const heater_id_t heater_id) {
+void Temperature::mintemp_error(const heater_id_t heater_id) {
   #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(0);
   #endif
@@ -1545,7 +1545,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
   void Temperature::manage_hotends(const millis_t &ms) {
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-        if (degHotend(e) > temp_range[e].maxtemp) max_temp_error((heater_id_t)e);
+        if (degHotend(e) > temp_range[e].maxtemp) maxtemp_error((heater_id_t)e);
       #endif
 
       TERN_(HEATER_IDLE_HANDLER, heater_idle[e].update(ms));
@@ -1579,7 +1579,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
   void Temperature::manage_heated_bed(const millis_t &ms) {
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (degBed() > BED_MAXTEMP) max_temp_error(H_BED);
+      if (degBed() > BED_MAXTEMP) maxtemp_error(H_BED);
     #endif
 
     #if WATCH_BED
@@ -1661,7 +1661,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      if (degChamber() > CHAMBER_MAXTEMP) max_temp_error(H_CHAMBER);
+      if (degChamber() > CHAMBER_MAXTEMP) maxtemp_error(H_CHAMBER);
     #endif
 
     #if WATCH_CHAMBER
@@ -1788,7 +1788,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_COOLER)
-      if (degCooler() > COOLER_MAXTEMP) max_temp_error(H_COOLER);
+      if (degCooler() > COOLER_MAXTEMP) maxtemp_error(H_COOLER);
     #endif
 
     #if WATCH_COOLER
@@ -1880,20 +1880,20 @@ void Temperature::task() {
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_IS_MAX_TC(0)
-      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
-      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
+      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) maxtemp_error(H_E0);
+      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) mintemp_error(H_E0);
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(1)
-      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
-      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
+      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) maxtemp_error(H_E1);
+      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) mintemp_error(H_E1);
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(2)
-      if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) max_temp_error(H_E2);
-      if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) min_temp_error(H_E2);
+      if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) maxtemp_error(H_E2);
+      if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) mintemp_error(H_E2);
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
-      if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
-      if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) min_temp_error(H_REDUNDANT);
+      if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) maxtemp_error(H_REDUNDANT);
+      if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) mintemp_error(H_REDUNDANT);
     #endif
   #else
     #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
@@ -2404,7 +2404,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
       if ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
-        max_temp_error((heater_id_t)e);
+        maxtemp_error((heater_id_t)e);
 
       /**
       // DEBUG PREHEATING TIME
@@ -2416,7 +2416,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       const bool heater_on = temp_hotend[e].target > 0;
       if (heater_on && !is_preheating(e) && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min))) {
         if (TERN1(MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR, ++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED))
-          min_temp_error((heater_id_t)e);
+          mintemp_error((heater_id_t)e);
       }
       else {
         TERN_(MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR, consecutive_low_temperature_error[e] = 0);
@@ -2427,23 +2427,23 @@ void Temperature::updateTemperaturesFromRawValues() {
 
   #define TP_CMP(S,A,B) (TEMPDIR(S) < 0 ? ((A)<(B)) : ((A)>(B)))
   #if ENABLED(THERMAL_PROTECTION_BED)
-    if (TP_CMP(BED, temp_bed.getraw(), maxtemp_raw_BED)) max_temp_error(H_BED);
-    if (temp_bed.target > 0 && TP_CMP(BED, mintemp_raw_BED, temp_bed.getraw())) min_temp_error(H_BED);
+    if (TP_CMP(BED, temp_bed.getraw(), maxtemp_raw_BED)) maxtemp_error(H_BED);
+    if (temp_bed.target > 0 && TP_CMP(BED, mintemp_raw_BED, temp_bed.getraw())) mintemp_error(H_BED);
   #endif
 
   #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)
-    if (TP_CMP(CHAMBER, temp_chamber.getraw(), maxtemp_raw_CHAMBER)) max_temp_error(H_CHAMBER);
-    if (temp_chamber.target > 0 && TP_CMP(CHAMBER, mintemp_raw_CHAMBER, temp_chamber.getraw())) min_temp_error(H_CHAMBER);
+    if (TP_CMP(CHAMBER, temp_chamber.getraw(), maxtemp_raw_CHAMBER)) maxtemp_error(H_CHAMBER);
+    if (temp_chamber.target > 0 && TP_CMP(CHAMBER, mintemp_raw_CHAMBER, temp_chamber.getraw())) mintemp_error(H_CHAMBER);
   #endif
 
   #if BOTH(HAS_COOLER, THERMAL_PROTECTION_COOLER)
-    if (cutter.unitPower > 0 && TP_CMP(COOLER, temp_cooler.getraw(), maxtemp_raw_COOLER)) max_temp_error(H_COOLER);
-    if (TP_CMP(COOLER, mintemp_raw_COOLER, temp_cooler.getraw())) min_temp_error(H_COOLER);
+    if (cutter.unitPower > 0 && TP_CMP(COOLER, temp_cooler.getraw(), maxtemp_raw_COOLER)) maxtemp_error(H_COOLER);
+    if (TP_CMP(COOLER, mintemp_raw_COOLER, temp_cooler.getraw())) mintemp_error(H_COOLER);
   #endif
 
   #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
-    if (TP_CMP(BOARD, temp_board.getraw(), maxtemp_raw_BOARD)) max_temp_error(H_BOARD);
-    if (TP_CMP(BOARD, mintemp_raw_BOARD, temp_board.getraw())) min_temp_error(H_BOARD);
+    if (TP_CMP(BOARD, temp_board.getraw(), maxtemp_raw_BOARD)) maxtemp_error(H_BOARD);
+    if (TP_CMP(BOARD, mintemp_raw_BOARD, temp_board.getraw())) mintemp_error(H_BOARD);
   #endif
   #undef TP_CMP
 
@@ -3161,7 +3161,7 @@ void Temperature::disable_all_heaters() {
     #endif
 
     // Handle an error. If there have been more than THERMOCOUPLE_MAX_ERRORS, send an error over serial.
-    // Either way, return the TMAX for the thermocouple to trigger a max_temp_error()
+    // Either way, return the TMAX for the thermocouple to trigger a maxtemp_error()
     if (max_tc_temp & MAX_TC_ERROR_MASK) {
       max_tc_errors[hindex]++;
 
