@@ -921,18 +921,23 @@ class Temperature {
         preheat_hotend_end_time[HOTEND_INDEX] = 0;
       }
 
-      static bool is_bed_preheating() {
-        return preheat_bed_end_time && PENDING(millis(), preheat_bed_end_time);
-      }
-      static void start_bed_preheat_time() {
-        preheat_bed_end_time = millis() + MILLISECONDS_PREHEAT_TIME;
-      }
-      static void reset_bed_preheat_time() {
-        preheat_bed_end_time = 0;
-      }
+      #if HAS_HEATED_BED
+        static bool is_bed_preheating() {
+          return preheat_bed_end_time && PENDING(millis(), preheat_bed_end_time);
+        }
+        static void start_bed_preheat_time() {
+          preheat_bed_end_time = millis() + MILLISECONDS_PREHEAT_TIME;
+        }
+        static void reset_bed_preheat_time() {
+          preheat_bed_end_time = 0;
+        }
+      #endif
+
     #else
-      #define is_hotend_preheating(n) (false)
-      #define is_bed_preheating(n) (false)
+      static bool is_hotend_preheating(const uint8_t) { return false; }
+      #if HAS_HEATED_BED
+        static bool is_bed_preheating() { return false; }
+      #endif
     #endif
 
     //high level conversion routines, for use outside of temperature.cpp
