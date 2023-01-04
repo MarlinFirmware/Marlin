@@ -57,7 +57,8 @@ void MarlinUI::tft_idle() {
   #endif
 
   tft.queue.async();
-  TERN_(TOUCH_SCREEN, touch.idle());
+
+  TERN_(TOUCH_SCREEN, if (tft.queue.is_empty()) touch.idle()); // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -304,28 +305,31 @@ void MarlinUI::draw_status_screen() {
 
   y += 100;
   // feed rate
-  tft.canvas(274, y, 100, 32);
+  tft.canvas(274, y, 128, 32);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
   tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 100, 32));
+  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, 274, y, 128, 32));
 
   // flow rate
-  tft.canvas(650, y, 100, 32);
+  tft.canvas(650, y, 128, 32);
   tft.set_background(COLOR_BACKGROUND);
   color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFlowRate, color);
   tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
   tft_string.add('%');
   tft.add_text(36, 1, color , tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 100, 32, active_extruder));
+  TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, 650, y, 128, 32, active_extruder));
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(900, y, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(12, y, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    #if ENABLED(SDSUPPORT)
+      const bool cm = card.isMounted(), pa = printingIsActive();
+      add_control(12, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+    #endif
   #endif
 
   y += 100;
@@ -350,7 +354,7 @@ void MarlinUI::draw_status_screen() {
 
   y += 50;
   // status message
-  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT - 5);
+  tft.canvas(0, y, TFT_WIDTH, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
