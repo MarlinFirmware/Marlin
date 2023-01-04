@@ -561,9 +561,11 @@ volatile bool Temperature::raw_temps_ready = false;
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
 #endif
 
-#if MILLISECONDS_PREHEAT_TIME > 0
-  millis_t Temperature::preheat_hotend_end_time[HOTENDS] { 0 };
-  millis_t Temperature::preheat_bed_end_time = 0;
+#if PREHEAT_TIME_HOTEND_MS > 0
+  millis_t Temperature::preheat_end_ms_hotend[HOTENDS] { 0 };
+#endif
+#if HAS_HEATED_BED && PREHEAT_TIME_BED_MS > 0
+  millis_t Temperature::preheat_end_ms_bed = 0;
 #endif
 
 #if HAS_FAN_LOGIC

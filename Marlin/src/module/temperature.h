@@ -748,11 +748,6 @@ class Temperature {
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
 
-    #if MILLISECONDS_PREHEAT_TIME > 0
-      static millis_t preheat_hotend_end_time[HOTENDS];
-      static millis_t preheat_bed_end_time;
-    #endif
-
     #if HAS_FAN_LOGIC
       static millis_t fan_update_ms;
 
@@ -910,32 +905,34 @@ class Temperature {
     /**
      * Preheating hotends & bed
      */
-    #if MILLISECONDS_PREHEAT_TIME > 0
+    #if PREHEAT_TIME_HOTEND_MS > 0
+      static millis_t preheat_end_ms_hotend[HOTENDS];
       static bool is_hotend_preheating(const uint8_t E_NAME) {
-        return preheat_hotend_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_hotend_end_time[HOTEND_INDEX]);
+        return preheat_end_ms_hotend[HOTEND_INDEX] && PENDING(millis(), preheat_end_ms_hotend[HOTEND_INDEX]);
       }
       static void start_hotend_preheat_time(const uint8_t E_NAME) {
-        preheat_hotend_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+        preheat_end_ms_hotend[HOTEND_INDEX] = millis() + PREHEAT_TIME_HOTEND_MS;
       }
       static void reset_hotend_preheat_time(const uint8_t E_NAME) {
-        preheat_hotend_end_time[HOTEND_INDEX] = 0;
+        preheat_end_ms_hotend[HOTEND_INDEX] = 0;
       }
-
-      #if HAS_HEATED_BED
-        static bool is_bed_preheating() {
-          return preheat_bed_end_time && PENDING(millis(), preheat_bed_end_time);
-        }
-        static void start_bed_preheat_time() {
-          preheat_bed_end_time = millis() + MILLISECONDS_PREHEAT_TIME;
-        }
-        static void reset_bed_preheat_time() {
-          preheat_bed_end_time = 0;
-        }
-      #endif
-
     #else
       static bool is_hotend_preheating(const uint8_t) { return false; }
-      #if HAS_HEATED_BED
+    #endif
+
+    #if HAS_HEATED_BED
+      #if PREHEAT_TIME_BED_MS > 0
+        static millis_t preheat_end_ms_bed;
+        static bool is_bed_preheating() {
+          return preheat_end_ms_bed && PENDING(millis(), preheat_end_ms_bed);
+        }
+        static void start_bed_preheat_time() {
+          preheat_end_ms_bed = millis() + PREHEAT_TIME_BED_MS;
+        }
+        static void reset_bed_preheat_time() {
+          preheat_end_ms_bed = 0;
+        }
+      #else
         static bool is_bed_preheating() { return false; }
       #endif
     #endif
@@ -966,7 +963,7 @@ class Temperature {
 
       static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
-        #if MILLISECONDS_PREHEAT_TIME > 0
+        #if PREHEAT_TIME_HOTEND_MS > 0
           if (celsius == 0)
             reset_hotend_preheat_time(ee);
           else if (temp_hotend[ee].target == 0)
@@ -1033,7 +1030,7 @@ class Temperature {
       static void start_watching_bed() { TERN_(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())); }
 
       static void setTargetBed(const celsius_t celsius) {
-        #if MILLISECONDS_PREHEAT_TIME > 0
+        #if PREHEAT_TIME_BED_MS > 0
           if (celsius == 0)
             reset_bed_preheat_time();
           else if (temp_bed.target == 0)
