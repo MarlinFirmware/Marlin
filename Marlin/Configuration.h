@@ -274,7 +274,7 @@
 #endif
 
 // Switch nozzles by bumping toolhead, requires EVENT_GCODE_TOOLCHANGE_#
-#define MECHANICAL_SWITCHING_NOZZLE
+//#define MECHANICAL_SWITCHING_NOZZLE
 
 // A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles, can be combined with SWITCHING_EXTRUDER
 //#define SWITCHING_NOZZLE
