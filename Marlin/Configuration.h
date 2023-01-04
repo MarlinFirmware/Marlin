@@ -227,7 +227,7 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
-#define EXTRUDERS 2
+#define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -274,7 +274,7 @@
 #endif
 
 // Switch nozzles by bumping toolhead, requires EVENT_GCODE_TOOLCHANGE_#
-#define MECHANICAL_SWITCHING_NOZZLE
+//#define MECHANICAL_SWITCHING_NOZZLE
 
 // A dual-nozzle that uses a servomotor to raise/lower one (or both) of the nozzles, can be combined with SWITCHING_EXTRUDER
 //#define SWITCHING_NOZZLE
