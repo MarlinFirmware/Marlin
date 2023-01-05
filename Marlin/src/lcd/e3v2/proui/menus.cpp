@@ -61,14 +61,14 @@ MenuData_t MenuData;
 // Menuitem Drawing functions =================================================
 
 void Draw_Title(TitleClass* title) {
-  DWIN_Draw_Rectangle(1, HMI_data.TitleBg_color, 0, 0, DWIN_WIDTH - 1, TITLE_HEIGHT - 1);
+  DWIN_Draw_Rectangle(1, HMI_data.TitleBg_Color, 0, 0, DWIN_WIDTH - 1, TITLE_HEIGHT - 1);
   if (title->frameid)
     DWIN_Frame_AreaCopy(title->frameid, title->frame.left, title->frame.top, title->frame.right, title->frame.bottom, 14, (TITLE_HEIGHT - (title->frame.bottom - title->frame.top)) / 2 - 1);
   else
     #if ENABLED(TITLE_CENTERED)
-      DWINUI::Draw_CenteredString(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
+      DWINUI::Draw_CenteredString(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_Color, HMI_data.TitleBg_Color, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
     #else
-      DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
+      DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_Color, HMI_data.TitleBg_Color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
     #endif
 }
 
@@ -79,7 +79,7 @@ void Draw_Menu(MenuClass* menu) {
 
 void Draw_Menu_Cursor(const int8_t line) {
   const uint16_t ypos = MYPOS(line);
-  DWINUI::Draw_Box(1, HMI_data.Cursor_color, {0, ypos, 15, MLINE - 1});
+  DWINUI::Draw_Box(1, HMI_data.Cursor_Color, {0, ypos, 15, MLINE - 1});
 }
 
 void Erase_Menu_Cursor(const int8_t line) {

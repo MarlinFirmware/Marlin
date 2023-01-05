@@ -48,16 +48,16 @@
 #endif
 
 #define Def_Background_Color  RGB( 1, 12,  8)
-#define Def_Cursor_color      RGB(20, 49, 31)
-#define Def_TitleBg_color     RGB( 0, 23, 16)
-#define Def_TitleTxt_color    Color_White
+#define Def_Cursor_Color      RGB(20, 49, 31)
+#define Def_TitleBg_Color     RGB( 0, 23, 16)
+#define Def_TitleTxt_Color    Color_White
 #define Def_Text_Color        Color_White
 #define Def_Selected_Color    Select_Color
 #define Def_SplitLine_Color   RGB( 0, 23, 16)
 #define Def_Highlight_Color   Color_White
 #define Def_StatusBg_Color    RGB( 0, 23, 16)
 #define Def_StatusTxt_Color   Color_Yellow
-#define Def_PopupBg_color     Color_Bg_Window
+#define Def_PopupBg_Color     Color_Bg_Window
 #define Def_PopupTxt_Color    Popup_Text_Color
 #define Def_AlertBg_Color     Color_Bg_Red
 #define Def_AlertTxt_Color    Color_Yellow

@@ -1261,7 +1261,7 @@ void HMI_WaitForUser() {
 }
 
 void HMI_Init() {
-  DWINUI::Draw_Box(1, Color_Black, {5, 220, DWIN_WIDTH-5, DWINUI::fontHeight()});
+  DWINUI::Draw_Box(1, Color_Black, { 5, 220, DWIN_WIDTH - 5, DWINUI::fontHeight() });
   DWINUI::Draw_CenteredString(Color_White, 220, F("Professional Firmware "));
   for (uint16_t t = 15; t <= 257; t += 10) {
     DWINUI::Draw_Icon(ICON_Bar, 15, 260);
@@ -1645,16 +1645,16 @@ void DWIN_M73() {
 
 void DWIN_SetColorDefaults() {
   HMI_data.Background_Color = Def_Background_Color;
-  HMI_data.Cursor_color     = Def_Cursor_color;
-  HMI_data.TitleBg_color    = Def_TitleBg_color;
-  HMI_data.TitleTxt_color   = Def_TitleTxt_color;
+  HMI_data.Cursor_Color     = Def_Cursor_Color;
+  HMI_data.TitleBg_Color    = Def_TitleBg_Color;
+  HMI_data.TitleTxt_Color   = Def_TitleTxt_Color;
   HMI_data.Text_Color       = Def_Text_Color;
   HMI_data.Selected_Color   = Def_Selected_Color;
   HMI_data.SplitLine_Color  = Def_SplitLine_Color;
   HMI_data.Highlight_Color  = Def_Highlight_Color;
   HMI_data.StatusBg_Color   = Def_StatusBg_Color;
   HMI_data.StatusTxt_Color  = Def_StatusTxt_Color;
-  HMI_data.PopupBg_color    = Def_PopupBg_color;
+  HMI_data.PopupBg_Color    = Def_PopupBg_Color;
   HMI_data.PopupTxt_Color   = Def_PopupTxt_Color;
   HMI_data.AlertBg_Color    = Def_AlertBg_Color;
   HMI_data.AlertTxt_Color   = Def_AlertTxt_Color;
@@ -1733,6 +1733,7 @@ void MarlinUI::init_lcd() {
 
 void DWIN_InitScreen() {
   DEBUG_ECHOLNPGM("DWIN_InitScreen");
+  DWIN_SetColorDefaults();
   HMI_Init();   // draws boot screen
   DWINUI::init();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
@@ -2193,7 +2194,7 @@ void SetPID(celsius_t t, heater_id_t h) {
   void SetExtMinT() { SetPIntOnClick(MIN_ETEMP, MAX_ETEMP, ApplyExtMinT); }
 #endif
 
-void RestoreDefaultsColors() {
+void RestoreDefaultColors() {
   DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
   DWIN_RedrawScreen();
@@ -3164,18 +3165,18 @@ void Draw_SelectColors_Menu() {
   checkkey = Menu;
   if (SET_MENU(SelectColorMenu, MSG_COLORS_SELECT, 20)) {
     BACK_ITEM(Draw_AdvancedSettings_Menu);
-    MENU_ITEM(ICON_StockConfiguration, MSG_RESTORE_DEFAULTS, onDrawMenuItem, RestoreDefaultsColors);
+    MENU_ITEM(ICON_StockConfiguration, MSG_RESTORE_DEFAULTS, onDrawMenuItem, RestoreDefaultColors);
     EDIT_ITEM_F(0, "Screen Background", onDrawSelColorItem, SelColor, &HMI_data.Background_Color);
-    EDIT_ITEM_F(0, "Cursor", onDrawSelColorItem, SelColor, &HMI_data.Cursor_color);
-    EDIT_ITEM_F(0, "Title Background", onDrawSelColorItem, SelColor, &HMI_data.TitleBg_color);
-    EDIT_ITEM_F(0, "Title Text", onDrawSelColorItem, SelColor, &HMI_data.TitleTxt_color);
+    EDIT_ITEM_F(0, "Cursor", onDrawSelColorItem, SelColor, &HMI_data.Cursor_Color);
+    EDIT_ITEM_F(0, "Title Background", onDrawSelColorItem, SelColor, &HMI_data.TitleBg_Color);
+    EDIT_ITEM_F(0, "Title Text", onDrawSelColorItem, SelColor, &HMI_data.TitleTxt_Color);
     EDIT_ITEM_F(0, "Text", onDrawSelColorItem, SelColor, &HMI_data.Text_Color);
     EDIT_ITEM_F(0, "Selected", onDrawSelColorItem, SelColor, &HMI_data.Selected_Color);
     EDIT_ITEM_F(0, "Split Line", onDrawSelColorItem, SelColor, &HMI_data.SplitLine_Color);
     EDIT_ITEM_F(0, "Highlight", onDrawSelColorItem, SelColor, &HMI_data.Highlight_Color);
     EDIT_ITEM_F(0, "Status Background", onDrawSelColorItem, SelColor, &HMI_data.StatusBg_Color);
     EDIT_ITEM_F(0, "Status Text", onDrawSelColorItem, SelColor, &HMI_data.StatusTxt_Color);
-    EDIT_ITEM_F(0, "Popup Background", onDrawSelColorItem, SelColor, &HMI_data.PopupBg_color);
+    EDIT_ITEM_F(0, "Popup Background", onDrawSelColorItem, SelColor, &HMI_data.PopupBg_Color);
     EDIT_ITEM_F(0, "Popup Text", onDrawSelColorItem, SelColor, &HMI_data.PopupTxt_Color);
     EDIT_ITEM_F(0, "Alert Background", onDrawSelColorItem, SelColor, &HMI_data.AlertBg_Color);
     EDIT_ITEM_F(0, "Alert Text", onDrawSelColorItem, SelColor, &HMI_data.AlertTxt_Color);

@@ -80,24 +80,25 @@ enum pidresult_t : uint8_t {
 
 typedef struct {
   // Color settings
-  uint16_t Background_Color = Def_Background_Color;
-  uint16_t Cursor_color = Def_Cursor_color;
-  uint16_t TitleBg_color = Def_TitleBg_color;
-  uint16_t TitleTxt_color = Def_TitleTxt_color;
-  uint16_t Text_Color = Def_Text_Color;
-  uint16_t Selected_Color = Def_Selected_Color;
-  uint16_t SplitLine_Color = Def_SplitLine_Color;
-  uint16_t Highlight_Color = Def_Highlight_Color;
-  uint16_t StatusBg_Color = Def_StatusBg_Color;
-  uint16_t StatusTxt_Color = Def_StatusTxt_Color;
-  uint16_t PopupBg_color = Def_PopupBg_color;
-  uint16_t PopupTxt_Color = Def_PopupTxt_Color;
-  uint16_t AlertBg_Color = Def_AlertBg_Color;
-  uint16_t AlertTxt_Color = Def_AlertTxt_Color;
-  uint16_t PercentTxt_Color = Def_PercentTxt_Color;
-  uint16_t Barfill_Color = Def_Barfill_Color;
-  uint16_t Indicator_Color = Def_Indicator_Color;
-  uint16_t Coordinate_Color = Def_Coordinate_Color;
+  uint16_t Background_Color;
+  uint16_t Cursor_Color;
+  uint16_t TitleBg_Color;
+  uint16_t TitleTxt_Color;
+  uint16_t Text_Color;
+  uint16_t Selected_Color;
+  uint16_t SplitLine_Color;
+  uint16_t Highlight_Color;
+  uint16_t StatusBg_Color;
+  uint16_t StatusTxt_Color;
+  uint16_t PopupBg_Color;
+  uint16_t PopupTxt_Color;
+  uint16_t AlertBg_Color;
+  uint16_t AlertTxt_Color;
+  uint16_t PercentTxt_Color;
+  uint16_t Barfill_Color;
+  uint16_t Indicator_Color;
+  uint16_t Coordinate_Color;
+
   // Temperatures
   #if ENABLED(PIDTEMP)
     int16_t HotendPidT = DEF_HOTENDPIDT;
