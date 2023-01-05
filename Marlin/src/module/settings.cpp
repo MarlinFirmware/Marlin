@@ -2852,7 +2852,7 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !BedLevelTools.meshvalidate();
+          status = !bedLevelTools.meshvalidate();
           if (status) {
             bedlevel.invalidate();
             LCD_MESSAGE(MSG_UBL_MESH_INVALID);

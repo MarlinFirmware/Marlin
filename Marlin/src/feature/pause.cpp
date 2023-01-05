@@ -460,7 +460,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // If axes don't need to home then the nozzle can park
   if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
-  TERN_(DWIN_LCD_PROUI, else ui.set_status(GET_TEXT_F(MSG_PARK_FAILED)));
+  TERN_(DWIN_LCD_PROUI, if (!do_park) ui.set_status(GET_TEXT_F(MSG_PARK_FAILED)));
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;

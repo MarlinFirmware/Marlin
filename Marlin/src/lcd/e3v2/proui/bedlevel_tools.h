@@ -83,4 +83,4 @@ public:
   #endif
 };
 
-extern BedLevelToolsClass BedLevelTools;
+extern BedLevelToolsClass bedLevelTools;

@@ -295,8 +295,12 @@ MenuClass *MaxAccelMenu = nullptr;
   MenuClass *MaxJerkMenu = nullptr;
 #endif
 MenuClass *StepsMenu = nullptr;
-TERN_(PIDTEMP, MenuClass *HotendPIDMenu = nullptr);
-TERN_(PIDTEMPBED, MenuClass *BedPIDMenu = nullptr);
+#if ENABLED(PIDTEMP)
+  MenuClass *HotendPIDMenu = nullptr;
+#endif
+#if ENABLED(PIDTEMPBED)
+  MenuClass *BedPIDMenu = nullptr;
+#endif
 #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
   MenuClass *CaseLightMenu = nullptr;
 #endif
@@ -3557,11 +3561,11 @@ void Draw_Steps_Menu() {
     #define Z_OFFSET_MIN -3
     #define Z_OFFSET_MAX  3
 
-    void LiveEditMesh() { ((MenuItemPtrClass*)EditZValueItem)->value = &bedlevel.z_values[HMI_value.Select ? BedLevelTools.mesh_x : MenuData.Value][HMI_value.Select ? MenuData.Value : BedLevelTools.mesh_y]; EditZValueItem->redraw(); }
-    void ApplyEditMeshX() { BedLevelTools.mesh_x = MenuData.Value; }
-    void SetEditMeshX() { HMI_value.Select = 0; SetIntOnClick(0, GRID_MAX_POINTS_X - 1, BedLevelTools.mesh_x, ApplyEditMeshX, LiveEditMesh); }
-    void ApplyEditMeshY() { BedLevelTools.mesh_y = MenuData.Value; }
-    void SetEditMeshY() { HMI_value.Select = 1; SetIntOnClick(0, GRID_MAX_POINTS_Y - 1, BedLevelTools.mesh_y, ApplyEditMeshY, LiveEditMesh); }
+    void LiveEditMesh() { ((MenuItemPtrClass*)EditZValueItem)->value = &bedlevel.z_values[HMI_value.Select ? bedLevelTools.mesh_x : MenuData.Value][HMI_value.Select ? MenuData.Value : bedLevelTools.mesh_y]; EditZValueItem->redraw(); }
+    void ApplyEditMeshX() { bedLevelTools.mesh_x = MenuData.Value; }
+    void SetEditMeshX() { HMI_value.Select = 0; SetIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, ApplyEditMeshX, LiveEditMesh); }
+    void ApplyEditMeshY() { bedLevelTools.mesh_y = MenuData.Value; }
+    void SetEditMeshY() { HMI_value.Select = 1; SetIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, ApplyEditMeshY, LiveEditMesh); }
     void SetEditZValue() { SetPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
   #endif
 #endif
@@ -3575,14 +3579,14 @@ void Draw_Steps_Menu() {
     onDrawIntMenu(menuitem, line, bedlevel.storage_slot);
   }
 
-  void ApplyUBLTiltGrid() { BedLevelTools.tilt_grid = MenuData.Value; }
-  void SetUBLTiltGrid() { SetIntOnClick(1, 3, BedLevelTools.tilt_grid, ApplyUBLTiltGrid); }
+  void ApplyUBLTiltGrid() { bedLevelTools.tilt_grid = MenuData.Value; }
+  void SetUBLTiltGrid() { SetIntOnClick(1, 3, bedLevelTools.tilt_grid, ApplyUBLTiltGrid); }
 
   void UBLTiltMesh() {
     if (bedlevel.storage_slot < 0) bedlevel.storage_slot = 0;
     char buf[15];
-    if (BedLevelTools.tilt_grid > 1) {
-      sprintf_P(buf, PSTR("G28O\nG29 J%i"), BedLevelTools.tilt_grid);
+    if (bedLevelTools.tilt_grid > 1) {
+      sprintf_P(buf, PSTR("G28O\nG29 J%i"), bedLevelTools.tilt_grid);
       gcode.process_subcommands_now(buf);
     }
     else
@@ -3627,7 +3631,7 @@ void Draw_Steps_Menu() {
         EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, SetUBLSlot, &bedlevel.storage_slot);
         MENU_ITEM(ICON_UBLSaveMesh, MSG_UBL_SAVE_MESH, onDrawMenuItem, UBLSaveMesh);
         MENU_ITEM(ICON_UBLLoadMesh, MSG_UBL_LOAD_MESH, onDrawMenuItem, UBLLoadMesh);
-        EDIT_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILTING_GRID, onDrawPInt8Menu, SetUBLTiltGrid, &BedLevelTools.tilt_grid);
+        EDIT_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILTING_GRID, onDrawPInt8Menu, SetUBLTiltGrid, &bedLevelTools.tilt_grid);
         MENU_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILT_MESH, onDrawMenuItem, UBLTiltMesh);
         MENU_ITEM(ICON_UBLSmartFill, MSG_UBL_SMART_FILLIN, onDrawMenuItem, UBLSmartFillMesh);
       #endif
@@ -3645,11 +3649,11 @@ void Draw_Steps_Menu() {
       set_bed_leveling_enabled(false);
       checkkey = Menu;
       if (SET_MENU(EditMeshMenu, MSG_EDIT_MESH, 4)) {
-        BedLevelTools.mesh_x = BedLevelTools.mesh_y = 0;
+        bedLevelTools.mesh_x = bedLevelTools.mesh_y = 0;
         BACK_ITEM(Draw_MeshSet_Menu);
-        EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, SetEditMeshX, &BedLevelTools.mesh_x);
-        EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, SetEditMeshY, &BedLevelTools.mesh_y);
-        EditZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, SetEditZValue, &bedlevel.z_values[BedLevelTools.mesh_x][BedLevelTools.mesh_y]);
+        EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, SetEditMeshX, &bedLevelTools.mesh_x);
+        EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, SetEditMeshY, &bedLevelTools.mesh_y);
+        EditZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, SetEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
       }
       UpdateMenu(EditMeshMenu);
     }

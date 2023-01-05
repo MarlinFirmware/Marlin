@@ -37,7 +37,9 @@
 void GcodeSuite::M524() {
 
   #if ENABLED(DWIN_LCD_PROUI)
+
     ui.abort_print();
+
   #else
 
     if (IS_SD_PRINTING())
