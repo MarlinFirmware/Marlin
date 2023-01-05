@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * DWIN Enhanced implementation for PRO UI
@@ -26,8 +27,6 @@
  * Version: 3.21.2
  * Date: 2022/12/02
  */
-
-#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -100,10 +99,10 @@ typedef struct {
   uint16_t Indicator_Color = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
   // Temperatures
-  #if HAS_HOTEND && ENABLED(PIDTEMP)
+  #if ENABLED(PIDTEMP)
     int16_t HotendPidT = DEF_HOTENDPIDT;
   #endif
-  #if HAS_HEATED_BED && ENABLED(PIDTEMPBED)
+  #if ENABLED(PIDTEMPBED)
     int16_t BedPidT = DEF_BEDPIDT;
   #endif
   #if (HAS_HOTEND || HAS_HEATED_BED) && HAS_PID_HEATING
@@ -112,7 +111,7 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
   #endif
-  #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_LEVELING)
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
     int16_t BedLevT = LEVELING_BED_TEMP;
   #endif
   #if ENABLED(BAUD_RATE_GCODE)
@@ -186,10 +185,10 @@ void AutoHome();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
 #endif
 void DoCoolDown();
-#if HAS_HOTEND && ENABLED(PIDTEMP)
+#if ENABLED(PIDTEMP)
   void HotendPID();
 #endif
-#if HAS_HEATED_BED && ENABLED(PIDTEMPBED)
+#if ENABLED(PIDTEMPBED)
   void BedPID();
 #endif
 #if ENABLED(BAUD_RATE_GCODE)
@@ -350,7 +349,8 @@ void Draw_Steps_Menu();
     void Draw_EditMesh_Menu();
   #endif
 #endif
-//PID
+
+// PID
 void DWIN_PidTuning(pidresult_t result);
 #if ENABLED(PIDTEMP)
   void Draw_HotendPID_Menu();

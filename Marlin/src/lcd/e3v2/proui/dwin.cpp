@@ -160,6 +160,9 @@
   #include "lockscreen.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_DWIN)
+#include "../../../core/debug_out.h"
+
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 #endif
@@ -330,17 +333,9 @@ MenuItemClass *FanSpeedItem = nullptr;
 MenuItemClass *MMeshMoveZItem = nullptr;
 MenuItemClass *EditZValueItem = nullptr;
 
-bool Printing() {
-  return (printingIsActive() || print_job_timer.isPaused());
-}
-
-bool SD_Printing() {
-  return (Printing() && IS_SD_FILE_OPEN());
-}
-
-bool Host_Printing() {
-  return (Printing() && !IS_SD_FILE_OPEN());
-}
+bool Printing() { return printingIsActive() || printingIsPaused(); }
+bool SD_Printing() { return Printing() && IS_SD_FILE_OPEN(); }
+bool Host_Printing() { return Printing() && !IS_SD_FILE_OPEN(); }
 
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
                                             // BL24CXX::check() uses 0x00
@@ -1312,7 +1307,7 @@ void EachMomentUpdate() {
 
     if ((Printing() != HMI_flag.printing_flag) && !HMI_flag.home_flag) {
       HMI_flag.printing_flag = Printing();
-      TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("printing_flag: ", HMI_flag.printing_flag));
+      DEBUG_ECHOLNPGM("printing_flag: ", HMI_flag.printing_flag);
       if (HMI_flag.printing_flag)
         DWIN_Print_Started();
       else if (HMI_flag.abort_flag)
@@ -1323,7 +1318,7 @@ void EachMomentUpdate() {
 
     if ((printingIsPaused() != HMI_flag.pause_flag) && !HMI_flag.home_flag) {
       HMI_flag.pause_flag = printingIsPaused();
-      TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("pause_flag: ", HMI_flag.pause_flag));
+      DEBUG_ECHOLNPGM("pause_flag: ", HMI_flag.pause_flag);
       if (HMI_flag.pause_flag)
         DWIN_Print_Pause();
       else if (HMI_flag.abort_flag)
@@ -1584,7 +1579,7 @@ void DWIN_PidTuning(pidresult_t result) {
 
 // Started a Print Job
 void DWIN_Print_Started() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_Print_Started: ", SD_Printing()));
+  DEBUG_ECHOLNPGM("DWIN_Print_Started: ", SD_Printing());
   TERN_(HAS_GCODE_PREVIEW, if (Host_Printing()) Preview_Invalidate());
   _percent_done = 0;
   _remain_time = 0;
@@ -1598,20 +1593,20 @@ void DWIN_Print_Started() {
 
 // Pause a print job
 void DWIN_Print_Pause() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_Print_Pause"));
+  DEBUG_ECHOLNPGM("DWIN_Print_Pause");
   ICON_ResumeOrPause();
 }
 
 // Resume print job
 void DWIN_Print_Resume() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_Print_Resume"));
+  DEBUG_ECHOLNPGM("DWIN_Print_Resume");
   ICON_ResumeOrPause();
   LCD_MESSAGE(MSG_RESUME_PRINT);
 }
 
 // Ended print job
 void DWIN_Print_Finished() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_Print_Finished"));
+  DEBUG_ECHOLNPGM("DWIN_Print_Finished");
   TERN_(POWER_LOSS_RECOVERY, if (card.isPrinting()) recovery.cancel());
   HMI_flag.pause_flag = false;
   wait_for_heatup = false;
@@ -1622,7 +1617,7 @@ void DWIN_Print_Finished() {
 
 // Print was aborted
 void DWIN_Print_Aborted() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_Print_Aborted"));
+  DEBUG_ECHOLNPGM("DWIN_Print_Aborted");
   DWIN_Print_Finished();
 }
 
@@ -1670,7 +1665,7 @@ void DWIN_SetColorDefaults() {
 }
 
 void DWIN_SetDataDefaults() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_SetDataDefaults"));
+  DEBUG_ECHOLNPGM("DWIN_SetDataDefaults");
   DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
   TERN_(PIDTEMP, HMI_data.HotendPidT = DEF_HOTENDPIDT);
@@ -1699,13 +1694,13 @@ void DWIN_SetDataDefaults() {
 }
 
 void DWIN_CopySettingsTo(char * const buff) {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_CopySettingsTo"));
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("HMI_data: ", sizeof(HMI_data_t)));
+  DEBUG_ECHOLNPGM("DWIN_CopySettingsTo");
+  DEBUG_ECHOLNPGM("HMI_data: ", sizeof(HMI_data_t));
   memcpy(buff, &HMI_data, eeprom_data_size);
 }
 
 void DWIN_CopySettingsFrom(const char * const buff) {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_CopySettingsFrom"));
+  DEBUG_ECHOLNPGM("DWIN_CopySettingsFrom");
   memcpy(&HMI_data, buff, sizeof(HMI_data_t));
   if (HMI_data.Text_Color == HMI_data.Background_Color) DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
@@ -1726,20 +1721,18 @@ void DWIN_CopySettingsFrom(const char * const buff) {
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("MarlinUI::init_lcd"));
+  DEBUG_ECHOLNPGM("MarlinUI::init_lcd");
   delay(750);   // wait to wakeup screen
   const bool hs = DWIN_Handshake(); UNUSED(hs);
-  #if ENABLED(DEBUG_DWIN)
-    SERIAL_ECHOPGM("DWIN_Handshake ");
-    SERIAL_ECHOLNF(hs ? F("ok.") : F("error."));
-  #endif
+  DEBUG_ECHOPGM("DWIN_Handshake ");
+  DEBUG_ECHOLNF(hs ? F("ok.") : F("error."));
   DWIN_Frame_SetDir(1);
   DWIN_JPG_CacheTo1(Language_English);
   Encoder_Configuration();
 }
 
 void DWIN_InitScreen() {
-  TERN_(DEBUG_DWIN, SERIAL_ECHOLNPGM("DWIN_InitScreen"));
+  DEBUG_ECHOLNPGM("DWIN_InitScreen");
   HMI_Init();   // draws boot screen
   DWINUI::init();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
@@ -1993,7 +1986,7 @@ void AutoHome() { queue.inject_P(G28_STR); }
     #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       const_float_t step_zoffset = round((MenuData.Value / 100.0f) * planner.settings.axis_steps_per_mm[Z_AXIS]) - babystep.accum;
       if (BABYSTEP_ALLOWED()) babystep.add_steps(Z_AXIS, step_zoffset);
-      //SERIAL_ECHOLNF(F("BB Steps: "), step_zoffset);
+      //DEBUG_ECHOLNF(F("BB Steps: "), step_zoffset);
     #endif
   }
   void SetZOffset() {
