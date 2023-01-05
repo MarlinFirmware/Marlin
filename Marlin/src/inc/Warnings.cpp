@@ -778,13 +778,6 @@
 #endif
 
 /**
- * Endstop Interrupts is Indicated
- */
-#if DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #warning "ENDSTOP_INTERRUPTS_FEATURE should be enabled for production use if possible!"
-#endif
-
-/**
  * BD Sensor should always include BABYSTEPPING
  */
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
