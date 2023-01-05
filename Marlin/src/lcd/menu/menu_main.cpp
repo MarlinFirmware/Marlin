@@ -282,9 +282,9 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           #if HAS_SD_DETECT
-            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, " S"))); // M21 Change Media
+            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
             #if ENABLED(MULTI_VOLUME)
-              GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21 U")); // M21 Attach USB Media
+              GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21 Attach USB Media
             #endif
           #else                                             // - or -
             ACTION_ITEM(MSG_RELEASE_MEDIA, []{              // M22 Release Media
@@ -303,9 +303,9 @@ void menu_main() {
         #if HAS_SD_DETECT
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
         #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21" TERN_(MULTI_VOLUME, " S"))); // M21 Attach Media
+          GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Attach Media
           #if ENABLED(MULTI_VOLUME)
-            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21 U"));  // M21 Attach USB Media
+            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21 Attach USB Media
           #endif
         #endif
       }
@@ -397,9 +397,9 @@ void menu_main() {
     if (card_detected) {
       if (!card_open) {
         #if HAS_SD_DETECT
-          GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, " S"))); // M21 Change Media
+          GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
           #if ENABLED(MULTI_VOLUME)
-            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21 U")); // M21 Attach USB Media
+            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21 Attach USB Media
           #endif
         #else                                             // - or -
           ACTION_ITEM(MSG_RELEASE_MEDIA, []{              // M22 Release Media
@@ -418,9 +418,9 @@ void menu_main() {
       #if HAS_SD_DETECT
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
       #else
-        GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21" TERN_(MULTI_VOLUME, " S"))); // M21 Attach Media
+        GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Attach Media
         #if ENABLED(MULTI_VOLUME)
-          GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21 U"));  // M21 Attach USB Media
+          GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21 Attach USB Media
         #endif
       #endif
     }
