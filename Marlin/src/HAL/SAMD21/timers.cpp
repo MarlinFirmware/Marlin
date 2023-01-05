@@ -47,11 +47,11 @@ const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
   { {.pTcc=TCC0}, TimerType::tcc,  TCC0_IRQn, TC_PRIORITY(0) },  // 0 - stepper (assigned priority 2)
   { {.pTcc=TCC1}, TimerType::tcc,  TCC1_IRQn, TC_PRIORITY(1) },  // 1 - stepper (needed by 32 bit timers)
   { {.pTcc=TCC2}, TimerType::tcc,  TCC2_IRQn, 5              },  // 2 - tone (reserved by framework and fixed assigned priority 5)
-  { {.pTc=TC3},   TimerType::tc,   TC3_IRQn, TC_PRIORITY(3) },  // 3 - servo (assigned priority 1)
-  { {.pTc=TC4},   TimerType::tc,   TC4_IRQn, TC_PRIORITY(4) },  // 4 - software serial (no interrupts used)
-  { {.pTc=TC5},   TimerType::tc,   TC5_IRQn, TC_PRIORITY(5) },
-  { {.pTc=TC6},   TimerType::tc,   TC6_IRQn, TC_PRIORITY(6) },
-  { {.pTc=TC7},   TimerType::tc,   TC7_IRQn, TC_PRIORITY(7) },
+  { {.pTc=TC3},   TimerType::tc,   TC3_IRQn,  TC_PRIORITY(3) },  // 3 - servo (assigned priority 1)
+  { {.pTc=TC4},   TimerType::tc,   TC4_IRQn,  TC_PRIORITY(4) },  // 4 - software serial (no interrupts used)
+  { {.pTc=TC5},   TimerType::tc,   TC5_IRQn,  TC_PRIORITY(5) },
+  { {.pTc=TC6},   TimerType::tc,   TC6_IRQn,  TC_PRIORITY(6) },
+  { {.pTc=TC7},   TimerType::tc,   TC7_IRQn,  TC_PRIORITY(7) },
   { {.pRtc=RTC},  TimerType::rtc,   RTC_IRQn, TC_PRIORITY(8) }   // 8 - temperature (assigned priority 6)
 };
 
