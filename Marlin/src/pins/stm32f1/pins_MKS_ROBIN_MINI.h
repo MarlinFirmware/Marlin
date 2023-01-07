@@ -171,7 +171,7 @@
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
 #endif
 
-#if ENABLED(TFT_320x240)  // TFT32/28
+#if ENABLED(TFT_320x240)                          // TFT32/28
   #define TFT_DRIVER                     ILI9341
   #define TFT_BUFFER_SIZE                  14400
   #define ILI9341_COLOR_RGB
