@@ -318,10 +318,10 @@ void MarlinUI::draw_status_screen() {
     const float z = LOGICAL_Z_POSITION(current_position.z);
     tft_string.set(ftostr52sp((int16_t)z));
     tft_string.rtrim();
-    TERN_(TFT_COLOR_UI_PORTRAIT, offset += tft_string.width());
+    offset += tft_string.width();
 
     tft_string.set(ftostr52sp(z));
-    TERN_(TFT_COLOR_UI_PORTRAIT, offset -= tft_string.width());
+    offset -= tft_string.width();
   }
   tft.add_text(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
