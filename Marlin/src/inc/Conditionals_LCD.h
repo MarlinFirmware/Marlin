@@ -1525,8 +1525,13 @@
 #endif
 
 #if ENABLED(TFT_RES_320x240)
-  #define TFT_WIDTH  320
-  #define TFT_HEIGHT 240
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define TFT_WIDTH         240
+    #define TFT_HEIGHT        320
+  #else
+    #define TFT_WIDTH  320
+    #define TFT_HEIGHT 240
+  #endif
   #define GRAPHICAL_TFT_UPSCALE 2
 #elif ENABLED(TFT_RES_480x272)
   #define TFT_WIDTH  480
@@ -1611,7 +1616,7 @@
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 6)   // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9)   // Fewer lines with touch buttons onscreen
   #else
     #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)   // Fewer lines with touch buttons onscreen
   #endif
