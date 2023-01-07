@@ -1,4 +1,4 @@
-/**
+ /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -38,11 +38,20 @@
 #endif
 
 #if HAS_UI_320x240
-  #define TFT_WIDTH         320
-  #define TFT_HEIGHT        240
-#elif HAS_UI_240x320
-  #define TFT_WIDTH         240
-  #define TFT_HEIGHT        320
+  #if TFT_ROTATION == TFT_ROTATE_90 || TFT_ROTATION == TFT_ROTATE_90_MIRROR_X || TFT_ROTATION == TFT_ROTATE_90_MIRROR_Y || TFT_ROTATION == TFT_ROTATE_270 || TFT_ROTATION == TFT_ROTATE_270_MIRROR_X || TFT_ROTATION == TFT_ROTATE_270_MIRROR_Y
+    #define TFT_COLOR_UI_PORTRAIT
+    #ifdef TFT_WIDTH
+      #undef TFT_WIDTH
+    #endif
+    #define TFT_WIDTH         240
+    #ifdef TFT_HEIGHT
+      #undef TFT_HEIGHT
+    #endif
+    #define TFT_HEIGHT        320
+  #else
+    #define TFT_WIDTH         320
+    #define TFT_HEIGHT        240
+  #endif
 #elif HAS_UI_480x320
   #define TFT_WIDTH         480
   #define TFT_HEIGHT        320
