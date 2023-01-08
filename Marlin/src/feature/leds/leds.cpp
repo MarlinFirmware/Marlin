@@ -144,7 +144,7 @@ void LEDLights::setup() {
       curColor.r = _MAX(curColor.r, led_pwm);
       curColor.g = _MAX(curColor.g, led_pwm);
       curColor.b = _MAX(curColor.b, led_pwm);
-      TERN_(HAS_WHITE_LED, if (i == 3) curColor.w = _MAX(curColor.w, led_pwm));
+      TERN_(HAS_WHITE_LED, curColor.w = _MAX(curColor.w, led_pwm));
       PCA9632_set_led_color(curColor);
       delay(RGB_STARTUP_TEST_INNER_MS);
     }
