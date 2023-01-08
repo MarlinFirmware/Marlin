@@ -429,7 +429,7 @@
 #define BOARD_FYSETC_SPIDER_KING407   4242  // FYSETC Spider King407 (STM32F407ZG)
 #define BOARD_MKS_SKIPR_V1            4243  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
 #define BOARD_TRONXY_V10              4244  // TRONXY V10 (STM32F446ZE)
-#define BOARD_CUSTOM_BLACKPILL        4245  // Custom board based on STM32F401CDU6.
+#define BOARD_BLACKPILL_CUSTOM        4245  // Custom board based on STM32F401CDU6.
 
 //
 // ARM Cortex M7

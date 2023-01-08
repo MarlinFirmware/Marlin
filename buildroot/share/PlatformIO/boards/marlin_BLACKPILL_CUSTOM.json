@@ -16,7 +16,7 @@
     ],
     "ldscript": "ldscript.ld",
     "mcu": "stm32f401cdu6",
-    "variant": "marlin_custom_blackpill"
+    "variant": "marlin_BLACKPILL_CUSTOM"
   },
   "debug": {
     "jlink_device": "STM32F401CD",

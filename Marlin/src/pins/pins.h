@@ -717,8 +717,8 @@
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"      // STM32F4                                env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
 #elif MB(TRONXY_V10)
   #include "stm32f4/pins_TRONXY_V10.h"          // STM32F4                                env:STM32F446_tronxy
-#elif MB(CUSTOM_BLACKPILL)
-  #include "stm32f4/pins_custom_blackpill.h"    // STM32F4                                env:STM32F401CD_blackpill_stlink
+#elif MB(BLACKPILL_CUSTOM)
+  #include "stm32f4/pins_BLACKPILL_CUSTOM.h"    // STM32F4                                env:STM32F401CD_blackpill_stlink
 
 //
 // ARM Cortex M7
