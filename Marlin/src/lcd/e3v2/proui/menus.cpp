@@ -399,7 +399,7 @@ void MenuClass::onScroll(bool dir) {
 }
 
 void MenuClass::onClick() {
-  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)(); 
+  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)();
 }
 
 CustomMenuItemClass *MenuClass::SelectedItem() {
@@ -410,8 +410,8 @@ CustomMenuItemClass** MenuClass::Items() {
   return MenuItems;
 }
 
-int8_t MenuClass::count() { 
-  return MenuItemCount; 
+int8_t MenuClass::count() {
+  return MenuItemCount;
 };
 
 /* MenuItem Class ===========================================================*/
@@ -510,7 +510,7 @@ MenuItemClass* MenuItemAdd(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, 
     return MenuItemAdd(menuitem);
   }
   else return nullptr;
-}  
+}
 
 MenuItemClass* EditItemAdd(uint8_t cicon, const char * const text, OnDrawItem ondraw, OnClickItem onclick, void* val) {
   if (MenuItemCount < MenuItemTotal) {
