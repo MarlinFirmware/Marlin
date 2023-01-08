@@ -49,15 +49,11 @@ void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
     if (TERN0(HAS_TOUCH_SLEEP, lcd_sleep_task())) return;
     if (draw_menu_navigation) {
-      #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        add_control(16, 286, PAGE_UP, imgPageUp, encoderTopLine > 0);
-        add_control(208, 286, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
-        add_control(112, 286, BACK, imgBack);
-      #else
-        add_control(48, 206, PAGE_UP, imgPageUp, encoderTopLine > 0);
-        add_control(240, 206, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
-        add_control(144, 206, BACK, imgBack);
-      #endif // TFT_COLOR_UI_PORTRAIT
+      constexpr uint16_t cx = TERN(TFT_COLOR_UI_PORTRAIT,  16,  48),
+                         cy = TERN(TFT_COLOR_UI_PORTRAIT, 286, 206);
+      add_control(cx, cy, PAGE_UP, imgPageUp, encoderTopLine > 0);
+      add_control(cx + 192, cy, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
+      add_control(cx + 96, cy, BACK, imgBack);
       draw_menu_navigation = false;
     }
   #endif
@@ -103,19 +99,19 @@ void MarlinUI::draw_kill_screen() {
   tft.queue.reset();
   tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_KILL_SCREEN_BG);
 
-  tft.canvas(0, 60, TFT_WIDTH, 24);
+  tft.canvas(0, 60, TFT_WIDTH, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_KILL_SCREEN_BG);
   tft_string.set(status_message);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_KILL_SCREEN_TEXT, tft_string);
 
-  tft.canvas(0, 120, TFT_WIDTH, 24);
+  tft.canvas(0, 120, TFT_WIDTH, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_KILL_SCREEN_BG);
   tft_string.set(GET_TEXT(MSG_HALTED));
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_KILL_SCREEN_TEXT, tft_string);
 
-  tft.canvas(0, 160, TFT_WIDTH, 24);
+  tft.canvas(0, 160, TFT_WIDTH, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_KILL_SCREEN_BG);
   tft_string.set(GET_TEXT(MSG_PLEASE_RESET));
   tft_string.trim();
@@ -191,13 +187,13 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   tft_string.set(i16tostr3rj(currentTemperature));
   tft_string.add(LCD_STR_DEGREE);
   tft_string.trim();
-  tft.add_text(tft_string.center(64) + 2, 69 + tft_string.vcenter(24), Color, tft_string);
+  tft.add_text(tft_string.center(64) + 2, 69 + tft_string.vcenter(FONT_LINE_HEIGHT), Color, tft_string);
 
   if (targetTemperature >= 0) {
     tft_string.set(i16tostr3rj(targetTemperature));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.trim();
-    tft.add_text(tft_string.center(64) + 2, 5 + tft_string.vcenter(24), Color, tft_string);
+    tft.add_text(tft_string.center(64) + 2, 5 + tft_string.vcenter(FONT_LINE_HEIGHT), Color, tft_string);
   }
 }
 
@@ -220,7 +216,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
 
   tft_string.set(ui8tostr4pctrj(thermalManager.fan_speed[0]));
   tft_string.trim();
-  tft.add_text(tft_string.center(64) + 6, 69 + tft_string.vcenter(24), COLOR_FAN, tft_string);
+  tft.add_text(tft_string.center(64) + 6, 69 + tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_FAN, tft_string);
 }
 
 void MarlinUI::draw_status_screen() {
@@ -264,52 +260,55 @@ void MarlinUI::draw_status_screen() {
       232, 48
     #else
       312, 24
-    #endif // TFT_COLOR_UI_PORTRAIT
+    #endif
   );
   tft.set_background(COLOR_BACKGROUND);
   tft.add_rectangle(0, 0,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      232, 48, COLOR_AXIS_HOMED
+      232, 48
     #else
-      312, 24, COLOR_AXIS_HOMED
-    #endif // TFT_COLOR_UI_PORTRAIT
+      312, 24
+    #endif
+    , COLOR_AXIS_HOMED
   );
 
   if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
-      tft.add_text( 10, tft_string.vcenter(24), COLOR_AXIS_HOMED , "E");
+      tft.add_text( 10, tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED , "E");
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
       tft_string.set(ftostr4sign(e_move_accumulator / escale));
       tft_string.add(escale == 10 ? 'c' : 'm');
       tft_string.add('m');
-      tft.add_text(127 - tft_string.width(), tft_string.vcenter(24), COLOR_AXIS_HOMED, tft_string);
+      tft.add_text(127 - tft_string.width(), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED, tft_string);
     #endif
   }
   else {
-    tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 32, 10), tft_string.vcenter(24), COLOR_AXIS_HOMED , "X");
+    tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 32, 10), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED , "X");
     const bool nhx = axis_should_home(X_AXIS);
     tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
     tft.add_text(
       #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        32 - tft_string.width() / 2, 24 + tft_string.vcenter(24),
+        32 - tft_string.width() / 2, 24 + tft_string.vcenter(FONT_LINE_HEIGHT),
       #else
-        68 - tft_string.width(), tft_string.vcenter(24),
-      #endif // TFT_COLOR_UI_PORTRAIT
-    nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+        68 - tft_string.width(), tft_string.vcenter(FONT_LINE_HEIGHT),
+      #endif
+      nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string
+    );
 
-    tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 110, 127), tft_string.vcenter(24), COLOR_AXIS_HOMED , "Y");
+    tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 110, 127), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED , "Y");
     const bool nhy = axis_should_home(Y_AXIS);
     tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
     tft.add_text(
       #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        110 - tft_string.width() / 2, 24 + tft_string.vcenter(24),
+        110 - tft_string.width() / 2, 24 + tft_string.vcenter(FONT_LINE_HEIGHT),
       #else
-        185 - tft_string.width(), tft_string.vcenter(24),
-      #endif // TFT_COLOR_UI_PORTRAIT
-    nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+        185 - tft_string.width(), tft_string.vcenter(FONT_LINE_HEIGHT),
+      #endif
+      nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string
+    );
   }
 
-  tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 192, 219), tft_string.vcenter(24), COLOR_AXIS_HOMED , "Z");
+  tft.add_text(TERN(TFT_COLOR_UI_PORTRAIT, 192, 219), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_AXIS_HOMED , "Z");
   const bool nhz = axis_should_home(Z_AXIS);
   uint16_t offset = 25;
   if (blink && nhz)
@@ -325,26 +324,27 @@ void MarlinUI::draw_status_screen() {
   }
   tft.add_text(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      192 - tft_string.width() / 2, 24 + tft_string.vcenter(24),
+      192 - tft_string.width() / 2, 24 + tft_string.vcenter(FONT_LINE_HEIGHT),
     #else
-      301 - tft_string.width() - offset, tft_string.vcenter(24),
-    #endif // TFT_COLOR_UI_PORTRAIT
+      301 - tft_string.width() - offset, tft_string.vcenter(FONT_LINE_HEIGHT),
+    #endif
   nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 0, 103,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
       232, 48
     #else
       312, 24
-    #endif // TFT_COLOR_UI_PORTRAIT
+    #endif
   ));
 
   // feed rate
   tft.canvas(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      30, 172, 80, 32
+      30, 172, 80
     #else
-      70, 136, 84, 32
-    #endif // TFT_COLOR_UI_PORTRAIT
+      70, 136, 84
+    #endif
+    , 32
   );
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
@@ -354,19 +354,21 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(32, tft_string.vcenter(30), color , tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      30, 172, 80, 32
+      30, 172, 80
     #else
-      70, 136, 84, 32
-    #endif // TFT_COLOR_UI_PORTRAIT
+      70, 136, 84
+    #endif
+    , 32
   ));
 
   // flow rate
   tft.canvas(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      140, 172, 80, 32
+      140, 172, 80
     #else
-      170, 136, 84, 32
-    #endif // TFT_COLOR_UI_PORTRAIT
+      170, 136, 84
+    #endif
+    , 32
   );
   tft.set_background(COLOR_BACKGROUND);
   color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
@@ -376,10 +378,11 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(32, tft_string.vcenter(30), color , tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      140, 172, 80, 32, active_extruder
+      140, 172, 80
     #else
-      170, 136, 84, 32, active_extruder
-    #endif // TFT_COLOR_UI_PORTRAIT
+      170, 136, 84
+    #endif
+    , 32, active_extruder
   ));
 
   // print duration
@@ -389,31 +392,34 @@ void MarlinUI::draw_status_screen() {
 
   tft.canvas(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      56, 256, 128, 24
+      56, 256, 128
     #else
-      96, 173, 128, 24
-    #endif // TFT_COLOR_UI_PORTRAIT
+      96, 173, 128
+    #endif
+    , 24
   );
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(buffer);
-  tft.add_text(tft_string.center(128), tft_string.vcenter(24), COLOR_PRINT_TIME, tft_string);
+  tft.add_text(tft_string.center(128), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_PRINT_TIME, tft_string);
 
   // progress bar
   const uint8_t progress = ui.get_progress_percent();
   tft.canvas(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      4, 278, 232, 9
+      4, 278, 232
     #else
-      4, 198, 312, 9
-    #endif // TFT_COLOR_UI_PORTRAIT
+      4, 198, 312
+    #endif
+    , 9
   );
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      232, 9, COLOR_PROGRESS_FRAME
+      232, 9
     #else
-      312, 9, COLOR_PROGRESS_FRAME
-    #endif // TFT_COLOR_UI_PORTRAIT
+      312, 9
+    #endif
+    , COLOR_PROGRESS_FRAME
   );
   if (progress)
     tft.add_bar(1, 1, ((TFT_WIDTH - 10) * progress) / 100, 7, COLOR_PROGRESS_BAR);
@@ -421,29 +427,33 @@ void MarlinUI::draw_status_screen() {
   // status message
   tft.canvas(
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      0, 296, 240, 24
+      0, 296, 240
     #else
-      0, 212, 320, 24
-    #endif // TFT_COLOR_UI_PORTRAIT
+      0, 212, 320
+    #endif
+    , 24
   );
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(status_message);
   tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), tft_string.vcenter(24), COLOR_STATUS_MESSAGE, tft_string);
+  tft.add_text(tft_string.center(TFT_WIDTH), tft_string.vcenter(FONT_LINE_HEIGHT), COLOR_STATUS_MESSAGE, tft_string);
 
   #if ENABLED(TOUCH_SCREEN)
+  {
     add_control(
       #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-        176, 210,
+        176, 210
       #else
-        256, 130,
-      #endif // TFT_COLOR_UI_PORTRAIT
-	menu_main, imgSettings);
+        256, 130
+      #endif
+     , menu_main, imgSettings
+    );
     #if ENABLED(SDSUPPORT)
       const bool cm = card.isMounted(), pa = printingIsActive();
       add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
     #endif
-  #endif
+  } // (sublime)
+  #endif // TOUCH_SCREEN
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
@@ -723,10 +733,11 @@ static void drawCurESelection() {
 static void drawMessage(PGM_P const msg) {
   tft.canvas(X_MARGIN,
     #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-      TFT_HEIGHT - 2 * BTN_HEIGHT, TFT_WIDTH - X_MARGIN, 24
+      TFT_HEIGHT - 2 * BTN_HEIGHT, TFT_WIDTH - X_MARGIN
     #else
-      TFT_HEIGHT - Y_MARGIN - 29, (TFT_WIDTH / 2) - (BTN_WIDTH / 2) - X_MARGIN, 24
-    #endif // TFT_COLOR_UI_PORTRAIT
+      TFT_HEIGHT - Y_MARGIN - 29, (TFT_WIDTH / 2) - (BTN_WIDTH / 2) - X_MARGIN
+    #endif
+    , FONT_LINE_HEIGHT
   );
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, COLOR_STATUS_MESSAGE, msg);
@@ -748,7 +759,7 @@ static void drawAxisValue(const AxisEnum axis) {
     case E_AXIS: pos = motionAxisState.eValuePos; color = E_BTN_COLOR; break;
     default: return;
   }
-  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, 24);
+  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(ftostr52sp(value));
   tft.add_text(0, 0, color, tft_string);
@@ -847,10 +858,8 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
 #if ENABLED(TOUCH_SCREEN)
   static void e_select() {
-    motionAxisState.e_selection++;
-    if (motionAxisState.e_selection >= EXTRUDERS) {
+    if (++motionAxisState.e_selection >= EXTRUDERS)
       motionAxisState.e_selection = 0;
-    }
 
     quick_feedback();
     drawCurESelection();
@@ -875,16 +884,17 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
     quick_feedback();
     drawCurStepValue();
   }
-#endif
 
-#if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
-  static void z_select() {
-    motionAxisState.z_selection *= -1;
-    quick_feedback();
-    drawCurZSelection();
-    drawAxisValue(Z_AXIS);
-  }
-#endif
+  #if HAS_BED_PROBE
+    static void z_select() {
+      motionAxisState.z_selection *= -1;
+      quick_feedback();
+      drawCurZSelection();
+      drawAxisValue(Z_AXIS);
+    }
+  #endif
+
+#endif // TOUCH_SCREEN
 
 static void disable_steppers() {
   quick_feedback();
@@ -907,12 +917,12 @@ static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage 
     tft_string.trim();
     tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
   }
-  else {
+  else
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
-  }
 
   TERN_(HAS_TFT_XPT2046, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
+
 void MarlinUI::move_axis_screen() {
   // Reset
   defer_status_screen(true);
@@ -930,6 +940,7 @@ void MarlinUI::move_axis_screen() {
     motionAxisState.z_selection = Z_SELECTION_Z_PROBE;
 
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+
     // ROW 1 -> E+ Y+ Z+
     int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
 
@@ -972,7 +983,7 @@ void MarlinUI::move_axis_screen() {
     drawBtn(zplus_x, y, "X+", (intptr_t)x_plus, imgRight, X_BTN_COLOR, !busy);
 
     #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
-        if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
+      if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
     #endif
 
     // ROW 4 -> Cur X
@@ -1017,7 +1028,9 @@ void MarlinUI::move_axis_screen() {
 
     // aligned with x+
     drawBtn(yplus_x, y, "off", (intptr_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
-  #else
+
+  #else // !TFT_COLOR_UI_PORTRAIT
+
     // ROW 1 -> E+ Y+ CurY Z+
     int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
 
@@ -1105,7 +1118,8 @@ void MarlinUI::move_axis_screen() {
 
     // aligned with x+
     drawBtn(xplus_x, y, "off", (intptr_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
-  #endif // TFT_COLOR_UI_PORTRAIT
+
+  #endif // !TFT_COLOR_UI_PORTRAIT
 
   TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));
 }

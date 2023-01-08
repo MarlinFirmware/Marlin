@@ -700,12 +700,12 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
           probe.offset.z = new_offs;
         else
           TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
-        drawMessage(""); // clear the error
+        drawMessage(F("")); // clear the error
         drawAxisValue(axis);
       }
-      else {
+      else
         drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
-      }
+
     #elif HAS_BED_PROBE
       // only change probe.offset.z
       probe.offset.z += diff;
@@ -717,9 +717,9 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
         current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
         drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
       }
-      else {
-        drawMessage(""); // clear the error
-      }
+      else
+        drawMessage(F("")); // clear the error
+
       drawAxisValue(axis);
     #endif
     return;
@@ -765,10 +765,8 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
 #if ENABLED(TOUCH_SCREEN)
   static void e_select() {
-    motionAxisState.e_selection++;
-    if (motionAxisState.e_selection >= EXTRUDERS) {
+    if (++motionAxisState.e_selection >= EXTRUDERS)
       motionAxisState.e_selection = 0;
-    }
 
     quick_feedback();
     drawCurESelection();
@@ -810,8 +808,8 @@ static void disable_steppers() {
 }
 
 static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
-  uint16_t width = Images[imgBtn52Rounded].width;
-  uint16_t height = Images[imgBtn52Rounded].height;
+  uint16_t width = Images[imgBtn52Rounded].width,
+           height = Images[imgBtn52Rounded].height;
 
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
