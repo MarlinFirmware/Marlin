@@ -283,6 +283,10 @@
   #endif
 #endif
 
+#if ENABLED(POLAR)
+  #undef SLOWDOWN
+#endif
+
 /**
  * Set the home position based on settings or manual overrides
  */
@@ -3084,10 +3088,15 @@
  * Only constrain Z on DELTA / SCARA machines
  */
 #if IS_KINEMATIC
-  #undef MIN_SOFTWARE_ENDSTOP_X
-  #undef MIN_SOFTWARE_ENDSTOP_Y
-  #undef MAX_SOFTWARE_ENDSTOP_X
-  #undef MAX_SOFTWARE_ENDSTOP_Y
+  #if ENABLED(POLAR)
+    #undef MIN_SOFTWARE_ENDSTOP_Y
+    #undef MAX_SOFTWARE_ENDSTOP_Y
+  #else
+    #undef MIN_SOFTWARE_ENDSTOP_X
+    #undef MIN_SOFTWARE_ENDSTOP_Y
+    #undef MAX_SOFTWARE_ENDSTOP_X
+    #undef MAX_SOFTWARE_ENDSTOP_Y
+  #endif
 #endif
 
 /**

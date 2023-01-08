@@ -198,6 +198,7 @@ public:
       static constexpr float printable_radius = (
         TERN_(DELTA, DELTA_PRINTABLE_RADIUS)
         TERN_(IS_SCARA, SCARA_PRINTABLE_RADIUS)
+        TERN_(POLAR, POLAR_PRINTABLE_RADIUS)
       );
       static constexpr float probe_radius(const xy_pos_t &probe_offset_xy=offset_xy) {
         return printable_radius - _MAX(PROBING_MARGIN, HYPOT(probe_offset_xy.x, probe_offset_xy.y));

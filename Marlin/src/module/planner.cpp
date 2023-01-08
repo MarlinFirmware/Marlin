@@ -3167,6 +3167,48 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       const float duration_recip = hints.inv_duration ?: fr_mm_s / ph.millimeters;
       const xyz_pos_t diff = delta - position_float;
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
+    #elif ENABLED(POLAR_FEEDRATE_SCALING)
+      /**
+       * Polar axis near ZERO movements problem
+       * --------------------------------------------------------
+       * 3D printing:
+       * Movements very close to the center of the polar axis spend more time than other movements.
+       * This brief delay results in more material deposition due to the pressure in the nozzle.
+       * 
+       * Current Kinematics and feedrate scaling deals with this by making the movement as fast as possible.
+       * It works for slow movements but doesn't work well with fast ones.
+       * A more complicated extrusion compensation must be implemented.
+       * 
+       * Ideally, it should estimate that a long rotation near the center is ahead and will cause unwanted deposition.
+       * Therefore it can compensate the extrusion beforehand.   
+       * 
+       * Laser cutting:
+       * Same thing would be a problem for laser engraving too. As it spends time rotating at the center point,
+       * more likely it will burn more material than it should.
+       * Therefore similar compensation would be implemented for laser cutting operations. 
+       * 
+       * Milling:
+       * This shouldn't be a problem for cutting/milling operations.
+       */
+
+      feedRate_t calculated_feedrate = fr_mm_s;
+      const xyz_pos_t diff = delta - position_float;
+      if(!NEAR_ZERO(diff.b)) {
+          if(delta.a <= POLAR_FAST_RADIUS ) {
+            calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
+          } else {
+              // normalized vector of movement.
+              const float diffBLength = ABS( ( 2 * PI * diff.a ) * ( diff.b / 360 ) );
+              const float diffTheta = DEGREES(ATAN2(diff.a, diffBLength));
+              const float normalizedTheta = 1-( ABS( diffTheta>90.0? 180.0 - diffTheta:diffTheta ) /90.0);
+
+              // normalized position along the radius.
+              float radiusRatio = POLAR_PRINTABLE_RADIUS/delta.a;
+              calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
+          }
+        }
+      const feedRate_t feedrate = calculated_feedrate;
+
     #else
       const feedRate_t feedrate = fr_mm_s;
     #endif

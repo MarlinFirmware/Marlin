@@ -180,6 +180,16 @@
       PSTR(" H"), LINEAR_UNIT(polargraph_max_belt_len)
     );
   }
+#elif ENABLED(POLAR)
+  #include "../../module/polar.h"
+    void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
+    if (parser.seenval('S')) segments_per_second = parser.value_float();
+  }
+
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    SERIAL_ECHOLNPGM_P( PSTR("  M665 S"), segments_per_second );
+  }
 
 #endif
 

@@ -1014,6 +1014,80 @@
   #define PSI_HOMING_OFFSET    0
 #endif
 
+
+// @section POLAR
+
+// Enable for POLAR kinematics and configure below
+/**
+ * POLAR Kinematics was developed by Kadir ilkimen
+ * 
+ * A polar machine can have different configurations.
+ * This kinematics only compatible with the following configuration:
+ * - X : Independent linear.
+ * - Y or B : Polar
+ * - Z : Independent linear
+ * 
+ * babyBear and the PolarBear are open source Polar Machines by Kadir ilkimen.
+ * 
+ * babyBear 3D printer:
+ * https://github.com/kadirilkimen/babyBear-3D-printer
+ * 
+ * babyBear is fully compatible with this POLAR Kinematics.
+ * 
+ * 
+ * the PolarBear Cnc Machine:
+ * https://github.com/kadirilkimen/Polar-Bear-Cnc-Machine
+ * 
+ * the PolarBear has the following configuration.
+ * - X and Z as CoreXZ.
+ * - Y or B : Polar
+ * Tests required to confirm it works with POLAR and CoreXZ configuration.
+ * 
+ * 
+ *  
+* Polar axis near ZERO movements problem
+* --------------------------------------------------------
+* 3D printing:
+* Movements very close to the center of the polar axis spend more time than other movements.
+* This brief delay results in more material deposition due to the pressure in the nozzle.
+* 
+* Current Kinematics and feedrate scaling deals with this by making the movement as fast as possible.
+* It works for slow movements but doesn't work well with fast ones.
+* A more complicated extrusion compensation must be implemented.
+* 
+* Ideally, it should estimate that a long rotation near the center is ahead and will cause unwanted deposition.
+* Therefore it can compensate the extrusion beforehand.   
+* 
+* Laser cutting:
+* Same thing would be a problem for laser engraving too. As it spends time rotating at the center point,
+* more likely it will burn more material than it should.
+* Therefore similar compensation would be implemented for laser cutting operations. 
+* 
+* Milling:
+* This shouldn't be a problem for cutting/milling operations.
+ */
+//#define POLAR
+#if ENABLED(POLAR)
+  // If movement is choppy try lowering this value
+  #define DEFAULT_SEGMENTS_PER_SECOND 180
+
+  // Maximum travel of X axis
+  #define POLAR_PRINTABLE_RADIUS 82.0f
+
+  // Movements fall inside POLAR_FAST_RADIUS are assigned with highest possible feedrate
+  // to compensate unwanted deposition related to near zero movements problem.
+  #define POLAR_FAST_RADIUS 3.0f
+
+  // Unreachable radius by tooltip/nozzle
+  // This happens if your tool is not perfectly aligned to the center of the polar axis.
+  #define POLAR_CENTER_OFFSET 0.0f
+
+  #define POLAR_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
+#endif
+
+
+
+
 // @section machine
 
 // Articulated robot (arm). Joints are directly mapped to axes with no kinematics.

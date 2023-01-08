@@ -38,6 +38,10 @@
   #include "../lcd/marlinui.h"
 #endif
 
+#if ENABLED(POLAR)
+  #include "polar.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -147,6 +151,9 @@ xyz_pos_t cartes;
   #elif IS_SCARA
     constexpr float delta_max_radius = SCARA_PRINTABLE_RADIUS,
                     delta_max_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
+  #elif ENABLED(POLAR)
+    constexpr float delta_max_radius = POLAR_PRINTABLE_RADIUS,
+                    delta_max_radius_2 = sq(POLAR_PRINTABLE_RADIUS);
   #else // DELTA
     constexpr float delta_max_radius = DELTA_PRINTABLE_RADIUS,
                     delta_max_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
@@ -183,6 +190,7 @@ xyz_pos_t cartes;
 inline void report_more_positions() {
   stepper.report_positions();
   TERN_(IS_SCARA, scara_report_positions());
+  TERN_(POLAR, polar_report_positions());
 }
 
 // Report the logical position for a given machine position
@@ -279,6 +287,7 @@ void report_current_position_projected() {
 
     stepper.report_positions();
     TERN_(IS_SCARA, scara_report_positions());
+    TERN_(POLAR, polar_report_positions());
     report_current_grblstate_moving();
   }
 
@@ -343,6 +352,8 @@ void report_current_position_projected() {
         && b < polargraph_max_belt_len + 1
       );
 
+    #elif ENABLED(POLAR)
+      can_reach = HYPOT(rx, ry) <= POLAR_PRINTABLE_RADIUS;
     #endif
 
     return can_reach;
@@ -425,6 +436,9 @@ void get_cartesian_from_steppers() {
       planner.get_axis_position_degrees(A_AXIS), planner.get_axis_position_degrees(B_AXIS)
       OPTARG(AXEL_TPARA, planner.get_axis_position_degrees(C_AXIS))
     );
+    cartes.z = planner.get_axis_position_mm(Z_AXIS);
+  #elif ENABLED(POLAR)
+    forward_kinematics( planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_degrees(B_AXIS) );
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #else
     NUM_AXIS_CODE(
@@ -914,6 +928,8 @@ void restore_feedrate_and_scaling() {
       #if BOTH(HAS_HOTEND_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
         const xy_pos_t offs = hotend_offset[active_extruder];
+      #elif ENABLED(POLAR)
+        // for now, we don't limit POLAR
       #else
         // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
         constexpr xy_pos_t offs{0};
@@ -922,6 +938,8 @@ void restore_feedrate_and_scaling() {
       #if ENABLED(POLARGRAPH)
         LIMIT(target.x, draw_area_min.x, draw_area_max.x);
         LIMIT(target.y, draw_area_min.y, draw_area_max.y);
+      #elif ENABLED(POLAR)
+        // motion limits are as same as cartesian limits.
       #else
         if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
           const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
@@ -1055,6 +1073,8 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
      * and compare the difference.
      */
     #define SCARA_MIN_SEGMENT_LENGTH 0.5f
+  #elif ENABLED(POLAR)
+    #define POLAR_MIN_SEGMENT_LENGTH 0.5f
   #endif
 
   /**
@@ -1107,6 +1127,8 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     // For SCARA enforce a minimum segment size
     #if IS_SCARA
       NOMORE(segments, cartesian_mm * RECIPROCAL(SCARA_MIN_SEGMENT_LENGTH));
+    #elif ENABLED(POLAR)
+      NOMORE(segments, cartesian_mm * RECIPROCAL(POLAR_MIN_SEGMENT_LENGTH));
     #endif
 
     // At least one segment is required
