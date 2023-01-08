@@ -1284,6 +1284,7 @@
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef USE_PROBE_FOR_Z_HOMING
+  #undef Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)

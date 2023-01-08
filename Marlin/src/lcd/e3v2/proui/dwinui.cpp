@@ -23,21 +23,17 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.18.1
- * Date: 2022/07/05
+ * Version: 3.20.1
+ * Date: 2022/10/25
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "../../../inc/MarlinConfig.h"
+#include "dwin_defines.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
-#include "dwin_defines.h"
-
-//#define DEBUG_OUT 1
-#include "../../../core/debug_out.h"
 
 xy_int_t DWINUI::cursor = { 0 };
 uint16_t DWINUI::pencolor = Color_White;
@@ -50,13 +46,6 @@ FSTR_P const DWINUI::Author = F(STRING_CONFIG_H_AUTHOR);
 void (*DWINUI::onTitleDraw)(TitleClass* title) = nullptr;
 
 void DWINUI::init() {
-  delay(750);   // Delay for wait to wakeup screen
-  const bool hs = DWIN_Handshake(); UNUSED(hs);
-  #if ENABLED(DEBUG_DWIN)
-    SERIAL_ECHOPGM("DWIN_Handshake ");
-    SERIAL_ECHOLNF(hs ? F("ok.") : F("error."));
-  #endif
-  DWIN_Frame_SetDir(1);
   cursor.reset();
   pencolor = Color_White;
   textcolor = Def_Text_Color;
@@ -210,6 +199,19 @@ void DWINUI::Draw_Float(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t c
   DWIN_Draw_String(bShow, fid, color, bColor, x, y, dtostrf(value, iNum + (signedMode ? 2:1) + fNum, fNum, nstr));
 }
 
+// ------------------------- Icons -------------------------------//
+
+// Draw an Icon and select library automatically
+//  BG: The icon background display: false=Background filtering is not displayed, true=Background display
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+void DWINUI::ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y) {
+  const uint8_t libID = ICON TERN_(HAS_CUSTOMICONS, + (icon / 100));
+  const uint8_t picID = icon TERN_(HAS_CUSTOMICONS, % 100);
+  DWIN_ICON_Show(BG, false, !BG, libID, picID, x, y);
+}
+
 // ------------------------- Buttons ------------------------------//
 
 void DWINUI::Draw_Button(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption) {
@@ -320,8 +322,8 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
 void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked=false) {
-  DWIN_Draw_String(true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
+  DWIN_Draw_Rectangle(1, checked ? color : bcolor, x + 6, y + 6, x + 13, y + 13);
 }
 
 // Clear Menu by filling the menu area with background color
