@@ -141,10 +141,10 @@ void LEDLights::setup() {
 
     // Fade to white
     LOOP_LE_N(led_pwm, 100) {
-      curColor.r = _MAX(curColor.r, led_pwm);
-      curColor.g = _MAX(curColor.g, led_pwm);
-      curColor.b = _MAX(curColor.b, led_pwm);
-      TERN_(HAS_WHITE_LED, curColor.w = _MAX(curColor.w, led_pwm));
+      NOLESS(curColor.r, led_pwm);
+      NOLESS(curColor.g, led_pwm);
+      NOLESS(curColor.b, led_pwm);
+      TERN_(HAS_WHITE_LED, NOLESS(curColor.w, led_pwm));
       PCA9632_set_led_color(curColor);
       delay(RGB_STARTUP_TEST_INNER_MS);
     }
