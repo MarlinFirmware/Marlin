@@ -324,7 +324,7 @@
   #define IS_ULTIPANEL 1
 #endif
 
-// TFT Compatibility
+// TFT Legacy Compatibility
 #if ANY(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT, TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_FSMC, TFT_LVGL_UI_SPI)
   #define IS_LEGACY_TFT 1
   #define TFT_GENERIC
@@ -1524,10 +1524,59 @@
   #endif
 #endif
 
+// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi|ltdc).h
+#if ENABLED(TFT_INTERFACE_FSMC)
+  #define HAS_FSMC_TFT 1
+  #if TFT_SCALED_DOGLCD
+    #define HAS_FSMC_GRAPHICAL_TFT 1
+  #elif HAS_TFT_LVGL_UI
+    #define HAS_TFT_LVGL_UI_FSMC 1
+  #endif
+#elif ENABLED(TFT_INTERFACE_SPI)
+  #define HAS_SPI_TFT 1
+  #if TFT_SCALED_DOGLCD
+    #define HAS_SPI_GRAPHICAL_TFT 1
+  #elif HAS_TFT_LVGL_UI
+    #define HAS_TFT_LVGL_UI_SPI 1
+  #endif
+#elif ENABLED(TFT_INTERFACE_LTDC)
+  #define HAS_LTDC_TFT 1
+  #if TFT_SCALED_DOGLCD
+    #define HAS_LTDC_GRAPHICAL_TFT 1
+  #elif HAS_TFT_LVGL_UI
+    #define HAS_TFT_LVGL_UI_LTDC 1
+  #endif
+#endif
+
+// Set TFT_COLOR_UI_PORTRAIT flag, if needed
+#if defined(TFT_ROTATION) && (HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT)
+  #define _CMP_TFT_ROTATE_90   90
+  #define _CMP_TFT_ROTATE_270 270
+  #define _CMP_TFT_ROTATE_90_MIRROR_X   90
+  #define _CMP_TFT_ROTATE_90_MIRROR_Y   90
+  #define _CMP_TFT_ROTATE_270_MIRROR_X 270
+  #define _CMP_TFT_ROTATE_270_MIRROR_Y 270
+  #define _ISROT(N) || (_CAT(_CMP_, TFT_ROTATION) == N)
+  #define ISROT(V...) (0 MAP(_ISROT, V))
+
+  #if ISROT(90, 270)
+    #define TFT_COLOR_UI_PORTRAIT 1
+  #endif
+
+  #undef _CMP_TFT_ROTATE_90
+  #undef _CMP_TFT_ROTATE_270
+  #undef _CMP_TFT_ROTATE_90_MIRROR_X
+  #undef _CMP_TFT_ROTATE_90_MIRROR_Y
+  #undef _CMP_TFT_ROTATE_270_MIRROR_X
+  #undef _CMP_TFT_ROTATE_270_MIRROR_Y
+  #undef _ISROT
+  #undef ISROT
+#endif
+
 #if ENABLED(TFT_RES_320x240)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define TFT_WIDTH         240
-    #define TFT_HEIGHT        320
+    #define TFT_WIDTH  240
+    #define TFT_HEIGHT 320
   #else
     #define TFT_WIDTH  320
     #define TFT_HEIGHT 240
@@ -1553,32 +1602,8 @@
   #endif
 #endif
 
-// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi|ltdc).h
-#if ENABLED(TFT_INTERFACE_FSMC)
-  #define HAS_FSMC_TFT 1
-  #if TFT_SCALED_DOGLCD
-    #define HAS_FSMC_GRAPHICAL_TFT 1
-  #elif HAS_TFT_LVGL_UI
-    #define HAS_TFT_LVGL_UI_FSMC 1
-  #endif
-#elif ENABLED(TFT_INTERFACE_SPI)
-  #define HAS_SPI_TFT 1
-  #if TFT_SCALED_DOGLCD
-    #define HAS_SPI_GRAPHICAL_TFT 1
-  #elif HAS_TFT_LVGL_UI
-    #define HAS_TFT_LVGL_UI_SPI 1
-  #endif
-#elif ENABLED(TFT_INTERFACE_LTDC)
-  #define HAS_LTDC_TFT 1
-  #if TFT_SCALED_DOGLCD
-    #define HAS_LTDC_GRAPHICAL_TFT 1
-  #elif HAS_TFT_LVGL_UI
-    #define HAS_TFT_LVGL_UI_LTDC 1
-  #endif
-#endif
-
 #if ENABLED(TFT_COLOR_UI)
-  #if TFT_HEIGHT == 240 || TFT_WIDTH == 240
+  #if (TFT_WIDTH == 320 && TFT_HEIGHT == 240) || (TFT_WIDTH == 240 && TFT_HEIGHT == 320)
     #if ENABLED(TFT_INTERFACE_SPI)
       #define TFT_320x240_SPI
     #elif ENABLED(TFT_INTERFACE_FSMC)
@@ -1616,12 +1641,12 @@
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9)   // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT (9 - ENABLED(TOUCH_SCREEN)) // One less line with touch buttons onscreen
   #else
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)   // Fewer lines with touch buttons onscreen
+    #define LCD_HEIGHT (7 - ENABLED(TOUCH_SCREEN))
   #endif
 #elif HAS_UI_1024x600
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
+  #define LCD_HEIGHT (13 - ENABLED(TOUCH_SCREEN))
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
