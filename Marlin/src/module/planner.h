@@ -156,6 +156,14 @@ typedef struct {
 
 } block_flags_t;
 
+#if ENABLED(AUTOTEMP)
+  typedef struct {
+    celsius_t min, max;
+    float factor;
+    bool enabled;
+  } autotemp_t;
+#endif
+
 #if ENABLED(LASER_FEATURE)
 
   typedef struct {
@@ -326,25 +334,21 @@ typedef struct {
   };
 #endif
 
-#if DISABLED(SKEW_CORRECTION)
-  #define XY_SKEW_FACTOR 0
-  #define XZ_SKEW_FACTOR 0
-  #define YZ_SKEW_FACTOR 0
-#endif
-
-typedef struct {
-  #if ENABLED(SKEW_CORRECTION_GCODE)
-    float xy;
-    #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      float xz, yz;
+#if ENABLED(SKEW_CORRECTION)
+  typedef struct {
+    #if ENABLED(SKEW_CORRECTION_GCODE)
+      float xy;
+      #if ENABLED(SKEW_CORRECTION_FOR_Z)
+        float xz, yz;
+      #else
+        const float xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
+      #endif
     #else
-      const float xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
+      const float xy = XY_SKEW_FACTOR,
+                  xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
     #endif
-  #else
-    const float xy = XY_SKEW_FACTOR,
-                xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
-  #endif
-} skew_factor_t;
+  } skew_factor_t;
+#endif
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
   typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
@@ -476,7 +480,9 @@ class Planner {
       static xyze_pos_t position_cart;
     #endif
 
-    static skew_factor_t skew_factor;
+    #if ENABLED(SKEW_CORRECTION)
+      static skew_factor_t skew_factor;
+    #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
@@ -972,9 +978,7 @@ class Planner {
     #endif
 
     #if ENABLED(AUTOTEMP)
-      static celsius_t autotemp_min, autotemp_max;
-      static float autotemp_factor;
-      static bool autotemp_enabled;
+      static autotemp_t autotemp;
       static void autotemp_update();
       static void autotemp_M104_M109();
       static void autotemp_task();

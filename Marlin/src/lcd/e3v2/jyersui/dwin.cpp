@@ -1213,7 +1213,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
                   Popup_Handler(ETemp);
                 else {
-                  if (thermalManager.temp_hotend[0].is_below_target(-2)) {
+                  if (thermalManager.temp_hotend[0].is_below_target(2)) {
                     Popup_Handler(Heating);
                     thermalManager.wait_for_hotend(0);
                   }
@@ -1356,7 +1356,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Popup_Handler(ETemp);
               }
               else {
-                if (thermalManager.temp_hotend[0].is_below_target(-2)) {
+                if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   Popup_Handler(Heating);
                   thermalManager.wait_for_hotend(0);
                   Redraw_Menu();
@@ -1743,7 +1743,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
                 Popup_Handler(ETemp);
               else {
-                if (thermalManager.temp_hotend[0].is_below_target(-2)) {
+                if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   Popup_Handler(Heating);
                   thermalManager.wait_for_hotend(0);
                 }
@@ -1762,7 +1762,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Popup_Handler(ETemp);
               }
               else {
-                if (thermalManager.temp_hotend[0].is_below_target(-2)) {
+                if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   Popup_Handler(Heating);
                   thermalManager.wait_for_hotend(0);
                 }
@@ -1780,7 +1780,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
                 Popup_Handler(ETemp);
               else {
-                if (thermalManager.temp_hotend[0].is_below_target(-2)) {
+                if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   Popup_Handler(Heating);
                   thermalManager.wait_for_hotend(0);
                 }
@@ -4505,7 +4505,7 @@ void CrealityDWINClass::Popup_Control() {
             if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
               Popup_Handler(ETemp);
             else {
-              if (thermalManager.temp_hotend[0].is_below_target(-2)) {
+              if (thermalManager.temp_hotend[0].is_below_target(2)) {
                 Popup_Handler(Heating);
                 thermalManager.wait_for_hotend(0);
               }

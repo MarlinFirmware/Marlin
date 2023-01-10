@@ -82,6 +82,7 @@ namespace Language_en {
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
+  LSTR MSG_Z_AFTER_HOME                   = _UxGT("Z After Homing");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Settings");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Management");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Manual Leveling");
@@ -133,6 +134,7 @@ namespace Language_en {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Preheat $ Bed");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Conf");
   #endif
+  LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Preheat Hotend");
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Preheat Custom");
   LSTR MSG_COOLDOWN                       = _UxGT("Cooldown");
 
@@ -266,6 +268,7 @@ namespace Language_en {
   LSTR MSG_UBL_INVALID_SLOT               = _UxGT("First Select a Mesh Slot");
   LSTR MSG_MESH_LOADED                    = _UxGT("Mesh %i Loaded");
   LSTR MSG_MESH_SAVED                     = _UxGT("Mesh %i Saved");
+  LSTR MSG_MESH_ACTIVE                    = _UxGT("Mesh %i active");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("No Storage");
   LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Err: UBL Save");
   LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Err: UBL Restore");
@@ -323,6 +326,7 @@ namespace Language_en {
   LSTR MSG_MOVE_01IN                      = _UxGT("Move 0.1in");
   LSTR MSG_MOVE_05IN                      = _UxGT("Move 0.5in");
   LSTR MSG_MOVE_1IN                       = _UxGT("Move 1.0in");
+  LSTR MSG_LIVE_MOVE                      = _UxGT("Live Move");
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
@@ -538,6 +542,7 @@ namespace Language_en {
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Wipe Retract");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Retract Speed");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Park Head");
+  LSTR MSG_PARK_FAILED                    = _UxGT("Head cannot be parked");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Recover Speed");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Fan Speed");
   LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Fan Time");
@@ -554,7 +559,12 @@ namespace Language_en {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Unload Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Unload *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Unload All");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Attach ") MEDIA_TYPE_EN;
+  #if ENABLED(MULTI_VOLUME)
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Attach SD Card");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Attach USB Drive");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Attach ") MEDIA_TYPE_EN;
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Change ") MEDIA_TYPE_EN;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Release ") MEDIA_TYPE_EN;
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
@@ -638,6 +648,7 @@ namespace Language_en {
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Leveling");
   LSTR MSG_MESH_DONE                      = _UxGT("Mesh probing done");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Printer Stats");
+  LSTR MSG_RESET_STATS                    = _UxGT("Reset Print Stats?");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistors");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruders");

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * DWIN Enhanced implementation for PRO UI
@@ -28,10 +27,14 @@
  * Date: 2022/07/05
  */
 
-#include "dwin_lcd.h"
+#pragma once
+
+#include "../../../inc/MarlinConfigPre.h"
+
 #include "../common/dwin_set.h"
 #include "../common/dwin_font.h"
 #include "../common/dwin_color.h"
+#include "dwin_lcd.h"
 
 // Extra Icons
 #define ICON_AdvSet               ICON_Language
@@ -74,6 +77,10 @@
 #define ICON_MaxPosX              ICON_MoveX
 #define ICON_MaxPosY              ICON_MoveY
 #define ICON_MaxPosZ              ICON_MoveZ
+#define ICON_MeshEdit             ICON_Homing
+#define ICON_MeshEditX            ICON_MoveX
+#define ICON_MeshEditY            ICON_MoveY
+#define ICON_MeshEditZ            ICON_MoveZ
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshPoints           ICON_SetEndTemp
 #define ICON_MeshSave             ICON_WriteEEPROM
@@ -85,11 +92,22 @@
 #define ICON_ParkPosY             ICON_StepY
 #define ICON_ParkPosZ             ICON_StepZ
 #define ICON_PhySet               ICON_PrintSize
-#define ICON_PIDbed               ICON_SetBedTemp
-#define ICON_PIDcycles            ICON_ResumeEEPROM
+#define ICON_PIDNozzle            ICON_SetEndTemp
+#define ICON_PIDBed               ICON_SetBedTemp
+#define ICON_PIDCycles            ICON_ResumeEEPROM
 #define ICON_PIDValue             ICON_Contact
 #define ICON_PrintStats           ICON_PrintTime
 #define ICON_PrintStatsReset      ICON_RemainTime
+#define ICON_Preheat1             ICON_PLAPreheat
+#define ICON_Preheat2             ICON_ABSPreheat
+#define ICON_Preheat3             ICON_CustomPreheat
+#define ICON_Preheat4             ICON_CustomPreheat
+#define ICON_Preheat5             ICON_CustomPreheat
+#define ICON_Preheat6             ICON_CustomPreheat
+#define ICON_Preheat7             ICON_CustomPreheat
+#define ICON_Preheat8             ICON_CustomPreheat
+#define ICON_Preheat9             ICON_CustomPreheat
+#define ICON_Preheat10            ICON_CustomPreheat
 #define ICON_ProbeDeploy          ICON_SetEndTemp
 #define ICON_ProbeMargin          ICON_PrintSize
 #define ICON_ProbeOffsetX         ICON_StepX
@@ -105,9 +123,28 @@
 #define ICON_Scolor               ICON_MaxSpeed
 #define ICON_SetBaudRate          ICON_Setspeed
 #define ICON_SetCustomPreheat     ICON_SetEndTemp
+#define ICON_SetPreheat1          ICON_SetPLAPreheat
+#define ICON_SetPreheat2          ICON_SetABSPreheat
+#define ICON_SetPreheat3          ICON_SetCustomPreheat
+#define ICON_SetPreheat4          ICON_SetCustomPreheat
+#define ICON_SetPreheat5          ICON_SetCustomPreheat
+#define ICON_SetPreheat6          ICON_SetCustomPreheat
+#define ICON_SetPreheat7          ICON_SetCustomPreheat
+#define ICON_SetPreheat8          ICON_SetCustomPreheat
+#define ICON_SetPreheat9          ICON_SetCustomPreheat
+#define ICON_SetPreheat10         ICON_SetCustomPreheat
 #define ICON_Sound                ICON_Cool
 #define ICON_TBSetup              ICON_Contact
 #define ICON_UBLActive            ICON_HotendTemp
+#define ICON_UBLActive            ICON_HotendTemp
+#define ICON_UBLSlot              ICON_ResumeEEPROM
+#define ICON_UBLSaveMesh          ICON_WriteEEPROM
+#define ICON_UBLLoadMesh          ICON_ReadEEPROM
+#define ICON_UBLTiltGrid          ICON_PrintSize
+#define ICON_UBLSmartFill         ICON_StockConfiguration
+#define ICON_ZAfterHome           ICON_SetEndTemp
+
+
 
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion
@@ -262,18 +299,25 @@ namespace DWINUI {
     return t;
   }
 
+  // Draw an Icon and select library automatically
+  //  BG: The icon background display: false=Background filtering is not displayed, true=Background display
+  //  libID: Icon library ID
+  //  picID: Icon ID
+  //  x/y: Upper-left point
+  void ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y);
+
   // Draw an Icon with transparent background from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
-    DWIN_ICON_Show(ICON, icon, x, y);
+    ICON_Show(false, icon, x, y);
   }
 
   // Draw an Icon from the library ICON with its background
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void Draw_IconWB(uint8_t icon, uint16_t x, uint16_t y) {
-    DWIN_ICON_Show(true, false, false, ICON, icon, x, y);
+    ICON_Show(true, icon, x, y);
   }
 
   // Draw a numeric integer value
