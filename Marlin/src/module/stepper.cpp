@@ -3015,7 +3015,7 @@ void Stepper::init() {
 
   void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
-    Planner::synchronize();
+    planner.synchronize();
 
     const bool was_on = hal.isr_state();
     hal.isr_off();
