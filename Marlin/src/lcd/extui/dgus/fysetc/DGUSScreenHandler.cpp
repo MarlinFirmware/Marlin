@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_FYSETC)
+#if DGUS_LCD_UI_FYSETC
 
 #include "../DGUSScreenHandler.h"
 

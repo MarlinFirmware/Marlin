@@ -29,15 +29,21 @@
 #define TFT_TOP_LINE_Y         4
 
 #define MENU_TEXT_X_OFFSET    16
-#define MENU_TEXT_Y_OFFSET     7
+#define MENU_TEXT_Y_OFFSET    tft_string.vcenter(MENU_ITEM_HEIGHT)
 
 #define MENU_ITEM_ICON_X       5
 #define MENU_ITEM_ICON_Y       5
 #define MENU_ITEM_ICON_SPACE  42
 
-#define MENU_FONT_NAME      Helvetica18
-#define SYMBOLS_FONT_NAME   Helvetica18_symbols
-#define MENU_ITEM_HEIGHT    43
-#define FONT_LINE_HEIGHT    34
+#if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
+  #define FONT_SIZE           19
+#elif TFT_FONT == UNIFONT
+  #define FONT_SIZE           20
+#endif
+
+#define MENU_ITEM_HEIGHT      43
+#define FONT_LINE_HEIGHT      34
 
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
+
+#include "tft_font.h"
