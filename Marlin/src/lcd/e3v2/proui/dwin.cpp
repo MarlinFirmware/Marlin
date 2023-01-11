@@ -109,14 +109,8 @@
   #include "../../../feature/bltouch.h"
 #endif
 
-#if EITHER(BABYSTEPPING, HAS_BED_PROBE)
-  #define HAS_ZOFFSET_ITEM 1
-  #if ENABLED(BABYSTEPPING)
-    #include "../../../feature/babystep.h"
-    #if !HAS_BED_PROBE
-      #define JUST_BABYSTEP 1
-    #endif
-  #endif
+#if ENABLED(BABYSTEPPING)
+  #include "../../../feature/babystep.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -197,8 +191,8 @@
 #define DWIN_UPDATE_INTERVAL             1024
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL SEC_TO_MS(20)
 
-#if HAS_MESH
-  #define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, HMI_data.ManualZOffset)
+#if HAS_MESH && HAS_BED_PROBE
+  #define BABY_Z_VAR probe.offset.z
 #else
   float z_offset = 0;
   #define BABY_Z_VAR z_offset
@@ -1473,10 +1467,6 @@ void DWIN_HomingStart() {
 
 void DWIN_HomingDone() {
   HMI_flag.home_flag = false;
-  #if DISABLED(HAS_BED_PROBE) && EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
-    planner.synchronize();
-    babystep.add_mm(Z_AXIS, HMI_data.ManualZOffset);
-  #endif
   HMI_ReturnScreen();
 }
 
@@ -1696,7 +1686,6 @@ void DWIN_SetDataDefaults() {
   #if BOTH(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     HMI_data.z_after_homing = DEF_Z_AFTER_HOMING;
   #endif
-  IF_DISABLED(HAS_BED_PROBE, HMI_data.ManualZOffset = 0);
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     TERN_(LED_COLOR_PRESETS, leds.set_default());
     ApplyLEDColor();

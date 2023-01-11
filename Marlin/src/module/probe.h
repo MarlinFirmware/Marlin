@@ -161,11 +161,9 @@ public:
   #endif
 
   static void move_z_after_homing() {
-    #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-      do_z_clearance(HMI_data.z_after_homing, true);
-    #elif defined(Z_AFTER_HOMING)
-      do_z_clearance(Z_AFTER_HOMING, true);
-    #elif BOTH(Z_AFTER_PROBING, HAS_BED_PROBE)
+    #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
+      do_z_clearance(Z_POST_CLEARANCE, true);
+    #elif HAS_BED_PROBE
       move_z_after_probing();
     #endif
   }
