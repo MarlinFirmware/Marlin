@@ -2370,7 +2370,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(planner.settings.max_feedrate_mm_s[X_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[X_AXIS], min_feedrate_edit_values[X_AXIS], max_feedrate_edit_values[X_AXIS], FEEDRATE_UNIT);
+              Modify_Value(planner.settings.max_feedrate_mm_s[X_AXIS], min_feedrate_edit_values.x, max_feedrate_edit_values.x, FEEDRATE_UNIT);
             break;
         #endif
 
@@ -2381,7 +2381,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(planner.settings.max_feedrate_mm_s[Y_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[Y_AXIS], min_feedrate_edit_values[Y_AXIS], max_feedrate_edit_values[Y_AXIS], FEEDRATE_UNIT);
+              Modify_Value(planner.settings.max_feedrate_mm_s[Y_AXIS], min_feedrate_edit_values.y, max_feedrate_edit_values.y, FEEDRATE_UNIT);
             break;
         #endif
 
@@ -2392,7 +2392,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(planner.settings.max_feedrate_mm_s[Z_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[Z_AXIS], min_feedrate_edit_values[Z_AXIS], max_feedrate_edit_values[Z_AXIS], FEEDRATE_UNIT);
+              Modify_Value(planner.settings.max_feedrate_mm_s[Z_AXIS], min_feedrate_edit_values.z, max_feedrate_edit_values.z, FEEDRATE_UNIT);
             break;
         #endif
 
@@ -2403,7 +2403,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(planner.settings.max_feedrate_mm_s[E_AXIS], row, false, FEEDRATE_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_feedrate_mm_s[E_AXIS], min_feedrate_edit_values[E_AXIS], max_feedrate_edit_values[E_AXIS], FEEDRATE_UNIT);
+              Modify_Value(planner.settings.max_feedrate_mm_s[E_AXIS], min_feedrate_edit_values.e, max_feedrate_edit_values.e, FEEDRATE_UNIT);
             break;
         #endif
       }
@@ -2431,7 +2431,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[X_AXIS], row, false, ACCELERATION_UNIT);
           }
           else
-            Modify_Value(planner.settings.max_acceleration_mm_per_s2[X_AXIS], min_acceleration_edit_values[X_AXIS], max_acceleration_edit_values[X_AXIS], ACCELERATION_UNIT);
+            Modify_Value(planner.settings.max_acceleration_mm_per_s2[X_AXIS], min_acceleration_edit_values.x, max_acceleration_edit_values.x, ACCELERATION_UNIT);
           break;
         case ACCEL_Y:
           if (draw) {
@@ -2439,7 +2439,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], row, false, ACCELERATION_UNIT);
           }
           else
-            Modify_Value(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], min_acceleration_edit_values[Y_AXIS], max_acceleration_edit_values[Y_AXIS], ACCELERATION_UNIT);
+            Modify_Value(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], min_acceleration_edit_values.y, max_acceleration_edit_values.y, ACCELERATION_UNIT);
           break;
         case ACCEL_Z:
           if (draw) {
@@ -2447,7 +2447,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], row, false, ACCELERATION_UNIT);
           }
           else
-            Modify_Value(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], min_acceleration_edit_values[Z_AXIS], max_acceleration_edit_values[Z_AXIS], ACCELERATION_UNIT);
+            Modify_Value(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], min_acceleration_edit_values.z, max_acceleration_edit_values.z, ACCELERATION_UNIT);
           break;
         #if HAS_HOTEND
           case ACCEL_E:
@@ -2456,7 +2456,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(planner.settings.max_acceleration_mm_per_s2[E_AXIS], row, false, ACCELERATION_UNIT);
             }
             else
-              Modify_Value(planner.settings.max_acceleration_mm_per_s2[E_AXIS], min_acceleration_edit_values[E_AXIS], max_acceleration_edit_values[E_AXIS], ACCELERATION_UNIT);
+              Modify_Value(planner.settings.max_acceleration_mm_per_s2[E_AXIS], min_acceleration_edit_values.e, max_acceleration_edit_values.e, ACCELERATION_UNIT);
             break;
         #endif
       }
@@ -2478,30 +2478,36 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             else
               Draw_Menu(Motion, MOTION_JERK);
             break;
-          case JERK_X:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedJerkX, F("X Axis"));
-              Draw_Float(planner.max_jerk.x, row, false, JERK_UNIT);
-            }
-            else
-              Modify_Value(planner.max_jerk.x, min_jerk_edit_values[X_AXIS], max_jerk_edit_values[X_AXIS], JERK_UNIT);
-            break;
-          case JERK_Y:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedJerkY, F("Y Axis"));
-              Draw_Float(planner.max_jerk.y, row, false, JERK_UNIT);
-            }
-            else
-              Modify_Value(planner.max_jerk.y, min_jerk_edit_values[Y_AXIS], max_jerk_edit_values[Y_AXIS], JERK_UNIT);
-            break;
-          case JERK_Z:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_MaxSpeedJerkZ, F("Z Axis"));
-              Draw_Float(planner.max_jerk.z, row, false, JERK_UNIT);
-            }
-            else
-              Modify_Value(planner.max_jerk.z, min_jerk_edit_values[Z_AXIS], max_jerk_edit_values[Z_AXIS], JERK_UNIT);
-            break;
+          #if HAS_X_AXIS
+            case JERK_X:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_MaxSpeedJerkX, F("X Axis"));
+                Draw_Float(planner.max_jerk.x, row, false, JERK_UNIT);
+              }
+              else
+                Modify_Value(planner.max_jerk.x, min_jerk_edit_values.x, max_jerk_edit_values.x, JERK_UNIT);
+              break;
+          #endif
+          #if HAS_Y_AXIS
+            case JERK_Y:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_MaxSpeedJerkY, F("Y Axis"));
+                Draw_Float(planner.max_jerk.y, row, false, JERK_UNIT);
+              }
+              else
+                Modify_Value(planner.max_jerk.y, min_jerk_edit_values.y, max_jerk_edit_values.y, JERK_UNIT);
+              break;
+          #endif
+          #if HAS_Z_AXIS
+            case JERK_Z:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_MaxSpeedJerkZ, F("Z Axis"));
+                Draw_Float(planner.max_jerk.z, row, false, JERK_UNIT);
+              }
+              else
+                Modify_Value(planner.max_jerk.z, min_jerk_edit_values.z, max_jerk_edit_values.z, JERK_UNIT);
+              break;
+          #endif
           #if HAS_HOTEND
             case JERK_E:
               if (draw) {
@@ -2509,7 +2515,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
                 Draw_Float(planner.max_jerk.e, row, false, JERK_UNIT);
               }
               else
-                Modify_Value(planner.max_jerk.e, min_jerk_edit_values[E_AXIS], max_jerk_edit_values[E_AXIS], JERK_UNIT);
+                Modify_Value(planner.max_jerk.e, min_jerk_edit_values.e, max_jerk_edit_values.e, JERK_UNIT);
               break;
           #endif
         }
@@ -2530,31 +2536,37 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
             Draw_Menu_Item(row, ICON_Back, F("Back"));
           else
             Draw_Menu(Motion, MOTION_STEPS);
-          break;
-        case STEPS_X:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_StepX, F("X Axis"));
-            Draw_Float(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
-          }
-          else
-            Modify_Value(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values[X_AXIS], max_steps_edit_values[X_AXIS], STEPS_UNIT);
-          break;
-        case STEPS_Y:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_StepY, F("Y Axis"));
-            Draw_Float(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
-          }
-          else
-            Modify_Value(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values[Y_AXIS], max_steps_edit_values[Y_AXIS], STEPS_UNIT);
-          break;
-        case STEPS_Z:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_StepZ, F("Z Axis"));
-            Draw_Float(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
-          }
-          else
-            Modify_Value(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values[Z_AXIS], max_steps_edit_values[Z_AXIS], STEPS_UNIT);
-          break;
+            break;
+        #if HAS_X_AXIS
+          case STEPS_X:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_StepX, F("X Axis"));
+              Draw_Float(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
+            }
+            else
+              Modify_Value(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
+            break;
+        #endif
+        #if HAS_Y_AXIS
+          case STEPS_Y:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_StepY, F("Y Axis"));
+              Draw_Float(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
+            }
+            else
+              Modify_Value(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
+            break;
+        #endif
+        #if HAS_Z_AXIS
+          case STEPS_Z:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_StepZ, F("Z Axis"));
+              Draw_Float(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
+            }
+            else
+              Modify_Value(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
+            break;
+        #endif
         #if HAS_HOTEND
           case STEPS_E:
             if (draw) {
@@ -2562,7 +2574,7 @@ void CrealityDWINClass::Menu_Item_Handler(const uint8_t menu, const uint8_t item
               Draw_Float(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
             }
             else
-              Modify_Value(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values[E_AXIS], max_steps_edit_values[E_AXIS], STEPS_UNIT);
+              Modify_Value(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
             break;
         #endif
       }
