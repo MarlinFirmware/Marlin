@@ -285,9 +285,7 @@ void report_current_position_projected() {
       #endif
     );
 
-    stepper.report_positions();
-    TERN_(IS_SCARA, scara_report_positions());
-    TERN_(POLAR, polar_report_positions());
+    report_more_positions();
     report_current_grblstate_moving();
   }
 
@@ -438,7 +436,7 @@ void get_cartesian_from_steppers() {
     );
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #elif ENABLED(POLAR)
-    forward_kinematics( planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_degrees(B_AXIS) );
+    forward_kinematics(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_degrees(B_AXIS));
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #else
     NUM_AXIS_CODE(
@@ -929,7 +927,7 @@ void restore_feedrate_and_scaling() {
         // The effector center position will be the target minus the hotend offset.
         const xy_pos_t offs = hotend_offset[active_extruder];
       #elif ENABLED(POLAR)
-        // for now, we don't limit POLAR
+        // For now, we don't limit POLAR
       #else
         // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
         constexpr xy_pos_t offs{0};
@@ -939,7 +937,7 @@ void restore_feedrate_and_scaling() {
         LIMIT(target.x, draw_area_min.x, draw_area_max.x);
         LIMIT(target.y, draw_area_min.y, draw_area_max.y);
       #elif ENABLED(POLAR)
-        // motion limits are as same as cartesian limits.
+        // Motion limits are as same as cartesian limits.
       #else
         if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
           const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);

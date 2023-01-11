@@ -71,11 +71,7 @@
 
     #if IS_KINEMATIC
       // Kinematics applied to the leveled position
-      #if ENABLED(POLAR)
-        SERIAL_ECHOPGM("PolarK: ");
-      #else
-        SERIAL_ECHOPGM(TERN(IS_SCARA, "ScaraK: ", "DeltaK: "));
-      #endif
+      SERIAL_ECHOPGM(TERN(POLAR, "Polar", TERN(IS_SCARA, "Scara", "Delta")) "K: " );
       inverse_kinematics(leveled);  // writes delta[]
       report_linear_axis_pos(delta);
     #endif

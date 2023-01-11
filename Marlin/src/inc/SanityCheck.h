@@ -1374,12 +1374,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * POLAR warnings
  */
-#if ENABLED(POLAR) && ENABLED(S_CURVE_ACCELERATION)
-  #warning POLAR Kinematics may not work well with S_CURVE_ACCELERATIONS.
+#if BOTH(POLAR, S_CURVE_ACCELERATION)
+  #warning "POLAR Kinematics may not work well with S_CURVE_ACCELERATION."
 #endif
-
-
-
 
 /**
  * Special tool-changing options
@@ -1705,7 +1702,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Junction deviation is incompatible with kinematic systems.
  */
 #if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
-  #error "CLASSIC_JERK is required for DELTA, SCARA and POLAR."
+  #error "CLASSIC_JERK is required for DELTA, SCARA, and POLAR."
 #endif
 
 /**

@@ -267,6 +267,7 @@
  */
 #if IS_KINEMATIC
   #undef LCD_BED_TRAMMING
+  #undef SLOWDOWN
 #endif
 
 /**
@@ -274,17 +275,12 @@
  * Printable radius assumes joints can fully extend
  */
 #if IS_SCARA
-  #undef SLOWDOWN
   #if ENABLED(AXEL_TPARA)
     #define SCARA_PRINTABLE_RADIUS (TPARA_LINKAGE_1 + TPARA_LINKAGE_2)
   #else
     #define QUICK_HOME
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #endif
-#endif
-
-#if ENABLED(POLAR)
-  #undef SLOWDOWN
 #endif
 
 /**
@@ -382,7 +378,6 @@
  */
 #if ENABLED(DELTA)
   #undef Z_SAFE_HOMING
-  #undef SLOWDOWN
 #endif
 
 #ifndef MESH_INSET
@@ -3087,16 +3082,14 @@
 /**
  * Only constrain Z on DELTA / SCARA machines
  */
-#if IS_KINEMATIC
-  #if ENABLED(POLAR)
-    #undef MIN_SOFTWARE_ENDSTOP_Y
-    #undef MAX_SOFTWARE_ENDSTOP_Y
-  #else
-    #undef MIN_SOFTWARE_ENDSTOP_X
-    #undef MIN_SOFTWARE_ENDSTOP_Y
-    #undef MAX_SOFTWARE_ENDSTOP_X
-    #undef MAX_SOFTWARE_ENDSTOP_Y
-  #endif
+#if ENABLED(POLAR)
+  #undef MIN_SOFTWARE_ENDSTOP_Y
+  #undef MAX_SOFTWARE_ENDSTOP_Y
+#elif IS_KINEMATIC
+  #undef MIN_SOFTWARE_ENDSTOP_X
+  #undef MIN_SOFTWARE_ENDSTOP_Y
+  #undef MAX_SOFTWARE_ENDSTOP_X
+  #undef MAX_SOFTWARE_ENDSTOP_Y
 #endif
 
 /**

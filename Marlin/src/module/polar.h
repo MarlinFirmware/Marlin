@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,12 +25,9 @@
  * polar.h - POLAR-specific functions
  */
 
-#include "../core/macros.h"
+#include "../core/types.h"
 
 extern float segments_per_second;
-extern float polar_center_offset;
-
-//extern float polar_scaled_max_feedrate;
 
 float absoluteAngle(float a);
 void forward_kinematics(const_float_t r, const_float_t theta);

@@ -915,16 +915,11 @@ class Planner {
       return out;
     }
 
-    // SCARA AB axes are in degrees, not mm
-    #if IS_SCARA
+    // SCARA AB and Polar YB axes are in degrees, not mm
+    #if EITHER(IS_SCARA, POLAR)
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
-    // polar Y/B axis is in degrees, not mm
-    #if ENABLED(POLAR)
-      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
-    #endif
-    
     // Called to force a quick stop of the machine (for example, when
     // a Full Shutdown is required, or when endstops are hit)
     static void quick_stop();

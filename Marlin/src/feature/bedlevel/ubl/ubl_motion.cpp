@@ -335,17 +335,13 @@
 
   #if IS_SCARA
     #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
-  #elif ENABLED(DELTA)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
-  #elif ENABLED(POLARGRAPH)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DEFAULT_SEGMENTS_PER_SECOND)
-  #elif ENABLED(POLAR)
-    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
+  #elif IS_KINEMATIC
+    #define DELTA_SEGMENT_MIN_LENGTH 0.10 // (mm) Still subject to DEFAULT_SEGMENTS_PER_SECOND
   #else // CARTESIAN
     #ifdef LEVELED_SEGMENT_LENGTH
       #define DELTA_SEGMENT_MIN_LENGTH LEVELED_SEGMENT_LENGTH
     #else
-      #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
+      #define DELTA_SEGMENT_MIN_LENGTH 1.00 // (mm) Similar to G2/G3 arc segmentation
     #endif
   #endif
 

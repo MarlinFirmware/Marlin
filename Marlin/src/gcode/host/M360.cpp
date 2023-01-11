@@ -161,7 +161,7 @@ void GcodeSuite::M360() {
   SERIAL_ECHOLNPGM(
     TERN_(DELTA,         "Delta")
     TERN_(IS_SCARA,      "SCARA")
-    TERN_(POLAR,         "POLAR")
+    TERN_(POLAR,         "Polar")
     TERN_(IS_CORE,       "Core")
     TERN_(MARKFORGED_XY, "MarkForgedXY")
     TERN_(MARKFORGED_YX, "MarkForgedYX")
