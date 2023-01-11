@@ -276,10 +276,10 @@
  */
 #if IS_SCARA
   #if ENABLED(AXEL_TPARA)
-    #define SCARA_PRINTABLE_RADIUS (TPARA_LINKAGE_1 + TPARA_LINKAGE_2)
+    #define PRINTABLE_RADIUS (TPARA_LINKAGE_1 + TPARA_LINKAGE_2)
   #else
     #define QUICK_HOME
-    #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
+    #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #endif
 #endif
 
@@ -3156,7 +3156,7 @@
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
-    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
+    // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
     #define _MESH_MIN_X (X_MIN_BED + MESH_INSET)
     #define _MESH_MIN_Y (Y_MIN_BED + MESH_INSET)

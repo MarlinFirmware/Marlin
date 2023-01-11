@@ -3161,14 +3161,19 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
         ? xyz_pos_t(cart_dist_mm).magnitude()
         : TERN0(HAS_Z_AXIS, ABS(cart_dist_mm.z));
 
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
+    #if DISABLED(FEEDRATE_SCALING)
+
+      const feedRate_t feedrate = fr_mm_s;
+
+    #elif IS_SCARA
+
       // For SCARA scale the feedrate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float duration_recip = hints.inv_duration ?: fr_mm_s / ph.millimeters;
       const xyz_pos_t diff = delta - position_float;
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
 
-    #elif ENABLED(POLAR_FEEDRATE_SCALING)
+    #elif ENABLED(POLAR)
 
       /**
        * Motion problem for Polar axis near center / origin:
@@ -3204,17 +3209,13 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
                         normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
 
             // Normalized position along the radius
-            const float radiusRatio = POLAR_PRINTABLE_RADIUS/delta.a;
+            const float radiusRatio = PRINTABLE_RADIUS/delta.a;
             calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
         }
       }
       const feedRate_t feedrate = calculated_feedrate;
 
-    #else // no feedrate scaling
-
-      const feedRate_t feedrate = fr_mm_s;
-
-    #endif
+    #endif // POLAR && FEEDRATE_SCALING
 
     TERN_(HAS_EXTRUDERS, delta.e = machine.e);
     if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {

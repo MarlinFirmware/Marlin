@@ -218,7 +218,7 @@ void plan_arc(
 
   // Add hints to help optimize the move
   PlannerHints hints;
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
+  #if ENABLED(FEEDRATE_SCALING)
     hints.inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
   #endif
 
