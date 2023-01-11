@@ -714,7 +714,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS && axis != E_AXIS) {
-        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif

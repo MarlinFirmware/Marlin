@@ -335,7 +335,7 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
-#if IS_SCARA || defined(G0_FEEDRATE)
+#if EITHER(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
 
