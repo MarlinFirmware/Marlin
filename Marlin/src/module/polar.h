@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,16 +22,15 @@
 #pragma once
 
 /**
- * DWIN End Stops diagnostic page for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.3.2
- * Date: 2022/10/07
+ * polar.h - POLAR-specific functions
  */
 
-class ESDiagClass {
-public:
-  void Draw();
-  void Update();
-};
+#include "../core/types.h"
 
-extern ESDiagClass ESDiag;
+extern float segments_per_second;
+
+float absoluteAngle(float a);
+void forward_kinematics(const_float_t r, const_float_t theta);
+
+void inverse_kinematics(const xyz_pos_t &raw);
+void polar_report_positions();

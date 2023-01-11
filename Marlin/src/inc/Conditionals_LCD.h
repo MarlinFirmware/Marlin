@@ -36,19 +36,19 @@
   #define FYSETC_MINI_12864_2_1
 #endif
 
-// Updated DGUS_UI shorthand single option can be used, or old settings, for now
+// Old settings are now conditional on DGUS_LCD_UI
 #if DGUS_UI_IS(ORIGIN)
-  #define DGUS_LCD_UI_ORIGIN
+  #define DGUS_LCD_UI_ORIGIN 1
 #elif DGUS_UI_IS(FYSETC)
-  #define DGUS_LCD_UI_FYSETC
+  #define DGUS_LCD_UI_FYSETC 1
 #elif DGUS_UI_IS(HIPRECY)
-  #define DGUS_LCD_UI_HIPRECY
+  #define DGUS_LCD_UI_HIPRECY 1
 #elif DGUS_UI_IS(MKS)
-  #define DGUS_LCD_UI_MKS
+  #define DGUS_LCD_UI_MKS 1
 #elif DGUS_UI_IS(RELOADED)
-  #define DGUS_LCD_UI_RELOADED
+  #define DGUS_LCD_UI_RELOADED 1
 #elif DGUS_UI_IS(IA_CREALITY)
-  #define DGUS_LCD_UI_IA_CREALITY
+  #define DGUS_LCD_UI_IA_CREALITY 1
 #endif
 
 /**
@@ -1298,6 +1298,7 @@
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef USE_PROBE_FOR_Z_HOMING
+  #undef Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -1406,7 +1407,7 @@
 #if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
-#elif EITHER(DELTA, POLARGRAPH)
+#elif ANY(DELTA, POLARGRAPH, POLAR)
   #define IS_KINEMATIC 1
 #else
   #define IS_CARTESIAN 1
