@@ -181,6 +181,25 @@
     );
   }
 
+#elif ENABLED(POLAR)
+
+  #include "../../module/polar.h"
+
+  /**
+   * M665: Set POLAR settings
+   * Parameters:
+   *   S[segments]  - Segments-per-second
+   */
+  void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
+    if (parser.seenval('S')) segments_per_second = parser.value_float();
+  }
+
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    report_heading_etc(forReplay, F(STR_POLAR_SETTINGS));
+    SERIAL_ECHOLNPGM_P(PSTR("  M665 S"), segments_per_second);
+  }
+
 #endif
 
 #endif // IS_KINEMATIC

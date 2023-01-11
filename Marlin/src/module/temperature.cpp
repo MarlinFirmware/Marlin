@@ -561,8 +561,11 @@ volatile bool Temperature::raw_temps_ready = false;
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
 #endif
 
-#if MILLISECONDS_PREHEAT_TIME > 0
-  millis_t Temperature::preheat_end_time[HOTENDS] = { 0 };
+#if PREHEAT_TIME_HOTEND_MS > 0
+  millis_t Temperature::preheat_end_ms_hotend[HOTENDS] { 0 };
+#endif
+#if HAS_HEATED_BED && PREHEAT_TIME_BED_MS > 0
+  millis_t Temperature::preheat_end_ms_bed = 0;
 #endif
 
 #if HAS_FAN_LOGIC
@@ -1535,7 +1538,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
         tr_state_machine[e].run(temp_hotend[e].celsius, temp_hotend[e].target, (heater_id_t)e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
       #endif
 
-      temp_hotend[e].soft_pwm_amount = (temp_hotend[e].celsius > temp_range[e].mintemp || is_preheating(e)) && temp_hotend[e].celsius < temp_range[e].maxtemp ? (int)get_pid_output_hotend(e) >> 1 : 0;
+      temp_hotend[e].soft_pwm_amount = (temp_hotend[e].celsius > temp_range[e].mintemp || is_hotend_preheating(e)) && temp_hotend[e].celsius < temp_range[e].maxtemp ? (int)get_pid_output_hotend(e) >> 1 : 0;
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
@@ -1609,25 +1612,30 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
       #endif
 
       if (!bed_timed_out) {
-        #if ENABLED(PIDTEMPBED)
-          temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-        #else
-          // Check if temperature is within the correct band
-          if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
-            #if ENABLED(BED_LIMIT_SWITCHING)
-              if (temp_bed.is_above_target((BED_HYSTERESIS) - 1))
-                temp_bed.soft_pwm_amount = 0;
-              else if (temp_bed.is_below_target((BED_HYSTERESIS) - 1))
-                temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-            #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-              temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
-            #endif
-          }
-          else {
-            temp_bed.soft_pwm_amount = 0;
-            WRITE_HEATER_BED(LOW);
-          }
-        #endif
+        if (is_bed_preheating()) {
+          temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+        }
+        else {
+          #if ENABLED(PIDTEMPBED)
+            temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+          #else
+            // Check if temperature is within the correct band
+            if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
+              #if ENABLED(BED_LIMIT_SWITCHING)
+                if (temp_bed.is_above_target((BED_HYSTERESIS) - 1))
+                  temp_bed.soft_pwm_amount = 0;
+                else if (temp_bed.is_below_target((BED_HYSTERESIS) - 1))
+                  temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+              #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
+                temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
+              #endif
+            }
+            else {
+              temp_bed.soft_pwm_amount = 0;
+              WRITE_HEATER_BED(LOW);
+            }
+          #endif
+        }
       }
 
     } while (false);
@@ -2394,7 +2402,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       //*/
 
       const bool heater_on = temp_hotend[e].target > 0;
-      if (heater_on && !is_preheating(e) && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min))) {
+      if (heater_on && !is_hotend_preheating(e) && ((neg && r > temp_range[e].raw_min) || (pos && r < temp_range[e].raw_min))) {
         if (TERN1(MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR, ++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED))
           mintemp_error((heater_id_t)e);
       }
@@ -2408,7 +2416,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #define TP_CMP(S,A,B) (TEMPDIR(S) < 0 ? ((A)<(B)) : ((A)>(B)))
   #if ENABLED(THERMAL_PROTECTION_BED)
     if (TP_CMP(BED, temp_bed.getraw(), maxtemp_raw_BED)) maxtemp_error(H_BED);
-    if (temp_bed.target > 0 && TP_CMP(BED, mintemp_raw_BED, temp_bed.getraw())) mintemp_error(H_BED);
+    if (temp_bed.target > 0 && !is_bed_preheating() && TP_CMP(BED, mintemp_raw_BED, temp_bed.getraw())) mintemp_error(H_BED);
   #endif
 
   #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)

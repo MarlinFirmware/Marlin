@@ -180,10 +180,11 @@ def apply_config_ini(cp):
         # For a key ending in .ini load and parse another .ini file
         if ckey.endswith('.ini'):
             sect = 'base'
-            if '@' in ckey: sect, ckey = ckey.split('@')
-            other_ini = configparser.ConfigParser()
-            other_ini.read(config_path(ckey))
-            apply_sections(other_ini, sect)
+            if '@' in ckey: sect, ckey = map(str.strip, ckey.split('@'))
+            cp2 = configparser.ConfigParser()
+            cp2.read(config_path(ckey))
+            apply_sections(cp2, sect)
+            ckey = 'base';
 
         # (Allow 'example/' as a shortcut for 'examples/')
         elif ckey.startswith('example/'):
@@ -191,11 +192,11 @@ def apply_config_ini(cp):
 
         # For 'examples/<path>' fetch an example set from GitHub.
         # For https?:// do a direct fetch of the URL.
-        elif ckey.startswith('examples/') or ckey.startswith('http'):
+        if ckey.startswith('examples/') or ckey.startswith('http:'):
             fetch_example(ckey)
             ckey = 'base'
 
-        elif ckey == 'all':
+        if ckey == 'all':
             apply_sections(cp)
 
         else:

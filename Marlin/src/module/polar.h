@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,16 +21,16 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "Chitu3D V6"
+/**
+ * polar.h - POLAR-specific functions
+ */
 
-#define Z2_ENABLE_PIN                       PF3
-#define Z2_STEP_PIN                         PF5
-#define Z2_DIR_PIN                          PF1
+#include "../core/types.h"
 
-#define Z_STOP_PIN                          PA14
+extern float segments_per_second;
 
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   PF13
-#endif
+float absoluteAngle(float a);
+void forward_kinematics(const_float_t r, const_float_t theta);
 
-#include "pins_CHITU3D_common.h"
+void inverse_kinematics(const xyz_pos_t &raw);
+void polar_report_positions();

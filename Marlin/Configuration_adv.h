@@ -493,7 +493,8 @@
  * the minimum temperature your thermistor can read. The lower the better/safer.
  * This shouldn't need to be more than 30 seconds (30000)
  */
-//#define MILLISECONDS_PREHEAT_TIME 0
+//#define PREHEAT_TIME_HOTEND_MS 0
+//#define PREHEAT_TIME_BED_MS 0
 
 // @section extruder
 

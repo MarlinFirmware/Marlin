@@ -281,7 +281,7 @@ void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
 //  color2 : End color
 uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
   uint8_t B, G, R;
-  const float n = (float)(val - minv) / (maxv - minv);
+  const float n = float(val - minv) / (maxv - minv);
   R = (1 - n) * GetRColor(color1) + n * GetRColor(color2);
   G = (1 - n) * GetGColor(color1) + n * GetGColor(color2);
   B = (1 - n) * GetBColor(color1) + n * GetBColor(color2);
@@ -296,7 +296,7 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
   uint8_t B, G, R;
   const uint8_t maxB = 28, maxR = 28, maxG = 38;
   const int16_t limv = _MAX(abs(minv), abs(maxv));
-  float n = minv >= 0 ? (float)(val - minv) / (maxv - minv) : (float)val / limv;
+  float n = minv >= 0 ? float(val - minv) / (maxv - minv) : (float)val / limv;
   LIMIT(n, -1, 1);
   if (n < 0) {
     R = 0;

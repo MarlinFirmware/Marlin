@@ -1298,6 +1298,7 @@
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef USE_PROBE_FOR_Z_HOMING
+  #undef Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -1406,7 +1407,7 @@
 #if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
-#elif EITHER(DELTA, POLARGRAPH)
+#elif ANY(DELTA, POLARGRAPH, POLAR)
   #define IS_KINEMATIC 1
 #else
   #define IS_CARTESIAN 1

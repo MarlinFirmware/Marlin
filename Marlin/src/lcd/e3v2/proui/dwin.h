@@ -35,6 +35,13 @@
 #include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
+#if EITHER(BABYSTEPPING, HAS_BED_PROBE)
+  #define HAS_ZOFFSET_ITEM 1
+  #if !HAS_BED_PROBE
+    #define JUST_BABYSTEP 1
+  #endif
+#endif
+
 namespace GET_LANG(LCD_LANGUAGE) {
   #define _MSG_PREHEAT(N) \
     LSTR MSG_PREHEAT_##N                  = _UxGT("Preheat ") PREHEAT_## N ##_LABEL; \
@@ -118,15 +125,12 @@ typedef struct {
   #if ENABLED(BAUD_RATE_GCODE)
     bool Baud115K = false;
   #endif
+
   bool FullManualTramming = false;
   bool MediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if BOTH(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t z_after_homing = DEF_Z_AFTER_HOMING;
   #endif
-  #if ENABLED(MESH_BED_LEVELING)
-    float ManualZOffset = 0;
-  #endif
-  // Led
   #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor Led_Color = Def_Leds_Color;
   #endif
