@@ -149,6 +149,13 @@
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion
 
+//MPC
+#define ICON_MPCNozzle         ICON_SetEndTemp
+#define ICON_MPCValue          ICON_Contact
+#define ICON_MPCHeater         ICON_Temperature
+#define ICON_MPCHeatCap        ICON_SetBedTemp
+#define ICON_MPCFan            ICON_FanSpeed
+
 // Buttons
 #define BTN_Continue          85
 #define BTN_Cancel            87

@@ -903,6 +903,7 @@ volatile bool Temperature::raw_temps_ready = false;
       if (!wait_for_heatup) {
         SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
+        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
         return false;
       }
 
@@ -943,7 +944,8 @@ volatile bool Temperature::raw_temps_ready = false;
     do_blocking_move_to(tuningpos);
 
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
-    LCD_MESSAGE(MSG_COOLING);
+    TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPCTEMP_START));
+    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE_F(STR_MPC_COOLING_TO_AMBIENT), LCD_MESSAGE(MSG_COOLING));
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
     celsius_float_t current_temp = degHotend(active_extruder),
                     ambient_temp = current_temp;
@@ -970,7 +972,7 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.modeled_ambient_temp = ambient_temp;
 
     SERIAL_ECHOLNPGM(STR_MPC_HEATING_PAST_200);
-    LCD_MESSAGE(MSG_HEATING);
+    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE_F(STR_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = MPC_MAX >> 1;
     const millis_t heat_start_time = next_test_ms = ms;
@@ -1022,7 +1024,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
-    LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT);
+    TERN(DWIN_LCD_PROUI,LCD_ALERTMESSAGE(MSG_MPC_MEASURING_AMBIENT), LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT));
     hotend.target = hotend.modeled_block_temp;
     next_test_ms = ms + MPC_dT * 1000;
     constexpr millis_t settle_time = 20000UL, test_duration = 20000UL;
@@ -1062,6 +1064,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
       if (!WITHIN(current_temp, t3 - 15.0f, hotend.target + 15.0f)) {
         SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
+        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_TEMP_ERROR));
         break;
       }
     }
@@ -1083,6 +1086,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
+    TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_DONE));
 
     /* <-- add a slash to enable
       SERIAL_ECHOLNPGM("t1_time ", t1_time);

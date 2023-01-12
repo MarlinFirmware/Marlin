@@ -70,17 +70,28 @@ enum processID : uint8_t {
   WaitResponse,
   Homing,
   PidProcess,
+  MPCProcess,
   NothingToDo
 };
 
-enum pidresult_t : uint8_t {
-  PIDTEMP_START = 0,
-  PIDTEMPBED_START,
-  PID_BAD_EXTRUDER_NUM,
-  PID_TEMP_TOO_HIGH,
-  PID_TUNING_TIMEOUT,
-  PID_DONE,
-};
+#if HAS_PID_HEATING || ENABLED(MPCTEMP)
+  enum tempcontrol_t : uint8_t {
+  #if HAS_PID_HEATING
+    PIDTEMP_START = 0,
+    PIDTEMPBED_START,
+    PID_BAD_EXTRUDER_NUM,
+    PID_TEMP_TOO_HIGH,
+    PID_TUNING_TIMEOUT,
+    PID_DONE,
+  #endif
+  #if ENABLED(MPCTEMP)
+    MPCTEMP_START,
+    MPC_TEMP_ERROR,
+    MPC_INTERRUPTED,
+    MPC_DONE,
+  #endif
+  };
+#endif
 
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
@@ -141,7 +152,9 @@ static constexpr size_t eeprom_data_size = sizeof(HMI_data_t);
 
 typedef struct {
   int8_t Color[3];                    // Color components
-  TERN_(HAS_PID_HEATING, pidresult_t pidresult   = PID_DONE);
+  #if HAS_PID_HEATING
+    tempcontrol_t pidresult = PID_DONE;
+  #endif
   uint8_t Select          = 0;        // Auxiliary selector variable
   AxisEnum axis           = X_AXIS;   // Axis Select
 } HMI_value_t;
@@ -356,10 +369,17 @@ void Draw_Steps_Menu();
 #endif
 
 // PID
-void DWIN_PidTuning(pidresult_t result);
+void DWIN_PidTuning(tempcontrol_t result);
 #if ENABLED(PIDTEMP)
   void Draw_HotendPID_Menu();
 #endif
 #if ENABLED(PIDTEMPBED)
   void Draw_BedPID_Menu();
 #endif
+
+// MPC
+#if ENABLED(MPCTEMP)
+  void DWIN_MPCTuning(tempcontrol_t result);
+  void Draw_HotendMPC_Menu();
+#endif
+
