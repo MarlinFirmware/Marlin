@@ -25,42 +25,41 @@
 #include "pins_BTT_MANTA_M8P_common.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BTT Manta M8P V1.0"
+  #define BOARD_INFO_NAME "BTT Manta M8P V1.1"
 #endif
 
 //
 // Steppers
 //
-
 #define E1_STEP_PIN                         PA10  // M6
-#define E1_DIR_PIN                          PD15
+#define E1_DIR_PIN                          PA14
 #define E1_ENABLE_PIN                       PA15
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PF8
 #endif
 
-#define E2_STEP_PIN                         PD12  // M7
-#define E2_DIR_PIN                          PD11
-#define E2_ENABLE_PIN                       PD14
+#define E2_STEP_PIN                         PD11  // M7
+#define E2_DIR_PIN                          PD9
+#define E2_ENABLE_PIN                       PD15
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN                         PD13
+  #define E2_CS_PIN                         PD14
 #endif
 
-#define E3_STEP_PIN                         PD10  // M8
-#define E3_DIR_PIN                          PD8
-#define E3_ENABLE_PIN                       PD9
+#define E3_STEP_PIN                         PD8   // M8
+#define E3_DIR_PIN                          PC6
+#define E3_ENABLE_PIN                       PC7
 #ifndef E3_CS_PIN
-  #define E3_CS_PIN                         PC7
+  #define E3_CS_PIN                         PD10
 #endif
 
 #if HAS_TMC_UART
   #define E1_SERIAL_TX_PIN                  PF8
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
-  #define E2_SERIAL_TX_PIN                  PD13
+  #define E2_SERIAL_TX_PIN                  PD14
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
-  #define E3_SERIAL_TX_PIN                  PC7
+  #define E3_SERIAL_TX_PIN                  PD10
   #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
@@ -71,9 +70,9 @@
 // NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PC6
+  #define NEOPIXEL_PIN                      PA9
 #endif
 
 #ifndef NEOPIXEL2_PIN
-  #define NEOPIXEL2_PIN                     PA9
+  #define NEOPIXEL2_PIN                     PB15
 #endif
