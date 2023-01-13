@@ -27,9 +27,7 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if NOT_TARGET(IS_TEENSY41)
-  #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Teensy4.1"
 
