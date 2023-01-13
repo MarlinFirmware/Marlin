@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(EXPERIMENTAL_I2CBUS)
+#if ENABLED(I2CBUS)
 
 #include "twibus.h"
 
@@ -234,4 +234,4 @@ void TWIBus::flush() {
 
 #endif
 
-#endif // EXPERIMENTAL_I2CBUS
+#endif // I2CBUS

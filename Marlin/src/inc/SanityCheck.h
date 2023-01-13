@@ -654,6 +654,8 @@
   #error "SHOW_SD_PERCENT is now SHOW_PROGRESS_PERCENT."
 #elif defined(EXTRA_LIN_ADVANCE_K)
   #error "EXTRA_LIN_ADVANCE_K is now ADVANCE_K_EXTRA."
+#elif defined(EXPERIMENTAL_SCURVE)
+  #error "EXPERIMENTAL_SCURVE is no longer needed and should be removed."
 #elif defined(POLAR_SEGMENTS_PER_SECOND) || defined(DELTA_SEGMENTS_PER_SECOND)  || defined(SCARA_SEGMENTS_PER_SECOND) || defined(TPARA_SEGMENTS_PER_SECOND)
   #error "(POLAR|DELTA|SCARA|TPARA)_SEGMENTS_PER_SECOND is now DEFAULT_SEGMENTS_PER_SECOND."
 #elif ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS, DGUS_LCD_UI_RELOADED) && !defined(DGUS_LCD_UI)
@@ -666,6 +668,8 @@
   #error "SCARA_FEEDRATE_SCALING is now FEEDRATE_SCALING."
 #elif defined(MILLISECONDS_PREHEAT_TIME)
   #error "MILLISECONDS_PREHEAT_TIME is now PREHEAT_TIME_HOTEND_MS."
+#elif defined(EXPERIMENTAL_I2CBUS)
+  #error "EXPERIMENTAL_I2CBUS is now I2CBUS."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -1370,9 +1374,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #else
     static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
   #endif
-  #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
-    #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
-  #elif ENABLED(DIRECT_STEPPING)
+
+  #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
   #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
     static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
@@ -2885,7 +2888,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * I2C bus
  */
-#if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+#if ENABLED(I2CBUS) && I2C_SLAVE_ADDRESS > 0
   #if I2C_SLAVE_ADDRESS < 8
     #error "I2C_SLAVE_ADDRESS can't be less than 8. (Addresses 0 - 7 are reserved.)"
   #elif I2C_SLAVE_ADDRESS > 127

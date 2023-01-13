@@ -803,7 +803,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 256: M256(); break;                                  // M256: Set LCD brightness
       #endif
 
-      #if ENABLED(EXPERIMENTAL_I2CBUS)
+      #if ENABLED(I2CBUS)
         case 260: M260(); break;                                  // M260: Send data to an i2c slave
         case 261: M261(); break;                                  // M261: Request data from an i2c slave
       #endif

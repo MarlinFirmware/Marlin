@@ -137,7 +137,7 @@
   #include "feature/dac/stepper_dac.h"
 #endif
 
-#if ENABLED(EXPERIMENTAL_I2CBUS)
+#if ENABLED(I2CBUS)
   #include "feature/twibus.h"
 #endif
 
@@ -1532,7 +1532,7 @@ void setup() {
     SETUP_RUN(I2CPEM.init());
   #endif
 
-  #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+  #if ENABLED(I2CBUS) && I2C_SLAVE_ADDRESS > 0
     SETUP_LOG("i2c...");
     i2c.onReceive(i2c_on_receive);
     i2c.onRequest(i2c_on_request);
