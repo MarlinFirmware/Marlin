@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT Manta M5P V1.0"
 #endif
