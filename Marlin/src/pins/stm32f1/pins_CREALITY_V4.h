@@ -145,11 +145,15 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PA1   // HEATER1
 #endif
-#ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                    PA2   // HOT BED
-#endif
+// #Makaira:RecreatorMK3: 
+// #ifndef HEATER_BED_PIN
+//   #define HEATER_BED_PIN                    PA2   // HOT BED
+// #endif
 #ifndef FAN_PIN
-  #define FAN_PIN                           PA0   // FAN
+  #define FAN_PIN                           PA2   // FAN Recreator heat block cooling fan
+#endif
+#ifndef FAN1_PIN
+  #define FAN1_PIN                           PA0   // FAN1 Recreator filament cooling fan
 #endif
 #define FAN_SOFT_PWM_REQUIRED
 

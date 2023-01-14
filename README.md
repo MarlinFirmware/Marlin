@@ -1,6 +1,6 @@
 <p align="center"><img src="buildroot/share/pixmaps/logo/marlin-outrun-nf-500.png" height="250" alt="MarlinFirmware's logo" /></p>
 
-<h1 align="center">Marlin 3D Printer Firmware</h1>
+<h1 align="center">Marlin-Makaira Filament Creation Firmware</h1>
 
 <p align="center">
     <a href="/LICENSE"><img alt="GPL-V3.0 License" src="https://img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
@@ -11,8 +11,9 @@
     <br />
     <a href="https://twitter.com/MarlinFirmware"><img alt="Follow MarlinFirmware on Twitter" src="https://img.shields.io/twitter/follow/MarlinFirmware?style=social&logo=twitter"></a>
 </p>
+Additional documentation about Makaira might be found on this [project's wiki](https://github.com/marlin-fl-ex/Makaira/wiki) (one can dream, right?).
 
-Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
+Additional documentation about Marlin can be found at the [Marlin Home Page](https://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
 ## Marlin 2.1 Bugfix Branch
