@@ -47,8 +47,8 @@
 
 class PlotClass {
 public:
-  void Draw(frame_rect_t frame, float max, float ref = 0);
-  void Update(const_float_t value);
+  static void Draw(const frame_rect_t &frame, const celsius_t max, const_float_t ref=0);
+  static void Update(const_float_t value);
 };
 
-extern PlotClass Plot;
+extern PlotClass plot;

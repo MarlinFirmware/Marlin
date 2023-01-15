@@ -1248,7 +1248,7 @@ void EachMomentUpdate() {
       if (checkkey == ESDiagProcess) ESDiag.Update();
     #endif
     #if HAS_PIDPLOT
-      if (checkkey == PidProcess) Plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
+      if (checkkey == PidProcess) plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
     #endif
   }
 
@@ -1474,9 +1474,11 @@ void DWIN_LevelingDone() {
 
 #if HAS_PIDPLOT && EITHER(DWIN_PID_TUNE, MPCTEMP)
 
+  #include "plot.h"
+
   celsius_t _maxtemp, _target;
   void DWIN_Draw_PID_MPC_Popup() {
-    frame_rect_t gfrm = { 40, 180, DWIN_WIDTH - 80, 120 };
+    constexpr frame_rect_t gfrm = { 40, 180, DWIN_WIDTH - 80, 120 };
     DWINUI::ClearMainArea();
     Draw_Popup_Bkgd();
 
@@ -1521,11 +1523,11 @@ void DWIN_LevelingDone() {
 
     #endif // PID
 
-    Plot.Draw(gfrm, _maxtemp, _target);
+    plot.Draw(gfrm, _maxtemp, _target);
     DWINUI::Draw_Int(HMI_data.PopupTxt_Color, 3, gfrm.x + 90, gfrm.y - DWINUI::fontHeight() - 4, _target);
   }
 
-#endif
+#endif // HAS_PIDPLOT && (DWIN_PID_TUNE || MPCTEMP)
 
 #if DWIN_PID_TUNE
 
@@ -1569,7 +1571,7 @@ void DWIN_LevelingDone() {
       #endif
       case PID_BAD_HEATER_ID:
         checkkey = last_checkkey;
-        DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_BAD_EXTRUDER_NUM));
+        DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
       case PID_TUNING_TIMEOUT:
         checkkey = last_checkkey;

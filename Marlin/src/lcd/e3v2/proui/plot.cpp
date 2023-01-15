@@ -42,7 +42,7 @@
  * For commercial applications additional licenses can be requested
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if BOTH(DWIN_LCD_PROUI, HAS_PIDPLOT)
 
@@ -55,13 +55,13 @@
 
 #define Plot_Bg_Color RGB( 1, 12,  8)
 
-PlotClass Plot;
+PlotClass plot;
 
 uint16_t grphpoints, r, x2, y2 = 0;
 frame_rect_t grphframe = {0};
 float scale = 0;
 
-void PlotClass::Draw(const frame_rect_t frame, const float max, const float ref) {
+void PlotClass::Draw(const frame_rect_t &frame, const celsius_t max, const_float_t ref/*=0*/) {
   grphframe = frame;
   grphpoints = 0;
   scale = frame.h / max;
