@@ -48,7 +48,7 @@
 class PlotClass {
 public:
   void Draw(frame_rect_t frame, float max, float ref = 0);
-  void Update(float value);
+  void Update(const_float_t value);
 };
 
 extern PlotClass Plot;

@@ -74,7 +74,7 @@ void PlotClass::Draw(const frame_rect_t frame, const float max, const float ref)
   DWIN_Draw_HLine(Color_Red, frame.x, r, frame.w);
 }
 
-void PlotClass::Update(const float value) {
+void PlotClass::Update(const_float_t value) {
   if (!scale) return;
   uint16_t y = round((y2) - value * scale);
   if (grphpoints < grphframe.w) {
