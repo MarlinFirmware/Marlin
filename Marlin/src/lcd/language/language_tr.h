@@ -256,7 +256,6 @@ namespace Language_tr {
   LSTR MSG_LCD_OFF                        = _UxGT("Kapalı");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Kalibrasyon");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Kalibrasyon *");
-  LSTR MSG_SELECT                         = _UxGT("Seç");
   LSTR MSG_SELECT_E                       = _UxGT("Seç *");
   LSTR MSG_ACC                            = _UxGT("İvme");
 

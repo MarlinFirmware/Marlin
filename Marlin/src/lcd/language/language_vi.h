@@ -224,7 +224,6 @@ namespace Language_vi {
   LSTR MSG_AUTOTEMP                       = _UxGT("Nhiệt độ tự động");                     // Autotemp
   LSTR MSG_LCD_ON                         = _UxGT("Bật");                                  // on
   LSTR MSG_LCD_OFF                        = _UxGT("Tắt");                                  // off
-  LSTR MSG_SELECT                         = _UxGT("Lựa");                                  // Select
   LSTR MSG_SELECT_E                       = _UxGT("Lựa *");
   LSTR MSG_ACC                            = _UxGT("Tăng Tốc");
   LSTR MSG_JERK                           = _UxGT("Giật");

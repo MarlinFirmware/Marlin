@@ -245,25 +245,15 @@ void menu_move() {
         #endif
       }
     #elif EXTRUDERS == 3
-      if (active_extruder < 2) {
-        if (active_extruder)
-          GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-        else
-          GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
-      }
+      if (active_extruder < 2)
+        GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
     #else
-      if (active_extruder)
-        GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-      else
-        GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
+      GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
-    if (active_extruder)
-      GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-    else
-      GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
+    GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
 
   #endif
 

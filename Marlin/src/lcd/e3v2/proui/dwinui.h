@@ -138,13 +138,11 @@
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLSlot              ICON_ResumeEEPROM
-#define ICON_UBLSaveMesh          ICON_WriteEEPROM
-#define ICON_UBLLoadMesh          ICON_ReadEEPROM
+#define ICON_UBLMeshSave          ICON_WriteEEPROM
+#define ICON_UBLMeshLoad          ICON_ReadEEPROM
 #define ICON_UBLTiltGrid          ICON_PrintSize
 #define ICON_UBLSmartFill         ICON_StockConfiguration
 #define ICON_ZAfterHome           ICON_SetEndTemp
-
-
 
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion

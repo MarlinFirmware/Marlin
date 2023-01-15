@@ -386,7 +386,6 @@ namespace Language_ru {
   LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора! Температура повышена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой автоподбора! Завершение времени.");
 
-  LSTR MSG_SELECT                           = _UxGT("Выбор");
   LSTR MSG_SELECT_E                         = _UxGT("Выбор *");
   LSTR MSG_ACC                              = _UxGT("Ускорение");
   LSTR MSG_JERK                             = _UxGT("Рывок");

@@ -264,7 +264,6 @@ namespace Language_cz {
   LSTR MSG_LCD_OFF                        = _UxGT("Vyp");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID automatika");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID automatika *");
-  LSTR MSG_SELECT                         = _UxGT("Vybrat");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrat *");
   LSTR MSG_ACC                            = _UxGT("Zrychl");
   LSTR MSG_JERK                           = _UxGT("Jerk");

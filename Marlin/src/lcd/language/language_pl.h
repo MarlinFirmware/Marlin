@@ -269,7 +269,6 @@ namespace Language_pl {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autostrojenie");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autostrojenie *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Strojenie PID zakończone");
-  LSTR MSG_SELECT                         = _UxGT("Wybierz");
   LSTR MSG_SELECT_E                       = _UxGT("Wybierz *");
   LSTR MSG_ACC                            = _UxGT("Przyspieszenie");
   LSTR MSG_JERK                           = _UxGT("Zryw");
