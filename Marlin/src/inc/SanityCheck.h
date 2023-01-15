@@ -668,8 +668,6 @@
   #error "MILLISECONDS_PREHEAT_TIME is now PREHEAT_TIME_HOTEND_MS."
 #elif defined(EXPERIMENTAL_SCURVE)
   #error "EXPERIMENTAL_SCURVE is no longer needed and should be removed."
-#elif defined(EXPERIMENTAL_I2CBUS)
-  #error "EXPERIMENTAL_I2CBUS is now I2CBUS."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -2888,7 +2886,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * I2C bus
  */
-#if ENABLED(I2CBUS) && I2C_SLAVE_ADDRESS > 0
+#if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
   #if I2C_SLAVE_ADDRESS < 8
     #error "I2C_SLAVE_ADDRESS can't be less than 8. (Addresses 0 - 7 are reserved.)"
   #elif I2C_SLAVE_ADDRESS > 127

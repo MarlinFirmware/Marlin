@@ -3233,8 +3233,9 @@
 /**
  * TWI/I2C BUS
  *
- * Enabling this will allow you to send and receive I2C data from slave devices
- * on the bus.
+ * This feature is an EXPERIMENTAL feature so it shall not be used on production
+ * machines. Enabling this will allow you to send and receive I2C data from slave
+ * devices on the bus.
  *
  * ; Example #1
  * ; This macro send the string "Marlin" to the slave device with address 0x63 (99)
@@ -3257,8 +3258,8 @@
  * echo:i2c-reply: from:99 bytes:5 data:hello
  */
 
-//#define I2CBUS
-#if ENABLED(I2CBUS)
+//#define EXPERIMENTAL_I2CBUS
+#if ENABLED(EXPERIMENTAL_I2CBUS)
   #define I2C_SLAVE_ADDRESS  0  // Set a value from 8 to 127 to act as a slave
 #endif
 

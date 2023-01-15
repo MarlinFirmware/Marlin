@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(I2CBUS)
+#if ENABLED(EXPERIMENTAL_I2CBUS)
 
 #include "../../gcode.h"
 
