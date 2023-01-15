@@ -74,23 +74,25 @@ enum processID : uint8_t {
   NothingToDo
 };
 
-#if HAS_PID_HEATING || ENABLED(MPCTEMP)
+#if EITHER(HAS_PID_HEATING, MPCTEMP)
+
   enum tempcontrol_t : uint8_t {
-  #if HAS_PID_HEATING
-    PIDTEMP_START = 0,
-    PIDTEMPBED_START,
-    PID_BAD_EXTRUDER_NUM,
-    PID_TEMP_TOO_HIGH,
-    PID_TUNING_TIMEOUT,
-    PID_DONE,
-  #endif
-  #if ENABLED(MPCTEMP)
-    MPCTEMP_START,
-    MPC_TEMP_ERROR,
-    MPC_INTERRUPTED,
-    MPC_DONE,
-  #endif
+    #if HAS_PID_HEATING
+      PIDTEMP_START = 0,
+      PIDTEMPBED_START,
+      PID_BAD_EXTRUDER_NUM,
+      PID_TEMP_TOO_HIGH,
+      PID_TUNING_TIMEOUT,
+      PID_DONE,
+    #endif
+    #if ENABLED(MPCTEMP)
+      MPCTEMP_START,
+      MPC_TEMP_ERROR,
+      MPC_INTERRUPTED,
+      MPC_DONE,
+    #endif
   };
+
 #endif
 
 #define DWIN_CHINESE 123
@@ -226,10 +228,10 @@ void ParkHead();
   void ApplyLEDColor();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  void UBLTiltMesh();
+  void UBLMeshTilt();
   bool UBLValidMesh();
-  void UBLSaveMesh();
-  void UBLLoadMesh();
+  void UBLMeshSave();
+  void UBLMeshLoad();
 #endif
 #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
   void HostShutDown();
@@ -369,12 +371,14 @@ void Draw_Steps_Menu();
 #endif
 
 // PID
-void DWIN_PidTuning(tempcontrol_t result);
-#if ENABLED(PIDTEMP)
-  void Draw_HotendPID_Menu();
-#endif
-#if ENABLED(PIDTEMPBED)
-  void Draw_BedPID_Menu();
+#if HAS_PID_HEATING
+  void DWIN_PidTuning(tempcontrol_t result);
+  #if ENABLED(PIDTEMP)
+    void Draw_HotendPID_Menu();
+  #endif
+  #if ENABLED(PIDTEMPBED)
+    void Draw_BedPID_Menu();
+  #endif
 #endif
 
 // MPC
@@ -382,4 +386,3 @@ void DWIN_PidTuning(tempcontrol_t result);
   void DWIN_MPCTuning(tempcontrol_t result);
   void Draw_HotendMPC_Menu();
 #endif
-
