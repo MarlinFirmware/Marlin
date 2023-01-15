@@ -882,7 +882,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #if ENABLED(MPCTEMP)
 
   void Temperature::MPC_autotune() {
-    auto housekeeping = [] (millis_t& ms, celsius_float_t& current_temp, millis_t& next_report_ms) {
+    auto housekeeping = [] (millis_t &ms, celsius_float_t &current_temp, millis_t &next_report_ms) {
       ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
@@ -940,13 +940,12 @@ volatile bool Temperature::raw_temps_ready = false;
       set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
       planner.sync_fan_speeds(fan_speed);
     #endif
-    const xyz_pos_t tuningpos = MPC_TUNING_POS;
-    do_blocking_move_to(tuningpos);
+    do_blocking_move_to(xyz_pos_t(MPC_TUNING_POS));
 
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
     #if ENABLED(DWIN_LCD_PROUI)
       DWIN_MPCTuning(MPCTEMP_START);
-      LCD_ALERTMESSAGE_F(STR_MPC_COOLING_TO_AMBIENT);
+      LCD_ALERTMESSAGE(MSG_MPC_COOLING_TO_AMBIENT);
     #else
       LCD_MESSAGE(MSG_COOLING);
     #endif
@@ -957,7 +956,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (!housekeeping(ms, current_temp, next_report_ms)) return;
+      if (!wait_for_heatup || !housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -968,6 +967,7 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
+    wait_for_heatup = false;
 
     #if HAS_FAN
       set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
@@ -977,7 +977,7 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.modeled_ambient_temp = ambient_temp;
 
     SERIAL_ECHOLNPGM(STR_MPC_HEATING_PAST_200);
-    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE_F(STR_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
+    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = MPC_MAX >> 1;
     const millis_t heat_start_time = next_test_ms = ms;
