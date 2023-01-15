@@ -145,7 +145,7 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
 void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, FSTR_P label=nullptr, bool more=false, bool selected=false);
 void Draw_Chkb_Line(const uint8_t line, const bool checked);
 void Show_Chkb_Line(const bool checked);
-void Toogle_Chkb_Line(bool &checked);
+void Toggle_Chkb_Line(bool &checked);
 void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const int32_t value=0);
 void onDrawMenuItem(MenuItemClass* menuitem, int8_t line);
 void onDrawSubMenu(MenuItemClass* menuitem, int8_t line);
