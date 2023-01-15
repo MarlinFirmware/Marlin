@@ -88,7 +88,7 @@
  * Warnings for old configurations
  */
 #ifndef MOTHERBOARD
-  #error "MOTHERBOARD is required."
+  #error "MOTHERBOARD is required. You must '#define MOTHERBOARD BOARD_MYNAME' (not just '#define BOARD_MYNAME')."
 #elif !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
   #error "X_BED_SIZE and Y_BED_SIZE are now required!"
 #elif WATCH_TEMP_PERIOD > 500
@@ -666,6 +666,8 @@
   #error "SCARA_FEEDRATE_SCALING is now FEEDRATE_SCALING."
 #elif defined(MILLISECONDS_PREHEAT_TIME)
   #error "MILLISECONDS_PREHEAT_TIME is now PREHEAT_TIME_HOTEND_MS."
+#elif defined(EXPERIMENTAL_SCURVE)
+  #error "EXPERIMENTAL_SCURVE is no longer needed and should be removed."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -1370,20 +1372,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #else
     static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
   #endif
-  #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
-    #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
-  #elif ENABLED(DIRECT_STEPPING)
-    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+
+  #if ENABLED(DIRECT_STEPPING)
+    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
     static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
   #endif
-#endif
-
-/**
- * POLAR warnings
- */
-#if BOTH(POLAR, S_CURVE_ACCELERATION)
-  #warning "POLAR Kinematics may not work well with S_CURVE_ACCELERATION."
 #endif
 
 /**

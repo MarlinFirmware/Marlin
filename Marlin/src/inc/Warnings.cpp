@@ -783,3 +783,10 @@
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
   #warning "BABYSTEPPING is recommended with BD_SENSOR."
 #endif
+
+/**
+ * POLAR warnings
+ */
+#if BOTH(POLAR, S_CURVE_ACCELERATION)
+  #warning "POLAR kinematics may not work well with S_CURVE_ACCELERATION."
+#endif

@@ -115,7 +115,7 @@ void Show_Chkb_Line(const bool checked) {
   DWIN_UpdateLCD();
 }
 
-void Toogle_Chkb_Line(bool &checked) {
+void Toggle_Chkb_Line(bool &checked) {
   checked = !checked;
   Show_Chkb_Line(checked);
 }

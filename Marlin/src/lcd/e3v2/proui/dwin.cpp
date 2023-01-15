@@ -840,7 +840,7 @@ void update_variable() {
 bool DWIN_lcd_sd_status = false;
 
 void SetMediaAutoMount() {
-  Toogle_Chkb_Line(HMI_data.MediaAutoMount);
+  Toggle_Chkb_Line(HMI_data.MediaAutoMount);
 }
 
 inline uint16_t nr_sd_menu_items() {
@@ -2067,7 +2067,7 @@ void SetLanguage() {
 }
 
 bool EnableLiveMove = false;
-void SetLiveMove() { Toogle_Chkb_Line(EnableLiveMove); }
+void SetLiveMove() { Toggle_Chkb_Line(EnableLiveMove); }
 void LiveMove() {
   planner.synchronize();
   if (!EnableLiveMove) return;
@@ -2113,7 +2113,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   void SetPwrLossr() {
-    Toogle_Chkb_Line(recovery.enabled);
+    Toggle_Chkb_Line(recovery.enabled);
     recovery.changed();
   }
 #endif
@@ -2139,7 +2139,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 
 #if ENABLED(CASE_LIGHT_MENU)
   void SetCaseLight() {
-    Toogle_Chkb_Line(caselight.on);
+    Toggle_Chkb_Line(caselight.on);
     caselight.update_enabled();
   }
   #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
@@ -2175,7 +2175,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 
 #if ENABLED(SOUND_MENU_ITEM)
   void SetEnableSound() {
-    Toogle_Chkb_Line(ui.sound_on);
+    Toggle_Chkb_Line(ui.sound_on);
   }
 #endif
 
@@ -2199,7 +2199,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 
   #if ENABLED(BLTOUCH_HS_MODE)
     void SetHSMode() {
-      Toogle_Chkb_Line(bltouch.high_speed_mode);
+      Toggle_Chkb_Line(bltouch.high_speed_mode);
     }
   #endif
 
@@ -2208,7 +2208,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 #if HAS_FILAMENT_SENSOR
   void SetRunoutEnable() {
     runout.reset();
-    Toogle_Chkb_Line(runout.enabled);
+    Toggle_Chkb_Line(runout.enabled);
   }
   #if HAS_FILAMENT_RUNOUT_DISTANCE
     void ApplyRunoutDistance() { runout.set_runout_distance(MenuData.Value / MINUNITMULT); }
@@ -2470,7 +2470,7 @@ void TramC () { Tram(4); }
   }
 
   void SetManualTramming() {
-    Toogle_Chkb_Line(HMI_data.FullManualTramming);
+    Toggle_Chkb_Line(HMI_data.FullManualTramming);
   }
 
 #endif // HAS_BED_PROBE && HAS_MESH
