@@ -1472,7 +1472,7 @@ void DWIN_LevelingDone() {
 
 // PID/MPC process
 
-#if HAS_PIDPLOT && EITHER(HAS_PID_HEATING, MPCTEMP)
+#if HAS_PIDPLOT && EITHER(DWIN_PID_TUNE, MPCTEMP)
 
   celsius_t _maxtemp, _target;
   void DWIN_Draw_PID_MPC_Popup() {
@@ -1527,38 +1527,53 @@ void DWIN_LevelingDone() {
 
 #endif
 
-#if HAS_PID_HEATING
+#if DWIN_PID_TUNE
+
+  void DWIN_StartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp) {
+    if (seenC) HMI_data.PidCycles = c;
+    if (seenS) {
+      switch (hid) {
+        OPTCODE(PIDTEMP,    case 0 ... HOTENDS - 1: HMI_data.HotendPidT = temp; break)
+        OPTCODE(PIDTEMPBED, case H_BED:             HMI_data.BedPidT = temp;    break)
+        default: break;
+      }
+    }
+  }
 
   void DWIN_PidTuning(tempcontrol_t result) {
     HMI_value.pidresult = result;
     switch (result) {
-      case PIDTEMPBED_START:
-        HMI_SaveProcessID(PidProcess);
-        #if HAS_PIDPLOT
-          DWIN_Draw_PID_MPC_Popup();
-        #else
-          DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for BED is running."));
-        #endif
-        break;
-      case PIDTEMP_START:
-        HMI_SaveProcessID(PidProcess);
-        #if HAS_PIDPLOT
-          DWIN_Draw_PID_MPC_Popup();
-        #else
-          DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for Nozzle is running."));
-        #endif
-        break;
-      case PID_BAD_EXTRUDER_NUM:
+      #if ENABLED(PIDTEMP)
+        case PIDTEMP_START:
+          HMI_SaveProcessID(PidProcess);
+          #if HAS_PIDPLOT
+            DWIN_Draw_PID_MPC_Popup();
+          #else
+            DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for Nozzle is running."));
+          #endif
+          break;
+        case PID_TEMP_TOO_HIGH:
+          checkkey = last_checkkey;
+          DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
+          break;
+      #endif
+      #if ENABLED(PIDTEMPBED)
+        case PIDTEMPBED_START:
+          HMI_SaveProcessID(PidProcess);
+          #if HAS_PIDPLOT
+            DWIN_Draw_PID_MPC_Popup();
+          #else
+            DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for BED is running."));
+          #endif
+          break;
+      #endif
+      case PID_BAD_HEATER_ID:
         checkkey = last_checkkey;
         DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_BAD_EXTRUDER_NUM));
         break;
       case PID_TUNING_TIMEOUT:
         checkkey = last_checkkey;
         DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), GET_TEXT_F(MSG_PID_TIMEOUT));
-        break;
-      case PID_TEMP_TOO_HIGH:
-        checkkey = last_checkkey;
-        DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
         break;
       case PID_DONE:
         checkkey = last_checkkey;
@@ -1570,7 +1585,7 @@ void DWIN_LevelingDone() {
     }
   }
 
-#endif // HAS_PID_HEATING
+#endif // DWIN_PID_TUNE
 
 #if ENABLED(MPCTEMP)
 
@@ -1702,7 +1717,7 @@ void DWIN_SetDataDefaults() {
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
   TERN_(PIDTEMP, HMI_data.HotendPidT = DEF_HOTENDPIDT);
   TERN_(PIDTEMPBED, HMI_data.BedPidT = DEF_BEDPIDT);
-  TERN_(HAS_PID_HEATING, HMI_data.PidCycles = DEF_PIDCYCLES);
+  TERN_(DWIN_PID_TUNE, HMI_data.PidCycles = DEF_PIDCYCLES);
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     HMI_data.ExtMinT = EXTRUDE_MINTEMP;
     ApplyExtMinT();
@@ -2092,7 +2107,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
   }
 #endif
 
-#if EITHER(PIDTEMP, PIDTEMPBED)
+#if DWIN_PID_TUNE
   void SetPID(celsius_t t, heater_id_t h) {
     char cmd[53] = "";
     char str_1[5] = "", str_2[5] = "";
@@ -2558,7 +2573,7 @@ void SetStepsZ() { HMI_value.axis = Z_AXIS, SetPFloatOnClick( MIN_STEP, MAX_STEP
   void SetBedPidT() { SetPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
 #endif
 
-#if EITHER(PIDTEMP, PIDTEMPBED)
+#if DWIN_PID_TUNE
   void SetPidCycles() { SetPIntOnClick(3, 50); }
   void SetKp() { SetPFloatOnClick(0, 1000, 2); }
   void ApplyPIDi() {
@@ -2729,7 +2744,7 @@ void onDrawGetColorItem(MenuItemClass* menuitem, int8_t line) {
   DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
 }
 
-#if EITHER(PIDTEMP, PIDTEMPBED)
+#if DWIN_PID_TUNE
   void onDrawPIDi(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_i(*(float*)static_cast<MenuItemPtrClass*>(menuitem)->value)); }
   void onDrawPIDd(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_d(*(float*)static_cast<MenuItemPtrClass*>(menuitem)->value)); }
 #endif
@@ -3531,22 +3546,23 @@ void Draw_Steps_Menu() {
   void SetSensorRespons() { SetPFloatOnClick(0, 1, 4); }
   void SetAmbientXfer() { SetPFloatOnClick(0, 1, 4); }
   #if ENABLED(MPC_INCLUDE_FAN)
-    void onDrawFanAdj(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 4, thermalManager.temp_hotend[0].constants.ambient_xfer_coeff_fan0 + thermalManager.temp_hotend[0].constants.fan255_adjustment); }
-    void ApplyFanAdj() { thermalManager.temp_hotend[0].constants.fan255_adjustment = MenuData.Value / POW(10, 4) - thermalManager.temp_hotend[0].constants.ambient_xfer_coeff_fan0; }
-    void SetFanAdj() { SetFloatOnClick(0, 1, 4, thermalManager.temp_hotend[0].constants.ambient_xfer_coeff_fan0 + thermalManager.temp_hotend[0].constants.fan255_adjustment, ApplyFanAdj); }
+    void onDrawFanAdj(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 4, thermalManager.temp_hotend[0].fanCoefficient()); }
+    void ApplyFanAdj() { thermalManager.temp_hotend[0].applyFanAdjustment(MenuData.Value / POW(10, 4)); }
+    void SetFanAdj() { SetFloatOnClick(0, 1, 4, thermalManager.temp_hotend[0].fanCoefficient(), ApplyFanAdj); }
   #endif
 
   void Draw_HotendMPC_Menu() {
     checkkey = Menu;
     if (SET_MENU_F(HotendMPCMenu, STR_MPC_AUTOTUNE " Settings", 7)) {
+      MPC_t &mpc = thermalManager.temp_hotend[0].mpc;
       BACK_ITEM(Draw_AdvancedSettings_Menu);
       MENU_ITEM(ICON_MPCNozzle, MSG_MPC_AUTOTUNE, onDrawMenuItem, HotendMPC);
-      EDIT_ITEM(ICON_MPCHeater, MSG_MPC_POWER, onDrawPFloatMenu, SetHeaterPower, &thermalManager.temp_hotend[0].constants.heater_power);
-      EDIT_ITEM(ICON_MPCHeatCap, MSG_MPC_BLOCK_HEAT_CAPACITY, onDrawPFloat2Menu, SetBlkHeatCapacity, &thermalManager.temp_hotend[0].constants.block_heat_capacity);
-      EDIT_ITEM(ICON_MPCValue, MSG_SENSOR_RESPONSIVENESS, onDrawPFloat4Menu, SetSensorRespons, &thermalManager.temp_hotend[0].constants.sensor_responsiveness);
-      EDIT_ITEM(ICON_MPCValue, MSG_MPC_AMBIENT_XFER_COEFF, onDrawPFloat4Menu, SetAmbientXfer, &thermalManager.temp_hotend[0].constants.ambient_xfer_coeff_fan0);
+      EDIT_ITEM(ICON_MPCHeater, MSG_MPC_POWER, onDrawPFloatMenu, SetHeaterPower, &mpc.heater_power);
+      EDIT_ITEM(ICON_MPCHeatCap, MSG_MPC_BLOCK_HEAT_CAPACITY, onDrawPFloat2Menu, SetBlkHeatCapacity, &mpc.block_heat_capacity);
+      EDIT_ITEM(ICON_MPCValue, MSG_SENSOR_RESPONSIVENESS, onDrawPFloat4Menu, SetSensorRespons, &mpc.sensor_responsiveness);
+      EDIT_ITEM(ICON_MPCValue, MSG_MPC_AMBIENT_XFER_COEFF, onDrawPFloat4Menu, SetAmbientXfer, &mpc.ambient_xfer_coeff_fan0);
       #if ENABLED(MPC_INCLUDE_FAN)
-        EDIT_ITEM(ICON_MPCFan, MSG_MPC_AMBIENT_XFER_COEFF_FAN, onDrawFanAdj, SetFanAdj, &thermalManager.temp_hotend[0].constants.fan255_adjustment);
+        EDIT_ITEM(ICON_MPCFan, MSG_MPC_AMBIENT_XFER_COEFF_FAN, onDrawFanAdj, SetFanAdj, &mpc.fan255_adjustment);
       #endif
     }
     UpdateMenu(HotendMPCMenu);

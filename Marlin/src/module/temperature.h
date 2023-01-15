@@ -382,10 +382,14 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
     float ambient_xfer_coeff_fan0;      // M306 A
+    float filament_heat_capacity_permm; // M306 H
     #if ENABLED(MPC_INCLUDE_FAN)
       float fan255_adjustment;          // M306 F
+      void applyFanAdjustment(const_float_t cf) { fan255_adjustment = cf - ambient_xfer_coeff_fan0; }
+    #else
+      void applyFanAdjustment(const_float_t) {}
     #endif
-    float filament_heat_capacity_permm; // M306 H
+    float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
   } MPC_t;
 
   #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
@@ -433,10 +437,12 @@ struct PIDHeaterInfo : public HeaterInfo {
 
 #if ENABLED(MPCTEMP)
   struct MPCHeaterInfo : public HeaterInfo {
-    MPC_t constants;
+    MPC_t mpc;
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
+    float fanCoefficient() { return mpc.fanCoefficient(); }
+    void applyFanAdjustment(const_float_t cf) { mpc.applyFanAdjustment(cf); }
   };
 #endif
 

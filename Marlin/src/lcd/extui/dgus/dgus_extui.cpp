@@ -139,8 +139,8 @@ namespace ExtUI {
         case PID_STARTED:
           ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
-        case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
+        case PID_BAD_HEATER_ID:
+          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
           break;
         case PID_TEMP_TOO_HIGH:
           ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
