@@ -368,7 +368,6 @@ namespace Language_sk {
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Rozliš. senz. *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("H okolia *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("H vent. okolia *");
-  LSTR MSG_SELECT                         = _UxGT("Vybrať");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrať *");
   LSTR MSG_ACC                            = _UxGT("Zrýchlenie");
   LSTR MSG_JERK                           = _UxGT("Skok");

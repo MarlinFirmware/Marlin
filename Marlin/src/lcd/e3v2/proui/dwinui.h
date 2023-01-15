@@ -144,12 +144,10 @@
 #define ICON_UBLSmartFill         ICON_StockConfiguration
 #define ICON_ZAfterHome           ICON_SetEndTemp
 
-
-
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion
 
-//MPC
+// MPC
 #define ICON_MPCNozzle         ICON_SetEndTemp
 #define ICON_MPCValue          ICON_Contact
 #define ICON_MPCHeater         ICON_Temperature
