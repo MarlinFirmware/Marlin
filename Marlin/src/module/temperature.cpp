@@ -944,8 +944,13 @@ volatile bool Temperature::raw_temps_ready = false;
     do_blocking_move_to(tuningpos);
 
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
-    TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPCTEMP_START));
-    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE_F(STR_MPC_COOLING_TO_AMBIENT), LCD_MESSAGE(MSG_COOLING));
+    #if ENABLED(DWIN_LCD_PROUI)
+      DWIN_MPCTuning(MPCTEMP_START);
+      LCD_ALERTMESSAGE_F(STR_MPC_COOLING_TO_AMBIENT);
+    #else
+      LCD_MESSAGE(MSG_COOLING);
+    #endif
+
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
     celsius_float_t current_temp = degHotend(active_extruder),
                     ambient_temp = current_temp;
@@ -1024,7 +1029,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
-    TERN(DWIN_LCD_PROUI,LCD_ALERTMESSAGE(MSG_MPC_MEASURING_AMBIENT), LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT));
+    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_MEASURING_AMBIENT), LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT));
     hotend.target = hotend.modeled_block_temp;
     next_test_ms = ms + MPC_dT * 1000;
     constexpr millis_t settle_time = 20000UL, test_duration = 20000UL;
@@ -1088,7 +1093,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
     TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_DONE));
 
-    /* <-- add a slash to enable
+    #if 0
       SERIAL_ECHOLNPGM("t1_time ", t1_time);
       SERIAL_ECHOLNPGM("sample_count ", sample_count);
       SERIAL_ECHOLNPGM("sample_distance ", sample_distance);
@@ -1097,7 +1102,8 @@ volatile bool Temperature::raw_temps_ready = false;
       SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
       SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
       SERIAL_ECHOLNPAIR_F("block_responsiveness ", block_responsiveness, 4);
-    //*/
+    #endif
+
     SERIAL_ECHOLNPGM("MPC_BLOCK_HEAT_CAPACITY ", constants.block_heat_capacity);
     SERIAL_ECHOLNPAIR_F("MPC_SENSOR_RESPONSIVENESS ", constants.sensor_responsiveness, 4);
     SERIAL_ECHOLNPAIR_F("MPC_AMBIENT_XFER_COEFF ", constants.ambient_xfer_coeff_fan0, 4);
