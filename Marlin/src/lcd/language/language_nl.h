@@ -108,7 +108,6 @@ namespace Language_nl {
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Aan");
   LSTR MSG_LCD_OFF                        = _UxGT("Uit");
-  LSTR MSG_SELECT                         = _UxGT("Selecteer");
   LSTR MSG_SELECT_E                       = _UxGT("Selecteer *");
   LSTR MSG_ACC                            = _UxGT("Versn");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatuur");
