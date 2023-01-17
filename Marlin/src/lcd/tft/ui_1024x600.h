@@ -35,15 +35,15 @@
 #define MENU_ITEM_ICON_Y       5
 #define MENU_ITEM_ICON_SPACE  42
 
+#define MENU_ITEM_HEIGHT      43
+#define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
+
 #if (TFT_FONT == NOTOSANS) || (TFT_FONT == HELVETICA)
   #define FONT_SIZE           19
 #elif TFT_FONT == UNIFONT
   #define FONT_SIZE           20
 #endif
 
-#define MENU_ITEM_HEIGHT      43
 #define FONT_LINE_HEIGHT      34
-
-#define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
 #include "tft_font.h"

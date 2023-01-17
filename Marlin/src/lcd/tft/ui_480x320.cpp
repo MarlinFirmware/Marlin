@@ -746,10 +746,8 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
 #if ENABLED(TOUCH_SCREEN)
   static void e_select() {
-    motionAxisState.e_selection++;
-    if (motionAxisState.e_selection >= EXTRUDERS) {
+    if (++motionAxisState.e_selection >= EXTRUDERS)
       motionAxisState.e_selection = 0;
-    }
 
     quick_feedback();
     drawCurESelection();
@@ -791,8 +789,8 @@ static void disable_steppers() {
 }
 
 static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
-  uint16_t width = Images[imgBtn52Rounded].width;
-  uint16_t height = Images[imgBtn52Rounded].height;
+  uint16_t width = Images[imgBtn52Rounded].width,
+           height = Images[imgBtn52Rounded].height;
 
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 

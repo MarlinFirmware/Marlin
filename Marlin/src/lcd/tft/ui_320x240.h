@@ -44,4 +44,6 @@
   #define FONT_SIZE           10
 #endif
 
+#define FONT_LINE_HEIGHT      24
+
 #include "tft_font.h"
