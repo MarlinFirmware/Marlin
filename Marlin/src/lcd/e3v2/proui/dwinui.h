@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * DWIN Enhanced implementation for PRO UI
@@ -26,8 +27,6 @@
  * Version: 3.18.1
  * Date: 2022/07/05
  */
-
-#pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
 
