@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_PIDPLOT)
+#if BOTH(DWIN_LCD_PROUI, SHOW_TUNING_GRAPH)
 
 #include "plot.h"
 #include "../../../core/types.h"
@@ -61,7 +61,7 @@ void PlotClass::Draw(const frame_rect_t &frame, const celsius_t max, const_float
 
 void PlotClass::Update(const_float_t value) {
   if (!scale) return;
-  uint16_t y = round((y2) - value * scale);
+  const uint16_t y = round((y2) - value * scale);
   if (grphpoints < grphframe.w) {
     DWIN_Draw_Point(Color_Yellow, 1, 1, grphpoints + grphframe.x, y);
   }
@@ -74,4 +74,4 @@ void PlotClass::Update(const_float_t value) {
   grphpoints++;
 }
 
-#endif // DWIN_LCD_PROUI && HAS_PIDPLOT
+#endif // DWIN_LCD_PROUI && SHOW_TUNING_GRAPH

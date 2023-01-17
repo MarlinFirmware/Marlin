@@ -111,7 +111,7 @@
   #include "endstop_diag.h"
 #endif
 
-#if HAS_PIDPLOT
+#if SHOW_TUNING_GRAPH
   #include "plot.h"
 #endif
 
@@ -1247,7 +1247,7 @@ void EachMomentUpdate() {
     #if HAS_ESDIAG
       if (checkkey == ESDiagProcess) ESDiag.Update();
     #endif
-    #if HAS_PIDPLOT
+    #if SHOW_TUNING_GRAPH
       if (checkkey == PidProcess) plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
     #endif
   }
@@ -1472,7 +1472,7 @@ void DWIN_LevelingDone() {
 
 // PID/MPC process
 
-#if HAS_PIDPLOT && EITHER(DWIN_PID_TUNE, MPCTEMP)
+#if SHOW_TUNING_GRAPH
 
   #include "plot.h"
 
@@ -1527,7 +1527,7 @@ void DWIN_LevelingDone() {
     DWINUI::Draw_Int(HMI_data.PopupTxt_Color, 3, gfrm.x + 90, gfrm.y - DWINUI::fontHeight() - 4, _target);
   }
 
-#endif // HAS_PIDPLOT && (DWIN_PID_TUNE || MPCTEMP)
+#endif // SHOW_TUNING_GRAPH
 
 #if DWIN_PID_TUNE
 
@@ -1548,7 +1548,7 @@ void DWIN_LevelingDone() {
       #if ENABLED(PIDTEMP)
         case PIDTEMP_START:
           HMI_SaveProcessID(PidProcess);
-          #if HAS_PIDPLOT
+          #if SHOW_TUNING_GRAPH
             DWIN_Draw_PID_MPC_Popup();
           #else
             DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for Nozzle is running."));
@@ -1562,7 +1562,7 @@ void DWIN_LevelingDone() {
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
           HMI_SaveProcessID(PidProcess);
-          #if HAS_PIDPLOT
+          #if SHOW_TUNING_GRAPH
             DWIN_Draw_PID_MPC_Popup();
           #else
             DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), F("for BED is running."));
@@ -1596,7 +1596,7 @@ void DWIN_LevelingDone() {
     switch (result) {
       case MPCTEMP_START:
         HMI_SaveProcessID(MPCProcess);
-        #if HAS_PIDPLOT
+        #if SHOW_TUNING_GRAPH
           DWIN_Draw_PID_MPC_Popup();
         #else
           DWIN_Draw_Popup(ICON_TempTooHigh, GET_TEXT_F(MSG_MPC_AUTOTUNE), F("for Nozzle is running."));
