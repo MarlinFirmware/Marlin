@@ -903,6 +903,7 @@ volatile bool Temperature::raw_temps_ready = false;
       if (!wait_for_heatup) {
         SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
+        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
         return false;
       }
 
@@ -942,7 +943,12 @@ volatile bool Temperature::raw_temps_ready = false;
     do_blocking_move_to(xyz_pos_t(MPC_TUNING_POS));
 
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
-    LCD_MESSAGE(MSG_COOLING);
+    #if ENABLED(DWIN_LCD_PROUI)
+      DWIN_MPCTuning(MPCTEMP_START);
+      LCD_ALERTMESSAGE(MSG_MPC_COOLING_TO_AMBIENT);
+    #else
+      LCD_MESSAGE(MSG_COOLING);
+    #endif
 
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
     celsius_float_t current_temp = degHotend(active_extruder),
@@ -1063,6 +1069,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
       if (!WITHIN(current_temp, t3 - 15.0f, hotend.target + 15.0f)) {
         SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
+        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_TEMP_ERROR));
         break;
       }
     }
@@ -1084,6 +1091,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
+    TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_DONE));
 
     #if 0
       SERIAL_ECHOLNPGM("t1_time ", t1_time);

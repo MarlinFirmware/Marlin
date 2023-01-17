@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * DWIN Enhanced implementation for PRO UI
@@ -26,8 +27,6 @@
  * Version: 3.18.1
  * Date: 2022/07/05
  */
-
-#pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
 
@@ -146,6 +145,13 @@
 
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion
+
+// MPC
+#define ICON_MPCNozzle         ICON_SetEndTemp
+#define ICON_MPCValue          ICON_Contact
+#define ICON_MPCHeater         ICON_Temperature
+#define ICON_MPCHeatCap        ICON_SetBedTemp
+#define ICON_MPCFan            ICON_FanSpeed
 
 // Buttons
 #define BTN_Continue          85

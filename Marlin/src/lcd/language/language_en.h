@@ -376,10 +376,15 @@ namespace Language_en {
   LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Cooling to ambient");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Autotune");
   LSTR MSG_MPC_EDIT                       = _UxGT("Edit * MPC");
+  LSTR MSG_MPC_POWER                      = _UxGT("Heater Power");
   LSTR MSG_MPC_POWER_E                    = _UxGT("Power *");
+  LSTR MSG_MPC_BLOCK_HEAT_CAPACITY        = _UxGT("Heat Capacity");
   LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("Heat Cap. *");
+  LSTR MSG_SENSOR_RESPONSIVENESS          = _UxGT("Sensor Resp.");
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensor Resp. *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF         = _UxGT("Ambient Coeff.");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ambient Co. *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN     = _UxGT("Fan coeff.");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Fan coeff. *");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
