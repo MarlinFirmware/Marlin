@@ -1557,7 +1557,7 @@
   #define _CMP_TFT_ROTATE_90_MIRROR_Y   90
   #define _CMP_TFT_ROTATE_270_MIRROR_X 270
   #define _CMP_TFT_ROTATE_270_MIRROR_Y 270
-  #define _ISROT(N) || (_CAT(_CMP_, TFT_ROTATION) == N)
+  #define _ISROT(N) || (CAT(_CMP_, TFT_ROTATION) == N)
   #define ISROT(V...) (0 MAP(_ISROT, V))
 
   #if ISROT(90, 270)
