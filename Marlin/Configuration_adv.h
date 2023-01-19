@@ -1017,6 +1017,9 @@
     #define BLTOUCH_HS_EXTRA_CLEARANCE    7 // Extra Z Clearance
   #endif
 
+  // Add a Z limit
+  //#define BLTOUCH_AND_Z_LIMIT
+
 #endif // BLTOUCH
 
 // @section calibration
