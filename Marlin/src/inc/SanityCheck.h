@@ -88,7 +88,7 @@
  * Warnings for old configurations
  */
 #ifndef MOTHERBOARD
-  #error "MOTHERBOARD is required."
+  #error "MOTHERBOARD is required. You must '#define MOTHERBOARD BOARD_MYNAME' (not just '#define BOARD_MYNAME')."
 #elif !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
   #error "X_BED_SIZE and Y_BED_SIZE are now required!"
 #elif WATCH_TEMP_PERIOD > 500
@@ -666,6 +666,8 @@
   #error "SCARA_FEEDRATE_SCALING is now FEEDRATE_SCALING."
 #elif defined(MILLISECONDS_PREHEAT_TIME)
   #error "MILLISECONDS_PREHEAT_TIME is now PREHEAT_TIME_HOTEND_MS."
+#elif defined(EXPERIMENTAL_SCURVE)
+  #error "EXPERIMENTAL_SCURVE is no longer needed and should be removed."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -1370,20 +1372,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #else
     static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
   #endif
-  #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
-    #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
-  #elif ENABLED(DIRECT_STEPPING)
-    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+
+  #if ENABLED(DIRECT_STEPPING)
+    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
     static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
   #endif
-#endif
-
-/**
- * POLAR warnings
- */
-#if BOTH(POLAR, S_CURVE_ACCELERATION)
-  #warning "POLAR Kinematics may not work well with S_CURVE_ACCELERATION."
 #endif
 
 /**
@@ -4369,32 +4363,50 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "BINARY_FILE_TRANSFER and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
 #endif
 
-// Check requirements for Input Shaping
-#if HAS_SHAPING && defined(__AVR__)
-  #ifdef SHAPING_MIN_FREQ
-    static_assert((SHAPING_MIN_FREQ) > 0, "SHAPING_MIN_FREQ must be > 0.");
-  #else
-    TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) > 0, "SHAPING_FREQ_X must be > 0 or SHAPING_MIN_FREQ must be set."));
-    TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) > 0, "SHAPING_FREQ_Y must be > 0 or SHAPING_MIN_FREQ must be set."));
+/**
+ * Input Shaping requirements
+ */
+#if HAS_SHAPING
+  #if ENABLED(DELTA)
+    #error "Input Shaping is not compatible with DELTA kinematics."
+  #elif ENABLED(SCARA)
+    #error "Input Shaping is not compatible with SCARA kinematics."
+  #elif ENABLED(TPARA)
+    #error "Input Shaping is not compatible with TPARA kinematics."
+  #elif ENABLED(POLAR)
+    #error "Input Shaping is not compatible with POLAR kinematics."
+  #elif ENABLED(POLARGRAPH)
+    #error "Input Shaping is not compatible with POLARGRAPH kinematics."
+  #elif ENABLED(DIRECT_STEPPING)
+    #error "Input Shaping is not compatible with DIRECT_STEPPING."
+  #elif ENABLED(INPUT_SHAPING_X) && ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+    #error "INPUT_SHAPING_X is not supported with COREXY, COREYX, COREXZ, COREZX, or MARKFORGED_*."
+  #elif ENABLED(INPUT_SHAPING_Y) && ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+    #error "INPUT_SHAPING_Y is not supported with COREXY, COREYX, COREYZ, COREZY, or MARKFORGED_*."
   #endif
-  #if ENABLED(INPUT_SHAPING_X)
-    #if F_CPU > 16000000
-      static_assert((SHAPING_FREQ_X) == 0 || (SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (20) for AVR 20MHz.");
-    #else
-      static_assert((SHAPING_FREQ_X) == 0 || (SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (16) for AVR 16MHz.");
-    #endif
-  #endif
-  #if ENABLED(INPUT_SHAPING_Y)
-    #if F_CPU > 16000000
-      static_assert((SHAPING_FREQ_Y) == 0 || (SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (20) for AVR 20MHz.");
-    #else
-      static_assert((SHAPING_FREQ_Y) == 0 || (SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (16) for AVR 16MHz.");
-    #endif
-  #endif
-#endif
 
-#if BOTH(HAS_SHAPING, DIRECT_STEPPING)
-  #error "INPUT_SHAPING_[XY] cannot currently be used with DIRECT_STEPPING."
+  #ifdef __AVR__
+    #ifdef SHAPING_MIN_FREQ
+      static_assert((SHAPING_MIN_FREQ) > 0, "SHAPING_MIN_FREQ must be > 0.");
+    #else
+      TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) > 0, "SHAPING_FREQ_X must be > 0 or SHAPING_MIN_FREQ must be set."));
+      TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) > 0, "SHAPING_FREQ_Y must be > 0 or SHAPING_MIN_FREQ must be set."));
+    #endif
+    #if ENABLED(INPUT_SHAPING_X)
+      #if F_CPU > 16000000
+        static_assert((SHAPING_FREQ_X) == 0 || (SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (20) for AVR 20MHz.");
+      #else
+        static_assert((SHAPING_FREQ_X) == 0 || (SHAPING_FREQ_X) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_X is below the minimum (16) for AVR 16MHz.");
+      #endif
+    #endif
+    #if ENABLED(INPUT_SHAPING_Y)
+      #if F_CPU > 16000000
+        static_assert((SHAPING_FREQ_Y) == 0 || (SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (20) for AVR 20MHz.");
+      #else
+        static_assert((SHAPING_FREQ_Y) == 0 || (SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (16) for AVR 16MHz.");
+      #endif
+    #endif
+  #endif
 #endif
 
 // Misc. Cleanup

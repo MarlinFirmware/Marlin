@@ -2506,6 +2506,15 @@
   #define HAS_PID_HEATING 1
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #if EITHER(PIDTEMP, PIDTEMPBED)
+    #define DWIN_PID_TUNE 1
+  #endif
+  #if EITHER(DWIN_PID_TUNE, MPCTEMP) && DISABLED(DISABLE_TUNING_GRAPH)
+    #define SHOW_TUNING_GRAPH 1
+  #endif
+#endif
+
 // Thermal protection
 #if !HAS_HEATED_BED
   #undef THERMAL_PROTECTION_BED

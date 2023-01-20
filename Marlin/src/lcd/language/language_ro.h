@@ -261,10 +261,9 @@ namespace Language_ro {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune failed! Bad extruder.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
-  LSTR MSG_SELECT                         = _UxGT("Select");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Jerk");

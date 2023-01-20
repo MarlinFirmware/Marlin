@@ -98,7 +98,6 @@ namespace Language_da {
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Til");
   LSTR MSG_LCD_OFF                        = _UxGT("Fra");
-  LSTR MSG_SELECT                         = _UxGT("Vælg");
   LSTR MSG_SELECT_E                       = _UxGT("Vælg *");
   LSTR MSG_A_RETRACT                      = _UxGT("A-retract");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-rejse");

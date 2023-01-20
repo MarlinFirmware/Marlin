@@ -269,10 +269,9 @@ namespace Language_fr {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Tuning PID terminé");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Echec Autotune! E incorrect");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Echec Autotune! E incorrect");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Opér. expirée");
-  LSTR MSG_SELECT                         = _UxGT("Sélectionner");
   LSTR MSG_SELECT_E                       = _UxGT("Sélectionner *");
   LSTR MSG_ACC                            = _UxGT("Accélération");
   LSTR MSG_JERK                           = _UxGT("Jerk");

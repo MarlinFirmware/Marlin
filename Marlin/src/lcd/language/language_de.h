@@ -343,10 +343,10 @@ namespace Language_de {
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Zyklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID Tuning fertig");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("PID Autotune fehlge.!");
-  LSTR MSG_BAD_EXTRUDER_NUM               = _UxGT("ungültiger Extruder.");
+  LSTR MSG_BAD_HEATER_ID                  = _UxGT("ungültiger Extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperatur zu hoch.");
   LSTR MSG_TIMEOUT                        = _UxGT("Timeout.");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune fehlge.! Ungültiger Extruder");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune fehlge.! Ungültiger Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("teste Wärmeverlust");
@@ -357,7 +357,6 @@ namespace Language_de {
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensor res *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ambient h *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Amb. h fan *");
-  LSTR MSG_SELECT                         = _UxGT("Auswählen");
   LSTR MSG_SELECT_E                       = _UxGT("Auswählen *");
   LSTR MSG_ACC                            = _UxGT("Beschleunigung");
   LSTR MSG_JERK                           = _UxGT("Jerk");

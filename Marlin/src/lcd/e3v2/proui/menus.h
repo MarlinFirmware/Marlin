@@ -19,28 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Menu functions for ProUI
  * Author: Miguel A. Risco-Castillo
  * Version: 1.9.1
  * Date: 2022/12/02
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
-#pragma once
 
 #include "dwinui.h"
 
@@ -145,7 +131,7 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
 void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, FSTR_P label=nullptr, bool more=false, bool selected=false);
 void Draw_Chkb_Line(const uint8_t line, const bool checked);
 void Show_Chkb_Line(const bool checked);
-void Toogle_Chkb_Line(bool &checked);
+void Toggle_Chkb_Line(bool &checked);
 void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const int32_t value=0);
 void onDrawMenuItem(MenuItemClass* menuitem, int8_t line);
 void onDrawSubMenu(MenuItemClass* menuitem, int8_t line);

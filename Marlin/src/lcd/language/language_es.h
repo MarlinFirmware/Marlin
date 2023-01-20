@@ -265,7 +265,6 @@ namespace Language_es {
   LSTR MSG_LCD_OFF                        = _UxGT("Apg");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Auto-ajuste");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Auto-ajuste *");
-  LSTR MSG_SELECT                         = _UxGT("Seleccionar");
   LSTR MSG_SELECT_E                       = _UxGT("Seleccionar *");
   LSTR MSG_ACC                            = _UxGT("Aceleración");
   LSTR MSG_JERK                           = _UxGT("Jerk");

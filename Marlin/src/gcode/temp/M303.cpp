@@ -67,8 +67,8 @@ void GcodeSuite::M303() {
     default:
       SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
       SERIAL_ECHOLNPGM(STR_PID_BAD_HEATER_ID);
-      TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
-      TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(PID_BAD_EXTRUDER_NUM));
+      TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_HEATER_ID));
+      TERN_(DWIN_PID_TUNE, DWIN_PidTuning(PID_BAD_HEATER_ID));
       return;
   }
 
@@ -78,20 +78,9 @@ void GcodeSuite::M303() {
   const celsius_t temp = seenS ? parser.value_celsius() : default_temp;
   const bool u = parser.boolval('U');
 
-  #if ENABLED(DWIN_LCD_PROUI) && EITHER(PIDTEMP, PIDTEMPBED)
-    if (seenC) HMI_data.PidCycles = c;
-    if (seenS) {
-      switch (hid) {
-        OPTCODE(PIDTEMP,    case 0 ... HOTENDS - 1: HMI_data.HotendPidT = temp; break)
-        OPTCODE(PIDTEMPBED, case H_BED:             HMI_data.BedPidT = temp;    break)
-        default: break;
-      }
-    }
-  #endif
+  TERN_(DWIN_PID_TUNE, DWIN_StartM303(seenC, c, seenS, hid, temp));
 
-  #if DISABLED(BUSY_WHILE_HEATING)
-    KEEPALIVE_STATE(NOT_BUSY);
-  #endif
+  IF_DISABLED(BUSY_WHILE_HEATING, KEEPALIVE_STATE(NOT_BUSY));
 
   LCD_MESSAGE(MSG_PID_AUTOTUNE);
   thermalManager.PID_autotune(temp, hid, c, u);

@@ -354,10 +354,10 @@ namespace Language_sk {
   LSTR MSG_PID_CYCLE                      = _UxGT("Cykly PID");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Kal. PID dokončená");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kal. PID zlyhala!");
-  LSTR MSG_BAD_EXTRUDER_NUM               = _UxGT("Zlý extrudér");
+  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Zlý extrudér");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Príliš vysoká tepl.");
   LSTR MSG_TIMEOUT                        = _UxGT("Čas vypršal.");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-kal. zlyhala! Zlý extrúder.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Auto-kal. zlyhala! Zlý extrúder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-kal. zlyhala! Príliš vysoká tepl.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-kal. zlyhala! Čas vypršal.");
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Test. tepl. straty");
@@ -368,7 +368,6 @@ namespace Language_sk {
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Rozliš. senz. *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("H okolia *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("H vent. okolia *");
-  LSTR MSG_SELECT                         = _UxGT("Vybrať");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrať *");
   LSTR MSG_ACC                            = _UxGT("Zrýchlenie");
   LSTR MSG_JERK                           = _UxGT("Skok");

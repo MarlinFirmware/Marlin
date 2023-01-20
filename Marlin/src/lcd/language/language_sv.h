@@ -291,10 +291,9 @@ namespace Language_sv {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autojustera");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autojustera *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autojustera misslyckad! Dålig extruder.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autojustera misslyckad! Dålig extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autojustera misslyckad! Temperatur för hög.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autojustera misslyckad! Tidsgräns.");
-  LSTR MSG_SELECT                         = _UxGT("Välj");
   LSTR MSG_SELECT_E                       = _UxGT("Välj *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Ryck");

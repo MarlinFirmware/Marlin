@@ -236,7 +236,6 @@ namespace Language_pt_br {
   LSTR MSG_AUTOTEMP                       = _UxGT("Temp. Automática");
   LSTR MSG_LCD_ON                         = _UxGT("Ligado");
   LSTR MSG_LCD_OFF                        = _UxGT("Desligado");
-  LSTR MSG_SELECT                         = _UxGT("Selecionar");
   LSTR MSG_SELECT_E                       = _UxGT("Selecionar *");
   LSTR MSG_ACC                            = _UxGT("Acel.");
   LSTR MSG_JERK                           = _UxGT("Arrancada");
