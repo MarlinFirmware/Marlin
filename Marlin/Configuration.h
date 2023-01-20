@@ -1543,37 +1543,6 @@
 #define PROBING_MARGIN 10
 
 
-// For use with UBL, to avoid probing clips and points for which the nozzle is positioned above the clips. 
-// Note: G29J<int> will abort if it attempts to probe one of the areas defined by this feature,
-// so it may limit G29J<int> to G29 or G29J3, depending on the values defined below. 
-// #define AVOID_BED_CLIPS 
-
-#if ENABLED(AVOID_BED_CLIPS)
-
-   #define BED_CLIP_XSIZE 23.0 
-   #define BED_CLIP_YSIZE 14.0 
-
-   #define BED_CLIP1_XMIN X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0
-   #define BED_CLIP1_XMAX X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0
-   #define BED_CLIP1_YMIN 0.0
-   #define BED_CLIP1_YMAX BED_CLIP_YSIZE                                                                                                                                                                                 
-                                                                                                                                                                                                                                 
-   #define BED_CLIP2_XMIN 3*X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0
-   #define BED_CLIP2_XMAX 3*X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0                                                                                                                                                             
-   #define BED_CLIP2_YMIN 0.0                                                                                                                                                                                                   
-   #define BED_CLIP2_YMAX BED_CLIP_YSIZE                                                                                                                                                                                 
-                                                                                                                                                                                                                                 
-   #define BED_CLIP3_XMIN X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0                                                                                                                                                                
-   #define BED_CLIP3_XMAX X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0                                                                                                                                                                
-   #define BED_CLIP3_YMIN Y_BED_SIZE-BED_CLIP_YSIZE                                                                                                                                                                     
-   #define BED_CLIP3_YMAX Y_BED_SIZE                                                                                                                                                                                    
-                                                                                                                                                                                                                                 
-   #define BED_CLIP4_XMIN 3*X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0                                                                                                                                                             
-   #define BED_CLIP4_XMAX 3*X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0                                                                                                                                                             
-   #define BED_CLIP4_YMIN Y_BED_SIZE-BED_CLIP_YSIZE                                                                                                                                                                     
-   #define BED_CLIP4_YMAX Y_BED_SIZE                                                                                                                                                                                    
-                                                                                                                                                                                                                                 
-#endif  
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (133*60)
@@ -2084,6 +2053,39 @@
                                           // as the Z-Height correction value.
 
   //#define UBL_MESH_WIZARD         // Run several commands in a row to get a complete mesh
+
+  // For use with UBL, to avoid probing clips and points for which the nozzle is positioned above the clips. 
+  // Note: G29J<int> will abort if it attempts to probe one of the areas defined by this feature,
+  // so it may limit G29J<int> to G29 or G29J3, depending on the values defined below. 
+  //#define AVOID_BED_CLIPS 
+
+   #if ENABLED(AVOID_BED_CLIPS)
+
+    #define BED_CLIP_XSIZE 23.0 
+    #define BED_CLIP_YSIZE 14.0 
+
+    #define BED_CLIP1_XMIN X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0
+    #define BED_CLIP1_XMAX X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0
+    #define BED_CLIP1_YMIN 0.0
+    #define BED_CLIP1_YMAX BED_CLIP_YSIZE                                                                                                                                                                                 
+                                                                                                                                                                                                                                 
+    #define BED_CLIP2_XMIN 3*X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0
+    #define BED_CLIP2_XMAX 3*X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0                                                                                                                                                             
+    #define BED_CLIP2_YMIN 0.0                                                                                                                                                                                                   
+    #define BED_CLIP2_YMAX BED_CLIP_YSIZE                                                                                                                                                                                 
+                                                                                                                                                                                                                                 
+    #define BED_CLIP3_XMIN X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0                                                                                                                                                                
+    #define BED_CLIP3_XMAX X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0                                                                                                                                                                
+    #define BED_CLIP3_YMIN Y_BED_SIZE-BED_CLIP_YSIZE                                                                                                                                                                     
+    #define BED_CLIP3_YMAX Y_BED_SIZE                                                                                                                                                                                    
+                                                                                                                                                                                                                                 
+    #define BED_CLIP4_XMIN 3*X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0                                                                                                                                                             
+    #define BED_CLIP4_XMAX 3*X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0                                                                                                                                                             
+    #define BED_CLIP4_YMIN Y_BED_SIZE-BED_CLIP_YSIZE                                                                                                                                                                     
+    #define BED_CLIP4_YMAX Y_BED_SIZE                                                                                                                                                                                    
+                                                                                                                                                                                                                                 
+   #endif  
+
 
 #elif ENABLED(MESH_BED_LEVELING)
 
