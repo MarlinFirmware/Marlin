@@ -94,6 +94,19 @@ public:
 
     static bool set_deployed(const bool deploy);
 
+   #if ENABLED(AVOID_BED_CLIPS)
+      static bool bed_clip_check(const_float_t rx, const_float_t ry) {
+        return (!((BED_CLIP1_XMIN <= rx) && (rx < BED_CLIP1_XMAX)) || !((BED_CLIP1_YMIN <= ry) && (ry <= BED_CLIP1_YMAX)))                                                                                                   
+          && (!((BED_CLIP2_XMIN <= rx) && (rx < BED_CLIP2_XMAX)) || !((BED_CLIP2_YMIN <= ry) && (ry <= BED_CLIP2_YMAX)))                                                                                                   
+          && (!((BED_CLIP3_XMIN <= rx) && (rx < BED_CLIP3_XMAX)) || !((BED_CLIP3_YMIN <= ry) && (ry <= BED_CLIP3_YMAX)))                                                                                                   
+          && (!((BED_CLIP4_XMIN <= rx) && (rx < BED_CLIP4_XMAX)) || !((BED_CLIP4_YMIN <= ry) && (ry <= BED_CLIP4_YMAX)));                                                                                              
+    }
+    #else
+      static bool bed_clip_check(const_float_t rx, const_float_t ry) {
+        return true;
+      }
+    #endif
+
     #if IS_KINEMATIC
 
       #if HAS_PROBE_XY_OFFSET
