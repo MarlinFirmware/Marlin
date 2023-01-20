@@ -1546,7 +1546,7 @@
 // For use with UBL, to avoid probing clips and points for which the nozzle is positioned above the clips. 
 // Note: G29J<int> will abort if it attempts to probe one of the areas defined by this feature,
 // so it may limit G29J<int> to G29 or G29J3, depending on the values defined below. 
-#define AVOID_BED_CLIPS 
+// #define AVOID_BED_CLIPS 
 
 #if ENABLED(AVOID_BED_CLIPS)
 
