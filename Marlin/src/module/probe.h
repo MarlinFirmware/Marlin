@@ -115,17 +115,22 @@ public:
         static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
           if (probe_relative) {
             return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-                && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
+              && position_is_reachable(rx, ry, PROBING_MARGIN)//;            // Can the probe also go near there?
+              && bed_clip_check(rx,ry) // probe 
+              && bed_clip_check(rx - offset_xy.x, ry - offset_xy.y); //nozzle
           }
           else {
             return position_is_reachable(rx, ry)
-                && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
+              && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN)//;
+              && bed_clip_check(rx,ry)
+              && bed_clip_check(rx + offset_xy.x, ry + offset_xy.y);
           }
         }
       #else
         static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) {
           return position_is_reachable(rx, ry)
-              && position_is_reachable(rx, ry, PROBING_MARGIN);
+            && position_is_reachable(rx, ry, PROBING_MARGIN)//;
+            && bed_clip_check(rx,ry);
         }
       #endif
 
@@ -140,14 +145,18 @@ public:
        */
       static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
         if (probe_relative) {
-          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
-              && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
-              && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
+          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) 
+            && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
+            && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop)
+            && bed_clip_check(rx,ry)  
+            && bed_clip_check(rx - offset_xy.x, ry - offset_xy.y);  
         }
         else {
           return position_is_reachable(rx, ry)
-              && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
-              && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop);
+            && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
+            && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop)
+            && bed_clip_check(rx,ry)
+            && bed_clip_check(rx + offset_xy.x, ry + offset_xy.y);
         }
       }
 
