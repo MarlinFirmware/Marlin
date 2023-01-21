@@ -2054,9 +2054,9 @@
 
   //#define UBL_MESH_WIZARD         // Run several commands in a row to get a complete mesh
 
-#define AVOID_BED_CLIPS
+  //#define AVOID_BED_CLIPS
 
-#if ENABLED(AVOID_BED_CLIPS)
+  #if ENABLED(AVOID_BED_CLIPS)
 
    #define BED_CLIP_XSIZE 23. // Width, should be padded a few mm above physical width                                                                                                                                        
    #define BED_CLIP_YSIZE 14. // Height, also should be padded
