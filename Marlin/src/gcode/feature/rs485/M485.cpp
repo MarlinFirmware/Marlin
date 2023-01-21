@@ -5,6 +5,24 @@
 #include "../../gcode.h"
 
 #define RS485_SEND_BUFFER_SIZE 32
+//#define DEBUG_M485
+
+bool m485_handle_packet_response() {
+  if(! packetizer.hasPacket()) {
+    return false;
+  }
+
+  SERIAL_ECHO("rs485-reply: ");
+  for(size_t i=0; i<packetizer.packetLength(); i++) {
+    uint8_t data = bus[i];
+    SERIAL_ECHO((data < 0x10) ? "0" : "");
+
+    SERIAL_PRINT(data, PrintBase::Hex);
+  }
+  SERIAL_ECHOLN("");
+  packetizer.clearPacket();
+  return true;
+}
 
 void GcodeSuite::M485() {
   bus.setReadBackDelay(10);
@@ -14,7 +32,6 @@ void GcodeSuite::M485() {
     return;
   }
 
-  // TODO Replace 32 with RS485BUS_BUFFER_SIZE
   if(strlen(parser.string_arg) > RS485_SEND_BUFFER_SIZE * 2) {
     SERIAL_ERROR_MSG("String parameter can not have more than ", RS485_SEND_BUFFER_SIZE, " bytes");
     return;
@@ -26,8 +43,15 @@ void GcodeSuite::M485() {
     // TODO Throw an error if it's not within the hex range
     uint8_t byte = HEXCHR(parser.string_arg[i]) << 4 | HEXCHR(parser.string_arg[i+1]);
     buffer[i >> 1] = byte;
+
+#ifdef DEBUG_M485
+    SERIAL_ECHO((byte < 0x10) ? "0" : "");
     SERIAL_PRINT(byte, PrintBase::Hex);
+#endif
   }
+#ifdef DEBUG_M485
+  SERIAL_ECHOLN("");
+#endif
 
   PacketWriteResult writeResult = packetizer.writePacket(buffer, strlen(parser.string_arg) / 2);
 
@@ -45,9 +69,12 @@ void GcodeSuite::M485() {
       break;
   }
 
-  packetizer.setMaxReadTimeout(100);
+  packetizer.setMaxReadTimeout(1000);
   
-  for(uint8_t attempt = 0; attempt < 20; attempt++) {
+  for(uint8_t attempt = 0; attempt < 5; attempt++) {
+    delay(100);
+#ifdef DEBUG_M485
+    bus.fetch();
     SERIAL_ECHO("Attempt ");
     SERIAL_PRINT(attempt, PrintBase::Dec);
     SERIAL_ECHO(" (");
@@ -61,19 +88,30 @@ void GcodeSuite::M485() {
     }
     SERIAL_ECHOLN("");
 
-    if(packetizer.hasPacket()) {
-      SERIAL_ECHO("rs485-reply: ");
-      for(size_t i=0; i<packetizer.packetLength(); i++) {
-        uint8_t data = bus[i];
-        SERIAL_ECHO((data < 0x10) ? "0" : "");
-
-        SERIAL_PRINT(data, PrintBase::Hex);
+    for(size_t i=0; i<bus.available(); i++) {
+      IsPacketResult isPacket = protocol.isPacket(bus, i, bus.available() - 1);
+      SERIAL_ECHO(i);
+      SERIAL_ECHO(": ");
+      switch(isPacket.status) {
+        case PacketStatus::YES:
+          SERIAL_ECHOLN("Yes");
+          m485_handle_packet_response();
+          return;
+        case PacketStatus::NO:
+          SERIAL_ECHOLN("No");
+          break;
+        case PacketStatus::NOT_ENOUGH_BYTES:
+          SERIAL_ECHOLN("Not Enough Bytes");
+          break;
       }
-      SERIAL_ECHOLN("");
-    } else {
-      SERIAL_ECHOLN("rs485-reply: TIMEOUT");
     }
+#else
+  if(m485_handle_packet_response()) {
+    return;
   }
+#endif
+  }
+  SERIAL_ECHOLN("rs485-reply: TIMEOUT");
 }
 
 #endif

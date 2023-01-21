@@ -12,7 +12,7 @@ PhotonProtocol protocol;
 Packetizer packetizer(bus, protocol);
 
 void rs485_init() {
-  RS485_SERIAL.begin(9600);
+  RS485_SERIAL.begin(57600);
 }
 
 #endif
