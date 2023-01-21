@@ -115,22 +115,17 @@ public:
         static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
           if (probe_relative) {
             return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-              && position_is_reachable(rx, ry, PROBING_MARGIN)//;            // Can the probe also go near there?
-              && bed_clip_check(rx,ry) // probe 
-              && bed_clip_check(rx - offset_xy.x, ry - offset_xy.y); //nozzle
+              && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
           }
           else {
             return position_is_reachable(rx, ry)
-              && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN)//;
-              && bed_clip_check(rx,ry)
-              && bed_clip_check(rx + offset_xy.x, ry + offset_xy.y);
+              && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
           }
         }
       #else
         static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) {
           return position_is_reachable(rx, ry)
-            && position_is_reachable(rx, ry, PROBING_MARGIN)//;
-            && bed_clip_check(rx,ry);
+            && position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
 

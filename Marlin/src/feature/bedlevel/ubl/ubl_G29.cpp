@@ -1457,7 +1457,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
 
-    #if ENABLED(AVOID_BED_CLIPS)
+    #if ENABLED(MARGIN_FOR_G29J_MESH_TILT)
       const float x_min = _MAX(X_MIN_POS,probe.min_x()) + MARGIN_FOR_G29J_MESH_TILT;
       const float x_max = _MIN(X_MAX_POS,probe.max_x()) - MARGIN_FOR_G29J_MESH_TILT;
       const float y_min = _MAX(Y_MIN_POS,probe.min_y()) + MARGIN_FOR_G29J_MESH_TILT;
