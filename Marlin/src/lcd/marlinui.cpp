@@ -1743,7 +1743,7 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK && ANY(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
+  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
 
     // Renew and redraw all enabled progress strings
     void MarlinUI::rotate_progress() {
@@ -1763,7 +1763,7 @@ void MarlinUI::init() {
       }
     }
 
-  #endif // LCD_WITH_BLINK && (SHOW_PROGRESS_PERCENT || SHOW_ELAPSED_TIME || SHOW_REMAINING_TIME || SHOW_INTERACTION_TIME)
+  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
 
 #endif // HAS_PRINT_PROGRESS
 
