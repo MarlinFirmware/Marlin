@@ -176,7 +176,7 @@ namespace Language_jp_kana {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Zプローブ ベッドガイ");            // "Z probe out. bed"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch ジコシンダン");          // "BLTouch Self-Test"
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch リセット");             // "Reset BLTouch"
-  LSTR MSG_HOME_FIRST                     = _UxGT("サキニ %s%s%s ヲフッキサセテクダサイ"); // "Home ... first"
+  LSTR MSG_HOME_FIRST                     = _UxGT("サキニ %s ヲフッキサセテクダサイ"); // "Home ... first"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Zオフセット");                   // "Z Offset"
   LSTR MSG_BABYSTEP_X                     = _UxGT("Xジク ビドウ");                  // "Babystep X"
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Yジク ビドウ");                  // "Babystep Y"

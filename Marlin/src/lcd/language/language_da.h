@@ -139,7 +139,7 @@ namespace Language_da {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Skift SD kort");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Probe udenfor plade");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Selv-Test");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s først");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s først");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Opvarmning fejlet");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Fejl: reserve temp");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Temp løber løbsk");

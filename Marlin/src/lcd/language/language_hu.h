@@ -468,7 +468,7 @@ namespace Language_hu {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("TouchMI használ");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Z-Szonda telepítés");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Szonda elhelyezés");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Elöször %s%s%s kell");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Elöször %s kell");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Szonda eltolások");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");

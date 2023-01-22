@@ -599,7 +599,7 @@ namespace Language_uk {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI            = _UxGT("Установити TouchMI");
   LSTR MSG_MANUAL_DEPLOY                    = _UxGT("Установити Z-зонд");
   LSTR MSG_MANUAL_STOW                      = _UxGT("Завантажити Z-зонд");
-  LSTR MSG_HOME_FIRST                       = _UxGT("Спочатку дім %s%s%s");
+  LSTR MSG_HOME_FIRST                       = _UxGT("Спочатку дім %s");
   LSTR MSG_ZPROBE_OFFSETS                   = _UxGT("Зміщення зонду");
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Зміщення по X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Зміщення по Y");

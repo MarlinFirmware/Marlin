@@ -551,7 +551,7 @@ namespace Language_sk {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Zasunúť TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Zasunúť sondu Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Vysunúť sondu Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Najskôr os %s%s%s domov");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Najskôr os %s domov");
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Nastav. sondy");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Ofsety sondy Z");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");

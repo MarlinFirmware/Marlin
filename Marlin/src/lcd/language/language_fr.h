@@ -425,7 +425,7 @@ namespace Language_fr {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Déployer TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Déployer Sonde Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Ranger Sonde Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Origine %s%s%s Premier");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Origine %s Premier");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Position sonde Z");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Décalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Décalage Y");

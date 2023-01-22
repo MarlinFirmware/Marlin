@@ -399,7 +399,7 @@ namespace Language_es {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Subir TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Subir Sonda Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Bajar Sonda Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Origen %s%s%s Prim.");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Origen %s Prim.");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Desf. Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desf. Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desf. Sonda Y");

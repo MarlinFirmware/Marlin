@@ -540,7 +540,7 @@ namespace Language_de {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("TouchMI ausfahren");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Z-Sonde ausfahren");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Sonde einfahren");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Vorher %s%s%s homen");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Vorher %s homen");
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Sondeneinstellungen");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Sondenversatz");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sondenversatz X");

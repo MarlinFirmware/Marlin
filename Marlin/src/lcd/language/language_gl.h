@@ -414,7 +414,7 @@ namespace Language_gl {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Estender TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estender Sonda Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Recoller Sonda Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Orixe %s%s%s Primeiro");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Orixe %s Primeiro");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Desfases Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desfase Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desfase Sonda Y");

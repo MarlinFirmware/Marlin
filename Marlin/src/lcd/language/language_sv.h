@@ -453,7 +453,7 @@ namespace Language_sv {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Fällut TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Fällut Z-Sond");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Stuva undan Z-Sond");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Hem %s%s%s Först");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Hem %s Först");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Sond Offsets");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sond X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sond Y Offset");
