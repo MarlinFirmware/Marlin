@@ -377,7 +377,7 @@ void menu_backlash();
 
       #if ENABLED(MPC_INCLUDE_FAN)
         #define MPC_EDIT_ITEMS(N) \
-          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].constants; \
+          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
             thermalManager.temp_hotend[MenuItemBase::itemIndex].applyFanAdjustment(editable.decimal); \
