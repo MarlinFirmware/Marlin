@@ -372,6 +372,7 @@
 #define BOARD_ZONESTAR_ZM3E4V2        4067  // Zonestar ZM3E4 V2 (STM32F103VC)
 #define BOARD_ERYONE_ERY32_MINI       4068  // Eryone Ery32 mini (STM32F103VE)
 #define BOARD_PANDA_PI_V29            4069  // Panda Pi V2.9 - Standalone (STM32F103RC)
+#define BOARD_SOVOL_V131              4070  // Sovol V1.3.1 (GD32F103RET6)
 
 //
 // ARM Cortex-M4F
