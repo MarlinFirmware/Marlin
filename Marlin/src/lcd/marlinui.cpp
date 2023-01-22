@@ -1743,26 +1743,27 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
-    typedef void (*PrintProgress_t)();
-    void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
-      #if ANY(SHOW_PROGRESS_PERCENT,SHOW_ELAPSED_TIME,SHOW_REMAINING_TIME,SHOW_INTERACTION_TIME)
-        const PrintProgress_t progFunc[] = {
-          OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
-          OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
-          OPTITEM(SHOW_REMAINING_TIME, drawRemain)
-          OPTITEM(SHOW_INTERACTION_TIME, drawInter)
-        };
-        static bool prev_blink;
-        static uint8_t i;
-        if (prev_blink != get_blink()) {
-          prev_blink = get_blink();
-          if (++i >= COUNT(progFunc)) i = 0;
-          (*progFunc[i])();
-        }
-      #endif
+  #if LCD_WITH_BLINK && ANY(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
+
+    // Renew and redraw all enabled progress strings
+    void MarlinUI::rotate_progress() {
+      typedef void (*PrintProgress_t)();
+      const PrintProgress_t progFunc[] = {
+        OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
+        OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
+        OPTITEM(SHOW_REMAINING_TIME, drawRemain)
+        OPTITEM(SHOW_INTERACTION_TIME, drawInter)
+      };
+      static bool prev_blink;
+      static uint8_t i;
+      if (prev_blink != get_blink()) {
+        prev_blink = get_blink();
+        if (++i >= COUNT(progFunc)) i = 0;
+        (*progFunc[i])();
+      }
     }
-  #endif
+
+  #endif // LCD_WITH_BLINK && (SHOW_PROGRESS_PERCENT || SHOW_ELAPSED_TIME || SHOW_REMAINING_TIME || SHOW_INTERACTION_TIME)
 
 #endif // HAS_PRINT_PROGRESS
 

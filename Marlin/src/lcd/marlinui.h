@@ -334,7 +334,7 @@ public:
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
-    #if LCD_WITH_BLINK
+    #if LCD_WITH_BLINK && ANY(SHOW_PROGRESS_PERCENT, SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME, SHOW_INTERACTION_TIME)
       #if ENABLED(SHOW_PROGRESS_PERCENT)
         static void drawPercent();
       #endif
@@ -348,6 +348,8 @@ public:
         static void drawInter();
       #endif
       static void rotate_progress();
+    #else
+      static void rotate_progress() {}
     #endif
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
