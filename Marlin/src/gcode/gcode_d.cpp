@@ -156,11 +156,8 @@ void GcodeSuite::D(const int16_t dcode) {
     } break;
 
     case 5: { // D5 Read / Write onboard Flash
-      #ifdef MARLIN_EEPROM_SIZE
-        #define ONBOARD_FLASH_SIZE MARLIN_EEPROM_SIZE
-      #else
-        #define ONBOARD_FLASH_SIZE 1024 // 0x400
-      #endif
+              // This will overwrite program and data, so don't use it.
+      #define ONBOARD_FLASH_SIZE 1024 // 0x400
       uint8_t *pointer = parser.hex_adr_val('A');
       uint16_t len = parser.ushortval('C', 1);
       uintptr_t addr = (uintptr_t)pointer;
@@ -172,8 +169,8 @@ void GcodeSuite::D(const int16_t dcode) {
       }
       else {
         //while (len--) {
-        //// TODO: Read bytes from EEPROM
-        //  print_hex_byte(eeprom_read_byte(adr++));
+        //// TODO: Read bytes from FLASH
+        //  print_hex_byte(flash_read_byte(adr++));
         //}
         SERIAL_EOL();
       }
