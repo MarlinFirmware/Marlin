@@ -1549,29 +1549,8 @@
   #endif
 #endif
 
-// Set TFT_COLOR_UI_PORTRAIT flag, if needed
-#if defined(TFT_ROTATION) && (HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT)
-  #define _CMP_TFT_ROTATE_90   90
-  #define _CMP_TFT_ROTATE_270 270
-  #define _CMP_TFT_ROTATE_90_MIRROR_X   90
-  #define _CMP_TFT_ROTATE_90_MIRROR_Y   90
-  #define _CMP_TFT_ROTATE_270_MIRROR_X 270
-  #define _CMP_TFT_ROTATE_270_MIRROR_Y 270
-  #define _ISROT(N) || (_CAT(_CMP_, TFT_ROTATION) == N)
-  #define ISROT(V...) (0 MAP(_ISROT, V))
-
-  #if ISROT(90, 270)
-    #define TFT_COLOR_UI_PORTRAIT 1
-  #endif
-
-  #undef _CMP_TFT_ROTATE_90
-  #undef _CMP_TFT_ROTATE_270
-  #undef _CMP_TFT_ROTATE_90_MIRROR_X
-  #undef _CMP_TFT_ROTATE_90_MIRROR_Y
-  #undef _CMP_TFT_ROTATE_270_MIRROR_X
-  #undef _CMP_TFT_ROTATE_270_MIRROR_Y
-  #undef _ISROT
-  #undef ISROT
+#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
+  #include "../lcd/tft_io/tft_orientation.h"
 #endif
 
 #if ENABLED(TFT_RES_320x240)
