@@ -3020,7 +3020,7 @@ void Stepper::init() {
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
    */
-  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const float zeta) {
+  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
     // from the damping ratio, get a factor that can be applied to advance_dividend for fixed point maths
     // for ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * M_PI / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd order polynomial
@@ -3029,9 +3029,9 @@ void Stepper::init() {
     else if (zeta >= 1.0f) factor2 = 0.0f;
     else {
       factor2 = 64.44056192 + -99.02008832 * zeta;
-      const float zeta2 = zeta * zeta;
+      const_float_t zeta2 = zeta * zeta;
       factor2 += -7.58095488 * zeta2;
-      const float zeta3 = zeta2 * zeta;
+      const_float_t zeta3 = zeta2 * zeta;
       factor2 += 43.073216 * zeta3;
       factor2 = floor(factor2);
     }
@@ -3049,7 +3049,7 @@ void Stepper::init() {
     return -1;
   }
 
-  void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
+  void Stepper::set_shaping_frequency(const AxisEnum axis, const_float_t freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
