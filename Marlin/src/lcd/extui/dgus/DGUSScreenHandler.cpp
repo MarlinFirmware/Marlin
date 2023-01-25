@@ -295,11 +295,11 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
     // Don't let the user in the dark why there is no reaction.
     if (!ExtUI::isMediaInserted()) {
-      setstatusmessagePGM(GET_TEXT(MSG_NO_MEDIA));
+      setstatusmessage(GET_TEXT_F(MSG_NO_MEDIA));
       return;
     }
     if (card.flag.abort_sd_printing) {
-      setstatusmessagePGM(GET_TEXT(MSG_MEDIA_ABORTING));
+      setstatusmessage(GET_TEXT_F(MSG_MEDIA_ABORTING));
       return;
     }
   }
