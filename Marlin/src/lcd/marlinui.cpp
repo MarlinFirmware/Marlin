@@ -1743,9 +1743,11 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
-    typedef void (*PrintProgress_t)();
-    void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
+  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+
+    // Renew and redraw all enabled progress strings
+    void MarlinUI::rotate_progress() {
+      typedef void (*PrintProgress_t)();
       const PrintProgress_t progFunc[] = {
         OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
         OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
@@ -1760,7 +1762,8 @@ void MarlinUI::init() {
         (*progFunc[i])();
       }
     }
-  #endif
+
+  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
 
 #endif // HAS_PRINT_PROGRESS
 
