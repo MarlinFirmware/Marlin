@@ -2827,26 +2827,26 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "X_DUAL_ENDSTOPS is not compatible with DELTA."
-  #elif !X2_USE_ENDSTOP
-    #error "X2_USE_ENDSTOP must be set with X_DUAL_ENDSTOPS."
+  #elif !X2_USE_ENDSTOP && !X2_STOP_PIN
+    #error "X2_USE_ENDSTOP OR X2_STOP_PIN must be set with X_DUAL_ENDSTOPS."
   #endif
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "Y_DUAL_ENDSTOPS is not compatible with DELTA."
-  #elif !Y2_USE_ENDSTOP
-    #error "Y2_USE_ENDSTOP must be set with Y_DUAL_ENDSTOPS."
+  #elif !Y2_USE_ENDSTOP && !Y2_STOP_PIN
+    #error "Y2_USE_ENDSTOP OR Y2_STOP_PIN must be set with Y_DUAL_ENDSTOPS."
   #endif
 #endif
 #if ENABLED(Z_MULTI_ENDSTOPS)
   #if ENABLED(DELTA)
     #error "Z_MULTI_ENDSTOPS is not compatible with DELTA."
-  #elif !Z2_USE_ENDSTOP
-    #error "Z2_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS."
-  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPERS >= 3
-    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
-  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPERS >= 4
-    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
+  #elif !Z2_USE_ENDSTOP && !Z2_STOP_PIN
+    #error "Z2_USE_ENDSTOP OR Z2_STOP_PIN must be set with Z_MULTI_ENDSTOPS."
+  #elif !Z3_USE_ENDSTOP && !Z3_STOP_PIN && NUM_Z_STEPPERS >= 3
+    #error "Z3_USE_ENDSTOP OR Z3_STOP_PIN must be set with Z_MULTI_ENDSTOPS and Z3_DRIVER_TYPE."
+  #elif !Z4_USE_ENDSTOP && !Z4_STOP_PIN && NUM_Z_STEPPERS >= 4
+    #error "Z4_USE_ENDSTOP OR Z4_STOP_PIN must be set with Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
   #endif
 #endif
 
