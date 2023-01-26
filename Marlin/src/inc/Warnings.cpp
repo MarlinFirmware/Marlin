@@ -783,3 +783,10 @@
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
   #warning "BABYSTEPPING is recommended with BD_SENSOR."
 #endif
+
+/**
+ * Input Shaping
+ */
+#if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#endif
