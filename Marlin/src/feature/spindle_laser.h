@@ -281,7 +281,7 @@ public:
         set_enabled(state);
         if (state) {
           if (!menuPower) menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
-          power = upower_to_ocr(menuPower);
+          power = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
           apply_power(power);
         } else
           apply_power(0);
