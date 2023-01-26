@@ -31,11 +31,11 @@
 constexpr xy_pos_t tramming_points[] = TRAMMING_POINT_XY;
 
 #define G35_PROBE_COUNT COUNT(tramming_points)
-static_assert(WITHIN(G35_PROBE_COUNT, 3, 6), "TRAMMING_POINT_XY requires between 3 and 6 XY positions.");
+static_assert(WITHIN(G35_PROBE_COUNT, 3, 9), "TRAMMING_POINT_XY requires between 3 and 9 XY positions.");
 
 #define VALIDATE_TRAMMING_POINT(N) static_assert(N >= G35_PROBE_COUNT || Probe::build_time::can_reach(tramming_points[N]), \
   "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
-VALIDATE_TRAMMING_POINT(0); VALIDATE_TRAMMING_POINT(1); VALIDATE_TRAMMING_POINT(2); VALIDATE_TRAMMING_POINT(3); VALIDATE_TRAMMING_POINT(4); VALIDATE_TRAMMING_POINT(5);
+VALIDATE_TRAMMING_POINT(0); VALIDATE_TRAMMING_POINT(1); VALIDATE_TRAMMING_POINT(2); VALIDATE_TRAMMING_POINT(3); VALIDATE_TRAMMING_POINT(4); VALIDATE_TRAMMING_POINT(5); VALIDATE_TRAMMING_POINT(6); VALIDATE_TRAMMING_POINT(7); VALIDATE_TRAMMING_POINT(8);
 
 extern const char point_name_1[], point_name_2[], point_name_3[]
   #ifdef TRAMMING_POINT_NAME_4
@@ -44,6 +44,15 @@ extern const char point_name_1[], point_name_2[], point_name_3[]
       , point_name_5[]
       #ifdef TRAMMING_POINT_NAME_6
         , point_name_6[]
+        #ifdef TRAMMING_POINT_NAME_7
+          , point_name_7[]
+          #ifdef TRAMMING_POINT_NAME_8
+            , point_name_8[]
+            #ifdef TRAMMING_POINT_NAME_9
+              , point_name_9[]
+            #endif
+          #endif
+        #endif
       #endif
     #endif
   #endif
@@ -62,6 +71,18 @@ extern const char point_name_1[], point_name_2[], point_name_3[]
       #ifdef TRAMMING_POINT_NAME_6
         #undef _NR_TRAM_NAMES
         #define _NR_TRAM_NAMES 6
+        #ifdef TRAMMING_POINT_NAME_7
+          #undef _NR_TRAM_NAMES
+          #define _NR_TRAM_NAMES 7
+          #ifdef TRAMMING_POINT_NAME_8
+            #undef _NR_TRAM_NAMES
+            #define _NR_TRAM_NAMES 8
+            #ifdef TRAMMING_POINT_NAME_9
+              #undef _NR_TRAM_NAMES
+              #define _NR_TRAM_NAMES 9
+            #endif
+          #endif
+        #endif
       #endif
     #endif
   #endif
