@@ -1549,29 +1549,8 @@
   #endif
 #endif
 
-// Set TFT_COLOR_UI_PORTRAIT flag, if needed
-#if defined(TFT_ROTATION) && (HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT)
-  #define _CMP_TFT_ROTATE_90   90
-  #define _CMP_TFT_ROTATE_270 270
-  #define _CMP_TFT_ROTATE_90_MIRROR_X   90
-  #define _CMP_TFT_ROTATE_90_MIRROR_Y   90
-  #define _CMP_TFT_ROTATE_270_MIRROR_X 270
-  #define _CMP_TFT_ROTATE_270_MIRROR_Y 270
-  #define _ISROT(N) || (_CAT(_CMP_, TFT_ROTATION) == N)
-  #define ISROT(V...) (0 MAP(_ISROT, V))
-
-  #if ISROT(90, 270)
-    #define TFT_COLOR_UI_PORTRAIT 1
-  #endif
-
-  #undef _CMP_TFT_ROTATE_90
-  #undef _CMP_TFT_ROTATE_270
-  #undef _CMP_TFT_ROTATE_90_MIRROR_X
-  #undef _CMP_TFT_ROTATE_90_MIRROR_Y
-  #undef _CMP_TFT_ROTATE_270_MIRROR_X
-  #undef _CMP_TFT_ROTATE_270_MIRROR_Y
-  #undef _ISROT
-  #undef ISROT
+#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
+  #include "../lcd/tft_io/tft_orientation.h"
 #endif
 
 #if ENABLED(TFT_RES_320x240)
@@ -1641,9 +1620,11 @@
   #define HAS_UI_1024x600 1
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)   // Fewer lines with touch buttons onscreen
-#elif HAS_UI_240x320
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 6)   // Fewer lines with touch buttons onscreen
+  #if ENABLED(TFT_COLOR_UI_PORTRAIT)
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
+  #else
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 8, 9) // Fewer lines with touch buttons onscreen
+  #endif
 #elif HAS_UI_1024x600
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
 #endif
