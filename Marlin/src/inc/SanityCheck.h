@@ -1782,7 +1782,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
     #endif
 
-    #if HAS_INVERTED_PROBE
+    #if ENABLED(INVERTED_PROBE_STATE)
       #if !Z_MIN_PROBE_ENDSTOP_INVERTING
         #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to true."
       #endif
@@ -1790,7 +1790,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false."
     #endif
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      #if HAS_INVERTED_PROBE
+      #if ENABLED(INVERTED_PROBE_STATE)
         #if !Z_MIN_ENDSTOP_INVERTING
           #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to true."
         #endif
@@ -1822,7 +1822,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #elif !HAS_RESUME_CONTINUE
       #error "TOUCH_MI_PROBE currently requires an LCD controller or EMERGENCY_PARSER."
     #endif
-    #if HAS_INVERTED_PROBE
+    #if ENABLED(INVERTED_PROBE_STATE)
       #if !Z_MIN_PROBE_ENDSTOP_INVERTING
         #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING set to true."
       #endif
@@ -1830,7 +1830,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false."
     #endif
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      #if HAS_INVERTED_PROBE
+      #if ENABLED(INVERTED_PROBE_STATE)
         #if !Z_MIN_ENDSTOP_INVERTING
           #error "TOUCH_MI_PROBE requires Z_MIN_ENDSTOP_INVERTING set to true."
         #endif
