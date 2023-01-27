@@ -1248,7 +1248,11 @@ void EachMomentUpdate() {
       if (checkkey == ESDiagProcess) ESDiag.Update();
     #endif
     #if SHOW_TUNING_GRAPH
-      if (checkkey == PidProcess) plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
+      #if HAS_HEATED_BED
+        if (checkkey == PidProcess) plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
+      #else
+        if (checkkey == PidProcess) plot.Update(thermalManager.wholeDegHotend(0));
+      #endif
     #endif
   }
 
@@ -1492,13 +1496,15 @@ void DWIN_LevelingDone() {
           DWINUI::Draw_String(HMI_data.PopupTxt_Color, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("MPC target:    Celsius"));
           DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for Nozzle is running."));
           break;
-        case PIDTEMPBED_START:
-          _maxtemp = BED_MAXTEMP;
-          _target = HMI_data.BedPidT;
-          DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
-          DWINUI::Draw_String(HMI_data.PopupTxt_Color, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
-          DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for BED is running."));
-          break;
+        #if HAS_HEATED_BED
+          case PIDTEMPBED_START:
+            _maxtemp = BED_MAXTEMP;
+            _target = HMI_data.BedPidT;
+            DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 100, GET_TEXT_F(MSG_PID_AUTOTUNE));
+            DWINUI::Draw_String(HMI_data.PopupTxt_Color, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:    Celsius"));
+            DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for BED is running."));
+            break;
+        #endif
         default: return;
       }
 
@@ -1513,11 +1519,13 @@ void DWIN_LevelingDone() {
           _target = HMI_data.HotendPidT;
           DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for Nozzle is running."));
           break;
-        case PIDTEMPBED_START:
-          _maxtemp = BED_MAXTEMP;
-          _target = HMI_data.BedPidT;
-          DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for BED is running."));
-          break;
+        #if HAS_HEATED_BED
+          case PIDTEMPBED_START:
+            _maxtemp = BED_MAXTEMP;
+            _target = HMI_data.BedPidT;
+            DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 120, F("for BED is running."));
+            break;
+        #endif
         default: return;
       }
 
@@ -3023,11 +3031,11 @@ void Draw_Prepare_Menu() {
       MENU_ITEM(ICON_Level, MSG_AUTO_MESH, onDrawMenuItem, AutoLev);
     #endif
     #if HAS_ZOFFSET_ITEM
-      #if HAS_BED_PROBE
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         MENU_ITEM(ICON_SetZOffset, MSG_PROBE_WIZARD, onDrawSubMenu, Draw_ZOffsetWiz_Menu);
-      #elif ENABLED(BABYSTEPPING)
+      #elif JUST_BABYSTEP
         EDIT_ITEM(ICON_Zoffset, MSG_HOME_OFFSET_Z, onDrawPFloat2Menu, SetZOffset, &BABY_Z_VAR);
-      #elif HAS_HOME_OFFSET
+      #else
         MENU_ITEM(ICON_SetHome, MSG_SET_HOME_OFFSETS, onDrawHomeOffset, SetHome);
       #endif
     #endif
@@ -3324,7 +3332,7 @@ void Draw_Tune_Menu() {
     #if HAS_FAN
       FanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawFanSpeed, SetFanSpeed, &thermalManager.fan_speed[0]);
     #endif
-    #if ALL(HAS_ZOFFSET_ITEM, HAS_BED_PROBE, BABYSTEPPING)
+    #if HAS_ZOFFSET_ITEM && EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       EDIT_ITEM(ICON_Zoffset, MSG_ZPROBE_ZOFFSET, onDrawZOffset, SetZOffset, &BABY_Z_VAR);
     #elif ALL(HAS_ZOFFSET_ITEM, MESH_BED_LEVELING, BABYSTEPPING)
       EDIT_ITEM(ICON_Zoffset, MSG_HOME_OFFSET_Z, onDrawPFloat2Menu, SetZOffset, &BABY_Z_VAR);
