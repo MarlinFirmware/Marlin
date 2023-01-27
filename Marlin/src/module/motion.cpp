@@ -1487,8 +1487,8 @@ void prepare_line_to_destination() {
   }
 
   bool homing_needed_error(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
-    if ((axis_bits = axes_should_home(axis_bits))) {
-      char all_axes[] = STR_AXES_MAIN, need[NUM_AXES];
+    if ((axis_bits &= axes_should_home(axis_bits))) {
+      char all_axes[] = STR_AXES_MAIN, need[NUM_AXES + 1];
       uint8_t n = 0;
       LOOP_NUM_AXES(i) if (TEST(axis_bits, i)) need[n++] = all_axes[i];
       need[n] = '\0';
