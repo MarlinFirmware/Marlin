@@ -44,7 +44,7 @@ PGMSTR(point_name_3, TRAMMING_POINT_NAME_3);
           PGMSTR(point_name_8, TRAMMING_POINT_NAME_8);
           #ifdef TRAMMING_POINT_NAME_9
             PGMSTR(point_name_9, TRAMMING_POINT_NAME_9);
-            #endif
+          #endif
         #endif
       #endif
     #endif
