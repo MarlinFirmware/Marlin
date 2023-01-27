@@ -530,7 +530,7 @@ void MarlinUI::draw_status_screen() {
         HOTEND_LOOP() if (thermalManager.TERN(STATUS_HEAT_POWER, getHeaterPower(heater_id_t(e)), isHeatingHotend(e))) SBI(new_bits, DRAWBIT_HOTEND + e);
       #endif
       #if ANIM_BED
-        if (thermalManager.TERN(STATUS_HEAT_POWER, degTargetBed(), isHeatingBed())) SBI(new_bits, DRAWBIT_BED);
+        if (TERN(STATUS_HEAT_POWER, (thermalManager.degTargetBed() || thermalManager.getHeaterPower(H_BED)), thermalManager.isHeatingBed())) SBI(new_bits, DRAWBIT_BED);
       #endif
       #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber()) SBI(new_bits, DRAWBIT_CHAMBER);
