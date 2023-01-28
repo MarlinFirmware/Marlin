@@ -927,6 +927,8 @@ volatile bool Temperature::raw_temps_ready = false;
         #endif
 
         do_z_clearance(MPC_TUNING_END_Z);
+
+        TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = true);
       }
     } on_exit;
 
@@ -934,6 +936,8 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
     MPCHeaterInfo &hotend = temp_hotend[active_extruder];
     MPC_t &mpc = hotend.mpc;
+
+    TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);

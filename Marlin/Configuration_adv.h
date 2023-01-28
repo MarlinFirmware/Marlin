@@ -304,7 +304,7 @@
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
   //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
-  #if BOTH(ADAPTIVE_FAN_SLOWING, PIDTEMP)
+  #if ENABLED(ADAPTIVE_FAN_SLOWING) && EITHER(MPCTEMP, PIDTEMP)
     //#define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
   #endif
 
