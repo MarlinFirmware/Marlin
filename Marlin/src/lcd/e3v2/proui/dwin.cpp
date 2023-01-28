@@ -1251,7 +1251,7 @@ void EachMomentUpdate() {
       #if HAS_HEATED_BED
         if (checkkey == PidProcess) plot.Update((HMI_value.pidresult == PIDTEMP_START) ? thermalManager.wholeDegHotend(0) : thermalManager.wholeDegBed());
       #else
-        if (checkkey == PidProcess) plot.Update(thermalManager.wholeDegHotend(0));
+        if ((checkkey == PidProcess) && !(HMI_value.pidresult == PIDTEMP_START)) plot.Update(thermalManager.wholeDegHotend(0));
       #endif
     #endif
   }
