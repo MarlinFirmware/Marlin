@@ -866,7 +866,7 @@ class Temperature {
 
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
-        #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+        #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
           static bool adaptive_fan_slowing;
         #else
           static constexpr bool adaptive_fan_slowing = true;
