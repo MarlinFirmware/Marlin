@@ -5,7 +5,7 @@
 import re, shutil, configparser
 from pathlib import Path
 
-verbose = 2
+verbose = 0
 def blab(str,level=1):
     if verbose >= level: print(f"[config] {str}")
 
