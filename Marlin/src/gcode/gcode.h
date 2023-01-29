@@ -864,6 +864,10 @@ private:
   static void M211_report(const bool forReplay=true);
 
   #if HAS_MULTI_EXTRUDER
+    #if ENABLED(TOOLCHANGE_PARK)
+      static void M216();
+      static void M216_report(const bool forReplay=true);
+    #endif
     static void M217();
     static void M217_report(const bool forReplay=true);
   #endif

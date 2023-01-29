@@ -739,8 +739,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
       #endif
 
+      #if HAS_MULTI_EXTRUDER && ENABLED(TOOLCHANGE_PARK)
+        case 216: M216(); break;                                  // M216: Set toolchange park parameters
+      #endif
+
       #if HAS_MULTI_EXTRUDER
-        case 217: M217(); break;                                  // M217: Set filament swap parameters
+        case 217: M217(); break;                                  // M217: Set toolchange parameters
       #endif
 
       #if HAS_HOTEND_OFFSET

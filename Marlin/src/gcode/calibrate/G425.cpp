@@ -163,7 +163,15 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
-      tool_change(extruder);
+      #if ENABLED(CALIBRATION_TOOLCHANGE_FEATURE_DISABLED)
+        toolchange_settings_t tmp0 = {0};
+        REMEMBER(tmp, toolchange_settings);
+        toolchange_settings = tmp0;
+        tool_change(extruder);
+        RESTORE(tmp);
+      #else
+        tool_change(extruder);
+      #endif
     }
   }
 #endif

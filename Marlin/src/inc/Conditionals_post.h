@@ -254,12 +254,13 @@
 
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
-  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX) && DISABLED(CALIBRATION_ALLOW_CORE_AXES)
     #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
   #else
     #define CAN_CALIBRATE(A,B) true
   #endif
 #endif
+
 #define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
 
 /**
