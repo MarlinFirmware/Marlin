@@ -35,11 +35,14 @@
 /**
  * G61: Return to saved position
  *
- *   F<rate>  - Feedrate (optional) for the move back.
- *   S<slot>  - Slot # (0-based) to restore from (default 0).
- *   X Y Z E  - Axes to restore. At least one is required.
+ *   F<rate>   - Feedrate (optional) for the move back.
+ *   S<slot>   - Slot # (0-based) to restore from (default 0).
+ *   X<offset> - Restore X axis with offset (offset is default 0)
+ *   Y<offset> - Restore Y axis with offset (offset is default 0)
+ *   Z<offset> - Restore Z axis with offset (offset is default 0)
+ *   E<offset> - Restore E axis with offset (offset is default 0)
  *
- *   If XYZE are not given, default restore uses the smart blocking move.
+ *   If XYZE are not given, all axis are restored.
  */
 void GcodeSuite::G61() {
 
