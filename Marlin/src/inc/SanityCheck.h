@@ -996,6 +996,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #elif ENABLED(SDSORT_CACHE_NAMES)
       #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
     #endif
+  #elif DISABLED(SDSORT_CACHE_NAMES)
+    #if ENABLED(SDSORT_DYNAMIC_RAM)
+      #error "SDSORT_DYNAMIC_RAM requires SDSORT_CACHE_NAMES."
+    #endif
   #endif
 
   #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
