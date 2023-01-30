@@ -1638,7 +1638,7 @@
 
   // Unsigned integer only.
   template <typename numberType>
-  inline numberType _flip_bits(numberType v) {
+  inline constexpr numberType __flip_bits_generic(numberType v) noexcept {
     numberType result = 0;
     for (unsigned int n = 0; n < sizeof(numberType) * 8; n++) {
       result <<= 1;
@@ -1646,6 +1646,31 @@
       result |= bitval;
     }
     return result;
+  }
+  inline constexpr uint32_t _flip_bits(uint32_t v) noexcept {
+    if ( __builtin_is_constant_evaluated() ) {
+      return __flip_bits_generic(v);
+    }
+    else {
+      asm("RBIT %k0,%k1" : "=r" (v) : "r" (v));
+      return v;
+    }
+  }
+  inline constexpr uint8_t _flip_bits(uint8_t v) noexcept {
+    if ( __builtin_is_constant_evaluated() ) {
+      return __flip_bits_generic(v);
+    }
+    else {
+      return (uint8_t)( _flip_bits((uint32_t)v) >> 24u );
+    }
+  }
+  inline constexpr uint16_t _flip_bits(uint16_t v) noexcept {
+    if ( __builtin_is_constant_evaluated() ) {
+      return __flip_bits_generic(v);
+    }
+    else {
+      return (uint16_t)( _flip_bits((uint32_t)v) >> 16u );
+    }
   }
 
   template <typename numberType>
@@ -1938,6 +1963,13 @@
 
       uint32_t txwidth = 0;
 
+      // Since the MCU transfers binary arrays from MSB-to-LSB, we have to flip the bitorder if we want
+      // a LSBFIRST repeat-transfer to happen. This works very fine, unlike massive-data-through-DMA which
+      // would need flipping on a large scale.
+      if (_ssp_bitOrder == SPI_BITORDER_LSB) {
+        val = _flip_bits(val);
+      }
+
       if (sizeof(numberType) == 1) txwidth = 0;
       else if (sizeof(numberType) == 2) txwidth = 1;
       else if (sizeof(numberType) == 4) txwidth = 2;
@@ -1992,6 +2024,8 @@
   #endif // !HALSPI_DISABLE_DMA
 
   #ifndef HALSPI_DMA_THRESHOLD
+    // The amount of transfer units (either 8bit or 16bit numbers) that have to be overshot to trigger a DMA
+    // operation. Sometimes it is impractical to perform DMA due to MCU design limitations.
     #define HALSPI_DMA_THRESHOLD 32
   #endif // !HALSPI_DMA_THRESHOLD
 
@@ -2006,7 +2040,9 @@
     _spiAsyncBarrier();
 
     #ifndef HALSPI_DISABLE_DMA
-      if (cnt > HALSPI_DMA_THRESHOLD) {
+      // The LPC176x does only support DMA transfer using MSBFIRST bitorder.
+      // For LSBFIRST we must unfortunately fall back to the (slower) generic SPI.
+      if (_ssp_bitOrder == SPI_BITORDER_MSB && cnt > HALSPI_DMA_THRESHOLD) {
         _dmaStart();
         _dmaSendBlocking(buf, cnt);
         _dmaEnd();
@@ -2032,7 +2068,9 @@
     _spiAsyncBarrier();
 
     #ifndef HALSPI_DISABLE_DMA
-      if (cnt > HALSPI_DMA_THRESHOLD) {
+      // The LPC176x does only support DMA transfer using MSBFIRST bitorder.
+      // For LSBFIRST we must unfortunately fall back to the (slower) generic SPI.
+      if (_ssp_bitOrder == SPI_BITORDER_MSB && cnt > HALSPI_DMA_THRESHOLD) {
         _dmaStart();
         _dmaSendBlocking(buf, cnt);
         _dmaEnd();
@@ -2437,7 +2475,9 @@
       _spiAsyncBarrier();
 
       #ifndef HALSPI_DISABLE_DMA
-        if (cnt > HALSPI_DMA_THRESHOLD) {
+        // The LPC176x DMAC does only support MSBFIRST bit-order, thus we have to assert that.
+        // Otherwise must fall back to async SPI using interrupts.
+        if (_ssp_bitOrder == SPI_BITORDER_MSB && cnt > HALSPI_DMA_THRESHOLD) {
           _dmaSendAsync(buf, cnt, completeCallback, ud);
           return;
         }
@@ -2459,7 +2499,9 @@
       _spiAsyncBarrier();
 
       #ifndef HALSPI_DISABLE_DMA
-        if (cnt > HALSPI_DMA_THRESHOLD) {
+        // The LPC176x DMAC does only support MSBFIRST bit-order, thus we have to assert that.
+        // Otherwise must fall back to async SPI using interrupts.
+        if (_ssp_bitOrder == SPI_BITORDER_MSB && cnt > HALSPI_DMA_THRESHOLD) {
           _dmaSendAsync(buf, cnt, completeCallback, ud);
           return;
         }
