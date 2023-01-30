@@ -1,12 +1,10 @@
 /*****************************************************************************
 *
 *  PROJECT:     Eir SDK
-*  LICENSE:     See LICENSE in the top level directory
 *  FILE:        eirrepo/sdk/BitIteration.h
 *  PURPOSE:     Bit-based iteration utilities
 *
 *  Find the Eir SDK at: https://osdn.net/projects/eirrepo/
-*  Multi Theft Auto is available from http://www.multitheftauto.com/
 *
 *****************************************************************************/
 

@@ -72,6 +72,37 @@
   #define __AVR_TRM04__
 #endif
 
+/**
+ * HELPER FUNCTIONS
+ */
+namespace AVRHelpers {
+
+  template <typename T>
+  struct no_volatile {
+    typedef T type;
+  };
+
+  template <typename T>
+  struct no_volatile <volatile T> : public no_volatile <T> {};
+
+  template <typename T>
+  inline void dwrite(volatile T& v, const T& V) noexcept {
+    if constexpr ( sizeof(T) == sizeof(uint8_t) ) {
+      (volatile uint8_t&)v = (const uint8_t&)V;
+    }
+    else if constexpr ( sizeof(T) == sizeof(uint16_t) ) {
+      (volatile uint16_t&)v = (const uint16_t&)V;
+    }
+    else if constexpr ( sizeof(T) == sizeof(uint32_t) ) {
+      (volatile uint32_t&)v = (const uint32_t&)V;
+    }
+    else {
+      v = V;
+    }
+  }
+
+} // namespace AVRHelpers
+
 // As old as the ATmega series of CPU is, the worse the actual libraries making
 // use of the MCU likely are.
 
@@ -104,6 +135,13 @@ struct _bit_reg_t {
     PIN_reg_t _PIN;
     DDR_reg_t _DDR;
     PORT_reg_t _PORT;
+
+    inline void operator = ( const PORT_dev_t& r ) volatile {
+      using namespace AVRHelpers;
+      dwrite(this->_PIN, r._PIN);
+      dwrite(this->_DDR, r._DDR);
+      dwrite(this->_PORT, r._PORT);
+    }
   };
   static_assert(sizeof(PORT_dev_t) == 3, "invalid size of ATmega2560 GPIO_dev_t");
 
@@ -133,6 +171,13 @@ struct _bit_reg_t {
     PING_reg_t _PIN;
     DDRG_reg_t _DDR;
     PORTG_reg_t _PORT;
+
+    inline void operator = ( const PORTG_dev_t& r ) volatile {
+      using namespace AVRHelpers;
+      dwrite(this->_PIN, r._PIN);
+      dwrite(this->_DDR, r._DDR);
+      dwrite(this->_PORT, r._PORT);
+    }
   };
 
 #endif
@@ -161,6 +206,12 @@ struct _bit_reg_t {
     PINC_reg_t _PIN;
     DDRC_reg_t _DDR;
     PORTC_reg_t _PORT;
+
+    inline void operator = ( const PORTC_dev_t& r ) volatile {
+      this->_PIN = r._PIN;
+      this->_DDR = r._DDR;
+      this->_PORT = r._PORT;
+    }
   };
 
 #endif
@@ -955,6 +1006,21 @@ struct _bit_reg_t {
     #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
       uint16_t _OCRnC;
     #endif
+
+    inline void operator = ( const TIMER_dev_t& r ) volatile {
+      using namespace AVRHelpers;
+      dwrite(this->_TCCRnA, r._TCCRnA);
+      dwrite(this->_TCCRnB, r._TCCRnB);
+      dwrite(this->_TCCRnC, r._TCCRnC);
+      this->reserved1 = r.reserved1;
+      this->_TCNTn = r._TCNTn;
+      this->_ICRn = r._ICRn;
+      this->_OCRnA = r._OCRnA;
+      this->_OCRnB = r._OCRnB;
+      #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
+        this->_OCRnC = r._OCRnC;
+      #endif
+    }
   };
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
     static_assert(sizeof(TIMER_dev_t) == 14, "invalid size of ATmega2560 TIMER_dev_t");
@@ -986,6 +1052,15 @@ struct _bit_reg_t {
     uint8_t _TCNTn;
     uint8_t _OCRnA;
     uint8_t _OCRnB;
+
+    inline void operator = ( const TIMER_8bit_dev_t& r ) volatile {
+      using namespace AVRHelpers;
+      dwrite(this->_TCCRnA, r._TCCRnA);
+      dwrite(this->_TCCRnB, r._TCCRnB);
+      this->_TCNTn = r._TCNTn;
+      this->_OCRnA = r._OCRnA;
+      this->_OCRnB = r._OCRnB;
+    }
   };
   static_assert(sizeof(TIMER_8bit_dev_t) == 5, "invalid size of ATmega2560 TIMER_8bit_dev_t");
 
@@ -1084,6 +1159,16 @@ struct _bit_reg_t {
     uint8_t reserved1;
     UBRRn_reg_t _UBRRn;
     uint8_t _UDRn;
+
+    inline void operator = ( const USART_dev_t& r ) volatile {
+      using namespace AVRHelpers;
+      dwrite(this->_UCSRnA, r._UCSRnA);
+      dwrite(this->_UCSRnB, r._UCSRnB);
+      dwrite(this->_UCSRnC, r._UCSRnC);
+      dwrite(this->reserved1, r.reserved1);
+      dwrite(this->_UBRRn, r._UBRRn);
+      dwrite(this->_UDRn, r._UDRn);
+    }
   };
   static_assert(sizeof(USART_dev_t) == 7, "invalid size of ATmega2560 USART_dev_t");
 
@@ -1809,37 +1894,6 @@ struct _bit_reg_t {
   __AVR_DEFREG(uint8_t, _UPINT, 0xF8);
   _AVR_DEFREG(OTGTCON, 0xF9);
 #endif
-
-/**
- * HELPER FUNCTIONS
- */
-namespace AVRHelpers {
-
-  template <typename T>
-  struct no_volatile {
-    typedef T type;
-  };
-
-  template <typename T>
-  struct no_volatile <volatile T> : public no_volatile <T> {};
-
-  template <typename T>
-  inline void dwrite(volatile T& v, const T& V) noexcept {
-    if constexpr ( sizeof(T) == sizeof(uint8_t) ) {
-      (volatile uint8_t&)v = (const uint8_t&)V;
-    }
-    else if constexpr ( sizeof(T) == sizeof(uint16_t) ) {
-      (volatile uint16_t&)v = (const uint16_t&)V;
-    }
-    else if constexpr ( sizeof(T) == sizeof(uint32_t) ) {
-      (volatile uint32_t&)v = (const uint32_t&)V;
-    }
-    else {
-      v = V;
-    }
-  }
-
-} // namespace AVRHelpers
 
 inline void _ATmega_resetperipherals() {
   using namespace AVRHelpers;

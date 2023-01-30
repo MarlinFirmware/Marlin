@@ -1,12 +1,10 @@
 /*****************************************************************************
 *
 *  PROJECT:     Eir SDK
-*  LICENSE:     See LICENSE in the top level directory
 *  FILE:        eirrepo/sdk/Arith.h
 *  PURPOSE:     Arithmetic helpers
 *
 *  Find the Eir SDK at: https://osdn.net/projects/eirrepo/
-*  Multi Theft Auto is available from http://www.multitheftauto.com/
 *
 *****************************************************************************/
 

@@ -1,12 +1,10 @@
 /*****************************************************************************
 *
 *  PROJECT:     Eir SDK
-*  LICENSE:     See LICENSE in the top level directory
 *  FILE:        eirrepo/sdk/Endian.h
 *  PURPOSE:     Endianness utilities header
 *
 *  Find the Eir SDK at: https://osdn.net/projects/eirrepo/
-*  Multi Theft Auto is available from http://www.multitheftauto.com/
 *
 *****************************************************************************/
 
