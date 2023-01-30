@@ -89,7 +89,8 @@ typedef enum max31865_numwires {
 /* Interface class for the MAX31865 RTD Sensor reader */
 class MAX31865 {
 private:
-  TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
+  typedef TERN(LARGE_PINMAP, uint32_t, uint8_t) pin_t;
+  pin_t sclkPin, misoPin, mosiPin, cselPin;
 
   uint16_t spiDelay;
 
@@ -140,15 +141,17 @@ private:
   void runAutoFaultDetectionCycle();
 
 public:
-  #if ENABLED(LARGE_PINMAP)
-    MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
-    MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso,
-             uint32_t spi_clk, uint8_t pin_mapping);
-  #else
-    MAX31865(int8_t spi_cs);
-    MAX31865(int8_t spi_cs, int8_t spi_mosi, int8_t spi_miso,
-             int8_t spi_clk);
-  #endif
+    MAX31865(pin_t spi_cs
+#if ENABLED(LARGE_PINMAP)
+    , int _
+#endif
+    );
+    MAX31865(pin_t spi_cs, pin_t spi_mosi, pin_t spi_miso,
+             pin_t spi_clk
+#if ENABLED(LARGE_PINMAP)
+    , int _
+#endif
+    );
 
   void begin(max31865_numwires_t wires, const_float_t zero_res, const_float_t ref_res, const_float_t wire_res);
 

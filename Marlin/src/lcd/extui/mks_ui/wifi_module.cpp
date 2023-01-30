@@ -1775,7 +1775,7 @@ void stopEspTransfer() {
   esp_port_begin(1);
   wifi_delay(200);
 
-  W25QXX.init(SPI_QUARTER_SPEED);
+  //W25QXX.init(SPI_QUARTER_SPEED);
 
   TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
   TERN_(HAS_SERVOS, servo_init());

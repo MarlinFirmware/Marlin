@@ -117,6 +117,12 @@ void TFT_SPI::TransmitDMA(const uint16_t *Data, uint16_t Count) {
   DataTransferEnd();
 }
 
+void TFT_SPI::TransmitDMA(const uint8_t *Data, uint16_t Count) {
+  DataTransferBegin(eSPIMode::WRITE);
+  spiWrite(Data, Count);
+  DataTransferEnd();
+}
+
 void TFT_SPI::TransmitRepeat(const uint16_t Data, uint16_t Count) {
 
   DataTransferBegin(eSPIMode::WRITE);

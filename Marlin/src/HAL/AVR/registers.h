@@ -1823,8 +1823,21 @@ namespace AVRHelpers {
   template <typename T>
   struct no_volatile <volatile T> : public no_volatile <T> {};
 
-  template <typename memRegType>
-  inline typename no_volatile <memRegType>::type& dwrite( memRegType& V ) { return (typename no_volatile <memRegType>::type&)V; }
+  template <typename T>
+  inline void dwrite(volatile T& v, const T& V) noexcept {
+    if constexpr ( sizeof(T) == sizeof(uint8_t) ) {
+      (volatile uint8_t&)v = (const uint8_t&)V;
+    }
+    else if constexpr ( sizeof(T) == sizeof(uint16_t) ) {
+      (volatile uint16_t&)v = (const uint16_t&)V;
+    }
+    else if constexpr ( sizeof(T) == sizeof(uint32_t) ) {
+      (volatile uint32_t&)v = (const uint32_t&)V;
+    }
+    else {
+      v = V;
+    }
+  }
 
 } // namespace AVRHelpers
 
@@ -1844,7 +1857,7 @@ inline void _ATmega_resetperipherals() {
     __SREG._H = false;
     __SREG._T = false;
     __SREG._I = false;
-    dwrite(_SREG) = __SREG;
+    dwrite(_SREG, __SREG);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
@@ -1856,7 +1869,7 @@ inline void _ATmega_resetperipherals() {
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
     _EEAR._EEAR = 0;
-    dwrite(_EEDR) = 0;
+    dwrite(_EEDR, (uint8_t)0u);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1868,7 +1881,7 @@ inline void _ATmega_resetperipherals() {
     __EECR._EEPM0 = 0;
     __EECR._EEPM1 = 0;
     __EECR.reserved1 = 0;
-    dwrite(_EECR) = __EECR;
+    dwrite(_EECR, __EECR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1883,13 +1896,13 @@ inline void _ATmega_resetperipherals() {
     __XMCRA._SRW1 = 0;
     __XMCRA._SRL = 0;
     __XMCRA._SRE = 0;
-    dwrite(_XMCRA) = __XMCRA;
+    dwrite(_XMCRA, __XMCRA);
 
     XMCRB_reg_t __XMCRB;
     __XMCRB._XMM = 0;
     __XMCRB.reserved1 = 0;
     __XMCRB._XMBK = false;
-    dwrite(_XMCRB) = __XMCRB;
+    dwrite(_XMCRB, __XMCRB);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1897,7 +1910,7 @@ inline void _ATmega_resetperipherals() {
     __SMCR._SE = false;
     __SMCR._SM = 0;
     __SMCR.reserved1 = 0;
-    dwrite(_SMCR) = __SMCR;
+    dwrite(_SMCR, __SMCR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1930,7 +1943,7 @@ inline void _ATmega_resetperipherals() {
       __PRR0._PRTIM2 = false;
       __PRR0._PRTWI = false;
     #endif
-    dwrite(_PRR0) = __PRR0;
+    dwrite(_PRR0, __PRR0);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
@@ -1950,7 +1963,7 @@ inline void _ATmega_resetperipherals() {
       __PRR1._PRUSART1 = false;
       __PRR1.reserved1 = 0;
     #endif
-    dwrite(_PRR1) = __PRR1;
+    dwrite(_PRR1, __PRR1);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1963,7 +1976,7 @@ inline void _ATmega_resetperipherals() {
     __WDTCSR._WDP3 = 0;
     __WDTCSR._WDIE = false;
     __WDTCSR._WDIF = false;
-    dwrite(_WDTCSR) = __WDTCSR;
+    dwrite(_WDTCSR, __WDTCSR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -1978,16 +1991,16 @@ inline void _ATmega_resetperipherals() {
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
-    dwrite(_PORTA) = __PORT;
-    dwrite(_PORTC) = __PORT;
+    dwrite(_PORTA, __PORT);
+    dwrite(_PORTC, __PORT);
   #endif
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
-    dwrite(_PORTB) = __PORT;
-    dwrite(_PORTD) = __PORT;
+    dwrite(_PORTB, __PORT);
+    dwrite(_PORTD, __PORT);
   #endif
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
-    dwrite(_PORTE) = __PORT;
-    dwrite(_PORTF) = __PORT;
+    dwrite(_PORTE, __PORT);
+    dwrite(_PORTF, __PORT);
   #endif
 
   #ifdef __AVR_TRM01__
@@ -1998,7 +2011,7 @@ inline void _ATmega_resetperipherals() {
     __PORTG._DDR.reserved1 = 0;
     __PORTG._PORT.val = 0;
     __PORTG._PORT.reserved1 = 0;
-    dwrite(_PORTG) = __PORTG;
+    dwrite(_PORTG, __PORTG);
   #endif
 
   #ifdef __AVR_TRM03__
@@ -2009,14 +2022,14 @@ inline void _ATmega_resetperipherals() {
     __PORTC._DDR.reserved1 = 0;
     __PORTC._PORT.val = 0;
     __PORTC._PORT.reserved1 = 0;
-    dwrite(_PORTC) = __PORTC;
+    dwrite(_PORTC, __PORTC);
   #endif
 
   #ifdef __AVR_TRM01__
-    dwrite(_PORTH) = __PORT;
-    dwrite(_PORTJ) = __PORT;
-    dwrite(_PORTK) = __PORT;
-    dwrite(_PORTL) = __PORT;
+    dwrite(_PORTH, __PORT);
+    dwrite(_PORTJ, __PORT);
+    dwrite(_PORTK, __PORT);
+    dwrite(_PORTL, __PORT);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2036,7 +2049,7 @@ inline void _ATmega_resetperipherals() {
       __EICRA._ISC1 = 0;
       __EICRA.reserved1 = 0;
     #endif
-    dwrite(_EICRA) = __EICRA;
+    dwrite(_EICRA, __EICRA);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM04__)
@@ -2045,7 +2058,7 @@ inline void _ATmega_resetperipherals() {
     __EICRB._ISC5 = 0;
     __EICRB._ISC6 = 0;
     __EICRB._ISC7 = 0;
-    dwrite(_EICRB) = __EICRB;
+    dwrite(_EICRB, __EICRB);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2069,7 +2082,7 @@ inline void _ATmega_resetperipherals() {
     __EIMSK._INT1 = false;
     __EIMSK.reserved1 = 0;
   #endif
-    dwrite(_EIMSK) = __EIMSK;
+    dwrite(_EIMSK, __EIMSK);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2093,7 +2106,7 @@ inline void _ATmega_resetperipherals() {
     __EIFR._INTF1 = false;
     __EIFR.reserved1 = 0;
   #endif
-    dwrite(_EIFR) = __EIFR;
+    dwrite(_EIFR, __EIFR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2113,7 +2126,7 @@ inline void _ATmega_resetperipherals() {
     __PCICR._PCIE0 = false;
     __PCICR.reserved1 = 0;
   #endif
-    dwrite(_PCICR) = __PCICR;
+    dwrite(_PCICR, __PCICR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2133,7 +2146,7 @@ inline void _ATmega_resetperipherals() {
       __PCIFR._PCIF0 = false;
       __PCIFR.reserved1 = 0;
     #endif
-    dwrite(_PCIFR) = __PCIFR;
+    dwrite(_PCIFR, __PCIFR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2165,7 +2178,7 @@ inline void _ATmega_resetperipherals() {
     __TIMER_8bit._TCNTn = 0;
     __TIMER_8bit._OCRnA = 0;
     __TIMER_8bit._OCRnB = 0;
-    dwrite(TIMER0) = __TIMER_8bit;
+    dwrite(TIMER0, __TIMER_8bit);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2174,14 +2187,14 @@ inline void _ATmega_resetperipherals() {
     __TIMSK0._OCIE0A = false;
     __TIMSK0._OCIE0B = false;
     __TIMSK0.reserved1 = 0;
-    dwrite(_TIMSK0) = __TIMSK0;
+    dwrite(_TIMSK0, __TIMSK0);
 
     TIFR0_reg_t __TIFR0;
     __TIFR0._TOV0 = false;
     __TIFR0._OCF0A = false;
     __TIFR0._OCF0B = false;
     __TIFR0.reserved1 = 0;
-    dwrite(_TIFR0) = __TIFR0;
+    dwrite(_TIFR0, __TIFR0);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2211,14 +2224,14 @@ inline void _ATmega_resetperipherals() {
       TIMER._OCRnC = 0;
     #endif
     TIMER._ICRn = 0;
-    dwrite(TIMER1) = TIMER;
+    dwrite(TIMER1, TIMER);
   #endif
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
-    dwrite(TIMER3) = TIMER;
+    dwrite(TIMER3, TIMER);
   #endif
   #ifdef __AVR_TRM01__
-    dwrite(TIMER4) = TIMER;
-    dwrite(TIMER5) = TIMER;
+    dwrite(TIMER4, TIMER);
+    dwrite(TIMER5, TIMER);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2232,7 +2245,7 @@ inline void _ATmega_resetperipherals() {
     __TIMSK1.reserved1 = 0;
     __TIMSK1._ICIE1 = false;
     __TIMSK1.reserved2 = 0;
-    dwrite(_TIMSK1) = __TIMSK1;
+    dwrite(_TIMSK1, __TIMSK1);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
@@ -2246,7 +2259,7 @@ inline void _ATmega_resetperipherals() {
     __TIMSK3.reserved1 = 0;
     __TIMSK3._ICIE3 = false;
     __TIMSK3.reserved2 = 0;
-    dwrite(_TIMSK3) = __TIMSK3;
+    dwrite(_TIMSK3, __TIMSK3);
   #endif
 
   #ifdef __AVR_TRM01__
@@ -2258,7 +2271,7 @@ inline void _ATmega_resetperipherals() {
     __TIMSK4.reserved1 = false;
     __TIMSK4._ICIE4 = false;
     __TIMSK4.reserved2 = false;
-    dwrite(_TIMSK4) = __TIMSK4;
+    dwrite(_TIMSK4, __TIMSK4);
 
     TIMSK5_reg_t __TIMSK5;
     __TIMSK5._TOIE5 = false;
@@ -2268,7 +2281,7 @@ inline void _ATmega_resetperipherals() {
     __TIMSK5.reserved1 = 0;
     __TIMSK5._ICIE5 = false;
     __TIMSK5.reserved2 = 0;
-    dwrite(_TIMSK5) = __TIMSK5;
+    dwrite(_TIMSK5, __TIMSK5);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2282,7 +2295,7 @@ inline void _ATmega_resetperipherals() {
     __TIFR1.reserved1 = 0;
     __TIFR1._ICF1 = false;
     __TIFR1.reserved2 = 0;
-    dwrite(_TIFR1) = __TIFR1;
+    dwrite(_TIFR1, __TIFR1);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
@@ -2296,7 +2309,7 @@ inline void _ATmega_resetperipherals() {
     __TIFR3.reserved1 = 0;
     __TIFR3._ICF3 = false;
     __TIFR3.reserved2 = 0;
-    dwrite(_TIFR3) = __TIFR3;
+    dwrite(_TIFR3, __TIFR3);
   #endif
 
   #ifdef __AVR_TRM01__
@@ -2308,7 +2321,7 @@ inline void _ATmega_resetperipherals() {
     __TIFR4.reserved1 = 0;
     __TIFR4._ICF4 = false;
     __TIFR4.reserved2 = 0;
-    dwrite(_TIFR4) = __TIFR4;
+    dwrite(_TIFR4, __TIFR4);
 
     TIFR5_reg_t __TIFR5;
     __TIFR5._TOV5 = false;
@@ -2318,11 +2331,11 @@ inline void _ATmega_resetperipherals() {
     __TIFR5.reserved1 = 0;
     __TIFR5._ICF5 = false;
     __TIFR5.reserved2 = 0;
-    dwrite(_TIFR5) = __TIFR5;
+    dwrite(_TIFR5, __TIFR5);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
-    dwrite(_TIMER2) = __TIMER_8bit;
+    dwrite(_TIMER2, __TIMER_8bit);
   #endif
 
   #if defined(__AV_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2335,7 +2348,7 @@ inline void _ATmega_resetperipherals() {
     __ASSR._AS2 = false;
     __ASSR._EXCLK = false;
     __ASSR.reserved1 = 0;
-    dwrite(_ASSR) = __ASSR;
+    dwrite(_ASSR, __ASSR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2344,14 +2357,14 @@ inline void _ATmega_resetperipherals() {
     __TIMSK2._OCIE2A = false;
     __TIMSK2._OCIE2B = false;
     __TIMSK2.reserved1 = 0;
-    dwrite(_TIMSK2) = __TIMSK2;
+    dwrite(_TIMSK2, __TIMSK2);
 
     TIFR2_reg_t __TIFR2;
     __TIFR2._TOV2 = false;
     __TIFR2._OCF2A = false;
     __TIFR2._OCF2B = false;
     __TIFR2.reserved1 = 0;
-    dwrite(_TIFR2) = __TIFR2;
+    dwrite(_TIFR2, __TIFR2);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2363,14 +2376,14 @@ inline void _ATmega_resetperipherals() {
     __SPCR._DORD = 0;
     __SPCR._SPE = false;
     __SPCR._SPIE = false;
-    dwrite(_SPCR) = __SPCR;
+    dwrite(_SPCR, __SPCR);
 
     SPSR_reg_t __SPSR;
     __SPSR._SPI2X = false;
     __SPSR.reserved1 = 0;
     __SPSR._WCOL = false;
     __SPSR._SPIF = false;
-    dwrite(_SPSR) = __SPSR;
+    dwrite(_SPSR, __SPSR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2403,18 +2416,18 @@ inline void _ATmega_resetperipherals() {
     USART._UBRRn.reserved1 = 0;
   #endif
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__)
-    dwrite(USART0) = USART;
+    dwrite(USART0, USART);
   #endif
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM04__)
-    dwrite(USART1) = USART;
+    dwrite(USART1, USART);
   #endif
   #ifdef __AVR_TRM01__
-    dwrite(USART2) = USART;
-    dwrite(USART3) = USART;
+    dwrite(USART2, USART);
+    dwrite(USART3, USART);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
-    dwrite(_TWBR) = 0;
+    dwrite(_TWBR, (uint8_t)0);
 
     TWCR_reg_t __TWCR;
     __TWCR._TWIE = false;
@@ -2425,7 +2438,7 @@ inline void _ATmega_resetperipherals() {
     __TWCR._TWSTA = false;
     __TWCR._TWEA = false;
     __TWCR._TWINT = false;
-    dwrite(_TWCR) = __TWCR;
+    dwrite(_TWCR, __TWCR);
 
     TWSR_reg_t __TWSR;
     __TWSR._TWPS0 = false;
@@ -2436,19 +2449,19 @@ inline void _ATmega_resetperipherals() {
     __TWSR._TWS5 = 1;
     __TWSR._TWS6 = 1;
     __TWSR._TWS7 = 1;
-    dwrite(_TWSR) = __TWSR;
+    dwrite(_TWSR, __TWSR);
 
-    dwrite(_TWDR) = 0xFF;
+    dwrite(_TWDR, (uint8_t)0xFF);
 
     TWAR_reg_t __TWAR;
     __TWAR._TWGCE = false;
     __TWAR._TWA = 0x7F;
-    dwrite(_TWAR) = __TWAR;
+    dwrite(_TWAR, __TWAR);
 
     TWAMR_reg_t __TWAMR;
     __TWAMR.reserved1 = false;
     __TWAMR._TWAM = 0;
-    dwrite(_TWAMR) = __TWAMR;
+    dwrite(_TWAMR, __TWAMR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2460,7 +2473,7 @@ inline void _ATmega_resetperipherals() {
     __ADCSRB.reserved1 = 0;
     __ADCSRB._ACME = false;
     __ADCSRB.reserved2 = 0;
-    dwrite(_ADCSRB) = __ADCSRB;
+    dwrite(_ADCSRB, __ADCSRB);
 
     ACSR_reg_t __ACSR;
     __ACSR._ACIS = 0;
@@ -2470,7 +2483,7 @@ inline void _ATmega_resetperipherals() {
     __ACSR._ACO = false;
     __ACSR._ACBG = false;
     __ACSR._ACD = false;
-    dwrite(_ACSR) = __ACSR;
+    dwrite(_ACSR, __ACSR);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2478,7 +2491,7 @@ inline void _ATmega_resetperipherals() {
     __DIDR1._AIN0D = false;
     __DIDR1._AIN1D = false;
     __DIDR1.reserved1 = false;
-    dwrite(_DIDR1) = __DIDR1;
+    dwrite(_DIDR1, __DIDR1);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2495,7 +2508,7 @@ inline void _ATmega_resetperipherals() {
     __ADMUX._ADLAR = 0;
     __ADMUX._REFS0 = 0;
     __ADMUX._REFS1 = 0;
-    dwrite(_ADMUX) = __ADMUX;
+    dwrite(_ADMUX, __ADMUX);
 
     ADCSRA_reg_t __ADCSRA;
     __ADCSRA._ADPS = 0;
@@ -2504,9 +2517,9 @@ inline void _ATmega_resetperipherals() {
     __ADCSRA._ADATE = false;
     __ADCSRA._ADSC = false;
     __ADCSRA._ADEN = false;
-    dwrite(_ADCSRA) = __ADCSRA;
+    dwrite(_ADCSRA, __ADCSRA);
 
-    dwrite(_ADC) = 0;
+    dwrite(_ADC, (uint16_t)0);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__)
@@ -2541,7 +2554,7 @@ inline void _ATmega_resetperipherals() {
         __SPMCSR._SPMIE = false;
       #endif
     #endif
-    dwrite(_SPMCSR) = __SPMCSR;
+    dwrite(_SPMCSR, __SPMCSR);
   #endif
 
   // TODO: add the __AVR_TRM04__ initializations, if required (mostly USB related)

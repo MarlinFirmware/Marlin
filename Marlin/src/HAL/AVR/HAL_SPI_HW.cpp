@@ -245,7 +245,7 @@
     __SMCR._SE = true;
     __SMCR._SM = 0; // IDLE
     __SMCR.reserved1 = 0;
-    AVRHelpers::dwrite(_SMCR) = __SMCR;
+    AVRHelpers::dwrite(_SMCR, __SMCR);
 
     // Enable the SPI interrupt.
     _SPCR._SPIE = true;
@@ -259,7 +259,7 @@
     __SMCR._SE = false;
     __SMCR._SM = 0;
     __SMCR.reserved1 = 0;
-    AVRHelpers::dwrite(_SMCR) = __SMCR;
+    AVRHelpers::dwrite(_SMCR, __SMCR);
 
     // Disable the SPI interrupt.
     _SPCR._SPIE = false;
@@ -356,7 +356,7 @@
     }
 
     // Write initial configuration.
-    AVRHelpers::dwrite(_SPCR) = __SPCR;
+    AVRHelpers::dwrite(_SPCR, __SPCR);
 
     _spi_is_running = true;
     _spi_transaction_is_active = false;

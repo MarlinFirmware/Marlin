@@ -152,6 +152,7 @@ if (lcd_id != 0xFFFFFFFF) return;
   #endif
 
 #if 0
+  // Meant to test the TFT screen controller in general.
   static_assert((TFT_WIDTH * TFT_HEIGHT * 18) / 8 == 345600, "invalid tft dimensions");
   io.DataTransferBegin();
   io.WriteReg8(0x2C);
@@ -159,10 +160,25 @@ if (lcd_id != 0xFFFFFFFF) return;
     io.WriteData(n/(TFT_WIDTH*6));
   io.DataTransferEnd();
 
-  OUT_WRITE(EXP1_01_PIN, HIGH);
-  delay(1000);
-  OUT_WRITE(EXP1_01_PIN, LOW);
-  delay(5000);
+  OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+  OUT_WRITE(BEEPER_PIN, LOW); delay(5000);
+#endif
+
+#if 0
+  // Meant to test the 8bit SPI DMA send of MCUs.
+  static_assert((TFT_WIDTH * TFT_HEIGHT * 18) / 8 == 345600, "invalid tft dimensions");
+  static uint8_t _linebuf[TFT_WIDTH];
+  for (unsigned int n = 0; n < TFT_WIDTH; n++) {
+    _linebuf[n] = (uint8_t)n;
+  }
+  io.DataTransferBegin();
+  io.WriteReg8(0x2C);
+  io.DataTransferEnd();
+  for (unsigned long n = 0; n < TFT_HEIGHT; n++)
+    io.WriteSequence8(_linebuf, TFT_WIDTH);
+
+  OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+  OUT_WRITE(BEEPER_PIN, LOW); delay(5000);
 #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)

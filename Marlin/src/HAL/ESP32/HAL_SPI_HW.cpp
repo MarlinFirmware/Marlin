@@ -41,17 +41,51 @@
 #include "../../inc/MarlinConfig.h"
 
 #include "../shared/HAL_SPI.h"
-#include "../shared/SPI/bufmgmt.h"
 
 #if !ENABLED(SOFTWARE_SPI) && !ENABLED(HALSPI_HW_GENERIC)
 
-#include "FreeRTOS.h"
-//#include "semphr.h"
+#include "sdk/BitManage.h"
+
+template <typename hostNumberType, bool write_only = false>
+using esp32BitManager = eir::BitManager <hostNumberType, eir::template choose_default_number_specificator <hostNumberType>::template spec, eir::typelist <uint32_t>>;
 
 // ------------------------
 // Hardware SPI
-// tested using MKS TinyBee V1.0 (ESP32-WROOM-32U)
+// tested using MKS TinyBee V1.0 (ESP32-WROOM-32U / ESP32-D0WD (rev1))
 // ------------------------
+
+/*
+  The ESP32 SPI DMA hardware implementation problem.
+  - written by Martin Turski on the 30th of January, 2023
+
+  Reliability of a platform implementation comes first. Thus I have decided to cut away the optional SPI DMA
+  implementation from the first generation of ESP32 chips. Continue reading so I can elaborate on why.
+
+  Numerous people on the internet have tried to reach the Espressif support about custom SPI DMA implementations
+  but failed.
+  - https://www.esp32.com/viewtopic.php?t=16036 (https://web.archive.org/web/20230130174342/https://www.esp32.com/viewtopic.php?t=16036)
+  - https://esp32.com/viewtopic.php?t=5152 (https://web.archive.org/web/20230130174608/https://esp32.com/viewtopic.php?t=5152)
+  - https://esp32.com/viewtopic.php?t=10075 (https://web.archive.org/web/20230130174757/https://esp32.com/viewtopic.php?t=10075)
+  The esp-idf so called "SPI master driver" does not, by design, support automatic MSBFIRST 16bit SPI frames. I want to highlight
+  the ESP32 hardware "workaround" that points to reliability issues in the silicon.
+  - (https://www.esp32.com/viewtopic.php?t=8433 spi_master.zip:spi_master.c:line 754)
+  Support issues make people give up on the MCU altogether.
+  - https://esp32.com/viewtopic.php?t=14732 (https://web.archive.org/web/20230130185951/https://esp32.com/viewtopic.php?t=14732)
+
+  I would appreciate good help! I want to implement the ESP32 DMA SPI for the ESP32-D0WD, revision 1. The best way
+  would be in the form of a sample project easily compilable & runnable on the MKS TinyBee V1.0. The example project
+  must not use the SPI Master driver from esp-idf. Please contact me in the original pull request if you have found a solution.
+
+  ESP32 SPI DMA machine-state dump at DMASendBlocking call related to the error: https://pastebin.com/LNBzJvRy
+
+  Other SPI issues of ESP32 that seem fatal:
+  - https://www.esp32.com/viewtopic.php?t=31389 (https://web.archive.org/web/20230130184649/https://www.esp32.com/viewtopic.php?t=31389)
+
+  Please note that SPI with interrupts has been 100% tested and works just fine. Hence it is not a big deal to leave-out DMA acceleration.
+*/
+#ifndef HALSPI_DISABLE_DMA
+  #define HALSPI_DISABLE_DMA
+#endif
 
 static void _spi_on_error(const uint32_t code=0) {
   for (;;) {
@@ -134,12 +168,39 @@ inline numberType _MIN(numberType a, numberType b) {
 
 namespace MarlinESP32 {
 
+#define __ESP32_DEFREG(tn,n,l) static volatile tn& n = *(volatile tn*)l
+
+template <typename T>
+inline void dwrite(volatile T& v, const T& V) noexcept {
+  if constexpr ( sizeof(T) == sizeof(uint8_t) ) {
+    (volatile uint8_t&)v = (const uint8_t&)V;
+  }
+  else if constexpr ( sizeof(T) == sizeof(uint16_t) ) {
+    (volatile uint16_t&)v = (const uint16_t&)V;
+  }
+  else if constexpr ( sizeof(T) == sizeof(uint32_t) ) {
+    (volatile uint32_t&)v = (const uint32_t&)V;
+  }
+  else {
+    v = V;
+  }
+}
+
 struct spi_cmd_reg_t {
   uint32_t reserved1 : 18;
   uint32_t SPI_USR : 1;
   uint32_t reserved2 : 13;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_CMD_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_CMD_REG.SPI_USR = ", SPI_USR, ";");
+    SERIAL_ECHOLNPGM("SPI_CMD_REG.reserved2 = ", reserved2, ";");
+  }
 };
 static_assert(sizeof(spi_cmd_reg_t) == 4, "invalid size for ESP32 spi_cmd_reg_t");
+
+#define _ESP32_BIT_ORDER_MSB 0
+#define _ESP32_BIT_ORDER_LSB 1
 
 struct spi_ctrl_reg_t {
   uint32_t reserved1 : 13;
@@ -154,8 +215,34 @@ struct spi_ctrl_reg_t {
   uint32_t SPI_RD_BIT_ORDER : 1;
   uint32_t SPI_WR_BIT_ORDER : 1;
   uint32_t reserved4 : 5;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_FASTRD_MODE = ", SPI_FASTRD_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_FREAD_DUAL = ", SPI_FREAD_DUAL, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.reserved2 = ", reserved2, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_FREAD_QUAD = ", SPI_FREAD_QUAD, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_WP = ", SPI_WP, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.reserved3 = ", reserved3, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_FREAD_DIO = ", SPI_FREAD_DIO, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_FREAD_QIO = ", SPI_FREAD_QIO, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_RD_BIT_ORDER = ", SPI_RD_BIT_ORDER, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.SPI_WR_BIT_ORDER = ", SPI_WR_BIT_ORDER, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL_REG.reserved4 = ", reserved4, ";");
+  }
 };
 static_assert(sizeof(spi_ctrl_reg_t) == 4, "invalid size for ESP32 spi_ctrl_reg_t");
+
+struct spi_ctrl1_reg_t {
+  uint32_t reserved1 : 28;
+  uint32_t SPI_CS_HOLD_DELAY : 4;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_CTRL1_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL1_REG.SPI_CS_HOLD_DELAY = ", SPI_CS_HOLD_DELAY, ";");
+  }
+};
+static_assert(sizeof(spi_ctrl1_reg_t) == 4, "invalid size for ESP32 spi_ctrl1_reg_t");
 
 struct spi_ctrl2_reg_t {
   uint32_t SPI_SETUP_TIME : 4;
@@ -168,6 +255,19 @@ struct spi_ctrl2_reg_t {
   uint32_t SPI_MOSI_DELAY_NUM : 3;
   uint32_t SPI_CS_DELAY_MODE : 2;
   uint32_t SPI_CS_DELAY_NUM : 4;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_SETUP_TIME = ", SPI_SETUP_TIME, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_HOLD_TIME = ", SPI_HOLD_TIME, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_CK_OUT_HIGH_MODE = ", SPI_CK_OUT_HIGH_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_MISO_DELAY_MODE = ", SPI_MISO_DELAY_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_MISO_DELAY_NUM = ", SPI_MISO_DELAY_NUM, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_MOSI_DELAY_MODE = ", SPI_MOSI_DELAY_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_MOSI_DELAY_NUM = ", SPI_MOSI_DELAY_NUM, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_CS_DELAY_MODE = ", SPI_CS_DELAY_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_CTRL2_REG.SPI_CS_DELAY_NUM = ", SPI_CS_DELAY_NUM, ";");
+  }
 };
 static_assert(sizeof(spi_ctrl2_reg_t) == 4, "invalid size for ESP32 spi_ctrl2_reg_t");
 
@@ -177,6 +277,14 @@ struct spi_clock_reg_t {
   uint32_t SPI_CLKCNT_N : 6;
   uint32_t SPI_CLKDIV_PRE : 13;
   uint32_t SPI_CLK_EQU_SYSCLK : 1;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_CLOCK_REG.SPI_CLKCNT_L = ", SPI_CLKCNT_L, ";");
+    SERIAL_ECHOLNPGM("SPI_CLOCK_REG.SPI_CLKCNT_H = ", SPI_CLKCNT_H, ";");
+    SERIAL_ECHOLNPGM("SPI_CLOCK_REG.SPI_CLKCNT_N = ", SPI_CLKCNT_N, ";");
+    SERIAL_ECHOLNPGM("SPI_CLOCK_REG.SPI_CLKDIV_PRE = ", SPI_CLKDIV_PRE, ";");
+    SERIAL_ECHOLNPGM("SPI_CLOCK_REG.SPI_CLK_EQU_SYSCLK = ", SPI_CLK_EQU_SYSCLK, ";");
+  }
 };
 static_assert(sizeof(spi_clock_reg_t) == 4, "invalid size for ESP32 spi_clock_reg_t");
 
@@ -204,6 +312,32 @@ struct spi_user_reg_t {
   uint32_t SPI_USR_DUMMY : 1;
   uint32_t SPI_USR_ADDR : 1;
   uint32_t SPI_USR_COMMAND : 1;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_DOUTDIN = ", SPI_DOUTDIN, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_CS_HOLD = ", SPI_CS_HOLD, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_CS_SETUP = ", SPI_CS_SETUP, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_CK_I_EDGE = ", SPI_CK_I_EDGE, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_CK_OUT_EDGE = ", SPI_CK_OUT_EDGE, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.reserved2 = ", reserved2, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_RD_BYTE_ORDER = ", SPI_RD_BYTE_ORDER, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_WR_BYTE_ORDER = ", SPI_WR_BYTE_ORDER, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_FWRITE_DUAL = ", SPI_FWRITE_DUAL, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_FWRITE_QUAD = ", SPI_FWRITE_QUAD, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_FWRITE_DIO = ", SPI_FWRITE_DIO, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_FWRITE_QIO = ", SPI_FWRITE_QIO, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_SIO = ", SPI_SIO, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.reserved3 = ", reserved3, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_MISO_HIGHPART = ", SPI_USR_MISO_HIGHPART, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_MOSI_HIGHPART = ", SPI_USR_MOSI_HIGHPART, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_DUMMY_IDLE = ", SPI_USR_DUMMY_IDLE, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_MOSI = ", SPI_USR_MOSI, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_MISO = ", SPI_USR_MISO, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_DUMMY = ", SPI_USR_DUMMY, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_ADDR = ", SPI_USR_ADDR, ";");
+    SERIAL_ECHOLNPGM("SPI_USER_REG.SPI_USR_COMMAND = ", SPI_USR_COMMAND, ";");
+  }
 };
 static_assert(sizeof(spi_user_reg_t) == 4, "invalid size for ESP32 spi_user_reg_t");
 
@@ -211,6 +345,12 @@ struct spi_user1_reg_t {
   uint32_t SPI_USR_DUMMY_CYCLELEN : 8;
   uint32_t reserved1 : 18;
   uint32_t SPI_USR_ADDR_BITLEN : 6;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_USER1_REG.SPI_USR_DUMMY_CYCLELEN = ", SPI_USR_DUMMY_CYCLELEN, ";");
+    SERIAL_ECHOLNPGM("SPI_USER1_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_USER1_REG.SPI_USR_ADDR_BITLEN = ", SPI_USR_ADDR_BITLEN, ";");
+  }
 };
 static_assert(sizeof(spi_user1_reg_t) == 4, "invalid size for ESP32 spi_user1_reg_t");
 
@@ -218,18 +358,34 @@ struct spi_user2_reg_t {
   uint32_t SPI_USR_COMMAND_VALUE : 16;
   uint32_t reserved1 : 12;
   uint32_t SPI_USR_COMMAND_BITLEN : 4;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_USER2_REG.SPI_USR_COMMAND_VALUE = ", SPI_USR_COMMAND_VALUE, ";");
+    SERIAL_ECHOLNPGM("SPI_USER2_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_USER2_REG.SPI_USR_COMMAND_BITLEN = ", SPI_USR_COMMAND_BITLEN, ";");
+  }
 };
 static_assert(sizeof(spi_user2_reg_t) == 4, "invalid size for ESP32 spi_user2_reg_t");
 
 struct spi_mosi_dlen_reg_t {
   uint32_t SPI_USR_MOSI_DBITLEN : 24;
   uint32_t reserved1 : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_MOSI_DLEN_REG.SPI_USR_MOSI_DBITLEN = ", SPI_USR_MOSI_DBITLEN, ";");
+    SERIAL_ECHOLNPGM("SPI_MOSI_DLEN_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_mosi_dlen_reg_t) == 4, "invalid size for ESP32 spi_mosi_dlen_reg_t");
 
 struct spi_miso_dlen_reg_t {
   uint32_t SPI_USR_MISO_DBITLEN : 24;
   uint32_t reserved1 : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_MISO_DLEN_REG.SPI_USR_MISO_DBITLEN = ", SPI_USR_MISO_DBITLEN, ";");
+    SERIAL_ECHOLNPGM("SPI_MISO_DLEN_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_miso_dlen_reg_t) == 4, "invalid size for ESP32 spi_miso_dlen_reg_t");
 
@@ -246,6 +402,21 @@ struct spi_pin_reg_t {
   uint32_t SPI_CK_IDLE_EDGE : 1;
   uint32_t SPI_CS_KEEP_ACTIVE : 1;
   uint32_t reserved4 : 1;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_CS0_DIS = ", SPI_CS0_DIS, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_CS1_DIS = ", SPI_CS1_DIS, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_CS2_DIS = ", SPI_CS2_DIS, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_CK_DIS = ", SPI_CK_DIS, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_MASTER_CS_POL = ", SPI_MASTER_CS_POL, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.reserved2 = ", reserved2, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_MASTER_CK_SEL = ", SPI_MASTER_CK_SEL, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.reserved3 = ", reserved3, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_CK_IDLE_EDGE = ", SPI_CK_IDLE_EDGE, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.SPI_CS_KEEP_ACTIVE = ", SPI_CS_KEEP_ACTIVE, ";");
+    SERIAL_ECHOLNPGM("SPI_PIN_REG.reserved4 = ", reserved4, ";");
+  }
 };
 static_assert(sizeof(spi_pin_reg_t) == 4, "invalid size for ESP32 spi_pin_reg_t");
 
@@ -270,6 +441,29 @@ struct spi_slave_reg_t {
   uint32_t SPI_SLV_WR_RD_BUF_EN : 1;
   uint32_t SPI_SLAVE_MODE : 1;
   uint32_t SPI_SYNC_RESET : 1;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_RD_BUF_DONE = ", SPI_SLV_RD_BUF_DONE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_WR_BUF_DONE = ", SPI_SLV_WR_BUF_DONE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_RD_STA_DONE = ", SPI_SLV_RD_STA_DONE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_WR_STA_DONE = ", SPI_SLV_WR_STA_DONE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_TRANS_DONE = ", SPI_TRANS_DONE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_RD_BUF_INTEN = ", SPI_SLV_RD_BUF_INTEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_WR_BUF_INTEN = ", SPI_SLV_WR_BUF_INTEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_RD_STA_INTEN = ", SPI_SLV_RD_STA_INTEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_WR_STA_INTEN = ", SPI_SLV_WR_STA_INTEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_TRANS_INTEN = ", SPI_TRANS_INTEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_CS_I_MODE = ", SPI_CS_I_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_LAST_COMMAND = ", SPI_SLV_LAST_COMMAND, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_LAST_STATE = ", SPI_SLV_LAST_STATE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_TRANS_CNT = ", SPI_TRANS_CNT, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_CMD_DEFINE = ", SPI_SLV_CMD_DEFINE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_WR_RD_STA_EN = ", SPI_SLV_WR_RD_STA_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLV_WR_RD_BUF_EN = ", SPI_SLV_WR_RD_BUF_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SLAVE_MODE = ", SPI_SLAVE_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE_REG.SPI_SYNC_RESET = ", SPI_SYNC_RESET, ";");
+  }
 };
 static_assert(sizeof(spi_slave_reg_t) == 4, "invalid size for ESP32 spi_slave_reg_t");
 
@@ -284,6 +478,19 @@ struct spi_slave1_reg_t {
   uint32_t SPI_SLV_STATUS_READBACK : 1;
   uint32_t SPI_SLV_STATUS_FAST_EN : 1;
   uint32_t SPI_SLV_STATUS_BITLEN : 5;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_RDBUF_DUMMY_EN = ", SPI_SLV_RDBUF_DUMMY_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_WRBUF_DUMMY_EN = ", SPI_SLV_WRBUF_DUMMY_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_RDSTA_DUMMY_EN = ", SPI_SLV_RDSTA_DUMMY_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_WRSTA_DUMMY_EN = ", SPI_SLV_WRSTA_DUMMY_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_WR_ADDR_BITLEN = ", SPI_SLV_WR_ADDR_BITLEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_RD_ADDR_BITLEN = ", SPI_SLV_RD_ADDR_BITLEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_STATUS_READBACK = ", SPI_SLV_STATUS_READBACK, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_STATUS_FAST_EN = ", SPI_SLV_STATUS_FAST_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE1_REG.SPI_SLV_STATUS_BITLEN = ", SPI_SLV_STATUS_BITLEN, ";");
+  }
 };
 static_assert(sizeof(spi_slave1_reg_t) == 4, "invalid size for ESP32 spi_slave1_reg_t");
 
@@ -292,6 +499,13 @@ struct spi_slave2_reg_t {
   uint32_t SPI_SLV_WRSTA_DUMMY_CYCLELEN : 8;
   uint32_t SPI_SLV_RDBUF_DUMMY_CYCLELEN : 8;
   uint32_t SPI_SLV_WRBUF_DUMMY_CYCLELEN : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLAVE2_REG.SPI_SLV_RDSTA_DUMMY_CYCLELEN = ", SPI_SLV_RDSTA_DUMMY_CYCLELEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE2_REG.SPI_SLV_WRSTA_DUMMY_CYCLELEN = ", SPI_SLV_WRSTA_DUMMY_CYCLELEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE2_REG.SPI_SLV_RDBUF_DUMMY_CYCLELEN = ", SPI_SLV_RDBUF_DUMMY_CYCLELEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE2_REG.SPI_SLV_WRBUF_DUMMY_CYCLELEN = ", SPI_SLV_WRBUF_DUMMY_CYCLELEN, ";");
+  }
 };
 static_assert(sizeof(spi_slave2_reg_t) == 4, "invalid size for ESP32 spi_slave2_reg_t");
 
@@ -300,30 +514,57 @@ struct spi_slave3_reg_t {
   uint32_t SPI_SLV_WRBUF_CMD_VALUE : 8;
   uint32_t SPI_SLV_RDSTA_CMD_VALUE : 8;
   uint32_t SPI_SLV_WRSTA_CMD_VALUE : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLAVE3_REG.SPI_SLV_RDBUF_CMD_VALUE = ", SPI_SLV_RDBUF_CMD_VALUE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE3_REG.SPI_SLV_WRBUF_CMD_VALUE = ", SPI_SLV_WRBUF_CMD_VALUE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE3_REG.SPI_SLV_RDSTA_CMD_VALUE = ", SPI_SLV_RDSTA_CMD_VALUE, ";");
+    SERIAL_ECHOLNPGM("SPI_SLAVE3_REG.SPI_SLV_WRSTA_CMD_VALUE = ", SPI_SLV_WRSTA_CMD_VALUE, ";");
+  }
 };
 static_assert(sizeof(spi_slave3_reg_t) == 4, "invalid size for ESP32 spi_slave3_reg_t");
 
 struct spi_slv_wrbuf_dlen_reg_t {
   uint32_t SPI_SLV_WRBUF_DBITLEN : 24;
   uint32_t reserved1 : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLV_WRBUF_DLEN_REG.SPI_SLV_WRBUF_DBITLEN = ", SPI_SLV_WRBUF_DBITLEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLV_WRBUF_DLEN_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_slv_wrbuf_dlen_reg_t) == 4, "invalid size for ESP32 spi_slv_wrbuf_dlen_reg_t");
 
 struct spi_slv_rdbuf_dlen_reg_t {
   uint32_t SPI_SLV_RDBUF_DBITLEN : 24;
   uint32_t reserved1 : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLV_RDBUF_DLEN_REG.SPI_SLV_RDBUF_DBITLEN = ", SPI_SLV_RDBUF_DBITLEN, ";");
+    SERIAL_ECHOLNPGM("SPI_SLV_RDBUF_DLEN_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_slv_rdbuf_dlen_reg_t) == 4, "invalid size for ESP32 spi_slv_rdbuf_dlen_reg_t");
 
 struct spi_slv_rd_bit_reg_t {
   uint32_t SPI_SLV_RDATA_BIT : 24;
   uint32_t reserved1 : 8;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_SLV_RD_BIT_REG.SPI_SLV_RDATA_BIT = ", SPI_SLV_RDATA_BIT, ";");
+    SERIAL_ECHOLNPGM("SPI_SLV_RD_BIT_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_slv_rd_bit_reg_t) == 4, "invalid size for ESP32 spi_slv_rd_bit_reg_t");
 
 struct spi_ext2_reg_t {
   uint32_t SPI_ST : 3;  // read-only
   uint32_t reserved1 : 29;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_EXT2_REG.SPI_ST = ", SPI_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_EXT2_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_ext2_reg_t) == 4, "invalid size for ESP32 spi_ext2_reg_t");
 
@@ -343,6 +584,24 @@ struct spi_dma_conf_reg_t {
   uint32_t SPI_DMA_TX_STOP : 1;
   uint32_t SPI_DMA_CONTINUE : 1;
   uint32_t reserved4 : 15;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_IN_RST = ", SPI_IN_RST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_OUT_RST = ", SPI_OUT_RST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_AHBM_FIFO_RST = ", SPI_AHBM_FIFO_RST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_AHBM_RST = ", SPI_AHBM_RST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.reserved2 = ", reserved2, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_OUT_EOF_MODE = ", SPI_OUT_EOF_MODE, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_OUTDSCR_BURST_EN = ", SPI_OUTDSCR_BURST_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_INDSCR_BURST_EN = ", SPI_INDSCR_BURST_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_OUT_DATA_BURST_EN = ", SPI_OUT_DATA_BURST_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.reserved3 = ", reserved3, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_DMA_RX_STOP = ", SPI_DMA_RX_STOP, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_DMA_TX_STOP = ", SPI_DMA_TX_STOP, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.SPI_DMA_CONTINUE = ", SPI_DMA_CONTINUE, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_CONF_REG.reserved4 = ", reserved4, ";");
+  }
 };
 static_assert(sizeof(spi_dma_conf_reg_t) == 4, "invalid size for ESP32 spi_dma_conf_reg_t");
 
@@ -353,6 +612,15 @@ struct spi_dma_out_link_reg_t {
   uint32_t SPI_OUTLINK_START : 1;
   uint32_t SPI_OUTLINK_RESTART : 1;
   uint32_t reserved2 : 1;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR = ", SPI_OUTLINK_ADDR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_OUT_LINK_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_STOP = ", SPI_OUTLINK_STOP, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_START = ", SPI_OUTLINK_START, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_RESTART = ", SPI_OUTLINK_RESTART, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_OUT_LINK_REG.reserved2 = ", reserved2, ";");
+  }
 };
 static_assert(sizeof(spi_dma_out_link_reg_t) == 4, "invalid size for ESP32 spi_dma_out_link_reg_t");
 
@@ -364,6 +632,16 @@ struct spi_dma_in_link_reg_t {
   uint32_t SPI_INLINK_START : 1;
   uint32_t SPI_INLINK_RESTART : 1;
   uint32_t reserved2 : 1;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.SPI_INLINK_ADDR = ", SPI_INLINK_ADDR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.SPI_INLINK_AUTO_RET = ", SPI_INLINK_AUTO_RET, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.SPI_INLINK_STOP = ", SPI_INLINK_STOP, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.SPI_INLINK_START = ", SPI_INLINK_START, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.SPI_INLINK_RESTART = ", SPI_INLINK_RESTART, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_IN_LINK_REG.reserved2 = ", reserved2, ";");
+  }
 };
 static_assert(sizeof(spi_dma_in_link_reg_t) == 4, "invalid size for ESP32 spi_dma_in_link_reg_t");
 
@@ -371,6 +649,12 @@ struct spi_dma_status_reg_t {
   uint32_t SPI_DMA_TX_EN : 1; // read-only
   uint32_t SPI_DMA_RX_EN : 1; // read-only
   uint32_t reserved1 : 30;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_STATUS_REG.SPI_DMA_TX_EN = ", SPI_DMA_TX_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_STATUS_REG.SPI_DMA_RX_EN = ", SPI_DMA_RX_EN, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_STATUS_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_dma_status_reg_t) == 4, "invalid size for ESP32 spi_dma_status_reg_t");
 
@@ -385,6 +669,19 @@ struct spi_dma_int_ena_reg_t {
   uint32_t SPI_OUT_EOF_INT_ENA : 1;
   uint32_t SPI_OUT_TOTAL_EOF_INT_ENA : 1;
   uint32_t reserved1 : 23;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_INLINK_DSCR_EMPTY_INT_ENA = ", SPI_INLINK_DSCR_EMPTY_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_OUTLINK_DSCR_ERROR_INT_ENA = ", SPI_OUTLINK_DSCR_ERROR_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_INLINK_DSCR_ERROR_INT_ENA = ", SPI_INLINK_DSCR_ERROR_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_IN_DONE_INT_ENA = ", SPI_IN_DONE_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_IN_ERR_EOF_INT_ENA = ", SPI_IN_ERR_EOF_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_IN_SUC_EOF_INT_ENA = ", SPI_IN_SUC_EOF_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_OUT_DONE_INT_ENA = ", SPI_OUT_DONE_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_OUT_EOF_INT_ENA = ", SPI_OUT_EOF_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.SPI_OUT_TOTAL_EOF_INT_ENA = ", SPI_OUT_TOTAL_EOF_INT_ENA, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ENA_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_dma_int_ena_reg_t) == 4, "invalid size for ESP32 spi_dma_int_ena_reg_t");
 
@@ -399,6 +696,19 @@ struct spi_dma_int_raw_reg_t {
   uint32_t SPI_OUT_EOF_INT_RAW : 1;             // read-only
   uint32_t SPI_OUT_TOTAL_EOF_INT_RAW : 1;       // read-only
   uint32_t reserved1 : 23;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_INLINK_DSCR_EMPTY_INT_RAW = ", SPI_INLINK_DSCR_EMPTY_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_OUTLINK_DSCR_ERROR_INT_RAW = ", SPI_OUTLINK_DSCR_ERROR_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_INLINK_DSCR_ERROR_INT_RAW = ", SPI_INLINK_DSCR_ERROR_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_IN_DONE_INT_RAW = ", SPI_IN_DONE_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_IN_ERR_EOF_INT_RAW = ", SPI_IN_ERR_EOF_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_IN_SUC_EOF_INT_RAW = ", SPI_IN_SUC_EOF_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_OUT_DONE_INT_RAW = ", SPI_OUT_DONE_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_OUT_EOF_INT_RAW = ", SPI_OUT_EOF_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.SPI_OUT_TOTAL_EOF_INT_RAW = ", SPI_OUT_TOTAL_EOF_INT_RAW, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_RAW_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_dma_int_raw_reg_t) == 4, "invalid size for ESP32 spi_dma_int_raw_reg_t");
 
@@ -413,6 +723,19 @@ struct spi_dma_int_st_reg_t {
   uint32_t SPI_OUT_EOF_INT_ST : 1;              // read-only
   uint32_t SPI_OUT_TOTAL_EOF_INT_ST : 1;        // read-only
   uint32_t reserved1 : 23;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_INLINK_DSCR_EMPTY_INT_ST = ", SPI_INLINK_DSCR_EMPTY_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_OUTLINK_DSCR_ERROR_INT_ST = ", SPI_OUTLINK_DSCR_ERROR_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_INLINK_DSCR_ERROR_INT_ST = ", SPI_INLINK_DSCR_ERROR_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_IN_DONE_INT_ST = ", SPI_IN_DONE_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_IN_ERR_EOF_INT_ST = ", SPI_IN_ERR_EOF_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_IN_SUC_EOF_INT_ST = ", SPI_IN_SUC_EOF_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_OUT_DONE_INT_ST = ", SPI_OUT_DONE_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_OUT_EOF_INT_ST = ", SPI_OUT_EOF_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.SPI_OUT_TOTAL_EOF_INT_ST = ", SPI_OUT_TOTAL_EOF_INT_ST, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_ST_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_dma_int_st_reg_t) == 4, "invalid size for ESP32 spi_dma_int_st_reg_t");
 
@@ -427,6 +750,19 @@ struct spi_dma_int_clr_reg_t {
   uint32_t SPI_OUT_EOF_INT_CLR : 1;
   uint32_t SPI_OUT_TOTAL_EOF_INT_CLR : 1;
   uint32_t reserved1 : 23;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_INLINK_DSCR_EMPTY_INT_CLR = ", SPI_INLINK_DSCR_EMPTY_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_OUTLINK_DSCR_ERROR_INT_CLR = ", SPI_OUTLINK_DSCR_ERROR_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_INLINK_DSCR_ERROR_INT_CLR = ", SPI_INLINK_DSCR_ERROR_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_IN_DONE_INT_CLR = ", SPI_IN_DONE_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_IN_ERR_EOF_INT_CLR = ", SPI_IN_ERR_EOF_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_IN_SUC_EOF_INT_CLR = ", SPI_IN_SUC_EOF_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_OUT_DONE_INT_CLR = ", SPI_OUT_DONE_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_OUT_EOF_INT_CLR = ", SPI_OUT_EOF_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.SPI_OUT_TOTAL_EOF_INT_CLR = ", SPI_OUT_TOTAL_EOF_INT_CLR, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_INT_CLR_REG.reserved1 = ", reserved1, ";");
+  }
 };
 static_assert(sizeof(spi_dma_int_clr_reg_t) == 4, "invalid size for ESP32 spi_dma_int_clr_reg_t");
 
@@ -435,6 +771,13 @@ struct spi_dma_rstatus_reg_t {
   uint32_t reserved1 : 10;
   uint32_t TX_FIFO_FULL : 1;    // read-only
   uint32_t TX_FIFO_EMPTY : 1;   // read-only
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_RSTATUS_REG.TX_DES_ADDRESS = ", TX_DES_ADDRESS, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_RSTATUS_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_RSTATUS_REG.TX_FIFO_FULL = ", TX_FIFO_FULL, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_RSTATUS_REG.TX_FIFO_EMPTY = ", TX_FIFO_EMPTY, ";");
+  }
 };
 static_assert(sizeof(spi_dma_rstatus_reg_t) == 4, "invalid size for ESP32 spi_dma_rstatus_reg_t");
 
@@ -443,58 +786,114 @@ struct spi_dma_tstatus_reg_t {
   uint32_t reserved1 : 10;
   uint32_t RX_FIFO_FULL : 1;    // read-only
   uint32_t RX_FIFO_EMPTY : 1;   // read-only
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_DMA_TSTATUS_REG.RX_DES_ADDRESS = ", RX_DES_ADDRESS, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_TSTATUS_REG.reserved1 = ", reserved1, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_TSTATUS_REG.RX_FIFO_FULL = ", RX_FIFO_FULL, ";");
+    SERIAL_ECHOLNPGM("SPI_DMA_TSTATUS_REG.RX_FIFO_EMPTY = ", RX_FIFO_EMPTY, ";");
+  }
 };
 static_assert(sizeof(spi_dma_tstatus_reg_t) == 4, "invalid size for ESP32 spi_dma_tstatus_reg_t");
 
 struct spi_dev_t {
-  volatile spi_cmd_reg_t SPI_CMD_REG;
-  volatile uint32_t SPI_ADDR_REG;
-  volatile spi_ctrl_reg_t SPI_CTRL_REG;
-  volatile uint32_t SPI_CTRL1_REG;
-  volatile uint32_t SPI_RD_STATUS_REG;
-  volatile spi_ctrl2_reg_t SPI_CTRL2_REG;
-  volatile spi_clock_reg_t SPI_CLOCK_REG;
-  volatile spi_user_reg_t SPI_USER_REG;
-  volatile spi_user1_reg_t SPI_USER1_REG;
-  volatile spi_user2_reg_t SPI_USER2_REG;
-  volatile spi_mosi_dlen_reg_t SPI_MOSI_DLEN_REG;
-  volatile spi_miso_dlen_reg_t SPI_MISO_DLEN_REG;
-  volatile uint32_t SPI_SLV_WR_STATUS_REG;
-  volatile spi_pin_reg_t SPI_PIN_REG;
-  volatile spi_slave_reg_t SPI_SLAVE_REG;
-  volatile spi_slave1_reg_t SPI_SLAVE1_REG;
-  volatile spi_slave2_reg_t SPI_SLAVE2_REG;
-  volatile spi_slave3_reg_t SPI_SLAVE3_REG;
-  volatile spi_slv_wrbuf_dlen_reg_t SPI_SLV_WRBUF_DLEN_REG;
-  volatile spi_slv_rdbuf_dlen_reg_t SPI_SLV_RDBUF_DLEN_REG;
-  volatile uint8_t pad1[0x14];
-  volatile spi_slv_rd_bit_reg_t SPI_SLV_RD_BIT_REG;
-  volatile uint8_t pad2[0x18];
-  volatile uint32_t SPI_W_REG[16];
-  volatile uint32_t SPI_TX_CRC_REG;
-  volatile uint8_t pad3[0x34];
-  volatile spi_ext2_reg_t SPI_EXT2_REG;
-  volatile uint8_t pad4[4];
-  volatile spi_dma_conf_reg_t SPI_DMA_CONF_REG;
-  volatile spi_dma_out_link_reg_t SPI_DMA_OUT_LINK_REG;
-  volatile spi_dma_in_link_reg_t SPI_DMA_IN_LINK_REG;
-  volatile spi_dma_status_reg_t SPI_DMA_STATUS_REG;
-  volatile spi_dma_int_ena_reg_t SPI_DMA_INT_ENA_REG;
-  volatile spi_dma_int_raw_reg_t SPI_DMA_INT_RAW_REG;
-  volatile spi_dma_int_st_reg_t SPI_DMA_INT_ST_REG;
-  volatile spi_dma_int_clr_reg_t SPI_DMA_INT_CLR_REG;
-  volatile const uint32_t SPI_IN_ERR_EOF_DES_ADDR_REG;
-  volatile const uint32_t SPI_IN_SUC_EOF_DES_ADDR_REG;
-  volatile const uint32_t SPI_INLINK_DSCR_REG;
-  volatile const uint32_t SPI_INLINK_DSCR_BF0_REG;
-  volatile const uint32_t SPI_INLINK_DSCR_BF1_REG;
-  volatile const uint32_t SPI_OUT_EOF_BFR_DES_ADDR_REG;
-  volatile const uint32_t SPI_OUT_EOF_DES_ADDR_REG;
-  volatile const uint32_t SPI_OUTLINK_DSCR_REG;
-  volatile const uint32_t SPI_OUTLINK_DSCR_BF0_REG;
-  volatile const uint32_t SPI_OUTLINK_DSCR_BF1_REG;
-  volatile spi_dma_rstatus_reg_t SPI_DMA_RSTATUS_REG;
-  volatile spi_dma_tstatus_reg_t SPI_DMA_TSTATUS_REG;
+  spi_cmd_reg_t SPI_CMD_REG;
+  uint32_t SPI_ADDR_REG;
+  spi_ctrl_reg_t SPI_CTRL_REG;
+  spi_ctrl1_reg_t SPI_CTRL1_REG;
+  uint32_t SPI_RD_STATUS_REG;
+  spi_ctrl2_reg_t SPI_CTRL2_REG;
+  spi_clock_reg_t SPI_CLOCK_REG;
+  spi_user_reg_t SPI_USER_REG;
+  spi_user1_reg_t SPI_USER1_REG;
+  spi_user2_reg_t SPI_USER2_REG;
+  spi_mosi_dlen_reg_t SPI_MOSI_DLEN_REG;
+  spi_miso_dlen_reg_t SPI_MISO_DLEN_REG;
+  uint32_t SPI_SLV_WR_STATUS_REG;
+  spi_pin_reg_t SPI_PIN_REG;
+  spi_slave_reg_t SPI_SLAVE_REG;
+  spi_slave1_reg_t SPI_SLAVE1_REG;
+  spi_slave2_reg_t SPI_SLAVE2_REG;
+  spi_slave3_reg_t SPI_SLAVE3_REG;
+  spi_slv_wrbuf_dlen_reg_t SPI_SLV_WRBUF_DLEN_REG;
+  spi_slv_rdbuf_dlen_reg_t SPI_SLV_RDBUF_DLEN_REG;
+  uint8_t pad1[0x14];
+  spi_slv_rd_bit_reg_t SPI_SLV_RD_BIT_REG;
+  uint8_t pad2[0x18];
+  uint32_t SPI_W_REG[16];
+  uint32_t SPI_TX_CRC_REG;
+  uint8_t pad3[0x34];
+  spi_ext2_reg_t SPI_EXT2_REG;
+  uint8_t pad4[4];
+  spi_dma_conf_reg_t SPI_DMA_CONF_REG;
+  spi_dma_out_link_reg_t SPI_DMA_OUT_LINK_REG;
+  spi_dma_in_link_reg_t SPI_DMA_IN_LINK_REG;
+  spi_dma_status_reg_t SPI_DMA_STATUS_REG;
+  spi_dma_int_ena_reg_t SPI_DMA_INT_ENA_REG;
+  spi_dma_int_raw_reg_t SPI_DMA_INT_RAW_REG;
+  spi_dma_int_st_reg_t SPI_DMA_INT_ST_REG;
+  spi_dma_int_clr_reg_t SPI_DMA_INT_CLR_REG;
+  const uint32_t SPI_IN_ERR_EOF_DES_ADDR_REG;
+  const uint32_t SPI_IN_SUC_EOF_DES_ADDR_REG;
+  const uint32_t SPI_INLINK_DSCR_REG;
+  const uint32_t SPI_INLINK_DSCR_BF0_REG;
+  const uint32_t SPI_INLINK_DSCR_BF1_REG;
+  const uint32_t SPI_OUT_EOF_BFR_DES_ADDR_REG;
+  const uint32_t SPI_OUT_EOF_DES_ADDR_REG;
+  const uint32_t SPI_OUTLINK_DSCR_REG;
+  const uint32_t SPI_OUTLINK_DSCR_BF0_REG;
+  const uint32_t SPI_OUTLINK_DSCR_BF1_REG;
+  spi_dma_rstatus_reg_t SPI_DMA_RSTATUS_REG;
+  spi_dma_tstatus_reg_t SPI_DMA_TSTATUS_REG;
+
+  void serial_dump() volatile {
+    SERIAL_ECHOLNPGM("SPI_ADDR_REG = ", SPI_ADDR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_RD_STATUS_REG = ", SPI_RD_STATUS_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_SLV_WR_STATUS_REG = ", SPI_SLV_WR_STATUS_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_TX_CRC_REG = ", SPI_TX_CRC_REG, ";");
+
+    SPI_CMD_REG.serial_dump();
+    SPI_CTRL_REG.serial_dump();
+    SPI_CTRL1_REG.serial_dump();
+    SPI_CTRL2_REG.serial_dump();
+    SPI_CLOCK_REG.serial_dump();
+    SPI_USER_REG.serial_dump();
+    SPI_USER1_REG.serial_dump();
+    SPI_USER2_REG.serial_dump();
+    SPI_MOSI_DLEN_REG.serial_dump();
+    SPI_MISO_DLEN_REG.serial_dump();
+    SPI_PIN_REG.serial_dump();
+    SPI_SLAVE_REG.serial_dump();
+    SPI_SLAVE1_REG.serial_dump();
+    SPI_SLAVE2_REG.serial_dump();
+    SPI_SLAVE3_REG.serial_dump();
+    SPI_SLV_WRBUF_DLEN_REG.serial_dump();
+    SPI_SLV_RDBUF_DLEN_REG.serial_dump();
+    SPI_SLV_RD_BIT_REG.serial_dump();
+    SPI_EXT2_REG.serial_dump();
+    SPI_DMA_CONF_REG.serial_dump();
+    SPI_DMA_OUT_LINK_REG.serial_dump();
+    SPI_DMA_IN_LINK_REG.serial_dump();
+    SPI_DMA_STATUS_REG.serial_dump();
+    SPI_DMA_INT_ENA_REG.serial_dump();
+    SPI_DMA_INT_RAW_REG.serial_dump();
+    //SPI_DMA_INT_ST_REG.serial_dump();
+    //SPI_DMA_INT_CLR_REG.serial_dump();
+
+    SERIAL_ECHOLNPGM("SPI_IN_ERR_EOF_DES_ADDR_REG = ", SPI_IN_ERR_EOF_DES_ADDR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_IN_SUC_EOF_DES_ADDR_REG = ", SPI_IN_SUC_EOF_DES_ADDR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_INLINK_DSCR_REG = ", SPI_INLINK_DSCR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_INLINK_DSCR_BF0_REG = ", SPI_INLINK_DSCR_BF0_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_INLINK_DSCR_BF1_REG = ", SPI_INLINK_DSCR_BF1_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_OUT_EOF_BFR_DES_ADDR_REG = ", SPI_OUT_EOF_BFR_DES_ADDR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_OUT_EOF_DES_ADDR_REG = ", SPI_OUT_EOF_DES_ADDR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_OUTLINK_DSCR_REG = ", SPI_OUTLINK_DSCR_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_OUTLINK_DSCR_BF0_REG = ", SPI_OUTLINK_DSCR_BF0_REG, ";");
+    SERIAL_ECHOLNPGM("SPI_OUTLINK_DSCR_BF1_REG = ", SPI_OUTLINK_DSCR_BF1_REG, ";");
+
+    SPI_DMA_RSTATUS_REG.serial_dump();
+    SPI_DMA_TSTATUS_REG.serial_dump();
+  }
 };
 static_assert(offsetof(spi_dev_t, SPI_CLOCK_REG) == 0x18, "invalid ESP32 offsetof SPI_CLOCK_REG");
 static_assert(offsetof(spi_dev_t, SPI_W_REG[0]) == 0x80, "invalid ESP32 offsetof SPI_W_REG");
@@ -502,17 +901,17 @@ static_assert(offsetof(spi_dev_t, SPI_EXT2_REG) == 0xF8, "invalid ESP32 offsetof
 static_assert(sizeof(spi_dev_t) == 0x150, "wrong formatting of ESP32 spi_dev_t!");
 
 #ifdef HALSPI_ESP32_ENABLE_INTERNBUS
-static spi_dev_t& SPI0 = *(spi_dev_t*)0x3FF43000; // shares signals with SPI1 (USAGE DISALLOWED)
-static spi_dev_t& SPI1 = *(spi_dev_t*)0x3FF42000; // (USAGE DISALLOWED)
+__ESP32_DEFREG(spi_dev_t, SPI0, 0x3FF43000); // shares signals with SPI1 (USAGE DISALLOWED)
+__ESP32_DEFREG(spi_dev_t, SPI1, 0x3FF42000); // (USAGE DISALLOWED)
 #endif
-static spi_dev_t& SPI2 = *(spi_dev_t*)0x3FF64000; // HSPI
-static spi_dev_t& SPI3 = *(spi_dev_t*)0x3FF65000; // VSPI
+__ESP32_DEFREG(spi_dev_t, SPI2, 0x3FF64000); // HSPI
+__ESP32_DEFREG(spi_dev_t, SPI3, 0x3FF65000); // VSPI
 
 #define _SPI_DEFAULT_BUS 2
 #define __SPI_BUSOBJ(IDX) (SPI##IDX)
 #define _SPI_BUSOBJ(IDX) (__SPI_BUSOBJ(IDX))
 
-inline spi_dev_t& SPIGetBusFromIndex(uint8_t idx) {
+inline volatile spi_dev_t& SPIGetBusFromIndex(uint8_t idx) {
   switch(idx) {
 #ifdef HALSPI_ESP32_ENABLE_INTERNBUS
   case 0: return SPI0;
@@ -524,7 +923,7 @@ inline spi_dev_t& SPIGetBusFromIndex(uint8_t idx) {
   }
 }
 
-inline uint8_t SPIGetBusIndex(spi_dev_t& SPI) {
+inline uint8_t SPIGetBusIndex(volatile spi_dev_t& SPI) {
 #ifdef HALSPI_ESP32_ENABLE_INTERNBUS
   if (&SPI == &SPI0) return 0;
   else if (&SPI == &SPI1) return 1;
@@ -807,8 +1206,8 @@ struct dport_perip_rst_en_reg_t {
 };
 static_assert(sizeof(dport_perip_rst_en_reg_t) == 4, "invalid size of ESP32 dport_perip_rst_en_reg_t");
 
-static dport_perip_clk_en_reg_t& DPORT_PERIP_CLK_EN_REG = *(dport_perip_clk_en_reg_t*)0x3FF000C0;
-static dport_perip_rst_en_reg_t& DPORT_PERIP_RST_EN_REG = *(dport_perip_rst_en_reg_t*)0x3FF000C4;
+__ESP32_DEFREG(dport_perip_clk_en_reg_t, DPORT_PERIP_CLK_EN_REG, 0x3FF000C0);
+__ESP32_DEFREG(dport_perip_rst_en_reg_t, DPORT_PERIP_RST_EN_REG, 0x3FF000C4);
 
 #define DPORT_SPI_DMA_CHAN_SEL_NONE 0
 #define DPORT_SPI_DMA_CHAN_SEL_CHAN1 1
@@ -822,7 +1221,7 @@ struct dport_spi_dma_chan_sel_reg_t {
 };
 static_assert(sizeof(dport_spi_dma_chan_sel_reg_t) == sizeof(uint32_t), "invalid size of ESP32 dport_spi_dma_chan_sel_reg_t");
 
-static dport_spi_dma_chan_sel_reg_t& DPORT_SPI_DMA_CHAN_SEL_REG = *(dport_spi_dma_chan_sel_reg_t*)0x3FF005A8;
+__ESP32_DEFREG(dport_spi_dma_chan_sel_reg_t, DPORT_SPI_DMA_CHAN_SEL_REG, 0x3FF005A8);
 
 #if 0
 
@@ -832,7 +1231,7 @@ struct dport_cpu_per_conf_reg_t {
 };
 static_assert(sizeof(dport_cpu_per_conf_reg_t) == 4, "invalid size of ESP32 dport_cpu_per_conf_reg_t");
 
-static dport_cpu_per_conf_reg_t& DPORT_CPU_PER_CONF_REG = *(dport_cpu_per_conf_reg_t*)0x3FF0003C;
+__ESP32_DEFREG(dport_cpu_per_conf_reg_t, DPORT_CPU_PER_CONF_REG, 0x3FF0003C);
 
 #define RTC_CNTL_SOC_CLK_XTL 0
 #define RTC_CNTL_SOC_CLK_PLL 1
@@ -859,7 +1258,7 @@ struct rtc_cntl_clk_conf_reg_t {
 };
 static_assert(sizeof(rtc_cntl_clk_conf_reg_t) == 4, "invalid size of ESP32 rtc_cntl_clk_conf_reg_t");
 
-static rtc_cntl_clk_conf_reg_t& RTC_CNTL_CLK_CONF_REG = *(rtc_cntl_clk_conf_reg_t*)0x3FF48070;
+__ESP32_DEFREG(rtc_cntl_clk_conf_reg_t, RTC_CNTL_CLK_CONF_REG, 0x3FF48070);
 
 struct syscon_conf_reg_t {
   uint32_t SYSCON_PRE_DIV_CNT : 10;
@@ -871,9 +1270,9 @@ struct syscon_conf_reg_t {
 };
 
 // Undocumented.
-static syscon_conf_reg_t& SYSCON_CONF_REG = *(syscon_conf_reg_t*)0x3FF66000;
+__ESP32_DEFREG(syscon_conf_reg_t, SYSCON_CONF_REG, 0x3FF66000);
 
-#endif //0
+#endif
 
 // You can transfer up to 64bytes in one burst using default SPI without DMA on the ESP32.
 
@@ -889,7 +1288,7 @@ struct clkcnt_res_t {
   }
 };
 
-static void SPIConfigureClock(spi_dev_t& SPI, int clkMode, bool is_direct_io, const clkcnt_res_t& clkdiv) {
+static void SPIConfigureClock(volatile spi_dev_t& SPI, int clkMode, bool is_direct_io, const clkcnt_res_t& clkdiv) {
   if (clkMode == SPI_CLKMODE_0) {
     SPI.SPI_PIN_REG.SPI_CK_IDLE_EDGE = 0;
     SPI.SPI_USER_REG.SPI_CK_OUT_EDGE = 0;
@@ -907,12 +1306,15 @@ static void SPIConfigureClock(spi_dev_t& SPI, int clkMode, bool is_direct_io, co
     SPI.SPI_USER_REG.SPI_CK_OUT_EDGE = 0;
   }
 
-  SPI.SPI_CLOCK_REG.SPI_CLK_EQU_SYSCLK = clkdiv.sysclock;
-  SPI.SPI_CLOCK_REG.SPI_CLKDIV_PRE = clkdiv.pre;
-  SPI.SPI_CLOCK_REG.SPI_CLKCNT_N = clkdiv.n;
-  SPI.SPI_CLOCK_REG.SPI_CLKCNT_L = clkdiv.l;
-  SPI.SPI_CLOCK_REG.SPI_CLKCNT_H = clkdiv.h;
+  spi_clock_reg_t _SPI_CLOCK_REG;
+  _SPI_CLOCK_REG.SPI_CLK_EQU_SYSCLK = clkdiv.sysclock;
+  _SPI_CLOCK_REG.SPI_CLKDIV_PRE = clkdiv.pre;
+  _SPI_CLOCK_REG.SPI_CLKCNT_N = clkdiv.n;
+  _SPI_CLOCK_REG.SPI_CLKCNT_L = clkdiv.l;
+  _SPI_CLOCK_REG.SPI_CLKCNT_H = clkdiv.h;
+  dwrite(SPI.SPI_CLOCK_REG, _SPI_CLOCK_REG);
 
+#ifndef HALSPI_ESP32_DISABLE_ADV_DELAYCONF
   uint32_t apbFreqDiv = clkdiv.GetFrequencyDivider();
 
   if (is_direct_io) {
@@ -949,20 +1351,32 @@ static void SPIConfigureClock(spi_dev_t& SPI, int clkMode, bool is_direct_io, co
       SPI.SPI_USER_REG.SPI_USR_DUMMY = 0;
     }
   }
+#else
+  SPI.SPI_USER_REG.SPI_USR_DUMMY = 0;
+  SPI.SPI_USER1_REG.SPI_USR_DUMMY_CYCLELEN = 0;
+  SPI.SPI_CTRL2_REG.SPI_MISO_DELAY_MODE = 0;
+#endif
   SPI.SPI_CTRL2_REG.SPI_MISO_DELAY_NUM = 0;
   SPI.SPI_CTRL2_REG.SPI_MOSI_DELAY_MODE = 0;
   SPI.SPI_CTRL2_REG.SPI_MOSI_DELAY_NUM = 0;
 }
 
+#if 0
 static const uint8_t _spi_clkcnt_n_primes[] = {
   2, 3, 4, 5, 11, 13, 17, 19, 23, 29, 31,
   37, 41, 43, 47, 53, 59, 61
 };
+#endif
 
-template <typename numberType>
-inline numberType CEIL_DIV(numberType A, numberType B) {
-  numberType rem = ( A % B );
-  return ( rem == 0 ? (A/B) : (A/B+1) );
+template <eir::unsigned_integral T1, eir::unsigned_integral T2>
+inline auto DIST(T1 a, T2 b) noexcept -> decltype(a-b)
+{
+  if (a < b) {
+    return b - a;
+  }
+  else {
+    return a - b;
+  }
 }
 
 // see page 121 of ESP32 technical reference manual (GP-SPI Clock Control)
@@ -987,7 +1401,7 @@ inline clkcnt_res_t SPIApproximateClockDivider(uint32_t maxClockFreq, uint32_t s
   // spibasefreq = f_apb
 
   uint32_t approx_div = CEIL_DIV(spibasefreq, maxClockFreq);  // pre + 1
-  if (approx_div <= (1<<13)) {  // 2^14
+  if (approx_div <= (1<<13)) {  // 2^13
     res.pre = (approx_div - 1);
     res.n = 1;  // n needs to be at least 2 so we have one LOW and one HIGH pulse (this detail is found nowhere in the ESP32 docs)
     goto finalize;
@@ -1001,7 +1415,7 @@ inline clkcnt_res_t SPIApproximateClockDivider(uint32_t maxClockFreq, uint32_t s
     for (uint8_t prime : _spi_clkcnt_n_primes) {
       uint32_t primediv = (approx_div / prime);
       uint32_t approx_freqdiv = (primediv * approx_div);
-      if (approx_freqdiv <= (1<<6)*(1<<13)) { // (2^7 * 2^14)
+      if (approx_freqdiv <= (1<<6)*(1<<13)) { // (2^6 * 2^13)
         if (found_best_approx_prime == false || (best_approx > approx_freqdiv)) {
           best_approx_prime = prime;
           best_approx = approx_freqdiv;
@@ -1018,8 +1432,8 @@ inline clkcnt_res_t SPIApproximateClockDivider(uint32_t maxClockFreq, uint32_t s
     res.pre = (approx_div - 1);
   }
 finalize:
-  res.h = _MIN <uint32_t> ( ((res.n+1) / 2), 1 ) - 1;
-  res.l = res.n;
+  res.h = 0u;
+  res.l = eir::Maximum( ((unsigned int)(res.n+1u) / 2u), 1u ) - 1u;
   return res;
 #else
   // Taken from the ArduinoCore ESP32 because the ESP32 clock documentation is VERY lacking!
@@ -1068,30 +1482,27 @@ finalize:
     reg.n = calN;
     reg.l = ((reg.n + 1) / 2);
 
+    calPre = ((int32_t)((spibasefreq / (reg.n + 1)) / maxClockFreq) - 1) + calPreVari;
     while(calPreVari++ <= 1) {
-      calPre = ((int32_t)((spibasefreq / (reg.n + 1)) / maxClockFreq) - 1) + calPreVari;
+      calPre++;
       if(calPre > (1<<13)-1) {
         reg.pre = (1<<13)-1;
       } else if(calPre <= 0) {
         reg.pre = 0;
       } else {
-        reg.pre = calPre;
+        reg.pre = (uint32_t)calPre;
       }
       calFreq = (spibasefreq / reg.GetFrequencyDivider());
       if(calFreq == maxClockFreq) {
-        bestReg = reg;
-        break;
+        return reg;
       }
       else if(calFreq < maxClockFreq) {
-        if(has_best_freq == false || (abs(maxClockFreq - calFreq) < abs(maxClockFreq - bestFreq))) {
+        if(has_best_freq == false || ((maxClockFreq - calFreq) < (maxClockFreq - bestFreq))) {
           bestFreq = calFreq;
           bestReg = reg;
           has_best_freq = true;
         }
       }
-    }
-    if(calFreq == maxClockFreq) {
-      break;
     }
     calN++;
   }
@@ -1099,153 +1510,83 @@ finalize:
 #endif
 }
 
-static void SPIConfigureBitOrder(spi_dev_t& SPI, int bitOrder) {
+static void SPIConfigureBitOrder(volatile spi_dev_t& SPI, int bitOrder) {
   if (bitOrder == SPI_BITORDER_MSB) {
-    SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER = 0;
-    SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER = 0;
+    SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER = _ESP32_BIT_ORDER_MSB;
+    SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER = _ESP32_BIT_ORDER_MSB;
   }
   else {
-    SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER = 1;
-    SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER = 1;
+    SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER = _ESP32_BIT_ORDER_LSB;
+    SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER = _ESP32_BIT_ORDER_LSB;
   }
 }
 
-inline uint16_t SPIGetWriteBufferSize(spi_dev_t& SPI) {
-  return ( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 32 : 64 );
+inline uint16_t SPIGetWriteBufferSize(volatile spi_dev_t& SPI) {
+  return 64;//( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 32 : 64 );
 }
 
-template <typename numberType>
-inline uint8_t SPIGetSingleByteToTransferEx(spi_dev_t& SPI, numberType num, uint32_t byteIdx, bool notrevbits) {
-  using namespace ::bufmgmt;
-
-#ifdef HALSPI_DEBUG
-  if (GetNumberIndexFromTotalByteIndex <numberType> (byteIdx) >= 1) return 0;
-#endif
-
-  return
-    GetByteFromNumber(
-      num,
-      GetLocalByteIndexFromTotalByteIndex <numberType> (byteIdx),
-      notrevbits  // reverse if MSBFIRST
-    );
+inline uint16_t SPIGetWriteBufferStartIndex(volatile spi_dev_t& SPI) {
+  return 0;//( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 8 : 0 );
 }
 
-template <typename numberType>
-inline uint8_t SPIGetSingleByteToTransfer(spi_dev_t& SPI, numberType num, uint32_t byteIdx) {
-  bool notrevbits = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == 1);
+template <eir::bitmanager_type bitManType>
+inline void SPIPrepareWriteBitManager(volatile spi_dev_t& SPI, bitManType& bitman) noexcept {
+  bool wr_msbfirst = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == _ESP32_BIT_ORDER_MSB);
 
-  return SPIGetSingleByteToTransferEx(SPI, num, byteIdx, notrevbits);
-}
-
-inline void SPIWriteSingleByteToTransferEx(spi_dev_t& SPI, uint8_t byteval, uint32_t byteIdx, uint16_t start_num_idx) {
-#ifdef HALSPI_DEBUG
-  auto max_transfer_size = SPIGetWriteBufferSize(SPI);
-
-  if (byteIdx >= max_transfer_size) return;
-#endif
-
-  using namespace ::bufmgmt;
-
-  WriteByteToNumber(
-    SPI.SPI_W_REG[ start_num_idx + GetNumberIndexFromTotalByteIndex <uint32_t> ( byteIdx ) ],
-    GetLocalByteIndexFromTotalByteIndex <uint32_t> ( byteIdx ),
-    byteval,
-    true
+  bitman.SetDefaultStorageProperty(
+    wr_msbfirst ? eir::endian::eSpecificEndian::BIG_ENDIAN : eir::endian::eSpecificEndian::LITTLE_ENDIAN,
+    false
   );
 }
 
-inline void SPIWriteSingleByteToTransfer(spi_dev_t& SPI, uint8_t byteval, uint32_t byteIdx) {
-  uint16_t start_num_idx = ( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 8 : 0 );
+template <eir::bitmanager_type bitManType>
+inline void SPIPrepareReadBitManager(volatile spi_dev_t& SPI, bitManType& bitman) noexcept {
+  bool rd_msbfirst = (SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER == _ESP32_BIT_ORDER_MSB);
 
-  return SPIWriteSingleByteToTransferEx(SPI, byteval, byteIdx, start_num_idx);
+  bitman.SetDefaultStorageProperty(
+    rd_msbfirst ? eir::endian::eSpecificEndian::BIG_ENDIAN : eir::endian::eSpecificEndian::LITTLE_ENDIAN,
+    false
+  );
 }
 
 template <typename numberType>
-inline void SPIWriteDataToTransferEx(
-  spi_dev_t& SPI, const numberType *buf, uint32_t cnt_bytes, uint32_t srcByteStartIdx, uint32_t dstByteStartIdx,
+inline void SPIWriteDataToTransferIsolated(
+  volatile spi_dev_t& SPI, const numberType *buf, uint16_t cnt, uint32_t srcByteStartIdx,
   uint16_t& cntSentBytes_out
 ) {
-  uint16_t total_bytes_written = 0;
+  uint16_t start_num_idx = SPIGetWriteBufferStartIndex(SPI);
 
-  using namespace ::bufmgmt;
+  esp32BitManager <const numberType> src_bitman( buf, cnt );
 
-  auto max_transfer_size = SPIGetWriteBufferSize(SPI);
-  uint16_t start_num_idx = ( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 8 : 0 );
+  SPIPrepareWriteBitManager( SPI, src_bitman );
 
-  bool notrevbits = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == 1);
+  eir::BitNumberIteratorForStruct <numberType> src_iter;
+  src_iter.addBytes( srcByteStartIdx );
+  src_bitman.SetIterator( src_iter );
 
-  for (uint16_t txidx = 0; txidx < _MIN <uint32_t> (cnt_bytes - srcByteStartIdx, max_transfer_size - dstByteStartIdx); txidx++) {
-    uint8_t byteval =
-      GetByteFromNumber(
-        buf[ GetNumberIndexFromTotalByteIndex <numberType> ( txidx + srcByteStartIdx ) ],
-        GetLocalByteIndexFromTotalByteIndex <numberType> ( txidx + srcByteStartIdx ),
-        notrevbits  // reverse if MSBFIRST
-      );
-
-    WriteByteToNumber(
-      SPI.SPI_W_REG[ start_num_idx + GetNumberIndexFromTotalByteIndex <uint32_t> ( txidx + dstByteStartIdx ) ],
-      GetLocalByteIndexFromTotalByteIndex <uint32_t> ( txidx + dstByteStartIdx ),
-      byteval,
-      true
-    );
-
-    total_bytes_written++;
+  eir::BitNumberIteratorForStruct <uint32_t> txiter( start_num_idx );
+  while ( src_bitman.IsAtEnd() == false && txiter.getNumberOffset() < COUNT(SPI.SPI_W_REG)  ) {
+    uint32_t txitem = 0u;
+    uint32_t n = txiter.getNumberOffset();
+    src_bitman.FetchSingle( txitem, txiter );
+    SPI.SPI_W_REG[n] = txitem;
   }
 
-  cntSentBytes_out = total_bytes_written;
+  cntSentBytes_out = ( txiter.getTotalByteOffset() );
 }
 
-template <typename numberType>
-inline void SPIWriteDataToTransfer(
-  spi_dev_t& SPI, const numberType *buf, uint16_t cnt, uint32_t srcByteStartIdx, uint32_t dstByteStartIdx,
-  uint16_t& cntSentBytes_out
-) {
-  return SPIWriteDataToTransferEx(SPI, buf, cnt * sizeof(numberType), srcByteStartIdx, dstByteStartIdx, cntSentBytes_out);
+inline uint16_t SPIGetReadBufferSize(volatile spi_dev_t& SPI) {
+  return 64;//( SPI.SPI_USER_REG.SPI_USR_MISO_HIGHPART == 1 ? 32 : 64 );
 }
 
-inline uint16_t SPIGetReadBufferSize(spi_dev_t& SPI) {
-  return ( SPI.SPI_USER_REG.SPI_USR_MISO_HIGHPART == 1 ? 32 : 64 );
+inline uint16_t SPIGetReadBufferStartIndex(volatile spi_dev_t& SPI) {
+  return 0;//( SPI.SPI_USER_REG.SPI_USR_MISO_HIGHPART == 1 ? 8 : 0 );
 }
 
-template <typename numberType>
-inline void SPIReadDataFromTransfer(
-  spi_dev_t& SPI, numberType *buf, uint16_t cnt, uint32_t srcByteStartIdx, uint32_t dstByteStartIdx,
-  uint16_t& cntReadBytes_out
-) {
-  uint16_t total_bytes_read = 0;
+static void SPITransaction(volatile spi_dev_t& SPI, uint32_t txcount_bytes) {
+  if (txcount_bytes == 0) return;
 
-  uint16_t bufNumStartIdx = ( SPI.SPI_USER_REG.SPI_USR_MISO_HIGHPART == 1 ? 8 : 0 );
-  uint16_t bufByteLen = SPIGetReadBufferSize(SPI);
-
-  bool notrevbits = (SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER == 1);  // reverse if MSBFIRST
-
-  using namespace ::bufmgmt;
-
-  for (uint16_t txidx = 0; txidx < _MIN <uint32_t> ((uint32_t)cnt*sizeof(numberType) - srcByteStartIdx, bufByteLen - dstByteStartIdx); txidx++) {
-    uint8_t byteval =
-      GetByteFromNumber(
-        SPI.SPI_W_REG[ GetNumberIndexFromTotalByteIndex <uint32_t> (txidx + dstByteStartIdx) ],
-        GetLocalByteIndexFromTotalByteIndex <uint32_t> (txidx + dstByteStartIdx),
-        true
-      );
-
-    WriteByteToNumber(
-      buf[ bufNumStartIdx + GetNumberIndexFromTotalByteIndex <numberType> (txidx + srcByteStartIdx) ],
-      GetLocalByteIndexFromTotalByteIndex <numberType> (txidx + srcByteStartIdx),
-      byteval,
-      notrevbits
-    );
-
-    total_bytes_read++;
-  }
-
-  cntReadBytes_out = total_bytes_read;
-}
-
-static void SPITransaction(spi_dev_t& SPI, uint32_t txcount) {
-  if (txcount == 0) return;
-
-  uint32_t txcount_bits = ( txcount * 8 );
+  uint32_t txcount_bits = ( txcount_bytes * 8u );
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == true) {
     SPI.SPI_MOSI_DLEN_REG.SPI_USR_MOSI_DBITLEN = txcount_bits - 1;
@@ -1263,12 +1604,12 @@ static void SPITransaction(spi_dev_t& SPI, uint32_t txcount) {
   }
 }
 
-static void SPIResetBus(spi_dev_t& SPI) {
+static void SPIResetBus(volatile spi_dev_t& SPI) {
   spi_cmd_reg_t SPI_CMD_REG;
   SPI_CMD_REG.reserved1 = 0;
   SPI_CMD_REG.SPI_USR = 0;
   SPI_CMD_REG.reserved2 = 0;
-  (spi_cmd_reg_t&)SPI.SPI_CMD_REG = SPI_CMD_REG;
+  dwrite(SPI.SPI_CMD_REG, SPI_CMD_REG);
 
   SPI.SPI_ADDR_REG = 0;
 
@@ -1282,12 +1623,16 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_CTRL_REG.reserved3 = 0;
   SPI_CTRL_REG.SPI_FREAD_DIO = 0;
   SPI_CTRL_REG.SPI_FREAD_QIO = 0;
-  SPI_CTRL_REG.SPI_RD_BIT_ORDER = 0;
-  SPI_CTRL_REG.SPI_WR_BIT_ORDER = 0;
+  SPI_CTRL_REG.SPI_RD_BIT_ORDER = _ESP32_BIT_ORDER_MSB;
+  SPI_CTRL_REG.SPI_WR_BIT_ORDER = _ESP32_BIT_ORDER_MSB;
   SPI_CTRL_REG.reserved4 = 0;
-  (spi_ctrl_reg_t&)SPI.SPI_CTRL_REG = SPI_CTRL_REG;
+  dwrite(SPI.SPI_CTRL_REG, SPI_CTRL_REG);
 
-  SPI.SPI_CTRL1_REG = 0;
+  spi_ctrl1_reg_t SPI_CTRL1_REG;
+  SPI_CTRL1_REG.reserved1 = 0;
+  SPI_CTRL1_REG.SPI_CS_HOLD_DELAY = 5;
+  dwrite(SPI.SPI_CTRL1_REG, SPI_CTRL1_REG);
+
   SPI.SPI_RD_STATUS_REG = 0;
 
   spi_ctrl2_reg_t SPI_CTRL2_REG;
@@ -1301,7 +1646,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_CTRL2_REG.SPI_MOSI_DELAY_NUM = 0;
   SPI_CTRL2_REG.SPI_CS_DELAY_MODE = 0;
   SPI_CTRL2_REG.SPI_CS_DELAY_NUM = 0;
-  (spi_ctrl2_reg_t&)SPI.SPI_CTRL2_REG = SPI_CTRL2_REG;
+  dwrite(SPI.SPI_CTRL2_REG, SPI_CTRL2_REG);
 
   spi_clock_reg_t SPI_CLOCK_REG;
   SPI_CLOCK_REG.SPI_CLKCNT_L = 3;
@@ -1309,7 +1654,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_CLOCK_REG.SPI_CLKCNT_N = 3;
   SPI_CLOCK_REG.SPI_CLKDIV_PRE = 0;
   SPI_CLOCK_REG.SPI_CLK_EQU_SYSCLK = 1;
-  (spi_clock_reg_t&)SPI.SPI_CLOCK_REG = SPI_CLOCK_REG;
+  dwrite(SPI.SPI_CLOCK_REG, SPI_CLOCK_REG);
 
   spi_user_reg_t SPI_USER_REG;
   SPI_USER_REG.SPI_DOUTDIN = 0;
@@ -1335,7 +1680,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_USER_REG.SPI_USR_DUMMY = 0;
   SPI_USER_REG.SPI_USR_ADDR = 0;
   SPI_USER_REG.SPI_USR_COMMAND = 1;
-  (spi_user_reg_t&)SPI.SPI_USER_REG = SPI_USER_REG;
+  dwrite(SPI.SPI_USER_REG, SPI_USER_REG);
 
   SPI.SPI_USER1_REG.SPI_USR_DUMMY_CYCLELEN = 0;
 
@@ -1343,17 +1688,17 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_USER2_REG.SPI_USR_COMMAND_VALUE = 0;
   SPI_USER2_REG.reserved1 = 0;
   SPI_USER2_REG.SPI_USR_COMMAND_BITLEN = 7;
-  (spi_user2_reg_t&)SPI.SPI_USER2_REG = SPI_USER2_REG;
+  dwrite(SPI.SPI_USER2_REG, SPI_USER2_REG);
 
   spi_mosi_dlen_reg_t SPI_MOSI_DLEN_REG;
   SPI_MOSI_DLEN_REG.SPI_USR_MOSI_DBITLEN = 0;
   SPI_MOSI_DLEN_REG.reserved1 = 0;
-  (spi_mosi_dlen_reg_t&)SPI.SPI_MOSI_DLEN_REG = SPI_MOSI_DLEN_REG;
+  dwrite(SPI.SPI_MOSI_DLEN_REG, SPI_MOSI_DLEN_REG);
 
   spi_miso_dlen_reg_t SPI_MISO_DLEN_REG;
   SPI_MISO_DLEN_REG.SPI_USR_MISO_DBITLEN = 0;
   SPI_MISO_DLEN_REG.reserved1 = 0;
-  (spi_miso_dlen_reg_t&)SPI.SPI_MISO_DLEN_REG = SPI_MISO_DLEN_REG;
+  dwrite(SPI.SPI_MISO_DLEN_REG, SPI_MISO_DLEN_REG);
 
   SPI.SPI_SLV_WR_STATUS_REG = 0;
 
@@ -1370,7 +1715,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_PIN_REG.SPI_CK_IDLE_EDGE = 0;
   SPI_PIN_REG.SPI_CS_KEEP_ACTIVE = 0;
   SPI_PIN_REG.reserved4 = 0;
-  (spi_pin_reg_t&)SPI.SPI_PIN_REG = SPI_PIN_REG;
+  dwrite(SPI.SPI_PIN_REG, SPI_PIN_REG);
 
   spi_slave_reg_t SPI_SLAVE_REG;
   SPI_SLAVE_REG.SPI_SLV_RD_BUF_DONE = 0;
@@ -1393,7 +1738,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_SLAVE_REG.SPI_SLV_WR_RD_BUF_EN = 0;
   SPI_SLAVE_REG.SPI_SLAVE_MODE = 0;
   SPI_SLAVE_REG.SPI_SYNC_RESET = 0;
-  (spi_slave_reg_t&)SPI.SPI_SLAVE_REG = SPI_SLAVE_REG;
+  dwrite(SPI.SPI_SLAVE_REG, SPI_SLAVE_REG);
 
   spi_slave1_reg_t SPI_SLAVE1_REG;
   SPI_SLAVE1_REG.SPI_SLV_RDBUF_DUMMY_EN = 0;
@@ -1406,36 +1751,36 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_SLAVE1_REG.SPI_SLV_STATUS_READBACK = 1;
   SPI_SLAVE1_REG.SPI_SLV_STATUS_FAST_EN = 0;
   SPI_SLAVE1_REG.SPI_SLV_STATUS_BITLEN = 0;
-  (spi_slave1_reg_t&)SPI.SPI_SLAVE1_REG = SPI_SLAVE1_REG;
+  dwrite(SPI.SPI_SLAVE1_REG, SPI_SLAVE1_REG);
 
   spi_slave2_reg_t SPI_SLAVE2_REG;
   SPI_SLAVE2_REG.SPI_SLV_RDSTA_DUMMY_CYCLELEN = 0;
   SPI_SLAVE2_REG.SPI_SLV_WRSTA_DUMMY_CYCLELEN = 0;
   SPI_SLAVE2_REG.SPI_SLV_RDBUF_DUMMY_CYCLELEN = 0;
   SPI_SLAVE2_REG.SPI_SLV_WRBUF_DUMMY_CYCLELEN = 0;
-  (spi_slave2_reg_t&)SPI.SPI_SLAVE2_REG = SPI_SLAVE2_REG;
+  dwrite(SPI.SPI_SLAVE2_REG, SPI_SLAVE2_REG);
 
   spi_slave3_reg_t SPI_SLAVE3_REG;
   SPI_SLAVE3_REG.SPI_SLV_RDBUF_CMD_VALUE = 0;
   SPI_SLAVE3_REG.SPI_SLV_WRBUF_CMD_VALUE = 0;
   SPI_SLAVE3_REG.SPI_SLV_RDSTA_CMD_VALUE = 0;
   SPI_SLAVE3_REG.SPI_SLV_WRSTA_CMD_VALUE = 0;
-  (spi_slave3_reg_t&)SPI.SPI_SLAVE3_REG = SPI_SLAVE3_REG;
+  dwrite(SPI.SPI_SLAVE3_REG, SPI_SLAVE3_REG);
 
   spi_slv_wrbuf_dlen_reg_t SPI_SLV_WRBUF_DLEN_REG;
   SPI_SLV_WRBUF_DLEN_REG.SPI_SLV_WRBUF_DBITLEN = 0;
   SPI_SLV_WRBUF_DLEN_REG.reserved1 = 0;
-  (spi_slv_wrbuf_dlen_reg_t&)SPI.SPI_SLV_WRBUF_DLEN_REG = SPI_SLV_WRBUF_DLEN_REG;
+  dwrite(SPI.SPI_SLV_WRBUF_DLEN_REG, SPI_SLV_WRBUF_DLEN_REG);
 
   spi_slv_rdbuf_dlen_reg_t SPI_SLV_RDBUF_DLEN_REG;
   SPI_SLV_RDBUF_DLEN_REG.SPI_SLV_RDBUF_DBITLEN = 0;
   SPI_SLV_RDBUF_DLEN_REG.reserved1 = 0;
-  (spi_slv_rdbuf_dlen_reg_t&)SPI.SPI_SLV_RDBUF_DLEN_REG = SPI_SLV_RDBUF_DLEN_REG;
+  dwrite(SPI.SPI_SLV_RDBUF_DLEN_REG, SPI_SLV_RDBUF_DLEN_REG);
 
   spi_slv_rd_bit_reg_t SPI_SLV_RD_BIT_REG;
   SPI_SLV_RD_BIT_REG.SPI_SLV_RDATA_BIT = 0;
   SPI_SLV_RD_BIT_REG.reserved1 = 0;
-  (spi_slv_rd_bit_reg_t&)SPI.SPI_SLV_RD_BIT_REG = SPI_SLV_RD_BIT_REG;
+  dwrite(SPI.SPI_SLV_RD_BIT_REG, SPI_SLV_RD_BIT_REG);
 
   for (uint32_t n = 0; n < 16; n++)
     SPI.SPI_W_REG[n] = 0;
@@ -1461,7 +1806,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_DMA_CONF_REG.SPI_DMA_TX_STOP = 0;
   SPI_DMA_CONF_REG.SPI_DMA_CONTINUE = 0;
   SPI_DMA_CONF_REG.reserved4 = 0;
-  (spi_dma_conf_reg_t&)SPI.SPI_DMA_CONF_REG = SPI_DMA_CONF_REG;
+  dwrite(SPI.SPI_DMA_CONF_REG, SPI_DMA_CONF_REG);
 
   spi_dma_out_link_reg_t SPI_DMA_OUT_LINK_REG;
   SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR = 0;
@@ -1470,7 +1815,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_START = 0;
   SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_RESTART = 0;
   SPI_DMA_OUT_LINK_REG.reserved2 = 0;
-  (spi_dma_out_link_reg_t&)SPI.SPI_DMA_OUT_LINK_REG = SPI_DMA_OUT_LINK_REG;
+  dwrite(SPI.SPI_DMA_OUT_LINK_REG, SPI_DMA_OUT_LINK_REG);
 
   spi_dma_in_link_reg_t SPI_DMA_IN_LINK_REG;
   SPI_DMA_IN_LINK_REG.SPI_INLINK_ADDR = 0;
@@ -1480,7 +1825,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_DMA_IN_LINK_REG.SPI_INLINK_START = 0;
   SPI_DMA_IN_LINK_REG.SPI_INLINK_RESTART = 0;
   SPI_DMA_IN_LINK_REG.reserved2 = 0;
-  (spi_dma_in_link_reg_t&)SPI.SPI_DMA_IN_LINK_REG = SPI_DMA_IN_LINK_REG;
+  dwrite(SPI.SPI_DMA_IN_LINK_REG, SPI_DMA_IN_LINK_REG);
 
   SPI.SPI_DMA_STATUS_REG.reserved1 = 0;
 
@@ -1495,7 +1840,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
   SPI_DMA_INT_ENA_REG.SPI_OUT_EOF_INT_ENA = 0;
   SPI_DMA_INT_ENA_REG.SPI_OUT_TOTAL_EOF_INT_ENA = 0;
   SPI_DMA_INT_ENA_REG.reserved1 = 0;
-  (spi_dma_int_ena_reg_t&)SPI.SPI_DMA_INT_ENA_REG = SPI_DMA_INT_ENA_REG;
+  dwrite(SPI.SPI_DMA_INT_ENA_REG, SPI_DMA_INT_ENA_REG);
 
   SPI.SPI_DMA_INT_RAW_REG.reserved1 = 0;
 
@@ -1508,7 +1853,7 @@ static void SPIResetBus(spi_dev_t& SPI) {
 #ifdef HAL_SPI_SUPPORTS_ASYNC
 
 struct spi_async_process_t {
-  spi_dev_t *current_spibus;
+  volatile spi_dev_t *current_spibus;
   const void *current_buffer;
   size_t curoff_bytes;
   size_t txlen;
@@ -1538,21 +1883,21 @@ static void IRAM_ATTR spi_async_fill_buffer(volatile spi_async_process_t& proc) 
     _spi_on_error(13);
 #endif
 
-  spi_dev_t& SPI = *proc.current_spibus;
+  auto& SPI = *proc.current_spibus;
 
   bool has_prepared_spibus = false;
   uint16_t writecnt_bytes = 0;
 
   if (proc.txunitsize == 1) {
-    SPIWriteDataToTransfer(SPI, (const uint8_t*)proc.current_buffer, proc.txlen, proc.curoff_bytes, 0, writecnt_bytes);
+    SPIWriteDataToTransferIsolated(SPI, (const uint8_t*)proc.current_buffer, proc.txlen, proc.curoff_bytes, writecnt_bytes);
     has_prepared_spibus = true;
   }
   else if (proc.txunitsize == 2) {
-    SPIWriteDataToTransfer(SPI, (const uint16_t*)proc.current_buffer, proc.txlen, proc.curoff_bytes, 0, writecnt_bytes);
+    SPIWriteDataToTransferIsolated(SPI, (const uint16_t*)proc.current_buffer, proc.txlen, proc.curoff_bytes, writecnt_bytes);
     has_prepared_spibus = true;
   }
   else if (proc.txunitsize == 4) {
-    SPIWriteDataToTransfer(SPI, (const uint32_t*)proc.current_buffer, proc.txlen, proc.curoff_bytes, 0, writecnt_bytes);
+    SPIWriteDataToTransferIsolated(SPI, (const uint32_t*)proc.current_buffer, proc.txlen, proc.curoff_bytes, writecnt_bytes);
     has_prepared_spibus = true;
   }
 
@@ -1601,14 +1946,14 @@ static void IRAM_ATTR spi_async_fill_buffer(volatile spi_async_process_t& proc) 
 }
 
 static void IRAM_ATTR spi_async_process_isr(void *ud, uint32_t spibusIdx) {
-  spi_dev_t& SPI = SPIGetBusFromIndex(spibusIdx);
+  auto& SPI = SPIGetBusFromIndex(spibusIdx);
 
   // Check the type of the triggered interrupt.
   if (SPI.SPI_SLAVE_REG.SPI_TRANS_DONE) {
     // Clear the interrupt.
     SPI.SPI_SLAVE_REG.SPI_TRANS_DONE = false;
 
-    volatile spi_async_process_t& proc = _current_spi_proc;
+    auto& proc = _current_spi_proc;
 
     if (proc.is_active && proc.current_spibus == &SPI) {
       // Is the SPI bus ready? Otherwise we could have a spurious interrupt call.
@@ -1639,7 +1984,7 @@ static void IRAM_ATTR spi_async_process_isr_spibus3(void *ud) {
   spi_async_process_isr(ud, 3);
 }
 
-static void SPIInstallAsync(spi_dev_t& SPI, intr_handle_t& handleOut) {
+static void SPIInstallAsync(volatile spi_dev_t& SPI, intr_handle_t& handleOut) {
   int intsrc = -1;
   void (*inthandler)(void*) = nullptr;
 
@@ -1688,8 +2033,8 @@ static void SPIAsyncInitialize() {
   SPIInstallAsync(SPI3, _spi3_interrupt);
 }
 
-static void SPIStartRawAsync(spi_dev_t& SPI, const void *buf, uint32_t txlen, uint8_t txunitsize, void (*completeCallback)(void*), void *ud) {
-  volatile spi_async_process_t& proc = _current_spi_proc;
+static void SPIStartRawAsync(volatile spi_dev_t& SPI, const void *buf, uint32_t txlen, uint8_t txunitsize, void (*completeCallback)(void*), void *ud) {
+  auto& proc = _current_spi_proc;
 
   spi_monitored_loop asyncw;
   while (proc.is_active) { asyncw.update(2); /* wait for any async process to conclude before we start another */ }
@@ -1718,12 +2063,12 @@ static void SPIStartRawAsync(spi_dev_t& SPI, const void *buf, uint32_t txlen, ui
 static void SPIAbortRawAsync() {
   cli();
 
-  volatile spi_async_process_t& proc = _current_spi_proc;
+  auto& proc = _current_spi_proc;
 
   if (proc.is_active) {
     proc.is_active = false;
 
-    spi_dev_t& SPI = *proc.current_spibus;
+    auto& SPI = *proc.current_spibus;
 
     SPI.SPI_SLAVE_REG.SPI_TRANS_INTEN = false;
     SPI.SPI_SLAVE_REG.SPI_TRANS_DONE = false;
@@ -1743,14 +2088,15 @@ static void SPIAbortRawAsync() {
 // page 113 of ESP32 TRM.
 struct dma_descriptor_t {
   // Configuration bits.
-  volatile uint32_t size : 12;
-  volatile uint32_t length : 12;
-  volatile uint32_t reserved : 6;
-  volatile uint32_t eof : 1;
-  volatile uint32_t owner : 1;
+  uint32_t size : 12;
+  uint32_t length : 12;
+  uint32_t reserved : 5;
+  uint32_t sosf : 1; // start-of-sub-frame (undocumented)
+  uint32_t eof : 1;
+  uint32_t owner : 1;
 
   void *address;
-  dma_descriptor_t *next;
+  volatile dma_descriptor_t *next;
 };
 static_assert(sizeof(dma_descriptor_t) == 12, "invalid size of ESP32 dma_descriptor_t");
 
@@ -1760,42 +2106,51 @@ static_assert(sizeof(dma_descriptor_t) == 12, "invalid size of ESP32 dma_descrip
 #endif
 
 #ifdef HALSPI_ESP32_STATIC_DMADESCS
-static dma_descriptor_t _usable_dma_descs_static[HALSPI_ESP32_DMADESC_COUNT];
+static volatile dma_descriptor_t _usable_dma_descs_static[HALSPI_ESP32_DMADESC_COUNT];
 #else
-static dma_descriptor_t *_usable_dma_descs_dynamic = nullptr;
+static volatile dma_descriptor_t *_usable_dma_descs_dynamic = nullptr;
 static uint32_t _usable_dma_descs_count = 0;
 #endif
 
 // Specifies the valid memory range for DMA descriptors (not specified if necessary for DMA buffers).
-#define ESP32_DMA_BASE 0x3FF00000
-#define ESP32_DMA_SIZE (1<<20)
 
-inline bool DMAIsValidDescriptor(dma_descriptor_t *desc) {
-  size_t addr = (size_t)desc;
+// For ESP32 basic.
+#define ESP32_DMADESC_HWPTR(ptr) ((uint32_t)ptr - 0x3FF00000)
 
-  return ( addr >= ESP32_DMA_BASE && addr <= (ESP32_DMA_BASE + ESP32_DMA_SIZE) );
+inline bool DMAIsValidPointer(volatile const void *ptr) noexcept {
+  size_t addr = (size_t)ptr;
+
+  return ( addr >= SOC_DMA_LOW && addr <= SOC_DMA_HIGH );
+}
+
+inline bool DMAIsValidDescriptor(volatile dma_descriptor_t *desc) noexcept {
+  return DMAIsValidPointer(desc);
 }
 
 inline void DMAInitializeMachine() {
 #ifdef HALSPI_ESP32_STATIC_DMADESCS
-  for (dma_descriptor_t& desc : _usable_dma_descs_static) {
+  for (auto& desc : _usable_dma_descs_static) {
     if (DMAIsValidDescriptor(&desc) == false) {
       _spi_on_error(3);
     }
     desc.owner = SPIDMA_OWNER_CPU;
+    desc.reserved = 0;
+    desc.sosf = false;
   }
 #else
   void *dmabuf = heap_caps_malloc( sizeof(dma_descriptor_t)*HALSPI_ESP32_DMADESC_COUNT, MALLOC_CAP_DMA );
   if (dmabuf == nullptr)
     _spi_on_error(3);
-  _usable_dma_descs_dynamic = (dma_descriptor_t*)dmabuf;
+  _usable_dma_descs_dynamic = (volatile dma_descriptor_t*)dmabuf;
   _usable_dma_descs_count = HALSPI_ESP32_DMADESC_COUNT;
   if (DMAIsValidDescriptor(_usable_dma_descs_dynamic) == false)
     _spi_on_error(3);
   for (uint32_t n = 0; n < _usable_dma_descs_count; n++) {
-    dma_descriptor_t& desc = _usable_dma_descs_dynamic[n];
+    auto& desc = _usable_dma_descs_dynamic[n];
 
     desc.owner = SPIDMA_OWNER_CPU;
+    desc.reserved = 0;
+    desc.sosf = false;
   }
 #endif
 }
@@ -1806,17 +2161,28 @@ inline void DMAInitializeMachine() {
   -> each DMA-internal memory buffer accepting function has to deny the buffer if it does not match
      the requirements!
 */
-inline bool DMAIsValidDataBuffer(const void *buf, size_t bufsz) {
-    size_t bufaddr = (size_t)buf;
+inline bool DMAIsValidWriteDataBuffer(const void *buf, size_t bufsz) noexcept {
+  if (DMAIsValidPointer(buf) == false) return false;
 
-    if (bufaddr % sizeof(uint32_t) != 0) return false;
-    if (bufsz % sizeof(uint32_t) != 0) return false;
+  size_t bufaddr = (size_t)buf;
 
-    return true;
+  if (bufaddr % sizeof(uint32_t) != 0) return false;
+  if (bufsz % sizeof(uint32_t) != 0) return false;
+
+  return true;
+}
+inline bool DMAIsValidReadDataBuffer(const void *buf) noexcept {
+  if (DMAIsValidPointer(buf) == false) return false;
+
+  size_t bufaddr = (size_t)buf;
+
+  if (bufaddr % sizeof(uint32_t) != 0) return false;
+
+  return true;
 }
 
 // Not every SPI bus is DMA-capable.
-inline bool DMAIsCapableSPIBus(spi_dev_t& SPI) {
+inline bool DMAIsCapableSPIBus(volatile spi_dev_t& SPI) {
 #ifdef HALSPI_ENABLE_INTERNBUS
   if (&SPI == &SPI1) return true;
 #endif
@@ -1826,16 +2192,16 @@ inline bool DMAIsCapableSPIBus(spi_dev_t& SPI) {
 }
 
 struct dma_process_t {
-    const void *current_buffer;
-    size_t bufsize;
-    size_t txlen;
-    size_t curoff;
-    bool is_active;
+  const void *current_buffer;
+  size_t bufsize;
+  size_t txlen;
+  size_t curoff;
+  bool is_active;
 };
 
-static dma_process_t dma_current_process;
+static volatile dma_process_t dma_current_process;
 
-static void DMABusInitialize(spi_dev_t& SPI) {
+static void DMABusInitialize(volatile spi_dev_t& SPI) {
 #ifdef HALSPI_DEBUG
   if (DMAIsCapableSPIBus(SPI) == false)
     _spi_on_error(4);
@@ -1849,21 +2215,30 @@ static void DMABusInitialize(spi_dev_t& SPI) {
   // Select the SPI DMA channel.
   auto spibusIdx = SPIGetBusIndex(SPI);
 
+  unsigned int dma_chansel =
+#ifdef HALSPI_ESP32_DMA_SELECT_CHAN1
+    DPORT_SPI_DMA_CHAN_SEL_CHAN1
+#elif defined(HALSPI_ESP32_DMA_SELECT_CHAN2)
+    DPORT_SPI_DMA_CHAN_SEL_CHAN2
+#else
+    DPORT_SPI_DMA_CHAN_SEL_CHAN1
+#endif
+    ;
 #ifdef HALSPI_ESP32_ENABLE_INTERNBUS
   if (spibusIdx == 1) {
-    DPORT_SPI_DMA_CHAN_SEL_REG.DPORT_SPI_SPI1_DMA_CHAN_SEL = DPORT_SPI_DMA_CHAN_SEL_CHAN1;
+    DPORT_SPI_DMA_CHAN_SEL_REG.DPORT_SPI_SPI1_DMA_CHAN_SEL = dma_chansel;
   }
   else
 #endif
   if (spibusIdx == 2) {
-    DPORT_SPI_DMA_CHAN_SEL_REG.DPORT_SPI_SPI2_DMA_CHAN_SEL = DPORT_SPI_DMA_CHAN_SEL_CHAN1;
+    DPORT_SPI_DMA_CHAN_SEL_REG.DPORT_SPI_SPI2_DMA_CHAN_SEL = dma_chansel;
   }
   else if (spibusIdx == 3) {
-    DPORT_SPI_DMA_CHAN_SEL_REG.DPORT_SPI_SPI3_DMA_CHAN_SEL = DPORT_SPI_DMA_CHAN_SEL_CHAN1;
+    DPORT_SPI_DMA_CHAN_SEL_REG.DPORT_SPI_SPI3_DMA_CHAN_SEL = dma_chansel;
   }
 }
 
-static void DMABusShutdown(spi_dev_t& SPI) {
+static void DMABusShutdown(volatile spi_dev_t& SPI) {
   // Unselect the SPI DMA channel.
   auto spibusIdx = SPIGetBusIndex(SPI);
 
@@ -1886,12 +2261,12 @@ static void DMABusShutdown(spi_dev_t& SPI) {
 
 // TODO: manage list of free descriptors to speed up the process of generating a DMA chain.
 
-static dma_descriptor_t* DMAGetFreeDescriptor() {
+static volatile dma_descriptor_t* DMAGetFreeDescriptor() noexcept {
 #ifdef HALSPI_ESP32_STATIC_DMADESCS
-  for (dma_descriptor_t& desc : _usable_dma_descs_static) {
+  for (auto& desc : _usable_dma_descs_static) {
 #else
   for (uint32_t _n = 0; _n < _usable_dma_descs_count; _n++) {
-    dma_descriptor_t& desc = _usable_dma_descs_dynamic[_n];
+    auto& desc = _usable_dma_descs_dynamic[_n];
 #endif
     if (desc.owner == SPIDMA_OWNER_CPU) {
 #ifdef HALSPI_DEBUG
@@ -1905,38 +2280,22 @@ static dma_descriptor_t* DMAGetFreeDescriptor() {
   return nullptr;
 }
 
-// UNSIGNED ONLY!
-// (this would be much nicer with C++17 constexpr-if or C++20 concepts)
-template <typename numberType>
-inline numberType _ALIGN(numberType val, numberType alignBy) {
-  numberType rem = (val % alignBy);
-
-#if 0
-  if (rem < (numberType)0) rem = (numberType)-rem;
-#endif
-
-  return ( rem > 0 ? val + rem : val );
-}
-
-static dma_descriptor_t* DMAGenerateAcquireChain(dma_process_t& proc) {
-  dma_descriptor_t *startdesc = nullptr;
-  dma_descriptor_t *chainend = nullptr;
+static volatile dma_descriptor_t* DMAGenerateAcquireChain(volatile dma_process_t& proc) noexcept {
+  volatile dma_descriptor_t *startdesc = nullptr;
+  volatile dma_descriptor_t *chainend = nullptr;
 
   while (proc.curoff < proc.txlen) {
-    dma_descriptor_t *freedesc = DMAGetFreeDescriptor();
+    volatile dma_descriptor_t *freedesc = DMAGetFreeDescriptor();
 
     if (freedesc == nullptr) break;
 
     size_t left_to_transmit = (proc.txlen - proc.curoff);
-    uint32_t txcount = (uint32_t)_MIN <size_t> ((1<<12)-4, left_to_transmit);
-    uint32_t txbufsz = _ALIGN(txcount, (uint32_t)4u);
+    uint32_t txcount = eir::Minimum((1u<<12u)-4u, left_to_transmit);
+    uint32_t txbufsz = ALIGN_SIZE(txcount, (uint32_t)4u);
 
     freedesc->size = txbufsz;
     freedesc->length = txcount;
-    freedesc->reserved = 0;
-    freedesc->eof = true;
     freedesc->address = ((uint8_t*)proc.current_buffer + proc.curoff);
-    freedesc->next = nullptr;
 
     // Advance the process.
     proc.curoff += txcount;
@@ -1956,57 +2315,222 @@ static dma_descriptor_t* DMAGenerateAcquireChain(dma_process_t& proc) {
     }
   }
 
+  if (chainend) {
+    chainend->eof = true;
+    chainend->next = nullptr;
+  }
+
   return startdesc;
 }
 
-static void DMASendBlocking(spi_dev_t& SPI, const void *buf, size_t bufsize, size_t txlen) {
+static void DMASendBlocking(volatile spi_dev_t& SPI, const void *buf, size_t bufsize, size_t txlen) {
   DMABusInitialize(SPI);
+
+  // Reset the DMA state machine.
+  {
+    SPI.SPI_DMA_CONF_REG.SPI_OUT_RST = true;
+    SPI.SPI_DMA_CONF_REG.SPI_IN_RST = true;
+    SPI.SPI_DMA_CONF_REG.SPI_AHBM_RST = true;
+    SPI.SPI_DMA_CONF_REG.SPI_AHBM_FIFO_RST = true;
+
+    SPI.SPI_DMA_IN_LINK_REG.SPI_INLINK_START = false;
+    SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_START = false;
+
+    SPI.SPI_DMA_CONF_REG.SPI_OUT_RST = false;
+    SPI.SPI_DMA_CONF_REG.SPI_IN_RST = false;
+    SPI.SPI_DMA_CONF_REG.SPI_AHBM_RST = false;
+    SPI.SPI_DMA_CONF_REG.SPI_AHBM_FIFO_RST = false;
+  }
 
   // Configure DMA for the SPI bus.
   spi_dma_conf_reg_t SPI_DMA_CONF_REG;
   SPI_DMA_CONF_REG.SPI_DMA_CONTINUE = false;
   SPI_DMA_CONF_REG.SPI_DMA_TX_STOP = false;
   SPI_DMA_CONF_REG.SPI_DMA_RX_STOP = false;
-  SPI_DMA_CONF_REG.SPI_OUT_DATA_BURST_EN = true;
-  SPI_DMA_CONF_REG.SPI_INDSCR_BURST_EN = true;
-  SPI_DMA_CONF_REG.SPI_OUTDSCR_BURST_EN = true;
+  SPI_DMA_CONF_REG.SPI_OUT_DATA_BURST_EN = false;
+  SPI_DMA_CONF_REG.SPI_INDSCR_BURST_EN = false;
+  SPI_DMA_CONF_REG.SPI_OUTDSCR_BURST_EN = false;
   SPI_DMA_CONF_REG.SPI_OUT_EOF_MODE = 1;
   SPI_DMA_CONF_REG.SPI_AHBM_RST = false;
   SPI_DMA_CONF_REG.SPI_AHBM_FIFO_RST = false;
   SPI_DMA_CONF_REG.SPI_OUT_RST = false;
   SPI_DMA_CONF_REG.SPI_IN_RST = false;
-  (spi_dma_conf_reg_t&)SPI.SPI_DMA_CONF_REG = SPI_DMA_CONF_REG;
+  SPI_DMA_CONF_REG.reserved1 = 0;
+  SPI_DMA_CONF_REG.reserved2 = 0;
+  SPI_DMA_CONF_REG.reserved3 = 0;
+  SPI_DMA_CONF_REG.reserved4 = 0;
+  dwrite(SPI.SPI_DMA_CONF_REG, SPI_DMA_CONF_REG);
 
-  dma_process_t& proc = dma_current_process;
+  auto& proc = dma_current_process;
   proc.is_active = true;
   proc.current_buffer = buf;
   proc.bufsize = bufsize;
   proc.txlen = txlen;
   proc.curoff = 0;
 
+#if 0
+  static volatile dma_descriptor_t _rxdesc;
+  _rxdesc.size = 0;
+  _rxdesc.length = 0;
+  _rxdesc.reserved = 0;
+  _rxdesc.sosf = false;
+  _rxdesc.eof = true;
+  _rxdesc.owner = SPIDMA_OWNER_DMAC;
+  _rxdesc.address = nullptr;
+  _rxdesc.next = nullptr;
+  {
+    // Workaround for SPI DMA hardware bug.
+    // (https://www.esp32.com/viewtopic.php?t=8433 spi_master.zip:spi_master.c:line 754)
+    // TODO: does it really matter???
+    spi_dma_in_link_reg_t SPI_DMA_IN_LINK_REG;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_ADDR = ESP32_DMADESC_HWPTR(&_rxdesc);
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_AUTO_RET = false;
+    SPI_DMA_IN_LINK_REG.reserved1 = 0;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_STOP = false;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_START = true;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_RESTART = false;
+    SPI_DMA_IN_LINK_REG.reserved2 = 0;
+    dwrite(SPI.SPI_DMA_IN_LINK_REG, SPI_DMA_IN_LINK_REG);
+  }
+
+  SPI.SPI_USER_REG.SPI_USR_MISO = true;
+  SPI.SPI_USER_REG.SPI_USR_MOSI = true;
+  SPI.SPI_CTRL_REG.SPI_FASTRD_MODE = false;
+  SPI.SPI_CTRL_REG.reserved2 = 0;
+  SPI.SPI_CTRL2_REG.SPI_SETUP_TIME = 0;
+  SPI.SPI_CTRL2_REG.SPI_HOLD_TIME = 0;
+  SPI.SPI_USER1_REG.SPI_USR_DUMMY_CYCLELEN = 0;
+  SPI.SPI_USER1_REG.SPI_USR_ADDR_BITLEN = 0;
+  SPI.SPI_USER2_REG.SPI_USR_COMMAND_BITLEN = 0;
+  SPI.SPI_SLAVE1_REG.SPI_SLV_STATUS_READBACK = 0;
+  SPI.SPI_DMA_INT_CLR_REG.SPI_INLINK_DSCR_ERROR_INT_CLR = true;
+
+  SERIAL_ECHOLNPGM("RX CHAIN PTR: ", (uint32_t)&_rxdesc);
+  SERIAL_ECHOLNPGM("SOC_DMA: ", SOC_DMA_LOW, " to ", SOC_DMA_HIGH);
+
+  SPI.SPI_MOSI_DLEN_REG.SPI_USR_MOSI_DBITLEN = 0u;
+  SPI.SPI_MISO_DLEN_REG.SPI_USR_MISO_DBITLEN = 0u;
+#endif
+
+#if 0
+  // DUMP MACHINE STATE.
+  {
+    static bool _dumped = false;
+
+    if (_dumped == false) {
+      SPI.serial_dump();
+      _dumped = true;
+    }
+  }
+#endif
+
+  //OUT_WRITE(BEEPER_PIN, HIGH);
+
   // Is there data left to send?
   while (proc.curoff < proc.txlen) {
     // Generate a transfer chain.
-    dma_descriptor_t *chain = DMAGenerateAcquireChain(proc);
+    volatile dma_descriptor_t *chain = DMAGenerateAcquireChain(proc);
 
     if (chain == nullptr)
       _spi_on_error(14);
 
+    //SERIAL_ECHOLNPGM("TX CHAIN PTR: ", (uint32_t)chain);
+    //SERIAL_ECHOLNPGM("CHAIN TXCNT: ", chain->length);
+    //SERIAL_ECHOLNPGM("CHAIN SIZE: ", chain->size);
+
     // Configure the transfer.
-    SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR = ((uint32_t)chain - ESP32_DMA_BASE);
-    SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_START = true;
+    spi_dma_out_link_reg_t SPI_DMA_OUT_LINK_REG;
+    SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR = ESP32_DMADESC_HWPTR(chain);//(int)chain & 0xFFFFF;
+    SPI_DMA_OUT_LINK_REG.reserved1 = 0;
+    SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_STOP = false;
+    SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_START = true;  // cleared by hardware on TX termination.
+    SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_RESTART = false;
+    SPI_DMA_OUT_LINK_REG.reserved2 = 0;
+    dwrite(SPI.SPI_DMA_OUT_LINK_REG, SPI_DMA_OUT_LINK_REG);
+
+#if 0
+    SPI.SPI_DMA_IN_LINK_REG.SPI_INLINK_ADDR = ESP32_DMADESC_HWPTR(chain); // ???
+    SPI.SPI_DMA_IN_LINK_REG.SPI_INLINK_START = true;
+#elif 0
+  {
+    // Workaround for SPI DMA hardware bug.
+    // (https://www.esp32.com/viewtopic.php?t=8433 spi_master.zip:spi_master.c:line 754)
+    // TODO: does it really matter???
+    spi_dma_in_link_reg_t SPI_DMA_IN_LINK_REG;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_ADDR = ESP32_DMADESC_HWPTR(chain);
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_AUTO_RET = false;
+    SPI_DMA_IN_LINK_REG.reserved1 = 0;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_STOP = false;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_START = true;
+    SPI_DMA_IN_LINK_REG.SPI_INLINK_RESTART = false;
+    SPI_DMA_IN_LINK_REG.reserved2 = 0;
+    dwrite(SPI.SPI_DMA_IN_LINK_REG, SPI_DMA_IN_LINK_REG);
+  }
+#endif
+
+    //SPI.SPI_DMA_RSTATUS_REG.serial_dump();
+    //SPI.SPI_DMA_TSTATUS_REG.serial_dump();
+
+    //SERIAL_ECHOLNPGM("CUR INLINK DESCR PTR: ", SPI.SPI_INLINK_DSCR_REG);
+    //SERIAL_ECHOLNPGM("CUR OUTLINK DESCR PTR: ", SPI.SPI_OUTLINK_DSCR_REG);
+    //SERIAL_ECHOLNPGM("AFTER WRITE: ", SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR);
+    //SERIAL_ECHOLNPGM("TX DMA STATUS (kickoff): ", SPI.SPI_DMA_STATUS_REG.SPI_DMA_TX_EN);
+    //SERIAL_ECHOLNPGM("RX DMA STATUS (kickoff): ", SPI.SPI_DMA_STATUS_REG.SPI_DMA_RX_EN);
+
+    //SERIAL_ECHOLNPGM("SPI STATE MACHINE ST (kickoff): ", SPI.SPI_EXT2_REG.SPI_ST);
 
     // Kick it off.
     SPI.SPI_CMD_REG.SPI_USR = true;
 
+    /* wait until DMA transfer has finished */
     spi_monitored_loop usrw;
-    while (SPI.SPI_CMD_REG.SPI_USR) {
-      /* wait until DMA transfer has finished */
+#if 0
+    while (SPI.SPI_DMA_RSTATUS_REG.TX_FIFO_EMPTY == false) {
       usrw.update(3);
+    }
+#endif
+    while (SPI.SPI_DMA_STATUS_REG.SPI_DMA_TX_EN) {
+      usrw.update(3);
+    }
+    while (SPI.SPI_CMD_REG.SPI_USR) {
+      usrw.update(3);
+    }
+
+#if 0
+    if (SPI.SPI_DMA_INT_RAW_REG.SPI_OUTLINK_DSCR_ERROR_INT_RAW) {
+      _spi_on_error(20);
+    }
+    if (SPI.SPI_DMA_INT_RAW_REG.SPI_INLINK_DSCR_ERROR_INT_RAW) {
+      //_spi_on_error(21);
+      SPI.SPI_DMA_INT_CLR_REG.SPI_INLINK_DSCR_ERROR_INT_CLR = true;
+    }
+    if (SPI.SPI_DMA_INT_RAW_REG.SPI_IN_ERR_EOF_INT_RAW) {
+      _spi_on_error(22);
+    }
+    if (SPI.SPI_DMA_INT_RAW_REG.SPI_INLINK_DSCR_EMPTY_INT_RAW) {
+      _spi_on_error(23);
+    }
+#endif
+
+    //SERIAL_ECHOLNPGM("CHAIN LENGTH (after tx): ", chain->length);
+
+    // Free the DMA chain back to CPU ownership, since that is unfortunately NOT done by hardware!
+    while (chain) {
+      chain->owner = SPIDMA_OWNER_CPU;
+      chain = chain->next;
     }
   }
 
-  _spi_infobeep(4);
+  //SERIAL_ECHOLNPGM("AFTER OP: ", SPI.SPI_DMA_OUT_LINK_REG.SPI_OUTLINK_ADDR);
+  //SERIAL_ECHOLNPGM("RSTATUS ADDR: ", SPI.SPI_DMA_RSTATUS_REG.TX_DES_ADDRESS);
+  //SERIAL_ECHOLNPGM("RSTATUS FIFO EMPTY: ", SPI.SPI_DMA_RSTATUS_REG.TX_FIFO_EMPTY);
+  //SERIAL_ECHOLNPGM("RSTATUS FIFO FULL: ", SPI.SPI_DMA_RSTATUS_REG.TX_FIFO_FULL);
+  //SERIAL_ECHOLNPGM("TX DMA STATUS (finish): ", SPI.SPI_DMA_STATUS_REG.SPI_DMA_TX_EN);
+  //SERIAL_ECHOLNPGM("RX DMA STATUS (finish): ", SPI.SPI_DMA_STATUS_REG.SPI_DMA_RX_EN);
+  ////SERIAL_ECHOLNPGM("SPI STATE MACHINE ST (finish): ", SPI.SPI_EXT2_REG.SPI_ST);
+  //SERIAL_ECHOLNPGM("TX COUNT: ", SPI.SPI_DMA_STATUS_REG.reserved1);
+
+  //OUT_WRITE(BEEPER_PIN, LOW);
 
   proc.is_active = false;
 
@@ -2100,7 +2624,7 @@ void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi
 
   uint8_t spibusIdx = _spi_gpiomap.spibusIdx;
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(spibusIdx);
 
   // Enable the clock signal and reset the peripheral.
 #ifdef HALSPI_ESP32_ENABLE_INTERNBUS
@@ -2157,15 +2681,20 @@ void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi
 
   // Enable full-duplex communication (4lines R/W)
   SPI.SPI_USER_REG.SPI_DOUTDIN = true;
-
   // On ESP32 the input and output buffers of SPI are always being randomly overwritten/trashed.
-  // Thus it makes no sense to divide them!
+  // Thus it makes little sense to divide them! Purpose of half-half division is performance
+  // optimization using fill-while-writing.
   // Notes:
   // "If the data length is over 64 bytes, the extra part will be written from SPI_W0_REG."
   // - page 120 of ESP32 technical reference manual.
   // The buffer on the HIGHPART is limited to the HIGHPART.
   SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART = false;
   SPI.SPI_USER_REG.SPI_USR_MISO_HIGHPART = false;
+
+  // Disable any hardware-chip-select.
+  SPI.SPI_PIN_REG.SPI_CS0_DIS = true;
+  SPI.SPI_PIN_REG.SPI_CS1_DIS = true;
+  SPI.SPI_PIN_REG.SPI_CS2_DIS = true;
 
   _spi_transaction_is_running = false;
 }
@@ -2231,7 +2760,7 @@ void spiClose() {
 void spiSetBitOrder(int bitOrder) {
   _spiAsyncBarrier();
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   MarlinESP32::SPIConfigureBitOrder(SPI, bitOrder);
 }
@@ -2239,7 +2768,7 @@ void spiSetBitOrder(int bitOrder) {
 void spiSetClockMode(int mode) {
   _spiAsyncBarrier();
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   MarlinESP32::SPIConfigureClock(SPI, mode, _spi_gpiomap.datasig_is_direct_iomux, _spi_clkcnt);
 }
@@ -2249,7 +2778,7 @@ void spiEstablish() {
 }
 
 void spiSend(uint8_t txval) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2257,13 +2786,14 @@ void spiSend(uint8_t txval) {
 
   _maybe_start_transaction();
 
-  uint16_t actualWriteCount;
-  MarlinESP32::SPIWriteDataToTransfer(SPI, &txval, 1, 0, 0, actualWriteCount);
-  MarlinESP32::SPITransaction(SPI, actualWriteCount);
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
+
+  SPI.SPI_W_REG[start_num_idx] = txval;
+  MarlinESP32::SPITransaction(SPI, 1);
 }
 
 void spiSend16(uint16_t txval) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2271,13 +2801,19 @@ void spiSend16(uint16_t txval) {
 
   _maybe_start_transaction();
 
-  uint16_t actualWriteCount;
-  MarlinESP32::SPIWriteDataToTransfer(SPI, &txval, 1, 0, 0, actualWriteCount);
-  MarlinESP32::SPITransaction(SPI, actualWriteCount);
+  eir::BitOrderingConverter bitconv(
+    ( SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == _ESP32_BIT_ORDER_MSB ? endian::eSpecificEndian::BIG_ENDIAN : endian::eSpecificEndian::LITTLE_ENDIAN ),
+    false // already done by HW
+  );
+
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
+
+  SPI.SPI_W_REG[start_num_idx] = bitconv.Identity( txval );
+  MarlinESP32::SPITransaction(SPI, sizeof(uint16_t));
 }
 
 uint8_t spiRec(uint8_t txval) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MISO == false) return 0;
 
@@ -2286,21 +2822,19 @@ uint8_t spiRec(uint8_t txval) {
   _maybe_start_transaction();
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI) {
-    uint16_t actualWriteCount;
-    MarlinESP32::SPIWriteDataToTransfer(SPI, &txval, 1, 0, 0, actualWriteCount);
+    uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
+    SPI.SPI_W_REG[start_num_idx] = txval;
   }
 
   MarlinESP32::SPITransaction(SPI, sizeof(uint8_t));
 
-  uint8_t result;
-  uint16_t actualReadCount;
-  MarlinESP32::SPIReadDataFromTransfer(SPI, &result, 1, 0, 0, actualReadCount);
+  uint16_t start_num_idx = MarlinESP32::SPIGetReadBufferStartIndex(SPI);
 
-  return result;
+  return (uint8_t)SPI.SPI_W_REG[start_num_idx];
 }
 
 uint16_t spiRec16(uint16_t txval) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MISO == false) return 0;
 
@@ -2308,47 +2842,29 @@ uint16_t spiRec16(uint16_t txval) {
 
   _maybe_start_transaction();
 
+  eir::BitOrderingConverter bitconv(
+    ( SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER == _ESP32_BIT_ORDER_MSB ? endian::eSpecificEndian::BIG_ENDIAN : endian::eSpecificEndian::LITTLE_ENDIAN ),
+    false // already done by HW
+  );
+
   if (SPI.SPI_USER_REG.SPI_USR_MOSI) {
-    uint16_t actualWriteCount;
-    MarlinESP32::SPIWriteDataToTransfer(SPI, &txval, 1, 0, 0, actualWriteCount);
+    uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
+    SPI.SPI_W_REG[start_num_idx] = bitconv.Identity( txval );
   }
 
   MarlinESP32::SPITransaction(SPI, sizeof(uint16_t));
 
-  uint16_t result;
-  uint16_t actualReadCount;
-  MarlinESP32::SPIReadDataFromTransfer(SPI, &result, 1, 0, 0, actualReadCount);
+  uint16_t start_num_idx = MarlinESP32::SPIGetReadBufferStartIndex(SPI);
 
-  return result;
-}
+  uint16_t bits = (uint16_t)SPI.SPI_W_REG[start_num_idx];
 
-template <typename numberType>
-inline void _spiWriteRepeatToBufferEx(
-  MarlinESP32::spi_dev_t& SPI, numberType val, uint32_t cnt_bytes, uint16_t& total_write_cnt_out,
-  uint16_t spi_writebuf_size, bool notrevbits, uint16_t spi_buf_numstartidx
-) {
-  uint16_t txcount = (uint16_t)_MIN <uint32_t> (cnt_bytes, spi_writebuf_size);
-
-  for (uint16_t n = 0; n < txcount; n++) {
-    uint8_t byteval = MarlinESP32::SPIGetSingleByteToTransferEx(SPI, val, (n % sizeof(numberType)), notrevbits);
-    MarlinESP32::SPIWriteSingleByteToTransferEx(SPI, byteval, n, spi_buf_numstartidx);
-  }
-  total_write_cnt_out = txcount;
-}
-
-template <typename numberType>
-inline void _spiWriteRepeatToBuffer(MarlinESP32::spi_dev_t& SPI, numberType val, uint32_t cnt_bytes, uint16_t& total_write_cnt_out) {
-  uint16_t spi_writebuf_size = MarlinESP32::SPIGetWriteBufferSize(SPI);
-  bool notrevbits = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == 1);
-  uint16_t spi_buf_numstartidx = ( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 8 : 0 );
-
-  _spiWriteRepeatToBufferEx(SPI, val, cnt_bytes, total_write_cnt_out, spi_writebuf_size, notrevbits, spi_buf_numstartidx);
+  return bitconv.Identity( bits );
 }
 
 void spiRead(uint8_t *buf, uint16_t cnt, uint8_t txval) {
   if (cnt == 0) return;
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MISO == false) {
     spiWriteRepeat(txval, cnt);
@@ -2361,7 +2877,7 @@ void spiRead(uint8_t *buf, uint16_t cnt, uint8_t txval) {
 
 #if 0
 #ifndef HALSPI_DISABLE_DMA
-  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidDataBuffer(buf, cnt)
+  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidWriteDataBuffer(buf, cnt)
 #ifndef HALSPI_ESP32_DMA_ALWAYS
     && cnt > MarlinESP32::SPIGetReadBufferSize(SPI)
 #endif
@@ -2376,27 +2892,37 @@ void spiRead(uint8_t *buf, uint16_t cnt, uint8_t txval) {
 #endif
   // The no-DMA version.
 
-  uint16_t txprogress = 0;
+  esp32BitManager <uint8_t, true> recv_bitman( buf, cnt );
 
-  while (txprogress < cnt) {
-    uint16_t txcount = _MIN(cnt - txprogress, MarlinESP32::SPIGetReadBufferSize(SPI));
+  uint16_t start_num_idx = MarlinESP32::SPIGetReadBufferStartIndex(SPI);
 
-    if (SPI.SPI_USER_REG.SPI_USR_MOSI == true) {
-      uint16_t _tmp;
-      _spiWriteRepeatToBuffer(SPI, txval, txcount, _tmp);
+  esp32BitManager <volatile uint32_t> txbuf_bitman( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx );
+
+  using reptx_t = typename eir::biggest_type <typename decltype(txbuf_bitman)::supportedTypes>::type;
+
+  eir::BitRepetitionCache <uint8_t, reptx_t> repcache( txval );
+
+  bool is_write_avail = (SPI.SPI_USER_REG.SPI_USR_MOSI);
+
+  eir::BitManagerTemplates::Receive( recv_bitman, txbuf_bitman,
+    [&] ( const auto& bititer ) LAINLINE
+    {
+      if (is_write_avail) {
+        eir::BitNumberIteratorForStruct <reptx_t> repiter;
+        txbuf_bitman.PutRepeatable( repcache.GetData(), repiter, repiter, bititer );
+        txbuf_bitman.Flush();
+      }
+      auto bytecnt = bititer.getTotalByteOffset();
+      MarlinESP32::SPITransaction(SPI, (uint32_t)bytecnt);
+      if (is_write_avail) {
+        txbuf_bitman.SetIterator({});
+      }
     }
-
-    MarlinESP32::SPITransaction(SPI, txcount);
-
-    uint16_t actualWriteCount;
-    MarlinESP32::SPIReadDataFromTransfer(SPI, buf, cnt, txprogress, 0, actualWriteCount);
-
-    txprogress += txcount;
-  }
+  );
 }
 
 void spiSendBlock(uint8_t token, const uint8_t *buf) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2405,8 +2931,15 @@ void spiSendBlock(uint8_t token, const uint8_t *buf) {
   _maybe_start_transaction();
 
 #ifndef HALSPI_DISABLE_DMA
-  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidDataBuffer(buf, 512)) {
+  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidReadDataBuffer(buf)
+#ifndef HALSPI_ESP32_DMA_ALWAYS
+#ifdef HALSPI_DMA_THRESHOLD
+    && 512 > HALSPI_DMA_THRESHOLD
+#endif
+#endif
+  ) {
     // Only attempt DMA transfer if the buffer is valid.
+    spiSend(token);
     MarlinESP32::DMASendBlocking(SPI, buf, 512, 512);
     return;
   }
@@ -2414,28 +2947,27 @@ void spiSendBlock(uint8_t token, const uint8_t *buf) {
   // Use direct SPI otherwise.
 #endif
 
-  uint16_t outbufprog = 0;
-  uint16_t actualWriteCount;
-  MarlinESP32::SPIWriteDataToTransfer(SPI, &token, 1, 0, 0, actualWriteCount);
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
 
-  outbufprog = actualWriteCount;
+  esp32BitManager <const uint8_t> src_bitman( buf, 512 );
 
-  uint16_t bufprog = 0;
+  esp32BitManager <volatile uint32_t, true> buf_bitman( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx );
 
-  while (bufprog < 512) {
-    MarlinESP32::SPIWriteDataToTransfer(SPI, buf, 512, bufprog, outbufprog, actualWriteCount);
-    outbufprog += actualWriteCount;
-    MarlinESP32::SPITransaction(SPI, outbufprog);
+  buf_bitman.Put( token );
 
-    bufprog += outbufprog;
-    outbufprog = 0;
-  }
+  eir::BitManagerTemplates::Send( src_bitman, buf_bitman,
+    [&] ( void ) LAINLINE
+    {
+      auto bytecnt = buf_bitman.GetIterator().getTotalByteOffset();
+      MarlinESP32::SPITransaction( SPI, (uint32_t)bytecnt );
+    }
+  );
 }
 
 void spiWrite(const uint8_t *buf, uint16_t cnt) {
   if (cnt == 0) return;
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2444,42 +2976,45 @@ void spiWrite(const uint8_t *buf, uint16_t cnt) {
   _maybe_start_transaction();
 
 #ifndef HALSPI_DISABLE_DMA
-  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidDataBuffer(buf, cnt)
+  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidReadDataBuffer(buf)
 #ifndef HALSPI_ESP32_DMA_ALWAYS
+#ifdef HALSPI_DMA_THRESHOLD
+    && cnt > HALSPI_DMA_THRESHOLD
+#else
     && cnt > MarlinESP32::SPIGetWriteBufferSize(SPI)
+#endif //HALSPI_DMA_THRESHOLD
 #endif
     ) {
     // For bigger transfers we should use DMA.
-    MarlinESP32::DMASendBlocking(SPI, buf, cnt, cnt);
+    MarlinESP32::DMASendBlocking(SPI, buf, ALIGN_SIZE(cnt, (uint16_t)4u), cnt);
     return;
   }
 
   // Use direct SPI for small transfer sizes.
 #endif
 
-  uint16_t bufprog = 0;
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
 
-  while (bufprog < cnt) {
-    uint16_t actualWriteCount;
-    MarlinESP32::SPIWriteDataToTransfer(SPI, buf, cnt, bufprog, 0, actualWriteCount);
-    MarlinESP32::SPITransaction(SPI, actualWriteCount);
+  esp32BitManager <const uint8_t> src_bitMan( buf, cnt );
 
-    bufprog += actualWriteCount;
-  }
+  eir::BitManagerTemplates::SendFixed( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx, src_bitMan,
+    [&] ( const auto& iter ) LAINLINE
+    {
+      MarlinESP32::SPITransaction( SPI, iter.getTotalByteOffset() );
+    }
+  );
 }
 
 void spiWrite16(const uint16_t *buf, uint16_t cnt) {
   if (cnt == 0) return;
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
   _spiAsyncBarrier();
 
   _maybe_start_transaction();
-
-  uint32_t cnt_bytes = (cnt * sizeof(uint16_t));
 
   // Problem: before we can kick-off the DMA transfer to the SPI device we have to FORMAT THE ENTIRE DMA BUFFER to match
   // the byte-by-byte requirement of the DMA-to-SPI-buffer filling! This is kind of a bummer because it means that DMA
@@ -2490,9 +3025,11 @@ void spiWrite16(const uint16_t *buf, uint16_t cnt) {
   // specialized per architecture.
   // At least, ESP32 SPI is pretty fast as it currently stands, even without async DMA.
 
+  // LSBFIRST transfers can be pushed through the DMAC just fine because no bit-reversing/byte-swapping is necessary.
+
 #if 0
 #ifndef HALSPI_DISABLE_DMA
-  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidDataBuffer(buf, cnt_bytes) && cnt > MarlinESP32::SPIGetWriteBufferSize(SPI)) {
+  if (MarlinESP32::DMAIsCapableSPIBus(SPI) && MarlinESP32::DMAIsValidReadDataBuffer(buf) && cnt > MarlinESP32::SPIGetWriteBufferSize(SPI)) {
     // For bigger transfers we should use DMA.
     //TODO.
     return;
@@ -2502,21 +3039,24 @@ void spiWrite16(const uint16_t *buf, uint16_t cnt) {
 #endif
 #endif
 
-  uint32_t bufprog = 0;
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
 
-  while (bufprog < cnt_bytes) {
-    uint16_t actualWriteCount;
-    MarlinESP32::SPIWriteDataToTransfer(SPI, buf, cnt, bufprog, 0, actualWriteCount);
-    MarlinESP32::SPITransaction(SPI, actualWriteCount);
+  esp32BitManager <const uint16_t> src_bitMan( buf, cnt );
 
-    bufprog += actualWriteCount;
-  }
+  MarlinESP32::SPIPrepareWriteBitManager( SPI, src_bitMan );
+  
+  eir::BitManagerTemplates::SendFixed( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx, src_bitMan,
+    [&] ( const auto& iter ) LAINLINE
+    {
+      MarlinESP32::SPITransaction( SPI, iter.getTotalByteOffset() );
+    }
+  );
 }
 
 void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
   if (repcnt == 0) return;
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2527,26 +3067,23 @@ void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
   // There is no good repetition output engine on the ESP32 DMAC.
   // Thus we have to use generic SPI.
 
-  uint16_t spi_writebuf_size = MarlinESP32::SPIGetWriteBufferSize(SPI);
-  bool notrevbits = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == 1);
-  uint16_t start_num_idx = ( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 8 : 0 );
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
 
-  uint16_t txprog = 0;
+  esp32BitManager <volatile uint32_t, true> buf_bitman( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx );
 
-  while (txprog < repcnt) {
-    uint16_t actualWriteCount;
-    _spiWriteRepeatToBufferEx(SPI, val, repcnt - txprog, actualWriteCount, spi_writebuf_size, notrevbits, start_num_idx);
-
-    MarlinESP32::SPITransaction(SPI, actualWriteCount);
-
-    txprog += actualWriteCount;
-  }
+  eir::BitManagerTemplates::RepeatSendCountTo( val, repcnt, buf_bitman,
+    [&] ( void ) LAINLINE
+    {
+      auto bytecnt = buf_bitman.GetIterator().getTotalByteOffset();
+      MarlinESP32::SPITransaction( SPI, (uint32_t)bytecnt );
+    }
+  );
 }
 
 void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
   if (repcnt == 0) return;
 
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2557,27 +3094,28 @@ void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
   // There is no good repetition output engine on the ESP32 DMAC.
   // Thus we have to use generic SPI.
 
-  uint16_t spi_writebuf_size = MarlinESP32::SPIGetWriteBufferSize(SPI);
-  bool notrevbits = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == 1);
-  uint16_t start_num_idx = ( SPI.SPI_USER_REG.SPI_USR_MOSI_HIGHPART == 1 ? 8 : 0 );
+  uint16_t start_num_idx = MarlinESP32::SPIGetWriteBufferStartIndex(SPI);
 
-  uint32_t txprog = 0;
-  uint32_t repcnt_bytes = repcnt * sizeof(uint16_t);
+  esp32BitManager <volatile uint32_t, true> buf_bitman( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx );
 
-  while (txprog < repcnt_bytes) {
-    uint16_t actualWriteCount;
-    _spiWriteRepeatToBufferEx(SPI, val, repcnt_bytes - txprog, actualWriteCount, spi_writebuf_size, notrevbits, start_num_idx);
+  eir::BitOrderingConverter bitconv(
+    ( SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == _ESP32_BIT_ORDER_MSB ? endian::eSpecificEndian::BIG_ENDIAN : endian::eSpecificEndian::LITTLE_ENDIAN ),
+    false // already done by HW
+  );
 
-    MarlinESP32::SPITransaction(SPI, actualWriteCount);
-
-    txprog += actualWriteCount;
-  }
+  eir::BitManagerTemplates::RepeatSendCountTo( bitconv.Identity( val ), repcnt, buf_bitman,
+    [&] ( void ) LAINLINE
+    {
+      auto bytecnt = buf_bitman.GetIterator().getTotalByteOffset();
+      MarlinESP32::SPITransaction( SPI, (uint32_t)bytecnt );
+    }
+  );
 }
 
 #ifdef HAL_SPI_SUPPORTS_ASYNC
 
 void spiWriteAsync(const uint8_t *buf, uint16_t nbyte, void (*completeCallback)(void*), void *ud) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 
@@ -2596,7 +3134,7 @@ void spiWriteAsync(const uint8_t *buf, uint16_t nbyte, void (*completeCallback)(
 }
 
 void spiWriteAsync16(const uint16_t *buf, uint16_t txcnt, void (*completeCallback)(void*), void *ud) {
-  MarlinESP32::spi_dev_t& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
+  auto& SPI = MarlinESP32::SPIGetBusFromIndex(_spi_gpiomap.spibusIdx);
 
   if (SPI.SPI_USER_REG.SPI_USR_MOSI == false) return;
 

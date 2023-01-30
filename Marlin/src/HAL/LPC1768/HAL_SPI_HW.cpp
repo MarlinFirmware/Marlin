@@ -125,11 +125,20 @@
     struct no_volatile <volatile T> : public no_volatile <T> {};
 
     template <typename T>
-    inline typename no_volatile <T>::type& dwrite(T& v) { return (typename no_volatile <T>::type&)v; }
-
-    template <typename T>
-    inline void dwrite( volatile T& v, T& a ) { (T&)v = a; }
-
+    inline void dwrite(volatile T& v, const T& V) noexcept {
+      if constexpr ( sizeof(T) == sizeof(uint8_t) ) {
+        (volatile uint8_t&)v = (const uint8_t&)V;
+      }
+      else if constexpr ( sizeof(T) == sizeof(uint16_t) ) {
+        (volatile uint16_t&)v = (const uint16_t&)V;
+      }
+      else if constexpr ( sizeof(T) == sizeof(uint32_t) ) {
+        (volatile uint32_t&)v = (const uint32_t&)V;
+      }
+      else {
+        v = V;
+      }
+    }
   } // namespace LPCHelpers
 
   namespace MarlinLPC {
@@ -1368,7 +1377,7 @@
           }
           else ChannelControl.I = true;
 
-          LPCHelpers::dwrite(DMACC.Control) = ChannelControl;
+          LPCHelpers::dwrite(DMACC.Control, ChannelControl);
 
           proc.last_chain = first;
         }
@@ -1907,7 +1916,7 @@
         Control.I = false;
 
         DMACC.SrcAddr = (uint32_t)( buf + curoff );
-        LPCHelpers::dwrite(DMACC.Control) = Control;
+        LPCHelpers::dwrite(DMACC.Control, Control);
 
         curoff += takecnt;
 
@@ -1964,7 +1973,7 @@
         Control.Prot3 = 0;
         Control.I = false;
 
-        LPCHelpers::dwrite(DMACC.Control) = Control;
+        LPCHelpers::dwrite(DMACC.Control, Control);
 
         curoff += takecnt;
 

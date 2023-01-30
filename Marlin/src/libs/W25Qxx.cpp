@@ -26,6 +26,22 @@
 
 #include "W25Qxx.h"
 
+#ifndef SPI_FLASH_SIZE
+  #error W25QXX: no flash size configured (SPI_FLASH_SIZE)
+#endif
+#ifndef SPI_FLASH_CS_PIN
+  #error W25QXX: no chip-select pin configured (SPI_FLASH_CS_PIN)
+#endif
+#ifndef SPI_FLASH_MISO_PIN
+  #error W25QXX: no MISO pin configured (SPI_FLASH_MISO_PIN)
+#endif
+#ifndef SPI_FLASH_MOSI_PIN
+  #error W25QXX: no MOSI pin configured (SPI_FLASH_MOSI_PIN)
+#endif
+#ifndef SPI_FLASH_SCK_PIN
+  #error W25QXX: no SCK pin configured (SPI_FLASH_SCK_PIN)
+#endif
+
 W25QXXFlash W25QXX;
 
 #ifndef NC
@@ -37,7 +53,39 @@ W25QXXFlash W25QXX;
 
 bool flash_dma_mode = true;
 
+#ifdef SPI_FLASH_DEBUG
+static bool _in_transaction = false;
+
+static void _spiflash_on_error(unsigned int code) {
+  for (;;) {
+#if defined(BEEPER_PIN)
+    OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+    OUT_WRITE(BEEPER_PIN, LOW); delay(500);
+    OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+    OUT_WRITE(BEEPER_PIN, LOW); delay(500);
+    OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+    OUT_WRITE(BEEPER_PIN, LOW); delay(1000);
+    for (unsigned int n = 0; n < code; n++) {
+      OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      if (n < code-1) {
+        delay(500);
+      }
+    }
+    delay(1000);
+    OUT_WRITE(BEEPER_PIN, HIGH); delay(1000);
+    OUT_WRITE(BEEPER_PIN, LOW); delay(2000);
+#endif
+  }
+}
+#endif
+
 void W25QXXFlash::init(uint8_t spiRate) {
+
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction) _spiflash_on_error(1);
+  _in_transaction = true;
+#endif
 
   spiSetupChipSelect(SPI_FLASH_CS_PIN);
 
@@ -68,6 +116,11 @@ void W25QXXFlash::init(uint8_t spiRate) {
 }
 
 void W25QXXFlash::close() {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(2);
+  _in_transaction = false;
+#endif
+
   spiClose();
 }
 
@@ -77,11 +130,19 @@ void W25QXXFlash::close() {
  * @return Byte received
  */
 uint8_t W25QXXFlash::spi_flash_Rec() {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(2);
+#endif
+
   const uint8_t returnByte = spiRec(0xFF);
   return returnByte;
 }
 
 uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(3);
+#endif
+
   const uint8_t returnByte = spiRec(data);
   return returnByte;
 }
@@ -96,6 +157,10 @@ uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
  * @details Uses async (for example DMA)
  */
 void W25QXXFlash::spi_flash_Read(uint8_t *buf, uint16_t nbyte) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(4);
+#endif
+
   spiRead(buf, nbyte);
 }
 
@@ -106,7 +171,13 @@ void W25QXXFlash::spi_flash_Read(uint8_t *buf, uint16_t nbyte) {
  *
  * @details
  */
-void W25QXXFlash::spi_flash_Send(uint8_t b) { spiSend(b); }
+void W25QXXFlash::spi_flash_Send(uint8_t b) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(5);
+#endif
+
+  spiSend(b);
+}
 
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
@@ -117,10 +188,18 @@ void W25QXXFlash::spi_flash_Send(uint8_t b) { spiSend(b); }
  * @details Use DMA
  */
 void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t *buf) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(6);
+#endif
+
   spiSendBlock(token, buf);
 }
 
 uint16_t W25QXXFlash::W25QXX_ReadID(void) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(7);
+#endif
+
   uint16_t Temp = 0;
   SPI_FLASH_CS_L();
   spi_flash_Send(0x90);
@@ -134,6 +213,10 @@ uint16_t W25QXXFlash::W25QXX_ReadID(void) {
 }
 
 void W25QXXFlash::SPI_FLASH_WriteEnable() {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(8);
+#endif
+
   // Select the FLASH: Chip Select low
   SPI_FLASH_CS_L();
   // Send "Write Enable" instruction
@@ -152,6 +235,10 @@ void W25QXXFlash::SPI_FLASH_WriteEnable() {
 * Return         : None
 *******************************************************************************/
 void W25QXXFlash::SPI_FLASH_WaitForWriteEnd() {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(9);
+#endif
+
   uint8_t FLASH_Status = 0;
 
   // Select the FLASH: Chip Select low
@@ -171,6 +258,10 @@ void W25QXXFlash::SPI_FLASH_WaitForWriteEnd() {
 }
 
 void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(10);
+#endif
+
   // Send write enable instruction
   SPI_FLASH_WriteEnable();
 
@@ -193,6 +284,10 @@ void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
 }
 
 void W25QXXFlash::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(11);
+#endif
+
   SPI_FLASH_WriteEnable();
   SPI_FLASH_CS_L();
   // Send Sector Erase instruction
@@ -217,6 +312,10 @@ void W25QXXFlash::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
 * Return         : None
 *******************************************************************************/
 void W25QXXFlash::SPI_FLASH_BulkErase() {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(12);
+#endif
+
   // Send write enable instruction
   SPI_FLASH_WriteEnable();
 
@@ -246,6 +345,10 @@ void W25QXXFlash::SPI_FLASH_BulkErase() {
 * Return         : None
 *******************************************************************************/
 void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(13);
+#endif
+
   // Enable the write access to the FLASH
   SPI_FLASH_WriteEnable();
 
@@ -289,6 +392,10 @@ void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint
 * Return         : None
 *******************************************************************************/
 void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(14);
+#endif
+
   uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
   Addr = WriteAddr % SPI_FLASH_PageSize;
@@ -353,6 +460,10 @@ void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t *pBuffer, uint32_t WriteAddr, ui
 * Return         : None
 *******************************************************************************/
 void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
+#ifdef SPI_FLASH_DEBUG
+  if (_in_transaction == false) _spiflash_on_error(15);
+#endif
+
   // Select the FLASH: Chip Select low
   SPI_FLASH_CS_L();
 
