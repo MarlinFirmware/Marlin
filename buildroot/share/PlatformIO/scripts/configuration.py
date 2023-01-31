@@ -85,13 +85,12 @@ def apply_opt(name, val, conf=None):
 # Return True if any files were fetched.
 def fetch_example(url):
     if url.endswith("/"): url = url[:-1]
-    if url.startswith('http'):
-        url = url.replace("%", "%25").replace(" ", "%20")
-    else:
+    if not url.startswith('http'):
         brch = "bugfix-2.1.x"
-        if '@' in path: path, brch = map(str.strip, path.split('@'))
+        if '@' in url: url, brch = map(str.strip, url.split('@'))
         url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
-
+    url = url.replace("%", "%25").replace(" ", "%20")
+ 
     # Find a suitable fetch command
     if shutil.which("curl") is not None:
         fetch = "curl -L -s -S -f -o"
