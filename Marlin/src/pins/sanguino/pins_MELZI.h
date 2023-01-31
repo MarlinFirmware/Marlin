@@ -32,6 +32,7 @@
 #endif
 
 #define AVR_CHIPOSCILLATOR_FREQ 16000000
+#define IS_MELZI 1
 
 #ifndef FAN_PIN
   #define FAN_PIN                             PinB4

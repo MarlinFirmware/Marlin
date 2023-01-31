@@ -104,7 +104,7 @@ void ControllerFan::update() {
           hal.set_pwm_duty(pin_t(CONTROLLER_FAN2_PIN), speed);
         else
           WRITE(CONTROLLER_FAN2_PIN, speed > 0);
-      #endif      
+      #endif
     #endif
   }
 }

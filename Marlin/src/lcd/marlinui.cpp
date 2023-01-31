@@ -173,6 +173,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #endif
 
+#if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+  #include "Wire.h"
+#endif
+
 // Encoder Handling
 #if HAS_ENCODER_ACTION
   uint32_t MarlinUI::encoderPosition;
@@ -263,6 +267,10 @@ void MarlinUI::init() {
 
   #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
+  #endif
+
+  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    Wire.begin(int(I2C_SDA_PIN), int(I2C_SCL_PIN));
   #endif
 
   update_buttons();
@@ -1648,6 +1656,7 @@ void MarlinUI::init() {
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
     LCD_MESSAGE(MSG_PRINT_ABORTED);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
+    TERN_(DWIN_LCD_PROUI, HMI_flag.abort_flag = true);
   }
 
   #if BOTH(HAS_MARLINUI_MENU, PSU_CONTROL)
@@ -1740,9 +1749,11 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
-    typedef void (*PrintProgress_t)();
-    void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
+  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+
+    // Renew and redraw all enabled progress strings
+    void MarlinUI::rotate_progress() {
+      typedef void (*PrintProgress_t)();
       static const PrintProgress_t progFunc[] = {
         OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
         OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
@@ -1760,7 +1771,8 @@ void MarlinUI::init() {
         }
       }
     }
-  #endif
+
+  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
 
 #endif // HAS_PRINT_PROGRESS
 

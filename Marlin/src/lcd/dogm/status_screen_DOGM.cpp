@@ -444,12 +444,12 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 }
 
 // Prepare strings for progress display
-#if HAS_PRINT_PROGRESS
+#if HAS_EXTRA_PROGRESS
   static MarlinUI::progress_t progress = 0;
   static char bufferc[13];
 
   static void prepare_time_string(const duration_t &time, char prefix) {
-    char str[9];
+    char str[13];
     memset(&bufferc[2], 0x20, 5); // partialy fill with spaces to avoid artifacts and terminator
     bufferc[0] = prefix;
     bufferc[1] = ':';

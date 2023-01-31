@@ -37,22 +37,6 @@
   #define ENDIAN_COLOR(C) (C)
 #endif
 
-#if HAS_UI_320x240
-  #define TFT_WIDTH         320
-  #define TFT_HEIGHT        240
-#elif HAS_UI_480x320
-  #define TFT_WIDTH         480
-  #define TFT_HEIGHT        320
-#elif HAS_UI_480x272
-  #define TFT_WIDTH         480
-  #define TFT_HEIGHT        272
-#elif HAS_UI_1024x600
-  #define TFT_WIDTH         1024
-  #define TFT_HEIGHT        600
-#else
-  #error "Unsupported display resolution!"
-#endif
-
 #ifndef TFT_BUFFER_SIZE
   #ifdef STM32F103xB
     #define TFT_BUFFER_SIZE       1024
@@ -65,8 +49,13 @@
   #endif
 #endif
 
-// DMA Count parameter is uint16_t
-static_assert(TFT_BUFFER_SIZE < (1<<(sizeof(uint16_t)*8)), "TFT_BUFFER_SIZE can not exceed 65535");
+#ifndef DMA_MAX_SIZE
+  // DMA Count parameter is uint16_t
+  #define DMA_MAX_SIZE 0xFFFF
+#endif
+#if TFT_BUFFER_SIZE > DMA_MAX_SIZE
+  #error "TFT_BUFFER_SIZE can not exceed DMA_MAX_SIZE"
+#endif
 
 class TFT {
   private:

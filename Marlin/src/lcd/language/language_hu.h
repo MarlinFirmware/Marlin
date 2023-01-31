@@ -306,10 +306,9 @@ namespace Language_hu {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID hangolás *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID ciklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID hangolás kész");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba! Rossz adagoló.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Hangolási hiba! Rossz adagoló.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba! Magas hömérséklet.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Hangolási hiba! Idötúllépés.");
-  LSTR MSG_SELECT                         = _UxGT("Kiválaszt");
   LSTR MSG_SELECT_E                       = _UxGT("Kiválaszt *");
   LSTR MSG_ACC                            = _UxGT("Gyorsítás");
   LSTR MSG_JERK                           = _UxGT("Rántás");
@@ -468,7 +467,7 @@ namespace Language_hu {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("TouchMI használ");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Z-Szonda telepítés");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Szonda elhelyezés");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Elöször %s%s%s kell");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Elöször %s kell");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Szonda eltolások");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");

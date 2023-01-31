@@ -86,9 +86,9 @@ void TFT_Queue::fill(queueTask_t *task) {
     task->state = TASK_STATE_IN_PROGRESS;
   }
 
-  if (task_parameters->count > 65535) {
-    count = 65535;
-    task_parameters->count -= 65535;
+  if (task_parameters->count > DMA_MAX_SIZE) {
+    count = DMA_MAX_SIZE;
+    task_parameters->count -= DMA_MAX_SIZE;
   }
   else {
     count = task_parameters->count;
@@ -117,7 +117,7 @@ void TFT_Queue::canvas(queueTask_t *task) {
         Canvas.SetBackground(((parametersCanvasBackground_t *)item)->color);
         break;
       case CANVAS_ADD_TEXT:
-        Canvas.AddText(((parametersCanvasText_t *)item)->x, ((parametersCanvasText_t *)item)->y, ((parametersCanvasText_t *)item)->color, item + sizeof(parametersCanvasText_t), ((parametersCanvasText_t *)item)->maxWidth);
+        Canvas.AddText(((parametersCanvasText_t *)item)->x, ((parametersCanvasText_t *)item)->y, ((parametersCanvasText_t *)item)->color, (uint16_t*)(item + sizeof(parametersCanvasText_t)), ((parametersCanvasText_t *)item)->maxWidth);
         break;
 
       case CANVAS_ADD_IMAGE:
@@ -232,8 +232,42 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *
 
   end_of_queue += sizeof(parametersCanvasText_t);
 
+  uint16_t *character = (uint16_t *)end_of_queue;
+
+  lchar_t wc;
+  for (;;) {
+    pointer = get_utf8_value_cb(pointer, read_byte_ram, wc);
+    *character++ = uint16_t(wc);
+    if (uint16_t(wc) == 0) break;
+    parameters->stringLength++;
+  }
+  end_of_queue = (uint8_t*)character;
+
+  parameters->nextParameter = end_of_queue;
+  task_parameters->count++;
+}
+
+void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint16_t *string, uint16_t maxWidth) {
+  handle_queue_overflow(sizeof(parametersCanvasText_t) + maxWidth);
+  parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
+  parametersCanvasText_t *parameters = (parametersCanvasText_t *)end_of_queue;
+  last_parameter = end_of_queue;
+
+  const uint16_t *pointer = string;
+
+  parameters->type = CANVAS_ADD_TEXT;
+  parameters->x = x;
+  parameters->y = y;
+  parameters->color = ENDIAN_COLOR(color);
+  parameters->stringLength = 0;
+  parameters->maxWidth = maxWidth;
+
+  end_of_queue += sizeof(parametersCanvasText_t);
+
+  uint16_t *character = (uint16_t *)end_of_queue;
   /* TODO: Deal with maxWidth */
-  while ((*(end_of_queue++) = *pointer++) != 0x00);
+  while ((*character++ = *pointer++) != 0);
+  end_of_queue = (uint8_t *)character;
 
   parameters->nextParameter = end_of_queue;
   parameters->stringLength = pointer - string;

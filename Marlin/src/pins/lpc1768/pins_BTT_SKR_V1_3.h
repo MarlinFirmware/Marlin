@@ -325,6 +325,9 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_ENC                  EXP1_02_PIN
 
+    #define BEEPER_PIN               EXP1_01_PIN
+    #define SDCARD_CONNECTION            ONBOARD
+
     #define TFT_BUFFER_SIZE                 2400
 
     #ifndef TFT_WIDTH

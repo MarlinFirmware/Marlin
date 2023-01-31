@@ -37,6 +37,7 @@ class TFT_SPI {
   enum class eSPIMode { READ, WRITE };
 
 private:
+  static DMA_HandleTypeDef DMAtx;
 
   static uint32_t ReadID(uint16_t Reg);
   static void Transmit(uint16_t Data);
@@ -70,6 +71,7 @@ public:
 
   #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
     static void WriteSequenceAsync(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr) { TransmitDMA_Async(Data, Count, completeCallback, ud); }
+    inline static void DMA_IRQHandler() { HAL_DMA_IRQHandler(&TFT_SPI::DMAtx); }
   #endif
 
   static void WriteMultiple(uint16_t Color, uint16_t Count) { TransmitRepeat(Color, Count); }

@@ -43,7 +43,8 @@
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN                          PinH4
+#define MOSFET_B_PIN                          PinH4
+#define FAN_PIN                               PinH6
 
 //
 // PSU / SERVO

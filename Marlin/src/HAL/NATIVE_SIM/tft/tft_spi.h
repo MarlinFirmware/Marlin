@@ -62,6 +62,5 @@ public:
   static void WriteReg8(uint8_t Reg);
 
   static void WriteSequence(uint16_t *Data, uint16_t Count);
-  // static void WriteMultiple(uint16_t Color, uint16_t Count);
   static void WriteMultiple(uint16_t Color, uint32_t Count);
 };

@@ -335,7 +335,7 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
-#if IS_SCARA || defined(G0_FEEDRATE)
+#if EITHER(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
 
@@ -1226,7 +1226,7 @@ private:
     static void M1001();
   #endif
 
-  #if ENABLED(DGUS_LCD_UI_MKS)
+  #if DGUS_LCD_UI_MKS
     static void M1002();
   #endif
 

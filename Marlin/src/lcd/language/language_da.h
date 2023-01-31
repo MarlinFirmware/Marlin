@@ -98,7 +98,6 @@ namespace Language_da {
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Til");
   LSTR MSG_LCD_OFF                        = _UxGT("Fra");
-  LSTR MSG_SELECT                         = _UxGT("Vælg");
   LSTR MSG_SELECT_E                       = _UxGT("Vælg *");
   LSTR MSG_A_RETRACT                      = _UxGT("A-retract");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-rejse");
@@ -139,7 +138,7 @@ namespace Language_da {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Skift SD kort");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Probe udenfor plade");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Selv-Test");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s først");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s først");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Opvarmning fejlet");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Fejl: reserve temp");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Temp løber løbsk");
