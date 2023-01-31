@@ -37,12 +37,22 @@
  *
  *   F<rate>   - Feedrate (optional) for the move back.
  *   S<slot>   - Slot # (0-based) to restore from (default 0).
- *   X<offset> - Restore X axis with offset (offset is default 0)
- *   Y<offset> - Restore Y axis with offset (offset is default 0)
- *   Z<offset> - Restore Z axis with offset (offset is default 0)
- *   E<offset> - Restore E axis with offset (offset is default 0)
+ *   X<offset> - Restore X axis, applying the given offset (default 0)
+ *   Y<offset> - Restore Y axis, applying the given offset (default 0)
+ *   Z<offset> - Restore Z axis, applying the given offset (default 0)
  *
- *   If XYZE are not given, all axis are restored.
+ * If there is an Extruder:
+ *   E<offset> - Restore E axis, applying the given offset (default 0)
+ *
+ * With extra axes using default names:
+ *   A<offset> - Restore 4th axis, applying the given offset (default 0)
+ *   B<offset> - Restore 5th axis, applying the given offset (default 0)
+ *   C<offset> - Restore 6th axis, applying the given offset (default 0)
+ *   U<offset> - Restore 7th axis, applying the given offset (default 0)
+ *   V<offset> - Restore 8th axis, applying the given offset (default 0)
+ *   W<offset> - Restore 9th axis, applying the given offset (default 0)
+ *
+ *   If no axes are specified then all axes are restored.
  */
 void GcodeSuite::G61() {
 
