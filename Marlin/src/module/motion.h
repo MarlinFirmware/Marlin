@@ -438,6 +438,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzijk_u(
     const xyze_pos_t &raw
     , const_float_t u
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
     , const_feedRate_t fr_mm_s=0.0f
   );
 #endif
