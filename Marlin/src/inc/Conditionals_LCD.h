@@ -589,12 +589,26 @@
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
+  #undef TEMP_SENSOR_0
+  #undef TEMP_SENSOR_1
+  #undef TEMP_SENSOR_2
+  #undef TEMP_SENSOR_3
+  #undef TEMP_SENSOR_4
+  #undef TEMP_SENSOR_5
+  #undef TEMP_SENSOR_6
+  #undef TEMP_SENSOR_7
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
   #undef DISABLE_E
+  #undef THERMAL_PROTECTION_HOTENDS
+  #undef PREVENT_COLD_EXTRUSION
+  #undef PREVENT_LENGTHY_EXTRUDE
+  #undef FILAMENT_RUNOUT_SENSOR
+  #undef FILAMENT_RUNOUT_DISTANCE_MM
+  #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
 #define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
@@ -668,20 +682,28 @@
 
 #if E_STEPPERS <= 7
   #undef INVERT_E7_DIR
+  #undef E7_DRIVER_TYPE
   #if E_STEPPERS <= 6
     #undef INVERT_E6_DIR
+    #undef E6_DRIVER_TYPE
     #if E_STEPPERS <= 5
       #undef INVERT_E5_DIR
+      #undef E5_DRIVER_TYPE
       #if E_STEPPERS <= 4
         #undef INVERT_E4_DIR
+        #undef E4_DRIVER_TYPE
         #if E_STEPPERS <= 3
           #undef INVERT_E3_DIR
+          #undef E3_DRIVER_TYPE
           #if E_STEPPERS <= 2
             #undef INVERT_E2_DIR
+            #undef E2_DRIVER_TYPE
             #if E_STEPPERS <= 1
               #undef INVERT_E1_DIR
+              #undef E1_DRIVER_TYPE
               #if E_STEPPERS == 0
                 #undef INVERT_E0_DIR
+                #undef E0_DRIVER_TYPE
               #endif
             #endif
           #endif
@@ -719,6 +741,7 @@
 #else
   #define NUM_AXES 1
 #endif
+#define HAS_X_AXIS 1
 #if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
   #if NUM_AXES >= XYZ
@@ -753,31 +776,6 @@
   #endif
 #endif
 
-#if E_STEPPERS <= 0
-  #undef E0_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 1
-  #undef E1_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 2
-  #undef E2_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 3
-  #undef E3_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 4
-  #undef E4_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 5
-  #undef E5_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 6
-  #undef E6_DRIVER_TYPE
-#endif
-#if E_STEPPERS <= 7
-  #undef E7_DRIVER_TYPE
-#endif
-
 #if !HAS_Y_AXIS
   #undef ENDSTOPPULLUP_YMIN
   #undef ENDSTOPPULLUP_YMAX
@@ -793,7 +791,6 @@
   #undef MANUAL_Y_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
-  #undef SAFE_BED_LEVELING_START_Y
 #endif
 
 #if !HAS_Z_AXIS
@@ -813,7 +810,6 @@
   #undef MANUAL_Z_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_Z
   #undef MAX_SOFTWARE_ENDSTOP_Z
-  #undef SAFE_BED_LEVELING_START_Z
 #endif
 
 #if !HAS_I_AXIS
@@ -830,7 +826,6 @@
   #undef MANUAL_I_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_I
   #undef MAX_SOFTWARE_ENDSTOP_I
-  #undef SAFE_BED_LEVELING_START_I
 #endif
 
 #if !HAS_J_AXIS
@@ -847,7 +842,6 @@
   #undef MANUAL_J_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_J
   #undef MAX_SOFTWARE_ENDSTOP_J
-  #undef SAFE_BED_LEVELING_START_J
 #endif
 
 #if !HAS_K_AXIS
@@ -864,7 +858,6 @@
   #undef MANUAL_K_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_K
   #undef MAX_SOFTWARE_ENDSTOP_K
-  #undef SAFE_BED_LEVELING_START_K
 #endif
 
 #if !HAS_U_AXIS
@@ -881,7 +874,6 @@
   #undef MANUAL_U_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_U
   #undef MAX_SOFTWARE_ENDSTOP_U
-  #undef SAFE_BED_LEVELING_START_U
 #endif
 
 #if !HAS_V_AXIS
@@ -898,7 +890,6 @@
   #undef MANUAL_V_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_V
   #undef MAX_SOFTWARE_ENDSTOP_V
-  #undef SAFE_BED_LEVELING_START_V
 #endif
 
 #if !HAS_W_AXIS
@@ -915,7 +906,6 @@
   #undef MANUAL_W_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_W
   #undef MAX_SOFTWARE_ENDSTOP_W
-  #undef SAFE_BED_LEVELING_START_W
 #endif
 
 #ifdef X2_DRIVER_TYPE
@@ -1638,7 +1628,9 @@
   #endif
 #endif
 
-#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR)
+#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
+  || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR) \
+  || (HAS_U_AXIS && U_HOME_DIR) || (HAS_V_AXIS && V_HOME_DIR) || (HAS_W_AXIS && W_HOME_DIR)
   #define HAS_ENDSTOPS 1
   #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
 #else
