@@ -866,11 +866,6 @@ class Temperature {
 
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
-        #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
-          static bool adaptive_fan_slowing;
-        #else
-          static constexpr bool adaptive_fan_slowing = true;
-        #endif
       #endif
 
       static uint8_t scaledFanSpeed(const uint8_t fan, const uint8_t fs) {
@@ -1177,6 +1172,12 @@ class Temperature {
       #endif
 
       static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+
+      #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
+        static bool adaptive_fan_slowing;
+      #elif ENABLED(ADAPTIVE_FAN_SLOWING)
+        static constexpr bool adaptive_fan_slowing = true;
+      #endif
 
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
