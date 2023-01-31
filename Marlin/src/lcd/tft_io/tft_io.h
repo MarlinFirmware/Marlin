@@ -34,7 +34,8 @@
 #endif
 
 #ifndef DMA_MAX_SIZE
-  #error "DMA_MAX_SIZE is not configured for this platform."
+  // uint16_t type maximum.
+  #define DMA_MAX_SIZE 0xFFFF
 #endif
 
 #include "tft_orientation.h"
@@ -83,7 +84,7 @@ public:
 
   // Non-blocking async IO
   // These functions start data transfer and DO NOT wait for data transfer completion
-  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+  #if ENABLED(TFT_SUPPORTS_ASYNC)
     inline static void WriteSequenceAsync(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr) { io.WriteSequenceAsync(Data, Count, completeCallback, ud); };
   #endif
 

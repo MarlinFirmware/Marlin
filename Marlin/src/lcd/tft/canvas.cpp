@@ -46,7 +46,7 @@ void CANVAS::Continue() {
 }
 
 bool CANVAS::ToScreen() {
-  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+  #if ENABLED(TFT_SUPPORTS_ASYNC)
     tft.write_sequence_async(buffer, width * (endLine - startLine));
   #else
     tft.write_sequence(buffer, width * (endLine - startLine));

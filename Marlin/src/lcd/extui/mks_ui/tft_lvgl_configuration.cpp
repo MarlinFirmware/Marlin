@@ -249,7 +249,7 @@ void tft_lvgl_init() {
 
 static lv_disp_drv_t* disp_drv_p;
 
-#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+#if ENABLED(TFT_SUPPORTS_ASYNC))
   bool lcd_dma_trans_lock = false;
 
   void async_dma_complete(void *ud) {
@@ -266,7 +266,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
-  #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+  #if ENABLED(TFT_SUPPORTS_ASYNC)
     lcd_dma_trans_lock = true;
     SPI_TFT.tftio.WriteSequenceAsync((uint16_t*)color_p, width * height, async_dma_complete, nullptr);
   #else
@@ -275,7 +275,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   #endif
 }
 
-#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+#if ENABLED(TFT_SUPPORTS_ASYNC)
   bool get_lcd_dma_lock() { return lcd_dma_trans_lock; }
 #endif
 

@@ -32,13 +32,18 @@
 
 #define TFT_SUPPORTS_8BIT
 
+// Does SPI implementation support async?
+#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
+  // Abstraction preprocessor definition for the "WriteSequenceAsync" method inside of TFT_SPI.
+  // You can define it in other TFT_* types to mark the availability of async API (isBusy, Abort, WriteSequenceAsync, ...).
+  #define TFT_SUPPORTS_ASYNC
+#endif
+
 class TFT_SPI {
 
   enum class eSPIMode { READ, WRITE };
 
 private:
-  static DMA_HandleTypeDef DMAtx;
-
   static uint32_t ReadID(uint16_t Reg);
   static void Transmit(uint16_t Data);
   static void Transmit8(uint8_t Data);
@@ -71,7 +76,6 @@ public:
 
   #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
     static void WriteSequenceAsync(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*) = nullptr, void *ud = nullptr) { TransmitDMA_Async(Data, Count, completeCallback, ud); }
-    inline static void DMA_IRQHandler() { HAL_DMA_IRQHandler(&TFT_SPI::DMAtx); }
   #endif
 
   static void WriteMultiple(uint16_t Color, uint16_t Count) { TransmitRepeat(Color, Count); }
