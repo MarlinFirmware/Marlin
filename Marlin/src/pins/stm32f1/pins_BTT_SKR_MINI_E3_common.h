@@ -172,6 +172,26 @@
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
+  #elif ENABLED(LCD_FOR_MELZI)
+
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! LCD for Melzi v4 display requires a custom cable. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
+   /*   ***** LCD for Melzi v4 needs a custom cable with reversed GND/5V pins; plugging in a standard cable may damage the board or LCD!
+    * 
+    * 1. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+    * 2. Swap pin 4 on the Melzi LCD to pin 7 on the SKR Mini E3 EXP1 connector (pin 4 on the SKR is a reset and cannot be used)
+    */
+    #define BEEPER_PIN               EXP1_08_PIN
+    #define BTN_ENC                  EXP1_06_PIN
+
+    #define BTN_EN1                  EXP1_02_PIN
+    #define BTN_EN2                  EXP1_07_PIN
+
+    #define LCD_PINS_RS              EXP1_01_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+  
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
@@ -306,7 +326,7 @@
     #define FORCE_SOFT_SPI
 
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_WIRED_LCD
