@@ -1378,7 +1378,7 @@ void print_time_count() {
 
 void LV_TASK_HANDLER() {
 
-  if (TERN1(HAL_SPI_SUPPORTS_ASYNC, !get_lcd_dma_lock()))
+  if (TERN1(TFT_SUPPORTS_ASYNC, !get_lcd_dma_lock()))
     lv_task_handler();
 
   #if BOTH(MKS_TEST, SDSUPPORT)
