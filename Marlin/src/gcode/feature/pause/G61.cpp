@@ -35,11 +35,24 @@
 /**
  * G61: Return to saved position
  *
- *   F<rate>  - Feedrate (optional) for the move back.
- *   S<slot>  - Slot # (0-based) to restore from (default 0).
- *   X Y Z E  - Axes to restore. At least one is required.
+ *   F<rate>   - Feedrate (optional) for the move back.
+ *   S<slot>   - Slot # (0-based) to restore from (default 0).
+ *   X<offset> - Restore X axis, applying the given offset (default 0)
+ *   Y<offset> - Restore Y axis, applying the given offset (default 0)
+ *   Z<offset> - Restore Z axis, applying the given offset (default 0)
  *
- *   If XYZE are not given, default restore uses the smart blocking move.
+ * If there is an Extruder:
+ *   E<offset> - Restore E axis, applying the given offset (default 0)
+ *
+ * With extra axes using default names:
+ *   A<offset> - Restore 4th axis, applying the given offset (default 0)
+ *   B<offset> - Restore 5th axis, applying the given offset (default 0)
+ *   C<offset> - Restore 6th axis, applying the given offset (default 0)
+ *   U<offset> - Restore 7th axis, applying the given offset (default 0)
+ *   V<offset> - Restore 8th axis, applying the given offset (default 0)
+ *   W<offset> - Restore 9th axis, applying the given offset (default 0)
+ *
+ *   If no axes are specified then all axes are restored.
  */
 void GcodeSuite::G61() {
 
@@ -71,7 +84,7 @@ void GcodeSuite::G61() {
     if (parser.seen(STR_AXES_MAIN)) {
       DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
       LOOP_NUM_AXES(i) {
-        destination[i] = parser.seenval(AXIS_CHAR(i))
+        destination[i] = parser.seen(AXIS_CHAR(i))
           ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
           : current_position[i];
         DEBUG_CHAR(' ', AXIS_CHAR(i));
