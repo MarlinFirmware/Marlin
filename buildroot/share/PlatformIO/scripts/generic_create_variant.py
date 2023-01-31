@@ -6,6 +6,9 @@
 # will be picked up by PlatformIO just like any other variant.
 #
 import pioutil
+import sys
+import re
+marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
     import shutil,marlin
     from pathlib import Path
@@ -44,15 +47,20 @@ if pioutil.is_pio_build():
     variant = board.get("build.variant")
     #series = mcu_type[:7].upper() + "xx"
 
-    # Prepare a new empty folder at the destination
-    variant_dir = FRAMEWORK_DIR / "variants" / variant
-    if variant_dir.is_dir():
-        shutil.rmtree(variant_dir)
-    if not variant_dir.is_dir():
-        variant_dir.mkdir()
+    # Only prepare a new variant if the PlatformIO configuration provides it (board_build.variant).
+    # This check is important so that we do not delete any official board config variants.
+    if marlin_variant_pattern.match(str(variant).lower()):
+        # Prepare a new empty folder at the destination
+        variant_dir = FRAMEWORK_DIR / "variants" / variant
+        if variant_dir.is_dir():
+            shutil.rmtree(variant_dir)
+        if not variant_dir.is_dir():
+            variant_dir.mkdir()
 
-    # Source dir is a local variant sub-folder
-    source_dir = Path("buildroot/share/PlatformIO/variants", variant)
-    assert source_dir.is_dir()
+        # Source dir is a local variant sub-folder
+        source_dir = Path("buildroot/share/PlatformIO/variants", variant)
+        assert source_dir.is_dir()
 
-    marlin.copytree(source_dir, variant_dir)
+        sys.stdout.write("Copying variant " + str(variant) + " to framework directory...")
+
+        marlin.copytree(source_dir, variant_dir)
