@@ -153,7 +153,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   #endif
   else return;
 
-  TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.TouchControlType::HEATER, x, y, 64, 100, Heater));
+  TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(TouchControlType::HEATER, x, y, 64, 100, Heater));
   tft.canvas(x, y, 64, 100);
   tft.set_background(COLOR_BACKGROUND);
 
@@ -198,7 +198,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
 }
 
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
-  TERN_(TOUCH_SCREEN, touch.add_control(FAN, x, y, 64, 100));
+  TERN_(TOUCH_SCREEN, touch.add_control(TouchControlType::FAN, x, y, 64, 100));
   tft.canvas(x, y, 64, 100);
   tft.set_background(COLOR_BACKGROUND);
 
@@ -509,7 +509,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const fstr, const char * const va
 
     #if ENABLED(TOUCH_SCREEN)
       tft.add_image((SLIDER_LENGTH - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
-      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
+      touch.add_control(TouchControlType::SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
     #endif
   }
 
@@ -981,7 +981,7 @@ void MarlinUI::move_axis_screen() {
     drawBtn(zplus_x, y, "X+", (intptr_t)x_plus, imgRight, X_BTN_COLOR, !busy);
 
     #if BOTH(HAS_BED_PROBE, TOUCH_SCREEN)
-      if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
+      if (!busy) touch.add_control(TouchControlType::BUTTON, x, y, BTN_WIDTH, 34 * 2, (intptr_t)z_select);
     #endif
 
     // ROW 4 -> Cur X
@@ -1119,7 +1119,7 @@ void MarlinUI::move_axis_screen() {
 
   #endif // !TFT_COLOR_UI_PORTRAIT
 
-  TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));
+  TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, TouchControlType::BACK, imgBack));
 }
 
 #endif // HAS_UI_320x240

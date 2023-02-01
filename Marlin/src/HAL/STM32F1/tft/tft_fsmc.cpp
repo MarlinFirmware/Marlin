@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_FSMC_TFT
+#if HAS_FSMC_TFT && ENABLED(MAPLE_STM32F1)
 
 #include "tft_fsmc.h"
 #include <libmaple/fsmc.h>
@@ -239,7 +239,7 @@ void TFT_FSMC::Abort() {
   channel_regs->CPAR  = 0U;
 }
 
-void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count) {
   // TODO: HAL STM32 uses DMA2_Channel1 for FSMC on STM32F1
   dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
   dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
@@ -247,7 +247,7 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 }
 
-void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_FSMC::Transmit(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count) {
   #if defined(FSMC_DMA_DEV) && defined(FSMC_DMA_CHANNEL)
     dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
     dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
@@ -259,4 +259,4 @@ void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count)
   #endif
 }
 
-#endif // HAS_FSMC_TFT
+#endif // HAS_FSMC_TFT && MAPLE_STM32F1

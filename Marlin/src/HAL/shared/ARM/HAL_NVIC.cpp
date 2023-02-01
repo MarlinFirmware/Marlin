@@ -104,7 +104,7 @@ static void (*const volatile*_nvic_default_vector)() = nullptr;
 #endif
 
 static void (*const volatile*_NVIC_GetDefaultVector())() {
-#ifdef STM32F1xx
+#if defined(STM32F1xx) || defined(STM32F4xx)
     return g_pfnVectors;
 #else
     return _nvic_default_vector;

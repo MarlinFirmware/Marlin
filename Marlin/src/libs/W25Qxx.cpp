@@ -95,22 +95,12 @@ void W25QXXFlash::init(uint8_t spiRate) {
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
   #if SPI_DEVICE == 1
-    #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
+    if (spiRate == SPI_FULL_SPEED) spiRate = SPI_QUARTER_SPEED;
   #else
-    #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
+    if (spiRate == SPI_FULL_SPEED) spiRate = SPI_HALF_SPEED;
   #endif
-  uint8_t clock;
-  switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX;  break;
-    case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4; break;
-    case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8; break;
-    case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
-    case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
-    case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-    default:                clock = SPI_CLOCK_DIV2;// Default from the SPI library
-  }
-
-  spiInitEx(clock, SPI_FLASH_MOSI_PIN, SPI_FLASH_MISO_PIN, SPI_FLASH_SCK_PIN, NC);
+  // TODO: put a valid maxClockFreq here from the W25Qxx technical reference manual!!!
+  spiInit(spiRate, SPI_FLASH_MOSI_PIN, SPI_FLASH_MISO_PIN, SPI_FLASH_SCK_PIN, NC);
   spiSetBitOrder(SPI_BITORDER_MSB);
   spiSetClockMode(SPI_CLKMODE_0);
 }

@@ -170,13 +170,13 @@ void TFT_FSMC::Abort() {
   HAL_DMA_DeInit(&DMAtx); // Deconfigure DMA
 }
 
-void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count) {
   DMAtx.Init.PeriphInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
   HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(LCD->RAM), Count);
 }
 
-void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_FSMC::Transmit(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count) {
   DMAtx.Init.PeriphInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
   DataTransferBegin();

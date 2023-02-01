@@ -31,6 +31,10 @@
   #error "FSMC TFT is currently only supported on STM32F1 and STM32F4 hardware."
 #endif
 
+#ifndef HAL_SRAM_MODULE_ENABLED
+  #error "SRAM module disabled for the STM32 framework (HAL_SRAM_MODULE_ENABLED)! Please consult the development team."
+#endif
+
 #ifndef LCD_READ_ID
   #define LCD_READ_ID  0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
@@ -58,8 +62,8 @@ class TFT_FSMC {
 
     static uint32_t ReadID(tft_data_t Reg);
     static void Transmit(tft_data_t Data) { LCD->RAM = Data; __DSB(); }
-    static void Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
-    static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+    static void Transmit(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count);
+    static void TransmitDMA(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count);
 
   public:
     static void Init();
@@ -73,10 +77,10 @@ class TFT_FSMC {
     static void WriteData(uint16_t Data) { Transmit(tft_data_t(Data)); }
     static void WriteReg(uint16_t Reg) { LCD->REG = tft_data_t(Reg); __DSB(); }
 
-    static void WriteSequence_DMA(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
+    static void WriteSequence_DMA(const uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple_DMA(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
 
-    static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_PINC_ENABLE, Data, Count); }
+    static void WriteSequence(const uint16_t *Data, uint16_t Count) { Transmit(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint32_t Count) {
       while (Count > 0) {
         Transmit(DMA_PINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
