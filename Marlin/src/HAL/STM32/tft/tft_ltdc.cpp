@@ -307,7 +307,7 @@ void TFT_LTDC::DrawRect(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint
   SBI(DMA2D->IFCR, 1);
 }
 
-void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t *colors) {
+void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, const uint16_t *colors) {
 
   if (sx == ex || sy == ey) return;
 
@@ -356,7 +356,7 @@ void TFT_LTDC::WriteReg(uint16_t Reg) {
   reg = Reg;
 }
 
-void TFT_LTDC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_LTDC::Transmit(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count) {
 
   while (x_cur != x_min && Count) {
     Transmit(*Data);

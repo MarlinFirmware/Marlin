@@ -29,6 +29,13 @@
   #error "LTDC TFT is currently only supported on STM32H7 hardware."
 #endif
 
+#ifndef HAL_SDRAM_MODULE_ENABLED
+  #error "SDRAM module disabled for the STM32 framework (HAL_SDRAM_MODULE_ENABLED)! Please consult the development team."
+#endif
+#ifndef HAL_LTDC_MODULE_ENABLED
+  #error "LTDC module disabled for the STM32 framework (HAL_LTDC_MODULE_ENABLED)! Please consult the development team."
+#endif
+
 #define TFT_IO_DRIVER  TFT_LTDC
 #define DMA_MAX_SIZE   0xFFFF
 
@@ -46,9 +53,9 @@ class TFT_LTDC {
     static uint16_t ReadPoint(uint16_t x, uint16_t y);
     static void DrawPoint(uint16_t x, uint16_t y, uint16_t color);
     static void DrawRect(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t color);
-    static void DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t *colors);
+    static void DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, const uint16_t *colors);
     static void Transmit(tft_data_t Data);
-    static void Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+    static void Transmit(uint32_t MemoryIncrease, const uint16_t *Data, uint16_t Count);
 
   public:
     static void Init();
@@ -63,13 +70,13 @@ class TFT_LTDC {
     static void WriteReg(uint16_t Reg);
 
     // Non-blocking DMA data transfer is not implemented for LTDC interface
-    inline static void WriteSequence_DMA(uint16_t *Data, uint16_t Count) { WriteSequence(Data, Count); }
+    inline static void WriteSequence_DMA(const uint16_t *Data, uint16_t Count) { WriteSequence(Data, Count); }
     inline static void WriteMultiple_DMA(uint16_t Color, uint16_t Count) { WriteMultiple(Color, Count); }
 
-    static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_PINC_ENABLE, Data, Count); }
+    static void WriteSequence(const uint16_t *Data, uint16_t Count) { Transmit(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint32_t Count) {
       while (Count > 0) {
-        Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
+        Transmit(DMA_PINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
         Count = Count > DMA_MAX_SIZE ? Count - DMA_MAX_SIZE : 0;
       }
     }

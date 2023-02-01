@@ -43,6 +43,14 @@
   // wired into the CPU (hard fault at attempt).
   extern void (*volatile const g_pfnVectors[VECTOR_TABLE_SIZE])();
   #define _NVIC_HAS_DEFAULT_VECTOR
+#elif defined(STM32H7xx)
+  #define VECTOR_TABLE_SIZE 166
+  #define IRQ_VECTOR_ALIGNMENT (1<<9)
+  // Defined by GCC.
+  // The vector is located in flash memory, thus there may be no memory bus for write access
+  // wired into the CPU (hard fault at attempt).
+  extern void (*volatile const g_pfnVectors[VECTOR_TABLE_SIZE])();
+  #define _NVIC_HAS_DEFAULT_VECTOR
 #elif defined(TARGET_LPC1768)
   // See NXP UM10360 page 75ff
   #define VECTOR_TABLE_SIZE 51
@@ -104,7 +112,7 @@ static void (*const volatile*_nvic_default_vector)() = nullptr;
 #endif
 
 static void (*const volatile*_NVIC_GetDefaultVector())() {
-#if defined(STM32F1xx) || defined(STM32F4xx)
+#if defined(STM32F1xx) || defined(STM32F4xx) || defined(STM32H7xx)
     return g_pfnVectors;
 #else
     return _nvic_default_vector;

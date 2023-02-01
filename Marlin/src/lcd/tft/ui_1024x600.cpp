@@ -301,7 +301,7 @@ void MarlinUI::draw_status_screen() {
     offset -= tft_string.width();
   }
   tft.add_text(900 - tft_string.width() - offset, 3, nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
+  TERN_(TOUCH_SCREEN, touch.add_control(TouchControlType::MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
 
   y += 100;
   // feed rate
