@@ -44,14 +44,17 @@
 
 void GcodeSuite::M306() {
   if (parser.seen_test('T')) {
+    const heater_id_t hid = (heater_id_t)parser.intval('E', active_extruder);
+
     LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-    thermalManager.MPC_autotune();
+    thermalManager.MPC_autotune(hid);
     ui.reset_status();
     return;
   }
 
   if (parser.seen("ACFPRH")) {
     const heater_id_t hid = (heater_id_t)parser.intval('E', 0);
+
     MPC_t &mpc = thermalManager.temp_hotend[hid].mpc;
     if (parser.seenval('P')) mpc.heater_power = parser.value_float();
     if (parser.seenval('C')) mpc.block_heat_capacity = parser.value_float();
