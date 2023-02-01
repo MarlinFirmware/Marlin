@@ -185,6 +185,7 @@ if pioutil.is_pio_build():
                 lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
                 set_env_field('lib_ignore', lib_ignore)
 
+        src_filter = ""
         if True:
             # Build the actual equivalent build_src_filter list based on the inclusions by the features.
             # PlatformIO itself is NOT smart enough to do this! Maybe in the future it may become smart...
@@ -251,7 +252,6 @@ if pioutil.is_pio_build():
                             return False
                         cur_srcs = set(filter(filt, cur_srcs))
             # Transform the set into a string.
-            src_filter = ""
             for x in cur_srcs:
                 if len(src_filter) > 0:
                     src_filter += ' '
