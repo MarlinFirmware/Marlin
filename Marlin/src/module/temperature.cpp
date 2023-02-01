@@ -311,7 +311,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
  * public:
  */
 
-#if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+#if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
   bool Temperature::adaptive_fan_slowing = true;
 #endif
 
@@ -688,7 +688,7 @@ volatile bool Temperature::raw_temps_ready = false;
       LEDColor color = ONHEATINGSTART();
     #endif
 
-    TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
 
     LCD_MESSAGE(MSG_HEATING);
 
@@ -876,7 +876,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(DWIN_PID_TUNE, DWIN_PidTuning(PID_DONE));
 
     EXIT_M303:
-      TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = true);
+      TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       return;
   }
 
@@ -910,6 +910,7 @@ volatile bool Temperature::raw_temps_ready = false;
         return false;
       }
 
+      wait_for_heatup = false;
       return true;
     };
 
@@ -927,6 +928,8 @@ volatile bool Temperature::raw_temps_ready = false;
         #endif
 
         do_z_clearance(MPC_TUNING_END_Z);
+
+        TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       }
     } on_exit;
 
@@ -934,6 +937,8 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
     MPCHeaterInfo &hotend = temp_hotend[active_extruder];
     MPC_t &mpc = hotend.mpc;
+
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);
@@ -970,7 +975,6 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 10000UL;
       }
     }
-    wait_for_heatup = false;
 
     #if HAS_FAN
       set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
@@ -989,6 +993,7 @@ volatile bool Temperature::raw_temps_ready = false;
     uint16_t sample_distance = 1;
     float t1_time = 0;
 
+    wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
       if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
@@ -1045,6 +1050,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
     float last_temp = current_temp;
 
+    wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
       if (!housekeeping(ms, current_temp, next_report_ms)) return;
 
@@ -4124,6 +4130,7 @@ void Temperature::isr() {
 
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         #if HAS_DWIN_E3V2_BASIC
@@ -4262,6 +4269,7 @@ void Temperature::isr() {
 
       } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
@@ -4340,6 +4348,7 @@ void Temperature::isr() {
         }
       }
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
@@ -4439,6 +4448,7 @@ void Temperature::isr() {
         }
       } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
@@ -4525,6 +4535,7 @@ void Temperature::isr() {
           first_loop = false;
         #endif // TEMP_COOLER_RESIDENCY_TIME > 0
 
+        // Prevent a wait-forever situation if R is misused i.e. M191 R0
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
@@ -4537,7 +4548,7 @@ void Temperature::isr() {
 
       } while (wait_for_heatup && TEMP_COOLER_CONDITIONS);
 
-      // Prevent a wait-forever situation if R is misused i.e. M191 R0
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();

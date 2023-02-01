@@ -1173,7 +1173,7 @@ class Temperature {
 
       static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
-      #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+      #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
         static bool adaptive_fan_slowing;
       #elif ENABLED(ADAPTIVE_FAN_SLOWING)
         static constexpr bool adaptive_fan_slowing = true;
