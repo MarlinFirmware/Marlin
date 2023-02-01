@@ -281,8 +281,10 @@ if pioutil.is_pio_build():
             feature, definition = feature[0], ' '.join(feature[1:])
             marlin_features[feature] = definition
 
-        # Font related.
-        notofont_feat = marlin_features["TFT_FONT"]
+        # Only build with the required font files, shortens build time.
+        notofont_feat = "NOTOSANS"  # default
+        if 'TFT_FONT' in marlin_features:
+            notofont_feat = marlin_features["TFT_FONT"]
 
         if notofont_feat:
             marlin_features["TFT_FONT_" + notofont_feat] = "1"
