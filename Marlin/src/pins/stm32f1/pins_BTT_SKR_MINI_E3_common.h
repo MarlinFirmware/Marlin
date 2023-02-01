@@ -181,7 +181,17 @@
     /**
      * LCD for Melzi v4 needs a custom cable with reversed GND/5V pins; plugging in a standard cable may damage the board or LCD!
      *  1. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-     *  2. Swap pin 4 on the Melzi LCD to pin 7 on the SKR Mini E3 EXP1 connector (pin 4 on the SKR is a reset and cannot be used)
+     *  2. Swap pin 4 on the Melzi LCD to pin 7 on the SKR Mini E3 EXP1 connector (pin 4 on the SKR is a RESET and cannot be used)
+     *
+     *       LCD for Melzi V4         SKR Mini E3 V2.0
+     *            ------                   ------
+     *    LCD RS | 1  2 | EN1      LCD RS | 1  2 | EN1
+     *    LCD EN | 3  4 | EN2      LCD EN | 3  4 | OPEN (RESET)
+     *    LCD D4 | 5  6 | ENC      LCD D4 | 5  6 | ENC
+     *    E-Stop | 7  8 | BEEP        EN2 | 7  8 | BEEP
+     *        5V | 9 10 | GND         GND | 9 10 | 5V
+     *            ------                   ------
+     *             EXP1                     EXP1
      */
     #define BEEPER_PIN               EXP1_08_PIN
 
