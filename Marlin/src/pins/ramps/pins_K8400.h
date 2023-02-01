@@ -57,6 +57,10 @@
   #define INVERTED_PROBE_STATE
 #endif
 
+#if EITHER(BLTOUCH, TOUCH_MI_PROBE)
+  #define INVERTED_PROBE_STATE
+#endif
+
 #include "pins_3DRAG.h" // ... RAMPS
 
 //
