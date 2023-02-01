@@ -22,7 +22,7 @@
 
 #include "../../../../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_TFT
+#if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
 
 #include <stdint.h>
 

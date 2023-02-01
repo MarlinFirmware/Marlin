@@ -22,7 +22,7 @@
  */
 #include "../platforms.h"
 
-#ifdef HAL_STM32
+#if defined(HAL_STM32) || defined(MAPLE_STM32F1)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -104,9 +104,13 @@
     }
     // TODO: there is an issue on Github by BTT(?) that this does not use software but hardware SPI.
     // we are kind of lying to the user here, is that OK?
+#ifdef MAPLE_STM32F1
+    SPI.setModuleByMOSIPin(hint_mosi);
+#else
     SPI.setMISO(hint_miso);
     SPI.setMOSI(hint_mosi);
     SPI.setSCLK(hint_sck);
+#endif
     SPI.begin();
   }
 
@@ -139,6 +143,10 @@
 
   void spiClose() {
     SPI.end();
+  }
+
+  void spiSetupChipSelect(int pin) {
+    OUT_WRITE(pin, HIGH);
   }
 
   void spiSetBitOrder(int bitOrder) {
@@ -249,4 +257,4 @@
 
 #endif
 
-#endif
+#endif // HAL_STM32, MAPLE_STM32F1

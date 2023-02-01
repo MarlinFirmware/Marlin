@@ -5,7 +5,9 @@
 import pioutil
 if pioutil.is_pio_build():
 
-    import subprocess,os,re
+    import subprocess,os,re,fnmatch,glob
+    srcfilepattern = re.compile(r".*[.](cpp|c)$")
+    marlinbasedir = os.path.join(os.getcwd(), "Marlin/")
     Import("env")
 
     from platformio.package.meta import PackageSpec
@@ -175,11 +177,53 @@ if pioutil.is_pio_build():
                 blab("========== Adding build_src_filter for %s... " % feature, 2)
                 src_filter = ' '.join(env.GetProjectOption('src_filter'))
                 # first we need to remove the references to the same folder
-                my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
-                cur_srcs = re.findall(r'[+-](<.*?>)', src_filter)
+                my_srcs = re.findall(r'([+-]<.*?>)', feat['src_filter'])
+                cur_srcs = re.findall(r'([+-]<.*?>)', src_filter)
                 for d in my_srcs:
-                    if d in cur_srcs:
-                        src_filter = re.sub(r'[+-]' + d, '', src_filter)
+                    # gonna assume normalized relative paths here.
+                    # if there is no direct match, then we perform the following logic:
+                    # - if the feature wants to add a GLOB, then remove any previous exclusions that match the GLOB
+                    # - if the feature wants to sub a GLOB, then just let it do so (nothing performed since sub is honored by PlatformIO)
+                    if d[0] == '+':
+                        plain = d[2:-1]
+                        # First remove anything excluded inside of the addition.
+                        def filt_included(x):
+                            return x[0] == '-' and fnmatch.fnmatch(x[2:-1], plain)
+                        matches = filter(filt_included, cur_srcs)
+                        for matchi in matches:
+                            src_filter = re.sub(matchi, '', src_filter)
+                        def filt_overshadowed(x):
+                            if x[0] == '+':
+                                return False
+                            xplain = x[2:-1]
+                            return not xplain == plain and fnmatch.fnmatch(plain, xplain)
+                        matches = filter(filt_overshadowed, cur_srcs)
+                        for matchi in matches:
+                            # First remove the overshadow. Don't worry, we are going to fill the definition with an equivalent notation below!
+                            blab( "Removed over-shadow " + matchi )
+                            src_filter = re.sub(matchi, '', src_filter)
+                            def srepl(matchobj):
+                                g0 = matchobj.group(0)
+                                return '**' + g0[1:]
+                            gpattern = re.sub(r'[*]($|[^*])', srepl, matchi[1:])[1:-1]
+                            # Do a really complicated matching job where we take each file included by the new item
+                            # but remove all other files excluded by the old exlusion.
+                            # This creates an equivalent notation with PlatformIO compatibility *sigh*.
+                            gpattern = os.path.join(marlinbasedir, gpattern)
+
+                            for fname in glob.glob(gpattern, recursive=True):
+                                relp = os.path.relpath(fname, marlinbasedir)
+                                if srcfilepattern.match(relp) and fnmatch.fnmatch(relp, plain):
+                                    blab( "Added complex inclusion " + relp )
+                                    src_filter = src_filter + r" +<" + relp + ">" 
+                                    
+                        # This is not a really efficient implementation of top-exclusion shadows over the bottom inclusion.
+                        # It should be handled at the place which processes build_src_filter instead.
+                        # PlatformIO does a stupid job, really. Thanks to Marlin we get smart source file management.
+                    else:
+                        plain = d[1:]
+                        if plain in cur_srcs:
+                            src_filter = re.sub(r'[+-]' + plain, '', src_filter)
 
                 src_filter = feat['src_filter'] + ' ' + src_filter
                 set_env_field('build_src_filter', [src_filter])
@@ -205,6 +249,13 @@ if pioutil.is_pio_build():
             feature = define[8:].strip().decode().split(' ')
             feature, definition = feature[0], ' '.join(feature[1:])
             marlin_features[feature] = definition
+
+        # Font related.
+        notofont_feat = marlin_features["TFT_FONT"]
+
+        if notofont_feat:
+            marlin_features["TFT_FONT_" + notofont_feat] = "1"
+                
         env['MARLIN_FEATURES'] = marlin_features
 
     #
@@ -224,6 +275,8 @@ if pioutil.is_pio_build():
                     some_on = True
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)
+
+        #print( feature + " is " + str(some_on) )
 
         return some_on
 

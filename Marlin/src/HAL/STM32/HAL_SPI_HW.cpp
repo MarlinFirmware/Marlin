@@ -38,7 +38,7 @@
 
 #include "../platforms.h"
 
-#ifdef HAL_STM32
+#if defined(HAL_STM32)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -58,13 +58,15 @@
   // STM32F1yyxx: https://www.st.com/resource/en/reference_manual/cd00171190-stm32f101xx-stm32f102xx-stm32f103xx-stm32f105xx-and-stm32f107xx-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf
   // ------------------------
 
-#ifdef STM32F1xx
+#if defined(STM32F1xx)
   #include "stm32f1xx_hal.h"
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
 #else
   #error Fast HW SPI is currently only supported on STM32F1 and STM32F4 hardware.
 #endif
+
+
 
 #ifndef HALSPI_LOOPBEEP_TIMEOUT
   // Timeout in milliseconds (consider that interrupts will increase the time by a lot)

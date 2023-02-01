@@ -358,6 +358,7 @@ public:
   void setModule(int spi_num) {
     _currentSetting = &_settings[spi_num - 1];// SPI channels are called 1 2 and 3 but the array is zero indexed
   }
+  void setModuleByMOSIPin(int8_t pin);
 
   /* -- The following methods are deprecated --------------------------- */
 

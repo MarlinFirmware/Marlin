@@ -22,7 +22,7 @@
  */
 #include "../platforms.h"
 
-#ifdef HAL_STM32
+#if defined(HAL_STM32) || defined(MAPLE_STM32F1)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -39,7 +39,7 @@
    * VGPV SPI speed start and PCLK2/2, by default 108/2 = 54Mhz
    */
 
-  static void _spiOnError(unsigned int beep_code = 0) {
+  [[maybe_unused]] static void _spiOnError(unsigned int beep_code = 0) {
     for (;;) {
 #if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
       OUT_WRITE(BEEPER_PIN, HIGH);
@@ -89,9 +89,13 @@
     _spi_clock = maxClockFreq;
     spiConfig = SPISettings(maxClockFreq, MSBFIRST, SPI_MODE0);
 
+#if ENABLED(MAPLE_STM32F1)
+    SPI.setModuleByMOSIPin((hint_mosi != -1) ? hint_mosi : SD_MOSI_PIN);
+#else
     SPI.setMISO((hint_miso != -1) ? hint_miso : SD_MISO_PIN);
     SPI.setMOSI((hint_mosi != -1) ? hint_mosi : SD_MOSI_PIN);
     SPI.setSCLK((hint_sck != -1) ? hint_sck : SD_SCK_PIN);
+#endif
 
     SPI.begin();
     SPI.beginTransaction(spiConfig);
@@ -152,11 +156,17 @@
    * @details
    */
   uint8_t spiRec(uint8_t txval) {
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_8BIT);
+#endif
     uint8_t returnByte = SPI.transfer(txval);
     return returnByte;
   }
 
   uint16_t spiRec16(uint16_t txval) {
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_16BIT);
+#endif
     return SPI.transfer16(txval);
   }
 
@@ -172,7 +182,12 @@
   void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     if (nbyte == 0) return;
     memset(buf, txval, nbyte);
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_8BIT);
+    SPI.dmaTransfer(buf, buf, nbyte);
+#else
     SPI.transfer(buf, nbyte);
+#endif
   }
 
   /**
@@ -191,6 +206,10 @@
   }
 
   void spiWrite(const uint8_t *buf, uint16_t numbytes) {
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_8BIT);
+    SPI.dmaSend(buf, numbytes, true);
+#else
     void *inout_buf = malloc(numbytes);
     if (inout_buf == nullptr)
       _spiOnError();
@@ -198,22 +217,38 @@
     // Generic transfer, non-DMA.
     SPI.transfer(inout_buf, numbytes);
     free(inout_buf);
+#endif
   }
 
   void spiWrite16(const uint16_t *buf, uint16_t numtx) {
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_16BIT);
+    SPI.dmaSend(buf, numtx, true);
+#else
     for (uint32_t n = 0; n < numtx; n++) {
       SPI.transfer16(buf[n]);
     }
+#endif
   }
 
   void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_8BIT);
+    SPI.dmaSend(&val, repcnt, false);
+#else
     for (uint16_t n = 0; n < repcnt; n++)
       SPI.transfer(val);
+#endif
   }
 
   void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_16BIT);
+    SPI.dmaSend(&val, repcnt, false);
+#else
     for (uint16_t n = 0; n < repcnt; n++)
       SPI.transfer16(val);
+#endif
   }
 
   /**
@@ -225,11 +260,16 @@
    * @details Use DMA
    */
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
-    uint8_t rxBuf[512];
     SPI.transfer(token);
+#ifdef MAPLE_STM32F1
+    SPI.setDataSize(DATA_SIZE_8BIT);
+    SPI.dmaSend(buf, 512, true);
+#else
+    uint8_t rxBuf[512];
     SPI.transfer((uint8_t*)buf, rxBuf, 512);
+#endif
   }
 
 #endif // !FAST HW SPI, SOFTWARE_SPI
 
-#endif // HAL_STM32
+#endif // HAL_STM32, MAPLE_STM32F1

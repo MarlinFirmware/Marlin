@@ -155,8 +155,8 @@ SPIClass::SPIClass(uint32_t spi_num) {
   _currentSetting->state = SPI_STATE_IDLE;
 }
 
-SPIClass::SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel/*=-1*/) : SPIClass(1) {
-  UNUSED(miso); UNUSED(sclk); UNUSED(ssel);
+// Just a patch in. Maple environment is deprecated but for the heck of it...
+void SPIClass::setModuleByMOSIPin(int8_t mosi) {
   #if BOARD_NR_SPI >= 1
     if (mosi == BOARD_SPI1_MOSI_PIN) setModule(1);
   #endif
@@ -166,6 +166,11 @@ SPIClass::SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel/*=-1*/) : 
   #if BOARD_NR_SPI >= 3
     if (mosi == BOARD_SPI3_MOSI_PIN) setModule(3);
   #endif
+}
+
+SPIClass::SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel/*=-1*/) : SPIClass(1) {
+  UNUSED(miso); UNUSED(sclk); UNUSED(ssel);
+  setModuleByMOSIPin(mosi);
 }
 
 /**
