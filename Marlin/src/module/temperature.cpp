@@ -884,8 +884,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(MPCTEMP)
 
-  void Temperature::MPC_autotune(const heater_id_t e) {
-    auto housekeeping = [] (millis_t &ms, const heater_id_t e, celsius_float_t &current_temp, millis_t &next_report_ms) {
+  void Temperature::MPC_autotune(const uint8_t e) {
+    auto housekeeping = [] (millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms) {
       ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
@@ -914,8 +914,8 @@ volatile bool Temperature::raw_temps_ready = false;
     };
 
     struct OnExit {
-      heater_id_t e;
-      OnExit(const heater_id_t e) {this->e = e;}
+      uint8_t e;
+      OnExit(const uint8_t e) {this->e = e;}
       ~OnExit() {
         wait_for_heatup = false;
 
