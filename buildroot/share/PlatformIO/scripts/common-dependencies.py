@@ -129,6 +129,7 @@ if pioutil.is_pio_build():
     def apply_features_config():
         load_features()
         blab("========== Apply enabled features...")
+        build_filters = ' '.join(env.GetProjectOption('src_filter'))
         for feature in FEATURE_CONFIG:
             if not env.MarlinHas(feature):
                 continue
@@ -175,65 +176,95 @@ if pioutil.is_pio_build():
 
             if 'src_filter' in feat:
                 blab("========== Adding build_src_filter for %s... " % feature, 2)
-                src_filter = ' '.join(env.GetProjectOption('src_filter'))
-                # first we need to remove the references to the same folder
-                my_srcs = re.findall(r'([+-]<.*?>)', feat['src_filter'])
-                cur_srcs = re.findall(r'([+-]<.*?>)', src_filter)
-                for d in my_srcs:
-                    # gonna assume normalized relative paths here.
-                    # if there is no direct match, then we perform the following logic:
-                    # - if the feature wants to add a GLOB, then remove any previous exclusions that match the GLOB
-                    # - if the feature wants to sub a GLOB, then just let it do so (nothing performed since sub is honored by PlatformIO)
-                    if d[0] == '+':
-                        plain = d[2:-1]
-                        # First remove anything excluded inside of the addition.
-                        def filt_included(x):
-                            return x[0] == '-' and fnmatch.fnmatch(x[2:-1], plain)
-                        matches = filter(filt_included, cur_srcs)
-                        for matchi in matches:
-                            src_filter = re.sub(matchi, '', src_filter)
-                        def filt_overshadowed(x):
-                            if x[0] == '+':
-                                return False
-                            xplain = x[2:-1]
-                            return not xplain == plain and fnmatch.fnmatch(plain, xplain)
-                        matches = filter(filt_overshadowed, cur_srcs)
-                        for matchi in matches:
-                            # First remove the overshadow. Don't worry, we are going to fill the definition with an equivalent notation below!
-                            blab( "Removed over-shadow " + matchi )
-                            src_filter = re.sub(matchi, '', src_filter)
-                            def srepl(matchobj):
-                                g0 = matchobj.group(0)
-                                return '**' + g0[1:]
-                            gpattern = re.sub(r'[*]($|[^*])', srepl, matchi[1:])[1:-1]
-                            # Do a really complicated matching job where we take each file included by the new item
-                            # but remove all other files excluded by the old exlusion.
-                            # This creates an equivalent notation with PlatformIO compatibility *sigh*.
-                            gpattern = os.path.join(marlinbasedir, gpattern)
-
-                            for fname in glob.glob(gpattern, recursive=True):
-                                relp = os.path.relpath(fname, marlinbasedir)
-                                if srcfilepattern.match(relp) and fnmatch.fnmatch(relp, plain):
-                                    blab( "Added complex inclusion " + relp )
-                                    src_filter = src_filter + r" +<" + relp + ">" 
-                                    
-                        # This is not a really efficient implementation of top-exclusion shadows over the bottom inclusion.
-                        # It should be handled at the place which processes build_src_filter instead.
-                        # PlatformIO does a stupid job, really. Thanks to Marlin we get smart source file management.
-                    else:
-                        plain = d[1:]
-                        if plain in cur_srcs:
-                            src_filter = re.sub(r'[+-]' + plain, '', src_filter)
-
-                src_filter = feat['src_filter'] + ' ' + src_filter
-                set_env_field('build_src_filter', [src_filter])
-                env.Replace(SRC_FILTER=src_filter)
+                build_filters = build_filters + ' ' + feat['src_filter']
+                # Just append the filter in the order that the build environment specifies.
+                # Important here is the order of entries in the "features.ini" file.
 
             if 'lib_ignore' in feat:
                 blab("========== Adding lib_ignore for %s... " % feature, 2)
                 lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
                 set_env_field('lib_ignore', lib_ignore)
 
+        if True:
+            # Build the actual equivalent build_src_filter list based on the inclusions by the features.
+            # PlatformIO itself is NOT smart enough to do this! Maybe in the future it may become smart...
+            cur_srcs = set()
+            # first we need to remove the references to the same folder
+            my_srcs = re.findall(r'([+-]<.*?>)', build_filters)
+            def printpathdbg(x):
+                #print(x)
+                return
+            for d in my_srcs:
+                # gonna assume normalized relative paths here.
+                plain = d[2:-1]
+                if d[0] == '+':
+                    def addentry(fullpath, info=None):
+                        relp = os.path.relpath(fullpath, marlinbasedir)
+                        if srcfilepattern.match(relp):
+                            if info:
+                                printpathdbg( "Added src file " + relp + " (" + str(info) + ")" )
+                            else:
+                                printpathdbg( "Added src file " + relp )
+                            cur_srcs.add(relp)
+                    # Special rule by PlatformIO: if a direct folder is specified then add all files
+                    # inside of that folder
+                    fullplain = os.path.join(marlinbasedir, plain)
+                    if os.path.isdir(fullplain):
+                        printpathdbg( "Directory content addition for " + plain )
+                        gpattern = os.path.join(fullplain, "**")
+                        for fname in glob.glob(gpattern, recursive=True):
+                            addentry(fname, "dca")
+                    else:
+                        # Add all the things from the pattern by GLOB.
+                        def srepl(matchi):
+                            g0 = matchi.group(0)
+                            return r"**" + g0[1:]
+                        gpattern = re.sub(r'[*]($|[^*])', srepl, plain)
+                        gpattern = os.path.join(marlinbasedir, gpattern)
+                        
+                        for fname in glob.glob(gpattern, recursive=True):
+                            addentry(fname)
+                else:
+                    # Special rule by PlatformIO: if a direct folder is specified then remove all files
+                    # from it.
+                    def onremove(relp, info=None):
+                        if info:
+                            printpathdbg( "Removed src file " + relp + " (" + str(info) + ")" )
+                        else:
+                            printpathdbg( "Removed src file " + relp )
+                    fullplain = os.path.join(marlinbasedir, plain)
+                    if os.path.isdir(fullplain):
+                        printpathdbg( "Directory content removal for " + plain )
+                        def filt(x):
+                            common = os.path.commonpath([plain, x])
+                            if not common == os.path.normpath(plain):
+                                return True
+                            onremove(x, "dcr")
+                            return False
+                        cur_srcs = set(filter(filt, cur_srcs))
+                    else:
+                        # Remove source entries that match pattern.
+                        def filt(x):
+                            if not fnmatch.fnmatch(x, plain):
+                                return True
+                            onremove(x)
+                            return False
+                        cur_srcs = set(filter(filt, cur_srcs))
+            # Transform the set into a string.
+            src_filter = ""
+            for x in cur_srcs:
+                if len(src_filter) > 0:
+                    src_filter += ' '
+                src_filter += "+<" + x + ">"
+
+            #print( "Final: " + src_filter )
+        else:
+            src_filter = build_filters
+
+        # Tell it to PlatformIO.
+        set_env_field('build_src_filter', [src_filter])
+        env.Replace(SRC_FILTER=src_filter)
+    
     #
     # Use the compiler to get a list of all enabled features
     #
