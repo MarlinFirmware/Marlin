@@ -980,12 +980,12 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "SDSORT_LIMIT must be 256 or smaller."
   #elif SDSORT_LIMIT < 10
     #error "SDSORT_LIMIT should be greater than 9 to be useful."
-  #elif DISABLED(SDSORT_USES_RAM)
-    #if ENABLED(SDSORT_DYNAMIC_RAM)
-      #error "SDSORT_DYNAMIC_RAM requires SDSORT_USES_RAM (which reads the directory into RAM)."
-    #elif ENABLED(SDSORT_CACHE_NAMES)
-      #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
-    #endif
+  #elif ENABLED(SDSORT_DYNAMIC_RAM) && DISABLED(SDSORT_USES_RAM)
+    #error "SDSORT_DYNAMIC_RAM requires SDSORT_USES_RAM (which reads the directory into RAM)."
+  #elif ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_USES_RAM)
+    #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
+  #elif ENABLED(SDSORT_DYNAMIC_RAM) && DISABLED(SDSORT_CACHE_NAMES)
+    #error "SDSORT_DYNAMIC_RAM requires SDSORT_CACHE_NAMES."
   #endif
 
   #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
