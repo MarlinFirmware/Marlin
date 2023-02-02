@@ -144,7 +144,6 @@ extern "C" {
 #define NUM_DIGITAL_PINS        112
 // This must be a literal with a value less than or equal to to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       13
-#define NUM_ANALOG_FIRST        NUM_DIGITAL_PINS
 
 //#define ADC_RESOLUTION          12
 

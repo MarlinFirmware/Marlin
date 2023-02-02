@@ -124,7 +124,6 @@ extern "C" {
 #define NUM_DIGITAL_PINS        75
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       14
-#define NUM_ANALOG_FIRST        44
 
 // Below ADC, DAC and PWM definitions already done in the core
 // Could be redefined here if needed
@@ -265,7 +264,6 @@ extern "C" {
 #define NUM_DIGITAL_PINS        110
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       19
-#define NUM_ANALOG_FIRST        75
 
 // On-board LED pin number
 #define LED_D2                  PF10
