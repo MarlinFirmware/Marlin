@@ -51,11 +51,7 @@ class CircularQueue {
      *          of item this queue will handle and N defines the maximum number of
      *          items that can be stored on the queue.
      */
-    CircularQueue
-#ifndef ESP32
-    <T, N>
-#endif
-    () {
+    CircularQueue() {
       buffer.size = N;
       buffer.count = buffer.head = buffer.tail = 0;
     }
