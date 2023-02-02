@@ -1,3 +1,5 @@
 #pragma once
 
-#define NUM_ANALOG_FIRST        107
+#ifndef NUM_ANALOG_FIRST
+  #define NUM_ANALOG_FIRST        107
+#endif

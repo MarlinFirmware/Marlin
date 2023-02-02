@@ -1,3 +1,5 @@
 #pragma once
 
-#define NUM_ANALOG_FIRST        NUM_DIGITAL_PINS
+#ifndef NUM_ANALOG_FIRST
+  #define NUM_ANALOG_FIRST        NUM_DIGITAL_PINS
+#endif

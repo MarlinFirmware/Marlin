@@ -2,12 +2,16 @@
 
 #if defined(ARDUINO_BLACK_F407VE) || defined(ARDUINO_BLACK_F407VG)
 
-#define NUM_ANALOG_FIRST        44
+#ifndef NUM_ANALOG_FIRST
+  #define NUM_ANALOG_FIRST        44
+#endif
 
 #endif
 
 #if defined(ARDUINO_BLACK_F407ZE) || defined(ARDUINO_BLACK_F407ZG)
 
-#define NUM_ANALOG_FIRST        75
+#ifndef NUM_ANALOG_FIRST
+  #define NUM_ANALOG_FIRST        75
+#endif
 
 #endif

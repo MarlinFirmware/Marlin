@@ -1,3 +1,5 @@
 #pragma once
 
-#define NUM_ANALOG_FIRST        128
+#ifndef NUM_ANALOG_FIRST
+  #define NUM_ANALOG_FIRST        128
+#endif

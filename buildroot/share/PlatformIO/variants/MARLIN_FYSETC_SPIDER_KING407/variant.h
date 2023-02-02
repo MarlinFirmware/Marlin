@@ -157,6 +157,7 @@ extern "C" {
 #define NUM_DIGITAL_PINS        114
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       7
+#define NUM_ANALOG_FIRST        107
 
 
 // Below SPI and I2C definitions already done in the core

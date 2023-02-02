@@ -213,6 +213,7 @@ extern "C" {
 #define NUM_DIGITAL_PINS        (STM32F4X_GPIO_NUM)
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
 #define NUM_ANALOG_INPUTS       (STM32F4X_ADC_NUM)
+#define NUM_ANALOG_FIRST        35
 
 // Below ADC, DAC and PWM definitions already done in the core
 // Could be redefined here if needed
