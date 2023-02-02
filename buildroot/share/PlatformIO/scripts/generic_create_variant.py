@@ -6,7 +6,6 @@
 # will be picked up by PlatformIO just like any other variant.
 #
 import pioutil
-import sys
 import re
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
@@ -35,7 +34,7 @@ if pioutil.is_pio_build():
     else:
         platform_name = PackageSpec(platform_packages[0]).name
 
-    if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
+    if platform_name in [ "Arduino_Core_STM32", "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
         platform_name = "framework-arduinoststm32"
 
     FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
@@ -61,6 +60,6 @@ if pioutil.is_pio_build():
         source_dir = Path("buildroot/share/PlatformIO/variants", variant)
         assert source_dir.is_dir()
 
-        sys.stdout.write("Copying variant " + str(variant) + " to framework directory...")
+        print("Copying variant " + str(variant) + " to framework directory...")
 
         marlin.copytree(source_dir, variant_dir)
