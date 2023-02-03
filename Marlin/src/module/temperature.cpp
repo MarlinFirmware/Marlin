@@ -884,6 +884,10 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(MPCTEMP)
 
+  #if EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND)
+    #define SINGLEFAN 1
+  #endif
+
   void Temperature::MPC_autotune(const uint8_t e) {
     auto housekeeping = [] (millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms) {
       ms = millis();
@@ -924,7 +928,7 @@ volatile bool Temperature::raw_temps_ready = false;
         temp_hotend[e].target = 0.0f;
         temp_hotend[e].soft_pwm_amount = 0;
         #if HAS_FAN
-          set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : e, 0);
+          set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
           planner.sync_fan_speeds(fan_speed);
         #endif
 
@@ -946,7 +950,7 @@ volatile bool Temperature::raw_temps_ready = false;
     disable_all_heaters();
     #if HAS_FAN
       zero_fan_speeds();
-      set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : e, 255);
+      set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
       planner.sync_fan_speeds(fan_speed);
     #endif
     do_blocking_move_to(xyz_pos_t(MPC_TUNING_POS));
@@ -979,7 +983,7 @@ volatile bool Temperature::raw_temps_ready = false;
     wait_for_heatup = false;
 
     #if HAS_FAN
-      set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : e, 0);
+      set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
       planner.sync_fan_speeds(fan_speed);
     #endif
 
@@ -1065,7 +1069,7 @@ volatile bool Temperature::raw_temps_ready = false;
           total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
         #if HAS_FAN
           else if (ELAPSED(ms, test_end_ms) && !fan0_done) {
-            set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : e, 255);
+            set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
             planner.sync_fan_speeds(fan_speed);
             settle_end_ms = ms + settle_time;
             test_end_ms = settle_end_ms + test_duration;
@@ -1453,7 +1457,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
 
       float ambient_xfer_coeff = mpc.ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
-        const uint8_t fan_index = EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : ee;
+        const uint8_t fan_index = TERN(SINGLEFAN, 0, e)e;
         const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) fan_speed[fan_index] * RECIPROCAL(255);
         ambient_xfer_coeff += fan_fraction * mpc.fan255_adjustment;
       #endif
