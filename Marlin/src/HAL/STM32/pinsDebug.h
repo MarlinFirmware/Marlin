@@ -195,10 +195,11 @@ bool GET_PINMODE(const pin_t Ard_num) {
 }
 
 int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
-#ifdef NUM_ANALOG_FIRST
-  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
-    return Ard_num - NUM_ANALOG_FIRST;
-#endif
+
+  #ifdef NUM_ANALOG_FIRST
+    if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
+      return Ard_num - NUM_ANALOG_FIRST;
+  #endif
 
   const uint32_t ind = digitalPinToAnalogInput(Ard_num);
   return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
@@ -236,12 +237,13 @@ void port_print(const pin_t Ard_num) {
 
   // Print number to be used with M42
   int calc_p = Ard_num;
-#ifdef NUM_ANALOG_FIRST
-  if (Ard_num > NUM_DIGITAL_PINS) {
-    calc_p -= NUM_ANALOG_FIRST;
-    if (calc_p > 7) calc_p += 8;
-  }
-#endif
+  #ifdef NUM_ANALOG_FIRST
+    if (Ard_num > NUM_DIGITAL_PINS) {
+      calc_p -= NUM_ANALOG_FIRST;
+      if (calc_p > 7) calc_p += 8;
+    }
+  #endif
+
   SERIAL_ECHOPGM(" M42 P", calc_p);
   SERIAL_CHAR(' ');
   if (calc_p < 100) {
