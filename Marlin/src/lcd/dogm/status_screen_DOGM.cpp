@@ -194,16 +194,24 @@
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
   const char *str;
   uint8_t len;
-  if (temp > 0) {
-    str = i16tostr3rj(temp);
-    len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
+  if (temp >= 0) {
+    str = i16tostr3left(temp);
+    len = strlen(str);
+    lcd_moveto(tx + 1 - len * (INFO_FONT_WIDTH) / 2, ty);
   }
   else {
-    str = "err";
-    len = 3;
+    #if ENABLED(SHOW_TEMPERATURE_BELOW_ZERO)
+      str = i16tostr3left((-temp) % 100);
+      len = strlen(str) + 1;
+      lcd_moveto(tx + 1 - len * (INFO_FONT_WIDTH) / 2, ty);
+      lcd_put_lchar('-');
+    #else
+      lcd_put_u8str(tx + 1 - 3 * (INFO_FONT_WIDTH) / 2, ty, F("err"));
+      return;
+    #endif
   }
-  lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
-  if (temp > 0) lcd_put_lchar(LCD_STR_DEGREE[0]);
+  lcd_put_u8str(str);
+  lcd_put_lchar(LCD_STR_DEGREE[0]);
 }
 
 #if DO_DRAW_FLOWMETER
