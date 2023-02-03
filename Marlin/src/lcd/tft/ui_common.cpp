@@ -230,7 +230,7 @@ void MarlinUI::clear_lcd() {
 
     calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
-    if (calibration_stage == CALIBRATION_NONE) {
+    if (calibration_stage == CALIBRATION_NONE || calibration_stage == CALIBRATION_TOP_LEFT) {
       defer_status_screen(true);
       clear_lcd();
       calibration_stage = touch_calibration.calibration_start();
