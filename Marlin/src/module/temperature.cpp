@@ -919,7 +919,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     struct OnExit {
       uint8_t e;
-      OnExit(const uint8_t e) {this->e = e;}
+      OnExit(const uint8_t _e) { this->e = _e; }
       ~OnExit() {
         wait_for_heatup = false;
 
