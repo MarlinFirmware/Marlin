@@ -321,16 +321,18 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       dwin_string.set();
       const int8_t plen = ftpl ? utf8_strlen(ftpl) : 0,
-                   vlen = vstr ? utf8_strlen(vstr) : 0;
+                   vlen = vstr ? utf8_strlen(vstr) : 0,
+                   rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0; //   <-----------  IMPORTANT: itemRAlignedStringC implementation in this method of e3v2 is UNTESTED fallback !!! itemRAlignedStringC should be aligned to the right when fully implemented.
       if (style & SS_CENTER) {
-        int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
+        int8_t pad = (LCD_WIDTH - 1 - plen - vlen - rlen) / 2;
         while (--pad) dwin_string.add(' ');
       }
 
       if (plen) dwin_string.add(ftpl, itemIndex, itemStringC, itemStringF);
       if (vlen) dwin_string.add(vstr);
+      if (rlen) { dwin_string.add(' '); dwin_string.add(itemRAlignedStringC); }
       if (style & SS_CENTER) {
-        int8_t pad = (LCD_WIDTH - 1 - plen - vlen) / 2;
+        int8_t pad = (LCD_WIDTH - 1 - plen - vlen - rlen) / 2;
         while (--pad) dwin_string.add(' ');
       }
 
@@ -347,6 +349,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       dwin_font.fg = Color_White;
 
       dwin_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+      if (itemRAlignedStringC) { dwin_string.add(' '); dwin_string.add(itemRAlignedStringC); } //   <-----------  IMPORTANT: itemRAlignedStringC implementation in this method of e3v2 is UNTESTED fallback !!! itemRAlignedStringC should be aligned to the right when fully implemented.
 
       pixel_len_t n = LCD_WIDTH - 1 - dwin_string.length;
       while (--n > 1) dwin_string.add(' ');

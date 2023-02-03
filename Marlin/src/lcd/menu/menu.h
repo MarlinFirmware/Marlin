@@ -56,10 +56,13 @@ class MenuItemBase {
     // Optional pointers for use in display or by the action
     static FSTR_P itemStringF;
     static const char* itemStringC;
+    static const char* itemRAlignedStringC;
 
     // Store an index and string for later substitution
     FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
     FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
+
+    FORCE_INLINE static void setRAlignedString(const char * const cstr) { itemRAlignedStringC = cstr; }
 
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char

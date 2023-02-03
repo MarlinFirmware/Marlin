@@ -135,20 +135,40 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
   const char *string = FTOP(fstr);
   MarlinImage image = noImage;
   switch (*string) {
-    case 0x01: image = imgRefresh; break;  // LCD_STR_REFRESH
-    case 0x02: image = imgDirectory; break;  // LCD_STR_FOLDER
+    case LCD_STR_REFRESH[0]: image = imgRefresh; break;
+    case LCD_STR_FOLDER[0]: image = imgDirectory; break;
   }
 
-  uint8_t offset = MENU_TEXT_X_OFFSET;
+  uint8_t l_offset = MENU_TEXT_X_OFFSET;
   if (image != noImage) {
     string++;
-    offset = MENU_ITEM_ICON_SPACE;
+    l_offset = MENU_ITEM_ICON_SPACE;
     tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
 
-  tft_string.set(string, itemIndex, itemStringC, itemStringF);
+  image = noImage;
+  switch (post_char) {
+    case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
+    case LCD_STR_UPLEVEL[0]: image = imgBack; break;
+  }
 
-  tft.add_text(offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  uint16_t r_offset = TFT_WIDTH;
+  if (image != noImage) {
+    tft.add_image(r_offset -= MENU_ITEM_ICON_SPACE, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+  } else {
+    r_offset -= MENU_TEXT_X_OFFSET;
+  }
+
+  uint16_t max_width;
+  if (itemRAlignedStringC) {
+    tft_string.set(itemRAlignedStringC);
+    max_width = r_offset - l_offset;
+    tft.add_text(r_offset -= _MIN(tft_string.width(), max_width), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, max_width);
+  }
+
+  max_width = _MAX(r_offset - l_offset - MENU_TEXT_X_OFFSET, 1);
+  tft_string.set(string, itemIndex, itemStringC, itemStringF);
+  tft.add_text(l_offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, max_width);
 }
 
 // Draw a menu item with a (potentially) editable value
@@ -166,9 +186,18 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const fstr
 // Draw a static item with no left-right margin required. Centered by default.
 void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
   menu_item(row);
+
+  uint16_t r_offset = TFT_WIDTH - MENU_TEXT_X_OFFSET;
+  if (itemRAlignedStringC) {
+    tft_string.set(itemRAlignedStringC);
+    tft.add_text(r_offset -= _MIN(tft_string.width(), r_offset - MENU_TEXT_X_OFFSET), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, TFT_WIDTH - 2*MENU_TEXT_X_OFFSET);
+  }
+
   tft_string.set(fstr, itemIndex, itemStringC, itemStringF);
   if (vstr) tft_string.add(vstr);
-  tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+
+  uint16_t l_offset = style == SS_LEFT ? MENU_TEXT_X_OFFSET : tft_string.center(TFT_WIDTH);
+  tft.add_text(l_offset , MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string, _MAX(r_offset - l_offset - MENU_TEXT_X_OFFSET, 1));
 }
 
 #if ENABLED(SDSUPPORT)

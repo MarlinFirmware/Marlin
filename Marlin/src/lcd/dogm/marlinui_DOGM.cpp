@@ -412,29 +412,35 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   // Draw a static line of text in the same idiom as a menu item
   void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
-
     if (mark_as_selected(row, style & SS_INVERT)) {
-      pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
-
-      const int plen = ftpl ? calculateWidth(ftpl) : 0,
-                vlen = vstr ? utf8_strlen(vstr) : 0;
+      const int plen = ftpl ? calculateWidth(ftpl) / MENU_FONT_WIDTH : 0,
+                vlen = vstr ? utf8_strlen(vstr) : 0,
+                rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;
+      pixel_len_t n = _MAX(LCD_WIDTH - rlen, 0); // pixel width of left string allowed
       if (style & SS_CENTER) {
-        int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
-        while (--pad >= 0) n -= lcd_put_u8str(F(" "));
+        int pad = (LCD_WIDTH - plen - vlen) / 2;
+        for (;pad && n;pad--, n--) lcd_put_u8str(F(" "));
       }
-
-      if (plen) n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+    
+      if (plen) n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n); // this put deals in characters
+      n *= MENU_FONT_WIDTH; // dealing with pixels from now on
       if (vlen) n -= lcd_put_u8str_max(vstr, n);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
+      while (n > 0) n -= lcd_put_u8str(F(" ")); // this put !!with the same name!! deals in pixels
+      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1)*MENU_FONT_WIDTH); };
     }
   }
 
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
-      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
-      while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));
-      lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+      const pixel_len_t rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;
+      const uint8_t post_char_len = post_char != ' ' ? 1 : 0;
+      pixel_len_t n = _MAX(LCD_WIDTH - rlen - post_char_len, 0);
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      n *= MENU_FONT_WIDTH;
+      while (n > 0) n -= lcd_put_u8str(F(" "));
+      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(itemRAlignedStringC, (LCD_WIDTH - 1 - post_char_len)*MENU_FONT_WIDTH); }
+      if (post_char_len) lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_u8str(F(" "));
     }
   }
@@ -446,7 +452,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
                     pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), inStr));
       const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
 
-      pixel_len_t n = lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
+      pixel_len_t n = LCD_WIDTH - (2 + vallen * prop);
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      n *= MENU_FONT_WIDTH;
       if (vallen) {
         lcd_put_u8str(F(":"));
         while (n > MENU_FONT_WIDTH) n -= lcd_put_u8str(F(" "));

@@ -275,6 +275,7 @@ class MenuItem_bool : public MenuEditItemBase {
   FSTR_P const flabel = FLABEL;                                \
   if (encoderLine == _thisItemNr && ui.use_click()) {          \
     _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
+    MenuItemBase::setRAlignedString(nullptr);                  \
     MenuItem_##TYPE::action(flabel, ##V);                      \
     if (ui.screen_changed) return;                             \
   }                                                            \
@@ -487,6 +488,16 @@ class MenuItem_bool : public MenuEditItemBase {
 #define EDIT_ITEM_FAST_N_f(TYPE, N, f, LABEL, V...) EDIT_ITEM_FAST_N_f_F(TYPE, N, f, true, GET_TEXT_F(LABEL), ##V)
 #define EDIT_ITEM_FAST_f_F(TYPE, f, FLABEL, V...)         _MENU_ITEM_f_F(TYPE, f, true, FLABEL, ##V)
 #define EDIT_ITEM_FAST_f(TYPE, f, LABEL, V...)        EDIT_ITEM_FAST_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
+
+// Companion macro for ACTION, SUBMENU, GCODE, STATIC and PSTRING _ITEMs.
+// (Those that are drawn by ::draw method for generic or static items).
+// Prints right aligned C-string in the supplied item.
+#define ITEM_ADD_RIGHT_ALIGNED_STRING(ITEM_MACRO, C_STR) do {             \
+  if (_menuLineNr == _thisItemNr) MenuItemBase::setRAlignedString(C_STR); \
+  ITEM_MACRO;                                                             \
+  MenuItemBase::setRAlignedString(nullptr);                               \
+} while(0)
+
 
 #define _CONFIRM_ITEM_INNER_F(FLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \

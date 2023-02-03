@@ -966,12 +966,14 @@ void MarlinUI::draw_status_screen() {
     if (!PanelDetected) return;
     uint8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
+    uint8_t rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;   //   <-----------  IMPORTANT: itemRAlignedStringC implementation in this method in TFTGLCD is UNTESTED fallback !!! itemRAlignedStringC should be aligned to the right when fully implemented.
     if ((style & SS_CENTER) && !valstr) {
-      int8_t pad = (LCD_WIDTH - utf8_strlen(fstr)) / 2;
+      int8_t pad = (LCD_WIDTH - utf8_strlen(fstr) - rlen) / 2;
       while (--pad >= 0) { lcd.write(' '); n--; }
     }
-    n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
+    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
     if (valstr) n -= lcd_put_u8str_max(valstr, n);
+    if (rlen) { if (n > 0) { lcd.write(' '); n--; } n -= lcd_put_u8str_max(itemRAlignedStringC, n); }
     for (; n; --n) lcd.write(' ');
     lcd.print_line();
   }
@@ -979,9 +981,12 @@ void MarlinUI::draw_status_screen() {
   // Draw a generic menu item with pre_char (if selected) and post_char
   void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char) {
     if (!PanelDetected) return;
+    uint8_t rlen = itemRAlignedStringC ? utf8_strlen(itemRAlignedStringC) + 1 : 0;   //   <-----------  IMPORTANT: itemRAlignedStringC implementation in this method in TFTGLCD is UNTESTED fallback  !!! itemRAlignedStringC should be aligned to the right when fully implemented.
     lcd_moveto(0, row);
     lcd.write(sel ? pre_char : ' ');
-    uint8_t n = lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, LCD_WIDTH - 2);
+    uint8_t n = LCD_WIDTH - 2;
+    n -= lcd_put_u8str(fstr, itemIndex, itemStringC, itemStringF, n);
+    if (rlen) { if (n > 0) { lcd.write(' '); n--; } n -= lcd_put_u8str_max(itemRAlignedStringC, n); }
     for (; n; --n) lcd.write(' ');
     lcd.write(post_char);
     lcd.print_line();

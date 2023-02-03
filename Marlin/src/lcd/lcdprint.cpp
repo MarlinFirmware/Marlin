@@ -86,7 +86,7 @@ lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/
       n -= wc > 255 ? prop : 1;
     }
   }
-  return n;
+  return maxlen - n;
 }
 
 // Calculate UTF8 width with a simple check
