@@ -450,7 +450,10 @@ void MarlinUI::draw_status_screen() {
     );
     #if ENABLED(SDSUPPORT)
       const bool cm = card.isMounted(), pa = printingIsActive();
-      add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+      if (cm && pa)
+        add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+      else
+        add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   } // (sublime)
   #endif // TOUCH_SCREEN
