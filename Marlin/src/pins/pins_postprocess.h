@@ -715,6 +715,8 @@
   #undef FIL_RUNOUT2_PIN
 #endif
 
+#undef LCD_PINS_DEFINED
+
 #ifndef LCD_PINS_D4
   #define LCD_PINS_D4 -1
 #endif

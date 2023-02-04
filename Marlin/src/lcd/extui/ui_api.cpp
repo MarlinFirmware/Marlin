@@ -333,7 +333,7 @@ namespace ExtUI {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z) {
-        max = SQRT(sq(float(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
         min = -max;
       }
     #endif

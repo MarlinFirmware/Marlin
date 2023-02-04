@@ -176,7 +176,7 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const fstr, const uint8_t s
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
     if (isDir) tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-    constexpr uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y_OFFSET) + 1;
+    uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y_OFFSET) + 1;
     tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, row, sel));
   }
 
@@ -193,6 +193,9 @@ void MarlinUI::init_lcd() {
   tft.set_font(MENU_FONT_NAME);
   #ifdef SYMBOLS_FONT_NAME
     tft.add_glyphs(SYMBOLS_FONT_NAME);
+  #endif
+  #ifdef EXTRA_FONT_NAME
+    tft.add_glyphs(EXTRA_FONT_NAME);
   #endif
   TERN_(TOUCH_SCREEN, touch.init());
   clear_lcd();
