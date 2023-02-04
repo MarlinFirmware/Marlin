@@ -54,4 +54,4 @@ class SdFile : public SdBaseFile {
   void writeln_P(PGM_P str);
 };
 
-using MarlinFile = SdFile;
+using MediaFile = SdFile;

@@ -32,7 +32,7 @@
 class MediaFileReader {
   private:
     #if ENABLED(SDSUPPORT)
-      MarlinFile root, file;
+      MediaFile root, file;
     #endif
 
   public:

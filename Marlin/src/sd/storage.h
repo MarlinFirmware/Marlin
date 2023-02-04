@@ -37,13 +37,13 @@
  *
  *   Using this names allow us to isolate filesystem driver code, keeping all Marlin code agnostic.
  *
- * MarlinFilesystem:
+ * MediaFilesystem:
  *  Abstraction of systemwide filesystem operation.
  *
  * MarlinVolume:
  *  Abstraction of a filesystem volume.
  *
- * MarlinFile:
+ * MediaFile:
  *  Abstraction of a generic file. Using this name allow us to isolate filesystem driver code,
  *  keeping all Marlin code agnostic.
  *
@@ -61,11 +61,11 @@ Class MarlinVolume {
 public:
 };
 
-Class MarlinFile {
+Class MediaFile {
 public:
 };
 
-Class MarlinFilesystem {
+Class MediaFilesystem {
 public:
     static void init();
     static MarlinVolume* openVolume(const char *);
