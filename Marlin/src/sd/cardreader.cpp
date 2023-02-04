@@ -228,7 +228,7 @@ bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD,
 //
 // Get the number of (compliant) items in the folder
 //
-int16_t CardReader::countVisibleItems(MediaFile dir) {
+int CardReader::countItems(MediaFile dir) {
   dir_t p;
   int16_t c = 0;
   dir.rewind();
@@ -239,7 +239,7 @@ int16_t CardReader::countVisibleItems(MediaFile dir) {
 //
 // Get file/folder info for an item by index
 //
-void CardReader::selectByIndex(MediaFile dir, const int16_t index) {
+void CardReader::selectByIndex(MediaFile dir, const uint8_t index) {
   dir_t p;
   for (int16_t cnt = 0; dir.readDir(&p, longFilename) > 0;) {
     if (is_visible_entity(p)) {

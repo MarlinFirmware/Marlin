@@ -335,8 +335,8 @@ private:
   // Directory items
   //
   static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
-  static int16_t countVisibleItems(MediaFile dir);
-  static void selectByIndex(MediaFile dir, const int16_t index);
+  static int countItems(MediaFile dir);
+  static void selectByIndex(MediaFile dir, const uint8_t index);
   static void selectByName(MediaFile dir, const char * const match);
   static void printListing(
     MediaFile parent, const char * const prepend, const uint8_t lsflags
