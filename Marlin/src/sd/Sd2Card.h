@@ -39,10 +39,32 @@
 
 #include <stdint.h>
 
-uint16_t const SD_INIT_TIMEOUT  = 2000,  // (ms) Init timeout
-               SD_ERASE_TIMEOUT = 10000, // (ms) Erase timeout
-               SD_READ_TIMEOUT  = 300,   // (ms) Read timeout
-               SD_WRITE_TIMEOUT = 600;   // (ms) Write timeout
+#ifndef SD_NO_DEFAULT_TIMEOUT
+  #ifndef SD_INIT_TIMEOUT
+    // (ms) Init timeout
+    #define SD_INIT_TIMEOUT 2000u
+  #elif SD_INIT_TIMEOUT < 0
+    #error "SD_INIT_TIMEOUT has to be at least 0"
+  #endif
+  #ifndef SD_ERASE_TIMEOUT
+    // (ms) Erase timeout
+    #define SD_ERASE_TIMEOUT 10000u
+  #elif SD_ERASE_TIMEOUT < 0
+    #error "SD_ERASE_TIMEOUT has to be at least 0"
+  #endif
+  #ifndef SD_READ_TIMEOUT
+    // (ms) Read timeout
+    #define SD_READ_TIMEOUT 300u
+  #elif SD_READ_TIMEOUT < 0
+    #error "SD_READ_TIMEOUT has to be at least 0"
+  #endif
+  #ifndef SD_WRITE_TIMEOUT
+    // (ms) Write timeout
+    #define SD_WRITE_TIMEOUT 600u
+  #elif SD_WRITE_TIMEOUT < 0
+    #error "SD_WRITE_TIMEOUT has to be at least 0"
+  #endif
+#endif //SD_NO_DEFAULT_TIMEOUT
 
 // SD card errors
 typedef enum : uint8_t {

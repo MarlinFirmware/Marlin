@@ -40,8 +40,12 @@
 
 #include "../MarlinCore.h"
 
-#ifndef SD_RETRY_COUNT
-  #define SD_RETRY_COUNT 3
+#if ENABLED(SD_CHECK_AND_RETRY)
+  #ifndef SD_RETRY_COUNT
+    #define SD_RETRY_COUNT 3
+  #elif SD_RETRY_COUNT < 1
+    #error "SD_RETRY_COUNT has to be at least 1"
+  #endif
 #endif
 
 #if ENABLED(SD_CHECK_AND_RETRY)
