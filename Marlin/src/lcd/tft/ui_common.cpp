@@ -147,10 +147,12 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const fstr, c
   }
 
   image = noImage;
-  switch (post_char) {
-    case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
-    case LCD_STR_UPLEVEL[0]: image = imgBack; break;
-  }
+  #if DISABLED(TFT_UI_HIDE_CLASSIC_MARKS)
+    switch (post_char) {
+      case LCD_STR_ARROW_RIGHT[0]: image = imgRight; break;
+      case LCD_STR_UPLEVEL[0]: image = imgBack; break;
+    }
+  #endif
 
   uint16_t r_offset = TFT_WIDTH;
   if (image != noImage) {
