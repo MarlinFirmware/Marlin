@@ -33,8 +33,10 @@
 #define BLOCK_SIZE 512
 #define PRODUCT_ID 0x29
 
-#ifndef SD_MULTIBLOCK_READ_RETRY_CNT
-  #define SD_MULTIBLOCK_READ_RETRY_CNT 1
+#ifndef SD_MULTIBLOCK_RETRY_CNT
+  #define SD_MULTIBLOCK_RETRY_CNT 1
+#elif SD_MULTIBLOCK_RETRY_CNT < 1
+  #error "SD_MULTIBLOCK_RETRY_CNT has to be at least 1"
 #endif
 
 class Sd2CardUSBMscHandler : public USBMscHandler {
@@ -66,7 +68,7 @@ public:
     }
 
     // multi block optimization
-    uint32_t multi_retry_cnt = SD_MULTIBLOCK_READ_RETRY_CNT;
+    uint32_t multi_retry_cnt = SD_MULTIBLOCK_RETRY_CNT;
 
   RETRY_MULTI:
     uint32 i = blkLen;
@@ -99,7 +101,7 @@ public:
     }
 
     // multi block optimization
-    uint32_t multi_retry_cnt = SD_MULTIBLOCK_READ_RETRY_CNT;
+    uint32_t multi_retry_cnt = SD_MULTIBLOCK_RETRY_CNT;
 
   RETRY_MULTI:
     uint32 i = blkLen;
