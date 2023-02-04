@@ -337,7 +337,7 @@ namespace Language_uk {
   LSTR MSG_MOVE_E                           = _UxGT("Екструдер");
   LSTR MSG_MOVE_EN                          = _UxGT("Екструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло дуже холодне");
-  LSTR MSG_MOVE_N_MM                        = _UxGT("Рух %sмм");
+  LSTR MSG_MOVE_N_MM                        = _UxGT("Рух $мм");
   LSTR MSG_MOVE_01MM                        = _UxGT("Рух 0.1мм");
   LSTR MSG_MOVE_1MM                         = _UxGT("Рух 1мм");
   LSTR MSG_MOVE_10MM                        = _UxGT("Рух 10мм");
@@ -387,11 +387,10 @@ namespace Language_uk {
   LSTR MSG_PID_AUTOTUNE                     = _UxGT("Автопідбір PID");
   LSTR MSG_PID_AUTOTUNE_E                   = _UxGT("Автопідбір PID *");
   LSTR MSG_PID_AUTOTUNE_DONE                = _UxGT("Підбір PID виконано");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Збій автопідбору! Поганий екструдер.");
+  LSTR MSG_PID_BAD_HEATER_ID                = _UxGT("Збій автопідбору! Поганий екструдер.");
   LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Збій автопідбору! Температура завищена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Збій автопідбору! Вичерпан час.");
 
-  LSTR MSG_SELECT                           = _UxGT("Вибрати");
   LSTR MSG_SELECT_E                         = _UxGT("Вибрати *");
   LSTR MSG_ACC                              = _UxGT("Прискорорення");
   LSTR MSG_JERK                             = _UxGT("Ривок");
@@ -599,7 +598,7 @@ namespace Language_uk {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI            = _UxGT("Установити TouchMI");
   LSTR MSG_MANUAL_DEPLOY                    = _UxGT("Установити Z-зонд");
   LSTR MSG_MANUAL_STOW                      = _UxGT("Завантажити Z-зонд");
-  LSTR MSG_HOME_FIRST                       = _UxGT("Спочатку дім %s%s%s");
+  LSTR MSG_HOME_FIRST                       = _UxGT("Спочатку дім %s");
   LSTR MSG_ZPROBE_OFFSETS                   = _UxGT("Зміщення зонду");
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Зміщення по X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Зміщення по Y");

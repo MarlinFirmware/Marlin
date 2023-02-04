@@ -259,7 +259,7 @@
  * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
- * M593 - Get or set input shaping parameters. (Requires INPUT_SHAPING)
+ * M593 - Get or set input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
@@ -335,7 +335,7 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
-#if IS_SCARA || defined(G0_FEEDRATE)
+#if EITHER(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
 
@@ -1081,7 +1081,7 @@ private:
     static void M575();
   #endif
 
-  #if ENABLED(INPUT_SHAPING)
+  #if HAS_SHAPING
     static void M593();
     static void M593_report(const bool forReplay=true);
   #endif
@@ -1226,7 +1226,7 @@ private:
     static void M1001();
   #endif
 
-  #if ENABLED(DGUS_LCD_UI_MKS)
+  #if DGUS_LCD_UI_MKS
     static void M1002();
   #endif
 

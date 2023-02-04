@@ -336,7 +336,7 @@ namespace Language_ru {
   LSTR MSG_MOVE_E                           = _UxGT("Экструдер");
   LSTR MSG_MOVE_EN                          = _UxGT("Экструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло не нагрето");
-  LSTR MSG_MOVE_N_MM                        = _UxGT("Движение %sмм");
+  LSTR MSG_MOVE_N_MM                        = _UxGT("Движение $мм");
   LSTR MSG_MOVE_01MM                        = _UxGT("Движение 0.1мм");
   LSTR MSG_MOVE_1MM                         = _UxGT("Движение 1мм");
   LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
@@ -382,11 +382,10 @@ namespace Language_ru {
   LSTR MSG_PID_AUTOTUNE                     = _UxGT("Автоподбор PID");
   LSTR MSG_PID_AUTOTUNE_E                   = _UxGT("Автоподбор PID *");
   LSTR MSG_PID_AUTOTUNE_DONE                = _UxGT("Подбор PID выполнен");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Сбой автоподбора! Плохой экструдер.");
+  LSTR MSG_PID_BAD_HEATER_ID                = _UxGT("Сбой автоподбора! Плохой экструдер.");
   LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора! Температура повышена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой автоподбора! Завершение времени.");
 
-  LSTR MSG_SELECT                           = _UxGT("Выбор");
   LSTR MSG_SELECT_E                         = _UxGT("Выбор *");
   LSTR MSG_ACC                              = _UxGT("Ускорение");
   LSTR MSG_JERK                             = _UxGT("Рывок");
@@ -582,7 +581,7 @@ namespace Language_ru {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI            = _UxGT("Установить TouchMI");
   LSTR MSG_MANUAL_DEPLOY                    = _UxGT("Установить зонд");
   LSTR MSG_MANUAL_STOW                      = _UxGT("Загрузить зонд");
-  LSTR MSG_HOME_FIRST                       = _UxGT("Сначала паркуй %s%s%s");
+  LSTR MSG_HOME_FIRST                       = _UxGT("Сначала паркуй %s");
   LSTR MSG_ZPROBE_OFFSETS                   = _UxGT("Смещения Z-зонда");
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Смещение X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Смещение Y");

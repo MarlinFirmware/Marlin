@@ -934,7 +934,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
-      #if ENABLED(INPUT_SHAPING)
+      #if HAS_SHAPING
         case 593: M593(); break;                                  // M593: Set Input Shaping parameters
       #endif
 
@@ -1082,7 +1082,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 
-      #if ENABLED(DGUS_LCD_UI_MKS)
+      #if DGUS_LCD_UI_MKS
         case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
       #endif
 

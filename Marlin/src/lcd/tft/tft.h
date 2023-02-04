@@ -37,22 +37,6 @@
   #define ENDIAN_COLOR(C) (C)
 #endif
 
-#if HAS_UI_320x240
-  #define TFT_WIDTH         320
-  #define TFT_HEIGHT        240
-#elif HAS_UI_480x320
-  #define TFT_WIDTH         480
-  #define TFT_HEIGHT        320
-#elif HAS_UI_480x272
-  #define TFT_WIDTH         480
-  #define TFT_HEIGHT        272
-#elif HAS_UI_1024x600
-  #define TFT_WIDTH         1024
-  #define TFT_HEIGHT        600
-#else
-  #error "Unsupported display resolution!"
-#endif
-
 #ifndef TFT_BUFFER_SIZE
   #ifdef STM32F103xB
     #define TFT_BUFFER_SIZE       1024
@@ -65,9 +49,9 @@
   #endif
 #endif
 
-#if TFT_BUFFER_SIZE > 65535
+#if TFT_BUFFER_SIZE > DMA_MAX_SIZE
   // DMA Count parameter is uint16_t
-  #error "TFT_BUFFER_SIZE can not exceed 65535"
+  #error "TFT_BUFFER_SIZE can not exceed DMA_MAX_SIZE"
 #endif
 
 class TFT {
@@ -86,8 +70,8 @@ class TFT {
 
     static bool is_busy() { return io.isBusy(); }
     static void abort() { io.Abort(); }
-    static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultiple(Data, Count); }
-    static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); }
+    static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultipleDMA(Data, Count); }
+    static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequenceDMA(Data, Count); }
     static void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) { io.set_window(Xmin, Ymin, Xmax, Ymax); }
 
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.fill(x, y, width, height, color); }
