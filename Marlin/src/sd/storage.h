@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -54,8 +54,8 @@
 
 /*
 
-Interface definition. Doesn't need to be compiled, as we use duck typing allowing drivers
-to just use type alias.
+Interface definition. Doesn't need to be compiled, as we use duck typing,
+allowing drivers to just use type alias.
 
 Class MarlinVolume {
 public:
