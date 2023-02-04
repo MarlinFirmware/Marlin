@@ -92,8 +92,7 @@ namespace Language_de {
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Homeversatz Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Homeversatz aktiv");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Assistent");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wählen Sie Ursprung");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Letzter Wert ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Wählen Sie Ursprung");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
     LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");

@@ -347,7 +347,9 @@ class MenuItem_bool : public MenuEditItemBase {
 // Parameters: label [, style [, char *value] ]
 
 #define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
-  if (_skipStatic && encoderLine <= _thisItemNr) {      \
+  if (_skipStatic && encoderLine <= _thisItemNr         \
+        && encoderTopLine == 0                          \
+        && encoderLine < encoderTopLine+LCD_HEIGHT-1) { \
     ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
     ++encoderLine;                                      \
   }                                                     \

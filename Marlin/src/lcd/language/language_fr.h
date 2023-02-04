@@ -74,8 +74,6 @@ namespace Language_fr {
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Décal. origine Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Décalages appliqués");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ecart origine ");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";

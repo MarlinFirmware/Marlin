@@ -89,12 +89,7 @@ namespace Language_ru {
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещ. дома Z");
   #endif
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
-  LSTR MSG_SELECT_ORIGIN                    = _UxGT("Выберите ноль");
-  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
-    LSTR MSG_LAST_VALUE_SP                  = _UxGT("Последнее знач. ");
-  #else
-    LSTR MSG_LAST_VALUE_SP                  = _UxGT("Послед. знач. ");
-  #endif
+  LSTR MSG_TW_SELECT_TRAM_REF               = _UxGT("Выберите ноль");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                      = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагреть ~ ") PREHEAT_1_LABEL;

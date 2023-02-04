@@ -22,6 +22,7 @@
 
 //
 // Bed Tramming Wizard
+// Implemented and supported by https://github.com/lukasradek
 //
 
 #include "../../inc/MarlinConfigPre.h"
@@ -31,7 +32,7 @@
 #include "menu_item.h"
 
 #include "../../feature/tramming.h"
-
+#include "../../module/planner.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 #include "../../gcode/queue.h"
@@ -40,64 +41,227 @@
   #include "../../feature/bltouch.h"
 #endif
 
-//#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
-
-static float z_measured[G35_PROBE_COUNT];
-static Flags<G35_PROBE_COUNT> z_isvalid;
-static uint8_t tram_index = 0;
-static int8_t reference_index; // = 0
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-static bool probe_single_point() {
-  const float z_probed_height = probe.probe_at_point(tramming_points[tram_index], PROBE_PT_RAISE, 0, true);
-  z_measured[tram_index] = z_probed_height;
-  if (reference_index < 0) reference_index = tram_index;
+static uint8_t tram_target = 0;
+static float z_measured[G35_PROBE_COUNT];
+static Flags<G35_PROBE_COUNT> z_isvalid;
+
+static bool reference_valid = false;
+static float reference_z;
+
+static bool menu_mode_measure = true;
+
+#ifdef TRAMMING_SCREW_THREAD
+  static bool units_mm = true;
+  constexpr const uint8_t screw_size = TRAMMING_SCREW_THREAD/10;
+  static char z_turns[G35_PROBE_COUNT][8] = {0};
+#endif
+
+
+static void menu_tramming_wizard();
+
+/*
+* Mock function for probing in simulator, where "probe.probe_at_point" always returns 0.
+*/
+static float _mock_probe_at_point(const xy_pos_t pos) {
+  do_blocking_move_to_xy(pos, 100.0f);
+
+  const float FL_z = 2, FR_z = -5, BL_z = 0, BR_z = 3; // bed corner Z values from which to interpolate
+  float FX_z = (FR_z - FL_z) / X_BED_SIZE * pos.x + FL_z;
+  float BX_z = (BR_z - BL_z) / X_BED_SIZE * pos.x + BL_z;
+  float YX_z = (BX_z - FX_z) / Y_BED_SIZE * pos.y + FX_z;
+  return YX_z;
+}
+
+static void _menu_jump_to_top() {
+  encoderTopLine = 0;
+  encoderLine = 1;
+  ui.encoderPosition = encoderLine * ENCODER_STEPS_PER_MENU_ITEM;
+  ui.refresh();
+}
+
+#ifdef TRAMMING_SCREW_THREAD
+
+  static void _update_screw_turns_str_in_buffer(uint8_t tram_target) {
+
+    const float threads_factor[] = { 0.5, 0.7, 0.8 };
+
+    const float distance_mm = z_measured[tram_target] - reference_z;
+    const float mm_abs = ABS(distance_mm);
+    const float turns_abs = mm_abs < 0.001f ? 0 : mm_abs / threads_factor[screw_size-3];
+
+    if (turns_abs != 0) {
+      strcpy(z_turns[tram_target], ftostr31ns(turns_abs));
+      if (z_turns[tram_target][0] == '0') z_turns[tram_target][0] = ' ';
+      strcat_P(z_turns[tram_target], (TRAMMING_SCREW_THREAD & 1) == (distance_mm > 0) ? PSTR("ccw") : PSTR("cw"));
+    } else {
+      strcpy(z_turns[tram_target], "0");
+    }
+  }
+
+#endif //TRAMMING_SCREW_THREAD
+
+static void _set_reference_z(float z) {
+  reference_z = z;
+  reference_valid = true;
+  #ifdef TRAMMING_SCREW_THREAD
+    LOOP_L_N(i, G35_PROBE_COUNT) {
+      if (z_isvalid[i]) _update_screw_turns_str_in_buffer(i);
+    }
+  #endif
+}
+
+static bool _probe_single_point() {
+
+  bool probing_reference = !reference_valid;
+
+  if (probing_reference) {
+    ui.goto_message_screen(GET_TEXT_F(MSG_TW_MEASURING_REF), FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])));
+  }
+
+  #if HAS_LEVELING
+    const bool leveling_prev_state = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
+
+  do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
+
+  // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
+  const float z_probed_height = probing_reference && z_isvalid[tram_target] ?
+    z_measured[tram_target] :
+    probe.probe_at_point(tramming_points[tram_target], TERN0(BLTOUCH, bltouch.high_speed_mode) ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
+    //_mock_probe_at_point(tramming_points[tram_target]) ;
+
+  z_isvalid.clear(tram_target);
+  const bool v = !isnan(z_probed_height);
+
+  if (v) {
+    z_measured[tram_target] = z_probed_height;
+    z_isvalid.set(tram_target);
+
+    if (probing_reference) {
+      _set_reference_z(z_probed_height);
+    } else { // _set_reference_z internally calls _update_screw_turns_str_in_buffer, no need to repeat
+      #ifdef TRAMMING_SCREW_THREAD
+        _update_screw_turns_str_in_buffer(tram_target);
+      #endif
+    }
+  }
+
   move_to_tramming_wait_pos();
 
-  DEBUG_ECHOLNPGM("probe_single_point(", tram_index, ") = ", z_probed_height, "mm");
+  if (probing_reference) {
+    ui.goto_previous_screen();
+    _menu_jump_to_top();
+  }
 
-  const bool v = !isnan(z_probed_height);
-  z_isvalid.set(tram_index, v);
+  #if HAS_LEVELING
+    set_bed_leveling_enabled(leveling_prev_state);
+  #endif
+
   return v;
 }
 
-static void _menu_single_probe() {
-  DEBUG_ECHOLNPGM("Screen: single probe screen Arg:", tram_index);
+static void _probe_all_points() {
+  for (tram_target = 0; tram_target < G35_PROBE_COUNT; tram_target++) {
+    if (_probe_single_point()) ui.refresh();
+  }
+}
+
+inline const char * _get_mms_str(const uint8_t t) {
+  return z_isvalid[t] ? ftostr42_52(z_measured[t] - reference_z) : "---";
+}
+
+#ifdef TRAMMING_SCREW_THREAD
+  inline const char * _get_screw_turns_str(const uint8_t t) {
+    return z_isvalid[t] ? z_turns[t] : "---";
+  }
+#endif
+
+static void menu_tram_point() {
+
   START_MENU();
-  STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
-  STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, z_isvalid[tram_index] ? ftostr42_52(z_measured[reference_index] - z_measured[tram_index]) : "---");
-  ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
-  ACTION_ITEM(MSG_BUTTON_DONE, ui.goto_previous_screen);
+
+  ITEM_ADD_RIGHT_ALIGNED_STRING(STATIC_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[tram_target])), SS_LEFT), _get_mms_str(tram_target));
+  #ifdef TRAMMING_SCREW_THREAD
+    ITEM_ADD_RIGHT_ALIGNED_STRING(STATIC_ITEM_N_F(screw_size, F("M= screw turns"), SS_LEFT), _get_screw_turns_str(tram_target));
+  #endif
+
+  ACTION_ITEM(MSG_MEASURE, []{ if (_probe_single_point()) ui.refresh(); });
+  if (!z_isvalid[tram_target] || ABS(z_measured[tram_target] - reference_z) > 0.001f) {
+    ACTION_ITEM(MSG_TW_SET_AS_REF, []{ reference_valid = false; if (_probe_single_point()) ui.refresh(); }); 
+  }
+  ACTION_ITEM(MSG_BUTTON_BACK, ui.goto_previous_screen);
   END_MENU();
 }
 
-static void tramming_wizard_menu() {
+static void menu_tramming_wizard() {
+
   START_MENU();
-  STATIC_ITEM(MSG_SELECT_ORIGIN);
+
+  // Menu content is different based on reference_valid
+  // i.e. whether the menu is in Reference point selection mode or Measuring mode
+
+  if (reference_valid) {
+    STATIC_ITEM(MSG_TW_SELECT_TRAM_POINT);
+  } else {
+    STATIC_ITEM(MSG_TW_SELECT_TRAM_REF);
+  }
+
+  if (reference_valid) {
+      ACTION_ITEM_F(F("Measure All"), _probe_all_points);
+  }
+
 
   // Draw a menu item for each tramming point
-  for (tram_index = 0; tram_index < G35_PROBE_COUNT; tram_index++)
-    SUBMENU_F(FPSTR(pgm_read_ptr(&tramming_point_name[tram_index])), _menu_single_probe);
+  static uint8_t t;
+  for(t=0; t<G35_PROBE_COUNT; t++) {
 
-  ACTION_ITEM(MSG_BUTTON_DONE, []{
-    probe.stow(); // Stow before exiting Tramming Wizard
-    ui.goto_previous_screen_no_defer();
-  });
+    #ifdef TRAMMING_SCREW_THREAD
+      const char* tram_val = z_isvalid[t] ? ( units_mm ? ftostr42_52(z_measured[t] - reference_z) :  z_turns[t]) : "---";
+    #else
+      const char* tram_val = z_isvalid[t] ? ftostr42_52(z_measured[t] - reference_z) : "---";
+    #endif
+
+    if (!reference_valid || menu_mode_measure) {
+      ITEM_ADD_RIGHT_ALIGNED_STRING(ACTION_ITEM_F(FPSTR(pgm_read_ptr(&tramming_point_name[t])),  []{ tram_target = t; if (_probe_single_point()) { ui.refresh(); } }), tram_val);
+    } else {
+      ITEM_ADD_RIGHT_ALIGNED_STRING(SUBMENU_F(FPSTR(pgm_read_ptr(&tramming_point_name[t])),  [] { tram_target = t; menu_tram_point(); }), tram_val);
+    }
+  }
+
+  if (!reference_valid) {
+    ACTION_ITEM_S_F("=",F("Z $ 0"), []{ _set_reference_z(0.0f); _menu_jump_to_top(); });
+    // Substitution hack to get "=" into the item title. Using ACTION_ITEM_F doesn't work. The substitution is applied no matter the item type.
+  }
+
+  STATIC_ITEM(MSG_MENU_DIVIDER);
+
+  if (reference_valid) {
+    ACTION_ITEM_F((menu_mode_measure ? GET_TEXT_F(MSG_TW_MENU_MODE_MEASURE) : GET_TEXT_F(MSG_TW_MENU_MODE_DETAIL)), []{ menu_mode_measure = !menu_mode_measure; ui.refresh(); });
+    #ifdef TRAMMING_SCREW_THREAD
+      ACTION_ITEM_N_F(screw_size, (units_mm ? GET_TEXT_F(MSG_TW_UNITS_MM) : GET_TEXT_F(MSG_TW_UNITS_SCREW)), []{ units_mm = !units_mm; ui.refresh(); });
+    #endif
+    ACTION_ITEM(MSG_TW_SELECT_TRAM_REF, []{ reference_valid = false; _menu_jump_to_top(); });
+  }
+
+  ACTION_ITEM(MSG_BUTTON_DONE, []{ probe.stow(); ui.goto_previous_screen_no_defer();});
+
   END_MENU();
 }
 
 // Init the wizard and enter the submenu
 void goto_tramming_wizard() {
-  DEBUG_ECHOLNPGM("Screen: goto_tramming_wizard", 1);
   ui.defer_status_screen();
 
-  // Initialize measured point flags
+  // Reset wizard
   z_isvalid.reset();
-  reference_index = -1;
+  reference_valid = false;
+  menu_mode_measure = true;
+  tram_target = 0;
 
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
@@ -106,7 +270,7 @@ void goto_tramming_wizard() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed())
-      ui.goto_screen(tramming_wizard_menu);
+      ui.goto_screen(menu_tramming_wizard);
   });
 }
 
