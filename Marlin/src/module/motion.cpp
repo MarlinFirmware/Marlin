@@ -513,17 +513,18 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/
    */
   void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s/*=FR_SCALED(feedrate_mm_s)*/ OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t scaled_fr_deg_s/*=FR_SCALED(feedrate_deg_s)*/)) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
-    #if HAS_ROTATIONAL_AXES
-      PlannerHints hints;
-      hints.fr_deg_s = scaled_fr_deg_s;
-    #endif
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
       bedlevel.line_to_destination_segmented(scaled_fr_mm_s);
     #else
       if (current_position == destination) return;
-
-      planner.buffer_line(destination, scaled_fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, active_extruder) OPTARG(HAS_ROTATIONAL_AXES, hints));
+      #if HAS_ROTATIONAL_AXES
+        PlannerHints hints;
+        hints.fr_deg_s = scaled_fr_deg_s;
+        planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
+      #else
+        planner.buffer_line(destination, scaled_fr_mm_s);
+      #endif
     #endif
 
     current_position = destination;
