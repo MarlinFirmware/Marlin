@@ -2130,7 +2130,7 @@ bool Planner::_populate_block(
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += steps_dist_mm.e);
 
-  #if ENABLED(HAS_ROTATIONAL_AXES)
+  #if HAS_ROTATIONAL_AXES
     bool cartesian_move = hints.cartesian_move;
   #endif
 
