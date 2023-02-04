@@ -183,11 +183,12 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   }
 
   // Move down to the bed to stow the probe
+  // TODO: Handle cases where it would be a bad idea to move down.
   inline void run_stow_moves_script() {
-    const xyz_pos_t oldpos = current_position;
+    const float oldz = current_position.z;
     endstops.enable_z_probe(false);
     do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, homing_feedrate(Z_AXIS));
-    do_blocking_move_to_z(oldpos.z, homing_feedrate(Z_AXIS));
+    do_blocking_move_to_z(oldz, homing_feedrate(Z_AXIS));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
