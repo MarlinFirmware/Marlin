@@ -511,7 +511,10 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/
   /**
    * Buffer a fast move without interpolation. Set current_position to destination
    */
-  void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s/*=FR_SCALED(feedrate_mm_s)*/ OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t scaled_fr_deg_s/*=FR_SCALED(feedrate_deg_s)*/)) {
+  void prepare_fast_move_to_destination(
+    const_feedRate_t scaled_fr_mm_s/*=FR_SCALED(feedrate_mm_s)*/
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t scaled_fr_deg_s/*=FR_SCALED(feedrate_deg_s)*/)
+  ) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
@@ -577,9 +580,8 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
  * - Delta may lower Z first to get into the free motion zone.
  * - Before returning, wait for the planner buffer to empty.
  */
-void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t)
+void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/*=0.0f*/
   OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-  , const_feedRate_t fr_mm_s/*=0.0f*/
 ) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
@@ -710,20 +712,18 @@ void do_blocking_move_to(const xy_pos_t &raw
     NUM_AXIS_LIST(raw.x, raw.y, current_position.z,
                   current_position.i, current_position.j, current_position.k,
                   current_position.u, current_position.v, current_position.w)
-    OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+    , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
   );
 }
-void do_blocking_move_to(const xyz_pos_t &raw
+void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/
   OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0f*/)
-  , const_feedRate_t fr_mm_s/*=0.0f*/
 ) {
-  do_blocking_move_to(NUM_AXIS_ELEM(raw) OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+  do_blocking_move_to(NUM_AXIS_ELEM(raw), fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
 }
-void do_blocking_move_to(const xyze_pos_t &raw
+void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/
   OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0f*/)
-  , const_feedRate_t fr_mm_s/*=0.0f*/
 ) {
-  do_blocking_move_to(NUM_AXIS_ELEM(raw) OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+  do_blocking_move_to(NUM_AXIS_ELEM(raw), fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
 }
 void do_blocking_move_to_x(const_float_t rx
   , const_feedRate_t fr_mm_s/*=0.0*/
@@ -732,7 +732,7 @@ void do_blocking_move_to_x(const_float_t rx
     NUM_AXIS_LIST(rx, current_position.y, current_position.z,
                   current_position.i, current_position.j, current_position.k,
                   current_position.u, current_position.v, current_position.w)
-    OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
+    , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
   );
 }
 
@@ -742,7 +742,7 @@ void do_blocking_move_to_x(const_float_t rx
       NUM_AXIS_LIST(current_position.x, ry, current_position.z,
                     current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
-      OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
     );
   }
 #endif
@@ -754,107 +754,97 @@ void do_blocking_move_to_x(const_float_t rx
 #endif
 
 #if HAS_I_AXIS
-  void do_blocking_move_to_i(const_float_t ri
+  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0*/
   ) {
-    do_blocking_move_to_xyz_i(current_position, ri OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+    do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
   }
-  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i
+  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s/*=0.0f*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0f*/
   ) {
     do_blocking_move_to(
       NUM_AXIS_LIST(raw.x, raw.y, raw.z, i, raw.j, raw.k, raw.u, raw.v, raw.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
   }
 #endif
 
 #if HAS_J_AXIS
-  void do_blocking_move_to_j(const_float_t rj
+  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s/*=0.0*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0*/
   ) {
-    do_blocking_move_to_xyzi_j(current_position, rj OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+    do_blocking_move_to_xyzi_j(current_position, rj, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
   }
-  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j
+  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s/*=0.0f*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0f*/
   ) {
     do_blocking_move_to(
       NUM_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, j, raw.k, raw.u, raw.v, raw.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
   }
 #endif
 
 #if HAS_K_AXIS
-  void do_blocking_move_to_k(const_float_t rk
+  void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s/*=0.0*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0*/
   ) {
-    do_blocking_move_to_xyzij_k(current_position, rk OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+    do_blocking_move_to_xyzij_k(current_position, rk, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
   }
-  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k
+  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s/*=0.0f*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0f*/
   ) {
     do_blocking_move_to(
       NUM_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, raw.j, k, raw.u, raw.v, raw.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
   }
 #endif
 
 #if HAS_U_AXIS
-  void do_blocking_move_to_u(const_float_t ru
+  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s/*=0.0*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0*/
   ) {
-    do_blocking_move_to_xyzijk_u(current_position, ru OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+    do_blocking_move_to_xyzijk_u(current_position, ru, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
   }
-  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u
+  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s/*=0.0f*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0f*/
   ) {
     do_blocking_move_to(
       NUM_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, u, raw.v, raw.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
   }
 #endif
 
 #if HAS_V_AXIS
-  void do_blocking_move_to_v(const_float_t rv
+  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s/*=0.0*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyzijku_v(current_position, rv OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+  ) {
+    do_blocking_move_to_xyzijku_v(current_position, rv, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
   }
-  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v
+  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s/*=0.0f*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0f*/) {
+  ) {
     do_blocking_move_to(
       NUM_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, v, raw.w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
   }
 #endif
 
 #if HAS_W_AXIS
-  void do_blocking_move_to_w(const_float_t rw
+  void do_blocking_move_to_w(const_float_t rw, const_feedRate_t fr_mm_s/*=0.0*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0*/
   ) {
-    do_blocking_move_to_xyzijkuv_w(current_position, rw OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s);
+    do_blocking_move_to_xyzijkuv_w(current_position, rw, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
   }
-  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w
+  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w, const_feedRate_t fr_mm_s/*=0.0f*/
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s/*=0.0*/)
-    , const_feedRate_t fr_mm_s/*=0.0f*/
   ) {
     do_blocking_move_to(
       NUM_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, raw.v, w)
-      OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
   }
 #endif
@@ -865,7 +855,7 @@ void do_blocking_move_to_x(const_float_t rx
       NUM_AXIS_LIST(rx, ry, current_position.z,
                     current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
-      OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
     );
   }
   void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
@@ -879,7 +869,7 @@ void do_blocking_move_to_x(const_float_t rx
       NUM_AXIS_LIST(raw.x, raw.y, z,
                     current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
-      OPTARG(HAS_ROTATIONAL_AXES, 0.0f), fr_mm_s
+      , fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
     );
   }
   void do_z_clearance(const_float_t zclear, const bool lower_allowed/*=false*/) {
@@ -1255,11 +1245,8 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    #if HAS_ROTATIONAL_AXES
-      const float seconds = cartesian_mm / (cartes_move ? scaled_fr_mm_s : scaled_fr_deg_s);
-    #else
-      const float seconds = cartesian_mm / scaled_fr_mm_s;
-    #endif
+    const float seconds = cartesian_mm / (TERN_(HAS_ROTATIONAL_AXES, !cartes_move ? scaled_fr_deg_s :) scaled_fr_mm_s);
+
     // The number of segments-per-second times the duration
     // gives the number of segments
     uint16_t segments = segments_per_second * seconds;
@@ -1912,9 +1899,9 @@ void prepare_line_to_destination() {
   /**
    * Home an individual linear axis
    */
-  void do_homing_move(const AxisEnum axis, const float distance
+  void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0
     OPTARG(HAS_ROTATIONAL_AXES, const feedRate_t fr_deg_s=0.0)
-    , const feedRate_t fr_mm_s=0.0, const bool final_approach=true
+    , const bool final_approach=true
   ) {
     DEBUG_SECTION(log_move, "do_homing_move", DEBUGGING(LEVELING));
 
@@ -2225,9 +2212,8 @@ void prepare_line_to_destination() {
       if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
-        do_homing_move(axis, backoff_length
+        do_homing_move(axis, backoff_length, homing_feedrate(axis)
           OPTARG(HAS_ROTATIONAL_AXES, homing_feedrate(axis))
-          , homing_feedrate(axis)
         );
       }
     #endif
@@ -2255,7 +2241,7 @@ void prepare_line_to_destination() {
     //
     const float move_length = 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
-    do_homing_move(axis, move_length OPTARG(HAS_ROTATIONAL_AXES, 0.0), 0.0, !use_probe_bump);
+    do_homing_move(axis, move_length, 0.0 OPTARG(HAS_ROTATIONAL_AXES, 0.0), !use_probe_bump);
 
     #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
       if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
@@ -2265,9 +2251,8 @@ void prepare_line_to_destination() {
     if (bump) {
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump
+      do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0)
         OPTARG(HAS_ROTATIONAL_AXES, 0)
-        , TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0)
         , false
       );
 
@@ -2317,8 +2302,8 @@ void prepare_line_to_destination() {
       const float rebump = bump * 2;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
       do_homing_move(axis, rebump
-        OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis))
         , get_homing_bump_feedrate(axis)
+        OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis))
         , true
       );
 
@@ -2484,7 +2469,7 @@ void prepare_line_to_destination() {
       // Retrace by the amount specified in delta_endstop_adj if more than min steps.
       if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
-        do_homing_move(axis, adjDistance OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)), get_homing_bump_feedrate(axis));
+        do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis) OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)));
       }
 
     #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
