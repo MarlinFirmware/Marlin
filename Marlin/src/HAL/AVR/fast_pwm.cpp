@@ -23,6 +23,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
+//#define DEBUG_AVR_FAST_PWM
+#define DEBUG_OUT ENABLED(DEBUG_AVR_FAST_PWM)
+#include "../../core/debug_out.h"
+
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
   volatile uint16_t* OCRnQ[3];  // max 3 OCR registers per timer
@@ -108,12 +112,13 @@ const Timer get_pwm_timer(const pin_t pin) {
 }
 
 void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
+  DEBUG_ECHOLNPGM("set_pwm_frequency:: pin:",pin," frequency: ",f_desired);
   const Timer timer = get_pwm_timer(pin);
   if (timer.isProtected || !timer.isPWM) return; // Don't proceed if protected timer or not recognized
 
   const bool is_timer2 = timer.n == 2;
   const uint16_t maxtop = is_timer2 ? 0xFF : 0xFFFF;
-
+  DEBUG_ECHOLNPGM("maxtop: ",maxtop);
   uint16_t res = 0xFF;        // resolution (TOP value)
   uint8_t j = CS_NONE;        // prescaler index
   uint8_t wgm = WGM_PWM_PC_8; // waveform generation mode
@@ -121,23 +126,33 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   // Calculating the prescaler and resolution to use to achieve closest frequency
   if (f_desired != 0) {
     constexpr uint16_t prescaler[] = { 1, 8, (32), 64, (128), 256, 1024 };  // (*) are Timer 2 only
-    uint16_t f = (F_CPU) / (2 * 1024 * maxtop) + 1;           // Start with the lowest non-zero frequency achievable (1 or 31)
+    uint16_t f = (F_CPU) / ((uint32_t)maxtop<<11) + 1;        // Start with the lowest non-zero frequency achievable (for 16MHz, 1 or 31)
 
+    DEBUG_ECHOLNPGM("F:  ",f);
+    DEBUG_ECHOLNPGM("Startloop::");
     LOOP_L_N(i, COUNT(prescaler)) {                           // Loop through all prescaler values
       const uint16_t p = prescaler[i];
+      DEBUG_ECHOLNPGM("prescaler: ",p);
       uint16_t res_fast_temp, res_pc_temp;
       if (is_timer2) {
+        DEBUG_ECHOLNPGM("Is Timer2::");
         #if ENABLED(USE_OCR2A_AS_TOP)                         // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
           const uint16_t rft = (F_CPU) / (p * f_desired);
           res_fast_temp = rft - 1;
+          DEBUG_ECHOLNPGM("res_fast_temp: ",res_fast_temp);
           res_pc_temp = rft / 2;
+          DEBUG_ECHOLNPGM("res_pc_temp: ",res_pc_temp);
         #else
           res_fast_temp = res_pc_temp = maxtop;
+          DEBUG_ECHOLNPGM("res_fast_temp: ",maxtop);
+          DEBUG_ECHOLNPGM("res_pc_temp: ",maxtop);
         #endif
       }
       else {
+        DEBUG_ECHOLNPGM("Not Timer2::");
         if (p == 32 || p == 128) continue;                    // Skip TIMER2 specific prescalers when not TIMER2
         const uint16_t rft = (F_CPU) / (p * f_desired);
+        DEBUG_ECHOLNPGM("F_CPU: ",STRINGIFY(F_CPU)," prescaler: ",p," f_desired: ",f_desired);
         res_fast_temp = rft - 1;
         res_pc_temp = rft / 2;
       }
@@ -146,22 +161,31 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
       LIMIT(res_pc_temp, 1U, maxtop);
 
       // Calculate frequencies of test prescaler and resolution values
-      const uint16_t f_fast_temp = (F_CPU) / (p * (1 + res_fast_temp)),
-                     f_pc_temp   = (F_CPU) / (2 * p * res_pc_temp);
-      const int      f_diff      = _MAX(f, f_desired) - _MIN(f, f_desired),
+      const uint16_t f_fast_temp = (F_CPU) / ((uint32_t)p * (1 + res_fast_temp)),
+                     f_pc_temp   = (F_CPU) / (((uint32_t)p * res_pc_temp)<<1),
+                     f_diff      = _MAX(f, f_desired) - _MIN(f, f_desired),
                      f_fast_diff = _MAX(f_fast_temp, f_desired) - _MIN(f_fast_temp, f_desired),
                      f_pc_diff   = _MAX(f_pc_temp, f_desired) - _MIN(f_pc_temp, f_desired);
+      DEBUG_ECHOLNPGM("f_fast_temp: ",f_fast_temp);
+      DEBUG_ECHOLNPGM("f_pc_temp: ",f_pc_temp);
+      DEBUG_ECHOLNPGM("f_diff: ",f_diff);
+      DEBUG_ECHOLNPGM("f_fast_diff: ",f_fast_diff);
+      DEBUG_ECHOLNPGM("f_pc_diff: ",f_pc_diff);
 
       if (f_fast_diff < f_diff && f_fast_diff <= f_pc_diff) { // FAST values are closest to desired f
+        DEBUG_ECHOLNPGM("Using FAST::");
         // Set the Wave Generation Mode to FAST PWM
         wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM)) : uint8_t(WGM_FAST_PWM_ICRn);
         // Remember this combination
         f = f_fast_temp; res = res_fast_temp; j = i + 1;
+        DEBUG_ECHOLNPGM("updated f: ",f);
       }
       else if (f_pc_diff < f_diff) {                          // PHASE CORRECT values are closes to desired f
+        DEBUG_ECHOLNPGM("Using PHASE::");
         // Set the Wave Generation Mode to PWM PHASE CORRECT
         wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_PWM_PC)) : uint8_t(WGM_PWM_PC_ICRn);
         f = f_pc_temp; res = res_pc_temp; j = i + 1;
+        DEBUG_ECHOLNPGM("updated f: ",f);
       }
     }
   }
