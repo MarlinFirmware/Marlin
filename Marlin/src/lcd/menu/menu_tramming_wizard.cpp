@@ -63,18 +63,21 @@ static bool menu_mode_measure = true;
 
 static void menu_tramming_wizard();
 
-/*
-* Mock function for probing in simulator, where "probe.probe_at_point" always returns 0.
-*/
-static float _mock_probe_at_point(const xy_pos_t pos) {
-  do_blocking_move_to_xy(pos, 100.0f);
+//#define SIMULATOR_TESTING
+#ifdef SIMULATOR_TESTING
+  /*
+  * Mock function for probing in simulator, where "probe.probe_at_point" always returns 0.
+  */
+  static float _mock_probe_at_point(const xy_pos_t pos) {
+    do_blocking_move_to_xy(pos, 100.0f);
 
-  const float FL_z = 2, FR_z = -5, BL_z = 0, BR_z = 3; // bed corner Z values from which to interpolate
-  float FX_z = (FR_z - FL_z) / X_BED_SIZE * pos.x + FL_z;
-  float BX_z = (BR_z - BL_z) / X_BED_SIZE * pos.x + BL_z;
-  float YX_z = (BX_z - FX_z) / Y_BED_SIZE * pos.y + FX_z;
-  return YX_z;
-}
+    const float FL_z = 2, FR_z = -5, BL_z = 0, BR_z = 3; // bed corner Z values from which to interpolate
+    float FX_z = (FR_z - FL_z) / X_BED_SIZE * pos.x + FL_z;
+    float BX_z = (BR_z - BL_z) / X_BED_SIZE * pos.x + BL_z;
+    float YX_z = (BX_z - FX_z) / Y_BED_SIZE * pos.y + FX_z;
+    return YX_z;
+  }
+#endif
 
 static void _menu_jump_to_top() {
   encoderTopLine = 0;
@@ -132,8 +135,13 @@ static bool _probe_single_point() {
   // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
   const float z_probed_height = probing_reference && z_isvalid[tram_target] ?
     z_measured[tram_target] :
-    probe.probe_at_point(tramming_points[tram_target], TERN0(BLTOUCH, bltouch.high_speed_mode) ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
-    //_mock_probe_at_point(tramming_points[tram_target]) ;
+    #ifndef SIMULATOR_TESTING
+      probe.probe_at_point(tramming_points[tram_target], TERN0(BLTOUCH, bltouch.high_speed_mode) ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true)
+    #else  
+      _mock_probe_at_point(tramming_points[tram_target]);
+    #endif  
+    ;
+
 
   z_isvalid.clear(tram_target);
   const bool v = !isnan(z_probed_height);
