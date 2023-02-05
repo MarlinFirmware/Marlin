@@ -60,10 +60,10 @@ if pioutil.is_pio_build():
             raise SystemExit("Error: Marlin requires PlatformIO >= 6.1.1. Use 'pio upgrade' to get a newer version.")
 
         if 'MARLIN_FEATURES' not in env:
-            raise SystemExit("Error: this script should be used after common Marlin scripts")
+            raise SystemExit("Error: this script should be used after common Marlin scripts.")
 
-        if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
-            raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
+        if len(env['MARLIN_FEATURES']) == 0:
+            raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
@@ -123,5 +123,14 @@ if pioutil.is_pio_build():
         if mixedin:
             err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)
+
+        #
+        # Check FILAMENT_RUNOUT_SCRIPT has a %c parammeter when required
+        #
+        if 'FILAMENT_RUNOUT_SENSOR' in env['MARLIN_FEATURES'] and 'NUM_RUNOUT_SENSORS' in env['MARLIN_FEATURES']:
+            if env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS'].isdigit() and int(env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS']) > 1:
+                if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES'] and "%c" not in env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']:
+                    err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter when NUM_RUNOUT_SENSORS is > 1"
+                    raise SystemExit(err)
 
     sanity_check_target()

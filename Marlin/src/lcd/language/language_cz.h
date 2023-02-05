@@ -240,6 +240,7 @@ namespace Language_cz {
   LSTR MSG_MOVE_01MM                      = _UxGT("Posunout o 0,1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Posunout o 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Posunout o 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Posunout o 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Posunout o 100mm");
   LSTR MSG_SPEED                          = _UxGT("Rychlost");
   LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
@@ -395,7 +396,7 @@ namespace Language_cz {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("vysunout TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Vysunout Z-sondu");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Zasunout Z-sondu");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s%s%s první");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s první");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");

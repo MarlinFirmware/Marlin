@@ -330,15 +330,15 @@ void CardReader::printListing(SdFile parent,  const char * const prepend, const 
       SERIAL_CHAR(' ');
       SERIAL_ECHO(p.fileSize);
       if (includeTime) {
-    		SERIAL_CHAR(' ');
-    		uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
-    		if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
-    			crmodDate = p.creationDate;
-    			crmodTime = p.creationTime;
-    		}
-    		SERIAL_ECHOPGM("0x", hex_word(crmodDate));
-    		print_hex_word(crmodTime);
-    	}
+        SERIAL_CHAR(' ');
+        uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
+        if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
+          crmodDate = p.creationDate;
+          crmodTime = p.creationTime;
+        }
+        SERIAL_ECHOPGM("0x", hex_word(crmodDate));
+        print_hex_word(crmodTime);
+      }
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
         if (includeLong) {
           SERIAL_CHAR(' ');
@@ -581,7 +581,7 @@ void CardReader::startOrResumeFilePrinting() {
 //
 void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
-  TERN_(HAS_DWIN_E3V2_BASIC, HMI_flag.print_finish = flag.sdprinting);
+  TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
   if (isFileOpen()) file.close();
   TERN_(SD_RESORT, if (re_sort) presort());

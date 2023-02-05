@@ -299,7 +299,8 @@ public:
 typedef struct HeaterInfo : public TempInfo {
   celsius_t target;
   uint8_t soft_pwm_amount;
-  bool is_below_target(const celsius_t offs=0) const { return (celsius < (target + offs)); }
+  bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
+  bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
 } heater_info_t;
 
 // A heater with PID stabilization
@@ -1135,8 +1136,8 @@ class Temperature {
     #endif
 
     static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
-    static void min_temp_error(const heater_id_t e);
-    static void max_temp_error(const heater_id_t e);
+    static void mintemp_error(const heater_id_t e);
+    static void maxtemp_error(const heater_id_t e);
 
     #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
 

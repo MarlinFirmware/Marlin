@@ -327,7 +327,7 @@ namespace Language_vi {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Cất BLTouch");                          // Stow BLTouch
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Đem Đầu Dò-Z");                         // Deploy Z-Probe
   LSTR MSG_MANUAL_STOW                    = _UxGT("Cất Đầu Dò-Z");                         // Stow Z-Probe
-  LSTR MSG_HOME_FIRST                     = _UxGT("Về nhà %s%s%s Trước");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Về nhà %s Trước");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Đầu Dò Bù Đắp Z");                      // Probe Z Offset
   LSTR MSG_BABYSTEP_X                     = _UxGT("Nhít X");                               // Babystep X
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Nhít Y");

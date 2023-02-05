@@ -32,6 +32,10 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if ENABLED(HAS_STM32_UID) && !defined(MACHINE_UUID)
+  #include "../../libs/hex_print.h"
+#endif
+
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
@@ -59,19 +63,36 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-  SERIAL_ECHOLNPGM(
-    "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
-    "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
-    "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
-    "MACHINE_TYPE:" MACHINE_NAME " "
-    "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+  SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
+    " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
+    " SOURCE_CODE_URL:" SOURCE_CODE_URL
+    " PROTOCOL_VERSION:" PROTOCOL_VERSION
+    " MACHINE_TYPE:" MACHINE_NAME
+    " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
     #if NUM_AXES != XYZ
-      "AXIS_COUNT:" STRINGIFY(NUM_AXES) " "
+      " AXIS_COUNT:" STRINGIFY(NUM_AXES)
     #endif
     #ifdef MACHINE_UUID
-      "UUID:" MACHINE_UUID
+      " UUID:" MACHINE_UUID
     #endif
   );
+
+  // STM32UID:111122223333
+  #if ENABLED(HAS_STM32_UID) && !defined(MACHINE_UUID)
+    // STM32 based devices output the CPU device serial number
+    // Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations
+    // https://github.com/opulo-inc/lumenpnp
+    // Although this code should work on all STM32 based boards
+    SERIAL_ECHOPGM(" UUID:");
+    uint32_t *uid_address = (uint32_t*)UID_BASE;
+    LOOP_L_N(i, 3) {
+      const uint32_t UID = uint32_t(READ_REG(*(uid_address)));
+      uid_address += 4U;
+      for (int B = 24; B >= 0; B -= 8) print_hex_byte(UID >> B);
+    }
+  #endif
+
+  SERIAL_EOL();
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
@@ -121,7 +142,7 @@ void GcodeSuite::M115() {
     cap_line(F("LEVELING_DATA"), ENABLED(HAS_LEVELING));
 
     // BUILD_PERCENT (M73)
-    cap_line(F("BUILD_PERCENT"), ENABLED(LCD_SET_PROGRESS_MANUALLY));
+    cap_line(F("BUILD_PERCENT"), ENABLED(SET_PROGRESS_PERCENT));
 
     // SOFTWARE_POWER (M80, M81)
     cap_line(F("SOFTWARE_POWER"), ENABLED(PSU_CONTROL));
@@ -201,26 +222,49 @@ void GcodeSuite::M115() {
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
-      const xyz_pos_t bmin = { 0, 0, 0 },
-                      bmax = { X_BED_SIZE , Y_BED_SIZE, Z_MAX_POS },
-                      dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-                      dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+      constexpr xyz_pos_t bmin{0},
+                          bmax = ARRAY_N(NUM_AXES, X_BED_SIZE, Y_BED_SIZE, Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS),
+                          dmin = ARRAY_N(NUM_AXES, X_MIN_POS,  Y_MIN_POS,  Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
+                          dmax = ARRAY_N(NUM_AXES, X_MAX_POS,  Y_MAX_POS,  Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS);
       xyz_pos_t cmin = bmin, cmax = bmax;
       apply_motion_limits(cmin);
       apply_motion_limits(cmax);
       const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
                       wmin = cmin.asLogical(), wmax = cmax.asLogical();
+
       SERIAL_ECHOLNPGM(
         "area:{"
           "full:{"
-            "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
-            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
-          "},"
+            "min:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
+                ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
+                ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
+              ),
+            "},max:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
+                ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
+                ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
+              ),
+            "}" // max
+          "}," // full
           "work:{"
-            "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
-            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
-          "}"
-        "}"
+            "min:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
+                ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
+                ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
+              ),
+            "},max:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
+                ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
+                ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w
+              ),
+            "}" // max
+          "}" // work
+        "}" // area
       );
     #endif
 

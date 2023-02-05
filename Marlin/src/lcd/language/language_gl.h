@@ -231,6 +231,7 @@ namespace Language_gl {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
   LSTR MSG_BED_Z                          = _UxGT("Cama Z");
@@ -413,7 +414,7 @@ namespace Language_gl {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Estender TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estender Sonda Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Recoller Sonda Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Orixe %s%s%s Primeiro");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Orixe %s Primeiro");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Desfases Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desfase Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desfase Sonda Y");

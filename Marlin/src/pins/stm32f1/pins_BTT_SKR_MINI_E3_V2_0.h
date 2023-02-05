@@ -21,7 +21,9 @@
  */
 #pragma once
 
-#define SKR_MINI_E3_V2
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BTT SKR Mini E3 V2.0"
+#endif
 
 #define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
 
@@ -29,33 +31,50 @@
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE 0x1000                 // 4K
-  #define I2C_SDA_PIN                      PB7
-  #define I2C_SCL_PIN                      PB6
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define I2C_SDA_PIN                       PB7
+  #define I2C_SCL_PIN                       PB6
   #undef NO_EEPROM_SELECTED
 #endif
 
-#include "pins_BTT_SKR_MINI_E3_common.h"
+#define FAN_PIN                             PC6
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BTT SKR Mini E3 V2.0"
-#endif
+//
+// USB connect control
+//
+#define USB_CONNECT_PIN                     PA14
+
+/**
+ *            SKR Mini E3 V2.0
+ *                 ------
+ * (BEEPER)  PB5  | 1  2 | PA15 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB15 (LCD_EN)
+ *            GND | 9 10 | 5V
+ *                 ------
+ *                  EXP1
+ */
+#define EXP1_02_PIN                         PA15
+#define EXP1_08_PIN                         PB15
+
+#include "pins_BTT_SKR_MINI_E3_common.h"
 
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
 
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     PA8   // LED driving pin
+  #define NEOPIXEL_PIN                      PA8   // LED driving pin
 #endif
 
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN                        PC13  // Power Supply Control
+  #define PS_ON_PIN                         PC13  // Power Supply Control
 #endif
 
-#define FAN1_PIN                           PC7
+#define FAN1_PIN                            PC7
 
 #ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN               FAN1_PIN
+  #define CONTROLLER_FAN_PIN            FAN1_PIN
 #endif
 
 #if HAS_TMC_UART

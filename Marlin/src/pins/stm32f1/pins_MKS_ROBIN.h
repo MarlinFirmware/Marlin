@@ -272,8 +272,8 @@
 //
 // W25Q64 64Mb (8MB) SPI flash
 //
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x800000  // 8MB
   #define SPI_FLASH_CS_PIN                  PG9
   #define SPI_FLASH_MOSI_PIN                PB15

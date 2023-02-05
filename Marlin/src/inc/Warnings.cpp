@@ -35,6 +35,10 @@
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
 #endif
 
+#if ENABLED(LA_DEBUG)
+  #warning "WARNING! Disable LA_DEBUG for the final build!"
+#endif
+
 #if NUM_AXES_WARNING
   #warning "Note: NUM_AXES is now based on the *_DRIVER_TYPE settings so you can remove NUM_AXES from Configuration.h."
 #endif
@@ -707,8 +711,8 @@
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
-#if ENABLED(EMIT_CREALITY_422_WARNING)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225). (Define EMIT_CREALITY_422_WARNING false to suppress this warning.)"
+#if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if PRINTCOUNTER_SYNC
