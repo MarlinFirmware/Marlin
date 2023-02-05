@@ -433,9 +433,8 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
   );
   void do_blocking_move_to_xyzijku_v(
-    const xyze_pos_t &raw
-    , const_float_t v
-    , const_feedRate_t fr_mm_s=0.0f
+    const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
   );
 #endif
 #if HAS_W_AXIS
@@ -444,8 +443,9 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
   );
   void do_blocking_move_to_xyzijkuv_w(
-    const xyze_pos_t &raw
-    , const_float_t w, const feedRate_t &fr_mm_s=0.0f);
+    const xyze_pos_t &raw, const_float_t w, const feedRate_t &fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 
 #if HAS_Y_AXIS
