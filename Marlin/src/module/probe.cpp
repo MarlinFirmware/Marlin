@@ -271,7 +271,13 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #elif ENABLED(MAG_MOUNTED_PROBE)
 
-  typedef struct { float fr_mm_min; TERN_(HAS_ROTATIONAL_AXES, fr_deg_min); xyz_pos_t where; } mag_probe_move_t;
+  typedef struct {
+    feedRate_t fr_mm_min;
+    #if HAS_ROTATIONAL_AXES
+      feedRate_t fr_deg_min;
+    #endif
+    xyz_pos_t where;
+  } mag_probe_move_t;
 
   inline void run_deploy_moves() {
     #ifdef MAG_MOUNTED_DEPLOY_1

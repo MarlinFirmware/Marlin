@@ -90,7 +90,7 @@ def fetch_example(url):
         if '@' in url: url, brch = map(str.strip, url.split('@'))
         url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
     url = url.replace("%", "%25").replace(" ", "%20")
- 
+
     # Find a suitable fetch command
     if shutil.which("curl") is not None:
         fetch = "curl -L -s -S -f -o"

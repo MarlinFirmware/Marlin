@@ -650,7 +650,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_POS("Move X SwitchPos", current_position);
 
     line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS] * 0.25f OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
-  
+
     // 2. Release and place toolhead in the dock
 
     DEBUG_SYNCHRONIZE();
@@ -1367,7 +1367,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
                 do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
                 do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
                 do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
-                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])              
+                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
               );
 
             #endif

@@ -2203,7 +2203,7 @@ bool Planner::_populate_block(
         #endif
       );
 
-      #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
+      #if SECONDARY_LINEAR_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
         if (UNEAR_ZERO(distance_sqr)) {
           // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
           distance_sqr = (0.0f
@@ -2356,12 +2356,10 @@ bool Planner::_populate_block(
   #endif // HAS_EXTRUDERS
 
   // Keep the feedrate above the minimum
-  NOLESS(fr_mm_s,
-    esteps ? settings.min_feedrate_mm_s : settings.min_travel_feedrate_mm_s);
+  NOLESS(fr_mm_s, esteps ? settings.min_feedrate_mm_s : settings.min_travel_feedrate_mm_s);
   #if HAS_ROTATIONAL_AXES
     feedRate_t fr_deg_s = hints.fr_deg_s;
-    NOLESS(fr_deg_s,
-      esteps ? settings.min_feedrate_deg_s : settings.min_travel_feedrate_deg_s);
+    NOLESS(fr_deg_s, esteps ? settings.min_feedrate_deg_s : settings.min_travel_feedrate_deg_s);
   #endif
 
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
@@ -2369,7 +2367,7 @@ bool Planner::_populate_block(
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
-  float inverse_secs = inverse_millimeters * (TERN(HAS_ROTATIONAL_AXES, cartesian_move ? fr_mm_s : fr_deg_s, fr_mm_s));
+  float inverse_secs = inverse_millimeters * (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? fr_deg_s :) fr_mm_s);
 
   // Get the number of non busy movements in queue (non busy means that they can be altered)
   const uint8_t moves_queued = nonbusy_movesplanned();
@@ -3172,10 +3170,11 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
     if (!hints.millimeters) {
       float dist_sqr = XYZ_GANG(sq(cart_dist_mm.x), + sq(cart_dist_mm.y), + sq(cart_dist_mm.z));
 
-      #if SECONDARY_LINEAR_AXES >= 1
+      #if SECONDARY_LINEAR_AXES
         if (UNEAR_ZERO(dist_sqr)) {
-          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes that define linear movent in a coordinate system that is rotated with the tool
-          dist_sqr = (0.0f
+          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+          // that define linear movement in a coordinate system that is rotated with the tool
+          dist_sqr = (
             SECONDARY_AXIS_GANG(
               IF_DISABLED(AXIS4_ROTATES, + sq(cart_dist_mm.i)),
               IF_DISABLED(AXIS5_ROTATES, + sq(cart_dist_mm.j)),

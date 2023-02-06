@@ -368,25 +368,25 @@ typedef struct {
 #endif
 
 struct PlannerHints {
-  float millimeters = 0.0;             // Move Length, if known, else 0.
+  float millimeters = 0.0;            // Move Length, if known, else 0.
   #if ENABLED(FEEDRATE_SCALING)
-    float inv_duration = 0.0;          // Reciprocal of the move duration, if known
+    float inv_duration = 0.0;         // Reciprocal of the move duration, if known
   #endif
   #if ENABLED(HINTS_CURVE_RADIUS)
-    float curve_radius = 0.0f;         // Radius of curvature of the motion path - to calculate cornering speed
+    float curve_radius = 0.0;         // Radius of curvature of the motion path - to calculate cornering speed
   #else
     static constexpr float curve_radius = 0.0;
   #endif
   #if ENABLED(HINTS_SAFE_EXIT_SPEED)
-    float safe_exit_speed_sqr = 0.0f;  // Square of the speed considered "safe" at the end of the segment
-                                       // i.e., at or below the exit speed of the segment that the planner
-                                       // would calculate if it knew the as-yet-unbuffered path
+    float safe_exit_speed_sqr = 0.0;  // Square of the speed considered "safe" at the end of the segment
+                                      // i.e., at or below the exit speed of the segment that the planner
+                                      // would calculate if it knew the as-yet-unbuffered path
   #endif
   #if HAS_ROTATIONAL_AXES
-    feedRate_t fr_deg_s = 0.0f;        // Feedrate in °/s. For moves involving only rotational axes
-    bool cartesian_move = true;        // True if linear motion of the tool centerpoint relative to the workpiece occurs.
-                                       // False if no movement of the tool center point relative to the work piece occurs
-                                       // (i.e. tool rotates around the tool centerpoint)  #endif
+    feedRate_t fr_deg_s = 0.0;        // Feedrate in °/s. For moves involving only rotational axes
+    bool cartesian_move = true;       // True if linear motion of the tool centerpoint relative to the workpiece occurs.
+                                      // False if no movement of the tool center point relative to the work piece occurs
+                                      // (i.e. tool rotates around the tool centerpoint)  #endif
   #endif
   PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
 };

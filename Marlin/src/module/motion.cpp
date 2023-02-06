@@ -1215,7 +1215,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #if SECONDARY_LINEAR_AXES
       if (UNEAR_ZERO(cartesian_mm_sqr)) {
         // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-        cartesian_mm_sqr = (0.0f
+        cartesian_mm_sqr = (
           SECONDARY_AXIS_GANG(
             IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
             IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
@@ -1334,10 +1334,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       #endif
       float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
 
-      #if SECONDARY_LINEAR_AXES >= 1 && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
+      #if SECONDARY_LINEAR_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
         if (UNEAR_ZERO(distance_sqr)) {
           // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          cartesian_mm_sqr = (0.0f
+          cartesian_mm_sqr = (
             SECONDARY_AXIS_GANG(
               IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
               IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
@@ -2140,7 +2140,7 @@ void prepare_line_to_destination() {
 
       if (mmDelta != 0) {
         // Retrace by the amount computed in mmDelta.
-        do_homing_move(axis, mmDelta OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)), get_homing_bump_feedrate(axis));
+        do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis)  OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)));
       }
     }
   #endif
@@ -2212,9 +2212,7 @@ void prepare_line_to_destination() {
       if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
-        do_homing_move(axis, backoff_length, homing_feedrate(axis)
-          OPTARG(HAS_ROTATIONAL_AXES, homing_feedrate(axis))
-        );
+        do_homing_move(axis, backoff_length, homing_feedrate(axis) OPTARG(HAS_ROTATIONAL_AXES, homing_feedrate(axis)));
       }
     #endif
 
