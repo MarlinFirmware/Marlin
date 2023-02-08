@@ -136,10 +136,12 @@
 #endif
 
 #if TEMP_SENSOR_CHAMBER == 1000
-#define CHAMBER_PULLUP_RESISTOR_OHMS 4700  // Pullup resistor
-#define CHAMBER_RESISTANCE_25C_OHMS 100000 // Resistance at 25C
-#define CHAMBER_BETA 3950                  // Beta value
-#define CHAMBER_SH_C_COEFF 0               // Steinhart-Hart C coefficient
+//#define CHAMBER_PULLUP_RESISTOR_OHMS 4700  // Pullup resistor
+// EDIT: 10k pullup
+#define CHAMBER_PULLUP_RESISTOR_OHMS 100000 // Pullup resistor
+#define CHAMBER_RESISTANCE_25C_OHMS 100000  // Resistance at 25C
+#define CHAMBER_BETA 3950                   // Beta value
+#define CHAMBER_SH_C_COEFF 0                // Steinhart-Hart C coefficient
 #endif
 
 #if TEMP_SENSOR_COOLER == 1000
@@ -236,18 +238,18 @@
 #endif
 
 #if TEMP_SENSOR_CHAMBER
-//#define HEATER_CHAMBER_PIN      P2_04   // Required heater on/off pin
+#define HEATER_CHAMBER_PIN PC2 // Required heater on/off pin
 //(example: SKR 1.4 Turbo HE1 plug)
 //#define HEATER_CHAMBER_INVERTING false
 //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04
 //(example: SKR 1.4 Turbo HE1 plug)
 
-//#define CHAMBER_FAN               // Enable a fan on the chamber
+#define CHAMBER_FAN // Enable a fan on the chamber
 #if ENABLED(CHAMBER_FAN)
-//#define CHAMBER_FAN_INDEX   2   // Index of a fan to repurpose as the chamber
+#define CHAMBER_FAN_INDEX 2 // Index of a fan to repurpose as the chamber
 // fan. (Default: first unused fan)
 #define CHAMBER_FAN_MODE                                                       \
-  2 // Fan control mode: 0=Static; 1=Linear increase when temp is higher than
+  1 // Fan control mode: 0=Static; 1=Linear increase when temp is higher than
     // target; 2=V-shaped curve; 3=similar to 1 but fan is always on.
 #if CHAMBER_FAN_MODE == 0
 #define CHAMBER_FAN_BASE 255 // Chamber fan PWM (0-255)
@@ -661,7 +663,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 50
+#define FAN_MIN_PWM 100
 //#define FAN_MAX_PWM 128
 
 /**
@@ -1022,7 +1024,7 @@
 //#define XY_COUNTERPART_BACKOFF_MM 0         // (mm) Backoff X after homing Y,
 // and vice-versa
 
-//#define QUICK_HOME                          // If G28 contains XY do a
+#define QUICK_HOME // If G28 contains XY do a
 // diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y
 // before X
@@ -1225,7 +1227,7 @@
  *   M4: 40 = Clockwise, 41 = Counter-Clockwise
  *   M5: 50 = Clockwise, 51 = Counter-Clockwise
  */
-#define TRAMMING_SCREW_THREAD 30
+#define TRAMMING_SCREW_THREAD 40
 
 #endif
 
@@ -1582,8 +1584,9 @@
 // Change values more rapidly when the encoder is rotated faster
 #define ENCODER_RATE_MULTIPLIER
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
-#define ENCODER_10X_STEPS_PER_SEC 30  // (steps/s) Encoder rate for 10x speed
-#define ENCODER_100X_STEPS_PER_SEC 80 // (steps/s) Encoder rate for 100x speed
+#define ENCODER_5X_STEPS_PER_SEC 30    // (steps/s) Encoder rate for 5x speed
+#define ENCODER_10X_STEPS_PER_SEC 80   // (steps/s) Encoder rate for 10x speed
+#define ENCODER_100X_STEPS_PER_SEC 130 // (steps/s) Encoder rate for 100x speed
 #endif
 
 // Play a beep when the feedrate is changed from the Status Screen
@@ -1775,7 +1778,7 @@
 // Enable this option and set to HIGH if your SD cards are incorrectly detected.
 //#define SD_DETECT_STATE HIGH
 
-//#define SD_IGNORE_AT_STARTUP            // Don't mount the SD card when
+#define SD_IGNORE_AT_STARTUP // Don't mount the SD card when
 // starting up
 //#define SDCARD_READONLY                 // Read-only SD card (to save over 2K
 // of flash)
@@ -2013,12 +2016,12 @@
 //#define CONFIGURATION_EMBEDDING
 
 // Add an optimized binary file transfer mode, initiated with 'M28 B1'
-//#define BINARY_FILE_TRANSFER
+#define BINARY_FILE_TRANSFER
 
 #if ENABLED(BINARY_FILE_TRANSFER)
 // Include extra facilities (e.g., 'M20 F') supporting firmware upload via
 // BINARY_FILE_TRANSFER
-//#define CUSTOM_FIRMWARE_UPLOAD
+#define CUSTOM_FIRMWARE_UPLOAD
 #endif
 
 /**
@@ -2031,7 +2034,7 @@
  *
  * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
  */
-//#define SDCARD_CONNECTION LCD
+#define SDCARD_CONNECTION ONBOARD
 
 // Enable if SD detect is rendered useless (e.g., by using an SD extender)
 //#define NO_SD_DETECT
@@ -3292,7 +3295,7 @@
 #endif
 
 #if AXIS_IS_TMC_CONFIG(E0)
-#define E0_CURRENT 700
+#define E0_CURRENT 650
 #define E0_MICROSTEPS 16
 #define E0_RSENSE 0.11
 #define E0_CHAIN_POS -1

@@ -143,7 +143,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-//#define CUSTOM_MACHINE_NAME "Ender-3 v2 (deveth0)"
+#define CUSTOM_MACHINE_NAME "Ender-3 v2 (deveth0)"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -638,7 +638,7 @@
 #define TEMP_SENSOR_7 0
 #define TEMP_SENSOR_BED 1
 #define TEMP_SENSOR_PROBE 0
-#define TEMP_SENSOR_CHAMBER 0
+#define TEMP_SENSOR_CHAMBER 1
 #define TEMP_SENSOR_COOLER 0
 #define TEMP_SENSOR_BOARD 0
 #define TEMP_SENSOR_REDUNDANT 0
@@ -715,7 +715,7 @@
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP 5
+#define HEATER_0_MINTEMP 0
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
@@ -723,7 +723,7 @@
 #define HEATER_5_MINTEMP 5
 #define HEATER_6_MINTEMP 5
 #define HEATER_7_MINTEMP 5
-#define BED_MINTEMP 5
+#define BED_MINTEMP 0
 #define CHAMBER_MINTEMP 5
 
 // Above this temperature the heater will be switched off.
@@ -783,11 +783,11 @@
 // Specify up to one value per hotend here, according to your setup.
 // If there are fewer values, the last one applies to the remaining hotends.
 #define DEFAULT_Kp_LIST                                                        \
-  { 22.20, 22.20 }
+  { 28.72, 28.72 }
 #define DEFAULT_Ki_LIST                                                        \
-  { 1.08, 1.08 }
+  { 2.62, 2.62 }
 #define DEFAULT_Kd_LIST                                                        \
-  { 114.00, 114.00 }
+  { 78.81, 78.81 }
 #else
 // Ender 3 v2
 #define DEFAULT_Kp 28.72
@@ -1008,7 +1008,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 170
+#define EXTRUDE_MINTEMP 180
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -1037,10 +1037,10 @@
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all
                                    // extruders
 #define THERMAL_PROTECTION_BED // Enable thermal protection for the heated bed
-#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated
-                                   // chamber
-#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser
-                                   // cooling
+//#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated
+// chamber
+#define THERMAL_PROTECTION_COOLER // Enable thermal protection for the laser
+                                  // cooling
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -1461,7 +1461,7 @@
  * E2...]]
  */
 #define DEFAULT_AXIS_STEPS_PER_UNIT                                            \
-  { 79.7, 79.8, 401.5, 130 }
+  { 79.7, 79.8, 401.5, 142 }
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1846,7 +1846,7 @@
  *     O-- FRONT --+
  */
 #define NOZZLE_TO_PROBE_OFFSET                                                 \
-  { -44, -7.5, 0 }
+  { -53, -30, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -2013,8 +2013,8 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an
 // axis goes the wrong way.
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR false
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
@@ -2026,7 +2026,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -2079,9 +2079,8 @@
 #define X_MIN_POS 4
 #define Y_MIN_POS 7
 #define Z_MIN_POS 0
-#define X_MAX_POS                                                              \
-  (X_BED_SIZE + X_MIN_POS) +                                                   \
-      15 // Extended max to allow the probe to reach more of the bed.
+// Extended max to allow the probe to reach more of the bed.
+#define X_MAX_POS (X_BED_SIZE + X_MIN_POS) + 15
 #define Y_MAX_POS (Y_BED_SIZE + Y_MIN_POS)
 #define Z_MAX_POS 200
 //#define I_MIN_POS 0
@@ -2422,7 +2421,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-//#define LCD_BED_LEVELING
+#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
 #define MESH_EDIT_Z_STEP 0.025 // (mm) Step size while manually probing Z axis.
@@ -2432,7 +2431,7 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-//#define LCD_BED_TRAMMING
+#define LCD_BED_TRAMMING
 
 #if ENABLED(LCD_BED_TRAMMING)
 #define BED_TRAMMING_INSET_LFRB                                                \
@@ -2502,7 +2501,7 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
 #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE - 10) / 2) // X point for Z homing
@@ -2566,8 +2565,8 @@
 #define YZ_SIDE_AD 200
 
 // Or, set the Z skew factors directly:
-#define XZ_SKEW_FACTOR 0.0
-#define YZ_SKEW_FACTOR 0.0
+//#define XZ_SKEW_FACTOR 0.0
+//#define YZ_SKEW_FACTOR 0.0
 #endif
 
 // Enable this option for M852 to set skew at runtime
@@ -2659,7 +2658,7 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-//#define NOZZLE_PARK_FEATURE
+#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 // Specify a park position as { X, Y, Z_raise }
@@ -3642,9 +3641,9 @@
 //
 //#define DWIN_CREALITY_LCD           // Creality UI
 //#define DWIN_LCD_PROUI              // Pro UI by MRiscoC
-//#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
-//#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
-#define DWIN_MARLINUI_LANDSCAPE // MarlinUI (landscape orientation)
+#define DWIN_CREALITY_LCD_JYERSUI // Jyers UI by Jacob Myers
+//#define DWIN_MARLINUI_PORTRAIT // MarlinUI (portrait orientation)
+//#define DWIN_MARLINUI_LANDSCAPE // MarlinUI (landscape orientation)
 
 //
 // Touch Screen Settings
