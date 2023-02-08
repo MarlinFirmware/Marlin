@@ -70,13 +70,47 @@
 #define PD4                     52
 #define PD5                     53
 #define PD6                     54
-#define PD8                     55
-#define PD9                     56
-#define PF0                     57
-#define PF1                     58
-#define PF2                     59
-#define PA9_R                   60
-#define PA10_R                  61
+#define PD7                     55
+#define PD8                     56
+#define PD9                     57
+#define PD10                    58
+#define PD11                    59
+#define PD12                    60
+#define PD13                    61
+#define PD14                    62
+#define PD15                    63
+#define PE0                     64
+#define PE1                     65
+#define PE2                     66
+#define PE3                     67
+#define PE4                     68
+#define PE5                     69
+#define PE6                     70
+#define PE7                     71
+#define PE8                     72
+#define PE9                     73
+#define PE10                    74
+#define PE11                    75
+#define PE12                    76
+#define PE13                    77
+#define PE14                    78
+#define PE15                    79
+#define PF0                     80
+#define PF1                     81
+#define PF2                     82
+#define PF3                     83
+#define PF4                     84
+#define PF5                     85
+#define PF6                     86
+#define PF7                     87
+#define PF8                     88
+#define PF9                     89
+#define PF10                    90
+#define PF11                    91
+#define PF12                    92
+#define PF13                    93
+#define PA9_R                   94
+#define PA10_R                  95
 
 // Alternate pins number
 #define PA1_ALT1                (PA1    | ALT1)
@@ -120,68 +154,80 @@
 #define PC10_ALT1               (PC10   | ALT1)
 #define PC11_ALT1               (PC11   | ALT1)
 #define PD4_ALT1                (PD4    | ALT1)
+#define PF7_ALT1                (PF7    | ALT1)
 
-#define NUM_DIGITAL_PINS        62
+#define NUM_DIGITAL_PINS        96
 #define NUM_REMAP_PINS          2
 #define NUM_ANALOG_INPUTS       16
-#define NUM_ANALOG_FIRST        PA0
+
+// On-board LED pin number
+#ifndef LED_BUILTIN
+  #define LED_BUILTIN           PNUM_NOT_DEFINED
+#endif
+
+// On-board user button
+#ifndef USER_BTN
+  #define USER_BTN              PNUM_NOT_DEFINED
+#endif
 
 // SPI definitions
 #ifndef PIN_SPI_SS
   #define PIN_SPI_SS            PA4
 #endif
+#ifndef PIN_SPI_SS1
+  #define PIN_SPI_SS1           PA15
+#endif
+#ifndef PIN_SPI_SS2
+  #define PIN_SPI_SS2           PB0
+#endif
+#ifndef PIN_SPI_SS3
+  #define PIN_SPI_SS3           PD9
+#endif
 #ifndef PIN_SPI_MOSI
-  #define PIN_SPI_MOSI          PA7
+  #define PIN_SPI_MOSI          PA2
 #endif
 #ifndef PIN_SPI_MISO
   #define PIN_SPI_MISO          PA6
 #endif
 #ifndef PIN_SPI_SCK
-  #define PIN_SPI_SCK           PA5
+  #define PIN_SPI_SCK           PA1
 #endif
 
 // I2C definitions
 #ifndef PIN_WIRE_SDA
-  #define PIN_WIRE_SDA          PB6
+  #define PIN_WIRE_SDA          PA6
 #endif
 #ifndef PIN_WIRE_SCL
-  #define PIN_WIRE_SCL          PB7
+  #define PIN_WIRE_SCL          PA7
 #endif
 
 // Timer Definitions
 // Use TIM6/TIM7 when possible as servo and tone don't need GPIO output pin
 #ifndef TIMER_TONE
-  #define TIMER_TONE            TIM6  // TIMER_TONE must be defined in this file
+  #define TIMER_TONE            TIM6
 #endif
 #ifndef TIMER_SERVO
-  #define TIMER_SERVO           TIM7  // TIMER_SERVO must be defined in this file
+  #define TIMER_SERVO           TIM7
 #endif
 
 // UART Definitions
-//#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
-#define ENABLE_HWSERIAL3
-
 #ifndef SERIAL_UART_INSTANCE
-  #define SERIAL_UART_INSTANCE  2
+  #define SERIAL_UART_INSTANCE  4
 #endif
 
 // Default pin used for generic 'Serial' instance
 // Mandatory for Firmata
 #ifndef PIN_SERIAL_RX
-  #define PIN_SERIAL_RX         PA3
+  #define PIN_SERIAL_RX         PA1
 #endif
 #ifndef PIN_SERIAL_TX
-  #define PIN_SERIAL_TX         PA2
+  #define PIN_SERIAL_TX         PA0
 #endif
 
-// Optional PIN_SERIALn_RX and PIN_SERIALn_TX where 'n' is the U(S)ART number
-// Used when user instantiate a hardware Serial using its peripheral name.
-// Example: HardwareSerial mySerial(USART3);
-// will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
-#define PIN_SERIAL1_RX          PA3
-#define PIN_SERIAL1_TX          PA2
-#define PIN_SERIAL3_RX          PD9
-#define PIN_SERIAL3_TX          PD8
+// Extra HAL modules
+#if !defined(HAL_DAC_MODULE_DISABLED)
+  #define HAL_DAC_MODULE_ENABLED
+#endif
 
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
@@ -207,6 +253,6 @@
     #define SERIAL_PORT_MONITOR   Serial
   #endif
   #ifndef SERIAL_PORT_HARDWARE
-    #define SERIAL_PORT_HARDWARE  Serial2
+    #define SERIAL_PORT_HARDWARE  Serial
   #endif
 #endif

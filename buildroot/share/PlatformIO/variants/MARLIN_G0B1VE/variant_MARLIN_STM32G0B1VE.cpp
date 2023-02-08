@@ -11,7 +11,7 @@
  *******************************************************************************
  */
 
-#ifdef STM32G0B1xx
+#if defined(STM32G0B1xx)
 #include "pins_arduino.h"
 
 // Digital PinName array
@@ -71,13 +71,47 @@ const PinName digitalPin[] = {
   PD_4,   // D52
   PD_5,   // D53
   PD_6,   // D54
-  PD_8,   // D55
-  PD_9,   // D56
-  PF_0,   // D57
-  PF_1,   // D58
-  PF_2,   // D59
-  PA_9_R, // D60
-  PA_10_R // D61
+  PD_7,   // D55
+  PD_8,   // D56
+  PD_9,   // D57
+  PD_10,  // D58
+  PD_11,  // D59
+  PD_12,  // D60
+  PD_13,  // D61
+  PD_14,  // D62
+  PD_15,  // D63
+  PE_0,   // D64
+  PE_1,   // D65
+  PE_2,   // D66
+  PE_3,   // D67
+  PE_4,   // D68
+  PE_5,   // D69
+  PE_6,   // D70
+  PE_7,   // D71
+  PE_8,   // D72
+  PE_9,   // D73
+  PE_10,  // D74
+  PE_11,  // D75
+  PE_12,  // D76
+  PE_13,  // D77
+  PE_14,  // D78
+  PE_15,  // D79
+  PF_0,   // D80
+  PF_1,   // D81
+  PF_2,   // D82
+  PF_3,   // D83
+  PF_4,   // D84
+  PF_5,   // D85
+  PF_6,   // D86
+  PF_7,   // D87
+  PF_8,   // D88
+  PF_9,   // D89
+  PF_10,  // D90
+  PF_11,  // D91
+  PF_12,  // D92
+  PF_13,  // D93
+  PA_9_R, // D94
+  PA_10_R // D95
 };
 
 // Analog (Ax) pin number array
