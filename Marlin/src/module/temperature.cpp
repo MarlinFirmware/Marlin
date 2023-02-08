@@ -311,7 +311,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
  * public:
  */
 
-#if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
+#if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
   bool Temperature::adaptive_fan_slowing = true;
 #endif
 
@@ -688,7 +688,7 @@ volatile bool Temperature::raw_temps_ready = false;
       LEDColor color = ONHEATINGSTART();
     #endif
 
-    TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
 
     LCD_MESSAGE(MSG_HEATING);
 
@@ -876,7 +876,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(DWIN_PID_TUNE, DWIN_PidTuning(PID_DONE));
 
     EXIT_M303:
-      TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = true);
+      TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       return;
   }
 
@@ -907,10 +907,10 @@ volatile bool Temperature::raw_temps_ready = false;
         SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
         TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
-        return false;
+        return true;
       }
 
-      return true;
+      return false;
     };
 
     struct OnExit {
@@ -927,6 +927,8 @@ volatile bool Temperature::raw_temps_ready = false;
         #endif
 
         do_z_clearance(MPC_TUNING_END_Z);
+
+        TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       }
     } on_exit;
 
@@ -934,6 +936,8 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
     MPCHeaterInfo &hotend = temp_hotend[active_extruder];
     MPC_t &mpc = hotend.mpc;
+
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);
@@ -959,7 +963,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (!housekeeping(ms, current_temp, next_report_ms)) return;
+      if (housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -982,15 +986,16 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_HEATING_PAST_200);
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
     hotend.target = 200.0f;   // So M105 looks nice
-    hotend.soft_pwm_amount = MPC_MAX >> 1;
+    hotend.soft_pwm_amount = (MPC_MAX) >> 1;
     const millis_t heat_start_time = next_test_ms = ms;
     celsius_float_t temp_samples[16];
     uint8_t sample_count = 0;
     uint16_t sample_distance = 1;
     float t1_time = 0;
 
+    wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (!housekeeping(ms, current_temp, next_report_ms)) return;
+      if (housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         // Record samples between 100C and 200C
@@ -1012,6 +1017,8 @@ volatile bool Temperature::raw_temps_ready = false;
         next_test_ms += 1000UL * sample_distance;
       }
     }
+    wait_for_heatup = false;
+
     hotend.soft_pwm_amount = 0;
 
     // Calculate physical constants from three equally-spaced samples
@@ -1045,8 +1052,9 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
     float last_temp = current_temp;
 
+    wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (!housekeeping(ms, current_temp, next_report_ms)) return;
+      if (housekeeping(ms, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(active_extruder) >> 1;
@@ -1076,6 +1084,7 @@ volatile bool Temperature::raw_temps_ready = false;
         break;
       }
     }
+    wait_for_heatup = false;
 
     const float power_fan0 = total_energy_fan0 * 1000 / test_duration;
     mpc.ambient_xfer_coeff_fan0 = power_fan0 / (hotend.target - ambient_temp);
@@ -4124,6 +4133,7 @@ void Temperature::isr() {
 
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         #if HAS_DWIN_E3V2_BASIC
@@ -4262,6 +4272,7 @@ void Temperature::isr() {
 
       } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
@@ -4340,6 +4351,7 @@ void Temperature::isr() {
         }
       }
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
@@ -4439,6 +4451,7 @@ void Temperature::isr() {
         }
       } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
 
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
@@ -4525,6 +4538,7 @@ void Temperature::isr() {
           first_loop = false;
         #endif // TEMP_COOLER_RESIDENCY_TIME > 0
 
+        // Prevent a wait-forever situation if R is misused i.e. M191 R0
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
@@ -4537,7 +4551,7 @@ void Temperature::isr() {
 
       } while (wait_for_heatup && TEMP_COOLER_CONDITIONS);
 
-      // Prevent a wait-forever situation if R is misused i.e. M191 R0
+      // If wait_for_heatup is set, temperature was reached, no cancel
       if (wait_for_heatup) {
         wait_for_heatup = false;
         ui.reset_status();
