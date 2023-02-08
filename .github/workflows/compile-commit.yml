@@ -38,7 +38,7 @@ jobs:
       run: |
         pio run
         mkdir temp
-        mv .pio/build/STM32G0B1RE_btt/*.bin temp/firmware.bin
+        mv .pio/build/STM32G0B1RE_btt_xfer/*.bin temp/firmware.bin
       env:
         BOARD: ${{ matrix.board }}
         VERSION: ${{ env.RELEASE_VERSION }}
