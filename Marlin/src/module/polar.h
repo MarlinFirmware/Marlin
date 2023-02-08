@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,18 +22,15 @@
 #pragma once
 
 /**
- * DWIN Single var plot
- * Author: Miguel A. Risco-Castillo
- * Version: 2.1.2
- * Date: 2022/11/20
+ * polar.h - POLAR-specific functions
  */
 
-#include "dwinui.h"
+#include "../core/types.h"
 
-class PlotClass {
-public:
-  static void Draw(const frame_rect_t &frame, const celsius_t max, const_float_t ref=0);
-  static void Update(const_float_t value);
-};
+extern float segments_per_second;
 
-extern PlotClass plot;
+float absoluteAngle(float a);
+void forward_kinematics(const_float_t r, const_float_t theta);
+
+void inverse_kinematics(const xyz_pos_t &raw);
+void polar_report_positions();

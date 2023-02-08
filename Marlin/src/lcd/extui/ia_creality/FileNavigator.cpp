@@ -31,7 +31,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_IA_CREALITY)
+#if DGUS_LCD_UI_IA_CREALITY
 
 #include "FileNavigator.h"
 
