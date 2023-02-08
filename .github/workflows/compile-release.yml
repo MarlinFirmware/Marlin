@@ -38,7 +38,7 @@ jobs:
       run: |
         pio run
         mkdir temp
-        mv .pio/build/STM32G0B1RE_btt/*.bin temp/firmware.bin
+        mv .pio/build/STM32G0B1RE_btt_xfer/*.bin temp/firmware.bin
       env:
         BOARD: ${{ matrix.board }}
         VERSION: ${{ env.RELEASE_VERSION }}
@@ -53,7 +53,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: temp/STM32G0B1RE_btt.bin
+        asset_path: temp/STM32G0B1RE_btt_xfer.bin
         asset_name: firmware.bin
         asset_content_type: application/x-binary
   
