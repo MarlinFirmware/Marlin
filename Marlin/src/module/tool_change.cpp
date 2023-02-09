@@ -1369,7 +1369,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
                 do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
                 do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
               );
-
             #endif
 
           #endif
