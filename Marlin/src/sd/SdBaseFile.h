@@ -311,6 +311,11 @@ class SdBaseFile {
   bool rmRfStar();
 
   /**
+   * Set or clear DIR_ATT_HIDDEN attribute for directory entry
+   */
+  bool hide(const bool hidden);
+
+  /**
    * Set the files position to current position + \a pos. See seekSet().
    * \param[in] offset The new position in bytes from the current position.
    * \return true for success or false for failure.

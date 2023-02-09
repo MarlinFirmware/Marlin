@@ -444,9 +444,12 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 }
 
 // Prepare strings for progress display
-#if HAS_EXTRA_PROGRESS
+#if EITHER(HAS_EXTRA_PROGRESS, HAS_PRINT_PROGRESS)
   static MarlinUI::progress_t progress = 0;
   static char bufferc[13];
+#endif
+
+#if HAS_EXTRA_PROGRESS
 
   static void prepare_time_string(const duration_t &time, char prefix) {
     char str[13];
@@ -484,7 +487,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
       if (printJobOngoing())
         prepare_time_string(print_job_timer.duration(), 'E'); }
   #endif
-#endif // HAS_PRINT_PROGRESS
+
+#endif // HAS_EXTRA_PROGRESS
 
 /**
  * Draw the Status Screen for a 128x64 DOGM (U8glib) display.
