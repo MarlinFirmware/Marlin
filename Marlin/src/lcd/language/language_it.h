@@ -77,6 +77,7 @@ namespace Language_it {
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
+  LSTR MSG_Z_AFTER_HOME                   = _UxGT("Z dopo homing");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Impostaz.filamento");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Gestione filamento");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Livel.manuale");
@@ -101,6 +102,7 @@ namespace Language_it {
   LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Offset home Y");
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Offset home Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offset applicato");
+  LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Err: Troppo lontano!");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Wizard Tramming");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Selez. origine");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ultimo valore ");
@@ -128,6 +130,7 @@ namespace Language_it {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Preris.$ Piatto");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preris.$ conf");
   #endif
+  LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Prerisc.Hotend");
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Prerisc.personal.");
   LSTR MSG_COOLDOWN                       = _UxGT("Raffredda");
 
@@ -263,6 +266,7 @@ namespace Language_it {
   LSTR MSG_UBL_INVALID_SLOT               = _UxGT("Prima selez. uno slot Mesh");
   LSTR MSG_MESH_LOADED                    = _UxGT("Mesh %i caricata");
   LSTR MSG_MESH_SAVED                     = _UxGT("Mesh %i salvata");
+  LSTR MSG_MESH_ACTIVE                    = _UxGT("Mesh %i attiva");
   LSTR MSG_UBL_NO_STORAGE                 = _UxGT("Nessuna memoria");
   LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Err: Salvataggio UBL");
   LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Err: Ripristino UBL");
@@ -320,6 +324,7 @@ namespace Language_it {
   LSTR MSG_MOVE_01IN                      = _UxGT("Muovi di 0.1\"");
   LSTR MSG_MOVE_05IN                      = _UxGT("Muovi di 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Muovi di 1\"");
+  LSTR MSG_LIVE_MOVE                      = _UxGT("Modalità Live");
   LSTR MSG_SPEED                          = _UxGT("Velocità");
   LSTR MSG_BED_Z                          = _UxGT("Piatto Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ugello");
@@ -331,6 +336,7 @@ namespace Language_it {
   LSTR MSG_COOLER                         = _UxGT("Raffreddam. laser");
   LSTR MSG_COOLER_TOGGLE                  = _UxGT("Alterna raffreddam.");
   LSTR MSG_FLOWMETER_SAFETY               = _UxGT("Sicurezza flusso");
+  LSTR MSG_CUTTER                         = _UxGT("Taglio");
   LSTR MSG_LASER                          = _UxGT("Laser");
   LSTR MSG_FAN_SPEED                      = _UxGT("Vel. ventola");     // Max 15 characters
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventola ~");   // Max 15 characters
@@ -362,14 +368,21 @@ namespace Language_it {
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Calibrazione fallita! Estrusore errato.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Calibrazione fallita! Temperatura troppo alta.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Calibrazione fallita! Tempo scaduto.");
-  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Testing heat loss");
+  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Verif.perdita calore");
+  LSTR MSG_MPC_HEATING_PAST_200           = _UxGT("Riscalda a >200C");
+  LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Raffredda a amb.");
   LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Autotune");
   LSTR MSG_MPC_EDIT                       = _UxGT("Modif.MPC *");
+  LSTR MSG_MPC_POWER                      = _UxGT("Potenza riscald.");
   LSTR MSG_MPC_POWER_E                    = _UxGT("Potenza *");
-  LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("C blocco *");
+  LSTR MSG_MPC_BLOCK_HEAT_CAPACITY        = _UxGT("Capacità riscald.");
+  LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("Capac.riscald. *");
+  LSTR MSG_SENSOR_RESPONSIVENESS          = _UxGT("Reattiv.Sens.");
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Reattiv.Sens. *");
-  LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("H ambiente *");
-  LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("H Amb. vent. *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF         = _UxGT("Coeff.ambiente");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Coeff.amb. *");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN     = _UxGT("Coeff.ventola");
+  LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Coeff.ventola *");
   LSTR MSG_SELECT_E                       = _UxGT("Seleziona *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -398,10 +411,10 @@ namespace Language_it {
   LSTR MSG_A_RETRACT                      = _UxGT("A-Ritrazione");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-Spostamento");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
-  LSTR MSG_SHAPING_X_FREQ                 = _UxGT("Frequenza ") STR_X;
-  LSTR MSG_SHAPING_Y_FREQ                 = _UxGT("Frequenza ") STR_Y;
-  LSTR MSG_SHAPING_X_ZETA                 = _UxGT("Smorzamento ") STR_X;
-  LSTR MSG_SHAPING_Y_ZETA                 = _UxGT("Smorzamento ") STR_Y;
+  LSTR MSG_SHAPING_ENABLE                 = _UxGT("Abilita shaping @");
+  LSTR MSG_SHAPING_DISABLE                = _UxGT("Disabil. shaping @");
+  LSTR MSG_SHAPING_FREQ                   = _UxGT("Frequenza @");
+  LSTR MSG_SHAPING_ZETA                   = _UxGT("Smorzamento @");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("Frequenza max");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Feed min");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Passi/mm");
@@ -522,6 +535,7 @@ namespace Language_it {
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Ritrazione pulizia");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Velocità ritrazione");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Parcheggia testa");
+  LSTR MSG_PARK_FAILED                    = _UxGT("Parcheggio fallito");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Veloc. di recupero");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Velocità ventola");
   LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Tempo ventola");
@@ -539,6 +553,7 @@ namespace Language_it {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Rimuovi filam. *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Rimuovi tutto");
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Collega media");
+  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Collega penna USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambia media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia media");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe fuori piatto");
@@ -622,6 +637,7 @@ namespace Language_it {
   LSTR MSG_MESH_LEVELING                  = _UxGT("Livel. Mesh");
   LSTR MSG_MESH_DONE                      = _UxGT("Sond.mesh eseguito");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Statistiche");
+  LSTR MSG_RESET_STATS                    = _UxGT("Reset stat.stampa?");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. scheda");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistori");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Estrusori");

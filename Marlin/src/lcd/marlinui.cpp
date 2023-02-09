@@ -833,7 +833,7 @@ void MarlinUI::init() {
           // Apply a linear offset to a single axis
           if (axis == ALL_AXES_ENUM)
             destination = all_axes_destination;
-          else if (axis <= XYZE) {
+          else if (axis <= LOGICAL_AXES) {
             destination = current_position;
             destination[axis] += offset;
           }
