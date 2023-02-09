@@ -427,71 +427,70 @@ void plan_arc(
  *    G3 X20 Y12 R14   ; CCW circle with r=14 ending at X20 Y12
  */
 void GcodeSuite::G2_G3(const bool clockwise) {
-  if (MOTION_CONDITIONS) {
+  if (!MOTION_CONDITIONS) return;
 
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
-    #if ENABLED(SF_ARC_FIX)
-      const bool relative_mode_backup = relative_mode;
-      relative_mode = true;
-    #endif
+  #if ENABLED(SF_ARC_FIX)
+    const bool relative_mode_backup = relative_mode;
+    relative_mode = true;
+  #endif
 
-    get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
+  get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
 
-    TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
+  TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
 
-    ab_float_t arc_offset = { 0, 0 };
-    if (parser.seenval('R')) {
-      const float r = parser.value_linear_units();
-      if (r) {
-        const xy_pos_t p1 = current_position, p2 = destination;
-        if (p1 != p2) {
-          const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
-          const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
-                      len = d2.magnitude(),              // Distance to mid-point of move from current
-                      h2 = (r - len) * (r + len),        // factored to reduce rounding error
-                      h = (h2 >= 0) ? SQRT(h2) : 0.0f;   // Distance to the arc pivot-point from midpoint
-          const xy_pos_t s = { -d2.y, d2.x };            // Perpendicular bisector. (Divide by len for unit vector.)
-          arc_offset = d2 + s / len * e * h;             // The calculated offset (mid-point if |r| <= len)
-        }
+  ab_float_t arc_offset = { 0, 0 };
+  if (parser.seenval('R')) {
+    const float r = parser.value_linear_units();
+    if (r) {
+      const xy_pos_t p1 = current_position, p2 = destination;
+      if (p1 != p2) {
+        const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
+        const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
+                    len = d2.magnitude(),              // Distance to mid-point of move from current
+                    h2 = (r - len) * (r + len),        // factored to reduce rounding error
+                    h = (h2 >= 0) ? SQRT(h2) : 0.0f;   // Distance to the arc pivot-point from midpoint
+        const xy_pos_t s = { -d2.y, d2.x };            // Perpendicular bisector. (Divide by len for unit vector.)
+        arc_offset = d2 + s / len * e * h;             // The calculated offset (mid-point if |r| <= len)
       }
     }
-    else {
-      #if ENABLED(CNC_WORKSPACE_PLANES)
-        char achar, bchar;
-        switch (workspace_plane) {
-          default:
-          case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
-          case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;
-          case GcodeSuite::PLANE_ZX: achar = 'K'; bchar = 'I'; break;
-        }
-      #else
-        constexpr char achar = 'I', bchar = 'J';
-      #endif
-      if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
-      if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
-    }
-
-    if (arc_offset) {
-
-      #if ENABLED(ARC_P_CIRCLES)
-        // P indicates number of circles to do
-        const int8_t circles_to_do = parser.byteval('P');
-        if (!WITHIN(circles_to_do, 0, 100))
-          SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
-      #else
-        constexpr uint8_t circles_to_do = 0;
-      #endif
-
-      // Send the arc to the planner
-      plan_arc(destination, arc_offset, clockwise, circles_to_do);
-      reset_stepper_timeout();
-    }
-    else
-      SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
-
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   }
+  else {
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      char achar, bchar;
+      switch (workspace_plane) {
+        default:
+        case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
+        case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;
+        case GcodeSuite::PLANE_ZX: achar = 'K'; bchar = 'I'; break;
+      }
+    #else
+      constexpr char achar = 'I', bchar = 'J';
+    #endif
+    if (parser.seenval(achar)) arc_offset.a = parser.value_linear_units();
+    if (parser.seenval(bchar)) arc_offset.b = parser.value_linear_units();
+  }
+
+  if (arc_offset) {
+
+    #if ENABLED(ARC_P_CIRCLES)
+      // P indicates number of circles to do
+      const int8_t circles_to_do = parser.byteval('P');
+      if (!WITHIN(circles_to_do, 0, 100))
+        SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+    #else
+      constexpr uint8_t circles_to_do = 0;
+    #endif
+
+    // Send the arc to the planner
+    plan_arc(destination, arc_offset, clockwise, circles_to_do);
+    reset_stepper_timeout();
+  }
+  else
+    SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // ARC_SUPPORT
