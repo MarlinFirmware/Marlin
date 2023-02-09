@@ -30,6 +30,11 @@
 
 #include <libmaple/dma.h>
 
+#undef FSMC_DMA_DEV
+#undef FSMC_DMA_CHANNEL
+#define FSMC_DMA_DEV                      DMA1
+#define FSMC_DMA_CHANNEL               DMA_CH1
+
 #define DATASIZE_8BIT  DMA_SIZE_8BITS
 #define DATASIZE_16BIT DMA_SIZE_16BITS
 #define TFT_IO_DRIVER  TFT_FSMC

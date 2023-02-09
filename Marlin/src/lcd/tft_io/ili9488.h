@@ -33,10 +33,10 @@
 #define ILI9488_MADCTL_RGB        0x00
 #define ILI9488_MADCTL_MH         0x04 // Horizontal Refresh Order
 
-#define ILI9488_ORIENTATION_UP    ILI9488_MADCTL_MY                                         // 320x480 ; Cable on the upper side
-#define ILI9488_ORIENTATION_RIGHT ILI9488_MADCTL_MV                                         // 480x320 ; Cable on the right side
-#define ILI9488_ORIENTATION_LEFT  ILI9488_MADCTL_MY | ILI9488_MADCTL_MX | ILI9488_MADCTL_MV // 480x320 ; Cable on the left side
-#define ILI9488_ORIENTATION_DOWN  ILI9488_MADCTL_MX                                         // 320x480 ; Cable on the upper side
+#define ILI9488_ORIENTATION_TOP     ILI9488_MADCTL_MY                                         // 320x480 ; FPC cable on the top side
+#define ILI9488_ORIENTATION_RIGHT   ILI9488_MADCTL_MV                                         // 480x320 ; FPC cable on the right side
+#define ILI9488_ORIENTATION_LEFT    ILI9488_MADCTL_MY | ILI9488_MADCTL_MX | ILI9488_MADCTL_MV // 480x320 ; FPC cable on the left side
+#define ILI9488_ORIENTATION_BOTTOM  ILI9488_MADCTL_MX                                         // 320x480 ; FPC cable on the bottom side
 
 #define ILI9488_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ILI9488_MADCTL_MV) | \
                             IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ILI9488_MADCTL_MX) | \
@@ -146,6 +146,17 @@
 #define ILI9488_ADJCTL6           0xFC // Adjust Control 6
 #define ILI9488_ADJCTL7           0xFF // Adjust Control 7
 
+
+/*
+// https://forum.mikroe.com/viewtopic.php?t=74586
+
+#if ANY(MKS_ROBIN_TFT35, TFT_TRONXY_X5SA, ANYCUBIC_TFT35)                   // ILI9488
+#define TFT_DRIVER ILI9488
+#define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
+#define TFT_RES_480x320
+#define TFT_INTERFACE_FSMC
+*/
+
 static const uint16_t ili9488_init[] = {
   DATASIZE_8BIT,
   ESC_REG(ILI9488_SWRESET), ESC_DELAY(120),
@@ -154,10 +165,24 @@ static const uint16_t ili9488_init[] = {
   ESC_REG(ILI9488_MADCTL), ILI9488_MADCTL_DATA,
   ESC_REG(ILI9488_COLMOD), 0x0055,
 
+  ESC_REG(ILI9488_FRMCTR1), 0x00A0,
+  ESC_REG(ILI9488_INVTR), 0x0002,
+  ESC_REG(ILI9488_DISCTRL), 0x0002, 0x0002, // Gate Scan sequence: 0, Source Scan sequence: 0
+  ESC_REG(ILI9488_PWCTRL1), 0x0015, 0x0017,
+  ESC_REG(ILI9488_PWCTRL2), 0x0041,
+  ESC_REG(ILI9488_VMCTRL), 0x0000, 0x0012, 0x0080,
+  ESC_REG(ILI9488_SETIMAGE), 0x0000,
+  ESC_REG(ILI9488_ADJCTL3), 0x00A9, 0x0051, 0x002C, 0x0082,
+
   /* Gamma Correction. */
   ESC_REG(ILI9488_PGAMCTRL), 0x0000, 0x0003, 0x0009, 0x0008, 0x0016, 0x000A, 0x003F, 0x0078, 0x004C, 0x0009, 0x000A, 0x0008, 0x0016, 0x001A, 0x000F,
   ESC_REG(ILI9488_NGAMCTRL), 0x0000, 0x0016, 0x0019, 0x0003, 0x000F, 0x0005, 0x0032, 0x0045, 0x0046, 0x0004, 0x000E, 0x000D, 0x0035, 0x0037, 0x000F,
 
+  #if ENABLED(ILI9488_INVERTED)
+    ESC_REG(ILI9488_INVON),    // Display inversion ON
+  #else
+    ESC_REG(ILI9488_INVOFF),
+  #endif
   ESC_REG(ILI9488_NORON),
   ESC_REG(ILI9488_DISON),
   ESC_END
