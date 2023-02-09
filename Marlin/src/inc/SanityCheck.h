@@ -3314,6 +3314,31 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #undef INVALID_TMC_SPI
 
 /**
+ * Map old TMC_SW_* to new TMC_SPI_*
+ */
+#ifdef TMC_SW_MISO
+  #warning "TMC_SW_MISO is now TMC_SPI_MISO."
+  #ifdef TMC_SPI_MISO
+    #error "TMC_SPI_MISO already defined"
+  #endif
+  #define TMC_SPI_MISO TMC_SW_MISO
+#endif
+#ifdef TMC_SW_MOSI
+  #warning "TMC_SW_MOSI is now TMC_SPI_MOSI."
+  #ifdef TMC_SPI_MOSI
+    #error "TMC_SPI_MOSI is already defined."
+  #endif
+  #define TMC_SPI_MOSI TMC_SW_MOSI
+#endif
+#ifdef TMC_SW_SCK
+  #warning "TMC_SW_SCK is now TMC_SPI_SCK."
+  #ifdef TMC_SPI_SCK
+    #error "TMC_SPI_SCK is already defined."
+  #endif
+  #define TMC_SPI_SCK TMC_SW_SCK
+#endif
+
+/**
  * Check existing RX/TX pins against enable TMC UART drivers.
  */
 #define INVALID_TMC_UART(ST) (AXIS_HAS_UART(ST) && !(defined(ST##_HARDWARE_SERIAL) || (PINS_EXIST(ST##_SERIAL_RX, ST##_SERIAL_TX))))
