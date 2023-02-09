@@ -58,8 +58,8 @@
 #define Z_ENABLE_PIN                 X_ENABLE_PIN
 
 // Designated with letter "A" on BOARD
-#define E0_STEP_PIN                           12
-#define E0_DIR_PIN                            13
+#define E0_STEP_PIN                           52
+#define E0_DIR_PIN                            53
 #define E0_ENABLE_PIN                X_ENABLE_PIN
 
 //
