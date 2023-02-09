@@ -29,8 +29,12 @@
 
 #define IS_ZMIB_V2
 
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 /**
  * ZMIB pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/ZONESTAR%20ZMIB%20V2/ZMIB_V2_Schmatic.pdf
+ * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
  *
  * The ZMIB board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
@@ -87,78 +91,78 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             21
-#define Y_MIN_PIN                             18
+#define X_MIN_PIN                             PinC5
+#define Y_MIN_PIN                             PinC2
 
 #if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define Z_MIN_PIN                           25
+  #define Z_MIN_PIN                           PinA6
 #else
-  #define Z_MIN_PIN                           13
+  #define Z_MIN_PIN                           PinD5
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            23
-#define X_DIR_PIN                             22
-#define X_ENABLE_PIN                          24
+#define X_STEP_PIN                            PinC7
+#define X_DIR_PIN                             PinC6
+#define X_ENABLE_PIN                          PinA7
 
-#define Y_STEP_PIN                            20
-#define Y_DIR_PIN                             19
-#define Y_ENABLE_PIN                          24
-
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define Z_STEP_PIN                          27
-  #define Z_DIR_PIN                           26
-#else
-  #define Z_STEP_PIN                          17
-  #define Z_DIR_PIN                           16
-#endif
-
-#define Z_ENABLE_PIN                          24
+#define Y_STEP_PIN                            PinC4
+#define Y_DIR_PIN                             PinC3
+#define Y_ENABLE_PIN                          PinA7
 
 #if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define E0_STEP_PIN                         15
-  #define E0_DIR_PIN                          14
+  #define Z_STEP_PIN                          PinA4
+  #define Z_DIR_PIN                           PinA5
 #else
-  #define E0_STEP_PIN                         27
-  #define E0_DIR_PIN                          26
+  #define Z_STEP_PIN                          PinC1
+  #define Z_DIR_PIN                           PinC0
 #endif
 
-#define E0_ENABLE_PIN                         24
+#define Z_ENABLE_PIN                          PinA7
 
-#define E1_STEP_PIN                           15
-#define E1_DIR_PIN                            14
-#define E1_ENABLE_PIN                         24
+#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+  #define E0_STEP_PIN                         PinD7
+  #define E0_DIR_PIN                          PinD6
+#else
+  #define E0_STEP_PIN                         PinA4
+  #define E0_DIR_PIN                          PinA5
+#endif
+
+#define E0_ENABLE_PIN                         PinA7
+
+#define E1_STEP_PIN                           PinD7
+#define E1_DIR_PIN                            PinD6
+#define E1_ENABLE_PIN                         PinA7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           0  // Analog Input
+#define TEMP_0_PIN                            PinB1  // Analog Input
+#define TEMP_BED_PIN                          PinB0  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           0
-#define HEATER_BED_PIN                         1
-#define FAN_PIN                               28
+#define HEATER_0_PIN                          PinB0
+#define HEATER_BED_PIN                        PinB1
+#define FAN_PIN                               PinA3
 #define FAN1_PIN                              -1
 
 //
 // Filament Runout Sensor
 //
 #if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define FIL_RUNOUT_PIN                      13
+  #define FIL_RUNOUT_PIN                      PinD5
 #else
-  #define FIL_RUNOUT_PIN                      25  // Z-MIN
+  #define FIL_RUNOUT_PIN                      PinA6  // Z-MIN
 #endif
 
 //
 // SD card
 //
 #if ENABLED(SDSUPPORT)
-  #define SDSS                                 4
+  #define SDSS                                PinB4
 #endif
 #define SD_DETECT_PIN                         -1
 
@@ -171,18 +175,18 @@
  *      (GND) | 9 10 | (5V)
  *             ------
  */
-#define EXP1_01_PIN                            5
-#define EXP1_02_PIN                            7
-#define EXP1_03_PIN                           11
-#define EXP1_04_PIN                           10
-#define EXP1_05_PIN                           12
+#define EXP1_01_PIN                           PinB5
+#define EXP1_02_PIN                           PinB7
+#define EXP1_03_PIN                           PinD3
+#define EXP1_04_PIN                           PinD2
+#define EXP1_05_PIN                           PinD4
 #ifndef IS_ZMIB_V2
-  #define EXP1_06_PIN                          4  // ZMIB V1
+  #define EXP1_06_PIN                         PinB4  // ZMIB V1
 #else
-  #define EXP1_06_PIN                          3  // ZMIB V2
+  #define EXP1_06_PIN                         PinB3  // ZMIB V2
 #endif
-#define EXP1_07_PIN                           29
-#define EXP1_08_PIN                            2
+#define EXP1_07_PIN                           PinA2
+#define EXP1_08_PIN                           PinB2
 
 #if ENABLED(ZONESTAR_12864LCD)
   //

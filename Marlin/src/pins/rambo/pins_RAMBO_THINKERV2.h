@@ -27,34 +27,37 @@
 
 #define BOARD_INFO_NAME "Rambo ThinkerV2"
 
-#define SERVO0_PIN                             4  // Motor header MX1
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
+#define SERVO0_PIN                            PinG5  // Motor header MX1
 #define SERVO2_PIN                            -1  // Motor header MX3
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      10
+  #define FIL_RUNOUT_PIN                      PinB4
 #endif
 
 // Support BLTouch and fixed probes
 #if ENABLED(BLTOUCH)
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #define Z_MIN_PIN                         22
+    #define Z_MIN_PIN                         PinA0
   #elif !defined(Z_MIN_PROBE_PIN)
-    #define Z_MIN_PROBE_PIN                   22
+    #define Z_MIN_PROBE_PIN                   PinA0
   #endif
 #elif ENABLED(FIX_MOUNTED_PROBE)
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #define Z_MIN_PIN                          4
+    #define Z_MIN_PIN                         PinG5
   #elif !defined(Z_MIN_PROBE_PIN)
-    #define Z_MIN_PROBE_PIN                    4
+    #define Z_MIN_PROBE_PIN                   PinG5
   #endif
 #endif
 
 // Eryone has the fan pins reversed
-#define FAN1_PIN                               2
-#define FAN2_PIN                               6
+#define FAN1_PIN                              PinE4
+#define FAN2_PIN                              PinH3
 
 // Encoder
-#define BTN_EN1                               64
-#define BTN_EN2                               63
+#define BTN_EN1                               PinK2
+#define BTN_EN2                               PinK1
 
 #include "pins_RAMBO.h"

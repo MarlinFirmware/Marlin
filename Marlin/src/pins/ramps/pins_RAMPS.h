@@ -22,6 +22,13 @@
 #pragma once
 
 /**
+ * WARNING: this is a special case header that is shared across MCU types.
+ * We are using Arduino-style pin numbering here to attach to hobbyist purposes.
+ * Beware of possible peripheral conflicts due to abstraction-away from
+ * MCU peripheral names! (especially AVR: https://www.youtube.com/watch?v=1yd8wuI5Plg)
+ */
+
+/**
  * Arduino Mega with RAMPS v1.4 (or v1.3) pin assignments
  *
  * Applies to the following boards:
@@ -49,7 +56,19 @@
   #error "No pins defined for RAMPS with AZSMZ_12864."
 #endif
 
-#include "env_validate.h"
+#if ENABLED(ALLOW_SAM3X8E)
+  #if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
+    #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+  #endif
+#elif ENABLED(REQUIRE_MEGA2560) && NOT_TARGET(__AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+#elif DISABLED(REQUIRE_MEGA2560) && NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560 or 1280' in 'Tools > Board.'"
+#endif
+
+#undef ALLOW_SAM3X8E
+#undef REQUIRE_MEGA2560
+
 
 // Custom flags and defines for the build
 //#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__

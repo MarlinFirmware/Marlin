@@ -58,52 +58,55 @@
 
 #define BOARD_INFO_NAME "Gen7 Custom"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             0
-#define Y_STOP_PIN                             1
-#define Z_STOP_PIN                             2
+#define X_STOP_PIN                            PinB0
+#define Y_STOP_PIN                            PinB1
+#define Z_STOP_PIN                            PinB2
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            21  // different from standard GEN7
-#define X_DIR_PIN                             20  // different from standard GEN7
-#define X_ENABLE_PIN                          24
+#define X_STEP_PIN                            PinC5  // different from standard GEN7
+#define X_DIR_PIN                             PinC4  // different from standard GEN7
+#define X_ENABLE_PIN                          PinA7
 
-#define Y_STEP_PIN                            23
-#define Y_DIR_PIN                             22
-#define Y_ENABLE_PIN                          24
+#define Y_STEP_PIN                            PinC7
+#define Y_DIR_PIN                             PinC6
+#define Y_ENABLE_PIN                          PinA7
 
-#define Z_STEP_PIN                            26
-#define Z_DIR_PIN                             25
-#define Z_ENABLE_PIN                          24
+#define Z_STEP_PIN                            PinA5
+#define Z_DIR_PIN                             PinA6
+#define Z_ENABLE_PIN                          PinA7
 
-#define E0_STEP_PIN                           28
-#define E0_DIR_PIN                            27
-#define E0_ENABLE_PIN                         24
+#define E0_STEP_PIN                           PinA3
+#define E0_DIR_PIN                            PinA4
+#define E0_ENABLE_PIN                         PinA7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             2  // Analog Input
-#define TEMP_BED_PIN                           1  // Analog Input (pin 34 bed)
+#define TEMP_0_PIN                            PinB2  // Analog Input
+#define TEMP_BED_PIN                          PinB1  // Analog Input (pin 34 bed)
 
 //
 // Heaters
 //
-#define HEATER_0_PIN                           4
-#define HEATER_BED_PIN                         3  // (bed)
+#define HEATER_0_PIN                          PinB4
+#define HEATER_BED_PIN                        PinB3  // (bed)
 
 //
 // Misc. Functions
 //
-#define SDSS                                  31  // SCL pin of I2C header || CS Pin for SD Card support
-#define PS_ON_PIN                             19
+#define SDSS                                  PinA0  // SCL pin of I2C header || CS Pin for SD Card support
+#define PS_ON_PIN                             PinC3
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                      15  // Hardware PWM
+  #define CASE_LIGHT_PIN                      PinD7  // Hardware PWM
 #endif
 
 // A pin for debugging
@@ -115,25 +118,25 @@
 #define BEEPER_PIN                            -1
 
 // 4bit LCD Support
-#define LCD_PINS_RS                           18
-#define LCD_PINS_ENABLE                       17
-#define LCD_PINS_D4                           16
-#define LCD_PINS_D5                           15
-#define LCD_PINS_D6                           13
-#define LCD_PINS_D7                           14
+#define LCD_PINS_RS                           PinC2
+#define LCD_PINS_ENABLE                       PinC1
+#define LCD_PINS_D4                           PinC0
+#define LCD_PINS_D5                           PinD7
+#define LCD_PINS_D6                           PinD5
+#define LCD_PINS_D7                           PinD6
 
 // Buttons are directly    attached
-#define BTN_EN1                               11
-#define BTN_EN2                               10
-#define BTN_ENC                               12
+#define BTN_EN1                               PinD3
+#define BTN_EN2                               PinD2
+#define BTN_ENC                               PinD4
 
 // RS485 pins
-//#define TX_ENABLE_PIN                       12
-//#define RX_ENABLE_PIN                       13
+//#define TX_ENABLE_PIN                       PinD4
+//#define RX_ENABLE_PIN                       PinD5
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN                  5  // Pullup or pulldown!
-#define SPINDLE_LASER_PWM_PIN                 16  // Hardware PWM
-#define SPINDLE_DIR_PIN                        6
+#define SPINDLE_LASER_ENA_PIN                 PinB5  // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN                 PinC0  // Hardware PWM
+#define SPINDLE_DIR_PIN                       PinB6

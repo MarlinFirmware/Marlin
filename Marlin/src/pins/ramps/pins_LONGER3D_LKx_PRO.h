@@ -23,6 +23,7 @@
 
 /**
  * Longer3D LK1/LK4/LK5 Pro board pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -40,9 +41,9 @@
 #endif
 #if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || SERIAL_PORT_3 == 3 || LCD_SERIAL_PORT == 3
   #warning "Serial 3 is originally reserved for Y limit switches. Hardware changes are required to use it."
-  #define Y_STOP_PIN                          37
+  #define Y_STOP_PIN                       PinC0
   #if MB(LONGER3D_LKx_PRO)
-    #define Z_STOP_PIN                        35
+    #define Z_STOP_PIN                     PinC2
   #endif
 #endif
 
@@ -57,7 +58,7 @@
 // Servos
 //
 #if MB(LONGER3D_LKx_PRO)
-  #define SERVO0_PIN                           7
+  #define SERVO0_PIN                       PinH4
 #endif
 #define SERVO1_PIN                            -1
 #define SERVO2_PIN                            -1
@@ -67,28 +68,28 @@
 // Limit Switches
 //
 #if ENABLED(LONGER_LK5)
-  #define X_MIN_PIN                            3
-  #define X_MAX_PIN                            2
+  #define X_MIN_PIN                        PinE5
+  #define X_MAX_PIN                        PinE4
 #else
-  #define X_STOP_PIN                           3
+  #define X_STOP_PIN                       PinE5
 #endif
 
 #if !ANY_PIN(Y_MIN, Y_MAX, Y_STOP)
   #if ENABLED(LONGER_LK5)
-    #define Y_STOP_PIN                        14
+    #define Y_STOP_PIN                     PinJ1
   #else
-    #define Y_MIN_PIN                         14
-    #define Y_MAX_PIN                         15
+    #define Y_MIN_PIN                      PinJ1
+    #define Y_MAX_PIN                      PinJ0
   #endif
 #endif
 
 #if !ANY_PIN(Z_MIN, Z_MAX, Z_STOP)
   #if MB(LONGER3D_LKx_PRO)
-    #define Z_MIN_PIN                         35
+    #define Z_MIN_PIN                      PinC2
   #else
-    #define Z_MIN_PIN                         11
+    #define Z_MIN_PIN                      PinB5
   #endif
-  #define Z_MAX_PIN                           37
+  #define Z_MAX_PIN                        PinC0
 #endif
 
 //
@@ -119,8 +120,8 @@
 //
 // Misc. Functions
 //
-#define SD_DETECT_PIN                         49
-#define FIL_RUNOUT_PIN                         2
+#define SD_DETECT_PIN                      PinL0
+#define FIL_RUNOUT_PIN                     PinE4
 
 //          ------------------        ----------------        ---------------        -------------
 //    Aux-1 | D19 D18 GND 5V |    J21 | D4 D5 D6 GND |    J17 | D11 GND 24V |    J18 | D7 GND 5V |
@@ -138,13 +139,13 @@
    *      Connected via provided custom cable to:
    *      Aux-1, J21, J17 and Y-Max.
    */
-  #define LCD_PINS_RS                          5
-  #define LCD_PINS_ENABLE                      4
-  #define LCD_PINS_D4                          6
-  #define BTN_EN1                             18
-  #define BTN_EN2                             19
-  #define BTN_ENC                             15
-  #define BEEPER_PIN                          11
+  #define LCD_PINS_RS                         PinE3
+  #define LCD_PINS_ENABLE                     PinG5
+  #define LCD_PINS_D4                         PinH3
+  #define BTN_EN1                             PinD3
+  #define BTN_EN2                             PinD2
+  #define BTN_ENC                             PinJ0
+  #define BEEPER_PIN                          PinB5
 
   #define SDCARD_CONNECTION              ONBOARD
 

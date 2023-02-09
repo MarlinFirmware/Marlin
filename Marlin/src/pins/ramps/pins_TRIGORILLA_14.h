@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.4 for Anycubic
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "Anycubic RAMPS 1.4"
@@ -31,23 +32,23 @@
 // Servos
 //
 #if MB(TRIGORILLA_14_11)
-  #define SERVO0_PIN                           5
-  #define SERVO1_PIN                           4
-  #define SERVO2_PIN                          11
-  #define SERVO3_PIN                           6
+  #define SERVO0_PIN                          PinE3
+  #define SERVO1_PIN                          PinG5
+  #define SERVO2_PIN                          PinB5
+  #define SERVO3_PIN                          PinH3
 #endif
 
 //
 // PWM FETS
 //
-#define MOSFET_B_PIN                          45  // HEATER1
+#define MOSFET_B_PIN                          PinL4  // HEATER1
 
 //
 // Heaters / Fans
 //
-#define FAN_PIN                                9  // FAN0
-#define FAN1_PIN                               7  // FAN1
-#define FAN2_PIN                              44  // FAN2
+#define FAN_PIN                               PinH6  // FAN0
+#define FAN1_PIN                              PinH4  // FAN1
+#define FAN2_PIN                              PinL5  // FAN2
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN2_PIN
 #endif
@@ -65,53 +66,53 @@
 //
 //#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
-  #define X_MAX_PIN                           43
-  #define Y_STOP_PIN                          19
+  #define X_MAX_PIN                           PinL6
+  #define Y_STOP_PIN                          PinD2
 #elif EITHER(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
   // Chiron uses AUX header for Y and Z endstops
-  #define Y_STOP_PIN                          42  // AUX
-  #define Z_STOP_PIN                          43  // AUX
-  #define Z2_MIN_PIN                          18  // Z-
+  #define Y_STOP_PIN                          PinL7  // AUX
+  #define Z_STOP_PIN                          PinL6  // AUX
+  #define Z2_MIN_PIN                          PinD3  // Z-
 
   #ifndef Z_MIN_PROBE_PIN
-    #define Z_MIN_PROBE_PIN                    2
+    #define Z_MIN_PROBE_PIN                   PinE4
   #endif
 
   #define CONTROLLER_FAN_PIN            FAN1_PIN
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    #define OUTAGETEST_PIN                    79
-    #define OUTAGECON_PIN                     58
+    #define OUTAGETEST_PIN                    PinE6
+    #define OUTAGECON_PIN                     PinF4
   #endif
 
   #if ENABLED(TRIGORILLA_MAPPING_CHIRON)
     #ifndef FIL_RUNOUT_PIN
-      #define FIL_RUNOUT_PIN                  33
+      #define FIL_RUNOUT_PIN                  PinC4
     #endif
     #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
   #else
     #ifndef FIL_RUNOUT_PIN
-      #define FIL_RUNOUT_PIN                  19
+      #define FIL_RUNOUT_PIN                  PinD2
     #endif
   #endif
 
   #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
     // Chiron and some Anycubic i3 MEGAs swap Z steppers
-    #define Z_STEP_PIN                        36
-    #define Z_DIR_PIN                         34
-    #define Z_ENABLE_PIN                      30
-    #define Z_CS_PIN                          44
+    #define Z_STEP_PIN                        PinC1
+    #define Z_DIR_PIN                         PinC3
+    #define Z_ENABLE_PIN                      PinC7
+    #define Z_CS_PIN                          PinL5
 
-    #define Z2_STEP_PIN                       46
-    #define Z2_DIR_PIN                        48
-    #define Z2_ENABLE_PIN                     62
-    #define Z2_CS_PIN                         40
+    #define Z2_STEP_PIN                       PinL3
+    #define Z2_DIR_PIN                        PinL1
+    #define Z2_ENABLE_PIN                     PinK0
+    #define Z2_CS_PIN                         PinG1
   #endif
 #endif
 
 #if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
-  #define BEEPER_PIN                          31
-  #define SD_DETECT_PIN                       49
+  #define BEEPER_PIN                          PinC6
+  #define SD_DETECT_PIN                       PinL0
 #endif
 
 #if HAS_TMC_UART
@@ -140,25 +141,25 @@
   // LCD Display output pins
   #if BOTH(IS_NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D6
-    #define LCD_PINS_D6                       57
+    #define LCD_PINS_D6                       PinF3
   #endif
 
   // LCD Display input pins
   #if IS_NEWPANEL
     #if EITHER(VIKI2, miniVIKI)
       #undef DOGLCD_A0
-      #define DOGLCD_A0                       23
+      #define DOGLCD_A0                       PinA1
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #undef BEEPER_PIN
-      #define BEEPER_PIN                      33
+      #define BEEPER_PIN                      PinC4
       #undef LCD_BACKLIGHT_PIN
-      #define LCD_BACKLIGHT_PIN               67
+      #define LCD_BACKLIGHT_PIN               PinK5
     #endif
   #elif ENABLED(MINIPANEL)
     #undef BEEPER_PIN
-    #define BEEPER_PIN                        33
+    #define BEEPER_PIN                        PinC4
     #undef DOGLCD_A0
-    #define DOGLCD_A0                         42
+    #define DOGLCD_A0                         PinL7
   #endif
 
 #endif // HAS_WIRED_LCD

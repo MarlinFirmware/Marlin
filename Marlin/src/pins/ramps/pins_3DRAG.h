@@ -23,6 +23,10 @@
 
 /**
  * 3DRAG (and K8200 / K8400) Arduino Mega with RAMPS v1.4 pin assignments
+ * This may be compatible with the standalone Controller variant.
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/3DRAG%20+%20Controller/Schema_base.jpg
+ * Origin: https://reprap.org/wiki/File:Schema_base.jpg
+ * ATmega2560, ATmega1280
  */
 
 #ifndef BOARD_INFO_NAME
@@ -37,20 +41,25 @@
   #define DEFAULT_SOURCE_CODE_URL "3dprint.elettronicain.it"
 #endif
 
+// Just a wild guess because schematic does not say!
+#ifndef AVR_CHIPOSCILLATOR_FREQ
+  #define AVR_CHIPOSCILLATOR_FREQ 16000000
+#endif
+
 //
 // Limit Switches
 //
-#define Z_STOP_PIN                            18
+#define Z_STOP_PIN                         PinD3
 
 //
 // Steppers
 //
 #if HAS_CUTTER
-  #define Z_DIR_PIN                           28
-  #define Z_ENABLE_PIN                        24
-  #define Z_STEP_PIN                          26
+  #define Z_DIR_PIN                        PinA6
+  #define Z_ENABLE_PIN                     PinA2
+  #define Z_STEP_PIN                       PinA4
 #else
-  #define Z_ENABLE_PIN                        63
+  #define Z_ENABLE_PIN                     PinK1
 #endif
 
 #if HAS_CUTTER && !HAS_EXTRUDERS
@@ -62,16 +71,16 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                           8
-#define MOSFET_C_PIN                           9
-#define MOSFET_D_PIN                          12
+#define MOSFET_B_PIN                       PinH5
+#define MOSFET_C_PIN                       PinH6
+#define MOSFET_D_PIN                       PinB6
 
-#define HEATER_2_PIN                           6
+#define HEATER_2_PIN                       PinH3
 
 //
 // Misc. Functions
 //
-#define SDSS                                  25
+#define SDSS                               PinA3
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
@@ -110,16 +119,16 @@
  */
 #if HAS_CUTTER
   #if !HAS_EXTRUDERS
-    #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
-    #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
-    #define SPINDLE_DIR_PIN                   48
-  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
-    #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
-    #define SPINDLE_DIR_PIN                   17
+    #define SPINDLE_LASER_PWM_PIN          PinL3  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN          PinK0  // Pullup!
+    #define SPINDLE_DIR_PIN                PinL1
+  #elif !BOTH(HAS_WIRED_LCD, IS_NEWPANEL)         // Use expansion header if no LCD in use
+    #define SPINDLE_LASER_ENA_PIN          PinH1  // Pullup or pulldown!
+    #define SPINDLE_DIR_PIN                PinH0
     #if !NUM_SERVOS                               // Use servo connector if possible
-      #define SPINDLE_LASER_PWM_PIN            6  // Hardware PWM
+      #define SPINDLE_LASER_PWM_PIN        PinH3  // Hardware PWM
     #elif HAS_FREE_AUX2_PINS
-      #define SPINDLE_LASER_PWM_PIN           44  // Hardware PWM
+      #define SPINDLE_LASER_PWM_PIN        PinL5  // Hardware PWM
     #endif
   #endif
 #endif
@@ -131,23 +140,23 @@
   #undef BEEPER_PIN
 
   // TODO: Remap EXP1/2 based on adapter
-  #define LCD_PINS_RS                         27
-  #define LCD_PINS_ENABLE                     29
-  #define LCD_PINS_D4                         37
-  #define LCD_PINS_D5                         35
-  #define LCD_PINS_D6                         33
-  #define LCD_PINS_D7                         31
+  #define LCD_PINS_RS                      PinA5
+  #define LCD_PINS_ENABLE                  PinA7
+  #define LCD_PINS_D4                      PinC0
+  #define LCD_PINS_D5                      PinC2
+  #define LCD_PINS_D6                      PinC4
+  #define LCD_PINS_D7                      PinC6
 
   // Buttons
-  #define BTN_EN1                             16
-  #define BTN_EN2                             17
-  #define BTN_ENC                             23
+  #define BTN_EN1                          PinH1
+  #define BTN_EN2                          PinH0
+  #define BTN_ENC                          PinA1
 
   #define LCD_PINS_DEFINED
 
 #else
 
-  #define BEEPER_PIN                          33
+  #define BEEPER_PIN                       PinC4
 
 #endif // HAS_WIRED_LCD && IS_NEWPANEL
 
@@ -157,6 +166,6 @@
   #define BOARD_ST7920_DELAY_3                 0
 #endif
 
-#define SD_DETECT_PIN                         53
+#define SD_DETECT_PIN                      PinB0
 
 #include "pins_RAMPS.h"

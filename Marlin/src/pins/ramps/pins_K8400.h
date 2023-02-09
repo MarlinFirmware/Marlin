@@ -24,6 +24,9 @@
 /**
  * Velleman K8400 (Vertex)
  * 3DRAG clone
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Velleman%20K8400/k8400-schema-electronique.jpg
+ * Origin: https://filimprimante3d.fr/documents/k8400-schema-electronique.jpg
+ * ATmega2560, ATmega1280
  *
  * K8400 has some minor differences over a normal 3Drag:
  *  - No X/Y max endstops
@@ -32,23 +35,27 @@
  *  - Second heater has moved pin
  */
 
-#define BOARD_INFO_NAME         "K8400"
+#define BOARD_INFO_NAME         "Velleman K8400"
 #define DEFAULT_MACHINE_NAME    "Vertex"
 
 //
 // Steppers
 //
 #if HAS_CUTTER
-  #define Z_STEP_PIN                          32
+  #define Z_STEP_PIN                          PinC5
 #endif
 
-#define E1_STEP_PIN                           32
+#define E1_STEP_PIN                           PinC5
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             3
-#define Y_STOP_PIN                            14
+#define X_STOP_PIN                            PinE5
+#define Y_STOP_PIN                            PinJ1
+
+#if EITHER(BLTOUCH, TOUCH_MI_PROBE)
+  #define INVERTED_PROBE_STATE
+#endif
 
 #if EITHER(BLTOUCH, TOUCH_MI_PROBE)
   #define INVERTED_PROBE_STATE
@@ -60,7 +67,7 @@
 // Heaters / Fans
 //
 #undef HEATER_1_PIN
-#define HEATER_1_PIN                          11
+#define HEATER_1_PIN                          PinB5
 
 //
 // Misc. Functions

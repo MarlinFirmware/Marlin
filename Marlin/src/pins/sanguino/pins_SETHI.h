@@ -55,69 +55,72 @@
 #define BOARD_INFO_NAME "Sethi 3D_1"
 
 #ifndef GEN7_VERSION
-  #define GEN7_VERSION                        12  // v1.x
+  #define GEN7_VERSION                        PinD4  // v1.x
 #endif
+
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             2
-#define Y_STOP_PIN                             0
-#define Z_MIN_PIN                              1
-#define Z_MAX_PIN                              0
+#define X_STOP_PIN                            PinB2
+#define Y_STOP_PIN                            PinB0
+#define Z_MIN_PIN                             PinB1
+#define Z_MAX_PIN                             PinB0
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            19
-#define X_DIR_PIN                             18
-#define X_ENABLE_PIN                          24
+#define X_STEP_PIN                            PinC3
+#define X_DIR_PIN                             PinC2
+#define X_ENABLE_PIN                          PinA7
 
-#define Y_STEP_PIN                            23
-#define Y_DIR_PIN                             22
-#define Y_ENABLE_PIN                          24
+#define Y_STEP_PIN                            PinC7
+#define Y_DIR_PIN                             PinC6
+#define Y_ENABLE_PIN                          PinA7
 
-#define Z_STEP_PIN                            26
-#define Z_DIR_PIN                             25
-#define Z_ENABLE_PIN                          24
+#define Z_STEP_PIN                            PinA5
+#define Z_DIR_PIN                             PinA6
+#define Z_ENABLE_PIN                          PinA7
 
-#define E0_STEP_PIN                           28
-#define E0_DIR_PIN                            27
-#define E0_ENABLE_PIN                         24
+#define E0_STEP_PIN                           PinA3
+#define E0_DIR_PIN                            PinA4
+#define E0_ENABLE_PIN                         PinA7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_0_PIN                            PinB1  // Analog Input
+#define TEMP_BED_PIN                          PinB2  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           4
-#define HEATER_BED_PIN                         3
+#define HEATER_0_PIN                          PinB4
+#define HEATER_BED_PIN                        PinB3
 
 #ifndef FAN_PIN
   #if GEN7_VERSION >= 13
     // Gen7 v1.3 removed the fan pin
     #define FAN_PIN                           -1
   #else
-    #define FAN_PIN                           31
+    #define FAN_PIN                           PinA0
   #endif
 #endif
 
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                             15
+#define PS_ON_PIN                             PinD7
 
 // All these generations of Gen7 supply thermistor power
 // via PS_ON, so ignore bad thermistor readings
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD     2000
 
 // our pin for debugging.
-#define DEBUG_PIN                              0
+#define DEBUG_PIN                             PinB0
 
 // our RS485 pins
-#define TX_ENABLE_PIN                         12
-#define RX_ENABLE_PIN                         13
+#define TX_ENABLE_PIN                         PinD4
+#define RX_ENABLE_PIN                         PinD5

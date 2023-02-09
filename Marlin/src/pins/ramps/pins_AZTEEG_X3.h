@@ -23,6 +23,9 @@
 
 /**
  * AZTEEG_X3 Arduino Mega with RAMPS v1.4 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/AZTEEG_X3/AZTEEG%20X3%20PUB%20v1.12.pdf
+ * Origin: http://files.panucatt.com/datasheets/azteegx3_designfiles.zip
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560
@@ -33,15 +36,17 @@
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
-  #define CASE_LIGHT_PIN                       6  // Define before RAMPS pins include
+  #define CASE_LIGHT_PIN                      PinH3  // Define before RAMPS pins include
 #endif
 #define BOARD_INFO_NAME "Azteeg X3"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //
 // Servos
 //
-#define SERVO0_PIN                            44  // SERVO1 port
-#define SERVO1_PIN                            55  // SERVO2 port
+#define SERVO0_PIN                            PinL5  // SERVO1 port
+#define SERVO1_PIN                            PinF1  // SERVO2 port
 
 #include "pins_RAMPS_13.h" // ... RAMPS
 
@@ -56,17 +61,17 @@
   #undef DOGLCD_A0
   #undef DOGLCD_CS
   #undef BTN_ENC
-  #define DOGLCD_A0                           31
-  #define DOGLCD_CS                           32
-  #define BTN_ENC                             12
+  #define DOGLCD_A0                           PinC6
+  #define DOGLCD_CS                           PinC5
+  #define BTN_ENC                             PinB6
 
-  #define STAT_LED_RED_PIN                    64
-  #define STAT_LED_BLUE_PIN                   63
+  #define STAT_LED_RED_PIN                    PinK2
+  #define STAT_LED_BLUE_PIN                   PinK1
 
 #else
 
-  #define STAT_LED_RED_PIN                     6
-  #define STAT_LED_BLUE_PIN                   11
+  #define STAT_LED_RED_PIN                    PinH3
+  #define STAT_LED_BLUE_PIN                   PinB5
 
 #endif
 
@@ -87,11 +92,11 @@
 #if HAS_CUTTER
   #undef SDA                                      // use EXP3 header
   #undef SCL
-  #if SERVO0_PIN == 7
+  #if SERVO0_PIN == PinH4
     #undef SERVO0_PIN
-    #define SERVO0_PIN                        11
+    #define SERVO0_PIN                        PinB5
   #endif
-  #define SPINDLE_LASER_PWM_PIN                7  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               20  // Pullup!
-  #define SPINDLE_DIR_PIN                     21
+  #define SPINDLE_LASER_PWM_PIN               PinH4  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               PinD1  // Pullup!
+  #define SPINDLE_DIR_PIN                     PinD0
 #endif

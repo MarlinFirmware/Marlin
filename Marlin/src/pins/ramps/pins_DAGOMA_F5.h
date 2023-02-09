@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2560
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Dagoma3D F5 supports up to 2 hotends / E steppers."
 #endif
@@ -30,13 +32,13 @@
 //
 // Endstops
 //
-#define X_STOP_PIN                             2
-#define Y_STOP_PIN                             3
-#define Z_STOP_PIN                            15
+#define X_STOP_PIN                         PinE4
+#define Y_STOP_PIN                         PinE5
+#define Z_STOP_PIN                         PinJ0
 
-#define FIL_RUNOUT_PIN                        39
+#define FIL_RUNOUT_PIN                     PinG2
 #if EXTRUDERS > 1
-  #define FIL_RUNOUT2_PIN                     14
+  #define FIL_RUNOUT2_PIN                  PinJ1
 #endif
 
 // Alter timing for graphical display

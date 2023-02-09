@@ -21,6 +21,8 @@
  */
 #pragma once
 
+// ATmega2560
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Creality RAMPS supports up to 2 hotends / E steppers."
 #endif
@@ -30,12 +32,12 @@
 //
 // Heaters / Fans
 //
-#define MOSFET_B_PIN                           7  // For HEATER_1_PIN ("EEF" or "EEB")
-#define FAN_PIN                                9
+#define MOSFET_B_PIN                          PinH4  // For HEATER_1_PIN ("EEF" or "EEB")
+#define FAN_PIN                               PinH6
 
-#define FIL_RUNOUT_PIN                         2
+#define FIL_RUNOUT_PIN                        PinE4
 #if NUM_RUNOUT_SENSORS >= 2
-  #define FIL_RUNOUT2_PIN                     15  // Creality CR-X can use dual runout sensors
+  #define FIL_RUNOUT2_PIN                     PinJ0  // Creality CR-X can use dual runout sensors
 #endif
 
 #ifndef SD_DETECT_PIN
@@ -43,30 +45,30 @@
     //#define HAS_ONBOARD_SD_DETECT               // If the SD_DETECT_PIN is wired up
   #endif
   #if ENABLED(HAS_ONBOARD_SD_DETECT) || !SD_CONNECTION_IS(ONBOARD)
-    #define SD_DETECT_PIN                     49
+    #define SD_DETECT_PIN                     PinL0
   #endif
 #endif
 
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN                           40  // Used by CR2020 Industrial series
+  #define PS_ON_PIN                           PinG1  // Used by CR2020 Industrial series
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN)
-  #define CASE_LIGHT_PIN                      65
+  #define CASE_LIGHT_PIN                      PinK3
 #endif
 
 #include "pins_RAMPS.h"
 
 #ifndef BEEPER_PIN
-  #define BEEPER_PIN                          37  // Always define beeper pin so Play Tone works with ExtUI
+  #define BEEPER_PIN                          PinC0  // Always define beeper pin so Play Tone works with ExtUI
 #endif
 
-#define EXP1_PIN                              65  // A11 - Used by CR2020 Industrial series for case
-#define EXP2_PIN                              66  // A12
-#define EXP3_PIN                              11  // SERVO0_PIN
-#define EXP4_PIN                              12  // PS_ON_PIN
+#define EXP1_PIN                              PinK3  // A11 - Used by CR2020 Industrial series for case
+#define EXP2_PIN                              PinK4  // A12
+#define EXP3_PIN                              PinB5  // SERVO0_PIN
+#define EXP4_PIN                              PinB6  // PS_ON_PIN
 
-#define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
+#define SUICIDE_PIN                           PinB6  // Used by CR2020 Industrial series
 #ifndef SUICIDE_PIN_STATE
   #define SUICIDE_PIN_STATE                 HIGH
 #endif

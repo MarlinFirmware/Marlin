@@ -23,12 +23,16 @@
 
 /**
  * Einsy-Rambo pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Rambo/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
+ * Origin: https://github.com/ultimachine/Einsy-Rambo/blob/1.1a/board/Project%20Outputs/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
  */
 
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME       "Einsy Rambo"
 #define DEFAULT_MACHINE_NAME  "Prusa MK3"
+
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
 
 //#define MK3_FAN_PINS
 
@@ -40,10 +44,10 @@
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
-#define X_DIAG_PIN                            64
-#define Y_DIAG_PIN                            69
-#define Z_DIAG_PIN                            68
-#define E0_DIAG_PIN                           65
+#define X_DIAG_PIN                            PinK2
+#define Y_DIAG_PIN                            PinK7
+#define Z_DIAG_PIN                            PinK6
+#define E0_DIAG_PIN                           PinK3
 
 //
 // Limit Switches
@@ -56,9 +60,9 @@
 
 #if DISABLED(SENSORLESS_HOMING)
 
-  #define X_STOP_PIN                          12
-  #define Y_STOP_PIN                          11
-  #define Z_STOP_PIN                          10
+  #define X_STOP_PIN                          PinB6
+  #define Y_STOP_PIN                          PinB5
+  #define Z_STOP_PIN                          PinB4
 
 #else
 
@@ -66,10 +70,10 @@
   #define Y_STOP_PIN                  Y_DIAG_PIN
 
   #if ENABLED(BLTOUCH)
-    #define Z_STOP_PIN                        11  // Y-MIN
-    #define SERVO0_PIN                        10  // Z-MIN
+    #define Z_STOP_PIN                        PinB5  // Y-MIN
+    #define SERVO0_PIN                        PinB4  // Z-MIN
   #else
-    #define Z_STOP_PIN                        10
+    #define Z_STOP_PIN                        PinB4
   #endif
 
 #endif
@@ -78,59 +82,60 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     10
+  #define Z_MIN_PROBE_PIN                     PinB4
 #endif
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      62
+  #define FIL_RUNOUT_PIN                      PinK0
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            37
-#define X_DIR_PIN                             49
-#define X_ENABLE_PIN                          29
-#define X_CS_PIN                              41
+#define X_STEP_PIN                            PinC0
+#define X_DIR_PIN                             PinL0
+#define X_ENABLE_PIN                          PinA7
+#define X_CS_PIN                              PinG0
 
-#define Y_STEP_PIN                            36
-#define Y_DIR_PIN                             48
-#define Y_ENABLE_PIN                          28
-#define Y_CS_PIN                              39
+#define Y_STEP_PIN                            PinC1
+#define Y_DIR_PIN                             PinL1
+#define Y_ENABLE_PIN                          PinA6
+#define Y_CS_PIN                              PinG2
 
-#define Z_STEP_PIN                            35
-#define Z_DIR_PIN                             47
-#define Z_ENABLE_PIN                          27
-#define Z_CS_PIN                              67
+#define Z_STEP_PIN                            PinC2
+#define Z_DIR_PIN                             PinL2
+#define Z_ENABLE_PIN                          PinA5
+#define Z_CS_PIN                              PinK5
 
-#define E0_STEP_PIN                           34
-#define E0_DIR_PIN                            43
-#define E0_ENABLE_PIN                         26
-#define E0_CS_PIN                             66
+#define E0_STEP_PIN                           PinC3
+#define E0_DIR_PIN                            PinL6
+#define E0_ENABLE_PIN                         PinA4
+#define E0_CS_PIN                             PinK4
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input, Header J2
-#define TEMP_1_PIN                             1  // Analog Input, Header J3
+#define TEMP_0_PIN                            PinE0  // Analog Input, Header J2
+#define TEMP_1_PIN                            PinE1  // Analog Input, Header J3
+// FATAL ERROR: TEMP_BOARD_PIN does not exist!
 #define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
-#define TEMP_BED_PIN                           2  // Analog Input, Header J6
-#define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
+#define TEMP_BED_PIN                          PinE4  // Analog Input, Header J6
+#define TEMP_PROBE_PIN                        PinE5  // Analog Input, Header J15
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           3
-#define HEATER_BED_PIN                         4
+#define HEATER_0_PIN                          PinE5
+#define HEATER_BED_PIN                        PinG5
 
 #ifndef FAN_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN_PIN                            6
+    #define FAN_PIN                           PinH3
   #else
-    #define FAN_PIN                            8
+    #define FAN_PIN                           PinH5
   #endif
 #endif
 
@@ -138,7 +143,7 @@
   #ifdef MK3_FAN_PINS
     #define FAN1_PIN                          -1
   #else
-    #define FAN1_PIN                           6
+    #define FAN1_PIN                          PinH3
   #endif
 #endif
 
@@ -153,29 +158,29 @@
  *               P1                               P2                               P3
  */
 
-#define EXP1_01_PIN                           84
-#define EXP1_02_PIN                            9
-#define EXP1_03_PIN                           61
-#define EXP1_04_PIN                           82
-#define EXP1_05_PIN                           59
-#define EXP1_06_PIN                           70
-#define EXP1_07_PIN                           85
-#define EXP1_08_PIN                           71
+#define EXP1_01_PIN                           PinH2
+#define EXP1_02_PIN                           PinH6
+#define EXP1_03_PIN                           PinF7
+#define EXP1_04_PIN                           PinD5
+#define EXP1_05_PIN                           PinF5
+#define EXP1_06_PIN                           PinG4
+#define EXP1_07_PIN                           PinH7
+#define EXP1_08_PIN                           PinG3
 
-#define EXP2_01_PIN                           50
-#define EXP2_02_PIN                           52
-#define EXP2_03_PIN                           72
-#define EXP2_04_PIN                           77
-#define EXP2_05_PIN                           14
-#define EXP2_06_PIN                           51
-#define EXP2_07_PIN                           15
+#define EXP2_01_PIN                           PinB3
+#define EXP2_02_PIN                           PinB1
+#define EXP2_03_PIN                           PinJ2
+#define EXP2_04_PIN                           PinJ6
+#define EXP2_05_PIN                           PinJ1
+#define EXP2_06_PIN                           PinB2
+#define EXP2_07_PIN                           PinJ0
 #define EXP2_08_PIN                           -1
 
 //
 // Misc. Functions
 //
 #define SDSS                         EXP2_04_PIN
-#define LED_PIN                               13
+#define LED_PIN                               PinB7
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN             EXP1_02_PIN
@@ -186,16 +191,16 @@
 //
 // use P1 connector for spindle pins
 #define SPINDLE_LASER_PWM_PIN        EXP1_02_PIN  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
-#define SPINDLE_DIR_PIN                       19
+#define SPINDLE_LASER_ENA_PIN                 PinD3  // Pullup!
+#define SPINDLE_DIR_PIN                       PinD2
 
 //
 // Průša i3 MK2 Multiplexer Support
 //
 #if HAS_PRUSA_MMU1
-  #define E_MUX0_PIN                          17
-  #define E_MUX1_PIN                          16
-  #define E_MUX2_PIN                          78  // 84 in MK2 Firmware, with BEEPER as 78
+  #define E_MUX0_PIN                          PinH0
+  #define E_MUX1_PIN                          PinH1
+  #define E_MUX2_PIN                          PinE2  // 84 in MK2 Firmware, with BEEPER as 78
 #endif
 
 //
@@ -203,7 +208,7 @@
 //
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
-  #define KILL_PIN                            32
+  #define KILL_PIN                            PinC5
 
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 

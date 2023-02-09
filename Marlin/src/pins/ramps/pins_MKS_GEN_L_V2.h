@@ -23,6 +23,9 @@
 
 /**
  * MKS GEN L V2 – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/MKS%20GEN%20L%20V2.0/MKS%20Gen_L%20V2.0_001%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/MKS-GEN_L/blob/master/hardware/MKS%20Gen_L%20V2.0_001/MKS%20Gen_L%20V2.0_001%20SCH.pdf
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -35,7 +38,7 @@
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN                           7
+#define MOSFET_D_PIN                          PinH4
 
 //
 // CS Pins wired to avoid conflict with the LCD
@@ -43,47 +46,47 @@
 //
 
 #ifndef X_CS_PIN
-  #define X_CS_PIN                            63
+  #define X_CS_PIN                            PinK1
 #endif
 
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                            64
+  #define Y_CS_PIN                            PinK2
 #endif
 
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                            65
+  #define Z_CS_PIN                            PinK3
 #endif
 
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                           66
+  #define E0_CS_PIN                           PinK4
 #endif
 
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                           21
+  #define E1_CS_PIN                           PinD0
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
-#define X_DIAG_PIN                             3
-#define Y_DIAG_PIN                            14
-#define Z_DIAG_PIN                            18
-#define E0_DIAG_PIN                            2
-#define E1_DIAG_PIN                           15
+#define X_DIAG_PIN                            PinE5
+#define Y_DIAG_PIN                            PinJ1
+#define Z_DIAG_PIN                            PinD3
+#define E0_DIAG_PIN                           PinE4
+#define E1_DIAG_PIN                           PinJ0
 
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN                          12
+  #define SERVO1_PIN                          PinB6
 #endif
 #ifndef SERVO2_PIN
-  #define SERVO2_PIN                          39
+  #define SERVO2_PIN                          PinG2
 #endif
 #ifndef SERVO3_PIN
-  #define SERVO3_PIN                          32
+  #define SERVO3_PIN                          PinC5
 #endif
 
 #ifndef E1_SERIAL_TX_PIN
-  #define E1_SERIAL_TX_PIN                    20
+  #define E1_SERIAL_TX_PIN                    PinD1
 #endif
 #ifndef E1_SERIAL_RX_PIN
-  #define E1_SERIAL_RX_PIN                    21
+  #define E1_SERIAL_RX_PIN                    PinD0
 #endif
 
 #include "pins_RAMPS.h"

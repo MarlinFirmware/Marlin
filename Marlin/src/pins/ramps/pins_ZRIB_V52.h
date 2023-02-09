@@ -22,7 +22,10 @@
 #pragma once
 
 /**
- * ZRIB V5.2 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ZONESTAR ZRIB V5.2 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/ZONESTAR%20ZRIB%20V5.2/ZRIB_V52_Schematic.pdf
+ * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZRIB/ZRIB_V5/ZRIB_V52_Schematic.pdf
+ * ATmega2560, ATmega1280
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
@@ -36,25 +39,25 @@
 //
 // Heaters / Fans
 //
-#define HEATER_1_PIN                           7
-#define FAN_PIN                                9  // PH6 ** Pin18 ** PWM9
-#define FAN1_PIN                               6
+#define HEATER_1_PIN                          PinH4
+#define FAN_PIN                               PinH6  // PH6 ** Pin18 ** PWM9
+#define FAN1_PIN                              PinH3
 
 //
 // Extra Extruder / Stepper for V5.2
 //
-#define E2_STEP_PIN                            4
-#define E2_DIR_PIN                             5
-#define E2_ENABLE_PIN                         22
+#define E2_STEP_PIN                           PinG5
+#define E2_DIR_PIN                            PinE3
+#define E2_ENABLE_PIN                         PinA0
 
 //
 // Servos / XS3 Connector
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                          65  // PWM
+  #define SERVO0_PIN                          PinK3  // PWM
 #endif
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN                          66  // PWM
+  #define SERVO1_PIN                          PinK4  // PWM
 #endif
 
 #include "pins_MKS_BASE_common.h" // ... RAMPS

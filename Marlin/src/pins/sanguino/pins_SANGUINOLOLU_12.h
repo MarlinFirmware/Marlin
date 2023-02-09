@@ -23,6 +23,12 @@
 
 /**
  * Sanguinololu V1.2 pin assignments
+ * Schematic (1.2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.2/schematic.png
+ * Origin (1.2): https://github.com/mosfet/Sanguinololu/blob/master/rev1.2/sanguinololu.sch
+ * Schematic (1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.3/schematic.png
+ * Origin (1.3): https://github.com/mosfet/Sanguinololu/blob/master/rev1.3/sanguinololu.sch
+ * Schematic (1.3a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.3a/schematic.png
+ * Origin (1.3a): https://github.com/mosfet/Sanguinololu/blob/master/rev1.3a/sanguinololu.sch
  *
  * Applies to the following boards:
  *
@@ -38,16 +44,18 @@
   #define BOARD_INFO_NAME "Sanguinololu 1.2"
 #endif
 
-#define HEATER_BED_PIN                        12  // (bed)
-#define X_ENABLE_PIN                          14
-#define Y_ENABLE_PIN                          14
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
+#define HEATER_BED_PIN                        PinD4  // (bed)
+#define X_ENABLE_PIN                          PinD6
+#define Y_ENABLE_PIN                          PinD6
 #ifndef Z_ENABLE_PIN
-  #define Z_ENABLE_PIN                        26
+  #define Z_ENABLE_PIN                        PinA5
 #endif
-#define E0_ENABLE_PIN                         14
+#define E0_ENABLE_PIN                         PinD6
 
 #if !defined(FAN_PIN) && ENABLED(LCD_I2C_PANELOLU2)
-  #define FAN_PIN                              4  // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
+  #define FAN_PIN                             PinB4  // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
 #endif
 
 #define SANGUINOLOLU_V_1_2

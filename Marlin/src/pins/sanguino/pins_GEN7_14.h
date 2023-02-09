@@ -23,6 +23,10 @@
 
 /**
  * Gen7 v1.4 pin assignments
+ * Schematic (1.4): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen7%20v1.4/Gen7Board%201.4%20Schematic.pdf
+ * Origin (1.4): https://github.com/Traumflug/Generation_7_Electronics/blob/Gen7Board-1.4/release%20documents/Gen7Board%201.4%20Schematic.pdf
+ * Schematic (1.4.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen7%20v1.4.1/Gen7Board%201.4.1%20Schematic.pdf
+ * Origin (1.4.1): https://github.com/Traumflug/Generation_7_Electronics/blob/Gen7Board-1.4.1/release%20documents/Gen7Board%201.4.1%20Schematic.pdf
  */
 
 /**
@@ -57,63 +61,66 @@
 
 #define GEN7_VERSION                          14  // v1.4
 
+// Holy moly! Check the schematic! Ring the alarm bells!
+#define AVR_CHIPOSCILLATOR_FREQ 20000000
+
 //
 // Limit switches
 //
-#define X_STOP_PIN                             0
-#define Y_STOP_PIN                             1
-#define Z_STOP_PIN                             2
+#define X_STOP_PIN                            PinB0
+#define Y_STOP_PIN                            PinB1
+#define Z_STOP_PIN                            PinB2
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            29
-#define X_DIR_PIN                             28
-#define X_ENABLE_PIN                          25
+#define X_STEP_PIN                            PinA2
+#define X_DIR_PIN                             PinA3
+#define X_ENABLE_PIN                          PinA6
 
-#define Y_STEP_PIN                            27
-#define Y_DIR_PIN                             26
-#define Y_ENABLE_PIN                          25
+#define Y_STEP_PIN                            PinA4
+#define Y_DIR_PIN                             PinA5
+#define Y_ENABLE_PIN                          PinA6
 
-#define Z_STEP_PIN                            23
-#define Z_DIR_PIN                             22
-#define Z_ENABLE_PIN                          25
+#define Z_STEP_PIN                            PinC7
+#define Z_DIR_PIN                             PinC6
+#define Z_ENABLE_PIN                          PinA6
 
-#define E0_STEP_PIN                           19
-#define E0_DIR_PIN                            18
-#define E0_ENABLE_PIN                         25
+#define E0_STEP_PIN                           PinC3
+#define E0_DIR_PIN                            PinC2
+#define E0_ENABLE_PIN                         PinA6
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           0  // Analog Input
+#define TEMP_0_PIN                            PinB1  // Analog Input
+#define TEMP_BED_PIN                          PinB0  // Analog Input
 
 //
 // Heaters
 //
-#define HEATER_0_PIN                           4
-#define HEATER_BED_PIN                         3
+#define HEATER_0_PIN                          PinB4
+#define HEATER_BED_PIN                        PinB3
 
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                             15
+#define PS_ON_PIN                             PinD7
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                      15  // Hardware PWM
+  #define CASE_LIGHT_PIN                      PinD7  // Hardware PWM
 #endif
 
 // A pin for debugging
-#define DEBUG_PIN                              0
+#define DEBUG_PIN                             PinB0
 
 // RS485 pins
-#define TX_ENABLE_PIN                         12
-#define RX_ENABLE_PIN                         13
+#define TX_ENABLE_PIN                         PinD4
+#define RX_ENABLE_PIN                         PinD5
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN                 20  // Pullup or pulldown!
-#define SPINDLE_LASER_PWM_PIN                 16  // Hardware PWM
-#define SPINDLE_DIR_PIN                       21
+#define SPINDLE_LASER_ENA_PIN                 PinC4  // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN                 PinC0  // Hardware PWM
+#define SPINDLE_DIR_PIN                       PinC5

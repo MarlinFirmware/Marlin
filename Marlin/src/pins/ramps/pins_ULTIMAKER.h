@@ -23,6 +23,7 @@
 
 /**
  * Ultimaker pin assignments
+ * ATmega2560, ATmega1280
  */
 
 /**
@@ -39,79 +40,82 @@
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
 #define DEFAULT_SOURCE_CODE_URL "github.com/Ultimaker/Marlin"
 
+// Just a guess?
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // Servos
 //
-#define SERVO0_PIN                            11
+#define SERVO0_PIN                            PinB5
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             22
-#define X_MAX_PIN                             24
-#define Y_MIN_PIN                             26
-#define Y_MAX_PIN                             28
-#define Z_MIN_PIN                             30
-#define Z_MAX_PIN                             32
+#define X_MIN_PIN                             PinA0
+#define X_MAX_PIN                             PinA2
+#define Y_MIN_PIN                             PinA4
+#define Y_MAX_PIN                             PinA6
+#define Z_MIN_PIN                             PinC7
+#define Z_MAX_PIN                             PinC5
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     32
+  #define Z_MIN_PROBE_PIN                     PinC5
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            25
-#define X_DIR_PIN                             23
-#define X_ENABLE_PIN                          27
+#define X_STEP_PIN                            PinA3
+#define X_DIR_PIN                             PinA1
+#define X_ENABLE_PIN                          PinA5
 
-#define Y_STEP_PIN                            31
-#define Y_DIR_PIN                             33
-#define Y_ENABLE_PIN                          29
+#define Y_STEP_PIN                            PinC6
+#define Y_DIR_PIN                             PinC4
+#define Y_ENABLE_PIN                          PinA7
 
-#define Z_STEP_PIN                            37
-#define Z_DIR_PIN                             39
-#define Z_ENABLE_PIN                          35
+#define Z_STEP_PIN                            PinC0
+#define Z_DIR_PIN                             PinG2
+#define Z_ENABLE_PIN                          PinC2
 
-#define E0_STEP_PIN                           43
-#define E0_DIR_PIN                            45
-#define E0_ENABLE_PIN                         41
+#define E0_STEP_PIN                           PinL6
+#define E0_DIR_PIN                            PinL4
+#define E0_ENABLE_PIN                         PinG0
 
-#define E1_STEP_PIN                           49
-#define E1_DIR_PIN                            47
-#define E1_ENABLE_PIN                         48
+#define E1_STEP_PIN                           PinL0
+#define E1_DIR_PIN                            PinL2
+#define E1_ENABLE_PIN                         PinL1
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             8  // Analog Input
-#define TEMP_1_PIN                             9  // Analog Input
-#define TEMP_BED_PIN                          10  // Analog Input
+#define TEMP_0_PIN                            PinH5  // Analog Input
+#define TEMP_1_PIN                            PinH6  // Analog Input
+#define TEMP_BED_PIN                          PinB4  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           2
-#define HEATER_1_PIN                           3
-#define HEATER_BED_PIN                         4
+#define HEATER_0_PIN                          PinE4
+#define HEATER_1_PIN                          PinE5
+#define HEATER_BED_PIN                        PinG5
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              7
+  #define FAN_PIN                             PinH4
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS                                  53
-#define LED_PIN                               13
-#define PS_ON_PIN                             12
-#define SUICIDE_PIN                           54  // PIN that has to be turned on right after start, to keep power flowing.
+#define SDSS                                  PinB0
+#define LED_PIN                               PinB7
+#define PS_ON_PIN                             PinB6
+#define SUICIDE_PIN                           PinF0  // PIN that has to be turned on right after start, to keep power flowing.
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       8
+  #define CASE_LIGHT_PIN                      PinH5
 #endif
 
 //
@@ -119,38 +123,38 @@
 //
 #if HAS_WIRED_LCD
 
-  #define BEEPER_PIN                          18
+  #define BEEPER_PIN                          PinD3
 
   #if IS_NEWPANEL
 
-    #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
-    #define LCD_PINS_D4                       16
-    #define LCD_PINS_D5                       21
-    #define LCD_PINS_D6                        5
-    #define LCD_PINS_D7                        6
+    #define LCD_PINS_RS                       PinD1
+    #define LCD_PINS_ENABLE                   PinH0
+    #define LCD_PINS_D4                       PinH1
+    #define LCD_PINS_D5                       PinD0
+    #define LCD_PINS_D6                       PinE3
+    #define LCD_PINS_D7                       PinH3
 
     // Buttons directly attached
-    #define BTN_EN1                           40
-    #define BTN_EN2                           42
-    #define BTN_ENC                           19
+    #define BTN_EN1                           PinG1
+    #define BTN_EN2                           PinL7
+    #define BTN_ENC                           PinD2
 
-    #define SD_DETECT_PIN                     38
+    #define SD_DETECT_PIN                     PinD7
 
   #else                                           // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
-    #define SHIFT_CLK_PIN                     38
-    #define SHIFT_LD_PIN                      42
-    #define SHIFT_OUT_PIN                     40
-    #define SHIFT_EN_PIN                      17
+    #define SHIFT_CLK_PIN                     PinD7
+    #define SHIFT_LD_PIN                      PinL7
+    #define SHIFT_OUT_PIN                     PinG1
+    #define SHIFT_EN_PIN                      PinH0
 
-    #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
-    #define LCD_PINS_D4                        6
-    #define LCD_PINS_D5                       21
-    #define LCD_PINS_D6                       20
-    #define LCD_PINS_D7                       19
+    #define LCD_PINS_RS                       PinH1
+    #define LCD_PINS_ENABLE                   PinE3
+    #define LCD_PINS_D4                       PinH3
+    #define LCD_PINS_D5                       PinD0
+    #define LCD_PINS_D6                       PinD1
+    #define LCD_PINS_D7                       PinD2
 
     #define SD_DETECT_PIN                     -1
 
@@ -161,6 +165,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 10  // Pullup!
-#define SPINDLE_DIR_PIN                       11  // use the EXP3 PWM header
+#define SPINDLE_LASER_PWM_PIN                 PinH6  // Hardware PWM
+#define SPINDLE_LASER_ENA_PIN                 PinB4  // Pullup!
+#define SPINDLE_DIR_PIN                       PinB5  // use the EXP3 PWM header

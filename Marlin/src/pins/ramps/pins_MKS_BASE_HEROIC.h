@@ -23,6 +23,7 @@
 
 /**
  * MKS BASE with Heroic HR4982 stepper drivers
+ * ATmega2560
  */
 
 #include "pins_MKS_BASE_15.h" // ... MKS_BASE_common ... RAMPS

@@ -23,12 +23,17 @@
 
 /**
  * Geeetech GT2560 Revision A+ board pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20Revision%20A+/Hardware_GT2560_RevA+.pdf
+ * Origin: https://www.geeetech.com/wiki/images/d/d3/Hardware_GT2560_RevA%2B.pdf
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "GT2560 Rev.A+"
 
+//#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 #include "pins_GT2560_REV_A.h"
 
 #if DISABLED(BLTOUCH)
-  #define SERVO0_PIN  32
+  #define SERVO0_PIN  PinC5
 #endif

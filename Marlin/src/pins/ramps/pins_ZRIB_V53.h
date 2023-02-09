@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ZONESTAR ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ATmega2560, ATmega1280
  */
 
 #include "env_validate.h"
@@ -35,37 +36,40 @@
 
 #define BOARD_INFO_NAME "ZRIB V5.3"
 
+// Just a wild guess because no schematics!
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 //
 // PIN 12 Connector
 //
-#define PIN_12_PIN                            12
+#define PIN_12_PIN                         PinB6
 
 //
 // XS1 Connector
 //
-#define XS1_01_PIN                            42
-#define XS1_03_PIN                            43
-#define XS1_05_PIN                            44
-#define XS1_07_PIN                            45
-#define XS1_08_PIN                            47
+#define XS1_01_PIN                         PinL7
+#define XS1_03_PIN                         PinL6
+#define XS1_05_PIN                         PinL5
+#define XS1_07_PIN                         PinL4
+#define XS1_08_PIN                         PinL2
 
 //
 // XS6 Connector
 //
-#define XS6_01_PIN                            20
-#define XS6_03_PIN                            52
-#define XS6_05_PIN                            51
-#define XS6_07_PIN                            50
-#define XS6_08_PIN                            21
+#define XS6_01_PIN                         PinD1
+#define XS6_03_PIN                         PinB1
+#define XS6_05_PIN                         PinB2
+#define XS6_07_PIN                         PinB3
+#define XS6_08_PIN                         PinD0
 
 //
 // Servos / XS3 Connector
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                          65  // PWM
+  #define SERVO0_PIN                       PinK3  // PWM
 #endif
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN                          66  // PWM
+  #define SERVO1_PIN                       PinK4  // PWM
 #endif
 
 //
@@ -73,26 +77,26 @@
 //
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
-    #define X_MIN_PIN                          3
+    #define X_MIN_PIN                      PinE5
   #endif
   #ifndef X_MAX_PIN
-    #define X_MAX_PIN                          2
+    #define X_MAX_PIN                      PinE4
   #endif
 #endif
 #ifndef Y_STOP_PIN
   #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                         14
+    #define Y_MIN_PIN                      PinJ1
   #endif
   #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                         15
+    #define Y_MAX_PIN                      PinJ0
   #endif
 #endif
 #ifndef Z_STOP_PIN
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                         18
+    #define Z_MIN_PIN                      PinD3
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                         19
+    #define Z_MAX_PIN                      PinD2
   #endif
 #endif
 
@@ -100,81 +104,81 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     19
+  #define Z_MIN_PROBE_PIN                  PinD2
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            54
-#define X_DIR_PIN                             55
-#define X_ENABLE_PIN                          38
+#define X_STEP_PIN                         PinF0
+#define X_DIR_PIN                          PinF1
+#define X_ENABLE_PIN                       PinD7
 
-#define Y_STEP_PIN                            60
-#define Y_DIR_PIN                             61
-#define Y_ENABLE_PIN                          56
+#define Y_STEP_PIN                         PinF6
+#define Y_DIR_PIN                          PinF7
+#define Y_ENABLE_PIN                       PinF2
 
-#define Z_STEP_PIN                            46
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          62
+#define Z_STEP_PIN                         PinL3
+#define Z_DIR_PIN                          PinL1
+#define Z_ENABLE_PIN                       PinK0
 
 #if NUM_Z_STEPPERS == 2
-  #define Z2_STEP_PIN                         26  // E0 connector
-  #define Z2_DIR_PIN                          28
-  #define Z2_ENABLE_PIN                       24
+  #define Z2_STEP_PIN                      PinA4  // E0 connector
+  #define Z2_DIR_PIN                       PinA6
+  #define Z2_ENABLE_PIN                    PinA2
 
-  #define E0_STEP_PIN                         36  // E1 connector
-  #define E0_DIR_PIN                          34
-  #define E0_ENABLE_PIN                       30
+  #define E0_STEP_PIN                      PinC1  // E1 connector
+  #define E0_DIR_PIN                       PinC3
+  #define E0_ENABLE_PIN                    PinC7
 
-  #define E1_STEP_PIN                          4  // E2 connector
-  #define E1_DIR_PIN                           5
-  #define E1_ENABLE_PIN                       22
+  #define E1_STEP_PIN                      PinG5  // E2 connector
+  #define E1_DIR_PIN                       PinE3
+  #define E1_ENABLE_PIN                    PinA0
 #else
-  #define E0_STEP_PIN                         26
-  #define E0_DIR_PIN                          28
-  #define E0_ENABLE_PIN                       24
+  #define E0_STEP_PIN                      PinA4
+  #define E0_DIR_PIN                       PinA6
+  #define E0_ENABLE_PIN                    PinA2
 
-  #define E1_STEP_PIN                         36
-  #define E1_DIR_PIN                          34
-  #define E1_ENABLE_PIN                       30
+  #define E1_STEP_PIN                      PinC1
+  #define E1_DIR_PIN                       PinC3
+  #define E1_ENABLE_PIN                    PinC7
 
-  #define E2_STEP_PIN                          4
-  #define E2_DIR_PIN                           5
-  #define E2_ENABLE_PIN                       22
+  #define E2_STEP_PIN                      PinG5
+  #define E2_DIR_PIN                       PinE3
+  #define E2_ENABLE_PIN                    PinA0
 #endif
 
 //
 // Temperature Sensors
 //
 #ifndef TEMP_0_PIN
-  #define TEMP_0_PIN                          13  // Analog Input
+  #define TEMP_0_PIN                       PinB7  // Analog Input
 #endif
 #ifndef TEMP_1_PIN
-  #define TEMP_1_PIN                          15  // Analog Input
+  #define TEMP_1_PIN                       PinJ0  // Analog Input
 #endif
 #ifndef TEMP_BED_PIN
-  #define TEMP_BED_PIN                        14  // Analog Input
+  #define TEMP_BED_PIN                     PinJ1  // Analog Input
 #endif
 
 //
 // Heaters / Fans Connectors
 //
 
-#define HEATER_0_PIN                          10
-#define HEATER_1_PIN                           7
-#define FAN_PIN                                9
-#define HEATER_BED_PIN                         8
-#define FAN1_PIN                               6
+#define HEATER_0_PIN                       PinB4
+#define HEATER_1_PIN                       PinH4
+#define FAN_PIN                            PinH6
+#define HEATER_BED_PIN                     PinH5
+#define FAN1_PIN                           PinH3
 
 //
 // Misc. Functions
 //
 #ifndef SDSS
-  #define SDSS                                53
+  #define SDSS                             PinB0
 #endif
 
-#define LED_PIN                               13
+#define LED_PIN                            PinB7
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN              XS1_01_PIN
@@ -309,23 +313,23 @@
  */
 
 #ifndef EXP1_08_PIN
-  #define EXP1_01_PIN                         37
-  #define EXP1_02_PIN                         35
-  #define EXP1_03_PIN                         17
-  #define EXP1_04_PIN                         16
-  #define EXP1_05_PIN                         23
-  #define EXP1_06_PIN                         25
-  #define EXP1_07_PIN                         27
-  #define EXP1_08_PIN                         29
+  #define EXP1_01_PIN                      PinC0
+  #define EXP1_02_PIN                      PinC2
+  #define EXP1_03_PIN                      PinH0
+  #define EXP1_04_PIN                      PinH1
+  #define EXP1_05_PIN                      PinA1
+  #define EXP1_06_PIN                      PinA3
+  #define EXP1_07_PIN                      PinA5
+  #define EXP1_08_PIN                      PinA7
 
   #define EXP2_01_PIN                 XS6_07_PIN
   #define EXP2_02_PIN                 XS6_03_PIN
-  #define EXP2_03_PIN                         31
-  #define EXP2_04_PIN                         53
-  #define EXP2_05_PIN                         33
+  #define EXP2_03_PIN                      PinC6
+  #define EXP2_04_PIN                      PinB0
+  #define EXP2_05_PIN                      PinC4
   #define EXP2_06_PIN                 XS6_05_PIN
-  #define EXP2_07_PIN                         49
-  #define EXP2_08_PIN                         41
+  #define EXP2_07_PIN                      PinL0
+  #define EXP2_08_PIN                      PinG0
 #endif
 
 //////////////////////////
@@ -334,26 +338,26 @@
 
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
-  #define LCD_SDSS                            16
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS     (PIN4 of LCD module)
-  #define LCD_PINS_ENABLE                     23  // ST7920_DAT_PIN LCD_PIN_R/W    (PIN5 of LCD module)
-  #define LCD_PINS_D4                         17  // ST7920_CLK_PIN LCD_PIN_ENABLE (PIN6 of LCD module)
-  #define BTN_EN2                             25
-  #define BTN_EN1                             27
-  #define BTN_ENC                             29
-  #define BEEPER_PIN                          37
-  #define KILL_PIN                            35
+  #define LCD_SDSS                         PinH1
+  #define LCD_PINS_RS                      PinH1  // ST7920_CS_PIN  LCD_PIN_RS     (PIN4 of LCD module)
+  #define LCD_PINS_ENABLE                  PinA1  // ST7920_DAT_PIN LCD_PIN_R/W    (PIN5 of LCD module)
+  #define LCD_PINS_D4                      PinH0  // ST7920_CLK_PIN LCD_PIN_ENABLE (PIN6 of LCD module)
+  #define BTN_EN2                          PinA3
+  #define BTN_EN1                          PinA5
+  #define BTN_ENC                          PinA7
+  #define BEEPER_PIN                       PinC0
+  #define KILL_PIN                         PinC2
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "Reprap LCD12864"
   // Use EXP1 & EXP2 connector
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS
-  #define LCD_PINS_ENABLE                     17  // ST7920_DAT_PIN LCD_PIN_ENABLE
-  #define LCD_PINS_D4                         23  // ST7920_CLK_PIN LCD_PIN_R/W
-  #define BTN_EN1                             31
-  #define BTN_EN2                             33
-  #define BTN_ENC                             35
-  #define BEEPER_PIN                          37
-  #define KILL_PIN                            41
+  #define LCD_PINS_RS                      PinH1  // ST7920_CS_PIN  LCD_PIN_RS
+  #define LCD_PINS_ENABLE                  PinH0  // ST7920_DAT_PIN LCD_PIN_ENABLE
+  #define LCD_PINS_D4                      PinA1  // ST7920_CLK_PIN LCD_PIN_R/W
+  #define BTN_EN1                          PinC6
+  #define BTN_EN2                          PinC4
+  #define BTN_ENC                          PinC2
+  #define BEEPER_PIN                       PinC0
+  #define KILL_PIN                         PinG0
 #endif
 
 //================================================================================
@@ -362,21 +366,21 @@
 
 #if EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
-  #define LCD_SDSS                            16
-  #define LCD_PINS_RS                         23  // RESET Pull low for 1s to init
-  #define LCD_PINS_DC                         17
-  #define DOGLCD_CS                           16  // CS
-  #define BTN_EN2                             25
-  #define BTN_EN1                             27
-  #define BTN_ENC                             29
+  #define LCD_SDSS                         PinH1
+  #define LCD_PINS_RS                      PinA1  // RESET Pull low for 1s to init
+  #define LCD_PINS_DC                      PinH0
+  #define DOGLCD_CS                        PinH1  // CS
+  #define BTN_EN2                          PinA3
+  #define BTN_EN1                          PinA5
+  #define BTN_ENC                          PinA7
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
   #if EITHER(OLED_HW_IIC, OLED_HW_SPI)
     #error "Oops! You must choose SW SPI for ZRIB V53 board and connect the OLED screen to EXP1 connector."
   #else                                           // SW_SPI
     #define DOGLCD_A0                LCD_PINS_DC
-    #define DOGLCD_MOSI                       35  // SDA
-    #define DOGLCD_SCK                        37  // SCK
+    #define DOGLCD_MOSI                    PinC2  // SDA
+    #define DOGLCD_SCK                     PinC0  // SCK
   #endif
 #endif // OLED 128x64
 
@@ -392,7 +396,7 @@
   #define LCD_PINS_D5                EXP1_06_PIN
   #define LCD_PINS_D6                EXP1_07_PIN
   #define LCD_PINS_D7                EXP1_08_PIN
-  #define ADC_KEYPAD_PIN                      10  // A10 for ADCKEY
+  #define ADC_KEYPAD_PIN                   PinB4  // A10 for ADCKEY
   #define BEEPER_PIN                 EXP1_01_PIN
 #endif
 

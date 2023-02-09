@@ -25,6 +25,19 @@
  *  Rev B  2 JUN 2017
  *
  *  Converted to Arduino pin numbering
+ * 
+ *  Schematic (RevF): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F/schematic.png
+ *  Origin (RevF): https://github.com/lwalkera/printrboard/raw/revF/Printrboard.sch
+ *  Schematic (RevF2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F2/schematic.png
+ *  Origin (RevF2): https://raw.githubusercontent.com/lwalkera/printrboard/revF2/Printrboard.sch
+ *  Schematic (RevF3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F3/schematic.png
+ *  Origin (RevF3): https://raw.githubusercontent.com/lwalkera/printrboard/revF3/Printrboard.sch
+ *  Schematic (RevF4): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F4/schematic.png
+ *  Origin (RevF4): https://raw.githubusercontent.com/lwalkera/printrboard/revF4/Printrboard.sch
+ *  Schematic (RevF5): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F5/schematic.png
+ *  Origin (RevF5): https://raw.githubusercontent.com/lwalkera/printrboard/revF5/Printrboard.sch
+ *  Schematic (RevF6): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F6/schematic.png
+ *  Origin (RevF6): https://raw.githubusercontent.com/lwalkera/printrboard/revF6/Printrboard.sch
  */
 
 /**
@@ -71,6 +84,8 @@
 
 #define BOARD_INFO_NAME "Printrboard Rev.F"
 
+#define AVR_CHIPOSCILLATOR_FREQ 16000000
+
 // Disable JTAG pins so EXP1 pins work correctly
 // (Its pins are used for the Extrudrboard and filament sensor, for example).
 #define DISABLE_JTAG
@@ -97,51 +112,51 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            47  // E3
-#define Y_STOP_PIN                            24  // B4 PWM2A
-#define Z_STOP_PIN                            36  // E4
+#define X_STOP_PIN                         PinE3  // E3
+#define Y_STOP_PIN                         PinB4  // B4 PWM2A
+#define Z_STOP_PIN                         PinE4  // E4
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            28  // A0
-#define X_DIR_PIN                             29  // A1
-#define X_ENABLE_PIN                          19  // E7
+#define X_STEP_PIN                         PinA0  // A0
+#define X_DIR_PIN                          PinA1  // A1
+#define X_ENABLE_PIN                       PinE7  // E7
 
-#define Y_STEP_PIN                            30  // A2
-#define Y_DIR_PIN                             31  // A3
-#define Y_ENABLE_PIN                          18  // E6
+#define Y_STEP_PIN                         PinA2  // A2
+#define Y_DIR_PIN                          PinA3  // A3
+#define Y_ENABLE_PIN                       PinE6  // E6
 
-#define Z_STEP_PIN                            32  // A4
-#define Z_DIR_PIN                             33  // A5
-#define Z_ENABLE_PIN                          17  // C7
+#define Z_STEP_PIN                         PinA4  // A4
+#define Z_DIR_PIN                          PinA5  // A5
+#define Z_ENABLE_PIN                       PinC7  // C7
 
-#define E0_STEP_PIN                           34  // A6
-#define E0_DIR_PIN                            35  // A7
-#define E0_ENABLE_PIN                         13  // C3
+#define E0_STEP_PIN                        PinA6  // A6
+#define E0_DIR_PIN                         PinA7  // A7
+#define E0_ENABLE_PIN                      PinC3  // C3
 
 #if DISABLED(NO_EXTRUDRBOARD)
 #if DISABLED(NO_EXTRUDRBOARD_OUTPUT_SWAP)
-  #define E1_STEP_PIN                         25  // B5
-  #define E1_DIR_PIN                          37  // E5
-  #define E1_ENABLE_PIN                       42  // F4
+  #define E1_STEP_PIN                      PinB5  // B5
+  #define E1_DIR_PIN                       PinE5  // E5
+  #define E1_ENABLE_PIN                    PinF4  // F4
 
-  #define E2_STEP_PIN                          2  // D2
-  #define E2_DIR_PIN                           3  // D3
-  #define E2_ENABLE_PIN                       43  // F5
+  #define E2_STEP_PIN                      PinD2  // D2
+  #define E2_DIR_PIN                       PinD3  // D3
+  #define E2_ENABLE_PIN                    PinF5  // F5
 #else
-  #define E1_STEP_PIN                          2  // D2
-  #define E1_DIR_PIN                           3  // D3
-  #define E1_ENABLE_PIN                       43  // F5
+  #define E1_STEP_PIN                      PinD2  // D2
+  #define E1_DIR_PIN                       PinD3  // D3
+  #define E1_ENABLE_PIN                    PinF5  // F5
 
-  #define E2_STEP_PIN                         25  // B5
-  #define E2_DIR_PIN                          37  // E5
-  #define E2_ENABLE_PIN                       42  // F4
+  #define E2_STEP_PIN                      PinB5  // B5
+  #define E2_DIR_PIN                       PinE5  // E5
+  #define E2_ENABLE_PIN                    PinF4  // F4
 #endif
 #endif // NO_EXTRUDRBOARD
 
 // Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
-#define HAS_MOTOR_CURRENT_DAC 1
+#define HAS_MOTOR_CURRENT_DAC                  1
 
 // Set default drive strength percents if not already defined - X, Y, Z, E axis
 #ifndef DAC_MOTOR_CURRENT_DEFAULT
@@ -161,37 +176,37 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             1  // Analog Input (Extruder)
-#define TEMP_BED_PIN                           0  // Analog Input (Bed)
+#define TEMP_0_PIN                         PinD1  // Analog Input (Extruder)
+#define TEMP_BED_PIN                       PinD0  // Analog Input (Bed)
 
 #if DISABLED(NO_EXTRUDRBOARD)
 #if DISABLED(NO_EXTRUDRBOARD_OUTPUT_SWAP)
-  #define TEMP_1_PIN                           2  // Analog Input (Extrudrboard A THERM)
-  #define TEMP_2_PIN                           3  // Analog Input (Extrudrboard B THERM)
+  #define TEMP_1_PIN                       PinD2  // Analog Input (Extrudrboard A THERM)
+  #define TEMP_2_PIN                       PinD3  // Analog Input (Extrudrboard B THERM)
 #else
-  #define TEMP_1_PIN                           3  // Analog Input (Extrudrboard B THERM)
-  #define TEMP_2_PIN                           2  // Analog Input (Extrudrboard A THERM)
+  #define TEMP_1_PIN                       PinD3  // Analog Input (Extrudrboard B THERM)
+  #define TEMP_2_PIN                       PinD2  // Analog Input (Extrudrboard A THERM)
 #endif
 #endif
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          15  // C5 PWM3B - Extruder
-#define HEATER_BED_PIN                        14  // C4 PWM3C
+#define HEATER_0_PIN                       PinC5  // C5 PWM3B - Extruder
+#define HEATER_BED_PIN                     PinC4  // C4 PWM3C
 
 #if DISABLED(NO_EXTRUDRBOARD)
 #if DISABLED(NO_EXTRUDRBOARD_OUTPUT_SWAP)
-  #define HEATER_1_PIN                        44  // F6 - Extrudrboard A HOTEND
-  #define HEATER_2_PIN                        45  // F7 - Extrudrboard B HOTEND
+  #define HEATER_1_PIN                     PinF6  // F6 - Extrudrboard A HOTEND
+  #define HEATER_2_PIN                     PinF7  // F7 - Extrudrboard B HOTEND
 #else
-  #define HEATER_1_PIN                        45  // F7 - Extrudrboard B HOTEND
-  #define HEATER_2_PIN                        44  // F6 - Extrudrboard A HOTEND
+  #define HEATER_1_PIN                     PinF7  // F7 - Extrudrboard B HOTEND
+  #define HEATER_2_PIN                     PinF6  // F6 - Extrudrboard A HOTEND
 #endif
 #endif
 
 #ifndef FAN_PIN
-  #define FAN_PIN                             16  // C6 PWM3A
+  #define FAN_PIN                          PinC6  // C6 PWM3A
 #endif
 
 //
@@ -200,27 +215,27 @@
 //#define USE_INTERNAL_SD
 
 #if HAS_WIRED_LCD
-  #define LCD_PINS_RS                          9  // E1       JP11-11
-  #define LCD_PINS_ENABLE                      8  // E0       JP11-10
-  #define LCD_PINS_D4                          7  // D7       JP11-8
-  #define LCD_PINS_D5                          6  // D6       JP11-7
-  #define LCD_PINS_D6                          5  // D5       JP11-6
-  #define LCD_PINS_D7                          4  // D4       JP11-5
+  #define LCD_PINS_RS                      PinE1  // E1       JP11-11
+  #define LCD_PINS_ENABLE                  PinE0  // E0       JP11-10
+  #define LCD_PINS_D4                      PinD7  // D7       JP11-8
+  #define LCD_PINS_D5                      PinD6  // D6       JP11-7
+  #define LCD_PINS_D6                      PinD5  // D5       JP11-6
+  #define LCD_PINS_D7                      PinD4  // D4       JP11-5
 
   #if EITHER(VIKI2, miniVIKI)
 
-    #define BEEPER_PIN                         8  // E0       JP11-10
-    #define DOGLCD_A0                         40  // F2       JP2-2
-    #define DOGLCD_CS                         41  // F3       JP2-4
+    #define BEEPER_PIN                     PinE0  // E0       JP11-10
+    #define DOGLCD_A0                      PinF2  // F2       JP2-2
+    #define DOGLCD_CS                      PinF3  // F3       JP2-4
 
-    #define BTN_EN1                            2  // D2 TX1   JP2-5
-    #define BTN_EN2                            3  // D3 RX1   JP2-7
-    #define BTN_ENC                           45  // F7 TDI   JP2-12
+    #define BTN_EN1                        PinD2  // D2 TX1   JP2-5
+    #define BTN_EN2                        PinD3  // D3 RX1   JP2-7
+    #define BTN_ENC                        PinF7  // F7 TDI   JP2-12
 
-    #define SDSS                               3  // F5 TMS   JP2-8
+    #define SDSS                           PinD3  // F5 TMS   JP2-8
 
-    #define STAT_LED_RED_PIN                  12  // C2       JP11-14
-    #define STAT_LED_BLUE_PIN                 10  // C0       JP11-12
+    #define STAT_LED_RED_PIN               PinC2  // C2       JP11-14
+    #define STAT_LED_BLUE_PIN              PinC0  // C0       JP11-12
 
     #define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
@@ -228,33 +243,33 @@
 
     #if DISABLED(USE_INTERNAL_SD)
       //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-      #define SDSS                            11  //      36               C1                EXP2-13             EXP2-07
-      #define SD_DETECT_PIN                    9  //      34               E1                EXP2-11             EXP2-04
+      #define SDSS                         PinC1  //      36               C1                EXP2-13             EXP2-07
+      #define SD_DETECT_PIN                PinE1  //      34               E1                EXP2-11             EXP2-04
     #endif
 
     //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define DOGLCD_A0                          4  //       29               D4                EXP2-05             EXP1-04
-    #define DOGLCD_CS                          5  //       30               D5                EXP2-06             EXP1-05
-    #define BTN_ENC                            6  //       31               D6                EXP2-07             EXP1-09
-    #define BEEPER_PIN                         7  //       32               D7                EXP2-08             EXP1-10
-    #define KILL_PIN                           8  //       33               E0                EXP2-10             EXP2-03
-    #define BTN_EN1                           10  //       35               C0                EXP2-12             EXP2-06
-    #define BTN_EN2                           12  //       37               C2                EXP2-14             EXP2-08
-    //#define LCD_BACKLIGHT_PIN               43  //    56               F5                EXP1-12     Not Implemented
-    //#define SCK                             21  //         11               B1                ICSP-04             EXP2-09
-    //#define MOSI                            22  //         12               B2                ICSP-03             EXP2-05
-    //#define MISO                            23  //         13               B3                ICSP-06             EXP2-05
+    #define DOGLCD_A0                      PinD4  //       29               D4                EXP2-05             EXP1-04
+    #define DOGLCD_CS                      PinD5  //       30               D5                EXP2-06             EXP1-05
+    #define BTN_ENC                        PinD6  //       31               D6                EXP2-07             EXP1-09
+    #define BEEPER_PIN                     PinD7  //       32               D7                EXP2-08             EXP1-10
+    #define KILL_PIN                       PinE0  //       33               E0                EXP2-10             EXP2-03
+    #define BTN_EN1                        PinC0  //       35               C0                EXP2-12             EXP2-06
+    #define BTN_EN2                        PinC2  //       37               C2                EXP2-14             EXP2-08
+    //#define LCD_BACKLIGHT_PIN            PinF5  //    56               F5                EXP1-12     Not Implemented
+    //#define SCK                          PinB1  //         11               B1                ICSP-04             EXP2-09
+    //#define MOSI                         PinB2  //         12               B2                ICSP-03             EXP2-05
+    //#define MISO                         PinB3  //         13               B3                ICSP-06             EXP2-05
 
     // Alter timing for graphical display
-    #define BOARD_ST7920_DELAY_1           313
-    #define BOARD_ST7920_DELAY_2           313
-    #define BOARD_ST7920_DELAY_3           313
+    #define BOARD_ST7920_DELAY_1             313
+    #define BOARD_ST7920_DELAY_2             313
+    #define BOARD_ST7920_DELAY_3             313
 
   #else
 
-    #define BTN_EN1                           10  // C0       JP11-12
-    #define BTN_EN2                           11  // C1       JP11-13
-    #define BTN_ENC                           12  // C2       JP11-14
+    #define BTN_EN1                        PinC0  // C0       JP11-12
+    #define BTN_EN2                        PinC1  // C1       JP11-13
+    #define BTN_ENC                        PinC2  // C2       JP11-14
 
   #endif
 
@@ -265,7 +280,7 @@
 //
 //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.
 #ifndef SDSS
-  #define SDSS                                20  //       10               B0
+  #define SDSS                             PinB0  //       10               B0
 #endif
 
 /**
@@ -276,5 +291,5 @@
  * which will let you use Channel B on the Extrudrboard as E1.
  */
 #ifndef FILWIDTH_PIN
-  #define FILWIDTH_PIN                         2  // Analog Input
+  #define FILWIDTH_PIN                     PinD2  // Analog Input
 #endif
