@@ -43,13 +43,14 @@ namespace Language_ru {
   LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD карта вставлена");
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
   LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
-  LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполнение вызова");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Сбой инициализации SD");
     LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Расширенные настройки");
+    LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполнение вызова");
   #else
     LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Сбой инициализ. SD");
     LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Расшир. настройки");
+    LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполн. вызова");
   #endif
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка чтения");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
@@ -109,7 +110,7 @@ namespace Language_ru {
     LSTR MSG_PREHEAT_M_END_E                = _UxGT("Нагреть сопло ~ $");
     LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Нагреть всё $");
     LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Нагреть стол $");
-    LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Правка предн. $");
+    LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Правка преднаг. $");
   #endif
   LSTR MSG_PREHEAT_CUSTOM                   = _UxGT("Нагрев Свой");
   LSTR MSG_COOLDOWN                         = _UxGT("Охлаждение");
@@ -193,6 +194,13 @@ namespace Language_ru {
   LSTR MSG_UBL_LEVEL_BED                    = _UxGT("Настройка UBL");
   LSTR MSG_LCD_TILTING_MESH                 = _UxGT("Точка разворота");
   LSTR MSG_UBL_MANUAL_MESH                  = _UxGT("Ручной ввод сетки");
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
+    LSTR MSG_UBL_BC_INSERT                  = _UxGT("Разместить шайбу,измерить");
+    LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Убрать и замерить стол");
+  #else
+    LSTR MSG_UBL_BC_INSERT                  = _UxGT("Разм.шайбу, измерить");
+    LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Убрать, измер. стол");
+  #endif
   LSTR MSG_UBL_MESH_WIZARD                  = _UxGT("Мастер сеток UBL");
   LSTR MSG_UBL_BC_INSERT2                   = _UxGT("Измерение");
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Двигаемся дальше");
@@ -200,38 +208,39 @@ namespace Language_ru {
   LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивировать UBL");
   LSTR MSG_UBL_MESH_EDIT                    = _UxGT("Редактор сеток");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH             = _UxGT("Править свою сетку");
-  LSTR MSG_UBL_FINE_TUNE_MESH               = _UxGT("Точная правка сетки");
-  LSTR MSG_UBL_BUILD_MESH_MENU              = _UxGT("Построить сетку");
-  LSTR MSG_UBL_BUILD_MESH_M                 = _UxGT("Построить сетку $");
-  LSTR MSG_UBL_MESH_HEIGHT_ADJUST           = _UxGT("Правка высоты сетки");
-  LSTR MSG_UBL_MESH_HEIGHT_AMOUNT           = _UxGT("Высота");
-  LSTR MSG_UBL_VALIDATE_MESH_MENU           = _UxGT("Проверить сетку");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
-    LSTR MSG_UBL_BC_INSERT                  = _UxGT("Разместить шайбу,измерить");
-    LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Убрать и замерить стол");
     LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Температура стола");
     LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Температура стола");
     LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Температура сопла");
     LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Температура сопла");
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Построить свою сетку");
     LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Правка сетки завершена");
-    LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Построить холодную сетку");
-    LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Проверить сетку $");
-    LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Проверить свою сетку");
   #else
-    LSTR MSG_UBL_BC_INSERT                  = _UxGT("Разм.шайбу, измерить");
-    LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Убрать, измер. стол");
     LSTR MSG_UBL_SET_TEMP_BED               = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE "C";
     LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE "C";
     LSTR MSG_UBL_SET_TEMP_HOTEND            = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
     LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Построить свою");
     LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Правка завершена");
+  #endif
+  LSTR MSG_UBL_FINE_TUNE_MESH               = _UxGT("Точная правка сетки");
+  LSTR MSG_UBL_BUILD_MESH_MENU              = _UxGT("Построить сетку");
+  LSTR MSG_UBL_BUILD_MESH_M                 = _UxGT("Построить сетку $");
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
+    LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Построить холодную сетку");
+  #else
     LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Строить холод.сетку");
+  #endif
+  LSTR MSG_UBL_MESH_HEIGHT_ADJUST           = _UxGT("Правка высоты сетки");
+  LSTR MSG_UBL_MESH_HEIGHT_AMOUNT           = _UxGT("Высота");
+  LSTR MSG_UBL_VALIDATE_MESH_MENU           = _UxGT("Проверить сетку");
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
+    LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Проверить сетку $");
+    LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Проверить свою сетку");
+  #else
     LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Провер. сетку $");
     LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Провер. свою сетку");
   #endif
-
   LSTR MSG_G26_HEATING_BED                  = _UxGT("G26 нагрев стола");
   LSTR MSG_G26_HEATING_NOZZLE               = _UxGT("G26 нагрев сопла");
   LSTR MSG_G26_MANUAL_PRIME                 = _UxGT("Ручная прочистка");
@@ -243,23 +252,25 @@ namespace Language_ru {
   LSTR MSG_UBL_MESH_LEVELING                = _UxGT("Выравнивание сетки");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-х точечное выравнивание");
-    LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Выравнивание по сетке");
-    LSTR MSG_UBL_OUTPUT_MAP_BACKUP          = _UxGT("Сохранить сетку снаружи");
-    LSTR MSG_UBL_INFO_UBL                   = _UxGT("Вывод информации UBL");
-    LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Кол-во заполнения");
   #else
     LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-точечное выравн.");
-    LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Выравнив. по сетке");
-    LSTR MSG_UBL_OUTPUT_MAP_BACKUP          = _UxGT("Сохранить снаружи");
-    LSTR MSG_UBL_INFO_UBL                   = _UxGT("Информация UBL");
-    LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Кол-во заполн.");
   #endif
+  LSTR MSG_UBL_GRID_MESH_LEVELING           = _UxGT("Выравнивание сеткой");
   LSTR MSG_UBL_MESH_LEVEL                   = _UxGT("Выровнять сетку");
   LSTR MSG_UBL_SIDE_POINTS                  = _UxGT("Крайние точки");
   LSTR MSG_UBL_MAP_TYPE                     = _UxGT("Тип карты");
   LSTR MSG_UBL_OUTPUT_MAP                   = _UxGT("Вывести карту сетки");
   LSTR MSG_UBL_OUTPUT_MAP_HOST              = _UxGT("Вывести на хост");
   LSTR MSG_UBL_OUTPUT_MAP_CSV               = _UxGT("Вывести в CSV");
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
+    LSTR MSG_UBL_OUTPUT_MAP_BACKUP          = _UxGT("Сохранить сетку снаружи");
+    LSTR MSG_UBL_INFO_UBL                   = _UxGT("Вывод информации UBL");
+    LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Кол-во заполнителя");
+  #else
+    LSTR MSG_UBL_OUTPUT_MAP_BACKUP          = _UxGT("Сохранить снаружи");
+    LSTR MSG_UBL_INFO_UBL                   = _UxGT("Информация UBL");
+    LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Кол-во заполн.");
+  #endif
   LSTR MSG_UBL_MANUAL_FILLIN                = _UxGT("Ручное заполнение");
   LSTR MSG_UBL_SMART_FILLIN                 = _UxGT("Умное заполнение");
   LSTR MSG_UBL_FILLIN_MESH                  = _UxGT("Заполнить сетку");
@@ -369,9 +380,9 @@ namespace Language_ru {
   LSTR MSG_PID_AUTOTUNE                     = _UxGT("Автокалибровка PID");
   LSTR MSG_PID_AUTOTUNE_E                   = _UxGT("Автокалибр. PID *");
   LSTR MSG_PID_AUTOTUNE_DONE                = _UxGT("Калибр.PID выполнена");
-  LSTR MSG_PID_BAD_HEATER_ID                = _UxGT("Сбой автоподбора! Неверный экструдер.");
-  LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора! Температура завышена.");
-  LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой автоподбора! Таймаут.");
+  LSTR MSG_PID_BAD_HEATER_ID                = _UxGT("Сбой калибровки! Неверный экструдер.");
+  LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой калибровки! Температура завышена.");
+  LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой калибровки! Таймаут.");
 
   LSTR MSG_SELECT_E                         = _UxGT("Выбор *");
   LSTR MSG_ACC                              = _UxGT("Ускорение");
@@ -382,9 +393,9 @@ namespace Language_ru {
   LSTR MSG_VN_JERK                          = _UxGT("V@-рывок");
   LSTR MSG_VE_JERK                          = _UxGT("Ve-рывок");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
-    LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Отклонение стыка");
+    LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Отклонение угла");
   #else
-    LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Отклон.стыка");
+    LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Отклон.угла");
   #endif
   LSTR MSG_MAX_SPEED                        = _UxGT("Скорость, мм/с");
   LSTR MSG_VMAX_A                           = _UxGT("Скор.макс ") STR_A;
