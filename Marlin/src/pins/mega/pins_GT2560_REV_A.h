@@ -38,7 +38,7 @@
 #endif
 #define DEFAULT_MACHINE_NAME "Prusa i3 Pro B"
 
-#define AVR_CHIPOSCILLATOR_FREQ 16000000
+#define AVR_CHIPOSCILLATOR_FREQ              16000000
 
 // See page 327 of the ATmega2560 technical reference manual (DS40002211A).
 // For CPU speed calculations it is necessary to give the programmed "fuse bits", that are internally programmed

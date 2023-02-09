@@ -182,18 +182,18 @@
 #define DIO20_PWM   nullptr
 #define PinC6       20
 
-#define DIO13_PIN   PINB6
-#define DIO13_RPORT PINB
-#define DIO13_WPORT PORTB
-#define DIO13_DDR   DDRB
-#define DIO13_PWM   nullptr
+#define DIO21_PIN   PINB6
+#define DIO21_RPORT PINB
+#define DIO21_WPORT PORTB
+#define DIO21_DDR   DDRB
+#define DIO21_PWM   nullptr
 #define PinB6       21
 
-#define DIO13_PIN   PINB7
-#define DIO13_RPORT PINB
-#define DIO13_WPORT PORTB
-#define DIO13_DDR   DDRB
-#define DIO13_PWM   nullptr
+#define DIO22_PIN   PINB7
+#define DIO22_RPORT PINB
+#define DIO22_WPORT PORTB
+#define DIO22_DDR   DDRB
+#define DIO22_PWM   nullptr
 #define PinB7       22
 
 #define DIO_NUM 23
@@ -210,7 +210,6 @@
 #ifndef TXD
   #define TXD         PinD1
 #endif
-
 // SPI
 #ifndef SCK
   #define SCK         PinB5
