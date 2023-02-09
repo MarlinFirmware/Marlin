@@ -1543,8 +1543,6 @@
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 10
 
-
-
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (133*60)
 
@@ -2055,38 +2053,38 @@
 
   //#define UBL_MESH_WIZARD         // Run several commands in a row to get a complete mesh
 
-  //#define AVOID_BED_CLIPS
+  /**
+   * Probing not allowed within the position of an obstacle.
+   */
+  //#define AVOID_OBSTACLES
+  #if ENABLED(AVOID_OBSTACLES)
+    #define OBSTACLE_XSIZE 23.0f // Width, should be padded a few mm above physical width
+    #define OBSTACLE_YSIZE 14.0f // Height, also should be padded
 
-  #if ENABLED(AVOID_BED_CLIPS)
+    #define OBSTACLE1_XMIN ((X_BED_SIZE) / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE1_XMAX ((X_BED_SIZE) / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE1_YMIN 0.0f
+    #define OBSTACLE1_YMAX OBSTACLE_YSIZE
 
-   #define BED_CLIP_XSIZE 23. // Width, should be padded a few mm above physical width                                                                                                                                        
-   #define BED_CLIP_YSIZE 14. // Height, also should be padded
+    #define OBSTACLE2_XMIN ((X_BED_SIZE) * 3.0f / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE2_XMAX ((X_BED_SIZE) * 3.0f / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE2_YMIN 0.0f
+    #define OBSTACLE2_YMAX OBSTACLE_YSIZE
 
-   #define BED_CLIP1_XMIN (X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0)
-   #define BED_CLIP1_XMAX (X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0)
-   #define BED_CLIP1_YMIN (0.0)
-   #define BED_CLIP1_YMAX (BED_CLIP_YSIZE)
-                                                                                                                                                                                                                                 
-   #define BED_CLIP2_XMIN (3*X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0)
-   #define BED_CLIP2_XMAX (3*X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0)                                                                                                                                                         
-   #define BED_CLIP2_YMIN (0.0)                                                                                                                                                                                    
-   #define BED_CLIP2_YMAX (BED_CLIP_YSIZE)                                                                                                                                                                                 
-                                                                                                                                                                                                                                 
-   #define BED_CLIP3_XMIN (X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0)                                                                                                                                                                
-   #define BED_CLIP3_XMAX (X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0)                                                                                                                                                                
-   #define BED_CLIP3_YMIN (Y_BED_SIZE-BED_CLIP_YSIZE)                                                                                                                                                                     
-   #define BED_CLIP3_YMAX (Y_BED_SIZE)                                                                                                                                                                                    
-                                                                                                                                                                                                                                 
-   #define BED_CLIP4_XMIN (3*X_BED_SIZE/4.0 - BED_CLIP_XSIZE/2.0)                                                                                                                                                             
-   #define BED_CLIP4_XMAX (3*X_BED_SIZE/4.0 + BED_CLIP_XSIZE/2.0)                                                                                                                                                             
-   #define BED_CLIP4_YMIN (Y_BED_SIZE-BED_CLIP_YSIZE)                                                                                                                                                                     
-   #define BED_CLIP4_YMAX (Y_BED_SIZE)
+    #define OBSTACLE3_XMIN ((X_BED_SIZE) / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE3_XMAX ((X_BED_SIZE) / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE3_YMIN ((Y_BED_SIZE) - (OBSTACLE_YSIZE))
+    #define OBSTACLE3_YMAX Y_BED_SIZE
 
-   // In this case, the probed grid can (and must, or else the function will abort) be set inward,
-   // as it's only used to compute a linear transformation for the mesh itself. 
-   #define MARGIN_FOR_G29J_MESH_TILT (BED_CLIP_YSIZE+1)
+    #define OBSTACLE4_XMIN ((X_BED_SIZE) * 3.0f / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE4_XMAX ((X_BED_SIZE) * 3.0f / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
+    #define OBSTACLE4_YMIN ((Y_BED_SIZE) - (OBSTACLE_YSIZE))
+    #define OBSTACLE4_YMAX Y_BED_SIZE
 
-#endif  
+    // In this case, the probed grid can (and must, or else the function will abort) be set inward,
+    // as it's only used to compute a linear transformation for the mesh itself.
+    #define MARGIN_FOR_G29J_MESH_TILT ((OBSTACLE_YSIZE) + 1)
+  #endif // AVOID_OBSTACLES
 
 #elif ENABLED(MESH_BED_LEVELING)
 

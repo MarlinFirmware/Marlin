@@ -76,9 +76,7 @@ class Probe {
 public:
 
   #if ENABLED(SENSORLESS_PROBING)
-    typedef struct {
-        bool x:1, y:1, z:1;
-    } sense_bool_t;
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
     static sense_bool_t test_sensitivity;
   #endif
 
@@ -94,18 +92,24 @@ public:
 
     static bool set_deployed(const bool deploy);
 
-   #if ENABLED(AVOID_BED_CLIPS)
-      static bool bed_clip_check(const_float_t rx, const_float_t ry) {
-        return (!((BED_CLIP1_XMIN <= rx) && (rx < BED_CLIP1_XMAX)) || !((BED_CLIP1_YMIN <= ry) && (ry <= BED_CLIP1_YMAX)))                                                                                                   
-          && (!((BED_CLIP2_XMIN <= rx) && (rx < BED_CLIP2_XMAX)) || !((BED_CLIP2_YMIN <= ry) && (ry <= BED_CLIP2_YMAX)))                                                                                                   
-          && (!((BED_CLIP3_XMIN <= rx) && (rx < BED_CLIP3_XMAX)) || !((BED_CLIP3_YMIN <= ry) && (ry <= BED_CLIP3_YMAX)))                                                                                                   
-          && (!((BED_CLIP4_XMIN <= rx) && (rx < BED_CLIP4_XMAX)) || !((BED_CLIP4_YMIN <= ry) && (ry <= BED_CLIP4_YMAX)));                                                                                              
+    static bool obstacle_check(const_float_t rx, const_float_t ry) {
+      return (true && !(false
+        #if ENABLED(AVOID_OBSTACLES)
+          #if defined(OBSTACLE1_XMIN) && defined(OBSTACLE1_XMAX) && defined(OBSTACLE1_YMIN) && defined(OBSTACLE1_YMAX)
+            || (WITHIN(rx, OBSTACLE1_XMIN, OBSTACLE1_XMAX) && WITHIN(ry, OBSTACLE1_YMIN, OBSTACLE1_YMAX))
+          #endif
+          #if defined(OBSTACLE2_XMIN) && defined(OBSTACLE2_XMAX) && defined(OBSTACLE2_YMIN) && defined(OBSTACLE2_YMAX)
+            || (WITHIN(rx, OBSTACLE2_XMIN, OBSTACLE2_XMAX) && WITHIN(ry, OBSTACLE2_YMIN, OBSTACLE2_YMAX))
+          #endif
+          #if defined(OBSTACLE3_XMIN) && defined(OBSTACLE3_XMAX) && defined(OBSTACLE3_YMIN) && defined(OBSTACLE3_YMAX)
+            || (WITHIN(rx, OBSTACLE3_XMIN, OBSTACLE3_XMAX) && WITHIN(ry, OBSTACLE3_YMIN, OBSTACLE3_YMAX))
+          #endif
+          #if defined(OBSTACLE4_XMIN) && defined(OBSTACLE4_XMAX) && defined(OBSTACLE4_YMIN) && defined(OBSTACLE4_YMAX)
+            || (WITHIN(rx, OBSTACLE4_XMIN, OBSTACLE4_XMAX) && WITHIN(ry, OBSTACLE4_YMIN, OBSTACLE4_YMAX))
+          #endif
+        #endif
+      ));
     }
-    #else
-      static bool bed_clip_check(const_float_t rx, const_float_t ry) {
-        return true;
-      }
-    #endif
 
     #if IS_KINEMATIC
 
@@ -115,17 +119,17 @@ public:
         static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
           if (probe_relative) {
             return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-              && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
+                && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
           }
           else {
             return position_is_reachable(rx, ry)
-              && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
+                && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
           }
         }
       #else
         static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) {
           return position_is_reachable(rx, ry)
-            && position_is_reachable(rx, ry, PROBING_MARGIN);
+              && position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
 
@@ -140,18 +144,18 @@ public:
        */
       static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
         if (probe_relative) {
-          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) 
-            && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
-            && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop)
-            && bed_clip_check(rx,ry)  
-            && bed_clip_check(rx - offset_xy.x, ry - offset_xy.y);  
+          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
+              && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
+              && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop)
+              && obstacle_check(rx, ry)
+              && obstacle_check(rx - offset_xy.x, ry - offset_xy.y);
         }
         else {
           return position_is_reachable(rx, ry)
-            && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
-            && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop)
-            && bed_clip_check(rx,ry)
-            && bed_clip_check(rx + offset_xy.x, ry + offset_xy.y);
+              && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
+              && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop)
+              && obstacle_check(rx, ry)
+              && obstacle_check(rx + offset_xy.x, ry + offset_xy.y);
         }
       }
 
