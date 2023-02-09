@@ -142,8 +142,8 @@ void plan_arc(
               part_per_circle = RADIANS(360) / total_angular;                   // Each circle's part of the total
 
     ARC_LIJKUVWE_CODE(
-      const float per_circle_L = travel_L * part_per_circle,    // L movement per circle
-      const float per_circle_I = travel_I * part_per_circle,
+      const float per_circle_L = travel_L * part_per_circle,    // X, Y, or Z movement per circle
+      const float per_circle_I = travel_I * part_per_circle,    // The rest are also non-arc
       const float per_circle_J = travel_J * part_per_circle,
       const float per_circle_K = travel_K * part_per_circle,
       const float per_circle_U = travel_U * part_per_circle,
@@ -155,8 +155,8 @@ void plan_arc(
     xyze_pos_t temp_position = current_position;
     for (uint16_t n = circles; n--;) {
       ARC_LIJKUVWE_CODE(                                        // Destination Linear Axes
-        temp_position[axis_l] += per_circle_L,
-        temp_position.i       += per_circle_I,
+        temp_position[axis_l] += per_circle_L,                  // Linear X, Y, or Z
+        temp_position.i       += per_circle_I,                  // The rest are also non-circular
         temp_position.j       += per_circle_J,
         temp_position.k       += per_circle_K,
         temp_position.u       += per_circle_U,
@@ -167,8 +167,8 @@ void plan_arc(
       plan_arc(temp_position, offset, clockwise, 0);            // Plan a single whole circle
     }
     ARC_LIJKUVWE_CODE(
-      travel_L = cart[axis_l] - current_position[axis_l],
-      travel_I = cart.i       - current_position.i,
+      travel_L = cart[axis_l] - current_position[axis_l],       // Linear X, Y, or Z
+      travel_I = cart.i       - current_position.i,             // The rest are also non-arc
       travel_J = cart.j       - current_position.j,
       travel_K = cart.k       - current_position.k,
       travel_U = cart.u       - current_position.u,
@@ -183,9 +183,8 @@ void plan_arc(
 
   // Return if the move is near zero
   if (flat_mm < 0.0001f
-    && TERN0(HAS_EXTRUDERS, NEAR_ZERO(travel_E))
-    GANG_N(SUB2(NUM_AXES),
-      && NEAR_ZERO(travel_L),
+    GANG_N(SUB2(NUM_AXES),                                      // Two axes for the arc
+      && NEAR_ZERO(travel_L),                                   // Linear X, Y, or Z
       && NEAR_ZERO(travel_I),
       && NEAR_ZERO(travel_J),
       && NEAR_ZERO(travel_K),
@@ -193,7 +192,12 @@ void plan_arc(
       && NEAR_ZERO(travel_V),
       && NEAR_ZERO(travel_W)
     )
-  ) return;
+  ) {
+    #if HAS_EXTRUDERS
+      if (!NEAR_ZERO(travel_E)) gcode.G0_G1();                  // Handle retract/recover as G1
+      return;
+    #endif
+  }
 
   // Feedrate for the move, scaled by the feedrate multiplier
   const feedRate_t scaled_fr_mm_s = FR_SCALED(feedrate_mm_s);

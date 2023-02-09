@@ -2480,7 +2480,7 @@ void prepare_line_to_destination() {
     #endif
 
     // Put away the Z probe
-    TERN_(HOMING_Z_WITH_PROBE, if (axis == Z_AXIS && probe.stow()) return);
+    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
