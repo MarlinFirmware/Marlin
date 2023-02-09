@@ -2140,7 +2140,7 @@ void prepare_line_to_destination() {
 
       if (mmDelta != 0) {
         // Retrace by the amount computed in mmDelta.
-        do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis)  OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)));
+        do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis) OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis)));
       }
     }
   #endif
@@ -2298,12 +2298,10 @@ void prepare_line_to_destination() {
 
       // Slow move towards endstop until triggered
       const float rebump = bump * 2;
+      const feedRate_t hbf = get_homing_bump_feedrate(axis);
+
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
-      do_homing_move(axis, rebump
-        , get_homing_bump_feedrate(axis)
-        OPTARG(HAS_ROTATIONAL_AXES, get_homing_bump_feedrate(axis))
-        , true
-      );
+      do_homing_move(axis, rebump, hbf OPTARG(HAS_ROTATIONAL_AXES, hbf), true);
 
       #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
         if (axis == Z_AXIS) bltouch.stow(); // The final STOW
