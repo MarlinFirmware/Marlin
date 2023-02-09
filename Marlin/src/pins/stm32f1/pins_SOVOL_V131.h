@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,11 +21,10 @@
  */
 #pragma once
 
-
 #include "env_validate.h"
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "SOVOL V131 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "SOVOL V131 only supports one hotend / E-stepper."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -38,11 +37,17 @@
 //#define BOARD_NO_NATIVE_USB
 
 //
+// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+//
+#define DISABLE_DEBUG
+
+//
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
+  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -79,7 +84,7 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                        PA4   // "Pulled-high"
+  #define FIL_RUNOUT_PIN                    PA4   // "Pulled-high"
 #endif
 
 //
@@ -118,13 +123,13 @@
 #define E0_ENABLE_PIN               X_ENABLE_PIN
 
 #if HAS_TMC_UART
+
   /**
    * TMC2208/TMC2209 stepper drivers
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  
 
   #define X_SERIAL_TX_PIN                   PC1
   #define X_SERIAL_RX_PIN                   PC1
@@ -140,11 +145,8 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
+
 #endif // HAS_TMC_UART
-//
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
-//
-#define DISABLE_DEBUG
 
 //
 // Temperature Sensors
@@ -191,6 +193,11 @@
     #ifndef HAS_PIN_27_BOARD
       #define BEEPER_PIN                    PC6
     #endif
+
+  #else
+
+    #error "Only the RET6_12864_LCD variant of CR10_STOCKDISPLAY is supported."
+
   #endif
-  
+
 #endif
