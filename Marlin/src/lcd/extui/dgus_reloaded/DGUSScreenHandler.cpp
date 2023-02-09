@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUSScreenHandler.h"
 
@@ -325,8 +325,8 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
       case ExtUI::PID_STARTED:
         SetStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
         break;
-      case ExtUI::PID_BAD_EXTRUDER_NUM:
-        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
+      case ExtUI::PID_BAD_HEATER_ID:
+        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
       case ExtUI::PID_TEMP_TOO_HIGH:
         SetStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));

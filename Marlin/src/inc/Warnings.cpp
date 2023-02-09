@@ -783,3 +783,17 @@
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
   #warning "BABYSTEPPING is recommended with BD_SENSOR."
 #endif
+
+/**
+ * POLAR warnings
+ */
+#if BOTH(POLAR, S_CURVE_ACCELERATION)
+  #warning "POLAR kinematics may not work well with S_CURVE_ACCELERATION."
+#endif
+
+/**
+ * Input Shaping
+ */
+#if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#endif

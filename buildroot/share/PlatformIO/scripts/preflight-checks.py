@@ -132,5 +132,5 @@ if pioutil.is_pio_build():
                 if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES'] and "%c" not in env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']:
                     err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter when NUM_RUNOUT_SENSORS is > 1"
                     raise SystemExit(err)
-    
+
     sanity_check_target()

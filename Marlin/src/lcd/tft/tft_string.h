@@ -76,7 +76,7 @@
 #define LCODE_zh_CN   _SIMPLIFIED_CHINESE
 #define LCODE_zh_TW   _TRADITIONAL_CHINESE
 
-#define _LCODE(N) (LCODE_ ## LCD_LANGUAGE == N)
+#define _LCODE(N) (CAT(LCODE_, LCD_LANGUAGE) == N)
 
 #if _LCODE(_LATIN_EXTENDED_A)
   #define FONT_EXTRA    Latin_Extended_A

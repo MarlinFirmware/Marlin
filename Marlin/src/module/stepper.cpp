@@ -2776,35 +2776,44 @@ void Stepper::init() {
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
+    #ifndef X_ENABLE_INIT_STATE
+      #define X_ENABLE_INIT_STATE !X_ENABLE_ON
+    #endif
     X_ENABLE_INIT();
-    if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
+    if (X_ENABLE_INIT_STATE) X_ENABLE_WRITE(X_ENABLE_INIT_STATE);
     #if BOTH(HAS_X2_STEPPER, HAS_X2_ENABLE)
       X2_ENABLE_INIT();
-      if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
+      if (X_ENABLE_INIT_STATE) X2_ENABLE_WRITE(X_ENABLE_INIT_STATE);
     #endif
   #endif
   #if HAS_Y_ENABLE
+    #ifndef Y_ENABLE_INIT_STATE
+      #define Y_ENABLE_INIT_STATE !Y_ENABLE_ON
+    #endif
     Y_ENABLE_INIT();
-    if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
+    if (Y_ENABLE_INIT_STATE) Y_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
     #if BOTH(HAS_DUAL_Y_STEPPERS, HAS_Y2_ENABLE)
       Y2_ENABLE_INIT();
-      if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
+      if (Y_ENABLE_INIT_STATE) Y2_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
     #endif
   #endif
   #if HAS_Z_ENABLE
+    #ifndef Z_ENABLE_INIT_STATE
+      #define Z_ENABLE_INIT_STATE !Z_ENABLE_ON
+    #endif
     Z_ENABLE_INIT();
-    if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
+    if (Z_ENABLE_INIT_STATE) Z_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #if NUM_Z_STEPPERS >= 2 && HAS_Z2_ENABLE
       Z2_ENABLE_INIT();
-      if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
+      if (Z_ENABLE_INIT_STATE) Z2_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #endif
     #if NUM_Z_STEPPERS >= 3 && HAS_Z3_ENABLE
       Z3_ENABLE_INIT();
-      if (!Z_ENABLE_ON) Z3_ENABLE_WRITE(HIGH);
+      if (Z_ENABLE_INIT_STATE) Z3_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #endif
     #if NUM_Z_STEPPERS >= 4 && HAS_Z4_ENABLE
       Z4_ENABLE_INIT();
-      if (!Z_ENABLE_ON) Z4_ENABLE_WRITE(HIGH);
+      if (Z_ENABLE_INIT_STATE) Z4_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #endif
   #endif
   #if HAS_I_ENABLE
@@ -2832,36 +2841,63 @@ void Stepper::init() {
     if (!W_ENABLE_ON) W_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E0_ENABLE
+    #ifndef E_ENABLE_INIT_STATE
+      #define E_ENABLE_INIT_STATE !E_ENABLE_ON
+    #endif
+    #ifndef E0_ENABLE_INIT_STATE
+      #define E0_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E0_ENABLE_INIT();
-    if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
+    if (E0_ENABLE_INIT_STATE) E0_ENABLE_WRITE(E0_ENABLE_INIT_STATE);
   #endif
   #if HAS_E1_ENABLE
+    #ifndef E1_ENABLE_INIT_STATE
+      #define E1_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E1_ENABLE_INIT();
-    if (!E_ENABLE_ON) E1_ENABLE_WRITE(HIGH);
+    if (E1_ENABLE_INIT_STATE) E1_ENABLE_WRITE(E1_ENABLE_INIT_STATE);
   #endif
   #if HAS_E2_ENABLE
+    #ifndef E2_ENABLE_INIT_STATE
+      #define E2_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E2_ENABLE_INIT();
-    if (!E_ENABLE_ON) E2_ENABLE_WRITE(HIGH);
+    if (E2_ENABLE_INIT_STATE) E2_ENABLE_WRITE(E2_ENABLE_INIT_STATE);
   #endif
   #if HAS_E3_ENABLE
+    #ifndef E3_ENABLE_INIT_STATE
+      #define E3_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E3_ENABLE_INIT();
-    if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
+    if (E3_ENABLE_INIT_STATE) E3_ENABLE_WRITE(E3_ENABLE_INIT_STATE);
   #endif
   #if HAS_E4_ENABLE
+    #ifndef E4_ENABLE_INIT_STATE
+      #define E4_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E4_ENABLE_INIT();
-    if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
+    if (E4_ENABLE_INIT_STATE) E4_ENABLE_WRITE(E4_ENABLE_INIT_STATE);
   #endif
   #if HAS_E5_ENABLE
+    #ifndef E5_ENABLE_INIT_STATE
+      #define E5_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E5_ENABLE_INIT();
-    if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
+    if (E5_ENABLE_INIT_STATE) E5_ENABLE_WRITE(E5_ENABLE_INIT_STATE);
   #endif
   #if HAS_E6_ENABLE
+    #ifndef E6_ENABLE_INIT_STATE
+      #define E6_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E6_ENABLE_INIT();
-    if (!E_ENABLE_ON) E6_ENABLE_WRITE(HIGH);
+    if (E6_ENABLE_INIT_STATE) E6_ENABLE_WRITE(E6_ENABLE_INIT_STATE);
   #endif
   #if HAS_E7_ENABLE
+    #ifndef E7_ENABLE_INIT_STATE
+      #define E7_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
+    #endif
     E7_ENABLE_INIT();
-    if (!E_ENABLE_ON) E7_ENABLE_WRITE(HIGH);
+    if (E7_ENABLE_INIT_STATE) E7_ENABLE_WRITE(E7_ENABLE_INIT_STATE);
   #endif
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT()
@@ -2984,7 +3020,7 @@ void Stepper::init() {
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
    */
-  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const float zeta) {
+  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
     // from the damping ratio, get a factor that can be applied to advance_dividend for fixed point maths
     // for ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * M_PI / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd order polynomial
@@ -2993,9 +3029,9 @@ void Stepper::init() {
     else if (zeta >= 1.0f) factor2 = 0.0f;
     else {
       factor2 = 64.44056192 + -99.02008832 * zeta;
-      const float zeta2 = zeta * zeta;
+      const_float_t zeta2 = zeta * zeta;
       factor2 += -7.58095488 * zeta2;
-      const float zeta3 = zeta2 * zeta;
+      const_float_t zeta3 = zeta2 * zeta;
       factor2 += 43.073216 * zeta3;
       factor2 = floor(factor2);
     }
@@ -3013,7 +3049,7 @@ void Stepper::init() {
     return -1;
   }
 
-  void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
+  void Stepper::set_shaping_frequency(const AxisEnum axis, const_float_t freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
@@ -3212,7 +3248,7 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
-#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA, POLAR)
   #define SAYS_B 1
 #endif
 #if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)

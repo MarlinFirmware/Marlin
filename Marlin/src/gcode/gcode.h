@@ -335,7 +335,7 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
-#if IS_SCARA || defined(G0_FEEDRATE)
+#if EITHER(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
 
@@ -476,6 +476,9 @@ public:
 private:
 
   friend class MarlinSettings;
+  #if ENABLED(ARC_SUPPORT)
+    friend void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
+  #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static void D(const int16_t dcode);
@@ -1226,7 +1229,7 @@ private:
     static void M1001();
   #endif
 
-  #if ENABLED(DGUS_LCD_UI_MKS)
+  #if DGUS_LCD_UI_MKS
     static void M1002();
   #endif
 
