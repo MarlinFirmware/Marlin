@@ -155,14 +155,14 @@
 //
 // Default pins for TMC SPI
 //
-//#ifndef TMC_SPI_MOSI
-//  #define TMC_SPI_MOSI                      PinK4
+//#ifndef TMC_SW_MOSI
+//  #define TMC_SW_MOSI                       PinK4
 //#endif
-//#ifndef TMC_SPI_MISO
-//  #define TMC_SPI_MISO                      PinL5
+//#ifndef TMC_SW_MISO
+//  #define TMC_SW_MISO                       PinL5
 //#endif
-//#ifndef TMC_SPI_SCK
-//  #define TMC_SPI_SCK                       PinK2
+//#ifndef TMC_SW_SCK
+//  #define TMC_SW_SCK                        PinK2
 //#endif
 
 //

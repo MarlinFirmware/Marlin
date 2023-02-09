@@ -219,14 +219,14 @@
 //
 // TMC SPI
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                        PinB2
+#ifndef TMC_SW_MOSI
+  #define TMC_SW_MOSI                         PinB2
 #endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                        PinB3
+#ifndef TMC_SW_MISO
+  #define TMC_SW_MISO                         PinB3
 #endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                         PinB0
+#ifndef TMC_SW_SCK
+  #define TMC_SW_SCK                          PinB0
 #endif
 
 //
