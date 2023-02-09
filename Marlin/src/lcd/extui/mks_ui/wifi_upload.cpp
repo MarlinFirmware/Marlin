@@ -86,7 +86,7 @@ static const uint32_t defaultTimeout = 500;
 static const uint32_t eraseTimeout = 15000;
 static const uint32_t blockWriteTimeout = 200;
 static const uint32_t blockWriteInterval = 15;      // 15ms is long enough, 10ms is mostly too short
-static SdFile update_file, *update_curDir;
+static MediaFile update_file, *update_curDir;
 
 // Messages corresponding to result codes, should make sense when followed by " error"
 const char *resultMessages[] = {

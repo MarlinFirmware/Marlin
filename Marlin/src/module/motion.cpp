@@ -361,7 +361,7 @@ void report_current_position_projected() {
 
   // Return true if the given position is within the machine bounds.
   bool position_is_reachable(const_float_t rx, const_float_t ry) {
-    if (!COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
+    if (TERN0(HAS_Y_AXIS, !COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop))) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
         return COORDINATE_OKAY(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
@@ -555,7 +555,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
  * - Delta may lower Z first to get into the free motion zone.
  * - Before returning, wait for the planner buffer to empty.
  */
-void do_blocking_move_to(NUM_AXIS_ARGS(const float), const_feedRate_t fr_mm_s/*=0.0f*/) {
+void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/*=0.0f*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
 
@@ -630,7 +630,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const float), const_feedRate_t fr_mm_s/*=
       if (current_position.z < z) { current_position.z = z; line_to_current_position(z_feedrate); }
     #endif
 
-    current_position.set(x, y); line_to_current_position(xy_feedrate);
+    current_position.set(x OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
 
     #if HAS_I_AXIS
       current_position.i = i; line_to_current_position(i_feedrate);
@@ -926,6 +926,8 @@ void restore_feedrate_and_scaling() {
       #if BOTH(HAS_HOTEND_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
         const xy_pos_t offs = hotend_offset[active_extruder];
+      #elif ENABLED(POLARGRAPH)
+        // POLARGRAPH uses draw_area_* below...
       #elif ENABLED(POLAR)
         // For now, we don't limit POLAR
       #else
@@ -2279,25 +2281,18 @@ void prepare_line_to_destination() {
     #endif
 
     // Put away the Z probe
-    #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS && probe.stow()) return;
-    #endif
+    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-        line_to_current_position(
-          #if HOMING_Z_WITH_PROBE
-            (axis == Z_AXIS) ? z_probe_fast_mm_s :
-          #endif
-          homing_feedrate(axis)
-        );
+        line_to_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
           if (false
-            #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+            #ifdef NORMAL_AXIS
               || axis != NORMAL_AXIS
             #endif
           ) safe_delay(200);  // Short delay to allow belts to spring back
@@ -2404,7 +2399,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
    * Change the home offset for an axis.
    * Also refreshes the workspace offset.
    */
-  void set_home_offset(const AxisEnum axis, const float v) {
+  void set_home_offset(const AxisEnum axis, const_float_t v) {
     home_offset[axis] = v;
     update_workspace_offset(axis);
   }

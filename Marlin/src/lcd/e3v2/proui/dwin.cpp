@@ -1347,7 +1347,7 @@ void EachMomentUpdate() {
       DWINUI::Draw_Button(BTN_Cancel,    26, 280);
       DWINUI::Draw_Button(BTN_Continue, 146, 280);
     }
-    SdFile *dir = nullptr;
+    MediaFile *dir = nullptr;
     const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
     card.selectFileByName(filename);
     DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 207, card.longest_filename());
