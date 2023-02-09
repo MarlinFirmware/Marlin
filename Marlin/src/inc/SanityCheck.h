@@ -2200,21 +2200,21 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 // Check Safe Bed Leveling settings
 #if HAS_SAFE_BED_LEVELING
   #if defined(SAFE_BED_LEVELING_START_Y) && !defined(SAFE_BED_LEVELING_START_X)
-    #error "SAFE_BED_LEVELING_START_Y requires SAFE_BED_LEVELING_START_X."
+    #error "If SAFE_BED_LEVELING_START_Y is defined, SAFE_BED_LEVELING_START_X must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_Z) && !defined(SAFE_BED_LEVELING_START_Y)
-    #error "SAFE_BED_LEVELING_START_Z requires SAFE_BED_LEVELING_START_Y."
+    #error "If SAFE_BED_LEVELING_START_Z is defined, SAFE_BED_LEVELING_START_Y must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_I) && !defined(SAFE_BED_LEVELING_START_Z)
-    #error "SAFE_BED_LEVELING_START_I requires SAFE_BED_LEVELING_START_Z."
+    #error "If SAFE_BED_LEVELING_START_I is defined, SAFE_BED_LEVELING_START_Z must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_J) && !defined(SAFE_BED_LEVELING_START_I)
-    #error "SAFE_BED_LEVELING_START_J requires SAFE_BED_LEVELING_START_I."
+    #error "If SAFE_BED_LEVELING_START_J is defined, SAFE_BED_LEVELING_START_I must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_K) && !defined(SAFE_BED_LEVELING_START_J)
-    #error "SAFE_BED_LEVELING_START_K requires SAFE_BED_LEVELING_START_J."
+    #error "If SAFE_BED_LEVELING_START_K is defined, SAFE_BED_LEVELING_START_J must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_U) && !defined(SAFE_BED_LEVELING_START_K)
-    #error "SAFE_BED_LEVELING_START_U requires SAFE_BED_LEVELING_START_K."
+    #error "If SAFE_BED_LEVELING_START_U is defined, SAFE_BED_LEVELING_START_K must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_V) && !defined(SAFE_BED_LEVELING_START_U)
-    #error "SAFE_BED_LEVELING_START_V requires SAFE_BED_LEVELING_START_U."
+    #error "If SAFE_BED_LEVELING_START_V is defined, SAFE_BED_LEVELING_START_U must also be defined."
   #elif defined(SAFE_BED_LEVELING_START_W) && !defined(SAFE_BED_LEVELING_START_V)
-    #error "SAFE_BED_LEVELING_START_W requires SAFE_BED_LEVELING_START_V."
+    #error "If SAFE_BED_LEVELING_START_W is defined, SAFE_BED_LEVELING_START_V must also be defined."
   #endif
 #endif
 
