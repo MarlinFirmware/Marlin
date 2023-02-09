@@ -1350,6 +1350,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #else
               do_blocking_move_to_xy(destination, planner.settings.max_feedrate_mm_s[X_AXIS]);
               do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+              SECONDARY_AXIS_CODE(
+                do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
+                do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
+                do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
+                do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
+                do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
+                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
+              );
             #endif
 
           #endif
