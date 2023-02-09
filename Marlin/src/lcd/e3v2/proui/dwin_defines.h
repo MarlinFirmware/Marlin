@@ -19,14 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
+
 /**
  * DWIN general defines and data structs for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 3.12.2
  * Date: 2022/08/08
  */
-
-#pragma once
 
 //#define DEBUG_DWIN 1
 //#define NEED_HEX_PRINT 1

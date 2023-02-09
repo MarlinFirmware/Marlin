@@ -110,13 +110,7 @@ void GcodeSuite::G38(const int8_t subcode) {
 
   remember_feedrate_scaling_off();
 
-  const bool error_on_fail =
-    #if ENABLED(G38_PROBE_AWAY)
-      !TEST(subcode, 0)
-    #else
-      (subcode == 2)
-    #endif
-  ;
+  const bool error_on_fail = TERN(G38_PROBE_AWAY, !TEST(subcode, 0), subcode == 2);
 
   // If any axis has enough movement, do the move
   LOOP_NUM_AXES(i)

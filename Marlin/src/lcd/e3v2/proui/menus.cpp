@@ -25,20 +25,6 @@
  * Author: Miguel A. Risco-Castillo
  * Version: 1.9.1
  * Date: 2022/12/02
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -115,7 +101,7 @@ void Show_Chkb_Line(const bool checked) {
   DWIN_UpdateLCD();
 }
 
-void Toogle_Chkb_Line(bool &checked) {
+void Toggle_Chkb_Line(bool &checked) {
   checked = !checked;
   Show_Chkb_Line(checked);
 }
@@ -399,7 +385,7 @@ void MenuClass::onScroll(bool dir) {
 }
 
 void MenuClass::onClick() {
-  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)(); 
+  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)();
 }
 
 CustomMenuItemClass *MenuClass::SelectedItem() {
@@ -410,8 +396,8 @@ CustomMenuItemClass** MenuClass::Items() {
   return MenuItems;
 }
 
-int8_t MenuClass::count() { 
-  return MenuItemCount; 
+int8_t MenuClass::count() {
+  return MenuItemCount;
 };
 
 /* MenuItem Class ===========================================================*/
@@ -510,7 +496,7 @@ MenuItemClass* MenuItemAdd(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, 
     return MenuItemAdd(menuitem);
   }
   else return nullptr;
-}  
+}
 
 MenuItemClass* EditItemAdd(uint8_t cicon, const char * const text, OnDrawItem ondraw, OnClickItem onclick, void* val) {
   if (MenuItemCount < MenuItemTotal) {

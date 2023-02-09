@@ -218,10 +218,10 @@ namespace Language_ru {
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Построить свою сетку");
     LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Правка сетки завершена");
   #else
-    LSTR MSG_UBL_SET_TEMP_BED               = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE "C";
-    LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE "C";
-    LSTR MSG_UBL_SET_TEMP_HOTEND            = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
-    LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
+    LSTR MSG_UBL_SET_TEMP_BED               = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE _UxGT("C");
+    LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE _UxGT("C");
+    LSTR MSG_UBL_SET_TEMP_HOTEND            = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE _UxGT("C");
+    LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE _UxGT("C");
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Построить свою");
     LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Правка завершена");
   #endif
@@ -343,12 +343,12 @@ namespace Language_ru {
   LSTR MSG_MOVE_100MM                       = _UxGT("Движение 100mm");
   LSTR MSG_SPEED                            = _UxGT("Скорость");
   LSTR MSG_BED_Z                            = _UxGT("Z стола");
-  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
+  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_NOZZLE_N                         = _UxGT("Сопло ~");
   LSTR MSG_NOZZLE_PARKED                    = _UxGT("Сопло запарковано");
   LSTR MSG_NOZZLE_STANDBY                   = _UxGT("Сопло ожидает");
-  LSTR MSG_BED                              = _UxGT("Стол,  ") LCD_STR_DEGREE "C";
-  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE "C";
+  LSTR MSG_BED                              = _UxGT("Стол,  ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE _UxGT("C");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_COOLER                         = _UxGT("Охлаждение лазера");
     LSTR MSG_COOLER_TOGGLE                  = _UxGT("Переключ. охлажд.");
@@ -382,11 +382,10 @@ namespace Language_ru {
   LSTR MSG_PID_AUTOTUNE                     = _UxGT("Автоподбор PID");
   LSTR MSG_PID_AUTOTUNE_E                   = _UxGT("Автоподбор PID *");
   LSTR MSG_PID_AUTOTUNE_DONE                = _UxGT("Подбор PID выполнен");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM             = _UxGT("Сбой автоподбора! Плохой экструдер.");
+  LSTR MSG_PID_BAD_HEATER_ID                = _UxGT("Сбой автоподбора! Плохой экструдер.");
   LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Сбой автоподбора! Температура повышена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Сбой автоподбора! Завершение времени.");
 
-  LSTR MSG_SELECT                           = _UxGT("Выбор");
   LSTR MSG_SELECT_E                         = _UxGT("Выбор *");
   LSTR MSG_ACC                              = _UxGT("Ускорение");
   LSTR MSG_JERK                             = _UxGT("Рывок");
@@ -582,7 +581,7 @@ namespace Language_ru {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI            = _UxGT("Установить TouchMI");
   LSTR MSG_MANUAL_DEPLOY                    = _UxGT("Установить зонд");
   LSTR MSG_MANUAL_STOW                      = _UxGT("Загрузить зонд");
-  LSTR MSG_HOME_FIRST                       = _UxGT("Сначала паркуй %s%s%s");
+  LSTR MSG_HOME_FIRST                       = _UxGT("Сначала паркуй %s");
   LSTR MSG_ZPROBE_OFFSETS                   = _UxGT("Смещения Z-зонда");
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Смещение X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Смещение Y");
