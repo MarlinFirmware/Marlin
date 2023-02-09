@@ -38,23 +38,23 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                             9
-#define Y_STOP_PIN                            10
-#define Z_STOP_PIN                            11
+#define X_STOP_PIN                            29
+#define Y_STOP_PIN                            31
+#define Z_STOP_PIN                            33
 
 //
 // Steppers
 //
-#define X_STEP_PIN                             2
-#define X_DIR_PIN                              5
-#define X_ENABLE_PIN                           8  // Shared enable pin
+#define X_STEP_PIN                            11
+#define X_DIR_PIN                             12 
+#define X_ENABLE_PIN                          13  // Shared enable pin
 
-#define Y_STEP_PIN                             3
-#define Y_DIR_PIN                              6
+#define Y_STEP_PIN                             9
+#define Y_DIR_PIN                             10
 #define Y_ENABLE_PIN                 X_ENABLE_PIN
 
-#define Z_STEP_PIN                             4
-#define Z_DIR_PIN                              7
+#define Z_STEP_PIN                             7
+#define Z_DIR_PIN                              8
 #define Z_ENABLE_PIN                 X_ENABLE_PIN
 
 // Designated with letter "A" on BOARD
@@ -72,6 +72,6 @@
 //
 // Heaters / Fans - These could be any digital input not hidden by board
 //
-//#define HEATER_0_PIN                        22  // EXTRUDER 1
+#define HEATER_0_PIN                           4  // EXTRUDER 1
 //#define HEATER_1_PIN                        23  // EXTRUDER 2
 //#define HEATER_BED_PIN                      24
