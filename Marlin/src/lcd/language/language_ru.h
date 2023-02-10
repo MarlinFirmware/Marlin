@@ -562,8 +562,8 @@ namespace Language_ru {
   LSTR MSG_BLTOUCH                          = _UxGT("Z-зонд BLTouch");
   LSTR MSG_BLTOUCH_SELFTEST                 = _UxGT("Тестирование BLTouch");
   LSTR MSG_BLTOUCH_RESET                    = _UxGT("Сброс BLTouch");
-  LSTR MSG_BLTOUCH_STOW                     = _UxGT("Выдвинуть BLTouch");
-  LSTR MSG_BLTOUCH_DEPLOY                   = _UxGT("Втянуть BLTouch");
+  LSTR MSG_BLTOUCH_STOW                     = _UxGT("Втянуть BLTouch");
+  LSTR MSG_BLTOUCH_DEPLOY                   = _UxGT("Выдвинуть BLTouch");
   LSTR MSG_BLTOUCH_SW_MODE                  = _UxGT("Режим SW");
   LSTR MSG_BLTOUCH_5V_MODE                  = _UxGT("Режим 5V");
   LSTR MSG_BLTOUCH_OD_MODE                  = _UxGT("Режим OD");
