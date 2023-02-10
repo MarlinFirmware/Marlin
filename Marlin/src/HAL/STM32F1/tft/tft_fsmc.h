@@ -32,13 +32,9 @@
 
 #ifndef FSMC_DMA_DEV
   #define FSMC_DMA_DEV      DMA2
-#else
-  #error "You are trying to use custom FSMC_DMA_DEV value. Remove this line to continue at your own risk."
 #endif
 #ifndef FSMC_DMA_CHANNEL
   #define FSMC_DMA_CHANNEL  DMA_CH5
-#else
-  #error "You are trying to use custom FSMC_DMA_CHANNEL value. Remove this line to continue at your own risk."
 #endif
 
 #define DATASIZE_8BIT  DMA_SIZE_8BITS
