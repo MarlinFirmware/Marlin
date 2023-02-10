@@ -187,7 +187,7 @@ class MarlinHAL {
 public:
 
   // Earliest possible init, before setup()
-  MarlinHAL() {}
+  MarlinHAL();
 
   // Watchdog
   static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
