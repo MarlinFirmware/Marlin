@@ -1215,7 +1215,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #if SECONDARY_LINEAR_AXES
       if (UNEAR_ZERO(cartesian_mm_sqr)) {
         // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-        cartesian_mm_sqr = (
+        cartesian_mm_sqr = (0.0f
           SECONDARY_AXIS_GANG(
             IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
             IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
@@ -1332,33 +1332,51 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       #if HAS_ROTATIONAL_AXES
         bool cartes_move = true;
       #endif
-      float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
 
-      #if SECONDARY_LINEAR_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          cartesian_mm_sqr = (
-            SECONDARY_AXIS_GANG(
-              IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
-              IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
-              IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
-              IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
-              IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
-              IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
-            )
-          );
-        }
-      #endif
+      #if ENABLED(ARTICULATED_ROBOT_ARM)
+        // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
+        // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
+        float cartesian_mm = SQRT(NUM_AXIS_GANG(
+            sq(diff.x), + sq(diff.y), + sq(diff.z),
+          + sq(diff.i), + sq(diff.j), + sq(diff.k),
+          + sq(diff.u), + sq(diff.v), + sq(diff.w)
+        ));
+      #elif ENABLED(FOAMCUTTER_XYUV)
+        #if HAS_J_AXIS
+          // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
+          float cartesian_mm = _MAX(sq(diff.x) + sq(diff.y), sq(diff.i) + sq(diff.j));
+        #else // Foamcutter with only two axes (XY)
+          float cartesian_mm = sq(diff.x) + sq(diff.y);
+        #endif
+      #else
+        float cartesian_mm_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
 
-      #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          cartes_move = false;
-          cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
-        }
-      #endif
+        #if SECONDARY_LINEAR_AXES
+          if (UNEAR_ZERO(distance_sqr)) {
+            // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+            cartesian_mm_sqr = (0.0f
+              SECONDARY_AXIS_GANG(
+                IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
+                IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
+                IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
+                IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
+                IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
+                IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
+              )
+            );
+          }
+        #endif
 
-      float cartesian_mm = SQRT(cartesian_mm_sqr);
+        #if HAS_ROTATIONAL_AXES
+          if (UNEAR_ZERO(distance_sqr)) {
+            // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+            cartes_move = false;
+            cartesian_mm_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+          }
+        #endif
+
+        float cartesian_mm = SQRT(cartesian_mm_sqr);
+      #endif    
 
       // If the move is very short, check the E move distance
       TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
