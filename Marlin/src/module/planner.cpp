@@ -2152,82 +2152,34 @@ bool Planner::_populate_block(
     if (hints.millimeters)
       block->millimeters = hints.millimeters;
     else {
-      /**
-       * Distance for interpretation of feedrate in accordance with LinuxCNC (the successor of
-       * NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
-       *
-       * Assume:
-       *   - X, Y, Z are the primary linear axes;
-       *   - U, V, W are secondary linear axes;
-       *   - A, B, C are rotational axes.
-       *
-       * Then:
-       *   - dX, dY, dZ are the displacements of the primary linear axes;
-       *   - dU, dV, dW are the displacements of linear axes;
-       *   - dA, dB, dC are the displacements of rotational axes.
-       *
-       * The time it takes to execute a move command with feedrate F is t = D/F,
-       * plus any time for acceleration and deceleration.
-       * Here, D is the total distance, calculated as follows:
-       *
-       *   D^2 = dX^2 + dY^2 + dZ^2
-       *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
-       *     D^2 = dU^2 + dV^2 + dW^2
-       *   if D^2 == 0 (only rotational axes are moved):
-       *     D^2 = dA^2 + dB^2 + dC^2
-       */
-      float distance_sqr = (
-        #if ENABLED(ARTICULATED_ROBOT_ARM)
-          // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
-          // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
-          NUM_AXIS_GANG(
-              sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
-            + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
-            + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w)
-          )
-        #elif ENABLED(FOAMCUTTER_XYUV)
-          #if HAS_J_AXIS
-            // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
-            _MAX(sq(steps_dist_mm.x) + sq(steps_dist_mm.y), sq(steps_dist_mm.i) + sq(steps_dist_mm.j))
-          #else // Foamcutter with only two axes (XY)
-            sq(steps_dist_mm.x) + sq(steps_dist_mm.y)
-          #endif
-        #elif ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-          XYZ_GANG(sq(steps_dist_mm.head.x), + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.z))
+      const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
+        steps_dist_mm.e,
+        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+          steps_dist_mm.head.x,
+          steps_dist_mm.head.y,
+          steps_dist_mm.z,
         #elif CORE_IS_XZ
-          XYZ_GANG(sq(steps_dist_mm.head.x), + sq(steps_dist_mm.y),      + sq(steps_dist_mm.head.z))
+          steps_dist_mm.head.x,
+          steps_dist_mm.y,
+          steps_dist_mm.head.z,
         #elif CORE_IS_YZ
-          XYZ_GANG(sq(steps_dist_mm.x),      + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.head.z))
+          steps_dist_mm.x,
+          steps_dist_mm.head.y,
+          steps_dist_mm.head.z,
         #else
-          XYZ_GANG(sq(steps_dist_mm.x),       + sq(steps_dist_mm.y),      + sq(steps_dist_mm.z))
+          steps_dist_mm.x,
+          steps_dist_mm.y,
+          steps_dist_mm.z,
         #endif
+        steps_dist_mm.i,
+        steps_dist_mm.j,
+        steps_dist_mm.k,
+        steps_dist_mm.u,
+        steps_dist_mm.v,
+        steps_dist_mm.w
       );
 
-      #if SECONDARY_LINEAR_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          distance_sqr = (0.0f
-            SECONDARY_AXIS_GANG(
-              IF_DISABLED(AXIS4_ROTATES, + sq(steps_dist_mm.i)),
-              IF_DISABLED(AXIS5_ROTATES, + sq(steps_dist_mm.j)),
-              IF_DISABLED(AXIS6_ROTATES, + sq(steps_dist_mm.k)),
-              IF_DISABLED(AXIS7_ROTATES, + sq(steps_dist_mm.u)),
-              IF_DISABLED(AXIS8_ROTATES, + sq(steps_dist_mm.v)),
-              IF_DISABLED(AXIS9_ROTATES, + sq(steps_dist_mm.w))
-            )
-          );
-        }
-      #endif
-
-      #if HAS_ROTATIONAL_AXES && NONE(FOAMCUTTER_XYUV, ARTICULATED_ROBOT_ARM)
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          cartesian_move = false;
-          distance_sqr = ROTATIONAL_AXIS_GANG(sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k), + sq(steps_dist_mm.u), + sq(steps_dist_mm.v), + sq(steps_dist_mm.w));
-        }
-      #endif
-
-      block->millimeters = SQRT(distance_sqr);
+      block->millimeters = get_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
     }
 
     /**
@@ -3148,55 +3100,19 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
   #if IS_KINEMATIC
 
-    #if HAS_JUNCTION_DEVIATION
-      const xyze_pos_t cart_dist_mm = LOGICAL_AXIS_ARRAY(
-        cart.e - position_cart.e,
-        cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
-        cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
-        cart.u - position_cart.u, cart.v - position_cart.v, cart.w - position_cart.w
-      );
-    #else
-      const xyz_pos_t cart_dist_mm = NUM_AXIS_ARRAY(
-        cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
-        cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
-        cart.u - position_cart.u, cart.v - position_cart.v, cart.w - position_cart.w
-      );
-    #endif
+    const xyze_pos_t cart_dist_mm = LOGICAL_AXIS_ARRAY(
+      cart.e - position_cart.e,
+      cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
+      cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
+      cart.u - position_cart.u, cart.v - position_cart.v, cart.w - position_cart.w
+    );
 
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
 
     PlannerHints ph = hints;
-    if (!hints.millimeters) {
-      float dist_sqr = XYZ_GANG(sq(cart_dist_mm.x), + sq(cart_dist_mm.y), + sq(cart_dist_mm.z));
-
-      #if SECONDARY_LINEAR_AXES
-        if (UNEAR_ZERO(dist_sqr)) {
-          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          // that define linear movement in a coordinate system that is rotated with the tool
-          dist_sqr = (
-            SECONDARY_AXIS_GANG(
-              IF_DISABLED(AXIS4_ROTATES, + sq(cart_dist_mm.i)),
-              IF_DISABLED(AXIS5_ROTATES, + sq(cart_dist_mm.j)),
-              IF_DISABLED(AXIS6_ROTATES, + sq(cart_dist_mm.k)),
-              IF_DISABLED(AXIS7_ROTATES, + sq(cart_dist_mm.u)),
-              IF_DISABLED(AXIS8_ROTATES, + sq(cart_dist_mm.v)),
-              IF_DISABLED(AXIS9_ROTATES, + sq(cart_dist_mm.w))
-            )
-          );
-        }
-      #endif
-
-      #if HAS_ROTATIONAL_AXES
-        if (UNEAR_ZERO(dist_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          ph.cartesian_move = false;
-          dist_sqr = ROTATIONAL_AXIS_GANG(sq(cart_dist_mm.i), + sq(cart_dist_mm.j), + sq(cart_dist_mm.k), + sq(cart_dist_mm.u), + sq(cart_dist_mm.v), + sq(cart_dist_mm.w));
-        }
-      #endif
-
-      ph.millimeters = SQRT(dist_sqr);
-    }
+    if (!hints.millimeters)
+      ph.millimeters = get_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
 
     #if DISABLED(FEEDRATE_SCALING)
 
