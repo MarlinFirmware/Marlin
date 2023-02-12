@@ -42,7 +42,11 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
+<<<<<<< HEAD
   #define STRING_DISTRIBUTION_DATE "2023-02-04"
+=======
+  #define STRING_DISTRIBUTION_DATE "2023-02-12"
+>>>>>>> 0ddce13ebe ([cron] Bump distribution date (2023-02-12))
 #endif
 
 /**
