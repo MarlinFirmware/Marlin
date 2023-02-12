@@ -45,7 +45,11 @@
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = parser.intval('E', active_extruder);
+  const uint8_t e = TERN_(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder), 0);
+  if (e >= (EXTRUDERS)) {
+    SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
+    return;
+  }
 
   if (parser.seen_test('T')) {
     LCD_MESSAGE(MSG_MPC_AUTOTUNE);
