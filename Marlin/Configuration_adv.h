@@ -1705,8 +1705,11 @@
 // On the Info Screen, display XY with one decimal place when possible
 // #define LCD_DECIMAL_SMALL_XY
 
-// Show the E position (filament used) during printing
-// #define LCD_SHOW_E_TOTAL
+  // Show the E position (filament used) during printing
+  //#define LCD_SHOW_E_TOTAL
+
+  // Display a negative temperature instead of "err"
+  //#define SHOW_TEMPERATURE_BELOW_ZERO
 
 /**
  * LED Control Menu
