@@ -68,9 +68,8 @@ public:
     }
 
     // multi block optimization
-    uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT;
     bool done = false;
-    while (!done && rcount--) {
+    for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
       uint8_t *cBuf = pBuf;
       sd2card->writeStart(blkAddr);
       bool okay = true;                   // Assume success
@@ -99,9 +98,8 @@ public:
     }
 
     // multi block optimization
-    uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT;
     bool done = false;
-    while (!done && rcount--) {
+    for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; !done && rcount--;) {
       uint8_t *cBuf = pBuf;
       sd2card->readStart(blkAddr);
       bool okay = true;                   // Assume success
