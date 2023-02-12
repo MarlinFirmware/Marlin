@@ -68,28 +68,26 @@ public:
     }
 
     // multi block optimization
-    uint32_t multi_retry_cnt = SD_MULTIBLOCK_RETRY_CNT;
-
-  RETRY_MULTI:
-    uint32 i = blkLen;
-    uint8_t *cBuf = pBuf;
-    sd2card->writeStart(blkAddr);
-    while (i--) {
-      hal.watchdog_refresh();
-      if (sd2card->writeData(cBuf) == false)
-      {
-        sd2card->writeStop();
-        if (--multi_retry_cnt == 0)
-          goto FAIL;
-        multi_retry_cnt--;
-        goto RETRY_MULTI:
+    uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT;
+    bool done = false;
+    while (!done && rcount--) {
+      uint8_t *cBuf = pBuf;
+      sd2card->writeStart(blkAddr);
+      bool okay = true;                   // Assume success
+      for (uint32 i = blkLen; i--;) {
+        hal.watchdog_refresh();
+        if (!sd2card->writeData(cBuf)) {  // Write. Did it fail?
+          sd2card->writeStop();           // writeStop for new writeStart
+          okay = false;                   // Failed, so retry
+          break;                          // Go to while... below
+        }
+        cBuf += BLOCK_SIZE;
       }
-      cBuf += BLOCK_SIZE;
+      done = okay;                        // Done if no error occurred
     }
-    sd2card->writeStop();
-    return true;
-    FAIL:
-    return false;
+
+    if (done) sd2card->writeStop();
+    return done;
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
@@ -101,33 +99,29 @@ public:
     }
 
     // multi block optimization
-    uint32_t multi_retry_cnt = SD_MULTIBLOCK_RETRY_CNT;
-
-  RETRY_MULTI:
-    uint32 i = blkLen;
-    uint8_t *cBuf = pBuf;
-    sd2card->readStart(blkAddr);
-    while (i--) {
-      hal.watchdog_refresh();
-      if (sd2card->readData(cBuf) == false)
-      {
-        sd2card->readStop();
-        if (--multi_retry_cnt == 0)
-          goto FAIL;
-        multi_retry_cnt--;
-        goto RETRY_MULTI:
+    uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT;
+    bool done = false;
+    while (!done && rcount--) {
+      uint8_t *cBuf = pBuf;
+      sd2card->readStart(blkAddr);
+      bool okay = true;                   // Assume success
+      for (uint32 i = blkLen; i--;) {
+        hal.watchdog_refresh();
+        if (!sd2card->readData(cBuf)) {   // Read. Did it fail?
+          sd2card->readStop();            // readStop for new readStart
+          okay = false;                   // Failed, so retry
+          break;                          // Go to while... below
+        }
+        cBuf += BLOCK_SIZE;
       }
-      cBuf += BLOCK_SIZE;
+      done = okay;                        // Done if no error occurred
     }
-    sd2card->readStop();
-    return true;
-    FAIL:
-    return false;
+
+    if (done) sd2card->readStop();
+    return done;
   }
 
-  bool IsReady() {
-    return diskIODriver()->isReady();
-  }
+  bool IsReady() { return diskIODriver()->isReady(); }
 };
 
 Sd2CardUSBMscHandler usbMscHandler;
