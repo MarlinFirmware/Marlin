@@ -315,7 +315,7 @@ void MarlinUI::draw_status_screen() {
     // Draw a frame around the x/y/z values
     DWIN_Draw_Rectangle(0, Select_Color,
       #if ENABLED(DWIN_MARLINUI_PORTRAIT)
-        0, 193, LCD_PIXEL_WIDTH, 260
+        0, 193, LCD_PIXEL_WIDTH - 1, 260
       #else
         0, 115, LCD_PIXEL_WIDTH - 1, 152
       #endif
@@ -365,6 +365,8 @@ void MarlinUI::draw_status_screen() {
       #endif
     );
   }
+
+  // TODO!
 
   //
   // Elapsed time
@@ -453,7 +455,7 @@ void MarlinUI::draw_status_screen() {
         DWIN_Draw_String(
           false, font16x32, Percent_Color, Color_Bg_Black,
           pb_left + (pb_width - dwin_string.length * 16) / 2,
-          pb_top + (pb_height - 32) / 2,
+          pb_top + (pb_height - 32) / 2 - 1,
           S(dwin_string.string())
         );
       #endif
