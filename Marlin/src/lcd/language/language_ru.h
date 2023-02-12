@@ -245,7 +245,7 @@ namespace Language_ru {
   LSTR MSG_G26_HEATING_NOZZLE               = _UxGT("G26 нагрев сопла");
   LSTR MSG_G26_MANUAL_PRIME                 = _UxGT("Ручная прочистка");
   LSTR MSG_G26_FIXED_LENGTH                 = _UxGT("Прочистка фикс.длины");
-  LSTR MSG_G26_PRIME_DONE                   = _UxGT("Прочистка сделана");
+  LSTR MSG_G26_PRIME_DONE                   = _UxGT("Прочистка окончена");
   LSTR MSG_G26_CANCELED                     = _UxGT("G26 завершена");
   LSTR MSG_G26_LEAVING                      = _UxGT("Выйти из G26");
   LSTR MSG_UBL_CONTINUE_MESH                = _UxGT("Продолжить сетку");
