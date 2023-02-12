@@ -647,8 +647,8 @@ char *creat_title_text() {
 
         char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-        SdFile file;
-        SdFile *curDir;
+        MediaFile file;
+        MediaFile *curDir;
         const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
