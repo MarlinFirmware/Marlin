@@ -44,7 +44,7 @@
   #ifndef SD_RETRY_COUNT
     #define SD_RETRY_COUNT 3
   #elif SD_RETRY_COUNT < 1
-    #error "SD_RETRY_COUNT has to be at least 1"
+    #error "SD_RETRY_COUNT must be greater than or equal to 1."
   #endif
 #endif
 
@@ -105,17 +105,16 @@ uint8_t DiskIODriver_SPI_SD::cardCommand(const uint8_t cmd, const uint32_t arg) 
   // Select card
   chipSelect();
 
-#ifdef SD_WRITE_TIMEOUT
-  // Wait up to 300 ms if busy
-  waitNotBusy(SD_WRITE_TIMEOUT);
-#endif
+  #ifdef SD_WRITE_TIMEOUT
+    waitNotBusy(SD_WRITE_TIMEOUT);  // Wait up to 300 ms if busy
+  #endif
 
   uint8_t *pa = (uint8_t *)(&arg);
 
   #if ENABLED(SD_CHECK_AND_RETRY)
 
     // Form message
-    uint8_t d[6] = {(uint8_t) (cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
+    uint8_t d[6] = { uint8_t(cmd | 0x40), pa[3], pa[2], pa[1], pa[0] };
 
     // Add crc
     d[5] = CRC7(d, 5);
@@ -203,7 +202,7 @@ bool DiskIODriver_SPI_SD::erase(uint32_t firstBlock, uint32_t lastBlock) {
   if (!csd.v1.erase_blk_en) {
     // erase size mask
     uint8_t m = (csd.v1.sector_size_high << 1) | csd.v1.sector_size_low;
-    if ((firstBlock & m) != 0 || ((lastBlock + 1) & m) != 0) {
+    if ((firstBlock & m) || ((lastBlock + 1) & m)) {
       // error card can't erase specified area
       error(SD_CARD_ERROR_ERASE_SINGLE_BLOCK);
       goto FAIL;
@@ -214,16 +213,18 @@ bool DiskIODriver_SPI_SD::erase(uint32_t firstBlock, uint32_t lastBlock) {
     error(SD_CARD_ERROR_ERASE);
     goto FAIL;
   }
-#ifdef SD_ERASE_TIMEOUT
-  if (!waitNotBusy(SD_ERASE_TIMEOUT)) {
-    error(SD_CARD_ERROR_ERASE_TIMEOUT);
-    goto FAIL;
-  }
-#else
-  while (spiRec() != 0xFF) {}
-#endif
+  #ifdef SD_ERASE_TIMEOUT
+    if (!waitNotBusy(SD_ERASE_TIMEOUT)) {
+      error(SD_CARD_ERROR_ERASE_TIMEOUT);
+      goto FAIL;
+    }
+  #else
+    while (spiRec() != 0xFF) {}
+  #endif
+
   chipDeselect();
   return true;
+
   FAIL:
   chipDeselect();
   return false;
@@ -260,9 +261,9 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
-#ifdef SD_INIT_TIMEOUT
-  const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
-#endif
+  #ifdef SD_INIT_TIMEOUT
+    const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
+  #endif
   uint32_t arg;
 
   hal.watchdog_refresh(); // In case init takes too long
@@ -290,12 +291,12 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
 
   // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
-#ifdef SD_INIT_TIMEOUT
-    if (ELAPSED(millis(), init_timeout)) {
-      error(SD_CARD_ERROR_CMD0);
-      goto FAIL;
-    }
-#endif
+    #ifdef SD_INIT_TIMEOUT
+      if (ELAPSED(millis(), init_timeout)) {
+        error(SD_CARD_ERROR_CMD0);
+        goto FAIL;
+      }
+    #endif
   }
 
   #if ENABLED(SD_CHECK_AND_RETRY)
@@ -318,12 +319,12 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
       break;
     }
 
-#ifdef SD_INIT_TIMEOUT
-    if (ELAPSED(millis(), init_timeout)) {
-      error(SD_CARD_ERROR_CMD8);
-      goto FAIL;
-    }
-#endif
+    #ifdef SD_INIT_TIMEOUT
+      if (ELAPSED(millis(), init_timeout)) {
+        error(SD_CARD_ERROR_CMD8);
+        goto FAIL;
+      }
+    #endif
   }
 
   hal.watchdog_refresh(); // In case init takes too long
@@ -331,13 +332,13 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   // Initialize card and send host supports SDHC if SD2
   arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
   while ((status_ = cardAcmd(ACMD41, arg)) != R1_READY_STATE) {
-#ifdef SD_INIT_TIMEOUT
-    // Check for timeout
-    if (ELAPSED(millis(), init_timeout)) {
-      error(SD_CARD_ERROR_ACMD41);
-      goto FAIL;
-    }
-#endif
+    #ifdef SD_INIT_TIMEOUT
+      // Check for timeout
+      if (ELAPSED(millis(), init_timeout)) {
+        error(SD_CARD_ERROR_ACMD41);
+        goto FAIL;
+      }
+    #endif
   }
   // If SD2 read OCR register to check for SDHC card
   if (type() == SD_CARD_TYPE_SD2) {
@@ -480,16 +481,17 @@ bool DiskIODriver_SPI_SD::readData(uint8_t *dst) {
 bool DiskIODriver_SPI_SD::readData(uint8_t *dst, const uint16_t count) {
   bool success = false;
 
-#ifdef SD_READ_TIMEOUT
-  const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
-#endif
+  #ifdef SD_READ_TIMEOUT
+    const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+  #endif
+
   while ((status_ = spiRec()) == 0xFF) {      // Wait for start block token
-#ifdef SD_READ_TIMEOUT
-    if (ELAPSED(millis(), read_timeout)) {
-      error(SD_CARD_ERROR_READ_TIMEOUT);
-      goto FAIL;
-    }
-#endif
+    #ifdef SD_READ_TIMEOUT
+      if (ELAPSED(millis(), read_timeout)) {
+        error(SD_CARD_ERROR_READ_TIMEOUT);
+        goto FAIL;
+      }
+    #endif
   }
 
   if (status_ == DATA_START_BLOCK) {
@@ -507,9 +509,9 @@ bool DiskIODriver_SPI_SD::readData(uint8_t *dst, const uint16_t count) {
   else
     error(SD_CARD_ERROR_READ);
 
-#ifdef SD_READ_TIMEOUT
-  FAIL:
-#endif
+  #ifdef SD_READ_TIMEOUT
+    FAIL:
+  #endif
   chipDeselect();
   return success;
 }
@@ -606,15 +608,16 @@ bool DiskIODriver_SPI_SD::writeBlock(uint32_t blockNumber, const uint8_t *src) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
   if (!cardCommand(CMD24, blockNumber)) {
     if (writeData(DATA_START_BLOCK, src)) {
-#ifdef SD_WRITE_TIMEOUT
-      if (!waitNotBusy(SD_WRITE_TIMEOUT)) {              // Wait for flashing to complete
-        error(SD_CARD_ERROR_WRITE_TIMEOUT);
-      }
-      else
-#else
-      while (spiRec() != 0xFF) {}
-#endif
-      {
+      #ifdef SD_WRITE_TIMEOUT
+        if (!waitNotBusy(SD_WRITE_TIMEOUT))             // Wait for flashing to complete
+          error(SD_CARD_ERROR_WRITE_TIMEOUT);
+        else
+          success = true;
+      #else
+        while (spiRec() != 0xFF) {}
+        success = true;
+      #endif
+      if (success) {
         success = !(cardCommand(CMD13, 0) || spiRec()); // Response is r2 so get and check two bytes for nonzero
         if (!success) error(SD_CARD_ERROR_WRITE_PROGRAMMING);
       }
@@ -637,17 +640,20 @@ bool DiskIODriver_SPI_SD::writeData(const uint8_t *src) {
 
   chipSelect();
   // Wait for previous write to finish
-#ifdef SD_WRITE_TIMEOUT
-  if (!waitNotBusy(SD_WRITE_TIMEOUT))
-    goto FAIL;
-#else
-  while (spiRec() != 0xFF) {}
-#endif
-  if (!writeData(WRITE_MULTIPLE_TOKEN, src))
-    goto FAIL;
-  chipDeselect();
-  return true;
-FAIL:
+  #ifdef SD_WRITE_TIMEOUT
+    if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto FAIL;
+  #else
+    while (spiRec() != 0xFF) {}
+  #endif
+
+  if (writeData(WRITE_MULTIPLE_TOKEN, src)) {
+    chipDeselect();
+    return true;
+  }
+
+  #ifdef SD_WRITE_TIMEOUT
+    FAIL:
+  #endif
   chipDeselect();
   error(SD_CARD_ERROR_WRITE_MULTIPLE);
   return false;
@@ -707,30 +713,29 @@ bool DiskIODriver_SPI_SD::writeStop() {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   chipSelect();
-#ifdef SD_WRITE_TIMEOUT
-  if (!waitNotBusy(SD_WRITE_TIMEOUT)) {
-    error(SD_CARD_ERROR_STOP_TRAN);
-    goto FAIL;
-  }
-#else
-  while (spiRec() != 0xFF) {}
-#endif
+  #ifdef SD_WRITE_TIMEOUT
+    if (!waitNotBusy(SD_WRITE_TIMEOUT)) {
+      error(SD_CARD_ERROR_STOP_TRAN);
+      goto FAIL;
+    }
+  #else
+    while (spiRec() != 0xFF) {}
+  #endif
   spiSend(STOP_TRAN_TOKEN);
-#ifdef SD_WRITE_TIMEOUT
-  if (!waitNotBusy(SD_WRITE_TIMEOUT)) {
-    goto FAIL;
-  }
-#else
-  while (spiRec() != 0xFF) {}
-#endif
+  #ifdef SD_WRITE_TIMEOUT
+    if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto FAIL;
+  #else
+    while (spiRec() != 0xFF) {}
+  #endif
 
   chipDeselect();
   return true;
-#ifdef SD_WRITE_TIMEOUT
-FAIL:
-  chipDeselect();
-  return false;
-#endif
+
+  #ifdef SD_WRITE_TIMEOUT
+    FAIL:
+    chipDeselect();
+    return false;
+  #endif
 }
 
 #endif // NEED_SD2CARD_SPI

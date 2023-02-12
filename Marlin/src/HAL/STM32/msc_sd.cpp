@@ -36,7 +36,7 @@
 #ifndef SD_MULTIBLOCK_RETRY_CNT
   #define SD_MULTIBLOCK_RETRY_CNT 1
 #elif SD_MULTIBLOCK_RETRY_CNT < 1
-  #error "SD_MULTIBLOCK_RETRY_CNT has to be at least 1"
+  #error "SD_MULTIBLOCK_RETRY_CNT must be greater than or equal to 1."
 #endif
 
 class Sd2CardUSBMscHandler : public USBMscHandler {
