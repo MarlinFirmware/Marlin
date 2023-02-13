@@ -3505,7 +3505,7 @@ void MarlinSettings::reset() {
 
       gcode.M420_report(forReplay);
 
-      TERN_(GLOBAL_MESH_Z_OFFSET, gcode.M424_report(forReplay))
+      TERN_(GLOBAL_MESH_Z_OFFSET, gcode.M424_report(forReplay));
 
       #if ENABLED(MESH_BED_LEVELING)
 
