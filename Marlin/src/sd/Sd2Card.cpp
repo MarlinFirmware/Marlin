@@ -263,10 +263,15 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
 
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
+
   // 16-bit init start time allows over a minute
-  #ifdef SD_INIT_TIMEOUT
+  #if SD_INIT_TIMEOUT
     const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
+    #define INIT_TIMEOUT() ELAPSED(millis(), init_timeout)
+  #else
+    #define INIT_TIMEOUT() false
   #endif
+
   uint32_t arg;
 
   hal.watchdog_refresh(); // In case init takes too long
@@ -294,12 +299,10 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
 
   // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
-    #ifdef SD_INIT_TIMEOUT
-      if (ELAPSED(millis(), init_timeout)) {
-        error(SD_CARD_ERROR_CMD0);
-        goto FAIL;
-      }
-    #endif
+    if (INIT_TIMEOUT()) {
+      error(SD_CARD_ERROR_CMD0);
+      goto FAIL;
+    }
   }
 
   #if ENABLED(SD_CHECK_AND_RETRY)
@@ -322,12 +325,10 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
       break;
     }
 
-    #ifdef SD_INIT_TIMEOUT
-      if (ELAPSED(millis(), init_timeout)) {
-        error(SD_CARD_ERROR_CMD8);
-        goto FAIL;
-      }
-    #endif
+    if (INIT_TIMEOUT()) {
+      error(SD_CARD_ERROR_CMD8);
+      goto FAIL;
+    }
   }
 
   hal.watchdog_refresh(); // In case init takes too long
@@ -335,13 +336,11 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   // Initialize card and send host supports SDHC if SD2
   arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
   while ((status_ = cardAcmd(ACMD41, arg)) != R1_READY_STATE) {
-    #ifdef SD_INIT_TIMEOUT
-      // Check for timeout
-      if (ELAPSED(millis(), init_timeout)) {
-        error(SD_CARD_ERROR_ACMD41);
-        goto FAIL;
-      }
-    #endif
+    // Check for timeout
+    if (INIT_TIMEOUT()) {
+      error(SD_CARD_ERROR_ACMD41);
+      goto FAIL;
+    }
   }
 
   // If SD2 read OCR register to check for SDHC card
@@ -486,17 +485,18 @@ bool DiskIODriver_SPI_SD::readData(uint8_t *dst) {
 bool DiskIODriver_SPI_SD::readData(uint8_t *dst, const uint16_t count) {
   bool success = false;
 
-  #ifdef SD_READ_TIMEOUT
+  #if SD_READ_TIMEOUT
     const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
+    #define READ_TIMEOUT() ELAPSED(millis(), read_timeout)
+  #else
+    #define READ_TIMEOUT() false
   #endif
 
   while ((status_ = spiRec()) == 0xFF) {      // Wait for start block token
-    #ifdef SD_READ_TIMEOUT
-      if (ELAPSED(millis(), read_timeout)) {
-        error(SD_CARD_ERROR_READ_TIMEOUT);
-        goto FAIL;
-      }
-    #endif
+    if (READ_TIMEOUT()) {
+      error(SD_CARD_ERROR_READ_TIMEOUT);
+      goto FAIL;
+    }
   }
 
   if (status_ == DATA_START_BLOCK) {
@@ -514,9 +514,7 @@ bool DiskIODriver_SPI_SD::readData(uint8_t *dst, const uint16_t count) {
   else
     error(SD_CARD_ERROR_READ);
 
-  #ifdef SD_READ_TIMEOUT
-    FAIL:
-  #endif
+  FAIL:
   chipDeselect();
   return success;
 }
