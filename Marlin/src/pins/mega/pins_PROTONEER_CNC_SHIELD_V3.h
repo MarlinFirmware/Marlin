@@ -84,6 +84,6 @@
 // 
 // Limit Switches (engadido)
 // 
-#define X_MAX_PIN                            29
+#define X_MIN_PIN                            29
 #define Y_MIN_PIN                            31
 #define Z_MIN_PIN                            33
