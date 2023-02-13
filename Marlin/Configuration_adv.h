@@ -1455,6 +1455,9 @@
   // Show the E position (filament used) during printing
   //#define LCD_SHOW_E_TOTAL
 
+  // Display a negative temperature instead of "err"
+  //#define SHOW_TEMPERATURE_BELOW_ZERO
+
   /**
    * LED Control Menu
    * Add LED Control to the LCD menu

@@ -691,15 +691,9 @@ void __O2 Endstops::report_states() {
 
 } // Endstops::report_states
 
-#if HAS_DELTA_SENSORLESS_PROBING
-  #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
-  #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
-  #define _ENDSTOP_INVERTING(AXIS, ...) AXIS ##_MAX_ENDSTOP_INVERTING
-#else
-  #define __ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
-  #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
-  #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
-#endif
+#define __ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
+#define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
+#define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
 #define _ENDSTOP(AXIS, MINMAX) __ENDSTOP(AXIS, MINMAX)
 
 /**

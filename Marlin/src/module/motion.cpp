@@ -555,7 +555,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
  * - Delta may lower Z first to get into the free motion zone.
  * - Before returning, wait for the planner buffer to empty.
  */
-void do_blocking_move_to(NUM_AXIS_ARGS(const float), const_feedRate_t fr_mm_s/*=0.0f*/) {
+void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/*=0.0f*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
 
@@ -2281,25 +2281,18 @@ void prepare_line_to_destination() {
     #endif
 
     // Put away the Z probe
-    #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS && probe.stow()) return;
-    #endif
+    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-        line_to_current_position(
-          #if HOMING_Z_WITH_PROBE
-            (axis == Z_AXIS) ? z_probe_fast_mm_s :
-          #endif
-          homing_feedrate(axis)
-        );
+        line_to_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
           if (false
-            #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+            #ifdef NORMAL_AXIS
               || axis != NORMAL_AXIS
             #endif
           ) safe_delay(200);  // Short delay to allow belts to spring back
@@ -2406,7 +2399,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
    * Change the home offset for an axis.
    * Also refreshes the workspace offset.
    */
-  void set_home_offset(const AxisEnum axis, const float v) {
+  void set_home_offset(const AxisEnum axis, const_float_t v) {
     home_offset[axis] = v;
     update_workspace_offset(axis);
   }

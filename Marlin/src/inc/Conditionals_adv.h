@@ -1038,6 +1038,12 @@
   #endif
 #endif
 
+#if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
+    || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
+    || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
+  #define HAS_SAFE_BED_LEVELING 1
+#endif
+
 //
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
