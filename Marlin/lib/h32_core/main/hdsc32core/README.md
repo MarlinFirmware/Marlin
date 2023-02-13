@@ -1,6 +1,8 @@
 # About Memory Regions
 
-## Stock
+this readme relates to `hc32f46x_flash.ld`.
+
+## Stock Configuration
 
 in the stock configuration, .text and .data sections were located in a single memory region `FLASH`:
 
@@ -11,7 +13,7 @@ FLASH containing .text and .data:
 - end   : 0x00040420
 ```
 
-## New
+## New Configuration
 
 to ensure that data is not executed, the .text and .data sections are located into separate memory regions `FLASH_RX` (read-execute) and `FLASH_R` (read). 
 
@@ -37,14 +39,15 @@ FLASH_R containing .data:
 
 ### FLASH_RX
 
+`FLASH_RX` contains
 - `.text`
-- `.rodata`
-- `.ARM.extab`
-- `.ARM.exidx`
-
 
 ### FLASH_R
 
+`FLASH_R` contains
+- `.rodata`
+- `.ARM.extab`
+- `.ARM.exidx`
 - `.preinit_array`
 - `.init_array`
 - `.fini_array`
@@ -55,7 +58,7 @@ FLASH_R containing .data:
 ### Sections Overview
 
 ```
-/usr/share/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-readelf -lWS ./build/firmware.elf
+arm-none-eabi-readelf -lWS firmware.elf
 There are 30 section headers, starting at offset 0xb54e58:
 
 Section Headers:

@@ -48,18 +48,18 @@ SECTIONS
         *(.rodata)
         *(.rodata*)
         . = ALIGN(4);
-    } >FLASH_RX
+    } >FLASH_R
 
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } >FLASH_RX
+    } >FLASH_R
 
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } >FLASH_RX
+    } >FLASH_R
     __exidx_end = .;
 
     .preinit_array :
