@@ -22,6 +22,16 @@
             }
         },
         {
+            "label": "print memory segments",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Marlin && make -f H32.mk print-segments",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false
+            }
+        },
+        {
             "label": "clean",
             "type": "shell",
             "command": "cd ${workspaceFolder}/Marlin && make -f H32.mk clean",

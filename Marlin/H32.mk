@@ -108,6 +108,11 @@ OUTPUT_FILE_BASE = $(abspath $(BUILD_DIR)/firmware)
 # resolve library files (object and library)
 LIB_FILES_RESOLVED = $(call not-containing,$(EXCLUDE_LIB_OBJ_FILES),$(LIB_FILES))
 
+### Compiler Configuration ###
+TOOL_PREFIX = arm-none-eabi-
+C_STD = gnu17
+CPP_STD = gnu++17
+
 ### TARGETS ###
 # All
 all: $(OUTPUT_FILE_BASE).bin
@@ -116,11 +121,11 @@ all: $(OUTPUT_FILE_BASE).bin
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	@echo 'Compile $<'
 	@mkdir -p $(dir $@)
-	@arm-none-eabi-g++ \
+	@$(TOOL_PREFIX)g++ \
 		$(COMMON_GCC_ARGS) \
 		$(addprefix -D,$(C_DEFINES)) \
 		$(addprefix -I,$(INCLUDE_PATHS)) \
-		-std=gnu++14 \
+		-std=$(CPP_STD) \
 		-fabi-version=0 \
 		-MMD \
 		-MP \
@@ -133,11 +138,11 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 $(BUILD_DIR)/%.c.o: %.c
 	@echo 'Compile $<'
 	@mkdir -p $(dir $@)
-	@arm-none-eabi-gcc \
+	@$(TOOL_PREFIX)gcc \
 		$(COMMON_GCC_ARGS) \
 		$(addprefix -D,$(C_DEFINES)) \
 		$(addprefix -I,$(INCLUDE_PATHS)) \
-    	-std=c99 \
+    	-std=$(C_STD) \
     	-MMD \
     	-MP \
     	-MF"$(@:%.o=%.d)" \
@@ -149,7 +154,7 @@ $(BUILD_DIR)/%.c.o: %.c
 $(BUILD_DIR)/%.S.o: %.S
 	@echo 'Compile $<'
 	@mkdir -p $(dir $@)
-	@arm-none-eabi-gcc \
+	@$(TOOL_PREFIX)gcc \
 		$(COMMON_GCC_ARGS) \
     	-x assembler-with-cpp \
     	-MMD \
@@ -163,7 +168,7 @@ $(BUILD_DIR)/%.S.o: %.S
 $(OUTPUT_FILE_BASE).elf: $(OBJ_FILES)
 	@echo 'Linking Firmware'
 	@mkdir -p $(dir $@)
-	@arm-none-eabi-g++ \
+	@$(TOOL_PREFIX)g++ \
 		$(COMMON_GCC_ARGS) \
 		-T $(LINKER_SCRIPT_FILE) \
 		-Xlinker \
@@ -178,7 +183,11 @@ $(OUTPUT_FILE_BASE).elf: $(OBJ_FILES)
 $(OUTPUT_FILE_BASE).bin: $(OUTPUT_FILE_BASE).elf
 	@echo 'Creating Flash Image'
 	@mkdir -p $(dir $@)
-	@arm-none-eabi-objcopy -O binary $(OUTPUT_FILE_BASE).elf $(OUTPUT_FILE_BASE).bin
+	@$(TOOL_PREFIX)objcopy -O binary $(OUTPUT_FILE_BASE).elf $(OUTPUT_FILE_BASE).bin
+
+# print segments in the elf file
+print-segments: $(OUTPUT_FILE_BASE).elf
+	@$(TOOL_PREFIX)readelf -lWS $(OUTPUT_FILE_BASE).elf
 
 # clean
 clean:

@@ -23,8 +23,8 @@
             ],
             "intelliSenseMode": "linux-gcc-arm",
             "compilerPath": "/usr/bin/arm-none-eabi-g++",
-            "cStandard": "c99",
-            "cppStandard": "gnu++14"
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17"
         }
     ],
     "version": 4
