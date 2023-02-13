@@ -36,7 +36,13 @@
 #elif defined(TARGET_LPC1768)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/LPC1768/NAME)
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
-  #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32F1/NAME)
+  #ifdef TARGET_HC32F46x
+    // HC32F46x is very similar to the STM32F1, so marlin is 
+    // compiled as if it was running on a STM32F1, but with a modified HAL
+    #define HAL_PATH(PATH, NAME) XSTR(PATH/HC32F46x/NAME)
+  #else
+    #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32F1/NAME)
+  #endif
 #elif defined(ARDUINO_ARCH_STM32)
   #ifndef HAL_STM32
     #define HAL_STM32
