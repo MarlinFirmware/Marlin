@@ -120,7 +120,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 		$(COMMON_GCC_ARGS) \
 		$(addprefix -D,$(C_DEFINES)) \
 		$(addprefix -I,$(INCLUDE_PATHS)) \
-		-std=gnu++14 \
+		-std=gnu++17 \
 		-fabi-version=0 \
 		-MMD \
 		-MP \
@@ -137,7 +137,7 @@ $(BUILD_DIR)/%.c.o: %.c
 		$(COMMON_GCC_ARGS) \
 		$(addprefix -D,$(C_DEFINES)) \
 		$(addprefix -I,$(INCLUDE_PATHS)) \
-    	-std=c99 \
+    	-std=gnu17 \
     	-MMD \
     	-MP \
     	-MF"$(@:%.o=%.d)" \
