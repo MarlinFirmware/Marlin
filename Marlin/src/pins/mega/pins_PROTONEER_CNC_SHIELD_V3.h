@@ -80,3 +80,10 @@
 // Servos (engadido)
 // 
 #define SERVO0_PIN                            40
+
+// 
+// Limit Switches (engadido)
+// 
+#define X_MAX_PIN                            29
+#define Y_MIN_PIN                            31
+#define Z_MIN_PIN                            33
