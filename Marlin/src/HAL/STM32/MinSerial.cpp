@@ -29,7 +29,6 @@
 #if ENABLED(POSTMORTEM_DEBUGGING)
 
 #include "../shared/MinSerial.h"
-#include "watchdog.h"
 
 /* Instruction Synchronization Barrier */
 #define isb() __asm__ __volatile__ ("isb" : : : "memory")
@@ -120,7 +119,7 @@ static void TX(char c) {
   #if WITHIN(SERIAL_PORT, 1, 6)
     constexpr uint32_t usart_sr_txe = _BV(7);
     while (!(regs->SR & usart_sr_txe)) {
-      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+      hal.watchdog_refresh();
       sw_barrier();
     }
     regs->DR = c;

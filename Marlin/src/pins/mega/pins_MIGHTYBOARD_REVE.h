@@ -149,8 +149,8 @@
 
 #define MOSFET_1_PIN                           6  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
 #define MOSFET_2_PIN                           7  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
-#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB6 #24 -> Logical 11
-#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB5 #25 -> Logical 12
+#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB5 #24 -> Logical 11
+#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB6 #25 -> Logical 12
 #define MOSFET_5_PIN                          45  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
 #define MOSFET_6_PIN                          44  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
 
@@ -203,14 +203,13 @@
 
     #define BTN_EN2                           75  // J4, UP
     #define BTN_EN1                           73  // J3, DOWN
-    //STOP button connected as KILL_PIN
-    #define KILL_PIN                          14  // J1, RIGHT
-    //KILL - not connected
+    // STOP button connected as KILL_PIN
+    #define KILL_PIN                          14  // J1, RIGHT (not connected)
 
     #define BEEPER_PIN                         8  // H5, SD_WP
 
-    //on board leds
-    #define STAT_LED_RED_LED          SERVO0_PIN  // C1 (1280-EX1, DEBUG2)
+    // Onboard leds
+    #define STAT_LED_RED_PIN          SERVO0_PIN  // C1 (1280-EX1, DEBUG2)
     #define STAT_LED_BLUE_PIN         SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
 
   #else
@@ -220,9 +219,9 @@
     #define SR_STROBE_PIN                     33  // C4
 
     #define BTN_UP                            75  // J4
-    #define BTN_DWN                           73  // J3
-    #define BTN_LFT                           72  // J2
-    #define BTN_RT                            14  // J1
+    #define BTN_DOWN                          73  // J3
+    #define BTN_LEFT                          72  // J2
+    #define BTN_RIGHT                         14  // J1
 
     // Disable encoder
     #undef BTN_EN1

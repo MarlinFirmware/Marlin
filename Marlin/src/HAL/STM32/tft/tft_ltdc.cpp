@@ -356,7 +356,7 @@ void TFT_LTDC::WriteReg(uint16_t Reg) {
   reg = Reg;
 }
 
-void TFT_LTDC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_LTDC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
 
   while (x_cur != x_min && Count) {
     Transmit(*Data);
@@ -372,9 +372,9 @@ void TFT_LTDC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
     if (MemoryIncrease == DMA_PINC_ENABLE) {
       DrawImage(x_min, y_cur, x_min + width, y_cur + height, Data);
       Data += width * height;
-    } else {
-      DrawRect(x_min, y_cur, x_min + width, y_cur + height, *Data);
     }
+    else
+      DrawRect(x_min, y_cur, x_min + width, y_cur + height, *Data);
     y_cur += height;
   }
 

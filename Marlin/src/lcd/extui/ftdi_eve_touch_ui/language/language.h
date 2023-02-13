@@ -20,4 +20,6 @@
  ****************************************************************************/
 #pragma once
 
+#define LSTR PROGMEM Language_Str
+
 #include "language_en.h"

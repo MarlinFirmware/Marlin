@@ -31,7 +31,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Black STM32F4VET6 supports up to 2 hotends / E-steppers."
+  #error "Black STM32F4VET6 supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME

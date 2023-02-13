@@ -31,8 +31,6 @@
 
 #if BOTH(DWIN_LCD_PROUI, HAS_MESH)
 
-#include "meshviewer.h"
-
 #include "../../../core/types.h"
 #include "../../marlinui.h"
 #include "dwin_lcd.h"
@@ -40,9 +38,10 @@
 #include "dwin.h"
 #include "dwin_popup.h"
 #include "../../../feature/bedlevel/bedlevel.h"
+#include "meshviewer.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "ubl_tools.h"
+  #include "bedlevel_tools.h"
 #endif
 
 MeshViewerClass MeshViewer;
@@ -74,7 +73,7 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
   LOOP_S_L_N(x, 1, sizex - 1) DrawMeshVLine(x);
   LOOP_S_L_N(y, 1, sizey - 1) DrawMeshHLine(y);
   LOOP_L_N(y, sizey) {
-    watchdog_refresh();
+    hal.watchdog_refresh();
     LOOP_L_N(x, sizex) {
       uint16_t color = DWINUI::RainbowInt(zmesh[x][y], _MIN(-5, minz), _MAX(5, maxz));
       uint8_t radius = rm(zmesh[x][y]);
@@ -112,10 +111,10 @@ void MeshViewerClass::DrawMesh(bed_mesh_t zval, const uint8_t sizex, const uint8
 
 void MeshViewerClass::Draw(bool withsave /*= false*/) {
   Title.ShowCaption(GET_TEXT_F(MSG_MESH_VIEWER));
-  #if ENABLED(USE_UBL_VIEWER)
+  #if USE_UBL_VIEWER
     DWINUI::ClearMainArea();
-    ubl_tools.viewer_print_value = true;
-    ubl_tools.Draw_Bed_Mesh(-1, 1, 8, 10 + TITLE_HEIGHT);
+    bedLevelTools.viewer_print_value = true;
+    bedLevelTools.Draw_Bed_Mesh(-1, 1, 8, 10 + TITLE_HEIGHT);
   #else
     DrawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
   #endif
@@ -127,8 +126,8 @@ void MeshViewerClass::Draw(bool withsave /*= false*/) {
   else
     DWINUI::Draw_Button(BTN_Continue, 86, 305);
 
-  #if ENABLED(USE_UBL_VIEWER)
-    ubl_tools.Set_Mesh_Viewer_Status();
+  #if USE_UBL_VIEWER
+    bedLevelTools.Set_Mesh_Viewer_Status();
   #else
     char str_1[6], str_2[6] = "";
     ui.status_printf(0, F("Mesh minZ: %s, maxZ: %s"),

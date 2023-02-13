@@ -2625,15 +2625,13 @@ void Draw_HomeOff_Menu() {
 #include "../../../libs/buzzer.h"
 
 void HMI_AudioFeedback(const bool success=true) {
-  #if HAS_BUZZER
-    if (success) {
-      buzzer.tone(100, 659);
-      buzzer.tone(10, 0);
-      buzzer.tone(100, 698);
-    }
-    else
-      buzzer.tone(40, 440);
-  #endif
+  if (success) {
+    BUZZ(100, 659);
+    BUZZ(10, 0);
+    BUZZ(100, 698);
+  }
+  else
+    BUZZ(40, 440);
 }
 
 // Prepare
@@ -3397,11 +3395,11 @@ void Draw_Max_Accel_Menu() {
 
     Draw_Back_First();
     LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedJerkX + i);
-    Draw_Edit_Float3(1, planner.max_jerk[X_AXIS] * MINUNITMULT);
-    Draw_Edit_Float3(2, planner.max_jerk[Y_AXIS] * MINUNITMULT);
-    Draw_Edit_Float3(3, planner.max_jerk[Z_AXIS] * MINUNITMULT);
+    Draw_Edit_Float3(1, planner.max_jerk.x * MINUNITMULT);
+    Draw_Edit_Float3(2, planner.max_jerk.y * MINUNITMULT);
+    Draw_Edit_Float3(3, planner.max_jerk.z * MINUNITMULT);
     #if HAS_HOTEND
-      Draw_Edit_Float3(4, planner.max_jerk[E_AXIS] * MINUNITMULT);
+      Draw_Edit_Float3(4, planner.max_jerk.e * MINUNITMULT);
     #endif
   }
 #endif
@@ -4307,9 +4305,13 @@ void DWIN_StatusChanged(const char * const cstr/*=nullptr*/) {
 }
 
 void DWIN_StatusChanged(FSTR_P const fstr) {
-  char str[strlen_P(FTOP(fstr)) + 1];
-  strcpy_P(str, FTOP(fstr));
-  DWIN_StatusChanged(str);
+  #ifdef __AVR__
+    char str[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(str, FTOP(fstr));
+    DWIN_StatusChanged(str);
+  #else
+    DWIN_StatusChanged(FTOP(fstr));
+  #endif
 }
 
 #endif // DWIN_CREALITY_LCD

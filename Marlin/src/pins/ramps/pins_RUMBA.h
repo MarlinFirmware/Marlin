@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
+  #error "RUMBA supports up to 3 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME

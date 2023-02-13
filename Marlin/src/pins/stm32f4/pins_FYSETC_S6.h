@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "FYSETC S6 supports up to 3 hotends / E-steppers."
+  #error "FYSETC S6 supports up to 3 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -199,117 +199,117 @@
 
 /**
  *         ------                 ------
- *   PC9  |10  9 | PA8      PA6  |10  9 | PA5
- *   PC11 | 8  7 | PD2      PC6  | 8  7 | PA4
- *   PC10   6  5 | PC12     PC7    6  5 | PA7
- *   PD0  | 4  3 | PD1      PB10 | 4  3 | RESET
- *    GND | 2  1 | 5V        GND | 2  1 | 5V
+ *   PC9  | 1  2 | PA8      PA6  | 1  2 | PA5
+ *   PC11 | 3  4 | PD2      PC6  | 3  4 | PA4
+ *   PC10   5  6 | PC12     PC7    5  6 | PA7
+ *   PD0  | 7  8 | PD1      PB10 | 7  8 | RESET
+ *    GND | 9 10 | 5V        GND | 9 10 | 5V
  *         ------                 ------
  *          EXP1                   EXP2
  */
-#define EXP1_03_PIN                         PD1
-#define EXP1_04_PIN                         PD0
-#define EXP1_05_PIN                         PC12
-#define EXP1_06_PIN                         PC10
-#define EXP1_07_PIN                         PD2
-#define EXP1_08_PIN                         PC11
-#define EXP1_09_PIN                         PA8
-#define EXP1_10_PIN                         PC9
+#define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PA8
+#define EXP1_03_PIN                         PC11
+#define EXP1_04_PIN                         PD2
+#define EXP1_05_PIN                         PC10
+#define EXP1_06_PIN                         PC12
+#define EXP1_07_PIN                         PD0
+#define EXP1_08_PIN                         PD1
 
-#define EXP2_03_PIN                         -1    // RESET
-#define EXP2_04_PIN                         PB10
-#define EXP2_05_PIN                         PA7
-#define EXP2_06_PIN                         PC7
-#define EXP2_07_PIN                         PA4
-#define EXP2_08_PIN                         PC6
-#define EXP2_09_PIN                         PA5
-#define EXP2_10_PIN                         PA6
+#define EXP2_01_PIN                         PA6
+#define EXP2_02_PIN                         PA5
+#define EXP2_03_PIN                         PC6
+#define EXP2_04_PIN                         PA4
+#define EXP2_05_PIN                         PC7
+#define EXP2_06_PIN                         PA7
+#define EXP2_07_PIN                         PB10
+#define EXP2_08_PIN                         -1    // RESET
 
 //
 // SPI / SD Card
 //
-#define SD_SCK_PIN                   EXP2_09_PIN
-#define SD_MISO_PIN                  EXP2_10_PIN
-#define SD_MOSI_PIN                  EXP2_05_PIN
+#define SD_SCK_PIN                   EXP2_02_PIN
+#define SD_MISO_PIN                  EXP2_01_PIN
+#define SD_MOSI_PIN                  EXP2_06_PIN
 
-#define SDSS                         EXP2_07_PIN
-#define SD_DETECT_PIN                EXP2_04_PIN
+#define SDSS                         EXP2_04_PIN
+#define SD_DETECT_PIN                EXP2_07_PIN
 
 //
 // LCD / Controller
 //
 #if ENABLED(FYSETC_242_OLED_12864)
 
-  #define BTN_EN1                    EXP1_10_PIN
-  #define BTN_EN2                    EXP1_03_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BTN_EN1                    EXP1_01_PIN
+  #define BTN_EN2                    EXP1_08_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define BEEPER_PIN                 EXP2_08_PIN
+  #define BEEPER_PIN                 EXP2_03_PIN
 
-  #define LCD_PINS_DC                EXP1_05_PIN
-  #define LCD_PINS_RS                EXP2_06_PIN  // LCD_RST
-  #define DOGLCD_CS                  EXP1_07_PIN
-  #define DOGLCD_MOSI                EXP1_06_PIN
-  #define DOGLCD_SCK                 EXP1_08_PIN
+  #define LCD_PINS_DC                EXP1_06_PIN
+  #define LCD_PINS_RS                EXP2_05_PIN  // LCD_RST
+  #define DOGLCD_CS                  EXP1_04_PIN
+  #define DOGLCD_MOSI                EXP1_05_PIN
+  #define DOGLCD_SCK                 EXP1_03_PIN
   #define DOGLCD_A0                  LCD_PINS_DC
   #define FORCE_SOFT_SPI
 
   #define KILL_PIN                          -1    // NC
-  #define NEOPIXEL_PIN               EXP1_04_PIN
+  #define NEOPIXEL_PIN               EXP1_07_PIN
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                 EXP1_10_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP1_08_PIN
-    #define BTN_EN2                  EXP1_06_PIN
-
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
-
-  #else
-
     #define LCD_PINS_RS              EXP1_07_PIN
 
-    #define BTN_EN1                  EXP2_08_PIN
-    #define BTN_EN2                  EXP2_06_PIN
-
-    #define LCD_SDSS                 EXP2_07_PIN
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
 
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
+  #else
+
+    #define LCD_PINS_RS              EXP1_04_PIN
+
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
+
+    #define LCD_SDSS                 EXP2_04_PIN
+
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+
     #if ENABLED(FYSETC_MINI_12864)
       // See https://wiki.fysetc.com/Mini12864_Panel
-      #define DOGLCD_CS              EXP1_08_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
+      #define DOGLCD_CS              EXP1_03_PIN
+      #define DOGLCD_A0              EXP1_04_PIN
       #if ENABLED(FYSETC_GENERIC_12864_1_1)
-        #define LCD_BACKLIGHT_PIN    EXP1_04_PIN
+        #define LCD_BACKLIGHT_PIN    EXP1_07_PIN
       #endif
-      #define LCD_RESET_PIN          EXP1_06_PIN  // Must be high or open for LCD to operate normally.
+      #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN      EXP1_05_PIN
+          #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN      EXP1_04_PIN
+          #define RGB_LED_G_PIN      EXP1_07_PIN
         #endif
         #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN      EXP1_03_PIN
+          #define RGB_LED_B_PIN      EXP1_08_PIN
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN         EXP1_05_PIN
+        #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
     #endif
 
     #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_05_PIN
-      #define LCD_PINS_D6            EXP1_04_PIN
-      #define LCD_PINS_D7            EXP1_03_PIN
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif

@@ -166,6 +166,11 @@ class Endstops {
      */
     static void update();
 
+    #if ENABLED(BD_SENSOR)
+      static bool bdp_state;
+      static void bdp_state_update(const bool z_state) { bdp_state = z_state; }
+    #endif
+
     /**
      * Get Endstop hit state.
      */
@@ -246,6 +251,11 @@ class Endstops {
       static tmc_spi_homing_t tmc_spi_homing;
       static void clear_endstop_state();
       static bool tmc_spi_homing_check();
+    #endif
+  public:
+    // Basic functions for Sensorless Homing
+    #if USE_SENSORLESS
+      static void set_homing_current(const bool onoff);
     #endif
 };
 

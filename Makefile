@@ -27,7 +27,7 @@ tests-single-ci:
 
 tests-single-local:
 	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-all-local" ; return 1; fi
-	export PATH=./buildroot/bin/:./buildroot/tests/:${PATH} \
+	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
 	  && run_tests . $(TEST_TARGET) "$(ONLY_TEST)"
 .PHONY: tests-single-local
@@ -38,7 +38,7 @@ tests-single-local-docker:
 .PHONY: tests-single-local-docker
 
 tests-all-local:
-	export PATH=./buildroot/bin/:./buildroot/tests/:${PATH} \
+	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
 	  && for TEST_TARGET in $$(./get_test_targets.py) ; do echo "Running tests for $$TEST_TARGET" ; run_tests . $$TEST_TARGET ; done
 .PHONY: tests-all-local

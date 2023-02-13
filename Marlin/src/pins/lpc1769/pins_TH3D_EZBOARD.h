@@ -131,12 +131,6 @@
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
 
 //
 // SD Card
@@ -157,11 +151,11 @@
 
 /**
  *         ------
- *  P1_31 |10  9 | P1_30
- *  P3_26 | 8  7 | P2_11
- *  P3_25   6  5 | P0_15
- *  P0_16 | 4  3 | P0_18
- *    GND | 2  1 | 5V
+ *  P1_31 | 1  2 | P1_30
+ *  P3_26 | 3  4 | P2_11
+ *  P3_25   5  6 | P0_15
+ *  P0_16 | 7  8 | P0_18
+ *    GND | 9 10 | 5V
  *         ------
  *          EXP1
  *
@@ -171,43 +165,43 @@
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
  */
-#define EXP1_03_PIN                        P0_18
-#define EXP1_04_PIN                        P0_16
-#define EXP1_05_PIN                        P0_15
-#define EXP1_06_PIN                        P3_25
-#define EXP1_07_PIN                        P2_11
-#define EXP1_08_PIN                        P3_26
-#define EXP1_09_PIN                        P1_30
-#define EXP1_10_PIN                        P1_31
+#define EXP1_01_PIN                        P1_31
+#define EXP1_02_PIN                        P1_30
+#define EXP1_03_PIN                        P3_26
+#define EXP1_04_PIN                        P2_11
+#define EXP1_05_PIN                        P3_25
+#define EXP1_06_PIN                        P0_15
+#define EXP1_07_PIN                        P0_16
+#define EXP1_08_PIN                        P0_18
 
 #if ENABLED(CR10_STOCKDISPLAY)
   /**          ------
-   *   BEEPER |10  9 | ENC
-   *      EN1 | 8  7 | KILL
-   *      EN2   6  5 | LCD_D4
-   *   LCD_RS | 4  3 | LCD_EN
-   *      GND | 2  1 | 5V
+   *   BEEPER | 1  2 | ENC
+   *      EN1 | 3  4 | KILL
+   *      EN2   5  6 | LCD_D4
+   *   LCD_RS | 7  8 | LCD_EN
+   *      GND | 9 10 | 5V
    *           ------
    */
-  #define BEEPER_PIN                 EXP1_10_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
-  #define KILL_PIN                   EXP1_07_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_D4                EXP1_06_PIN
+  #define KILL_PIN                   EXP1_04_PIN
 
 #elif ENABLED(MKS_MINI_12864)
   /**          ------
-   *      SCK |10  9 | ENC
-   *      EN1 | 8  7 | --
-   *      EN2   6  5 | A0
-   *       CS | 4  3 | MOSI
-   *      GND | 2  1 | 5V
+   *      SCK | 1  2 | ENC
+   *      EN1 | 3  4 | --
+   *      EN2   5  6 | A0
+   *       CS | 7  8 | MOSI
+   *      GND | 9 10 | 5V
    *           ------
    */
-  #define DOGLCD_CS                  EXP1_04_PIN
-  #define DOGLCD_A0                  EXP1_05_PIN
-  #define DOGLCD_SCK                 EXP1_10_PIN
-  #define DOGLCD_MOSI                EXP1_03_PIN
+  #define DOGLCD_CS                  EXP1_07_PIN
+  #define DOGLCD_A0                  EXP1_06_PIN
+  #define DOGLCD_SCK                 EXP1_01_PIN
+  #define DOGLCD_MOSI                EXP1_08_PIN
   #define LCD_CONTRAST_INIT                  160
   #define LCD_CONTRAST_MIN                   120
   #define LCD_CONTRAST_MAX                   180
@@ -221,7 +215,7 @@
 #endif
 
 #if EITHER(CR10_STOCKDISPLAY, MKS_MINI_12864)
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_06_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 #endif

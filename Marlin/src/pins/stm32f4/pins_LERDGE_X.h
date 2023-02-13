@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "LERDGE X only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "LERDGE X only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge X"

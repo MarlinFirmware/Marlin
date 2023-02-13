@@ -32,12 +32,12 @@ using namespace Theme;
 #define GRID_COLS 2
 #define GRID_ROWS 9
 
-void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char *message) {
+void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char *cmsg) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled))
        .tag(0);
-    draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(2,2), message, OPT_CENTER, font_large);
+    draw_text_box(cmd, BTN_POS(1,2), BTN_SIZE(2,2), cmsg, OPT_CENTER, font_large);
   }
 }
 
@@ -105,26 +105,30 @@ bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-void BioPrintingDialogBox::setStatusMessage(FSTR_P message) {
-  char buff[strlen_P(FTOP(message)) + 1];
-  strcpy_P(buff, FTOP(message));
-  setStatusMessage(buff);
+void BioPrintingDialogBox::setStatusMessage(FSTR_P fmsg) {
+  #ifdef __AVR__
+    char buff[strlen_P(FTOP(fmsg)) + 1];
+    strcpy_P(buff, FTOP(fmsg));
+    setStatusMessage(buff);
+  #else
+    setStatusMessage(FTOP(fmsg));
+  #endif
 }
 
-void BioPrintingDialogBox::setStatusMessage(const char *message) {
+void BioPrintingDialogBox::setStatusMessage(const char *cmsg) {
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART)
      .cmd(CLEAR_COLOR_RGB(bg_color))
      .cmd(CLEAR(true,true,true));
 
-  draw_status_message(BACKGROUND, message);
+  draw_status_message(BACKGROUND, cmsg);
   draw_progress(BACKGROUND);
   draw_time_remaining(BACKGROUND);
   draw_interaction_buttons(BACKGROUND);
   storeBackground();
 
   #if ENABLED(TOUCH_UI_DEBUG)
-    SERIAL_ECHO_MSG("New status message: ", message);
+    SERIAL_ECHO_MSG("New status message: ", cmsg);
   #endif
 
   if (AT_SCREEN(BioPrintingDialogBox))

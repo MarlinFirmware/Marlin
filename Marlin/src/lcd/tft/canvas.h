@@ -30,12 +30,14 @@
 
 class CANVAS {
   private:
+    static uint16_t background_color;
     static uint16_t width, height;
     static uint16_t startLine, endLine;
     static uint16_t *buffer;
 
-    inline static font_t *Font() { return TFT_String::font(); }
-    inline static glyph_t *Glyph(uint8_t *character) { return TFT_String::glyph(character); }
+    inline static glyph_t *Glyph(uint16_t *character) { return TFT_String::glyph(character); }
+    inline static uint16_t GetFontType() { return TFT_String::font_type(); }
+    inline static uint16_t GetFontAscent() { return TFT_String::font_ascent(); }
     inline static uint16_t GetFontHeight() { return TFT_String::font_height(); }
 
     static void AddImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_height, colorMode_t color_mode, uint8_t *data, uint16_t *colors);
@@ -47,7 +49,7 @@ class CANVAS {
     static bool ToScreen();
 
     static void SetBackground(uint16_t color);
-    static void AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, uint16_t maxWidth);
+    static void AddText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, uint16_t maxWidth);
     static void AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors);
 
     static void AddRectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);

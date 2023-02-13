@@ -37,14 +37,14 @@ namespace Theme {
   #else
     // Use linear accent colors
 
-    #if ANY(TOUCH_UI_ROYAL_THEME, TOUCH_UI_FROZEN_THEME)
-        // Dark blue accent colors
-        constexpr int      accent_hue       = 216;
-        constexpr float    accent_sat       = 0.7;
+    #if EITHER(TOUCH_UI_ROYAL_THEME, TOUCH_UI_FROZEN_THEME)
+      // Dark blue accent colors
+      constexpr int      accent_hue       = 216;
+      constexpr float    accent_sat       = 0.7;
     #else
-        // Green accent colors
-        constexpr int      accent_hue       = 68;
-        constexpr float    accent_sat       = 0.68;
+      // Green accent colors
+      constexpr int      accent_hue       = 68;
+      constexpr float    accent_sat       = 0.68;
     #endif
 
     // Shades of accent color
@@ -88,7 +88,7 @@ namespace Theme {
 
     constexpr uint32_t bed_mesh_lines_rgb   = 0xFFFFFF;
     constexpr uint32_t bed_mesh_shadow_rgb  = 0x444444;
-  #elif ANY(TOUCH_UI_COCOA_THEME, TOUCH_UI_FROZEN_THEME)
+  #elif EITHER(TOUCH_UI_COCOA_THEME, TOUCH_UI_FROZEN_THEME)
     constexpr uint32_t theme_darkest        = accent_color_1;
     constexpr uint32_t theme_dark           = accent_color_4;
 

@@ -26,7 +26,7 @@
  */
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "MKS Robin E3 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "MKS Robin E3 only supports 1 hotend / E stepper."
 #endif
 
 #ifndef BOARD_INFO_NAME

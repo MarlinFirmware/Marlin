@@ -35,6 +35,10 @@
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
 #endif
 
+#if ENABLED(LA_DEBUG)
+  #warning "WARNING! Disable LA_DEBUG for the final build!"
+#endif
+
 #if NUM_AXES_WARNING
   #warning "Note: NUM_AXES is now based on the *_DRIVER_TYPE settings so you can remove NUM_AXES from Configuration.h."
 #endif
@@ -70,6 +74,10 @@
 #endif
 
 #ifndef NO_AUTO_ASSIGN_WARNING
+
+  #if AUTO_ASSIGNED_LCD_SERIAL
+    #warning "Note: Auto-assigned LCD_SERIAL_PORT. (Define NO_AUTO_ASSIGN_WARNING to suppress this warning.)"
+  #endif
 
   #if AUTO_ASSIGNED_X2_STEPPER
     #warning "Note: Auto-assigned X2 STEP/DIR/ENABLE_PINs to unused En_STEP/DIR/ENABLE_PINs. (Define NO_AUTO_ASSIGN_WARNING to suppress this warning.)"
@@ -703,9 +711,8 @@
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
-// Ender 3 Pro (but, apparently all Creality 4.2.2 boards)
-#if ENABLED(EMIT_CREALITY_422_WARNING) || MB(CREALITY_V4)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225)."
+#if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if PRINTCOUNTER_SYNC
@@ -768,4 +775,25 @@
  */
 #if MB(BTT_BTT002_V1_0, EINSY_RAMBO) && DISABLED(NO_MK3_FAN_PINS_WARNING)
   #warning "Define MK3_FAN_PINS to swap hotend and part cooling fan pins. (Define NO_MK3_FAN_PINS_WARNING to suppress this warning.)"
+#endif
+
+/**
+ * BD Sensor should always include BABYSTEPPING
+ */
+#if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
+  #warning "BABYSTEPPING is recommended with BD_SENSOR."
+#endif
+
+/**
+ * POLAR warnings
+ */
+#if BOTH(POLAR, S_CURVE_ACCELERATION)
+  #warning "POLAR kinematics may not work well with S_CURVE_ACCELERATION."
+#endif
+
+/**
+ * Input Shaping
+ */
+#if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
 #endif

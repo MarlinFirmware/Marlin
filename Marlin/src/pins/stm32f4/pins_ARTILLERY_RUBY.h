@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Artillery Ruby supports up to 1 hotends / E-steppers."
+  #error "Artillery Ruby only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "Artillery Ruby"

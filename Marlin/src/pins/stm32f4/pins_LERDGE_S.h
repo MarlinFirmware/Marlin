@@ -25,7 +25,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "LERDGE S supports up to 2 hotends / E-steppers."
+  #error "LERDGE S supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge S"

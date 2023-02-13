@@ -86,7 +86,7 @@ static const uint32_t defaultTimeout = 500;
 static const uint32_t eraseTimeout = 15000;
 static const uint32_t blockWriteTimeout = 200;
 static const uint32_t blockWriteInterval = 15;      // 15ms is long enough, 10ms is mostly too short
-static SdFile update_file, *update_curDir;
+static MediaFile update_file, *update_curDir;
 
 // Messages corresponding to result codes, should make sense when followed by " error"
 const char *resultMessages[] = {
@@ -265,7 +265,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     EspUploadResult stat;
 
     //IWDG_ReloadCounter();
-    watchdog_refresh();
+    hal.watchdog_refresh();
 
     if (getWifiTickDiff(startTime, getWifiTick()) > msTimeout)
       return timeout;
@@ -445,7 +445,7 @@ EspUploadResult Sync(uint16_t timeout) {
     for (;;) {
       size_t bodyLen;
       EspUploadResult rc = readPacket(ESP_SYNC, 0, &bodyLen, defaultTimeout);
-      watchdog_refresh();
+      hal.watchdog_refresh();
       if (rc != success || bodyLen != 2) break;
     }
   }
@@ -673,7 +673,7 @@ int32_t wifi_upload(int type) {
 
   while (esp_upload.state != upload_idle) {
     upload_spin();
-    watchdog_refresh();
+    hal.watchdog_refresh();
   }
 
   ResetWiFiForUpload(1);

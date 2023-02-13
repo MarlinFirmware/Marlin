@@ -708,7 +708,7 @@ void ChironTFT::PanelAction(uint8_t req) {
       // Old TFT A22 X -1F1500      A22 X +1F1500
       // New TFT A22 X-1.0 F1500    A22 X1.0 F1500
 
-      // lets just wrap this in a gcode relative nonprint move and let the controller deal with it
+      // Send a G-code-relative non-print move and let the controller deal with it
       // G91 G0 <panel command> G90
 
       if (!isPrinting()) { // Ignore request if printing

@@ -29,7 +29,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Azteeg X3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Azteeg X3 supports up to 2 hotends / E steppers."
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
@@ -51,7 +51,7 @@
 #undef STAT_LED_RED_PIN
 #undef STAT_LED_BLUE_PIN
 
-#if ANY(VIKI2, miniVIKI)
+#if EITHER(VIKI2, miniVIKI)
 
   #undef DOGLCD_A0
   #undef DOGLCD_CS

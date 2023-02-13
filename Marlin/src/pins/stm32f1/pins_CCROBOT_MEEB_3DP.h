@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "CCROBOT-ONLINE MEEB_3DP only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "CCROBOT-ONLINE MEEB_3DP only supports 1 hotend / E stepper."
 #endif
 
 // https://github.com/ccrobot-online/MEEB_3DP
@@ -123,35 +123,35 @@
 
 /**
  *       ------
- *  PB5 |10  9 | PB6
- *  PA2 | 8  7 | RESET
- *  PA3   6  5 | PB8
- *  PB7 | 4  3 | PA4
- *  GND | 2  1 | VCC5
+ *  PB5 | 1  2 | PB6
+ *  PA2 | 3  4 | RESET
+ *  PA3   5  6 | PB8
+ *  PB7 | 7  8 | PA4
+ *  GND | 9 10 | VCC5
  *       ------
  *        EXP1
  */
-#define EXP1_03_PIN                         PA4
-#define EXP1_04_PIN                         PB7
-#define EXP1_05_PIN                         PB8
-#define EXP1_06_PIN                         PA3
-#define EXP1_07_PIN                         -1   // RESET
-#define EXP1_08_PIN                         PA2
-#define EXP1_09_PIN                         PB6
-#define EXP1_10_PIN                         PB5
+#define EXP1_01_PIN                         PB5
+#define EXP1_02_PIN                         PB6
+#define EXP1_03_PIN                         PA2
+#define EXP1_04_PIN                         -1   // RESET
+#define EXP1_05_PIN                         PA3
+#define EXP1_06_PIN                         PB8
+#define EXP1_07_PIN                         PB7
+#define EXP1_08_PIN                         PA4
 
 //
 // LCD / Controller
 //
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define BEEPER_PIN                 EXP1_10_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_06_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_PINS_RS                EXP1_04_PIN  // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4                EXP1_05_PIN  // SCLK
-  #define LCD_PINS_ENABLE            EXP1_03_PIN  // DATA MOSI
+  #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
+  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
 #endif
 
 // Alter timing for graphical display
