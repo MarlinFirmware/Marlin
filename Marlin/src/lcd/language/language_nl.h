@@ -108,7 +108,6 @@ namespace Language_nl {
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Aan");
   LSTR MSG_LCD_OFF                        = _UxGT("Uit");
-  LSTR MSG_SELECT                         = _UxGT("Selecteer");
   LSTR MSG_SELECT_E                       = _UxGT("Selecteer *");
   LSTR MSG_ACC                            = _UxGT("Versn");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatuur");
@@ -153,7 +152,7 @@ namespace Language_nl {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe uit. bed");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Zelf-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s Eerst");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset");  // accepted English term in Dutch
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");

@@ -103,7 +103,6 @@ namespace Language_an {
   LSTR MSG_FLOW_N                         = _UxGT("Fluxo ~");
   LSTR MSG_CONTROL                        = _UxGT("Control");
   LSTR MSG_AUTOTEMP                       = _UxGT("Temperatura Auto.");
-  LSTR MSG_SELECT                         = _UxGT("Trigar");
   LSTR MSG_SELECT_E                       = _UxGT("Trigar *");
   LSTR MSG_ACC                            = _UxGT("Aceleracion");
   LSTR MSG_VTRAV_MIN                      = _UxGT("Vel. viache min");

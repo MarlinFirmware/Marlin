@@ -161,7 +161,6 @@ namespace Language_eu {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fakt");
   LSTR MSG_AUTOTEMP                       = _UxGT("Auto tenperatura");
-  LSTR MSG_SELECT                         = _UxGT("Aukeratu");
   LSTR MSG_SELECT_E                       = _UxGT("Aukeratu *");
   LSTR MSG_ACC                            = _UxGT("Azelerazioa");
   LSTR MSG_JERK                           = _UxGT("Astindua");
@@ -236,7 +235,7 @@ namespace Language_eu {
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch berrabia.");
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("BLTouch jaitsi/luzatu");
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("BLTouch igo/jaso");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s%s%s lehenengo");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s lehenengo");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Konpentsatu");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikro-urratsa X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikro-urratsa Y");

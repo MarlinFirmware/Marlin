@@ -151,7 +151,7 @@ namespace Language_ca {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Canvia SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fora");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reinicia BLTouch");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s primer");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s primer");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalatge Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropas X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropas Y");

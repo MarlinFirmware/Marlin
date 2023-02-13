@@ -95,7 +95,6 @@ namespace Language_hr {
   LSTR MSG_BED                            = _UxGT("Bed");
   LSTR MSG_FAN_SPEED                      = _UxGT("Brzina ventilatora");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Brzina ventilatora ~");
-  LSTR MSG_SELECT                         = _UxGT("Odaberi");
   LSTR MSG_SELECT_E                       = _UxGT("Odaberi *");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
   LSTR MSG_MOTION                         = _UxGT("Gibanje");

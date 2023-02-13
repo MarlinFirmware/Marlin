@@ -19,36 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * DWIN Single var plot
  * Author: Miguel A. Risco-Castillo
- * Version: 1.0
- * Date: 2022/01/30
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * For commercial applications additional licenses can be requested
+ * Version: 2.1.2
+ * Date: 2022/11/20
  */
-#pragma once
 
 #include "dwinui.h"
 
 class PlotClass {
 public:
-  void Draw(frame_rect_t frame, float max, float ref = 0);
-  void Update(float value);
+  static void Draw(const frame_rect_t &frame, const celsius_t max, const_float_t ref=0);
+  static void Update(const_float_t value);
 };
 
-extern PlotClass Plot;
+extern PlotClass plot;
