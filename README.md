@@ -1,3 +1,67 @@
+# Marlin for the Voxlab Aquila X2 (H32)
+
+This project aims to port vanilla Marlin to the [Voxlab Aquila X2](https://www.voxelab3dp.com/product/aquila-x2-fdm-3d-printer) 3D-Printer with H32 (HC32F46x) Chipset.
+
+For (the only other) Marlin port for the H32 chipset, see [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32). 
+
+
+## Building
+
+building the firmware is currently tested under linux (WSL), tho windows may work too.
+1. install the GNU ARM Toolchain (see [.toolchain/README.md](/.toolchain/README.md))
+2. change into into the `Marlin` directory
+3. run `make -f H32.mk all` to build the firmware
+   - if you previously built the firmware, either use `make -f H32.mk clean` to clean up the previous build or use `make -f H32.mk rebuild` to rebuild the firmware.
+4. once the firmware is compiled, a `firmware.bin` file will be present in the `Marlin/build/` directory
+   - if the firmware does not compile, please check that the toolchain is installed correctly.
+
+
+## Installation
+
+installing the firmware onto your printer is fairly straight forward
+1. before doing anything, you might want to download the stock firmware from [Voxelab](https://www.voxelab3dp.com/download). 
+   - Ensure that both `firmware.bin` and `DWIN_SET` are present
+2. build or download `firmware.bin` (printer firmware)
+3. download `DWIN_SET` (display graphics) from [MarlinFirmware/Configurations](https://github.com/MarlinFirmware/Configurations/tree/2.0.6/config/examples/Creality/Ender-3%20V2). 
+   - Ensure you download from the correct tag. The tag selected in Github must match the `SHORT_BUILD_VERSION` specified in `Marlin/Version.h`
+4. format a SD Card (<= 16Gb) as FAT32
+5. create a folder `firmware` in the root of the SD card and place `firmware.bin` into the folder
+6. copy `DWIN_SET` directory into the root of the SD card
+7. with your 3D-Printer powered down, insert the SD card into the Printers SD slot
+8. power on your printer. You should now see a progress bar appear on the screen. 
+   - after the update finishes, the screen may appear garbled. this is normal.
+9. pPower down your printer, then insert the SD card into the Displays SD slot.
+    -  you have to disassemble the screen for this.
+10. power on your printer. the screen should be solid blue. wait for it to go solid orange.
+11. power down your printer and remove the SD card.
+12. the firmware is now installed.
+
+if you don't like reading, you can watch [this video](https://www.youtube.com/watch?v=6afQUIR6Dmo) instead. 
+you'll have to exchange the `firmware.bin` and `DWIN_SET` for the ones mentioned here, but the process otherwise is the same.
+
+
+
+## Disclaimer
+
+my abilities to debug the firmware are currently extremely limited (i basically just compile, flash, and pray). 
+because of this, i cannot offer much support for the firmware, and the following is a bit more harsh than i'd normally do (sorry). So here goes:
+
+
+this firmware comes without __any__ support or gurantees. 
+if you brick your printer, you're on your own.
+
+
+- issues opened demanding a bug to be fixed (without any intention of helping) will be closed and/or ignored.
+- issues requesting new features will be closed. this is just a port of vanilla marlin.
+- again, if you break your printer, you're on your own.
+
+
+---
+<!-- begin original README -->
+
+
+
+
 <p align="center"><img src="buildroot/share/pixmaps/logo/marlin-outrun-nf-500.png" height="250" alt="MarlinFirmware's logo" /></p>
 
 <h1 align="center">Marlin 3D Printer Firmware</h1>
