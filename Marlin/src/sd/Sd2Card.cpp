@@ -128,8 +128,8 @@ uint8_t DiskIODriver_SPI_SD::cardCommand(const uint8_t cmd, const uint32_t arg) 
   // Select card
   chipSelect();
 
-  #ifdef SD_WRITE_TIMEOUT
-    waitNotBusy(SD_WRITE_TIMEOUT);  // Wait up to 300 ms if busy
+  #if SD_WRITE_TIMEOUT
+    waitNotBusy(SD_WRITE_TIMEOUT);  // Wait up to 600 ms (by default) if busy
   #endif
 
   uint8_t *pa = (uint8_t *)(&arg);
@@ -239,7 +239,7 @@ bool DiskIODriver_SPI_SD::erase(uint32_t firstBlock, uint32_t lastBlock) {
       error(SD_CARD_ERROR_ERASE);
       break;
     }
-    #ifdef SD_ERASE_TIMEOUT
+    #if SD_ERASE_TIMEOUT
       if (!waitNotBusy(SD_ERASE_TIMEOUT)) {
         error(SD_CARD_ERROR_ERASE_TIMEOUT);
         break;
@@ -636,7 +636,7 @@ bool DiskIODriver_SPI_SD::writeBlock(uint32_t blockNumber, const uint8_t *src) {
     error(SD_CARD_ERROR_CMD24);
   }
   else if (writeData(DATA_START_BLOCK, src)) {
-    #ifdef SD_WRITE_TIMEOUT
+    #if SD_WRITE_TIMEOUT
       success = waitNotBusy(SD_WRITE_TIMEOUT);        // Wait for flashing to complete
       if (!success) error(SD_CARD_ERROR_WRITE_TIMEOUT);
     #else
@@ -666,7 +666,7 @@ bool DiskIODriver_SPI_SD::writeData(const uint8_t *src) {
   do {
 
     // Wait for previous write to finish
-    #ifdef SD_WRITE_TIMEOUT
+    #if SD_WRITE_TIMEOUT
       if (!waitNotBusy(SD_WRITE_TIMEOUT)) {
         error(SD_CARD_ERROR_WRITE_MULTIPLE);
         break;
@@ -741,7 +741,7 @@ bool DiskIODriver_SPI_SD::writeStop() {
   bool success = false;
   do {
 
-    #ifdef SD_WRITE_TIMEOUT
+    #if SD_WRITE_TIMEOUT
       if (!waitNotBusy(SD_WRITE_TIMEOUT)) {
         error(SD_CARD_ERROR_STOP_TRAN);
         break;
@@ -752,7 +752,7 @@ bool DiskIODriver_SPI_SD::writeStop() {
 
     spiSend(STOP_TRAN_TOKEN);
 
-    #ifdef SD_WRITE_TIMEOUT
+    #if SD_WRITE_TIMEOUT
       if (!waitNotBusy(SD_WRITE_TIMEOUT)) break;
     #else
       while (spiRec() != 0xFF) {}
@@ -760,7 +760,7 @@ bool DiskIODriver_SPI_SD::writeStop() {
 
     success = true;
 
-  } while(0);
+  } while (0);
 
   chipDeselect();
   return success;
