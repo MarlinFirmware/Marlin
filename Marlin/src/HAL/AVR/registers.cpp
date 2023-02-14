@@ -170,7 +170,7 @@ ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
     }
     else if (info.port == eATmegaPort::PORT_E) {
       if (info.pinidx == 7) {
-        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT7, eATmegaPinFunc::TIMER3_ICP, eATmegaPinFunc::CLK0 };
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT7, eATmegaPinFunc::TIMER3_ICP, eATmegaPinFunc::CLKO };
         return { funcs, countof(funcs) };
       }
       else if (info.pinidx == 6) {
@@ -447,7 +447,7 @@ ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
         return { funcs, countof(funcs) };
       }
       else if (info.pinidx == 1) {
-        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ECI, eATmegaPinFunc::CLK0, eATmegaPinFunc::PCI9 };
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ECI, eATmegaPinFunc::CLKO, eATmegaPinFunc::PCI9 };
         return { funcs, countof(funcs) };
       }
       else if (info.pinidx == 0) {
@@ -554,7 +554,7 @@ ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
         return { funcs, countof(funcs) };
       }
       else if (info.pinidx == 0) {
-        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ICP, eATmegaPinFunc::CLK0, eATmegaPinFunc::PCI0 };
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ICP, eATmegaPinFunc::CLKO, eATmegaPinFunc::PCI0 };
         return { funcs, countof(funcs) };
       }
     }
@@ -693,7 +693,7 @@ ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
     }
     else if (info.port == eATmegaPort::PORT_C) {
       if (info.pinidx == 7) {
-        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD15, eATmegaPinFunc::TIMER3_ICP, eATmegaPinFunc::CLK0 };
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EXTMEM_AD15, eATmegaPinFunc::TIMER3_ICP, eATmegaPinFunc::CLKO };
         return { funcs, countof(funcs) };
       }
       else if (info.pinidx == 6) {
@@ -824,6 +824,143 @@ ATmegaPinFunctions _ATmega_getPinFunctions(int pin) {
       }
       else if (info.pinidx == 0) {
         static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC0 };
+        return { funcs, countof(funcs) };
+      }
+    }
+  #elif defined(__AVR_TRM05__)
+    if (info.port == eATmegaPort::PORT_A) {
+      if (info.pinidx == 7) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC7, eATmegaPinFunc::PCI7 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 6) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC6, eATmegaPinFunc::PCI6 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 5) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC5, eATmegaPinFunc::PCI5 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 4) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC4, eATmegaPinFunc::PCI4 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 3) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC3, eATmegaPinFunc::PCI3 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 2) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC2, eATmegaPinFunc::PCI2 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 1) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC1, eATmegaPinFunc::PCI1 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 0) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::ADC0, eATmegaPinFunc::PCI0 };
+        return { funcs, countof(funcs) };
+      }
+    }
+    else if (info.port == eATmegaPort::PORT_B) {
+      if (info.pinidx == 7) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_SCK, eATmegaPinFunc::PCI15 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 6) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_MISO, eATmegaPinFunc::PCI14 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 5) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_MOSI, eATmegaPinFunc::PCI13 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 4) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::SPI_CS, eATmegaPinFunc::TOC0B, eATmegaPinFunc::PCI12 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 3) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN1, eATmegaPinFunc::TOC0A, eATmegaPinFunc::PCI11 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 2) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::AIN0, eATmegaPinFunc::EINT2, eATmegaPinFunc::PCI10 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 1) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ECI, eATmegaPinFunc::CLKO, eATmegaPinFunc::PCI9 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 0) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER0_ECI, eATmegaPinFunc::USART0_CLK, eATmegaPinFunc::PCI8 };
+        return { funcs, countof(funcs) };
+      }
+    }
+    else if (info.port == eATmegaPort::PORT_C) {
+      if (info.pinidx == 7) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOSC2, eATmegaPinFunc::PCI23 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 6) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOSC1, eATmegaPinFunc::PCI22 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 5) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI21 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 4) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI20 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 3) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI19 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 2) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::PCI18 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 1) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TWI_SDA, eATmegaPinFunc::PCI17 };
+        return { funcs, countof(funcs) };
+      }
+      else if (info.pinidx == 0) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TWI_CLK, eATmegaPinFunc::PCI16 };
+        return { funcs, countof(funcs) };
+      }
+    }
+    else if (info.port == eATmegaPort::PORT_D) {
+      if (info.pinidx == 7) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC2A, eATmegaPinFunc::PCI31 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 6) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TIMER1_ICP, eATmegaPinFunc::TOC2B, eATmegaPinFunc::PCI30 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 5) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1A, eATmegaPinFunc::PCI29 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 4) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::TOC1B, eATmegaPinFunc::USART1_CLK, eATmegaPinFunc::PCI28 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 3) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT1, eATmegaPinFunc::USART1_TXD, eATmegaPinFunc::PCI27 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 2) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::EINT0, eATmegaPinFunc::USART1_RXD, eATmegaPinFunc::PCI26 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 1) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::USART0_TXD, eATmegaPinFunc::PCI25 };
+        return { funcs, countof(funcs) };
+      }
+      if (info.pinidx == 0) {
+        static const eATmegaPinFunc funcs[] = { eATmegaPinFunc::USART0_RXD, eATmegaPinFunc::PCI24 };
         return { funcs, countof(funcs) };
       }
     }
