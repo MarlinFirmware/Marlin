@@ -52,7 +52,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN PB1 // BLTouch OUT
+#define SERVO0_PIN PB0 // BLTouch OUT
 
 //
 // Limit Switches
@@ -60,7 +60,7 @@
 #define X_STOP_PIN PA5
 #define Y_STOP_PIN PA6
 #define Z_STOP_PIN PA7
-#define Z_MIN_PROBE_PIN PB0 // BLTouch IN
+#define Z_MIN_PROBE_PIN PB1 // BLTouch IN
 
 //
 // Filament Runout Sensor

@@ -86,6 +86,6 @@ inline void setup_endstop_interrupts()
   attachInterrupt(Z3_MIN_PIN, endstop_ISR, CHANGE);
 #endif
 #if HAS_Z_MIN_PROBE_PIN
-  attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
+  attachInterrupt(Z_MIN_PROBE_PIN, ExtInt_Z_MIN_PROBE_Callback, 3, CHANGE);
 #endif
 }
