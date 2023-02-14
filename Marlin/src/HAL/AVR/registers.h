@@ -58,7 +58,7 @@
   // ATmega2560 technical reference manual date: 28th of November, 2022
   // ATmega640-1280-1281-2560-2561-Datasheet-DS40002211A.pdf
   #define __AVR_TRM01__
-#elif defined(__AVR_ATmega164A__) || defined(__AVR_ATmega164PA__) || defined(__AVR_ATmega324A__) || defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284__) || defined(__AVT_ATmega1284P__)
+#elif defined(__AVR_ATmega164A__) || defined(__AVR_ATmega164PA__) || defined(__AVR_ATmega324A__) || defined(__AVR_ATmega324PA__) || defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284__) || defined(__AVR_ATmega1284P__)
   // ATmega1284 technical reference manual date: 29th of November, 2022
   // ATmega164A_PA-324A_PA-644A_PA-1284_P_Data-Sheet-40002070B.pdf
   #define __AVR_TRM02__
