@@ -12,7 +12,7 @@ extern "C"
 #define EEPROM_I2C_CH (M4_I2C1)
 #define I2C_ADDRESS_W 0x00u
 #define I2C_ADDRESS_R 0x01u
-#define TIMEOUT 0x10000ul // 0x10000ul
+#define I2C_TIMEOUT 0x10000ul // 0x10000ul
 /********************************************/
 #define EEPROM_ADDR 0xA0u
     /********************************************/

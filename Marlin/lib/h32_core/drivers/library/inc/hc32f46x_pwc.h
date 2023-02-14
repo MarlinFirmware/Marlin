@@ -151,8 +151,8 @@ extern "C"
      ******************************************************************************/
     typedef enum en_pwc_stop_flash_sel
     {
-        Wait = 0u,    ///< wait flash stable.
-        NotWait = 1u, ///< Not Wait flash stable.
+        FlashWait = 0u,    ///< wait flash stable.
+        FlashNotWait = 1u, ///< Not Wait flash stable.
     } en_pwc_stop_flash_sel_t;
 
     /**
