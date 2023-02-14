@@ -49,6 +49,8 @@ EXCLUDES = \
 	src/HAL/ESP32/ \
 	src/HAL/LINUX/ \
 	src/HAL/LPC1768/ \
+	src/HAL/NATIVE_SIM/ \
+	src/HAL/SAMD21/ \
 	src/HAL/SAMD51/ \
 	src/HAL/STM32/ \
 	src/HAL/STM32F1/ \
