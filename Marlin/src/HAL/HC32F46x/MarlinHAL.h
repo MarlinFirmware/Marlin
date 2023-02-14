@@ -70,3 +70,8 @@ public:
      */
     static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 };
+
+// M997: trigger firmware update from sd card (after upload)
+// on HC32F46x, a reboot is enough to do this
+#define PLATFORM_M997_SUPPORT
+void flashFirmware(const int16_t);

@@ -132,4 +132,6 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired)
     // TODO stub
 }
 
+void flashFirmware(const int16_t) { MarlinHAL::reboot(); }
+
 #endif // TARGET_HC32F46x
