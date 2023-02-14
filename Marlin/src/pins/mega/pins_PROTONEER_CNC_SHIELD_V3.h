@@ -79,11 +79,11 @@
 // 
 // Servos (engadido)
 // 
-#define SERVO0_PIN                            40
+// #define SERVO0_PIN                            40 // Comentario tempo
 
 // 
 // Limit Switches (engadido)
 // 
-#define X_MIN_PIN                            29
-#define Y_MIN_PIN                            31
-#define Z_MIN_PIN                            33
+#define X_MIN_PIN                            29 // Levantan warnings
+#define Y_MIN_PIN                            31 // Levantan warnings
+#define Z_MIN_PIN                            33 // Levantan warnings
