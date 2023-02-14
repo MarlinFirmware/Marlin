@@ -2,47 +2,36 @@
 
 this readme relates to `hc32f46x_flash.ld`.
 
-## Stock Configuration
-
-in the stock configuration, .text and .data sections were located in a single memory region `FLASH`:
-
-```
-FLASH containing .text and .data:
-- start : 0x0000C420
-- length: 0x34000 (208K)
-- end   : 0x00040420
-```
-
-## New Configuration
+## Linker Script Configuration
 
 to ensure that data is not executed, the .text and .data sections are located into separate memory regions `FLASH_RX` (read-execute) and `FLASH_R` (read). 
 
-```
-FLASH_RX containing .text:
-- start : 0x0000C420
-- length: (0x34000 (208K) - 0x7800 (30K)) = 0x2C800 (178K)
-- end   : 0x00038C20
-```
-```
-FLASH_R containing .data:
-- start : (0x00040420 - 0x7800) = 0x00038C20
-- length: 0x7800 (30K)
-- end   : 0x00040420
-```
 
 > NOTE: in ld, 1K == 1024
 
-> NOTE: I'm assuming that 30K are enough for the data sections. 
-> if more is needed, the memory regions must be adjusted accordingly (shrink `FLASH_RX` and increase `FLASH_R`)
 
+### Help! `FLASH_RX` or `FLASH_R` overflowed by xyz bytes
+
+if one of the two flash regions overflowed while linking, you'll have to increase their size (within limits, ofc). 
+see the following sections for details on what variables define the section lengths.
+
+Note that the section sizes should be as small as possible to keep the flash image small.
 
 
 ### FLASH_RX
 
-`FLASH_RX` contains
+the length of the `FLASH_RX` region is defined by the `__flash_rx_len` variable.
+it is placed at the start of flash at `0x0000C420`.
+
+
+`FLASH_RX` contains:
 - `.text`
 
 ### FLASH_R
+
+the length of the `FLASH_R` region is defined by the `__flash_r_len` variable. 
+it is automatically placed right after the `FLASH_RX` region.
+
 
 `FLASH_R` contains
 - `.rodata`
@@ -120,4 +109,16 @@ Program Headers:
    03     .init_array .fini_array
    04     .data
    05     .bss
+```
+
+
+## Stock Configuration
+
+in the stock configuration, .text and .data sections were located in a single memory region `FLASH`:
+
+```
+FLASH containing .text and .data:
+- start : 0x0000C420
+- length: 0x34000 (208K)
+- end   : 0x00040420
 ```

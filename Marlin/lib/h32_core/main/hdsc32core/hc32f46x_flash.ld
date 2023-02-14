@@ -1,8 +1,9 @@
-/*****************************************************************************/
-/*  File        hc32f46x_flash.ld                                            */
-/*  Abstract    Linker script for HC32F46x Device with                       */
-/*              xxxKByte FLASH, 192KByte RAM                                 */ 
-/*****************************************************************************/
+/* flash region sizes */
+__flash_rx_len = 140K;
+__flash_r_len = 20K;
+
+ASSERT(__flash_r_len + __flash_rx_len <= 208K, "FLASH_RX and FLASH_R are too big and will not fit into FLASH")
+
 
 /* Use contiguous memory regions for simple. */
 /* seperate .text (FLASH_RX) from .data (FLASH_R) sections to prevent execution of data */
@@ -10,8 +11,8 @@ MEMORY
 {
     FLASH_ISR   (rx): ORIGIN = 0x0000C000, LENGTH = 1024
     FLASH_ICG   (rx): ORIGIN = 0x0000C400, LENGTH = 32
-    FLASH_RX    (rx): ORIGIN = 0x0000C420, LENGTH = 178K
-    FLASH_R      (r): ORIGIN = 0x00038C20, LENGTH = 30K
+    FLASH_RX    (rx): ORIGIN = 0x0000C420, LENGTH = __flash_rx_len
+    FLASH_R      (r): ORIGIN = (ORIGIN(FLASH_RX) + __flash_rx_len), LENGTH = __flash_r_len
     RAM        (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
     RAM_RET    (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
 }

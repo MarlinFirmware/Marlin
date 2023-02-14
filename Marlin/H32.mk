@@ -165,6 +165,11 @@ $(BUILD_DIR)/%.S.o: %.S
     	-o "$@" "$<"
 
 # Link firmware
+# give a nice heads-up if linking failed due to memory regions too small.
+LINK_FAIL_HEADUP_FLASH_R = \
+	Note: if linking failed because 'region FLASH_RX overflowed by n bytes', \
+	try increasing '__flash_rx_len' in $(LINKER_SCRIPT_FILE) by the overflown amount. \
+	see the accompanying README for details
 $(OUTPUT_FILE_BASE).elf: $(OBJ_FILES)
 	@echo 'Linking Firmware'
 	@mkdir -p $(dir $@)
@@ -177,7 +182,8 @@ $(OUTPUT_FILE_BASE).elf: $(OBJ_FILES)
 		-Wl,-Map,$(OUTPUT_FILE_BASE).map \
 		--specs=nano.specs \
 		--specs=nosys.specs \
-		-o $(OUTPUT_FILE_BASE).elf $(OBJ_FILES) $(LIB_FILES_RESOLVED)
+		-o $(OUTPUT_FILE_BASE).elf $(OBJ_FILES) $(LIB_FILES_RESOLVED) \
+		|| (echo '$(LINK_FAIL_HEADUP_FLASH_R)' && false)
 
 # Create Flash Image
 $(OUTPUT_FILE_BASE).bin: $(OUTPUT_FILE_BASE).elf
