@@ -219,4 +219,4 @@ print-resolved:
 	@printf ' == BUILD_DIR == \n $(addsuffix \n,$(BUILD_DIR)) \n\n'
 	@printf ' == OUTPUT_FILE_BASE == \n $(addsuffix \n,$(OUTPUT_FILE_BASE)) \n\n'
 
-.PHONY: all clean rebuild print_resolved
+.PHONY: all clean rebuild print-segments print-resolved
