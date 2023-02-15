@@ -627,6 +627,8 @@
   #include "stm32f1/pins_ERYONE_ERY32_MINI.h"   // STM32F103VET6                          env:ERYONE_ERY32_MINI_maple
 #elif MB(PANDA_PI_V29)
   #include "stm32f1/pins_PANDA_PI_V29.h"        // STM32F103RCT6                          env:PANDA_PI_V29
+#elif MB(AC_TRI_F1_V1)
+  #include "stm32f1/pins_AC_TRI_F1_V1.h"        // STM32F103RET6                          env:ac_tri_f1
 
 //
 // ARM Cortex-M4F
