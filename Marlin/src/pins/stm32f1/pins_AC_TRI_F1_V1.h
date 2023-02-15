@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,27 +36,10 @@
 #define FLASH_EEPROM_EMULATION
 #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 
-#if 0
-#if ENABLED(FLASH_EEPROM_EMULATION)
-  // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
-  #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB, but will use 2x more (4KB)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
-#else
-  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
-#endif
-#endif
 
 //
 // Limit Switches
 //
-#if 0
-#define X_STOP_PIN                          PA7
-#define Y_STOP_PIN                          PC5
-#define ZL_STOP_PIN                         PB2
-#define ZR_STOP_PIN                         PC6
-#define Z_STOP_PIN                          ZL_STOP_PIN
-#endif
 
 #define X_MIN_PIN                           PA7
 #define X_MAX_PIN                           PC6
