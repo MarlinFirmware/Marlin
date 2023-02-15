@@ -2,7 +2,13 @@
 
 This project aims to port vanilla Marlin to the [Voxlab Aquila X2](https://www.voxelab3dp.com/product/aquila-x2-fdm-3d-printer) 3D-Printer with H32 (HC32F46x) Chipset.
 
-For (the only other) Marlin port for the H32 chipset, see [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32). 
+this project is based on the following projects and wouldn't have been possible without them: 
+- [MarlinFirmware/Marlin](https://github.com/MarlinFirmware/Marlin) 
+- [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2) (base `h32_core` and HAL)
+- [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32) (optimizations to `h32_core` and `HAL`)
+- [stm32duino/Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) (misc. Arduino functions)
+
+details on the origin of code used is described in README files accompanying the components.
 
 
 ## Building
@@ -22,8 +28,9 @@ installing the firmware onto your printer is fairly straight forward
 1. before doing anything, you might want to download the stock firmware from [Voxelab](https://www.voxelab3dp.com/download). 
    - Ensure that both `firmware.bin` and `DWIN_SET` are present
 2. build or download `firmware.bin` (printer firmware)
-3. download `DWIN_SET` (display graphics) from [MarlinFirmware/Configurations](https://github.com/MarlinFirmware/Configurations/tree/2.0.6/config/examples/Creality/Ender-3%20V2). 
-   - Ensure you download from the correct tag. The tag selected in Github must match the `SHORT_BUILD_VERSION` specified in `Marlin/Version.h`
+3. download the `DWIN_SET` that corresponds to the ui selected in `Configuration.h` (`DWIN_***` option).
+   - downloads are available as part of the Ender-3 example configurations. see [Marlin/src/lcd/e3v2/README.md](./Marlin/src/lcd/e3v2/README.md) for details on where to find `DWIN_SET`.
+   - ensure you download from the correct tag. the tag selected in github must match the `SHORT_BUILD_VERSION` specified in `Marlin/Version.h` (eg. `bugfix-2.1.x`)
 4. format a SD Card (<= 16Gb) as FAT32
 5. create a folder `firmware` in the root of the SD card and place `firmware.bin` into the folder
 6. copy `DWIN_SET` directory into the root of the SD card
