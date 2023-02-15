@@ -689,7 +689,7 @@ namespace ExtUI {
       case RunoutToggle:
       case PowerLossToggle:
       case FanKeyIcon:
-      case LedToggle: break;
+      case LedToggle:
       case e2Preheat:                Checkkey = ManualSetTemp; break;
       case ProbeOffset_Z:            Checkkey = Zoffset_Value; break;
       case VolumeDisplay:            Checkkey = VolumeDisplay; break;
