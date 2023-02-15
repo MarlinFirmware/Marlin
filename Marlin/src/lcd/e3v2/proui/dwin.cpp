@@ -3542,7 +3542,7 @@ void Draw_Steps_Menu() {
 
 #if ENABLED(MPCTEMP)
 
-  void HotendMPC() { thermalManager.MPC_autotune(); }
+  void HotendMPC() { thermalManager.MPC_autotune(active_extruder); }
   void SetHeaterPower() { SetPFloatOnClick(1, 200, 1); }
   void SetBlkHeatCapacity() { SetPFloatOnClick(0, 40, 2); }
   void SetSensorRespons() { SetPFloatOnClick(0, 1, 4); }
