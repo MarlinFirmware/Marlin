@@ -27,13 +27,17 @@
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4K (AT24C32)
-#define I2C_SCL_PIN                         PB8
-#define I2C_SDA_PIN                         PB9
+#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+  #undef NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K (AT24C32)
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PB8
+  #define I2C_SDA_PIN                       PB9
+#endif
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER                             8
 
 //
 // Servos
@@ -70,13 +74,13 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX 1
+    #define NEEDS_X_MINMAX                     1
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX 1
+    #define NEEDS_Y_MINMAX                     1
   #endif
   #if _ENDSTOP_IS_ANY(_ZMIN_) || _ENDSTOP_IS_ANY(_ZMAX_)
-    #define NEEDS_Z_MINMAX 1
+    #define NEEDS_Z_MINMAX                     1
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -355,7 +359,7 @@
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
   #ifndef SD_DETECT_STATE
-    #define SD_DETECT_STATE HIGH
+    #define SD_DETECT_STATE                 HIGH
   #elif SD_DETECT_STATE == LOW
     #error "BOARD_BTT_OCTOPUS_V1_0 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
