@@ -2058,33 +2058,19 @@
    */
   //#define AVOID_OBSTACLES
   #if ENABLED(AVOID_OBSTACLES)
-    #define OBSTACLE_XSIZE 23.0f // Width, should be padded a few mm above physical width
-    #define OBSTACLE_YSIZE 14.0f // Height, also should be padded
+    #define CLIP_W  23  // Bed clip width, should be padded a few mm over its physical size
+    #define CLIP_H  14  // Bed clip height, should be padded a few mm over its physical size
 
-    #define OBSTACLE1_XMIN ((X_BED_SIZE) / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE1_XMAX ((X_BED_SIZE) / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE1_YMIN 0.0f
-    #define OBSTACLE1_YMAX OBSTACLE_YSIZE
+    // Obstacle Rectangles defined as { X1, Y1, X2, Y2 }
+    #define OBSTACLE1 { (X_BED_SIZE) / 4     - (CLIP_W) / 2,                       0, (X_BED_SIZE) / 4     + (CLIP_W) / 2, CLIP_H }
+    #define OBSTACLE2 { (X_BED_SIZE) * 3 / 4 - (CLIP_W) / 2,                       0, (X_BED_SIZE) * 3 / 4 + (CLIP_W) / 2, CLIP_H }
+    #define OBSTACLE3 { (X_BED_SIZE) / 4     - (CLIP_W) / 2, (Y_BED_SIZE) - (CLIP_H), (X_BED_SIZE) / 4     + (CLIP_W) / 2, Y_BED_SIZE }
+    #define OBSTACLE4 { (X_BED_SIZE) * 3 / 4 - (CLIP_W) / 2, (Y_BED_SIZE) - (CLIP_H), (X_BED_SIZE) * 3 / 4 + (CLIP_W) / 2, Y_BED_SIZE }
 
-    #define OBSTACLE2_XMIN ((X_BED_SIZE) * 3.0f / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE2_XMAX ((X_BED_SIZE) * 3.0f / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE2_YMIN 0.0f
-    #define OBSTACLE2_YMAX OBSTACLE_YSIZE
-
-    #define OBSTACLE3_XMIN ((X_BED_SIZE) / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE3_XMAX ((X_BED_SIZE) / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE3_YMIN ((Y_BED_SIZE) - (OBSTACLE_YSIZE))
-    #define OBSTACLE3_YMAX Y_BED_SIZE
-
-    #define OBSTACLE4_XMIN ((X_BED_SIZE) * 3.0f / 4.0f - (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE4_XMAX ((X_BED_SIZE) * 3.0f / 4.0f + (OBSTACLE_XSIZE) / 2.0f)
-    #define OBSTACLE4_YMIN ((Y_BED_SIZE) - (OBSTACLE_YSIZE))
-    #define OBSTACLE4_YMAX Y_BED_SIZE
-
-    // In this case, the probed grid can (and must, or else the function will abort) be set inward,
-    // as it's only used to compute a linear transformation for the mesh itself.
-    #define MARGIN_FOR_G29J_MESH_TILT ((OBSTACLE_YSIZE) + 1)
-  #endif // AVOID_OBSTACLES
+    // The probed grid must be inset for G29 J. This is okay, since it is
+    // only used to compute a linear transformation for the mesh itself.
+    #define G29J_MESH_TILT_MARGIN ((CLIP_H) + 1)
+  #endif
 
 #elif ENABLED(MESH_BED_LEVELING)
 

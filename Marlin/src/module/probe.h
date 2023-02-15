@@ -92,25 +92,6 @@ public:
 
     static bool set_deployed(const bool deploy);
 
-    static bool obstacle_check(const_float_t rx, const_float_t ry) {
-      return (true && !(false
-        #if ENABLED(AVOID_OBSTACLES)
-          #if defined(OBSTACLE1_XMIN) && defined(OBSTACLE1_XMAX) && defined(OBSTACLE1_YMIN) && defined(OBSTACLE1_YMAX)
-            || (WITHIN(rx, OBSTACLE1_XMIN, OBSTACLE1_XMAX) && WITHIN(ry, OBSTACLE1_YMIN, OBSTACLE1_YMAX))
-          #endif
-          #if defined(OBSTACLE2_XMIN) && defined(OBSTACLE2_XMAX) && defined(OBSTACLE2_YMIN) && defined(OBSTACLE2_YMAX)
-            || (WITHIN(rx, OBSTACLE2_XMIN, OBSTACLE2_XMAX) && WITHIN(ry, OBSTACLE2_YMIN, OBSTACLE2_YMAX))
-          #endif
-          #if defined(OBSTACLE3_XMIN) && defined(OBSTACLE3_XMAX) && defined(OBSTACLE3_YMIN) && defined(OBSTACLE3_YMAX)
-            || (WITHIN(rx, OBSTACLE3_XMIN, OBSTACLE3_XMAX) && WITHIN(ry, OBSTACLE3_YMIN, OBSTACLE3_YMAX))
-          #endif
-          #if defined(OBSTACLE4_XMIN) && defined(OBSTACLE4_XMAX) && defined(OBSTACLE4_YMIN) && defined(OBSTACLE4_YMAX)
-            || (WITHIN(rx, OBSTACLE4_XMIN, OBSTACLE4_XMAX) && WITHIN(ry, OBSTACLE4_YMIN, OBSTACLE4_YMAX))
-          #endif
-        #endif
-      ));
-    }
-
     #if IS_KINEMATIC
 
       #if HAS_PROBE_XY_OFFSET
@@ -134,6 +115,32 @@ public:
       #endif
 
     #else
+
+      static bool obstacle_check(const_float_t rx, const_float_t ry) {
+        #if ENABLED(AVOID_OBSTACLES)
+          #ifdef OBSTACLE1
+            constexpr float obst1[] = OBSTACLE1;
+            static_assert(COUNT(obst1) == 4, "OBSTACLE1 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst1[0], obst1[2]) && WITHIN(ry, obst1[1], obst1[3])) return false;
+          #endif
+          #ifdef OBSTACLE2
+            constexpr float obst2[] = OBSTACLE2;
+            static_assert(COUNT(obst2) == 4, "OBSTACLE2 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst2[0], obst2[2]) && WITHIN(ry, obst2[1], obst2[3])) return false;
+          #endif
+          #ifdef OBSTACLE3
+            constexpr float obst3[] = OBSTACLE3;
+            static_assert(COUNT(obst3) == 4, "OBSTACLE3 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst3[0], obst3[2]) && WITHIN(ry, obst3[1], obst3[3])) return false;
+          #endif
+          #ifdef OBSTACLE4
+            constexpr float obst4[] = OBSTACLE4;
+            static_assert(COUNT(obst4) == 4, "OBSTACLE4 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst4[0], obst4[2]) && WITHIN(ry, obst4[1], obst4[3])) return false;
+          #endif
+        #endif
+        return true;
+      }
 
       /**
        * Return whether the given position is within the bed, and whether the nozzle
