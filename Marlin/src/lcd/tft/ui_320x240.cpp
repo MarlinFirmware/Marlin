@@ -455,7 +455,7 @@ void MarlinUI::draw_status_screen() {
       else
         add_control(0, TERN(TFT_COLOR_UI_PORTRAIT, 210, 130), menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
-  } // (sublime)
+  }
   #endif // TOUCH_SCREEN
 }
 
