@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 #include "../../core/serial_hook.h"
 
 #include <Stream.h>

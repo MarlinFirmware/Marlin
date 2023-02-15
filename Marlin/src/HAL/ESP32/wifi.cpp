@@ -59,7 +59,8 @@ void wifi_init() {
 
   MDNS.addService("http", "tcp", 80);
 
-  SERIAL_ECHOLNPGM("Successfully connected to WiFi with SSID '" WIFI_SSID "', hostname: '" WIFI_HOSTNAME "', IP address: ", WiFi.localIP().toString().c_str());
+  auto str = WiFi.localIP().toString();
+  SERIAL_ECHOLNPGM("Successfully connected to WiFi with SSID '" WIFI_SSID "', hostname: '" WIFI_HOSTNAME "', IP address: ", str.c_str());
 }
 
 #endif // WIFISUPPORT

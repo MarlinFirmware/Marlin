@@ -3693,7 +3693,7 @@ void Stepper::report_positions() {
 
       #if HAS_MOTOR_CURRENT_SPI
 
-        SET_OUTPUT(DIGIPOTSS_PIN);
+        spiSetupChipSelect(DIGIPOTSS_PIN);
 
         LOOP_L_N(i, COUNT(motor_current_setting))
           set_digipot_current(i, motor_current_setting[i]);

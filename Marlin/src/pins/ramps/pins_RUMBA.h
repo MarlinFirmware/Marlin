@@ -107,7 +107,7 @@
   #define E1_ENABLE_PIN                       PinA5
 #endif
 
-#if E1_STEP_PIN != 29
+#if E1_STEP_PIN != PinA7
   #define E2_STEP_PIN                         PinA7
   #define E2_DIR_PIN                          PinA6
   #define E2_ENABLE_PIN                       PinG2

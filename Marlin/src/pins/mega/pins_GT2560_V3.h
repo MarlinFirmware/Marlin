@@ -168,15 +168,12 @@
 #if ENABLED(YHCB2004)
   #ifndef YHCB2004_CLK
     #define YHCB2004_CLK                      PinE3
-    #define DIO52                   YHCB2004_CLK
   #endif
   #ifndef YHCB2004_MOSI
     #define YHCB2004_MOSI                     PinD0
-    #define DIO50                  YHCB2004_MOSI
   #endif
   #ifndef YHCB2004_MISO
     #define YHCB2004_MISO                     PinC1
-    #define DIO51                  YHCB2004_MISO
   #endif
 #elif HAS_WIRED_LCD
   #ifndef LCD_PINS_RS

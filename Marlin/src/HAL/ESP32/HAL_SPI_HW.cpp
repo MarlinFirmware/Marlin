@@ -87,7 +87,7 @@ using esp32BitManager = eir::BitManager <hostNumberType, eir::template choose_de
   #define HALSPI_DISABLE_DMA
 #endif
 
-static void _spi_on_error(const uint32_t code=0) {
+static void IRAM_ATTR _spi_on_error(const uint32_t code=0) {
   for (;;) {
     #if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
       OUT_WRITE(BEEPER_PIN, HIGH); delay(500);
@@ -1530,7 +1530,7 @@ inline uint16_t SPIGetWriteBufferStartIndex(volatile spi_dev_t& SPI) {
 }
 
 template <eir::bitmanager_type bitManType>
-inline void SPIPrepareWriteBitManager(volatile spi_dev_t& SPI, bitManType& bitman) noexcept {
+inline void IRAM_ATTR SPIPrepareWriteBitManager(volatile spi_dev_t& SPI, bitManType& bitman) noexcept {
   bool wr_msbfirst = (SPI.SPI_CTRL_REG.SPI_WR_BIT_ORDER == _ESP32_BIT_ORDER_MSB);
 
   bitman.SetDefaultStorageProperty(
@@ -1540,7 +1540,7 @@ inline void SPIPrepareWriteBitManager(volatile spi_dev_t& SPI, bitManType& bitma
 }
 
 template <eir::bitmanager_type bitManType>
-inline void SPIPrepareReadBitManager(volatile spi_dev_t& SPI, bitManType& bitman) noexcept {
+inline void IRAM_ATTR SPIPrepareReadBitManager(volatile spi_dev_t& SPI, bitManType& bitman) noexcept {
   bool rd_msbfirst = (SPI.SPI_CTRL_REG.SPI_RD_BIT_ORDER == _ESP32_BIT_ORDER_MSB);
 
   bitman.SetDefaultStorageProperty(
@@ -1550,7 +1550,7 @@ inline void SPIPrepareReadBitManager(volatile spi_dev_t& SPI, bitManType& bitman
 }
 
 template <typename numberType>
-inline void SPIWriteDataToTransferIsolated(
+inline void IRAM_ATTR SPIWriteDataToTransferIsolated(
   volatile spi_dev_t& SPI, const numberType *buf, uint16_t cnt, uint32_t srcByteStartIdx,
   uint16_t& cntSentBytes_out
 ) {
@@ -1962,11 +1962,6 @@ static void IRAM_ATTR spi_async_process_isr(void *ud, uint32_t spibusIdx) {
       }
     }
   }
-#ifdef HALSPI_DEBUG
-  else {
-    SERIAL_ECHO_MSG("SPI ERROR (", spibusIdx, ")");
-  }
-#endif
 }
 
 #ifdef HALSPI_ESP32_ENABLE_INTERNBUS
@@ -2010,7 +2005,7 @@ static void SPIInstallAsync(volatile spi_dev_t& SPI, intr_handle_t& handleOut) {
   else
     _spi_on_error(1);
 
-  esp_err_t err = esp_intr_alloc(intsrc, ESP_INTR_FLAG_IRAM, inthandler, nullptr, &handleOut);
+  esp_err_t err = esp_intr_alloc(intsrc, 0 /*ESP_INTR_FLAG_IRAM*/, inthandler, nullptr, &handleOut);
 
   if (err != ESP_OK)
     _spi_on_error(1);

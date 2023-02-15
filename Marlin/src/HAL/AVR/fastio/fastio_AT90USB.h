@@ -29,7 +29,7 @@
  *            The logical pins 46 and 47 are not supported by Teensyduino, but are supported below as E2 and E3
  * 
  * Arduino Pin Layout video: https://www.youtube.com/watch?v=rIqeVCX09FA
- * AVR alternate pin function overview video: https://www.youtube.com/watch?v=Gz9QU3FvdXs
+ * AVR alternate pin function overview video: https://www.youtube.com/watch?v=1yd8wuI5Plg
  */
 
 #include "../fastio.h"
