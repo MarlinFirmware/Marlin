@@ -233,12 +233,12 @@ void Touch::touch(touch_control_t *control) {
         MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
       #endif
       break;
-    case STOP: 
+    case STOP:
       ui.goto_screen([]{
-        MenuItem_confirm::select_screen( GET_TEXT_F(MSG_BUTTON_STOP),
+        MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
           GET_TEXT_F(MSG_BACK), ui.abort_print, ui.goto_previous_screen,
-          GET_TEXT_F(MSG_STOP_PRINT), FSTR_P(nullptr), FPSTR("?") );
-        }); 
+          GET_TEXT_F(MSG_STOP_PRINT), FSTR_P(nullptr), FPSTR("?"));
+        });
       break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
