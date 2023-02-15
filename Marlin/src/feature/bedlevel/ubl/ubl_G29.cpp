@@ -1489,7 +1489,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     float measured_z;
     bool abort_flag = false;
 
-    #ifdef VALIDATE_MESH_TILT
+    #if ENABLED(VALIDATE_MESH_TILT)
       float z1, z2, z3;  // Needed for algorithm validation below
     #endif
 
@@ -1505,9 +1505,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         abort_flag = true;
       else {
         measured_z -= get_z_correction(points[0]);
-        #ifdef VALIDATE_MESH_TILT
-          z1 = measured_z;
-        #endif
+        TERN_(VALIDATE_MESH_TILT, z1 = measured_z);
         if (param.V_verbosity > 3) {
           serial_spaces(16);
           SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
@@ -1520,9 +1518,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 2/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
         measured_z = probe.probe_at_point(points[1], PROBE_PT_RAISE, param.V_verbosity);
-        #ifdef VALIDATE_MESH_TILT
-          z2 = measured_z;
-        #endif
+        TERN_(VALIDATE_MESH_TILT, z2 = measured_z);
         if (isnan(measured_z))
           abort_flag = true;
         else {
@@ -1540,9 +1536,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 3/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
         measured_z = probe.probe_at_point(points[2], PROBE_PT_LAST_STOW, param.V_verbosity);
-        #ifdef VALIDATE_MESH_TILT
-          z3 = measured_z;
-        #endif
+        TERN_(VALIDATE_MESH_TILT, z3 = measured_z);
         if (isnan(measured_z))
           abort_flag = true;
         else {
@@ -1689,7 +1683,7 @@ void unified_bed_leveling::smart_fill_mesh() {
        * The Z error between the probed point locations and the get_z_correction()
        * numbers for those locations should be 0.
        */
-      #ifdef VALIDATE_MESH_TILT
+      #if ENABLED(VALIDATE_MESH_TILT)
         auto d_from = []{ DEBUG_ECHOPGM("D from "); };
         auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
