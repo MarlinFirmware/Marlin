@@ -1068,6 +1068,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
   }
   else {
     #if ENABLED(ARTICULATED_ROBOT_ARM)
+
       // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
       // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
       const float distance_sqr = NUM_AXIS_GANG(
@@ -1075,14 +1076,19 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
         + sq(diff.i), + sq(diff.j), + sq(diff.k),
         + sq(diff.u), + sq(diff.v), + sq(diff.w)
       );
+
     #elif ENABLED(FOAMCUTTER_XYUV)
-      #if HAS_J_AXIS
-        // Special 5 axis kinematics. Return the largest distance move from either X/Y or I/J plane
-        const float distance_sqr = _MAX(sq(diff.x) + sq(diff.y), sq(diff.i) + sq(diff.j));
-      #else // Foamcutter with only two axes (XY)
-        const float distance_sqr = sq(diff.x) + sq(diff.y);
-      #endif
+
+      const float distance_sqr = (
+        #if HAS_J_AXIS
+          _MAX(sq(diff.x) + sq(diff.y), sq(diff.i) + sq(diff.j)) // Special 5 axis kinematics. Return the larger of plane X/Y or I/J
+        #else
+          sq(diff.x) + sq(diff.y) // Foamcutter with only two axes (XY)
+        #endif
+      );
+
     #else
+
       /**
        * Calculate distance for feedrate interpretation in accordance with NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
        * Assume:
@@ -1110,7 +1116,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
       #if SECONDARY_LINEAR_AXES
         if (UNEAR_ZERO(distance_sqr)) {
           // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          distance_sqr = (0.0f
+          distance_sqr = (
             SECONDARY_AXIS_GANG(
               IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
               IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
@@ -1130,6 +1136,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
         }
       #endif
+
     #endif
 
     return SQRT(distance_sqr);

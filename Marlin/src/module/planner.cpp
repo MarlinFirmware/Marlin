@@ -2317,12 +2317,13 @@ bool Planner::_populate_block(
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
-  float inverse_secs;
-  #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-    inverse_secs = inverse_millimeters * (cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s));
-  #else
-    inverse_secs = fr_mm_s * inverse_millimeters;
-  #endif
+  float inverse_secs = inverse_millimeters * (
+    #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+      cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
+    #else
+      fr_mm_s
+    #endif
+  );
 
   // Get the number of non busy movements in queue (non busy means that they can be altered)
   const uint8_t moves_queued = nonbusy_movesplanned();
