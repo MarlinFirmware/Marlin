@@ -38,7 +38,7 @@
 #endif
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                             8
+#define STEP_TIMER 8
 
 //
 // Servos
@@ -74,13 +74,13 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX                     1
+    #define NEEDS_X_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX                     1
+    #define NEEDS_Y_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_ZMIN_) || _ENDSTOP_IS_ANY(_ZMAX_)
-    #define NEEDS_Z_MINMAX                     1
+    #define NEEDS_Z_MINMAX
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -113,7 +113,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
   #endif
-#elif NEEDS_Y_MINMAX
+#elif ENABLED(NEEDS_Y_MINMAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
@@ -131,7 +131,7 @@
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
   #endif
-#elif NEEDS_Z_MINMAX
+#elif ENABLED(NEEDS_Z_MINMAX)
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-STOP
   #endif
@@ -392,7 +392,7 @@
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #ifndef SD_DETECT_STATE
-    #define SD_DETECT_STATE                 HIGH
+    #define SD_DETECT_STATE HIGH
   #elif SD_DETECT_STATE == LOW
     #error "BOARD_BTT_OCTOPUS_MAX_EZ onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
