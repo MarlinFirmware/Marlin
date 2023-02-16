@@ -118,10 +118,6 @@
   #endif
 #endif
 
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
-#undef NEEDS_Z_MINMAX
-
 //
 // Steppers
 //

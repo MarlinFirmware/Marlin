@@ -130,9 +130,6 @@
 
 #define Z_STOP_PIN                    Z_DIAG_PIN  // MIN3
 
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
-
 //
 // Filament Runout Sensors
 //
