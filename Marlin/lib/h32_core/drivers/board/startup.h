@@ -18,7 +18,6 @@
 #include "board_tim0.h"
 #include "board_cfg.h"
 #include "board_gpio.h"
-#include "i2c.h"
 #include "adc.h"
 #include "../pins/hc32f46x/pins_Aquila_X2.h"
 #include "sdio_f1.h"
@@ -32,7 +31,11 @@ extern "C"
 {
 #endif
 
-    extern uint32_t F_CPU;
+    extern uint32_t CPU_FREQ;
+
+    #ifndef F_CPU
+    #define F_CPU CPU_FREQ
+    #endif
 
     typedef enum ExtIntTriggerMode
     {

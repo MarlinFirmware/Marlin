@@ -72,7 +72,10 @@ void MarlinHAL::delay_ms(const int ms)
     delay(ms);
 }
 
-void MarlinHAL::idletask() {}
+void MarlinHAL::idletask()
+{
+    MarlinHAL::watchdog_refresh();
+}
 
 uint8_t MarlinHAL::get_reset_source()
 {
@@ -83,7 +86,7 @@ void MarlinHAL::clear_reset_source() {}
 
 int MarlinHAL::freeMemory()
 {
-    //TODO HC32F46x: untested, taken from STM32F1 HAL
+    // TODO HC32F46x: untested, taken from STM32F1 HAL
     volatile char top;
     return &top - _sbrk(0);
 }

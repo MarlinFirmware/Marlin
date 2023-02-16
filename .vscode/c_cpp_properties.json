@@ -19,7 +19,8 @@
                 "_MPU_PRESENT=1",
                 "ARM_MATH_CM4",
                 "ARM_MATH_MATRIX_CHECK",
-                "ARM_MATH_ROUNDING"
+                "ARM_MATH_ROUNDING",
+                "REDIRECT_PRINTF_TO_SERIAL"
             ],
             "intelliSenseMode": "linux-gcc-arm",
             "compilerPath": "/usr/bin/arm-none-eabi-g++",
