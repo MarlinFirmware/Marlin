@@ -233,6 +233,13 @@ void Touch::touch(touch_control_t *control) {
         MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
       #endif
       break;
+    case STOP:
+      ui.goto_screen([]{
+        MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
+          GET_TEXT_F(MSG_BACK), ui.abort_print, ui.goto_previous_screen,
+          GET_TEXT_F(MSG_STOP_PRINT), FSTR_P(nullptr), FPSTR("?"));
+        });
+      break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
@@ -252,7 +259,7 @@ void Touch::touch(touch_control_t *control) {
 void Touch::hold(touch_control_t *control, millis_t delay) {
   current_control = control;
   if (delay) {
-    repeat_delay = _MAX(delay, MIN_REPEAT_DELAY);
+    repeat_delay = _MAX(delay, uint32_t(MIN_REPEAT_DELAY));
     time_to_hold = next_touch_ms + repeat_delay;
   }
   ui.refresh();
