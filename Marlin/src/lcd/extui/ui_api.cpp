@@ -333,7 +333,7 @@ namespace ExtUI {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z) {
-        max = SQRT(sq(float(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
+        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
         min = -max;
       }
     #endif
@@ -843,11 +843,13 @@ namespace ExtUI {
   #endif // BABYSTEPPING
 
   float getZOffset_mm() {
-    return (0.0f
+    return (
       #if HAS_BED_PROBE
-        + probe.offset.z
+        probe.offset.z
       #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        + planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+      #else
+        0.0f
       #endif
     );
   }

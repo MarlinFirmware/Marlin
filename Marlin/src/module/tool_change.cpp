@@ -929,7 +929,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Returns FALSE if able to  move.
    */
   bool too_cold(uint8_t toolID){
-    if (TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID))) {
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return true;
     }
@@ -1350,6 +1350,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #else
               do_blocking_move_to_xy(destination, planner.settings.max_feedrate_mm_s[X_AXIS]);
               do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+              SECONDARY_AXIS_CODE(
+                do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
+                do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
+                do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
+                do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
+                do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
+                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
+              );
             #endif
 
           #endif
@@ -1429,12 +1437,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
   bool extruder_migration() {
 
-    #if ENABLED(PREVENT_COLD_EXTRUSION)
-      if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-        DEBUG_ECHOLNPGM("Migration Source Too Cold");
-        return false;
-      }
-    #endif
+    if (thermalManager.targetTooColdToExtrude(active_extruder)) {
+      DEBUG_ECHOLNPGM("Migration Source Too Cold");
+      return false;
+    }
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {

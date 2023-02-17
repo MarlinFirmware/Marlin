@@ -95,7 +95,62 @@ void LEDLights::setup() {
         delay(500);
       }
     #endif // RGB_STARTUP_TEST
-  #endif
+
+  #elif BOTH(PCA9632, RGB_STARTUP_TEST)   // PCA9632 RGB_STARTUP_TEST
+
+    constexpr int8_t led_pin_count = TERN(HAS_WHITE_LED, 4, 3);
+
+    // Startup animation
+    LEDColor curColor = LEDColorOff();
+    PCA9632_set_led_color(curColor);      // blackout
+    delay(200);
+
+    /*
+     * LED Pin Counter steps -> events
+     * | 0-100 | 100-200 | 200-300 | 300-400 |
+     *  fade in   steady |           fade out
+     *  start next pin fade in
+     */
+
+    uint16_t led_pin_counters[led_pin_count] = { 1, 0, 0 };
+
+    bool canEnd = false;
+    while (led_pin_counters[0] != 99 || !canEnd) {
+      if (led_pin_counters[0] == 99)        // End loop next time pin0 counter is 99
+        canEnd = true;
+      LOOP_L_N(i, led_pin_count) {
+        if (led_pin_counters[i] > 0) {
+          if (++led_pin_counters[i] == 400) // turn off current pin counter in led_pin_counters
+            led_pin_counters[i] = 0;
+          else if (led_pin_counters[i] == 201) { // start next pin pwm
+            led_pin_counters[i + 1 == led_pin_count ? 0 : i + 1] = 1;
+            i++; // skip next pin in this loop so it doesn't increment twice
+          }
+        }
+      }
+      uint16_t r, g, b;
+      r = led_pin_counters[0]; curColor.r = r <= 100 ? r : r <= 300 ? 100 : 400 - r;
+      g = led_pin_counters[1]; curColor.g = g <= 100 ? g : g <= 300 ? 100 : 400 - g;
+      b = led_pin_counters[2]; curColor.b = b <= 100 ? b : b <= 300 ? 100 : 400 - b;
+      #if HAS_WHITE_LED
+        const uint16_t w = led_pin_counters[3]; curColor.w = w <= 100 ? w : w <= 300 ? 100 : 400 - w;
+      #endif
+      PCA9632_set_led_color(curColor);
+      delay(RGB_STARTUP_TEST_INNER_MS);
+    }
+
+    // Fade to white
+    LOOP_LE_N(led_pwm, 100) {
+      NOLESS(curColor.r, led_pwm);
+      NOLESS(curColor.g, led_pwm);
+      NOLESS(curColor.b, led_pwm);
+      TERN_(HAS_WHITE_LED, NOLESS(curColor.w, led_pwm));
+      PCA9632_set_led_color(curColor);
+      delay(RGB_STARTUP_TEST_INNER_MS);
+    }
+
+  #endif // PCA9632 && RGB_STARTUP_TEST
+
   TERN_(NEOPIXEL_LED, neo.init());
   TERN_(PCA9533, PCA9533_init());
   TERN_(LED_USER_PRESET_STARTUP, set_default());

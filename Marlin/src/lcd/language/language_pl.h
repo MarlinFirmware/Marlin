@@ -269,7 +269,6 @@ namespace Language_pl {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autostrojenie");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autostrojenie *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Strojenie PID zakończone");
-  LSTR MSG_SELECT                         = _UxGT("Wybierz");
   LSTR MSG_SELECT_E                       = _UxGT("Wybierz *");
   LSTR MSG_ACC                            = _UxGT("Przyspieszenie");
   LSTR MSG_JERK                           = _UxGT("Zryw");
@@ -373,7 +372,7 @@ namespace Language_pl {
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Self-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s%s%s");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");

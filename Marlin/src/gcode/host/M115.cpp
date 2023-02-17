@@ -232,33 +232,41 @@ void GcodeSuite::M115() {
       const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
                       wmin = cmin.asLogical(), wmax = cmax.asLogical();
 
-      SERIAL_ECHOLNPGM(
+      SERIAL_ECHOPGM(
         "area:{"
           "full:{"
-            LIST_N(DOUBLE(NUM_AXES),
-              "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
-                  ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
-                  ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
-            ),
-            LIST_N(DOUBLE(NUM_AXES),
-              "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
-                  ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
-                  ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
-            ),
-          "},"
+            "min:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
+                ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
+                ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
+              ),
+            "},max:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
+                ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
+                ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
+              ),
+            "}" // max
+          "}," // full
+      );
+      SERIAL_ECHOLNPGM(
           "work:{"
-            LIST_N(DOUBLE(NUM_AXES),
-              "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
-                  ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
-                  ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
-            ),
-            LIST_N(DOUBLE(NUM_AXES),
-              "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
-                  ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
-                  ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w
-            ),
-          "}"
-        "}"
+            "min:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
+                ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
+                ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
+              ),
+            "},max:{"
+              LIST_N(DOUBLE(NUM_AXES),
+                 "x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
+                ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
+                ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w
+              ),
+            "}" // max
+          "}" // work
+        "}" // area
       );
     #endif
 
