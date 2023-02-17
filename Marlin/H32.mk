@@ -181,6 +181,7 @@ $(OUTPUT_FILE_BASE).elf: $(OBJ_FILES)
 		--gc-sections \
 		-L lib/h32_core/main/hdsc32core/common \
 		-Wl,-Map,$(OUTPUT_FILE_BASE).map \
+		-Wl,--print-memory-usage \
 		--specs=nano.specs \
 		--specs=nosys.specs \
 		-o $(OUTPUT_FILE_BASE).elf $(OBJ_FILES) $(LIB_FILES_RESOLVED) \
