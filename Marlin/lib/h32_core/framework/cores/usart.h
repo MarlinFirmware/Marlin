@@ -167,11 +167,46 @@ extern "C"
         rb_reset(dev->wb);
     }
 
+    /**
+     * USART transmit hook
+     *
+     * @param ch the data byte to be transmitted
+     * @param usart the usart channel. ([1,2,3,4]; 1 = DWIN, 2 = PRINT)
+     */
+    __weak extern void usart_tx_irq_hook(uint8_t ch, uint8_t usart);
+
+    /**
+     * USART receive hook
+     *
+     * @param ch the data byte that was received
+     * @param usart the usart channel. ([1,2,3,4]; 1 = DWIN, 2 = PRINT)
+     */
+    __weak extern void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
+
+    /**
+     * map usart device registers to usart channel number
+     */
+    static inline uint8_t usart_dev_to_channel(M4_USART_TypeDef *dev_regs)
+    {
+        if (dev_regs == M4_USART1)
+            return 1;
+        if (dev_regs == M4_USART2)
+            return 2;
+        if (dev_regs == M4_USART3)
+            return 3;
+        if (dev_regs == M4_USART4)
+            return 4;
+
+        return -1;
+    }
+
     static inline void usart_tx_irq(ring_buffer *wb, M4_USART_TypeDef *regs)
     {
         if (!rb_is_empty(wb))
         {
-            USART_SendData(regs, rb_remove(wb));
+            uint8_t ch = rb_remove(wb);
+            usart_tx_irq_hook(ch, usart_dev_to_channel(regs));
+            USART_SendData(regs, ch);
         }
         else
         {
@@ -182,7 +217,9 @@ extern "C"
 
     static inline void usart_rx_irq(ring_buffer *rb, M4_USART_TypeDef *regs)
     {
-        rb_push_insert(rb, (uint8)USART_RecData(regs));
+        uint8_t ch = (uint8)USART_RecData(regs);
+        usart_rx_irq_hook(ch, usart_dev_to_channel(regs));
+        rb_push_insert(rb, ch);
     }
 
 #ifdef __cplusplus
