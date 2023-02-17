@@ -40,7 +40,7 @@ public:
   static bool used_var_arg();
   static void var_arg();
 
-  static void L.append(100)();
+  static void L100();
   static void L101();
   static void L102();
   static void L103();
