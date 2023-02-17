@@ -1922,30 +1922,24 @@ void Temperature::task() {
   const millis_t ms = millis();
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
-    #if TEMP_SENSOR_IS_MAX_TC(0)
-      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        maxtemp_error(H_E0);
-      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        mintemp_error(H_E0);
-    #endif
-    #if TEMP_SENSOR_IS_MAX_TC(1)
-      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        maxtemp_error(H_E1);
-      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        mintemp_error(H_E1);
-    #endif
-    #if TEMP_SENSOR_IS_MAX_TC(2)
-      if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        maxtemp_error(H_E2);
-      if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01) && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        mintemp_error(H_E2);
-    #endif
-    #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
-      if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0 && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        maxtemp_error(H_REDUNDANT);
-      if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01 && TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100))
-        mintemp_error(H_REDUNDANT);
-    #endif
+    if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100)) {
+      #if TEMP_SENSOR_IS_MAX_TC(0)
+        if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) maxtemp_error(H_E0);
+        if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) mintemp_error(H_E0);
+      #endif
+      #if TEMP_SENSOR_IS_MAX_TC(1)
+        if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) maxtemp_error(H_E1);
+        if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) mintemp_error(H_E1);
+      #endif
+      #if TEMP_SENSOR_IS_MAX_TC(2)
+        if (degHotend(2) > _MIN(HEATER_2_MAXTEMP, TEMP_SENSOR_2_MAX_TC_TMAX - 1.0)) maxtemp_error(H_E2);
+        if (degHotend(2) < _MAX(HEATER_2_MINTEMP, TEMP_SENSOR_2_MAX_TC_TMIN + .01)) mintemp_error(H_E2);
+      #endif
+      #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
+        if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) maxtemp_error(H_REDUNDANT);
+        if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) mintemp_error(H_REDUNDANT);
+      #endif
+    }
   #else
     #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
   #endif
