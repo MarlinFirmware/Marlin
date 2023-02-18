@@ -26,6 +26,8 @@
 
 #if ENABLED(VARIABLE_SUPPORT)
 
+#include "variables.h"
+
 #include "../gcode.h"
 #include "../queue.h"
 #include "../parser.h"

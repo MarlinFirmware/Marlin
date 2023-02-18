@@ -18,6 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * variables.h
@@ -56,4 +57,4 @@ public:
   static void L113();
   static void L114();
   static void L115();
-}
+};
