@@ -1106,7 +1106,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       return (*(Gcode_param_pos_info*)lhs).start - (*(Gcode_param_pos_info*)rhs).start;
   }
 
-  void apply_hotend_offset_and_run_gcode(int tool, FSTR_P fgcode) {
+  void apply_hotend_offset_process_subcommands_now(int tool, FSTR_P fgcode) {
     /*
     //const char * gcode input handling for debug
     char gcode2[strlen(gcode1) + 1];
@@ -1603,7 +1603,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #ifdef EVENT_GCODE_TOOLCHANGE_T1
         if (new_tool == 1) {
           #if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
-            apply_hotend_offset_and_run_gcode(1, F(EVENT_GCODE_TOOLCHANGE_T1));
+            apply_hotend_offset_process_subcommands_now(1, F(EVENT_GCODE_TOOLCHANGE_T1));
           #else
             gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1));
           #endif
