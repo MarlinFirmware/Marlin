@@ -136,6 +136,7 @@ template <typename T> void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 
 // Wrapper for ECHO commands to interpret a char
 void SERIAL_ECHO(serial_char_t x);
+void SERIAL_ECHOLN(serial_char_t x);
 #define AS_DIGIT(n) C('0' + (n))
 
 // Print an integer with a numeric base such as PrintBase::Hex

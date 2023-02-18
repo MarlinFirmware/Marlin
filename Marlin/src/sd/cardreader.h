@@ -297,6 +297,10 @@ public:
 
   static void ls(const uint8_t lsflags=0);
 
+  #if ENABLED(PANELDUE)
+    static bool nextVisibleItem(MediaFile &dir, char * const dosFilename, bool &isDir);
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
     static void openJobRecoveryFile(const bool read);
