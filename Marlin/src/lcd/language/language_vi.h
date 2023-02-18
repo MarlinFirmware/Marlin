@@ -207,7 +207,7 @@ namespace Language_vi {
   LSTR MSG_MOVE_10MM                      = _UxGT("Di chuyển 10mm");                       // Move 10mm
   LSTR MSG_MOVE_100MM                     = _UxGT("Di chuyển 100mm");                      // Move 100mm
   LSTR MSG_SPEED                          = _UxGT("Tốc độ");                               // Speed
-  LSTR MSG_BED_Z                          = _UxGT("Z Bàn");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Bàn");
   LSTR MSG_NOZZLE                         = _UxGT("Đầu phun");                             // Nozzle
   LSTR MSG_NOZZLE_N                       = _UxGT("Đầu phun ~");
   LSTR MSG_BED                            = _UxGT("Bàn");                                  // bed
