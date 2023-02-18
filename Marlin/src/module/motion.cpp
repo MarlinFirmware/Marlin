@@ -1205,7 +1205,13 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    const float seconds = cartesian_mm / scaled_fr_mm_s;
+    const float seconds = cartesian_mm / (
+      #if BOTH(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+        cartes_move ? scaled_fr_mm_s : LINEAR_UNIT(scaled_fr_mm_s)
+      #else
+        scaled_fr_mm_s
+      #endif
+    );
 
     // The number of segments-per-second times the duration
     // gives the number of segments
@@ -1227,6 +1233,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);
+    TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
     TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
     /*
@@ -1298,6 +1305,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
 
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
+      TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
       TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
