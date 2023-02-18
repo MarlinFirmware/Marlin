@@ -3027,7 +3027,7 @@
  *  - Plug the microSD card into the back of the display.
  *  - Boot the display and wait for the update to complete.
  */
-#define DGUS_LCD_UI HIPRECY
+//#define DGUS_LCD_UI HIPRECY
 #if DGUS_UI_IS(MKS)
   #define USE_MKS_GREEN_UI
 #endif
@@ -3051,7 +3051,8 @@
 //
 //#define ANYCUBIC_LCD_I3MEGA
 //#define ANYCUBIC_LCD_CHIRON
-#if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+#define ANYCUBIC_LCD_DGUS
+#if ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_DGUS)
   //#define ANYCUBIC_LCD_DEBUG
   //#define ANYCUBIC_LCD_GCODE_EXT  // Add ".gcode" to menu entries for DGUS clone compatibility
 #endif

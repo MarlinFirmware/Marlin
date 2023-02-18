@@ -423,3 +423,30 @@ const char* ftostr52sp(const_float_t f) {
   }
   return &conv[1];
 }
+
+#if ENABLED(ANYCUBIC_LCD_DGUS)
+  // Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
+  const char* utostr3(const uint16_t x) {
+    uint16_t xx = x;
+    if(xx>999) {
+      conv[0] = '9';
+      conv[1] = '9';
+      conv[2] = '9';
+      conv[3] = '\0';
+    }else if(xx>=100) {
+      conv[0] = MINUSOR(xx, RJDIGIT(xx, 100));
+      conv[1] = RJDIGIT(xx, 10);
+      conv[2] = DIGIMOD(xx, 1);
+      conv[3] = '\0';
+    } else if(xx>=10) {
+      conv[0] = DIGIMOD(xx, 10);
+      conv[1] = DIGIMOD(xx, 1);
+      conv[2] = '\0';
+    } else {
+      conv[0] = DIGIMOD(xx, 1);
+      conv[1] = '\0';
+    }
+
+    return conv;
+  }
+#endif

@@ -45,6 +45,8 @@
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
+#include "../../module/probe.h"
+
 #if M600_PURGE_MORE_RESUMABLE
   #include "../../feature/pause.h"
 #endif
@@ -284,6 +286,8 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
+    inline bool getProbeState(void) { return PROBE_TRIGGERED(); }
+    void ProbeTare(void);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -415,6 +419,7 @@ namespace ExtUI {
   void onUserConfirmRequired(FSTR_P const fstr);
   void onStatusChanged(const char * const msg);
   void onStatusChanged(FSTR_P const fstr);
+  void onSurviveInKilled();
   void onHomingStart();
   void onHomingDone();
   void onSteppersDisabled();

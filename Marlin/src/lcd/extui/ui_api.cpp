@@ -892,6 +892,14 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
     void setProbeOffset_mm(const_float_t val, const axis_t axis) { probe.offset.pos[axis] = val; }
+
+    void ProbeTare(void)
+    {
+      OUT_WRITE(AUTO_LEVEL_TX_PIN, LOW);
+      delay(300);
+      OUT_WRITE(AUTO_LEVEL_TX_PIN, HIGH);
+      delay(100);
+    }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -1126,6 +1134,14 @@ namespace ExtUI {
       onStatusChanged(FTOP(fstr));
     #endif
   }
+
+  void onSurviveInKilled() {
+    thermalManager.disable_all_heaters();
+    flags.printer_killed = 0;
+    marlin_state = MF_RUNNING;
+//    SERIAL_ECHOLNPAIR("survived at: ", millis());
+  }
+
 
   FileList::FileList() { refresh(); }
 
