@@ -36,6 +36,10 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BABYSTEP_GLOBAL_Z)
+  #include "../../feature/babystep.h"
+#endif
+
 #if HAS_GRAPHICAL_TFT
   #include "../tft/tft.h"
   #if ENABLED(TOUCH_SCREEN)
