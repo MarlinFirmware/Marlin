@@ -2566,7 +2566,7 @@
    * New hotend offsets are created in the same precision as the offsets in the Extra G-code.
    * X0.0 in EVENT_GCODE_TOOLCHANGE_T1 with HOTEND_OFFSET_X { 0.0, 1.345 } will be offset to X1.3
    */
-  //#define EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET 
+  //#define EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET
   #if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
     #define APPLY_HOTEND_X_OFFSET
     #define APPLY_HOTEND_Y_OFFSET
