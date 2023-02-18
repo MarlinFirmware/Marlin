@@ -1682,8 +1682,10 @@ namespace ExtUI {
                            | (Settings.display_sound         ? _BV(3) : 0)  // 3: audio
                            | (Settings.display_standby       ? _BV(2) : 0)  // 2: backlight on standby
                            | (Settings.screen_rotation == 10 ? _BV(1) : 0)  // 1 & 0: Inversion
-                           #if EITHER(MachineCR10Smart, MachineCR10SmartPro)
+                           #if LCD_SCREEN_ROTATE == 90
                              | _BV(0) // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+                           #elif LCD_SCREEN_ROTATE
+                             #error "Only 90° rotation is supported for the selected LCD."
                            #endif
                            ;
 
