@@ -283,7 +283,7 @@ void menu_bed_leveling() {
     #else
       #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
     #endif
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_BED_Z, &bedlevel.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)

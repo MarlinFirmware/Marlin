@@ -232,7 +232,7 @@ namespace Language_ro {
   LSTR MSG_MOVE_10MM                      = _UxGT("Move 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Move 100mm");
   LSTR MSG_SPEED                          = _UxGT("Speed");
-  LSTR MSG_BED_Z                          = _UxGT("Bed Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Nozzle Parked");
