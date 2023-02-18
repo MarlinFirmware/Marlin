@@ -53,3 +53,5 @@ class SdFile : public SdBaseFile {
   void write_P(PGM_P str);
   void writeln_P(PGM_P str);
 };
+
+using MediaFile = SdFile;

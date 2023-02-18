@@ -262,7 +262,7 @@ namespace Language_sv {
   LSTR MSG_MOVE_001IN                     = _UxGT("Flytta 0.01tum");
   LSTR MSG_MOVE_01IN                      = _UxGT("Flytta 0.1tum");
   LSTR MSG_SPEED                          = _UxGT("Hastighet");
-  LSTR MSG_BED_Z                          = _UxGT("Bädd Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bädd Z");
   LSTR MSG_NOZZLE                         = _UxGT("Munstycke");
   LSTR MSG_NOZZLE_N                       = _UxGT("Munstycke ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Munstycke Parkerad");

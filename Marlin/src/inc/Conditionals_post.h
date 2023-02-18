@@ -190,22 +190,22 @@
   #define XY_CENTER { X_CENTER, Y_CENTER }
 #endif
 #if HAS_I_AXIS
-  #define I_CENTER TERN(BED_CENTER_AT_0_0, 0, _I_HALF_BED)
+  #define I_CENTER _I_HALF_BED
 #endif
 #if HAS_J_AXIS
-  #define J_CENTER TERN(BED_CENTER_AT_0_0, 0, _J_HALF_BED)
+  #define J_CENTER _J_HALF_BED
 #endif
 #if HAS_K_AXIS
-  #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
+  #define K_CENTER _K_HALF_BED
 #endif
 #if HAS_U_AXIS
-  #define U_CENTER TERN(BED_CENTER_AT_0_0, 0, _U_HALF_BED)
+  #define U_CENTER _U_HALF_BED
 #endif
 #if HAS_V_AXIS
-  #define V_CENTER TERN(BED_CENTER_AT_0_0, 0, _V_HALF_BED)
+  #define V_CENTER _V_HALF_BED
 #endif
 #if HAS_W_AXIS
-  #define W_CENTER TERN(BED_CENTER_AT_0_0, 0, _W_HALF_BED)
+  #define W_CENTER _W_HALF_BED
 #endif
 
 // Get the linear boundaries of the bed
@@ -2250,7 +2250,7 @@
 #define IS_Z3_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 3 && Z3_USE_ENDSTOP == _##A##M##_)
 #define IS_Z4_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPERS >= 4 && Z4_USE_ENDSTOP == _##A##M##_)
 
-#define _HAS_STOP(A,M) (PIN_EXISTS(A##_##M) && !IS_PROBE_PIN(A,M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_ENDSTOP(A,M) && !IS_Z3_ENDSTOP(A,M) && !IS_Z4_ENDSTOP(A,M))
+#define _HAS_STOP(A,M) (HAS_##A##_AXIS && PIN_EXISTS(A##_##M) && !IS_PROBE_PIN(A,M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_ENDSTOP(A,M) && !IS_Z3_ENDSTOP(A,M) && !IS_Z4_ENDSTOP(A,M))
 #if _HAS_STOP(X,MIN)
   #define HAS_X_MIN 1
 #endif
@@ -3054,7 +3054,7 @@
  */
 #if !HAS_FAN
   #undef ADAPTIVE_FAN_SLOWING
-  #undef NO_FAN_SLOWING_IN_PID_TUNING
+  #undef TEMP_TUNING_MAINTAIN_FAN
 #endif
 #if !BOTH(HAS_BED_PROBE, HAS_FAN)
   #undef PROBING_FANS_OFF
