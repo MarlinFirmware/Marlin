@@ -85,7 +85,7 @@ void MarlinHAL::init() {
 
   init_pwm_timers();   // Init user timers to default frequency - 1000HZ
 
-  #if defined(BEEPER_PIN) && !ENABLED(ATMEGA_NO_BEEPFIX)
+  #if PIN_EXISTS(BEEPER) && ENABLED(HAL_AVR_DIRTY_INIT) && DISABLED(ATMEGA_NO_BEEPFIX)
     // Make sure no alternative is locked onto the BEEPER.
     // This fixes the issue where the ATmega is constantly beeping.
     // Might disable other peripherals using the pin; to circumvent that please undefine one of the above things!
