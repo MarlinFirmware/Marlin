@@ -1107,39 +1107,20 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   }
 
   void apply_hotend_offset_process_subcommands_now(int tool, FSTR_P fgcode) {
-    /*
-    //const char * gcode input handling for debug
-    char gcode2[strlen(gcode1) + 1];
-    strncpy(gcode2, gcode1, strlen(gcode1));
-    gcode2[strlen(gcode1)] = '\0';
-    char *gcode = gcode2;
-    */
-
-    //fast string input handling
     PGM_P pgcode = FTOP(fgcode);
     char * const saved_cmd = parser.command_ptr;        // Save the parser state
 
     for (;;) {
-      //fast string input handling
       PGM_P const delim = strchr_P(pgcode, '\n');         // Get address of next newline
       const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
       char cmd[len + 1];
       strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
       cmd[len] = '\0';
-
-      /*
-      //const char * gcode input handling for debug
-      char * const delim = strchr(gcode, '\n');         // Get address of next newline
-      if (delim) *delim = '\0';                         // Replace with nul
-      */
-
       parser.parse(cmd);                              // Parse the current command
       
       const char *params_to_offset = TERN_(APPLY_HOTEND_X_OFFSET, "X") TERN_(APPLY_HOTEND_Y_OFFSET, "Y") TERN_(APPLY_HOTEND_Z_OFFSET, "Z");
       const uint8_t num_params_to_offset = strlen(params_to_offset);
       float offsets[num_params_to_offset];
-
-      
 
       Gcode_param_pos_info param_pos_info[num_params_to_offset];
 
@@ -1155,17 +1136,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
           o = hotend_offset[tool].z;
         offsets[i] = o;
 
-  /*
-        SERIAL_ECHOPGM("param: ");
-        SERIAL_ECHO(params_to_offset[i]);
-        SERIAL_ECHOPGM(" ");
-        SERIAL_ECHO(offsets[i]);
-        SERIAL_EOL();
-        */
-
         char *x_start, *x_end;
         uint8_t x_param_len;
-
         if (offsets[i] != 0 && parser.seen(params_to_offset[i])) {
           x_start = parser.stringval(params_to_offset[i]);
           if (x_start) {
@@ -1183,7 +1155,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
             new_offset_x_val = parser.floatval(params_to_offset[i]) + offsets[i];
             new_offset_x_integer_part_len = ((int)log10f(abs(new_offset_x_val))) + 1 + (new_offset_x_val < 0 ? 1 : 0); //add 1 space for units place in integer part and 1 for negative sign if needed
             x_integer_part_len_diff = new_offset_x_integer_part_len - x_integer_part_len;
-            //uint8_t new_offset_x_param_len = x_param_len + x_integer_part_len_diff;
             
             param_pos_info[i].start = x_start;
             param_pos_info[i].end = x_end;
@@ -1241,34 +1212,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (new_cmd_pos != new_cmd)
         parser.parse(new_cmd); 
 
-      /*
-      SERIAL_ECHOPGM("old cmd: ");
-      SERIAL_ECHO(gcode);
-      SERIAL_EOL();
-      SERIAL_ECHOPGM("new cmd: ");
-      SERIAL_ECHO(new_cmd);
-      SERIAL_EOL();
-      SERIAL_ECHOPGM("X: ");
-      parser.seen('X');
-      SERIAL_ECHO(parser.floatval('X'));
-      SERIAL_EOL();
-      SERIAL_ECHOPGM("Y: ");
-      parser.seen('Y');
-      SERIAL_ECHO(parser.floatval('Y'));
-      SERIAL_EOL();
-      */
-
-    
       gcode.process_parsed_command(true);                     // Process it (no "ok")
 
-      /*
-      //const char * input handling for debug
-      if (!delim) break;                                // Last command?
-      *delim = '\n';                                    // Put back the newline
-      gcode = delim + 1;                                // Get the next command
-      */
-      
-      //fast string input handling
       if (!delim) break;                                // Last command?
       pgcode = delim + 1;                               // Get the next command
     }
