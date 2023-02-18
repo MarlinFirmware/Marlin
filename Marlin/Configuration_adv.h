@@ -2556,9 +2556,14 @@
    * Extra G-code to run while executing tool-change commands. Can be used to use an additional
    * stepper motor (e.g., I axis in Configuration.h) to drive the tool-changer.
    */
-  //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0" // Extra G-code to run while executing tool-change command T0
-  //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"       // Extra G-code to run while executing tool-change command T1
-  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN        // Always execute above G-code sequences. Use with caution!
+  //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0"  // Extra G-code to run while executing tool-change command T0
+  //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"        // Extra G-code to run while executing tool-change command T1
+  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN         // Always execute above G-code sequences. Use with caution!
+  //#define EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET //Apply hotend offsets to Extra G-code tested with T0 at runtime for T1
+  #if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
+    #define APPLY_HOTEND_X_OFFSET
+    #define APPLY_HOTEND_Y_OFFSET
+    //#define APPLY_HOTEND_Z_OFFSET
 
   /**
    * Tool Sensors detect when tools have been picked up or dropped.
