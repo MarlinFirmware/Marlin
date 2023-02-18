@@ -1831,7 +1831,7 @@ void MarlinUI::init() {
     #endif
   }
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
     void MarlinUI::zoffset_overlay(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;

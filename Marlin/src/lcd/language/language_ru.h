@@ -342,7 +342,7 @@ namespace Language_ru {
   LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
   LSTR MSG_MOVE_100MM                       = _UxGT("Движение 100mm");
   LSTR MSG_SPEED                            = _UxGT("Скорость");
-  LSTR MSG_BED_Z                            = _UxGT("Z стола");
+  LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z стола");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_NOZZLE_N                         = _UxGT("Сопло ~");
   LSTR MSG_NOZZLE_PARKED                    = _UxGT("Сопло запарковано");
