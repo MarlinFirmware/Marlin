@@ -234,7 +234,7 @@ namespace Language_gl {
   LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_BED_Z                          = _UxGT("Cama Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Cama Z");
   LSTR MSG_NOZZLE                         = _UxGT("Bico");
   LSTR MSG_NOZZLE_N                       = _UxGT("Bico ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Bico Estacionado");
