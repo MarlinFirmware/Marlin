@@ -141,7 +141,6 @@ void DGUSDisplay::ProcessRx() {
     if (!LCD_SERIAL.available() && LCD_SERIAL.buffer_overruns()) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
-      DEBUG_ECHOPGM("OVFL");
       rx_datagram_state = DGUS_IDLE;
       //LCD_SERIAL.reset_rx_overun();
       LCD_SERIAL.flush();
@@ -205,17 +204,11 @@ void DGUSDisplay::ProcessRx() {
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
-          //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-          //DEBUG_ECHOPGM(" vp=", vp, " dlen=", dlen);
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {
             if (ramcopy.set_by_display_handler)
               ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
-            else
-              DEBUG_ECHOLNPGM(" VPVar found, no handler.");
           }
-          else
-            DEBUG_ECHOLNPGM(" VPVar not found:", vp);
 
           rx_datagram_state = DGUS_IDLE;
           break;
@@ -260,9 +253,7 @@ bool DGUSDisplay::Initialized = false,
 #define sw_barrier() asm volatile("": : :"memory");
 
 bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy) {
-  //DEBUG_ECHOPGM("populate_VPVar ", VP);
   const DGUS_VP_Variable *pvp = DGUSLCD_FindVPVar(VP);
-  //DEBUG_ECHOLNPGM(" pvp ", (uint16_t )pvp);
   if (!pvp) return false;
   memcpy_P(ramcopy, pvp, sizeof(DGUS_VP_Variable));
   return true;

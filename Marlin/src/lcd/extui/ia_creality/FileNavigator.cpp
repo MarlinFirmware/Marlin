@@ -111,8 +111,6 @@ void FileNavigator::getFiles(uint16_t index) {
     rtscheck.RTS_SndData(10, FilenameIcon1 + j);
   }
 
-  DEBUG_ECHOLNPGM("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
-
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
     files--;
     rtscheck.RTS_SndData("Up Directory", SDFILE_ADDR);
@@ -149,7 +147,6 @@ void FileNavigator::getFiles(uint16_t index) {
 }
 
 void FileNavigator::changeDIR(char *folder) {
-  DEBUG_ECHOLNPGM("currentfolder: ", currentfoldername, "  New: ", folder);
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
   strcat(currentfoldername, folder);
   strcat(currentfoldername, "/");
@@ -175,7 +172,6 @@ void FileNavigator::upDIR() {
       pos = strchr(currentfoldername, '/');
     pos[1] = '\0';
   }
-  DEBUG_ECHOLNPGM("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
 }
 
 char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
