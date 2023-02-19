@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
@@ -30,17 +30,17 @@
   #error "More than 2 hotends not implemented on the Display UI design."
 #endif
 
-#include "../../../ui_api.h"
+#include "../ui_api.h"
 
-#include "../../../../../MarlinCore.h"
-#include "../../../../../module/motion.h"
-#include "../../../../../gcode/queue.h"
-#include "../../../../../module/planner.h"
-#include "../../../../../libs/duration_t.h"
-#include "../../../../../module/printcounter.h"
-#include "../../../../../core/debug_out.h"
+#include "../../../MarlinCore.h"
+#include "../../../module/motion.h"
+#include "../../../gcode/queue.h"
+#include "../../../module/planner.h"
+#include "../../../libs/duration_t.h"
+#include "../../../module/printcounter.h"
+#include "../../../core/debug_out.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../../../feature/powerloss.h"
+  #include "../../../feature/powerloss.h"
 #endif
 
 #include "DGUSDisplay.h"

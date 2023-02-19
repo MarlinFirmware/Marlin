@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,9 +31,9 @@
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
 #include "../ui_api.h"
-#include "lib/anycubic_dgus/DGUSDisplay.h"
-#include "lib/anycubic_dgus/DGUSDisplayDef.h"
-#include "lib/anycubic_dgus/DGUSScreenHandler.h"
+#include "DGUSDisplay.h"
+#include "DGUSDisplayDef.h"
+#include "DGUSScreenHandler.h"
 
 extern const char NUL_STR[];
 

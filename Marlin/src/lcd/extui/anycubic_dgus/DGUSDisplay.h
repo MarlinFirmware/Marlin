@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,18 +23,18 @@
 
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#include "../../../../../MarlinCore.h"
+#include "../../../MarlinCore.h"
 #if HAS_BED_PROBE
-  #include "../../../../../module/probe.h"
+  #include "../../../module/probe.h"
 #endif
 #include "DGUSVPVariable.h"
 
 enum DGUSLCD_Screens : uint8_t;
 
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
-#include "../../../../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 typedef enum : uint8_t {
   DGUS_IDLE,           //< waiting for DGUS_HEADER1.

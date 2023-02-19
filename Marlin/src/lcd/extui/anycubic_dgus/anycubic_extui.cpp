@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/anycubic_dgus_lcd.cpp
+ * lcd/extui/anycubic_dgus/anycubic_extui.cpp
  *
  * Anycubic Dgus TFT support for Marlin
  */
@@ -31,7 +31,7 @@
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
 #include "../ui_api.h"
-#include "lib/anycubic_dgus/dgus_tft.h"
+#include "dgus_tft.h"
 
 using namespace Anycubic;
 

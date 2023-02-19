@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,43 +19,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
- * lcd/extui/lib/FileNavigator.h
+ * lcd/extui/anycubic_dgus/Tunes.cpp
  *
  * Extensible_UI implementation for Anycubic Chiron
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
 
-#include "dgus_tft_defs.h"
-#include "../../../ui_api.h"
+/***********************************************************************
+ * A Utility to play tunes using the buzzer in the printer controller. *
+ * See Tunes.h for note and tune definitions.                          *
+ ***********************************************************************/
 
-using namespace ExtUI;
+#include "../../../inc/MarlinConfigPre.h"
+
+#if ENABLED(ANYCUBIC_LCD_DGUS)
+
+#include "Tunes.h"
+#include "../ui_api.h"
 
 namespace Anycubic {
-  class FileNavigator {
-    public:
-      FileNavigator();
 
-      static FileList  filelist;
+  void PlayTune(uint8_t beeperPin, const uint16_t *tune, uint8_t speed=1) {
+    uint8_t pos = 1;
+    uint16_t wholenotelen = tune[0] / speed;
+    do {
+      uint16_t freq = tune[pos];
+      uint16_t notelen = wholenotelen / tune[pos + 1];
 
-      void   reset();
-      void   getFiles(uint16_t);
-      void   upDIR();
-      void   changeDIR(char *);
-      void   sendFile();
-      void   refresh();
-      char * getCurrentFolderName();
-      uint16_t getFileNum();
+      ::tone(beeperPin, freq, notelen);
+      ExtUI::delay_ms(notelen);
+      pos += 2;
 
-    private:
+      if (pos >= MAX_TUNE_LENGTH) break;
+    } while (tune[pos] != n_END);
+  }
 
-      static char      currentfoldername[MAX_PATH_LEN];
-      static uint16_t  lastindex;
-      static uint8_t   folderdepth;
-      static uint16_t  currentindex;
-  };
-  extern FileNavigator filenavigator;
 }
+
+#endif // ANYCUBIC_LCD_DGUS

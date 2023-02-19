@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,29 +21,28 @@
  */
 
 /**
- * lcd/extui/lib/dgus_tft.cpp
+ * lcd/extui/anycubic_dgus/dgus_tft.cpp
  *
  * Extensible_UI implementation for Anycubic Chiron
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
 #include "dgus_tft.h"
-#include "dgus_Tunes.h"
-#include "dgus_FileNavigator.h"
+#include "Tunes.h"
+#include "FileNavigator.h"
 
-#include "../../../../../gcode/queue.h"
-#include "../../../../../sd/cardreader.h"
-#include "../../../../../libs/numtostr.h"
-//#include "../../../../libs/build_date.h"
-#include "../../../../../MarlinCore.h"
-#include "../../../../../feature/powerloss.h"
-#include "../../../../../core/serial.h"
-#include "../../../../../module/stepper.h"
+#include "../../../gcode/queue.h"
+#include "../../../sd/cardreader.h"
+#include "../../../libs/numtostr.h"
+#include "../../../MarlinCore.h"
+#include "../../../feature/powerloss.h"
+#include "../../../core/serial.h"
+#include "../../../module/stepper.h"
 
 #include <string>
 

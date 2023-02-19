@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/lib/FileNavigator.cpp
+ * lcd/extui/anycubic_dgus/FileNavigator.cpp
  *
  * Extensible_UI implementation for Anycubic Chiron
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
@@ -33,11 +33,11 @@
  * This library allows full folder traversal.                              *
  ***************************************************************************/
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
-#include "dgus_FileNavigator.h"
+#include "FileNavigator.h"
 #include "dgus_tft.h"
 
 using namespace ExtUI;

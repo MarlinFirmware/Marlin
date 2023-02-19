@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/lib/dgus_defs.h
+ * lcd/extui/anycubic_dgus/dgus_defs.h
  *
  * Extensible_UI implementation for Anycubic Chiron
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
@@ -29,7 +29,7 @@
  */
 
 #pragma once
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #define ACDEBUGLEVEL 0
 

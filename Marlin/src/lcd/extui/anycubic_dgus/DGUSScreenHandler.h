@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,7 +24,7 @@
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
 
-#include "../../../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 enum DGUSLCD_Screens : uint8_t;
 
