@@ -64,7 +64,7 @@ bool DGUSScreenHandler::ScreenComplete;
 DGUSDisplay dgusdisplay;
 
 // endianness swap
-uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
+uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
 
 void DGUSScreenHandler::sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool l4inflash) {
   DGUS_VP_Variable ramcopy;

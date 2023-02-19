@@ -96,7 +96,7 @@ private:
   static void WritePGM(const char str[], uint8_t len);
   static void ProcessRx();
 
-  static inline uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
+  static inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
   static rx_datagram_state_t rx_datagram_state;
   static uint8_t rx_datagram_len;
   static bool Initialized, no_reentrance;

@@ -154,7 +154,7 @@ private:
   };
 
   enum dgus_system_addr : uint16_t {
-    DGUS_VERSION = 0x000f // OS/GUI version
+    DGUS_VERSION = 0x000F // OS/GUI version
   };
 
   static void WriteHeader(uint16_t addr, uint8_t command, uint8_t len);

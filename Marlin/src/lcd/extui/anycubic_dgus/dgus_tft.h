@@ -319,7 +319,7 @@
 #define KEY_RECORD_PaDn        3
 #define KEY_RECORD_FLASH       4
 
-#define COLOR_RED              0xf800
+#define COLOR_RED              0xF800
 #define COLOR_BLUE             0x0210
 
 //#define AUDIO_OFF              false

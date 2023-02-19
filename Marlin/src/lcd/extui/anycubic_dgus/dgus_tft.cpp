@@ -939,7 +939,7 @@ namespace Anycubic {
     data = TFTSer.read();
 
     if (tft_receive_steps == 0) {
-      if (data != 0x5a) {
+      if (data != 0x5A) {
         cnt = 0;
         length = 0;
         data_index = 0;
