@@ -76,9 +76,7 @@ class Probe {
 public:
 
   #if ENABLED(SENSORLESS_PROBING)
-    typedef struct {
-        bool x:1, y:1, z:1;
-    } sense_bool_t;
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
     static sense_bool_t test_sensitivity;
   #endif
 
@@ -118,6 +116,32 @@ public:
 
     #else
 
+      static bool obstacle_check(const_float_t rx, const_float_t ry) {
+        #if ENABLED(AVOID_OBSTACLES)
+          #ifdef OBSTACLE1
+            constexpr float obst1[] = OBSTACLE1;
+            static_assert(COUNT(obst1) == 4, "OBSTACLE1 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst1[0], obst1[2]) && WITHIN(ry, obst1[1], obst1[3])) return false;
+          #endif
+          #ifdef OBSTACLE2
+            constexpr float obst2[] = OBSTACLE2;
+            static_assert(COUNT(obst2) == 4, "OBSTACLE2 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst2[0], obst2[2]) && WITHIN(ry, obst2[1], obst2[3])) return false;
+          #endif
+          #ifdef OBSTACLE3
+            constexpr float obst3[] = OBSTACLE3;
+            static_assert(COUNT(obst3) == 4, "OBSTACLE3 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst3[0], obst3[2]) && WITHIN(ry, obst3[1], obst3[3])) return false;
+          #endif
+          #ifdef OBSTACLE4
+            constexpr float obst4[] = OBSTACLE4;
+            static_assert(COUNT(obst4) == 4, "OBSTACLE4 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst4[0], obst4[2]) && WITHIN(ry, obst4[1], obst4[3])) return false;
+          #endif
+        #endif
+        return true;
+      }
+
       /**
        * Return whether the given position is within the bed, and whether the nozzle
        * can reach the position required to put the probe at the given position.
@@ -129,12 +153,16 @@ public:
         if (probe_relative) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
               && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
-              && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
+              && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop)
+              && obstacle_check(rx, ry)
+              && obstacle_check(rx - offset_xy.x, ry - offset_xy.y);
         }
         else {
           return position_is_reachable(rx, ry)
               && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
-              && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop);
+              && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop)
+              && obstacle_check(rx, ry)
+              && obstacle_check(rx + offset_xy.x, ry + offset_xy.y);
         }
       }
 
