@@ -26,6 +26,10 @@
 
 #include "../../../inc/MarlinConfig.h"
 
+// endianness swap
+#define BE16_P(V) ( ((uint8_t*)(V))[0] << 8U | ((uint8_t*)(V))[1] )
+#define BE32_P(V) ( ((uint8_t*)(V))[0] << 24U | ((uint8_t*)(V))[1] << 16U | ((uint8_t*)(V))[2] << 8U | ((uint8_t*)(V))[3] )
+
 enum DGUSLCD_Screens : uint8_t;
 
 class DGUSScreenHandler {
@@ -37,13 +41,19 @@ public:
   /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
   /// The bools specifing whether the strings are in RAM or FLASH.
   static void sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
-
+  static void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, PGM_P const line3, PGM_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
+    sendinfoscreen(FTOP(line1), FTOP(line2), line3, line4, l1inflash, l2inflash, l3inflash, liinflash);
+  }
+  static void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, FSTR_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
+    sendinfoscreen(FTOP(line1), FTOP(line2), FTOP(line3), FTOP(line4), l1inflash, l2inflash, l3inflash, liinflash);
+  }
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   /// "M117" Message -- msg is a RAM ptr.
   static void setstatusmessage(const char* msg);
   /// The same for messages from Flash
   static void setstatusmessagePGM(PGM_P const msg);
+  static void setstatusmessage(FSTR_P const fmsg) { setstatusmessagePGM(FTOP(fmsg)); }
   // Callback for VP "Display wants to change screen on idle printer"
   static void ScreenChangeHookIfIdle(DGUS_VP_Variable &var, void *val_ptr);
   // Callback for VP "Screen has been changed"
