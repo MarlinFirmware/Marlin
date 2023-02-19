@@ -436,7 +436,6 @@ namespace ExtUI {
 
         case DGUS_HEADER2_SEEN: // Waiting for the length byte
           rx_datagram_len = DWIN_SERIAL.read();
-          //DEBUGLCDCOMM_ECHOPGM(" (", rx_datagram_len, ") ");
 
           // Telegram min len is 3 (command and one word of payload)
           rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
@@ -448,30 +447,28 @@ namespace ExtUI {
           Initialized = true; // We've talked to it, so we defined it as initialized.
           uint8_t command = DWIN_SERIAL.read();
 
-          //DEBUGLCDCOMM_ECHOPGM("# ", command);
-
           uint8_t readlen = rx_datagram_len - 1; // command is part of len.
           uint8_t tmp[rx_datagram_len - 1];
           uint8_t *ptmp = tmp;
           while (readlen--) {
             receivedbyte = DWIN_SERIAL.read();
-            //DEBUGLCDCOMM_ECHOPGM(" ", receivedbyte);
             *ptmp++ = receivedbyte;
           }
-          //DEBUGLCDCOMM_ECHOPGM(" # ");
           // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
           if (command == VarAddr_W && 'O' == tmp[0] && 'K' == tmp[1]) {
             rx_datagram_state = DGUS_IDLE;
             break;
           }
 
-          /* AutoUpload, (and answer to) Command 0x83 :
-          |      tmp[0  1  2  3  4 ... ]
-          | Example 5A A5 06 83 20 01 01 78 01 ……
-          |          / /  |  |   \ /   |  \     \
-          |        Header |  |    |    |   \_____\_ DATA (Words!)
-          |     DatagramLen  /  VPAdr  |
-          |           Command          DataLen (in Words) */
+          /**
+           * AutoUpload, (and answer to) Command 0x83 :
+           *      tmp[0  1  2  3  4 ... ]
+           * Example 5A A5 06 83 20 01 01 78 01 ……
+           *          / /  |  |   \ /   |  \     \
+           *        Header |  |    |    |   \_____\_ DATA (Words!)
+           *     DatagramLen  /  VPAdr  |
+           *           Command          DataLen (in Words)
+           */
           if (command == VarAddr_R) {
             const uint16_t vp = tmp[0] << 8 | tmp[1];
 

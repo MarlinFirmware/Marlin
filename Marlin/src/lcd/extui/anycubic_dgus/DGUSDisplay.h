@@ -30,7 +30,6 @@
 #include <stdlib.h>    // size_t
 
 //#define DEBUG_DGUSLCD
-//#define DEBUG_DGUSLCD_COMM
 
 #if HAS_BED_PROBE
   #include "../../../module/probe.h"
