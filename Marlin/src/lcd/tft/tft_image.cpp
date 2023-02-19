@@ -32,17 +32,16 @@ const tImage Images[imgCount]={
 { nullptr,     0,0, NOCOLORS },
 
 #if ENABLED(SHOW_BOOTSCREEN)
-  
-{ (void *)marlin_logo_112x38x1,    112, 38, GREYSCALE1 },
-{ (void *)marlin_logo_228x255x2,  228, 255, GREYSCALE2 },
-{ (void *)marlin_logo_228x255x4,  228, 255, GREYSCALE4 },
-{ (void *)marlin_logo_195x59x16,  195,  59, HIGHCOLOR  },
-{ (void *)marlin_logo_320x240x16, 320, 240, HIGHCOLOR  },
-{ (void *)marlin_logo_480x320x16, 480, 320, HIGHCOLOR  },
-  
+ #if ENABLED(BOOT_MARLIN_LOGO_SMALL)
+   { (void *)marlin_logo_195x59x16,  195,  59, HIGHCOLOR  },
+ #else
+   { (void *)marlin_logo_480x320x16, 480, 320, HIGHCOLOR  },
+ #endif
+
+#else
+   { (void *)background_320x30x16,   320,  30, HIGHCOLOR  },
 #endif
-  
-{ (void *)background_320x30x16,   320,  30, HIGHCOLOR  },
+
 { (void *)hotend_64x64x4,          64,  64, GREYSCALE4 },
 { (void *)bed_64x64x4,             64,  64, GREYSCALE4 },
 { (void *)bed_heated_64x64x4,      64,  64, GREYSCALE4 },
