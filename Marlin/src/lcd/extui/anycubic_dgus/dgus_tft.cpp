@@ -2933,9 +2933,9 @@ namespace Anycubic {
   }
 
   void DgusTFT::page202_handle(void) {  // probe precheck ok
-    static millis_t flash_time = 0;
-    static millis_t probe_check_counter = 0;
-    static uint8_t probe_state_last = 0;
+    //static millis_t flash_time = 0;
+    //static millis_t probe_check_counter = 0;
+    //static uint8_t probe_state_last = 0;
     //char str_buf[16];
 
     delay(3000);
@@ -2946,8 +2946,8 @@ namespace Anycubic {
   }
 
   void DgusTFT::page203_handle(void) {    // probe precheck failed
-    static millis_t probe_check_counter = 0;
-    static uint8_t probe_state_last = 0;
+    //static millis_t probe_check_counter = 0;
+    //static uint8_t probe_state_last = 0;
     char str_buf[16];
 
     static millis_t flash_time = 0;

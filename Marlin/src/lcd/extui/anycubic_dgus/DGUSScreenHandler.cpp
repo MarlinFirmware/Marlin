@@ -427,7 +427,7 @@ void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) 
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;
   const struct VPMapping *map = VPMap;
-  while (ret = (uint16_t*) pgm_read_ptr(&(map->VPList))) {
+  while ((ret = (uint16_t*) pgm_read_ptr(&(map->VPList)))) {
     if (pgm_read_byte(&(map->screen)) == screen) return ret;
     map++;
   }

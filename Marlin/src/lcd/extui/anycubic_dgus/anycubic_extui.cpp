@@ -90,6 +90,7 @@ namespace ExtUI {
     static_assert(sizeof(Dgus.lcd_info) <= ExtUI::eeprom_data_size);
     memcpy(&Dgus.lcd_info, buff, sizeof(Dgus.lcd_info));
     memcpy(&Dgus.lcd_info_back, buff, sizeof(Dgus.lcd_info_back));
+  }
 
   void onPostprocessSettings() {
     // Called after loading or resetting stored settings
