@@ -453,10 +453,6 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   }
 
   UpdateNewScreen(target);
-
-  #ifdef DEBUG_DGUSLCD
-    if (!DGUSLCD_FindScreenVPMapList(target)) DEBUG_ECHOLNPGM("WARNING: No screen Mapping found for ", target);
-  #endif
 }
 
 void DGUSScreenHandler::HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr) {
@@ -544,8 +540,6 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 #endif
 
 void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleManualMove");
-
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
   #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     if (movevalue) {
@@ -583,24 +577,16 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPGM(" homing ", axiscode);
     char buf[6] = "G28 X";
     buf[4] = axiscode;
-    //DEBUG_ECHOPGM(" ", buf);
     queue.enqueue_one_now(buf);
-    //DEBUG_ECHOLNPGM(" ✓");
     ForceCompleteUpdate();
     return;
   }
   else {
-    //movement
-    DEBUG_ECHOPGM(" move ", axiscode);
+    // movement
     bool old_relative_mode = relative_mode;
-    if (!relative_mode) {
-      //DEBUG_ECHOPGM(" G91");
-      queue.enqueue_now_P(PSTR("G91"));
-      //DEBUG_ECHOPGM(" ✓ ");
-    }
+    if (!relative_mode) queue.enqueue_now_P(PSTR("G91"));
     char buf[32];  // G1 X9999.99 F12345
     unsigned int backup_speed = MMS_TO_MMM(feedrate_mm_s);
     char sign[]="\0";
@@ -608,40 +594,26 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     if (movevalue < 0) { value = -value; sign[0] = '-'; }
     int16_t fraction = ABS(movevalue) % 100;
     snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
-    //DEBUG_ECHOPGM(" ", buf);
     queue.enqueue_one_now(buf);
-    //DEBUG_ECHOLNPGM(" ✓ ");
     if (backup_speed != speed) {
       snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
       queue.enqueue_one_now(buf);
-      //DEBUG_ECHOPGM(" ", buf);
     }
     //while (!enqueue_and_echo_command(buf)) idle();
-    //DEBUG_ECHOLNPGM(" ✓ ");
-    if (!old_relative_mode) {
-      //DEBUG_ECHOPGM("G90");
-      queue.enqueue_now_P(PSTR("G90"));
-      //DEBUG_ECHOPGM(" ✓ ");
-    }
+    if (!old_relative_mode) queue.enqueue_now_P(PSTR("G90"));
   }
 
   ForceCompleteUpdate();
-  DEBUG_ECHOLNPGM("manmv done.");
-  return;
 
   cannotmove:
-  DEBUG_ECHOLNPGM(" cannot move ", axiscode);
   return;
 }
 
 void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleMotorLockUnlock");
-
   char buf[4];
   const int16_t lock = swap16(*(uint16_t*)val_ptr);
   strcpy_P(buf, lock ? PSTR("M18") : PSTR("M17"));
 
-  //DEBUG_ECHOPGM(" ", buf);
   queue.enqueue_one_now(buf);
 }
 
@@ -662,7 +634,6 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
 #endif
 
 void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleSettings");
   uint16_t value = swap16(*(uint16_t*)val_ptr);
   switch (value) {
     default: break;
@@ -710,9 +681,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t rawvalue = swap16(*(uint16_t*)val_ptr);
-    DEBUG_ECHOLNPGM("V1:", rawvalue);
     float value = (float)rawvalue / 10;
-    DEBUG_ECHOLNPGM("V2:", value);
     float newvalue = 0;
 
     switch (var.VP) {
@@ -734,7 +703,6 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
       #endif
     }
 
-    DEBUG_ECHOLNPGM("V3:", newvalue);
     *(float *)var.memadr = newvalue;
     skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
@@ -783,8 +751,6 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
 
 #if ENABLED(BABYSTEPPING)
   void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
-
     int16_t flag = swap16(*(uint16_t*)val_ptr);
     int16_t steps = flag ? -20 : 20;
     ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
@@ -894,8 +860,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   static filament_data_t filament_data;
 
   void DGUSScreenHandler::HandleFilamentOption(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleFilamentOption");
-
     uint8_t e_temp = 0;
     filament_data.heated = false;
     uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
@@ -964,7 +928,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   }
 
   void DGUSScreenHandler::HandleFilamentLoadUnload(DGUS_VP_Variable &var) {
-    DEBUG_ECHOLNPGM("HandleFilamentLoadUnload");
     if (filament_data.action <= 0) return;
 
     // If we close to the target temperature, we can start load or unload the filament
