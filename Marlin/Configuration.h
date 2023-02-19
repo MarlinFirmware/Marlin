@@ -3073,9 +3073,6 @@
   //#define ANYCUBIC_LCD_DEBUG
   //#define ANYCUBIC_LCD_GCODE_EXT  // Add ".gcode" to menu entries for DGUS clone compatibility
 #endif
-#if ENABLED(ANYCUBIC_LCD_DGUS)
-  #define LCD_LANGUAGE_2         zh_CN
-#endif
 
 //
 // 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
