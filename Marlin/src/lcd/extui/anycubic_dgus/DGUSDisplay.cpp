@@ -53,11 +53,6 @@ constexpr uint8_t DGUS_HEADER2 = 0xA5;
 constexpr uint8_t DGUS_CMD_WRITEVAR = 0x82;
 constexpr uint8_t DGUS_CMD_READVAR = 0x83;
 
-void onLevelingStart() {}
-void onLevelingDone() {}
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {}
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
-
 void DGUSDisplay::InitDisplay() {
   #ifndef LCD_BAUDRATE
     #define LCD_BAUDRATE 115200
