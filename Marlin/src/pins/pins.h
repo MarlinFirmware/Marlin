@@ -545,16 +545,6 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V3_0)
   #include "stm32g0/pins_BTT_SKR_MINI_E3_V3_0.h"  // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_M4P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M4P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_M5P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_E3_EZ_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_E3_EZ_V1_0.h"  // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
-#elif MB(BTT_MANTA_M8P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"    // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
-#elif MB(BTT_MANTA_M8P_V1_1)
-  #include "stm32g0/pins_BTT_MANTA_M8P_V1_1.h"    // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"// STM32F4                              env:STM32F401RC_btt
 #elif MB(BTT_SKR_MINI_MZ_V1_0)
@@ -627,8 +617,6 @@
   #include "stm32f1/pins_ERYONE_ERY32_MINI.h"   // STM32F103VET6                          env:ERYONE_ERY32_MINI_maple
 #elif MB(PANDA_PI_V29)
   #include "stm32f1/pins_PANDA_PI_V29.h"        // STM32F103RCT6                          env:PANDA_PI_V29
-#elif MB(AC_TRI_F1_V1)
-  #include "stm32f1/pins_AC_TRI_F1_V1.h"        // STM32F103RET6                          env:ac_tri_f1
 
 //
 // ARM Cortex-M4F
