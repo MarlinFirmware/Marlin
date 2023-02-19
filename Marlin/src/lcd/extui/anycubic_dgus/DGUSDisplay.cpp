@@ -42,7 +42,7 @@
 
 #include "DGUSDisplay.h"
 #include "../dgus/DGUSVPVariable.h"
-#include "DGUSDisplayDef.h"
+#include "../dgus/DGUSDisplayDef.h"
 
 DGUSDisplay dgusdisplay;
 

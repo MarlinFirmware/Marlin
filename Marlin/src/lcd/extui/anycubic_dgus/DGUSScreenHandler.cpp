@@ -27,7 +27,7 @@
 #include "DGUSScreenHandler.h"
 #include "DGUSDisplay.h"
 #include "../dgus/DGUSVPVariable.h"
-#include "DGUSDisplayDef.h"
+#include "../dgus/DGUSDisplayDef.h"
 
 #include "../ui_api.h"
 #include "../../../MarlinCore.h"

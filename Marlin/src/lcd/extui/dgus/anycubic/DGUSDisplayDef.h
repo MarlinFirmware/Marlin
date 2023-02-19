@@ -21,31 +21,9 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+#include "../DGUSDisplayDef.h"
 
-#include "../dgus/DGUSVPVariable.h"
-
-#include <stdint.h>
-
-// This file defines the interaction between Marlin and the display firmware.
-
-// information on which screen which VP is displayed
-// As this is a sparse table, two arrays are needed:
-// one to list the VPs of one screen and one to map screens to the lists.
-// (Strictly this would not be necessary, but allows to only send data the display needs and reducing load on Marlin)
-struct VPMapping {
-  const uint8_t screen;
-  const uint16_t *VPList;  // The list is null-terminated.
-};
-
-extern const struct VPMapping VPMap[];
-
-// List of VPs handled by Marlin / The Display.
-extern const struct DGUS_VP_Variable ListOfVP[];
-
-#include "../../../inc/MarlinConfig.h"
-
-// copied from C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\lcd\extui\dgus\fysetc\DGUSDisplayDef.h
+// Based on lcd/extui/dgus/fysetc/DGUSDisplayDef.h
 
 enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_BOOT                =   0,
