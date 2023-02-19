@@ -74,9 +74,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-  #if ENABLED(ANYCUBIC_LCD_DGUS)
-    #include "../lcd/extui/anycubic_dgus/lib/anycubic_dgus/dgus_tft.h"
-  #endif
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
   #include "../lcd/e3v2/proui/bedlevel_tools.h"

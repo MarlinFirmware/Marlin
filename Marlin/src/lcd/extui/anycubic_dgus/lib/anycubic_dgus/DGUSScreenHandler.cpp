@@ -116,8 +116,7 @@ void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
 // Send an 8 bit or 16 bit value to the display.
 void DGUSScreenHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-    //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
-    //DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
+    //DEBUG_ECHOLNPGM("DGUS_LCD_SendWordValueToDisplay ", var.VP, " data=", *(uint16_t *)var.memadr);
     if (var.size > 1)
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     else

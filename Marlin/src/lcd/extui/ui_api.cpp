@@ -893,8 +893,7 @@ namespace ExtUI {
     float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
     void setProbeOffset_mm(const_float_t val, const axis_t axis) { probe.offset.pos[axis] = val; }
 
-    void ProbeTare(void)
-    {
+    void ProbeTare(void) {
       OUT_WRITE(AUTO_LEVEL_TX_PIN, LOW);
       delay(300);
       OUT_WRITE(AUTO_LEVEL_TX_PIN, HIGH);
@@ -1139,7 +1138,7 @@ namespace ExtUI {
     thermalManager.disable_all_heaters();
     flags.printer_killed = 0;
     marlin_state = MF_RUNNING;
-//    SERIAL_ECHOLNPAIR("survived at: ", millis());
+    //SERIAL_ECHOLNPGM("survived at: ", millis());
   }
 
 
