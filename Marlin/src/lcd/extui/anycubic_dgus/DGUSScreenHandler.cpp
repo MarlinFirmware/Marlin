@@ -25,7 +25,7 @@
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
 #include "DGUSScreenHandler.h"
-#include "DGUSDisplay.h"
+#include "../dgus/DGUSDisplay.h"
 #include "../dgus/DGUSVPVariable.h"
 #include "../dgus/DGUSDisplayDef.h"
 

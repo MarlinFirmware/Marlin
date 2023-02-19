@@ -40,7 +40,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-#include "DGUSDisplay.h"
+#include "../dgus/DGUSDisplay.h"
 #include "../dgus/DGUSVPVariable.h"
 #include "../dgus/DGUSDisplayDef.h"
 
