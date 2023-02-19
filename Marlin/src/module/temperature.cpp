@@ -324,28 +324,44 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #define CHECK_MAXTEMP(HOTEND) CHECK_MAXTEMP_(HOTEND,TEMP_SENSOR_ ##HOTEND)
 
   #if HOTENDS > 0
-    CHECK_MAXTEMP(0);
+    #if TEMP_SENSOR_0 > 0
+      CHECK_MAXTEMP(0);
+    #endif
   #endif
   #if HOTENDS > 1
-    CHECK_MAXTEMP(1);
+    #if TEMP_SENSOR_1 > 0
+      CHECK_MAXTEMP(1);
+    #endif
   #endif
   #if HOTENDS > 2
-    CHECK_MAXTEMP(2);
+    #if TEMP_SENSOR_2 > 0
+      CHECK_MAXTEMP(2);
+    #endif
   #endif
   #if HOTENDS > 3
-    CHECK_MAXTEMP(3);
+    #if TEMP_SENSOR_3 > 0
+      CHECK_MAXTEMP(3);
+    #endif
   #endif
   #if HOTENDS > 4
-    CHECK_MAXTEMP(4);
+    #if TEMP_SENSOR_4 > 0
+      CHECK_MAXTEMP(4);
+    #endif
   #endif
   #if HOTENDS > 5
-    CHECK_MAXTEMP(5);
+    #if TEMP_SENSOR_5 > 0
+      CHECK_MAXTEMP(5);
+    #endif
   #endif
   #if HOTENDS > 6
-    CHECK_MAXTEMP(6);
+    #if TEMP_SENSOR_6 > 0
+      CHECK_MAXTEMP(6);
+    #endif
   #endif
   #if HOTENDS > 7
-    CHECK_MAXTEMP(7);
+    #if TEMP_SENSOR_7 > 0
+      CHECK_MAXTEMP(7);
+    #endif
   #endif
   #undef CHECK_MAXTEMP__
   #undef CHECK_MAXTEMP_
