@@ -715,7 +715,7 @@ namespace Anycubic {
 
   void DgusTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEN string to the panel
     #if ACDEBUG(AC_SOME)
-      serialprintPGM(str);
+      serial_print_P(str);
     #endif
     while (const char c = pgm_read_byte(str++)) TFTSer.print(c);
   }
