@@ -38,10 +38,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
 
-#if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
-  #include "../gcode/parser.h"
-#endif
-
 #if HAS_MULTI_EXTRUDER
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
@@ -1088,127 +1084,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // TOOLCHANGE_FILAMENT_SWAP
 
-#if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
-
-  struct Gcode_param_pos_info {
-    char *start, *end;
-    uint8_t whole_len_diff;
-    float floatValue;
-  };
-
-  int gcode_param_pos_info_sorter(const void *lhs, const void *rhs) {
-    return (*(Gcode_param_pos_info*)lhs).start - (*(Gcode_param_pos_info*)rhs).start;
-  }
-
-  void apply_hotend_offset_process_subcommands_now(const uint8_t tool, FSTR_P const fgcode) {
-    PGM_P pgcode = FTOP(fgcode);
-    char * const saved_cmd = parser.command_ptr;      // Save the parser state
-
-    for (;;) {
-      PGM_P const delim = strchr_P(pgcode, '\n');     // Get address of next newline
-      const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
-      char cmd[len + 1];
-      strncpy_P(cmd, pgcode, len);                    // Copy the command to the stack
-      cmd[len] = '\0';
-      parser.parse(cmd);                              // Parse the current command
-
-      const char *params_to_offset = TERN_(APPLY_HOTEND_X_OFFSET, "X") TERN_(APPLY_HOTEND_Y_OFFSET, "Y") TERN_(APPLY_HOTEND_Z_OFFSET, "Z");
-      const uint8_t num_params_to_offset = strlen(params_to_offset);
-      float offsets[num_params_to_offset];
-
-      Gcode_param_pos_info param_pos_info[num_params_to_offset];
-
-      for (uint8_t i = 0; i < num_params_to_offset; i++) {
-        param_pos_info[i].start = nullptr;
-
-        float o;
-        if (params_to_offset[i] == 'X') o = hotend_offset[tool].x;
-        OPTCODE(HAS_Y_AXIS, else if (params_to_offset[i] == 'Y') o = hotend_offset[tool].y)
-        OPTCODE(HAS_Z_AXIS, else if (params_to_offset[i] == 'Z') o = hotend_offset[tool].z)
-        offsets[i] = o;
-
-        char *x_start, *x_end;
-        uint8_t x_param_len;
-        if (offsets[i] != 0 && parser.seen(params_to_offset[i])) {
-          x_start = parser.stringval(params_to_offset[i]);
-          if (x_start) {
-            x_end = strchr(x_start, ' ');
-            if (!x_end) x_end = x_start + strlen(x_start);
-            x_param_len = x_end - x_start;
-            char * decimal_ptr = strchr(x_start, '.');
-            int8_t dec_idx = (decimal_ptr && decimal_ptr < x_end) ? decimal_ptr - x_start : -1;
-            uint8_t x_integer_part_len = dec_idx > -1 ? dec_idx : x_param_len;
-
-            float new_offset_x_val;
-            uint8_t new_offset_x_integer_part_len, whole_len_diff;
-            new_offset_x_val = parser.floatval(params_to_offset[i]) + offsets[i];
-            new_offset_x_integer_part_len = ((int)log10f(abs(new_offset_x_val))) + 1 + (new_offset_x_val < 0 ? 1 : 0); // Add 1 space for units place in integer part and 1 for negative sign if needed
-            whole_len_diff = new_offset_x_integer_part_len - x_integer_part_len;
-
-            param_pos_info[i].start = x_start;
-            param_pos_info[i].end = x_end;
-            param_pos_info[i].whole_len_diff = whole_len_diff;
-            param_pos_info[i].floatValue = new_offset_x_val;
-
-          }
-        }
-      }
-
-      uint8_t new_offset_str_len = strlen(cmd);
-      for (uint8_t i = 0; i < num_params_to_offset; i++)
-        new_offset_str_len += param_pos_info[i].whole_len_diff;
-
-      // Sort parameter position info array by param start addresses in case they appear out of order
-      qsort(param_pos_info, num_params_to_offset, sizeof(param_pos_info[0]), gcode_param_pos_info_sorter);
-
-      // Copy data into new command string with offset values
-      char new_cmd[new_offset_str_len + 1];
-      char *new_cmd_pos = new_cmd;
-      for (uint8_t i = 0; i < num_params_to_offset; i++) {
-        // Skip this param if it is not found
-        if (!param_pos_info[i].start) continue;
-
-        // Copy from beginning of gcode to start of first parameter found
-        if (new_cmd_pos == new_cmd) {
-          uint8_t before_length = param_pos_info[i].start-cmd;
-          strncpy(new_cmd_pos, cmd, before_length);
-          new_cmd_pos += before_length;
-        }
-
-        const uint8_t new_offset_x_param_len = (param_pos_info[i].end - param_pos_info[i].start) + param_pos_info[i].whole_len_diff;
-        float integral;
-        bool offset_value_has_dec = modff(param_pos_info[i].floatValue, &integral) != 0;
-
-        const uint8_t new_offset_x_integer_part_len = int(log10f(abs(param_pos_info[i].floatValue))) + 1 + (param_pos_info[i].floatValue < 0 ? 1 : 0); // Add 1 space for units place in integer part and 1 for negative sign if needed
-        const int8_t ldiff = new_offset_x_param_len - new_offset_x_integer_part_len;
-        const uint8_t frac_len = ldiff > 1 ? ldiff - 1 : 0;
-
-        // Print parameter value to current position in cmd
-        dtostrf(param_pos_info[i].floatValue, -new_offset_x_param_len, offset_value_has_dec ? frac_len : 0, new_cmd_pos);
-        new_cmd_pos += new_offset_x_param_len;
-
-        // Copy from end of current parameter to next parameter
-        if (num_params_to_offset - i > 1) {
-          strncpy(new_cmd_pos, param_pos_info[i].end, param_pos_info[i+1].start - param_pos_info[i].end);
-          new_cmd_pos += param_pos_info[i+1].start - param_pos_info[i].end;
-        }
-        else   // Copy from end of current paramter to end of original gcode
-          strcpy(new_cmd_pos, param_pos_info[i].end);
-      }
-
-      // Use original cmd if no parameters were found and offset
-      if (new_cmd_pos != new_cmd) parser.parse(new_cmd);
-
-      gcode.process_parsed_command(true);               // Process it (no "ok")
-
-      if (!delim) break;                                // Last command?
-      pgcode = delim + 1;                               // Get the next command
-    }
-    parser.parse(saved_cmd);                            // Restore the parser state
-  }
-
-#endif // EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET
-
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
@@ -1527,40 +1402,63 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     TERN_(HAS_FANMUX, fanmux_switch(active_extruder));
 
-    #if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
-      #define PROCESS_TOOLCHANGE_GCODE(N) apply_hotend_offset_process_subcommands_now(N, F(EVENT_GCODE_TOOLCHANGE_T##N))
-    #else
-      #define PROCESS_TOOLCHANGE_GCODE(N) gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T##N));
-    #endif
-
     if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        // G0/G1/G2/G3/G5 moves are relative to the active tool.
+        // Shift the workspace to make custom moves relative to T0.
+        xyz_pos_t old_position_shift;
+        if (new_tool > 0) {
+          old_position_shift = position_shift;
+          const xyz_pos_t &he = hotend_offset[new_tool];
+          #if ENABLED(TC_GCODE_USE_GLOBAL_X)
+            position_shift.x -= he.x; update_workspace_offset(X_AXIS);
+          #endif
+          #if ENABLED(TC_GCODE_USE_GLOBAL_Y)
+            position_shift.y -= he.y; update_workspace_offset(Y_AXIS);
+          #endif
+          #if ENABLED(TC_GCODE_USE_GLOBAL_Z)
+            position_shift.z -= he.z; update_workspace_offset(Z_AXIS);
+          #endif
+        }
+      #endif
+
       switch (new_tool) {
         default: break;
         #ifdef EVENT_GCODE_TOOLCHANGE_T0
-          case 0: PROCESS_TOOLCHANGE_GCODE(0); break;
+          case 0: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T1
-          case 1: PROCESS_TOOLCHANGE_GCODE(1); break;
+          case 1: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T2
-          case 2: PROCESS_TOOLCHANGE_GCODE(2); break;
+          case 2: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T2)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T3
-          case 3: PROCESS_TOOLCHANGE_GCODE(3); break;
+          case 3: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T3)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T4
-          case 4: PROCESS_TOOLCHANGE_GCODE(4); break;
+          case 4: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T4)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T5
-          case 5: PROCESS_TOOLCHANGE_GCODE(5); break;
+          case 5: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T5)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T6
-          case 6: PROCESS_TOOLCHANGE_GCODE(6); break;
+          case 6: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T6)); break;
         #endif
         #ifdef EVENT_GCODE_TOOLCHANGE_T7
-          case 7: PROCESS_TOOLCHANGE_GCODE(7); break;
+          case 7: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T7)); break;
         #endif
       }
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        if (new_tool > 0) {
+          position_shift = old_position_shift;
+          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
+        }
+      #endif
 
       #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
         if (TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))

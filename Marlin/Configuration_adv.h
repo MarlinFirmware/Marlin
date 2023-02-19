@@ -2561,17 +2561,12 @@
   //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN         // Always execute above G-code sequences. Use with caution!
 
   /**
-   * Apply hotend offsets to Extra G-code at runtime for T1.
-   * EVENT_GCODE_TOOLCHANGE_T1 can be tested when T0 is active and directly used in configuration without any manual offset adjustment.
-   * New hotend offsets are created in the same precision as the offsets in the Extra G-code.
-   * X0.0 in EVENT_GCODE_TOOLCHANGE_T1 with HOTEND_OFFSET_X { 0.0, 1.345 } will be offset to X1.3
+   * Consider coordinates for EVENT_GCODE_TOOLCHANGE_Tx as relative to T0
+   * so that moves in the specified axes are the same for all tools.
    */
-  //#define EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET
-  #if ENABLED(EVENT_GCODE_TOOLCHANGE_AUTO_HOTEND_OFFSET)
-    #define APPLY_HOTEND_X_OFFSET
-    #define APPLY_HOTEND_Y_OFFSET
-    //#define APPLY_HOTEND_Z_OFFSET
-  #endif
+  //#define TC_GCODE_USE_GLOBAL_X   // Use X position relative to Tool 0
+  //#define TC_GCODE_USE_GLOBAL_Y   // Use Y position relative to Tool 0
+  //#define TC_GCODE_USE_GLOBAL_Z   // Use Z position relative to Tool 0
 
   /**
    * Tool Sensors detect when tools have been picked up or dropped.

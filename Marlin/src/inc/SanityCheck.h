@@ -1013,8 +1013,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #endif
 #endif
 
+/**
+ * Custom Event G-code
+ */
 #if defined(EVENT_GCODE_SD_ABORT) && DISABLED(NOZZLE_PARK_FEATURE)
   static_assert(nullptr == strstr(EVENT_GCODE_SD_ABORT, "G27"), "NOZZLE_PARK_FEATURE is required to use G27 in EVENT_GCODE_SD_ABORT.");
+#endif
+#if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z) && ENABLED(NO_WORKSPACE_OFFSETS)
+  #error "TC_GCODE_USE_GLOBAL_* options are incompatible with NO_WORKSPACE_OFFSETS."
 #endif
 
 /**
