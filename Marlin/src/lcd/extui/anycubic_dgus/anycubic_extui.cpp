@@ -36,6 +36,7 @@
 using namespace Anycubic;
 
 namespace ExtUI {
+
   void onStartup() { Dgus.Startup(); }
 
   void onParamInit() { Dgus.ParamInit(); }
@@ -43,7 +44,7 @@ namespace ExtUI {
   void onIdle() { Dgus.IdleLoop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    Dgus.PrinterKilled(error,component);
+    Dgus.PrinterKilled(error, component);
   }
 
   void onMediaInserted() { Dgus.MediaEvent(AC_media_inserted); }
@@ -59,13 +60,15 @@ namespace ExtUI {
   void onPrintTimerStarted() { Dgus.TimerEvent(AC_timer_started); }
   void onPrintTimerPaused()  { Dgus.TimerEvent(AC_timer_paused);  }
   void onPrintTimerStopped() { Dgus.TimerEvent(AC_timer_stopped); }
+  void onPrintDone() {}
+
   void onFilamentRunout(const extruder_t)            { Dgus.FilamentRunout();             }
+
   void onUserConfirmRequired(const char * const msg) { Dgus.ConfirmationRequest(msg);     }
   void onStatusChanged(const char * const msg)       { Dgus.StatusChange(msg);            }
 
   void onHomingStart()    { Dgus.HomingStart(); }
   void onHomingDone()     { Dgus.HomingComplete(); }
-  void onPrintDone() {}
 
   void onFactoryReset() {
     Dgus.page_index_now = 121;
@@ -120,6 +123,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    // Called when power-loss state is detected
     void onPowerLoss() { Dgus.PowerLoss(); }
     // Called on resume from power-loss
     void onPowerLossResume() { Dgus.PowerLossRecovery(); }

@@ -2016,6 +2016,9 @@ namespace ExtUI {
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       startprogress   = 254;
       InforShowStatus = true;
