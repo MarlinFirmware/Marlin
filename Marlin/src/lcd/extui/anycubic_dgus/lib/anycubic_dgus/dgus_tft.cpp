@@ -137,6 +137,7 @@ namespace Anycubic {
   int16_t          DgusTFT::feedrate_back;
   lcd_info_t       DgusTFT::lcd_info;
   lcd_info_t       DgusTFT::lcd_info_back;  // back for changing on lcd, to save flash lifecycle
+  language_t       DgusTFT::ui_language;
 
 
   DgusTFT Dgus;
@@ -164,6 +165,8 @@ namespace Anycubic {
     hotbed_state      = AC_heater_off;
     live_Zoffset      = 0.0;
     file_menu         = AC_menu_file;
+    lcd_info.language = ui_language;  // use language stored in EEPROM
+    lcd_info_back.language = ui_language;
 
     // Setup pins for powerloss detection
     // Two IO pins are connected on the Trigorilla Board
@@ -195,23 +198,26 @@ namespace Anycubic {
 //    SendtoTFTLN(AC_msg_ready);
   }
 
-  #define IS_CHINESE_SIMPLIFIED  strcmp(STRINGIFY(LCD_LANGUAGE),"zh_CN") == 0
-  #define IS_ENGLISH  strcmp(STRINGIFY(LCD_LANGUAGE),"en") == 0
+  void DgusTFT::set_language(language_t language) {
+    ui_language = language;
+    lcd_info.language = language;
+    lcd_info_back.language = language;
+  }
 
   void DgusTFT::ParamInit() {
 
-    if(IS_CHINESE_SIMPLIFIED) {
+    if(lcd_info.language == CHS) {
       page_index_now = 1;
-    } else if(IS_ENGLISH) {
+    } else if(lcd_info.language == ENG) {
       page_index_now = 121;
     }
 
     LcdAudioSet(lcd_info.audio);
 
 #if ACDEBUG(AC_MARLIN)
-    if(IS_CHINESE_SIMPLIFIED) {
-      SERIAL_ECHOLN("lcd language: CHS(Simplified)");
-    } else if(IS_ENGLISH) {
+    if(lcd_info.language == CHS) {
+      SERIAL_ECHOLN("lcd language: CHS");
+    } else if(lcd_info.language == ENG) {
       SERIAL_ECHOLN("lcd language: ENG");
     }
 
@@ -278,7 +284,7 @@ namespace Anycubic {
 
     } else {
 
-      if(IS_CHINESE_SIMPLIFIED) {
+      if(lcd_info.language == CHS) {
         if(0 < page_index_now && page_index_now < 36) {
           fun_array[page_index_now-1]();
         } else {
@@ -287,7 +293,7 @@ namespace Anycubic {
           SERIAL_ECHOLNPGM("fun not exists: ", page_index_now);
 #endif
         }
-      } else if(IS_ENGLISH) {
+      } else if(lcd_info.language == ENG) {
         if(120 < page_index_now && page_index_now < 156) {
           fun_array[page_index_now-1-120]();  // ENG page_index is 120 more than CHS
         } else {
@@ -706,7 +712,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::HomingComplete() {
-    if(IS_ENGLISH) {
+    if(lcd_info.language == ENG) {
         if(page_index_last > 120) {
             page_index_last -= 120;
         }
@@ -858,10 +864,10 @@ namespace Anycubic {
     uint8_t data_index = 0;
     uint32_t data_temp = 0;
 
-    if(IS_CHINESE_SIMPLIFIED) {
+    if(lcd_info.language == CHS) {
         data_temp = page_index;
 
-    } else if(IS_ENGLISH) {
+    } else if(lcd_info.language == ENG) {
         if(PAGE_OUTAGE_RECOVERY == page_index) {
             data_temp = PAGE_ENG_OUTAGE_RECOVERY;
         } else if(PAGE_CHS_PROBE_PREHEATING == page_index) {
@@ -915,10 +921,10 @@ namespace Anycubic {
 //    uint8_t data_index = 0;
     uint32_t data_temp = 0;
 
-    if(IS_CHINESE_SIMPLIFIED) {
+    if(lcd_info.language == CHS) {
         data_temp = page_index;
 
-    } else if(IS_ENGLISH) {
+    } else if(lcd_info.language == ENG) {
         if(PAGE_OUTAGE_RECOVERY == page_index) {
             data_temp = PAGE_ENG_OUTAGE_RECOVERY;
         } else if(PAGE_CHS_PROBE_PREHEATING == page_index) {
@@ -944,7 +950,7 @@ namespace Anycubic {
 
   }
 
-  void DgusTFT::LcdAudioSet(bool audio) {
+  void DgusTFT::LcdAudioSet(audio_t audio) {
   // On:  5A A5 07 82 00 80 5A 00 00 1A
   // Off: 5A A5 07 82 00 80 5A 00 00 12
     uint8_t data_buf[20] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x80, 0x5A, 0x00, 0x00 };
@@ -1348,13 +1354,13 @@ namespace Anycubic {
 
 	  case 4:   // system
       {
-        if(IS_ENGLISH) {
+        if(lcd_info.language == ENG) {
           if(lcd_info.audio == AUDIO_ON) {
             ChangePageOfTFT(11);    // PAGE_SYSTEM_ENG_AUDIO_ON - 120
           } else if(lcd_info.audio == AUDIO_OFF) {
             ChangePageOfTFT(50);   // PAGE_SYSTEM_ENG_AUDIO_OFF - 120
           }
-        } else if(IS_CHINESE_SIMPLIFIED) {
+        } else if(lcd_info.language == CHS) {
           if(lcd_info.audio == AUDIO_ON) {
             ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
           } else if(lcd_info.audio == AUDIO_OFF) {
@@ -2149,36 +2155,39 @@ namespace Anycubic {
           case 1:   // return
           {
             ChangePageOfTFT(PAGE_MAIN);
-//            if(lcd_info_back.language != LCD_LANGUAGE ||
-//               lcd_info_back.audio    != lcd_info.audio) {
-//
-//               lcd_info_back.language = LCD_LANGUAGE;
-//               lcd_info_back.audio    = lcd_info.audio;
-//
-//               injectCommands_P(PSTR("M500"));
+            if(lcd_info_back.language != lcd_info.language ||
+               lcd_info_back.audio    != lcd_info.audio) {
+
+               lcd_info_back.language = lcd_info.language;
+               lcd_info_back.audio    = lcd_info.audio;
+
+               injectCommands_P(PSTR("M500"));
+            }
           }
           break;
 
 
           case 2:   // language
           {
-            if(IS_CHINESE_SIMPLIFIED) {
-//                LCD_LANGUAGE = "en";
+            if(lcd_info.language == CHS) {
+                lcd_info.language = ENG;
+                ui_language = ENG;
                 if(lcd_info.audio == AUDIO_ON) {
                     ChangePageOfTFT(11);  // PAGE_SYSTEM_ENG_AUDIO_ON-120
                 } else if(lcd_info.audio == AUDIO_OFF) {
                     ChangePageOfTFT(50);  // PAGE_SYSTEM_ENG_AUDIO_OFF-120
                 }
-            } else if(IS_ENGLISH) {
-//                LCD_LANGUAGE = "zh_CN";
+            } else if(lcd_info.language == ENG) {
+                lcd_info.language = CHS;
+                ui_language = CHS;
                 if(lcd_info.audio == AUDIO_ON) {
                     ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
                 } else if(lcd_info.audio == AUDIO_OFF) {
                     ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
                 }
             }
-            break;
           }
+          break;
 
 
           case 3:
@@ -2188,23 +2197,23 @@ namespace Anycubic {
           {
             if(lcd_info.audio == AUDIO_ON) {
                 lcd_info.audio = AUDIO_OFF;
-                if(IS_CHINESE_SIMPLIFIED) {
+                if(lcd_info.language == CHS) {
                   ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-                } else if(IS_ENGLISH) {
+                } else if(lcd_info.language == ENG) {
                   ChangePageOfTFT(50);    // PAGE_SYSTEM_ENG_AUDIO_OFF - 120
                 }
             } else if(lcd_info.audio == AUDIO_OFF) {
                 lcd_info.audio = AUDIO_ON;
-                if(IS_CHINESE_SIMPLIFIED) {
+                if(lcd_info.language == CHS) {
                   ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-                } else if(IS_ENGLISH) {
+                } else if(lcd_info.language == ENG) {
                   ChangePageOfTFT(11);    // PAGE_SYSTEM_ENG_AUDIO_ON - 120
                 }
             }
 
             LcdAudioSet(lcd_info.audio);
-            break;
           }
+          break;
 
           case 5:   // about
             char str_ver[32];
@@ -2248,13 +2257,13 @@ namespace Anycubic {
 
           case 1://return
           {
-              if(IS_ENGLISH) {
+              if(lcd_info.language == ENG) {
                 if(lcd_info.audio == AUDIO_ON) {
                   ChangePageOfTFT(11);    // PAGE_SYSTEM_ENG_AUDIO_ON - 120
                 } else if(lcd_info.audio == AUDIO_OFF) {
                   ChangePageOfTFT(50);   // PAGE_SYSTEM_ENG_AUDIO_OFF - 120
                 }
-              } else if(IS_CHINESE_SIMPLIFIED) {
+              } else if(lcd_info.language == CHS) {
                 if(lcd_info.audio == AUDIO_ON) {
                   ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
                 } else if(lcd_info.audio == AUDIO_OFF) {
@@ -3030,27 +3039,30 @@ namespace Anycubic {
           case 1:
           {
             ChangePageOfTFT(PAGE_MAIN);
-//            if(lcd_info_back.language != LCD_LANGUAGE ||
-//               lcd_info_back.audio    != lcd_info.audio) {
-//
-//               lcd_info_back.language = LCD_LANGUAGE;
-//               lcd_info_back.audio    = lcd_info.audio;
-//
-//               injectCommands_P(PSTR("M500"));
+            if(lcd_info_back.language != lcd_info.language ||
+               lcd_info_back.audio    != lcd_info.audio) {
+
+               lcd_info_back.language = lcd_info.language;
+               lcd_info_back.audio    = lcd_info.audio;
+
+               injectCommands_P(PSTR("M500"));
+            }
           }
           break;
 
           case 2:   // language
           {
-            if(IS_CHINESE_SIMPLIFIED) {
- //               LCD_LANGUAGE = "en";
+            if(lcd_info.language == CHS) {
+                lcd_info.language = ENG;
+                ui_language = ENG;
                 if(lcd_info.audio == AUDIO_ON) {
                     ChangePageOfTFT(11);  // PAGE_SYSTEM_ENG_AUDIO_ON-120
                 } else if(lcd_info.audio == AUDIO_OFF) {
                     ChangePageOfTFT(50);  // PAGE_SYSTEM_ENG_AUDIO_OFF-120
                 }
-            } else if(IS_ENGLISH) {
- //               LCD_LANGUAGE = "zh_CN";
+            } else if(lcd_info.language == ENG) {
+                lcd_info.language = CHS;
+                ui_language = CHS;
                 if(lcd_info.audio == AUDIO_ON) {
                     ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
                 } else if(lcd_info.audio == AUDIO_OFF) {
@@ -3101,27 +3113,30 @@ namespace Anycubic {
           case 1:
           {
             ChangePageOfTFT(PAGE_MAIN);
-//            if(lcd_info_back.language != LCD_LANGUAGE ||
-//               lcd_info_back.audio    != lcd_info.audio) {
-//
-//               lcd_info_back.language = LCD_LANGUAGE;
-//               lcd_info_back.audio    = lcd_info.audio;
-//
-//               injectCommands_P(PSTR("M500"));
+            if(lcd_info_back.language != lcd_info.language ||
+               lcd_info_back.audio    != lcd_info.audio) {
+
+               lcd_info_back.language = lcd_info.language;
+               lcd_info_back.audio    = lcd_info.audio;
+
+               injectCommands_P(PSTR("M500"));
+            }
           }
           break;
 
           case 2:   // language
           {
-            if(IS_CHINESE_SIMPLIFIED) {
-//                LCD_LANGUAGE = "en";
+            if(lcd_info.language == CHS) {
+                lcd_info.language = ENG;
+                ui_language = ENG;
                 if(lcd_info.audio == AUDIO_ON) {
                     ChangePageOfTFT(11);  // PAGE_SYSTEM_ENG_AUDIO_ON-120
                 } else if(lcd_info.audio == AUDIO_OFF) {
                     ChangePageOfTFT(50);  // PAGE_SYSTEM_ENG_AUDIO_OFF-120
                 }
-            } else if(IS_ENGLISH) {
- //               LCD_LANGUAGE = "zh_CN";
+            } else if(lcd_info.language == ENG) {
+                lcd_info.language = CHS;
+                ui_language = CHS;
                 if(lcd_info.audio == AUDIO_ON) {
                     ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
                 } else if(lcd_info.audio == AUDIO_OFF) {
@@ -3160,7 +3175,7 @@ namespace Anycubic {
             ChangePageOfTFT(PAGE_RECORD);
             break;
         }
-    }
+      }
 
     void DgusTFT::page171_handle(void)  // CHS power outage resume handler
     {
@@ -3289,7 +3304,7 @@ namespace Anycubic {
                (PAGE_ENG_ABNORMAL_X_ENDSTOP <= page_index_now &&
                page_index_now <= PAGE_ENG_ABNORMAL_Z_ENDSTOP)) {
 
-              if(IS_ENGLISH) {
+              if(lcd_info.language == ENG) {
                 if(page_index_last_2 > 120) {
                     page_index_last_2 -= 120;
                 }
@@ -3308,7 +3323,7 @@ namespace Anycubic {
 
             } else {
 
-              if(IS_ENGLISH) {
+              if(lcd_info.language == ENG) {
                 if(page_index_last > 120) {
                     page_index_last -= 120;
                 }
@@ -3445,9 +3460,9 @@ namespace Anycubic {
 
     void DgusTFT::page202_handle(void)  // probe precheck ok
     {
-//        static millis_t flash_time = 0;
-//        static millis_t probe_check_counter = 0;
-//        static uint8_t probe_state_last = 0;
+        static millis_t flash_time = 0;
+        static millis_t probe_check_counter = 0;
+        static uint8_t probe_state_last = 0;
 //        char str_buf[16];
 
         delay(3000);
@@ -3460,8 +3475,8 @@ namespace Anycubic {
     void DgusTFT::page203_handle(void)    // probe precheck failed
     {
         static millis_t flash_time = 0;
-//        static millis_t probe_check_counter = 0;
-//        static uint8_t probe_state_last = 0;
+        static millis_t probe_check_counter = 0;
+        static uint8_t probe_state_last = 0;
         char str_buf[16];
 
         if(millis() < (flash_time + 1500) ) {

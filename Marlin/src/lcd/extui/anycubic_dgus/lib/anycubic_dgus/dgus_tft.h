@@ -340,14 +340,22 @@
 #define COLOR_RED              0xf800
 #define COLOR_BLUE             0x0210
 
-#define AUDIO_OFF              false
-#define AUDIO_ON               true
+//#define AUDIO_OFF              false
+//#define AUDIO_ON               true
 
 
 namespace Anycubic {
 
+  enum language_t : uint8_t { ENG, CHS };
+  enum audio_t    : bool { AUDIO_OFF, AUDIO_ON };
+
+  class DgusTFT;
+  extern DgusTFT ui;
+
+
   typedef struct _lcd_info_t {
-    bool                    audio;
+    language_t             language;
+    audio_t                audio;
   } lcd_info_t;
 
   class DgusTFT {
@@ -366,9 +374,9 @@ namespace Anycubic {
     static uint8_t          data_index;
     static uint32_t         page_index_last;
     static uint32_t         page_index_last_2;
-	static uint8_t          message_index;
+	  static uint8_t          message_index;
     static uint8_t          pop_up_index;
-	static uint32_t         key_index;
+	  static uint32_t         key_index;
     static uint32_t         key_value;
     static uint16_t         filenumber;
     static uint16_t         filepage;
@@ -380,6 +388,7 @@ namespace Anycubic {
     static uint8_t          TFTresumingflag;
     static uint8_t          ready;
     static int16_t          feedrate_back;
+    static language_t       ui_language;
 
     public:
       DgusTFT();
@@ -401,6 +410,7 @@ namespace Anycubic {
       void PowerLossRecovery();
       void HomingStart();
       void HomingComplete();
+      void set_language(language_t);
 
 
       typedef void (*p_fun)(void);
@@ -479,7 +489,7 @@ namespace Anycubic {
       static void SendReadNumOfTxtToTFT(uint8_t number, uint32_t address);
       static void ChangePageOfTFT(uint32_t page_index);
       static void FakeChangePageOfTFT(uint32_t page_index);
-      static void LcdAudioSet(bool audio);
+      static void LcdAudioSet(audio_t audio);
 
     private:
 
