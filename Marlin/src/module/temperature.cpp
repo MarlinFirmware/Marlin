@@ -319,6 +319,37 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   hotend_info_t Temperature::temp_hotend[HOTENDS];
   #define _HMT(N) HEATER_##N##_MAXTEMP,
   const celsius_t Temperature::hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
+  #define CHECK_MAXTEMP__(SENSOR,TTABLE) static_assert(HEATER_ ##SENSOR## _MAXTEMP <= max(temptable_ ##TTABLE [0].celsius,temptable_ ##TTABLE [(sizeof(temptable_ ##TTABLE) / sizeof(temptable_ ##TTABLE [0]))-1].celsius) - HOTEND_OVERSHOOT, "HEATER_" STRINGIFY(SENSOR) "_MAXTEMP must be less than the max tempature listed in the file thermistor_" STRINGIFY(TTABLE) ".h minus HOTEND_OVERSHOOT of " STRINGIFY(HOTEND_OVERSHOOT) ".")
+  #define CHECK_MAXTEMP_(SENSOR,TTABLE) CHECK_MAXTEMP__( SENSOR, TTABLE )
+  #define CHECK_MAXTEMP(HOTEND) CHECK_MAXTEMP_(HOTEND,TEMP_SENSOR_ ##HOTEND)
+
+  #if HOTENDS > 0
+    CHECK_MAXTEMP(0);
+  #endif
+  #if HOTENDS > 1
+    CHECK_MAXTEMP(1);
+  #endif
+  #if HOTENDS > 2
+    CHECK_MAXTEMP(2);
+  #endif
+  #if HOTENDS > 3
+    CHECK_MAXTEMP(3);
+  #endif
+  #if HOTENDS > 4
+    CHECK_MAXTEMP(4);
+  #endif
+  #if HOTENDS > 5
+    CHECK_MAXTEMP(5);
+  #endif
+  #if HOTENDS > 6
+    CHECK_MAXTEMP(6);
+  #endif
+  #if HOTENDS > 7
+    CHECK_MAXTEMP(7);
+  #endif
+  #undef CHECK_MAXTEMP__
+  #undef CHECK_MAXTEMP_
+  #undef CHECK_MAXTEMP
 #endif
 
 #if HAS_TEMP_REDUNDANT
