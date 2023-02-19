@@ -382,6 +382,10 @@
 #define BOARD_ERYONE_ERY32_MINI       5065  // Eryone Ery32 mini (STM32F103VE)
 #define BOARD_PANDA_PI_V29            5066  // Panda Pi V2.9 - Standalone (STM32F103RC)
 
+//
+// ARM Cortex-M4F
+//
+
 #define BOARD_TEENSY31_32             5100  // Teensy3.1 and Teensy3.2
 #define BOARD_TEENSY35_36             5101  // Teensy3.5 and Teensy3.6
 
