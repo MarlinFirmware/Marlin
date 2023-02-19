@@ -3072,8 +3072,6 @@
 #if ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_DGUS)
   //#define ANYCUBIC_LCD_DEBUG
   //#define ANYCUBIC_LCD_GCODE_EXT  // Add ".gcode" to menu entries for DGUS clone compatibility
-  //#define LCD_SERIAL_PORT  3
-  //#define LCD_BAUDRATE     115200
 #endif
 #if ENABLED(ANYCUBIC_LCD_DGUS)
   #define LCD_LANGUAGE_2         zh_CN
