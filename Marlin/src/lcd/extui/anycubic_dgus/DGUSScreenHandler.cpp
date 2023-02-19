@@ -26,7 +26,7 @@
 
 #include "DGUSScreenHandler.h"
 #include "DGUSDisplay.h"
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
 
 #include "../ui_api.h"

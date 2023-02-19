@@ -23,7 +23,7 @@
 
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 
 #include <stdint.h>
 

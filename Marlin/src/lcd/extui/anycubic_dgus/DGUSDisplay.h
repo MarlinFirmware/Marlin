@@ -34,7 +34,7 @@
 #if HAS_BED_PROBE
   #include "../../../module/probe.h"
 #endif
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 
 enum DGUSLCD_Screens : uint8_t;
 

@@ -41,7 +41,7 @@
 #endif
 
 #include "DGUSDisplay.h"
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
 
 DGUSDisplay dgusdisplay;
