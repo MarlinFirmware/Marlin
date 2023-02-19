@@ -802,5 +802,5 @@
  * BLTOUCH with PROBING_MARGIN
  */
 #if ENABLED(BLTOUCH) && PROBING_MARGIN > 0
-  #warning "A Probing margin is not required o rrecommended with a BLTOUCH"
+  #warning "A Probing margin is not required or recommended with a BLTOUCH"
 #endif
