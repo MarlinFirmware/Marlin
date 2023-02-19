@@ -23,7 +23,7 @@
 /**
  * lcd/extui/anycubic_dgus/FileNavigator.cpp
  *
- * Extensible_UI implementation for Anycubic Chiron
+ * Based on ExtUI implementation for Anycubic DGUS
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
