@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define MARLIN_LOGO_FULL_SIZE MarlinLogo480x320x16
+#define MARLIN_LOGO_FULL_SIZE { (void *)marlin_logo_480x320x16, 480, 320, HIGHCOLOR }
 
 #include "ui_common.h"
 
