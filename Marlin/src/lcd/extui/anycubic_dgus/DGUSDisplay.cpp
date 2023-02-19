@@ -20,14 +20,12 @@
  *
  */
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
-
 #include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_DGUS)
 
 #if HOTENDS > 2
-  #error "More than 2 hotends not implemented on the Display UI design."
+  #warning "More than 2 hotends not implemented on DGUS Display UI."
 #endif
 
 #include "../ui_api.h"
@@ -38,7 +36,6 @@
 #include "../../../module/planner.h"
 #include "../../../libs/duration_t.h"
 #include "../../../module/printcounter.h"
-#include "../../../core/debug_out.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
@@ -46,6 +43,14 @@
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
+
+DGUSDisplay dgusdisplay;
+
+#ifdef DEBUG_DGUSLCD_COMM
+  #define DEBUGLCDCOMM_ECHOPGM DEBUG_ECHOPGM
+#else
+  #define DEBUGLCDCOMM_ECHOPGM(...) NOOP
+#endif
 
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable
 constexpr uint8_t DGUS_HEADER1 = 0x5A;
@@ -72,7 +77,7 @@ void DGUSDisplay::InitDisplay() {
     RequestScreen(DGUSLCD_SCREEN_MAIN);
 }
 
-void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -106,17 +111,17 @@ void DGUSDisplay::WriteVariable(uint16_t adr, int8_t value) {
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
-    union { long l; char lb[4]; } endian;
-    char tmp[4];
-    endian.l = value;
-    tmp[0] = endian.lb[3];
-    tmp[1] = endian.lb[2];
-    tmp[2] = endian.lb[1];
-    tmp[3] = endian.lb[0];
-    WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
+  union { long l; char lb[4]; } endian;
+  char tmp[4];
+  endian.l = value;
+  tmp[0] = endian.lb[3];
+  tmp[1] = endian.lb[2];
+  tmp[2] = endian.lb[1];
+  tmp[3] = endian.lb[0];
+  WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
-void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -137,7 +142,6 @@ void DGUSDisplay::ProcessRx() {
     if (!LCD_SERIAL.available() && LCD_SERIAL.buffer_overruns()) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
-      DEBUG_ECHOPGM("OVFL");
       rx_datagram_state = DGUS_IDLE;
       //LCD_SERIAL.reset_rx_overun();
       LCD_SERIAL.flush();
@@ -150,19 +154,19 @@ void DGUSDisplay::ProcessRx() {
 
       case DGUS_IDLE: // Waiting for the first header byte
         receivedbyte = LCD_SERIAL.read();
-        DEBUG_ECHOPGM("< ",receivedbyte);
+        //DEBUGLCDCOMM_ECHOPGM("< ", receivedbyte);
         if (DGUS_HEADER1 == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
         break;
 
       case DGUS_HEADER1_SEEN: // Waiting for the second header byte
         receivedbyte = LCD_SERIAL.read();
-        DEBUG_ECHOPGM(" ",receivedbyte);
+        //DEBUGLCDCOMM_ECHOPGM(" ", receivedbyte);
         rx_datagram_state = (DGUS_HEADER2 == receivedbyte) ? DGUS_HEADER2_SEEN : DGUS_IDLE;
         break;
 
       case DGUS_HEADER2_SEEN: // Waiting for the length byte
         rx_datagram_len = LCD_SERIAL.read();
-        DEBUG_ECHOPGM(" (", rx_datagram_len, ") ");
+        //DEBUGLCDCOMM_ECHOPGM(" (", rx_datagram_len, ") ");
 
         // Telegram min len is 3 (command and one word of payload)
         rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
@@ -174,20 +178,20 @@ void DGUSDisplay::ProcessRx() {
         Initialized = true; // We've talked to it, so we defined it as initialized.
         uint8_t command = LCD_SERIAL.read();
 
-        DEBUG_ECHOPGM("# ", command);
+        //DEBUGLCDCOMM_ECHOPGM("# ", command);
 
         uint8_t readlen = rx_datagram_len - 1;  // command is part of len.
         unsigned char tmp[rx_datagram_len - 1];
         unsigned char *ptmp = tmp;
         while (readlen--) {
           receivedbyte = LCD_SERIAL.read();
-          DEBUG_ECHOPGM(" ", receivedbyte);
+          //DEBUGLCDCOMM_ECHOPGM(" ", receivedbyte);
           *ptmp++ = receivedbyte;
         }
-        DEBUG_ECHOPGM(" # ");
+        //DEBUGLCDCOMM_ECHOPGM(" # ");
         // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
         if (command == DGUS_CMD_WRITEVAR && 'O' == tmp[0] && 'K' == tmp[1]) {
-          DEBUG_ECHOLNPGM(">");
+          //DEBUGLCDCOMM_ECHOPGM(">");
           rx_datagram_state = DGUS_IDLE;
           break;
         }
@@ -201,17 +205,11 @@ void DGUSDisplay::ProcessRx() {
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
-          const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-          DEBUG_ECHOPGM(" vp=", vp, " dlen=", dlen);
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {
             if (ramcopy.set_by_display_handler)
               ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
-            else
-              DEBUG_ECHOLNPGM(" VPVar found, no handler.");
           }
-          else
-            DEBUG_ECHOLNPGM(" VPVar not found:", vp);
 
           rx_datagram_state = DGUS_IDLE;
           break;
@@ -239,7 +237,7 @@ void DGUSDisplay::WritePGM(const char str[], uint8_t len) {
 }
 
 void DGUSDisplay::loop() {
-  // protect against recursion… ProcessRx() may indirectly call idle() when injecting gcode commands.
+  // Protect against recursion. ProcessRx() may indirectly call idle() when injecting G-code commands.
   if (!no_reentrance) {
     no_reentrance = true;
     ProcessRx();
@@ -249,16 +247,14 @@ void DGUSDisplay::loop() {
 
 rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;
 uint8_t DGUSDisplay::rx_datagram_len = 0;
-bool DGUSDisplay::Initialized = false;
-bool DGUSDisplay::no_reentrance = false;
+bool DGUSDisplay::Initialized = false,
+     DGUSDisplay::no_reentrance = false;
 
 // A SW memory barrier, to ensure GCC does not overoptimize loops
 #define sw_barrier() asm volatile("": : :"memory");
 
 bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy) {
-  DEBUG_ECHOPGM("populate_VPVar ", VP);
   const DGUS_VP_Variable *pvp = DGUSLCD_FindVPVar(VP);
-  DEBUG_ECHOLNPGM(" pvp ", (uint16_t )pvp);
   if (!pvp) return false;
   memcpy_P(ramcopy, pvp, sizeof(DGUS_VP_Variable));
   return true;

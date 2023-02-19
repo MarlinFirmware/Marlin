@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 /**
-  * DGUSVPVariable.h
+ * DGUSVPVariable.h
  *
  *  Created on: Feb 9, 2019
  *      Author: tobi

@@ -66,20 +66,20 @@ void DGUSScreenHandler::sendinfoscreen(PGM_P const line1, PGM_P const line2, PGM
   DGUS_VP_Variable ramcopy;
   if (populate_VPVar(VP_MSGSTR1, &ramcopy)) {
     ramcopy.memadr = (void*) line1;
-    l1inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l1inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
   if (populate_VPVar(VP_MSGSTR2, &ramcopy)) {
     ramcopy.memadr = (void*) line2;
-    l2inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l2inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
   if (populate_VPVar(VP_MSGSTR3, &ramcopy)) {
     ramcopy.memadr = (void*) line3;
-    l3inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l3inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
   #ifdef VP_MSGSTR4
     if (populate_VPVar(VP_MSGSTR4, &ramcopy)) {
       ramcopy.memadr = (void*) line4;
-      l4inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+      l4inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
     }
   #endif
 }
@@ -323,7 +323,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
   }
 
   void DGUSScreenHandler::SDCardError() {
-    DGUSScreenHandler::SDCardRemoved();
+    SDCardRemoved();
     sendinfoscreen(F("NOTICE"), nullptr, F("SD card error"), nullptr, true, true, true, true);
     SetupConfirmAction(nullptr);
     GotoScreen(DGUSLCD_SCREEN_POPUP);
