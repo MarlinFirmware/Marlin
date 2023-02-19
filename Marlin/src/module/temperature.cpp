@@ -317,55 +317,22 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTENDS];
-  #define _HMT(N) HEATER_##N##_MAXTEMP,
   const celsius_t Temperature::hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
-  #define CHECK_MAXTEMP__(SENSOR,TTABLE) static_assert(HEATER_ ##SENSOR## _MAXTEMP <= _MAX(temptable_ ##TTABLE [0].celsius,temptable_ ##TTABLE [(sizeof(temptable_ ##TTABLE) / sizeof(temptable_ ##TTABLE [0]))-1].celsius) - HOTEND_OVERSHOOT, "HEATER_" STRINGIFY(SENSOR) "_MAXTEMP must be less than the maximum temperature listed in the file thermistor_" STRINGIFY(TTABLE) ".h minus HOTEND_OVERSHOOT of " STRINGIFY(HOTEND_OVERSHOOT) ".")
-  #define CHECK_MAXTEMP_(SENSOR,TTABLE) CHECK_MAXTEMP__( SENSOR, TTABLE )
-  #define CHECK_MAXTEMP(HOTEND) CHECK_MAXTEMP_(HOTEND,TEMP_SENSOR_ ##HOTEND)
 
-  #if HOTENDS > 0
-    #if TEMP_SENSOR_0 > 0
-      CHECK_MAXTEMP(0);
-    #endif
+  // Sanity-check max readable temperatures
+  #define CHECK_MAXTEMP_(N,M,S) static_assert( \
+    S >= 998 || M <= _MAX(TT_NAME(S)[0].celsius, TT_NAME(S)[COUNT(TT_NAME(S)) - 1].celsius) - HOTEND_OVERSHOOT, \
+    "HEATER_" STRINGIFY(N) "_MAXTEMP (" STRINGIFY(M) ") is too high for thermistor_" STRINGIFY(S) ".h with HOTEND_OVERSHOOT=" STRINGIFY(HOTEND_OVERSHOOT) ".");
+  #define CHECK_MAXTEMP(N) TERN(TEMP_SENSOR_##N##_IS_THERMISTOR, CHECK_MAXTEMP_, CODE_0)(N, HEATER_##N##_MAXTEMP, TEMP_SENSOR_##N)
+  REPEAT(HOTENDS, CHECK_MAXTEMP)
+
+  #if HAS_PREHEAT
+    #define CHECK_PREHEAT__(N,P,T,M) static_assert(T <= M - HOTEND_OVERSHOOT, "PREHEAT_" STRINGIFY(P) "_TEMP_HOTEND (" STRINGIFY(T) ") must be less than HEATER_" STRINGIFY(N) "_MAXTEMP (" STRINGIFY(M) ") - " STRINGIFY(HOTEND_OVERSHOOT) ".");
+    #define CHECK_PREHEAT_(N,P) CHECK_PREHEAT__(N, P, PREHEAT_##P##_TEMP_HOTEND, HEATER_##N##_MAXTEMP);
+    #define CHECK_PREHEAT(P) REPEAT2(HOTENDS, CHECK_PREHEAT_, P);
+    RREPEAT_1(PREHEAT_COUNT, CHECK_PREHEAT)
   #endif
-  #if HOTENDS > 1
-    #if TEMP_SENSOR_1 > 0
-      CHECK_MAXTEMP(1);
-    #endif
-  #endif
-  #if HOTENDS > 2
-    #if TEMP_SENSOR_2 > 0
-      CHECK_MAXTEMP(2);
-    #endif
-  #endif
-  #if HOTENDS > 3
-    #if TEMP_SENSOR_3 > 0
-      CHECK_MAXTEMP(3);
-    #endif
-  #endif
-  #if HOTENDS > 4
-    #if TEMP_SENSOR_4 > 0
-      CHECK_MAXTEMP(4);
-    #endif
-  #endif
-  #if HOTENDS > 5
-    #if TEMP_SENSOR_5 > 0
-      CHECK_MAXTEMP(5);
-    #endif
-  #endif
-  #if HOTENDS > 6
-    #if TEMP_SENSOR_6 > 0
-      CHECK_MAXTEMP(6);
-    #endif
-  #endif
-  #if HOTENDS > 7
-    #if TEMP_SENSOR_7 > 0
-      CHECK_MAXTEMP(7);
-    #endif
-  #endif
-  #undef CHECK_MAXTEMP__
-  #undef CHECK_MAXTEMP_
-  #undef CHECK_MAXTEMP
+
 #endif
 
 #if HAS_TEMP_REDUNDANT
