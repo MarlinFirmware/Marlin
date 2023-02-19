@@ -31,6 +31,10 @@
 #include "powerloss.h"
 #include "../core/macros.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
+
 bool PrintJobRecovery::enabled; // Initialized by settings.load()
 
 MediaFile PrintJobRecovery::file;
@@ -312,6 +316,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // Save the current position, distance that Z was (or should be) raised,
     // and a flag whether the raise was already done here.
     if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
+
+    // Tell the LCD about the outage, even though it is about to die
+    TERN_(EXTENSIBLE_UI, ExtUI::onPowerLoss());
 
     // Disable all heaters to reduce power loss
     thermalManager.disable_all_heaters();
