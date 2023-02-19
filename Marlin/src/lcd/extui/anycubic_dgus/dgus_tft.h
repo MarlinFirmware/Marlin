@@ -24,7 +24,7 @@
 /**
  * lcd/extui/anycubic_dgus/dgus_tft.h
  *
- * Extensible_UI implementation for Anycubic Chiron
+ * Based on Extensible_UI implementation for Anycubic Chiron
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
@@ -34,7 +34,6 @@
 #include "../ui_api.h"
 
 #define MAIN_BOARD_FIRMWARE_VER "V2.4.5"
-
 
 /****************** PAGE INDEX***********************/
 #define PAGE_OFFSET        0
@@ -121,15 +120,12 @@
 #define PAGE_ENG_PROBE_PRECHECK_OK            (205+PAGE_OFFSET)
 #define PAGE_ENG_PROBE_PRECHECK_FAILED        (206+PAGE_OFFSET)
 
-
-
 /****************** Lcd control **************************/
 #define REG_LCD_READY        0x0014
 
-
 /****************** TXT **************************/
 
-// MIAN PAGE TXT
+// MAIN PAGE TXT
 #define TXT_MAIN_BED        0x2000
 #define TXT_MAIN_HOTEND     0x2030
 #define TXT_MAIN_MESSAGE    0x2060
@@ -155,32 +151,29 @@
 #define TXT_PRINT_HOTEND 		0x2000+12*0x30
 #define TXT_PRINT_BED     		0x2000+13*0x30
 
-
 // PRINT ADJUST TXT
 
 #define TXT_ADJUST_HOTEND       (0x2000+14*0x30)
 #define TXT_ADJUST_BED          (0x2000+15*0x30)
 #define TXT_ADJUST_SPEED        (0x2000+16*0x30)
 
-//TEMP SET TXT
+// TEMP SET TXT
 
 #define TXT_BED_NOW             (0x2000+17*0x30)
 #define TXT_BED_TARGET          (0x2000+18*0x30)
 #define TXT_HOTNED_NOW           (0x2000+19*0x30)
 #define TXT_HOTEND_TARGET        (0x2000+20*0x30)
 
-
-
-//SPEED SET TXT
+// SPEED SET TXT
 #define TXT_FAN_SPEED_NOW       (0x2000+21*0x30)
 #define TXT_FAN_SPEED_TARGET    (0x2000+22*0x30)
 #define TXT_PRINT_SPEED_NOW     (0x2000+23*0x30)
 #define TXT_PRINT_SPEED_TARGET  (0x2000+24*0x30)
 
-//ABOUT TXT
+// ABOUT TXT
 #define TXT_ABOUT               (0x2000+25*0x30)
 
-//RECORT TXT
+// RECORT TXT
 #define TXT_RECORT_0             (0x2000+26*0x30)
 #define TXT_RECORT_1             (0x2000+27*0x30)
 #define TXT_RECORT_2             (0x2000+28*0x30)
@@ -188,10 +181,10 @@
 #define TXT_RECORT_4             (0x2000+30*0x30)
 #define TXT_RECORT_5             (0x2000+31*0x30)
 
-// ADVANCE LEVEL  TXT
+// ADVANCE LEVEL TXT
 #define TXT_LEVEL_OFFSET             (0x2000+32*0x30)
 
-//FILAMENT TXT
+// FILAMENT TXT
 #define TXT_FILAMENT_TEMP        (0x2000+33*0x30)
 
 #define TXT_FINISH_TIME          (0x2000+34*0x30)
@@ -201,15 +194,11 @@
 
 #define TXT_OUTAGE_RECOVERY_FILE 0x2180
 
-
-
 #define ADDRESS_SYSTEM_AUDIO     0x0080
-
 
 #define ADDRESS_MOVE_DISTANCE              0x4300
 #define ADDRESS_SYSTEM_LED_STATUS          0x4500
 #define ADDRESS_PRINT_SETTING_LED_STATUS   0x4550
-
 
 /*********************** KEY VALUE **************************/
 #define KEY_ADDRESS          0x1000
@@ -235,7 +224,6 @@
 #define KEY_FILE3			10
 #define KEY_FILE4			11
 
-
 #define KEY_CONTINUE        2
 #define KEY_PAUSE           2
 #define KEY_STOP            3
@@ -245,15 +233,13 @@
 #define KEY_CHECK_DOOR      2
 #define KEY_DONE_OFF        3
 
-
-//TOOL PAGE KEY
+// TOOL PAGE KEY
 
 #define KEY_TOOL_TO_MAIN   1
 #define KEY_TOOL_TO_MOVE   2
 #define KEY_TOOL_TO_TEMP   3
 #define KEY_TOOL_TO_SPEED  4
 #define KEY_TOOL_LIGHT     5
-
 
 #define KEY_MOVE_TO_TOLL   1// move page
 #define KEY_MOVE_X         2
@@ -316,10 +302,7 @@
 #define KEY_FORWARD              2
 #define KEY_FILAMENT_STOP        4
 
-
-
-
-//SYSTEM PAGE KEY
+// SYSTEM PAGE KEY
 
 #define KEY_SYS_TO_MAIN        1
 #define KEY_LANGUAGE           2
@@ -336,13 +319,11 @@
 #define KEY_RECORD_PaDn        3
 #define KEY_RECORD_FLASH       4
 
-
 #define COLOR_RED              0xf800
 #define COLOR_BLUE             0x0210
 
 //#define AUDIO_OFF              false
 //#define AUDIO_ON               true
-
 
 namespace Anycubic {
 
@@ -351,7 +332,6 @@ namespace Anycubic {
 
   class DgusTFT;
   extern DgusTFT ui;
-
 
   typedef struct _lcd_info_t {
     language_t             language;
@@ -413,61 +393,61 @@ namespace Anycubic {
       void set_language(language_t);
 
 
-      typedef void (*p_fun)(void);
-      static void page1_handle(void);
-      static void page2_handle(void);
-      static void page3_handle(void);
-      static void page4_handle(void);
-      static void page5_handle(void);
-      static void page6_handle(void);
-      static void page7_handle(void);   // tool
-      static void page8_handle(void);
-      static void page9_handle(void);
-      static void page10_handle(void);  // fan and print speed
-      static void page11_handle(void);  // system
-      static void page12_handle(void);
-      static void page13_handle(void);
-      static void page14_handle(void);
-      static void page15_handle(void);
-      static void page16_handle(void);
-      static void page17_handle(void);
-      static void page18_handle(void);
-      static void page19_handle(void);
-      static void page20_handle(void);
-      static void page21_handle(void);
-      static void page22_handle(void);
-      static void page23_handle(void);
-      static void page24_handle(void);
-      static void page25_handle(void);
-      static void page26_handle(void);
-      static void page27_handle(void);
-      static void page28_handle(void);
-      static void page29_handle(void);
-      static void page30_handle(void);
-      static void page31_handle(void);
-      static void page32_handle(void);
-      static void page33_handle(void);
-      static void page34_handle(void);
-      static void page115_handle(void);
-      static void page117_handle(void);     // CHS Mute handler
-      static void page170_handle(void);     // ENG Mute handler
-      static void page171_handle(void);     // CHS power outage resume handler
-      static void page173_handle(void);     // ENG power outage resume handler
-      static void page175_handle(void);     // ENG probe preheating handler
-      static void page176_handle(void);     // CHS probe preheating handler
+      typedef void (*p_fun)();
+      static void page1_handle();
+      static void page2_handle();
+      static void page3_handle();
+      static void page4_handle();
+      static void page5_handle();
+      static void page6_handle();
+      static void page7_handle();   // tool
+      static void page8_handle();
+      static void page9_handle();
+      static void page10_handle();  // fan and print speed
+      static void page11_handle();  // system
+      static void page12_handle();
+      static void page13_handle();
+      static void page14_handle();
+      static void page15_handle();
+      static void page16_handle();
+      static void page17_handle();
+      static void page18_handle();
+      static void page19_handle();
+      static void page20_handle();
+      static void page21_handle();
+      static void page22_handle();
+      static void page23_handle();
+      static void page24_handle();
+      static void page25_handle();
+      static void page26_handle();
+      static void page27_handle();
+      static void page28_handle();
+      static void page29_handle();
+      static void page30_handle();
+      static void page31_handle();
+      static void page32_handle();
+      static void page33_handle();
+      static void page34_handle();
+      static void page115_handle();
+      static void page117_handle();     // CHS Mute handler
+      static void page170_handle();     // ENG Mute handler
+      static void page171_handle();     // CHS power outage resume handler
+      static void page173_handle();     // ENG power outage resume handler
+      static void page175_handle();     // ENG probe preheating handler
+      static void page176_handle();     // CHS probe preheating handler
 
-      static void page177_to_198_handle(void);
-//      static void page178_to_181_190_to_193_handle(void);
-      static void page199_to_200_handle(void);
+      static void page177_to_198_handle();
+      //static void page178_to_181_190_to_193_handle();
+      static void page199_to_200_handle();
 
-      static void page201_handle(void);
-      static void page202_handle(void);
-      static void page203_handle(void);
-      static void page204_handle(void);
-      static void page205_handle(void);
-      static void page206_handle(void);
+      static void page201_handle();
+      static void page202_handle();
+      static void page203_handle();
+      static void page204_handle();
+      static void page205_handle();
+      static void page206_handle();
 
-      static void pop_up_manager(void);
+      static void pop_up_manager();
 
       void SendtoTFT(PGM_P);
       void SendtoTFTLN(PGM_P);

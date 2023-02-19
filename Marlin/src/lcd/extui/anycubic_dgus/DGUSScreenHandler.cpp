@@ -53,7 +53,7 @@ uint16_t DGUSScreenHandler::ConfirmVP;
 
 void (*DGUSScreenHandler::confirm_action_cb)() = nullptr;
 
-//DGUSScreenHandler ScreenHandler;
+DGUSScreenHandler ScreenHandler;
 
 DGUSLCD_Screens DGUSScreenHandler::current_screen;
 DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS];
@@ -61,7 +61,7 @@ uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 
-//DGUSDisplay dgusdisplay;
+DGUSDisplay dgusdisplay;
 
 // endianness swap
 uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
@@ -70,19 +70,19 @@ void DGUSScreenHandler::sendinfoscreen(const char* line1, const char* line2, con
   DGUS_VP_Variable ramcopy;
   if (populate_VPVar(VP_MSGSTR1, &ramcopy)) {
     ramcopy.memadr = (void*) line1;
-    l1inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l1inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
   if (populate_VPVar(VP_MSGSTR2, &ramcopy)) {
     ramcopy.memadr = (void*) line2;
-    l2inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l2inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
   if (populate_VPVar(VP_MSGSTR3, &ramcopy)) {
     ramcopy.memadr = (void*) line3;
-    l3inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l3inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
   if (populate_VPVar(VP_MSGSTR4, &ramcopy)) {
     ramcopy.memadr = (void*) line4;
-    l4inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
+    l4inflash ? DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSLCD_SendStringToDisplay(ramcopy);
   }
 }
 
@@ -94,7 +94,7 @@ void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* lin
 
   ConfirmVP = VP;
   sendinfoscreen(line1, line2, line3, line4, l1, l2, l3, l4);
-  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM);
+  GotoScreen(DGUSLCD_SCREEN_CONFIRM);
 }
 
 void DGUSScreenHandler::setstatusmessage(const char *msg) {
@@ -350,7 +350,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
   void DGUSScreenHandler::DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr) {
     if (!filelist.seek(file_to_print)) return;
     ExtUI::printFile(filelist.shortFilename());
-    ScreenHandler.GotoScreen(
+    GotoScreen(
       #if ENABLED(DGUS_LCD_UI_ORIGIN)
         DGUSLCD_SCREEN_STATUS
       #else
@@ -369,7 +369,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
         if (!ExtUI::isPrintingFromMediaPaused()) ExtUI::pausePrint();
         break;
       case 2:  // Abort
-        ScreenHandler.HandleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
+        HandleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
         break;
     }
   }
@@ -397,23 +397,23 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
   void DGUSScreenHandler::SDCardInserted() {
     top_file = 0;
     filelist.refresh();
-    auto cs = ScreenHandler.getCurrentScreen();
+    auto cs = getCurrentScreen();
     if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_STATUS)
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
+      GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
   }
 
   void DGUSScreenHandler::SDCardRemoved() {
     if (current_screen == DGUSLCD_SCREEN_SDFILELIST
         || (current_screen == DGUSLCD_SCREEN_CONFIRM && (ConfirmVP == VP_SD_AbortPrintConfirmed || ConfirmVP == VP_SD_FileSelectConfirm))
         || current_screen == DGUSLCD_SCREEN_SDPRINTMANIPULATION
-    ) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+    ) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
 
   void DGUSScreenHandler::SDCardError() {
-    DGUSScreenHandler::SDCardRemoved();
-    ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("SD card error"), nullptr, true, true, true, true);
-    ScreenHandler.SetupConfirmAction(nullptr);
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
+    SDCardRemoved();
+    sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("SD card error"), nullptr, true, true, true, true);
+    SetupConfirmAction(nullptr);
+    GotoScreen(DGUSLCD_SCREEN_POPUP);
   }
 
 #endif // SDSUPPORT
@@ -478,7 +478,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr) {
   thermalManager.disable_all_heaters();
-  ScreenHandler.ForceCompleteUpdate(); // hint to send all data.
+  ForceCompleteUpdate(); // hint to send all data.
 }
 
 void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr) {
@@ -509,7 +509,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 
   // reply to display the new value to update the view if the new value was rejected by the Thermal Manager.
   if (newvalue != acceptedvalue && var.send_to_display_handler) var.send_to_display_handler(var);
-  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr) {
@@ -527,7 +527,7 @@ void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_p
     }
 
     planner.set_flow(target_extruder, newvalue);
-    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   #else
     UNUSED(var); UNUSED(val_ptr);
   #endif
@@ -608,7 +608,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     //DEBUG_ECHOPGM(" ", buf);
     queue.enqueue_one_now(buf);
     //DEBUG_ECHOLNPGM(" ✓");
-    ScreenHandler.ForceCompleteUpdate();
+    ForceCompleteUpdate();
     return;
   }
   else {
@@ -644,7 +644,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
   }
 
-  ScreenHandler.ForceCompleteUpdate();
+  ForceCompleteUpdate();
   DEBUG_ECHOLNPGM("manmv done.");
   return;
 
@@ -670,11 +670,11 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
     uint16_t value = swap16(*(uint16_t*)val_ptr);
     if (value) {
       queue.inject_P(PSTR("M1000"));
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION);
+      GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION);
     }
     else {
       recovery.cancel();
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_STATUS);
+      GotoScreen(DGUSLCD_SCREEN_STATUS);
     }
   }
 
@@ -710,7 +710,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
   DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisSteps_per_mm(value, axis);
   DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(axis));
-  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
 }
 
@@ -733,7 +733,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
   DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisSteps_per_mm(value,extruder);
   DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
-  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
 }
 
@@ -766,7 +766,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
 
     DEBUG_ECHOLNPGM("V3:", newvalue);
     *(float *)var.memadr = newvalue;
-    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
 
   void DGUSScreenHandler::HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr) {
@@ -810,7 +810,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
 
     const float offset = float(int16_t(swap16(*(uint16_t*)val_ptr))) / 100.0f;
     ExtUI::setZOffset_mm(offset);
-    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
 #endif
@@ -822,7 +822,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     int16_t flag = swap16(*(uint16_t*)val_ptr);
     int16_t steps = flag ? -20 : 20;
     ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
-    ScreenHandler.ForceCompleteUpdate();
+    ForceCompleteUpdate();
     return;
   }
 #endif

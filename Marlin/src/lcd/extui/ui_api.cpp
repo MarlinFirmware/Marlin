@@ -892,13 +892,6 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
     void setProbeOffset_mm(const_float_t val, const axis_t axis) { probe.offset.pos[axis] = val; }
-
-    void ProbeTare(void) {
-      OUT_WRITE(AUTO_LEVEL_TX_PIN, LOW);
-      delay(300);
-      OUT_WRITE(AUTO_LEVEL_TX_PIN, HIGH);
-      delay(100);
-    }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)

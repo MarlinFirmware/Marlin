@@ -47,8 +47,6 @@ extern const struct DGUS_VP_Variable ListOfVP[];
 
 // copied from C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\lcd\extui\dgus\fysetc\DGUSDisplayDef.h
 
-
-
 enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_BOOT                =   0,
   DGUSLCD_SCREEN_MAIN                =   1,

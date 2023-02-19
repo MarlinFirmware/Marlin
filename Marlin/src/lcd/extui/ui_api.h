@@ -286,8 +286,6 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
-    inline bool getProbeState(void) { return PROBE_TRIGGERED(); }
-    void ProbeTare(void);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
