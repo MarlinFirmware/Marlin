@@ -39,8 +39,6 @@ namespace ExtUI {
 
   void onStartup() { Dgus.Startup(); }
 
-  void onParamInit() { Dgus.ParamInit(); }
-
   void onIdle() { Dgus.IdleLoop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
@@ -105,6 +103,7 @@ namespace ExtUI {
   void onSettingsLoaded(bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
+    Dgus.ParamInit();
   }
 
   #if HAS_MESH
