@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,7 +36,6 @@
 using namespace Anycubic;
 
 namespace ExtUI {
-
   void onStartup() { Dgus.Startup(); }
 
   void onParamInit() { Dgus.ParamInit(); }
@@ -59,28 +58,14 @@ namespace ExtUI {
 
   void onPrintTimerStarted() { Dgus.TimerEvent(AC_timer_started); }
   void onPrintTimerPaused()  { Dgus.TimerEvent(AC_timer_paused);  }
-  void onPrintTimerStopped()                         { Dgus.TimerEvent(AC_timer_stopped); }
+  void onPrintTimerStopped() { Dgus.TimerEvent(AC_timer_stopped); }
   void onFilamentRunout(const extruder_t)            { Dgus.FilamentRunout();             }
   void onUserConfirmRequired(const char * const msg) { Dgus.ConfirmationRequest(msg);     }
   void onStatusChanged(const char * const msg)       { Dgus.StatusChange(msg);            }
 
-  void onHomingDone()     { Dgus.HomingComplete(); }
   void onHomingStart()    { Dgus.HomingStart(); }
-  void onHomingComplete() { Dgus.HomingComplete(); }
-  void onPrintFinished() {}
+  void onHomingDone()     { Dgus.HomingComplete(); }
   void onPrintDone() {}
-  void onPostprocessSettings() {} // Called after loading or resetting stored settings
-  void onSettingsStored(bool success) {
-    // Called after the entire EEPROM has been written,
-    // whether successful or not.
-  }
-  void onSettingsLoaded(bool success) {
-    // Called after the entire EEPROM has been read,
-    // whether successful or not.
-  }
-
-  void onLevelingStart() {}
-  void onLevelingDone() {}
 
   void onFactoryReset() {
     Dgus.page_index_now = 121;
@@ -92,7 +77,6 @@ namespace ExtUI {
     // permanent data to be stored, it can write up to eeprom_data_size bytes
     // into buff.
 
-    // Example:
     static_assert(sizeof(Dgus.lcd_info) <= ExtUI::eeprom_data_size);
     memcpy(buff, &Dgus.lcd_info, sizeof(Dgus.lcd_info));
   }
@@ -102,45 +86,55 @@ namespace ExtUI {
     // needs to retrieve data, it should copy up to eeprom_data_size bytes
     // from buff
 
-    // Example:
     static_assert(sizeof(Dgus.lcd_info) <= ExtUI::eeprom_data_size);
     memcpy(&Dgus.lcd_info, buff, sizeof(Dgus.lcd_info));
     memcpy(&Dgus.lcd_info_back, buff, sizeof(Dgus.lcd_info_back));
+
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
   }
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   #if HAS_MESH
-    void onMeshLevelingStart() {}
+    void onLevelingStart() {}
+    void onLevelingDone() {}
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
       //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
     }
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
       //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " state:", state);
     }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    // Called on resume from power-loss
     void onPowerLoss() { Dgus.PowerLoss(); }
+    // Called on resume from power-loss
     void onPowerLossResume() { Dgus.PowerLossRecovery(); }
   #endif
 
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
+      switch (rst) {
+        case PID_STARTED:        break;
+        case PID_BAD_HEATER_ID:  break;
+        case PID_TEMP_TOO_HIGH:  break;
+        case PID_TUNING_TIMEOUT: break;
+        case PID_DONE:           break;
+      }
     }
   #endif
 
