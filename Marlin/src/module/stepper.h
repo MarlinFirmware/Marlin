@@ -114,7 +114,7 @@
   #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
 
   // The base ISR
-  #define ISR_BASE_CYCLES  976UL
+  #define ISR_BASE_CYCLES  897UL
 
   // Linear advance base time is 32 cycles
   #if ENABLED(LIN_ADVANCE)
@@ -573,24 +573,24 @@ class Stepper {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
-      static uint32_t nextAdvanceISR,
-                      la_interval;      // Interval between ISR calls for LA
-      static int32_t  la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
-                      la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
-                      la_advance_steps; // Count of steps added to increase nozzle pressure
+      static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
+      static hal_timer_t nextAdvanceISR,
+                         la_interval;      // Interval between ISR calls for LA
+      static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
+                         la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
+                         la_advance_steps; // Count of steps added to increase nozzle pressure
     #endif
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
-      static constexpr uint32_t BABYSTEP_NEVER = 0xFFFFFFFF;
-      static uint32_t nextBabystepISR;
+      static constexpr hal_timer_t BABYSTEP_NEVER = HAL_TIMER_TYPE_MAX;
+      static hal_timer_t nextBabystepISR;
     #endif
 
     #if ENABLED(DIRECT_STEPPING)
       static page_step_state_t page_step_state;
     #endif
 
-    static int32_t ticks_nominal;
+    static hal_timer_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
@@ -629,7 +629,7 @@ class Stepper {
     static void pulse_phase_isr();
 
     // The stepper block processing ISR phase
-    static uint32_t block_phase_isr();
+    static hal_timer_t block_phase_isr();
 
     #if HAS_SHAPING
       static void shaping_isr();
@@ -642,7 +642,7 @@ class Stepper {
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
       // The Babystepping ISR phase
-      static uint32_t babystepping_isr();
+      static hal_timer_t babystepping_isr();
       FORCE_INLINE static void initiateBabystepping() {
         if (nextBabystepISR == BABYSTEP_NEVER) {
           nextBabystepISR = 0;
@@ -815,8 +815,8 @@ class Stepper {
     static void _set_position(const abce_long_t &spos);
 
     // Calculate timing interval for the given step rate
-    static uint32_t calc_timer_interval(uint32_t step_rate);
-    static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t &loops);
+    static hal_timer_t calc_timer_interval(uint32_t step_rate);
+    static hal_timer_t calc_timer_interval(uint32_t step_rate, uint8_t &loops);
 
     #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
