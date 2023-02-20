@@ -797,3 +797,10 @@
 #if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
   #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
 #endif
+
+/**
+ * BLTOUCH with PROBING_MARGIN
+ */
+#ifdef BLTOUCH_WITH_PROBING_MARGIN
+  #warning "A Probing margin is not required or rrecommended with a BLTOUCH"
+#endif
