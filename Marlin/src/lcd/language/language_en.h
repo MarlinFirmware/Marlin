@@ -332,7 +332,7 @@ namespace Language_en {
   LSTR MSG_MOVE_1IN                       = _UxGT("Move 1.0in");
   LSTR MSG_LIVE_MOVE                      = _UxGT("Live Move");
   LSTR MSG_SPEED                          = _UxGT("Speed");
-  LSTR MSG_BED_Z                          = _UxGT("Bed Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_TOOL_N                         = _UxGT("Tool ~");
   LSTR MSG_HOTEND                         = _UxGT("Hotend");
   LSTR MSG_HOTEND_N                       = _UxGT("Hotend ~");

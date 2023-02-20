@@ -191,7 +191,7 @@ public:
   // Send a float value to the display.
   // Display will get a 4-byte integer scaled to the number of digits:
   // Tell the display the number of digits and it cheats by displaying a dot between...
-  template<unsigned int decimals>
+  template<uint16_t decimals>
   static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
@@ -203,7 +203,7 @@ public:
   // Send a float value to the display.
   // Display will get a 2-byte integer scaled to the number of digits:
   // Tell the display the number of digits and it cheats by displaying a dot between...
-  template<unsigned int decimals>
+  template<uint16_t decimals>
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
