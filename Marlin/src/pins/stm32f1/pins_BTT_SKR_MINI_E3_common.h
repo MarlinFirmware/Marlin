@@ -315,8 +315,8 @@
      *   EXP1-2 ----------- EXP1-9   ENC
      *   EXP1-1 ----------- EXP1-7   LCD_A0
      *
-     *    TFT-2 ----------- EXP2-5   SCK
-     *    TFT-3 ----------- EXP2-9   MOSI
+     *    TFT-2 ----------- EXP2-5   MOSI
+     *    TFT-3 ----------- EXP2-9   SCK
      *
      * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
      */

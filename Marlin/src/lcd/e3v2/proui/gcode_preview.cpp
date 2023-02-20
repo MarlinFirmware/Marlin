@@ -135,7 +135,7 @@ bool Has_Preview() {
       Get_Value(buf, ";MAXZ:", fileprop.height);
       fileprop.height -= tmp;
       posptr = strstr(buf, tbstart);
-      if (posptr != NULL) {
+      if (posptr != nullptr) {
         fileprop.thumbstart = indx + (posptr - &buf[0]);
       }
       else {
