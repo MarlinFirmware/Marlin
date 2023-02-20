@@ -802,5 +802,5 @@
  * BLTOUCH with PROBING_MARGIN
  */
 #ifdef BLTOUCH_WITH_PROBING_MARGIN
-  #warning "A Probing margin is not required or rrecommended with a BLTOUCH"
+  #warning "A Probing margin is not required or recommended with a BLTOUCH"
 #endif
