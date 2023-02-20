@@ -235,7 +235,7 @@ namespace Language_tr {
   LSTR MSG_MOVE_10MM                      = _UxGT("10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("100mm");
   LSTR MSG_SPEED                          = _UxGT("Hız");
-  LSTR MSG_BED_Z                          = _UxGT("Z Mesafesi");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Mesafesi");
   LSTR MSG_NOZZLE                         = _UxGT("Nozul");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozul ~");
   LSTR MSG_BED                            = _UxGT("Tabla");
