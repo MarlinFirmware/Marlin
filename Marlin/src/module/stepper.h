@@ -114,7 +114,7 @@
   #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
 
   // The base ISR
-  #define ISR_BASE_CYCLES  996UL
+  #define ISR_BASE_CYCLES  990UL
 
   // Linear advance base time is 32 cycles
   #if ENABLED(LIN_ADVANCE)
