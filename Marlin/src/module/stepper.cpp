@@ -2050,25 +2050,23 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #else
     // AVR is able to keep up at 30khz Stepping ISR rate.
     constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
-    if (step_rate <= min_step_rate) {
+    if (step_rate >= 0x0800) {  // higher step rate
+      const uint8_t rate_mod_256 = (step_rate & 0x00FF);
+      const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)][0]),
+                      gain = uint16_t(pgm_read_word(table_address + 2));
+      return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(rate_mod_256, gain);
+    }
+    else if (step_rate > min_step_rate) { // lower step rates
+      step_rate -= min_step_rate; // Correct for minimal speed
+      uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
+      table_address += (step_rate >> 1) & 0xFFFC;
+      return uint16_t(pgm_read_word(table_address))
+             - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
+    }
+    else {
       step_rate = 0;
       uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
       return uint16_t(pgm_read_word(table_address));
-    }
-    else {
-      if (step_rate >= 0x0800) {  // higher step rate
-        const uint8_t rate_mod_256 = (step_rate & 0x00FF);
-        const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)][0]),
-                        gain = uint16_t(pgm_read_word(table_address + 2));
-        return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(rate_mod_256, gain);
-      }
-      else { // lower step rates
-        step_rate -= min_step_rate; // Correct for minimal speed
-        uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
-        table_address += (step_rate >> 1) & 0xFFFC;
-        return uint16_t(pgm_read_word(table_address))
-               - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
-      }
     }
   #endif
 }
