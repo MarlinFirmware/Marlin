@@ -146,67 +146,67 @@
    // addr: The byte address of bitbanding bit.
    // bit:  The bit position of bitbanding bit.
   #define BITBAND_ADDRESS(addr, bit) \
-    (((uint32_t)(addr) & 0xF0000000) + 0x02000000 + ((uint32_t)(addr)&0xFFFFF)*32 + (bit)*4)
+    (((uint32_t)(addr) & 0xF0000000) + 0x02000000 + ((uint32_t)(addr) & 0xFFFFF)*32 + (bit)*4)
 
   // run at ~8 .. ~10Mhz - Rx version (Tx line not altered)
   static uint8_t spiTransferRx0(uint8_t) { // using Mode 0
     uint32_t bin = 0;
     uint32_t work = 0;
-    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
-    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(SD_MISO_PIN)) + 0x3C, PIN_SHIFT(SD_MISO_PIN));  // PDSR of port in bitband area
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    // SODR of port
     uint32_t SCK_MASK = PIN_MASK(SD_SCK_PIN);
 
-    /* The software SPI routine */
+    // The software SPI routine
     __asm__ __volatile__(
       A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
 
-      /* bit 7 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#7,#1")                /* Store read bit as the bit 7 */
+      // bit 7
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#7,#1")           // Store read bit as the bit 7
 
-      /* bit 6 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#6,#1")                /* Store read bit as the bit 6 */
+      // bit 6
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#6,#1")           // Store read bit as the bit 6
 
-      /* bit 5 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#5,#1")                /* Store read bit as the bit 5 */
+      // bit 5
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#5,#1")           // Store read bit as the bit 5
 
-      /* bit 4 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#4,#1")                /* Store read bit as the bit 4 */
+      // bit 4
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#4,#1")           // Store read bit as the bit 4
 
-      /* bit 3 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#3,#1")                /* Store read bit as the bit 3 */
+      // bit 3
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#3,#1")           // Store read bit as the bit 3
 
-      /* bit 2 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#2,#1")                /* Store read bit as the bit 2 */
+      // bit 2
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#2,#1")           // Store read bit as the bit 2
 
-      /* bit 1 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#1,#1")                /* Store read bit as the bit 1 */
+      // bit 1
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#1,#1")           // Store read bit as the bit 1
 
-      /* bit 0 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#0,#1")                /* Store read bit as the bit 0 */
+      // bit 0
+      A("str %[sck_mask],[%[sck_port]]")      // SODR
+      A("ldr %[work],[%[bitband_miso_port]]") // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]") // CODR
+      A("bfi %[bin],%[work],#0,#1")           // Store read bit as the bit 0
 
       : [bin]"+r"(bin),
         [work]"+r"(work)
@@ -270,71 +270,71 @@
 
   // Block transfers run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
   static void spiTxBlock0(const uint8_t *ptr, uint32_t todo) {
-    uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(SD_MOSI_PIN)) + 0x30;  /* SODR of port */
+    uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(SD_MOSI_PIN)) + 0x30;  // SODR of port
     uint32_t MOSI_MASK = PIN_MASK(SD_MOSI_PIN);
-    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    // SODR of port
     uint32_t SCK_MASK = PIN_MASK(SD_SCK_PIN);
     uint32_t work = 0;
     uint32_t txval = 0;
 
-    /* The software SPI routine */
+    // The software SPI routine
     __asm__ __volatile__(
       A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
 
       L("loop%=")
-      A("ldrb.w %[txval], [%[ptr]], #1")                   /* Load value to send, increment buffer */
-      A("mvn %[txval],%[txval]")                           /* Negate value */
+      A("ldrb.w %[txval], [%[ptr]], #1")                   // Load value to send, increment buffer
+      A("mvn %[txval],%[txval]")                           // Negate value
 
-      /* Bit 7 */
-      A("ubfx %[work],%[txval],#7,#1")                     /* Place bit 7 in bit 0 of work*/
+      // Bit 7
+      A("ubfx %[work],%[txval],#7,#1")                     // Place bit 7 in bit 0 of work
 
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#6,#1")                     /* Place bit 6 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#6,#1")                     // Place bit 6 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 6 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#5,#1")                     /* Place bit 5 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      // Bit 6
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#5,#1")                     // Place bit 5 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 5 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#4,#1")                     /* Place bit 4 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      // Bit 5
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#4,#1")                     // Place bit 4 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 4 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#3,#1")                     /* Place bit 3 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      // Bit 4
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#3,#1")                     // Place bit 3 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 3 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#2,#1")                     /* Place bit 2 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      // Bit 3
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#2,#1")                     // Place bit 2 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 2 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#1,#1")                     /* Place bit 1 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      // Bit 2
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#1,#1")                     // Place bit 1 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 1 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("ubfx %[work],%[txval],#0,#1")                     /* Place bit 0 in bit 0 of work*/
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      // Bit 1
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("ubfx %[work],%[txval],#0,#1")                     // Place bit 0 in bit 0 of work
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
 
-      /* Bit 0 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
-      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
-      A("subs %[todo],#1")                                 /* Decrement count of pending words to send, update status */
-      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
-      A("bne.n loop%=")                                    /* Repeat until done */
+      // Bit 0
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") // Access the proper SODR or CODR registers based on that bit
+      A("str %[sck_mask],[%[sck_port]]")                   // SODR
+      A("subs %[todo],#1")                                 // Decrement count of pending words to send, update status
+      A("str %[sck_mask],[%[sck_port],#0x4]")              // CODR
+      A("bne.n loop%=")                                    // Repeat until done
 
       : [ptr]"+r" ( ptr ) ,
         [todo]"+r" ( todo ) ,
@@ -355,63 +355,63 @@
     uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
     uint32_t SCK_MASK = PIN_MASK(SD_SCK_PIN);
 
-    /* The software SPI routine */
+    // The software SPI routine
     __asm__ __volatile__(
       A(".syntax unified")                  // is to prevent CM0,CM1 non-unified syntax
 
       L("loop%=")
 
-      /* bit 7 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#7,#1")                /* Store read bit as the bit 7 */
+      // bit 7
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#7,#1")                // Store read bit as the bit 7
 
-      /* bit 6 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#6,#1")                /* Store read bit as the bit 6 */
+      // bit 6
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#6,#1")                // Store read bit as the bit 6
 
-      /* bit 5 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#5,#1")                /* Store read bit as the bit 5 */
+      // bit 5
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#5,#1")                // Store read bit as the bit 5
 
-      /* bit 4 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#4,#1")                /* Store read bit as the bit 4 */
+      // bit 4
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#4,#1")                // Store read bit as the bit 4
 
-      /* bit 3 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#3,#1")                /* Store read bit as the bit 3 */
+      // bit 3
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#3,#1")                // Store read bit as the bit 3
 
-      /* bit 2 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#2,#1")                /* Store read bit as the bit 2 */
+      // bit 2
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#2,#1")                // Store read bit as the bit 2
 
-      /* bit 1 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#1,#1")                /* Store read bit as the bit 1 */
+      // bit 1
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#1,#1")                // Store read bit as the bit 1
 
-      /* bit 0 */
-      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
-      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
-      A("bfi %[bin],%[work],#0,#1")                /* Store read bit as the bit 0 */
+      // bit 0
+      A("str %[sck_mask],[%[sck_port]]")           // SODR
+      A("ldr %[work],[%[bitband_miso_port]]")      // PDSR on bitband area for required bit: work will be 1 or 0 based on port
+      A("str %[sck_mask],[%[sck_port],#0x4]")      // CODR
+      A("bfi %[bin],%[work],#0,#1")                // Store read bit as the bit 0
 
-      A("subs %[todo],#1")                         /* Decrement count of pending words to send, update status */
-      A("strb.w %[bin], [%[ptr]], #1")             /* Store read value into buffer, increment buffer pointer */
-      A("bne.n loop%=")                            /* Repeat until done */
+      A("subs %[todo],#1")                         // Decrement count of pending words to send, update status
+      A("strb.w %[bin], [%[ptr]], #1")             // Store read value into buffer, increment buffer pointer
+      A("bne.n loop%=")                            // Repeat until done
 
       : [ptr]"+r"(ptr),
         [todo]"+r"(todo),
@@ -426,8 +426,7 @@
 
   static inline uint8_t _flip_bits_8(uint8_t v) {
     uint8_t result = 0;
-    for (int n = 0; n < 8; n++)
-    {
+    for (int n = 0; n < 8; n++) {
       result <<= 1;
       bool bitval = ( v & ( 1 << n ) ) != 0;
       result |= bitval;
@@ -435,16 +434,12 @@
     return result;
   }
 
-  static inline uint8_t _spiTransferRx_ordered(uint8_t txval)
-  {
+  static inline uint8_t _spiTransferRx_ordered(uint8_t txval) {
     return ( _spi_bit_order == SPI_BITORDER_MSB ? spiTransferRx(txval) : _flip_bits_8(spiTransferRx(_flip_bits_8(txval))) );
   }
 
   static inline void _spiTransferTx_ordered(uint8_t b) {
-    if ( _spi_bit_order == SPI_BITORDER_LSB )
-    {
-      b = _flip_bits_8(b);
-    }
+    if (_spi_bit_order == SPI_BITORDER_LSB) b = _flip_bits_8(b);
     (void)spiTransferTx(b);
   }
 
@@ -506,20 +501,20 @@
   }
 
   uint16_t spiRec16(uint16_t txval) {
-    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    const bool msb = _spi_bit_order == SPI_BITORDER_MSB;
     uint8_t tx_first, tx_second;
     if (msb) {
-      tx_first = ( txval >> 8 );
-      tx_second = ( txval & 0xFF );
+      tx_first = txval >> 8;
+      tx_second = txval & 0xFF;
     }
     else {
-      tx_first = ( txval & 0xFF );
-      tx_second = ( txval >> 8 );
+      tx_first = txval & 0xFF;
+      tx_second = txval >> 8;
     }
     _SS_WRITE(LOW);
     WRITE(SD_MOSI_PIN, HIGH); // Output 1s 1
-    uint16_t v = ( msb ? ( (uint16_t)_spiTransferRx_ordered(tx_first) << 8 ) : _spiTransferRx_ordered(tx_first) );
-    v |= ( msb ? _spiTransferRx_ordered(tx_second) : ( (uint16_t)_spiTransferRx_ordered(tx_second) << 8 ) );
+    uint16_t v = msb ? (uint16_t)_spiTransferRx_ordered(tx_first) << 8 : _spiTransferRx_ordered(tx_first);
+    v |= msb ? _spiTransferRx_ordered(tx_second) : (uint16_t)_spiTransferRx_ordered(tx_second) << 8;
     _SS_WRITE(HIGH);
     return v;
   }
@@ -549,7 +544,7 @@
   }
 
   void spiSend16(uint16_t v) {
-    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    const bool msb = _spi_bit_order == SPI_BITORDER_MSB;
     _SS_WRITE(LOW);
     _spiSend16Internal(v);
     _SS_WRITE(HIGH);
@@ -569,7 +564,7 @@
   }
 
   void spiWrite16(const uint16_t *buf, uint16_t cnt) {
-    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    const bool msb = _spi_bit_order == SPI_BITORDER_MSB;
     _SS_WRITE(LOW);
     for (uint16_t n = 0; n < cnt; n++)
       _spiSend16Internal(buf[n], msb);
@@ -584,7 +579,7 @@
   }
 
   void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
-    bool msb = ( _spi_bit_order == SPI_BITORDER_MSB );
+    const bool msb = _spi_bit_order == SPI_BITORDER_MSB;
     _SS_WRITE(LOW);
     for (uint16_t n = 0; n < repcnt; n++)
       _spiSend16Internal(val, msb);
@@ -632,28 +627,15 @@
   }
 
   void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-    // Use datarates Marlin uses
+    // Use Marlin datarates
     uint8_t spiRate;
-    if (maxClockFreq >= 20000000) {
-      spiRate = SPI_FULL_SPEED;
-    }
-    else if (maxClockFreq >= 5000000) {
-      spiRate = SPI_HALF_SPEED;
-    }
-    else if (maxClockFreq >= 2500000) {
-      spiRate = SPI_QUARTER_SPEED;
-    }
-    else if (maxClockFreq >= 1250000) {
-      spiRate = SPI_EIGHTH_SPEED;
-    }
-    else if (maxClockFreq >= 625000) {
-      spiRate = SPI_SPEED_5;
-    }
-    else if (maxClockFreq >= 300000) {
-      spiRate = SPI_SPEED_6;
-    }
-    else
-      spiRate = SPI_SPEED_6;
+         if (maxClockFreq >= 20000000) spiRate = SPI_FULL_SPEED;
+    else if (maxClockFreq >=  5000000) spiRate = SPI_HALF_SPEED;
+    else if (maxClockFreq >=  2500000) spiRate = SPI_QUARTER_SPEED;
+    else if (maxClockFreq >=  1250000) spiRate = SPI_EIGHTH_SPEED;
+    else if (maxClockFreq >=   625000) spiRate = SPI_SPEED_5;
+    else if (maxClockFreq >=   300000) spiRate = SPI_SPEED_6;
+    else                               spiRate = SPI_SPEED_6;
 
     spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
   }
@@ -715,7 +697,7 @@
     }
 
     void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-      // Use datarates Marlin uses
+      // Use Marlin datarates
       uint32_t clock;
       switch (spiRate) {
         case SPI_FULL_SPEED:      clock = 8000000; break;
@@ -814,13 +796,11 @@
     }
 
     void spiSend16(uint16_t v) {
-      if (_has_spi_pins)
-      {
+      if (_has_spi_pins) {
         sdSPI.beginTransaction(_spi_pin_cs, spiConfig);
         sdSPI.transfer16(_spi_pin_cs, v);
       }
-      else
-      {
+      else {
         sdSPI.beginTransaction(spiConfig);
         sdSPI.transfer16(v);
       }
@@ -905,28 +885,15 @@
     }
 
     void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-      // Use datarates Marlin uses
+      // Use Marlin datarates
       uint8_t spiRate;
-      if (maxClockFreq >= 20000000) {
-        spiRate = SPI_FULL_SPEED;
-      }
-      else if (maxClockFreq >= 5000000) {
-        spiRate = SPI_HALF_SPEED;
-      }
-      else if (maxClockFreq >= 2500000) {
-        spiRate = SPI_QUARTER_SPEED;
-      }
-      else if (maxClockFreq >= 1250000) {
-        spiRate = SPI_EIGHTH_SPEED;
-      }
-      else if (maxClockFreq >= 625000) {
-        spiRate = SPI_SPEED_5;
-      }
-      else if (maxClockFreq >= 300000) {
-        spiRate = SPI_SPEED_6;
-      }
-      else
-        spiRate = SPI_SPEED_6;
+           if (maxClockFreq >= 20000000) spiRate = SPI_FULL_SPEED;
+      else if (maxClockFreq >=  5000000) spiRate = SPI_HALF_SPEED;
+      else if (maxClockFreq >=  2500000) spiRate = SPI_QUARTER_SPEED;
+      else if (maxClockFreq >=  1250000) spiRate = SPI_EIGHTH_SPEED;
+      else if (maxClockFreq >=   625000) spiRate = SPI_SPEED_5;
+      else if (maxClockFreq >=   300000) spiRate = SPI_SPEED_6;
+      else                               spiRate = SPI_SPEED_6;
 
       spiInit(spiRate, hint_sck, hint_miso, hint_mosi, hint_cs);
     }
@@ -1017,16 +984,16 @@
     }
 
     uint16_t spiRec16(uint16_t txval) {
-      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+      const bool msb = !TEST(SPI0->SPI_CR, 5);
 
       uint8_t tx_first, tx_second;
       if (msb) {
-        tx_first = ( txval >> 8 );
-        tx_second = ( txval & 0xFF );
+        tx_first = txval >> 8;
+        tx_second = txval & 0xFF;
       }
       else {
-        tx_first = ( txval & 0xFF );
-        tx_second = ( txval >> 8 );
+        tx_first = txval & 0xFF;
+        tx_second = txval >> 8;
       }
 
       SPI0->SPI_TDR = tx_first | SPI_PCS(SPI_CHAN);
@@ -1034,19 +1001,19 @@
       WHILE_TX(0);
       WHILE_RX(0);
 
-      uint16_t v = ( msb ? ( (uint16_t)(SPI0->SPI_RDR&0xFF) << 8 ) : (SPI0->SPI_RDR&0xFF) );
+      uint16_t v = msb ? uint16_t(SPI0->SPI_RDR & 0xFF) << 8 : SPI0->SPI_RDR & 0xFF;
 
       SPI0->SPI_TDR = tx_second | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
 
       WHILE_TX(0);
       WHILE_RX(0);
 
-      v |= ( msb ? (SPI0->SPI_RDR&0xFF) : ( (uint16_t)(SPI0->SPI_RDR&0xFF) << 8 ) );
+      v |= (msb ? SPI0->SPI_RDR & 0xFF : uint16_t(SPI0->SPI_RDR & 0xFF) << 8);
 
       return v;
     }
 
-#if 0
+    #if 0
     uint8_t spiRec(uint32_t chan) {
 
       WHILE_TX(0);
@@ -1058,7 +1025,7 @@
 
       return SPI0->SPI_RDR;
     }
-#endif
+    #endif
 
     // Read from SPI into buffer
     void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
@@ -1085,12 +1052,12 @@
     }
 
     void spiSend16(uint16_t v) {
-      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
-      SPI0->SPI_TDR = (uint32_t)( msb ? (v&0xFF) : (v>>8) ) | SPI_PCS(SPI_CHAN);
+      const bool msb = !TEST(SPI0->SPI_CR, 5);
+      SPI0->SPI_TDR = uint32_t(msb ? (v & 0xFF) : (v >> 8)) | SPI_PCS(SPI_CHAN);
       WHILE_TX(0);
       WHILE_RX(0);
       SPI0->SPI_RDR;
-      SPI0->SPI_TDR = (uint32_t)( msb ? (v>>8) : (v&0xFF) ) | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
+      SPI0->SPI_TDR = uint32_t(msb ? (v >> 8) : (v & 0xFF)) | SPI_PCS(SPI_CHAN) | SPI_TDR_LASTXFER;
       WHILE_TX(0);
       WHILE_RX(0);
       SPI0->SPI_RDR;
@@ -1124,7 +1091,7 @@
         spiSend16(val);
     }
 
-#if 0
+    #if 0
     void spiSend(uint32_t chan, byte b) {
       WHILE_TX(0);
       // write byte with address and end transmission flag
@@ -1144,7 +1111,7 @@
       }
       spiSend(chan, buf[nbyte]);
     }
-#endif
+    #endif
 
     // Write from buffer to SPI
     void spiSendBlock(uint8_t token, const uint8_t *buf) {
@@ -1268,24 +1235,20 @@
     }
 
     uint16_t spiRec16(uint16_t txval) {
-      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+      const bool msb = !TEST(SPI0->SPI_CR, 5);
       uint8_t tx_first, tx_second;
       if (msb) {
-        take_first = ( txval >> 8 );
-        take_second = ( txval & 0xFF );
+        take_first = txval >> 8;
+        take_second = txval & 0xFF;
       }
       else {
-        take_first = ( tx_val & 0xFF );
-        take_second = ( tx_val >> 8 );
+        take_first = tx_val & 0xFF;
+        take_second = tx_val >> 8;
       }
-      if ( msb )
-      {
-        return ( (uint16_t)spiRec(take_first) << 8 ) | ( (uint16_t)spiRec(take_second) );
-      }
+      if (msb)
+        return (uint16_t)spiRec(take_first) << 8 | (uint16_t)spiRec(take_second);
       else
-      {
-        return ( (uint16_t)spiRec(take_first) ) | ( (uint16_t)spiRec(take_second) << 8 );
-      }
+        return (uint16_t)spiRec(take_first) | (uint16_t)spiRec(take_second) << 8;
     }
 
     void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
@@ -1293,18 +1256,15 @@
         buf[i] = spiTransfer(txval);
     }
 
-    void spiSend(uint8_t data)
-    {
+    void spiSend(uint8_t data) {
       spiTransfer(data);
     }
 
-    void spiSend16(uint16_t data)
-    {
-      bool msb = ( ( SPI0->SPI_CR & ( 1 << 5 ) ) == 0 );
+    void spiSend16(uint16_t data) {
+      const bool msb = !TEST(SPI0->SPI_CR, 5);
       if (msb) {
         spiSend(data >> 8);
         spiSend(data & 0xFF);
-
       }
       else {
         spiSend(data & 0xFF);
@@ -1344,6 +1304,7 @@
     }
 
   #endif // !ALLIGATOR
+
 #endif // !SOFTWARE_SPI
 
 #endif // ARDUINO_ARCH_SAM

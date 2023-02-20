@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,8 +30,8 @@
 // Public functions
 // ------------------------
 
-  // If properly ported, use fast HW SPI implementation originally found in STM32 tft_spi.cpp
-#if !ENABLED(SOFTWARE_SPI) && (!(defined(STM32F1xx) || defined(STM32F4xx)) || ENABLED(HALSPI_HW_GENERIC))
+// If properly ported, use fast HW SPI implementation originally found in STM32 tft_spi.cpp
+#if DISABLED(SOFTWARE_SPI) && (!(defined(STM32F1xx) || defined(STM32F4xx)) || ENABLED(HALSPI_HW_GENERIC))
 
   #include <SPI.h>
 
@@ -41,27 +41,27 @@
 
   [[maybe_unused]] static void _spiOnError(unsigned int beep_code = 0) {
     for (;;) {
-#if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(500);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(200);
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(200);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(1000);
-      for (unsigned int n = 0; n < beep_code; n++) {
+      #if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(500);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(200);
         OUT_WRITE(BEEPER_PIN, HIGH);
         delay(200);
         OUT_WRITE(BEEPER_PIN, LOW);
-        delay(200);
-      }
-      delay(800);
-      OUT_WRITE(BEEPER_PIN, HIGH);
-      delay(1000);
-      OUT_WRITE(BEEPER_PIN, LOW);
-      delay(2000);
-#endif
+        delay(1000);
+        for (unsigned int n = 0; n < beep_code; n++) {
+          OUT_WRITE(BEEPER_PIN, HIGH);
+          delay(200);
+          OUT_WRITE(BEEPER_PIN, LOW);
+          delay(200);
+        }
+        delay(800);
+        OUT_WRITE(BEEPER_PIN, HIGH);
+        delay(1000);
+        OUT_WRITE(BEEPER_PIN, LOW);
+        delay(2000);
+      #endif
     }
   }
 
@@ -89,13 +89,13 @@
     _spi_clock = maxClockFreq;
     spiConfig = SPISettings(maxClockFreq, MSBFIRST, SPI_MODE0);
 
-#if ENABLED(MAPLE_STM32F1)
-    SPI.setModuleByMOSIPin((hint_mosi != -1) ? hint_mosi : SD_MOSI_PIN);
-#else
-    SPI.setMISO((hint_miso != -1) ? hint_miso : SD_MISO_PIN);
-    SPI.setMOSI((hint_mosi != -1) ? hint_mosi : SD_MOSI_PIN);
-    SPI.setSCLK((hint_sck != -1) ? hint_sck : SD_SCK_PIN);
-#endif
+    #if ENABLED(MAPLE_STM32F1)
+      SPI.setModuleByMOSIPin((hint_mosi != -1) ? hint_mosi : SD_MOSI_PIN);
+    #else
+      SPI.setMISO((hint_miso != -1) ? hint_miso : SD_MISO_PIN);
+      SPI.setMOSI((hint_mosi != -1) ? hint_mosi : SD_MOSI_PIN);
+      SPI.setSCLK((hint_sck != -1) ? hint_sck : SD_SCK_PIN);
+    #endif
 
     SPI.begin();
     SPI.beginTransaction(spiConfig);
@@ -105,7 +105,7 @@
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
     // Ignore chip-select because the software manages it already.
 
-    // Use datarates Marlin uses
+    // Use Marlin datarates
     uint32_t clock;
     switch (spiRate) {
       case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
@@ -156,17 +156,17 @@
    * @details
    */
   uint8_t spiRec(uint8_t txval) {
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_8BIT);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_8BIT);
+    #endif
     uint8_t returnByte = SPI.transfer(txval);
     return returnByte;
   }
 
   uint16_t spiRec16(uint16_t txval) {
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_16BIT);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_16BIT);
+    #endif
     return SPI.transfer16(txval);
   }
 
@@ -182,12 +182,12 @@
   void spiRead(uint8_t *buf, uint16_t nbyte, uint8_t txval) {
     if (nbyte == 0) return;
     memset(buf, txval, nbyte);
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_8BIT);
-    SPI.dmaTransfer(buf, buf, nbyte);
-#else
-    SPI.transfer(buf, nbyte);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_8BIT);
+      SPI.dmaTransfer(buf, buf, nbyte);
+    #else
+      SPI.transfer(buf, nbyte);
+    #endif
   }
 
   /**
@@ -206,49 +206,49 @@
   }
 
   void spiWrite(const uint8_t *buf, uint16_t numbytes) {
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_8BIT);
-    SPI.dmaSend(buf, numbytes, true);
-#else
-    void *inout_buf = malloc(numbytes);
-    if (inout_buf == nullptr)
-      _spiOnError();
-    memcpy(inout_buf, buf, numbytes);
-    // Generic transfer, non-DMA.
-    SPI.transfer(inout_buf, numbytes);
-    free(inout_buf);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_8BIT);
+      SPI.dmaSend(buf, numbytes, true);
+    #else
+      void *inout_buf = malloc(numbytes);
+      if (inout_buf == nullptr)
+        _spiOnError();
+      memcpy(inout_buf, buf, numbytes);
+      // Generic transfer, non-DMA.
+      SPI.transfer(inout_buf, numbytes);
+      free(inout_buf);
+    #endif
   }
 
   void spiWrite16(const uint16_t *buf, uint16_t numtx) {
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_16BIT);
-    SPI.dmaSend(buf, numtx, true);
-#else
-    for (uint32_t n = 0; n < numtx; n++) {
-      SPI.transfer16(buf[n]);
-    }
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_16BIT);
+      SPI.dmaSend(buf, numtx, true);
+    #else
+      for (uint32_t n = 0; n < numtx; n++) {
+        SPI.transfer16(buf[n]);
+      }
+    #endif
   }
 
   void spiWriteRepeat(uint8_t val, uint16_t repcnt) {
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_8BIT);
-    SPI.dmaSend(&val, repcnt, false);
-#else
-    for (uint16_t n = 0; n < repcnt; n++)
-      SPI.transfer(val);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_8BIT);
+      SPI.dmaSend(&val, repcnt, false);
+    #else
+      for (uint16_t n = 0; n < repcnt; n++)
+        SPI.transfer(val);
+    #endif
   }
 
   void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_16BIT);
-    SPI.dmaSend(&val, repcnt, false);
-#else
-    for (uint16_t n = 0; n < repcnt; n++)
-      SPI.transfer16(val);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_16BIT);
+      SPI.dmaSend(&val, repcnt, false);
+    #else
+      for (uint16_t n = 0; n < repcnt; n++)
+        SPI.transfer16(val);
+    #endif
   }
 
   /**
@@ -261,15 +261,15 @@
    */
   void spiSendBlock(uint8_t token, const uint8_t *buf) {
     SPI.transfer(token);
-#ifdef MAPLE_STM32F1
-    SPI.setDataSize(DATA_SIZE_8BIT);
-    SPI.dmaSend(buf, 512, true);
-#else
-    uint8_t rxBuf[512];
-    SPI.transfer((uint8_t*)buf, rxBuf, 512);
-#endif
+    #ifdef MAPLE_STM32F1
+      SPI.setDataSize(DATA_SIZE_8BIT);
+      SPI.dmaSend(buf, 512, true);
+    #else
+      uint8_t rxBuf[512];
+      SPI.transfer((uint8_t*)buf, rxBuf, 512);
+    #endif
   }
 
 #endif // !FAST HW SPI, SOFTWARE_SPI
 
-#endif // HAL_STM32, MAPLE_STM32F1
+#endif // HAL_STM32 || MAPLE_STM32F1

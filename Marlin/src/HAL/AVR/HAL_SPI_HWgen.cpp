@@ -73,7 +73,7 @@
   }
 
   void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-    // Use datarates Marlin uses
+    // Use Marlin datarates
     uint32_t clock;
     switch (spiRate) {
       case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000

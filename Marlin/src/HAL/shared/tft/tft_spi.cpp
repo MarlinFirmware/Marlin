@@ -39,16 +39,15 @@
 #endif
 
 void TFT_SPI::Init() {
-
   OUT_WRITE(TFT_A0_PIN, HIGH);
   spiSetupChipSelect(TFT_CS_PIN);
 }
 
 void TFT_SPI::DataTransferBegin(eSPIMode spiMode) {
   int pin_miso = -1;
-#if PIN_EXISTS(TFT_MISO)
-  pin_miso = TFT_MISO_PIN;
-#endif
+  #if PIN_EXISTS(TFT_MISO)
+    pin_miso = TFT_MISO_PIN;
+  #endif
   spiInitEx((spiMode == eSPIMode::READ) ? TFT_BAUDRATE_READ : TFT_BAUDRATE_WRITE, TFT_SCK_PIN, pin_miso, TFT_MOSI_PIN, TFT_CS_PIN);
 }
 
@@ -90,17 +89,11 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
 }
 
 bool TFT_SPI::isBusy() {
-#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
-  return spiAsyncIsRunning();
-#else
-  return false;
-#endif
+  return TERN0(HAL_SPI_SUPPORTS_ASYNC, spiAsyncIsRunning());
 }
 
 void TFT_SPI::Abort() {
-#if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
-  spiAsyncAbort();
-#endif
+  TERN_(HAL_SPI_SUPPORTS_ASYNC, spiAsyncAbort());
 }
 
 void TFT_SPI::Transmit(uint16_t Data) {
@@ -124,7 +117,6 @@ void TFT_SPI::TransmitDMA(const uint8_t *Data, uint16_t Count) {
 }
 
 void TFT_SPI::TransmitRepeat(const uint16_t Data, uint16_t Count) {
-
   DataTransferBegin(eSPIMode::WRITE);
   spiWriteRepeat16(Data, Count);
   DataTransferEnd();
@@ -132,30 +124,27 @@ void TFT_SPI::TransmitRepeat(const uint16_t Data, uint16_t Count) {
 
 #if ENABLED(HAL_SPI_SUPPORTS_ASYNC)
 
-static void (*_txcomplete_callback)(void*) = nullptr;
-void *_txcomplete_ud = nullptr;
+  static void (*_txcomplete_callback)(void*) = nullptr;
+  void *_txcomplete_ud = nullptr;
 
-void TFT_SPI::_TXComplete( void *ud )
-{
-  auto cb = _txcomplete_callback;
-  auto _ud = _txcomplete_ud;
+  void TFT_SPI::_TXComplete( void *ud ) {
+    auto cb = _txcomplete_callback;
+    auto _ud = _txcomplete_ud;
 
-  DataTransferEnd();
+    DataTransferEnd();
 
-  if (cb) {
-    cb( _ud );
+    if (cb) cb(_ud);
   }
-}
 
-void TFT_SPI::TransmitDMA_Async(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*), void *ud) {
-  DataTransferBegin(eSPIMode::WRITE);
+  void TFT_SPI::TransmitDMA_Async(const uint16_t *Data, uint16_t Count, void (*completeCallback)(void*), void *ud) {
+    DataTransferBegin(eSPIMode::WRITE);
 
-  _txcomplete_callback = completeCallback;
-  _txcomplete_ud = ud;
+    _txcomplete_callback = completeCallback;
+    _txcomplete_ud = ud;
 
-  spiWriteAsync16(Data, Count, TFT_SPI::_TXComplete, nullptr);
-}
+    spiWriteAsync16(Data, Count, TFT_SPI::_TXComplete, nullptr);
+  }
 
-#endif
+#endif // HAL_SPI_SUPPORTS_ASYNC
 
 #endif // HAS_SPI_TFT

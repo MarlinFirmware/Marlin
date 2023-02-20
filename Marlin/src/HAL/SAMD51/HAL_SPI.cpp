@@ -90,7 +90,7 @@
     // Ignore all pin hints.
     if (spiRate == SPI_SPEED_DEFAULT) spiRate = SPI_HALF_SPEED;
 
-    // Use datarates Marlin uses
+    // Use Marlin datarates
     uint32_t clock;
     switch (spiRate) {
       case SPI_FULL_SPEED:      clock = 8000000; break;

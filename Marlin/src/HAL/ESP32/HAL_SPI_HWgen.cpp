@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,7 +26,7 @@
 
 #include "../shared/HAL_SPI.h"
 
-#if !ENABLED(SOFTWARE_SPI) && ENABLED(HALSPI_HW_GENERIC)
+#if DISABLED(SOFTWARE_SPI) && ENABLED(HALSPI_HW_GENERIC)
 
 // ------------------------
 // Hardware SPI
@@ -34,49 +34,49 @@
 
 static void _spi_on_error() {
   for (;;) {
-#if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(500);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(150);
-    OUT_WRITE(BEEPER_PIN, LOW);
-    delay(3000);
-#endif
+    #if defined(HALSPI_DO_ERRORBEEPS) && PIN_EXISTS(BEEPER)
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(500);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(150);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(150);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(150);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(150);
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(150);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(3000);
+    #endif
   }
 }
 
 static void __attribute__((unused)) _spi_infobeep(uint32_t code) {
-#if PIN_EXISTS(BEEPER)
-  OUT_WRITE(BEEPER_PIN, HIGH);
-  delay(500);
-  OUT_WRITE(BEEPER_PIN, LOW);
-  delay(500);
-  for (uint32_t n = 0; n < code; n++) {
+  #if PIN_EXISTS(BEEPER)
     OUT_WRITE(BEEPER_PIN, HIGH);
-    delay(200);
+    delay(500);
     OUT_WRITE(BEEPER_PIN, LOW);
-    delay(200);
-  }
-  delay(300);
-  OUT_WRITE(BEEPER_PIN, HIGH);
-  delay(400);
-  OUT_WRITE(BEEPER_PIN, LOW);
-  delay(1000);
-#endif
+    delay(500);
+    for (uint32_t n = 0; n < code; n++) {
+      OUT_WRITE(BEEPER_PIN, HIGH);
+      delay(200);
+      OUT_WRITE(BEEPER_PIN, LOW);
+      delay(200);
+    }
+    delay(300);
+    OUT_WRITE(BEEPER_PIN, HIGH);
+    delay(400);
+    OUT_WRITE(BEEPER_PIN, LOW);
+    delay(1000);
+  #endif
 }
 
 #include <pins_arduino.h>
@@ -102,21 +102,12 @@ void spiSetupChipSelect(int pin) {
 }
 
 void spiInitEx(uint32_t maxClockFreq, int hint_sck, int hint_miso, int hint_mosi, int hint_cs) {
-  if (hint_sck != -1) {
-    SET_OUTPUT(hint_sck);
-  }
-  if (hint_miso != -1) {
-    SET_INPUT(hint_miso);
-  }
-  if (hint_mosi != -1) {
-    SET_OUTPUT(hint_mosi);
-  }
-  if (hint_cs != -1) {
-    SET_OUTPUT(hint_cs);
-  }
+  if (hint_sck != -1)  SET_OUTPUT(hint_sck);
+  if (hint_miso != -1) SET_INPUT(hint_miso);
+  if (hint_mosi != -1) SET_OUTPUT(hint_mosi);
+  if (hint_cs != -1)   SET_OUTPUT(hint_cs);
 
-  if (_spi_initialized)
-    _spi_on_error();
+  if (_spi_initialized) _spi_on_error();
 
   _spi_clock = maxClockFreq;
   _spi_bitOrder = MSBFIRST;
@@ -134,13 +125,13 @@ void spiInit(uint8_t spiRate, int hint_sck, int hint_miso, int hint_mosi, int hi
 
   switch (spiRate) {
     case SPI_FULL_SPEED:      clock = 16000000; break;
-    case SPI_HALF_SPEED:      clock = 8000000;  break;
-    case SPI_QUARTER_SPEED:   clock = 4000000;  break;
-    case SPI_EIGHTH_SPEED:    clock = 2000000;  break;
-    case SPI_SIXTEENTH_SPEED: clock = 1000000;  break;
-    case SPI_SPEED_5:         clock = 500000;   break;
-    case SPI_SPEED_6:         clock = 250000;   break;
-    default:                  clock = 1000000; // Default from the SPI library
+    case SPI_HALF_SPEED:      clock =  8000000; break;
+    case SPI_QUARTER_SPEED:   clock =  4000000; break;
+    case SPI_EIGHTH_SPEED:    clock =  2000000; break;
+    case SPI_SIXTEENTH_SPEED: clock =  1000000; break;
+    case SPI_SPEED_5:         clock =   500000; break;
+    case SPI_SPEED_6:         clock =   250000; break;
+    default:                  clock =  1000000; // Default from the SPI library
   }
   spiInitEx(clock, hint_sck, hint_miso, hint_mosi, hint_cs);
 }
@@ -280,6 +271,6 @@ void spiWriteRepeat16(uint16_t val, uint16_t repcnt) {
   }
 }
 
-#endif
+#endif // !SOFTWARE_SPI && HALSPI_HW_GENERIC
 
-#endif
+#endif // ARDUINO_ARCH_ESP32

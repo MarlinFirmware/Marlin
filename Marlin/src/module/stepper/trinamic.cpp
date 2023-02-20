@@ -39,7 +39,7 @@ enum StealthIndex : uint8_t {
 };
 #define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE, ST##_HOLD_MULTIPLIER)
 
-#if !ENABLED(TMC_USE_SW_SPI)
+#if DISABLED(TMC_USE_SW_SPI)
 struct MarlinTMCSPIInterface : public TMCSPIInterface {
   void begin(uint32_t maxClockFreq, int bitOrder, int clkMode) override {
     int spi_bitOrder = ( bitOrder == TMCSPI_BITORDER_MSB ) ? SPI_BITORDER_MSB : SPI_BITORDER_LSB;
