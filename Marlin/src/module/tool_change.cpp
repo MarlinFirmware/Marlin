@@ -526,7 +526,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
-  void swt_init() {
+  void sst_init() {
     servo_switching_toolhead_lock(true);
 
     #if ENABLED(TOOL_SENSOR)

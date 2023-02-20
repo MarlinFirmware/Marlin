@@ -2451,7 +2451,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       if (TERN0(STM_HAS_MULTI_HOTEND, active_extruder != e)) continue; // Only act on the active tool in manual switching mode
       const raw_adc_t r = temp_hotend[e].getraw();
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
-      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tc > 100) && (neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max))
+      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tc > 100) && ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max)))
         maxtemp_error((heater_id_t)e);
 
       /**
