@@ -25,7 +25,7 @@
  *  Rev B  2 JUN 2017
  *
  *  Converted to Arduino pin numbering
- * 
+ *
  *  Schematic (RevF): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F/schematic.png
  *  Origin (RevF): https://github.com/lwalkera/printrboard/raw/revF/Printrboard.sch
  *  Schematic (RevF2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.F2/schematic.png

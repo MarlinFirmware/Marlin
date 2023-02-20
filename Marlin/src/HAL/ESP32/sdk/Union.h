@@ -15,7 +15,7 @@
 
 namespace eir
 {
-    
+
 // Union data storage model.
 template <typename... Ts>
 struct Union

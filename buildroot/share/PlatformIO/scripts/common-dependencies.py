@@ -222,7 +222,7 @@ if pioutil.is_pio_build():
                             return r"**" + g0[1:]
                         gpattern = re.sub(r'[*]($|[^*])', srepl, plain)
                         gpattern = os.path.join(marlinbasedir, gpattern)
-                        
+
                         for fname in glob.glob(gpattern, recursive=True):
                             addentry(fname)
                 else:
@@ -264,7 +264,7 @@ if pioutil.is_pio_build():
         # Tell it to PlatformIO.
         set_env_field('build_src_filter', [src_filter])
         env.Replace(SRC_FILTER=src_filter)
-    
+
     #
     # Use the compiler to get a list of all enabled features
     #
@@ -288,7 +288,7 @@ if pioutil.is_pio_build():
 
         if notofont_feat:
             marlin_features["TFT_FONT_" + notofont_feat] = "1"
-                
+
         env['MARLIN_FEATURES'] = marlin_features
 
     #

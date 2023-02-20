@@ -403,7 +403,7 @@ struct BitIncrementalAccessor
 {
 private:
     using fastNumberType = typename nospecmod_type <numberType>::type;
-    
+
 public:
     AINLINE BitIncrementalAccessor( void ) noexcept
         : data( 0u ), bitoff( 0u )

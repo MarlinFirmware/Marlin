@@ -177,7 +177,7 @@ AINLINE auto Minimum( numberTypes&&... values )
 {
     typename types_find_conversion_target <typelist <typename base_type <numberTypes>::type...>>::type result =
         select_from <0> ( castforward <numberTypes> ( values )... );
-        
+
     auto metalamb = [&] <size_t... IDX> ( index_sequence <IDX...> ) LAINLINE
     {
         auto lamb = [&] <size_t N, typename T> ( T&& val ) LAINLINE

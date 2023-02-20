@@ -25,7 +25,7 @@
 #include "BitIteration.h"
 
 // Feel the power of C++20 on the embedded side.
-// Documentation Video: https://www.youtube.com/watch?v=L_o481OL0Xw (12th of January, 2023)
+// Documentation Video: https://youtu.be/L_o481OL0Xw (12 Jan 2023)
 
 namespace eir
 {
@@ -570,7 +570,7 @@ inline constexpr eBitIdentityStorageIdentStrategy get_default_bit_identity_stora
 #ifdef _PLATFORM_FIXED_ENDIANNESS
     endianness = endian::get_current_endianness();
 #endif
-    
+
     if (endianness == endian::eSpecificEndian::LITTLE_ENDIAN)
         return eBitIdentityStorageIdentStrategy::BITFIELD;
 #if !defined(_PLATFORM_HAS_FAST_BYTESWAP)
@@ -940,7 +940,7 @@ private:
             platformLocalBitcountType bitOff = iter.getLocalBitOffset();
 
             platformBitCountType avail_bitCnt = ( end_iter - iter ).getTotalBitOffset();
-            
+
             if ( avail_bitCnt == 0 ) break;
 
             platformLocalBitcountType src_bitOff = srcIter.getLocalBitOffset();
@@ -1106,7 +1106,7 @@ private:
             platformLocalBitcountType bitOff = iter.getLocalBitOffset();
 
             platformBitCountType avail_bitCnt = ( end_iter - iter ).getTotalBitOffset();
-            
+
             if ( avail_bitCnt == 0 ) break;
 
             platformLocalBitcountType bitCnt;

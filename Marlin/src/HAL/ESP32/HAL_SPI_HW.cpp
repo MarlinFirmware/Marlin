@@ -3039,7 +3039,7 @@ void spiWrite16(const uint16_t *buf, uint16_t cnt) {
   esp32BitManager <const uint16_t> src_bitMan( buf, cnt );
 
   MarlinESP32::SPIPrepareWriteBitManager( SPI, src_bitMan );
-  
+
   eir::BitManagerTemplates::SendFixed( &SPI.SPI_W_REG[start_num_idx], COUNT(SPI.SPI_W_REG) - start_num_idx, src_bitMan,
     [&] ( const auto& iter ) LAINLINE
     {
