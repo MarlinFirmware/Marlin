@@ -247,7 +247,7 @@ constexpr uint16_t VP_BED_STATUS = 0x331C;
 constexpr uint16_t VP_MOVE_OPTION = 0x3400;
 
 // Step per mm
-constexpr uint16_t VP_X_STEP_PER_MM = 0x3600; // at the moment , 2 byte unsigned int , 0~1638.4
+constexpr uint16_t VP_X_STEP_PER_MM = 0x3600; // at the moment , uint16_t , 0~1638.4
 //constexpr uint16_t VP_X2_STEP_PER_MM = 0x3602;
 constexpr uint16_t VP_Y_STEP_PER_MM = 0x3604;
 //constexpr uint16_t VP_Y2_STEP_PER_MM = 0x3606;
@@ -261,7 +261,7 @@ constexpr uint16_t VP_E0_STEP_PER_MM = 0x3610;
 //constexpr uint16_t VP_E5_STEP_PER_MM = 0x361A;
 
 // PIDs
-constexpr uint16_t VP_E0_PID_P = 0x3700; // at the moment , 2 byte unsigned int , 0~1638.4
+constexpr uint16_t VP_E0_PID_P = 0x3700; // at the moment , uint16_t , 0~1638.4
 constexpr uint16_t VP_E0_PID_I = 0x3702;
 constexpr uint16_t VP_E0_PID_D = 0x3704;
 constexpr uint16_t VP_BED_PID_P = 0x3710;

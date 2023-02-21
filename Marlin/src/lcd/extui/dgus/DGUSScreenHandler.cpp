@@ -112,8 +112,6 @@ void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
 // Send an 8 bit or 16 bit value to the display.
 void DGUSScreenHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-    //DEBUG_ECHOPGM(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
-    //DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
     if (var.size > 1)
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     else
@@ -124,8 +122,6 @@ void DGUSScreenHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var) {
 // Send an uint8_t between 0 and 255 to the display, but scale to a percentage (0..100)
 void DGUSScreenHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-    //DEBUG_ECHOPGM(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
-    //DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
     uint16_t tmp = *(uint8_t *) var.memadr + 1; // +1 -> avoid rounding issues for the display.
     tmp = map(tmp, 0, 255, 0, 100);
     dgusdisplay.WriteVariable(var.VP, tmp);
@@ -134,9 +130,7 @@ void DGUSScreenHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var) {
 
 // Send the current print progress to the display.
 void DGUSScreenHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var) {
-  //DEBUG_ECHOPGM(" DGUSLCD_SendPrintProgressToDisplay ", var.VP);
   uint16_t tmp = ExtUI::getProgress_percent();
-  //DEBUG_ECHOLNPGM(" data ", tmp);
   dgusdisplay.WriteVariable(var.VP, tmp);
 }
 
@@ -153,9 +147,7 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
 void DGUSScreenHandler::DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
     const uint16_t value = BE16_P(val_ptr);
-    DEBUG_ECHOLNPGM("Got percent:", value);
     *(uint8_t*)var.memadr = map(constrain(value, 0, 100), 0, 100, 0, 255);
-    DEBUG_ECHOLNPGM("Set uint8:", *(uint8_t*)var.memadr);
   }
 }
 
@@ -236,8 +228,6 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::DGUSLCD_SendFanStatusToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
-      DEBUG_ECHOPGM(" DGUSLCD_SendFanStatusToDisplay ", var.VP);
-      DEBUG_ECHOLNPGM(" data ", *(uint8_t *)var.memadr);
       uint16_t data_to_send = 0;
       if (*(uint8_t *) var.memadr) data_to_send = 1;
       dgusdisplay.WriteVariable(var.VP, data_to_send);
@@ -249,8 +239,6 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
 // Send heater status value to the display.
 void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-    DEBUG_ECHOPGM(" DGUSLCD_SendHeaterStatusToDisplay ", var.VP);
-    DEBUG_ECHOLNPGM(" data ", *(int16_t *)var.memadr);
     uint16_t data_to_send = 0;
     if (*(int16_t *) var.memadr) data_to_send = 1;
     dgusdisplay.WriteVariable(var.VP, data_to_send);
@@ -263,11 +251,8 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     // In FYSETC UI design there are 10 statuses to loop
     static uint16_t period = 0;
     static uint16_t index = 0;
-    //DEBUG_ECHOPGM(" DGUSLCD_SendWaitingStatusToDisplay ", var.VP);
-    //DEBUG_ECHOLNPGM(" data ", BE16_P(&index));
     if (period++ > DGUS_UI_WAITING_STATUS_PERIOD) {
       dgusdisplay.WriteVariable(var.VP, index);
-      //DEBUG_ECHOLNPGM(" data ", BE16_P(&index));
       if (++index >= DGUS_UI_WAITING_STATUS) index = 0;
       period = 0;
     }
@@ -309,17 +294,14 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     const int16_t scroll = (int16_t)BE16_P(val_ptr);
     if (scroll) {
       top_file += scroll;
-      DEBUG_ECHOPGM("new topfile calculated:", top_file);
       if (top_file < 0) {
         top_file = 0;
-        DEBUG_ECHOLNPGM("Top of filelist reached");
       }
       else {
         int16_t max_top = filelist.count() -  DGUS_SD_FILESPERSCREEN;
         NOLESS(max_top, 0);
         NOMORE(top_file, max_top);
       }
-      DEBUG_ECHOPGM("new topfile adjusted:", top_file);
     }
     else if (!filelist.isAtRootDir()) {
       IF_DISABLED(DGUS_LCD_UI_MKS, filelist.upDir());
@@ -374,7 +356,6 @@ const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp) {
     ++ret;
   } while (1);
 
-  DEBUG_ECHOLNPGM("FindVPVar NOT FOUND ", vp);
   return nullptr;
 }
 
@@ -444,8 +425,6 @@ void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_p
 }
 
 void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleManualExtrude");
-
   const int16_t movevalue = BE16_P(val_ptr);
   float target = movevalue * 0.01f;
   ExtUI::extruder_t target_extruder;
@@ -467,19 +446,16 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   void DGUSScreenHandler::HandleManualMoveOption(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleManualMoveOption");
     *(uint16_t*)var.memadr = BE16_P(val_ptr);
   }
 #endif
 
 void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleMotorLockUnlock");
   const int16_t lock = BE16_P(val_ptr);
   queue.enqueue_one_now(lock ? F("M18") : F("M17"));
 }
 
 void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleSettings");
   const uint16_t value = BE16_P(val_ptr);
   switch (value) {
     default: break;
@@ -495,7 +471,6 @@ void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t value_raw = BE16_P(val_ptr);
-  DEBUG_ECHOLNPGM("HandleStepPerMMChanged:", value_raw);
   const float value = (float)value_raw / 10;
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -504,15 +479,12 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
     default: return;
   }
-  DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisSteps_per_mm(value, axis);
-  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(axis));
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t value_raw = BE16_P(val_ptr);
-  DEBUG_ECHOLNPGM("HandleStepPerMMExtruderChanged:", value_raw);
   const float value = (float)value_raw / 10;
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -524,16 +496,12 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
         #endif
       #endif
   }
-  DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisSteps_per_mm(value, extruder);
-  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandlePIDAutotune");
-
     char buf[32] = {0};
 
     switch (var.VP) {
@@ -568,8 +536,6 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
 
 #if HAS_BED_PROBE
   void DGUSScreenHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
-
     const float offset = float(int16_t(BE16_P(val_ptr))) / 100.0f;
     ExtUI::setZOffset_mm(offset);
     skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -579,14 +545,11 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
 
 #if HAS_FAN
   void DGUSScreenHandler::HandleFanControl(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleFanControl");
     *(uint8_t*)var.memadr = *(uint8_t*)var.memadr > 0 ? 0 : 255;
   }
 #endif
 
 void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleHeaterControl");
-
   uint8_t preheat_temp = 0;
   switch (var.VP) {
     #if HAS_HOTEND
@@ -614,8 +577,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 #if ENABLED(DGUS_PREHEAT_UI)
 
   void DGUSScreenHandler::HandlePreheat(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandlePreheat");
-
     const uint16_t preheat_option = BE16_P(val_ptr);
     switch (preheat_option) {
       default:
@@ -654,7 +615,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 #endif
 
 void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
-  DEBUG_ECHOLNPGM("SetNewScreen: ", newscreen);
   if (!popup) {
     memmove(&past_screens[1], &past_screens[0], sizeof(past_screens) - 1);
     past_screens[0] = current_screen;
@@ -665,18 +625,14 @@ void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
 }
 
 void DGUSScreenHandler::PopToOldScreen() {
-  DEBUG_ECHOLNPGM("PopToOldScreen s=", past_screens[0]);
   GotoScreen(past_screens[0], true);
   memmove(&past_screens[0], &past_screens[1], sizeof(past_screens) - 1);
   past_screens[sizeof(past_screens) - 1] = DGUSLCD_SCREEN_MAIN;
 }
 
 void DGUSScreenHandler::UpdateScreenVPData() {
-  DEBUG_ECHOPGM(" UpdateScreenVPData Screen: ", current_screen);
-
   const uint16_t *VPList = DGUSLCD_FindScreenVPMapList(current_screen);
   if (!VPList) {
-    DEBUG_ECHOLNPGM(" NO SCREEN FOR: ", current_screen);
     ScreenComplete = true;
     return; // nothing to do, likely a bug or boring screen.
   }
@@ -687,10 +643,8 @@ void DGUSScreenHandler::UpdateScreenVPData() {
   bool sent_one = false;
   do {
     uint16_t VP = pgm_read_word(VPList);
-    DEBUG_ECHOPGM(" VP: ", VP);
     if (!VP) {
       update_ptr = 0;
-      DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
       ScreenComplete = true;
       return; // Screen completed.
     }
@@ -703,14 +657,10 @@ void DGUSScreenHandler::UpdateScreenVPData() {
       // Send the VP to the display, but try to avoid overrunning the Tx Buffer.
       // But send at least one VP, to avoid getting stalled.
       if (rcpy.send_to_display_handler && (!sent_one || expected_tx <= dgusdisplay.GetFreeTxBuffer())) {
-        //DEBUG_ECHOPGM(" calling handler for ", rcpy.VP);
         sent_one = true;
         rcpy.send_to_display_handler(rcpy);
       }
       else {
-        // auto x=dgusdisplay.GetFreeTxBuffer();
-        //DEBUG_ECHOLNPGM(" tx almost full: ", x);
-        //DEBUG_ECHOPGM(" update_ptr ", update_ptr);
         ScreenComplete = false;
         return; // please call again!
       }
@@ -725,7 +675,6 @@ void DGUSScreenHandler::GotoScreen(DGUSLCD_Screens screen, bool ispopup) {
 }
 
 void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
-  DEBUG_ECHOLNPGM("GotoScreen ", screen);
   const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
