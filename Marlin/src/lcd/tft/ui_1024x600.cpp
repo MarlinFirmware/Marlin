@@ -328,7 +328,10 @@ void MarlinUI::draw_status_screen() {
     add_control(900, y, menu_main, imgSettings);
     #if ENABLED(SDSUPPORT)
       const bool cm = card.isMounted(), pa = printingIsActive();
-      add_control(12, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, cm && pa ? COLOR_BUSY : COLOR_CONTROL_DISABLED);
+      if (cm && pa)
+        add_control(12, y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
+      else
+        add_control(12, y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   #endif
 

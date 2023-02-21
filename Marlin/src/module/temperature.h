@@ -1195,7 +1195,7 @@ class Temperature {
     #endif
 
     #if ENABLED(MPCTEMP)
-      void MPC_autotune();
+      void MPC_autotune(const uint8_t e);
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)

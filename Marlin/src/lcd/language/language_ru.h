@@ -218,10 +218,10 @@ namespace Language_ru {
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Построить свою сетку");
     LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Правка сетки завершена");
   #else
-    LSTR MSG_UBL_SET_TEMP_BED               = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE "C";
-    LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE "C";
-    LSTR MSG_UBL_SET_TEMP_HOTEND            = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
-    LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
+    LSTR MSG_UBL_SET_TEMP_BED               = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE _UxGT("C");
+    LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE _UxGT("C");
+    LSTR MSG_UBL_SET_TEMP_HOTEND            = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE _UxGT("C");
+    LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE _UxGT("C");
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Построить свою");
     LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Правка завершена");
   #endif
@@ -342,13 +342,13 @@ namespace Language_ru {
   LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
   LSTR MSG_MOVE_100MM                       = _UxGT("Движение 100mm");
   LSTR MSG_SPEED                            = _UxGT("Скорость");
-  LSTR MSG_BED_Z                            = _UxGT("Z стола");
-  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
+  LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z стола");
+  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_NOZZLE_N                         = _UxGT("Сопло ~");
   LSTR MSG_NOZZLE_PARKED                    = _UxGT("Сопло запарковано");
   LSTR MSG_NOZZLE_STANDBY                   = _UxGT("Сопло ожидает");
-  LSTR MSG_BED                              = _UxGT("Стол,  ") LCD_STR_DEGREE "C";
-  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE "C";
+  LSTR MSG_BED                              = _UxGT("Стол,  ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE _UxGT("C");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_COOLER                         = _UxGT("Охлаждение лазера");
     LSTR MSG_COOLER_TOGGLE                  = _UxGT("Переключ. охлажд.");

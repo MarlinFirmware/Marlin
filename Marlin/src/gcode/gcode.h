@@ -476,6 +476,9 @@ public:
 private:
 
   friend class MarlinSettings;
+  #if ENABLED(ARC_SUPPORT)
+    friend void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
+  #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static void D(const int16_t dcode);

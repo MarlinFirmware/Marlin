@@ -308,7 +308,7 @@ namespace Language_de {
   LSTR MSG_MOVE_01IN                      = _UxGT("0.100 in");
   LSTR MSG_MOVE_1IN                       = _UxGT("1.000 in");
   LSTR MSG_SPEED                          = _UxGT("Geschw.");
-  LSTR MSG_BED_Z                          = _UxGT("Bett Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bett Z");
   LSTR MSG_NOZZLE                         = _UxGT("Düse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Düse ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Düse geparkt");

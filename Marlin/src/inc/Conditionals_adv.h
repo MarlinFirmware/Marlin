@@ -1038,6 +1038,12 @@
   #endif
 #endif
 
+#if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
+    || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
+    || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
+  #define HAS_SAFE_BED_LEVELING 1
+#endif
+
 //
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
@@ -1145,4 +1151,11 @@
 // Input shaping
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
   #define HAS_SHAPING 1
+#endif
+
+// Toolchange Event G-code
+#if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
+  #undef TC_GCODE_USE_GLOBAL_X
+  #undef TC_GCODE_USE_GLOBAL_Y
+  #undef TC_GCODE_USE_GLOBAL_Z
 #endif

@@ -152,7 +152,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 #elif ENABLED(TOUCH_MI_PROBE)
 
   // Move to the magnet to unlock the probe
-  inline void run_deploy_moves_script() {
+  inline void run_deploy_moves() {
     #ifndef TOUCH_MI_DEPLOY_XPOS
       #define TOUCH_MI_DEPLOY_XPOS X_MIN_POS
     #elif TOUCH_MI_DEPLOY_XPOS > X_MAX_BED
@@ -183,16 +183,17 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   }
 
   // Move down to the bed to stow the probe
-  inline void run_stow_moves_script() {
-    const xyz_pos_t oldpos = current_position;
+  // TODO: Handle cases where it would be a bad idea to move down.
+  inline void run_stow_moves() {
+    const float oldz = current_position.z;
     endstops.enable_z_probe(false);
     do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, homing_feedrate(Z_AXIS));
-    do_blocking_move_to(oldpos, homing_feedrate(Z_AXIS));
+    do_blocking_move_to_z(oldz, homing_feedrate(Z_AXIS));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  inline void run_deploy_moves_script() {
+  inline void run_deploy_moves() {
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_1
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0
@@ -230,7 +231,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #endif
   }
 
-  inline void run_stow_moves_script() {
+  inline void run_stow_moves() {
     #ifdef Z_PROBE_ALLEN_KEY_STOW_1
       #ifndef Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0
@@ -272,7 +273,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
   typedef struct { float fr_mm_min; xyz_pos_t where; } mag_probe_move_t;
 
-  inline void run_deploy_moves_script() {
+  inline void run_deploy_moves() {
     #ifdef MAG_MOUNTED_DEPLOY_1
       constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
       do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
@@ -295,7 +296,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #endif
   }
 
-  inline void run_stow_moves_script() {
+  inline void run_stow_moves() {
     #ifdef MAG_MOUNTED_STOW_1
       constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
       do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
@@ -406,7 +407,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #elif ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
 
-    deploy ? run_deploy_moves_script() : run_stow_moves_script();
+    deploy ? run_deploy_moves() : run_stow_moves();
 
   #elif ENABLED(RACK_AND_PINION_PROBE)
 

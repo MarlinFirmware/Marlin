@@ -246,7 +246,7 @@ namespace Language_fr {
   LSTR MSG_MOVE_05IN                      = _UxGT("Déplacer 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Déplacer 1\"");
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
-  LSTR MSG_BED_Z                          = _UxGT("Lit Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Buse ~");
   LSTR MSG_BED                            = _UxGT("Lit");
@@ -367,7 +367,7 @@ namespace Language_fr {
   LSTR MSG_STOPPED                        = _UxGT("STOPPÉ");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Rétractation mm");
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ech. rétr. mm");
-  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract°");
+  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract") LCD_STR_DEGREE;
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Saut Z mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Rét.reprise mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Ech.reprise mm");
@@ -378,7 +378,7 @@ namespace Language_fr {
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Vitesse primaire");
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Purge Retract");
-  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract°");
+  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract") LCD_STR_DEGREE;
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Garer Extrudeur");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Vitesse reprise");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Vit.  ventil.");
