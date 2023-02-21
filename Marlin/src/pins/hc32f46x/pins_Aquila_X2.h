@@ -20,9 +20,9 @@
  *
  */
 
-/**
- * Voxlab Aqula X2 (HC32F46x) board pin assignments
- */
+//
+// Voxlab Aqula X2 (HC32F46x) board pin assignments
+//
 
 #ifndef TARGET_HC32F46x
 #error "Oops! the aquila X2 is a HC32F46x board and requires TARGET_HC32F46x to be defined"
@@ -33,26 +33,35 @@
 #endif
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-#error "the aquila X2 only supports one hotend and E-stepper. Comment out this line to continue anyways"
+#error "the aquila X2 only supports one hotend and E-stepper"
 #endif
 
-#define BOARD_INFO_NAME "Aquila X2 H32"
-#define DEFAULT_MACHINE_NAME "Aquila X2 H32"
+
+#define BOARD_INFO_NAME "Aquila X2 (H32)"
+#define DEFAULT_MACHINE_NAME "Aquila X2 (H32)"
 
 //
 // EEPROM
 //
-#define IIC_BL24CXX_EEPROM // EEPROM on I2C-0 used only for display settings
-#if ENABLED(IIC_BL24CXX_EEPROM)
-#define IIC_EEPROM_SDA PA11
-#define IIC_EEPROM_SCL PA12
-#define MARLIN_EEPROM_SIZE 0x800 // 2Kb (24C16)
+#if NO_EEPROM_SELECTED
+  #define IIC_BL24CXX_EEPROM
+  //#define SDCARD_EEPROM_EMULATION
 #endif
+
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #define IIC_EEPROM_SDA PA11
+  #define IIC_EEPROM_SCL PA12
+  #define MARLIN_EEPROM_SIZE 0x800 // 2Kb (24C16)
+#elif ENABLED(SDCARD_EEPROM_EMULATION)
+  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+#endif
+
 
 //
 // Servos
 //
 #define SERVO0_PIN PB0 // BLTouch OUT
+
 
 //
 // Limit Switches
@@ -62,12 +71,14 @@
 #define Z_STOP_PIN PA7
 #define Z_MIN_PROBE_PIN PB1 // BLTouch IN
 
+
 //
 // Filament Runout Sensor
 //
-#ifndef FIL_RUNOUT_PIN
-#define FIL_RUNOUT_PIN PA4 // Pulled-high
-#endif
+// pulled high, switch to ground closed when filament is present
+// (LOW == present; HIGH == runout)
+#define FIL_RUNOUT_PIN PA4
+
 
 //
 // Steppers
@@ -88,11 +99,13 @@
 #define E0_STEP_PIN PB4
 #define E0_DIR_PIN PB3
 
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-// #define DISABLE_DEBUG
-// #define DISABLE_JTAG
+//#define DISABLE_DEBUG
+//#define DISABLE_JTAG
+
 
 //
 // Temperature Sensors
@@ -100,6 +113,7 @@
 #define TEMP_0_PIN PC5   // HEATER1 ADC1_IN15
 #define TEMP_BED_PIN PC4 // HOT BED ADC1_IN14
 #define ADC_CHANNEL_COUNT 2u
+
 
 //
 // Heaters / Fans
@@ -110,11 +124,14 @@
 #define FAN_PIN PA0 // FAN
 #define FAN_SOFT_PWM
 
+
 //
 // SD Card
 //
 #define SD_DETECT_PIN PA10
 #define SDIO_SUPPORT
+#define NO_SD_HOST_DRIVE
+
 
 //
 // SDIO Pins
@@ -127,61 +144,16 @@
 #define BOARD_SDIO_CMD PD2
 #define BOARD_SDIO_DET PA10
 
-#define LED PA3
-
-// Ignore temp readings during development.
-// #define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 //
-// Power Loss Detection
+// DWIN Encoder and Beeper
 //
-// #ifndef POWER_LOSS_PIN
-//   #define POWER_LOSS_PIN                 PA15 // PWRDET
-// #endif
-
-#if ENABLED(RET6_12864_LCD)
-
-// RET6 12864 LCD
-#define LCD_PINS_RS PB15     // SPI3_NSS
-#define LCD_PINS_ENABLE PB12 // SPI3_MOSI
-#define LCD_PINS_D4 PB14     // SPI3_CLK
-
-#define BTN_ENC PD11 // LCD_RST
-#define BTN_EN1 PD8  // UART4-TX
-#define BTN_EN2 PB13 // SPI MISO
-
-#define BEEPER_PIN PD10 // LCD_ENC
-
-#elif ENABLED(VET6_12864_LCD)
-
-// VET6 12864 LCD
-#define LCD_PINS_RS PA4
-#define LCD_PINS_ENABLE PA7
-#define LCD_PINS_D4 PA5
-
-#define BTN_ENC PC5
-#define BTN_EN1 PB10
-#define BTN_EN2 PA6
-
-#elif ENABLED(DWIN_CREALITY_LCD)
-
-// RET6 DWIN ENCODER LCD
 #define BTN_ENC PB14 // SPI_MISO
 #define BTN_EN1 PB15 // SPI3_MOSI
 #define BTN_EN2 PB12 // SPI3_NSS
 
 #define BEEPER_PIN PB13 // SPI3_CLK
 
-#elif ENABLED(DWIN_VET6_CREALITY_LCD)
-
-// VET6 DWIN ENCODER LCD
-#define BTN_ENC PA6
-#define BTN_EN1 PA7
-#define BTN_EN2 PA4
-
-#define BEEPER_PIN PA5
-
-#endif
 
 //
 // USARTS
@@ -194,3 +166,9 @@
 
 #define BOARD_USART4_TX_PIN PC0
 #define BOARD_USART4_RX_PIN PC1
+
+
+//
+// Misc.
+//
+#define LED PA3
