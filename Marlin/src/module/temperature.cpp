@@ -317,7 +317,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTENDS];
-  const celsius_t Temperature::hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
+  constexpr celsius_t Temperature::hotend_maxtemp[HOTENDS];
 
   // Sanity-check max readable temperatures
   #define CHECK_MAXTEMP_(N,M,S) static_assert( \
@@ -328,12 +328,41 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
   #if HAS_PREHEAT
     #define CHECK_PREHEAT__(N,P,T,M) static_assert(T <= M - HOTEND_OVERSHOOT, "PREHEAT_" STRINGIFY(P) "_TEMP_HOTEND (" STRINGIFY(T) ") must be less than HEATER_" STRINGIFY(N) "_MAXTEMP (" STRINGIFY(M) ") - " STRINGIFY(HOTEND_OVERSHOOT) ".");
-    #define CHECK_PREHEAT_(N,P) CHECK_PREHEAT__(N, P, PREHEAT_##P##_TEMP_HOTEND, HEATER_##N##_MAXTEMP);
-    #define CHECK_PREHEAT(P) REPEAT2(HOTENDS, CHECK_PREHEAT_, P);
-    RREPEAT_1(PREHEAT_COUNT, CHECK_PREHEAT)
-  #endif
+    #define CHECK_PREHEAT_(N,P) CHECK_PREHEAT__(N, P, PREHEAT_##P##_TEMP_HOTEND, HEATER_##N##_MAXTEMP)
+    #define CHECK_PREHEAT(P) REPEAT2(HOTENDS, CHECK_PREHEAT_, P)
+    #if PREHEAT_COUNT >= 1
+      CHECK_PREHEAT(1)
+    #endif
+    #if PREHEAT_COUNT >= 2
+      CHECK_PREHEAT(2)
+    #endif
+    #if PREHEAT_COUNT >= 3
+      CHECK_PREHEAT(3)
+    #endif
+    #if PREHEAT_COUNT >= 4
+      CHECK_PREHEAT(4)
+    #endif
+    #if PREHEAT_COUNT >= 5
+      CHECK_PREHEAT(5)
+    #endif
+    #if PREHEAT_COUNT >= 6
+      CHECK_PREHEAT(6)
+    #endif
+    #if PREHEAT_COUNT >= 7
+      CHECK_PREHEAT(7)
+    #endif
+    #if PREHEAT_COUNT >= 8
+      CHECK_PREHEAT(8)
+    #endif
+    #if PREHEAT_COUNT >= 9
+      CHECK_PREHEAT(9)
+    #endif
+    #if PREHEAT_COUNT >= 10
+      CHECK_PREHEAT(10)
+    #endif
+  #endif // HAS_PREHEAT
 
-#endif
+#endif // HAS_HOTEND
 
 #if HAS_TEMP_REDUNDANT
   redundant_info_t Temperature::temp_redundant;
