@@ -31,43 +31,34 @@
 constexpr xy_pos_t tramming_points[] = TRAMMING_POINT_XY;
 
 #define G35_PROBE_COUNT COUNT(tramming_points)
-static_assert(WITHIN(G35_PROBE_COUNT, 3, 6), "TRAMMING_POINT_XY requires between 3 and 6 XY positions.");
+static_assert(WITHIN(G35_PROBE_COUNT, 3, 9), "TRAMMING_POINT_XY requires between 3 and 9 XY positions.");
 
-#define VALIDATE_TRAMMING_POINT(N) static_assert(N >= G35_PROBE_COUNT || Probe::build_time::can_reach(tramming_points[N]), \
-  "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
-VALIDATE_TRAMMING_POINT(0); VALIDATE_TRAMMING_POINT(1); VALIDATE_TRAMMING_POINT(2); VALIDATE_TRAMMING_POINT(3); VALIDATE_TRAMMING_POINT(4); VALIDATE_TRAMMING_POINT(5);
-
-extern const char point_name_1[], point_name_2[], point_name_3[]
-  #ifdef TRAMMING_POINT_NAME_4
-    , point_name_4[]
-    #ifdef TRAMMING_POINT_NAME_5
-      , point_name_5[]
-      #ifdef TRAMMING_POINT_NAME_6
-        , point_name_6[]
-      #endif
-    #endif
-  #endif
-;
-
-#define _NR_TRAM_NAMES 2
-#ifdef TRAMMING_POINT_NAME_3
-  #undef _NR_TRAM_NAMES
+#ifdef TRAMMING_POINT_NAME_9
+  #define _NR_TRAM_NAMES 9
+#elif defined(TRAMMING_POINT_NAME_8)
+  #define _NR_TRAM_NAMES 8
+#elif defined(TRAMMING_POINT_NAME_7)
+  #define _NR_TRAM_NAMES 7
+#elif defined(TRAMMING_POINT_NAME_6)
+  #define _NR_TRAM_NAMES 6
+#elif defined(TRAMMING_POINT_NAME_5)
+  #define _NR_TRAM_NAMES 5
+#elif defined(TRAMMING_POINT_NAME_4)
+  #define _NR_TRAM_NAMES 4
+#elif defined(TRAMMING_POINT_NAME_3)
   #define _NR_TRAM_NAMES 3
-  #ifdef TRAMMING_POINT_NAME_4
-    #undef _NR_TRAM_NAMES
-    #define _NR_TRAM_NAMES 4
-    #ifdef TRAMMING_POINT_NAME_5
-      #undef _NR_TRAM_NAMES
-      #define _NR_TRAM_NAMES 5
-      #ifdef TRAMMING_POINT_NAME_6
-        #undef _NR_TRAM_NAMES
-        #define _NR_TRAM_NAMES 6
-      #endif
-    #endif
-  #endif
+#else
+  #define _NR_TRAM_NAMES 0
 #endif
+
 static_assert(_NR_TRAM_NAMES >= G35_PROBE_COUNT, "Define enough TRAMMING_POINT_NAME_s for all TRAMMING_POINT_XY entries.");
-#undef _NR_TRAM_NAMES
+
+#define _TRAM_NAME_PTR(N) point_name_##N[]
+extern const char REPLIST_1(_NR_TRAM_NAMES, _TRAM_NAME_PTR);
+
+#define _CHECK_TRAM_POINT(N) static_assert(Probe::build_time::can_reach(tramming_points[N]), "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.");
+REPEAT(_NR_TRAM_NAMES, _CHECK_TRAM_POINT)
+#undef _CHECK_TRAM_POINT
 
 extern PGM_P const tramming_point_name[];
 
