@@ -1063,84 +1063,82 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
  * Get distance from displacements along axes and, if required, update move type.
  */
 float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move)) {
-  if (!(NUM_AXIS_GANG(diff.x, || diff.y, || false, || diff.i, || diff.j, || diff.k, || diff.u, || diff.v, || diff.w))) {
+  if (!(NUM_AXIS_GANG(diff.x, || diff.y, /* skip z */, || diff.i, || diff.j, || diff.k, || diff.u, || diff.v, || diff.w)))
     return TERN0(HAS_Z_AXIS, ABS(diff.z));
-  }
-  else {
-    #if ENABLED(ARTICULATED_ROBOT_ARM)
 
-      // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
-      // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
-      const float distance_sqr = NUM_AXIS_GANG(
-          sq(diff.x), + sq(diff.y), + sq(diff.z),
-        + sq(diff.i), + sq(diff.j), + sq(diff.k),
-        + sq(diff.u), + sq(diff.v), + sq(diff.w)
-      );
+  #if ENABLED(ARTICULATED_ROBOT_ARM)
 
-    #elif ENABLED(FOAMCUTTER_XYUV)
+    // For articulated robots, interpreting feedrate like LinuxCNC would require inverse kinematics. As a workaround, pretend that motors sit on n mutually orthogonal
+    // axes and assume that we could think of distance as magnitude of an n-vector in an n-dimensional Euclidian space.
+    const float distance_sqr = NUM_AXIS_GANG(
+        sq(diff.x), + sq(diff.y), + sq(diff.z),
+      + sq(diff.i), + sq(diff.j), + sq(diff.k),
+      + sq(diff.u), + sq(diff.v), + sq(diff.w)
+    );
 
-      const float distance_sqr = (
-        #if HAS_J_AXIS
-          _MAX(sq(diff.x) + sq(diff.y), sq(diff.i) + sq(diff.j)) // Special 5 axis kinematics. Return the larger of plane X/Y or I/J
-        #else
-          sq(diff.x) + sq(diff.y) // Foamcutter with only two axes (XY)
-        #endif
-      );
+  #elif ENABLED(FOAMCUTTER_XYUV)
 
-    #else
-
-      /**
-       * Calculate distance for feedrate interpretation in accordance with NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
-       * Assume:
-       *   - X, Y, Z are the primary linear axes;
-       *   - U, V, W are secondary linear axes;
-       *   - A, B, C are rotational axes.
-       *
-       * Then:
-       *   - dX, dY, dZ are the displacements of the primary linear axes;
-       *   - dU, dV, dW are the displacements of linear axes;
-       *   - dA, dB, dC are the displacements of rotational axes.
-       *
-       * The time it takes to execute a move command with feedrate F is t = D/F,
-       * plus any time for acceleration and deceleration.
-       * Here, D is the total distance, calculated as follows:
-       *
-       *   D^2 = dX^2 + dY^2 + dZ^2
-       *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
-       *     D^2 = dU^2 + dV^2 + dW^2
-       *   if D^2 == 0 (only rotational axes are moved):
-       *     D^2 = dA^2 + dB^2 + dC^2
-       */
-      float distance_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
-
-      #if SECONDARY_LINEAR_AXES
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
-          distance_sqr = (
-            SECONDARY_AXIS_GANG(
-              IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
-              IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
-              IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
-              IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
-              IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
-              IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
-            )
-          );
-        }
+    const float distance_sqr = (
+      #if HAS_J_AXIS
+        _MAX(sq(diff.x) + sq(diff.y), sq(diff.i) + sq(diff.j)) // Special 5 axis kinematics. Return the larger of plane X/Y or I/J
+      #else
+        sq(diff.x) + sq(diff.y) // Foamcutter with only two axes (XY)
       #endif
+    );
 
-      #if HAS_ROTATIONAL_AXES
-        if (UNEAR_ZERO(distance_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          is_cartesian_move = false;
-          distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
-        }
-      #endif
+  #else
 
+    /**
+     * Calculate distance for feedrate interpretation in accordance with NIST RS274NGC interpreter - version 3) and its default CANON_XYZ feed reference mode.
+     * Assume:
+     *   - X, Y, Z are the primary linear axes;
+     *   - U, V, W are secondary linear axes;
+     *   - A, B, C are rotational axes.
+     *
+     * Then:
+     *   - dX, dY, dZ are the displacements of the primary linear axes;
+     *   - dU, dV, dW are the displacements of linear axes;
+     *   - dA, dB, dC are the displacements of rotational axes.
+     *
+     * The time it takes to execute a move command with feedrate F is t = D/F,
+     * plus any time for acceleration and deceleration.
+     * Here, D is the total distance, calculated as follows:
+     *
+     *   D^2 = dX^2 + dY^2 + dZ^2
+     *   if D^2 == 0 (none of XYZ move but any secondary linear axes move, whether other axes are moved or not):
+     *     D^2 = dU^2 + dV^2 + dW^2
+     *   if D^2 == 0 (only rotational axes are moved):
+     *     D^2 = dA^2 + dB^2 + dC^2
+     */
+    float distance_sqr = XYZ_GANG(sq(diff.x), + sq(diff.y), + sq(diff.z));
+
+    #if SECONDARY_LINEAR_AXES
+      if (UNEAR_ZERO(distance_sqr)) {
+        // Move does not involve any primary linear axes (xyz) but might involve secondary linear axes
+        distance_sqr = (
+          SECONDARY_AXIS_GANG(
+            IF_DISABLED(AXIS4_ROTATES, + sq(diff.i)),
+            IF_DISABLED(AXIS5_ROTATES, + sq(diff.j)),
+            IF_DISABLED(AXIS6_ROTATES, + sq(diff.k)),
+            IF_DISABLED(AXIS7_ROTATES, + sq(diff.u)),
+            IF_DISABLED(AXIS8_ROTATES, + sq(diff.v)),
+            IF_DISABLED(AXIS9_ROTATES, + sq(diff.w))
+          )
+        );
+      }
     #endif
 
-    return SQRT(distance_sqr);
-  }
+    #if HAS_ROTATIONAL_AXES
+      if (UNEAR_ZERO(distance_sqr)) {
+        // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
+        is_cartesian_move = false;
+        distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+      }
+    #endif
+
+  #endif
+
+  return SQRT(distance_sqr);
 }
 
 #if IS_KINEMATIC
