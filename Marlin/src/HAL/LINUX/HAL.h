@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfigPre.h"
+
 #include <iostream>
 #include <stdint.h>
 #include <stdarg.h>
@@ -29,12 +31,10 @@
 #include <algorithm>
 
 #include "hardware/Clock.h"
-
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-#include "watchdog.h"
 #include "serial.h"
 
 // ------------------------
@@ -106,9 +106,13 @@ public:
   // Earliest possible init, before setup()
   MarlinHAL() {}
 
+  // Watchdog
+  static void watchdog_init() {}
+  static void watchdog_refresh() {}
+
   static void init() {}        // Called early in setup()
   static void init_board() {}  // Called less early in setup()
-  static void reboot();               // Reset the application state and GPIO
+  static void reboot();        // Reset the application state and GPIO
 
   // Interrupts
   static bool isr_state() { return true; }

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUSScreenHandler.h"
 
@@ -200,7 +200,7 @@ void DGUSScreenHandler::StoreSettings(char *buff) {
   data.initialized = true;
   data.volume = dgus_display.GetVolume();
   data.brightness = dgus_display.GetBrightness();
-  data.abl = (ExtUI::getLevelingActive() && ExtUI::getMeshValid());
+  data.abl_okay = (ExtUI::getLevelingActive() && ExtUI::getMeshValid());
 
   memcpy(buff, &data, sizeof(data));
 }
@@ -216,8 +216,7 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
   dgus_display.SetBrightness(data.initialized ? data.brightness : DGUS_DEFAULT_BRIGHTNESS);
 
   if (data.initialized) {
-    leveling_active = (data.abl && ExtUI::getMeshValid());
-
+    leveling_active = (data.abl_okay && ExtUI::getMeshValid());
     ExtUI::setLevelingActive(leveling_active);
   }
 }
@@ -326,8 +325,8 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
       case ExtUI::PID_STARTED:
         SetStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
         break;
-      case ExtUI::PID_BAD_EXTRUDER_NUM:
-        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
+      case ExtUI::PID_BAD_HEATER_ID:
+        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
       case ExtUI::PID_TEMP_TOO_HIGH:
         SetStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
@@ -474,19 +473,14 @@ void DGUSScreenHandler::MoveToScreen(DGUS_Screen screen, bool abort_wait) {
 
   if (!CallScreenSetup(screen)) return;
 
-  if (!SendScreenVPData(screen, true)) {
-    DEBUG_ECHOLNPGM("SendScreenVPData failed");
-    return;
-  }
+  if (!SendScreenVPData(screen, true)) return;
 
   current_screen = screen;
   dgus_display.SwitchScreen(current_screen);
 }
 
 bool DGUSScreenHandler::SendScreenVPData(DGUS_Screen screen, bool complete_update) {
-  if (complete_update) {
-    full_update = false;
-  }
+  if (complete_update) full_update = false;
 
   const DGUS_Addr *list = FindScreenAddrList(screen);
 

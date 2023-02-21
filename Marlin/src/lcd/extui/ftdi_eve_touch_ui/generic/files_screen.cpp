@@ -111,16 +111,17 @@ void FilesScreen::drawFileButton(int x, int y, int w, int h, const char *filenam
   cmd.cmd(COLOR_RGB(is_highlighted ? fg_action : bg_color));
   cmd.font(font_medium).rectangle(bx, by, bw, bh);
   cmd.cmd(COLOR_RGB(is_highlighted ? normal_btn.rgb : bg_text_enabled));
-  #if ENABLED(SCROLL_LONG_FILENAMES)
-    if (is_highlighted) {
+  if (TERN0(SCROLL_LONG_FILENAMES, is_highlighted)) {
+    #if ENABLED(SCROLL_LONG_FILENAMES)
       cmd.cmd(SAVE_CONTEXT());
       cmd.cmd(SCISSOR_XY(x,y));
       cmd.cmd(SCISSOR_SIZE(w,h));
       cmd.cmd(MACRO(0));
       cmd.text(bx, by, bw, bh, filename, OPT_CENTERY | OPT_NOFIT);
-    } else
-  #endif
-  draw_text_with_ellipsis(cmd, bx,by, bw - (is_dir ? 20 : 0), bh, filename, OPT_CENTERY, font_medium);
+    #endif
+  }
+  else
+    draw_text_with_ellipsis(cmd, bx,by, bw - (is_dir ? 20 : 0), bh, filename, OPT_CENTERY, font_medium);
   if (is_dir && !is_highlighted) cmd.text(bx, by, bw, bh, F("> "),  OPT_CENTERY | OPT_RIGHTX);
   #if ENABLED(SCROLL_LONG_FILENAMES)
     if (is_highlighted) cmd.cmd(RESTORE_CONTEXT());

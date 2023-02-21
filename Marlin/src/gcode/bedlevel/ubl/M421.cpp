@@ -56,7 +56,7 @@ void GcodeSuite::M421() {
              hasZ = parser.seen('Z'),
              hasQ = !hasZ && parser.seen('Q');
 
-  if (hasC) ij = ubl.find_closest_mesh_point_of_type(CLOSEST, current_position);
+  if (hasC) ij = bedlevel.find_closest_mesh_point_of_type(CLOSEST, current_position);
 
   // Test for bad parameter combinations
   if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN))
@@ -66,7 +66,7 @@ void GcodeSuite::M421() {
   else if (!WITHIN(ij.x, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ij.y, 0, GRID_MAX_POINTS_Y - 1))
     SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
   else {
-    float &zval = ubl.z_values[ij.x][ij.y];                               // Altering this Mesh Point
+    float &zval = bedlevel.z_values[ij.x][ij.y];                               // Altering this Mesh Point
     zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);  // N=NAN, Z=NEWVAL, or Q=ADDVAL
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));          // Ping ExtUI in case it's showing the mesh
     TERN_(DWIN_LCD_PROUI, DWIN_MeshUpdate(ij.x, ij.y, zval));

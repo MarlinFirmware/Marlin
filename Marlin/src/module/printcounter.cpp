@@ -37,7 +37,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 #include "../MarlinCore.h"
 #include "../HAL/shared/eeprom_api.h"
 
-#if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
+#if HAS_SOUND && SERVICE_WARNING_BUZZES > 0
   #include "../libs/buzzer.h"
 #endif
 
@@ -156,7 +156,7 @@ void PrintCounter::loadStats() {
     #if SERVICE_INTERVAL_3 > 0
       if (data.nextService3 == 0) doBuzz = _service_warn(PSTR(" " SERVICE_NAME_3));
     #endif
-    #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
+    #if HAS_SOUND && SERVICE_WARNING_BUZZES > 0
       if (doBuzz) for (int i = 0; i < SERVICE_WARNING_BUZZES; i++) { BUZZ(200, 404); BUZZ(10, 0); }
     #else
       UNUSED(doBuzz);
@@ -314,13 +314,13 @@ void PrintCounter::reset() {
   void PrintCounter::resetServiceInterval(const int index) {
     switch (index) {
       #if SERVICE_INTERVAL_1 > 0
-        case 1: data.nextService1 = SERVICE_INTERVAL_SEC_1;
+        case 1: data.nextService1 = SERVICE_INTERVAL_SEC_1; break;
       #endif
       #if SERVICE_INTERVAL_2 > 0
-        case 2: data.nextService2 = SERVICE_INTERVAL_SEC_2;
+        case 2: data.nextService2 = SERVICE_INTERVAL_SEC_2; break;
       #endif
       #if SERVICE_INTERVAL_3 > 0
-        case 3: data.nextService3 = SERVICE_INTERVAL_SEC_3;
+        case 3: data.nextService3 = SERVICE_INTERVAL_SEC_3; break;
       #endif
     }
     saveStats();

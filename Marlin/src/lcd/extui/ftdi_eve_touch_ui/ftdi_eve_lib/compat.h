@@ -240,8 +240,8 @@
   #define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
   #define PROBE() ~, 1                    // Second item will be 1 if this is passed
   #define _NOT_0 PROBE()
-  #define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
-  #define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+  #define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
+  #define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
 
   #define _DO_1(W,C,A)       (_##W##_1(A))
   #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))

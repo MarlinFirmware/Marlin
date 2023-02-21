@@ -83,6 +83,7 @@
 // ------------------------
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
+
   USBSerial SerialUSB;
   DefaultSerial1 MSerial0(true, SerialUSB);
 
@@ -111,6 +112,47 @@
     }
   #endif
 #endif
+
+// ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  #include <libmaple/iwdg.h>
+
+  void watchdogSetup() {
+    // do whatever. don't remove this function.
+  }
+
+  /**
+   *  The watchdog clock is 40Khz. So for a 4s or 8s interval use a /256 preescaler and 625 or 1250 reload value (counts down to 0).
+   */
+  #define STM32F1_WD_RELOAD TERN(WATCHDOG_DURATION_8S, 1250, 625) // 4 or 8 second timeout
+
+  /**
+   * @brief  Initialize the independent hardware watchdog.
+   *
+   * @return No return
+   *
+   * @details The watchdog clock is 40Khz. So for a 4s or 8s interval use a /256 preescaler and 625 or 1250 reload value (counts down to 0).
+   */
+  void MarlinHAL::watchdog_init() {
+    #if DISABLED(DISABLE_WATCHDOG_INIT)
+      iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
+    #endif
+  }
+
+  // Reset watchdog. MUST be called every 4 or 8 seconds after the
+  // first watchdog_init or the STM32F1 will reset.
+  void MarlinHAL::watchdog_refresh() {
+    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // heartbeat indicator
+    #endif
+    iwdg_feed();
+  }
+
+#endif // USE_WATCHDOG
 
 // ------------------------
 // ADC
@@ -211,6 +253,10 @@ void MarlinHAL::idletask() {
 
 void MarlinHAL::reboot() { nvic_sys_reset(); }
 
+// ------------------------
+// Free Memory Accessor
+// ------------------------
+
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
@@ -243,9 +289,9 @@ extern "C" {
 }
 */
 
-//
+// ------------------------
 // ADC
-//
+// ------------------------
 
 enum ADCIndex : uint8_t {
   OPTITEM(HAS_TEMP_ADC_0, TEMP_0)

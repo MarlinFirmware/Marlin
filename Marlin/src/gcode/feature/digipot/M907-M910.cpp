@@ -48,7 +48,7 @@
 void GcodeSuite::M907() {
   #if HAS_MOTOR_CURRENT_SPI
 
-    if (!parser.seen("BS" LOGICAL_AXES_STRING))
+    if (!parser.seen("BS" STR_AXES_LOGICAL))
       return M907_report();
 
     if (parser.seenval('S')) LOOP_L_N(i, MOTOR_CURRENT_COUNT) stepper.set_digipot_current(i, parser.value_int());

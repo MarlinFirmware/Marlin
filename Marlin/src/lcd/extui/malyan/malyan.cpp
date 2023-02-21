@@ -24,7 +24,7 @@
  * lcd/extui/malyan/malyan.cpp
  *
  * LCD implementation for Malyan's LCD, a separate ESP8266 MCU running
- * on Serial1 for the M200 board. This module outputs a pseudo-gcode
+ * on Serial1 for the M200 board. This module outputs a pseudo-G-code
  * wrapped in curly braces which the LCD implementation translates into
  * actual G-code commands.
  *

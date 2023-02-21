@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# Build tests for MKS TinyBee
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with ESP3D WiFi, OTA and custom WIFI commands support
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_MKS_TINYBEE TX_BUFFER_SIZE 64 \
+        WIFI_SSID '"ssid"' WIFI_PWD '"password"' \
+        SERIAL_PORT_2 -1 BAUDRATE_2 250000
+opt_enable ESP3D_WIFISUPPORT WEBSUPPORT OTASUPPORT WIFI_CUSTOM_COMMAND
+exec_test $1 "$2" "MKS TinyBee with ESP3D_WIFISUPPORT" "$3"
+
+#
+# Build with LCD, SD support and Speaker support
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_MKS_TINYBEE \
+	LCD_LANGUAGE en \
+	LCD_INFO_SCREEN_STYLE 0 \
+	DISPLAY_CHARSET_HD44780 WESTERN \
+	NEOPIXEL_TYPE NEO_RGB
+opt_enable FYSETC_MINI_12864_2_1 SDSUPPORT
+opt_enable LED_CONTROL_MENU LED_USER_PRESET_STARTUP LED_COLOR_PRESETS NEOPIXEL_LED
+exec_test $1 $2 "MKS TinyBee with NeoPixel LCD, SD and Speaker" "$3"
+
+# cleanup
+restore_configs

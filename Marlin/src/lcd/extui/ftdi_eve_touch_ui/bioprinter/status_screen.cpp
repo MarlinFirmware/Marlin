@@ -122,7 +122,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
       ui.bounds(POLY(bed_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
-      #endif
+    #endif
   }
 }
 
@@ -354,8 +354,8 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(FSTR_P pstr) {
-  BioPrintingDialogBox::setStatusMessage(pstr);
+void StatusScreen::setStatusMessage(FSTR_P fstr) {
+  BioPrintingDialogBox::setStatusMessage(fstr);
 }
 
 void StatusScreen::setStatusMessage(const char * const str) {
