@@ -133,11 +133,4 @@ if pioutil.is_pio_build():
                     err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter when NUM_RUNOUT_SENSORS is > 1"
                     raise SystemExit(err)
 
-        #
-        # Check if BLTOUCH is being used with PROBING_MARGIN
-        #
-        if 'BLTOUCH' in env['MARLIN_FEATURES']:
-            if (env['MARLIN_FEATURES']['PROBING_MARGIN'].isdigit() and int(env['MARLIN_FEATURES']['PROBING_MARGIN']) > 0) or not env['MARLIN_FEATURES']['PROBING_MARGIN'].isdigit():
-                env["BUILD_FLAGS"].append("-DBLTOUCH_WITH_PROBING_MARGIN")
-
     sanity_check_target()
