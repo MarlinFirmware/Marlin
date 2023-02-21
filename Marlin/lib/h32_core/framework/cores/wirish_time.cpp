@@ -26,13 +26,8 @@ void delayMicroseconds(uint32 us)
     Ddl_Delay1us(us);
 }
 
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-
-static void __empty() {}
-
-#pragma GCC diagnostic pop
-
-void yield(void) {} //__attribute__ ((weak, alias("__empty")));
+extern "C"
+{
+    static void __empty() {}
+    void yield() __attribute__((weak, alias("__empty")));
+}

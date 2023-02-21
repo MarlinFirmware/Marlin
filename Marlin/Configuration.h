@@ -131,6 +131,13 @@
 //#define SERIAL_PORT_3 1
 //#define BAUDRATE_3 250000   // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Enable to override BAUDRATE
 
+/**
+ * Select a serial port on the board to use for communication with a serial display (like DWIN and DGUS).
+ * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
+#define LCD_SERIAL_PORT 4
+
+
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 

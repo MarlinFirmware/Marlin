@@ -27,9 +27,9 @@
 
 /* ignore some GCC warnings */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+// #pragma GCC diagnostic ignored "-Wsign-conversion"
+// #pragma GCC diagnostic ignored "-Wconversion"
+// #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 /* Fallback for __has_builtin */
 #ifndef __has_builtin
@@ -69,8 +69,8 @@
 #endif
 #ifndef __UNALIGNED_UINT32 /* deprecated */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpacked"
-#pragma GCC diagnostic ignored "-Wattributes"
+// #pragma GCC diagnostic ignored "-Wpacked"
+// #pragma GCC diagnostic ignored "-Wattributes"
 struct __attribute__((packed)) T_UINT32
 {
   uint32_t v;
@@ -80,8 +80,8 @@ struct __attribute__((packed)) T_UINT32
 #endif
 #ifndef __UNALIGNED_UINT16_WRITE
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpacked"
-#pragma GCC diagnostic ignored "-Wattributes"
+// #pragma GCC diagnostic ignored "-Wpacked"
+// #pragma GCC diagnostic ignored "-Wattributes"
 __PACKED_STRUCT T_UINT16_WRITE
 {
   uint16_t v;
@@ -91,8 +91,8 @@ __PACKED_STRUCT T_UINT16_WRITE
 #endif
 #ifndef __UNALIGNED_UINT16_READ
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpacked"
-#pragma GCC diagnostic ignored "-Wattributes"
+// #pragma GCC diagnostic ignored "-Wpacked"
+// #pragma GCC diagnostic ignored "-Wattributes"
 __PACKED_STRUCT T_UINT16_READ
 {
   uint16_t v;
@@ -102,8 +102,8 @@ __PACKED_STRUCT T_UINT16_READ
 #endif
 #ifndef __UNALIGNED_UINT32_WRITE
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpacked"
-#pragma GCC diagnostic ignored "-Wattributes"
+// #pragma GCC diagnostic ignored "-Wpacked"
+// #pragma GCC diagnostic ignored "-Wattributes"
 __PACKED_STRUCT T_UINT32_WRITE
 {
   uint32_t v;
@@ -113,8 +113,8 @@ __PACKED_STRUCT T_UINT32_WRITE
 #endif
 #ifndef __UNALIGNED_UINT32_READ
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpacked"
-#pragma GCC diagnostic ignored "-Wattributes"
+// #pragma GCC diagnostic ignored "-Wpacked"
+// #pragma GCC diagnostic ignored "-Wattributes"
 __PACKED_STRUCT T_UINT32_READ
 {
   uint32_t v;
