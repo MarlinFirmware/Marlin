@@ -428,7 +428,7 @@ const char* ftostr52sp(const_float_t f) {
 const char* utostr3(const uint16_t x) {
   uint16_t xx = x;
   if (xx >= 100) {
-    NOMORE(xx, uint16_t(999));
+    NOMORE(xx, 999U);
     conv[5] = MINUSOR(xx, RJDIGIT(xx, 100));
     conv[6] = RJDIGIT(xx, 10);
     conv[7] = DIGIMOD(xx, 1);
