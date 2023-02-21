@@ -246,7 +246,7 @@ namespace Language_fr {
   LSTR MSG_MOVE_05IN                      = _UxGT("Déplacer 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Déplacer 1\"");
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
-  LSTR MSG_BED_Z                          = _UxGT("Lit Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Buse ~");
   LSTR MSG_BED                            = _UxGT("Lit");
