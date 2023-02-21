@@ -178,7 +178,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_GOOD_POINTS));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
-      lcd_put_lchar('/');
+      lcd_put_u8str(F("/"));
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
     }
 

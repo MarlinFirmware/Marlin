@@ -234,7 +234,7 @@
 #elif MB(CNCONTROLS_15)
   #include "mega/pins_CNCONTROLS_15.h"          // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
 #elif MB(MIGHTYBOARD_REVE)
-  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega2560, ATmega1280                 env:mega2560ext env:mega1280 env:MightyBoard1280 env:MightyBoard2560
+  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega2560, ATmega1280                 env:mega2560ext env:MightyBoard1280 env:MightyBoard2560
 #elif MB(CHEAPTRONIC)
   #include "mega/pins_CHEAPTRONIC.h"            // ATmega2560                             env:mega2560
 #elif MB(CHEAPTRONIC_V2)
@@ -516,7 +516,7 @@
 #elif MB(MKS_ROBIN_NANO)
   #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano_v1v2_maple env:mks_robin_nano_v1v2_usbmod
 #elif MB(MKS_ROBIN_NANO_V2)
-  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano3_v1v2_maple
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano_v1v2 env:mks_robin_nano_v1v2_maple
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite env:mks_robin_lite_maple
 #elif MB(MKS_ROBIN_LITE3)
@@ -533,6 +533,8 @@
   #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"  // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p env:mks_robin_e3p_maple
+#elif MB(BTT_EBB42_V1_1)
+  #include "stm32g0/pins_BTT_EBB42_V1_1.h"      // STM32G0                                env:BTT_EBB42_V1_1_filament_extruder
 #elif MB(BTT_SKR_MINI_V1_1)
   #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V1_0)
@@ -543,6 +545,16 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V3_0)
   #include "stm32g0/pins_BTT_SKR_MINI_E3_V3_0.h"  // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
+#elif MB(BTT_MANTA_M4P_V1_0)
+  #include "stm32g0/pins_BTT_MANTA_M4P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
+#elif MB(BTT_MANTA_M5P_V1_0)
+  #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
+#elif MB(BTT_MANTA_E3_EZ_V1_0)
+  #include "stm32g0/pins_BTT_MANTA_E3_EZ_V1_0.h"  // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
+#elif MB(BTT_MANTA_M8P_V1_0)
+  #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"    // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
+#elif MB(BTT_MANTA_M8P_V1_1)
+  #include "stm32g0/pins_BTT_MANTA_M8P_V1_1.h"    // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"// STM32F4                              env:STM32F401RC_btt
 #elif MB(BTT_SKR_MINI_MZ_V1_0)
@@ -656,7 +668,7 @@
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
 #elif MB(BTT_OCTOPUS_V1_1)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB env:BIGTREE_OCTOPUS_V1_F407 env:BIGTREE_OCTOPUS_V1_F407_USB
 #elif MB(BTT_OCTOPUS_PRO_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_PRO_V1_0.h" // STM32F4                               env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB env:BIGTREE_OCTOPUS_PRO_V1_F429 env:BIGTREE_OCTOPUS_PRO_V1_F429_USB
 #elif MB(LERDGE_K)
@@ -772,6 +784,13 @@
   #include "samd/pins_BRICOLEMON_V1_0.h"        // SAMD51                                 env:SAMD51_grandcentral_m4
 #elif MB(BRICOLEMON_LITE_V1_0)
   #include "samd/pins_BRICOLEMON_LITE_V1_0.h"   // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
+// ReprapWorld Minitronics (SAMD21)
+//
+
+#elif MB(MINITRONICS20)
+  #include "samd/pins_MINITRONICS20.h"          // SAMD21                                 env:SAMD21_minitronics20
 
 //
 // Custom board (with custom PIO env)

@@ -238,13 +238,15 @@ namespace Language_fr {
   LSTR MSG_MOVE_01MM                      = _UxGT("Déplacer 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Déplacer 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Déplacer 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Déplacer 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Déplacer 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Déplacer 0.001\"");
   LSTR MSG_MOVE_001IN                     = _UxGT("Déplacer 0.01\"");
   LSTR MSG_MOVE_01IN                      = _UxGT("Déplacer 0.1\"");
+  LSTR MSG_MOVE_05IN                      = _UxGT("Déplacer 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Déplacer 1\"");
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
-  LSTR MSG_BED_Z                          = _UxGT("Lit Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Buse ~");
   LSTR MSG_BED                            = _UxGT("Lit");
@@ -267,10 +269,9 @@ namespace Language_fr {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Tuning PID terminé");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Echec Autotune! E incorrect");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Echec Autotune! E incorrect");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Opér. expirée");
-  LSTR MSG_SELECT                         = _UxGT("Sélectionner");
   LSTR MSG_SELECT_E                       = _UxGT("Sélectionner *");
   LSTR MSG_ACC                            = _UxGT("Accélération");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -366,7 +367,7 @@ namespace Language_fr {
   LSTR MSG_STOPPED                        = _UxGT("STOPPÉ");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Rétractation mm");
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ech. rétr. mm");
-  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract°");
+  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract") LCD_STR_DEGREE;
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Saut Z mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Rét.reprise mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Ech.reprise mm");
@@ -377,7 +378,7 @@ namespace Language_fr {
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Vitesse primaire");
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Purge Retract");
-  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract°");
+  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract") LCD_STR_DEGREE;
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Garer Extrudeur");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Vitesse reprise");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Vit.  ventil.");
@@ -423,7 +424,7 @@ namespace Language_fr {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Déployer TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Déployer Sonde Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Ranger Sonde Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Origine %s%s%s Premier");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Origine %s Premier");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Position sonde Z");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Décalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Décalage Y");

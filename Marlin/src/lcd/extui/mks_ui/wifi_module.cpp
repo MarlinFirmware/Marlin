@@ -59,7 +59,7 @@ extern uint8_t Explore_Disk(char *path, uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
-extern unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick);
+extern uint16_t getTickDiff(uint16_t curTick, uint16_t lastTick);
 
 volatile SZ_USART_FIFO WifiRxFifo;
 
@@ -736,7 +736,7 @@ int32_t lastFragment = 0;
 
 char saveFilePath[50];
 
-static SdFile upload_file, *upload_curDir;
+static MediaFile upload_file, *upload_curDir;
 static filepos_t pos;
 
 int write_to_file(char *buf, int len) {
@@ -974,8 +974,8 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                 if (!gcode_preview_over) {
                   char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-                  SdFile file;
-                  SdFile *curDir;
+                  MediaFile file;
+                  MediaFile *curDir;
                   card.abortFilePrintNow();
                   const char * const fname = card.diveToFile(false, curDir, cur_name);
                   if (!fname) return;
@@ -1595,7 +1595,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
         }
       }
       upload_file.close();
-      SdFile file, *curDir;
+      MediaFile file, *curDir;
       const char * const fname = card.diveToFile(false, curDir, saveFilePath);
       if (file.open(curDir, fname, O_RDWR)) {
         gCfgItems.curFilesize = file.fileSize();
@@ -1969,7 +1969,7 @@ void mks_wifi_firmware_update() {
 
     if (wifi_upload(0) >= 0) {
       card.removeFile((char *)ESP_FIRMWARE_FILE_RENAME);
-      SdFile file, *curDir;
+      MediaFile file, *curDir;
       const char * const fname = card.diveToFile(false, curDir, ESP_FIRMWARE_FILE);
       if (file.open(curDir, fname, O_READ)) {
         file.rename(curDir, (char *)ESP_FIRMWARE_FILE_RENAME);

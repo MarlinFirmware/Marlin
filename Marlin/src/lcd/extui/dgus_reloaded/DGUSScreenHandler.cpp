@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUSScreenHandler.h"
 
@@ -325,8 +325,8 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
       case ExtUI::PID_STARTED:
         SetStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
         break;
-      case ExtUI::PID_BAD_EXTRUDER_NUM:
-        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
+      case ExtUI::PID_BAD_HEATER_ID:
+        SetStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
       case ExtUI::PID_TEMP_TOO_HIGH:
         SetStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
@@ -473,19 +473,14 @@ void DGUSScreenHandler::MoveToScreen(DGUS_Screen screen, bool abort_wait) {
 
   if (!CallScreenSetup(screen)) return;
 
-  if (!SendScreenVPData(screen, true)) {
-    DEBUG_ECHOLNPGM("SendScreenVPData failed");
-    return;
-  }
+  if (!SendScreenVPData(screen, true)) return;
 
   current_screen = screen;
   dgus_display.SwitchScreen(current_screen);
 }
 
 bool DGUSScreenHandler::SendScreenVPData(DGUS_Screen screen, bool complete_update) {
-  if (complete_update) {
-    full_update = false;
-  }
+  if (complete_update) full_update = false;
 
   const DGUS_Addr *list = FindScreenAddrList(screen);
 

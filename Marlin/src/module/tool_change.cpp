@@ -30,6 +30,7 @@
 #include "temperature.h"
 
 #include "../MarlinCore.h"
+#include "../gcode/gcode.h"
 
 //#define DEBUG_TOOL_CHANGE
 //#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
@@ -47,12 +48,6 @@
 
 #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
   Flags<EXTRUDERS> toolchange_extruder_ready;
-#endif
-
-#if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
-  || defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
-  || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
-  #include "../gcode/gcode.h"
 #endif
 
 #if ENABLED(TOOL_SENSOR)
@@ -98,7 +93,6 @@
 #endif
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-  #include "../gcode/gcode.h"
   #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
     #undef TOOLCHANGE_FS_WIPE_RETRACT
     #define TOOLCHANGE_FS_WIPE_RETRACT 0
@@ -929,7 +923,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Returns FALSE if able to  move.
    */
   bool too_cold(uint8_t toolID){
-    if (TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID))) {
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return true;
     }
@@ -986,7 +980,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       }
     #endif
 
-    //Calculate and perform the priming distance
+    // Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
       // Positive extra_prime value
       // - Return filament at speed (fr) then extra_prime at prime speed
@@ -1157,8 +1151,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if HAS_LEVELING
-      // Set current position to the physical position
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // Workaround for UBL mesh boundary, possibly?
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
@@ -1350,6 +1344,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #else
               do_blocking_move_to_xy(destination, planner.settings.max_feedrate_mm_s[X_AXIS]);
               do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+              SECONDARY_AXIS_CODE(
+                do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
+                do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
+                do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
+                do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
+                do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
+                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
+              );
             #endif
 
           #endif
@@ -1401,14 +1403,61 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     TERN_(HAS_FANMUX, fanmux_switch(active_extruder));
 
     if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
-      #ifdef EVENT_GCODE_TOOLCHANGE_T0
-        if (new_tool == 0)
-          gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0));
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        // G0/G1/G2/G3/G5 moves are relative to the active tool.
+        // Shift the workspace to make custom moves relative to T0.
+        xyz_pos_t old_position_shift;
+        if (new_tool > 0) {
+          old_position_shift = position_shift;
+          const xyz_pos_t &he = hotend_offset[new_tool];
+          #if ENABLED(TC_GCODE_USE_GLOBAL_X)
+            position_shift.x -= he.x; update_workspace_offset(X_AXIS);
+          #endif
+          #if ENABLED(TC_GCODE_USE_GLOBAL_Y)
+            position_shift.y -= he.y; update_workspace_offset(Y_AXIS);
+          #endif
+          #if ENABLED(TC_GCODE_USE_GLOBAL_Z)
+            position_shift.z -= he.z; update_workspace_offset(Z_AXIS);
+          #endif
+        }
       #endif
 
-      #ifdef EVENT_GCODE_TOOLCHANGE_T1
-        if (new_tool == 1)
-          gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1));
+      switch (new_tool) {
+        default: break;
+        #ifdef EVENT_GCODE_TOOLCHANGE_T0
+          case 0: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T1
+          case 1: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T2
+          case 2: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T2)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T3
+          case 3: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T3)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T4
+          case 4: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T4)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T5
+          case 5: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T5)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T6
+          case 6: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T6)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T7
+          case 7: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T7)); break;
+        #endif
+      }
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        if (new_tool > 0) {
+          position_shift = old_position_shift;
+          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
+        }
       #endif
 
       #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
@@ -1429,12 +1478,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
   bool extruder_migration() {
 
-    #if ENABLED(PREVENT_COLD_EXTRUSION)
-      if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-        DEBUG_ECHOLNPGM("Migration Source Too Cold");
-        return false;
-      }
-    #endif
+    if (thermalManager.targetTooColdToExtrude(active_extruder)) {
+      DEBUG_ECHOLNPGM("Migration Source Too Cold");
+      return false;
+    }
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {

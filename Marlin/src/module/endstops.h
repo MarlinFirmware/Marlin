@@ -85,9 +85,15 @@ enum EndstopEnum : char {
   // Endstops can be either MIN or MAX but not both
   #if HAS_X_MIN || HAS_X_MAX
     , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
+    #if ENABLED(X_DUAL_ENDSTOPS)
+	    , X2_ENDSTOP = TERN(X_HOME_TO_MAX, X2_MAX, X2_MIN)
+    #endif
   #endif
   #if HAS_Y_MIN || HAS_Y_MAX
     , Y_ENDSTOP = TERN(Y_HOME_TO_MAX, Y_MAX, Y_MIN)
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      , Y2_ENDSTOP = TERN(Y_HOME_TO_MAX, Y2_MAX, Y2_MIN)
+    #endif
   #endif
   #if HAS_Z_MIN || HAS_Z_MAX || HOMING_Z_WITH_PROBE
     , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))

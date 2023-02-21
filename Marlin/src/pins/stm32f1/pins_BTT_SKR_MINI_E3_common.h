@@ -100,38 +100,31 @@
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
 
-#ifdef SKR_MINI_E3_V2
-  #define FAN_PIN                           PC6
-#else
+#ifndef FAN_PIN
   #define FAN_PIN                           PA8   // "FAN0"
 #endif
 
 //
 // USB connect control
 //
-#ifdef SKR_MINI_E3_V2
-  #define USB_CONNECT_PIN                   PA14
-#else
+#ifndef USB_CONNECT_PIN
   #define USB_CONNECT_PIN                   PC13
 #endif
 
 #define USB_CONNECT_INVERTING              false
 
 /**
- *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
- *                ------                                    ------
- * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)    (BEEPER)  PB5  | 1  2 | PA15 (BTN_ENC)
- * (BTN_EN1) PA9  | 3  4 | RESET            (BTN_EN1) PA9  | 3  4 | RESET
- * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)    (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
- * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)    (LCD_RS)  PB8  | 7  8 | PB15 (LCD_EN)
- *            GND | 9 10 | 5V                          GND | 9 10 | 5V
- *                ------                                    ------
- *                 EXP1                                      EXP1
+ *        SKR Mini E3 V1.0, V1.2
+ *                ------
+ * (BEEPER)  PB5  | 1  2 | PB6 (BTN_ENC)
+ * (BTN_EN1) PA9  | 3  4 | RESET
+ * (BTN_EN2) PA10   5  6 | PB9  (LCD_D4)
+ * (LCD_RS)  PB8  | 7  8 | PB7  (LCD_EN)
+ *            GND | 9 10 | 5V
+ *                ------
+ *                 EXP1
  */
-#ifdef SKR_MINI_E3_V2
-  #define EXP1_02_PIN                       PA15
-  #define EXP1_08_PIN                       PB15
-#else
+#ifndef EXP1_02_PIN
   #define EXP1_02_PIN                       PB6
   #define EXP1_08_PIN                       PB7
 #endif
@@ -170,14 +163,45 @@
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN               EXP1_01_PIN
-    #define BTN_ENC                  EXP1_02_PIN
 
+    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
+
+  #elif ENABLED(LCD_FOR_MELZI)
+
+    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+      #error "CAUTION! LCD for Melzi v4 display requires a custom cable. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
+    #endif
+
+    /**
+     * LCD for Melzi v4 needs a custom cable with reversed GND/5V pins; plugging in a standard cable may damage the board or LCD!
+     *  1. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+     *  2. Swap pin 4 on the Melzi LCD to pin 7 on the SKR Mini E3 EXP1 connector (pin 4 on the SKR is a RESET and cannot be used)
+     *
+     *       LCD for Melzi V4         SKR Mini E3 V2.0
+     *            ------                   ------
+     *    LCD RS | 1  2 | EN1      LCD RS | 1  2 | EN1
+     *    LCD EN | 3  4 | EN2      LCD EN | 3  4 | OPEN (RESET)
+     *    LCD D4 | 5  6 | ENC      LCD D4 | 5  6 | ENC
+     *    E-Stop | 7  8 | BEEP        EN2 | 7  8 | BEEP
+     *        5V | 9 10 | GND         GND | 9 10 | 5V
+     *            ------                   ------
+     *             EXP1                     EXP1
+     */
+    #define BEEPER_PIN               EXP1_08_PIN
+
+    #define BTN_ENC                  EXP1_06_PIN
+    #define BTN_EN1                  EXP1_02_PIN
+    #define BTN_EN2                  EXP1_07_PIN
+
+    #define LCD_PINS_RS              EXP1_01_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
@@ -269,8 +293,8 @@
      *
      *            ---                   ------
      *       RST | 1 |          (MISO) |10  9 | SCK
-     * (RX2) PA2 | 2 |         BTN_EN1 | 8  7 | (SS)
-     * (TX2) PA3 | 3 |         BTN_EN2 | 6  5 | MOSI
+     * (RX2) PA3 | 2 |         BTN_EN1 | 8  7 | (SS)
+     * (TX2) PA2 | 3 |         BTN_EN2 | 6  5 | MOSI
      *       GND | 4 |            (CD) | 4  3 | (RST)
      *        5V | 5 |           (GND) | 2  1 | (KILL)
      *            ---                   ------
@@ -285,24 +309,21 @@
      *   EXP1-8 ----------- EXP2-6   EN2
      *   EXP1-7 ----------- EXP1-5   RED
      *   EXP1-6 ----------- EXP2-8   EN1
-     *   EXP1-5 ----------- EXP1-6   LCD_RST
-     *   EXP1-4 ----------- n/c
+     *   EXP1-5 ----------- n/c
+     *   EXP1-4 ----------- EXP1-6   RESET
      *   EXP1-3 ----------- EXP1-8   LCD_CS
      *   EXP1-2 ----------- EXP1-9   ENC
      *   EXP1-1 ----------- EXP1-7   LCD_A0
      *
-     *    TFT-2 ----------- EXP2-9   SCK
-     *    TFT-3 ----------- EXP2-5   MOSI
+     *    TFT-2 ----------- EXP2-5   MOSI
+     *    TFT-3 ----------- EXP2-9   SCK
      *
      * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
      */
 
-    #define LCD_PINS_RS              EXP1_03_PIN    // CS
-    #define LCD_PINS_ENABLE                 PA3     // MOSI
     #define LCD_BACKLIGHT_PIN               -1
     #define NEOPIXEL_PIN             EXP1_07_PIN
-    #define LCD_CONTRAST                    255
-    #define LCD_RESET_PIN            EXP1_05_PIN
+    #define LCD_CONTRAST                     255
 
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_01_PIN
@@ -316,7 +337,7 @@
     #define FORCE_SOFT_SPI
 
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864_V1 are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_WIRED_LCD

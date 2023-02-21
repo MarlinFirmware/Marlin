@@ -41,7 +41,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
+#if HAS_PID_HEATING
   #include "../../module/temperature.h"
 #endif
 
@@ -277,10 +277,10 @@ void menu_backlash();
 //
 #if SHOW_MENU_ADVANCED_TEMPERATURE
 
-  #if ENABLED(MPC_EDIT_MENU)
-    #define MPC_EDIT_DEFS(N) \
-      MPC_t &c = thermalManager.temp_hotend[N].constants; \
-      TERN_(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment)
+  #if BOTH(MPC_EDIT_MENU, MPC_INCLUDE_FAN)
+    #define MPC_EDIT_DEFS(N) editable.decimal = thermalManager.temp_hotend[N].fanCoefficient()
+  #else
+    #define MPC_EDIT_DEFS(...)
   #endif
 
   void menu_advanced_temperature() {
@@ -295,10 +295,9 @@ void menu_backlash();
     // Autotemp, Min, Max, Fact
     //
     #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND)
-      EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp_min, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp_max, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
+      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp.min, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp.max, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp.factor, 0, 10);
     #endif
 
     //
@@ -371,17 +370,17 @@ void menu_backlash();
     #if ENABLED(MPC_EDIT_MENU)
 
       #define _MPC_EDIT_ITEMS(N) \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &c.heater_power, 1, 200); \
-        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &c.block_heat_capacity, 0, 40); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &c.sensor_responsiveness, 0, 1); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &c.ambient_xfer_coeff_fan0, 0, 1)
+        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_POWER_E, &mpc.heater_power, 1, 200); \
+        EDIT_ITEM_FAST_N(float31sign, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &mpc.block_heat_capacity, 0, 40); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &mpc.sensor_responsiveness, 0, 1); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &mpc.ambient_xfer_coeff_fan0, 0, 1)
 
       #if ENABLED(MPC_INCLUDE_FAN)
         #define MPC_EDIT_ITEMS(N) \
+          MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
-            MPC_t &c = thermalManager.temp_hotend[MenuItemBase::itemIndex].constants; \
-            c.fan255_adjustment = editable.decimal - c.ambient_xfer_coeff_fan0; \
+            thermalManager.temp_hotend[MenuItemBase::itemIndex].applyFanAdjustment(editable.decimal); \
           })
       #else
         #define MPC_EDIT_ITEMS _MPC_EDIT_ITEMS
@@ -545,24 +544,28 @@ void menu_backlash();
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-      // M593 F Frequency
-      #if HAS_SHAPING_X
+      // M593 F Frequency and D Damping ratio
+      #if ENABLED(INPUT_SHAPING_X)
         editable.decimal = stepper.get_shaping_frequency(X_AXIS);
-        EDIT_ITEM_FAST(float61, MSG_SHAPING_X_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(X_AXIS, editable.decimal); });
+        if (editable.decimal) {
+          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(X_AXIS, 0.0f); });
+          EDIT_ITEM_FAST_N(float61, X_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(X_AXIS, editable.decimal); });
+          editable.decimal = stepper.get_shaping_damping_ratio(X_AXIS);
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(X_AXIS, editable.decimal); });
+        }
+        else
+          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, SHAPING_FREQ_X); });
       #endif
-      #if HAS_SHAPING_Y
+      #if ENABLED(INPUT_SHAPING_Y)
         editable.decimal = stepper.get_shaping_frequency(Y_AXIS);
-        EDIT_ITEM_FAST(float61, MSG_SHAPING_Y_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(Y_AXIS, editable.decimal); });
-      #endif
-
-      // M593 D Damping ratio
-      #if HAS_SHAPING_X
-        editable.decimal = stepper.get_shaping_damping_ratio(X_AXIS);
-        EDIT_ITEM_FAST(float42_52, MSG_SHAPING_X_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(X_AXIS, editable.decimal); });
-      #endif
-      #if HAS_SHAPING_Y
-        editable.decimal = stepper.get_shaping_damping_ratio(Y_AXIS);
-        EDIT_ITEM_FAST(float42_52, MSG_SHAPING_Y_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
+        if (editable.decimal) {
+          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(Y_AXIS, 0.0f); });
+          EDIT_ITEM_FAST_N(float61, Y_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(Y_AXIS, editable.decimal); });
+          editable.decimal = stepper.get_shaping_damping_ratio(Y_AXIS);
+          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
+        }
+        else
+          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, SHAPING_FREQ_Y); });
       #endif
 
       END_MENU();
@@ -636,11 +639,11 @@ void menu_advanced_steps_per_mm() {
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
   LOOP_NUM_AXES(a)
-    EDIT_ITEM_FAST_N(float61, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
+    EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
 
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(n, E_STEPPERS)
-      EDIT_ITEM_FAST_N(float61, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
+      EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
         const uint8_t e = MenuItemBase::itemIndex;
         if (e == active_extruder)
           planner.refresh_positioning();
@@ -648,7 +651,7 @@ void menu_advanced_steps_per_mm() {
           planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
       });
   #elif E_STEPPERS
-    EDIT_ITEM_FAST_N(float61, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
+    EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
   #endif
 
   END_MENU();
@@ -691,7 +694,7 @@ void menu_advanced_settings() {
 
     // M593 - Acceleration items
     #if ENABLED(SHAPING_MENU)
-      SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
+      if (!is_busy) SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
     #endif
 
     #if HAS_CLASSIC_JERK

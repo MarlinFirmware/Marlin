@@ -149,7 +149,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     const preheat_t &pre = material_preset[m];
     TERN_(HAS_HOTEND,           if (TEST(pmask, PT_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
     TERN_(HAS_HEATED_BED,       if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp));
-    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetBed(pre.chamber_temp));
+    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetChamber(pre.chamber_temp));
     TERN_(HAS_FAN,              if (TEST(pmask, PT_FAN))     thermalManager.set_fan_speed(0, pre.fan_speed));
   }
 #endif
@@ -171,6 +171,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     return blink != 0;
   }
 
+#endif
+
+#if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+  #include "Wire.h"
 #endif
 
 // Encoder Handling
@@ -196,12 +200,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::screen_timeout_millis = 0;
-  #if DISABLED(TFT_COLOR_UI)
-    void MarlinUI::refresh_screen_timeout() {
-      screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-      sleep_display(false);
-    }
+  void MarlinUI::refresh_screen_timeout() {
+    screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
+    sleep_display(false);
+  }
+
+  #if !HAS_TOUCH_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
+    void MarlinUI::sleep_display(const bool sleep) {} // if unimplemented
   #endif
+
 #endif
 
 void MarlinUI::init() {
@@ -260,6 +267,10 @@ void MarlinUI::init() {
 
   #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
+  #endif
+
+  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    Wire.begin(int(I2C_SDA_PIN), int(I2C_SCL_PIN));
   #endif
 
   update_buttons();
@@ -731,6 +742,11 @@ void MarlinUI::init() {
     void MarlinUI::wakeup_screen() {
       TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
     }
+    #if HAS_DISPLAY_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
+      void MarlinUI::sleep_display(const bool sleep) {
+        if (!sleep) wakeup_screen(); // relay extra wake up events
+      }
+    #endif
   #endif
 
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
@@ -817,7 +833,7 @@ void MarlinUI::init() {
           // Apply a linear offset to a single axis
           if (axis == ALL_AXES_ENUM)
             destination = all_axes_destination;
-          else if (axis <= XYZE) {
+          else if (axis <= LOGICAL_AXES) {
             destination = current_position;
             destination[axis] += offset;
           }
@@ -1071,7 +1087,7 @@ void MarlinUI::init() {
 
           #if LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
-          #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
+          #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
           #endif
 
@@ -1184,9 +1200,9 @@ void MarlinUI::init() {
           WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           backlight_off_ms = 0;
         }
-      #elif HAS_DISPLAY_SLEEP && DISABLED(TFT_COLOR_UI)
+      #elif HAS_DISPLAY_SLEEP
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
-          sleep_display(true);
+          sleep_display();
       #endif
 
       // Change state of drawing flag between screen updates
@@ -1634,6 +1650,7 @@ void MarlinUI::init() {
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
     LCD_MESSAGE(MSG_PRINT_ABORTED);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
+    TERN_(DWIN_LCD_PROUI, HMI_flag.abort_flag = true);
   }
 
   #if BOTH(HAS_MARLINUI_MENU, PSU_CONTROL)
@@ -1726,9 +1743,11 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
-    typedef void (*PrintProgress_t)();
-    void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
+  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+
+    // Renew and redraw all enabled progress strings
+    void MarlinUI::rotate_progress() {
+      typedef void (*PrintProgress_t)();
       const PrintProgress_t progFunc[] = {
         OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
         OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
@@ -1743,7 +1762,8 @@ void MarlinUI::init() {
         (*progFunc[i])();
       }
     }
-  #endif
+
+  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
 
 #endif // HAS_PRINT_PROGRESS
 
@@ -1811,7 +1831,7 @@ void MarlinUI::init() {
     #endif
   }
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
     void MarlinUI::zoffset_overlay(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;

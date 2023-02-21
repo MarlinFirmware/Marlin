@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUSTxHandler.h"
 
@@ -37,7 +37,7 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  void DGUSTxHandler::SetFileControlState(int file, bool state) {
+  void DGUSTxHandler::SetFileControlState(int16_t file, bool state) {
     DGUS_Control control;
 
     switch (file) {
@@ -75,17 +75,17 @@
     // Batch send
     uint16_t data[DGUS_FILE_COUNT];
 
-    for (int i = 0; i < DGUS_FILE_COUNT; i++) {
+    for (int16_t i = 0; i < DGUS_FILE_COUNT; i++) {
       if (!dgus_screen_handler.filelist.seek(dgus_screen_handler.filelist_offset + i)) {
-        data[i] = Swap16((uint16_t)DGUS_Data::SDType::NONE);
+        data[i] = Swap16(DGUS_Data::SDType::NONE);
 
         SetFileControlState(i, false);
         continue;
       }
 
       data[i] = dgus_screen_handler.filelist.isDir() ?
-                  Swap16((uint16_t)DGUS_Data::SDType::DIRECTORY)
-                : Swap16((uint16_t)DGUS_Data::SDType::FILE);
+                  Swap16(DGUS_Data::SDType::DIRECTORY)
+                : Swap16(DGUS_Data::SDType::FILE);
 
       SetFileControlState(i, true);
     }
@@ -287,7 +287,7 @@ void DGUSTxHandler::TempMax(DGUS_VP &vp) {
 
 void DGUSTxHandler::StepperStatus(DGUS_VP &vp) {
   const bool motor_on = stepper.axis_enabled.bits & (_BV(NUM_AXES) - 1);
-  dgus_display.Write((uint16_t)vp.addr, Swap16(uint16_t(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED)));
+  dgus_display.Write((uint16_t)vp.addr, Swap16(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED));
 }
 
 void DGUSTxHandler::StepIcons(DGUS_VP &vp) {
@@ -340,7 +340,7 @@ void DGUSTxHandler::ABLGrid(DGUS_VP &vp) {
   xy_uint8_t point;
   int16_t fixed;
 
-  for (int i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
+  for (int16_t i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
     point.x = i % (GRID_MAX_POINTS_X);
     point.y = i / (GRID_MAX_POINTS_X);
     fixed = dgus_display.ToFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point));
@@ -385,13 +385,13 @@ void DGUSTxHandler::BLTouch(DGUS_VP &vp) {
                                DGUSDisplay::RETURN_KEY_CODE,
                                DGUS_Control::EXTRA2);
 
-    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::ENABLED));
+    dgus_display.Write((uint16_t)vp.addr, Swap16(DGUS_Data::Status::ENABLED));
   #else
     dgus_display.DisableControl(DGUS_Screen::SETTINGS_MENU2,
                                 DGUSDisplay::RETURN_KEY_CODE,
                                 DGUS_Control::EXTRA2);
 
-    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::DISABLED));
+    dgus_display.Write((uint16_t)vp.addr, Swap16(DGUS_Data::Status::DISABLED));
   #endif
 }
 

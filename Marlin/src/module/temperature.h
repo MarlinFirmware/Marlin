@@ -159,93 +159,215 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   #define scalePID_d(d)   ( float(d) / PID_dT )
   #define unscalePID_d(d) ( float(d) * PID_dT )
 
-  typedef struct {
-    float Kp, Ki, Kd;
+  /// @brief The default PID class, only has Kp, Ki, Kd, other classes extend this one
+  /// @tparam MIN_POW output when current is above target by functional_range
+  /// @tparam MAX_POW output when current is below target by functional_range
+  /// @details This class has methods for Kc and Kf terms, but returns constant default values
+  /// PID classes that implement these features are expected to override these methods
+  /// Since the finally used PID class is typedef-d, there is no need to use virtual functions
+  template<int MIN_POW, int MAX_POW>
+  struct PID_t{
+  protected:
+    bool pid_reset = true;
+    float temp_iState = 0.0f, temp_dState = 0.0f;
+    float work_p = 0, work_i = 0, work_d = 0;
+
+  public:
+    float Kp = 0, Ki = 0, Kd = 0;
     float p() const { return Kp; }
     float i() const { return unscalePID_i(Ki); }
     float d() const { return unscalePID_d(Kd); }
     float c() const { return 1; }
     float f() const { return 0; }
+    float pTerm() const { return work_p; }
+    float iTerm() const { return work_i; }
+    float dTerm() const { return work_d; }
+    float cTerm() const { return 0; }
+    float fTerm() const { return 0; }
     void set_Kp(float p) { Kp = p; }
     void set_Ki(float i) { Ki = scalePID_i(i); }
     void set_Kd(float d) { Kd = scalePID_d(d); }
     void set_Kc(float) {}
     void set_Kf(float) {}
-    void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); UNUSED(c); UNUSED(f); }
+    int low() const { return MIN_POW; }
+    int high() const { return MAX_POW; }
+    void reset() { pid_reset = true; }
+    void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); set_Kc(c); set_Kf(f); }
     void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
-    void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d); }
-  } PID_t;
+    void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
+
+    float get_fan_scale_output(const uint8_t) { return 0; }
+
+    float get_extrusion_scale_output(const bool, const int32_t, const float, const int16_t) { return 0; }
+
+    float get_pid_output(const float target, const float current) {
+      const float pid_error = target - current;
+      if (!target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
+        pid_reset = true;
+        return 0;
+      }
+      else if (pid_error > PID_FUNCTIONAL_RANGE) {
+        pid_reset = true;
+        return MAX_POW;
+      }
+
+      if (pid_reset) {
+        pid_reset = false;
+        temp_iState = 0.0;
+        work_d = 0.0;
+      }
+
+      const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
+      temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
+
+      work_p = Kp * pid_error;
+      work_i = Ki * temp_iState;
+      work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
+
+      temp_dState = current;
+
+      return constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
+    }
+
+  };
 
 #endif
 
 #if ENABLED(PIDTEMP)
 
-  typedef struct {
-    float Kp, Ki, Kd, Kc;
-    float p() const { return Kp; }
-    float i() const { return unscalePID_i(Ki); }
-    float d() const { return unscalePID_d(Kd); }
+  /// @brief Extrusion scaled PID class
+  template<int MIN_POW, int MAX_POW, int LPQ_ARR_SZ>
+  struct PIDC_t : public PID_t<MIN_POW, MAX_POW> {
+  private:
+    using base = PID_t<MIN_POW, MAX_POW>;
+    float work_c = 0;
+    float prev_e_pos = 0;
+    int32_t lpq[LPQ_ARR_SZ] = {};
+    int16_t lpq_ptr = 0;
+  public:
+    float Kc = 0;
     float c() const { return Kc; }
-    float f() const { return 0; }
-    void set_Kp(float p) { Kp = p; }
-    void set_Ki(float i) { Ki = scalePID_i(i); }
-    void set_Kd(float d) { Kd = scalePID_d(d); }
     void set_Kc(float c) { Kc = c; }
-    void set_Kf(float) {}
-    void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); set_Kc(c); set_Kf(f); }
-    void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
-    void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c); }
-  } PIDC_t;
-
-  typedef struct {
-    float Kp, Ki, Kd, Kf;
-    float p() const { return Kp; }
-    float i() const { return unscalePID_i(Ki); }
-    float d() const { return unscalePID_d(Kd); }
-    float c() const { return 1; }
-    float f() const { return Kf; }
-    void set_Kp(float p) { Kp = p; }
-    void set_Ki(float i) { Ki = scalePID_i(i); }
-    void set_Kd(float d) { Kd = scalePID_d(d); }
-    void set_Kc(float) {}
-    void set_Kf(float f) { Kf = f; }
-    void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); set_Kf(f); }
-    void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
-    void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.f); }
-  } PIDF_t;
-
-  typedef struct {
-    float Kp, Ki, Kd, Kc, Kf;
-    float p() const { return Kp; }
-    float i() const { return unscalePID_i(Ki); }
-    float d() const { return unscalePID_d(Kd); }
-    float c() const { return Kc; }
-    float f() const { return Kf; }
-    void set_Kp(float p) { Kp = p; }
-    void set_Ki(float i) { Ki = scalePID_i(i); }
-    void set_Kd(float d) { Kd = scalePID_d(d); }
-    void set_Kc(float c) { Kc = c; }
-    void set_Kf(float f) { Kf = f; }
-    void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); set_Kc(c); set_Kf(f); }
+    float cTerm() const { return work_c; }
+    void set(float p, float i, float d, float c=1, float f=0) {
+      base::set_Kp(p);
+      base::set_Ki(i);
+      base::set_Kd(d);
+      set_Kc(c);
+      base::set_Kf(f);
+    }
     void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
     void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
-  } PIDCF_t;
+    void reset() {
+      base::reset();
+      prev_e_pos = 0;
+      lpq_ptr = 0;
+      LOOP_L_N(i, LPQ_ARR_SZ) lpq[i] = 0;
+    }
+
+    float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
+      work_c = 0;
+      if (!is_active) return work_c;
+
+      if (e_position > prev_e_pos) {
+        lpq[lpq_ptr] = e_position - prev_e_pos;
+        prev_e_pos = e_position;
+      }
+      else
+        lpq[lpq_ptr] = 0;
+
+      ++lpq_ptr;
+
+      if (lpq_ptr >= LPQ_ARR_SZ || lpq_ptr >= lpq_len)
+        lpq_ptr = 0;
+
+      work_c = (lpq[lpq_ptr] * e_mm_per_step) * Kc;
+
+      return work_c;
+    }
+  };
+
+  /// @brief Fan scaled PID, this class implements the get_fan_scale_output() method
+  /// @tparam MIN_POW @see PID_t
+  /// @tparam MAX_POW @see PID_t
+  /// @tparam SCALE_MIN_SPEED parameter from Configuration_adv.h
+  /// @tparam SCALE_LIN_FACTOR parameter from Configuration_adv.h
+  template<int MIN_POW, int MAX_POW, int SCALE_MIN_SPEED, int SCALE_LIN_FACTOR>
+  struct PIDF_t : public PID_t<MIN_POW, MAX_POW> {
+  private:
+    using base = PID_t<MIN_POW, MAX_POW>;
+    float work_f = 0;
+  public:
+    float Kf = 0;
+    float f() const { return Kf; }
+    void set_Kf(float f) { Kf = f; }
+    float fTerm() const { return work_f; }
+    void set(float p, float i, float d, float c=1, float f=0) {
+      base::set_Kp(p);
+      base::set_Ki(i);
+      base::set_Kd(d);
+      base::set_Kc(c);
+      set_Kf(f);
+    }
+    void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
+    void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
+
+    float get_fan_scale_output(const uint8_t fan_speed) {
+      work_f = 0;
+      if (fan_speed > SCALE_MIN_SPEED)
+        work_f = Kf + (SCALE_LIN_FACTOR) * fan_speed;
+
+      return work_f;
+    }
+  };
+
+  /// @brief Inherits PID and PIDC - can't use proper diamond inheritance w/o virtual
+  template<int MIN_POW, int MAX_POW, int LPQ_ARR_SZ, int SCALE_MIN_SPEED, int SCALE_LIN_FACTOR>
+  struct PIDCF_t : public PIDC_t<MIN_POW, MAX_POW, LPQ_ARR_SZ> {
+  private:
+    using base = PID_t<MIN_POW, MAX_POW>;
+    using cPID = PIDC_t<MIN_POW, MAX_POW, LPQ_ARR_SZ>;
+    float work_f = 0;
+  public:
+    float Kf = 0;
+    float c() const { return cPID::c(); }
+    float f() const { return Kf; }
+    void set_Kc(float c) { cPID::set_Kc(c); }
+    void set_Kf(float f) { Kf = f; }
+    float cTerm() const { return cPID::cTerm(); }
+    float fTerm() const { return work_f; }
+    void set(float p, float i, float d, float c=1, float f=0) {
+      base::set_Kp(p);
+      base::set_Ki(i);
+      base::set_Kd(d);
+      cPID::set_Kc(c);
+      set_Kf(f);
+    }
+    void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
+    void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
+
+    void reset() { cPID::reset(); }
+
+    float get_fan_scale_output(const uint8_t fan_speed) {
+      work_f = fan_speed > (SCALE_MIN_SPEED) ? Kf + (SCALE_LIN_FACTOR) * fan_speed : 0;
+      return work_f;
+    }
+    float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
+      return cPID::get_extrusion_scale_output(is_active, e_position, e_mm_per_step, lpq_len);
+    }
+  };
 
   typedef
     #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-      PIDCF_t
+      PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
-      PIDC_t
+      PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
     #elif ENABLED(PID_FAN_SCALING)
-      PIDF_t
+      PIDF_t<0, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #else
-      PID_t
+      PID_t<0, PID_MAX>
     #endif
   hotend_pid_t;
-
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
-  #endif
 
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     #define SET_HOTEND_PID(F,H,V) thermalManager.temp_hotend[H].pid.set_##F(V)
@@ -260,10 +382,14 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
     float ambient_xfer_coeff_fan0;      // M306 A
+    float filament_heat_capacity_permm; // M306 H
     #if ENABLED(MPC_INCLUDE_FAN)
       float fan255_adjustment;          // M306 F
+      void applyFanAdjustment(const_float_t cf) { fan255_adjustment = cf - ambient_xfer_coeff_fan0; }
+    #else
+      void applyFanAdjustment(const_float_t) {}
     #endif
-    float filament_heat_capacity_permm; // M306 H
+    float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
   } MPC_t;
 
   #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
@@ -299,7 +425,8 @@ public:
 typedef struct HeaterInfo : public TempInfo {
   celsius_t target;
   uint8_t soft_pwm_amount;
-  bool is_below_target(const celsius_t offs=0) const { return (celsius < (target + offs)); }
+  bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
+  bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
 } heater_info_t;
 
 // A heater with PID stabilization
@@ -310,10 +437,12 @@ struct PIDHeaterInfo : public HeaterInfo {
 
 #if ENABLED(MPCTEMP)
   struct MPCHeaterInfo : public HeaterInfo {
-    MPC_t constants;
+    MPC_t mpc;
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
+    float fanCoefficient() { return mpc.fanCoefficient(); }
+    void applyFanAdjustment(const_float_t cf) { mpc.applyFanAdjustment(cf); }
   };
 #endif
 
@@ -326,14 +455,14 @@ struct PIDHeaterInfo : public HeaterInfo {
 #endif
 #if HAS_HEATED_BED
   #if ENABLED(PIDTEMPBED)
-    typedef struct PIDHeaterInfo<PID_t> bed_info_t;
+    typedef struct PIDHeaterInfo<PID_t<MIN_BED_POWER, MAX_BED_POWER>> bed_info_t;
   #else
     typedef heater_info_t bed_info_t;
   #endif
 #endif
 #if HAS_HEATED_CHAMBER
   #if ENABLED(PIDTEMPCHAMBER)
-    typedef struct PIDHeaterInfo<PID_t> chamber_info_t;
+    typedef struct PIDHeaterInfo<PID_t<MIN_CHAMBER_POWER, MAX_CHAMBER_POWER>> chamber_info_t;
   #else
     typedef heater_info_t chamber_info_t;
   #endif
@@ -457,7 +586,7 @@ class Temperature {
 
     #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTENDS];
-      static const celsius_t hotend_maxtemp[HOTENDS];
+      static constexpr celsius_t hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
       static celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
 
@@ -514,6 +643,8 @@ class Temperature {
       static bool tooColdToExtrude(const uint8_t E_NAME)       { return tooCold(wholeDegHotend(HOTEND_INDEX)); }
       static bool targetTooColdToExtrude(const uint8_t E_NAME) { return tooCold(degTargetHotend(HOTEND_INDEX)); }
     #else
+      static constexpr bool allow_cold_extrude = true;
+      static constexpr celsius_t extrude_min_temp = 0;
       static bool tooColdToExtrude(const uint8_t) { return false; }
       static bool targetTooColdToExtrude(const uint8_t) { return false; }
     #endif
@@ -585,11 +716,6 @@ class Temperature {
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
 
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      static int32_t pes_e_position, lpq[LPQ_MAX_LEN];
-      static lpq_ptr_t lpq_ptr;
-    #endif
-
     #if ENABLED(MPCTEMP)
       static int32_t mpc_e_position;
     #endif
@@ -628,10 +754,6 @@ class Temperature {
 
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
-    #endif
-
-    #if MILLISECONDS_PREHEAT_TIME > 0
-      static millis_t preheat_end_time[HOTENDS];
     #endif
 
     #if HAS_FAN_LOGIC
@@ -789,20 +911,38 @@ class Temperature {
     static void task();
 
     /**
-     * Preheating hotends
+     * Preheating hotends & bed
      */
-    #if MILLISECONDS_PREHEAT_TIME > 0
-      static bool is_preheating(const uint8_t E_NAME) {
-        return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
+    #if PREHEAT_TIME_HOTEND_MS > 0
+      static millis_t preheat_end_ms_hotend[HOTENDS];
+      static bool is_hotend_preheating(const uint8_t E_NAME) {
+        return preheat_end_ms_hotend[HOTEND_INDEX] && PENDING(millis(), preheat_end_ms_hotend[HOTEND_INDEX]);
       }
-      static void start_preheat_time(const uint8_t E_NAME) {
-        preheat_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+      static void start_hotend_preheat_time(const uint8_t E_NAME) {
+        preheat_end_ms_hotend[HOTEND_INDEX] = millis() + PREHEAT_TIME_HOTEND_MS;
       }
-      static void reset_preheat_time(const uint8_t E_NAME) {
-        preheat_end_time[HOTEND_INDEX] = 0;
+      static void reset_hotend_preheat_time(const uint8_t E_NAME) {
+        preheat_end_ms_hotend[HOTEND_INDEX] = 0;
       }
     #else
-      #define is_preheating(n) (false)
+      static bool is_hotend_preheating(const uint8_t) { return false; }
+    #endif
+
+    #if HAS_HEATED_BED
+      #if PREHEAT_TIME_BED_MS > 0
+        static millis_t preheat_end_ms_bed;
+        static bool is_bed_preheating() {
+          return preheat_end_ms_bed && PENDING(millis(), preheat_end_ms_bed);
+        }
+        static void start_bed_preheat_time() {
+          preheat_end_ms_bed = millis() + PREHEAT_TIME_BED_MS;
+        }
+        static void reset_bed_preheat_time() {
+          preheat_end_ms_bed = 0;
+        }
+      #else
+        static bool is_bed_preheating() { return false; }
+      #endif
     #endif
 
     //high level conversion routines, for use outside of temperature.cpp
@@ -831,11 +971,11 @@ class Temperature {
 
       static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
-        #if MILLISECONDS_PREHEAT_TIME > 0
+        #if PREHEAT_TIME_HOTEND_MS > 0
           if (celsius == 0)
-            reset_preheat_time(ee);
+            reset_hotend_preheat_time(ee);
           else if (temp_hotend[ee].target == 0)
-            start_preheat_time(ee);
+            start_hotend_preheat_time(ee);
         #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, hotend_max_target(ee));
@@ -898,6 +1038,12 @@ class Temperature {
       static void start_watching_bed() { TERN_(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())); }
 
       static void setTargetBed(const celsius_t celsius) {
+        #if PREHEAT_TIME_BED_MS > 0
+          if (celsius == 0)
+            reset_bed_preheat_time();
+          else if (temp_bed.target == 0)
+            start_bed_preheat_time();
+        #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
         start_watching_bed();
@@ -1016,6 +1162,12 @@ class Temperature {
       static void auto_job_check_timer(const bool can_start, const bool can_stop);
     #endif
 
+    #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
+      static bool adaptive_fan_slowing;
+    #elif ENABLED(ADAPTIVE_FAN_SLOWING)
+      static constexpr bool adaptive_fan_slowing = true;
+    #endif
+
     /**
      * Perform auto-tuning for hotend or bed in response to M303
      */
@@ -1027,15 +1179,9 @@ class Temperature {
 
       static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
-      #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
-        static bool adaptive_fan_slowing;
-      #elif ENABLED(ADAPTIVE_FAN_SLOWING)
-        static constexpr bool adaptive_fan_slowing = true;
-      #endif
-
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
-        static void updatePID() { TERN_(PID_EXTRUSION_SCALING, pes_e_position = 0); }
+        static void updatePID() { HOTEND_LOOP() temp_hotend[e].pid.reset(); }
         static void setPID(const uint8_t hotend, const_float_t p, const_float_t i, const_float_t d) {
           #if ENABLED(PID_PARAMS_PER_HOTEND)
             temp_hotend[hotend].pid.set(p, i, d);
@@ -1049,7 +1195,7 @@ class Temperature {
     #endif
 
     #if ENABLED(MPCTEMP)
-      void MPC_autotune();
+      void MPC_autotune(const uint8_t e);
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
@@ -1135,8 +1281,8 @@ class Temperature {
     #endif
 
     static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
-    static void min_temp_error(const heater_id_t e);
-    static void max_temp_error(const heater_id_t e);
+    static void mintemp_error(const heater_id_t e);
+    static void maxtemp_error(const heater_id_t e);
 
     #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
 

@@ -207,7 +207,7 @@ namespace Language_vi {
   LSTR MSG_MOVE_10MM                      = _UxGT("Di chuyển 10mm");                       // Move 10mm
   LSTR MSG_MOVE_100MM                     = _UxGT("Di chuyển 100mm");                      // Move 100mm
   LSTR MSG_SPEED                          = _UxGT("Tốc độ");                               // Speed
-  LSTR MSG_BED_Z                          = _UxGT("Z Bàn");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Bàn");
   LSTR MSG_NOZZLE                         = _UxGT("Đầu phun");                             // Nozzle
   LSTR MSG_NOZZLE_N                       = _UxGT("Đầu phun ~");
   LSTR MSG_BED                            = _UxGT("Bàn");                                  // bed
@@ -224,7 +224,6 @@ namespace Language_vi {
   LSTR MSG_AUTOTEMP                       = _UxGT("Nhiệt độ tự động");                     // Autotemp
   LSTR MSG_LCD_ON                         = _UxGT("Bật");                                  // on
   LSTR MSG_LCD_OFF                        = _UxGT("Tắt");                                  // off
-  LSTR MSG_SELECT                         = _UxGT("Lựa");                                  // Select
   LSTR MSG_SELECT_E                       = _UxGT("Lựa *");
   LSTR MSG_ACC                            = _UxGT("Tăng Tốc");
   LSTR MSG_JERK                           = _UxGT("Giật");
@@ -327,7 +326,7 @@ namespace Language_vi {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Cất BLTouch");                          // Stow BLTouch
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Đem Đầu Dò-Z");                         // Deploy Z-Probe
   LSTR MSG_MANUAL_STOW                    = _UxGT("Cất Đầu Dò-Z");                         // Stow Z-Probe
-  LSTR MSG_HOME_FIRST                     = _UxGT("Về nhà %s%s%s Trước");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Về nhà %s Trước");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Đầu Dò Bù Đắp Z");                      // Probe Z Offset
   LSTR MSG_BABYSTEP_X                     = _UxGT("Nhít X");                               // Babystep X
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Nhít Y");

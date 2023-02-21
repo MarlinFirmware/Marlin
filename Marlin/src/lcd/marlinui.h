@@ -334,7 +334,7 @@ public:
       FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
     #endif
     static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
-    #if LCD_WITH_BLINK
+    #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
       #if ENABLED(SHOW_PROGRESS_PERCENT)
         static void drawPercent();
       #endif
@@ -348,6 +348,8 @@ public:
         static void drawInter();
       #endif
       static void rotate_progress();
+    #else
+      static void rotate_progress() {}
     #endif
   #else
     static constexpr uint8_t get_progress_percent() { return 0; }
@@ -504,7 +506,7 @@ public:
       static bool old_is_printing;
     #endif
 
-    #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+    #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
       static void zoffset_overlay(const int8_t dir);
       static void zoffset_overlay(const_float_t zvalue);
     #endif
