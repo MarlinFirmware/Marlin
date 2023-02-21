@@ -302,6 +302,8 @@ void report_current_position_projected();
   #endif
 #endif
 
+float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move));
+
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
