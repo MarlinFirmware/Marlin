@@ -1360,7 +1360,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
                 do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
                 do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
               );
-            #endif
+              #endif
             #endif
 
           #endif
@@ -1459,16 +1459,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           case 7: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T7)); break;
         #endif
       }
-
-      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
-        if (new_tool > 0) {
-          position_shift = old_position_shift;
-          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
-        }
-      #endif
-
+      
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
       #if EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
@@ -1481,6 +1472,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (!no_move) {
           // Move to new hotend Z offset and reverse Z_RAISE
           do_blocking_move_to_z(_MIN(_MAX((destination.z - diff.z) - toolchange_settings.z_raise, _MAX(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.min.z, Z_MIN_POS), Z_MIN_POS)), _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS)), planner.settings.max_feedrate_mm_s[Z_AXIS]);
+        }
+      #endif
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        if (new_tool > 0) {
+          position_shift = old_position_shift;
+          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
         }
       #endif
 
