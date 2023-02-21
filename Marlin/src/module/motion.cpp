@@ -1062,7 +1062,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 /**
  * Get distance from displacements along axes and, if required, update move type.
  */
-float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move)) {
+float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move)) {
   if (!(NUM_AXIS_GANG(diff.x, || diff.y, /* skip z */, || diff.i, || diff.j, || diff.k, || diff.u, || diff.v, || diff.w)))
     return TERN0(HAS_Z_AXIS, ABS(diff.z));
 
@@ -1194,7 +1194,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
     #if HAS_ROTATIONAL_AXES
       bool cartes_move = true;
     #endif
-    float cartesian_mm = get_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+    float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1285,7 +1285,7 @@ float get_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_c
       #if HAS_ROTATIONAL_AXES
         bool cartes_move = true;
       #endif
-      float cartesian_mm = get_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+      float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
       // If the move is very short, check the E move distance
       // No E move either? Game over.

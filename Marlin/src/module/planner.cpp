@@ -2179,7 +2179,7 @@ bool Planner::_populate_block(
         steps_dist_mm.w
       );
 
-      block->millimeters = get_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+      block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
     }
 
     /**
@@ -3121,7 +3121,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = get_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
+      ph.millimeters = get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
 
     #if DISABLED(FEEDRATE_SCALING)
 
