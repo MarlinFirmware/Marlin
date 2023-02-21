@@ -1271,7 +1271,6 @@ void EachMomentUpdate() {
 
     if ((Printing() != HMI_flag.printing_flag) && !HMI_flag.home_flag) {
       HMI_flag.printing_flag = Printing();
-      DEBUG_ECHOLNPGM("printing_flag: ", HMI_flag.printing_flag);
       if (HMI_flag.printing_flag)
         DWIN_Print_Started();
       else if (HMI_flag.abort_flag)
@@ -1282,7 +1281,6 @@ void EachMomentUpdate() {
 
     if ((printingIsPaused() != HMI_flag.pause_flag) && !HMI_flag.home_flag) {
       HMI_flag.pause_flag = printingIsPaused();
-      DEBUG_ECHOLNPGM("pause_flag: ", HMI_flag.pause_flag);
       if (HMI_flag.pause_flag)
         DWIN_Print_Pause();
       else if (HMI_flag.abort_flag)
@@ -1347,7 +1345,7 @@ void EachMomentUpdate() {
       DWINUI::Draw_Button(BTN_Cancel,    26, 280);
       DWINUI::Draw_Button(BTN_Continue, 146, 280);
     }
-    SdFile *dir = nullptr;
+    MediaFile *dir = nullptr;
     const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
     card.selectFileByName(filename);
     DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 207, card.longest_filename());
@@ -1628,7 +1626,6 @@ void DWIN_LevelingDone() {
 
 // Started a Print Job
 void DWIN_Print_Started() {
-  DEBUG_ECHOLNPGM("DWIN_Print_Started: ", SD_Printing());
   TERN_(HAS_GCODE_PREVIEW, if (Host_Printing()) Preview_Invalidate());
   _percent_done = 0;
   _remain_time = 0;
@@ -1642,20 +1639,17 @@ void DWIN_Print_Started() {
 
 // Pause a print job
 void DWIN_Print_Pause() {
-  DEBUG_ECHOLNPGM("DWIN_Print_Pause");
   ICON_ResumeOrPause();
 }
 
 // Resume print job
 void DWIN_Print_Resume() {
-  DEBUG_ECHOLNPGM("DWIN_Print_Resume");
   ICON_ResumeOrPause();
   LCD_MESSAGE(MSG_RESUME_PRINT);
 }
 
 // Ended print job
 void DWIN_Print_Finished() {
-  DEBUG_ECHOLNPGM("DWIN_Print_Finished");
   TERN_(POWER_LOSS_RECOVERY, if (card.isPrinting()) recovery.cancel());
   HMI_flag.pause_flag = false;
   wait_for_heatup = false;
@@ -1666,7 +1660,6 @@ void DWIN_Print_Finished() {
 
 // Print was aborted
 void DWIN_Print_Aborted() {
-  DEBUG_ECHOLNPGM("DWIN_Print_Aborted");
   DWIN_Print_Finished();
 }
 
@@ -1714,7 +1707,6 @@ void DWIN_SetColorDefaults() {
 }
 
 void DWIN_SetDataDefaults() {
-  DEBUG_ECHOLNPGM("DWIN_SetDataDefaults");
   DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
   TERN_(PIDTEMP, HMI_data.HotendPidT = DEF_HOTENDPIDT);
@@ -1738,13 +1730,10 @@ void DWIN_SetDataDefaults() {
 }
 
 void DWIN_CopySettingsTo(char * const buff) {
-  DEBUG_ECHOLNPGM("DWIN_CopySettingsTo");
-  DEBUG_ECHOLNPGM("HMI_data: ", sizeof(HMI_data_t));
   memcpy(buff, &HMI_data, eeprom_data_size);
 }
 
 void DWIN_CopySettingsFrom(const char * const buff) {
-  DEBUG_ECHOLNPGM("DWIN_CopySettingsFrom");
   memcpy(&HMI_data, buff, sizeof(HMI_data_t));
   if (HMI_data.Text_Color == HMI_data.Background_Color) DWIN_SetColorDefaults();
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.StatusBg_Color);
@@ -1764,18 +1753,14 @@ void DWIN_CopySettingsFrom(const char * const buff) {
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-  DEBUG_ECHOLNPGM("MarlinUI::init_lcd");
   delay(750);   // wait to wakeup screen
   const bool hs = DWIN_Handshake(); UNUSED(hs);
-  DEBUG_ECHOPGM("DWIN_Handshake ");
-  DEBUG_ECHOLNF(hs ? F("ok.") : F("error."));
   DWIN_Frame_SetDir(1);
   DWIN_JPG_CacheTo1(Language_English);
   Encoder_Configuration();
 }
 
 void DWIN_InitScreen() {
-  DEBUG_ECHOLNPGM("DWIN_InitScreen");
   DWIN_SetColorDefaults();
   HMI_Init();   // draws boot screen
   DWINUI::init();
@@ -2034,7 +2019,6 @@ void AutoHome() { queue.inject_P(G28_STR); }
     #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       const_float_t step_zoffset = round((MenuData.Value / 100.0f) * planner.settings.axis_steps_per_mm[Z_AXIS]) - babystep.accum;
       if (BABYSTEP_ALLOWED()) babystep.add_steps(Z_AXIS, step_zoffset);
-      //DEBUG_ECHOLNF(F("BB Steps: "), step_zoffset);
     #endif
   }
   void SetZOffset() {
@@ -3542,7 +3526,7 @@ void Draw_Steps_Menu() {
 
 #if ENABLED(MPCTEMP)
 
-  void HotendMPC() { thermalManager.MPC_autotune(); }
+  void HotendMPC() { thermalManager.MPC_autotune(active_extruder); }
   void SetHeaterPower() { SetPFloatOnClick(1, 200, 1); }
   void SetBlkHeatCapacity() { SetPFloatOnClick(0, 40, 2); }
   void SetSensorRespons() { SetPFloatOnClick(0, 1, 4); }

@@ -300,7 +300,7 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
 
 #define TICK_CYCLE 1
 
-unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
+uint16_t getTickDiff(uint16_t curTick, uint16_t lastTick) {
   return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 

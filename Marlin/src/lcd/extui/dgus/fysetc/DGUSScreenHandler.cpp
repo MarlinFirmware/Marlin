@@ -134,8 +134,6 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // meaning "return to previous screen"
   DGUSLCD_Screens target = (DGUSLCD_Screens)tmp[1];
 
-  DEBUG_ECHOLNPGM("\n DEBUG target", target);
-
   if (target == DGUSLCD_SCREEN_POPUP) {
     // Special handling for popup is to return to previous menu
     if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
@@ -151,8 +149,6 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleManualMove");
-
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
   #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
     if (movevalue) {
@@ -161,7 +157,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
   #endif
   char axiscode;
-  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
+  uint16_t speed = _mf[X_AXIS]; // Default feedrate for manual moves
 
   switch (var.VP) {
     default: return;
@@ -171,16 +167,21 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
       if (!ExtUI::canMove(ExtUI::axis_t::X)) goto cannotmove;
       break;
 
-    case VP_MOVE_Y:
-      axiscode = 'Y';
-      if (!ExtUI::canMove(ExtUI::axis_t::Y)) goto cannotmove;
-      break;
+    #if HAS_Y_AXIS
+      case VP_MOVE_Y:
+        axiscode = 'Y';
+        speed = _mf[Y_AXIS];
+        if (!ExtUI::canMove(ExtUI::axis_t::Y)) goto cannotmove;
+        break;
+    #endif
 
-    case VP_MOVE_Z:
-      axiscode = 'Z';
-      speed = 300; // default to 5mm/s
-      if (!ExtUI::canMove(ExtUI::axis_t::Z)) goto cannotmove;
-      break;
+    #if HAS_Z_AXIS
+      case VP_MOVE_Z:
+        axiscode = 'Z';
+        speed = _mf[Z_AXIS];
+        if (!ExtUI::canMove(ExtUI::axis_t::Z)) goto cannotmove;
+        break;
+    #endif
 
     case VP_HOME_ALL: // only used for homing
       axiscode  = '\0';
@@ -190,63 +191,42 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPGM(" homing ", AS_CHAR(axiscode));
     char buf[6] = "G28 X";
     buf[4] = axiscode;
-    //DEBUG_ECHOPGM(" ", buf);
     queue.enqueue_one_now(buf);
-    //DEBUG_ECHOLNPGM(" ✓");
     ForceCompleteUpdate();
     return;
   }
   else {
     // movement
-    DEBUG_ECHOPGM(" move ", AS_CHAR(axiscode));
     bool old_relative_mode = relative_mode;
-    if (!relative_mode) {
-      //DEBUG_ECHOPGM(" G91");
-      queue.enqueue_now(F("G91"));
-      //DEBUG_ECHOPGM(" ✓ ");
-    }
+    if (!relative_mode) queue.enqueue_now(F("G91"));
     char buf[32]; // G1 X9999.99 F12345
-    unsigned int backup_speed = MMS_TO_MMM(feedrate_mm_s);
+    const uint16_t backup_speed = MMS_TO_MMM(feedrate_mm_s);
     char sign[] = "\0";
     int16_t value = movevalue / 100;
     if (movevalue < 0) { value = -value; sign[0] = '-'; }
     int16_t fraction = ABS(movevalue) % 100;
     snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
-    //DEBUG_ECHOPGM(" ", buf);
     queue.enqueue_one_now(buf);
-    //DEBUG_ECHOLNPGM(" ✓ ");
     if (backup_speed != speed) {
       snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
       queue.enqueue_one_now(buf);
-      //DEBUG_ECHOPGM(" ", buf);
     }
-    // while (!enqueue_and_echo_command(buf)) idle();
-    //DEBUG_ECHOLNPGM(" ✓ ");
-    if (!old_relative_mode) {
-      //DEBUG_ECHOPGM("G90");
-      queue.enqueue_now(F("G90"));
-      //DEBUG_ECHOPGM(" ✓ ");
-    }
+    //while (!enqueue_and_echo_command(buf)) idle();
+    if (!old_relative_mode) queue.enqueue_now(F("G90"));
   }
 
   ForceCompleteUpdate();
-  DEBUG_ECHOLNPGM("manmv done.");
-  return;
 
   cannotmove:
-    DEBUG_ECHOLNPGM(" cannot move ", AS_CHAR(axiscode));
     return;
 }
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t rawvalue = swap16(*(uint16_t*)val_ptr);
-    DEBUG_ECHOLNPGM("V1:", rawvalue);
     float value = (float)rawvalue / 10;
-    DEBUG_ECHOLNPGM("V2:", value);
     float newvalue = 0;
 
     switch (var.VP) {
@@ -268,7 +248,6 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
         #endif
     }
 
-    DEBUG_ECHOLNPGM("V3:", newvalue);
     *(float *)var.memadr = newvalue;
 
     skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -277,7 +256,6 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
 #if ENABLED(BABYSTEPPING)
   void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
     int16_t flag  = swap16(*(uint16_t*)val_ptr),
             steps = flag ? -20 : 20;
     ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
@@ -288,8 +266,6 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
 
   void DGUSScreenHandler::HandleFilamentOption(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleFilamentOption");
-
     uint8_t e_temp = 0;
     filament_data.heated = false;
     uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
@@ -360,7 +336,6 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
 
   void DGUSScreenHandler::HandleFilamentLoadUnload(DGUS_VP_Variable &var) {
-    DEBUG_ECHOLNPGM("HandleFilamentLoadUnload");
     if (filament_data.action <= 0) return;
 
     // If we close to the target temperature, we can start load or unload the filament

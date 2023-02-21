@@ -146,7 +146,7 @@ namespace Language_eu {
   LSTR MSG_MOVE_50MM                      = _UxGT("Mugitu 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mugitu 100mm");
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
-  LSTR MSG_BED_Z                          = _UxGT("Z Ohea");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Ohea");
   LSTR MSG_NOZZLE                         = _UxGT("Pita");
   LSTR MSG_NOZZLE_N                       = _UxGT("Pita ~");
   LSTR MSG_BED                            = _UxGT("Ohea");
