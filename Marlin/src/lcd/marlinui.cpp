@@ -149,7 +149,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     const preheat_t &pre = material_preset[m];
     TERN_(HAS_HOTEND,           if (TEST(pmask, PT_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
     TERN_(HAS_HEATED_BED,       if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp));
-    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetBed(pre.chamber_temp));
+    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetChamber(pre.chamber_temp));
     TERN_(HAS_FAN,              if (TEST(pmask, PT_FAN))     thermalManager.set_fan_speed(0, pre.fan_speed));
   }
 #endif
@@ -833,7 +833,7 @@ void MarlinUI::init() {
           // Apply a linear offset to a single axis
           if (axis == ALL_AXES_ENUM)
             destination = all_axes_destination;
-          else if (axis <= XYZE) {
+          else if (axis <= LOGICAL_AXES) {
             destination = current_position;
             destination[axis] += offset;
           }
@@ -1831,7 +1831,7 @@ void MarlinUI::init() {
     #endif
   }
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
     void MarlinUI::zoffset_overlay(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;

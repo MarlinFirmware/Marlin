@@ -219,7 +219,7 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_BED_Z                          = _UxGT("Base Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = _UxGT("Bocal");
   LSTR MSG_NOZZLE_N                       = _UxGT("Bocal ~");
   LSTR MSG_BED                            = _UxGT("Mesa");

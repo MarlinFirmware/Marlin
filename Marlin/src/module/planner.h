@@ -377,6 +377,11 @@ struct PlannerHints {
                                       // would calculate if it knew the as-yet-unbuffered path
   #endif
 
+  #if HAS_ROTATIONAL_AXES
+    bool cartesian_move = true;       // True if linear motion of the tool centerpoint relative to the workpiece occurs.
+                                      // False if no movement of the tool center point relative to the work piece occurs
+                                      // (i.e. the tool rotates around the tool centerpoint)
+  #endif
   PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
 };
 
