@@ -2062,7 +2062,7 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
         const uint8_t rate_mod_256 = (step_rate & 0x00FF);
         const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)][0]),
                         gain = uint16_t(pgm_read_word(table_address + 2));
-        return uint16_t(pgm_read_word(table_address)) - MultiU16X8toH16(rate_mod_256, gain);
+        return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(rate_mod_256, gain);
       }
       else { // lower step rates
         uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
