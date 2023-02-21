@@ -49,8 +49,11 @@
 #define SET_INPUT_PULLDOWN(IO) _SET_MODE(IO, INPUT_PULLDOWN)
 #define SET_OUTPUT(IO) OUT_WRITE(IO, LOW)
 
+#define IS_INPUT(IO) (_GET_MODE(IO) == WiringPinMode::INPUT_FLOATING || _GET_MODE(IO) == WiringPinMode::INPUT_ANALOG || _GET_MODE(IO) == WiringPinMode::INPUT_PULLUP || _GET_MODE(IO) == WiringPinMode::INPUT_PULLDOWN)
+#define IS_OUTPUT(IO) (_GET_MODE(IO) == WiringPinMode::OUTPUT || _GET_MODE(IO) == WiringPinMode::OUTPUT_OPEN_DRAIN)
+
 #define PWM_PIN(IO) 0 //(PIN_MAP[IO].timer_device != nullptr)
-//TODO: #warning "PWM_PIN(IO) is not implemented"
+// TODO: #warning "PWM_PIN(IO) is not implemented"
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO) digitalRead(IO)
