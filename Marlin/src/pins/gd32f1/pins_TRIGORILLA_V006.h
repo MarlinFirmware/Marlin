@@ -106,6 +106,25 @@
 #define AUTO_LEVEL_TX_PIN                   PB13
 #define AUTO_LEVEL_RX_PIN                   PB12
 
+// special code needed to use PA13 as an output
+#define AFIO_MAPR_ADDR                      ((uint32_t) 0x40010004)
+#define AFIO_MAPR_MASK                      26
+
+// set bit 26 of AFIO_MAPR to 1 to disable JTAG and SWD interface
+// set PA13 as an output
+// set PA13 low
+
+#define BOARD_PREINIT() { \
+  SBI32(*(uint32_t *)AFIO_MAPR_ADDR,AFIO_MAPR_MASK); \
+  GPIO_InitTypeDef GPIO_InitStruct = {0}; \
+  GPIO_InitStruct.Pin = GPIO_PIN_13; \
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; \
+  GPIO_InitStruct.Pull = GPIO_NOPULL; \
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; \
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); \
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_13, GPIO_PIN_RESET); \
+}
+
 //
 // SD Card
 //
