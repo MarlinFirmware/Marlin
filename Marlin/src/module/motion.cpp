@@ -368,7 +368,7 @@ void report_current_position_projected() {
       else
         return COORDINATE_OKAY(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
     #else
-      return COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
+      if (TERN0(HAS_X_AXIS, !COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop))) return false;
     #endif
   }
 
@@ -630,7 +630,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s/
       if (current_position.z < z) { current_position.z = z; line_to_current_position(z_feedrate); }
     #endif
 
-    current_position.set(x OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
+    current_position.set(OPTARG(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
 
     #if HAS_I_AXIS
       current_position.i = i; line_to_current_position(i_feedrate);
@@ -671,13 +671,16 @@ void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
   do_blocking_move_to(NUM_AXIS_ELEM(raw), fr_mm_s);
 }
-void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
-  do_blocking_move_to(
-    NUM_AXIS_LIST(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k,
-                  current_position.u, current_position.v, current_position.w),
-    fr_mm_s
-  );
-}
+
+#if HAS_X_AXIS
+  void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k,
+                    current_position.u, current_position.v, current_position.w),
+      fr_mm_s
+    );
+  }
+#endif
 
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
@@ -950,14 +953,16 @@ void restore_feedrate_and_scaling() {
 
     #else
 
-      if (axis_was_homed(X_AXIS)) {
-        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-          NOLESS(target.x, soft_endstop.min.x);
-        #endif
-        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-          NOMORE(target.x, soft_endstop.max.x);
-        #endif
-      }
+      #if HAS_X_AXIS
+        if (axis_was_homed(X_AXIS)) {
+          #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+            NOLESS(target.x, soft_endstop.min.x);
+          #endif
+          #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+            NOMORE(target.x, soft_endstop.max.x);
+          #endif
+        }
+      #endif
 
       #if HAS_Y_AXIS
         if (axis_was_homed(Y_AXIS)) {
@@ -1686,7 +1691,9 @@ void prepare_line_to_destination() {
 
       #if ENABLED(SPI_ENDSTOPS)
         switch (axis) {
-          case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = true; break;
+          #if HAS_X_AXIS
+            case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = true; break;
+          #endif
           #if HAS_Y_AXIS
             case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = true; break;
           #endif
@@ -1780,7 +1787,9 @@ void prepare_line_to_destination() {
 
       #if ENABLED(SPI_ENDSTOPS)
         switch (axis) {
-          case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = false; break;
+          #if HAS_X_AXIS
+            case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = false; break;
+          #endif
           #if HAS_Y_AXIS
             case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = false; break;
           #endif
@@ -2159,7 +2168,9 @@ void prepare_line_to_destination() {
         EndstopEnum es;
         switch (axis) {
           default:
-          case X_AXIS: es = X_ENDSTOP; break;
+          #if HAS_X_AXIS
+            case X_AXIS: es = X_ENDSTOP; break;
+          #endif
           #if HAS_Y_AXIS
             case Y_AXIS: es = Y_ENDSTOP; break;
           #endif

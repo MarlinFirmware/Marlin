@@ -774,7 +774,7 @@
   }
 
   static void tmc_debug_loop(const TMC_debug_enum n, LOGICAL_AXIS_ARGS(const bool)) {
-    if (x) {
+    if (TERN0(HAS_X_AXIS, x)) {
       #if AXIS_IS_TMC(X)
         tmc_status(stepperX, n);
       #endif
@@ -857,7 +857,7 @@
   }
 
   static void drv_status_loop(const TMC_drv_status_enum n, LOGICAL_AXIS_ARGS(const bool)) {
-    if (x) {
+    if (TERN0(HAS_X_AXIS, x)) {
       #if AXIS_IS_TMC(X)
         tmc_parse_drv_status(stepperX, n);
       #endif
@@ -1071,7 +1071,7 @@
   #endif
 
   static void tmc_get_registers(TMC_get_registers_enum n, LOGICAL_AXIS_ARGS(const bool)) {
-    if (x) {
+    if (TERN0(HAS_X_AXIS, x)) {
       #if AXIS_IS_TMC(X)
         tmc_get_registers(stepperX, n);
       #endif
@@ -1236,7 +1236,7 @@ static bool test_connection(TMC &st) {
 void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
   uint8_t axis_connection = 0;
 
-  if (x) {
+    if (TERN0(HAS_X_AXIS, x)) {
     #if AXIS_IS_TMC(X)
       axis_connection += test_connection(stepperX);
     #endif

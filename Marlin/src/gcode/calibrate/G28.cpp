@@ -430,30 +430,32 @@ void GcodeSuite::G28() {
     #endif
 
     // Home X
-    if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
+    #if HAS_X_AXIS
+      if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
 
-      #if ENABLED(DUAL_X_CARRIAGE)
+        #if ENABLED(DUAL_X_CARRIAGE)
 
-        // Always home the 2nd (right) extruder first
-        active_extruder = 1;
-        homeaxis(X_AXIS);
+          // Always home the 2nd (right) extruder first
+          active_extruder = 1;
+          homeaxis(X_AXIS);
 
-        // Remember this extruder's position for later tool change
-        inactive_extruder_x = current_position.x;
+          // Remember this extruder's position for later tool change
+          inactive_extruder_x = current_position.x;
 
-        // Home the 1st (left) extruder
-        active_extruder = 0;
-        homeaxis(X_AXIS);
+          // Home the 1st (left) extruder
+          active_extruder = 0;
+          homeaxis(X_AXIS);
 
-        // Consider the active extruder to be in its "parked" position
-        idex_set_parked();
+          // Consider the active extruder to be in its "parked" position
+          idex_set_parked();
 
-      #else
+        #else
 
-        homeaxis(X_AXIS);
+          homeaxis(X_AXIS);
 
-      #endif
-    }
+        #endif
+      }
+    #endif
 
     #if BOTH(FOAMCUTTER_XYUV, HAS_I_AXIS)
       // Home I (after X)

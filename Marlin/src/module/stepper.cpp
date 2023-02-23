@@ -385,7 +385,7 @@ xyze_int8_t Stepper::count_direction{0};
     if (extruder_duplication_enabled || ALWAYS) { X_STEP_WRITE(v); X2_STEP_WRITE(v); } \
     else if (last_moved_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
   }while(0)
-#else
+#elif HAS_X_AXIS
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
 #endif

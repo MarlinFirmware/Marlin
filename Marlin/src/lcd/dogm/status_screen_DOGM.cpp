@@ -510,7 +510,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  */
 void MarlinUI::draw_status_screen() {
   constexpr int xystorage = TERN(INCH_MODE_SUPPORT, 8, 5);
-  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)];
+  #if HAS_X_AXIS
+      static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)];
+  #endif
   #if HAS_Y_AXIS
     static char ystring[xystorage];
   #endif
@@ -554,7 +556,7 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x));
+      TERN_(HAS_X_AXIS, strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)));
       TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
     }
 
@@ -836,7 +838,7 @@ void MarlinUI::draw_status_screen() {
           #endif
         }
         else {
-          _draw_axis_value(X_AXIS, xstring, blink);
+          TERN_(HAS_X_AXIS, _draw_axis_value(X_AXIS, xstring, blink));
           TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
         }
 

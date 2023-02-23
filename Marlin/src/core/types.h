@@ -170,7 +170,9 @@ enum AxisEnum : uint8_t {
   #endif
 
   // A, B, and C are for DELTA, SCARA, etc.
-  , A_AXIS = X_AXIS
+  #if HAS_X_AXIS
+    , A_AXIS = X_AXIS
+  #endif
   #if HAS_Y_AXIS
     , B_AXIS = Y_AXIS
   #endif
@@ -328,7 +330,9 @@ struct XYval {
   FI void reset()                                       { x = y = 0; }
 
   // Setters taking struct types and arrays
-  FI void set(const T px)                               { x = px; }
+  #if HAS_X_AXIS
+    FI void set(const T px)                             { x = px; }
+  #endif
   #if HAS_Y_AXIS
     FI void set(const T px, const T py)                 { x = px; y = py; }
     FI void set(const T (&arr)[XY])                     { x = arr[0]; y = arr[1]; }
@@ -515,9 +519,9 @@ struct XYZval {
   // If any element is true then it's true
   FI operator bool()                                   { return NUM_AXIS_GANG(x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
-  FI T small()                                   const { return _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)); }
+  FI T small()                                   const { return TERN(HAS_X_AXIS,_MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w));,0;) }
   // Largest element
-  FI T large()                                   const { return _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)); }
+  FI T large()                                   const { return TERN(HAS_X_AXIS,_MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w));,0;) }
 
   // Explicit copy and copies with conversion
   FI XYZval<T>          copy()                   const { XYZval<T> o = *this; return o; }
@@ -629,7 +633,7 @@ struct XYZEval {
   FI void reset()                     { LOGICAL_AXIS_GANG(e =, x =, y =, z =, i =, j =, k =, u =, v =, w =) 0; }
 
   // Setters taking struct types and arrays
-  FI void set(const XYval<T> pxy)                           { x = pxy.x; OPTCODE(HAS_Y_AXIS, y = pxy.y) }
+  FI void set(const XYval<T> pxy)                           { OPTCODE(HAS_X_AXIS, x = pxy.x) OPTCODE(HAS_Y_AXIS, y = pxy.y) }
   FI void set(const XYZval<T> pxyz)                         { set(NUM_AXIS_ELEM(pxyz)); }
   FI void set(const XYval<T> pxy, const T pz)               { set(pxy); TERN_(HAS_Z_AXIS, z = pz); }
   FI void set(const T (&arr)[NUM_AXES])                     { NUM_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }

@@ -752,10 +752,14 @@
   #define NUM_AXES 3
 #elif defined(Y_DRIVER_TYPE)
   #define NUM_AXES 2
-#else
+#elif defined(X_DRIVER_TYPE)
   #define NUM_AXES 1
+#else
+  #define NUM_AXES 0
 #endif
-#define HAS_X_AXIS 1
+#if NUM_AXES >= 1
+  #define HAS_X_AXIS 1
+#endif
 #if NUM_AXES >= XY
   #define HAS_Y_AXIS 1
   #if NUM_AXES >= XYZ
@@ -788,6 +792,24 @@
       #endif
     #endif
   #endif
+#endif
+
+
+#if !HAS_X_AXIS
+  #undef ENDSTOPPULLUP_XMIN
+  #undef ENDSTOPPULLUP_XMAX
+  #undef X_MIN_ENDSTOP_INVERTING
+  #undef X_MAX_ENDSTOP_INVERTING
+  #undef X2_DRIVER_TYPE
+  #undef X_ENABLE_ON
+  #undef DISABLE_X
+  #undef INVERT_X_DIR
+  #undef X_HOME_DIR
+  #undef X_MIN_POS
+  #undef X_MAX_POS
+  #undef MANUAL_X_HOME_POS
+  #undef MIN_SOFTWARE_ENDSTOP_X
+  #undef MAX_SOFTWARE_ENDSTOP_X
 #endif
 
 #if !HAS_Y_AXIS
@@ -1193,10 +1215,12 @@
 #endif // FILAMENT_RUNOUT_SENSOR
 
 // Homing to Min or Max
-#if X_HOME_DIR > 0
-  #define X_HOME_TO_MAX 1
-#elif X_HOME_DIR < 0
-  #define X_HOME_TO_MIN 1
+#if HAS_X_AXIS
+  #if X_HOME_DIR > 0
+    #define X_HOME_TO_MAX 1
+  #elif X_HOME_DIR < 0
+    #define X_HOME_TO_MIN 1
+  #endif
 #endif
 #if HAS_Y_AXIS
   #if Y_HOME_DIR > 0
@@ -1655,7 +1679,7 @@
   #endif
 #endif
 
-#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
+#if  (HAS_Y_AXIS && X_HOME_DIR) || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
   || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR) \
   || (HAS_U_AXIS && U_HOME_DIR) || (HAS_V_AXIS && V_HOME_DIR) || (HAS_W_AXIS && W_HOME_DIR)
   #define HAS_ENDSTOPS 1

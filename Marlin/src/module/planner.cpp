@@ -1891,7 +1891,9 @@ bool Planner::_populate_block(
   /* <-- add a slash to enable
     SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
-      " A:", target.a, " (", da, " steps)"
+      #if HAS_X_AXIS
+        " A:", target.a, " (", da, " steps)"
+      #endif
       #if HAS_Y_AXIS
         " B:", target.b, " (", db, " steps)"
       #endif
