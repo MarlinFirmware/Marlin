@@ -759,32 +759,32 @@
 #endif
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
-#endif
-#if NUM_AXES >= XY
-  #define HAS_Y_AXIS 1
-  #if NUM_AXES >= XYZ
-    #define HAS_Z_AXIS 1
-    #ifdef Z4_DRIVER_TYPE
-      #define NUM_Z_STEPPERS 4
-    #elif defined(Z3_DRIVER_TYPE)
-      #define NUM_Z_STEPPERS 3
-    #elif defined(Z2_DRIVER_TYPE)
-      #define NUM_Z_STEPPERS 2
-    #else
-      #define NUM_Z_STEPPERS 1
-    #endif
-    #if NUM_AXES >= 4
-      #define HAS_I_AXIS 1
-      #if NUM_AXES >= 5
-        #define HAS_J_AXIS 1
-        #if NUM_AXES >= 6
-          #define HAS_K_AXIS 1
-          #if NUM_AXES >= 7
-            #define HAS_U_AXIS 1
-            #if NUM_AXES >= 8
-              #define HAS_V_AXIS 1
-              #if NUM_AXES >= 9
-                #define HAS_W_AXIS 1
+  #if NUM_AXES >= XY
+    #define HAS_Y_AXIS 1
+    #if NUM_AXES >= XYZ
+      #define HAS_Z_AXIS 1
+      #ifdef Z4_DRIVER_TYPE
+        #define NUM_Z_STEPPERS 4
+      #elif defined(Z3_DRIVER_TYPE)
+        #define NUM_Z_STEPPERS 3
+      #elif defined(Z2_DRIVER_TYPE)
+        #define NUM_Z_STEPPERS 2
+      #else
+        #define NUM_Z_STEPPERS 1
+      #endif
+      #if NUM_AXES >= 4
+        #define HAS_I_AXIS 1
+        #if NUM_AXES >= 5
+          #define HAS_J_AXIS 1
+          #if NUM_AXES >= 6
+            #define HAS_K_AXIS 1
+            #if NUM_AXES >= 7
+              #define HAS_U_AXIS 1
+              #if NUM_AXES >= 8
+                #define HAS_V_AXIS 1
+                #if NUM_AXES >= 9
+                  #define HAS_W_AXIS 1
+                #endif
               #endif
             #endif
           #endif
@@ -1679,7 +1679,7 @@
   #endif
 #endif
 
-#if  (HAS_Y_AXIS && X_HOME_DIR) || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
+#if  (HAS_X_AXIS && X_HOME_DIR) || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) \
   || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR) \
   || (HAS_U_AXIS && U_HOME_DIR) || (HAS_V_AXIS && V_HOME_DIR) || (HAS_W_AXIS && W_HOME_DIR)
   #define HAS_ENDSTOPS 1
