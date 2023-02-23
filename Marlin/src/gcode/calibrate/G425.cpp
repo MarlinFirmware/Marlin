@@ -70,7 +70,7 @@
   #define CALIBRATION_MEASUREMENT_CERTAIN   0.5 // mm
 #endif
 
-#if BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
+#if ALL(HAS_X_AXIS, CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
   #define HAS_X_CENTER 1
 #endif
 #if ALL(HAS_Y_AXIS, CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
@@ -268,7 +268,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
   #define _PCASE(N) _ACASE(N, N##MINIMUM, N##MAXIMUM)
 
   switch (side) {
-    #if AXIS_CAN_CALIBRATE(X)
+    #if HAS_X_AXIS && AXIS_CAN_CALIBRATE(X)
       _ACASE(X, RIGHT, LEFT);
     #endif
     #if HAS_Y_AXIS && AXIS_CAN_CALIBRATE(Y)
@@ -398,11 +398,13 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM("  Top: ", m.obj_side[TOP]);
     #endif
-    #if ENABLED(CALIBRATION_MEASURE_LEFT)
-      SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
-    #endif
-    #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-      SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+    #if HAS_X_AXIS
+      #if ENABLED(CALIBRATION_MEASURE_LEFT)
+        SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_RIGHT)
+        SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+      #endif
     #endif
     #if HAS_Y_AXIS
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
@@ -495,7 +497,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   inline void report_measured_backlash(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Backlash:");
-    #if AXIS_CAN_CALIBRATE(X)
+    #if HAS_X_AXIS && AXIS_CAN_CALIBRATE(X)
       #if ENABLED(CALIBRATION_MEASURE_LEFT)
         SERIAL_ECHOLNPGM("  Left: ", m.backlash[LEFT]);
       #endif

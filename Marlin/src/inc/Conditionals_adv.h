@@ -87,6 +87,13 @@
 #endif
 
 // Some options are disallowed without required axes
+#if !HAS_X_AXIS
+  #undef SAFE_BED_LEVELING_START_X
+  #undef ARC_SUPPORT
+  #undef INPUT_SHAPING_X
+  #undef SHAPING_FREQ_X
+  #undef SHAPING_BUFFER_X
+#endif
 #if !HAS_Y_AXIS
   #undef SAFE_BED_LEVELING_START_Y
   #undef ARC_SUPPORT

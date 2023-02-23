@@ -50,7 +50,9 @@ void menu_backlash() {
     EDIT_ITEM_FAST_N(float43, _AXIS(N), MSG_BACKLASH_N, &editable.decimal, 0.0f, 9.9f, []{ backlash.set_distance_mm(_AXIS(N), editable.decimal); }); \
   } while (0);
 
-  if (_CAN_CALI(A)) EDIT_BACKLASH_DISTANCE(A);
+  #if HAS_X_AXIS && _CAN_CALI(A)
+    EDIT_BACKLASH_DISTANCE(A);
+  #endif
   #if HAS_Y_AXIS && _CAN_CALI(B)
     EDIT_BACKLASH_DISTANCE(B);
   #endif
