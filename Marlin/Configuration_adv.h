@@ -1131,7 +1131,6 @@
 #define DISABLE_INACTIVE_U true
 #define DISABLE_INACTIVE_V true
 #define DISABLE_INACTIVE_W true
-#define DISABLE_INACTIVE_E true
 
 // Default Minimum Feedrates for printing and travel moves
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s. °/s for rotational-only moves) Minimum feedrate. Set with M205 S.
