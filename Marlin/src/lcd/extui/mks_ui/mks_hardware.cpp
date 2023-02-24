@@ -269,7 +269,7 @@
         #if HAS_Y_AXIS
           WRITE(Y_DIR_PIN, HIGH);
         #endif
-        #if HAS_Y_AXIS
+        #if HAS_Z_AXIS
           WRITE(Z_DIR_PIN, HIGH);
         #endif
         #if HAS_EXTRUDERS

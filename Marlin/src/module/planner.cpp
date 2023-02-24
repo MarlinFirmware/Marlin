@@ -1492,7 +1492,7 @@ void Planner::check_axes_activity() {
     thermalManager.setTargetHotend(t, active_extruder);
   }
 
-#endif
+#endif // AUTOTEMP
 
 #if DISABLED(NO_VOLUMETRICS)
 
