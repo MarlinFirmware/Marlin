@@ -113,10 +113,8 @@ void Touch::idle() {
     if (x != 0 && y != 0) {
       if (current_control) {
         if (WITHIN(x, current_control->x - FREE_MOVE_RANGE, current_control->x + current_control->width + FREE_MOVE_RANGE) && WITHIN(y, current_control->y - FREE_MOVE_RANGE, current_control->y + current_control->height + FREE_MOVE_RANGE)) {
-          NOLESS(x, current_control->x);
-          NOMORE(x, current_control->x + current_control->width);
-          NOLESS(y, current_control->y);
-          NOMORE(y, current_control->y + current_control->height);
+          LIMIT(x, current_control->x, current_control->x + current_control->width);
+          LIMIT(y, current_control->y, current_control->y + current_control->height);
           touch(current_control);
         }
         else
