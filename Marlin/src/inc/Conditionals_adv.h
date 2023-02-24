@@ -99,6 +99,7 @@
   #undef SHAPING_BUFFER_Y
   #undef SHAPING_FREQ_Y
   #undef STEALTHCHOP_Y
+  #undef STEP_STATE_Y
 #endif
 
 #if !HAS_Z_AXIS
@@ -112,6 +113,7 @@
   #undef NUM_Z_STEPPERS
   #undef SAFE_BED_LEVELING_START_Z
   #undef STEALTHCHOP_Z
+  #undef STEP_STATE_Z
   #undef Z_IDLE_HEIGHT
   #undef Z_PROBE_SLED
   #undef Z_SAFE_HOMING
@@ -123,6 +125,7 @@
   #undef DISABLE_INACTIVE_I
   #undef SAFE_BED_LEVELING_START_I
   #undef STEALTHCHOP_I
+  #undef STEP_STATE_I
 #endif
 
 #if !HAS_J_AXIS
@@ -131,6 +134,7 @@
   #undef DISABLE_INACTIVE_J
   #undef SAFE_BED_LEVELING_START_J
   #undef STEALTHCHOP_J
+  #undef STEP_STATE_J
 #endif
 
 #if !HAS_K_AXIS
@@ -139,6 +143,7 @@
   #undef DISABLE_INACTIVE_K
   #undef SAFE_BED_LEVELING_START_K
   #undef STEALTHCHOP_K
+  #undef STEP_STATE_K
 #endif
 
 #if !HAS_U_AXIS
@@ -147,6 +152,7 @@
   #undef DISABLE_INACTIVE_U
   #undef SAFE_BED_LEVELING_START_U
   #undef STEALTHCHOP_U
+  #undef STEP_STATE_U
 #endif
 
 #if !HAS_V_AXIS
@@ -155,6 +161,7 @@
   #undef DISABLE_INACTIVE_V
   #undef SAFE_BED_LEVELING_START_V
   #undef STEALTHCHOP_V
+  #undef STEP_STATE_V
 #endif
 
 #if !HAS_W_AXIS
@@ -163,6 +170,7 @@
   #undef DISABLE_INACTIVE_W
   #undef SAFE_BED_LEVELING_START_W
   #undef STEALTHCHOP_W
+  #undef STEP_STATE_W
 #endif
 
 // Disallowed with no extruders
