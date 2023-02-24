@@ -132,3 +132,6 @@ FORCE_INLINE const char* ftostr3(const_float_t x) { return i16tostr3rj(int16_t(x
 
 // Convert unsigned int to string 1, 12, 123 format, capped at 999
 const char* utostr3(const uint16_t x);
+
+// Convert signed float to space-padded string with 1.23, 12.34, 123.45 format
+const char* ftostr52sprj(const_float_t f);

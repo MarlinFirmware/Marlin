@@ -1641,7 +1641,7 @@ namespace Anycubic {
         setZOffset_mm(z_off);
 
         str_buf[0] = 0;
-        strcat(str_buf, ftostr52(getZOffset_mm()));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()));
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
 
         //if (isAxisPositionKnown(Z)) {  // Move Z axis
@@ -1678,7 +1678,7 @@ namespace Anycubic {
         setZOffset_mm(z_off);
 
         str_buf[0] = 0;
-        strcat(str_buf, ftostr52(getZOffset_mm()));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()));
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
 
         //int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
@@ -2115,7 +2115,7 @@ namespace Anycubic {
       case 3: {
         char str_buf[10];
         str_buf[0] = 0;
-        strcat(str_buf, ftostr52(getZOffset_mm()));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()));
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         ChangePageOfTFT(PAGE_LEVEL_ADVANCE);
       } break;
@@ -2142,7 +2142,7 @@ namespace Anycubic {
         z_off = getZOffset_mm() - 0.0500f;
         setZOffset_mm(z_off);
 
-        strcpy_P(str_buf, ftostr52(z_off));
+        strcpy_P(str_buf, ftostr52sprj(z_off));
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {
@@ -2159,7 +2159,7 @@ namespace Anycubic {
         z_off = getZOffset_mm() + 0.0500f;
         setZOffset_mm(z_off);
 
-        strcpy_P(str_buf, ftostr52(z_off));
+        strcpy_P(str_buf, ftostr52sprj(z_off));
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {          // Move Z axis
@@ -2172,7 +2172,7 @@ namespace Anycubic {
 
       case 4:
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("z off: ", ftostr52(getZOffset_mm()));
+          SERIAL_ECHOLNPGM("z off: ", ftostr52sprj(getZOffset_mm()));
         #endif
         GRID_LOOP(x, y) {
           const xy_uint8_t pos { x, y };

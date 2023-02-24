@@ -442,3 +442,17 @@ const char* utostr3(const uint16_t x) {
   conv[7] = DIGIMOD(xx, 1);
   return &conv[7];
 }
+
+// Convert signed float to space-padded string with 1.23, 12.34, 123.45 format
+const char* ftostr52sprj(const_float_t f) {
+  long i = INTFLOAT(f, 2);
+  conv[1] = MINUSOR(i, ' ');
+  conv[2] = RJDIGIT(i, 10000);
+  conv[3] = RJDIGIT(i, 1000);
+  conv[4] = DIGIMOD(i, 100);
+  conv[5] = '.';
+  conv[6] = DIGIMOD(i, 10);
+  conv[7] = DIGIMOD(i, 1);
+
+  return &conv[1];
+}
