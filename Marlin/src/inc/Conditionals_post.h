@@ -268,7 +268,7 @@
     #define CAN_CALIBRATE(A,B) true
   #endif
 #endif
-#define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
+#define AXIS_CAN_CALIBRATE(A) TERN0(HAS_##A##_AXIS, CAN_CALIBRATE(A,NORMAL_AXIS))
 
 /**
  * No adjustable bed on non-cartesians

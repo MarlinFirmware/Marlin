@@ -820,11 +820,17 @@ void MarlinUI::draw_status_screen() {
   // Line 1 - XYZ coordinates
   //
 
-  lcd_moveto(0, 0);
-  const xyz_pos_t lpos = current_position.asLogical();
-  _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
+  #if NUM_AXES
+    lcd_moveto(0, 0);
+    const xyz_pos_t lpos = current_position.asLogical();
+    _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+    #if HAS_Y_AXIS
+      lcd.write(' '); _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+    #endif
+    #if HAS_Z_AXIS
+      lcd.write(' '); _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
+    #endif
+  #endif
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
