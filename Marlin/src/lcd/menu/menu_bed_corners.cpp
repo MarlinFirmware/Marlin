@@ -137,7 +137,6 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Four-Corner Bed Tramming with optional center
     if (TERN0(BED_TRAMMING_INCLUDE_CENTER, bed_corner == center_index)) {
       corner_point.set(X_CENTER, Y_CENTER);
-      //TERN_(BED_TRAMMING_USE_PROBE, good_points--); // Decrement to allow one additional probe point
     }
     else {
       corner_point = lf;                       // Left front
@@ -320,7 +319,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Select next corner coordinates
     _lcd_level_bed_corners_get_next_position();
 
-    line_to_corner_point(manual_feedrate_mm_s.x);
+    do_blocking_move_to(corner_point, manual_feedrate_mm_s.x);
     line_to_z(BED_TRAMMING_HEIGHT);
     if (++bed_corner >= available_points) bed_corner = 0;
   }
