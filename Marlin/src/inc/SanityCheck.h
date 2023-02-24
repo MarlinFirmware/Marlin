@@ -672,6 +672,8 @@
   #error "EXPERIMENTAL_SCURVE is no longer needed and should be removed."
 #elif defined(BABYSTEP_ZPROBE_GFX_OVERLAY)
   #error "BABYSTEP_ZPROBE_GFX_OVERLAY is now BABYSTEP_GFX_OVERLAY."
+#elif defined(DISABLE_INACTIVE_E)
+  #error "DISABLE_INACTIVE_E is now set with DISABLE_INACTIVE_EXTRUDER."
 #endif
 
 // L64xx stepper drivers have been removed
