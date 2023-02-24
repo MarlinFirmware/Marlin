@@ -88,7 +88,7 @@
 
 // Some options are disallowed without required axes
 #if !HAS_X_AXIS
-  #define LCD_SHOW_E_TOTAL
+  //#define LCD_SHOW_E_TOTAL
   #define NO_WORKSPACE_OFFSETS
   #undef AUTOTEMP
   #undef CALIBRATION_MEASURE_LEFT
