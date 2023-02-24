@@ -389,7 +389,9 @@ void deploy_probe() {
 #endif
 
 void _lcd_level_bed_corners() {
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
   corner_probing_done = false;
+  #endif
   ui.defer_status_screen();
   set_all_unhomed();
   queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
