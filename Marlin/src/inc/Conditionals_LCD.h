@@ -759,41 +759,31 @@
 #endif
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
-  #if NUM_AXES >= XY
-    #define HAS_Y_AXIS 1
-    #if NUM_AXES >= XYZ
-      #define HAS_Z_AXIS 1
-      #ifdef Z4_DRIVER_TYPE
-        #define NUM_Z_STEPPERS 4
-      #elif defined(Z3_DRIVER_TYPE)
-        #define NUM_Z_STEPPERS 3
-      #elif defined(Z2_DRIVER_TYPE)
-        #define NUM_Z_STEPPERS 2
-      #else
-        #define NUM_Z_STEPPERS 1
-      #endif
-      #if NUM_AXES >= 4
-        #define HAS_I_AXIS 1
-        #if NUM_AXES >= 5
-          #define HAS_J_AXIS 1
-          #if NUM_AXES >= 6
-            #define HAS_K_AXIS 1
-            #if NUM_AXES >= 7
-              #define HAS_U_AXIS 1
-              #if NUM_AXES >= 8
-                #define HAS_V_AXIS 1
-                #if NUM_AXES >= 9
-                  #define HAS_W_AXIS 1
-                #endif
-              #endif
-            #endif
-          #endif
-        #endif
-      #endif
-    #endif
-  #endif
 #endif
-
+#if NUM_AXES >= XY
+  #define HAS_Y_AXIS 1
+#endif
+#if NUM_AXES >= XYZ
+  #define HAS_Z_AXIS 1
+#endif
+#if NUM_AXES >= 4
+  #define HAS_I_AXIS 1
+#endif
+#if NUM_AXES >= 5
+  #define HAS_J_AXIS 1
+#endif
+#if NUM_AXES >= 6
+  #define HAS_K_AXIS 1
+#endif
+#if NUM_AXES >= 7
+  #define HAS_U_AXIS 1
+#endif
+#if NUM_AXES >= 8
+  #define HAS_V_AXIS 1
+#endif
+#if NUM_AXES >= 9
+  #define HAS_W_AXIS 1
+#endif
 
 #if !HAS_X_AXIS
   #undef ENDSTOPPULLUP_XMIN
@@ -808,11 +798,12 @@
   #undef X_MIN_POS
   #undef X_MAX_POS
   #undef MANUAL_X_HOME_POS
-  #undef MIN_SOFTWARE_ENDSTOP_X
-  #undef MAX_SOFTWARE_ENDSTOP_X
+  #undef MIN_SOFTWARE_ENDSTOPS
+  #undef MAX_SOFTWARE_ENDSTOPS
 #endif
 
 #if !HAS_Y_AXIS
+  #undef AVOID_OBSTACLES
   #undef ENDSTOPPULLUP_YMIN
   #undef ENDSTOPPULLUP_YMAX
   #undef Y_MIN_ENDSTOP_INVERTING
@@ -829,7 +820,17 @@
   #undef MAX_SOFTWARE_ENDSTOP_Y
 #endif
 
-#if !HAS_Z_AXIS
+#if HAS_Z_AXIS
+  #ifdef Z4_DRIVER_TYPE
+    #define NUM_Z_STEPPERS 4
+  #elif defined(Z3_DRIVER_TYPE)
+    #define NUM_Z_STEPPERS 3
+  #elif defined(Z2_DRIVER_TYPE)
+    #define NUM_Z_STEPPERS 2
+  #else
+    #define NUM_Z_STEPPERS 1
+  #endif
+#else
   #undef ENDSTOPPULLUP_ZMIN
   #undef ENDSTOPPULLUP_ZMAX
   #undef Z_MIN_ENDSTOP_INVERTING
@@ -844,6 +845,7 @@
   #undef Z_MIN_POS
   #undef Z_MAX_POS
   #undef MANUAL_Z_HOME_POS
+  #undef Z_SAFE_HOMING
   #undef MIN_SOFTWARE_ENDSTOP_Z
   #undef MAX_SOFTWARE_ENDSTOP_Z
 #endif

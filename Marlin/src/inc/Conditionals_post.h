@@ -268,7 +268,7 @@
     #define CAN_CALIBRATE(A,B) true
   #endif
 #endif
-#define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
+#define AXIS_CAN_CALIBRATE(A) TERN0(HAS_##A##_AXIS, CAN_CALIBRATE(A,NORMAL_AXIS))
 
 /**
  * No adjustable bed on non-cartesians
@@ -1315,11 +1315,6 @@
   #if PIN_EXISTS(X2_MS1)
     #define HAS_X2_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_X) && ENABLED(DISABLE_X)
-    #define DISABLE_INACTIVE_X 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_X
 #endif
 
 /**
@@ -1352,11 +1347,6 @@
   #if PIN_EXISTS(Y2_MS1)
     #define HAS_Y2_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_Y) && ENABLED(DISABLE_Y)
-    #define DISABLE_INACTIVE_Y 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_Y
 #endif
 
 #if HAS_Z_AXIS
@@ -1372,11 +1362,6 @@
   #if PIN_EXISTS(Z_MS1)
     #define HAS_Z_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_Z) && ENABLED(DISABLE_Z)
-    #define DISABLE_INACTIVE_Z 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_Z
 #endif
 
 #if NUM_Z_STEPPERS >= 2
@@ -1437,11 +1422,6 @@
   #if PIN_EXISTS(I_MS1)
     #define HAS_I_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_I) && ENABLED(DISABLE_I)
-    #define DISABLE_INACTIVE_I 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_I
 #endif
 
 #if HAS_J_AXIS
@@ -1457,11 +1437,6 @@
   #if PIN_EXISTS(J_MS1)
     #define HAS_J_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_J) && ENABLED(DISABLE_J)
-    #define DISABLE_INACTIVE_J 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_J
 #endif
 
 #if HAS_K_AXIS
@@ -1477,11 +1452,6 @@
   #if PIN_EXISTS(K_MS1)
     #define HAS_K_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_K) && ENABLED(DISABLE_K)
-    #define DISABLE_INACTIVE_K 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_K
 #endif
 
 #if HAS_U_AXIS
@@ -1497,11 +1467,6 @@
   #if PIN_EXISTS(U_MS1)
     #define HAS_U_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_U) && ENABLED(DISABLE_U)
-    #define DISABLE_INACTIVE_U 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_U
 #endif
 
 #if HAS_V_AXIS
@@ -1517,11 +1482,6 @@
   #if PIN_EXISTS(V_MS1)
     #define HAS_V_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_V) && ENABLED(DISABLE_V)
-    #define DISABLE_INACTIVE_V 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_V
 #endif
 
 #if HAS_W_AXIS
@@ -1537,11 +1497,44 @@
   #if PIN_EXISTS(W_MS1)
     #define HAS_W_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_W) && ENABLED(DISABLE_W)
-    #define DISABLE_INACTIVE_W 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_W
+#endif
+
+// DISABLE_INACTIVE_* defaults based on DISABLE_*
+#if !defined(DISABLE_INACTIVE_X) && ENABLED(DISABLE_X)
+  #define DISABLE_INACTIVE_X
+#endif
+#if !defined(DISABLE_INACTIVE_Y) && ENABLED(DISABLE_Y)
+  #define DISABLE_INACTIVE_Y
+#endif
+#if !defined(DISABLE_INACTIVE_Z) && ENABLED(DISABLE_Z)
+  #define DISABLE_INACTIVE_Z
+#endif
+#if !defined(DISABLE_INACTIVE_I) && ENABLED(DISABLE_I)
+  #define DISABLE_INACTIVE_I
+#endif
+#if !defined(DISABLE_INACTIVE_J) && ENABLED(DISABLE_J)
+  #define DISABLE_INACTIVE_J
+#endif
+#if !defined(DISABLE_INACTIVE_K) && ENABLED(DISABLE_K)
+  #define DISABLE_INACTIVE_K
+#endif
+#if !defined(DISABLE_INACTIVE_U) && ENABLED(DISABLE_U)
+  #define DISABLE_INACTIVE_U
+#endif
+#if !defined(DISABLE_INACTIVE_V) && ENABLED(DISABLE_V)
+  #define DISABLE_INACTIVE_V
+#endif
+#if !defined(DISABLE_INACTIVE_W) && ENABLED(DISABLE_W)
+  #define DISABLE_INACTIVE_W
+#endif
+#if !defined(DISABLE_INACTIVE_EXTRUDER) && ENABLED(DISABLE_E)
+  #define DISABLE_INACTIVE_EXTRUDER
+#endif
+#if ANY(DISABLE_INACTIVE_X, DISABLE_INACTIVE_Y, DISABLE_INACTIVE_Z, DISABLE_INACTIVE_I, DISABLE_INACTIVE_J, DISABLE_INACTIVE_K, DISABLE_INACTIVE_U, DISABLE_INACTIVE_V, DISABLE_INACTIVE_W, DISABLE_INACTIVE_EXTRUDER)
+  #define HAS_DISABLE_INACTIVE_AXIS 1
+#endif
+#if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_U, DISABLE_V, DISABLE_W, DISABLE_E)
+  #define HAS_DISABLE_AXIS 1
 #endif
 
 // Extruder steppers and solenoids
@@ -1665,11 +1658,6 @@
     #endif
   #endif
 
-  #if !defined(DISABLE_INACTIVE_E) && ENABLED(DISABLE_E)
-    #define DISABLE_INACTIVE_E 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_E
 #endif // HAS_EXTRUDERS
 
 /**

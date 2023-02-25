@@ -46,9 +46,15 @@ void GcodeSuite::M218() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
-  if (parser.seenval('X')) hotend_offset[target_extruder].x = parser.value_linear_units();
-  if (parser.seenval('Y')) hotend_offset[target_extruder].y = parser.value_linear_units();
-  if (parser.seenval('Z')) hotend_offset[target_extruder].z = parser.value_linear_units();
+  #if HAS_X_AXIS
+    if (parser.seenval('X')) hotend_offset[target_extruder].x = parser.value_linear_units();
+  #endif
+  #if HAS_Y_AXIS
+    if (parser.seenval('Y')) hotend_offset[target_extruder].y = parser.value_linear_units();
+  #endif
+  #if HAS_Z_AXIS
+    if (parser.seenval('Z')) hotend_offset[target_extruder].z = parser.value_linear_units();
+  #endif
 
   #if ENABLED(DELTA)
     if (target_extruder == active_extruder)
