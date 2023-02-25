@@ -90,7 +90,7 @@ public:
 
     static void probe_error_stop();
 
-    static bool set_deployed(const bool deploy, const bool no_mem);
+    static bool set_deployed(const bool deploy, const bool no_mem=false);
 
     #if IS_KINEMATIC
 
@@ -114,7 +114,7 @@ public:
         }
       #endif
 
-    #else
+    #else // !IS_KINEMATIC
 
       static bool obstacle_check(const_float_t rx, const_float_t ry) {
         #if ENABLED(AVOID_OBSTACLES)
@@ -166,7 +166,7 @@ public:
         }
       }
 
-    #endif
+    #endif // !IS_KINEMATIC
 
     static void move_z_after_probing() {
       #ifdef Z_AFTER_PROBING
@@ -178,15 +178,15 @@ public:
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
-  #else
+  #else // !HAS_BED_PROBE
 
     static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY_1(0)); // See #16767
 
-    static bool set_deployed(const bool, const bool no_mem = false) { return false; }
+    static bool set_deployed(const bool, const bool=false) { return false; }
 
     static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
 
-  #endif
+  #endif // !HAS_BED_PROBE
 
   static void move_z_after_homing() {
     #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
@@ -216,8 +216,8 @@ public:
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
 
-  static bool deploy(bool no_mem =false) { return set_deployed(true, no_mem); }
-  static bool stow(bool no_mem =false)   { return set_deployed(false, no_mem); }
+  static bool deploy(const bool no_mem=false) { return set_deployed(true, no_mem); }
+  static bool stow(const bool no_mem=false)   { return set_deployed(false, no_mem); }
 
   #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC

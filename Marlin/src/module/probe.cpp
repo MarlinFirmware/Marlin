@@ -495,7 +495,7 @@ void Probe::probe_error_stop() {
  *
  * Return TRUE if the probe could not be deployed/stowed
  */
-bool Probe::set_deployed(const bool deploy, const bool no_mem = false) {
+bool Probe::set_deployed(const bool deploy, const bool no_mem/*=false*/) {
 
   if (DEBUGGING(LEVELING)) {
     DEBUG_POS("Probe::set_deployed", current_position);
@@ -524,7 +524,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_mem = false) {
     }
   #endif
 
-  const xy_pos_t old_xy = current_position; //remember location before call
+  const xy_pos_t old_xy = current_position;        // Remember location before probe deployment
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
 
@@ -553,7 +553,8 @@ bool Probe::set_deployed(const bool deploy, const bool no_mem = false) {
   // If preheating is required before any probing...
   TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
 
-  if (!no_mem)do_blocking_move_to(old_xy); // only return to call location if needed
+  if (!no_mem) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
+
   endstops.enable_z_probe(deploy);
   return false;
 }
