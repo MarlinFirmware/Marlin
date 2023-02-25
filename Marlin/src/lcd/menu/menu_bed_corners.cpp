@@ -212,7 +212,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       , []{ TERN(HAS_LEVELING, []{queue.inject(F("G29N")); corner_probing_done = true;}, queue.inject(FPSTR(G28_STR))); ui.goto_previous_screen_no_defer();}
       , []{
         TERN(HAS_LEVELING, ui.goto_previous_screen_no_defer(), []{});
-        #if HAS_STOWABLE_PROBE
+        #if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
         probe.stow(true);
         #endif
         corner_probing_done = true;
@@ -235,8 +235,8 @@ static void _lcd_level_bed_corners_get_next_position() {
         last_z = current_position.z; // Above tolerance. Set a new Z for subsequent corners.
         good_points = 0;             // ...and start over
       }
-      #if HAS_STOWABLE_PROBE
-      if (good_points == (nr_edge_points-1))do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP); // Get the probe off the bed to let it be stowed
+      #if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
+        if (good_points == (nr_edge_points-1))do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP) // Get the probe off the bed to let it be stowed
       #endif
       return true; // probe triggered
     }
@@ -327,7 +327,7 @@ static void _lcd_level_bed_corners_get_next_position() {
 #endif // !BED_TRAMMING_USE_PROBE
 
 void _lcd_level_bed_corners_homing() {
-  #if HAS_STOWABLE_PROBE
+  #if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
   if (!all_axes_homed() && probe.deploy) return;
   #else
   if (!all_axes_homed()) return;
@@ -338,14 +338,14 @@ void _lcd_level_bed_corners_homing() {
   #endif
   #if ENABLED(BED_TRAMMING_USE_PROBE)
     if (!corner_probing_done)_lcd_test_corners();
-    #if HAS_STOWABLE_PROBE
-    if (corner_probing_done) {ui.goto_previous_screen_no_defer(); probe.stow(true);}
+    #if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
+      if (corner_probing_done) {ui.goto_previous_screen_no_defer(); probe.stow(true);}
     #else
     if (corner_probing_done) {ui.goto_previous_screen_no_defer()}
     #endif
     corner_probing_done = true;
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
-    #if !HAS_STOWABLE_PROBE
+    #if ENABLED(BLTOUCH)
      endstops.enable_z_probe(false);
     #endif
   #else
@@ -368,7 +368,7 @@ void _lcd_level_bed_corners_homing() {
   #endif
 }
 
-#if HAS_STOWABLE_PROBE
+#if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
 void _deploy_probe() {
   if (ui.should_draw()) {
     constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
@@ -386,6 +386,7 @@ void deploy_probe() {
   });
 
 }
+
 #endif
 
 void _lcd_level_bed_corners() {
@@ -398,7 +399,7 @@ void _lcd_level_bed_corners() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed())
-      #if HAS_STOWABLE_PROBE
+      #if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
       deploy_probe();
       #else
       _lcd_level_bed_corners_homing();
