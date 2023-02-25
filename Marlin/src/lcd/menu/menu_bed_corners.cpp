@@ -250,7 +250,7 @@ static void _lcd_level_bed_corners_get_next_position() {
 
       return true; // probe triggered
     }
-    do_blocking_move_to_z(last_z); // go back to tolerance middle point before raise
+    line_to_z(last_z); // go back to tolerance middle point before raise
     return false; // probe not triggered
   }
 
@@ -283,7 +283,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                // update screen with # of good points
 
-      do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP + TERN0(BLTOUCH, bltouch.z_extra_clearance())); // clearance
+      line_to_z(current_position.z + BED_TRAMMING_Z_HOP + TERN0(BLTOUCH, bltouch.z_extra_clearance())); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       corner_point -= probe.offset_xy;                    // Account for probe offsets
@@ -312,7 +312,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     #if ENABLED(BLTOUCH)
       if (bltouch.high_speed_mode) {
         // In HIGH SPEED MODE do clearance and stow at the very end
-        do_blocking_move_to_z(current_position.z + BED_TRAMMING_Z_HOP);
+        do_z_clearance(BED_TRAMMING_Z_HOP);
         bltouch.stow();
       }
     #endif
