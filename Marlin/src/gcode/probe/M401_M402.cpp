@@ -39,12 +39,11 @@
  *  H       Report the current BLTouch HS mode state and exit
  *  S<bool> Set High Speed (HS) Mode and exit without deploy
  *
- * N<bool> True no return to prior location. Default is false
+ *  R<bool> Remain in place after deploying (and before activating) the probe
  */
 void GcodeSuite::M401() {
   const bool seenH = parser.seen_test('H'),
-             seenS = parser.seen('S'),
-             seenN = parser.seen('N');
+             seenS = parser.seen('S');
   if (seenH || seenS) {
     #ifdef BLTOUCH_HS_MODE
       if (seenS) bltouch.high_speed_mode = parser.value_bool();
@@ -54,8 +53,7 @@ void GcodeSuite::M401() {
     #endif
   }
   else {
-    if (seenN) probe.deploy(true);
-    else probe.deploy();
+    probe.deploy(parser.boolval('R'));
     TERN_(PROBE_TARE, probe.tare());
     report_current_position();
   }
@@ -63,11 +61,10 @@ void GcodeSuite::M401() {
 
 /**
  * M402: Deactivate and stow the Z probe
+ *  R<bool> Remain in place after stowing (and before deactivating) the probe
  */
 void GcodeSuite::M402() {
-  const bool seenN = parser.seen('N');
-  if (seenN) probe.stow(true);
-  else probe.stow();
+  probe.stow(parser.boolval('R'));
   probe.move_z_after_probing();
   report_current_position();
 }
