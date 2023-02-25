@@ -213,12 +213,16 @@ static void _lcd_level_bed_corners_get_next_position() {
     MenuItem_confirm::select_screen(
         GET_TEXT_F(TERN(HAS_LEVELING, MSG_BUTTON_LEVEL, MSG_BUTTON_DONE)),
         TERN(HAS_LEVELING, GET_TEXT_F(MSG_BUTTON_DONE), nullptr)
-      , []{ TERN(HAS_LEVELING, []{queue.inject(F("G29N")); corner_probing_done = true;}, queue.inject(FPSTR(G28_STR))); ui.goto_previous_screen_no_defer();}
       , []{
-        TERN(HAS_LEVELING, ui.goto_previous_screen_no_defer(), []{});
-        TERN_(STOW_BETWEEN_PROBES, probe.stow(true));
-        corner_probing_done = true;
-      }
+          corner_probing_done = true;
+          queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR)));
+          ui.goto_previous_screen_no_defer();
+        }
+      , []{
+          corner_probing_done = true;
+          TERN_(HAS_LEVELING, ui.goto_previous_screen_no_defer());
+          TERN_(STOW_BETWEEN_PROBES, probe.stow(true));
+        }
       , GET_TEXT_F(MSG_BED_TRAMMING_IN_RANGE)
     );
   }
