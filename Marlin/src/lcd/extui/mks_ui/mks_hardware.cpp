@@ -45,7 +45,7 @@
   #if PIN_EXISTS(MT_DET_2)
     bool mt_det2_sta;
   #endif
-  #if X_HOME_DIR
+  #if HAS_X_AXIS && X_HOME_DIR
     bool endstopx1_sta;
   #else
     constexpr static bool endstopx1_sta = true;
@@ -178,7 +178,9 @@
     SET_INPUT_PULLUP(MKS_TEST_PS_ON_PIN);
     SET_INPUT_PULLUP(SERVO0_PIN);
 
-    OUT_WRITE(X_ENABLE_PIN, LOW);
+    #if HAS_X_AXIS
+      OUT_WRITE(X_ENABLE_PIN, LOW);
+    #endif
     #if HAS_Y_AXIS
       OUT_WRITE(Y_ENABLE_PIN, LOW);
     #endif
@@ -240,7 +242,9 @@
     void mks_hardware_test() {
       if (millis() % 2000 < 1000) {
         thermalManager.fan_speed[0] = 255;
-        WRITE(X_DIR_PIN, LOW);
+        #if HAS_X_AXIS
+          WRITE(X_DIR_PIN, LOW);
+        #endif
         #if HAS_Y_AXIS
           WRITE(Y_DIR_PIN, LOW);
         #endif
@@ -265,7 +269,9 @@
       }
       else {
         thermalManager.fan_speed[0] = 0;
-        WRITE(X_DIR_PIN, HIGH);
+        #if HAS_X_AXIS
+          WRITE(X_DIR_PIN, HIGH);
+        #endif
         #if HAS_Y_AXIS
           WRITE(Y_DIR_PIN, HIGH);
         #endif

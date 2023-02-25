@@ -490,25 +490,27 @@
 //
 // Assign endstop pins for boards with only 3 connectors
 //
-#ifdef X_STOP_PIN
-  #if X_HOME_TO_MIN
-    #define X_MIN_PIN X_STOP_PIN
-    #ifndef X_MAX_PIN
-      #define X_MAX_PIN -1
+#if HAS_X_AXIS
+  #ifdef X_STOP_PIN
+    #if X_HOME_TO_MIN
+      #define X_MIN_PIN X_STOP_PIN
+      #ifndef X_MAX_PIN
+        #define X_MAX_PIN -1
+      #endif
+    #else
+      #define X_MAX_PIN X_STOP_PIN
+      #ifndef X_MIN_PIN
+        #define X_MIN_PIN -1
+      #endif
     #endif
+  #elif X_HOME_TO_MIN
+    #define X_STOP_PIN X_MIN_PIN
   #else
-    #define X_MAX_PIN X_STOP_PIN
-    #ifndef X_MIN_PIN
-      #define X_MIN_PIN -1
-    #endif
+    #define X_STOP_PIN X_MAX_PIN
   #endif
-#elif X_HOME_TO_MIN
-  #define X_STOP_PIN X_MIN_PIN
-#else
-  #define X_STOP_PIN X_MAX_PIN
-#endif
-#if !defined(X2_USE_ENDSTOP) && ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X_STOP)
-  #define X2_USE_ENDSTOP _XSTOP_
+  #if !defined(X2_USE_ENDSTOP) && ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X_STOP)
+    #define X2_USE_ENDSTOP _XSTOP_
+  #endif
 #endif
 
 #if HAS_Y_AXIS

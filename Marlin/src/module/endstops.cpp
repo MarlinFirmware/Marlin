@@ -494,7 +494,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-      char NUM_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' '),
+      char NUM_AXIS_LIST_(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' ')
            chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -542,7 +542,7 @@ void Endstops::event_handler() {
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
-        NUM_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW), chrP
+        NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
       )
     );
 
@@ -561,18 +561,22 @@ void Endstops::event_handler() {
   }
 }
 
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
+#if NUM_AXES
+
+  #pragma GCC diagnostic push
+  #if GCC_VERSION <= 50000
+    #pragma GCC diagnostic ignored "-Wunused-function"
+  #endif
+
+  static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
+    if (flabel) SERIAL_ECHOF(flabel);
+    SERIAL_ECHOPGM(": ");
+    SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
+  }
+
+  #pragma GCC diagnostic pop
+
 #endif
-
-static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
-  if (flabel) SERIAL_ECHOF(flabel);
-  SERIAL_ECHOPGM(": ");
-  SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
-}
-
-#pragma GCC diagnostic pop
 
 void __O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
@@ -1110,7 +1114,9 @@ void Endstops::update() {
     #define _G38_OPEN_STATE TERN(G38_PROBE_AWAY, (G38_move >= 4), LOW)
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) != _G38_OPEN_STATE) {
+      #if HAS_X_AXIS
              if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(X_AXIS); }
+      #endif
       #if HAS_Y_AXIS
         else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Y_AXIS); }
       #endif
@@ -1123,36 +1129,38 @@ void Endstops::update() {
 
   // Signal, after validation, if an endstop limit is pressed or not
 
-  if (stepper.axis_is_moving(X_AXIS)) {
-    if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-      #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
-        PROCESS_ENDSTOP_X(MIN);
-        #if   CORE_DIAG(XY, Y, MIN)
-          PROCESS_CORE_ENDSTOP(Y,MIN,X,MIN);
-        #elif CORE_DIAG(XY, Y, MAX)
-          PROCESS_CORE_ENDSTOP(Y,MAX,X,MIN);
-        #elif CORE_DIAG(XZ, Z, MIN)
-          PROCESS_CORE_ENDSTOP(Z,MIN,X,MIN);
-        #elif CORE_DIAG(XZ, Z, MAX)
-          PROCESS_CORE_ENDSTOP(Z,MAX,X,MIN);
+  #if HAS_X_AXIS
+    if (stepper.axis_is_moving(X_AXIS)) {
+      if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+        #if HAS_X_MIN || (X_SPI_SENSORLESS && X_HOME_TO_MIN)
+          PROCESS_ENDSTOP_X(MIN);
+          #if   CORE_DIAG(XY, Y, MIN)
+            PROCESS_CORE_ENDSTOP(Y,MIN,X,MIN);
+          #elif CORE_DIAG(XY, Y, MAX)
+            PROCESS_CORE_ENDSTOP(Y,MAX,X,MIN);
+          #elif CORE_DIAG(XZ, Z, MIN)
+            PROCESS_CORE_ENDSTOP(Z,MIN,X,MIN);
+          #elif CORE_DIAG(XZ, Z, MAX)
+            PROCESS_CORE_ENDSTOP(Z,MAX,X,MIN);
+          #endif
         #endif
-      #endif
-    }
-    else { // +direction
-      #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_TO_MAX)
-        PROCESS_ENDSTOP_X(MAX);
-        #if   CORE_DIAG(XY, Y, MIN)
-          PROCESS_CORE_ENDSTOP(Y,MIN,X,MAX);
-        #elif CORE_DIAG(XY, Y, MAX)
-          PROCESS_CORE_ENDSTOP(Y,MAX,X,MAX);
-        #elif CORE_DIAG(XZ, Z, MIN)
-          PROCESS_CORE_ENDSTOP(Z,MIN,X,MAX);
-        #elif CORE_DIAG(XZ, Z, MAX)
-          PROCESS_CORE_ENDSTOP(Z,MAX,X,MAX);
+      }
+      else { // +direction
+        #if HAS_X_MAX || (X_SPI_SENSORLESS && X_HOME_TO_MAX)
+          PROCESS_ENDSTOP_X(MAX);
+          #if   CORE_DIAG(XY, Y, MIN)
+            PROCESS_CORE_ENDSTOP(Y,MIN,X,MAX);
+          #elif CORE_DIAG(XY, Y, MAX)
+            PROCESS_CORE_ENDSTOP(Y,MAX,X,MAX);
+          #elif CORE_DIAG(XZ, Z, MIN)
+            PROCESS_CORE_ENDSTOP(Z,MIN,X,MAX);
+          #elif CORE_DIAG(XZ, Z, MAX)
+            PROCESS_CORE_ENDSTOP(Z,MAX,X,MAX);
+          #endif
         #endif
-      #endif
+      }
     }
-  }
+  #endif
 
   #if HAS_Y_AXIS
     if (stepper.axis_is_moving(Y_AXIS)) {

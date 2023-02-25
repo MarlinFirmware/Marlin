@@ -28,7 +28,7 @@
 
 #if HAS_MARLINUI_MENU
 
-#define HAS_LARGE_AREA ((X_BED_SIZE) >= 1000 || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
+#define HAS_LARGE_AREA (TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 1000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000))
 #if ENABLED(LARGE_MOVE_ITEMS)
   #define HAS_LARGE_MOVES true
 #elif ENABLED(SLIM_LCD_MENUS)
@@ -214,7 +214,9 @@ void menu_move() {
   // Move submenu for each axis
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
     if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
-      SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
+      #if HAS_X_AXIS
+        SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
+      #endif
       #if HAS_Y_AXIS
         SUBMENU_N(Y_AXIS, MSG_MOVE_N, []{ _menu_move_distance(Y_AXIS, []{ lcd_move_axis(Y_AXIS); }); });
       #endif
