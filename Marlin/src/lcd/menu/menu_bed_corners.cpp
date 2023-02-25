@@ -393,7 +393,8 @@ void _lcd_level_bed_corners() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
-      TERN(STOW_BETWEEN_PROBES, deploy_probe(), _lcd_level_bed_corners_homing());
+      TERN_(STOW_BETWEEN_PROBES, deploy_probe());
+      ui.goto_screen(_lcd_level_bed_corners_homing);
     }
   });
 }
