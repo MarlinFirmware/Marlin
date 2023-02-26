@@ -3237,8 +3237,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if LCD_BACKLIGHT_TIMEOUT_MINS
   #if !HAS_ENCODER_ACTION
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
-  #elif !PIN_EXISTS(LCD_BACKLIGHT)
-    #error "LCD_BACKLIGHT_TIMEOUT_MINS requires LCD_BACKLIGHT_PIN."
+  #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
+    #if PIN_EXISTS(LCD_BACKLIGHT_PIN)
+      #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
+    #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)
+      #error "LCD_BACKLIGHT_TIMEOUT is not compatible with NEOPIXEL_BKGD_ALWAYS_ON."
+    #endif
+  #elif !PIN_EXISTS(LCD_BACKLIGHT_PIN)
+    #ifndef NEOPIXEL_BKGD_INDEX_FIRST
+      #error "LCD_BACKLIGHT_TIMEOUT_MINS requires either LCD_BACKLIGHT_PIN or NEOPIXEL_BKGD_INDEX_FIRST."
+    #endif
   #endif
 #endif
 
