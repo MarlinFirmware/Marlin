@@ -396,10 +396,8 @@ void _lcd_level_bed_corners() {
   queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   ui.goto_screen([]{
     _lcd_draw_homing();
-    if (all_axes_homed()) {
-      TERN_(STOW_BETWEEN_PROBES, deploy_probe());
-      ui.goto_screen(_lcd_level_bed_corners_homing);
-    }
+    if (!all_axes_homed()) return;
+    TERN(STOW_BETWEEN_PROBES, deploy_probe(), ui.goto_screen(_lcd_level_bed_corners_homing));
   });
 }
 
