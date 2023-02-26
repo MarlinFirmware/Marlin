@@ -24,7 +24,7 @@
 
 #include "../MarlinCore.h" // for printingIsPaused
 
-#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS)
+#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || ENABLED(LCD_BACKLIGHT_TIMEOUT_MINS)
   #include "../feature/leds/leds.h"
 #endif
 
@@ -189,10 +189,22 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::backlight_off_ms = 0;
-  void MarlinUI::refresh_backlight_timeout() {
-    backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
-    WRITE(LCD_BACKLIGHT_PIN, HIGH);
-  }
+
+  #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+
+    void MarlinUI::refresh_backlight_timeout() {
+      backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
+      neo.reset_background_color();
+      neo.show();
+    }
+  
+  #elif PIN_EXISTS(LCD_BACKLIGHT_PIN)
+
+      void MarlinUI::refresh_backlight_timeout() {
+      backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
+      WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    }
+  #endif
 
 #elif HAS_DISPLAY_SLEEP
 
@@ -1196,10 +1208,18 @@ void MarlinUI::init() {
       #endif
 
       #if LCD_BACKLIGHT_TIMEOUT_MINS
-        if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
-          WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
-          backlight_off_ms = 0;
-        }
+        #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+          if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
+           neo.set_background_off();  // Backlight off
+           neo.show();
+           backlight_off_ms = 0;
+          }
+        #elif PIN_EXISTS(LCD_BACKLIGHT_PIN)
+          if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
+            WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
+            backlight_off_ms = 0;
+          }
+        #endif
       #elif HAS_DISPLAY_SLEEP
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
           sleep_display();
