@@ -620,6 +620,16 @@ namespace ExtUI {
     RTS_SndData();
   }
 
+  #ifndef __AVR__
+    void RTSSHOW::RTS_SndData(int n, int addr, uint8_t cmd) { RTS_SndData(int32_t(n), addr, cmd); }
+    void RTSSHOW::RTS_SndData(long unsigned int n, int addr, uint8_t cmd) { RTS_SndData(uint32_t(n), addr, cmd); }
+    void RTSSHOW::RTS_SndData(celsius_float_t n, int addr, uint8_t cmd) { RTS_SndData(float(n), addr, cmd); }
+    void RTSSHOW::RTS_SndData(long int n, int addr, uint8_t cmd) { RTS_SndData(int32_t(n), addr, cmd); }
+    void RTSSHOW::RTS_SndData(uint16_t n, int addr, uint8_t cmd) { RTS_SndData(uint16_t(n), uint32_t(addr), cmd); }
+    void RTSSHOW::RTS_SndData(int16_t n, int addr, uint8_t cmd) { RTS_SndData(uint16_t(n), uint32_t(addr), cmd); }
+    void RTSSHOW::RTS_SndData(char n, int addr, uint8_t cmd) { RTS_SndData(char(n), uint32_t(addr), cmd); }
+  #endif
+
   void RTSSHOW::RTS_HandleData() {
     int16_t Checkkey = -1;
     if (waitway > 0) { // for waiting

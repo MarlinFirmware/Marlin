@@ -236,6 +236,17 @@ namespace ExtUI {
       void RTS_SndData(uint16_t, uint32_t, uint8_t=VarAddr_W);
       void RTS_SndData(int32_t, uint32_t, uint8_t=VarAddr_W);
       void RTS_SndData(uint32_t, uint32_t, uint8_t=VarAddr_W);
+
+      #ifndef __AVR__
+        void RTS_SndData(int, int, uint8_t=VarAddr_W);
+        void RTS_SndData(long unsigned int, int, uint8_t=VarAddr_W);
+        void RTS_SndData(celsius_float_t, int, uint8_t=VarAddr_W);
+        void RTS_SndData(long int, int, uint8_t=VarAddr_W);
+        void RTS_SndData(uint16_t, int, uint8_t=VarAddr_W);
+        void RTS_SndData(int16_t, int, uint8_t=VarAddr_W);
+        void RTS_SndData(char, int, uint8_t=VarAddr_W);
+      #endif
+
       void RTS_SDcard_Stop();
       void RTS_HandleData();
       void RTS_Init();
