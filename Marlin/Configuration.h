@@ -3036,7 +3036,7 @@
  *  - Copy the downloaded DWIN_SET folder to the SD card.
  *
  * IA_CREALITY (T5UID1)
- *  - Download https://github.com/InsanityAutomation/Marlin/raw/CrealityDwin2.0_Bleeding/TM3D_Combined480272_Landscape_V7.7z
+ *  - Download https://github.com/InsanityAutomation/Marlin/raw/CrealityDwin_2.0/TM3D_Combined480272_Landscape_V7.7z
  *  - Copy the downloaded DWIN_SET folder to the SD card.
  *
  * Flash display with DGUS Displays for Marlin:
