@@ -24,7 +24,7 @@
 
 #include "../MarlinCore.h" // for printingIsPaused
 
-#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || BOTH(LCD_BACKLIGHT_TIMEOUT_MINS, NEOPIXEL_BKGD_TIMEOUT_COLOR)
+#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (defined(LCD_BACKLIGHT_TIMEOUT_MINS) && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
 #endif
 
@@ -185,29 +185,19 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if LCD_BACKLIGHT_TIMEOUT_MINS
 
-  #ifdef NEOPIXEL_BKGD_INDEX_FIRST
-    
-    constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
-  
-    uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
-    millis_t MarlinUI::backlight_off_ms = 0;
-    void MarlinUI::refresh_backlight_timeout() {
-      backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
+  constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
+  uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
+  millis_t MarlinUI::backlight_off_ms = 0;
+
+  void MarlinUI::refresh_backlight_timeout() {
+    backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
+    #ifdef NEOPIXEL_BKGD_INDEX_FIRST
       neo.reset_background_color();
       neo.show();
-    }
-    
-  #elif PIN_EXISTS(LCD_BACKLIGHT)
-  
-    constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
-  
-    uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
-    millis_t MarlinUI::backlight_off_ms = 0;
-    void MarlinUI::refresh_backlight_timeout() {
-      backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
+    #elif PIN_EXISTS(LCD_BACKLIGHT)
       WRITE(LCD_BACKLIGHT_PIN, HIGH);
-    }
-  #endif
+    #endif
+  }
 
 #elif HAS_DISPLAY_SLEEP
 
@@ -1212,18 +1202,15 @@ void MarlinUI::init() {
 
       #if LCD_BACKLIGHT_TIMEOUT_MINS
 
-        #ifdef NEOPIXEL_BKGD_INDEX_FIRST   
-          if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
-            neo.set_background_off(); // Backlight off
+        if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
+          #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+            neo.set_background_off();
             neo.show();
-            backlight_off_ms = 0;
-          }
-        #elif PIN_EXIST(LCD_BACKLIGHT)
-          if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
+          #elif PIN_EXIST(LCD_BACKLIGHT)
             WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
-            backlight_off_ms = 0;
-          }
-        #endif  
+          #endif
+          backlight_off_ms = 0;
+        }
       #elif HAS_DISPLAY_SLEEP
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
           sleep_display();
