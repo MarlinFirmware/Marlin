@@ -69,7 +69,7 @@ bool DGUSScreenHandler::leveling_active = false;
 millis_t DGUSScreenHandler::status_expire = 0;
 millis_t DGUSScreenHandler::eeprom_save = 0;
 
-const char DGUS_MSG_HOMING_REQUIRED[] PROGMEM = "Homing required",
+const char DGUS_MSG_HOMING_REQUIRED[]  PROGMEM  = "Homing required",
            DGUS_MSG_BUSY[] PROGMEM = "Busy",
            DGUS_MSG_UNDEF[] PROGMEM = "-",
            DGUS_MSG_HOMING[] PROGMEM = "Homing...",
@@ -136,9 +136,9 @@ void DGUSScreenHandler::Loop() {
   }
 
   if (current_screen == DGUS_Screen::LEVELING_PROBING && IsPrinterIdle()) {
-    dgus_display.PlaySound(3);
+    dgus_display.PlaySound(3);  
 
-    SetStatusMessage(ExtUI::getMeshValid() ? F("Probing successful") : F("Probing failed"));
+    SetStatusMessage(ExtUI::getMeshValid() ? GET_TEXT_F(DGUS_MSG_PROBING_SUCCESS) : GET_TEXT_F(DGUS_MSG_PROBING_FAILED));
 
     MoveToScreen(DGUS_Screen::LEVELING_AUTOMATIC);
     return;
@@ -189,7 +189,7 @@ void DGUSScreenHandler::SettingsReset() {
     Ready();
   }
 
-  SetStatusMessage(F("EEPROM reset"));
+  SetStatusMessage(GET_TEXT_F(DGUS_MSG_RESET_EEPROM));
 }
 
 void DGUSScreenHandler::StoreSettings(char *buff) {
@@ -223,12 +223,12 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
 
 void DGUSScreenHandler::ConfigurationStoreWritten(bool success) {
   if (!success)
-    SetStatusMessage(F("EEPROM write failed"));
+    SetStatusMessage(GET_TEXT_F(DGUS_MSG_WRITE_EEPROM_FAILED));
 }
 
 void DGUSScreenHandler::ConfigurationStoreRead(bool success) {
   if (!success) {
-    SetStatusMessage(F("EEPROM read failed"));
+    SetStatusMessage(GET_TEXT_F(DGUS_MSG_READ_EEPROM_FAILED));
   }
   else if (!settings_ready) {
     settings_ready = true;
@@ -283,7 +283,8 @@ void DGUSScreenHandler::PrintTimerStopped() {
 
 void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
   char buffer[21];
-  snprintf_P(buffer, sizeof(buffer), PSTR("Filament runout E%d"), extruder);
+
+  snprintf_P(buffer, sizeof(buffer), GET_TEXT(DGUS_MSG_FILAMENT_RUNOUT), extruder);
 
   SetStatusMessage(buffer);
 

@@ -631,4 +631,28 @@ namespace Language_fr {
 
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Clé USB");
+
+  LSTR MSG_IMPOSSIBLE_WHILE_PRINTING      = _UxGT("Impossible pendant une impression");
+  LSTR MSG_IMPOSSIBLE_WHILE_IDLE          = _UxGT("Impossible tant que l'imprimante est en attente");
+  LSTR MSG_NO_FILE_SELECTED               = _UxGT("Aucun fichier selectionne");
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
+  LSTR MSG_EXECUTING_COMMAND              = _UxGT("Execution de la commande...");
+  LSTR MSG_BED_PID_DISABLED               = _UxGT("Bed PID desactive");
+  LSTR MSG_PID_DISABLED                   = _UxGT("PID desactive");
+  LSTR MSG_PID_AUTOTUNING                 = _UxGT("Autocalibrage du PID...");
+  LSTR MSG_INVALID_RECOVERY_DATA          = _UxGT("Donnees de recuperation non valides");
+
+  LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Retour a l'origine necessaire...");
+  LSTR DGUS_MSG_BUSY                      = _UxGT("Occupe");
+  LSTR DGUS_MSG_UNDEF                     = _UxGT("-");
+  LSTR DGUS_MSG_HOMING                    = _UxGT("Retour a l'origine...");
+  LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("Mise a jour DWIN GUI/OS necessaire");
+  LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Nivellement du bed necessaire");
+  LSTR DGUS_MSG_PROBING_FAILED            = _UxGT("Echec du nivellement...");
+  LSTR DGUS_MSG_PROBING_SUCCESS           = _UxGT("Nivellement realise avec succes");
+  LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("Reinitialisation de l'EEPROM");
+  LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Echec ecriture de l'EEPROM");
+  LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Echec lecture de l'EEPROM");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E");
+
 }

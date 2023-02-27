@@ -68,7 +68,7 @@ bool DGUSSetupHandler::LevelingMenu() {
   ExtUI::setLevelingActive(dgus_screen_handler.leveling_active);
 
   if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(FPSTR(DGUS_MSG_BUSY));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return false;
   }
 
@@ -81,7 +81,7 @@ bool DGUSSetupHandler::LevelingMenu() {
   }
 
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLinePGM(DGUS_MSG_HOMING, 2);
+  dgus_screen_handler.SetMessageLinePGM(GET_TEXT(DGUS_MSG_HOMING), 2);
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
   dgus_screen_handler.ShowWaitScreen(DGUS_Screen::LEVELING_MENU);
@@ -99,12 +99,12 @@ bool DGUSSetupHandler::LevelingManual() {
   }
 
   if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(FPSTR(DGUS_MSG_BUSY));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return false;
   }
 
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLinePGM(DGUS_MSG_HOMING, 2);
+  dgus_screen_handler.SetMessageLinePGM(GET_TEXT(DGUS_MSG_HOMING), 2);
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
   dgus_screen_handler.ShowWaitScreen(DGUS_Screen::LEVELING_MANUAL);
@@ -118,7 +118,7 @@ bool DGUSSetupHandler::LevelingOffset() {
   dgus_screen_handler.offset_steps = DGUS_Data::StepSize::MMP1;
 
   if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(FPSTR(DGUS_MSG_BUSY));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return false;
   }
 
@@ -137,7 +137,7 @@ bool DGUSSetupHandler::LevelingOffset() {
   }
 
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLinePGM(DGUS_MSG_HOMING, 2);
+  dgus_screen_handler.SetMessageLinePGM(GET_TEXT(DGUS_MSG_HOMING), 2);
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
   dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
   dgus_screen_handler.ShowWaitScreen(DGUS_Screen::LEVELING_OFFSET);
@@ -175,7 +175,7 @@ bool DGUSSetupHandler::Move() {
   dgus_screen_handler.move_steps = DGUS_Data::StepSize::MM10;
 
   if (!dgus_screen_handler.IsPrinterIdle()) {
-    dgus_screen_handler.SetStatusMessage(FPSTR(DGUS_MSG_BUSY));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
     return false;
   }
 

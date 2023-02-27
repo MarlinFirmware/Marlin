@@ -882,7 +882,31 @@ namespace Language_en {
   LSTR MSG_PID_F                          = _UxGT("PID-F");
   LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
   LSTR MSG_BACKLASH_N                     = _UxGT("@");
-}
+
+  LSTR MSG_IMPOSSIBLE_WHILE_PRINTING      = _UxGT("Impossible while printing");
+  LSTR MSG_IMPOSSIBLE_WHILE_IDLE          = _UxGT("Impossible while idle");
+  LSTR MSG_NO_FILE_SELECTED               = _UxGT("No file selected");
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature too low");
+  LSTR MSG_EXECUTING_COMMAND              = _UxGT("Executing command...");
+  LSTR MSG_BED_PID_DISABLED               = _UxGT("Bed PID disabled");
+  LSTR MSG_PID_DISABLED                   = _UxGT("PID disabled");
+  LSTR MSG_PID_AUTOTUNING                 = _UxGT("PID autotuning...");
+  LSTR MSG_INVALID_RECOVERY_DATA          = _UxGT("Invalid recovery data");
+
+  LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Homing required");
+  LSTR DGUS_MSG_BUSY                      = _UxGT("Busy");
+  LSTR DGUS_MSG_UNDEF                     = _UxGT("-");
+  LSTR DGUS_MSG_HOMING                    = _UxGT("Homing...");
+  LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("DWIN GUI/OS update required");
+  LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Auto bed leveling required");
+  LSTR DGUS_MSG_PROBING_FAILED            = _UxGT("Probing failed");
+  LSTR DGUS_MSG_PROBING_SUCCESS           = _UxGT("Probing successful");
+  LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("EEPROM reset");
+  LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("EEPROM write failed");
+  LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("EEPROM read failed");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Filament runout E");
+
+} 
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
