@@ -1,3 +1,84 @@
+/** Michael's Change log
+ *  **Changes made for RAMPs1.4 for K8200
+rev1: changed all based on https://forum.vellemanprojects.eu/t/k8200-with-dual-extruders/12949/5
+note:! prior to 2.1.x (1/3/23)
+#define MOTHERBOARD BOARD_RAMPS_14_EEB
+DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you used the K8204. Set the fourth axis value to 150 for the K8203 extruder - and note that this same value is used for both extruders. (If you used 0.9-degree steppers instead of the stock 1.8-degrees, double the corresponding STEPS_PER_UNIT value for that axis.)
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {64.25, 64.25, 2133.333, 500 } //old "original spuuplied" belt
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 2133.333, 500 } //new GT2 belt with 20T servo pulley
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {77.87, 79.66, 2133.333, 500 } //calibrated - new GT2 belt with 20T servo pulley 
+
+//You may also need to set the INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR, INVERT_E0_DIR, and INVERT_E1_DIR to match the wired direction of the motors. (NOTE: My bed heater is currently getting very hot so I may have this wrong.)
+
+#define TEMP_SENSOR_0 5 // Was 1  
+#define TEMP_SENSOR_3 0 
+#define TEMP_SENSOR_BED 5 // Was 1
+//
+// #define DEFAULT_MAX_ACCELERATION {9000,9000,100,10000} 
+#define DEFAULT_MAX_FEEDRATE {500, 500, 5, 500} 
+#define DEFAULT_ACCELERATION 500 // X, Y, Z and E acceleration in mm/s^2 for printing moves 
+#define DEFAULT_RETRACT_ACCELERATION 1000 // E acceleration in mm/s^2 for retracts
+//
+#define EEPROM_SETTINGS // Enable for M500 and M501 commands
+
+#define INVERT_E0_DIR true
+** faulty X control circuit - swapped X with E1 to test
+* //chnages made to 
+* pins_RAMPS.h
+// Steppers
+//
+//commented out to fix ramps problems - swapping E1 with X
+//#define X_STEP_PIN         54
+//#define X_DIR_PIN          55
+//#define X_ENABLE_PIN       38
+//#define X_CS_PIN           53
+#define X_STEP_PIN         36
+#define X_DIR_PIN          34
+#define X_ENABLE_PIN       30
+#define X_CS_PIN           44
+
+//#define E1_STEP_PIN        36
+//#define E1_DIR_PIN         34
+//#define E1_ENABLE_PIN      30
+//#define E1_CS_PIN          44
+#define E1_STEP_PIN        54
+#define E1_DIR_PIN         55
+#define E1_ENABLE_PIN      38
+#define E1_CS_PIN          53
+ */
+
+/* auto bed level
+ *  
+ *  trick to measure the offset using 1-2-3 block. Place on heated bed and allow 1-2-3 to heat up (maintain constant temp).
+ *  then 1. raise the Z access to about 26 or 27mm so its above the 123 block (they are 1" in size which is 25.4mm)
+ *  2. place the 123 block onder the sensor (note the holes may skew the result might need to try multiple times)
+ *  3. lower the Z using buttons until you get the sensor light illuminating (you can use both 0.1 and 0.01 measure for accurance)
+ *  4. raise the "z" and the slide the blo
+ *  
+#define FIX_MOUNTED_PROBE
+//#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 43  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 43  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle]
+
+
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -1   // Z offset: -below +above  [the nozzle] (measured with 1-2-3 block)
+//** note: this is the NOZZLE is BELOW the PROBE... grrr
+
+  // #define LEFT_PROBE_BED_POSITION 15
+ #define LEFT_PROBE_BED_POSITION 43 //28 is the distance of the probe from the nozzle so needs to have 28added to 15
+  #define RIGHT_PROBE_BED_POSITION 180 //dont go 185  - sensor doesnt read!!
+  #define FRONT_PROBE_BED_POSITION 15
+  #define BACK_PROBE_BED_POSITION 170
+
+#define AUTO_BED_LEVELING_BILINEAR
+
+ */
+ 
+
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -536,12 +617,12 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5 //was: #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-#define TEMP_SENSOR_5 0
+#define TEMP_SENSOR_BED //was #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
 #define TEMP_SENSOR_BED 0
@@ -1314,7 +1395,7 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-//#define FIX_MOUNTED_PROBE
+#define FIX_MOUNTED_PROBE
 
 /**
  * Use the nozzle as the probe, as with a conductive
@@ -1653,7 +1734,9 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true //was: false 
+** faulty X control circuit //chnages made to pins_RAMPS.h
+
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -2176,7 +2259,7 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of flash. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
