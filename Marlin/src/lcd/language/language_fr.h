@@ -644,7 +644,6 @@ namespace Language_fr {
 
   LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Retour a l'origine necessaire...");
   LSTR DGUS_MSG_BUSY                      = _UxGT("Occupe");
-  LSTR DGUS_MSG_UNDEF                     = _UxGT("-");
   LSTR DGUS_MSG_HOMING                    = _UxGT("Retour a l'origine...");
   LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("Mise a jour DWIN GUI/OS necessaire");
   LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Nivellement du bed necessaire");
@@ -653,6 +652,6 @@ namespace Language_fr {
   LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("Reinitialisation de l'EEPROM");
   LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Echec ecriture de l'EEPROM");
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Echec lecture de l'EEPROM");
-  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E%d");
 
 }

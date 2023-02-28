@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -29,6 +29,7 @@
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
+#define NOT_EXTENDED_ISO10646_1_5X7
 
 namespace Language_fr {
   using namespace Language_en; // Inherit undefined strings from English
@@ -632,19 +633,19 @@ namespace Language_fr {
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Cle USB");
 
-  LSTR MSG_IMPOSSIBLE_WHILE_PRINTING      = _UxGT("Impossible pendant une impression");
-  LSTR MSG_IMPOSSIBLE_WHILE_IDLE          = _UxGT("Impossible tant que l'imprimante est en attente");
-  LSTR MSG_NO_FILE_SELECTED               = _UxGT("Aucun fichier selectionne");
-  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
-  LSTR MSG_EXECUTING_COMMAND              = _UxGT("Execution de la commande...");
-  LSTR MSG_BED_PID_DISABLED               = _UxGT("Bed PID desactive");
-  LSTR MSG_PID_DISABLED                   = _UxGT("PID desactive");
-  LSTR MSG_PID_AUTOTUNING                 = _UxGT("Autocalibrage du PID...");
-  LSTR MSG_INVALID_RECOVERY_DATA          = _UxGT("Donnees de recuperation non valides");
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
+  LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
+  LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
+  LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
+  LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
+  LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");
+  LSTR DGUS_MSG_PID_AUTOTUNING            = _UxGT("Autocalibrage du PID...");
+  LSTR DGUS_MSG_INVALID_RECOVERY_DATA     = _UxGT("Donnees de recuperation non valides");
 
   LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Retour a l'origine necessaire...");
   LSTR DGUS_MSG_BUSY                      = _UxGT("Occupe");
-  LSTR DGUS_MSG_UNDEF                     = _UxGT("-");
   LSTR DGUS_MSG_HOMING                    = _UxGT("Retour a l'origine...");
   LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("Mise a jour DWIN GUI/OS necessaire");
   LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Nivellement du bed necessaire");
@@ -653,6 +654,6 @@ namespace Language_fr {
   LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("Reinitialisation de l'EEPROM");
   LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Echec ecriture de l'EEPROM");
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Echec lecture de l'EEPROM");
-  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E%d");
 
 }

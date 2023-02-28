@@ -63,13 +63,13 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Idle
       && (ExtUI::isPrinting() || ExtUI::isPrintingPaused())) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_IMPOSSIBLE_WHILE_PRINTING));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_NOT_WHILE_PRINTING));
     return;
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Printing
       && (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused())) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_IMPOSSIBLE_WHILE_IDLE));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_NOT_WHILE_IDLE));
     return;
   }
 
@@ -137,7 +137,7 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
     UNUSED(data_ptr);
 
     if (dgus_screen_handler.filelist_selected < 0) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_NO_FILE_SELECTED ));
+      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_NO_FILE_SELECTED));
       return;
     }
 
@@ -598,7 +598,7 @@ void DGUSRxHandler::FilamentMove(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (ExtUI::getActualTemp_celsius(extruder) < (float)EXTRUDE_MINTEMP) {
-    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_TEMP_TOO_LOW));
+    dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW));
     return;
   }
 
@@ -624,11 +624,7 @@ void DGUSRxHandler::Home(DGUS_VP &vp, void *data_ptr) {
 
   DGUS_Data::Axis axis = (DGUS_Data::Axis)((uint8_t*)data_ptr)[1];
 
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLinePGM(GET_TEXT(DGUS_MSG_HOMING), 2);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
-  dgus_screen_handler.ShowWaitScreen(dgus_screen_handler.GetCurrentScreen());
+  dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_HOMING), dgus_screen_handler.GetCurrentScreen());
 
   switch (axis) {
     case DGUS_Data::Axis::X_Y_Z:
@@ -759,11 +755,7 @@ void DGUSRxHandler::GcodeExecute(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLinePGM(GET_TEXT(MSG_EXECUTING_COMMAND), 2);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
-  dgus_screen_handler.ShowWaitScreen(DGUS_Screen::GCODE);
+  dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_EXECUTING_COMMAND), DGUS_Screen::GCODE);
 
   queue.enqueue_one_now(dgus_screen_handler.gcode);
 }
@@ -887,7 +879,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
         heater = H_BED;
         break;
       #else
-        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_BED_PID_DISABLED));
+        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BED_PID_DISABLED));
         return;
       #endif
     case DGUS_Data::Heater::H0:
@@ -895,7 +887,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
         heater = H_E0;
         break;
       #else
-        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_PID_DISABLED));
+        dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_PID_DISABLED));
         return;
       #endif
     #if HAS_MULTI_HOTEND
@@ -904,7 +896,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
           heater = H_E1;
           break;
         #else
-          dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_PID_DISABLED));
+          dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_PID_DISABLED));
           return;
         #endif
     #endif
@@ -913,11 +905,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
   char buffer[24];
   snprintf_P(buffer, sizeof(buffer), PSTR("M303C%dE%dS%dU1"), cycles, heater, dgus_screen_handler.pid_temp);
 
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLinePGM(GET_TEXT(MSG_PID_AUTOTUNING), 2);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
-  dgus_screen_handler.ShowWaitScreen(DGUS_Screen::PID);
+  dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_PID_AUTOTUNING), DGUS_Screen::PID);
 
   queue.enqueue_one_now(buffer);
   queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
@@ -958,7 +946,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
     }
 
     if (!recovery.valid()) {
-      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(MSG_INVALID_RECOVERY_DATA ));
+      dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_INVALID_RECOVERY_DATA));
       return;
     }
 
