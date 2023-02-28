@@ -136,7 +136,7 @@ void DGUSScreenHandler::Loop() {
   }
 
   if (current_screen == DGUS_Screen::LEVELING_PROBING && IsPrinterIdle()) {
-    dgus_display.PlaySound(3);  
+    dgus_display.PlaySound(3);
 
     SetStatusMessage(ExtUI::getMeshValid() ? GET_TEXT_F(DGUS_MSG_PROBING_SUCCESS) : GET_TEXT_F(DGUS_MSG_PROBING_FAILED));
 

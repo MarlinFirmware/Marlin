@@ -906,7 +906,7 @@ namespace Language_en {
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("EEPROM read failed");
   LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Filament runout E");
 
-} 
+}
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
