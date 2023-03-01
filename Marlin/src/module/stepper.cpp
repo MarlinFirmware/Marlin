@@ -1869,7 +1869,6 @@ void Stepper::pulse_phase_isr() {
             // don't actually step here, but do subtract movements steps
             // from the linear advance step count
             step_needed.e = false;
-            count_position.e -= count_direction.e;
             la_advance_steps--;
           }
         #endif
@@ -2262,6 +2261,8 @@ uint32_t Stepper::block_phase_isr() {
                 DIR_WAIT_AFTER();
               }
             }
+            else
+              la_interval = LA_ADV_NEVER;
           }
         #endif // LIN_ADVANCE
 
