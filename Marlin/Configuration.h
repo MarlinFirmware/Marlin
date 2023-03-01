@@ -311,7 +311,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -617,12 +617,12 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#define TEMP_SENSOR_0 5 //was: #define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-#define TEMP_SENSOR_BED //was #define TEMP_SENSOR_5 0
+#define TEMP_SENSOR_BED 5
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
 #define TEMP_SENSOR_BED 0
@@ -633,7 +633,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 #define TEMP_SENSOR_REDUNDANT 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
-#define DUMMY_THERMISTOR_998_VALUE  25
+#define DUMMY_THERMISTOR_998_VALUE 25
 #define DUMMY_THERMISTOR_999_VALUE 100
 
 // Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
@@ -1249,7 +1249,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 78.17, 79.80, 2462.71, 705 }
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1564,7 +1564,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 43, -5, -0.3 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1722,7 +1722,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR true
+#define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
@@ -1734,8 +1734,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true //was: false 
-** faulty X control circuit //chnages made to pins_RAMPS.h
+#define INVERT_E0_DIR true
 
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
@@ -1760,7 +1759,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
 
-//#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
+#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
@@ -1956,7 +1955,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
