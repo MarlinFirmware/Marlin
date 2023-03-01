@@ -27,27 +27,20 @@
   #error "Tronxy V10 supports up to 3 hotends / E steppers."
 #endif
 
-#define BOARD_INFO_NAME      "Tronxy V10"
+#define BOARD_INFO_NAME      "Tronxy V10 F446"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #define STEP_TIMER                             6
 #define TEMP_TIMER                            14
 
-//
-// Servos
-//
-//#define SERVO0_PIN                        PB10
 
-//
+
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
   #undef NO_EEPROM_SELECTED
-  #if TRONXY_UI > 0
-    #define EEPROM_AT24CXX
-  #else
-    #define FLASH_EEPROM_EMULATION
-  #endif
+  //#define EEPROM_AT24CXX
+  #define FLASH_EEPROM_EMULATION
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -66,17 +59,6 @@
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
-//
-// SPI Flash
-//
-//#define SPI_FLASH
-#if ENABLED(SPI_FLASH)
-  #define SPI_FLASH_SIZE                0x200000  // 2MB
-  #define W25QXX_CS_PIN                     PG15  // SPI2
-  #define W25QXX_MOSI_PIN                   PB5
-  #define W25QXX_MISO_PIN                   PB4
-  #define W25QXX_SCK_PIN                    PB3
-#endif
 
 //
 // Limit Switches
@@ -85,32 +67,23 @@
 #define X_MAX_PIN                           PB0
 #define Y_STOP_PIN                          PC14
 
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PE3
+#if ENABLED(Z_MULTI_ENDSTOPS)
+  #if Z_HOME_DIR > 0 
+  #define Z_MIN_PIN                           PF11
+  #define Z_MAX_PIN                           PC13
+  #else
+  #define Z_MIN_PIN                           PC13
+  #define Z_MAX_PIN                           PF11
+  #endif
+  #if ENABLED(FIX_MOUNTED_PROBE)
+  #define Z_MIN_PROBE_PIN                     PE3
+  #endif
+#elif ENABLED(FIX_MOUNTED_PROBE)
+  #define Z_STOP_PIN                          PE3
+#else
+  #define Z_MIN_PIN                           PC13
 #endif
 
-#if ENABLED(DUAL_Z_ENDSTOP_PROBE)
-  #if NUM_Z_STEPPERS > 1 && Z_HOME_TO_MAX         // Swap Z1/Z2 for dual Z with max homing
-    #define Z_MIN_PIN                       PF11
-    #define Z_MAX_PIN                       PC13
-  #else
-    #define Z_MIN_PIN                       PC13
-    #define Z_MAX_PIN                       PF11
-  #endif
-#else
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                      PC13
-  #endif
-#endif
-//
-// Filament Sensors
-//
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PE6   // MT_DET
-#endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   PF12
-#endif
 
 //
 // Steppers
@@ -127,6 +100,16 @@
 #define Z_STEP_PIN                          PA6
 #define Z_DIR_PIN                           PF15
 
+#if defined(Z2_DRIVER_TYPE)
+  #define Z2_ENABLE_PIN                       PF7
+  #define Z2_STEP_PIN                         PF6
+  #define Z2_DIR_PIN                          PF4
+#elif EXTRUDERS > 2
+  #define E2_ENABLE_PIN                       PF7
+  #define E2_STEP_PIN                         PF6
+  #define E2_DIR_PIN                          PF4
+#endif
+
 #define E0_ENABLE_PIN                       PF14
 #define E0_STEP_PIN                         PB1
 #define E0_DIR_PIN                          PF13
@@ -135,29 +118,21 @@
 #define E1_STEP_PIN                         PD12
 #define E1_DIR_PIN                          PG4
 
-#define E2_ENABLE_PIN                       PF7
-#define E2_STEP_PIN                         PF6
-#define E2_DIR_PIN                          PF4
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PC3   // TH1
+#define TEMP_1_PIN                          PC0   // TH2
 #define TEMP_BED_PIN                        PC2   // TB1
 
-//
-// Heaters / Fans
-//
 #define HEATER_0_PIN                        PG7   // HEATER1
+#define HEATER_1_PIN                        PA15 // HEATER2
+
 #define HEATER_BED_PIN                      PE2   // HOT BED
+  
 //#define HEATER_BED_INVERTING              true
 
-#define FAN_PIN                             PG0   // FAN0
-#define FAN1_PIN                            PB6   // FAN1
-#define FAN2_PIN                            PG9   // FAN2
-#define FAN3_PIN                            PF10  // FAN3
-#define CONTROLLER_FAN_PIN                  PD7   // BOARD FAN
-#define FAN_SOFT_PWM
 
 //
 // Laser / Spindle
@@ -172,6 +147,17 @@
 #endif
 
 //
+// Fans
+//
+#define CONTROLLER_FAN_PIN                  PD7 // BOARD FAN
+#define FAN_PIN                             PG0 //FAN0
+#define FAN1_PIN                            PB6 //FAN1
+#define THROAT_FAN                          2
+#define FAN2_PIN                            PG9 //FAN2 - hotend
+#define FAN3_PIN                            PF10//FAN3
+//#define FAN_SOFT_PWM
+
+
 // Misc
 //
 #define BEEPER_PIN                          PA8
@@ -184,24 +170,49 @@
 #else
   #define POWER_LOSS_PIN                    PE1   // Output of LM393 comparator, configured as pullup
 #endif
-//#define POWER_LM393_PIN                   PE0   // +V for the LM393 comparator, configured as output high
+#define POWER_LM393_PIN                     PE0   // +V for the LM393 comparator, configured as output high
 
-#if ENABLED(TFT_TRONXY_X5SA)
-  #error "TFT_TRONXY_X5SA is not yet supported."
+
+//
+// Filament Sensors
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PE6   // MT_DET
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PF12
 #endif
 
-#if 0
+
+// SPI Flash
+// #define SPI_FLASH_SIZE                  0x200000  // 2MB
+// #define HAS_SPI_FLASH                          1
+
+// SPI 2
+#define W25QXX_CS_PIN                       PG15
+#define W25QXX_MOSI_PIN                     PB5
+#define W25QXX_MISO_PIN                     PB4
+#define W25QXX_SCK_PIN                      PB3
+
+
 
 //
 // TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
+  // Shared FSMC Configs
+  #define TOUCH_CS_PIN                      PD11   // SPI1_NSS
+  #define TOUCH_SCK_PIN                     PB13   // SPI1_SCK
+  #define TOUCH_MISO_PIN                    PB14   // SPI1_MISO
+  #define TOUCH_MOSI_PIN                    PB15   // SPI1_MOSI
   #define TFT_RESET_PIN                     PB12
   #define TFT_BACKLIGHT_PIN                 PG8
+  //for Marlin UI support
+  #define LCD_BACKLIGHT_PIN                 PG8
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
+  #define FSMC_DMA_CHANNEL                  DMA_CH5
 
   #define TFT_CS_PIN                        PG12
   #define TFT_RS_PIN                        PG2
@@ -220,35 +231,33 @@
     #define TOUCH_MOSI_PIN                  PB15  // SPI1_MOSI
   #endif
 
-  #if (LCD_CHIP_INDEX == 1 && (TRONXY_UI == 1 || TRONXY_UI == 2)) || LCD_CHIP_INDEX == 3
-    #define TOUCH_CALIBRATION_X           -17181
-    #define TOUCH_CALIBRATION_Y            11434
-    #define TOUCH_OFFSET_X                   501
-    #define TOUCH_OFFSET_Y                    -9
-  #elif LCD_CHIP_INDEX == 1 && TRONXY_UI == 4
-    #define TOUCH_CALIBRATION_X            11166
-    #define TOUCH_CALIBRATION_Y            17162
-    #define TOUCH_OFFSET_X                   -10
-    #define TOUCH_OFFSET_Y                   -16
-  #elif LCD_CHIP_INDEX == 4 && TRONXY_UI == 3
-    //#define TOUCH_CALIBRATION_X           8781
-    //#define TOUCH_CALIBRATION_Y          11773
-    //#define TOUCH_OFFSET_X                 -17
-    //#define TOUCH_OFFSET_Y                 -16
-    // Upside-down
-    #define TOUCH_CALIBRATION_X            -8553
-    #define TOUCH_CALIBRATION_Y           -11667
-    #define TOUCH_OFFSET_X                   253
-    #define TOUCH_OFFSET_Y                   331
+  #if LCD_CHIP_INDEX == 1  
+    #define XPT2046_X_CALIBRATION            11166
+    #define XPT2046_Y_CALIBRATION            17162
+    #define XPT2046_X_OFFSET                   -10
+    #define XPT2046_Y_OFFSET                   -16  
+  #elif LCD_CHIP_INDEX == 3
+    #define XPT2046_X_CALIBRATION           -17181
+    #define XPT2046_Y_CALIBRATION            11434
+    #define XPT2046_X_OFFSET                   501
+    #define XPT2046_Y_OFFSET                    -9
+  #elif LCD_CHIP_INDEX == 4
+    #define XPT2046_X_CALIBRATION             -8553
+    #define XPT2046_Y_CALIBRATION            -11667
+    #define XPT2046_X_OFFSET                   253
+    #define XPT2046_Y_OFFSET                   331
   #elif LCD_CHIP_INDEX == 2
-    #define TOUCH_CALIBRATION_X            17184
-    #define TOUCH_CALIBRATION_Y            10604
-    #define TOUCH_OFFSET_X                   -31
-    #define TOUCH_OFFSET_Y                   -29
+    #define XPT2046_X_CALIBRATION            17184
+    #define XPT2046_Y_CALIBRATION            10604
+    #define XPT2046_X_OFFSET                   -31
+    #define XPT2046_Y_OFFSET                   -29
   #endif
 #endif
 
-#endif
+
+#define AT24CXX_SCL                         PB8
+#define AT24CXX_SDA                         PB9
+#define AT24CXX_WP                          PB7
 
 //
 // SD Card
@@ -264,3 +273,9 @@
 #define SDIO_D3_PIN                         PC11
 #define SDIO_CK_PIN                         PC12
 #define SDIO_CMD_PIN                        PD2
+
+#if USBHOST_HS_EN
+  #define HAS_OTG_USB_HOST_SUPPORT
+#endif
+
+#define SPEAKER 

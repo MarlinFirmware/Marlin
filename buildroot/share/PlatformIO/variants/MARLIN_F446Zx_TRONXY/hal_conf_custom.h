@@ -47,7 +47,7 @@ extern "C" {
 /* #define HAL_NAND_MODULE_ENABLED   */
 /* #define HAL_NOR_MODULE_ENABLED   */
 /* #define HAL_PCCARD_MODULE_ENABLED   */
-#define HAL_SRAM_MODULE_ENABLED //YSZ-WORK
+#define HAL_SRAM_MODULE_ENABLED
 /* #define HAL_SDRAM_MODULE_ENABLED   */
 /* #define HAL_HASH_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
@@ -76,7 +76,9 @@ extern "C" {
 #ifndef HAL_PCD_MODULE_ENABLED
   #define HAL_PCD_MODULE_ENABLED //Since STM32 v3.10700.191028 this is automatically added if any type of USB is enabled (as in Arduino IDE)
 #endif
-#define HAL_HCD_MODULE_ENABLED
+#if !defined(HAL_HCD_MODULE_ENABLED) && USBHOST_HS_EN
+  #define HAL_HCD_MODULE_ENABLED
+#endif
 /* #define HAL_FMPI2C_MODULE_ENABLED   */
 /* #define HAL_SPDIFRX_MODULE_ENABLED   */
 /* #define HAL_DFSDM_MODULE_ENABLED   */
@@ -94,7 +96,7 @@ extern "C" {
 #endif /* HSE_VALUE */
 
 #ifndef HSE_STARTUP_TIMEOUT
-#if STM32_TYPE == 4
+#if MCU_TYPE == 4 || STM32_TYPE == 4
 #define HSE_STARTUP_TIMEOUT    0xFFFFu
 #else
 #define HSE_STARTUP_TIMEOUT    100U      /*!< Time out for HSE start up, in ms */
@@ -287,7 +289,7 @@ in voltage and temperature. */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
 #include "stm32f4xx_hal_gpio.h"
-#include "stm32f4xx_hal_gpio_ex.h" //YSZ-WORK
+#include "stm32f4xx_hal_gpio_ex.h"
 #endif /* HAL_GPIO_MODULE_ENABLED */
 
 #ifdef HAL_EXTI_MODULE_ENABLED
@@ -411,7 +413,7 @@ in voltage and temperature. */
 #endif /* HAL_SPI_MODULE_ENABLED */
 
 #ifdef HAL_TIM_MODULE_ENABLED
-#include "stm32f4xx_hal_tim.h"
+#include "stm32f4xx_hal_tim.h" 
 #endif /* HAL_TIM_MODULE_ENABLED */
 
 #ifdef HAL_UART_MODULE_ENABLED

@@ -170,69 +170,70 @@ extern "C" {
 #endif
 
 uint32_t myvar[] = {1,2,3,4,5,6,7,8};
-void myshow(int fre, int times) // YSZ-WORK
+void myshow(int fre,int times)
 {
   uint32_t index = 10;
-  RCC->AHB1ENR |= 1 << 6; // port G clock
-  GPIOG->MODER &= ~(3UL << 2 * index); // clear old mode
-  GPIOG->MODER |= 1 << 2 * index; // mode is output
-  GPIOG->OSPEEDR &= ~(3UL << 2 * index) // Clear old output speed
-                    GPIOG->OSPEEDR |= 2 << 2 * index; // Set output speed
-  GPIOG->OTYPER &= ~(1UL << index) // clear old output
-                   GPIOG->OTYPER |= 0 << index; // Set the output mode to push-pull
-  GPIOG->PUPDR &= ~(3 << 2 * index) // Clear the original settings first
-                  GPIOG->PUPDR |= 1 << 2 * index; // Set new up and down
-  while (times != 0) {
+  RCC->AHB1ENR |= 1 << 6;//端口G时钟
+  GPIOG->MODER &= ~(3UL << 2 * index);//清除旧模式
+  GPIOG->MODER |= 1 << 2 * index;//模式为输出
+  GPIOG->OSPEEDR &= ~(3UL << 2 * index); //清除旧输出速度
+  GPIOG->OSPEEDR |= 2 << 2 * index;//设置输出速度
+  GPIOG->OTYPER &= ~(1UL << index);//清除旧输出方式
+  GPIOG->OTYPER |= 0 << index;//设置输出方式为推挽
+  GPIOG->PUPDR &= ~(3 << 2 * index);//先清除原来的设置
+  GPIOG->PUPDR |= 1 << 2 * index;//设置新的上下拉
+  while(times != 0) {
     GPIOG->BSRR = 1UL << index;
-    for (int i = 0; i < fre; i++)
-      for (int j = 0; j < 1000000; j++) __NOP();
+    for(int i = 0;i < fre; i++)
+    for(int j = 0; j < 1000000; j++)__NOP();
     GPIOG->BSRR = 1UL << (index + 16);
-    for (int i = 0; i < fre; i++)
-      for (int j = 0; j < 1000000; j++) __NOP();
-    if (times > 0) times--;
+    for(int i = 0;i < fre; i++)
+    for(int j = 0; j < 1000000; j++)__NOP();
+    if(times > 0)times--;
   }
 }
 
 HAL_StatusTypeDef SDMMC_IsProgramming(SDIO_TypeDef *SDIOx,uint32_t RCA)
 {
   HAL_SD_CardStateTypeDef CardState;
-  volatile uint32_t respR1 = 0, status = 0;
-  SDIO_CmdInitTypeDef sdmmc_cmdinit;
+  volatile uint32_t respR1 = 0, status = 0; 
+  SDIO_CmdInitTypeDef  sdmmc_cmdinit;
   do {
     sdmmc_cmdinit.Argument         = RCA << 16;
     sdmmc_cmdinit.CmdIndex         = SDMMC_CMD_SEND_STATUS;
     sdmmc_cmdinit.Response         = SDIO_RESPONSE_SHORT;
     sdmmc_cmdinit.WaitForInterrupt = SDIO_WAIT_NO;
     sdmmc_cmdinit.CPSM             = SDIO_CPSM_ENABLE;
-    SDIO_SendCommand(SDIOx,&sdmmc_cmdinit); // send CMD13
+    SDIO_SendCommand(SDIOx,&sdmmc_cmdinit);//发送CMD13  
     do status = SDIOx->STA;
-    while (!(status & ((1 << 0) | (1 << 6) | (1 << 2)))); // wait for the operation to complete
-    if (status & (1 << 0)) { // CRC check failed
-      SDIOx->ICR |= 1 << 0; // clear error flag
+    while(!(status & ((1 << 0) | (1 << 6) | (1 << 2))));//等待操作完成
+    if(status & (1 << 0)) //CRC检测失败
+    {
+      SDIOx->ICR |= 1 << 0;		//清除错误标记
       return HAL_ERROR;
     }
-    if (status & (1 << 2)) { // command timed out
-      SDIOx->ICR |= 1 << 2; // clear error flag
+    if(status & (1 << 2)) //命令超时 
+    {
+      SDIOx->ICR |= 1 << 2; //清除错误标记
       return HAL_ERROR;
     }
-    if (SDIOx->RESPCMD != SDMMC_CMD_SEND_STATUS) return HAL_ERROR;
-    SDIOx->ICR = 0X5FF;     // clear all tags
+    if(SDIOx->RESPCMD != SDMMC_CMD_SEND_STATUS)return HAL_ERROR;
+    SDIOx->ICR = 0X5FF;	 		//清除所有标记
     respR1 = SDIOx->RESP1;
     CardState = (respR1 >> 9) & 0x0000000F;
-  } while ((CardState == HAL_SD_CARD_RECEIVING) || (CardState == HAL_SD_CARD_SENDING) || (CardState == HAL_SD_CARD_PROGRAMMING));
+  }while((CardState == HAL_SD_CARD_RECEIVING) || (CardState == HAL_SD_CARD_SENDING) || (CardState == HAL_SD_CARD_PROGRAMMING));
   return HAL_OK;
 }
-
-void debugStr(const char *str) {
-  while (*str) {
-    while ((USART1->SR & 0x40) == 0);
-    USART1->DR = *str++;
-  }
+void debugStr(const char*str) {
+	while(*str) {
+		while((USART1->SR & 0x40) == 0); 
+		USART1->DR = *str++;
+	}
 }
-
+void printChar(char c) {while((USART1->SR & 0x40) == 0); USART1->DR = c;}
 /**
   * @brief  System Clock Configuration
-  *         The system Clock is configured as follows:
+  *         The system Clock is configured as follow :
   *            System Clock source            = PLL (HSE)
   *            SYSCLK(Hz)                     = 168000000/120000000/180000000
   *            HCLK(Hz)                       = 168000000/120000000/180000000
@@ -265,8 +266,8 @@ WEAK void SystemClock_Config(void)
   /* Enable Power Control clock */
   __HAL_RCC_PWR_CLK_ENABLE();
 
-  /* The voltage scaling allows optimizing the power consumption when the device is
-     clocked below the maximum system frequency, to update the voltage scaling value
+  /* The voltage scaling allows optimizing the power consumption when the device is 
+     clocked below the maximum system frequency, to update the voltage scaling value 
      regarding system frequency refer to product datasheet.  */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
@@ -275,46 +276,60 @@ WEAK void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  #if MCU_TYPE == 1
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLP = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 8;
+  #elif USBHOST_HS_EN //主板上vcap1和vcap2接2.2uf时,可以到168MHz,否则只能120MHz
   RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = 2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
+  #else
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 120;
+  RCC_OscInitStruct.PLL.PLLP = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 5;
+  #endif
   RCC_OscInitStruct.PLL.PLLR = 2;
   ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-  if (ret != HAL_OK) myshow(10,-1);
+  
+  if(ret != HAL_OK)myshow(10,-1);
   HAL_PWREx_EnableOverDrive();
-
+ 
   /* Select PLLSAI output as USB clock source */
   PeriphClkInitStruct.PLLSAI.PLLSAIM = 8;
   PeriphClkInitStruct.PLLSAI.PLLSAIN = 192;
   PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV4;
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48 | RCC_PERIPHCLK_SDIO;
   PeriphClkInitStruct.Clk48ClockSelection = RCC_CK48CLKSOURCE_PLLSAIP;
-  PeriphClkInitStruct.SdioClockSelection = RCC_SDIOCLKSOURCE_CLK48; // SDIO Clock Mux
+  PeriphClkInitStruct.SdioClockSelection = RCC_SDIOCLKSOURCE_CLK48;//SDIO Clock Mux
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
+     clocks dividers */
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
   ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
-  if (ret != HAL_OK) myshow(10,-1);
+  if(ret != HAL_OK)myshow(10,-1);
 
-  SystemCoreClockUpdate();
-  /* Configure the Systick interrupt time */
+  SystemCoreClockUpdate();//更新系统时钟SystemCoreClock
+  /**Configure the Systick interrupt time
+  */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
 
-  /* Configure the Systick */
+  /**Configure the Systick
+  */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-
+  
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-  __enable_irq(); // Turn on the interrupt here because it is turned off in the bootloader
+  __enable_irq();//打开中断,因为在bootloader中关闭了,所以这里要打开
 }
-
 #ifdef __cplusplus
 }
 #endif
