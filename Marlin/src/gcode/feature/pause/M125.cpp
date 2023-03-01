@@ -98,8 +98,8 @@ void GcodeSuite::M125() {
   if (pause_print(retract, park_point, show_lcd, 0)) {
     if (EITHER(HAS_DISPLAY, HAS_LCDPRINT) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT) || !sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
+      resume_print(0, 0, -retract, 0);
     }
-    resume_print(0, 0, -retract, 0);
   }
 }
 
