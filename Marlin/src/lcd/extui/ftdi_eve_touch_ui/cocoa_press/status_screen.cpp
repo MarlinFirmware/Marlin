@@ -125,7 +125,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
   if (what & BACKGROUND) {
     cmd.cmd(COLOR_RGB(fluid_rgb));
     cmd.font(font_medium).tag(10);
-    
+
     /*ui.bounds(POLY(temp_lbl), x, y, w, h);
     cmd.text(x, y, w, h, F("Temp"));
 
@@ -187,7 +187,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       ui.bounds(POLY(h3_temp), x, y, w, h);
       cmd.text(x, y, w, h, str);
     #endif
-    
+
     /*// Show the set temperatures
     format_temp(str, getTargetTemp_celsius(E0));
     ui.bounds(POLY(h0_set), x, y, w, h);

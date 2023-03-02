@@ -176,7 +176,7 @@ void FilesScreen::drawFooter() {
      .colors(action_btn);
 
   if (mydata.flags.is_empty)
-    cmd.tag(240).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_DONE));    
+    cmd.tag(240).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   else if (has_selection && mydata.flags.is_dir)
     cmd.tag(244).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_OPEN));
   else
