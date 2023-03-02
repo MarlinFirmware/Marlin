@@ -66,7 +66,7 @@ wchar_t get_val_utf82uni(uint8_t *pstart) {
  */
 uint8_t* get_utf8_value(uint8_t *pstart, wchar_t *pval) {
   uint32_t val = 0;
-  const uint8_t *p = pstart;
+  uint8_t *p = pstart;
   /*size_t maxlen = strlen(pstart);*/
 
   assert(NULL != pstart);
