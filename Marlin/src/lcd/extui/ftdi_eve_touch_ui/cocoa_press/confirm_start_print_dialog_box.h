@@ -1,11 +1,10 @@
-/*******************************
- * cocoa_press/status_screen.h *
- *******************************/
+/************************************
+ * confirm_start_print_dialog_box.h *
+ ************************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2019 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -23,37 +22,11 @@
 
 #pragma once
 
-#define COCOA_STATUS_SCREEN
-#define COCOA_STATUS_SCREEN_CLASS StatusScreen
+#define COCOA_CONFIRM_START_PRINT
+#define COCOA_CONFIRM_START_PRINT_CLASS ConfirmStartPrintDialogBox
 
-class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE> {
-  private:
-    static void _format_time(char *outstr, uint32_t time);
-
-    static float increment;
-    static bool  jog_xy;
-    static bool  fine_motion;
-
-    static void draw_time(draw_mode_t what);
-    static void draw_progress(draw_mode_t what);
-    static void draw_temperature(draw_mode_t what);
-    static void draw_buttons(draw_mode_t what);
-    static void draw_file(draw_mode_t what);
-
-    static bool isFileSelected();
+class ConfirmStartPrintDialogBox : public DialogBoxBaseClass, public UncachedScreen {
   public:
-    static void loadBitmaps();
-    static void unlockMotors();
-
-    static void setStatusMessage(const char *);
-    static void setStatusMessage(FSTR_P);
-
     static void onRedraw(draw_mode_t);
-
-    static bool onTouchStart(uint8_t tag);
-    static bool onTouchHeld(uint8_t tag);
-    static bool onTouchEnd(uint8_t tag);
-    static void onIdle();
-    static void onMediaInserted();
-    static void onMediaRemoved();
+    static bool onTouchEnd(uint8_t);
 };
