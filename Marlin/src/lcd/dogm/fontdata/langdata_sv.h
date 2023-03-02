@@ -7,4 +7,4 @@
 
 #include "langdata.h"
 
-static const uxg_fontinfo_t g_fontinfo_hu[] PROGMEM = {};
+static const uxg_fontinfo_t g_fontinfo_sv[] PROGMEM = {};
