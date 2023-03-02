@@ -835,22 +835,9 @@ namespace Language_tr {
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host'u Kapat");
 
-  // These strings can be the same in all languages
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_SHORT_DAY                      = _UxGT("g"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("s"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("d"); // One character only
-  LSTR MSG_PID_P                          = _UxGT("PID-P");
-  LSTR MSG_PID_P_E                        = _UxGT("PID-P *");
-  LSTR MSG_PID_I                          = _UxGT("PID-I");
-  LSTR MSG_PID_I_E                        = _UxGT("PID-I *");
-  LSTR MSG_PID_D                          = _UxGT("PID-D");
-  LSTR MSG_PID_D_E                        = _UxGT("PID-D *");
-  LSTR MSG_PID_C                          = _UxGT("PID-C");
-  LSTR MSG_PID_C_E                        = _UxGT("PID-C *");
-  LSTR MSG_PID_F                          = _UxGT("PID-F");
-  LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
-  LSTR MSG_BACKLASH_N                     = _UxGT("@");
 }
 
 #if FAN_COUNT == 1
