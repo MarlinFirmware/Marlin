@@ -473,19 +473,14 @@ void DGUSScreenHandler::MoveToScreen(DGUS_Screen screen, bool abort_wait) {
 
   if (!CallScreenSetup(screen)) return;
 
-  if (!SendScreenVPData(screen, true)) {
-    DEBUG_ECHOLNPGM("SendScreenVPData failed");
-    return;
-  }
+  if (!SendScreenVPData(screen, true)) return;
 
   current_screen = screen;
   dgus_display.SwitchScreen(current_screen);
 }
 
 bool DGUSScreenHandler::SendScreenVPData(DGUS_Screen screen, bool complete_update) {
-  if (complete_update) {
-    full_update = false;
-  }
+  if (complete_update) full_update = false;
 
   const DGUS_Addr *list = FindScreenAddrList(screen);
 

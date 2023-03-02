@@ -670,6 +670,12 @@
   #error "MILLISECONDS_PREHEAT_TIME is now PREHEAT_TIME_HOTEND_MS."
 #elif defined(EXPERIMENTAL_SCURVE)
   #error "EXPERIMENTAL_SCURVE is no longer needed and should be removed."
+#elif defined(BABYSTEP_ZPROBE_GFX_OVERLAY)
+  #error "BABYSTEP_ZPROBE_GFX_OVERLAY is now BABYSTEP_GFX_OVERLAY."
+#elif defined(DISABLE_INACTIVE_E)
+  #error "DISABLE_INACTIVE_E is now set with DISABLE_INACTIVE_EXTRUDER."
+#elif defined(INVERT_X_STEP_PIN) || defined(INVERT_Y_STEP_PIN) || defined(INVERT_Z_STEP_PIN) || defined(INVERT_I_STEP_PIN) || defined(INVERT_J_STEP_PIN) || defined(INVERT_K_STEP_PIN) || defined(INVERT_U_STEP_PIN) || defined(INVERT_V_STEP_PIN) || defined(INVERT_W_STEP_PIN) || defined(INVERT_E_STEP_PIN)
+  #error "INVERT_*_STEP_PIN true is now STEP_STATE_* LOW, and INVERT_*_STEP_PIN false is now STEP_STATE_* HIGH."
 #endif
 
 // L64xx stepper drivers have been removed
@@ -1013,8 +1019,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
   #endif
 #endif
 
+/**
+ * Custom Event G-code
+ */
 #if defined(EVENT_GCODE_SD_ABORT) && DISABLED(NOZZLE_PARK_FEATURE)
   static_assert(nullptr == strstr(EVENT_GCODE_SD_ABORT, "G27"), "NOZZLE_PARK_FEATURE is required to use G27 in EVENT_GCODE_SD_ABORT.");
+#endif
+#if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z) && ENABLED(NO_WORKSPACE_OFFSETS)
+  #error "TC_GCODE_USE_GLOBAL_* options are incompatible with NO_WORKSPACE_OFFSETS."
 #endif
 
 /**
@@ -1042,10 +1054,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
-  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && NONE(HAS_MARLINUI_U8GLIB, IS_DWIN_MARLINUI)
-    #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a Graphical LCD."
-  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
-    #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
+  #elif ENABLED(BABYSTEP_GFX_OVERLAY) && NONE(HAS_MARLINUI_U8GLIB, IS_DWIN_MARLINUI)
+    #error "BABYSTEP_GFX_OVERLAY requires a Graphical LCD."
+  #elif ENABLED(BABYSTEP_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+    #error "BABYSTEP_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
   #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_HOTEND_OFFSET
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
@@ -1907,9 +1919,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
    */
   #if ENABLED(SENSORLESS_PROBING)
     #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
-      #error "SENSORLESS_PROBING requires TMC2130/2160/2209/5130/5160 drivers on X, Y, and Z."
+      #error "SENSORLESS_PROBING requires TMC2130/2160/2209/5130/5160 drivers on X, Y, and Z and {X|Y|Z}_STALL_SENSITIVITY."
     #elif !Z_SENSORLESS
-      #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z."
+      #error "SENSORLESS_PROBING requires a TMC2130/2160/2209/5130/5160 driver on Z and Z_STALL_SENSITIVITY."
     #endif
   #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #if DISABLED(USE_ZMIN_PLUG)
@@ -3229,8 +3241,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE, "Movement bounds (X_MIN_POS, X_MAX_POS
 #if LCD_BACKLIGHT_TIMEOUT_MINS
   #if !HAS_ENCODER_ACTION
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
+  #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
+    #if PIN_EXISTS(LCD_BACKLIGHT)
+      #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
+    #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)
+      #error "LCD_BACKLIGHT_TIMEOUT is not compatible with NEOPIXEL_BKGD_ALWAYS_ON."
+    #endif
   #elif !PIN_EXISTS(LCD_BACKLIGHT)
-    #error "LCD_BACKLIGHT_TIMEOUT_MINS requires LCD_BACKLIGHT_PIN."
+    #error "LCD_BACKLIGHT_TIMEOUT_MINS requires either LCD_BACKLIGHT_PIN or NEOPIXEL_BKGD_INDEX_FIRST."
   #endif
 #endif
 

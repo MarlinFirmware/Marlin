@@ -327,7 +327,7 @@ namespace Language_sk {
   LSTR MSG_MOVE_1IN                       = _UxGT("Posunúť o 1,0in");
   LSTR MSG_LIVE_MOVE                      = _UxGT("Živý pohyb");
   LSTR MSG_SPEED                          = _UxGT("Rýchlosť");
-  LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Tryska zaparkovaná");

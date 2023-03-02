@@ -158,7 +158,12 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onPowerLossResume() {}
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
+    void onPowerLossResume() {
+      // Called on resume from power-loss
+    }
   #endif
 
   void onSteppersDisabled() {}

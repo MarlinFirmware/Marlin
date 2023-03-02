@@ -53,8 +53,7 @@ namespace ExtUI {
   uint8_t startprogress       = 0;
 
   char waitway                = 0;
-  int recnum                  = 0;
-  unsigned char Percentrecord = 0;
+  int16_t recnum              = 0;
   float ChangeMaterialbuf[2]  = {0};
 
   char NozzleTempStatus[3] = {0};
@@ -62,11 +61,11 @@ namespace ExtUI {
   char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
   // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
 
-  unsigned char AxisPagenum = 0; // 0 for 10mm, 1 for 1mm, 2 for 0.1mm
+  uint8_t AxisPagenum       = 0; // 0 for 10mm, 1 for 1mm, 2 for 0.1mm
   bool InforShowStatus      = true;
   bool TPShowStatus         = false; // true for only opening time and percentage, false for closing time and percentage.
   bool AutohomeKey          = false;
-  unsigned char AutoHomeIconNum;
+  uint8_t AutoHomeIconNum;
   int16_t userConfValidation = 0;
 
   uint8_t lastPauseMsgState = 0;
@@ -93,7 +92,7 @@ namespace ExtUI {
     DWIN_SERIAL.begin(115200);
     rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
     rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
-    memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
+    ZERO(rtscheck.databuf);
 
     delay_ms(TERN(DWINOS_4, 1500, 500)); // Delay to allow screen startup
     SetTouchScreenConfiguration();
@@ -117,7 +116,7 @@ namespace ExtUI {
     rtscheck.RTS_SndData(getActualFan_percent((fan_t)getActiveTool()), FanKeyIcon);
 
     /***************transmit Printer information to screen*****************/
-    for (int j = 0; j < 20; j++) // clean filename
+    for (int16_t j = 0; j < 20; j++) // clean filename
       rtscheck.RTS_SndData(0, MacVersion + j);
     char sizebuf[20] = {0};
     sprintf(sizebuf, "%d X %d X %d", Y_BED_SIZE, X_BED_SIZE, Z_MAX_POS);
@@ -131,20 +130,18 @@ namespace ExtUI {
     rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
 
     /************************clean screen*******************************/
-    for (int i = 0; i < MaxFileNumber; i++)
-      for (int j = 0; j < 10; j++) rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
+    for (int16_t i = 0; i < MaxFileNumber; i++)
+      for (int16_t j = 0; j < 10; j++) rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
 
-    for (int j = 0; j < 10; j++) {
+    for (int16_t j = 0; j < 10; j++) {
       rtscheck.RTS_SndData(0, Printfilename + j); // clean screen.
       rtscheck.RTS_SndData(0, Choosefilename + j); // clean filename
     }
-    for (int j = 0; j < 8; j++) rtscheck.RTS_SndData(0, FilenameCount + j);
-    for (int j = 1; j <= MaxFileNumber; j++) {
+    for (int16_t j = 0; j < 8; j++) rtscheck.RTS_SndData(0, FilenameCount + j);
+    for (int16_t j = 1; j <= MaxFileNumber; j++) {
       rtscheck.RTS_SndData(10, FilenameIcon + j);
       rtscheck.RTS_SndData(10, FilenameIcon1 + j);
     }
-
-    DEBUG_ECHOLNPGM("==Dwin Init Complete==");
   }
 
   void onIdle() {
@@ -181,7 +178,7 @@ namespace ExtUI {
         case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
         case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
         case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
-        case PAUSE_MESSAGE_STATUS: DEBUG_ECHOLNPGM("PauseStatus"); break;
+        case PAUSE_MESSAGE_STATUS: break;
         default: onUserConfirmRequired(PSTR("Confirm Continue")); break;
       }
       userConfValidation = 0;
@@ -209,14 +206,13 @@ namespace ExtUI {
 
     if (waitway_lock > 100) {
       waitway_lock = 0;
-      waitway      = 0; // clear waitway if nothing is going on
+      waitway = 0; // clear waitway if nothing is going on
     }
 
     switch (waitway) {
       case 1:
         if (isPositionKnown()) {
           InforShowStatus = true;
-          DEBUG_ECHOLNPGM("==waitway 1==");
           rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
           waitway = 0;
         }
@@ -227,7 +223,6 @@ namespace ExtUI {
         break;
 
       case 3:
-        DEBUG_ECHOLNPGM("==waitway 3==");
         //if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1))) {
         rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
         waitway = 7;
@@ -237,8 +232,7 @@ namespace ExtUI {
 
       case 4:
         if (AutohomeKey && isPositionKnown() && !commandsInQueue()) { // Manual Move Home Done
-          DEBUG_ECHOLNPGM("==waitway 4==");
-          // rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
+          //rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
           AutohomeKey = false;
           waitway = 0;
         }
@@ -247,7 +241,6 @@ namespace ExtUI {
         if (isPositionKnown() && !commandsInQueue()) {
           InforShowStatus = true;
           waitway = 0;
-          DEBUG_ECHOLNPGM("==waitway 5==");
           rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); // exchange to 78 page
         }
         break;
@@ -277,7 +270,6 @@ namespace ExtUI {
       else
         injectCommands(F("M22\nM21"));
       startprogress = 254;
-      DEBUG_ECHOLNPGM("  startprogress ");
       InforShowStatus = true;
       TPShowStatus    = false;
       rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
@@ -289,28 +281,28 @@ namespace ExtUI {
     else
       rtscheck.RTS_SndData(startprogress - 100, StartIcon + 1);
 
-    // rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
+    //rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
 
     if (isPrinting()) {
       rtscheck.RTS_SndData(getActualFan_percent((fan_t)getActiveTool()), FanKeyIcon);
       rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
       rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
       if (getProgress_percent() > 0) {
-        Percentrecord = getProgress_percent() + 1;
-        if (Percentrecord <= 50) {
-          rtscheck.RTS_SndData((unsigned int)Percentrecord * 2, PrintscheduleIcon);
+        const uint16_t perc = getProgress_percent() + 1;
+        if (perc <= 50) {
+          rtscheck.RTS_SndData(uint16_t(perc) * 2, PrintscheduleIcon);
           rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
         }
         else {
           rtscheck.RTS_SndData(100, PrintscheduleIcon);
-          rtscheck.RTS_SndData((unsigned int)Percentrecord * 2 - 100, PrintscheduleIcon + 1);
+          rtscheck.RTS_SndData(uint16_t(perc) * 2 - 100, PrintscheduleIcon + 1);
         }
       }
       else {
         rtscheck.RTS_SndData(0, PrintscheduleIcon);
         rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
       }
-      rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
+      rtscheck.RTS_SndData(uint16_t(getProgress_percent()), Percentage);
     }
     else { // Not printing settings
       rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
@@ -322,31 +314,31 @@ namespace ExtUI {
       else
         rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
 
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(X) * 10), StepMM_X);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Y) * 10), StepMM_Y);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
+      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(X))  * 10, StepMM_X);
+      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(Y))  * 10, StepMM_Y);
+      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(Z))  * 10, StepMM_Z);
+      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(E0)) * 10, StepMM_E);
 
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(X) / 100), Accel_X);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Y) / 100), Accel_Y);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Z) / 10), Accel_Z);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(X)) / 100, Accel_X);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(Y)) / 100, Accel_Y);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(Z)) /  10, Accel_Z);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(E0)),      Accel_E);
 
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(X)), Feed_X);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(E0)), Feed_E);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(X)),  Feed_X);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(Y)),  Feed_Y);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(Z)),  Feed_Z);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(E0)), Feed_E);
 
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(X) * 100), Jerk_X);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Y) * 100), Jerk_Y);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Z) * 100), Jerk_Z);
-      rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(E0) * 100), Jerk_E);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(X))  * 100, Jerk_X);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(Y))  * 100, Jerk_Y);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(Z))  * 100, Jerk_Z);
+      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(E0)) * 100, Jerk_E);
 
       #if HAS_HOTEND_OFFSET
-        rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(X, E1) * 10), T2Offset_X);
-        rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Y, E1) * 10), T2Offset_Y);
-        rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Z, E1) * 10), T2Offset_Z);
-        rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
+        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(X, E1)) * 10, T2Offset_X);
+        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(Y, E1)) * 10, T2Offset_Y);
+        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(Z, E1)) * 10, T2Offset_Z);
+        rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(E1))   * 10, T2StepMM_E);
       #endif
 
       #if HAS_BED_PROBE
@@ -357,42 +349,38 @@ namespace ExtUI {
       #if HAS_PID_HEATING
         rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
         rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
-        rtscheck.RTS_SndData((unsigned int)(getPID_Kp(E0) * 10), HotendPID_P);
-        rtscheck.RTS_SndData((unsigned int)(getPID_Ki(E0) * 10), HotendPID_I);
-        rtscheck.RTS_SndData((unsigned int)(getPID_Kd(E0) * 10), HotendPID_D);
+        rtscheck.RTS_SndData(uint16_t(getPID_Kp(E0)) * 10, HotendPID_P);
+        rtscheck.RTS_SndData(uint16_t(getPID_Ki(E0)) * 10, HotendPID_I);
+        rtscheck.RTS_SndData(uint16_t(getPID_Kd(E0)) * 10, HotendPID_D);
         #if ENABLED(PIDTEMPBED)
-          rtscheck.RTS_SndData((unsigned int)(getBedPID_Kp() * 10), BedPID_P);
-          rtscheck.RTS_SndData((unsigned int)(getBedPID_Ki() * 10), BedPID_I);
-          rtscheck.RTS_SndData((unsigned int)(getBedPID_Kd() * 10), BedPID_D);
+          rtscheck.RTS_SndData(uint16_t(getBedPID_Kp()) * 10, BedPID_P);
+          rtscheck.RTS_SndData(uint16_t(getBedPID_Ki()) * 10, BedPID_I);
+          rtscheck.RTS_SndData(uint16_t(getBedPID_Kd()) * 10, BedPID_D);
         #endif
       #endif
     }
 
     rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
-    rtscheck.RTS_SndData((unsigned int)(getFlow_percent(E0)), Flowrate);
+    rtscheck.RTS_SndData(uint16_t(getFlow_percent(E0)), Flowrate);
 
-    if (NozzleTempStatus[0] || NozzleTempStatus[2]) { // statuse of loadfilement and unloadfinement when temperature is less than
-      unsigned int IconTemp;
-
-      IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
-      NOMORE(IconTemp, 100);
+    if (NozzleTempStatus[0] || NozzleTempStatus[2]) { // statuse of loadfilament and unloadfinement when temperature is less than
+      uint16_t IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
+      NOMORE(IconTemp, 100U);
       rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
       if (getActualTemp_celsius(getActiveTool()) > EXTRUDE_MINTEMP && NozzleTempStatus[0] != 0) {
         NozzleTempStatus[0] = 0;
         rtscheck.RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1);
         rtscheck.RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
-        DEBUG_ECHOLNPGM("==Heating Done Change Filament==");
         rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
       }
       else if (getActualTemp_celsius(getActiveTool()) >= getTargetTemp_celsius(getActiveTool()) && NozzleTempStatus[2]) {
-        DEBUG_ECHOLNPGM("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
         NozzleTempStatus[2] = 0;
-        TPShowStatus        = true;
+        TPShowStatus = true;
         rtscheck.RTS_SndData(4, ExchFlmntIcon);
         rtscheck.RTS_SndData(ExchangePageBase + 83, ExchangepageAddr);
       }
       else if (NozzleTempStatus[2]) {
-        // rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
+        //rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
       }
     }
 
@@ -428,29 +416,27 @@ namespace ExtUI {
   RTSSHOW::RTSSHOW() {
     recdat.head[0] = snddat.head[0] = FHONE;
     recdat.head[1] = snddat.head[1] = FHTWO;
-    memset(databuf, 0, sizeof(databuf));
+    ZERO(databuf);
   }
 
-  int RTSSHOW::RTS_RecData() {
+  int16_t RTSSHOW::RTS_RecData() {
     uint8_t receivedbyte;
     while (DWIN_SERIAL.available())
       switch (rx_datagram_state) {
 
         case DGUS_IDLE: // Waiting for the first header byte
           receivedbyte = DWIN_SERIAL.read();
-          //DEBUG_ECHOLNPGM("< ",receivedbyte);
           if (FHONE == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
           break;
 
         case DGUS_HEADER1_SEEN: // Waiting for the second header byte
           receivedbyte = DWIN_SERIAL.read();
-          //DEBUG_ECHOLNPGM(" ", receivedbyte);
           rx_datagram_state = (FHTWO == receivedbyte) ? DGUS_HEADER2_SEEN : DGUS_IDLE;
           break;
 
         case DGUS_HEADER2_SEEN: // Waiting for the length byte
           rx_datagram_len = DWIN_SERIAL.read();
-          //DEBUGLCDCOMM_ECHOPAIR(" (", rx_datagram_len, ") ");
+          //DEBUGLCDCOMM_ECHOPGM(" (", rx_datagram_len, ") ");
 
           // Telegram min len is 3 (command and one word of payload)
           rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
@@ -462,20 +448,19 @@ namespace ExtUI {
           Initialized = true; // We've talked to it, so we defined it as initialized.
           uint8_t command = DWIN_SERIAL.read();
 
-          // DEBUGLCDCOMM_ECHOPAIR("# ", command);
+          //DEBUGLCDCOMM_ECHOPGM("# ", command);
 
           uint8_t readlen = rx_datagram_len - 1; // command is part of len.
-          unsigned char tmp[rx_datagram_len - 1];
-          unsigned char *ptmp = tmp;
+          uint8_t tmp[rx_datagram_len - 1];
+          uint8_t *ptmp = tmp;
           while (readlen--) {
             receivedbyte = DWIN_SERIAL.read();
-            // DEBUGLCDCOMM_ECHOPAIR(" ", receivedbyte);
+            //DEBUGLCDCOMM_ECHOPGM(" ", receivedbyte);
             *ptmp++ = receivedbyte;
           }
-          // DEBUGLCDCOMM_ECHOPGM(" # ");
+          //DEBUGLCDCOMM_ECHOPGM(" # ");
           // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
           if (command == VarAddr_W && 'O' == tmp[0] && 'K' == tmp[1]) {
-            // DEBUG_ECHOLNPGM(">");
             rx_datagram_state = DGUS_IDLE;
             break;
           }
@@ -491,18 +476,12 @@ namespace ExtUI {
             const uint16_t vp = tmp[0] << 8 | tmp[1];
 
             const uint8_t dlen = tmp[2] << 1; // Convert to Bytes. (Display works with words)
-            //DEBUG_ECHOLNPGM(" vp=", vp, " dlen=", dlen);
             recdat.addr = vp;
             recdat.len  = tmp[2];
-            for (unsigned int i = 0; i < dlen; i += 2) {
+            for (uint16_t i = 0; i < dlen; i += 2) {
               recdat.data[i / 2] = tmp[3 + i];
               recdat.data[i / 2] = (recdat.data[i / 2] << 8 ) | tmp[4 + i];
             }
-
-            DEBUG_ECHOLNPGM("VP received: ", vp, " - len ", tmp[2]);
-
-            DEBUG_ECHOLNPGM("d1: ", tmp[3], " - d2 ", tmp[4]);
-            DEBUG_ECHOLNPGM("d3: ", tmp[5], " - d4 ", tmp[6]);
 
             rx_datagram_state = DGUS_IDLE;
             return 2;
@@ -515,15 +494,15 @@ namespace ExtUI {
     return -1;
   }
 
-  void RTSSHOW::RTS_SndData(void) {
-    if ((snddat.head[0] == FHONE) && (snddat.head[1] == FHTWO) && snddat.len >= 3) {
+  void RTSSHOW::RTS_SndData() {
+    if (snddat.head[0] == FHONE && snddat.head[1] == FHTWO && snddat.len >= 3) {
       databuf[0] = snddat.head[0];
       databuf[1] = snddat.head[1];
       databuf[2] = snddat.len;
       databuf[3] = snddat.command;
       if (snddat.command == 0x80) { // to write data to the register
         databuf[4] = snddat.addr;
-        for (int i = 0; i < (snddat.len - 2); i++) databuf[5 + i] = snddat.data[i];
+        for (int16_t i = 0; i < (snddat.len - 2); i++) databuf[5 + i] = snddat.data[i];
       }
       else if (snddat.len == 3 && (snddat.command == 0x81)) { // to read data from the register
         databuf[4] = snddat.addr;
@@ -532,7 +511,7 @@ namespace ExtUI {
       else if (snddat.command == 0x82) { // to write data to the variate
         databuf[4] = snddat.addr >> 8;
         databuf[5] = snddat.addr & 0xFF;
-        for (int i = 0; i < (snddat.len - 3); i += 2) {
+        for (int16_t i = 0; i < (snddat.len - 3); i += 2) {
           databuf[6 + i] = snddat.data[i / 2] >> 8;
           databuf[7 + i] = snddat.data[i / 2] & 0xFF;
         }
@@ -542,27 +521,26 @@ namespace ExtUI {
         databuf[5] = snddat.addr & 0xFF;
         databuf[6] = snddat.bytelen;
       }
-      for (int i = 0; i < (snddat.len + 3); i++) {
+      for (int16_t i = 0; i < (snddat.len + 3); i++) {
         DWIN_SERIAL.write(databuf[i]);
         delay_us(1);
       }
 
       memset(&snddat, 0, sizeof(snddat));
-      memset(databuf, 0, sizeof(databuf));
+      ZERO(databuf);
       snddat.head[0] = FHONE;
       snddat.head[1] = FHTWO;
     }
   }
 
-  void RTSSHOW::RTS_SndData(const String &s, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const String &s, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
     if (s.length() < 1) return;
     RTS_SndData(s.c_str(), addr, cmd);
   }
 
-  void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
-
-    int len = strlen(str);
-    constexpr int maxlen = SizeofDatabuf - 6;
+  void RTSSHOW::RTS_SndData(const char *str, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+    int16_t len = strlen(str);
+    constexpr int16_t maxlen = SizeofDatabuf - 6;
     if (len > 0) {
       if (len > maxlen) len = maxlen;
       databuf[0] = FHONE;
@@ -571,68 +549,58 @@ namespace ExtUI {
       databuf[3] = cmd;
       databuf[4] = addr >> 8;
       databuf[5] = addr & 0x00FF;
-      for (int i = 0; i < len; i++) databuf[6 + i] = str[i];
+      for (int16_t i = 0; i < len; i++) databuf[6 + i] = str[i];
 
-      for (int i = 0; i < (len + 6); i++) {
+      for (int16_t i = 0; i < (len + 6); i++) {
         DWIN_SERIAL.write(databuf[i]);
         delay_us(1);
       }
-      memset(databuf, 0, sizeof(databuf));
+      ZERO(databuf);
     }
   }
 
-  void RTSSHOW::RTS_SndData(char c, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
     snddat.command = cmd;
     snddat.addr    = addr;
-    snddat.data[0] = (unsigned long)c;
-    snddat.data[0] = snddat.data[0] << 8;
+    snddat.data[0] = uint32_t(uint16_t(c) << 8);
     snddat.len     = 5;
     RTS_SndData();
   }
 
-  void RTSSHOW::RTS_SndData(unsigned char *str, unsigned long addr, unsigned char cmd) { RTS_SndData((char *)str, addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(int n, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
     if (cmd == VarAddr_W) {
-      if ((uint8_t)n > 0xFFFF) {
+      if ((unsigned int)n > 0xFFFF) {
         snddat.data[0] = n >> 16;
         snddat.data[1] = n & 0xFFFF;
-        snddat.len     = 7;
+        snddat.len = 7;
       }
       else {
         snddat.data[0] = n;
-        snddat.len     = 5;
+        snddat.len = 5;
       }
     }
     else if (cmd == RegAddr_W) {
       snddat.data[0] = n;
-      snddat.len     = 3;
+      snddat.len = 3;
     }
     else if (cmd == VarAddr_R) {
       snddat.bytelen = n;
-      snddat.len     = 4;
+      snddat.len = 4;
     }
     snddat.command = cmd;
-    snddat.addr    = addr;
+    snddat.addr = addr;
     RTS_SndData();
   }
 
-  void RTSSHOW::RTS_SndData(unsigned int n, unsigned long addr, unsigned char cmd) { RTS_SndData((int)n, addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(float n, unsigned long addr, unsigned char cmd) { RTS_SndData((int)n, addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(long n, unsigned long addr, unsigned char cmd) { RTS_SndData((unsigned long)n, addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd /*= VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
     if (cmd == VarAddr_W) {
       if (n > 0xFFFF) {
         snddat.data[0] = n >> 16;
         snddat.data[1] = n & 0xFFFF;
-
-        // snddat.data[0] = n >> 24;
-        // snddat.data[1] = n >> 16;
-        // snddat.data[2] = n >> 8;
-        // snddat.data[3] = n;
+        //snddat.data[0] = n >> 24;
+        //snddat.data[1] = n >> 16;
+        //snddat.data[2] = n >> 8;
+        //snddat.data[3] = n;
         snddat.len = 7;
       }
       else {
@@ -650,25 +618,22 @@ namespace ExtUI {
   }
 
   void RTSSHOW::RTS_HandleData() {
-    int Checkkey = -1;
-    DEBUG_ECHOLNPGM("  *******RTS_HandleData******** ");
+    int16_t Checkkey = -1;
     if (waitway > 0) { // for waiting
-      DEBUG_ECHOLNPGM("waitway ==", (int)waitway);
       memset(&recdat, 0, sizeof(recdat));
       recdat.head[0] = FHONE;
       recdat.head[1] = FHTWO;
       return;
     }
-    DEBUG_ECHOLNPGM("recdat.data[0] ==", recdat.data[0], " recdat.addr ==", recdat.addr);
-    for (int i = 0; Addrbuf[i] != 0; i++)
+    for (int16_t i = 0; Addrbuf[i] != 0; i++)
       if (recdat.addr == Addrbuf[i]) {
         if (Addrbuf[i] == NzBdSet || Addrbuf[i] == NozzlePreheat || Addrbuf[i] == BedPreheat || Addrbuf[i] == Flowrate)
           Checkkey = ManualSetTemp;
-        else if (Addrbuf[i] >= Stopprint && Addrbuf[i] <= Resumeprint)
+        else if (WITHIN(Addrbuf[i], Stopprint, Resumeprint))
           Checkkey = PrintChoice;
-        else if (Addrbuf[i] >= AutoZero && Addrbuf[i] <= DisplayZaxis)
+        else if (WITHIN(Addrbuf[i], AutoZero, DisplayZaxis))
           Checkkey = XYZEaxis;
-        else if (Addrbuf[i] >= FilamentUnit1 && Addrbuf[i] <= FilamentUnit2)
+        else if (WITHIN(Addrbuf[i], FilamentUnit1, FilamentUnit2))
           Checkkey = Filament;
         else
           Checkkey = i;
@@ -689,7 +654,7 @@ namespace ExtUI {
       case RunoutToggle:
       case PowerLossToggle:
       case FanKeyIcon:
-      case LedToggle: break;
+      case LedToggle:
       case e2Preheat:                Checkkey = ManualSetTemp; break;
       case ProbeOffset_Z:            Checkkey = Zoffset_Value; break;
       case VolumeDisplay:            Checkkey = VolumeDisplay; break;
@@ -697,15 +662,12 @@ namespace ExtUI {
       case DisplayStandbyBrightness: Checkkey = DisplayStandbyBrightness; break;
       case DisplayStandbySeconds:    Checkkey = DisplayStandbySeconds; break;
       default:
-        if (WITHIN(recdat.addr, AutolevelVal, 4400)) // ((int)AutolevelVal+(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y*2)) = 4400 with 5x5 mesh
+        if (WITHIN(recdat.addr, AutolevelVal, 4400)) // (int16_t(AutolevelVal) + GRID_MAX_POINTS * 2) = 4400 with 5x5 mesh
           Checkkey = AutolevelVal;
         else if (WITHIN(recdat.addr, SDFILE_ADDR, SDFILE_ADDR + 10 * (FileNum + 1)))
           Checkkey = Filename;
         break;
     }
-
-    DEBUG_ECHOLNPGM("== Checkkey==");
-    DEBUG_ECHOLN(Checkkey);
 
     if (Checkkey < 0) {
       memset(&recdat, 0, sizeof(recdat));
@@ -715,17 +677,14 @@ namespace ExtUI {
     }
 
     constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
-    DEBUG_ECHOLNPGM("BeginSwitch");
 
     switch (Checkkey) {
       case Printfile:
         if (recdat.data[0] == 1) { // card
           InforShowStatus = false;
-          DEBUG_ECHOLNPGM("Handle Data PrintFile Pre");
           filenavigator.getFiles(0);
           fileIndex   = 0;
           recordcount = 0;
-          DEBUG_ECHOLNPGM("Handle Data PrintFile Post");
           RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
         }
         else if (recdat.data[0] == 2) { // return after printing result.
@@ -741,13 +700,11 @@ namespace ExtUI {
           RTS_SndData(0, Timehour);
           RTS_SndData(0, Timemin);
 
-          DEBUG_ECHOLNPGM("Handle Data PrintFile 2 Setting Screen ");
           RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); // exchange to 45 page
         }
         else if (recdat.data[0] == 3) { // Temperature control
           InforShowStatus = true;
           TPShowStatus    = false;
-          DEBUG_ECHOLNPGM("Handle Data PrintFile 3 Setting Screen ");
           if (getTargetFan_percent((fan_t)getActiveTool()) == 0)
             RTS_SndData(ExchangePageBase + 58, ExchangepageAddr); // exchange to 58 page, the fans off
           else
@@ -763,7 +720,6 @@ namespace ExtUI {
           InforShowStatus = false;
         }
         else if (recdat.data[0] == 2) {
-          DEBUG_ECHOLNPGM("Handle Data Adjust 2 Setting Screen ");
           InforShowStatus = true;
           if (PrinterStatusKey[1] == 3) // during heating
             RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
@@ -783,16 +739,13 @@ namespace ExtUI {
 
       case PrintChoice:
         if (recdat.addr == Stopprint) {
-          DEBUG_ECHOLNPGM("StopPrint");
           if (recdat.data[0] == 240) { // no
             RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-            DEBUG_ECHOLNPGM("Stop No", recdat.data[0] );
           }
           else {
             RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
             RTS_SndData(0, Timehour);
             RTS_SndData(0, Timemin);
-            DEBUG_ECHOLNPGM("Stop Triggered", recdat.data[0] );
             stopPrint();
           }
         }
@@ -823,17 +776,13 @@ namespace ExtUI {
       case Zoffset:
         float tmp_zprobe_offset;
         if (recdat.data[0] >= 32768)
-          tmp_zprobe_offset = ((float)recdat.data[0] - 65536) / 100;
+          tmp_zprobe_offset = (float(recdat.data[0]) - 65536) / 100;
         else
-          tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
-        DEBUG_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
+          tmp_zprobe_offset = float(recdat.data[0]) / 100;
         if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
           int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, axis_t(Z));
-          if (tmpSteps == 0) {
-            DEBUG_ECHOLNPGM("Rounding to step");
-            tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
-          }
-          smartAdjustAxis_steps(tmpSteps * -1, axis_t(Z), false);
+          if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
+          smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
           char zOffs[20], tmp1[11];
           sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
           onStatusChanged(zOffs);
@@ -883,7 +832,7 @@ namespace ExtUI {
           RTS_SndData(PREHEAT_2_TEMP_BED, BedPreheat);
         }
         else if (recdat.data[0] == 0xF1) {
-          // InforShowStatus = true;
+          //InforShowStatus = true;
           #if FAN_COUNT > 0
             for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(0, (fan_t)i);
           #endif
@@ -898,7 +847,6 @@ namespace ExtUI {
         break;
 
       case ManualSetTemp:
-        DEBUG_ECHOLNPGM("ManualSetTemp");
         if (recdat.addr == NzBdSet) {
           if (recdat.data[0] == 0) {
             if (getTargetFan_percent((fan_t)getActiveTool()) == 0)
@@ -916,65 +864,65 @@ namespace ExtUI {
           }
         }
         else if (recdat.addr == NozzlePreheat) {
-          setTargetTemp_celsius((float)recdat.data[0], H0);
+          setTargetTemp_celsius(float(recdat.data[0]), H0);
         }
         #if HAS_MULTI_HOTEND
           else if (recdat.addr == e2Preheat) {
-            setTargetTemp_celsius((float)recdat.data[0], H1);
+            setTargetTemp_celsius(float(recdat.data[0]), H1);
           }
         #endif
         else if (recdat.addr == BedPreheat) {
-          setTargetTemp_celsius((float)recdat.data[0], BED);
+          setTargetTemp_celsius(float(recdat.data[0]), BED);
         }
         else if (recdat.addr == Flowrate) {
-          setFlow_percent((int16_t)recdat.data[0], getActiveTool());
+          setFlow_percent(int16_t(recdat.data[0]), getActiveTool());
         }
 
         #if HAS_PID_HEATING
           else if (recdat.addr == HotendPID_AutoTmp) {
-            pid_hotendAutoTemp = (uint16_t)recdat.data[0];
+            pid_hotendAutoTemp = uint16_t(recdat.data[0]);
           }
           else if (recdat.addr == BedPID_AutoTmp) {
-            pid_bedAutoTemp = (uint16_t)recdat.data[0];
+            pid_bedAutoTemp = uint16_t(recdat.data[0]);
           }
         #endif
 
         else if (recdat.addr == Accel_X) {
-          setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0] * 100, X);
+          setAxisMaxAcceleration_mm_s2(uint16_t(recdat.data[0]) * 100, X);
         }
         else if (recdat.addr == Accel_Y) {
-          setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0] * 100, Y);
+          setAxisMaxAcceleration_mm_s2(uint16_t(recdat.data[0]) * 100, Y);
         }
         else if (recdat.addr == Accel_Z) {
-          setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0] * 10, Z);
+          setAxisMaxAcceleration_mm_s2(uint16_t(recdat.data[0]) * 10, Z);
         }
         else if (recdat.addr == Accel_E) {
-          setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E0);
-          setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E1);
+          setAxisMaxAcceleration_mm_s2(uint16_t(recdat.data[0]), E0);
+          setAxisMaxAcceleration_mm_s2(uint16_t(recdat.data[0]), E1);
         }
 
         else if (recdat.addr == Feed_X) {
-          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], X);
+          setAxisMaxFeedrate_mm_s(uint16_t(recdat.data[0]), X);
         }
         else if (recdat.addr == Feed_Y) {
-          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], Y);
+          setAxisMaxFeedrate_mm_s(uint16_t(recdat.data[0]), Y);
         }
         else if (recdat.addr == Feed_Z) {
-          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], Z);
+          setAxisMaxFeedrate_mm_s(uint16_t(recdat.data[0]), Z);
         }
         else if (recdat.addr == Feed_E) {
-          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], E0);
-          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], E1);
+          setAxisMaxFeedrate_mm_s(uint16_t(recdat.data[0]), E0);
+          setAxisMaxFeedrate_mm_s(uint16_t(recdat.data[0]), E1);
         }
         else if (recdat.addr == FanKeyIcon) {
-          setTargetFan_percent((uint16_t)recdat.data[0], (fan_t)getActiveTool());
+          setTargetFan_percent(uint16_t(recdat.data[0]), (fan_t)getActiveTool());
         }
         else {
           float tmp_float_handling;
           if (recdat.data[0] >= 32768)
-            tmp_float_handling = ((float)recdat.data[0] - 65536) / 100;
+            tmp_float_handling = (float(recdat.data[0]) - 65536) / 100;
           else
-            tmp_float_handling = ((float)recdat.data[0]) / 100;
+            tmp_float_handling = float(recdat.data[0]) / 100;
           if (recdat.addr == StepMM_X) {
             setAxisSteps_per_mm(tmp_float_handling * 10, X);
           }
@@ -1089,7 +1037,7 @@ namespace ExtUI {
               for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
                 for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
                   const bool zig = outer & 1;
-                  const xy_uint8_t point = { zig ? (GRID_MAX_POINTS_X - 1) - inner : inner, outer };
+                  const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
                   rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
                   ++abl_probe_index;
                 }
@@ -1100,10 +1048,10 @@ namespace ExtUI {
           waitway = 2;
           RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
         }
-        else if (recdat.data[0] == 2) { // Exchange filement
+        else if (recdat.data[0] == 2) { // Exchange filament
           InforShowStatus = true;
           TPShowStatus    = false;
-          memset(ChangeMaterialbuf, 0, sizeof(ChangeMaterialbuf));
+          ZERO(ChangeMaterialbuf);
           ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
           RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
@@ -1131,7 +1079,6 @@ namespace ExtUI {
         break;
 
       case ReturnBack:
-        DEBUG_ECHOPGM("Return : ", recdat.data[0]);
         if (recdat.data[0] == 1) { // return to the tool page
           InforShowStatus = false;
           RTS_SndData(ExchangePageBase + 63, ExchangepageAddr);
@@ -1141,7 +1088,6 @@ namespace ExtUI {
         break;
 
       case Bedlevel:
-        DEBUG_ECHOLNPGM("Bed Level Option ",  recdat.data[0]);
         switch (recdat.data[0]) {
           case 1: { // Z-axis to home
             // Disallow Z homing if X or Y are unknown
@@ -1152,7 +1098,6 @@ namespace ExtUI {
           case 2: { // Z-axis to Up
             if (WITHIN((getZOffset_mm() + 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
               smartAdjustAxis_steps(getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
-              //DEBUG_ECHOLNPGM("Babystep Pos Steps : ", (int)(getAxisSteps_per_mm(Z) / 10));
               //setZOffset_mm(getZOffset_mm() + 0.1);
               RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
               char zOffs[20], tmp1[11];
@@ -1163,10 +1108,9 @@ namespace ExtUI {
           }
           case 3: { // Z-axis to Down
             if (WITHIN((getZOffset_mm() - 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-              smartAdjustAxis_steps(((getAxisSteps_per_mm(Z) / 10) * -1), axis_t(Z), false);
-              // DEBUG_ECHOLNPGM("Babystep Neg Steps : ", (int)((getAxisSteps_per_mm(Z) / 10) * -1));
-              // babystepAxis_steps((((int)getAxisSteps_per_mm(Z) / 10) * -1), axis_t(Z));
-              // setZOffset_mm(getZOffset_mm() - 0.1);
+              smartAdjustAxis_steps(-getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
+              //babystepAxis_steps(int16_t(-getAxisSteps_per_mm(Z)) / 10, axis_t(Z));
+              //setZOffset_mm(getZOffset_mm() - 0.1);
               RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
               char zOffs[20], tmp1[11];
               sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
@@ -1319,10 +1263,7 @@ namespace ExtUI {
             setActiveTool(getActiveTool() == E0 ? E1 : E0, !isAxisPositionKnown(X));
             break;
           }
-          default: {
-            DEBUG_ECHOLNPGM("Unsupported Option Selected", recdat.data[0]);
-            break;
-          }
+          default: break;
         }
 
         RTS_SndData(10, FilenameIcon);
@@ -1362,7 +1303,7 @@ namespace ExtUI {
           break;
         }
 
-        float targetPos = ((float)recdat.data[0]) / 10;
+        float targetPos = float(recdat.data[0]) / 10;
         LIMIT(targetPos, min, max);
         setAxisPosition_mm(targetPos, axis);
         waitway = 0;
@@ -1372,39 +1313,38 @@ namespace ExtUI {
 
       case Filament:
 
-        unsigned int IconTemp;
-        if (recdat.addr == Exchfilement) {
+        uint16_t IconTemp;
+        if (recdat.addr == Exchfilament) {
           if (getActualTemp_celsius(getActiveTool()) < EXTRUDE_MINTEMP && recdat.data[0] < 5) {
-            RTS_SndData((int)EXTRUDE_MINTEMP, 0x1020);
+            RTS_SndData(int16_t(EXTRUDE_MINTEMP), 0x1020);
             delay_ms(5);
             RTS_SndData(ExchangePageBase + 66, ExchangepageAddr);
             break;
           }
 
           switch (recdat.data[0]) {
-            case 1: { // Unload filement1
-              setAxisPosition_mm((getAxisPosition_mm(E0) - ChangeMaterialbuf[0]), E0);
+            case 1: { // Unload filament1
+              setAxisPosition_mm(getAxisPosition_mm(E0) - ChangeMaterialbuf[0], E0);
               break;
             }
-            case 2: { // Load filement1
-              setAxisPosition_mm((getAxisPosition_mm(E0) + ChangeMaterialbuf[0]), E0);
+            case 2: { // Load filament1
+              setAxisPosition_mm(getAxisPosition_mm(E0) + ChangeMaterialbuf[0], E0);
               break;
             }
-            case 3: { // Unload filement2
-              setAxisPosition_mm((getAxisPosition_mm(E1) - ChangeMaterialbuf[1]), E1);
+            case 3: { // Unload filament2
+              setAxisPosition_mm(getAxisPosition_mm(E1) - ChangeMaterialbuf[1], E1);
               break;
             }
-            case 4: { // Load filement2
-              setAxisPosition_mm((getAxisPosition_mm(E1) + ChangeMaterialbuf[1]), E1);
+            case 4: { // Load filament2
+              setAxisPosition_mm(getAxisPosition_mm(E1) + ChangeMaterialbuf[1], E1);
               break;
             }
             case 5: { // sure to heat
               NozzleTempStatus[0] = 1;
-              // InforShowoStatus = true;
 
               setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND + 10), getActiveTool());
               IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
-              NOMORE(IconTemp, 100);
+              NOMORE(IconTemp, 100U);
               RTS_SndData(IconTemp, HeatPercentIcon);
 
               RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
@@ -1420,7 +1360,6 @@ namespace ExtUI {
               break;
             }
             case 0xF1: { // Sure to cancel heating
-              // InforShowoStatus = true;
               NozzleTempStatus[0] = 0;
               delay_ms(1);
               RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
@@ -1433,27 +1372,20 @@ namespace ExtUI {
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
         }
         else if (recdat.addr == FilamentUnit1) {
-          ChangeMaterialbuf[0] = ((float)recdat.data[0]) / 10;
+          ChangeMaterialbuf[0] = float(recdat.data[0]) / 10;
         }
         else if (recdat.addr == FilamentUnit2) {
-          ChangeMaterialbuf[1] = ((float)recdat.data[0]) / 10;
+          ChangeMaterialbuf[1] = float(recdat.data[0]) / 10;
         }
         break;
 
       case LanguageChoice:
 
-        DEBUG_ECHOLNPGM("\n ***recdat.data[0] =", recdat.data[0]);
-        /*if(recdat.data[0]==1) {
-            settings.save();
-          }
-          else {
-            injectCommands(F("M300"));
-          }*/
+        //if (recdat.data[0] == 1) settings.save(); else injectCommands(F("M300"));
+
         // may at some point use language change screens to save eeprom explicitly
-        DEBUG_ECHOLNPGM("InLangChoice");
         switch (recdat.data[0]) {
           case 0: {
-            DEBUG_ECHOLNPGM("Store Settings");
             injectCommands(F("M500"));
             break;
           }
@@ -1471,12 +1403,10 @@ namespace ExtUI {
           #endif
 
           case 3: {
-            DEBUG_ECHOLNPGM("Init EEPROM");
             injectCommands(F("M502\nM500"));
             break;
           }
           case 4: {
-            DEBUG_ECHOLNPGM("BLTouch Reset");
             injectCommands(F("M999\nM280P0S160"));
             break;
           }
@@ -1485,27 +1415,19 @@ namespace ExtUI {
             #if ENABLED(PIDTEMPBED)
               onStatusChanged(F("Bed PID Started"));
               startBedPIDTune(static_cast<celsius_t>(pid_bedAutoTemp));
-            #else
-              DEBUG_ECHOLNPGM("Bed PID Disabled");
             #endif
             break;
           }
           case 6: {
-            DEBUG_ECHOLNPGM("Store Settings");
             injectCommands(F("M500"));
             break;
           }
-          default: {
-            DEBUG_ECHOLNPGM("Invalid Option");
-            break;
-          }
+          default: break;
         }
         break;
-      case No_Filament:
-        DEBUG_ECHOLNPGM("\n No Filament");
 
+      case No_Filament:
         if (recdat.data[0] == 1) { // Filament is out, resume / resume selected on screen
-          DEBUG_ECHOLNPGM("Resume Yes during print");
           if (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION) {
             // setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
             setUserConfirmed();
@@ -1536,7 +1458,6 @@ namespace ExtUI {
           }
         }
         else if (recdat.data[0] == 0) { // Filamet is out, Cancel Selected
-          DEBUG_ECHOLNPGM(" Filament Response No");
           if (ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION) {
             setPauseMenuResponse(PAUSE_RESPONSE_EXTRUDE_MORE);
             setUserConfirmed();
@@ -1573,14 +1494,11 @@ namespace ExtUI {
         break;
 
       case Filename:
-        DEBUG_ECHOLNPGM("Filename Selected");
         if (isMediaInserted() && recdat.addr == FilenameChs) {
-          DEBUG_ECHOLNPGM("Has Media");
 
           recordcount = recdat.data[0] - 1;
           if (filenavigator.currentindex == 0 && filenavigator.folderdepth > 0 && (fileIndex + recordcount) == 0) {
             filenavigator.upDIR();
-            DEBUG_ECHOLNPGM("GoUpDir");
             filenavigator.getFiles(0);
             fileIndex = 0;
             return;
@@ -1589,24 +1507,22 @@ namespace ExtUI {
           if (filenavigator.currentindex == 0 && filenavigator.folderdepth > 0)
             recordcount = recordcount - 1; // account for return dir link in file index
 
-          for (int j = 1; j <= 4; j++) { // Clear filename BG Color and Frame
-            RTS_SndData((unsigned long)0xFFFF, FilenameNature + j * 16); // white
+          for (int16_t j = 1; j <= 4; j++) { // Clear filename BG Color and Frame
+            RTS_SndData(0xFFFFUL, FilenameNature + j * 16); // white
             RTS_SndData(10, FilenameIcon1 + j);            // clean
           }
-          for (int j = 0; j < 10; j++) // clear current filename
+          for (int16_t j = 0; j < 10; j++) // clear current filename
             RTS_SndData(0, Choosefilename + j);
 
           if (filenavigator.getIndexisDir(fileIndex + recordcount)) {
-            DEBUG_ECHOLNPGM("Is Dir ", (fileIndex + recordcount));
             filenavigator.changeDIR((char *)filenavigator.getIndexName(fileIndex + recordcount));
             filenavigator.getFiles(0);
             fileIndex = 0;
             return;
           }
           else {
-            DEBUG_ECHOLNPGM("Is File ", (fileIndex + recordcount));
             RTS_SndData(filenavigator.getIndexName(fileIndex + recordcount), Choosefilename);
-            RTS_SndData((unsigned long)0x87F0, FilenameNature + recdat.data[0] * 16); // Change BG of selected line to Light Green
+            RTS_SndData(0x87F0UL, FilenameNature + recdat.data[0] * 16); // Change BG of selected line to Light Green
             RTS_SndData(6, FilenameIcon1 + recdat.data[0]);             // show frame
           }
         }
@@ -1614,13 +1530,13 @@ namespace ExtUI {
           if (recdat.data[0] == 1 && isMediaInserted()) { // for sure
             printFile(filenavigator.getIndexName(fileIndex + recordcount));
 
-            for (int j = 0; j < 10; j++) // clean screen.
+            for (int16_t j = 0; j < 10; j++) // clean screen.
               RTS_SndData(0, Printfilename + j);
 
             RTS_SndData(filenavigator.getIndexName(fileIndex + recordcount), Printfilename);
-            delay_ms(2);
 
-            delay_ms(2);
+            delay_ms(4);
+
             RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
             TPShowStatus        = InforShowStatus = true;
@@ -1630,7 +1546,6 @@ namespace ExtUI {
             recordcount         = 0;
           }
           else if (recdat.data[0] == 2) { // Page Down
-            DEBUG_ECHOLNPGM("PgDown");
             if ((fileIndex + DISPLAY_FILES) < (filenavigator.maxFiles() + (filenavigator.folderdepth != 0))) {
               fileIndex = fileIndex + DISPLAY_FILES;
               // if(filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
@@ -1641,7 +1556,6 @@ namespace ExtUI {
             }
           }
           else if (recdat.data[0] == 3) { // Page Up
-            DEBUG_ECHOLNPGM("PgUp");
             if (fileIndex >= DISPLAY_FILES) {
               fileIndex = fileIndex - DISPLAY_FILES;
               // if(filenavigator.folderdepth!=0 && fileIndex!=0) //Shift to acknowledge Return DIR button on first page
@@ -1651,7 +1565,6 @@ namespace ExtUI {
             }
           }
           else if (recdat.data[0] == 4) { // Page Up
-            DEBUG_ECHOLNPGM("Refresh");
             injectCommands(F("M22\nM21"));
           }
           else if (recdat.data[0] == 0) { //	return to main page
@@ -1662,7 +1575,6 @@ namespace ExtUI {
         break;
 
       case VolumeDisplay: {
-        DEBUG_ECHOLNPGM("VolumeDisplay");
         if (recdat.data[0] == 0) {
           Settings.display_volume = 0;
           Settings.display_sound  = false;
@@ -1680,20 +1592,17 @@ namespace ExtUI {
       }
 
       case DisplayBrightness: {
-        DEBUG_ECHOLNPGM("DisplayBrightness LCD: ", recdat.data[0]);
         if (recdat.data[0] < 10)
           Settings.screen_brightness = 10;
         else if (recdat.data[0] > 100)
           Settings.screen_brightness = 100;
         else
           Settings.screen_brightness = (uint8_t)recdat.data[0];
-        DEBUG_ECHOLNPGM("DisplayBrightness Set: ", Settings.screen_brightness);
         SetTouchScreenConfiguration();
         break;
       }
 
       case DisplayStandbyBrightness: {
-        DEBUG_ECHOLNPGM("DisplayStandbyBrightness");
         if (recdat.data[0] < 10)
           Settings.standby_screen_brightness = 10;
         else if (recdat.data[0] > 100)
@@ -1705,7 +1614,6 @@ namespace ExtUI {
       }
 
       case DisplayStandbySeconds: {
-        DEBUG_ECHOLNPGM("DisplayStandbySeconds");
         if (recdat.data[0] < 5)
           Settings.standby_time_seconds = 5;
         else if (recdat.data[0] > 100)
@@ -1722,22 +1630,16 @@ namespace ExtUI {
                 xPnt = meshPoint - (yPnt * GRID_MAX_POINTS_X);
         if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X - 1) - xPnt; // zag row
 
-        DEBUG_ECHOLNPGM("meshPoint ", meshPoint, " xPnt ", xPnt, " yPnt ", yPnt);
-
         float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
-        DEBUG_ECHOLNPGM("meshVal ", meshVal);
         LIMIT(meshVal, Z_PROBE_LOW_POINT, Z_CLEARANCE_BETWEEN_PROBES);
-        DEBUG_ECHOLNPGM("Constrain meshVal ", meshVal);
         xy_uint8_t point = { xPnt, yPnt };
         setMeshPoint(point, meshVal);
         rtscheck.RTS_SndData(meshVal * 1000, recdat.addr);
         break;
       }
 
-      default:
-        DEBUG_ECHOLNPGM("No Match :");
-        break;
+      default: break;
     }
 
     memset(&recdat, 0, sizeof(recdat));
@@ -1770,24 +1672,26 @@ namespace ExtUI {
     LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
     LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
-    unsigned char cfg_bits = 0x0
+    uint8_t cfg_bits = 0x0
                            | _BV(7)   // 7: Enable Control ... TERN0(DWINOS_4, _BV(7))
                            | _BV(5)   // 5: load 22 touch file
                            | _BV(4)   // 4: auto-upload should always be enabled
                            | (Settings.display_sound         ? _BV(3) : 0)  // 3: audio
                            | (Settings.display_standby       ? _BV(2) : 0)  // 2: backlight on standby
                            | (Settings.screen_rotation == 10 ? _BV(1) : 0)  // 1 & 0: Inversion
-                           #if EITHER(MachineCR10Smart, MachineCR10SmartPro)
+                           #if LCD_SCREEN_ROTATE == 90
                              | _BV(0) // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+                           #elif LCD_SCREEN_ROTATE
+                             #error "Only 90° rotation is supported for the selected LCD."
                            #endif
                            ;
 
-    const unsigned char config_set[] = { 0x5A, 0x00, TERN(DWINOS_4, 0x00, 0xFF), cfg_bits };
+    const uint8_t config_set[] = { 0x5A, 0x00, TERN(DWINOS_4, 0x00, 0xFF), cfg_bits };
     WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
     // Standby brightness (LED_Config)
     uint16_t dwinStandbyTimeSeconds = 100 * Settings.standby_time_seconds; /* milliseconds, but divided by 10 (not 5 like the docs say) */
-    const unsigned char brightness_set[] = {
+    const uint8_t brightness_set[] = {
       Settings.screen_brightness /*% active*/,
       Settings.standby_screen_brightness /*% standby*/,
       static_cast<uint8_t>(dwinStandbyTimeSeconds >> 8),
@@ -1816,9 +1720,8 @@ namespace ExtUI {
   }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    DEBUG_ECHOLNPGM("***kill***");
     rtscheck.RTS_SndData(ExchangePageBase + 88, ExchangepageAddr);
-    int j = 0;
+    int16_t j = 0;
     char outmsg[40];
     char killMsg[strlen_P(FTOP(error)) + strlen_P(FTOP(component)) + 3];
     sprintf_P(killMsg, PSTR(S_FMT ": " S_FMT), FTOP(error), FTOP(component));
@@ -1839,7 +1742,6 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    DEBUG_ECHOLNPGM("***Initing card is OK***");
     filenavigator.reset();
     filenavigator.getFiles(0);
     fileIndex   = 0;
@@ -1848,61 +1750,53 @@ namespace ExtUI {
 
   void onMediaError() {
     filenavigator.reset();
-    for (int i = 0; i < MaxFileNumber; i++)
-      for (int j = 0; j < 10; j++) rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
+    for (int16_t i = 0; i < MaxFileNumber; i++)
+      for (int16_t j = 0; j < 10; j++) rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
 
-    for (int j = 0; j < 10; j++) {
+    for (int16_t j = 0; j < 10; j++) {
       rtscheck.RTS_SndData(0, Printfilename + j); // clean screen.
       rtscheck.RTS_SndData(0, Choosefilename + j); // clean filename
     }
-    for (int j = 0; j < 8; j++) rtscheck.RTS_SndData(0, FilenameCount + j);
-    for (int j = 1; j <= MaxFileNumber; j++) {
+    for (int16_t j = 0; j < 8; j++) rtscheck.RTS_SndData(0, FilenameCount + j);
+    for (int16_t j = 1; j <= MaxFileNumber; j++) {
       rtscheck.RTS_SndData(10, FilenameIcon + j);
       rtscheck.RTS_SndData(10, FilenameIcon1 + j);
     }
-    return;
-    DEBUG_ECHOLNPGM("***Initing card fails***");
   }
 
   void onMediaRemoved() {
     filenavigator.reset();
-    for (int i = 0; i < MaxFileNumber; i++)
-      for (int j = 0; j < 10; j++) rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
+    for (int16_t i = 0; i < MaxFileNumber; i++)
+      for (int16_t j = 0; j < 10; j++) rtscheck.RTS_SndData(0, SDFILE_ADDR + i * 10 + j);
 
-    for (int j = 0; j < 10; j++) {
+    for (int16_t j = 0; j < 10; j++) {
       rtscheck.RTS_SndData(0, Printfilename + j); // clean screen.
       rtscheck.RTS_SndData(0, Choosefilename + j); // clean filename
     }
-    for (int j = 0; j < 8; j++) rtscheck.RTS_SndData(0, FilenameCount + j);
-    for (int j = 1; j <= MaxFileNumber; j++) {
+    for (int16_t j = 0; j < 8; j++) rtscheck.RTS_SndData(0, FilenameCount + j);
+    for (int16_t j = 1; j <= MaxFileNumber; j++) {
       rtscheck.RTS_SndData(10, FilenameIcon + j);
       rtscheck.RTS_SndData(10, FilenameIcon1 + j);
     }
-    return;
-    DEBUG_ECHOLNPGM("***Card Removed***");
   }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
-    DEBUG_ECHOLNPGM("***CPlay Tone***");
     rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   }
 
   void onPrintTimerStarted() {
-    DEBUG_ECHOLNPGM("==onPrintTimerStarted==");
     if (waitway == 7) return;
     PrinterStatusKey[1] = 3;
-    InforShowStatus     = true;
+    InforShowStatus = true;
     delay_ms(1);
     rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
   }
 
   void onPrintTimerPaused() {
-    DEBUG_ECHOLNPGM("==onPrintTimerPaused==");
     rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); // Display Pause Screen
     onStatusChanged(F("Pausing..."));
   }
   void onPrintTimerStopped() {
-    DEBUG_ECHOLNPGM("==onPrintTimerStopped==");
     if (waitway == 3) return;
 
     #if FAN_COUNT > 0
@@ -1910,26 +1804,24 @@ namespace ExtUI {
     #endif
 
     PrinterStatusKey[0] = 0;
-    InforShowStatus     = true;
-    TPShowStatus        = false;
+    InforShowStatus = true;
+    TPShowStatus = false;
     rtscheck.RTS_SndData(ExchangePageBase + 51, ExchangepageAddr);
   }
 
   void onFilamentRunout() {
-    DEBUG_ECHOLNPGM("==onFilamentRunout==");
     PrinterStatusKey[1] = 4;
-    TPShowStatus        = false;
+    TPShowStatus = false;
     rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
   }
   void onFilamentRunout(extruder_t extruder) {
-    DEBUG_ECHOLNPGM("==onFilamentRunout==");
     PrinterStatusKey[1] = 4;
-    TPShowStatus        = false;
+    TPShowStatus = false;
     rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
   }
   void onUserConfirmRequired(const char *const msg) {
     PrinterStatusKey[1] = 4;
-    TPShowStatus        = false;
+    TPShowStatus = false;
     if (lastPauseMsgState == ExtUI::pauseModeStatus && msg == (const char*)GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD))
       return;
 
@@ -2009,16 +1901,14 @@ namespace ExtUI {
       default: {
         setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
         setUserConfirmed();
-        DEBUG_ECHOLNPGM("Pause Mode Status");
         break;
       }
     }
     lastPauseMsgState = ExtUI::pauseModeStatus;
-    DEBUG_ECHOLNPGM("==onUserConfirmRequired==", pauseModeStatus);
   }
 
   void onStatusChanged(const char *const statMsg) {
-    for (int j = 0; j < 20; j++) // Clear old message
+    for (int16_t j = 0; j < 20; j++) // Clear old message
       rtscheck.RTS_SndData(' ', StatusMessageString + j);
     rtscheck.RTS_SndData(statMsg, StatusMessageString);
   }
@@ -2035,7 +1925,6 @@ namespace ExtUI {
     onStartup();
     startprogress   = 0;
     InforShowStatus = true;
-    DEBUG_ECHOLNPGM("==onFactoryReset==");
   }
 
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
@@ -2049,7 +1938,7 @@ namespace ExtUI {
       for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
         for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
           const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
-          const xy_uint8_t point = { zig ? (GRID_MAX_POINTS_X - 1) - inner : inner, outer };
+          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
           if (point.x == xpos && outer == ypos)
             rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
           ++abl_probe_index;
@@ -2064,7 +1953,6 @@ namespace ExtUI {
     );
 
     // Write to buffer
-    DEBUG_ECHOLNPGM("Saving DWIN LCD setting from EEPROM");
     memcpy(buff, &Settings, sizeof(creality_dwin_settings_t));
   }
 
@@ -2079,48 +1967,34 @@ namespace ExtUI {
 
     // If size is not the same, discard settings
     if (eepromSettings.settings_size != sizeof(creality_dwin_settings_t)) {
-      DEBUG_ECHOLNPGM("Discarding DWIN LCD setting from EEPROM - size incorrect");
       onFactoryReset();
       return;
     }
 
     if (eepromSettings.settings_version != dwin_settings_version) {
-      DEBUG_ECHOLNPGM("Discarding DWIN LCD setting from EEPROM - settings version incorrect");
       onFactoryReset();
       return;
     }
 
     // Copy into final location
-    DEBUG_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
     memcpy(&Settings, &eepromSettings, sizeof(creality_dwin_settings_t));
-
-    DEBUG_ECHOLNPGM("Setting Brightness : ", Settings.screen_brightness);
-    DEBUG_ECHOLNPGM("Setting Standby : ", Settings.standby_screen_brightness);
-    DEBUG_ECHOLNPGM("Setting Standby Time : ", Settings.standby_time_seconds);
-    DEBUG_ECHOLNPGM("Setting Rotation : ", Settings.screen_rotation);
-    DEBUG_ECHOLNPGM("Setting Volume : ", Settings.display_volume);
-
-    DEBUG_ECHOLNPGM("Setting Standby On : ", Settings.display_standby);
-    DEBUG_ECHOLNPGM("Setting Volume On : ", Settings.display_sound);
 
     SetTouchScreenConfiguration();
   }
 
   void onSettingsStored(bool success) {
-    DEBUG_ECHOLNPGM("==onSettingsStored==");
     // This is called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
   void onSettingsLoaded(bool success) {
-    DEBUG_ECHOLNPGM("==onConfigurationStoreRead==");
     #if HAS_MESH
       if (ExtUI::getMeshValid()) {
         uint8_t abl_probe_index = 0;
         for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
           for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
             const bool zig = outer & 1;
-            const xy_uint8_t point = { zig ? (GRID_MAX_POINTS_X - 1) - inner : inner, outer };
+            const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
             rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
             ++abl_probe_index;
           }
@@ -2134,14 +2008,15 @@ namespace ExtUI {
       }
     #endif
 
-    DEBUG_ECHOLNPGM("\n init zprobe_zoffset = ", getZOffset_mm());
     rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
     SetTouchScreenConfiguration();
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
-      DEBUG_ECHOLNPGM("==OnPowerLossResume==");
       startprogress   = 254;
       InforShowStatus = true;
       TPShowStatus    = false;
@@ -2155,13 +2030,13 @@ namespace ExtUI {
       // Called for temperature PID tuning result
       rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
       rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
-      rtscheck.RTS_SndData((unsigned int)(getPID_Kp(E0) * 10), HotendPID_P);
-      rtscheck.RTS_SndData((unsigned int)(getPID_Ki(E0) * 10), HotendPID_I);
-      rtscheck.RTS_SndData((unsigned int)(getPID_Kd(E0) * 10), HotendPID_D);
+      rtscheck.RTS_SndData(uint16_t(getPID_Kp(E0)) * 10, HotendPID_P);
+      rtscheck.RTS_SndData(uint16_t(getPID_Ki(E0)) * 10, HotendPID_I);
+      rtscheck.RTS_SndData(uint16_t(getPID_Kd(E0)) * 10, HotendPID_D);
       #if ENABLED(PIDTEMPBED)
-        rtscheck.RTS_SndData((unsigned int)(getBedPID_Kp() * 10), BedPID_P);
-        rtscheck.RTS_SndData((unsigned int)(getBedPID_Ki() * 10), BedPID_I);
-        rtscheck.RTS_SndData((unsigned int)(getBedPID_Kd() * 10), BedPID_D);
+        rtscheck.RTS_SndData(uint16_t(getBedPID_Kp()) * 10, BedPID_P);
+        rtscheck.RTS_SndData(uint16_t(getBedPID_Ki()) * 10, BedPID_I);
+        rtscheck.RTS_SndData(uint16_t(getBedPID_Kd()) * 10, BedPID_D);
       #endif
       onStatusChanged(F("PID Tune Finished"));
     }
@@ -2176,7 +2051,7 @@ namespace ExtUI {
         for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
           for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
             const bool zig = outer & 1;
-            const xy_uint8_t point = { zig ? (GRID_MAX_POINTS_X - 1) - inner : inner, outer };
+            const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
             rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
             ++abl_probe_index;
           }

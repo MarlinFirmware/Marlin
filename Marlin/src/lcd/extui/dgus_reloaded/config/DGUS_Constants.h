@@ -25,7 +25,9 @@
 
 #include "DGUS_Addr.h"
 
-static_assert((DGUS_LEVEL_GRID_SIZE == GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y), "DGUS_LEVEL_GRID_SIZE incompatible with current mesh.");
+#if DGUS_LEVEL_GRID_SIZE != GRID_MAX_POINTS
+  #error "DGUS_LEVEL_GRID_SIZE is incompatible with current mesh."
+#endif
 
 #ifndef DGUS_DEFAULT_VOLUME
   #define DGUS_DEFAULT_VOLUME 50

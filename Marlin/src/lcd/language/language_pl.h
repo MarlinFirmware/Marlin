@@ -248,7 +248,7 @@ namespace Language_pl {
   LSTR MSG_MOVE_001IN                     = _UxGT("Przesuń co 0.01 cala");
   LSTR MSG_MOVE_01IN                      = _UxGT("Przesuń co 0.1 cala");
   LSTR MSG_SPEED                          = _UxGT("Predkość");
-  LSTR MSG_BED_Z                          = _UxGT("Stół Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Stół Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dysza");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dysza ~");
   LSTR MSG_NOZZLE_STANDBY                 = _UxGT("Dysza w oczekiwaniu");
