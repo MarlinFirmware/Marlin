@@ -126,7 +126,7 @@ def main(argv):
 
     t = Thermistor(rp, t1, r1, t2, r2, t3, r3)
     increment = int((ARES-1)/(num_temps-1));
-    step = (TMIN-TMAX) / (num_temps-1)
+    step = int((TMIN-TMAX) / (num_temps-1))
     low_bound = t.temp(ARES-1);
     up_bound = t.temp(1);
     min_temp = int(TMIN if TMIN > low_bound else low_bound)
