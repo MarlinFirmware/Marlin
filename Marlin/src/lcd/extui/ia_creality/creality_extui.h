@@ -223,19 +223,21 @@ namespace ExtUI {
     public:
       RTSSHOW();
       int16_t RTS_RecData();
-      void RTS_SDCardInit(void);
+      void RTS_SDCardInit();
       void RTS_SDCardUpate(bool, bool);
       int16_t RTS_CheckFilament(int16_t);
-      void RTS_SndData(void);
-      void RTS_SndData(const String &, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(const char[], uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(char, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(uint8_t*, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(int16_t, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(float, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(uint16_t, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(int32_t, uint32_t, uint8_t=VarAddr_W);
-      void RTS_SndData(uint32_t, uint32_t, uint8_t=VarAddr_W);
+      void RTS_SndData();
+      void RTS_SndData(const String&, const uint32_t, const uint8_t=VarAddr_W);
+      void RTS_SndData(const char[],  const uint32_t, const uint8_t=VarAddr_W);
+      void RTS_SndData(char,          const uint32_t, const uint8_t=VarAddr_W);
+      void RTS_SndData(int,           const uint32_t, const uint8_t=VarAddr_W);
+      void RTS_SndData(unsigned long, const uint32_t, const uint8_t=VarAddr_W);
+
+      void RTS_SndData(uint8_t * const str, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData((char *)str, addr, cmd); }
+      void RTS_SndData(const unsigned int n, uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData(int(n), addr, cmd); }
+      void RTS_SndData(const_float_t n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData(int(n), addr, cmd); }
+      void RTS_SndData(const long n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData((unsigned long)n, addr, cmd); }
+
       void RTS_SDcard_Stop();
       void RTS_HandleData();
       void RTS_Init();
@@ -281,7 +283,7 @@ namespace ExtUI {
     Filename = Filename_Value
   };
 
-  const uint32_t Addrbuf[] = {
+  const uint16_t Addrbuf[] = {
     0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
     0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058,
     0x105C, 0x105E, 0x105F, 0x1088, 0

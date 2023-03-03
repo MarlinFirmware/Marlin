@@ -4229,8 +4229,7 @@ void CrealityDWINClass::Value_Control() {
     if (funcpointer) funcpointer();
     return;
   }
-  NOLESS(tempvalue, (valuemin * valueunit));
-  NOMORE(tempvalue, (valuemax * valueunit));
+  LIMIT(tempvalue, valuemin * valueunit, valuemax * valueunit);
   Draw_Float(tempvalue / valueunit, selection - scrollpos, true, valueunit);
   DWIN_UpdateLCD();
   if (active_menu == Move && livemove) {
@@ -4272,8 +4271,7 @@ void CrealityDWINClass::Option_Control() {
     DWIN_UpdateLCD();
     return;
   }
-  NOLESS(tempvalue, valuemin);
-  NOMORE(tempvalue, valuemax);
+  LIMIT(tempvalue, valuemin, valuemax);
   Draw_Option(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, true);
   DWIN_UpdateLCD();
 }

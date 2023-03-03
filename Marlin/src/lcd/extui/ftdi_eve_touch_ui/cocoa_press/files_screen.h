@@ -1,11 +1,10 @@
-/*******************************
- * cocoa_press/status_screen.h *
- *******************************/
+/******************
+ * files_screen.h *
+ ******************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2019 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -23,37 +22,47 @@
 
 #pragma once
 
-#define COCOA_STATUS_SCREEN
-#define COCOA_STATUS_SCREEN_CLASS StatusScreen
+#define COCOA_FILES_SCREEN
+#define COCOA_FILES_SCREEN_CLASS FilesScreen
 
-class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE> {
+struct FilesScreenData {
+  struct {
+    uint8_t is_dir   : 1;
+    uint8_t is_root  : 1;
+    uint8_t is_empty : 1;
+  } flags;
+  uint8_t   selected_tag;
+  uint8_t   num_page;
+  uint8_t   cur_page;
+  #if ENABLED(SCROLL_LONG_FILENAMES) && (FTDI_API_LEVEL >= 810)
+    uint16_t  scroll_pos;
+    uint16_t  scroll_max;
+  #endif
+};
+
+class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, FILE_SCREEN_DL_SIZE> {
   private:
-    static void _format_time(char *outstr, uint32_t time);
+    static uint8_t  getTagForLine(uint8_t line) {return line + 2;}
+    static uint8_t  getLineForTag(uint8_t tag)  {return  tag - 2;}
+    static uint16_t getFileForTag(uint8_t tag);
+    static uint16_t getSelectedFileIndex();
 
-    static float increment;
-    static bool  jog_xy;
-    static bool  fine_motion;
+    inline static const char *getSelectedShortFilename() {return getSelectedFilename(true);}
+    static const char *getSelectedFilename(bool shortName = false);
 
-    static void draw_time(draw_mode_t what);
-    static void draw_progress(draw_mode_t what);
-    static void draw_temperature(draw_mode_t what);
-    static void draw_buttons(draw_mode_t what);
-    static void draw_file(draw_mode_t what);
+    static void drawFileButton(int x, int y, int w, int h, const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);
+    static void drawFileButton(const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);
+    static void drawFileList();
+    static void drawHeader();
+    static void drawArrows();
+    static void drawFooter();
+    static void drawSelectedFile();
 
-    static bool isFileSelected();
+    static void gotoPage(uint8_t);
   public:
-    static void loadBitmaps();
-    static void unlockMotors();
-
-    static void setStatusMessage(const char *);
-    static void setStatusMessage(FSTR_P);
-
+    static void onEntry();
     static void onRedraw(draw_mode_t);
-
-    static bool onTouchStart(uint8_t tag);
-    static bool onTouchHeld(uint8_t tag);
     static bool onTouchEnd(uint8_t tag);
     static void onIdle();
-    static void onMediaInserted();
     static void onMediaRemoved();
 };

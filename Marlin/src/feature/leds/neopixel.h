@@ -91,6 +91,7 @@ public:
     static void set_background_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w);
     static void set_background_color(const uint8_t (&rgbw)[4]) { set_background_color(rgbw[0], rgbw[1], rgbw[2], rgbw[3]); }
     static void reset_background_color();
+    static void set_background_off();
   #endif
 
   static void begin() {
