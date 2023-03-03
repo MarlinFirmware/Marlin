@@ -44,7 +44,7 @@
 #endif
 
 #if HAS_STOWABLE_PROBE && DISABLED(BLTOUCH)
-  #define STOW_BETWEEN_PROBES 1
+  #define NEEDS_PROBE_DEPLOY 1
 #endif
 
 #if ENABLED(BED_TRAMMING_USE_PROBE)
@@ -221,7 +221,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       , []{
           corner_probing_done = true;
           TERN_(HAS_LEVELING, ui.goto_previous_screen_no_defer());
-          TERN_(STOW_BETWEEN_PROBES, probe.stow(true));
+          TERN_(NEEDS_PROBE_DEPLOY, probe.stow(true));
         }
       , GET_TEXT_F(MSG_BED_TRAMMING_IN_RANGE)
     );
@@ -245,7 +245,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       }
 
       // Raise the probe after the last point to give clearance for stow
-      if (TERN0(STOW_BETWEEN_PROBES, good_points == nr_edge_points - 1))
+      if (TERN0(NEEDS_PROBE_DEPLOY, good_points == nr_edge_points - 1))
         line_to_z(BED_TRAMMING_Z_HOP);
 
       return true; // probe triggered
@@ -337,7 +337,7 @@ static void _lcd_level_bed_corners_get_next_position() {
 #endif // !BED_TRAMMING_USE_PROBE
 
 void _lcd_level_bed_corners_homing() {
-  if (!all_axes_homed() && TERN1(STOW_BETWEEN_PROBES, probe.deploy())) return;
+  if (!all_axes_homed() && TERN1(NEEDS_PROBE_DEPLOY, probe.deploy())) return;
 
   #if HAS_LEVELING // Disable leveling so the planner won't mess with us
     menu_leveling_was_active = planner.leveling_active;
@@ -349,7 +349,7 @@ void _lcd_level_bed_corners_homing() {
     if (!corner_probing_done) _lcd_test_corners(); // May set corner_probing_done
     if (corner_probing_done) {
       ui.goto_previous_screen_no_defer();
-      TERN_(STOW_BETWEEN_PROBES, probe.stow(true));
+      TERN_(NEEDS_PROBE_DEPLOY, probe.stow(true));
     }
     corner_probing_done = true;
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
@@ -377,7 +377,7 @@ void _lcd_level_bed_corners_homing() {
   #endif // !BED_TRAMMING_USE_PROBE
 }
 
-#if STOW_BETWEEN_PROBES
+#if NEEDS_PROBE_DEPLOY
 
   void deploy_probe() {
     if (!corner_probing_done) probe.deploy(true);
@@ -387,7 +387,7 @@ void _lcd_level_bed_corners_homing() {
     });
   }
 
-#endif // STOW_BETWEEN_PROBES
+#endif // NEEDS_PROBE_DEPLOY
 
 void _lcd_level_bed_corners() {
   TERN_(BED_TRAMMING_USE_PROBE, corner_probing_done = false);
@@ -397,7 +397,7 @@ void _lcd_level_bed_corners() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (!all_axes_homed()) return;
-    TERN(STOW_BETWEEN_PROBES, deploy_probe(), ui.goto_screen(_lcd_level_bed_corners_homing));
+    TERN(NEEDS_PROBE_DEPLOY, deploy_probe(), ui.goto_screen(_lcd_level_bed_corners_homing));
   });
 }
 
