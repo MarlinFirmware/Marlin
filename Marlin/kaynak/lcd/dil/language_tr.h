@@ -839,11 +839,3 @@ namespace Language_tr {
   LSTR MSG_SHORT_HOUR                     = _UxGT("s"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("d"); // One character only
 }
-
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif

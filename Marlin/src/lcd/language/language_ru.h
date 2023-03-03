@@ -606,9 +606,6 @@ namespace Language_ru {
   LSTR MSG_ERR_REDUNDANT_TEMP               = _UxGT("Ошибка: Т контр.");
   LSTR MSG_HALTED                           = _UxGT("ПРИНТЕР ОСТАНОВЛЕН");
   LSTR MSG_PLEASE_RESET                     = _UxGT("Сделайте сброс");
-  LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
-  LSTR MSG_SHORT_HOUR                       = _UxGT("ч"); // One character only
-  LSTR MSG_SHORT_MINUTE                     = _UxGT("м"); // One character only
   LSTR MSG_HEATING                          = _UxGT("Нагрев...");
   LSTR MSG_COOLING                          = _UxGT("Охлаждение...");
   LSTR MSG_BED_HEATING                      = _UxGT("Нагрев стола...");
@@ -865,12 +862,8 @@ namespace Language_ru {
 
   LSTR MSG_SD_CARD                          = _UxGT("SD Карта");
   LSTR MSG_USB_DISK                         = _UxGT("USB Диск");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
+  LSTR MSG_SHORT_HOUR                       = _UxGT("ч"); // One character only
+  LSTR MSG_SHORT_MINUTE                     = _UxGT("м"); // One character only
+}
