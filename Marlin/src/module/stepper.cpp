@@ -1695,19 +1695,17 @@ void Stepper::pulse_phase_isr() {
     #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
 
     #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
-      if (step_needed[_AXIS(AXIS)]) { \
-        DELTA_ERROR += (DIVIDEND); \
-        if ((MAXDIR(AXIS) && DELTA_ERROR <= -(64 + HYSTERESIS(AXIS))) || (MINDIR(AXIS) && DELTA_ERROR >= (64 + HYSTERESIS(AXIS)))) { \
-          { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
-          TBI(last_direction_bits, _AXIS(AXIS)); \
-          DIR_WAIT_BEFORE(); \
-          SET_STEP_DIR(AXIS); \
-          DIR_WAIT_AFTER(); \
-        } \
-        step_needed[_AXIS(AXIS)] = DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS)); \
-        if (step_needed[_AXIS(AXIS)]) \
-          DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
+      DELTA_ERROR += (DIVIDEND); \
+      if ((MAXDIR(AXIS) && DELTA_ERROR <= -(64 + HYSTERESIS(AXIS))) || (MINDIR(AXIS) && DELTA_ERROR >= (64 + HYSTERESIS(AXIS)))) { \
+        { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
+        TBI(last_direction_bits, _AXIS(AXIS)); \
+        DIR_WAIT_BEFORE(); \
+        SET_STEP_DIR(AXIS); \
+        DIR_WAIT_AFTER(); \
       } \
+      step_needed[_AXIS(AXIS)] = DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS)); \
+      if (step_needed[_AXIS(AXIS)]) \
+        DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
     }while(0)
 
     // Start an active pulse if needed
@@ -1883,11 +1881,11 @@ void Stepper::pulse_phase_isr() {
 
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
-          if (shaping_x.enabled)
+          if (x_step)
             PULSE_PREP_SHAPING(X, shaping_x.delta_error, (shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1));
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
-          if (shaping_y.enabled)
+          if (y_step)
             PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1));
         #endif
       #endif
