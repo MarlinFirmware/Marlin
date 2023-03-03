@@ -1884,11 +1884,11 @@ void Stepper::pulse_phase_isr() {
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
           if (shaping_x.enabled)
-            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor1 * (shaping_x.forward ? 1 : -1));
+            PULSE_PREP_SHAPING(X, shaping_x.delta_error, (shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1));
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
           if (shaping_y.enabled)
-            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor1 * (shaping_y.forward ? 1 : -1));
+            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1));
         #endif
       #endif
     }
@@ -2001,7 +2001,7 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING_X)
         if (step_needed[X_AXIS]) {
           const bool forward = ShapingQueue::dequeue_x();
-          PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
+          PULSE_PREP_SHAPING(X, shaping_x.delta_error, (forward ? shaping_x.factor2 : -shaping_x.factor2));
           PULSE_START(X);
         }
       #endif
@@ -2009,7 +2009,7 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING_Y)
         if (step_needed[Y_AXIS]) {
           const bool forward = ShapingQueue::dequeue_y();
-          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
+          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (forward ? shaping_y.factor2 : -shaping_y.factor2));
           PULSE_START(Y);
         }
       #endif
