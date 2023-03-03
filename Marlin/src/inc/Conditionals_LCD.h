@@ -919,7 +919,7 @@
 
 /**
  * Number of Primary Linear Axes (e.g., XYZ)
- * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2. Z2. Z3, Z4)
+ * X, XY, or XYZ axes. Excluding duplicate axes (X2, Y2, Z2, Z3, Z4)
  */
 #if NUM_AXES >= 3
   #define PRIMARY_LINEAR_AXES 3
