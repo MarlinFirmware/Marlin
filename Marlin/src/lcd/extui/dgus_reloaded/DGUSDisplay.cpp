@@ -263,15 +263,13 @@ void DGUSDisplay::ProcessRx() {
           break;
         }
 
-        /**
-         * AutoUpload, (and answer to) Command 0x83 :
-         *      tmp[0  1  2  3  4 ... ]
-         * Example 5A A5 06 83 20 01 01 78 01 ……
-         *          / /  |  |   \ /   |  \     \
-         *        Header |  |    |    |   \_____\_ DATA (Words!)
-         *     DatagramLen  /  VPAdr  |
-         *           Command          DataLen (in Words)
-         */
+        /* AutoUpload, (and answer to) Command 0x83 :
+        |      tmp[0  1  2  3  4 ... ]
+        | Example 5A A5 06 83 20 01 01 78 01 ……
+        |          / /  |  |   \ /   |  \     \
+        |        Header |  |    |    |   \_____\_ DATA (Words!)
+        |     DatagramLen  /  VPAdr  |
+        |           Command          DataLen (in Words) */
         if (command == DGUS_READVAR) {
           const uint16_t addr = tmp[0] << 8 | tmp[1];
           const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)

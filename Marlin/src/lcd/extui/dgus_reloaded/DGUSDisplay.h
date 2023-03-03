@@ -104,7 +104,7 @@ public:
   static size_t GetFreeTxBuffer();
   static void FlushTx();
 
-  // Checks two things: Can we confirm the presence of the display and is it initialized?
+  // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
   static bool IsInitialized() {
     return initialized;
@@ -154,7 +154,7 @@ private:
   };
 
   enum dgus_system_addr : uint16_t {
-    DGUS_VERSION = 0x000F // OS/GUI version
+    DGUS_VERSION = 0x000f // OS/GUI version
   };
 
   static void WriteHeader(uint16_t addr, uint8_t command, uint8_t len);
