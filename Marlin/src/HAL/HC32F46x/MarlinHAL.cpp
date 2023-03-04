@@ -6,6 +6,7 @@
 #include "HAL.h"
 #include "hc32f46x_wdt.h"
 #include "../inc/MarlinConfig.h"
+#include "soctemp.h"
 
 extern "C" char *_sbrk(int incr);
 
@@ -43,6 +44,7 @@ void MarlinHAL::watchdog_refresh()
 void MarlinHAL::init()
 {
     NVIC_SetPriorityGrouping(0x3);
+    SOCTemp::init();
 }
 
 void MarlinHAL::init_board() {}
@@ -75,6 +77,13 @@ void MarlinHAL::delay_ms(const int ms)
 void MarlinHAL::idletask()
 {
     MarlinHAL::watchdog_refresh();
+
+    // monitor SOC temperature
+    if(SOCTemp::criticalTemperatureReached())
+    {
+        printf("SoC reached critical temperature, rebooting\n");
+        MarlinHAL::reboot();
+    }
 }
 
 uint8_t MarlinHAL::get_reset_source()
