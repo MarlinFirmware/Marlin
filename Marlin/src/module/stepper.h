@@ -141,7 +141,7 @@
   #define ISR_LOOP_BASE_CYCLES 32UL
 
   // And each stepper (start + stop pulse) takes in worst case
-  #define ISR_STEPPER_CYCLES 88UL
+  #define ISR_STEPPER_CYCLES 68UL
 
 #endif
 
