@@ -44,69 +44,65 @@
 //
 // Serial Ports
 //
-
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 #define NUM_UARTS 4
 
 #if SERIAL_PORT == -1
-  #error "USB Serial is not supported on HC32F46x"
+#error "USB Serial is not supported on HC32F46x"
 #elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+#define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #define MYSERIAL1 MSERIAL(1) // dummy port
-  static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
+#define MYSERIAL1 MSERIAL(1) // dummy port
+static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == -1
-    #error "USB Serial is not supported on HC32F46x"
-  #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
-    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
-  #else
-    #define MYSERIAL2 MSERIAL(1) // dummy port
-    static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-  #endif
+#if SERIAL_PORT_2 == -1
+#error "USB Serial is not supported on HC32F46x"
+#elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
+#define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
+#else
+#define MYSERIAL2 MSERIAL(1) // dummy port
+static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
+#endif
 #endif
 
 #ifdef SERIAL_PORT_3
-  #if SERIAL_PORT_3 == -1
-    #error "USB Serial is not supported on HC32F46x"
-  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
-    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
-  #else
-    #define MYSERIAL3 MSERIAL(1) // dummy port
+#if SERIAL_PORT_3 == -1
+#error "USB Serial is not supported on HC32F46x"
+#elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
+#define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+#else
+#define MYSERIAL3 MSERIAL(1) // dummy port
     static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-  #endif
+#endif
 #endif
 
 #ifdef LCD_SERIAL_PORT
-  #if LCD_SERIAL_PORT == -1
-    #error "USB Serial is not supported on HC32F46x"
-  #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #else
-    #define LCD_SERIAL MSERIAL(1) // dummy port
-    static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-  #endif
-  #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
-  #endif
+#if LCD_SERIAL_PORT == -1
+#error "USB Serial is not supported on HC32F46x"
+#elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
+#define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+#else
+#define LCD_SERIAL MSERIAL(1) // dummy port
+        static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
 #endif
-
+#if HAS_DGUS_LCD
+#define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+#endif
+#endif
 
 //
 // Emergency Parser
 //
-
 #if ENABLED(EMERGENCY_PARSER)
-void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
+extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
 #endif
 
 //
 // Misc. Defines
 //
-
 #define STM32_FLASH_SIZE 256
 #define square(x) ((x) * (x))
 
@@ -117,10 +113,6 @@ void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
 //
 // Misc. Functions
 //
-
-/**
- * TODO: review this to return 1 for pins that are not analog input
- */
 #ifndef analogInputToDigitalPin
 #define analogInputToDigitalPin(p) (p)
 #endif
@@ -137,36 +129,22 @@ void usart_rx_irq_hook(uint8_t ch, uint8_t usart);
   if (!primask)              \
   (void)__iSeiRetVal()
 
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
-
 // Disable interrupts
 #define cli() noInterrupts()
 
 // Enable interrupts
 #define sei() interrupts()
 
-// Memory related
+// bss_end alias
 #define __bss_end __bss_end__
 
-//
-// EEPROM
-//
-
-/**
- * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
- * Wire library should work for i2c EEPROMs.
- */
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
+// fix bug in pgm_read_ptr
+#undef pgm_read_ptr
+#define pgm_read_ptr(addr) (*(addr))
 
 //
 // ADC
 //
-
 #define HAL_ADC_VREF 3.3
 #define HAL_ADC_RESOLUTION 10
 
@@ -180,5 +158,4 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 //
 // MarlinHAL implementation
 //
-
 #include "MarlinHAL.h"

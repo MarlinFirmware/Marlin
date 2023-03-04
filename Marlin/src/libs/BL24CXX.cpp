@@ -30,10 +30,7 @@
  */
 
 #include "BL24CXX.h"
-//HC32F46x: include like non-maple boards, but without re-defining delay_us 
-#if defined(TARGET_HC32F46x)
-  #include "../HAL/shared/Delay.h"
-#elif defined(__STM32F1__)
+#ifdef __STM32F1__
   #include <libmaple/gpio.h>
 #else
   #include "../HAL/shared/Delay.h"

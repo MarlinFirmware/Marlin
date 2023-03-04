@@ -71,7 +71,7 @@ inline void toggle_pins() {
     else {
       hal.watchdog_refresh();
       report_pin_state_extended(pin, ignore_protection, true, F("Pulsing   "));
-      #if defined(__STM32F1__) || defined(TARGET_HC32F46x) 
+      #ifdef __STM32F1__
         const auto prior_mode = _GET_MODE(i);
       #else
         const bool prior_mode = GET_PINMODE(pin);
@@ -104,7 +104,7 @@ inline void toggle_pins() {
           hal.watchdog_refresh();
         }
       }
-      #if defined(__STM32F1__) || defined(TARGET_HC32F46x) 
+      #ifdef __STM32F1__
         _SET_MODE(i, prior_mode);
       #else
         pinMode(pin, prior_mode);

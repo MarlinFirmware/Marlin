@@ -21,6 +21,7 @@
 #include "../../../inc/MarlinConfig.h"
 
 #if BOTH(HAS_GRAPHICAL_LCD, FORCE_SOFT_SPI)
+#warning "'u8g_com_stm32duino_swspi' has not been tested to work as expected. Proceed at your own risk"
 
 #include "../HAL.h"
 #include <U8glib.h>

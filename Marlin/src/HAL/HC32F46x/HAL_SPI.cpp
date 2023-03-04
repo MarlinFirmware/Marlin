@@ -34,6 +34,8 @@
 
 #include "../../inc/MarlinConfig.h"
 #ifdef USE_SPI
+#warning "'HAL_SPI' has not been tested to work as expected. Proceed at your own risk"
+
 #include <SPI.h>
 
 // ------------------------

@@ -47,45 +47,4 @@
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
 
-#include "../../module/endstops.h"
-#include "ExtInt_Z_MIN_PROBE.h"
-
-// One ISR for all EXT-Interrupts
-inline void endstop_ISR() { endstops.update(); }
-
-inline void setup_endstop_interrupts()
-{
-#if HAS_X_MAX
-  attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE); // assign it
-#endif
-#if HAS_X_MIN
-  attachInterrupt(X_MIN_PIN, ExtInt_X_MIN_Callback, 0, CHANGE);
-#endif
-#if HAS_Y_MAX
-  attachInterrupt(Y_MAX_PIN, endstop_ISR, CHANGE);
-#endif
-#if HAS_Y_MIN
-  attachInterrupt(Y_MIN_PIN, ExtInt_Y_MIN_Callback, 1, CHANGE);
-#endif
-#if HAS_Z_MAX
-  attachInterrupt(Z_MAX_PIN, endstop_ISR, CHANGE);
-#endif
-#if HAS_Z_MIN
-  attachInterrupt(Z_MIN_PIN, ExtInt_Z_MIN_Callback, 2, CHANGE);
-#endif
-#if HAS_Z2_MAX
-  attachInterrupt(Z2_MAX_PIN, endstop_ISR, CHANGE);
-#endif
-#if HAS_Z2_MIN
-  attachInterrupt(Z2_MIN_PIN, endstop_ISR, CHANGE);
-#endif
-#if HAS_Z3_MAX
-  attachInterrupt(Z3_MAX_PIN, endstop_ISR, CHANGE);
-#endif
-#if HAS_Z3_MIN
-  attachInterrupt(Z3_MIN_PIN, endstop_ISR, CHANGE);
-#endif
-#if HAS_Z_MIN_PROBE_PIN
-  attachInterrupt(Z_MIN_PROBE_PIN, ExtInt_Z_MIN_PROBE_Callback, 3, CHANGE);
-#endif
-}
+void setup_endstop_interrupts();

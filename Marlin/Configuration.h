@@ -135,7 +135,7 @@
  * Select a serial port on the board to use for communication with a serial display (like DWIN and DGUS).
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define LCD_SERIAL_PORT 4
+#define LCD_SERIAL_PORT 1
 
 
 // Enable the Bluetooth serial interface on AT90USB devices

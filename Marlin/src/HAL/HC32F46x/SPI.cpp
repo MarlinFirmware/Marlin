@@ -32,6 +32,8 @@
 #ifdef TARGET_HC32F46x
 
 #ifdef USE_SPI
+#warning "'SPI' has not been tested to work as expected. Proceed at your own risk"
+
 #include "SPI.h"
 
 #include "../core/boards.h"

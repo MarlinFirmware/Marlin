@@ -25,6 +25,7 @@ public:
     static void isr_off();
 
     static void delay_ms(const int ms);
+
     // Tasks, called from idle()
     static void idletask();
 

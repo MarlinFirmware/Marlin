@@ -21,7 +21,7 @@
 #include "../../inc/MarlinConfig.h"
 
 // allow pins with potentially unsafe FuncSel
-//#define ALLOW_UNSAFE_FUNCTION_PINS
+// #define ALLOW_UNSAFE_FUNCTION_PINS
 
 //
 // Translation of routines & variables used by pinsDebug.h
@@ -65,8 +65,8 @@
 // (explicitly) host serial pins, and
 // pins related to the oscillator
 #define IS_HOST_USART_PIN(Q) (Q == BOARD_USART2_TX_PIN || Q == BOARD_USART2_RX_PIN)
-#define IS_OSC_PIN(Q) ( Q == PH0 || Q == PH1 || Q == PH2 )
-#define IS_PIN_FUNC(Q,FUNC) (PIN_MAP[Q].FuncSel == en_port_func_t::Func_##FUNC)
+#define IS_OSC_PIN(Q) (Q == PH0 || Q == PH1 || Q == PH2)
+#define IS_PIN_FUNC(Q, FUNC) (PIN_MAP[Q].function == en_port_func_t::Func_##FUNC)
 
 #ifndef ALLOW_UNSAFE_FUNCTION_PINS
 #define IS_SAFE_PIN_FUNC(Q) (IS_PIN_FUNC(Q, Gpio) || IS_PIN_FUNC(Q, Sdio))
@@ -75,9 +75,7 @@
 #endif
 
 #define M43_NEVER_TOUCH(Q) ( \
-    !IS_SAFE_PIN_FUNC(Q) \
-    || IS_HOST_USART_PIN(Q) \
-    || IS_OSC_PIN(Q))
+    !IS_SAFE_PIN_FUNC(Q) || IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
 #endif
 
 // static int8_t get_pin_mode(pin_t pin) {
@@ -98,7 +96,7 @@ static bool IS_ANALOG(pin_t pin)
         return false;
     if (PIN_MAP[pin].adc_channel != ADC_PIN_INVALID)
     {
-        return _GET_MODE(pin) == WiringPinMode::INPUT_ANALOG && !M43_NEVER_TOUCH(pin);
+        return _GET_MODE(pin) == INPUT_ANALOG && !M43_NEVER_TOUCH(pin);
     }
 
     return false;

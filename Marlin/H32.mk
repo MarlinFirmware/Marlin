@@ -22,13 +22,15 @@ findany = $(subst $(SPACE),,$(foreach W,$1,$(findstring $W,$2)))
 # list does not contain any entry, based on https://stackoverflow.com/a/12324443
 not-containing = $(foreach v,$2,$(if $(call findany,$1,$v),,$v))
 
+## Target Device Configuration ##
+TARGET_DEVICE_LD = hc32f460xCxx_bl
 
 ## File path configuration ##
 BUILD_DIR_NAME = build
 C_FILES = $(call rwildcard,,*.c)
 CPP_FILES = $(call rwildcard,,*.cpp)
 ASM_FILES = $(call rwildcard,,*.S)
-LINKER_SCRIPT_FILE = $(realpath lib/h32_core/main/hdsc32core/hc32f46x_flash.ld)
+LINKER_SCRIPT_FILE = $(realpath lib/h32_core/ld/$(TARGET_DEVICE_LD).ld)
 
 # library files (.a and .o)
 LIB_FILES = 
@@ -81,7 +83,8 @@ C_DEFINES = \
 	ARM_MATH_CM4 \
 	ARM_MATH_MATRIX_CHECK \
 	ARM_MATH_ROUNDING \
-	REDIRECT_PRINTF_TO_SERIAL
+	REDIRECT_PRINTF_TO_SERIAL \
+	__DEBUG
 
 ## Compiler Arguments ##
 COMMON_GCC_ARGS = \
@@ -166,26 +169,22 @@ $(BUILD_DIR)/%.S.o: %.S
     	-o "$@" "$<"
 
 # Link firmware
-# give a nice heads-up if linking failed due to memory regions too small.
-LINK_FAIL_HEADUP_FLASH_R = \
-	Note: if linking failed because 'region FLASH_RX overflowed by n bytes', \
-	try increasing '__flash_rx_len' in $(LINKER_SCRIPT_FILE) by the overflown amount. \
-	see the accompanying README for details
+# RWX segment warnings are disabled since they are not relevant on the H32 SoC
 $(OUTPUT_FILE_BASE).elf: $(OBJ_FILES)
 	@echo 'Linking Firmware'
 	@mkdir -p $(dir $@)
 	@$(TOOL_PREFIX)g++ \
 		$(COMMON_GCC_ARGS) \
+		-L $(dir $(LINKER_SCRIPT_FILE)) \
 		-T $(LINKER_SCRIPT_FILE) \
 		-Xlinker \
 		--gc-sections \
-		-L lib/h32_core/main/hdsc32core/common \
 		-Wl,-Map,$(OUTPUT_FILE_BASE).map \
+		-Wl,--no-warn-rwx-segment \
 		-Wl,--print-memory-usage \
 		--specs=nano.specs \
 		--specs=nosys.specs \
-		-o $(OUTPUT_FILE_BASE).elf $(OBJ_FILES) $(LIB_FILES_RESOLVED) \
-		|| (echo '$(LINK_FAIL_HEADUP_FLASH_R)' && false)
+		-o $(OUTPUT_FILE_BASE).elf $(OBJ_FILES) $(LIB_FILES_RESOLVED)
 
 # Create Flash Image
 $(OUTPUT_FILE_BASE).bin: $(OUTPUT_FILE_BASE).elf

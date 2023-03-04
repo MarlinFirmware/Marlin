@@ -18,23 +18,16 @@
  */
 #if defined(TARGET_HC32F46x) && !defined(HAVE_SW_SERIAL)
 
-/**
- * Empty class for Software Serial implementation (Custom RX/TX pins)
+/*
+ * Stub class for SoftwareSerial
  *
- * TODO: Optionally use https://github.com/FYSETC/SoftwareSerialM if TMC UART is wanted
+ * TODO: if needed, may implement SoftwareSerial using https://github.com/FYSETC/SoftwareSerialM
  */
-
 #include "SoftwareSerial.h"
-
-// Constructor
 
 SoftwareSerial::SoftwareSerial(int8_t RX_pin, int8_t TX_pin) {}
 
-// Public
-
-void SoftwareSerial::begin(const uint32_t baudrate)
-{
-}
+void SoftwareSerial::begin(const uint32_t baudrate) {}
 
 bool SoftwareSerial::available()
 {

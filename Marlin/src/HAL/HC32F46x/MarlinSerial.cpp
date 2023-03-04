@@ -21,14 +21,14 @@
  */
 
 #ifdef TARGET_HC32F46x
-
-#include "../../inc/MarlinConfig.h"
 #include "MarlinSerial.h"
-// #include <libmaple/usart.h>
+#include "../inc/MarlinConfig.h"
 #include "usart.h"
 
-// Not every MarlinSerial port should handle emergency parsing.
-// It would not make sense to parse GCode from TMC responses, for example.
+/**
+ * Not every MarlinSerial instance should handle emergency parsing, as
+ * it would not make sense to parse GCode from TMC responses
+ */
 constexpr bool serial_handles_emergency(int port)
 {
   return false
@@ -44,39 +44,32 @@ constexpr bool serial_handles_emergency(int port)
       ;
 }
 
+//
+// define serial ports
+//
 #define DEFINE_HWSERIAL_MARLIN(name, n)      \
   MSerialT name(serial_handles_emergency(n), \
                 USART##n,                    \
                 BOARD_USART##n##_TX_PIN,     \
                 BOARD_USART##n##_RX_PIN);
 
-// Instantiate all UARTs even if they are not needed
-// This avoids a bunch of logic to figure out every serial
-// port which may be in use on the system.
-// #if DISABLED(MKS_WIFI_MODULE)
-// DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
-// #endif
-
+DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
 DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
-DEFINE_HWSERIAL_MARLIN(MSerial4, 4);
 
-// DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
-// #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-// DEFINE_HWSERIAL_UART_MARLIN(MSerial4, 4);
-// DEFINE_HWSERIAL_UART_MARLIN(MSerial5, 5);
-// #endif
+//
+// serial port assertions
+//
 
 // Check the type of each serial port by passing it to a template function.
 // HardwareSerial is known to sometimes hang the controller when an error occurs,
 // so this case will fail the static assert. All other classes are assumed to be ok.
 template <typename T>
 constexpr bool IsSerialClassAllowed(const T &) { return true; }
-// constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
-
-#define CHECK_CFG_SERIAL(A) static_assert(IsSerialClassAllowed(A), STRINGIFY(A) " is defined incorrectly");
-#define CHECK_AXIS_SERIAL(A) static_assert(IsSerialClassAllowed(A##_HARDWARE_SERIAL), STRINGIFY(A) "_HARDWARE_SERIAL must be defined in the form MSerial1, rather than Serial1");
+constexpr bool IsSerialClassAllowed(const HardwareSerial &) { return false; }
 
 // If you encounter this error, replace SerialX with MSerialX, for example MSerial3.
+#define CHECK_CFG_SERIAL(A) static_assert(IsSerialClassAllowed(A), STRINGIFY(A) " is defined incorrectly");
+#define CHECK_AXIS_SERIAL(A) static_assert(IsSerialClassAllowed(A##_HARDWARE_SERIAL), STRINGIFY(A) "_HARDWARE_SERIAL must be defined in the form MSerial1, rather than Serial1");
 
 // Non-TMC ports were already validated in HAL.h, so do not require verbose error messages.
 #ifdef MYSERIAL1
@@ -112,17 +105,15 @@ CHECK_AXIS_SERIAL(Z3);
 #if AXIS_HAS_HW_SERIAL(Z4)
 CHECK_AXIS_SERIAL(Z4);
 #endif
-
-//#if AXIS_HAS_HW_SERIAL(I)
-//CHECK_AXIS_SERIAL(I);
-//#endif
-//#if AXIS_HAS_HW_SERIAL(J)
-//CHECK_AXIS_SERIAL(J);
-//#endif
-//#if AXIS_HAS_HW_SERIAL(K)
-//CHECK_AXIS_SERIAL(K);
-//#endif
-
+#if AXIS_HAS_HW_SERIAL(I)
+CHECK_AXIS_SERIAL(I);
+#endif
+#if AXIS_HAS_HW_SERIAL(J)
+CHECK_AXIS_SERIAL(J);
+#endif
+#if AXIS_HAS_HW_SERIAL(K)
+CHECK_AXIS_SERIAL(K);
+#endif
 #if AXIS_HAS_HW_SERIAL(E0)
 CHECK_AXIS_SERIAL(E0);
 #endif
@@ -147,5 +138,4 @@ CHECK_AXIS_SERIAL(E6);
 #if AXIS_HAS_HW_SERIAL(E7)
 CHECK_AXIS_SERIAL(E7);
 #endif
-
 #endif // TARGET_HC32F46x

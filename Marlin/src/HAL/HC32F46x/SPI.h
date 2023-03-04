@@ -25,6 +25,8 @@
  *****************************************************************************/
 #pragma once
 #ifdef USE_SPI
+#warning "'SPI' has not been tested to work as expected. Proceed at your own risk"
+
 #include "../cores/libmaple_types.h"
 #include "../cores/spi.h"
 

@@ -35,16 +35,16 @@
 #define SERVO_DEFAULT_MIN_ANGLE 0
 #define SERVO_DEFAULT_MAX_ANGLE 180
 
-#define HAL_SERVO_LIB libServo
+#define HAL_SERVO_LIB H32Servo
 
 #if defined(TARGET_HC32F46x) && NUM_SERVOS > 1
-#error "I don't know how to handle more than one servo with the H32 chip yet, sorry!"
+#error "HC32F46x only supports one servo"
 #endif
 
-class libServo
+class H32Servo
 {
 public:
-  libServo();
+  H32Servo();
   bool attach(const int32_t pin, const int32_t minAngle = SERVO_DEFAULT_MIN_ANGLE, const int32_t maxAngle = SERVO_DEFAULT_MAX_ANGLE);
   bool attached() const { return pin != NOT_ATTACHED; }
   bool detach();

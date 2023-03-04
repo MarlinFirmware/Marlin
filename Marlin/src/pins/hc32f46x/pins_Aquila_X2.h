@@ -36,7 +36,6 @@
 #error "the aquila X2 only supports one hotend and E-stepper"
 #endif
 
-
 #define BOARD_INFO_NAME "Aquila X2 (H32)"
 #define DEFAULT_MACHINE_NAME "Aquila X2 (H32)"
 
@@ -44,24 +43,22 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define IIC_BL24CXX_EEPROM
-  //#define SDCARD_EEPROM_EMULATION
+#define IIC_BL24CXX_EEPROM
+// #define SDCARD_EEPROM_EMULATION
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #define IIC_EEPROM_SDA PA11
-  #define IIC_EEPROM_SCL PA12
-  #define MARLIN_EEPROM_SIZE 0x800 // 2Kb (24C16)
+#define IIC_EEPROM_SDA PA11
+#define IIC_EEPROM_SCL PA12
+#define MARLIN_EEPROM_SIZE 0x800 // 2Kb (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+#define MARLIN_EEPROM_SIZE 0x800 // 2K
 #endif
-
 
 //
 // Servos
 //
 #define SERVO0_PIN PB0 // BLTouch OUT
-
 
 //
 // Limit Switches
@@ -71,14 +68,12 @@
 #define Z_STOP_PIN PA7
 #define Z_MIN_PROBE_PIN PB1 // BLTouch IN
 
-
 //
 // Filament Runout Sensor
 //
 // pulled high, switch to ground closed when filament is present
 // (LOW == present; HIGH == runout)
 #define FIL_RUNOUT_PIN PA4
-
 
 //
 // Steppers
@@ -99,21 +94,17 @@
 #define E0_STEP_PIN PB4
 #define E0_DIR_PIN PB3
 
-
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-//#define DISABLE_DEBUG
-//#define DISABLE_JTAG
-
+// #define DISABLE_DEBUG
+// #define DISABLE_JTAG
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN PC5   // HEATER1 ADC1_IN15
 #define TEMP_BED_PIN PC4 // HOT BED ADC1_IN14
-#define ADC_CHANNEL_COUNT 2u
-
 
 //
 // Heaters / Fans
@@ -124,14 +115,12 @@
 #define FAN_PIN PA0 // FAN
 #define FAN_SOFT_PWM
 
-
 //
 // SD Card
 //
 #define SD_DETECT_PIN PA10
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE
-
 
 //
 // SDIO Pins
@@ -144,7 +133,6 @@
 #define BOARD_SDIO_CMD PD2
 #define BOARD_SDIO_DET PA10
 
-
 //
 // DWIN Encoder and Beeper
 //
@@ -154,19 +142,17 @@
 
 #define BEEPER_PIN PB13 // SPI3_CLK
 
-
 //
 // USARTS
 //
+#define BOARD_USART1_TX_PIN PC0
+#define BOARD_USART1_RX_PIN PC1
+
 #define BOARD_USART2_TX_PIN PA9
 #define BOARD_USART2_RX_PIN PA15
 
-#define BOARD_USART3_TX_PIN PE5 // debug
+#define BOARD_USART3_TX_PIN PE5
 #define BOARD_USART3_RX_PIN PE4
-
-#define BOARD_USART4_TX_PIN PC0
-#define BOARD_USART4_RX_PIN PC1
-
 
 //
 // Misc.
