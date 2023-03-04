@@ -1279,7 +1279,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           fast_line_to_current(Z_AXIS);
         }
         move_nozzle_servo(new_tool);
-      #elif ENABLED(MECHANICAL_SWITCHING_EXTRUDER) || ENABLED(MECHANICAL_SWITCHING_NOZZLE)
+      #elif EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         if (!no_move) {
           current_position.z = _MIN(current_position.z + toolchange_settings.z_raise, _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS));
           fast_line_to_current(Z_AXIS);
@@ -1349,17 +1349,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #else
               do_blocking_move_to_xy(destination, planner.settings.max_feedrate_mm_s[X_AXIS]);
 
-              // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE further below.
+              // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE below.
               #if NONE(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
-              do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
-              SECONDARY_AXIS_CODE(
-                do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
-                do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
-                do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
-                do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
-                do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
-                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
-              );
+                do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+                SECONDARY_AXIS_CODE(
+                  do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
+                  do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
+                  do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
+                  do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
+                  do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
+                  do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
+                );
               #endif
             #endif
 
@@ -1469,7 +1469,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
       #endif
 
-      // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
+      // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE
+      // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
       #if EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
           xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
@@ -1480,7 +1481,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
         if (!no_move) {
           // Move to new hotend Z offset and reverse Z_RAISE
-          do_blocking_move_to_z(_MIN(_MAX((destination.z - diff.z) - toolchange_settings.z_raise, _MAX(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.min.z, Z_MIN_POS), Z_MIN_POS)), _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS)), planner.settings.max_feedrate_mm_s[Z_AXIS]);
+          do_blocking_move_to_z(
+            _MIN(
+              _MAX((destination.z - diff.z) - toolchange_settings.z_raise,
+              _MAX(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.min.z, Z_MIN_POS), Z_MIN_POS)
+            ),
+            _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS)),
+            planner.settings.max_feedrate_mm_s[Z_AXIS]
+          );
         }
       #endif
 

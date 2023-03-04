@@ -38,17 +38,17 @@
 #ifndef NUM_SERVOS
   #define NUM_SERVOS 0
   #if HAS_Z_SERVO_PROBE && NUM_SERVOS <= Z_PROBE_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
-    #endif
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+  #endif
   #if ENABLED(CHAMBER_VENT) && NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
-    #endif
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
+  #endif
   #if ENABLED(SWITCHING_TOOLHEAD) && NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
-    #endif
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+  #endif
   #if ENABLED(SWITCHING_NOZZLE)
     #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
       #undef NUM_SERVOS
@@ -70,10 +70,10 @@
     #endif
   #endif
   #if ENABLED(SPINDLE_SERVO) && NUM_SERVOS <= SPINDLE_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
-    #endif
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
   #endif
+#endif // !defined(NUM_SERVOS)
 
 // Convenience override for a BLTouch alone
 #if ENABLED(BLTOUCH) && NUM_SERVOS == 1
