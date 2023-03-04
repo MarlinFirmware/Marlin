@@ -89,8 +89,10 @@
  */
 #ifndef MOTHERBOARD
   #error "MOTHERBOARD is required. You must '#define MOTHERBOARD BOARD_MYNAME' (not just '#define BOARD_MYNAME')."
-#elif !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
-  #error "X_BED_SIZE and Y_BED_SIZE are now required!"
+#elif HAS_X_AXIS && !defined(X_BED_SIZE)
+  #error "X_BED_SIZE is required with an X_AXIS."
+#elif HAS_Y_AXIS && !defined(Y_BED_SIZE)
+  #error "Y_BED_SIZE is required with a Y_AXIS."
 #elif WATCH_TEMP_PERIOD > 500
   #error "WATCH_TEMP_PERIOD now uses seconds instead of milliseconds."
 #elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
