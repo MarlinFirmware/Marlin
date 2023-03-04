@@ -748,7 +748,7 @@ class Temperature {
       static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
-    #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
+    #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
       static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
     #endif
 
