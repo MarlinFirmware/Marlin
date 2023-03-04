@@ -1657,7 +1657,7 @@ void Stepper::pulse_phase_isr() {
     bool firstStep = true;
     USING_TIMED_PULSE();
   #endif
-  xyze_bool_t step_needed{0};
+  AxisFlags step_needed{0};
 
   // Direct Stepping page?
   const bool is_page = current_block->is_page();
@@ -1669,8 +1669,8 @@ void Stepper::pulse_phase_isr() {
     // Determine if a pulse is needed using Bresenham
     #define PULSE_PREP(AXIS) do{ \
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
-      step_needed[_AXIS(AXIS)] = (delta_error[_AXIS(AXIS)] >= 0); \
-      if (step_needed[_AXIS(AXIS)]) \
+      step_needed.set(_AXIS(AXIS), delta_error[_AXIS(AXIS)] >= 0); \
+      if (step_needed.test(_AXIS(AXIS))) \
         delta_error[_AXIS(AXIS)] -= advance_divisor; \
     }while(0)
 
@@ -1703,14 +1703,14 @@ void Stepper::pulse_phase_isr() {
         SET_STEP_DIR(AXIS); \
         DIR_WAIT_AFTER(); \
       } \
-      step_needed[_AXIS(AXIS)] = DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS)); \
-      if (step_needed[_AXIS(AXIS)]) \
+      step_needed.set(_AXIS(AXIS), DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS))); \
+      if (step_needed.test(_AXIS(AXIS))) \
         DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
     }while(0)
 
     // Start an active pulse if needed
     #define PULSE_START(AXIS) do{ \
-      if (step_needed[_AXIS(AXIS)]) { \
+      if (step_needed.test(_AXIS(AXIS))) { \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
         _APPLY_STEP(AXIS, _STEP_STATE(AXIS), 0); \
       } \
@@ -1718,7 +1718,7 @@ void Stepper::pulse_phase_isr() {
 
     // Stop an active pulse if needed
     #define PULSE_STOP(AXIS) do { \
-      if (step_needed[_AXIS(AXIS)]) { \
+      if (step_needed.test(_AXIS(AXIS))) { \
         _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), 0); \
       } \
     }while(0)
@@ -1737,8 +1737,8 @@ void Stepper::pulse_phase_isr() {
           }while(0)
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
-            step_needed[_AXIS(AXIS)] =      \
-              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7]); \
+            step_needed.set(_AXIS(AXIS),    \
+              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7])); \
           }while(0)
 
           switch (page_step_state.segment_steps) {
@@ -1778,8 +1778,8 @@ void Stepper::pulse_phase_isr() {
             page_step_state.bd[_AXIS(AXIS)] += VALUE;
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
-            step_needed[_AXIS(AXIS)] =      \
-              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3]); \
+            step_needed.set(_AXIS(AXIS),    \
+              pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3])); \
           }while(0)
 
           switch (page_step_state.segment_steps) {
@@ -1806,10 +1806,10 @@ void Stepper::pulse_phase_isr() {
 
         #elif STEPPER_PAGE_FORMAT == SP_4x1_512
 
-          #define PAGE_PULSE_PREP(AXIS, BITS) do{             \
-            step_needed[_AXIS(AXIS)] = (steps >> BITS) & 0x1; \
-            if (step_needed[_AXIS(AXIS)])                     \
-              page_step_state.bd[_AXIS(AXIS)]++;              \
+          #define PAGE_PULSE_PREP(AXIS, BITS) do{                 \
+            step_needed.set(_AXIS(AXIS), (steps >> BITS) & 0x1);  \
+            if (step_needed.test(_AXIS(AXIS)))                         \
+              page_step_state.bd[_AXIS(AXIS)]++;                  \
           }while(0)
 
           uint8_t steps = page_step_state.page[page_step_state.segment_idx >> 1];
@@ -1874,8 +1874,8 @@ void Stepper::pulse_phase_isr() {
 
       #if HAS_SHAPING
         // record an echo if a step is needed in the primary bresenham
-        const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed[X_AXIS]),
-                   y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed[Y_AXIS]);
+        const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed.x),
+                   y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed.y);
         if (x_step || y_step)
           ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
 
@@ -1989,15 +1989,15 @@ void Stepper::pulse_phase_isr() {
 #if HAS_SHAPING
 
   void Stepper::shaping_isr() {
-    xy_bool_t step_needed{0};
+    AxisFlags step_needed{0};
 
     // Clear the echoes that are ready to process. If the buffers are too full and risk overflo, also apply echoes early.
-    TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
-    TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
+    TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
+    TERN_(INPUT_SHAPING_Y, step_needed.y = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
     if (bool(step_needed)) while (true) {
       #if ENABLED(INPUT_SHAPING_X)
-        if (step_needed[X_AXIS]) {
+        if (step_needed.x) {
           const bool forward = ShapingQueue::dequeue_x();
           PULSE_PREP_SHAPING(X, shaping_x.delta_error, (forward ? shaping_x.factor2 : -shaping_x.factor2));
           PULSE_START(X);
@@ -2005,7 +2005,7 @@ void Stepper::pulse_phase_isr() {
       #endif
 
       #if ENABLED(INPUT_SHAPING_Y)
-        if (step_needed[Y_AXIS]) {
+        if (step_needed.y) {
           const bool forward = ShapingQueue::dequeue_y();
           PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (forward ? shaping_y.factor2 : -shaping_y.factor2));
           PULSE_START(Y);
@@ -2028,8 +2028,8 @@ void Stepper::pulse_phase_isr() {
         #endif
       }
 
-      TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
-      TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
+      TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
+      TERN_(INPUT_SHAPING_Y, step_needed.y = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
       if (!bool(step_needed)) break;
 
