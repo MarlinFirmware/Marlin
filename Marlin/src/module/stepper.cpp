@@ -1602,7 +1602,9 @@ void Stepper::isr() {
   HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks);
 
   // Don't forget to finally reenable interrupts
-  hal.isr_on();
+  #ifndef __AVR__
+    hal.isr_on();
+  #endif
 }
 
 #if MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE
