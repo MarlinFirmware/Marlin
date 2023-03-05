@@ -438,9 +438,6 @@ namespace Language_zh_CN {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("错误：最低温度");     // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("打印停机");     // "PRINTER HALTED"
   LSTR MSG_PLEASE_RESET                   = _UxGT("请重置");     // "Please reset"
-  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
   LSTR MSG_HEATING                        = _UxGT("加热中 ...");     // "Heating..."
   LSTR MSG_COOLING                        = _UxGT("冷却中 ...");
   LSTR MSG_BED_HEATING                    = _UxGT("加热热床中 ...");     // "Bed Heating..."
@@ -608,12 +605,8 @@ namespace Language_zh_CN {
   LSTR MSG_HEATER_TIMEOUT                 = _UxGT("加热器超时");
   LSTR MSG_REHEAT                         = _UxGT("重新加热");
   LSTR MSG_REHEATING                      = _UxGT("重新加热中...");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
+}
