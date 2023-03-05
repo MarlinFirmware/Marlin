@@ -443,9 +443,6 @@ namespace Language_fr {
 
   LSTR MSG_HALTED                         = _UxGT("IMPR. STOPPÉE");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Redémarrer SVP");
-  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 
   LSTR MSG_HEATING                        = _UxGT("en chauffe...");
   LSTR MSG_COOLING                        = _UxGT("Refroidissement");
@@ -631,4 +628,8 @@ namespace Language_fr {
 
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Clé USB");
+
+  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 }
