@@ -234,7 +234,7 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 //  rlimit: To limit the drawn string length
 void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit/*=0xFFFF*/) {
-  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
     DWIN_Draw_Rectangle(1, bColor, x, y, x + (fontWidth(size) * strlen_P(string)), y + fontHeight(size));
   #endif
   constexpr uint8_t widthAdjust = 0;

@@ -5,7 +5,6 @@
 import json
 import sys
 import shutil
-import re
 
 opt_output = '--opt' in sys.argv
 output_suffix = '.sh' if opt_output else '' if '--bare-output' in sys.argv else '.gen'

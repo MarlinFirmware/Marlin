@@ -153,6 +153,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1     );  
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10     );   // 12345.6    right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float72     ,float    ,ftostr72rj      , 100     );   // 12345.67   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10     );   // +12.3
 DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
 DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
@@ -402,8 +403,13 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#define BACK_ITEM_F(FLABEL)                              MENU_ITEM_F(back, FLABEL)
-#define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
+#if DISABLED(DISABLE_ENCODER)
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+#else
+  #define BACK_ITEM_F(FLABEL) NOOP
+  #define BACK_ITEM(LABEL)    NOOP
+#endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
 #define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ACTION)

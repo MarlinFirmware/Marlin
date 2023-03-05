@@ -58,7 +58,7 @@ void GcodeSuite::G34() {
     // Move XY to safe position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Parking XY");
     const xy_pos_t safe_pos = GANTRY_CALIBRATION_SAFE_POSITION;
-    do_blocking_move_to(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
+    do_blocking_move_to_xy(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
   #endif
 
   const float move_distance = parser.intval('Z', GANTRY_CALIBRATION_EXTRA_HEIGHT),

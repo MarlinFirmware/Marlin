@@ -273,7 +273,7 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH                          1
+#define SPI_FLASH
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
@@ -363,7 +363,7 @@
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP1_05_PIN
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN

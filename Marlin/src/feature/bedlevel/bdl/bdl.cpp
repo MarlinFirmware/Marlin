@@ -96,22 +96,23 @@ void BDS_Leveling::process() {
       const float z_sensor = (tmp & 0x3FF) / 100.0f;
       if (cur_z < 0) config_state = 0;
       //float abs_z = current_position.z > cur_z ? (current_position.z - cur_z) : (cur_z - current_position.z);
-      if ( cur_z < config_state * 0.1f
-        && config_state > 0
-        && old_cur_z == cur_z
-        && old_buf_z == current_position.z
-        && z_sensor < (MAX_BD_HEIGHT)
-      ) {
-        babystep.set_mm(Z_AXIS, cur_z - z_sensor);
-        #if ENABLED(DEBUG_OUT_BD)
-          SERIAL_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", current_position.z);
-        #endif
-      }
-      else {
-        babystep.set_mm(Z_AXIS, 0);
-        //if (old_cur_z <= cur_z) Z_DIR_WRITE(!INVERT_Z_DIR);
-        stepper.set_directions();
-      }
+      #if ENABLED(BABYSTEPPING)
+        if (cur_z < config_state * 0.1f
+          && config_state > 0
+          && old_cur_z == cur_z
+          && old_buf_z == current_position.z
+          && z_sensor < (MAX_BD_HEIGHT)
+        ) {
+          babystep.set_mm(Z_AXIS, cur_z - z_sensor);
+          #if ENABLED(DEBUG_OUT_BD)
+            SERIAL_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", current_position.z);
+          #endif
+        }
+        else {
+          babystep.set_mm(Z_AXIS, 0);          //if (old_cur_z <= cur_z) Z_DIR_WRITE(!INVERT_Z_DIR);
+          stepper.set_directions();
+        }
+      #endif
       old_cur_z = cur_z;
       old_buf_z = current_position.z;
       endstops.bdp_state_update(z_sensor <= 0.01f);

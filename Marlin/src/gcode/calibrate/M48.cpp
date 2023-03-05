@@ -112,7 +112,7 @@ void GcodeSuite::M48() {
     set_bed_leveling_enabled(false);
   #endif
 
-  TERN_(HAS_PTC, ptc.set_enabled(!parser.seen('C') || parser.value_bool()));
+  TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
 
   // Work with reasonable feedrates
   remember_feedrate_scaling_off();
@@ -162,8 +162,8 @@ void GcodeSuite::M48() {
         float angle = random(0, 360);
         const float radius = random(
           #if ENABLED(DELTA)
-            int(0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
-            int(0.3333333333 * (DELTA_PRINTABLE_RADIUS))
+            int(0.1250000000 * (PRINTABLE_RADIUS)),
+            int(0.3333333333 * (PRINTABLE_RADIUS))
           #else
             int(5), int(0.125 * _MIN(X_BED_SIZE, Y_BED_SIZE))
           #endif
