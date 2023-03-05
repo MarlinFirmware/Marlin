@@ -39,42 +39,6 @@ using namespace Theme;
 
 constexpr static LoadChocolateScreenData &mydata = screen_data.LoadChocolateScreen;
 
-void LoadChocolateScreen::draw_syringe(draw_mode_t what) {
-  #if ENABLED(COCOA_PRESS_CHOCOLATE_LEVEL_SENSOR)
-    const float fill_level = get_chocolate_fill_level();
-  #else
-    constexpr float fill_level = 1.0f;
-  #endif
-
-  CommandProcessor cmd;
-  PolyUI ui(cmd, what);
-
-  if (what & BACKGROUND) {
-    // Paint the shadow for the syringe
-    ui.color(shadow_rgb);
-    ui.shadow(POLY(syringe_outline), shadow_depth);
-  }
-
-  if (what & FOREGROUND) {
-    int16_t x, y, h, v;
-
-    // Paint the syringe icon
-    ui.color(syringe_rgb);
-    ui.fill(POLY(syringe_outline));
-
-    ui.color(fluid_rgb);
-    ui.bounds(POLY(syringe_fluid), x, y, h, v);
-    cmd.cmd(SAVE_CONTEXT());
-    cmd.cmd(SCISSOR_XY(x,y + v * (1.0 - fill_level)));
-    cmd.cmd(SCISSOR_SIZE(h,  v *        fill_level));
-    ui.fill(POLY(syringe_fluid), false);
-    cmd.cmd(RESTORE_CONTEXT());
-
-    ui.color(stroke_rgb);
-    ui.fill(POLY(syringe));
-  }
-}
-
 void LoadChocolateScreen::draw_buttons(draw_mode_t what) {
   int16_t x, y, h, v;
 
@@ -84,10 +48,18 @@ void LoadChocolateScreen::draw_buttons(draw_mode_t what) {
   cmd.font(font_medium).colors(normal_btn);
 
   ui.bounds(POLY(load_screen_unload_btn), x, y, h, v);
-  cmd.tag(2).button(x, y, h, v, GET_TEXT_F(MSG_FULL_UNLOAD));
+  cmd.tag(2).colors(mydata.repeat_tag == 5 ? action_btn : normal_btn).button(x, y, h, v, GET_TEXT_F(MSG_UNLOAD));
 
   ui.bounds(POLY(load_screen_load_btn), x, y, h, v);
-  cmd.tag(3).button(x, y, h, v, GET_TEXT_F(MSG_FULL_LOAD));
+  cmd.tag(3).colors(mydata.repeat_tag == 6 ? action_btn : normal_btn).button(x, y, h, v, GET_TEXT_F(MSG_LOAD));
+
+  ui.bounds(POLY(load_screen_start_stop_btn), x, y, h, v);
+  if(mydata.repeat_tag == 0) {
+      cmd.colors(normal_btn).enabled(false);
+  } else {
+      cmd.colors(mydata.repeating ? action_btn : normal_btn).enabled(true);
+  }
+  cmd.tag(4).button(x, y, h, v, GET_TEXT_F(MSG_START_STOP));
 
   ui.bounds(POLY(load_screen_back_btn), x, y, h, v);
   cmd.tag(1).colors(action_btn).button(x, y, h, v, GET_TEXT_F(MSG_BUTTON_DONE));
@@ -102,8 +74,8 @@ void LoadChocolateScreen::draw_text(draw_mode_t what) {
 
     cmd.font(font_medium).cmd(COLOR_RGB(bg_text_enabled));
 
-    ui.bounds(POLY(load_sreen_title), x, y, h, v);
-    cmd.tag(2).text(x, y, h, v, GET_TEXT_F(MSG_LOAD_UNLOAD));
+    ui.bounds(POLY(load_screen_continuous), x, y, h, v);
+    cmd.tag(2).text(x, y, h, v, GET_TEXT_F(MSG_CONTINUOUS));
 
     ui.bounds(POLY(load_screen_increment), x, y, h, v);
     cmd.tag(3).text(x, y, h, v, GET_TEXT_F(MSG_INCREMENT));
@@ -120,11 +92,12 @@ void LoadChocolateScreen::draw_arrows(draw_mode_t what) {
 
   constexpr uint8_t style = PolyUI::REGULAR;
 
-  ui.button(4, POLY(load_screen_extrude), style);
-  ui.button(5, POLY(load_screen_retract), style);
+  ui.button(5, POLY(load_screen_extrude), style);
+  ui.button(6, POLY(load_screen_retract), style);
 }
 
 void LoadChocolateScreen::onEntry() {
+  mydata.repeating = false;
   mydata.repeat_tag = 0;
 }
 
@@ -136,14 +109,15 @@ void LoadChocolateScreen::onRedraw(draw_mode_t what) {
        .tag(0);
   }
 
-  draw_syringe(what);
   draw_arrows(what);
   draw_buttons(what);
   draw_text(what);
 }
 
-bool LoadChocolateScreen::onTouchStart(uint8_t) {
-  mydata.repeat_tag = 0;
+bool LoadChocolateScreen::onTouchStart(uint8_t tag) {
+  if(tag != 4) {
+    mydata.repeating = false;
+  }
   return true;
 }
 
@@ -151,10 +125,13 @@ bool LoadChocolateScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
   switch (tag) {
     case 2:
-      mydata.repeat_tag = (mydata.repeat_tag == 2) ? 0 : 2;
+      mydata.repeat_tag = 5;
       break;
     case 3:
-      mydata.repeat_tag = (mydata.repeat_tag == 3) ? 0 : 3;
+      mydata.repeat_tag = 6;
+      break;
+    case 4:
+      mydata.repeating = !mydata.repeating;
       break;
     case 1: GOTO_PREVIOUS(); break;
   }
@@ -176,26 +153,10 @@ bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
   #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
   switch (tag) {
-    case 2: {
-      if (get_chocolate_fill_level() < 0.1) {
-        mydata.repeat_tag = 0;
-        return false;
-      }
-      UI_INCREMENT_AXIS(E0);
-      break;
-    }
-    case 3: {
-      if (get_chocolate_fill_level() > 0.75) {
-        mydata.repeat_tag = 0;
-        return false;
-      }
-      UI_DECREMENT_AXIS(E0);
-      break;
-    }
-    case 4:
-      UI_INCREMENT_AXIS(E0);
-      break;
     case 5:
+      UI_INCREMENT_AXIS(E0);
+      break;
+    case 6:
       UI_DECREMENT_AXIS(E0);
       break;
     default: return false;
@@ -207,7 +168,7 @@ bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
 
 void LoadChocolateScreen::onIdle() {
   reset_menu_timeout();
-  if (mydata.repeat_tag) onTouchHeld(mydata.repeat_tag);
+  if (mydata.repeating) onTouchHeld(mydata.repeat_tag);
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     if (!EventLoop::is_touch_held())
       onRefresh();
