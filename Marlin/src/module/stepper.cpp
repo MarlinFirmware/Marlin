@@ -1715,11 +1715,11 @@ void Stepper::pulse_phase_isr() {
 
     #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
       int16_t de = DELTA_ERROR + (DIVIDEND); \
-      const bool step_forward = de >= (64 + HYSTERESIS(AXIS)); \
-      const bool step_backward = de <= -(64 + HYSTERESIS(AXIS)); \
-      if (step_forward || step_backward) { \
-        de += step_forward ? -128 : 128; \
-        if ((MAXDIR(AXIS) && step_backward) || (MINDIR(AXIS) && step_forward)) { \
+      const bool step_fwd = de >=  (64 + HYSTERESIS(AXIS)), \
+                 step_bak = de <= -(64 + HYSTERESIS(AXIS)); \
+      if (step_fwd || step_bak) { \
+        de += step_fwd ? -128 : 128; \
+        if ((MAXDIR(AXIS) && step_bak) || (MINDIR(AXIS) && step_fwd)) { \
           { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
           TBI(last_direction_bits, _AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
@@ -1909,11 +1909,11 @@ void Stepper::pulse_phase_isr() {
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
           if (x_step)
-            PULSE_PREP_SHAPING(X, shaping_x.delta_error, (shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1));
+            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1);
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
           if (y_step)
-            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1));
+            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1);
         #endif
       #endif
     }
@@ -2634,7 +2634,7 @@ hal_timer_t Stepper::block_phase_isr() {
         if (current_block->steps.z) enable_axis(Z_AXIS);
       #endif
 
-      // Mark the time_nominal as not calculated yet
+      // Mark ticks_nominal as not-yet-calculated
       ticks_nominal = 0;
 
       #if ENABLED(S_CURVE_ACCELERATION)
