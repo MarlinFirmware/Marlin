@@ -530,6 +530,7 @@ class Stepper {
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
     static uint8_t steps_per_isr;         // Count of steps to perform per Stepper ISR call
+    static int32_t time_spent_in_isr, time_spent_out_isr;
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
       static uint8_t oversampling_factor; // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
@@ -818,7 +819,7 @@ class Stepper {
 
     // Calculate timing interval for the given step rate
     static hal_timer_t calc_timer_interval(uint32_t step_rate);
-    static hal_timer_t calc_timer_interval(uint32_t step_rate, uint8_t &loops);
+    static hal_timer_t calc_timer_interval(uint32_t step_rate, const uint8_t loops);
 
     #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);

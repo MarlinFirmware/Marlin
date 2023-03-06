@@ -193,7 +193,8 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-uint8_t Stepper::steps_per_isr;
+uint8_t Stepper::steps_per_isr = 1;
+int32_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
@@ -1588,16 +1589,23 @@ void Stepper::isr() {
      */
     min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(TERN(__AVR__, 8, 1) * (STEPPER_TIMER_TICKS_PER_US));
 
-    /**
-     * NB: If for some reason the stepper monopolizes the MPU, eventually the
-     * timer will wrap around (and so will 'next_isr_ticks'). So, limit the
-     * loop to 10 iterations. Beyond that, there's no way to ensure correct pulse
-     * timing, since the MCU isn't fast enough.
-     */
-    if (!--max_loops) next_isr_ticks = min_ticks;
-
     // Advance pulses if not enough time to wait for the next ISR
-  } while (next_isr_ticks < min_ticks);
+  } while (--max_loops && next_isr_ticks < min_ticks);
+
+  // Track the time spent in the ISR and the intended total time spent
+  // before the min_ticks requriement is imposed.
+  hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
+  time_spent_in_isr += time_spent;
+  time_spent_out_isr += next_isr_ticks;
+  time_spent_out_isr -= time_spent;
+
+  /**
+   * NB: If for some reason the stepper monopolizes the MPU, eventually the
+   * timer will wrap around (and so will 'next_isr_ticks'). So, limit the
+   * loop to 10 iterations. Beyond that, there's no way to ensure correct pulse
+   * timing, since the MCU isn't fast enough.
+   */
+  if (!max_loops) next_isr_ticks = min_ticks;
 
   // Now 'next_isr_ticks' contains the period to the next Stepper ISR - And we are
   // sure that the time has not arrived yet - Warrantied by the scheduler
@@ -2089,38 +2097,22 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 }
 
 // Get the timer interval and the number of loops to perform per tick
-hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
-  uint8_t multistep = 1;
+hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t loops) {
   #if DISABLED(DISABLE_MULTI_STEPPING)
-
-    // The stepping frequency limits for each multistepping rate
-    static const uint32_t limit[] PROGMEM = {
-      (  MAX_STEP_ISR_FREQUENCY_1X     ),
-      (  MAX_STEP_ISR_FREQUENCY_2X >> 1),
-      (  MAX_STEP_ISR_FREQUENCY_4X >> 2),
-      (  MAX_STEP_ISR_FREQUENCY_8X >> 3),
-      ( MAX_STEP_ISR_FREQUENCY_16X >> 4),
-      ( MAX_STEP_ISR_FREQUENCY_32X >> 5),
-      ( MAX_STEP_ISR_FREQUENCY_64X >> 6),
-      (MAX_STEP_ISR_FREQUENCY_128X >> 7)
-    };
-
-    // Select the proper multistepping
-    uint8_t idx = 0;
-    while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
+    if (loops >= 16) {
+      step_rate >>= 4;
+      loops >>= 4;
+    }
+    if (loops >= 4) {
+      step_rate >>= 2;
+      loops >>= 2;
+    }
+    if (loops >= 2) {
       step_rate >>= 1;
-      multistep <<= 1;
-      ++idx;
-    };
-
-    #ifdef MAX7219_DEBUG_MULTISTEPPING
-      if (loops != multistep)
-        max7219.idle_tasks();
-    #endif
+    }
   #else
     NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
   #endif
-  loops = multistep;
 
   return calc_timer_interval(step_rate);
 }
@@ -2130,6 +2122,32 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
 // the step pulses, so it is not time critical, as pulses are already done.
 
 hal_timer_t Stepper::block_phase_isr() {
+  // adjust multi-stepping according to how busy the MCU is
+  hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
+  time_spent_in_isr += time_spent;
+
+  bool spi_changed = true;
+
+  // if the ISR uses 100% of MPU time, increase multistepping
+  if (steps_per_isr < 128 && time_spent_out_isr <= 0)
+    steps_per_isr <<= 1;
+  // if the ISR uses less than 50% of MPU time, decrease multistepping
+  else if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr)
+    steps_per_isr >>= 1;
+  else
+    spi_changed = false;
+
+  if (spi_changed) {
+    // ticks_nominal will need to be recalculated if we are in cruise phase
+    ticks_nominal = 0;
+
+    #ifdef MAX7219_DEBUG_MULTISTEPPING
+      max7219.idle_tasks();
+    #endif
+  }
+
+  time_spent_in_isr = -uint32_t(time_spent);
+  time_spent_out_isr = 0;
 
   // If no queued movements, just wait 1ms for the next block
   hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
