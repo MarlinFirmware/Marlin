@@ -1761,7 +1761,7 @@ void Stepper::pulse_phase_isr() {
           }while(0)
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
-            step_needed.set(_AXIS(AXIS),    \
+            step_needed.set(_AXIS(AXIS), \
               pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x7])); \
           }while(0)
 
@@ -1802,7 +1802,7 @@ void Stepper::pulse_phase_isr() {
             page_step_state.bd[_AXIS(AXIS)] += VALUE;
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
-            step_needed.set(_AXIS(AXIS),    \
+            step_needed.set(_AXIS(AXIS), \
               pgm_read_byte(&segment_table[page_step_state.sd[_AXIS(AXIS)]][page_step_state.segment_steps & 0x3])); \
           }while(0)
 
@@ -1890,7 +1890,7 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(E);
 
         #if ENABLED(LIN_ADVANCE)
-          if (step_needed.e && la_active) {
+          if (la_active && step_needed.e) {
             // don't actually step here, but do subtract movements steps
             // from the linear advance step count
             step_needed.e = false;
@@ -2070,17 +2070,9 @@ void Stepper::pulse_phase_isr() {
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t loops) {
   #if DISABLED(DISABLE_MULTI_STEPPING)
-    if (loops >= 16) {
-      step_rate >>= 4;
-      loops >>= 4;
-    }
-    if (loops >= 4) {
-      step_rate >>= 2;
-      loops >>= 2;
-    }
-    if (loops >= 2) {
-      step_rate >>= 1;
-    }
+    if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
+    if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
+    if (loops >=  2) { step_rate >>= 1; }
   #else
     NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
   #endif
@@ -2110,7 +2102,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t loops) {
     }
     else {
       step_rate = 0;
-      uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
+      const uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
       return uint16_t(pgm_read_word(table_address));
     }
   }
@@ -2585,13 +2577,13 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
-        la_active = bool(current_block->la_advance_rate);
+        la_active = (current_block->la_advance_rate != 0);
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
         if (la_active) {
-          // apply LA scaling and discount the effect of frequency scaling
+          // Apply LA scaling and discount the effect of frequency scaling
           la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
         }
       #endif
@@ -2671,8 +2663,8 @@ hal_timer_t Stepper::block_phase_isr() {
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
     la_delta_error += la_dividend;
-    const bool step_needed = la_delta_error >= 0;
-    if (step_needed) {
+    const bool e_step_needed = la_delta_error >= 0;
+    if (e_step_needed) {
       count_position.e += count_direction.e;
       la_advance_steps += count_direction.e;
       la_delta_error -= advance_divisor;
@@ -2683,7 +2675,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
-    if (step_needed) {
+    if (e_step_needed) {
       // Enforce a minimum duration for STEP pulse ON
       #if ISR_PULSE_CONTROL
         USING_TIMED_PULSE();
