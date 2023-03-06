@@ -31,10 +31,9 @@
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
 
-namespace Language_fr {
+namespace Language_fr_na {
   using namespace Language_en; // Inherit undefined strings from English
 
-  constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Francais");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prete.");
@@ -142,7 +141,7 @@ namespace Language_fr {
   LSTR MSG_UBL_TOOLS                      = _UxGT("Outils UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Niveau lit unifie");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Maillage manuel");
-  LSTR MSG_UBL_BC_INSERT                  = _UxGT("Poser câle & mesurer");
+  LSTR MSG_UBL_BC_INSERT                  = _UxGT("Poser cale & mesurer");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("oter et mesurer lit");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Aller au suivant");

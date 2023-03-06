@@ -632,15 +632,16 @@ namespace Language_fr {
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Clé USB");
 
-  LSTR MSG_IMPOSSIBLE_WHILE_PRINTING      = _UxGT("Impossible pendant une impression");
-  LSTR MSG_IMPOSSIBLE_WHILE_IDLE          = _UxGT("Impossible tant que l'imprimante est en attente");
-  LSTR MSG_NO_FILE_SELECTED               = _UxGT("Aucun fichier selectionne");
-  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
-  LSTR MSG_EXECUTING_COMMAND              = _UxGT("Execution de la commande...");
-  LSTR MSG_BED_PID_DISABLED               = _UxGT("Bed PID desactive");
-  LSTR MSG_PID_DISABLED                   = _UxGT("PID desactive");
-  LSTR MSG_PID_AUTOTUNING                 = _UxGT("Autocalibrage du PID...");
-  LSTR MSG_INVALID_RECOVERY_DATA          = _UxGT("Donnees de recuperation non valides");
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
+  LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
+  LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
+  LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
+  LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
+  LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");
+  LSTR DGUS_MSG_PID_AUTOTUNING            = _UxGT("Autocalibrage du PID...");
+  LSTR DGUS_MSG_INVALID_RECOVERY_DATA     = _UxGT("Donnees de recuperation non valides");
 
   LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Retour a l'origine necessaire...");
   LSTR DGUS_MSG_BUSY                      = _UxGT("Occupe");
