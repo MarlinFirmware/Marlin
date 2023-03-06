@@ -44,6 +44,7 @@
 #include "max7219.h"
 
 #include "../module/planner.h"
+#include "../module/stepper.h"
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
@@ -74,6 +75,7 @@
 Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
+bool Max7219::initialized = false;
 uint8_t Max7219::suspended; // = 0;
 
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
@@ -551,6 +553,8 @@ void Max7219::init() {
   #if MAX7219_INIT_TEST
     start_test_pattern();
   #endif
+
+  initialized = true;
 }
 
 /**
@@ -624,6 +628,8 @@ void Max7219::quantity16(const uint8_t pos, const uint8_t ov, const uint8_t nv, 
 }
 
 void Max7219::idle_tasks() {
+  if (!initialized) return;
+
   #define MAX7219_USE_HEAD (defined(MAX7219_DEBUG_PLANNER_HEAD) || defined(MAX7219_DEBUG_PLANNER_QUEUE))
   #define MAX7219_USE_TAIL (defined(MAX7219_DEBUG_PLANNER_TAIL) || defined(MAX7219_DEBUG_PLANNER_QUEUE))
   #if MAX7219_USE_HEAD || MAX7219_USE_TAIL
@@ -720,6 +726,19 @@ void Max7219::idle_tasks() {
     if (current_time_fraction != last_time_fraction) {
       quantity(MAX7219_DEBUG_PROFILE, last_time_fraction, current_time_fraction, &row_change_mask);
       last_time_fraction = current_time_fraction;
+    }
+  #endif
+
+  #ifdef MAX7219_DEBUG_MULTISTEPPING
+    static uint8_t last_multistepping = 0;
+    uint8_t multistepping = Stepper::steps_per_isr;
+    if (last_multistepping != multistepping) {
+      static uint8_t log2_old = 0;
+      uint8_t log2_new = 0;
+      for (uint8_t val = multistepping; val > 1; val >>= 1, log2_new++);
+      mark16(MAX7219_DEBUG_MULTISTEPPING, log2_old, log2_new, &row_change_mask);
+      last_multistepping = multistepping;
+      log2_old = log2_new;
     }
   #endif
 

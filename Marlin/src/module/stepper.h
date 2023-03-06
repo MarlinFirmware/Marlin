@@ -465,6 +465,7 @@ constexpr ena_mask_t enable_overlap[] = {
 class Stepper {
   friend class KinematicSystem;
   friend class DeltaKinematicSystem;
+  friend class Max7219;
   friend void stepperTask(void *);
 
   public:

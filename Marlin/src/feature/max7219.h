@@ -136,6 +136,7 @@
 class Max7219 {
 public:
   static uint8_t led_line[MAX7219_LINES];
+  static bool initialized;
 
   Max7219() {}
 

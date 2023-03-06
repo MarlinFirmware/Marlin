@@ -141,6 +141,10 @@ Stepper stepper; // Singleton
   #include "../HAL/ESP32/i2s.h"
 #endif
 
+#if ENABLED(MAX7219_DEBUG)
+  #include "../feature/max7219.h"
+#endif
+
 // public:
 
 #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
@@ -2108,6 +2112,11 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
       multistep <<= 1;
       ++idx;
     };
+
+    #ifdef MAX7219_DEBUG_MULTISTEPPING
+      if (loops != multistep)
+        max7219.idle_tasks();
+    #endif
   #else
     NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
   #endif
