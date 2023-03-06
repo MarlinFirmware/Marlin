@@ -1613,7 +1613,8 @@ void Stepper::isr() {
   // Set the next ISR to fire at the proper time
   HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks);
 
-  // Don't forget to finally reenable interrupts
+  // Don't forget to finally reenable interrupts on non-AVR.
+  // AVR automatically calls sei() for us on Return-from-Interrupt.
   #ifndef __AVR__
     hal.isr_on();
   #endif
@@ -1831,7 +1832,7 @@ void Stepper::pulse_phase_isr() {
 
           #define PAGE_PULSE_PREP(AXIS, BITS) do{                 \
             step_needed.set(_AXIS(AXIS), (steps >> BITS) & 0x1);  \
-            if (step_needed.test(_AXIS(AXIS)))                         \
+            if (step_needed.test(_AXIS(AXIS)))                    \
               page_step_state.bd[_AXIS(AXIS)]++;                  \
           }while(0)
 
