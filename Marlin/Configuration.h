@@ -37,7 +37,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02010300
+#define CONFIGURATION_H_VERSION 02010200
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -141,7 +141,7 @@
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
-#define MACHINE_UUID " 797cc6c3-b54a-4eae-974d-6529ab992d79"
+//#define MACHINE_UUID " 797cc6c3-b54a-4eae-974d-6529ab992d79"
 
 // @section stepper drivers
 
@@ -1260,7 +1260,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
