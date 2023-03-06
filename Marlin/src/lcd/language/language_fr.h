@@ -443,9 +443,6 @@ namespace Language_fr {
 
   LSTR MSG_HALTED                         = _UxGT("IMPR. STOPPÉE");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Redémarrer SVP");
-  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 
   LSTR MSG_HEATING                        = _UxGT("en chauffe...");
   LSTR MSG_COOLING                        = _UxGT("Refroidissement");
@@ -655,4 +652,7 @@ namespace Language_fr {
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Echec lecture de l'EEPROM");
   LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E%d");
 
+  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 }
