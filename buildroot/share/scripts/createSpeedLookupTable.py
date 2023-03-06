@@ -25,14 +25,14 @@ print()
 print('#include "MarlinCore.h"')
 print()
 
-print("const uint16_t speed_lookuptable_fast[256][2] PROGMEM = {")
+print("const struct { uint16_t b; uint8_t a; } speed_lookuptable_fast[256] PROGMEM = {")
 a = [ timer_freq / ((i*256)+(args.cpu_freq*2)) for i in range(256) ]
 b = [ a[i] - a[i+1] for i in range(255) ]
 b.append(b[-1])
 for i in range(32):
     print("  ", end=' ')
     for j in range(8):
-        print("{%d, %d}," % (a[8*i+j], b[8*i+j]), end=' ')
+        print("{ %5d, %5d }," % (a[8*i+j], b[8*i+j]), end=' ')
     print()
 print("};")
 print()
@@ -44,7 +44,7 @@ b.append(b[-1])
 for i in range(32):
     print("  ", end=' ')
     for j in range(8):
-        print("{%d, %d}," % (a[8*i+j], b[8*i+j]), end=' ')
+        print("{ %5d, %5d }," % (a[8*i+j], b[8*i+j]), end=' ')
     print()
 print("};")
 print()
