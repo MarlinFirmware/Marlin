@@ -2067,36 +2067,6 @@ void Stepper::pulse_phase_isr() {
 
 #endif // HAS_SHAPING
 
-// Calculate timer interval, with all limits applied.
-hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
-  #ifdef CPU_32_BIT
-    // In case of high-performance processor, it is able to calculate in real-time
-    return uint32_t(STEPPER_TIMER_RATE) / step_rate;
-  #else
-    // AVR is able to keep up at 30khz Stepping ISR rate.
-    constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
-    if (step_rate >= 0x0800) {  // higher step rate
-      const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
-      const uint16_t b = uint16_t(pgm_read_word(table_address));
-      const uint8_t a = uint8_t(pgm_read_byte(table_address + 2));
-      const uint8_t rate_mod_256 = (step_rate & 0x00FF);
-      return b - MultiU8X8toH8(rate_mod_256, a);
-    }
-    else if (step_rate > min_step_rate) { // lower step rates
-      step_rate -= min_step_rate; // Correct for minimal speed
-      uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
-      table_address += (step_rate >> 1) & 0xFFFC;
-      return uint16_t(pgm_read_word(table_address))
-             - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
-    }
-    else {
-      step_rate = 0;
-      uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
-      return uint16_t(pgm_read_word(table_address));
-    }
-  #endif
-}
-
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t loops) {
   #if DISABLED(DISABLE_MULTI_STEPPING)
@@ -2117,6 +2087,35 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t loops) {
 
   return calc_timer_interval(step_rate);
 }
+
+#ifndef CPU_32_BIT
+
+  // Calculate timer interval, with all limits applied.
+  hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
+    // AVR is able to keep up at 30khz Stepping ISR rate.
+    constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
+    if (step_rate >= 0x0800) {  // higher step rate
+      const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
+      const uint16_t b = uint16_t(pgm_read_word(table_address));
+      const uint8_t a = uint8_t(pgm_read_byte(table_address + 2));
+      const uint8_t rate_mod_256 = (step_rate & 0x00FF);
+      return b - MultiU8X8toH8(rate_mod_256, a);
+    }
+    else if (step_rate > min_step_rate) { // lower step rates
+      step_rate -= min_step_rate; // Correct for minimal speed
+      uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
+      table_address += (step_rate >> 1) & 0xFFFC;
+      return uint16_t(pgm_read_word(table_address))
+             - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
+    }
+    else {
+      step_rate = 0;
+      uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
+      return uint16_t(pgm_read_word(table_address));
+    }
+  }
+
+#endif // !CPU_32_BIT
 
 // This is the last half of the stepper interrupt: This one processes and
 // properly schedules blocks from the planner. This is executed after creating
