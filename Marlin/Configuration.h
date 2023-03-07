@@ -1,25 +1,29 @@
 /** Michael's Change log
  *  **Changes made for RAMPs1.4 for K8200
-rev1: changed all based on https://forum.vellemanprojects.eu/t/k8200-with-dual-extruders/12949/5
-note:! prior to 2.1.x (1/3/23)
-#define MOTHERBOARD BOARD_RAMPS_14_EEB
-DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you used the K8204. Set the fourth axis value to 150 for the K8203 extruder - and note that this same value is used for both extruders. (If you used 0.9-degree steppers instead of the stock 1.8-degrees, double the corresponding STEPS_PER_UNIT value for that axis.)
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {64.25, 64.25, 2133.333, 500 } //old "original spuuplied" belt
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 2133.333, 500 } //new GT2 belt with 20T servo pulley
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {77.87, 79.66, 2133.333, 500 } //calibrated - new GT2 belt with 20T servo pulley 
+#define MOTHERBOARD BOARD_RAMPS_14_EFB
 
-//You may also need to set the INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR, INVERT_E0_DIR, and INVERT_E1_DIR to match the wired direction of the motors. (NOTE: My bed heater is currently getting very hot so I may have this wrong.)
+//DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to //#defne change to 1600 because of trapisiod 8mmx2.0pitch and GT3 belt change 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 77.8, 77.8, 400, 728.87 }
+(Z calibrated based on height guage travel. (calculted steps but halved becuase it has 4 take off on the leadscrew) Mar2023
 
+//HEATERS
 #define TEMP_SENSOR_0 5 // Was 1  
 #define TEMP_SENSOR_3 0 
 #define TEMP_SENSOR_BED 5 // Was 1
 //
-// #define DEFAULT_MAX_ACCELERATION {9000,9000,100,10000} 
-#define DEFAULT_MAX_FEEDRATE {500, 500, 5, 500} 
-#define DEFAULT_ACCELERATION 500 // X, Y, Z and E acceleration in mm/s^2 for printing moves 
-#define DEFAULT_RETRACT_ACCELERATION 1000 // E acceleration in mm/s^2 for retracts
+//PROBE
+DEFINE BLTOUCH
 //
+#define NOZZLE_TO_PROBE_OFFSET { 45, -0.3, -4 }
+//
+#define RESTORE_LEVELING_AFTER_G28
+//
+  #define GRID_MAX_POINTS_X 9
+  #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
+//
+#define Z_SAFE_HOMING//
+#define AUTO_BED_LEVELING_BILINEAR
+
 #define EEPROM_SETTINGS // Enable for M500 and M501 commands
 
 #define INVERT_E0_DIR true
@@ -48,32 +52,8 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 #define E1_CS_PIN          53
  */
 
-/* auto bed level
- *  
- *  trick to measure the offset using 1-2-3 block. Place on heated bed and allow 1-2-3 to heat up (maintain constant temp).
- *  then 1. raise the Z access to about 26 or 27mm so its above the 123 block (they are 1" in size which is 25.4mm)
- *  2. place the 123 block onder the sensor (note the holes may skew the result might need to try multiple times)
- *  3. lower the Z using buttons until you get the sensor light illuminating (you can use both 0.1 and 0.01 measure for accurance)
- *  4. raise the "z" and the slide the blo
- *  
-#define FIX_MOUNTED_PROBE
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define X_PROBE_OFFSET_FROM_EXTRUDER 43  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle]
-#define X_PROBE_OFFSET_FROM_EXTRUDER 43  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -5  // Y offset: -front +behind [the nozzle]
 
 
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1   // Z offset: -below +above  [the nozzle] (measured with 1-2-3 block)
-//** note: this is the NOZZLE is BELOW the PROBE... grrr
-
-  // #define LEFT_PROBE_BED_POSITION 15
- #define LEFT_PROBE_BED_POSITION 43 //28 is the distance of the probe from the nozzle so needs to have 28added to 15
-  #define RIGHT_PROBE_BED_POSITION 180 //dont go 185  - sensor doesnt read!!
-  #define FRONT_PROBE_BED_POSITION 15
-  #define BACK_PROBE_BED_POSITION 170
-
-#define AUTO_BED_LEVELING_BILINEAR
 
  */
  
@@ -625,7 +605,6 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 #define TEMP_SENSOR_BED 5
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 0
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
@@ -1249,7 +1228,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 78.17, 79.80, 2462.71, 705 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 77.8, 77.8, 400, 728.87 }
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1395,7 +1374,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#define FIX_MOUNTED_PROBE
+//#define FIX_MOUNTED_PROBE
 
 /**
  * Use the nozzle as the probe, as with a conductive
@@ -1412,7 +1391,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+ #define BLTOUCH
 
 /**
  * MagLev V4 probe by MDD
@@ -1564,11 +1543,11 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 43, -5, -0.3 }
+#define NOZZLE_TO_PROBE_OFFSET { 45, -0.3, -4 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10
+#define PROBING_MARGIN 20
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (133*60)
@@ -1964,7 +1943,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-//#define RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
 //#define ENABLE_LEVELING_AFTER_G28
 
 /**
@@ -2035,7 +2014,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 9
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -2172,7 +2151,7 @@ DEFAULT_AXIS_STEPS_PER_UNIT for X and Y to 64.25, and for Z to 2133.333 if you u
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
