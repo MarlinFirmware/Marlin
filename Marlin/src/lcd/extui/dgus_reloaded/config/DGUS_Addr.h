@@ -108,7 +108,7 @@ enum class DGUS_Addr : uint16_t {
   SD_ScrollIcons          = 0x30C5, // Bits: DGUS_Data::ScrollIcon
   SD_SelectedFileName     = 0x30C6, // 0x30C6 - 0x30E5
   STATUS_PositionZ        = 0x30E6, // Type: Fixed point, 1 decimal (16 bits signed)
-  STATUS_Ellapsed         = 0x30E7, // 0x30E7 - 0x30F5
+  STATUS_Elapsed          = 0x30E7, // 0x30E7 - 0x30F5
   STATUS_Percent          = 0x30F6, // Type: Integer (16 bits unsigned)
   STATUS_Icons            = 0x30F7, // Bits: DGUS_Data::StatusIcon
   ADJUST_Feedrate         = 0x30F8, // Type: Integer (16 bits signed)

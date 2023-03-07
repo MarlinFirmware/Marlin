@@ -69,12 +69,7 @@ bool DGUSScreenHandler::leveling_active = false;
 millis_t DGUSScreenHandler::status_expire = 0;
 millis_t DGUSScreenHandler::eeprom_save = 0;
 
-const char DGUS_MSG_HOMING_REQUIRED[] PROGMEM = "Homing required",
-           DGUS_MSG_BUSY[] PROGMEM = "Busy",
-           DGUS_MSG_UNDEF[] PROGMEM = "-",
-           DGUS_MSG_HOMING[] PROGMEM = "Homing...",
-           DGUS_MSG_FW_OUTDATED[] PROGMEM = "DWIN GUI/OS update required",
-           DGUS_MSG_ABL_REQUIRED[] PROGMEM = "Auto bed leveling required";
+const char DGUS_MSG_UNDEF[] PROGMEM = "-";
 
 const char DGUS_CMD_HOME[] PROGMEM = "G28",
            DGUS_CMD_EEPROM_SAVE[] PROGMEM = "M500";
@@ -138,7 +133,7 @@ void DGUSScreenHandler::Loop() {
   if (current_screen == DGUS_Screen::LEVELING_PROBING && IsPrinterIdle()) {
     dgus_display.PlaySound(3);
 
-    SetStatusMessage(ExtUI::getMeshValid() ? F("Probing successful") : F("Probing failed"));
+    SetStatusMessage(ExtUI::getMeshValid() ? GET_TEXT_F(DGUS_MSG_PROBING_SUCCESS) : GET_TEXT_F(DGUS_MSG_PROBING_FAILED));
 
     MoveToScreen(DGUS_Screen::LEVELING_AUTOMATIC);
     return;
@@ -159,10 +154,10 @@ void DGUSScreenHandler::Loop() {
 }
 
 void DGUSScreenHandler::PrinterKilled(FSTR_P const error, FSTR_P const component) {
-  SetMessageLinePGM(FTOP(error), 1);
-  SetMessageLinePGM(FTOP(component), 2);
+  SetMessageLine(error, 1);
+  SetMessageLine(component, 2);
   SetMessageLinePGM(NUL_STR, 3);
-  SetMessageLinePGM(GET_TEXT(MSG_PLEASE_RESET), 4);
+  SetMessageLine(GET_TEXT_F(MSG_PLEASE_RESET), 4);
 
   dgus_display.PlaySound(3, 1, 200);
 
@@ -170,14 +165,14 @@ void DGUSScreenHandler::PrinterKilled(FSTR_P const error, FSTR_P const component
 }
 
 void DGUSScreenHandler::UserConfirmRequired(const char * const msg) {
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 1);
-  dgus_screen_handler.SetMessageLine(msg, 2);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 3);
-  dgus_screen_handler.SetMessageLinePGM(NUL_STR, 4);
+  SetMessageLinePGM(NUL_STR, 1);
+  SetMessageLine(msg, 2);
+  SetMessageLinePGM(NUL_STR, 3);
+  SetMessageLinePGM(NUL_STR, 4);
 
   dgus_display.PlaySound(3);
 
-  dgus_screen_handler.ShowWaitScreen(current_screen, true);
+  ShowWaitScreen(current_screen, true);
 }
 
 void DGUSScreenHandler::SettingsReset() {
@@ -189,7 +184,7 @@ void DGUSScreenHandler::SettingsReset() {
     Ready();
   }
 
-  SetStatusMessage(F("EEPROM reset"));
+  SetStatusMessage(GET_TEXT_F(DGUS_MSG_RESET_EEPROM));
 }
 
 void DGUSScreenHandler::StoreSettings(char *buff) {
@@ -223,12 +218,12 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
 
 void DGUSScreenHandler::ConfigurationStoreWritten(bool success) {
   if (!success)
-    SetStatusMessage(F("EEPROM write failed"));
+    SetStatusMessage(GET_TEXT_F(DGUS_MSG_WRITE_EEPROM_FAILED));
 }
 
 void DGUSScreenHandler::ConfigurationStoreRead(bool success) {
   if (!success) {
-    SetStatusMessage(F("EEPROM read failed"));
+    SetStatusMessage(GET_TEXT_F(DGUS_MSG_READ_EEPROM_FAILED));
   }
   else if (!settings_ready) {
     settings_ready = true;
@@ -283,7 +278,8 @@ void DGUSScreenHandler::PrintTimerStopped() {
 
 void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
   char buffer[21];
-  snprintf_P(buffer, sizeof(buffer), PSTR("Filament runout E%d"), extruder);
+
+  snprintf_P(buffer, sizeof(buffer), GET_TEXT(DGUS_MSG_FILAMENT_RUNOUT), extruder);
 
   SetStatusMessage(buffer);
 
@@ -346,7 +342,7 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
 
 #endif // HAS_PID_HEATING
 
-void DGUSScreenHandler::SetMessageLine(const char* msg, uint8_t line) {
+void DGUSScreenHandler::SetMessageLine(const char * const msg, const uint8_t line) {
   switch (line) {
     default: return;
     case 1:
@@ -364,7 +360,7 @@ void DGUSScreenHandler::SetMessageLine(const char* msg, uint8_t line) {
   }
 }
 
-void DGUSScreenHandler::SetMessageLinePGM(PGM_P msg, uint8_t line) {
+void DGUSScreenHandler::SetMessageLinePGM(PGM_P const msg, const uint8_t line) {
   switch (line) {
     default: return;
     case 1:
@@ -394,13 +390,21 @@ void DGUSScreenHandler::SetStatusMessage(FSTR_P const fmsg, const millis_t durat
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
 
-void DGUSScreenHandler::ShowWaitScreen(DGUS_Screen return_screen, bool has_continue) {
+void DGUSScreenHandler::ShowWaitScreen(const DGUS_Screen return_screen, const bool has_continue/*=false*/) {
   if (return_screen != DGUS_Screen::WAIT) {
     wait_return_screen = return_screen;
   }
   wait_continue = has_continue;
 
   TriggerScreenChange(DGUS_Screen::WAIT);
+}
+
+void DGUSScreenHandler::ShowWaitScreen(FSTR_P const msg, const DGUS_Screen return_screen, const bool has_continue/*=false*/) {
+  SetMessageLinePGM(NUL_STR, 1);
+  SetMessageLine(msg, 2);
+  SetMessageLinePGM(NUL_STR, 3);
+  SetMessageLinePGM(NUL_STR, 4);
+  ShowWaitScreen(return_screen, has_continue);
 }
 
 DGUS_Screen DGUSScreenHandler::GetCurrentScreen() {
