@@ -387,7 +387,7 @@ void DGUSRxHandler::Steppers(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::ZOffset(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  if (!ExtUI::isAxisPositionKnown(ExtUI::Z)) {
+  if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(ExtUI::Z))) {
     dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
@@ -411,7 +411,7 @@ void DGUSRxHandler::ZOffset(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::ZOffsetStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
-  if (!ExtUI::isAxisPositionKnown(ExtUI::Z)) {
+  if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(ExtUI::Z))) {
     dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
@@ -525,7 +525,7 @@ void DGUSRxHandler::Probe(DGUS_VP &vp, void *data_ptr) {
   #else
     queue.enqueue_now(F("G29"));
   #endif
-  queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
+  queue.enqueue_now(F("M500"));
 }
 
 void DGUSRxHandler::DisableABL(DGUS_VP &vp, void *data_ptr) {
@@ -646,18 +646,12 @@ void DGUSRxHandler::Move(DGUS_VP &vp, void *data_ptr) {
 
   switch (vp.addr) {
     default: return;
-    case DGUS_Addr::MOVE_SetX:
-      axis = ExtUI::X;
-      break;
-    case DGUS_Addr::MOVE_SetY:
-      axis = ExtUI::Y;
-      break;
-    case DGUS_Addr::MOVE_SetZ:
-      axis = ExtUI::Z;
-      break;
+    case DGUS_Addr::MOVE_SetX: axis = ExtUI::X; break;
+    case DGUS_Addr::MOVE_SetY: axis = ExtUI::Y; break;
+    case DGUS_Addr::MOVE_SetZ: axis = ExtUI::Z; break;
   }
 
-  if (!ExtUI::isAxisPositionKnown(axis)) {
+  if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(axis))) {
     dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
@@ -671,18 +665,11 @@ void DGUSRxHandler::MoveStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   float offset;
-
   switch (dgus_screen_handler.move_steps) {
     default: return;
-    case DGUS_Data::StepSize::MM10:
-      offset = 10.0f;
-      break;
-    case DGUS_Data::StepSize::MM1:
-      offset = 1.0f;
-      break;
-    case DGUS_Data::StepSize::MMP1:
-      offset = 0.1f;
-      break;
+    case DGUS_Data::StepSize::MM10: offset = 10.0f; break;
+    case DGUS_Data::StepSize::MM1: offset = 1.0f; break;
+    case DGUS_Data::StepSize::MMP1: offset = 0.1f; break;
   }
 
   const DGUS_Data::MoveDirection direction = (DGUS_Data::MoveDirection)((uint8_t*)data_ptr)[1];
@@ -690,30 +677,15 @@ void DGUSRxHandler::MoveStep(DGUS_VP &vp, void *data_ptr) {
 
   switch (direction) {
     default: return;
-    case DGUS_Data::MoveDirection::XP:
-      axis = ExtUI::X;
-      break;
-    case DGUS_Data::MoveDirection::XM:
-      axis = ExtUI::X;
-      offset = -offset;
-      break;
-    case DGUS_Data::MoveDirection::YP:
-      axis = ExtUI::Y;
-      break;
-    case DGUS_Data::MoveDirection::YM:
-      axis = ExtUI::Y;
-      offset = -offset;
-      break;
-    case DGUS_Data::MoveDirection::ZP:
-      axis = ExtUI::Z;
-      break;
-    case DGUS_Data::MoveDirection::ZM:
-      axis = ExtUI::Z;
-      offset = -offset;
-      break;
+    case DGUS_Data::MoveDirection::XM: offset = -offset;
+    case DGUS_Data::MoveDirection::XP: axis = ExtUI::X; break;
+    case DGUS_Data::MoveDirection::YM: offset = -offset;
+    case DGUS_Data::MoveDirection::YP: axis = ExtUI::Y; break;
+    case DGUS_Data::MoveDirection::ZM: offset = -offset;
+    case DGUS_Data::MoveDirection::ZP: axis = ExtUI::Z; break;
   }
 
-  if (!ExtUI::isAxisPositionKnown(axis)) {
+  if (TERN0(NO_MOTION_BEFORE_HOMING, !ExtUI::isAxisPositionKnown(axis))) {
     dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_HOMING_REQUIRED));
     return;
   }
@@ -727,7 +699,6 @@ void DGUSRxHandler::MoveSetStep(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
 
   const DGUS_Data::StepSize size = (DGUS_Data::StepSize)((uint8_t*)data_ptr)[1];
-
   dgus_screen_handler.move_steps = size;
 
   dgus_screen_handler.TriggerFullUpdate();
@@ -746,9 +717,7 @@ void DGUSRxHandler::GcodeExecute(DGUS_VP &vp, void *data_ptr) {
   UNUSED(vp);
   UNUSED(data_ptr);
 
-  if (!strlen(dgus_screen_handler.gcode)) {
-    return;
-  }
+  if (!strlen(dgus_screen_handler.gcode)) return;
 
   if (!dgus_screen_handler.IsPrinterIdle()) {
     dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
@@ -765,9 +734,7 @@ void DGUSRxHandler::ResetEEPROM(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
-    return;
-  }
+  if (result != DGUS_Data::Popup::CONFIRMED) return;
 
   if (!dgus_screen_handler.IsPrinterIdle()) {
     dgus_screen_handler.SetStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
@@ -775,7 +742,7 @@ void DGUSRxHandler::ResetEEPROM(DGUS_VP &vp, void *data_ptr) {
   }
 
   queue.enqueue_now(F("M502"));
-  queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
+  queue.enqueue_now(F("M500"));
 }
 
 void DGUSRxHandler::SettingsExtra(DGUS_VP &vp, void *data_ptr) {
@@ -908,7 +875,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
   dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_PID_AUTOTUNING), DGUS_Screen::PID);
 
   queue.enqueue_one_now(buffer);
-  queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
+  queue.enqueue_now(F("M500"));
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)

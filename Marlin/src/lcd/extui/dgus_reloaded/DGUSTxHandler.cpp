@@ -522,7 +522,7 @@ void DGUSTxHandler::PrintTime(DGUS_VP &vp) {
 
     dgus_display.WriteString((uint16_t)vp.addr, buffer, vp.size);
   #else
-    dgus_display.WriteStringPGM((uint16_t)vp.addr, DGUS_MSG_UNDEF, vp.size);
+    dgus_display.WriteString((uint16_t)vp.addr, F("-"), vp.size);
   #endif
 }
 
@@ -533,7 +533,7 @@ void DGUSTxHandler::LongestPrint(DGUS_VP &vp) {
 
     dgus_display.WriteString((uint16_t)vp.addr, buffer, vp.size);
   #else
-    dgus_display.WriteStringPGM((uint16_t)vp.addr, DGUS_MSG_UNDEF, vp.size);
+    dgus_display.WriteString((uint16_t)vp.addr, F("-"), vp.size);
   #endif
 }
 
@@ -544,7 +544,7 @@ void DGUSTxHandler::FilamentUsed(DGUS_VP &vp) {
 
     dgus_display.WriteString((uint16_t)vp.addr, buffer, vp.size);
   #else
-    dgus_display.WriteStringPGM((uint16_t)vp.addr, DGUS_MSG_UNDEF, vp.size);
+    dgus_display.WriteString((uint16_t)vp.addr, F("-"), vp.size);
   #endif
 }
 

@@ -141,8 +141,3 @@ private:
 };
 
 extern DGUSScreenHandler dgus_screen_handler;
-
-extern const char DGUS_MSG_UNDEF[];
-
-extern const char DGUS_CMD_HOME[],
-                  DGUS_CMD_EEPROM_SAVE[];

@@ -69,11 +69,6 @@ bool DGUSScreenHandler::leveling_active = false;
 millis_t DGUSScreenHandler::status_expire = 0;
 millis_t DGUSScreenHandler::eeprom_save = 0;
 
-const char DGUS_MSG_UNDEF[] PROGMEM = "-";
-
-const char DGUS_CMD_HOME[] PROGMEM = "G28",
-           DGUS_CMD_EEPROM_SAVE[] PROGMEM = "M500";
-
 void DGUSScreenHandler::Init() {
   dgus_display.Init();
 
@@ -146,7 +141,7 @@ void DGUSScreenHandler::Loop() {
 
   if (eeprom_save > 0 && ELAPSED(ms, eeprom_save) && IsPrinterIdle()) {
     eeprom_save = 0;
-    queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
+    queue.enqueue_now(F("M500"));
     return;
   }
 
@@ -385,7 +380,7 @@ void DGUSScreenHandler::SetStatusMessage(const char* msg, const millis_t duratio
 }
 
 void DGUSScreenHandler::SetStatusMessage(FSTR_P const fmsg, const millis_t duration) {
-  dgus_display.WriteStringPGM((uint16_t)DGUS_Addr::MESSAGE_Status, FTOP(fmsg), DGUS_STATUS_LEN, false, true);
+  dgus_display.WriteString((uint16_t)DGUS_Addr::MESSAGE_Status, fmsg, DGUS_STATUS_LEN, false, true);
 
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }

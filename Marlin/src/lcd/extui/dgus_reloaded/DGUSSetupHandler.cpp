@@ -82,7 +82,7 @@ bool DGUSSetupHandler::LevelingMenu() {
 
   dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_HOMING), DGUS_Screen::LEVELING_MENU);
 
-  queue.enqueue_now_P(DGUS_CMD_HOME);
+  queue.enqueue_now(F("G28"));
 
   return false;
 }
@@ -101,7 +101,7 @@ bool DGUSSetupHandler::LevelingManual() {
 
   dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_HOMING), DGUS_Screen::LEVELING_MANUAL);
 
-  queue.enqueue_now_P(DGUS_CMD_HOME);
+  queue.enqueue_now(F("G28"));
 
   return false;
 }
@@ -130,7 +130,7 @@ bool DGUSSetupHandler::LevelingOffset() {
 
   dgus_screen_handler.ShowWaitScreen(GET_TEXT_F(DGUS_MSG_HOMING), DGUS_Screen::LEVELING_OFFSET);
 
-  queue.enqueue_now_P(DGUS_CMD_HOME);
+  queue.enqueue_now(F("G28"));
 
   return false;
 }
