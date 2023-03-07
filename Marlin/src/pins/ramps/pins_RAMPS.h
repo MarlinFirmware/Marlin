@@ -141,11 +141,11 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                            54
-#define X_DIR_PIN                             55
-#define X_ENABLE_PIN                          38
+#define X_STEP_PIN                            36
+#define X_DIR_PIN                             34
+#define X_ENABLE_PIN                          30
 #ifndef X_CS_PIN
-  #define X_CS_PIN                            53
+  #define X_CS_PIN                            44
 #endif
 
 #define Y_STEP_PIN                            60
@@ -182,16 +182,16 @@
 #endif
 
 #ifndef E1_STEP_PIN
-  #define E1_STEP_PIN                         36
+  #define E1_STEP_PIN                         54
 #endif
 #ifndef E1_DIR_PIN
-  #define E1_DIR_PIN                          34
+  #define E1_DIR_PIN                          55
 #endif
 #ifndef E1_ENABLE_PIN
-  #define E1_ENABLE_PIN                       30
+  #define E1_ENABLE_PIN                       38
 #endif
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                           44
+  #define E1_CS_PIN                           53
 #endif
 
 //
