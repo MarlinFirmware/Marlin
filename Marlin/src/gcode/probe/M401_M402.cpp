@@ -42,21 +42,21 @@
  *  R<bool> Remain in place after deploying (and before activating) the probe
  */
 void GcodeSuite::M401() {
-  const bool seenH = parser.seen_test('H'),
-             seenS = parser.seen('S');
-  if (seenH || seenS) {
-    #ifdef BLTOUCH_HS_MODE
+  #ifdef BLTOUCH_HS_MODE
+    const bool seenH = parser.seen_test('H'),
+               seenS = parser.seen('S');
+    if (seenH || seenS) {
       if (seenS) bltouch.high_speed_mode = parser.value_bool();
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("BLTouch HS mode ");
       serialprintln_onoff(bltouch.high_speed_mode);
-    #endif
-  }
-  else {
-    probe.deploy(parser.boolval('R'));
-    TERN_(PROBE_TARE, probe.tare());
-    report_current_position();
-  }
+      return;
+    }
+  #endif
+
+  probe.deploy(parser.boolval('R'));
+  TERN_(PROBE_TARE, probe.tare());
+  report_current_position();
 }
 
 /**
