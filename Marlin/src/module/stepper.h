@@ -524,7 +524,7 @@ class Stepper {
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
     static uint8_t steps_per_isr;         // Count of steps to perform per Stepper ISR call
-    static int32_t time_spent_in_isr, time_spent_out_isr;
+    static hal_timer_t time_spent_in_isr, time_spent_out_isr;
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
       static uint8_t oversampling_factor; // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
