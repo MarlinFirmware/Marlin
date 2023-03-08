@@ -141,10 +141,6 @@ Stepper stepper; // Singleton
   #include "../HAL/ESP32/i2s.h"
 #endif
 
-#if ENABLED(MAX7219_DEBUG)
-  #include "../feature/max7219.h"
-#endif
-
 // public:
 
 #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
@@ -2131,10 +2127,6 @@ hal_timer_t Stepper::block_phase_isr() {
     steps_per_isr >>= 1;
     // ticks_nominal will need to be recalculated if we are in cruise phase
     ticks_nominal = 0;
-
-    #ifdef MAX7219_DEBUG_MULTISTEPPING
-      max7219.idle_tasks();
-    #endif
   }
 
   time_spent_in_isr = -time_spent;    // unsigned but guaranteed to be +ve when needed
