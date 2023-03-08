@@ -33,7 +33,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "JGAurora A5S A1 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "JGAurora A5S A1 only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "JGAurora A5S A1"
@@ -53,9 +53,9 @@
 #endif
 
 #if ENABLED(I2C_EEPROM)
-  //#define MARLIN_EEPROM_SIZE          0x8000UL  // 32KB
+  //#define MARLIN_EEPROM_SIZE          0x8000UL  // 32K
 #elif ENABLED(FLASH_EEPROM_EMULATION)
-  //#define MARLIN_EEPROM_SIZE          0x1000UL  // 4KB
+  //#define MARLIN_EEPROM_SIZE          0x1000UL  // 4K
   //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
 #endif
 

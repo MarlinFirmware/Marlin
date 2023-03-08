@@ -25,7 +25,7 @@
 #include "unwinder.h"
 #include "unwmemaccess.h"
 
-#include "../HAL_MinSerial.h"
+#include "../MinSerial.h"
 #include <stdarg.h>
 
 // Dump a backtrace entry

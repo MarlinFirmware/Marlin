@@ -83,7 +83,7 @@ static void tramming_wizard_menu() {
 
   // Draw a menu item for each tramming point
   for (tram_index = 0; tram_index < G35_PROBE_COUNT; tram_index++)
-    SUBMENU_P((PGM_P)pgm_read_ptr(&tramming_point_name[tram_index]), _menu_single_probe);
+    SUBMENU_F(FPSTR(pgm_read_ptr(&tramming_point_name[tram_index])), _menu_single_probe);
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     probe.stow(); // Stow before exiting Tramming Wizard

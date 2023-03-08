@@ -154,7 +154,7 @@
       //#define SHIFT_EN_PIN               P1_22  // (41)  J5-4 & AUX-4
     #endif
 
-    #if ANY(VIKI2, miniVIKI)
+    #if EITHER(VIKI2, miniVIKI)
       #define BEEPER_PIN                   P1_30  // (37) may change if cable changes
       #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
       #define DOGLCD_SCK              SD_SCK_PIN

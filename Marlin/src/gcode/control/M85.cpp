@@ -29,7 +29,14 @@ void GcodeSuite::M85() {
 
   if (parser.seen('S')) {
     reset_stepper_timeout();
-    max_inactive_time = parser.value_millis_from_seconds();
+    const millis_t ms = parser.value_millis_from_seconds();
+    #if LASER_SAFETY_TIMEOUT_MS > 0
+      if (ms && ms <= LASER_SAFETY_TIMEOUT_MS) {
+        SERIAL_ECHO_MSG("M85 timeout must be > ", MS_TO_SEC(LASER_SAFETY_TIMEOUT_MS + 999), " s for laser safety.");
+        return;
+      }
+    #endif
+    max_inactive_time = ms;
   }
 
 }

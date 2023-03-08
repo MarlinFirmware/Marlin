@@ -50,7 +50,7 @@ void GcodeSuite::G6() {
   // No speed is set, can't schedule the move
   if (!planner.last_page_step_rate) return;
 
-  const page_idx_t page_idx = (page_idx_t) parser.value_ulong();
+  const page_idx_t page_idx = (page_idx_t)parser.value_ulong();
 
   uint16_t num_steps = DirectStepping::Config::TOTAL_STEPS;
   if (parser.seen('S')) num_steps = parser.value_ushort();

@@ -105,7 +105,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(15).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
       .tag(9) .button(INTERFACE_POS,          GET_TEXT_F(MSG_INTERFACE))
       .tag(10).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
-      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_VELOCITY))
+      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_MAX_SPEED))
       .tag(6) .button(ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
       .tag(7) .button(JERK_POS,               GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
       .enabled(ENABLED(BACKLASH_GCODE))

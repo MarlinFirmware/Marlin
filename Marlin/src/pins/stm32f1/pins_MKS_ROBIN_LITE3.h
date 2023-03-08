@@ -28,7 +28,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin Lite3 supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME

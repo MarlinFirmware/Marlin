@@ -5,8 +5,8 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
   * This software component is licensed by ST under BSD 3-Clause license,
   * the "License"; You may not use this file except in compliance with the
@@ -81,15 +81,15 @@ extern "C" {
   *        This value is used by the RCC HAL module to compute the system frequency
   *        (when HSE is used as system clock source, directly or through the PLL).
   */
-#if !defined  (HSE_VALUE)
-#if defined(USE_STM3210C_EVAL)
+#ifndef HSE_VALUE
+#ifdef USE_STM3210C_EVAL
 #define HSE_VALUE    25000000U /*!< Value of the External oscillator in Hz */
 #else
 #define HSE_VALUE    8000000U /*!< Value of the External oscillator in Hz */
 #endif
 #endif /* HSE_VALUE */
 
-#if !defined  (HSE_STARTUP_TIMEOUT)
+#ifndef HSE_STARTUP_TIMEOUT
 #define HSE_STARTUP_TIMEOUT    100U      /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
@@ -98,14 +98,14 @@ extern "C" {
   *        This value is used by the RCC HAL module to compute the system frequency
   *        (when HSI is used as system clock source, directly or through the PLL).
   */
-#if !defined  (HSI_VALUE)
+#ifndef HSI_VALUE
 #define HSI_VALUE              8000000U  /*!< Value of the Internal oscillator in Hz */
 #endif /* HSI_VALUE */
 
 /**
   * @brief Internal Low Speed oscillator (LSI) value.
   */
-#if !defined  (LSI_VALUE)
+#ifndef LSI_VALUE
 #define LSI_VALUE               40000U     /*!< LSI Typical Value in Hz */
 #endif /* LSI_VALUE */                     /*!< Value of the Internal Low Speed oscillator in Hz
                                                 The real value may vary depending on the variations
@@ -114,11 +114,11 @@ extern "C" {
   * @brief External Low Speed oscillator (LSE) value.
   *        This value is used by the UART, RTC HAL module to compute the system frequency
   */
-#if !defined  (LSE_VALUE)
+#ifndef LSE_VALUE
 #define LSE_VALUE               32768U    /*!< Value of the External Low Speed oscillator in Hz */
 #endif /* LSE_VALUE */
 
-#if !defined  (LSE_STARTUP_TIMEOUT)
+#ifndef LSE_STARTUP_TIMEOUT
 #define LSE_STARTUP_TIMEOUT    5000U     /*!< Time out for LSE start up, in ms */
 #endif /* LSE_STARTUP_TIMEOUT */
 
@@ -129,7 +129,7 @@ extern "C" {
 /**
   * @brief This is the HAL system configuration section
   */
-#if !defined(VDD_VALUE)
+#ifndef VDD_VALUE
 #define  VDD_VALUE                    3300U /*!< Value of VDD in mv */
 #endif
 #if !defined (TICK_INT_PRIORITY)

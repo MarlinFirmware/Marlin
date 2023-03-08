@@ -29,7 +29,6 @@
 #if HAS_MOTOR_CURRENT_DAC
 
 #include "stepper_dac.h"
-#include "../../MarlinCore.h" // for SP_X_LBL...
 
 bool dac_present = false;
 constexpr xyze_uint8_t dac_order = DAC_STEPPER_ORDER;

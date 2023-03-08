@@ -207,7 +207,7 @@
   #define LCD_PINS_D6                          5  // D5       JP11-6
   #define LCD_PINS_D7                          4  // D4       JP11-5
 
-  #if ANY(VIKI2, miniVIKI)
+  #if EITHER(VIKI2, miniVIKI)
 
     #define BEEPER_PIN                         8  // E0       JP11-10
     #define DOGLCD_A0                         40  // F2       JP2-2

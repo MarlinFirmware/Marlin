@@ -131,9 +131,7 @@ bool DLCache::store(uint32_t min_bytes /* = 0*/) {
   if (dl_size > dl_slot_size) {
     // Not enough memory to cache the display list.
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM  ("Not enough space in GRAM to cache display list, free space: ", dl_slot_size);
-      SERIAL_ECHOLNPGM(" Required: ", dl_size);
+      SERIAL_ECHO_MSG("Not enough space in GRAM to cache display list, free space: ", dl_slot_size, " Required: ", dl_size);
     #endif
     dl_slot_used = 0;
     save_slot();
@@ -141,9 +139,7 @@ bool DLCache::store(uint32_t min_bytes /* = 0*/) {
   }
   else {
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM  ("Saving DL to RAMG cache, bytes: ", dl_slot_used);
-      SERIAL_ECHOLNPGM(" Free space: ", dl_slot_size);
+      SERIAL_ECHO_MSG("Saving DL to RAMG cache, bytes: ", dl_slot_used, " Free space: ", dl_slot_size);
     #endif
     dl_slot_used = dl_size;
     save_slot();
@@ -160,9 +156,9 @@ void DLCache::save_slot(uint8_t indx, uint32_t addr, uint16_t size, uint16_t use
 }
 
 void DLCache::load_slot(uint8_t indx, uint32_t &addr, uint16_t &size, uint16_t &used) {
-  addr  = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 0);
-  size  = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 4);
-  used  = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 8);
+  addr = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 0);
+  size = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 4);
+  used = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 8);
 }
 
 void DLCache::append() {
@@ -171,9 +167,7 @@ void DLCache::append() {
   #if ENABLED(TOUCH_UI_DEBUG)
     cmd.execute();
     wait_until_idle();
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM  ("Appending to DL from RAMG cache, bytes: ", dl_slot_used);
-    SERIAL_ECHOLNPGM(" REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
+    SERIAL_ECHO_MSG("Appending to DL from RAMG cache, bytes: ", dl_slot_used, " REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
   #endif
 }
 

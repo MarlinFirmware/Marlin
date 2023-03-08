@@ -117,13 +117,11 @@ void BrickoutGame::game_screen() {
           }
           else if (diff <= 3) {
             bdat.ballh += fixed_t(random(-64, 0));
-            NOLESS(bdat.ballh, BTOF(-2));
-            NOMORE(bdat.ballh, BTOF(2));
+            LIMIT(bdat.ballh, BTOF(-2), BTOF(2));
           }
           else if (diff >= PADDLE_W-1 - 3) {
             bdat.ballh += fixed_t(random( 0, 64));
-            NOLESS(bdat.ballh, BTOF(-2));
-            NOMORE(bdat.ballh, BTOF(2));
+            LIMIT(bdat.ballh, BTOF(-2), BTOF(2));
           }
 
           // Paddle hit after clearing the board? Reset the board.
