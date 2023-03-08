@@ -55,7 +55,7 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-extern uint8_t Explore_Disk(char *path, uint8_t recu_level);
+extern uint8_t Explore_Disk(char *path, uint8_t recu_level, bool with_longnames);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -141,6 +141,8 @@ void mount_file_sys(uint8_t disk_type) {
   }
 }
 
+#define ILLEGAL_CHAR_REPLACE 0x5F // '_'
+
 static bool longName2DosName(const char *longName, char *dosName) {
   uint8_t i = FILENAME_LENGTH;
   while (i) dosName[--i] = '\0';
@@ -152,18 +154,28 @@ static bool longName2DosName(const char *longName, char *dosName) {
       strcat_P(dosName, PSTR(".GCO"));
       return dosName[0] != '\0';
     }
-    else {
-      // Fail for illegal characters
-      PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
-      if (c < 0x21 || c == 0x7F) return false;                        // Check size, non-printable characters
-      dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
+
+    // Fail for illegal characters
+    PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
+
+    while (uint8_t b = pgm_read_byte(p++)) {
+      if (b == c) {
+          c = ILLEGAL_CHAR_REPLACE;  // replace illegal chars with underscore '_'
+      }
     }
+
+    if (c < 0x21 || c == 0x7F) {                        // Check size, non-printable characters
+      c = ILLEGAL_CHAR_REPLACE;  // replace non-printable chars with underscore '_'
+    }
+
+    dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
+
     if (i >= 5) {
       strcat_P(dosName, PSTR("~1.GCO"));
       return dosName[0] != '\0';
     }
   }
+
   return dosName[0] != '\0'; // Return true if any name was set
 }
 
@@ -707,7 +719,7 @@ int send_to_wifi(uint8_t *buf, int len) { return package_to_wifi(WIFI_TRANS_INF,
 
 void set_cur_file_sys(int fileType) { gCfgItems.fileSysType = fileType; }
 
-void get_file_list(char *path) {
+void get_file_list(char *path, bool with_longnames) {
   if (!path) return;
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
@@ -716,7 +728,7 @@ void get_file_list(char *path) {
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // udisk
   }
-  Explore_Disk(path, 0);
+  Explore_Disk(path, 0, with_longnames);
 }
 
 char wait_ip_back_flag = 0;
@@ -811,24 +823,31 @@ static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(char *path , uint8_t recu_level) {
-  char tmp[200];
+uint8_t Explore_Disk(char *path , uint8_t recu_level, bool with_longnames) {
   char Fstream[200];
 
   if (!path) return 0;
 
   const uint8_t fileCnt = card.get_num_Files();
 
+  MediaFile file;
+  MediaFile *diveDir;
   for (uint8_t i = 0; i < fileCnt; i++) {
     card.getfilename_sorted(SD_ORDER(i, fileCnt));
-    ZERO(tmp);
-    strcpy(tmp, card.filename);
 
     ZERO(Fstream);
-    strcpy(Fstream, tmp);
+    strcpy(Fstream, card.filename);
 
-    if (card.flag.filenameIsDir && recu_level <= 10)
+    if (card.flag.filenameIsDir && recu_level <= 10) {
       strcat_P(Fstream, PSTR(".DIR"));
+    }
+
+    strcat_P(Fstream, PSTR(" 0")); // report 0 file size
+
+    if (with_longnames) {
+        strcat_P(Fstream, PSTR(" "));
+        strcat_P(Fstream, card.longest_filename());
+    }
 
     strcat_P(Fstream, PSTR("\r\n"));
     send_to_wifi((uint8_t*)Fstream, strlen(Fstream));
@@ -863,11 +882,12 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           file_writer.fileTransfer = 0;
           if (uiCfg.print_state == IDLE) {
             int index = 0;
+            bool with_longnames = strchr((char *)tmpStr, 'L') != NULL;
 
             if (tmpStr == 0) {
               gCfgItems.fileSysType = FILE_SYS_SD;
               send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
-              get_file_list((char *)"0:/");
+              get_file_list((char *)"0:/", with_longnames);
               send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
               SEND_OK_TO_WIFI;
               break;
@@ -877,6 +897,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             if (gCfgItems.wifi_type == ESP_WIFI) {
               char *path = (char *)tempBuf;
+              bool with_longnames = strchr((char *)tmpStr, 'L') != NULL;
 
               if (strlen((char *)&tmpStr[index]) < 80) {
                 send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
@@ -887,7 +908,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                   gCfgItems.fileSysType = FILE_SYS_USB;
 
                 strcpy((char *)path, (char *)&tmpStr[index]);
-                get_file_list(path);
+                get_file_list(path, with_longnames);
                 send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
               }
               SEND_OK_TO_WIFI;
@@ -933,7 +954,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                     if (!longName2DosName((const char *)fileName, dosName))
                       strcpy_P(list_file.file_name[sel_id], PSTR("notValid"));
                     strcat((char *)list_file.file_name[sel_id], dosName);
-                    strcat((char *)list_file.long_name[sel_id], dosName);
+                    strcat((char *)list_file.long_name[sel_id], (const char *)fileName);
                   }
                   else {
                     strcat((char *)list_file.file_name[sel_id], (char *)&tmpStr[index]);
