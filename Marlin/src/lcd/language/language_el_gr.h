@@ -91,7 +91,7 @@ namespace Language_el_gr {
   LSTR MSG_MOVE_50MM                      = _UxGT("Μετακίνηση 50 μμ");
   LSTR MSG_MOVE_100MM                     = _UxGT("Μετακίνηση 100 μμ");
   LSTR MSG_SPEED                          = _UxGT("Ταχύτητα");
-  LSTR MSG_BED_Z                          = _UxGT("Κλίνη Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Κλίνη Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ακροφύσιο");
   LSTR MSG_NOZZLE_N                       = _UxGT("Ακροφύσιο ~");
   LSTR MSG_BED                            = _UxGT("Κλίνη");

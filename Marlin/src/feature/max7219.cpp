@@ -471,7 +471,7 @@ void Max7219::register_setup() {
     constexpr millis_t pattern_delay = 4;
 
     int8_t spiralx, spiraly, spiral_dir;
-    IF<(MAX7219_LEDS > 255), uint16_t, uint8_t>::type spiral_count;
+    uvalue_t(MAX7219_LEDS) spiral_count;
 
     void Max7219::test_pattern() {
       constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
