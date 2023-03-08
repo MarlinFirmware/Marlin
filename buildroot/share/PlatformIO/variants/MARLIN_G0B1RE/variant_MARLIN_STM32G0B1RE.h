@@ -158,9 +158,6 @@
 #endif
 
 // UART Definitions
-//#define ENABLE_HWSERIAL1        done automatically by the #define SERIAL_UART_INSTANCE below
-#define ENABLE_HWSERIAL3
-
 #ifndef SERIAL_UART_INSTANCE
   #define SERIAL_UART_INSTANCE  2
 #endif
@@ -173,15 +170,6 @@
 #ifndef PIN_SERIAL_TX
   #define PIN_SERIAL_TX         PA2
 #endif
-
-// Optional PIN_SERIALn_RX and PIN_SERIALn_TX where 'n' is the U(S)ART number
-// Used when user instantiate a hardware Serial using its peripheral name.
-// Example: HardwareSerial mySerial(USART3);
-// will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
-#define PIN_SERIAL1_RX          PA3
-#define PIN_SERIAL1_TX          PA2
-#define PIN_SERIAL3_RX          PD9
-#define PIN_SERIAL3_TX          PD8
 
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only

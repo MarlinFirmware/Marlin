@@ -353,7 +353,7 @@ typedef struct {
 #endif
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-  typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
+  typedef uvalue_t(BLOCK_BUFFER_SIZE * 2) last_move_t;
 #endif
 
 #if ENABLED(ARC_SUPPORT)
@@ -535,7 +535,7 @@ class Planner {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       // Counters to manage disabling inactive extruder steppers
-      static last_move_t g_uc_extruder_last_move[E_STEPPERS];
+      static last_move_t extruder_last_move[E_STEPPERS];
     #endif
 
     #if HAS_WIRED_LCD
