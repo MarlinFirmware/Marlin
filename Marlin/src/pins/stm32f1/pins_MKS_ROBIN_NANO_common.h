@@ -208,8 +208,8 @@
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
   #define SPI_FLASH_MOSI_PIN                PB15

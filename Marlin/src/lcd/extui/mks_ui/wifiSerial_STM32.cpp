@@ -230,7 +230,7 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
 
     WRITE(WIFI_IO1_PIN, HIGH);
 
-    rx_buffer_index_t i = (unsigned int)(obj->rx_head + 1) % WIFI_RX_BUF_SIZE;
+    rx_buffer_index_t i = uint16_t(obj->rx_head + 1) % WIFI_RX_BUF_SIZE;
 
     // if we should be storing the received character into the location
     // just before the tail (meaning that the head would advance to the
@@ -292,7 +292,7 @@ void WifiSerial::begin(unsigned long baud, byte config) {
     case 0: Error_Handler(); break;
   }
 
-  uart_init(&_serial, (uint32_t)baud, databits, parity, stopbits);
+  uart_init(&_serial, uint32_t(baud), databits, parity, stopbits);
   enableHalfDuplexRx();
   if (baud == WIFI_BAUDRATE)
     uart_attach_rx_callback(&_serial, _rx_complete_irq);
@@ -311,7 +311,7 @@ void WifiSerial::end() {
 }
 
 int WifiSerial::available() {
-  return ((unsigned int)(WIFI_RX_BUF_SIZE + _serial.rx_head - _serial.rx_tail)) % WIFI_RX_BUF_SIZE;
+  return uint16_t(WIFI_RX_BUF_SIZE + _serial.rx_head - _serial.rx_tail) % WIFI_RX_BUF_SIZE;
 }
 
 //
@@ -322,7 +322,7 @@ int WifiSerial::read() {
   // if the head isn't ahead of the tail, we don't have any characters
   if (_serial.rx_head == _serial.rx_tail) return -1;
 
-  unsigned char c = _serial.rx_buff[_serial.rx_tail];
+  uint8_t c = _serial.rx_buff[_serial.rx_tail];
   _serial.rx_tail = (rx_buffer_index_t)(_serial.rx_tail + 1) % WIFI_RX_BUF_SIZE;
   return c;
 }

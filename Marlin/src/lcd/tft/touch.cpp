@@ -43,7 +43,7 @@ int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
-millis_t Touch::last_touch_ms = 0,
+millis_t Touch::next_touch_ms = 0,
          Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::touch_time;
@@ -83,8 +83,8 @@ void Touch::idle() {
 
   // Return if Touch::idle is called within the same millisecond
   const millis_t now = millis();
-  if (last_touch_ms == now) return;
-  last_touch_ms = now;
+  if (now <= next_touch_ms) return;
+  next_touch_ms = now;
 
   if (get_point(&_x, &_y)) {
     #if HAS_RESUME_CONTINUE
@@ -97,26 +97,24 @@ void Touch::idle() {
       }
     #endif
 
-    ui.reset_status_timeout(last_touch_ms);
+    ui.reset_status_timeout(now);
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(last_touch_ms, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
     }
 
-    if (time_to_hold == 0) time_to_hold = last_touch_ms + MINIMUM_HOLD_TIME;
-    if (PENDING(last_touch_ms, time_to_hold)) return;
+    if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
+    if (PENDING(now, time_to_hold)) return;
 
     if (x != 0 && y != 0) {
       if (current_control) {
         if (WITHIN(x, current_control->x - FREE_MOVE_RANGE, current_control->x + current_control->width + FREE_MOVE_RANGE) && WITHIN(y, current_control->y - FREE_MOVE_RANGE, current_control->y + current_control->height + FREE_MOVE_RANGE)) {
-          NOLESS(x, current_control->x);
-          NOMORE(x, current_control->x + current_control->width);
-          NOLESS(y, current_control->y);
-          NOMORE(y, current_control->y + current_control->height);
+          LIMIT(x, current_control->x, current_control->x + current_control->width);
+          LIMIT(y, current_control->y, current_control->y + current_control->height);
           touch(current_control);
         }
         else
@@ -133,7 +131,7 @@ void Touch::idle() {
       }
 
       if (!current_control)
-        touch_time = last_touch_ms;
+        touch_time = now;
     }
     x = _x;
     y = _y;
@@ -233,6 +231,13 @@ void Touch::touch(touch_control_t *control) {
         MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
       #endif
       break;
+    case STOP:
+      ui.goto_screen([]{
+        MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
+          GET_TEXT_F(MSG_BACK), ui.abort_print, ui.goto_previous_screen,
+          GET_TEXT_F(MSG_STOP_PRINT), FSTR_P(nullptr), FPSTR("?"));
+        });
+      break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
@@ -252,8 +257,8 @@ void Touch::touch(touch_control_t *control) {
 void Touch::hold(touch_control_t *control, millis_t delay) {
   current_control = control;
   if (delay) {
-    repeat_delay = delay > MIN_REPEAT_DELAY ? delay : MIN_REPEAT_DELAY;
-    time_to_hold = last_touch_ms + repeat_delay;
+    repeat_delay = _MAX(delay, uint32_t(MIN_REPEAT_DELAY));
+    time_to_hold = next_touch_ms + repeat_delay;
   }
   ui.refresh();
 }
@@ -301,6 +306,8 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
+      next_touch_ms = millis() + 100;
+      safe_delay(20);
     }
     next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
   }

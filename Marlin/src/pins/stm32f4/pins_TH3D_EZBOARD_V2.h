@@ -24,6 +24,10 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
+#if HOTENDS > 1 || E_STEPPERS > 1
+  #error "TH3D EZBoard only supports 1 hotend / E stepper."
+#endif
+
 #define BOARD_INFO_NAME   "TH3D EZBoard V2"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
 
@@ -169,12 +173,6 @@
 #define AUTO_FAN_PIN                        PC7
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
 
 //

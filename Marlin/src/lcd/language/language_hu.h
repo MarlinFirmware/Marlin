@@ -264,13 +264,15 @@ namespace Language_hu {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mozgás 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mozgás 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mozgás 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mozgás 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mozgás 100mm");
   LSTR MSG_MOVE_0001IN                    = _UxGT("Mozgás 0.025mm");
   LSTR MSG_MOVE_001IN                     = _UxGT("Mozgás 0.254mm");
   LSTR MSG_MOVE_01IN                      = _UxGT("Mozgás 2.54mm");
+  LSTR MSG_MOVE_05IN                      = _UxGT("Mozgás 12.7mm");
   LSTR MSG_MOVE_1IN                       = _UxGT("Mozgáá 25.4mm");
   LSTR MSG_SPEED                          = _UxGT("Sebesség");
-  LSTR MSG_BED_Z                          = _UxGT("Z ágy");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z ágy");
   LSTR MSG_NOZZLE                         = _UxGT("Fej");
   LSTR MSG_NOZZLE_N                       = _UxGT("Fej ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Fej parkolva");
@@ -304,10 +306,9 @@ namespace Language_hu {
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID hangolás *");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID ciklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID hangolás kész");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba! Rossz adagoló.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Hangolási hiba! Rossz adagoló.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba! Magas hömérséklet.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Hangolási hiba! Idötúllépés.");
-  LSTR MSG_SELECT                         = _UxGT("Kiválaszt");
   LSTR MSG_SELECT_E                       = _UxGT("Kiválaszt *");
   LSTR MSG_ACC                            = _UxGT("Gyorsítás");
   LSTR MSG_JERK                           = _UxGT("Rántás");
@@ -466,7 +467,7 @@ namespace Language_hu {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("TouchMI használ");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Z-Szonda telepítés");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Szonda elhelyezés");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Elöször %s%s%s kell");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Elöször %s kell");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Szonda eltolások");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");
@@ -489,9 +490,6 @@ namespace Language_hu {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Hiba: MIN höfok");
   LSTR MSG_HALTED                         = _UxGT("A NYOMTATÓ LEÁLLT");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Indítsd újra!");
-  LSTR MSG_SHORT_DAY                      = _UxGT("n"); // Csak egy karakter
-  LSTR MSG_SHORT_HOUR                     = _UxGT("ó"); // Csak egy karakter
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("p"); // Csak egy karakter
   LSTR MSG_HEATING                        = _UxGT("Fütés...");
   LSTR MSG_COOLING                        = _UxGT("Hütés...");
   LSTR MSG_BED_HEATING                    = _UxGT("Ágy fütés...");
@@ -695,12 +693,8 @@ namespace Language_hu {
 
   LSTR MSG_SD_CARD                        = _UxGT("SD Kártya");
   LSTR MSG_USB_DISK                       = _UxGT("USB Lemez");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("n"); // Csak egy karakter
+  LSTR MSG_SHORT_HOUR                     = _UxGT("ó"); // Csak egy karakter
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("p"); // Csak egy karakter
+}

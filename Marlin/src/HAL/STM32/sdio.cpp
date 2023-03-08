@@ -286,6 +286,9 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
 
     go_to_transfer_speed();
 
+    hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_ENABLE;
+    hsd.Init.ClockDiv = 8;
+
     #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3) // go to 4 bit wide mode if pins are defined
       retry_Cnt = retryCnt;
       for (;;) {
@@ -433,7 +436,10 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   #else
 
     uint8_t retries = SDIO_READ_RETRIES;
-    while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) return true;
+    while (retries--) {
+      if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) return true;
+      delay(10);
+    }
     return false;
 
   #endif

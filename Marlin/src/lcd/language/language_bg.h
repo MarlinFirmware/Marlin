@@ -79,9 +79,10 @@ namespace Language_bg {
   LSTR MSG_MOVE_01MM                      = _UxGT("Премести с 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Премести с 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Премести с 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Премести с 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Премести с 100mm");
   LSTR MSG_SPEED                          = _UxGT("Скорост");
-  LSTR MSG_BED_Z                          = _UxGT("Bed Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = " " LCD_STR_THERMOMETER _UxGT(" Дюза");
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" Дюза ~");
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" Легло");
