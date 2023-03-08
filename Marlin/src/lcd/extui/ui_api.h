@@ -426,6 +426,7 @@ namespace ExtUI {
   void onSettingsStored(bool success);
   void onSettingsLoaded(bool success);
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLoss();
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING

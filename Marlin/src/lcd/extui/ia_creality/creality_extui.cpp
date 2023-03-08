@@ -92,7 +92,7 @@ namespace ExtUI {
     DWIN_SERIAL.begin(115200);
     rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
     rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
-    memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
+    ZERO(rtscheck.databuf);
 
     delay_ms(TERN(DWINOS_4, 1500, 500)); // Delay to allow screen startup
     SetTouchScreenConfiguration();
@@ -206,7 +206,7 @@ namespace ExtUI {
 
     if (waitway_lock > 100) {
       waitway_lock = 0;
-      waitway      = 0; // clear waitway if nothing is going on
+      waitway = 0; // clear waitway if nothing is going on
     }
 
     switch (waitway) {
@@ -416,7 +416,7 @@ namespace ExtUI {
   RTSSHOW::RTSSHOW() {
     recdat.head[0] = snddat.head[0] = FHONE;
     recdat.head[1] = snddat.head[1] = FHTWO;
-    memset(databuf, 0, sizeof(databuf));
+    ZERO(databuf);
   }
 
   int16_t RTSSHOW::RTS_RecData() {
@@ -436,7 +436,7 @@ namespace ExtUI {
 
         case DGUS_HEADER2_SEEN: // Waiting for the length byte
           rx_datagram_len = DWIN_SERIAL.read();
-          //DEBUGLCDCOMM_ECHOPAIR(" (", rx_datagram_len, ") ");
+          //DEBUGLCDCOMM_ECHOPGM(" (", rx_datagram_len, ") ");
 
           // Telegram min len is 3 (command and one word of payload)
           rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
@@ -448,14 +448,14 @@ namespace ExtUI {
           Initialized = true; // We've talked to it, so we defined it as initialized.
           uint8_t command = DWIN_SERIAL.read();
 
-          //DEBUGLCDCOMM_ECHOPAIR("# ", command);
+          //DEBUGLCDCOMM_ECHOPGM("# ", command);
 
           uint8_t readlen = rx_datagram_len - 1; // command is part of len.
           uint8_t tmp[rx_datagram_len - 1];
           uint8_t *ptmp = tmp;
           while (readlen--) {
             receivedbyte = DWIN_SERIAL.read();
-            //DEBUGLCDCOMM_ECHOPAIR(" ", receivedbyte);
+            //DEBUGLCDCOMM_ECHOPGM(" ", receivedbyte);
             *ptmp++ = receivedbyte;
           }
           //DEBUGLCDCOMM_ECHOPGM(" # ");
@@ -494,8 +494,8 @@ namespace ExtUI {
     return -1;
   }
 
-  void RTSSHOW::RTS_SndData(void) {
-    if ((snddat.head[0] == FHONE) && (snddat.head[1] == FHTWO) && snddat.len >= 3) {
+  void RTSSHOW::RTS_SndData() {
+    if (snddat.head[0] == FHONE && snddat.head[1] == FHTWO && snddat.len >= 3) {
       databuf[0] = snddat.head[0];
       databuf[1] = snddat.head[1];
       databuf[2] = snddat.len;
@@ -527,7 +527,7 @@ namespace ExtUI {
       }
 
       memset(&snddat, 0, sizeof(snddat));
-      memset(databuf, 0, sizeof(databuf));
+      ZERO(databuf);
       snddat.head[0] = FHONE;
       snddat.head[1] = FHTWO;
     }
@@ -539,7 +539,6 @@ namespace ExtUI {
   }
 
   void RTSSHOW::RTS_SndData(const char *str, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
-
     int16_t len = strlen(str);
     constexpr int16_t maxlen = SizeofDatabuf - 6;
     if (len > 0) {
@@ -556,25 +555,29 @@ namespace ExtUI {
         DWIN_SERIAL.write(databuf[i]);
         delay_us(1);
       }
-      memset(databuf, 0, sizeof(databuf));
+      ZERO(databuf);
     }
   }
 
-  void RTSSHOW::RTS_SndData(char c, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
     snddat.command = cmd;
     snddat.addr    = addr;
-    snddat.data[0] = uint32_t(c);
-    snddat.data[0] = snddat.data[0] << 8;
+    snddat.data[0] = uint32_t(uint16_t(c) << 8);
     snddat.len     = 5;
     RTS_SndData();
   }
 
-  void RTSSHOW::RTS_SndData(uint8_t *str, uint32_t addr, uint8_t cmd) { RTS_SndData((char *)str, addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(int16_t n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const int n, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
     if (cmd == VarAddr_W) {
-      snddat.data[0] = n;
-      snddat.len = 5;
+      if ((unsigned int)n > 0xFFFF) {
+        snddat.data[0] = n >> 16;
+        snddat.data[1] = n & 0xFFFF;
+        snddat.len = 7;
+      }
+      else {
+        snddat.data[0] = n;
+        snddat.len = 5;
+      }
     }
     else if (cmd == RegAddr_W) {
       snddat.data[0] = n;
@@ -589,13 +592,7 @@ namespace ExtUI {
     RTS_SndData();
   }
 
-  void RTSSHOW::RTS_SndData(uint16_t n, uint32_t addr, uint8_t cmd) { RTS_SndData(int16_t(n), addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(float n, uint32_t addr, uint8_t cmd) { RTS_SndData(int16_t(n), addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(int32_t n, uint32_t addr, uint8_t cmd) { RTS_SndData(uint32_t(n), addr, cmd); }
-
-  void RTSSHOW::RTS_SndData(uint32_t n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
+  void RTSSHOW::RTS_SndData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W*/) {
     if (cmd == VarAddr_W) {
       if (n > 0xFFFF) {
         snddat.data[0] = n >> 16;
@@ -632,11 +629,11 @@ namespace ExtUI {
       if (recdat.addr == Addrbuf[i]) {
         if (Addrbuf[i] == NzBdSet || Addrbuf[i] == NozzlePreheat || Addrbuf[i] == BedPreheat || Addrbuf[i] == Flowrate)
           Checkkey = ManualSetTemp;
-        else if (Addrbuf[i] >= Stopprint && Addrbuf[i] <= Resumeprint)
+        else if (WITHIN(Addrbuf[i], Stopprint, Resumeprint))
           Checkkey = PrintChoice;
-        else if (Addrbuf[i] >= AutoZero && Addrbuf[i] <= DisplayZaxis)
+        else if (WITHIN(Addrbuf[i], AutoZero, DisplayZaxis))
           Checkkey = XYZEaxis;
-        else if (Addrbuf[i] >= FilamentUnit1 && Addrbuf[i] <= FilamentUnit2)
+        else if (WITHIN(Addrbuf[i], FilamentUnit1, FilamentUnit2))
           Checkkey = Filament;
         else
           Checkkey = i;
@@ -1054,7 +1051,7 @@ namespace ExtUI {
         else if (recdat.data[0] == 2) { // Exchange filament
           InforShowStatus = true;
           TPShowStatus    = false;
-          memset(ChangeMaterialbuf, 0, sizeof(ChangeMaterialbuf));
+          ZERO(ChangeMaterialbuf);
           ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
           RTS_SndData(10 * ChangeMaterialbuf[0], FilamentUnit1); // It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
           RTS_SndData(10 * ChangeMaterialbuf[1], FilamentUnit2);
@@ -1682,8 +1679,10 @@ namespace ExtUI {
                            | (Settings.display_sound         ? _BV(3) : 0)  // 3: audio
                            | (Settings.display_standby       ? _BV(2) : 0)  // 2: backlight on standby
                            | (Settings.screen_rotation == 10 ? _BV(1) : 0)  // 1 & 0: Inversion
-                           #if EITHER(MachineCR10Smart, MachineCR10SmartPro)
+                           #if LCD_SCREEN_ROTATE == 90
                              | _BV(0) // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+                           #elif LCD_SCREEN_ROTATE
+                             #error "Only 90° rotation is supported for the selected LCD."
                            #endif
                            ;
 
@@ -2014,6 +2013,9 @@ namespace ExtUI {
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       startprogress   = 254;
       InforShowStatus = true;

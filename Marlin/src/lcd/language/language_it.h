@@ -577,6 +577,8 @@ namespace Language_it {
   LSTR MSG_TOUCHMI_SAVE                   = _UxGT("Memorizzare");
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Estendi TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estendi Sonda-Z");
+  LSTR MSG_MANUAL_PENUP                   = _UxGT("Penna su");
+  LSTR MSG_MANUAL_PENDOWN                 = _UxGT("Penna giù");
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Ritrai BLTouch");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Ritrai Sonda-Z");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s prima");
