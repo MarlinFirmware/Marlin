@@ -1074,7 +1074,8 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.soft_pwm_amount = 0;
 
     // Calculate physical constants from three equally-spaced samples
-    sample_count = (sample_count + 1) / 2 * 2 - 1;
+    // Sample count must be odd to ensure we have an exact "middle" sample between t1 and t3
+    if (sample_count%2 == 0) sample_count--;
     const float t1 = temp_samples[0],
                 t2 = temp_samples[(sample_count - 1) >> 1],
                 t3 = temp_samples[sample_count - 1];
