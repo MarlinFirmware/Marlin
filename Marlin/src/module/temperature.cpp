@@ -1041,7 +1041,7 @@ volatile bool Temperature::raw_temps_ready = false;
     const millis_t heat_start_time = next_test_ms = ms;
     celsius_float_t temp_samples[16];
     uint8_t sample_count = 0;
-    uint16_t sample_distance = 1;
+    uint16_t ticks_per_sample = 1;
     float t1_time = 0;
 
     wait_for_heatup = true;
@@ -1056,7 +1056,7 @@ volatile bool Temperature::raw_temps_ready = false;
             for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
               temp_samples[i] = temp_samples[i*2];
             sample_count /= 2;
-            sample_distance *= 2;
+            ticks_per_sample *= 2;
           }
 
           if (sample_count == 0)
@@ -1066,7 +1066,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
         if (current_temp >= 200.0f) break;
 
-        next_test_ms += heat_test_tick_interval * sample_distance;
+        next_test_ms += heat_test_tick_interval * ticks_per_sample;
       }
     }
     wait_for_heatup = false;
@@ -1079,7 +1079,7 @@ volatile bool Temperature::raw_temps_ready = false;
                 t2 = temp_samples[(sample_count - 1) >> 1],
                 t3 = temp_samples[sample_count - 1];
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
-          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * heat_test_tick_interval * (sample_count >> 1));
+          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_tick_interval * (sample_count >> 1));
 
     mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - ambient_temp);
     mpc.fan255_adjustment = 0.0f;
@@ -1149,7 +1149,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Calculate a new and better asymptotic temperature and re-evaluate the other constants
     asymp_temp = ambient_temp + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
-    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (sample_distance * heat_test_tick_interval_sec * (sample_count >> 1));
+    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_tick_interval_sec * (sample_count >> 1));
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
     mpc.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
 
@@ -1160,7 +1160,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #if 0
       SERIAL_ECHOLNPGM("t1_time ", t1_time);
       SERIAL_ECHOLNPGM("sample_count ", sample_count);
-      SERIAL_ECHOLNPGM("sample_distance ", sample_distance);
+      SERIAL_ECHOLNPGM("ticks_per_sample ", ticks_per_sample);
       for (uint8_t i = 0; i < sample_count; i++)
         SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
       SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
