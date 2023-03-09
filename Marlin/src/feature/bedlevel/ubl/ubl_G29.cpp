@@ -1491,30 +1491,29 @@ void unified_bed_leveling::smart_fill_mesh() {
     const float dx = (x_max - x_min) / (param.J_grid_size - 1),
                 dy = (y_max - y_min) / (param.J_grid_size - 1);
 
-    xy_float_t points[3];
-    probe.get_three_points(points);
-
-    #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
-      mesh_index_pair cpos;
-      #if DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT)
-      LOOP_L_N(ix, 3) { //Convert points to coordinates of mesh points
-        cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
-        points[ix] = cpos.meshpos();
-      }
-      #endif
-    #endif
-
     float measured_z;
     bool abort_flag = false;
-
-    #if ENABLED(VALIDATE_MESH_TILT)
-      float z1, z2, z3;  // Needed for algorithm validation below
-    #endif
 
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
 
     if (do_3_pt_leveling) {
+      xy_float_t points[3];
+      probe.get_three_points(points);
+
+      #if ENABLED(UBL_LEVEL_ON_MESH_POINT) && (DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT))
+          mesh_index_pair cpos;
+          LOOP_L_N(ix, 3) { //Convert points to coordinates of mesh points
+          cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
+          points[ix] = cpos.meshpos();
+        }
+        #endif
+      #endif
+
+      #if ENABLED(VALIDATE_MESH_TILT)
+        float z1, z2, z3;  // Needed for algorithm validation below
+      #endif
+
       SERIAL_ECHOLNPGM("Tilting mesh (1/3)");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 1/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
@@ -1589,6 +1588,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
+          mesh_index_pair cpos;
           rpos.x -= probe.offset.x;
           rpos.y -= probe.offset.y;
           cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
