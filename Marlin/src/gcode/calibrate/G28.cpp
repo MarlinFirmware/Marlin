@@ -86,7 +86,7 @@
         NUM_AXIS_LIST(
           TERN0(X_SENSORLESS, tmc_enable_stallguard(stepperX)),
           TERN0(Y_SENSORLESS, tmc_enable_stallguard(stepperY)),
-          false, false, false, false
+          false, false, false, false, false, false, false
         )
         , TERN0(X2_SENSORLESS, tmc_enable_stallguard(stepperX2))
         , TERN0(Y2_SENSORLESS, tmc_enable_stallguard(stepperY2))

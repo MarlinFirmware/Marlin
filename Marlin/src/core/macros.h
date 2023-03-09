@@ -634,7 +634,9 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL(V...)     EVAL16(V)
+#define EVAL           EVAL16
+#define EVAL4096(V...) EVAL2048(EVAL2048(V))
+#define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))
 #define EVAL512(V...)  EVAL256(EVAL256(V))
 #define EVAL256(V...)  EVAL128(EVAL128(V))

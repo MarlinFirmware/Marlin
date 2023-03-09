@@ -1664,7 +1664,7 @@ void Stepper::pulse_phase_isr() {
 
   do {
     #define _APPLY_STEP(AXIS, INV, ALWAYS) AXIS ##_APPLY_STEP(INV, ALWAYS)
-    #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
+    #define _STEP_STATE(AXIS) STEP_STATE_## AXIS
 
     // Determine if a pulse is needed using Bresenham
     #define PULSE_PREP(AXIS) do{ \
@@ -1714,14 +1714,14 @@ void Stepper::pulse_phase_isr() {
     #define PULSE_START(AXIS) do{ \
       if (step_needed[_AXIS(AXIS)]) { \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-        _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), 0); \
+        _APPLY_STEP(AXIS, _STEP_STATE(AXIS), 0); \
       } \
     }while(0)
 
     // Stop an active pulse if needed
     #define PULSE_STOP(AXIS) do { \
       if (step_needed[_AXIS(AXIS)]) { \
-        _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), 0); \
+        _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), 0); \
       } \
     }while(0)
 
@@ -1869,7 +1869,6 @@ void Stepper::pulse_phase_isr() {
             // don't actually step here, but do subtract movements steps
             // from the linear advance step count
             step_needed.e = false;
-            count_position.e -= count_direction.e;
             la_advance_steps--;
           }
         #endif
@@ -1933,7 +1932,7 @@ void Stepper::pulse_phase_isr() {
     #if ENABLED(MIXING_EXTRUDER)
       if (step_needed.e) {
         count_position[E_AXIS] += count_direction[E_AXIS];
-        E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+        E_STEP_WRITE(mixer.get_next_stepper(), STEP_STATE_E);
       }
     #elif HAS_E0_STEP
       PULSE_START(E);
@@ -1977,7 +1976,7 @@ void Stepper::pulse_phase_isr() {
     #endif
 
     #if ENABLED(MIXING_EXTRUDER)
-      if (step_needed.e) E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
+      if (step_needed.e) E_STEP_WRITE(mixer.get_stepper(), !STEP_STATE_E);
     #elif HAS_E0_STEP
       PULSE_STOP(E);
     #endif
@@ -2062,7 +2061,7 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
         const uint8_t rate_mod_256 = (step_rate & 0x00FF);
         const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)][0]),
                         gain = uint16_t(pgm_read_word(table_address + 2));
-        return uint16_t(pgm_read_word(table_address)) - MultiU16X8toH16(rate_mod_256, gain);
+        return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(rate_mod_256, gain);
       }
       else { // lower step rates
         uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
@@ -2262,6 +2261,8 @@ uint32_t Stepper::block_phase_isr() {
                 DIR_WAIT_AFTER();
               }
             }
+            else
+              la_interval = LA_ADV_NEVER;
           }
         #endif // LIN_ADVANCE
 
@@ -2638,7 +2639,7 @@ uint32_t Stepper::block_phase_isr() {
       la_delta_error -= advance_divisor;
 
       // Set the STEP pulse ON
-      E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_next_stepper(), stepper_extruder), !INVERT_E_STEP_PIN);
+      E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_next_stepper(), stepper_extruder), STEP_STATE_E);
     }
 
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
@@ -2652,7 +2653,7 @@ uint32_t Stepper::block_phase_isr() {
       #endif
 
       // Set the STEP pulse OFF
-      E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_stepper(), stepper_extruder), INVERT_E_STEP_PIN);
+      E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_stepper(), stepper_extruder), !STEP_STATE_E);
     }
   }
 
@@ -2906,7 +2907,7 @@ void Stepper::init() {
 
   #define AXIS_INIT(AXIS, PIN) \
     _STEP_INIT(AXIS); \
-    _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
+    _WRITE_STEP(AXIS, !_STEP_STATE(PIN)); \
     _DISABLE_AXIS(AXIS)
 
   #define E_AXIS_INIT(NUM) AXIS_INIT(E## NUM, E)
@@ -2915,7 +2916,7 @@ void Stepper::init() {
   #if HAS_X_STEP
     #if HAS_X2_STEPPER
       X2_STEP_INIT();
-      X2_STEP_WRITE(INVERT_X_STEP_PIN);
+      X2_STEP_WRITE(!STEP_STATE_X);
     #endif
     AXIS_INIT(X, X);
   #endif
@@ -2923,7 +2924,7 @@ void Stepper::init() {
   #if HAS_Y_STEP
     #if HAS_DUAL_Y_STEPPERS
       Y2_STEP_INIT();
-      Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
+      Y2_STEP_WRITE(!STEP_STATE_Y);
     #endif
     AXIS_INIT(Y, Y);
   #endif
@@ -2931,15 +2932,15 @@ void Stepper::init() {
   #if HAS_Z_STEP
     #if NUM_Z_STEPPERS >= 2
       Z2_STEP_INIT();
-      Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
+      Z2_STEP_WRITE(!STEP_STATE_Z);
     #endif
     #if NUM_Z_STEPPERS >= 3
       Z3_STEP_INIT();
-      Z3_STEP_WRITE(INVERT_Z_STEP_PIN);
+      Z3_STEP_WRITE(!STEP_STATE_Z);
     #endif
     #if NUM_Z_STEPPERS >= 4
       Z4_STEP_INIT();
-      Z4_STEP_WRITE(INVERT_Z_STEP_PIN);
+      Z4_STEP_WRITE(!STEP_STATE_Z);
     #endif
     AXIS_INIT(Z, Z);
   #endif
@@ -3338,19 +3339,19 @@ void Stepper::report_positions() {
 
   #if DISABLED(DELTA)
 
-    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{           \
-      const uint8_t old_dir = _READ_DIR(AXIS);          \
-      _ENABLE_AXIS(AXIS);                               \
-      DIR_WAIT_BEFORE();                                \
-      _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INV);      \
-      DIR_WAIT_AFTER();                                 \
-      _SAVE_START();                                    \
-      _APPLY_STEP(AXIS, !_INVERT_STEP_PIN(AXIS), true); \
-      _PULSE_WAIT();                                    \
-      _APPLY_STEP(AXIS, _INVERT_STEP_PIN(AXIS), true);  \
-      EXTRA_DIR_WAIT_BEFORE();                          \
-      _APPLY_DIR(AXIS, old_dir);                        \
-      EXTRA_DIR_WAIT_AFTER();                           \
+    #define BABYSTEP_AXIS(AXIS, INV, DIR) do{      \
+      const uint8_t old_dir = _READ_DIR(AXIS);     \
+      _ENABLE_AXIS(AXIS);                          \
+      DIR_WAIT_BEFORE();                           \
+      _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INV); \
+      DIR_WAIT_AFTER();                            \
+      _SAVE_START();                               \
+      _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);  \
+      _PULSE_WAIT();                               \
+      _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true); \
+      EXTRA_DIR_WAIT_BEFORE();                     \
+      _APPLY_DIR(AXIS, old_dir);                   \
+      EXTRA_DIR_WAIT_AFTER();                      \
     }while(0)
 
   #endif
@@ -3365,11 +3366,11 @@ void Stepper::report_positions() {
       _APPLY_DIR(B, _INVERT_DIR(B)^DIR^INV^ALT);                \
       DIR_WAIT_AFTER();                                         \
       _SAVE_START();                                            \
-      _APPLY_STEP(A, !_INVERT_STEP_PIN(A), true);               \
-      _APPLY_STEP(B, !_INVERT_STEP_PIN(B), true);               \
+      _APPLY_STEP(A, _STEP_STATE(A), true);                     \
+      _APPLY_STEP(B, _STEP_STATE(B), true);                     \
       _PULSE_WAIT();                                            \
-      _APPLY_STEP(A, _INVERT_STEP_PIN(A), true);                \
-      _APPLY_STEP(B, _INVERT_STEP_PIN(B), true);                \
+      _APPLY_STEP(A, !_STEP_STATE(A), true);                    \
+      _APPLY_STEP(B, !_STEP_STATE(B), true);                    \
       EXTRA_DIR_WAIT_BEFORE();                                  \
       _APPLY_DIR(A, old_dir.a); _APPLY_DIR(B, old_dir.b);       \
       EXTRA_DIR_WAIT_AFTER();                                   \
@@ -3466,58 +3467,58 @@ void Stepper::report_positions() {
 
           _SAVE_START();
 
-          X_STEP_WRITE(!INVERT_X_STEP_PIN);
+          X_STEP_WRITE(STEP_STATE_X);
           #ifdef Y_STEP_WRITE
-            Y_STEP_WRITE(!INVERT_Y_STEP_PIN);
+            Y_STEP_WRITE(STEP_STATE_Y);
           #endif
           #ifdef Z_STEP_WRITE
-            Z_STEP_WRITE(!INVERT_Z_STEP_PIN);
+            Z_STEP_WRITE(STEP_STATE_Z);
           #endif
           #ifdef I_STEP_WRITE
-            I_STEP_WRITE(!INVERT_I_STEP_PIN);
+            I_STEP_WRITE(STEP_STATE_I);
           #endif
           #ifdef J_STEP_WRITE
-            J_STEP_WRITE(!INVERT_J_STEP_PIN);
+            J_STEP_WRITE(STEP_STATE_J);
           #endif
           #ifdef K_STEP_WRITE
-            K_STEP_WRITE(!INVERT_K_STEP_PIN);
+            K_STEP_WRITE(STEP_STATE_K);
           #endif
           #ifdef U_STEP_WRITE
-            U_STEP_WRITE(!INVERT_U_STEP_PIN);
+            U_STEP_WRITE(STEP_STATE_U);
           #endif
           #ifdef V_STEP_WRITE
-            V_STEP_WRITE(!INVERT_V_STEP_PIN);
+            V_STEP_WRITE(STEP_STATE_V);
           #endif
           #ifdef W_STEP_WRITE
-            W_STEP_WRITE(!INVERT_W_STEP_PIN);
+            W_STEP_WRITE(STEP_STATE_W);
           #endif
 
           _PULSE_WAIT();
 
-          X_STEP_WRITE(INVERT_X_STEP_PIN);
+          X_STEP_WRITE(!STEP_STATE_X);
           #ifdef Y_STEP_WRITE
-            Y_STEP_WRITE(INVERT_Y_STEP_PIN);
+            Y_STEP_WRITE(!STEP_STATE_Y);
           #endif
           #ifdef Z_STEP_WRITE
-            Z_STEP_WRITE(INVERT_Z_STEP_PIN);
+            Z_STEP_WRITE(!STEP_STATE_Z);
           #endif
           #ifdef I_STEP_WRITE
-            I_STEP_WRITE(INVERT_I_STEP_PIN);
+            I_STEP_WRITE(!STEP_STATE_I);
           #endif
           #ifdef J_STEP_WRITE
-            J_STEP_WRITE(INVERT_J_STEP_PIN);
+            J_STEP_WRITE(!STEP_STATE_J);
           #endif
           #ifdef K_STEP_WRITE
-            K_STEP_WRITE(INVERT_K_STEP_PIN);
+            K_STEP_WRITE(!STEP_STATE_K);
           #endif
           #ifdef U_STEP_WRITE
-            U_STEP_WRITE(INVERT_U_STEP_PIN);
+            U_STEP_WRITE(!STEP_STATE_U);
           #endif
            #ifdef V_STEP_WRITE
-            V_STEP_WRITE(INVERT_V_STEP_PIN);
+            V_STEP_WRITE(!STEP_STATE_V);
           #endif
           #ifdef W_STEP_WRITE
-            W_STEP_WRITE(INVERT_W_STEP_PIN);
+            W_STEP_WRITE(!STEP_STATE_W);
           #endif
 
           // Restore direction bits
