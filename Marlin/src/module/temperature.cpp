@@ -1006,7 +1006,8 @@ volatile bool Temperature::raw_temps_ready = false;
       LCD_MESSAGE(MSG_COOLING);
     #endif
 
-    millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
+    const millis_t ambient_test_interval_ms = 10000UL;
+    millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + ambient_test_interval_ms;
     celsius_float_t current_temp = degHotend(e),
                     ambient_temp = current_temp;
 
@@ -1020,7 +1021,7 @@ volatile bool Temperature::raw_temps_ready = false;
           break;
         }
         ambient_temp = current_temp;
-        next_test_ms += 10000UL;
+        next_test_ms += ambient_test_interval_ms;
       }
     }
     wait_for_heatup = false;
