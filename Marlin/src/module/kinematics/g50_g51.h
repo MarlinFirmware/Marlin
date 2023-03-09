@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,8 +23,8 @@
 #include "transform_gcode.h"
 
 /**
- * G50 takes a centre and a scale, and scales subsequent gcode coordinates by that scale centred on that centre
- * 
+ * G50 takes a center and a scale, and scales subsequent G-code coordinates by that scale centered on that center
+ *
  * G51 cancels scaling
  */
 class G50G51 : TransformGCode {
@@ -36,6 +36,6 @@ class G50G51 : TransformGCode {
   vector_3 *get_offset();
 
   void execute_g50();
-  void execute_g51(xyz_pos_t &centre, xyz_float_t &scale);
+  void execute_g51(xyz_pos_t &center, xyz_float_t &scale);
 
 };
