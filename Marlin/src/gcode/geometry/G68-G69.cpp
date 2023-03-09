@@ -41,7 +41,7 @@ void GcodeSuite::G68() {
   if (!parser.seen_any()) return G68_report();
   if (parser.seenval('X') || parser.seenval('A')) rotation.x = RAW_X_POSITION(parser.value_linear_units());
   if (parser.seenval('Y') || parser.seenval('B')) rotation.y = RAW_Y_POSITION(parser.value_linear_units());
-  if (parser.seenval('R')) rotation.rad = RADIANS(parser.value_float());
+  if (parser.seenval('R')) rotation.set_angle(RADIANS(parser.value_float()));
 }
 
 /**

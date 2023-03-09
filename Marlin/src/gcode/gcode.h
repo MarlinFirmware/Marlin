@@ -353,19 +353,20 @@ typedef bits_t(NUM_REL_MODES) relative_t;
 
 #if ENABLED(CNC_COORDINATE_ROTATION)
   typedef struct {
-    float x, y, rad;
-    void reset() { x = y = rad = 0.0f; }
+    float x, y, rad, s, c;
+    void set_angle(const_float_t r) { rad = r; s = sin(r); c = cos(r); }
+    void reset() { x = y = rad = s = c = 0.0f; }
     void rotate(xy_pos_t &point) {
       if (!rad) return;
       const xy_pos_t p = point;
-      point.x = (p.x - x) * cos(rad) - (p.y - y) * sin(rad) + x;
-      point.y = (p.x - x) * sin(rad) + (p.y - y) * cos(rad) + y;
+      point.x = x + (p.x - x) * c - (p.y - y) * s;
+      point.y = y + (p.x - x) * s + (p.y - y) * c;
     }
     void unrotate(xy_pos_t &point) {
       if (!rad) return;
       const xy_pos_t p = point;
-      point.x = (p.x - x) * cos(-rad) - (p.y - y) * sin(-rad) + x;
-      point.y = (p.x - x) * sin(-rad) + (p.y - y) * cos(-rad) + y;
+      point.x = x + (p.x - x) * c - (p.y - y) * s;
+      point.y = y + (p.x - x) * s + (p.y - y) * c;
     }
   } rotation_t;
 #endif
