@@ -1494,6 +1494,14 @@ void unified_bed_leveling::smart_fill_mesh() {
     xy_float_t points[3];
     probe.get_three_points(points);
 
+    #if ENABLED(TILT_PROBE_ON_MESH)
+    mesh_index_pair cpos;
+    LOOP_L_N(ix, 3) { //Convert points to coordinates of mesh points
+      cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
+      points[ix] = cpos.meshpos();
+    }
+    #endif
+
     float measured_z;
     bool abort_flag = false;
 
@@ -1578,6 +1586,11 @@ void unified_bed_leveling::smart_fill_mesh() {
         LOOP_L_N(iy, param.J_grid_size) {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
+          #if ENABLED(TILT_PROBE_ON_MESH)
+          cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
+          rpos = cpos.meshpos();
+          #endif
+          
           if (!abort_flag) {
             SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
             TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
