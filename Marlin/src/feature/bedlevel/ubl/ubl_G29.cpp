@@ -1589,6 +1589,8 @@ void unified_bed_leveling::smart_fill_mesh() {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
+          rpos.x -= probe.offset.x;
+          rpos.y -= probe.offset.y;
           cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
           rpos = cpos.meshpos();
           #endif
