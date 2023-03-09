@@ -1494,12 +1494,14 @@ void unified_bed_leveling::smart_fill_mesh() {
     xy_float_t points[3];
     probe.get_three_points(points);
 
-    #if ENABLED(TILT_PROBE_ON_MESH)
-    mesh_index_pair cpos;
-    LOOP_L_N(ix, 3) { //Convert points to coordinates of mesh points
-      cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
-      points[ix] = cpos.meshpos();
-    }
+    #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
+      mesh_index_pair cpos;
+      #if DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT)
+      LOOP_L_N(ix, 3) { //Convert points to coordinates of mesh points
+        cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
+        points[ix] = cpos.meshpos();
+      }
+      #endif
     #endif
 
     float measured_z;
@@ -1586,7 +1588,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         LOOP_L_N(iy, param.J_grid_size) {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
-          #if ENABLED(TILT_PROBE_ON_MESH)
+          #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
           cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
           rpos = cpos.meshpos();
           #endif

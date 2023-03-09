@@ -2153,6 +2153,16 @@
   //#define PROBE_PT_2_Y 20
   //#define PROBE_PT_3_X 170
   //#define PROBE_PT_3_Y 20
+  
+  /*
+   * Define UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT and UBL_LEVEL_ON_MESH_POINT 
+   * to use the nearest mesh points to the defined points instead of the exact
+   * specified position
+   * 
+   */
+  #if BOTH(UBL_LEVEL_ON_MESH_POINT, HAS_FIXED_3POINT)
+    //#define UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT 
+  #endif
 #endif
 
 /**
