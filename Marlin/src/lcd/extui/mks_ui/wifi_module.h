@@ -180,7 +180,7 @@ extern CLOUD_PARA cloud_para;
 extern WIFI_GCODE_BUFFER espGcodeFifo;
 
 uint32_t getWifiTick();
-uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick);
+uint32_t getWifiTickDiff(const int32_t lastTick, const int32_t curTick);
 
 void mks_esp_wifi_init();
 extern int cfg_cloud_flag;

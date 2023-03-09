@@ -55,11 +55,11 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-extern uint8_t Explore_Disk(char *path, uint8_t recu_level, bool with_longnames);
+uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bool with_longnames);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
-extern uint16_t getTickDiff(uint16_t curTick, uint16_t lastTick);
+uint16_t getTickDiff(const uint16_t curTick, const uint16_t lastTick);
 
 volatile SZ_USART_FIFO WifiRxFifo;
 
@@ -116,8 +116,8 @@ extern bool flash_dma_mode;
 
 uint32_t getWifiTick() { return millis(); }
 
-uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
-  return (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFF - lastTick + curTick) * TICK_CYCLE;
+uint32_t getWifiTickDiff(const int32_t lastTick, const int32_t curTick) {
+  return TICK_CYCLE * (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFF - lastTick + curTick);
 }
 
 void wifi_delay(int n) {
@@ -719,7 +719,7 @@ int send_to_wifi(uint8_t *buf, int len) { return package_to_wifi(WIFI_TRANS_INF,
 
 void set_cur_file_sys(int fileType) { gCfgItems.fileSysType = fileType; }
 
-void get_file_list(char *path, bool with_longnames) {
+void get_file_list(const char * const path, const bool with_longnames) {
   if (!path) return;
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
@@ -807,7 +807,7 @@ typedef struct {
   uint8_t tail;
 } ESP_PROTOC_FRAME;
 
-static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
+static int cut_msg_head(uint8_t * const msg, const uint16_t msgLen, uint16_t cutLen) {
   if (msgLen < cutLen) return 0;
 
   else if (msgLen == cutLen) {
@@ -823,7 +823,7 @@ static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(char *path , uint8_t recu_level, bool with_longnames) {
+uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bool with_longnames) {
   char Fstream[200];
 
   if (!path) return 0;
@@ -856,7 +856,7 @@ uint8_t Explore_Disk(char *path , uint8_t recu_level, bool with_longnames) {
   return fileCnt;
 }
 
-static void wifi_gcode_exec(uint8_t *cmd_line) {
+static void wifi_gcode_exec(uint8_t * const cmd_line) {
   int8_t tempBuf[100] = { 0 };
   uint8_t *tmpStr = 0;
   int cmd_value;
@@ -1302,7 +1302,7 @@ void get_wifi_list_command_send() {
   raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
 }
 
-static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
+static void net_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
   int wifiNameLen, wifiKeyLen, hostLen, id_len, ver_len;
 
   if (msgLen <= 0) return;
@@ -1337,7 +1337,7 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
     }
   }
 
-  cloud_para.state =msg[10 + wifiNameLen + wifiKeyLen];
+  cloud_para.state = msg[10 + wifiNameLen + wifiKeyLen];
   hostLen = msg[11 + wifiNameLen + wifiKeyLen];
   if (cloud_para.state) {
     if (hostLen < 96) {
@@ -1377,7 +1377,7 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
   }
 }
 
-static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
+static void wifi_list_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
   int wifiNameLen,wifiMsgIdex = 1;
   int8_t wifi_name_is_same = 0;
   int8_t i, j;
@@ -1436,7 +1436,7 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
   }
 }
 
-static void gcode_msg_handle(uint8_t * msg, uint16_t msgLen) {
+static void gcode_msg_handle(const uint8_t * const msg, const const uint16_t msgLen) {
   uint8_t gcodeBuf[100] = { 0 };
   char *index_s, *index_e;
 
@@ -1503,8 +1503,8 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
   COPY(source, FileName_unicode);
 }
 
-static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
-  uint8_t fileNameLen = *msg;
+static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
+  const uint8_t fileNameLen = *msg;
 
   if (msgLen != fileNameLen + 5) return;
 
@@ -1586,8 +1586,8 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
 #define FRAG_MASK ~_BV32(31)
 
-static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
-  uint32_t frag = *((uint32_t *)msg);
+static void file_fragment_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
+  const uint32_t frag = *((uint32_t *)msg);
   if ((frag & FRAG_MASK) != (uint32_t)(lastFragment + 1)) {
     ZERO(public_buf);
     file_writer.write_index = 0;
