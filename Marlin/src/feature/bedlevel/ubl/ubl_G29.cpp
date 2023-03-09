@@ -1507,7 +1507,6 @@ void unified_bed_leveling::smart_fill_mesh() {
           cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
           points[ix] = cpos.meshpos();
         }
-        #endif
       #endif
 
       #if ENABLED(VALIDATE_MESH_TILT)
