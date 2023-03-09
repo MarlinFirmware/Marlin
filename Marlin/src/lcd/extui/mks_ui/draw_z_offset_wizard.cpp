@@ -104,7 +104,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       sync_plan_position();
       // Raise Z as if it was homed
       do_z_clearance(Z_POST_CLEARANCE);
-      watchdog_refresh();
+      hal.watchdog_refresh();
       draw_return_ui();
       return;
     case ID_M_RETURN:
@@ -117,7 +117,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       #else // Otherwise do a Z clearance move like after Homing
         do_z_clearance(Z_POST_CLEARANCE);
       #endif
-      watchdog_refresh();
+      hal.watchdog_refresh();
       draw_return_ui();
       return;
   }

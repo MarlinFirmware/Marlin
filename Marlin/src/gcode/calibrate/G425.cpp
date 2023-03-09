@@ -438,26 +438,26 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #endif
     #if HAS_U_AXIS
       #if ENABLED(CALIBRATION_MEASURE_UMIN)
-        SERIAL_ECHOLNPAIR("  " STR_U_MIN ": ", m.obj_side[UMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_U_MIN ": ", m.obj_side[UMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_UMAX)
-        SERIAL_ECHOLNPAIR("  " STR_U_MAX ": ", m.obj_side[UMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_U_MAX ": ", m.obj_side[UMAXIMUM]);
       #endif
     #endif
     #if HAS_V_AXIS
       #if ENABLED(CALIBRATION_MEASURE_VMIN)
-        SERIAL_ECHOLNPAIR("  " STR_V_MIN ": ", m.obj_side[VMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_V_MIN ": ", m.obj_side[VMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_VMAX)
-        SERIAL_ECHOLNPAIR("  " STR_V_MAX ": ", m.obj_side[VMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_V_MAX ": ", m.obj_side[VMAXIMUM]);
       #endif
     #endif
     #if HAS_W_AXIS
       #if ENABLED(CALIBRATION_MEASURE_WMIN)
-        SERIAL_ECHOLNPAIR("  " STR_W_MIN ": ", m.obj_side[WMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_W_MIN ": ", m.obj_side[WMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_WMAX)
-        SERIAL_ECHOLNPAIR("  " STR_W_MAX ": ", m.obj_side[WMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_W_MAX ": ", m.obj_side[WMAXIMUM]);
       #endif
     #endif
     SERIAL_EOL();

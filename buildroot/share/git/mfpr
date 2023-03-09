@@ -23,7 +23,7 @@ OLDBRANCH=${INFO[5]}
 # See if it's been pushed yet
 if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
 
-OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
+OPEN=$( which gnome-open xdg-open open | head -n1 )
 URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
 
 if [ -z "$OPEN" ]; then

@@ -27,10 +27,9 @@
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  *
- * Substitutions are applied for the following characters when used
- * in menu items that call lcd_put_u8str_ind_P with an index:
+ * Substitutions are applied for the following characters when used in menu items titles:
  *
- *   $ displays an inserted C-string
+ *   $ displays an inserted string
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
@@ -80,7 +79,6 @@ namespace Language_pl {
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Wys. zanikania");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ust. poz. zer.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Poz. zerowa ust.");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Ustaw punkt zero");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wybierz punkt zero");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Poprzednia wartość ");
   #if HAS_PREHEAT
@@ -237,10 +235,11 @@ namespace Language_pl {
   LSTR MSG_MOVE_X                         = _UxGT("Przesuń w X");
   LSTR MSG_MOVE_Y                         = _UxGT("Przesuń w Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Przesuń w Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Przesuń w @");
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruzja (os E)");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruzja (os E) *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Dysza za zimna");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Przesuń co %s mm");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Przesuń co $ mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Przesuń co .1 mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Przesuń co 1 mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Przesuń co 10 mm");
@@ -249,7 +248,7 @@ namespace Language_pl {
   LSTR MSG_MOVE_001IN                     = _UxGT("Przesuń co 0.01 cala");
   LSTR MSG_MOVE_01IN                      = _UxGT("Przesuń co 0.1 cala");
   LSTR MSG_SPEED                          = _UxGT("Predkość");
-  LSTR MSG_BED_Z                          = _UxGT("Stół Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Stół Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dysza");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dysza ~");
   LSTR MSG_NOZZLE_STANDBY                 = _UxGT("Dysza w oczekiwaniu");
@@ -270,18 +269,15 @@ namespace Language_pl {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autostrojenie");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autostrojenie *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Strojenie PID zakończone");
-  LSTR MSG_SELECT                         = _UxGT("Wybierz");
   LSTR MSG_SELECT_E                       = _UxGT("Wybierz *");
   LSTR MSG_ACC                            = _UxGT("Przyspieszenie");
   LSTR MSG_JERK                           = _UxGT("Zryw");
   LSTR MSG_VA_JERK                        = _UxGT("Zryw V") STR_A;
   LSTR MSG_VB_JERK                        = _UxGT("Zryw V") STR_B;
   LSTR MSG_VC_JERK                        = _UxGT("Zryw V") STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("Zryw V") STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("Zryw V") STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("Zryw V") STR_K;
+  LSTR MSG_VN_JERK                        = _UxGT("Zryw V@");
   LSTR MSG_VE_JERK                        = _UxGT("Zryw Ve");
-  LSTR MSG_VELOCITY                       = _UxGT("Prędkość (V)");
+  LSTR MSG_MAX_SPEED                      = _UxGT("Prędkość (V)");
 
   LSTR MSG_VTRAV_MIN                      = _UxGT("Vskok min");
   LSTR MSG_ACCELERATION                   = _UxGT("Przyspieszenie (A)");
@@ -293,9 +289,7 @@ namespace Language_pl {
   LSTR MSG_A_STEPS                        = STR_A _UxGT(" kroki/mm");
   LSTR MSG_B_STEPS                        = STR_B _UxGT(" kroki/mm");
   LSTR MSG_C_STEPS                        = STR_C _UxGT(" kroki/mm");
-  LSTR MSG_I_STEPS                        = STR_I _UxGT(" kroki/mm");
-  LSTR MSG_J_STEPS                        = STR_J _UxGT(" kroki/mm");
-  LSTR MSG_K_STEPS                        = STR_K _UxGT(" kroki/mm");
+  LSTR MSG_N_STEPS                        = _UxGT("@ kroki/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E kroki/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* kroki/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
@@ -378,7 +372,7 @@ namespace Language_pl {
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Self-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s%s%s");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");
@@ -406,8 +400,6 @@ namespace Language_pl {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibruj środek");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Ustawienia delty");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto kalibrowanie");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Ustaw wysokość delty");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Przesun. Z sondy");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Ukośne ramię");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Wysokość");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Promień");
@@ -446,13 +438,7 @@ namespace Language_pl {
 
   LSTR MSG_INFO_PSU                       = _UxGT("Zasilacz");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Siła silnika");
-  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Siła %");
+  LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Siła %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC BŁĄD POŁĄCZENIA");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Zapisz DAC EEPROM");
   LSTR MSG_FILAMENT_CHANGE_HEADER         = _UxGT("ZMIEŃ FILAMENT");
@@ -552,11 +538,3 @@ namespace Language_pl {
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Kalibracja nie powiodła się");
 
 }
-
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif

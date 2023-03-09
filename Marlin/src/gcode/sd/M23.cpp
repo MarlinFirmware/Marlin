@@ -38,7 +38,7 @@ void GcodeSuite::M23() {
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFileRead(parser.string_arg);
 
-  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
+  TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
 }
 
 #endif // SDSUPPORT

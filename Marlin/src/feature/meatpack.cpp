@@ -26,7 +26,7 @@
  * Algorithm & Implementation: Scott Mudge - mail@scottmudge.com
  * Date: Dec. 2020
  *
- * Character Frequencies from ~30 MB of comment-stripped gcode:
+ * Character Frequencies from ~30 MB of comment-stripped G-code:
  *  '1' -> 4451136    '4' -> 1353273   '\n' -> 1087683    '-' ->   90242
  *  '0' -> 4253577    '9' -> 1352147    'G' -> 1075806    'Z' ->   34109
  *  ' ' -> 3053297    '3' -> 1262929    'X' ->  975742    'M' ->   11879

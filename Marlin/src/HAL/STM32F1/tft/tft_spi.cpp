@@ -26,11 +26,11 @@
 
 #include "tft_spi.h"
 
-SPIClass TFT_SPI::SPIx(1);
+SPIClass TFT_SPI::SPIx(TFT_SPI_DEVICE);
 
 void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
-    OUT_WRITE(TFT_RST_PIN, HIGH);
+    OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(100);
   #endif
 
@@ -46,7 +46,7 @@ void TFT_SPI::Init() {
    * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
-  #if SPI_DEVICE == 1
+  #if TFT_SPI_DEVICE == 1
     #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
   #else
     #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
@@ -62,7 +62,7 @@ void TFT_SPI::Init() {
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
     default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
   }
-  SPIx.setModule(1);
+  SPIx.setModule(TFT_SPI_DEVICE);
   SPIx.setClockDivider(clock);
   SPIx.setBitOrder(MSBFIRST);
   SPIx.setDataMode(SPI_MODE0);
@@ -71,7 +71,7 @@ void TFT_SPI::Init() {
 void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
   SPIx.setDataSize(DataSize);
   SPIx.begin();
-  OUT_WRITE(TFT_CS_PIN, LOW);
+  WRITE(TFT_CS_PIN, LOW);
 }
 
 #ifdef TFT_DEFAULT_DRIVER
@@ -113,15 +113,53 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
   #endif
 }
 
-bool TFT_SPI::isBusy() { return false; }
+bool TFT_SPI::isBusy() {
+  #define __IS_DMA_CONFIGURED(__DMAx__, __CHx__)   (dma_channel_regs(__DMAx__, __CHx__)->CPAR != 0)
 
-void TFT_SPI::Abort() { DataTransferEnd(); }
+  if (!__IS_DMA_CONFIGURED(DMAx, DMA_CHx)) return false;
+
+  if (dma_get_isr_bits(DMAx, DMA_CHx) & DMA_ISR_TEIF) {
+    // You should not be here - DMA transfer error flag is set
+    // Abort DMA transfer and release SPI
+  }
+  else {
+    // Check if DMA transfer completed flag is set
+    if (!(dma_get_isr_bits(DMAx, DMA_CHx) & DMA_ISR_TCIF)) return true;
+    // Check if SPI TX butter is empty and SPI is idle
+    if (!(SPIdev->regs->SR & SPI_SR_TXE) || (SPIdev->regs->SR & SPI_SR_BSY)) return true;
+  }
+
+  Abort();
+  return false;
+}
+
+void TFT_SPI::Abort() {
+  dma_channel_reg_map *channel_regs = dma_channel_regs(DMAx, DMA_CHx);
+
+  dma_disable(DMAx, DMA_CHx); // Abort DMA transfer if any
+  spi_tx_dma_disable(SPIdev);
+
+  // Deconfigure DMA
+  channel_regs->CCR   = 0U;
+  channel_regs->CNDTR = 0U;
+  channel_regs->CMAR  = 0U;
+  channel_regs->CPAR  = 0U;
+
+  DataTransferEnd();
+}
 
 void TFT_SPI::Transmit(uint16_t Data) { SPIx.send(Data); }
 
 void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DataTransferBegin();
-  OUT_WRITE(TFT_DC_PIN, HIGH);
+  SPIx.dmaSendAsync(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
+
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
+}
+
+void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  WRITE(TFT_DC_PIN, HIGH);
+  DataTransferBegin();
   SPIx.dmaSend(Data, Count, MemoryIncrease == DMA_MINC_ENABLE);
   DataTransferEnd();
 }

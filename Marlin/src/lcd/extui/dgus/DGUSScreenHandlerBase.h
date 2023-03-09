@@ -51,6 +51,7 @@ public:
   static void setstatusmessage(const char *msg);
   // The same for messages from Flash
   static void setstatusmessagePGM(PGM_P const msg);
+  static void setstatusmessage(FSTR_P const fmsg) { setstatusmessagePGM(FTOP(fmsg)); }
   // Callback for VP "Display wants to change screen on idle printer"
   static void ScreenChangeHookIfIdle(DGUS_VP_Variable &var, void *val_ptr);
   // Callback for VP "Screen has been changed"
@@ -190,7 +191,7 @@ public:
   // Send a float value to the display.
   // Display will get a 4-byte integer scaled to the number of digits:
   // Tell the display the number of digits and it cheats by displaying a dot between...
-  template<unsigned int decimals>
+  template<uint16_t decimals>
   static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
@@ -202,7 +203,7 @@ public:
   // Send a float value to the display.
   // Display will get a 2-byte integer scaled to the number of digits:
   // Tell the display the number of digits and it cheats by displaying a dot between...
-  template<unsigned int decimals>
+  template<uint16_t decimals>
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;

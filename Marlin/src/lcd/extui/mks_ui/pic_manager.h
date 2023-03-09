@@ -122,7 +122,7 @@
 #define VAR_INF_ADDR                    0x000000
 #define FLASH_INF_VALID_FLAG            0x20201118
 
-// Store some gcode commands, such as auto leveling commands
+// Store some G-code commands, such as auto-leveling commands
 #define GCODE_COMMAND_ADDR              VAR_INF_ADDR + 3 * 1024
 #define AUTO_LEVELING_COMMAND_ADDR      GCODE_COMMAND_ADDR
 #define OTHERS_COMMAND_ADDR_1           AUTO_LEVELING_COMMAND_ADDR + 100

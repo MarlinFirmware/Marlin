@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUS_VPList.h"
 
@@ -177,12 +177,12 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_TX_AUTO(DGUS_Addr::STATUS_PositionZ,
                     nullptr,
                     &DGUSTxHandler::PositionZ),
-  VP_HELPER(DGUS_Addr::STATUS_Ellapsed,
-            DGUS_ELLAPSED_LEN,
+  VP_HELPER(DGUS_Addr::STATUS_Elapsed,
+            DGUS_ELAPSED_LEN,
             VPFLAG_AUTOUPLOAD,
             nullptr,
             nullptr,
-            &DGUSTxHandler::Ellapsed),
+            &DGUSTxHandler::Elapsed),
   VP_HELPER_TX_AUTO(DGUS_Addr::STATUS_Percent,
                     nullptr,
                     &DGUSTxHandler::Percent),

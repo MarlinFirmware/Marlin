@@ -57,7 +57,9 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
     cmd.font(font_large)
        .cmd(COLOR_RGB(bg_text_enabled))
        .text(BED_MESH_TITLE_POS, GET_TEXT_F(MSG_BED_LEVELING))
+       #if ENABLED(BLTOUCH)
        .text(BLTOUCH_TITLE_POS, GET_TEXT_F(MSG_BLTOUCH))
+       #endif
        .font(font_medium).colors(normal_btn)
        .tag(2).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
               .enabled(ENABLED(HAS_MESH))
@@ -66,8 +68,10 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .tag(4).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        #undef  GRID_COLS
        #define GRID_COLS 2
+       #if ENABLED(BLTOUCH)
        .tag(5).button(BLTOUCH_RESET_POS, GET_TEXT_F(MSG_BLTOUCH_RESET))
        .tag(6).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST))
+       #endif
        #undef  GRID_COLS
        #define GRID_COLS 3
        .colors(action_btn)
@@ -81,8 +85,10 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     case 2: BedMeshViewScreen::doProbe(); break;
     case 3: BedMeshViewScreen::show(); break;
     case 4: BedMeshEditScreen::show(); break;
+    #if ENABLED(BLTOUCH)
     case 5: injectCommands(F("M280 P0 S60")); break;
     case 6: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
+    #endif
     default: return false;
   }
   return true;

@@ -63,6 +63,10 @@ public:
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const_float_t mm);
 
+  #if ENABLED(BD_SENSOR)
+    static void set_mm(const AxisEnum axis, const_float_t mm);
+  #endif
+
   static bool has_steps() {
     return steps[BS_AXIS_IND(X_AXIS)] || steps[BS_AXIS_IND(Y_AXIS)] || steps[BS_AXIS_IND(Z_AXIS)];
   }

@@ -126,6 +126,9 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       // Called on resume from power-loss
       IF_DISABLED(DGUS_LCD_UI_MKS, ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS));
@@ -137,19 +140,19 @@ namespace ExtUI {
       // Called for temperature PID tuning result
       switch (rst) {
         case PID_STARTED:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE));
+          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
-        case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+        case PID_BAD_HEATER_ID:
+          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
           break;
         case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+          ScreenHandler.setstatusmessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
           break;
       }
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);

@@ -85,6 +85,13 @@
 #define Z_MS1_PIN                             44  // PC19
 #define E0_MS1_PIN                            45  // PC18
 
+#ifndef MICROSTEP16
+  #define MICROSTEP16 LOW,LOW,LOW
+#endif
+#ifndef MICROSTEP32
+  #define MICROSTEP32 HIGH,HIGH,LOW
+#endif
+
 //#define MOTOR_FAULT_PIN                     22  // PB26 , motor X-Y-Z-E0 motor FAULT
 
 //

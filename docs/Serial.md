@@ -64,9 +64,9 @@ The following macros are defined (in `serial.h`) to output data to the serial po
 | `SERIAL_ECHOLNPGM_P` | Same as `SERIAL_ECHOPGM_P` | Do `SERIAL_ECHOPGM_P`, adding a newline | `SERIAL_ECHOLNPGM_P(PSTR("Alice"), 78);` | `alice78\n` |
 | `SERIAL_ECHOLIST` | String literal, values | Print a string literal and a list of values | `SERIAL_ECHOLIST(F("Key "), 1, 2, 3);` | `Key 1, 2, 3` |
 | `SERIAL_ECHO_START` | None | Prefix an echo line | `SERIAL_ECHO_START();` | `echo:` |
-| `SERIAL_ECHO_MSG` | Same as `SERIAL_ECHOLN_PAIR` | Print a full echo line | `SERIAL_ECHO_MSG("Count is ", count);` | `echo:Count is 3` |
+| `SERIAL_ECHO_MSG` | Same as `SERIAL_ECHOLNPGM` | Print a full echo line | `SERIAL_ECHO_MSG("Count is ", count);` | `echo:Count is 3` |
 | `SERIAL_ERROR_START`| None | Prefix an error line | `SERIAL_ERROR_START();` | `Error:` |
-| `SERIAL_ERROR_MSG` | Same as `SERIAL_ECHOLN_PAIR` | Print a full error line | `SERIAL_ERROR_MSG("Not found");` | `Error:Not found` |
+| `SERIAL_ERROR_MSG` | Same as `SERIAL_ECHOLNPGM` | Print a full error line | `SERIAL_ERROR_MSG("Not found");` | `Error:Not found` |
 | `SERIAL_ECHO_SP` | Number of spaces | Print one or more spaces | `SERIAL_ECHO_SP(3)` | `   ` |
 | `SERIAL_EOL` | None | Print an end of line | `SERIAL_EOL();` | `\n` |
 | `SERIAL_OUT` | `SERIAL_OUT(myMethod)` | Call a custom serial method | `SERIAL_OUT(msgDone);` | ... |

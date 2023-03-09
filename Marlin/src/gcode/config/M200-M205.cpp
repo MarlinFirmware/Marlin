@@ -108,12 +108,21 @@
 #endif // !NO_VOLUMETRICS
 
 /**
- * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
+ * M201: Set max acceleration in units/s^2 for print moves.
  *
- *       With multiple extruders use T to specify which one.
+ *  X<accel> : Max Acceleration for X
+ *  Y<accel> : Max Acceleration for Y
+ *  Z<accel> : Max Acceleration for Z
+ *       ... : etc
+ *  E<accel> : Max Acceleration for Extruder
+ *  T<index> : Extruder index to set
+ *
+ * With XY_FREQUENCY_LIMIT:
+ *  F<Hz>      : Frequency limit for XY...IJKUVW
+ *  S<percent> : Speed factor percentage.
  */
 void GcodeSuite::M201() {
-  if (!parser.seen("T" LOGICAL_AXES_STRING))
+  if (!parser.seen("T" STR_AXES_LOGICAL TERN_(XY_FREQUENCY_LIMIT, "FS")))
     return M201_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
@@ -121,7 +130,7 @@ void GcodeSuite::M201() {
 
   #ifdef XY_FREQUENCY_LIMIT
     if (parser.seenval('F')) planner.set_frequency_limit(parser.value_byte());
-    if (parser.seenval('G')) planner.xy_freq_min_speed_factor = constrain(parser.value_float(), 1, 100) / 100;
+    if (parser.seenval('S')) planner.xy_freq_min_speed_factor = constrain(parser.value_float(), 1, 100) / 100;
   #endif
 
   LOOP_LOGICAL_AXES(i) {
@@ -167,7 +176,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
  *       With multiple extruders use T to specify which one.
  */
 void GcodeSuite::M203() {
-  if (!parser.seen("T" LOGICAL_AXES_STRING))
+  if (!parser.seen("T" STR_AXES_LOGICAL))
     return M203_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
@@ -200,7 +209,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   );
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(i, E_STEPPERS) {
-      SERIAL_ECHO_START();
+      if (!forReplay) SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
@@ -212,9 +221,9 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
 /**
  * M204: Set Accelerations in units/sec^2 (M204 P1200 R3000 T3000)
  *
- *    P = Printing moves
- *    R = Retract only (no X, Y, Z) moves
- *    T = Travel (non printing) moves
+ *    P<accel> Printing moves
+ *    R<accel> Retract only (no X, Y, Z) moves
+ *    T<accel> Travel (non printing) moves
  */
 void GcodeSuite::M204() {
   if (!parser.seen("PRST"))
@@ -238,24 +247,37 @@ void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
   );
 }
 
+#if AXIS_COLLISION('B')
+  #define M205_MIN_SEG_TIME_PARAM 'D'
+  #define M205_MIN_SEG_TIME_STR "D"
+  #warning "Use 'M205 D' for Minimum Segment Time."
+#else
+  #define M205_MIN_SEG_TIME_PARAM 'B'
+  #define M205_MIN_SEG_TIME_STR "B"
+#endif
+
 /**
  * M205: Set Advanced Settings
  *
- *    B = Min Segment Time (µs)
- *    S = Min Feed Rate (units/s)
- *    T = Min Travel Feed Rate (units/s)
- *    X = Max X Jerk (units/sec^2)
- *    Y = Max Y Jerk (units/sec^2)
- *    Z = Max Z Jerk (units/sec^2)
- *    E = Max E Jerk (units/sec^2)
- *    J = Junction Deviation (mm) (If not using CLASSIC_JERK)
+ *    B<µs>          : Min Segment Time
+ *    S<units/s>     : Min Feed Rate
+ *    T<units/s>     : Min Travel Feed Rate
+ *
+ * With CLASSIC_JERK:
+ *    X<units/sec^2> : Max X Jerk
+ *    Y<units/sec^2> : Max Y Jerk
+ *    Z<units/sec^2> : Max Z Jerk
+ *               ... : etc
+ *    E<units/sec^2> : Max E Jerk
+ *
+ * Without CLASSIC_JERK:
+ *    J(mm)          : Junction Deviation
  */
 void GcodeSuite::M205() {
-  if (!parser.seen("BST" TERN_(HAS_JUNCTION_DEVIATION, "J") TERN_(HAS_CLASSIC_JERK, "XYZE")))
-    return M205_report();
+  if (!parser.seen_any()) return M205_report();
 
   //planner.synchronize();
-  if (parser.seenval('B')) planner.settings.min_segment_time_us = parser.value_ulong();
+  if (parser.seenval(M205_MIN_SEG_TIME_PARAM)) planner.settings.min_segment_time_us = parser.value_ulong();
   if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if HAS_JUNCTION_DEVIATION
@@ -295,7 +317,7 @@ void GcodeSuite::M205() {
 
 void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
-    "Advanced (B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
+    "Advanced (" M205_MIN_SEG_TIME_STR "<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
     #if HAS_CLASSIC_JERK
       NUM_AXIS_GANG(
@@ -308,7 +330,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
     ")"
   ));
   SERIAL_ECHOLNPGM_P(
-      PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
+      PSTR("  M205 " M205_MIN_SEG_TIME_STR), LINEAR_UNIT(planner.settings.min_segment_time_us)
     , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
     , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
     #if HAS_JUNCTION_DEVIATION

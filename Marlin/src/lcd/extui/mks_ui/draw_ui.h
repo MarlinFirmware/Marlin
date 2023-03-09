@@ -236,9 +236,9 @@ typedef struct UI_Config_Struct {
                            eStepMax = 10;
   // Extruder speed (mm/s)
   uint8_t extruSpeed;
-  static constexpr uint8_t eSpeedH =  1,
+  static constexpr uint8_t eSpeedH = 20,
                            eSpeedN = 10,
-                           eSpeedL = 20;
+                           eSpeedL =  1;
   uint8_t print_state;
   uint8_t stepPrintSpeed;
   uint8_t waitEndMoves;

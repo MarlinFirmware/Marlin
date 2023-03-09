@@ -50,6 +50,8 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/NATIVE_SIM/NAME)
 #elif defined(__SAMD51__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/SAMD51/NAME)
+#elif defined(__SAMD21__)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/SAMD21/NAME)
 #else
   #error "Unsupported Platform!"
 #endif

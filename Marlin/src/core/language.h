@@ -55,6 +55,7 @@
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
+// fr_na      French without accents (DWIN T5UID1 touchscreen)
 // gl         Galician
 // hr         Croatian
 // hu         Hungarian
@@ -174,6 +175,7 @@
 #define STR_SD_VOL_INIT_FAIL                "volume.init failed"
 #define STR_SD_OPENROOT_FAIL                "openRoot failed"
 #define STR_SD_CARD_OK                      "SD card ok"
+#define STR_SD_CARD_RELEASED                "SD card released"
 #define STR_SD_WORKDIR_FAIL                 "workDir open failed"
 #define STR_SD_OPEN_FILE_FAIL               "open failed, File: "
 #define STR_SD_FILE_OPENED                  "File opened: "
@@ -227,10 +229,6 @@
 #define STR_PID_DEBUG                       " PID_DEBUG "
 #define STR_PID_DEBUG_INPUT                 ": Input "
 #define STR_PID_DEBUG_OUTPUT                " Output "
-#define STR_PID_DEBUG_PTERM                 " pTerm "
-#define STR_PID_DEBUG_ITERM                 " iTerm "
-#define STR_PID_DEBUG_DTERM                 " dTerm "
-#define STR_PID_DEBUG_CTERM                 " cTerm "
 #define STR_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
 #define STR_MPC_AUTOTUNE                    "MPC Autotune"
 #define STR_MPC_AUTOTUNE_START              " start for " STR_E
@@ -282,6 +280,7 @@
 #define STR_S_SEG_PER_SEC                   "S<seg-per-sec>"
 #define STR_DELTA_SETTINGS                  "Delta (L<diagonal-rod> R<radius> H<height> S<seg-per-sec> XYZ<tower-angle-trim> ABC<rod-trim>)"
 #define STR_SCARA_SETTINGS                  "SCARA"
+#define STR_POLAR_SETTINGS                  "Polar"
 #define STR_POLARGRAPH_SETTINGS             "Polargraph"
 #define STR_SCARA_P_T_Z                     "P<theta-psi-offset> T<theta-offset> Z<home-offset>"
 #define STR_ENDSTOP_ADJUSTMENT              "Endstop adjustment"

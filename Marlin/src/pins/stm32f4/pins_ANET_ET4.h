@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "Anet ET4 only supports 1 hotend / E stepper."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -39,7 +39,7 @@
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
   #define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-  //#define IIC_BL24CXX_EEPROM                    // Use I2C EEPROM onboard IC (AT24C04C, Size 4KB, PageSize 16B)
+  //#define IIC_BL24CXX_EEPROM                    // Use I2C EEPROM onboard IC (AT24C04C, Size 4K, PageSize 16B)
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -50,7 +50,7 @@
   #define IIC_EEPROM_SDA                    PB11
   #define IIC_EEPROM_SCL                    PB10
   #define EEPROM_DEVICE_ADDRESS             0xA0
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -64,7 +64,7 @@
 // Z Probe
 //
 #if ENABLED(BLTOUCH)
-  #error "You will need to use 24V to 5V converter and remove one resistor and capacitor from the motherboard. See https://github.com/davidtgbe/Marlin/blob/bugfix-2.0.x/docs/Tutorials/bltouch-en.md for more information. Comment out this line to proceed at your own risk."
+  #error "You will need to use 24V to 5V converter and remove one resistor and capacitor from the motherboard. See https://bit.ly/3xg9cXO for more information. Comment out this line to proceed at your own risk."
   #define SERVO0_PIN                        PC3
 #elif !defined(Z_MIN_PROBE_PIN)
   #define Z_MIN_PROBE_PIN                   PC3

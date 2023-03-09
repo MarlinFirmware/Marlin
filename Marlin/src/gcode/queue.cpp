@@ -196,14 +196,15 @@ bool GCodeQueue::process_injected_command() {
  * Never call this from a G-code handler!
  */
 void GCodeQueue::enqueue_one_now(const char * const cmd) { while (!enqueue_one(cmd)) idle(); }
+void GCodeQueue::enqueue_one_now(FSTR_P const fcmd) { while (!enqueue_one(fcmd)) idle(); }
 
 /**
  * Attempt to enqueue a single G-code command
  * and return 'true' if successful.
  */
-bool GCodeQueue::enqueue_one(FSTR_P const fgcode) {
+bool GCodeQueue::enqueue_one(FSTR_P const fcmd) {
   size_t i = 0;
-  PGM_P p = FTOP(fgcode);
+  PGM_P p = FTOP(fcmd);
   char c;
   while ((c = pgm_read_byte(&p[i])) && c != '\n') i++;
   char cmd[i + 1];
@@ -383,7 +384,7 @@ inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind
   buff[ind] = '\0';                   // Of course, I'm a Terminator.
   const bool is_empty = (ind == 0);   // An empty line?
   if (is_empty)
-    thermalManager.manage_heater();   // Keep sensors satisfied
+    thermalManager.task();            // Keep sensors satisfied
   else
     ind = 0;                          // Start a new line
   return is_empty;                    // Inform the caller
@@ -468,8 +469,11 @@ void GCodeQueue::get_serial_commands() {
 
           const long gcode_N = strtol(npos + 1, nullptr, 10);
 
+          // The line number must be in the correct sequence.
           if (gcode_N != serial.last_N + 1 && !M110) {
-            // In case of error on a serial port, don't prevent other serial port from making progress
+            // A request-for-resend line was already in transit so we got two - oops!
+            if (WITHIN(gcode_N, serial.last_N - 1, serial.last_N)) continue;
+            // A corrupted line or too high, indicating a lost line
             gcode_line_error(F(STR_ERR_LINE_NO), p);
             break;
           }
@@ -479,13 +483,11 @@ void GCodeQueue::get_serial_commands() {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
             if (strtol(apos + 1, nullptr, 10) != checksum) {
-              // In case of error on a serial port, don't prevent other serial port from making progress
               gcode_line_error(F(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
             }
           }
           else {
-            // In case of error on a serial port, don't prevent other serial port from making progress
             gcode_line_error(F(STR_ERR_NO_CHECKSUM), p);
             break;
           }
