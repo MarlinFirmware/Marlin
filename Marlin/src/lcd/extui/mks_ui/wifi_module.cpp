@@ -156,16 +156,12 @@ static bool longName2DosName(const char *longName, char *dosName) {
     }
 
     // Fail for illegal characters
-    PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-
-    while (uint8_t b = pgm_read_byte(p++)) {
-      if (b == c) {
-          c = ILLEGAL_CHAR_REPLACE;  // replace illegal chars with underscore '_'
-      }
-    }
-
-    if (c < 0x21 || c == 0x7F) {                        // Check size, non-printable characters
+    if (c < 0x21 || c == 0x7F)   // Check size, non-printable characters
       c = ILLEGAL_CHAR_REPLACE;  // replace non-printable chars with underscore '_'
+    else {
+      PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
+      while (const uint8_t b = pgm_read_byte(p++))
+        if (b == c) c = ILLEGAL_CHAR_REPLACE;  // replace illegal chars with underscore '_'
     }
 
     dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
