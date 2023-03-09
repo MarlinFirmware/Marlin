@@ -80,9 +80,6 @@ namespace DirectStepping {
     static void set_page_state(const page_idx_t page_idx, const PageState page_state);
   };
 
-  template<bool b, typename T, typename F> struct TypeSelector { typedef T type;} ;
-  template<typename T, typename F> struct TypeSelector<false, T, F> { typedef F type; };
-
   template <int num_pages, int num_axes, int bits_segment, bool dir, int segments>
   struct config_t {
     static constexpr char CONTROL_CHAR  = '!';
@@ -98,8 +95,8 @@ namespace DirectStepping {
     static constexpr int TOTAL_STEPS    = SEGMENT_STEPS * SEGMENTS;
     static constexpr int PAGE_SIZE      = (AXIS_COUNT * BITS_SEGMENT * SEGMENTS) / 8;
 
-    typedef typename TypeSelector<(PAGE_SIZE>256), uint16_t, uint8_t>::type write_byte_idx_t;
-    typedef typename TypeSelector<(PAGE_COUNT>256), uint16_t, uint8_t>::type page_idx_t;
+    typedef uvalue_t(PAGE_SIZE - 1) write_byte_idx_t;
+    typedef uvalue_t(PAGE_COUNT - 1) page_idx_t;
   };
 
   template <uint8_t num_pages>

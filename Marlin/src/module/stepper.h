@@ -220,7 +220,7 @@
 #define ISR_LOOP_CYCLES(R) ((ISR_LOOP_BASE_CYCLES + MIN_ISR_LOOP_CYCLES + MIN_STEPPER_PULSE_CYCLES) * (R - 1) + _MAX(MIN_ISR_LOOP_CYCLES, MIN_STEPPER_PULSE_CYCLES))
 
 // Model input shaping as an extra loop call
-#define ISR_SHAPING_LOOP_CYCLES(R) ((TERN0(HAS_SHAPING, ISR_LOOP_BASE_CYCLES) + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES)) * (R) + (MIN_ISR_LOOP_CYCLES) * (R - 1))
+#define ISR_SHAPING_LOOP_CYCLES(R) TERN0(HAS_SHAPING, (R) * ((ISR_LOOP_BASE_CYCLES) + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES)))
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
@@ -263,11 +263,7 @@
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
-#if ENABLE_COUNT > 16
-  typedef uint32_t ena_mask_t;
-#else
-  typedef IF<(ENABLE_COUNT > 8), uint16_t, uint8_t>::type ena_mask_t;
-#endif
+typedef bits_t(ENABLE_COUNT) ena_mask_t;
 
 // Axis flags type, for enabled state or other simple state
 typedef struct {
@@ -358,7 +354,7 @@ constexpr ena_mask_t enable_overlap[] = {
   constexpr uint16_t shaping_min_freq = SHAPING_MIN_FREQ,
                      shaping_echoes = max_step_rate / shaping_min_freq / 2 + 3;
 
-  typedef IF<ENABLED(__AVR__), uint16_t, uint32_t>::type shaping_time_t;
+  typedef hal_timer_t shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
   struct shaping_echo_axis_t {
     TERN_(INPUT_SHAPING_X, shaping_echo_t x:2);

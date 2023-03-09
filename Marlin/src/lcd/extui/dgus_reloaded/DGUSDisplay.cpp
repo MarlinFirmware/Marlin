@@ -125,8 +125,7 @@ void DGUSDisplay::WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t si
 
   const char* data = static_cast<const char*>(data_ptr);
   size_t len = strlen_P(data);
-  uint8_t left_spaces = 0;
-  uint8_t right_spaces = 0;
+  uint8_t left_spaces = 0, right_spaces = 0;
 
   if (len < size) {
     if (!len) {
@@ -147,15 +146,9 @@ void DGUSDisplay::WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t si
     len = size;
   }
 
-  while (left_spaces--) {
-    LCD_SERIAL.write(' ');
-  }
-  while (len--) {
-    LCD_SERIAL.write(pgm_read_byte(data++));
-  }
-  while (right_spaces--) {
-    LCD_SERIAL.write(use_space ? ' ' : '\0');
-  }
+  while (left_spaces--) LCD_SERIAL.write(' ');
+  while (len--) LCD_SERIAL.write(pgm_read_byte(data++));
+  while (right_spaces--) LCD_SERIAL.write(use_space ? ' ' : '\0');
 }
 
 void DGUSDisplay::ReadVersions() {
@@ -340,11 +333,13 @@ void DGUSDisplay::ProcessRx() {
 }
 
 size_t DGUSDisplay::GetFreeTxBuffer() {
-  #ifdef LCD_SERIAL_GET_TX_BUFFER_FREE
-    return LCD_SERIAL_GET_TX_BUFFER_FREE();
-  #else
-    return SIZE_MAX;
-  #endif
+  return (
+    #ifdef LCD_SERIAL_GET_TX_BUFFER_FREE
+      LCD_SERIAL_GET_TX_BUFFER_FREE()
+    #else
+      SIZE_MAX
+    #endif
+  );
 }
 
 void DGUSDisplay::FlushTx() {
