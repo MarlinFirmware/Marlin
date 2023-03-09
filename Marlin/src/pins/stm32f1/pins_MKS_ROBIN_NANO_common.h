@@ -26,10 +26,12 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin nano boards support up to 2 hotends / E steppers."
 #endif
 
-#define BOARD_NO_NATIVE_USB
+#ifndef USB_MOD
+  #define BOARD_NO_NATIVE_USB
+#endif
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
 #define TEMP_TIMER  5
@@ -42,9 +44,9 @@
 #endif
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 #define SPI_DEVICE                             2
@@ -58,9 +60,14 @@
 // Limit Switches
 //
 #define X_STOP_PIN                          PA15
-#define Y_STOP_PIN                          PA12
-#define Z_MIN_PIN                           PA11
 #define Z_MAX_PIN                           PC4
+#ifndef USB_MOD
+  #define Y_STOP_PIN                        PA12
+  #define Z_MIN_PIN                         PA11
+#else
+  #define Y_STOP_PIN                        PB10
+  #define Z_MIN_PIN                         PB11
+#endif
 
 //
 // Steppers
@@ -201,8 +208,8 @@
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
   #define SPI_FLASH_MOSI_PIN                PB15

@@ -35,7 +35,7 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
-LevelingBilinear bbl;
+LevelingBilinear bedlevel;
 
 xy_pos_t LevelingBilinear::grid_spacing,
          LevelingBilinear::grid_start;
@@ -153,7 +153,7 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
     }
 }
 
-void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values /*= NULL*/) {
+void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/) {
   // print internal grid(s) or just the one passed as a parameter
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
   print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0]);
@@ -258,8 +258,8 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values /*= NULL*
               );
           }
   }
-#endif // ABL_BILINEAR_SUBDIVISION
 
+#endif // ABL_BILINEAR_SUBDIVISION
 
 // Refresh after other values have been updated
 void LevelingBilinear::refresh_bed_level() {

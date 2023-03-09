@@ -45,6 +45,7 @@ typedef const char Language_Str[];
 
 // Set unused languages equal to each other so the
 // compiler can optimize away the conditionals.
+#define LCD_LANGUAGE_1 LCD_LANGUAGE
 #ifndef LCD_LANGUAGE_2
   #define LCD_LANGUAGE_2 LCD_LANGUAGE
 #endif

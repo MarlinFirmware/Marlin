@@ -53,7 +53,6 @@ namespace Language_hr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Niveliranje gotovo!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Postavi home offsete");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets postavljeni");
-  LSTR MSG_SET_ORIGIN                     = _UxGT("Postavi ishodište");
   #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Predgrij ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
@@ -79,19 +78,23 @@ namespace Language_hr {
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveliraj bed");
   LSTR MSG_MOVE_X                         = _UxGT("Miči X");
   LSTR MSG_MOVE_Y                         = _UxGT("Miči Y");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Miči %smm");
+  LSTR MSG_MOVE_Z                         = _UxGT("Miči Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Miči @");
+  LSTR MSG_MOVE_E                         = _UxGT("Miči E");
+  LSTR MSG_MOVE_EN                        = _UxGT("Miči *");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Miči $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Miči 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Miči 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Miči 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Miči 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Miči 100mm");
   LSTR MSG_SPEED                          = _UxGT("Brzina");
-  LSTR MSG_BED_Z                          = _UxGT("Bed Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dizna");
   LSTR MSG_NOZZLE_N                       = _UxGT("Dizna ~");
   LSTR MSG_BED                            = _UxGT("Bed");
   LSTR MSG_FAN_SPEED                      = _UxGT("Brzina ventilatora");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Brzina ventilatora ~");
-  LSTR MSG_SELECT                         = _UxGT("Odaberi");
   LSTR MSG_SELECT_E                       = _UxGT("Odaberi *");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
   LSTR MSG_MOTION                         = _UxGT("Gibanje");

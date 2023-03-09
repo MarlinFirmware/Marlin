@@ -54,7 +54,7 @@
 
 #include "exception_hook.h"
 #include "../backtrace/backtrace.h"
-#include "../HAL_MinSerial.h"
+#include "../MinSerial.h"
 
 #define HW_REG(X)  (*((volatile unsigned long *)(X)))
 
@@ -221,7 +221,7 @@ bool resume_from_fault() {
   // So we'll just need to refresh the watchdog for a while and then stop for the system to reboot
   uint32_t last = start;
   while (PENDING(last, end)) {
-    watchdog_refresh();
+    hal.watchdog_refresh();
     while (millis() == last) { /* nada */ }
     last = millis();
     MinSerial::TX('.');
