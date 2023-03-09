@@ -1438,14 +1438,13 @@ static void wifi_list_msg_handle(const uint8_t * const msg, const uint16_t msgLe
 
 static void gcode_msg_handle(const uint8_t * const msg, const const uint16_t msgLen) {
   uint8_t gcodeBuf[100] = { 0 };
-  char *index_s, *index_e;
 
   if (msgLen <= 0) return;
 
-  index_s = (char *)msg;
-  index_e = (char *)strchr((char *)msg, '\n');
+  char *index_s = (char *)msg,
+       *index_e = strchr((char *)msg, '\n');
   if (*msg == 'N') {
-    index_s = (char *)strchr((char *)msg, ' ');
+    index_s = strchr((char *)msg, ' ');
     while (*index_s == ' ') index_s++;
   }
   while ((index_e != 0) && ((int)index_s < (int)index_e)) {
@@ -1456,7 +1455,7 @@ static void gcode_msg_handle(const uint8_t * const msg, const const uint16_t msg
     }
     while ((*index_e == '\r') || (*index_e == '\n')) index_e++;
     index_s = index_e;
-    index_e = (char *)strchr(index_s, '\n');
+    index_e = strchr(index_s, '\n');
   }
 }
 
