@@ -62,26 +62,26 @@ fi
 #
 # By default loop through all languages
 #
-LANGS_DEFAULT="an bg ca cz da de el el_CY en es eu fi fr gl hr hu it jp_kana ko_KR nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test"
+LANGS_DEFAULT="an bg ca cz da de el el_CY en es eu fi fr fr_na gl hr hu it jp_kana ko_KR nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test"
 
 #
 # Generate data for language list MARLIN_LANGS or all if not provided
 #
-for LANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
-  echo "Generating Marlin language data for '${LANG}'" >&2
-  case "$LANG" in
+for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
+  echo "Generating Marlin language data for '${ALANG}'" >&2
+  case "$ALANG" in
      zh_* ) FONTFILE="wenquanyi_12pt" ;;
      ko_* ) FONTFILE="${DN_EXEC}/NanumGothic.bdf" ;;
         * ) FONTFILE="${DN_EXEC}/marlin-6x12-3.bdf" ;;
   esac
   DN_WORK=$(mktemp -d)
   cp Configuration.h ${DN_WORK}/
-  cp src/lcd/language/language_${LANG}.h ${DN_WORK}/
+  cp src/lcd/language/language_${ALANG}.h ${DN_WORK}/
   cd "${DN_WORK}"
-  ${DN_EXEC}/uxggenpages.sh "${FONTFILE}" $LANG
+  ${DN_EXEC}/uxggenpages.sh "${FONTFILE}" $ALANG
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
   cd - >/dev/null
-  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/langdata_${LANG}.h
+  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/langdata_${ALANG}.h
   rm -rf ${DN_WORK}
 done
 

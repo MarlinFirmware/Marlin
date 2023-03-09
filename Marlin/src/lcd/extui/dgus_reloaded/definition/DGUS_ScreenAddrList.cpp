@@ -56,7 +56,7 @@ constexpr DGUS_Addr LIST_PRINT_STATUS[] PROGMEM = {
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
   DGUS_Addr::STATUS_PositionZ,
-  DGUS_Addr::STATUS_Ellapsed,
+  DGUS_Addr::STATUS_Elapsed,
   DGUS_Addr::STATUS_Percent,
   DGUS_Addr::STATUS_Icons,
   (DGUS_Addr)0
@@ -78,7 +78,7 @@ constexpr DGUS_Addr LIST_PRINT_FINISHED[] PROGMEM = {
   DGUS_Addr::TEMP_Current_Bed,
   DGUS_Addr::TEMP_Target_Bed,
   DGUS_Addr::STATUS_PositionZ,
-  DGUS_Addr::STATUS_Ellapsed,
+  DGUS_Addr::STATUS_Elapsed,
   DGUS_Addr::STATUS_Percent_Complete,
   (DGUS_Addr)0
 };
