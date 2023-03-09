@@ -1502,10 +1502,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       probe.get_three_points(points);
 
       #if ENABLED(UBL_LEVEL_ON_MESH_POINT) && (DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT))
-          mesh_index_pair cpos;
+          mesh_index_pair cpos[3];
           LOOP_L_N(ix, 3) { //Convert points to coordinates of mesh points
-          cpos = find_closest_mesh_point_of_type(REAL, points[ix], true);
-          points[ix] = cpos.meshpos();
+          cpos[ix] = find_closest_mesh_point_of_type(REAL, points[ix], true);
+          points[ix] = cpos[ix].meshpos();
         }
       #endif
 
@@ -1520,7 +1520,11 @@ void unified_bed_leveling::smart_fill_mesh() {
       if (isnan(measured_z))
         abort_flag = true;
       else {
-        measured_z -= get_z_correction(points[0]);
+        #if ENABLED(UBL_LEVEL_ON_MESH_POINT) && (DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT))
+          measured_z -= z_values[cpos[0].pos.x][cpos[0].pos.y];
+        #else
+          measured_z -= get_z_correction(points[0]);
+        #endif
         TERN_(VALIDATE_MESH_TILT, z1 = measured_z);
         if (param.V_verbosity > 3) {
           serial_spaces(16);
@@ -1538,7 +1542,11 @@ void unified_bed_leveling::smart_fill_mesh() {
         if (isnan(measured_z))
           abort_flag = true;
         else {
-          measured_z -= get_z_correction(points[1]);
+          #if ENABLED(UBL_LEVEL_ON_MESH_POINT) && (DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT))
+            measured_z -= z_values[cpos[1].pos.x][cpos[1].pos.y];
+          #else
+            measured_z -= get_z_correction(points[1]);
+          #endif
           if (param.V_verbosity > 3) {
             serial_spaces(16);
             SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
@@ -1556,7 +1564,11 @@ void unified_bed_leveling::smart_fill_mesh() {
         if (isnan(measured_z))
           abort_flag = true;
         else {
-          measured_z -= get_z_correction(points[2]);
+          #if ENABLED(UBL_LEVEL_ON_MESH_POINT) && (DISABLED(HAS_FIXED_3POINT) || ENABLED(UBL_LEVEL_ON_MESH_POINT_FIXED_3POINT))
+            measured_z -= z_values[cpos[2].pos.x][cpos[2].pos.y];
+          #else
+            measured_z -= get_z_correction(points[2]);
+          #endif
           if (param.V_verbosity > 3) {
             serial_spaces(16);
             SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
@@ -1613,11 +1625,19 @@ void unified_bed_leveling::smart_fill_mesh() {
                 DEBUG_CHAR(',');
                 DEBUG_ECHO_F(lpos.y, 7);
                 DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
-                DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rpos), 7);
+                #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
+                  DEBUG_ECHOPAIR_F("   correction: ", z_values[cpos.pos.x][cpos.pos.y], 7);
+                #else
+                  DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rpos), 7);
+                #endif
               }
             #endif
 
-            measured_z -= get_z_correction(rpos) /* + probe.offset.z */ ;
+            #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
+              measured_z -= z_values[cpos.pos.x][cpos.pos.y];
+            #else
+              measured_z -= get_z_correction(rpos);
+            #endif
 
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
 
