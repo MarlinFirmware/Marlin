@@ -114,20 +114,20 @@ extern CLOUD_PARA cloud_para;
 extern bool once_flag, flash_preview_begin, default_preview_flg, gcode_preview_over;
 extern bool flash_dma_mode;
 
-uint32_t getWifiTick() { return millis(); }
+millis_t getWifiTick() { return millis(); }
 
-uint32_t getWifiTickDiff(const int32_t lastTick, const int32_t curTick) {
-  return (TICK_CYCLE) * (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFF - lastTick + curTick);
+millis_t getWifiTickDiff(const millis_t lastTick, const millis_t curTick) {
+  return (TICK_CYCLE) * (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFFUL - lastTick + curTick);
 }
 
-void wifi_delay(int n) {
-  const uint32_t start = getWifiTick();
-  while (getWifiTickDiff(start, getWifiTick()) < (uint32_t)n)
+void wifi_delay(const uint16_t n) {
+  const millis_t start = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < millis_t(n))
     hal.watchdog_refresh();
 }
 
 void wifi_reset() {
-  uint32_t start = getWifiTick();
+  const millis_t start = getWifiTick();
   WIFI_RESET();
   while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
   WIFI_SET();
@@ -833,9 +833,8 @@ uint8_t Explore_Disk(const char * const path, const uint8_t recu_level, const bo
     ZERO(Fstream);
     strcpy(Fstream, card.filename);
 
-    if (card.flag.filenameIsDir && recu_level <= 10) {
+    if (card.flag.filenameIsDir && recu_level <= 10)
       strcat_P(Fstream, PSTR(".DIR"));
-    }
 
     strcat_P(Fstream, PSTR(" 0")); // report 0 file size
 
