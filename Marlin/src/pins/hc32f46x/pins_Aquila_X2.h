@@ -136,6 +136,7 @@
 //
 // DWIN Screen, Encoder and Beeper
 //
+#undef LCD_SERIAL_PORT
 #define LCD_SERIAL_PORT 1
 
 #define BTN_ENC PB14 // SPI_MISO
