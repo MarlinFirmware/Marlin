@@ -1443,7 +1443,7 @@ static void wifi_list_msg_handle(const uint8_t * const msg, const uint16_t msgLe
   }
 }
 
-static void gcode_msg_handle(const uint8_t * const msg, const const uint16_t msgLen) {
+static void gcode_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
   uint8_t gcodeBuf[100] = { 0 };
 
   if (msgLen <= 0) return;
