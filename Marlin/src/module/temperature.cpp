@@ -1150,7 +1150,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Calculate a new and better asymptotic temperature and re-evaluate the other constants
     asymp_temp = ambient_temp + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
-    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_tick_interval_sec * (sample_count >> 1));
+    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_tick_interval * (sample_count >> 1));
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
     mpc.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
 
