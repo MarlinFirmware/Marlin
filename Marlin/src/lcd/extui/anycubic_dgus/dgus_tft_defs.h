@@ -27,7 +27,7 @@
 #pragma once
 #include "../../../inc/MarlinConfigPre.h"
 
-#define ACDEBUGLEVEL 0
+#define ACDEBUGLEVEL 0  //  0: off, 255: all levels enabled
 
 #if ACDEBUGLEVEL
   // Bit-masks for selective debug:
@@ -54,35 +54,35 @@
 #define AC_LOWEST_MESHPOINT_VAL        Z_PROBE_LOW_POINT // The lowest value you can set for a single mesh point offset
 
  // TFT panel commands
-#define  AC_msg_sd_card_inserted       PSTR("J00")
-#define  AC_msg_sd_card_removed        PSTR("J01")
-#define  AC_msg_no_sd_card             PSTR("J02")
-#define  AC_msg_usb_connected          PSTR("J03")
-#define  AC_msg_print_from_sd_card     PSTR("J04")
-#define  AC_msg_pause                  PSTR("J05")
-#define  AC_msg_nozzle_heating         PSTR("J06")
-#define  AC_msg_nozzle_heating_done    PSTR("J07")
-#define  AC_msg_bed_heating            PSTR("J08")
-#define  AC_msg_bed_heating_done       PSTR("J09")
-#define  AC_msg_nozzle_temp_abnormal   PSTR("J10")
-#define  AC_msg_kill_lcd               PSTR("J11")
-#define  AC_msg_ready                  PSTR("J12")
-#define  AC_msg_low_nozzle_temp        PSTR("J13")
-#define  AC_msg_print_complete         PSTR("J14")
-#define  AC_msg_filament_out_alert     PSTR("J15")
-#define  AC_msg_stop                   PSTR("J16")
-#define  AC_msg_main_board_has_reset   PSTR("J17")
-#define  AC_msg_paused                 PSTR("J18")
-#define  AC_msg_j19_unknown            PSTR("J19")
-#define  AC_msg_sd_file_open_success   PSTR("J20")
-#define  AC_msg_sd_file_open_failed    PSTR("J21")
-#define  AC_msg_level_monitor_finished PSTR("J22")
-#define  AC_msg_filament_out_block     PSTR("J23")
-#define  AC_msg_probing_not_allowed    PSTR("J24")
-#define  AC_msg_probing_complete       PSTR("J25")
-#define  AC_msg_start_probing          PSTR("J26")
-#define  AC_msg_version                PSTR("J27")
-#define  AC_msg_bed_temp_abnormal      PSTR("J28")
+#define  AC_msg_sd_card_inserted       F("J00")
+#define  AC_msg_sd_card_removed        F("J01")
+#define  AC_msg_no_sd_card             F("J02")
+#define  AC_msg_usb_connected          F("J03")
+#define  AC_msg_print_from_sd_card     F("J04")
+#define  AC_msg_pause                  F("J05")
+#define  AC_msg_nozzle_heating         F("J06")
+#define  AC_msg_nozzle_heating_done    F("J07")
+#define  AC_msg_bed_heating            F("J08")
+#define  AC_msg_bed_heating_done       F("J09")
+#define  AC_msg_nozzle_temp_abnormal   F("J10")
+#define  AC_msg_kill_lcd               F("J11")
+#define  AC_msg_ready                  F("J12")
+#define  AC_msg_low_nozzle_temp        F("J13")
+#define  AC_msg_print_complete         F("J14")
+#define  AC_msg_filament_out_alert     F("J15")
+#define  AC_msg_stop                   F("J16")
+#define  AC_msg_main_board_has_reset   F("J17")
+#define  AC_msg_paused                 F("J18")
+#define  AC_msg_j19_unknown            F("J19")
+#define  AC_msg_sd_file_open_success   F("J20")
+#define  AC_msg_sd_file_open_failed    F("J21")
+#define  AC_msg_level_monitor_finished F("J22")
+#define  AC_msg_filament_out_block     F("J23")
+#define  AC_msg_probing_not_allowed    F("J24")
+#define  AC_msg_probing_complete       F("J25")
+#define  AC_msg_start_probing          F("J26")
+#define  AC_msg_version                F("J27")
+#define  AC_msg_bed_temp_abnormal      F("J28")
 
 #define MARLIN_msg_probing_point       PSTR("Probing Point ")
 #define MARLIN_msg_start_probing       PSTR("Probing Point 1/25")

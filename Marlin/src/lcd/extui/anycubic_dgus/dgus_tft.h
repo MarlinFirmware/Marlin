@@ -31,6 +31,9 @@
 
 #define MAIN_BOARD_FIRMWARE_VER "V2.4.5"
 
+
+#define DATA_BUF_SIZE 64
+
 /****************** PAGE INDEX***********************/
 #define PAGE_OFFSET        0
 #define PAGE_MAIN          (1+PAGE_OFFSET)
@@ -346,7 +349,7 @@ namespace Anycubic {
     static float            live_Zoffset;
     static file_menu_t      file_menu;
     static bool             data_received;
-    static uint8_t          data_buf[64];
+    static uint8_t          data_buf[DATA_BUF_SIZE];
     static uint8_t          data_index;
     static uint32_t         page_index_last;
     static uint32_t         page_index_last_2;
@@ -426,6 +429,8 @@ namespace Anycubic {
       static void page34_handle();
       static void page115_handle();
       static void page117_handle();     // CHS Mute handler
+      static void page124_handle();
+      static void page125_handle();
       static void page170_handle();     // ENG Mute handler
       static void page171_handle();     // CHS power outage resume handler
       static void page173_handle();     // ENG power outage resume handler
@@ -445,8 +450,8 @@ namespace Anycubic {
 
       static void pop_up_manager();
 
-      void SendtoTFT(PGM_P);
-      void SendtoTFTLN(PGM_P);
+      void SendtoTFT(FSTR_P const=nullptr);
+      void SendtoTFTLN(FSTR_P const=nullptr);
       bool ReadTFTCommand();
       int8_t Findcmndpos(const char *, char);
       void CheckHeaters();

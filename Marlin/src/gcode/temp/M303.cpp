@@ -34,6 +34,21 @@
   #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
+#if ((defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON))
+  #include <USBSerial.h>
+  inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }  // borrowed from queue.cpp
+  static bool serial_data_available(serial_index_t index) {                               // borrowed from queue.cpp
+    const int a = SERIAL_IMPL.available(index);
+    #if ENABLED(RX_BUFFER_MONITOR) && RX_BUFFER_SIZE
+      if (a > RX_BUFFER_SIZE - 2) {
+        PORT_REDIRECT(SERIAL_PORTMASK(index));
+        SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
+      }
+    #endif
+    return a > 0;
+  }
+#endif
+
 /**
  * M303: PID relay autotune
  *
@@ -85,6 +100,28 @@ void GcodeSuite::M303() {
   LCD_MESSAGE(MSG_PID_AUTOTUNE);
   thermalManager.PID_autotune(temp, hid, c, u);
   ui.reset_status();
+
+  #if ((defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)) && defined(USBCON))
+    // arduinoststm32's USB receive buffer not well behaved when buffer over flows
+
+    // This can happen when the host programs (such as Pronterface) automatically
+    // send M105 temperature requests.
+
+    // flush receive buffer
+
+    LOOP_L_N(p, NUM_SERIAL) {
+      // No data for this port ? Skip it
+      if (!serial_data_available(p)) continue;
+      int num_avail = SERIAL_IMPL.available(p);
+      int rcvd_bytes;
+      do {
+        rcvd_bytes = read_serial(p);
+        num_avail = SERIAL_IMPL.available(p);
+      } while(num_avail);
+
+    }
+  #endif
+
 }
 
 #endif // HAS_PID_HEATING

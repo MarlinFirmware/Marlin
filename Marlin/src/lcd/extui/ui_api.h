@@ -46,6 +46,8 @@
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
 #include "../../module/probe.h"
+//#include "../../module/motion.h"  // get feedrate_percentage
+//#include "../../core/serial.h"
 
 #if M600_PURGE_MORE_RESUMABLE
   #include "../../feature/pause.h"

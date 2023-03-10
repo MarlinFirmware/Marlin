@@ -420,6 +420,39 @@ void CardReader::ls(const uint8_t lsflags) {
     SERIAL_EOL();
   }
 
+  void CardReader::getLongPath(char *pathLong, char * const pathShort) {
+
+    int i, pathLen = strlen(pathShort);
+    char bufShort[FILENAME_LENGTH] = { '\0' };
+    strcpy_P(bufShort, pathShort);
+
+    // Zero out slashes to make segments
+    for (i = 0; i < pathLen; i++) if (bufShort[i] == '/') bufShort[i] = '\0';
+
+    SdFile diveDir = root; // start from the root for segment 1
+    for (i = 0; i < pathLen;) {
+
+      if (bufShort[i] == '\0') i++; // move past a single nul
+
+      char *segment = &bufShort[i]; // The segment after most slashes
+
+      // If a segment is empty (extra-slash) then exit
+      if (!*segment) break;
+
+      // SERIAL_ECHOPGM("Looking for segment: "); SERIAL_ECHOLN(segment);
+
+      // Find the item, setting the long filename
+      diveDir.rewind();
+      selectByName(diveDir, segment);
+      diveDir.close();
+
+      if(longFilename[0] && strlen_P(longFilename) < 64) {
+        strcpy_P(pathLong, longFilename);
+        break;
+      }
+    }
+  }
+
 #endif // LONG_FILENAME_HOST_SUPPORT
 
 //
