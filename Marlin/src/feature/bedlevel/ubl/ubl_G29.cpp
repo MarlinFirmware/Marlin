@@ -1599,11 +1599,16 @@ void unified_bed_leveling::smart_fill_mesh() {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
-          mesh_index_pair cpos;
-          rpos.x -= probe.offset.x;
-          rpos.y -= probe.offset.y;
-          cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
-          rpos = cpos.meshpos();
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if DEBUGGING(LEVELING){
+                xy_pos_t oldRpos = rpos;
+              }
+            #endif
+            mesh_index_pair cpos;
+            rpos.x -= probe.offset.x;
+            rpos.y -= probe.offset.y;
+            cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
+            rpos = cpos.meshpos();
           #endif
           
           if (!abort_flag) {
@@ -1617,6 +1622,19 @@ void unified_bed_leveling::smart_fill_mesh() {
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
                 const xy_pos_t lpos = rpos.asLogical();
+                #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
+                  const xy_pos_t oldLpos = oldRpos.asLogical();
+                  DEBUG_ECHO("Calculated point: ")
+                  DEBUG_CHAR('(');
+                  DEBUG_ECHO_F(oldRpos.x, 7);
+                  DEBUG_CHAR(',');
+                  DEBUG_ECHO_F(oldRpos.y, 7);
+                  DEBUG_ECHOPAIR_F(")   logical: (", oldLpos.x, 7);
+                  DEBUG_CHAR(',');
+                  DEBUG_ECHO_F(oldLpos.y, 7);
+                  DEBUG_ECHOLN(")");
+                  DEBUG_ECHO("Selected mesh point: ")
+                #endif
                 DEBUG_CHAR('(');
                 DEBUG_ECHO_F(rpos.x, 7);
                 DEBUG_CHAR(',');
@@ -1624,7 +1642,7 @@ void unified_bed_leveling::smart_fill_mesh() {
                 DEBUG_ECHOPAIR_F(")   logical: (", lpos.x, 7);
                 DEBUG_CHAR(',');
                 DEBUG_ECHO_F(lpos.y, 7);
-                DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
+                DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7); //Maybe new line after close bracket?
                 #if ENABLED(UBL_LEVEL_ON_MESH_POINT)
                   DEBUG_ECHOPAIR_F("   correction: ", z_values[cpos.pos.x][cpos.pos.y], 7);
                 #else
