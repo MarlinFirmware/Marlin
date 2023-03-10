@@ -2,13 +2,18 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m7",
-    "extra_flags": "-DSTM32H743xx",
-    "f_cpu": "480000000L",
-    "mcu": "stm32h743iit6",
-    "variant": "MARLIN_BTT_SKR_SE_BX"
+    "extra_flags": "-DSTM32H7xx -DSTM32H723xx",
+    "f_cpu": "550000000L",
+    "mcu": "stm32h723zet6",
+    "product_line": "STM32H723xx",
+    "variant": "MARLIN_H723Zx"
   },
+  "connectivity": [
+    "can",
+    "ethernet"
+  ],
   "debug": {
-    "jlink_device": "STM32H743II",
+    "jlink_device": "STM32H723ZE",
     "openocd_target": "stm32h7x",
     "svd_path": "STM32H7x3.svd",
     "tools": {
@@ -34,11 +39,11 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32H743II (1024k RAM. 2048k Flash)",
+  "name": "STM32H723ZE (564k RAM. 512k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 1048576,
-    "maximum_size": 2097152,
+    "maximum_ram_size": 577536,
+    "maximum_size": 524288,
     "protocol": "stlink",
     "protocols": [
       "stlink",
@@ -51,6 +56,6 @@
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32h743ii.html",
-  "vendor": "Generic"
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32h723ze.html",
+  "vendor": "ST"
 }
