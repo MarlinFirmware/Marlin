@@ -569,8 +569,8 @@ static bool longName2DosName(const char *longName, char *dosName) {
 
 #if ENABLED(MKS_WIFI_MODULE)
 
-  int raw_send_to_wifi(uint8_t *buf, int len) {
-    if (buf == 0 || len <= 0) return 0;
+  int raw_send_to_wifi(uint8_t * const buf, const int len) {
+    if (buf == nullptr || len <= 0) return 0;
     for (int i = 0; i < len; i++) WIFISERIAL.write(*(buf + i));
     return len;
   }
@@ -708,9 +708,9 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
   return 1;
 }
 
+int send_to_wifi(uint8_t * const buf, const int len) { return package_to_wifi(WIFI_TRANS_INF, buf, len); }
 
-#define SEND_OK_TO_WIFI send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n"))
-int send_to_wifi(uint8_t *buf, int len) { return package_to_wifi(WIFI_TRANS_INF, buf, len); }
+inline void send_ok_to_wifi() { send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n")); }
 
 void set_cur_file_sys(int fileType) { gCfgItems.fileSysType = fileType; }
 
@@ -892,7 +892,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
             send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
             get_file_list("0:/", false);
             send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
-            SEND_OK_TO_WIFI;
+            send_ok_to_wifi();
             break;
           }
 
@@ -913,12 +913,12 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
               get_file_list(path, with_longnames);
               send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
             }
-            SEND_OK_TO_WIFI;
+            send_ok_to_wifi();
           }
         }
         break;
 
-      case 21: SEND_OK_TO_WIFI; break;            // Init SD card
+      case 21: send_ok_to_wifi(); break;            // Init SD card
 
       case 23:
         // Select the file
@@ -977,7 +977,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                 send_to_wifi((uint8_t *)"file.open failed\r\n", strlen("file.open failed\r\n"));
                 strcpy_P(list_file.file_name[sel_id], PSTR("notValid"));
               }
-              SEND_OK_TO_WIFI;
+              send_ok_to_wifi();
             }
           }
         }
@@ -1048,7 +1048,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
             lv_draw_printing();
           }
         }
-        SEND_OK_TO_WIFI;
+        send_ok_to_wifi();
         break;
 
       case 25:
@@ -1067,7 +1067,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           else
             default_preview_flg = true;
           lv_draw_printing();
-          SEND_OK_TO_WIFI;
+          send_ok_to_wifi();
         }
         break;
 
@@ -1084,7 +1084,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
           lv_draw_ready_print();
 
-          SEND_OK_TO_WIFI;
+          send_ok_to_wifi();
         }
         break;
 
@@ -1145,7 +1145,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         ZERO(tempBuf);
         if (cmd_value == 105) {
 
-          SEND_OK_TO_WIFI;
+          send_ok_to_wifi();
 
           char *outBuf = (char *)tempBuf;
           char tbuf[34];
@@ -1244,7 +1244,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 115:
         ZERO(tempBuf);
-        SEND_OK_TO_WIFI;
+        send_ok_to_wifi();
         send_to_wifi((uint8_t *)"FIRMWARE_NAME:Robin_nano\r\n", strlen("FIRMWARE_NAME:Robin_nano\r\n"));
         break;
 
@@ -1261,8 +1261,8 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
               espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
               espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
             }
-            if (left - WIFI_GCODE_BUFFER_LEAST_SIZE >= strlen((const char *)cmd_line))
-              SEND_OK_TO_WIFI;
+            if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
+              send_ok_to_wifi();
             else
               need_ok_later = true;
           }
@@ -1285,7 +1285,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
         }
         if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
-          SEND_OK_TO_WIFI;
+          send_ok_to_wifi();
         else
           need_ok_later = true;
       }
