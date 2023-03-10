@@ -1037,7 +1037,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = (MPC_MAX) >> 1;
-    const float heat_test_tick_interval = 1.0f; // Time (secs) between tests of temperature
+    constexpr float heat_test_interval_s = 1.0f; // Time (secs) between tests of temperature
     const millis_t heat_start_time = next_test_ms = ms;
     celsius_float_t temp_samples[16];
     uint8_t sample_count = 0;
@@ -1060,27 +1060,29 @@ volatile bool Temperature::raw_temps_ready = false;
           }
 
           if (sample_count == 0)
-            t1_time = float(ms - heat_start_time) / (heat_test_tick_interval * 1000UL);
+            t1_time = float(ms - heat_start_time) / (heat_test_interval_s * 1000UL);
           temp_samples[sample_count++] = current_temp;
         }
 
         if (current_temp >= 200.0f) break;
 
-        next_test_ms += heat_test_tick_interval * ticks_per_sample;
+        next_test_ms += heat_test_interval_s * ticks_per_sample;
       }
     }
     wait_for_heatup = false;
 
     hotend.soft_pwm_amount = 0;
 
+    //if (sample_count < 2) return;
+
     // Calculate physical constants from three equally-spaced samples
     // Sample count must be odd to ensure we have an exact "middle" sample between t1 and t3
-    if (sample_count%2 == 0) sample_count--;
+    if (!(sample_count & 0x01)) sample_count--;
     const float t1 = temp_samples[0],
                 t2 = temp_samples[(sample_count - 1) >> 1],
                 t3 = temp_samples[sample_count - 1];
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
-          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_tick_interval * (sample_count >> 1));
+          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_interval_s * (sample_count >> 1));
 
     mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - ambient_temp);
     mpc.fan255_adjustment = 0.0f;
@@ -1150,7 +1152,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Calculate a new and better asymptotic temperature and re-evaluate the other constants
     asymp_temp = ambient_temp + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
-    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_tick_interval_sec * (sample_count >> 1));
+    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / (ticks_per_sample * heat_test_interval_s * (sample_count >> 1));
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
     mpc.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
 
