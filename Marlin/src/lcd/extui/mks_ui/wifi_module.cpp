@@ -1073,7 +1073,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 26:
         // Stop print file
-        if ((uiCfg.print_state == WORKING) || (uiCfg.print_state == PAUSED) || (uiCfg.print_state == REPRINTING)) {
+        if (uiCfg.print_state == WORKING || uiCfg.print_state == PAUSED || uiCfg.print_state == REPRINTING) {
           stop_print_time();
 
           clear_cur_ui();
@@ -1090,7 +1090,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 27:
         // Report print rate
-        if ((uiCfg.print_state == WORKING) || (uiCfg.print_state == PAUSED)|| (uiCfg.print_state == REPRINTING)) {
+        if (uiCfg.print_state == WORKING || uiCfg.print_state == PAUSED|| uiCfg.print_state == REPRINTING) {
           print_rate = uiCfg.totalSend;
           ZERO(tempBuf);
           sprintf_P((char *)tempBuf, PSTR("M27 %d\r\n"), print_rate);
@@ -1196,7 +1196,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         break;
 
       case 992:
-        if ((uiCfg.print_state == WORKING) || (uiCfg.print_state == PAUSED)) {
+        if (uiCfg.print_state == WORKING || uiCfg.print_state == PAUSED) {
           ZERO(tempBuf);
           sprintf_P((char *)tempBuf, PSTR("M992 %d%d:%d%d:%d%d\r\n"), print_time.hours/10, print_time.hours%10, print_time.minutes/10, print_time.minutes%10, print_time.seconds/10, print_time.seconds%10);
           wifi_ret_ack();
@@ -1205,7 +1205,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         break;
 
       case 994:
-        if ((uiCfg.print_state == WORKING) || (uiCfg.print_state == PAUSED)) {
+        if (uiCfg.print_state == WORKING || uiCfg.print_state == PAUSED) {
           ZERO(tempBuf);
           if (strlen((char *)list_file.file_name[sel_id]) > (100 - 1)) return;
           sprintf_P((char *)tempBuf, PSTR("M994 %s;%d\n"), list_file.file_name[sel_id], (int)gCfgItems.curFilesize);
@@ -1215,21 +1215,27 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         break;
 
       case 997:
-        if (uiCfg.print_state == IDLE) {
-          wifi_ret_ack();
-          send_to_wifi((uint8_t *)"M997 IDLE\r\n", strlen("M997 IDLE\r\n"));
-        }
-        else if (uiCfg.print_state == WORKING) {
-          wifi_ret_ack();
-          send_to_wifi((uint8_t *)"M997 PRINTING\r\n", strlen("M997 PRINTING\r\n"));
-        }
-        else if (uiCfg.print_state == PAUSED) {
-          wifi_ret_ack();
-          send_to_wifi((uint8_t *)"M997 PAUSE\r\n", strlen("M997 PAUSE\r\n"));
-        }
-        else if (uiCfg.print_state == REPRINTING) {
-          wifi_ret_ack();
-          send_to_wifi((uint8_t *)"M997 PAUSE\r\n", strlen("M997 PAUSE\r\n"));
+        #define SENDIDLE "M997 IDLE\r\n"
+        #define SENDPRINTING "M997 PRINTING\r\n"
+        #define SENDPAUSE "M997 PAUSE\r\n"
+        switch (uiCfg.print_state) {
+          default: break;
+          case IDLE:
+            wifi_ret_ack();
+            send_to_wifi((uint8_t *)SENDIDLE, strlen(SENDIDLE));
+            break;
+          case WORKING:
+            wifi_ret_ack();
+            send_to_wifi((uint8_t *)SENDPRINTING, strlen(SENDPRINTING));
+            break;
+          case PAUSED:
+            wifi_ret_ack();
+            send_to_wifi((uint8_t *)SENDPAUSE, strlen(SENDPAUSE));
+            break;
+          case REPRINTING:
+            wifi_ret_ack();
+            send_to_wifi((uint8_t *)SENDPAUSE, strlen(SENDPAUSE));
+            break;
         }
         if (!uiCfg.command_send) get_wifi_list_command_send();
         break;
@@ -1245,7 +1251,8 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       case 115:
         ZERO(tempBuf);
         send_ok_to_wifi();
-        send_to_wifi((uint8_t *)"FIRMWARE_NAME:Robin_nano\r\n", strlen("FIRMWARE_NAME:Robin_nano\r\n"));
+        #define SENDFW "FIRMWARE_NAME:Robin_nano\r\n"
+        send_to_wifi((uint8_t *)SENDFW, strlen(SENDFW));
         break;
 
       default:
@@ -1864,7 +1871,7 @@ void wifi_rcv_handle() {
     }
     if (need_ok_later && !queue.ring_buffer.full()) {
       need_ok_later = false;
-      send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n"));
+      send_ok_to_wifi();
     }
   }
 
