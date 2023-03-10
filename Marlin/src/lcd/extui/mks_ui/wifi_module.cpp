@@ -117,7 +117,7 @@ extern bool flash_dma_mode;
 uint32_t getWifiTick() { return millis(); }
 
 uint32_t getWifiTickDiff(const int32_t lastTick, const int32_t curTick) {
-  return TICK_CYCLE * (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFF - lastTick + curTick);
+  return (TICK_CYCLE) * (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFF - lastTick + curTick);
 }
 
 void wifi_delay(int n) {
@@ -133,11 +133,10 @@ void wifi_reset() {
   WIFI_SET();
 }
 
-void mount_file_sys(uint8_t disk_type) {
-  if (disk_type == FILE_SYS_SD) {
-    TERN_(SDSUPPORT, card.mount());
-  }
-  else if (disk_type == FILE_SYS_USB) {
+void mount_file_sys(const uint8_t disk_type) {
+  switch (disk_type) {
+    case FILE_SYS_SD: TERN_(SDSUPPORT, card.mount()); break;
+    case FILE_SYS_USB: break;
   }
 }
 
