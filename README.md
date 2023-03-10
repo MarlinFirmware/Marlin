@@ -1,6 +1,6 @@
 # Marlin for the Voxlab Aquila X2 (H32)
 
-This project aims to port vanilla Marlin to the [Voxlab Aquila X2](https://www.voxelab3dp.com/product/aquila-x2-fdm-3d-printer) 3D-Printer with H32 (HC32F46x) Chipset.
+This project aims to port vanilla Marlin to the [Voxlab Aquila X2](https://www.voxelab3dp.com/product/aquila-x2-fdm-3d-printer) 3D-Printer with H32 (HC32F46x) SoC.
 
 this project is based on the following projects and wouldn't have been possible without them: 
 - [MarlinFirmware/Marlin](https://github.com/MarlinFirmware/Marlin) 
@@ -16,9 +16,10 @@ details on the origin of code used is described in README files accompanying the
 building the firmware is currently tested under linux (WSL), tho windows may work too.
 1. install the GNU ARM Toolchain (see [.toolchain/README.md](/.toolchain/README.md))
 2. change into into the `Marlin` directory
-3. run `make -f H32.mk all` to build the firmware
+3. update the configuration files (`Configuration.h` and `Configuration_adv.h`). for example configurations, see [shadow578/Marlin-Configurations-H32](https://github.com/shadow578/Marlin-Configurations-H32)
+4. run `make -f H32.mk all` to build the firmware
    - if you previously built the firmware, either use `make -f H32.mk clean` to clean up the previous build or use `make -f H32.mk rebuild` to rebuild the firmware.
-4. once the firmware is compiled, a `firmware.bin` file will be present in the `Marlin/build/` directory
+5. once the firmware is compiled, a `firmware.bin` file will be present in the `Marlin/build/` directory
    - if the firmware does not compile, please check that the toolchain is installed correctly.
 
 
@@ -46,6 +47,89 @@ installing the firmware onto your printer is fairly straight forward
 if you don't like reading, you can watch [this video](https://www.youtube.com/watch?v=6afQUIR6Dmo) instead. 
 you'll have to exchange the `firmware.bin` and `DWIN_SET` for the ones mentioned here, but the process otherwise is the same.
 
+
+## Support for other Printers
+
+although this project is mainly aimed to work on the voxlab aquila X2 printer, it may also work on other 3D-printers with the HC32F46x (H32) SoC. 
+
+for other printers to work with this firmware, you'll have to (at least) ensure the following things match your printer:
+- main configuration files (`Configuration.h` and `Configuration_adv.h`)
+   - this one is fairly simple, you'll have to find and port the changes your printer vendor applied
+- pin definitions (under `Marlin/src/pins/hc32f46x`)
+   - again, you'll have to find the pin definition your printer vendor used and port it over
+- SoC flash size (change `TARGET_DEVICE_LD` in `Marlin/H32.mk`; 'hc32f460xCxx_bl' = 256kb, 'hc32f460xExx_bl' = 512kb)
+   - for this, you can take a look at the SoC soldered to the mainboard. use the part number that matches the setting for TARGET_DEVICE_LD
+   - if you're unsure, you can just leave it at 'hc32f460xCxx_bl'. this matches the 256kb variant of the hc32f46x series, which is the smallest size
+- app start address / bootloader entrypoint
+   - see the following section for finding the address
+   - once you have the address, adjust the value of `FLASH_START` in the linker script (`Marlin/lib/h32_core/ld/hc32f460xCxx_bl.ld` or `Marlin/lib/h32_core/ld/hc32f460xExx_bl.ld`) to match your address
+
+
+
+### Finding the app start address
+
+finding the app start address may be a bit tricky... 
+you'll have to find the address where the firmware entry point resides (eg. where the bootloader jumps to when starting to run the firmware)
+
+__using a boot log__
+
+with any luck, the printer may print the app start address during boot. 
+to find this, connect your printer using a serial cable and cause a soft-reset of the printer (by sending the `M997` gcode).
+
+now, observe the output on the serial console. it may look something like this:
+```
+[...]
+version 1.2
+sdio init success!
+Disk init
+Tips ------ None Firmware file
+GotoApp->addr=0xC000
+
+start
+[...]
+```
+
+the value you're looking for will pre printed _before_ the printer sends 'start' ('start' is sent by marlin itself).
+in this case, the app start address is printed to be `0xC000`. 
+
+
+
+
+__using the firmware source code__
+
+somewhere in the startup section, there should be a line similar to `SCB->VTOR = ((uint32_t) APP_START_ADDRESS & SCB_VTOR_TBLOFF_Msk);`. 
+if you find this line, the variable `APP_START_ADDRESS` contains the value you're looking for.
+
+
+__using a linker script__
+
+find the linker script file (a .ld file). 
+the file should contain a section like this:
+```
+MEMORY
+{
+    FLASH       (rx): ORIGIN = 0x0000C000, LENGTH = 512K
+    OTP         (rx): ORIGIN = 0x03000C00, LENGTH = 1020
+    RAM        (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
+    RET_RAM    (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
+}
+```
+
+in this case, the app start address is equal to the origin of the FLASH section, so 0x0000C000.
+if there are multiple sections called FLASH_***, use the origin of the first one.
+
+
+
+## Documentation on the HC32F46x SoC
+
+documentation on the HC32F46x SoCs can be made available upon request. 
+available documents include:
+- datasheet 
+- user manual (register overview, etc.)
+- DDL provided by hdsc, including manual and usage examples
+- programming tools and emulators
+
+> Note: i'm not publishing these documents as i'm unsure on their license.
 
 
 ## Disclaimer

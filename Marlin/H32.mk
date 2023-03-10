@@ -69,7 +69,6 @@ EXCLUDES = \
 ## defines for compilation (-D) ##
 
 C_DEFINES = \
-	MOTHERBOARD=BOARD_AQUILA_X2_H32 \
 	HC32F46x \
 	TARGET_HC32F46x \
 	TARGET_STM32F1 \

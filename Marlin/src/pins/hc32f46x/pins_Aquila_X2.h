@@ -134,8 +134,10 @@
 #define BOARD_SDIO_DET PA10
 
 //
-// DWIN Encoder and Beeper
+// DWIN Screen, Encoder and Beeper
 //
+#define LCD_SERIAL_PORT 1
+
 #define BTN_ENC PB14 // SPI_MISO
 #define BTN_EN1 PB15 // SPI3_MOSI
 #define BTN_EN2 PB12 // SPI3_NSS
