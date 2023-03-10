@@ -1259,14 +1259,13 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         strcat_P((char *)cmd_line, PSTR("\n"));
 
         if (espGcodeFifo.wait_tick > 5) {
-          const uint32_t left = espGcodeFifo.r > espGcodeFifo.w
-                              ? espGcodeFifo.r - espGcodeFifo.w - 1
-                              : WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
+          uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
+          if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
 
           if (left >= strlen((const char *)cmd_line)) {
             for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
               espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-              espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
+              espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
             }
             if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
               send_ok_to_wifi();
@@ -1282,14 +1281,13 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
     strcat_P((char *)cmd_line, PSTR("\n"));
 
     if (espGcodeFifo.wait_tick > 5) {
-      const uint32_t left_g = espGcodeFifo.r > espGcodeFifo.w
-                            ? espGcodeFifo.r - espGcodeFifo.w - 1
-                            : WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
+      uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
+      if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
 
       if (left_g >= strlen((char * const)cmd_line)) {
         for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
           espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-          espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
+          espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
         }
         if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
           send_ok_to_wifi();
@@ -1901,7 +1899,7 @@ void wifi_rcv_handle() {
 
   if (wifiTransError.flag == 0x1) {
     wifiTransError.now_tick = getWifiTick();
-    if (getWifiTickDiff(wifiTransError.start_tick, wifiTransError.now_tick) > WAIT_ESP_TRANS_TIMEOUT_TICK) {
+    if (getWifiTickDiff(wifiTransError.start_tick, wifiTransError.now_tick) > (WAIT_ESP_TRANS_TIMEOUT_TICK)) {
       wifiTransError.flag = 0;
       WIFI_IO1_RESET();
     }
@@ -2021,7 +2019,7 @@ void get_wifi_commands() {
 
       char wifi_char = espGcodeFifo.Buffer[espGcodeFifo.r];
 
-      espGcodeFifo.r = (espGcodeFifo.r + 1) % WIFI_GCODE_BUFFER_SIZE;
+      espGcodeFifo.r = (espGcodeFifo.r + 1) % (WIFI_GCODE_BUFFER_SIZE);
 
       /**
        * If the character ends the line
