@@ -86,9 +86,8 @@ FORCE_INLINE static uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2
 
 // charRes = charIn1 * charIn2 >> 8
 // uses:
-// r1, r0 for the result of mul. After the mul, r0 holds bits 0-7 of the 16 bit result and
-// the top bit of r0 is used for rounding.
-// [tmp] to store 0.
+// r1, r0 for the result of mul. After the mul, r0 holds bits 0-7 of the 16 bit result,
+//        and the top bit of r0 is used for rounding.
 // [charRes] is bits 8-15 and is the returned value.
 // [charIn1] is an 8 bit parameter.
 // [charIn2] is an 8 bit parameter.
