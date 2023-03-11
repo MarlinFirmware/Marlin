@@ -25,6 +25,7 @@
 #if HAS_PID_HEATING
 
 #include "../gcode.h"
+#include "../queue.h" // for flush_tx
 #include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 

@@ -311,7 +311,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
    * This can happen when the host programs (such as Pronterface) automatically
    * send M105 temperature requests.
    */
-  void GCodeQueue::flush_rx(const serial_index_t serial_ind) {
+  void GCodeQueue::flush_rx() {
     // Flush receive buffer
     LOOP_L_N(p, NUM_SERIAL) {
       if (!serial_data_available(p)) continue; // No data for this port? Skip.
