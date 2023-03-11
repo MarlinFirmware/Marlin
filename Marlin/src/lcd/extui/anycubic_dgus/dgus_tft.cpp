@@ -39,6 +39,7 @@
 #include "../../../feature/powerloss.h"
 #include "../../../core/serial.h"
 #include "../../../module/stepper.h"
+#include "../../../module/probe.h"
 
 #define DEBUG_OUT ACDEBUGLEVEL
 #include "../../../core/debug_out.h"
@@ -311,9 +312,9 @@ namespace Anycubic {
           fun_array[page_index_now - 1 - 120]();  // ENG page_index is 120 more than CHS
         }
         else {
-          DEBUG_ECHOLNPGM("lcd function not exists");
-          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
-          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          SERIAL_ECHOLNPGM("lcd function not exists");
+          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
+          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
         }
       }
 
@@ -353,11 +354,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
-        DEBUG_ECHOLNPGM("Check Bed heater");
+        SERIAL_ECHOLNPGM("Check Bed heater");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_HEATER);
-        DEBUG_ECHOLNPGM("Check E1 heater");
+        SERIAL_ECHOLNPGM("Check E1 heater");
       }
 
     }
@@ -365,11 +366,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
-        DEBUG_ECHOLNPGM("Check Bed thermistor");
+        SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_NTC);
-        DEBUG_ECHOLNPGM("Check E1 thermistor");
+        SERIAL_ECHOLNPGM("Check E1 thermistor");
       }
 
     }
@@ -377,11 +378,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
-        DEBUG_ECHOLNPGM("Check Bed thermistor");
+        SERIAL_ECHOLNPGM("Check Bed thermistor");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_NTC);
-        DEBUG_ECHOLNPGM("Check E1 thermistor");
+        SERIAL_ECHOLNPGM("Check E1 thermistor");
       }
 
     }
@@ -389,11 +390,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
-        DEBUG_ECHOLNPGM("Check Bed thermal runaway");
+        SERIAL_ECHOLNPGM("Check Bed thermal runaway");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_HEATER);
-        DEBUG_ECHOLNPGM("Check E1 thermal runaway");
+        SERIAL_ECHOLNPGM("Check E1 thermal runaway");
       }
 
     }
@@ -401,15 +402,15 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("X")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_X_ENDSTOP);
-        DEBUG_ECHOLNPGM("Check X endstop");
+        SERIAL_ECHOLNPGM("Check X endstop");
       }
       else if (strcmp_P(component, PSTR("Y")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_Y_ENDSTOP);
-        DEBUG_ECHOLNPGM("Check Y endstop");
+        SERIAL_ECHOLNPGM("Check Y endstop");
       }
       else if (strcmp_P(component, PSTR("Z")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_Z_ENDSTOP);
-        DEBUG_ECHOLNPGM("Check Z endstop");
+        SERIAL_ECHOLNPGM("Check Z endstop");
       }
 
     }
@@ -1015,7 +1016,7 @@ namespace Anycubic {
 
   #if 0
     {
-      //DEBUG_ECHOLNPGM("ReadTFTCommand: ", millis());
+      //SERIAL_ECHOLNPGM("ReadTFTCommand: ", millis());
       //return -1;
 
       bool command_ready = false;
@@ -1144,7 +1145,7 @@ namespace Anycubic {
 
   void DgusTFT::InjectCommandandWait(PGM_P cmd) {
     //injectCommands_P(cmd); queue.enqueue_now_P(cmd);
-    //DEBUG_ECHOLN(PSTR("Inject>"));
+    //SERIAL_ECHOLN(PSTR("Inject>"));
   }
 
   void DgusTFT::ProcessPanelRequest() {
@@ -1436,7 +1437,7 @@ namespace Anycubic {
             if (printer_state == AC_printer_resuming_from_power_outage) {
               // Need to home here to restore the Z position
               //injectCommands_P(AC_cmnd_power_loss_recovery);
-              //DEBUG_ECHOLNPGM("start resuming from power outage: ", AC_cmnd_power_loss_recovery);
+              //SERIAL_ECHOLNPGM("start resuming from power outage: ", AC_cmnd_power_loss_recovery);
               ChangePageOfTFT(PAGE_STATUS2);    // show pause
               injectCommands_P(PSTR("M1000"));  // home and start recovery
             }
@@ -1449,9 +1450,9 @@ namespace Anycubic {
 
           if (filenavigator.filelist.seek(lcd_txtbox_page * 5 + lcd_txtbox_index - 1)) {
             #if 0
-              DEBUG_ECHOLNPGM("start print: ", lcd_txtbox_page * 5 + (lcd_txtbox_index - 1));
-              DEBUG_ECHOLNPGM("start print: ", filenavigator.filelist.shortFilename());
-              DEBUG_ECHOLNPGM("start print: ", filenavigator.filelist.longFilename());
+              SERIAL_ECHOLNPGM("start print: ", lcd_txtbox_page * 5 + (lcd_txtbox_index - 1));
+              SERIAL_ECHOLNPGM("start print: ", filenavigator.filelist.shortFilename());
+              SERIAL_ECHOLNPGM("start print: ", filenavigator.filelist.longFilename());
             #endif
 
             SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
@@ -1704,7 +1705,7 @@ namespace Anycubic {
 
       case 2: { // -
         float z_off = getZOffset_mm();
-        //DEBUG_ECHOLNPGM("z_off: ", z_off);
+        //SERIAL_ECHOLNPGM("z_off: ", z_off);
         //setSoftEndstopState(false);
         if (z_off <= -5)
           return;
@@ -1717,10 +1718,10 @@ namespace Anycubic {
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
         //if (isAxisPositionKnown(Z)) {  // Move Z axis
-        //  DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+        //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
         //  const float currZpos = getAxisPosition_mm(Z);
         //  setAxisPosition_mm(currZpos-0.05, Z);
-        //  DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+        //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
         //}
 
         int16_t steps = mmToWholeSteps(-0.05, Z);
@@ -1742,7 +1743,7 @@ namespace Anycubic {
 
       case 3: { // +
         float z_off = getZOffset_mm();
-        //DEBUG_ECHOLNPGM("z_off: ", z_off);
+        //SERIAL_ECHOLNPGM("z_off: ", z_off);
         //setSoftEndstopState(false);
 
         if (z_off >= 5) return;
@@ -1758,10 +1759,10 @@ namespace Anycubic {
 
         /*
         if (isAxisPositionKnown(Z)) {  // Move Z axis
-          DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+          SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
           const float currZpos = getAxisPosition_mm(Z);
           setAxisPosition_mm(currZpos-0.05, Z);
-          DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+          SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
         }
         */
 
@@ -1771,7 +1772,7 @@ namespace Anycubic {
         GRID_LOOP(x, y) {
           const xy_uint8_t pos { x, y };
           const float currval = getMeshPoint(pos);
-          //DEBUG_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
+          //SERIAL_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
           setMeshPoint(pos, constrain(currval + 0.05f, AC_LOWEST_MESHPOINT_VAL, 5));
         }
 
@@ -1975,15 +1976,15 @@ namespace Anycubic {
         break;
 
       //case 14:
-      //  movespeed = 3000; //DEBUG_ECHOLN(movespeed);
+      //  movespeed = 3000; //SERIAL_ECHOLN(movespeed);
       //  break;
       //
       //case 15:
-      //  movespeed = 2000; //DEBUG_ECHOLN(movespeed);
+      //  movespeed = 2000; //SERIAL_ECHOLN(movespeed);
       //  break;
       //
       //case 16:
-      //  movespeed = 1000; //DEBUG_ECHOLN(movespeed);
+      //  movespeed = 1000; //SERIAL_ECHOLN(movespeed);
       //  break;
     }
   }
@@ -3170,9 +3171,9 @@ namespace Anycubic {
       #endif
       switch (key_value) {
         case 1:     // return
-          DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
-          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
-          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
+          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
+          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
 
           if (isPrinting() || isPrintingPaused() || isPrintingFromMedia()) {
             printer_state = AC_printer_stopping;
