@@ -1268,6 +1268,15 @@
 #endif
 
 /**
+ * Multi-stepping sends steps in bursts when the step rate is high enough to for
+ * approximately 100% MCU utilisation. This allows higher feed rates than the MCU
+ * would otherwise be able to support. However if a stepper driver receives a burst
+ * of steps that is greater than its configured microstepping it is likely that
+ * stepless will result.
+ */
+#define MULTISTEPPING_LIMIT   16  // 1, 2, 4, 8, 16, 32, 64 or 128
+
+/**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
  * below 1kHz (for AVR) or 10kHz (for ARM), where aliasing between axes in multi-axis moves causes audible
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the

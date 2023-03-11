@@ -189,7 +189,9 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-uint8_t Stepper::steps_per_isr = 1;
+#if (MULTISTEPPING_LIMIT) > 1
+  uint8_t Stepper::steps_per_isr = 1;
+#endif
 hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 
 #if ENABLED(FREEZE_FEATURE)
@@ -1602,11 +1604,13 @@ void Stepper::isr() {
     next_isr_ticks = min_ticks;
 
     // When forced out of the ISR, increase multi-stepping
-    if (steps_per_isr < 128) {
-      steps_per_isr <<= 1;
-      // ticks_nominal will need to be recalculated if we are in cruise phase
-      ticks_nominal = 0;
-    }
+    #if (MULTISTEPPING_LIMIT) > 1
+      if (steps_per_isr < (MULTISTEPPING_LIMIT)) {
+        steps_per_isr <<= 1;
+        // ticks_nominal will need to be recalculated if we are in cruise phase
+        ticks_nominal = 0;
+      }
+    #endif
   }
   else {
     // Track the time spent voluntarily outside the ISR
@@ -2076,15 +2080,10 @@ void Stepper::pulse_phase_isr() {
 
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
-  #if DISABLED(DISABLE_MULTI_STEPPING)
-    uint8_t loops = steps_per_isr;
-    if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
-    if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
-    if (loops >=  2) { step_rate >>= 1; /*loops >>= 1; */ }
-    //steps_per_isr = loops;
-  #else
-    NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
-  #endif
+  uint8_t loops = steps_per_isr;
+  if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
+  if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
+  if (loops >=  2) { step_rate >>= 1; /*loops >>= 1; */ }
 
   return calc_timer_interval(step_rate);
 }
@@ -2125,11 +2124,13 @@ hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
 hal_timer_t Stepper::block_phase_isr() {
   // if the ISR uses less than 50% of MPU time, decrease multi-stepping
   const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-  if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
-    steps_per_isr >>= 1;
-    // ticks_nominal will need to be recalculated if we are in cruise phase
-    ticks_nominal = 0;
-  }
+  #if (MULTISTEPPING_LIMIT) > 1
+    if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
+      steps_per_isr >>= 1;
+      // ticks_nominal will need to be recalculated if we are in cruise phase
+      ticks_nominal = 0;
+    }
+  #endif
 
   time_spent_in_isr = -time_spent;    // unsigned but guaranteed to be +ve when needed
   time_spent_out_isr = 0;

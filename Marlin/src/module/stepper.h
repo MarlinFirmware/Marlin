@@ -49,9 +49,6 @@
   #include "stepper/speed_lookuptable.h"
 #endif
 
-// Disable multiple steps per ISR
-//#define DISABLE_MULTI_STEPPING
-
 //
 // Estimate the amount of time the Stepper ISR will take to execute
 //
@@ -516,7 +513,11 @@ class Stepper {
     #endif
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
-    static uint8_t steps_per_isr;         // Count of steps to perform per Stepper ISR call
+    #if (MULTISTEPPING_LIMIT) > 1
+      static uint8_t steps_per_isr;                 // Count of steps to perform per Stepper ISR call
+    #else
+      static constexpr uint8_t steps_per_isr = 1;
+    #endif
     static hal_timer_t time_spent_in_isr, time_spent_out_isr;
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)

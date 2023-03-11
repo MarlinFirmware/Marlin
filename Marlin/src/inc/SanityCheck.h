@@ -4500,6 +4500,14 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
+// Multi-stepping
+#ifndef MULTISTEPPING_LIMIT
+  #error "MULTISTEPPING_LIMIT must be defined with a value of 1, 2, 4, 8, 16, 32, 64 or 128."
+#endif
+static_assert(MULTISTEPPING_LIMIT > 0 && MULTISTEPPING_LIMIT <= 128 &&
+              (int8_t(MULTISTEPPING_LIMIT) & int8_t(MULTISTEPPING_LIMIT - 1)) == 0,
+              "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64 or 128.");
+
 // Misc. Cleanup
 #undef _TEST_PWM
 #undef _NUM_AXES_STR
