@@ -420,7 +420,7 @@ void CardReader::ls(const uint8_t lsflags) {
     SERIAL_EOL();
   }
 
-  void CardReader::getLongPath(char *pathLong, char * const pathShort) {
+  void CardReader::getLongPath(char * const pathLong, char * const pathShort) {
 
     int i, pathLen = strlen(pathShort);
     char bufShort[FILENAME_LENGTH] = { '\0' };
@@ -439,15 +439,16 @@ void CardReader::ls(const uint8_t lsflags) {
       // If a segment is empty (extra-slash) then exit
       if (!*segment) break;
 
-      // SERIAL_ECHOPGM("Looking for segment: "); SERIAL_ECHOLN(segment);
+      //SERIAL_ECHOLNPGM("Looking for segment: ", segment);
 
       // Find the item, setting the long filename
       diveDir.rewind();
       selectByName(diveDir, segment);
       diveDir.close();
 
-      if(longFilename[0] && strlen_P(longFilename) < 64) {
-        strcpy_P(pathLong, longFilename);
+      if (longFilename[0]) {
+        strncpy_P(pathLong, longFilename, 63);
+        pathLong[63] = '\0';
         break;
       }
     }

@@ -28,19 +28,19 @@
 
 #define BOARD_NO_NATIVE_USB
 
+// Release PA13 from SWD for CASE_LIGHT_PIN
+#define DISABLE_DEBUG
 #define DISABLE_JTAG
 
 //
 // EEPROM
 //
 #define FLASH_EEPROM_EMULATION
-#define MARLIN_EEPROM_SIZE              0x1000  // 4KB
-
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Limit Switches
 //
-
 #define X_MIN_PIN                           PA7
 #define X_MAX_PIN                           PC6
 #define Y_MIN_PIN                           PC5
@@ -81,17 +81,17 @@
 //
 // Heaters
 //
-#define HEATER_0_PIN                        PA1  // H0
-#define HEATER_1_PIN                        PA8  // H1
-#define HEATER_BED_PIN                      PA4  // HB
+#define HEATER_0_PIN                        PA1   // H0
+#define HEATER_1_PIN                        PA8   // H1
+#define HEATER_BED_PIN                      PA4   // HB
 
 //
 // Fans
 //
-#define FAN_PIN                             PA0  // FAN
-#define FAN1_PIN                            PA14 // Connected to +24V
-#define FAN2_PIN                            -1   // PB1, auto fan for E0
-#define CONTROLLER_FAN_PIN                  FAN1_PIN
+#define FAN_PIN                             PA0   // FAN
+#define FAN1_PIN                            PA14  // Connected to +24V
+#define FAN2_PIN                            -1    // PB1, auto fan for E0
+#define CONTROLLER_FAN_PIN              FAN1_PIN
 
 //
 // Misc
@@ -106,44 +106,43 @@
 #define AUTO_LEVEL_TX_PIN                   PB13
 #define AUTO_LEVEL_RX_PIN                   PB12
 
-// special code needed to use PA13 as an output
-#define DISABLE_DEBUG
-
 //
 // SD Card
 //
-#define SDIO_SUPPORT
-#define SD_DETECT_PIN                         PC7
+#define SD_DETECT_PIN                       PC7
 
-#ifdef SDIO_SUPPORT
-//
-// SPI
-//
-  #define SPI_DEVICE                          -1
-  #define SCK_PIN                             -1
-  #define MISO_PIN                            -1
-  #define MOSI_PIN                            -1
-  #define SS_PIN                              -1
+#ifndef SDIO_SUPPORT
+  #define SDIO_SUPPORT
+#endif
+#if ENABLED(SDIO_SUPPORT)
+  //
+  // SPI
+  //
+  #define SPI_DEVICE                        -1
+  #define SCK_PIN                           -1
+  #define MISO_PIN                          -1
+  #define MOSI_PIN                          -1
+  #define SS_PIN                            -1
 
-//
-// SDIO
-//
-  #define SDIO_READ_RETRIES                   16
-  #define SDIO_D0_PIN                         PC8
-  #define SDIO_D1_PIN                         PC9
-  #define SDIO_D2_PIN                         PC10
-  #define SDIO_D3_PIN                         PC11
-  #define SDIO_CK_PIN                         PC12
-  #define SDIO_CMD_PIN                        PD2
+  //
+  // SDIO
+  //
+  #define SDIO_READ_RETRIES 16
+  #define SDIO_D0_PIN                       PC8
+  #define SDIO_D1_PIN                       PC9
+  #define SDIO_D2_PIN                       PC10
+  #define SDIO_D3_PIN                       PC11
+  #define SDIO_CK_PIN                       PC12
+  #define SDIO_CMD_PIN                      PD2
 
 #else
 
-  #undef  SDSS
+  #undef SDSS
+  #define SDSS                              PC11  // SDIO_D3_PIN
+  #define SS_PIN                            SDSS
+  #define SCK_PIN                           PC12  // SDIO_CK_PIN
+  #define MISO_PIN                          PC8   // SDIO_D0_PIN
+  #define MOSI_PIN                          PD2   // SDIO_CMD_PIN
   #define SOFTWARE_SPI
-  #define SS_PIN                   PC11
-  #define SDSS                     PC11 // SDIO_D3_PIN
-  #define SCK_PIN                  PC12 // SDIO_CK_PIN
-  #define MISO_PIN                 PC8  // SDIO_D0_PIN
-  #define MOSI_PIN                 PD2  // SDIO_CMD_PIN
 
 #endif

@@ -1134,7 +1134,6 @@ namespace ExtUI {
     //SERIAL_ECHOLNPGM("survived at: ", millis());
   }
 
-
   FileList::FileList() { refresh(); }
 
   void FileList::refresh() { num_files = 0xFFFF; }

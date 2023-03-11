@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,10 +21,9 @@
  */
 #pragma once
 
-#ifndef I_UNDERSTAND_AND_ACCEPT_THAT_THERE_IS_ZERO_SUPPORT_FOR_THIS_CONTROLLER
-  #error "WARNING: GD32 based controllers are NOT officially supported by Marlin (at this time)"
-  #error "You will get ZERO support from the Marlin community for this controller"
-  #error "add #define I_UNDERSTAND_AND_ACCEPT_THAT_THERE_IS_ZERO_SUPPORT_FOR_THIS_CONTROLLER to your configuration.h to continue at your own risk"
+#ifndef PERMIT_GD32_BUILD
+  #error "WARNING: GD32 based controllers are not officially supported by Marlin."
+  #error "Define PERMIT_GD32_BUILD in Configuration.h to continue at your own risk."
 #endif
 
 #if NOT_TARGET(__STM32F1__, STM32F1)

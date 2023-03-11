@@ -1642,7 +1642,7 @@ namespace Anycubic {
         SendValueToTFT((uint16_t)feedrate_back, TXT_ADJUST_SPEED);
         SendValueToTFT((uint16_t)getActualFan_percent(FAN0), TXT_FAN_SPEED_TARGET);
         str_buf[0] = 0;
-        strcat(str_buf, (ftostr52sprj(getZOffset_mm()) + 2));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
         break;
@@ -1709,7 +1709,7 @@ namespace Anycubic {
         setZOffset_mm(z_off);
 
         str_buf[0] = 0;
-        strcat(str_buf, (ftostr52sprj(getZOffset_mm()) + 2));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
@@ -1747,7 +1747,7 @@ namespace Anycubic {
         setZOffset_mm(z_off);
 
         str_buf[0] = 0;
-        strcat(str_buf, (ftostr52sprj(getZOffset_mm()) + 2));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
@@ -2251,7 +2251,7 @@ namespace Anycubic {
       case 3: {
         char str_buf[10];
         str_buf[0] = 0;
-        strcat(str_buf, (ftostr52sprj(getZOffset_mm()) + 2));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
         ChangePageOfTFT(PAGE_LEVEL_ADVANCE);
@@ -2285,7 +2285,7 @@ namespace Anycubic {
         z_off = getZOffset_mm() - 0.0500f;
         setZOffset_mm(z_off);
 
-        strcat(str_buf, (ftostr52sprj(getZOffset_mm()) + 2));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
@@ -2303,7 +2303,7 @@ namespace Anycubic {
         z_off = getZOffset_mm() + 0.0500f;
         setZOffset_mm(z_off);
 
-        strcat(str_buf, (ftostr52sprj(getZOffset_mm()) + 2));
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 

@@ -426,32 +426,19 @@ const char* ftostr52sp(const_float_t f) {
 
 // Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
 const char* utostr3(const uint16_t x) {
-  uint16_t xx = x;
-  if (xx >= 100) {
-    NOMORE(xx, 999U);
-    conv[5] = MINUSOR(xx, RJDIGIT(xx, 100));
-    conv[6] = RJDIGIT(xx, 10);
-    conv[7] = DIGIMOD(xx, 1);
-    return &conv[5];
-  }
-  else if (xx >= 10) {
-    conv[6] = DIGIMOD(xx, 10);
-    conv[7] = DIGIMOD(xx, 1);
-    return &conv[6];
-  }
-  conv[7] = DIGIMOD(xx, 1);
-  return &conv[7];
+  return i16tostr3left(_MIN(x, 999U));
 }
 
 // Convert signed float to space-padded string with 1.23, 12.34, 123.45 format
 const char* ftostr52sprj(const_float_t f) {
   long i = INTFLOAT(f, 2);
-  conv[1] = conv[2] = ' ';  // default to ' ' for smaller numbers
-  LIMIT(i, -99999, 99999);  //cap to -999.99 - 999.99 range
+  LIMIT(i, -99999, 99999);            // cap to -999.99 - 999.99 range
   if (WITHIN(i, -999, 999)) {         // -9.99 - 9.99 range
-     conv[3] = MINUSOR(i, ' ');
+    conv[1] = conv[2] = ' ';          // default to ' ' for smaller numbers
+    conv[3] = MINUSOR(i, ' ');
   }
   else if (WITHIN(i, -9999, 9999)) {  // -99.99 - 99.99 range
+    conv[1] = ' ';
     conv[2] = MINUSOR(i, ' ');
     conv[3] = DIGIMOD(i, 1000);
   }
@@ -460,11 +447,10 @@ const char* ftostr52sprj(const_float_t f) {
     conv[2] = DIGIMOD(i, 10000);
     conv[3] = DIGIMOD(i, 1000);
   }
-  conv[4] = DIGIMOD(i, 100);         // always convert last 3 digits
+  conv[4] = DIGIMOD(i, 100);          // always convert last 3 digits
   conv[5] = '.';
   conv[6] = DIGIMOD(i, 10);
   conv[7] = DIGIMOD(i, 1);
 
   return &conv[1];
 }
-
