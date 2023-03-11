@@ -189,7 +189,7 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-#if (MULTISTEPPING_LIMIT) > 1
+#if MULTISTEPPING_LIMIT > 1
   uint8_t Stepper::steps_per_isr = 1;
 #endif
 hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
@@ -1604,8 +1604,8 @@ void Stepper::isr() {
     next_isr_ticks = min_ticks;
 
     // When forced out of the ISR, increase multi-stepping
-    #if (MULTISTEPPING_LIMIT) > 1
-      if (steps_per_isr < (MULTISTEPPING_LIMIT)) {
+    #if MULTISTEPPING_LIMIT > 1
+      if (steps_per_isr < MULTISTEPPING_LIMIT) {
         steps_per_isr <<= 1;
         // ticks_nominal will need to be recalculated if we are in cruise phase
         ticks_nominal = 0;
@@ -2083,7 +2083,7 @@ hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
   uint8_t loops = steps_per_isr;
   if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
   if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
-  if (loops >=  2) { step_rate >>= 1; /*loops >>= 1; */ }
+  if (loops >=  2) { step_rate >>= 1; }
 
   return calc_timer_interval(step_rate);
 }
@@ -2122,9 +2122,9 @@ hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
 // the step pulses, so it is not time critical, as pulses are already done.
 
 hal_timer_t Stepper::block_phase_isr() {
-  // if the ISR uses less than 50% of MPU time, decrease multi-stepping
+  // If the ISR uses < 50% of MPU time, halve multi-stepping
   const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-  #if (MULTISTEPPING_LIMIT) > 1
+  #if MULTISTEPPING_LIMIT > 1
     if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
       steps_per_isr >>= 1;
       // ticks_nominal will need to be recalculated if we are in cruise phase
