@@ -2117,10 +2117,11 @@ hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
 
 #endif // !CPU_32_BIT
 
-// This is the last half of the stepper interrupt: This one processes and
-// properly schedules blocks from the planner. This is executed after creating
-// the step pulses, so it is not time critical, as pulses are already done.
-
+/**
+ * This last phase of the stepper interrupt processes and properly
+ * schedules planner blocks. This is executed after the step pulses
+ * have been done, so it is less time critical.
+ */
 hal_timer_t Stepper::block_phase_isr() {
   // If the ISR uses < 50% of MPU time, halve multi-stepping
   const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
