@@ -2078,20 +2078,14 @@ void Stepper::pulse_phase_isr() {
 
 #endif // HAS_SHAPING
 
-// Get the timer interval and the number of loops to perform per tick
-hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
-  uint8_t loops = steps_per_isr;
-  if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
-  if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
-  if (loops >=  2) { step_rate >>= 1; }
+// Calculate timer interval, with all limits applied.
+hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
+  #ifdef CPU_32_BIT
 
-  return calc_timer_interval(step_rate);
-}
+    return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
 
-#ifndef CPU_32_BIT
+  #else
 
-  // Calculate timer interval, with all limits applied.
-  hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
     // AVR is able to keep up at 30khz Stepping ISR rate.
     constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
     if (step_rate >= 0x0800) {  // higher step rate
@@ -2113,9 +2107,19 @@ hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
       const uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
       return uint16_t(pgm_read_word(table_address));
     }
-  }
 
-#endif // !CPU_32_BIT
+  #endif
+}
+
+// Get the timer interval and the number of loops to perform per tick
+hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
+  uint8_t loops = steps_per_isr;
+  if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
+  if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
+  if (loops >=  2) { step_rate >>= 1; }
+
+  return calc_timer_interval(step_rate);
+}
 
 /**
  * This last phase of the stepper interrupt processes and properly

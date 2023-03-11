@@ -806,17 +806,11 @@ class Stepper {
     // Set the current position in steps
     static void _set_position(const abce_long_t &spos);
 
+    // Calculate the timing interval for the given step rate
+    static hal_timer_t calc_timer_interval(uint32_t step_rate);
+
     // Calculate timing interval and steps-per-ISR for the given step rate
     static hal_timer_t calc_timer_interval_and_steps(uint32_t step_rate);
-
-    // Calculate the timing interval for the given step rate
-    #ifdef CPU_32_BIT
-      static hal_timer_t calc_timer_interval(const uint32_t step_rate) {
-        return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
-      }
-    #else
-      static hal_timer_t calc_timer_interval(uint32_t step_rate);
-    #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
