@@ -81,10 +81,10 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX                     1
+    #define NEEDS_X_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX                     1
+    #define NEEDS_Y_MINMAX
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -117,7 +117,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // MIN6
   #endif
-#elif NEEDS_Y_MINMAX
+#elif ENABLED(NEEDS_Y_MINMAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // MIN2
   #endif
@@ -129,9 +129,6 @@
 #endif
 
 #define Z_STOP_PIN                    Z_DIAG_PIN  // MIN3
-
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
 
 //
 // Filament Runout Sensors

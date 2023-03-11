@@ -1388,8 +1388,10 @@
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
-//#define Z_PROBE_SERVO_NR 0       // Defaults to SERVO 0 connector.
-//#define Z_SERVO_ANGLES { 70, 0 } // Z Servo Deploy and Stow angles
+//#define Z_PROBE_SERVO_NR 0          // Defaults to SERVO 0 connector.
+//#define Z_SERVO_ANGLES { 70, 0 }    // Z Servo Deploy and Stow angles
+//#define Z_SERVO_MEASURE_ANGLE 45    // Use if the servo must move to a "free" position for measuring after deploy.
+//#define Z_SERVO_INTERMEDIATE_STOW   // Stow the probe between points.
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
@@ -2177,6 +2179,7 @@
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
   #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
+  //#define Z_SAFE_HOMING_POINT_ABSOLUTE  // Ignore home offsets (M206) for Z homing position
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
