@@ -611,13 +611,13 @@ namespace Anycubic {
             probe_cnt = 0;
             injectCommands_P(PSTR("M500"));    // G27 park nozzle
             //ChangePageOfTFT(PAGE_PreLEVEL);
-            FakeChangePageOfTFT(PAGE_PreLEVEL); // this avoid a overquick UI fresh when probing done
+            FakeChangePageOfTFT(PAGE_PreLEVEL); // Prevent UI refreshing too quickly when probing is done
             printer_state = AC_printer_idle;
             msg_matched   = true;
           }
         }
 
-        // If probing fails dont save the mesh raise the probe above the bad point
+        // If probing fails don't save the mesh raise the probe above the bad point
         if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
           PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
           injectCommands_P(PSTR("G1 Z50 F500"));
@@ -1456,7 +1456,7 @@ namespace Anycubic {
 
             SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
 
-            // Allows printer to restart the job if we dont want to recover
+            // Allows printer to restart the job if we don't want to recover
             if (printer_state == AC_printer_resuming_from_power_outage) {
               injectCommands_P(PSTR("M1000 C"));   // Cancel recovery
               printer_state = AC_printer_idle;
