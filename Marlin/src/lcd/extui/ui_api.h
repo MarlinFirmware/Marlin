@@ -45,7 +45,6 @@
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
-#include "../../module/probe.h"
 
 #if M600_PURGE_MORE_RESUMABLE
   #include "../../feature/pause.h"
@@ -408,6 +407,7 @@ namespace ExtUI {
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
+  void onSurviveInKilled();
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
@@ -417,7 +417,6 @@ namespace ExtUI {
   void onUserConfirmRequired(FSTR_P const fstr);
   void onStatusChanged(const char * const msg);
   void onStatusChanged(FSTR_P const fstr);
-  void onSurviveInKilled();
   void onHomingStart();
   void onHomingDone();
   void onSteppersDisabled();
