@@ -180,10 +180,8 @@
 #endif // SDSUPPORT
 
 void DGUSTxHandler::PositionZ(DGUS_VP &vp) {
-  float position = ExtUI::isAxisPositionKnown(ExtUI::Z) ?
-                     planner.get_axis_position_mm(Z_AXIS)
-                   : 0;
-  const int32_t data = dgus_display.ToFixedPoint<float, int32_t, 2>((int32_t)(position*50)/50.0); // Round to 0.02
+  const float position = ExtUI::isAxisPositionKnown(ExtUI::Z) ? planner.get_axis_position_mm(Z_AXIS) : 0;
+  const int32_t data = dgus_display.ToFixedPoint<float, int32_t, 2>(int32_t(position * 50.0f) / 50.0f); // Round to 0.02
   dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
 }
 
