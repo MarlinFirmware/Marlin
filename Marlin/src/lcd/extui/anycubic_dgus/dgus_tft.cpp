@@ -40,6 +40,9 @@
 #include "../../../core/serial.h"
 #include "../../../module/stepper.h"
 
+#define DEBUG_OUT ACDEBUGLEVEL
+#include "../../../core/debug_out.h"
+
 #include <string>
 
 namespace Anycubic {
@@ -136,10 +139,10 @@ namespace Anycubic {
   uint8_t pop_up_index_saved;
 
 
-  void SERIAL_PRINT_PAUSED_STATE(FSTR_P const msg, paused_state_t state);
-  void SERIAL_PRINT_PRINTER_STATE(FSTR_P const msg, printer_state_t state);
-  void SERIAL_PRINT_TIMER_EVENT(FSTR_P const msg, timer_event_t event);
-  void SERIAL_PRINT_MEDIA_EVENT(FSTR_P const msg, media_event_t event);
+  void DEBUG_PRINT_PAUSED_STATE(FSTR_P const msg, paused_state_t state);
+  void DEBUG_PRINT_PRINTER_STATE(FSTR_P const msg, printer_state_t state);
+  void DEBUG_PRINT_TIMER_EVENT(FSTR_P const msg, timer_event_t event);
+  void DEBUG_PRINT_MEDIA_EVENT(FSTR_P const msg, media_event_t event);
 
   DgusTFT Dgus;
 
@@ -194,7 +197,7 @@ namespace Anycubic {
     //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
     //PlayTune(BEEPER_PIN, GB_PowerOn, 1);
     #if ACDEBUGLEVEL
-      SERIAL_ECHOLNPGM("Startup   AC Debug Level ", ACDEBUGLEVEL);
+      DEBUG_ECHOLNPGM("Startup   AC Debug Level ", ACDEBUGLEVEL);
     #endif
     SendtoTFTLN(AC_msg_ready);
   }
@@ -214,14 +217,14 @@ namespace Anycubic {
 
     #if ACDEBUG(AC_MARLIN)
       if (lcd_info.language == CHS)
-        SERIAL_ECHOLNPGM("ParamInit   lcd language: CHS");
+        DEBUG_ECHOLNPGM("ParamInit   lcd language: CHS");
       else if (lcd_info.language == ENG)
-        SERIAL_ECHOLNPGM("ParamInit   lcd language: ENG");
+        DEBUG_ECHOLNPGM("ParamInit   lcd language: ENG");
 
       if (lcd_info.audio == AUDIO_ON)
-        SERIAL_ECHOLNPGM("ParamInit   lcd audio: ON");
+        DEBUG_ECHOLNPGM("ParamInit   lcd audio: ON");
       else
-        SERIAL_ECHOLNPGM("ParamInit   lcd audio: OFF");
+        DEBUG_ECHOLNPGM("ParamInit   lcd audio: OFF");
     #endif
 
     RequestValueFromTFT(0x14);  // get page ID
@@ -235,8 +238,8 @@ namespace Anycubic {
 
     #if ACDEBUG(AC_MARLIN)
       if (key_value) {
-        SERIAL_ECHOLNPGM("IdleLoop   page: ", page_index_now);
-        SERIAL_ECHOLNPGM("key: ", key_value);
+        DEBUG_ECHOLNPGM("IdleLoop   page: ", page_index_now);
+        DEBUG_ECHOLNPGM("key: ", key_value);
       }
     #endif
 
@@ -269,15 +272,15 @@ namespace Anycubic {
     }
     else if(177 <= page_index_now && page_index_now <= 198) {
       #if 0 // ACDEBUG(AC_MARLIN)
-        SERIAL_ECHOLNPGM("line: ", __LINE__);
-        SERIAL_ECHOLNPGM("func: ", page_index_now);
+        DEBUG_ECHOLNPGM("line: ", __LINE__);
+        DEBUG_ECHOLNPGM("func: ", page_index_now);
       #endif
       //page177_to_198_handle();
     }
     else if (199 == page_index_now || page_index_now == 200) {
       #if 0 // ACDEBUG(AC_MARLIN)
-        SERIAL_ECHOLNPGM("line: ", __LINE__);
-        SERIAL_ECHOLNPGM("func: ", page_index_now);
+        DEBUG_ECHOLNPGM("line: ", __LINE__);
+        DEBUG_ECHOLNPGM("func: ", page_index_now);
       #endif
       page199_to_200_handle();
     }
@@ -298,8 +301,8 @@ namespace Anycubic {
       }
       else {
           #if ACDEBUG(AC_MARLIN)
-            SERIAL_ECHOLNPGM("line: ", __LINE__);
-            SERIAL_ECHOLNPGM("fun not exists: ", page_index_now);
+            DEBUG_ECHOLNPGM("line: ", __LINE__);
+            DEBUG_ECHOLNPGM("fun not exists: ", page_index_now);
           #endif
         }
       }
@@ -308,9 +311,9 @@ namespace Anycubic {
           fun_array[page_index_now - 1 - 120]();  // ENG page_index is 120 more than CHS
         }
         else {
-          SERIAL_ECHOLNPGM("lcd function not exists");
-          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          DEBUG_ECHOLNPGM("lcd function not exists");
+          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
         }
       }
 
@@ -343,18 +346,18 @@ namespace Anycubic {
 
     SendtoTFTLN(AC_msg_kill_lcd);
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPGM("PrinterKilled()\nerror: ", error, "\ncomponent: ", component);
+      DEBUG_ECHOLNPGM("PrinterKilled()\nerror: ", error, "\ncomponent: ", component);
     #endif
 
     if (strcmp_P(error, PSTR("Heating Failed")) == 0) {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
-        SERIAL_ECHOLNPGM("Check Bed heater");
+        DEBUG_ECHOLNPGM("Check Bed heater");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_HEATER);
-        SERIAL_ECHOLNPGM("Check E1 heater");
+        DEBUG_ECHOLNPGM("Check E1 heater");
       }
 
     }
@@ -362,11 +365,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
-        SERIAL_ECHOLNPGM("Check Bed thermistor");
+        DEBUG_ECHOLNPGM("Check Bed thermistor");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_NTC);
-        SERIAL_ECHOLNPGM("Check E1 thermistor");
+        DEBUG_ECHOLNPGM("Check E1 thermistor");
       }
 
     }
@@ -374,11 +377,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_NTC);
-        SERIAL_ECHOLNPGM("Check Bed thermistor");
+        DEBUG_ECHOLNPGM("Check Bed thermistor");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_NTC);
-        SERIAL_ECHOLNPGM("Check E1 thermistor");
+        DEBUG_ECHOLNPGM("Check E1 thermistor");
       }
 
     }
@@ -386,11 +389,11 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("Bed")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_BED_HEATER);
-        SERIAL_ECHOLNPGM("Check Bed thermal runaway");
+        DEBUG_ECHOLNPGM("Check Bed thermal runaway");
       }
       else if (strcmp_P(component, PSTR("E1")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_HOTEND_HEATER);
-        SERIAL_ECHOLNPGM("Check E1 thermal runaway");
+        DEBUG_ECHOLNPGM("Check E1 thermal runaway");
       }
 
     }
@@ -398,15 +401,15 @@ namespace Anycubic {
 
       if (strcmp_P(component, PSTR("X")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_X_ENDSTOP);
-        SERIAL_ECHOLNPGM("Check X endstop");
+        DEBUG_ECHOLNPGM("Check X endstop");
       }
       else if (strcmp_P(component, PSTR("Y")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_Y_ENDSTOP);
-        SERIAL_ECHOLNPGM("Check Y endstop");
+        DEBUG_ECHOLNPGM("Check Y endstop");
       }
       else if (strcmp_P(component, PSTR("Z")) == 0) {
         ChangePageOfTFT(PAGE_CHS_ABNORMAL_Z_ENDSTOP);
-        SERIAL_ECHOLNPGM("Check Z endstop");
+        DEBUG_ECHOLNPGM("Check Z endstop");
       }
 
     }
@@ -415,7 +418,7 @@ namespace Anycubic {
 
   void DgusTFT::MediaEvent(media_event_t event) {
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_PRINT_MEDIA_EVENT(F("ProcessMediaStatus() "), event);
+      DEBUG_PRINT_MEDIA_EVENT(F("ProcessMediaStatus() "), event);
     #endif
     switch (event) {
       case AC_media_inserted:
@@ -456,8 +459,8 @@ namespace Anycubic {
     char str_buf[20];
 
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_PRINT_TIMER_EVENT(F("TimerEvent() "), event);
-      SERIAL_PRINT_PRINTER_STATE(F("Printer State: "), printer_state);
+      DEBUG_PRINT_TIMER_EVENT(F("TimerEvent() "), event);
+      DEBUG_PRINT_PRINTER_STATE(F("Printer State: "), printer_state);
     #endif
 
     switch (event) {
@@ -499,13 +502,13 @@ namespace Anycubic {
 
   void DgusTFT::FilamentRunout() {
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_PRINT_PRINTER_STATE(F("FilamentRunout() printer_state "), printer_state);
+      DEBUG_PRINT_PRINTER_STATE(F("FilamentRunout() printer_state "), printer_state);
 
       // 1 Signal filament out
       SendtoTFTLN(isPrintingFromMedia() ? AC_msg_filament_out_alert : AC_msg_filament_out_block);
       //printer_state = AC_printer_filament_out;
 
-      SERIAL_ECHOLNPGM("getFilamentRunoutState: ", getFilamentRunoutState());
+      DEBUG_ECHOLNPGM("getFilamentRunoutState: ", getFilamentRunoutState());
     #endif
 
     pop_up_index = 15;  // show filament lack.
@@ -526,10 +529,10 @@ namespace Anycubic {
   void DgusTFT::ConfirmationRequest(const char * const msg) {
     // M108 continue
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPGM("HomingComplete, line: ", __LINE__);
-      SERIAL_ECHOLNPGM("ConfirmationRequest() ", msg);
-      SERIAL_PRINT_PRINTER_STATE(F("printer_state: " ), printer_state);
-      SERIAL_PRINT_PAUSED_STATE(F("pause_state: "), pause_state);
+      DEBUG_ECHOLNPGM("HomingComplete, line: ", __LINE__);
+      DEBUG_ECHOLNPGM("ConfirmationRequest() ", msg);
+      DEBUG_PRINT_PRINTER_STATE(F("printer_state: " ), printer_state);
+      DEBUG_PRINT_PAUSED_STATE(F("pause_state: "), pause_state);
     #endif
 
     switch (printer_state) {
@@ -554,7 +557,7 @@ namespace Anycubic {
         // Reheat finished, send acknowledgement
         else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
           #if ACDEBUG(AC_MARLIN)
-            SERIAL_ECHOLNPGM("send M108 ", __LINE__);
+            DEBUG_ECHOLNPGM("send M108 ", __LINE__);
           #endif
           injectCommands_P(PSTR("M108"));
 
@@ -570,7 +573,7 @@ namespace Anycubic {
         }
         else if (strcmp_P(msg, MARLIN_msg_nozzle_parked) == 0) {
           #if ACDEBUG(AC_MARLIN)
-            SERIAL_ECHOLNPGM("send M108 ", __LINE__);
+            DEBUG_ECHOLNPGM("send M108 ", __LINE__);
           #endif
           injectCommands_P(PSTR("M108"));
 
@@ -586,9 +589,9 @@ namespace Anycubic {
 
   void DgusTFT::StatusChange(const char * const msg) {
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPGM("StatusChange() ", msg);
-    SERIAL_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
-      SERIAL_PRINT_PAUSED_STATE(F("pause_state: "), pause_state);
+      DEBUG_ECHOLNPGM("StatusChange() ", msg);
+      DEBUG_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
+      DEBUG_PRINT_PAUSED_STATE(F("pause_state: "), pause_state);
     #endif
     bool msg_matched = false;
     static uint8_t probe_cnt = 0;
@@ -644,7 +647,7 @@ namespace Anycubic {
         }
         else {
           #if ACDEBUG(AC_MARLIN)
-            SERIAL_ECHOLNPGM("setFilamentRunoutState: ", __LINE__);
+            DEBUG_ECHOLNPGM("setFilamentRunoutState: ", __LINE__);
           #endif
           setFilamentRunoutState(false);
         }
@@ -721,8 +724,8 @@ namespace Anycubic {
       page_index_last -= 120;
 
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPGM("HomingComplete, line: ", __LINE__);
-      SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
+      DEBUG_ECHOLNPGM("HomingComplete, line: ", __LINE__);
+      DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
     #endif
 
     if (!isPrintingFromMedia())
@@ -731,7 +734,7 @@ namespace Anycubic {
 
   void DgusTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) {  // A helper to print PROGMEM string to the panel
     #if ACDEBUG(AC_SOME)
-      SERIAL_ECHOF(fstr);
+      DEBUG_ECHOF(fstr);
     #endif
     PGM_P str = FTOP(fstr);
     while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
@@ -740,7 +743,7 @@ namespace Anycubic {
   void DgusTFT::SendtoTFTLN(FSTR_P const fstr/*=nullptr*/) {
     if (fstr) {
       #if ACDEBUG(AC_SOME)
-        SERIAL_ECHOPGM("> ");
+        DEBUG_ECHOPGM("> ");
       #endif
       SendtoTFT(fstr);
       #if ACDEBUG(AC_SOME)
@@ -856,8 +859,8 @@ namespace Anycubic {
 
   void DgusTFT::ChangePageOfTFT(uint32_t page_index) {
     #if ACDEBUG(AC_MARLIN)
-        SERIAL_ECHOLNPGM("ChangePageOfTFT: ", page_index);
-      #endif
+      DEBUG_ECHOLNPGM("ChangePageOfTFT: ", page_index);
+    #endif
 
     uint8_t data_buf[20] = {0};
     uint8_t data_index = 0;
@@ -900,9 +903,9 @@ namespace Anycubic {
     page_index_now    = data_temp;
 
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
-      SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-      SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
+      DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+      DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+      DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
     #endif
   }
 
@@ -910,7 +913,7 @@ namespace Anycubic {
 
     #if ACDEBUG(AC_MARLIN)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("FakeChangePageOfTFT: ", page_index);
+        DEBUG_ECHOLNPGM("FakeChangePageOfTFT: ", page_index);
       }
     #endif
 
@@ -939,9 +942,9 @@ namespace Anycubic {
     page_index_now = data_temp;
 
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
-      SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-      SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
+      DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+      DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+      DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
     #endif
   }
 
@@ -990,7 +993,7 @@ namespace Anycubic {
     else if (tft_receive_steps == 3) {
       if (data_index >= (DATA_BUF_SIZE -1)) {
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("lcd uart buff overflow: ", data_index);
+          DEBUG_ECHOLNPGM("lcd uart buff overflow: ", data_index);
         #endif
         data_index = 0;
         data_received = 0;
@@ -1012,7 +1015,7 @@ namespace Anycubic {
 
   #if 0
     {
-      //SERIAL_ECHOLNPGM("ReadTFTCommand: ", millis());
+      //DEBUG_ECHOLNPGM("ReadTFTCommand: ", millis());
       //return -1;
 
       bool command_ready = false;
@@ -1035,14 +1038,14 @@ namespace Anycubic {
       if (command_ready) {
         panel_command[command_len] = 0x00;
         //#if ACDEBUG(AC_ALL)
-          SERIAL_ECHOLNPGM("< ", panel_command);
+          DEBUG_ECHOLNPGM("< ", panel_command);
         //#endif
         #if ACDEBUG(AC_SOME)
           // Ignore status request commands
           uint8_t req = atoi(&panel_command[1]);
           if (req > 7 && req != 20) {
-            SERIAL_ECHOLNPGM("> ", panel_command);
-            SERIAL_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
+            DEBUG_ECHOLNPGM("> ", panel_command);
+            DEBUG_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
           }
         #endif
       }
@@ -1071,7 +1074,7 @@ namespace Anycubic {
       if (faultE0Duration >= AC_HEATER_FAULT_VALIDATION_TIME) {
         SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("Extruder temp abnormal! : ", temp);
+          DEBUG_ECHOLNPGM("Extruder temp abnormal! : ", temp);
         #endif
         faultE0Duration = 0;
       }
@@ -1083,7 +1086,7 @@ namespace Anycubic {
       if (faultBedDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
         SendtoTFTLN(AC_msg_bed_temp_abnormal);
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("Bed temp abnormal! : ", temp);
+          DEBUG_ECHOLNPGM("Bed temp abnormal! : ", temp);
         #endif
         faultBedDuration = 0;
       }
@@ -1111,7 +1114,7 @@ namespace Anycubic {
   void DgusTFT::SendFileList(int8_t startindex) {
     // Respond to panel request for 4 files starting at index
     #if ACDEBUG(AC_INFO)
-      SERIAL_ECHOLNPGM("## SendFileList ## ", startindex);
+      DEBUG_ECHOLNPGM("## SendFileList ## ", startindex);
     #endif
     filenavigator.getFiles(startindex);
   }
@@ -1120,7 +1123,7 @@ namespace Anycubic {
     strncpy(selectedfile, panel_command + 4, command_len - 4);
     selectedfile[command_len - 5] = '\0';
     #if ACDEBUG(AC_FILE)
-      SERIAL_ECHOLNPGM(" Selected File: ", selectedfile);
+      DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
     #endif
     switch (selectedfile[0]) {
       case '/':   // Valid file selected
@@ -1140,8 +1143,8 @@ namespace Anycubic {
   }
 
   void DgusTFT::InjectCommandandWait(PGM_P cmd) {
-    // injectCommands_P(cmnd); queue.enqueue_now_P(cmd);
-    // SERIAL_ECHOLN(PSTR("Inject>"));
+    //injectCommands_P(cmd); queue.enqueue_now_P(cmd);
+    //DEBUG_ECHOLN(PSTR("Inject>"));
   }
 
   void DgusTFT::ProcessPanelRequest() {
@@ -1296,7 +1299,7 @@ namespace Anycubic {
   void DgusTFT::page1_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page1_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page1_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1364,7 +1367,7 @@ namespace Anycubic {
   void DgusTFT::page2_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page2_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page2_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1415,7 +1418,7 @@ namespace Anycubic {
 
       case 5: // resume of outage(last power off)
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
+          DEBUG_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
         #endif
         if (lcd_txtbox_index > 0 && lcd_txtbox_index  < 6) {   // 1~5
 
@@ -1433,7 +1436,7 @@ namespace Anycubic {
             if (printer_state == AC_printer_resuming_from_power_outage) {
               // Need to home here to restore the Z position
               //injectCommands_P(AC_cmnd_power_loss_recovery);
-              //SERIAL_ECHOLNPGM("start resumeing from power outage: ", AC_cmnd_power_loss_recovery);
+              //DEBUG_ECHOLNPGM("start resuming from power outage: ", AC_cmnd_power_loss_recovery);
               ChangePageOfTFT(PAGE_STATUS2);    // show pause
               injectCommands_P(PSTR("M1000"));  // home and start recovery
             }
@@ -1446,9 +1449,9 @@ namespace Anycubic {
 
           if (filenavigator.filelist.seek(lcd_txtbox_page * 5 + lcd_txtbox_index - 1)) {
             #if 0
-              SERIAL_ECHOLNPGM("start print: ", lcd_txtbox_page * 5 + (lcd_txtbox_index - 1));
-              SERIAL_ECHOLNPGM("start print: ", filenavigator.filelist.shortFilename());
-              SERIAL_ECHOLNPGM("start print: ", filenavigator.filelist.longFilename());
+              DEBUG_ECHOLNPGM("start print: ", lcd_txtbox_page * 5 + (lcd_txtbox_index - 1));
+              DEBUG_ECHOLNPGM("start print: ", filenavigator.filelist.shortFilename());
+              DEBUG_ECHOLNPGM("start print: ", filenavigator.filelist.longFilename());
             #endif
 
             SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
@@ -1512,7 +1515,7 @@ namespace Anycubic {
   void DgusTFT::page3_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page3_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page3_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1530,8 +1533,8 @@ namespace Anycubic {
 
       case 2:     // resume print
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
-          SERIAL_PRINT_PAUSED_STATE(F("pause_state :"), pause_state);
+          DEBUG_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
+          DEBUG_PRINT_PAUSED_STATE(F("pause_state :"), pause_state);
         #endif
         if ( pause_state == AC_paused_idle
           || pause_state == AC_paused_filament_lack
@@ -1573,8 +1576,8 @@ namespace Anycubic {
         sprintf(str_buf, "%d", feedrate_back);
 
       #if ACDEBUG(AC_MARLIN)
-        SERIAL_ECHOLNPGM("print speed: ", str_buf);
-        SERIAL_ECHOLNPGM("feedrate_back: ", feedrate_back);
+        DEBUG_ECHOLNPGM("print speed: ", str_buf);
+        DEBUG_ECHOLNPGM("feedrate_back: ", feedrate_back);
       #endif
       SendTxtToTFT(str_buf, TXT_PRINT_SPEED);
       feedrate_back = getFeedrate_percent();
@@ -1602,7 +1605,7 @@ namespace Anycubic {
   void DgusTFT::page4_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page4_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page4_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1682,7 +1685,7 @@ namespace Anycubic {
   void DgusTFT::page5_handle() {          // print settings
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page5_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page5_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1701,7 +1704,7 @@ namespace Anycubic {
 
       case 2: { // -
         float z_off = getZOffset_mm();
-        //SERIAL_ECHOLNPGM("z_off: ", z_off);
+        //DEBUG_ECHOLNPGM("z_off: ", z_off);
         //setSoftEndstopState(false);
         if (z_off <= -5)
           return;
@@ -1714,10 +1717,10 @@ namespace Anycubic {
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
         //if (isAxisPositionKnown(Z)) {  // Move Z axis
-        //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+        //  DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
         //  const float currZpos = getAxisPosition_mm(Z);
         //  setAxisPosition_mm(currZpos-0.05, Z);
-        //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+        //  DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
         //}
 
         int16_t steps = mmToWholeSteps(-0.05, Z);
@@ -1727,7 +1730,7 @@ namespace Anycubic {
           const xy_uint8_t pos { x, y };
           const float currval = getMeshPoint(pos);
           #if ACDEBUG(AC_MARLIN)
-            SERIAL_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
+            DEBUG_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
           #endif
           setMeshPoint(pos, constrain(currval - 0.05f, AC_LOWEST_MESHPOINT_VAL, 5));
         }
@@ -1739,7 +1742,7 @@ namespace Anycubic {
 
       case 3: { // +
         float z_off = getZOffset_mm();
-        //SERIAL_ECHOLNPGM("z_off: ", z_off);
+        //DEBUG_ECHOLNPGM("z_off: ", z_off);
         //setSoftEndstopState(false);
 
         if (z_off >= 5) return;
@@ -1755,10 +1758,10 @@ namespace Anycubic {
 
         /*
         if (isAxisPositionKnown(Z)) {  // Move Z axis
-          SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+          DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
           const float currZpos = getAxisPosition_mm(Z);
           setAxisPosition_mm(currZpos-0.05, Z);
-          SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
+          DEBUG_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
         }
         */
 
@@ -1768,7 +1771,7 @@ namespace Anycubic {
         GRID_LOOP(x, y) {
           const xy_uint8_t pos { x, y };
           const float currval = getMeshPoint(pos);
-          //SERIAL_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
+          //DEBUG_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
           setMeshPoint(pos, constrain(currval + 0.05f, AC_LOWEST_MESHPOINT_VAL, 5));
         }
 
@@ -1817,7 +1820,7 @@ namespace Anycubic {
   void DgusTFT::page6_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page6_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page6_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1830,7 +1833,7 @@ namespace Anycubic {
   void DgusTFT::page7_handle() { // tools
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page7_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page7_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1883,7 +1886,7 @@ namespace Anycubic {
   void DgusTFT::page8_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page8_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page8_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -1972,15 +1975,15 @@ namespace Anycubic {
         break;
 
       //case 14:
-      //  movespeed = 3000; //SERIAL_ECHOLN(movespeed);
+      //  movespeed = 3000; //DEBUG_ECHOLN(movespeed);
       //  break;
       //
       //case 15:
-      //  movespeed = 2000; //SERIAL_ECHOLN(movespeed);
+      //  movespeed = 2000; //DEBUG_ECHOLN(movespeed);
       //  break;
       //
       //case 16:
-      //  movespeed = 1000; //SERIAL_ECHOLN(movespeed);
+      //  movespeed = 1000; //DEBUG_ECHOLN(movespeed);
       //  break;
     }
   }
@@ -1988,7 +1991,7 @@ namespace Anycubic {
   void DgusTFT::page9_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page9_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page9_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2029,7 +2032,7 @@ namespace Anycubic {
   void DgusTFT::page10_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page10_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page10_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2062,7 +2065,7 @@ namespace Anycubic {
   void DgusTFT::page11_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page11_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page11_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2134,7 +2137,7 @@ namespace Anycubic {
   void DgusTFT::page12_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page12_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page12_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2149,7 +2152,7 @@ namespace Anycubic {
   void DgusTFT::page13_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page13_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page13_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2178,7 +2181,7 @@ namespace Anycubic {
   void DgusTFT::page14_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page14_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page14_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2194,7 +2197,7 @@ namespace Anycubic {
   void DgusTFT::page15_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page15_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page15_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2231,7 +2234,7 @@ namespace Anycubic {
   void DgusTFT::page16_handle() {    // AUTO LEVELING
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page16_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page16_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2266,7 +2269,7 @@ namespace Anycubic {
   void DgusTFT::page17_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page17_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page17_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2317,7 +2320,7 @@ namespace Anycubic {
 
       case 4:
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("z off: ", ftostr52sprj(getZOffset_mm()));
+          DEBUG_ECHOLNPGM("z off: ", ftostr52sprj(getZOffset_mm()));
         #endif
         GRID_LOOP(x, y) {
           const xy_uint8_t pos { x, y };
@@ -2333,7 +2336,7 @@ namespace Anycubic {
   void DgusTFT::page18_handle() {     // preheat
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page18_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page18_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2372,7 +2375,7 @@ namespace Anycubic {
   void DgusTFT::page19_handle() {       // Filament
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page19_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page19_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2437,7 +2440,7 @@ namespace Anycubic {
   void DgusTFT::page20_handle() {       // confirm
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page20_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page20_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2455,7 +2458,7 @@ namespace Anycubic {
   void DgusTFT::page21_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page21_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page21_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2477,7 +2480,7 @@ namespace Anycubic {
   void DgusTFT::page22_handle() {       // print finish
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page22_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page22_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2499,7 +2502,7 @@ namespace Anycubic {
   void DgusTFT::page23_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page23_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page23_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2523,7 +2526,7 @@ namespace Anycubic {
   void DgusTFT::page24_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page24_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page24_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2544,7 +2547,7 @@ namespace Anycubic {
   void DgusTFT::page25_handle() {           // lack filament
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page25_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page25_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2554,8 +2557,8 @@ namespace Anycubic {
 
       case 1:             // return
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
-          SERIAL_PRINT_PAUSED_STATE(F("pause_state: "), pause_state);
+          DEBUG_PRINT_PRINTER_STATE(F("printer_state: "), printer_state);
+          DEBUG_PRINT_PAUSED_STATE(F("pause_state: "), pause_state);
         #endif
         if (AC_printer_printing == printer_state)
           ChangePageOfTFT(PAGE_STATUS2);              // show pause
@@ -2572,7 +2575,7 @@ namespace Anycubic {
   void DgusTFT::page26_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page26_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page26_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2594,7 +2597,7 @@ namespace Anycubic {
   void DgusTFT::page27_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page27_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page27_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2631,7 +2634,7 @@ namespace Anycubic {
   void DgusTFT::page28_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page28_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page28_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2651,7 +2654,7 @@ namespace Anycubic {
   void DgusTFT::page29_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page29_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page29_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2674,7 +2677,7 @@ namespace Anycubic {
   void DgusTFT::page30_handle() {       // Auto heat filament
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page30_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page30_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2695,7 +2698,7 @@ namespace Anycubic {
   void DgusTFT::page31_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page31_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page31_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2713,7 +2716,7 @@ namespace Anycubic {
   void DgusTFT::page32_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page32_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page32_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2725,7 +2728,7 @@ namespace Anycubic {
   void DgusTFT::page33_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page33_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page33_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2770,7 +2773,7 @@ namespace Anycubic {
   void DgusTFT::page34_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page34_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page34_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2794,7 +2797,7 @@ namespace Anycubic {
   void DgusTFT::page115_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page115_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page115_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2840,7 +2843,7 @@ namespace Anycubic {
   void DgusTFT::page117_handle() {  // Page CHS Mute handler
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page117_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page117_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2906,9 +2909,9 @@ namespace Anycubic {
   void DgusTFT::page124_handle() {  // first time into page 124 the feedrate percent is not set
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page124_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page124_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
-        SERIAL_ECHOLNPGM("update feedrate percent");
+        DEBUG_ECHOLNPGM("update feedrate percent");
       }
     #endif
     SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
@@ -2917,9 +2920,9 @@ namespace Anycubic {
   void DgusTFT::page125_handle() {  // first time into page 125 the feedrate percent is not set
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page125_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page125_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
-        SERIAL_ECHOLNPGM("update feedrate percent");
+        DEBUG_ECHOLNPGM("update feedrate percent");
       }
     #endif
     SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
@@ -2928,7 +2931,7 @@ namespace Anycubic {
   void DgusTFT::page170_handle() {  // ENG Mute handler
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page170_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page170_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -2994,7 +2997,7 @@ namespace Anycubic {
   void DgusTFT::page171_handle() {  // CHS power outage resume handler
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page171_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page171_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3038,7 +3041,7 @@ namespace Anycubic {
   void DgusTFT::page173_handle() {  // ENG power outage resume handler
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page173_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page173_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3082,7 +3085,7 @@ namespace Anycubic {
   void DgusTFT::page175_handle() {     // CHS probe preheating handler
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page175_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page175_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3100,7 +3103,7 @@ namespace Anycubic {
   void DgusTFT::page176_handle() {     // ENG probe preheating handler
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page176_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page176_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3118,16 +3121,16 @@ namespace Anycubic {
   void DgusTFT::page177_to_198_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page177_to_198_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page177_to_198_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
     switch (key_value) {
       case 1:       // return
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
-          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
+          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
         #endif
 
         if ((PAGE_CHS_ABNORMAL_X_ENDSTOP <= page_index_now && page_index_now <= PAGE_CHS_ABNORMAL_Z_ENDSTOP)
@@ -3161,15 +3164,15 @@ namespace Anycubic {
     void DgusTFT::page178_to_181_190_to_193_handle() {  // temperature abnormal
       #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page178_to_181_190_to_193_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page178_to_181_190_to_193_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
       #endif
       switch (key_value) {
         case 1:     // return
-          SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
-          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
+          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
 
           if (isPrinting() || isPrintingPaused() || isPrintingFromMedia()) {
             printer_state = AC_printer_stopping;
@@ -3190,16 +3193,16 @@ namespace Anycubic {
   void DgusTFT::page199_to_200_handle() {
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page199_to_200_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
+        DEBUG_ECHOLNPGM("page199_to_200_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
       }
     #endif
     switch (key_value) {
       case 1:       // return
         #if ACDEBUG(AC_MARLIN)
-          SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
-          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
+          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
         #endif
         onSurviveInKilled();
         ChangePageOfTFT(PAGE_PreLEVEL);
@@ -3223,7 +3226,7 @@ namespace Anycubic {
   void DgusTFT::page201_handle() {  // probe precheck
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page201_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page201_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3289,7 +3292,7 @@ namespace Anycubic {
   void DgusTFT::page202_handle() {  // probe precheck ok
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page202_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page202_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3308,7 +3311,7 @@ namespace Anycubic {
   void DgusTFT::page203_handle() {    // probe precheck failed
     #if ACDEBUG(AC_ALL)
       if (page_index_saved != page_index_now) {
-        SERIAL_ECHOLNPGM("page203_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
+        DEBUG_ECHOLNPGM("page203_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
       }
     #endif
@@ -3330,7 +3333,7 @@ namespace Anycubic {
   void DgusTFT::pop_up_manager() {
     #if ACDEBUG(AC_ALL)
       if (pop_up_index_saved != pop_up_index) {
-        SERIAL_ECHOLNPGM("pop_up_manager  pop_up_index: ", pop_up_index);
+        DEBUG_ECHOLNPGM("pop_up_manager  pop_up_index: ", pop_up_index);
         pop_up_index_saved = pop_up_index;
       }
     #endif
@@ -3382,82 +3385,82 @@ namespace Anycubic {
     }
   }
 
-  void SERIAL_PRINT_PAUSED_STATE(FSTR_P const msg, paused_state_t state) {
-    SERIAL_ECHOPGM(msg, state);
+  void DEBUG_PRINT_PAUSED_STATE(FSTR_P const msg, paused_state_t state) {
+    DEBUG_ECHOPGM(msg, state);
     switch (state) {
       case AC_paused_heater_timed_out:
-           SERIAL_ECHOLNPGM("  AC_paused_heater_timed_out");
+           DEBUG_ECHOLNPGM("  AC_paused_heater_timed_out");
            break;
       case AC_paused_filament_lack:
-           SERIAL_ECHOLNPGM("  AC_paused_filament_lack");
+           DEBUG_ECHOLNPGM("  AC_paused_filament_lack");
            break;
       case AC_paused_purging_filament:
-           SERIAL_ECHOLNPGM("  AC_paused_purging_filament");
+           DEBUG_ECHOLNPGM("  AC_paused_purging_filament");
            break;
       case AC_paused_idle:
-           SERIAL_ECHOLNPGM("  AC_paused_idle");
+           DEBUG_ECHOLNPGM("  AC_paused_idle");
            break;
     }
   }
 
 // routines to make the debug outputs human readable
 
-  void SERIAL_PRINT_PRINTER_STATE(FSTR_P const msg, printer_state_t state) {
-    SERIAL_ECHOPGM(msg, state);
+  void DEBUG_PRINT_PRINTER_STATE(FSTR_P const msg, printer_state_t state) {
+    DEBUG_ECHOPGM(msg, state);
     switch (state) {
       case AC_printer_idle:
-           SERIAL_ECHOLNPGM("  AC_printer_idle");
+           DEBUG_ECHOLNPGM("  AC_printer_idle");
            break;
       case AC_printer_probing:
-           SERIAL_ECHOLNPGM("  AC_printer_probing");
+           DEBUG_ECHOLNPGM("  AC_printer_probing");
            break;
       case AC_printer_printing:
-           SERIAL_ECHOLNPGM("  AC_printer_printing");
+           DEBUG_ECHOLNPGM("  AC_printer_printing");
            break;
       case AC_printer_pausing:
-           SERIAL_ECHOLNPGM("  AC_printer_pausing");
+           DEBUG_ECHOLNPGM("  AC_printer_pausing");
            break;
       case AC_printer_paused:
-           SERIAL_ECHOLNPGM("  AC_printer_paused");
+           DEBUG_ECHOLNPGM("  AC_printer_paused");
            break;
       case AC_printer_stopping:
-           SERIAL_ECHOLNPGM("  AC_printer_stopping");
+           DEBUG_ECHOLNPGM("  AC_printer_stopping");
            break;
       case AC_printer_stopping_from_media_remove:
-           SERIAL_ECHOLNPGM("  AC_printer_stopping_from_media_remove");
+           DEBUG_ECHOLNPGM("  AC_printer_stopping_from_media_remove");
            break;
       case AC_printer_resuming_from_power_outage:
-           SERIAL_ECHOLNPGM("  AC_printer_resuming_from_power_outage");
+           DEBUG_ECHOLNPGM("  AC_printer_resuming_from_power_outage");
            break;
     }
   }
 
-  void SERIAL_PRINT_TIMER_EVENT(FSTR_P const msg, timer_event_t event) {
-    SERIAL_ECHOPGM(msg, event);
+  void DEBUG_PRINT_TIMER_EVENT(FSTR_P const msg, timer_event_t event) {
+    DEBUG_ECHOPGM(msg, event);
     switch (event) {
       case AC_timer_started:
-           SERIAL_ECHOLNPGM("  AC_timer_started");
+           DEBUG_ECHOLNPGM("  AC_timer_started");
            break;
       case AC_timer_paused:
-           SERIAL_ECHOLNPGM("  AC_timer_paused");
+           DEBUG_ECHOLNPGM("  AC_timer_paused");
            break;
       case AC_timer_stopped:
-           SERIAL_ECHOLNPGM("  AC_timer_stopped");
+           DEBUG_ECHOLNPGM("  AC_timer_stopped");
            break;
     }
   }
 
-  void SERIAL_PRINT_MEDIA_EVENT(FSTR_P const msg, media_event_t event) {
-    SERIAL_ECHOPGM(msg, event);
+  void DEBUG_PRINT_MEDIA_EVENT(FSTR_P const msg, media_event_t event) {
+    DEBUG_ECHOPGM(msg, event);
     switch (event) {
       case AC_media_inserted:
-           SERIAL_ECHOLNPGM("  AC_media_inserted");
+           DEBUG_ECHOLNPGM("  AC_media_inserted");
            break;
       case AC_media_removed:
-           SERIAL_ECHOLNPGM("  AC_media_removed");
+           DEBUG_ECHOLNPGM("  AC_media_removed");
            break;
       case AC_media_error:
-           SERIAL_ECHOLNPGM("  AC_media_error");
+           DEBUG_ECHOLNPGM("  AC_media_error");
            break;
     }
   }
