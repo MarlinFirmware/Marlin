@@ -2080,8 +2080,8 @@ hal_timer_t Stepper::calc_timer_interval_and_steps(uint32_t step_rate) {
     uint8_t loops = steps_per_isr;
     if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
     if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
-    if (loops >=  2) { step_rate >>= 1; loops >>= 1; }
-    steps_per_isr = loops;
+    if (loops >=  2) { step_rate >>= 1; /*loops >>= 1; */ }
+    //steps_per_isr = loops;
   #else
     NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
   #endif
