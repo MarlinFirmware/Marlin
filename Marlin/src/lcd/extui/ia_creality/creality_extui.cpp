@@ -314,31 +314,31 @@ namespace ExtUI {
       else
         rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(X))  * 10, StepMM_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(Y))  * 10, StepMM_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(Z))  * 10, StepMM_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(E0)) * 10, StepMM_E);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(X)  * 10, StepMM_X);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(Y)  * 10, StepMM_Y);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(Z)  * 10, StepMM_Z);
+      rtscheck.RTS_SndData(getAxisSteps_per_mm(E0) * 10, StepMM_E);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(X)) / 100, Accel_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(Y)) / 100, Accel_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(Z)) /  10, Accel_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxAcceleration_mm_s2(E0)),      Accel_E);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(X) / 100, Accel_X);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(Y) / 100, Accel_Y);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(Z) /  10, Accel_Z);
+      rtscheck.RTS_SndData(getAxisMaxAcceleration_mm_s2(E0),      Accel_E);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(X)),  Feed_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(Y)),  Feed_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(Z)),  Feed_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxFeedrate_mm_s(E0)), Feed_E);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(X),  Feed_X);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(Y),  Feed_Y);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(Z),  Feed_Z);
+      rtscheck.RTS_SndData(getAxisMaxFeedrate_mm_s(E0), Feed_E);
 
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(X))  * 100, Jerk_X);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(Y))  * 100, Jerk_Y);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(Z))  * 100, Jerk_Z);
-      rtscheck.RTS_SndData(uint16_t(getAxisMaxJerk_mm_s(E0)) * 100, Jerk_E);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(X) * 100, Jerk_X);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(Y) * 100, Jerk_Y);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(Z) * 100, Jerk_Z);
+      rtscheck.RTS_SndData(getAxisMaxJerk_mm_s(E0) * 100, Jerk_E);
 
       #if HAS_HOTEND_OFFSET
-        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(X, E1)) * 10, T2Offset_X);
-        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(Y, E1)) * 10, T2Offset_Y);
-        rtscheck.RTS_SndData(uint16_t(getNozzleOffset_mm(Z, E1)) * 10, T2Offset_Z);
-        rtscheck.RTS_SndData(uint16_t(getAxisSteps_per_mm(E1))   * 10, T2StepMM_E);
+        rtscheck.RTS_SndData(getNozzleOffset_mm(X, E1) * 10, T2Offset_X);
+        rtscheck.RTS_SndData(getNozzleOffset_mm(Y, E1) * 10, T2Offset_Y);
+        rtscheck.RTS_SndData(getNozzleOffset_mm(Z, E1) * 10, T2Offset_Z);
+        rtscheck.RTS_SndData(getAxisSteps_per_mm(E1)   * 10, T2StepMM_E);
       #endif
 
       #if HAS_BED_PROBE
@@ -349,13 +349,13 @@ namespace ExtUI {
       #if HAS_PID_HEATING
         rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
         rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
-        rtscheck.RTS_SndData(uint16_t(getPID_Kp(E0)) * 10, HotendPID_P);
-        rtscheck.RTS_SndData(uint16_t(getPID_Ki(E0)) * 10, HotendPID_I);
-        rtscheck.RTS_SndData(uint16_t(getPID_Kd(E0)) * 10, HotendPID_D);
+        rtscheck.RTS_SndData(getPID_Kp(E0) * 10, HotendPID_P);
+        rtscheck.RTS_SndData(getPID_Ki(E0) * 10, HotendPID_I);
+        rtscheck.RTS_SndData(getPID_Kd(E0) * 10, HotendPID_D);
         #if ENABLED(PIDTEMPBED)
-          rtscheck.RTS_SndData(uint16_t(getBedPID_Kp()) * 10, BedPID_P);
-          rtscheck.RTS_SndData(uint16_t(getBedPID_Ki()) * 10, BedPID_I);
-          rtscheck.RTS_SndData(uint16_t(getBedPID_Kd()) * 10, BedPID_D);
+          rtscheck.RTS_SndData(getBedPID_Kp() * 10, BedPID_P);
+          rtscheck.RTS_SndData(getBedPID_Ki() * 10, BedPID_I);
+          rtscheck.RTS_SndData(getBedPID_Kd() * 10, BedPID_D);
         #endif
       #endif
     }
@@ -564,6 +564,25 @@ namespace ExtUI {
     snddat.addr    = addr;
     snddat.data[0] = uint32_t(uint16_t(c) << 8);
     snddat.len     = 5;
+    RTS_SndData();
+  }
+
+  void RTSSHOW::RTS_SndData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+    int16_t n = f;
+    if (cmd == VarAddr_W) {
+      snddat.data[0] = n;
+      snddat.len = 5;
+    }
+    else if (cmd == RegAddr_W) {
+      snddat.data[0] = n;
+      snddat.len = 3;
+    }
+    else if (cmd == VarAddr_R) {
+      snddat.bytelen = n;
+      snddat.len = 4;
+    }
+    snddat.command = cmd;
+    snddat.addr = addr;
     RTS_SndData();
   }
 
@@ -789,7 +808,6 @@ namespace ExtUI {
         }
         else {
           onStatusChanged(F("Requested Offset Beyond Limits"));
-          RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
         }
 
         rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
