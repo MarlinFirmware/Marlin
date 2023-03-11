@@ -1200,10 +1200,31 @@ class Temperature {
         public:
           MPC_autotuner(const uint8_t extruderIdx);
           ~MPC_autotuner();
+          bool determineAmbientTemperature();
+          bool measureHeatup();
           // TODO: This can be protected once the bulk of logic is in this class
-          bool housekeeping(millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms);
+          bool housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
+
+          celsius_float_t get_ambient_temp() { return ambient_temp; }
+          celsius_float_t last_sampled_temp() { return current_temp; }
+
+          float get_elapsed_heating_time() { return elapsed_heating_time; }
+          float sample_1_time() { return t1_time; }
+          float sample_1_temp() { return temp_samples[0]; }
+          float sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
+          float sample_3_temp() { return temp_samples[sample_count - 1]; }
+          float sample_interval() { return sample_distance * (sample_count >> 1); }
+
         private:
           uint8_t e;
+
+          float elapsed_heating_time;
+          celsius_float_t ambient_temp;
+          celsius_float_t current_temp;
+          celsius_float_t temp_samples[16]; 
+          uint8_t sample_count;
+          uint16_t sample_distance;
+          float t1_time;
       };
 
       void MPC_autotune(const uint8_t e);
