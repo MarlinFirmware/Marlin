@@ -586,7 +586,7 @@ class Temperature {
 
     #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTENDS];
-      static const celsius_t hotend_maxtemp[HOTENDS];
+      static constexpr celsius_t hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
       static celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
 
@@ -748,7 +748,7 @@ class Temperature {
       static raw_adc_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
-    #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
+    #if BOTH(HAS_TEMP_BOARD, THERMAL_PROTECTION_BOARD)
       static raw_adc_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
     #endif
 

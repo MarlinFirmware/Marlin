@@ -57,7 +57,7 @@
   #endif
 #endif
 
-typedef IF<(SPEED_POWER_MAX > 255), uint16_t, uint8_t>::type cutter_cpower_t;
+typedef uvalue_t(SPEED_POWER_MAX) cutter_cpower_t;
 
 #if CUTTER_UNIT_IS(RPM) && SPEED_POWER_MAX > 255
   typedef uint16_t cutter_power_t;

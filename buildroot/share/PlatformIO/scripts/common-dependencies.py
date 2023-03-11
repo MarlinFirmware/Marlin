@@ -67,6 +67,7 @@ if pioutil.is_pio_build():
                 for dep in re.split(r',\s*', line):
                     lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
                     lib_re = re.compile('(?!^' + lib_name + '\\b)')
+                    if not 'lib_deps' in feat: feat['lib_deps'] = {}
                     feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
                     blab("[%s] lib_deps = %s" % (feature, dep), 3)
 
