@@ -112,9 +112,9 @@
 
 namespace ExtUI {
   static struct {
-    uint8_t printer_killed : 1;
+    bool printer_killed : 1;
     #if ENABLED(JOYSTICK)
-      uint8_t jogging : 1;
+      bool jogging : 1;
     #endif
   } flags;
 
