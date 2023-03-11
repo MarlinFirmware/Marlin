@@ -106,6 +106,7 @@ void prepare_for_probe_offset_wizard() {
 
     // Probe for Z reference
     ui.wait_for_move = true;
+    do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
     z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_RAISE, 0, true);
     ui.wait_for_move = false;
 
