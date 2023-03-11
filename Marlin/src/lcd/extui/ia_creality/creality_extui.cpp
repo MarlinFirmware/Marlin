@@ -94,7 +94,7 @@ namespace ExtUI {
     rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
     ZERO(rtscheck.databuf);
 
-    delay_ms(TERN(DWINOS_4, 1500, 500)); // Delay to allow screen startup
+    delay_ms(TERN(LCD_LONG_BOOT, 1500, 500)); // Delay to allow screen startup
     SetTouchScreenConfiguration();
     rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
     delay_ms(400); // Delay to allow screen to configure
