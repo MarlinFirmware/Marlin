@@ -1268,10 +1268,8 @@
 #endif
 
 /**
- * Multi-stepping sends steps in bursts when the step rate is high enough to for
- * approximately 100% MCU utilization. This allows higher feedrates than the MCU
- * would otherwise be able to support. However if a stepper driver receives a burst
- * of steps that is greater than its configured micro-stepping it could cause step-loss.
+ * Multi-stepping sends steps in bursts to reduce MCU usage for high step-rates.
+ * This allows higher feedrates than the MCU could otherwise support.
  */
 #define MULTISTEPPING_LIMIT   16  //: [1, 2, 4, 8, 16, 32, 64, 128]
 
