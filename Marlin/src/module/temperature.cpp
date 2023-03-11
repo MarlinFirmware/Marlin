@@ -931,8 +931,29 @@ volatile bool Temperature::raw_temps_ready = false;
     #define SINGLEFAN 1
   #endif
 
-  void Temperature::MPC_autotune(const uint8_t e) {
-    auto housekeeping = [] (millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms) {
+  Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx)
+  {
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
+  }
+
+  Temperature::MPC_autotuner::~MPC_autotuner() {
+    wait_for_heatup = false;
+
+    ui.reset_status();
+
+    temp_hotend[e].target = 0.0f;
+    temp_hotend[e].soft_pwm_amount = 0;
+    #if HAS_FAN
+      set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
+      planner.sync_fan_speeds(fan_speed);
+    #endif
+
+    do_z_clearance(MPC_TUNING_END_Z);
+
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);    
+  }
+
+  bool Temperature::MPC_autotuner::housekeeping(millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms) {
       ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
@@ -960,33 +981,14 @@ volatile bool Temperature::raw_temps_ready = false;
       return false;
     };
 
-    struct OnExit {
-      uint8_t e;
-      OnExit(const uint8_t _e) { this->e = _e; }
-      ~OnExit() {
-        wait_for_heatup = false;
-
-        ui.reset_status();
-
-        temp_hotend[e].target = 0.0f;
-        temp_hotend[e].soft_pwm_amount = 0;
-        #if HAS_FAN
-          set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
-          planner.sync_fan_speeds(fan_speed);
-        #endif
-
-        do_z_clearance(MPC_TUNING_END_Z);
-
-        TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
-      }
-    } on_exit(e);
-
+  void Temperature::MPC_autotune(const uint8_t e) {
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, e);
+
+    MPC_autotuner autotuner(e);
+
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
-
-    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);
@@ -1012,7 +1014,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, current_temp, next_report_ms)) return;
+      if (autotuner.housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -1044,7 +1046,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, current_temp, next_report_ms)) return;
+      if (autotuner.housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         // Record samples between 100C and 200C
@@ -1103,7 +1105,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, current_temp, next_report_ms)) return;
+      if (autotuner.housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
