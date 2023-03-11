@@ -1195,6 +1195,17 @@ class Temperature {
     #endif
 
     #if ENABLED(MPCTEMP)
+      // Utility class that contains the business logic for auto tuning MPCTEMP
+      class MPC_autotuner{
+        public:
+          MPC_autotuner(const uint8_t extruderIdx);
+          ~MPC_autotuner();
+          // TODO: This can be protected once the bulk of logic is in this class
+          bool housekeeping(millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms);
+        private:
+          uint8_t e;
+      };
+
       void MPC_autotune(const uint8_t e);
     #endif
 
