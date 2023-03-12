@@ -953,7 +953,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);    
   }
 
-  bool Temperature::MPC_autotuner::determineAmbientTemperature() {
+  bool Temperature::MPC_autotuner::measureAmbientTemperature() {
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
     ambient_temp = current_temp;
 
@@ -1082,7 +1082,7 @@ volatile bool Temperature::raw_temps_ready = false;
       LCD_MESSAGE(MSG_COOLING);
     #endif
 
-    if (!tuner.determineAmbientTemperature()) return;
+    if (!tuner.measureAmbientTemperature()) return;
     hotend.modeled_ambient_temp = tuner.get_ambient_temp();
 
     #if HAS_FAN
