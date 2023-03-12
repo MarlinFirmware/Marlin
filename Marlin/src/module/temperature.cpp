@@ -1058,7 +1058,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, e);
 
-    MPC_autotuner autotuner(e);
+    MPC_autotuner tuner(e);
 
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
@@ -1082,8 +1082,8 @@ volatile bool Temperature::raw_temps_ready = false;
       LCD_MESSAGE(MSG_COOLING);
     #endif
 
-    if (!autotuner.determineAmbientTemperature()) return;
-    hotend.modeled_ambient_temp = autotuner.get_ambient_temp();
+    if (!tuner.determineAmbientTemperature()) return;
+    hotend.modeled_ambient_temp = tuner.get_ambient_temp();
 
     #if HAS_FAN
       set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
@@ -1094,22 +1094,22 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_HEATING_PAST_200);
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
 
-    if (!autotuner.measureHeatup()) return;
+    if (!tuner.measureHeatup()) return;
 
     // Calculate physical constants from three equally-spaced samples
-    const float t1 = autotuner.sample_1_temp(),
-                t2 = autotuner.sample_2_temp(),
-                t3 = autotuner.sample_3_temp();
+    const float t1 = tuner.sample_1_temp(),
+                t2 = tuner.sample_2_temp(),
+                t3 = tuner.sample_3_temp();
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
-          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / autotuner.sample_interval();
+          block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.sample_interval();
 
-    mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - autotuner.get_ambient_temp());
+    mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - tuner.get_ambient_temp());
     mpc.fan255_adjustment = 0.0f;
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
-    mpc.sensor_responsiveness = block_responsiveness / (1.0f - (autotuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * autotuner.sample_1_time()) / (t1 - asymp_temp));
+    mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.sample_1_time()) / (t1 - asymp_temp));
 
-    hotend.modeled_block_temp = asymp_temp + (autotuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * autotuner.get_elapsed_heating_time());
-    hotend.modeled_sensor_temp = autotuner.last_sampled_temp();
+    hotend.modeled_block_temp = asymp_temp + (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_elapsed_heating_time());
+    hotend.modeled_sensor_temp = tuner.last_sampled_temp();
 
     // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
@@ -1130,7 +1130,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (autotuner.housekeeping(ms, e, current_temp, next_report_ms)) return;
+      if (tuner.housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
@@ -1163,19 +1163,19 @@ volatile bool Temperature::raw_temps_ready = false;
     wait_for_heatup = false;
 
     const float power_fan0 = total_energy_fan0 * 1000 / test_duration;
-    mpc.ambient_xfer_coeff_fan0 = power_fan0 / (hotend.target - autotuner.get_ambient_temp());
+    mpc.ambient_xfer_coeff_fan0 = power_fan0 / (hotend.target - tuner.get_ambient_temp());
 
     #if HAS_FAN
       const float power_fan255 = total_energy_fan255 * 1000 / test_duration,
-                  ambient_xfer_coeff_fan255 = power_fan255 / (hotend.target - autotuner.get_ambient_temp());
+                  ambient_xfer_coeff_fan255 = power_fan255 / (hotend.target - tuner.get_ambient_temp());
       mpc.applyFanAdjustment(ambient_xfer_coeff_fan255);
     #endif
 
     // Calculate a new and better asymptotic temperature and re-evaluate the other constants
-    asymp_temp = autotuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
-    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / autotuner.sample_interval();
+    asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
+    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.sample_interval();
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
-    mpc.sensor_responsiveness = block_responsiveness / (1.0f - (autotuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * autotuner.sample_1_time()) / (t1 - asymp_temp));
+    mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.sample_1_time()) / (t1 - asymp_temp));
 
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
