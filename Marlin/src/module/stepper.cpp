@@ -1676,7 +1676,7 @@ void Stepper::pulse_phase_isr() {
       int32_t de = delta_error[_AXIS(AXIS)] + advance_dividend[_AXIS(AXIS)]; \
       if (de >= 0) { \
         step_needed.set(_AXIS(AXIS)); \
-        de -= advance_divisor; \
+        de -= advance_divisor_cached; \
       } \
       delta_error[_AXIS(AXIS)] = de; \
     }while(0)
@@ -1702,19 +1702,22 @@ void Stepper::pulse_phase_isr() {
     #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
 
     #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
-      if (step_needed.test(_AXIS(AXIS))) { \
-        DELTA_ERROR += (DIVIDEND); \
-        if ((MAXDIR(AXIS) && DELTA_ERROR <= -(64 + HYSTERESIS(AXIS))) || (MINDIR(AXIS) && DELTA_ERROR >= (64 + HYSTERESIS(AXIS)))) { \
+      int16_t de = DELTA_ERROR + (DIVIDEND); \
+      const bool step_fwd = de >=  (64 + HYSTERESIS(AXIS)), \
+                 step_bak = de <= -(64 + HYSTERESIS(AXIS)); \
+      if (step_fwd || step_bak) { \
+        de += step_fwd ? -128 : 128; \
+        if ((MAXDIR(AXIS) && step_bak) || (MINDIR(AXIS) && step_fwd)) { \
           { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
           TBI(last_direction_bits, _AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
           DIR_WAIT_AFTER(); \
         } \
-        step_needed.set(_AXIS(AXIS), DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS))); \
-        if (step_needed.test(_AXIS(AXIS))) \
-          DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
       } \
+      else \
+        step_needed.clear(_AXIS(AXIS)); \
+      DELTA_ERROR = de; \
     }while(0)
 
     // Start an active pulse if needed
@@ -1839,6 +1842,9 @@ void Stepper::pulse_phase_isr() {
     #endif // DIRECT_STEPPING
 
     if (!is_page) {
+      // Give the compiler a clue to store advance_divisor in registers for what follows
+      const uint32_t advance_divisor_cached = advance_divisor;
+
       // Determine if pulses are needed
       #if HAS_X_STEP
         PULSE_PREP(X);
@@ -1883,19 +1889,19 @@ void Stepper::pulse_phase_isr() {
 
       #if HAS_SHAPING
         // record an echo if a step is needed in the primary bresenham
-        const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed.x),
-                   y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed.y);
+        const bool x_step = TERN0(INPUT_SHAPING_X, step_needed.x && shaping_x.enabled),
+                   y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled);
         if (x_step || y_step)
           ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
 
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
-          if (shaping_x.enabled)
-            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor1 * (shaping_x.forward ? 1 : -1));
+          if (x_step)
+            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1);
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
-          if (shaping_y.enabled)
-            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor1 * (shaping_y.forward ? 1 : -1));
+          if (y_step)
+            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1);
         #endif
       #endif
     }
@@ -2008,7 +2014,7 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING_X)
         if (step_needed.x) {
           const bool forward = ShapingQueue::dequeue_x();
-          PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
+          PULSE_PREP_SHAPING(X, shaping_x.delta_error, (forward ? shaping_x.factor2 : -shaping_x.factor2));
           PULSE_START(X);
         }
       #endif
@@ -2016,7 +2022,7 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING_Y)
         if (step_needed.y) {
           const bool forward = ShapingQueue::dequeue_y();
-          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
+          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (forward ? shaping_y.factor2 : -shaping_y.factor2));
           PULSE_START(Y);
         }
       #endif
