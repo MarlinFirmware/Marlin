@@ -1206,6 +1206,7 @@ class Temperature {
           ~MPC_autotuner();
           MeasurementState measureAmbientTemperature();
           MeasurementState measureHeatup();
+          MeasurementState measure_transfer();
           // TODO: This can be protected once the bulk of logic is in this class
           MeasurementState housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
 
@@ -1219,6 +1220,11 @@ class Temperature {
           float sample_3_temp() { return temp_samples[sample_count - 1]; }
           float sample_interval() { return sample_distance * (sample_count >> 1); }
 
+          float get_power_fan0() { return power_fan0; }
+          #if HAS_FAN
+            float get_power_fan255() { return power_fan255; }
+          #endif
+
         private:
           uint8_t e;
 
@@ -1229,6 +1235,11 @@ class Temperature {
           uint8_t sample_count;
           uint16_t sample_distance;
           float t1_time;
+
+          float power_fan0;
+          #if HAS_FAN
+            float power_fan255;
+          #endif
       };
 
       void MPC_autotune(const uint8_t e);
