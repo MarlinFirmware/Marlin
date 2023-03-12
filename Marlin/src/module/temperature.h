@@ -1200,7 +1200,7 @@ class Temperature {
         public:
           MPC_autotuner(const uint8_t extruderIdx);
           ~MPC_autotuner();
-          bool determineAmbientTemperature();
+          bool measureAmbientTemperature();
           bool measureHeatup();
           // TODO: This can be protected once the bulk of logic is in this class
           bool housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
