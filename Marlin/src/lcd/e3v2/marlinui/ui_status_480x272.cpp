@@ -166,7 +166,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
   const uint16_t fanx = (4 * STATUS_CHR_WIDTH - STATUS_FAN_WIDTH) / 2;
   const uint8_t fan_pct = thermalManager.scaledFanSpeedPercent(0);
-  const bool fan_on = !!fan_pct;
+  const bool fan_on = !!thermalManager.scaledFanSpeed(0);
   if (fan_on) {
     DWIN_ICON_Animation(0, fan_on, ICON, ICON_Fan0, ICON_Fan3, x + fanx, y, 25);
     dwin_string.set(i8tostr3rj(fan_pct));
