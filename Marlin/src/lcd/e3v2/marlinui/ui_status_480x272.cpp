@@ -131,7 +131,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
 
-      if (!ui.did_first_redraw) {
+      if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
         // Extra spaces to erase previous value
         dwin_string.set(F("E         "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (4 * 14 / 2) - 7, y + 2, S(dwin_string.string()));
