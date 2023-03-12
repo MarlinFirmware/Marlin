@@ -955,7 +955,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_ambient_temp() {
     init_timers();
-    millis_t next_test_ms = ms + 10000UL;
+    millis_t next_test_ms = curr_time_ms + 10000UL;
     ambient_temp = current_temp;
 
     current_temp = degHotend(e);
@@ -963,7 +963,7 @@ volatile bool Temperature::raw_temps_ready = false;
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
-      if (ELAPSED(ms, next_test_ms)) {
+      if (ELAPSED(curr_time_ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
           ambient_temp = (ambient_temp + current_temp) / 2.0f;
           break;
@@ -979,11 +979,11 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
     init_timers();
-    millis_t next_test_ms = ms + 1000UL;
+    millis_t next_test_ms = curr_time_ms + 1000UL;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
     current_temp = degHotend(e);
-    millis_t heat_start_time_ms = ms;
+    millis_t heat_start_time_ms = curr_time_ms;
     sample_count = 0;
     sample_distance = 1;
     t1_time = 0;
@@ -995,7 +995,7 @@ volatile bool Temperature::raw_temps_ready = false;
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
-      if (ELAPSED(ms, next_test_ms)) {
+      if (ELAPSED(curr_time_ms, next_test_ms)) {
         // Record samples between 100C and 200C
         if (current_temp >= 100.0f) {
           // If there are too many samples, space them more widely
@@ -1006,7 +1006,7 @@ volatile bool Temperature::raw_temps_ready = false;
             sample_distance *= 2;
           }
 
-          if (sample_count == 0) t1_time = float(ms - heat_start_time_ms) / 1000.0f;
+          if (sample_count == 0) t1_time = float(curr_time_ms - heat_start_time_ms) / 1000.0f;
           temp_samples[sample_count++] = current_temp;
         }
 
@@ -1019,7 +1019,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     hotend.soft_pwm_amount = 0;
 
-    elapsed_heating_time = float(ms - heat_start_time_ms) / 1000.0f;
+    elapsed_heating_time = float(curr_time_ms - heat_start_time_ms) / 1000.0f;
 
     // Ensure sample count is odd so that we have 3 equally spaced samples
     if (sample_count == 0)
@@ -1031,12 +1031,12 @@ volatile bool Temperature::raw_temps_ready = false;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_transfer() {
-    millis_t next_test_ms = ms + MPC_dT * 1000;
+    millis_t next_test_ms = curr_time_ms + MPC_dT * 1000;
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
 
     constexpr millis_t settle_time = 20000UL, test_duration = 20000UL;
-    millis_t settle_end_ms = ms + settle_time,
+    millis_t settle_end_ms = curr_time_ms + settle_time,
              test_end_ms = settle_end_ms + test_duration;
     float total_energy_fan0 = 0.0f;
     #if HAS_FAN
@@ -1049,23 +1049,23 @@ volatile bool Temperature::raw_temps_ready = false;
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
-      if (ELAPSED(ms, next_test_ms)) {
+      if (ELAPSED(curr_time_ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
 
-        if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
+        if (ELAPSED(curr_time_ms, settle_end_ms) && !ELAPSED(curr_time_ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
           total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
         #if HAS_FAN
-          else if (ELAPSED(ms, test_end_ms) && !fan0_done) {
+          else if (ELAPSED(curr_time_ms, test_end_ms) && !fan0_done) {
             set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
             planner.sync_fan_speeds(fan_speed);
-            settle_end_ms = ms + settle_time;
+            settle_end_ms = curr_time_ms + settle_time;
             test_end_ms = settle_end_ms + test_duration;
             fan0_done = true;
           }
-          else if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms))
+          else if (ELAPSED(curr_time_ms, settle_end_ms) && !ELAPSED(curr_time_ms, test_end_ms))
             total_energy_fan255 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
         #endif
-        else if (ELAPSED(ms, test_end_ms)) break;
+        else if (ELAPSED(curr_time_ms, test_end_ms)) break;
 
         last_temp = current_temp;
         next_test_ms += MPC_dT * 1000;
@@ -1090,14 +1090,14 @@ volatile bool Temperature::raw_temps_ready = false;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping() {
-      ms = millis();
+      curr_time_ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
         current_temp = degHotend(e);
-        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
+        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(curr_time_ms));
       }
 
-      if (ELAPSED(ms, next_report_ms)) {
+      if (ELAPSED(curr_time_ms, next_report_ms)) {
         next_report_ms += 1000UL;
 
         print_heater_states(e);
