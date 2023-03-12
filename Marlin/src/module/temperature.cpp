@@ -960,7 +960,7 @@ volatile bool Temperature::raw_temps_ready = false;
     current_temp = degHotend(e);
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, next_report_ms) == CANCELLED) return CANCELLED;
+      if (housekeeping(ms, next_report_ms) == CANCELLED) return CANCELLED;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -991,7 +991,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, next_report_ms) == CANCELLED) return CANCELLED;
+      if (housekeeping(ms, next_report_ms) == CANCELLED) return CANCELLED;
 
       if (ELAPSED(ms, next_test_ms)) {
         // Record samples between 100C and 200C
@@ -1045,7 +1045,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, next_report_ms) == CANCELLED) return CANCELLED;
+      if (housekeeping(ms, next_report_ms) == CANCELLED) return CANCELLED;
 
       if (ELAPSED(ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
@@ -1087,7 +1087,7 @@ volatile bool Temperature::raw_temps_ready = false;
     return SUCCESS;
   }
 
-  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms) {
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping(millis_t &ms, millis_t &next_report_ms) {
       ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
