@@ -49,9 +49,6 @@
   #include "stepper/speed_lookuptable.h"
 #endif
 
-// Disable multiple steps per ISR
-//#define DISABLE_MULTI_STEPPING
-
 //
 // Estimate the amount of time the Stepper ISR will take to execute
 //
@@ -259,7 +256,7 @@
 
 // The minimum step ISR rate used by ADAPTIVE_STEP_SMOOTHING to target 50% CPU usage
 // This does not account for the possibility of multi-stepping.
-// Perhaps DISABLE_MULTI_STEPPING should be required with ADAPTIVE_STEP_SMOOTHING.
+// Should a MULTISTEPPING_LIMIT of 1 should be required with ADAPTIVE_STEP_SMOOTHING?
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
@@ -543,7 +540,12 @@ class Stepper {
     #endif
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
-    static uint8_t steps_per_isr;         // Count of steps to perform per Stepper ISR call
+
+    #if MULTISTEPPING_LIMIT == 1
+      static constexpr uint8_t steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
+    #else
+      static uint8_t steps_per_isr;
+    #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
       static uint8_t oversampling_factor; // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis

@@ -189,7 +189,10 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-uint8_t Stepper::steps_per_isr = 1;   // Count of steps to perform per Stepper ISR call
+
+#if MULTISTEPPING_LIMIT > 1
+  uint8_t Stepper::steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
+#endif
 
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
@@ -2089,7 +2092,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
-  #if ENABLED(DISABLE_MULTI_STEPPING)
+  #if MULTISTEPPING_LIMIT == 1
 
     // Just make sure the step rate is doable
     NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
@@ -2098,19 +2101,31 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
     // The stepping frequency limits for each multistepping rate
     static const uint32_t limit[] PROGMEM = {
-      (  MAX_STEP_ISR_FREQUENCY_1X     ),
-      (  MAX_STEP_ISR_FREQUENCY_2X >> 1),
-      (  MAX_STEP_ISR_FREQUENCY_4X >> 2),
-      (  MAX_STEP_ISR_FREQUENCY_8X >> 3),
-      ( MAX_STEP_ISR_FREQUENCY_16X >> 4),
-      ( MAX_STEP_ISR_FREQUENCY_32X >> 5),
-      ( MAX_STEP_ISR_FREQUENCY_64X >> 6),
-      (MAX_STEP_ISR_FREQUENCY_128X >> 7)
+          (  MAX_STEP_ISR_FREQUENCY_1X     )
+        , (  MAX_STEP_ISR_FREQUENCY_2X >> 1)
+      #if MULTISTEPPING_LIMIT >= 4
+        , (  MAX_STEP_ISR_FREQUENCY_4X >> 2)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 8
+        , (  MAX_STEP_ISR_FREQUENCY_8X >> 3)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 16
+        , ( MAX_STEP_ISR_FREQUENCY_16X >> 4)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 32
+        , ( MAX_STEP_ISR_FREQUENCY_32X >> 5)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 64
+        , ( MAX_STEP_ISR_FREQUENCY_64X >> 6)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 128
+        , (MAX_STEP_ISR_FREQUENCY_128X >> 7)
+      #endif
     };
 
     // Find a doable step rate using multistepping
     uint8_t multistep = 1;
-    for (uint8_t i = 0; i < 7 && step_rate > uint32_t(pgm_read_dword(&limit[i])); ++i) {
+    for (uint8_t i = 0; i < COUNT(limit) && step_rate > uint32_t(pgm_read_dword(&limit[i])); ++i) {
       step_rate >>= 1;
       multistep <<= 1;
     }
