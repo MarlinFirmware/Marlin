@@ -1005,7 +1005,7 @@ volatile bool Temperature::raw_temps_ready = false;
             for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
               temp_samples[i] = temp_samples[i*2];
             sample_count /= 2;
-            ticks_per_sample *= 2;
+            sample_distance *= 2;
           }
 
           if (sample_count == 0) t1_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
@@ -1206,7 +1206,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #if 0
       SERIAL_ECHOLNPGM("t1_time ", t1_time);
       SERIAL_ECHOLNPGM("sample_count ", sample_count);
-      SERIAL_ECHOLNPGM("ticks_per_sample ", ticks_per_sample);
+      SERIAL_ECHOLNPGM("sample_distance ", sample_distance);
       for (uint8_t i = 0; i < sample_count; i++)
         SERIAL_ECHOLNPGM("sample ", i, " : ", temp_samples[i]);
       SERIAL_ECHOLNPGM("t1 ", t1, " t2 ", t2, " t3 ", t3);
