@@ -1517,7 +1517,7 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
         if (longFilename) {
           // Reset n to the start of the long name
           n = 0;
-          for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH) / 2; idx += 2) {    // idx is fixed since FAT LFN always contains UTF-16LE encoding
+          for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH); idx += 2) {    // idx is fixed since FAT LFN always contains UTF-16LE encoding
             const uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
             if (0xD800 == (utf16_ch & 0xF800))                                    // Surrogate pair - encode as '_'
               longFilename[n++] = '_';
