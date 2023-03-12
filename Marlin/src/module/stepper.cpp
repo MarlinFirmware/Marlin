@@ -225,11 +225,11 @@ uint32_t Stepper::advance_divisor = 0,
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
-           Stepper::la_interval = LA_ADV_NEVER;
-  int32_t  Stepper::la_delta_error = 0,
-           Stepper::la_dividend = 0,
-           Stepper::la_advance_steps = 0;
+  hal_timer_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
+              Stepper::la_interval = LA_ADV_NEVER;
+  int32_t     Stepper::la_delta_error = 0,
+              Stepper::la_dividend = 0,
+              Stepper::la_advance_steps = 0;
 #endif
 
 #if HAS_SHAPING
@@ -255,14 +255,14 @@ uint32_t Stepper::advance_divisor = 0,
 #endif
 
 #if ENABLED(INTEGRATED_BABYSTEPPING)
-  uint32_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
+  hal_timer_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
 #endif
 
 #if ENABLED(DIRECT_STEPPING)
   page_step_state_t Stepper::page_step_state;
 #endif
 
-int32_t Stepper::ticks_nominal = -1;
+hal_timer_t Stepper::ticks_nominal = 0;
 #if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
@@ -1462,7 +1462,7 @@ HAL_STEP_TIMER_ISR() {
 
 void Stepper::isr() {
 
-  static uint32_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
+  static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
 
   #ifndef __AVR__
     // Disable interrupts, to avoid ISR preemption while we reprogram the period
@@ -1518,8 +1518,8 @@ void Stepper::isr() {
     #endif
 
     // Get the interval to the next ISR call
-    const uint32_t interval = _MIN(
-      uint32_t(HAL_TIMER_TYPE_MAX),                           // Come back in a very long time
+    const hal_timer_t interval = _MIN(
+      hal_timer_t(HAL_TIMER_TYPE_MAX),                        // Come back in a very long time
       nextMainISR                                             // Time until the next Pulse / Block phase
       OPTARG(INPUT_SHAPING_X, ShapingQueue::peek_x())         // Time until next input shaping echo for X
       OPTARG(INPUT_SHAPING_Y, ShapingQueue::peek_y())         // Time until next input shaping echo for Y
@@ -1598,7 +1598,7 @@ void Stepper::isr() {
   // sure that the time has not arrived yet - Warrantied by the scheduler
 
   // Set the next ISR to fire at the proper time
-  HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(next_isr_ticks));
+  HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks);
 
   // Don't forget to finally reenable interrupts on non-AVR.
   // AVR automatically calls sei() for us on Return-from-Interrupt.
@@ -2046,7 +2046,7 @@ void Stepper::pulse_phase_isr() {
 #endif // HAS_SHAPING
 
 // Calculate timer interval, with all limits applied.
-uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
+hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #ifdef CPU_32_BIT
 
@@ -2078,7 +2078,7 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
 }
 
 // Get the timer interval and the number of loops to perform per tick
-uint32_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
+hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
   uint8_t multistep = 1;
   #if ENABLED(DISABLE_MULTI_STEPPING)
 
@@ -2118,10 +2118,10 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
  * schedules planner blocks. This is executed after the step pulses
  * have been done, so it is less time critical.
  */
-uint32_t Stepper::block_phase_isr() {
+hal_timer_t Stepper::block_phase_isr() {
 
   // If no queued movements, just wait 1ms for the next block
-  uint32_t interval = (STEPPER_TIMER_RATE) / 1000UL;
+  hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
   // If there is a current block
   if (current_block) {
@@ -2296,7 +2296,7 @@ uint32_t Stepper::block_phase_isr() {
       else {  // Must be in cruise phase otherwise
 
         // Calculate the ticks_nominal for this nominal speed, if not done yet
-        if (ticks_nominal < 0) {
+        if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
           ticks_nominal = calc_timer_interval(current_block->nominal_rate << oversampling_factor, steps_per_isr);
 
@@ -2604,7 +2604,7 @@ uint32_t Stepper::block_phase_isr() {
       #endif
 
       // Mark ticks_nominal as not-yet-calculated
-      ticks_nominal = -1;
+      ticks_nominal = 0;
 
       #if ENABLED(S_CURVE_ACCELERATION)
         // Initialize the Bézier speed curve
@@ -2671,7 +2671,7 @@ uint32_t Stepper::block_phase_isr() {
 #if ENABLED(INTEGRATED_BABYSTEPPING)
 
   // Timer interrupt for baby-stepping
-  uint32_t Stepper::babystepping_isr() {
+  hal_timer_t Stepper::babystepping_isr() {
     babystep.task();
     return babystep.has_steps() ? BABYSTEP_TICKS : BABYSTEP_NEVER;
   }
