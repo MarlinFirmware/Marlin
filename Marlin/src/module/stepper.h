@@ -390,11 +390,10 @@ constexpr ena_mask_t enable_overlap[] = {
           }
           else {
             echo_axes[tail].x = ECHO_NONE;
-            if (head_x == tail) {
-              if (++head_x == shaping_echoes) head_x = 0;
-            }
-            else
+            if (head_x != tail)
               _free_count_x--;
+            else if (++head_x == shaping_echoes)
+              head_x = 0;
           }
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
@@ -405,11 +404,10 @@ constexpr ena_mask_t enable_overlap[] = {
           }
           else {
             echo_axes[tail].y = ECHO_NONE;
-            if (head_y == tail) {
-              if (++head_y == shaping_echoes) head_y = 0;
-            }
-            else
+            if (head_y != tail)
               _free_count_y--;
+            else if (++head_y == shaping_echoes)
+              head_y = 0;
           }
         #endif
         times[tail] = now;
