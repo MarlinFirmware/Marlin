@@ -1008,7 +1008,7 @@ volatile bool Temperature::raw_temps_ready = false;
             sample_distance *= 2;
           }
 
-          if (sample_count == 0) t1_time = float(curr_time_ms - heat_start_time_ms) / 1000.0f;
+          if (sample_count == 0) t1_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
           temp_samples[sample_count++] = current_temp;
         }
 
@@ -1021,7 +1021,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     hotend.soft_pwm_amount = 0;
 
-    elapsed_heating_time = float(curr_time_ms - heat_start_time_ms) / 1000.0f;
+    elapsed_heating_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
 
     // Ensure sample count is odd so that we have 3 equally spaced samples
     if (sample_count == 0)
@@ -1086,9 +1086,9 @@ volatile bool Temperature::raw_temps_ready = false;
     }
     wait_for_heatup = false;
 
-    power_fan0 = total_energy_fan0 * 1000 / test_duration;
+    power_fan0 = total_energy_fan0 / MS_TO_SEC_PRECISE(test_duration);
     #if HAS_FAN
-      power_fan255 = total_energy_fan255 * 1000 / test_duration;
+      power_fan255 = total_energy_fan255 / MS_TO_SEC_PRECISE(test_duration);
     #endif
 
     return SUCCESS;
