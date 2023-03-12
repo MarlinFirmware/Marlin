@@ -189,7 +189,7 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-uint8_t Stepper::steps_per_isr;       // Count of steps to perform per Stepper ISR call
+uint8_t Stepper::steps_per_isr = 1;   // Count of steps to perform per Stepper ISR call
 
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
@@ -2088,8 +2088,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 }
 
 // Get the timer interval and the number of loops to perform per tick
-hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
-  uint8_t multistep = 1;
+hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
   #if ENABLED(DISABLE_MULTI_STEPPING)
 
     // Just make sure the step rate is doable
@@ -2109,16 +2108,15 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
       (MAX_STEP_ISR_FREQUENCY_128X >> 7)
     };
 
-    // Select the proper multistepping
-    uint8_t idx = 0;
-    while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
+    // Find a doable step rate using multistepping
+    uint8_t multistep = 1;
+    for (uint8_t i = 0; i < 7 && step_rate > uint32_t(pgm_read_dword(&limit[i])); ++i) {
       step_rate >>= 1;
       multistep <<= 1;
-      ++idx;
-    };
+    }
+    steps_per_isr = multistep;
 
   #endif
-  loops = multistep;
 
   return calc_timer_interval(step_rate);
 }
@@ -2176,7 +2174,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // acc_step_rate is in steps/second
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(acc_step_rate << oversampling_factor, steps_per_isr);
+        interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
@@ -2246,7 +2244,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #endif
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(step_rate << oversampling_factor, steps_per_isr);
+        interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
@@ -2308,7 +2306,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // Calculate the ticks_nominal for this nominal speed, if not done yet
         if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
-          ticks_nominal = calc_timer_interval(current_block->nominal_rate << oversampling_factor, steps_per_isr);
+          ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
 
           #if ENABLED(LIN_ADVANCE)
             if (la_active)
@@ -2628,7 +2626,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #endif
 
       // Calculate the initial timer interval
-      interval = calc_timer_interval(current_block->initial_rate << oversampling_factor, steps_per_isr);
+      interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
       acceleration_time += interval;
 
       #if ENABLED(LIN_ADVANCE)
