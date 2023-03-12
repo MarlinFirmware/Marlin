@@ -1094,6 +1094,7 @@ volatile bool Temperature::raw_temps_ready = false;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping() {
+      const millis_t report_interval = 1000UL;
       curr_time_ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
@@ -1102,7 +1103,7 @@ volatile bool Temperature::raw_temps_ready = false;
       }
 
       if (ELAPSED(curr_time_ms, next_report_ms)) {
-        next_report_ms += 1000UL;
+        next_report_ms += report_interval;
 
         print_heater_states(e);
         SERIAL_EOL();
