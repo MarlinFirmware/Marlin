@@ -1195,8 +1195,8 @@ class Temperature {
     #endif
 
     #if ENABLED(MPCTEMP)
-      // Utility class that contains the business logic for auto tuning MPCTEMP
-      class MPC_autotuner{
+      // Utility class that contains the code for performing measurments when auto tuning MPCTEMP
+      class MPC_autotuner {
         public:
           enum MeasurementState {
             CANCELLED,
