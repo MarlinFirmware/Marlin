@@ -189,7 +189,7 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-uint8_t Stepper::steps_per_isr;
+uint8_t Stepper::steps_per_isr;       // Count of steps to perform per Stepper ISR call
 
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
@@ -1996,7 +1996,7 @@ void Stepper::pulse_phase_isr() {
   void Stepper::shaping_isr() {
     xy_bool_t step_needed{0};
 
-    // Clear the echoes that are ready to process. If the buffers are too full and risk overflo, also apply echoes early.
+    // Clear the echoes that are ready to process. If the buffers are too full and risk overflow, also apply echoes early.
     TERN_(INPUT_SHAPING_X, step_needed[X_AXIS] = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
     TERN_(INPUT_SHAPING_Y, step_needed[Y_AXIS] = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
@@ -2047,39 +2047,45 @@ void Stepper::pulse_phase_isr() {
 
 // Calculate timer interval, with all limits applied.
 uint32_t Stepper::calc_timer_interval(uint32_t step_rate) {
+
   #ifdef CPU_32_BIT
-    // In case of high-performance processor, it is able to calculate in real-time
-    return uint32_t(STEPPER_TIMER_RATE) / step_rate;
+
+    return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
+
   #else
+
     // AVR is able to keep up at 30khz Stepping ISR rate.
-    constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
-    if (step_rate <= min_step_rate) {
+    constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
+    if (step_rate <= min_step_rate) { // lower step rates
       step_rate = 0;
-      uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
-      return uint16_t(pgm_read_word(table_address));
+      return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
     }
     else {
       step_rate -= min_step_rate; // Correct for minimal speed
       if (step_rate >= 0x0800) {  // higher step rate
-        const uint8_t rate_mod_256 = (step_rate & 0x00FF);
-        const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)][0]),
-                        gain = uint16_t(pgm_read_word(table_address + 2));
-        return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(rate_mod_256, gain);
+        const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
+        const uint16_t gain = uint16_t(pgm_read_word(table_address + 2));
+        return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(uint8_t(step_rate & 0x00FF), gain);
       }
       else { // lower step rates
-        uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
-        table_address += (step_rate >> 1) & 0xFFFC;
+        const uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[uint8_t(step_rate >> 3)]);
         return uint16_t(pgm_read_word(table_address))
                - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
       }
     }
-  #endif
+
+  #endif // !CPU_32_BIT
 }
 
 // Get the timer interval and the number of loops to perform per tick
 uint32_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
   uint8_t multistep = 1;
-  #if DISABLED(DISABLE_MULTI_STEPPING)
+  #if ENABLED(DISABLE_MULTI_STEPPING)
+
+    // Just make sure the step rate is doable
+    NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
+
+  #else
 
     // The stepping frequency limits for each multistepping rate
     static const uint32_t limit[] PROGMEM = {
@@ -2100,18 +2106,18 @@ uint32_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
       multistep <<= 1;
       ++idx;
     };
-  #else
-    NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
+
   #endif
   loops = multistep;
 
   return calc_timer_interval(step_rate);
 }
 
-// This is the last half of the stepper interrupt: This one processes and
-// properly schedules blocks from the planner. This is executed after creating
-// the step pulses, so it is not time critical, as pulses are already done.
-
+/**
+ * This last phase of the stepper interrupt processes and properly
+ * schedules planner blocks. This is executed after the step pulses
+ * have been done, so it is less time critical.
+ */
 uint32_t Stepper::block_phase_isr() {
 
   // If no queued movements, just wait 1ms for the next block
@@ -2555,7 +2561,7 @@ uint32_t Stepper::block_phase_isr() {
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
         if (current_block->la_advance_rate) {
-          // apply LA scaling and discount the effect of frequency scaling
+          // Apply LA scaling and discount the effect of frequency scaling
           la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
         }
       #endif
@@ -2597,7 +2603,7 @@ uint32_t Stepper::block_phase_isr() {
         if (current_block->steps.z) enable_axis(Z_AXIS);
       #endif
 
-      // Mark the time_nominal as not calculated yet
+      // Mark ticks_nominal as not-yet-calculated
       ticks_nominal = -1;
 
       #if ENABLED(S_CURVE_ACCELERATION)
@@ -2635,8 +2641,8 @@ uint32_t Stepper::block_phase_isr() {
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
     la_delta_error += la_dividend;
-    const bool step_needed = la_delta_error >= 0;
-    if (step_needed) {
+    const bool e_step_needed = la_delta_error >= 0;
+    if (e_step_needed) {
       count_position.e += count_direction.e;
       la_advance_steps += count_direction.e;
       la_delta_error -= advance_divisor;
@@ -2647,7 +2653,7 @@ uint32_t Stepper::block_phase_isr() {
 
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
-    if (step_needed) {
+    if (e_step_needed) {
       // Enforce a minimum duration for STEP pulse ON
       #if ISR_PULSE_CONTROL
         USING_TIMED_PULSE();
