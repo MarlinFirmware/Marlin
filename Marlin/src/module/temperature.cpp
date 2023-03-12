@@ -953,7 +953,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);    
   }
 
-  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measureAmbientTemperature() {
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_ambient_temp() {
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
     ambient_temp = current_temp;
 
@@ -976,7 +976,7 @@ volatile bool Temperature::raw_temps_ready = false;
     return SUCCESS;   
   }
 
-  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measureHeatup() {
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 1000UL;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
@@ -1020,6 +1020,8 @@ volatile bool Temperature::raw_temps_ready = false;
     elapsed_heating_time = float(ms - heat_start_time) / 1000.0f;
 
     // Ensure sample count is odd so that we have 3 equally spaced samples
+    if (sample_count == 0)
+      return FAILED;
     if (sample_count%2 == 0)
       sample_count--;
 
@@ -1072,7 +1074,7 @@ volatile bool Temperature::raw_temps_ready = false;
         SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
         TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_TEMP_ERROR));
         wait_for_heatup = false;
-        return CANCELLED;
+        return FAILED;
       }
     }
     wait_for_heatup = false;
@@ -1141,7 +1143,7 @@ volatile bool Temperature::raw_temps_ready = false;
       LCD_MESSAGE(MSG_COOLING);
     #endif
 
-    if (tuner.measureAmbientTemperature() != MPC_autotuner::MeasurementState::SUCCESS) return;
+    if (tuner.measure_ambient_temp() != MPC_autotuner::MeasurementState::SUCCESS) return;
     hotend.modeled_ambient_temp = tuner.get_ambient_temp();
 
     #if HAS_FAN
@@ -1153,7 +1155,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_HEATING_PAST_200);
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
 
-    if (tuner.measureHeatup() != MPC_autotuner::MeasurementState::SUCCESS) return;
+    if (tuner.measure_heatup() != MPC_autotuner::MeasurementState::SUCCESS) return;
 
     // Calculate physical constants from three equally-spaced samples
     const float t1 = tuner.sample_1_temp(),
@@ -1179,7 +1181,6 @@ volatile bool Temperature::raw_temps_ready = false;
     if (tuner.measure_transfer() != MPC_autotuner::MeasurementState::SUCCESS) return;
 
     mpc.ambient_xfer_coeff_fan0 = tuner.get_power_fan0() / (hotend.target - tuner.get_ambient_temp());
-
     #if HAS_FAN
       const float ambient_xfer_coeff_fan255 = tuner.get_power_fan255() / (hotend.target - tuner.get_ambient_temp());
       mpc.applyFanAdjustment(ambient_xfer_coeff_fan255);

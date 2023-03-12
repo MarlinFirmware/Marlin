@@ -1200,12 +1200,13 @@ class Temperature {
         public:
           enum MeasurementState {
             CANCELLED,
+            FAILED,
             SUCCESS
           };
           MPC_autotuner(const uint8_t extruderIdx);
           ~MPC_autotuner();
-          MeasurementState measureAmbientTemperature();
-          MeasurementState measureHeatup();
+          MeasurementState measure_ambient_temp();
+          MeasurementState measure_heatup();
           MeasurementState measure_transfer();
           // TODO: This can be protected once the bulk of logic is in this class
           MeasurementState housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
