@@ -955,7 +955,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_ambient_temp() {
     init_timers();
-    millis_t next_test_ms = curr_time_ms + 10000UL;
+    const millis_t test_interval = 10000UL;
+    millis_t next_test_ms = curr_time_ms + test_interval;
     ambient_temp = current_temp;
 
     current_temp = degHotend(e);
@@ -969,7 +970,7 @@ volatile bool Temperature::raw_temps_ready = false;
           break;
         }
         ambient_temp = current_temp;
-        next_test_ms += 10000UL;
+        next_test_ms += test_interval;
       }
     }
     wait_for_heatup = false;
@@ -979,7 +980,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
     init_timers();
-    millis_t next_test_ms = curr_time_ms + 1000UL;
+    const millis_t test_interval = 1000UL;
+    millis_t next_test_ms = curr_time_ms + test_interval;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
     current_temp = degHotend(e);
@@ -1012,7 +1014,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
         if (current_temp >= 200.0f) break;
 
-        next_test_ms += 1000UL * sample_distance;
+        next_test_ms += test_interval * sample_distance;
       }
     }
     wait_for_heatup = false;
@@ -1032,6 +1034,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_transfer() {
     init_timers();
+    const millis_t test_interval = 1000UL;
+
     millis_t next_test_ms = curr_time_ms + MPC_dT * 1000;
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
