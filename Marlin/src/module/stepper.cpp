@@ -1913,8 +1913,8 @@ void Stepper::pulse_phase_isr() {
 
       #if HAS_SHAPING
         // record an echo if a step is needed in the primary bresenham
-        const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed.x),
-                   y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed.y);
+        const bool x_step = TERN0(INPUT_SHAPING_X, step_needed.x && shaping_x.enabled),
+                   y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled);
         if (x_step || y_step)
           ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
 

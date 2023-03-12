@@ -138,7 +138,7 @@
   #define ISR_LOOP_BASE_CYCLES 32UL
 
   // And each stepper (start + stop pulse) takes in worst case
-  #define ISR_STEPPER_CYCLES 68UL
+  #define ISR_STEPPER_CYCLES 60UL
 
 #endif
 
@@ -382,16 +382,34 @@ constexpr ena_mask_t enable_overlap[] = {
         TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
       }
       static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
-        TERN_(INPUT_SHAPING_X, if (head_x == tail && x_step) peek_x_val = delay_x);
-        TERN_(INPUT_SHAPING_Y, if (head_y == tail && y_step) peek_y_val = delay_y);
+        #if ENABLED(INPUT_SHAPING_X)
+          if (x_step) {
+            if (head_x == tail) peek_x_val = delay_x;
+            echo_axes[tail].x = x_forward ? ECHO_FWD : ECHO_BWD;
+            _free_count_x--;
+          } else {
+            echo_axes[tail].x = ECHO_NONE;
+            if (head_x == tail) {
+              if (++head_x == shaping_echoes) head_x = 0;
+            } else
+              _free_count_x--;
+          }
+        #endif
+        #if ENABLED(INPUT_SHAPING_Y)
+          if (y_step) {
+            if (head_y == tail) peek_y_val = delay_y;
+            echo_axes[tail].y = y_forward ? ECHO_FWD : ECHO_BWD;
+            _free_count_y--;
+          } else {
+            echo_axes[tail].y = ECHO_NONE;
+            if (head_y == tail) {
+              if (++head_y == shaping_echoes) head_y = 0;
+            } else
+              _free_count_y--;
+          }
+        #endif
         times[tail] = now;
-        TERN_(INPUT_SHAPING_X, echo_axes[tail].x = x_step ? (x_forward ? ECHO_FWD : ECHO_BWD) : ECHO_NONE);
-        TERN_(INPUT_SHAPING_Y, echo_axes[tail].y = y_step ? (y_forward ? ECHO_FWD : ECHO_BWD) : ECHO_NONE);
         if (++tail == shaping_echoes) tail = 0;
-        TERN_(INPUT_SHAPING_X, _free_count_x--);
-        TERN_(INPUT_SHAPING_Y, _free_count_y--);
-        TERN_(INPUT_SHAPING_X, if (echo_axes[head_x].x == ECHO_NONE) dequeue_x());
-        TERN_(INPUT_SHAPING_Y, if (echo_axes[head_y].y == ECHO_NONE) dequeue_y());
       }
       #if ENABLED(INPUT_SHAPING_X)
         static shaping_time_t peek_x() { return peek_x_val; }
@@ -435,11 +453,11 @@ constexpr ena_mask_t enable_overlap[] = {
   struct ShapeParams {
     float frequency;
     float zeta;
-    bool enabled;
+    bool enabled : 1;
+    bool forward : 1;
     int16_t delta_error = 0;    // delta_error for seconday bresenham mod 128
     uint8_t factor1;
     uint8_t factor2;
-    bool forward;
     int32_t last_block_end_pos = 0;
   };
 
