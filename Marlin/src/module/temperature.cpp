@@ -1034,9 +1034,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_transfer() {
     init_timers();
-    const millis_t test_interval = 1000UL;
-
-    millis_t next_test_ms = curr_time_ms + MPC_dT * 1000;
+    const millis_t test_interval = SEC_TO_MS(MPC_dT);
+    millis_t next_test_ms = curr_time_ms + test_interval;
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
 
@@ -1073,7 +1072,7 @@ volatile bool Temperature::raw_temps_ready = false;
         else if (ELAPSED(curr_time_ms, test_end_ms)) break;
 
         last_temp = current_temp;
-        next_test_ms += MPC_dT * 1000;
+        next_test_ms += test_interval;
       }
 
       // Ensure we don't drift too far from the window between the last sampled temp and the target temperature
