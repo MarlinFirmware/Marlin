@@ -574,6 +574,7 @@ class Stepper {
       static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
                          la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
                          la_advance_steps; // Count of steps added to increase nozzle pressure
+      static bool        la_active;        // Whether linear advance is used on the present segment.
     #endif
 
     #if ENABLED(INTEGRATED_BABYSTEPPING)
