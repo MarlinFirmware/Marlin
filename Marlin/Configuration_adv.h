@@ -1,71 +1,6 @@
-/**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- */
 #pragma once
-
-/**
- * Configuration_adv.h
- *
- * Advanced settings.
- * Only change these if you know exactly what you're doing.
- * Some of these settings can damage your printer if improperly set!
- *
- * Basic settings can be found in Configuration.h
- */
 #define CONFIGURATION_ADV_H_VERSION 02010300
 
-// @section develop
-
-/**
- * Configuration Export
- *
- * Export the configuration as part of the build. (See signature.py)
- * Output files are saved with the build (e.g., .pio/build/mega2560).
- *
- * See `build_all_examples --ini` as an example of config.ini archiving.
- *
- *  1 = marlin_config.json - Dictionary containing the configuration.
- *      This file is also generated for CONFIGURATION_EMBEDDING.
- *  2 = config.ini - File format for PlatformIO preprocessing.
- *  3 = schema.json - The entire configuration schema. (13 = pattern groups)
- *  4 = schema.yml - The entire configuration schema.
- */
-//#define CONFIG_EXPORT 2 // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml']
-
-//===========================================================================
-//============================= Thermal Settings ============================
-//===========================================================================
-// @section temperature
-
-/**
- * Thermocouple sensors are quite sensitive to noise.  Any noise induced in
- * the sensor wires, such as by stepper motor wires run in parallel to them,
- * may result in the thermocouple sensor reporting spurious errors.  This
- * value is the number of errors which can occur in a row before the error
- * is reported.  This allows us to ignore intermittent error conditions while
- * still detecting an actual failure, which should result in a continuous
- * stream of errors from the sensor.
- *
- * Set this value to 0 to fail on the first error to occur.
- */
 #define THERMOCOUPLE_MAX_ERRORS 15
 
 //
@@ -169,30 +104,6 @@
   #define REDUNDANT_SH_C_COEFF               0 // Steinhart-Hart C coefficient
 #endif
 
-/**
- * Thermocouple Options — for MAX6675 (-2), MAX31855 (-3), and MAX31865 (-5).
- */
-//#define TEMP_SENSOR_FORCE_HW_SPI                // Ignore SCK/MOSI/MISO pins; use CS and the default SPI bus.
-//#define MAX31865_SENSOR_WIRES_0 2               // (2-4) Number of wires for the probe connected to a MAX31865 board.
-//#define MAX31865_SENSOR_WIRES_1 2
-//#define MAX31865_SENSOR_WIRES_2 2
-
-//#define MAX31865_50HZ_FILTER                    // Use a 50Hz filter instead of the default 60Hz.
-//#define MAX31865_USE_READ_ERROR_DETECTION       // Treat value spikes (20°C delta in under 1s) as read errors.
-
-//#define MAX31865_USE_AUTO_MODE                  // Read faster and more often than 1-shot; bias voltage always on; slight effect on RTD temperature.
-//#define MAX31865_MIN_SAMPLING_TIME_MSEC     100 // (ms) 1-shot: minimum read interval. Reduces bias voltage effects by leaving sensor unpowered for longer intervals.
-//#define MAX31865_IGNORE_INITIAL_FAULTY_READS 10 // Ignore some read faults (keeping the temperature reading) to work around a possible issue (#23439).
-
-//#define MAX31865_WIRE_OHMS_0              0.95f // For 2-wire, set the wire resistances for more accurate readings.
-//#define MAX31865_WIRE_OHMS_1              0.0f
-//#define MAX31865_WIRE_OHMS_2              0.0f
-
-/**
- * Hephestos 2 24V heated bed upgrade kit.
- * https://store.bq.com/en/heated-bed-kit-hephestos2
- */
-//#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef TEMP_SENSOR_BED
   #define TEMP_SENSOR_BED 70
