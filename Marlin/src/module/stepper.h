@@ -459,6 +459,7 @@ constexpr ena_mask_t enable_overlap[] = {
 // Stepper class definition
 //
 class Stepper {
+  friend class Max7219;
   friend void stepperTask(void *);
 
   public:
