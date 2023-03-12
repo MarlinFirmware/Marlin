@@ -249,7 +249,7 @@
 
 // The minimum step ISR rate used by ADAPTIVE_STEP_SMOOTHING to target 50% CPU usage
 // This does not account for the possibility of multi-stepping.
-// Perhaps DISABLE_MULTI_STEPPING should be required with ADAPTIVE_STEP_SMOOTHING.
+// Should a MULTISTEPPING_LIMIT of 1 should be required with ADAPTIVE_STEP_SMOOTHING?
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)

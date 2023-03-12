@@ -189,8 +189,9 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
+
 #if MULTISTEPPING_LIMIT > 1
-  uint8_t Stepper::steps_per_isr = 1;
+  uint8_t Stepper::steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
 #endif
 hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 
@@ -1522,7 +1523,7 @@ void Stepper::isr() {
     #endif
 
     // Get the interval to the next ISR call
-    const uint32_t interval = _MIN(
+    const hal_timer_t interval = _MIN(
       hal_timer_t(HAL_TIMER_TYPE_MAX),                        // Come back in a very long time
       nextMainISR                                             // Time until the next Pulse / Block phase
       OPTARG(INPUT_SHAPING_X, ShapingQueue::peek_x())         // Time until next input shaping echo for X
@@ -1841,10 +1842,10 @@ void Stepper::pulse_phase_isr() {
 
         #elif STEPPER_PAGE_FORMAT == SP_4x1_512
 
-          #define PAGE_PULSE_PREP(AXIS, BITS) do{                 \
-            step_needed.set(_AXIS(AXIS), (steps >> BITS) & 0x1);  \
-            if (step_needed.test(_AXIS(AXIS)))                    \
-              page_step_state.bd[_AXIS(AXIS)]++;                  \
+          #define PAGE_PULSE_PREP(AXIS, NBIT) do{            \
+            step_needed.set(_AXIS(AXIS), TEST(steps, NBIT)); \
+            if (step_needed.test(_AXIS(AXIS)))               \
+              page_step_state.bd[_AXIS(AXIS)]++;             \
           }while(0)
 
           uint8_t steps = page_step_state.page[page_step_state.segment_idx >> 1];
@@ -2029,7 +2030,7 @@ void Stepper::pulse_phase_isr() {
   void Stepper::shaping_isr() {
     AxisFlags step_needed{0};
 
-    // Clear the echoes that are ready to process. If the buffers are too full and risk overflo, also apply echoes early.
+    // Clear the echoes that are ready to process. If the buffers are too full and risk overflow, also apply echoes early.
     TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
     TERN_(INPUT_SHAPING_Y, step_needed.y = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
 
@@ -2080,6 +2081,7 @@ void Stepper::pulse_phase_isr() {
 
 // Calculate timer interval, with all limits applied.
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
+
   #ifdef CPU_32_BIT
 
     return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
@@ -2090,15 +2092,14 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
     constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
     if (step_rate >= 0x0800) {  // higher step rate
       const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
-      const uint16_t b = uint16_t(pgm_read_word(table_address));
-      const uint8_t a = uint8_t(pgm_read_byte(table_address + 2));
-      const uint8_t rate_mod_256 = (step_rate & 0x00FF);
-      return b - MultiU8X8toH8(rate_mod_256, a);
+      const uint16_t base = uint16_t(pgm_read_word(table_address));
+      const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
+      const uint8_t rate_mod_256 = step_rate & 0x00FF;
+      return base - MultiU8X8toH8(rate_mod_256, gain);
     }
     else if (step_rate > min_step_rate) { // lower step rates
       step_rate -= min_step_rate; // Correct for minimal speed
-      uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[0][0]);
-      table_address += (step_rate >> 1) & 0xFFFC;
+      const uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[uint8_t(step_rate >> 3)]);
       return uint16_t(pgm_read_word(table_address))
              - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
     }
@@ -2108,7 +2109,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
       return uint16_t(pgm_read_word(table_address));
     }
 
-  #endif
+  #endif // !CPU_32_BIT
 }
 
 // Get the timer interval and the number of loops to perform per tick
