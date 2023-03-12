@@ -387,11 +387,13 @@ constexpr ena_mask_t enable_overlap[] = {
             if (head_x == tail) peek_x_val = delay_x;
             echo_axes[tail].x = x_forward ? ECHO_FWD : ECHO_BWD;
             _free_count_x--;
-          } else {
+          }
+          else {
             echo_axes[tail].x = ECHO_NONE;
             if (head_x == tail) {
               if (++head_x == shaping_echoes) head_x = 0;
-            } else
+            }
+            else
               _free_count_x--;
           }
         #endif
@@ -400,11 +402,13 @@ constexpr ena_mask_t enable_overlap[] = {
             if (head_y == tail) peek_y_val = delay_y;
             echo_axes[tail].y = y_forward ? ECHO_FWD : ECHO_BWD;
             _free_count_y--;
-          } else {
+          }
+          else {
             echo_axes[tail].y = ECHO_NONE;
             if (head_y == tail) {
               if (++head_y == shaping_echoes) head_y = 0;
-            } else
+            }
+            else
               _free_count_y--;
           }
         #endif
