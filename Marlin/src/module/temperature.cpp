@@ -1031,6 +1031,7 @@ volatile bool Temperature::raw_temps_ready = false;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_transfer() {
+    init_timers();
     millis_t next_test_ms = curr_time_ms + MPC_dT * 1000;
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
