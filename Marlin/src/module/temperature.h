@@ -1212,14 +1212,14 @@ class Temperature {
           MeasurementState housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
 
           celsius_float_t get_ambient_temp() { return ambient_temp; }
-          celsius_float_t last_sampled_temp() { return current_temp; }
+          celsius_float_t get_last_measured_temp() { return current_temp; }
 
           float get_elapsed_heating_time() { return elapsed_heating_time; }
-          float sample_1_time() { return t1_time; }
-          float sample_1_temp() { return temp_samples[0]; }
-          float sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
-          float sample_3_temp() { return temp_samples[sample_count - 1]; }
-          float sample_interval() { return sample_distance * (sample_count >> 1); }
+          float get_sample_1_time() { return t1_time; }
+          float get_sample_1_temp() { return temp_samples[0]; }
+          float get_sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
+          float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
+          float get_sample_interval() { return sample_distance * (sample_count >> 1); }
 
           float get_power_fan0() { return power_fan0; }
           #if HAS_FAN
