@@ -111,7 +111,7 @@
   #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
 
   // The base ISR
-  #define ISR_BASE_CYCLES  996UL
+  #define ISR_BASE_CYCLES  882UL
 
   // Linear advance base time is 32 cycles
   #if ENABLED(LIN_ADVANCE)
@@ -138,7 +138,7 @@
   #define ISR_LOOP_BASE_CYCLES 32UL
 
   // And each stepper (start + stop pulse) takes in worst case
-  #define ISR_STEPPER_CYCLES 88UL
+  #define ISR_STEPPER_CYCLES 60UL
 
 #endif
 
