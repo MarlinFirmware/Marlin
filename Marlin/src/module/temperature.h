@@ -1208,8 +1208,6 @@ class Temperature {
           MeasurementState measure_ambient_temp();
           MeasurementState measure_heatup();
           MeasurementState measure_transfer();
-          // TODO: This can be protected once the bulk of logic is in this class
-          MeasurementState housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
 
           celsius_float_t get_ambient_temp() { return ambient_temp; }
           celsius_float_t get_last_measured_temp() { return current_temp; }
@@ -1226,7 +1224,9 @@ class Temperature {
             float get_power_fan255() { return power_fan255; }
           #endif
 
-        private:
+        protected:
+          MeasurementState housekeeping(millis_t &ms, millis_t &next_report_ms);
+
           uint8_t e;
 
           float elapsed_heating_time;
