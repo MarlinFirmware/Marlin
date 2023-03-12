@@ -1225,8 +1225,10 @@ class Temperature {
           #endif
 
         protected:
-          MeasurementState housekeeping(millis_t &ms, millis_t &next_report_ms);
+          void init_timers() { ms = next_report_ms = millis(); }
+          MeasurementState housekeeping();
 
+          millis_t ms, next_report_ms;
           uint8_t e;
 
           float elapsed_heating_time;
