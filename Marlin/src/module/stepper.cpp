@@ -2113,10 +2113,12 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
-  uint8_t loops = steps_per_isr;
-  if (loops >= 16) { step_rate >>= 4; loops >>= 4; }
-  if (loops >=  4) { step_rate >>= 2; loops >>= 2; }
-  if (loops >=  2) { step_rate >>= 1; }
+  #if MULTISTEPPING_LIMIT > 1
+    uint8_t loops = steps_per_isr;
+    if (MULTISTEPPING_LIMIT >= 16 && loops >= 16) { step_rate >>= 4; loops >>= 4; }
+    if (MULTISTEPPING_LIMIT >=  4 && loops >=  4) { step_rate >>= 2; loops >>= 2; }
+    if (MULTISTEPPING_LIMIT >=  2 && loops >=  2) { step_rate >>= 1; }
+  #endif
 
   return calc_timer_interval(step_rate);
 }
