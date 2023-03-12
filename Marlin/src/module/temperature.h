@@ -1198,12 +1198,16 @@ class Temperature {
       // Utility class that contains the business logic for auto tuning MPCTEMP
       class MPC_autotuner{
         public:
+          enum MeasurementState {
+            CANCELLED,
+            SUCCESS
+          };
           MPC_autotuner(const uint8_t extruderIdx);
           ~MPC_autotuner();
-          bool measureAmbientTemperature();
-          bool measureHeatup();
+          MeasurementState measureAmbientTemperature();
+          MeasurementState measureHeatup();
           // TODO: This can be protected once the bulk of logic is in this class
-          bool housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
+          MeasurementState housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms);
 
           celsius_float_t get_ambient_temp() { return ambient_temp; }
           celsius_float_t last_sampled_temp() { return current_temp; }

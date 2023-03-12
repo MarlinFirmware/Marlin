@@ -953,14 +953,14 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);    
   }
 
-  bool Temperature::MPC_autotuner::measureAmbientTemperature() {
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measureAmbientTemperature() {
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
     ambient_temp = current_temp;
 
     current_temp = degHotend(e);
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, next_report_ms)) return false;
+      if (housekeeping(ms, e, next_report_ms)) return MeasurementState::CANCELLED;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -973,10 +973,10 @@ volatile bool Temperature::raw_temps_ready = false;
     }
     wait_for_heatup = false;
 
-    return true;   
+    return MeasurementState::SUCCESS;   
   }
 
-  bool Temperature::MPC_autotuner::measureHeatup() {
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measureHeatup() {
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 1000UL;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
@@ -991,7 +991,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, e, next_report_ms)) return false;
+      if (housekeeping(ms, e, next_report_ms)) return MeasurementState::CANCELLED;
 
       if (ELAPSED(ms, next_test_ms)) {
         // Record samples between 100C and 200C
@@ -1023,10 +1023,10 @@ volatile bool Temperature::raw_temps_ready = false;
     if (sample_count%2 == 0)
       sample_count--;
 
-    return true;
+    return MeasurementState::SUCCESS;
   }
 
-  bool Temperature::MPC_autotuner::housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms) {
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms) {
       ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
@@ -1048,10 +1048,10 @@ volatile bool Temperature::raw_temps_ready = false;
         SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
         TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
-        return true;
+        return MeasurementState::CANCELLED;
       }
 
-      return false;
+      return MeasurementState::SUCCESS;
     };
 
   void Temperature::MPC_autotune(const uint8_t e) {
@@ -1082,7 +1082,7 @@ volatile bool Temperature::raw_temps_ready = false;
       LCD_MESSAGE(MSG_COOLING);
     #endif
 
-    if (!tuner.measureAmbientTemperature()) return;
+    if (tuner.measureAmbientTemperature() != MPC_autotuner::MeasurementState::SUCCESS) return;
     hotend.modeled_ambient_temp = tuner.get_ambient_temp();
 
     #if HAS_FAN
@@ -1094,7 +1094,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_HEATING_PAST_200);
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_HEATING_PAST_200), LCD_MESSAGE(MSG_HEATING));
 
-    if (!tuner.measureHeatup()) return;
+    if (tuner.measureHeatup() != MPC_autotuner::MeasurementState::SUCCESS) return;
 
     // Calculate physical constants from three equally-spaced samples
     const float t1 = tuner.sample_1_temp(),
