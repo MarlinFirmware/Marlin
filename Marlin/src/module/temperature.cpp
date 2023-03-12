@@ -1170,7 +1170,7 @@ volatile bool Temperature::raw_temps_ready = false;
     mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
 
     hotend.modeled_block_temp = asymp_temp + (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_elapsed_heating_time());
-    hotend.modeled_sensor_temp = tuner.get_last_sampled_temp();
+    hotend.modeled_sensor_temp = tuner.get_last_measured_temp();
 
     // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
