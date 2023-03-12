@@ -1026,6 +1026,65 @@ volatile bool Temperature::raw_temps_ready = false;
     return SUCCESS;
   }
 
+  Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_transfer() {
+    millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + MPC_dT * 1000;
+    MPCHeaterInfo &hotend = temp_hotend[e];
+    MPC_t &mpc = hotend.mpc;
+
+    constexpr millis_t settle_time = 20000UL, test_duration = 20000UL;
+    millis_t settle_end_ms = ms + settle_time,
+             test_end_ms = settle_end_ms + test_duration;
+    float total_energy_fan0 = 0.0f;
+    #if HAS_FAN
+      bool fan0_done = false;
+      float total_energy_fan255 = 0.0f;
+    #endif
+    float last_temp = current_temp;
+
+    wait_for_heatup = true;
+    for (;;) { // Can be interrupted with M108
+      if (housekeeping(ms, e, next_report_ms) == CANCELLED) return CANCELLED;
+
+      if (ELAPSED(ms, next_test_ms)) {
+        hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
+
+        if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
+          total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
+        #if HAS_FAN
+          else if (ELAPSED(ms, test_end_ms) && !fan0_done) {
+            set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
+            planner.sync_fan_speeds(fan_speed);
+            settle_end_ms = ms + settle_time;
+            test_end_ms = settle_end_ms + test_duration;
+            fan0_done = true;
+          }
+          else if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms))
+            total_energy_fan255 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
+        #endif
+        else if (ELAPSED(ms, test_end_ms)) break;
+
+        last_temp = current_temp;
+        next_test_ms += MPC_dT * 1000;
+      }
+
+      // Ensure we don't drift too far from the window between the last sampled temp and the target temperature
+      if (!WITHIN(current_temp, sample_3_temp() - 15.0f, hotend.target + 15.0f)) {
+        SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
+        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_TEMP_ERROR));
+        wait_for_heatup = false;
+        return CANCELLED;
+      }
+    }
+    wait_for_heatup = false;
+
+    power_fan0 = total_energy_fan0 * 1000 / test_duration;
+    #if HAS_FAN
+      power_fan255 = total_energy_fan255 * 1000 / test_duration;
+    #endif
+
+    return SUCCESS;
+  }
+
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping(millis_t &ms, const uint8_t e, millis_t &next_report_ms) {
       ms = millis();
 
@@ -1115,59 +1174,14 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_MEASURING_AMBIENT), LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT));
 
-// extract this fn!
-    millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + MPC_dT * 1000;
+    // Use the estimated overshoot of the temperature as the target to achieve.
     hotend.target = hotend.modeled_block_temp;
-    constexpr millis_t settle_time = 20000UL, test_duration = 20000UL;
-    millis_t settle_end_ms = ms + settle_time,
-             test_end_ms = settle_end_ms + test_duration;
-    float total_energy_fan0 = 0.0f;
-    #if HAS_FAN
-      bool fan0_done = false;
-      float total_energy_fan255 = 0.0f;
-    #endif
-    float last_temp = current_temp;
+    if (tuner.measure_transfer() != MPC_autotuner::MeasurementState::SUCCESS) return;
 
-    wait_for_heatup = true;
-    for (;;) { // Can be interrupted with M108
-      if (tuner.housekeeping(ms, e, current_temp, next_report_ms)) return;
-
-      if (ELAPSED(ms, next_test_ms)) {
-        hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
-
-        if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
-          total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
-        #if HAS_FAN
-          else if (ELAPSED(ms, test_end_ms) && !fan0_done) {
-            set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
-            planner.sync_fan_speeds(fan_speed);
-            settle_end_ms = ms + settle_time;
-            test_end_ms = settle_end_ms + test_duration;
-            fan0_done = true;
-          }
-          else if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms))
-            total_energy_fan255 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
-        #endif
-        else if (ELAPSED(ms, test_end_ms)) break;
-
-        last_temp = current_temp;
-        next_test_ms += MPC_dT * 1000;
-      }
-
-      if (!WITHIN(current_temp, t3 - 15.0f, hotend.target + 15.0f)) {
-        SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
-        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_TEMP_ERROR));
-        break;
-      }
-    }
-    wait_for_heatup = false;
-
-    const float power_fan0 = total_energy_fan0 * 1000 / test_duration;
-    mpc.ambient_xfer_coeff_fan0 = power_fan0 / (hotend.target - tuner.get_ambient_temp());
+    mpc.ambient_xfer_coeff_fan0 = tuner.get_power_fan0() / (hotend.target - tuner.get_ambient_temp());
 
     #if HAS_FAN
-      const float power_fan255 = total_energy_fan255 * 1000 / test_duration,
-                  ambient_xfer_coeff_fan255 = power_fan255 / (hotend.target - tuner.get_ambient_temp());
+      const float ambient_xfer_coeff_fan255 = tuner.get_power_fan255() / (hotend.target - tuner.get_ambient_temp());
       mpc.applyFanAdjustment(ambient_xfer_coeff_fan255);
     #endif
 
