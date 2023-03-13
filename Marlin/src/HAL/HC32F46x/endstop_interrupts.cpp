@@ -1,5 +1,5 @@
 #include "endstop_interrupts.h"
-#include "../module/endstops.h"
+#include "../../module/endstops.h"
 #include "interrupts.h"
 
 // Z_MIN_PROBE does not follow the same naming as all other pins...

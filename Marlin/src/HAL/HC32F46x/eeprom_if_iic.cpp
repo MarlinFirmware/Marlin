@@ -25,11 +25,11 @@
  * Enable USE_SHARED_EEPROM if not supplied by the framework.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
 
-#include "../libs/BL24CXX.h"
+#include "../../libs/BL24CXX.h"
 #include "../shared/eeprom_if.h"
 
 void eeprom_init()

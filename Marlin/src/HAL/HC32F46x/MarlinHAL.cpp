@@ -5,7 +5,7 @@
 
 #include "HAL.h"
 #include "hc32f46x_wdt.h"
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 #include "soctemp.h"
 
 extern "C" char *_sbrk(int incr);

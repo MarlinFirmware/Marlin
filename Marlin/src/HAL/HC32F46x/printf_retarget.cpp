@@ -1,5 +1,5 @@
 #ifdef REDIRECT_PRINTF_TO_SERIAL
-#include "inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifndef PRINTF_TARGET
 #define PRINTF_TARGET MYSERIAL1

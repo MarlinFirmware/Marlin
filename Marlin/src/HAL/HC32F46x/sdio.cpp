@@ -1,6 +1,6 @@
 #ifdef TARGET_HC32F46x
 #include "sdio.h"
-#include "sd_card.h"
+#include <drivers/sdio/sd_card.h>
 
 #define SDIO_INTERFACE M4_SDIOC1
 
