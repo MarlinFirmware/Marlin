@@ -4042,16 +4042,17 @@
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
    */
-  #define MAX7219_DEBUG_PRINTER_ALIVE    // Blink corner LED of 8x8 matrix to show that the firmware is functioning
-  #define MAX7219_DEBUG_PLANNER_HEAD  2  // Show the planner queue head position on this and the next LED matrix row
-  #define MAX7219_DEBUG_PLANNER_TAIL  4  // Show the planner queue tail position on this and the next LED matrix row
+  #define MAX7219_DEBUG_PRINTER_ALIVE     // Blink corner LED of 8x8 matrix to show that the firmware is functioning
+  #define MAX7219_DEBUG_PLANNER_HEAD  2   // Show the planner queue head position on this and the next LED matrix row
+  #define MAX7219_DEBUG_PLANNER_TAIL  4   // Show the planner queue tail position on this and the next LED matrix row
 
-  #define MAX7219_DEBUG_PLANNER_QUEUE 0  // Show the current planner queue depth on this and the next LED matrix row
-                                         // If you experience stuttering, reboots, etc. this option can reveal how
-                                         // tweaks made to the configuration are affecting the printer in real-time.
-  #define MAX7219_DEBUG_PROFILE       6  // Display the fraction of CPU time spent in profiled code on this LED matrix
-                                         // row. By default idle() is profiled so this shows how "idle" the processor is.
-                                         // See class CodeProfiler.
+  #define MAX7219_DEBUG_PLANNER_QUEUE 0   // Show the current planner queue depth on this and the next LED matrix row
+                                          // If you experience stuttering, reboots, etc. this option can reveal how
+                                          // tweaks made to the configuration are affecting the printer in real-time.
+  #define MAX7219_DEBUG_PROFILE       6   // Display the fraction of CPU time spent in profiled code on this LED matrix
+                                          // row. By default idle() is profiled so this shows how "idle" the processor is.
+                                          // See class CodeProfiler.
+  //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multistepping 1 to 128 on this LED matrix row.
 #endif
 
 /**
