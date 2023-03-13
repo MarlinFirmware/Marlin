@@ -539,6 +539,7 @@ class Stepper {
     #else
       static uint8_t steps_per_isr;
     #endif
+
     static hal_timer_t time_spent_in_isr, time_spent_out_isr;
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)

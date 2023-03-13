@@ -193,6 +193,7 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 #if MULTISTEPPING_LIMIT > 1
   uint8_t Stepper::steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
 #endif
+
 hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 
 #if ENABLED(FREEZE_FEATURE)
@@ -2094,8 +2095,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
       const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
       const uint16_t base = uint16_t(pgm_read_word(table_address));
       const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
-      const uint8_t rate_mod_256 = step_rate & 0x00FF;
-      return base - MultiU8X8toH8(rate_mod_256, gain);
+      return base - MultiU8X8toH8(uint8_t(step_rate & 0x00FF), gain);
     }
     else if (step_rate > min_step_rate) { // lower step rates
       step_rate -= min_step_rate; // Correct for minimal speed
@@ -2105,8 +2105,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
     }
     else {
       step_rate = 0;
-      const uintptr_t table_address = (uintptr_t)&speed_lookuptable_slow[0][0];
-      return uint16_t(pgm_read_word(table_address));
+      return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
     }
 
   #endif // !CPU_32_BIT
