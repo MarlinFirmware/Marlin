@@ -304,8 +304,8 @@
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
   //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
-  #if BOTH(ADAPTIVE_FAN_SLOWING, PIDTEMP)
-    //#define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
+  #if ENABLED(ADAPTIVE_FAN_SLOWING) && EITHER(MPCTEMP, PIDTEMP)
+    //#define TEMP_TUNING_MAINTAIN_FAN        // Don't slow fan speed during M303 or M306 T
   #endif
 
   /**
@@ -843,20 +843,20 @@
   //#define Z_MULTI_ENDSTOPS          // Other Z axes have their own endstops
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z2_USE_ENDSTOP   _XMAX_   // Z2 endstop board plug. Don't forget to enable USE_*_PLUG.
-    #define Z2_ENDSTOP_ADJUSTMENT 0   // Z2 offset relative to Y endstop
+    #define Z2_ENDSTOP_ADJUSTMENT 0   // Z2 offset relative to Z endstop
   #endif
   #ifdef Z3_DRIVER_TYPE
     //#define INVERT_Z3_VS_Z_DIR      // Z3 direction signal is the opposite of Z
     #if ENABLED(Z_MULTI_ENDSTOPS)
       #define Z3_USE_ENDSTOP   _YMAX_ // Z3 endstop board plug. Don't forget to enable USE_*_PLUG.
-      #define Z3_ENDSTOP_ADJUSTMENT 0 // Z3 offset relative to Y endstop
+      #define Z3_ENDSTOP_ADJUSTMENT 0 // Z3 offset relative to Z endstop
     #endif
   #endif
   #ifdef Z4_DRIVER_TYPE
     //#define INVERT_Z4_VS_Z_DIR      // Z4 direction signal is the opposite of Z
     #if ENABLED(Z_MULTI_ENDSTOPS)
       #define Z4_USE_ENDSTOP   _ZMAX_ // Z4 endstop board plug. Don't forget to enable USE_*_PLUG.
-      #define Z4_ENDSTOP_ADJUSTMENT 0 // Z4 offset relative to Y endstop
+      #define Z4_ENDSTOP_ADJUSTMENT 0 // Z4 offset relative to Z endstop
     #endif
   #endif
 #endif
@@ -887,7 +887,7 @@
 //#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (linear=mm, rotational=°) Backoff from endstops after homing
 //#define XY_COUNTERPART_BACKOFF_MM 0         // (mm) Backoff X after homing Y, and vice-versa
 
-//#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
+#define QUICK_HOME                            // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
 //#define HOME_Z_FIRST                        // Home Z first. Requires a Z-MIN endstop (not a probe).
 //#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
@@ -1034,7 +1034,7 @@
 //#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
-  // Define positions for probe points.
+  // Define from 3 to 9 points to probe.
   #define TRAMMING_POINT_XY { {  20, 20 }, { 180,  20 }, { 180, 180 }, { 20, 180 } }
 
   // Define position names for probe points.
@@ -1056,7 +1056,7 @@
    *   M4: 40 = Clockwise, 41 = Counter-Clockwise
    *   M5: 50 = Clockwise, 51 = Counter-Clockwise
    */
-  #define TRAMMING_SCREW_THREAD 30
+  #define TRAMMING_SCREW_THREAD 40
 
 #endif
 
@@ -1104,38 +1104,41 @@
 // Add a Duplicate option for well-separated conjoined nozzles
 //#define MULTI_NOZZLE_DUPLICATION
 
-// By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
-#define INVERT_X_STEP_PIN false
-#define INVERT_Y_STEP_PIN false
-#define INVERT_Z_STEP_PIN false
-#define INVERT_I_STEP_PIN false
-#define INVERT_J_STEP_PIN false
-#define INVERT_K_STEP_PIN false
-#define INVERT_U_STEP_PIN false
-#define INVERT_V_STEP_PIN false
-#define INVERT_W_STEP_PIN false
-#define INVERT_E_STEP_PIN false
+// By default stepper drivers require an active-HIGH signal but some high-power drivers require an active-LOW signal to step.
+#define STEP_STATE_X HIGH
+#define STEP_STATE_Y HIGH
+#define STEP_STATE_Z HIGH
+#define STEP_STATE_I HIGH
+#define STEP_STATE_J HIGH
+#define STEP_STATE_K HIGH
+#define STEP_STATE_U HIGH
+#define STEP_STATE_V HIGH
+#define STEP_STATE_W HIGH
+#define STEP_STATE_E HIGH
 
 /**
  * Idle Stepper Shutdown
- * Set DISABLE_INACTIVE_? 'true' to shut down axis steppers after an idle period.
+ * Enable DISABLE_INACTIVE_* to shut down axis steppers after an idle period.
  * The Deactive Time can be overridden with M18 and M84. Set to 0 for No Timeout.
  */
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
-#define DISABLE_INACTIVE_X true
-#define DISABLE_INACTIVE_Y true
-#define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
-#define DISABLE_INACTIVE_I true
-#define DISABLE_INACTIVE_J true
-#define DISABLE_INACTIVE_K true
-#define DISABLE_INACTIVE_U true
-#define DISABLE_INACTIVE_V true
-#define DISABLE_INACTIVE_W true
-#define DISABLE_INACTIVE_E true
+#define DISABLE_INACTIVE_X
+#define DISABLE_INACTIVE_Y
+#define DISABLE_INACTIVE_Z  // Disable if the nozzle could fall onto your printed part!
+//#define DISABLE_INACTIVE_I
+//#define DISABLE_INACTIVE_J
+//#define DISABLE_INACTIVE_K
+//#define DISABLE_INACTIVE_U
+//#define DISABLE_INACTIVE_V
+//#define DISABLE_INACTIVE_W
 
 // Default Minimum Feedrates for printing and travel moves
-#define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s. °/s for rotational-only moves) Minimum feedrate. Set with M205 S.
-#define DEFAULT_MINTRAVELFEEDRATE     0.0     // (mm/s. °/s for rotational-only moves) Minimum travel feedrate. Set with M205 T.
+#define DEFAULT_MINIMUMFEEDRATE             0.0     // (mm/s) Minimum feedrate. Set with M205 S.
+#define DEFAULT_MINTRAVELFEEDRATE           0.0     // (mm/s) Minimum travel feedrate. Set with M205 T.
+#if HAS_ROTATIONAL_AXES
+  #define DEFAULT_ANGULAR_MINIMUMFEEDRATE   0.0     // (°/s) Minimum feedrate for rotational-only moves. Set with M205 P.
+  #define DEFAULT_ANGULAR_MINTRAVELFEEDRATE 0.0     // (°/s) Minimum travel feedrate for rotational-only moves. Set with M205 Q.
+#endif
 
 // Minimum time that a segment needs to take as the buffer gets emptied
 #define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
@@ -1413,7 +1416,7 @@
   #endif
 
   // Include a page of printer information in the LCD Main Menu
-  //#define LCD_INFO_MENU
+  #define LCD_INFO_MENU
   #if ENABLED(LCD_INFO_MENU)
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
@@ -1444,7 +1447,7 @@
   #endif
 
   // Scroll a longer status message into view
-  //#define STATUS_MESSAGE_SCROLLING
+  #define STATUS_MESSAGE_SCROLLING
 
   // Apply a timeout to low-priority status messages
   //#define STATUS_MESSAGE_TIMEOUT_SEC 30 // (seconds)
@@ -1454,6 +1457,9 @@
 
   // Show the E position (filament used) during printing
   //#define LCD_SHOW_E_TOTAL
+
+  // Display a negative temperature instead of "err"
+  //#define SHOW_TEMPERATURE_BELOW_ZERO
 
   /**
    * LED Control Menu
@@ -1639,7 +1645,7 @@
   //#define LONG_FILENAME_WRITE_SUPPORT   // Create / delete files with long filenames via M28, M30, and Binary Transfer Protocol
   //#define M20_TIMESTAMP_SUPPORT         // Include timestamps by adding the 'T' flag to M20 commands
 
-  //#define SCROLL_LONG_FILENAMES         // Scroll long filenames in the SD card menu
+  #define SCROLL_LONG_FILENAMES           // Scroll long filenames in the SD card menu
 
   //#define SD_ABORT_NO_COOLDOWN          // Leave the heaters on after Stop Print (not recommended!)
 
@@ -1764,6 +1770,15 @@
  * storage device. This option hides the SD card from the host PC.
  */
 //#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
+
+/**
+ * By default the framework is responsible for the shared media I/O.
+ * Enable this if you need Marlin to take care of the shared media I/O.
+ * Useful if shared media isn't working properly on some boards.
+ */
+#if ENABLED(SDSUPPORT) && DISABLED(NO_SD_HOST_DRIVE)
+  //#define DISKIO_HOST_DRIVE
+#endif
 
 /**
  * Additional options for Graphical Displays
@@ -2063,7 +2078,7 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
   //#define BABYSTEP_WITHOUT_HOMING
@@ -2074,7 +2089,7 @@
   #define BABYSTEP_MULTIPLICATOR_Z  1       // (steps or mm) Steps or millimeter distance for each Z babystep
   #define BABYSTEP_MULTIPLICATOR_XY 1       // (steps or mm) Steps or millimeter distance for each XY babystep
 
-  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
@@ -2087,9 +2102,13 @@
   //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
 
   //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-    //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
+  //#define BABYSTEP_GLOBAL_Z               // Combine M424 Z and Babystepping
+
+  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      //#define BABYSTEP_HOTEND_Z_OFFSET    // For multiple hotends, babystep relative Z offsets
+    #endif
+    //#define BABYSTEP_GFX_OVERLAY          // Enable graphical overlay on Z-offset editor
   #endif
 #endif
 
@@ -2553,9 +2572,17 @@
    * Extra G-code to run while executing tool-change commands. Can be used to use an additional
    * stepper motor (e.g., I axis in Configuration.h) to drive the tool-changer.
    */
-  //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0" // Extra G-code to run while executing tool-change command T0
-  //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"       // Extra G-code to run while executing tool-change command T1
-  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN        // Always execute above G-code sequences. Use with caution!
+  //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0"  // Extra G-code to run while executing tool-change command T0
+  //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"        // Extra G-code to run while executing tool-change command T1
+  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN         // Always execute above G-code sequences. Use with caution!
+
+  /**
+   * Consider coordinates for EVENT_GCODE_TOOLCHANGE_Tx as relative to T0
+   * so that moves in the specified axes are the same for all tools.
+   */
+  //#define TC_GCODE_USE_GLOBAL_X   // Use X position relative to Tool 0
+  //#define TC_GCODE_USE_GLOBAL_Y   // Use Y position relative to Tool 0
+  //#define TC_GCODE_USE_GLOBAL_Z   // Use Z position relative to Tool 0
 
   /**
    * Tool Sensors detect when tools have been picked up or dropped.
@@ -3052,7 +3079,7 @@
    * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
-  #define CHOPPER_TIMING CHOPPER_DEFAULT_12V        // All axes (override below)
+  #define CHOPPER_TIMING CHOPPER_DEFAULT_24V        // All axes (override below)
   //#define CHOPPER_TIMING_X  CHOPPER_TIMING        // For X Axes (override below)
   //#define CHOPPER_TIMING_X2 CHOPPER_TIMING_X
   //#define CHOPPER_TIMING_Y  CHOPPER_TIMING        // For Y Axes (override below)
@@ -3590,6 +3617,14 @@
  */
 //#define CNC_COORDINATE_SYSTEMS
 
+/**
+ * CNC Drilling Cycle - UNDER DEVELOPMENT
+ *
+ * Enables G81 to perform a drilling cycle.
+ * Currently only supports a single cycle, no G-code chaining.
+ */
+//#define CNC_DRILLING_CYCLE
+
 // @section reporting
 
 /**
@@ -3709,6 +3744,7 @@
 #ifdef G0_FEEDRATE
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
+//#define G0_ANGULAR_FEEDRATE 2700 // (°/min)
 
 // @section gcode
 
@@ -4032,16 +4068,17 @@
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
    */
-  #define MAX7219_DEBUG_PRINTER_ALIVE    // Blink corner LED of 8x8 matrix to show that the firmware is functioning
-  #define MAX7219_DEBUG_PLANNER_HEAD  2  // Show the planner queue head position on this and the next LED matrix row
-  #define MAX7219_DEBUG_PLANNER_TAIL  4  // Show the planner queue tail position on this and the next LED matrix row
+  #define MAX7219_DEBUG_PRINTER_ALIVE     // Blink corner LED of 8x8 matrix to show that the firmware is functioning
+  #define MAX7219_DEBUG_PLANNER_HEAD  2   // Show the planner queue head position on this and the next LED matrix row
+  #define MAX7219_DEBUG_PLANNER_TAIL  4   // Show the planner queue tail position on this and the next LED matrix row
 
-  #define MAX7219_DEBUG_PLANNER_QUEUE 0  // Show the current planner queue depth on this and the next LED matrix row
-                                         // If you experience stuttering, reboots, etc. this option can reveal how
-                                         // tweaks made to the configuration are affecting the printer in real-time.
-  #define MAX7219_DEBUG_PROFILE       6  // Display the fraction of CPU time spent in profiled code on this LED matrix
-                                         // row. By default idle() is profiled so this shows how "idle" the processor is.
-                                         // See class CodeProfiler.
+  #define MAX7219_DEBUG_PLANNER_QUEUE 0   // Show the current planner queue depth on this and the next LED matrix row
+                                          // If you experience stuttering, reboots, etc. this option can reveal how
+                                          // tweaks made to the configuration are affecting the printer in real-time.
+  #define MAX7219_DEBUG_PROFILE       6   // Display the fraction of CPU time spent in profiled code on this LED matrix
+                                          // row. By default idle() is profiled so this shows how "idle" the processor is.
+                                          // See class CodeProfiler.
+  //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multistepping 1 to 128 on this LED matrix row.
 #endif
 
 /**
@@ -4122,30 +4159,29 @@
 
   // Add an LCD menu for MMU2
   //#define MMU2_MENUS
-  #if EITHER(MMU2_MENUS, HAS_PRUSA_MMU2S)
-    // Settings for filament load / unload from the LCD menu.
-    // This is for Průša MK3-style extruders. Customize for your hardware.
-    #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
-    #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-      {  7.2, 1145 }, \
-      { 14.4,  871 }, \
-      { 36.0, 1393 }, \
-      { 14.4,  871 }, \
-      { 50.0,  198 }
 
-    #define MMU2_RAMMING_SEQUENCE \
-      {   1.0, 1000 }, \
-      {   1.0, 1500 }, \
-      {   2.0, 2000 }, \
-      {   1.5, 3000 }, \
-      {   2.5, 4000 }, \
-      { -15.0, 5000 }, \
-      { -14.0, 1200 }, \
-      {  -6.0,  600 }, \
-      {  10.0,  700 }, \
-      { -10.0,  400 }, \
-      { -50.0, 2000 }
-  #endif
+  // Settings for filament load / unload from the LCD menu.
+  // This is for Průša MK3-style extruders. Customize for your hardware.
+  #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+  #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
+    {  7.2, 1145 }, \
+    { 14.4,  871 }, \
+    { 36.0, 1393 }, \
+    { 14.4,  871 }, \
+    { 50.0,  198 }
+
+  #define MMU2_RAMMING_SEQUENCE \
+    {   1.0, 1000 }, \
+    {   1.0, 1500 }, \
+    {   2.0, 2000 }, \
+    {   1.5, 3000 }, \
+    {   2.5, 4000 }, \
+    { -15.0, 5000 }, \
+    { -14.0, 1200 }, \
+    {  -6.0,  600 }, \
+    {  10.0,  700 }, \
+    { -10.0,  400 }, \
+    { -50.0, 2000 }
 
   /**
    * Using a sensor like the MMU2S
@@ -4168,6 +4204,8 @@
     #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
       { -MMU2_CAN_LOAD_INCREMENT, MMU2_CAN_LOAD_FEEDRATE }
 
+    // Continue unloading if sensor detects filament after the initial unload move
+    //#define MMU_IR_UNLOAD_MOVE
   #else
 
     /**
