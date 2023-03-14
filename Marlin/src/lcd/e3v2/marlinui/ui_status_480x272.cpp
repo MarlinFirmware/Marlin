@@ -74,9 +74,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
       #if ENABLED(DWIN_MARLINUI_PORTRAIT)
         x + (utf8_strlen(value) * 14 - 14) / 2, y + 2,
       #else
-        x, y
+        x, y,
       #endif
-      , S(dwin_string.string())
+      S(dwin_string.string())
     );
   }
 
