@@ -67,56 +67,41 @@
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, const uint16_t x, const uint16_t y) {
+  const bool x_redraw = !ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning();
+  if (x_redraw) {
+    dwin_string.set('X' + axis);
+    DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black,
+      #if ENABLED(DWIN_MARLINUI_PORTRAIT)
+        x + (utf8_strlen(value) * 14 - 14) / 2, y + 2,
+      #else
+        x, y
+      #endif
+      , S(dwin_string.string())
+    );
+  }
 
-  #if ENABLED(DWIN_MARLINUI_PORTRAIT)
+  dwin_string.set();
+  if (blink)
+    dwin_string.add(value);
+  else if (!TEST(axes_homed, axis))
+    while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
+    dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
+  else
+    dwin_string.add(value);
 
-    uint8_t vallen = utf8_strlen(value);
-    if (!ui.did_first_redraw) {
-      dwin_string.set('X' + axis);
-      DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (vallen * 14 - 14) / 2, y + 2, S(dwin_string.string()));
-    }
+  // For E_TOTAL there may be some characters to cover up
+  if (TERN0(LCD_SHOW_E_TOTAL, x_redraw && axis == X_AXIS))
+    dwin_string.add(F("   "));
 
-    dwin_string.set();
-    if (blink)
-      dwin_string.add(value);
-    else if (!TEST(axes_homed, axis))
-      while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
-    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
-      dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
-    else
-      dwin_string.add(value);
-
-    // For E_TOTAL there may be some characters to cover up
-    if (BOTH(DWIN_MARLINUI_PORTRAIT, LCD_SHOW_E_TOTAL) && axis == X_AXIS)
-      dwin_string.add(F("   "));
-
-    DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + 32, S(dwin_string.string()));
-
-  #else // !DWIN_MARLINUI_PORTRAIT
-
-    const bool x_redraw = !ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning();
-    if (x_redraw) {
-      dwin_string.set('X' + axis);
-      DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
-    }
-
-    dwin_string.set();
-    if (blink)
-      dwin_string.add(value);
-    else if (!TEST(axes_homed, axis))
-      while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
-    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
-      dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
-    else
-      dwin_string.add(value);
-
-    // For E_TOTAL there may be some characters to cover up
-    if (TERN0(LCD_SHOW_E_TOTAL, x_redraw && axis == X_AXIS))
-      dwin_string.add(F("   "));
-
-    DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x + 32, y + 4, S(dwin_string.string()));
-
-  #endif // !DWIN_MARLINUI_PORTRAIT
+  DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black,
+    #if ENABLED(DWIN_MARLINUI_PORTRAIT)
+      x, y + 32
+    #else
+      x + 32, y + 4
+    #endif
+    , S(dwin_string.string())
+  );
 }
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
