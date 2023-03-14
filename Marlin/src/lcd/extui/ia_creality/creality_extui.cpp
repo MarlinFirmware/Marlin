@@ -87,6 +87,9 @@ namespace ExtUI {
   #ifndef CUSTOM_MACHINE_NAME
     #define CUSTOM_MACHINE_NAME MACHINE_NAME
   #endif
+  #ifndef IA_CREALITY_BOOT_DELAY
+    #define IA_CREALITY_BOOT_DELAY 500
+  #endif
 
   void onStartup() {
     DWIN_SERIAL.begin(115200);
@@ -94,7 +97,7 @@ namespace ExtUI {
     rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
     ZERO(rtscheck.databuf);
 
-    delay_ms(TERN(LCD_LONG_BOOT, 1500, 500)); // Delay to allow screen startup
+    delay_ms(IA_CREALITY_BOOT_DELAY); // Delay to allow screen startup
     SetTouchScreenConfiguration();
     rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
     delay_ms(400); // Delay to allow screen to configure
