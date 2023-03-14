@@ -1219,6 +1219,10 @@ class Temperature {
           float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
           float get_sample_interval() { return sample_distance * (sample_count >> 1); }
 
+          celsius_float_t get_temp_fastest() { return temp_fastest; }
+          float get_time_fastest() { return time_fastest; }
+          float get_rate_fastest() { return rate_fastest; }
+
           float get_power_fan0() { return power_fan0; }
           #if HAS_FAN
             float get_power_fan255() { return power_fan255; }
@@ -1238,6 +1242,11 @@ class Temperature {
           uint8_t sample_count;
           uint16_t sample_distance;
           float t1_time;
+
+          // Parameters from differential analysis
+          celsius_float_t temp_fastest;
+          float time_fastest;
+          float rate_fastest;
 
           float power_fan0;
           #if HAS_FAN
