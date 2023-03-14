@@ -999,12 +999,11 @@ void MarlinUI::draw_status_screen() {
       #endif // LCD_WIDTH >= 20
 
       #if HAS_Z_AXIS
-      lcd_moveto(LCD_WIDTH - 8, 1);
-      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
-      #endif
-
-      #if HAS_LEVELING && !HAS_HEATED_BED
-        lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
+        lcd_moveto(LCD_WIDTH - 8, 1);
+        _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+        #if HAS_LEVELING && !HAS_HEATED_BED
+          lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
+        #endif
       #endif
 
     #endif // LCD_HEIGHT > 2
