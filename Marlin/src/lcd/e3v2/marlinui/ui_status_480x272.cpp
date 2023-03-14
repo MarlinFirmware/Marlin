@@ -94,7 +94,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
   #else // !DWIN_MARLINUI_PORTRAIT
 
-    if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
+    const bool x_redraw = !ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning();
+    if (x_redraw) {
       dwin_string.set('X' + axis);
       DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
     }
@@ -102,21 +103,15 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     dwin_string.set();
     if (blink)
       dwin_string.add(value);
-    else {
-      if (!TEST(axes_homed, axis))
-        while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
-      else {
-        #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
-          if (!TEST(axes_trusted, axis))
-            dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
-          else
-        #endif
-            dwin_string.add(value);
-      }
-    }
+    else if (!TEST(axes_homed, axis))
+      while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
+    else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
+      dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
+    else
+      dwin_string.add(value);
 
     // For E_TOTAL there may be some characters to cover up
-    if (ENABLED(LCD_SHOW_E_TOTAL) && (!ui.did_first_redraw  || ui.old_is_printing != print_job_timer.isRunning()) && axis == X_AXIS)
+    if (TERN0(LCD_SHOW_E_TOTAL, x_redraw && axis == X_AXIS))
       dwin_string.add(F("   "));
 
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x + 32, y + 4, S(dwin_string.string()));
@@ -128,10 +123,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
   FORCE_INLINE void _draw_e_value(const_float_t value, const uint16_t x, const uint16_t y) {
     const uint8_t scale = value >= 100000.0f ? 10 : 1; // show cm after 99,999mm
+    const bool e_redraw = !ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning();
 
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
 
-      if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
+      if (e_redraw) {
         // Extra spaces to erase previous value
         dwin_string.set(F("E         "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (4 * 14 / 2) - 7, y + 2, S(dwin_string.string()));
@@ -145,7 +141,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
     #else // !DWIN_MARLINUI_PORTRAIT
 
-      if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
+      if (e_redraw) {
         dwin_string.set(F("E "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
       }
@@ -165,11 +161,10 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 //
 FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
   const uint16_t fanx = (4 * STATUS_CHR_WIDTH - STATUS_FAN_WIDTH) / 2;
-  const uint8_t fan_pct = thermalManager.scaledFanSpeedPercent(0);
   const bool fan_on = !!thermalManager.scaledFanSpeed(0);
   if (fan_on) {
     DWIN_ICON_Animation(0, fan_on, ICON, ICON_Fan0, ICON_Fan3, x + fanx, y, 25);
-    dwin_string.set(i8tostr3rj(fan_pct));
+    dwin_string.set(i8tostr3rj(thermalManager.scaledFanSpeedPercent(0)));
     dwin_string.add('%');
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
   }
