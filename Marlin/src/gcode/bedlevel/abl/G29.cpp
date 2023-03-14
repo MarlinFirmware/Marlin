@@ -409,7 +409,7 @@ G29_TYPE GcodeSuite::G29() {
       if (!probe.good_bounds(abl.probe_position_lf, abl.probe_position_rb)) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("G29 L", abl.probe_position_lf.x, " R", abl.probe_position_rb.x,
-                              " F", abl.probe_position_lf.y, " B", abl.probe_position_rb.y);
+                             " F", abl.probe_position_lf.y, " B", abl.probe_position_rb.y);
         }
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
         G29_RETURN(false, false);
@@ -417,7 +417,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Probe at the points of a lattice grid
       abl.gridSpacing.set((abl.probe_position_rb.x - abl.probe_position_lf.x) / (abl.grid_points.x - 1),
-                            (abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
+                          (abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
 
     #endif // ABL_USES_GRID
 
