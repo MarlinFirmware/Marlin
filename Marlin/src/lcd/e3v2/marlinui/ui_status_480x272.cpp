@@ -72,11 +72,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     dwin_string.set('X' + axis);
     DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black,
       #if ENABLED(DWIN_MARLINUI_PORTRAIT)
-        x + (utf8_strlen(value) * 14 - 14) / 2, y + 2,
+        x + (utf8_strlen(value) * 14 - 14) / 2, y + 2
       #else
-        x, y,
+        x, y
       #endif
-      S(dwin_string.string())
+      , S(dwin_string.string())
     );
   }
 
@@ -188,7 +188,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
   #endif
 
   #if HAS_HOTEND && HAS_HEATED_BED
-    float tc, tt;
+    celsius_float_t tc, tt;
     bool c_draw, t_draw, i_draw, ta;
     const bool isBed = heater < 0;
     if (isBed) {
@@ -215,20 +215,20 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
     }
   #elif HAS_HOTEND
     constexpr bool isBed = false;
-    const float tc = thermalManager.degHotend(heater), tt = thermalManager.degTargetHotend(heater);
-    const uint8_t ta = thermalManager.isHeatingHotend(heater);
+    const celsius_float_t tc = thermalManager.degHotend(heater), tt = thermalManager.degTargetHotend(heater);
+    const bool ta = thermalManager.isHeatingHotend(heater);
     bool c_draw = tc != old_temp[heater], t_draw = tt != old_target[heater], i_draw = ta != old_on[heater];
     old_temp[heater] = tc; old_target[heater] = tt; old_on[heater] = ta;
   #elif HAS_HEATED_BED
     constexpr bool isBed = true;
-    const float tc = thermalManager.degBed(), tt = thermalManager.degTargetBed();
-    const uint8_t ta = thermalManager.isHeatingBed();
+    const celsius_float_t tc = thermalManager.degBed(), tt = thermalManager.degTargetBed();
+    const bool ta = thermalManager.isHeatingBed();
     bool c_draw = tc != old_bed_temp, t_draw = tt != old_bed_target, i_draw = ta != old_bed_on;
     old_bed_temp = tc; old_bed_target = tt; old_bed_on = ta;
   #else
     bool c_draw = false, t_draw = false, i_draw = false;
-    constexpr float tc = 0, tt = 0;
-    constexpr uint8_t ta = 0;
+    constexpr celsius_float_t tc = 0, tt = 0;
+    constexpr bool ta = 0;
   #endif
 
   #if HAS_HEATED_BED && HAS_LEVELING
