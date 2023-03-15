@@ -36,7 +36,7 @@
 
 #if HAS_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
-  bool leveling_was_active;
+  bool mks_leveling_was_active;
 #endif
 
 extern lv_group_t *g;
@@ -110,7 +110,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_M_RETURN:
       probe.offset.z = z_offset_backup;
       SET_SOFT_ENDSTOP_LOOSE(false);
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+      TERN_(HAS_LEVELING, set_bed_leveling_enabled(mks_leveling_was_active));
       #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
         set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
         queue.inject_P(PSTR("G28Z"));
@@ -149,8 +149,8 @@ void lv_draw_z_offset_wizard() {
 
   // Store Bed-Leveling-State and disable
   #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
-    set_bed_leveling_enabled(leveling_was_active);
+    mks_leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(mks_leveling_was_active);
   #endif
 
   queue.inject_P(PSTR("G28"));

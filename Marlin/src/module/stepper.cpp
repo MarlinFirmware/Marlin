@@ -189,7 +189,10 @@ bool Stepper::abort_current_block;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-uint8_t Stepper::steps_per_isr;       // Count of steps to perform per Stepper ISR call
+
+#if MULTISTEPPING_LIMIT > 1
+  uint8_t Stepper::steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
+#endif
 
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
@@ -1676,7 +1679,7 @@ void Stepper::pulse_phase_isr() {
       int32_t de = delta_error[_AXIS(AXIS)] + advance_dividend[_AXIS(AXIS)]; \
       if (de >= 0) { \
         step_needed.set(_AXIS(AXIS)); \
-        de -= advance_divisor; \
+        de -= advance_divisor_cached; \
       } \
       delta_error[_AXIS(AXIS)] = de; \
     }while(0)
@@ -1702,19 +1705,22 @@ void Stepper::pulse_phase_isr() {
     #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
 
     #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
-      if (step_needed.test(_AXIS(AXIS))) { \
-        DELTA_ERROR += (DIVIDEND); \
-        if ((MAXDIR(AXIS) && DELTA_ERROR <= -(64 + HYSTERESIS(AXIS))) || (MINDIR(AXIS) && DELTA_ERROR >= (64 + HYSTERESIS(AXIS)))) { \
+      int16_t de = DELTA_ERROR + (DIVIDEND); \
+      const bool step_fwd = de >=  (64 + HYSTERESIS(AXIS)), \
+                 step_bak = de <= -(64 + HYSTERESIS(AXIS)); \
+      if (step_fwd || step_bak) { \
+        de += step_fwd ? -128 : 128; \
+        if ((MAXDIR(AXIS) && step_bak) || (MINDIR(AXIS) && step_fwd)) { \
           { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
           TBI(last_direction_bits, _AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
           DIR_WAIT_AFTER(); \
         } \
-        step_needed.set(_AXIS(AXIS), DELTA_ERROR <= -(64 + HYSTERESIS(AXIS)) || DELTA_ERROR >= (64 + HYSTERESIS(AXIS))); \
-        if (step_needed.test(_AXIS(AXIS))) \
-          DELTA_ERROR += MAXDIR(AXIS) ? -128 : 128; \
       } \
+      else \
+        step_needed.clear(_AXIS(AXIS)); \
+      DELTA_ERROR = de; \
     }while(0)
 
     // Start an active pulse if needed
@@ -1839,6 +1845,9 @@ void Stepper::pulse_phase_isr() {
     #endif // DIRECT_STEPPING
 
     if (!is_page) {
+      // Give the compiler a clue to store advance_divisor in registers for what follows
+      const uint32_t advance_divisor_cached = advance_divisor;
+
       // Determine if pulses are needed
       #if HAS_X_STEP
         PULSE_PREP(X);
@@ -1883,19 +1892,19 @@ void Stepper::pulse_phase_isr() {
 
       #if HAS_SHAPING
         // record an echo if a step is needed in the primary bresenham
-        const bool x_step = TERN0(INPUT_SHAPING_X, shaping_x.enabled && step_needed.x),
-                   y_step = TERN0(INPUT_SHAPING_Y, shaping_y.enabled && step_needed.y);
+        const bool x_step = TERN0(INPUT_SHAPING_X, step_needed.x && shaping_x.enabled),
+                   y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled);
         if (x_step || y_step)
           ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
 
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
-          if (shaping_x.enabled)
-            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor1 * (shaping_x.forward ? 1 : -1));
+          if (x_step)
+            PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1);
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
-          if (shaping_y.enabled)
-            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor1 * (shaping_y.forward ? 1 : -1));
+          if (y_step)
+            PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1);
         #endif
       #endif
     }
@@ -2008,7 +2017,7 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING_X)
         if (step_needed.x) {
           const bool forward = ShapingQueue::dequeue_x();
-          PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.factor2 * (forward ? 1 : -1));
+          PULSE_PREP_SHAPING(X, shaping_x.delta_error, (forward ? shaping_x.factor2 : -shaping_x.factor2));
           PULSE_START(X);
         }
       #endif
@@ -2016,7 +2025,7 @@ void Stepper::pulse_phase_isr() {
       #if ENABLED(INPUT_SHAPING_Y)
         if (step_needed.y) {
           const bool forward = ShapingQueue::dequeue_y();
-          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.factor2 * (forward ? 1 : -1));
+          PULSE_PREP_SHAPING(Y, shaping_y.delta_error, (forward ? shaping_y.factor2 : -shaping_y.factor2));
           PULSE_START(Y);
         }
       #endif
@@ -2060,31 +2069,29 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
     // AVR is able to keep up at 30khz Stepping ISR rate.
     constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
-    if (step_rate <= min_step_rate) { // lower step rates
-      step_rate = 0;
-      return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
+    if (step_rate >= 0x0800) {  // higher step rate
+      const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
+      const uint16_t base = uint16_t(pgm_read_word(table_address));
+      const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
+      return base - MultiU8X8toH8(uint8_t(step_rate & 0x00FF), gain);
+    }
+    else if (step_rate > min_step_rate) { // lower step rates
+      step_rate -= min_step_rate; // Correct for minimal speed
+      const uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[uint8_t(step_rate >> 3)]);
+      return uint16_t(pgm_read_word(table_address))
+             - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
     }
     else {
-      step_rate -= min_step_rate; // Correct for minimal speed
-      if (step_rate >= 0x0800) {  // higher step rate
-        const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
-        const uint16_t gain = uint16_t(pgm_read_word(table_address + 2));
-        return uint16_t(pgm_read_word(table_address)) - MultiU8X16toH16(uint8_t(step_rate & 0x00FF), gain);
-      }
-      else { // lower step rates
-        const uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[uint8_t(step_rate >> 3)]);
-        return uint16_t(pgm_read_word(table_address))
-               - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
-      }
+      step_rate = 0;
+      return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
     }
 
   #endif // !CPU_32_BIT
 }
 
 // Get the timer interval and the number of loops to perform per tick
-hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
-  uint8_t multistep = 1;
-  #if ENABLED(DISABLE_MULTI_STEPPING)
+hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
+  #if MULTISTEPPING_LIMIT == 1
 
     // Just make sure the step rate is doable
     NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
@@ -2093,26 +2100,37 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate, uint8_t &loops) {
 
     // The stepping frequency limits for each multistepping rate
     static const uint32_t limit[] PROGMEM = {
-      (  MAX_STEP_ISR_FREQUENCY_1X     ),
-      (  MAX_STEP_ISR_FREQUENCY_2X >> 1),
-      (  MAX_STEP_ISR_FREQUENCY_4X >> 2),
-      (  MAX_STEP_ISR_FREQUENCY_8X >> 3),
-      ( MAX_STEP_ISR_FREQUENCY_16X >> 4),
-      ( MAX_STEP_ISR_FREQUENCY_32X >> 5),
-      ( MAX_STEP_ISR_FREQUENCY_64X >> 6),
-      (MAX_STEP_ISR_FREQUENCY_128X >> 7)
+          (  MAX_STEP_ISR_FREQUENCY_1X     )
+        , (  MAX_STEP_ISR_FREQUENCY_2X >> 1)
+      #if MULTISTEPPING_LIMIT >= 4
+        , (  MAX_STEP_ISR_FREQUENCY_4X >> 2)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 8
+        , (  MAX_STEP_ISR_FREQUENCY_8X >> 3)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 16
+        , ( MAX_STEP_ISR_FREQUENCY_16X >> 4)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 32
+        , ( MAX_STEP_ISR_FREQUENCY_32X >> 5)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 64
+        , ( MAX_STEP_ISR_FREQUENCY_64X >> 6)
+      #endif
+      #if MULTISTEPPING_LIMIT >= 128
+        , (MAX_STEP_ISR_FREQUENCY_128X >> 7)
+      #endif
     };
 
-    // Select the proper multistepping
-    uint8_t idx = 0;
-    while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
+    // Find a doable step rate using multistepping
+    uint8_t multistep = 1;
+    for (uint8_t i = 0; i < COUNT(limit) && step_rate > uint32_t(pgm_read_dword(&limit[i])); ++i) {
       step_rate >>= 1;
       multistep <<= 1;
-      ++idx;
-    };
+    }
+    steps_per_isr = multistep;
 
   #endif
-  loops = multistep;
 
   return calc_timer_interval(step_rate);
 }
@@ -2170,7 +2188,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // acc_step_rate is in steps/second
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(acc_step_rate << oversampling_factor, steps_per_isr);
+        interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
@@ -2240,7 +2258,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #endif
 
         // step_rate to timer interval and steps per stepper isr
-        interval = calc_timer_interval(step_rate << oversampling_factor, steps_per_isr);
+        interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
         #if ENABLED(LIN_ADVANCE)
@@ -2302,7 +2320,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // Calculate the ticks_nominal for this nominal speed, if not done yet
         if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
-          ticks_nominal = calc_timer_interval(current_block->nominal_rate << oversampling_factor, steps_per_isr);
+          ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
 
           #if ENABLED(LIN_ADVANCE)
             if (la_active)
@@ -2622,7 +2640,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #endif
 
       // Calculate the initial timer interval
-      interval = calc_timer_interval(current_block->initial_rate << oversampling_factor, steps_per_isr);
+      interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
       acceleration_time += interval;
 
       #if ENABLED(LIN_ADVANCE)
