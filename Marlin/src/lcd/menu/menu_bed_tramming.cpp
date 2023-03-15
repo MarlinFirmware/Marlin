@@ -146,9 +146,9 @@ static void _lcd_bed_tramming_get_next_position() {
     else {
       corner_point = lf;                       // Left front
       switch (lco[bed_corner]) {
-        case RF: corner_point.x = rb.x; break; // Right front
-        case RB: corner_point   = rb;   break; // Right rear
-        case LB: corner_point.y = rb.y; break; // Left rear
+        case RF: corner_point.x = rb.x; break; // Right Front
+        case RB: corner_point   = rb;   break; // Right Back
+        case LB: corner_point.y = rb.y; break; // Left Back
       }
     }
   }
@@ -289,19 +289,20 @@ static void _lcd_bed_tramming_get_next_position() {
       _lcd_bed_tramming_get_next_position();              // Select next corner coordinates
       corner_point -= probe.offset_xy;                    // Account for probe offsets
       do_blocking_move_to_xy(corner_point);               // Goto corner
+
       TERN_(BLTOUCH, if (bltouch.high_speed_mode) bltouch.deploy()); // Deploy in HIGH SPEED MODE
       if (!_lcd_bed_tramming_probe()) {                   // Probe down to tolerance
         if (_lcd_bed_tramming_raise()) {                  // Prompt user to raise bed if needed
           #if ENABLED(BED_TRAMMING_VERIFY_RAISED)         // Verify
             while (!_lcd_bed_tramming_probe(true)) {      // Loop while corner verified
               if (!_lcd_bed_tramming_raise()) {           // Prompt user to raise bed if needed
-                if (tramming_done) return;          // Done was selected
+                if (tramming_done) return;                // Done was selected
                 break;                                    // Skip was selected
               }
             }
           #endif
         }
-        else if (tramming_done)                     // Done was selected
+        else if (tramming_done)                           // Done was selected
           return;
       }
 
@@ -312,9 +313,9 @@ static void _lcd_bed_tramming_get_next_position() {
 
     #if ENABLED(BLTOUCH)
       if (bltouch.high_speed_mode) {
-        // In HIGH SPEED MODE do clearance and stow at the very end
-        do_z_clearance(BED_TRAMMING_Z_HOP);
+        // In HIGH SPEED MODE do stow and clearance at the very end
         bltouch.stow();
+        do_z_clearance(BED_TRAMMING_Z_HOP);
       }
     #endif
 
