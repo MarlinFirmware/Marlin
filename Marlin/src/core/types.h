@@ -31,10 +31,8 @@
 //
 // typename IF<(MYOPT==12), int, float>::type myvar;
 //
-template <bool, class L, class R>
-struct IF { typedef R type; };
-template <class L, class R>
-struct IF<true, L, R> { typedef L type; };
+template <bool, class L, class R> struct IF { typedef R type; };
+template <class L, class R> struct IF<true, L, R> { typedef L type; };
 
 #define ALL_AXIS_NAMES X, X2, Y, Y2, Z, Z2, Z3, Z4, I, J, K, U, V, W, E0, E1, E2, E3, E4, E5, E6, E7
 
@@ -86,38 +84,54 @@ struct IF<true, L, R> { typedef L type; };
 
 #define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L || AXIS7_NAME == L || AXIS8_NAME == L || AXIS9_NAME == L)
 
+// Helpers
+#define _RECIP(N) ((N) ? 1.0f / static_cast<float>(N) : 0.0f)
+#define _ABS(N) ((N) < 0 ? -(N) : (N))
+#define _LS(N)  (N = (T)(uint32_t(N) << p))
+#define _RS(N)  (N = (T)(uint32_t(N) >> p))
+#define FI FORCE_INLINE
+
+// Define types based on largest bit width stored value required
+#define bits_t(W)   typename IF<((W)>   16), uint32_t, typename IF<((W)>  8), uint16_t, uint8_t>::type>::type
+#define uvalue_t(V) typename IF<((V)>65535), uint32_t, typename IF<((V)>255), uint16_t, uint8_t>::type>::type
+#define value_t(V)  typename IF<((V)>32767),  int32_t, typename IF<((V)>127),  int16_t,  int8_t>::type>::type
+
 // General Flags for some number of states
 template<size_t N>
 struct Flags {
-  typedef typename IF<(N>8), uint16_t, uint8_t>::type bits_t;
+  typedef value_t(N) flagbits_t;
   typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
   typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
+  typedef struct { bool b0:1,  b1:1,  b2:1,  b3:1,  b4:1,  b5:1,  b6:1,  b7:1,  b8:1,  b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1,
+                       b16:1, b17:1, b18:1, b19:1, b20:1, b21:1, b22:1, b23:1, b24:1, b25:1, b26:1, b27:1, b28:1, b29:1, b30:1, b31:1; } N32;
   union {
-    bits_t b;
-    typename IF<(N>8), N16, N8>::type flag;
+    flagbits_t b;
+    typename IF<(N>16), N32, typename IF<(N>8), N16, N8>::type>::type flag;
   };
-  void reset()                            { b = 0; }
-  void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  void set(const int n)                   { b |=  (bits_t)_BV(n); }
-  void clear(const int n)                 { b &= ~(bits_t)_BV(n); }
-  bool test(const int n) const            { return TEST(b, n); }
-  bool operator[](const int n)            { return test(n); }
-  bool operator[](const int n) const      { return test(n); }
-  int size() const                        { return sizeof(b); }
+  FI void reset()                            { b = 0; }
+  FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
+  FI void set(const int n)                   { b |=  (flagbits_t)_BV(n); }
+  FI void clear(const int n)                 { b &= ~(flagbits_t)_BV(n); }
+  FI bool test(const int n) const            { return TEST(b, n); }
+  FI bool operator[](const int n)            { return test(n); }
+  FI bool operator[](const int n) const      { return test(n); }
+  FI int size() const                        { return sizeof(b); }
+  FI operator bool() const                   { return b; }
 };
 
 // Specialization for a single bool flag
 template<>
 struct Flags<1> {
   bool b;
-  void reset()                            { b = false; }
-  void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  void set(const int)                     { b = true; }
-  void clear(const int)                   { b = false; }
-  bool test(const int) const              { return b; }
-  bool& operator[](const int)             { return b; }
-  bool  operator[](const int) const       { return b; }
-  int size() const                        { return sizeof(b); }
+  FI void reset()                            { b = false; }
+  FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
+  FI void set(const int)                     { b = true; }
+  FI void clear(const int)                   { b = false; }
+  FI bool test(const int) const              { return b; }
+  FI bool& operator[](const int)             { return b; }
+  FI bool  operator[](const int) const       { return b; }
+  FI int size() const                        { return sizeof(b); }
+  FI operator bool() const                   { return b; }
 };
 
 typedef Flags<8> flags_8_t;
@@ -129,14 +143,15 @@ typedef struct AxisFlags {
     struct Flags<LOGICAL_AXES> flags;
     struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
   };
-  void reset()                            { flags.reset(); }
-  void set(const int n)                   { flags.set(n); }
-  void set(const int n, const bool onoff) { flags.set(n, onoff); }
-  void clear(const int n)                 { flags.clear(n); }
-  bool test(const int n) const            { return flags.test(n); }
-  bool operator[](const int n)            { return flags[n]; }
-  bool operator[](const int n) const      { return flags[n]; }
-  int size() const                        { return sizeof(flags); }
+  FI void reset()                            { flags.reset(); }
+  FI void set(const int n)                   { flags.set(n); }
+  FI void set(const int n, const bool onoff) { flags.set(n, onoff); }
+  FI void clear(const int n)                 { flags.clear(n); }
+  FI bool test(const int n) const            { return flags.test(n); }
+  FI bool operator[](const int n)            { return flags[n]; }
+  FI bool operator[](const int n) const      { return flags[n]; }
+  FI int size() const                        { return sizeof(flags); }
+  FI operator bool() const                   { return flags; }
 } axis_flags_t;
 
 //
@@ -182,7 +197,7 @@ enum AxisEnum : uint8_t {
   , ALL_AXES_ENUM = 0xFE, NO_AXIS_ENUM = 0xFF
 };
 
-typedef IF<(NUM_AXIS_ENUMS > 8), uint16_t, uint8_t>::type axis_bits_t;
+typedef bits_t(NUM_AXIS_ENUMS) axis_bits_t;
 
 //
 // Loop over axes
@@ -224,13 +239,6 @@ typedef const_float_t const_celsius_float_t;
 //
 // Coordinates structures for XY, XYZ, XYZE...
 //
-
-// Helpers
-#define _RECIP(N) ((N) ? 1.0f / static_cast<float>(N) : 0.0f)
-#define _ABS(N) ((N) < 0 ? -(N) : (N))
-#define _LS(N)  (N = (T)(uint32_t(N) << p))
-#define _RS(N)  (N = (T)(uint32_t(N) >> p))
-#define FI FORCE_INLINE
 
 // Forward declarations
 template<typename T> struct XYval;

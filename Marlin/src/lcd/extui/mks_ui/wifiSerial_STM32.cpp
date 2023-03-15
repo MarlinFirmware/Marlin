@@ -322,7 +322,7 @@ int WifiSerial::read() {
   // if the head isn't ahead of the tail, we don't have any characters
   if (_serial.rx_head == _serial.rx_tail) return -1;
 
-  unsigned char c = _serial.rx_buff[_serial.rx_tail];
+  uint8_t c = _serial.rx_buff[_serial.rx_tail];
   _serial.rx_tail = (rx_buffer_index_t)(_serial.rx_tail + 1) % WIFI_RX_BUF_SIZE;
   return c;
 }

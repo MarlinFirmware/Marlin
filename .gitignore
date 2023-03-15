@@ -21,7 +21,8 @@
 
 # Generated files
 _Version.h
-bdf2u8g
+bdf2u8g.exe
+genpages.exe
 marlin_config.json
 mczip.h
 *.gen
