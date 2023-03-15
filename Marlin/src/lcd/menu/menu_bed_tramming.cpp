@@ -99,23 +99,22 @@ constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]
                    rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
 
 static int8_t bed_corner;
-xy_pos_t corner_point;
 
 /**
- * Select next corner coordinates
+ * Move to the next corner coordinates
  */
-static void _lcd_bed_tramming_get_next_position() {
+static void _lcd_goto_next_corner() {
+  xy_pos_t corner_point = lf;                     // Left front
 
   if (tramming_3_points) {
     if (bed_corner >= available_points) bed_corner = 0; // Above max position -> move back to first corner
     switch (bed_corner) {
       case 0 ... 1:
         // First two corners set explicitly by the configuration
-        corner_point = lf;                       // Left front
         switch (lco[bed_corner]) {
-          case RF: corner_point.x = rb.x; break; // Right Front
-          case RB: corner_point   = rb;   break; // Right Back
-          case LB: corner_point.y = rb.y; break; // Left Back
+          case RF: corner_point.x = rb.x; break;  // Right Front
+          case RB: corner_point   = rb;   break;  // Right Back
+          case LB: corner_point.y = rb.y; break;  // Left Back
         }
         break;
 
@@ -126,7 +125,7 @@ static void _lcd_bed_tramming_get_next_position() {
         if ((lco[0] == LF && lco[1] == LB) || (lco[0] == LB && lco[1] == LF)) corner_point.x = rb.x; // Center Right
         if ((lco[0] == RF && lco[1] == RB) || (lco[0] == RB && lco[1] == RF)) corner_point.x = lf.x; // Left Center
         if ((lco[0] == LF && lco[1] == RF) || (lco[0] == RF && lco[1] == LF)) corner_point.y = rb.y; // Center Back
-        #if DISABLED(BED_TRAMMING_INCLUDE_CENTER) && ENABLED(BED_TRAMMING_USE_PROBE)
+        #if ENABLED(BED_TRAMMING_USE_PROBE) && DISABLED(BED_TRAMMING_INCLUDE_CENTER)
           bed_corner++;  // Must increment the count to ensure it resets the loop if the 3rd point is out of tolerance
         #endif
         break;
@@ -144,19 +143,26 @@ static void _lcd_bed_tramming_get_next_position() {
       corner_point.set(X_CENTER, Y_CENTER);
     }
     else {
-      corner_point = lf;                       // Left front
       switch (lco[bed_corner]) {
-        case RF: corner_point.x = rb.x; break; // Right Front
-        case RB: corner_point   = rb;   break; // Right Back
-        case LB: corner_point.y = rb.y; break; // Left Back
+        case RF: corner_point.x = rb.x; break;  // Right Front
+        case RB: corner_point   = rb;   break;  // Right Back
+        case LB: corner_point.y = rb.y; break;  // Left Back
       }
     }
   }
+
+  float z = current_position.z + BED_TRAMMING_Z_HOP;
+  #if BOTH(BED_TRAMMING_USE_PROBE, BLTOUCH)
+    z += bltouch.z_extra_clearance();
+  #endif
+  line_to_z(z);
+  do_blocking_move_to_xy(DIFF_TERN(BED_TRAMMING_USE_PROBE, corner_point, probe.offset_xy), manual_feedrate_mm_s.x);
+  line_to_z(BED_TRAMMING_HEIGHT);
+  #if DISABLED(BED_TRAMMING_USE_PROBE)
+    if (++bed_corner >= available_points) bed_corner = 0;
+  #endif
 }
 
-/**
- * Level corners, starting in the front-left corner.
- */
 #if ENABLED(BED_TRAMMING_USE_PROBE)
 
   #define VALIDATE_POINT(X, Y, STR) static_assert(Probe::build_time::can_reach((X), (Y)), \
@@ -228,7 +234,7 @@ static void _lcd_bed_tramming_get_next_position() {
     );
   }
 
-  bool _lcd_bed_tramming_probe(bool verify=false) {
+  bool _lcd_bed_tramming_probe(const bool verify=false) {
     if (verify) line_to_z(BED_TRAMMING_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
@@ -284,11 +290,7 @@ static void _lcd_bed_tramming_get_next_position() {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                // update screen with # of good points
 
-      line_to_z(current_position.z + BED_TRAMMING_Z_HOP + TERN0(BLTOUCH, bltouch.z_extra_clearance())); // clearance
-
-      _lcd_bed_tramming_get_next_position();              // Select next corner coordinates
-      corner_point -= probe.offset_xy;                    // Account for probe offsets
-      do_blocking_move_to_xy(corner_point);               // Goto corner
+      _lcd_goto_next_corner();                            // Goto corner
 
       TERN_(BLTOUCH, if (bltouch.high_speed_mode) bltouch.deploy()); // Deploy in HIGH SPEED MODE
       if (!_lcd_bed_tramming_probe()) {                   // Probe down to tolerance
@@ -323,20 +325,7 @@ static void _lcd_bed_tramming_get_next_position() {
     ui.set_selection(true);
   }
 
-#else // !BED_TRAMMING_USE_PROBE
-
-  static void _lcd_goto_next_corner() {
-    line_to_z(BED_TRAMMING_Z_HOP);
-
-    // Select next corner coordinates
-    _lcd_bed_tramming_get_next_position();
-
-    do_blocking_move_to(corner_point, manual_feedrate_mm_s.x);
-    line_to_z(BED_TRAMMING_HEIGHT);
-    if (++bed_corner >= available_points) bed_corner = 0;
-  }
-
-#endif // !BED_TRAMMING_USE_PROBE
+#endif // BED_TRAMMING_USE_PROBE
 
 void _lcd_bed_tramming_homing() {
   if (!all_axes_homed() && TERN1(NEEDS_PROBE_DEPLOY, probe.deploy())) return;
