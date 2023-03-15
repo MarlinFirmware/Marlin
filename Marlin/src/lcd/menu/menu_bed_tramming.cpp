@@ -58,7 +58,7 @@
   #endif
   float last_z;
   int good_points;
-  bool corner_probing_done, wait_for_probe;
+  bool tramming_done, wait_for_probe;
 
   #if HAS_MARLINUI_U8GLIB
     #include "../dogm/marlinui_DOGM.h"
@@ -203,7 +203,7 @@ static void _lcd_bed_tramming_get_next_position() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::select_screen(
         GET_TEXT_F(MSG_BUTTON_DONE), GET_TEXT_F(MSG_BUTTON_SKIP)
-      , []{ corner_probing_done = true; wait_for_probe = false; }
+      , []{ tramming_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
       , GET_TEXT_F(MSG_BED_TRAMMING_RAISE)
     );
@@ -215,12 +215,12 @@ static void _lcd_bed_tramming_get_next_position() {
         GET_TEXT_F(TERN(HAS_LEVELING, MSG_BUTTON_LEVEL, MSG_BUTTON_DONE))
       , TERN(HAS_LEVELING, GET_TEXT_F(MSG_BUTTON_BACK), nullptr)
       , []{
-          corner_probing_done = true;
+          tramming_done = true;
           queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR)));
           ui.goto_previous_screen_no_defer();
         }
       , []{
-          corner_probing_done = true;
+          tramming_done = true;
           TERN_(HAS_LEVELING, ui.goto_previous_screen_no_defer());
           TERN_(NEEDS_PROBE_DEPLOY, probe.stow(true));
         }
@@ -257,7 +257,7 @@ static void _lcd_bed_tramming_get_next_position() {
 
   bool _lcd_bed_tramming_raise() {
     bool probe_triggered = false;
-    corner_probing_done = false;
+    tramming_done = false;
     wait_for_probe = true;
     ui.goto_screen(_lcd_draw_raise); // show raise screen
     ui.set_selection(true);
@@ -295,13 +295,13 @@ static void _lcd_bed_tramming_get_next_position() {
           #if ENABLED(BED_TRAMMING_VERIFY_RAISED)         // Verify
             while (!_lcd_bed_tramming_probe(true)) {      // Loop while corner verified
               if (!_lcd_bed_tramming_raise()) {           // Prompt user to raise bed if needed
-                if (corner_probing_done) return;          // Done was selected
+                if (tramming_done) return;          // Done was selected
                 break;                                    // Skip was selected
               }
             }
           #endif
         }
-        else if (corner_probing_done)                     // Done was selected
+        else if (tramming_done)                     // Done was selected
           return;
       }
 
@@ -347,12 +347,12 @@ void _lcd_bed_tramming_homing() {
 
   #if ENABLED(BED_TRAMMING_USE_PROBE)
 
-    if (!corner_probing_done) _lcd_test_corners(); // May set corner_probing_done
-    if (corner_probing_done) {
+    if (!tramming_done) _lcd_test_corners(); // May set tramming_done
+    if (tramming_done) {
       ui.goto_previous_screen_no_defer();
       TERN_(NEEDS_PROBE_DEPLOY, probe.stow(true));
     }
-    corner_probing_done = true;
+    tramming_done = true;
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
     TERN_(BLTOUCH, endstops.enable_z_probe(false));
 
@@ -381,17 +381,17 @@ void _lcd_bed_tramming_homing() {
 #if NEEDS_PROBE_DEPLOY
 
   void deploy_probe() {
-    if (!corner_probing_done) probe.deploy(true);
+    if (!tramming_done) probe.deploy(true);
     ui.goto_screen([]{
       if (ui.should_draw()) MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT_F(MSG_MANUAL_DEPLOY));
-      if (!probe.deploy() && !corner_probing_done) _lcd_bed_tramming_homing();
+      if (!probe.deploy() && !tramming_done) _lcd_bed_tramming_homing();
     });
   }
 
 #endif // NEEDS_PROBE_DEPLOY
 
 void _lcd_bed_tramming() {
-  TERN_(BED_TRAMMING_USE_PROBE, corner_probing_done = false);
+  TERN_(BED_TRAMMING_USE_PROBE, tramming_done = false);
   ui.defer_status_screen();
   set_all_unhomed();
   queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
