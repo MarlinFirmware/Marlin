@@ -597,7 +597,7 @@ void menu_backlash();
       ;
 
       LOOP_LOGICAL_AXES(a) {
-        if (a == C_AXIS || TERN0(HAS_EXTRUDERS, a == E_AXIS))
+        if (TERN0(HAS_C_AXIS, a == C_AXIS) || TERN0(HAS_EXTRUDERS, a == E_AXIS))
           EDIT_ITEM_FAST_N(float52sign, a, MSG_VN_JERK, &planner.max_jerk[a], 0.1f, max_jerk_edit[a]);
         else
           EDIT_ITEM_FAST_N(float3, a, MSG_VN_JERK, &planner.max_jerk[a], 1.0f, max_jerk_edit[a]);

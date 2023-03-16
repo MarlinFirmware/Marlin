@@ -537,7 +537,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 #if ENABLED(LCD_BED_TRAMMING)
-  void _lcd_level_bed_corners();
+  void _lcd_bed_tramming();
 #endif
 
 #if HAS_FAN
@@ -553,6 +553,14 @@ class MenuItem_bool : public MenuEditItemBase {
     #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
   #else
     #define EDIT_EXTRA_FAN_SPEED(...)
+  #endif
+
+  #if FAN_COUNT == 1
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #else
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
   #endif
 
   #define _FAN_EDIT_ITEMS(F,L) do{ \
