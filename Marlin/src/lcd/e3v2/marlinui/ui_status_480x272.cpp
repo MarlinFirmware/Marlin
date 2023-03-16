@@ -110,10 +110,11 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
 
   void _draw_e_value(const_float_t value, const uint16_t x, const uint16_t y) {
     const uint8_t scale = value >= 100000.0f ? 10 : 1; // show cm after 99,999mm
+    const bool e_redraw = !ui.did_first_redraw || old_is_printing != print_job_timer.isRunning();
 
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
 
-      if (!ui.did_first_redraw) {
+      if (e_redraw) {
         // Extra spaces to erase previous value
         dwin_string.set(F("E         "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x + (4 * 14 / 2) - 7, y + 2, S(dwin_string.string()));
@@ -127,7 +128,7 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
 
     #else // !DWIN_MARLINUI_PORTRAIT
 
-      if (!ui.did_first_redraw || ui.old_is_printing != print_job_timer.isRunning()) {
+      if (e_redraw) {
         dwin_string.set(F("E "));
         DWIN_Draw_String(true, font16x32, Color_IconBlue, Color_Bg_Black, x, y, S(dwin_string.string()));
       }
@@ -147,11 +148,10 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
 //
 FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
   const uint16_t fanx = (4 * STATUS_CHR_WIDTH - STATUS_FAN_WIDTH) / 2;
-  const uint8_t fan_pct = thermalManager.scaledFanSpeedPercent(0);
-  const bool fan_on = !!fan_pct;
+  const bool fan_on = !!thermalManager.scaledFanSpeed(0);
   if (fan_on) {
     DWIN_ICON_Animation(0, fan_on, ICON, ICON_Fan0, ICON_Fan3, x + fanx, y, 25);
-    dwin_string.set(i8tostr3rj(fan_pct));
+    dwin_string.set(i8tostr3rj(thermalManager.scaledFanSpeedPercent(0)));
     dwin_string.add('%');
     DWIN_Draw_String(true, font14x28, Color_White, Color_Bg_Black, x, y + STATUS_FAN_HEIGHT, S(dwin_string.string()));
   }
