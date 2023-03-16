@@ -56,3 +56,7 @@
 #if BOTH(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
   #error "I2S stream is currently incompatible with LIN_ADVANCE."
 #endif
+
+#if BOTH(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0
+  #error "PRINTCOUNTER_SAVE_INTERVAL must be zero (disabled) on ESP32 oards with an I2S expander."
+#endif
