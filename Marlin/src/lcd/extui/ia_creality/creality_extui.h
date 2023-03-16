@@ -232,10 +232,10 @@ namespace ExtUI {
       void RTS_SndData(char,          const uint32_t, const uint8_t=VarAddr_W);
       void RTS_SndData(int,           const uint32_t, const uint8_t=VarAddr_W);
       void RTS_SndData(unsigned long, const uint32_t, const uint8_t=VarAddr_W);
+      void RTS_SndData(const_float_t, const uint32_t, const uint8_t=VarAddr_W);
 
       void RTS_SndData(uint8_t * const str, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData((char *)str, addr, cmd); }
       void RTS_SndData(const unsigned int n, uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData(int(n), addr, cmd); }
-      void RTS_SndData(const_float_t n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData(int(n), addr, cmd); }
       void RTS_SndData(const long n, const uint32_t addr, const uint8_t cmd=VarAddr_W) { RTS_SndData((unsigned long)n, addr, cmd); }
 
       void RTS_SDcard_Stop();
