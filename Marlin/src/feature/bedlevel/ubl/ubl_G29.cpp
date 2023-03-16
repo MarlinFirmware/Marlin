@@ -1527,10 +1527,10 @@ void unified_bed_leveling::smart_fill_mesh() {
     else { // !do_3_pt_leveling
 
       #ifdef G29J_MESH_TILT_MARGIN
-        const float x_min = _MAX(probe.min_x() + (G29J_MESH_TILT_MARGIN), X_MIN_POS),
-                    x_max = _MIN(probe.max_x() - (G29J_MESH_TILT_MARGIN), X_MAX_POS),
-                    y_min = _MAX(probe.min_y() + (G29J_MESH_TILT_MARGIN), Y_MIN_POS),
-                    y_max = _MIN(probe.max_y() - (G29J_MESH_TILT_MARGIN), Y_MAX_POS);
+        const float x_min = _MAX(MESH_MIN_X + G29J_MESH_TILT_MARGIN, probe.min_x() + G29J_MESH_TILT_MARGIN),
+                    x_max = _MIN(MESH_MAX_X - G29J_MESH_TILT_MARGIN, probe.max_x() - G29J_MESH_TILT_MARGIN),
+                    y_min = _MAX(MESH_MIN_Y + G29J_MESH_TILT_MARGIN, probe.min_y() + G29J_MESH_TILT_MARGIN),
+                    y_max = _MIN(MESH_MAX_Y - G29J_MESH_TILT_MARGIN, probe.max_y() - G29J_MESH_TILT_MARGIN);
       #else
         const float x_min = _MAX(MESH_MIN_X, probe.min_x()), x_max = _MIN(MESH_MAX_X, probe.max_x()),
                     y_min = _MAX(MESH_MIN_Y, probe.min_y()), y_max = _MIN(MESH_MAX_Y, probe.max_y());
