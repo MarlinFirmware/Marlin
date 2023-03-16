@@ -1555,8 +1555,7 @@ void unified_bed_leveling::smart_fill_mesh() {
               if (DEBUGGING(LEVELING)) oldRpos = rpos;
             #endif
             mesh_index_pair cpos;
-            rpos.x -= probe.offset.x;
-            rpos.y -= probe.offset.y;
+            rpos -= probe.offset;
             cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
             rpos = cpos.meshpos();
           #endif
@@ -1575,16 +1574,9 @@ void unified_bed_leveling::smart_fill_mesh() {
               const xy_pos_t lpos = rpos.asLogical();
               #if ENABLED(UBL_TILT_ON_MESH_POINTS)
                 const xy_pos_t oldLpos = oldRpos.asLogical();
-                DEBUG_ECHOPGM("Calculated point: ")
-                DEBUG_CHAR('(');
-                DEBUG_ECHO_F(oldRpos.x, 7);
-                DEBUG_CHAR(',');
-                DEBUG_ECHO_F(oldRpos.y, 7);
-                DEBUG_ECHOPAIR_F(")   logical: (", oldLpos.x, 7);
-                DEBUG_CHAR(',');
-                DEBUG_ECHO_F(oldLpos.y, 7);
-                DEBUG_ECHOLN(")");
-                DEBUG_ECHOPGM("Selected mesh point: ")
+                DEBUG_ECHOPGM("Calculated point: ("); DEBUG_ECHO_F(oldRpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(oldRpos.y, 7);
+                DEBUG_ECHOPAIR_F(")   logical: (", oldLpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(oldLpos.y, 7);
+                DEBUG_ECHOPGM(")\nSelected mesh point: ");
               #endif
               DEBUG_CHAR('('); DEBUG_ECHO_F(rpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(rpos.y, 7);
               DEBUG_ECHOPAIR_F(")  logical: (", lpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(lpos.y, 7);
