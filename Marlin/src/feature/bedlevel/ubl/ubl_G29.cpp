@@ -1532,8 +1532,8 @@ void unified_bed_leveling::smart_fill_mesh() {
                     y_min = _MAX(probe.min_y() + (G29J_MESH_TILT_MARGIN), Y_MIN_POS),
                     y_max = _MIN(probe.max_y() - (G29J_MESH_TILT_MARGIN), Y_MAX_POS);
       #else
-        const float x_min = MAX2(MESH_MIN_X, probe.min_x()), x_max = MIN2(MESH_MAX_X, probe.max_x()),
-                    y_min = MAX2(MESH_MIN_Y, probe.min_y()), y_max = MIN2(MESH_MAX_Y, probe.max_y());
+        const float x_min = _MAX(MESH_MIN_X, probe.min_x()), x_max = _MIN(MESH_MAX_X, probe.max_x()),
+                    y_min = _MAX(MESH_MIN_Y, probe.min_y()), y_max = _MIN(MESH_MAX_Y, probe.max_y());
       #endif
       const float dx = (x_max - x_min) / (param.J_grid_size - 1),
                   dy = (y_max - y_min) / (param.J_grid_size - 1);
