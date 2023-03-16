@@ -308,9 +308,15 @@ public:
             points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
             points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
           #else
-            points[0] = xy_float_t({ min_x(), min_y() });
-            points[1] = xy_float_t({ max_x(), min_y() });
-            points[2] = xy_float_t({ (min_x() + max_x()) / 2, max_y() });
+            #if ENABLED(AUTO_BED_LEVELING_UBL)
+              points[0] = xy_float_t({ MAX2(MESH_MIN_X, min_x()), MAX2(MESH_MIN_Y, min_y()) });
+              points[1] = xy_float_t({ MIN2(MESH_MAX_X, max_x()), MAX2(MESH_MIN_Y, min_y()) });
+              points[2] = xy_float_t({ (MAX2(MESH_MIN_X, min_x()) + MIN2(MESH_MAX_X, max_x())) / 2, MIN2(MESH_MAX_Y, max_y()) });
+            #else
+              points[0] = xy_float_t({ min_x(), min_y() });
+              points[1] = xy_float_t({ max_x(), min_y() });
+              points[2] = xy_float_t({ (min_x() + max_x()) / 2, max_y() });
+            #endif
           #endif
         #endif
       }
