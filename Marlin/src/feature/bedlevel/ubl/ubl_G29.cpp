@@ -1479,82 +1479,33 @@ void unified_bed_leveling::smart_fill_mesh() {
 
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
 
-    #ifdef G29J_MESH_TILT_MARGIN
-      const float x_min = _MAX(probe.min_x() + (G29J_MESH_TILT_MARGIN), X_MIN_POS),
-                  x_max = _MIN(probe.max_x() - (G29J_MESH_TILT_MARGIN), X_MAX_POS),
-                  y_min = _MAX(probe.min_y() + (G29J_MESH_TILT_MARGIN), Y_MIN_POS),
-                  y_max = _MIN(probe.max_y() - (G29J_MESH_TILT_MARGIN), Y_MAX_POS);
-    #else
-      const float x_min = probe.min_x(), x_max = probe.max_x(),
-                  y_min = probe.min_y(), y_max = probe.max_y();
-    #endif
-    const float dx = (x_max - x_min) / (param.J_grid_size - 1),
-                dy = (y_max - y_min) / (param.J_grid_size - 1);
-
-    xy_float_t points[3];
-    probe.get_three_points(points);
-
     float measured_z;
     bool abort_flag = false;
-
-    #if ENABLED(VALIDATE_MESH_TILT)
-      float z1, z2, z3;  // Needed for algorithm validation below
-    #endif
 
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
 
     if (do_3_pt_leveling) {
-      SERIAL_ECHOLNPGM("Tilting mesh (1/3)");
-      TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 1/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
+      xy_float_t points[3];
+      probe.get_three_points(points);
 
-      measured_z = probe.probe_at_point(points[0], PROBE_PT_RAISE, param.V_verbosity);
-      if (isnan(measured_z))
-        abort_flag = true;
-      else {
-        measured_z -= get_z_correction(points[0]);
-        TERN_(VALIDATE_MESH_TILT, z1 = measured_z);
-        if (param.V_verbosity > 3) {
-          serial_spaces(16);
-          SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
-        }
-        incremental_LSF(&lsf_results, points[0], measured_z);
-      }
+      #if ENABLED(VALIDATE_MESH_TILT)
+        float gotz[3];  // Used for algorithm validation below
+      #endif
 
-      if (!abort_flag) {
-        SERIAL_ECHOLNPGM("Tilting mesh (2/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 2/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
+      LOOP_L_N(i, 3) {
+        SERIAL_ECHOLNPGM("Tilting mesh (", i + 1, "/3)");
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), i + 1, GET_TEXT(MSG_LCD_TILTING_MESH)));
 
-        measured_z = probe.probe_at_point(points[1], PROBE_PT_RAISE, param.V_verbosity);
-        TERN_(VALIDATE_MESH_TILT, z2 = measured_z);
-        if (isnan(measured_z))
-          abort_flag = true;
-        else {
-          measured_z -= get_z_correction(points[1]);
-          if (param.V_verbosity > 3) {
-            serial_spaces(16);
-            SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
-          }
-          incremental_LSF(&lsf_results, points[1], measured_z);
-        }
-      }
+        measured_z = probe.probe_at_point(points[i], i < 2 ? PROBE_PT_RAISE : PROBE_PT_LAST_STOW, param.V_verbosity);
+        if ((abort_flag = isnan(measured_z))) break;
 
-      if (!abort_flag) {
-        SERIAL_ECHOLNPGM("Tilting mesh (3/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 3/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
+        measured_z -= get_z_correction(points[i]);
+        TERN_(VALIDATE_MESH_TILT, gotz[i] = measured_z);
 
-        measured_z = probe.probe_at_point(points[2], PROBE_PT_LAST_STOW, param.V_verbosity);
-        TERN_(VALIDATE_MESH_TILT, z3 = measured_z);
-        if (isnan(measured_z))
-          abort_flag = true;
-        else {
-          measured_z -= get_z_correction(points[2]);
-          if (param.V_verbosity > 3) {
-            serial_spaces(16);
-            SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
-          }
-          incremental_LSF(&lsf_results, points[2], measured_z);
-        }
+        if (param.V_verbosity > 3) { serial_spaces(16); SERIAL_ECHOLNPGM("Corrected_Z=", measured_z); }
+
+        incremental_LSF(&lsf_results, points[i], measured_z);
       }
 
       probe.stow();
@@ -1567,54 +1518,62 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
     else { // !do_3_pt_leveling
 
+      #ifdef G29J_MESH_TILT_MARGIN
+        const float x_min = _MAX(probe.min_x() + (G29J_MESH_TILT_MARGIN), X_MIN_POS),
+                    x_max = _MIN(probe.max_x() - (G29J_MESH_TILT_MARGIN), X_MAX_POS),
+                    y_min = _MAX(probe.min_y() + (G29J_MESH_TILT_MARGIN), Y_MIN_POS),
+                    y_max = _MIN(probe.max_y() - (G29J_MESH_TILT_MARGIN), Y_MAX_POS);
+      #else
+        const float x_min = probe.min_x(), x_max = probe.max_x(),
+                    y_min = probe.min_y(), y_max = probe.max_y();
+      #endif
+      const float dx = (x_max - x_min) / (param.J_grid_size - 1),
+                  dy = (y_max - y_min) / (param.J_grid_size - 1);
+
       bool zig_zag = false;
 
       const uint16_t total_points = sq(param.J_grid_size);
       uint16_t point_num = 1;
 
-      xy_pos_t rpos;
       LOOP_L_N(ix, param.J_grid_size) {
+        xy_pos_t rpos;
         rpos.x = x_min + ix * dx;
         LOOP_L_N(iy, param.J_grid_size) {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
-          if (!abort_flag) {
-            SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
-            TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
+          SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
 
-            measured_z = probe.probe_at_point(rpos, parser.seen_test('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity); // TODO: Needs error handling
+          measured_z = probe.probe_at_point(rpos, parser.seen_test('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity); // TODO: Needs error handling
 
-            abort_flag = isnan(measured_z);
+          if ((abort_flag = isnan(measured_z))) break;
 
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) {
-                const xy_pos_t lpos = rpos.asLogical();
-                DEBUG_CHAR('(');
-                DEBUG_ECHO_F(rpos.x, 7);
-                DEBUG_CHAR(',');
-                DEBUG_ECHO_F(rpos.y, 7);
-                DEBUG_ECHOPAIR_F(")   logical: (", lpos.x, 7);
-                DEBUG_CHAR(',');
-                DEBUG_ECHO_F(lpos.y, 7);
-                DEBUG_ECHOPAIR_F(")   measured: ", measured_z, 7);
-                DEBUG_ECHOPAIR_F("   correction: ", get_z_correction(rpos), 7);
-              }
-            #endif
+          const float zcorr = get_z_correction(rpos);
 
-            measured_z -= get_z_correction(rpos) /* + probe.offset.z */ ;
-
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
-
-            if (param.V_verbosity > 3) {
-              serial_spaces(16);
-              SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              const xy_pos_t lpos = rpos.asLogical();
+              DEBUG_CHAR('('); DEBUG_ECHO_F(rpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(rpos.y, 7);
+              DEBUG_ECHOPAIR_F(")  logical: (", lpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(lpos.y, 7);
+              DEBUG_ECHOPAIR_F(")  measured: ", measured_z, 7);
+              DEBUG_ECHOPAIR_F("  correction: ", zcorr, 7);
             }
-            incremental_LSF(&lsf_results, rpos, measured_z);
+          #endif
+
+          measured_z -= zcorr;
+
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_F("  final >>>---> ", measured_z, 7);
+
+          if (param.V_verbosity > 3) {
+            serial_spaces(16);
+            SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
           }
+          incremental_LSF(&lsf_results, rpos, measured_z);
 
           point_num++;
         }
 
+        if (abort_flag) break;
         zig_zag ^= true;
       }
     }
@@ -1696,20 +1655,23 @@ void unified_bed_leveling::smart_fill_mesh() {
         auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](FSTR_P const pre, const xy_pos_t &pos, const_float_t zadd) {
-          d_from(); SERIAL_ECHOF(pre);
+        auto debug_pt = [](const int num, const xy_pos_t &pos, const_float_t zadd) {
+          d_from(); DEBUG_ECHOPGM("Point ", num, ":");
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
         };
-        debug_pt(F("1st point: "), probe_pt[0], normal.z * z1);
-        debug_pt(F("2nd point: "), probe_pt[1], normal.z * z2);
-        debug_pt(F("3rd point: "), probe_pt[2], normal.z * z3);
-        d_from(); DEBUG_ECHOPGM("safe home with Z=");
-        DEBUG_ECHOLNPAIR_F("0 : ", normed(safe_homing_xy, 0), 6);
-        d_from(); DEBUG_ECHOPGM("safe home with Z=");
-        DEBUG_ECHOLNPAIR_F("mesh value ", normed(safe_homing_xy, get_z_correction(safe_homing_xy)), 6);
-        DEBUG_ECHOPGM("   Z error = (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
-        DEBUG_ECHOLNPAIR_F(") = ", get_z_correction(safe_homing_xy), 6);
+        debug_pt(1, probe_pt[0], normal.z * gotz[0]);
+        debug_pt(2, probe_pt[1], normal.z * gotz[1]);
+        debug_pt(3, probe_pt[2], normal.z * gotz[2]);
+        #if ENABLED(Z_SAFE_HOMING)
+          constexpr xy_float_t safe_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+          d_from(); DEBUG_ECHOPGM("safe home with Z=");
+          DEBUG_ECHOLNPAIR_F("0 : ", normed(safe_xy, 0), 6);
+          d_from(); DEBUG_ECHOPGM("safe home with Z=");
+          DEBUG_ECHOLNPAIR_F("mesh value ", normed(safe_xy, get_z_correction(safe_xy)), 6);
+          DEBUG_ECHOPGM("   Z error = (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
+          DEBUG_ECHOLNPAIR_F(") = ", get_z_correction(safe_xy), 6);
+        #endif
       #endif
     } // DEBUGGING(LEVELING)
 
