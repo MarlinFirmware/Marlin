@@ -195,7 +195,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
-    return hash_changed || !ui.did_first_redraw;
+    return hash_changed || !did_first_redraw;
   };
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
