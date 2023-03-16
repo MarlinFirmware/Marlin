@@ -44,6 +44,7 @@
 #include "max7219.h"
 
 #include "../module/planner.h"
+#include "../module/stepper.h"
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
@@ -720,6 +721,19 @@ void Max7219::idle_tasks() {
     if (current_time_fraction != last_time_fraction) {
       quantity(MAX7219_DEBUG_PROFILE, last_time_fraction, current_time_fraction, &row_change_mask);
       last_time_fraction = current_time_fraction;
+    }
+  #endif
+
+  #ifdef MAX7219_DEBUG_MULTISTEPPING
+    static uint8_t last_multistepping = 0;
+    const uint8_t multistepping = Stepper::steps_per_isr;
+    if (multistepping != last_multistepping) {
+      static uint8_t log2_old = 0;
+      uint8_t log2_new = 0;
+      for (uint8_t val = multistepping; val > 1; val >>= 1) log2_new++;
+      mark16(MAX7219_DEBUG_MULTISTEPPING, log2_old, log2_new, &row_change_mask);
+      last_multistepping = multistepping;
+      log2_old = log2_new;
     }
   #endif
 
