@@ -109,7 +109,3 @@
 #endif
 #undef CHECK_SERIAL_PIN
 #undef _CHECK_SERIAL_PIN
-
-#if Z_MIN_PROBE_PIN == 32
-  #error "Disable Z_MIN_PROBE_PIN to use the default pin for your controller or set it to the correct custom pin."
-#endif
