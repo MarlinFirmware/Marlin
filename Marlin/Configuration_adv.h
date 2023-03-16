@@ -3160,7 +3160,7 @@
    *
    * It is recommended to set HOMING_BUMP_MM to { 0, 0, 0 }.
    *
-   * SPI_ENDSTOPS  *** Beta feature! *** TMC2130/TMC5160 Only ***
+   * SPI_ENDSTOPS  *** TMC2130/TMC5160 Only ***
    * Poll the driver through SPI to determine load when homing.
    * Removes the need for a wire from DIAG1 to an endstop pin.
    *
@@ -3188,7 +3188,7 @@
     //#define U_STALL_SENSITIVITY  8
     //#define V_STALL_SENSITIVITY  8
     //#define W_STALL_SENSITIVITY  8
-    //#define SPI_ENDSTOPS              // TMC2130 only
+    //#define SPI_ENDSTOPS              // TMC2130/TMC5160 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 
@@ -3207,7 +3207,6 @@
    //#define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
-   * Beta feature!
    * Create a 50/50 square wave step pulse optimal for stepper drivers.
    */
   //#define SQUARE_WAVE_STEPPING
