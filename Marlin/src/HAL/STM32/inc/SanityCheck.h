@@ -109,3 +109,7 @@
 #endif
 #undef CHECK_SERIAL_PIN
 #undef _CHECK_SERIAL_PIN
+
+#if Z_MIN_PROBE_PIN == 32
+  #error "Z_MIN_PROBE_PIN is not 32 on any known STM32 controller. This is the default for a RAMPS controller."
+#endif
