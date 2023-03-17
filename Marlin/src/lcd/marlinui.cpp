@@ -372,7 +372,7 @@ void MarlinUI::init() {
       if (theCard.longFilename[0]) {
         #if MARLINUI_SCROLL_NAME
           if (doScroll) {
-            for (uint8_t l = FILENAME_LENGTH; l--;)
+            for (uint_fast8_t l = FILENAME_LENGTH; l--;)
               hash = ((hash << 1) | (hash >> 7)) ^ theCard.filename[l];      // rotate, xor
             static uint8_t filename_scroll_hash;
             if (filename_scroll_hash != hash) {                              // If the hash changed...
@@ -1314,7 +1314,7 @@ void MarlinUI::init() {
         thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
         thermalManager.ADCKey_count = 0;
         if (currentkpADCValue < adc_other_button)
-          for (uint8_t i = 0; i < ADC_KEY_NUM; ++i) {
+          for (uint_fast8_t i = 0; i < ADC_KEY_NUM; ++i) {
             const raw_adc_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                             hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
             if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
@@ -1405,7 +1405,7 @@ void MarlinUI::init() {
           uint8_t val = 0;
           WRITE(SHIFT_LD_PIN, LOW);
           WRITE(SHIFT_LD_PIN, HIGH);
-          for (uint8_t i = 0; i < 8; ++i) {
+          for (uint_fast8_t i = 0; i < 8; ++i) {
             val >>= 1;
             if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
             WRITE(SHIFT_CLK_PIN, HIGH);

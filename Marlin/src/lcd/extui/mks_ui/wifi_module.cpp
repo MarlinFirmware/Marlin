@@ -266,7 +266,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     bb_peri_set_bit(&USART1_BASE->CR3, USART_CR3_DMAR_BIT, 1);
     dma_enable(DMA1, DMA_CH5);   // enable transmit
 
-    for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
+    for (uint_fast8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
       wifiDmaRcvFifo.bufferAddr[i] = &bmp_public_buf[1024 * i];
       wifiDmaRcvFifo.state[i] = udisk_buf_empty;
     }
@@ -534,7 +534,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
 
     SET_BIT(USART1->CR3, USART_CR3_DMAR);   // Enable Rx DMA Request
 
-    for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
+    for (uint_fast8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
       wifiDmaRcvFifo.bufferAddr[i] = &bmp_public_buf[1024 * i];
       wifiDmaRcvFifo.state[i] = udisk_buf_empty;
     }
