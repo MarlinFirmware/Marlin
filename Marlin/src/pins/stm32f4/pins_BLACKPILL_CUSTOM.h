@@ -50,60 +50,80 @@
   #define SERVO0_PIN                        PC13  // BLTouch OUT
 #endif
 
+#define LED_PIN                             PC13
+
 //
 // Limit Switches
 //
 #define Z_STOP_PIN                          PA15
-#define X_STOP_PIN                          PA5
-#define Y_STOP_PIN                          PA6
+#define X_STOP_PIN                          PA11
+#define Y_STOP_PIN                          PA12
 
 //
 // Filament Runout Sensor
 //
-#define FIL_RUNOUT_PIN                      PC15  // "Pulled-high"
+#define FIL_RUNOUT_PIN                      PB15  // "Pulled-high"
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          PC_2
-#define X_DIR_PIN                           PB9
-#define X_ENABLE_PIN                        PC_3  // Shared
+#define X_STEP_PIN                          PB0
+#define X_DIR_PIN                           PB1
+#define X_ENABLE_PIN                        PB2  // Shared
 
-#define Y_STEP_PIN                          PB8
-#define Y_DIR_PIN                           PB7
-#define Y_ENABLE_PIN                X_ENABLE_PIN
+#define Y_STEP_PIN                          PB3
+#define Y_DIR_PIN                           PB4
+#define Y_ENABLE_PIN                        X_ENABLE_PIN
 
-#define Z_STEP_PIN                          PB6
+#define Z_STEP_PIN                          PB8
 #define Z_DIR_PIN                           PB5
-#define Z_ENABLE_PIN                X_ENABLE_PIN
+#define Z_ENABLE_PIN                        X_ENABLE_PIN
 
-#define E0_STEP_PIN                         PB4
-#define E0_DIR_PIN                          PB3
-#define E0_ENABLE_PIN               X_ENABLE_PIN
+#define E0_STEP_PIN                         PB9
+#define E0_DIR_PIN                          PB10
+#define E0_ENABLE_PIN                       X_ENABLE_PIN
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC_5  // TH1
-#define TEMP_BED_PIN                        PC4   // TB1
+#define TEMP_0_PIN                          PA0  // TH1
+#define TEMP_BED_PIN                        PA1   // TB1
 
 //
 // Heaters / Fans
 //
-#define HEATER_BED_PIN                      PA7   // HOT BED
-#define FAN1_PIN                            PC_0  // extruder fan
-#define HEATER_0_PIN                        PA1   // HEATER1
+#define HEATER_BED_PIN                      PA2   // HOT BED
+#define FAN1_PIN                            PA8  // extruder fan
+#define HEATER_0_PIN                        PA3   // HEATER1
+
+//
+// Encoder pins
+//
+#if ENABLED(OLED_PANEL_TINYBOY2)
+#define BTN_EN1                             PB12
+#define BTN_EN2                             PB13
+#define BTN_ENC                             PB14
+#define BEEPER_PIN                          PC15
+#endif
+
 
 //
 // SD Card
 //
 #define ONBOARD_SPI_DEVICE                     1
-#define ONBOARD_SD_CS_PIN                   PA4   // SDSS
+// #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 
-#define SD_DETECT_PIN                       PC7
+#define SD_DETECT_PIN                       -1
 #define SDCARD_CONNECTION                ONBOARD
 //#define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+
+#if SD_CONNECTION_IS(ONBOARD)                      
+  #define SDSS                            PA4
+  #define SD_SCK_PIN                      PA5
+  #define SD_MISO_PIN                     PA6
+  #define SD_MOSI_PIN                     PA7
+#endif
 
 // Pins for documentation and sanity checks only.
 // Changing these will not change the pin they are on.
