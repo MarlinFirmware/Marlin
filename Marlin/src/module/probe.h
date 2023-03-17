@@ -76,9 +76,7 @@ class Probe {
 public:
 
   #if ENABLED(SENSORLESS_PROBING)
-    typedef struct {
-        bool x:1, y:1, z:1;
-    } sense_bool_t;
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
     static sense_bool_t test_sensitivity;
   #endif
 
@@ -116,7 +114,33 @@ public:
         }
       #endif
 
-    #else
+    #else // !IS_KINEMATIC
+
+      static bool obstacle_check(const_float_t rx, const_float_t ry) {
+        #if ENABLED(AVOID_OBSTACLES)
+          #ifdef OBSTACLE1
+            constexpr float obst1[] = OBSTACLE1;
+            static_assert(COUNT(obst1) == 4, "OBSTACLE1 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst1[0], obst1[2]) && WITHIN(ry, obst1[1], obst1[3])) return false;
+          #endif
+          #ifdef OBSTACLE2
+            constexpr float obst2[] = OBSTACLE2;
+            static_assert(COUNT(obst2) == 4, "OBSTACLE2 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst2[0], obst2[2]) && WITHIN(ry, obst2[1], obst2[3])) return false;
+          #endif
+          #ifdef OBSTACLE3
+            constexpr float obst3[] = OBSTACLE3;
+            static_assert(COUNT(obst3) == 4, "OBSTACLE3 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst3[0], obst3[2]) && WITHIN(ry, obst3[1], obst3[3])) return false;
+          #endif
+          #ifdef OBSTACLE4
+            constexpr float obst4[] = OBSTACLE4;
+            static_assert(COUNT(obst4) == 4, "OBSTACLE4 must define a rectangle in the form { X1, Y1, X2, Y2 }.");
+            if (WITHIN(rx, obst4[0], obst4[2]) && WITHIN(ry, obst4[1], obst4[3])) return false;
+          #endif
+        #endif
+        return true;
+      }
 
       /**
        * Return whether the given position is within the bed, and whether the nozzle
@@ -129,16 +153,20 @@ public:
         if (probe_relative) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
               && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
-              && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
+              && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop)
+              && obstacle_check(rx, ry)
+              && obstacle_check(rx - offset_xy.x, ry - offset_xy.y);
         }
         else {
           return position_is_reachable(rx, ry)
               && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
-              && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop);
+              && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop)
+              && obstacle_check(rx, ry)
+              && obstacle_check(rx + offset_xy.x, ry + offset_xy.y);
         }
       }
 
-    #endif
+    #endif // !IS_KINEMATIC
 
     static void move_z_after_probing() {
       #ifdef Z_AFTER_PROBING
@@ -150,7 +178,7 @@ public:
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
-  #else
+  #else // !HAS_BED_PROBE
 
     static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY_1(0)); // See #16767
 
@@ -158,7 +186,7 @@ public:
 
     static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
 
-  #endif
+  #endif // !HAS_BED_PROBE
 
   static void move_z_after_homing() {
     #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)

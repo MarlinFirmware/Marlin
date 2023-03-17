@@ -537,7 +537,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 #if ENABLED(LCD_BED_TRAMMING)
-  void _lcd_level_bed_corners();
+  void _lcd_bed_tramming();
 #endif
 
 #if HAS_FAN

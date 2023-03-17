@@ -59,7 +59,7 @@ extern uint8_t Explore_Disk(char *path, uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
-extern unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick);
+extern uint16_t getTickDiff(uint16_t curTick, uint16_t lastTick);
 
 volatile SZ_USART_FIFO WifiRxFifo;
 

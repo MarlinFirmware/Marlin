@@ -30,26 +30,26 @@
   #define AXIS_RELATIVE_MODES {}
 #endif
 
-#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+#if defined(SWITCHING_NOZZLE_E1_SERVO_NR) && DISABLED(MECHANICAL_SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
 #endif
 
 // Determine NUM_SERVOS if none was supplied
 #ifndef NUM_SERVOS
   #define NUM_SERVOS 0
-  #if ANY(HAS_Z_SERVO_PROBE, CHAMBER_VENT, SWITCHING_TOOLHEAD, SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SPINDLE_SERVO)
-    #if NUM_SERVOS <= Z_PROBE_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
-    #endif
-    #if NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
-    #endif
-    #if NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
-    #endif
+  #if HAS_Z_SERVO_PROBE && NUM_SERVOS <= Z_PROBE_SERVO_NR
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+  #endif
+  #if ENABLED(CHAMBER_VENT) && NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
+  #endif
+  #if ENABLED(SWITCHING_TOOLHEAD) && NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+  #endif
+  #if ENABLED(SWITCHING_NOZZLE)
     #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_NOZZLE_SERVO_NR + 1)
@@ -58,6 +58,8 @@
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_NOZZLE_E1_SERVO_NR + 1)
     #endif
+  #endif
+  #if ENABLED(SWITCHING_EXTRUDER)
     #if NUM_SERVOS <= SWITCHING_EXTRUDER_SERVO_NR
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_EXTRUDER_SERVO_NR + 1)
@@ -66,12 +68,12 @@
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
     #endif
-    #if NUM_SERVOS <= SPINDLE_SERVO_NR
-      #undef NUM_SERVOS
-      #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
-    #endif
   #endif
-#endif
+  #if ENABLED(SPINDLE_SERVO) && NUM_SERVOS <= SPINDLE_SERVO_NR
+    #undef NUM_SERVOS
+    #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
+  #endif
+#endif // !defined(NUM_SERVOS)
 
 // Convenience override for a BLTouch alone
 #if ENABLED(BLTOUCH) && NUM_SERVOS == 1
@@ -88,51 +90,108 @@
 
 // Some options are disallowed without required axes
 #if !HAS_Y_AXIS
-  #undef SAFE_BED_LEVELING_START_Y
   #undef ARC_SUPPORT
+  #undef CALIBRATION_MEASURE_YMAX
+  #undef CALIBRATION_MEASURE_YMIN
+  #undef DISABLE_INACTIVE_Y
+  #undef HOME_Y_BEFORE_X
   #undef INPUT_SHAPING_Y
-  #undef SHAPING_FREQ_Y
+  #undef QUICK_HOME
+  #undef SAFE_BED_LEVELING_START_Y
   #undef SHAPING_BUFFER_Y
+  #undef SHAPING_FREQ_Y
+  #undef STEALTHCHOP_Y
+  #undef STEP_STATE_Y
 #endif
+
 #if !HAS_Z_AXIS
+  #undef CALIBRATION_MEASURE_ZMAX
+  #undef CALIBRATION_MEASURE_ZMIN
+  #undef CNC_WORKSPACE_PLANES
+  #undef DISABLE_INACTIVE_Z
+  #undef ENABLE_LEVELING_FADE_HEIGHT
+  #undef HOME_Z_FIRST
+  #undef HOMING_Z_WITH_PROBE
+  #undef NUM_Z_STEPPERS
   #undef SAFE_BED_LEVELING_START_Z
+  #undef STEALTHCHOP_Z
+  #undef STEP_STATE_Z
+  #undef Z_IDLE_HEIGHT
+  #undef Z_PROBE_SLED
+  #undef Z_SAFE_HOMING
 #endif
+
 #if !HAS_I_AXIS
+  #undef CALIBRATION_MEASURE_IMAX
+  #undef CALIBRATION_MEASURE_IMIN
+  #undef DISABLE_INACTIVE_I
   #undef SAFE_BED_LEVELING_START_I
+  #undef STEALTHCHOP_I
+  #undef STEP_STATE_I
 #endif
+
 #if !HAS_J_AXIS
+  #undef CALIBRATION_MEASURE_JMAX
+  #undef CALIBRATION_MEASURE_JMIN
+  #undef DISABLE_INACTIVE_J
   #undef SAFE_BED_LEVELING_START_J
+  #undef STEALTHCHOP_J
+  #undef STEP_STATE_J
 #endif
+
 #if !HAS_K_AXIS
+  #undef CALIBRATION_MEASURE_KMAX
+  #undef CALIBRATION_MEASURE_KMIN
+  #undef DISABLE_INACTIVE_K
   #undef SAFE_BED_LEVELING_START_K
+  #undef STEALTHCHOP_K
+  #undef STEP_STATE_K
 #endif
+
 #if !HAS_U_AXIS
+  #undef CALIBRATION_MEASURE_UMAX
+  #undef CALIBRATION_MEASURE_UMIN
+  #undef DISABLE_INACTIVE_U
   #undef SAFE_BED_LEVELING_START_U
+  #undef STEALTHCHOP_U
+  #undef STEP_STATE_U
 #endif
+
 #if !HAS_V_AXIS
+  #undef CALIBRATION_MEASURE_VMAX
+  #undef CALIBRATION_MEASURE_VMIN
+  #undef DISABLE_INACTIVE_V
   #undef SAFE_BED_LEVELING_START_V
+  #undef STEALTHCHOP_V
+  #undef STEP_STATE_V
 #endif
+
 #if !HAS_W_AXIS
+  #undef CALIBRATION_MEASURE_WMAX
+  #undef CALIBRATION_MEASURE_WMIN
+  #undef DISABLE_INACTIVE_W
   #undef SAFE_BED_LEVELING_START_W
+  #undef STEALTHCHOP_W
+  #undef STEP_STATE_W
 #endif
 
 // Disallowed with no extruders
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
-  #undef FWRETRACT
-  #undef PIDTEMP
-  #undef AUTOTEMP
-  #undef PID_EXTRUSION_SCALING
-  #undef LIN_ADVANCE
   #undef ADVANCED_PAUSE_FEATURE
-  #undef FILAMENT_LOAD_UNLOAD_GCODES
+  #undef AUTOTEMP
   #undef EXTRUDER_RUNOUT_PREVENT
+  #undef FILAMENT_LOAD_UNLOAD_GCODES
+  #undef FWRETRACT
+  #undef LCD_SHOW_E_TOTAL
+  #undef LIN_ADVANCE
+  #undef MANUAL_E_MOVES_RELATIVE
+  #undef PID_EXTRUSION_SCALING
+  #undef PIDTEMP
+  #undef SHOW_TEMP_ADC_VALUES
+  #undef STEALTHCHOP_E
   #undef THERMAL_PROTECTION_PERIOD
   #undef WATCH_TEMP_PERIOD
-  #undef SHOW_TEMP_ADC_VALUES
-  #undef LCD_SHOW_E_TOTAL
-  #undef MANUAL_E_MOVES_RELATIVE
-  #undef STEALTHCHOP_E
 #endif
 
 #if HOTENDS <= 7
@@ -223,13 +282,12 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
+#elif TEMP_SENSOR_0 == 1000
+  #define TEMP_SENSOR_0_IS_CUSTOM 1
+#elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
+  #define TEMP_SENSOR_0_IS_DUMMY 1
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
-  #if TEMP_SENSOR_0 == 1000
-    #define TEMP_SENSOR_0_IS_CUSTOM 1
-  #elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
-    #define TEMP_SENSOR_0_IS_DUMMY 1
-  #endif
 #else
   #undef HEATER_0_MINTEMP
   #undef HEATER_0_MAXTEMP
@@ -269,13 +327,12 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
+#elif TEMP_SENSOR_1 == 1000
+  #define TEMP_SENSOR_1_IS_CUSTOM 1
+#elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
+  #define TEMP_SENSOR_1_IS_DUMMY 1
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
-  #if TEMP_SENSOR_1 == 1000
-    #define TEMP_SENSOR_1_IS_CUSTOM 1
-  #elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
-    #define TEMP_SENSOR_1_IS_DUMMY 1
-  #endif
 #else
   #undef HEATER_1_MINTEMP
   #undef HEATER_1_MAXTEMP
@@ -315,16 +372,70 @@
   #define TEMP_SENSOR_2_IS_AD8495 1
 #elif TEMP_SENSOR_2 == -1
   #define TEMP_SENSOR_2_IS_AD595 1
+#elif TEMP_SENSOR_2 == 1000
+  #define TEMP_SENSOR_2_IS_CUSTOM 1
+#elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
+  #define TEMP_SENSOR_2_IS_DUMMY 1
 #elif TEMP_SENSOR_2 > 0
   #define TEMP_SENSOR_2_IS_THERMISTOR 1
-  #if TEMP_SENSOR_2 == 1000
-    #define TEMP_SENSOR_2_IS_CUSTOM 1
-  #elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
-    #define TEMP_SENSOR_2_IS_DUMMY 1
-  #endif
 #else
   #undef HEATER_2_MINTEMP
   #undef HEATER_2_MAXTEMP
+#endif
+
+#if TEMP_SENSOR_3 == 1000
+  #define TEMP_SENSOR_3_IS_CUSTOM 1
+#elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+  #define TEMP_SENSOR_3_IS_DUMMY 1
+#elif TEMP_SENSOR_3 > 0
+  #define TEMP_SENSOR_3_IS_THERMISTOR 1
+#elif !TEMP_SENSOR_3
+  #undef HEATER_3_MINTEMP
+  #undef HEATER_3_MAXTEMP
+#endif
+
+#if TEMP_SENSOR_4 == 1000
+  #define TEMP_SENSOR_4_IS_CUSTOM 1
+#elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+  #define TEMP_SENSOR_4_IS_DUMMY 1
+#elif TEMP_SENSOR_4 > 0
+  #define TEMP_SENSOR_4_IS_THERMISTOR 1
+#elif !TEMP_SENSOR_4
+  #undef HEATER_4_MINTEMP
+  #undef HEATER_4_MAXTEMP
+#endif
+
+#if TEMP_SENSOR_5 == 1000
+  #define TEMP_SENSOR_5_IS_CUSTOM 1
+#elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+  #define TEMP_SENSOR_5_IS_DUMMY 1
+#elif TEMP_SENSOR_5 > 0
+  #define TEMP_SENSOR_5_IS_THERMISTOR 1
+#elif !TEMP_SENSOR_5
+  #undef HEATER_5_MINTEMP
+  #undef HEATER_5_MAXTEMP
+#endif
+
+#if TEMP_SENSOR_6 == 1000
+  #define TEMP_SENSOR_6_IS_CUSTOM 1
+#elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+  #define TEMP_SENSOR_6_IS_DUMMY 1
+#elif TEMP_SENSOR_6 > 0
+  #define TEMP_SENSOR_6_IS_THERMISTOR 1
+#elif !TEMP_SENSOR_6
+  #undef HEATER_6_MINTEMP
+  #undef HEATER_6_MAXTEMP
+#endif
+
+#if TEMP_SENSOR_7 == 1000
+  #define TEMP_SENSOR_7_IS_CUSTOM 1
+#elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+  #define TEMP_SENSOR_7_IS_DUMMY 1
+#elif TEMP_SENSOR_7 > 0
+  #define TEMP_SENSOR_7_IS_THERMISTOR 1
+#elif !TEMP_SENSOR_7
+  #undef HEATER_7_MINTEMP
+  #undef HEATER_7_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_IS_MAX_TC(REDUNDANT)
@@ -991,53 +1102,6 @@
   #endif
 #endif
 
-// Remove unused STEALTHCHOP flags
-#if NUM_AXES < 9
-  #undef STEALTHCHOP_W
-  #undef CALIBRATION_MEASURE_WMIN
-  #undef CALIBRATION_MEASURE_WMAX
-  #if NUM_AXES < 8
-    #undef STEALTHCHOP_V
-    #undef CALIBRATION_MEASURE_VMIN
-    #undef CALIBRATION_MEASURE_VMAX
-    #if NUM_AXES < 7
-      #undef STEALTHCHOP_U
-      #undef CALIBRATION_MEASURE_UMIN
-      #undef CALIBRATION_MEASURE_UMAX
-      #if NUM_AXES < 6
-        #undef STEALTHCHOP_K
-        #undef CALIBRATION_MEASURE_KMIN
-        #undef CALIBRATION_MEASURE_KMAX
-        #if NUM_AXES < 5
-          #undef STEALTHCHOP_J
-          #undef CALIBRATION_MEASURE_JMIN
-          #undef CALIBRATION_MEASURE_JMAX
-          #if NUM_AXES < 4
-            #undef STEALTHCHOP_I
-            #undef CALIBRATION_MEASURE_IMIN
-            #undef CALIBRATION_MEASURE_IMAX
-            #if NUM_AXES < 3
-              #undef STEALTHCHOP_Z
-              #undef Z_IDLE_HEIGHT
-              #undef Z_PROBE_SLED
-              #undef Z_SAFE_HOMING
-              #undef HOME_Z_FIRST
-              #undef HOMING_Z_WITH_PROBE
-              #undef ENABLE_LEVELING_FADE_HEIGHT
-              #undef NUM_Z_STEPPERS
-              #undef CNC_WORKSPACE_PLANES
-              #if NUM_AXES < 2
-                #undef STEALTHCHOP_Y
-                #undef QUICK_HOME
-              #endif
-            #endif
-          #endif
-        #endif
-      #endif
-    #endif
-  #endif
-#endif
-
 #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
     || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
     || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
@@ -1133,10 +1197,6 @@
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif
 
-#if ANY(DISABLE_INACTIVE_X, DISABLE_INACTIVE_Y, DISABLE_INACTIVE_Z, DISABLE_INACTIVE_I, DISABLE_INACTIVE_J, DISABLE_INACTIVE_K, DISABLE_INACTIVE_U, DISABLE_INACTIVE_V, DISABLE_INACTIVE_W, DISABLE_INACTIVE_E)
-  #define HAS_DISABLE_INACTIVE_AXIS 1
-#endif
-
 // Fan Kickstart
 #if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
   #define FAN_KICKSTART_POWER 180
@@ -1151,4 +1211,17 @@
 // Input shaping
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
   #define HAS_SHAPING 1
+#endif
+
+// Toolchange Event G-code
+#if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
+  #undef TC_GCODE_USE_GLOBAL_X
+  #undef TC_GCODE_USE_GLOBAL_Y
+  #undef TC_GCODE_USE_GLOBAL_Z
+#endif
+
+// Multi-Stepping Limit
+#ifndef MULTISTEPPING_LIMIT
+  #define MULTISTEPPING_LIMIT 128
+  #define MULTISTEPPING_LIMIT_WARNING 1
 #endif

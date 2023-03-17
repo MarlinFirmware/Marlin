@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32H7)
-  #error "Oops! Select an STM32H7 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT

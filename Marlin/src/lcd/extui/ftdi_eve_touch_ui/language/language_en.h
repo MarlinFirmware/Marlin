@@ -146,6 +146,7 @@ namespace Language_en {
   LSTR MSG_PROBE_BED                = u8"Probe Mesh";
   LSTR MSG_PRINT_TEST               = u8"Print Test (PLA)";
   LSTR MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
+  LSTR MSG_MAX_SPEED_NO_UNITS       = u8"Max Speed";
 
   #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     LSTR MSG_MOVE_TO_HOME           = u8"Move to Home";
@@ -163,8 +164,9 @@ namespace Language_en {
     LSTR MSG_CHOCOLATE              = u8"Chocolate";
     LSTR MSG_UNLOAD_CARTRIDGE       = u8"Unload Cartridge";
     LSTR MSG_LOAD_UNLOAD            = u8"Load/Unload";
-    LSTR MSG_FULL_LOAD              = u8"Full Load";
-    LSTR MSG_FULL_UNLOAD            = u8"Full Unload";
+    LSTR MSG_START_STOP             = u8"Start/Stop";
+    LSTR MSG_LOAD                   = u8"Load";
+    LSTR MSG_UNLOAD                 = u8"Unload";
     LSTR MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     LSTR MSG_PREHEAT_FINISHED       = u8"Preheat finished";
     LSTR MSG_PREHEAT                = u8"Preheat";
