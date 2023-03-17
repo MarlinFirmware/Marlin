@@ -618,27 +618,26 @@ void Stepper::set_directions() {
   TERN_(HAS_V_DIR, SET_STEP_DIR(V));
   TERN_(HAS_W_DIR, SET_STEP_DIR(W));
 
-  #if ENABLED(MIXING_EXTRUDER)
+  #if HAS_EXTRUDERS
      // Because this is valid for the whole block we don't know
      // what E steppers will step. Likely all. Set all.
     if (motor_direction(E_AXIS)) {
-      MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
+      #if ENABLED(MIXING_EXTRUDER)
+        MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
+      #else
+        REV_E_DIR(stepper_extruder);
+      #endif
       count_direction.e = -1;
     }
     else {
-      MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+      #if ENABLED(MIXING_EXTRUDER)
+        MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+      #else
+        NORM_E_DIR(stepper_extruder);
+      #endif
       count_direction.e = 1;
     }
-  #elif HAS_EXTRUDERS
-    if (motor_direction(E_AXIS)) {
-      REV_E_DIR(stepper_extruder);
-      count_direction.e = -1;
-    }
-    else {
-      NORM_E_DIR(stepper_extruder);
-      count_direction.e = 1;
-    }
-  #endif
+  #endif // HAS_EXTRUDERS
 
   DIR_WAIT_AFTER();
 }
