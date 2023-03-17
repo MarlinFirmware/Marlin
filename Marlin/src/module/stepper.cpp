@@ -194,7 +194,9 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   uint8_t Stepper::steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
 #endif
 
-hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
+#if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+  hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
+#endif
 
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
@@ -1589,36 +1591,44 @@ void Stepper::isr() {
      */
     min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(TERN(__AVR__, 8, 1) * (STEPPER_TIMER_TICKS_PER_US));
 
-    // Advance pulses if not enough time to wait for the next ISR
-  } while (--max_loops && next_isr_ticks < min_ticks);
-
-  // Track the time spent in the ISR
-  hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-  time_spent_in_isr += time_spent;
-
-  if (next_isr_ticks < min_ticks) {
-    /**
-     * NB: If for some reason the stepper monopolizes the MPU, eventually the
-     * timer will wrap around (and so will 'next_isr_ticks'). So, limit the
-     * loop to 10 iterations. Beyond that, there's no way to ensure correct pulse
-     * timing, since the MCU isn't fast enough.
-     */
-    next_isr_ticks = min_ticks;
-
-    // When forced out of the ISR, increase multi-stepping
-    #if MULTISTEPPING_LIMIT > 1
-      if (steps_per_isr < MULTISTEPPING_LIMIT) {
-        steps_per_isr <<= 1;
-        // ticks_nominal will need to be recalculated if we are in cruise phase
-        ticks_nominal = 0;
-      }
+    #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
+      /**
+       * NB: If for some reason the stepper monopolizes the MPU, eventually the
+       * timer will wrap around (and so will 'next_isr_ticks'). So, limit the
+       * loop to 10 iterations. Beyond that, there's no way to ensure correct pulse
+       * timing, since the MCU isn't fast enough.
+       */
+      if (!--max_loops) next_isr_ticks = min_ticks;
     #endif
-  }
-  else {
-    // Track the time spent voluntarily outside the ISR
-    time_spent_out_isr += next_isr_ticks;
-    time_spent_out_isr -= time_spent;
-  }
+
+    // Advance pulses if not enough time to wait for the next ISR
+  } while (TERN(OLD_ADAPTIVE_MULTISTEPPING, true, --max_loops) && next_isr_ticks < min_ticks);
+
+  #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+
+    // Track the time spent in the ISR
+    const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
+    time_spent_in_isr += time_spent;
+
+    if (next_isr_ticks < min_ticks) {
+      next_isr_ticks = min_ticks;
+
+      // When forced out of the ISR, increase multi-stepping
+      #if MULTISTEPPING_LIMIT > 1
+        if (steps_per_isr < MULTISTEPPING_LIMIT) {
+          steps_per_isr <<= 1;
+          // ticks_nominal will need to be recalculated if we are in cruise phase
+          ticks_nominal = 0;
+        }
+      #endif
+    }
+    else {
+      // Track the time spent voluntarily outside the ISR
+      time_spent_out_isr += next_isr_ticks;
+      time_spent_out_isr -= time_spent;
+    }
+
+  #endif // !OLD_ADAPTIVE_MULTISTEPPING
 
   // Now 'next_isr_ticks' contains the period to the next Stepper ISR - And we are
   // sure that the time has not arrived yet - Warrantied by the scheduler
@@ -2113,11 +2123,57 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
-  #if MULTISTEPPING_LIMIT > 1
+
+  #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
+
+    #if MULTISTEPPING_LIMIT == 1
+
+      // Just make sure the step rate is doable
+      NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
+
+    #else
+
+      // The stepping frequency limits for each multistepping rate
+      static const uint32_t limit[] PROGMEM = {
+            (  MAX_STEP_ISR_FREQUENCY_1X     )
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(1)) >> 1)
+        #if MULTISTEPPING_LIMIT >= 4
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(2)) >> 2)
+        #endif
+        #if MULTISTEPPING_LIMIT >= 8
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(3)) >> 3)
+        #endif
+        #if MULTISTEPPING_LIMIT >= 16
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(4)) >> 4)
+        #endif
+        #if MULTISTEPPING_LIMIT >= 32
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(5)) >> 5)
+        #endif
+        #if MULTISTEPPING_LIMIT >= 64
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(6)) >> 6)
+        #endif
+        #if MULTISTEPPING_LIMIT >= 128
+          , (((F_CPU) / ISR_EXECUTION_CYCLES(7)) >> 7)
+        #endif
+      };
+
+      // Find a doable step rate using multistepping
+      uint8_t multistep = 1;
+      for (uint8_t i = 0; i < COUNT(limit) && step_rate > uint32_t(pgm_read_dword(&limit[i])); ++i) {
+        step_rate >>= 1;
+        multistep <<= 1;
+      }
+      steps_per_isr = multistep;
+
+    #endif
+
+  #elif MULTISTEPPING_LIMIT > 1
+
     uint8_t loops = steps_per_isr;
     if (MULTISTEPPING_LIMIT >= 16 && loops >= 16) { step_rate >>= 4; loops >>= 4; }
     if (MULTISTEPPING_LIMIT >=  4 && loops >=  4) { step_rate >>= 2; loops >>= 2; }
     if (MULTISTEPPING_LIMIT >=  2 && loops >=  2) { step_rate >>= 1; }
+
   #endif
 
   return calc_timer_interval(step_rate);
@@ -2129,18 +2185,19 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
  * have been done, so it is less time critical.
  */
 hal_timer_t Stepper::block_phase_isr() {
-  // If the ISR uses < 50% of MPU time, halve multi-stepping
-  const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-  #if MULTISTEPPING_LIMIT > 1
-    if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
-      steps_per_isr >>= 1;
-      // ticks_nominal will need to be recalculated if we are in cruise phase
-      ticks_nominal = 0;
-    }
+  #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+    // If the ISR uses < 50% of MPU time, halve multi-stepping
+    const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
+    #if MULTISTEPPING_LIMIT > 1
+      if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
+        steps_per_isr >>= 1;
+        // ticks_nominal will need to be recalculated if we are in cruise phase
+        ticks_nominal = 0;
+      }
+    #endif
+    time_spent_in_isr = -time_spent;    // unsigned but guaranteed to be +ve when needed
+    time_spent_out_isr = 0;
   #endif
-
-  time_spent_in_isr = -time_spent;    // unsigned but guaranteed to be +ve when needed
-  time_spent_out_isr = 0;
 
   // If no queued movements, just wait 1ms for the next block
   hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
