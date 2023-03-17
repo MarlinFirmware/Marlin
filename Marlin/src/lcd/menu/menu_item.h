@@ -555,6 +555,14 @@ class MenuItem_bool : public MenuEditItemBase {
     #define EDIT_EXTRA_FAN_SPEED(...)
   #endif
 
+  #if FAN_COUNT == 1
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #else
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #endif
+
   #define _FAN_EDIT_ITEMS(F,L) do{ \
     editable.uint8 = thermalManager.fan_speed[F]; \
     EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update); \
