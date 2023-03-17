@@ -54,7 +54,7 @@ void GcodeSuite::M907() {
 
     // S<current> - Set current in mA for all axes
     if (parser.seenval('S'))
-      for (uint8_t i = 0; i < MOTOR_CURRENT_COUNT; ++i)
+      for (uint_fast8_t i = 0; i < MOTOR_CURRENT_COUNT; ++i)
         stepper.set_digipot_current(i, parser.value_int());
 
     // X Y Z I J K U V W E
@@ -98,7 +98,7 @@ void GcodeSuite::M907() {
       // S<current> - Set all stepper current to the same value
       if (parser.seenval('S')) {
         const int16_t v = parser.value_int();
-        for (uint8_t a = 0; a < MOTOR_CURRENT_COUNT; ++a)
+        for (uint_fast8_t a = 0; a < MOTOR_CURRENT_COUNT; ++a)
           stepper.set_digipot_current(a, v);
       }
 
@@ -130,7 +130,7 @@ void GcodeSuite::M907() {
     // S<current> - Set the same current in Amps on all channels
     if (parser.seenval('S')) {
       const float v = parser.value_float();
-      for (uint8_t q = 0; q < DIGIPOT_I2C_NUM_CHANNELS; ++q)
+      for (uint_fast8_t q = 0; q < DIGIPOT_I2C_NUM_CHANNELS; ++q)
         digipot_i2c.set_current(q, v);
     }
 
@@ -144,7 +144,7 @@ void GcodeSuite::M907() {
     // Additional extruders use B,C,D.
     // TODO: Make parameters work like other axis-specific / stepper-specific. See above.
     #if E_STEPPERS >= 2
-      for (uint8_t i = E_AXIS + 1; i < _MAX(DIGIPOT_I2C_NUM_CHANNELS, (NUM_AXES + 3)); i++)
+      for (uint_fast8_t i = E_AXIS + 1; i < _MAX(DIGIPOT_I2C_NUM_CHANNELS, (NUM_AXES + 3)); i++)
         if (parser.seenval('B' + i - (E_AXIS + 1)))
           digipot_i2c.set_current(i, parser.value_float());
     #endif

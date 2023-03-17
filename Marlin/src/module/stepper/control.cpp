@@ -75,7 +75,7 @@
       SPI.begin();
       SET_OUTPUT(DIGIPOTSS_PIN);
 
-      for (uint8_t i = 0; i < COUNT(motor_current_setting); ++i)
+      for (uint_fast8_t i = 0; i < COUNT(motor_current_setting); ++i)
         set_digipot_current(i, motor_current_setting[i]);
     }
 
@@ -91,7 +91,7 @@
 
   void Stepper::refresh_motor_power() {
     if (!initialized) return;
-    for (uint8_t i = 0; i < COUNT(motor_current_setting); ++i) {
+    for (uint_fast8_t i = 0; i < COUNT(motor_current_setting); ++i) {
       switch (i) {
         #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
           case 0:

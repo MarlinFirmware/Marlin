@@ -120,7 +120,7 @@ void GcodeSuite::M906() {
 
       #if ANY(E0_IS_TRINAMIC, E1_IS_TRINAMIC, E2_IS_TRINAMIC, E3_IS_TRINAMIC, E4_IS_TRINAMIC, E5_IS_TRINAMIC, E6_IS_TRINAMIC, E7_IS_TRINAMIC)
         case E_AXIS: {
-          const int8_t eindex = get_target_e_stepper_from_command(-2);
+          const uint_fast8_t eindex = get_target_e_stepper_from_command(-2);
           TERN_(E0_IS_TRINAMIC, if (eindex < 0 || eindex == 0) TMC_SET_CURRENT(E0));
           TERN_(E1_IS_TRINAMIC, if (eindex < 0 || eindex == 1) TMC_SET_CURRENT(E1));
           TERN_(E2_IS_TRINAMIC, if (eindex < 0 || eindex == 2) TMC_SET_CURRENT(E2));

@@ -191,7 +191,7 @@ void MarlinEthernet::MAC_report(const bool forReplay/*=true*/) {
   if (ethernet.hardware_enabled) {
     uint8_t mac[6];
     Ethernet.MACAddress(mac);
-    for (uint8_t i = 0; i < 6; ++i) {
+    for (uint_fast8_t i = 0; i < 6; ++i) {
       if (mac[i] < 0x10) SERIAL_CHAR('0');
       SERIAL_PRINT(mac[i], PrintBase::Hex);
       if (i < 5) SERIAL_CHAR(':');
@@ -207,7 +207,7 @@ void MarlinEthernet::MAC_report(const bool forReplay/*=true*/) {
 void MarlinEthernet::ip_report(const uint16_t cmd, FSTR_P const post, const IPAddress &ipo, const bool forReplay/*=true*/) {
   if (!forReplay) SERIAL_ECHO_START();
   SERIAL_ECHO(F("  M"), cmd, C(' '));
-  for (uint8_t i = 0; i < 4; ++i) {
+  for (uint_fast8_t i = 0; i < 4; ++i) {
     SERIAL_ECHO(ipo[i]);
     if (i < 3) SERIAL_CHAR('.');
   }
