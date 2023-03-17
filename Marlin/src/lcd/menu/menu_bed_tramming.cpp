@@ -151,14 +151,14 @@ static void _lcd_goto_next_corner() {
     }
   }
 
-  float z = current_position.z + BED_TRAMMING_Z_HOP;
+  float z = BED_TRAMMING_Z_HOP;
   #if BOTH(BED_TRAMMING_USE_PROBE, BLTOUCH)
     z += bltouch.z_extra_clearance();
   #endif
   line_to_z(z);
   do_blocking_move_to_xy(DIFF_TERN(BED_TRAMMING_USE_PROBE, corner_point, probe.offset_xy), manual_feedrate_mm_s.x);
-  line_to_z(BED_TRAMMING_HEIGHT);
   #if DISABLED(BED_TRAMMING_USE_PROBE)
+    line_to_z(BED_TRAMMING_HEIGHT);
     if (++bed_corner >= available_points) bed_corner = 0;
   #endif
 }
