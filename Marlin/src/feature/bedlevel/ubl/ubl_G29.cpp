@@ -1489,6 +1489,14 @@ void unified_bed_leveling::smart_fill_mesh() {
       xy_float_t points[3];
       probe.get_three_points(points);
 
+      #if ENABLED(UBL_TILT_ON_MESH_POINTS_3POINT)
+        mesh_index_pair cpos[3];
+        LOOP_L_N(ix, 3) { // Convert points to coordinates of mesh points
+          cpos[ix] = find_closest_mesh_point_of_type(REAL, points[ix], true);
+          points[ix] = cpos[ix].meshpos();
+        }
+      #endif
+
       #if ENABLED(VALIDATE_MESH_TILT)
         float gotz[3];  // Used for algorithm validation below
       #endif
@@ -1500,7 +1508,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         measured_z = probe.probe_at_point(points[i], i < 2 ? PROBE_PT_RAISE : PROBE_PT_LAST_STOW, param.V_verbosity);
         if ((abort_flag = isnan(measured_z))) break;
 
-        measured_z -= get_z_correction(points[i]);
+        measured_z -= TERN(UBL_TILT_ON_MESH_POINTS_3POINT, z_values[cpos[i].pos.x][cpos[i].pos.y], get_z_correction(points[i]));
         TERN_(VALIDATE_MESH_TILT, gotz[i] = measured_z);
 
         if (param.V_verbosity > 3) { serial_spaces(16); SERIAL_ECHOLNPGM("Corrected_Z=", measured_z); }
@@ -1518,16 +1526,14 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
     else { // !do_3_pt_leveling
 
-      #ifdef G29J_MESH_TILT_MARGIN
-        const float x_min = _MAX(probe.min_x() + (G29J_MESH_TILT_MARGIN), X_MIN_POS),
-                    x_max = _MIN(probe.max_x() - (G29J_MESH_TILT_MARGIN), X_MAX_POS),
-                    y_min = _MAX(probe.min_y() + (G29J_MESH_TILT_MARGIN), Y_MIN_POS),
-                    y_max = _MIN(probe.max_y() - (G29J_MESH_TILT_MARGIN), Y_MAX_POS);
-      #else
-        const float x_min = probe.min_x(), x_max = probe.max_x(),
-                    y_min = probe.min_y(), y_max = probe.max_y();
+      #ifndef G29J_MESH_TILT_MARGIN
+        #define G29J_MESH_TILT_MARGIN 0
       #endif
-      const float dx = (x_max - x_min) / (param.J_grid_size - 1),
+      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_X, probe.min_x()),
+                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_X, probe.max_x()),
+                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_Y, probe.min_y()),
+                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_Y, probe.max_y()),
+                  dx = (x_max - x_min) / (param.J_grid_size - 1),
                   dy = (y_max - y_min) / (param.J_grid_size - 1);
 
       bool zig_zag = false;
@@ -1541,6 +1547,17 @@ void unified_bed_leveling::smart_fill_mesh() {
         LOOP_L_N(iy, param.J_grid_size) {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
+          #if ENABLED(UBL_TILT_ON_MESH_POINTS)
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              xy_pos_t oldRpos;
+              if (DEBUGGING(LEVELING)) oldRpos = rpos;
+            #endif
+            mesh_index_pair cpos;
+            rpos -= probe.offset;
+            cpos = find_closest_mesh_point_of_type(REAL, rpos, true);
+            rpos = cpos.meshpos();
+          #endif
+
           SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
 
@@ -1548,11 +1565,17 @@ void unified_bed_leveling::smart_fill_mesh() {
 
           if ((abort_flag = isnan(measured_z))) break;
 
-          const float zcorr = get_z_correction(rpos);
+          const float zcorr = TERN(UBL_TILT_ON_MESH_POINTS, z_values[cpos.pos.x][cpos.pos.y], get_z_correction(rpos));
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               const xy_pos_t lpos = rpos.asLogical();
+              #if ENABLED(UBL_TILT_ON_MESH_POINTS)
+                const xy_pos_t oldLpos = oldRpos.asLogical();
+                DEBUG_ECHOPGM("Calculated point: ("); DEBUG_ECHO_F(oldRpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(oldRpos.y, 7);
+                DEBUG_ECHOPAIR_F(")   logical: (", oldLpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(oldLpos.y, 7);
+                DEBUG_ECHOPGM(")\nSelected mesh point: ");
+              #endif
               DEBUG_CHAR('('); DEBUG_ECHO_F(rpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(rpos.y, 7);
               DEBUG_ECHOPAIR_F(")  logical: (", lpos.x, 7); DEBUG_CHAR(','); DEBUG_ECHO_F(lpos.y, 7);
               DEBUG_ECHOPAIR_F(")  measured: ", measured_z, 7);
