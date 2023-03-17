@@ -931,8 +931,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #define SINGLEFAN 1
   #endif
 
-  Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx)
-  {
+  Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx) {
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
   }
 
@@ -950,7 +949,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     do_z_clearance(MPC_TUNING_END_Z);
 
-    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);    
+    TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_ambient_temp() {
@@ -975,7 +974,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
     wait_for_heatup = false;
 
-    return SUCCESS;   
+    return SUCCESS;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
@@ -1028,7 +1027,7 @@ volatile bool Temperature::raw_temps_ready = false;
           // If there are too many samples, space them more widely
           if (sample_count == COUNT(temp_samples)) {
             for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
-              temp_samples[i] = temp_samples[i*2];
+              temp_samples[i] = temp_samples[i * 2];
             sample_count /= 2;
             sample_distance *= 2;
           }
@@ -1049,10 +1048,8 @@ volatile bool Temperature::raw_temps_ready = false;
     elapsed_heating_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
 
     // Ensure sample count is odd so that we have 3 equally spaced samples
-    if (sample_count == 0)
-      return FAILED;
-    if (sample_count%2 == 0)
-      sample_count--;
+    if (sample_count == 0) return FAILED;
+    if (sample_count % 2 == 0) sample_count--;
 
     return SUCCESS;
   }
@@ -1111,41 +1108,39 @@ volatile bool Temperature::raw_temps_ready = false;
     wait_for_heatup = false;
 
     power_fan0 = total_energy_fan0 / MS_TO_SEC_PRECISE(test_duration);
-    #if HAS_FAN
-      power_fan255 = total_energy_fan255 / MS_TO_SEC_PRECISE(test_duration);
-    #endif
+    TERN_(HAS_FAN, power_fan255 = (total_energy_fan255 * 1000) / test_duration);
 
     return SUCCESS;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping() {
-      const millis_t report_interval_ms = 1000UL;
-      curr_time_ms = millis();
+    const millis_t report_interval_ms = 1000UL;
+    curr_time_ms = millis();
 
-      if (updateTemperaturesIfReady()) { // temp sample ready
-        current_temp = degHotend(e);
-        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(curr_time_ms));
-      }
+    if (updateTemperaturesIfReady()) { // temp sample ready
+      current_temp = degHotend(e);
+      TERN_(HAS_FAN_LOGIC, manage_extruder_fans(curr_time_ms));
+    }
 
-      if (ELAPSED(curr_time_ms, next_report_ms)) {
-        next_report_ms += report_interval_ms;
+    if (ELAPSED(curr_time_ms, next_report_ms)) {
+      next_report_ms += report_interval_ms;
 
-        print_heater_states(e);
-        SERIAL_EOL();
-      }
+      print_heater_states(e);
+      SERIAL_EOL();
+    }
 
-      hal.idletask();
-      TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+    hal.idletask();
+    TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
-      if (!wait_for_heatup) {
-        SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
-        SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
-        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
-        return MeasurementState::CANCELLED;
-      }
+    if (!wait_for_heatup) {
+      SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
+      SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
+      TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
+      return MeasurementState::CANCELLED;
+    }
 
-      return MeasurementState::SUCCESS;
-    };
+    return MeasurementState::SUCCESS;
+  }
 
   void Temperature::MPC_autotune(const uint8_t e) {
     SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
@@ -1155,10 +1150,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
-    enum {
-      ANALYTIC,
-      DIFFERENTIAL
-    } tuning_type = ANALYTIC;
+    enum { ANALYTIC, DIFFERENTIAL } tuning_type = ANALYTIC;
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);
@@ -1211,14 +1203,13 @@ volatile bool Temperature::raw_temps_ready = false;
     }
 
     // If analytic tuning fails, fall back to differential tuning
-    if (mpc.sensor_responsiveness <=0 || mpc.block_heat_capacity <= 0) {
+    if (mpc.sensor_responsiveness <= 0 || mpc.block_heat_capacity <= 0)
       tuning_type = DIFFERENTIAL;
-    }
 
     if (tuning_type == DIFFERENTIAL) {
       // Differential tuning
       mpc.block_heat_capacity = mpc.heater_power / tuner.get_rate_fastest();
-      mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest()*tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_time_fastest());
+      mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_time_fastest());
     }
 
     hotend.modeled_block_temp = asymp_temp + (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_elapsed_heating_time());

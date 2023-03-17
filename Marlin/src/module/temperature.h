@@ -1192,17 +1192,13 @@ class Temperature {
         }
       #endif
 
-    #endif
+    #endif // HAS_PID_HEATING
 
     #if ENABLED(MPCTEMP)
-      // Utility class that contains the code for performing measurments when auto tuning MPCTEMP
+      // Utility class to perform MPCTEMP auto tuning measurements
       class MPC_autotuner {
         public:
-          enum MeasurementState {
-            CANCELLED,
-            FAILED,
-            SUCCESS
-          };
+          enum MeasurementState { CANCELLED, FAILED, SUCCESS };
           MPC_autotuner(const uint8_t extruderIdx);
           ~MPC_autotuner();
           MeasurementState measure_ambient_temp();
@@ -1236,17 +1232,15 @@ class Temperature {
           uint8_t e;
 
           float elapsed_heating_time;
-          celsius_float_t ambient_temp;
-          celsius_float_t current_temp;
-          celsius_float_t temp_samples[16]; 
+          celsius_float_t ambient_temp, current_temp;
+          celsius_float_t temp_samples[16];
           uint8_t sample_count;
           uint16_t sample_distance;
           float t1_time;
 
           // Parameters from differential analysis
           celsius_float_t temp_fastest;
-          float time_fastest;
-          float rate_fastest;
+          float time_fastest, rate_fastest;
 
           float power_fan0;
           #if HAS_FAN
@@ -1254,8 +1248,9 @@ class Temperature {
           #endif
       };
 
-      void MPC_autotune(const uint8_t e);
-    #endif
+      static void MPC_autotune(const uint8_t e);
+
+    #endif // MPCTEMP
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
