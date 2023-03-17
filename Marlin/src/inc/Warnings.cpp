@@ -801,7 +801,3 @@
 #if MULTISTEPPING_LIMIT_WARNING
   #warning "MULTISTEPPING_LIMIT has been automatically set to 128. Use a lower value if the machine is slow to respond."
 #endif
-
-  #if defined(G29J_MESH_TILT_MARGIN)
-    #warning "G29J_MESH_TILT_MARGIN now applies from the edge of the mesh or the edge of the probing area, whichever is most inset. (ie. x_min = _MAX((MESH_INSET + G29J_MESH_TILT_MARGIN), (probe.min_x() + G29J_MESH_TILT_MARGIN)))."
-  #endif
