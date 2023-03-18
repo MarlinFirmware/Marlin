@@ -234,14 +234,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
   TERN_(BELTPRINTER, do_blocking_move_to_xy(0.00, 50.00));
 
-  #if ENABLED(MPCTEMP)
-    float saved_filament_heat_capacity_permm[HOTENDS];
-    HOTEND_LOOP() {
-      MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
-      saved_filament_heat_capacity_permm[e] = mpc.filament_heat_capacity_permm;
-      mpc.filament_heat_capacity_permm = 0;
-    }
-  #endif
+  TERN_(MPCTEMP, MPC::e_paused = true);
 
   // Slow Load filament
   if (slow_load_length) unscaled_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
@@ -307,9 +300,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
   #endif
 
-  #if ENABLED(MPCTEMP)
-    HOTEND_LOOP() thermalManager.temp_hotend[e].mpc.filament_heat_capacity_permm = saved_filament_heat_capacity_permm[e];
-  #endif
+  TERN_(MPCTEMP, MPC::e_paused = false);
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
 
