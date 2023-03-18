@@ -778,6 +778,13 @@
 #endif
 
 /**
+ * GD32 is not exactly like STM32
+ */
+#if MB(SOVOL_V131)
+  #warning "GD32 based controllers may not be fully compatible with Maple Generic STM32F103RE. Please report any issues."
+#endif
+
+/**
  * BD Sensor should always include BABYSTEPPING
  */
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
@@ -796,4 +803,8 @@
  */
 #if HAS_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
   #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#endif
+
+#if MULTISTEPPING_LIMIT_WARNING
+  #warning "MULTISTEPPING_LIMIT has been automatically set to 128. Use a lower value if the machine is slow to respond."
 #endif
