@@ -508,8 +508,12 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   // Init min and max temp with extreme values to prevent false errors during startup
   raw_adc_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP,
             Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
-  TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
-  IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
+  #if WATCH_BED
+    bed_watch_t Temperature::watch_bed; // = { 0 }
+  #endif
+  #if DISABLED(PIDTEMPBED)
+    millis_t Temperature::next_bed_check_ms;
+  #endif
 #endif
 
 #if HAS_TEMP_CHAMBER
@@ -519,8 +523,12 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     celsius_float_t old_temp = 9999;
     raw_adc_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP,
               Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
-    TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
-    IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
+    #if WATCH_CHAMBER
+      chamber_watch_t Temperature::watch_chamber; // = { 0 }
+    #endif
+    #if DISABLED(PIDTEMPCHAMBER)
+      millis_t Temperature::next_chamber_check_ms;
+    #endif
   #endif
 #endif
 
