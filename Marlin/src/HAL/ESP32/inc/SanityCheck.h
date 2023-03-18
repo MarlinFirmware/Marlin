@@ -58,5 +58,5 @@
 #endif
 
 #if BOTH(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0
-  #error "PRINTCOUNTER_SAVE_INTERVAL must be zero (disabled) on ESP32 oards with an I2S expander."
+  #error "PRINTCOUNTER_SAVE_INTERVAL must be zero (disabled) on ESP32 boards with an I2S expander."
 #endif
