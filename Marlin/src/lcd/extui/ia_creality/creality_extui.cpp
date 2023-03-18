@@ -34,16 +34,8 @@
 
 #if DGUS_LCD_UI_IA_CREALITY
 
-#include "creality_extui.h"
+#include "ia_creality_extui.h"
 #include "FileNavigator.h"
-#include "../ui_api.h"
-
-#include <HardwareSerial.h>
-#include <WString.h>
-#include <stdio.h>
-
-#define DEBUG_OUT ENABLED(DEBUG_DWIN)
-#include "../../../core/debug_out.h"
 
 namespace ExtUI {
   static uint16_t fileIndex   = 0;
