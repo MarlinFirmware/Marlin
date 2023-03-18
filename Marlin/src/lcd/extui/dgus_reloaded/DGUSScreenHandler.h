@@ -69,13 +69,15 @@ public:
     static void PidTuning(const ExtUI::result_t rst);
   #endif
 
-  static void SetMessageLine(const char* msg, uint8_t line);
-  static void SetMessageLinePGM(PGM_P msg, uint8_t line);
+  static void SetMessageLine(const char * const msg, const uint8_t line);
+  static void SetMessageLinePGM(PGM_P const msg, const uint8_t line);
+  static void SetMessageLine(FSTR_P const msg, const uint8_t line) { SetMessageLinePGM(FTOP(msg), line); }
 
   static void SetStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
   static void SetStatusMessage(FSTR_P const msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
 
-  static void ShowWaitScreen(DGUS_Screen return_screen, bool has_continue=false);
+  static void ShowWaitScreen(const DGUS_Screen return_screen, const bool has_continue=false);
+  static void ShowWaitScreen(FSTR_P const msg, const DGUS_Screen return_screen, const bool has_continue=false);
 
   static DGUS_Screen GetCurrentScreen();
   static void TriggerScreenChange(DGUS_Screen screen);
@@ -139,13 +141,3 @@ private:
 };
 
 extern DGUSScreenHandler dgus_screen_handler;
-
-extern const char DGUS_MSG_HOMING_REQUIRED[],
-                  DGUS_MSG_BUSY[],
-                  DGUS_MSG_UNDEF[],
-                  DGUS_MSG_HOMING[],
-                  DGUS_MSG_FW_OUTDATED[],
-                  DGUS_MSG_ABL_REQUIRED[];
-
-extern const char DGUS_CMD_HOME[],
-                  DGUS_CMD_EEPROM_SAVE[];

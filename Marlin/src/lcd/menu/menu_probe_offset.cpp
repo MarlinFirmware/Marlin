@@ -51,7 +51,7 @@ inline void z_clearance_move() {
 void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
   ui.goto_previous_screen_no_defer();
 }
 
@@ -143,7 +143,7 @@ void goto_probe_offset_wizard() {
 
   // Store Bed-Leveling-State and disable
   #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
+    menu_leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 
