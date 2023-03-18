@@ -3207,9 +3207,9 @@
    //#define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
-   * Create a 50/50 square wave step pulse optimal for stepper drivers.
+   * Step on both rising and falling edge signals (as with a square wave).
    */
-  //#define SQUARE_WAVE_STEPPING
+  //#define EDGE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
