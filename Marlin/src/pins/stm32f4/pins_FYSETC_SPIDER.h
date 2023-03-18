@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -117,7 +117,7 @@
 #endif
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "FYSETC SPIDER supports up to 3 hotends / E-steppers."
+  #error "FYSETC SPIDER supports up to 3 hotends / E steppers."
 #else
   #include "pins_FYSETC_S6.h"
 #endif

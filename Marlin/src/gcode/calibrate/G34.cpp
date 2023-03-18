@@ -26,8 +26,11 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
-#include "../../module/stepper.h"
 #include "../../module/endstops.h"
+
+#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_TRINAMIC_CONFIG)
+  #include "../../module/stepper.h"
+#endif
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -55,7 +58,7 @@ void GcodeSuite::G34() {
     // Move XY to safe position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Parking XY");
     const xy_pos_t safe_pos = GANTRY_CALIBRATION_SAFE_POSITION;
-    do_blocking_move_to(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
+    do_blocking_move_to_xy(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
   #endif
 
   const float move_distance = parser.intval('Z', GANTRY_CALIBRATION_EXTRA_HEIGHT),
@@ -91,7 +94,7 @@ void GcodeSuite::G34() {
     digipot_i2c.set_current(Z_AXIS, target_current)
   #elif HAS_TRINAMIC_CONFIG
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    static uint16_t previous_current_arr[NUM_Z_STEPPER_DRIVERS];
+    static uint16_t previous_current_arr[NUM_Z_STEPPERS];
     #if AXIS_IS_TMC(Z)
       previous_current_arr[0] = stepperZ.getMilliamps();
       stepperZ.rms_current(target_current);

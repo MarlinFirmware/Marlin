@@ -23,7 +23,7 @@
 
 /**
  * Geeetech GTM32 Pro VB board pin assignments
- * http://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
+ * https://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
  *
  * Also applies to GTM32 Pro VD
  */
@@ -58,7 +58,7 @@
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //

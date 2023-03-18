@@ -50,8 +50,7 @@
     if (ui.encoderPosition) {
       zvar += float(int32_t(ui.encoderPosition)) * 0.1;
       ui.encoderPosition = 0;
-      NOLESS(zvar, 0);
-      NOMORE(zvar, Z_MAX_POS);
+      LIMIT(zvar, 0, Z_MAX_POS);
     }
 
     if (ui.should_draw()) {
@@ -89,15 +88,15 @@
 
     char tmp[18];
 
-    PGM_P const slabel = GET_TEXT(MSG_START_Z);
-    SUBMENU_P(slabel, []{ _lcd_mixer_gradient_z_edit(false); });
+    FSTR_P const slabel = GET_TEXT_F(MSG_START_Z);
+    SUBMENU_F(slabel, []{ _lcd_mixer_gradient_z_edit(false); });
     MENU_ITEM_ADDON_START_RJ(11);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.start_z), int(mixer.gradient.start_z * 10) % 10);
       lcd_put_u8str(tmp);
     MENU_ITEM_ADDON_END();
 
-    PGM_P const elabel = GET_TEXT(MSG_END_Z);
-    SUBMENU_P(elabel, []{ _lcd_mixer_gradient_z_edit(true); });
+    FSTR_P const elabel = GET_TEXT_F(MSG_END_Z);
+    SUBMENU_F(elabel, []{ _lcd_mixer_gradient_z_edit(true); });
     MENU_ITEM_ADDON_START_RJ(11);
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(mixer.gradient.end_z), int(mixer.gradient.end_z * 10) % 10);
       lcd_put_u8str(tmp);
@@ -257,7 +256,7 @@ void menu_mixer() {
       ui.return_to_status();
     },
     nullptr,
-    GET_TEXT(MSG_RESET_VTOOLS), (const char *)nullptr, PSTR("?")
+    GET_TEXT_F(MSG_RESET_VTOOLS), (const char *)nullptr, F("?")
   );
 
   #if ENABLED(GRADIENT_MIX)

@@ -29,7 +29,7 @@
  * Specifically optimized for 3D printing G-Code, this is a zero-cost data compression method
  * which packs ~180-190% more data into the same amount of bytes going to the CNC controller.
  * As a majority of G-Code can be represented by a restricted alphabet, I performed histogram
- * analysis on a wide variety of 3D printing gcode samples, and found ~93% of all gcode could
+ * analysis on a wide variety of 3D printing G-code samples, and found ~93% of all G-code could
  * be represented by the same 15-character alphabet.
  *
  * This allowed me to design a system of packing 2 8-bit characters into a single byte, assuming
@@ -38,7 +38,7 @@
  *
  * Combined with some logic to allow commingling of full-width characters outside of this 15-
  * character alphabet (at the cost of an extra 8-bits per full-width character), and by stripping
- * out unnecessary comments, the end result is gcode which is roughly half the original size.
+ * out unnecessary comments, the end result is G-code which is roughly half the original size.
  *
  * Why did I do this? I noticed micro-stuttering and other data-bottleneck issues while printing
  * objects with high curvature, especially at high speeds. There is also the issue of the limited

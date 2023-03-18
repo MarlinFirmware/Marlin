@@ -1059,7 +1059,7 @@ static inline void convert_64_bit_to_byte_array(uint64_t value, uint8_t *data)
     while (val_index < 8)
     {
         data[val_index++] = value & 0xFF;
-        value = value >> 8;
+        value >>= 8;
     }
 }
 

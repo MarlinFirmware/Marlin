@@ -82,12 +82,12 @@
  *  - `P` - Run probe temperature calibration.
  */
 
-static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
-static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }
-static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
-static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
-
 #if BOTH(PTC_PROBE, PTC_BED)
+
+  static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
+  static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }
+  static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
+  static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
 
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
@@ -108,7 +108,6 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
     };
 
     auto g76_probe = [](const TempSensorID sid, celsius_t &targ, const xy_pos_t &nozpos) {
-      do_z_clearance(5.0); // Raise nozzle before probing
       ptc.set_enabled(false);
       const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_STOW, 0, false);  // verbose=0, probe_relative=false
       ptc.set_enabled(true);

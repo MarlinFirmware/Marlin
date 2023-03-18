@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+#if ALL(SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
@@ -85,4 +85,4 @@ void GcodeSuite::M994() {
   card.closefile();
 }
 
-#endif // HAS_SPI_FLASH && SDSUPPORT && MARLIN_DEV_MODE
+#endif // SPI_FLASH && SDSUPPORT && MARLIN_DEV_MODE

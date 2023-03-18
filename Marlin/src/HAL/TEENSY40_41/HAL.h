@@ -32,7 +32,6 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
 
 #include <stdint.h>
 #include <util/atomic.h>
@@ -140,7 +139,7 @@ typedef int8_t pin_t;
 bool is_output(pin_t pin);
 
 // ------------------------
-// Class Utilities
+// Free Memory Accessor
 // ------------------------
 
 #pragma GCC diagnostic push
@@ -161,6 +160,10 @@ public:
 
   // Earliest possible init, before setup()
   MarlinHAL() {}
+
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
 
   static void init() {}        // Called early in setup()
   static void init_board() {}  // Called less early in setup()

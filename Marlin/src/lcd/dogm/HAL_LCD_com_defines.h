@@ -41,6 +41,13 @@
     #define U8G_COM_HAL_HW_SPI_FN     u8g_com_samd51_hw_spi_fn
     #define U8G_COM_ST7920_HAL_HW_SPI u8g_com_samd51_st7920_hw_spi_fn
 
+
+  #elif defined(__SAMD21__)
+
+    uint8_t u8g_com_samd21_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+
+    #define U8G_COM_ST7920_HAL_HW_SPI u8g_com_samd21_st7920_hw_spi_fn
+
   #elif defined(__STM32F1__)
 
     uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
@@ -124,7 +131,7 @@
 #ifndef U8G_COM_SSD_I2C_HAL
   #define U8G_COM_SSD_I2C_HAL       u8g_com_null_fn
 #endif
-#if HAS_FSMC_GRAPHICAL_TFT || HAS_SPI_GRAPHICAL_TFT
+#if HAS_FSMC_GRAPHICAL_TFT || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT
   uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
   #define U8G_COM_HAL_TFT_FN       u8g_com_hal_tft_fn
 #else

@@ -517,14 +517,14 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
       drawCross(x, y, TFT_MARLINBG_COLOR);
     }
 
-    const char *str = nullptr;
+    FSTR_P str = nullptr;
     if (calibration_stage < CALIBRATION_SUCCESS) {
       // handle current state
       switch (calibration_stage) {
-        case CALIBRATION_TOP_LEFT: str = GET_TEXT(MSG_TOP_LEFT); break;
-        case CALIBRATION_BOTTOM_LEFT: str = GET_TEXT(MSG_BOTTOM_LEFT); break;
-        case CALIBRATION_TOP_RIGHT:  str = GET_TEXT(MSG_TOP_RIGHT); break;
-        case CALIBRATION_BOTTOM_RIGHT: str = GET_TEXT(MSG_BOTTOM_RIGHT); break;
+        case CALIBRATION_TOP_LEFT: str = GET_TEXT_F(MSG_TOP_LEFT); break;
+        case CALIBRATION_BOTTOM_LEFT: str = GET_TEXT_F(MSG_BOTTOM_LEFT); break;
+        case CALIBRATION_TOP_RIGHT:  str = GET_TEXT_F(MSG_TOP_RIGHT); break;
+        case CALIBRATION_BOTTOM_RIGHT: str = GET_TEXT_F(MSG_BOTTOM_RIGHT); break;
         default: break;
       }
 
@@ -534,7 +534,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     }
     else {
       // end calibration
-      str = calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED);
+      str = calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT_F(MSG_CALIBRATION_COMPLETED) : GET_TEXT_F(MSG_CALIBRATION_FAILED);
       defer_status_screen(false);
       touch_calibration.calibration_end();
       TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);

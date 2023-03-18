@@ -35,7 +35,7 @@
 #endif
 
 #define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
-#define VALUE_ITEM_P(MSG, PVALUE, STYL) do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy_P(msg + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM_F(MSG, PVALUE, STYL) do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy_P(msg + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -56,35 +56,35 @@
     VALUE_ITEM(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), SS_LEFT);    // Completed  : 666
 
     STATIC_ITEM(MSG_INFO_PRINT_TIME, SS_LEFT);                                              // Total print Time:
-    STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.printTime).toString(buffer));       // > 99y 364d 23h 59m 59s
+    STATIC_ITEM_F(F("> "), SS_LEFT, duration_t(stats.printTime).toString(buffer));       // > 99y 364d 23h 59m 59s
 
     STATIC_ITEM(MSG_INFO_PRINT_LONGEST, SS_LEFT);                                           // Longest job time:
-    STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.longestPrint).toString(buffer));    // > 99y 364d 23h 59m 59s
+    STATIC_ITEM_F(F("> "), SS_LEFT, duration_t(stats.longestPrint).toString(buffer));    // > 99y 364d 23h 59m 59s
 
     STATIC_ITEM(MSG_INFO_PRINT_FILAMENT, SS_LEFT);                                          // Extruded total:
     sprintf_P(buffer, PSTR("%ld.%im")
       , long(stats.filamentUsed / 1000)
       , int16_t(stats.filamentUsed / 100) % 10
     );
-    STATIC_ITEM_P(PSTR("> "), SS_LEFT, buffer);                                             // > 125m
+    STATIC_ITEM_F(F("> "), SS_LEFT, buffer);                                             // > 125m
 
     #if SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0
       strcpy_P(buffer, GET_TEXT(MSG_SERVICE_IN));
     #endif
 
     #if SERVICE_INTERVAL_1 > 0
-      STATIC_ITEM_P(PSTR(SERVICE_NAME_1 " "), SS_LEFT, buffer);                             // Service X in:
-      STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.nextService1).toString(buffer));  // > 7d 12h 11m 10s
+      STATIC_ITEM_F(F(SERVICE_NAME_1 " "), SS_LEFT, buffer);                             // Service X in:
+      STATIC_ITEM_F(F("> "), SS_LEFT, duration_t(stats.nextService1).toString(buffer));  // > 7d 12h 11m 10s
     #endif
 
     #if SERVICE_INTERVAL_2 > 0
-      STATIC_ITEM_P(PSTR(SERVICE_NAME_2 " "), SS_LEFT, buffer);
-      STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.nextService2).toString(buffer));
+      STATIC_ITEM_F(F(SERVICE_NAME_2 " "), SS_LEFT, buffer);
+      STATIC_ITEM_F(F("> "), SS_LEFT, duration_t(stats.nextService2).toString(buffer));
     #endif
 
     #if SERVICE_INTERVAL_3 > 0
-      STATIC_ITEM_P(PSTR(SERVICE_NAME_3 " "), SS_LEFT, buffer);
-      STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.nextService3).toString(buffer));
+      STATIC_ITEM_F(F(SERVICE_NAME_3 " "), SS_LEFT, buffer);
+      STATIC_ITEM_F(F("> "), SS_LEFT, duration_t(stats.nextService3).toString(buffer));
     #endif
 
     END_SCREEN();
@@ -103,7 +103,7 @@ void menu_info_thermistors() {
   #if HAS_EXTRUDERS
     #define THERMISTOR_ID TEMP_SENSOR_0
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E0 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E0 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_0_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_0_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -113,7 +113,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_1
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E1 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E1 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_1_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_1_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -123,7 +123,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_2
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E2 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E2 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_2_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_2_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -133,7 +133,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_3
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E3 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E3 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_3_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_3_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -143,7 +143,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_4
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E4 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E4 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_4_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_4_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -153,7 +153,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_5
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E5 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E5 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_5_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_5_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -163,7 +163,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_6
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E6 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E6 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_6_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_6_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -173,7 +173,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_7
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR(STR_E7 ": " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F(STR_E7 ": " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(HEATER_7_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_7_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -183,7 +183,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_BED
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR("BED: " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F("BED: " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(BED_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(BED_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_BED, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -193,7 +193,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_CHAMBER
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR("CHAM: " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F("CHAM: " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(CHAMBER_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(CHAMBER_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_CHAMBER, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -203,7 +203,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_COOLER
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR("COOL: " THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_F(F("COOL: " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(COOLER_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(COOLER_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_COOLER, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -219,9 +219,9 @@ void menu_info_board() {
   if (ui.use_click()) return ui.go_back();
 
   START_SCREEN();
-  STATIC_ITEM_P(PSTR(BOARD_INFO_NAME), SS_DEFAULT|SS_INVERT);      // MyPrinterController
+  STATIC_ITEM_F(F(BOARD_INFO_NAME), SS_DEFAULT|SS_INVERT);      // MyPrinterController
   #ifdef BOARD_WEBSITE_URL
-    STATIC_ITEM_P(PSTR(BOARD_WEBSITE_URL), SS_LEFT);               // www.my3dprinter.com
+    STATIC_ITEM_F(F(BOARD_WEBSITE_URL), SS_LEFT);               // www.my3dprinter.com
   #endif
   PSTRING_ITEM(MSG_INFO_BAUDRATE, STRINGIFY(BAUDRATE), SS_CENTER); // Baud: 250000
   PSTRING_ITEM(MSG_INFO_PROTOCOL, PROTOCOL_VERSION, SS_CENTER);    // Protocol: 1.0
@@ -251,11 +251,11 @@ void menu_info_board() {
   void menu_info_printer() {
     if (ui.use_click()) return ui.go_back();
     START_SCREEN();
-    STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);              // Marlin
-    STATIC_ITEM_P(PSTR(SHORT_BUILD_VERSION));                   // x.x.x-Branch
-    STATIC_ITEM_P(PSTR(STRING_DISTRIBUTION_DATE));              // YYYY-MM-DD HH:MM
-    STATIC_ITEM_P(PSTR(MACHINE_NAME), SS_DEFAULT|SS_INVERT);    // My3DPrinter
-    STATIC_ITEM_P(PSTR(WEBSITE_URL));                           // www.my3dprinter.com
+    STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);                // Marlin
+    STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
+    STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
+    STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);         // My3DPrinter
+    STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
     PSTRING_ITEM(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
     #if HAS_LEVELING
       STATIC_ITEM(

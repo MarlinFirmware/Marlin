@@ -29,7 +29,7 @@
 #if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin"
@@ -53,7 +53,7 @@
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
 #endif
@@ -272,8 +272,8 @@
 //
 // W25Q64 64Mb (8MB) SPI flash
 //
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x800000  // 8MB
   #define SPI_FLASH_CS_PIN                  PG9
   #define SPI_FLASH_MOSI_PIN                PB15

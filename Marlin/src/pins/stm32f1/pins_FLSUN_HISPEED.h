@@ -32,7 +32,7 @@
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "FLSUN HiSpeedV1 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "FLSUN HiSpeedV1 only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME      "FLSun HiSpeedV1"
@@ -41,7 +41,7 @@
 #define BOARD_NO_NATIVE_USB
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER  5
+#define TEMP_TIMER                             5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -53,9 +53,9 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 //
@@ -68,8 +68,8 @@
 #define SPI_DEVICE                             2
 
 // SPI Flash
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   // SPI 2
   #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
   #define SPI_FLASH_MOSI_PIN                PB15
@@ -92,7 +92,7 @@
 #define Z_MAX_PIN                           PC4   // +Z
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
+  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
 #endif
 
 //
@@ -217,14 +217,14 @@
 //
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN                          PA2   // PW_DET
-  #define KILL_PIN_STATE                   HIGH
+  #define KILL_PIN_STATE                    HIGH
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
 #if HAS_TFT_LVGL_UI
   #define MT_DET_1_PIN                      PA4   // MT_DET
   #define MT_DET_2_PIN                      PE6
-  #define MT_DET_PIN_STATE                  LOW
+  #define MT_DET_PIN_STATE                   LOW
 #endif
 
 //

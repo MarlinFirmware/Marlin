@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Sainsmart 2-in-1 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Sainsmart 2-in-1 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Sainsmart"

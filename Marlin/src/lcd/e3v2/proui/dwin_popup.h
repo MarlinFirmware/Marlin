@@ -44,13 +44,13 @@ void Goto_Popup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick=nul
 void HMI_Popup();
 
 inline void Draw_Popup_Bkgd() {
-  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_color, 14, 60, 258, 330);
+  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_Color, 14, 60, 258, 330);
   DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 14, 60, 258, 330);
 }
 
 template<typename T, typename U>
 void DWIN_Draw_Popup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
-  DWINUI::ClearMenuArea();
+  DWINUI::ClearMainArea();
   Draw_Popup_Bkgd();
   if (icon) DWINUI::Draw_Icon(icon, 101, 105);
   if (amsg1) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 210, amsg1);

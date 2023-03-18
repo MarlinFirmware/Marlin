@@ -29,12 +29,9 @@
 #include <stdint.h>
 #include <Wire.h>
 
-// Address of MCP342X chip
-#define MCP342X_ADC_I2C_ADDRESS 104
-
 class MCP3426 {
   public:
-    int16_t ReadValue(uint8_t channel, uint8_t gain);
+    int16_t ReadValue(uint8_t channel, uint8_t gain, uint8_t address);
     bool Error;
 };
 

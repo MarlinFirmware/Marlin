@@ -28,14 +28,16 @@
 #if NOT_TARGET(__STM32F1__, STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin nano supports up to 2 hotends / E steppers."
 #elif HAS_FSMC_TFT
   #error "MKS Robin nano v2 doesn't support FSMC-based TFT displays."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"
 
-#define BOARD_NO_NATIVE_USB
+#ifndef USB_MOD
+  #define BOARD_NO_NATIVE_USB
+#endif
 #define USES_DIAG_PINS
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
@@ -54,7 +56,7 @@
 
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -282,11 +284,10 @@
   #define TFT_MISO_PIN                      PA6
   #define TFT_MOSI_PIN                      PA7
   #define TFT_DC_PIN                        PD10
-  #define TFT_RST_PIN                       PC6
   #define TFT_A0_PIN                  TFT_DC_PIN
 
   #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
@@ -378,8 +379,8 @@
 
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
   #define SPI_FLASH_MOSI_PIN                PB15

@@ -32,13 +32,13 @@ mpe_settings_t mpe_settings;
 
 inline void mpe_settings_report() {
   SERIAL_ECHO_MSG("Magnetic Parking Extruder");
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("L: Left parking  :", mpe_settings.parking_xpos[0]);
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("R: Right parking :", mpe_settings.parking_xpos[1]);
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("I: Grab Offset   :", mpe_settings.grab_distance);
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("J: Normal speed  :", long(MMS_TO_MMM(mpe_settings.slow_feedrate)));
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("H: High speed    :", long(MMS_TO_MMM(mpe_settings.fast_feedrate)));
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("D: Distance trav.:", mpe_settings.travel_distance);
-  SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("C: Compenstion   :", mpe_settings.compensation_factor);
+  SERIAL_ECHO_MSG("L: Left parking  :", mpe_settings.parking_xpos[0]);
+  SERIAL_ECHO_MSG("R: Right parking :", mpe_settings.parking_xpos[1]);
+  SERIAL_ECHO_MSG("I: Grab Offset   :", mpe_settings.grab_distance);
+  SERIAL_ECHO_MSG("J: Normal speed  :", long(MMS_TO_MMM(mpe_settings.slow_feedrate)));
+  SERIAL_ECHO_MSG("H: High speed    :", long(MMS_TO_MMM(mpe_settings.fast_feedrate)));
+  SERIAL_ECHO_MSG("D: Distance trav.:", mpe_settings.travel_distance);
+  SERIAL_ECHO_MSG("C: Compenstion   :", mpe_settings.compensation_factor);
 }
 
 void mpe_settings_init() {

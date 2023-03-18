@@ -30,18 +30,6 @@
 
 #include "leds.h"
 
-#if ENABLED(BLINKM)
-  #include "blinkm.h"
-#endif
-
-#if ENABLED(PCA9632)
-  #include "pca9632.h"
-#endif
-
-#if ENABLED(PCA9533)
-  #include "pca9533.h"
-#endif
-
 #if EITHER(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
   #include "../../feature/caselight.h"
 #endif
@@ -69,7 +57,100 @@ void LEDLights::setup() {
     #if ENABLED(RGBW_LED)
       if (PWM_PIN(RGB_LED_W_PIN)) SET_PWM(RGB_LED_W_PIN); else SET_OUTPUT(RGB_LED_W_PIN);
     #endif
-  #endif
+
+    #if ENABLED(RGB_STARTUP_TEST)
+      int8_t led_pin_count = 0;
+      if (PWM_PIN(RGB_LED_R_PIN) && PWM_PIN(RGB_LED_G_PIN) && PWM_PIN(RGB_LED_B_PIN)) led_pin_count = 3;
+      #if ENABLED(RGBW_LED)
+        if (PWM_PIN(RGB_LED_W_PIN) && led_pin_count) led_pin_count++;
+      #endif
+      // Startup animation
+      if (led_pin_count) {
+        // blackout
+        if (PWM_PIN(RGB_LED_R_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_R_PIN), 0); else WRITE(RGB_LED_R_PIN, LOW);
+        if (PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), 0); else WRITE(RGB_LED_G_PIN, LOW);
+        if (PWM_PIN(RGB_LED_B_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_B_PIN), 0); else WRITE(RGB_LED_B_PIN, LOW);
+        #if ENABLED(RGBW_LED)
+          if (PWM_PIN(RGB_LED_W_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_W_PIN), 0);
+          else WRITE(RGB_LED_W_PIN, LOW);
+        #endif
+        delay(200);
+
+        LOOP_L_N(i, led_pin_count) {
+          LOOP_LE_N(b, 200) {
+            const uint16_t led_pwm = b <= 100 ? b : 200 - b;
+            if (i == 0 && PWM_PIN(RGB_LED_R_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_R_PIN), led_pwm); else WRITE(RGB_LED_R_PIN, b < 100 ? HIGH : LOW);
+            if (i == 1 && PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), led_pwm); else WRITE(RGB_LED_G_PIN, b < 100 ? HIGH : LOW);
+            if (i == 2 && PWM_PIN(RGB_LED_B_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_B_PIN), led_pwm); else WRITE(RGB_LED_B_PIN, b < 100 ? HIGH : LOW);
+            #if ENABLED(RGBW_LED)
+              if (i == 3){
+                if (PWM_PIN(RGB_LED_W_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_W_PIN), led_pwm);
+                else WRITE(RGB_LED_W_PIN, b < 100 ? HIGH : LOW);
+                delay(RGB_STARTUP_TEST_INNER_MS);//More slowing for ending
+              }
+            #endif
+            delay(RGB_STARTUP_TEST_INNER_MS);
+          }
+        }
+        delay(500);
+      }
+    #endif // RGB_STARTUP_TEST
+
+  #elif BOTH(PCA9632, RGB_STARTUP_TEST)   // PCA9632 RGB_STARTUP_TEST
+
+    constexpr int8_t led_pin_count = TERN(HAS_WHITE_LED, 4, 3);
+
+    // Startup animation
+    LEDColor curColor = LEDColorOff();
+    PCA9632_set_led_color(curColor);      // blackout
+    delay(200);
+
+    /*
+     * LED Pin Counter steps -> events
+     * | 0-100 | 100-200 | 200-300 | 300-400 |
+     *  fade in   steady |           fade out
+     *  start next pin fade in
+     */
+
+    uint16_t led_pin_counters[led_pin_count] = { 1, 0, 0 };
+
+    bool canEnd = false;
+    while (led_pin_counters[0] != 99 || !canEnd) {
+      if (led_pin_counters[0] == 99)        // End loop next time pin0 counter is 99
+        canEnd = true;
+      LOOP_L_N(i, led_pin_count) {
+        if (led_pin_counters[i] > 0) {
+          if (++led_pin_counters[i] == 400) // turn off current pin counter in led_pin_counters
+            led_pin_counters[i] = 0;
+          else if (led_pin_counters[i] == 201) { // start next pin pwm
+            led_pin_counters[i + 1 == led_pin_count ? 0 : i + 1] = 1;
+            i++; // skip next pin in this loop so it doesn't increment twice
+          }
+        }
+      }
+      uint16_t r, g, b;
+      r = led_pin_counters[0]; curColor.r = r <= 100 ? r : r <= 300 ? 100 : 400 - r;
+      g = led_pin_counters[1]; curColor.g = g <= 100 ? g : g <= 300 ? 100 : 400 - g;
+      b = led_pin_counters[2]; curColor.b = b <= 100 ? b : b <= 300 ? 100 : 400 - b;
+      #if HAS_WHITE_LED
+        const uint16_t w = led_pin_counters[3]; curColor.w = w <= 100 ? w : w <= 300 ? 100 : 400 - w;
+      #endif
+      PCA9632_set_led_color(curColor);
+      delay(RGB_STARTUP_TEST_INNER_MS);
+    }
+
+    // Fade to white
+    LOOP_LE_N(led_pwm, 100) {
+      NOLESS(curColor.r, led_pwm);
+      NOLESS(curColor.g, led_pwm);
+      NOLESS(curColor.b, led_pwm);
+      TERN_(HAS_WHITE_LED, NOLESS(curColor.w, led_pwm));
+      PCA9632_set_led_color(curColor);
+      delay(RGB_STARTUP_TEST_INNER_MS);
+    }
+
+  #endif // PCA9632 && RGB_STARTUP_TEST
+
   TERN_(NEOPIXEL_LED, neo.init());
   TERN_(PCA9533, PCA9533_init());
   TERN_(LED_USER_PRESET_STARTUP, set_default());
