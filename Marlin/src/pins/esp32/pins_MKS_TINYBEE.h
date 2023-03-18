@@ -166,18 +166,21 @@
   #define LCD_BACKLIGHT_PIN                   -1
 
   #if ENABLED(MKS_MINI_12864)
-  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
+    // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
     #define DOGLCD_CS                EXP1_06_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN                     -1
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-  // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
+    // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN            EXP1_05_PIN
     #define NEOPIXEL_PIN             EXP1_06_PIN
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
+    #endif
+    #if BOTH(MKS_MINI_12864_V3, SDSUPPORT)
+      #define PAUSE_LCD_FOR_BUSY_SD
     #endif
   #else
    #define LCD_PINS_D4               EXP1_05_PIN

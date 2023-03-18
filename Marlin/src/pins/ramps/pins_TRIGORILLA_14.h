@@ -40,76 +40,93 @@
 //
 // PWM FETS
 //
-#if EITHER(FET_ORDER_EEF, FET_ORDER_EEB)
-  #define MOSFET_B_PIN                        45  // HEATER1
-#elif FET_ORDER_EFB
-  #define MOSFET_B_PIN                         9  // FAN0
-#else
-  #define MOSFET_B_PIN                         7  // FAN1
-#endif
-
-#if FET_ORDER_EEB
-  #define MOSFET_C_PIN                         8  // BED
-#elif FET_ORDER_EFB
-  #if DISABLED(ANYCUBIC_LCD_CHIRON)
-    #define MOSFET_C_PIN                       8
-  #else
-    #define MOSFET_C_PIN                      45
-  #endif
-#else                                             // EEF, EFF
-  #define MOSFET_C_PIN                         9
-#endif
-
-#if FET_ORDER_EEB
-  #define FAN_PIN                              9  // Override pin 4 in pins_RAMPS.h
-#endif
+#define MOSFET_B_PIN                          45  // HEATER1
 
 //
 // Heaters / Fans
 //
-#if ANY(FET_ORDER_EEF, FET_ORDER_EEB, FET_ORDER_EFB)
-  #define FAN1_PIN                             7
-#endif
-#define FAN2_PIN                              44
+#define FAN_PIN                                9  // FAN0
+#define FAN1_PIN                               7  // FAN1
+#define FAN2_PIN                              44  // FAN2
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                     44  // Used in Anycubic Kossel example config
-#endif
-#if ENABLED(ANYCUBIC_LCD_I3MEGA)
-  #define CONTROLLER_FAN_PIN                   7
+  #define E0_AUTO_FAN_PIN               FAN2_PIN
 #endif
 
 //
-// AnyCubic standard pin mappings
+// AnyCubic pin mappings
 //
-//  On most printers, endstops are NOT all wired to the appropriate pins on the Trigorilla board.
-//  For instance, on a Chiron, Y axis goes to an aux connector.
-//  There are also other things that have been wired in creative ways.
-//  To enable PIN definitions for a specific printer model, #define the appropriate symbol after
-//  MOTHERBOARD in Configuration.h
+// Define the appropriate mapping option in Configuration.h:
+// - TRIGORILLA_MAPPING_CHIRON
+// - TRIGORILLA_MAPPING_I3MEGA
+//
 
 //
 // Limit Switches
 //
 //#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
-
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43
   #define Y_STOP_PIN                          19
-#elif EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
-  #define Y_STOP_PIN                          42
-  #define Z2_MIN_PIN                          43
+#elif EITHER(TRIGORILLA_MAPPING_CHIRON, TRIGORILLA_MAPPING_I3MEGA)
+  // Chiron uses AUX header for Y and Z endstops
+  #define Y_STOP_PIN                          42  // AUX
+  #define Z_STOP_PIN                          43  // AUX
+  #define Z2_MIN_PIN                          18  // Z-
+
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2
   #endif
-  #ifndef FIL_RUNOUT_PIN
-    #if ENABLED(ANYCUBIC_LCD_CHIRON)
+
+  #define CONTROLLER_FAN_PIN            FAN1_PIN
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #define OUTAGETEST_PIN                    79
+    #define OUTAGECON_PIN                     58
+  #endif
+
+  #if ENABLED(TRIGORILLA_MAPPING_CHIRON)
+    #ifndef FIL_RUNOUT_PIN
       #define FIL_RUNOUT_PIN                  33
-    #else
+    #endif
+    #define HEATER_BED_PIN          MOSFET_B_PIN  // HEATER1
+  #else
+    #ifndef FIL_RUNOUT_PIN
       #define FIL_RUNOUT_PIN                  19
     #endif
   #endif
+
+  #if EITHER(TRIGORILLA_MAPPING_CHIRON, SWAP_Z_MOTORS)
+    // Chiron and some Anycubic i3 MEGAs swap Z steppers
+    #define Z_STEP_PIN                        36
+    #define Z_DIR_PIN                         34
+    #define Z_ENABLE_PIN                      30
+    #define Z_CS_PIN                          44
+
+    #define Z2_STEP_PIN                       46
+    #define Z2_DIR_PIN                        48
+    #define Z2_ENABLE_PIN                     62
+    #define Z2_CS_PIN                         40
+  #endif
+#endif
+
+#if EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #define BEEPER_PIN                          31
   #define SD_DETECT_PIN                       49
+#endif
+
+#if HAS_TMC_UART
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN           SERVO1_PIN
+  #endif
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN           SERVO0_PIN
+  #endif
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN           SERVO3_PIN
+  #endif
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN          SERVO2_PIN
+  #endif
 #endif
 
 #include "pins_RAMPS.h"

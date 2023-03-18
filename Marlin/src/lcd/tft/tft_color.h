@@ -178,3 +178,16 @@
 #ifndef COLOR_KILL_SCREEN_TEXT
   #define COLOR_KILL_SCREEN_TEXT  COLOR_WHITE
 #endif
+
+#ifndef E_BTN_COLOR
+  #define E_BTN_COLOR             COLOR_YELLOW
+#endif
+#ifndef X_BTN_COLOR
+  #define X_BTN_COLOR             COLOR_CORAL_RED
+#endif
+#ifndef Y_BTN_COLOR
+  #define Y_BTN_COLOR             COLOR_VIVID_GREEN
+#endif
+#ifndef Z_BTN_COLOR
+  #define Z_BTN_COLOR             COLOR_LIGHT_BLUE
+#endif

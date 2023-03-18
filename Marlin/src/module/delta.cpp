@@ -132,7 +132,7 @@ float delta_safe_distance_from_top() {
   xyz_pos_t cartesian{0};
   inverse_kinematics(cartesian);
   const float centered_extent = delta.a;
-  cartesian.y = DELTA_PRINTABLE_RADIUS;
+  cartesian.y = PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
   return ABS(centered_extent - delta.a);
 }

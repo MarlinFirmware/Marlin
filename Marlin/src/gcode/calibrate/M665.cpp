@@ -167,8 +167,6 @@
     if (parser.seenval('T')) draw_area_max.y = parser.value_linear_units();
     if (parser.seenval('B')) draw_area_min.y = parser.value_linear_units();
     if (parser.seenval('H')) polargraph_max_belt_len = parser.value_linear_units();
-    draw_area_size.x = draw_area_max.x - draw_area_min.x;
-    draw_area_size.y = draw_area_max.y - draw_area_min.y;
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
@@ -181,6 +179,25 @@
       SP_B_STR, LINEAR_UNIT(draw_area_min.y),
       PSTR(" H"), LINEAR_UNIT(polargraph_max_belt_len)
     );
+  }
+
+#elif ENABLED(POLAR)
+
+  #include "../../module/polar.h"
+
+  /**
+   * M665: Set POLAR settings
+   * Parameters:
+   *   S[segments]  - Segments-per-second
+   */
+  void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
+    if (parser.seenval('S')) segments_per_second = parser.value_float();
+  }
+
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    report_heading_etc(forReplay, F(STR_POLAR_SETTINGS));
+    SERIAL_ECHOLNPGM_P(PSTR("  M665 S"), segments_per_second);
   }
 
 #endif

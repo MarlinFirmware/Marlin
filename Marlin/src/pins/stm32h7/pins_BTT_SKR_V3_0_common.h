@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32H7)
-  #error "Oops! Select an STM32H7 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
@@ -46,7 +44,7 @@
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PA14
   #define I2C_SDA_PIN                       PA13
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //

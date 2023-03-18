@@ -26,7 +26,7 @@ typedef struct _uxg_fontinfo_t {
 
 int uxg_SetUtf8Fonts(const uxg_fontinfo_t * fntinfo, int number); // fntinfo is type of PROGMEM
 
-unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lchar_t &ch, const pixel_len_t max_length);
+unsigned int uxg_DrawLchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lchar_t &ch, const pixel_len_t max_length);
 
 unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_msg, const pixel_len_t max_length);
 unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, PGM_P utf8_msg, const pixel_len_t max_length);

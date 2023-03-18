@@ -24,7 +24,7 @@
 
 #include "../MarlinCore.h" // for printingIsPaused
 
-#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS)
+#if LED_POWEROFF_TIMEOUT > 0 || BOTH(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (defined(LCD_BACKLIGHT_TIMEOUT_MINS) && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
 #endif
 
@@ -79,10 +79,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  MarlinUI::progress_t MarlinUI::progress_override; // = 0
-  #if ENABLED(USE_M73_REMAINING_TIME)
+#if ENABLED(SET_PROGRESS_MANUALLY)
+  #if ENABLED(SET_PROGRESS_PERCENT)
+    MarlinUI::progress_t MarlinUI::progress_override; // = 0
+  #endif
+  #if ENABLED(SET_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
+  #endif
+  #if ENABLED(SET_INTERACTION_TIME)
+    uint32_t MarlinUI::interaction_time;
   #endif
 #endif
 
@@ -144,7 +149,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     const preheat_t &pre = material_preset[m];
     TERN_(HAS_HOTEND,           if (TEST(pmask, PT_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
     TERN_(HAS_HEATED_BED,       if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp));
-    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetBed(pre.chamber_temp));
+    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetChamber(pre.chamber_temp));
     TERN_(HAS_FAN,              if (TEST(pmask, PT_FAN))     thermalManager.set_fan_speed(0, pre.fan_speed));
   }
 #endif
@@ -153,7 +158,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   bool MarlinUI::lcd_clicked;
 #endif
 
-#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+#if LCD_WITH_BLINK
 
   bool MarlinUI::get_blink() {
     static uint8_t blink = 0;
@@ -168,29 +173,46 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #endif
 
+#if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+  #include "Wire.h"
+#endif
+
 // Encoder Handling
 #if HAS_ENCODER_ACTION
   uint32_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
 #endif
 
-#if LCD_BACKLIGHT_TIMEOUT
+#if LCD_BACKLIGHT_TIMEOUT_MINS
 
-  uint16_t MarlinUI::lcd_backlight_timeout; // Initialized by settings.load()
+  constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
+  uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::backlight_off_ms = 0;
+
   void MarlinUI::refresh_backlight_timeout() {
-    backlight_off_ms = lcd_backlight_timeout ? millis() + lcd_backlight_timeout * 1000UL : 0;
-    WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    backlight_off_ms = backlight_timeout_minutes ? millis() + backlight_timeout_minutes * 60UL * 1000UL : 0;
+    #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+      neo.reset_background_color();
+      neo.show();
+    #elif PIN_EXISTS(LCD_BACKLIGHT)
+      WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    #endif
   }
 
 #elif HAS_DISPLAY_SLEEP
+
+  constexpr uint8_t MarlinUI::sleep_timeout_min, MarlinUI::sleep_timeout_max;
 
   uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
   millis_t MarlinUI::screen_timeout_millis = 0;
   void MarlinUI::refresh_screen_timeout() {
     screen_timeout_millis = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-    sleep_off();
+    sleep_display(false);
   }
+
+  #if !HAS_TOUCH_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
+    void MarlinUI::sleep_display(const bool sleep) {} // if unimplemented
+  #endif
 
 #endif
 
@@ -217,14 +239,14 @@ void MarlinUI::init() {
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
     #endif
-    #if BUTTON_EXISTS(DWN)
-      SET_INPUT(BTN_DWN);
+    #if BUTTON_EXISTS(DOWN)
+      SET_INPUT(BTN_DOWN);
     #endif
     #if BUTTON_EXISTS(LFT)
-      SET_INPUT(BTN_LFT);
+      SET_INPUT(BTN_LEFT);
     #endif
     #if BUTTON_EXISTS(RT)
-      SET_INPUT(BTN_RT);
+      SET_INPUT(BTN_RIGHT);
     #endif
   #endif
 
@@ -250,6 +272,10 @@ void MarlinUI::init() {
 
   #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
+  #endif
+
+  #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    Wire.begin(int(I2C_SDA_PIN), int(I2C_SCL_PIN));
   #endif
 
   update_buttons();
@@ -306,7 +332,7 @@ void MarlinUI::init() {
     #endif
   #endif
 
-  #if SCREENS_CAN_TIME_OUT
+  #if HAS_SCREEN_TIMEOUT
     bool MarlinUI::defer_return_to_status;
     millis_t MarlinUI::return_to_status_ms = 0;
   #endif
@@ -325,7 +351,6 @@ void MarlinUI::init() {
 
   #if IS_DWIN_MARLINUI
     bool MarlinUI::did_first_redraw;
-    bool MarlinUI::old_is_printing;
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -721,6 +746,11 @@ void MarlinUI::init() {
     void MarlinUI::wakeup_screen() {
       TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
     }
+    #if HAS_DISPLAY_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
+      void MarlinUI::sleep_display(const bool sleep) {
+        if (!sleep) wakeup_screen(); // relay extra wake up events
+      }
+    #endif
   #endif
 
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
@@ -807,7 +837,7 @@ void MarlinUI::init() {
           // Apply a linear offset to a single axis
           if (axis == ALL_AXES_ENUM)
             destination = all_axes_destination;
-          else if (axis <= XYZE) {
+          else if (axis <= LOGICAL_AXES) {
             destination = current_position;
             destination[axis] += offset;
           }
@@ -1059,7 +1089,7 @@ void MarlinUI::init() {
 
           reset_status_timeout(ms);
 
-          #if LCD_BACKLIGHT_TIMEOUT
+          #if LCD_BACKLIGHT_TIMEOUT_MINS
             refresh_backlight_timeout();
           #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
@@ -1161,7 +1191,7 @@ void MarlinUI::init() {
           NOLESS(max_display_update_time, millis() - ms);
       }
 
-      #if SCREENS_CAN_TIME_OUT
+      #if HAS_SCREEN_TIMEOUT
         // Return to Status Screen after a timeout
         if (on_status_screen() || defer_return_to_status)
           reset_status_timeout(ms);
@@ -1169,14 +1199,20 @@ void MarlinUI::init() {
           return_to_status();
       #endif
 
-      #if LCD_BACKLIGHT_TIMEOUT
+      #if LCD_BACKLIGHT_TIMEOUT_MINS
+
         if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
-          WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
+          #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+            neo.set_background_off();
+            neo.show();
+          #elif PIN_EXIST(LCD_BACKLIGHT)
+            WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
+          #endif
           backlight_off_ms = 0;
         }
       #elif HAS_DISPLAY_SLEEP
         if (screen_timeout_millis && ELAPSED(ms, screen_timeout_millis))
-          sleep_on();
+          sleep_display();
       #endif
 
       // Change state of drawing flag between screen updates
@@ -1293,7 +1329,7 @@ void MarlinUI::init() {
           //
           // Directional buttons
           //
-          #if ANY_BUTTON(UP, DWN, LFT, RT)
+          #if ANY_BUTTON(UP, DOWN, LEFT, RIGHT)
 
             const int8_t pulses = epps * encoderDirection;
 
@@ -1301,20 +1337,20 @@ void MarlinUI::init() {
               encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
               next_button_update_ms = now + 300;
             }
-            else if (BUTTON_PRESSED(DWN)) {
+            else if (BUTTON_PRESSED(DOWN)) {
               encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
               next_button_update_ms = now + 300;
             }
-            else if (BUTTON_PRESSED(LFT)) {
+            else if (BUTTON_PRESSED(LEFT)) {
               encoderDiff = -pulses;
               next_button_update_ms = now + 300;
             }
-            else if (BUTTON_PRESSED(RT)) {
+            else if (BUTTON_PRESSED(RIGHT)) {
               encoderDiff = pulses;
               next_button_update_ms = now + 300;
             }
 
-          #endif // UP || DWN || LFT || RT
+          #endif // UP || DOWN || LEFT || RIGHT
 
           buttons = (newbutton | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
             #if BOTH(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
@@ -1372,10 +1408,10 @@ void MarlinUI::init() {
         if (buttons & EN_B) enc |= B10;
         if (enc != lastEncoderBits) {
           switch (enc) {
-            case ENCODER_PHASE_0: ENCODER_SPIN(ENCODER_PHASE_3, ENCODER_PHASE_1); break;
-            case ENCODER_PHASE_1: ENCODER_SPIN(ENCODER_PHASE_0, ENCODER_PHASE_2); break;
-            case ENCODER_PHASE_2: ENCODER_SPIN(ENCODER_PHASE_1, ENCODER_PHASE_3); break;
-            case ENCODER_PHASE_3: ENCODER_SPIN(ENCODER_PHASE_2, ENCODER_PHASE_0); break;
+            case 0: ENCODER_SPIN(1, 2); break;
+            case 2: ENCODER_SPIN(0, 3); break;
+            case 3: ENCODER_SPIN(2, 1); break;
+            case 1: ENCODER_SPIN(3, 0); break;
           }
           #if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
@@ -1620,10 +1656,11 @@ void MarlinUI::init() {
     #ifdef ACTION_ON_CANCEL
       hostui.cancel();
     #endif
-    IF_DISABLED(SDSUPPORT, print_job_timer.stop());
+    print_job_timer.stop();
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
     LCD_MESSAGE(MSG_PRINT_ABORTED);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
+    TERN_(DWIN_LCD_PROUI, HMI_flag.abort_flag = true);
   }
 
   #if BOTH(HAS_MARLINUI_MENU, PSU_CONTROL)
@@ -1672,19 +1709,6 @@ void MarlinUI::init() {
     print_job_timer.start(); // Also called by M24
   }
 
-  #if HAS_PRINT_PROGRESS
-
-    MarlinUI::progress_t MarlinUI::_get_progress() {
-      return (
-        TERN0(LCD_SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
-        #if ENABLED(SDSUPPORT)
-          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
-        #endif
-      );
-    }
-
-  #endif
-
   #if HAS_TOUCH_BUTTONS
 
     //
@@ -1717,6 +1741,41 @@ void MarlinUI::init() {
   #endif
 
 #endif // HAS_DISPLAY
+
+#if HAS_PRINT_PROGRESS
+
+  MarlinUI::progress_t MarlinUI::_get_progress() {
+    return (
+      TERN0(SET_PROGRESS_PERCENT, (progress_override & PROGRESS_MASK))
+      #if ENABLED(SDSUPPORT)
+        ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
+      #endif
+    );
+  }
+
+  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+
+    // Renew and redraw all enabled progress strings
+    void MarlinUI::rotate_progress() {
+      typedef void (*PrintProgress_t)();
+      const PrintProgress_t progFunc[] = {
+        OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
+        OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
+        OPTITEM(SHOW_REMAINING_TIME, drawRemain)
+        OPTITEM(SHOW_INTERACTION_TIME, drawInter)
+      };
+      static bool prev_blink;
+      static uint8_t i;
+      if (prev_blink != get_blink()) {
+        prev_blink = get_blink();
+        if (++i >= COUNT(progFunc)) i = 0;
+        (*progFunc[i])();
+      }
+    }
+
+  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+
+#endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(SDSUPPORT)
 
@@ -1782,7 +1841,7 @@ void MarlinUI::init() {
     #endif
   }
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
     void MarlinUI::zoffset_overlay(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;

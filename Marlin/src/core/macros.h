@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(__has_include)
+#ifndef __has_include
   #define __has_include(...) 1
 #endif
 
@@ -338,6 +338,12 @@
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
 // Macros for initializing arrays
+#define LIST_26(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
+#define LIST_25(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y
+#define LIST_24(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X
+#define LIST_23(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W
+#define LIST_22(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V
+#define LIST_21(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U
 #define LIST_20(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T
 #define LIST_19(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S
 #define LIST_18(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
@@ -628,7 +634,9 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL(V...)     EVAL16(V)
+#define EVAL           EVAL16
+#define EVAL4096(V...) EVAL2048(EVAL2048(V))
+#define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))
 #define EVAL512(V...)  EVAL256(EVAL256(V))
 #define EVAL256(V...)  EVAL128(EVAL128(V))
@@ -706,10 +714,24 @@
     ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
     ( /* Do nothing */ )
 #define __RREPEAT2() _RREPEAT2
-#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
-#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
-#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
-#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
+#define RREPEAT_S(S,N,OP)       EVAL1024(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)           RREPEAT_S(0,N,OP)
+#define RREPEAT_1(N,OP)         RREPEAT_S(1,INCREMENT(N),OP)
+#define RREPEAT2_S(S,N,OP,V...) EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)     RREPEAT2_S(0,N,OP,V)
+
+// Emit a list of N OP(I) items with ascending counter.
+#define _REPLIST(_RPT_I,_RPT_N,_RPT_OP)                          \
+  _RPT_OP(_RPT_I)                                                \
+  IF_ELSE(SUB1(_RPT_N))                                          \
+    ( , DEFER2(__REPLIST)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) ) \
+    ( /* Do nothing */ )
+#define __REPLIST() _REPLIST
+
+// Repeat a macro, comma-separated, passing S...N-1.
+#define REPLIST_S(S,N,OP)       EVAL(_REPLIST(S,SUB##S(N),OP))
+#define REPLIST(N,OP)           REPLIST_S(0,N,OP)
+#define REPLIST_1(N,OP)         REPLIST_S(1,INCREMENT(N),OP)
 
 // Call OP(A) with each item as an argument
 #define _MAP(_MAP_OP,A,V...)       \
@@ -732,6 +754,17 @@
 #define MAPLIST(OP,V...) EVAL(_MAPLIST(OP,V))
 
 // Temperature Sensor Config
-#define _HAS_E_TEMP(N) || (TEMP_SENSOR_##N != 0)
+#define TEMP_SENSOR(N) TEMP_SENSOR_##N
+#define _HAS_E_TEMP(N) || TEMP_SENSOR(N)
 #define HAS_E_TEMP_SENSOR (0 REPEAT(EXTRUDERS, _HAS_E_TEMP))
-#define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR_##T == -5 || TEMP_SENSOR_##T == -3 || TEMP_SENSOR_##T == -2)
+#define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR(T) == -5 || TEMP_SENSOR(T) == -3 || TEMP_SENSOR(T) == -2)
+
+#define _UI_NONE          0
+#define _UI_ORIGIN      101
+#define _UI_FYSETC      102
+#define _UI_HIPRECY     103
+#define _UI_MKS         104
+#define _UI_RELOADED    105
+#define _UI_IA_CREALITY 106
+#define _DGUS_UI_IS(N) || (CAT(_UI_, DGUS_LCD_UI) == CAT(_UI_, N))
+#define DGUS_UI_IS(V...) (0 MAP(_DGUS_UI_IS, V))

@@ -232,7 +232,7 @@ namespace Language_zh_CN {
   LSTR MSG_MOVE_10MM                      = _UxGT("移动 10 mm");     // "Move 10mm"
   LSTR MSG_MOVE_100MM                     = _UxGT("移动 100 mm");     // "Move 100mm"
   LSTR MSG_SPEED                          = _UxGT("速率");     // "Speed"
-  LSTR MSG_BED_Z                          = _UxGT("热床Z");     // "Bed Z"
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("热床Z");     // "Bed Z"
   LSTR MSG_NOZZLE                         = _UxGT("喷嘴");     // "Nozzle" 噴嘴
   LSTR MSG_NOZZLE_N                       = _UxGT("喷嘴 ~");     // "Nozzle" 噴嘴
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("喷嘴已停靠");
@@ -261,10 +261,9 @@ namespace Language_zh_CN {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("自动PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("自动PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID调整完成");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败! 坏的挤出机");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("自动调失败! 坏的挤出机");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败! 温度太高");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("自动调失败! 超时");
-  LSTR MSG_SELECT                         = _UxGT("选择");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("选择 *");
   LSTR MSG_ACC                            = _UxGT("加速度");     // "Accel" acceleration
   LSTR MSG_JERK                           = _UxGT("抖动速率");     // "Jerk"
@@ -420,7 +419,7 @@ namespace Language_zh_CN {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("部署TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("部署Z探针");
   LSTR MSG_MANUAL_STOW                    = _UxGT("收好Z探针");
-  LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s%s%s 先");     // "Home ... first"
+  LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s 先");     // "Home ... first"
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探针偏移量");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");
@@ -439,9 +438,6 @@ namespace Language_zh_CN {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("错误：最低温度");     // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("打印停机");     // "PRINTER HALTED"
   LSTR MSG_PLEASE_RESET                   = _UxGT("请重置");     // "Please reset"
-  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
   LSTR MSG_HEATING                        = _UxGT("加热中 ...");     // "Heating..."
   LSTR MSG_COOLING                        = _UxGT("冷却中 ...");
   LSTR MSG_BED_HEATING                    = _UxGT("加热热床中 ...");     // "Bed Heating..."
@@ -609,12 +605,8 @@ namespace Language_zh_CN {
   LSTR MSG_HEATER_TIMEOUT                 = _UxGT("加热器超时");
   LSTR MSG_REHEAT                         = _UxGT("重新加热");
   LSTR MSG_REHEATING                      = _UxGT("重新加热中...");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
+}
