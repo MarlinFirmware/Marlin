@@ -778,6 +778,13 @@
 #endif
 
 /**
+ * GD32 is not exactly like STM32
+ */
+#if MB(SOVOL_V131)
+  #warning "GD32 based controllers may not be fully compatible with Maple Generic STM32F103RE. Please report any issues."
+#endif
+
+/**
  * BD Sensor should always include BABYSTEPPING
  */
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
