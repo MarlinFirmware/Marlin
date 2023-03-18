@@ -90,7 +90,7 @@ public:
 
     static void probe_error_stop();
 
-    static bool set_deployed(const bool deploy, const bool no_mem=false);
+    static bool set_deployed(const bool deploy, const bool no_return=false);
 
     #if IS_KINEMATIC
 
@@ -216,8 +216,8 @@ public:
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
 
-  static bool deploy(const bool no_mem=false) { return set_deployed(true, no_mem); }
-  static bool stow(const bool no_mem=false)   { return set_deployed(false, no_mem); }
+  static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
+  static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 
   #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC
