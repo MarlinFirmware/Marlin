@@ -43,12 +43,6 @@
   #define FLASH_ADDRESS_START   0x8004000
 #endif
 
-//
-// Z Probe
-//
-#if ENABLED(BLTOUCH)
-  #error "You need to set jumper to 5v for Bltouch, then comment out this line to proceed."
-#endif
 #define SERVO0_PIN                          PB1 // BL-TOUCH/PWM
 
 //
@@ -58,12 +52,14 @@
 #define Y_STOP_PIN                          PC8 // Y-MIN
 #define Z_STOP_PIN                          PA0 // Z-MIN
 
+//
+// Z Probe
+//
+#if ENABLED(BLTOUCH)
+  #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
+#endif
 #ifndef Z_MIN_PROBE_PIN
-  #if DISABLED(USE_PROBE_FOR_Z_HOMING) && NUM_SERVOS == 0
-    #define Z_MIN_PROBE_PIN                 PB1 // BL-TOUCH/PWM repurposed as input
-  #endif
-    #define Z_MIN_PROBE_PIN                 PA0 // Z-MIN
-  #endif
+  #define Z_MIN_PROBE_PIN                   PB1 // BL-TOUCH/PWM repurposed
 #endif
 
 //
