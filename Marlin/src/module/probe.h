@@ -90,7 +90,7 @@ public:
 
     static void probe_error_stop();
 
-    static bool set_deployed(const bool deploy);
+    static bool set_deployed(const bool deploy, const bool no_return=false);
 
     #if IS_KINEMATIC
 
@@ -182,7 +182,7 @@ public:
 
     static constexpr xyz_pos_t offset = xyz_pos_t(NUM_AXIS_ARRAY_1(0)); // See #16767
 
-    static bool set_deployed(const bool) { return false; }
+    static bool set_deployed(const bool, const bool=false) { return false; }
 
     static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
 
@@ -216,8 +216,8 @@ public:
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
 
-  static bool deploy() { return set_deployed(true); }
-  static bool stow()   { return set_deployed(false); }
+  static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
+  static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 
   #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC

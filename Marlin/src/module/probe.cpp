@@ -500,11 +500,11 @@ void Probe::probe_error_stop() {
  *
  * Return TRUE if the probe could not be deployed/stowed
  */
-bool Probe::set_deployed(const bool deploy) {
+bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
 
   if (DEBUGGING(LEVELING)) {
     DEBUG_POS("Probe::set_deployed", current_position);
-    DEBUG_ECHOLNPGM("deploy: ", deploy);
+    DEBUG_ECHOLNPGM("deploy=", deploy, " no_return=", no_return);
   }
 
   if (endstops.z_probe_enabled == deploy) return false;
@@ -557,7 +557,8 @@ bool Probe::set_deployed(const bool deploy) {
   // If preheating is required before any probing...
   TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
 
-  do_blocking_move_to(old_xy);
+  if (!no_return) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
+
   endstops.enable_z_probe(deploy);
   return false;
 }
