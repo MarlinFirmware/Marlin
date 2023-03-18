@@ -814,15 +814,17 @@ void MarlinSettings::postprocess() {
     // Home Offset
     //
     {
-      _FIELD_TEST(home_offset);
+      #if NUM_AXES
+        _FIELD_TEST(home_offset);
 
-      #if HAS_SCARA_OFFSET
-        EEPROM_WRITE(scara_home_offset);
-      #else
-        #if !HAS_HOME_OFFSET
-          const xyz_pos_t home_offset{0};
+        #if HAS_SCARA_OFFSET
+          EEPROM_WRITE(scara_home_offset);
+        #else
+          #if !HAS_HOME_OFFSET
+            const xyz_pos_t home_offset{0};
+          #endif
+          EEPROM_WRITE(home_offset);
         #endif
-        EEPROM_WRITE(home_offset);
       #endif
     }
 
@@ -906,13 +908,15 @@ void MarlinSettings::postprocess() {
     // Probe XYZ Offsets
     //
     {
-      _FIELD_TEST(probe_offset);
-      #if HAS_BED_PROBE
-        const xyz_pos_t &zpo = probe.offset;
-      #else
-        constexpr xyz_pos_t zpo{0};
+      #if NUM_AXES
+        _FIELD_TEST(probe_offset);
+        #if HAS_BED_PROBE
+          const xyz_pos_t &zpo = probe.offset;
+        #else
+          constexpr xyz_pos_t zpo{0};
+        #endif
+        EEPROM_WRITE(zpo);
       #endif
-      EEPROM_WRITE(zpo);
     }
 
     //
@@ -1462,13 +1466,13 @@ void MarlinSettings::postprocess() {
     //
     // CNC Coordinate Systems
     //
-
-    _FIELD_TEST(coordinate_system);
-
-    #if DISABLED(CNC_COORDINATE_SYSTEMS)
-      const xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS] = { { 0 } };
+    #if NUM_AXES
+      _FIELD_TEST(coordinate_system);
+      #if DISABLED(CNC_COORDINATE_SYSTEMS)
+        const xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS] = { { 0 } };
+      #endif
+      EEPROM_WRITE(TERN(CNC_COORDINATE_SYSTEMS, gcode.coordinate_system, coordinate_system));
     #endif
-    EEPROM_WRITE(TERN(CNC_COORDINATE_SYSTEMS, gcode.coordinate_system, coordinate_system));
 
     //
     // Skew correction factors
@@ -1508,7 +1512,7 @@ void MarlinSettings::postprocess() {
         xyz_float_t backlash_distance_mm;
         LOOP_NUM_AXES(axis) backlash_distance_mm[axis] = backlash.get_distance_mm((AxisEnum)axis);
         const uint8_t backlash_correction = backlash.get_correction_uint8();
-      #else
+      #elif NUM_AXES
         const xyz_float_t backlash_distance_mm{0};
         const uint8_t backlash_correction = 0;
       #endif
@@ -1517,10 +1521,12 @@ void MarlinSettings::postprocess() {
       #else
         const float backlash_smoothing_mm = 3;
       #endif
-      _FIELD_TEST(backlash_distance_mm);
-      EEPROM_WRITE(backlash_distance_mm);
-      EEPROM_WRITE(backlash_correction);
-      EEPROM_WRITE(backlash_smoothing_mm);
+      #if NUM_AXES
+        _FIELD_TEST(backlash_distance_mm);
+        EEPROM_WRITE(backlash_distance_mm);
+        EEPROM_WRITE(backlash_correction);
+        EEPROM_WRITE(backlash_smoothing_mm);
+      #endif
     }
 
     //
@@ -1863,13 +1869,15 @@ void MarlinSettings::postprocess() {
       // Probe Z Offset
       //
       {
+        #if NUM_AXES
         _FIELD_TEST(probe_offset);
-        #if HAS_BED_PROBE
-          const xyz_pos_t &zpo = probe.offset;
-        #else
-          xyz_pos_t zpo;
+          #if HAS_BED_PROBE
+            const xyz_pos_t &zpo = probe.offset;
+          #else
+            xyz_pos_t zpo;
+          #endif
+          EEPROM_READ(zpo);
         #endif
-        EEPROM_READ(zpo);
       }
 
       //
