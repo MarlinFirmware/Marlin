@@ -2875,17 +2875,6 @@ void Temperature::init() {
 
   Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
 
-  void set_fan_scale(uint8_t &speed_scaler, uint8_t scale) {
-    #if ENABLED(REPORT_ADAPTIVE_FAN_SLOWING)
-      const float scale_as_percentage = 100.0f * (float(scale)/128);
-      if (speed_scaler >= scale)
-        SERIAL_ECHOLNPGM("Thermal divergence. Fan speed scale: ", scale_as_percentage, "%");
-      else
-        SERIAL_ECHOLNPGM("Thermal convergence. Fan speed scale: ", scale_as_percentage, "%");
-    #endif
-    speed_scaler = scale;
-  }
-
   /**
    * @brief Thermal Runaway state machine for a single heater
    * @param current          current measured temperature
@@ -2962,15 +2951,15 @@ void Temperature::init() {
           if (adaptive_fan_slowing && heater_id >= 0) {
             const int fan_index = _MIN(heater_id, FAN_COUNT - 1);
             if (fan_speed[fan_index] == 0 || current >= running_temp - (hysteresis_degc * 0.25f))
-              set_fan_scale(fan_speed_scaler[fan_index], 128);
+              fan_speed_scaler[fan_index] = 128;
             else if (current >= running_temp - (hysteresis_degc * 0.3335f))
-              set_fan_scale(fan_speed_scaler[fan_index], 96);
+              fan_speed_scaler[fan_index] = 96;
             else if (current >= running_temp - (hysteresis_degc * 0.5f))
-              set_fan_scale(fan_speed_scaler[fan_index], 64);
+              fan_speed_scaler[fan_index] = 64;
             else if (current >= running_temp - (hysteresis_degc * 0.8f))
-              set_fan_scale(fan_speed_scaler[fan_index], 32);
+              fan_speed_scaler[fan_index] = 32;
             else
-              set_fan_scale(fan_speed_scaler[fan_index], 0);
+              fan_speed_scaler[fan_index] = 0;
           }
         #endif
 
