@@ -57,6 +57,6 @@
   #error "I2S stream is currently incompatible with LIN_ADVANCE."
 #endif
 
-#if BOTH(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0
-  #error "PRINTCOUNTER_SAVE_INTERVAL must be zero (disabled) on ESP32 boards with an I2S expander."
+#if BOTH(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
+  #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
 #endif
