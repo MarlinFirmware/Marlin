@@ -347,41 +347,34 @@
 #endif
 
 /**
- * IMPORTANT NOTICE: This feature is disabled by default, since it may cause some thermally stable systems to halt.
- * It is advisable to adequately test and enable the feature (by uncommenting #define THERMAL_PROTECTION_VARIANCE_MONITOR 
- * below, please read the following notes for details).
+ * Thermal Protection Variance Monitor - EXPERIMENTAL
+ * Kill the machine on a stuck temperature sensor.
  *
- * Thermal protection variance monitor ensures that temperature sensor polling occurs regularly.
- * If polling stops for any reason (i.e. due to a software issue), temperature readings will remain constant,
- * while heaters may still be powered (uncontrollably). This feature is designed to monitor temperature value
- * changes, and not specific processes, in order to be able to detect present and future software issues.
+ * This feature may cause some thermally-stable systems to halt. Be sure to test it throughly under
+ * a variety of conditions. Disable if you get false positives.
  *
- * Variance monitor uses the THERMAL_PROTECTION_*_PERIOD constants (assigned to each heater monitored, see above)
- * as a time window, within which at least one temperature change must occur, to indicate that sensor polling
- * is working. If any monitored heater's temperature remains totally constant (not even a fractional change) during
- * this period, a thermal malfunction error occurs and the printer is halted.
+ * This feature ensures that temperature sensors are updating regularly. If sensors die or get "stuck",
+ * or if Marlin stops reading them, temperatures will remain constant while heaters may still be powered!
+ * This feature only monitors temperature changes so it should catch any issue, hardware or software.
  *
- * Some very stable heaters (where prolonged streaks of constant temperature readings occur) might produce false positives
- * and halt the printer. In this case, try increasing the corresponding THERMAL_PROTECTION_*_PERIOD constant modestly
- * (keeping in mind that a fully powered uncontrolled heater might reach dangerous tempepratures within a couple of
- * minutes), overriding THERMAL_PROTECTION_*_PERIOD values with THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
- * (this allows prolonging the variance detection window without affecting any other thermal protection setting, but
- * is the same setting for all heaters, and be aware that some heaters might heat much faster than others),
- * or disabling the feature (accepting the potential risk; uncomment SUPPRESS_VARIANCE_MONITOR_WARNING to silence
- * the related warning).
+ * By default it uses the THERMAL_PROTECTION_*_PERIOD constants (above) for the time window, within which
+ * at least one temperature change must occur, to indicate that sensor polling is working. If any monitored
+ * heater's temperature remains totally constant (without even a fractional change) during this period, a
+ * thermal malfunction error occurs and the printer is halted.
  *
- * In this last scenario, it is *very* important to distinguish a false positive from the actual issue, before disabling
- * the feature: if immediately after halting and restarting the printer, the heater's temperature appears even slightly
- * higher than the expected temperature, you may be facing a real thermal malfunction (if you're using host monitoring,
- * e.g. OctoPrint, this will appear as a bump on the temperature graph). Please report such malfunctions in the github
- * project (Issues), providing serial logs if possible.
+ * A very stable heater might produce a false positive and halt the printer. In this case, try increasing
+ * the corresponding THERMAL_PROTECTION_*_PERIOD constant a bit. Keep in mind that uncontrolled heating
+ * shouldn't be allowed to persist for more than a minite or two.
+ *
+ * Be careful to distinguish false positives from real sensor issues before disabling this feature. If the
+ * heater's temperature appears even slightly higher than expected after restarting, you may have a real
+ * thermal malfunction. Check the temperature graph in your host for any unusual bumps.
  */
-#if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER)
-  /**
-   * Thermal Protection Variance Monitor - EXPERIMENTAL.
-   * Kill the machine on a stuck temperature sensor. Disable if you get false positives.
-   */
-  //#define THERMAL_PROTECTION_VARIANCE_MONITOR   // Detect a sensor malfunction preventing temperature updates
+//#define THERMAL_PROTECTION_VARIANCE_MONITOR
+#if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+  // Variance detection window to override the THERMAL_PROTECTION...PERIOD settings above.
+  // Keep in mind that some heaters heat up faster than others.
+  //#define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE 30  // (s) Override all watch periods
 #endif
 
 #if ENABLED(PIDTEMP)
