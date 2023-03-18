@@ -52,14 +52,17 @@ void GcodeSuite::M306() {
     return;
   }
 
-  #if ENABLED(MPC_AUTOTUNE)
-    if (parser.seen_test('T')) {
+  if (parser.seen_test('T')) {
+    #if ENABLED(MPC_AUTOTUNE)
       LCD_MESSAGE(MSG_MPC_AUTOTUNE);
       thermalManager.MPC_autotune(e);
       ui.reset_status();
       return;
-    }
-  #endif
+    #else
+      SERIAL_ECHOLN("M306 T is not enabled. Define MPC_AUTOTUNE to enable");
+      return;
+    #endif
+  }
 
   if (parser.seen("ACFPRH")) {
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
