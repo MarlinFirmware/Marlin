@@ -366,35 +366,37 @@
   #define WATCH_COOLER_TEMP_INCREASE            3 // Degrees Celsius
 #endif
 
-/**
- * Thermal Protection Variance Monitor - EXPERIMENTAL
- * Kill the machine on a stuck temperature sensor.
- *
- * This feature may cause some thermally-stable systems to halt. Be sure to test it throughly under
- * a variety of conditions. Disable if you get false positives.
- *
- * This feature ensures that temperature sensors are updating regularly. If sensors die or get "stuck",
- * or if Marlin stops reading them, temperatures will remain constant while heaters may still be powered!
- * This feature only monitors temperature changes so it should catch any issue, hardware or software.
- *
- * By default it uses the THERMAL_PROTECTION_*_PERIOD constants (above) for the time window, within which
- * at least one temperature change must occur, to indicate that sensor polling is working. If any monitored
- * heater's temperature remains totally constant (without even a fractional change) during this period, a
- * thermal malfunction error occurs and the printer is halted.
- *
- * A very stable heater might produce a false positive and halt the printer. In this case, try increasing
- * the corresponding THERMAL_PROTECTION_*_PERIOD constant a bit. Keep in mind that uncontrolled heating
- * shouldn't be allowed to persist for more than a minite or two.
- *
- * Be careful to distinguish false positives from real sensor issues before disabling this feature. If the
- * heater's temperature appears even slightly higher than expected after restarting, you may have a real
- * thermal malfunction. Check the temperature graph in your host for any unusual bumps.
- */
-//#define THERMAL_PROTECTION_VARIANCE_MONITOR
-#if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
-  // Variance detection window to override the THERMAL_PROTECTION...PERIOD settings above.
-  // Keep in mind that some heaters heat up faster than others.
-  //#define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE 30  // (s) Override all watch periods
+#if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER)
+  /**
+   * Thermal Protection Variance Monitor - EXPERIMENTAL
+   * Kill the machine on a stuck temperature sensor.
+   *
+   * This feature may cause some thermally-stable systems to halt. Be sure to test it throughly under
+   * a variety of conditions. Disable if you get false positives.
+   *
+   * This feature ensures that temperature sensors are updating regularly. If sensors die or get "stuck",
+   * or if Marlin stops reading them, temperatures will remain constant while heaters may still be powered!
+   * This feature only monitors temperature changes so it should catch any issue, hardware or software.
+   *
+   * By default it uses the THERMAL_PROTECTION_*_PERIOD constants (above) for the time window, within which
+   * at least one temperature change must occur, to indicate that sensor polling is working. If any monitored
+   * heater's temperature remains totally constant (without even a fractional change) during this period, a
+   * thermal malfunction error occurs and the printer is halted.
+   *
+   * A very stable heater might produce a false positive and halt the printer. In this case, try increasing
+   * the corresponding THERMAL_PROTECTION_*_PERIOD constant a bit. Keep in mind that uncontrolled heating
+   * shouldn't be allowed to persist for more than a minite or two.
+   *
+   * Be careful to distinguish false positives from real sensor issues before disabling this feature. If the
+   * heater's temperature appears even slightly higher than expected after restarting, you may have a real
+   * thermal malfunction. Check the temperature graph in your host for any unusual bumps.
+   */
+  //#define THERMAL_PROTECTION_VARIANCE_MONITOR
+  #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+    // Variance detection window to override the THERMAL_PROTECTION...PERIOD settings above.
+    // Keep in mind that some heaters heat up faster than others.
+    //#define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD 30  // (s) Override all watch periods
+  #endif
 #endif
 
 #if ENABLED(PIDTEMP)

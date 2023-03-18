@@ -2892,12 +2892,6 @@ void Temperature::init() {
    */
   void Temperature::tr_state_machine_t::run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
 
-    #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
-      #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
-    #else
-      #define VARIANCE_WINDOW period_seconds
-    #endif
-
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
       const IdleIndex idle_index = idle_index_for_id(heater_id);
@@ -2920,13 +2914,14 @@ void Temperature::init() {
       );
     */
 
-    #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
-      #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
-    #else
-      #define VARIANCE_WINDOW period_seconds
-    #endif
-
     #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+
+      #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD
+        #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD
+      #else
+        #define VARIANCE_WINDOW period_seconds
+      #endif
+
       if (state == TRMalfunction) { // temperature invariance may continue, regardless of heater state
         variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
         last_temp = current;
