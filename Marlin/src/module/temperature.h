@@ -377,7 +377,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #elif ENABLED(MPCTEMP)
 
-  typedef struct {
+  typedef struct MPC {
+    static bool e_paused;               // Pause E filament permm tracking
+    static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
@@ -714,10 +716,6 @@ class Temperature {
 
     #if ENABLED(WATCH_HOTENDS)
       static hotend_watch_t watch_hotend[HOTENDS];
-    #endif
-
-    #if ENABLED(MPCTEMP)
-      static int32_t mpc_e_position;
     #endif
 
     #if HAS_HOTEND
