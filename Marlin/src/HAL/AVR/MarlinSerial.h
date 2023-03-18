@@ -34,6 +34,7 @@
 #include <WString.h>
 
 #include "../../inc/MarlinConfigPre.h"
+#include "../../core/types.h"
 #include "../../core/serial_hook.h"
 
 #ifndef SERIAL_PORT
@@ -138,10 +139,6 @@
 
   #define BYTE 0
 
-  // Templated type selector
-  template<bool b, typename T, typename F> struct TypeSelector { typedef T type;} ;
-  template<typename T, typename F> struct TypeSelector<false, T, F> { typedef F type; };
-
   template<typename Cfg>
   class MarlinSerial {
   protected:
@@ -164,7 +161,7 @@
     static constexpr B_U2Xx<Cfg::PORT>   B_U2X   = 0;
 
     // Base size of type on buffer size
-    typedef typename TypeSelector<(Cfg::RX_SIZE>256), uint16_t, uint8_t>::type ring_buffer_pos_t;
+    typedef uvalue_t(Cfg::RX_SIZE - 1) ring_buffer_pos_t;
 
     struct ring_buffer_r {
       volatile ring_buffer_pos_t head, tail;

@@ -317,9 +317,52 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTENDS];
-  #define _HMT(N) HEATER_##N##_MAXTEMP,
-  const celsius_t Temperature::hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
-#endif
+  constexpr celsius_t Temperature::hotend_maxtemp[HOTENDS];
+
+  // Sanity-check max readable temperatures
+  #define CHECK_MAXTEMP_(N,M,S) static_assert( \
+    S >= 998 || M <= _MAX(TT_NAME(S)[0].celsius, TT_NAME(S)[COUNT(TT_NAME(S)) - 1].celsius) - HOTEND_OVERSHOOT, \
+    "HEATER_" STRINGIFY(N) "_MAXTEMP (" STRINGIFY(M) ") is too high for thermistor_" STRINGIFY(S) ".h with HOTEND_OVERSHOOT=" STRINGIFY(HOTEND_OVERSHOOT) ".");
+  #define CHECK_MAXTEMP(N) TERN(TEMP_SENSOR_##N##_IS_THERMISTOR, CHECK_MAXTEMP_, CODE_0)(N, HEATER_##N##_MAXTEMP, TEMP_SENSOR_##N)
+  REPEAT(HOTENDS, CHECK_MAXTEMP)
+
+  #if HAS_PREHEAT
+    #define CHECK_PREHEAT__(N,P,T,M) static_assert(T <= M - HOTEND_OVERSHOOT, "PREHEAT_" STRINGIFY(P) "_TEMP_HOTEND (" STRINGIFY(T) ") must be less than HEATER_" STRINGIFY(N) "_MAXTEMP (" STRINGIFY(M) ") - " STRINGIFY(HOTEND_OVERSHOOT) ".");
+    #define CHECK_PREHEAT_(N,P) CHECK_PREHEAT__(N, P, PREHEAT_##P##_TEMP_HOTEND, HEATER_##N##_MAXTEMP)
+    #define CHECK_PREHEAT(P) REPEAT2(HOTENDS, CHECK_PREHEAT_, P)
+    #if PREHEAT_COUNT >= 1
+      CHECK_PREHEAT(1)
+    #endif
+    #if PREHEAT_COUNT >= 2
+      CHECK_PREHEAT(2)
+    #endif
+    #if PREHEAT_COUNT >= 3
+      CHECK_PREHEAT(3)
+    #endif
+    #if PREHEAT_COUNT >= 4
+      CHECK_PREHEAT(4)
+    #endif
+    #if PREHEAT_COUNT >= 5
+      CHECK_PREHEAT(5)
+    #endif
+    #if PREHEAT_COUNT >= 6
+      CHECK_PREHEAT(6)
+    #endif
+    #if PREHEAT_COUNT >= 7
+      CHECK_PREHEAT(7)
+    #endif
+    #if PREHEAT_COUNT >= 8
+      CHECK_PREHEAT(8)
+    #endif
+    #if PREHEAT_COUNT >= 9
+      CHECK_PREHEAT(9)
+    #endif
+    #if PREHEAT_COUNT >= 10
+      CHECK_PREHEAT(10)
+    #endif
+  #endif // HAS_PREHEAT
+
+#endif // HAS_HOTEND
 
 #if HAS_TEMP_REDUNDANT
   redundant_info_t Temperature::temp_redundant;
@@ -536,7 +579,6 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
  */
 
 volatile bool Temperature::raw_temps_ready = false;
-
 
 #if ENABLED(MPCTEMP)
   int32_t Temperature::mpc_e_position; // = 0
@@ -882,21 +924,25 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #endif // HAS_PID_HEATING
 
-#if ENABLED(MPCTEMP)
+#if ENABLED(MPC_AUTOTUNE)
 
-  void Temperature::MPC_autotune() {
-    auto housekeeping = [] (millis_t &ms, celsius_float_t &current_temp, millis_t &next_report_ms) {
+  #if EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND)
+    #define SINGLEFAN 1
+  #endif
+
+  void Temperature::MPC_autotune(const uint8_t e) {
+    auto housekeeping = [] (millis_t &ms, const uint8_t e, celsius_float_t &current_temp, millis_t &next_report_ms) {
       ms = millis();
 
       if (updateTemperaturesIfReady()) { // temp sample ready
-        current_temp = degHotend(active_extruder);
+        current_temp = degHotend(e);
         TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
       }
 
       if (ELAPSED(ms, next_report_ms)) {
         next_report_ms += 1000UL;
 
-        print_heater_states(active_extruder);
+        print_heater_states(e);
         SERIAL_EOL();
       }
 
@@ -904,7 +950,6 @@ volatile bool Temperature::raw_temps_ready = false;
       TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
       if (!wait_for_heatup) {
-        SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
         SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
         TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
         return true;
@@ -914,15 +959,17 @@ volatile bool Temperature::raw_temps_ready = false;
     };
 
     struct OnExit {
+      uint8_t e;
+      OnExit(const uint8_t _e) { this->e = _e; }
       ~OnExit() {
         wait_for_heatup = false;
 
         ui.reset_status();
 
-        temp_hotend[active_extruder].target = 0.0f;
-        temp_hotend[active_extruder].soft_pwm_amount = 0;
+        temp_hotend[e].target = 0.0f;
+        temp_hotend[e].soft_pwm_amount = 0;
         #if HAS_FAN
-          set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
+          set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
           planner.sync_fan_speeds(fan_speed);
         #endif
 
@@ -930,11 +977,10 @@ volatile bool Temperature::raw_temps_ready = false;
 
         TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       }
-    } on_exit;
+    } on_exit(e);
 
-    SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
-    SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, active_extruder);
-    MPCHeaterInfo &hotend = temp_hotend[active_extruder];
+    SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, e);
+    MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
 
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
@@ -944,7 +990,7 @@ volatile bool Temperature::raw_temps_ready = false;
     disable_all_heaters();
     #if HAS_FAN
       zero_fan_speeds();
-      set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
+      set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
       planner.sync_fan_speeds(fan_speed);
     #endif
     do_blocking_move_to(xyz_pos_t(MPC_TUNING_POS));
@@ -958,12 +1004,12 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     millis_t ms = millis(), next_report_ms = ms, next_test_ms = ms + 10000UL;
-    celsius_float_t current_temp = degHotend(active_extruder),
+    celsius_float_t current_temp = degHotend(e),
                     ambient_temp = current_temp;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, current_temp, next_report_ms)) return;
+      if (housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
@@ -977,7 +1023,7 @@ volatile bool Temperature::raw_temps_ready = false;
     wait_for_heatup = false;
 
     #if HAS_FAN
-      set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 0);
+      set_fan_speed(TERN(SINGLEFAN, 0, e), 0);
       planner.sync_fan_speeds(fan_speed);
     #endif
 
@@ -995,7 +1041,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, current_temp, next_report_ms)) return;
+      if (housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
         // Record samples between 100C and 200C
@@ -1054,16 +1100,16 @@ volatile bool Temperature::raw_temps_ready = false;
 
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
-      if (housekeeping(ms, current_temp, next_report_ms)) return;
+      if (housekeeping(ms, e, current_temp, next_report_ms)) return;
 
       if (ELAPSED(ms, next_test_ms)) {
-        hotend.soft_pwm_amount = (int)get_pid_output_hotend(active_extruder) >> 1;
+        hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
 
         if (ELAPSED(ms, settle_end_ms) && !ELAPSED(ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
           total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
         #if HAS_FAN
           else if (ELAPSED(ms, test_end_ms) && !fan0_done) {
-            set_fan_speed(EITHER(MPC_FAN_0_ALL_HOTENDS, MPC_FAN_0_ACTIVE_HOTEND) ? 0 : active_extruder, 255);
+            set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
             planner.sync_fan_speeds(fan_speed);
             settle_end_ms = ms + settle_time;
             test_end_ms = settle_end_ms + test_duration;
@@ -1101,7 +1147,6 @@ volatile bool Temperature::raw_temps_ready = false;
     mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
     mpc.sensor_responsiveness = block_responsiveness / (1.0f - (ambient_temp - asymp_temp) * exp(-block_responsiveness * t1_time) / (t1 - asymp_temp));
 
-    SERIAL_ECHOPGM(STR_MPC_AUTOTUNE);
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
     TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_DONE));
 
@@ -1122,7 +1167,7 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(HAS_FAN, SERIAL_ECHOLNPAIR_F("MPC_AMBIENT_XFER_COEFF_FAN255 ", ambient_xfer_coeff_fan255, 4));
   }
 
-#endif // MPCTEMP
+#endif // MPC_AUTOTUNE
 
 int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   switch (heater_id) {
@@ -1451,7 +1496,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
 
       float ambient_xfer_coeff = mpc.ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
-        const uint8_t fan_index = EITHER(MPC_FAN_0_ACTIVE_HOTEND, MPC_FAN_0_ALL_HOTENDS) ? 0 : ee;
+        const uint8_t fan_index = TERN(SINGLEFAN, 0, ee);
         const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) fan_speed[fan_index] * RECIPROCAL(255);
         ambient_xfer_coeff += fan_fraction * mpc.fan255_adjustment;
       #endif
@@ -1460,7 +1505,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id) {
         const int32_t e_position = stepper.position(E_AXIS);
         const float e_speed = (e_position - mpc_e_position) * planner.mm_per_step[E_AXIS] / MPC_dT;
 
-        // The position can appear to make big jumps when, e.g. homing
+        // The position can appear to make big jumps when, e.g., homing
         if (fabs(e_speed) > planner.settings.max_feedrate_mm_s[E_AXIS])
           mpc_e_position = e_position;
         else if (e_speed > 0.0f) {  // Ignore retract/recover moves

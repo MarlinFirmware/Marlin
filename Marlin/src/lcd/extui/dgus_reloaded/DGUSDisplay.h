@@ -47,13 +47,13 @@ public:
 
   enum DGUS_ControlType : uint8_t {
     VARIABLE_DATA_INPUT = 0x00,
-    POPUP_WINDOW = 0x01,
-    INCREMENTAL_ADJUST = 0x02,
-    SLIDER_ADJUST = 0x03,
-    RTC_SETTINGS = 0x04,
-    RETURN_KEY_CODE = 0x05,
-    TEXT_INPUT = 0x06,
-    FIRMWARE_SETTINGS = 0x07
+    POPUP_WINDOW        = 0x01,
+    INCREMENTAL_ADJUST  = 0x02,
+    SLIDER_ADJUST       = 0x03,
+    RTC_SETTINGS        = 0x04,
+    RETURN_KEY_CODE     = 0x05,
+    TEXT_INPUT          = 0x06,
+    FIRMWARE_SETTINGS   = 0x07
   };
 
   DGUSDisplay() = default;
@@ -63,8 +63,11 @@ public:
   static void Read(uint16_t addr, uint8_t size);
   static void Write(uint16_t addr, const void* data_ptr, uint8_t size);
 
-  static void WriteString(uint16_t addr, const void* data_ptr, uint8_t size, bool left = true, bool right = false, bool use_space = true);
-  static void WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left = true, bool right = false, bool use_space = true);
+  static void WriteString(uint16_t addr, const void* data_ptr, uint8_t size, bool left=true, bool right=false, bool use_space=true);
+  static void WriteStringPGM(uint16_t addr, const void* data_ptr, uint8_t size, bool left=true, bool right=false, bool use_space=true);
+  static void WriteString(uint16_t addr, FSTR_P const fstr, uint8_t size, bool left=true, bool right=false, bool use_space=true) {
+    WriteStringPGM(addr, FTOP(fstr), size, left, right, use_space);
+  }
 
   template<typename T>
   static void Write(uint16_t addr, T data) {
@@ -83,7 +86,7 @@ public:
   //   start: position at which the sound was stored on the display.
   //   len: how many sounds to play. Sounds will play consecutively from start to start+len-1.
   //   volume: playback volume. 0 keeps the current volume.
-  static void PlaySound(uint8_t start, uint8_t len = 1, uint8_t volume = 0);
+  static void PlaySound(uint8_t start, uint8_t len=1, uint8_t volume=0);
   // Enable/disable a specific touch control.
   //   type: control type.
   //   control: index of the control on the page (set during screen development).
@@ -154,7 +157,7 @@ private:
   };
 
   enum dgus_system_addr : uint16_t {
-    DGUS_VERSION = 0x000f // OS/GUI version
+    DGUS_VERSION = 0x000F // OS/GUI version
   };
 
   static void WriteHeader(uint16_t addr, uint8_t command, uint8_t len);

@@ -1308,9 +1308,6 @@
 /**
  * Set defaults for missing (newer) options
  */
-#if !defined(DISABLE_INACTIVE_X) && ENABLED(DISABLE_X)
-  #define DISABLE_INACTIVE_X 1
-#endif
 
 #if HAS_Y_AXIS
   #if PIN_EXISTS(Y_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
@@ -1338,11 +1335,6 @@
   #if PIN_EXISTS(Y2_MS1)
     #define HAS_Y2_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_Y) && ENABLED(DISABLE_Y)
-    #define DISABLE_INACTIVE_Y 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_Y
 #endif
 
 #if HAS_Z_AXIS
@@ -1358,11 +1350,6 @@
   #if PIN_EXISTS(Z_MS1)
     #define HAS_Z_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_Z) && ENABLED(DISABLE_Z)
-    #define DISABLE_INACTIVE_Z 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_Z
 #endif
 
 #if NUM_Z_STEPPERS >= 2
@@ -1423,11 +1410,6 @@
   #if PIN_EXISTS(I_MS1)
     #define HAS_I_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_I) && ENABLED(DISABLE_I)
-    #define DISABLE_INACTIVE_I 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_I
 #endif
 
 #if HAS_J_AXIS
@@ -1443,11 +1425,6 @@
   #if PIN_EXISTS(J_MS1)
     #define HAS_J_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_J) && ENABLED(DISABLE_J)
-    #define DISABLE_INACTIVE_J 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_J
 #endif
 
 #if HAS_K_AXIS
@@ -1463,11 +1440,6 @@
   #if PIN_EXISTS(K_MS1)
     #define HAS_K_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_K) && ENABLED(DISABLE_K)
-    #define DISABLE_INACTIVE_K 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_K
 #endif
 
 #if HAS_U_AXIS
@@ -1483,11 +1455,6 @@
   #if PIN_EXISTS(U_MS1)
     #define HAS_U_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_U) && ENABLED(DISABLE_U)
-    #define DISABLE_INACTIVE_U 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_U
 #endif
 
 #if HAS_V_AXIS
@@ -1503,11 +1470,6 @@
   #if PIN_EXISTS(V_MS1)
     #define HAS_V_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_V) && ENABLED(DISABLE_V)
-    #define DISABLE_INACTIVE_V 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_V
 #endif
 
 #if HAS_W_AXIS
@@ -1523,11 +1485,43 @@
   #if PIN_EXISTS(W_MS1)
     #define HAS_W_MS_PINS 1
   #endif
-  #if !defined(DISABLE_INACTIVE_W) && ENABLED(DISABLE_W)
-    #define DISABLE_INACTIVE_W 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_W
+#endif
+
+#if !defined(DISABLE_INACTIVE_X) && ENABLED(DISABLE_X)
+  #define DISABLE_INACTIVE_X
+#endif
+#if !defined(DISABLE_INACTIVE_Y) && ENABLED(DISABLE_Y)
+  #define DISABLE_INACTIVE_Y
+#endif
+#if !defined(DISABLE_INACTIVE_Z) && ENABLED(DISABLE_Z)
+  #define DISABLE_INACTIVE_Z
+#endif
+#if !defined(DISABLE_INACTIVE_I) && ENABLED(DISABLE_I)
+  #define DISABLE_INACTIVE_I
+#endif
+#if !defined(DISABLE_INACTIVE_J) && ENABLED(DISABLE_J)
+  #define DISABLE_INACTIVE_J
+#endif
+#if !defined(DISABLE_INACTIVE_K) && ENABLED(DISABLE_K)
+  #define DISABLE_INACTIVE_K
+#endif
+#if !defined(DISABLE_INACTIVE_U) && ENABLED(DISABLE_U)
+  #define DISABLE_INACTIVE_U
+#endif
+#if !defined(DISABLE_INACTIVE_V) && ENABLED(DISABLE_V)
+  #define DISABLE_INACTIVE_V
+#endif
+#if !defined(DISABLE_INACTIVE_W) && ENABLED(DISABLE_W)
+  #define DISABLE_INACTIVE_W
+#endif
+#if !defined(DISABLE_INACTIVE_EXTRUDER) && ENABLED(DISABLE_E)
+  #define DISABLE_INACTIVE_EXTRUDER
+#endif
+#if ANY(DISABLE_INACTIVE_X, DISABLE_INACTIVE_Y, DISABLE_INACTIVE_Z, DISABLE_INACTIVE_I, DISABLE_INACTIVE_J, DISABLE_INACTIVE_K, DISABLE_INACTIVE_U, DISABLE_INACTIVE_V, DISABLE_INACTIVE_W, DISABLE_INACTIVE_EXTRUDER)
+  #define HAS_DISABLE_INACTIVE_AXIS 1
+#endif
+#if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_U, DISABLE_V, DISABLE_W, DISABLE_E)
+  #define HAS_DISABLE_AXIS 1
 #endif
 
 // Extruder steppers and solenoids
@@ -1651,11 +1645,6 @@
     #endif
   #endif
 
-  #if !defined(DISABLE_INACTIVE_E) && ENABLED(DISABLE_E)
-    #define DISABLE_INACTIVE_E 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_E
 #endif // HAS_EXTRUDERS
 
 /**
@@ -2510,7 +2499,7 @@
   #if EITHER(PIDTEMP, PIDTEMPBED)
     #define DWIN_PID_TUNE 1
   #endif
-  #if EITHER(DWIN_PID_TUNE, MPCTEMP) && DISABLED(DISABLE_TUNING_GRAPH)
+  #if EITHER(DWIN_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
     #define SHOW_TUNING_GRAPH 1
   #endif
 #endif
@@ -3167,14 +3156,14 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define _MESH_MIN_X (X_MIN_BED + MESH_INSET)
-    #define _MESH_MIN_Y (Y_MIN_BED + MESH_INSET)
+    #define _MESH_MIN_X (X_MIN_BED + (MESH_INSET))
+    #define _MESH_MIN_Y (Y_MIN_BED + (MESH_INSET))
     #define _MESH_MAX_X (X_MAX_BED - (MESH_INSET))
     #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
-    #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
-    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
+    #define _MESH_MIN_X (_MAX(X_MIN_BED + (MESH_INSET), X_MIN_POS)) // UBL is careful not to probe off the bed. It doesn't
+    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + (MESH_INSET), Y_MIN_POS)) // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions.
     #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
     #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
   #endif
@@ -3199,13 +3188,9 @@
   #undef MESH_MAX_Y
 #endif
 
-#define _POINT_COUNT (defined(PROBE_PT_1_X) + defined(PROBE_PT_2_X) + defined(PROBE_PT_3_X) + defined(PROBE_PT_1_Y) + defined(PROBE_PT_2_Y) + defined(PROBE_PT_3_Y))
-#if _POINT_COUNT == 6
-  #define HAS_FIXED_3POINT 1
-#elif _POINT_COUNT > 0
-  #error "For 3-Point Leveling all XY points must be defined (or none for the defaults)."
+#if NEEDS_THREE_PROBE_POINTS && defined(PROBE_PT_1)
+  #define HAS_FIXED_3POINT 1  // Points are defined for ABL/UBL. Else calculated in probe.get_three_points.
 #endif
-#undef _POINT_COUNT
 
 /**
  * Buzzer/Speaker
