@@ -294,12 +294,12 @@ public:
       template <typename T>
       static void get_three_points(T points[3]) {
         #if HAS_FIXED_3POINT
-          #define VALIDATE_PROBE_PT(N) static_assert(Probe::build_time::can_reach(xy_pos_t{PROBE_PT_##N##_X, PROBE_PT_##N##_Y}), \
-            "PROBE_PT_" STRINGIFY(N) "_(X|Y) is unreachable using default NOZZLE_TO_PROBE_OFFSET and PROBING_MARGIN");
+          #define VALIDATE_PROBE_PT(N) static_assert(Probe::build_time::can_reach(xy_pos_t(PROBE_PT_##N)), \
+            "PROBE_PT_" STRINGIFY(N) " is unreachable using default NOZZLE_TO_PROBE_OFFSET and PROBING_MARGIN.");
           VALIDATE_PROBE_PT(1); VALIDATE_PROBE_PT(2); VALIDATE_PROBE_PT(3);
-          points[0] = xy_float_t({ PROBE_PT_1_X, PROBE_PT_1_Y });
-          points[1] = xy_float_t({ PROBE_PT_2_X, PROBE_PT_2_Y });
-          points[2] = xy_float_t({ PROBE_PT_3_X, PROBE_PT_3_Y });
+          points[0] = xy_float_t(PROBE_PT_1);
+          points[1] = xy_float_t(PROBE_PT_2);
+          points[2] = xy_float_t(PROBE_PT_3);
         #else
           #if IS_KINEMATIC
             constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
@@ -307,6 +307,10 @@ public:
             points[0] = xy_float_t({ (X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0 });
             points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
             points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
+          #elif ENABLED(AUTO_BED_LEVELING_UBL)
+            points[0] = xy_float_t({ _MAX(MESH_MIN_X, min_x()), _MAX(MESH_MIN_Y, min_y()) });
+            points[1] = xy_float_t({ _MIN(MESH_MAX_X, max_x()), _MAX(MESH_MIN_Y, min_y()) });
+            points[2] = xy_float_t({ (_MAX(MESH_MIN_X, min_x()) + _MIN(MESH_MAX_X, max_x())) / 2, _MIN(MESH_MAX_Y, max_y()) });
           #else
             points[0] = xy_float_t({ min_x(), min_y() });
             points[1] = xy_float_t({ max_x(), min_y() });

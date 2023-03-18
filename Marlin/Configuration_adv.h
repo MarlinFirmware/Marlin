@@ -2152,13 +2152,10 @@
  * Points to probe for all 3-point Leveling procedures.
  * Override if the automatically selected points are inadequate.
  */
-#if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+#if NEEDS_THREE_PROBE_POINTS
+  //#define PROBE_PT_1 {  15, 180 }   // (mm) { x, y }
+  //#define PROBE_PT_2 {  15,  20 }
+  //#define PROBE_PT_3 { 170,  20 }
 #endif
 
 /**
@@ -3163,7 +3160,7 @@
    *
    * It is recommended to set HOMING_BUMP_MM to { 0, 0, 0 }.
    *
-   * SPI_ENDSTOPS  *** Beta feature! *** TMC2130/TMC5160 Only ***
+   * SPI_ENDSTOPS  *** TMC2130/TMC5160 Only ***
    * Poll the driver through SPI to determine load when homing.
    * Removes the need for a wire from DIAG1 to an endstop pin.
    *
@@ -3191,7 +3188,7 @@
     //#define U_STALL_SENSITIVITY  8
     //#define V_STALL_SENSITIVITY  8
     //#define W_STALL_SENSITIVITY  8
-    //#define SPI_ENDSTOPS              // TMC2130 only
+    //#define SPI_ENDSTOPS              // TMC2130/TMC5160 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 
@@ -3210,10 +3207,9 @@
    //#define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
-   * Beta feature!
-   * Create a 50/50 square wave step pulse optimal for stepper drivers.
+   * Step on both rising and falling edge signals (as with a square wave).
    */
-  //#define SQUARE_WAVE_STEPPING
+  //#define EDGE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
