@@ -2915,11 +2915,18 @@ void Temperature::init() {
     */
 
     #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+
+      #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD
+        #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD
+      #else
+        #define VARIANCE_WINDOW period_seconds
+      #endif
+
       if (state == TRMalfunction) { // temperature invariance may continue, regardless of heater state
         variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
         last_temp = current;
         if (!NEAR_ZERO(variance)) {
-          variance_timer = millis() + SEC_TO_MS(period_seconds);
+          variance_timer = millis() + SEC_TO_MS(VARIANCE_WINDOW);
           variance = 0.0;
           state = TRStable; // resume from where we detected the problem
         }
@@ -2980,7 +2987,7 @@ void Temperature::init() {
               state = TRMalfunction;
               break;
             }
-            variance_timer = now + SEC_TO_MS(period_seconds);
+            variance_timer = now + SEC_TO_MS(VARIANCE_WINDOW);
             variance = 0.0;
             last_temp = current;
           }
