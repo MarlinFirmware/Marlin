@@ -678,6 +678,8 @@
   #error "INVERT_*_STEP_PIN true is now STEP_STATE_* LOW, and INVERT_*_STEP_PIN false is now STEP_STATE_* HIGH."
 #elif defined(PROBE_PT_1_X) || defined(PROBE_PT_1_Y) || defined(PROBE_PT_2_X) || defined(PROBE_PT_2_Y) || defined(PROBE_PT_3_X) || defined(PROBE_PT_3_Y)
   #error "PROBE_PT_[123]_[XY] is now defined using PROBE_PT_[123] with an array { x, y }."
+#elif defined(SQUARE_WAVE_STEPPING)
+  #error "SQUARE_WAVE_STEPPING is now EDGE_STEPPING."
 #endif
 
 // L64xx stepper drivers have been removed
