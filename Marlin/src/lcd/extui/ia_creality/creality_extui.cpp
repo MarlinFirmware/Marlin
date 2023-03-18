@@ -34,7 +34,7 @@
 
 #if DGUS_LCD_UI_IA_CREALITY
 
-#include "creality_extui.h"
+#include "ia_creality_extui.h"
 #include "FileNavigator.h"
 
 namespace ExtUI {
