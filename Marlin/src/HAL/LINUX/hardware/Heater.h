@@ -26,8 +26,8 @@
 struct LowpassFilter {
   uint64_t data_delay = 0;
   uint16_t update(uint16_t value) {
-    data_delay = data_delay - (data_delay >> 6) + value;
-    return (uint16_t)(data_delay >> 6);
+    data_delay += value - (data_delay >> 6);
+    return uint16_t(data_delay >> 6);
   }
 };
 

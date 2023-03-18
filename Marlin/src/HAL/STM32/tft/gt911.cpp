@@ -150,33 +150,37 @@ void GT911::read_reg(uint16_t reg, uint8_t reg_len, uint8_t* r_data, uint8_t r_l
   sw_iic.start();
   sw_iic.send_byte(gt911_slave_address + 1);  // Set read mode
 
-  LOOP_L_N(i, r_len) {
+  LOOP_L_N(i, r_len)
     r_data[i] = sw_iic.read_byte(1);  // Read data from reg
-  }
+
   sw_iic.stop();
 }
 
 void GT911::Init() {
   OUT_WRITE(GT911_RST_PIN, LOW);
   OUT_WRITE(GT911_INT_PIN, LOW);
-  delay(20);
+  delay(11);
+  WRITE(GT911_INT_PIN, HIGH);
+  delayMicroseconds(110);
   WRITE(GT911_RST_PIN, HIGH);
+  delay(6);
+  WRITE(GT911_INT_PIN, LOW);
+  delay(55);
   SET_INPUT(GT911_INT_PIN);
 
   sw_iic.init();
 
-  uint8_t clear_reg = 0x0000;
-  write_reg(0x814E, 2, &clear_reg, 2); // Reset to 0 for start
+  uint8_t clear_reg = 0x00;
+  write_reg(0x814E, 2, &clear_reg, 1); // Reset to 0 for start
 }
 
 bool GT911::getFirstTouchPoint(int16_t *x, int16_t *y) {
   read_reg(0x814E, 2, &reg.REG.status, 1);
 
-  if (reg.REG.status & 0x80) {
+  if (reg.REG.status >= 0x80 && reg.REG.status <= 0x85) {
+    read_reg(0x8150, 2, reg.map + 2, 38);
     uint8_t clear_reg = 0x00;
     write_reg(0x814E, 2, &clear_reg, 1); // Reset to 0 for start
-    read_reg(0x8150, 2, reg.map + 2, 8 * (reg.REG.status & 0x0F));
-
     // First touch point
     *x = ((reg.REG.point[0].xh & 0x0F) << 8) | reg.REG.point[0].xl;
     *y = ((reg.REG.point[0].yh & 0x0F) << 8) | reg.REG.point[0].yl;

@@ -144,7 +144,7 @@ static void setup_clocks(void) {
  * present. If no bootloader is present, the user NVIC usually starts
  * at the Flash base address, 0x08000000.
  */
-#if defined(BOOTLOADER_maple)
+#ifdef BOOTLOADER_maple
   #define USER_ADDR_ROM 0x08002000
 #else
   #define USER_ADDR_ROM 0x08000000

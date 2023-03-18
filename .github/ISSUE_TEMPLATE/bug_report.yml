@@ -149,15 +149,25 @@ body:
         - Same as my slicer
         - Other (explain below)
 
+  - type: markdown
+    attributes:
+      value: |
+        # Attachments
+
   - type: checkboxes
     attributes:
-      label: Other things to include
+      label: Don't forget to include
       options:
         - label: A ZIP file containing your `Configuration.h` and `Configuration_adv.h`.
           required: true
-        - label: Log output from the host. (`M111 S247` for maximum logging.)
-        - label: Images or videos demonstrating the problem, if it helps to make it clear.
-        - label: A G-Code file that exposes the problem, if not affecting _all_ G-code.
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Optional items to include:
+        - 'Log output from the host. (`M111 S247` for maximum logging.)'
+        - Images or videos demonstrating the problem, if it helps to make it clear.
+        - A G-Code file that exposes the problem, if not affecting _all_ G-code.
 
   - type: textarea
     attributes:

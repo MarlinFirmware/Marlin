@@ -27,7 +27,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-void lcd_move_z();
+#if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+  #include "../../module/planner.h"
+#endif
 
 ////////////////////////////////////////////
 ///////////// Base Menu Items //////////////
@@ -151,6 +153,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1     );  
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10     );   // 12345.6    right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float72     ,float    ,ftostr72rj      , 100     );   // 12345.67   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10     );   // +12.3
 DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
 DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
@@ -357,7 +360,7 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                          \
 } while(0)
 
-#define STATIC_ITEM_N_F(FLABEL, N, V...) do{ \
+#define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (_menuLineNr == _thisItemNr) {          \
     MenuItemBase::init(N);                   \
     STATIC_ITEM_INNER_F(FLABEL, ##V);        \
@@ -380,7 +383,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
 #define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_F(GET_TEXT_F(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_F(GET_TEXT_F(LABEL), N, ##V)
+#define STATIC_ITEM_N(N, LABEL, V...)                STATIC_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 // Menu item with index and composed C-string substitution
 #define MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)   _MENU_ITEM_N_S_F(TYPE, N, S, false, FLABEL, ##V)
@@ -400,8 +403,13 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#define BACK_ITEM_F(FLABEL)                              MENU_ITEM_F(back, FLABEL)
-#define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
+#if DISABLED(DISABLE_ENCODER)
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+#else
+  #define BACK_ITEM_F(FLABEL) NOOP
+  #define BACK_ITEM(LABEL)    NOOP
+#endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
 #define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ACTION)
@@ -529,7 +537,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 #if ENABLED(LCD_BED_TRAMMING)
-  void _lcd_level_bed_corners();
+  void _lcd_bed_tramming();
 #endif
 
 #if HAS_FAN
@@ -538,12 +546,21 @@ class MenuItem_bool : public MenuEditItemBase {
 
   inline void on_fan_update() {
     thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+    TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
   }
 
   #if ENABLED(EXTRA_FAN_SPEED)
     #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
   #else
     #define EDIT_EXTRA_FAN_SPEED(...)
+  #endif
+
+  #if FAN_COUNT == 1
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #else
+    #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
+    #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
   #endif
 
   #define _FAN_EDIT_ITEMS(F,L) do{ \

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_RELOADED)
+#if DGUS_LCD_UI_RELOADED
 
 #include "DGUSTxHandler.h"
 
@@ -37,7 +37,7 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  void DGUSTxHandler::SetFileControlState(int file, bool state) {
+  void DGUSTxHandler::SetFileControlState(int16_t file, bool state) {
     DGUS_Control control;
 
     switch (file) {
@@ -75,17 +75,17 @@
     // Batch send
     uint16_t data[DGUS_FILE_COUNT];
 
-    for (int i = 0; i < DGUS_FILE_COUNT; i++) {
+    for (int16_t i = 0; i < DGUS_FILE_COUNT; i++) {
       if (!dgus_screen_handler.filelist.seek(dgus_screen_handler.filelist_offset + i)) {
-        data[i] = Swap16((uint16_t)DGUS_Data::SDType::NONE);
+        data[i] = Swap16(DGUS_Data::SDType::NONE);
 
         SetFileControlState(i, false);
         continue;
       }
 
       data[i] = dgus_screen_handler.filelist.isDir() ?
-                  Swap16((uint16_t)DGUS_Data::SDType::DIRECTORY)
-                : Swap16((uint16_t)DGUS_Data::SDType::FILE);
+                  Swap16(DGUS_Data::SDType::DIRECTORY)
+                : Swap16(DGUS_Data::SDType::FILE);
 
       SetFileControlState(i, true);
     }
@@ -180,15 +180,12 @@
 #endif // SDSUPPORT
 
 void DGUSTxHandler::PositionZ(DGUS_VP &vp) {
-  float position = ExtUI::isAxisPositionKnown(ExtUI::Z) ?
-                     planner.get_axis_position_mm(Z_AXIS)
-                   : 0;
-
-  const int16_t data = dgus_display.ToFixedPoint<float, int16_t, 1>(position);
-  dgus_display.Write((uint16_t)vp.addr, Swap16(data));
+  const float position = ExtUI::isAxisPositionKnown(ExtUI::Z) ? planner.get_axis_position_mm(Z_AXIS) : 0;
+  const int32_t data = dgus_display.ToFixedPoint<float, int32_t, 2>(int32_t(position * 50.0f) / 50.0f); // Round to 0.02
+  dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
 }
 
-void DGUSTxHandler::Ellapsed(DGUS_VP &vp) {
+void DGUSTxHandler::Elapsed(DGUS_VP &vp) {
   char buffer[21];
   duration_t(print_job_timer.duration()).toString(buffer);
 
@@ -287,7 +284,7 @@ void DGUSTxHandler::TempMax(DGUS_VP &vp) {
 
 void DGUSTxHandler::StepperStatus(DGUS_VP &vp) {
   const bool motor_on = stepper.axis_enabled.bits & (_BV(NUM_AXES) - 1);
-  dgus_display.Write((uint16_t)vp.addr, Swap16(uint16_t(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED)));
+  dgus_display.Write((uint16_t)vp.addr, Swap16(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED));
 }
 
 void DGUSTxHandler::StepIcons(DGUS_VP &vp) {
@@ -340,7 +337,7 @@ void DGUSTxHandler::ABLGrid(DGUS_VP &vp) {
   xy_uint8_t point;
   int16_t fixed;
 
-  for (int i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
+  for (int16_t i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
     point.x = i % (GRID_MAX_POINTS_X);
     point.y = i / (GRID_MAX_POINTS_X);
     fixed = dgus_display.ToFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point));
@@ -385,13 +382,13 @@ void DGUSTxHandler::BLTouch(DGUS_VP &vp) {
                                DGUSDisplay::RETURN_KEY_CODE,
                                DGUS_Control::EXTRA2);
 
-    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::ENABLED));
+    dgus_display.Write((uint16_t)vp.addr, Swap16(DGUS_Data::Status::ENABLED));
   #else
     dgus_display.DisableControl(DGUS_Screen::SETTINGS_MENU2,
                                 DGUSDisplay::RETURN_KEY_CODE,
                                 DGUS_Control::EXTRA2);
 
-    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::DISABLED));
+    dgus_display.Write((uint16_t)vp.addr, Swap16(DGUS_Data::Status::DISABLED));
   #endif
 }
 
@@ -421,16 +418,16 @@ void DGUSTxHandler::PIDKp(DGUS_VP &vp) {
     default: return;
     #if ENABLED(PIDTEMPBED)
       case DGUS_Data::Heater::BED:
-        value = ExtUI::getBedPIDValues_Kp();
+        value = ExtUI::getBedPID_Kp();
         break;
     #endif
     #if ENABLED(PIDTEMP)
       case DGUS_Data::Heater::H0:
-        value = ExtUI::getPIDValues_Kp(ExtUI::E0);
+        value = ExtUI::getPID_Kp(ExtUI::E0);
         break;
       #if HAS_MULTI_HOTEND
         case DGUS_Data::Heater::H1:
-          value = ExtUI::getPIDValues_Kp(ExtUI::E1);
+          value = ExtUI::getPID_Kp(ExtUI::E1);
           break;
       #endif
     #endif
@@ -447,16 +444,16 @@ void DGUSTxHandler::PIDKi(DGUS_VP &vp) {
     default: return;
     #if ENABLED(PIDTEMPBED)
       case DGUS_Data::Heater::BED:
-        value = ExtUI::getBedPIDValues_Ki();
+        value = ExtUI::getBedPID_Ki();
         break;
     #endif
     #if ENABLED(PIDTEMP)
       case DGUS_Data::Heater::H0:
-        value = ExtUI::getPIDValues_Ki(ExtUI::E0);
+        value = ExtUI::getPID_Ki(ExtUI::E0);
         break;
       #if HAS_MULTI_HOTEND
         case DGUS_Data::Heater::H1:
-          value = ExtUI::getPIDValues_Ki(ExtUI::E1);
+          value = ExtUI::getPID_Ki(ExtUI::E1);
           break;
       #endif
     #endif
@@ -473,16 +470,16 @@ void DGUSTxHandler::PIDKd(DGUS_VP &vp) {
     default: return;
     #if ENABLED(PIDTEMPBED)
       case DGUS_Data::Heater::BED:
-        value = ExtUI::getBedPIDValues_Kd();
+        value = ExtUI::getBedPID_Kd();
         break;
     #endif
     #if ENABLED(PIDTEMP)
       case DGUS_Data::Heater::H0:
-        value = ExtUI::getPIDValues_Kd(ExtUI::E0);
+        value = ExtUI::getPID_Kd(ExtUI::E0);
         break;
       #if HAS_MULTI_HOTEND
         case DGUS_Data::Heater::H1:
-          value = ExtUI::getPIDValues_Kd(ExtUI::E1);
+          value = ExtUI::getPID_Kd(ExtUI::E1);
           break;
       #endif
     #endif
@@ -522,7 +519,7 @@ void DGUSTxHandler::PrintTime(DGUS_VP &vp) {
 
     dgus_display.WriteString((uint16_t)vp.addr, buffer, vp.size);
   #else
-    dgus_display.WriteStringPGM((uint16_t)vp.addr, DGUS_MSG_UNDEF, vp.size);
+    dgus_display.WriteString((uint16_t)vp.addr, F("-"), vp.size);
   #endif
 }
 
@@ -533,7 +530,7 @@ void DGUSTxHandler::LongestPrint(DGUS_VP &vp) {
 
     dgus_display.WriteString((uint16_t)vp.addr, buffer, vp.size);
   #else
-    dgus_display.WriteStringPGM((uint16_t)vp.addr, DGUS_MSG_UNDEF, vp.size);
+    dgus_display.WriteString((uint16_t)vp.addr, F("-"), vp.size);
   #endif
 }
 
@@ -544,7 +541,7 @@ void DGUSTxHandler::FilamentUsed(DGUS_VP &vp) {
 
     dgus_display.WriteString((uint16_t)vp.addr, buffer, vp.size);
   #else
-    dgus_display.WriteStringPGM((uint16_t)vp.addr, DGUS_MSG_UNDEF, vp.size);
+    dgus_display.WriteString((uint16_t)vp.addr, F("-"), vp.size);
   #endif
 }
 

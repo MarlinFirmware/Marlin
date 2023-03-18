@@ -52,7 +52,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     ui.wait_for_move = false;
     ui.synchronize();
     ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / planner.settings.axis_steps_per_mm[0]); // Use first axis as for delta XYZ should always match
-    ui.goto_screen(lcd_move_z);
+    ui.goto_screen([]{ lcd_move_axis(Z_AXIS); });
   }
 }
 
@@ -92,7 +92,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _goto_tower_a(const_float_t a) {
-    float dcr = DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;
+    float dcr = PRINTABLE_RADIUS - PROBING_MARGIN;
     TERN_(HAS_PROBE_XY_OFFSET, dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y));
     TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
