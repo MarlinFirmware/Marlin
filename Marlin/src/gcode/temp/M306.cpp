@@ -54,8 +54,18 @@ void GcodeSuite::M306() {
 
   if (parser.seen_test('T')) {
     #if ENABLED(MPC_AUTOTUNE)
+      Temperature::MPCTuningType tuning_type = Temperature::MPCTuningType::AUTO;
+      if (parser.has_value()) {
+        char *str = parser.value_string();
+        if (str[0] == 'D') {
+          tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL;
+        } else if (str[0] == 'A') {
+          tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC;
+        }
+      }
+          
       LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-      thermalManager.MPC_autotune(e);
+      thermalManager.MPC_autotune(e, tuning_type);
       ui.reset_status();
       return;
     #else

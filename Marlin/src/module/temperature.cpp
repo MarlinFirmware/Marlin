@@ -1139,14 +1139,13 @@ volatile bool Temperature::raw_temps_ready = false;
     return MeasurementState::SUCCESS;
   }
 
-  void Temperature::MPC_autotune(const uint8_t e) {
+  void Temperature::MPC_autotune(const uint8_t e, MPCTuningType tuning_type = AUTO) {
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, e);
 
     MPC_autotuner tuner(e);
 
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
-    enum { ANALYTIC, DIFFERENTIAL } tuning_type = ANALYTIC;
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);
@@ -1192,17 +1191,20 @@ volatile bool Temperature::raw_temps_ready = false;
     mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - tuner.get_ambient_temp());
     mpc.fan255_adjustment = 0.0f;
 
-    if (tuning_type == ANALYTIC) {
+    if (tuning_type == AUTO || tuning_type == FORCE_ASYMPTOTIC) {
       // Analytic tuning
       mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
       mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
     }
 
     // If analytic tuning fails, fall back to differential tuning
-    if (mpc.sensor_responsiveness <= 0 || mpc.block_heat_capacity <= 0)
-      tuning_type = DIFFERENTIAL;
+    // If analytic tuning fails, fall back to forcing differential tuning
+    if (tuning_type == AUTO) {
+      if (mpc.sensor_responsiveness <= 0 || mpc.block_heat_capacity <= 0)
+        tuning_type = FORCE_DIFFERENTIAL;
+    }
 
-    if (tuning_type == DIFFERENTIAL) {
+    if (tuning_type == FORCE_DIFFERENTIAL) {
       // Differential tuning
       mpc.block_heat_capacity = mpc.heater_power / tuner.get_rate_fastest();
       mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_time_fastest());
@@ -1230,7 +1232,7 @@ volatile bool Temperature::raw_temps_ready = false;
       mpc.applyFanAdjustment(ambient_xfer_coeff_fan255);
     #endif
 
-    if (tuning_type == ANALYTIC) {
+    if (tuning_type == AUTO || tuning_type == FORCE_ASYMPTOTIC) {
       // Update analytic tuning values based on the above
       mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
       mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
