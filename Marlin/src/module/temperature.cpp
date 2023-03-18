@@ -2962,14 +2962,21 @@ void Temperature::init() {
             else
               scale = 0;
 
-            if (fan_speed_scaler[fan_index] == 128 && scale < 128)
-              SERIAL_ECHOLNPGM("Thermal divergence. Fan Adaptive fan slowing activated");
-            if (fan_speed_scaler[fan_index] < 128 && scale == 128)
-              SERIAL_ECHOLNPGM("Thermal convergence. Adaptive fan slowing deactivated");   
+            #if ENABLED(REPORT_ADAPTIVE_FAN_SLOWING)
+              if (DEBUGGING(INFO)) {
+                const uint8_t fss7 = fan_speed_scaler[fan_index] & 0x80;
+                if (fss7 ^ (scale & 0x80)) {
+                  if (fss7)     // Scaling went below 128
+                    SERIAL_ECHOLNPGM("Thermal divergence. Adaptive Fan Slowing activated.");
+                  else          // Scaling went to 128
+                    SERIAL_ECHOLNPGM("Thermal convergence. Adaptive Fan Slowing deactivated.");
+                }
+              }
+            #endif
 
             fan_speed_scaler[fan_index] = scale;
           }
-        #endif
+        #endif // ADAPTIVE_FAN_SLOWING
 
         const millis_t now = millis();
 
