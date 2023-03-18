@@ -2878,9 +2878,9 @@ void Temperature::init() {
   void set_fan_scale(uint8_t &speed_scaler, uint8_t scale) {
     #if ENABLED(REPORT_ADAPTIVE_FAN_SLOWING)
       const float scale_as_percentage = 100.0f * (float(scale)/128);
-      if (speed_scaler > scale)
+      if (speed_scaler >= scale)
         SERIAL_ECHOLNPGM("Thermal divergence. Fan speed scale: ", scale_as_percentage, "%");
-      else if (speed_scaler < scale)
+      else
         SERIAL_ECHOLNPGM("Thermal convergence. Fan speed scale: ", scale_as_percentage, "%");
     #endif
     speed_scaler = scale;
