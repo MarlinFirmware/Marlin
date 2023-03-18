@@ -1194,7 +1194,7 @@ class Temperature {
 
     #endif // HAS_PID_HEATING
 
-    #if ENABLED(MPCTEMP)
+    #if ENABLED(MPC_AUTOTUNE)
       // Utility class to perform MPCTEMP auto tuning measurements
       class MPC_autotuner {
         public:
@@ -1250,7 +1250,7 @@ class Temperature {
 
       static void MPC_autotune(const uint8_t e);
 
-    #endif // MPCTEMP
+    #endif // MPC_AUTOTUNE
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
