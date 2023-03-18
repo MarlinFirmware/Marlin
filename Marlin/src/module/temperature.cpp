@@ -2950,16 +2950,24 @@ void Temperature::init() {
         #if ENABLED(ADAPTIVE_FAN_SLOWING)
           if (adaptive_fan_slowing && heater_id >= 0) {
             const int fan_index = _MIN(heater_id, FAN_COUNT - 1);
+            uint8_t scale;
             if (fan_speed[fan_index] == 0 || current >= running_temp - (hysteresis_degc * 0.25f))
-              fan_speed_scaler[fan_index] = 128;
+              scale = 128;
             else if (current >= running_temp - (hysteresis_degc * 0.3335f))
-              fan_speed_scaler[fan_index] = 96;
+              scale = 96;
             else if (current >= running_temp - (hysteresis_degc * 0.5f))
-              fan_speed_scaler[fan_index] = 64;
+              scale = 64;
             else if (current >= running_temp - (hysteresis_degc * 0.8f))
-              fan_speed_scaler[fan_index] = 32;
+              scale = 32;
             else
-              fan_speed_scaler[fan_index] = 0;
+              scale = 0;
+
+            if (fan_speed_scaler[fan_index] == 128 && scale < 128)
+              SERIAL_ECHOLNPGM("Thermal divergence. Fan Adaptive fan slowing activated");
+            if (fan_speed_scaler[fan_index] < 128 && scale == 128)
+              SERIAL_ECHOLNPGM("Thermal convergence. Adaptive fan slowing deactivated");   
+
+            fan_speed_scaler[fan_index] = scale;
           }
         #endif
 
