@@ -2964,17 +2964,11 @@ void Temperature::init() {
             else
               scale = 0;
 
-            #if ENABLED(REPORT_ADAPTIVE_FAN_SLOWING)
-              if (DEBUGGING(INFO)) {
-                const uint8_t fss7 = fan_speed_scaler[fan_index] & 0x80;
-                if (fss7 ^ (scale & 0x80)) {
-                  if (fss7)     // Scaling went below 128
-                    SERIAL_ECHOLNPGM("Thermal divergence. Adaptive Fan Slowing activated.");
-                  else          // Scaling went to 128
-                    SERIAL_ECHOLNPGM("Thermal convergence. Adaptive Fan Slowing deactivated.");
-                }
-              }
-            #endif
+            if (ENABLED(REPORT_ADAPTIVE_FAN_SLOWING) && DEBUGGING(INFO)) {
+              const uint8_t fss7 = fan_speed_scaler[fan_index] & 0x80;
+              if (fss7 ^ (scale & 0x80))
+                SERIAL_ECHO_TERNARY(fss7, "Adaptive Fan Slowing ", "", "de", "activated.\n");
+            }
 
             fan_speed_scaler[fan_index] = scale;
           }
