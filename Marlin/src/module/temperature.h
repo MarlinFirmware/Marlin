@@ -377,7 +377,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #elif ENABLED(MPCTEMP)
 
-  typedef struct {
+  typedef struct MPC {
+    static bool e_paused;               // Pause E filament permm tracking
+    static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
@@ -716,32 +718,32 @@ class Temperature {
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
 
-    #if ENABLED(MPCTEMP)
-      static int32_t mpc_e_position;
-    #endif
-
     #if HAS_HOTEND
       static temp_range_t temp_range[HOTENDS];
     #endif
 
     #if HAS_HEATED_BED
-      #if ENABLED(WATCH_BED)
+      #if WATCH_BED
         static bed_watch_t watch_bed;
       #endif
-      IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
+      #if DISABLED(PIDTEMPBED)
+        static millis_t next_bed_check_ms;
+      #endif
       static raw_adc_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
     #if HAS_HEATED_CHAMBER
-      #if ENABLED(WATCH_CHAMBER)
+      #if WATCH_CHAMBER
         static chamber_watch_t watch_chamber;
       #endif
-      TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
+      #if DISABLED(PIDTEMPCHAMBER)
+        static millis_t next_chamber_check_ms;
+      #endif
       static raw_adc_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
     #if HAS_COOLER
-      #if ENABLED(WATCH_COOLER)
+      #if WATCH_COOLER
         static cooler_watch_t watch_cooler;
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
@@ -1194,7 +1196,7 @@ class Temperature {
 
     #endif
 
-    #if ENABLED(MPCTEMP)
+    #if ENABLED(MPC_AUTOTUNE)
       void MPC_autotune(const uint8_t e);
     #endif
 
