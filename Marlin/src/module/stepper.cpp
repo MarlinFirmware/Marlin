@@ -2098,9 +2098,15 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #else
 
-    // AVR is able to keep up at 30khz Stepping ISR rate.
     constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
     if (step_rate >= 0x0800) {  // higher step rate
+      // AVR is able to keep up at around 65kHz Stepping ISR rate at most.
+      // So values for step_rate > 65535 might as well be truncated.
+      // Handle it as quickly as possible, e.g. assume highest byte is zero
+      // because non-zero would represent a step rate far beyond AVR capabilities.
+      if (uint8_t(step_rate >> 16))
+        return uint32_t(STEPPER_TIMER_RATE) / 0x10000;
+
       const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
       const uint16_t base = uint16_t(pgm_read_word(table_address));
       const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
