@@ -2499,7 +2499,7 @@
   #if EITHER(PIDTEMP, PIDTEMPBED)
     #define DWIN_PID_TUNE 1
   #endif
-  #if EITHER(DWIN_PID_TUNE, MPCTEMP) && DISABLED(DISABLE_TUNING_GRAPH)
+  #if EITHER(DWIN_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
     #define SHOW_TUNING_GRAPH 1
   #endif
 #endif
@@ -3156,14 +3156,14 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define _MESH_MIN_X (X_MIN_BED + MESH_INSET)
-    #define _MESH_MIN_Y (Y_MIN_BED + MESH_INSET)
+    #define _MESH_MIN_X (X_MIN_BED + (MESH_INSET))
+    #define _MESH_MIN_Y (Y_MIN_BED + (MESH_INSET))
     #define _MESH_MAX_X (X_MAX_BED - (MESH_INSET))
     #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
-    #define _MESH_MIN_X (_MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
-    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions
+    #define _MESH_MIN_X (_MAX(X_MIN_BED + (MESH_INSET), X_MIN_POS)) // UBL is careful not to probe off the bed. It doesn't
+    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + (MESH_INSET), Y_MIN_POS)) // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions.
     #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
     #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
   #endif
@@ -3188,13 +3188,9 @@
   #undef MESH_MAX_Y
 #endif
 
-#define _POINT_COUNT (defined(PROBE_PT_1_X) + defined(PROBE_PT_2_X) + defined(PROBE_PT_3_X) + defined(PROBE_PT_1_Y) + defined(PROBE_PT_2_Y) + defined(PROBE_PT_3_Y))
-#if _POINT_COUNT == 6
-  #define HAS_FIXED_3POINT 1
-#elif _POINT_COUNT > 0
-  #error "For 3-Point Leveling all XY points must be defined (or none for the defaults)."
+#if NEEDS_THREE_PROBE_POINTS && defined(PROBE_PT_1)
+  #define HAS_FIXED_3POINT 1  // Points are defined for ABL/UBL. Else calculated in probe.get_three_points.
 #endif
-#undef _POINT_COUNT
 
 /**
  * Buzzer/Speaker

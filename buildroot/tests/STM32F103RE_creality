@@ -28,7 +28,7 @@ opt_set PREHEAT_3_LABEL '"CUSTOM"' PREHEAT_3_TEMP_HOTEND 240 PREHEAT_3_TEMP_BED 
 exec_test $1 $2 "Ender-3 S1 with ProUI (PIDTEMP)" "$3"
 
 opt_disable PIDTEMP
-opt_enable MPCTEMP
+opt_enable MPCTEMP MPC_AUTOTUNE
 exec_test $1 $2 "Ender-3 S1 with ProUI (MPCTEMP)" "$3"
 
 restore_configs
