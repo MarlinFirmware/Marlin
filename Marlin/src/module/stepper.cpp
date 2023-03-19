@@ -2119,7 +2119,6 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
              - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
     }
     else {
-      step_rate = 0;
       return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
     }
 
