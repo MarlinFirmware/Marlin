@@ -138,7 +138,7 @@ class PrintJobRecovery {
   public:
     static const char filename[5];
 
-    static SdFile file;
+    static MediaFile file;
     static job_recovery_info_t info;
 
     static uint8_t queue_index_r;     //!< Queue index of the active command
@@ -153,6 +153,9 @@ class PrintJobRecovery {
     static void prepare();
 
     static void setup() {
+      #if PIN_EXISTS(OUTAGECON)
+        OUT_WRITE(OUTAGECON_PIN, HIGH);
+      #endif
       #if PIN_EXISTS(POWER_LOSS)
         #if ENABLED(POWER_LOSS_PULLUP)
           SET_INPUT_PULLUP(POWER_LOSS_PIN);

@@ -24,8 +24,9 @@
 
 #include "../gcode.h"
 
-#include "../../module/stepper.h"
 #include "../../module/endstops.h"
+#include "../../module/planner.h"
+#include "../../module/stepper.h" // for various
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
@@ -33,6 +34,10 @@
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
+#if ENABLED(BD_SENSOR)
+  #include "../../feature/bedlevel/bdl/bdl.h"
 #endif
 
 #if ENABLED(SENSORLESS_HOMING)
@@ -55,11 +60,7 @@
   #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
-#if HAS_L64XX                         // set L6470 absolute position registers to counts
-  #include "../../libs/L64XX/L64XX_Marlin.h"
-#endif
-
-#if ENABLED(LASER_MOVE_G28_OFF)
+#if ENABLED(LASER_FEATURE)
   #include "../../feature/spindle_laser.h"
 #endif
 
@@ -85,7 +86,7 @@
         NUM_AXIS_LIST(
           TERN0(X_SENSORLESS, tmc_enable_stallguard(stepperX)),
           TERN0(Y_SENSORLESS, tmc_enable_stallguard(stepperY)),
-          false, false, false, false
+          false, false, false, false, false, false, false
         )
         , TERN0(X2_SENSORLESS, tmc_enable_stallguard(stepperX2))
         , TERN0(Y2_SENSORLESS, tmc_enable_stallguard(stepperY2))
@@ -123,7 +124,7 @@
      * (Z is already at the right height)
      */
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-    #if HAS_HOME_OFFSET
+    #if HAS_HOME_OFFSET && DISABLED(Z_SAFE_HOMING_POINT_ABSOLUTE)
       xy_float_t okay_homing_xy = safe_homing_xy;
       okay_homing_xy -= home_offset;
     #else
@@ -169,7 +170,7 @@
       motion_state.jerk_state = planner.max_jerk;
       planner.max_jerk.set(0, 0 OPTARG(DELTA, 0));
     #endif
-    planner.reset_acceleration_rates();
+    planner.refresh_acceleration_rates();
     return motion_state;
   }
 
@@ -178,7 +179,7 @@
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
     TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
     TERN_(HAS_CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
-    planner.reset_acceleration_rates();
+    planner.refresh_acceleration_rates();
   }
 
 #endif // IMPROVE_HOMING_RELIABILITY
@@ -205,7 +206,14 @@ void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
-  TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
+  TERN_(BD_SENSOR, bdl.config_state = 0);
+
+  /**
+   * Set the laser power to false to stop the planner from processing the current power setting.
+   */
+  #if ENABLED(LASER_FEATURE)
+    planner.laser_inline.status.isPowered = false;
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -395,6 +403,9 @@ void GcodeSuite::G28() {
       UNUSED(needZ); UNUSED(homeZZ);
     #else
       constexpr bool doZ = false;
+      #if !HAS_Y_AXIS
+        constexpr bool doY = false;
+      #endif
     #endif
 
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
@@ -412,9 +423,11 @@ void GcodeSuite::G28() {
     // Diagonal move first if both are homing
     TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
 
-    // Home Y (before X)
-    if (ENABLED(HOME_Y_BEFORE_X) && (doY || TERN0(CODEPENDENT_XY_HOMING, doX)))
-      homeaxis(Y_AXIS);
+    #if HAS_Y_AXIS
+      // Home Y (before X)
+      if (ENABLED(HOME_Y_BEFORE_X) && (doY || TERN0(CODEPENDENT_XY_HOMING, doX)))
+        homeaxis(Y_AXIS);
+    #endif
 
     // Home X
     if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
@@ -447,9 +460,11 @@ void GcodeSuite::G28() {
       if (doI) homeaxis(I_AXIS);
     #endif
 
-    // Home Y (after X)
-    if (DISABLED(HOME_Y_BEFORE_X) && doY)
-      homeaxis(Y_AXIS);
+    #if HAS_Y_AXIS
+      // Home Y (after X)
+      if (DISABLED(HOME_Y_BEFORE_X) && doY)
+        homeaxis(Y_AXIS);
+    #endif
 
     #if BOTH(FOAMCUTTER_XYUV, HAS_J_AXIS)
       // Home J (after Y)
@@ -596,20 +611,4 @@ void GcodeSuite::G28() {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
-  #if HAS_L64XX
-    // Set L6470 absolute position registers to counts
-    // constexpr *might* move this to PROGMEM.
-    // If not, this will need a PROGMEM directive and an accessor.
-    #define _EN_ITEM(N) , E_AXIS
-    static constexpr AxisEnum L64XX_axis_xref[MAX_L64XX] = {
-      NUM_AXIS_LIST(X_AXIS, Y_AXIS, Z_AXIS, I_AXIS, J_AXIS, K_AXIS, U_AXIS, V_AXIS, W_AXIS),
-      X_AXIS, Y_AXIS, Z_AXIS, Z_AXIS, Z_AXIS
-      REPEAT(E_STEPPERS, _EN_ITEM)
-    };
-    #undef _EN_ITEM
-    for (uint8_t j = 1; j <= L64XX::chain[0]; j++) {
-      const uint8_t cv = L64XX::chain[j];
-      L64xxManager.set_param((L64XX_axis_t)cv, L6470_ABS_POS, stepper.position(L64XX_axis_xref[cv]));
-    }
-  #endif
 }

@@ -408,7 +408,7 @@
       //#define LCD_SDSS                    SDSS
       //#define SD_DETECT_PIN                 49
 
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       // TO TEST
       //#define DOGLCD_CS                     45
@@ -452,7 +452,7 @@
       //#define SD_DETECT_PIN                 49
 
       //#ifndef KILL_PIN
-      //  #define KILL_PIN         41
+      //  #define KILL_PIN                    41
       //#endif
 
       #if ENABLED(MKS_MINI_12864)

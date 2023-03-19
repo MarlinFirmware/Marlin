@@ -232,6 +232,7 @@ namespace Language_cz {
   LSTR MSG_MOVE_X                         = _UxGT("Posunout X");
   LSTR MSG_MOVE_Y                         = _UxGT("Posunout Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Posunout Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Posunout @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrudér");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrudér *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend je studený");
@@ -239,9 +240,10 @@ namespace Language_cz {
   LSTR MSG_MOVE_01MM                      = _UxGT("Posunout o 0,1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Posunout o 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Posunout o 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Posunout o 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Posunout o 100mm");
   LSTR MSG_SPEED                          = _UxGT("Rychlost");
-  LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
   LSTR MSG_BED                            = _UxGT("Podložka");
@@ -262,7 +264,6 @@ namespace Language_cz {
   LSTR MSG_LCD_OFF                        = _UxGT("Vyp");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID automatika");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID automatika *");
-  LSTR MSG_SELECT                         = _UxGT("Vybrat");
   LSTR MSG_SELECT_E                       = _UxGT("Vybrat *");
   LSTR MSG_ACC                            = _UxGT("Zrychl");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -394,7 +395,7 @@ namespace Language_cz {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("vysunout TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Vysunout Z-sondu");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Zasunout Z-sondu");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s%s%s první");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s první");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
@@ -432,8 +433,6 @@ namespace Language_cz {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibrovat Střed");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta nastavení");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Autokalibrace");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Nast.výšku delty");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Nast. Z-ofset");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag rameno");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Výška");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Poloměr");

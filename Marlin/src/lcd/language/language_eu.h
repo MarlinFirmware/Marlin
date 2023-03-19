@@ -136,15 +136,17 @@ namespace Language_eu {
   LSTR MSG_MOVE_X                         = _UxGT("Mugitu X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mugitu Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mugitu Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mugitu @");
   LSTR MSG_MOVE_E                         = _UxGT("Estrusorea");
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mugitu 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mugitu 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mugitu 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mugitu 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mugitu 100mm");
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
-  LSTR MSG_BED_Z                          = _UxGT("Z Ohea");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Ohea");
   LSTR MSG_NOZZLE                         = _UxGT("Pita");
   LSTR MSG_NOZZLE_N                       = _UxGT("Pita ~");
   LSTR MSG_BED                            = _UxGT("Ohea");
@@ -159,7 +161,6 @@ namespace Language_eu {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fakt");
   LSTR MSG_AUTOTEMP                       = _UxGT("Auto tenperatura");
-  LSTR MSG_SELECT                         = _UxGT("Aukeratu");
   LSTR MSG_SELECT_E                       = _UxGT("Aukeratu *");
   LSTR MSG_ACC                            = _UxGT("Azelerazioa");
   LSTR MSG_JERK                           = _UxGT("Astindua");
@@ -234,7 +235,7 @@ namespace Language_eu {
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch berrabia.");
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("BLTouch jaitsi/luzatu");
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("BLTouch igo/jaso");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s%s%s lehenengo");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s lehenengo");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Konpentsatu");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikro-urratsa X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikro-urratsa Y");
@@ -257,7 +258,6 @@ namespace Language_eu {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibratu Zentrua");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta ezarpenak");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Kalibraketa");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Delta Alt. Ezar.");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonala");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altuera");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Erradioa");

@@ -48,7 +48,7 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
   if (!ui.sound_on) return;
   while (buffer.isFull()) {
     tick();
-    thermalManager.manage_heater();
+    thermalManager.task();
   }
   tone_t tone = { duration, frequency };
   buffer.enqueue(tone);

@@ -38,10 +38,8 @@
 
 extern SZ_USART_FIFO WifiRxFifo;
 
-extern int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
-extern int writeUsartFifo(SZ_USART_FIFO * fifo, int8_t * buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
-void wifi_delay(int n);
+void wifi_delay(const uint16_t n);
 
 #define ARRAY_SIZE(a) sizeof(a) / sizeof((a)[0])
 
@@ -79,14 +77,14 @@ const uint32_t ESP_FLASH_ADDR = 0x40200000;     // address of start of Flash
 
 UPLOAD_STRUCT esp_upload;
 
-static const unsigned int retriesPerReset = 3;
+static const uint16_t retriesPerReset = 3;
 static const uint32_t connectAttemptInterval = 50;
-static const unsigned int percentToReportIncrement = 5; // how often we report % complete
+static const uint16_t percentToReportIncrement = 5; // how often we report % complete
 static const uint32_t defaultTimeout = 500;
 static const uint32_t eraseTimeout = 15000;
 static const uint32_t blockWriteTimeout = 200;
 static const uint32_t blockWriteInterval = 15;      // 15ms is long enough, 10ms is mostly too short
-static SdFile update_file, *update_curDir;
+static MediaFile update_file, *update_curDir;
 
 // Messages corresponding to result codes, should make sense when followed by " error"
 const char *resultMessages[] = {
@@ -151,7 +149,7 @@ void flushInput() {
 uint32_t getData(unsigned byteCnt, const uint8_t *buf, int ofst) {
   uint32_t val = 0;
   if (buf && byteCnt) {
-    unsigned int shiftCnt = 0;
+    uint16_t shiftCnt = 0;
     NOMORE(byteCnt, 4U);
     do {
       val |= (uint32_t)buf[ofst++] << shiftCnt;
@@ -246,7 +244,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 
   const size_t headerLength = 8;
 
-  uint32_t startTime = getWifiTick();
+  const millis_t startTime = getWifiTick();
   uint8_t hdr[headerLength];
   uint16_t hdrIdx = 0;
 
@@ -348,7 +346,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 // Send a block of data performing SLIP encoding of the content.
 void _writePacket(const uint8_t *data, size_t len) {
   unsigned char outBuf[2048] = {0};
-  unsigned int outIndex = 0;
+  uint16_t outIndex = 0;
   while (len != 0) {
     if (*data == 0xC0) {
       outBuf[outIndex++] = 0xDB;
@@ -597,7 +595,7 @@ void upload_spin() {
     case uploading:
       // The ESP needs several milliseconds to recover from one packet before it will accept another
       if (getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= 15) {
-        unsigned int percentComplete;
+        uint16_t percentComplete;
         const uint32_t blkCnt = (esp_upload.fileSize + EspFlashBlockSize - 1) / EspFlashBlockSize;
         if (esp_upload.uploadBlockNumber < blkCnt) {
           esp_upload.uploadResult = flashWriteBlock(0, 0);

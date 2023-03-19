@@ -65,30 +65,30 @@
 
 /**             3DYMY Expansion Headers
  *         ------                     ------
- *     37 |10  9 | 35      (MISO) 50 |10  9 | 52 (SCK)
- *     31 | 8  7 | 41             29 | 8  7 | 53
- *     33   6  5 | 23             25   6  5 | 51 (MOSI)
- *     42 | 4  3 | 44             49 | 4  3 | 27
- *    GND | 2  1 | 5V            GND | 2  1 | --
+ *     37 | 1  2 | 35      (MISO) 50 | 1  2 | 52 (SCK)
+ *     31 | 3  4 | 41             29 | 3  4 | 53
+ *     33   5  6 | 23             25   5  6 | 51 (MOSI)
+ *     42 | 7  8 | 44             49 | 7  8 | 27
+ *    GND | 9 10 | 5V            GND | 9 10 | --
  *         ------                     ------
  *          EXP1                       EXP2
  */
-#define EXP1_03_PIN                           44
-#define EXP1_04_PIN                           42
-#define EXP1_05_PIN                           23
-#define EXP1_06_PIN                           33
-#define EXP1_07_PIN                           41
-#define EXP1_08_PIN                           31
-#define EXP1_09_PIN                           35
-#define EXP1_10_PIN                           37
+#define EXP1_01_PIN                           37
+#define EXP1_02_PIN                           35
+#define EXP1_03_PIN                           31
+#define EXP1_04_PIN                           41
+#define EXP1_05_PIN                           33
+#define EXP1_06_PIN                           23
+#define EXP1_07_PIN                           42
+#define EXP1_08_PIN                           44
 
-#define EXP2_03_PIN                           27
-#define EXP2_04_PIN                           49
-#define EXP2_05_PIN                           51
-#define EXP2_06_PIN                           25
-#define EXP2_07_PIN                           53
-#define EXP2_08_PIN                           29
-#define EXP2_09_PIN                           52
-#define EXP2_10_PIN                           50
+#define EXP2_01_PIN                           50
+#define EXP2_02_PIN                           52
+#define EXP2_03_PIN                           29
+#define EXP2_04_PIN                           53
+#define EXP2_05_PIN                           25
+#define EXP2_06_PIN                           51
+#define EXP2_07_PIN                           49
+#define EXP2_08_PIN                           27
 
 #include "pins_RAMPS.h"

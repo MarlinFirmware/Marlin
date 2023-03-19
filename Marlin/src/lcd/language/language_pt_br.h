@@ -209,6 +209,7 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Extrus. mto fria");
@@ -218,7 +219,7 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_BED_Z                          = _UxGT("Base Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = _UxGT("Bocal");
   LSTR MSG_NOZZLE_N                       = _UxGT("Bocal ~");
   LSTR MSG_BED                            = _UxGT("Mesa");
@@ -235,7 +236,6 @@ namespace Language_pt_br {
   LSTR MSG_AUTOTEMP                       = _UxGT("Temp. Automática");
   LSTR MSG_LCD_ON                         = _UxGT("Ligado");
   LSTR MSG_LCD_OFF                        = _UxGT("Desligado");
-  LSTR MSG_SELECT                         = _UxGT("Selecionar");
   LSTR MSG_SELECT_E                       = _UxGT("Selecionar *");
   LSTR MSG_ACC                            = _UxGT("Acel.");
   LSTR MSG_JERK                           = _UxGT("Arrancada");
@@ -340,7 +340,7 @@ namespace Language_pt_br {
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Estender BLTouch");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estender Sonda-Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Recolher Sonda-Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s Primeiro");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Primeiro");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Compensar Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Compensar Sonda em X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Compensar Sonda em Y");
@@ -373,8 +373,6 @@ namespace Language_pt_br {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Configuração Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto-Calibração");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Calibrar Altura");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Desloc. Sonda Z");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Haste Diagonal");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Raio");

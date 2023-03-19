@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/delta.h"
 #include "../../module/motion.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 #include "../../module/endstops.h"
 #include "../../lcd/marlinui.h"
 
@@ -407,12 +407,12 @@ void GcodeSuite::G33() {
                   towers_set = !parser.seen_test('T');
 
   // The calibration radius is set to a calculated value
-  float dcr = probe_at_offset ? DELTA_PRINTABLE_RADIUS : DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;
+  float dcr = probe_at_offset ? PRINTABLE_RADIUS : PRINTABLE_RADIUS - PROBING_MARGIN;
   #if HAS_PROBE_XY_OFFSET
     const float total_offset = HYPOT(probe.offset_xy.x, probe.offset_xy.y);
     dcr -= probe_at_offset ? _MAX(total_offset, PROBING_MARGIN) : total_offset;
   #endif
-  NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
+  NOMORE(dcr, PRINTABLE_RADIUS);
   if (parser.seenval('R')) dcr -= _MAX(parser.value_float(), 0.0f);
   TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
 
@@ -437,7 +437,7 @@ void GcodeSuite::G33() {
   const bool stow_after_each = parser.seen_test('E');
 
   #if HAS_DELTA_SENSORLESS_PROBING
-    probe.test_sensitivity.set(!parser.seen_test('X'), !parser.seen_test('Y'), !parser.seen_test('Z'));
+    probe.test_sensitivity = { !parser.seen_test('X'), !parser.seen_test('Y'), !parser.seen_test('Z') };
     const bool do_save_offset_adj = parser.seen_test('S');
   #endif
 

@@ -223,6 +223,7 @@ namespace Language_gl {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Bico moi frío");
@@ -230,9 +231,10 @@ namespace Language_gl {
   LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocidade");
-  LSTR MSG_BED_Z                          = _UxGT("Cama Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Cama Z");
   LSTR MSG_NOZZLE                         = _UxGT("Bico");
   LSTR MSG_NOZZLE_N                       = _UxGT("Bico ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Bico Estacionado");
@@ -261,10 +263,9 @@ namespace Language_gl {
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Auto-Sint. PID");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Auto-Sint. PID *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Fin Auto-Sint PID");
-  LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Auto-Sint. fallida! Extrusor danado.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Auto-Sint. fallida! Extrusor danado.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-Sint. fallida! Temperatura moi alta.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-Sint. fallida! Tempo excedido.");
-  LSTR MSG_SELECT                         = _UxGT("Escolla");
   LSTR MSG_SELECT_E                       = _UxGT("Escolla *");
   LSTR MSG_ACC                            = _UxGT("Acel");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -412,7 +413,7 @@ namespace Language_gl {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Estender TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estender Sonda Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Recoller Sonda Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Orixe %s%s%s Primeiro");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Orixe %s Primeiro");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Desfases Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desfase Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desfase Sonda Y");
@@ -445,8 +446,6 @@ namespace Language_gl {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibrar Centro");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Configuración Delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto Calibración");
-  LSTR MSG_DELTA_HEIGHT_CALIBRATE         = _UxGT("Ax. Altura Delta");
-  LSTR MSG_DELTA_Z_OFFSET_CALIBRATE       = _UxGT("Axustar Sonda Z");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra Diagonal");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radio");

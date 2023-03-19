@@ -50,12 +50,12 @@ uint8_t read_byte(const uint8_t *byte) { return *byte; }
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/) {
-  wchar_t wchar;
+  lchar_t wc;
 
   while (*tpl) {
-    tpl = get_utf8_value_cb(tpl, read_byte, &wchar);
-    if (wchar > 255) wchar |= 0x0080;
-    const uint8_t ch = uint8_t(wchar & 0x00FF);
+    tpl = get_utf8_value_cb(tpl, read_byte, wc);
+    if (wc > 255) wc |= 0x0080;
+    const uint8_t ch = uint8_t(wc & 0x00FF);
 
     if (ch == '=' || ch == '~' || ch == '*') {
       if (index >= 0) {
@@ -80,32 +80,32 @@ void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nu
 }
 
 void DWIN_String::add(const char *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
-  wchar_t wchar;
+  lchar_t wc;
   while (*cstr && max_len) {
-    cstr = get_utf8_value_cb(cstr, read_byte, &wchar);
+    cstr = get_utf8_value_cb(cstr, read_byte, wc);
     /*
-    if (wchar > 255) wchar |= 0x0080;
-    uint8_t ch = uint8_t(wchar & 0x00FF);
+    if (wc > 255) wc |= 0x0080;
+    const uint8_t ch = uint8_t(wc & 0x00FF);
     add_character(ch);
     */
-    add(wchar);
+    add(wc);
     max_len--;
   }
   eol();
 }
 
-void DWIN_String::add(const wchar_t character) {
+void DWIN_String::add(const lchar_t &wc) {
   int ret;
   size_t idx = 0;
   dwin_charmap_t pinval;
   dwin_charmap_t *copy_address = nullptr;
-  pinval.uchar = character;
+  pinval.uchar = wc;
   pinval.idx = -1;
 
   // For 8-bit ASCII just print the single character
   char str[] = { '?', 0 };
-  if (character < 255) {
-    str[0] = (char)character;
+  if (wc < 255) {
+    str[0] = (char)wc;
   }
   else {
     copy_address = nullptr;
