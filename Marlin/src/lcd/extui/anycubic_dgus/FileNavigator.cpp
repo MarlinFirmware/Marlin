@@ -69,7 +69,7 @@ namespace Anycubic {
     // Each time we change folder we reset the file index to 0 and keep track
     // of the current position as the TFT panel isnt aware of folders trees.
     if (index > 0) {
-//      --currentindex; // go back a file to take account off the .. we added to the root.
+      //--currentindex; // go back a file to take account off the .. we added to the root.
       if (index > lastindex)
         currentindex += files;
       else
@@ -81,7 +81,7 @@ namespace Anycubic {
       SERIAL_ECHOLNPGM("index=", index, " currentindex=", currentindex, " lastindex=", lastindex);
     #endif
 
-    uint8_t file_num=0;
+    uint8_t file_num = 0;
     for (uint16_t _seek = currentindex; _seek < currentindex + files; _seek++) {
 
       #if ACDEBUG(AC_FILE)
@@ -89,21 +89,20 @@ namespace Anycubic {
       #endif
 
       if (filelist.seek(_seek)) {
-//        sendFile();
+        //sendFile();
 
-          DgusTFT::SendTxtToTFT(filelist.longFilename(), TXT_FILE_0 + file_num*0x30);
+        DgusTFT::SendTxtToTFT(filelist.longFilename(), TXT_FILE_0 + file_num*0x30);
 
         #if ACDEBUG(AC_FILE)
           SERIAL_ECHOLNPGM("seek: ", _seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
         #endif
-
-      } else {
-
+      }
+      else {
         #if ACDEBUG(AC_FILE)
           SERIAL_ECHOLNPGM("over seek: ", _seek);
         #endif
 
-          DgusTFT::SendTxtToTFT("\0", TXT_FILE_0 + file_num*0x30);
+        DgusTFT::SendTxtToTFT("\0", TXT_FILE_0 + file_num*0x30);
       }
 
       file_num++;
@@ -111,33 +110,14 @@ namespace Anycubic {
   }
 
   void FileNavigator::sendFile() {
-    // send the file and folder info to the panel
-    // this info will be returned when the file is selected
-    // Permitted special characters in file name -_*#~
-    // Panel can display 22 characters per line
-    if (filelist.isDir()) {
-      //TFTSer.print(currentfoldername);
-//      TFTSer.println(filelist.shortFilename());
-//      TFTSer.print(filelist.shortFilename());
-//      TFTSer.println("/");
-
-//        send_to_TFT_txt(filelist.shortFilename(), TXT_FILE_0);
-    }
-    else {
-    #if 0
-      // Logical Name
-      TFTSer.print("/");
-      if (folderdepth > 0) TFTSer.print(currentfoldername);
-
-      TFTSer.println(filelist.shortFilename());
-
-      // Display Name
-      TFTSer.println(filelist.longFilename());
-      #endif
-
+    // Send the file and folder info to the panel.
+    // This info will be returned when the file is selected.
+    // Permitted special characters in file name: -_*#~
+    // Panel can display 22 characters per line.
+    if (!filelist.isDir())
       DgusTFT::SendTxtToTFT(filelist.longFilename(), TXT_FILE_0);
-    }
   }
+
   void FileNavigator::changeDIR(char *folder) {
     #if ACDEBUG(AC_FILE)
       SERIAL_ECHOLNPGM("currentfolder: ", currentfoldername, "  New: ", folder);
@@ -175,9 +155,7 @@ namespace Anycubic {
 
   char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
 
-  uint16_t FileNavigator::getFileNum() {
-    return filelist.count();
-  }
+  uint16_t FileNavigator::getFileNum() { return filelist.count(); }
 }
 
 #endif // ANYCUBIC_LCD_DGUS
