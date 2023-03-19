@@ -2976,7 +2976,7 @@ void Temperature::init() {
             else
               scale = 0;
 
-            if (ENABLED(REPORT_ADAPTIVE_FAN_SLOWING) && DEBUGGING(INFO)) {
+            if (TERN0(REPORT_ADAPTIVE_FAN_SLOWING, DEBUGGING(INFO))) {
               const uint8_t fss7 = fan_speed_scaler[fan_index] & 0x80;
               if (fss7 ^ (scale & 0x80))
                 serial_ternary(fss7, F("Adaptive Fan Slowing "), nullptr, F("de"), F("activated.\n"));
