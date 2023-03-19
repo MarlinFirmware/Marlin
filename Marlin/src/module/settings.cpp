@@ -225,7 +225,9 @@ typedef struct SettingsDataStruct {
   //
   // Home Offset
   //
-  xyz_pos_t home_offset;                                // M206 XYZ / M665 TPZ
+  #if NUM_AXES
+    xyz_pos_t home_offset;                              // M206 XYZ / M665 TPZ
+  #endif
 
   //
   // Hotend Offset
@@ -264,8 +266,9 @@ typedef struct SettingsDataStruct {
   //
   // HAS_BED_PROBE
   //
-
-  xyz_pos_t probe_offset;                               // M851 X Y Z
+  #if NUM_AXES
+    xyz_pos_t probe_offset;                             // M851 X Y Z
+  #endif
 
   //
   // ABL_PLANAR
@@ -475,7 +478,9 @@ typedef struct SettingsDataStruct {
   //
   // CNC_COORDINATE_SYSTEMS
   //
-  xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];  // G54-G59.3
+  #if NUM_AXES
+    xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS]; // G54-G59.3
+  #endif
 
   //
   // SKEW_CORRECTION
@@ -501,9 +506,11 @@ typedef struct SettingsDataStruct {
   //
   // BACKLASH_COMPENSATION
   //
-  xyz_float_t backlash_distance_mm;                     // M425 X Y Z
-  uint8_t backlash_correction;                          // M425 F
-  float backlash_smoothing_mm;                          // M425 S
+  #if NUM_AXES
+    xyz_float_t backlash_distance_mm;                   // M425 X Y Z
+    uint8_t backlash_correction;                        // M425 F
+    float backlash_smoothing_mm;                        // M425 S
+  #endif
 
   //
   // EXTENSIBLE_UI
@@ -813,20 +820,20 @@ void MarlinSettings::postprocess() {
     //
     // Home Offset
     //
+    #if NUM_AXES
     {
-      #if NUM_AXES
-        _FIELD_TEST(home_offset);
+      _FIELD_TEST(home_offset);
 
-        #if HAS_SCARA_OFFSET
-          EEPROM_WRITE(scara_home_offset);
-        #else
-          #if !HAS_HOME_OFFSET
-            const xyz_pos_t home_offset{0};
-          #endif
-          EEPROM_WRITE(home_offset);
+      #if HAS_SCARA_OFFSET
+        EEPROM_WRITE(scara_home_offset);
+      #else
+        #if !HAS_HOME_OFFSET
+          const xyz_pos_t home_offset{0};
         #endif
+        EEPROM_WRITE(home_offset);
       #endif
     }
+    #endif // NUM_AXES
 
     //
     // Hotend Offsets, if any
@@ -907,17 +914,17 @@ void MarlinSettings::postprocess() {
     //
     // Probe XYZ Offsets
     //
+    #if NUM_AXES
     {
-      #if NUM_AXES
-        _FIELD_TEST(probe_offset);
-        #if HAS_BED_PROBE
-          const xyz_pos_t &zpo = probe.offset;
-        #else
-          constexpr xyz_pos_t zpo{0};
-        #endif
-        EEPROM_WRITE(zpo);
+      _FIELD_TEST(probe_offset);
+      #if HAS_BED_PROBE
+        const xyz_pos_t &zpo = probe.offset;
+      #else
+        constexpr xyz_pos_t zpo{0};
       #endif
+      EEPROM_WRITE(zpo);
     }
+    #endif
 
     //
     // Planar Bed Leveling matrix
@@ -1507,12 +1514,13 @@ void MarlinSettings::postprocess() {
     //
     // Backlash Compensation
     //
+    #if NUM_AXES
     {
       #if ENABLED(BACKLASH_GCODE)
         xyz_float_t backlash_distance_mm;
         LOOP_NUM_AXES(axis) backlash_distance_mm[axis] = backlash.get_distance_mm((AxisEnum)axis);
         const uint8_t backlash_correction = backlash.get_correction_uint8();
-      #elif NUM_AXES
+      #else
         const xyz_float_t backlash_distance_mm{0};
         const uint8_t backlash_correction = 0;
       #endif
@@ -1521,13 +1529,12 @@ void MarlinSettings::postprocess() {
       #else
         const float backlash_smoothing_mm = 3;
       #endif
-      #if NUM_AXES
-        _FIELD_TEST(backlash_distance_mm);
-        EEPROM_WRITE(backlash_distance_mm);
-        EEPROM_WRITE(backlash_correction);
-        EEPROM_WRITE(backlash_smoothing_mm);
-      #endif
+      _FIELD_TEST(backlash_distance_mm);
+      EEPROM_WRITE(backlash_distance_mm);
+      EEPROM_WRITE(backlash_correction);
+      EEPROM_WRITE(backlash_smoothing_mm);
     }
+    #endif // NUM_AXES
 
     //
     // Extensible UI User Data
@@ -1781,6 +1788,7 @@ void MarlinSettings::postprocess() {
       //
       // Home Offset (M206 / M665)
       //
+      #if NUM_AXES
       {
         _FIELD_TEST(home_offset);
 
@@ -1793,6 +1801,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(home_offset);
         #endif
       }
+      #endif // NUM_AXES
 
       //
       // Hotend Offsets, if any
@@ -1868,17 +1877,17 @@ void MarlinSettings::postprocess() {
       //
       // Probe Z Offset
       //
+      #if NUM_AXES
       {
-        #if NUM_AXES
         _FIELD_TEST(probe_offset);
-          #if HAS_BED_PROBE
-            const xyz_pos_t &zpo = probe.offset;
-          #else
-            xyz_pos_t zpo;
-          #endif
-          EEPROM_READ(zpo);
+        #if HAS_BED_PROBE
+          const xyz_pos_t &zpo = probe.offset;
+        #else
+          xyz_pos_t zpo;
         #endif
+        EEPROM_READ(zpo);
       }
+      #endif
 
       //
       // Planar Bed Leveling matrix
@@ -2447,6 +2456,7 @@ void MarlinSettings::postprocess() {
       //
       // CNC Coordinate System
       //
+      #if NUM_AXES
       {
         _FIELD_TEST(coordinate_system);
         #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -2457,6 +2467,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(coordinate_system);
         #endif
       }
+      #endif
 
       //
       // Skew correction factors
@@ -2502,6 +2513,7 @@ void MarlinSettings::postprocess() {
       //
       // Backlash Compensation
       //
+      #if NUM_AXES
       {
         xyz_float_t backlash_distance_mm;
         uint8_t backlash_correction;
@@ -2520,6 +2532,7 @@ void MarlinSettings::postprocess() {
           #endif
         #endif
       }
+      #endif // NUM_AXES
 
       //
       // Extensible UI User Data
