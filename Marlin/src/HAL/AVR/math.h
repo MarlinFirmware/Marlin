@@ -84,32 +84,26 @@ FORCE_INLINE static uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2
   return intRes;
 }
 
-// intRes = intIn1 * intIn2 >> 8
+// charRes = charIn1 * charIn2 >> 8
 // uses:
-// r1, r0 for the result of mul. After the second mul, r0 holds bits 0-7 of the 24 bit result and
-// the top bit of r0 is used for rounding.
-// [tmp] to store 0.
-// [intRes] (A B) is bits 8-15 and is the returned value.
+// r1, r0 for the result of mul. After the mul, r0 holds bits 0-7 of the 16 bit result,
+//        and the top bit of r0 is used for rounding.
+// [charRes] is bits 8-15 and is the returned value.
 // [charIn1] is an 8 bit parameter.
-// [intIn2] (B A) is a 16 bit parameter.
+// [charIn2] is an 8 bit parameter.
 //
-FORCE_INLINE static uint16_t MultiU8X16toH16(uint8_t charIn1, uint16_t intIn2) {
-  uint8_t tmp;
-  uint16_t intRes;
+FORCE_INLINE static uint8_t MultiU8X8toH8(uint8_t charIn1, uint8_t charIn2) {
+  uint8_t charRes;
   __asm__ __volatile__ (
-    A("clr %[tmp]")
-    A("mul %[charIn1], %B[intIn2]")
-    A("movw %A[intRes], r0")
-    A("mul %[charIn1], %A[intIn2]")
-    A("lsl r0")
-    A("adc %A[intRes], r1")
-    A("adc %B[intRes], %[tmp]")
+    A("mul %[charIn1], %[charIn2]")
+    A("mov %[charRes], r1")
     A("clr r1")
-      : [intRes] "=&r" (intRes),
-        [tmp] "=&r" (tmp)
+    A("lsl r0")
+    A("adc %[charRes], r1")
+      : [charRes] "=&r" (charRes)
       : [charIn1] "d" (charIn1),
-        [intIn2] "d" (intIn2)
+        [charIn2] "d" (charIn2)
       : "cc"
   );
-  return intRes;
+  return charRes;
 }

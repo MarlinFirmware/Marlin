@@ -1471,6 +1471,10 @@
   #define HAS_PID_DEBUG 1
 #endif
 
+#if DISABLED(MPC_AUTOTUNE)
+  #undef MPC_AUTOTUNE_MENU
+#endif
+
 /**
  * TFT Displays
  *
