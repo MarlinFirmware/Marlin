@@ -711,7 +711,9 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
                 if (lfnChecksum == pvFat->checksum) {
                   // Set chunk of LFN from VFAT entry into lfnName
                   getLFNName(pvFat, (char *)lfnName, lfnSequenceNumber);
-                  convertUtf16ToUtf8((char *)lfnName);
+                  #if ENABLED(UTF_FILENAME_SUPPORT)
+                    convertUtf16ToUtf8((char *)lfnName);
+                  #endif
                   // LFN found?
                   if (!strncasecmp((char*)dlname, (char*)lfnName, lfnNameLength)) lfnFileFound = true;
                 }
