@@ -108,7 +108,6 @@ void GcodeSuite::G35() {
     // length of the deployed pin (BLTOUCH stroke < 7mm)
 
     // Unsure if this is even required. The probe seems to lift correctly after probe done.
-    do_blocking_move_to_z(SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance()));
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
