@@ -484,7 +484,7 @@ namespace Anycubic {
       static void SendTxtToTFT(const char *pdata, uint32_t address);
       static void SendColorToTFT(uint32_t color, uint32_t address);
       static void SendReadNumOfTxtToTFT(uint8_t number, uint32_t address);
-      static void ChangePageOfTFT(uint32_t page_index);
+      static void ChangePageOfTFT(uint32_t page_index, bool no_send=false);
       static void FakeChangePageOfTFT(uint32_t page_index);
       static void LcdAudioSet(audio_t audio);
 

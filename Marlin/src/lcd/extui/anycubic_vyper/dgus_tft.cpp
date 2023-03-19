@@ -873,13 +873,11 @@ namespace Anycubic {
     for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
   }
 
-  void DgusTFT::ChangePageOfTFT(uint32_t page_index) {
+  void DgusTFT::ChangePageOfTFT(uint32_t page_index, bool no_send/*=false*/) {
     #if ACDEBUG(AC_MARLIN)
       DEBUG_ECHOLNPGM("ChangePageOfTFT: ", page_index);
     #endif
 
-    uint8_t data_buf[20] = {0};
-    uint8_t data_index = 0;
     uint32_t data_temp = 0;
 
     if (lcd_info.language == CHS) {
@@ -898,21 +896,11 @@ namespace Anycubic {
         data_temp = page_index + 120;
     }
 
-    uint8_t *p_u8 = (uint8_t *)(&data_temp) + 1;
-
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0xA5;
-    data_buf[data_index++] = 0x07;
-    data_buf[data_index++] = 0x82;
-    data_buf[data_index++] = 0x00;
-    data_buf[data_index++] = 0x84;
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0x01;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-
-    for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
+    if (!no_send) {
+      uint8_t *p_u8 = (uint8_t *)(&data_temp);
+      uint8_t data_buf[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x84, 0x5A, 0x01, p_u8[1], pu8[0] };
+      for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
+    }
 
     page_index_last_2 = page_index_last;
     page_index_last   = page_index_now;
@@ -926,41 +914,11 @@ namespace Anycubic {
   }
 
   void DgusTFT::FakeChangePageOfTFT(uint32_t page_index) {
-
     #if ACDEBUG(AC_MARLIN)
       if (page_index_saved != page_index_now)
         DEBUG_ECHOLNPGM("FakeChangePageOfTFT: ", page_index);
     #endif
-
-    //uint8_t data_buf[20] = {0};
-    //uint8_t data_index = 0;
-    uint32_t data_temp = 0;
-
-    if (lcd_info.language == CHS) {
-      data_temp = page_index;
-    }
-    else if (lcd_info.language == ENG) {
-      if (PAGE_OUTAGE_RECOVERY == page_index)
-        data_temp = PAGE_ENG_OUTAGE_RECOVERY;
-      else if (PAGE_CHS_PROBE_PREHEATING == page_index)
-        data_temp = PAGE_ENG_PROBE_PREHEATING;
-      else if (WITHIN(page_index, PAGE_CHS_HOMING, PAGE_ENG_HOMING))
-        data_temp = page_index + 12;
-      else if (WITHIN(page_index, PAGE_CHS_PROBE_PRECHECK, PAGE_CHS_PROBE_PRECHECK_FAILED))
-        data_temp = page_index + 3;
-      else
-        data_temp = page_index + 120;
-    }
-
-    page_index_last_2 = page_index_last;
-    page_index_last = page_index_now;
-    page_index_now = data_temp;
-
-    #if ACDEBUG(AC_MARLIN)
-      DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
-      DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
-      DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
-    #endif
+    ChangePageOfTFT(page_index, true);
   }
 
   void DgusTFT::LcdAudioSet(audio_t audio) {
