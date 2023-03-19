@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/extui/anycubic_dgus/Tunes.h
+ * lcd/extui/anycubic_vyper/Tunes.h
  */
 
 /**************************************************************************

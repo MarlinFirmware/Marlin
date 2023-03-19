@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/extui/anycubic_dgus/dgus_tft.h
+ * lcd/extui/anycubic_vyper/dgus_tft.h
  */
 
 #include "dgus_tft_defs.h"

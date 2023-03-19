@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/anycubic_dgus/FileNavigator.cpp
+ * lcd/extui/anycubic_vyper/FileNavigator.cpp
  */
 
 /***************************************************************************
@@ -31,7 +31,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ANYCUBIC_LCD_DGUS)
+#if ENABLED(ANYCUBIC_LCD_VYPER)
 
 #include "FileNavigator.h"
 #include "dgus_tft.h"
@@ -158,4 +158,4 @@ namespace Anycubic {
   uint16_t FileNavigator::getFileNum() { return filelist.count(); }
 }
 
-#endif // ANYCUBIC_LCD_DGUS
+#endif // ANYCUBIC_LCD_VYPER

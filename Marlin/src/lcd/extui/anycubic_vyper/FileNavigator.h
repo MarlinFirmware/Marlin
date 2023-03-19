@@ -19,40 +19,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * lcd/extui/anycubic_dgus/Tunes.cpp
+ * lcd/extui/anycubic_vyper/FileNavigator.h
  */
 
-/***********************************************************************
- * A Utility to play tunes using the buzzer in the printer controller. *
- * See Tunes.h for note and tune definitions.                          *
- ***********************************************************************/
-
-#include "../../../inc/MarlinConfigPre.h"
-
-#if ENABLED(ANYCUBIC_LCD_DGUS)
-
-#include "Tunes.h"
+#include "dgus_tft_defs.h"
 #include "../ui_api.h"
 
+using namespace ExtUI;
+
 namespace Anycubic {
+  class FileNavigator {
+    public:
+      FileNavigator();
 
-  void PlayTune(uint8_t beeperPin, const uint16_t *tune, uint8_t speed=1) {
-    uint8_t pos = 1;
-    uint16_t wholenotelen = tune[0] / speed;
-    do {
-      uint16_t freq = tune[pos];
-      uint16_t notelen = wholenotelen / tune[pos + 1];
+      static FileList  filelist;
 
-      ::tone(beeperPin, freq, notelen);
-      ExtUI::delay_ms(notelen);
-      pos += 2;
+      void   reset();
+      void   getFiles(uint16_t);
+      void   upDIR();
+      void   changeDIR(char *);
+      void   sendFile();
+      void   refresh();
+      char * getCurrentFolderName();
+      uint16_t getFileNum();
 
-      if (pos >= MAX_TUNE_LENGTH) break;
-    } while (tune[pos] != n_END);
-  }
+    private:
 
+      static char      currentfoldername[MAX_PATH_LEN];
+      static uint16_t  lastindex;
+      static uint8_t   folderdepth;
+      static uint16_t  currentindex;
+  };
+  extern FileNavigator filenavigator;
 }
-
-#endif // ANYCUBIC_LCD_DGUS

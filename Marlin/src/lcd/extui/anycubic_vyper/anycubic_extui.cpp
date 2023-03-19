@@ -21,14 +21,14 @@
  */
 
 /**
- * lcd/extui/anycubic_dgus/anycubic_extui.cpp
+ * lcd/extui/anycubic_vyper/anycubic_extui.cpp
  *
  * Anycubic Dgus TFT support for Marlin
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ANYCUBIC_LCD_DGUS)
+#if ENABLED(ANYCUBIC_LCD_VYPER)
 
 #include "../ui_api.h"
 #include "dgus_tft.h"
@@ -146,4 +146,4 @@ namespace ExtUI {
   void onSteppersEnabled()  {}
 }
 
-#endif // ANYCUBIC_LCD_DGUS
+#endif // ANYCUBIC_LCD_VYPER

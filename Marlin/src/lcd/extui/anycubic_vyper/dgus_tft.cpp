@@ -21,12 +21,12 @@
  */
 
 /**
- * lcd/extui/anycubic_dgus/dgus_tft.cpp
+ * lcd/extui/anycubic_vyper/dgus_tft.cpp
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ANYCUBIC_LCD_DGUS)
+#if ENABLED(ANYCUBIC_LCD_VYPER)
 
 #include "dgus_tft.h"
 #include "Tunes.h"
@@ -3615,4 +3615,4 @@ namespace Anycubic {
 
 } // namespace
 
-#endif // ANYCUBIC_LCD_DGUS
+#endif // ANYCUBIC_LCD_VYPER

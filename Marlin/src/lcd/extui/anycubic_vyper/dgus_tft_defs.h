@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/anycubic_dgus/dgus_defs.h
+ * lcd/extui/anycubic_vyper/dgus_defs.h
  */
 
 #pragma once
