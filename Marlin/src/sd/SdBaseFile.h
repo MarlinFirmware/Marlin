@@ -392,6 +392,10 @@ class SdBaseFile {
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
 
+  #if ENABLED(UTF_FILENAME_SUPPORT)
+    uint8_t convertUtf16ToUtf8(char *longFilename);
+  #endif // UTF_FILENAME_SUPPORT
+
   // Long Filename create/write support
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
     static bool isDirLFN(const dir_t* dir);
@@ -403,5 +407,5 @@ class SdBaseFile {
     static inline uint8_t getLFNEntriesNum(const char *lname) { return (strlen(lname) + 12) / 13; }
     static void getLFNName(vfat_t *vFatDir, char *lname, uint8_t startOffset);
     static void setLFNName(vfat_t *vFatDir, char *lname, uint8_t lfnSequenceNumber);
-  #endif
+  #endif // LONG_FILENAME_WRITE_SUPPORT
 };
