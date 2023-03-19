@@ -785,7 +785,7 @@
 /**
  * GD32 is not exactly like STM32
  */
-#if MB(SOVOL_V131)
+#if MB(SOVOL_V131, TRIGORILLA_V006)
   #warning "GD32 based controllers may not be fully compatible with Maple Generic STM32F103RE. Please report any issues."
 #endif
 

@@ -21,11 +21,6 @@
  */
 #pragma once
 
-#ifndef PERMIT_GD32_BUILD
-  #error "WARNING: GD32 based controllers are not officially supported by Marlin."
-  #error "Define PERMIT_GD32_BUILD in Configuration.h to continue at your own risk."
-#endif
-
 #if NOT_TARGET(__STM32F1__, STM32F1)
   #if DISABLED(ALLOW_STM32F4)
     #error "Oops! Select an STM32F1 board in 'Tools > Board.'"

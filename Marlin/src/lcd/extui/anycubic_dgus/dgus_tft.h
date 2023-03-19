@@ -160,7 +160,7 @@
 
 #define TXT_BED_NOW             (0x2000+17*0x30)
 #define TXT_BED_TARGET          (0x2000+18*0x30)
-#define TXT_HOTNED_NOW           (0x2000+19*0x30)
+#define TXT_HOTEND_NOW           (0x2000+19*0x30)
 #define TXT_HOTEND_TARGET        (0x2000+20*0x30)
 
 // SPEED SET TXT
@@ -340,13 +340,15 @@ namespace Anycubic {
   class DgusTFT {
     static printer_state_t  printer_state;
     static paused_state_t   pause_state;
-    static heater_state_t   hotend_state;
-    static heater_state_t   hotbed_state;
-    static xy_uint8_t       selectedmeshpoint;
+    #if HAS_HOTEND
+      static heater_state_t hotend_state;
+    #endif
+    #if HAS_HEATED_BED
+      static heater_state_t hotbed_state;
+    #endif
     static char             panel_command[MAX_CMND_LEN];
     static uint8_t          command_len;
     static char             selectedfile[MAX_PATH_LEN];
-    static float            live_Zoffset;
     static file_menu_t      file_menu;
     static bool             data_received;
     static uint8_t          data_buf[DATA_BUF_SIZE];
@@ -425,17 +427,25 @@ namespace Anycubic {
       static void page30_handle();
       static void page31_handle();
       static void page32_handle();
-      static void page33_handle();
+
+      #if HAS_LEVELING
+        static void page33_handle();
+      #endif
       static void page34_handle();
       static void page115_handle();
       static void page117_handle();     // CHS Mute handler
       static void page124_handle();
       static void page125_handle();
       static void page170_handle();     // ENG Mute handler
-      static void page171_handle();     // CHS power outage resume handler
-      static void page173_handle();     // ENG power outage resume handler
-      static void page175_handle();     // ENG probe preheating handler
-      static void page176_handle();     // CHS probe preheating handler
+
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        static void page171_handle();   // CHS power outage resume handler
+        static void page173_handle();   // ENG power outage resume handler
+      #endif
+      #if HAS_LEVELING
+        static void page175_handle();   // ENG probe preheating handler
+        static void page176_handle();   // CHS probe preheating handler
+      #endif
 
       static void page177_to_198_handle();
       //static void page178_to_181_190_to_193_handle();
