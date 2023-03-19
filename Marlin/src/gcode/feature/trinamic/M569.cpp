@@ -53,6 +53,8 @@ static void set_stealth_status(const bool enable, const int8_t eindex) {
     constexpr int8_t index = -1;
   #endif
 
+  UNUSED(index);
+
   LOOP_LOGICAL_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
     switch (i) {
       case X_AXIS:
