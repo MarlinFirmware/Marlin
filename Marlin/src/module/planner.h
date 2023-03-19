@@ -353,7 +353,7 @@ typedef struct {
 #endif
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-  typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
+  typedef uvalue_t(BLOCK_BUFFER_SIZE * 2) last_move_t;
 #endif
 
 #if ENABLED(ARC_SUPPORT)
@@ -377,6 +377,11 @@ struct PlannerHints {
                                       // would calculate if it knew the as-yet-unbuffered path
   #endif
 
+  #if HAS_ROTATIONAL_AXES
+    bool cartesian_move = true;       // True if linear motion of the tool centerpoint relative to the workpiece occurs.
+                                      // False if no movement of the tool center point relative to the work piece occurs
+                                      // (i.e. the tool rotates around the tool centerpoint)
+  #endif
   PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
 };
 
@@ -530,7 +535,7 @@ class Planner {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       // Counters to manage disabling inactive extruder steppers
-      static last_move_t g_uc_extruder_last_move[E_STEPPERS];
+      static last_move_t extruder_last_move[E_STEPPERS];
     #endif
 
     #if HAS_WIRED_LCD

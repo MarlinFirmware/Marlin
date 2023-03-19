@@ -96,9 +96,10 @@
     DRAWBIT_HOTEND,
     DRAWBIT_BED = HOTENDS,
     DRAWBIT_CHAMBER,
-    DRAWBIT_CUTTER
+    DRAWBIT_CUTTER,
+    DRAWBIT_COUNT
   };
-  IF<(DRAWBIT_CUTTER > 7), uint16_t, uint8_t>::type draw_bits;
+  bits_t(DRAWBIT_COUNT) draw_bits;
 #endif
 
 #if ANIM_HOTEND
@@ -524,7 +525,9 @@ void MarlinUI::draw_status_screen() {
 
   const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
-  static u8g_uint_t progress_bar_solid_width = 0;
+  #if HAS_PRINT_PROGRESS
+    static u8g_uint_t progress_bar_solid_width = 0;
+  #endif
 
   // At the first page, generate new display values
   if (first_page) {

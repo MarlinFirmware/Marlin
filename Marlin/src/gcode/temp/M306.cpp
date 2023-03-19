@@ -33,8 +33,6 @@
  *
  *  E<extruder>               Extruder index. (Default: Active Extruder)
  *
- *  T                         Autotune the specified or active extruder.
- *
  * Set MPC values manually for the specified or active extruder:
  *  A<watts/kelvin>           Ambient heat transfer coefficient (no fan).
  *  C<joules/kelvin>          Block heat capacity.
@@ -42,6 +40,9 @@
  *  H<joules/kelvin/mm>       Filament heat capacity per mm.
  *  P<watts>                  Heater power.
  *  R<kelvin/second/kelvin>   Sensor responsiveness (= transfer coefficient / heat capcity).
+ *
+ *  With MPC_AUTOTUNE:
+ *  T                         Autotune the specified or active extruder.
  */
 
 void GcodeSuite::M306() {
@@ -51,12 +52,14 @@ void GcodeSuite::M306() {
     return;
   }
 
-  if (parser.seen_test('T')) {
-    LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-    thermalManager.MPC_autotune(e);
-    ui.reset_status();
-    return;
-  }
+  #if ENABLED(MPC_AUTOTUNE)
+    if (parser.seen_test('T')) {
+      LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+      thermalManager.MPC_autotune(e);
+      ui.reset_status();
+      return;
+    }
+  #endif
 
   if (parser.seen("ACFPRH")) {
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;

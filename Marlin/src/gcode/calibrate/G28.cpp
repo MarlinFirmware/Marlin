@@ -86,7 +86,7 @@
         NUM_AXIS_LIST(
           TERN0(X_SENSORLESS, tmc_enable_stallguard(stepperX)),
           TERN0(Y_SENSORLESS, tmc_enable_stallguard(stepperY)),
-          false, false, false, false
+          false, false, false, false, false, false, false
         )
         , TERN0(X2_SENSORLESS, tmc_enable_stallguard(stepperX2))
         , TERN0(Y2_SENSORLESS, tmc_enable_stallguard(stepperY2))
@@ -124,7 +124,7 @@
      * (Z is already at the right height)
      */
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-    #if HAS_HOME_OFFSET
+    #if HAS_HOME_OFFSET && DISABLED(Z_SAFE_HOMING_POINT_ABSOLUTE)
       xy_float_t okay_homing_xy = safe_homing_xy;
       okay_homing_xy -= home_offset;
     #else

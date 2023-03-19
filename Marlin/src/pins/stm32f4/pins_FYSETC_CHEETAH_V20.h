@@ -43,22 +43,24 @@
   #define FLASH_ADDRESS_START   0x8004000
 #endif
 
-//
-// Z Probe
-//
-#if ENABLED(BLTOUCH)
-  #error "You need to set jumper to 5v for Bltouch, then comment out this line to proceed."
-  #define SERVO0_PIN                        PA0
-#elif !defined(Z_MIN_PROBE_PIN)
-  #define Z_MIN_PROBE_PIN                   PA0
-#endif
+#define SERVO0_PIN                          PB1 // BL-TOUCH/PWM
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PB4
-#define Y_STOP_PIN                          PC8
-#define Z_STOP_PIN                          PB1
+#define X_STOP_PIN                          PB4 // X-MIN
+#define Y_STOP_PIN                          PC8 // Y-MIN
+#define Z_STOP_PIN                          PA0 // Z-MIN
+
+//
+// Z Probe
+//
+#if ENABLED(BLTOUCH)
+  #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
+#endif
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1 // BL-TOUCH/PWM repurposed
+#endif
 
 //
 // Filament runout

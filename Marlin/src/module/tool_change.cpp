@@ -33,9 +33,6 @@
 //#define DEBUG_TOOL_CHANGE
 //#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
 
-#define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
-#include "../core/debug_out.h"
-
 #if HAS_MULTI_EXTRUDER
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
@@ -104,9 +101,15 @@
   #include "../feature/pause.h"
 #endif
 
-// below other includes on purpose. moving it up makes debug not work..
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
+
+#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+  #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
+    #undef TOOLCHANGE_FS_WIPE_RETRACT
+    #define TOOLCHANGE_FS_WIPE_RETRACT 0
+  #endif
+#endif
 
 #if DO_SWITCH_EXTRUDER
 
@@ -1054,7 +1057,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       }
     #endif
 
-    //Calculate and perform the priming distance
+    // Calculate and perform the priming distance
     if (toolchange_settings.extra_prime >= 0) {
       // Positive extra_prime value
       // - Return filament at speed (fr) then extra_prime at prime speed
@@ -1249,7 +1252,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Z raise before retraction
-      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
+      #if ENABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && !HAS_SWITCHING_NOZZLE
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
@@ -1294,7 +1297,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Toolchange Z-Raise
-      #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
+      #if NONE(TOOLCHANGE_ZRAISE_BEFORE_RETRACT, HAS_SWITCHING_NOZZLE)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
@@ -1304,7 +1307,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Toolchange park
-      #if ENABLED(TOOLCHANGE_PARK) && DISABLED(SWITCHING_NOZZLE)
+      #if ENABLED(TOOLCHANGE_PARK) && !HAS_SWITCHING_NOZZLE
         if (can_move_away && toolchange_settings.enable_park) {
           IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
@@ -1360,6 +1363,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           fast_line_to_current(Z_AXIS);
         }
         move_nozzle_servo(new_tool);
+      #elif EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+        if (!no_move) {
+          current_position.z = _MIN(current_position.z + toolchange_settings.z_raise, _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS));
+          fast_line_to_current(Z_AXIS);
+        }
       #endif
 
       // Set the new active extruder
@@ -1417,27 +1425,32 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park))
               do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
 
-          #else
+          #else // !TOOLCHANGE_NO_RETURN
             // Move back to the original (or adjusted) position
             DEBUG_POS("Move back", destination);
 
             #if ENABLED(TOOLCHANGE_PARK)
               if (toolchange_settings.enable_park)
                 do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
-            #else
+            #else // !TOOLCHANGE_PARK
               do_blocking_move_to_xy(destination, planner.settings.max_feedrate_mm_s[X_AXIS] * 0.5f);
-              do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
-              SECONDARY_AXIS_CODE(
-                do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
-                do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
-                do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
-                do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
-                do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
-                do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
-              );
-            #endif
 
-          #endif
+              // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE below.
+              #if NONE(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+                do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+                SECONDARY_AXIS_CODE(
+                  do_blocking_move_to_i(destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
+                  do_blocking_move_to_j(destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
+                  do_blocking_move_to_k(destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
+                  do_blocking_move_to_u(destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
+                  do_blocking_move_to_v(destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
+                  do_blocking_move_to_w(destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
+                );
+              #endif
+
+            #endif // !TOOLCHANGE_PARK
+
+          #endif // !TOOLCHANGE_NO_RETURN
         }
 
         else DEBUG_ECHOLNPGM("Move back skipped");
@@ -1456,7 +1469,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
       }
 
-      #if ENABLED(SWITCHING_NOZZLE)
+      #if HAS_SWITCHING_NOZZLE
         // Move back down. (Including when the new tool is higher.)
         if (!should_move)
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
@@ -1486,14 +1499,84 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     TERN_(HAS_FANMUX, fanmux_switch(active_extruder));
 
     if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
-      #ifdef EVENT_GCODE_TOOLCHANGE_T0
-        if (new_tool == 0)
-          gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0));
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        // G0/G1/G2/G3/G5 moves are relative to the active tool.
+        // Shift the workspace to make custom moves relative to T0.
+        xyz_pos_t old_position_shift;
+        if (new_tool > 0) {
+          old_position_shift = position_shift;
+          const xyz_pos_t &he = hotend_offset[new_tool];
+          #if ENABLED(TC_GCODE_USE_GLOBAL_X)
+            position_shift.x -= he.x; update_workspace_offset(X_AXIS);
+          #endif
+          #if ENABLED(TC_GCODE_USE_GLOBAL_Y)
+            position_shift.y -= he.y; update_workspace_offset(Y_AXIS);
+          #endif
+          #if ENABLED(TC_GCODE_USE_GLOBAL_Z)
+            position_shift.z -= he.z; update_workspace_offset(Z_AXIS);
+          #endif
+        }
       #endif
 
-      #ifdef EVENT_GCODE_TOOLCHANGE_T1
-        if (new_tool == 1)
-          gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1));
+      switch (new_tool) {
+        default: break;
+        #ifdef EVENT_GCODE_TOOLCHANGE_T0
+          case 0: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T1
+          case 1: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T2
+          case 2: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T2)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T3
+          case 3: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T3)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T4
+          case 4: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T4)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T5
+          case 5: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T5)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T6
+          case 6: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T6)); break;
+        #endif
+        #ifdef EVENT_GCODE_TOOLCHANGE_T7
+          case 7: gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T7)); break;
+        #endif
+      }
+
+      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+        if (new_tool > 0) {
+          position_shift = old_position_shift;
+          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
+          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
+        }
+      #endif
+
+      // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE
+      // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
+      #if EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+        #if HAS_HOTEND_OFFSET
+          xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
+          TERN_(DUAL_X_CARRIAGE, diff.x = 0);
+        #else
+          constexpr xyz_pos_t diff{0};
+        #endif
+
+        if (!no_move) {
+          // Move to new hotend Z offset and reverse Z_RAISE
+          do_blocking_move_to_z(
+            _MIN(
+              _MAX((destination.z - diff.z) - toolchange_settings.z_raise,
+              _MAX(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.min.z, Z_MIN_POS), Z_MIN_POS)
+            ),
+            _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS)),
+            planner.settings.max_feedrate_mm_s[Z_AXIS]
+          );
+        }
       #endif
 
       #ifdef EVENT_GCODE_AFTER_TOOLCHANGE

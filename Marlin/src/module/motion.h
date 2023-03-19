@@ -302,6 +302,8 @@ void report_current_position_projected();
   #endif
 #endif
 
+float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move));
+
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
@@ -409,10 +411,10 @@ void restore_feedrate_and_scaling();
 /**
  * Homing and Trusted Axes
  */
-typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type main_axes_bits_t;
+typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
 
-typedef IF<(NUM_AXES + EXTRUDERS > 8), uint16_t, uint8_t>::type e_axis_bits_t;
+typedef bits_t(NUM_AXES + EXTRUDERS) e_axis_bits_t;
 constexpr e_axis_bits_t e_axis_mask = (_BV(EXTRUDERS) - 1) << NUM_AXES;
 
 void set_axis_is_at_home(const AxisEnum axis);
