@@ -327,7 +327,12 @@ inline void serial_echolnpair(FSTR_P const fstr, T v) { serial_echolnpair_P(FTOP
 
 void serial_echo_start();
 void serial_error_start();
-void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr);
+inline void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
+  if (pre) serial_print(pre);
+  if (onoff && on) serial_print(on);
+  if (!onoff && off) serial_print(off);
+  if (post) serial_print(post);
+}
 void serialprint_onoff(const bool onoff);
 void serialprintln_onoff(const bool onoff);
 void serialprint_truefalse(const bool tf);

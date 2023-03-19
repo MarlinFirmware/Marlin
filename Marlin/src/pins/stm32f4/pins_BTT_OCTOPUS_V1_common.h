@@ -27,13 +27,17 @@
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4K (AT24C32)
-#define I2C_SCL_PIN                         PB8
-#define I2C_SDA_PIN                         PB9
+#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+  #undef NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K (AT24C32)
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PB8
+  #define I2C_SDA_PIN                       PB9
+#endif
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER 8
 
 //
 // Servos
@@ -70,13 +74,13 @@
 #if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
-    #define NEEDS_X_MINMAX 1
+    #define NEEDS_X_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_YMIN_) || _ENDSTOP_IS_ANY(_YMAX_)
-    #define NEEDS_Y_MINMAX 1
+    #define NEEDS_Y_MINMAX
   #endif
   #if _ENDSTOP_IS_ANY(_ZMIN_) || _ENDSTOP_IS_ANY(_ZMAX_)
-    #define NEEDS_Z_MINMAX 1
+    #define NEEDS_Z_MINMAX
   #endif
   #undef _ENDSTOP_IS_ANY
 #endif
@@ -109,7 +113,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
   #endif
-#elif NEEDS_Y_MINMAX
+#elif ENABLED(NEEDS_Y_MINMAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
@@ -127,7 +131,7 @@
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
   #endif
-#elif NEEDS_Z_MINMAX
+#elif ENABLED(NEEDS_Z_MINMAX)
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-STOP
   #endif
@@ -137,10 +141,6 @@
 #else
   #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
 #endif
-
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
-#undef NEEDS_Z_MINMAX
 
 //
 // Filament Runout Sensor

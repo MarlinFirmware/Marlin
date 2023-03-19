@@ -33,12 +33,10 @@
 
 #if DGUS_LCD_UI_IA_CREALITY
 
+#include "ia_creality_extui.h"
 #include "FileNavigator.h"
 
 using namespace ExtUI;
-
-#define DEBUG_OUT ENABLED(DEBUG_DWIN)
-#include "../../../core/debug_out.h"
 
 FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
 char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
@@ -124,8 +122,6 @@ void FileNavigator::getFiles(uint16_t index) {
       const int filelen = strlen(filelist.filename());
       if (filelen > 20) {
         char *buf = (char *)filelist.filename();
-        //char buf[filelen];
-        //strcpy(&buf[filelen], filelist.filename());
         buf[18] = '\0'; // cutoff at screen edge
         rtscheck.RTS_SndData(buf, (SDFILE_ADDR + (fcnt * 20)));
       }

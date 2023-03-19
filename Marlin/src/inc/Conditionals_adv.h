@@ -1219,3 +1219,9 @@
   #undef TC_GCODE_USE_GLOBAL_Y
   #undef TC_GCODE_USE_GLOBAL_Z
 #endif
+
+// Multi-Stepping Limit
+#ifndef MULTISTEPPING_LIMIT
+  #define MULTISTEPPING_LIMIT 128
+  #define MULTISTEPPING_LIMIT_WARNING 1
+#endif
