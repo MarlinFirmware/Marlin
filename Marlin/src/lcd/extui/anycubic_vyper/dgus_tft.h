@@ -378,21 +378,27 @@ namespace Anycubic {
       static lcd_info_t       lcd_info_back;
       static uint32_t         page_index_now;
 
-      void Startup();
-      void ParamInit();
-      void IdleLoop();
-      void PrinterKilled(FSTR_P,FSTR_P);
-      void MediaEvent(media_event_t);
-      void TimerEvent(timer_event_t);
-      void FilamentRunout();
-      void ConfirmationRequest(const char * const );
-      void StatusChange(const char * const );
-      void PowerLoss();
-      void PowerLossRecovery();
-      void HomingStart();
-      void HomingComplete();
-      void set_language(language_t);
+      static void Startup();
+      static void ParamInit();
+      static void IdleLoop();
+      static void PrinterKilled(FSTR_P,FSTR_P);
+      static void MediaEvent(media_event_t);
+      static void TimerEvent(timer_event_t);
+      static void FilamentRunout();
+      static void ConfirmationRequest(const char * const );
+      static void StatusChange(const char * const );
+      static void PowerLoss();
+      static void PowerLossRecovery();
+      static void HomingStart();
+      static void HomingComplete();
+      static void set_language(language_t);
 
+      #if HAS_HOTEND
+        static void send_temperature_hotend(uint32_t addr);
+      #endif
+      #if HAS_HEATED_BED
+        static void send_temperature_bed(uint32_t addr);
+      #endif
 
       typedef void (*p_fun)();
       static void page1_handle();
@@ -460,18 +466,18 @@ namespace Anycubic {
 
       static void pop_up_manager();
 
-      void SendtoTFT(FSTR_P const=nullptr);
-      void SendtoTFTLN(FSTR_P const=nullptr);
-      bool ReadTFTCommand();
-      int8_t Findcmndpos(const char *, char);
-      void CheckHeaters();
+      static void SendtoTFT(FSTR_P const=nullptr);
+      static void SendtoTFTLN(FSTR_P const=nullptr);
+      static bool ReadTFTCommand();
+      static int8_t Findcmndpos(const char *, char);
+      static void CheckHeaters();
       static void SendFileList(int8_t);
-      void SelectFile();
-      void InjectCommandandWait(PGM_P);
-      void ProcessPanelRequest();
-      void PanelInfo(uint8_t);
-      void PanelAction(uint8_t);
-      void PanelProcess(uint8_t);
+      static void SelectFile();
+      static void InjectCommandandWait(PGM_P);
+      static void ProcessPanelRequest();
+      static void PanelInfo(uint8_t);
+      static void PanelAction(uint8_t);
+      static void PanelProcess(uint8_t);
 
       static void SendValueToTFT(uint32_t value, uint32_t address);
       static void RequestValueFromTFT(uint32_t address);
@@ -487,5 +493,4 @@ namespace Anycubic {
   };
 
   extern DgusTFT Dgus;
-
 }
