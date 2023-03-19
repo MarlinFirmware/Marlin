@@ -446,7 +446,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   planner.synchronize();
 
   #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-    thermalManager.set_fans_paused(true);
+    Fan::all_pause(true);
   #endif
 
   // Initial retract before move to filament change position
@@ -714,8 +714,8 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && HAS_FAN
-    thermalManager.set_fans_paused(false);
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+    Fan::all_pause(false);
   #endif
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());

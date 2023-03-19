@@ -80,8 +80,7 @@ void GcodeSuite::M81() {
   print_job_timer.stop();
 
   #if ALL(HAS_FAN, PROBING_FANS_OFF)
-    thermalManager.fans_paused = false;
-    ZERO(thermalManager.saved_fan_speed);
+    Fan::power_off();
   #endif
 
   safe_delay(1000); // Wait 1 second before switching off

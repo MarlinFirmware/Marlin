@@ -214,7 +214,7 @@ void Touch::touch(touch_control_t *control) {
       ui.clear_lcd();
       static uint8_t fan, fan_speed;
       fan = 0;
-      fan_speed = thermalManager.fan_speed[fan];
+      fan_speed = fans[fan].speed;
       MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); });
       break;
     case FEEDRATE:
