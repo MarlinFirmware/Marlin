@@ -2098,9 +2098,15 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #else
 
-    // AVR is able to keep up at 30khz Stepping ISR rate.
     constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
     if (step_rate >= 0x0800) {  // higher step rate
+      // AVR is able to keep up at around 65kHz Stepping ISR rate at most.
+      // So values for step_rate > 65535 might as well be truncated.
+      // Handle it as quickly as possible. i.e., assume highest byte is zero
+      // because non-zero would represent a step rate far beyond AVR capabilities.
+      if (uint8_t(step_rate >> 16))
+        return uint32_t(STEPPER_TIMER_RATE) / 0x10000;
+
       const uintptr_t table_address = uintptr_t(&speed_lookuptable_fast[uint8_t(step_rate >> 8)]);
       const uint16_t base = uint16_t(pgm_read_word(table_address));
       const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
@@ -2112,10 +2118,8 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
       return uint16_t(pgm_read_word(table_address))
              - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);
     }
-    else {
-      step_rate = 0;
-      return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
-    }
+
+    return uint16_t(pgm_read_word(uintptr_t(speed_lookuptable_slow)));
 
   #endif // !CPU_32_BIT
 }
@@ -2250,7 +2254,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-            la_interval = calc_timer_interval(acc_step_rate + la_step_rate) << current_block->la_scaling;
+            la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
           }
         #endif
 
@@ -2322,7 +2326,7 @@ hal_timer_t Stepper::block_phase_isr() {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             if (la_step_rate != step_rate) {
               bool reverse_e = la_step_rate > step_rate;
-              la_interval = calc_timer_interval(reverse_e ? la_step_rate - step_rate : step_rate - la_step_rate) << current_block->la_scaling;
+              la_interval = calc_timer_interval((reverse_e ? la_step_rate - step_rate : step_rate - la_step_rate) >> current_block->la_scaling);
 
               if (reverse_e != motor_direction(E_AXIS)) {
                 TBI(last_direction_bits, E_AXIS);
@@ -2380,7 +2384,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
           #if ENABLED(LIN_ADVANCE)
             if (la_active)
-              la_interval = calc_timer_interval(current_block->nominal_rate) << current_block->la_scaling;
+              la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
         }
 
@@ -2702,7 +2706,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {
           const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-          la_interval = calc_timer_interval(current_block->initial_rate + la_step_rate) << current_block->la_scaling;
+          la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
         }
       #endif
     }
