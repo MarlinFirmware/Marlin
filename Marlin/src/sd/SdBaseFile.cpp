@@ -703,7 +703,10 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
               // Get VFat dir entry
               pvFat = (vfat_t *) p;
               // Get checksum from the last entry of the sequence
-              if (pvFat->sequenceNumber & 0x40) lfnChecksum = pvFat->checksum;
+              if (pvFat->sequenceNumber & 0x40) {
+                lfnChecksum = pvFat->checksum;
+                memset(lfnName, '\0', sizeof(lfnName));
+              }
               // Get LFN sequence number
               lfnSequenceNumber = pvFat->sequenceNumber & 0x1F;
               if WITHIN(lfnSequenceNumber, 1, reqEntriesNum) {
