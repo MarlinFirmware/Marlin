@@ -147,6 +147,7 @@ namespace Anycubic {
   language_t DgusTFT::ui_language;
   uint32_t page_index_saved;          // flags to keep from bombing the host display
   uint8_t pop_up_index_saved;
+  uint32_t key_value_saved;
 
 
   void DEBUG_PRINT_PAUSED_STATE(FSTR_P const msg, paused_state_t state);
@@ -170,6 +171,9 @@ namespace Anycubic {
   }
 
   void DgusTFT::Startup() {
+    #if ACDEBUG(AC_MARLIN)
+      DEBUG_ECHOLNPGM("DgusTFT::Startup()");
+    #endif
     selectedfile[0] = '\0';
     panel_command[0] = '\0';
     command_len = 0;
@@ -216,6 +220,10 @@ namespace Anycubic {
   }
 
   void DgusTFT::ParamInit() {
+
+    #if ACDEBUG(AC_MARLIN)
+      DEBUG_ECHOLNPGM("DgusTFT::ParamInit()");
+    #endif
 
     if (lcd_info.language == CHS)
       page_index_now = 1;
@@ -269,7 +277,7 @@ namespace Anycubic {
         case 176: page176_handle(); break;
       #endif
 
-      case 177...198: {
+      case 177 ... 198: {
         #if 0 // ACDEBUG(AC_MARLIN)
           DEBUG_ECHOLNPGM("line: ", __LINE__);
           DEBUG_ECHOLNPGM("func: ", page_index_now);
@@ -277,7 +285,7 @@ namespace Anycubic {
         //page177_to_198_handle();
       } break;
 
-      case 199...200: {
+      case 199 ... 200: {
         #if 0 // ACDEBUG(AC_MARLIN)
           DEBUG_ECHOLNPGM("line: ", __LINE__);
           DEBUG_ECHOLNPGM("func: ", page_index_now);
@@ -898,7 +906,7 @@ namespace Anycubic {
 
     if (!no_send) {
       uint8_t *p_u8 = (uint8_t *)(&data_temp);
-      uint8_t data_buf[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x84, 0x5A, 0x01, p_u8[1], pu8[0] };
+      uint8_t data_buf[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x84, 0x5A, 0x01, p_u8[1], p_u8[0] };
       for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
     }
 
@@ -1010,9 +1018,9 @@ namespace Anycubic {
 
       if (command_ready) {
         panel_command[command_len] = 0x00;
-        //#if ACDEBUG(AC_ALL)
-          DEBUG_ECHOLNPGM("< ", panel_command);
-        //#endif
+        #if ACDEBUG(AC_ALL)
+          DEBUG_ECHOLNPGM("< panel_command ", panel_command);
+        #endif
         #if ACDEBUG(AC_SOME)
           // Ignore status request commands
           uint8_t req = atoi(&panel_command[1]);
@@ -1305,9 +1313,10 @@ namespace Anycubic {
 
   void DgusTFT::page1_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page1_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -1374,9 +1383,10 @@ namespace Anycubic {
 
   void DgusTFT::page2_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page2_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     char file_index = 0;
@@ -1523,9 +1533,10 @@ namespace Anycubic {
 
   void DgusTFT::page3_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page3_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -1612,9 +1623,10 @@ namespace Anycubic {
 
   void DgusTFT::page4_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page4_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -1653,9 +1665,10 @@ namespace Anycubic {
         SendValueToTFT((uint16_t)feedrate_back, TXT_ADJUST_SPEED);
         TERN_(HAS_FAN, SendValueToTFT((uint16_t)getActualFan_percent(FAN0), TXT_FAN_SPEED_TARGET));
         str_buf[0] = 0;
-        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 2);
+        strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 3);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
         //SendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
+        RequestValueFromTFT(TXT_ADJUST_SPEED);  // attempt to make feedrate visible on visit to this page
         break;
     }
 
@@ -1691,9 +1704,10 @@ namespace Anycubic {
 
   void DgusTFT::page5_handle() {          // print settings
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page5_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     static bool z_change = false;
@@ -1836,9 +1850,10 @@ namespace Anycubic {
 
   void DgusTFT::page6_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page6_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -1849,9 +1864,10 @@ namespace Anycubic {
 
   void DgusTFT::page7_handle() { // tools
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page7_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -1909,9 +1925,10 @@ namespace Anycubic {
 
   void DgusTFT::page8_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page8_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     //static uint16_t movespeed = 50;
@@ -1965,12 +1982,12 @@ namespace Anycubic {
 
       case 6:       // Y+
         if (!isMoving())
-          setAxisPosition_mm(getAxisPosition_mm(Y) + move_dis, Y, 50);
+          setAxisPosition_mm(getAxisPosition_mm(Y) - move_dis, Y, 50);
         break;
 
       case 8:       // Y-
         if (!isMoving())
-          setAxisPosition_mm(getAxisPosition_mm(Y) - move_dis, Y, 50);
+          setAxisPosition_mm(getAxisPosition_mm(Y) + move_dis, Y, 50);
         break;
 
       case 10:      // Z-
@@ -2014,9 +2031,10 @@ namespace Anycubic {
 
   void DgusTFT::page9_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page9_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2056,9 +2074,10 @@ namespace Anycubic {
 
   void DgusTFT::page10_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page10_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2091,9 +2110,10 @@ namespace Anycubic {
 
   void DgusTFT::page11_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page11_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -2163,9 +2183,10 @@ namespace Anycubic {
 
   void DgusTFT::page12_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page12_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -2178,9 +2199,10 @@ namespace Anycubic {
 
   void DgusTFT::page13_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page13_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -2207,9 +2229,10 @@ namespace Anycubic {
 
   void DgusTFT::page14_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page14_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -2223,9 +2246,10 @@ namespace Anycubic {
 
   void DgusTFT::page15_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page15_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2250,8 +2274,6 @@ namespace Anycubic {
 
       #if HAS_EXTRUDERS
         case 4: {
-          char str_buf[16];
-          str_buf[0] = '\0';
           send_temperature_hotend(TXT_FILAMENT_TEMP);
           ChangePageOfTFT(PAGE_FILAMENT);
         } break;
@@ -2261,9 +2283,10 @@ namespace Anycubic {
 
   void DgusTFT::page16_handle() {    // AUTO LEVELING
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page16_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -2296,9 +2319,10 @@ namespace Anycubic {
 
   void DgusTFT::page17_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page17_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     float z_off;
@@ -2312,7 +2336,7 @@ namespace Anycubic {
       case 2: {
         setSoftEndstopState(false);
         if (getZOffset_mm() <= -5) return;
-        z_off = getZOffset_mm() - 0.0500f;
+        z_off = getZOffset_mm() - 0.01f;
         setZOffset_mm(z_off);
 
         char str_buf[10];
@@ -2322,7 +2346,7 @@ namespace Anycubic {
 
         if (isAxisPositionKnown(Z)) {
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos - 0.05, Z);
+          setAxisPosition_mm(currZpos - 0.01f, Z);
         }
 
         setSoftEndstopState(true);
@@ -2331,7 +2355,7 @@ namespace Anycubic {
       case 3: {
         setSoftEndstopState(false);
         if (getZOffset_mm() >= 5) return;
-        z_off = getZOffset_mm() + 0.0500f;
+        z_off = getZOffset_mm() + 0.01f;
         setZOffset_mm(z_off);
 
         char str_buf[10];
@@ -2341,7 +2365,7 @@ namespace Anycubic {
 
         if (isAxisPositionKnown(Z)) {          // Move Z axis
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos + 0.05, Z);
+          setAxisPosition_mm(currZpos + 0.01f, Z);
         }
 
         setSoftEndstopState(true);
@@ -2368,9 +2392,10 @@ namespace Anycubic {
 
     void DgusTFT::page18_handle() {     // preheat
       #if ACDEBUG(AC_ALL)
-        if (page_index_saved != page_index_now) {
+        if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
           DEBUG_ECHOLNPGM("page18_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
           page_index_saved = page_index_now;
+          key_value_saved = key_value;
         }
       #endif
 
@@ -2409,9 +2434,10 @@ namespace Anycubic {
 
     void DgusTFT::page19_handle() {       // Filament
       #if ACDEBUG(AC_ALL)
-        if (page_index_saved != page_index_now) {
+        if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
           DEBUG_ECHOLNPGM("page19_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
           page_index_saved = page_index_now;
+          key_value_saved = key_value;
         }
       #endif
       static char filament_status = 0;
@@ -2475,9 +2501,10 @@ namespace Anycubic {
 
   void DgusTFT::page20_handle() {       // confirm
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page20_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2496,9 +2523,10 @@ namespace Anycubic {
 
   void DgusTFT::page21_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page21_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2520,9 +2548,10 @@ namespace Anycubic {
 
   void DgusTFT::page22_handle() {       // print finish
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page22_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2545,9 +2574,10 @@ namespace Anycubic {
 
   void DgusTFT::page23_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page23_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2565,9 +2595,10 @@ namespace Anycubic {
 
   void DgusTFT::page24_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page24_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2585,9 +2616,10 @@ namespace Anycubic {
 
   void DgusTFT::page25_handle() {           // lack filament
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page25_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2616,9 +2648,10 @@ namespace Anycubic {
 
   void DgusTFT::page26_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page26_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2636,9 +2669,10 @@ namespace Anycubic {
 
   void DgusTFT::page27_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page27_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2675,9 +2709,10 @@ namespace Anycubic {
 
   void DgusTFT::page28_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page28_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2695,9 +2730,10 @@ namespace Anycubic {
 
   void DgusTFT::page29_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page29_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2720,9 +2756,10 @@ namespace Anycubic {
 
   void DgusTFT::page30_handle() {       // Auto heat filament
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page30_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2743,9 +2780,10 @@ namespace Anycubic {
 
   void DgusTFT::page31_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page31_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2763,9 +2801,10 @@ namespace Anycubic {
 
   void DgusTFT::page32_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page32_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2826,9 +2865,10 @@ namespace Anycubic {
 
     void DgusTFT::page34_handle() {
       #if ACDEBUG(AC_ALL)
-        if (page_index_saved != page_index_now) {
+        if ((page_index_saved != page_index_now) || (key_value_saved != key_value))  {
           DEBUG_ECHOLNPGM("page34_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
           page_index_saved = page_index_now;
+          key_value_saved = key_value;
         }
       #endif
 
@@ -2852,9 +2892,10 @@ namespace Anycubic {
 
   void DgusTFT::page115_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page115_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -2900,9 +2941,10 @@ namespace Anycubic {
 
   void DgusTFT::page117_handle() {  // Page CHS Mute handler
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page117_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -2966,10 +3008,11 @@ namespace Anycubic {
 
   void DgusTFT::page124_handle() {  // first time into page 124 the feedrate percent is not set
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page124_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
-        DEBUG_ECHOLNPGM("update feedrate percent");
+        key_value_saved = key_value;
+        //DEBUG_ECHOLNPGM("update feedrate percent");
       }
     #endif
     SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
@@ -2977,10 +3020,11 @@ namespace Anycubic {
 
   void DgusTFT::page125_handle() {  // first time into page 125 the feedrate percent is not set
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page125_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
-        DEBUG_ECHOLNPGM("update feedrate percent");
+        key_value_saved = key_value;
+        //DEBUG_ECHOLNPGM("update feedrate percent");
       }
     #endif
     SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
@@ -2988,9 +3032,10 @@ namespace Anycubic {
 
   void DgusTFT::page170_handle() {  // ENG Mute handler
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page170_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
@@ -3188,17 +3233,18 @@ namespace Anycubic {
 
   void DgusTFT::page177_to_198_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page177_to_198_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
       case 1:       // return
         #if ACDEBUG(AC_MARLIN)
-          DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
-          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
-          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          //DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
+          //DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+          //DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
         #endif
 
         if ((WITHIN(page_index_now, PAGE_CHS_ABNORMAL_X_ENDSTOP, PAGE_CHS_ABNORMAL_Z_ENDSTOP))
@@ -3231,9 +3277,10 @@ namespace Anycubic {
   #if 0
     void DgusTFT::page178_to_181_190_to_193_handle() {  // temperature abnormal
       #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page178_to_181_190_to_193_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
       #endif
       switch (key_value) {
@@ -3260,17 +3307,18 @@ namespace Anycubic {
 
   void DgusTFT::page199_to_200_handle() {
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page199_to_200_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     switch (key_value) {
       case 1:       // return
         #if ACDEBUG(AC_MARLIN)
-          DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
-          DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
-          DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
+          //DEBUG_ECHOLNPGM("page_index_now: ", page_index_now);
+          //DEBUG_ECHOLNPGM("page_index_last: ", page_index_last);
+          //DEBUG_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
         #endif
         onSurviveInKilled();
         ChangePageOfTFT(PAGE_PreLEVEL);
@@ -3293,9 +3341,10 @@ namespace Anycubic {
 
   void DgusTFT::page201_handle() {  // probe precheck
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page201_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     static millis_t probe_check_time   = 0;
@@ -3354,9 +3403,10 @@ namespace Anycubic {
 
   void DgusTFT::page202_handle() {  // probe precheck ok
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page202_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
 
@@ -3373,9 +3423,10 @@ namespace Anycubic {
 
   void DgusTFT::page203_handle() {    // probe precheck failed
     #if ACDEBUG(AC_ALL)
-      if (page_index_saved != page_index_now) {
+      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
         DEBUG_ECHOLNPGM("page203_handle  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now);
         page_index_saved = page_index_now;
+        key_value_saved = key_value;
       }
     #endif
     //static millis_t probe_check_counter = 0;
@@ -3414,7 +3465,7 @@ namespace Anycubic {
         break;
 
       case 16:      // stop wait
-        //ChangePageOfTFT(PAGE_WAIT_STOP);
+        ChangePageOfTFT(PAGE_WAIT_STOP);
         pop_up_index = 100;
         break;
 
