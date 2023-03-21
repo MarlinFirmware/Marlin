@@ -1013,8 +1013,7 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
    * \return false if the dirname is a short file name 8.3 (SFN)
    */
   bool SdBaseFile::isDirNameLFN(const char *dirname) {
-    uint8_t length = strlen(dirname);
-    uint8_t idx = length;
+    uint8_t length = strlen(dirname), idx = length;
     bool dotFound = false;
     if (idx > 12) return true;            // LFN due to filename length > 12 ("filename.ext")
     // Check dot(s) position
@@ -1508,8 +1507,8 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
     if (DIR_IS_FILE_OR_SUBDIR(dir)) {
       #if ENABLED(UTF_FILENAME_SUPPORT)
         #if LONG_FILENAME_CHARSIZE > 2
-          // Add warning for developers for currently not supported 3-byte cases (Conversion series of 2-byte
-          // codepoints to 3-byte in-place will break the rest of filename)
+          // Add warning for developers for unsupported 3-byte cases.
+          // (Converting 2-byte codepoints to 3-byte in-place would break the rest of filename.)
           #error "Currently filename re-encoding is done in-place. It may break the remaining chars to use 3-byte codepoints."
         #endif
 
@@ -1517,22 +1516,22 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
         if (longFilename) {
           // Reset n to the start of the long name
           n = 0;
-          for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH) / 2; idx += 2) {    // idx is fixed since FAT LFN always contains UTF-16LE encoding
+          for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH); idx += 2) {  // idx is fixed since FAT LFN always contains UTF-16LE encoding
             const uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
-            if (0xD800 == (utf16_ch & 0xF800))                                    // Surrogate pair - encode as '_'
+            if (0xD800 == (utf16_ch & 0xF800))                              // Surrogate pair - encode as '_'
               longFilename[n++] = '_';
-            else if (0 == (utf16_ch & 0xFF80))                                    // Encode as 1-byte UTF-8 char
+            else if (0 == (utf16_ch & 0xFF80))                              // Encode as 1-byte UTF-8 char
               longFilename[n++] = utf16_ch & 0x007F;
-            else if (0 == (utf16_ch & 0xF800)) {                                  // Encode as 2-byte UTF-8 char
+            else if (0 == (utf16_ch & 0xF800)) {                            // Encode as 2-byte UTF-8 char
               longFilename[n++] = 0xC0 | ((utf16_ch >> 6) & 0x1F);
               longFilename[n++] = 0x80 | ( utf16_ch       & 0x3F);
             }
             else {
-              #if LONG_FILENAME_CHARSIZE > 2                                      // Encode as 3-byte UTF-8 char
+              #if LONG_FILENAME_CHARSIZE > 2                                // Encode as 3-byte UTF-8 char
                 longFilename[n++] = 0xE0 | ((utf16_ch >> 12) & 0x0F);
                 longFilename[n++] = 0xC0 | ((utf16_ch >>  6) & 0x3F);
                 longFilename[n++] = 0xC0 | ( utf16_ch        & 0x3F);
-              #else                                                               // Encode as '_'
+              #else                                                         // Encode as '_'
                 longFilename[n++] = '_';
               #endif
             }
@@ -1666,6 +1665,28 @@ bool SdBaseFile::remove(SdBaseFile *dirFile, const char *path) {
 
   SdBaseFile file;
   return file.open(dirFile, path, O_WRITE) ? file.remove() : false;
+}
+
+bool SdBaseFile::hide(const bool hidden) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+  // must be an open file or subdirectory
+  if (!(isFile() || isSubDir())) return false;
+  // sync() and cache directory entry
+  sync();
+  dir_t *d = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
+  if (!d) return false;
+  uint8_t a = d->attributes;
+  if (hidden)
+    a |= DIR_ATT_HIDDEN;
+  else
+    a &= ~DIR_ATT_HIDDEN;
+
+  if (a != d->attributes) {
+    d->attributes = a;
+    return vol_->cacheFlush();
+  }
+
+  return true;
 }
 
 /**

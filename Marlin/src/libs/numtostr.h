@@ -56,7 +56,7 @@ const char* ui16tostr3rj(const uint16_t x);
 // Convert int16_t to string with 123 format
 const char* i16tostr3rj(const int16_t x);
 
-// Convert unsigned int to lj string with 123 format
+// Convert signed int to lj string with 123 format
 const char* i16tostr3left(const int16_t xx);
 
 // Convert signed int to rj string with _123, -123, _-12, or __-1 format

@@ -24,12 +24,12 @@
 #include "DGUSDisplay.h"
 #include "definition/DGUS_VP.h"
 
-#define Swap16(val) ((uint16_t)(((uint16_t)(val) >> 8) | ((uint16_t)(val) << 8)))
+#define Swap16(val) (uint16_t((uint16_t(val) >> 8) | (uint16_t(val) << 8)))
 
 namespace DGUSTxHandler {
 
   #if ENABLED(SDSUPPORT)
-    void SetFileControlState(int, bool);
+    void SetFileControlState(int16_t, bool);
     void FileType(DGUS_VP &);
     void FileName(DGUS_VP &);
     void ScrollIcons(DGUS_VP &);
@@ -37,7 +37,7 @@ namespace DGUSTxHandler {
   #endif
 
   void PositionZ(DGUS_VP &);
-  void Ellapsed(DGUS_VP &);
+  void Elapsed(DGUS_VP &);
   void Percent(DGUS_VP &);
   void StatusIcons(DGUS_VP &);
 
@@ -85,18 +85,18 @@ namespace DGUSTxHandler {
     switch (vp.size) {
       default: return;
       case 1: {
-        const uint8_t data = (uint8_t)(*(T*)vp.extra);
-        dgus_display.Write((uint16_t)vp.addr, data);
+        const uint8_t data = uint8_t(*(T*)vp.extra);
+        dgus_display.Write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
-        const uint16_t data = (uint16_t)(*(T*)vp.extra);
-        dgus_display.Write((uint16_t)vp.addr, Swap16(data));
+        const uint16_t data = uint16_t(*(T*)vp.extra);
+        dgus_display.Write(uint16_t(vp.addr), Swap16(data));
         break;
       }
       case 4: {
-        const uint32_t data = (uint32_t)(*(T*)vp.extra);
-        dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+        const uint32_t data = uint32_t(*(T*)vp.extra);
+        dgus_display.Write(uint16_t(vp.addr), dgus_display.SwapBytes(data));
         break;
       }
     }
@@ -109,17 +109,17 @@ namespace DGUSTxHandler {
       default: return;
       case 1: {
         const uint8_t data = dgus_display.ToFixedPoint<T, uint8_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write((uint16_t)vp.addr, data);
+        dgus_display.Write(uint16_t(vp.addr), data);
         break;
       }
       case 2: {
         const uint16_t data = dgus_display.ToFixedPoint<T, uint16_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write((uint16_t)vp.addr, Swap16(data));
+        dgus_display.Write(uint16_t(vp.addr), Swap16(data));
         break;
       }
       case 4: {
         const uint32_t data = dgus_display.ToFixedPoint<T, uint32_t, decimals>(*(T*)vp.extra);
-        dgus_display.Write((uint16_t)vp.addr, dgus_display.SwapBytes(data));
+        dgus_display.Write(uint16_t(vp.addr), dgus_display.SwapBytes(data));
         break;
       }
     }

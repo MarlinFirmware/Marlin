@@ -403,8 +403,8 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
   #define ASSET_TYPE_TITLE_LOGO 2
   #define ASSET_TYPE_G_PREVIEW  3
   #define ASSET_TYPE_FONT       4
-  static void loadAsset(SdFile &dir, dir_t& entry, FSTR_P const fn, int8_t assetType) {
-    SdFile file;
+  static void loadAsset(MediaFile &dir, dir_t& entry, FSTR_P const fn, int8_t assetType) {
+    MediaFile file;
     char dosFilename[FILENAME_LENGTH];
     createFilename(dosFilename, entry);
     if (!file.open(&dir, dosFilename, O_READ)) {
@@ -488,7 +488,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
 
   void UpdateAssets() {
     if (!card.isMounted()) return;
-    SdFile dir, root = card.getroot();
+    MediaFile dir, root = card.getroot();
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 
       disp_assets_update();

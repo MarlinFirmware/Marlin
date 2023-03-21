@@ -213,10 +213,10 @@ namespace Language_uk {
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Рух до наступної");
   LSTR MSG_UBL_ACTIVATE_MESH                = _UxGT("Активувати UBL");
   LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивувати UBL");
-  LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE "C";
-  LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE "C";
-  LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
-  LSTR MSG_UBL_HOTEND_TEMP_CUSTOM           = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
+  LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_UBL_HOTEND_TEMP_CUSTOM           = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE _UxGT("C");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Редагувати свою сітку");
     LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Точне редагування сітки");
@@ -343,13 +343,13 @@ namespace Language_uk {
   LSTR MSG_MOVE_10MM                        = _UxGT("Рух 10мм");
   LSTR MSG_MOVE_100MM                       = _UxGT("Рух 100mm");
   LSTR MSG_SPEED                            = _UxGT("Швидкість");
-  LSTR MSG_BED_Z                            = _UxGT("Z Столу");
-  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
+  LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z Столу");
+  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_NOZZLE_N                         = _UxGT("Сопло ~");
   LSTR MSG_NOZZLE_PARKED                    = _UxGT("Сопло запарковане");
   LSTR MSG_NOZZLE_STANDBY                   = _UxGT("Сопло очікує");
-  LSTR MSG_BED                              = _UxGT("Стіл,  ") LCD_STR_DEGREE "C";
-  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE "C";
+  LSTR MSG_BED                              = _UxGT("Стіл,  ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE _UxGT("C");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_COOLER                         = _UxGT("Охолодження лазеру");
     LSTR MSG_COOLER_TOGGLE                  = _UxGT("Перемк. охолодж.");
@@ -625,9 +625,6 @@ namespace Language_uk {
   LSTR MSG_ERR_MINTEMP                      = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE;
   LSTR MSG_HALTED                           = _UxGT("ПРИНТЕР ЗУПИНЕНО");
   LSTR MSG_PLEASE_RESET                     = _UxGT("Перезавантажте");
-  LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
-  LSTR MSG_SHORT_HOUR                       = _UxGT("г"); // One character only
-  LSTR MSG_SHORT_MINUTE                     = _UxGT("х"); // One character only
   LSTR MSG_HEATING                          = _UxGT("Нагрівання...");
   LSTR MSG_COOLING                          = _UxGT("Охолодження...");
   LSTR MSG_BED_HEATING                      = _UxGT("Нагрів столу...");
@@ -913,12 +910,8 @@ namespace Language_uk {
 
   LSTR MSG_SD_CARD                          = _UxGT("SD Картка");
   LSTR MSG_USB_DISK                         = _UxGT("USB Диск");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
+  LSTR MSG_SHORT_HOUR                       = _UxGT("г"); // One character only
+  LSTR MSG_SHORT_MINUTE                     = _UxGT("х"); // One character only
+}

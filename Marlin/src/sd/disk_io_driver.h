@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "SdInfo.h"
 
 /**
  * DiskIO Interface

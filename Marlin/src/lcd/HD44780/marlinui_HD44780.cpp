@@ -521,7 +521,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_lchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
+    lcd_put_u8str(TERN0(HAS_Z_AXIS, axis == Z_AXIS) ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -537,7 +537,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
  */
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
-    const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
+    const bool isBed = heater_id == H_BED;
     const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
@@ -546,7 +546,17 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
   if (prefix >= 0) lcd_put_lchar(prefix);
 
-  lcd_put_u8str(t1 < 0 ? "err" : i16tostr3rj(t1));
+  if (t1 >= 0)
+    lcd_put_u8str(ui16tostr3rj(t1));
+  else {
+    #if ENABLED(SHOW_TEMPERATURE_BELOW_ZERO)
+      char * const str = i16tostr3rj(t1);
+      lcd_put_u8str(&str[1]);
+    #else
+      lcd_put_u8str(F("err"));
+    #endif
+  }
+
   lcd_put_u8str(F("/"));
 
   #if !HEATER_IDLE_HANDLER
@@ -988,11 +998,12 @@ void MarlinUI::draw_status_screen() {
 
       #endif // LCD_WIDTH >= 20
 
-      lcd_moveto(LCD_WIDTH - 8, 1);
-      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
-
-      #if HAS_LEVELING && !HAS_HEATED_BED
-        lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
+      #if HAS_Z_AXIS
+        lcd_moveto(LCD_WIDTH - 8, 1);
+        _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+        #if HAS_LEVELING && !HAS_HEATED_BED
+          lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
+        #endif
       #endif
 
     #endif // LCD_HEIGHT > 2
