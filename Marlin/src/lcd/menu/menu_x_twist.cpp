@@ -46,7 +46,7 @@ float measured_z, z_offset;
 void xatc_wizard_done() {
   if (!ui.wait_for_move) {
     xatc.print_points();
-    set_bed_leveling_enabled(leveling_was_active);
+    set_bed_leveling_enabled(menu_leveling_was_active);
     SET_SOFT_ENDSTOP_LOOSE(false);
     ui.goto_screen(menu_advanced_settings);
   }
@@ -199,7 +199,7 @@ void xatc_wizard_homing() {
 void xatc_wizard_continue() {
   // Store Bed-Leveling-State and disable
   #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
+    menu_leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
 

@@ -195,7 +195,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
-    return hash_changed || !ui.did_first_redraw;
+    return hash_changed || !did_first_redraw;
   };
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -565,7 +565,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if EITHER(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     void MarlinUI::zoffset_overlay(const int8_t dir) {
       const int rot_up = TERN(OVERLAY_GFX_REVERSE, ICON_RotateCCW, ICON_RotateCW),
@@ -587,7 +587,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       DWIN_ICON_Show(ICON, rot_up, LCD_PIXEL_WIDTH - 10 - 48, arrow_y);
     }
 
-  #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
+  #endif // BABYSTEP_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
 #endif // HAS_MARLINUI_MENU
 

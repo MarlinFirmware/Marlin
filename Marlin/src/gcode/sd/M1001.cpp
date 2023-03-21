@@ -109,7 +109,6 @@ void GcodeSuite::M1001() {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintDone());
-  TERN_(DWIN_LCD_PROUI, DWIN_Print_Finished());
 
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());

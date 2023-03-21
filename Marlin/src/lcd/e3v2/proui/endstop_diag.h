@@ -24,8 +24,8 @@
 /**
  * DWIN End Stops diagnostic page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.2.3
- * Date: 2022/02/24
+ * Version: 1.3.2
+ * Date: 2022/10/07
  */
 
 class ESDiagClass {

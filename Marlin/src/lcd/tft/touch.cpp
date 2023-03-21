@@ -27,7 +27,7 @@
 #include "touch.h"
 
 #include "../marlinui.h"  // for ui methods
-#include "../menu/menu_item.h" // for touch_screen_calibration
+#include "../menu/menu_item.h" // for MSG_FIRST_FAN_SPEED
 
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
@@ -113,10 +113,8 @@ void Touch::idle() {
     if (x != 0 && y != 0) {
       if (current_control) {
         if (WITHIN(x, current_control->x - FREE_MOVE_RANGE, current_control->x + current_control->width + FREE_MOVE_RANGE) && WITHIN(y, current_control->y - FREE_MOVE_RANGE, current_control->y + current_control->height + FREE_MOVE_RANGE)) {
-          NOLESS(x, current_control->x);
-          NOMORE(x, current_control->x + current_control->width);
-          NOLESS(y, current_control->y);
-          NOMORE(y, current_control->y + current_control->height);
+          LIMIT(x, current_control->x, current_control->x + current_control->width);
+          LIMIT(y, current_control->y, current_control->y + current_control->height);
           touch(current_control);
         }
         else
@@ -233,6 +231,13 @@ void Touch::touch(touch_control_t *control) {
         MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
       #endif
       break;
+    case STOP:
+      ui.goto_screen([]{
+        MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
+          GET_TEXT_F(MSG_BACK), ui.abort_print, ui.goto_previous_screen,
+          GET_TEXT_F(MSG_STOP_PRINT), FSTR_P(nullptr), FPSTR("?"));
+        });
+      break;
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
@@ -252,7 +257,7 @@ void Touch::touch(touch_control_t *control) {
 void Touch::hold(touch_control_t *control, millis_t delay) {
   current_control = control;
   if (delay) {
-    repeat_delay = _MAX(delay, MIN_REPEAT_DELAY);
+    repeat_delay = _MAX(delay, uint32_t(MIN_REPEAT_DELAY));
     time_to_hold = next_touch_ms + repeat_delay;
   }
   ui.refresh();

@@ -86,7 +86,7 @@
         NUM_AXIS_LIST(
           TERN0(X_SENSORLESS, tmc_enable_stallguard(stepperX)),
           TERN0(Y_SENSORLESS, tmc_enable_stallguard(stepperY)),
-          false, false, false, false
+          false, false, false, false, false, false, false
         )
         , TERN0(X2_SENSORLESS, tmc_enable_stallguard(stepperX2))
         , TERN0(Y2_SENSORLESS, tmc_enable_stallguard(stepperY2))
@@ -124,7 +124,7 @@
      * (Z is already at the right height)
      */
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-    #if HAS_HOME_OFFSET
+    #if HAS_HOME_OFFSET && DISABLED(Z_SAFE_HOMING_POINT_ABSOLUTE)
       xy_float_t okay_homing_xy = safe_homing_xy;
       okay_homing_xy -= home_offset;
     #else
@@ -403,6 +403,9 @@ void GcodeSuite::G28() {
       UNUSED(needZ); UNUSED(homeZZ);
     #else
       constexpr bool doZ = false;
+      #if !HAS_Y_AXIS
+        constexpr bool doY = false;
+      #endif
     #endif
 
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
@@ -420,9 +423,11 @@ void GcodeSuite::G28() {
     // Diagonal move first if both are homing
     TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
 
-    // Home Y (before X)
-    if (ENABLED(HOME_Y_BEFORE_X) && (doY || TERN0(CODEPENDENT_XY_HOMING, doX)))
-      homeaxis(Y_AXIS);
+    #if HAS_Y_AXIS
+      // Home Y (before X)
+      if (ENABLED(HOME_Y_BEFORE_X) && (doY || TERN0(CODEPENDENT_XY_HOMING, doX)))
+        homeaxis(Y_AXIS);
+    #endif
 
     // Home X
     if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
@@ -455,9 +460,11 @@ void GcodeSuite::G28() {
       if (doI) homeaxis(I_AXIS);
     #endif
 
-    // Home Y (after X)
-    if (DISABLED(HOME_Y_BEFORE_X) && doY)
-      homeaxis(Y_AXIS);
+    #if HAS_Y_AXIS
+      // Home Y (after X)
+      if (DISABLED(HOME_Y_BEFORE_X) && doY)
+        homeaxis(Y_AXIS);
+    #endif
 
     #if BOTH(FOAMCUTTER_XYUV, HAS_J_AXIS)
       // Home J (after Y)
