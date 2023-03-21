@@ -212,12 +212,12 @@
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
 
-// The loop takes the base time plus the time for all the bresenham logic for R pulses plus the time
-// between pulses for (R-1) pulses. But the user could be enforcing a minimum time so the loop time is:
+// The loop takes the base time plus the time for all the bresenham logic for 1 << R pulses plus the time
+// between pulses for ((1 << R) - 1) pulses. But the user could be enforcing a minimum time so the loop time is:
 #define ISR_LOOP_CYCLES(R) ((ISR_LOOP_BASE_CYCLES + MIN_ISR_LOOP_CYCLES + MIN_STEPPER_PULSE_CYCLES) * ((1UL << R) - 1) + _MAX(MIN_ISR_LOOP_CYCLES, MIN_STEPPER_PULSE_CYCLES))
 
 // Model input shaping as an extra loop call
-#define ISR_SHAPING_LOOP_CYCLES(R) (TERN0(HAS_SHAPING, ((ISR_LOOP_BASE_CYCLES) + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES)) << R))
+#define ISR_SHAPING_LOOP_CYCLES(R) (TERN0(HAS_SHAPING, (ISR_LOOP_BASE_CYCLES + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES)) << R))
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
@@ -241,24 +241,17 @@
   #define ISR_LA_LOOP_CYCLES 0UL
 #endif
 
-// Now estimate the total ISR execution time in cycles given a step per ISR multiplier
-#define ISR_EXECUTION_CYCLES(R) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + ISR_SHAPING_BASE_CYCLES + ISR_LOOP_CYCLES(R) + ISR_SHAPING_LOOP_CYCLES(R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) >> R)
+// Estimate the total ISR execution time in cycles given a step-per-ISR shift multiplier
+#define ISR_EXECUTION_CYCLES(R) ((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + ISR_SHAPING_BASE_CYCLES + ISR_LOOP_CYCLES(R) + ISR_SHAPING_LOOP_CYCLES(R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES) >> R)
 
-// The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
-#define MAX_STEP_ISR_FREQUENCY_128X ((F_CPU) / ISR_EXECUTION_CYCLES(7))
-#define MAX_STEP_ISR_FREQUENCY_64X  ((F_CPU) / ISR_EXECUTION_CYCLES(6))
-#define MAX_STEP_ISR_FREQUENCY_32X  ((F_CPU) / ISR_EXECUTION_CYCLES(5))
-#define MAX_STEP_ISR_FREQUENCY_16X  ((F_CPU) / ISR_EXECUTION_CYCLES(4))
-#define MAX_STEP_ISR_FREQUENCY_8X   ((F_CPU) / ISR_EXECUTION_CYCLES(3))
-#define MAX_STEP_ISR_FREQUENCY_4X   ((F_CPU) / ISR_EXECUTION_CYCLES(2))
-#define MAX_STEP_ISR_FREQUENCY_2X   ((F_CPU) / ISR_EXECUTION_CYCLES(1))
-#define MAX_STEP_ISR_FREQUENCY_1X   ((F_CPU) / ISR_EXECUTION_CYCLES(0))
+// The maximum allowable stepping frequency when doing 1x stepping (in Hz)
+#define MAX_STEP_ISR_FREQUENCY_1X ((F_CPU) / ISR_EXECUTION_CYCLES(0))
 
 // The minimum step ISR rate used by ADAPTIVE_STEP_SMOOTHING to target 50% CPU usage
 // This does not account for the possibility of multi-stepping.
-// Should a MULTISTEPPING_LIMIT of 1 should be required with ADAPTIVE_STEP_SMOOTHING?
-#define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
+#define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X >> 1)
 
+// Number of axes that could be enabled/disabled. Dual/multiple steppers are combined.
 #define ENABLE_COUNT (NUM_AXES + E_STEPPERS)
 typedef bits_t(ENABLE_COUNT) ena_mask_t;
 
@@ -545,6 +538,10 @@ class Stepper {
       static constexpr uint8_t steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
     #else
       static uint8_t steps_per_isr;
+    #endif
+
+    #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+      static hal_timer_t time_spent_in_isr, time_spent_out_isr;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
