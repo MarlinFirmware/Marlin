@@ -94,17 +94,18 @@ namespace ExtUI {
 
   void onPostprocessSettings() {
     // Called after loading or resetting stored settings
+    Dgus.ParamInit();
+    Dgus.PowerLoss();
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
-    Dgus.ParamInit();
   }
 
   #if HAS_MESH
@@ -123,8 +124,10 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    // Called when power-loss is enabled/disabled
+    void onSetPowerLoss(const bool) { Dgus.PowerLoss(); }
     // Called when power-loss state is detected
-    void onPowerLoss() { Dgus.PowerLoss(); }
+    void onPowerLoss() { /* handled internally */ }
     // Called on resume from power-loss
     void onPowerLossResume() { Dgus.PowerLossRecovery(); }
   #endif

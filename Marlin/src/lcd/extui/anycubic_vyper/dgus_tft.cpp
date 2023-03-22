@@ -188,10 +188,9 @@ namespace Anycubic {
     // Setup pins for powerloss detection
     // Two IO pins are connected on the Trigorilla Board
     // On a power interruption the OUTAGECON_PIN goes low.
-
-    //#if ENABLED(POWER_LOSS_RECOVERY)
-    //  OUT_WRITE(OUTAGECON_PIN, HIGH);
-    //#endif
+    #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(OUTAGECON)
+     OUT_WRITE(OUTAGECON_PIN, HIGH);
+    #endif
 
     // Filament runout is handled by Marlin settings in Configuration.h
     // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
@@ -726,10 +725,8 @@ namespace Anycubic {
     void DgusTFT::PowerLoss() {
       // On:  5A A5 05 82 00 82 00 00
       // Off: 5A A5 05 82 00 82 00 64
-
-      uint8_t data_buf[8] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, 0x00 };
-
-      for (uint8_t i = 0; i < 8; i++) TFTSer.write(data_buf[i]);
+      uint8_t data_buf[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, recovery.enabled ? 0x00, 0x64 };
+      for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
     }
 
     void DgusTFT::PowerLossRecovery() {
