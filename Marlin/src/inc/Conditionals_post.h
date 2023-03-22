@@ -2664,7 +2664,7 @@
 #endif
 
 /**
- * Up to 3 PWM fans
+ * Up to 8 PWM fans
  */
 #ifndef FAN_INVERTING
   #define FAN_INVERTING false
