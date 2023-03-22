@@ -423,9 +423,10 @@ namespace ExtUI {
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
   void onPostprocessSettings();
-  void onSettingsStored(bool success);
-  void onSettingsLoaded(bool success);
+  void onSettingsStored(const bool success);
+  void onSettingsLoaded(const bool success);
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff);
     void onPowerLoss();
     void onPowerLossResume();
   #endif
