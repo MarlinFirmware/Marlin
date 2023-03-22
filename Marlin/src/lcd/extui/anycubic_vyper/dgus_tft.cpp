@@ -778,107 +778,40 @@ namespace Anycubic {
   }
 
   void DgusTFT::SendValueToTFT(uint32_t value, uint32_t address) {
-    uint8_t data_buf[32] = {0};
-    uint8_t data_index   = 0;
-
-    uint8_t *p_u8 =  (uint8_t *)(&address) + 1;
-
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0xA5;
-    data_buf[data_index++] = 0x05;
-    data_buf[data_index++] = 0x82;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-    p_u8                   =  (uint8_t *)(&value) + 1;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-
-    for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
+    uint8_t *a_u8 = (uint8_t *)(&address),
+            *v_u8 = (uint8_t *)(&value);
+    uint8_t data_buf[] = { 0x5A, 0xA5, 0x05, 0x82, a_u8[1], a_u8[0], v_u8[1], v_u8[0] };
+    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
   }
 
   void DgusTFT::RequestValueFromTFT(uint32_t address) {
-    uint8_t data_buf[20] = {0};
-    uint8_t data_index   = 0;
-
-    uint8_t *p_u8 =  (uint8_t *)(&address) + 1;
-
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0xA5;
-    data_buf[data_index++] = 0x04;
-    data_buf[data_index++] = 0x83;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-    data_buf[data_index++] = 0x01;
-
-    for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
+    uint8_t *p_u8 = (uint8_t *)(&address);
+    uint8_t data_buf[] = { 0x5A, 0xA5, 0x04, 0x83, p_u8[1], p_u8[0], 0x01 };
+    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
   }
 
   void DgusTFT::SendTxtToTFT(const char *pdata, uint32_t address) {
-    char data_buf[128] = {0};
-    uint8_t data_index = 0;
-    uint8_t data_len   = 0;
+    uint8_t *p_u8 = (uint8_t *)(&address);
+    uint8_t data_buf[] = { 0x5A, 0xA5, data_len + 5, 0x82, p_u8[1], p_u8[0] };
+    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
 
-    uint8_t *p_u8 =  (uint8_t *)(&address) + 1;
-    data_len = strlen(pdata);
+    uint8_t data_len = strlen(pdata);
+    for (uint8_t i = 0; i < data_len; i++) TFTSer.write(pdata[i]);
 
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0xA5;
-    data_buf[data_index++] = data_len + 5;
-    data_buf[data_index++] = 0x82;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-
-    strncpy(&data_buf[data_index], pdata, data_len);
-    data_index += data_len;
-
-    data_buf[data_index++] = 0xFF;
-    data_buf[data_index++] = 0xFF;
-
-    for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
+    TFTSer.write(0xFF); TFTSer.write(0xFF);
   }
 
   void DgusTFT::SendColorToTFT(uint32_t color, uint32_t address) {
-    uint8_t data_buf[32] = {0};
-    uint8_t data_index   = 0;
-
-    uint8_t *p_u8 =  (uint8_t *)(&address) + 1;
-    address += 3;
-
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0xA5;
-    data_buf[data_index++] = 0x05;
-    data_buf[data_index++] = 0x82;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-    p_u8                   =  (uint8_t *)(&color) + 1;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-
-    for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
+    uint8_t *a_u8 = (uint8_t *)(&address),
+            *c_u8 = (uint8_t *)(&color);
+    uint8_t data_buf[] = { 0x5A, 0xA5, 0x05, 0x82, a_u8[1], a_u8[0], c_u8[1], c_u8[0] };
+    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
   }
 
   void DgusTFT::SendReadNumOfTxtToTFT(uint8_t number, uint32_t address) {
-    uint8_t data_buf[32] = {0};
-    uint8_t data_index   = 0;
-
-    uint8_t *p_u8 =  (uint8_t *)(&address) + 1;
-
-    data_buf[data_index++] = 0x5A;
-    data_buf[data_index++] = 0xA5;
-    data_buf[data_index++] = 0x04;      // frame length
-    data_buf[data_index++] = 0x83;
-    data_buf[data_index++] = *p_u8;
-    p_u8--;
-    data_buf[data_index++] = *p_u8;
-    data_buf[data_index++] = number;    // how much bytes to read
-
-    for (uint8_t i = 0; i < data_index; i++) TFTSer.write(data_buf[i]);
+    uint8_t *p_u8 = (uint8_t *)(&address);
+    uint8_t data_buf[] = { 0x5A, 0xA5, 0x04, 0x83, p_u8[1], p_u8[0], number };
+    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
   }
 
   void DgusTFT::ChangePageOfTFT(uint32_t page_index, bool no_send/*=false*/) {
