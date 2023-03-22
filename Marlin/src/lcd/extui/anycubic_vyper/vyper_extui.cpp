@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/extui/anycubic_vyper/anycubic_extui.cpp
+ * lcd/extui/anycubic_vyper/vyper_extui.cpp
  *
  * Anycubic Dgus TFT support for Marlin
  */
