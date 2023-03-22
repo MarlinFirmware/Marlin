@@ -1110,6 +1110,14 @@
   #define HAS_BED_PROBE 1
 #endif
 
+// Probing tool change
+#if !HAS_MULTI_EXTRUDER
+  #undef PROBING_TOOL
+#endif
+#if HAS_BED_PROBE && defined(PROBING_TOOL)
+  #define DO_TOOLCHANGE_FOR_PROBING 1
+#endif
+
 /**
  * Fill in undefined Filament Sensor options
  */
