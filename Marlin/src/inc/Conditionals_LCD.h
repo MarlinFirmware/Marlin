@@ -1110,6 +1110,14 @@
   #define HAS_BED_PROBE 1
 #endif
 
+// Probing tool change
+#if !HAS_MULTI_EXTRUDER
+  #undef PROBING_TOOL
+#endif
+#if HAS_BED_PROBE && defined(PROBING_TOOL)
+  #define DO_TOOLCHANGE_FOR_PROBING 1
+#endif
+
 /**
  * Fill in undefined Filament Sensor options
  */
@@ -1203,6 +1211,97 @@
     #endif
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
+
+#if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+  #if NUM_MOTION_SENSORS >= 1
+    #ifndef FIL_MOTION1_STATE
+      #define FIL_MOTION1_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION1_PULLUP
+      #define FIL_MOTION1_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION1_PULLDOWN
+      #define FIL_MOTION1_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 2
+    #ifndef FIL_MOTION2_STATE
+      #define FIL_MOTION2_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION2_PULLUP
+      #define FIL_MOTION2_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION2_PULLDOWN
+      #define FIL_MOTION2_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 3
+    #ifndef FIL_MOTION3_STATE
+      #define FIL_MOTION3_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION3_PULLUP
+      #define FIL_MOTION3_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION3_PULLDOWN
+      #define FIL_MOTION3_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 4
+    #ifndef FIL_MOTION4_STATE
+      #define FIL_MOTION4_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION4_PULLUP
+      #define FIL_MOTION4_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION4_PULLDOWN
+      #define FIL_MOTION4_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 5
+    #ifndef FIL_MOTION5_STATE
+      #define FIL_MOTION5_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION5_PULLUP
+      #define FIL_MOTION5_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION5_PULLDOWN
+      #define FIL_MOTION5_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 6
+    #ifndef FIL_MOTION6_STATE
+      #define FIL_MOTION6_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION6_PULLUP
+      #define FIL_MOTION6_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION6_PULLDOWN
+      #define FIL_MOTION6_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 7
+    #ifndef FIL_MOTION7_STATE
+      #define FIL_MOTION7_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION7_PULLUP
+      #define FIL_MOTION7_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION7_PULLDOWN
+      #define FIL_MOTION7_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_MOTION_SENSORS >= 8
+    #ifndef FIL_MOTION8_STATE
+      #define FIL_MOTION8_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_MOTION8_PULLUP
+      #define FIL_MOTION8_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_MOTION8_PULLDOWN
+      #define FILMOTION8_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+#endif // FILAMENT_SWITCH_AND_MOTION
 
 // Homing to Min or Max
 #if X_HOME_DIR > 0

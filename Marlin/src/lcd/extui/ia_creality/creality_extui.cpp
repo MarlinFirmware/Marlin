@@ -1995,12 +1995,12 @@ namespace ExtUI {
     SetTouchScreenConfiguration();
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // This is called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     #if HAS_MESH
       if (ExtUI::getMeshValid()) {
         uint8_t abl_probe_index = 0;
@@ -2026,6 +2026,9 @@ namespace ExtUI {
   }
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
     void onPowerLoss() {
       // Called when power-loss state is detected
     }

@@ -188,6 +188,8 @@ public:
 
   #endif // !HAS_BED_PROBE
 
+  static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
+
   static void move_z_after_homing() {
     #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING) || defined(Z_AFTER_HOMING)
       do_z_clearance(Z_POST_CLEARANCE, true);
