@@ -1894,12 +1894,13 @@
     // large enough to avoid false positives.)
     //#define FILAMENT_MOTION_SENSOR
 
-    #ifdef FILAMENT_MOTION_SENSOR
-      //#define FILAMENT_BOTH_SWITCH_AND_MOTION
-      #ifdef FILAMENT_BOTH_SWITCH_AND_MOTION
+    #if ENABLED(FILAMENT_MOTION_SENSOR)
+      //#define FILAMENT_SWITCH_AND_MOTION
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
         #define NUM_MOTION_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_MOTION#_PIN for each.
-        #define FIL_MOTION1_PIN      PA0
-        // Override individually if the runout sensors vary
+        //#define FIL_MOTION1_PIN    -1
+
+        // Override individually if the motion sensors vary
         //#define FIL_MOTION1_STATE LOW
         //#define FIL_MOTION1_PULLUP
         //#define FIL_MOTION1_PULLDOWN
