@@ -723,37 +723,31 @@ namespace Anycubic {
     TFTSer.println();
   }
 
-  void DgusTFT::SendValueToTFT(uint32_t value, uint32_t address) {
-    uint8_t *a_u8 = (uint8_t *)(&address),
-            *v_u8 = (uint8_t *)(&value);
-    uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, a_u8[1], a_u8[0], v_u8[1], v_u8[0] };
+  void DgusTFT::SendValueToTFT(const uint16_t value, const uint32_t address) {
+    uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, uint8_t(address >> 8), uint8_t(address & 0xFF), uint8_t(value >> 8), uint8_t(value & 0xFF) };
     LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
   }
 
-  void DgusTFT::RequestValueFromTFT(uint32_t address) {
-    uint8_t *p_u8 = (uint8_t *)(&address);
-    uint8_t data[] = { 0x5A, 0xA5, 0x04, 0x83, p_u8[1], p_u8[0], 0x01 };
+  void DgusTFT::RequestValueFromTFT(const uint32_t address) {
+    uint8_t data[] = { 0x5A, 0xA5, 0x04, 0x83, uint8_t(address >> 8), uint8_t(address & 0xFF), 0x01 };
     LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
   }
 
-  void DgusTFT::SendTxtToTFT(const char *pdata, uint32_t address) {
-    uint8_t *p_u8 = (uint8_t *)(&address), data_len = strlen(pdata);
-    uint8_t data[] = { 0x5A, 0xA5, uint8_t(data_len + 5), 0x82, p_u8[1], p_u8[0] };
+  void DgusTFT::SendTxtToTFT(const char *pdata, const uint32_t address) {
+    uint8_t data_len = strlen(pdata);
+    uint8_t data[] = { 0x5A, 0xA5, uint8_t(data_len + 5), 0x82, uint8_t(address >> 8), uint8_t(address & 0xFF) };
     LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
     LOOP_L_N(i, data_len) TFTSer.write(pdata[i]);
     TFTSer.write(0xFF); TFTSer.write(0xFF);
   }
 
-  void DgusTFT::SendColorToTFT(uint32_t color, uint32_t address) {
-    uint8_t *a_u8 = (uint8_t *)(&address),
-            *c_u8 = (uint8_t *)(&color);
-    uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, a_u8[1], a_u8[0], c_u8[1], c_u8[0] };
+  void DgusTFT::SendColorToTFT(const uint32_t color, const uint32_t address) {
+    uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, uint8_t(address >> 8), uint8_t(address & 0xFF), uint8_t(color >> 8), uint8_t(color & 0xFF) };
     LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
   }
 
-  void DgusTFT::SendReadNumOfTxtToTFT(uint8_t number, uint32_t address) {
-    uint8_t *p_u8 = (uint8_t *)(&address);
-    uint8_t data[] = { 0x5A, 0xA5, 0x04, 0x83, p_u8[1], p_u8[0], number };
+  void DgusTFT::SendReadNumOfTxtToTFT(const uint8_t number, const uint32_t address) {
+    uint8_t data[] = { 0x5A, 0xA5, 0x04, 0x83, uint8_t(address >> 8), uint8_t(address & 0xFF), number };
     LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
   }
 
@@ -783,8 +777,7 @@ namespace Anycubic {
     }
 
     if (!no_send) {
-      uint8_t *p_u8 = (uint8_t *)(&data_temp);
-      uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x84, 0x5A, 0x01, p_u8[1], p_u8[0] };
+      uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x84, 0x5A, 0x01, uint8_t(data_temp >> 8), uint8_t(data_temp & 0xFF) };
       LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
     }
 
@@ -1001,34 +994,25 @@ namespace Anycubic {
   }
 
   void DgusTFT::ProcessPanelRequest() {
-    unsigned char * p_u8;
-    unsigned int control_index = 0;
-    unsigned int control_value;
-    unsigned int temp;
+    uint16_t control_index = 0;
+    uint32_t control_value;
+    uint16_t temp;
     char str_buf[20];
 
     if (data_received) {
       data_received = false;
 
       if (0x83 == data_buf[0]) {
-        p_u8 = (unsigned char *)(&control_index);// get control address
-        p_u8[0] = data_buf[2];
-        p_u8[1] = data_buf[1];
-
-        if ((control_index & 0xF000) == KEY_ADDRESS) {// is KEY
+        control_index = uint16_t(data_buf[1] << 8) | uint16_t(data_buf[2]);
+        if (control_index == KEY_ADDRESS) { // is KEY
           //key_index = control_index;
-          p_u8 = (unsigned char *)(&key_value);// get key value
-          p_u8[0] = data_buf[5];
-          p_u8[1] = data_buf[4];
+          key_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
         }
 
         #if HAS_HOTEND
-          else if (control_index == TXT_HOTEND_TARGET || control_index == TXT_ADJUST_HOTEND) {// hotend target temp
-            p_u8 = (unsigned char *)(&control_value); // get  value
-            p_u8[0] = data_buf[5];
-            p_u8[1] = data_buf[4];
-
-            temp = constrain((uint16_t)control_value, 0, HEATER_0_MAXTEMP);
+          else if (control_index == TXT_HOTEND_TARGET || control_index == TXT_ADJUST_HOTEND) { // hotend target temp
+            control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
+            temp = constrain(uint16_t(control_value), 0, HEATER_0_MAXTEMP);
             setTargetTemp_celsius(temp, E0);
             //sprintf(str_buf,"%u/%u", (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
             //SendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
@@ -1037,11 +1021,8 @@ namespace Anycubic {
 
         #if HAS_HEATED_BED
           else if (control_index == TXT_BED_TARGET || control_index == TXT_ADJUST_BED) {// bed target temp
-            p_u8 = (unsigned char *)(&control_value);  // get value
-            p_u8[0] = data_buf[5];
-            p_u8[1] = data_buf[4];
-
-            temp = constrain((uint16_t)control_value, 0, BED_MAXTEMP);
+            control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
+            temp = constrain(uint16_t(control_value), 0, BED_MAXTEMP);
             setTargetTemp_celsius(temp, BED);
             //sprintf(str_buf,"%u/%u", uint16_t(thermalManager.degBed()), uint16_t(control_value));
             //SendTxtToTFT(str_buf, TXT_PRINT_BED);
@@ -1050,38 +1031,28 @@ namespace Anycubic {
 
         #if HAS_FAN
           else if (control_index == TXT_FAN_SPEED_TARGET) { // fan speed
-            p_u8 = (unsigned char *)(&control_value); // get value
-            p_u8[0] = data_buf[5];
-            p_u8[1] = data_buf[4];
-
-            temp = constrain((uint16_t)control_value, 0, 100);
-            SendValueToTFT((uint16_t)temp, TXT_FAN_SPEED_NOW);
-            SendValueToTFT((uint16_t)temp, TXT_FAN_SPEED_TARGET);
+            control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
+            temp = constrain(uint16_t(control_value), 0, 100);
+            SendValueToTFT(temp, TXT_FAN_SPEED_NOW);
+            SendValueToTFT(temp, TXT_FAN_SPEED_TARGET);
             setTargetFan_percent(temp, FAN0);
           }
         #endif
 
         else if (control_index == TXT_PRINT_SPEED_TARGET || control_index == TXT_ADJUST_SPEED) { // print speed
-          p_u8 = (unsigned char *)(&control_value); // get value
-          p_u8[0] = data_buf[5];
-          p_u8[1] = data_buf[4];
-
-          float feedrate = constrain((uint16_t)control_value, 40, 999);
+          control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
+          const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
           //feedrate_percentage=constrain(control_value,40,999);
-          sprintf(str_buf, "%u", (uint16_t)feedrate);
+          sprintf(str_buf, "%u", feedrate);
           SendTxtToTFT(str_buf, TXT_PRINT_SPEED);
-          SendValueToTFT((uint16_t)feedrate, TXT_PRINT_SPEED_NOW);
-          SendValueToTFT((uint16_t)feedrate, TXT_PRINT_SPEED_TARGET);
+          SendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
+          SendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);
           setFeedrate_percent(feedrate);
         }
 
         else if (control_index == REG_LCD_READY) {
-          p_u8 = (unsigned char *)(&control_value); // get value
-          p_u8[0] = data_buf[5];
-          p_u8[1] = data_buf[4];
-          p_u8[2] = data_buf[3];
-          if ((control_value & 0x00FFFFFF) == 0x010072) { // startup last gif
-
+          control_value = (uint32_t(data_buf[3]) << 16) | (uint32_t(data_buf[4]) << 8) | uint32_t(data_buf[5]);
+          if (control_value == 0x010072) { // startup last gif
             LcdAudioSet(lcd_info.audio_on);
 
             SendValueToTFT(2, ADDRESS_MOVE_DISTANCE);
@@ -1111,8 +1082,8 @@ namespace Anycubic {
             if (!is_outage) ChangePageOfTFT(PAGE_MAIN);
 
           }
-          else if ((control_value & 0x00FFFFFF) == 0x010000) {  // startup first gif
-            PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);          // take 3500 ms
+          else if (control_value == 0x010000) {         // startup first gif
+            PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);  // takes 3500 ms
           }
         }
 
