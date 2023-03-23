@@ -552,7 +552,7 @@ namespace Anycubic {
           #if ACDEBUG(AC_MARLIN)
             DEBUG_ECHOLNPGM("send M108 ", __LINE__);
           #endif
-          injectCommands_P(PSTR("M108"));
+          injectCommands(F("M108"));
 
           if (pause_state != AC_paused_filament_lack)
             pause_state = AC_paused_idle;
@@ -568,7 +568,7 @@ namespace Anycubic {
           #if ACDEBUG(AC_MARLIN)
             DEBUG_ECHOLNPGM("send M108 ", __LINE__);
           #endif
-          injectCommands_P(PSTR("M108"));
+          injectCommands(F("M108"));
 
           if (pause_state != AC_paused_filament_lack)
             pause_state = AC_paused_idle;
@@ -606,7 +606,7 @@ namespace Anycubic {
           if (strcmp_P(msg + strlen(MACHINE_NAME), MARLIN_msg_ready) == 0) {
             if (probe_cnt == GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y) {
               probe_cnt = 0;
-              injectCommands_P(PSTR("M500"));    // G27 park nozzle
+              injectCommands(F("M500"));    // G27 park nozzle
               //ChangePageOfTFT(PAGE_PreLEVEL);
               FakeChangePageOfTFT(PAGE_PreLEVEL); // Prevent UI refreshing too quickly when probing is done
               printer_state = AC_printer_idle;
@@ -617,7 +617,7 @@ namespace Anycubic {
           // If probing fails don't save the mesh raise the probe above the bad point
           if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
             PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
-            injectCommands_P(PSTR("G1 Z50 F500"));
+            injectCommands(F("G1 Z50 F500"));
             ChangePageOfTFT(PAGE_CHS_ABNORMAL_LEVELING_SENSOR);
             SendtoTFTLN(AC_msg_probing_complete);
             printer_state = AC_printer_idle;
@@ -1037,7 +1037,7 @@ namespace Anycubic {
 
   void DgusTFT::InjectCommandandWait(PGM_P cmd) {
     //injectCommands_P(cmd); queue.enqueue_now_P(cmd);
-    //SERIAL_ECHOLN(PSTR("Inject>"));
+    //SERIAL_ECHOLNPGM("Inject>");
   }
 
   void DgusTFT::ProcessPanelRequest() {
@@ -1226,7 +1226,7 @@ namespace Anycubic {
   void DgusTFT::store_changes() {
     if (lcd_info_back.language != lcd_info.language || lcd_info_back.audio_on != lcd_info.audio_on) {
       lcd_info_back = lcd_info;
-      injectCommands_P(PSTR("M500"));
+      injectCommands(F("M500"));
     }
   }
 
@@ -1378,7 +1378,7 @@ namespace Anycubic {
                 //injectCommands_P(AC_cmnd_power_loss_recovery);
                 //SERIAL_ECHOLNPGM("start resuming from power outage: ", AC_cmnd_power_loss_recovery);
                 ChangePageOfTFT(PAGE_STATUS2);    // show pause
-                injectCommands_P(PSTR("M1000"));  // home and start recovery
+                injectCommands(F("M1000"));       // home and start recovery
               }
             #endif
           }
@@ -1399,7 +1399,7 @@ namespace Anycubic {
 
             // Allows printer to restart the job if we don't want to recover
             if (printer_state == AC_printer_resuming_from_power_outage) {
-              injectCommands_P(PSTR("M1000 C"));   // Cancel recovery
+              injectCommands(F("M1000 C"));   // Cancel recovery
               printer_state = AC_printer_idle;
             }
 
@@ -1568,7 +1568,7 @@ namespace Anycubic {
           printer_state = AC_printer_pausing;
           pause_state = AC_paused_idle;
           ChangePageOfTFT(PAGE_WAIT_PAUSE);
-          //injectCommands_P(PSTR("M108"));     // stop waiting temperature M109
+          //injectCommands(F("M108"));     // stop waiting temperature M109
         }
         break;
 
@@ -1756,7 +1756,7 @@ namespace Anycubic {
         TERN_(HAS_FAN, RequestValueFromTFT(TXT_FAN_SPEED_TARGET));
 
         if (z_change == true) {
-          injectCommands_P(PSTR("M500"));
+          injectCommands(F("M500"));
           z_change = false;
         }
 
@@ -1873,22 +1873,22 @@ namespace Anycubic {
 
       case 5:
         if (!isMoving())
-          injectCommands_P(PSTR("G28 X"));
+          injectCommands(F("G28 X"));
         break;
 
       case 9:
         if (!isMoving())
-          injectCommands_P(PSTR("G28 Y"));
+          injectCommands(F("G28 Y"));
         break;
 
       case 13:
         if (!isMoving())
-          injectCommands_P(PSTR("G28 Z"));
+          injectCommands(F("G28 Z"));
         break;
 
       case 17:
         if (!isMoving())
-          injectCommands_P(PSTR("G28"));
+          injectCommands(F("G28"));
         break;
 
       case 2:       // X-
@@ -2259,7 +2259,7 @@ namespace Anycubic {
             const float currval = getMeshPoint(pos);
             setMeshPoint(pos, constrain(currval + getZOffset_mm(), AC_LOWEST_MESHPOINT_VAL, 5));
           }
-          injectCommands_P(PSTR("M500"));
+          injectCommands(F("M500"));
         #endif
         ChangePageOfTFT(PAGE_PREPARE);
         break;
@@ -2325,7 +2325,7 @@ namespace Anycubic {
 
         case 1:           // return
           filament_status = 0;
-          injectCommands_P(PSTR("G90"));
+          injectCommands(F("G90"));
           ChangePageOfTFT(PAGE_PREPARE);
           break;
 
@@ -2336,7 +2336,7 @@ namespace Anycubic {
           }
           else {
             filament_status = 1;
-            injectCommands_P(PSTR("G91"));
+            injectCommands(F("G91"));
           }
           break;
 
@@ -2347,7 +2347,7 @@ namespace Anycubic {
           }
           else {
             filament_status = 2;
-            injectCommands_P(PSTR("G91"));
+            injectCommands(F("G91"));
           }
           break;
 
@@ -2512,7 +2512,7 @@ namespace Anycubic {
         if (AC_printer_printing == printer_state)
           ChangePageOfTFT(PAGE_STATUS2);              // show pause
         else if (AC_printer_paused == printer_state) {
-          //injectCommands_P(PSTR("M108"));
+          //injectCommands(F("M108"));
           ChangePageOfTFT(PAGE_STATUS1);              // show resume
         }
         break;
@@ -2566,7 +2566,7 @@ namespace Anycubic {
         }
         else {
           if (printer_state == AC_printer_resuming_from_power_outage)
-            injectCommands_P(PSTR("M1000 C"));         // Cancel recovery
+            injectCommands(F("M1000 C"));         // Cancel recovery
           printer_state = AC_printer_idle;
         }
         break;
@@ -2706,7 +2706,7 @@ namespace Anycubic {
         case 0: break;
 
         case 1:         // auto leveling start
-          injectCommands_P(PSTR("G28\nG29"));
+          injectCommands(F("G28\nG29"));
           printer_state = AC_printer_probing;
 
           // this will cause leveling->preheating->leveling
@@ -2785,29 +2785,29 @@ namespace Anycubic {
         break;
 
       case 2: {
-        injectCommands_P(PSTR("M1024 S3"));   // -1
+        injectCommands(F("M1024 S3"));   // -1
         //char value[20]
-        //sprintf_P(value,PSTR("G1 Z%iF%i")); enqueue_and_echo_command_now(value); }
+        //sprintf_P(value, PSTR("G1 Z%iF%i")); enqueue_and_echo_command_now(value); }
       } break;
 
       case 3:
-        injectCommands_P(PSTR("M1024 S4"));   // 1
+        injectCommands(F("M1024 S4"));   // 1
         break;
 
       case 4:
-        injectCommands_P(PSTR("M1024 S1"));   // -0.1
+        injectCommands(F("M1024 S1"));   // -0.1
         break;
 
       case 5:
-        injectCommands_P(PSTR("M1024 S2"));   // 0.1
+        injectCommands(F("M1024 S2"));   // 0.1
         break;
 
       case 6:
-        injectCommands_P(PSTR("M1024 S0"));   // prepare, move x y to center
+        injectCommands(F("M1024 S0"));   // prepare, move x y to center
         break;
 
       case 7:
-        injectCommands_P(PSTR("M1024 S5"));   // 0.1
+        injectCommands(F("M1024 S5"));   // 0.1
         break;
     }
 
@@ -2958,13 +2958,13 @@ namespace Anycubic {
           SendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
           ChangePageOfTFT(PAGE_STATUS2);                   // show pause
-          injectCommands_P(PSTR("M355 S1\nM1000"));        // case light on, home and start recovery
+          injectCommands(F("M355 S1\nM1000"));        // case light on, home and start recovery
         } break;
 
         case 2:       // cancel
           printer_state = AC_printer_idle;
           ChangePageOfTFT(PAGE_MAIN);
-          injectCommands_P(PSTR("M355 S0\nM1000 C"));      // cancel recovery
+          injectCommands(F("M355 S0\nM1000 C"));      // cancel recovery
           break;
       }
     }
@@ -3002,13 +3002,13 @@ namespace Anycubic {
           SendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
           ChangePageOfTFT(PAGE_STATUS2);          // show pause
-          injectCommands_P(PSTR("M355 S1\nM1000"));        // case light on, home and start recovery
+          injectCommands(F("M355 S1\nM1000"));        // case light on, home and start recovery
         } break;
 
         case 2:       // cancel
           printer_state = AC_printer_idle;
           ChangePageOfTFT(PAGE_MAIN);
-          injectCommands_P(PSTR("M355 S0\nM1000 C"));      // cancel recovery
+          injectCommands(F("M355 S0\nM1000 C"));      // cancel recovery
           break;
       }
     }
@@ -3242,7 +3242,7 @@ namespace Anycubic {
 
     delay(3000);
 
-    injectCommands_P(PSTR("G28\nG29"));
+    injectCommands(F("G28\nG29"));
     printer_state = AC_printer_probing;
     ChangePageOfTFT(PAGE_LEVELING);
   }
