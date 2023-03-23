@@ -41,6 +41,7 @@ touch_calibration_t TouchCalibration::calibration;
 calibrationState TouchCalibration::calibration_state = CALIBRATION_NONE;
 touch_calibration_point_t TouchCalibration::calibration_points[4];
 uint8_t TouchCalibration::failed_count;
+millis_t TouchCalibration::next_button_update_ms; // = 0;
 
 void TouchCalibration::validate_calibration() {
   #define VALIDATE_PRECISION(XY, A, B) validate_precision_##XY(CALIBRATION_##A, CALIBRATION_##B)
@@ -89,18 +90,17 @@ void TouchCalibration::validate_calibration() {
   }
 }
 
-bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
-  static millis_t next_button_update_ms = 0;
-  const millis_t now = millis();
+bool TouchCalibration::handleTouch(const uint16_t x, const uint16_t y) {
+  const millis_t now = millis(), next_ms = next_button_update_ms;
 
-  // Avoid registering first touch point as top-left corner when initiating touch calibration since user is touching TFT
-  if (next_button_update_ms == 0) {
-    next_button_update_ms = now + BUTTON_DELAY_MENU;
+  if (next_ms && PENDING(now, next_ms)) return false;
+  next_button_update_ms = now + BUTTON_DELAY_MENU;
+
+  // Ignore the first touch because it was probably the one that entered the screen
+  if (!next_ms) {
+    next_button_update_ms += 500;
     return true;
   }
-
-  if (PENDING(now, next_button_update_ms)) return false;
-  next_button_update_ms = now + BUTTON_DELAY_MENU;
 
   if (calibration_state < CALIBRATION_SUCCESS) {
     calibration_points[calibration_state].raw_x = x;
