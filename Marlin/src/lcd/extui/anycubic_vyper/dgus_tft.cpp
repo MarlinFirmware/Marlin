@@ -718,7 +718,7 @@ namespace Anycubic {
     void DgusTFT::PowerLoss() {
       // On:  5A A5 05 82 00 82 00 00
       // Off: 5A A5 05 82 00 82 00 64
-      uint8_t data_buf[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, recovery.enabled ? 0x00, 0x64 };
+      uint8_t data_buf[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, (uint8_t) (recovery.enabled ? 0x00 : 0x64) };
       for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
     }
 
@@ -782,10 +782,9 @@ namespace Anycubic {
 
   void DgusTFT::SendTxtToTFT(const char *pdata, uint32_t address) {
     uint8_t *p_u8 = (uint8_t *)(&address);
-    uint8_t data_buf[] = { 0x5A, 0xA5, data_len + 5, 0x82, p_u8[1], p_u8[0] };
-    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
-
     uint8_t data_len = strlen(pdata);
+    uint8_t data_buf[] = { 0x5A, 0xA5, (uint8_t) (data_len + 5), 0x82, p_u8[1], p_u8[0] };
+    for (uint8_t i = 0; i < COUNT(data_buf); i++) TFTSer.write(data_buf[i]);
     for (uint8_t i = 0; i < data_len; i++) TFTSer.write(pdata[i]);
 
     TFTSer.write(0xFF); TFTSer.write(0xFF);
