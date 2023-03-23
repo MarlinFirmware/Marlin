@@ -1194,17 +1194,13 @@ class Temperature {
         }
       #endif
 
-    #endif
+    #endif // HAS_PID_HEATING
 
     #if ENABLED(MPC_AUTOTUNE)
-      // Utility class that contains the code for performing measurments when auto tuning MPCTEMP
+      // Utility class to perform MPCTEMP auto tuning measurements
       class MPC_autotuner {
         public:
-          enum MeasurementState {
-            CANCELLED,
-            FAILED,
-            SUCCESS
-          };
+          enum MeasurementState { CANCELLED, FAILED, SUCCESS };
           MPC_autotuner(const uint8_t extruderIdx);
           ~MPC_autotuner();
           MeasurementState measure_ambient_temp();
@@ -1221,6 +1217,10 @@ class Temperature {
           float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
           float get_sample_interval() { return sample_distance * (sample_count >> 1); }
 
+          celsius_float_t get_temp_fastest() { return temp_fastest; }
+          float get_time_fastest() { return time_fastest; }
+          float get_rate_fastest() { return rate_fastest; }
+
           float get_power_fan0() { return power_fan0; }
           #if HAS_FAN
             float get_power_fan255() { return power_fan255; }
@@ -1234,12 +1234,15 @@ class Temperature {
           uint8_t e;
 
           float elapsed_heating_time;
-          celsius_float_t ambient_temp;
-          celsius_float_t current_temp;
+          celsius_float_t ambient_temp, current_temp;
           celsius_float_t temp_samples[16];
           uint8_t sample_count;
           uint16_t sample_distance;
           float t1_time;
+
+          // Parameters from differential analysis
+          celsius_float_t temp_fastest;
+          float time_fastest, rate_fastest;
 
           float power_fan0;
           #if HAS_FAN
@@ -1247,8 +1250,10 @@ class Temperature {
           #endif
       };
 
-      void MPC_autotune(const uint8_t e);
-    #endif
+      enum MPCTuningType { AUTO, FORCE_ASYMPTOTIC, FORCE_DIFFERENTIAL };
+      static void MPC_autotune(const uint8_t e, MPCTuningType tuning_type);
+
+    #endif // MPC_AUTOTUNE
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);

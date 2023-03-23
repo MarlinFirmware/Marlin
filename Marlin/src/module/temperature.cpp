@@ -939,8 +939,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #define SINGLEFAN 1
   #endif
 
-  Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx)
-  {
+  Temperature::MPC_autotuner::MPC_autotuner(const uint8_t extruderIdx) : e(extruderIdx) {
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);
   }
 
@@ -989,7 +988,8 @@ volatile bool Temperature::raw_temps_ready = false;
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
     init_timers();
     const millis_t test_interval_ms = 1000UL;
-    millis_t next_test_ms = curr_time_ms + test_interval_ms;
+    millis_t next_temperature_test_time_ms = curr_time_ms + test_interval_ms;
+    millis_t next_heating_test_time_ms = curr_time_ms + test_interval_ms;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
     current_temp = degHotend(e);
@@ -1001,17 +1001,41 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = (MPC_MAX) >> 1;
 
+    float temp[2]; // Buffer to store 2 previous temperature reading to establish rate of change
+
+    // Initialise rate of change to to steady state at current time
+    temp_fastest = temp[0] = temp[1] = temp[2] = current_temp;
+    time_fastest = rate_fastest = 0;
+
     wait_for_heatup = true;
     for (;;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
-      if (ELAPSED(curr_time_ms, next_test_ms)) {
-        // Record samples between 100C and 200C
+      if (ELAPSED(curr_time_ms, next_heating_test_time_ms)) {
+        // Update the buffer of previous readings
+        temp[0] = temp[1];
+        temp[1] = temp[2];
+        temp[2] = current_temp;
+
+        // Measure the rate of change of temperature, https://en.wikipedia.org/wiki/Symmetric_derivative
+        float h = MS_TO_SEC_PRECISE(test_interval_ms);
+        float curr_rate = (temp[2] - temp[0]) / 2 * h;
+        if (curr_rate > rate_fastest) {
+          // Update fastest values
+          rate_fastest = curr_rate;
+          temp_fastest = temp[1];
+          time_fastest = get_elapsed_heating_time();
+        }
+        next_heating_test_time_ms += test_interval_ms * sample_distance;
+      }
+
+      // Record samples between 100C and 200C
+      if (ELAPSED(curr_time_ms, next_temperature_test_time_ms)) {
         if (current_temp >= 100.0f) {
           // If there are too many samples, space them more widely
           if (sample_count == COUNT(temp_samples)) {
             for (uint8_t i = 0; i < COUNT(temp_samples) / 2; i++)
-              temp_samples[i] = temp_samples[i*2];
+              temp_samples[i] = temp_samples[i * 2];
             sample_count /= 2;
             sample_distance *= 2;
           }
@@ -1022,7 +1046,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
         if (current_temp >= 200.0f) break;
 
-        next_test_ms += test_interval_ms * sample_distance;
+        next_temperature_test_time_ms += test_interval_ms * sample_distance;
       }
     }
     wait_for_heatup = false;
@@ -1032,10 +1056,8 @@ volatile bool Temperature::raw_temps_ready = false;
     elapsed_heating_time = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms);
 
     // Ensure sample count is odd so that we have 3 equally spaced samples
-    if (sample_count == 0)
-      return FAILED;
-    if (sample_count%2 == 0)
-      sample_count--;
+    if (sample_count == 0) return FAILED;
+    if (sample_count % 2 == 0) sample_count--;
 
     return SUCCESS;
   }
@@ -1094,42 +1116,39 @@ volatile bool Temperature::raw_temps_ready = false;
     wait_for_heatup = false;
 
     power_fan0 = total_energy_fan0 / MS_TO_SEC_PRECISE(test_duration);
-    #if HAS_FAN
-      power_fan255 = total_energy_fan255 / MS_TO_SEC_PRECISE(test_duration);
-    #endif
+    TERN_(HAS_FAN, power_fan255 = (total_energy_fan255 * 1000) / test_duration);
 
     return SUCCESS;
   }
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::housekeeping() {
-      const millis_t report_interval_ms = 1000UL;
-      curr_time_ms = millis();
+    const millis_t report_interval_ms = 1000UL;
+    curr_time_ms = millis();
 
-      if (updateTemperaturesIfReady()) { // temp sample ready
-        current_temp = degHotend(e);
-        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(curr_time_ms));
-      }
+    if (updateTemperaturesIfReady()) { // temp sample ready
+      current_temp = degHotend(e);
+      TERN_(HAS_FAN_LOGIC, manage_extruder_fans(curr_time_ms));
+    }
 
-      if (ELAPSED(curr_time_ms, next_report_ms)) {
-        next_report_ms += report_interval_ms;
+    if (ELAPSED(curr_time_ms, next_report_ms)) {
+      next_report_ms += report_interval_ms;
+      print_heater_states(e);
+      SERIAL_EOL();
+    }
 
-        print_heater_states(e);
-        SERIAL_EOL();
-      }
+    hal.idletask();
+    TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
-      hal.idletask();
-      TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+    if (!wait_for_heatup) {
+      SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
+      TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
+      return MeasurementState::CANCELLED;
+    }
 
-      if (!wait_for_heatup) {
-        SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
-        TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_INTERRUPTED));
-        return MeasurementState::CANCELLED;
-      }
+    return MeasurementState::SUCCESS;
+  }
 
-      return MeasurementState::SUCCESS;
-    };
-
-  void Temperature::MPC_autotune(const uint8_t e) {
+  void Temperature::MPC_autotune(const uint8_t e, MPCTuningType tuning_type = AUTO) {
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, e);
 
     MPC_autotuner tuner(e);
@@ -1177,10 +1196,28 @@ volatile bool Temperature::raw_temps_ready = false;
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
+    // Make initial guess at transfer coefficients
     mpc.ambient_xfer_coeff_fan0 = mpc.heater_power * (MPC_MAX) / 255 / (asymp_temp - tuner.get_ambient_temp());
     mpc.fan255_adjustment = 0.0f;
-    mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
-    mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
+
+    if (tuning_type == AUTO || tuning_type == FORCE_ASYMPTOTIC) {
+      // Analytic tuning
+      mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
+      mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
+    }
+
+    // If analytic tuning fails, fall back to differential tuning
+    // If analytic tuning fails, fall back to forcing differential tuning
+    if (tuning_type == AUTO) {
+      if (mpc.sensor_responsiveness <= 0 || mpc.block_heat_capacity <= 0)
+        tuning_type = FORCE_DIFFERENTIAL;
+    }
+
+    if (tuning_type == FORCE_DIFFERENTIAL) {
+      // Differential tuning
+      mpc.block_heat_capacity = mpc.heater_power / tuner.get_rate_fastest();
+      mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_time_fastest());
+    }
 
     hotend.modeled_block_temp = asymp_temp + (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_elapsed_heating_time());
     hotend.modeled_sensor_temp = tuner.get_last_measured_temp();
@@ -1193,17 +1230,22 @@ volatile bool Temperature::raw_temps_ready = false;
     hotend.target = hotend.modeled_block_temp;
     if (tuner.measure_transfer() != MPC_autotuner::MeasurementState::SUCCESS) return;
 
+    // Calculate a new and better asymptotic temperature and re-evaluate the other constants
+    asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
+    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
+
+    // Update the transfer coefficients
     mpc.ambient_xfer_coeff_fan0 = tuner.get_power_fan0() / (hotend.target - tuner.get_ambient_temp());
     #if HAS_FAN
       const float ambient_xfer_coeff_fan255 = tuner.get_power_fan255() / (hotend.target - tuner.get_ambient_temp());
       mpc.applyFanAdjustment(ambient_xfer_coeff_fan255);
     #endif
 
-    // Calculate a new and better asymptotic temperature and re-evaluate the other constants
-    asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
-    block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
-    mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
-    mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
+    if (tuning_type == AUTO || tuning_type == FORCE_ASYMPTOTIC) {
+      // Update analytic tuning values based on the above
+      mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
+      mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
+    }
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
     TERN_(DWIN_LCD_PROUI, DWIN_MPCTuning(MPC_DONE));
