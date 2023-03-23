@@ -298,7 +298,7 @@ class SdBaseFile {
   bool printName();
   int16_t read();
   int16_t read(void *buf, uint16_t nbyte);
-  int8_t readDir(dir_t *dir, char *longFilename);
+  int8_t readDir(dir_t *dir, char * const longFilename);
   static bool remove(SdBaseFile *dirFile, const char *path);
   bool remove();
 
@@ -393,7 +393,7 @@ class SdBaseFile {
   dir_t* readDirCache();
 
   #if ENABLED(UTF_FILENAME_SUPPORT)
-    uint8_t convertUtf16ToUtf8(char *longFilename);
+    uint8_t convertUtf16ToUtf8(char * const longFilename);
   #endif
 
   // Long Filename create/write support

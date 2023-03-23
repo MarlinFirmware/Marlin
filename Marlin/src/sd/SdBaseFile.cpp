@@ -1428,7 +1428,7 @@ int16_t SdBaseFile::read(void *buf, uint16_t nbyte) {
  * readDir() called before a directory has been opened, this is not
  * a directory file or an I/O error occurred.
  */
-int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
+int8_t SdBaseFile::readDir(dir_t *dir, char * const longFilename) {
   int16_t n;
   // if not a directory file or miss-positioned return an error
   if (!isDir() || (0x1F & curPosition_)) return -1;
@@ -1522,7 +1522,7 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
 
 #if ENABLED(UTF_FILENAME_SUPPORT)
 
-  uint8_t SdBaseFile::convertUtf16ToUtf8(char *longFilename) {
+  uint8_t SdBaseFile::convertUtf16ToUtf8(char * const longFilename) {
     #if LONG_FILENAME_CHARSIZE > 2
       // Add warning for developers for unsupported 3-byte cases.
       // (Converting 2-byte codepoints to 3-byte in-place would break the rest of filename.)
