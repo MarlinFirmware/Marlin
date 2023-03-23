@@ -281,7 +281,7 @@ namespace Anycubic {
 
   void DgusTFT::PrinterKilled(FSTR_P error_p, FSTR_P component_p) {
 
-    // copy string in FLASH to RAM so can do strcmp_P
+    // copy string in FLASH to RAM for strcmp_P
 
     uint8_t textLength = FSHlength(error_p);
     char error[FSHlength(error_p) + 1];
@@ -757,7 +757,7 @@ namespace Anycubic {
     LOOP_L_N(i, COUNT(data)) TFTSer.write(data[i]);
   }
 
-  void DgusTFT::ChangePageOfTFT(uint32_t page_index, bool no_send/*=false*/) {
+  void DgusTFT::ChangePageOfTFT(const uint32_t page_index, const bool no_send/*=false*/) {
     #if ACDEBUG(AC_MARLIN)
       DEBUG_ECHOLNPGM("ChangePageOfTFT: ", page_index);
     #endif
@@ -768,16 +768,18 @@ namespace Anycubic {
       data_temp = page_index;
     }
     else if (lcd_info.language == ENG) {
-      if (PAGE_OUTAGE_RECOVERY == page_index)
-        data_temp = PAGE_ENG_OUTAGE_RECOVERY;
-      else if (PAGE_CHS_PROBE_PREHEATING == page_index)
-        data_temp = PAGE_ENG_PROBE_PREHEATING;
-      else if (WITHIN(page_index, PAGE_CHS_HOMING, PAGE_ENG_HOMING))
-        data_temp = page_index + 12;
-      else if (WITHIN(page_index, PAGE_CHS_PROBE_PRECHECK, PAGE_CHS_PROBE_PRECHECK_FAILED))
-        data_temp = page_index + 3;
-      else
-        data_temp = page_index + 120;
+      switch (page_index) {
+        case PAGE_OUTAGE_RECOVERY:
+          data_temp = PAGE_ENG_OUTAGE_RECOVERY; break;
+        case PAGE_CHS_PROBE_PREHEATING:
+          data_temp = PAGE_ENG_PROBE_PREHEATING; break;
+        case PAGE_CHS_HOMING ... PAGE_ENG_HOMING:
+          data_temp = page_index + 12; break;
+        case PAGE_CHS_PROBE_PRECHECK ... PAGE_CHS_PROBE_PRECHECK_FAILED:
+          data_temp = page_index + 3; break;
+        default:
+          data_temp = page_index + 120; break;
+      }
     }
 
     if (!no_send) {
@@ -797,7 +799,7 @@ namespace Anycubic {
     #endif
   }
 
-  void DgusTFT::FakeChangePageOfTFT(uint32_t page_index) {
+  void DgusTFT::FakeChangePageOfTFT(const uint32_t page_index) {
     #if ACDEBUG(AC_MARLIN)
       if (page_index_saved != page_index_now)
         DEBUG_ECHOLNPGM("FakeChangePageOfTFT: ", page_index);
@@ -904,9 +906,9 @@ namespace Anycubic {
     }
   #endif
 
-  int8_t DgusTFT::Findcmndpos(const char * buff, char q) {
-    int8_t pos = 0;
-    do if (buff[pos] == q) return pos; while(++pos < MAX_CMND_LEN);
+  int8_t DgusTFT::Findcmndpos(const char * buff, const char q) {
+    for (int8_t pos = 0; pos < MAX_CMND_LEN; ++pos)
+      if (buff[pos] == q) return pos;
     return -1;
   }
 
@@ -998,11 +1000,6 @@ namespace Anycubic {
     }
   }
 
-  void DgusTFT::InjectCommandandWait(PGM_P cmd) {
-    //injectCommands_P(cmd); queue.enqueue_now_P(cmd);
-    //SERIAL_ECHOLNPGM("Inject>");
-  }
-
   void DgusTFT::ProcessPanelRequest() {
     unsigned char * p_u8;
     unsigned int control_index = 0;
@@ -1033,7 +1030,7 @@ namespace Anycubic {
 
             temp = constrain((uint16_t)control_value, 0, HEATER_0_MAXTEMP);
             setTargetTemp_celsius(temp, E0);
-            //sprintf(str_buf,"%u/%u",(uint16_t)thermalManager.degHotend(0),(uint16_t)control_value);
+            //sprintf(str_buf,"%u/%u", (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
             //SendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
           }
         #endif
@@ -1046,7 +1043,7 @@ namespace Anycubic {
 
             temp = constrain((uint16_t)control_value, 0, BED_MAXTEMP);
             setTargetTemp_celsius(temp, BED);
-            //sprintf(str_buf,"%u/%u",(uint16_t)thermalManager.degBed(),(uint16_t)control_value);
+            //sprintf(str_buf,"%u/%u", uint16_t(thermalManager.degBed()), uint16_t(control_value));
             //SendTxtToTFT(str_buf, TXT_PRINT_BED);
           }
         #endif
@@ -1189,7 +1186,7 @@ namespace Anycubic {
   #if HAS_HOTEND
     void DgusTFT::send_temperature_hotend(uint32_t addr) {
       char str_buf[16];
-      sprintf(str_buf, "%u/%u", (uint16_t)getActualTemp_celsius(E0), (uint16_t)getTargetTemp_celsius(E0));
+      sprintf(str_buf, "%u/%u", uint16_t(getActualTemp_celsius(E0)), uint16_t(getTargetTemp_celsius(E0)));
       SendTxtToTFT(str_buf, addr);
     }
   #endif
@@ -1197,7 +1194,7 @@ namespace Anycubic {
   #if HAS_HEATED_BED
     void DgusTFT::send_temperature_bed(uint32_t addr) {
       char str_buf[16];
-      sprintf(str_buf, "%u/%u", (uint16_t)getActualTemp_celsius(BED), (uint16_t)getTargetTemp_celsius(BED));
+      sprintf(str_buf, "%u/%u", uint16_t(getActualTemp_celsius(BED)), uint16_t(getTargetTemp_celsius(BED)));
       SendTxtToTFT(str_buf, addr);
     }
   #endif
@@ -1370,7 +1367,7 @@ namespace Anycubic {
             sprintf(str_buf, "%5.2f", getFeedrate_percent());
             SendTxtToTFT(str_buf, TXT_PRINT_SPEED);
 
-            sprintf(str_buf, "%u", (uint16_t)getProgress_percent());
+            sprintf(str_buf, "%u", uint16_t(getProgress_percent()));
             SendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
             uint32_t time = 0;
@@ -1457,10 +1454,10 @@ namespace Anycubic {
       case 4:     // print change param
         ChangePageOfTFT(PAGE_ADJUST);
         TERN_(CASE_LIGHT_ENABLE, SendValueToTFT(getCaseLightState(), ADDRESS_PRINT_SETTING_LED_STATUS));
-        TERN_(HAS_HOTEND, SendValueToTFT((uint16_t)getTargetTemp_celsius(E0), TXT_ADJUST_HOTEND));
-        TERN_(HAS_HEATED_BED, SendValueToTFT((uint16_t)getTargetTemp_celsius(BED), TXT_ADJUST_BED));
+        TERN_(HAS_HOTEND, SendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_ADJUST_HOTEND));
+        TERN_(HAS_HEATED_BED, SendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
         feedrate_back = getFeedrate_percent();
-        SendValueToTFT((uint16_t)feedrate_back, TXT_ADJUST_SPEED);
+        SendValueToTFT(uint16_t(feedrate_back), TXT_ADJUST_SPEED);
         flash_time = ms + 1500;
         break;
     }
@@ -1536,11 +1533,11 @@ namespace Anycubic {
       case 4:   // print settings
         ChangePageOfTFT(PAGE_ADJUST);
         TERN_(CASE_LIGHT_ENABLE, SendValueToTFT(getCaseLightState(), ADDRESS_PRINT_SETTING_LED_STATUS));
-        TERN_(HAS_HOTEND, SendValueToTFT((uint16_t)getTargetTemp_celsius(E0), TXT_ADJUST_HOTEND));
-        TERN_(HAS_HEATED_BED, SendValueToTFT((uint16_t)getTargetTemp_celsius(BED), TXT_ADJUST_BED));
+        TERN_(HAS_HOTEND, SendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_ADJUST_HOTEND));
+        TERN_(HAS_HEATED_BED, SendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
         feedrate_back = getFeedrate_percent();
         SendValueToTFT((uint16_t)feedrate_back, TXT_ADJUST_SPEED);
-        TERN_(HAS_FAN, SendValueToTFT((uint16_t)getActualFan_percent(FAN0), TXT_FAN_SPEED_TARGET));
+        TERN_(HAS_FAN, SendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_TARGET));
         str_buf[0] = 0;
         strcat(str_buf, ftostr52sprj(getZOffset_mm()) + 3);
         SendTxtToTFT(str_buf, TXT_LEVEL_OFFSET);
@@ -1761,23 +1758,23 @@ namespace Anycubic {
       case 3:       // set temperature
         ChangePageOfTFT(PAGE_TEMP);
         #if HAS_HOTEND
-          SendValueToTFT((uint16_t)getActualTemp_celsius(E0), TXT_HOTEND_NOW);
-          SendValueToTFT((uint16_t)getTargetTemp_celsius(E0), TXT_HOTEND_TARGET);
+          SendValueToTFT(uint16_t(getActualTemp_celsius(E0)), TXT_HOTEND_NOW);
+          SendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_HOTEND_TARGET);
         #endif
         #if HAS_HEATED_BED
-          SendValueToTFT((uint16_t)getActualTemp_celsius(BED), TXT_BED_NOW);
-          SendValueToTFT((uint16_t)getTargetTemp_celsius(BED), TXT_BED_TARGET);
+          SendValueToTFT(uint16_t(getActualTemp_celsius(BED)), TXT_BED_NOW);
+          SendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_BED_TARGET);
         #endif
         break;
 
       case 4:
         ChangePageOfTFT(PAGE_SPEED);
         #if HAS_FAN
-          SendValueToTFT((uint16_t)getActualFan_percent(FAN0), TXT_FAN_SPEED_NOW);
-          SendValueToTFT((uint16_t)getTargetFan_percent(FAN0), TXT_FAN_SPEED_TARGET);
+          SendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_NOW);
+          SendValueToTFT(uint16_t(getTargetFan_percent(FAN0)), TXT_FAN_SPEED_TARGET);
         #endif
-        SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
-        SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_TARGET);
+        SendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_NOW);
+        SendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_TARGET);
         break;
 
       case 5:       // turn off the xyz motor
@@ -1945,8 +1942,8 @@ namespace Anycubic {
     if (PENDING(ms, flash_time)) return;
     flash_time = ms + 1500;
 
-    SendValueToTFT((uint16_t)getActualTemp_celsius(E0), TXT_HOTEND_NOW);
-    SendValueToTFT((uint16_t)getActualTemp_celsius(BED), TXT_BED_NOW);
+    SendValueToTFT(uint16_t(getActualTemp_celsius(E0)), TXT_HOTEND_NOW);
+    SendValueToTFT(uint16_t(getActualTemp_celsius(BED)), TXT_BED_NOW);
   }
 
   void DgusTFT::page10() {
@@ -1981,8 +1978,8 @@ namespace Anycubic {
     if (PENDING(ms, flash_time)) return;
     flash_time = ms + 1500;
 
-    SendValueToTFT((uint16_t)getActualFan_percent(FAN0), TXT_FAN_SPEED_NOW);
-    SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
+    SendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_NOW);
+    SendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_NOW);
   }
 
   void DgusTFT::page11() {
@@ -2807,7 +2804,7 @@ namespace Anycubic {
         //DEBUG_ECHOLNPGM("update feedrate percent");
       }
     #endif
-    SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
+    SendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_NOW);
   }
 
   void DgusTFT::page125() {  // first time into page 125 the feedrate percent is not set
@@ -2819,7 +2816,7 @@ namespace Anycubic {
         //DEBUG_ECHOLNPGM("update feedrate percent");
       }
     #endif
-    SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
+    SendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_NOW);
   }
 
   void DgusTFT::page170() {  // ENG Mute handler
@@ -2880,7 +2877,6 @@ namespace Anycubic {
         case 0: break;
 
         case 1: {     // resume
-
           ChangePageOfTFT(PAGE_OUTAGE_RECOVERY);
           #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
             card.getLongPath(filename, recovery.info.sd_filename);
@@ -2891,10 +2887,10 @@ namespace Anycubic {
           #endif
 
           char str_buf[20] = { '\0' };
-          sprintf(str_buf, "%u", (uint16_t)getFeedrate_percent());
+          sprintf(str_buf, "%u", uint16_t(getFeedrate_percent()));
           SendTxtToTFT(str_buf, TXT_PRINT_SPEED);
 
-          sprintf(str_buf, "%u", (uint16_t)getProgress_percent());
+          sprintf(str_buf, "%u", uint16_t(getProgress_percent()));
           SendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
           ChangePageOfTFT(PAGE_STATUS2);              // show pause
@@ -2924,7 +2920,6 @@ namespace Anycubic {
         case 0: break;
 
         case 1: {     // resume
-
           ChangePageOfTFT(PAGE_OUTAGE_RECOVERY);
           #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
             card.getLongPath(filename, recovery.info.sd_filename);
@@ -2935,10 +2930,10 @@ namespace Anycubic {
           #endif
 
           char str_buf[20] = { '\0' };
-          sprintf(str_buf, "%u", (uint16_t)getFeedrate_percent());
+          sprintf(str_buf, "%u", uint16_t(getFeedrate_percent()));
           SendTxtToTFT(str_buf, TXT_PRINT_SPEED);
 
-          sprintf(str_buf, "%u", (uint16_t)getProgress_percent());
+          sprintf(str_buf, "%u", uint16_t(getProgress_percent()));
           SendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
           ChangePageOfTFT(PAGE_STATUS2);          // show pause

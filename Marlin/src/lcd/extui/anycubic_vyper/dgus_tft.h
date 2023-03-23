@@ -363,8 +363,8 @@ namespace Anycubic {
       static void MediaEvent(media_event_t);
       static void TimerEvent(timer_event_t);
       static void FilamentRunout();
-      static void ConfirmationRequest(const char * const );
-      static void StatusChange(const char * const );
+      static void ConfirmationRequest(const char * const);
+      static void StatusChange(const char * const);
       static void PowerLoss();
       static void PowerLossRecovery();
       static void HomingStart();
@@ -453,23 +453,22 @@ namespace Anycubic {
       static void SendtoTFT(FSTR_P const=nullptr);
       static void SendtoTFTLN(FSTR_P const=nullptr);
       static bool ReadTFTCommand();
-      static int8_t Findcmndpos(const char *, char);
+      static int8_t Findcmndpos(const char *, const char);
       static void CheckHeaters();
       static void SendFileList(int8_t);
       static void SelectFile();
-      static void InjectCommandandWait(PGM_P);
       static void ProcessPanelRequest();
       static void PanelInfo(uint8_t);
       static void PanelAction(uint8_t);
       static void PanelProcess(uint8_t);
 
-      static void SendValueToTFT(uint32_t value, uint32_t address);
-      static void RequestValueFromTFT(uint32_t address);
-      static void SendTxtToTFT(const char *pdata, uint32_t address);
-      static void SendColorToTFT(uint32_t color, uint32_t address);
-      static void SendReadNumOfTxtToTFT(uint8_t number, uint32_t address);
-      static void ChangePageOfTFT(uint32_t page_index, bool no_send=false);
-      static void FakeChangePageOfTFT(uint32_t page_index);
+      static void SendValueToTFT(const uint16_t value, const uint32_t address);
+      static void RequestValueFromTFT(const uint32_t address);
+      static void SendTxtToTFT(const char *pdata, const uint32_t address);
+      static void SendColorToTFT(const uint32_t color, const uint32_t address);
+      static void SendReadNumOfTxtToTFT(const uint8_t number, const uint32_t address);
+      static void ChangePageOfTFT(const uint32_t page_index, const bool no_send=false);
+      static void FakeChangePageOfTFT(const uint32_t page_index);
       static void LcdAudioSet(const bool audio_on);
 
     private:
