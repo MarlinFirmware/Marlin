@@ -41,7 +41,7 @@
 /**
  * Details on the 30 pin ribbon pins. From: https://3dtoday.ru/blogs/artem-sr/tronxy-x5sa-pro-ustanovka-bfp-touch-na-board-chitu3d-v6-cxy-v6-191017
  *
- * JP2 Ribbon 30
+ * JP2 Ribbon 30 on CXY-V6-191017
  * ----------------------------------------------
  * | 2  4  6  8 10 12 14 16 18 20 22 24 26 28 30|
  * | 1  3  5  7  9 11 13 15 17 19 21 23 25 27 29|
