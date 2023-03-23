@@ -70,7 +70,7 @@ namespace ExtUI {
 
   void onFactoryReset() {
     Dgus.page_index_now = 121;
-    Dgus.lcd_info.audio = ENABLED(SPEAKER) ? AUDIO_OFF : AUDIO_ON;
+    Dgus.lcd_info.audio_on = DISABLED(SPEAKER);
   }
 
   void onStoreSettings(char *buff) {

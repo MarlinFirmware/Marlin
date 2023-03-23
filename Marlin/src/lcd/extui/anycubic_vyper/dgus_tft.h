@@ -316,14 +316,13 @@
 namespace Anycubic {
 
   enum language_t : uint8_t { ENG, CHS };
-  enum audio_t : bool { AUDIO_OFF, AUDIO_ON };
 
   class DgusTFT;
   extern DgusTFT ui;
 
   typedef struct _lcd_info_t {
     language_t language;
-    audio_t audio;
+    bool audio_on;
   } lcd_info_t;
 
   class DgusTFT {
@@ -363,9 +362,8 @@ namespace Anycubic {
     public:
       DgusTFT();
 
-      static lcd_info_t       lcd_info;
-      static lcd_info_t       lcd_info_back;
-      static uint32_t         page_index_now;
+      static lcd_info_t lcd_info, lcd_info_back;
+      static uint32_t   page_index_now;
 
       static void Startup();
       static void ParamInit();
@@ -380,7 +378,12 @@ namespace Anycubic {
       static void PowerLossRecovery();
       static void HomingStart();
       static void HomingComplete();
+
       static void set_language(language_t);
+      static void toggle_language();
+      static void goto_system_page();
+      static void toggle_audio();
+      static void store_changes();
 
       #if HAS_HOTEND
         static void send_temperature_hotend(uint32_t addr);
@@ -475,7 +478,7 @@ namespace Anycubic {
       static void SendReadNumOfTxtToTFT(uint8_t number, uint32_t address);
       static void ChangePageOfTFT(uint32_t page_index, bool no_send=false);
       static void FakeChangePageOfTFT(uint32_t page_index);
-      static void LcdAudioSet(audio_t audio);
+      static void LcdAudioSet(const bool audio_on);
 
     private:
 

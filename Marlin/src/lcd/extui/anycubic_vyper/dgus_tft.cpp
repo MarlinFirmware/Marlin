@@ -142,13 +142,11 @@ namespace Anycubic {
   uint8_t DgusTFT::TFTresumingflag;
   uint8_t DgusTFT::ready;
   int16_t DgusTFT::feedrate_back;
-  lcd_info_t DgusTFT::lcd_info;
-  lcd_info_t DgusTFT::lcd_info_back;  // back for changing on lcd, to save flash lifecycle
+  lcd_info_t DgusTFT::lcd_info, DgusTFT::lcd_info_back;
   language_t DgusTFT::ui_language;
   uint32_t page_index_saved;          // flags to keep from bombing the host display
   uint8_t pop_up_index_saved;
   uint32_t key_value_saved;
-
 
   void DEBUG_PRINT_PAUSED_STATE(FSTR_P const msg, paused_state_t state);
   void DEBUG_PRINT_PRINTER_STATE(FSTR_P const msg, printer_state_t state);
@@ -182,8 +180,7 @@ namespace Anycubic {
     TERN_(HAS_HOTEND, hotend_state = AC_heater_off);
     TERN_(HAS_HEATED_BED, hotbed_state = AC_heater_off);
     file_menu = AC_menu_file;
-    lcd_info.language = ui_language; // use language stored in EEPROM
-    lcd_info_back.language = ui_language;
+    set_language(ui_language); // use language stored in EEPROM
 
     // Filament runout is handled by Marlin settings in Configuration.h
     // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
@@ -207,10 +204,6 @@ namespace Anycubic {
     SendtoTFTLN(AC_msg_ready);
   }
 
-  void DgusTFT::set_language(language_t language) {
-    ui_language = lcd_info.language = lcd_info_back.language = language;
-  }
-
   void DgusTFT::ParamInit() {
 
     #if ACDEBUG(AC_MARLIN)
@@ -222,7 +215,7 @@ namespace Anycubic {
     else if (lcd_info.language == ENG)
       page_index_now = 121;
 
-    LcdAudioSet(lcd_info.audio);
+    LcdAudioSet(lcd_info.audio_on);
 
     #if ACDEBUG(AC_MARLIN)
       if (lcd_info.language == CHS)
@@ -230,7 +223,7 @@ namespace Anycubic {
       else if (lcd_info.language == ENG)
         DEBUG_ECHOLNPGM("ParamInit   lcd language: ENG");
 
-      if (lcd_info.audio == AUDIO_ON)
+      if (lcd_info.audio_on)
         DEBUG_ECHOLNPGM("ParamInit   lcd audio: ON");
       else
         DEBUG_ECHOLNPGM("ParamInit   lcd audio: OFF");
@@ -849,10 +842,10 @@ namespace Anycubic {
     ChangePageOfTFT(page_index, true);
   }
 
-  void DgusTFT::LcdAudioSet(audio_t audio) {
+  void DgusTFT::LcdAudioSet(const bool audio_on) {
     // On:  5A A5 07 82 00 80 5A 00 00 1A
     // Off: 5A A5 07 82 00 80 5A 00 00 12
-    uint8_t data_buf[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x80, 0x5A, 0x00, 0x00, uint8_t(audio == AUDIO_ON : 0x1A : 0x12) };
+    uint8_t data_buf[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x80, 0x5A, 0x00, 0x00, uint8_t(audio_on ? 0x1A : 0x12) };
     LOOP_L_N(i, 10) TFTSer.write(data_buf[i]);
   }
 
@@ -1136,7 +1129,7 @@ namespace Anycubic {
           *p_u8 = data_buf[3];
           if ((control_value & 0x00FFFFFF) == 0x010072) { // startup last gif
 
-            LcdAudioSet(lcd_info.audio);
+            LcdAudioSet(lcd_info.audio_on);
 
             SendValueToTFT(2, ADDRESS_MOVE_DISTANCE);
 
@@ -1209,6 +1202,34 @@ namespace Anycubic {
     }
   #endif
 
+  void DgusTFT::set_language(language_t language) {
+    lcd_info.language = ui_language = lcd_info_back.language = language;
+  }
+
+  void DgusTFT::toggle_language() {
+    lcd_info.language = ui_language = (lcd_info.language == CHS ? ENG : CHS);
+  }
+
+  void DgusTFT::goto_system_page() {
+    if (lcd_info.language == ENG)
+      ChangePageOfTFT(lcd_info.audio_on ? 11 : 50); // PAGE_SYSTEM_ENG_AUDIO_ON/OFF - 120
+    else if (lcd_info.language == CHS)
+      ChangePageOfTFT(lcd_info.audio_on ? PAGE_SYSTEM_CHS_AUDIO_ON : PAGE_SYSTEM_CHS_AUDIO_OFF);
+  }
+
+  void DgusTFT::toggle_audio() {
+    lcd_info.audio_on = !lcd_info.audio_on;
+    goto_system_page();
+    LcdAudioSet(lcd_info.audio_on);
+  }
+
+  void DgusTFT::store_changes() {
+    if (lcd_info_back.language != lcd_info.language || lcd_info_back.audio_on != lcd_info.audio_on) {
+      lcd_info_back = lcd_info;
+      injectCommands_P(PSTR("M500"));
+    }
+  }
+
   #if HAS_HOTEND
     void DgusTFT::send_temperature_hotend(uint32_t addr) {
       char str_buf[16];
@@ -1245,36 +1266,22 @@ namespace Anycubic {
         }
         ChangePageOfTFT(PAGE_FILE);
         SendFileList(0);
-      }
-      break;
+      } break;
 
       case 2: { // tool
         ChangePageOfTFT(PAGE_TOOL);
         #if ENABLED(CASE_LIGHT_ENABLE)
           SendValueToTFT(getCaseLightState(), ADDRESS_SYSTEM_LED_STATUS);
         #endif
-      }
-      break;
+      } break;
 
       case 3: // prepare
         ChangePageOfTFT(PAGE_PREPARE);
         break;
 
-      case 4: { // system
-        if (lcd_info.language == ENG) {
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(11);    // PAGE_SYSTEM_ENG_AUDIO_ON - 120
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(50);   // PAGE_SYSTEM_ENG_AUDIO_OFF - 120
-        }
-        else if (lcd_info.language == CHS) {
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
-      }
-      break;
+      case 4: // system
+        goto_system_page();
+        break;
     }
 
     #if 0
@@ -2035,50 +2042,18 @@ namespace Anycubic {
 
       case 1:       // return
         ChangePageOfTFT(PAGE_MAIN);
-        if (lcd_info_back.language != lcd_info.language || lcd_info_back.audio != lcd_info.audio) {
-          lcd_info_back.language = lcd_info.language;
-          lcd_info_back.audio = lcd_info.audio;
-          injectCommands_P(PSTR("M500"));
-        }
+        store_changes();
         break;
 
       case 2:       // language
-        if (lcd_info.language == CHS) {
-          lcd_info.language = ENG;
-          ui_language       = ENG;
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(11);          // PAGE_SYSTEM_ENG_AUDIO_ON-120
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(50);          // PAGE_SYSTEM_ENG_AUDIO_OFF-120
-        }
-        else if (lcd_info.language == ENG) {
-          lcd_info.language = CHS;
-          ui_language       = CHS;
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
+        toggle_language();
+        goto_system_page();
         break;
 
       case 3: break;
 
       case 4:       // audio
-        if (lcd_info.audio == AUDIO_ON) {
-          lcd_info.audio = AUDIO_OFF;
-          if (lcd_info.language == CHS)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-          else if (lcd_info.language == ENG)
-            ChangePageOfTFT(50);          // PAGE_SYSTEM_ENG_AUDIO_OFF - 120
-        }
-        else if (lcd_info.audio == AUDIO_OFF) {
-          lcd_info.audio = AUDIO_ON;
-          if (lcd_info.language == CHS)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-          else if (lcd_info.language == ENG)
-            ChangePageOfTFT(11);          // PAGE_SYSTEM_ENG_AUDIO_ON - 120
-        }
-        LcdAudioSet(lcd_info.audio);
+        toggle_audio();
         break;
 
       case 5: {      // about
@@ -2123,18 +2098,7 @@ namespace Anycubic {
       case 0: break;
 
       case 1:    // return
-        if (lcd_info.language == ENG) {
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(11);          // PAGE_SYSTEM_ENG_AUDIO_ON - 120
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(50);         // PAGE_SYSTEM_ENG_AUDIO_OFF - 120
-        }
-        else if (lcd_info.language == CHS) {
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
+        goto_system_page();
         break;
 
       case 2: break;
@@ -2866,44 +2830,18 @@ namespace Anycubic {
 
       case 1:
         ChangePageOfTFT(PAGE_MAIN);
-        if (lcd_info_back.language != lcd_info.language
-          || lcd_info_back.audio != lcd_info.audio
-        ) {
-          lcd_info_back.language = lcd_info.language;
-          lcd_info_back.audio = lcd_info.audio;
-          injectCommands_P(PSTR("M500"));
-        }
+        store_changes();
         break;
 
       case 2:       // language
-        if (lcd_info.language == CHS) {
-          lcd_info.language = ui_language = ENG;
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(11);          // PAGE_SYSTEM_ENG_AUDIO_ON-120
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(50);          // PAGE_SYSTEM_ENG_AUDIO_OFF-120
-        }
-        else if (lcd_info.language == ENG) {
-          lcd_info.language = ui_language = CHS;
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
+        toggle_language();
+        goto_system_page();
         break;
 
       case 3: break;
 
       case 4:       // audio
-        if (lcd_info.audio == AUDIO_ON) {
-          lcd_info.audio = AUDIO_OFF;
-          ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
-        else if (lcd_info.audio == AUDIO_OFF) {
-          lcd_info.audio = AUDIO_ON;
-          ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-        }
-        LcdAudioSet(lcd_info.audio);
+        toggle_audio();
         break;
 
       case 5:       // about
@@ -2957,44 +2895,18 @@ namespace Anycubic {
 
       case 1:
         ChangePageOfTFT(PAGE_MAIN);
-        if (lcd_info_back.language != lcd_info.language
-          || lcd_info_back.audio != lcd_info.audio
-        ) {
-          lcd_info_back.language = lcd_info.language;
-          lcd_info_back.audio = lcd_info.audio;
-          injectCommands_P(PSTR("M500"));
-        }
+        store_changes();
         break;
 
       case 2:       // language
-        if (lcd_info.language == CHS) {
-          lcd_info.language = ui_language = ENG;
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(11);          // PAGE_SYSTEM_ENG_AUDIO_ON-120
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(50);          // PAGE_SYSTEM_ENG_AUDIO_OFF-120
-        }
-        else if (lcd_info.language == ENG) {
-          lcd_info.language = ui_language = CHS;
-          if (lcd_info.audio == AUDIO_ON)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-          else if (lcd_info.audio == AUDIO_OFF)
-            ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
+        toggle_language();
+        goto_system_page();
         break;
 
       case 3: break;
 
       case 4:       // audio
-        if (lcd_info.audio == AUDIO_ON) {
-          lcd_info.audio = AUDIO_OFF;
-          ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_OFF);
-        }
-        else if (lcd_info.audio == AUDIO_OFF) {
-          lcd_info.audio = AUDIO_ON;
-          ChangePageOfTFT(PAGE_SYSTEM_CHS_AUDIO_ON);
-        }
-        LcdAudioSet(lcd_info.audio);
+        toggle_audio();
         break;
 
       case 5:       // about
@@ -3416,17 +3328,17 @@ namespace Anycubic {
     DEBUG_ECHOPGM(msg, state);
     switch (state) {
       case AC_paused_heater_timed_out:
-           DEBUG_ECHOLNPGM("  AC_paused_heater_timed_out");
-           break;
+        DEBUG_ECHOLNPGM("  AC_paused_heater_timed_out");
+        break;
       case AC_paused_filament_lack:
-           DEBUG_ECHOLNPGM("  AC_paused_filament_lack");
-           break;
+        DEBUG_ECHOLNPGM("  AC_paused_filament_lack");
+        break;
       case AC_paused_purging_filament:
-           DEBUG_ECHOLNPGM("  AC_paused_purging_filament");
-           break;
+        DEBUG_ECHOLNPGM("  AC_paused_purging_filament");
+        break;
       case AC_paused_idle:
-           DEBUG_ECHOLNPGM("  AC_paused_idle");
-           break;
+        DEBUG_ECHOLNPGM("  AC_paused_idle");
+        break;
     }
   }
 
@@ -3436,29 +3348,29 @@ namespace Anycubic {
     DEBUG_ECHOPGM(msg, state);
     switch (state) {
       case AC_printer_idle:
-           DEBUG_ECHOLNPGM("  AC_printer_idle");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_idle");
+        break;
       case AC_printer_probing:
-           DEBUG_ECHOLNPGM("  AC_printer_probing");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_probing");
+        break;
       case AC_printer_printing:
-           DEBUG_ECHOLNPGM("  AC_printer_printing");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_printing");
+        break;
       case AC_printer_pausing:
-           DEBUG_ECHOLNPGM("  AC_printer_pausing");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_pausing");
+        break;
       case AC_printer_paused:
-           DEBUG_ECHOLNPGM("  AC_printer_paused");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_paused");
+        break;
       case AC_printer_stopping:
-           DEBUG_ECHOLNPGM("  AC_printer_stopping");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_stopping");
+        break;
       case AC_printer_stopping_from_media_remove:
-           DEBUG_ECHOLNPGM("  AC_printer_stopping_from_media_remove");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_stopping_from_media_remove");
+        break;
       case AC_printer_resuming_from_power_outage:
-           DEBUG_ECHOLNPGM("  AC_printer_resuming_from_power_outage");
-           break;
+        DEBUG_ECHOLNPGM("  AC_printer_resuming_from_power_outage");
+        break;
     }
   }
 
@@ -3466,14 +3378,14 @@ namespace Anycubic {
     DEBUG_ECHOPGM(msg, event);
     switch (event) {
       case AC_timer_started:
-           DEBUG_ECHOLNPGM("  AC_timer_started");
-           break;
+        DEBUG_ECHOLNPGM("  AC_timer_started");
+        break;
       case AC_timer_paused:
-           DEBUG_ECHOLNPGM("  AC_timer_paused");
-           break;
+        DEBUG_ECHOLNPGM("  AC_timer_paused");
+        break;
       case AC_timer_stopped:
-           DEBUG_ECHOLNPGM("  AC_timer_stopped");
-           break;
+        DEBUG_ECHOLNPGM("  AC_timer_stopped");
+        break;
     }
   }
 
@@ -3481,14 +3393,14 @@ namespace Anycubic {
     DEBUG_ECHOPGM(msg, event);
     switch (event) {
       case AC_media_inserted:
-           DEBUG_ECHOLNPGM("  AC_media_inserted");
-           break;
+        DEBUG_ECHOLNPGM("  AC_media_inserted");
+        break;
       case AC_media_removed:
-           DEBUG_ECHOLNPGM("  AC_media_removed");
-           break;
+        DEBUG_ECHOLNPGM("  AC_media_removed");
+        break;
       case AC_media_error:
-           DEBUG_ECHOLNPGM("  AC_media_error");
-           break;
+        DEBUG_ECHOLNPGM("  AC_media_error");
+        break;
     }
   }
 
