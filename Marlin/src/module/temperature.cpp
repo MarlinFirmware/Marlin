@@ -1208,6 +1208,11 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   #else
     #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
   #endif
+  #if COOLER_AUTO_FAN_SPEED != 255
+    #define INIT_COOLER_AUTO_FAN_PIN(P) do{ if (PWM_PIN(P)) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
+  #else
+    #define INIT_COOLER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
+  #endif
 
   #ifndef CHAMBER_FAN_INDEX
     #define CHAMBER_FAN_INDEX HOTENDS
@@ -1221,9 +1226,16 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         #define _NEXT_FAN(N) , REPEAT2(N,_EFAN,N) N
         RREPEAT_S(1, HOTENDS, _NEXT_FAN)
       #endif
+      #define _NFAN HOTENDS
       #if HAS_AUTO_CHAMBER_FAN
-        #define _CFAN(B) _FANOVERLAP(CHAMBER,B) ? B :
-        , REPEAT(HOTENDS,_CFAN) (HOTENDS)
+        #define _CHFAN(B) _FANOVERLAP(CHAMBER,B) ? B :
+        , (REPEAT(HOTENDS,_CHFAN) (_NFAN))
+        #undef _NFAN
+        #define _NFAN INCREMENT(HOTENDS)
+      #endif
+      #if HAS_AUTO_COOLER_FAN
+        #define _COFAN(B) _FANOVERLAP(COOLER,B) ? B :
+        , (REPEAT(HOTENDS,_COFAN) (_NFAN))
       #endif
     };
 
@@ -1261,6 +1273,11 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
             chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
             break;
         #endif
+        #if ENABLED(AUTO_POWER_COOLER_FAN)
+          case COOLER_FAN_INDEX:
+            coolerfan_speed = fan_on ? COOLER_AUTO_FAN_SPEED : 0;
+            break;
+        #endif
         default:
           #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
             autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
@@ -1280,6 +1297,9 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         REPEAT(8, AUTOFAN_CASE)
         #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
+        #endif
+        #if HAS_AUTO_COOLER_FAN && !AUTO_COOLER_IS_E
+          case COOLER_FAN_INDEX: _UPDATE_AUTO_FAN(COOLER, fan_on, COOLER_AUTO_FAN_SPEED); break;
         #endif
       }
       SBI(fanDone, realFan);
@@ -2741,6 +2761,9 @@ void Temperature::init() {
     #endif
     #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
       INIT_CHAMBER_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
+    #endif
+    #if HAS_AUTO_COOLER_FAN && !AUTO_COOLER_IS_E
+      INIT_COOLER_AUTO_FAN_PIN(COOLER_AUTO_FAN_PIN);
     #endif
   #endif // HAS_AUTO_FAN
 

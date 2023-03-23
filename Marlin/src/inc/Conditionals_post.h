@@ -2566,10 +2566,15 @@
   #define HAS_AUTO_FAN 1
   #define _FANOVERLAP(A,B) (A##_AUTO_FAN_PIN == E##B##_AUTO_FAN_PIN)
   #define _CHFANOVERLAP(A) || _FANOVERLAP(CHAMBER,B)
+  #define _COFANOVERLAP(A) || _FANOVERLAP(COOLER,B)
   #if HAS_AUTO_FAN && (0 REPEAT(8, _CHFANOVERLAP))
     #define AUTO_CHAMBER_IS_E 1
   #endif
+  #if HAS_AUTO_FAN && (0 REPEAT(8, _COFANOVERLAP))
+    #define AUTO_COOLER_IS_E 1
+  #endif
   #undef _CHFANOVERLAP
+  #undef _COFANOVERLAP
 #endif
 
 // Fans check
@@ -2613,6 +2618,9 @@
 
 #if !HAS_AUTO_CHAMBER_FAN || AUTO_CHAMBER_IS_E
   #undef AUTO_POWER_CHAMBER_FAN
+#endif
+#if !HAS_AUTO_COOLER_FAN || AUTO_COOLER_IS_E
+  #undef AUTO_POWER_COOLER_FAN
 #endif
 
 // Print Cooling fans (limit)
