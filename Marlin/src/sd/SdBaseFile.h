@@ -394,18 +394,16 @@ class SdBaseFile {
 
   #if ENABLED(UTF_FILENAME_SUPPORT)
     uint8_t convertUtf16ToUtf8(char *longFilename);
-  #endif // UTF_FILENAME_SUPPORT
+  #endif
 
   // Long Filename create/write support
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
     static bool isDirLFN(const dir_t* dir);
     static bool isDirNameLFN(const char *dirname);
     static bool parsePath(const char *str, uint8_t *name, uint8_t *lname, const char **ptr);
-    /**
-     * Return the number of entries needed in the FAT for this LFN
-     */
+    // Return the number of entries needed in the FAT for this LFN
     static inline uint8_t getLFNEntriesNum(const char *lname) { return (strlen(lname) + 12) / 13; }
     static void getLFNName(vfat_t *vFatDir, char *lname, uint8_t startOffset);
     static void setLFNName(vfat_t *vFatDir, char *lname, uint8_t lfnSequenceNumber);
-  #endif // LONG_FILENAME_WRITE_SUPPORT
+  #endif
 };
