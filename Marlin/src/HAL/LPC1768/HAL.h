@@ -249,9 +249,9 @@ public:
   static bool adc_ready() { return LPC176x::adc_hardware.done(LPC176x::pin_get_adc_channel(adc_pin)); }
 
   // The current value of the ADC register
-  static uint16_t adc_value() { 
+  static uint16_t adc_value() {
     adc_result = FilteredADC::read(adc_pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
-    return uint16_t(adc_result); 
+    return uint16_t(adc_result);
   }
 
   /**
