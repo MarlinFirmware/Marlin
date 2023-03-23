@@ -987,9 +987,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
   Temperature::MPC_autotuner::MeasurementState Temperature::MPC_autotuner::measure_heatup() {
     init_timers();
-    const millis_t test_interval_ms = 1000UL;
-    millis_t next_temperature_test_time_ms = curr_time_ms + test_interval_ms;
-    millis_t next_heating_test_time_ms = curr_time_ms + test_interval_ms;
+    constexpr millis_t test_interval_ms = 1000UL;
+    millis_t next_temperature_test_time_ms, next_heating_test_time_ms;
+    next_temperature_test_time_ms = next_heating_test_time_ms = curr_time_ms + test_interval_ms;
     MPCHeaterInfo &hotend = temp_hotend[e];
 
     current_temp = degHotend(e);
@@ -1148,7 +1148,7 @@ volatile bool Temperature::raw_temps_ready = false;
     return MeasurementState::SUCCESS;
   }
 
-  void Temperature::MPC_autotune(const uint8_t e, MPCTuningType tuning_type = AUTO) {
+  void Temperature::MPC_autotune(const uint8_t e, MPCTuningType tuning_type=AUTO) {
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_START, e);
 
     MPC_autotuner tuner(e);
