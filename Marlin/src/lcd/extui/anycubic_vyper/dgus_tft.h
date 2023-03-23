@@ -130,15 +130,15 @@
 
 // FILE TXT
 #define TXT_FILE_0          (0x2000+3*0x30)
-#define TXT_DISCRIBE_0      0x5000         //DISCRIBE ADDRESS
+#define TXT_DESCRIPT_0      0x5000         // DESCRIBE ADDRESS
 #define TXT_FILE_1          (0x2000+4*0x30)
-#define TXT_DISCRIBE_1      0x5030
+#define TXT_DESCRIPT_1      0x5030
 #define TXT_FILE_2          (0x2000+5*0x30)
-#define TXT_DISCRIBE_2      0x5060
+#define TXT_DESCRIPT_2      0x5060
 #define TXT_FILE_3          (0x2000+6*0x30)
-#define TXT_DISCRIBE_3      0x5090
+#define TXT_DESCRIPT_3      0x5090
 #define TXT_FILE_4          (0x2000+7*0x30)
-#define TXT_DISCRIBE_4       0x50C0
+#define TXT_DESCRIPT_4      0x50C0
 
 // PRINT TXT
 #define TXT_PRINT_NAME      0x2000+8*0x30
@@ -370,6 +370,7 @@ namespace Anycubic {
       static void HomingStart();
       static void HomingComplete();
 
+      static void set_descript_color(const uint32_t color, const uint8_t index=lcd_txtbox_index);
       static void set_language(language_t);
       static void toggle_language();
       static void goto_system_page();

@@ -363,6 +363,10 @@ namespace Anycubic {
 
   }
 
+  void DgusTFT::set_descript_color(const uint32_t color, const uint8_t index/*=lcd_txtbox_index*/) {
+    SendColorToTFT(color, TXT_DESCRIPT_0 + 0x30 * (index - 1));
+  }
+
   void DgusTFT::MediaEvent(media_event_t event) {
     #if ACDEBUG(AC_MARLIN)
       DEBUG_PRINT_MEDIA_EVENT(F("ProcessMediaStatus() "), event);
@@ -374,7 +378,7 @@ namespace Anycubic {
 
         lcd_txtbox_page = 0;
         if (lcd_txtbox_index) {
-          SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_BLUE);
           lcd_txtbox_index = 0;
         }
 
@@ -389,7 +393,7 @@ namespace Anycubic {
 
         lcd_txtbox_page = 0;
         if (lcd_txtbox_index) {
-          SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_BLUE);
           lcd_txtbox_index = 0;
         }
 
@@ -1213,7 +1217,7 @@ namespace Anycubic {
       case 1: { // main page, print
         lcd_txtbox_page = 0;
         if (lcd_txtbox_index) {
-          SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_BLUE);
           lcd_txtbox_index = 0;
         }
         ChangePageOfTFT(PAGE_FILE);
@@ -1269,14 +1273,14 @@ namespace Anycubic {
 
       case 1: // return
         ChangePageOfTFT(PAGE_MAIN);
-        SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+        set_descript_color(COLOR_BLUE);
         break;
 
       case 2: // page up
         if (lcd_txtbox_page > 0) {
           lcd_txtbox_page--;
 
-          SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_BLUE);
           lcd_txtbox_index = 0;
 
           SendFileList(lcd_txtbox_page * 5);
@@ -1287,7 +1291,7 @@ namespace Anycubic {
         if ((lcd_txtbox_page + 1) * 5 < filenavigator.getFileNum()) {
           lcd_txtbox_page++;
 
-          SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_BLUE);
           lcd_txtbox_index = 0;
 
           SendFileList(lcd_txtbox_page * 5);
@@ -1301,7 +1305,7 @@ namespace Anycubic {
 
         lcd_txtbox_page = 0;
         if (lcd_txtbox_index) {
-          SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_BLUE);
           lcd_txtbox_index = 0;
         }
         SendFileList(lcd_txtbox_index);
@@ -1315,7 +1319,7 @@ namespace Anycubic {
 
           if (filenavigator.filelist.seek(lcd_txtbox_page * 5 + (lcd_txtbox_index - 1))) {
 
-            SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+            set_descript_color(COLOR_BLUE);
 
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(1));
 
@@ -1347,7 +1351,7 @@ namespace Anycubic {
               SERIAL_ECHOLNPGM("start print: ", filenavigator.filelist.longFilename());
             #endif
 
-            SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+            set_descript_color(COLOR_BLUE);
 
             // Allows printer to restart the job if we don't want to recover
             if (printer_state == AC_printer_resuming_from_power_outage) {
@@ -1394,10 +1398,10 @@ namespace Anycubic {
         file_index = lcd_txtbox_page * 5 + (lcd_txtbox_index - 1);
         if (file_index < filenavigator.getFileNum()) {
 
-          SendColorToTFT(COLOR_RED, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index - 1));
+          set_descript_color(COLOR_RED);
 
           if (lcd_txtbox_index_last && lcd_txtbox_index_last != lcd_txtbox_index)    // 1~5
-            SendColorToTFT(COLOR_BLUE, TXT_DISCRIBE_0 + 0x30 * (lcd_txtbox_index_last - 1));
+            set_descript_color(COLOR_BLUE, lcd_txtbox_index_last);
           lcd_txtbox_index_last = lcd_txtbox_index;
         }
       } break;
