@@ -1196,7 +1196,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
 #if HAS_AUTO_FAN
 
-  #define _EFANOVERLAP(A,B) _FANOVERLAP(E##A,B)
+  #define _EFANOVERLAP(I,N) ((I != N) && _FANOVERLAP(I,E##N))
 
   #if EXTRUDER_AUTO_FAN_SPEED != 255
     #define INIT_E_AUTO_FAN_PIN(P) do{ if (PWM_PIN(P)) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
@@ -1219,7 +1219,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   #endif
 
   void Temperature::update_autofans() {
-    #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
+    #define _EFAN(I,N) _EFANOVERLAP(I,N) ? I :
     static const uint8_t fanBit[] PROGMEM = {
       0
       #if HAS_MULTI_HOTEND
@@ -1228,13 +1228,13 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       #endif
       #define _NFAN HOTENDS
       #if HAS_AUTO_CHAMBER_FAN
-        #define _CHFAN(B) _FANOVERLAP(CHAMBER,B) ? B :
+        #define _CHFAN(I) _FANOVERLAP(I,CHAMBER) ? I :
         , (REPEAT(HOTENDS,_CHFAN) (_NFAN))
         #undef _NFAN
         #define _NFAN INCREMENT(HOTENDS)
       #endif
       #if HAS_AUTO_COOLER_FAN
-        #define _COFAN(B) _FANOVERLAP(COOLER,B) ? B :
+        #define _COFAN(I) _FANOVERLAP(I,COOLER) ? I :
         , (REPEAT(HOTENDS,_COFAN) (_NFAN))
       #endif
     };
@@ -2735,28 +2735,29 @@ void Temperature::init() {
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN
+    #define _OREFAN(I,N) || _EFANOVERLAP(I,N)
     #if HAS_AUTO_FAN_0
       INIT_E_AUTO_FAN_PIN(E0_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_1 && !_EFANOVERLAP(1,0)
+    #if HAS_AUTO_FAN_1 && !_EFANOVERLAP(0,1)
       INIT_E_AUTO_FAN_PIN(E1_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_2 && !(_EFANOVERLAP(2,0) || _EFANOVERLAP(2,1))
+    #if HAS_AUTO_FAN_2 && !(0 REPEAT2(2, _OREFAN, 2))
       INIT_E_AUTO_FAN_PIN(E2_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_3 && !(_EFANOVERLAP(3,0) || _EFANOVERLAP(3,1) || _EFANOVERLAP(3,2))
+    #if HAS_AUTO_FAN_3 && !(0 REPEAT2(3, _OREFAN, 3))
       INIT_E_AUTO_FAN_PIN(E3_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_4 && !(_EFANOVERLAP(4,0) || _EFANOVERLAP(4,1) || _EFANOVERLAP(4,2) || _EFANOVERLAP(4,3))
+    #if HAS_AUTO_FAN_4 && !(0 REPEAT2(4, _OREFAN, 4))
       INIT_E_AUTO_FAN_PIN(E4_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_5 && !(_EFANOVERLAP(5,0) || _EFANOVERLAP(5,1) || _EFANOVERLAP(5,2) || _EFANOVERLAP(5,3) || _EFANOVERLAP(5,4))
+    #if HAS_AUTO_FAN_5 && !(0 REPEAT2(5, _OREFAN, 5))
       INIT_E_AUTO_FAN_PIN(E5_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_6 && !(_EFANOVERLAP(6,0) || _EFANOVERLAP(6,1) || _EFANOVERLAP(6,2) || _EFANOVERLAP(6,3) || _EFANOVERLAP(6,4) || _EFANOVERLAP(6,5))
+    #if HAS_AUTO_FAN_6 && !(0 REPEAT2(6, _OREFAN, 6))
       INIT_E_AUTO_FAN_PIN(E6_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_7 && !(_EFANOVERLAP(7,0) || _EFANOVERLAP(7,1) || _EFANOVERLAP(7,2) || _EFANOVERLAP(7,3) || _EFANOVERLAP(7,4) || _EFANOVERLAP(7,5) || _EFANOVERLAP(7,6))
+    #if HAS_AUTO_FAN_7 && !(0 REPEAT2(7, _OREFAN, 7))
       INIT_E_AUTO_FAN_PIN(E7_AUTO_FAN_PIN);
     #endif
     #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
