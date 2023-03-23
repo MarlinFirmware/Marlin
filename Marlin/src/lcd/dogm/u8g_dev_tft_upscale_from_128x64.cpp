@@ -501,26 +501,26 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
 
   void MarlinUI::touch_calibration_screen() {
     uint16_t x, y;
-    calibrationState calibration_stage = touch_calibration.get_calibration_state();
+    calibrationState stage = touch_calibration.get_calibration_state();
 
-    if (calibration_stage == CALIBRATION_NONE) {
+    if (stage == CALIBRATION_NONE) {
       // start and clear screen
       defer_status_screen(true);
-      calibration_stage = touch_calibration.calibration_start();
+      stage = touch_calibration.calibration_start();
       tftio.set_window(0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
       tftio.WriteMultiple(TFT_MARLINBG_COLOR, uint32_t(TFT_WIDTH) * (TFT_HEIGHT));
     }
     else {
       // clear last cross
-      x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
-      y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
+      x = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+      y = touch_calibration.calibration_points[_MIN(stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
       drawCross(x, y, TFT_MARLINBG_COLOR);
     }
 
     FSTR_P str = nullptr;
-    if (calibration_stage < CALIBRATION_SUCCESS) {
+    if (stage < CALIBRATION_SUCCESS) {
       // handle current state
-      switch (calibration_stage) {
+      switch (stage) {
         case CALIBRATION_TOP_LEFT: str = GET_TEXT_F(MSG_TOP_LEFT); break;
         case CALIBRATION_BOTTOM_LEFT: str = GET_TEXT_F(MSG_BOTTOM_LEFT); break;
         case CALIBRATION_TOP_RIGHT:  str = GET_TEXT_F(MSG_TOP_RIGHT); break;
@@ -528,13 +528,13 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
         default: break;
       }
 
-      x = touch_calibration.calibration_points[calibration_stage].x;
-      y = touch_calibration.calibration_points[calibration_stage].y;
+      x = touch_calibration.calibration_points[stage].x;
+      y = touch_calibration.calibration_points[stage].y;
       drawCross(x, y, TFT_MARLINUI_COLOR);
     }
     else {
       // end calibration
-      str = calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT_F(MSG_CALIBRATION_COMPLETED) : GET_TEXT_F(MSG_CALIBRATION_FAILED);
+      str = stage == CALIBRATION_SUCCESS ? GET_TEXT_F(MSG_CALIBRATION_COMPLETED) : GET_TEXT_F(MSG_CALIBRATION_FAILED);
       defer_status_screen(false);
       touch_calibration.calibration_end();
       TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
@@ -548,7 +548,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     } while (u8g.nextPage());
     drawing_screen = false;
     safe_delay(250);
-    if (calibration_stage == CALIBRATION_SUCCESS) {
+    if (stage == CALIBRATION_SUCCESS) {
       safe_delay(500);
       ui.goto_previous_screen();
     }
