@@ -393,68 +393,68 @@ namespace Anycubic {
       #endif
 
       typedef void (*p_fun)();
-      static void page1_handle();
-      static void page2_handle();
-      static void page3_handle();
-      static void page4_handle();
-      static void page5_handle();
-      static void page6_handle();
-      static void page7_handle();   // tool
-      static void page8_handle();
-      static void page9_handle();
-      static void page10_handle();  // fan and print speed
-      static void page11_handle();  // system
-      static void page12_handle();
-      static void page13_handle();
-      static void page14_handle();
-      static void page15_handle();
-      static void page16_handle();
-      static void page17_handle();
-      static void page18_handle();
-      static void page19_handle();
-      static void page20_handle();
-      static void page21_handle();
-      static void page22_handle();
-      static void page23_handle();
-      static void page24_handle();
-      static void page25_handle();
-      static void page26_handle();
-      static void page27_handle();
-      static void page28_handle();
-      static void page29_handle();
-      static void page30_handle();
-      static void page31_handle();
-      static void page32_handle();
+      static void page1();
+      static void page2();
+      static void page3();
+      static void page4();
+      static void page5();
+      static void page6();
+      static void page7();   // tool
+      static void page8();
+      static void page9();
+      static void page10();  // fan and print speed
+      static void page11();  // system
+      static void page12();
+      static void page13();
+      static void page14();
+      static void page15();
+      static void page16();
+      static void page17();
+      static void page18();
+      static void page19();
+      static void page20();
+      static void page21();
+      static void page22();
+      static void page23();
+      static void page24();
+      static void page25();
+      static void page26();
+      static void page27();
+      static void page28();
+      static void page29();
+      static void page30();
+      static void page31();
+      static void page32();
 
       #if HAS_LEVELING
-        static void page33_handle();
+        static void page33();
       #endif
-      static void page34_handle();
-      static void page115_handle();
-      static void page117_handle();     // CHS Mute handler
-      static void page124_handle();
-      static void page125_handle();
-      static void page170_handle();     // ENG Mute handler
+      static void page34();
+      static void page115();
+      static void page117();     // CHS Mute handler
+      static void page124();
+      static void page125();
+      static void page170();     // ENG Mute handler
 
       #if ENABLED(POWER_LOSS_RECOVERY)
-        static void page171_handle();   // CHS power outage resume handler
-        static void page173_handle();   // ENG power outage resume handler
+        static void page171();   // CHS power outage resume handler
+        static void page173();   // ENG power outage resume handler
       #endif
       #if HAS_LEVELING
-        static void page175_handle();   // ENG probe preheating handler
-        static void page176_handle();   // CHS probe preheating handler
+        static void page175();   // ENG probe preheating handler
+        static void page176();   // CHS probe preheating handler
       #endif
 
-      static void page177_to_198_handle();
-      //static void page178_to_181_190_to_193_handle();
-      static void page199_to_200_handle();
+      static void page177_to_198();
+      //static void page178_to_181_190_to_193();
+      static void page199_to_200();
 
-      static void page201_handle();
-      static void page202_handle();
-      static void page203_handle();
-      static void page204_handle();
-      static void page205_handle();
-      static void page206_handle();
+      static void page201();
+      static void page202();
+      static void page203();
+      static void page204();
+      static void page205();
+      static void page206();
 
       static void pop_up_manager();
 
