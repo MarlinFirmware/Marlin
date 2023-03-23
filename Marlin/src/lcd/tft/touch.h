@@ -65,6 +65,7 @@ enum TouchControlType : uint16_t {
   FLOWRATE,
   UBL,
   MOVE_AXIS,
+  STOP,
   BUTTON,
 };
 

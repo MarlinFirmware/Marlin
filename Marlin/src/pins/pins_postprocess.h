@@ -487,6 +487,11 @@
   #define NUM_SERVO_PLUGS 4
 #endif
 
+// Only used within pins files
+#undef NEEDS_X_MINMAX
+#undef NEEDS_Y_MINMAX
+#undef NEEDS_Z_MINMAX
+
 //
 // Assign endstop pins for boards with only 3 connectors
 //

@@ -108,6 +108,7 @@ void GcodeSuite::G34() {
   }
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+
     do { // break out on error
 
       const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
@@ -142,11 +143,7 @@ void GcodeSuite::G34() {
 
       TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
-      // Always home with tool 0 active
-      #if HAS_MULTI_HOTEND
-        const uint8_t old_tool_index = active_extruder;
-        tool_change(0, true);
-      #endif
+      probe.use_probing_tool();
 
       TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
@@ -448,14 +445,16 @@ void GcodeSuite::G34() {
         sync_plan_position();
       #endif
 
-      // Restore the active tool after homing
-      TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER))); // Fetch previous tool for parking extruder
+      probe.use_probing_tool(false);
 
       #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
         set_bed_leveling_enabled(leveling_was_active);
       #endif
 
     }while(0);
+
+    probe.use_probing_tool(false);
+
   #endif // Z_STEPPER_AUTO_ALIGN
 }
 

@@ -246,7 +246,7 @@ namespace Language_fr {
   LSTR MSG_MOVE_05IN                      = _UxGT("Déplacer 0.5\"");
   LSTR MSG_MOVE_1IN                       = _UxGT("Déplacer 1\"");
   LSTR MSG_SPEED                          = _UxGT("Vitesse");
-  LSTR MSG_BED_Z                          = _UxGT("Lit Z");
+  LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Lit Z");
   LSTR MSG_NOZZLE                         = _UxGT("Buse");
   LSTR MSG_NOZZLE_N                       = _UxGT("Buse ~");
   LSTR MSG_BED                            = _UxGT("Lit");
@@ -367,7 +367,7 @@ namespace Language_fr {
   LSTR MSG_STOPPED                        = _UxGT("STOPPÉ");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Rétractation mm");
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ech. rétr. mm");
-  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract°");
+  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract") LCD_STR_DEGREE;
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Saut Z mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Rét.reprise mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Ech.reprise mm");
@@ -378,7 +378,7 @@ namespace Language_fr {
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Vitesse primaire");
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Purge Retract");
-  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract°");
+  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract") LCD_STR_DEGREE;
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Garer Extrudeur");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Vitesse reprise");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Vit.  ventil.");
@@ -443,9 +443,6 @@ namespace Language_fr {
 
   LSTR MSG_HALTED                         = _UxGT("IMPR. STOPPÉE");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Redémarrer SVP");
-  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 
   LSTR MSG_HEATING                        = _UxGT("en chauffe...");
   LSTR MSG_COOLING                        = _UxGT("Refroidissement");
@@ -631,4 +628,31 @@ namespace Language_fr {
 
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Clé USB");
+
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
+  LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
+  LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
+  LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
+  LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
+  LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");
+  LSTR DGUS_MSG_PID_AUTOTUNING            = _UxGT("Autocalibrage du PID...");
+  LSTR DGUS_MSG_INVALID_RECOVERY_DATA     = _UxGT("Donnees de recuperation non valides");
+
+  LSTR DGUS_MSG_HOMING_REQUIRED           = _UxGT("Retour a l'origine necessaire...");
+  LSTR DGUS_MSG_BUSY                      = _UxGT("Occupe");
+  LSTR DGUS_MSG_HOMING                    = _UxGT("Retour a l'origine...");
+  LSTR DGUS_MSG_FW_OUTDATED               = _UxGT("Mise a jour DWIN GUI/OS necessaire");
+  LSTR DGUS_MSG_ABL_REQUIRED              = _UxGT("Nivellement du bed necessaire");
+  LSTR DGUS_MSG_PROBING_FAILED            = _UxGT("Echec du nivellement...");
+  LSTR DGUS_MSG_PROBING_SUCCESS           = _UxGT("Nivellement realise avec succes");
+  LSTR DGUS_MSG_RESET_EEPROM              = _UxGT("Reinitialisation de l'EEPROM");
+  LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Echec ecriture de l'EEPROM");
+  LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Echec lecture de l'EEPROM");
+  LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Sortie de filament E%d");
+
+  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 }
