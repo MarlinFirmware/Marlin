@@ -1289,7 +1289,7 @@ namespace Anycubic {
 
             set_descript_color(COLOR_BLUE);
 
-            TERN_(CASE_LIGHT_ENABLE, setCaseLightState(1));
+            TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
             char str_buf[20];
             strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
@@ -1327,7 +1327,7 @@ namespace Anycubic {
               printer_state = AC_printer_idle;
             }
 
-            TERN_(CASE_LIGHT_ENABLE, setCaseLightState(1));
+            TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
             printFile(filenavigator.filelist.shortFilename());
 
             char str_buf[20];
@@ -1655,16 +1655,11 @@ namespace Anycubic {
       #endif // MESH_EDIT_MENU
 
       #if ENABLED(CASE_LIGHT_ENABLE)
-        case 4:   // light control
-          if (getCaseLightState()) {
-            SendValueToTFT(0, ADDRESS_PRINT_SETTING_LED_STATUS);
-            setCaseLightState(0);
-          }
-          else {
-            SendValueToTFT(1, ADDRESS_PRINT_SETTING_LED_STATUS);
-            setCaseLightState(1);
-          }
-          break;
+        case 4: {   // light control
+          const bool cls = !getCaseLightState();
+          SendValueToTFT(cls, ADDRESS_PRINT_SETTING_LED_STATUS);
+          setCaseLightState(cls);
+        } break;
       #endif
 
       case 5:
@@ -1754,16 +1749,11 @@ namespace Anycubic {
         break;
 
       #if ENABLED(CASE_LIGHT_ENABLE)
-        case 6:       // light control
-          if (getCaseLightState()) {
-            setCaseLightState(0);
-            SendValueToTFT(0, ADDRESS_SYSTEM_LED_STATUS);
-          }
-          else {
-            setCaseLightState(1);
-            SendValueToTFT(1, ADDRESS_SYSTEM_LED_STATUS);
-          }
-          break;
+        case 6: {   // light control
+          const bool cls = !getCaseLightState();
+          SendValueToTFT(cls, ADDRESS_SYSTEM_LED_STATUS);
+          setCaseLightState(cls);
+        } break;
       #endif
     }
   }
@@ -2361,7 +2351,7 @@ namespace Anycubic {
       case 0: break;
 
       case 1:          // OK to finish
-        TERN_(CASE_LIGHT_ENABLE, setCaseLightState(0));
+        TERN_(CASE_LIGHT_ENABLE, setCaseLightState(false));
         ChangePageOfTFT(PAGE_MAIN);
         break;
 
@@ -2543,7 +2533,7 @@ namespace Anycubic {
       case 0: break;
 
       case 1:        // return
-        TERN_(CASE_LIGHT_ENABLE, setCaseLightState(0));
+        TERN_(CASE_LIGHT_ENABLE, setCaseLightState(false));
         ChangePageOfTFT(PAGE_MAIN);
         break;
 
