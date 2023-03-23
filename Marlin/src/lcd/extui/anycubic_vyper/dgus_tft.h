@@ -341,21 +341,12 @@ namespace Anycubic {
     static bool         data_received;
     static uint8_t      data_buf[DATA_BUF_SIZE];
     static uint8_t      data_index;
-    static uint32_t     page_index_last;
-    static uint32_t     page_index_last_2;
+    static uint32_t     page_index_last, page_index_last_2;
     static uint8_t      message_index;
     static uint8_t      pop_up_index;
-    static uint32_t     key_index;
     static uint32_t     key_value;
-    static uint16_t     filenumber;
-    static uint16_t     filepage;
     static uint8_t      lcd_txtbox_index;
     static uint8_t      lcd_txtbox_page;
-    static uint16_t     change_color_index;
-    static uint8_t      TFTpausingFlag;
-    static uint8_t      TFTStatusFlag;
-    static uint8_t      TFTresumingflag;
-    static uint8_t      ready;
     static int16_t      feedrate_back;
     static language_t   ui_language;
 
@@ -363,7 +354,7 @@ namespace Anycubic {
       DgusTFT();
 
       static lcd_info_t lcd_info, lcd_info_back;
-      static uint32_t   page_index_now;
+      static uint32_t page_index_now;
 
       static void Startup();
       static void ParamInit();
