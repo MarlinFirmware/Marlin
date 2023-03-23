@@ -341,7 +341,7 @@ namespace Anycubic {
     static bool         data_received;
     static uint8_t      data_buf[DATA_BUF_SIZE];
     static uint8_t      data_index;
-    static uint32_t     page_index_last, page_index_last_2;
+    static uint16_t     page_index_last, page_index_last_2;
     static uint8_t      message_index;
     static uint8_t      pop_up_index;
     static uint32_t     key_value;
@@ -354,7 +354,7 @@ namespace Anycubic {
       DgusTFT();
 
       static lcd_info_t lcd_info, lcd_info_back;
-      static uint32_t page_index_now;
+      static uint16_t page_index_now;
 
       static void Startup();
       static void ParamInit();
@@ -370,7 +370,7 @@ namespace Anycubic {
       static void HomingStart();
       static void HomingComplete();
 
-      static void set_descript_color(const uint32_t color, const uint8_t index=lcd_txtbox_index);
+      static void set_descript_color(const uint16_t color, const uint8_t index=lcd_txtbox_index);
       static void set_language(language_t);
       static void toggle_language();
       static void goto_system_page();
@@ -462,13 +462,13 @@ namespace Anycubic {
       static void PanelAction(uint8_t);
       static void PanelProcess(uint8_t);
 
-      static void SendValueToTFT(const uint16_t value, const uint32_t address);
-      static void RequestValueFromTFT(const uint32_t address);
-      static void SendTxtToTFT(const char *pdata, const uint32_t address);
-      static void SendColorToTFT(const uint32_t color, const uint32_t address);
-      static void SendReadNumOfTxtToTFT(const uint8_t number, const uint32_t address);
-      static void ChangePageOfTFT(const uint32_t page_index, const bool no_send=false);
-      static void FakeChangePageOfTFT(const uint32_t page_index);
+      static void SendValueToTFT(const uint16_t value, const uint16_t address);
+      static void RequestValueFromTFT(const uint16_t address);
+      static void SendTxtToTFT(const char *pdata, const uint16_t address);
+      static void SendColorToTFT(const uint16_t color, const uint16_t address);
+      static void SendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
+      static void ChangePageOfTFT(const uint16_t page_index, const bool no_send=false);
+      static void FakeChangePageOfTFT(const uint16_t page_index);
       static void LcdAudioSet(const bool audio_on);
 
     private:
