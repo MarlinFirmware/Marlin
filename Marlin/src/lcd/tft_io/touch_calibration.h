@@ -57,7 +57,7 @@ class TouchCalibration {
 public:
   static calibrationState calibration_state;
   static touch_calibration_point_t calibration_points[4];
-  static millis_t next_button_update_ms;
+  static millis_t next_touch_update_ms;
 
   static bool validate_precision(int32_t a, int32_t b) { return (a > b ? (100 * b) / a :  (100 * a) / b) > TOUCH_SCREEN_CALIBRATION_PRECISION; }
   static bool validate_precision_x(uint8_t a, uint8_t b) { return validate_precision(calibration_points[a].raw_x, calibration_points[b].raw_x); }
@@ -70,7 +70,7 @@ public:
   static bool need_calibration() { return !calibration.offset_x && !calibration.offset_y && !calibration.x && !calibration.y; }
 
   static calibrationState calibration_start() {
-    next_button_update_ms = 0;
+    next_touch_update_ms = millis() + 750UL;
     calibration = { 0, 0, 0, 0, TOUCH_ORIENTATION_NONE };
     calibration_state = CALIBRATION_TOP_LEFT;
     calibration_points[CALIBRATION_TOP_LEFT].x = 30;
