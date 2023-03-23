@@ -55,6 +55,7 @@ jobs:
         - rambo
         - sanguino1284p
         - sanguino644p
+        - melzi_optiboot
 
         # STM32F1 (Maple) Environments
 

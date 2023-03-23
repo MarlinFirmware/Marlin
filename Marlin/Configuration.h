@@ -691,6 +691,7 @@
  * @section mpctemp
  */
 #if ENABLED(MPCTEMP)
+  //#define MPC_AUTOTUNE                              // Include a method to do MPC auto-tuning (~5664-5882 bytes of flash)
   //#define MPC_EDIT_MENU                             // Add MPC editing to the "Advanced Settings" menu. (~1300 bytes of flash)
   //#define MPC_AUTOTUNE_MENU                         // Add MPC auto-tuning to the "Advanced Settings" menu. (~350 bytes of flash)
 
@@ -1345,19 +1346,17 @@
 /**
  * Z_MIN_PROBE_PIN
  *
- * Define this pin if the probe is not connected to Z_MIN_PIN.
- * If not defined the default pin for the selected MOTHERBOARD
- * will be used. Most of the time the default is what you want.
+ * Override this pin only if the probe cannot be connected to
+ * the default Z_MIN_PROBE_PIN for the selected MOTHERBOARD.
  *
  *  - The simplest option is to use a free endstop connector.
  *  - Use 5V for powered (usually inductive) sensors.
  *
- *  - RAMPS 1.3/1.4 boards may use the 5V, GND, and Aux4->D32 pin:
- *    - For simple switches connect...
- *      - normally-closed switches to GND and D32.
- *      - normally-open switches to 5V and D32.
+ *  - For simple switches...
+ *    - Normally-closed (NC) also connect to GND.
+ *    - Normally-open (NO) also connect to 5V.
  */
-//#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default
+//#define Z_MIN_PROBE_PIN -1
 
 /**
  * Probe Type
@@ -1388,10 +1387,13 @@
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
-//#define Z_PROBE_SERVO_NR 0          // Defaults to SERVO 0 connector.
-//#define Z_SERVO_ANGLES { 70, 0 }    // Z Servo Deploy and Stow angles
-//#define Z_SERVO_MEASURE_ANGLE 45    // Use if the servo must move to a "free" position for measuring after deploy.
-//#define Z_SERVO_INTERMEDIATE_STOW   // Stow the probe between points.
+//#define Z_PROBE_SERVO_NR 0
+#ifdef Z_PROBE_SERVO_NR
+  //#define Z_SERVO_ANGLES { 70, 0 }      // Z Servo Deploy and Stow angles
+  //#define Z_SERVO_MEASURE_ANGLE 45      // Use if the servo must move to a "free" position for measuring after deploy
+  //#define Z_SERVO_INTERMEDIATE_STOW     // Stow the probe between points
+  //#define Z_SERVO_DEACTIVATE_AFTER_STOW // Deactivate the servo when probe is stowed
+#endif
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
@@ -1549,6 +1551,12 @@
  *     O-- FRONT --+
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+
+// Enable and set to use a specific tool for probing. Disable to allow any tool.
+#define PROBING_TOOL 0
+#ifdef PROBING_TOOL
+  //#define PROBE_TOOLCHANGE_NO_MOVE  // Suppress motion on probe tool-change
+#endif
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1895,6 +1903,47 @@
     // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
     // large enough to avoid false positives.)
     //#define FILAMENT_MOTION_SENSOR
+
+    #if ENABLED(FILAMENT_MOTION_SENSOR)
+      //#define FILAMENT_SWITCH_AND_MOTION
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+        #define NUM_MOTION_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_MOTION#_PIN for each.
+        //#define FIL_MOTION1_PIN    -1
+
+        // Override individually if the motion sensors vary
+        //#define FIL_MOTION1_STATE LOW
+        //#define FIL_MOTION1_PULLUP
+        //#define FIL_MOTION1_PULLDOWN
+
+        //#define FIL_MOTION2_STATE LOW
+        //#define FIL_MOTION2_PULLUP
+        //#define FIL_MOTION2_PULLDOWN
+
+        //#define FIL_MOTION3_STATE LOW
+        //#define FIL_MOTION3_PULLUP
+        //#define FIL_MOTION3_PULLDOWN
+
+        //#define FIL_MOTION4_STATE LOW
+        //#define FIL_MOTION4_PULLUP
+        //#define FIL_MOTION4_PULLDOWN
+
+        //#define FIL_MOTION5_STATE LOW
+        //#define FIL_MOTION5_PULLUP
+        //#define FIL_MOTION5_PULLDOWN
+
+        //#define FIL_MOTION6_STATE LOW
+        //#define FIL_MOTION6_PULLUP
+        //#define FIL_MOTION6_PULLDOWN
+
+        //#define FIL_MOTION7_STATE LOW
+        //#define FIL_MOTION7_PULLUP
+        //#define FIL_MOTION7_PULLDOWN
+
+        //#define FIL_MOTION8_STATE LOW
+        //#define FIL_MOTION8_PULLUP
+        //#define FIL_MOTION8_PULLDOWN
+      #endif
+    #endif
   #endif
 #endif
 
@@ -2055,6 +2104,9 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define UBL_HILBERT_CURVE       // Use Hilbert distribution for less travel when probing multiple points
+
+  //#define UBL_TILT_ON_MESH_POINTS         // Use nearest mesh points with G29 J for better Z reference
+  //#define UBL_TILT_ON_MESH_POINTS_3POINT  // Use nearest mesh points with G29 J0 (3-point)
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
