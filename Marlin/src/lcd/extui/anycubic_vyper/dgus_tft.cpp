@@ -821,7 +821,7 @@ namespace Anycubic {
         cnt = 0;
         length = 0;
         data_index = 0;
-        data_received = 0;
+        data_received = false;
         return false;
       }
 
@@ -843,7 +843,7 @@ namespace Anycubic {
           DEBUG_ECHOLNPGM("lcd uart buff overflow: ", data_index);
         #endif
         data_index = 0;
-        data_received = 0;
+        data_received = false;
         return false;
       }
       data_buf[data_index++] = data;
@@ -852,7 +852,7 @@ namespace Anycubic {
         tft_receive_steps = 0;
         cnt = 0;
         data_index = 0;
-        data_received = 1;
+        data_received = true;
         return true;
       }
     }
@@ -1007,29 +1007,25 @@ namespace Anycubic {
     char str_buf[20];
 
     if (data_received) {
-
-      data_received = 0;
+      data_received = false;
 
       if (0x83 == data_buf[0]) {
         p_u8 = (unsigned char *)(&control_index);// get control address
-        *p_u8 = data_buf[2];
-        p_u8++;
-        *p_u8 = data_buf[1];
+        p_u8[0] = data_buf[2];
+        p_u8[1] = data_buf[1];
 
         if ((control_index & 0xF000) == KEY_ADDRESS) {// is KEY
           //key_index = control_index;
           p_u8 = (unsigned char *)(&key_value);// get key value
-          *p_u8 = data_buf[5];
-          p_u8++;
-          *p_u8 = data_buf[4];
+          p_u8[0] = data_buf[5];
+          p_u8[1] = data_buf[4];
         }
 
         #if HAS_HOTEND
           else if (control_index == TXT_HOTEND_TARGET || control_index == TXT_ADJUST_HOTEND) {// hotend target temp
             p_u8 = (unsigned char *)(&control_value); // get  value
-            *p_u8 = data_buf[5];
-            p_u8++;
-            *p_u8 = data_buf[4];
+            p_u8[0] = data_buf[5];
+            p_u8[1] = data_buf[4];
 
             temp = constrain((uint16_t)control_value, 0, HEATER_0_MAXTEMP);
             setTargetTemp_celsius(temp, E0);
@@ -1040,24 +1036,22 @@ namespace Anycubic {
 
         #if HAS_HEATED_BED
           else if (control_index == TXT_BED_TARGET || control_index == TXT_ADJUST_BED) {// bed target temp
-            p_u8  =  (unsigned char *)(&control_value);  // get value
-            *p_u8 = data_buf[5];
-            p_u8++;
-            *p_u8 = data_buf[4];
+            p_u8 = (unsigned char *)(&control_value);  // get value
+            p_u8[0] = data_buf[5];
+            p_u8[1] = data_buf[4];
 
             temp = constrain((uint16_t)control_value, 0, BED_MAXTEMP);
             setTargetTemp_celsius(temp, BED);
-            // sprintf(str_buf,"%u/%u",(uint16_t)thermalManager.degBed(),(uint16_t)control_value);
-            // SendTxtToTFT(str_buf, TXT_PRINT_BED);
+            //sprintf(str_buf,"%u/%u",(uint16_t)thermalManager.degBed(),(uint16_t)control_value);
+            //SendTxtToTFT(str_buf, TXT_PRINT_BED);
           }
         #endif
 
         #if HAS_FAN
           else if (control_index == TXT_FAN_SPEED_TARGET) { // fan speed
-            p_u8  =  (unsigned char *)(&control_value); // get value
-            *p_u8 = data_buf[5];
-            p_u8++;
-            *p_u8 = data_buf[4];
+            p_u8 = (unsigned char *)(&control_value); // get value
+            p_u8[0] = data_buf[5];
+            p_u8[1] = data_buf[4];
 
             temp = constrain((uint16_t)control_value, 0, 100);
             SendValueToTFT((uint16_t)temp, TXT_FAN_SPEED_NOW);
@@ -1067,10 +1061,9 @@ namespace Anycubic {
         #endif
 
         else if (control_index == TXT_PRINT_SPEED_TARGET || control_index == TXT_ADJUST_SPEED) { // print speed
-          p_u8  =  (unsigned char *)(&control_value); // get value
-          *p_u8 = data_buf[5];
-          p_u8++;
-          *p_u8 = data_buf[4];
+          p_u8 = (unsigned char *)(&control_value); // get value
+          p_u8[0] = data_buf[5];
+          p_u8[1] = data_buf[4];
 
           float feedrate = constrain((uint16_t)control_value, 40, 999);
           //feedrate_percentage=constrain(control_value,40,999);
@@ -1083,9 +1076,9 @@ namespace Anycubic {
 
         else if (control_index == REG_LCD_READY) {
           p_u8 = (unsigned char *)(&control_value); // get value
-          *p_u8 = data_buf[5]; p_u8++;
-          *p_u8 = data_buf[4]; p_u8++;
-          *p_u8 = data_buf[3];
+          p_u8[0] = data_buf[5];
+          p_u8[1] = data_buf[4];
+          p_u8[2] = data_buf[3];
           if ((control_value & 0x00FFFFFF) == 0x010072) { // startup last gif
 
             LcdAudioSet(lcd_info.audio_on);
@@ -2682,7 +2675,7 @@ namespace Anycubic {
                 ChangePageOfTFT(PAGE_LEVELING);
 
             #else
-                  ChangePageOfTFT(PAGE_LEVELING);
+              ChangePageOfTFT(PAGE_LEVELING);
             #endif
           #endif
 
@@ -2739,9 +2732,7 @@ namespace Anycubic {
     switch (key_value) {
 
       case 0: break;
-      case 1:
-        ChangePageOfTFT(PAGE_PreLEVEL);
-        break;
+      case 1: ChangePageOfTFT(PAGE_PreLEVEL); break;
 
       case 2: {
         injectCommands(F("M1024 S3"));   // -1
@@ -2749,25 +2740,11 @@ namespace Anycubic {
         //sprintf_P(value, PSTR("G1 Z%iF%i")); enqueue_and_echo_command_now(value); }
       } break;
 
-      case 3:
-        injectCommands(F("M1024 S4"));   // 1
-        break;
-
-      case 4:
-        injectCommands(F("M1024 S1"));   // -0.1
-        break;
-
-      case 5:
-        injectCommands(F("M1024 S2"));   // 0.1
-        break;
-
-      case 6:
-        injectCommands(F("M1024 S0"));   // prepare, move x y to center
-        break;
-
-      case 7:
-        injectCommands(F("M1024 S5"));   // 0.1
-        break;
+      case 3: injectCommands(F("M1024 S4")); break; // 1
+      case 4: injectCommands(F("M1024 S1")); break; // -0.1
+      case 5: injectCommands(F("M1024 S2")); break; // 0.1
+      case 6: injectCommands(F("M1024 S0")); break; // prepare, move x y to center
+      case 7: injectCommands(F("M1024 S5")); break; // 0.1
     }
 
     static millis_t flash_time = 0;
