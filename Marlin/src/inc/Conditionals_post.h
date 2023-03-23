@@ -2499,7 +2499,7 @@
   #if EITHER(PIDTEMP, PIDTEMPBED)
     #define DWIN_PID_TUNE 1
   #endif
-  #if EITHER(DWIN_PID_TUNE, MPCTEMP) && DISABLED(DISABLE_TUNING_GRAPH)
+  #if EITHER(DWIN_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
     #define SHOW_TUNING_GRAPH 1
   #endif
 #endif
@@ -2664,7 +2664,7 @@
 #endif
 
 /**
- * Up to 3 PWM fans
+ * Up to 8 PWM fans
  */
 #ifndef FAN_INVERTING
   #define FAN_INVERTING false

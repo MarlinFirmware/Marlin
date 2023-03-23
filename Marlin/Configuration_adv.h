@@ -303,9 +303,12 @@
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
-  //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
-  #if ENABLED(ADAPTIVE_FAN_SLOWING) && EITHER(MPCTEMP, PIDTEMP)
-    //#define TEMP_TUNING_MAINTAIN_FAN        // Don't slow fan speed during M303 or M306 T
+  //#define ADAPTIVE_FAN_SLOWING              // Slow down the part-cooling fan if the temperature drops
+  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+    //#define REPORT_ADAPTIVE_FAN_SLOWING     // Report fan slowing activity to the console
+    #if EITHER(MPCTEMP, PIDTEMP)
+      //#define TEMP_TUNING_MAINTAIN_FAN      // Don't slow down the fan speed during M303 or M306 T
+    #endif
   #endif
 
   /**
@@ -368,10 +371,35 @@
 
 #if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER)
   /**
-   * Thermal Protection Variance Monitor - EXPERIMENTAL.
-   * Kill the machine on a stuck temperature sensor. Disable if you get false positives.
+   * Thermal Protection Variance Monitor - EXPERIMENTAL
+   * Kill the machine on a stuck temperature sensor.
+   *
+   * This feature may cause some thermally-stable systems to halt. Be sure to test it throughly under
+   * a variety of conditions. Disable if you get false positives.
+   *
+   * This feature ensures that temperature sensors are updating regularly. If sensors die or get "stuck",
+   * or if Marlin stops reading them, temperatures will remain constant while heaters may still be powered!
+   * This feature only monitors temperature changes so it should catch any issue, hardware or software.
+   *
+   * By default it uses the THERMAL_PROTECTION_*_PERIOD constants (above) for the time window, within which
+   * at least one temperature change must occur, to indicate that sensor polling is working. If any monitored
+   * heater's temperature remains totally constant (without even a fractional change) during this period, a
+   * thermal malfunction error occurs and the printer is halted.
+   *
+   * A very stable heater might produce a false positive and halt the printer. In this case, try increasing
+   * the corresponding THERMAL_PROTECTION_*_PERIOD constant a bit. Keep in mind that uncontrolled heating
+   * shouldn't be allowed to persist for more than a minite or two.
+   *
+   * Be careful to distinguish false positives from real sensor issues before disabling this feature. If the
+   * heater's temperature appears even slightly higher than expected after restarting, you may have a real
+   * thermal malfunction. Check the temperature graph in your host for any unusual bumps.
    */
-  //#define THERMAL_PROTECTION_VARIANCE_MONITOR   // Detect a sensor malfunction preventing temperature updates
+  //#define THERMAL_PROTECTION_VARIANCE_MONITOR
+  #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+    // Variance detection window to override the THERMAL_PROTECTION...PERIOD settings above.
+    // Keep in mind that some heaters heat up faster than others.
+    //#define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD 30  // (s) Override all watch periods
+  #endif
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -3160,7 +3188,7 @@
    *
    * It is recommended to set HOMING_BUMP_MM to { 0, 0, 0 }.
    *
-   * SPI_ENDSTOPS  *** Beta feature! *** TMC2130/TMC5160 Only ***
+   * SPI_ENDSTOPS  *** TMC2130/TMC5160 Only ***
    * Poll the driver through SPI to determine load when homing.
    * Removes the need for a wire from DIAG1 to an endstop pin.
    *
@@ -3188,7 +3216,7 @@
     //#define U_STALL_SENSITIVITY  8
     //#define V_STALL_SENSITIVITY  8
     //#define W_STALL_SENSITIVITY  8
-    //#define SPI_ENDSTOPS              // TMC2130 only
+    //#define SPI_ENDSTOPS              // TMC2130/TMC5160 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
 
@@ -3207,10 +3235,9 @@
    //#define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
-   * Beta feature!
-   * Create a 50/50 square wave step pulse optimal for stepper drivers.
+   * Step on both rising and falling edge signals (as with a square wave).
    */
-  //#define SQUARE_WAVE_STEPPING
+  //#define EDGE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.

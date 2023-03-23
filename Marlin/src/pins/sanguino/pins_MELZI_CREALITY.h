@@ -46,11 +46,12 @@
 // LCD / Controller
 //
 #if ANY(MKS_MINI_12864, CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
-  #if ENABLED(CR10_STOCKDISPLAY)
+  #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define LCD_PINS_RS                       28  // ST9720 CS
     #define LCD_PINS_ENABLE                   17  // ST9720 DAT
     #define LCD_PINS_D4                       30  // ST9720 CLK
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #endif
+  #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
     #define DOGLCD_CS                         28
     #define DOGLCD_A0                         30
   #endif
