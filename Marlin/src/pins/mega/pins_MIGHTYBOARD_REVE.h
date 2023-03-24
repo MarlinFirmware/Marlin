@@ -158,9 +158,9 @@
 // Heaters / Fans (24V)
 //
 
-#define HEATER_0_PIN                MOSFET_1_PIN // EX1
-#define HEATER_1_PIN                MOSFET_3_PIN // EX2
-#define HEATER_BED_PIN              MOSFET_5_PIN // HBP
+#define HEATER_0_PIN                MOSFET_1_PIN  // EX1
+#define HEATER_1_PIN                MOSFET_3_PIN  // EX2
+#define HEATER_BED_PIN              MOSFET_5_PIN  // HBP
 
 // EX1 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
 #ifndef E0_AUTO_FAN_PIN
