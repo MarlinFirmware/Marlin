@@ -2094,7 +2094,10 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #ifdef CPU_32_BIT
 
-    return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
+    if (step_rate != 0)
+      return uint32_t(STEPPER_TIMER_RATE) / step_rate; // A fast processor can just do integer division
+
+    return HAL_TIMER_TYPE_MAX;
 
   #else
 
@@ -2254,7 +2257,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-            la_interval = calc_timer_interval(acc_step_rate + la_step_rate) << current_block->la_scaling;
+            la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
           }
         #endif
 
@@ -2326,7 +2329,7 @@ hal_timer_t Stepper::block_phase_isr() {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             if (la_step_rate != step_rate) {
               bool reverse_e = la_step_rate > step_rate;
-              la_interval = calc_timer_interval(reverse_e ? la_step_rate - step_rate : step_rate - la_step_rate) << current_block->la_scaling;
+              la_interval = calc_timer_interval((reverse_e ? la_step_rate - step_rate : step_rate - la_step_rate) >> current_block->la_scaling);
 
               if (reverse_e != motor_direction(E_AXIS)) {
                 TBI(last_direction_bits, E_AXIS);
@@ -2384,7 +2387,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
           #if ENABLED(LIN_ADVANCE)
             if (la_active)
-              la_interval = calc_timer_interval(current_block->nominal_rate) << current_block->la_scaling;
+              la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
         }
 
@@ -2706,7 +2709,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {
           const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-          la_interval = calc_timer_interval(current_block->initial_rate + la_step_rate) << current_block->la_scaling;
+          la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
         }
       #endif
     }
