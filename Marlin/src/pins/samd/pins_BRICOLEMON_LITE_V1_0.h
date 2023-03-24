@@ -284,7 +284,6 @@
         //#define DOGLCD_SCK                  23
         //#define DOGLCD_A0          LCD_PINS_DC
 
-
       #else
         // Definitions for any standard Display
         #define LCD_PINS_RS          EXP1_04_PIN

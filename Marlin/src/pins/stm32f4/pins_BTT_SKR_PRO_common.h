@@ -172,18 +172,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PC12
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PC11
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PC10
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PC12
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PC11
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PC10
 #endif
 
 #if HAS_TMC_UART
@@ -487,7 +485,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
     #define DOGLCD_SCK               EXP1_04_PIN
     #define DOGLCD_MOSI              EXP1_02_PIN
-    #define LCD_BACKLIGHT_PIN            -1
+    #define LCD_BACKLIGHT_PIN               -1
 
   #else
 

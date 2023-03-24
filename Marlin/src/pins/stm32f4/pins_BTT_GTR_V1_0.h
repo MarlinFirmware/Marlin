@@ -202,18 +202,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PG15
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB6
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB3
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PG15
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PB6
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PB3
 #endif
 
 #if HAS_TMC_UART
@@ -304,9 +302,9 @@
 //#define TEMP_0_MOSI_PIN                   ...   // For MAX31865
 
 #define TEMP_1_CS_PIN                       PH2   // M5 K-TEMP
-#define TEMP_1_SCK_PIN           TEMP_0_SCK_PIN
-#define TEMP_1_MISO_PIN         TEMP_0_MISO_PIN
-//#define TEMP_1_MOSI_PIN       TEMP_0_MOSI_PIN
+#define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN          TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
 
 //
 // Heaters / Fans
