@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.3 for Anycubic
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME "Anycubic RAMPS 1.3"

@@ -24,6 +24,7 @@
 /**
  * Arduino Mega with RAMPS-S v1.2 by Sakul.cz pin assignments
  * Written by Michal Rábek <rabek33@gmail.com>
+ * ATmega2560
  *
  * Applies to the following boards:
  *

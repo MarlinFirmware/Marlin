@@ -23,6 +23,10 @@
 
 /**
  * 3DRAG (and K8200 / K8400) Arduino Mega with RAMPS v1.4 pin assignments
+ * This may be compatible with the standalone Controller variant.
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/3DRAG%20+%20Controller/Schema_base.jpg
+ * Origin: https://reprap.org/wiki/File:Schema_base.jpg
+ * ATmega2560, ATmega1280
  */
 
 #ifndef BOARD_INFO_NAME

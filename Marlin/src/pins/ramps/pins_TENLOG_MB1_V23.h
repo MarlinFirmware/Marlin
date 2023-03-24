@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * Tenlog pin assignments
+ * Tenlog MB1 V2.3 pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560

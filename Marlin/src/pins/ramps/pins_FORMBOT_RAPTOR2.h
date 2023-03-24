@@ -23,6 +23,7 @@
 
 /**
  * Formbot Raptor 2 pin assignments
+ * ATmega2560
  */
 
 #define BOARD_INFO_NAME      "Formbot Raptor2"

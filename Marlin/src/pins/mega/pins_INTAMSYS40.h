@@ -23,6 +23,7 @@
 
 /**
  * Intamsys Funmat HT V4.0 Mainboard
+ * ATmega2560
  * 4988 Drivers Tested
  * 2208 version exists and may or may not work
  */

@@ -23,6 +23,7 @@
 
 /**
  * Formbot Raptor pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560

@@ -23,6 +23,10 @@
 
 /**
  * BIQU BQ111-A4 pin assignments
+ *
+ * Applies to the following boards:
+ *
+ *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
  */
 
 #include "env_validate.h"

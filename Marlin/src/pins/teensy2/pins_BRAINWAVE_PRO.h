@@ -26,6 +26,8 @@
  *
  * Requires hardware bundle for Arduino:
  * https://github.com/unrepentantgeek/brainwave-arduino
+ *
+ * Not to be confused with the regular Brainwave controller (https://www.reprap.org/wiki/Brainwave)
  */
 
 /**

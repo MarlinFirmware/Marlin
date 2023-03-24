@@ -23,6 +23,7 @@
 
 /**
  * VERTEX NANO Arduino Mega with RAMPS EFB v1.4 pin assignments.
+ * ATmega2560, ATmega1280
  */
 
 #if HAS_MULTI_HOTEND

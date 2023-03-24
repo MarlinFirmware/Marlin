@@ -23,6 +23,8 @@
 
 /**
  * Cohesion3D Mini pin assignments
+ * Pinout: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Cohesion3D%20Mini/c3d-pinout.jpg
+ * Origin: https://lasergods.com/cohesion3d-mini-pinout-diagram/
  */
 
 #include "env_validate.h"

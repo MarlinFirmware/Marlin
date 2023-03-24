@@ -23,6 +23,7 @@
 
 /**
  * Wanhao 0ne+ pin assignments
+ * ATmega2560
  */
 
 #include "env_validate.h"

@@ -23,6 +23,7 @@
 
 /**
  * Leapfrog Driver board pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #define ALLOW_MEGA1280

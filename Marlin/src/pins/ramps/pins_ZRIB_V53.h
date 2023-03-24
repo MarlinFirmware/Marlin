@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ZONESTAR ZRIB V5.3 Based on MKS BASE v1.4 with A4982 stepper drivers and digital micro-stepping
+ * ATmega2560, ATmega1280
  */
 
 #include "env_validate.h"

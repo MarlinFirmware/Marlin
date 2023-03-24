@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * STB V1.1 pin assignments
+ * STB Electronics V1.1 pin assignments
+ * https://www.reprap.org/wiki/STB_Electronics
  */
 
 #define BOARD_INFO_NAME "STB V1.1"
