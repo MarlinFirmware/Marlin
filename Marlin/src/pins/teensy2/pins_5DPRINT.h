@@ -64,6 +64,8 @@
 
 /**
  * 5DPrint D8 Driver board pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/5DPrint%20D8/5DPD8_v1.0_OS_schematics.PDF
+ * Origin: https://bitbucket.org/makible/5dprint-d8-controller-board/src/master/5DPD8_v1.0_OS_schematics.PDF
  *
  * https://bitbucket.org/makible/5dprint-d8-controller-board
  */

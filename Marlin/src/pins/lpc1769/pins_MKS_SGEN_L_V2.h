@@ -23,6 +23,8 @@
 
 /**
  * MKS SGen-L V2 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SGEN_L%20V2/MKS%20SGEN_L%20V2.0_003%20SCH.pdf
+ * Origin: https://github.com/makerbase-mks/MKS-SGEN_L-V2/blob/master/Hardware/MKS%20SGEN_L%20V2.0_003/MKS%20SGEN_L%20V2.0_003%20SCH.pdf
  */
 
 #include "env_validate.h"

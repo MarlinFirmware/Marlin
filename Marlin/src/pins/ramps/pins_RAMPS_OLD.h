@@ -23,6 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.0, v1.1, v1.2 pin assignments
+ * ATmega2560, ATmega1280
  */
 
 #include "env_validate.h"

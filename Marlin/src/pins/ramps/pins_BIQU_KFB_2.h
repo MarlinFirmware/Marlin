@@ -23,6 +23,7 @@
 
 /**
  * KFB 2.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ * ATmega2560
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2

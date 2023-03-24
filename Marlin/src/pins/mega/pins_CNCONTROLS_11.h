@@ -23,6 +23,9 @@
 
 /**
  * CartesioV11 pin assignments
+ * Comes with an Arduino Mega, see
+ * https://web.archive.org/web/20171024190029/http://mauk.cc/mediawiki/index.php/Electronical_assembly
+ * ATmega2560, ATmega1280
  */
 
 #define ALLOW_MEGA1280

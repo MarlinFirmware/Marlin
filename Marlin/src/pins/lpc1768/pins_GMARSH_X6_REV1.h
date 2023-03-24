@@ -23,6 +23,8 @@
 
 /**
  * GMARSH X6 Rev.1 pin assignments
+ * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/GMARSH%20X6%20Rev.1/armprinter_2208_1heater.pdf
+ * Origin: https://github.com/gmarsh/gmarsh_x6/blob/master/armprinter_2208_1heater.pdf
  */
 
 #include "env_validate.h"

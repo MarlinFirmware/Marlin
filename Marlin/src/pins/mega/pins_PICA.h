@@ -23,6 +23,9 @@
 
 /**
  * Arduino Mega with PICA pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/PICA/pica_schematic.pdf
+ * Origin: https://github.com/mjrice/PICA/blob/master/pica_schematic.pdf
+ * ATmega2560
  *
  * PICA is Power, Interface, and Control Adapter and is open source hardware.
  * See https://github.com/mjrice/PICA for schematics etc.

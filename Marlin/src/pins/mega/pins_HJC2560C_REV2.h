@@ -23,6 +23,7 @@
 
 /**
  * Geeetech HJC2560-C Rev 2.x board pin assignments
+ * ATmega2560
  */
 
 #include "env_validate.h"

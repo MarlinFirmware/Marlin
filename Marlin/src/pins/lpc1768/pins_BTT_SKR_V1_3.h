@@ -23,6 +23,8 @@
 
 /**
  * BigTreeTech SKR 1.3 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20V1.3/SKR-V1.3-SCH.pdf
+ * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.3/blob/master/BTT%20SKR%20V1.3/hardware/SKR-V1.3-SCH.pdf
  */
 
 #define BOARD_INFO_NAME "BTT SKR V1.3"

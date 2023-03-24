@@ -25,7 +25,7 @@
  * Rambo pin assignments MODIFIED FOR Scoovo X9H
  ************************************************/
 
-#include "env_target.h"
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Scoovo X9H"
 

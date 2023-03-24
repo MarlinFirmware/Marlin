@@ -21,6 +21,10 @@
  */
 #pragma once
 
+// Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/PICAOLD/pica_schematic.pdf
+// Origin: https://github.com/mjrice/PICA/blob/97ab9e7771a8e5eef97788f3adcc17a9fa9de9b9/pica_schematic.pdf
+// ATmega2560
+
 #define HEATER_0_PIN                          9   // E0
 #define HEATER_1_PIN                         10   // E1
 #define FAN_PIN                              11

@@ -23,6 +23,8 @@
 
 /**
  * FLYmaker FLY-CDY pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/FLYmaker%20FLY-CDY%20V1/FLY_CDY%20SCH.pdf
+ * Origin: https://github.com/Mellow-3D/FLY-CDY/blob/master/Motherboard%20information/FLY_CDY%20SCH.pdf
  */
 
 #include "env_validate.h"

@@ -23,6 +23,7 @@
 
 /**
  * Einstart-S pin assignments
+ * ATmega2560, ATmega1280
  * PCB Silkscreen: 3DPrinterCon_v3.5
  */
 

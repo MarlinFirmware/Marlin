@@ -23,6 +23,9 @@
 
 /**
  * Elefu RA Board Pin Assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Elefu%20Ra%20v3/schematic.pdf
+ * Origin: https://github.com/kiyoshigawa/Elefu-RAv3/blob/master/RA_Circuits.zip
+ * ATmega2560
  */
 
 #include "env_validate.h"

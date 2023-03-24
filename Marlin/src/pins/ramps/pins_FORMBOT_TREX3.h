@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * Formbot pin assignments
+ * Formbot T-Rex 3 pin assignments
+ * ATmega2560
  */
 
 #define REQUIRE_MEGA2560

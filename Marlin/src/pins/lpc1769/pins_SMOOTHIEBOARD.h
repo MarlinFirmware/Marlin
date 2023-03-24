@@ -23,6 +23,8 @@
 
 /**
  * Smoothieware Smoothieboard pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Smoothieware%20Smoothieboard%20V1/http.i.imgur.com.oj4zqs3.png
+ * Origin: http://smoothieware.org/_media///external/http.i.imgur.com.oj4zqs3.png
  */
 
 #include "env_validate.h"
